@@ -1,0 +1,164 @@
+// local_tests/phase161/test_rep1_inline.hako
+// Inline test for rep1_if_simple MIR analysis
+
+static box Main {
+  main(args) {
+    print("Phase 161-2: Testing MirAnalyzerBox on rep1_if_simple")
+    print("=======================================================")
+
+    // Minimal MIR JSON for testing (simplified from actual rep1)
+    local mir_json = '{"capabilities":["unified_call","phi","effects","callee_typing"],"functions":[{"name":"Main.main/0","params":[],"entry":7,"blocks":[{"id":7,"instructions":[{"op":"const","dst":2,"value":{"type":"i64","value":5}},{"op":"const","dst":5,"value":{"type":"i64","value":3}},{"op":"compare","operation":">","lhs":9,"rhs":10,"dst":8},{"op":"branch","cond":12,"then":8,"else":9}]},{"id":8,"instructions":[{"op":"const","dst":18,"value":{"type":"i64","value":10}},{"op":"jump","target":10}]},{"id":9,"instructions":[{"op":"const","dst":24,"value":{"type":"i64","value":20}},{"op":"jump","target":10}]},{"id":10,"instructions":[{"op":"phi","dst":30,"incoming":[[18,8],[24,9]]},{"op":"ret","value":32}]}]}]}'
+
+    // Parse and analyze
+    print("")
+    print("Step 1: Creating MirAnalyzerBox...")
+
+    local analyzer = new MirAnalyzerBox(mir_json)
+
+    if analyzer == null {
+      print("FAIL: Failed to create analyzer")
+      return 1
+    }
+
+    print("SUCCESS: MirAnalyzerBox created")
+
+    // Test 1: Validate schema
+    print("")
+    print("Step 2: Validating schema...")
+
+    local valid = analyzer.validateSchema()
+    if valid == 1 {
+      print("SUCCESS: Schema is valid")
+    } else {
+      print("FAIL: Schema validation failed")
+      return 1
+    }
+
+    // Test 2: Summarize function
+    print("")
+    print("Step 3: Summarizing function 0...")
+
+    local summary = analyzer.summarize_function(0)
+    if summary == null {
+      print("FAIL: summarize_function returned null")
+      return 1
+    }
+
+    local name = summary.get("name")
+    local blocks = summary.get("block_count")
+    local instructions = summary.get("instruction_count")
+    local has_phi = summary.get("has_phis")
+    local has_if = summary.get("has_ifs")
+    local has_loop = summary.get("has_loops")
+
+    print("Function name: " + name)
+    print("Blocks: " + blocks)
+    print("Instructions: " + instructions)
+    print("Has PHI: " + has_phi)
+    print("Has If: " + has_if)
+    print("Has Loop: " + has_loop)
+
+    // Verify expected values
+    local pass_count = 0
+
+    if name == "Main.main/0" {
+      print("  [OK] Function name correct")
+      pass_count = pass_count + 1
+    } else {
+      print("  [FAIL] Function name mismatch")
+    }
+
+    if blocks == 4 {
+      print("  [OK] Block count correct (4)")
+      pass_count = pass_count + 1
+    } else {
+      print("  [FAIL] Block count mismatch (expected 4, got " + blocks + ")")
+    }
+
+    if has_phi == 1 {
+      print("  [OK] PHI detected")
+      pass_count = pass_count + 1
+    } else {
+      print("  [FAIL] PHI not detected")
+    }
+
+    if has_if == 1 {
+      print("  [OK] If detected")
+      pass_count = pass_count + 1
+    } else {
+      print("  [FAIL] If not detected")
+    }
+
+    if has_loop == 0 {
+      print("  [OK] No loop (correct)")
+      pass_count = pass_count + 1
+    } else {
+      print("  [FAIL] Loop incorrectly detected")
+    }
+
+    // Test 3: Count PHI instructions
+    print("")
+    print("Step 4: Counting PHI instructions...")
+
+    local phi_list = analyzer.count_phis(0)
+    if phi_list == null {
+      print("FAIL: count_phis returned null")
+      return 1
+    }
+
+    local phi_count = phi_list.size()
+    print("PHI count: " + phi_count)
+
+    if phi_count == 1 {
+      print("  [OK] Correct PHI count (1)")
+      pass_count = pass_count + 1
+
+      local phi = phi_list.get(0)
+      local block_id = phi.get("block_id")
+      local dest = phi.get("dest")
+      local incoming_count = phi.get("incoming_count")
+
+      print("  PHI details: block=" + block_id + " dest=r" + dest + " incoming=" + incoming_count)
+
+      if block_id == 10 {
+        print("    [OK] PHI in correct block (10)")
+        pass_count = pass_count + 1
+      }
+
+      if incoming_count == 2 {
+        print("    [OK] Correct incoming count (2)")
+        pass_count = pass_count + 1
+      }
+    } else {
+      print("  [FAIL] Incorrect PHI count (expected 1, got " + phi_count + ")")
+    }
+
+    // Test 4: Count loops
+    print("")
+    print("Step 5: Counting loops...")
+
+    local loop_count = analyzer.count_loops(0)
+    print("Loop count: " + loop_count)
+
+    if loop_count == 0 {
+      print("  [OK] No loops detected (correct)")
+      pass_count = pass_count + 1
+    } else {
+      print("  [FAIL] Loops incorrectly detected (expected 0, got " + loop_count + ")")
+    }
+
+    // Final results
+    print("")
+    print("=======================================================")
+    print("Test Results: " + pass_count + " / 9 checks passed")
+    print("=======================================================")
+
+    if pass_count == 9 {
+      print("SUCCESS: All tests passed!")
+      return 0
+    } else {
+      print("PARTIAL: Some tests failed")
+      return 1
+    }
+  }
+}

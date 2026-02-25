@@ -1,0 +1,26 @@
+// Phase 274 P2: TypeOp (is/as) on LLVM harness
+// Goal: prevent compile-time folding by creating a runtime-unknown union value.
+
+static box Main {
+    main() {
+        // Runtime-unknown condition: depends on script args.
+        // The CLI writes script args into env as JSON when invoked with `-- ...`.
+        // (The smoke passes one arg to force the "then" path at runtime.)
+        local args_json = env.env.get("NYASH_SCRIPT_ARGS_JSON")
+
+        local x
+        if args_json {
+            x = 1
+        } else {
+            x = "nope"
+        }
+
+        // Must remain as TypeOp at MIR level (not constant-folded).
+        if !x.is("Integer") { return 101 }
+
+        local y = x.as("Integer")
+        if y != 1 { return 102 }
+
+        return 3
+    }
+}

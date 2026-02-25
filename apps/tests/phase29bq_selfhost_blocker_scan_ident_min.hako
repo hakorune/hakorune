@@ -1,0 +1,34 @@
+// Phase 29bq: scan_ident minimal (selfhost blocker extraction)
+// Expected output: ab1@0
+static box Utils {
+  is_alpha(ch) { return ch == "a" || ch == "b" }
+  is_digit(ch) { return ch == "1" }
+  i2s(v) { return "0" }
+}
+
+static box Main {
+  scan_ident_min(src, i) {
+    local j = i
+    local n = src.length()
+    if j >= n { return "@" + Utils.i2s(i) }
+    local ch = src.substring(j, j + 1)
+    if !(Utils.is_alpha(ch) || ch == "_") { return "@" + Utils.i2s(i) }
+    j = j + 1
+    loop(j < n) {
+      local ch2 = src.substring(j, j + 1)
+      if Utils.is_alpha(ch2) || Utils.is_digit(ch2) || ch2 == "_" {
+        j = j + 1
+        continue
+      }
+      break
+    }
+    local s = src.substring(i, j)
+    return s + "@" + Utils.i2s(j)
+  }
+
+  main() {
+    local out = Main.scan_ident_min("ab1Z", 0)
+    print(out)
+    return 0
+  }
+}

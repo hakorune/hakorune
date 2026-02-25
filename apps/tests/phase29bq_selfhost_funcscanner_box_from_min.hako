@@ -1,0 +1,21 @@
+// phase29bq_selfhost_funcscanner_box_from_min.hako
+// Stage-B FuncScanner delegated-box header pin:
+//   static box Child from Parent { ... }
+
+static box Parent {
+  ping() {
+    return 1
+  }
+}
+
+static box Child from Parent {
+  run() {
+    return 2
+  }
+}
+
+static box Main {
+  main() {
+    return 0
+  }
+}

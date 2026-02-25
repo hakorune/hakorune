@@ -1,0 +1,46 @@
+// Minimal fixture for _decode_escapes idx=12 If with nested loop
+// Blocker: JsonFragBox._decode_escapes/1 - loop_cond_continue_only reject
+// Reject: unsupported_stmt idx=12 kind=If (If body contains nested loop)
+// Structure: loop(i < n) { ...11 stmts... if(e=="u"){ nested loop(k<4) } }
+static box Main {
+  main() {
+    local s1 = "test\\u0041"
+    local n = s1.length()
+    local out = ""
+    local i = 0
+
+    loop(i < n) {
+      local ch = s1.substring(i, i+1)                          // idx=0
+      if ch != "\\" { out = out + ch  i = i + 1  continue }    // idx=1
+      if i + 1 >= n { out = out + "\\"  i = i + 1  continue }  // idx=2
+      local e = s1.substring(i+1, i+2)                         // idx=3
+      if e == "\\" { i = i + 2  continue }                     // idx=4
+      if e == "\"" { i = i + 2  continue }                     // idx=5
+      if e == "/" { i = i + 2  continue }                      // idx=6
+      if e == "b" { i = i + 2  continue }                      // idx=7
+      if e == "f" { i = i + 2  continue }                      // idx=8
+      if e == "n" { i = i + 2  continue }                      // idx=9
+      if e == "r" { i = i + 2  continue }                      // idx=10
+      if e == "t" { i = i + 2  continue }                      // idx=11
+      if e == "u" {                                            // idx=12 - nested loop
+        if i + 6 <= n {
+          local h = s1.substring(i+2, i+6)
+          local val = 0
+          local k = 0
+          loop(k < 4) {
+            local c = h.substring(k, k+1)
+            if c >= "0" && c <= "9" { val = val * 16 }
+            k = k + 1
+          }
+          i = i + 6
+          continue
+        }
+      }
+      out = out + ch
+      i = i + 1
+    }
+
+    print(0)
+    return 0
+  }
+}

@@ -1,0 +1,87 @@
+// mir_vm_s0_block_loc.hako — block and instruction locator utilities split from mir_vm_s0
+// Responsibility: locate blocks and instruction arrays in MIR JSON payload.
+
+using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
+
+static box MirVmS0BlockLocBox {
+  // ==================== Main Instructions Locator ====================
+
+  _find_main_insts_bounds(json) {
+    local p_name = MirVmS0JsonScanBox._index_of_from(json, "\"name\":\"main\"", 0)
+    if p_name < 0 {
+      p_name = MirVmS0JsonScanBox._index_of_from(json, "\"name\": \"main\"", 0)
+    }
+    local p_inst_key = -1
+    if p_name >= 0 {
+      p_inst_key = MirVmS0JsonScanBox._index_of_from(json, "\"instructions\"", p_name)
+    }
+    if p_inst_key < 0 {
+      p_inst_key = MirVmS0JsonScanBox._index_of_from(json, "\"instructions\"", 0)
+    }
+    if p_inst_key < 0 { return "" }
+    local lb = MirVmS0JsonScanBox._index_of_from(json, "[", p_inst_key)
+    if lb < 0 { return "" }
+    local rb = MirVmS0JsonScanBox._scan_array_end(json, lb)
+    if rb == -2 { return "SCAN_DEPTH" }
+    if rb <= lb { return "" }
+    return "" + lb + "," + rb
+  }
+
+  // ==================== Blocks Locator ====================
+
+  _find_blocks_bounds(json) {
+    local p_key = MirVmS0JsonScanBox._index_of_from(json, "\"blocks\"", 0)
+    if p_key < 0 { return "" }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(json, ":", p_key + 8)
+    if p_colon < 0 { return "" }
+    local lb = MirVmS0JsonScanBox._index_of_from(json, "[", p_colon + 1)
+    if lb < 0 { return "" }
+    local fast = MirVmS0JsonScanBox._index_of_from(json, "],\"boxcall0_const_map\"", lb)
+    if fast > lb { return "" + lb + "," + fast }
+    local rb = MirVmS0JsonScanBox._scan_array_end(json, lb)
+    if rb == -2 { return "SCAN_DEPTH" }
+    if rb <= lb { return "" }
+    return "" + lb + "," + rb
+  }
+
+  // ==================== Block Object Locator ====================
+
+  _find_block_obj_bounds_rec(json, blocks_rb, pos, block_id) {
+    if pos >= blocks_rb { return "" }
+    local obj_start = MirVmS0JsonScanBox._index_of_from(json, "{", pos)
+    if obj_start < 0 || obj_start >= blocks_rb { return "" }
+    local obj_end = MirVmS0JsonScanBox._scan_obj_end(json, obj_start)
+    if obj_end == -2 { return "SCAN_DEPTH" }
+    if obj_end < obj_start || obj_end > blocks_rb { return "" }
+    local seg = json.substring(obj_start, obj_end + 1)
+    local bid = MirVmS0JsonScanBox._find_int(seg, "id")
+    if bid != null && bid == block_id { return "" + obj_start + "," + obj_end }
+    return me._find_block_obj_bounds_rec(json, blocks_rb, obj_end + 1, block_id)
+  }
+
+  _find_block_obj_bounds(json, blocks_lb, blocks_rb, block_id) {
+    local seg = json.substring(blocks_lb, blocks_rb + 1)
+    local rel_pair = me._find_block_obj_bounds_rec(seg, seg.length() - 1, 1, block_id)
+    if rel_pair == "SCAN_DEPTH" { return "SCAN_DEPTH" }
+    if rel_pair == "" { return "" }
+    local rel_lb = MirVmS0JsonScanBox._pair_first(rel_pair)
+    local rel_rb = MirVmS0JsonScanBox._pair_second(rel_pair)
+    if rel_lb < 0 || rel_rb <= rel_lb { return "" }
+    return "" + (blocks_lb + rel_lb) + "," + (blocks_lb + rel_rb)
+  }
+
+  // ==================== Block Instructions Locator ====================
+
+  _find_block_insts_bounds(block_seg) {
+    local p_key = MirVmS0JsonScanBox._index_of_from(block_seg, "\"instructions\"", 0)
+    if p_key < 0 { return "" }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(block_seg, ":", p_key + 14)
+    if p_colon < 0 { return "" }
+    local lb = MirVmS0JsonScanBox._index_of_from(block_seg, "[", p_colon + 1)
+    if lb < 0 { return "" }
+    local rb = MirVmS0JsonScanBox._scan_array_end(block_seg, lb)
+    if rb == -2 { return "SCAN_DEPTH" }
+    if rb <= lb { return "" }
+    return "" + lb + "," + rb
+  }
+}

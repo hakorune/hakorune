@@ -1,0 +1,21 @@
+// Phase 254 P0: index_of 形 loop（最小テスト）
+static box StringUtils {
+    index_of(s, ch) {
+        local i = 0
+        loop(i < s.length()) {
+            if s.substring(i, i + 1) == ch {
+                return i
+            }
+            i = i + 1
+        }
+        return -1
+    }
+}
+
+static box Main {
+    main() {
+        // Test case: "abc" の中の "b" を探す
+        local result = StringUtils.index_of("abc", "b")
+        return result  // Expected: 1
+    }
+}

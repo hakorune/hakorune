@@ -1,0 +1,4 @@
+# optimization vocabulary (X63 safe-set)
+const_fold
+dce
+cfg_simplify

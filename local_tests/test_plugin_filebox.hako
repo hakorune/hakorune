@@ -1,0 +1,5 @@
+// Plugin-backed FileBox integration test
+local f
+f = new FileBox("plugins/nyash-filebox-plugin/target/test_integration.txt")
+f.write("Hello from Nyash via plugin!")
+print("READ=" + f.read())

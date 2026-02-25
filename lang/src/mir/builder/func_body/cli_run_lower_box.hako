@@ -1,0 +1,281 @@
+// cli_run_lower_box.hako — CliRunLowerBox
+// Responsibility:
+//   - Specialized lowering hook for HakoCli.run defs (Stage1 CLI entry).
+// Scope:
+//   - Current implementation is observational only: it validates that the
+//     target is HakoCli.run and, when tracing is enabled, emits a tag.
+//   - Returns null so that generic lowerers / Rust provider still handle
+//     the actual MIR generation.
+//   - Future work (Phase 25.1b Step2+): lower simple HakoCli.run bodies
+//     (run/build/emit/check 分岐) to MIR(JSON) when the shape is supported.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box CliRunLowerBox {
+  // Attempt to lower HakoCli.run body to MIR(JSON).
+  // Step 2.x: shape が既知のパターンと一致する場合に限り、MIR(JSON) 生成を行う。
+  // 既定では環境変数 HAKO_MIR_BUILDER_CLI_RUN=1 のときのみ自前の MIR を返し、
+  // それ以外は provider/既存 lower にフォールバックする。
+  method lower_run(func_name, box_name, params_arr, body_json, func_map) {
+    if box_name == null || func_name == null { return null }
+    if box_name != "HakoCli" { return null }
+    if func_name != "run" { return null }
+
+    // Step 2: only check JSON 形状（MVP パターン）を検証する。
+    // 形が想定と違えば Fail-Fast で provider に退避する。
+    local ok = me._check_shape(body_json)
+    if ok != 1 {
+      if env.get("HAKO_SELFHOST_TRACE") == "1" {
+        print("[builder/cli:run_lower:unsupported] reason=shape-mismatch")
+      }
+      return null
+    }
+
+    // Shape が既知パターンと一致した時点で、入口検出タグと粗い形状タグを出しておく。
+    if env.get("HAKO_SELFHOST_TRACE") == "1" {
+      // Stage1 CLI entry: Main.main → HakoCli.run/2（argv 引数付き）
+      print("[builder/cli:entry_detected] main=Main.main run=" + box_name + "." + func_name + "/2")
+      // run/build/emit/check の 4 分岐を想定した形状タグ（将来は CliRunShapeScannerBox からの情報に揃える）。
+      print("[builder/cli:run_shape] has_run=1 branches=4")
+    }
+
+    // 既定では MIR 生成はトグルで有効化（freeze ポリシーに従い既定OFF）。
+    local flag = env.get("HAKO_MIR_BUILDER_CLI_RUN")
+    if flag == null { flag = "0" }
+    if flag != "1" {
+      if env.get("HAKO_SELFHOST_TRACE") == "1" {
+        print("[builder/cli:run_lower:shape-ok] box=" + box_name + " func=" + func_name + " (MIR disabled)")
+      }
+      return null
+    }
+
+    // ここまで来たら、HakoCli.run を selfhost builder で MIR に降ろす。
+    local mir = me._emit_mir(box_name, func_name, params_arr)
+    if mir == null || mir == "" {
+      if env.get("HAKO_SELFHOST_TRACE") == "1" {
+        print("[builder/cli:run_lower:emit-failed]")
+      }
+      return null
+    }
+
+    if env.get("HAKO_SELFHOST_TRACE") == "1" {
+      print("[builder/cli:run_lower:ok] " + box_name + "." + func_name + "/2")
+    }
+    return mir
+  }
+
+  // Check that body_json roughly matches the expected Stage‑B shape
+  // for HakoCli.run (argc/init, args.size, cmd_raw/cmd, cmd_* branches, return 2).
+  method _check_shape(body_json) {
+    if body_json == null { return 0 }
+    local s = "" + body_json
+
+    // 1) Local argc = Int(0)
+    local loc_idx = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", 0)
+    if loc_idx < 0 { return 0 }
+    local argc_idx = JsonFragBox.index_of_from(s, "\"name\":\"argc\"", loc_idx)
+    if argc_idx < 0 { return 0 }
+    local int_idx = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", argc_idx)
+    if int_idx < 0 { return 0 }
+    local val_idx = JsonFragBox.index_of_from(s, "\"value\":", int_idx)
+    if val_idx < 0 { return 0 }
+    local v0 = JsonFragBox.read_int_after(s, val_idx + 8)
+    if v0 == null { return 0 }
+    if JsonFragBox._str_to_int("" + v0) != 0 { return 0 }
+
+    // 2) args.size() が存在するか（If 内で argc に代入されていることを緩く確認）
+    local size_idx = JsonFragBox.index_of_from(s, "\"method\":\"size\"", argc_idx)
+    if size_idx < 0 { return 0 }
+    local recv_idx = JsonFragBox.index_of_from(s, "\"recv\":{", size_idx)
+    if recv_idx < 0 { return 0 }
+    local args_var_idx = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", recv_idx)
+    if args_var_idx < 0 { return 0 }
+    local args_name_idx = JsonFragBox.index_of_from(s, "\"name\":\"args\"", args_var_idx)
+    if args_name_idx < 0 { return 0 }
+
+    // 3) argc == 0 then return 1（Compare と Return Int(1) を緩く確認）
+    local cmp_idx = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", size_idx)
+    if cmp_idx < 0 { return 0 }
+    local lhs_idx = JsonFragBox.index_of_from(s, "\"lhs\":{", cmp_idx)
+    if lhs_idx < 0 { return 0 }
+    local lhs_name_idx = JsonFragBox.index_of_from(s, "\"name\":\"argc\"", lhs_idx)
+    if lhs_name_idx < 0 { return 0 }
+    local rhs_idx = JsonFragBox.index_of_from(s, "\"rhs\":{", cmp_idx)
+    if rhs_idx < 0 { return 0 }
+    local rhs_int_idx = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rhs_idx)
+    if rhs_int_idx < 0 { return 0 }
+    local rhs_val_idx = JsonFragBox.index_of_from(s, "\"value\":", rhs_int_idx)
+    if rhs_val_idx < 0 { return 0 }
+    local v1 = JsonFragBox.read_int_after(s, rhs_val_idx + 8)
+    if v1 == null { return 0 }
+    if JsonFragBox._str_to_int("" + v1) != 0 { return 0 }
+    // Return Int(1) somewhere after this compare
+    local ret1_idx = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", cmp_idx)
+    if ret1_idx < 0 { return 0 }
+    local ret1_int_idx = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", ret1_idx)
+    if ret1_int_idx < 0 { return 0 }
+    local ret1_val_idx = JsonFragBox.index_of_from(s, "\"value\":", ret1_int_idx)
+    if ret1_val_idx < 0 { return 0 }
+    local rv1 = JsonFragBox.read_int_after(s, ret1_val_idx + 8)
+    if rv1 == null { return 0 }
+    if JsonFragBox._str_to_int("" + rv1) != 1 { return 0 }
+
+    // 4) Local cmd_raw = args.get(0)
+    local cmd_raw_idx = JsonFragBox.index_of_from(s, "\"name\":\"cmd_raw\"", ret1_idx)
+    if cmd_raw_idx < 0 { return 0 }
+    local get_idx = JsonFragBox.index_of_from(s, "\"method\":\"get\"", cmd_raw_idx)
+    if get_idx < 0 { return 0 }
+    local get_recv_idx = JsonFragBox.index_of_from(s, "\"recv\":{", get_idx)
+    if get_recv_idx < 0 { return 0 }
+    local get_args_var_idx = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", get_recv_idx)
+    if get_args_var_idx < 0 { return 0 }
+    local get_args_name_idx = JsonFragBox.index_of_from(s, "\"name\":\"args\"", get_args_var_idx)
+    if get_args_name_idx < 0 { return 0 }
+
+    // 5) Local cmd = "" + cmd_raw （Binary + を緩く確認）
+    local cmd_idx = JsonFragBox.index_of_from(s, "\"name\":\"cmd\"", cmd_raw_idx)
+    if cmd_idx < 0 { return 0 }
+    // 単純に "cmd_raw" が cmd 定義以降にも現れることを確認
+    local cmdraw_ref_idx = JsonFragBox.index_of_from(s, "\"name\":\"cmd_raw\"", cmd_idx)
+    if cmdraw_ref_idx < 0 { return 0 }
+
+    // 6) run/build/emit/check 文字列と cmd_* 呼び出しが存在するか（順序は緩め）
+    if s.indexOf("\"run\"") < 0 { return 0 }
+    if s.indexOf("\"build\"") < 0 { return 0 }
+    if s.indexOf("\"emit\"") < 0 { return 0 }
+    if s.indexOf("\"check\"") < 0 { return 0 }
+    if s.indexOf("\"cmd_run\"") < 0 && s.indexOf("\"cmd_run\"") < 0 { return 0 }
+    if s.indexOf("\"cmd_build\"") < 0 { return 0 }
+    if s.indexOf("\"cmd_emit\"") < 0 { return 0 }
+    if s.indexOf("\"cmd_check\"") < 0 { return 0 }
+
+    // 7) 最後の Return Int(2)（unknown command）
+    //   - body の末尾付近から Return を探して Int(2) を期待する。
+    local last_ret_idx = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", cmd_idx)
+    local search_pos = last_ret_idx
+    loop(true) {
+      local next_idx = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", search_pos + 1)
+      if next_idx < 0 { break }
+      last_ret_idx = next_idx
+      search_pos = next_idx
+    }
+    if last_ret_idx < 0 { return 0 }
+    local last_int_idx = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", last_ret_idx)
+    if last_int_idx < 0 { return 0 }
+    local last_val_idx = JsonFragBox.index_of_from(s, "\"value\":", last_int_idx)
+    if last_val_idx < 0 { return 0 }
+    local rv2 = JsonFragBox.read_int_after(s, last_val_idx + 8)
+    if rv2 == null { return 0 }
+    if JsonFragBox._str_to_int("" + rv2) != 2 { return 0 }
+
+    return 1
+  }
+
+  // Emit minimal MIR(JSON) for HakoCli.run/2.
+  // 簡略化されたブロック構造:
+  //  - r1 = me, r2 = args
+  //  - argc = args.size()
+  //  - argc == 0 → ret 1
+  //  - cmd_raw = args.get(0)
+  //  - cmd_raw を各リテラル "run"/"build"/"emit"/"check" と比較し、me.cmd_* を呼び出す
+  //  - どれでもなければ ret 2
+  method _emit_mir(box_name, func_name, params_arr) {
+    // params_json は単純に [1,2] とし、locals は空配列とする。
+    local params_json = "[1,2]"
+
+    // レジスタ割り当て:
+    //  r1=me, r2=args, r3=argc, r4=tmp0, r5=cmp0,
+    //  r6=ret_tmp, r7=index0, r8=cmd_raw,
+    //  r9..r? = 各種文字列リテラルと比較結果。
+
+    // block 0: argc=0; argc = args.size(); cmp argc==0 → branch
+    local b0 = ""
+    b0 = b0 + "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":0}}"
+    b0 = b0 + ",{\"op\":\"call\",\"dst\":3,\"callee\":{\"type\":\"Method\",\"box_name\":\"ArrayBox\",\"method\":\"size\",\"receiver\":2},\"args\":[]}"
+    b0 = b0 + ",{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":0}}"
+    b0 = b0 + ",{\"op\":\"compare\",\"operation\":\"==\",\"lhs\":3,\"rhs\":4,\"dst\":5}"
+    b0 = b0 + ",{\"op\":\"branch\",\"cond\":5,\"then\":1,\"else\":2}"
+
+    // block 1: argc==0 → ret 1
+    local b1 = ""
+    b1 = b1 + "{\"op\":\"const\",\"dst\":6,\"value\":{\"type\":\"i64\",\"value\":1}}"
+    b1 = b1 + ",{\"op\":\"ret\",\"value\":6}"
+
+    // block 2: argc>0 → cmd_raw = args.get(0); jump to cmd dispatch
+    local b2 = ""
+    b2 = b2 + "{\"op\":\"const\",\"dst\":7,\"value\":{\"type\":\"i64\",\"value\":0}}"
+    b2 = b2 + ",{\"op\":\"call\",\"dst\":8,\"callee\":{\"type\":\"Method\",\"box_name\":\"ArrayBox\",\"method\":\"get\",\"receiver\":2},\"args\":[7]}"
+    b2 = b2 + ",{\"op\":\"jump\",\"target\":3}"
+
+    // block 3: cmd == \"run\" ?
+    local b3 = ""
+    b3 = b3 + "{\"op\":\"const\",\"dst\":9,"
+    b3 = b3 + "\"value\":{\"type\":{\"box_type\":\"StringBox\",\"kind\":\"handle\"},\"value\":\"run\"}}"
+    b3 = b3 + ",{\"op\":\"compare\",\"operation\":\"==\",\"lhs\":8,\"rhs\":9,\"dst\":10}"
+    b3 = b3 + ",{\"op\":\"branch\",\"cond\":10,\"then\":4,\"else\":5}"
+
+    // block 4: run → me.cmd_run(args); ret
+    local b4 = ""
+    b4 = b4 + "{\"op\":\"call\",\"dst\":11,\"callee\":{\"type\":\"Method\",\"box_name\":\"HakoCli\",\"method\":\"cmd_run\",\"receiver\":1},\"args\":[2]}"
+    b4 = b4 + ",{\"op\":\"ret\",\"value\":11}"
+
+    // block 5: cmd == \"build\" ?
+    local b5 = ""
+    b5 = b5 + "{\"op\":\"const\",\"dst\":12,"
+    b5 = b5 + "\"value\":{\"type\":{\"box_type\":\"StringBox\",\"kind\":\"handle\"},\"value\":\"build\"}}"
+    b5 = b5 + ",{\"op\":\"compare\",\"operation\":\"==\",\"lhs\":8,\"rhs\":12,\"dst\":13}"
+    b5 = b5 + ",{\"op\":\"branch\",\"cond\":13,\"then\":6,\"else\":7}"
+
+    // block 6: build → me.cmd_build(args); ret
+    local b6 = ""
+    b6 = b6 + "{\"op\":\"call\",\"dst\":14,\"callee\":{\"type\":\"Method\",\"box_name\":\"HakoCli\",\"method\":\"cmd_build\",\"receiver\":1},\"args\":[2]}"
+    b6 = b6 + ",{\"op\":\"ret\",\"value\":14}"
+
+    // block 7: cmd == \"emit\" ?
+    local b7 = ""
+    b7 = b7 + "{\"op\":\"const\",\"dst\":15,"
+    b7 = b7 + "\"value\":{\"type\":{\"box_type\":\"StringBox\",\"kind\":\"handle\"},\"value\":\"emit\"}}"
+    b7 = b7 + ",{\"op\":\"compare\",\"operation\":\"==\",\"lhs\":8,\"rhs\":15,\"dst\":16}"
+    b7 = b7 + ",{\"op\":\"branch\",\"cond\":16,\"then\":8,\"else\":9}"
+
+    // block 8: emit → me.cmd_emit(args); ret
+    local b8 = ""
+    b8 = b8 + "{\"op\":\"call\",\"dst\":17,\"callee\":{\"type\":\"Method\",\"box_name\":\"HakoCli\",\"method\":\"cmd_emit\",\"receiver\":1},\"args\":[2]}"
+    b8 = b8 + ",{\"op\":\"ret\",\"value\":17}"
+
+    // block 9: cmd == \"check\" ?
+    local b9 = ""
+    b9 = b9 + "{\"op\":\"const\",\"dst\":18,"
+    b9 = b9 + "\"value\":{\"type\":{\"box_type\":\"StringBox\",\"kind\":\"handle\"},\"value\":\"check\"}}"
+    b9 = b9 + ",{\"op\":\"compare\",\"operation\":\"==\",\"lhs\":8,\"rhs\":18,\"dst\":19}"
+    b9 = b9 + ",{\"op\":\"branch\",\"cond\":19,\"then\":10,\"else\":11}"
+
+    // block 10: check → me.cmd_check(args); ret
+    local b10 = ""
+    b10 = b10 + "{\"op\":\"call\",\"dst\":20,\"callee\":{\"type\":\"Method\",\"box_name\":\"HakoCli\",\"method\":\"cmd_check\",\"receiver\":1},\"args\":[2]}"
+    b10 = b10 + ",{\"op\":\"ret\",\"value\":20}"
+
+    // block 11: unknown → ret 2
+    local b11 = ""
+    b11 = b11 + "{\"op\":\"const\",\"dst\":21,\"value\":{\"type\":\"i64\",\"value\":2}}"
+    b11 = b11 + ",{\"op\":\"ret\",\"value\":21}"
+
+    local blocks = ""
+    blocks = blocks + "{\"id\":0,\"instructions\":[" + b0 + "]}"
+    blocks = blocks + ",{\"id\":1,\"instructions\":[" + b1 + "]}"
+    blocks = blocks + ",{\"id\":2,\"instructions\":[" + b2 + "]}"
+    blocks = blocks + ",{\"id\":3,\"instructions\":[" + b3 + "]}"
+    blocks = blocks + ",{\"id\":4,\"instructions\":[" + b4 + "]}"
+    blocks = blocks + ",{\"id\":5,\"instructions\":[" + b5 + "]}"
+    blocks = blocks + ",{\"id\":6,\"instructions\":[" + b6 + "]}"
+    blocks = blocks + ",{\"id\":7,\"instructions\":[" + b7 + "]}"
+    blocks = blocks + ",{\"id\":8,\"instructions\":[" + b8 + "]}"
+    blocks = blocks + ",{\"id\":9,\"instructions\":[" + b9 + "]}"
+    blocks = blocks + ",{\"id\":10,\"instructions\":[" + b10 + "]}"
+    blocks = blocks + ",{\"id\":11,\"instructions\":[" + b11 + "]}"
+
+    local full_name = "" + box_name + "." + func_name + "/2"
+    local mir = "{\"name\":\"" + full_name + "\",\"params\":" + params_json + ",\"locals\":[],\"blocks\":[" + blocks + "]}"
+    return mir
+  }
+}

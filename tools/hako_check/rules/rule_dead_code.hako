@@ -1,0 +1,550 @@
+using tools.hako_check.text_ops as TextOps
+// tools/hako_check/rules/rule_dead_code.hako — HC019: Comprehensive Dead Code Detection
+// Unified dead code analyzer combining method-level, block-level, and box-level detection.
+// Phase 153: Revival of dead code detection mode with JoinIR integration.
+
+static box DeadCodeAnalyzerBox {
+  // Main entry point for comprehensive dead code analysis
+  // Input: ir (Analysis IR), path (file path), out (diagnostics array)
+  // Returns: void (like other rules)
+  method apply_ir(ir, path, out) {
+    // Phase 153 MVP: Focus on method-level reachability
+    // Block-level analysis deferred to Phase 154+ when MIR JSON integration is ready
+
+    if ir == null { return }
+    if out == null { return }
+
+    // 1. Analyze unreachable methods (similar to HC011 but enhanced)
+    me._analyze_dead_methods(ir, path, out)
+
+    // 2. Analyze dead static boxes (similar to HC012 but integrated)
+    me._analyze_dead_boxes(ir, path, out)
+
+    // 3. TODO(Phase 154): Analyze unreachable blocks (requires MIR CFG)
+    // me._analyze_unreachable_blocks(ir, path, out)
+
+    return
+  }
+
+  // Analyze unreachable methods using DFS from entrypoints
+  _analyze_dead_methods(ir, path, out) {
+    local methods = ir.get("methods")
+    if methods == null || methods.size() == 0 {
+      // Fallback: scan from source text
+      local src = ir.get("source")
+      if src != null {
+        methods = me._scan_methods_from_text(src)
+      } else {
+        return
+      }
+    }
+
+    if methods == null || methods.size() == 0 { return }
+
+    local calls = ir.get("calls")
+    if calls == null || calls.size() == 0 {
+      // Build minimal calls from source text
+      local src = ir.get("source")
+      if src != null {
+        calls = me._scan_calls_from_text(src)
+      } else {
+        calls = new ArrayBox()
+      }
+    }
+
+    local eps = ir.get("entrypoints")
+    if eps == null { eps = new ArrayBox() }
+
+    // Build adjacency graph
+    local adj = new MapBox()
+    me._init_adj(adj, methods, 0)
+    me._add_calls(adj, calls, 0)
+
+    // DFS from entrypoints
+    local seen = new ArrayBox()
+    local dead_boxes = me._collect_dead_boxes(ir)
+    local seeds = me._resolve_entrypoints(eps, adj, methods)
+    if ir.get("debug") == 1 {
+      print("[hako_check/HC019] seeds=" + TextOps._itoa(seeds.size()))
+      me._debug_dump_seeds(seeds, 0)
+    }
+
+    me._dfs_seeds(adj, seeds, 0, seen)
+
+    // Report dead methods (not seen)
+    local src_text = ir.get("source")
+    me._report_dead_methods(methods, 0, seen, src_text, path, out, dead_boxes)
+
+    return
+  }
+  _debug_dump_seeds(seeds, i) {
+    if i >= seeds.size() { return }
+    print("[hako_check/HC019] seed=" + seeds.get(i))
+    me._debug_dump_seeds(seeds, i + 1)
+  }
+  _init_adj(adj, methods, i) {
+    if i >= methods.size() { return }
+    adj.set(methods.get(i), new ArrayBox())
+    me._init_adj(adj, methods, i + 1)
+  }
+  _add_calls(adj, calls, i) {
+    if i >= calls.size() { return }
+    local c = calls.get(i)
+    local f = c.get("from")
+    local t = c.get("to")
+
+    // Normalize from: prefer exact, otherwise try adding "/0" suffix
+    local ff = f
+    if adj.has(ff) == 0 {
+      local f0 = f + "/0"
+      if adj.has(f0) == 1 { ff = f0 }
+    }
+
+    if adj.has(ff) == 1 { adj.get(ff).push(t) }
+
+    me._add_calls(adj, calls, i + 1)
+  }
+  _dfs_seeds(adj, seeds, i, seen) {
+    if i >= seeds.size() { return }
+    me._dfs(adj, seeds.get(i), seen)
+    me._dfs_seeds(adj, seeds, i + 1, seen)
+  }
+  _report_dead_methods(methods, i, seen, src_text, path, out, dead_boxes) {
+    if i >= methods.size() { return }
+    local m = methods.get(i)
+    if me._seen_has(seen, m, 0) == 0 {
+      if me._dead_box_has(dead_boxes, m) == 1 {
+        me._report_dead_methods(methods, i + 1, seen, src_text, path, out, dead_boxes)
+        return
+      }
+      // Check if method is actually called via text heuristic (reduce false positives)
+      local keep = 1
+      if src_text != null {
+        if me._called_in_text(src_text, m) == 1 { keep = 0 }
+      }
+
+      if keep == 1 {
+        out.push("[HC019] unreachable method (dead code): " + path + " :: " + m)
+      }
+    }
+    me._report_dead_methods(methods, i + 1, seen, src_text, path, out, dead_boxes)
+  }
+  _dead_box_has(dead_boxes, m) {
+    if dead_boxes == null || m == null { return 0 }
+    local dot = m.lastIndexOf(".")
+    if dot <= 0 { return 0 }
+    local box_name = m.substring(0, dot)
+    return me._array_has(dead_boxes, box_name, 0)
+  }
+  _array_has(arr, val, i) {
+    if arr == null { return 0 }
+    if i >= arr.size() { return 0 }
+    if arr.get(i) == val { return 1 }
+    return me._array_has(arr, val, i + 1)
+  }
+  _collect_dead_boxes(ir) {
+    if ir == null { return null }
+    local boxes = ir.get("boxes")
+    local calls = ir.get("calls")
+    if boxes == null || calls == null { return null }
+    local src_text = ir.get("source")
+    local referenced = new MapBox()
+    me._collect_referenced_boxes(calls, 0, referenced)
+    local dead = new ArrayBox()
+    me._collect_dead_boxes_from_list(boxes, 0, referenced, dead, src_text)
+    return dead
+  }
+  _collect_dead_boxes_from_list(boxes, i, referenced, dead, src_text) {
+    if boxes == null { return }
+    if i >= boxes.size() { return }
+    local box_info = boxes.get(i)
+    if box_info == null { me._collect_dead_boxes_from_list(boxes, i + 1, referenced, dead, src_text); return }
+    local name = box_info.get("name")
+    if name == null { me._collect_dead_boxes_from_list(boxes, i + 1, referenced, dead, src_text); return }
+    if name == "Main" { me._collect_dead_boxes_from_list(boxes, i + 1, referenced, dead, src_text); return }
+    local is_static = box_info.get("is_static")
+    if is_static != null { if is_static == 0 { me._collect_dead_boxes_from_list(boxes, i + 1, referenced, dead, src_text); return } }
+    local ref_check = referenced.get(name)
+    if ref_check == null || ref_check != "1" {
+      if src_text != null {
+        if src_text.indexOf("new " + name + "(") >= 0 {
+          me._collect_dead_boxes_from_list(boxes, i + 1, referenced, dead, src_text)
+          return
+        }
+      }
+      dead.push(name)
+    }
+    me._collect_dead_boxes_from_list(boxes, i + 1, referenced, dead, src_text)
+  }
+  _called_in_text(src_text, m) {
+    local slash = m.lastIndexOf("/")
+    local dotp = m.lastIndexOf(".")
+    if dotp >= 0 {
+      local meth = (slash > dotp) ? m.substring(dotp+1, slash) : m.substring(dotp+1)
+      if src_text.indexOf("." + meth + "(") >= 0 { return 1 }
+    }
+    return 0
+  }
+
+  // Analyze dead static boxes (never referenced)
+  _analyze_dead_boxes(ir, path, out) {
+    local boxes = ir.get("boxes")
+    if boxes == null { return }
+
+    local calls = ir.get("calls")
+    if calls == null { return }
+    local src_text = ir.get("source")
+
+    // Collect all box names referenced in calls
+    local referenced_boxes = new MapBox()
+    me._collect_referenced_boxes(calls, 0, referenced_boxes)
+
+    // Check each box
+    me._scan_boxes(boxes, 0, referenced_boxes, path, out, src_text)
+
+    return
+  }
+  _collect_referenced_boxes(calls, i, referenced_boxes) {
+    if i >= calls.size() { return }
+    local call = calls.get(i)
+    if call != null {
+      local to = call.get("to")
+      if to != null {
+        // Extract box name from qualified call (e.g., "Box.method/0" -> "Box")
+        local dot = to.indexOf(".")
+        if dot > 0 {
+          local box_name = to.substring(0, dot)
+          referenced_boxes.set(box_name, "1")
+        }
+      }
+    }
+    me._collect_referenced_boxes(calls, i + 1, referenced_boxes)
+  }
+  _scan_boxes(boxes, i, referenced_boxes, path, out, src_text) {
+    if i >= boxes.size() { return }
+    local box_info = boxes.get(i)
+    if box_info == null { me._scan_boxes(boxes, i + 1, referenced_boxes, path, out, src_text); return }
+
+    local name = box_info.get("name")
+    if name == null { me._scan_boxes(boxes, i + 1, referenced_boxes, path, out, src_text); return }
+
+    local is_static = box_info.get("is_static")
+
+    // Skip Main box (entry point)
+    if name == "Main" { me._scan_boxes(boxes, i + 1, referenced_boxes, path, out, src_text); return }
+
+    // Only check static boxes
+    if is_static != null {
+      if is_static == 0 { me._scan_boxes(boxes, i + 1, referenced_boxes, path, out, src_text); return }
+    }
+
+    // Check if box is referenced
+    local ref_check = referenced_boxes.get(name)
+    local new_ref = 0
+    if src_text != null {
+      if src_text.indexOf("new " + name + "(") >= 0 { new_ref = 1 }
+    }
+
+    if ref_check == null || ref_check != "1" {
+      if src_text != null {
+        if new_ref == 1 {
+          me._scan_boxes(boxes, i + 1, referenced_boxes, path, out, src_text)
+          return
+        }
+      }
+      // Box is never referenced - report error
+      local line_any = box_info.get("span_line")
+      local line_s = ""
+      if line_any == null {
+        line_s = "1"
+      } else {
+        line_s = line_any.toString()
+      }
+
+      // Parse leading digits
+      local digits = me._leading_digits(line_s, 0, "")
+      if digits == "" { digits = "1" }
+
+      out.push("[HC019] dead static box (never referenced): " + name + " :: " + path + ":" + digits)
+    }
+
+    me._scan_boxes(boxes, i + 1, referenced_boxes, path, out, src_text)
+  }
+  _leading_digits(line_s, i, digits) {
+    if i >= line_s.length() { return digits }
+    local ch = line_s.substring(i, i+1)
+    if ch >= "0" && ch <= "9" { return me._leading_digits(line_s, i + 1, digits + ch) }
+    return digits
+  }
+
+  // Resolve entrypoints to actual method names in adjacency graph
+  _resolve_entrypoints(eps, adj, methods) {
+    local seeds = new ArrayBox()
+
+    // Collect keys from methods array
+    local keys = new ArrayBox()
+    me._collect_keys(methods, 0, keys)
+    me._resolve_seeds(eps, 0, adj, keys, seeds)
+
+    // Fallback: common Main.main/0 if still empty
+    if seeds.size() == 0 {
+      if adj.has("Main.main/0") == 1 { seeds.push("Main.main/0") }
+    }
+
+    return seeds
+  }
+  _collect_keys(methods, i, keys) {
+    if i >= methods.size() { return }
+    keys.push(methods.get(i))
+    me._collect_keys(methods, i + 1, keys)
+  }
+  _resolve_seeds(eps, i, adj, keys, seeds) {
+    if i >= eps.size() { return }
+    local ep = eps.get(i)
+
+    // Exact match
+    if ep.indexOf("/") >= 0 && adj.has(ep) == 1 { seeds.push(ep) }
+
+    // Prefix match: ep + "/"
+    local pref = ep + "/"
+    me._push_prefix_matches(keys, pref, 0, seeds)
+
+    me._resolve_seeds(eps, i + 1, adj, keys, seeds)
+  }
+  _push_prefix_matches(keys, pref, i, seeds) {
+    if i >= keys.size() { return }
+    local key = keys.get(i)
+    if key.indexOf(pref) == 0 { seeds.push(key) }
+    me._push_prefix_matches(keys, pref, i + 1, seeds)
+  }
+
+  // DFS traversal for reachability
+  _dfs(adj, node, seen) {
+    if node == null { return }
+    if me._seen_has(seen, node, 0) == 1 { return }
+
+    seen.push(node)
+
+    if adj.has(node) == 0 { return }
+
+    local arr = adj.get(node)
+    me._dfs_edges(adj, arr, 0, seen)
+  }
+  _dfs_edges(adj, arr, i, seen) {
+    if i >= arr.size() { return }
+    me._dfs(adj, arr.get(i), seen)
+    me._dfs_edges(adj, arr, i + 1, seen)
+  }
+  _seen_has(seen, node, i) {
+    if i >= seen.size() { return 0 }
+    if seen.get(i) == node { return 1 }
+    return me._seen_has(seen, node, i + 1)
+  }
+
+  // Scan methods from source text (fallback when IR is incomplete)
+  _scan_methods_from_text(text) {
+    local res = new ArrayBox()
+    if text == null { return res }
+
+    local lines = me._split_lines(text)
+    me._scan_methods_lines(lines, 0, null, 0, res)
+
+    return res
+  }
+  _scan_methods_lines(lines, i, cur, depth, res) {
+    if i >= lines.size() { return }
+    local ln = me._ltrim(lines.get(i))
+    local next_cur = cur
+    local next_depth = depth
+    if ln.indexOf("static box ") == 0 {
+      local rest = ln.substring("static box ".length())
+      local p = rest.indexOf("{")
+      if p > 0 { next_cur = me._rstrip(rest.substring(0, p)) } else { next_cur = me._rstrip(rest) }
+      next_depth = depth + 1
+      me._scan_methods_lines(lines, i + 1, next_cur, next_depth, res)
+      return
+    }
+    if cur != null && ln.indexOf("method ") == 0 {
+      local rest = ln.substring("method ".length())
+      local p1 = rest.indexOf("(")
+      local name = (p1 > 0) ? me._rstrip(rest.substring(0, p1)) : me._rstrip(rest)
+      local ar = 0
+      local p2 = rest.indexOf(")", (p1 >= 0) ? (p1+1) : 0)
+      if p1 >= 0 && p2 > p1+1 {
+        local inside = rest.substring(p1+1, p2)
+        // Count commas + 1 if any non-space
+        local count = me._count_commas_any(inside, 0, 1, 0)
+        if count.get("any") == 1 { ar = count.get("cnt") }
+      }
+      res.push(cur + "." + name + "/" + me._itoa(ar))
+    }
+    next_depth = me._adjust_depth(ln, 0, depth)
+    if next_depth == 0 { next_cur = null }
+    me._scan_methods_lines(lines, i + 1, next_cur, next_depth, res)
+  }
+  _count_commas_any(s, i, cnt, any) {
+    if i >= s.length() { return me._make_count_result(cnt, any) }
+    local c = s.substring(i, i+1)
+    local next_cnt = cnt
+    local next_any = any
+    if c == "," { next_cnt = cnt + 1 }
+    if c != " " && c != "\t" { next_any = 1 }
+    return me._count_commas_any(s, i + 1, next_cnt, next_any)
+  }
+  _make_count_result(cnt, any) {
+    local r = new MapBox()
+    r.set("cnt", cnt)
+    r.set("any", any)
+    return r
+  }
+  _adjust_depth(ln, i, depth) {
+    if i >= ln.length() { return depth }
+    local ch = ln.substring(i, i+1)
+    local next = depth
+    if ch == "{" { next = depth + 1 }
+    if ch == "}" {
+      next = depth - 1
+      if next < 0 { next = 0 }
+    }
+    return me._adjust_depth(ln, i + 1, next)
+  }
+
+  // Scan calls from source text (fallback)
+  _scan_calls_from_text(text) {
+    local arr = new ArrayBox()
+    if text == null { return arr }
+
+    local lines = me._split_lines(text)
+    local src_m = "Main.main/0"
+    me._scan_calls_lines(lines, 0, src_m, arr)
+
+    return arr
+  }
+  _scan_calls_lines(lines, i, src_m, arr) {
+    if i >= lines.size() { return }
+    local ln = lines.get(i)
+    me._scan_calls_in_line(ln, 0, src_m, arr)
+    me._scan_calls_lines(lines, i + 1, src_m, arr)
+  }
+  _scan_calls_in_line(ln, pos, src_m, arr) {
+    local n = ln.length()
+    if pos >= n { return }
+    local k = ln.indexOf(".", pos)
+    if k < 0 { return }
+
+    // Scan ident before '.'
+    local lhs = me._scan_ident_rev(ln, k-1)
+    // Scan ident after '.'
+    local rhs = me._scan_ident_fwd(ln, k+1)
+
+    if lhs != null && rhs != null {
+      local to = lhs + "." + rhs + "/0"
+      local rec = new MapBox()
+      rec.set("from", src_m)
+      rec.set("to", to)
+      arr.push(rec)
+    }
+
+    me._scan_calls_in_line(ln, k + 1, src_m, arr)
+  }
+
+  // Helper: scan identifier backwards from position
+  _scan_ident_rev(s, i) {
+    if i < 0 { return null }
+    if me._is_ident_char(s.substring(i, i+1)) == 0 { return null }
+    return me._scan_ident_rev_from(s, i - 1, i)
+  }
+  _scan_ident_rev_from(s, i, endp) {
+    if i < 0 { return s.substring(0, endp+1) }
+    local c = s.substring(i, i+1)
+    if me._is_ident_char(c) == 0 { return s.substring(i+1, endp+1) }
+    return me._scan_ident_rev_from(s, i - 1, endp)
+  }
+
+  // Helper: scan identifier forwards from position
+  _scan_ident_fwd(s, i) {
+    local n = s.length()
+    if i >= n { return null }
+    if me._is_ident_char(s.substring(i, i+1)) == 0 { return null }
+    return me._scan_ident_fwd_from(s, i + 1, i)
+  }
+  _scan_ident_fwd_from(s, i, start) {
+    local n = s.length()
+    if i >= n { return s.substring(start, n) }
+    local c = s.substring(i, i+1)
+    if me._is_ident_char(c) == 0 { return s.substring(start, i) }
+    return me._scan_ident_fwd_from(s, i + 1, start)
+  }
+
+  // Helper: check if character is valid identifier character
+  _is_ident_char(c) {
+    if c == "_" { return 1 }
+    if c >= "A" && c <= "Z" { return 1 }
+    if c >= "a" && c <= "z" { return 1 }
+    if c >= "0" && c <= "9" { return 1 }
+    return 0
+  }
+
+  // Helper: split string into lines
+  _split_lines(s) {
+    local arr = new ArrayBox()
+    if s == null { return arr }
+
+    local n = s.length()
+    local last = 0
+    local i = 0
+
+    loop (i < n) {
+      local ch = s.substring(i, i+1)
+      if ch == "\n" {
+        arr.push(s.substring(last, i))
+        last = i+1
+      }
+      i = i + 1
+    }
+
+    if last <= n {
+      arr.push(s.substring(last))
+    }
+
+    return arr
+  }
+
+  // Helper: left trim
+  _ltrim(s) {
+    return me._ltrim_chars(s, " \t")
+  }
+
+  _ltrim_chars(s, cs) {
+    local n = s.length()
+    local idx = 0
+    while idx < n {
+      local ch = s.substring(idx, idx+1)
+      if ch != " " && ch != "\t" { break }
+      idx = idx + 1
+    }
+    return s.substring(idx)
+  }
+
+  // Helper: right strip
+  _rstrip(s) {
+    local n = s.length()
+    if n == 0 { return s }
+    return me._rstrip_from(s, n - 1)
+  }
+  _rstrip_from(s, i) {
+    if i < 0 { return "" }
+    local c = s.substring(i, i+1)
+    if c != " " && c != "\t" { return s.substring(0, i+1) }
+    return me._rstrip_from(s, i - 1)
+  }
+
+  // Helper: integer to string
+  _itoa(n) { return TextOps._itoa(n) }
+}
+
+static box RuleDeadCodeMain {
+  method main(args) {
+    return 0
+  }
+}

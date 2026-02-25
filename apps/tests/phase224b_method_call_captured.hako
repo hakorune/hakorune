@@ -1,0 +1,25 @@
+// Phase 224-B: MethodCall lowering test - s.length() with captured variable
+//
+// Test case: Loop using s.length() where s is passed as parameter (captured)
+// This prevents constant folding and forces MethodCall lowering
+//
+// Pattern 2: Loop with captured variable
+
+static box Main {
+    helper(text) {
+        local i = 0
+
+        // Pattern 1 loop with MethodCall in condition (text is captured)
+        loop(i < text.length()) {
+            i = i + 1
+        }
+
+        return i
+    }
+
+    main() {
+        local result = me.helper("Hello")
+        print("result = " + result)
+        return result
+    }
+}

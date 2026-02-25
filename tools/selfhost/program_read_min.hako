@@ -1,0 +1,49 @@
+// tools/selfhost/program_read_min.hako - Phase 160-impl-1 Minimal JSON Reader
+// Reads Program JSON v0 from environment and prints it.
+// This is the absolute minimum proof that .hako can read JSON from Rust output.
+//
+// Usage:
+//   HAKO_PROGRAM_JSON='{"version":0,"kind":"Program"}' ./target/release/hakorune tools/selfhost/program_read_min.hako
+
+static box Main {
+  main(args) {
+    // Get Program JSON from environment variable
+    local json_str = env.get("HAKO_PROGRAM_JSON")
+
+    if json_str == null {
+      print("[ERROR] HAKO_PROGRAM_JSON not set")
+      return 1
+    }
+
+    if json_str == "" {
+      print("[ERROR] HAKO_PROGRAM_JSON is empty")
+      return 1
+    }
+
+    // Print the JSON (proving we received it)
+    print("=== Phase 160-impl-1: .hako received JSON from Rust ===")
+    print("JSON length: " + ("" + json_str.length()))
+
+    // Check for "Program" marker (basic validation without parsing)
+    local has_program = json_str.contains("Program")
+    if has_program {
+      print("Contains 'Program': YES")
+    }
+    if has_program == 0 {
+      print("Contains 'Program': NO")
+    }
+
+    local has_version = json_str.contains("version")
+    if has_version {
+      print("Contains 'version': YES")
+    }
+    if has_version == 0 {
+      print("Contains 'version': NO")
+    }
+
+    print("")
+    print("[SUCCESS] Phase 160-impl-1: .hako successfully read JSON from environment!")
+    print("(Full JSON parsing requires JoinIR loop support - Phase 161+)")
+    return 0
+  }
+}

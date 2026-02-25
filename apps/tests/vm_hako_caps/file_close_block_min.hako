@@ -1,0 +1,12 @@
+// RVP-C08 capability fixture
+// Contract:
+// - vm-hako runtime currently reports unimplemented for FileBox.close.
+
+static box Main {
+  main() {
+    local f = new FileBox()
+    f.open("apps/tests/gate_log_summarizer/sample_mixed.log", "r")
+    f.close()
+    return 0
+  }
+}

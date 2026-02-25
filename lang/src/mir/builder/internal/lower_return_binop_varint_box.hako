@@ -1,0 +1,75 @@
+// lower_return_binop_varint_box.hako — Return(Binary Var/Int with prior Local Int)
+// Patterns:
+//   Local x=Int A; Return(Binary(op, lhs=Var x, rhs=Int B))
+//   Local x=Int A; Return(Binary(op, lhs=Int B, rhs=Var x))
+
+using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box LowerReturnBinOpVarIntBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
+    if k_ret < 0 { return null }
+    local k_bin = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_ret)
+    if k_bin < 0 { return null }
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_bin)
+    if k_op < 0 { return null }
+    local op = JsonFragBox.read_string_after(s, k_op + 5)
+    if op == null { return null }
+    // Map op symbol to MIR op_kind via shared util
+    local kind = PatternUtilBox.map_binop(op); if kind == null { return null }
+    // Try Var + Int
+    local klhs_var = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\"", k_bin)
+    local krhs_int = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", k_bin)
+    local var_name = null
+    local rhs_val = null
+    if klhs_var >= 0 && krhs_int >= 0 {
+      local k_name = JsonFragBox.index_of_from(s, "\"name\":", klhs_var); if k_name < 0 { return null }
+      var_name = JsonFragBox.read_string_after(s, k_name + 7)
+      local kvi = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", krhs_int)
+      if kvi >= 0 {
+        local kv = JsonFragBox.index_of_from(s, "\"value\":", kvi); if kv < 0 { return null }
+        rhs_val = JsonFragBox.read_int_after(s, kv + 8)
+      }
+      if var_name != null && rhs_val != null {
+        local var_val = PatternUtilBox.find_local_int_before(s, var_name, k_ret)
+        if var_val != null {
+          // Emit MIR(JSON v0) as string
+          local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+            "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + var_val + "}}," +
+            "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_val + "}}," +
+            "{\"op\":\"binop\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+            "{\"op\":\"ret\",\"value\":3}]}]}]}"
+          return mir
+        }
+      }
+    }
+    // Try Int + Var
+    local klhs_int = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Int\"", k_bin)
+    local krhs_var = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\"", k_bin)
+    var_name = null
+    local lhs_val = null
+    if klhs_int >= 0 && krhs_var >= 0 {
+      local kvi2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", klhs_int)
+      if kvi2 >= 0 {
+        local kv2 = JsonFragBox.index_of_from(s, "\"value\":", kvi2); if kv2 < 0 { return null }
+        lhs_val = JsonFragBox.read_int_after(s, kv2 + 8)
+      }
+      local k_name2 = JsonFragBox.index_of_from(s, "\"name\":", krhs_var); if k_name2 < 0 { return null }
+      var_name = JsonFragBox.read_string_after(s, k_name2 + 7)
+      if lhs_val != null && var_name != null {
+        local var_val2 = PatternUtilBox.find_local_int_before(s, var_name, k_ret)
+        if var_val2 != null {
+          local mir2 = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+            "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs_val + "}}," +
+            "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + var_val2 + "}}," +
+            "{\"op\":\"binop\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+            "{\"op\":\"ret\",\"value\":3}]}]}]}"
+          return mir2
+        }
+      }
+    }
+    return null
+  }
+}

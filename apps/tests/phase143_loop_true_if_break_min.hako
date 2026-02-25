@@ -1,0 +1,25 @@
+// Phase 143 P0: loop(true) + if + break minimal test
+//
+// Pattern: loop(true) { if(cond_pure) break }
+// Expected: exit code 7 (cond is true immediately, break, return 7)
+//
+// This test verifies:
+// - loop(true) is recognized
+// - Pure condition (flag == 1) is lowerable
+// - Break exits loop immediately
+// - Return after loop is processed normally
+
+static box Main {
+    main() {
+        local flag
+        flag = 1
+
+        loop(true) {
+            if flag == 1 {
+                break
+            }
+        }
+
+        return 7
+    }
+}

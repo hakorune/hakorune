@@ -1,0 +1,28 @@
+// Phase 29bq parser handoff Tier-2: local init with null comparisons (== null, != null) + && + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local n = null
+      local s = "ok"
+
+      local cond1 = (n == null) && (s != null)
+      if cond1 {
+        out = out + 14
+      } else {
+        out = out + 1
+      }
+
+      local cond2 = (n != null) && (s == null)
+      if cond2 {
+        out = out + 140
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 1400
+    }
+    print(out)
+    return 0
+  }
+}

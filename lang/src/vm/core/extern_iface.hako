@@ -1,0 +1,14 @@
+// extern_iface.hako — NyVmExternIface (skeleton)
+// Minimal stub for extern calls registration/dispatch (Phase‑1: no-op)
+static box NyVmExternIface {
+  // Register extern handler (placeholder)
+  register(name, handler_box) { return 0 }
+  // Call extern; return error (Fail‑Fast) until implemented
+  call(name, args) {
+    print("[core/extern] unsupported extern: " + name)
+    return -1
+  }
+}
+
+static box NyVmExternIfaceMain { main(args){ return 0 } }
+

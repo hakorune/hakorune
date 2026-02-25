@@ -1,0 +1,29 @@
+// Selfhost blocker (StageBBodyExtractorBox.build_body_src/2 derived):
+// loop(cond) + ScopeBox + `if cond { effects }` (no else) inside loop body.
+//
+// Expected: stdout=0, RC=0
+// Contract: the inner `if` is NoExit (effect-only), and must NOT be forced through exit-if lowering.
+
+static box Main {
+  main() {
+    local n = 3
+    local i = 0
+
+    loop(i < n) {
+      {
+        local trc = 1
+        // NoExit if-without-else (effect-only); must NOT be treated as exit-if.
+        if trc == 1 { env.get("HAKO_STAGEB_TRACE") }
+      }
+
+      // Force LoopCondBreakContinue (break + continue) so the no-else NoExit `if` above is lowered
+      // through the same path as StageBBodyExtractorBox.build_body_src/2.
+      if i == 0 { i = i + 1  continue }
+      if i == 2 { break }
+      i = i + 1
+    }
+
+    print(0)
+    return 0
+  }
+}

@@ -1,0 +1,12 @@
+box Node {
+    weak parent
+}
+
+static box Main {
+    main() {
+        local n1 = new Node()
+        local n2 = new Node()
+        n1.parent = n2  // ❌ Direct BoxRef
+        return 0
+    }
+}

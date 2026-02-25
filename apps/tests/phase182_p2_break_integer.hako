@@ -1,0 +1,29 @@
+// Phase 182-5: Basic Pattern2 Break test with integers only
+// No string operations, no LoopBodyLocal - pure P2 verification
+
+static box Main {
+  main(args) {
+    // Simple integer accumulation with break (sum of 1+2 = 3)
+    local result = 0
+    local i = 1
+    local limit = 5
+
+    loop(i < limit) {
+      if i == 3 { break }  // Stop before adding 3
+      result = result + i
+      i = i + 1
+    }
+
+    // Expected: result = 1+2 = 3, i = 3
+    // Simple verification without toString()
+    if result == 3 {
+      if i == 3 {
+        print("PASS: P2 Break works correctly")
+        return 0
+      }
+    }
+
+    print("FAIL: result or i incorrect")
+    return 1
+  }
+}

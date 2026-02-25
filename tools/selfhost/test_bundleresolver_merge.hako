@@ -1,0 +1,35 @@
+// Phase 162: Test BundleResolver merge loop (Pattern1 simple)
+// Target: BundleResolver merge loops (L107, L111) - Pattern1 (Simple)
+
+static box Main {
+  main(args) {
+    // Simulate BundleResolver merge logic
+    local merged = ""
+
+    // Simulate bundle_srcs (first array)
+    local srcs = new ArrayBox()
+    srcs.push("// code1")
+    srcs.push("// code2")
+
+    local i = 0
+    local m = srcs.length()
+    loop(i < m) {
+      merged = merged + srcs.get(i) + "\n"
+      i = i + 1
+    }
+
+    // Simulate bundle_mod_srcs (second array)
+    local mods = new ArrayBox()
+    mods.push("// code3")
+
+    local i2 = 0
+    local m2 = mods.length()
+    loop(i2 < m2) {
+      merged = merged + mods.get(i2) + "\n"
+      i2 = i2 + 1
+    }
+
+    print("Merged length: " + ("" + merged.length()))
+    return 0
+  }
+}

@@ -1,0 +1,29 @@
+// Phase 285W-Syntax-0: WeakRef basic test with weak x syntax
+// SSOT: docs/reference/language/lifecycle.md:179 - weak <expr>/weak_to_strong()
+//
+// Test: weak x creates WeakRef, weak_to_strong() returns Box when alive
+// Note: Full drop semantics test deferred (needs GC/scope analysis).
+// Note: Field/value comparisons are intentionally not tested here, since LLVM harness may
+// represent boxed integers as handles and (handle vs literal) comparisons can diverge.
+// This fixture only verifies "upgrade succeeds while the strong ref is alive".
+
+box SomeBox {
+    x
+}
+
+static box Main {
+    main() {
+        local x = new SomeBox()
+        local w = weak x
+
+        // Test 1: weak_to_strong should succeed while x is alive
+        local y = w.weak_to_strong()
+        if y == null {
+            print("ng: weak_to_strong returned null while x alive")
+            return 1
+        }
+
+        print("ok: weak and weak_to_strong work correctly")
+        return 2
+    }
+}

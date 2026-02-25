@@ -1,0 +1,33 @@
+// Phase 200-D: Digits accumulation test (no body-local in condition)
+// This test verifies captured variable (digits) with string accumulation
+// without requiring Pattern 5 body-local promotion.
+//
+// Key constraints:
+// - Loop condition uses only LoopParam (p) and OuterLocal (n)
+// - No body-local variables in break/if conditions
+// - digits is captured and used in loop body
+
+static box Main {
+    main() {
+        local digits = "0123456789"  // Captured var
+        local s = "abc"              // Input string
+
+        local p = 0
+        local result = ""
+        local n = s.length()  // n = 3
+
+        // Simple loop: iterate exactly n times
+        loop(p < n) {
+            local ch = s.substring(p, p + 1)
+
+            // Use digits to check if char is a digit (result not used in condition)
+            local is_digit = digits.indexOf(ch)  // digits: captured
+
+            // Always append the char (no conditional break)
+            result = result + ch
+            p = p + 1
+        }
+
+        print(result)  // Expected: "abc"
+    }
+}

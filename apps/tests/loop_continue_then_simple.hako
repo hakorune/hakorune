@@ -1,0 +1,23 @@
+// Pattern A test - then-side continue (for comparison)
+// Tests: if (cond) { continue } else { body }
+
+static box Main {
+  main(args) {
+    local i = 0
+    local sum = 0
+
+    loop(i < 5) {
+      i = i + 1
+      // Pattern A: Skip when i == 5, process otherwise
+      if (i == 5) {
+        continue
+      } else {
+        sum = sum + i
+      }
+    }
+
+    // Expected: sum = 1 + 2 + 3 + 4 = 10
+    print(sum)
+    return 0
+  }
+}

@@ -1,0 +1,3 @@
+# fixture	expected	allow_rc	planner_tag	reason
+# NOTE: keep minimal set for selfhost execution (grow 1 -> N, stop on freeze and record LOG in phase-29bq README).
+apps/tests/phase118_pattern3_if_sum_min.hako	12	0	[joinir/planner_first rule=Pattern3]	if-only selfhost subset

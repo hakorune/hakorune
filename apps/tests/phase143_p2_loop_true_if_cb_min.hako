@@ -1,0 +1,14 @@
+// Phase 143 P2: Continue-Break pattern (exit code 9)
+static box Main {
+    main() {
+        local flag = 0
+        loop(true) {
+            if flag == 1 {
+                continue
+            } else {
+                break
+            }
+        }
+        return 9
+    }
+}

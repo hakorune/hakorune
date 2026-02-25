@@ -1,0 +1,70 @@
+// v1_phi_adapter.hako — V1PhiAdapterBox
+// Responsibility: adapt MIR JSON v1 PHI incoming lists to the format expected
+// by existing PhiDecodeBox/PhiApplyBox if needed. Currently acts as a
+// pass-through for pairs [value, bb]. Kept as a place-holder for future needs.
+
+box V1PhiAdapterBox {
+  // Pick value register id from a phi object segment for a given predecessor bb id.
+  // seg: JSON object text for one phi instruction
+  // prev_bb: integer predecessor block id
+  pick_incoming_value_id(seg, prev_bb, flow_trace) {
+    if seg == null { return null }
+    local trace = 0
+    if flow_trace != null { if flow_trace == 1 { trace = 1 } }
+    if trace == 1 { print("[phi_adapter] pick_incoming prev_bb=" + (""+prev_bb) + " from seg") }
+    // locate incoming array boundaries robustly (tolerate spaces/newlines)
+    local key = "\"incoming\""
+    local pk = seg.indexOf(key)
+    if pk < 0 { return null }
+    local lb = seg.indexOf("[", pk)
+    if lb < 0 { return null }
+    local rb = JsonFragBox._seek_array_end(seg, lb)
+    if rb <= lb { return null }
+    local arr = seg.substring(lb + 1, rb)
+    // iterate top-level pairs [val, pred]
+    local pos = 0
+    loop(true) {
+      if pos >= arr.length() { break }
+      local lb2 = arr.indexOf("[", pos)
+      if lb2 < 0 { break }
+      local rb2 = JsonFragBox._seek_array_end(arr, lb2)
+      if rb2 <= lb2 { break }
+      // inside the pair (without brackets)
+      local pair = arr.substring(lb2 + 1, rb2)
+      // read value id (first integer)
+      local vstr = JsonFragBox.read_int_from(pair, 0)
+      if vstr != null {
+        local vint = JsonFragBox._str_to_int(vstr)
+        // find comma separating bb
+        local comma = pair.indexOf(",")
+        local bstr = null
+        if comma >= 0 {
+          bstr = JsonFragBox.read_int_from(pair, comma + 1)
+        } else {
+          // fallback: try last integer in the pair by scanning from end backwards
+          // (rare, but keeps tolerant against missing comma with spaces)
+          local j = pair.length() - 1
+          loop(j >= 0) {
+            local ch = pair.substring(j, j+1)
+            if (ch >= "0" && ch <= "9") || ch == "-" { j = j - 1 } else { break }
+          }
+          local k = j + 1
+          // find start of the number
+          loop(k > 0) {
+            local ch2 = pair.substring(k-1, k)
+            if (ch2 >= "0" && ch2 <= "9") || ch2 == "-" { k = k - 1 } else { break }
+          }
+          bstr = pair.substring(k, j + 1)
+        }
+        if bstr != null {
+          local bint = JsonFragBox._str_to_int(bstr)
+          if bint == prev_bb { return vint }
+        }
+      }
+      pos = rb2 + 1
+    }
+    return null
+  }
+}
+
+static box V1PhiAdapterMain { method main(args) { return 0 } }

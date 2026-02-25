@@ -1,0 +1,255 @@
+// selfhost/shared/mir/mir_schema_box.hako
+// MirSchemaBox — minimal MIR(JSON v0) constructors (P1 scope)
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
+
+static box MirSchemaBox {
+  _expect_map(val, context) {
+    if val == null { 
+      print("[MirSchemaBox] dev assert failed: expected MapBox (non-null) for " + context)
+      return val
+    }
+    if BoxTypeInspectorBox.is_map(val) { return val }
+    print("[MirSchemaBox] dev assert failed: expected MapBox for " + context)
+    return val
+  }
+  _expect_array(val, context) {
+    if val == null {
+      print("[MirSchemaBox] dev assert failed: expected ArrayBox (non-null) for " + context)
+      return val
+    }
+    if BoxTypeInspectorBox.is_array(val) { return val }
+    print("[MirSchemaBox] dev assert failed: expected ArrayBox for " + context)
+    return val
+  }
+  _expect_i64(val, context) {
+    if val == null {
+      print("[MirSchemaBox] dev assert failed: expected i64 (non-null) for " + context)
+      return 0
+    }
+    if BoxTypeInspectorBox.is_map(val) {
+      local ty = val.get("type")
+      if ty != null {
+        local ty_str = "" + ty
+        if ty_str != "i64" && ty_str != "int" && ty_str != "integer" {
+          print("[MirSchemaBox] dev assert failed: unexpected type " + ty_str + " in " + context)
+          return 0
+        }
+      }
+      local inner = val.get("value")
+      if inner != null { return StringHelpers.to_i64(inner) }
+      print("[MirSchemaBox] dev assert failed: missing value in " + context)
+      return 0
+    }
+    if StringHelpers.is_numeric_str("" + val) == 1 { return StringHelpers.to_i64(val) }
+    print("[MirSchemaBox] dev assert failed: expected numeric value for " + context)
+    return 0
+  }
+  _len(arr) {
+    if arr == null { return 0 }
+    // ArrayBox.size/1 は MapBox-wrapped integer を返すので、unwrap する
+    local size_val = arr.length()
+    if BoxTypeInspectorBox.is_map(size_val) {
+      local inner = size_val.get("value")
+      if inner != null { return inner }
+    }
+    return size_val
+  }
+  // Scalars (normalize to i64 for P1)
+  i(x) {
+    // Return MapBox { type: "i64", value: x }
+    local m = new MapBox()
+    m.set("type", "i64")
+    m.set("value", x)
+    return m
+  }
+
+  // Instructions
+  inst_const(dst, val) {
+    local m = new MapBox()
+    m.set("op", "const")
+    m.set("dst", this.i(dst))
+    m.set("value", this.i(val))
+    return m
+  }
+  inst_const_f64(dst, fval) {
+    local m = new MapBox()
+    m.set("op", "const")
+    m.set("dst", this.i(dst))
+    local v = new MapBox(); v.set("type", "f64"); v.set("value", fval)
+    m.set("value", v)
+    return m
+  }
+  inst_const_str(dst, sval) {
+    local m = new MapBox()
+    m.set("op", "const")
+    m.set("dst", this.i(dst))
+    local v = new MapBox(); v.set("type", "string"); v.set("value", sval)
+    m.set("value", v)
+    return m
+  }
+  inst_ret(val) {
+    local m = new MapBox()
+    m.set("op", "ret")
+    m.set("value", this.i(val))
+    return m
+  }
+  inst_compare(cmp, lhs, rhs, dst) {
+    local m = new MapBox()
+    m.set("op", "compare")
+    m.set("cmp", cmp)
+    m.set("lhs", this.i(lhs))
+    m.set("rhs", this.i(rhs))
+    m.set("dst", this.i(dst))
+    return m
+  }
+  inst_binop(kind, lhs, rhs, dst) {
+    local m = new MapBox()
+    m.set("op", "binop")
+    m.set("op_kind", kind)
+    m.set("lhs", this.i(lhs))
+    m.set("rhs", this.i(rhs))
+    m.set("dst", this.i(dst))
+    return m
+  }
+  inst_copy(src, dst) {
+    local m = new MapBox()
+    m.set("op", "copy")
+    m.set("src", this.i(src))
+    m.set("dst", this.i(dst))
+    return m
+  }
+  inst_branch(cond, then_id, else_id) {
+    local m = new MapBox()
+    m.set("op", "branch")
+    m.set("cond", this.i(cond))
+    m.set("then", this.i(then_id))
+    m.set("else", this.i(else_id))
+    return m
+  }
+  inst_jump(target) {
+    local m = new MapBox()
+    m.set("op", "jump")
+    m.set("target", this.i(target))
+    return m
+  }
+
+  // Phi instruction (v0 schema)
+  phi_incoming(block_id, value_id) {
+    local m = new MapBox()
+    m.set("block", this.i(block_id))
+    m.set("value", this.i(value_id))
+    return m
+  }
+  inst_phi(dst, incoming) {
+    local m = new MapBox()
+    m.set("op", "phi")
+    m.set("dst", this.i(dst))
+    local arr = new ArrayBox()
+    if incoming != null {
+      local n = me._len(incoming)
+      local i = 0
+      loop(i < n) {
+        arr.push(incoming.get(i))
+        i = i + 1
+      }
+    }
+    m.set("values", arr)
+    return m
+  }
+
+  // Unified call (mir_call) variants — minimal P3
+  _wrap_ids(arr) {
+    local out = new ArrayBox()
+    if arr == null { return out }
+    me._expect_array(arr, "mir_call args source")
+    local i = 0
+    local n = me._len(arr)
+    loop(i < n) {
+      out.push(this.i(arr.get(i)))
+      i = i + 1
+    }
+    return out
+  }
+  inst_mir_call_extern(name, arg_ids, dst) {
+    local callee = new MapBox(); callee.set("type", "Extern"); callee.set("name", name)
+    local payload = new MapBox()
+    payload.set("callee", callee)
+    payload.set("args", this._wrap_ids(arg_ids))
+    payload.set("effects", new ArrayBox())
+    local m = new MapBox()
+    m.set("op", "mir_call")
+    m.set("dst", this.i(dst))
+    me._expect_map(payload, "mir_call payload (extern)")
+    m.set("mir_call", payload)
+    return m
+  }
+  inst_mir_call_global(name, arg_ids, dst) {
+    local callee = new MapBox(); callee.set("type", "Global"); callee.set("name", name)
+    local payload = new MapBox()
+    payload.set("callee", callee)
+    payload.set("args", this._wrap_ids(arg_ids))
+    payload.set("effects", new ArrayBox())
+    local m = new MapBox()
+    m.set("op", "mir_call")
+    m.set("dst", this.i(dst))
+    me._expect_map(payload, "mir_call payload (global)")
+    m.set("mir_call", payload)
+    return m
+  }
+  inst_mir_call_method(method, recv_id, arg_ids, dst) {
+    local callee = new MapBox()
+    callee.set("type", "Method")
+    callee.set("method", method)
+    callee.set("receiver", this.i(recv_id))
+    local m = new MapBox()
+    m.set("op", "mir_call")
+    m.set("dst", this.i(dst))
+    local payload = new MapBox()
+    payload.set("callee", callee)
+    payload.set("args", this._wrap_ids(arg_ids))
+    payload.set("effects", new ArrayBox())
+    payload = me._expect_map(payload, "mir_call payload (method)")
+    m.set("mir_call", payload)
+    return m
+  }
+  inst_mir_call_constructor(box_type, arg_ids, dst) {
+    local callee = new MapBox(); callee.set("type", "Constructor"); callee.set("box_type", box_type)
+    local m = new MapBox()
+    m.set("op", "mir_call")
+    m.set("dst", this.i(dst))
+    local payload = new MapBox()
+    payload.set("callee", callee)
+    payload.set("args", this._wrap_ids(arg_ids))
+    payload.set("effects", new ArrayBox())
+    me._expect_map(payload, "mir_call payload (constructor)")
+    m.set("mir_call", payload)
+    return m
+  }
+
+  // Block/Module
+  block(id, insts) {
+    local m = new MapBox()
+    m.set("id", this.i(id))
+    m.set("instructions", insts)
+    return m
+  }
+  fn_main(blocks) {
+    local m = new MapBox()
+    m.set("name", "main")
+    m.set("blocks", blocks)
+    return m
+  }
+  module(fn_main)  {
+    local m = new MapBox()
+    m.set("version", this.i(0))
+    m.set("kind", "MIR")
+    // Avoid push() to sidestep host-slot gating; build as literal for determinism
+    local funcs = [ fn_main ]
+    m.set("functions", funcs)
+    // Fallback access path for environments where Array.size/1 is unreliable
+    m.set("functions_0", fn_main)
+    return m
+  }
+}

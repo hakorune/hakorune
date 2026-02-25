@@ -1,0 +1,26 @@
+// Moved from apps/selfhost-compiler/boxes/parser/scan/parser_ident_scan_box.hako
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+
+static box ParserIdentScanBox {
+  scan_ident(src, i) {
+    local j = i
+    local n = src.length()
+    if j >= n { return "@" + ParserStringUtilsBox.i2s(i) }
+    // first char: alpha or '_'
+    local ch = src.substring(j, j+1)
+    if !(ParserStringUtilsBox.is_alpha(ch) || ch == "_") { return "@" + ParserStringUtilsBox.i2s(i) }
+    j = j + 1
+    // MirBuilder-friendly: explicit continue instead of if-else
+    loop(j < n) {
+      local ch2 = src.substring(j, j+1)
+      if ParserStringUtilsBox.is_alpha(ch2) || ParserStringUtilsBox.is_digit(ch2) || ch2 == "_" {
+        j = j + 1
+        continue
+      }
+      break
+    }
+    local s = src.substring(i, j)
+    return s + "@" + ParserStringUtilsBox.i2s(j)
+  }
+}
+

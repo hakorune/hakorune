@@ -1,0 +1,20 @@
+static box Main {
+  main(args) {
+    local m = new MapBox()
+    m.set("a", 11)
+    m.set("b", 22)
+
+    local ok = 0
+    if m.size() == 2 { ok = ok + 1 }
+    if m.get("a") == 11 { ok = ok + 1 }
+    if m.has("b") == true { ok = ok + 1 }
+
+    if ok == 3 {
+      print("MAP_PROVIDER_OK size=2 get_a=11 has_b=1")
+      return 0
+    }
+
+    print("MAP_PROVIDER_NG ok=" + ok + " size=" + m.size())
+    return 1
+  }
+}

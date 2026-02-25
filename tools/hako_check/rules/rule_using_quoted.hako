@@ -1,0 +1,35 @@
+using tools.hako_check.text_ops as TextOps
+static box RuleUsingQuotedBox {
+  apply(text, path, out) {
+    local lines = me._split_lines(text)
+    me._scan_lines_for_using(lines, 0, path, out)
+  }
+  _scan_lines_for_using(lines, i, path, out) {
+    if i >= lines.size() { return }
+    local ln = me._ltrim(lines.get(i))
+    if ln.indexOf("using ") == 0 {
+      if ln.indexOf('using "') != 0 { out.push("[HC003] using must be quoted: " + path + ":" + me._itoa(i+1)) }
+    }
+    me._scan_lines_for_using(lines, i + 1, path, out)
+  }
+  _ltrim(s) { return me._ltrim_chars(s, " \t") }
+  _itoa(n) { return TextOps._itoa(n) }
+  _split_lines(s) {
+    local arr = new ArrayBox(); if s == null { return arr }
+    local n = s.length(); local last = 0; local i = 0
+    while i < n { local ch = s.substring(i,i+1); if ch == "\n" { arr.push(s.substring(last,i)); last = i+1 } i = i + 1 }
+    arr.push(s.substring(last)); return arr
+  }
+  _ltrim_chars(s, cs) {
+    local n = s.length()
+    local i = 0
+    while i < n {
+      local ch = s.substring(i,i+1)
+      if ch != " " && ch != "\t" { break }
+      i = i + 1
+    }
+    return s.substring(i)
+  }
+}
+
+static box RuleUsingQuotedMain { method main(args) { return 0 } }

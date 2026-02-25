@@ -1,0 +1,37 @@
+[module]
+name = "lang.mir"
+version = "1.0.0"
+
+[exports]
+# MIR builder modules
+"builder.func_lowering" = "builder/func_lowering.hako"
+builder.func_lowering.defs_scanner_box = "builder/func_lowering/defs_scanner_box.hako"
+builder.func_lowering.call_methodize_box = "builder/func_lowering/call_methodize_box.hako"
+builder.MirBuilderBox = "builder/MirBuilderBox.hako"
+builder.MirBuilderMinBox = "builder/MirBuilderMinBox.hako"
+builder.pattern_registry = "builder/pattern_registry.hako"
+builder.func_body.basic_lower_box = "builder/func_body/basic_lower_box.hako"
+builder.func_body.extern_call_box = "builder/func_body/extern_call_box.hako"
+builder.func_body.cli_entry_box = "builder/func_body/cli_entry_box.hako"
+builder.func_body.cli_run_shape_box = "builder/func_body/cli_run_shape_box.hako"
+builder.func_body.cli_run_lower_box = "builder/func_body/cli_run_lower_box.hako"
+
+# MIR builder internal modules
+builder.internal.prog_scan_box = "builder/internal/prog_scan_box.hako"
+builder.internal.lower_load_store_local_box = "builder/internal/lower_load_store_local_box.hako"
+builder.internal.lower_typeop_cast_box = "builder/internal/lower_typeop_cast_box.hako"
+builder.internal.lower_typeop_check_box = "builder/internal/lower_typeop_check_box.hako"
+builder.internal.lower_loop_simple_box = "builder/internal/lower_loop_simple_box.hako"
+builder.internal.lower_loop_sum_bc_box = "builder/internal/lower_loop_sum_bc_box.hako"
+builder.internal.lower_loop_multi_carrier_box = "builder/internal/lower_loop_multi_carrier_box.hako"
+builder.internal.lower_if_merge_local_return_var_box = "builder/internal/lower_if_merge_local_return_var_box.hako"
+builder.internal.lower_loop_local_return_var_box = "builder/internal/lower_loop_local_return_var_box.hako"
+builder.internal.loop_opts_adapter_box = "builder/internal/loop_opts_adapter_box.hako"
+builder.internal.builder_config_box = "builder/internal/builder_config_box.hako"
+builder.internal.jsonfrag_normalizer_box = "builder/internal/jsonfrag_normalizer_box.hako"
+
+# MIR emitter
+min_emitter = "min_emitter.hako"
+
+[dependencies]
+"selfhost.shared" = "^1.0.0"

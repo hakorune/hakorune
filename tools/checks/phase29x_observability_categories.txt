@@ -1,0 +1,6 @@
+# category (fixed order)
+handles
+locals
+temps
+heap_fields
+singletons

@@ -1,0 +1,133 @@
+// mini_collections.hako — Minimal collection boxes for selfhost VM tests
+
+// Simple string-backed dynamic array of i64 (for smoke/testing)
+box MiniArray {
+  field data: String
+  birth() { me.data = "" return 0 }
+  push(v) {
+    using selfhost.vm.hakorune-vm.str_cast as StrCast
+    v = StrCast.to_str(v)
+    if me.data == "" { me.data = v } else { me.data = me.data + "," + v }
+    return 0
+  }
+  length() {
+    if me.data == "" { return 0 }
+    // count commas + 1
+    local s = me.data
+    local i = 0
+    local c = 1
+    loop(true) {
+      local j = s.indexOf(",", i)
+      if j < 0 { break }
+      c = c + 1
+      i = j + 1
+    }
+    return c
+  }
+  // Fail‑Fast accessor: returns element string; prints error and returns 0 on OOB
+  at(index) {
+    // normalize and validate index
+    using selfhost.shared.common.string_helpers as StringHelpers
+    local si = StringHelpers.int_to_str(index)
+    local idx = 0
+    if si != "" {
+      local i = 0
+      loop(i < si.length()) { idx = idx * 10 + ("0123456789".indexOf(si.substring(i,i+1)))  i = i + 1 }
+    }
+    local n = me.length()
+    if idx < 0 || idx >= n { print("[ERROR] MiniArray.at: index out of range: " + StringHelpers.int_to_str(idx) + "/" + StringHelpers.int_to_str(n)) return 0 }
+    // find start position of idx-th element
+    local s = me.data
+    local pos = 0
+    local cur = 0
+    loop(cur < idx) {
+      local j = s.indexOf(",", pos)
+      if j < 0 { print("[ERROR] MiniArray.at: broken storage") return 0 }
+      pos = j + 1
+      cur = cur + 1
+    }
+    local endp = s.indexOf(",", pos)
+    if endp < 0 { endp = s.length() }
+    return s.substring(pos, endp)
+  }
+}
+
+// Simple string-backed map (key->value as 'k=v\n')
+box MiniMap2 {
+  field store: String
+  birth() { me.store = "" return 0 }
+  set(key, value) {
+    key = "" + key
+    value = "" + value
+    // Guard for unsupported characters in key that break line format
+    if key.indexOf("\n") >= 0 || key.indexOf("=") >= 0 {
+      print("[ERROR] MiniMap2.set: invalid key contains newline or '='")
+      return 0
+    }
+    // remove and append
+    local out = ""
+    local s = me.store
+    local pos = 0
+    loop(true) {
+      local nl = s.indexOf("\n", pos)
+      if nl < 0 { break }
+      local line = s.substring(pos, nl)
+      local eq = line.indexOf("=")
+      if eq >= 0 {
+        local k = line.substring(0, eq)
+        if k != key { out = out + line + "\n" }
+      }
+      pos = nl + 1
+    }
+    me.store = out + key + "=" + value + "\n"
+    return 0
+  }
+  get(key) {
+    key = "" + key
+    local s = me.store
+    local pos = 0
+    loop(true) {
+      local nl = s.indexOf("\n", pos)
+      if nl < 0 { break }
+      local line = s.substring(pos, nl)
+      local eq = line.indexOf("=")
+      if eq >= 0 {
+        local k = line.substring(0, eq)
+        if k == key { return line.substring(eq + 1, line.length()) }
+      }
+      pos = nl + 1
+    }
+    return null
+  }
+  // Strict getter: Fail‑Fast when key is missing; returns 0 on failure
+  get_or_fail(key) {
+    key = "" + key
+    local v = me.get(key)
+    if v == null { print("[ERROR] MiniMap2.get: key not found: " + key) return 0 }
+    return v
+  }
+  has(key) {
+    key = "" + key
+    local s = me.store
+    if s == "" { return 0 }
+    // naive contains of 'key=' at line start or after \n
+    local needle = key + "="
+    if s.substring(0, needle.length()) == needle { return 1 }
+    local p = s.indexOf("\n" + needle)
+    if p >= 0 { return 1 }
+    return 0
+  }
+  size() {
+    if me.store == "" { return 0 }
+    local s = me.store
+    local i = 0
+    local c = 0
+    loop(true) {
+      local nl = s.indexOf("\n", i)
+      if nl < 0 { break }
+      c = c + 1
+      i = nl + 1
+    }
+    return c
+  }
+}

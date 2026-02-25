@@ -1,0 +1,14 @@
+// Phase 143 P2: Break-Continue pattern (exit code 8)
+static box Main {
+    main() {
+        local flag = 1
+        loop(true) {
+            if flag == 1 {
+                break
+            } else {
+                continue
+            }
+        }
+        return 8
+    }
+}

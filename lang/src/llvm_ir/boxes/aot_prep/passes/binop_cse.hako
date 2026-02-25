@@ -1,0 +1,126 @@
+// AotPrepBinopCSEBox — common subexpression elimination for binops (text-level)
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.llvm.ir.aot_prep.helpers.common as AotPrepHelpers
+
+static box AotPrepBinopCSEBox {
+  // Static helpers (replace anonymous fun)
+  read_field(text, key) {
+    local needle = "\"" + key + "\":\""
+    local idx = text.indexOf(needle)
+    if idx < 0 { return "" }
+    return JsonFragBox.read_string_after(text, idx + needle.length())
+  }
+  read_digits_field(text, key) {
+    local needle = "\"" + key + "\":"
+    local idx = text.indexOf(needle)
+    if idx < 0 { return "" }
+    return StringHelpers.read_digits(text, idx + needle.length())
+  }
+  resolve_copy(copy_src, vid) {
+    local current = vid
+    local depth = 0
+    loop(true) {
+      if current == "" { break }
+      if !copy_src.has(current) { break }
+      current = copy_src.get(current)
+      depth = depth + 1
+      if depth >= 12 { break }
+    }
+    return current
+  }
+  canon_binop(op, lhs, rhs, copy_src) {
+    if lhs == "" || rhs == "" { return "" }
+    local key_lhs = AotPrepBinopCSEBox.resolve_copy(copy_src, lhs)
+    local key_rhs = AotPrepBinopCSEBox.resolve_copy(copy_src, rhs)
+    if key_lhs == "" || key_rhs == "" { return "" }
+    if op == "+" || op == "add" || op == "*" || op == "mul" {
+      local li = StringHelpers.to_i64(key_lhs)
+      local ri = StringHelpers.to_i64(key_rhs)
+      if li != null && ri != null && ri < li {
+        local tmp = key_lhs
+        key_lhs = key_rhs
+        key_rhs = tmp
+      }
+    }
+    return op + ":" + key_lhs + ":" + key_rhs
+  }
+  run(json) {
+    if json == null { return null }
+    local pos = 0
+    local out = json
+    // Track seen canonicalized binops within each block
+    // Key format: op:lhs:rhs with copy chains resolved and commutativity normalized
+    // Reset per instructions-array span
+    loop(true) {
+      local key = "\"instructions\":["
+      local kinst = out.indexOf(key, pos)
+      if kinst < 0 { break }
+      local lb = out.indexOf("[", kinst)
+      if lb < 0 { break }
+      local rb = JsonFragBox._seek_array_end(out, lb)
+      if rb < 0 { break }
+      local body = out.substring(lb+1, rb)
+      // Pass-1: collect copy sources
+      local copy_src = new MapBox()
+      local seen = new MapBox()
+      local i1 = 0
+      loop(true) {
+        local os = body.indexOf("{", i1)
+        if os < 0 { break }
+        local oe = AotPrepHelpers._seek_object_end(body, os)
+        if oe < 0 { break }
+        local inst1 = body.substring(os, oe+1)
+        local op1 = AotPrepBinopCSEBox.read_field(inst1, "op")
+        if op1 == "copy" {
+          local dst1 = AotPrepBinopCSEBox.read_digits_field(inst1, "dst")
+          local src1 = AotPrepBinopCSEBox.read_digits_field(inst1, "src")
+          if dst1 != "" && src1 != "" { copy_src.set(dst1, src1) }
+        }
+        i1 = oe + 1
+      }
+      // Pass-2: build new body with CSE
+      local new_body = ""
+      local first = 1
+      local i2 = 0
+      loop(true) {
+        local os2 = body.indexOf("{", i2)
+        if os2 < 0 { break }
+        local oe2 = AotPrepHelpers._seek_object_end(body, os2)
+        if oe2 < 0 { break }
+        local inst = body.substring(os2, oe2+1)
+        local op = AotPrepBinopCSEBox.read_field(inst, "op")
+        if op == "binop" {
+          local operation = AotPrepBinopCSEBox.read_field(inst, "operation")
+          local lhs = AotPrepBinopCSEBox.read_digits_field(inst, "lhs")
+          local rhs = AotPrepBinopCSEBox.read_digits_field(inst, "rhs")
+          local key = AotPrepBinopCSEBox.canon_binop(operation, lhs, rhs, copy_src)
+          if key != "" && seen.has(key) {
+            local dst = AotPrepBinopCSEBox.read_digits_field(inst, "dst")
+            if dst != "" {
+              local item = "{\"op\":\"copy\",\"dst\":" + dst + ",\"src\":" + seen.get(key) + "}"
+              if first == 0 { new_body = new_body + "," }
+              new_body = new_body + item
+              first = 0
+              continue
+            }
+          } else if key != "" {
+            local dst = AotPrepBinopCSEBox.read_digits_field(inst, "dst")
+            if dst != "" {
+              seen.set(key, dst)
+            }
+          }
+        }
+        if first == 0 { new_body = new_body + "," }
+        new_body = new_body + inst
+        first = 0
+        i2 = oe2 + 1
+      }
+      out = out.substring(0, lb+1) + new_body + out.substring(rb, out.length())
+      pos = lb + new_body.length() + 1
+    }
+    return out
+  }
+
+  // _seek_object_end moved to AotPrepHelpers
+}

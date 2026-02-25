@@ -1,0 +1,13 @@
+// Phase B2-5 (manual check): legacy `{ "k": v }` map literal should fail-fast
+// Expected: parse error message mentioning `%{...}` and `=>` (legacy map removed under B2).
+
+static box Main {
+  main() {
+    // This should trigger the legacy map literal error.
+    local m = {"key": "value"}
+
+    // If we get here, the test failed (should have errored above).
+    print("ERROR: legacy map literal was not rejected")
+    return 0
+  }
+}

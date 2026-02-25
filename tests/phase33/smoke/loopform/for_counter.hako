@@ -1,0 +1,57 @@
+// LoopForm Smoke Test 2: Counter-based for loop
+// Tests for loop with explicit counter using loopform
+//
+// Expected behavior (when C++ backend implements loopform):
+//   - Loop from 0 to 9 (10 iterations)
+//   - Use payload mode for structural counter
+//   - Return total iterations
+
+using "lang/src/llvm_ir/instructions/loopform.hako" as LoopFormInst
+
+static box Main {
+  main() {
+    print("=== LoopForm Smoke Test 2: for_counter ===")
+
+    // Simulate for loop: for (i = 0; i < 10; i++)
+    local blocks = new MapBox()
+    blocks.set("preheader", 10)
+    blocks.set("header", 11)
+    blocks.set("body", 12)
+    blocks.set("dispatch", 13)
+    blocks.set("latch", 14)
+    blocks.set("exit", 15)
+
+    // Use payload mode with max iterations
+    local options = new MapBox()
+    options.set("mode", "payload")
+    options.set("payload_max", 10)
+    options.set("enable_safepoint", 1)
+
+    // Generate loopform JSON
+    local json = LoopFormInst.lower_loopform(2, blocks, 20, options)
+
+    // Verify JSON structure
+    local has_loopform = json.indexOf("\"op\":\"loopform\"")
+    if has_loopform < 0 {
+      print("ERROR: loopform op not found")
+      return 1
+    }
+
+    local has_payload_mode = json.indexOf("\"mode\":\"payload\"")
+    if has_payload_mode < 0 {
+      print("ERROR: payload mode not found")
+      return 1
+    }
+
+    local has_max = json.indexOf("\"payload_max\":10")
+    if has_max < 0 {
+      print("ERROR: payload_max not found")
+      return 1
+    }
+
+    print("✓ PASS: for_counter loopform generated")
+    print("Note: Actual loop execution requires C++ backend implementation")
+
+    return 0
+  }
+}

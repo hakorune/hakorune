@@ -1,0 +1,695 @@
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /home/tomoaki/git/hakorune-selfhost/plugins/nyash-console-plugin/Cargo.toml
+workspace: /home/tomoaki/git/hakorune-selfhost/Cargo.toml
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /home/tomoaki/git/hakorune-selfhost/plugins/nyash-counter-plugin/Cargo.toml
+workspace: /home/tomoaki/git/hakorune-selfhost/Cargo.toml
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /home/tomoaki/git/hakorune-selfhost/plugins/nyash-filebox-plugin/Cargo.toml
+workspace: /home/tomoaki/git/hakorune-selfhost/Cargo.toml
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /home/tomoaki/git/hakorune-selfhost/plugins/nyash-json-plugin/Cargo.toml
+workspace: /home/tomoaki/git/hakorune-selfhost/Cargo.toml
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /home/tomoaki/git/hakorune-selfhost/plugins/nyash-math-plugin/Cargo.toml
+workspace: /home/tomoaki/git/hakorune-selfhost/Cargo.toml
+warning: /home/tomoaki/git/hakorune-selfhost/Cargo.toml: file `/home/tomoaki/git/hakorune-selfhost/src/main.rs` found to be present in multiple build targets:
+  * `bin` target `hakorune`
+  * `bin` target `nyash`
+   Compiling nyash-rust v0.1.0 (/home/tomoaki/git/hakorune-selfhost)
+warning: unused doc comment
+  --> src/box_operators/static_ops.rs:14:1
+   |
+14 | / /// Static numeric operations for IntegerBox
+15 | | ///
+16 | | /// Generates implementations for: Add, Sub, Mul, Div with zero-division error handling
+   | |_--------------------------------------------------------------------------------------^
+   |   |
+   |   rustdoc does not generate documentation for macro invocations
+   |
+   = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+   = note: `#[warn(unused_doc_comments)]` on by default
+
+warning: unused doc comment
+  --> src/box_operators/static_ops.rs:19:1
+   |
+19 | / /// Static numeric operations for FloatBox
+20 | | ///
+21 | | /// Generates implementations for: Add, Sub, Mul, Div with zero-division error handling
+   | |_--------------------------------------------------------------------------------------^
+   |   |
+   |   rustdoc does not generate documentation for macro invocations
+   |
+   = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused import: `std::any::Any`
+ --> src/boxes/arithmetic/modulo_box.rs:6:5
+  |
+6 | use std::any::Any;
+  |     ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `HashMap`
+ --> src/mir/basic_block.rs:8:24
+  |
+8 | use std::collections::{HashMap, HashSet};
+  |                        ^^^^^^^
+
+warning: unused import: `call_target::CallTarget`
+  --> src/mir/builder/calls/mod.rs:10:9
+   |
+10 | pub use call_target::CallTarget;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `has_method`, `is_builtin_function`, `is_extern_function`, and `resolve_call_target`
+  --> src/mir/builder/calls/mod.rs:32:5
+   |
+32 |     resolve_call_target,
+   |     ^^^^^^^^^^^^^^^^^^^
+33 |     is_builtin_function,
+   |     ^^^^^^^^^^^^^^^^^^^
+34 |     is_extern_function,
+   |     ^^^^^^^^^^^^^^^^^^
+35 |     has_method,
+   |     ^^^^^^^^^^
+
+warning: unused imports: `compute_extern_effects`, `get_env_method_spec`, `is_env_interface`, and `parse_extern_name`
+  --> src/mir/builder/calls/mod.rs:39:5
+   |
+39 |     get_env_method_spec,
+   |     ^^^^^^^^^^^^^^^^^^^
+40 |     parse_extern_name,
+   |     ^^^^^^^^^^^^^^^^^
+41 |     is_env_interface,
+   |     ^^^^^^^^^^^^^^^^
+42 |     compute_extern_effects,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `contains_value_return`, `extract_string_literal`, `is_math_function`, `is_typeop_method`, `make_function_name_with_arity`, and `parse_type_name_to_mir`
+  --> src/mir/builder/calls/mod.rs:46:5
+   |
+46 |     is_math_function,
+   |     ^^^^^^^^^^^^^^^^
+47 |     is_typeop_method,
+   |     ^^^^^^^^^^^^^^^^
+48 |     extract_string_literal,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+49 |     parse_type_name_to_mir,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+50 |     contains_value_return,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+51 |     make_function_name_with_arity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `generate_method_function_name`, `generate_static_method_function_name`, `prepare_method_signature`, `prepare_static_method_signature`, and `wrap_in_program`
+  --> src/mir/builder/calls/mod.rs:55:5
+   |
+55 |     prepare_method_signature,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+56 |     prepare_static_method_signature,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+57 |     generate_method_function_name,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+58 |     generate_static_method_function_name,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+59 |     wrap_in_program,
+   |     ^^^^^^^^^^^^^^^
+
+warning: unused imports: `compute_call_effects`, `convert_target_to_callee`, `create_call_flags`, `create_mir_call`, `is_unified_call_enabled`, and `validate_call_args`
+  --> src/mir/builder/calls/mod.rs:63:5
+   |
+63 |     is_unified_call_enabled,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+64 |     convert_target_to_callee,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+65 |     compute_call_effects,
+   |     ^^^^^^^^^^^^^^^^^^^^
+66 |     create_call_flags,
+   |     ^^^^^^^^^^^^^^^^^
+67 |     create_mir_call,
+   |     ^^^^^^^^^^^^^^^
+68 |     validate_call_args,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `FunctionSignature`
+ --> src/mir/builder/builder_calls.rs:2:33
+  |
+2 | use super::{Effect, EffectMask, FunctionSignature, MirInstruction, MirType, ValueId};
+  |                                 ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `MethodCallExpr`
+ --> src/mir/builder/builder_calls.rs:3:41
+  |
+3 | use crate::ast::{ASTNode, LiteralValue, MethodCallExpr};
+  |                                         ^^^^^^^^^^^^^^
+
+warning: unused imports: `CallFlags` and `MirCall`
+ --> src/mir/builder/builder_calls.rs:4:53
+  |
+4 | use crate::mir::definitions::call_unified::{Callee, CallFlags, MirCall};
+  |                                                     ^^^^^^^^^  ^^^^^^^
+
+warning: unused import: `super::call_resolution`
+ --> src/mir/builder/builder_calls.rs:6:5
+  |
+6 | use super::call_resolution;
+  |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `MirType`
+ --> src/mir/builder/method_call_handlers.rs:9:46
+  |
+9 | use crate::mir::{MirInstruction, TypeOpKind, MirType};
+  |                                              ^^^^^^^
+
+warning: unused import: `ConstValue`
+ --> src/mir/builder/decls.rs:2:13
+  |
+2 | use super::{ConstValue, MirInstruction, ValueId};
+  |             ^^^^^^^^^^
+
+warning: unused import: `ConstValue`
+ --> src/mir/builder/exprs.rs:2:13
+  |
+2 | use super::{ConstValue, MirInstruction, ValueId};
+  |             ^^^^^^^^^^
+
+warning: unused import: `ConstValue`
+ --> src/mir/builder/fields.rs:2:13
+  |
+2 | use super::{ConstValue, EffectMask, MirInstruction, ValueId};
+  |             ^^^^^^^^^^
+
+warning: unused import: `ConstValue`
+ --> src/mir/builder/if_form.rs:1:13
+  |
+1 | use super::{ConstValue, MirBuilder, MirInstruction, ValueId};
+  |             ^^^^^^^^^^
+
+warning: unused import: `ConstValue`
+ --> src/mir/builder/control_flow.rs:2:13
+  |
+2 | use super::{ConstValue, Effect, EffectMask, MirInstruction, ValueId};
+  |             ^^^^^^^^^^
+
+warning: unused import: `ConstValue`
+ --> src/mir/builder/lifecycle.rs:1:116
+  |
+1 | use super::{EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule, MirType, ValueId, BasicBlockId, ConstValue};
+  |                                                                                                                    ^^^^^^^^^^
+
+warning: unused import: `ConstValue`
+ --> src/mir/builder/stmts.rs:1:13
+  |
+1 | use super::{ConstValue, Effect, EffectMask, MirInstruction, ValueId};
+  |             ^^^^^^^^^^
+
+warning: unused import: `MirInstruction`
+ --> src/mir/builder/origin/phi.rs:1:32
+  |
+1 | use super::super::{MirBuilder, MirInstruction, MirType, ValueId, BasicBlockId};
+  |                                ^^^^^^^^^^^^^^
+
+warning: unused import: `ConstValue`
+ --> src/mir/builder/rewrite/known.rs:1:20
+  |
+1 | use super::super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
+  |                    ^^^^^^^^^^
+
+warning: unused import: `ConstValue`
+ --> src/mir/builder/rewrite/special.rs:1:20
+  |
+1 | use super::super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction};
+  |                    ^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> src/mir/builder/ssa/local.rs:3:5
+  |
+3 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Effect`
+ --> src/mir/instruction.rs:7:13
+  |
+7 | use super::{Effect, EffectMask, ValueId};
+  |             ^^^^^^
+
+warning: unused import: `std::fmt`
+  --> src/mir/instruction.rs:13:5
+   |
+13 | use std::fmt;
+   |     ^^^^^^^^
+
+warning: unused import: `crate::mir::instruction_kinds as inst_meta`
+  --> src/mir/instruction.rs:16:5
+   |
+16 | use crate::mir::instruction_kinds as inst_meta;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unexpected `cfg` condition value: `cranelift-jit`
+  --> src/backend/mod.rs:29:7
+   |
+29 | #[cfg(feature = "cranelift-jit")]
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-examples`, `aot-plan-import`, `builtin-core`, `cli`, `default`, `dynamic-file`, `e2e`, `gui`, `gui-examples`, `interpreter-legacy`, `jit-direct-only`, `llvm`, `llvm-harness`, `llvm-inkwell-legacy`, `mir_refbarrier_unify_poc`, `mir_typeop_poc`, `phi-legacy`, `plugins`, `plugins-only`, `vm-legacy`, and `wasm-backend`
+   = help: consider adding `cranelift-jit` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition value: `cranelift-jit`
+  --> src/backend/mod.rs:48:7
+   |
+48 | #[cfg(feature = "cranelift-jit")]
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-examples`, `aot-plan-import`, `builtin-core`, `cli`, `default`, `dynamic-file`, `e2e`, `gui`, `gui-examples`, `interpreter-legacy`, `jit-direct-only`, `llvm`, `llvm-harness`, `llvm-inkwell-legacy`, `mir_refbarrier_unify_poc`, `mir_typeop_poc`, `phi-legacy`, `plugins`, `plugins-only`, `vm-legacy`, and `wasm-backend`
+   = help: consider adding `cranelift-jit` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unused import: `Map as JsonMap`
+ --> src/backend/mir_interpreter/handlers/externals.rs:2:38
+  |
+2 | use serde_json::{Value as JsonValue, Map as JsonMap};
+  |                                      ^^^^^^^^^^^^^^
+
+warning: unused import: `super::library`
+ --> src/runtime/plugin_loader_v2/enabled/loader/config.rs:1:5
+  |
+1 | use super::library;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `super::specs`
+ --> src/runtime/plugin_loader_v2/enabled/loader/singletons.rs:1:5
+  |
+1 | use super::specs;
+  |     ^^^^^^^^^^^^
+
+warning: unused import: `PluginBoxV2`
+ --> src/runtime/plugin_loader_v2/enabled/loader/mod.rs:9:55
+  |
+9 | use super::types::{LoadedPluginV2, PluginBoxMetadata, PluginBoxV2, PluginHandleInner};
+  |                                                       ^^^^^^^^^^^
+
+warning: unused import: `BidError`
+  --> src/runtime/plugin_loader_v2/enabled/loader/mod.rs:10:18
+   |
+10 | use crate::bid::{BidError, BidResult};
+   |                  ^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> src/runtime/plugin_loader_v2/enabled/method_resolver.rs:8:5
+  |
+8 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `FactoryPolicy`
+  --> src/runtime/unified_registry.rs:11:46
+   |
+11 | use crate::box_factory::{UnifiedBoxRegistry, FactoryPolicy};
+   |                                              ^^^^^^^^^^^^^
+
+warning: unexpected `cfg` condition value: `cranelift-jit`
+   --> src/runner/dispatch.rs:180:15
+    |
+180 |         #[cfg(feature = "cranelift-jit")]
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-examples`, `aot-plan-import`, `builtin-core`, `cli`, `default`, `dynamic-file`, `e2e`, `gui`, `gui-examples`, `interpreter-legacy`, `jit-direct-only`, `llvm`, `llvm-harness`, `llvm-inkwell-legacy`, `mir_refbarrier_unify_poc`, `mir_typeop_poc`, `phi-legacy`, `plugins`, `plugins-only`, `vm-legacy`, and `wasm-backend`
+    = help: consider adding `cranelift-jit` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `cranelift-jit`
+   --> src/runner/dispatch.rs:185:19
+    |
+185 |         #[cfg(not(feature = "cranelift-jit"))]
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-examples`, `aot-plan-import`, `builtin-core`, `cli`, `default`, `dynamic-file`, `e2e`, `gui`, `gui-examples`, `interpreter-legacy`, `jit-direct-only`, `llvm`, `llvm-harness`, `llvm-inkwell-legacy`, `mir_refbarrier_unify_poc`, `mir_typeop_poc`, `phi-legacy`, `plugins`, `plugins-only`, `vm-legacy`, and `wasm-backend`
+    = help: consider adding `cranelift-jit` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `cranelift-jit`
+   --> src/runner/dispatch.rs:203:15
+    |
+203 |         #[cfg(feature = "cranelift-jit")]
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `all-examples`, `aot-plan-import`, `builtin-core`, `cli`, `default`, `dynamic-file`, `e2e`, `gui`, `gui-examples`, `interpreter-legacy`, `jit-direct-only`, `llvm`, `llvm-harness`, `llvm-inkwell-legacy`, `mir_refbarrier_unify_poc`, `mir_typeop_poc`, `phi-legacy`, `plugins`, `plugins-only`, `vm-legacy`, and `wasm-backend`
+    = help: consider adding `cranelift-jit` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unused import: `BinaryOp`
+ --> src/runner/json_v0_bridge/lowering.rs:4:35
+  |
+4 |     MirPrinter, MirType, ValueId, BinaryOp,
+  |                                   ^^^^^^^^
+
+warning: unused import: `MirInstruction`
+ --> src/runner/json_v0_bridge/lowering/if_else.rs:2:45
+  |
+2 | use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+  |                                             ^^^^^^^^^^^^^^
+
+warning: unused import: `BinaryOp`
+ --> src/runner/json_v0_bridge/lowering/expr.rs:6:19
+  |
+6 |     BasicBlockId, BinaryOp, ConstValue, EffectMask, MirFunction, MirInstruction, ValueId,
+  |                   ^^^^^^^^
+
+warning: unused import: `MirInstruction`
+ --> src/runner/json_v0_bridge/lowering/ternary.rs:8:45
+  |
+8 | use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+  |                                             ^^^^^^^^^^^^^^
+
+warning: unused import: `MirInstruction`
+ --> src/runner/json_v0_bridge/lowering/throw_ctx.rs:1:45
+  |
+1 | use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+  |                                             ^^^^^^^^^^^^^^
+
+warning: unexpected `cfg` condition value: `cranelift-jit`
+  --> src/runner/modes/mod.rs:11:7
+   |
+11 | #[cfg(feature = "cranelift-jit")]
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `all-examples`, `aot-plan-import`, `builtin-core`, `cli`, `default`, `dynamic-file`, `e2e`, `gui`, `gui-examples`, `interpreter-legacy`, `jit-direct-only`, `llvm`, `llvm-harness`, `llvm-inkwell-legacy`, `mir_refbarrier_unify_poc`, `mir_typeop_poc`, `phi-legacy`, `plugins`, `plugins-only`, `vm-legacy`, and `wasm-backend`
+   = help: consider adding `cranelift-jit` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unused import: `NyashBox`
+   --> src/runner/modes/vm_fallback.rs:308:40
+    |
+308 |                 use crate::box_trait::{NyashBox, IntegerBox, BoolBox};
+    |                                        ^^^^^^^^
+
+warning: unused import: `crate::runner::child_env`
+  --> src/runner/pipe_io.rs:13:5
+   |
+13 | use crate::runner::child_env;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::io::Write`
+ --> src/host_providers/mir_builder.rs:3:5
+  |
+3 | use std::io::Write;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `Path`
+ --> src/host_providers/llvm_codegen.rs:3:17
+  |
+3 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+error[E0308]: mismatched types
+   --> src/mir/builder/ops.rs:300:65
+    |
+300 |                 crate::mir::ssot::cf_common::insert_phi_at_head(func, cur_bb, rhs_bool, inputs);
+    |                 ----------------------------------------------- ^^^^ types differ in mutability
+    |                 |
+    |                 arguments to this function are incorrect
+    |
+    = note: expected mutable reference `&mut function::MirFunction`
+                       found reference `&function::MirFunction`
+note: function defined here
+   --> src/mir/ssot/cf_common.rs:47:8
+    |
+47  | pub fn insert_phi_at_head(
+    |        ^^^^^^^^^^^^^^^^^^
+48  |     f: &mut MirFunction,
+    |     -------------------
+
+error[E0308]: mismatched types
+   --> src/mir/builder/ops.rs:363:65
+    |
+363 |                 crate::mir::ssot::cf_common::insert_phi_at_head(func, cur_bb, rhs_bool, inputs);
+    |                 ----------------------------------------------- ^^^^ types differ in mutability
+    |                 |
+    |                 arguments to this function are incorrect
+    |
+    = note: expected mutable reference `&mut function::MirFunction`
+                       found reference `&function::MirFunction`
+note: function defined here
+   --> src/mir/ssot/cf_common.rs:47:8
+    |
+47  | pub fn insert_phi_at_head(
+    |        ^^^^^^^^^^^^^^^^^^
+48  |     f: &mut MirFunction,
+    |     -------------------
+
+error[E0308]: mismatched types
+   --> src/mir/builder/ops.rs:393:65
+    |
+393 |                 crate::mir::ssot::cf_common::insert_phi_at_head(func, cur_bb, dst, inputs);
+    |                 ----------------------------------------------- ^^^^ types differ in mutability
+    |                 |
+    |                 arguments to this function are incorrect
+    |
+    = note: expected mutable reference `&mut function::MirFunction`
+                       found reference `&function::MirFunction`
+note: function defined here
+   --> src/mir/ssot/cf_common.rs:47:8
+    |
+47  | pub fn insert_phi_at_head(
+    |        ^^^^^^^^^^^^^^^^^^
+48  |     f: &mut MirFunction,
+    |     -------------------
+
+warning: unused import: `crate::box_trait::NyashBox`
+ --> src/backend/mir_interpreter/handlers/boxes_object_fields.rs:2:5
+  |
+2 | use crate::box_trait::NyashBox;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::box_trait::NyashBox`
+ --> src/backend/mir_interpreter/handlers/boxes_string.rs:2:5
+  |
+2 | use crate::box_trait::NyashBox;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/parser/statements/mod.rs:134:13
+    |
+134 |         let mut looks_like_method_head = |this: &Self| -> bool {
+    |             ----^^^^^^^^^^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` on by default
+
+warning: unused variable: `program_ast`
+  --> src/mir/builder/decls.rs:43:25
+   |
+43 |                     let program_ast = ASTNode::Program {
+   |                         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_program_ast`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `type_id`
+   --> src/mir/builder/decls.rs:118:13
+    |
+118 |         let type_id = crate::mir::builder::emission::constant::emit_string(self, format!("__box_type_{}", name));
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_type_id`
+
+warning: unused variable: `else_block`
+  --> src/mir/builder/phi.rs:15:9
+   |
+15 |         else_block: super::BasicBlockId,
+   |         ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_else_block`
+
+warning: unused variable: `then_block`
+   --> src/mir/builder/phi.rs:112:9
+    |
+112 |         then_block: BasicBlockId,
+    |         ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_then_block`
+
+warning: unused variable: `else_block`
+   --> src/mir/builder/phi.rs:113:9
+    |
+113 |         else_block: BasicBlockId,
+    |         ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_else_block`
+
+warning: unused variable: `func`
+   --> src/mir/builder/lifecycle.rs:241:60
+    |
+241 | ...                   MirInstruction::Call { func, .. } => {
+    |                                              ^^^^-
+    |                                              |
+    |                                              help: try removing the field
+
+warning: variable does not need to be mutable
+   --> src/mir/builder/lifecycle.rs:271:17
+    |
+271 |             let mut sig = FunctionSignature {
+    |                 ----^^^
+    |                 |
+    |                 help: remove this `mut`
+
+warning: unused variable: `dbg_fn_name`
+   --> src/mir/builder.rs:425:13
+    |
+425 |         let dbg_fn_name = self
+    |             ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_dbg_fn_name`
+
+warning: unused variable: `dbg_region_id`
+   --> src/mir/builder.rs:429:13
+    |
+429 |         let dbg_region_id = self.debug_current_region_id();
+    |             ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_dbg_region_id`
+
+warning: unused variable: `else_block`
+   --> src/mir/phi_core/if_phi.rs:148:5
+    |
+148 |     else_block: crate::mir::BasicBlockId,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_else_block`
+
+warning: variable does not need to be mutable
+   --> src/mir/phi_core/loop_phi.rs:185:13
+    |
+185 |         let mut inc = IncompletePhi {
+    |             ----^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src/backend/mir_interpreter/handlers/boxes_instance.rs:105:17
+    |
+105 |             let mut cands: Vec<String> = this
+    |                 ----^^^^^
+    |                 |
+    |                 help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src/backend/mir_interpreter/handlers/calls.rs:257:25
+    |
+257 |                     let mut esc = |s: &str| {
+    |                         ----^^^
+    |                         |
+    |                         help: remove this `mut`
+
+warning: value assigned to `first_arg_str` is never read
+   --> src/backend/mir_interpreter/handlers/calls.rs:387:25
+    |
+387 |                 let mut first_arg_str: Option<String> = None;
+    |                         ^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` on by default
+
+warning: unreachable pattern
+   --> src/backend/mir_interpreter/handlers/externals.rs:149:13
+    |
+28  |             ("env", "get") => {
+    |             -------------- matches all the relevant values
+...
+149 |             ("env", "get") => {
+    |             ^^^^^^^^^^^^^^ no value can reach this
+    |
+    = note: `#[warn(unreachable_patterns)]` on by default
+
+warning: unused variable: `source`
+  --> src/benchmarks.rs:48:23
+   |
+48 |             if let Ok(source) = fs::read_to_string(file_path) {
+   |                       ^^^^^^ help: if this is intentional, prefix it with an underscore: `_source`
+
+warning: variable does not need to be mutable
+  --> src/benchmarks.rs:36:13
+   |
+36 |         let mut results = Vec::new();
+   |             ----^^^^^^^
+   |             |
+   |             help: remove this `mut`
+
+warning: unused variable: `lib`
+  --> src/runtime/plugin_loader_v2/enabled/method_resolver.rs:40:19
+   |
+40 |             for ((lib, bt), spec) in map.iter() {
+   |                   ^^^ help: if this is intentional, prefix it with an underscore: `_lib`
+
+warning: unnecessary `unsafe` block
+  --> src/runtime/plugin_loader_v2/enabled/method_resolver.rs:50:39
+   |
+50 | ...                   let mid = unsafe { res_fn(cstr.as_ptr()) };
+   |                                 ^^^^^^ unnecessary `unsafe` block
+   |
+   = note: `#[warn(unused_unsafe)]` on by default
+
+warning: unused variable: `merge_bb`
+  --> src/runner/json_v0_bridge/lowering/loop_.rs:86:47
+   |
+86 |         fn debug_verify_phi_inputs(&mut self, merge_bb: BasicBlockId, inputs: &[(BasicBlockId, ValueId)]) {
+   |                                               ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_merge_bb`
+
+warning: unused variable: `inputs`
+  --> src/runner/json_v0_bridge/lowering/loop_.rs:86:71
+   |
+86 |         fn debug_verify_phi_inputs(&mut self, merge_bb: BasicBlockId, inputs: &[(BasicBlockId, ValueId)]) {
+   |                                                                       ^^^^^^ help: if this is intentional, prefix it with an underscore: `_inputs`
+
+warning: variable does not need to be mutable
+  --> src/runner/json_v0_bridge/lowering/ternary.rs:38:9
+   |
+38 |     let mut inputs = vec![(tend, tval), (eend, eval)];
+   |         ----^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: unreachable pattern
+   --> src/runner/json_v1_bridge.rs:512:29
+    |
+368 | ...                   "Constructor" => {
+    |                       ------------- matches all the relevant values
+...
+512 | ...                   "Constructor" => {
+    |                       ^^^^^^^^^^^^^ no value can reach this
+
+warning: unused variable: `using_resolver`
+   --> src/runner/modes/common_util/resolve/prelude_manager.rs:126:17
+    |
+126 |             let using_resolver = UsingResolutionBox::new(&self.runner, path)?;
+    |                 ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_using_resolver`
+
+warning: unused variable: `filename`
+   --> src/runner/modes/common_util/resolve/prelude_manager.rs:114:9
+    |
+114 |         filename: &str,
+    |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_filename`
+
+warning: unused variable: `filename`
+   --> src/runner/modes/common_util/resolve/selfhost_pipeline.rs:132:9
+    |
+132 |         filename: &str,
+    |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_filename`
+
+warning: unused variable: `code`
+   --> src/runner/modes/common_util/resolve/selfhost_pipeline.rs:182:9
+    |
+182 |         code: &str,
+    |         ^^^^ help: if this is intentional, prefix it with an underscore: `_code`
+
+warning: unused variable: `filename`
+   --> src/runner/modes/common_util/resolve/selfhost_pipeline.rs:183:9
+    |
+183 |         filename: &str,
+    |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_filename`
+
+warning: variable does not need to be mutable
+  --> src/runner/pipe_io.rs:23:13
+   |
+23 |         let mut json = if let Some(path) = &groups.parser.json_file {
+   |             ----^^^^
+   |             |
+   |             help: remove this `mut`
+
+warning: unused variable: `code`
+  --> src/runner/plugins.rs:54:40
+   |
+54 | ...                   Ok(code) => {
+   |                          ^^^^ help: if this is intentional, prefix it with an underscore: `_code`
+
+For more information about this error, try `rustc --explain E0308`.
+warning: `nyash-rust` (lib) generated 84 warnings
+error: could not compile `nyash-rust` (lib) due to 3 previous errors; 84 warnings emitted

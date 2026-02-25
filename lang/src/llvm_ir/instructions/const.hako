@@ -1,0 +1,80 @@
+// LLVM Const Instruction Box — Python const.py のHakorune実装
+// MIR定数命令をJSON形式に変換し、C++バックエンドに渡す
+
+static box LLVMConstInstructionBox {
+
+  // メインエントリーポイント - Pythonのlower_const()に相当
+  lower_const(self, dst, value_dict) {
+    local const_type = value_dict.type
+    local const_val = value_dict.value
+
+    if const_type == "i64" {
+      return me.inst_const_i64(dst, const_val)
+    }
+    
+    if const_type == "f64" {
+      return me.inst_const_f64(dst, const_val)
+    }
+    
+    if const_type == "void" {
+      return me.inst_const_void(dst)
+    }
+    
+    if const_type == "string" {
+      return me.inst_const_string(dst, const_val)
+    }
+
+    // 未知の型の場合はi64の0として扱う（Pythonのフォールバックと同じ）
+    return me.inst_const_i64(dst, 0)
+  }
+
+  // i64整数定数
+  inst_const_i64(dst, value) {
+    // JSON形式の定数命令を生成
+    // {"op":"const","dst":1,"value":{"type":"i64","value":42}}
+    return "{\"op\":\"const\",\"dst\":" + dst + ",\"value\":{\"type\":\"i64\",\"value\":" + value + "}}"
+  }
+
+  // f64浮動小数点定数
+  inst_const_f64(dst, value) {
+    // JSON形式の定数命令を生成
+    // {"op":"const","dst":1,"value":{"type":"f64","value":3.14}}
+    return "{\"op\":\"const\",\"dst\":" + dst + ",\"value\":{\"type\":\"f64\",\"value\":" + value + "}}"
+  }
+
+  // void/null定数 - i64の0として表現
+  inst_const_void(dst) {
+    // Pythonの実装ではi64の0を使用
+    return "{\"op\":\"const\",\"dst\":" + dst + ",\"value\":{\"type\":\"void\",\"value\":0}}"
+  }
+
+  // 文字列定数
+  inst_const_string(dst, str_value) {
+    // JSON文字列エスケープ処理
+    local escaped = me._escape_json_string(str_value)
+    return "{\"op\":\"const\",\"dst\":" + dst + ",\"value\":{\"type\":\"string\",\"value\":\"" + escaped + "\"}}"
+  }
+
+  // JSON文字列エスケープヘルパー
+  _escape_json_string(s) {
+    if s == null {
+      return ""
+    }
+
+    local result = s.toString()
+    result = result.replace("\\", "\\\\")
+    result = result.replace("\"", "\\\"")
+    result = result.replace("\n", "\\n")
+    result = result.replace("\t", "\\t")
+    result = result.replace("\r", "\\r")
+    
+    return result
+  }
+
+  // デバッグ用 - 生成された命令の確認
+  debug_const(self, dst, value_dict) {
+    local json = me.lower_const(self, dst, value_dict)
+    print("Generated const instruction: " + json)
+    return json
+  }
+}

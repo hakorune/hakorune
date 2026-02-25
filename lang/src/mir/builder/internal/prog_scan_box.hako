@@ -1,0 +1,82 @@
+// prog_scan_box.hako — Tiny string scanner helpers for Program(JSON v0)
+
+static box ProgScanBox {
+  _decode_unicode_on() {
+    local v = env.get("HAKO_PARSER_DECODE_UNICODE")
+    if v == null { return 0 }
+    if v == "1" || v == "true" || v == "on" { return 1 }
+    return 0
+  }
+  _decode_escapes(s) {
+    // Delegate to JsonFragBox decoder for consistency if available
+    using selfhost.shared.json.utils.json_frag as JsonFragBox
+    return JsonFragBox._decode_escapes(s)
+  }
+  // Find substring starting at or after pos; returns index or -1
+  find(s, pat, pos) {
+    local s1 = "" + s
+    local p = pos
+    if p < 0 { p = 0 }
+    if p >= s1.length() { return -1 }
+    local sub = s1.substring(p)
+    local k = sub.indexOf("" + pat)
+    if k < 0 { return -1 }
+    return p + k
+  }
+
+  // Skip ASCII spaces from pos; returns first non-space index
+  skip_spaces(s, pos) {
+    local i = pos
+    local n = ("" + s).length()
+    loop(i < n) { if ("" + s).substring(i,i+1) != " " { break } i = i + 1 }
+    return i
+  }
+
+  // Read an integer (optional '-') starting at pos; returns string or null
+  read_int_at(s, pos) {
+    local i = pos
+    local n = ("" + s).length()
+    if i < n && ("" + s).substring(i,i+1) == "-" { i = i + 1 }
+    local j = i
+    local had = 0
+    loop(j < n) {
+      local ch = ("" + s).substring(j,j+1)
+      if ch >= "0" && ch <= "9" { had = 1 j = j + 1 } else { break }
+    }
+    if had == 1 { return ("" + s).substring(pos, j) }
+    return null
+  }
+
+  // Read quoted string at or after key: "key": "..." (returns content or null)
+  read_quoted_after_key(s, start, key) {
+    local s1 = "" + s
+    local k = me.find(s1, "\"" + key + "\":", start)
+    if k < 0 { return null }
+    local i = k + 3 + key.length() // position after colon
+    local n = s1.length()
+    // skip spaces until first quote
+    loop(i < n) {
+      local ch = s1.substring(i,i+1)
+      if ch == "\"" { i = i + 1 break }
+      if ch != " " { break }
+      i = i + 1
+    }
+    local j = i
+    loop(j < n) { if s1.substring(j,j+1) == "\"" { break } j = j + 1 }
+    if j <= n {
+      local raw = s1.substring(i, j)
+      if me._decode_unicode_on() == 1 { return me._decode_escapes(raw) }
+      return raw
+    }
+    return null
+  }
+
+  // Read integer value after a "value": key near start
+  read_value_int_after(s, start) {
+    local s1 = "" + s
+    local k = me.find(s1, "\"value\":", start)
+    if k < 0 { return null }
+    local i = me.skip_spaces(s1, k + 8)
+    return me.read_int_at(s1, i)
+  }
+}

@@ -1,0 +1,18 @@
+// CommonImportsBox - Unified import utilities for string operations
+// Consolidates frequently used StringHelpers and StringOps imports
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.string_ops as StringOps
+
+static box CommonImportsBox {
+  // Provides access to common string utilities
+  // Boxes can import this instead of individual modules
+  static helpers() { return StringHelpers }
+  static ops() { return StringOps }
+  
+  // Commonly used string operations
+  static read_digits(text, pos) { return StringHelpers.read_digits(text, pos) }
+  static to_i64(digits) { return StringHelpers.to_i64(digits) }
+  static index_of_from(text, pattern, start) { return StringOps.index_of_from(text, pattern, start) }
+  static substring(text, start, end) { return StringOps.substring(text, start, end) }
+}

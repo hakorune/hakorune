@@ -1,0 +1,16 @@
+box Node {
+    public weak parent
+
+    setParent(p) {
+        me.parent = p  // ❌ Should fail: direct BoxRef assignment
+    }
+}
+
+static box Main {
+    main() {
+        local n1 = new Node()
+        local n2 = new Node()
+        n1.setParent(n2)
+        return 0
+    }
+}

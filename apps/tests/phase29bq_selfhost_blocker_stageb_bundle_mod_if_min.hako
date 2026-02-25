@@ -1,0 +1,14 @@
+// Selfhost blocker repro (Stage-B): StageBBodyExtractorBox.build_body_src contains
+// an args parsing loop with `--bundle-mod` that used to freeze under planner_required.
+//
+// Gate: planner-first (strict+planner_required), expected stdout=0, rc=0.
+using lang.compiler.entry.compiler_stageb as StageBMod
+
+static box Main {
+  main() {
+    // Importing StageBMod is sufficient to compile the module (and its loops).
+    // Keep runtime behavior minimal and stable.
+    print(0)
+    return 0
+  }
+}

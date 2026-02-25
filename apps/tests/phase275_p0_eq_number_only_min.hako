@@ -1,0 +1,20 @@
+// Phase 275 P0: Test B2 - Number-only equality (Bool↔Int removed, precise Int↔Float)
+// Goal: Demonstrate precise equality semantics
+
+static box Main {
+    main() {
+        // Int↔Float exact comparison
+        local a = (1 == 1.0)       // true (exact)
+        local b = (1 == 1.1)       // false (non-integral)
+
+        // Bool↔Int no coercion (now false, was true)
+        local c = (true == 1)      // false (no coercion)
+        local d = (false == 0)     // false (no coercion)
+
+        if a and not b and not c and not d {
+            return 3  // Success
+        }
+
+        return 1  // Failure
+    }
+}

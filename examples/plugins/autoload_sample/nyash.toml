@@ -1,0 +1,9 @@
+[using.counter]
+kind = "dylib"
+# Adjust the path if running from another directory
+path = "../../plugins/nyash-counter-plugin/libnyash_counter_plugin.so"
+bid = "CounterBox"
+
+[using]
+paths = ["lib"]
+

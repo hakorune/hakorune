@@ -1,0 +1,44 @@
+// Phase 29bq selfhost blocker (min):
+// - loop(true) with GeneralIfElseExit pattern
+// - mirrors RewriteKnown.try_apply/1 structure
+// - else-side has exit-if WITHOUT else (if j==0 { j=1; continue })
+//
+// Expected output: XY
+
+static box RewriteKnownMini {
+    run() {
+        local out = ""
+        local i = 0
+        local j = 0
+
+        loop(true) {
+            if i == 0 {
+                // Then-side: general-if body (no exit)
+                local x = 1
+                i = x
+            } else {
+                // Else-side: exit-if mixed
+                if j == 0 {
+                    j = 1
+                    continue  // ← else無しのexit-if（現実形）
+                }
+                local y = 2
+                j = y
+            }
+
+            out = out + "X"
+
+            if i > 0 {
+                out = out + "Y"
+                return out
+            }
+        }
+    }
+}
+
+static box Main {
+    main() {
+        print(RewriteKnownMini.run())
+        return 0
+    }
+}

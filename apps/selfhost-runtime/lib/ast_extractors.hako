@@ -1,0 +1,64 @@
+// AstExtractors — structural helpers for JSON-like AST nodes (selfhost-only)
+// SSOT: apps/selfhost-runtime/lib/README.md
+static box AstExtractors {
+  type_of(node) {
+    if !node { return "" }
+    @t = node.get("type")
+    if !t { return "" }
+    return t.str()
+  }
+
+  is_type(node, type_name) {
+    if type_name == null { return 0 }
+    return me.type_of(node) == type_name
+  }
+
+  get_field(node, key) {
+    if !node { return null }
+    if key == null { return null }
+    return node.get(key)
+  }
+
+  get_str(node, key) {
+    @v = me.get_field(node, key)
+    if !v { return "" }
+    return v.str()
+  }
+
+  get_int(node, key) {
+    @v = me.get_field(node, key)
+    if !v { return 0 }
+    return v.int()
+  }
+
+  match_type_keys(node, type_name, keys) {
+    if !node { return null }
+    if !keys { return null }
+    if me.type_of(node) != type_name { return null }
+    @m = new MapBox()
+    @i = 0
+    while i < keys.size() {
+      @k = keys.at(i)
+      @v = node.get(k)
+      if !v { return null }
+      m.set(k, v)
+      i = i + 1
+    }
+    return m
+  }
+
+  binop_parts(node) {
+    @keys = new ArrayBox()
+    keys.push("op")
+    keys.push("left")
+    keys.push("right")
+    return me.match_type_keys(node, "BinOp", keys)
+  }
+
+  call_parts(node) {
+    @keys = new ArrayBox()
+    keys.push("func")
+    keys.push("args")
+    return me.match_type_keys(node, "Call", keys)
+  }
+}

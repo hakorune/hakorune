@@ -1,0 +1,10 @@
+// value.hako — NyVmValue (skeleton)
+// Minimal numeric-only representation for Phase‑1 (const/binop/ret)
+static box NyVmValue {
+  is_i64(v) { return 1 } // skeleton assumes integers only
+  to_i64(v) { return v }
+  from_i64(n) { return n }
+}
+
+static box NyVmValueMain { main(args){ return 0 } }
+

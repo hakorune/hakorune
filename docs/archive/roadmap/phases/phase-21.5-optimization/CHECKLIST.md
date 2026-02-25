@@ -1,0 +1,6 @@
+- [ ] Baselines captured (loop/strlen/box), median/avg recorded
+- [ ] VM stats correlated (inst/compare/branch)
+- [ ] Structural optimizations applied (const/temps dedupe)
+- [ ] Re-measure after each change (no behavior change)
+- [ ] EXE canaries remain PASS (loop/print/strlen FAST)
+- [ ] README.ja/quick guides updated when toggles affect usage

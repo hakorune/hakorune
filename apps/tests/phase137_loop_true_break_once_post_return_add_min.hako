@@ -1,0 +1,26 @@
+// Phase 137 P0: loop(true) break-once with post-loop assigns + return add minimal fixture
+//
+// Purpose: Test post-loop assigns + return add expression
+// Expected output: 13 (0 → 1 → 11 → 13)
+//
+// Structure:
+//   x = 0         // pre-loop init
+//   loop(true) {  // condition is Bool literal true
+//       x = 1     // body assignment
+//       break     // break at end
+//   }
+//   x = x + 10    // post-loop assignment
+//   return x + 2  // return add expression
+
+static box Main {
+    main() {
+        local x
+        x = 0
+        loop(true) {
+            x = 1
+            break
+        }
+        x = x + 10
+        return x + 2
+    }
+}

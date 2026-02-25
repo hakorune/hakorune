@@ -1,0 +1,141 @@
+// AotPrepHelpers — shared helpers for AotPrep passes (const/linear checks)
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box AotPrepHelpers {
+  // Public: Determine if `vid` is a constant or linear i64 expression in JSON(MIR v0)
+  is_const_or_linear(json, vid) {
+    if vid == "" { return false }
+    return me._linear_expr(json, vid, 0)
+  }
+
+  // Public: fold integer binops on constants (returns string i64 or "")
+  evaluate_binop_constant(operation, lhs_val, rhs_val) {
+    if operation == "" { return "" }
+    local li = StringHelpers.to_i64(lhs_val)
+    local ri = StringHelpers.to_i64(rhs_val)
+    if li == null || ri == null { return "" }
+    local res = null
+    if operation == "add" || operation == "+" {
+      res = li + ri
+    } else if operation == "sub" || operation == "-" {
+      res = li - ri
+    } else if operation == "mul" || operation == "*" {
+      res = li * ri
+    } else if operation == "sdiv" || operation == "div" || operation == "/" {
+      if ri == 0 { return "" }
+      res = li / ri
+    } else if operation == "srem" || operation == "rem" || operation == "%" {
+      if ri == 0 { return "" }
+      res = li % ri
+    } else {
+      return ""
+    }
+    return StringHelpers.int_to_str(res)
+  }
+
+  // Public: Is `vid` defined by a const (following copy chains)
+  is_const_vid(json, vid) {
+    if vid == "" { return false }
+    local needle = "\"dst\":" + vid
+    local pos = JsonFragBox.index_of_from(json, needle, 0)
+    while pos >= 0 {
+      local start = json.substring(0, pos).lastIndexOf("{")
+      if start < 0 { break }
+      local end = me._seek_object_end(json, start)
+      if end < 0 { break }
+      local inst = json.substring(start, end+1)
+      if inst.indexOf("\"op\":\"const\"") >= 0 { return true }
+      if inst.indexOf("\"op\":\"copy\"") >= 0 {
+        // Follow copy chains to the source
+        local ksrc = inst.indexOf("\"src\":")
+        if ksrc >= 0 {
+          local svid = StringHelpers.read_digits(inst, ksrc + 6)
+          if svid != "" { return me.is_const_vid(json, svid) }
+        }
+      }
+      pos = JsonFragBox.index_of_from(json, needle, pos + 1)
+    }
+    return false
+  }
+
+  // Internal: linear expression checker with small recursion bound
+  _linear_expr(json, vid, depth) {
+    if vid == "" { return false }
+    if depth > 10 { return false }
+    if me.is_const_vid(json, vid) { return true }
+    local needle = "\"dst\":" + vid
+    local pos = JsonFragBox.index_of_from(json, needle, 0)
+    while pos >= 0 {
+      local start = json.substring(0, pos).lastIndexOf("{")
+      if start < 0 { break }
+      local end = me._seek_object_end(json, start)
+      if end < 0 { break }
+      local inst = json.substring(start, end+1)
+      // copy: propagate linearity
+      if inst.indexOf("\"op\":\"copy\"") >= 0 {
+        local ksrc = inst.indexOf("\"src\":")
+        if ksrc >= 0 {
+          local svid = StringHelpers.read_digits(inst, ksrc + 6)
+          if svid != "" { return me._linear_expr(json, svid, depth + 1) }
+        }
+      }
+      if inst.indexOf("\"op\":\"binop\"") >= 0 {
+        local lhs_pos = inst.indexOf("\"lhs\":")
+        local rhs_pos = inst.indexOf("\"rhs\":")
+        local op_key = inst.indexOf("\"operation\":\"")
+        if lhs_pos >= 0 && rhs_pos >= 0 && op_key >= 0 {
+          local lhs = StringHelpers.read_digits(inst, lhs_pos + 6)
+          local rhs = StringHelpers.read_digits(inst, rhs_pos + 6)
+          local op = JsonFragBox.read_string_after(inst, op_key + 13)
+          // + / - : sum/difference of linear terms remains linear
+          if lhs != "" && rhs != "" && (op == "+" || op == "-" || op == "add" || op == "sub") {
+            if me._linear_expr(json, lhs, depth + 1) && me._linear_expr(json, rhs, depth + 1) { return true }
+            if me.is_const_vid(json, lhs) && me._linear_expr(json, rhs, depth + 1) { return true }
+            if me.is_const_vid(json, rhs) && me._linear_expr(json, lhs, depth + 1) { return true }
+          }
+          // * : const * linear は線形、linear*linear は非線形扱い
+          if lhs != "" && rhs != "" && (op == "*" || op == "mul") {
+            if me.is_const_vid(json, lhs) && me._linear_expr(json, rhs, depth + 1) { return true }
+            if me.is_const_vid(json, rhs) && me._linear_expr(json, lhs, depth + 1) { return true }
+          }
+          // div/rem: linear / const, linear % const を線形扱い（ヒューリスティク）
+          if lhs != "" && rhs != "" && (op == "/" || op == "div" || op == "sdiv" || op == "%" || op == "rem" || op == "srem") {
+            if (op == "/" || op == "div" || op == "sdiv") {
+              if me._linear_expr(json, lhs, depth + 1) && me.is_const_vid(json, rhs) { return true }
+            } else {
+              if me._linear_expr(json, lhs, depth + 1) && me.is_const_vid(json, rhs) { return true }
+            }
+          }
+        }
+      }
+      pos = JsonFragBox.index_of_from(json, needle, pos + 1)
+    }
+    return false
+  }
+
+  // Minimal object end seeker (duplicated here to avoid box coupling)
+  _seek_object_end(s, start) {
+    if s == null { return -1 }
+    if start < 0 || start >= s.length() { return -1 }
+    if s.substring(start, start+1) != "{" { return -1 }
+    local i = start
+    local depth = 0
+    local in_str = 0
+    local esc = 0
+    loop (i < s.length()) {
+      local ch = s.substring(i, i+1)
+      if in_str == 1 {
+        if esc == 1 { esc = 0 }
+        else if ch == "\\" { esc = 1 }
+        else if ch == "\"" { in_str = 0 }
+      } else {
+        if ch == "\"" { in_str = 1 }
+        else if ch == "{" { depth = depth + 1 }
+        else if ch == "}" { depth = depth - 1  if depth == 0 { return i } }
+      }
+      i = i + 1
+    }
+    return -1
+  }
+}

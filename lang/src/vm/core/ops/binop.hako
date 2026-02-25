@@ -1,0 +1,68 @@
+// ops/binop.hako — NyVmOpBinOp (skeleton)
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+
+static box NyVmOpBinOp {
+  _read_int_field(inst_json, key) {
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return null }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return null }
+    p = p + 1
+    loop(true) {
+      local ch = inst_json.substring(p,p+1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue }
+      break
+    }
+    local digits = JsonCursorBox.digits_from(inst_json, p)
+    if digits == "" { return null }
+    return StringHelpers.to_i64(digits)
+  }
+  _read_str_field(inst_json, key) {
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return "" }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return "" }
+    p = p + 1
+    loop(true) {
+      local ch = inst_json.substring(p,p+1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue }
+      break
+    }
+    if inst_json.substring(p,p+1) != "\"" { return "" }
+    local end = JsonCursorBox.scan_string_end(inst_json, p)
+    if end < 0 { return "" }
+    local val = inst_json.substring(p+1, end)
+    return val
+  }
+  handle(inst_json, state) {
+    // Expect: {op:"binop", operation:"+|-|*|/|%|&|...", lhs:VID, rhs:VID, dst:VID}
+    local dst = me._read_int_field(inst_json, "dst")
+    local lhs = me._read_int_field(inst_json, "lhs")
+    local rhs = me._read_int_field(inst_json, "rhs")
+    local op = me._read_str_field(inst_json, "operation")
+    if dst == null || lhs == null || rhs == null || op == "" { print("[core/binop] malformed binop") return -1 }
+    local a = NyVmState.get_reg(state, lhs)
+    local b = NyVmState.get_reg(state, rhs)
+    local out = 0
+    // Support both symbol format ("+") and type format ("Add") for compatibility
+    if op == "+" || op == "Add" { out = a + b }
+    else if op == "-" || op == "Sub" { out = a - b }
+    else if op == "*" || op == "Mul" { out = a * b }
+    else if op == "/" || op == "Div" { if b == 0 { print("[core/binop] div by zero") return -1 } out = a / b }
+    else if op == "%" || op == "Mod" { if b == 0 { print("[core/binop] mod by zero") return -1 } out = a % b }
+    else if op == "&" || op == "BitAnd" || op == "And" { out = a & b }
+    else if op == "|" || op == "BitOr" || op == "Or" { out = a | b }
+    else if op == "^" || op == "BitXor" { out = a ^ b }
+    else if op == "<<" || op == "Shl" { out = a << b }
+    else if op == ">>" || op == "Shr" { out = a >> b }
+    else { print("[core/binop] unsupported op: " + op) return -1 }
+    NyVmState.set_reg(state, dst, out)
+    return 0
+  }
+}
+
+static box NyVmOpBinOpMain { main(args){ return 0 } }

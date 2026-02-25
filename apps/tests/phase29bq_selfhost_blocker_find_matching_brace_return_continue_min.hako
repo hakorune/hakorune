@@ -1,0 +1,26 @@
+// selfhost find_matching_brace minimal: nested return-if before continue
+// Expected: stdout=OK, RC=0
+static box Main {
+  main() {
+    local s = "}"
+    local i = 0
+    local n = 1
+    local depth = 1
+
+    print("OK")
+
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch == "}" {
+        depth = depth - 1
+        i = i + 1
+        if depth == 0 { return 0 }
+        continue
+      }
+      i = i + 1
+      if i >= n { break }
+    }
+
+    return 0
+  }
+}

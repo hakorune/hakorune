@@ -1,0 +1,16 @@
+// LoadHandlerBox - Load instruction handler
+// Handles: %dst = load %ptr (load from memory)
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.boxes.result_box as Result
+using selfhost.vm.hakorune-vm.value_manager as ValueManagerBox
+using selfhost.vm.hakorune-vm.json_field_extractor as JsonFieldExtractor
+using selfhost.vm.hakorune-vm.core_bridge_ops as CoreBridgeOps
+
+static box LoadHandlerBox {
+  // Handle load instruction
+  // inst_json: {"op":"load","dst":3,"ptr":1}
+  // mem: memory MapBox
+  // Returns: Result.Ok(0) or Result.Err(message)
+  handle(inst_json, regs, mem) { return CoreBridgeOps.apply_load(inst_json, regs, mem) }
+}

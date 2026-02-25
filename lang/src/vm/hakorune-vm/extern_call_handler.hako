@@ -1,0 +1,55 @@
+// ExternCallHandlerBox - Handle Extern function calls
+// Single Responsibility: Execute external/runtime functions
+
+using selfhost.vm.boxes.result_box as Result
+using selfhost.vm.hakorune-vm.value_manager as ValueManagerBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box ExternCallHandlerBox {
+  // Handle extern function call
+  // name: extern function name (e.g., "hostbridge.box_new")
+  // args_array: ArrayBox containing argument values
+  // dst_reg: destination register (null if no return value)
+  // regs: register MapBox
+  // mem: memory MapBox
+  // Returns: Result.Ok(0) or Result.Err(message)
+  _policy_allowlist_on() {
+    local p = env.get("HAKO_NYVM_EXTERN_POLICY")
+    if p == null { p = env.get("NYASH_NYVM_EXTERN_POLICY") }
+    if p == null { return 0 }
+    using selfhost.shared.common.string_helpers as StringHelpers
+    local s = StringHelpers.int_to_str(p)
+    s = s.to_lower()
+    if s == "allow" || s == "allowlist" || s == "on" || s == "1" { return 1 }
+    return 0
+  }
+  _allow(name) {
+    // Minimal allowlist for Phase 20.12b
+    if name == "env.console.log" { return 1 }
+    if name == "env.console.warn" { return 1 }
+    if name == "env.console.error" { return 1 }
+    return 0
+  }
+  handle(name, args_array, dst_reg, regs, mem) {
+    // Policy: optional allowlist. When enabled, restrict externs to a minimal set.
+    if me._policy_allowlist_on() == 1 {
+      if me._allow(name) == 0 { return Result.Err("extern not allowed: " + name) }
+    }
+    // Fast-path: handle common small externs locally (avoid hostbridge dependency)
+    if name == "env.get" {
+      local key = null
+      if args_array != null && args_array.length() >= 1 { key = "" + args_array.get(0) }
+      local v = null
+      if key != null { v = env.get(key) }
+      if dst_reg != null { ValueManagerBox.set(regs, dst_reg, v) }
+      return Result.Ok(0)
+    }
+    // Delegation: forward externs to Rust via hostbridge trampoline.
+    if args_array == null { args_array = new ArrayBox() }
+    local ret
+    ret = hostbridge.extern_invoke(name, args_array)
+
+    if dst_reg != null { ValueManagerBox.set(regs, dst_reg, ret) }
+    return Result.Ok(0)
+  }
+}

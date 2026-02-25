@@ -1,0 +1,22 @@
+// lower_return_float_box.hako — Return(Float) → const(f64) + ret
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box LowerReturnFloatBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
+    if k_ret < 0 { return null }
+    local k_float = JsonFragBox.index_of_from(s, "\"type\":\"Float\"", k_ret)
+    if k_float < 0 { return null }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_float)
+    if k_val < 0 { return null }
+    local fstr = JsonFragBox.read_float_after(s, k_val+8)
+    if fstr == null { return null }
+    // Emit MIR(JSON v0) as string: const(f64)+ret
+    // Note: f64 は JSON の数値表記文字列 fstr をそのまま埋め込む
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+           "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"f64\",\"value\":" + fstr + "}}," +
+           "{\"op\":\"ret\",\"value\":1}]}]}]}"
+  }
+}

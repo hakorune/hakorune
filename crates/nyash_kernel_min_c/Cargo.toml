@@ -1,0 +1,13 @@
+[package]
+name = "nyash-kernel-min-c"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "nyash_kernel_min_c"
+path = "src/lib.rs"
+crate-type = ["staticlib", "rlib"]
+
+[build-dependencies]
+cc = "1.0"
+

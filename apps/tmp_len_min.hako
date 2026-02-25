@@ -1,0 +1,14 @@
+static box Main {
+  main() {
+    local S
+    using "apps/std/string.hako" as S
+    local x
+    x = S.string_length("abc")
+    if x == 3 {
+      print("ok3")
+      return 0
+    }
+    print("bad")
+    return 1
+  }
+}

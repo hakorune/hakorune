@@ -1,0 +1,31 @@
+// ops/store.hako — NyVmOpStore
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+
+static box NyVmOpStore {
+  _read_int(inst_json, key) {
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return null }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return null }
+    p = p + 1
+    loop(true) { local ch = inst_json.substring(p,p+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue } break }
+    local digits = JsonCursorBox.digits_from(inst_json, p)
+    if digits == "" { return null }
+    return StringHelpers.to_i64(digits)
+  }
+  handle(inst_json, state, mem) {
+    // {"op":"store","value":V,"ptr":P}
+    local val_id = me._read_int(inst_json, "value")
+    local ptr = me._read_int(inst_json, "ptr")
+    if val_id == null || ptr == null { print("[core/store] missing value or ptr") return -1 }
+    local v = NyVmState.get_reg(state, val_id)
+    local key = StringHelpers.int_to_str(ptr)
+    mem.set(key, v)
+    return 0
+  }
+}
+
+static box NyVmOpStoreMain { main(args){ return 0 } }

@@ -1,0 +1,66 @@
+// refcell_box.hako — RefCellBox (policy plane)
+// Responsibility: simple borrow/borrow_mut semantics with conflict checks.
+// Storage: uses env.local.get/set with key prefix "ref:" per-pointer state.
+// State encoding: "0" = idle, ">0" = shared borrows count, "-1" = mutable borrow active.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box RefCellBox {
+  _key(ptr) { return "ref:" + ("" + ptr) }
+
+  _debug_on() {
+    local d = env.get("HAKO_DEBUG_REFCELL")
+    if d == null || d == "" { d = env.get("NYASH_DEBUG_REFCELL") }
+    return d == "1"
+  }
+  _log(msg) { if me._debug_on() { console.log("[RefCellBox] " + msg) } }
+
+  _get(ptr) {
+    local s = env.get(me._key(ptr))
+    if s == null || s == "" { return 0 }
+    return StringHelpers.to_i64(s)
+  }
+  _set(ptr, n) { env.set(me._key(ptr), StringHelpers.int_to_str(n)) }
+
+  // Initialize state to 0 (idempotent)
+  init(ptr) { me._set(ptr, 0) return 0 }
+
+  // Shared borrow: allow when state >= 0; increments shared counter.
+  try_borrow(ptr) {
+    local st = me._get(ptr)
+    if st < 0 { console.error("[refcell/conflict_shared]") return -1 }
+    me._set(ptr, st + 1)
+    me._log("borrow ptr=" + ("" + ptr) + " -> " + StringHelpers.int_to_str(st + 1))
+    return 1
+  }
+
+  // Mutable borrow: allow only when state == 0.
+  try_borrow_mut(ptr) {
+    local st = me._get(ptr)
+    if st != 0 { console.error("[refcell/conflict_mut]") return -1 }
+    me._set(ptr, -1)
+    me._log("borrow_mut ptr=" + ("" + ptr) + " -> -1")
+    return 1
+  }
+
+  // Release one shared borrow; Fail if not in shared state
+  release_shared(ptr) {
+    local st = me._get(ptr)
+    if st <= 0 { console.error("[refcell/release_shared_invalid]") return -1 }
+    me._set(ptr, st - 1)
+    me._log("release_shared ptr=" + ("" + ptr) + " -> " + StringHelpers.int_to_str(st - 1))
+    return st - 1
+  }
+
+  // Release mutable borrow; Fail if not in mut state
+  release_mut(ptr) {
+    local st = me._get(ptr)
+    if st != -1 { console.error("[refcell/release_mut_invalid]") return -1 }
+    me._set(ptr, 0)
+    me._log("release_mut ptr=" + ("" + ptr) + " -> 0")
+    return 0
+  }
+
+  // Observe current state (debug aid): returns -1 (mut), 0 (idle), N>0 (shared count)
+  state(ptr) { return me._get(ptr) }
+}

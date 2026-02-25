@@ -1,0 +1,141 @@
+// BodyExtractionBox — extract main method body from source code
+// Responsibility: String-aware scanning to find main() and extract its body.
+// Structure tags:
+//   [Region] loop は i/next_i 形で一意に前進。
+//   [BoxShape] 分離抽出 (Phase 29bq+ modularization).
+
+static box BodyExtractionBox {
+  // Find position of "method main" or "main(" in source.
+  // Returns -1 if not found.
+  find_main_position(src) {
+    if src == null { return -1 }
+    local s = "" + src
+    local n = s.length()
+
+    // Try "method main" first
+    local k0 = me._find_pattern(s, "method main", 0)
+    if k0 >= 0 { return k0 }
+
+    // Fallback: find "box Main" then locate "main(" after it
+    local kbox = me._find_pattern(s, "box Main", 0)
+    if kbox >= 0 {
+      local kmain = me._find_pattern(s, "main(", kbox)
+      if kmain >= 0 { return kmain }
+    }
+
+    // Last resort: global search for "main("
+    return me._find_pattern(s, "main(", 0)
+  }
+
+  // Find a character in source starting from pos, skipping string contents.
+  // Returns position of char or -1 if not found.
+  find_char_skipping_strings(src, start, target_char) {
+    if src == null { return -1 }
+    local s = "" + src
+    local n = s.length()
+    local j = start
+    local in_str = 0
+    local esc = 0
+
+    loop(j < n) {
+      local ch = s.substring(j, j + 1)
+      if in_str == 1 {
+        if esc == 1 { esc = 0  j = j + 1  continue }
+        if ch == "\\" { esc = 1  j = j + 1  continue }
+        if ch == "\"" { in_str = 0  j = j + 1  continue }
+        j = j + 1
+        continue
+      }
+      if ch == "\"" { in_str = 1  j = j + 1  continue }
+      if ch == target_char { return j }
+      j = j + 1
+    }
+    return -1
+  }
+
+  // Extract body content between balanced braces starting at open_brace_pos.
+  // Properly skips strings when counting braces.
+  // Returns extracted body (without outer braces) or null if unbalanced.
+  extract_balanced_body(src, open_brace_pos) {
+    if src == null { return null }
+    local s = "" + src
+    local n = s.length()
+
+    if open_brace_pos < 0 || open_brace_pos >= n { return null }
+    if s.substring(open_brace_pos, open_brace_pos + 1) != "{" { return null }
+
+    local depth = 0
+    local i = open_brace_pos
+    local in_str = 0
+    local esc = 0
+
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+
+      if in_str == 1 {
+        if esc == 1 { esc = 0  i = i + 1  continue }
+        if ch == "\\" { esc = 1  i = i + 1  continue }
+        if ch == "\"" { in_str = 0  i = i + 1  continue }
+        i = i + 1
+        continue
+      }
+
+      if ch == "\"" { in_str = 1  i = i + 1  continue }
+      if ch == "{" { depth = depth + 1  i = i + 1  continue }
+      if ch == "}" {
+        depth = depth - 1
+        if depth == 0 {
+          // Return body content (inside braces)
+          return s.substring(open_brace_pos + 1, i)
+        }
+        i = i + 1
+        continue
+      }
+      i = i + 1
+    }
+
+    // Unbalanced braces
+    return null
+  }
+
+  // Extract main() body from source in one call.
+  // Combines find_main_position + find parens/braces + extract_balanced_body.
+  // Returns extracted body or null if not found.
+  extract_main_body(src) {
+    if src == null { return null }
+    local s = "" + src
+
+    // Find main position
+    local k0 = me.find_main_position(s)
+    if k0 < 0 { return null }
+
+    // Find '(' after main
+    local k1 = me.find_char_skipping_strings(s, k0, "(")
+    if k1 < 0 { return null }
+
+    // Find ')' after '('
+    local k2 = me.find_char_skipping_strings(s, k1, ")")
+    if k2 < 0 { return null }
+
+    // Find '{' after ')'
+    local k3 = me.find_char_skipping_strings(s, k2, "{")
+    if k3 < 0 { return null }
+
+    // Extract balanced body
+    return me.extract_balanced_body(s, k3)
+  }
+
+  // Internal: simple pattern search (no string skipping)
+  _find_pattern(s, pat, start) {
+    local n = s.length()
+    local m = pat.length()
+    local i = start
+    loop(i + m <= n) {
+      if s.substring(i, i + m) == pat { return i }
+      i = i + 1
+    }
+    return -1
+  }
+}
+
+static box BodyExtractionBoxMain { main() { return 0 } }

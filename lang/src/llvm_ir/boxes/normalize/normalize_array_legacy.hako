@@ -1,0 +1,129 @@
+// NormalizeArrayLegacyBox — rewrite array_get/array_set → boxcall get/set
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box NormalizeArrayLegacyBox {
+  _seek_object_end(s, start) {
+    if s == null { return -1 }
+    if start < 0 || start >= s.length() { return -1 }
+    if s.substring(start, start+1) != "{" { return -1 }
+    local i = start
+    local depth = 0
+    local in_str = 0
+    local esc = 0
+    loop (i < s.length()) {
+      local ch = s.substring(i, i+1)
+      if in_str == 1 {
+        if esc == 1 { esc = 0 }
+        else if ch == "\\" { esc = 1 }
+        else if ch == "\"" { in_str = 0 }
+      } else {
+        if ch == "\"" { in_str = 1 }
+        else if ch == "{" { depth = depth + 1 }
+        else if ch == "}" { depth = depth - 1  if depth == 0 { return i } }
+      }
+      i = i + 1
+    }
+    return -1
+  }
+  run(json) {
+    if json == null { return null }
+    local out = json
+
+    // array_get → boxcall(get)
+    local pos = 0
+    loop(true) {
+      local k = JsonFragBox.index_of_from(out, "\"op\":\"array_get\"", pos)
+      if k < 0 { break }
+      local obj_start = out.substring(0, k).lastIndexOf("{")
+      if obj_start < 0 { pos = k + 1; continue }
+      local obj_end = me._seek_object_end(out, obj_start)
+      if obj_end < 0 { pos = k + 1; continue }
+      local kdst = JsonFragBox.index_of_from(out, "\"dst\":", obj_start)
+      local dsts = (kdst>=0 && kdst<obj_end ? StringHelpers.read_digits(out, kdst+6) : "")
+      local ka = JsonFragBox.index_of_from(out, "\"array\":", obj_start)
+      local arr = (ka>=0 && ka<obj_end ? StringHelpers.read_digits(out, ka+8) : "")
+      local ki = JsonFragBox.index_of_from(out, "\"index\":", obj_start)
+      local idx = (ki>=0 && ki<obj_end ? StringHelpers.read_digits(out, ki+8) : "")
+      if dsts != "" && arr != "" && idx != "" {
+        local dst_part = "\"dst\":" + dsts + ","
+        local repl = "{" + dst_part + "\"op\":\"boxcall\",\"box\":" + arr + ",\"method\":\"get\",\"args\":[" + idx + "]}"
+        out = out.substring(0, obj_start) + repl + out.substring(obj_end+1, out.length())
+        pos = obj_start + repl.length()
+      } else {
+        pos = k + 1
+      }
+    }
+
+    // array_set → boxcall(set)
+    pos = 0
+    loop(true) {
+      local k = JsonFragBox.index_of_from(out, "\"op\":\"array_set\"", pos)
+      if k < 0 { break }
+      local obj_start = out.substring(0, k).lastIndexOf("{")
+      if obj_start < 0 { pos = k + 1; continue }
+      local obj_end = me._seek_object_end(out, obj_start)
+      if obj_end < 0 { pos = k + 1; continue }
+      local ka = JsonFragBox.index_of_from(out, "\"array\":", obj_start)
+      local arr = (ka>=0 && ka<obj_end ? StringHelpers.read_digits(out, ka+8) : "")
+      local ki = JsonFragBox.index_of_from(out, "\"index\":", obj_start)
+      local idx = (ki>=0 && ki<obj_end ? StringHelpers.read_digits(out, ki+8) : "")
+      local kv = JsonFragBox.index_of_from(out, "\"value\":", obj_start)
+      local val = (kv>=0 && kv<obj_end ? StringHelpers.read_digits(out, kv+8) : "")
+      if arr != "" && idx != "" && val != "" {
+        local repl = "{\"op\":\"boxcall\",\"box\":" + arr + ",\"method\":\"set\",\"args\":[" + idx + "," + val + "]}"
+        out = out.substring(0, obj_start) + repl + out.substring(obj_end+1, out.length())
+        pos = obj_start + repl.length()
+      } else {
+        pos = k + 1
+      }
+    }
+
+    // Optional: map_get/map_set → boxcall(get/set) if present in legacy JSON
+    pos = 0
+    loop(true) {
+      local k = JsonFragBox.index_of_from(out, "\"op\":\"map_get\"", pos)
+      if k < 0 { break }
+      local obj_start = out.substring(0, k).lastIndexOf("{")
+      if obj_start < 0 { pos = k + 1; continue }
+      local obj_end = me._seek_object_end(out, obj_start)
+      if obj_end < 0 { pos = k + 1; continue }
+      local km = JsonFragBox.index_of_from(out, "\"map\":", obj_start)
+      local mv = (km>=0 && km<obj_end ? StringHelpers.read_digits(out, km+6) : "")
+      local kk = JsonFragBox.index_of_from(out, "\"key\":", obj_start)
+      local kv = (kk>=0 && kk<obj_end ? StringHelpers.read_digits(out, kk+6) : "")
+      local kdst = JsonFragBox.index_of_from(out, "\"dst\":", obj_start)
+      local dsts = (kdst>=0 && kdst<obj_end ? StringHelpers.read_digits(out, kdst+6) : "")
+      if mv != "" && kv != "" && dsts != "" {
+        local dst_part = "\"dst\":" + dsts + ","
+        local repl = "{" + dst_part + "\"op\":\"boxcall\",\"box\":" + mv + ",\"method\":\"get\",\"args\":[" + kv + "]}"
+        out = out.substring(0, obj_start) + repl + out.substring(obj_end+1, out.length())
+        pos = obj_start + repl.length()
+      } else { pos = k + 1 }
+    }
+
+    pos = 0
+    loop(true) {
+      local k = JsonFragBox.index_of_from(out, "\"op\":\"map_set\"", pos)
+      if k < 0 { break }
+      local obj_start = out.substring(0, k).lastIndexOf("{")
+      if obj_start < 0 { pos = k + 1; continue }
+      local obj_end = me._seek_object_end(out, obj_start)
+      if obj_end < 0 { pos = k + 1; continue }
+      local km = JsonFragBox.index_of_from(out, "\"map\":", obj_start)
+      local mv = (km>=0 && km<obj_end ? StringHelpers.read_digits(out, km+6) : "")
+      local kk = JsonFragBox.index_of_from(out, "\"key\":", obj_start)
+      local kv = (kk>=0 && kk<obj_end ? StringHelpers.read_digits(out, kk+6) : "")
+      local kval = JsonFragBox.index_of_from(out, "\"value\":", obj_start)
+      local vv = (kval>=0 && kval<obj_end ? StringHelpers.read_digits(out, kval+8) : "")
+      if mv != "" && kv != "" && vv != "" {
+        local repl = "{\"op\":\"boxcall\",\"box\":" + mv + ",\"method\":\"set\",\"args\":[" + kv + "," + vv + "]}"
+        out = out.substring(0, obj_start) + repl + out.substring(obj_end+1, out.length())
+        pos = obj_start + repl.length()
+      } else { pos = k + 1 }
+    }
+
+    return out
+  }
+}

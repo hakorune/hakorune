@@ -1,0 +1,8 @@
+static box Main {
+  main() {
+    local M
+    using "apps/std/string_std.hako" as M
+    print("ok")
+    return 0
+  }
+}

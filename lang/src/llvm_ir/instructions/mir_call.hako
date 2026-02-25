@@ -1,0 +1,158 @@
+// LLVM MIR Call Instruction Box — Python mir_call.py のHakorune実装
+// 統一Call命令（call/boxcall/externcall/newbox/plugin_invoke/newclosure）を
+// JSON形式に変換し、C++バックエンドに渡す
+//
+// MIR Call は 6種類の callee.type をサポート:
+//   - Global: グローバル関数呼び出し (print, panic等)
+//   - Method: Boxメソッド呼び出し (receiver.method())
+//   - Constructor: Boxコンストラクタ (new BoxType())
+//   - Extern: 外部C ABI関数呼び出し
+//   - Closure: クロージャ生成 (||{...})
+//   - Value: 動的関数値呼び出し (func_value())
+//
+// 特徴:
+// - CallEmitBox の既存資産を最大活用（60%の機能を提供済み）
+// - JSON 構造生成のみ（LLVM IR 生成は C++ backend が担当）
+// - Unified architecture（6つの命令を1つに統合）
+
+using lang.compiler.emit.common.call_emit as CallEmitBox
+using lang.compiler.emit.common.json_emit as JsonEmitBox
+
+static box LLVMMirCallInstructionBox {
+
+  // メインエントリーポイント - Pythonのlower_mir_call()に相当
+  // Stage 1: スケルトン実装（既存 CallEmitBox を活用）
+  //
+  // Args:
+  //   callee: calleeオブジェクト（MapBox）
+  //     形式: {type: "Global|Method|Constructor|Extern|Closure|Value", ...}
+  //   args: 引数配列（ArrayBox of register IDs）
+  //   dst: 結果レジスタID
+  //   options: オプション設定（MapBox、将来拡張用）
+  //
+  // Returns:
+  //   JSON文字列（MIR Call 命令）
+  lower_mir_call(self, callee, args, dst, options) {
+    if callee == null {
+      return me._mir_call_error_fallback(self, "callee is null")
+    }
+
+    local callee_type = callee.get("type")
+    if callee_type == null {
+      return me._mir_call_error_fallback(self, "callee.type is null")
+    }
+
+    // Dispatch by callee.type
+    if callee_type == "Global" {
+      return me._lower_global(self, callee, args, dst)
+    }
+    if callee_type == "Method" {
+      return me._lower_method(self, callee, args, dst)
+    }
+    if callee_type == "Constructor" {
+      return me._lower_constructor(self, callee, args, dst)
+    }
+    if callee_type == "Extern" {
+      return me._lower_extern(self, callee, args, dst)
+    }
+    if callee_type == "Closure" {
+      return me._lower_closure(self, callee, args, dst)
+    }
+    if callee_type == "Value" {
+      return me._lower_value(self, callee, args, dst)
+    }
+
+    return me._mir_call_error_fallback(self, "Unknown callee type: " + callee_type)
+  }
+
+  // Stage 2: Global function call
+  // 既存の CallEmitBox.make_mir_call_global を活用
+  _lower_global(self, callee, args, dst) {
+    local name = callee.get("name")
+    if name == null {
+      return me._mir_call_error_fallback(self, "Global: name is null")
+    }
+    local json_obj = CallEmitBox.make_mir_call_global(name, args, dst)
+    return JsonEmitBox.to_json_instruction(json_obj)
+  }
+
+  // Stage 2: Method call
+  // 既存の CallEmitBox.make_mir_call_method を活用
+  _lower_method(self, callee, args, dst) {
+    local method = callee.get("method")
+    local receiver = callee.get("receiver")
+    if method == null {
+      return me._mir_call_error_fallback(self, "Method: method is null")
+    }
+    if receiver == null {
+      return me._mir_call_error_fallback(self, "Method: receiver is null")
+    }
+    local json_obj = CallEmitBox.make_mir_call_method(method, receiver, args, dst)
+    return JsonEmitBox.to_json_instruction(json_obj)
+  }
+
+  // Stage 2: Constructor call
+  // 既存の CallEmitBox.make_mir_call_constructor を活用
+  _lower_constructor(self, callee, args, dst) {
+    local box_type = callee.get("box_type")
+    if box_type == null {
+      return me._mir_call_error_fallback(self, "Constructor: box_type is null")
+    }
+    local json_obj = CallEmitBox.make_mir_call_constructor(box_type, args, dst)
+    return JsonEmitBox.to_json_instruction(json_obj)
+  }
+
+  // Stage 3: Extern call
+  // 既存の CallEmitBox.make_mir_call_extern を活用
+  _lower_extern(self, callee, args, dst) {
+    local name = callee.get("name")
+    if name == null {
+      return me._mir_call_error_fallback(self, "Extern: name is null")
+    }
+    local json_obj = CallEmitBox.make_mir_call_extern(name, args, dst)
+    return JsonEmitBox.to_json_instruction(json_obj)
+  }
+
+  // Stage 4: Closure creation
+  // CallEmitBox.make_mir_call_closure を活用
+  _lower_closure(self, callee, args, dst) {
+    local params = callee.get("params")
+    local captures = callee.get("captures")
+    local me_capture = callee.get("me_capture")
+
+    if params == null {
+      params = new ArrayBox()
+    }
+    if captures == null {
+      captures = new ArrayBox()
+    }
+
+    local json_obj = CallEmitBox.make_mir_call_closure(params, captures, me_capture, dst)
+    return JsonEmitBox.to_json_instruction(json_obj)
+  }
+
+  // Stage 4: Value call (dynamic function value)
+  // CallEmitBox.make_mir_call_value を活用
+  _lower_value(self, callee, args, dst) {
+    local func_vid = callee.get("value")
+    if func_vid == null {
+      return me._mir_call_error_fallback(self, "Value: value is null")
+    }
+
+    local json_obj = CallEmitBox.make_mir_call_value(func_vid, args, dst)
+    return JsonEmitBox.to_json_instruction(json_obj)
+  }
+
+  // エラーフォールバック: 空の MIR Call を返す
+  _mir_call_error_fallback(self, error_msg) {
+    print("[ERROR] LLVMMirCallInstructionBox: " + error_msg)
+    return "{\"op\":\"mir_call\",\"dst\":0,\"callee\":{\"type\":\"Global\",\"name\":\"__error__\"},\"args\":[]}"
+  }
+
+  // デバッグ用: MIR Call 命令の構造を出力
+  debug_mir_call(self, callee, args, dst, options) {
+    local json = me.lower_mir_call(self, callee, args, dst, options)
+    print("Generated mir_call instruction: " + json)
+    return json
+  }
+}

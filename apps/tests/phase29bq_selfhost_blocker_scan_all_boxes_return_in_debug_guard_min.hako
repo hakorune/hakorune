@@ -1,0 +1,26 @@
+// selfhost scan_all_boxes: return in debug guard (nested if)
+// Expected: stdout=3, RC=0
+
+static box Main {
+  main() {
+    local n = 3
+    local i = 0
+
+    loop(i < n) {
+      local next_i = i + 1
+      {
+        local dbg = 0
+        if dbg == 1 || dbg == "1" {
+          if next_i <= i {
+            print(i)
+            return 7
+          }
+        }
+      }
+      i = next_i
+    }
+
+    print(i)
+    return 0
+  }
+}

@@ -1,0 +1,54 @@
+[module]
+name = "lang.compiler"
+version = "1.0.0"
+
+[exports]
+# Parser
+parser.box = "parser/parser_box.hako"
+parser.scan.parser_string_utils_box = "parser/scan/parser_string_utils_box.hako"
+parser.scan.parser_ident_scan_box = "parser/scan/parser_ident_scan_box.hako"
+parser.scan.parser_number_scan_box = "parser/scan/parser_number_scan_box.hako"
+parser.scan.parser_string_scan_box = "parser/scan/parser_string_scan_box.hako"
+parser.using.using_collector_box = "parser/using/using_collector_box.hako"
+parser.expr.parser_expr_box = "parser/expr/parser_expr_box.hako"
+parser.expr.parser_peek_box = "parser/expr/parser_peek_box.hako"
+parser.expr.parser_literal_box = "parser/expr/parser_literal_box.hako"
+parser.stmt.parser_stmt_box = "parser/stmt/parser_stmt_box.hako"
+parser.stmt.parser_control_box = "parser/stmt/parser_control_box.hako"
+parser.stmt.parser_exception_box = "parser/stmt/parser_exception_box.hako"
+
+# Stage‑1 emit helpers
+stage1.json_program_box = "stage1/json_program_box.hako"
+stage1.emitter_box = "stage1/emitter_box.hako"
+
+# Pipeline v2 (emit only)
+pipeline_v2.flow_entry = "pipeline_v2/flow_entry.hako"
+pipeline_v2.pipeline = "pipeline_v2/pipeline.hako"
+pipeline_v2.using_resolver = "pipeline_v2/using_resolver_box.hako"
+pipeline_v2.emit_return_box = "pipeline_v2/emit_return_box.hako"
+pipeline_v2.emit_binop_box = "pipeline_v2/emit_binop_box.hako"
+
+# Builder / SSA / Rewrite (scaffolds)
+builder.mod = "builder/mod.hako"
+builder.ssa.local = "builder/ssa/local_ssa.hako"
+builder.ssa.loop = "builder/ssa/loopssa.hako"
+builder.ssa.cond_inserter = "builder/ssa/cond_inserter.hako"
+builder.rewrite.special = "builder/rewrite/special.hako"
+builder.rewrite.known = "builder/rewrite/known.hako"
+build.build_box = "build/build_box.hako"
+
+# Entry point modules (Phase 15 compiler infrastructure)
+entry.func_scanner = "entry/func_scanner.hako"
+entry.compiler = "entry/compiler.hako"
+entry.compiler_stageb = "entry/compiler_stageb.hako"
+entry.stageb.stageb_json_builder_box = "entry/stageb/stageb_json_builder_box.hako"
+entry.bundle_resolver = "entry/bundle_resolver.hako"
+entry.using_resolver = "entry/using_resolver_box.hako"
+
+[dependencies]
+"selfhost.shared" = "^1.0.0"
+"selfhost.vm" = "^1.0.0"
+
+[exports.emit.common]
+call_emit = "emit/common/call_emit_box.hako"
+json_emit = "emit/common/json_emit_box.hako"

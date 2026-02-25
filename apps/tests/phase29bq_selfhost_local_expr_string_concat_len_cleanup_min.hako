@@ -1,0 +1,28 @@
+// Phase 29bq parser handoff Tier-2: local init with string concat/length + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local s1 = "ha"
+      local s2 = s1 + "ko"
+      local n2 = s2.length()
+      if n2 == 4 {
+        out = out + 3
+      } else {
+        out = out + 1
+      }
+
+      local s3 = s2 + "run"
+      local n3 = s3.length()
+      if n3 == 7 {
+        out = out + 30
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 200
+    }
+    print(out)
+    return 0
+  }
+}

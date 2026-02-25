@@ -1,0 +1,17 @@
+// phi.hako — PHI helpers (Scaffold)
+// Phase‑20.12b: define shapes; real logic arrives in later steps.
+
+static box SelfhostPhiBox {
+  // Merge two inputs (placeholder)
+  merge2(dst, in1, in2) {
+    // TODO: construct MIR JSON node: {op:"phi", dst, inputs:[[bb1,v1],[bb2,v2]]}
+    return dst
+  }
+
+  // Merge list of (bb,val) pairs (placeholder)
+  mergeN(dst, inputs) {
+    // TODO: validate inputs cover all predecessors
+    return dst
+  }
+}
+

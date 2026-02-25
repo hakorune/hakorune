@@ -1,0 +1,43 @@
+// selfhost _scan_methods minimal: nested loop idx35 (rbrace scan)
+// Expected: stdout=OK, RC=0
+static box Main {
+  main() {
+    local s = "{}"
+    local n = s.length()
+    local i = 0
+
+    loop(i < n) {
+      local rbrace = -1
+      {
+        local depth = 0
+        local j = 0
+        local in_str = 0
+        local esc = 0
+        loop(j < n) {
+          local ch = s.substring(j, j + 1)
+          if in_str == 1 {
+            if esc == 1 { esc = 0  j = j + 1  continue }
+            if ch == "\\" { esc = 1  j = j + 1  continue }
+            if ch == "\"" { in_str = 0  j = j + 1  continue }
+            j = j + 1
+            continue
+          }
+          if ch == "\"" { in_str = 1  j = j + 1  continue }
+          if ch == "{" { depth = depth + 1  j = j + 1  continue }
+          if ch == "}" {
+            depth = depth - 1
+            j = j + 1
+            if depth == 0 { rbrace = j - 1  break }
+            continue
+          }
+          j = j + 1
+        }
+      }
+      if rbrace < 0 { break }
+      i = rbrace + 1
+    }
+
+    print("OK")
+    return 0
+  }
+}

@@ -1,0 +1,7 @@
+static box Main {
+  main() {
+    print(1 < 2)
+    print(2 < 1)
+    return 7
+  }
+}

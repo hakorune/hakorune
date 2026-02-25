@@ -1,0 +1,49 @@
+// Phase B2-5: BlockExpr basic acceptance
+// Expected: stdout=0, RC=0
+
+static box Main {
+  main() {
+    // 1) BlockExpr as assignment RHS (prelude + tail expr)
+    local x = {
+      local tmp = 10
+      tmp * 2
+    }
+    if x != 20 {
+      print(1)
+      return 0
+    }
+
+    // 2) BlockExpr with multiple prelude stmts
+    local y = {
+      local a = 3
+      local b = 4
+      a + b
+    }
+    if y != 7 {
+      print(2)
+      return 0
+    }
+
+    // 3) BlockExpr in condition (parenthesized to avoid `{...}{...}` ambiguity)
+    local ready = true
+    if ({
+      local check = ready
+      check
+    }) {
+      // ok
+    } else {
+      print(3)
+      return 0
+    }
+
+    // 4) Simple BlockExpr (tail expr only)
+    local z = { 42 }
+    if z != 42 {
+      print(4)
+      return 0
+    }
+
+    print(0)
+    return 0
+  }
+}

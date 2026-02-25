@@ -1,0 +1,15 @@
+// Phase 285LLVM-1.3: InstanceBox field access parity
+// Goal: VM/LLVM で同じ出力になる
+
+box SomeBox {
+    x
+}
+
+static box Main {
+    main() {
+        local sb = new SomeBox()
+        sb.x = 42
+        print(sb.x)  // Expected: 42
+        return 0
+    }
+}

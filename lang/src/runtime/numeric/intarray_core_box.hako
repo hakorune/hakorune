@@ -1,0 +1,28 @@
+// IntArrayCoreBox — thin Hako wrapper over NyRT IntArrayCore (handle-based)
+// This provides a box-level API for numeric kernels while delegating storage
+// to nyash.intarray.* extern calls in NyRT (ring1).
+
+static box IntArrayCore {
+  init { handle, len }
+
+  static new(len) {
+    local h = externcall "nyash.intarray.new_h"(len)
+    local b = new IntArrayCore()
+    b.handle = h
+    b.len = len
+    return b
+  }
+
+  length() {
+    return externcall "nyash.intarray.len_h"(me.handle)
+  }
+
+  get_unchecked(idx) {
+    return externcall "nyash.intarray.get_hi"(me.handle, idx)
+  }
+
+  set_unchecked(idx, v) {
+    externcall "nyash.intarray.set_hii"(me.handle, idx, v)
+    return null
+  }
+}

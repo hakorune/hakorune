@@ -1,0 +1,67 @@
+// stage1_args_parser_box.hako — Stage1ArgsParserBox
+// Responsibility: Parse Stage‑1 args JSON text into integers (MVP: Int only).
+// Non‑Responsibility: MIR emit or namespace.
+
+using lang.compiler.pipeline_v2.regex_flow as RegexFlow
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+
+static box Stage1ArgsParserBox {
+  // Count Int occurrences in Stage‑1 args JSON text.
+  count_ints(args_text) {
+    if args_text == null { return 0 }
+    local s = "" + args_text
+    local pos = 0
+    local n = 0
+    loop(true) {
+      local ds = RegexFlow.digits_from(s, pos)
+      if ds == "" { pos = pos + 1 } else { n = n + 1  pos = pos + ds.length() }
+      if pos >= s.length() { break }
+    }
+    return n
+  }
+  // Parse ints from args_text and return ArrayBox [i64,...].
+  parse_ints(args_text) {
+    if args_text == null { return [] }
+    local s = "" + args_text
+    if me._only_int_nodes(s) != 1 { return null }
+    local pos = 0
+    local out = []
+    loop(true) {
+      local ds = RegexFlow.digits_from(s, pos)
+      if ds == "" {
+        pos = pos + 1
+      } else {
+        out.push(RegexFlow.to_int(ds))
+        // advance to end of this token to avoid re-matching
+        local p2 = RegexFlow.find_from(s, ds, pos)
+        if p2 < 0 { pos = pos + ds.length() } else { pos = p2 + ds.length() }
+      }
+      if pos >= s.length() { break }
+    }
+    return out
+  }
+
+  _only_int_nodes(s) {
+    if s == null { return 1 }
+    local lb = JsonCursorBox.find_from(s, "[", 0)
+    if lb < 0 { return 1 }
+    local rb = JsonCursorBox.seek_array_end(s, lb)
+    if rb < 0 { rb = s.length() }
+    local chk = RegexFlow.find_from(s, "\"type\":\"", lb)
+    if chk < 0 || chk >= rb { return 1 }
+    local pos = chk
+    loop(true) {
+      if pos < 0 || pos >= rb { break }
+      local ty_start = pos + 8
+      local ty_end = RegexFlow.find_from(s, "\"", ty_start)
+      if ty_end < 0 || ty_end >= rb { return 0 }
+      local ty = s.substring(ty_start, ty_end)
+      if ty != "Int" { return 0 }
+      pos = RegexFlow.find_from(s, "\"type\":\"", ty_end + 1)
+      if pos < 0 || pos >= rb { break }
+    }
+    return 1
+  }
+}
+
+static box Stage1ArgsParserMain { main() { return 0 } }

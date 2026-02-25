@@ -1,0 +1,29 @@
+// Phase 183-3: Pattern2 loop test (body-only LoopBodyLocal)
+// Tests: Pattern2 with body-only LoopBodyLocal doesn't trigger Trim promotion
+// Note: Changed from P1 to P2 due to P1 execution issues (out of Phase 183 scope)
+
+static box Main {
+  main(args) {
+    // Demonstrate body-only LoopBodyLocal: temp is computed but never used in conditions
+    local result = 0
+    local i = 0
+
+    loop(i < 4) {
+      // Body-only LoopBodyLocal: temp is only used in body, never in conditions
+      local temp = i * 2
+      result = result + temp
+      i = i + 1
+    }
+
+    // Expected: result = 0*2 + 1*2 + 2*2 + 3*2 = 0 + 2 + 4 + 6 = 12
+    if result == 12 {
+      if i == 4 {
+        print("PASS: Body-only LoopBodyLocal works (no Trim promotion)")
+        return 0
+      }
+    }
+
+    print("FAIL: result or i incorrect")
+    return 1
+  }
+}

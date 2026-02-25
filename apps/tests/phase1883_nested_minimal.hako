@@ -1,0 +1,29 @@
+// Phase 188.3: Minimal 1-level nested loop test
+// Uses ONLY Add/Compare (no multiplication) for simplicity
+// Outer loop: 3 iterations, Inner loop: 3 iterations each
+// Each inner iteration: sum = sum + 1
+// Total: 3 * 3 = 9
+
+static box Main {
+    main() {
+        local sum
+        sum = 0
+
+        local i
+        i = 0
+
+        loop(i < 3) {
+            local j
+            j = 0
+
+            loop(j < 3) {
+                sum = sum + 1
+                j = j + 1
+            }
+
+            i = i + 1
+        }
+
+        return sum
+    }
+}

@@ -1,0 +1,30 @@
+// lower_return_binop_varvar_box.hako — Return(Binary Var vs Var) with prior Local Ints
+
+using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box LowerReturnBinOpVarVarBox {
+  try_lower(program_json){
+    local s = "" + program_json
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0); if k_ret < 0 { return null }
+    local k_bin = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_ret); if k_bin < 0 { return null }
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_bin); if k_op < 0 { return null }
+    local op = JsonFragBox.read_string_after(s, k_op + 5); if op == null { return null }
+    local kind = PatternUtilBox.map_binop(op); if kind == null { return null }
+    local klhs = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\"", k_bin); if klhs < 0 { return null }
+    local krhs = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\"", k_bin); if krhs < 0 { return null }
+    local knl = JsonFragBox.index_of_from(s, "\"name\":", klhs); if knl < 0 { return null }
+    local lname = JsonFragBox.read_string_after(s, knl + 7); if lname == null { return null }
+    local knr = JsonFragBox.index_of_from(s, "\"name\":", krhs); if knr < 0 { return null }
+    local rname = JsonFragBox.read_string_after(s, knr + 7); if rname == null { return null }
+    local lval = PatternUtilBox.find_local_int_before(s, lname, k_ret); if lval == null { return null }
+    local rval = PatternUtilBox.find_local_int_before(s, rname, k_ret); if rval == null { return null }
+    // Emit MIR(JSON v0) as string to avoid MapBox concat issues
+    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lval + "}}," +
+      "{\"op\":\"const\",\"dst\":\"2\",\"value\":{\"type\":\"i64\",\"value\":" + rval + "}}," +
+      "{\"op\":\"binop\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+      "{\"op\":\"ret\",\"value\":3}]}]}]}"
+    return mir
+  }
+}

@@ -1,0 +1,31 @@
+// ops/branch.hako — NyVmOpBranch (skeleton)
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+
+static box NyVmOpBranch {
+  _read_int(inst_json, key) {
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return null }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return null }
+    p = p + 1
+    loop(true) { local ch = inst_json.substring(p,p+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue } break }
+    local digits = JsonCursorBox.digits_from(inst_json, p)
+    if digits == "" { return null }
+    return StringHelpers.to_i64(digits)
+  }
+  // Returns next_bb id (i64)
+  handle(inst_json, state) {
+    // {op:"branch", cond:VID, then:BBID, else:BBID}
+    local condv = me._read_int(inst_json, "cond")
+    local then_id = me._read_int(inst_json, "then")
+    local else_id = me._read_int(inst_json, "else")
+    if condv == null || then_id == null || else_id == null { print("[core/branch] malformed") return -1 }
+    local cv = NyVmState.get_reg(state, condv)
+    if cv != 0 { return then_id } else { return else_id }
+  }
+}
+
+static box NyVmOpBranchMain { main(args){ return 0 } }

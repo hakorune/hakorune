@@ -1,0 +1,213 @@
+// lower_loop_multi_carrier_box.hako — Multi-carrier loop (fibonacci-style) lowering
+// Responsibility:
+//   - Detect and lower "multi-carrier" loops (e.g. fib: a,b,t carried variables)
+//   - Extract loop metadata (var name, limit, carrier count) from Program(JSON v0)
+//   - Delegate to LoopFormBox.build2 with mode="multi_count"
+// Scope (Phase 25.1b):
+//   - Recognize fibonacci-style loops with 2+ carrier variables
+//   - Fail-Fast if pattern doesn't match multi-carrier requirements
+//   - Fall back to Rust provider for unsupported patterns
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.loop_scan" as LoopScanBox
+using "hako.mir.builder.internal.loop_opts_adapter" as LoopOptsBox
+using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+
+static box LowerLoopMultiCarrierBox {
+  // Try to recognize and lower a multi-carrier loop in Program(JSON v0).
+  // Pattern: loop with multiple Local/Assign indicating carried state (fibonacci-style)
+  method try_lower(program_json, params_arr) {
+    if program_json == null { return null }
+    local s = "" + program_json
+
+    // 1) Find Loop with cond Compare
+    local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
+    if k_loop < 0 { return null }
+
+    local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_loop)
+    if k_cmp < 0 { return null }
+
+    // 2) Discover loop variable name from cond
+    local varname = LoopScanBox.find_loop_var_name(s, k_cmp)
+    if varname == null { return null }
+
+    // 3) Extract limit information (accept Int literal or param Var)
+    local limit_info = me._extract_limit_info(s, k_cmp, varname, params_arr)
+    if limit_info == null {
+      if BuilderConfigBox.trace_enabled() == 1 {
+        print("[mirbuilder/internal/loop:multi_carrier:limit:unsupported]")
+      }
+      return null
+    }
+    local limit_kind = "" + limit_info.get("kind")
+    local limit_value = limit_info.get("value")
+    local limit_param_reg = JsonFragBox._str_to_int("" + limit_info.get("param_reg"))
+    if limit_kind != "const" && limit_kind != "param" { return null }
+
+    // 4) Collect initial carrier values (Local Int assignments before the Loop)
+    local carrier_vals = me._collect_carrier_initials(s, k_loop, varname)
+    if carrier_vals == null || carrier_vals.length() < 2 {
+      local count = 0
+      if carrier_vals != null { count = carrier_vals.length() }
+      print("[mirbuilder/internal/loop:multi_carrier:insufficient_carriers:count=" + count + "]")
+      return null
+    }
+
+    // 5) Build opts for multi_count mode with detected carriers
+    local opts = LoopOptsBox.new_map()
+    opts = LoopOptsBox.put(opts, "mode", "multi_count")
+    opts = LoopOptsBox.put(opts, "limit_kind", limit_kind)
+    if limit_kind == "const" {
+      opts = LoopOptsBox.put(opts, "limit", limit_value)
+    } else {
+      opts = LoopOptsBox.put(opts, "limit_param_reg", limit_param_reg)
+    }
+    opts = LoopOptsBox.put(opts, "carriers", carrier_vals)
+
+    local tag = "[mirbuilder/internal/loop:multi_carrier:detected:limit_kind=" + limit_kind
+    if limit_kind == "const" {
+      tag = tag + ",value=" + limit_value
+    } else {
+      tag = tag + ",param_reg=" + limit_param_reg
+    }
+    tag = tag + ",carriers=" + carrier_vals.length() + "]"
+    print(tag)
+
+    // 6) Delegate to LoopFormBox.build2 via LoopOptsBox
+    return LoopOptsBox.build2(opts)
+  }
+
+  // Extract initial carrier values (Local Int assignments before Loop body)
+  method _collect_carrier_initials(body_json, loop_idx, loop_var) {
+    local vals = new ArrayBox()
+    if body_json == null { return vals }
+    local search = 0
+    loop(true) {
+      local k_local = JsonFragBox.index_of_from(body_json, "\"type\":\"Local\"", search)
+      if k_local < 0 || (loop_idx >= 0 && k_local >= loop_idx) { break }
+      local name_idx = JsonFragBox.index_of_from(body_json, "\"name\":", k_local)
+      if name_idx < 0 { break }
+      local name = JsonFragBox.read_string_after(body_json, name_idx + 7)
+      if name == null { break }
+      if loop_var != null && name == loop_var {
+        search = k_local + 1
+        continue
+      }
+      local expr_idx = JsonFragBox.index_of_from(body_json, "\"expr\":{", k_local)
+      if expr_idx < 0 || (loop_idx >= 0 && expr_idx >= loop_idx) {
+        search = k_local + 1
+        continue
+      }
+      local int_idx = JsonFragBox.index_of_from(body_json, "\"type\":\"Int\"", expr_idx)
+      if int_idx < 0 || (loop_idx >= 0 && int_idx >= loop_idx) {
+        search = k_local + 1
+        continue
+      }
+      local val_idx = JsonFragBox.index_of_from(body_json, "\"value\":", int_idx)
+      if val_idx < 0 { search = k_local + 1  continue }
+      local val = JsonFragBox.read_int_after(body_json, val_idx + 8)
+      if val != null {
+        vals.push(JsonFragBox._str_to_int("" + val))
+      }
+      search = k_local + 1
+    }
+    return vals
+  }
+
+  method _extract_limit_info(body_json, cmp_idx, loop_var, params_arr) {
+    local s = "" + body_json
+    local has_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + loop_var + "\"}", cmp_idx) >= 0
+    local has_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + loop_var + "\"}", cmp_idx) >= 0
+    local trace_on = BuilderConfigBox.trace_enabled()
+    if !has_lhs && !has_rhs {
+      if trace_on == 1 {
+        print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=no-loop-var var=" + loop_var)
+      }
+      return null
+    }
+    local target_idx = -1
+    if has_lhs {
+      target_idx = JsonFragBox.index_of_from(s, "\"rhs\":{", cmp_idx)
+    } else {
+      target_idx = JsonFragBox.index_of_from(s, "\"lhs\":{", cmp_idx)
+    }
+    if target_idx < 0 {
+      if trace_on == 1 {
+        print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=no-target")
+      }
+      return null
+    }
+    local type_idx = JsonFragBox.index_of_from(s, "\"type\":\"", target_idx)
+    if type_idx < 0 {
+      if trace_on == 1 {
+        print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=no-type")
+      }
+      return null
+    }
+    local typ = JsonFragBox.read_string_after(s, type_idx + 7)
+    if typ == null {
+      if trace_on == 1 { print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=type-null") }
+      return null
+    }
+    if typ == "Int" {
+      local val_idx = JsonFragBox.index_of_from(s, "\"value\":", type_idx)
+      if val_idx < 0 {
+        if trace_on == 1 { print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=no-int-value") }
+        return null
+      }
+      local val = JsonFragBox.read_int_after(s, val_idx + 8)
+      if val == null {
+        if trace_on == 1 { print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=int-parse") }
+        return null
+      }
+      local info = new MapBox()
+      info.set("kind", "const")
+      info.set("value", JsonFragBox._str_to_int("" + val))
+      return info
+    }
+    if typ == "Var" {
+      local name_idx = JsonFragBox.index_of_from(s, "\"name\":\"", type_idx)
+      if name_idx < 0 {
+        if trace_on == 1 { print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=no-var-name") }
+        return null
+      }
+      local name = JsonFragBox.read_string_after(s, name_idx + 7)
+      if name == null {
+        if trace_on == 1 { print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=var-name-null") }
+        return null
+      }
+      local param_reg = me._resolve_param_reg(params_arr, name)
+      if trace_on == 1 {
+        print("[mirbuilder/internal/loop:multi_carrier:limit:param] name=" + name + ",reg=" + param_reg)
+      }
+      if param_reg <= 0 {
+        if trace_on == 1 {
+          print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=param-unresolved")
+        }
+        return null
+      }
+      local info2 = new MapBox()
+      info2.set("kind", "param")
+      info2.set("param_reg", param_reg)
+      return info2
+    }
+    if trace_on == 1 {
+      print("[mirbuilder/internal/loop:multi_carrier:limit:scan:fail] reason=type-unsupported typ=" + typ)
+    }
+    return null
+  }
+
+  method _resolve_param_reg(params_arr, name) {
+    if params_arr == null || name == null { return 0 }
+    local idx = 0
+    local total = params_arr.length()
+    loop(idx < total) {
+      local pname = "" + params_arr.get(idx)
+      if pname == name {
+        return JsonFragBox._str_to_int("" + (idx + 1))
+      }
+      idx = idx + 1
+    }
+    return 0
+  }
+}

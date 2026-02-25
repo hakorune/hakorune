@@ -1,0 +1,45 @@
+{
+  "functions": [
+    {
+      "name": "main",
+      "entry_block": 0,
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": "i64",
+                "value": 40
+              }
+            },
+            {
+              "op": "safepoint"
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
+            },
+            {
+              "op": "binop",
+              "operation": "+",
+              "lhs": 1,
+              "rhs": 2,
+              "dst": 3
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

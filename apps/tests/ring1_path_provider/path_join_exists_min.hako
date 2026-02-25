@@ -1,0 +1,29 @@
+static box Main {
+  main(args) {
+    local p = new PathBox()
+    local joined = p.join("apps", "tests")
+    local normalized = p.normalize("./apps/./tests/../tests")
+    local dirname = p.dirname("apps/tests/main.hako")
+    local basename = p.basename("apps/tests/main.hako")
+    local extname = p.extname("apps/tests/main.hako")
+    local rel_abs = p.isAbs("apps/tests")
+
+    if joined == "apps/tests" {
+      if normalized == "apps/tests" {
+        if dirname == "apps/tests" {
+          if basename == "main.hako" {
+            if extname == ".hako" {
+              if rel_abs == false {
+                print("PATH_PROVIDER_OK join=apps/tests norm=apps/tests")
+                return 0
+              }
+            }
+          }
+        }
+      }
+    }
+
+    print("PATH_PROVIDER_NG join=" + joined + " norm=" + normalized)
+    return 1
+  }
+}

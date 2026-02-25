@@ -1,0 +1,329 @@
+// Moved from apps/selfhost-compiler/boxes/json_program_box.hako
+// JsonProgramBox — JSON v0 正規化の最小箱
+// 責務: Programヘッダの補正・meta.usings注入・主要Stmt/Exprのキー順安定化
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.json.utils.json_utils as JsonUtilsBox
+
+static box JsonProgramBox {
+  normalize(json, usings_json, externs_json) {
+    local normalized = me.normalize_program(json)
+    // 一括正規化: 配列フィールドの null を [] に丸める（Loop.body / If.then/else / Call.args）
+    normalized = me.fix_null_arrays(normalized)
+    normalized = me.compact_array_ws(normalized)
+    return me.ensure_meta(normalized, usings_json, externs_json)
+  }
+
+  ensure_meta(json, usings_json, externs_json) {
+    local payload = usings_json
+    if payload == null { payload = "[]" }
+    if payload.length() == 0 { payload = "[]" }
+    local ext = externs_json
+    if ext == null { ext = "[]" }
+    if ext.length() == 0 { ext = "[]" }
+
+    if json == null {
+      return "{\"version\":0,\"kind\":\"Program\",\"body\":[],\"meta\":{\"usings\":" + payload + ",\"extern_c\":" + ext + "}}"
+    }
+
+    local n = json.lastIndexOf("}")
+    if n < 0 { return json }
+    local head = json.substring(0, n)
+    local tail = json.substring(n, json.length())
+    local needs_comma = 1
+    if head.length() == 0 { needs_comma = 0 }
+    else {
+      local last = head.substring(head.length() - 1, head.length())
+      if last == "{" || last == "," { needs_comma = 0 }
+    }
+    if needs_comma == 1 { head = head + "," }
+    return head + "\"meta\":{\"usings\":" + payload + ",\"extern_c\":" + ext + "}" + tail
+  }
+
+  normalize_program(json) {
+    if json == null { return json }
+    local trimmed = me.trim(json)
+    if trimmed == null { return json }
+    if me.index_of(trimmed, 0, "\"body\"") < 0 { return json }
+
+    local version = JsonUtilsBox.extract_value(trimmed, "version")
+    if version == null { version = "0" }
+    local kind_name = JsonUtilsBox.extract_string_value(trimmed, "kind", "Program")
+    local body_raw = JsonUtilsBox.extract_value(trimmed, "body")
+    if body_raw == null { body_raw = "[]" }
+    local body_norm = me.normalize_stmt_array(body_raw)
+
+    return "{\"version\":" + version + ",\"kind\":" + me.quote(kind_name) + ",\"body\":" + body_norm + "}"
+  }
+
+  // fix_null_arrays: よくある null 配列を [] に正規化（string ベース、保守的）
+  fix_null_arrays(json) {
+    if json == null { return json }
+    local s = json
+    s = me._replace_all(s, "\"args\":null", "\"args\":[]")
+    s = me._replace_all(s, "\"body\":null", "\"body\":[]")
+    s = me._replace_all(s, "\"then\":null", "\"then\":[]")
+    s = me._replace_all(s, "\"else\":null", "\"else\":[]")
+    return s
+  }
+
+  compact_array_ws(json) {
+    if json == null { return json }
+    local s = json
+    s = me._replace_all(s, "[ {", "[{")
+    s = me._replace_all(s, "[  {", "[{")
+    s = me._replace_all(s, "} ]", "}]")
+    s = me._replace_all(s, "}  ]", "}]")
+    return s
+  }
+
+  _replace_all(text, pat, rep) {
+    if text == null { return text }
+    local m = pat.length()
+    if m == 0 { return text }
+    local out = ""
+    local i = 0
+    local n = text.length()
+    loop(i < n) {
+      if StringHelpers.starts_with(text, i, pat) == 1 {
+        out = out + rep
+        i = i + m
+      } else {
+        local ch = text.substring(i, i + 1)
+        if ch == null { ch = "" }
+        out = out + ch
+        i = i + 1
+      }
+    }
+    return out
+  }
+
+  normalize_stmt_array(array_json) {
+    if array_json == null { return "[]" }
+    local trimmed = me.trim(array_json)
+    if trimmed.length() == 0 { return "[]" }
+    if trimmed == "null" { return "[]" }
+    if trimmed.length() < 2 { return "[]" }
+    if trimmed.substring(0, 1) != "[" { return trimmed }
+    if trimmed == "[]" { return "[]" }
+
+    local parts = JsonUtilsBox.split_top_level(trimmed)
+    local out = new ArrayBox()
+    local i = 0
+    loop(i < parts.length()) {
+      local item = me.trim(parts.get(i))
+      if item.length() > 0 {
+        out.push(me.normalize_stmt(item))
+      }
+      i = i + 1
+    }
+    return "[" + me.join(out) + "]"
+  }
+
+  default_int_expr() { return "{\"type\":\"Int\",\"value\":0}" }
+
+  default_bool_expr() { return "{\"type\":\"Bool\",\"value\":false}" }
+
+  default_recv_expr() { return "{\"type\":\"Var\",\"name\":\"me\"}" }
+
+  normalize_stmt(stmt_json) {
+    if stmt_json == null { return "{}" }
+    local trimmed = me.trim(stmt_json)
+    local type_name = JsonUtilsBox.extract_string_value(trimmed, "type", null)
+    if type_name == null { return trimmed }
+
+    if type_name == "Return" {
+      local expr_raw = JsonUtilsBox.extract_value(trimmed, "expr")
+      local expr_norm = me.normalize_expr(expr_raw)
+      if expr_norm == null { expr_norm = me.default_int_expr() }
+      return "{\"type\":\"Return\",\"expr\":" + expr_norm + "}"
+    }
+    if type_name == "If" {
+      local cond_raw = JsonUtilsBox.extract_value(trimmed, "cond")
+      local cond_norm = me.normalize_expr(cond_raw)
+      if cond_norm == null { cond_norm = me.default_bool_expr() }
+      local then_raw = JsonUtilsBox.extract_value(trimmed, "then")
+      local then_norm = me.normalize_stmt_array(then_raw)
+      local else_raw = JsonUtilsBox.extract_value(trimmed, "else")
+      local out = "{\"type\":\"If\",\"cond\":" + cond_norm + ",\"then\":" + then_norm
+      if else_raw != null {
+        local else_trim = me.trim(else_raw)
+        if else_trim != "null" {
+          local else_norm = me.normalize_stmt_array(else_trim)
+          out = out + ",\"else\":" + else_norm
+        }
+      }
+      return out + "}"
+    }
+    if type_name == "Loop" {
+      local cond_raw2 = JsonUtilsBox.extract_value(trimmed, "cond")
+      local cond_norm2 = me.normalize_expr(cond_raw2)
+      if cond_norm2 == null { cond_norm2 = me.default_bool_expr() }
+      local body_raw = JsonUtilsBox.extract_value(trimmed, "body")
+      local body_norm = me.normalize_stmt_array(body_raw)
+      return "{\"type\":\"Loop\",\"cond\":" + cond_norm2 + ",\"body\":" + body_norm + "}"
+    }
+    if type_name == "Local" || type_name == "Const" {
+      local name = JsonUtilsBox.extract_string_value(trimmed, "name", "tmp")
+      local expr_raw3 = JsonUtilsBox.extract_value(trimmed, "expr")
+      if expr_raw3 == null { expr_raw3 = JsonUtilsBox.extract_value(trimmed, "value") }
+      local expr_norm3 = me.normalize_expr(expr_raw3)
+      if expr_norm3 == null { expr_norm3 = me.default_int_expr() }
+      local tag = "Local"
+      if type_name == "Const" { tag = "Const" }
+      return "{\"type\":\"" + tag + "\",\"name\":" + me.quote(name) + ",\"expr\":" + expr_norm3 + "}"
+    }
+    if type_name == "Expr" {
+      local expr_raw4 = JsonUtilsBox.extract_value(trimmed, "expr")
+      local expr_norm4 = me.normalize_expr(expr_raw4)
+      if expr_norm4 == null { expr_norm4 = me.default_int_expr() }
+      return "{\"type\":\"Expr\",\"expr\":" + expr_norm4 + "}"
+    }
+
+    return trimmed
+  }
+
+  normalize_expr_array(array_json) {
+    if array_json == null { return "[]" }
+    local trimmed = me.trim(array_json)
+    if trimmed.length() == 0 { return "[]" }
+    if trimmed == "null" { return "[]" }
+    if trimmed.length() < 2 { return "[]" }
+    if trimmed.substring(0, 1) != "[" { return trimmed }
+    if trimmed == "[]" { return "[]" }
+
+    local parts = JsonUtilsBox.split_top_level(trimmed)
+    local out = new ArrayBox()
+    local i = 0
+    loop(i < parts.length()) {
+      local item = me.trim(parts.get(i))
+      if item.length() > 0 {
+        local norm = me.normalize_expr(item)
+        if norm == null { norm = item }
+        out.push(norm)
+      }
+      i = i + 1
+    }
+    return "[" + me.join(out) + "]"
+  }
+
+  normalize_expr(expr_json) {
+    if expr_json == null { return null }
+    local trimmed = me.trim(expr_json)
+    local type_name = JsonUtilsBox.extract_string_value(trimmed, "type", null)
+    if type_name == null { return trimmed }
+
+    if type_name == "Int" {
+      local value_raw = JsonUtilsBox.extract_value(trimmed, "value")
+      if value_raw == null { value_raw = "0" }
+      return "{\"type\":\"Int\",\"value\":" + me.trim(value_raw) + "}"
+    }
+    if type_name == "Str" {
+      local value_raw2 = JsonUtilsBox.extract_value(trimmed, "value")
+      if value_raw2 == null { value_raw2 = "\"\"" }
+      return "{\"type\":\"Str\",\"value\":" + me.trim(value_raw2) + "}"
+    }
+    if type_name == "Bool" {
+      local value_raw3 = JsonUtilsBox.extract_value(trimmed, "value")
+      if value_raw3 == null { value_raw3 = "false" }
+      return "{\"type\":\"Bool\",\"value\":" + me.trim(value_raw3) + "}"
+    }
+    if type_name == "Null" {
+      return "{\"type\":\"Null\"}"
+    }
+    if type_name == "Var" {
+      local name = JsonUtilsBox.extract_string_value(trimmed, "name", "")
+      return "{\"type\":\"Var\",\"name\":" + me.quote(name) + "}"
+    }
+    if type_name == "Call" {
+      local name2 = JsonUtilsBox.extract_string_value(trimmed, "name", "")
+      local args_raw = JsonUtilsBox.extract_value(trimmed, "args")
+      local args_norm = me.normalize_expr_array(args_raw)
+      return "{\"type\":\"Call\",\"name\":" + me.quote(name2) + ",\"args\":" + args_norm + "}"
+    }
+    if type_name == "Method" {
+      local recv_raw = JsonUtilsBox.extract_value(trimmed, "recv")
+      local recv_norm = me.normalize_expr(recv_raw)
+      if recv_norm == null { recv_norm = me.default_recv_expr() }
+      local method_name = JsonUtilsBox.extract_string_value(trimmed, "method", "")
+      local args_raw2 = JsonUtilsBox.extract_value(trimmed, "args")
+      local args_norm2 = me.normalize_expr_array(args_raw2)
+      return "{\"type\":\"Method\",\"recv\":" + recv_norm + ",\"method\":" + me.quote(method_name) + ",\"args\":" + args_norm2 + "}"
+    }
+    if type_name == "Binary" {
+      local op = JsonUtilsBox.extract_string_value(trimmed, "op", "+")
+      local lhs_raw = JsonUtilsBox.extract_value(trimmed, "lhs")
+      local rhs_raw = JsonUtilsBox.extract_value(trimmed, "rhs")
+      local lhs_norm = me.normalize_expr(lhs_raw)
+      if lhs_norm == null { lhs_norm = me.default_int_expr() }
+      local rhs_norm = me.normalize_expr(rhs_raw)
+      if rhs_norm == null { rhs_norm = me.default_int_expr() }
+      return "{\"type\":\"Binary\",\"op\":" + me.quote(op) + ",\"lhs\":" + lhs_norm + ",\"rhs\":" + rhs_norm + "}"
+    }
+    if type_name == "Compare" {
+      local op2 = JsonUtilsBox.extract_string_value(trimmed, "op", "==")
+      local lhs_raw2 = JsonUtilsBox.extract_value(trimmed, "lhs")
+      local rhs_raw2 = JsonUtilsBox.extract_value(trimmed, "rhs")
+      local lhs_norm2 = me.normalize_expr(lhs_raw2)
+      if lhs_norm2 == null { lhs_norm2 = me.default_int_expr() }
+      local rhs_norm2 = me.normalize_expr(rhs_raw2)
+      if rhs_norm2 == null { rhs_norm2 = me.default_int_expr() }
+      return "{\"type\":\"Compare\",\"op\":" + me.quote(op2) + ",\"lhs\":" + lhs_norm2 + ",\"rhs\":" + rhs_norm2 + "}"
+    }
+    if type_name == "Logical" {
+      local op3 = JsonUtilsBox.extract_string_value(trimmed, "op", "&&")
+      local lhs_raw3 = JsonUtilsBox.extract_value(trimmed, "lhs")
+      local rhs_raw3 = JsonUtilsBox.extract_value(trimmed, "rhs")
+      local lhs_norm3 = me.normalize_expr(lhs_raw3)
+      if lhs_norm3 == null { lhs_norm3 = me.default_bool_expr() }
+      local rhs_norm3 = me.normalize_expr(rhs_raw3)
+      if rhs_norm3 == null { rhs_norm3 = me.default_bool_expr() }
+      return "{\"type\":\"Logical\",\"op\":" + me.quote(op3) + ",\"lhs\":" + lhs_norm3 + ",\"rhs\":" + rhs_norm3 + "}"
+    }
+
+    return trimmed
+  }
+
+  // String operations (delegated to StringHelpers)
+  index_of(s, start, pat) { return StringHelpers.index_of(s, start, pat) }
+  last_index_of(s, pat) { return StringHelpers.last_index_of(s, pat) }
+  skip_ws(s, idx) { return StringHelpers.skip_ws(s, idx) }
+  trim(s) {
+    if s == null { return "" }
+    return me._trim_all(s)
+  }
+
+  _trim_all(text) {
+    if text == null { return "" }
+    local n = text.length()
+    local start = 0
+    loop(start < n) {
+      local ch = text.substring(start, start + 1)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { start = start + 1 } else { break }
+    }
+    local end_idx = n
+    loop(end_idx > start) {
+      local ch2 = text.substring(end_idx - 1, end_idx)
+      if ch2 == " " || ch2 == "\t" || ch2 == "\n" || ch2 == "\r" || ch2 == ";" { end_idx = end_idx - 1 } else { break }
+    }
+    if end_idx <= start { return "" }
+    local part = text.substring(start, end_idx)
+    if part == null { return "" }
+    return part
+  }
+  quote(s) { return StringHelpers.json_quote(s) }
+  i2s(v) { return StringHelpers.int_to_str(v) }
+
+  // Array joining (normalization-specific)
+  join(parts) {
+    if parts == null { return "" }
+    local out = ""
+    local i = 0
+    local n = parts.length()
+    loop(i < n) {
+      local item = parts.get(i)
+      if i == 0 { out = out + item } else { out = out + "," + item }
+      i = i + 1
+    }
+    return out
+  }
+}

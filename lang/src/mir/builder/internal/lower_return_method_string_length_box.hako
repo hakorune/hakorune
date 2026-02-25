@@ -1,0 +1,36 @@
+// lower_return_method_string_length_box.hako — Program(JSON v0)
+//   Return(Method(New(StringBox, <String>), "length|size", []))
+// → MIR(JSON v1): const string + call(callee=Method) + ret
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box LowerReturnMethodStringLengthBox {
+  try_lower(program_json) {
+    if program_json == null { return null }
+    local s = "" + program_json
+    // Find Return with expr.type == Method
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0); if k_ret < 0 { return null }
+    local k_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_ret); if k_expr < 0 { return null }
+    local k_m = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", k_expr); if k_m < 0 { return null }
+    // method name
+    local k_name = JsonFragBox.index_of_from(s, "\"method\":\"", k_m); if k_name < 0 { return null }
+    local mname = JsonFragBox.read_string_after(s, k_name + 9); if mname == null { return null }
+    if !(mname == "length" || mname == "size") { return null }
+    // receiver: New(StringBox, <String>)
+    local k_recv = JsonFragBox.index_of_from(s, "\"recv\":{", k_m); if k_recv < 0 { return null }
+    local k_new = JsonFragBox.index_of_from(s, "\"type\":\"New\"", k_recv); if k_new < 0 { return null }
+    if JsonFragBox.index_of_from(s, "\"class\":\"StringBox\"", k_new) < 0 { return null }
+    // find first String literal value under args
+    local k_args = JsonFragBox.index_of_from(s, "\"args\":[", k_new); if k_args < 0 { return null }
+    local k_str = JsonFragBox.index_of_from(s, "\"type\":\"String\"", k_args); if k_str < 0 { return null }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":\"", k_str); if k_val < 0 { return null }
+    local sval = JsonFragBox.read_string_after(s, k_val + 8); if sval == null { return null }
+    // Emit minimal MIR v1: const string + call(callee=Method) → i64 → ret
+    // Note: const string is compatible with ny-llvmc const lowering (marks string_ptrs)
+    local mir = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
+               "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"" + sval + "\"}}," +
+               "{\"op\":\"call\",\"dst\":2,\"callee\":{\"type\":\"Method\",\"box_name\":\"StringBox\",\"method\":\"" + mname + "\",\"receiver\":1},\"args\":[]}," +
+               "{\"op\":\"ret\",\"value\":2}]}]}]}"
+    return mir
+  }
+}

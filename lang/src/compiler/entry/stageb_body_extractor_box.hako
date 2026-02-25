@@ -1,0 +1,594 @@
+// StageBBodyExtractorBox — Body extraction + bundle + using + trim
+// Extracted from compiler_stageb.hako to keep the entry file small.
+
+using hako.compiler.entry.bundle_resolver as BundleResolver
+using lang.compiler.entry.using_resolver as Stage1UsingResolverBox
+using lang.compiler.entry.comment_stripper_box as CommentStripperBox
+using lang.compiler.entry.stageb_trace_box as StageBTraceBox
+
+static box StageBBodyExtractorBox {
+  build_body_src(src, args) {
+    {
+      //入口トレース: 入力ソース長と引数有無
+      local l = 0
+      if src != null { l = ("" + src).length() }
+      local tracer = new StageBTraceBox()
+      tracer.log("StageBBodyExtractorBox.build_body_src:enter len=" + ("" + l))
+    }
+    // ============================================================================
+    // Depth guard: prevent accidental recursion inside Stage‑B body extractor
+    // ============================================================================
+    {
+      local depth = env.get("HAKO_STAGEB_BODY_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/recursion] StageBBodyExtractorBox.build_body_src recursion detected")
+        // Fail-fast but still return a sensible value: fall back to original src
+        return src
+      }
+      env.set("HAKO_STAGEB_BODY_DEPTH", "1")
+    }
+
+    // ============================================================================
+    // 4) Body extraction: extract main method body from box Main wrapper
+    // ============================================================================
+    // If wrapped in `box Main { method main() { ... } }` or `static box Main { method main() { ... } }`,
+    // extract the method body text. Allow disabling via env HAKO_STAGEB_BODY_EXTRACT=0.
+
+    local body_src = null
+    {
+      local do_extract = 1
+      {
+        local ex = env.get("HAKO_STAGEB_BODY_EXTRACT")
+        if ex != null && ("" + ex) == "0" { do_extract = 0 }
+      }
+
+      if do_extract == 0 {
+        body_src = src
+      } else {
+        // naive search for "method main" → '(' → ')' → '{' ... balanced '}'
+        local s = src
+
+        // naive substring search for "method main"; fallback to "main(" inside box Main
+        local k0 = -1
+        {
+          local pat = "method main"
+          local m = pat.length()
+          local i = 0
+          local n = s.length()
+          loop(i + m <= n) {
+            if s.substring(i, i + m) == pat { k0 = i  break }
+            i = i + 1
+          }
+        }
+
+        if k0 < 0 {
+          // Fallback: find "box Main" (with or without leading 'static') then locate "main(" after it
+          local kbox = -1
+          {
+            local pat = "box Main"
+            local m = pat.length()
+            local i = 0
+            local n = s.length()
+            loop(i + m <= n) {
+              if s.substring(i, i + m) == pat { kbox = i  break }
+              i = i + 1
+            }
+          }
+
+          if kbox >= 0 {
+            // search for "main(" starting at kbox
+            local i = kbox
+            local n = s.length()
+            loop(i + 5 <= n) { // len("main(") = 5
+              if s.substring(i, i + 5) == "main(" { k0 = i  break }
+              i = i + 1
+            }
+          } else {
+            // last resort: global search of "main(" (may overmatch but better than full-file body)
+            local i = 0
+            local n = s.length()
+            loop(i + 5 <= n) {
+              if s.substring(i, i + 5) == "main(" { k0 = i  break }
+              i = i + 1
+            }
+          }
+        }
+
+        {
+          local dbg = env.get("HAKO_STAGEB_DEBUG")
+          if dbg != null && ("" + dbg) == "1" {
+            print("[DEBUG] Source length: " + s.length())
+            print("[DEBUG] k0 (main position) = " + k0)
+          }
+        }
+
+        if k0 >= 0 {
+          // find '(' after k0 (skip inside strings)
+          local k1 = -1
+          {
+            local j = k0
+            local n = s.length()
+            local in_str = 0
+            local esc = 0
+            loop(j < n) {
+              local ch = s.substring(j, j + 1)
+              if in_str == 1 {
+                if esc == 1 { esc = 0  j = j + 1  continue }
+                if ch == "\\" { esc = 1  j = j + 1  continue }
+                if ch == "\"" { in_str = 0  j = j + 1  continue }
+                j = j + 1
+                continue
+              }
+              if ch == "\"" { in_str = 1  j = j + 1  continue }
+              if ch == "(" { k1 = j  break }
+              j = j + 1
+            }
+          }
+
+          {
+            local dbg = env.get("HAKO_STAGEB_DEBUG")
+            if dbg != null && ("" + dbg) == "1" {
+              print("[DEBUG] k1 ('(' position) = " + k1)
+            }
+          }
+
+          if k1 >= 0 {
+            // find ')' after k1 (skip inside strings)
+            local k2 = -1
+            {
+              local j = k1
+              local n = s.length()
+              local in_str = 0
+              local esc = 0
+              loop(j < n) {
+                local ch = s.substring(j, j + 1)
+                if in_str == 1 {
+                  if esc == 1 { esc = 0  j = j + 1  continue }
+                  if ch == "\\" { esc = 1  j = j + 1  continue }
+                  if ch == "\"" { in_str = 0  j = j + 1  continue }
+                  j = j + 1
+                  continue
+                }
+                if ch == "\"" { in_str = 1  j = j + 1  continue }
+                if ch == ")" { k2 = j  break }
+                j = j + 1
+              }
+            }
+
+            {
+              local dbg = env.get("HAKO_STAGEB_DEBUG")
+              if dbg != null && ("" + dbg) == "1" {
+                print("[DEBUG] k2 (')' position) = " + k2)
+              }
+            }
+
+            if k2 >= 0 {
+              // Find opening '{' following ')' (skip inside strings)
+              local k3 = -1
+              {
+                local j = k2
+                local n = s.length()
+                local in_str = 0
+                local esc = 0
+                loop(j < n) {
+                  local ch = s.substring(j, j + 1)
+                  if in_str == 1 {
+                    if esc == 1 { esc = 0  j = j + 1  continue }
+                    if ch == "\\" { esc = 1  j = j + 1  continue }
+                    if ch == "\"" { in_str = 0  j = j + 1  continue }
+                    j = j + 1
+                    continue
+                  }
+                  if ch == "\"" { in_str = 1  j = j + 1  continue }
+                  if ch == "{" { k3 = j  break }
+                  j = j + 1
+                }
+              }
+
+              {
+                local dbg = env.get("HAKO_STAGEB_DEBUG")
+                if dbg != null && ("" + dbg) == "1" {
+                  print("[DEBUG] k3 ('{' position) = " + k3)
+                }
+              }
+
+              if k3 >= 0 {
+                // Phase 25.1c: Guaranteed trace before balanced scan
+                {
+                  local trc = env.get("HAKO_STAGEB_TRACE")
+                  if trc != null && ("" + trc) == "1" {
+                    print("[stageb/body] Before balanced scan: k3=" + ("" + k3) + " len=" + ("" + s.length()))
+                  }
+                }
+
+                // Balanced scan for matching '}'
+                local depth = 0
+                local i = k3
+                local n = s.length()
+                local in_str = 0
+                local esc = 0
+                local start_pos = -1
+                local end_pos = -1
+                local iter_count = 0  // Phase 25.1c: iteration counter
+                loop(i < n) {
+                  // Phase 25.1c: EVERY iteration trace (to detect i stall)
+                  iter_count = iter_count + 1
+                  {
+                    local trc = env.get("HAKO_STAGEB_TRACE")
+                    if trc != null && ("" + trc) == "1" {
+                      // Print EVERY iteration to catch i-stall immediately
+                      print("[stageb/body/iter] #" + ("" + iter_count) + " i=" + ("" + i) + " depth=" + ("" + depth))
+                    }
+                  }
+                  // Phase 25.1c: Trace before substring call
+                  {
+                    local trc = env.get("HAKO_STAGEB_TRACE")
+                    if trc != null && ("" + trc) == "1" {
+                      print("[stageb/body/substr-pre] #" + ("" + iter_count) + " calling s.substring(" + ("" + i) + ", " + ("" + (i + 1)) + ")")
+                    }
+                  }
+                  local ch = s.substring(i, i + 1)
+                  // Phase 25.1c: Trace after substring call
+                  {
+                    local trc = env.get("HAKO_STAGEB_TRACE")
+                    if trc != null && ("" + trc) == "1" {
+                      print("[stageb/body/substr-post] #" + ("" + iter_count) + " got ch")
+                    }
+                  }
+                  // Phase 25.1c: Trace each branch
+                  if in_str == 1 {
+                    print("[stageb/body/branch] in_str=1")
+                    if esc == 1 { esc = 0  i = i + 1  continue }
+                    if ch == "\\" { esc = 1  i = i + 1  continue }
+                    if ch == "\"" { in_str = 0  i = i + 1  continue }
+                    i = i + 1
+                    continue
+                  }
+                  if ch == "\"" {
+                    print("[stageb/body/branch] quote")
+                    in_str = 1  i = i + 1  continue
+                  }
+                  if ch == "{" {
+                    print("[stageb/body/branch] open-brace depth=" + ("" + depth) + "->+1 i=" + ("" + i) + "->+1")
+                    depth = depth + 1  i = i + 1  continue
+                  }
+                  if ch == "}" {
+                    print("[stageb/body/branch] close-brace depth=" + ("" + depth) + "->-1 i=" + ("" + i) + "->+1")
+                    depth = depth - 1
+                    i = i + 1
+                    if depth == 0 { break }
+                    continue
+                  }
+                  print("[stageb/body/branch] other i=" + ("" + i) + "->+1")
+                  i = i + 1
+                }
+
+                // Phase 25.1c: Guaranteed trace after balanced scan
+                {
+                  local trc = env.get("HAKO_STAGEB_TRACE")
+                  if trc != null && ("" + trc) == "1" {
+                    print("[stageb/body] After balanced scan: depth=" + ("" + depth) + " i=" + ("" + i) + " iters=" + ("" + iter_count))
+                  }
+                }
+
+                {
+                  local dbg = env.get("HAKO_STAGEB_DEBUG")
+                  if dbg != null && ("" + dbg) == "1" {
+                    print("[DEBUG] After balanced scan: depth=" + depth + ", i=" + i)
+                  }
+                }
+
+                if depth == 0 {
+                  // inside of '{'..'}'
+                  start_pos = k3 + 1
+                  end_pos = i - 1
+                  {
+                    local dbg = env.get("HAKO_STAGEB_DEBUG")
+                    if dbg != null && ("" + dbg) == "1" {
+                      print("[DEBUG] Will extract substring(" + start_pos + ", " + end_pos + ")")
+                    }
+                  }
+                }
+
+                // Extract outside the nested blocks to avoid potential scoping issues
+                if start_pos >= 0 && end_pos >= start_pos {
+                  body_src = s.substring(start_pos, end_pos)
+                  {
+                    local dbg = env.get("HAKO_STAGEB_DEBUG")
+                    if dbg != null && ("" + dbg) == "1" {
+                      if body_src == null {
+                        print("[DEBUG] After extraction: body_src is NULL!")
+                      } else {
+                        print("[DEBUG] After extraction: body_src length = " + body_src.length())
+                      }
+                    }
+                  }
+                }
+
+                {
+                  local dbg = env.get("HAKO_STAGEB_DEBUG")
+                  if dbg != null && ("" + dbg) == "1" {
+                    if body_src == null { print("[DEBUG] body_src is NULL after line 254") } else { print("[DEBUG] body_src OK after line 254, len=" + body_src.length()) }
+                  }
+                }
+              }
+
+              {
+                local dbg = env.get("HAKO_STAGEB_DEBUG")
+                if dbg != null && ("" + dbg) == "1" {
+                  if body_src == null { print("[DEBUG] body_src is NULL after line 256") } else { print("[DEBUG] body_src OK after line 256, len=" + body_src.length()) }
+                }
+              }
+            }
+
+            {
+              local dbg = env.get("HAKO_STAGEB_DEBUG")
+              if dbg != null && ("" + dbg) == "1" {
+                if body_src == null { print("[DEBUG] body_src is NULL after line 268") } else { print("[DEBUG] body_src OK after line 268, len=" + body_src.length()) }
+              }
+            }
+          }
+
+          {
+            local dbg = env.get("HAKO_STAGEB_DEBUG")
+            if dbg != null && ("" + dbg) == "1" {
+              if body_src == null { print("[DEBUG] body_src is NULL after line 269") } else { print("[DEBUG] body_src OK after line 269, len=" + body_src.length()) }
+            }
+          }
+        }
+
+        {
+          local dbg = env.get("HAKO_STAGEB_DEBUG")
+          if dbg != null && ("" + dbg) == "1" {
+            if body_src == null { print("[DEBUG] body_src is NULL after line 270") } else { print("[DEBUG] body_src OK after line 270, len=" + body_src.length()) }
+          }
+        }
+      }
+
+      // Fallback: if extraction failed or produced empty, use full src
+      {
+        local dbg = env.get("HAKO_STAGEB_DEBUG")
+        if dbg != null && ("" + dbg) == "1" {
+          print("[DEBUG] Body extraction:")
+          if body_src == null {
+            print("[DEBUG]   body_src = null")
+          } else {
+            print("[DEBUG]   body_src length = " + ("" + body_src).length())
+            print("[DEBUG]   body_src = [" + body_src + "]")
+          }
+        }
+      }
+      if body_src == null || ("" + body_src).length() == 0 { body_src = src }
+    }
+
+
+    // ============================================================================
+    // 4.7) Comment removal: strip // and /* */ comments
+    // ============================================================================
+    // Delegated to CommentStripperBox (Phase 29bq+ modularization)
+    body_src = CommentStripperBox.strip_comments(body_src)
+
+
+    // ============================================================================
+    // 4.5) Bundle resolution: --bundle-src, --bundle-mod, --require-mod
+    // ============================================================================
+    // Optional: bundle extra module sources provided via repeated --bundle-src args
+    // This is a minimal concatenation bundler (no I/O, no resolver). It simply places
+    // provided module snippets before the main body for Stage-B parser to accept.
+    // Usage example:
+    //   compiler_stageb.hako -- --bundle-src "static box Util { method nop(a){ return a } }" --source "static box Main { method main() { return 0 } }"
+    // Policy:
+    //   - --bundle-mod "Name:code" accepts multiple named bundles, but duplicate Name is Fail-Fast
+    //     and emits a stable tag: `[bundle/duplicate] Name`.
+    //   - --require-mod Name ensures the named module is present (via --bundle-mod), otherwise
+    //     Fail-Fast with `[bundle/missing] Name`.
+
+    local bundles = new ArrayBox()
+    // Named bundles (name:src) and requirements
+    local bundle_names = new ArrayBox()
+    local bundle_srcs = new ArrayBox()
+    local require_mods = new ArrayBox()
+
+    if args != null {
+      local i = 0
+      local n = args.length()
+      loop(i < n) {
+        local t = "" + args.get(i)
+
+        if t == "--bundle-src" && i + 1 < n {
+          bundles.push("" + args.get(i + 1))
+          i = i + 1
+        }
+
+        if t == "--bundle-mod" && i + 1 < n {
+          // Parse "name:code" into (name, code)
+          local pair = "" + args.get(i + 1)
+          local m = pair.length()
+          local pos = -1
+          {
+            local j = 0
+            loop(j < m) { if pair.substring(j, j + 1) == ":" { pos = j  break } j = j + 1 }
+          }
+
+          if pos >= 0 {
+            local name = pair.substring(0, pos)
+            local code = pair.substring(pos + 1, m)
+            bundle_names.push(name)
+            bundle_srcs.push(code)
+          }
+          i = i + 1
+        }
+
+        if t == "--require-mod" && i + 1 < n {
+          require_mods.push("" + args.get(i + 1))
+          i = i + 1
+        }
+
+        i = i + 1
+      }
+    }
+    // Required modules are validated in BundleResolver.resolve (includes env alias injection)
+
+
+    // ============================================================================
+    // 4.6) Fail-Fast on duplicate named bundles
+    // ============================================================================
+    // Policy: duplicate module names are not allowed. Emit a stable diagnostic tag and exit.
+
+    if bundle_names.length() > 1 {
+      local i = 0
+      local n = bundle_names.length()
+      loop(i < n) {
+        local name_i = "" + bundle_names.get(i)
+        local j = i + 1
+        loop(j < n) {
+          if ("" + bundle_names.get(j)) == name_i {
+            print("[bundle/duplicate] " + name_i)
+            return 1
+          }
+          j = j + 1
+        }
+        i = i + 1
+      }
+    }
+
+
+    // ============================================================================
+    // Bundle merge + line-map debug output
+    // ============================================================================
+
+    if bundles.length() > 0 || bundle_srcs.length() > 0 || require_mods.length() > 0 {
+      local merged_prefix = BundleResolver.resolve(bundles, bundle_names, bundle_srcs, require_mods)
+      if merged_prefix == null { return 1 }
+
+      // Debug: emit line-map for merged bundles so parse error line can be mapped
+      {
+        local dbg = env.get("HAKO_STAGEB_DEBUG")
+        if dbg != null && ("" + dbg) == "1" {
+          // Count lines helper (inline)
+          local total = 0
+          {
+            local s2 = merged_prefix
+            if s2 == null { total = 0 } else {
+              local i = 0; local n = ("" + s2).length(); local c = 1
+              loop(i < n){ if ("" + s2).substring(i, i + 1) == "\n" { c = c + 1 } i = i + 1 }
+              total = c
+            }
+          }
+          print("[stageb/line-map] prefix total lines=" + total)
+
+          // bundle-src (anonymous)
+          if bundles != null && bundles.length() > 0 {
+            local i = 0; local acc = 1
+            loop(i < bundles.length()) {
+              local seg = "" + bundles.get(i)
+              local ln = 0
+              {
+                local s2 = seg
+                if s2 == null { ln = 0 } else {
+                  local ii = 0; local nn = ("" + s2).length(); local cc = 1
+                  loop(ii < nn){ if ("" + s2).substring(ii, ii + 1) == "\n" { cc = cc + 1 } ii = ii + 1 }
+                  ln = cc
+                }
+              }
+              local start = acc
+              local finish = acc + ln - 1
+              print("[stageb/line-map] bundle-src[#" + i + "] " + start + ".." + finish)
+              acc = finish + 1
+              i = i + 1
+            }
+          }
+
+          // bundle-mod (named)
+          if bundle_names != null && bundle_srcs != null {
+            local i2 = 0; local acc2 = 1
+            if bundles != null {
+              // count lines of joined bundle-src
+              local joined = bundles.join("\n")
+              if joined == null { acc2 = 1 } else {
+                local ii = 0; local nn = ("" + joined).length(); local cc = 1
+                loop(ii < nn){ if ("" + joined).substring(ii, ii + 1) == "\n" { cc = cc + 1 } ii = ii + 1 }
+                acc2 = cc + 1
+              }
+            }
+            loop(i2 < bundle_srcs.length()) {
+              local name = "" + bundle_names.get(i2)
+              local seg = "" + bundle_srcs.get(i2)
+              local ln = 0
+              {
+                local s2 = seg
+                if s2 == null { ln = 0 } else {
+                  local ii = 0; local nn = ("" + s2).length(); local cc = 1
+                  loop(ii < nn){ if ("" + s2).substring(ii, ii + 1) == "\n" { cc = cc + 1 } ii = ii + 1 }
+                  ln = cc
+                }
+              }
+              local start = acc2
+              local finish = acc2 + ln - 1
+              print("[stageb/line-map] bundle-mod[name=" + name + "] " + start + ".." + finish)
+              acc2 = finish + 1
+              i2 = i2 + 1
+            }
+          }
+        }
+      }
+
+      body_src = merged_prefix + body_src
+    }
+
+
+    // ============================================================================
+    // Using resolver: resolve using statements
+    // ============================================================================
+
+    {
+      local apply_flag = env.get("HAKO_STAGEB_APPLY_USINGS")
+      if apply_flag == null || ("" + apply_flag) != "0" {
+        local resolved_prefix = Stage1UsingResolverBox.resolve_for_source(body_src)
+        // Fail-fast: resolver printed a tagged error and returned null.
+        if resolved_prefix == null { return 2 }
+        if resolved_prefix != null && resolved_prefix != "" {
+          body_src = resolved_prefix + "\n" + body_src
+        }
+      }
+    }
+
+
+    // ============================================================================
+    // 5) Trim: normalize leading/trailing whitespaces and newlines
+    // ============================================================================
+
+    {
+      local s = body_src
+      local n = s.length()
+      local b = 0
+
+      // left trim (space, tab, CR, LF)
+      loop(b < n) {
+        local ch = s.substring(b, b + 1)
+        if ch == " " || ch == "\t" || ch == "\r" || ch == "\n" { b = b + 1 } else { break }
+      }
+
+      // right trim
+      local e = n
+      loop(e > b) {
+        local ch = s.substring(e - 1, e)
+        if ch == " " || ch == "\t" || ch == "\r" || ch == "\n" { e = e - 1 } else { break }
+      }
+
+      if e > b { body_src = s.substring(b, e) } else { body_src = "" }
+    }
+
+    {
+      //出口トレース: 抽出後 body_src 長
+      local l2 = 0
+      if body_src != null { l2 = ("" + body_src).length() }
+      local tracer2 = new StageBTraceBox()
+      tracer2.log("StageBBodyExtractorBox.build_body_src:return_len=" + ("" + l2))
+    }
+
+    // Clear depth guard before returning
+    env.set("HAKO_STAGEB_BODY_DEPTH", "0")
+    return body_src
+  }
+}

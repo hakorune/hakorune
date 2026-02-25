@@ -1,0 +1,49 @@
+// cli_run_shape_box.hako — CliRunShapeScannerBox
+// Responsibility:
+//   - Inspect Program(JSON v0) for HakoCli.run defs and collect a coarse
+//     view of its branch structure (CLI subcommands).
+// Scope:
+//   - Observability only. Returns MapBox with metadata or null.
+//   - Used as a structural input / trace source for CliRunLowerBox.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box CliRunShapeScannerBox {
+  // Scan Program(JSON v0) and return a MapBox with:
+  //  - "has_run" : 1 if HakoCli.run is present, else 0/null
+  //  - "branches": ArrayBox of subcommand names (heuristic)
+  // Returns null if HakoCli.run is not present.
+  method scan(program_json) {
+    if program_json == null { return null }
+    local s = "" + program_json
+
+    // Must be Program(JSON v0)
+    if s.indexOf("\"kind\":\"Program\"") < 0 { return null }
+
+    // Look for defs entry: {"box":"HakoCli","name":"run", ...}
+    local box_idx = JsonFragBox.index_of_from(s, "\"box\":\"HakoCli\"", 0)
+    if box_idx < 0 { return null }
+    local name_idx = JsonFragBox.index_of_from(s, "\"name\":\"run\"", box_idx)
+    if name_idx < 0 { return null }
+
+    local info = new MapBox()
+    info.set("has_run", 1)
+
+    // Heuristic branch detection based on string literals used in run body.
+    // This is intentionally coarse: it is only used for trace / planning.
+    local branches = new ArrayBox()
+    if s.indexOf("\"run\"") >= 0 { branches.push("run") }
+    if s.indexOf("\"build\"") >= 0 { branches.push("build") }
+    if s.indexOf("\"emit\"") >= 0 { branches.push("emit") }
+    if s.indexOf("\"check\"") >= 0 { branches.push("check") }
+    info.set("branches", branches)
+
+    if env.get("HAKO_SELFHOST_TRACE") == "1" {
+      local n = branches.length()
+      print("[builder/cli:run_shape] has_run=1 branches=" + ("" + n))
+    }
+
+    return info
+  }
+}
+

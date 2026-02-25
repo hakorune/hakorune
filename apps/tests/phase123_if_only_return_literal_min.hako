@@ -1,0 +1,10 @@
+// Phase 123 minimal fixture: simple return literal
+// Expected output: 7
+
+static box Main {
+    main() {
+        local x = 7
+        print(x)
+        return "OK"
+    }
+}

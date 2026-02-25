@@ -1,0 +1,396 @@
+// ops/mir_call.hako — NyVmOpMirCall (Core dispatcher)
+// Phase-2 scope:
+// - ArrayBox metadata (size) + basic methods (size/push/pop/get/set)
+// - MapBox metadata (len) + methods len()/iterator()
+// - Stable diagnostics for unsupported module functions / methods / closures
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+using selfhost.vm.helpers.mir_call_json_scan as MirCallJsonScanBox
+using selfhost.vm.helpers.mir_call_array_ops as MirCallArrayOpsBox
+using selfhost.vm.helpers.mir_call_map_ops as MirCallMapOpsBox
+using selfhost.vm.hakorune-vm.str_cast as StrCast
+
+static box NyVmOpMirCall {
+  _fail(state, tag) {
+    // Record a stable error tag so NyVmDispatcher can surface it as return value
+    if state != null { state.set("last_error_tag", tag) }
+    print(tag)
+    return -1
+  }
+
+  // ==================== JSON Parsing Delegates ====================
+
+  _extract_mir_call_obj(inst_json) {
+    return MirCallJsonScanBox._extract_mir_call_obj(inst_json)
+  }
+
+  _read_str(s, key) {
+    return MirCallJsonScanBox._read_str(s, key)
+  }
+
+  _read_vid_field(json, key, missing_tag, bad_tag) {
+    return MirCallJsonScanBox._read_vid_field(json, key, missing_tag, bad_tag)
+  }
+
+  _read_optional_vid_field(json, key) {
+    return MirCallJsonScanBox._read_optional_vid_field(json, key)
+  }
+
+  _read_optionality(mir_call_json) {
+    return MirCallJsonScanBox._read_optionality(mir_call_json)
+  }
+
+  _read_dst(inst_json, context) {
+    return MirCallJsonScanBox._read_dst(inst_json, context)
+  }
+
+  _read_receiver(callee, context) {
+    return MirCallJsonScanBox._read_receiver(callee, context)
+  }
+
+  _scan_next_arg(m, i_ref) {
+    return MirCallJsonScanBox._scan_next_arg(m, i_ref)
+  }
+
+  _read_arg_vid(m, index, missing_tag, bad_tag) {
+    return MirCallJsonScanBox._read_arg_vid(m, index, missing_tag, bad_tag)
+  }
+
+  _read_arg_vid_optional(m, index) {
+    return MirCallJsonScanBox._read_arg_vid_optional(m, index)
+  }
+
+  _read_first_arg(mcall_json) {
+    return MirCallJsonScanBox._read_first_arg(mcall_json)
+  }
+
+  // ==================== Array Ops Delegates ====================
+
+  _arr_key(recv_id) {
+    return MirCallArrayOpsBox._arr_key(recv_id)
+  }
+  _arr_val_key(recv_id, idx) {
+    return MirCallArrayOpsBox._arr_val_key(recv_id, idx)
+  }
+  _array_metadata_or_fail(state, recv_id, context) {
+    return MirCallArrayOpsBox._array_metadata_or_fail(state, recv_id, context)
+  }
+  _handle_array_method(method, inst_json, m, state, recv_id) {
+    return MirCallArrayOpsBox._handle_array_method(method, inst_json, m, state, recv_id)
+  }
+
+  // ==================== Map Ops Delegates ====================
+
+  _map_key(recv_id) {
+    return MirCallMapOpsBox._map_key(recv_id)
+  }
+  _map_entry_slot(recv_id, key) {
+    return MirCallMapOpsBox._map_entry_slot(recv_id, key)
+  }
+  _ensure_map_meta(state, recv_id) {
+    MirCallMapOpsBox._ensure_map_meta(state, recv_id)
+  }
+  _map_len_get(state, recv_id) {
+    return MirCallMapOpsBox._map_len_get(state, recv_id)
+  }
+  _map_len_set(state, recv_id, len) {
+    MirCallMapOpsBox._map_len_set(state, recv_id, len)
+  }
+  _handle_map_method(method, inst_json, m, state, recv_id) {
+    return MirCallMapOpsBox._handle_map_method(method, inst_json, m, state, recv_id)
+  }
+
+  // ==================== Console & Constructor Handlers ====================
+
+  _handle_console(callee, m, state) {
+    local name = me._read_str(callee, "name")
+    if name == "" { return me._fail(state, "[core/mir_call] console missing name") }
+    if !(name == "print" || name == "env.console.log" || name == "nyash.console.log" || name == "env.console.warn" || name == "nyash.console.warn" || name == "env.console.error" || name == "nyash.console.error") {
+      return me._fail(state, "[core/mir_call] unsupported global: " + name)
+    }
+    local arg_vid = me._read_arg_vid(m, 0, "[core/mir_call] console missing arg", "[core/mir_call] console bad arg")
+    if arg_vid == null { return -1 }
+    local val = NyVmState.get_reg(state, arg_vid)
+    print(StrCast.to_str(val))
+    return 0
+  }
+
+  _handle_constructor(inst_json, callee, state) {
+    local dst = me._read_dst(inst_json, "constructor")
+    if dst == null { return -1 }
+    local box_type = me._read_str(callee, "box_type")
+    if box_type == "ArrayBox" {
+      local mem = state.get("mem")
+      mem.set(me._arr_key(dst), 0)
+      NyVmState.set_reg(state, dst, dst)
+      return 0
+    }
+    if box_type == "MapBox" {
+      me._ensure_map_meta(state, dst)
+      NyVmState.set_reg(state, dst, dst)
+      return 0
+    }
+    if box_type == "StringBox" {
+      return me._fail(state, "[core/mir_call/constructor_unsupported]")
+    }
+    return me._fail(state, "[core/mir_call/constructor_unsupported]")
+  }
+
+  _normalize_method(method) {
+    // Alias normalization: size|length|len -> size
+    if method == "length" || method == "len" { return "size" }
+    // substring|substr -> substring
+    if method == "substr" { return "substring" }
+    // charAt|at -> charAt
+    if method == "at" { return "charAt" }
+    return method
+  }
+
+  _handle_method(inst_json, callee, m, state) {
+    local raw_method = me._read_str(callee, "method")
+    if raw_method == "" { return me._fail(state, "[core/mir_call] method missing name") }
+    local method = me._normalize_method(raw_method)
+    local recv_id = me._read_receiver(callee, "method")
+    if recv_id == null { return -1 }
+    local mem = state.get("mem")
+    local arr_key = me._arr_key(recv_id)
+    local map_key = me._map_key(recv_id)
+    local has_arr = mem.get(arr_key) != null
+    local has_map = mem.get(map_key) != null
+    // Map-specific delegation (support size/len/iterator/set/has/keys/values/delete/get/clear)
+    if has_map && !has_arr && (method == "size" || method == "len" || method == "iterator" || method == "set" || method == "has" || method == "keys" || method == "values" || method == "delete" || method == "get" || method == "clear") {
+      return me._handle_map_method(method, inst_json, m, state, recv_id)
+    }
+    if method == "size" || method == "len" || method == "iterator" || method == "has" || method == "keys" || method == "values" {
+      // Map-specific methods without metadata should still succeed
+      if !has_arr && !has_map {
+        return me._handle_map_method(method, inst_json, m, state, recv_id)
+      }
+    }
+    // String.size/0 — when receiver is not an Array/Map pseudo-id, treat receiver value as String
+    if method == "size" && !has_arr && !has_map {
+      local dst = me._read_dst(inst_json, "method(size)")
+      if dst == null { return -1 }
+      local recv_val = NyVmState.get_reg(state, recv_id)
+      local s = StrCast.to_str(recv_val)
+      NyVmState.set_reg(state, dst, s.length())
+      return 0
+    }
+    // String.indexOf/1 — return first index or -1
+    if method == "indexOf" && !has_arr && !has_map {
+      local dst = me._read_dst(inst_json, "method(indexOf)")
+      if dst == null { return -1 }
+      local idx_vid = me._read_arg_vid(m, 0, "[core/mir_call] method(indexOf) missing needle", "[core/mir_call] method(indexOf) bad needle")
+      if idx_vid == null { return -1 }
+      local recv_val = NyVmState.get_reg(state, recv_id)
+      local s = StrCast.to_str(recv_val)
+      local needle_val = NyVmState.get_reg(state, idx_vid)
+      local needle = StrCast.to_str(needle_val)
+      local pos = s.indexOf(needle)
+      if pos >= 0 {
+        NyVmState.set_reg(state, dst, pos)
+      } else {
+        local opt = me._read_optionality(m)
+        if opt == "optional" {
+          NyVmState.set_reg(state, dst, null)
+        } else if opt == "bang" {
+          // Record stable error tag for dispatcher to surface as return value
+          state.set("last_error_tag", "[core/mir_call] string indexOf not found")
+          return -1
+        } else {
+          NyVmState.set_reg(state, dst, -1)
+        }
+      }
+      return 0
+    }
+    // String.lastIndexOf/1 — return last index or -1
+    if method == "lastIndexOf" && !has_arr && !has_map {
+      local dst = me._read_dst(inst_json, "method(lastIndexOf)")
+      if dst == null { return -1 }
+      local idx_vid = me._read_arg_vid(m, 0, "[core/mir_call] method(lastIndexOf) missing needle", "[core/mir_call] method(lastIndexOf) bad needle")
+      if idx_vid == null { return -1 }
+      local recv_val = NyVmState.get_reg(state, recv_id)
+      local s = StrCast.to_str(recv_val)
+      local needle_val = NyVmState.get_reg(state, idx_vid)
+      local needle = StrCast.to_str(needle_val)
+      local pos = s.lastIndexOf(needle)
+      NyVmState.set_reg(state, dst, pos)
+      return 0
+    }
+    // String.substring/2 — return substring [start,end) with bounds check
+    if method == "substring" && !has_arr && !has_map {
+      local dst = me._read_dst(inst_json, "method(substring)")
+      if dst == null { return -1 }
+      local start_vid = me._read_arg_vid(m, 0, "[core/mir_call] method(substring) missing start", "[core/mir_call] method(substring) bad start")
+      if start_vid == null { return -1 }
+      local end_vid = me._read_arg_vid(m, 1, "[core/mir_call] method(substring) missing end", "[core/mir_call] method(substring) bad end")
+      if end_vid == null { return -1 }
+      local recv_val = NyVmState.get_reg(state, recv_id)
+      local s = StrCast.to_str(recv_val)
+      local start = NyVmState.get_reg(state, start_vid)
+      local end = NyVmState.get_reg(state, end_vid)
+      // Bounds check
+      if start < 0 || end < 0 || start > s.length() || end > s.length() || start > end {
+        return me._fail(state, "[core/string/bounds]")
+      }
+      local out = s.substring(start, end)
+      NyVmState.set_reg(state, dst, out)
+      return 0
+    }
+    // String.charAt/1 — return character at index with bounds check
+    if method == "charAt" && !has_arr && !has_map {
+      local dst = me._read_dst(inst_json, "method(charAt)")
+      if dst == null { return -1 }
+      local idx_vid = me._read_arg_vid(m, 0, "[core/mir_call] method(charAt) missing index", "[core/mir_call] method(charAt) bad index")
+      if idx_vid == null { return -1 }
+      local recv_val = NyVmState.get_reg(state, recv_id)
+      local s = StrCast.to_str(recv_val)
+      local idx = NyVmState.get_reg(state, idx_vid)
+      // Bounds check
+      if idx < 0 || idx >= s.length() {
+        return me._fail(state, "[core/string/bounds]")
+      }
+      local ch = s.substring(idx, idx+1)
+      NyVmState.set_reg(state, dst, ch)
+      return 0
+    }
+    // String.replace/2 — replace first occurrence of pattern with replacement
+    if method == "replace" && !has_arr && !has_map {
+      local dst = me._read_dst(inst_json, "method(replace)")
+      if dst == null { return -1 }
+      local pattern_vid = me._read_arg_vid(m, 0, "[core/mir_call] method(replace) missing pattern", "[core/mir_call] method(replace) bad pattern")
+      if pattern_vid == null { return -1 }
+      local replacement_vid = me._read_arg_vid(m, 1, "[core/mir_call] method(replace) missing replacement", "[core/mir_call] method(replace) bad replacement")
+      if replacement_vid == null { return -1 }
+      local recv_val = NyVmState.get_reg(state, recv_id)
+      local s = StrCast.to_str(recv_val)
+      local pattern_val = NyVmState.get_reg(state, pattern_vid)
+      local pattern = StrCast.to_str(pattern_val)
+      local replacement_val = NyVmState.get_reg(state, replacement_vid)
+      local replacement = StrCast.to_str(replacement_val)
+      // Simple replace: find first occurrence and replace
+      local pos = s.indexOf(pattern)
+      local result = s
+      if pos >= 0 {
+        local before = s.substring(0, pos)
+        local after = s.substring(pos + pattern.length(), s.length())
+        result = before + replacement + after
+      }
+      NyVmState.set_reg(state, dst, result)
+      return 0
+    }
+    return me._handle_array_method(method, inst_json, m, state, recv_id)
+  }
+
+  _handle_modulefn(inst_json, callee, m, state) {
+    local name = me._read_str(callee, "name")
+    if name == "" { return me._fail(state, "[core/mir_call] modulefn missing name") }
+    // Accept legacy names without "/arity" suffix for a few supported helpers
+    if name == "StringHelpers.int_to_str" { name = "StringHelpers.int_to_str/1" }
+    if name == "StringHelpers.to_i64" { name = "StringHelpers.to_i64/1" }
+    if name == "ArrayBox.len/0" {
+      local arg_vid = me._read_arg_vid(m, 0, "[core/mir_call] modulefn len/0 missing arg", "[core/mir_call] modulefn len/0 bad arg")
+      if arg_vid == null { return -1 }
+      local mem = state.get("mem")
+      local sz = mem.get(me._arr_key(arg_vid))
+      if sz == null { sz = 0 }
+      local dst = me._read_dst(inst_json, "modulefn len/0")
+      if dst == null { return -1 }
+      NyVmState.set_reg(state, dst, sz)
+      return 0
+    }
+    if name == "ArrayBox.clear/0" {
+      // Alias support: treat as receiver.method("clear")
+      local arg_vid = me._read_first_arg(m)
+      if arg_vid == null { return me._fail(state, "[core/mir_call] array clear missing arg") }
+      // Reset metadata size to 0 (values are logically cleared; TTL: metadata-only)
+      local mem = state.get("mem")
+      mem.set(me._arr_key(arg_vid), 0)
+      // Optional dst := void
+      local dst_opt = me._read_optional_vid_field(inst_json, "dst")
+      if dst_opt != null { NyVmState.set_reg(state, dst_opt, void) }
+      return 0
+    }
+    if name == "MapBox.len/0" {
+      local arg_vid = me._read_first_arg(m)
+      if arg_vid == null { return me._fail(state, "[core/mir_call] map len missing arg") }
+      me._ensure_map_meta(state, arg_vid)
+      local dst = me._read_dst(inst_json, "modulefn MapBox.len/0")
+      if dst == null { return -1 }
+      NyVmState.set_reg(state, dst, me._map_len_get(state, arg_vid))
+      return 0
+    }
+    if name == "StringHelpers.int_to_str/1" {
+      // One-arg function: stringify the argument value
+      local arg_vid = me._read_first_arg(m)
+      if arg_vid == null { return me._fail(state, "[core/mir_call] int_to_str missing arg") }
+      local v = NyVmState.get_reg(state, arg_vid)
+      local s = StrCast.to_str(v)
+      local dst = me._read_dst(inst_json, "modulefn StringHelpers.int_to_str/1")
+      if dst == null { return -1 }
+      NyVmState.set_reg(state, dst, s)
+      return 0
+    }
+    if name == "StringHelpers.to_i64/1" {
+      local arg_vid = me._read_first_arg(m)
+      if arg_vid == null { return me._fail(state, "[core/mir_call] string to_i64 missing arg") }
+      local v = NyVmState.get_reg(state, arg_vid)
+      // Accept already-integer values; else convert numeric strings only
+      local outv = 0
+      if StrCast.to_str(v) == StrCast.to_str(StringHelpers.to_i64(v)) {
+        // naive guard: to_i64 roundtrip textual equality — accept v
+        outv = StringHelpers.to_i64(v)
+      } else {
+        // Fallback strict check: only digit strings with optional sign
+        local s = StrCast.to_str(v)
+        local i = 0
+        if s.length() > 0 && (s.substring(0,1) == "-" || s.substring(0,1) == "+") { i = 1 }
+        local ok = (s.length() > i)
+        loop(i < s.length()) {
+          local ch = s.substring(i,i+1)
+          if !(ch >= "0" && ch <= "9") { ok = false break }
+          i = i + 1
+        }
+        if !ok { return me._fail(state, "[core/mir_call] string to_i64 bad arg") }
+        outv = StringHelpers.to_i64(s)
+      }
+      local dst = me._read_dst(inst_json, "modulefn StringHelpers.to_i64/1")
+      if dst == null { return -1 }
+      NyVmState.set_reg(state, dst, outv)
+      return 0
+    }
+    if name == "MapBox.iterator/0" {
+      return me._fail(state, "[core/mir_call] map iterator unsupported")
+    }
+    return me._fail(state, "[core/mir_call] modulefn unsupported: " + name)
+  }
+
+  handle(inst_json, state) {
+    local m = me._extract_mir_call_obj(inst_json)
+    if m == "" { return me._fail(state, "[core/mir_call] missing mir_call object") }
+    local ck = JsonCursorBox.find_key_dual(m, "\"callee\":{", r#"\"callee\":\{"#, 0)
+    if ck < 0 { return me._fail(state, "[core/mir_call] missing callee") }
+    local brace = m.indexOf("{", ck)
+    if brace < 0 { return me._fail(state, "[core/mir_call] bad callee") }
+    local cb = JsonCursorBox.seek_obj_end(m, brace)
+    if cb < 0 { return me._fail(state, "[core/mir_call] bad callee") }
+    local callee = m.substring(brace, cb+1)
+    local typ = me._read_str(callee, "type")
+    if typ == "" { return me._fail(state, "[core/mir_call] callee missing type") }
+    if typ == "Global" || typ == "Extern" {
+      return me._handle_console(callee, m, state)
+    } else if typ == "Constructor" {
+      return me._handle_constructor(inst_json, callee, state)
+    } else if typ == "Method" {
+      return me._handle_method(inst_json, callee, m, state)
+    } else if typ == "ModuleFunction" {
+      return me._handle_modulefn(inst_json, callee, m, state)
+    } else if typ == "Closure" {
+      return me._fail(state, "[core/mir_call] unsupported callee type: Closure")
+    }
+    return me._fail(state, "[core/mir_call] unsupported callee type: " + typ)
+  }
+}
+
+static box NyVmOpMirCallMain { main(args){ return 0 } }

@@ -1,0 +1,19 @@
+// Phase 29bq BQ-A01: conditional update route in non-planner_required mode
+
+static box Main {
+  main() {
+    local i = 0
+    local remaining = "a"
+
+    loop (i < 100) {
+      i = i + 1
+      if remaining == "" {
+        i = 100
+      }
+      remaining = ""
+    }
+
+    print(i)
+    return 0
+  }
+}

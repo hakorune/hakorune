@@ -1,0 +1,34 @@
+// FileBox 正常動作テスト
+
+static box Main {
+    init { console }
+    
+    main() {
+        me.console = new ConsoleBox()
+        me.console.log("🗂️ FileBox Plugin Working Test")
+        
+        // FileBox作成 + 書き込み
+        local file1
+        file1 = new FileBox("test_write.txt")
+        me.console.log("✅ FileBox created")
+        
+        // 書き込み用でオープン
+        local open_result
+        open_result = file1.open("test_write.txt", "w")
+        me.console.log("📂 open() for write: success")
+        
+        // データ書き込み
+        local write_result
+        write_result = file1.write("Hello from Nyash FileBox Plugin! 🎉")
+        me.console.log("✍️ write() completed")
+        
+        // ファイル閉じる
+        local close_result
+        close_result = file1.close()
+        me.console.log("🔒 close() completed")
+        
+        me.console.log("🎉 FileBox plugin working successfully!")
+        
+        return "FileBox plugin test PASSED"
+    }
+}

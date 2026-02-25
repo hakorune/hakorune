@@ -1,0 +1,34 @@
+// funcscanner_append_defs_minimal.hako
+// Phase 27.14: FuncScannerBox._append_defs minimal loop for JoinIR testing
+//
+// Purpose: Minimal test case for JoinIR lowering without complex dependencies
+// - No `using` statements (avoids parser issues)
+// - No FileBox/IO operations (pure loop structure)
+// - Simple array append operation
+//
+// This file is designed for auto_lowering test to verify JoinIR structure:
+// - Function signature: FuncScannerBox._append_defs/2
+// - Loop structure: dst.push(defs_box.get(i)) traversal with i < n condition
+// - Pinned: dst, defs_box, n
+// - Carrier: i
+// - Exit: none (void return, dst modified in-place)
+
+static box FuncScannerBox {
+  _append_defs(dst, defs_box) {
+    if defs_box == null { return }
+
+    local i = 0
+    local n = defs_box.length()
+    loop(i < n) {
+      local item = defs_box.get(i)
+      dst.push(item)
+      i = i + 1
+    }
+  }
+}
+
+static box Main {
+  main() {
+    return 0
+  }
+}

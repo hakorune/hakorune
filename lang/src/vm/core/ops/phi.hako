@@ -1,0 +1,77 @@
+// ops/phi.hako — NyVmOpPhi (skeleton)
+// Minimal implementation: select input matching predecessor; if none, pick first.
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+
+static box NyVmOpPhi {
+  _read_dst(inst_json) {
+    local p = JsonCursorBox.find_key_dual(inst_json, "\"dst\":", r#"\"dst\":"#, 0)
+    if p < 0 { return null }
+    p = inst_json.indexOf(":", p) + 1
+    loop(true) { local ch = inst_json.substring(p,p+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue } break }
+    local digits = JsonCursorBox.digits_from(inst_json, p)
+    if digits == "" { return null }
+    return StringHelpers.to_i64(digits)
+  }
+  // Parse inputs=[[bbid,vid], ...], return pair (bbid, vid) list as MapArray
+  _read_inputs(inst_json) {
+    local out = new ArrayBox()
+    local p = JsonCursorBox.find_key_dual(inst_json, "\"inputs\":[", r#"\"inputs\":\["#, 0)
+    if p < 0 { return out }
+    local lb = inst_json.indexOf("[", p)
+    if lb < 0 { return out }
+    local rb = JsonCursorBox.seek_array_end(inst_json, lb)
+    if rb < 0 { return out }
+    local arr = inst_json.substring(lb+1, rb)
+    local pos = 0
+    local n = arr.length()
+    loop (pos < n) {
+      // skip ws/commas
+      loop(pos < n) { local ch = arr.substring(pos,pos+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" || ch == "," { pos = pos + 1 continue } break }
+      if pos >= n { break }
+      if arr.substring(pos,pos+1) != "[" { break }
+      local rb2 = JsonCursorBox.seek_array_end(arr, pos)
+      if rb2 < 0 { break }
+      local pair = arr.substring(pos+1, rb2)
+      // read two ints
+      local i = 0
+      // first
+      loop(true) { local ch = pair.substring(i,i+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { i = i + 1 continue } break }
+      local d1s = JsonCursorBox.digits_from(pair, i)
+      local d1 = d1s == "" ? -1 : StringHelpers.to_i64(d1s)
+      // move to next
+      local comma = pair.indexOf(",", i)
+      i = comma >= 0 ? comma + 1 : i
+      loop(true) { local ch2 = pair.substring(i,i+1) if ch2 == " " || ch2 == "\n" || ch2 == "\r" || ch2 == "\t" { i = i + 1 continue } break }
+      local d2s = JsonCursorBox.digits_from(pair, i)
+      local d2 = d2s == "" ? -1 : StringHelpers.to_i64(d2s)
+      local m = new MapBox(); m.set("bb", d1); m.set("vid", d2)
+      out.push(m)
+      pos = rb2 + 1
+    }
+    return out
+  }
+  // Apply PHI: dst = value(from predecessor bb)
+  handle(inst_json, state, predecessor) {
+    local dst = me._read_dst(inst_json)
+    if dst == null { print("[core/phi] missing dst") return -1 }
+    local ins = me._read_inputs(inst_json)
+    if ins.length() == 0 { print("[core/phi] empty inputs") return -1 }
+    local pick = ins.get(0)
+    // try match predecessor
+    local i = 0
+    loop(i < ins.length()) {
+      local m = ins.get(i)
+      if m.get("bb") == predecessor { pick = m break }
+      i = i + 1
+    }
+    local vid = pick.get("vid")
+    if vid == null { print("[core/phi] invalid input") return -1 }
+    local val = NyVmState.get_reg(state, vid)
+    NyVmState.set_reg(state, dst, val)
+    return 0
+  }
+}
+
+static box NyVmOpPhiMain { main(args){ return 0 } }

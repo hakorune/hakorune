@@ -1,0 +1,57 @@
+# design/
+
+`docs/development/current/main/design/` は、長期参照する設計図（SSOT 寄り）を置く場所。
+
+- 原則: “Phaseの作業ログ/完了報告” は `../phases/` に置く。
+- 原則: “不具合調査ログ” は `../investigations/` に置く。
+
+## 現役の設計図（入口）
+
+- JoinIR の地図（navigation SSOT）: `docs/development/current/main/design/joinir-design-map.md`
+- Join-Explicit CFG Construction（north star）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
+- Compiler Pipeline（north star; 箱の責務/入口の最終形SSOT）: `docs/development/current/main/design/compiler-pipeline-ssot.md`
+- EdgeCFG Flow Fragments（Structured→CFG lowering SSOT）: `docs/development/current/main/design/edgecfg-fragments.md`
+- Catch / Cleanup / Async（設計メモ）: `docs/development/current/main/design/exception-cleanup-async.md`
+- Loop Canonicalizer（設計 SSOT）: `docs/development/current/main/design/loop-canonicalizer.md`
+- ControlTree / StepTree（構造SSOT）: `docs/development/current/main/design/control-tree.md`
+- Normalized ExprLowerer（式の一般化 SSOT）: `docs/development/current/main/design/normalized-expr-lowering.md`
+- CorePlan Skeleton/Feature（箱増殖を止めるSSOT）: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
+- RecipeTree + Parts（Recipe-first / Verified-only boundary SSOT）: `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
+- Recipe-first entry contract（DomainPlan は label-only SSOT）: `docs/development/current/main/design/recipe-first-entry-contract-ssot.md`
+- Condition observation（no rewrite SSOT）: `docs/development/current/main/design/condition-observation-ssot.md`
+- generic_loop_v1 acceptance by Recipe（ShapeId hint-only SSOT）: `docs/development/current/main/design/generic-loop-v1-acceptance-by-recipe-ssot.md`
+- Policy: compiler expressivity first（selfhost workaround を止める）: `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+- Policy: lego composability first（完成品キット増殖を止める）: `docs/development/current/main/design/lego-composability-policy.md`
+- Selfhost parser/mirbuilder migration order（single-developer 進行順SSOT）: `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
+- De-Rust compiler thin-rust roadmap（selfhost closeout 後の境界縮退SSOT）: `docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md`
+- De-Rust post-G1 runtime plan（runtime lane の実行順序/保守契約SSOT）: `docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md`
+- Hako runtime C ABI cutover order（`.hako` 完結へ向けた移行順SSOT）: `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
+- PyVM retreat（historical/opt-in 契約SSOT）: `docs/development/current/main/design/pyvm-retreat-ssot.md`
+- Planner Entry Guards（Facts の reject_reason/handoff 構造化）: `docs/development/current/main/design/planner-entry-guards-ssot.md`
+- Type System Policy（MirType/RuntimeTypeTag/TypeView の責務分離SSOT）: `docs/development/current/main/design/type-system-policy-ssot.md`
+- Campaign: compiler cleanliness（compiler-first / BoxShape-first の運用SSOT）: `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
+- PhiInputStrategy（loop PHI 入力形の設計SSOT）: `docs/development/current/main/design/phi-input-strategy-ssot.md`
+- PHI Lifecycle（PHIの予約→定義→入力確定SSOT）: `docs/development/current/main/design/phi-lifecycle-ssot.md`
+- Feature helper map（cross-pipeline 地図）: `docs/development/current/main/design/feature-helper-cross-pipeline-map.md`
+- CoreLoop ContinueTarget slot（continue の飛び先を slot 化）: `docs/development/current/main/design/coreloop-continue-target-slot-ssot.md`
+- Code-side registry（実装とSSOTの対応表）: `src/mir/builder/control_flow/plan/REGISTRY.md`
+
+## Diagnostics / Contracts（入口）
+
+- Freeze / debug tag SSOT: `docs/development/current/main/design/ai-handoff-and-debug-contract.md`
+- MIR diagnostics contract SSOT（freeze builder + caller/mir_dump 標準化）: `docs/development/current/main/design/mir-diagnostics-contract-ssot.md`
+- MIR VM/LLVM instruction contract fix SSOT（命令契約の修正順序）: `docs/development/current/main/design/mir-vm-llvm-instruction-contract-fix-ssot.md`
+- MIR instruction diet ledger SSOT（kept/lowered-away/removed 台帳）: `docs/development/current/main/design/mir-instruction-diet-ledger-ssot.md`
+- MIR canonical callsite lane SSOT（call-site 統一の実行指示）: `docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md`
+- String helper density optimization SSOT（substring/concat/indexOf/length 最適化責務）: `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
+- Helper boundary policy SSOT（host handle / string span cache tuning 集約）: `docs/development/current/main/design/helper-boundary-policy-ssot.md`
+- Optimization portability classification SSOT（最適化の移植可能性分類）: `docs/development/current/main/design/optimization-portability-classification-ssot.md`
+- AutoSpecializeBox SSOT（MIRCall 自動分岐 v0 契約）: `docs/development/current/main/design/auto-specialize-box-ssot.md`
+- Code retirement/history policy SSOT（退役コード保存方針）: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
+- vm-hako array shim contract SSOT（array_get/array_set の interim 契約）: `docs/development/current/main/design/vm-hako-array-shim-contract-ssot.md`
+- MIR callsite retire lane SSOT（post-canonical 削除順序/契約）: `docs/development/current/main/design/mir-callsite-retire-lane-ssot.md`
+- `.hako` mirbuilder Load/Store minimal contract SSOT（B1 docs-first）: `docs/development/current/main/design/hako-mirbuilder-load-store-minimal-contract-ssot.md`
+- Copy emission SSOT（直Copy禁止/CopyEmitter）: `docs/development/current/main/design/copy-emission-ssot.md`
+- PlanLowerer entry SSOT（CorePlan→MIR 入口allowlist）: `docs/development/current/main/design/plan-lowering-entry-ssot.md`
+- Builder emit facade SSOT（生emitの層境界/可視性契約）: `docs/development/current/main/design/builder-emit-facade-visibility-ssot.md`
+- Fini/Cleanup execution contract SSOT（Stage-B JSON v0 bridge 実行契約）: `docs/development/current/main/design/fini-cleanup-execution-contract-ssot.md`

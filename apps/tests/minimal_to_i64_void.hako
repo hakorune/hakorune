@@ -1,0 +1,34 @@
+// minimal_to_i64_void.hako — StringHelpers.to_i64 × Void 最小再現
+//
+// 目的:
+//   - StringHelpers.to_i64 に Void 値を渡したときに
+//     `"" + x` で String + Void 型エラーになるケースを最小コードで再現する。
+//   - Stage‑1 CLI とは独立した、純粋な VM 実行ルートでの再現用。
+//
+// 実行例:
+//   ./target/release/hakorune apps/tests/minimal_to_i64_void.hako
+//
+// 期待される挙動（バグ再現時）:
+//   Type error: unsupported binop Add on String(\"\") and Void
+//
+// 修正後は:
+//   - 正常に 0 を出力して終了するなど、「Void を安全に扱える」ようにする。
+
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box Main {
+  // 戻り値のないメソッド: VM からは Void 相当が返る前提。
+  method _nop() { }
+
+  method main() {
+    // _nop() の結果を x に受け取り、to_i64 に渡す。
+    local x = me._nop()
+
+    // ここで StringHelpers.to_i64(x) が "" + x を評価し、
+    // x が Void の場合に String + Void 型エラーを起こす。
+    local n = StringHelpers.to_i64(x)
+
+    print("[minimal_to_i64_void] n=" + ("" + n))
+    return 0
+  }
+}

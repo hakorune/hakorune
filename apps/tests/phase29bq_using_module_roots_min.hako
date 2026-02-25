@@ -1,0 +1,12 @@
+// Phase 29bq: module_roots resolution pin (no [modules] entry).
+// Expected: stdout=1, rc=0
+
+using lang.shared.module_roots_smoke_box as ModuleRootsSmokeBox
+
+static box Main {
+  main() {
+    print(ModuleRootsSmokeBox.value())
+    return 0
+  }
+}
+

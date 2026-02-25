@@ -1,0 +1,45 @@
+// json_v1_reader.hako — JsonV1ReaderBox
+// Responsibility: extract block0 instructions array segment from MIR JSON v1
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+
+static box JsonV1ReaderBox {
+  // Return inner segment (without '[' and ']') of functions[0].blocks[0].instructions
+  get_block0_instructions(json) {
+    if json == null { return "" }
+    // naive search; rely on escape-aware array end
+    local key = "\"instructions\":["
+    local p = (""+json).indexOf(key)
+    if p < 0 { return "" }
+    local lb = p + key.length() - 1
+    local rb = JsonFragBox._seek_array_end(json, lb)
+    if rb <= lb { return "" }
+    return (""+json).substring(lb + 1, rb)
+  }
+
+  block_insts_start(mjson, bid) {
+    // tolerant scan: find '"id"' then match instructions for the given block id
+    local pos = 0
+    loop(true) {
+      local pid = (""+mjson).indexOf("\"id\"", pos)
+      if pid < 0 { return -1 }
+      local pc = (""+mjson).indexOf(":", pid)
+      if pc < 0 { return -1 }
+      local digits = JsonFragBox.read_int_from(mjson, pc + 1)
+      if digits != null {
+        local v = JsonFragBox._str_to_int(digits)
+        if v == bid {
+          local qk = (""+mjson).indexOf("\"instructions\"", pc)
+          if qk < 0 { pos = pid + 1  continue }
+          local qb = (""+mjson).indexOf("[", qk)
+          if qb < 0 { pos = pid + 1  continue }
+          return qb
+        }
+      }
+      pos = pc + 1
+    }
+  }
+}
+
+static box JsonV1ReaderMain { method main(args) { return 0 } }

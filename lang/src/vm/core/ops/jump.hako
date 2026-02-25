@@ -1,0 +1,27 @@
+// ops/jump.hako — NyVmOpJump (skeleton)
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box NyVmOpJump {
+  _read_int(inst_json, key) {
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return null }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return null }
+    p = p + 1
+    loop(true) { local ch = inst_json.substring(p,p+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue } break }
+    local digits = JsonCursorBox.digits_from(inst_json, p)
+    if digits == "" { return null }
+    return StringHelpers.to_i64(digits)
+  }
+  // Returns next_bb id (i64)
+  handle(inst_json) {
+    // {op:"jump", target:BBID}
+    local tid = me._read_int(inst_json, "target")
+    if tid == null { print("[core/jump] malformed") return -1 }
+    return tid
+  }
+}
+
+static box NyVmOpJumpMain { main(args){ return 0 } }

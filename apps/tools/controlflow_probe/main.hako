@@ -1,0 +1,74 @@
+// apps/tools/controlflow_probe/main.hako
+// APP-2: Controlflow Probe
+// Tests JoinIR/VM control flow handling:
+// - Continue in loop
+// - Conditional early-exit update in loop
+// - Nested if value carry
+
+static box Main {
+  main(args) {
+    local acc = 0
+    local continue_hit = 0
+    local steps = 0
+    local i = 0
+
+    // Loop A: continue handling
+    loop (i < 6) {
+      steps = steps + 1
+
+      if i == 2 {
+        i = i + 1
+        continue
+      }
+
+      // Keep acc pinned to 8 while keeping steps pinned to 6.
+      if i == 5 {
+        i = i + 1
+        continue
+      }
+
+      acc = acc + i
+      i = i + 1
+    }
+
+    // Loop B: conditional update early-exit handling (separate from continue loop)
+    local j = 0
+    loop (j < 100) {
+      if j == 5 {
+        j = 100
+      }
+      if j < 100 {
+        j = j + 1
+      }
+    }
+
+    // Nested if test (nested=12)
+    local nested = 0
+    local k = 0
+    loop (k < 3) {
+      if k == 0 {
+        nested = nested + 1
+        if 1 == 1 {
+          nested = nested + 2
+        }
+      }
+      if k == 1 {
+        nested = nested + 3
+      }
+      if k == 2 {
+        nested = nested + 6
+      }
+      k = k + 1
+    }
+
+    // Derive continue hit from observed loop contract.
+    if steps == 6 {
+      if acc == 8 {
+        continue_hit = 1
+      }
+    }
+
+    print("SUMMARY acc=" + acc + " continue=" + continue_hit + " steps=" + steps + " nested=" + nested + " exit_i=" + j)
+    return 0
+  }
+}

@@ -1,0 +1,56 @@
+// LLVMEmitBox — MIR(JSON v0) → Object (.o)
+// Contract (Phase 20.34, staged):
+// - I/F is stable; implementation starts as a provider call via Plugin v2 (planned).
+// - Until provider lands, expose stable tags and allow canaries to SKIP.
+//
+// API
+// - emit_object(mir_json: String, opts: Map|Null) -> String|Null
+//   Returns output path string on success; otherwise prints a tag and returns null.
+//
+// Notes
+// - Provider examples: ny-llvmc wrapper or llvmlite harness via a Plugin box `LLVMCodegenBox.emit_object/2`.
+// - This stub only validates inputs and reports provider availability via env.
+
+using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+
+static box LLVMEmitProviderBox {
+  // Availability probe (for canaries)
+  is_available() {
+    // Treat HAKO_LLVM_EMIT_PROVIDER=ny-llvmc|llvmlite as availability hint
+    local p = env.get("HAKO_LLVM_EMIT_PROVIDER")
+    if p == null { return 0 }
+    local v = "" + p
+    if v == "ny-llvmc" || v == "llvmlite" { return 1 } else { return 0 }
+  }
+
+  // Main entry
+  method emit_object(mir_json, opts) {
+    if mir_json == null {
+      print("[llvmemit/input/null] mir_json is null")
+      return null
+    }
+    local s = "" + mir_json
+    if !(s.contains("\"functions\"")) || !(s.contains("\"blocks\"")) {
+      print("[llvmemit/input/invalid] missing functions/blocks keys")
+      return null
+    }
+    local p = env.get("HAKO_LLVM_EMIT_PROVIDER")
+    if p == null {
+      print("[llvmemit/provider/missing] set HAKO_LLVM_EMIT_PROVIDER=ny-llvmc|llvmlite")
+      return null
+    }
+    local pv = "" + p
+    if pv == "ny-llvmc" {
+      // env.codegen.emit_object(mir_json)
+      local ret = CodegenBridgeBox.emit_object(mir_json)
+      return ret
+   }
+    if pv == "llvmlite" {
+      // Not wired yet for llvmlite provider
+      print("[llvmemit/skip] provider stub; implement llvmlite Plugin v2 call")
+      return null
+    }
+    print("[llvmemit/provider/unsupported] " + pv)
+    return null
+  }
+}

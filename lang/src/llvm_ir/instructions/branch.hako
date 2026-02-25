@@ -1,0 +1,47 @@
+// LLVM Branch Instruction Box — Python branch.py のHakorune実装
+// MIR分岐命令をJSON形式に変換し、C++バックエンドに渡す
+
+static box LLVMBranchInstructionBox {
+
+  // メインエントリーポイント - Pythonのlower_branch()に相当
+  lower_branch(self, cond_vid, then_bid, else_bid) {
+    return me.inst_branch(self, cond_vid, then_bid, else_bid)
+  }
+
+  // 分岐命令の生成
+  inst_branch(self, cond_vid, then_bid, else_bid) {
+    // JSON: {"op":"branch","cond":3,"then":1,"else":2}
+    return "{\"op\":\"branch\",\"cond\":" + cond_vid + ",\"then\":" + then_bid + ",\"else\":" + else_bid + "}"
+  }
+
+  // デバッグ用 - 生成された命令の確認
+  debug_branch(self, cond_vid, then_bid, else_bid) {
+    local json = me.lower_branch(self, cond_vid, then_bid, else_bid)
+    print("Generated branch instruction: " + json)
+    return json
+  }
+
+  // 条件付きジャンプのヘルパー
+  if_then_else(self, condition, then_block, else_block) {
+    return me.inst_branch(self, condition, then_block, else_block)
+  }
+
+  // 単純な条件分岐（true/false）
+  simple_branch(self, cond_val, true_block, false_block) {
+    // cond_val: 0=false, 1=true
+    return me.inst_branch(self, cond_val, true_block, false_block)
+  }
+
+  // 複数の分岐をまとめて生成
+  batch_branch(self, branch_list) {
+    local results = []
+    local i = 0
+    while i < branch_list.length() {
+      local branch = branch_list[i]
+      local json = me.lower_branch(self, branch.cond, branch.then_block, branch.else_block)
+      results.push(json)
+      i = i + 1
+    }
+    return results
+  }
+}

@@ -1,0 +1,88 @@
+// mir_vm_s0_state_ops.hako — state helpers split from mir_vm_s0
+// Responsibility: small state operations for array length, handle maps, and FileBox state.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box MirVmS0StateOpsBox {
+  _missing_prefix() { return "[map/missing]" }
+  _missing_prefix_len() { return me._missing_prefix().length() }
+
+  _is_missing_map_value(v) {
+    if v == null { return 1 }
+    local s = "" + v
+    local n = me._missing_prefix_len()
+    if s.length() < n { return 0 }
+    if s.substring(0, n) == me._missing_prefix() { return 1 }
+    return 0
+  }
+
+  map_get_or_null(m, key) {
+    local v = m.get("" + key)
+    if me._is_missing_map_value(v) == 1 { return null }
+    return v
+  }
+
+  _to_i64(x) {
+    if x == null { return 0 }
+    return StringHelpers.to_i64("" + x)
+  }
+
+  reg_i64_get(regs, id) {
+    local v = me.map_get_or_null(regs, id)
+    if v == null { return 0 }
+    return me._to_i64(v)
+  }
+
+  box_len_get(array_lens, id) {
+    local v = me.map_get_or_null(array_lens, id)
+    if v == null { return 0 }
+    return me._to_i64(v)
+  }
+
+  box_len_set(array_lens, id, len) {
+    array_lens.set("" + id, "" + me._to_i64(len))
+  }
+
+  box_len_copy(array_lens, dst, src) {
+    me.box_len_set(array_lens, dst, me.box_len_get(array_lens, src))
+  }
+
+  handle_get(handle_regs, id) {
+    return me.map_get_or_null(handle_regs, id)
+  }
+
+  handle_set(handle_regs, id, text) {
+    handle_regs.set("" + id, "" + text)
+  }
+
+  handle_copy(handle_regs, dst, src) {
+    local v = me.handle_get(handle_regs, src)
+    if v != null {
+      me.handle_set(handle_regs, dst, v)
+    }
+  }
+
+  file_box_get(file_boxes, id) {
+    return me.map_get_or_null(file_boxes, id)
+  }
+
+  file_box_set(file_boxes, id, file_obj) {
+    file_boxes.set("" + id, file_obj)
+  }
+
+  file_box_clear(file_boxes, id) {
+    file_boxes.set("" + id, null)
+  }
+
+  file_box_copy(file_boxes, dst, src) {
+    local obj = me.file_box_get(file_boxes, src)
+    if obj != null {
+      me.file_box_set(file_boxes, dst, obj)
+    }
+  }
+
+  filebox_token_for_newbox(box_type, dst) {
+    if box_type == "FileBox" { return dst }
+    return 0
+  }
+}

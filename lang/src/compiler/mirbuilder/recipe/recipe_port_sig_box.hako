@@ -1,0 +1,111 @@
+// recipe_port_sig_box.hako
+// Responsibility:
+// - Minimal PortSig container for Recipe-first lane (R0).
+// - Track definitions/updates only (no lower coupling).
+
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+static box RecipePortSigBox {
+  create() {
+    local sig = new MapBox()
+    sig.set("defs", new MapBox())
+    sig.set("updates", new MapBox())
+    return sig
+  }
+
+  _safe_name(name) {
+    if name == null { return "" }
+    return "" + name
+  }
+
+  _ensure_sig(sig) {
+    local out = sig
+    if out == null || BoxHelpers.is_map(out) != 1 { out = me.create() }
+    local defs = BoxHelpers.map_get(out, "defs")
+    if defs == null || BoxHelpers.is_map(defs) != 1 { out.set("defs", new MapBox()) }
+    local updates = BoxHelpers.map_get(out, "updates")
+    if updates == null || BoxHelpers.is_map(updates) != 1 { out.set("updates", new MapBox()) }
+    return out
+  }
+
+  mark_def(sig, name) {
+    local ensured = me._ensure_sig(sig)
+    local key = me._safe_name(name)
+    if key == "" { return ensured }
+    local defs = BoxHelpers.map_get(ensured, "defs")
+    defs.set(key, 1)
+    return ensured
+  }
+
+  mark_update(sig, name) {
+    local ensured = me._ensure_sig(sig)
+    local key = me._safe_name(name)
+    if key == "" { return ensured }
+    local updates = BoxHelpers.map_get(ensured, "updates")
+    updates.set(key, 1)
+    return ensured
+  }
+
+  has_def(sig, name) {
+    local key = me._safe_name(name)
+    if key == "" { return 0 }
+    local ensured = me._ensure_sig(sig)
+    local defs = BoxHelpers.map_get(ensured, "defs")
+    if defs.get(key) == null { return 0 }
+    return 1
+  }
+
+  has_update(sig, name) {
+    local key = me._safe_name(name)
+    if key == "" { return 0 }
+    local ensured = me._ensure_sig(sig)
+    local updates = BoxHelpers.map_get(ensured, "updates")
+    if updates.get(key) == null { return 0 }
+    return 1
+  }
+
+  _merge_bucket(dst, src) {
+    if src == null || BoxHelpers.is_map(src) != 1 { return dst }
+    local keys = src.keys()
+    if keys == null || BoxHelpers.is_array(keys) != 1 { return dst }
+    local i = 0
+    local n = BoxHelpers.array_len(keys)
+    loop(i < n) {
+      local key = "" + BoxHelpers.array_get(keys, i)
+      if key != "" { dst.set(key, 1) }
+      i = i + 1
+    }
+    return dst
+  }
+
+  merge(lhs, rhs) {
+    local out = me._ensure_sig(lhs)
+    local rhs_sig = me._ensure_sig(rhs)
+    local lhs_defs = BoxHelpers.map_get(out, "defs")
+    local lhs_updates = BoxHelpers.map_get(out, "updates")
+    local rhs_defs = BoxHelpers.map_get(rhs_sig, "defs")
+    local rhs_updates = BoxHelpers.map_get(rhs_sig, "updates")
+    me._merge_bucket(lhs_defs, rhs_defs)
+    me._merge_bucket(lhs_updates, rhs_updates)
+    return out
+  }
+
+  _count_bucket(bucket) {
+    if bucket == null || BoxHelpers.is_map(bucket) != 1 { return 0 }
+    local keys = bucket.keys()
+    if keys == null || BoxHelpers.is_array(keys) != 1 { return 0 }
+    return BoxHelpers.array_len(keys)
+  }
+
+  snapshot(sig) {
+    local ensured = me._ensure_sig(sig)
+    local defs = BoxHelpers.map_get(ensured, "defs")
+    local updates = BoxHelpers.map_get(ensured, "updates")
+    return %{
+      "def_count" => me._count_bucket(defs),
+      "update_count" => me._count_bucket(updates)
+    }
+  }
+}
+
+static box RecipePortSigBoxMain { main() { return 0 } }

@@ -1,0 +1,356 @@
+// program_json_v0_phase_state_box.hako (Phase-4)
+// Responsibility:
+// - Parse Stage-0 `--emit-program-json-v0` output (Program JSON v0) into a small "phase state" map.
+// - Keep Program(JSON v0) string scanning centralized behind the scanner SSOT.
+//
+// Fail-fast:
+// - All errors start with: [freeze:contract][hako_mirbuilder]
+// - Unsupported nodes use: [freeze:contract][hako_mirbuilder][cap_missing/<kind>] ...
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+using lang.compiler.mirbuilder.program_json_v0_state_box as ProgramJsonV0StateBox
+using lang.compiler.mirbuilder.program_json_v0_phase_state_consumer_box as ProgramJsonV0PhaseStateConsumerBox
+using lang.compiler.mirbuilder.program_json_v0_legacy_order_stage_box as ProgramJsonV0LegacyOrderStageBox
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box ProgramJsonV0PhaseStateBox {
+  _fail(tag, msg) {
+    return me._emit_out_with_state(
+      1,
+      tag + " " + msg,
+      -1,
+      me._state_map(
+        0, 0, 0, 0,
+        0, "", "",
+        "", 0,
+        "", 0, "",
+        "", 0, "", ""
+      )
+    )
+  }
+
+  // parse(program_json, tag) -> %{ err, err_line, ...state... }
+  parse(program_json, tag) {
+    if tag == null || ("" + tag) == "" { tag = "[freeze:contract][hako_mirbuilder]" }
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail(tag, "missing Program(JSON v0) input")
+    }
+    program_json = "" + program_json
+
+    local n = program_json.length()
+    local idx = ProgramJsonV0ScannerBox.seek_after(program_json, "\"body\":[", 0)
+    if idx < 0 {
+      return me._fail(tag, "[cap_missing/program_json_v0] failed to seek Program.body")
+    }
+
+    // Order contract (Phase-8): keep accepted subset in a stable order to reduce debug distance.
+    // Allowed order (with optional skips): Local → Assignment → Print → Return
+    local order_stage = 0
+    local order_last = ""
+
+    local initial_state = me._state_map(
+      0, 0, 0, 0,
+      0, "", "",
+      "", 0,
+      "", 0, "",
+      "", 0, "", ""
+    )
+    local recipe_items = []
+
+    return me._scan_body_rec(
+      program_json,
+      idx,
+      n,
+      tag,
+      order_stage,
+      order_last,
+      recipe_items,
+      initial_state
+    )
+  }
+
+  // _scan_body_rec(program_json, idx, n, tag, order_stage, order_last, ...state...) -> %{ err, err_line, next_idx, ... }
+  //
+  // NOTE:
+  // - This is intentionally recursion-only (no `loop`) so it can run under planner-required mode
+  //   even when loop planner coverage is incomplete.
+  _scan_body_rec(
+    program_json,
+    idx,
+    n,
+    tag,
+    order_stage,
+    order_last,
+    recipe_items,
+    state
+  ) {
+    local current_state = state
+
+    idx = StringHelpers.skip_ws(program_json, idx)
+    if idx >= n {
+      return me._emit_scan_error(
+        tag,
+        " unexpected end while scanning Program.body",
+        idx,
+        current_state
+      )
+    }
+    local ch = ProgramJsonV0ScannerBox._read_char(program_json, idx)
+    if ch == "" {
+      return me._emit_scan_error(
+        tag,
+        " unexpected end while scanning Program.body",
+        idx,
+        current_state
+      )
+    }
+
+    if ch == "," {
+      return me._scan_body_rec(
+        program_json,
+        idx + 1,
+        n,
+        tag,
+        order_stage,
+        order_last,
+        recipe_items,
+        current_state
+      )
+    }
+
+    if ch == "]" {
+      return me._emit_scan_done(idx, current_state, recipe_items)
+    }
+
+    if ch != "{" {
+      return me._emit_scan_error(
+        tag,
+        "[cap_missing/program_json_v0] expected stmt object in body",
+        idx,
+        current_state
+      )
+    }
+
+    // Order check (fail-fast): determine stmt type first (cheap scan), then validate.
+    // Note: full stmt consumption is delegated to ProgramJsonV0PhaseStateConsumerBox (single SSOT for fields).
+    local node_peek = ProgramJsonV0ScannerBox.read_node_type_at(program_json, idx)
+    if node_peek == null {
+      return me._emit_scan_error(
+        tag,
+        "[cap_missing/program_json_v0] failed to read stmt node type",
+        idx,
+        current_state
+      )
+    }
+    local peek_type = "" + BoxHelpers.map_get(node_peek, "type")
+    local peek_stage = ProgramJsonV0LegacyOrderStageBox.classify(peek_type)
+    if peek_stage != 0 {
+      if peek_stage < order_stage {
+        return me._emit_scan_error(
+          tag,
+          "[cap_missing/order] expected order: Local → Assignment → Print → Return; got: "
+            + peek_type
+            + " after "
+            + order_last,
+          idx,
+          current_state
+        )
+      }
+      if peek_stage > order_stage { order_stage = peek_stage }
+      order_last = peek_type
+    }
+
+    local out = ProgramJsonV0PhaseStateConsumerBox.consume_stmt(program_json, idx, tag, current_state)
+
+    local next_idx = me._out_i64(out, "next_idx")
+    if me._out_i64(out, "err") == 1 {
+      local err_line = me._out_s(out, "err_line")
+      if err_line == "" {
+        err_line = tag + " internal error in Program(JSON v0) scanner"
+      }
+      return me._emit_out_with_state(
+        1,
+        err_line,
+        next_idx,
+        current_state
+      )
+    }
+
+    local recipe_item = me._out_box(out, "recipe_verified_item")
+    if recipe_item == null || BoxHelpers.is_map(recipe_item) != 1 {
+      return me._emit_scan_error(
+        tag,
+        "[cap_missing/recipe_verifier] missing verified recipe item in stmt consumption",
+        next_idx,
+        current_state
+      )
+    }
+    local recipe_append_error = me._append_recipe_item_or_error(
+      recipe_items,
+      recipe_item,
+      tag,
+      next_idx,
+      current_state
+    )
+    if recipe_append_error != null { return recipe_append_error }
+
+    local next_state = me._state_map(
+      me._out_i64(out, "has_print"),
+      me._out_i64(out, "has_local"),
+      me._out_i64(out, "has_assignment"),
+      me._out_i64(out, "has_return"),
+      me._out_box(out, "printv"),
+      me._out_s(out, "print_kind"),
+      me._out_s(out, "print_var_name"),
+      me._out_s(out, "local_name"),
+      me._out_box(out, "local_init"),
+      me._out_s(out, "assign_name"),
+      me._out_box(out, "assign_rhs"),
+      me._out_s(out, "assign_rhs_kind"),
+      me._out_s(out, "return_kind"),
+      me._out_box(out, "retv"),
+      me._out_s(out, "ret_var_name"),
+      me._out_s(out, "ret_box_type")
+    )
+
+    return me._scan_body_rec(
+      program_json,
+      next_idx,
+      n,
+      tag,
+      order_stage,
+      order_last,
+      recipe_items,
+      next_state
+    )
+  }
+
+  _append_recipe_children_rec(recipe_items, children, i, tag, next_idx, state) {
+    local n = BoxHelpers.array_len(children)
+    if i >= n { return null }
+
+    local child = BoxHelpers.array_get(children, i)
+    if child == null || BoxHelpers.is_map(child) != 1 {
+      return me._emit_scan_error(
+        tag,
+        "[cap_missing/recipe_verifier] composite recipe child is not map",
+        next_idx,
+        state
+      )
+    }
+    if RecipeItemBox.kind_of(child) != "Seq" || ("" + BoxHelpers.map_get(child, "leaf_kind")) != "Stmt" {
+      return me._emit_scan_error(
+        tag,
+        "[cap_missing/recipe_verifier] composite recipe child must be Stmt leaf",
+        next_idx,
+        state
+      )
+    }
+
+    recipe_items.push(child)
+    return me._append_recipe_children_rec(recipe_items, children, i + 1, tag, next_idx, state)
+  }
+
+  _append_recipe_item_or_error(recipe_items, recipe_item, tag, next_idx, state) {
+    local kind = RecipeItemBox.kind_of(recipe_item)
+    local leaf_kind = "" + BoxHelpers.map_get(recipe_item, "leaf_kind")
+
+    if kind == "Seq" && leaf_kind != "Stmt" {
+      local children = BoxHelpers.map_get(recipe_item, "items")
+      if children == null || BoxHelpers.is_array(children) != 1 {
+        return me._emit_scan_error(
+          tag,
+          "[cap_missing/recipe_verifier] composite recipe item missing items",
+          next_idx,
+          state
+        )
+      }
+      if BoxHelpers.array_len(children) == 0 {
+        return me._emit_scan_error(
+          tag,
+          "[cap_missing/recipe_verifier] composite recipe item must contain stmt children",
+          next_idx,
+          state
+        )
+      }
+      return me._append_recipe_children_rec(recipe_items, children, 0, tag, next_idx, state)
+    }
+
+    recipe_items.push(recipe_item)
+    return null
+  }
+
+  _state_map(
+    has_print,
+    has_local,
+    has_assignment,
+    has_return,
+    printv,
+    print_kind,
+    print_var_name,
+    local_name,
+    local_init,
+    assign_name,
+    assign_rhs,
+    assign_rhs_kind,
+    return_kind,
+    retv,
+    ret_var_name,
+    ret_box_type
+  ) {
+    return ProgramJsonV0StateBox.state_map(
+      has_print,
+      has_local,
+      has_assignment,
+      has_return,
+      printv,
+      print_kind,
+      print_var_name,
+      local_name,
+      local_init,
+      assign_name,
+      assign_rhs,
+      assign_rhs_kind,
+      return_kind,
+      retv,
+      ret_var_name,
+      ret_box_type
+    )
+  }
+
+  _out_i64(out, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(out, key))
+  }
+
+  _out_box(out, key) {
+    return BoxHelpers.map_get(out, key)
+  }
+
+  _out_s(out, key) {
+    return "" + BoxHelpers.map_get(out, key)
+  }
+
+  _emit_scan_error(tag, msg, next_idx, state) {
+    return me._emit_out_with_state(1, tag + msg, next_idx, state)
+  }
+
+  _emit_scan_done(next_idx, state, recipe_items) {
+    local out = me._emit_out_with_state(0, "", next_idx, state)
+    out.set("recipe_root", RecipeItemBox.seq(recipe_items))
+    return out
+  }
+
+  _emit_out_with_state(err, err_line, next_idx, state) {
+    return ProgramJsonV0PhaseStateConsumerBox._emit_out_with_state(
+      err,
+      err_line,
+      next_idx,
+      state
+    )
+  }
+
+}
+
+static box ProgramJsonV0PhaseStateStub { main() { return 0 } }

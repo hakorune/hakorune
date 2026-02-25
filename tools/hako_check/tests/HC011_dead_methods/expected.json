@@ -1,0 +1,4 @@
+{"diagnostics":[
+  {"file":"ng.hako","line":1,"rule":"HC011","message":"[HC011] unreachable method (dead code): PLACEHOLDER :: Main.unused/0","quickFix":"Remove or reference the dead method from an entrypoint","severity":"error"}
+]}
+

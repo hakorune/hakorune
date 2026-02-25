@@ -1,0 +1,3 @@
+{"diagnostics":[
+  {"file":"ng.hako","line":1,"rule":"HC031","message":"[HC031] brace mismatch - 2 open, 1 close :: ng.hako:1","quickFix":"","severity":"warning"}
+]}

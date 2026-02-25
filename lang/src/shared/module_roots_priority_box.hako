@@ -1,0 +1,7 @@
+// module_roots_priority_box.hako
+// Purpose: module_roots 側の基準値（value=1）
+
+static box ModuleRootsPriorityBox {
+  value() { return 1 }
+}
+

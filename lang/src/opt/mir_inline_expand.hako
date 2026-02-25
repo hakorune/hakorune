@@ -1,0 +1,22 @@
+// MirInlineExpand — MIR prepass inliner (Phase 20.12 scaffold)
+// Responsibility:
+// - Plan-only scaffold for a small-function, pure, non-recursive inline expansion
+// - Gated by env NYASH_MIR_INLINE_EXPAND=1 via runner (src/runner/modes/common_util/exec.rs)
+// Non-Responsibility:
+// - Actual inlining logic (to be implemented incrementally)
+
+using selfhost.shared.mir.io as MirIoBox
+
+static box MirInlineExpand {
+  // Entry: return (possibly) transformed JSON path; v0 returns input as-is.
+  prep(json_path) {
+    // v0: identity (no-op). This stub allows gating and pipeline wiring
+    // without changing semantics. Subsequent phases will:
+    //  - Parse JSON
+    //  - Detect inlineable small pure functions (no recursion, small blocks)
+    //  - Substitute call sites with function bodies at JSON-level
+    return json_path
+  }
+}
+
+static box MirInlineExpandMain { main(args){ return 0 } }

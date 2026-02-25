@@ -1,0 +1,38 @@
+// method_alias_policy.hako — MethodAliasPolicy
+// Responsibility: normalize common method aliases and build stable keys.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box MethodAliasPolicy {
+  is_size_alias(name) {
+    if name == null { return 0 }
+    if name == "size" { return 1 }
+    if name == "len" { return 1 }
+    if name == "length" { return 1 }
+    return 0
+  }
+  normalize_size(name) { if me.is_size_alias(name) == 1 { return "size" } return name }
+  recv_len_key(per_recv, rid) {
+    if ("" + per_recv) == "1" {
+      return "__vm_len:" + ("" + rid)
+    }
+    return "__vm_len"
+  }
+  recv_arr_key(per_recv, rid, idx) {
+    local idx_s = StringHelpers.int_to_str(idx)
+    if ("" + per_recv) == "1" {
+      return "__vm_arr:" + ("" + rid) + ":" + idx_s
+    }
+    return "__vm_arr:" + idx_s
+  }
+  recv_map_key(per_recv, rid, key) {
+    if ("" + per_recv) == "1" {
+      return "__vm_map:" + ("" + rid) + ":" + ("" + key)
+    }
+    return "__vm_map:" + ("" + key)
+  }
+  itos(n) { return StringHelpers.int_to_str(n) }
+}
+
+static box MethodAliasPolicyMain { method main(args) { return 0 } }
+

@@ -1,0 +1,14 @@
+// Phase 286 P3.2: Pattern5 infinite loop with early return
+// Tests: loop(true) with if (i == 3) { return 7 }
+// Expected: 7
+
+static box Main {
+  main() {
+    local i = 0
+    loop(true) {
+      if (i == 3) { return 7 }
+      i = i + 1
+    }
+    return 0
+  }
+}

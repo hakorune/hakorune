@@ -1,0 +1,29 @@
+// 🎯 birth構文シンプルテスト
+
+box TestBox {
+    init { name, value }
+    
+    birth(test_name) {
+        me.name = test_name
+        me.value = 42
+        print("🌟 TestBox誕生: " + me.name)
+    }
+    
+    greet() {
+        print("こんにちは、" + me.name + "です！値は " + me.value + " です")
+    }
+}
+
+static box Main {
+    init { console }
+    
+    main() {
+        me.console = new ConsoleBox()
+        me.console.log("🧪 birth構文テスト開始")
+        
+        local test = new TestBox("テスト太郎")
+        test.greet()
+        
+        return "テスト完了"
+    }
+}

@@ -1,0 +1,13 @@
+// gc_hooks.hako — Hakorune‑VM GC safepoint hooks (v0: metrics-only collection)
+// Responsibility: provide a single safepoint entry the VM can call at well-defined
+// boundaries (MirCall, loop back-edges, etc.). In v0, this only triggers the
+// GC runtime's collect_if_needed() which is gated to default OFF.
+
+using selfhost.vm.gc.gc_runtime as GcRuntime
+
+static box GcHooks {
+  safepoint() {
+    // v0: no-op unless GC gating enables collection; metrics only otherwise.
+    GcRuntime.collect_if_needed()
+  }
+}

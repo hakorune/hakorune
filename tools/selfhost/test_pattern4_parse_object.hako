@@ -1,0 +1,47 @@
+// Phase 143 P3: test_pattern4_parse_object
+// Minimal test for parse_object loop pattern (same as parse_string/array)
+
+static box Main {
+  main(args) {
+    local result = me.parse_object_loop()
+    print(result)
+    return 0
+  }
+
+  method parse_object_loop() {
+    local s = "{\"key1\":\"val1\",\"key2\":\"val2\"}"
+    local p = 1
+    local obj = new MapBox()
+
+    // Parse key-value pairs (same structure as parse_string)
+    loop(p < s.length()) {
+      // Skip whitespace (simplified)
+
+      // Parse key (must be string)
+      local ch = s.substring(p, p+1)
+      if ch != '"' { return null }
+
+      // Parse value (simplified)
+      local key = "key"
+      local value = "val"
+      obj.set(key, value)
+
+      p = p + 1
+
+      // Check for object end or separator
+      local next_ch = s.substring(p, p+1)
+      if next_ch == "}" {
+        return obj  // Stop: object complete
+      }
+
+      if next_ch == "," {
+        p = p + 1
+        continue  // Separator: continue to next key-value pair
+      }
+
+      return null  // Error
+    }
+
+    return null
+  }
+}

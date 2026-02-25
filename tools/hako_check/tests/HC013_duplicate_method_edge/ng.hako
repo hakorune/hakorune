@@ -1,0 +1,22 @@
+// ng.hako — duplicate method with comments/whitespace between
+
+static box Calculator {
+  method add(a, b) {
+    return a + b
+  }
+
+  // some comment lines
+  // to ensure line numbers advance
+
+  method add(a, b) {
+    return a - b
+  }
+}
+
+static box Main {
+  method main() {
+    Calculator.add(1,2)
+    return 0
+  }
+}
+

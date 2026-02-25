@@ -1,0 +1,92 @@
+// lower_if_nested_box.hako — Nested If lowering
+// Pattern:
+//   If(cond1=Compare(Int,Int)) {
+//     Return(Int A)
+//   } else {
+//     If(cond2=Compare(Int,Int)) { Return(Int B) } else { Return(Int C) }
+//   }
+// Lowers to:
+//   bb0: const lhs1,rhs1; compare1 → branch then:bb1 else:bb2
+//   bb1: const A; ret
+//   bb2: const lhs2,rhs2; compare2 → branch then:bb3 else:bb4
+//   bb3: const B; ret
+//   bb4: const C; ret
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+
+static box LowerIfNestedBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+    local k_if1 = JsonFragBox.index_of_from(s, "\"type\":\"If\"", 0)
+    if k_if1 < 0 { return null }
+    local k_cmp1 = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_if1)
+    if k_cmp1 < 0 { return null }
+    local kop1 = JsonFragBox.index_of_from(s, "\"op\":", k_cmp1); if kop1 < 0 { return null }
+    local op1s = JsonFragBox.read_string_after(s, kop1 + 5); if op1s == null { return null }
+    local op1 = PatternUtilBox.map_cmp(op1s); if op1 == null { return null }
+    local klhs1 = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp1); if klhs1 < 0 { return null }
+    local ti11 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", klhs1); if ti11 < 0 { return null }
+    local kv11 = JsonFragBox.index_of_from(s, "\"value\":", ti11); if kv11 < 0 { return null }
+    local lhs1 = JsonFragBox.read_int_after(s, kv11 + 8); if lhs1 == null { return null }
+    local krhs1 = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp1); if krhs1 < 0 { return null }
+    local ti12 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", krhs1); if ti12 < 0 { return null }
+    local kv12 = JsonFragBox.index_of_from(s, "\"value\":", ti12); if kv12 < 0 { return null }
+    local rhs1 = JsonFragBox.read_int_after(s, kv12 + 8); if rhs1 == null { return null }
+    // then Return(Int A)
+    local kth = JsonFragBox.index_of_from(s, "\"then\":", k_if1); if kth < 0 { return null }
+    local rt1 = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", kth); if rt1 < 0 { return null }
+    local ti13 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rt1); if ti13 < 0 { return null }
+    local kv13 = JsonFragBox.index_of_from(s, "\"value\":", ti13); if kv13 < 0 { return null }
+    local aval = JsonFragBox.read_int_after(s, kv13 + 8); if aval == null { return null }
+    // else contains nested If with Return(Int)/Return(Int)
+    local kel = JsonFragBox.index_of_from(s, "\"else\":", k_if1); if kel < 0 { return null }
+    local k_if2 = JsonFragBox.index_of_from(s, "\"type\":\"If\"", kel); if k_if2 < 0 { return null }
+    local k_cmp2 = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_if2); if k_cmp2 < 0 { return null }
+    local kop2 = JsonFragBox.index_of_from(s, "\"op\":", k_cmp2); if kop2 < 0 { return null }
+    local op2s = JsonFragBox.read_string_after(s, kop2 + 5); if op2s == null { return null }
+    local op2 = PatternUtilBox.map_cmp(op2s); if op2 == null { return null }
+    local klhs2 = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp2); if klhs2 < 0 { return null }
+    local ti21 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", klhs2); if ti21 < 0 { return null }
+    local kv21 = JsonFragBox.index_of_from(s, "\"value\":", ti21); if kv21 < 0 { return null }
+    local lhs2 = JsonFragBox.read_int_after(s, kv21 + 8); if lhs2 == null { return null }
+    local krhs2 = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp2); if krhs2 < 0 { return null }
+    local ti22 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", krhs2); if ti22 < 0 { return null }
+    local kv22 = JsonFragBox.index_of_from(s, "\"value\":", ti22); if kv22 < 0 { return null }
+    local rhs2 = JsonFragBox.read_int_after(s, kv22 + 8); if rhs2 == null { return null }
+    // then Return(Int B)
+    local kth2 = JsonFragBox.index_of_from(s, "\"then\":", k_if2); if kth2 < 0 { return null }
+    local rt2 = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", kth2); if rt2 < 0 { return null }
+    local ti23 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rt2); if ti23 < 0 { return null }
+    local kv23 = JsonFragBox.index_of_from(s, "\"value\":", ti23); if kv23 < 0 { return null }
+    local bval = JsonFragBox.read_int_after(s, kv23 + 8); if bval == null { return null }
+    // else Return(Int C)
+    local kel2 = JsonFragBox.index_of_from(s, "\"else\":", k_if2); if kel2 < 0 { return null }
+    local rt3 = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", kel2); if rt3 < 0 { return null }
+    local ti24 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rt3); if ti24 < 0 { return null }
+    local kv24 = JsonFragBox.index_of_from(s, "\"value\":", ti24); if kv24 < 0 { return null }
+    local cval = JsonFragBox.read_int_after(s, kv24 + 8); if cval == null { return null }
+
+    // Emit MIR(JSON v0) as string to avoid MapBox printing issues
+    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+      // bb0
+      "{\"id\":0,\"instructions\":[" +
+        "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs1 + "}}," +
+        "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs1 + "}}," +
+        "{\"op\":\"compare\",\"operation\":\"" + op1s + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+        "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
+      // bb1
+      "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + aval + "}},{\"op\":\"ret\",\"value\":4}]}," +
+      // bb2
+      "{\"id\":2,\"instructions\":[" +
+        "{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + lhs2 + "}}," +
+        "{\"op\":\"const\",\"dst\":6,\"value\":{\"type\":\"i64\",\"value\":" + rhs2 + "}}," +
+        "{\"op\":\"compare\",\"operation\":\"" + op2s + "\",\"lhs\":5,\"rhs\":6,\"dst\":7}," +
+        "{\"op\":\"branch\",\"cond\":7,\"then\":3,\"else\":4}]}," +
+      // bb3
+      "{\"id\":3,\"instructions\":[{\"op\":\"const\",\"dst\":8,\"value\":{\"type\":\"i64\",\"value\":" + bval + "}},{\"op\":\"ret\",\"value\":8}]}," +
+      // bb4
+      "{\"id\":4,\"instructions\":[{\"op\":\"const\",\"dst\":9,\"value\":{\"type\":\"i64\",\"value\":" + cval + "}},{\"op\":\"ret\",\"value\":9}]}]}]}"
+    return mir
+  }
+}

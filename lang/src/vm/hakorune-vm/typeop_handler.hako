@@ -1,0 +1,20 @@
+// TypeOpHandlerBox - Type operation instruction handler
+// Handles: typeop (type check and type cast)
+
+using selfhost.vm.boxes.result_box as Result
+using selfhost.vm.hakorune-vm.json_field_extractor as JsonFieldExtractor
+using selfhost.vm.hakorune-vm.value_manager as ValueManagerBox
+using selfhost.vm.hakorune-vm.reg_guard as RegGuardBox
+using selfhost.vm.hakorune-vm.core_bridge_ops as CoreBridgeOps
+
+static box TypeOpHandlerBox {
+  // Handle typeop instruction
+  // inst_json: {"op":"typeop","op_kind":"Check|Cast","dst":X,"value":Y,"ty":...}
+  // regs: register MapBox
+  // mem: memory MapBox
+  // Returns: Result.Ok(0) or Result.Err(message)
+  // Phase 1: Simplified implementation
+  // - Check: Always returns 1 (assume type matches)
+  // - Cast: Copies value from src to dst (no actual conversion)
+  handle(inst_json, regs, mem) { return CoreBridgeOps.apply_typeop(inst_json, regs, mem) }
+}

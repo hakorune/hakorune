@@ -1,0 +1,160 @@
+// stage1_cli_env.hako
+//
+// Purpose:
+// - Minimal env-route entry for stage1-cli artifacts.
+// - Keep mode dispatch and emit paths compact/stable for selfhost identity checks.
+
+using lang.compiler.build.build_box as BuildBox
+using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
+using lang.mir.builder.MirBuilderBox as MirBuilderBox
+
+static box Main {
+  main() {
+    local mode = env.get("NYASH_STAGE1_MODE")
+    if mode == null {
+      mode = env.get("HAKO_STAGE1_MODE")
+    }
+    if mode == "" {
+      mode = env.get("HAKO_STAGE1_MODE")
+    }
+    if mode == null {
+      mode = ""
+    }
+
+    if mode == "" {
+      local f_prog = env.get("STAGE1_EMIT_PROGRAM_JSON")
+      if f_prog == "1" {
+        mode = "emit-program"
+      }
+    }
+    if mode == "" {
+      local f_mir = env.get("STAGE1_EMIT_MIR_JSON")
+      if f_mir == "1" {
+        mode = "emit-mir"
+      }
+    }
+    if mode == "" {
+      local f_run = env.get("NYASH_USE_STAGE1_CLI")
+      if f_run == "1" {
+        mode = "run"
+      }
+    }
+    if mode == "" {
+      return 97
+    }
+    if mode == "emit_program_json" || mode == "emit-program-json" {
+      mode = "emit-program"
+    }
+    if mode == "emit_mir_json" || mode == "emit-mir-json" {
+      mode = "emit-mir"
+    }
+
+    if mode == "emit-program" {
+      return me._run_emit_program_mode()
+    }
+    if mode == "emit-mir" {
+      return me._run_emit_mir_mode("[freeze:contract][stage1-cli/emit-mir]")
+    }
+    if mode == "run" {
+      return me._run_emit_mir_mode("[freeze:contract][stage1-cli/run]")
+    }
+
+    return 97
+  }
+
+  method _run_emit_program_mode() {
+    local prog = me._build_program_json()
+    if prog == null { return 96 }
+    print(prog)
+    return 0
+  }
+
+  method _run_emit_mir_mode(tag) {
+    local src_json = null
+    local prog_json_path = env.get("HAKO_STAGE1_PROGRAM_JSON")
+    if prog_json_path == null || prog_json_path == "" { prog_json_path = env.get("NYASH_STAGE1_PROGRAM_JSON") }
+    if prog_json_path == null || prog_json_path == "" { prog_json_path = env.get("STAGE1_PROGRAM_JSON") }
+    if prog_json_path != null && prog_json_path != "" {
+      src_json = env.get("HAKO_STAGE1_PROGRAM_JSON_TEXT")
+      if src_json == null || src_json == "" { src_json = env.get("NYASH_STAGE1_PROGRAM_JSON_TEXT") }
+      if src_json == null || src_json == "" { src_json = env.get("STAGE1_PROGRAM_JSON_TEXT") }
+      if src_json == null {
+        print("[freeze:contract][stage1-cli/emit-mir] Program(JSON) text is required")
+        return 96
+      }
+      if src_json == "" {
+        print("[freeze:contract][stage1-cli/emit-mir] Program(JSON) text is required")
+        return 96
+      }
+    } else {
+      src_json = env.get("STAGE1_SOURCE_TEXT")
+    }
+    if src_json == null {
+      print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
+      return 96
+    }
+    if src_json == "" {
+      print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
+      return 96
+    }
+
+    local mir = MirBuilderBox.emit_from_program_json_v0(src_json)
+    if mir == null { return 96 }
+    if mir == "" { return 96 }
+    local mir_head = mir.substring(0, 1)
+    if mir_head != "{" {
+      print("[freeze:contract][stage1-cli/emit-mir] output is not MIR JSON")
+      print(mir)
+      return 96
+    }
+    local has_functions = mir.indexOf("\"functions\"")
+    if has_functions < 0 { return 96 }
+    print(mir)
+    return 0
+  }
+
+  method _build_program_json() {
+    local text = env.get("STAGE1_SOURCE_TEXT")
+    if text == null || text == "" {
+      local source = env.get("HAKO_STAGE1_INPUT")
+      if source == null || source == "" { source = env.get("NYASH_STAGE1_INPUT") }
+      if source == null || source == "" { source = env.get("STAGE1_SOURCE") }
+      if source == null || source == "" { source = env.get("STAGE1_INPUT") }
+      if source == null || source == "" {
+        print("[stage1-cli] emit program-json: STAGE1_SOURCE is required")
+        return null
+      }
+      local fb = new FileBox()
+      local ok = fb.open(source, "r")
+      if ok != 1 {
+        print("[stage1-cli] emit program-json: failed to open " + source)
+        return null
+      }
+      text = fb.read()
+      fb.close()
+    }
+
+    if text == null || text == "" {
+      print("[stage1-cli] emit program-json: source is empty")
+      return null
+    }
+
+    local prefix = Stage1UsingResolverBox.resolve_for_source(text)
+    if prefix == null { prefix = "" }
+    local merged = prefix + text
+
+    local prog = BuildBox.emit_program_json_v0(merged, null)
+    if prog == null {
+      print("[freeze:contract][stage1-cli/emit-program] BuildBox.emit_program_json_v0 returned null")
+      return null
+    }
+    local has_kind = prog.indexOf("\"kind\":\"Program\"")
+    local has_version = prog.indexOf("\"version\":0")
+    if has_kind < 0 || has_version < 0 {
+      print("[freeze:contract][stage1-cli/emit-program] BuildBox output missing Program(JSON v0) markers")
+      return null
+    }
+    return prog
+  }
+
+}

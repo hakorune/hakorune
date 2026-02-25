@@ -1,0 +1,97 @@
+// lower_return_logical_box.hako — Return(Logical &&/|| of Bool,Bool) → branch+ret (short-circuit semantics)
+
+using selfhost.shared.mir.schema as MirSchemaBox
+
+using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box LowerReturnLogicalBox {
+  // Removed: _find_local_bool_before (use PatternUtilBox.find_local_bool_before instead)
+
+  try_lower(program_json) {
+    local s = "" + program_json
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
+    if k_ret < 0 { return null }
+    local k_log = JsonFragBox.index_of_from(s, "\"type\":\"Logical\"", k_ret)
+    if k_log < 0 { return null }
+    // op: && or ||
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_log)
+    if k_op < 0 { return null }
+    local op = JsonFragBox.read_string_after(s, k_op + 5)
+    if op == null { return null }
+    if !(op == "&&" || op == "||") { return null }
+    local debug_on = 0
+    if env.get("HAKO_MIR_BUILDER_DEBUG") == "1" || env.get("NYASH_CLI_VERBOSE") == "1" { debug_on = 1 }
+    // Resolve lhs to 0/1 (Bool or Var with Local Bool) - robust version
+    local lhs_true = null
+    local lhs_name = null
+    {
+      local klhs_b = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Bool\"", k_log)
+      if klhs_b >= 0 {
+        local kv1 = JsonFragBox.index_of_from(s, "\"value\":", klhs_b)
+        if kv1 >= 0 {
+          lhs_true = JsonFragBox.read_bool_after(s, kv1 + 8)
+        }
+      } else {
+        local klhs_v = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\"", k_log)
+        if klhs_v >= 0 {
+          local kn = JsonFragBox.index_of_from(s, "\"name\":", klhs_v)
+          if kn < 0 { if debug_on == 1 { print("[logical/miss:lhs_name extraction]") } return null }
+          lhs_name = JsonFragBox.read_string_after(s, kn + 7)
+          if lhs_name != null {
+            lhs_true = PatternUtilBox.find_local_bool_before(s, lhs_name, k_log)
+            if debug_on == 1 && lhs_true == null { print("[logical/miss:lhs_true for name=" + lhs_name + "]") }
+          } else {
+            if debug_on == 1 { print("[logical/miss:lhs_name null]") }
+          }
+        }
+      }
+    }
+    if lhs_true == null { if debug_on == 1 { print("[logical/miss:lhs_true final]") } return null }
+    // Resolve rhs to 0/1 (Bool or Var) - robust version
+    local rhs_true = null
+    local rhs_name = null
+    {
+      local krhs_b = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Bool\"", k_log)
+      if krhs_b >= 0 {
+        local kv2 = JsonFragBox.index_of_from(s, "\"value\":", krhs_b)
+        if kv2 >= 0 {
+          rhs_true = JsonFragBox.read_bool_after(s, kv2 + 8)
+        }
+      } else {
+        local krhs_v = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\"", k_log)
+        if krhs_v >= 0 {
+          local kn2 = JsonFragBox.index_of_from(s, "\"name\":", krhs_v)
+          if kn2 < 0 { if debug_on == 1 { print("[logical/miss:rhs_name extraction]") } return null }
+          rhs_name = JsonFragBox.read_string_after(s, kn2 + 7)
+          if rhs_name != null {
+            rhs_true = PatternUtilBox.find_local_bool_before(s, rhs_name, k_log)
+            if debug_on == 1 && rhs_true == null { print("[logical/miss:rhs_true for name=" + rhs_name + "]") }
+          } else {
+            if debug_on == 1 { print("[logical/miss:rhs_name null]") }
+          }
+        }
+      }
+    }
+    if rhs_true == null { if debug_on == 1 { print("[logical/miss:rhs_true final]") } return null }
+
+    // Build MIR(JSON v0) string directly (functions[]/name="main"/blocks.id)
+    if debug_on == 1 {
+      print("[mirbuilder/registry:return.logical op=" + op + " lhs_true=" + lhs_true + " rhs_true=" + rhs_true + "]")
+    }
+    local json_head = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":["
+    local bb0 = "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs_true + "}},{\"op\":\"branch\",\"cond\":1,\"then\":1,\"else\":2}]}"
+    if op == "&&" {
+      // then: ret rhs_true; else: ret 0
+      local bb1 = "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + rhs_true + "}},{\"op\":\"ret\",\"value\":3}]}"
+      local bb2 = "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"ret\",\"value\":4}]}"
+      return json_head + bb0 + "," + bb1 + "," + bb2 + "]}]}"
+    } else {
+      // then: ret 1; else: ret rhs_true
+      local bb1 = "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":1}},{\"op\":\"ret\",\"value\":3}]}"
+      local bb2 = "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + rhs_true + "}},{\"op\":\"ret\",\"value\":4}]}"
+      return json_head + bb0 + "," + bb1 + "," + bb2 + "]}]}"
+    }
+  }
+}

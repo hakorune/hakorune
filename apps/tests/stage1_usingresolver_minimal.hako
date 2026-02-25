@@ -1,0 +1,40 @@
+// stage1_usingresolver_minimal.hako
+// Phase 27.13: Stage1UsingResolverBox.resolve_for_source minimal loop for JoinIR testing
+//
+// Purpose: Minimal test case for JoinIR lowering without complex dependencies
+// - No `using` statements (avoids parser issues)
+// - No @ notation (Stage-2 compatible)
+// - No FileBox/IO operations (pure loop structure)
+//
+// This file is designed for auto_lowering test to verify JoinIR structure:
+// - Function signature: Stage1UsingResolverBox.resolve_for_source/5
+// - Loop structure: entries traversal with i < n condition
+// - Pinned: entries, n, modules, seen
+// - Carrier: i, prefix
+// - Exit: prefix
+
+static box Stage1UsingResolverBox {
+  resolve_for_source(entries, n, modules, seen, prefix_init) {
+    local i = 0
+    local prefix = prefix_init
+    loop(i < n) {
+      local next_i = i + 1
+
+      // Minimal processing: just read entry (simplified)
+      // In real implementation, this would check modules/seen and concatenate
+      local entry = entries.get(i)
+
+      // Simplified: just move to next (no actual prefix update)
+      // Real version: prefix = prefix + "\n" + code + "\n"
+
+      i = next_i
+    }
+    return prefix
+  }
+}
+
+static box Main {
+  main() {
+    return 0
+  }
+}

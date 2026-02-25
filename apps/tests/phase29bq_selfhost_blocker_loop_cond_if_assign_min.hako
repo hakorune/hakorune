@@ -1,0 +1,14 @@
+// Phase-29bq: loop_cond_break_continue non-exit if (assignment only)
+// Expected: stdout=2, RC=0
+
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 1) {
+      if i == 0 { i = i + 1 }
+      i = i + 1
+    }
+    print(i)
+    return 0
+  }
+}

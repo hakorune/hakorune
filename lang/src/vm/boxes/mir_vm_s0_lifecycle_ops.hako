@@ -1,0 +1,15 @@
+// mir_vm_s0_lifecycle_ops.hako — lifecycle/meta opcode handler split from mir_vm_s0
+// Responsibility: return "__NEXT__" for no-op lifecycle/meta ops in S3 lane.
+
+static box MirVmS0LifecycleOpsBox {
+  maybe_next(op) {
+    if op == "keepalive" { return "__NEXT__" }
+    if op == "release_strong" { return "__NEXT__" }
+    if op == "barrier" { return "__NEXT__" }
+    if op == "nop" { return "__NEXT__" }
+    if op == "safepoint" { return "__NEXT__" }
+    if op == "debug" { return "__NEXT__" }
+    if op == "debug_log" { return "__NEXT__" }
+    return ""
+  }
+}

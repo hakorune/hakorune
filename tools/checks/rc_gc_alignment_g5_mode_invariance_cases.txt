@@ -1,0 +1,6 @@
+# G-RC-5 GC mode semantics invariance inventory
+# case_id|fixture_rel|expected_exit|focus
+gc_mode_explicit_drop|apps/tests/phase29x_rc_explicit_drop_min.hako|0|explicit_drop
+gc_mode_scope_end_release|apps/tests/phase29x_rc_scope_end_release_min.hako|0|scope_end_timing
+gc_mode_weak_upgrade_success|apps/tests/phase285_weak_basic.hako|2|weak_success
+gc_mode_weak_upgrade_fail|apps/tests/phase285_p2_weak_upgrade_fail_min.hako|1|weak_fail

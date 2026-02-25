@@ -1,0 +1,119 @@
+// mini_mir_v1_scan.hako — MiniMirV1Scan
+// Responsibility: focused helpers to extract callee metadata from MIR JSON v1
+// segments. These utilities centralise the ad-hoc substring scans that were
+// previously duplicated inside MirVmMin so Mini‑VM and future lightweight
+// runners can share a single tolerant parser.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box MiniMirV1Scan {
+  // Return the callee name for Global/Extern/ModuleFunction variants.
+  // Falls back to empty string when the pattern is missing.
+  callee_name(seg) {
+    if seg == null { return "" }
+    // Tolerant: allow spaces between 'callee' and '{', and arbitrary field order.
+    // Strategy: ensure 'callee' exists, then read the first 'name' string after it.
+    local ck = "\"callee\""
+    local p = seg.indexOf(ck)
+    if p < 0 { return "" }
+    local sub = seg.substring(p, seg.length())
+    local name = JsonFragBox.get_str(sub, "name")
+    if name != null && name != "" { return name }
+    // Fallback: strict compact form callee:{"name":"..."}
+    local key = "\"callee\":{\"name\":\""
+    local q = seg.indexOf(key)
+    if q >= 0 {
+      q = q + key.length()
+      local rest = seg.substring(q, seg.length())
+      local qq = rest.indexOf("\"")
+      if qq >= 0 { return rest.substring(0, qq) }
+    }
+    return ""
+  }
+
+  // Return the method name when callee.type == "Method".
+  method_name(seg) {
+    if seg == null { return "" }
+    if seg.indexOf("\"type\":\"Method\"") < 0 { return "" }
+    return JsonFragBox.get_str(seg, "method")
+  }
+
+  // Extract receiver value id (register id) from Method callee
+  receiver_id(seg) {
+    if seg == null { return null }
+    return JsonFragBox.get_int(seg, "receiver")
+  }
+
+  // Return the first argument register id. This mirrors the legacy helper that
+  // searched for the first numeric entry inside the args array.
+  first_arg_register(seg) {
+    if seg == null { return null }
+    local key = "\"args\":"
+    local p = seg.indexOf(key)
+    if p < 0 { return null }
+    p = p + key.length()
+    // locate the first digit (or '-') after the array start
+    local i = p
+    loop(true) {
+      local ch = seg.substring(i, i + 1)
+      if ch == "" { return null }
+      if ch == "-" || (ch >= "0" && ch <= "9") { break }
+      i = i + 1
+    }
+    local out = ""
+    loop(true) {
+      local ch = seg.substring(i, i + 1)
+      if ch == "" { break }
+      if ch >= "0" && ch <= "9" { out = out + ch  i = i + 1 } else { break }
+    }
+    if out == "" { return null }
+    return JsonFragBox._str_to_int(out)
+  }
+
+  // Return the nth argument register id (0-indexed).
+  // n=0 is equivalent to first_arg_register.
+  nth_arg_register(seg, n) {
+    if seg == null { return null }
+    if n < 0 { return null }
+    local key = "\"args\":"
+    local p = seg.indexOf(key)
+    if p < 0 { return null }
+    p = p + key.length()
+    local arg_idx = 0
+    local i = p
+    loop(true) {
+      // Skip whitespace and non-digit characters
+      local ch = seg.substring(i, i + 1)
+      if ch == "" { return null }
+      if ch == "-" || (ch >= "0" && ch <= "9") {
+        // Found a number
+        if arg_idx == n {
+          // This is the nth argument
+          local out = ""
+          if ch == "-" { out = "-"  i = i + 1 }
+          loop(true) {
+            ch = seg.substring(i, i + 1)
+            if ch == "" { break }
+            if ch >= "0" && ch <= "9" { out = out + ch  i = i + 1 } else { break }
+          }
+          if out == "" || out == "-" { return null }
+          return JsonFragBox._str_to_int(out)
+        }
+        // Skip this number
+        if ch == "-" { i = i + 1 }
+        loop(true) {
+          ch = seg.substring(i, i + 1)
+          if ch == "" { break }
+          if ch >= "0" && ch <= "9" { i = i + 1 } else { break }
+        }
+        arg_idx = arg_idx + 1
+      } else {
+        i = i + 1
+      }
+      if i > seg.length() { return null }
+    }
+    return null
+  }
+}
+
+static box MiniMirV1ScanMain { method main(args) { return 0 } }

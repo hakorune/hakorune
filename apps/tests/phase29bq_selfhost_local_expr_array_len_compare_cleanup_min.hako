@@ -1,0 +1,28 @@
+// Phase 29bq parser handoff Tier-2: array length compare + && + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local arr = [4, 5, 6]
+      local len = arr.length()
+
+      local cond_a = (len == 3) && (len > 2)
+      if cond_a {
+        out = out + 11
+      } else {
+        out = out + 1
+      }
+
+      local cond_b = (arr.length() == 3) && (len < 10)
+      if cond_b {
+        out = out + 14
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 2400
+    }
+    print(out)
+    return 0
+  }
+}

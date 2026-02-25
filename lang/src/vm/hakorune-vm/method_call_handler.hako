@@ -1,0 +1,77 @@
+// MethodCallHandlerBox - Handle Method calls (MirCall with Method callee)
+// Single Responsibility: Execute instance methods (e.g., array.length(), string.substring())
+
+using selfhost.vm.boxes.result_box as Result
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.hakorune-vm.value_manager as ValueManagerBox
+using selfhost.vm.hakorune-vm.callee_parser as CalleeParserBox
+using selfhost.vm.hakorune-vm.args_extractor as ArgsExtractorBox
+using selfhost.vm.hakorune-vm.args_guard as ArgsGuardBox
+using selfhost.vm.hakorune-vm.receiver_guard as ReceiverGuardBox
+using selfhost.vm.hakorune-vm.json_field_extractor as JsonFieldExtractor
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.host_bridge.host_bridge as HostBridge
+using selfhost.vm.hakorune-vm.core_bridge_ops as CoreBridgeOps
+
+static box MethodCallHandlerBox {
+  // TTL: Delegation policy (Phase 20.17 — P1 audit complete)
+  // - Delegated via CoreBridgeOps: Array(size/push/pop/get/set), Map(len/iterator/set/get)
+  // - Local/HostBridge: string instance methods（substring/indexOf/lastIndexOf/dirname/join…）は
+  //   文字列意味論の完全移行まで HostBridge に留める（20.18+ で段階移行予定）。
+  //   正規化は最小限（length→size のみ）として drift を抑制する。
+  // Handle Method call
+  // mir_call_json: {"callee":{"type":"Method","receiver":X,"method":"name"},"args":[...]}
+  // dst_reg: destination register (null if no return value)
+  // regs: register MapBox
+  // Returns: Result.Ok(0) or Result.Err(message)
+  handle(mir_call_json, dst_reg, regs) {
+    // Extract receiver ValueId from callee.receiver field
+    local receiver_id = CalleeParserBox.extract_receiver(mir_call_json)
+    if receiver_id == null {
+      return Result.Err("method: receiver not found in callee")
+    }
+
+    // Extract method name from callee.method field
+    local method_name = CalleeParserBox.extract_method(mir_call_json)
+    if method_name == null {
+      return Result.Err("method: method name not found in callee")
+    }
+
+    // Extract arguments from mir_call.args
+    local args_array = ArgsExtractorBox.extract_and_load(mir_call_json, regs)
+    local _g = ArgsGuardBox.ensure_no_nulls(args_array, method_name + "/" + StringHelpers.int_to_str(args_array.length()))
+    if _g.is_Err() { return _g }
+
+    // Build signature and guard
+    local arg_count = args_array.length()
+    local method_sig = method_name + "/" + StringHelpers.int_to_str(arg_count)
+    // Load receiver and guard
+    local receiver = ValueManagerBox.get(regs, receiver_id)
+    local guard = ReceiverGuardBox.ensure_valid(receiver, method_sig, receiver_id)
+    if guard.is_Err() { return guard }
+
+    // Unified dispatch via HostBridge (Phase B):
+    // Normalize a few well-known aliases to SSOT names (e.g., length -> size).
+    local method_canon = method_name
+    if method_canon == "length" { method_canon = "size" }
+
+    // Core bridge handles collection metadata + semantics directly (Phase 20.16).
+    // Delegate to CoreBridgeOps for Array/Map shortcuts to avoid drift.
+    // TODO: Remove fallback once Core mir_call covers every method variant (size/push/pop/len/set/get).
+    local core_shortcut = CoreBridgeOps.try_method_collection(method_canon, mir_call_json, args_array, dst_reg, regs, receiver_id)
+    if core_shortcut != null {
+      return core_shortcut
+    }
+
+    // Forward to HostBridge. PluginResolver performs the final resolution.
+    local result_val = HostBridge.box_call(receiver, method_canon, args_array)
+
+
+    // Store result in destination register
+    if dst_reg != null {
+      ValueManagerBox.set(regs, dst_reg, result_val)
+    }
+
+    return Result.Ok(0)
+  }
+}

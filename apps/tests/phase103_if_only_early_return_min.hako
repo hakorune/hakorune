@@ -1,0 +1,19 @@
+// Phase 103 P1: if-only early return regression fixture
+// Goal: one branch returns early (no join), other returns later.
+// Expect: two numeric lines "7" then "2".
+
+static box Main {
+  g(flag) {
+    if flag == 0 {
+      return 7
+    } else {
+      return 2
+    }
+  }
+
+  main() {
+    print(g(0))
+    print(g(1))
+    return "OK"
+  }
+}

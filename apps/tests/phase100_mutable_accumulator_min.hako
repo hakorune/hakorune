@@ -1,0 +1,16 @@
+static box Main {
+    main() {
+        local out = ""
+        local count = 0
+        local i = 0
+        loop(i < 10) {
+            if i >= 3 { break }
+            local ch = "x"
+            out = out + ch
+            count = count + 1
+            i = i + 1
+        }
+        print(count)
+        return 0
+    }
+}

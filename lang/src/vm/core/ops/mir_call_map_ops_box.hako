@@ -1,0 +1,216 @@
+// mir_call_map_ops_box.hako — Map operations utilities split from mir_call.hako
+// Responsibility: map metadata keys, len management, and method handlers.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+using selfhost.vm.helpers.mir_call_json_scan as MirCallJsonScanBox
+using selfhost.vm.hakorune-vm.str_cast as StrCast
+
+static box MirCallMapOpsBox {
+  // ==================== Map Metadata Keys ====================
+
+  _map_key(recv_id) {
+    return "maplen:r" + StringHelpers.int_to_str(recv_id)
+  }
+
+  _map_entry_slot(recv_id, key) {
+    return "mapentry:r" + StringHelpers.int_to_str(recv_id) + ":" + key
+  }
+
+  // ==================== Map Metadata Helpers ====================
+
+  _ensure_map_meta(state, recv_id) {
+    local mem = state.get("mem")
+    local len_key = me._map_key(recv_id)
+    if mem.get(len_key) == null { mem.set(len_key, 0) }
+  }
+
+  _map_len_get(state, recv_id) {
+    local mem = state.get("mem")
+    local len = mem.get(me._map_key(recv_id))
+    if len == null { return 0 }
+    return len
+  }
+
+  _map_len_set(state, recv_id, len) {
+    local mem = state.get("mem")
+    mem.set(me._map_key(recv_id), len)
+  }
+
+  // ==================== Map Method Handler ====================
+
+  _handle_map_method(method, inst_json, m, state, recv_id) {
+    me._ensure_map_meta(state, recv_id)
+    local len = me._map_len_get(state, recv_id)
+    local mem = state.get("mem")
+    if method == "size" || method == "len" {
+      local dst = MirCallJsonScanBox._read_dst(inst_json, "map " + method)
+      if dst == null { return -1 }
+      NyVmState.set_reg(state, dst, len)
+      return 0
+    }
+    if method == "has" {
+      local dst = MirCallJsonScanBox._read_dst(inst_json, "map has")
+      if dst == null { return -1 }
+      local key_vid = MirCallJsonScanBox._read_arg_vid(m, 0, "[core/mir_call] map has missing key", "[core/mir_call] map has bad key")
+      if key_vid == null { return -1 }
+      local key_val = NyVmState.get_reg(state, key_vid)
+      local key = StrCast.to_str(key_val)
+      local slot = me._map_entry_slot(recv_id, key)
+      local has_key = mem.get(slot) != null
+      local result = 0
+      if has_key { result = 1 }
+      NyVmState.set_reg(state, dst, result)
+      return 0
+    }
+    if method == "keys" {
+      local dst = MirCallJsonScanBox._read_dst(inst_json, "map keys")
+      if dst == null { return -1 }
+      // Build keys by scanning mem for receiver-specific entry slots (non-null values only)
+      local keys_arr = new ArrayBox()
+      local prefix = me._map_entry_slot(recv_id, "")
+      // Iterate memory keys (MapBox.keys())
+      local all_keys = mem.keys()
+      local i = 0
+      local n = all_keys.length()
+      loop(i < n) {
+        local k = StrCast.to_str(all_keys.get(i))
+        // startsWith(prefix)
+        local ok = 0
+        if k.length() >= prefix.length() {
+          if k.substring(0, prefix.length()) == prefix { ok = 1 }
+        }
+        if ok == 1 {
+          local v = mem.get(k)
+          if v != null {
+            local tail = k.substring(prefix.length(), k.length())
+            keys_arr.push(tail)
+          }
+        }
+        i = i + 1
+      }
+      NyVmState.set_reg(state, dst, keys_arr)
+      return 0
+    }
+    if method == "values" {
+      local dst = MirCallJsonScanBox._read_dst(inst_json, "map values")
+      if dst == null { return -1 }
+      // Build values by scanning mem for receiver-specific entry slots
+      local values_arr = new ArrayBox()
+      local prefix = me._map_entry_slot(recv_id, "")
+      local all_keys = mem.keys()
+      local i = 0
+      local n = all_keys.length()
+      loop(i < n) {
+        local k = StrCast.to_str(all_keys.get(i))
+        local ok = 0
+        if k.length() >= prefix.length() {
+          if k.substring(0, prefix.length()) == prefix { ok = 1 }
+        }
+        if ok == 1 {
+          local v = mem.get(k)
+          if v != null { values_arr.push(v) }
+        }
+        i = i + 1
+      }
+      NyVmState.set_reg(state, dst, values_arr)
+      return 0
+    }
+    if method == "iterator" {
+      local dst = MirCallJsonScanBox._read_dst(inst_json, "map iterator")
+      if dst == null { return -1 }
+      NyVmState.set_reg(state, dst, len)
+      return 0
+    }
+    if method == "delete" {
+      // delete(key): if present, remove and decrement len; dst (optional) := receiver
+      local key_vid = MirCallJsonScanBox._read_arg_vid(m, 0, "[core/mir_call] map delete missing key", "[core/mir_call] map delete bad key")
+      if key_vid == null { return -1 }
+      local key_val = NyVmState.get_reg(state, key_vid)
+      local key = StrCast.to_str(key_val)
+      local slot = me._map_entry_slot(recv_id, key)
+      local deleted = mem.get(slot)
+      if deleted != null {
+        mem.set(slot, null)
+        len = (len - 1)
+        if len < 0 { len = 0 }
+        me._map_len_set(state, recv_id, len)
+      }
+      local dst_opt = MirCallJsonScanBox._read_optional_vid_field(inst_json, "dst")
+      if dst_opt != null { NyVmState.set_reg(state, dst_opt, deleted) }
+      return 0
+    }
+    if method == "clear" {
+      // clear(): set length to 0 and remove all entries for this map from mem
+      local prefix = me._map_entry_slot(recv_id, "")
+      local all_keys = mem.keys()
+      local i = 0
+      local n = all_keys.length()
+      loop(i < n) {
+        local k = StrCast.to_str(all_keys.get(i))
+        local ok = 0
+        if k.length() >= prefix.length() {
+          if k.substring(0, prefix.length()) == prefix { ok = 1 }
+        }
+        if ok == 1 { mem.set(k, null) }
+        i = i + 1
+      }
+      me._map_len_set(state, recv_id, 0)
+      local dst_opt2 = MirCallJsonScanBox._read_optional_vid_field(inst_json, "dst")
+      if dst_opt2 != null { NyVmState.set_reg(state, dst_opt2, void) }
+      return 0
+    }
+    if method == "set" {
+      local key_vid = MirCallJsonScanBox._read_arg_vid(m, 0, "[core/mir_call] map set missing key", "[core/mir_call] map set bad key")
+      if key_vid == null { return -1 }
+      local val_vid = MirCallJsonScanBox._read_arg_vid(m, 1, "[core/mir_call] map set missing value", "[core/mir_call] map set bad value")
+      if val_vid == null { return -1 }
+      local key_val = NyVmState.get_reg(state, key_vid)
+      // Validate key: null/void are invalid（暗黙変換なし）
+      if key_val == null || key_val == void { print("[core/map/key_type]"); return -1 }
+      local key = StrCast.to_str(key_val)
+      local slot = me._map_entry_slot(recv_id, key)
+      local had = mem.get(slot) != null
+      // Validate value: void は不正。null は許可（値として保存）。
+      local v = NyVmState.get_reg(state, val_vid)
+      if v == void { print("[core/map/value_type]"); return -1 }
+      mem.set(slot, v)
+      if !had {
+        len = len + 1
+        me._map_len_set(state, recv_id, len)
+      }
+      local dst_opt = MirCallJsonScanBox._read_optional_vid_field(inst_json, "dst")
+      if dst_opt != null { NyVmState.set_reg(state, dst_opt, void) }
+      return 0
+    }
+    if method == "get" {
+      local key_vid = MirCallJsonScanBox._read_arg_vid(m, 0, "[core/mir_call] map get missing key", "[core/mir_call] map get bad key")
+      if key_vid == null { return -1 }
+      local key_val = NyVmState.get_reg(state, key_vid)
+      local key = StrCast.to_str(key_val)
+      local slot = me._map_entry_slot(recv_id, key)
+      local value = mem.get(slot)
+      local opt = MirCallJsonScanBox._read_optionality(m)
+      if value == null {
+        // default: missing → null
+        local dst0 = MirCallJsonScanBox._read_dst(inst_json, "map get")
+        if dst0 == null { return -1 }
+        NyVmState.set_reg(state, dst0, null)
+        return 0
+      }
+      local dst = MirCallJsonScanBox._read_dst(inst_json, "map get")
+      if dst == null { return -1 }
+      if opt == "optional" {
+        local outm2 = new MapBox()
+        outm2.set("present", 1)
+        outm2.set("value", value)
+        NyVmState.set_reg(state, dst, outm2)
+      } else {
+        NyVmState.set_reg(state, dst, value)
+      }
+      return 0
+    }
+    print("[core/mir_call/method_unsupported]")
+    return -1
+  }
+}

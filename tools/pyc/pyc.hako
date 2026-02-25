@@ -1,0 +1,25 @@
+// Nyash Python Compiler entry (Phase 10.7 workbench)
+// Nyash-only pipeline: Parser/Compiler are implemented in Nyash using PyRuntimeBox
+// Usage:
+//   NYASH_PY_CODE=$'def main():\n    return 0' ./target/release/hakorune --backend vm tools/pyc/pyc.hako
+
+static box Main {
+  main() {
+    // Load modules via include (returns module boxes)
+    using "tools/pyc/PyIR.hako" as PyIR
+    using "tools/pyc/PythonParserNy.hako" as Parser
+    using "tools/pyc/PyCompiler.hako" as Compiler
+
+    local json, ir, src
+
+    // Skip echo of source to avoid plugin toString issues
+
+    json = new StringBox("{}")
+    // Build minimal IR from Python AST (env: NYASH_PY_CODE)
+    ir = Compiler.buildIRFromParse(json)
+    // Emit generated Nyash source (reflect return/if/assign when present)
+    src = Compiler.irToNyashSource(ir)
+    print(src)
+    return 0
+  }
+}

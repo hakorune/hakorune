@@ -1,0 +1,4 @@
+{"diagnostics":[
+  {"file":"ng.hako","line":7,"rule":"HC032","message":"[HC032] restricted-loop violation (continue): ng.hako:7","quickFix":"","severity":"warning"},
+  {"file":"ng.hako","line":10,"rule":"HC032","message":"[HC032] restricted-loop violation (nested loop): ng.hako:10","quickFix":"","severity":"warning"}
+]}

@@ -1,0 +1,27 @@
+// Phase 185: Minimal JsonParser-style loop with body-local integer calculation
+// Tests Pattern2 integration with LoopBodyLocalEnv
+
+static box Main {
+    main() {
+        local sum = 0
+        local pos = 0
+        local start = 0
+        local end = 5
+
+        // Pattern2: break loop with body-local digit_pos
+        loop(pos < end) {
+            local digit_pos = pos - start  // Body-local calculation
+            sum = sum * 10
+            sum = sum + digit_pos          // Use body-local in update
+            pos = pos + 1
+
+            if (sum > 50) {
+                break  // Break condition
+            }
+        }
+
+        print(sum)  // Expected: 0*10+0 → 0*10+1 → 1*10+2 → 12*10+3 → 123 → break
+                    // Output: 123 (breaks before digit_pos=4)
+        return 0
+    }
+}

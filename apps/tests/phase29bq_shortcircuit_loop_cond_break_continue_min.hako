@@ -1,0 +1,23 @@
+// Phase 2b-3: loop_cond_break_continue short-circuit evaluation
+// LHS (i < 0) is false → RHS (s.get(0)) must be skipped
+// If RHS evaluated, null.get() crashes
+// This fixture has break in body to route to loop_cond_break_continue
+static box Main {
+    main() {
+        local i = 0
+        local s = null
+        local found = 0
+
+        // loop(cond) with break → routes to loop_cond_break_continue
+        loop(i < 0 && s.get(0) == 120) {
+            if i == 0 {
+                found = 1
+                break
+            }
+            i = i + 1
+        }
+
+        print(found)
+        return 0
+    }
+}

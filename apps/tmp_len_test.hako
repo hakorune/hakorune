@@ -1,0 +1,10 @@
+static box Main {
+  main() {
+    local S
+    using "apps/std/string.hako" as S
+    local x
+    x = S.string_length("abc")
+    print("len=" + x.toString())
+    return 0
+  }
+}

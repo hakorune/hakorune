@@ -1,0 +1,25 @@
+// Phase 107: real-app derived fixture from apps/libs/json_cur.hako:find_balanced_array_end
+// Expect numeric output lines: 1 then 3
+
+static box Main {
+  find_balanced_array_end(s, idx) {
+    local n = s.length()
+    if s.substring(idx, idx+1) != "[" { return -1 }
+    local depth = 0
+    local i = idx
+    loop (i < n) {
+      local ch = s.substring(i, i+1)
+      if ch == "[" { depth = depth + 1 }
+      if ch == "]" { depth = depth - 1  if depth == 0 { return i } }
+      i = i + 1
+    }
+    return -1
+  }
+
+  main() {
+    print(find_balanced_array_end("[]", 0))
+    print(find_balanced_array_end("[[]]", 0))
+    return "OK"
+  }
+}
+

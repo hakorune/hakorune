@@ -1,0 +1,19 @@
+// Phase 122: if-only Normalized JoinModule emission (dev-only)
+// Goal: Minimal if-only pattern to test Normalized emission
+// Expected: flag=0 → return 1, flag=1 → return 2
+
+static box Main {
+  main() {
+    local flag = 0
+    local result
+
+    if flag == 0 {
+      result = 1
+    } else {
+      result = 2
+    }
+
+    print(result)
+    return "OK"
+  }
+}

@@ -1,0 +1,36 @@
+// funcscanner_parse_params_trim_min.hako
+// Minimal reproduction candidate for FuncScannerBox.parse_params + trim SSA/PHI issues
+//
+// Purpose:
+// - Drive FuncScannerBox.parse_params(params_str) and FuncScannerBox.trim(...)
+//   without Stage‑B or other compiler boxes involved。
+// - Keep control‑flow simple: one loop over a short param string。
+// - If the SSA/PHI bug is intrinsic to parse_params/trim, this file alone
+//   should eventually be enough to trigger it during Rust MirCompiler+Verifier。
+
+using lang.compiler.entry.func_scanner as FuncScannerBox
+
+static box Main {
+  main(args) {
+    // Simple param list with leading/trailing spaces around each name。
+    local params_str = "  a ,  b  ,  c  "
+    print("[parse-params-trim/min] input='" + params_str + "'")
+
+    // Call Stage‑1 helper directly。
+    local params = FuncScannerBox.parse_params(params_str)
+
+    local n = params.length()
+    print("[parse-params-trim/min] count=" + ("" + n))
+
+    local i = 0
+    loop(i < n) {
+      local p = params.get(i)
+      print("[parse-params-trim/min] param[" + ("" + i) + "]='" + p + "'")
+      i = i + 1
+    }
+
+    // For now just return 0; SSA/PHI バグは MirVerifier / VM 側で観測するよ。
+    return 0
+  }
+}
+

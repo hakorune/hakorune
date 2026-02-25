@@ -1,0 +1,17 @@
+// Phase 2b-2: generic_loop_v0 short-circuit evaluation
+// LHS (i < 0) is false → RHS (s.get(0)) must be skipped
+// If RHS evaluated, null.get() crashes
+static box Main {
+    main() {
+        local i = 0
+        local s = null
+
+        // generic_loop_v0 pattern: loop(cond) with i = i + 1 at end
+        loop(i < 0 && s.get(0) == 120) {
+            i = i + 1
+        }
+
+        print(0)
+        return 0
+    }
+}

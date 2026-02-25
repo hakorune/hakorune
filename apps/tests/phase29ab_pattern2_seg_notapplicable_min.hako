@@ -1,0 +1,27 @@
+// Phase 29ab P3: Pattern2 LoopBodyLocal seg NotApplicable (shape mismatch)
+//
+// Goal:
+// - break condition uses no LoopBodyLocal vars
+// - Pattern2 promotion should be NotApplicable and continue safely
+//
+// Expected: prints "2" and returns 2
+
+static box Main {
+    main() {
+        local s = "ab "
+        local i = 0
+
+        loop(i < s.length()) {
+            local seg = s.substring(i, i + 1)
+
+            if i >= 2 {
+                break
+            }
+
+            i = i + 1
+        }
+
+        print(i)
+        return i
+    }
+}

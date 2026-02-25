@@ -1,0 +1,266 @@
+// UsingResolveSSOTBox — SSOT for using/modules resolution
+// Contract:
+// - Pure function. IO（filesystem access）禁止。与えられた ctx のみを参照。
+// - 優先順:
+//   1) ctx.modules（top-level [modules] override）
+//   2) ctx.workspace_modules（modules.workspace exports）
+//   3) ctx.module_roots（longest-prefix）
+// - module_roots の未検出/曖昧は freeze tag 文字列で fail-fast。
+
+static box UsingResolveSSOTBox {
+  // Shared flat JSON map codec for using/module resolvers.
+  // Accepted shape: {"k":"v", ...}
+  // Limitations:
+  // - values are expected to be JSON strings only.
+  // - nested object/array/number/bool/null inputs are out-of-contract (best-effort parse).
+  // - callers must validate/normalize upstream when non-flat JSON may appear.
+  parse_string_map_json(json_text) { return me._json_to_map(json_text) }
+  encode_string_map_json(m) { return me._map_to_json(m) }
+
+  // Resolve module name to path using ctx-only data.
+  method resolve(name, ctx) {
+    if name == null { return null }
+    local target = "" + name
+    if target == "" { return null }
+
+    if ctx != null {
+      // 1) [modules] exact override
+      local modules = ctx.get("modules")
+      if modules != null {
+        if modules.has(target) == true {
+          return modules.get(target)
+        }
+      }
+
+      // 2) workspace exports fallback
+      local workspace = ctx.get("workspace_modules")
+      if workspace != null {
+        if workspace.has(target) == true {
+          return workspace.get(target)
+        }
+      }
+
+      // 3) module_roots longest-prefix
+      local roots = ctx.get("module_roots")
+      if roots != null {
+        return me._resolve_from_module_roots(target, roots)
+      }
+    }
+
+    return null
+  }
+
+  _resolve_from_module_roots(target, roots) {
+    local keys = roots.keys()
+    if keys == null {
+      return "[freeze:contract][module_roots] not_found: '" + target + "' has no matching root"
+    }
+
+    local best_prefix = null
+    local best_root = null
+    local best_len = -1
+    local ambiguous = 0
+
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local prefix = "" + keys.get(i)
+      local matched = 0
+      if target == prefix {
+        matched = 1
+      } else {
+        local p2 = prefix + "."
+        if me._starts_with(target, p2) == 1 { matched = 1 }
+      }
+
+      if matched == 1 {
+        local len = prefix.length()
+        if len > best_len {
+          best_prefix = prefix
+          best_root = "" + roots.get(prefix)
+          best_len = len
+          ambiguous = 0
+        } else {
+          if len == best_len && best_prefix != prefix { ambiguous = 1 }
+        }
+      }
+      i = i + 1
+    }
+
+    if ambiguous == 1 {
+      return "[freeze:contract][module_roots] ambiguous: '" + target + "' matches multiple roots"
+    }
+
+    if best_prefix == null {
+      return "[freeze:contract][module_roots] not_found: '" + target + "' has no matching root"
+    }
+
+    local suffix = ""
+    if target.length() > best_prefix.length() {
+      suffix = target.substring(best_prefix.length() + 1, target.length())
+    }
+
+    if suffix == "" {
+      local leaf = best_prefix
+      local dot = best_prefix.lastIndexOf(".")
+      if dot >= 0 { leaf = best_prefix.substring(dot + 1, best_prefix.length()) }
+      return best_root + "/" + leaf + ".hako"
+    }
+
+    return best_root + "/" + me._dot_to_slash(suffix) + ".hako"
+  }
+
+  _dot_to_slash(s) {
+    if s == null { return "" }
+    return ("" + s).replace(".", "/")
+  }
+
+  _starts_with(text, prefix) {
+    if text == null || prefix == null { return 0 }
+    local t = "" + text
+    local p = "" + prefix
+    if t.length() < p.length() { return 0 }
+    if t.substring(0, p.length()) == p { return 1 }
+    return 0
+  }
+
+  // Merge modules_json + ctx.workspace_modules with override precedence.
+  // Result shape: resolved modules JSON object.
+  resolve_modules(modules_json, using_entries_json, ctx) {
+    local workspace_map = new MapBox()
+    if ctx != null {
+      local ws = ctx.get("workspace_modules")
+      if ws != null {
+        workspace_map = ws
+      } else {
+        local ws_json = ctx.get("workspace_modules_json")
+        if ws_json != null {
+          workspace_map = me._json_to_map("" + ws_json)
+        }
+      }
+    }
+
+    local modules_map = me._json_to_map(modules_json)
+
+    // Merge: workspace base -> modules override
+    local merged = new MapBox()
+    me._merge_into(merged, workspace_map)
+    me._merge_into(merged, modules_map)
+
+    return me._map_to_json(merged)
+  }
+
+  // Reserved interface (no IO in SSOT).
+  resolve_prefix(using_entries_json, modules_json, ctx) {
+    return ""
+  }
+
+  _merge_into(dst, src) {
+    if dst == null || src == null { return }
+    local keys = src.keys()
+    if keys == null { return }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local k = "" + keys.get(i)
+      dst.set(k, src.get(k))
+      i = i + 1
+    }
+  }
+
+  _json_to_map(json_text) {
+    local m = new MapBox()
+    if json_text == null { return m }
+
+    local s = "" + json_text
+    local n = s.length()
+    local pos = 0
+    loop(pos < n) {
+      local next_pos = n
+      local key_q = me._index_of_from(s, "\"", pos)
+      if key_q >= 0 {
+        local key_end = me._find_json_string_end(s, key_q + 1)
+        if key_end >= 0 {
+          local key = me._decode_json_string(s.substring(key_q + 1, key_end))
+          local colon = me._index_of_from(s, ":", key_end + 1)
+          if colon >= 0 {
+            local val_q = me._index_of_from(s, "\"", colon + 1)
+            if val_q >= 0 {
+              local val_end = me._find_json_string_end(s, val_q + 1)
+              if val_end >= 0 {
+                local value = me._decode_json_string(s.substring(val_q + 1, val_end))
+                if key != "" { m.set(key, value) }
+                next_pos = val_end + 1
+              } else {
+                next_pos = key_end + 1
+              }
+            } else {
+              next_pos = colon + 1
+            }
+          } else {
+            next_pos = key_end + 1
+          }
+        }
+      }
+      pos = next_pos
+    }
+
+    return m
+  }
+
+  _map_to_json(m) {
+    if m == null { return "{}" }
+    local keys = m.keys()
+    if keys == null { return "{}" }
+
+    local out = "{"
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local key = "" + keys.get(i)
+      local val = m.get(key)
+      if i > 0 { out = out + "," }
+      out = out + "\"" + me._encode_json_string(key) + "\":\"" + me._encode_json_string("" + val) + "\""
+      i = i + 1
+    }
+    out = out + "}"
+    return out
+  }
+
+  _find_json_string_end(s, start) {
+    return me._index_of_from(s, "\"", start)
+  }
+
+  _decode_json_string(raw) {
+    if raw == null { return "" }
+    return "" + raw
+  }
+
+  _encode_json_string(raw) {
+    if raw == null { return "" }
+    local s = "" + raw
+    s = s.replace("\\", "\\\\")
+    s = s.replace("\"", "\\\"")
+    s = s.replace("\n", "\\n")
+    s = s.replace("\r", "\\r")
+    s = s.replace("\t", "\\t")
+    return s
+  }
+
+  _index_of_from(s, pat, start) {
+    if s == null || pat == null { return -1 }
+    local hay = "" + s
+    local needle = "" + pat
+    local n = hay.length()
+    local m = needle.length()
+    if m <= 0 { return start }
+
+    local i = start
+    if i < 0 { i = 0 }
+    loop(i + m <= n) {
+      if hay.substring(i, i + m) == needle { return i }
+      i = i + 1
+    }
+    return -1
+  }
+}

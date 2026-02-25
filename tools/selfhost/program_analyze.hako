@@ -1,0 +1,70 @@
+// tools/selfhost/program_analyze.hako - Phase 160-impl-1 Program JSON Analyzer
+// Reads Program JSON v0 and prints a summary for selfhost depth-2 verification.
+//
+// Usage:
+//   HAKO_PROGRAM_JSON="$(cat program.json)" ./target/release/hakorune tools/selfhost/program_analyze.hako
+//
+// Or via wrapper script:
+//   ./tools/selfhost/program_analyze.sh /path/to/program.json
+
+include "tools/hako_shared/json_parser.hako"
+
+// ProgramAnalyzerBox: Analyze Program JSON v0 structure
+// This is the .hako side analyzer for selfhost depth-2
+static box ProgramAnalyzerBox {
+  // Generate summary string (minimal version - no loops to avoid JoinIR issues)
+  method summarize(program) {
+    local version = program.get_version()
+    local kind = program.get_kind()
+    local defs = program.get_defs()
+    local usings = program.get_usings()
+
+    local defs_count = 0
+    if defs != null {
+      defs_count = defs.size()
+    }
+
+    local usings_count = 0
+    if usings != null {
+      usings_count = usings.size()
+    }
+
+    local summary = "=== Program JSON v0 Summary ===\n"
+    summary = summary + "Version: " + ("" + version) + "\n"
+    summary = summary + "Kind: " + kind + "\n"
+    summary = summary + "Total definitions: " + ("" + defs_count) + "\n"
+    summary = summary + "Usings: " + ("" + usings_count) + "\n"
+
+    return summary
+  }
+}
+
+// Main entry point
+static box Main {
+  main(args) {
+    // Get Program JSON from environment variable
+    local json_str = env.get("HAKO_PROGRAM_JSON")
+
+    if json_str == null || json_str == "" {
+      print("[ERROR] HAKO_PROGRAM_JSON environment variable not set")
+      print("Usage: HAKO_PROGRAM_JSON=\"$(cat program.json)\" ./target/release/hakorune tools/selfhost/program_analyze.hako")
+      return 1
+    }
+
+    // Parse Program JSON
+    local program = JsonParserBox.parse_program(json_str)
+
+    if program == null {
+      print("[ERROR] Failed to parse Program JSON v0")
+      print("Make sure the JSON has version:0 and kind:\"Program\"")
+      return 1
+    }
+
+    // Generate and print summary
+    local summary = ProgramAnalyzerBox.summarize(program)
+    print(summary)
+
+    print("[SUCCESS] Phase 160-impl-1: .hako successfully read Program JSON v0!")
+    return 0
+  }
+}

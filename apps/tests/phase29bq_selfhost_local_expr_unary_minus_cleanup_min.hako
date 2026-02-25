@@ -1,0 +1,19 @@
+// Phase 29bq parser handoff Tier-2: local + unary minus + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local a = -5
+      local b = 12 + a
+      if b == 7 {
+        out = out + 8
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 70
+    }
+    print(out)
+    return 0
+  }
+}

@@ -1,0 +1,40 @@
+// Phase 29bq: ParserExprBox.parse_term2/3 minimal (selfhost blocker extraction)
+// Expected output: 1
+box DummyCtx {
+  gpos_get() { return 0 }
+  gpos_set(v) { return v }
+  skip_ws(src, j) { return j }
+}
+
+static box ParserExprBox {
+  parse_unary2(src, i, ctx) { return 1 }
+
+  parse_term2(src, i, ctx) {
+    local lhs = ParserExprBox.parse_unary2(src, i, ctx)
+    local j = ctx.gpos_get()
+
+    loop(true) {
+      j = ctx.skip_ws(src, j)
+      if j >= src.length() { break }
+
+      local op = src.substring(j, j+1)
+      if op != "*" && op != "/" && op != "%" { break }
+
+      local rhs = ParserExprBox.parse_unary2(src, j+1, ctx)
+      j = ctx.gpos_get()
+      lhs = "{\"type\":\"Binary\",\"op\":\"" + op + "\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+    }
+
+    ctx.gpos_set(j)
+    return lhs
+  }
+}
+
+static box Main {
+  main() {
+    local ctx = new DummyCtx()
+    local out = ParserExprBox.parse_term2("+", 0, ctx)
+    print(out)
+    return 0
+  }
+}

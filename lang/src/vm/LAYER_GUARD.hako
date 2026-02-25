@@ -1,0 +1,6 @@
+// LAYER_GUARD — VM Layer Guard (Phase 20.8)
+// Policy:
+// - lang/src 優先。lang/src 配下からの `using "selfhost/..."` 直参照は禁止。
+// - 参照は lang/src の等価箱（ミラー）へ統一し、段階撤退を進める。
+// - Mini‑VM の新規機能追加は慎重に（既定は凍結・スモークで仕様固定）。
+static box MiniVmLayerGuard { main(args) { return 0 } }

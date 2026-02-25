@@ -1,0 +1,39 @@
+// Phase 29bq: selfhost parse_string2 real-shape minimal
+// Expected output: A
+static box Main {
+  parse_like() {
+    local j = 0
+    local n = 3
+    local out = ""
+    local guard = 0
+    local max = 10
+
+    loop (j < n) {
+      if guard > max { break }
+      guard = guard + 1
+
+      if j == 0 {
+        out = out + "A"
+        j = j + 1
+        continue
+      }
+
+      if j == 1 {
+        j = j + 1
+        local tmp = j
+        return out
+      }
+
+      out = out + "B"
+      j = j + 1
+    }
+
+    return out
+  }
+
+  main() {
+    local out = Main.parse_like()
+    print(out)
+    return 0
+  }
+}

@@ -1,0 +1,20 @@
+// vm_hot_path.hako — VMHotPathBox (v0 skeleton)
+// Gate: HAKO_VM_FAST_PATH=1 で将来のホットパス最適化を有効化（現状は no-op）。
+
+static box VMHotPathBox {
+  enabled() {
+    // Accept HAKO_VM_FAST_PATH=1|true|on (case-insensitive)
+    local v = env.get("HAKO_VM_FAST_PATH")
+    if !v { return 0 }
+    local l = v.toLowerCase()
+    if l == "1" || l == "true" || l == "on" { return 1 }
+    return 0
+  }
+  // Entry point (reserved): future hook to prebuild maps or inject superinstructions (dev only)
+  prep() {
+    if !VMHotPathBox.enabled() { return 0 }
+    // v0: no-op; keep structure for future expansions
+    return 0
+  }
+}
+

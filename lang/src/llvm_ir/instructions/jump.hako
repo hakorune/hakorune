@@ -1,0 +1,56 @@
+// LLVM Jump Instruction Box — Python jump.py のHakorune実装
+// MIRジャンプ命令をJSON形式に変換し、C++バックエンドに渡す
+
+static box LLVMJumpInstructionBox {
+
+  // メインエントリーポイント - Pythonのlower_jump()に相当
+  lower_jump(self, target_bid) {
+    return me.inst_jump(self, target_bid)
+  }
+
+  // ジャンプ命令の生成
+  inst_jump(self, target_bid) {
+    // JSON: {"op":"jump","target":5}
+    return "{\"op\":\"jump\",\"target\":" + target_bid + "}"
+  }
+
+  // デバッグ用 - 生成された命令の確認
+  debug_jump(self, target_bid) {
+    local json = me.lower_jump(self, target_bid)
+    print("Generated jump instruction: " + json)
+    return json
+  }
+
+  // ラベルへのジャンプ
+  jump_to_label(self, label_id) {
+    return me.inst_jump(self, label_id)
+  }
+
+  // ループヘッドへのジャンプ
+  jump_loop_head(self, loop_block) {
+    return me.inst_jump(self, loop_block)
+  }
+
+  // ループ終了へのジャンプ
+  jump_loop_end(self, exit_block) {
+    return me.inst_jump(self, exit_block)
+  }
+
+  // 関数終了へのジャンプ
+  jump_to_epilogue(self, epilogue_block) {
+    return me.inst_jump(self, epilogue_block)
+  }
+
+  // 複数のジャンプをまとめて生成
+  batch_jump(self, jump_list) {
+    local results = []
+    local i = 0
+    while i < jump_list.length() {
+      local jump = jump_list[i]
+      local json = me.lower_jump(self, jump.target)
+      results.push(json)
+      i = i + 1
+    }
+    return results
+  }
+}

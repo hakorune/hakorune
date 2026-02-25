@@ -1,0 +1,608 @@
+// program_json_v0_phase_state_consumer_box.hako
+// Responsibility:
+// - SSOT for Program(JSON v0) stmt consumption and shape classification used by ProgramJsonV0PhaseStateBox.
+// - Delegates statement-specific handling to specialized consumer boxes.
+//
+// Fail-fast:
+// - Callers provide the tag (default: [freeze:contract][hako_mirbuilder]).
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+using lang.compiler.mirbuilder.program_json_v0_state_box as ProgramJsonV0StateBox
+using lang.compiler.mirbuilder.program_json_v0_legacy_shape_classifier_box as ProgramJsonV0LegacyShapeClassifierBox
+using lang.compiler.mirbuilder.stmt_handlers.print_stmt_handler as PrintStmtHandler
+using lang.compiler.mirbuilder.stmt_handlers.local_stmt_handler as LocalStmtHandler
+using lang.compiler.mirbuilder.stmt_handlers.assignment_stmt_handler as AssignmentStmtHandler
+using lang.compiler.mirbuilder.stmt_handlers.return_stmt_handler as ReturnStmtHandler
+using lang.compiler.mirbuilder.stmt_handlers.if_stmt_handler as IfStmtHandler
+using lang.compiler.mirbuilder.stmt_handlers.loop_stmt_handler as LoopStmtHandler
+using lang.compiler.mirbuilder.stmt_handlers.try_cleanup_stmt_handler as TryCleanupStmtHandler
+using lang.compiler.mirbuilder.recipe.recipe_facts_box as RecipeFactsBox
+using lang.compiler.mirbuilder.recipe.recipe_verifier_box as RecipeVerifierBox
+
+static box ProgramJsonV0PhaseStateConsumerBox {
+  _state_map(
+    has_print,
+    has_local,
+    has_assignment,
+    has_return,
+    printv,
+    print_kind,
+    print_var_name,
+    local_name,
+    local_init,
+    assign_name,
+    assign_rhs,
+    assign_rhs_kind,
+    return_kind,
+    retv,
+    ret_var_name,
+    ret_box_type
+  ) {
+    return ProgramJsonV0StateBox.state_map(
+      has_print,
+      has_local,
+      has_assignment,
+      has_return,
+      printv,
+      print_kind,
+      print_var_name,
+      local_name,
+      local_init,
+      assign_name,
+      assign_rhs,
+      assign_rhs_kind,
+      return_kind,
+      retv,
+      ret_var_name,
+      ret_box_type
+    )
+  }
+
+  _map_i64(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _map_s(map, key) {
+    return "" + BoxHelpers.map_get(map, key)
+  }
+
+  _map_s_or_empty(map, key) {
+    local v = BoxHelpers.map_get(map, key)
+    if v == null { return "" }
+    return "" + v
+  }
+
+  _state_i64(state, key) {
+    return me._map_i64(state, key)
+  }
+
+  _shape_kind_from_state(state) {
+    return ProgramJsonV0LegacyShapeClassifierBox.classify(
+      me._state_i64(state, "has_print"),
+      me._state_i64(state, "has_local"),
+      me._state_i64(state, "has_assignment"),
+      me._state_i64(state, "has_return"),
+      BoxHelpers.map_get(state, "print_kind"),
+      BoxHelpers.map_get(state, "return_kind"),
+      BoxHelpers.map_get(state, "retv")
+    )
+  }
+
+  _emit_out_with_state(err, err_line, next_idx, state) {
+    local shape_kind = me._shape_kind_from_state(state)
+    return %{
+      "err" => err,
+      "err_line" => err_line,
+      "next_idx" => next_idx,
+      "shape_kind" => shape_kind,
+      "has_print" => me._state_i64(state, "has_print"),
+      "has_local" => me._state_i64(state, "has_local"),
+      "has_assignment" => me._state_i64(state, "has_assignment"),
+      "has_return" => me._state_i64(state, "has_return"),
+      "printv" => BoxHelpers.map_get(state, "printv"),
+      "print_kind" => BoxHelpers.map_get(state, "print_kind"),
+      "print_var_name" => BoxHelpers.map_get(state, "print_var_name"),
+      "local_name" => BoxHelpers.map_get(state, "local_name"),
+      "local_init" => BoxHelpers.map_get(state, "local_init"),
+      "assign_name" => BoxHelpers.map_get(state, "assign_name"),
+      "assign_rhs" => BoxHelpers.map_get(state, "assign_rhs"),
+      "assign_rhs_kind" => BoxHelpers.map_get(state, "assign_rhs_kind"),
+      "return_kind" => BoxHelpers.map_get(state, "return_kind"),
+      "retv" => BoxHelpers.map_get(state, "retv"),
+      "ret_var_name" => BoxHelpers.map_get(state, "ret_var_name"),
+      "ret_box_type" => BoxHelpers.map_get(state, "ret_box_type")
+    }
+  }
+
+  _emit_out_from_state(err, err_line, next_idx, state) {
+    return me._emit_out_with_state(err, err_line, next_idx, state)
+  }
+
+  _attach_recipe(out, recipe_out) {
+    if out == null || recipe_out == null { return out }
+    out.set("recipe_facts", BoxHelpers.map_get(recipe_out, "facts"))
+    out.set("recipe_item", BoxHelpers.map_get(recipe_out, "recipe_item"))
+    out.set("recipe_port_sig", BoxHelpers.map_get(recipe_out, "recipe_port_sig"))
+    out.set("recipe_verified_item", BoxHelpers.map_get(recipe_out, "recipe_verified_item"))
+    return out
+  }
+
+  _verify_recipe(recipe_out, tag) {
+    if recipe_out == null || BoxHelpers.is_map(recipe_out) != 1 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[recipe_verifier] missing recipe output map"
+      }
+    }
+    local recipe_item = BoxHelpers.map_get(recipe_out, "recipe_item")
+    local verify = RecipeVerifierBox.verify(recipe_item, tag)
+    local verr = me._map_i64(verify, "err")
+    if verr != 0 {
+      return %{
+        "err" => 1,
+        "err_line" => me._map_s(verify, "err_line")
+      }
+    }
+    recipe_out.set("recipe_port_sig", BoxHelpers.map_get(verify, "port_sig"))
+    recipe_out.set("recipe_verified_item", BoxHelpers.map_get(verify, "verified_recipe"))
+    return %{
+      "err" => 0,
+      "err_line" => ""
+    }
+  }
+
+  _verify_recipe_and_emit(recipe_out, state, next_idx, tag) {
+    local recipe_err = me._map_i64(recipe_out, "err")
+    if recipe_err != 0 {
+      return me._emit_out_from_state(
+        1,
+        me._map_s(recipe_out, "err_line"),
+        next_idx,
+        state
+      )
+    }
+
+    local verify_out = me._verify_recipe(recipe_out, tag)
+    local verify_err = me._map_i64(verify_out, "err")
+    if verify_err != 0 {
+      return me._emit_out_from_state(
+        1,
+        me._map_s(verify_out, "err_line"),
+        next_idx,
+        state
+      )
+    }
+
+    local out = me._emit_out_from_state(
+      0,
+      "",
+      next_idx,
+      state
+    )
+    return me._attach_recipe(out, recipe_out)
+  }
+
+  _state_base(current_state) {
+    return me._state_map(
+      me._state_i64(current_state, "has_print"),
+      me._state_i64(current_state, "has_local"),
+      me._state_i64(current_state, "has_assignment"),
+      me._state_i64(current_state, "has_return"),
+      BoxHelpers.map_get(current_state, "printv"),
+      me._map_s(current_state, "print_kind"),
+      me._map_s(current_state, "print_var_name"),
+      me._map_s(current_state, "local_name"),
+      BoxHelpers.map_get(current_state, "local_init"),
+      me._map_s(current_state, "assign_name"),
+      BoxHelpers.map_get(current_state, "assign_rhs"),
+      me._map_s_or_empty(current_state, "assign_rhs_kind"),
+      me._map_s(current_state, "return_kind"),
+      BoxHelpers.map_get(current_state, "retv"),
+      me._map_s(current_state, "ret_var_name"),
+      me._map_s(current_state, "ret_box_type")
+    )
+  }
+
+  _state_with_print(current_state, has_print, printv, print_kind, print_var_name) {
+    local state = me._state_base(current_state)
+    state.set("has_print", has_print)
+    state.set("printv", printv)
+    state.set("print_kind", print_kind)
+    state.set("print_var_name", print_var_name)
+    return state
+  }
+
+  _state_with_local(current_state, has_local, local_name, local_init) {
+    local state = me._state_base(current_state)
+    state.set("has_local", has_local)
+    state.set("local_name", local_name)
+    state.set("local_init", local_init)
+    return state
+  }
+
+  _state_with_assignment(current_state, has_assignment, assign_name, assign_rhs, assign_rhs_kind) {
+    local state = me._state_base(current_state)
+    state.set("has_assignment", has_assignment)
+    state.set("assign_name", assign_name)
+    state.set("assign_rhs", assign_rhs)
+    state.set("assign_rhs_kind", assign_rhs_kind)
+    return state
+  }
+
+  _state_with_return(current_state, has_return, return_kind, retv, ret_var_name, ret_box_type) {
+    local state = me._state_base(current_state)
+    state.set("has_return", has_return)
+    state.set("return_kind", return_kind)
+    state.set("retv", retv)
+    state.set("ret_var_name", ret_var_name)
+    state.set("ret_box_type", ret_box_type)
+    return state
+  }
+
+  _non_control_handler_state_or_null(stmt_name, current_state) {
+    local base = me._state_base(current_state)
+    if stmt_name == "Print" {
+      return %{
+        "has_print" => me._map_i64(base, "has_print"),
+        "printv" => BoxHelpers.map_get(base, "printv"),
+        "print_kind" => BoxHelpers.map_get(base, "print_kind"),
+        "print_var_name" => BoxHelpers.map_get(base, "print_var_name")
+      }
+    }
+    if stmt_name == "Local" {
+      return %{
+        "has_local" => me._map_i64(base, "has_local"),
+        "local_name" => BoxHelpers.map_get(base, "local_name"),
+        "local_init" => BoxHelpers.map_get(base, "local_init")
+      }
+    }
+    if stmt_name == "Assignment" {
+      return %{
+        "has_assignment" => me._map_i64(base, "has_assignment"),
+        "has_print" => me._map_i64(base, "has_print"),
+        "has_local" => me._map_i64(base, "has_local"),
+        "assign_name" => BoxHelpers.map_get(base, "assign_name"),
+        "assign_rhs" => BoxHelpers.map_get(base, "assign_rhs"),
+        "assign_rhs_kind" => BoxHelpers.map_get(base, "assign_rhs_kind")
+      }
+    }
+    if stmt_name == "Return" {
+      return %{
+        "has_return" => me._map_i64(base, "has_return"),
+        "return_kind" => BoxHelpers.map_get(base, "return_kind"),
+        "retv" => BoxHelpers.map_get(base, "retv"),
+        "ret_var_name" => BoxHelpers.map_get(base, "ret_var_name"),
+        "ret_box_type" => BoxHelpers.map_get(base, "ret_box_type")
+      }
+    }
+    return null
+  }
+
+  _emit_handler_error_or_null_at(result, out_next_idx, current_state) {
+    local err = me._map_i64(result, "err")
+    if err == 0 { return null }
+    return me._emit_out_from_state(
+      1,
+      me._map_s(result, "err_line"),
+      out_next_idx,
+      current_state
+    )
+  }
+
+  _after_state_from_non_control_result_or_null(stmt_name, result, current_state) {
+    if stmt_name == "Print" {
+      return me._state_with_print(
+        current_state,
+        me._map_i64(result, "has_print"),
+        BoxHelpers.map_get(result, "printv"),
+        me._map_s(result, "print_kind"),
+        me._map_s(result, "print_var_name")
+      )
+    }
+    if stmt_name == "Local" {
+      return me._state_with_local(
+        current_state,
+        me._map_i64(result, "has_local"),
+        me._map_s(result, "local_name"),
+        BoxHelpers.map_get(result, "local_init")
+      )
+    }
+    if stmt_name == "Assignment" {
+      return me._state_with_assignment(
+        current_state,
+        me._map_i64(result, "has_assignment"),
+        me._map_s(result, "assign_name"),
+        BoxHelpers.map_get(result, "assign_rhs"),
+        me._map_s_or_empty(result, "assign_rhs_kind")
+      )
+    }
+    if stmt_name == "Return" {
+      return me._state_with_return(
+        current_state,
+        me._map_i64(result, "has_return"),
+        me._map_s(result, "return_kind"),
+        BoxHelpers.map_get(result, "retv"),
+        me._map_s(result, "ret_var_name"),
+        me._map_s(result, "ret_box_type")
+      )
+    }
+    return null
+  }
+
+  _emit_non_control_stmt_or_handler_error(stmt_name, result, next_idx, tag, current_state) {
+    local error_out = me._emit_handler_error_or_null_at(result, next_idx, current_state)
+    if error_out != null { return error_out }
+
+    local after_state = me._after_state_from_non_control_result_or_null(stmt_name, result, current_state)
+    if after_state == null {
+      return me._emit_out_from_state(
+        1,
+        tag + "[cap_missing/stmt:" + stmt_name + "] unsupported non-control stmt",
+        next_idx,
+        current_state
+      )
+    }
+
+    local recipe_out = RecipeFactsBox.from_stmt(stmt_name, current_state, after_state, tag)
+    return me._verify_recipe_and_emit(recipe_out, after_state, next_idx, tag)
+  }
+
+  _non_control_handler_out_or_null(node_type, program_json, idx, next_idx, tag, current_state) {
+    if node_type == "Print" || node_type == "Expr" {
+      local state = me._non_control_handler_state_or_null("Print", current_state)
+      return %{
+        "stmt_name" => "Print",
+        "result" => PrintStmtHandler.handle(program_json, idx, next_idx, tag, state)
+      }
+    }
+    if node_type == "Local" {
+      local state = me._non_control_handler_state_or_null("Local", current_state)
+      return %{
+        "stmt_name" => "Local",
+        "result" => LocalStmtHandler.handle(program_json, idx, next_idx, tag, state)
+      }
+    }
+    if node_type == "Assignment" {
+      local state = me._non_control_handler_state_or_null("Assignment", current_state)
+      return %{
+        "stmt_name" => "Assignment",
+        "result" => AssignmentStmtHandler.handle(program_json, idx, next_idx, tag, state)
+      }
+    }
+    if node_type == "Return" {
+      local state = me._non_control_handler_state_or_null("Return", current_state)
+      return %{
+        "stmt_name" => "Return",
+        "result" => ReturnStmtHandler.handle(program_json, idx, next_idx, tag, state)
+      }
+    }
+    return null
+  }
+
+  _handle_non_control_stmt_or_null(node_type, program_json, idx, next_idx, tag, current_state) {
+    local handler_out = me._non_control_handler_out_or_null(node_type, program_json, idx, next_idx, tag, current_state)
+    if handler_out == null { return null }
+    return me._emit_non_control_stmt_or_handler_error(
+      me._map_s(handler_out, "stmt_name"),
+      BoxHelpers.map_get(handler_out, "result"),
+      next_idx,
+      tag,
+      current_state
+    )
+  }
+
+  _handle_try_cleanup_stmt_or_null(node_type, program_json, idx, next_idx, tag, current_state) {
+    if node_type != "Try" { return null }
+
+    local base = me._state_base(current_state)
+    local state = %{
+      "has_local" => me._map_i64(base, "has_local"),
+      "has_assignment" => me._map_i64(base, "has_assignment"),
+      "has_print" => me._map_i64(base, "has_print"),
+      "has_return" => me._map_i64(base, "has_return"),
+      "assign_name" => BoxHelpers.map_get(base, "assign_name"),
+      "assign_rhs" => BoxHelpers.map_get(base, "assign_rhs"),
+      "assign_rhs_kind" => BoxHelpers.map_get(base, "assign_rhs_kind"),
+      "printv" => BoxHelpers.map_get(base, "printv"),
+      "print_kind" => BoxHelpers.map_get(base, "print_kind"),
+      "print_var_name" => BoxHelpers.map_get(base, "print_var_name")
+    }
+
+    local result = TryCleanupStmtHandler.handle(program_json, idx, next_idx, tag, state)
+    local out_next_idx = me._map_i64(result, "next_idx")
+    if out_next_idx < 0 { out_next_idx = next_idx }
+
+    local error_out = me._emit_handler_error_or_null_at(result, out_next_idx, current_state)
+    if error_out != null { return error_out }
+
+    local after_assignment = me._state_with_assignment(
+      current_state,
+      me._map_i64(result, "has_assignment"),
+      me._map_s(result, "assign_name"),
+      BoxHelpers.map_get(result, "assign_rhs"),
+      me._map_s_or_empty(result, "assign_rhs_kind")
+    )
+    local after_state = me._state_with_print(
+      after_assignment,
+      me._map_i64(result, "has_print"),
+      BoxHelpers.map_get(result, "printv"),
+      me._map_s(result, "print_kind"),
+      me._map_s(result, "print_var_name")
+    )
+
+    local recipe_item = BoxHelpers.map_get(result, "recipe_item")
+    if recipe_item == null || BoxHelpers.is_map(recipe_item) != 1 {
+      return me._emit_out_from_state(
+        1,
+        tag + "[cap_missing/recipe] TryCleanupStmtHandler did not return recipe_item",
+        out_next_idx,
+        current_state
+      )
+    }
+
+    local recipe_out = %{
+      "err" => 0,
+      "err_line" => "",
+      "facts" => %{},
+      "recipe_item" => recipe_item
+    }
+    return me._verify_recipe_and_emit(recipe_out, after_state, out_next_idx, tag)
+  }
+
+  _emit_control_recipe_or_error(handler_label, result, fallback_next_idx, tag, current_state) {
+    local out_next_idx = me._map_i64(result, "next_idx")
+    if out_next_idx < 0 { out_next_idx = fallback_next_idx }
+    local error_out = me._emit_handler_error_or_null_at(result, out_next_idx, current_state)
+    if error_out != null { return error_out }
+
+    local recipe_item = BoxHelpers.map_get(result, "recipe_item")
+    if recipe_item == null || BoxHelpers.is_map(recipe_item) != 1 {
+      return me._emit_out_from_state(
+        1,
+        tag + "[cap_missing/recipe] " + handler_label + " did not return recipe_item",
+        out_next_idx,
+        current_state
+      )
+    }
+
+    local recipe_out = %{
+      "err" => 0,
+      "err_line" => "",
+      "facts" => %{},
+      "recipe_item" => recipe_item
+    }
+    return me._verify_recipe_and_emit(recipe_out, current_state, out_next_idx, tag)
+  }
+
+  _control_handler_out_or_null(node_type, program_json, idx, next_idx, tag, state) {
+    if node_type == "If" {
+      return %{
+        "handler_label" => "IfStmtHandler",
+        "result" => IfStmtHandler.handle(program_json, idx, next_idx, tag, state)
+      }
+    }
+    if node_type == "Loop" {
+      return %{
+        "handler_label" => "LoopStmtHandler",
+        "result" => LoopStmtHandler.handle(program_json, idx, next_idx, tag, state)
+      }
+    }
+    return null
+  }
+
+  _handle_control_stmt_or_null(node_type, program_json, idx, next_idx, tag, current_state) {
+    local base = me._state_base(current_state)
+    local state = %{
+      "has_print" => me._map_i64(base, "has_print"),
+      "has_local" => me._map_i64(base, "has_local"),
+      "has_assignment" => me._map_i64(base, "has_assignment"),
+      "has_return" => me._map_i64(base, "has_return"),
+      "local_name" => BoxHelpers.map_get(base, "local_name")
+    }
+    local handler_out = me._control_handler_out_or_null(node_type, program_json, idx, next_idx, tag, state)
+    if handler_out == null { return null }
+    return me._emit_control_recipe_or_error(
+      me._map_s(handler_out, "handler_label"),
+      BoxHelpers.map_get(handler_out, "result"),
+      next_idx,
+      tag,
+      current_state
+    )
+  }
+
+  _read_stmt_node_info_or_error(program_json, idx, tag, current_state) {
+    local node = ProgramJsonV0ScannerBox.read_node_type_at(program_json, idx)
+    if node == null {
+      return %{
+        "err" => 1,
+        "out" => me._emit_out_from_state(
+          1,
+          tag + "[cap_missing/program_json_v0] failed to read stmt node type",
+          idx,
+          current_state
+        ),
+        "node_type" => "",
+        "next_idx" => idx
+      }
+    }
+    return %{
+      "err" => 0,
+      "out" => null,
+      "node_type" => me._map_s(node, "type"),
+      "next_idx" => me._map_i64(node, "next")
+    }
+  }
+
+  _dispatch_or_unsupported(node_type, program_json, idx, next_idx, tag, current_state) {
+    local non_control = me._handle_non_control_stmt_or_null(
+      node_type,
+      program_json,
+      idx,
+      next_idx,
+      tag,
+      current_state
+    )
+    if non_control != null { return non_control }
+
+    local try_cleanup = me._handle_try_cleanup_stmt_or_null(
+      node_type,
+      program_json,
+      idx,
+      next_idx,
+      tag,
+      current_state
+    )
+    if try_cleanup != null { return try_cleanup }
+
+    local control = me._handle_control_stmt_or_null(
+      node_type,
+      program_json,
+      idx,
+      next_idx,
+      tag,
+      current_state
+    )
+    if control != null { return control }
+
+    return me._emit_out_from_state(
+      1,
+      tag + "[cap_missing/stmt:" + node_type + "] unsupported stmt in Program(JSON v0)",
+      next_idx,
+      current_state
+    )
+  }
+
+  consume_stmt(program_json, idx, tag, state) {
+    if state == null || BoxHelpers.is_map(state) != 1 {
+      return me._emit_out_from_state(
+        1,
+        tag + "[cap_missing/state] missing stmt state map",
+        idx,
+        me._state_map(
+          0, 0, 0, 0,
+          0, "", "",
+          "", 0,
+          "", 0, "",
+          "", 0, "", ""
+        )
+      )
+    }
+    local node_info = me._read_stmt_node_info_or_error(program_json, idx, tag, state)
+    if me._map_i64(node_info, "err") != 0 {
+      return BoxHelpers.map_get(node_info, "out")
+    }
+
+    return me._dispatch_or_unsupported(
+      me._map_s(node_info, "node_type"),
+      program_json,
+      idx,
+      me._map_i64(node_info, "next_idx"),
+      tag,
+      state
+    )
+  }
+}
+
+static box ProgramJsonV0PhaseStateConsumerMain { main() { return 0 } }

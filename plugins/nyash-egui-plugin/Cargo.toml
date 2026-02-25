@@ -1,0 +1,19 @@
+[package]
+name = "nyash-egui-plugin"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+once_cell = "1.21"
+crossbeam-channel = "0.5"
+cfg-if = "1.0"
+# Optional GUI crates (cross-platform when feature=with-egui)
+eframe = { version = "0.27", optional = true }
+egui   = { version = "0.27", optional = true }
+
+[features]
+default = []
+with-egui = ["eframe", "egui"]

@@ -1,0 +1,12 @@
+// Minimal shape for ParserStmtBox.equals/1: single return true.
+static box ParserStmtBox {
+    equals(other) {
+        return true
+    }
+}
+
+static box Main {
+    main() {
+        return ParserStmtBox.equals(0)
+    }
+}

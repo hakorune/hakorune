@@ -1,0 +1,9 @@
+using std.collections
+using "path/to/module.hako" as MyModule
+
+static box Main {
+  main(args) {
+    print("Hello")
+    return 0
+  }
+}

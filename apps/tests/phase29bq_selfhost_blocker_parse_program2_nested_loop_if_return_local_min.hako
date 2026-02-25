@@ -1,0 +1,20 @@
+// parse_program2 nested loop + inner if-return-local shape (return exits func)
+// Expected: stdout="", RC=0
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 1) {
+      local j = 0
+      loop(j < 1) {
+        if j == 0 {
+          local t = 0
+          return t
+        }
+        j = j + 1
+      }
+      i = i + 1
+    }
+    return 1
+  }
+}
+

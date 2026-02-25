@@ -1,0 +1,31 @@
+// Phase 29bq parser handoff Tier-2: local init with string method-call chain trim().length() + postfix cleanup.
+static box StrUtil {
+  trim(s) {
+    return s
+  }
+}
+
+static box Main {
+  main() {
+    local out = 0
+    {
+      local n = StrUtil.trim("hako").length()
+      if n == 4 {
+        out = out + 6
+      } else {
+        out = out + 1
+      }
+
+      local m = StrUtil.trim("nya").length()
+      if m == 3 {
+        out = out + 60
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 600
+    }
+    print(out)
+    return 0
+  }
+}

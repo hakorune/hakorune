@@ -1,0 +1,14 @@
+// Phase 29bq parser handoff probe:
+// block-postfix cleanup (no try/catch) should parse/lower and execute cleanup.
+// Expected output: 11
+static box Main {
+  main() {
+    local x = 1
+    {
+      x = x + 10
+    } cleanup {
+      print(x)
+    }
+    return 0
+  }
+}

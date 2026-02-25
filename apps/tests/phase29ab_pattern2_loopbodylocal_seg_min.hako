@@ -1,0 +1,28 @@
+// Phase 29ab P2: Pattern2 LoopBodyLocal Trim (seg) minimal case
+//
+// Goal:
+// - break condition uses LoopBodyLocal (seg) with Trim A-3 shape
+// - JoinIR -> merge path should handle promotion
+//
+// Expected (before fix): FAIL/out-of-scope
+// Expected (after fix): prints "2" and returns 2
+
+static box Main {
+    main() {
+        local s = "ab "
+        local i = 0
+
+        loop(i < s.length()) {
+            local seg = s.substring(i, i + 1)
+
+            if seg == " " || seg == "\t" {
+                break
+            }
+
+            i = i + 1
+        }
+
+        print(i)
+        return i
+    }
+}

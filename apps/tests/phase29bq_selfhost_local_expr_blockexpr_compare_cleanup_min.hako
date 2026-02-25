@@ -1,0 +1,42 @@
+// Phase 29bq parser handoff Tier-2: blockexpr return + compare + && + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local lhs = {
+        local a = 3
+        a + 2
+      }
+      local rhs = {
+        local b = 2
+        b * 2
+      }
+
+      local cond_a = (lhs == 5) && (rhs == 4)
+      if cond_a {
+        out = out + 17
+      } else {
+        out = out + 1
+      }
+
+      local b1 = {
+        local c = 10
+        c - 3
+      }
+      local b2 = {
+        local d = 1
+        d + 1
+      }
+      local cond_b = (b1 == 7) && (b2 > 1)
+      if cond_b {
+        out = out + 18
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 2700
+    }
+    print(out)
+    return 0
+  }
+}

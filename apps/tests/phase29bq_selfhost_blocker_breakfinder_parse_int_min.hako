@@ -1,0 +1,26 @@
+// Minimal fixture for BreakFinderBox._parse_int/1 pattern
+// Pattern: loop(cond) with if-else where only else has return
+
+static box Main {
+    parse() {
+        local result = 0
+        local i = 0
+        local n = 3
+
+        loop(i < n) {
+            if i < 2 {
+                result = result + 1
+            } else {
+                return -1
+            }
+            i = i + 1
+        }
+
+        return result
+    }
+
+    main() {
+        print(Main.parse())
+        return 0
+    }
+}

@@ -1,0 +1,71 @@
+// mir_vm_s0_boxcall_exec.hako — boxcall execution helpers split from mir_vm_s0
+// Responsibility: method-specific stateful effects for boxcall ops.
+
+using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+
+static box MirVmS0BoxcallExecBox {
+  apply_birth(box_birth, dst_birth, regs, kinds, array_lens) {
+    if box_birth != null {
+      MirVmS0StateOpsBox.box_len_set(array_lens, box_birth, 0)
+    }
+    if dst_birth != null {
+      regs.set("" + dst_birth, "0")
+      kinds.set("" + dst_birth, "box")
+      MirVmS0StateOpsBox.box_len_set(array_lens, dst_birth, 0)
+    }
+    return "__NEXT__"
+  }
+
+  apply_push(box_recv, arg0_box, array_lens) {
+    if arg0_box == null { return "[vm-hako/contract][boxcall-arg0-missing]" }
+    local cur_len = MirVmS0StateOpsBox.box_len_get(array_lens, box_recv)
+    MirVmS0StateOpsBox.box_len_set(array_lens, box_recv, cur_len + 1)
+    return "__NEXT__"
+  }
+
+  apply_length(box_recv, dst_box, regs, kinds, array_lens) {
+    regs.set("" + dst_box, "" + MirVmS0StateOpsBox.box_len_get(array_lens, box_recv))
+    kinds.set("" + dst_box, "scalar")
+    return "__NEXT__"
+  }
+
+  apply_open(file_key, dst_open, path_text, mode_text, regs, kinds, file_boxes) {
+    local file_obj = MirVmS0StateOpsBox.file_box_get(file_boxes, file_key)
+    if file_obj == null {
+      file_obj = new FileBox()
+      MirVmS0StateOpsBox.file_box_set(file_boxes, file_key, file_obj)
+    }
+    local rc_open = file_obj.open(path_text, mode_text)
+    regs.set("" + dst_open, "" + rc_open)
+    kinds.set("" + dst_open, "scalar")
+    return "__NEXT__"
+  }
+
+  apply_read(file_key, dst_read, regs, kinds, handle_regs, file_boxes) {
+    local file_obj = MirVmS0StateOpsBox.file_box_get(file_boxes, file_key)
+    if file_obj == null { return "[vm-hako/contract][boxcall-read-file-missing]" }
+
+    local text = file_obj.read()
+    if text == null {
+      regs.set("" + dst_read, "0")
+      kinds.set("" + dst_read, "scalar")
+      return "__NEXT__"
+    }
+
+    regs.set("" + dst_read, "0")
+    kinds.set("" + dst_read, "handle")
+    MirVmS0StateOpsBox.handle_set(handle_regs, dst_read, text)
+    return "__NEXT__"
+  }
+
+  apply_close(file_key, dst_close, regs, kinds, file_boxes) {
+    local file_obj = MirVmS0StateOpsBox.file_box_get(file_boxes, file_key)
+    if file_obj == null { return "[vm-hako/contract][boxcall-close-file-missing]" }
+
+    file_obj.close()
+    MirVmS0StateOpsBox.file_box_clear(file_boxes, file_key)
+    regs.set("" + dst_close, "0")
+    kinds.set("" + dst_close, "scalar")
+    return "__NEXT__"
+  }
+}

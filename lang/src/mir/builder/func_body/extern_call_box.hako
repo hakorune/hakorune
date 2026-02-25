@@ -1,0 +1,150 @@
+// extern_call_box.hako — ExternCallLowerBox
+// Responsibility:
+//   Lower simple hostbridge.extern_invoke-based patterns in defs to canonical call(callee=Extern).
+// Scope (MVP):
+//   Return(hostbridge.extern_invoke("env.codegen","emit_object", Var(arg)))
+//   Return(hostbridge.extern_invoke("env.codegen","link_object", Var(arg)))
+// Notes:
+//   - Only params-based argument (Var that refers to a function parameter) is supported.
+//   - More complex shapes (locals/arrays/maps) are left to Rust provider / other lowers.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box ExternCallLowerBox {
+  method lower_hostbridge(func_name, box_name, params_arr, body_json) {
+    if body_json == null { return null }
+    local s = "" + body_json
+
+    // Expect Return(Method(...)) at top level
+    local ret_idx = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
+    if ret_idx < 0 { return null }
+    local m_idx = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", ret_idx)
+    if m_idx < 0 { return null }
+
+    // method name should be extern_invoke
+    local name_idx = JsonFragBox.index_of_from(s, "\"method\":", m_idx)
+    if name_idx < 0 { return null }
+    local mname = JsonFragBox.read_string_after(s, name_idx + 9)
+    if mname == null || mname != "extern_invoke" { return null }
+
+    // receiver must be Var("hostbridge")
+    local recv_idx = JsonFragBox.index_of_from(s, "\"recv\":{", m_idx)
+    if recv_idx < 0 { return null }
+    local rvar_idx = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", recv_idx)
+    if rvar_idx < 0 { return null }
+    local rname_idx = JsonFragBox.index_of_from(s, "\"name\":", rvar_idx)
+    if rname_idx < 0 { return null }
+    local recv_name = JsonFragBox.read_string_after(s, rname_idx + 7)
+    if recv_name == null || recv_name != "hostbridge" { return null }
+
+    // args[0]: "env.codegen", args[1]: "emit_object" | "link_object", args[2]: Var(arg)
+    local args_idx = JsonFragBox.index_of_from(s, "\"args\":[", m_idx)
+    if args_idx < 0 { return null }
+
+    // iface name (first Str.value)
+    local iface = null
+    {
+      local t0 = JsonFragBox.index_of_from(s, "\"type\":\"Str\"", args_idx)
+      if t0 < 0 { return null }
+      local v0 = JsonFragBox.index_of_from(s, "\"value\":\"", t0)
+      if v0 < 0 { return null }
+      iface = JsonFragBox.read_string_after(s, v0 + 8)
+      if iface == null { return null }
+    }
+    if iface != "env.codegen" { return null }
+
+    // method name string (second Str.value)
+    local method = null
+    {
+      local t1 = JsonFragBox.index_of_from(s, "\"type\":\"Str\"", args_idx + 1)
+      if t1 < 0 { return null }
+      local v1 = JsonFragBox.index_of_from(s, "\"value\":\"", t1)
+      if v1 < 0 { return null }
+      method = JsonFragBox.read_string_after(s, v1 + 8)
+      if method == null { return null }
+    }
+    if !(method == "emit_object" || method == "link_object") { return null }
+
+    // arg Var name (third arg)
+    local arg_name = null
+    {
+      local t2 = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", args_idx)
+      // skip any preceding Str nodes
+      if t2 < 0 { return null }
+      // Move to Var after the two Str nodes
+      local t2b = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", t2 + 1)
+      if t2b >= 0 { t2 = t2b }
+      local n2 = JsonFragBox.index_of_from(s, "\"name\":", t2)
+      if n2 < 0 { return null }
+      arg_name = JsonFragBox.read_string_after(s, n2 + 7)
+      if arg_name == null { return null }
+    }
+
+    // Map params to registers
+    local param_map = new MapBox()
+    local next_reg = 1
+    {
+      local pi = 0
+      local pn = params_arr.length()
+      loop(pi < pn) {
+        param_map.set("" + params_arr.get(pi), "" + next_reg)
+        next_reg = next_reg + 1
+        pi = pi + 1
+      }
+    }
+
+    local arg_reg = param_map.get(arg_name)
+    if arg_reg == null { return null }
+    local arg_reg_i = JsonFragBox._str_to_int("" + arg_reg)
+
+    local result_reg = next_reg
+    next_reg = next_reg + 1
+
+    // Build call(callee=Extern) + ret
+    local func_full = "env.codegen." + method
+    local insts = "{\\\"op\\\":\\\"call\\\",\\\"dst\\\":" + result_reg + ",\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":\\\"" + func_full + "\\\"},\\\"args\\\":[" + arg_reg_i + "]}"
+    insts = insts + ",{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
+
+    // Function header
+    local params_json = me._build_params_json(params_arr)
+    local target = me._build_func_name(box_name, func_name, params_arr)
+    if target == null { return null }
+
+    if env.get("HAKO_SELFHOST_TRACE") == "1" {
+      print("[funcs/basic:extern.codegen] " + target + " func=" + func_full)
+    }
+
+    return "{\"functions\":[{\"name\":\"" + target + "\",\"params\":" + params_json + ",\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" + insts + "]}]}]}"
+  }
+
+  method _build_func_name(box_name, func_name, params_arr) {
+    if box_name == null || func_name == null { return null }
+    local arity = 0
+    if params_arr != null {
+      local n = JsonFragBox._str_to_int("" + params_arr.length())
+      // HakoCli.* など static box メソッドの defs では先頭に暗黙の "me" が入る。
+      // 関数名はユーザー引数の個数で表現したいので、先頭が "me" の場合は 1 引いておく。
+      if n > 0 && ("" + params_arr.get(0)) == "me" {
+        arity = n - 1
+      } else {
+        arity = n
+      }
+      if arity < 0 { arity = 0 }
+    }
+    return ("" + box_name) + "." + ("" + func_name) + "/" + arity
+  }
+
+  method _build_params_json(params_arr) {
+    if params_arr == null { return "[]" }
+    local params_json = "["
+    local i = 0
+    local n = params_arr.length()
+    loop(i < n) {
+      if i > 0 { params_json = params_json + "," }
+      params_json = params_json + "\\\"" + ("" + params_arr.get(i)) + "\\\""
+      i = i + 1
+    }
+    params_json = params_json + "]"
+    return params_json
+  }
+}

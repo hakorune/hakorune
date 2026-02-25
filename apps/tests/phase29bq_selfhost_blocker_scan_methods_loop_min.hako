@@ -1,0 +1,17 @@
+// Phase 29bq: selfhost blocker reproducer for FuncScannerBox._scan_methods outer loop
+// Expected: stdout=0, RC=0 (after loop_scan_methods_v0 is added)
+//
+// Notes:
+// - Intentionally keeps the scanned method body empty (`{}`) so ParserBox is not invoked at runtime.
+// - The JoinIR planner still has to lower the full `_scan_methods` implementation (BoxCount target).
+
+using lang.compiler.entry.func_scanner as FuncScannerBox
+
+static box Main {
+  main() {
+    local src = "method foo(){}"
+    local _defs = FuncScannerBox._scan_methods(src, "TestBox", 0, 0)
+    print(0)
+    return 0
+  }
+}

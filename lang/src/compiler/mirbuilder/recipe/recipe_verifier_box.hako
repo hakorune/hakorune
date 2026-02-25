@@ -1,0 +1,170 @@
+// recipe_verifier_box.hako
+// Responsibility:
+// - Recipe verifier skeleton for `.hako` mirbuilder Recipe-first lane (R0).
+// - Structure + minimal PortSig aggregation only (no lowering coupling).
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+using lang.compiler.mirbuilder.recipe.recipe_port_sig_box as RecipePortSigBox
+
+static box RecipeVerifierBox {
+  _tag(tag) {
+    if tag == null || ("" + tag) == "" { return "[freeze:contract][hako_mirbuilder]" }
+    return "" + tag
+  }
+
+  _ok(port_sig) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "port_sig" => port_sig
+    }
+  }
+
+  _err(tag, msg) {
+    return %{
+      "err" => 1,
+      "err_line" => tag + msg,
+      "port_sig" => RecipePortSigBox.create()
+    }
+  }
+
+  verify(recipe_root, tag) {
+    tag = me._tag(tag)
+    if recipe_root == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[recipe_verifier] missing recipe root",
+        "port_sig" => RecipePortSigBox.create(),
+        "verified_recipe" => null
+      }
+    }
+    if RecipeItemBox.is_valid_item(recipe_root) != 1 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[recipe_verifier] invalid RecipeItem shape",
+        "port_sig" => RecipePortSigBox.create(),
+        "verified_recipe" => null
+      }
+    }
+
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "port_sig" => RecipePortSigBox.create(),
+      "verified_recipe" => recipe_root
+    }
+  }
+
+  _verify_item(item, tag, depth) {
+    if depth > 256 {
+      return me._err(tag, "[recipe_verifier] recipe nesting too deep")
+    }
+    if RecipeItemBox.is_valid_item(item) != 1 {
+      return me._err(tag, "[recipe_verifier] invalid RecipeItem shape")
+    }
+
+    local kind = RecipeItemBox.kind_of(item)
+    if kind == "Seq" {
+      return me._verify_seq(item, tag, depth)
+    }
+    if kind == "If" {
+      return me._verify_if(item, tag, depth)
+    }
+    if kind == "Loop" {
+      return me._verify_loop(item, tag, depth)
+    }
+    if kind == "Exit" {
+      return me._verify_exit(item, tag)
+    }
+    return me._err(tag, "[recipe_verifier] unsupported recipe kind: " + kind)
+  }
+
+  _verify_seq(item, tag, depth) {
+    local sig = RecipePortSigBox.create()
+    sig = me._apply_facts(sig, BoxHelpers.map_get(item, "facts"))
+    local items = BoxHelpers.map_get(item, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 { return me._ok(sig) }
+
+    local i = 0
+    local n = BoxHelpers.array_len(items)
+    loop(i < n) {
+      local child = BoxHelpers.array_get(items, i)
+      local child_res = me._verify_item(child, tag, depth + 1)
+      if StringHelpers.to_i64(BoxHelpers.map_get(child_res, "err")) == 1 {
+        return child_res
+      }
+      sig = RecipePortSigBox.merge(sig, BoxHelpers.map_get(child_res, "port_sig"))
+      i = i + 1
+    }
+    return me._ok(sig)
+  }
+
+  _verify_if(item, tag, depth) {
+    local then_item = BoxHelpers.map_get(item, "then_item")
+    local else_item = BoxHelpers.map_get(item, "else_item")
+
+    local then_res = me._verify_item(then_item, tag, depth + 1)
+    if StringHelpers.to_i64(BoxHelpers.map_get(then_res, "err")) == 1 {
+      return then_res
+    }
+    local else_res = me._verify_item(else_item, tag, depth + 1)
+    if StringHelpers.to_i64(BoxHelpers.map_get(else_res, "err")) == 1 {
+      return else_res
+    }
+
+    local sig = RecipePortSigBox.merge(
+      BoxHelpers.map_get(then_res, "port_sig"),
+      BoxHelpers.map_get(else_res, "port_sig")
+    )
+    sig = me._apply_facts(sig, BoxHelpers.map_get(item, "cond_facts"))
+    return me._ok(sig)
+  }
+
+  _verify_loop(item, tag, depth) {
+    local body_item = BoxHelpers.map_get(item, "body_item")
+    local body_res = me._verify_item(body_item, tag, depth + 1)
+    if StringHelpers.to_i64(BoxHelpers.map_get(body_res, "err")) == 1 {
+      return body_res
+    }
+    local sig = BoxHelpers.map_get(body_res, "port_sig")
+    sig = me._apply_facts(sig, BoxHelpers.map_get(item, "cond_facts"))
+    return me._ok(sig)
+  }
+
+  _verify_exit(item, tag) {
+    local exit_kind = "" + BoxHelpers.map_get(item, "exit_kind")
+    if exit_kind == "" {
+      return me._err(tag, "[recipe_verifier] Exit item is missing exit_kind")
+    }
+    local sig = RecipePortSigBox.create()
+    local payload = BoxHelpers.map_get(item, "payload")
+    sig = me._apply_facts(sig, payload)
+    return me._ok(sig)
+  }
+
+  _apply_names(sig, names, mode) {
+    if names == null || BoxHelpers.is_array(names) != 1 { return sig }
+    local i = 0
+    local n = BoxHelpers.array_len(names)
+    loop(i < n) {
+      local name = "" + BoxHelpers.array_get(names, i)
+      if mode == "def" { sig = RecipePortSigBox.mark_def(sig, name) }
+      else { sig = RecipePortSigBox.mark_update(sig, name) }
+      i = i + 1
+    }
+    return sig
+  }
+
+  _apply_facts(sig, facts) {
+    if facts == null || BoxHelpers.is_map(facts) != 1 { return sig }
+    local defs = BoxHelpers.map_get(facts, "defs")
+    local updates = BoxHelpers.map_get(facts, "updates")
+    sig = me._apply_names(sig, defs, "def")
+    sig = me._apply_names(sig, updates, "update")
+    return sig
+  }
+}
+
+static box RecipeVerifierBoxMain { main() { return 0 } }

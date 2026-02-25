@@ -1,0 +1,80 @@
+static box RuleStaticTopAssignBox {
+  apply(text, path, out) {
+    local n = text.length()
+    me._scan(text, 0, n, 1, 0, 0, 0, 1, path, out)
+  }
+  _scan(text, i, n, line, in_static, brace, in_method, at_line_head, path, out) {
+    local idx = i
+    local cur_line = line
+    local cur_in_static = in_static
+    local cur_in_method = in_method
+    local cur_brace = brace
+    local line_head = at_line_head
+    while idx < n {
+      local c = text.substring(idx, idx+1)
+      local next_line = me._next_line(cur_line, c)
+      local next_brace = me._next_brace(cur_in_static, cur_brace, c)
+      local next_in_static = me._next_in_static(text, idx, c, cur_in_static, next_brace)
+      local next_in_method = me._next_in_method(text, idx, c, cur_in_method, next_in_static, next_brace)
+
+      if next_in_static == 1 && next_in_method == 0 && line_head == 1 && me._is_ident_start(c) == 1 && me._line_has_eq(text, idx + 1, n) == 1 {
+        out.push("[HC001] top-level assignment in static box (use lazy init in method): " + path + ":" + ("" + cur_line))
+      }
+
+      local next_line_head = me._next_line_head(line_head, c)
+      cur_line = next_line
+      cur_brace = next_brace
+      cur_in_static = next_in_static
+      cur_in_method = next_in_method
+      line_head = next_line_head
+      idx = idx + 1
+    }
+  }
+  _line_has_eq(text, i, n) {
+    local idx = i
+    while idx < n {
+      local c = text.substring(idx, idx+1)
+      if c == "\n" { return 0 }
+      if c == "=" { return 1 }
+      idx = idx + 1
+    }
+    return 0
+  }
+  _next_line(line, c) {
+    if c == "\n" { return line + 1 }
+    return line
+  }
+  _next_line_head(line_head, c) {
+    if c == "\n" { return 1 }
+    if line_head == 1 {
+      if c == " " || c == "\t" { return 1 }
+      return 0
+    }
+    return line_head
+  }
+  _next_brace(in_static, brace, c) {
+    if in_static == 1 {
+      if c == "{" { return brace + 1 }
+      if c == "}" { return brace - 1 }
+    }
+    return brace
+  }
+  _next_in_static(text, idx, c, in_static, next_brace) {
+    if in_static == 0 {
+      if me._match_kw(text, idx, "static box ") { return 1 }
+      return 0
+    }
+    if c == "}" && next_brace <= 0 { return 0 }
+    return in_static
+  }
+  _next_in_method(text, idx, c, in_method, next_in_static, next_brace) {
+    if next_in_static == 0 { return 0 }
+    if in_method == 0 && me._match_kw(text, idx, "method ") { return 1 }
+    if c == "}" && next_brace <= 0 { return 0 }
+    return in_method
+  }
+  _match_kw(s,i,kw) { local k=kw.length(); if i+k>s.length() { return 0 }; if s.substring(i,i+k)==kw { return 1 } return 0 }
+  _is_ident_start(c) { if c=="_" {return 1}; if c>="A"&&c<="Z" {return 1}; if c>="a"&&c<="z" {return 1}; return 0 }
+}
+
+static box RuleStaticTopAssignMain { method main(args) { return 0 } }

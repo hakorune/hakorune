@@ -1,0 +1,2 @@
+# fixture	expected	allow_rc	planner_tag
+apps/tests/phase118_pattern3_if_sum_min.hako	12	0	[joinir/planner_first rule=Pattern3] label=IfPhiJoin

@@ -1,0 +1,304 @@
+// AssignmentStmtHandler — Handle Assignment statement in Program JSON v0 parsing
+// Responsibility: SSOT handler for Assignment statement parsing and state update.
+//
+// P3: own the Assignment logic directly (consumer delegation removed).
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box AssignmentStmtHandler {
+  // Handle Assignment statement node and return updated state map.
+  // Parameters are aligned with consumer boxes:
+  //   program_json, idx, next_idx, tag, state
+  handle(program_json, idx, next_idx, tag, state) {
+    local has_assignment = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_assignment"))
+    local has_print = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print"))
+    local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
+    local assign_name = "" + BoxHelpers.map_get(state, "assign_name")
+    local assign_rhs = BoxHelpers.map_get(state, "assign_rhs")
+    local assign_rhs_kind = "" + BoxHelpers.map_get(state, "assign_rhs_kind")
+
+    if has_assignment == 1 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/stmt:Assignment] multiple assignments are not supported yet",
+        "next_idx" => next_idx,
+        "has_assignment" => has_assignment,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+    if has_print == 1 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/stmt:Assignment] Assignment+Print is not supported yet",
+        "next_idx" => next_idx,
+        "has_assignment" => has_assignment,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+    if has_local != 1 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/stmt:Assignment] Assignment without Local is not supported yet",
+        "next_idx" => next_idx,
+        "has_assignment" => has_assignment,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local out2 = ProgramJsonV0ScannerBox.read_string_field_last_in_obj(program_json, "name", idx)
+    if out2 == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment missing name",
+        "next_idx" => next_idx,
+        "has_assignment" => has_assignment,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+    assign_name = "" + BoxHelpers.map_get(out2, "value")
+    if assign_name == "" {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/stmt:Assignment] Assignment name is empty",
+        "next_idx" => next_idx,
+        "has_assignment" => has_assignment,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local expr_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "expr", idx)
+    if expr_start < 0 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment missing expr object",
+        "next_idx" => next_idx,
+        "has_assignment" => has_assignment,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, expr_start)
+    if expr_info == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment expr node scan failed",
+        "next_idx" => next_idx,
+        "has_assignment" => has_assignment,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
+    if expr_type == "Binary" {
+      return me._consume_binary(
+        program_json,
+        expr_start,
+        next_idx,
+        tag,
+        assign_name,
+        assign_rhs,
+        assign_rhs_kind
+      )
+    }
+    if expr_type == "Int" {
+      return me._consume_int(
+        program_json,
+        expr_start,
+        next_idx,
+        tag,
+        assign_name,
+        assign_rhs,
+        assign_rhs_kind
+      )
+    }
+    return %{
+      "err" => 1,
+      "err_line" => tag + "[cap_missing/expr:Int] Assignment expr must be Int or Binary",
+      "next_idx" => next_idx,
+      "has_assignment" => has_assignment,
+      "assign_name" => assign_name,
+      "assign_rhs" => assign_rhs,
+      "assign_rhs_kind" => assign_rhs_kind
+    }
+  }
+
+  _consume_int(program_json, expr_start, next_idx, tag, assign_name, assign_rhs, assign_rhs_kind) {
+    local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", expr_start)
+    if rhs_out == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment Int missing value",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs,
+        "assign_rhs_kind" => assign_rhs_kind
+      }
+    }
+    assign_rhs = BoxHelpers.map_get(rhs_out, "value")
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "next_idx" => next_idx,
+      "has_assignment" => 1,
+      "assign_name" => assign_name,
+      "assign_rhs" => assign_rhs,
+      "assign_rhs_kind" => "Int"
+    }
+  }
+
+  _consume_binary(program_json, expr_start, next_idx, tag, assign_name, assign_rhs, assign_rhs_kind) {
+    local op_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "op", expr_start)
+    if op_out == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment Binary missing op",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+    local op = "" + BoxHelpers.map_get(op_out, "value")
+    if op != "+" {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/expr:Binary] Assignment Binary op is not '+'",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local lhs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "lhs", expr_start)
+    if lhs_start < 0 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment Binary missing lhs",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local lhs_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, lhs_start)
+    if lhs_info == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment lhs node scan failed",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local lhs_type = "" + BoxHelpers.map_get(lhs_info, "type")
+    if lhs_type != "Var" {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/expr:Var] Assignment lhs is not Var",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local lhs_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "name", lhs_start)
+    if lhs_name_out == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment lhs missing name",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local lhs_name = "" + BoxHelpers.map_get(lhs_name_out, "value")
+    if lhs_name != assign_name {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/expr:Binary] Assignment shape must be x = x + <int>",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local rhs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "rhs", expr_start)
+    if rhs_start < 0 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment Binary missing rhs",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local rhs_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, rhs_start)
+    if rhs_info == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment rhs node scan failed",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local rhs_type = "" + BoxHelpers.map_get(rhs_info, "type")
+    if rhs_type != "Int" {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/expr:Int] Assignment rhs is not Int",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", rhs_start)
+    if rhs_out == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Assignment rhs Int missing value",
+        "next_idx" => next_idx,
+        "has_assignment" => 0,
+        "assign_name" => assign_name,
+        "assign_rhs" => assign_rhs
+      }
+    }
+
+    assign_rhs = BoxHelpers.map_get(rhs_out, "value")
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "next_idx" => next_idx,
+      "has_assignment" => 1,
+      "assign_name" => assign_name,
+      "assign_rhs" => assign_rhs,
+      "assign_rhs_kind" => "AddVarInt"
+    }
+  }
+}
+
+static box AssignmentStmtHandlerMain { main() { return 0 } }

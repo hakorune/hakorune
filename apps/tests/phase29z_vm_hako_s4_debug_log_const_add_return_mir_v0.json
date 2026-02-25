@@ -1,0 +1,32 @@
+{
+  "functions": [
+    {
+      "name": "main",
+      "entry_block": 0,
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": "i64",
+                "value": 42
+              }
+            },
+            {
+              "op": "debug_log",
+              "message": "s4b-debug-log",
+              "values": [1]
+            },
+            {
+              "op": "ret",
+              "value": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

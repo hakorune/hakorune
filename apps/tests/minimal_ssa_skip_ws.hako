@@ -1,0 +1,24 @@
+// minimal_ssa_skip_ws.hako — LoopForm exit-PHI regression canary
+// 目的: loop(1 == 1) + break だけで exit PHI が壊れる既知事例を最小化
+
+static box Main {
+  skip(s) {
+    local i = 0
+    local n = s.length()
+    // 本来は loop(i < n) だが、ワークアラウンドとして loop(1 == 1) にしていた経路で
+    // exit PHI が崩れて ValueId 未定義になる不具合を再現する。
+    loop(1 == 1) {
+      if i >= n { break }
+      local ch = s.substring(i, i + 1)
+      if ch == " " { i = i + 1 } else { break }
+    }
+    return i
+  }
+
+  main(args) {
+    local s = "   abc"
+    local r = Main.skip(s)
+    print(r)
+    return 0
+  }
+}

@@ -1,0 +1,54 @@
+// Phase 29bq: Stage1UsingResolverBox._collect_using_entries loop minimal fixture
+// Expected: stdout=0, RC=0 (planner_required)
+
+static box UsingCollectorBox {
+  collect(src) { return "[]" }
+}
+
+static box JsonFragBox {
+  index_of_from(hay, needle, pos) { return -1 }
+  read_string_after(hay, pos) { return "x" }
+}
+
+static box Stage1UsingResolverBox {
+  _collect_using_entries(src) {
+    local json = UsingCollectorBox.collect(src)
+    if json == null || json == "" || json == "[]" { return null }
+    local out = new ArrayBox()
+    local pos = 0
+    local n = json.length()
+    loop(pos < n) {
+      local next_pos = n
+      local name_idx = JsonFragBox.index_of_from(json, "\"name\":\"", pos)
+      if name_idx < 0 {
+        next_pos = n
+      } else {
+        local name = JsonFragBox.read_string_after(json, name_idx + 7)
+        local obj_end = JsonFragBox.index_of_from(json, "}", name_idx)
+        if obj_end < 0 { obj_end = n }
+
+        local path = null
+        local path_idx = JsonFragBox.index_of_from(json, "\"path\":\"", name_idx)
+        if path_idx >= 0 && path_idx < obj_end {
+          path = JsonFragBox.read_string_after(json, path_idx + 7)
+        }
+
+        local entry = new MapBox()
+        entry.set("name", name)
+        if path != null { entry.set("path", path) }
+        out.push(entry)
+        next_pos = obj_end + 1
+      }
+      pos = next_pos
+    }
+    return out
+  }
+}
+
+static box Main {
+  main() {
+    local _entries = Stage1UsingResolverBox._collect_using_entries("src")
+    print(0)
+    return 0
+  }
+}

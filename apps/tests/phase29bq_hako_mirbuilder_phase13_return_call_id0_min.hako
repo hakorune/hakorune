@@ -1,0 +1,13 @@
+// phase29bq_hako_mirbuilder_phase13_return_call_id0_min.hako
+// Contract pin (MIR widening/Call):
+//   Return(Call id()) should lower to MIR JSON v0 call + ret (minimal shape).
+
+static box Main {
+  id() {
+    return 7
+  }
+
+  main() {
+    return id()
+  }
+}

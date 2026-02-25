@@ -1,0 +1,27 @@
+// kilo/text structural hotspot microbench:
+// array.get/array.set integer-key route density.
+static box Main {
+  main() {
+    local size = 128
+    local ops = 2000000
+    local arr = new ArrayBox()
+    local i = 0
+
+    loop (i < size) {
+      arr.push(i)
+      i = i + 1
+    }
+
+    local sum = 0
+    i = 0
+    loop (i < ops) {
+      local idx = i % size
+      local v = arr.get(idx)
+      arr.set(idx, v + 1)
+      sum = sum + arr.get(idx)
+      i = i + 1
+    }
+
+    return sum
+  }
+}

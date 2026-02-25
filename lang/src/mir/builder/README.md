@@ -1,0 +1,36 @@
+# MirBuilderBox — Program(JSON v0) → MIR(JSON v0)
+
+Responsibility
+- Convert Stage‑B Program(JSON v0) into MIR(JSON v0) for VM/LLVM lines.
+- Keep the boundary/contract stable and Fail‑Fast; no silent fallback to stub MIR.
+
+Interface (stable)
+- `emit_from_program_json_v0(program_json: String, opts: Map|Null) -> String|Null`
+  - Returns canonical MIR(JSON v0) on success; returns null and prints a tagged diagnostic on failure.
+
+Tags (Fail‑Fast, stable)
+- `[mirbuilder/input/null]` — input is null
+- `[mirbuilder/input/invalid]` — header missing (version/kind)
+- `[mirbuilder/internal/unsupported] ...` — Program(JSON) shape not yet supported by internal lowers
+- `[builder/selfhost-first:unsupported:defs_only]` — only defs を lowering できる状態（main なし）のため中止
+- `[builder/selfhost-first:unsupported:no_match]` — internal lowers / defs のどちらにもマッチせず中止
+- `[builder/funcs:unsupported:loopform]` — Loop を含むが LoopForm 制約に当てはまらないか、selfhost builder ではまだ扱えない Loop 構造のため中止（Rust provider に退避可能）
+- `[builder/funcs:fail:no-main]` — inject_funcs が main を含まない MIR に defs を差し込もうとしたため拒否（`HAKO_MIR_BUILDER_REQUIRE_MAIN=1` 時）
+- `[mirbuilder/delegate]` — delegate path selected（Runner/extern provider 経由）
+- `[mirbuilder/delegate/missing]` — delegate/provider not wired yet
+
+Toggles
+- `HAKO_MIR_BUILDER_INTERNAL=0/1` — internal lowers gate（既定=1）
+- `HAKO_MIR_BUILDER_REGISTRY=0/1` — pattern registry gate（既定=1）
+- `HAKO_MIR_BUILDER_DELEGATE=1` — use Runner/extern provider (`env.mirbuilder.emit`) 経由で Program→MIR
+- `HAKO_SELFHOST_NO_DELEGATE=1` — selfhost-first 時に delegate 経路を完全無効化し、internal lowers のみで成否を判定する
+- `HAKO_MIR_BUILDER_FUNCS=1` — enable defs lowering via `FuncLoweringBox.lower_func_defs`
+- `HAKO_MIR_BUILDER_METHODIZE=0/1` — call→mir_call(Method) rewrite。既定ON（未設定または"1"）、"0" のときのみ無効化。
+- `HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE=1` — apply JsonFrag normalizer to selfhost/provider output
+- `HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG=1` — dev‑only: minimal loop MIR を強制生成（テスト用）
+- `HAKO_MIR_BUILDER_REQUIRE_MAIN=1` — inject_funcs で `"name":"main"` を持たない MIR に defs を追加するのを禁止（既定=0）
+
+Notes
+- Box‑First policy: define the interface and tags first, then evolve implementation behind the same contract.
+- Large payloads: implementation is currently string/JsonFrag‑based; later phases may stream or segment JSON, but I/F は維持する。
+- Phase 25.1b では `FuncLoweringBox` との連携を拡張し、「main + defs」構造を前提とした multi‑function MIR の土台を整える（defs‑only モジュールは Fail‑Fast）。 

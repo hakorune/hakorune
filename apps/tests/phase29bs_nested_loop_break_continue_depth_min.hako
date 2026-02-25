@@ -1,0 +1,26 @@
+// Phase 29bs: nested loop break/continue depth minimal fixture
+// Expected output: 1
+// Note: continue/break without depth applies to the current loop (depth=1 default).
+
+static box Main {
+	    main() {
+	        local i = 0
+	        loop(i < 3) {
+	            local j = 0
+	            loop(j < 3) {
+	                // Inner continue (depth=1) skips this inner iteration.
+	                if (j == 1) {
+	                    j = j + 1
+	                    continue
+	                }
+	                j = j + 1
+	            }
+	            // Outer break (depth=1 for the outer loop).
+	            if (i == 1) { break }
+	            i = i + 1
+        }
+
+        print(i)
+        return 0
+    }
+}

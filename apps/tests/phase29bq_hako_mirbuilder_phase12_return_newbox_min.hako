@@ -1,0 +1,9 @@
+// phase29bq_hako_mirbuilder_phase12_return_newbox_min.hako
+// Contract pin (MIR widening/NewBox):
+//   Return(New ArrayBox()) should lower to MIR JSON v0 newbox + ret.
+
+static box Main {
+  main() {
+    return new ArrayBox()
+  }
+}

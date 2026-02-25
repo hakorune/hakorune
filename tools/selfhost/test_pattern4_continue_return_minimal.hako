@@ -1,0 +1,37 @@
+// Phase 142 P2: Minimal continue + return pattern test
+// Simplified from test_pattern4_parse_string.hako
+// Pattern: loop with continue on skip condition, return on found condition
+
+static box Main {
+  main(args) {
+    // Simulate string parsing: find quote character
+    local s = "hello\"world"
+    local p = 0
+    local len = s.length()
+    local result = ""
+
+    loop(p < len) {
+      local ch = s.substring(p, p + 1)
+
+      // Early return on quote (found)
+      if ch == "\"" {
+        print("Found quote at position: " + ("" + p))
+        return 0
+      }
+
+      // Continue on skip condition (simpler than escape)
+      if ch == "x" {
+        p = p + 1
+        continue
+      }
+
+      // Regular character processing
+      result = result + ch
+      p = p + 1
+    }
+
+    // Loop exit without finding quote
+    print("No quote found")
+    return 1
+  }
+}

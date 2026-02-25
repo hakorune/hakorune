@@ -1,0 +1,21 @@
+// Phase 29bq parser handoff: nested scope with local fini + outer fini (LIFO)
+// Expected output: IAMO
+static box Main {
+  main() {
+    local out = ""
+    {
+      fini {
+        out = out + "O"
+      }
+      {
+        local a = 1 fini {
+          out = out + "A"
+        }
+        out = out + "I"
+      }
+      out = out + "M"
+    }
+    print(out)
+    return 0
+  }
+}

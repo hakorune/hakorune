@@ -1,0 +1,35 @@
+// Phase 286 P3.1: Pattern2 "break without update" minimal fixture
+//
+// Purpose: Test Pattern2 where break path has NO carrier update
+// Expected output: 11
+//
+// Structure:
+//   i = 0, sum = 10        // non-zero init to clarify intent
+//   loop(i < 3) {
+//       if (i == 1) { break }   // NO sum update before break!
+//       sum = sum + 1           // i==0 only: sum = 11
+//       i = i + 1
+//   }
+//   return sum              // expects 11 (value at break point)
+//
+// Key insight (after_bb PHI):
+//   - break path: carrier_break = carrier_current (no update)
+//   - natural exit: carrier_out = carrier_current (from header)
+//   - after_bb PHI: carrier_out = PHI(header: carrier_current, break_then: carrier_break)
+//
+// This fixture tests the case where carrier_break == carrier_current
+// (i.e., no intermediate update before break)
+
+static box Main {
+    main() {
+        local i, sum
+        i = 0
+        sum = 10
+        loop(i < 3) {
+            if (i == 1) { break }
+            sum = sum + 1
+            i = i + 1
+        }
+        return sum
+    }
+}

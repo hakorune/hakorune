@@ -1,0 +1,351 @@
+// mir_call_v1_handler.hako — MirCallV1HandlerBox
+// Responsibility: handle MIR JSON v1 mir_call segments (Constructor/Method/Extern minimal)
+// Shared between Mini‑VM and v1 Dispatcher to avoid code duplication.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
+using selfhost.vm.hakorune-vm.extern_provider as HakoruneExternProviderBox
+using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
+using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox
+
+static box MirCallV1HandlerBox {
+  // キー正規化ヘルパー（SSOT）
+  _norm_key_str(s) {
+    if s == null { return null }
+    local orig = s
+
+    // 先頭・末尾の引用符を除去（"k1" → k1）
+    local len = s.length()
+    if len >= 2 {
+      local first = s.substring(0, 1)
+      local last = s.substring(len - 1, len)
+      if first == "\"" && last == "\"" {
+        s = s.substring(1, len - 1)
+      }
+    }
+
+    // [map/missing] はnullを返す
+    if s.indexOf("[map/missing]") >= 0 {
+      return null
+    }
+
+    if env.get("HAKO_VM_MIRCALL_TRACE_KEYS") == "1" {
+      print("[vm/_norm_key_str] IN=" + orig + " OUT=" + s)
+    }
+
+    return s
+  }
+
+  // デバッグトレース（任意）
+  _norm_key_dbg(raw, norm) {
+    local trace_keys = env.get("HAKO_VM_MIRCALL_TRACE_KEYS")
+    if trace_keys == "1" {
+      print("[vm/trace/keys] raw=" + raw + " norm=" + norm)
+    }
+  }
+
+  handle(seg, regs) {
+    print("[DEBUG_HANDLER_ENTRY] seg=" + seg.substring(0, 80))
+    // Constructor: write dst=0 (SSA continuity)
+    if seg.indexOf("\"type\":\"Constructor\"") >= 0 {
+      local d0 = JsonFragBox.get_int(seg, "dst"); if d0 != null { regs.setField(StringHelpers.int_to_str(d0), "0") }
+      return
+    }
+    local name = MiniMirV1Scan.callee_name(seg)
+    local arg0id = MiniMirV1Scan.first_arg_register(seg)
+    if name == "" {
+      // Method callee
+      local mname = MiniMirV1Scan.method_name(seg)
+      if mname != "" {
+        // Try to resolve box type/name for logging/fallbacks
+        local btype = JsonFragBox.get_str(seg, "box_name"); if btype == null { btype = JsonFragBox.get_str(seg, "box_type") }
+        // Optional AdapterRegistry 経路（箱化）
+        local use_adapter = env.get("HAKO_ABI_ADAPTER"); if use_adapter == null { use_adapter = "0" }
+        if use_adapter == "1" {
+          // 可能なら callee.box_name / box_type を拾う
+          local cfg = null
+          if btype != null { cfg = AbiAdapterRegistryBox.resolve(btype, mname) }
+          // Adapter が見つかった場合、最小規則で size/push を優先実装、それ以外はスタブ
+          if cfg != null {
+            // 受信者ID（size state のキーに使用）
+            local rid = MiniMirV1Scan.receiver_id(seg)
+            local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
+            local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
+            local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
+            local cur_len = JsonFragBox._str_to_int(cur_len_raw)
+            // 値状態トグル（既定OFF）
+            local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
+            // Array.set: indexに応じて構造的サイズを更新 + 値保存（値状態ON時）
+            if btype == "ArrayBox" && mname == "set" {
+              // 第1引数はインデックスを指すレジスタID（arg0）、第2引数は値を指すレジスタID（arg1）
+              local arg0 = MiniMirV1Scan.first_arg_register(seg)
+              local idx = 0; if arg0 >= 0 { local sv = regs.getField(StringHelpers.int_to_str(arg0)); if sv != null { idx = JsonFragBox._str_to_int(""+sv) } }
+              if idx + 1 > cur_len { cur_len = idx + 1 }
+              regs.setField(key, StringHelpers.int_to_str(cur_len))
+              // 値状態ON時: 値を保存
+              if value_state == "1" {
+                local arg1_id = MiniMirV1Scan.nth_arg_register(seg, 1)
+                if arg1_id >= 0 {
+                  local val_str = regs.getField(StringHelpers.int_to_str(arg1_id))
+                  if val_str != null {
+                    local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
+                    regs.setField(val_key, ""+val_str)
+                  }
+                }
+              }
+              local d_seta = JsonFragBox.get_int(seg, "dst"); if d_seta != null { regs.setField(StringHelpers.int_to_str(d_seta), "0") }
+              return
+            }
+            // Array.get: 値状態ON時、値取得（なければnull=setしない）
+            if btype == "ArrayBox" && mname == "get" && value_state == "1" {
+              local arg0 = MiniMirV1Scan.first_arg_register(seg)
+              local idx = 0; if arg0 >= 0 { local sv = regs.getField(StringHelpers.int_to_str(arg0)); if sv != null { idx = JsonFragBox._str_to_int(""+sv) } }
+              local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
+              local val_str = regs.getField(val_key)
+              local dst_get = JsonFragBox.get_int(seg, "dst")
+              if dst_get != null {
+                if val_str != null { regs.setField(StringHelpers.int_to_str(dst_get), ""+val_str) }
+                // val_str == null の時は setField しない（null 表現）
+              }
+              return
+            }
+            // Array.push: 要素数を+1（構造的サイズ）
+            if mname == "push" {
+              cur_len = cur_len + 1
+              regs.setField(key, StringHelpers.int_to_str(cur_len))
+              local d_ad = JsonFragBox.get_int(seg, "dst"); if d_ad != null { regs.setField(StringHelpers.int_to_str(d_ad), "0") }
+              return
+            }
+            // Map.set: 重複キー検知つきでサイズ更新 + 値保存（値状態ON時）
+            if btype == "MapBox" && mname == "set" {
+              print("[DEBUG_ADAPTER_MAP_SET] ENTER")
+              // 受信者・キー抽出
+              local arg0 = MiniMirV1Scan.first_arg_register(seg)
+              local key_str = null
+              if arg0 >= 0 {
+                local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
+                key_str = me._norm_key_str(key_str_raw)
+                me._norm_key_dbg(key_str_raw, key_str)
+                print("[DEBUG_ADAPTER_MAP_SET] raw=" + key_str_raw + " norm=" + key_str)
+              }
+              // 重複キー検知（presence フラグを別ネーム空間に保持）
+              if key_str != null {
+                local rid_s = rid == null ? "null" : (""+rid)
+                local pres_key = "hvm.map.k:" + (per_recv == "1" ? rid_s : "*") + ":" + key_str
+                local had = regs.getField(pres_key)
+                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/trace/adapter] pres_key=" + pres_key + " had=" + had + " cur_len=" + cur_len) }
+                if had == null {
+                  regs.setField(pres_key, "1")
+                  cur_len = cur_len + 1
+                  regs.setField(key, StringHelpers.int_to_str(cur_len))
+                  if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/trace] map.set(adapter,new) cur_len=" + cur_len) }
+                }
+              } else {
+                // キーが不明な場合は構造カウンタのみ+1（canaryの構造検証向け）
+                cur_len = cur_len + 1
+                regs.setField(key, StringHelpers.int_to_str(cur_len))
+                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/trace] map.set(adapter,unknown-key) cur_len=" + cur_len) }
+              }
+              // 値状態ON時: 値を保存
+              if value_state == "1" {
+                local arg1_id = MiniMirV1Scan.nth_arg_register(seg, 1)
+                if arg0 >= 0 && arg1_id >= 0 {
+                  local val_str = regs.getField(StringHelpers.int_to_str(arg1_id))
+                  if key_str != null && val_str != null {
+                    local val_key = MethodAliasPolicy.recv_map_key(per_recv, rid, key_str)
+                    regs.setField(val_key, ""+val_str)
+                  }
+                }
+              }
+              local d_set = JsonFragBox.get_int(seg, "dst"); if d_set != null { regs.setField(StringHelpers.int_to_str(d_set), "0") }
+              return
+            }
+            // Map.get: 値状態ON時、値取得（なければnull）
+            if btype == "MapBox" && mname == "get" && value_state == "1" {
+              local arg0 = MiniMirV1Scan.first_arg_register(seg)
+              if arg0 >= 0 {
+                local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
+                local key_str = me._norm_key_str(key_str_raw)
+                me._norm_key_dbg(key_str_raw, key_str)
+                if key_str != null {
+                  local val_key = MethodAliasPolicy.recv_map_key(per_recv, rid, key_str)
+                  local val_str = regs.getField(val_key)
+                  local dst_get = JsonFragBox.get_int(seg, "dst")
+                  if dst_get != null {
+                    if val_str != null { regs.setField(StringHelpers.int_to_str(dst_get), ""+val_str) }
+                    // val_str == null の時は setField しない（null 表現）
+                  }
+                }
+              }
+              return
+            }
+            // Map.has: 値状態ON時、キー存在確認（1=存在、0=なし）
+            if btype == "MapBox" && mname == "has" && value_state == "1" {
+              local arg0 = MiniMirV1Scan.first_arg_register(seg)
+              local has_result = 0
+              if arg0 >= 0 {
+                local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
+                local key_str = me._norm_key_str(key_str_raw)
+                me._norm_key_dbg(key_str_raw, key_str)
+                if key_str != null {
+                  local val_key = MethodAliasPolicy.recv_map_key(per_recv, rid, key_str)
+                  local val_str = regs.getField(val_key)
+                  if val_str != null { has_result = 1 }
+                }
+              }
+              local dst_has = JsonFragBox.get_int(seg, "dst")
+              if dst_has != null { regs.setField(StringHelpers.int_to_str(dst_has), StringHelpers.int_to_str(has_result)) }
+              return
+            }
+            if MethodAliasPolicy.is_size_alias(mname) == 1 {
+              local d_sz = JsonFragBox.get_int(seg, "dst"); if d_sz != null { regs.setField(StringHelpers.int_to_str(d_sz), StringHelpers.int_to_str(cur_len)) }
+              return
+            }
+            // 未対応（get/set/has など）はスタブにフォールバック
+            local dst_ad = JsonFragBox.get_int(seg, "dst"); if dst_ad != null { regs.setField(StringHelpers.int_to_str(dst_ad), "0") }
+            if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/adapter/stub:" + btype + "." + mname + "]") }
+            return
+          }
+        }
+        // Stateful bridge (size/len/length/push) guarded by flag
+        local size_state = env.get("HAKO_VM_MIRCALL_SIZESTATE"); if size_state == null { size_state = "0" }
+        if size_state != "1" {
+          local stub = env.get("HAKO_VM_MIRCALL_STUB"); if stub == null { stub = "1" }
+          if stub == "1" { print("[vm/method/stub:" + mname + "]") }
+          local dst0 = JsonFragBox.get_int(seg, "dst"); if dst0 != null { regs.setField(StringHelpers.int_to_str(dst0), "0") }
+          return
+        }
+        // Per‑receiver or global length counter
+        local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
+        local rid = MiniMirV1Scan.receiver_id(seg)
+        local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
+        if env.get("HAKO_VM_MIRCALL_TRACE") == "1" {
+          local rid_s = rid == null ? "null" : (""+rid)
+          print("[vm/method/trace:" + mname + ",recv=" + rid_s + ",key=" + key + "]")
+        }
+        local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
+        local cur_len = JsonFragBox._str_to_int(cur_len_raw)
+        if mname == "push" {
+          cur_len = cur_len + 1
+          regs.setField(key, StringHelpers.int_to_str(cur_len))
+          local d1 = JsonFragBox.get_int(seg, "dst"); if d1 != null { regs.setField(StringHelpers.int_to_str(d1), "0") }
+          return
+        }
+        // Map.set: 重複キー検知つきサイズ更新（値状態ONなら値も保存）
+        if btype == "MapBox" && mname == "set" {
+          // キー抽出
+          local arg0 = MiniMirV1Scan.first_arg_register(seg)
+          if arg0 >= 0 {
+            local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
+            local key_str = me._norm_key_str(key_str_raw)
+            me._norm_key_dbg(key_str_raw, key_str)
+            print("[DEBUG_MAP_SET] raw=" + key_str_raw + " norm=" + key_str)
+            if key_str != null {
+              local rid_s = rid == null ? "null" : (""+rid)
+              local pres_key = "hvm.map.k:" + (per_recv == "1" ? rid_s : "*") + ":" + key_str
+              local had = regs.getField(pres_key)
+              print("[DEBUG_MAP_SET] pres_key=" + pres_key + " had=" + had + " cur_len=" + cur_len)
+              if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/trace/fallback] pres_key=" + pres_key + " had=" + had + " cur_len=" + cur_len) }
+              if had == null {
+                regs.setField(pres_key, "1")
+                cur_len = cur_len + 1
+                regs.setField(key, StringHelpers.int_to_str(cur_len))
+                print("[DEBUG_MAP_SET] NEW KEY, cur_len now=" + cur_len)
+                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/trace] map.set(fallback,new) cur_len=" + cur_len) }
+              } else {
+                print("[DEBUG_MAP_SET] DUP KEY, cur_len unchanged=" + cur_len)
+              }
+              // 値状態ON時は値も保持（get/hasで参照可能に）
+              local value_state2 = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state2 == null { value_state2 = "0" }
+              if value_state2 == "1" {
+                local arg1_id2 = MiniMirV1Scan.nth_arg_register(seg, 1)
+                if arg1_id2 >= 0 {
+                  local val_str2 = regs.getField(StringHelpers.int_to_str(arg1_id2))
+                  if val_str2 != null {
+                    local vkey2 = MethodAliasPolicy.recv_map_key(per_recv, rid, key_str)
+                    regs.setField(vkey2, ""+val_str2)
+                  }
+                }
+              }
+            } else {
+              cur_len = cur_len + 1
+              regs.setField(key, StringHelpers.int_to_str(cur_len))
+              if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/trace] map.set(fallback,unknown-key) cur_len=" + cur_len) }
+            }
+          }
+          local dset = JsonFragBox.get_int(seg, "dst"); if dset != null { regs.setField(StringHelpers.int_to_str(dset), "0") }
+          return
+        }
+        if MethodAliasPolicy.is_size_alias(mname) == 1 {
+          local d2 = JsonFragBox.get_int(seg, "dst"); if d2 != null { regs.setField(StringHelpers.int_to_str(d2), StringHelpers.int_to_str(cur_len)) }
+          return
+        }
+        print("[vm/method/stub:" + mname + "]")
+        local d3 = JsonFragBox.get_int(seg, "dst"); if d3 != null { regs.setField(StringHelpers.int_to_str(d3), "0") }
+        // Dev-only dynamic fallback tag（実行は行わずタグのみ）
+        local dyn = env.get("HAKO_VM_DYN_FALLBACK"); if dyn == null { dyn = "0" }
+        if dyn == "1" {
+          local bt = btype == null ? "UnknownBox" : btype
+          print("[vm/byname:" + bt + "." + mname + "]")
+        }
+        return
+      }
+      // No callee found
+      if (env.get("HAKO_DEV_SILENCE_MISSING_CALLEE") != "1") { print("[ERROR] mir_call: missing callee") }
+      return
+    }
+    // Minimal externs
+    if arg0id == null { arg0id = -1 }
+    // Optional provider route (flagged)
+    if env.get("HAKO_V1_EXTERN_PROVIDER") == "1" {
+      if name == "env.get" {
+        // resolve key value (string) from regs when available and write dst
+        local dstp = JsonFragBox.get_int(seg, "dst")
+        local keyv = null; if arg0id >= 0 { keyv = regs.getField(StringHelpers.int_to_str(arg0id)) }
+        local out = HakoruneExternProviderBox.get("env.get", keyv)
+        if dstp != null {
+          if out == null { regs.setField(StringHelpers.int_to_str(dstp), "0") } else { regs.setField(StringHelpers.int_to_str(dstp), ""+out) }
+        }
+        return
+      }
+      if name == "env.console.log" || name == "nyash.console.log" || name == "print" || name == "env.console.warn" || name == "env.console.error" {
+        local keyv = null; if arg0id >= 0 { keyv = regs.getField(StringHelpers.int_to_str(arg0id)) }
+        HakoruneExternProviderBox.get(name, keyv)
+        return
+      }
+      if name == "env.mirbuilder.emit" || name == "env.codegen.emit_object" || name == "env.codegen.emit_object_ny" {
+        // Call provider to emit optional C‑ABI tag; provider returns empty string
+        local dstp = JsonFragBox.get_int(seg, "dst")
+        local aval = null; if arg0id >= 0 { aval = regs.getField(StringHelpers.int_to_str(arg0id)) }
+        HakoruneExternProviderBox.get(name, aval)
+        if dstp != null { regs.setField(StringHelpers.int_to_str(dstp), "") }
+        return
+      }
+      if name == "env.box_introspect.kind" {
+        local dstp = JsonFragBox.get_int(seg, "dst")
+        local aval = null; if arg0id >= 0 { aval = regs.getField(StringHelpers.int_to_str(arg0id)) }
+        HakoruneExternProviderBox.get(name, aval)
+        if dstp != null { regs.setField(StringHelpers.int_to_str(dstp), "") }
+        return
+      }
+    }
+    if name == "env.console.log" || name == "nyash.console.log" ||
+       name == "env.console.warn" || name == "nyash.console.warn" ||
+       name == "env.console.error" || name == "nyash.console.error" {
+      local v = ""; if arg0id >= 0 { local raw = regs.getField(StringHelpers.int_to_str(arg0id)); v = "" + raw }
+      print(v)
+      return
+    }
+    if name == "hako_console_log_i64" {
+      local v = 0; if arg0id >= 0 { local s = regs.getField(StringHelpers.int_to_str(arg0id)); if s != null { v = JsonFragBox._str_to_int(""+s) } }
+      print(StringHelpers.int_to_str(v))
+      return
+    }
+    if name == "hako_bench_noop_i64" || name == "hako_bench_use_value_i64" { return }
+    // Unknown extern: error tag
+    print("[ERROR] extern not supported: " + name)
+  }
+}
+
+static box MirCallV1HandlerMain { method main(args) { return 0 } }

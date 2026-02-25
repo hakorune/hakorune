@@ -1,0 +1,12 @@
+// Phase 29at P3: match return-only minimal (BranchN strict/dev shadow adopt)
+
+static box Main {
+    main() {
+        local x = 2
+        return match x {
+            1 => 10,
+            2 => 20,
+            _ => 30
+        }
+    }
+}

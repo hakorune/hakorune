@@ -1,0 +1,15 @@
+// Phase 189: Minimal test for _parse_number pattern
+// Expected behavior: StringAppend-style loop with accumulator
+
+static box ParseNumber {
+  method main() {
+    local num = 0
+    local i = 0
+    loop(i < 3) {
+      local digit = i  // Simplified digit extraction
+      num = num * 10 + digit
+      i = i + 1
+    }
+    print(num)  // Expected: 012 -> 12 (0*10+0=0, 0*10+1=1, 1*10+2=12)
+  }
+}

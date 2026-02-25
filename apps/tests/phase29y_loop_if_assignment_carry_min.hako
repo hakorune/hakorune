@@ -1,0 +1,19 @@
+// phase29y_loop_if_assignment_carry_min.hako
+// Contract:
+// - Assignment to an outer local inside loop-if must carry across iterations.
+
+static box Main {
+  main() {
+    local remaining = "a|b|c"
+    local i = 0
+    loop(i < 3) {
+      local pos = remaining.indexOf("|")
+      if pos >= 0 {
+        remaining = remaining.substring(pos + 1, remaining.length())
+      }
+      i = i + 1
+    }
+    print("FINAL=" + remaining)
+    return 0
+  }
+}

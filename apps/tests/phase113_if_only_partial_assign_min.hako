@@ -1,0 +1,27 @@
+// Phase 113: if-only partial assign (preserve merge on else side)
+
+static box Main {
+  main() {
+    local x
+    local flag
+
+    // First call: flag=0 → x stays 1 → print 1
+    flag = 0
+    x = 1
+    if flag == 1 {
+      x = 2
+    }
+    // else側は暗黙の "保持" (x keeps original value)
+    print(x)
+
+    // Second call: flag=1 → x becomes 2 → print 2
+    flag = 1
+    x = 1
+    if flag == 1 {
+      x = 2
+    }
+    print(x)
+
+    return "OK"
+  }
+}

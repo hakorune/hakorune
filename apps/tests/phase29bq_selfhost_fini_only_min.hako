@@ -1,0 +1,18 @@
+// Phase 29bq parser handoff: fini-only registration should execute in LIFO order.
+// Expected output: SBA
+static box Main {
+  main() {
+    local out = ""
+    {
+      fini {
+        out = out + "A"
+      }
+      fini {
+        out = out + "B"
+      }
+      out = out + "S"
+    }
+    print(out)
+    return 0
+  }
+}

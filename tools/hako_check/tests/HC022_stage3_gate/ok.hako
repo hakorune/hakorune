@@ -1,0 +1,19 @@
+// ok.hako — uses only loop() construct (no while/for)
+
+static box Counter {
+  method count(n) {
+    local i
+    i = 0
+    loop(i < n) {
+      i = i + 1
+    }
+    return i
+  }
+}
+
+static box Main {
+  method main() {
+    Counter.count(10)
+    return 0
+  }
+}

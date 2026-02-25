@@ -1,0 +1,18 @@
+// EntryPointBaseBox - Common entry point for standalone boxes
+// Eliminates repetitive main(args){ return 0 } boilerplate
+
+static box EntryPointBaseBox {
+  // Standard entry point implementation
+  // Can be overridden by specific boxes if needed
+  static main(args) {
+    return 0
+  }
+  
+  // Entry point with validation
+  static safe_main(args) {
+    if args == null {
+      return 1
+    }
+    return EntryPointBaseBox.main(args)
+  }
+}

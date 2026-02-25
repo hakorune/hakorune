@@ -1,0 +1,322 @@
+// Stage1UsingResolverBox — resolve `using` statements for Stage‑1 pipelines
+// Responsibilities:
+//   - Collect line-based using declarations via UsingCollectorBox.
+//   - Resolve namespace targets against `nyash.toml` `[modules]` entries (fed via env).
+//   - Read the referenced .hako files and return a concatenated prefix for Stage‑B.
+// Structure tags:
+//   [Region] JSON/ArrayBox/MapBox ループはすべて Region+next_i 形に統一して SSA を安定化。
+//   [LoopForm] carrier=pinned を明示し、continue/break を next_i で合流させる。
+//
+// Env requirements:
+//   - HAKO_STAGEB_MODULES_LIST: `name=path` entries joined by "|||" (exact match).
+//   - HAKO_STAGEB_MODULE_ROOTS_LIST: `prefix=path` entries joined by "|||" (longest-prefix match).
+//     Pre-sorted by prefix length descending (Phase 29bq+).
+//   - NYASH_ROOT: absolute path to repo root (for resolving relative paths).
+
+using "lang.compiler.parser.using.using_collector_box" as UsingCollectorBox
+using lang.compiler.parser.scan.parser_common_utils_box as ParserCommonUtilsBox
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using hako.using.resolve.ssot as UsingResolveSSOTBox
+
+static box Stage1UsingResolverBox {
+  // Entrypoint: collect `using` entries and stitch a prefix.
+  // - HAKO_STAGEB_APPLY_USINGS=0 → prefix ""（defs/body には何も足さない）
+  // - Depth guard prevents recursive self-calls from cascading.
+  // [Region] entries 走査は pos/next_pos で一意に前進。pinned: entries/seen, carrier: i。
+  resolve_for_source(src) {
+    // Shallow recursion guard to prevent accidental self-recursion in Stage‑1 using resolver.
+    {
+      local depth = env.get("HAKO_STAGEB_USING_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/recursion] Stage1UsingResolverBox.resolve_for_source recursion detected")
+        return ""
+      }
+      env.set("HAKO_STAGEB_USING_DEPTH", "1")
+    }
+
+    local prefix = ""
+    local fail_msg = null
+    if src != null {
+      local apply_flag = env.get("HAKO_STAGEB_APPLY_USINGS")
+      // apply_flag==0 なら prefix は空のまま返す（Stage‑B defs/body に変更なし）
+      if apply_flag == null || ("" + apply_flag) != "0" {
+        local entries = me._collect_using_entries(src)
+        if entries != null && entries.length() > 0 {
+          // Recursive queue: also resolve using declarations found inside loaded modules.
+          // This keeps Stage-1 prefix assembly self-contained even for transitive dependencies.
+          local queue = new ArrayBox()
+          me._append_entries(queue, entries)
+
+          local modules = me._build_module_map()
+          local module_roots = me._build_module_roots_map()
+          local seen = new MapBox()
+
+          local i = 0
+          local n = queue.length()
+          loop(i < n) {
+            // Region+next_i 形で多経路を末尾合流させる（SSA/PHI 安定化）
+            local next_i = i + 1
+            local entry = queue.get(i)
+            local name = "" + entry.get("name")
+
+            // 早期スキップ条件をまとめて evaluate
+            local should_emit = 1
+            if name == "" { should_emit = 0 }
+
+            // path 解決（明示 path 優先、無ければ modules/module_roots マップ）
+            // Phase 29bq: namespace paths need to be looked up in modules/module_roots map
+            local path = null
+            if should_emit == 1 && fail_msg == null {
+              local lookup_target = name
+              local raw_path = entry.get("path")
+              if raw_path == null || ("" + raw_path) == "" {
+                path = me._lookup_module_path(modules, module_roots, name)
+              } else {
+                // Check if raw_path is a namespace (not a file path)
+                // File paths start with "/" or "./" or end with ".hako"
+                local rp = "" + raw_path
+                local is_file_path = 0
+                if ParserCommonUtilsBox.starts_with(rp, 0, "/") == 1 { is_file_path = 1 }
+                if ParserCommonUtilsBox.starts_with(rp, 0, "./") == 1 { is_file_path = 1 }
+                if rp.length() > 5 && rp.substring(rp.length() - 5, rp.length()) == ".hako" { is_file_path = 1 }
+                if is_file_path == 1 {
+                  path = rp
+                } else {
+                  // raw_path is a namespace - look it up in modules/module_roots map
+                  lookup_target = rp
+                  local resolved = me._lookup_module_path(modules, module_roots, rp)
+                  if resolved != null && resolved != "" {
+                    path = resolved
+                  }
+                }
+              }
+              if path == null || path == "" {
+                local msg = "[freeze:contract][module_roots] not_found: '" + lookup_target + "' has no matching root"
+                if lookup_target != name {
+                  msg = msg + " (using='" + name + "')"
+                }
+                fail_msg = msg
+                should_emit = 0
+              }
+              // If resolver returned a freeze tag string, fail-fast here (no silent fallback).
+              if should_emit == 1 && ParserCommonUtilsBox.starts_with("" + path, 0, "[freeze:contract]") == 1 {
+                fail_msg = "" + path
+                should_emit = 0
+              }
+            }
+
+            // abs path 化
+            local abs_path = null
+            if should_emit == 1 && fail_msg == null {
+              abs_path = me._abs_path(path)
+              if abs_path == null || abs_path == "" { should_emit = 0 }
+            }
+
+            // 重複 guard
+            if should_emit == 1 && fail_msg == null {
+              if seen.get(abs_path) == "1" { should_emit = 0 }
+            }
+
+            // ファイル読み込み
+            if should_emit == 1 && fail_msg == null {
+              local code = me._read_file(abs_path)
+              if code == null { should_emit = 0 }
+              if should_emit == 1 {
+                seen.set(abs_path, "1")
+                prefix = prefix + "\n" + code + "\n"
+
+                // Resolve transitive using entries from loaded module source.
+                local nested = me._collect_using_entries(code)
+                if nested != null && nested.length() > 0 {
+                  me._append_entries(queue, nested)
+                  n = queue.length()
+                }
+              }
+            }
+
+            i = next_i
+          }
+        }
+      }
+    }
+
+    // Clear depth guard before returning（適用なしでも guard を戻す）
+    env.set("HAKO_STAGEB_USING_DEPTH", "0")
+    if fail_msg != null {
+      if fail_msg != "" { print("" + fail_msg) }
+      return null
+    }
+    return prefix
+  }
+
+  _append_entries(queue, entries) {
+    if queue == null || entries == null { return }
+    local j = 0
+    local m = entries.length()
+    loop(j < m) {
+      queue.push(entries.get(j))
+      j = j + 1
+    }
+  }
+
+  // Program(JSON v0) に対する using 解決（IOなし、SSOT委譲）。
+  // - modules_json: nyash.toml [modules] 相当の JSON
+  // - using_entries_json: UsingCollectorBox.collect の生出力
+  // - ctx: resolve_ssot_box 向けのヒント（modules/cwd/using_paths など）
+  resolve_for_program_json(program_json, modules_json, using_entries_json, ctx) {
+    // MVP: IO せずに SSOT が shape を整えるだけ。現状は透過返し。
+    local resolved = UsingResolveSSOTBox.resolve_modules(modules_json, using_entries_json, ctx)
+    // 返すものは modules_json をそのまま（今は純粋パス）。将来 prefix/string を付与する。
+    return resolved
+  }
+
+  // Collect entries from UsingCollectorBox JSON output.
+  // Responsibility: JSON を配列にパースするだけ（path 解決やファイル読み込みは呼び元）。
+  // [Region] JSON スキャンは pos/next_pos を明示し、early-exit も next_pos=n で一本化。
+  _collect_using_entries(src) {
+    local json = UsingCollectorBox.collect(src)
+    if json == null || json == "" || json == "[]" { return null }
+    local out = new ArrayBox()
+    local pos = 0
+    local n = json.length()
+    loop(pos < n) {
+      // Region+next_pos 形（break を next_pos=n で表現）
+      local next_pos = n
+      local name_idx = JsonFragBox.index_of_from(json, "\"name\":\"", pos)
+      if name_idx < 0 {
+        next_pos = n
+      } else {
+        local name = JsonFragBox.read_string_after(json, name_idx + 7)
+        local obj_end = JsonFragBox.index_of_from(json, "}", name_idx)
+        if obj_end < 0 { obj_end = n }
+
+        local path = null
+        local path_idx = JsonFragBox.index_of_from(json, "\"path\":\"", name_idx)
+        if path_idx >= 0 && path_idx < obj_end {
+          path = JsonFragBox.read_string_after(json, path_idx + 7)
+        }
+
+        local entry = new MapBox()
+        entry.set("name", name)
+        if path != null { entry.set("path", path) }
+        out.push(entry)
+        next_pos = obj_end + 1
+      }
+      pos = next_pos
+    }
+    return out
+  }
+
+  // Build modules map from env `HAKO_STAGEB_MODULES_LIST` ("name=path" joined by "|||").
+  // Responsibility: env を MapBox に積むだけ。存在しない/空なら空 Map を返す。
+  // [Region] delim 走査も start/next_start で一本化し、continue/break を排除した形に固定。
+  _build_module_map() {
+    local map = new MapBox()
+    local raw = env.get("HAKO_STAGEB_MODULES_LIST")
+    if raw == null { return map }
+    local str = "" + raw
+    if str == "" { return map }
+
+    local delim = "|||"
+    local start = 0
+    local cont = 1
+    loop(cont == 1) {
+      local next_start = str.length()
+      local next = ParserCommonUtilsBox.index_of(str, start, delim)
+      local seg = ""
+      if next >= 0 {
+        seg = str.substring(start, next)
+        next_start = next + delim.length()
+      } else {
+        seg = str.substring(start, str.length())
+        cont = 0
+      }
+      me._push_module_entry(map, seg)
+      start = next_start
+    }
+    return map
+  }
+
+  // Build module_roots map from env `HAKO_STAGEB_MODULE_ROOTS_LIST` ("prefix=path" joined by "|||").
+  // Pre-sorted by prefix length descending (Phase 29bq+: longest-match-first).
+  // [Region] delim 走査も start/next_start で一本化し、continue/break を排除した形に固定。
+  _build_module_roots_map() {
+    local map = new MapBox()
+    local raw = env.get("HAKO_STAGEB_MODULE_ROOTS_LIST")
+    if raw == null { return map }
+    local str = "" + raw
+    if str == "" { return map }
+
+    local delim = "|||"
+    local start = 0
+    local cont = 1
+    loop(cont == 1) {
+      local next_start = str.length()
+      local next = ParserCommonUtilsBox.index_of(str, start, delim)
+      local seg = ""
+      if next >= 0 {
+        seg = str.substring(start, next)
+        next_start = next + delim.length()
+      } else {
+        seg = str.substring(start, str.length())
+        cont = 0
+      }
+      me._push_module_entry(map, seg)
+      start = next_start
+    }
+    return map
+  }
+
+  _push_module_entry(map, seg) {
+    if seg == null { return }
+    local line = ParserCommonUtilsBox.trim("" + seg)
+    if line == "" { return }
+    local eq_idx = ParserCommonUtilsBox.index_of(line, 0, "=")
+    if eq_idx < 0 { return }
+    local key = ParserCommonUtilsBox.trim(line.substring(0, eq_idx))
+    local val = ParserCommonUtilsBox.trim(line.substring(eq_idx + 1, line.length()))
+    if key == "" || val == "" { return }
+    map.set(key, val)
+  }
+
+  // Lookup module path: exact match in modules first, then longest-prefix in module_roots.
+  // Resolution rule is delegated to UsingResolveSSOTBox (single source of truth).
+  _lookup_module_path(modules, module_roots, name) {
+    local ctx = new MapBox()
+    if modules != null { ctx.set("modules", modules) }
+    if module_roots != null { ctx.set("module_roots", module_roots) }
+    return UsingResolveSSOTBox.resolve(name, ctx)
+  }
+
+  _abs_path(path) {
+    if path == null { return null }
+    local p = "" + path
+    if p == "" { return null }
+    if ParserCommonUtilsBox.starts_with(p, 0, "/") == 1 { return p }
+    local root = env.get("NYASH_ROOT")
+    if root == null || root == "" { return p }
+    local base = "" + root
+    if base == "" { return p }
+    if base.substring(base.length() - 1, base.length()) == "/" { return base + p }
+    return base + "/" + p
+  }
+
+  _read_file(path) {
+    if path == null { return null }
+    local fb = new FileBox()
+    local ok = fb.open(path, "r")
+    if ok != 1 {
+      // Dev note: keep quiet by default; enable verbose by setting HAKO_STAGEB_USING_DEBUG=1.
+      local dbg = env.get("HAKO_STAGEB_USING_DEBUG")
+      if dbg != null && ("" + dbg) == "1" {
+        print("[stageb/using_resolver] failed to open file: " + path)
+      }
+      return null
+    }
+    local content = fb.read()
+    fb.close()
+    return content
+  }
+}
+
+static box Stage1UsingResolverBoxMain { main() { return 0 } }

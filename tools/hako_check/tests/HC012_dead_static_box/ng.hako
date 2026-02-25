@@ -1,0 +1,14 @@
+// ng.hako — contains dead static box (UnusedBox)
+
+static box UnusedBox {
+  method unused() {
+    return "never called"
+  }
+}
+
+static box Main {
+  method main() {
+    // UnusedBox is never referenced
+    return 0
+  }
+}

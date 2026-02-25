@@ -1,0 +1,74 @@
+// LoopSSA - Exit PHI Generation for Loops with Breaks
+// Purpose:
+//   - Stage‑1 Program(JSON v0) に対して、loop + break パターンを検出し、
+//     exit block に PHI 相当の命令を注入する「SSA 補強フェーズ」の入口だよ。
+//   - 自身はオーケストレータ箱として振る舞い、実際の解析/変換は
+//     BreakFinderBox / PhiInjectorBox に委譲するよ。
+// Policy:
+//   - 入力: Stage‑1 Program(JSON v0)（単一関数 or Program 全体）。
+//   - 出力: exit PHI 相当の命令が入った Program(JSON v0)（文字列）。
+//   - 解析: BreakFinderBox.find_breaks(json, trace_flag) が JSON を読み取り専用で解析。
+//   - 変換: PhiInjectorBox.inject_exit_phis(json, breaks, trace_flag) が exit block をテキストベースで書き換える。
+//   - 環境変数/トレース:
+//       - HAKO_LOOPSSA_TRACE=1              : LoopSSA/BreakFinder/PhiInjector 専用のトレースON
+//       - HAKO_COMPILER_BUILDER_TRACE=1    : （後方互換）未設定時のフォールバックとして扱う
+//     LoopSSA 側で trace_flag を 0/1 に正規化し、下流には数値だけを渡す（箱ごとに ENV を直読しない）。
+
+using lang.compiler.builder.ssa.exit_phi.break_finder as BreakFinderBox
+using lang.compiler.builder.ssa.exit_phi.phi_injector as PhiInjectorBox
+
+	static box LoopSSA {
+	  // Main entry: Guard PHI-like merges at loop headers/exits
+	  // Phase 2-5 implementation: detect breaks and inject exit PHIs
+	  stabilize_merges(stage1_json) {
+	    // Resolve trace flag once at the entry point（0/1 に正規化）
+	    // 優先: HAKO_LOOPSSA_TRACE / 後方互換: HAKO_COMPILER_BUILDER_TRACE
+	    local trace_env = env.get("HAKO_LOOPSSA_TRACE")
+	    if trace_env == null {
+	      trace_env = env.get("HAKO_COMPILER_BUILDER_TRACE")
+	    }
+	    local trace_flag = 0
+	    if trace_env != null && ("" + trace_env) == "1" { trace_flag = 1 }
+	
+	    if trace_flag == 1 {
+	      print("[loopssa] stabilize_merges start")
+	    }
+	
+	    // Check if exit PHI feature is enabled
+	    local enable_exit_phi = 1
+	    {
+	      local flag = env.get("HAKO_LOOPSSA_EXIT_PHI")
+	      if flag != null && ("" + flag) == "0" { enable_exit_phi = 0 }
+	    }
+	
+	    if enable_exit_phi == 0 {
+	      if trace_flag == 1 {
+	        print("[loopssa] exit PHI disabled, pass-through")
+	      }
+	      return stage1_json
+	    }
+	
+	    // Phase 2: Find breaks in loops
+	    local breaks = BreakFinderBox.find_breaks(stage1_json, trace_flag)
+	
+	    if trace_flag == 1 {
+	      print("[loopssa] found " + breaks.length() + " breaks")
+	    }
+	
+	    if breaks.length() == 0 {
+	      if trace_flag == 1 {
+	        print("[loopssa] no breaks found, pass-through")
+	      }
+	      return stage1_json
+	    }
+	
+	    // Phase 3: Inject PHI nodes at exit blocks
+	    local result = PhiInjectorBox.inject_exit_phis(stage1_json, breaks, trace_flag)
+	
+	    if trace_flag == 1 {
+	      print("[loopssa] exit PHIs injected successfully")
+	    }
+	
+	    return result
+	  }
+	}

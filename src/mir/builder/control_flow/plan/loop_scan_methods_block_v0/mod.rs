@@ -1,0 +1,15 @@
+//! loop_scan_methods_block_v0: scan_methods outer loop plan (BoxCount).
+//!
+//! Accepts a single one-shape loop(cond) where the scan window inner loop is wrapped
+//! by a statement block `{ ... }` (ASTNode::Program / ScopeBox), which
+//! `loop_scan_methods_v0` does not segmentize.
+
+mod facts;
+mod pipeline;
+mod recipe;
+
+pub(in crate::mir::builder) use facts::{
+    try_extract_loop_scan_methods_block_v0_facts, LoopScanMethodsBlockV0Facts,
+};
+pub(in crate::mir::builder) use pipeline::lower_loop_scan_methods_block_v0;
+pub(in crate::mir::builder) use recipe::{LinearBlockRecipe, ScanSegment};

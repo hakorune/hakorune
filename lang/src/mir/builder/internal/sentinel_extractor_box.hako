@@ -1,0 +1,63 @@
+// sentinel_extractor_box.hako — Extract Break/Continue sentinel value near nearest previous Compare
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.loop_scan" as LoopScanBox
+
+static box SentinelExtractorBox {
+  // kind: "Break" | "Continue"
+  extract(s, kind, k_loop, varname) {
+    if s == null || kind == null { return null }
+    local needle = "\"type\":\"" + kind + "\""
+    local pos = JsonFragBox.index_of_from(s, needle, k_loop)
+    if pos < 0 { return null }
+    // Nearest previous Compare
+    local kcmp = JsonFragBox.last_index_of_from(s, "\"type\":\"Compare\"", pos)
+    if kcmp < 0 { return null }
+    // op
+    local kop = JsonFragBox.index_of_from(s, "\"op\":", kcmp); if kop < 0 { return null }
+    local op = JsonFragBox.read_string_after(s, kop + 5)
+    if op == null { return null }
+    // Var side check
+    local lhs_is_i = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", kcmp) >= 0
+    local rhs_is_i = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", kcmp) >= 0
+    if !(lhs_is_i || rhs_is_i) { return null }
+    // op == "==" → もう片側のIntを抽出
+    if op == "==" {
+      if lhs_is_i {
+        local k_rhsb = JsonFragBox.index_of_from(s, "\"rhs\":{", kcmp)
+        if k_rhsb < 0 { return null }
+        local kti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhsb)
+        if kti < 0 { return null }
+        local kv = JsonFragBox.index_of_from(s, "\"value\":", kti)
+        if kv < 0 { return null }
+        return JsonFragBox.read_int_after(s, kv + 8)
+      } else {
+        local k_lhsb = JsonFragBox.index_of_from(s, "\"lhs\":{", kcmp)
+        if k_lhsb < 0 { return null }
+        local kti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_lhsb)
+        if kti2 < 0 { return null }
+        local kv2 = JsonFragBox.index_of_from(s, "\"value\":", kti2)
+        if kv2 < 0 { return null }
+        return JsonFragBox.read_int_after(s, kv2 + 8)
+      }
+    }
+    // op == "!=" → loop_scan で else-sentinel を補助抽出
+    if op == "!=" {
+      local v = LoopScanBox.extract_ne_else_sentinel_value(s, kind, k_loop, varname)
+      if v != null { return v }
+      // fallback: 近傍のInt抽出を試行
+      local k_rhsb = JsonFragBox.index_of_from(s, "\"rhs\":{", kcmp)
+      if k_rhsb >= 0 && JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhsb) >= 0 {
+        local kv = JsonFragBox.index_of_from(s, "\"value\":", JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhsb))
+        if kv >= 0 { return JsonFragBox.read_int_after(s, kv + 8) }
+      }
+      local k_lhsb = JsonFragBox.index_of_from(s, "\"lhs\":{", kcmp)
+      if k_lhsb >= 0 && JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_lhsb) >= 0 {
+        local kv2 = JsonFragBox.index_of_from(s, "\"value\":", JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_lhsb))
+        if kv2 >= 0 { return JsonFragBox.read_int_after(s, kv2 + 8) }
+      }
+    }
+    return null
+  }
+}
+

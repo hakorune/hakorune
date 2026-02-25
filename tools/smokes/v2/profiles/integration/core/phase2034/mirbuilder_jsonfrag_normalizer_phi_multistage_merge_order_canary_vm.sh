@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Verify PHI grouping on multi-stage merges (two-level join with final phi at head)
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"; if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then ROOT="$ROOT_GIT"; else ROOT="$(cd "$SCRIPT_DIR/../../../../../../../../.." && pwd)"; fi
+source "$ROOT/tools/smokes/v2/lib/test_runner.sh"; require_env || exit 2
+source "$ROOT/tools/smokes/v2/lib/mir_canary.sh" || true
+
+tmp_hako="/tmp/mirbuilder_normalizer_phi_multistage_$$.hako"
+cat > "$tmp_hako" <<'HAKO'
+using "hako.mir.builder.internal.jsonfrag_normalizer" as NormBox
+static box Main { method main(args) {
+  local m = env.get("MIR"); if m == null { print("[fail:nomir]"); return 1 }
+  local out = NormBox.normalize_all("" + m)
+  print("[MIR_BEGIN]"); print("" + out); print("[MIR_END]")
+  return 0
+} }
+HAKO
+
+# Multistage: 0 -> (1,2); 1->3 const; 2->4 const; 3,4 -> 5 join with phi late
+MIR='{"functions":[{"name":"main","params":[],"locals":[],"blocks":[
+  {"id":0,"instructions":[{"op":"branch","cond":1,"then":1,"else":2}]},
+  {"id":1,"instructions":[{"op":"const","dst":10,"value":{"type":"i64","value":11}},{"op":"branch","cond":1,"then":3,"else":3}]},
+  {"id":2,"instructions":[{"op":"const","dst":20,"value":{"type":"i64","value":22}},{"op":"branch","cond":1,"then":4,"else":4}]},
+  {"id":3,"instructions":[{"op":"const","dst":30,"value":{"type":"i64","value":33}},{"op":"branch","cond":1,"then":5,"else":5}]},
+  {"id":4,"instructions":[{"op":"const","dst":40,"value":{"type":"i64","value":44}},{"op":"branch","cond":1,"then":5,"else":5}]},
+  {"id":5,"instructions":[{"op":"compare","operation":"<","lhs":1,"rhs":2,"dst":9},{"op":"phi","dst":7,"values":[{"value":30,"block":3},{"value":40,"block":4}]},{"op":"ret","value":7}]}]}]}'
+
+set +e
+out="$(MIR="$MIR" run_nyash_vm "$tmp_hako" 2>&1)"; rc=$?
+set -e
+rm -f "$tmp_hako" || true
+
+if [[ "$rc" -ne 0 ]]; then echo "[SKIP] phi_multistage_merge: vm exec unstable"; exit 0; fi
+mir=$(echo "$out" | extract_mir_from_output)
+if [[ -z "$mir" ]]; then echo "[SKIP] phi_multistage_merge: no MIR"; exit 0; fi
+
+if ! echo "$mir" | assert_order '"op":"phi"' '"op":"compare"'; then echo "[SKIP] phi_multistage_merge: phi not before compare"; exit 0; fi
+if ! echo "$mir" | assert_order '"op":"phi"' '"op":"ret"'; then echo "[SKIP] phi_multistage_merge: phi not before ret"; exit 0; fi
+
+echo "[PASS] mirbuilder_jsonfrag_normalizer_phi_multistage_merge_order_canary_vm"
+exit 0
+

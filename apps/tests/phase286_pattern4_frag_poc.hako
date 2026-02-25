@@ -1,0 +1,38 @@
+// Phase 286 P2: Pattern4 → Frag PoC minimal fixture
+//
+// Purpose: Test Pattern4 (Loop with Continue) using Plan/Frag SSOT
+// Expected output: 6 (sum of 1+2+3, skipping i==0)
+//
+// Structure:
+//   i = 0, sum = 0           // pre-loop init
+//   loop(i < 4) {            // loop variable condition
+//       if (i == 0) { i = i + 1; continue }  // continue at i==0 (SINGLE continue)
+//       sum = sum + i        // carrier update (accumulator pattern)
+//       i = i + 1            // loop increment
+//   }
+//   return sum               // return 1+2+3=6
+//
+// PoC Goal:
+//   Pattern4 → DomainPlan → CorePlan → Frag → emit_frag()
+//   (Skip: JoinIR → bridge → merge)
+//
+// Design Note:
+//   - Uses only Compare (==, <) and Add (+) operators
+//   - Avoids Mod (%) which lacks Plan/Frag support guarantee
+//   - Single continue condition for Plan line PoC
+//   - Accumulator pattern for carrier (sum = sum + i)
+
+static box Main {
+    main() {
+        local i, sum
+        i = 0
+        sum = 0
+        loop(i < 4) {
+            if (i == 0) { i = i + 1; continue }
+            sum = sum + i
+            i = i + 1
+        }
+        print(sum)
+        return 0
+    }
+}

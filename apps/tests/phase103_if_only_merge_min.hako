@@ -1,0 +1,22 @@
+// Phase 103: if-only merge regression fixture
+// Goal: require merge (PHI-equivalent) in an if-only program (no loops),
+// and include one nested if to ensure nested merge stability.
+
+static box Main {
+  main() {
+    local x = 0
+
+    if "x" == "x" {
+      if "y" == "z" {
+        x = 1
+      } else {
+        x = 2
+      }
+    } else {
+      x = 3
+    }
+
+    print(x)
+    return "OK"
+  }
+}

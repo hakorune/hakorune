@@ -1,0 +1,28 @@
+// Phase 29bq: scan loop v0 (comma / close bracket) minimal
+// Shape: loop(cond) with comma-continue + close-break + step increment.
+// Expected: stdout=0, RC=0
+static box Main {
+  main() {
+    local src = new StringBox(",]")
+    local n = src.length()
+    local i = 0
+
+    loop(i < n) {
+      local ch = src.substring(i, i + 1)
+
+      if ch == "," {
+        i = i + 1
+        continue
+      }
+
+      if ch == "]" {
+        break
+      }
+
+      i = i + 1
+    }
+
+    print(0)
+    return 0
+  }
+}

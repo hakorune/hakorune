@@ -1,0 +1,5 @@
+{"diagnostics":[
+  {"file":"ng.hako","line":7,"rule":"HC021","message":"[HC021] analyzer rule uses direct file I/O (new FileBox): use CLI-internal push approach instead :: ng.hako:7","quickFix":"","severity":"warning"},
+  {"file":"ng.hako","line":8,"rule":"HC021","message":"[HC021] analyzer rule uses file operations: use CLI-internal push approach instead :: ng.hako:8","quickFix":"","severity":"warning"},
+  {"file":"ng.hako","line":9,"rule":"HC021","message":"[HC021] analyzer rule uses file operations: use CLI-internal push approach instead :: ng.hako:9","quickFix":"","severity":"warning"}
+]}

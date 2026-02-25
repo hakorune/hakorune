@@ -1,0 +1,44 @@
+// Phase 29bq parser handoff Tier-3: local call/new init + fini + cleanup.
+box Calc {
+  f(v) {
+    return v + 1
+  }
+
+  g(v) {
+    return v * 2
+  }
+}
+
+static box Main {
+  main() {
+    local out = 0
+    {
+      local calc = new Calc()
+
+      local a = calc.f(4) fini {
+        out = out + a
+      }
+      local b = calc.g(3) fini {
+        out = out + b
+      }
+      local calc2 = new Calc() fini {
+        out = out + calc2.g(1)
+      }
+
+      local cond = (a == 5) && (b == 6)
+      if cond {
+        out = out + 9
+      } else {
+        out = out + 1
+      }
+
+      a = a + 2
+      b = b + a
+    } cleanup {
+      out = out + 1300
+    }
+
+    print(out)
+    return 0
+  }
+}

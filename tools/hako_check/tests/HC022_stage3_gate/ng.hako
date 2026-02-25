@@ -1,0 +1,29 @@
+// ng.hako — contains while/for constructs (Stage-3 required)
+
+static box LoopExample {
+  method old_loop(n) {
+    local i
+    i = 0
+    while (i < n) {
+      i = i + 1
+    }
+    return i
+  }
+
+  method old_iteration(arr) {
+    for (local item in arr) {
+      print(item)
+    }
+    return 0
+  }
+}
+
+static box Main {
+  method main() {
+    local arr
+    arr = new ArrayBox()
+    LoopExample.old_loop(5)
+    LoopExample.old_iteration(arr)
+    return 0
+  }
+}

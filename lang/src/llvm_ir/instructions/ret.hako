@@ -1,0 +1,48 @@
+// LLVM Ret Instruction Box — Python ret.py のHakorune実装
+// MIRリターン命令をJSON形式に変換し、C++バックエンドに渡す
+
+static box LLVMRetInstructionBox {
+
+  // メインエントリーポイント - Pythonのlower_return()に相当
+  lower_return(self, value_id) {
+    if value_id == null || value_id == 0 {
+      // Void return
+      return me.inst_ret_void(self)
+    } else {
+      // Value return
+      return me.inst_ret_value(self, value_id)
+  }
+  }
+
+  // Void return命令
+  inst_ret_void(self) {
+    return "{\"op\":\"ret\",\"value\":null}"
+  }
+
+  // Value return命令
+  inst_ret_value(self, value_id) {
+    return "{\"op\":\"ret\",\"value\":" + value_id + "}"
+  }
+
+  // 定数値を返す（ショートカット）
+  ret_const_i64(self, value) {
+    return "{\"op\":\"ret\",\"value\":null}"  // 実際には定数命令 + ret命令が必要
+  }
+
+  // デバッグ用 - 生成された命令の確認
+  debug_ret(self, value_id) {
+    local json = me.lower_return(self, value_id)
+    print("Generated ret instruction: " + json)
+    return json
+  }
+
+  // プログラム全体のreturn生成（定数+returnの組み合わせ）
+  program_with_const_ret(self, const_value) {
+    local const_inst = "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + const_value + "}}"
+    local ret_inst = me.inst_ret_value(self, 1)
+    
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           const_inst + "," +
+           ret_inst + "] } ] } ] }"
+  }
+}

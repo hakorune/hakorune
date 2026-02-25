@@ -1,0 +1,45 @@
+// Phase 222: If Condition Left Literal Pattern Test
+// Tests: Condition normalization (literal on left → var on left)
+// Target: ConditionPatternBox normalization + if-sum pattern
+//
+// Pattern:
+//   Loop condition: 0 < i (literal < var) → normalized to i > 0
+//   If condition: i > 0 (var > literal) - already canonical
+//
+// Expected behavior:
+//   i=0 → skip (0 > 0 = false)
+//   i=1 → count (1 > 0 = true)
+//   i=2 → count (2 > 0 = true)
+//
+// Expected result: RC=2 (count of valid iterations)
+
+static box Main {
+    count_valid(data) {
+        local sum
+        sum = 0
+        local i
+        i = 0
+        local len
+        len = 3
+
+        loop(i < len) {
+            if i > 0 {
+                // Conditional update: sum = sum + 1
+                sum = sum + 1
+            } else {
+                // Else branch (do nothing)
+                sum = sum + 0
+            }
+
+            i = i + 1
+        }
+
+        return sum
+    }
+
+    main(args) {
+        local result
+        result = Main.count_valid(0)  // dummy arg
+        return result
+    }
+}

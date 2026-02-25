@@ -1,0 +1,35 @@
+// module_roots_map loop(flag==1) with if-else split (one-shape)
+// Pattern: flag-controlled loop with if-else where else sets flag=0
+// StepTree:
+//   Loop { cond: cont == 1,
+//     body: [ If(then: assigns, else: assigns with cont=0), Assign, Assign ]
+//   }
+// Expected: stdout=3, RC=0
+// Note: All locals declared outside the loop for simplified PHI handling
+static box Main {
+  main() {
+    local str = "a|||b|||c"
+    local delim = "|||"
+    local start = 0
+    local cont = 1
+    local count = 0
+    local next_start = 0
+    local next = 0
+    local seg = ""
+    loop(cont == 1) {
+      next_start = str.length()
+      next = str.indexOf(delim, start)
+      if next >= 0 {
+        seg = str.substring(start, next)
+        next_start = next + delim.length()
+      } else {
+        seg = str.substring(start, str.length())
+        cont = 0
+      }
+      count = count + 1
+      start = next_start
+    }
+    print(count)
+    return 0
+  }
+}

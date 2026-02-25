@@ -1,0 +1,263 @@
+// Phase v2-C: MIR Call Instruction Unit Tests
+// Tests basic mir_call.hako functionality with 6 callee types
+
+using "lang/src/llvm_ir/instructions/mir_call.hako" as MirCallInst
+
+static box Main {
+  main() {
+    print("=== Phase v2-C MIR Call Unit Tests ===\n")
+
+    local total_tests = 0
+    local passed_tests = 0
+
+    // Test 1: Global function call
+    print("[Test 1] Global function call")
+    total_tests = total_tests + 1
+    if me.test_global_call() == 0 {
+      passed_tests = passed_tests + 1
+      print("✓ PASS\n")
+    } else {
+      print("✗ FAIL\n")
+    }
+
+    // Test 2: Method call
+    print("[Test 2] Method call")
+    total_tests = total_tests + 1
+    if me.test_method_call() == 0 {
+      passed_tests = passed_tests + 1
+      print("✓ PASS\n")
+    } else {
+      print("✗ FAIL\n")
+    }
+
+    // Test 3: Constructor call
+    print("[Test 3] Constructor call")
+    total_tests = total_tests + 1
+    if me.test_constructor_call() == 0 {
+      passed_tests = passed_tests + 1
+      print("✓ PASS\n")
+    } else {
+      print("✗ FAIL\n")
+    }
+
+    // Test 4: Extern call
+    print("[Test 4] Extern call")
+    total_tests = total_tests + 1
+    if me.test_extern_call() == 0 {
+      passed_tests = passed_tests + 1
+      print("✓ PASS\n")
+    } else {
+      print("✗ FAIL\n")
+    }
+
+    // Test 5: Closure creation
+    print("[Test 5] Closure creation")
+    total_tests = total_tests + 1
+    if me.test_closure_call() == 0 {
+      passed_tests = passed_tests + 1
+      print("✓ PASS\n")
+    } else {
+      print("✗ FAIL\n")
+    }
+
+    // Test 6: Value call
+    print("[Test 6] Value call")
+    total_tests = total_tests + 1
+    if me.test_value_call() == 0 {
+      passed_tests = passed_tests + 1
+      print("✓ PASS\n")
+    } else {
+      print("✗ FAIL\n")
+    }
+
+    // Summary
+    print("=== Summary ===")
+    print("Total: " + total_tests.toString() + " tests")
+    print("Passed: " + passed_tests.toString() + " tests")
+    print("Failed: " + (total_tests - passed_tests).toString() + " tests")
+
+    if passed_tests == total_tests {
+      print("\n✓ ALL TESTS PASSED")
+      return 0
+    } else {
+      print("\n✗ SOME TESTS FAILED")
+      return 1
+    }
+  }
+
+  // Test 1: Global function call
+  test_global_call() {
+    local callee = new MapBox()
+    callee.set("type", "Global")
+    callee.set("name", "print")
+
+    local args = new ArrayBox()
+    args.push(1)  // arg register ID
+
+    local result = MirCallInst.lower_mir_call(null, callee, args, 2, null)
+
+    // Verify JSON contains expected fields
+    local has_op = result.indexOf("\"op\":\"mir_call\"")
+    if has_op < 0 {
+      print("  ERROR: op not found")
+      return 1
+    }
+
+    local has_global = result.indexOf("\"type\":\"Global\"")
+    if has_global < 0 {
+      print("  ERROR: Global type not found")
+      return 1
+    }
+
+    local has_name = result.indexOf("\"name\":\"print\"")
+    if has_name < 0 {
+      print("  ERROR: name not found")
+      return 1
+    }
+
+    return 0
+  }
+
+  // Test 2: Method call
+  test_method_call() {
+    local callee = new MapBox()
+    callee.set("type", "Method")
+    callee.set("method", "get")
+    callee.set("receiver", 3)
+
+    local args = new ArrayBox()
+    args.push(4)  // arg register ID
+
+    local result = MirCallInst.lower_mir_call(null, callee, args, 5, null)
+
+    local has_method = result.indexOf("\"type\":\"Method\"")
+    if has_method < 0 {
+      print("  ERROR: Method type not found")
+      return 1
+    }
+
+    local has_method_name = result.indexOf("\"method\":\"get\"")
+    if has_method_name < 0 {
+      print("  ERROR: method name not found")
+      return 1
+    }
+
+    local has_receiver = result.indexOf("\"receiver\":3")
+    if has_receiver < 0 {
+      print("  ERROR: receiver not found")
+      return 1
+    }
+
+    return 0
+  }
+
+  // Test 3: Constructor call
+  test_constructor_call() {
+    local callee = new MapBox()
+    callee.set("type", "Constructor")
+    callee.set("box_type", "ArrayBox")
+
+    local args = new ArrayBox()
+
+    local result = MirCallInst.lower_mir_call(null, callee, args, 6, null)
+
+    local has_constructor = result.indexOf("\"type\":\"Constructor\"")
+    if has_constructor < 0 {
+      print("  ERROR: Constructor type not found")
+      return 1
+    }
+
+    local has_box_type = result.indexOf("\"box_type\":\"ArrayBox\"")
+    if has_box_type < 0 {
+      print("  ERROR: box_type not found")
+      return 1
+    }
+
+    return 0
+  }
+
+  // Test 4: Extern call
+  test_extern_call() {
+    local callee = new MapBox()
+    callee.set("type", "Extern")
+    callee.set("name", "malloc")
+
+    local args = new ArrayBox()
+    args.push(7)
+
+    local result = MirCallInst.lower_mir_call(null, callee, args, 8, null)
+
+    local has_extern = result.indexOf("\"type\":\"Extern\"")
+    if has_extern < 0 {
+      print("  ERROR: Extern type not found")
+      return 1
+    }
+
+    local has_name = result.indexOf("\"name\":\"malloc\"")
+    if has_name < 0 {
+      print("  ERROR: extern name not found")
+      return 1
+    }
+
+    return 0
+  }
+
+  // Test 5: Closure creation
+  test_closure_call() {
+    local callee = new MapBox()
+    callee.set("type", "Closure")
+
+    local params = new ArrayBox()
+    params.push(9)
+    params.push(10)
+    callee.set("params", params)
+
+    local captures = new ArrayBox()
+    captures.push(11)
+    callee.set("captures", captures)
+
+    local args = new ArrayBox()
+
+    local result = MirCallInst.lower_mir_call(null, callee, args, 12, null)
+
+    local has_closure = result.indexOf("\"type\":\"Closure\"")
+    if has_closure < 0 {
+      print("  ERROR: Closure type not found")
+      return 1
+    }
+
+    local has_params = result.indexOf("\"params\"")
+    if has_params < 0 {
+      print("  ERROR: params not found")
+      return 1
+    }
+
+    return 0
+  }
+
+  // Test 6: Value call
+  test_value_call() {
+    local callee = new MapBox()
+    callee.set("type", "Value")
+    callee.set("value", 13)
+
+    local args = new ArrayBox()
+    args.push(14)
+
+    local result = MirCallInst.lower_mir_call(null, callee, args, 15, null)
+
+    local has_value = result.indexOf("\"type\":\"Value\"")
+    if has_value < 0 {
+      print("  ERROR: Value type not found")
+      return 1
+    }
+
+    local has_value_id = result.indexOf("\"value\":13")
+    if has_value_id < 0 {
+      print("  ERROR: value ID not found")
+      return 1
+    }
+
+    return 0
+  }
+}

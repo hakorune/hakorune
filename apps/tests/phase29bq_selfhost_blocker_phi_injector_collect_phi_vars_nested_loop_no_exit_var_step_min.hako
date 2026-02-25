@@ -1,0 +1,31 @@
+// Minimal fixture for PhiInjectorBox._collect_phi_vars: nested loop, no exit
+// Pattern intent: outer loop has nested loop, no break/continue/return, non-const step
+
+static box Main {
+    main() {
+        local arr = new ArrayBox()
+        arr.push(1)
+        arr.push(2)
+        arr.push(3)
+
+        local n = arr.length()
+        local i = 0
+        local sum = 0
+
+        loop(i < n) {
+            local j = 0
+            local m = arr.length()
+            loop(j < m) {
+                local v = arr.get(j)
+                sum = sum + v
+                j = j + 1
+            }
+
+            // Non-const step: block generic_loop var-step/const-step detection.
+            i = i + arr.get(0)
+        }
+
+        print(sum)
+        return 0
+    }
+}

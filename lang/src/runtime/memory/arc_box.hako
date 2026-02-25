@@ -1,0 +1,62 @@
+// arc_box.hako — ArcBox (policy plane)
+// Responsibility: simple reference counting semantics in Hakorune space.
+// Storage: uses env.local.get/set with key prefix "arc:" to keep per-pointer counts.
+// Data plane: when available, host-side env.arc.* can replace these, but this MVP
+// remains pure to avoid native coupling. Optional free-on-zero via env.mem.free/1
+// guarded by HAKO_ARC_FREE_ON_ZERO=1 (NYASH_ alias honored via runner env mirroring).
+
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box ArcBox {
+  _key(ptr) { return "ARC_" + ("" + ptr) }
+
+  _debug_on() {
+    local d = env.get("HAKO_DEBUG_ARC")
+    if d == null || d == "" { d = env.get("NYASH_DEBUG_ARC") }
+    return d == "1"
+  }
+
+  _log(msg) { if me._debug_on() { console.log("[ArcBox] " + msg) } }
+
+  // Read current count (>=0) or -1 if unset/unknown)
+  _get_count(ptr) { return arc.count(ptr) }
+
+  // Create a new ARC handle with count=1. Fail if already exists.
+  arc_birth(ptr) {
+    local c = me._get_count(ptr)
+    if c >= 0 { console.error("[arc/already_exists]") return -1 }
+    arc.birth(ptr)
+    me._log("birth ptr=" + ("" + ptr) + " -> 1")
+    return 1
+  }
+
+  // Increment; Fail if unknown.
+  arc_retain(ptr) {
+    local c = arc.retain(ptr)
+    if c < 0 { console.error("[arc/unknown]") return -1 }
+    me._log("retain ptr=" + ("" + ptr) + " -> " + StringHelpers.int_to_str(c))
+    return c
+  }
+
+  // Decrement; Fail on unknown or underflow. When reaches 0, optionally free via env.mem.free/1
+  arc_release(ptr) {
+    local n = arc.release(ptr)
+    if n < 0 { return -1 }
+    me._log("release ptr=" + ("" + ptr) + " -> " + StringHelpers.int_to_str(n))
+    if n == 0 {
+      local fz = env.get("HAKO_ARC_FREE_ON_ZERO")
+      if fz == null || fz == "" { fz = env.get("NYASH_ARC_FREE_ON_ZERO") }
+      if fz == "1" {
+        // Best-effort free; ignore missing handler
+        mem.free(ptr)
+      }
+    }
+    return n
+  }
+
+  // Return current count or -1 if unknown
+  arc_count(ptr) { return me._get_count(ptr) }
+
+  // Sugar: clone = retain + return ptr (for chaining)
+  arc_clone(ptr) { local r = me.arc_retain(ptr) if r < 0 { return -1 } return ptr }
+}

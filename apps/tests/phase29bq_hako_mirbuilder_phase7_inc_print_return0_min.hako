@@ -1,0 +1,11 @@
+// Phase-7 pin (hako_mirbuilder): Local(Int) + Assignment(x=x+Int) + Print(Var) + Return(Int)
+// Expected: stdout="1", RC=0
+
+static box Main {
+  main() {
+    local x = 0
+    x = x + 1
+    print(x)
+    return 0
+  }
+}

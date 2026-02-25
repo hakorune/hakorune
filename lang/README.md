@@ -1,0 +1,49 @@
+# Hakorune Lang Line — Rust-less Kernel (C ABI)
+
+Scope
+- This `lang/` tree hosts the script-driven C ABI kernel artifacts for Phase 20.9+.
+- Goal: keep the runtime data plane callable without Rust on the hot path (Hakorune → LLVM → C ABI).
+
+Principles
+- Separation: do not mix Rust crates or cargo-specific layout under this tree.
+- Ownership & ABI:
+  - Any `char*` returned across the ABI is owned by the callee and must be freed via `hako_mem_free()`.
+  - Do not mix CRT `free()` across boundaries.
+- Fail‑Fast: no silent fallbacks. Missing symbols must be observable via short diagnostics.
+
+Layout (initial)
+- `c-abi/` — C shim(s) and headers for the minimal kernel surface
+  - `README.md` — responsibilities, build notes, platform caveats
+  - `include/` — public headers (mirrored or thin wrappers)
+  - `shims/` — libc-backed shim(s) for canaries and local testing
+
+Build & Link (dev)
+- C shim: build a shared library to satisfy symbols for the LLVM line canaries.
+- Link flags example:
+  - Linux: `-L$(pwd)/target/release -Wl,-rpath,$(pwd)/target/release -lhako_kernel_shim`
+
+Non‑Goals
+- Plugin loader, HostBridge router, Box/Type system — kept in Rust.
+
+## Selfhost Launcher (AOT)
+
+### Dev line (Stage1 core – experimental)
+
+- Dev build: `tools/selfhost/build_stage1.sh` → produces `target/selfhost/hakorune`
+- Role:
+  - Fast iteration用の Stage1 selfhost バイナリ（Ny Executor / CLI 実験など）。
+  - new CLI/runner 機能はまずこちらで開発・検証する。
+
+### Stable line (lang bin – snapshot)
+
+- Stable binary: `lang/bin/hakorune`
+- Build (pure-lang launcher, legacy bring-up):
+  - `lang/build/build_runner.sh` → produces `lang/bin/hakorune`
+  - Requirements: LLVM 18 dev (`llvm-config-18`)
+- Policy（Phase 25.1 以降の想定）:
+  - `target/selfhost/hakorune` で十分に安定したら、その成果物を `lang/bin/hakorune` に昇格させる（手動コピー or 専用スクリプト）。
+  - `lang/bin/hakorune` は「last known good」の Stage1 コア EXE として扱い、配布や外部からの参照時は原則こちらを基準にする。
+
+Notes
+- `lang/` 以下は「最終的に 1 つの Stage1 コア EXE（hakorune）を構成するソース群」という前提で整理する。
+- `target/selfhost/hakorune` は開発中の最新版、`lang/bin/hakorune` は安定版スナップショットという役割分担にする。

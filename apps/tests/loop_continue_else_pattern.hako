@@ -1,0 +1,26 @@
+// Phase 33-19: Pattern B test - else-side continue
+// Tests: if (cond) { body } else { continue }
+// This should be normalized to: if (!cond) { continue } else { body }
+
+static box Main {
+  main(args) {
+    local i = 0
+    local sum = 0
+    local M = 5
+
+    loop(i < M) {
+      i = i + 1
+      // Pattern B: Process when i != M, continue when i == M
+      if (i != M) {
+        sum = sum + i
+      } else {
+        continue
+      }
+    }
+
+    // Expected: sum = 1 + 2 + 3 + 4 = 10
+    // (i=5 is skipped by continue)
+    print(sum)
+    return 0
+  }
+}

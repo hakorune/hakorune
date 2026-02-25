@@ -1,0 +1,28 @@
+// Phase 29cc RNR-05 min3: loop-scan range shape pin (`i <= n - 1`)
+// Shape: while(cond) with comma-continue + close-break + step increment.
+// Expected: stdout=0, RC=0
+static box Main {
+  main() {
+    local src = new StringBox(",]")
+    local n = src.length()
+    local i = 0
+
+    while i <= n - 1 {
+      local ch = src.substring(i, i + 1)
+
+      if ch == "," {
+        i = i + 1
+        continue
+      }
+
+      if ch == "]" {
+        break
+      }
+
+      i = i + 1
+    }
+
+    print(0)
+    return 0
+  }
+}

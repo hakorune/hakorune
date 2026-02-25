@@ -1,0 +1,39 @@
+// loopform_nested_region.hako
+// 目的: 外側 Loop + 内側 Region 型 Loop のネストをスモークする
+
+static box Main {
+  find_first_non_space(lines) {
+    local line_idx = 0
+    local n = lines.size()
+    // outer loop: 行単位
+    loop(line_idx < n) {
+      local line = lines.get(line_idx)
+      local col = 0
+
+      // inner loop: 行内の先頭非空白を探す（Region+next_col 風）
+      loop(1 == 1) {
+        if col >= line.length() { break }
+        local ch = line.substring(col, col + 1)
+        if ch == " " {
+          col = col + 1
+          continue
+        }
+        break
+      }
+
+      if col < line.length() { return line_idx }
+      line_idx = line_idx + 1
+    }
+    return -1
+  }
+
+  main(args) {
+    local lines = new ArrayBox()
+    lines.push("   ")
+    lines.push(" xx")
+    local r = Main.find_first_non_space(lines)
+    print(r)
+    return 0
+  }
+}
+

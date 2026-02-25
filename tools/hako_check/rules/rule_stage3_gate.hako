@@ -1,0 +1,65 @@
+using tools.hako_check.text_ops as TextOps
+// tools/hako_check/rules/rule_stage3_gate.hako — HC022: Stage-3 Gate
+// Detects while/for loop constructs that require Stage-3 parser support.
+// These constructs may not work with standard VM and require gate flags.
+
+static box RuleStage3GateBox {
+  method apply(text, path, out) {
+    if text == null { return 0 }
+
+    local lines = TextOps._split_lines(text)
+    local found = me._scan_lines(lines, 0, path, 0, 0)
+    local while_line = found.get("while_line")
+    local for_line = found.get("for_line")
+    if while_line > 0 || for_line > 0 {
+      local msg = "[HC022] Suggestion: Use NYASH_PARSER_STAGE3=1 or HAKO_PARSER_STAGE3=1 environment variables"
+      out.push(msg)
+    }
+    if for_line > 0 {
+      out.push("[HC022] Stage-3 construct detected (for): " + path + ":" + me._itoa(for_line))
+    }
+    if while_line > 0 {
+      out.push("[HC022] Stage-3 construct detected (while): " + path + ":" + me._itoa(while_line))
+    }
+
+    return out.size()
+  }
+  _scan_lines(lines, i, path, while_line, for_line) {
+    if i >= lines.size() { return me._make_found(while_line, for_line) }
+    local ln = lines.get(i)
+    local trimmed = TextOps._ltrim(ln)
+    local next_while = while_line
+    local next_for = for_line
+
+    // Skip comments
+    if me._is_comment(trimmed) == 0 {
+      // Check for while keyword
+      if next_while == 0 && (trimmed.indexOf("while ") >= 0 || trimmed.indexOf("while(") >= 0) {
+        next_while = i + 1
+      }
+
+      // Check for for keyword
+      if next_for == 0 && (trimmed.indexOf("for ") >= 0 || trimmed.indexOf("for(") >= 0) {
+        next_for = i + 1
+      }
+    }
+
+    return me._scan_lines(lines, i + 1, path, next_while, next_for)
+  }
+  _make_found(while_line, for_line) {
+    local r = new MapBox()
+    r.set("while_line", while_line)
+    r.set("for_line", for_line)
+    return r
+  }
+
+  _is_comment(s) {
+    if s == null { return 0 }
+    if s.indexOf("//") == 0 { return 1 }
+    return 0
+  }
+
+  _itoa(n) { return TextOps._itoa(n) }
+}
+
+static box RuleStage3GateMain { method main(args) { return 0 } }

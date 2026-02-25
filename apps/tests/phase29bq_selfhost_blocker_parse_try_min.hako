@@ -1,0 +1,21 @@
+// Minimal loop(true) + if-break + block (Program) shape for ParserExceptionBox.parse_try
+// Expected: stdout=2, RC=0
+static box Main {
+  main() {
+    local src = "catchZ"
+    local j = 0
+    local n = src.length()
+
+    loop(true) {
+      j = j + 1
+      if src.substring(j, j + 1) != "a" { break }
+      {
+        local k = j
+        k = k + 1
+      }
+    }
+
+    print(j)
+    return 0
+  }
+}

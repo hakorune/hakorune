@@ -1,0 +1,4 @@
+{"diagnostics":[
+  {"file":"ng.hako","line":1,"rule":"HC014","message":"[HC014] missing entrypoint (Main.main or main)","quickFix":"","severity":"warning"}
+]}
+

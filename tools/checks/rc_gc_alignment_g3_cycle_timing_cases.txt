@@ -1,0 +1,6 @@
+# G-RC-3 cycle + explicit-drop timing gate matrix
+# case_id|gate_rel|focus
+g1_weak_and_drop_parity|tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g1_lifecycle_parity_vm_llvm.sh|weak_and_drop
+strong_cycle_observability|tools/smokes/v2/profiles/integration/apps/phase29x_observability_summary_vm.sh|strong_cycle
+explicit_drop_release_timing|tools/smokes/v2/profiles/integration/apps/phase29x_rc_explicit_drop_vm.sh|explicit_drop_timing
+scope_end_release_timing|tools/smokes/v2/profiles/integration/apps/phase29x_rc_scope_end_release_vm.sh|scope_end_timing

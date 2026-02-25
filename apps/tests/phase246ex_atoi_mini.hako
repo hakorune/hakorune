@@ -1,0 +1,35 @@
+// Phase 246-EX: Minimal _atoi test
+// Tests NumberAccumulation pattern: result = result * 10 + digit_pos
+// Prints "result = N" to stdout, returns 0 on success (42), 1 on failure.
+
+static box Phase246ExAtoiMini {
+    main() {
+        local s = "42"
+        local len = 2
+        local result = me.atoi(s, len)
+
+        // Expected: 42
+        print("result = " + result)
+        if result == 42 {
+            return 0
+        } else {
+            return 1
+        }
+    }
+
+    method atoi(s, len) {
+        local result = 0
+        local digits = "0123456789"
+        local i = 0
+
+        loop(i < len) {
+            local ch = s.substring(i, i + 1)
+            local digit_pos = digits.indexOf(ch)
+            if digit_pos < 0 { break }
+            result = result * 10 + digit_pos
+            i = i + 1
+        }
+
+        return result
+    }
+}

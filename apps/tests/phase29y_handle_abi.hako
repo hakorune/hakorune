@@ -1,0 +1,40 @@
+// Phase 29y.1 Task 1: Handle ABI shim smoke test
+// Tests nyrt_handle_retain_h and nyrt_handle_release_h via Box lifecycle
+// SSOT: docs/development/current/main/phases/phase-29y/10-ABI-SSOT.md
+
+box Counter {
+    value: IntegerBox
+
+    birth() {
+        me.value = 0
+    }
+
+    inc() {
+        me.value = me.value + 1
+    }
+
+    get() {
+        return me.value
+    }
+}
+
+static box Main {
+    main() {
+        // Create a Box - runtime allocates handle
+        local obj = new Counter()
+
+        // Overwrite triggers release of old value (tests release path)
+        obj = new Counter()
+        obj.inc()
+
+        // Verify we can still use the new object
+        local result = obj.get()
+        if result == 1 {
+            print("ok: handle_abi overwrite release works")
+            return 0
+        }
+
+        print("ng: unexpected result")
+        return 1
+    }
+}

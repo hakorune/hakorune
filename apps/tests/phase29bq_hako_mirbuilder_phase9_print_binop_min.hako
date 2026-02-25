@@ -1,0 +1,11 @@
+// Phase-9 pin (hako_mirbuilder): Local(Int) + Print(Binary(Var+Int)) + Return(Int)
+// Expected: stdout="1", RC=0
+
+static box Main {
+  main() {
+    local x = 0
+    print(x + 1)
+    return 0
+  }
+}
+

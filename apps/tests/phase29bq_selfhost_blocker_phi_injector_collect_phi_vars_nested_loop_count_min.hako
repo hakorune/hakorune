@@ -1,0 +1,40 @@
+// Minimal fixture for nested loop count pattern
+// Pattern: loop(i<n) { loop(j<m) { if cond { found=1; break }; j=j+1 }; total+=found }
+
+static box Main {
+    main() {
+        local arr = new ArrayBox()
+        arr.push(5)
+        arr.push(10)
+        arr.push(15)
+
+        local i = 0
+        local n = 3
+        local total_found = 0
+
+        loop(i < n) {
+            local target = arr.get(i)
+
+            local j = 0
+            local m = 3
+            local found = 0
+
+            loop(j < m) {
+                local val = arr.get(j)
+                if val == target {
+                    found = 1
+                    break
+                }
+                j = j + 1
+            }
+
+            // 外側 if found==1 は不要、直接加算で同型が出る
+            total_found = total_found + found
+
+            i = i + 1
+        }
+
+        print(total_found)
+        return 0
+    }
+}

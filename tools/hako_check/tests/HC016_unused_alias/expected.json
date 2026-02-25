@@ -1,0 +1,3 @@
+{"diagnostics":[
+  {"file":"ng.hako","line":2,"rule":"HC016","message":"[HC016] unused alias 'Str' in using: ng.hako:2","quickFix":"","severity":"warning"}
+]}

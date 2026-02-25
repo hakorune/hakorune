@@ -1,0 +1,656 @@
+// stage1_cli.hako — Stage‑1 self-host CLI skeleton（骨組みのみ）
+//
+// 役割: Stage‑B → Stage‑1 UsingResolver → MirBuilder を経由する self-host CLI の
+//      入口シグネチャを固定するだけの箱。Phase 25.1A-3 で最低限の中身を実装。
+// トグル（既定OFF）:
+//   - NYASH_USE_STAGE1_CLI=1             : Rust 側がこの CLI を呼ぶときに使用
+//   - STAGE1_EMIT_PROGRAM_JSON=1         : source → Program(JSON v0) を emit
+//   - STAGE1_EMIT_MIR_JSON=1             : Program(JSON v0) → MIR(JSON) を emit
+// 環境変数（env-only 仕様）:
+//   - STAGE1_SOURCE        : .hako ソースパス（FileBox 経由で読み込む）
+//   - STAGE1_SOURCE_TEXT   : ソース文字列（FileBox なしで渡すテスト用）
+//   - STAGE1_PROGRAM_JSON  : 事前生成した Program(JSON v0) のパス（emit_mir_json/run で利用）
+//   - STAGE1_BACKEND       : backend 選択（vm/llvm/pyvm、既定 vm）
+//   - STAGE1_CLI_DEBUG     : debug ログを有効化
+
+using lang.compiler.build.build_box as BuildBox
+using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
+using lang.mir.builder.MirBuilderBox as MirBuilderBox
+using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+
+// Stage-1 CLI Config Box - Environment variable parsing and configuration management
+static box Stage1CliConfigBox {
+  // Parse all env vars into a Config map (MapBox)
+  method from_env() {
+    local cfg = new MapBox()
+
+    // Mode selection (mutually exclusive)
+    if env.get("STAGE1_EMIT_PROGRAM_JSON") == "1" {
+      cfg.set("mode", "emit_program_json")
+    } else if env.get("STAGE1_EMIT_MIR_JSON") == "1" {
+      cfg.set("mode", "emit_mir_json")
+    } else if env.get("NYASH_USE_STAGE1_CLI") == "1" {
+      cfg.set("mode", "run")
+    } else {
+      cfg.set("mode", "disabled")
+    }
+
+    // Backend (default: "vm")
+    local b = env.get("STAGE1_BACKEND")
+    if b == null { b = "vm" }
+    cfg.set("backend", b)
+
+    // Input sources
+    cfg.set("source_path", env.get("STAGE1_SOURCE"))
+    cfg.set("source_text", env.get("STAGE1_SOURCE_TEXT"))
+    cfg.set("program_json_path", env.get("STAGE1_PROGRAM_JSON"))
+
+    // Dev flags
+    cfg.set("debug", env.get("STAGE1_CLI_DEBUG"))
+    cfg.set("to_i64_force_zero", env.get("NYASH_TO_I64_FORCE_ZERO"))
+
+    return cfg
+  }
+}
+
+static box Stage1Cli {
+  // Source(.hako) → Program(JSON v0)
+  method emit_program_json(source) {
+    local tag = "[stage1-cli] emit program-json"
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] emit_program_json ENTRY")
+    }
+    local src = env.get("STAGE1_SOURCE_TEXT")
+    if src == null {
+      if source == null || source == "" {
+        print(tag + ": source path is required")
+        return null
+      }
+      src = me._read_file(tag, source)
+      if env.get("STAGE1_CLI_DEBUG") == "1" {
+        if src != null { print("[stage1-cli/debug] emit_program_json: source loaded") }
+      }
+    } else if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] emit_program_json: STAGE1_SOURCE_TEXT provided")
+    }
+    if src == null { return null }
+
+    // Stage‑1 UsingResolver: prefix concat is no-op when HAKO_STAGEB_APPLY_USINGS=0
+    local prefix = Stage1UsingResolverBox.resolve_for_source(src)
+    if prefix == null { prefix = "" }
+    local merged = prefix + src
+    local dbg = env.get("STAGE1_CLI_DEBUG")
+    if dbg == "1" {
+      print("[stage1-cli/debug] emit_program_json: calling BuildBox.emit_program_json_v0")
+    }
+
+    local prog = BuildBox.emit_program_json_v0(merged, null)
+    if dbg == "1" {
+      local status = "null"
+      if prog != null { status = "non-null" }
+      print("[stage1-cli/debug] emit_program_json: BuildBox.emit_program_json_v0 returned, prog=" + status)
+    }
+    if prog == null {
+      print(tag + ": BuildBox returned null")
+      return null
+    }
+    local ps = prog
+    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
+      print(tag + ": unexpected Program(JSON) output (missing version/kind)")
+      return null
+    }
+    if dbg == "1" {
+      print("[stage1-cli/debug] emit_program_json: validation passed")
+    }
+    return ps
+  }
+
+  // Program(JSON v0) → MIR(JSON)
+  method emit_mir_json(program_json) {
+    local tag = "[stage1-cli] emit mir-json"
+    if program_json == null {
+      print(tag + ": program_json is null")
+      return null
+    }
+    local prog = program_json
+    if prog.indexOf("\"version\":0") < 0 || prog.indexOf("\"kind\":\"Program\"") < 0 {
+      print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
+      return null
+    }
+
+    local mir = MirBuilderBox.emit_from_program_json_v0(prog, null)
+    if mir == null {
+      print("[freeze:contract][stage1-cli/emit-mir] MirBuilderBox.emit_from_program_json_v0 returned null")
+      return null
+    }
+
+    local ms = mir
+    if ms.indexOf("\"functions\"") < 0 {
+      print("[freeze:contract][stage1-cli/emit-mir] output missing MIR functions marker")
+      return null
+    }
+    return ms
+  }
+
+  // Run Program(JSON v0) on selected backend (vm|llvm|pyvm)
+  // - vm/pyvm: convert to MIR(JSON) and print to stdout（実行 path は未配線）
+  // - llvm   : emit object via env.codegen; TODO: link+exec in後続フェーズ
+  method run_program_json(program_json, backend) {
+    local tag = "[stage1-cli] run program-json"
+    if program_json == null {
+      print(tag + ": program_json is null")
+      return 98
+    }
+    if backend == null { backend = "vm" }
+
+    local mir = me.emit_mir_json(program_json)
+    if mir == null { return 98 }
+
+    if backend == "llvm" {
+      local obj = CodegenBridgeBox.emit_object(mir)
+      if obj == null || obj == "" {
+        print(tag + ": env.codegen.emit_object failed")
+        return 98
+      }
+      print("[stage1-cli] llvm object: " + obj)
+      return 0
+    }
+
+    // vm / pyvm: 現状は MIR(JSON) を吐いて終了（実行は Stage0 側に後続で橋渡し）
+    print(mir)
+    return 0
+  }
+
+  // CLI dispatcher (Config box refactored)
+  method stage1_main(cli_args_raw) {
+    local mode = env.get("NYASH_STAGE1_MODE")
+    if mode == null || mode == "" {
+      mode = env.get("HAKO_STAGE1_MODE")
+    }
+    if mode == null || mode == "" {
+      if env.get("STAGE1_EMIT_PROGRAM_JSON") == "1" {
+        mode = "emit-program"
+      } else if env.get("STAGE1_EMIT_MIR_JSON") == "1" {
+        mode = "emit-mir"
+      } else if env.get("NYASH_USE_STAGE1_CLI") == "1" {
+        mode = "run"
+      } else {
+        mode = "disabled"
+      }
+    }
+
+    local source = env.get("HAKO_STAGE1_INPUT")
+    if source == null || source == "" { source = env.get("NYASH_STAGE1_INPUT") }
+    if source == null || source == "" { source = env.get("STAGE1_SOURCE") }
+    if source == null || source == "" { source = env.get("STAGE1_INPUT") }
+    local source_text = env.get("STAGE1_SOURCE_TEXT")
+
+    local prog_path = env.get("HAKO_STAGE1_PROGRAM_JSON")
+    if prog_path == null || prog_path == "" {
+      prog_path = env.get("NYASH_STAGE1_PROGRAM_JSON")
+    }
+    if prog_path == null || prog_path == "" {
+      prog_path = env.get("STAGE1_PROGRAM_JSON")
+    }
+
+    local backend = env.get("NYASH_STAGE1_BACKEND")
+    if backend == null || backend == "" {
+      backend = env.get("STAGE1_BACKEND")
+    }
+    if backend == null || backend == "" { backend = "vm" }
+
+    // デバッグは当面 STAGE1_CLI_DEBUG を優先し、将来 NYASH_DEBUG に統合する。
+    local debug = env.get("STAGE1_CLI_DEBUG")
+
+    // Log entry point for debugging
+    if debug == "1" {
+      print("[stage1-cli/debug] stage1_main ENTRY")
+      print("[stage1-cli/debug] stage1_main ENV")
+    }
+
+    // Early exit if CLI is disabled
+    if mode == "disabled" {
+      if debug == "1" {
+        print("[stage1-cli/debug] stage1_main: mode=disabled, returning 97")
+      }
+      return 97
+    }
+
+    if mode == "emit-program" || mode == "emit_program_json" {
+      return me._mode_emit_program(source, source_text)
+    }
+
+    if mode == "emit-mir" || mode == "emit_mir_json" {
+      return me._mode_emit_mir_from_env_min()
+    }
+
+    return me._mode_run(backend, source, source_text, prog_path)
+  }
+
+  method _resolve_mode() {
+    // mode 判定（env-only）
+    // 新形式（NYASH_STAGE1_MODE）があればそちらを優先し、旧 STAGE1_* はフォールバックとして扱う。
+    local mode = env.get("NYASH_STAGE1_MODE")
+    if mode == null || mode == "" {
+      if env.get("STAGE1_EMIT_PROGRAM_JSON") == "1" {
+        mode = "emit-program"
+      } else if env.get("STAGE1_EMIT_MIR_JSON") == "1" {
+        mode = "emit-mir"
+      } else if env.get("NYASH_USE_STAGE1_CLI") == "1" {
+        mode = "run"
+      } else {
+        mode = "disabled"
+      }
+    }
+    return mode
+  }
+
+  method _resolve_backend() {
+    local backend = env.get("NYASH_STAGE1_BACKEND")
+    if backend == null || backend == "" {
+      backend = env.get("STAGE1_BACKEND")
+    }
+    if backend == null { backend = "vm" }
+    return backend
+  }
+
+  method _resolve_source() {
+    local source = me._clean_env_value(env.get("HAKO_STAGE1_INPUT"))
+    if source == "" {
+      source = me._clean_env_value(env.get("NYASH_STAGE1_INPUT"))
+    }
+    if source == "" {
+      source = me._clean_env_value(env.get("STAGE1_SOURCE"))
+    }
+    if source == "" {
+      source = me._clean_env_value(env.get("STAGE1_INPUT"))
+    }
+    return source
+  }
+
+  method _resolve_program_json_path() {
+    local prog_path = me._clean_env_value(env.get("HAKO_STAGE1_PROGRAM_JSON"))
+    if prog_path == "" {
+      prog_path = me._clean_env_value(env.get("NYASH_STAGE1_PROGRAM_JSON"))
+    }
+    if prog_path == "" {
+      prog_path = me._clean_env_value(env.get("STAGE1_PROGRAM_JSON"))
+    }
+    return prog_path
+  }
+
+  method _mode_emit_program(source, source_text) {
+    local src_text = source_text
+    if src_text == null || src_text == "" {
+      src_text = env.get("STAGE1_SOURCE_TEXT")
+    }
+    local source_path = source
+    if source_path == null || source_path == "" {
+      source_path = env.get("HAKO_STAGE1_INPUT")
+    }
+    if source_path == null || source_path == "" {
+      source_path = env.get("NYASH_STAGE1_INPUT")
+    }
+    if source_path == null || source_path == "" {
+      source_path = env.get("STAGE1_SOURCE")
+    }
+    if source_path == null || source_path == "" {
+      source_path = env.get("STAGE1_INPUT")
+    }
+    if src_text == null || src_text == "" {
+      if source_path == null || source_path == "" {
+        print("[stage1-cli] emit program-json: STAGE1_SOURCE is required")
+        return 96
+      }
+      local fb = new FileBox()
+      local ok = fb.open(source_path, "r")
+      if ok != 1 {
+        print("[stage1-cli] emit program-json: failed to open " + source_path)
+        return 96
+      }
+      src_text = fb.read()
+      fb.close()
+    }
+    if src_text == null || src_text == "" {
+      print("[stage1-cli] emit program-json: source is empty")
+      return 96
+    }
+    local prefix = Stage1UsingResolverBox.resolve_for_source(src_text)
+    if prefix == null { prefix = "" }
+    local merged = prefix + src_text
+    local prog = BuildBox.emit_program_json_v0(merged, null)
+    if prog == null {
+      print("[freeze:contract][stage1-cli/emit-program] BuildBox.emit_program_json_v0 returned null")
+      return 96
+    }
+    local ps = prog
+    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
+      print("[freeze:contract][stage1-cli/emit-program] BuildBox output missing Program(JSON v0) markers")
+      return 96
+    }
+    print(ps)
+    return 0
+  }
+
+  method _mode_emit_mir(source, source_text, prog_path) {
+    local prog_json = source_text
+    if prog_json == null || prog_json == "" {
+      prog_json = env.get("STAGE1_SOURCE_TEXT")
+    }
+
+    // Preferred contract: STAGE1_SOURCE_TEXT carries Program(JSON v0).
+    // Fallback: when source text is provided, derive Program(JSON) in-process.
+    local need_program_json = 0
+    if prog_json == null || prog_json == "" {
+      need_program_json = 1
+    }
+    if need_program_json == 0 {
+      local has_kind = prog_json.indexOf("\"kind\":\"Program\"")
+      local has_version = prog_json.indexOf("\"version\":0")
+      if has_kind < 0 || has_version < 0 {
+        need_program_json = 1
+      }
+    }
+    if need_program_json == 1 {
+      local source_for_emit = source
+      if source_for_emit == null || source_for_emit == "" {
+        source_for_emit = env.get("HAKO_STAGE1_INPUT")
+      }
+      if source_for_emit == null || source_for_emit == "" {
+        source_for_emit = env.get("NYASH_STAGE1_INPUT")
+      }
+      if source_for_emit == null || source_for_emit == "" {
+        source_for_emit = env.get("STAGE1_SOURCE")
+      }
+      if source_for_emit == null || source_for_emit == "" {
+        source_for_emit = env.get("STAGE1_INPUT")
+      }
+      if source_for_emit == null || source_for_emit == "" {
+        source_for_emit = "__stage1_inline_source__"
+      }
+      prog_json = me.emit_program_json(source_for_emit)
+    }
+
+    if prog_json == null { return 96 }
+    local mir = me.emit_mir_json(prog_json)
+    if mir == null { return 96 }
+    print(mir)
+    return 0
+  }
+
+  // Minimal env contract path for stage1 artifact: STAGE1_SOURCE_TEXT must carry Program(JSON v0).
+  method _mode_emit_mir_from_env_min() {
+    local prog_json = env.get("STAGE1_SOURCE_TEXT")
+    if prog_json == null {
+      print("[stage1-cli] emit mir-json: STAGE1_SOURCE_TEXT is required")
+      return 96
+    }
+    if prog_json == "" {
+      print("[stage1-cli] emit mir-json: STAGE1_SOURCE_TEXT is required")
+      return 96
+    }
+    local mir = me.emit_mir_json(prog_json)
+    if mir == null { return 96 }
+    print(mir)
+    return 0
+  }
+
+  method _mode_run(backend, source, source_text, prog_path) {
+    local prog_json = null
+    local prog_path_s = prog_path
+    local source_path = source
+    local source_text_s = source_text
+    if prog_path_s != null && prog_path_s != "" {
+      prog_json = me._read_file("[stage1-cli] run", prog_path_s)
+    } else {
+      if source_path == null || source_path == "" {
+        if source_text_s != null && source_text_s != "" {
+          source_path = source_text_s
+        } else {
+          print("[stage1-cli] run: source path is required (set STAGE1_SOURCE)")
+          return 96
+        }
+      }
+      prog_json = me.emit_program_json(source_path)
+    }
+    if prog_json == null { return 96 }
+    return me.run_program_json(prog_json, backend)
+  }
+
+  method _clean_env_value(v) {
+    local s = "" + v
+    if s == "null" || s == "Null" || s == "void" || s == "Void" {
+      return ""
+    }
+    return s
+  }
+
+  // hakorune emit {program-json|mir-json} ...
+  method _cmd_emit(args){
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+    }
+    local argc = 0; if args != null { argc = args.size() }
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] _cmd_emit: argc=" + ("" + argc))
+    }
+    if argc < 2 {
+      print("[stage1-cli] emit: usage: emit program-json <source.hako> | emit mir-json [--from-program-json <file>] <source.hako>")
+      return 96
+    }
+    local sub = "" + args.get(1)
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] _cmd_emit: sub=" + sub)
+    }
+    if sub == "program-json" { return me._cmd_emit_program_json(args) }
+    if sub == "mir-json" { return me._cmd_emit_mir_json(args) }
+    print("[stage1-cli] emit: unknown subcommand: " + sub)
+    return 96
+  }
+
+  method _cmd_emit_program_json(args){
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+    }
+    local argc = 0; if args != null { argc = args.size() }
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] _cmd_emit_program_json: argc=" + ("" + argc))
+    }
+    if argc < 3 {
+      print("[stage1-cli] emit program-json: usage: emit program-json <source.hako>")
+      return 96
+    }
+    local path = "" + args.get(2)
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] _cmd_emit_program_json: calling emit_program_json with path=" + path)
+    }
+    local ps = me.emit_program_json(path)
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      local status = "null"
+      if ps != null { status = "non-null" }
+      print("[stage1-cli/debug] _cmd_emit_program_json: emit_program_json returned, ps=" + status)
+    }
+    if ps == null { return 96 }
+    print(ps)
+    return 0
+  }
+
+  method _cmd_emit_mir_json(args){
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+    }
+    local argc = 0; if args != null { argc = args.size() }
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] _cmd_emit_mir_json: argc=" + ("" + argc))
+    }
+    local prog_path = null
+    local source_path = null
+    // Predeclare to avoid creating loop-body-local variables in the condition scope.
+    local arg = ""
+
+    local i = 2
+    loop(i < argc) {
+      arg = "" + args.get(i)
+      if arg == "--from-program-json" {
+        if i + 1 >= argc {
+          print("[stage1-cli] emit mir-json: --from-program-json requires a path")
+          return 96
+        }
+        prog_path = "" + args.get(i + 1)
+        i = i + 2
+      } else {
+        if source_path == null {
+          source_path = arg
+          i = i + 1
+        } else {
+          print("[stage1-cli] emit mir-json: unexpected extra argument: " + arg)
+          return 96
+        }
+      }
+    }
+
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] _cmd_emit_mir_json: source_path=" + source_path + " prog_path=" + prog_path)
+    }
+
+    if prog_path != null && prog_path != "" && source_path != null && source_path != "" {
+      print("[stage1-cli] emit mir-json: specify either --from-program-json or <source.hako>")
+      return 96
+    }
+    if (prog_path == null || prog_path == "") && (source_path == null || source_path == "") {
+      print("[stage1-cli] emit mir-json: require --from-program-json <file> or <source.hako>")
+      return 96
+    }
+
+    local prog_json = null
+    if prog_path != null && prog_path != "" {
+      prog_json = me._read_file("[stage1-cli] emit mir-json", prog_path)
+    } else {
+      prog_json = me.emit_program_json(source_path)
+    }
+    if prog_json == null { return 96 }
+
+    local mir = me.emit_mir_json(prog_json)
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      local status = "null"
+      if mir != null { status = "non-null" }
+      print("[stage1-cli/debug] _cmd_emit_mir_json: emit_mir_json returned, mir=" + status)
+    }
+    if mir == null { return 96 }
+    print(mir)
+    return 0
+  }
+
+  // hakorune run --backend <b> <source.hako> [-- args...]
+  method _cmd_run(args){
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+    }
+    local argc = 0; if args != null { argc = args.size() }
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+    }
+    local backend = "vm"
+    local source_path = null
+    // Predeclare to keep the loop condition independent of loop-body-local variables.
+    local arg = ""
+
+    local i = 1
+    loop(i < argc) {
+      arg = "" + args.get(i)
+      if arg == "--backend" {
+        if i + 1 >= argc {
+          print("[stage1-cli] run: --backend requires a value (vm|llvm|pyvm)")
+          return 96
+        }
+        backend = "" + args.get(i + 1)
+        i = i + 2
+        continue
+      }
+
+      // First non-option argument is the source path; exit loop after capture.
+      source_path = arg
+      i = i + 1
+      if source_path != null { i = argc }
+    }
+
+    if source_path == null || source_path == "" {
+      print("[stage1-cli] run: source path is required")
+      return 96
+    }
+
+    // Remaining args after source are preserved as NYASH_SCRIPT_ARGS_JSON when unset
+    {
+      local extras = new ArrayBox()
+      loop(i < argc) {
+        extras.push("" + args.get(i))
+        i = i + 1
+      }
+      if extras.length() > 0 {
+        // Build a minimal JSON array string; avoid env.set unless already available
+        local json = "["
+        local j = 0; loop(j < extras.length()) {
+          if j > 0 { json = json + "," }
+          local s = extras.get(j)
+          json = json + "\"" + me._escape_json_string("" + s) + "\""
+          j = j + 1
+        }
+        json = json + "]"
+        // env.set may be unavailable on some runtimes; best-effort
+        env.set("NYASH_SCRIPT_ARGS_JSON", json)
+      }
+    }
+
+    local prog_json = me.emit_program_json(source_path)
+    if prog_json == null { return 96 }
+    return me.run_program_json(prog_json, backend)
+  }
+
+  method _read_file(tag, path) {
+    if path == null || path == "" {
+      print(tag + ": source path is required")
+      return null
+    }
+    local fb = new FileBox()
+    local ok = fb.open(path, "r")
+    if ok != 1 {
+      print(tag + ": failed to open " + path)
+      return null
+    }
+    local content = fb.read()
+    fb.close()
+    if content == null || content == "" {
+      print(tag + ": source is empty")
+      return null
+    }
+    return content
+  }
+
+  method _escape_json_string(s) {
+    local out = ""
+    if s == null { return out }
+    local i = 0
+    local n = s.length()
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch == "\\" { out = out + "\\\\" }
+      else if ch == "\"" { out = out + "\\\"" }
+      else if ch == "\n" { out = out + "\\n" }
+      else if ch == "\r" { out = out + "\\r" }
+      else if ch == "\t" { out = out + "\\t" }
+      else { out = out + ch }
+      i = i + 1
+    }
+    return out
+  }
+}
+
+static box Stage1CliMain {
+  // SSOT entry: delegate all mode handling to Stage1Cli.
+  main() {
+    return Stage1Cli.stage1_main(null)
+  }
+}
+
+// Compatibility entry for selfhost_exe artifacts.
+// Some generated executables still boot from Main.main/0 by default.
+static box Main {
+  main() {
+    return Stage1CliMain.main()
+  }
+}

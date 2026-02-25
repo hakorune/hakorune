@@ -1,0 +1,12 @@
+// Phase 29bq: [modules] overrides module_roots
+// Expected: stdout=2, rc=0
+
+using lang.shared.module_roots_priority_box as ModuleRootsPriorityBox
+
+static box Main {
+  main() {
+    print(ModuleRootsPriorityBox.value())
+    return 0
+  }
+}
+

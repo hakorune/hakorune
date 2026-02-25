@@ -1,0 +1,12 @@
+box StringBox {
+  id(x) {
+    return x
+  }
+}
+
+static box Main {
+  main() {
+    local s = new StringBox()
+    return s.id(9)
+  }
+}

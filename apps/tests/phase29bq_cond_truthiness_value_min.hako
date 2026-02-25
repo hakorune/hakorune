@@ -1,0 +1,17 @@
+// Condition truthiness (value context) minimal
+// Expected: stdout=12345, RC=0
+static box Main {
+  main() {
+    local x = 2
+    local out = ""
+
+    if -x { out = out + "1" } else { out = out + "X" }
+    if (-x) < 0 { out = out + "2" } else { out = out + "X" }
+    if not (x < 0) { out = out + "3" } else { out = out + "X" }
+    if "" { out = out + "X" } else { out = out + "4" }
+    if "a" { out = out + "5" } else { out = out + "X" }
+
+    print(out)
+    return 0
+  }
+}

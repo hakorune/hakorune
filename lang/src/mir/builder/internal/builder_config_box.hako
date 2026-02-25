@@ -1,0 +1,45 @@
+// builder_config_box.hako — Centralized env/toggles for MirBuilder
+// Purpose: avoid scattered env.get calls. All HAKO_MIR_BUILDER_* toggles are read here.
+
+static box BuilderConfigBox {
+  // Generic on/off reader for HAKO_MIR_BUILDER_* flags
+  _is_on(key) {
+    local v = env.get(key)
+    if v == null { return 0 }
+    local s = "" + v
+    if s == "1" || s == "true" || s == "on" { return 1 }
+    return 0
+  }
+
+  // Trace controls
+  trace_enabled() { return me._is_on("HAKO_MIR_BUILDER_TRACE") }
+  debug_enabled() { return me._is_on("HAKO_MIR_BUILDER_DEBUG") || me._is_on("NYASH_CLI_VERBOSE") }
+
+  // Registry and internal lowers
+  internal_on() {
+    local v = env.get("HAKO_MIR_BUILDER_INTERNAL")
+    // default ON
+    return (v == null) || ("" + v == "1")
+  }
+  registry_on() {
+    local v = env.get("HAKO_MIR_BUILDER_REGISTRY")
+    // default ON
+    return (v == null) || ("" + v == "1")
+  }
+  registry_only() { return env.get("HAKO_MIR_BUILDER_REGISTRY_ONLY") }
+
+  // Loop/JsonFrag related
+  loop_jsonfrag_on() { return me._is_on("HAKO_MIR_BUILDER_LOOP_JSONFRAG") }
+  loop_force_jsonfrag_on() { return me._is_on("HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG") }
+  jsonfrag_normalize_on() { return me._is_on("HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE") }
+  skip_loops_on() { return me._is_on("HAKO_MIR_BUILDER_SKIP_LOOPS") }
+
+  // Return-mode for loop adapter: "string" (default) | "map"
+  loop_adapter_return_mode() {
+    local m = env.get("HAKO_MIR_BUILDER_LOOP_RETURN")
+    if m == null { return "string" }
+    local s = "" + m
+    if s == "string" { return "string" }
+    return "map"
+  }
+}

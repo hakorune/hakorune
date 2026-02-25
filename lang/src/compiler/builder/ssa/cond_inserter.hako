@@ -1,0 +1,196 @@
+// cond_inserter.hako — minimal JSON-string helper to ensure branch(cond) has copy
+// Scope: smoke/dev helper（文字列JSON限定、構造的なLocalSSAとは別ライン）
+
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+
+static box CondInserter {
+  ensure_cond(mjson) {
+    if mjson == null { return "" }
+    local out = me._ensure_copy(
+      mjson,
+      "\"op\":\"branch\"",
+      "\"cond\":",
+      "\"instructions\":[",
+      "\"op\":\"copy\"",
+      "\"",
+      "\"",
+      "\""
+    )
+    if out != null { return out }
+    out = me._ensure_copy(
+      mjson,
+      "\\\"op\\\":\\\"branch\\\"",
+      "\\\"cond\\\":",
+      "\\\"instructions\\\":[",
+      "\\\"op\\\":\\\"copy\\\"",
+      "\\\"",
+      "\\\"",
+      "\\\""
+    )
+    if out != null { return out }
+    return mjson
+  }
+
+  _ensure_copy(mjson, branch_pat, cond_pat, instr_pat, copy_pat, quote, key_quote, value_quote) {
+    local branch_idx = me._index_of_from(mjson, branch_pat, 0)
+    if branch_idx < 0 { return null }
+    local cond_idx = me._index_of_from(mjson, cond_pat, branch_idx)
+    if cond_idx < 0 { return null }
+    local cond_start
+    cond_start = cond_idx + 7
+    local cond_digits
+    cond_digits = me._digits_from(mjson, cond_start)
+    if cond_digits == "" || cond_digits == null { return null }
+    local cond_value = me._digits_to_int(cond_digits)
+    local inst_idx = me._last_index_before(mjson, instr_pat, branch_idx)
+    if inst_idx < 0 { return null }
+    local segment = me._substr(mjson, inst_idx, branch_idx)
+    if me._index_of_from(segment, copy_pat, 0) >= 0 { return mjson }
+    local insert_pos
+    insert_pos = inst_idx + 17
+    local copy_entry = "{" + key_quote + "op" + key_quote + ":" + value_quote + "copy" + value_quote + "," +
+      key_quote + "dst" + key_quote + ":" + me._int_to_str(cond_value) + "," +
+      key_quote + "src" + key_quote + ":" + me._int_to_str(cond_value) + "}"
+    local glue = ""
+    local next_ch = me._peek_non_ws(mjson, insert_pos)
+    if next_ch != "]" && next_ch != "" { glue = "," }
+    return me._substr(mjson, 0, insert_pos) + copy_entry + glue + me._substr(mjson, insert_pos, 999999)
+  }
+
+  _index_of_from(text, needle, pos) {
+    if text == null || needle == null { return -1 }
+    local i
+    i = pos
+    loop(i < 1000) {
+      local text_ch
+      text_ch = me._substr(text, i, i + 1)
+      if text_ch == "" { return -1 }
+      local j
+      j = 0
+      local found
+      found = 1
+      loop(j < 50) {
+        local nc
+        nc = me._substr(needle, j, j + 1)
+        if nc == "" { break }
+        local tc
+        tc = me._substr(text, i + j, i + j + 1)
+        if tc != nc {
+          found = 0
+          break
+        }
+        j = j + 1
+      }
+      if found == 1 { return i }
+      i = i + 1
+    }
+    return -1
+  }
+
+  _last_index_before(text, needle, limit) {
+    local last = -1
+    local start = 0
+    loop(true) {
+      local pos = me._index_of_from(text, needle, start)
+      if pos < 0 || pos >= limit { break }
+      last = pos
+      start = pos + 1
+    }
+    return last
+  }
+
+  _peek_non_ws(text, pos) {
+    local i = pos
+    local limit = pos + 100
+    loop(i < limit) {
+      local ch = me._substr(text, i, i + 1)
+      if ch == "" { return "" }
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { i = i + 1 } else { return ch }
+    }
+    return ""
+  }
+
+  _digits_to_int(digits) {
+    local n = me._strlen(digits)
+    if n == 0 { return 0 }
+    local i = 0
+    local acc = 0
+    loop(i < n) {
+      local ch = me._substr(digits, i, i + 1)
+      acc = acc * 10 + me._digit_value(ch)
+      i = i + 1
+    }
+    return acc
+  }
+
+  _digit_value(ch) {
+    if ch == "0" { return 0 }
+    if ch == "1" { return 1 }
+    if ch == "2" { return 2 }
+    if ch == "3" { return 3 }
+    if ch == "4" { return 4 }
+    if ch == "5" { return 5 }
+    if ch == "6" { return 6 }
+    if ch == "7" { return 7 }
+    if ch == "8" { return 8 }
+    return 9
+  }
+
+  _int_to_str(n) {
+    if n == 0 { return "0" }
+    local value = n
+    local sign = ""
+    if value < 0 { sign = "-"  value = 0 - value }
+    local out = ""
+    loop(value > 0) {
+      local digit = value % 10
+      out = me._digit_char(digit) + out
+      value = value / 10
+    }
+    return sign + out
+  }
+
+  _digit_char(d) {
+    if d == 0 { return "0" }
+    if d == 1 { return "1" }
+    if d == 2 { return "2" }
+    if d == 3 { return "3" }
+    if d == 4 { return "4" }
+    if d == 5 { return "5" }
+    if d == 6 { return "6" }
+    if d == 7 { return "7" }
+    if d == 8 { return "8" }
+    return "9"
+  }
+
+  _digits_from(text, start_pos) {
+    if text == null { return "" }
+    local ch
+    ch = me._substr(text, start_pos, start_pos + 1)
+    if ch >= "0" && ch <= "9" { return ch }
+    if ch == "-" {
+      local ch2
+      ch2 = me._substr(text, start_pos + 1, start_pos + 2)
+      if ch2 >= "0" && ch2 <= "9" { return ch + ch2 }
+    }
+    return ""
+  }
+
+  _strlen(text) {
+    if text == null { return 0 }
+    local i = 0
+    loop(me._substr(text, i, i + 1) != "") {
+      i = i + 1
+    }
+    return i
+  }
+
+  _substr(text, start, finish) {
+    if text == null { return "" }
+    local s = start
+    local e = finish
+    if s < 0 { s = 0 }
+    if e < s { e = s }
+    return text.substring(s, e)
+  }
+}

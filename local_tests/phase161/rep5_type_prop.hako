@@ -1,0 +1,21 @@
+// Phase 161 Representative Function 5: Type Propagation Through Loop
+// Pattern: Loop with type-carrying PHI and arithmetic operations
+// Tests: Type propagation, type inference through PHI chain, BinOp type preservation
+
+box Main {
+    main() {
+        local x = 0
+        local y = 10
+
+        loop(x < y) {
+            local z = x + 1
+            if z > 5 {
+                x = z * 2
+            } else {
+                x = z - 1
+            }
+        }
+
+        print(x)
+    }
+}

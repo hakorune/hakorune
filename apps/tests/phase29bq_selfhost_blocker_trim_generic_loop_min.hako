@@ -1,0 +1,23 @@
+// selfhost StringHelpers.trim minimal (generic loop cond with AND/OR)
+// Expected: stdout=OK, RC=0
+static box Main {
+  main() {
+    local s = "  ;"
+    local i = 0
+    local n = s.length()
+
+    loop(i < n && (s.substring(i, i + 1) == " " || s.substring(i, i + 1) == ";")) {
+      s.length()
+      i = i + 1
+    }
+
+    local j = n
+    loop(j > i && (s.substring(j - 1, j) == " " || s.substring(j - 1, j) == ";")) {
+      s.length()
+      j = j - 1
+    }
+
+    print("OK")
+    return 0
+  }
+}

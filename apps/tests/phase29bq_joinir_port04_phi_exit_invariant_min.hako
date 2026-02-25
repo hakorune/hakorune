@@ -1,0 +1,14 @@
+// JIR-PORT-04 fixture (PHI / Exit invariant lock)
+// Contract:
+// - Loop header must have a PHI (entry + latch incoming).
+// - Loop exit must return the loop-carried PHI value.
+// - Executing emitted MIR via --mir-json-file returns rc=4.
+static box Main {
+  main() {
+    local cursor = 0
+    loop (cursor < 4) {
+      cursor = cursor + 1
+    }
+    return cursor
+  }
+}

@@ -1,0 +1,33 @@
+// parse_program2 guard_prog numeric parse loop shape
+// - exit-if with assignment + break (same-line)
+// - if-only conditional update (ok=0 -> ok=1)
+// Expected: stdout=5, RC=0
+static box ParserStringUtilsBox {
+  to_int(ch) {
+    if ch == "5" { return 5 }
+    return 0
+  }
+}
+
+static box Main {
+  main() {
+    local mv = 0
+    local ok = 0
+    local ms = "5"
+    local mi = 0
+    local ml = ms.length()
+
+    loop(mi < ml) {
+      local chm = ms.substring(mi, mi + 1)
+      if chm < "0" || chm > "9" { ok = 0  break }
+      if ok == 0 { ok = 1 }
+      mv = mv * 10 + ParserStringUtilsBox.to_int(chm)
+      mi = mi + 1
+    }
+
+    local max_prog = 0
+    if ok == 1 && mv > 0 { max_prog = mv }
+    print(max_prog)
+    return 0
+  }
+}

@@ -1,0 +1,10 @@
+[PASS] phase29y_no_compat_mainline_vm: identity smoke passed
+[PASS] phase29y_core_contracts_vm: ABI contract verified
+[FAIL] phase29y_handle_abi_borrowed_owned_vm: rc=1
+[PASS] phase29y_observability_summary_vm: metrics tag stable
+[SKIP] phase29y_llvm_harness_vm: LLVM not available in this build
+[PASS] phase29y_optional_gc_lane_entry_vm: entry contract locked
+[PASS] phase29y_lane_gate_vm: single-entry replay passed
+[FAIL] phase29y_lane_gate_vm: contract mismatch
+[PASS] phase29bq_fast_gate_vm: 154/154 passed
+[PASS] phase29ae_regression_pack_vm: all regressions stable

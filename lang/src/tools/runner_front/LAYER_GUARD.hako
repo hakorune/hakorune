@@ -1,0 +1,8 @@
+#![doc = "Phase 20.13 runner_front guard — define layer responsibilities."]
+
+static box RUNNER_FRONT_GUARD {
+  name() { return "runner_front" }
+  allowed_imports() { return ["json", "cli", "env"] }
+  forbidden_imports() { return ["vm_core", "llvm", "plugins"] }
+}
+

@@ -1,0 +1,29 @@
+// pattern_registry.hako — Minimal priority registry for MirBuilder lowers (scaffold)
+
+static box PatternRegistryBox {
+  // Return prioritized candidate names (subset); MirBuilder maps names to concrete try_lower calls.
+  candidates() {
+    local a = new ArrayBox()
+    // Higher first
+    a.push("if.compare.intint")
+    a.push("if.compare.fold.binints")
+    a.push("if.compare.fold.varint")
+    a.push("if.compare.varint")
+    a.push("if.compare.varvar")
+    a.push("if.merge.local.return.var")
+    a.push("loop.local.return.var")
+    a.push("return.method.arraymap")
+    a.push("return.method.string.length")
+    a.push("return.loop.strlen.sum")
+    a.push("return.var.local")
+    a.push("return.string")
+    a.push("return.float")
+    a.push("return.bool")
+    a.push("return.logical")
+    a.push("return.binop.varint")
+    a.push("return.binop.varvar")
+    a.push("return.binop.intint")
+    a.push("return.int")
+    return a
+  }
+}

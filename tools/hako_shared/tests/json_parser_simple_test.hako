@@ -1,0 +1,415 @@
+// tools/hako_shared/tests/json_parser_simple_test.hako - Simple standalone tests
+// Test JsonParserBox without using statement
+
+static box JsonParserBox {
+  // Copy of parse method for testing
+  method parse(json_str) {
+    if json_str == null { return null }
+    local s = me._trim(json_str)
+    if s.length() == 0 { return null }
+    local result = me._parse_value(s, 0)
+    if result == null { return null }
+    return result.get("value")
+  }
+
+  method parse_object(json_str) {
+    local val = me.parse(json_str)
+    if val == null { return null }
+    local test = val.get
+    if test == null { return null }
+    return val
+  }
+
+  method parse_array(json_str) {
+    local val = me.parse(json_str)
+    if val == null { return null }
+    local test = val.size
+    if test == null { return null }
+    return val
+  }
+
+  _parse_value(s, pos) {
+    local p = me._skip_whitespace(s, pos)
+    if p >= s.length() { return null }
+    local ch = s.substring(p, p+1)
+
+    if ch == "n" {
+      if me._match_literal(s, p, "null") {
+        local result = new MapBox()
+        result.set("value", null)
+        result.set("pos", p + 4)
+        return result
+      }
+      return null
+    }
+
+    if ch == "t" {
+      if me._match_literal(s, p, "true") {
+        local result = new MapBox()
+        result.set("value", 1)
+        result.set("pos", p + 4)
+        return result
+      }
+      return null
+    }
+
+    if ch == "f" {
+      if me._match_literal(s, p, "false") {
+        local result = new MapBox()
+        result.set("value", 0)
+        result.set("pos", p + 5)
+        return result
+      }
+      return null
+    }
+
+    if ch == "-" || (ch >= "0" && ch <= "9") {
+      return me._parse_number(s, p)
+    }
+
+    if ch == '"' {
+      return me._parse_string(s, p)
+    }
+
+    if ch == "[" {
+      return me._parse_array(s, p)
+    }
+
+    if ch == "{" {
+      return me._parse_object(s, p)
+    }
+
+    return null
+  }
+
+  _parse_number(s, pos) {
+    local num_str = ""
+    local p = pos
+    if p < s.length() {
+      local ch = s.substring(p, p+1)
+      if ch == "-" {
+        num_str = num_str + ch
+        p = p + 1
+      }
+    }
+    while p < s.length() {
+      local ch = s.substring(p, p+1)
+      if ch >= "0" && ch <= "9" {
+        num_str = num_str + ch
+        p = p + 1
+      } else {
+        break
+      }
+    }
+    if num_str == "" || num_str == "-" { return null }
+    local result = new MapBox()
+    result.set("value", me._atoi(num_str))
+    result.set("pos", p)
+    return result
+  }
+
+  _parse_string(s, pos) {
+    if s.substring(pos, pos+1) != '"' { return null }
+    local p = pos + 1
+    local str = ""
+    while p < s.length() {
+      local ch = s.substring(p, p+1)
+      if ch == '"' {
+        local result = new MapBox()
+        result.set("value", me._unescape_string(str))
+        result.set("pos", p + 1)
+        return result
+      }
+      if ch == "\\" {
+        if p + 1 < s.length() {
+          str = str + ch
+          p = p + 1
+          str = str + s.substring(p, p+1)
+          p = p + 1
+          continue
+        }
+        return null
+      }
+      str = str + ch
+      p = p + 1
+    }
+    return null
+  }
+
+  _parse_array(s, pos) {
+    if s.substring(pos, pos+1) != "[" { return null }
+    local p = pos + 1
+    local arr = new ArrayBox()
+    p = me._skip_whitespace(s, p)
+    if p < s.length() {
+      if s.substring(p, p+1) == "]" {
+        local result = new MapBox()
+        result.set("value", arr)
+        result.set("pos", p + 1)
+        return result
+      }
+    }
+    while p < s.length() {
+      local elem_result = me._parse_value(s, p)
+      if elem_result == null { return null }
+      local elem = elem_result.get("value")
+      arr.push(elem)
+      p = elem_result.get("pos")
+      p = me._skip_whitespace(s, p)
+      if p >= s.length() { return null }
+      local ch = s.substring(p, p+1)
+      if ch == "]" {
+        local result = new MapBox()
+        result.set("value", arr)
+        result.set("pos", p + 1)
+        return result
+      }
+      if ch == "," {
+        p = p + 1
+        p = me._skip_whitespace(s, p)
+        continue
+      }
+      return null
+    }
+    return null
+  }
+
+  _parse_object(s, pos) {
+    if s.substring(pos, pos+1) != "{" { return null }
+    local p = pos + 1
+    local obj = new MapBox()
+    p = me._skip_whitespace(s, p)
+    if p < s.length() {
+      if s.substring(p, p+1) == "}" {
+        local result = new MapBox()
+        result.set("value", obj)
+        result.set("pos", p + 1)
+        return result
+      }
+    }
+    while p < s.length() {
+      p = me._skip_whitespace(s, p)
+      if s.substring(p, p+1) != '"' { return null }
+      local key_result = me._parse_string(s, p)
+      if key_result == null { return null }
+      local key = key_result.get("value")
+      p = key_result.get("pos")
+      p = me._skip_whitespace(s, p)
+      if p >= s.length() { return null }
+      if s.substring(p, p+1) != ":" { return null }
+      p = p + 1
+      p = me._skip_whitespace(s, p)
+      local value_result = me._parse_value(s, p)
+      if value_result == null { return null }
+      local value = value_result.get("value")
+      obj.set(key, value)
+      p = value_result.get("pos")
+      p = me._skip_whitespace(s, p)
+      if p >= s.length() { return null }
+      local ch = s.substring(p, p+1)
+      if ch == "}" {
+        local result = new MapBox()
+        result.set("value", obj)
+        result.set("pos", p + 1)
+        return result
+      }
+      if ch == "," {
+        p = p + 1
+        continue
+      }
+      return null
+    }
+    return null
+  }
+
+  _skip_whitespace(s, pos) {
+    local p = pos
+    while p < s.length() {
+      local ch = s.substring(p, p+1)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+        p = p + 1
+      } else {
+        break
+      }
+    }
+    return p
+  }
+
+  _trim(s) {
+    if s == null { return "" }
+    local start = 0
+    local end = s.length()
+    while start < end {
+      local ch = s.substring(start, start+1)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+        start = start + 1
+      } else {
+        break
+      }
+    }
+    while end > start {
+      local ch = s.substring(end-1, end)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+        end = end - 1
+      } else {
+        break
+      }
+    }
+    return s.substring(start, end)
+  }
+
+  _match_literal(s, pos, literal) {
+    local len = literal.length()
+    if pos + len > s.length() { return 0 }
+    local i = 0
+    while i < len {
+      if s.substring(pos + i, pos + i + 1) != literal.substring(i, i + 1) {
+        return 0
+      }
+      i = i + 1
+    }
+    return 1
+  }
+
+  _unescape_string(s) {
+    if s == null { return "" }
+    local result = ""
+    local i = 0
+    while i < s.length() {
+      local ch = s.substring(i, i+1)
+      if ch == "\\" && i + 1 < s.length() {
+        local next = s.substring(i+1, i+2)
+        if next == "n" {
+          result = result + "\n"
+          i = i + 2
+          continue
+        }
+        if next == "t" {
+          result = result + "\t"
+          i = i + 2
+          continue
+        }
+        if next == "r" {
+          result = result + "\r"
+          i = i + 2
+          continue
+        }
+        if next == '"' {
+          result = result + '"'
+          i = i + 2
+          continue
+        }
+        if next == "\\" {
+          result = result + "\\"
+          i = i + 2
+          continue
+        }
+        result = result + ch
+        i = i + 1
+        continue
+      }
+      result = result + ch
+      i = i + 1
+    }
+    return result
+  }
+
+  _atoi(s) {
+    if s == null { return 0 }
+    local n = s.length()
+    if n == 0 { return 0 }
+    local i = 0
+    local v = 0
+    local negative = 0
+    if s.substring(0, 1) == "-" {
+      negative = 1
+      i = 1
+    }
+    local digits = "0123456789"
+    while i < n {
+      local ch = s.substring(i, i+1)
+      if ch < "0" || ch > "9" { break }
+      local pos = digits.indexOf(ch)
+      if pos < 0 { break }
+      v = v * 10 + pos
+      i = i + 1
+    }
+    if negative == 1 {
+      v = 0 - v
+    }
+    return v
+  }
+}
+
+static box Main {
+  main(args) {
+    print("=== JsonParserBox Basic Tests ===")
+
+    // Test 1: null
+    print("Test 1: null")
+    local n = JsonParserBox.parse("null")
+    if n == null {
+      print("  PASS: null parsed correctly")
+    } else {
+      print("  FAIL: expected null")
+    }
+
+    // Test 2: boolean
+    print("Test 2: boolean")
+    local t = JsonParserBox.parse("true")
+    if t == 1 {
+      print("  PASS: true parsed correctly")
+    } else {
+      print("  FAIL: expected 1, got something else")
+    }
+
+    // Test 3: number
+    print("Test 3: number")
+    local num = JsonParserBox.parse("123")
+    if num == 123 {
+      print("  PASS: number parsed correctly")
+    } else {
+      print("  FAIL: expected 123")
+    }
+
+    // Test 4: string
+    print("Test 4: string")
+    local str = JsonParserBox.parse('"hello"')
+    if str == "hello" {
+      print("  PASS: string parsed correctly")
+    } else {
+      print("  FAIL: expected 'hello'")
+    }
+
+    // Test 5: array
+    print("Test 5: array")
+    local arr = JsonParserBox.parse("[1, 2, 3]")
+    if arr != null && arr.size() == 3 {
+      local e0 = arr.get(0)
+      if e0 == 1 {
+        print("  PASS: array parsed correctly")
+      } else {
+        print("  FAIL: first element should be 1")
+      }
+    } else {
+      print("  FAIL: array should have 3 elements")
+    }
+
+    // Test 6: object
+    print("Test 6: object")
+    local obj = JsonParserBox.parse('{"key": "value"}')
+    if obj != null {
+      local val = obj.get("key")
+      if val == "value" {
+        print("  PASS: object parsed correctly")
+      } else {
+        print("  FAIL: key should have value 'value'")
+      }
+    } else {
+      print("  FAIL: object should not be null")
+    }
+
+    print("=== All Basic Tests Complete ===")
+    return 0
+  }
+}

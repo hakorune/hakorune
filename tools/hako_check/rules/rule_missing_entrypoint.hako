@@ -1,0 +1,56 @@
+// tools/hako_check/rules/rule_missing_entrypoint.hako — HC014: Missing Entrypoint
+// Detect when no entrypoint (Main.main or main) exists in the analyzed code.
+
+static box RuleMissingEntrypointBox {
+  method apply_ir(ir, path, out) {
+    local entrypoints = ir.get("entrypoints")
+    if entrypoints == null { return 0 }
+
+    local methods = ir.get("methods")
+    if methods == null || methods.size() == 0 {
+      // No methods at all - definitely missing entrypoint
+      out.push("[HC014] missing entrypoint (Main.main or main)")
+      return out.size()
+    }
+
+    // Check if any entrypoint exists
+    local found = me._find_entrypoint(entrypoints, methods, 0)
+
+    // If no entrypoint found, report error
+    if found == 0 {
+      out.push("[HC014] missing entrypoint (Main.main or main)")
+    }
+
+    return out.size()
+  }
+
+  _find_entrypoint(entrypoints, methods, i) {
+    if i >= entrypoints.size() { return 0 }
+    local ep = entrypoints.get(i)
+    if me._has_entrypoint_method(methods, ep, 0) == 1 { return 1 }
+    return me._find_entrypoint(entrypoints, methods, i + 1)
+  }
+  _has_entrypoint_method(methods, ep_name, i) {
+    // Check if method starting with ep_name exists
+    // e.g., "Main.main" matches "Main.main/0", "Main.main/1", etc.
+    // "main" matches "main/0", etc.
+    if i >= methods.size() { return 0 }
+    local m = methods.get(i)
+    if m == null { return me._has_entrypoint_method(methods, ep_name, i + 1) }
+
+    // Check exact match with arity suffix
+    // ep_name can be "Main.main" or "main"
+    local len = ep_name.length()
+    if m.length() >= len + 2 {
+      local prefix = m.substring(0, len)
+      if prefix == ep_name {
+        // Check if followed by "/" (arity separator)
+        local next_char = m.substring(len, len+1)
+        if next_char == "/" { return 1 }
+      }
+    }
+    return me._has_entrypoint_method(methods, ep_name, i + 1)
+  }
+}
+
+static box RuleMissingEntrypointMain { method main(args) { return 0 } }

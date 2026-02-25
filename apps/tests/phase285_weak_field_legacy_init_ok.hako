@@ -1,0 +1,15 @@
+// Phase 285A1.2: Legacy init { weak } syntax compatibility test
+// Tests that the old syntax still works and runs successfully
+box Node {
+    init { weak parent }
+}
+
+static box Main {
+    main() {
+        local n1 = new Node()
+        local n2 = new Node()
+        n1.parent = weak n2  // ✅ Explicit weak operator (Phase 285W-Syntax-0)
+        print("OK: legacy init { weak parent } syntax still works")
+        return 0
+    }
+}

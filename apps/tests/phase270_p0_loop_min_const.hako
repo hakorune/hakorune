@@ -1,0 +1,11 @@
+static box Main {
+    main() {
+        local sum = 0
+        local i = 0
+        loop(i < 3) {
+            sum = sum + i
+            i = i + 1
+        }
+        return sum  // Expected: 0 + 1 + 2 = 3
+    }
+}

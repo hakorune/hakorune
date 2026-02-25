@@ -1,0 +1,2 @@
+# fixture_rel|expected_error_substring
+apps/tests/phase29x_optimization_reject_div_zero_min.hako|Division by zero

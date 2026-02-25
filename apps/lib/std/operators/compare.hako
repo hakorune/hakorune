@@ -1,0 +1,12 @@
+// std/operators/compare.hako
+// CompareOperator — 比較演算の演算子ボックス（開発用観測MVP）
+// 目的: 比較を明示の呼び出しとして観測可能にする（意味論はVM側がSSOT）
+
+static box CompareOperator {
+  // apply(op, a, b) -> Void (observe-only)
+  apply(op, a, b) {
+    // NOTE: 意味論への介入を避けるため、返り値は常に Void。
+    // VM側は `CompareOperator.apply/3` を観測用に呼び出した後、通常の比較を評価する。
+    return
+  }
+}

@@ -1,0 +1,28 @@
+// Phase 274 P1: TypeOp (is/as) runnable on Rust VM
+
+box Foo {
+    birth() { }
+}
+
+static box Main {
+    main() {
+        // Primitive check + cast
+        local x = 1
+        if !x.is("Integer") { return 101 }
+        local y = x.as("Integer")
+        if y != 1 { return 102 }
+
+        // String check
+        local s = "a"
+        if !s.is("String") { return 103 }
+
+        // User-defined box check + cast
+        local f = new Foo()
+        if !f.is("Foo") { return 104 }
+        local g = f.as("Foo")
+        if !g.is("Foo") { return 105 }
+
+        return 3
+    }
+}
+

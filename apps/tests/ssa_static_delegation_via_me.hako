@@ -1,0 +1,105 @@
+// Phase 74-SSA: Critical reproduction - box delegates to static box AND calls via me.method()
+// Goal: Reproduce ValueId undef with the EXACT pattern from ParserBox
+//
+// Critical pattern found:
+// - ParserBox had: me.to_int() → calls ParserBox.to_int() → delegates to ParserStringUtilsBox.to_int()
+// - This is: instance call → instance method → static box delegation
+//
+// This is the key difference from the original minimal code!
+
+static box TargetBox {
+  is_digit(ch) {
+    if ch >= "0" && ch <= "9" { return 1 }
+    return 0
+  }
+
+  to_int(s) {
+    if s == null { return 0 }
+    local str = "" + s
+    local n = str.length()
+    if n == 0 { return 0 }
+    local i = 0
+    local acc = 0
+    loop(i < n) {
+      local ch = str.substring(i, i + 1)
+      if ch < "0" || ch > "9" { break }
+      acc = acc * 10 + ("0123456789".indexOf(ch))
+      i = i + 1
+    }
+    return acc
+  }
+
+  trim(s) {
+    if s == null { return "" }
+    local str = "" + s
+    return str
+  }
+}
+
+box DelegateBox {
+  gpos
+
+  birth() {
+    me.gpos = 0
+    return 0
+  }
+
+  // Phase 74-SSA: These delegation methods should cause SSA undef when called via me.method()
+  is_digit(ch) {
+    return TargetBox.is_digit(ch)
+  }
+
+  to_int(s) {
+    return TargetBox.to_int(s)
+  }
+
+  trim(s) {
+    return TargetBox.trim(s)
+  }
+
+  // Method that calls me.to_int() - THIS IS THE CRITICAL PATTERN
+  parse_number(text) {
+    local pos = text.lastIndexOf("@")
+    if pos >= 0 {
+      local num_str = text.substring(pos + 1, text.length())
+      // 🔥 THIS IS IT: me.to_int() calls the delegation method
+      local num = me.to_int(num_str)
+      me.gpos = num
+      return num
+    }
+    return 0
+  }
+
+  // Another method calling me.is_digit() via me
+  check_char(ch) {
+    // 🔥 me.is_digit() → ParserBox pattern
+    return me.is_digit(ch)
+  }
+
+  // Method calling me.trim()
+  clean_text(text) {
+    // 🔥 me.trim() → ParserBox pattern
+    return me.trim(text)
+  }
+}
+
+box Main {
+  main() {
+    local delegate = new DelegateBox()
+
+    // Test parse_number (me.to_int delegation)
+    local num = delegate.parse_number("data@42")
+
+    // Test check_char (me.is_digit delegation)
+    local d = delegate.check_char("7")
+
+    // Test clean_text (me.trim delegation)
+    local text = delegate.clean_text("  hello  ")
+
+    // Use results to avoid dead code elimination
+    if num == 42 && d == 1 && text.length() > 0 {
+      return 0
+    }
+    return 1
+  }
+}

@@ -1,0 +1,19 @@
+// Manual check: nested exit should fail-fast
+// Expected: RC!=0, message contains "[freeze:contract][blockexpr]"
+//
+// Run: ./target/release/hakorune apps/tests/phase29bq_blockexpr_exit_forbidden_manual_min.hako
+// Expected: compile error (exit != 0)
+
+static box Main {
+    main() {
+        // Case: nested if with return (should fail at MIR lowering)
+        local x = {
+            if true {
+                return 1
+            }
+            0
+        }
+
+        print(x)
+    }
+}

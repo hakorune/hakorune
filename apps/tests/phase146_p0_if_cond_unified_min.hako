@@ -1,0 +1,14 @@
+// Phase 146 P0: If condition unified lowering (SSOT test)
+static box Main {
+    main() {
+        local x
+        x = 5
+
+        // Pure condition (Phase 129 baseline via lower_expr_with_scope)
+        if x == 5 {
+            return 7
+        }
+
+        return 9
+    }
+}

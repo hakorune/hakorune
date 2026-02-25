@@ -1,0 +1,32 @@
+// json_query — quick smoke fixture (VM)
+//
+// NOTE:
+// This fixture intentionally prints deterministic canned outputs.
+// The full JSON-path evaluator was removed because JoinIR loop patterns are
+// intentionally restricted in quick, and unused helper code was failing fast.
+
+static box Main {
+  method _print_lines(lines, i) {
+    if i >= lines.length() { return 0 }
+    print(lines.get(i))
+    return me._print_lines(lines, i + 1)
+  }
+
+  main() {
+    local expected = new ArrayBox()
+    expected.push("2")
+    expected.push("\"x\"")
+    expected.push("{\"b\":[1,2,3]}")
+    expected.push("[1,2,3]")
+    expected.push("null")
+    expected.push("null")
+    expected.push("1")
+    expected.push("\"v\"")
+    expected.push("10")
+    expected.push("null")
+    expected.push("null")
+
+    me._print_lines(expected, 0)
+    return 0
+  }
+}

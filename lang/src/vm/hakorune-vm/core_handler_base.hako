@@ -1,0 +1,19 @@
+// CoreHandlerBaseBox - Unified core operation handler base
+// Eliminates thin wrapper pattern for all core-delegated handlers
+
+using selfhost.vm.boxes.result_box as Result
+using selfhost.vm.hakorune-vm.core_bridge_ops as CoreBridgeOps
+
+static box CoreHandlerBaseBox {
+  // Unified handler for all core-delegated operations
+  // Maps operation types to CoreBridgeOps methods
+  static handle_core_op(op_type, inst_json, regs) {
+    if op_type == "const" { return CoreBridgeOps.apply_const(inst_json, regs) }
+    if op_type == "binop" { return CoreBridgeOps.apply_binop(inst_json, regs) }
+    if op_type == "compare" { return CoreBridgeOps.apply_compare(inst_json, regs) }
+    if op_type == "unary" { return CoreBridgeOps.apply_unary(inst_json, regs) }
+    if op_type == "copy" { return CoreBridgeOps.apply_copy(inst_json, regs) }
+    if op_type == "phi" { return CoreBridgeOps.apply_phi(inst_json, regs, 0) } // placeholder predecessor
+    return Result.Err("unknown core op type: " + op_type)
+  }
+}

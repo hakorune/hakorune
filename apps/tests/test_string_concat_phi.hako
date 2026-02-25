@@ -1,0 +1,28 @@
+static box TestBox {
+  get_value() {
+    return "test_result"
+  }
+}
+
+static box Main {
+  main(args) {
+    local prog = TestBox.get_value()
+    {
+      local status = "null"
+      if prog != null { status = "non-null" }
+      print("Debug: " + status)
+    }
+    if prog == null {
+      print("Error: prog is null")
+      return null
+    }
+    local ps = "" + prog
+    print("Stringified length: " + ("" + ps.length()))
+    if ps.indexOf("test") < 0 || ps.indexOf("result") < 0 {
+      print("Error: unexpected output")
+      return null
+    }
+    print("Success")
+    return ps
+  }
+}

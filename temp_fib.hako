@@ -1,0 +1,21 @@
+static box TestBox {
+  method fib(n) {
+    local i = 0
+    local a = 0
+    local b = 1
+        loop(i < n) {
+      local t = a + b
+            a = b
+            b = t
+            i = i + 1
+        }
+        return b
+    }
+}
+
+static box Main {
+  method main(args) {
+    local t = new TestBox()
+        return t.fib(6)
+    }
+}

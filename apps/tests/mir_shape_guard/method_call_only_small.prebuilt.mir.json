@@ -1,0 +1,302 @@
+{
+  "capabilities": [
+    "unified_call",
+    "phi",
+    "effects",
+    "callee_typing"
+  ],
+  "cfg": {
+    "functions": [
+      {
+        "blocks": [
+          {
+            "id": 0,
+            "reachable": false,
+            "successors": [
+              1
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 1,
+            "reachable": false,
+            "successors": [
+              2,
+              4
+            ],
+            "terminator": "Branch"
+          },
+          {
+            "id": 2,
+            "reachable": false,
+            "successors": [
+              3
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 3,
+            "reachable": false,
+            "successors": [
+              1
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 4,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          },
+          {
+            "id": 5,
+            "reachable": false,
+            "successors": [],
+            "terminator": "None"
+          }
+        ],
+        "entry_block": 0,
+        "name": "main"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "dst": 2,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "dst": 3,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "nyash"
+              }
+            },
+            {
+              "args": [
+                3
+              ],
+              "dst": 4,
+              "op": "newbox",
+              "type": "StringBox"
+            },
+            {
+              "dst": 5,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "dst": 6,
+              "op": "copy",
+              "src": 1
+            },
+            {
+              "dst": 8,
+              "op": "copy",
+              "src": 2
+            },
+            {
+              "dst": 10,
+              "op": "copy",
+              "src": 4
+            },
+            {
+              "dst": 12,
+              "op": "copy",
+              "src": 5
+            },
+            {
+              "op": "jump",
+              "target": 1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "instructions": [
+            {
+              "dst": 7,
+              "incoming": [
+                [
+                  6,
+                  0
+                ],
+                [
+                  7,
+                  3
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 9,
+              "incoming": [
+                [
+                  8,
+                  0
+                ],
+                [
+                  19,
+                  3
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 11,
+              "incoming": [
+                [
+                  10,
+                  0
+                ],
+                [
+                  11,
+                  3
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 13,
+              "incoming": [
+                [
+                  12,
+                  0
+                ],
+                [
+                  17,
+                  3
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 14,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 5000
+              }
+            },
+            {
+              "dst": 15,
+              "lhs": 9,
+              "op": "compare",
+              "operation": "<",
+              "rhs": 14
+            },
+            {
+              "cond": 15,
+              "else": 4,
+              "op": "branch",
+              "then": 2
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "instructions": [
+            {
+              "dst": 16,
+              "mir_call": {
+                "args": [],
+                "callee": {
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "name": "length",
+                  "receiver": 11,
+                  "type": "Method"
+                },
+                "effects": [],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 17,
+              "lhs": 13,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 16
+            },
+            {
+              "dst": 18,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "dst": 19,
+              "lhs": 9,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 18
+            },
+            {
+              "op": "jump",
+              "target": 3
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "instructions": [
+            {
+              "op": "jump",
+              "target": 1
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "instructions": [
+            {
+              "op": "ret",
+              "value": 13
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "instructions": []
+        }
+      ],
+      "metadata": {
+        "value_types": {}
+      },
+      "name": "main",
+      "params": [
+        1
+      ]
+    }
+  ],
+  "metadata": {
+    "build_time": "Phase 15.5 Development",
+    "features": [
+      "mir_call_unification",
+      "json_v1_schema"
+    ],
+    "generator": "nyash-rust",
+    "phase": "15.5"
+  },
+  "schema_version": "1.0",
+  "user_box_decls": []
+}

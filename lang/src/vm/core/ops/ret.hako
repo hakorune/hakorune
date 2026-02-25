@@ -1,0 +1,32 @@
+// ops/ret.hako — NyVmOpRet (skeleton)
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+
+static box NyVmOpRet {
+  _read_int_field(inst_json, key) {
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return null }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return null }
+    p = p + 1
+    loop(true) {
+      local ch = inst_json.substring(p,p+1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue }
+      break
+    }
+    if inst_json.substring(p,p+4) == "null" { return null }
+    local digits = JsonCursorBox.digits_from(inst_json, p)
+    if digits == "" { return null }
+    return StringHelpers.to_i64(digits)
+  }
+  handle(inst_json, state) {
+    // Expect: {op:"ret", value:VID|null}
+    local vid = me._read_int_field(inst_json, "value")
+    if vid == null { return 0 }
+    return NyVmState.get_reg(state, vid)
+  }
+}
+
+static box NyVmOpRetMain { main(args){ return 0 } }

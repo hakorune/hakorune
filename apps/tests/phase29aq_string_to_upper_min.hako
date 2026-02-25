@@ -1,0 +1,3 @@
+using "apps/lib/json_native/utils/string.hako" as StringUtils
+
+print(StringUtils.to_upper("abc"))

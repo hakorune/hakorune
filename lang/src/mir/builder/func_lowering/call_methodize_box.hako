@@ -1,0 +1,113 @@
+// call_methodize_box.hako — Call methodization utilities split from func_lowering.hako
+// Responsibility: rewrite legacy Call into unified mir_call(Method) when possible.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box CallMethodizeBox {
+  // Dev-only: rewrite legacy Call into unified mir_call(Method) when possible
+  // Heuristic: find call {func:K,args:[..],dst:R} and match preceding const {dst:K,value:"Box.method/N"}
+  // Receiverは省略（VM 側で静的シングルトンを補完）。LLVM 経路はPoCの範囲外。
+  method methodize_calls_in_mir(mir_json) {
+    // methodization は既定ON。明示的に "0" のときだけ無効化。
+    local dm = env.get("HAKO_MIR_BUILDER_METHODIZE")
+    if dm != null && ("" + dm) == "0" { return mir_json }
+    if mir_json == null { return mir_json }
+    local s = "" + mir_json
+    local out = ""
+    local pos = 0
+    loop(pos < s.length()) {
+      local k_call = JsonFragBox.index_of_from(s, "\"op\":\"call\"", pos)
+      if k_call < 0 {
+        out = out + s.substring(pos, s.length())
+        break
+      }
+      // copy up to call
+      out = out + s.substring(pos, k_call)
+      // parse func register
+      local k_func = JsonFragBox.index_of_from(s, "\"func\":", k_call)
+      local k_dst_call = JsonFragBox.index_of_from(s, "\"dst\":", k_call)
+      if k_func < 0 || k_dst_call < 0 { out = out + "\"op\":\"call\""  pos = k_call + 14  continue }
+      local func_reg = JsonFragBox.read_int_after(s, k_func + 7)
+      local call_dst = JsonFragBox.read_int_after(s, k_dst_call + 6)
+      if func_reg == null || call_dst == null { out = out + "\"op\":\"call\""  pos = k_call + 14  continue }
+      // find args list for splice
+      local k_args = JsonFragBox.index_of_from(s, "\"args\":[", k_call)
+      if k_args < 0 { out = out + "\"op\":\"call\""  pos = k_call + 14  continue }
+      local args_start = k_args + 7
+      // find closing ] for args
+      local args_end = me._find_args_end(s, args_start)
+      if args_end < 0 { out = out + "\"op\":\"call\""  pos = k_call + 14  continue }
+      local args_text = s.substring(args_start + 1, args_end)
+      // scan from start to k_call for const dst==func_reg and a string value
+      local last_val = me._find_func_name(s, k_call, func_reg)
+      if last_val == null {
+        // no match; keep original token and advance
+        out = out + "\"op\":\"call\""
+        pos = k_call + 14
+        continue
+      }
+      // split Box.method[/N]
+      local dot = JsonFragBox.index_of_from(last_val, ".", 0)
+      local slash = JsonFragBox.index_of_from(last_val, "/", 0)
+      local bname = (dot >= 0 ? last_val.substring(0, dot) : last_val)
+      local mname = (dot >= 0 ? last_val.substring(dot + 1, (slash >= 0 ? slash : last_val.length())) : last_val)
+      // emit methodized mir_call head
+      out = out + ("\"op\":\"mir_call\",\"dst\":" + call_dst + ",\"mir_call\":{\"callee\":{\"type\":\"Method\",\"box_name\":\"" + bname + "\",\"method\":\"" + mname + "\"},\"args\":[" + args_text + "],\"effects\":[]}")
+      // advance pos to after this call instruction object key we handled (skip minimal)
+      pos = args_end
+    }
+    return out
+  }
+
+  // Helper: find closing ] for args array
+  method _find_args_end(s, args_start) {
+    local j = args_start
+    local depth = 0
+    loop(j < s.length()) {
+      local ch = s.substring(j, j + 1)
+      if ch == "[" { depth = depth + 1 }
+      if ch == "]" {
+        if depth == 0 { return j }
+        depth = depth - 1
+      }
+      j = j + 1
+    }
+    return -1
+  }
+
+  // Helper: find function name from preceding const with matching dst
+  method _find_func_name(s, k_call, func_reg) {
+    local scan = 0
+    local last_val = null
+    loop(scan < k_call) {
+      local k_dst = JsonFragBox.index_of_from(s, "\"dst\":", scan)
+      if k_dst < 0 || k_dst >= k_call { break }
+      local dst_id = JsonFragBox.read_int_after(s, k_dst + 6)
+      if dst_id != null && JsonFragBox._str_to_int("" + dst_id) == JsonFragBox._str_to_int("" + func_reg) {
+        // try to read value string after this position — prefer '"value":"' literal (skip nested type.value)
+        local k_val = JsonFragBox.index_of_from(s, "\"value\\\":\\\"", k_dst)
+        if k_val > 0 && k_val < k_call {
+          // Read string directly after '"value":"'
+          local name = JsonFragBox.read_string_after(s, k_val + 9)
+          if name != null {
+            if name != null && name.contains(".") {
+              last_val = name
+            }
+          } else {
+            // fallback: try generic '"value":' then read next quoted string
+            local k_val2 = JsonFragBox.index_of_from(s, "\"value\":", k_dst)
+            if k_val2 > 0 && k_val2 < k_call {
+              local k_q2 = JsonFragBox.index_of_from(s, "\"", k_val2 + 7)
+              if k_q2 > 0 && k_q2 < k_call {
+                local name2 = JsonFragBox.read_string_after(s, k_q2)
+                if name2 != null && name2.contains(".") { last_val = name2 }
+              }
+            }
+          }
+        }
+      }
+      scan = k_dst + 6
+    }
+    return last_val
+  }
+}

@@ -1,0 +1,27 @@
+// ExternsSSOTEmitter — dev-only SSOT generator (Phase‑20.29)
+// Purpose: emit a minimal externs SSOT JSON for development.
+// Notes: This is intentionally small; runtime merges with built-ins.
+
+static box ExternsSSOTEmitter {
+  emit(){
+    return "[\n"
+      + "  {\"interface\":\"nyrt.array\",\"method\":\"size\",\"effects\":\"read\",\"params\":[\"Box:ArrayBox\"],\"returns\":\"Integer\"},\n"
+      + "  {\"interface\":\"nyrt.array\",\"method\":\"get\",\"effects\":\"read\",\"params\":[\"Box:ArrayBox\",\"Integer\"],\"returns\":\"Unknown\"},\n"
+      + "  {\"interface\":\"nyrt.array\",\"method\":\"set\",\"effects\":\"mut\",\"params\":[\"Box:ArrayBox\",\"Integer\",\"Unknown\"],\"returns\":\"Void\"},\n"
+      + "  {\"interface\":\"nyrt.array\",\"method\":\"pop\",\"effects\":\"mut\",\"params\":[\"Box:ArrayBox\"],\"returns\":\"Unknown\"},\n"
+      + "  {\"interface\":\"nyrt.string\",\"method\":\"length\",\"effects\":\"read\",\"params\":[\"String\"],\"returns\":\"Integer\"},\n"
+      + "  {\"interface\":\"nyrt.string\",\"method\":\"indexOf\",\"effects\":\"read\",\"params\":[\"String\",\"String\",\"Integer\"],\"returns\":\"Integer\"},\n"
+      + "  {\"interface\":\"nyrt.string\",\"method\":\"lastIndexOf\",\"effects\":\"read\",\"params\":[\"String\",\"String\",\"Integer\"],\"returns\":\"Integer\"},\n"
+      + "  {\"interface\":\"nyrt.string\",\"method\":\"substring\",\"effects\":\"read\",\"params\":[\"String\",\"Integer\",\"Integer\"],\"returns\":\"String\"},\n"
+      + "  {\"interface\":\"nyrt.string\",\"method\":\"charAt\",\"effects\":\"read\",\"params\":[\"String\",\"Integer\"],\"returns\":\"String\"},\n"
+      + "  {\"interface\":\"nyrt.string\",\"method\":\"replace\",\"effects\":\"read\",\"params\":[\"String\",\"String\",\"String\"],\"returns\":\"String\"},\n"
+      + "  {\"interface\":\"env.console\",\"method\":\"log\",\"effects\":\"io\",\"params\":[\"String\"],\"returns\":\"Void\"},\n"
+      + "  {\"interface\":\"env.console\",\"method\":\"warn\",\"effects\":\"io\",\"params\":[\"String\"],\"returns\":\"Void\"},\n"
+      + "  {\"interface\":\"env.console\",\"method\":\"error\",\"effects\":\"io\",\"params\":[\"String\"],\"returns\":\"Void\"},\n"
+      + "  {\"interface\":\"env.time\",\"method\":\"now_ms\",\"effects\":\"read\",\"params\":[],\"returns\":\"Integer\"},\n"
+      + "  {\"interface\":\"env.mem\",\"method\":\"name\",\"effects\":\"read\",\"params\":[],\"returns\":\"String\"},\n"
+      + "  {\"interface\":\"nyrt.ops\",\"method\":\"op_eq\",\"effects\":\"read\",\"params\":[\"Unknown\",\"Unknown\"],\"returns\":\"Bool\"}\n"
+      + "]\n";
+  }
+}
+

@@ -1,0 +1,10 @@
+// gc_policy_box.hako — GC Policy Box (v0)
+// Responsibility: centralize policy toggles for collection decision.
+// Default: OFF (returns 0). Threshold/ENV gating will be added later.
+
+static box GcPolicyBox {
+  should_collect() { return 0 }
+}
+
+static box GcPolicyMain { main(args) { return 0 } }
+

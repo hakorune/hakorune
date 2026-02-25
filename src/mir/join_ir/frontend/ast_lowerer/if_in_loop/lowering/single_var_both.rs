@@ -1,0 +1,57 @@
+//! Phase P1: then/else 両方が同じ変数への単一更新 - ケース 3
+//!
+//! `if cond { x = a } else { x = b }` → `x = cond ? a : b`
+//! 典型的な三項演算子パターン。
+
+use super::super::super::{AstToJoinIrLowerer, ExtractCtx, JoinInst, StatementEffect};
+use crate::mir::ValueId;
+
+/// ケース 3: 両方に単一変数更新（同じ変数）
+///
+/// # Arguments
+/// * `lowerer` - AstToJoinIrLowerer インスタンス
+/// * `ctx` - 変数コンテキスト
+/// * `insts` - 条件式の命令列
+/// * `cond_id` - 条件変数 ID
+/// * `var_name` - 更新する変数名
+/// * `then_stmts` - then 分岐のステートメント配列
+/// * `else_stmts` - else 分岐のステートメント配列
+pub fn lower(
+    lowerer: &mut AstToJoinIrLowerer,
+    ctx: &mut ExtractCtx,
+    mut insts: Vec<JoinInst>,
+    cond_id: ValueId,
+    var_name: &str,
+    then_stmts: &[serde_json::Value],
+    else_stmts: &[serde_json::Value],
+) -> (Vec<JoinInst>, StatementEffect) {
+    // then の式を評価
+    let then_expr = &then_stmts[0]["expr"];
+    let (then_val, then_insts) = lowerer.extract_value(then_expr, ctx);
+    insts.extend(then_insts);
+
+    // else の式を評価
+    let else_expr = &else_stmts[0]["expr"];
+    let (else_val, else_insts) = lowerer.extract_value(else_expr, ctx);
+    insts.extend(else_insts);
+
+    // Select: cond ? then_val : else_val
+    let result_id = ctx.alloc_var();
+    insts.push(JoinInst::Select {
+        dst: result_id,
+        cond: cond_id,
+        then_val,
+        else_val,
+        type_hint: None, // Phase 63-3
+    });
+
+    ctx.register_param(var_name.to_string(), result_id);
+
+    (
+        insts,
+        StatementEffect::VarUpdate {
+            name: var_name.to_string(),
+            value_id: result_id,
+        },
+    )
+}

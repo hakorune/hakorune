@@ -1,0 +1,28 @@
+// Phase 143 P1: loop(true) + if + continue minimal test
+//
+// Pattern: loop(true) { if(cond_pure) continue }
+// Expected: non-terminating (Phase 143 P1 scope)
+//
+// This test verifies:
+// - loop(true) is recognized
+// - Pure condition (counter < 1) is lowerable
+// - Continue path executes (jumps to loop_step instead of k_exit)
+// - Infinite loop with continue (never exits via condition)
+//
+// Smoke contract:
+// - VM/LLVM runs should time out (expected), not fail fast.
+
+static box Main {
+    main() {
+        local counter
+        counter = 0
+
+        loop(true) {
+            if counter < 1 {
+                continue
+            }
+        }
+
+        return 100
+    }
+}

@@ -1,0 +1,21 @@
+// Phase 100 P1-5-1: Pinned Local Receiver Fixture
+// Tests that loop-outer dynamic string can be used as receiver inside loop
+
+static box Main {
+    main() {
+        // Dynamic string construction (loop-outer)
+        local s
+        s = "a" + "b" + "c"
+
+        // Loop using s as receiver (requires Pinned capture)
+        // Note: loop(i < 1) currently runs 3 iterations (0,1,2) - see loop semantics
+        local i
+        i = 0
+        loop(i < 1) {
+            local ch
+            ch = s.substring(i, i + 1)
+            print(i)
+            i = i + 1
+        }
+    }
+}

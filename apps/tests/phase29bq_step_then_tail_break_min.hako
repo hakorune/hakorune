@@ -1,0 +1,22 @@
+// Phase 29bq: step placement contract (step then tail break)
+//
+// This fixture is intentionally shaped so that:
+// - the loop increment happens before a break check
+// - moving the step to a separate step_bb would change semantics
+//
+// Expected output: 1
+static box Main {
+  main() {
+    local i = 0
+    local sum = 0
+
+    loop(i < 10) {
+      i = i + 1
+      if i >= 2 { break }
+      sum = sum + 1
+    }
+
+    print(sum)
+    return 0
+  }
+}

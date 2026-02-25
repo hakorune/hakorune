@@ -1,0 +1,42 @@
+// Phase 164: Test trim_leading from JsonParserBox (Pattern3 with if-else PHI + break)
+// Simulates: loop(start < end) { if is_whitespace(ch) { start++ } else { break } }
+
+static box Main {
+  main(args) {
+    // Simulate trimming leading whitespace
+    local s = "   \t\nhello world   "
+    local start = 0
+    local end = s.length()
+
+    // Loop with if-else PHI: start is updated conditionally with break
+    loop(start < end) {
+      local ch = s.substring(start, start + 1)
+      // Check if whitespace
+      local is_ws = 0
+      if ch == " " {
+        is_ws = 1
+      } else if ch == "\t" {
+        is_ws = 1
+      } else if ch == "\n" {
+        is_ws = 1
+      } else if ch == "\r" {
+        is_ws = 1
+      }
+
+      if is_ws == 1 {
+        start = start + 1
+      } else {
+        break
+      }
+    }
+
+    // Output result
+    local trimmed = s.substring(start, end)
+    print("Trimmed leading whitespace")
+    print("Start position: " + ("" + start))
+    print("Trimmed string: " + trimmed)
+    print("Expected start: 4")
+    print("Expected string: hello world   ")
+    return 0
+  }
+}

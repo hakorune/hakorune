@@ -1,0 +1,56 @@
+// ops/const.hako — NyVmOpConst (skeleton)
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+
+static box NyVmOpConst {
+  _read_int_field(inst_json, key) {
+    // Find key (supports minimal whitespace)
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return null }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return null }
+    p = p + 1
+    // Skip ws
+    loop(true) {
+      local ch = inst_json.substring(p,p+1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue }
+      break
+    }
+    // If nested object (value: {type:.., value:N}), read inner value
+    if inst_json.substring(p,p+1) == "{" {
+      local vkey = JsonCursorBox.find_key_dual(inst_json, "\"value\":", r#"\"value\":"#, p)
+      if vkey < 0 { return null }
+      local vp = inst_json.indexOf(":", vkey)
+      if vp < 0 { return null }
+      vp = vp + 1
+      // skip ws
+      loop(true) {
+        local ch2 = inst_json.substring(vp,vp+1)
+        if ch2 == " " || ch2 == "\n" || ch2 == "\r" || ch2 == "\t" { vp = vp + 1 continue }
+        break
+      }
+      // digits
+      local digits = JsonCursorBox.digits_from(inst_json, vp)
+      if digits == "" { return null }
+      return StringHelpers.to_i64(digits)
+    }
+    // Plain number
+    local digits2 = JsonCursorBox.digits_from(inst_json, p)
+    if digits2 == "" { return null }
+    return StringHelpers.to_i64(digits2)
+  }
+
+  handle(inst_json, state) {
+    // Expect: {"op":"const","dst":VID, "value": {...} | NUM }
+    local dst = me._read_int_field(inst_json, "dst")
+    if dst == null { print("[core/const] missing dst") return -1 }
+    local v = me._read_int_field(inst_json, "value")
+    if v == null { print("[core/const] missing value") return -1 }
+    NyVmState.set_reg(state, dst, v)
+    return 0
+  }
+}
+
+static box NyVmOpConstMain { main(args){ return 0 } }

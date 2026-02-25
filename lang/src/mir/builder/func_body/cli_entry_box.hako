@@ -1,0 +1,43 @@
+// cli_entry_box.hako — CliEntryLowerBox
+// Responsibility:
+//   Detect Stage1 CLI entry pattern (Main.main → HakoCli.run) in Program(JSON v0).
+// Scope:
+//   - Observability only（構造検出用）。MIR は生成せず、null を返す。
+//   - ring1 レイヤ（Stage1 CLI）の入口構造を把握するための補助。
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box CliEntryLowerBox {
+  // Scan Program(JSON v0) for a Main.main → HakoCli.run entry pattern.
+  // Returns null always; emits a tag on detection when HAKO_SELFHOST_TRACE=1.
+  method scan(program_json) {
+    if program_json == null { return null }
+    local s = "" + program_json
+
+    // Quick guard: must be Program(JSON v0)
+    if s.indexOf("\"kind\":\"Program\"") < 0 { return null }
+
+    // Heuristic 1: Program.body 内に HakoCli の New があるか
+    local new_cli_idx = JsonFragBox.index_of_from(s, "\"class\":\"HakoCli\"", 0)
+    if new_cli_idx < 0 { return null }
+
+    // Heuristic 2: defs 配列に HakoCli.run が含まれているか
+    local box_idx = JsonFragBox.index_of_from(s, "\"box\":\"HakoCli\"", 0)
+    if box_idx < 0 { return null }
+    local name_idx = JsonFragBox.index_of_from(s, "\"name\":\"run\"", box_idx)
+    if name_idx < 0 { return null }
+
+    // Optional: method 呼び出しパターン（Main.main 本体）を軽く確認
+    //  - Return(Method recv=Var(\"cli\"), method=\"run\", args=[Var(\"args\")]) を期待。
+    local run_call_idx = JsonFragBox.index_of_from(s, "\"method\":\"run\"", new_cli_idx)
+    if run_call_idx < 0 { return null }
+
+    // All heuristics satisfied → tag 出力のみ（観測用）
+    if env.get("HAKO_SELFHOST_TRACE") == "1" {
+      print("[builder/cli:entry_detected] main=Main.main run=HakoCli.run/2")
+    }
+
+    return null
+  }
+}
+

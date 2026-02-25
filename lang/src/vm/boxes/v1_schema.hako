@@ -1,0 +1,181 @@
+// v1_schema.hako — V1SchemaBox (minimal)
+// Responsibility: thin helpers towards a minimal IR. For Phase 20.37 it
+// exposes a probe that returns a block instructions segment; full IR follows.
+
+using selfhost.vm.hakorune-vm.json_v1_reader as JsonV1ReaderBox
+using selfhost.vm.helpers.instruction_scanner as InstructionScannerBox
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_ops as StringOps
+
+static box V1SchemaBox {
+  block_segment(json, bid) {
+    // Transitional helper: return inner segment of instructions for a block id
+    json = "" + json
+    local s = JsonV1ReaderBox.block_insts_start(json, bid)
+    if s < 0 { return "" }
+    local e = JsonFragBox._seek_array_end(json, s)
+    if e <= s { return "" }
+    return json.substring(s + 1, e)
+  }
+  // Return block instructions segment with φ instructions removed (IR-level filter)
+  block_segment_wo_phi(json, bid) {
+    json = "" + json
+    local s = JsonV1ReaderBox.block_insts_start(json, bid)
+    if s < 0 { return "" }
+    local e = JsonFragBox._seek_array_end(json, s)
+    if e <= s { return "" }
+    local seg = json.substring(s + 1, e)
+    // Scan objects and concatenate only non-phi ops. We can safely glue objects
+    // back-to-back without commas because the scanner finds '{' boundaries.
+    local out = ""
+    local pos = 0
+    loop(true) {
+      if pos >= seg.length() { break }
+      local tup = InstructionScannerBox.next_tuple(seg, pos)
+      if tup == "" { break }
+      local c1 = (""+tup).indexOf(",")
+      if c1 < 0 { break }
+      local c2 = (""+tup).indexOf(",", c1+1)
+      if c2 < 0 { break }
+      local ss = JsonFragBox._str_to_int(tup.substring(0, c1))
+      local ee = JsonFragBox._str_to_int(tup.substring(c1+1, c2))
+      local op = tup.substring(c2+1, tup.length())
+      if op != "phi" { out = out + seg.substring(ss, ee) }
+      pos = ee
+    }
+    return out
+  }
+  // Build φ table for a block: returns ArrayBox of entries {dst:int, incoming:ArrayBox of [pred:int, val:int]}
+  phi_table_for_block(json, bid) {
+    json = "" + json
+    local s = JsonV1ReaderBox.block_insts_start(json, bid)
+    if s < 0 { return null }
+    local e = JsonFragBox._seek_array_end(json, s)
+    if e <= s { return null }
+    local seg = json.substring(s + 1, e)
+    local table = new ArrayBox()
+    local pos = 0
+    loop(true) {
+      if pos >= seg.length() { break }
+      local tup = InstructionScannerBox.next_tuple(seg, pos)
+      if tup == "" { break }
+      local c1 = (""+tup).indexOf(",")
+      if c1 < 0 { break }
+      local c2 = (""+tup).indexOf(",", c1+1)
+      if c2 < 0 { break }
+      local ss = JsonFragBox._str_to_int(tup.substring(0, c1))
+      local ee = JsonFragBox._str_to_int(tup.substring(c1+1, c2))
+      local op = tup.substring(c2+1, tup.length())
+      if op == "phi" {
+        local item = seg.substring(ss, ee)
+        local dst = JsonFragBox.get_int(item, "dst")
+        if dst != null {
+          // parse incoming: [[val,pred], ...]
+          local key = "\"incoming\""
+          local pk = item.indexOf(key)
+          if pk >= 0 {
+            local lb = item.indexOf("[", pk)
+            if lb >= 0 {
+              local rb = JsonFragBox._seek_array_end(item, lb)
+              if rb > lb {
+                local arr = item.substring(lb + 1, rb)
+                local incoming = new ArrayBox()
+                local p = 0
+                loop(true) {
+                  if p >= arr.length() { break }
+                  local lb2 = arr.indexOf("[", p)
+                  if lb2 < 0 { break }
+                  local rb2 = JsonFragBox._seek_array_end(arr, lb2)
+                  if rb2 <= lb2 { break }
+                  local pair = arr.substring(lb2 + 1, rb2)
+                  // read val, then pred (order [val,pred])
+                  local vstr = JsonFragBox.read_int_from(pair, 0)
+                  local vint = 0
+                  if vstr != null { vint = JsonFragBox._str_to_int(vstr) }
+                  local comma = pair.indexOf(",")
+                  local bstr = null
+                  if comma >= 0 { bstr = JsonFragBox.read_int_from(pair, comma + 1) }
+                  local bint = 0
+                  if bstr != null { bint = JsonFragBox._str_to_int(bstr) }
+                  local row = new ArrayBox(); row.push(bint); row.push(vint)
+                  incoming.push(row)
+                  p = rb2 + 1
+                }
+                local ent = new MapBox(); ent.set("dst", dst); ent.set("incoming", incoming)
+                table.push(ent)
+              }
+            }
+          }
+        }
+      }
+      pos = ee
+    }
+    return table
+  }
+  // Build minimal IR for function 0: { seg: Map<bb->seg_wo_phi>, phi: Map<bb->phi_entries> }
+  get_function_ir(json) {
+    json = "" + json
+    local seg_map = new MapBox()
+    local blocks_map = new MapBox()
+    local phi_map = new MapBox()
+    // naive scan for block ids; rely on tolerant readers
+    local pos = 0
+    loop(true) {
+      local pid = (""+json).indexOf("\"id\"", pos)
+      if pid < 0 { break }
+      local pc = (""+json).indexOf(":", pid)
+      if pc < 0 { break }
+      local digits = JsonFragBox.read_int_from(json, pc + 1)
+      if digits != null {
+        local bid = JsonFragBox._str_to_int(digits)
+        local seg = me.block_segment_wo_phi(json, bid)
+        if seg != "" { seg_map.set(""+bid, seg) }
+        local tbl = me.phi_table_for_block(json, bid)
+        if tbl != null { phi_map.set(""+bid, tbl) }
+        // also build instruction list without phi
+        if seg != "" {
+          local arr = new ArrayBox()
+          local pos2 = 0
+          loop(true) {
+            if pos2 >= seg.length() { break }
+            local tup = InstructionScannerBox.next_tuple(seg, pos2)
+            if tup == "" { break }
+            local c1 = (""+tup).indexOf(",")
+            if c1 < 0 { break }
+            local c2 = (""+tup).indexOf(",", c1+1)
+            if c2 < 0 { break }
+            local ss = JsonFragBox._str_to_int(tup.substring(0, c1))
+            local ee = JsonFragBox._str_to_int(tup.substring(c1+1, c2))
+            local op = tup.substring(c2+1, tup.length())
+            if op != "phi" {
+              local text = seg.substring(ss, ee)
+              local ent = new MapBox(); ent.set("op", op); ent.set("text", text)
+              // parse common fields to avoid dispatcher-side scans
+              if op == "const" {
+                local d = JsonFragBox.get_int(text, "dst"); if d != null { ent.set("dst", d) }
+              } else if op == "compare" {
+                local d = JsonFragBox.get_int(text, "dst"); if d != null { ent.set("dst", d) }
+                local l = JsonFragBox.get_int(text, "lhs"); if l != null { ent.set("lhs", l) }
+                local r = JsonFragBox.get_int(text, "rhs"); if r != null { ent.set("rhs", r) }
+              } else if op == "branch" {
+                local c = JsonFragBox.get_int(text, "cond"); if c != null { ent.set("cond", c) }
+                local t = JsonFragBox.get_int(text, "then"); if t != null { ent.set("then", t) }
+                local f = JsonFragBox.get_int(text, "else"); if f != null { ent.set("else", f) }
+              } else if op == "jump" {
+                local tg = JsonFragBox.get_int(text, "target"); if tg != null { ent.set("target", tg) }
+              }
+              arr.push(ent)
+            }
+            pos2 = ee
+          }
+          blocks_map.set(""+bid, arr)
+        }
+      }
+      pos = pc + 1
+    }
+    local ir = new MapBox(); ir.set("seg", seg_map); ir.set("phi", phi_map); ir.set("blocks", blocks_map)
+    return ir
+  }
+}
+
+static box V1SchemaMain { method main(args) { return 0 } }

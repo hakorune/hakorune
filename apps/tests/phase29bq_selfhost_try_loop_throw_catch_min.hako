@@ -1,0 +1,20 @@
+// Phase 29bq selfhost known-gap probe:
+// throw inside loop should preserve throw-point var snapshot for postfix catch body.
+// Expected output: 15
+static box Main {
+  main() {
+    local i = 0
+    local x = 10
+    loop(i < 1) {
+      {
+        x = x + 5
+        throw 7
+      } catch (e) {
+        print(x)
+      } cleanup {
+        i = i + 1
+      }
+    }
+    return 0
+  }
+}

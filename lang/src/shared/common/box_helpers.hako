@@ -1,0 +1,105 @@
+// box_helpers.hako — 共通Box操作ヘルパー (Phase 31.2 共通化)
+// 目的: ArrayBox/MapBox の安全な操作を統一的に提供
+// 削減: 7ファイル × 2パターン = 14重複 → 1箇所に集約
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
+
+static box BoxHelpers {
+  // ArrayBox.size/1 の結果unwrap (MapBox-wrapped integer対応)
+  array_len(arr) {
+    if arr == null { return 0 }
+    local size_val = arr.length()
+    if BoxTypeInspectorBox.is_map(size_val) {
+      local inner = size_val.get("value")
+      if inner != null { return inner }
+    }
+    return size_val
+  }
+
+  // ArrayBox.get/2 の安全呼び出し
+  array_get(arr, idx) {
+    if arr == null { return null }
+    return arr.get(idx)
+  }
+
+  // MapBox.get/2 の安全呼び出し
+  map_get(obj, key) {
+    if obj == null { return null }
+    return obj.get(key)
+  }
+
+  // MapBox.set/3 の安全呼び出し（形だけ統一）
+  map_set(obj, key, val) {
+    if obj == null { obj = new MapBox() }
+    obj.set(key, val)
+    return obj
+  }
+
+  // MapBox-wrapped integer の unwrap (汎用版)
+  value_i64(val) {
+    if val == null { return 0 }
+    if BoxTypeInspectorBox.is_map(val) {
+      local inner = val.get("value")
+      if inner != null { return inner }
+    }
+    return val
+  }
+
+  // MapBox型判定
+  is_map(val) {
+    return BoxTypeInspectorBox.is_map(val)
+  }
+
+  // ArrayBox型判定
+  is_array(val) {
+    return BoxTypeInspectorBox.is_array(val)
+  }
+
+  // Fail-fast helpers (Phase 31.3+)
+  expect_map(val, context) {
+    if val == null {
+      print("[BoxHelpers] expected MapBox for " + context + " but got null")
+      return val
+    }
+    if BoxHelpers.is_map(val) { return val }
+    print("[BoxHelpers] dev assert failed: expected MapBox for " + context)
+    return val
+  }
+
+  expect_array(val, context) {
+    if val == null {
+      print("[BoxHelpers] expected ArrayBox for " + context + " but got null")
+      return val
+    }
+    if BoxHelpers.is_array(val) { return val }
+    print("[BoxHelpers] dev assert failed: expected ArrayBox for " + context)
+    return val
+  }
+
+  expect_i64(val, context) {
+    if val == null {
+      print("[BoxHelpers] dev assert failed: expected i64 (non-null) for " + context)
+      return 0
+    }
+    if BoxTypeInspectorBox.is_map(val) {
+      local ty = val.get("type")
+      if ty != null {
+        local ty_str = "" + ty
+        if ty_str != "i64" && ty_str != "int" && ty_str != "integer" {
+          print("[BoxHelpers] dev assert failed: unexpected type " + ty_str + " in " + context)
+          return 0
+        }
+      }
+      local inner = val.get("value")
+      if inner != null { return StringHelpers.to_i64(inner) }
+      print("[BoxHelpers] dev assert failed: missing value in " + context)
+      return 0
+    }
+    if StringHelpers.is_numeric_str("" + val) == 1 { return StringHelpers.to_i64(val) }
+    print("[BoxHelpers] dev assert failed: expected numeric value for " + context)
+    return 0
+  }
+}
+
+static box BoxHelpersStub { main(args) { return 0 } }

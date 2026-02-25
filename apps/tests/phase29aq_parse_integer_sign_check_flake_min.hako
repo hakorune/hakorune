@@ -1,0 +1,9 @@
+local s = "-42"
+local neg = false
+local i = 0
+if s.substring(0, 1) == "-" {
+  neg = true
+  i = 1
+}
+print(i)
+

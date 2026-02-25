@@ -1,0 +1,17 @@
+// RVP-C04 capability fixture
+// Contract:
+// - vm-hako route currently fails fast with emit contract error for Select.
+
+static box Main {
+  main() {
+    local remaining = "x"
+    local i = 0
+    loop (i < 2) {
+      i = i + 1
+      if remaining == "" {
+        i = 100
+      }
+    }
+    return i
+  }
+}

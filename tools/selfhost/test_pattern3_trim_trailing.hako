@@ -1,0 +1,43 @@
+// Phase 164: Test trim_trailing from JsonParserBox (Pattern3 with if-else PHI + break)
+// Simulates: loop(end > start) { if is_whitespace(ch) { end-- } else { break } }
+
+static box Main {
+  main(args) {
+    // Simulate trimming trailing whitespace
+    local s = "hello world   \t\n"
+    local start = 0
+    local end = s.length()
+
+    // Loop with if-else PHI: end is updated conditionally with break
+    // Note: working backwards from end
+    loop(end > start) {
+      local ch = s.substring(end - 1, end)
+      // Check if whitespace
+      local is_ws = 0
+      if ch == " " {
+        is_ws = 1
+      } else if ch == "\t" {
+        is_ws = 1
+      } else if ch == "\n" {
+        is_ws = 1
+      } else if ch == "\r" {
+        is_ws = 1
+      }
+
+      if is_ws == 1 {
+        end = end - 1
+      } else {
+        break
+      }
+    }
+
+    // Output result
+    local trimmed = s.substring(start, end)
+    print("Trimmed trailing whitespace")
+    print("End position: " + ("" + end))
+    print("Trimmed string: " + trimmed)
+    print("Expected end: 11")
+    print("Expected string: hello world")
+    return 0
+  }
+}

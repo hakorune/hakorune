@@ -1,0 +1,16 @@
+// Phase 285: Leak report test fixture
+// This program creates user boxes that should appear in leak report
+// Expected: With NYASH_LEAK_LOG=1, [lifecycle/leak] output appears
+
+box Node { other }
+
+static box Main {
+    main() {
+        local a = new Node()
+        local b = new Node()
+        a.other = b
+        b.other = a
+        print("ok: cycle-created")
+        return 0
+    }
+}

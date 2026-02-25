@@ -1,0 +1,8 @@
+// Phase 285LLVM-1.4: Ensure raw integers are still boxed correctly
+// This test guards against handle collision (raw 42 vs handle 42)
+static box Main {
+    main() {
+        print(42)  // Raw integer literal
+        return 0
+    }
+}

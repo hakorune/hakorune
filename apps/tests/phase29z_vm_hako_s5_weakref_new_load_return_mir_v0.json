@@ -1,0 +1,1 @@
+{"functions":[{"name":"main","entry_block":0,"blocks":[{"id":0,"instructions":[{"op":"newbox","dst":1,"type":"ArrayBox","args":[]},{"op":"weak_new","dst":2,"box_val":1},{"op":"weak_load","dst":3,"weak_ref":2},{"op":"const","dst":4,"value":{"type":"i64","value":42}},{"op":"ret","value":4}]}]}]}

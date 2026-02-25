@@ -1,0 +1,24 @@
+// ok.hako — all locals are inside methods (no top-level local)
+
+static box Helper {
+  method calculate(x) {
+    local result
+    result = x * 2
+    return result
+  }
+
+  method process() {
+    local temp
+    temp = 42
+    return temp
+  }
+}
+
+static box Main {
+  method main() {
+    local value
+    value = Helper.calculate(10)
+    Helper.process()
+    return 0
+  }
+}

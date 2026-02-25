@@ -1,0 +1,14 @@
+// str_cast.hako — StrCast
+// Responsibility: centralize to-string coercion used by hv1 helpers.
+// Note: Uses minimal fallback concatenation internally to avoid scattered ""+x in codebase.
+
+static box StrCast {
+  to_str(x) {
+    if x == null { return "" }
+    // Fallback coercion
+    return "" + x
+  }
+}
+
+static box StrCastMain { method main(args) { return 0 } }
+

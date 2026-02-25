@@ -1,0 +1,23 @@
+// Minimal repro for JSON lint StringUtils.starts_with/2 resolution
+//
+// 目的:
+// - using StringUtils as StringUtils 経由で static box StringUtils を参照する最小ケース。
+// - 現状 VM では Unknown: StringUtils.starts_with/2 となる既知バグの切り出し用。
+//
+// 将来:
+// - Stage‑B / UsingResolver が string_utils モジュールを正しく Program(JSON)/MIR に連結できるようになったら
+//   このケースで OK / ERROR 判定が正しく動くことを確認する。
+
+using StringUtils as StringUtils
+
+static box Main {
+  main() {
+    local ok = 0
+    if StringUtils.starts_with("abc", "a") and StringUtils.ends_with("abc", "c") {
+      ok = 1
+    }
+    if ok == 1 { print("OK") } else { print("ERROR") }
+    return 0
+  }
+}
+

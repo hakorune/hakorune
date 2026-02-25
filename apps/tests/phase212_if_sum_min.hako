@@ -1,0 +1,46 @@
+// Phase 212: Pattern 3 (IfPHI) test - if-sum implementation
+// Tests: Loop with conditional update inside if block
+// Target: selfhost if-sum pattern (e.g., FuncScannerBox._sum_def_count)
+//
+// Expected behavior:
+//   Simulated array [null-equivalent, "a", "b"] → sum counts non-empty strings
+//   i=0 → skip, i=1,2 → count
+//
+// Expected result: RC=2 (count of valid items)
+
+static box Main {
+    sum_def_count(defs) {
+        local sum
+        sum = 0
+        local i
+        i = 0
+        local len
+        len = 3
+
+        loop(i < len) {
+            // Simulate: [empty, "a", "b"]
+            //   i=0 → empty (skip)
+            //   i=1 → "a" (count)
+            //   i=2 → "b" (count)
+
+            if i > 0 {
+                // Conditional update: sum = sum + 1
+                sum = sum + 1
+            } else {
+                // Else branch (do nothing)
+                sum = sum + 0
+            }
+
+            i = i + 1
+        }
+
+        return sum
+    }
+
+    main(args) {
+        // Simulated array [empty, "a", "b"] → sum=2
+        local result
+        result = Main.sum_def_count(0)  // dummy arg
+        return result
+    }
+}

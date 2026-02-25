@@ -1,0 +1,13 @@
+// Phase-29bq: loop_cond_break_continue then-only-break
+// Expected: stdout=5, RC=0
+
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 10) {
+      if i >= 5 { break } else { i = i + 1 }
+    }
+    print(i)
+    return 0
+  }
+}

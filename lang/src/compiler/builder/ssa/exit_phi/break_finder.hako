@@ -1,0 +1,301 @@
+// Exit PHI - BreakFinderBox
+// Purpose:
+//   - Stage‑1 Program(JSON v0) から「ループと break の位置」を検出する解析専用の箱だよ。
+//   - JSON 文字列は書き換えず、loop / break 情報を構造化して LoopSSA/PhiInjector に渡す。
+// Input:
+//   - json_str: Program(JSON v0) 文字列（単一関数 or Program 全体）
+//   - trace_flag: 0 = silent, 1 = dev trace ON（LoopSSA から渡される）
+// Output:
+//   - Array of break info MapBox:
+//       { "block_id": <String>, "exit_id": <String>, "loop_header": <String> }
+//   - 付随して ControlFormBox に loop 形を写し、trace ON 時にログとして出力する
+
+using selfhost.shared.mir.control_form as ControlFormBox
+
+	static box BreakFinderBox {
+	  // Main entry: find all breaks in all loops
+	  // trace_flag: 0 = silent, 1 = dev trace ON（LoopSSA から伝播）
+	  find_breaks(json_str, trace_flag) {
+	    local trace = trace_flag
+	    if trace == 1 {
+	      print("[break-finder] start")
+	      // Program(JSON v0) の先頭だけ観測用に出力する
+	      local preview = "" + json_str
+	      local max_len = 200
+	      if preview.length() > max_len {
+	        preview = preview.substring(0, max_len)
+	      }
+	      print("[break-finder/json] " + preview)
+	    }
+	
+	    local breaks = new ArrayBox()
+	
+	    // 1) Find all loops (header blocks with back-edges)
+	    // Phase 25.1m: static helper呼び出しは明示的な箱名で行う。
+	    // BreakFinderBox は状態を持たない解析用箱なので、インスタンスではなく
+	    // モジュール的な静的メソッドとして扱う。
+	    local loops = BreakFinderBox._find_loops(json_str, trace)
+	
+	    if trace == 1 {
+	      print("[break-finder] found " + loops.length() + " loops")
+	    }
+
+	    // 2) For each loop, find breaks (jumps to exit)
+	    local i = 0
+	    local n = loops.length()
+	    loop(i < n) {
+	      local loop_info = loops.get(i)
+	      local header_id = "" + loop_info.get("header")
+	      local exit_id = "" + loop_info.get("exit")
+	      local body_blocks = loop_info.get("body")
+	      // ControlFormBox を break_info にも添付しておく（v2 で PhiInjector 側から参照するため）
+	      local loop_cf = loop_info.get("control")
+
+      // Find breaks in body blocks
+      local j = 0
+      local m = body_blocks.length()
+      loop(j < m) {
+        local block_id = "" + body_blocks.get(j)
+
+	        // Check if this block jumps to exit
+	        if BreakFinderBox._jumps_to(json_str, block_id, exit_id) == 1 {
+	          local break_info = new MapBox()
+	          break_info.set("block_id", block_id)
+	          break_info.set("exit_id", exit_id)
+	          break_info.set("loop_header", header_id)
+	          // ここで ControlFormBox（loop_cf）も載せておく
+	          break_info.set("loop_control", loop_cf)
+	          breaks.push(break_info)
+	
+	          if trace == 1 {
+	            print("[break-finder] found break: block " + block_id + " -> exit " + exit_id)
+	          }
+	        }
+
+        j = j + 1
+      }
+
+	      i = i + 1
+	    }
+	
+	    if trace == 1 {
+	      print("[break-finder] total breaks: " + breaks.length())
+	    }
+	
+	    return breaks
+	  }
+	
+	  // Find all loops in JSON (simple version: look for header/exit pattern)
+	  _find_loops(json_str, trace) {
+	    local loops = new ArrayBox()
+	    local s = "" + json_str
+
+	    // trace=1 のときは Program(JSON v0) の先頭だけ観測用に出力する
+	    if trace == 1 {
+	      local preview = s
+	      local max_len = 200
+	      if preview.length() > max_len {
+	        preview = preview.substring(0, max_len)
+	      }
+	      print("[break-finder/json] " + preview)
+	    }
+
+	    // Simple pattern: find "loop_header":NNN, "loop_exit":MMM
+	    // This is a simplified version - just finds explicit loop markers
+	    local i = 0
+	    local n = s.length()
+	    loop(i < n) {
+	      // Look for "loop_header"
+	      // Phase 25.1m (static helper normalization):
+	      // BreakFinderBox は状態を持たない解析用の static box なので、
+	      // 内部のヘルパ呼び出しも `me` ではなく明示的な箱名で呼び出す。
+	      // これにより Rust 側で「static box 上の暗黙 me」を特別扱いしなくて済む。
+	      local header_pos = BreakFinderBox._indexOf(s, "\"loop_header\":", i)
+	      if header_pos < 0 { break }
+
+	      // 次の探索位置のデフォルトは header_pos + 14（header キーの終端以降）
+	      local next_i = header_pos + 14
+
+	      // Extract header id
+	      local header_id = BreakFinderBox._extract_number(s, header_pos + 14)
+	      if header_id != null {
+	        // Look for corresponding exit (assume it's nearby)
+	        local exit_pos = BreakFinderBox._indexOf(s, "\"loop_exit\":", header_pos)
+	        if exit_pos >= 0 && exit_pos <= header_pos + 500 {
+	          // Extract exit id
+	          local exit_id = BreakFinderBox._extract_number(s, exit_pos + 12)
+	          if exit_id != null {
+	            // Find body blocks (blocks between header and exit)
+	            local body_blocks = BreakFinderBox._find_loop_body(json_str, header_id, exit_id)
+
+	            // ControlFormBox 経由で loop 形を構造化しておく（MVP: 観測専用）
+	            local cf = new ControlFormBox()
+	            cf.from_loop(header_id, exit_id, body_blocks)
+
+	            local loop_info = new MapBox()
+	            loop_info.set("header", header_id)
+	            loop_info.set("exit", exit_id)
+	            loop_info.set("body", body_blocks)
+	            // 将来の v2 実装で利用できるよう、ControlForm も添えておく
+	            loop_info.set("control", cf)
+	            loops.push(loop_info)
+
+	            // trace=1 のときだけ JSON 風にログ出力するよ
+	            if trace == 1 {
+	              local msg = "[loopssa/control] {\"kind\":\"loop\",\"header\":" + header_id + ",\"exit\":" + exit_id + ",\"body_size\":" + body_blocks.length() + "}"
+	              print(msg)
+	            }
+
+	            // 正常に header/exit を検出できた場合は exit_pos の後ろから再開
+	            next_i = exit_pos + 12
+	          } else {
+	            // exit_id が取れなかった場合は、出口キーの終端以降から再開
+	            next_i = exit_pos + 12
+	          }
+	        }
+	      }
+
+	      // いずれの場合も next_i から次の探索を続ける
+	      i = next_i
+	    }
+
+	    return loops
+	  }
+
+  // Find body blocks of a loop (blocks that can reach exit but not header)
+  _find_loop_body(json_str, header_id, exit_id) {
+    local body = new ArrayBox()
+    local s = "" + json_str
+
+    // Simple approach: find all blocks with id between header and exit
+    // This is approximate but works for simple cases
+    local header_num = BreakFinderBox._parse_int(header_id)
+    local exit_num = BreakFinderBox._parse_int(exit_id)
+
+    if header_num < 0 || exit_num < 0 { return body }
+
+    local i = header_num + 1
+    loop(i < exit_num) {
+      body.push("" + i)
+      i = i + 1
+    }
+
+    return body
+  }
+
+  // Check if block jumps to target
+  _jumps_to(json_str, block_id, target_id) {
+    local s = "" + json_str
+
+    // Find block definition: "id":block_id
+    local block_start = BreakFinderBox._find_block(s, block_id)
+    if block_start < 0 { return 0 }
+
+    // Find terminator in this block
+    local term_pos = BreakFinderBox._indexOf(s, "\"terminator\":", block_start)
+    if term_pos < 0 { return 0 }
+
+    // Check if it's a jump with target matching target_id
+    local jump_pos = BreakFinderBox._indexOf(s, "\"op\":\"jump\"", term_pos)
+    if jump_pos < 0 || jump_pos > term_pos + 200 { return 0 }
+
+    local target_pos = BreakFinderBox._indexOf(s, "\"target\":", jump_pos)
+    if target_pos < 0 || target_pos > jump_pos + 100 { return 0 }
+
+    local actual_target = BreakFinderBox._extract_number(s, target_pos + 9)
+    if actual_target == null { return 0 }
+
+    if actual_target == target_id { return 1 }
+    return 0
+  }
+
+  // Find block by id in JSON
+  _find_block(json_str, block_id) {
+    local s = "" + json_str
+    local pattern = "\"id\":" + block_id
+    return BreakFinderBox._indexOf(s, pattern, 0)
+  }
+
+  // Simple indexOf implementation
+  _indexOf(str, pattern, start) {
+    local s = "" + str
+    local p = "" + pattern
+    local slen = s.length()
+    local plen = p.length()
+    local i = start
+
+    loop(i + plen <= slen) {
+      if s.substring(i, i + plen) == p { return i }
+      i = i + 1
+    }
+
+    return -1
+  }
+
+  // Extract number after a position (skip whitespace/quotes)
+  _extract_number(str, pos) {
+    local s = "" + str
+    local n = s.length()
+    local i = pos
+
+    // Skip whitespace and quotes
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\"" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+
+    // Collect digits
+    local num_str = ""
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch >= "0" && ch <= "9" {
+        num_str = num_str + ch
+        i = i + 1
+        continue
+      }
+      break
+    }
+
+    if num_str == "" { return null }
+    return num_str
+  }
+
+  // Parse integer from string
+  _parse_int(str) {
+    local s = "" + str
+    local n = s.length()
+    local result = 0
+    local i = 0
+
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch >= "0" && ch <= "9" {
+        result = result * 10 + (BreakFinderBox._char_to_digit(ch))
+      } else {
+        return -1
+      }
+      i = i + 1
+    }
+
+    return result
+  }
+
+  // Convert char to digit
+  _char_to_digit(ch) {
+    if ch == "0" { return 0 }
+    if ch == "1" { return 1 }
+    if ch == "2" { return 2 }
+    if ch == "3" { return 3 }
+    if ch == "4" { return 4 }
+    if ch == "5" { return 5 }
+    if ch == "6" { return 6 }
+    if ch == "7" { return 7 }
+    if ch == "8" { return 8 }
+    if ch == "9" { return 9 }
+    return 0
+  }
+}

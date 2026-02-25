@@ -1,0 +1,30 @@
+// Phase 29bq selfhost blocker (min):
+// - loop(true) with ExitIf(continue) + tail return inside loop body
+// - mirrors RewriteKnown.try_apply/1 structure: continue-based loop(true) that finally returns
+//
+// Expected output: X
+
+static box RewriteKnownMini {
+    run() {
+        local out = ""
+        local i = 0
+
+        loop(true) {
+            if i == 0 {
+                i = 1
+                continue
+            }
+
+            out = out + "X"
+            return out
+        }
+    }
+}
+
+static box Main {
+    main() {
+        print(RewriteKnownMini.run())
+        return "OK"
+    }
+}
+

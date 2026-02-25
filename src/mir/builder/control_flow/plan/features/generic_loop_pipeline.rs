@@ -1,0 +1,102 @@
+//! GenericLoop pipeline (ordered feature application).
+
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::plan::features::{generic_loop_body, generic_loop_step};
+use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
+    GenericLoopV0Facts, GenericLoopV1Facts,
+};
+use crate::mir::builder::control_flow::plan::skeletons::generic_loop::GenericLoopSkeleton;
+use crate::mir::builder::MirBuilder;
+
+const GENERIC_LOOP_ERR: &str = "[normalizer] generic loop v0";
+
+pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
+    builder: &mut MirBuilder,
+    facts: &GenericLoopV0Facts,
+    ctx: &LoopPatternContext,
+    skeleton: &mut GenericLoopSkeleton,
+) -> Result<(), String> {
+    let pre_body_map = builder.variable_ctx.variable_map.clone();
+
+    let body_plans =
+        generic_loop_body::lower_generic_loop_v0_body(builder, facts, &skeleton.phi_bindings, ctx)?;
+    skeleton.plan.body = body_plans;
+
+    let post_body_map = builder.variable_ctx.variable_map.clone();
+    builder.variable_ctx.variable_map = pre_body_map;
+    generic_loop_step::apply_generic_loop_condition(
+        builder,
+        skeleton,
+        &facts.condition,
+        &facts.loop_var,
+        GENERIC_LOOP_ERR,
+    )?;
+    builder.variable_ctx.variable_map = post_body_map;
+    generic_loop_step::apply_generic_loop_step(
+        builder,
+        skeleton,
+        &facts.loop_increment,
+        &facts.loop_var,
+        GENERIC_LOOP_ERR,
+    )?;
+
+    Ok(())
+}
+
+pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
+    builder: &mut MirBuilder,
+    facts: &GenericLoopV1Facts,
+    ctx: &LoopPatternContext,
+    skeleton: &mut GenericLoopSkeleton,
+) -> Result<(), String> {
+    crate::mir::builder::control_flow::joinir::trace::trace()
+        .varmap("generic_loop_v1_pre", &builder.variable_ctx.variable_map);
+    let pre_body_map = builder.variable_ctx.variable_map.clone();
+
+    let carrier_state = generic_loop_body::prepare_generic_loop_v1_carriers(
+        builder,
+        facts,
+        skeleton.loop_var_current,
+    );
+    crate::mir::builder::control_flow::joinir::trace::trace()
+        .varmap("generic_loop_v1_phi_bindings", &carrier_state.phi_bindings);
+    let body_plans = generic_loop_body::lower_generic_loop_v1_body(
+        builder,
+        facts,
+        &carrier_state.phi_bindings,
+        ctx,
+    )?;
+    crate::mir::builder::control_flow::joinir::trace::trace()
+        .varmap("generic_loop_v1_post_body", &builder.variable_ctx.variable_map);
+    skeleton.plan.body = body_plans;
+
+    let post_body_map = builder.variable_ctx.variable_map.clone();
+    builder.variable_ctx.variable_map = pre_body_map;
+    generic_loop_step::apply_generic_loop_condition(
+        builder,
+        skeleton,
+        &facts.condition,
+        &facts.loop_var,
+        GENERIC_LOOP_ERR,
+    )?;
+    builder.variable_ctx.variable_map = post_body_map;
+    generic_loop_step::apply_generic_loop_step(
+        builder,
+        skeleton,
+        &facts.loop_increment,
+        &facts.loop_var,
+        GENERIC_LOOP_ERR,
+    )?;
+    crate::mir::builder::control_flow::joinir::trace::trace()
+        .varmap("generic_loop_v1_post_step", &builder.variable_ctx.variable_map);
+
+    generic_loop_body::finalize_generic_loop_v1_carriers(
+        builder,
+        &mut skeleton.plan,
+        carrier_state,
+        &facts.loop_var,
+        skeleton.loop_var_current,
+    );
+
+    Ok(())
+}

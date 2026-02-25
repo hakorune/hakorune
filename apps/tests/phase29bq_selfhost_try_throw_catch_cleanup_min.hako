@@ -1,0 +1,16 @@
+// Phase 29bq selfhost subset: block-postfix catch/cleanup minimal (JSON v0 bridge)
+// Expected output: 12
+static box Main {
+  main() {
+    local x = 0
+    {
+      throw 1
+    } catch (e) {
+      x = 2
+    } cleanup {
+      x = x + 10
+    }
+    print(x)
+    return 0
+  }
+}

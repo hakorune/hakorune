@@ -1,0 +1,32 @@
+// Phase 29bq: continue_target=header minimal
+//
+// Goal: loop(cond) + multi-continue + guard break (LoopCondBreakContinue).
+// Expected output: 33
+static box Main {
+  main() {
+    local i = 0
+    local n = 5
+    local out = 0
+
+    loop(i < n) {
+      if i < 0 { break }
+
+      if i == 1 {
+        out = out + 10
+        i = i + 1
+        continue
+      }
+      if i == 3 {
+        out = out + 20
+        i = i + 1
+        continue
+      }
+
+      out = out + 1
+      i = i + 1
+    }
+
+    print(out)
+    return 0
+  }
+}

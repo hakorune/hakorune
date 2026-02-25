@@ -1,0 +1,105 @@
+// Moved from apps/selfhost-compiler/builder/rewrite/known.hako — Stage‑1 JSON minimal canonicalization
+// Phase‑31.C.1 scope: ModuleFunction name → `Box.method/arity` のみ付与
+// 前提: args は整数IDの配列（[1,2,3]）で、入れ子や文字列は含まない
+
+static box RewriteKnown {
+  try_apply(stage1_json) {
+    if stage1_json == null { return null }
+    local s = "" + stage1_json
+    local i = 0
+    local out = ""
+    loop(true) {
+      local p = s.indexOf("\"type\":\"ModuleFunction\"")
+      if p < 0 { break }
+      // write through up to this point
+      out = out + s.substring(i, p)
+
+      // Find name start
+      local name_key = "\"name\":\""
+      local np = s.indexOf(name_key, p)
+      if np < 0 { out = out + s.substring(p, s.length())  i = s.length()  break }
+      local name_start = np + name_key.length()
+      // Find name end quote
+      local name_end = s.indexOf("\"", name_start)
+      if name_end < 0 { out = out + s.substring(p, s.length())  i = s.length()  break }
+      local name = s.substring(name_start, name_end)
+
+      // If already canonical, just append segment as-is
+      if name.indexOf("/") >= 0 {
+        out = out + s.substring(p, name_end)
+        i = name_end
+        continue
+      }
+
+      // Find args bracket after name
+      local args_key = "\"args\":["
+      local ap = s.indexOf(args_key, name_end)
+      if ap < 0 { out = out + s.substring(p, name_end)  i = name_end  continue }
+      local lb = ap + args_key.length() - 1 // points to '['
+      // Find closing bracket
+      local rb = s.indexOf("]", lb + 1)
+      if rb < 0 { out = out + s.substring(p, name_end)  i = name_end  continue }
+
+      // Count simple elements (digits, commas, spaces)
+      local body = s.substring(lb + 1, rb)
+      local trimmed = me._trim(body)
+      local arity = 0
+      if trimmed.length() == 0 {
+        arity = 0
+      } else {
+        // guard: if body contains non-digit/comma/space, skip rewrite (fail-safe)
+        if me._is_simple_ids(trimmed) == false {
+          out = out + s.substring(p, name_end)
+          i = name_end
+          continue
+        }
+        arity = me._count_commas(trimmed) + 1
+      }
+
+      // Emit up to name_start, then canonical name, then continue from name_end
+      out = out + s.substring(p, name_start) + name + "/" + me._itoa(arity)
+      i = name_end
+    }
+    // Append the tail
+    out = out + s.substring(i, s.length())
+    return out
+  }
+
+  _trim(text) {
+    local a = 0
+    local b = text.length()
+    loop(a < b && me._is_space(text.substring(a,a+1))) { a = a + 1 }
+    loop(b > a && me._is_space(text.substring(b-1,b))) { b = b - 1 }
+    return text.substring(a,b)
+  }
+  _is_space(ch) { return ch == " " || ch == "\n" || ch == "\t" || ch == "\r" }
+  _is_digit(ch) { return ch >= "0" && ch <= "9" }
+  _is_simple_ids(text) {
+    local i = 0
+    loop(i < text.length()) {
+      local ch = text.substring(i,i+1)
+      if !(me._is_space(ch) || ch == "," || me._is_digit(ch)) { return false }
+      i = i + 1
+    }
+    return true
+  }
+  _count_commas(text) {
+    local i = 0
+    local n = 0
+    loop(i < text.length()) { if text.substring(i,i+1) == "," { n = n + 1 } i = i + 1 }
+    return n
+  }
+  _itoa(n) {
+    // simple positive int to string
+    if n == 0 { return "0" }
+    local s = ""
+    local x = n
+    loop(x > 0) {
+      local d = x % 10
+      s = (d == 0 ? "0" : d == 1 ? "1" : d == 2 ? "2" : d == 3 ? "3" : d == 4 ? "4" : d == 5 ? "5" : d == 6 ? "6" : d == 7 ? "7" : d == 8 ? "8" : "9") + s
+      x = (x - d) / 10
+    }
+    return s
+  }
+}
+

@@ -1,0 +1,517 @@
+// FuncLoweringBox — Function definition lowering and Call resolution for MirBuilder
+// Policy: Lower function defs to MIR + resolve Call targets to qualified names
+// Toggle: HAKO_MIR_BUILDER_FUNCS=1, HAKO_MIR_BUILDER_CALL_RESOLVE=1
+// Scope: Minimal support for Return(Int), Return(Binary(+|-|*|/, Int|Var, Int|Var)), Return(Call)
+// Output: Additional MIR functions + resolved Call targets
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using lang.mir.builder.func_body.basic_lower_box as FuncBodyBasicLowerBox
+using lang.mir.builder.func_body.extern_call_box as ExternCallLowerBox
+using lang.mir.builder.func_body.cli_entry_box as CliEntryLowerBox
+using lang.mir.builder.func_body.cli_run_shape_box as CliRunShapeScannerBox
+using lang.mir.builder.func_body.cli_run_lower_box as CliRunLowerBox
+using lang.mir.builder.func_lowering.defs_scanner_box as DefsScannerBox
+using lang.mir.builder.func_lowering.call_methodize_box as CallMethodizeBox
+
+static box FuncLoweringBox {
+  // Lower function definitions to MIR
+  // Returns comma-separated JSON strings for additional functions
+  method lower_func_defs(program_json, defs_json) {
+    if defs_json == null || defs_json == "" { return "" }
+
+    local s = "" + program_json
+    local func_defs_mir = ""
+    local trace_funcs = 0
+    {
+      local trace_env = env.get("HAKO_SELFHOST_TRACE")
+      if trace_env != null && ("" + trace_env) == "1" { trace_funcs = 1 }
+    }
+
+    // Optional: detect Stage1 CLI entry (Main.main → HakoCli.run) for observability.
+    // Observes ring1 構造のみで、MIR 生成や ring0 への影響は与えない。
+    CliEntryLowerBox.scan(s)
+    // Optional: scan HakoCli.run の分岐構造（run/build/emit/check 等）も観測する。
+    // 戻り値は現状未使用だが、タグとメタ情報で形状を把握しておく。
+    CliRunShapeScannerBox.scan(s)
+
+    // Check for "defs" key and extract bounds using helper
+    local bounds = DefsScannerBox.find_defs_bounds(s)
+    if bounds == null { return "" }
+    local defs_start = bounds.get(0)
+    local defs_end = bounds.get(1)
+
+    // Parse each def object in defs array
+    local defs_str = s.substring(defs_start, defs_end)
+    local func_jsons = new ArrayBox()
+    local func_map = new MapBox()  // For Call resolution: name -> "Box.method"
+
+    // Scan for {"name": pattern
+    local pos = 0
+    loop(pos < defs_str.length()) {
+      local name_idx = JsonFragBox.index_of_from(defs_str, "\"name\":\"", pos)
+      if name_idx < 0 { break }
+
+      // Extract name using helper
+      local name_info = DefsScannerBox.extract_name(defs_str, name_idx)
+      if name_info == null { break }
+      local func_name = name_info.get("name")
+      local name_end = name_info.get("name_end")
+
+      // Extract box name using helper
+      local box_name = DefsScannerBox.extract_box_name(defs_str, name_end)
+
+      // Register function in map for Call resolution
+      func_map.set(func_name, box_name + "." + func_name)
+
+      // Extract params array using helper
+      local params_arr = DefsScannerBox.extract_params(defs_str, name_end)
+
+      // Extract body JSON using helper
+      local body_json = DefsScannerBox.extract_body(defs_str, name_end)
+      if body_json != null {
+        // Try to lower body to MIR
+        local mir_func = me._lower_func_body(func_name, box_name, params_arr, body_json, func_map)
+        if mir_func != null && mir_func != "" {
+          func_jsons.push(mir_func)
+        } else if trace_funcs == 1 {
+          print("[builder/funcs:skip] " + box_name + "." + func_name + " body unsupported")
+        }
+      }
+      pos = name_end
+    }
+
+    // Build additional functions JSON
+    if func_jsons.length() > 0 {
+      local fi = 0
+      local func_len = func_jsons.length()
+      loop(fi < func_len) {
+        func_defs_mir = func_defs_mir + "," + ("" + func_jsons.get(fi))
+        fi = fi + 1
+      }
+    }
+
+    return func_defs_mir
+  }
+
+  // Dev-only: rewrite legacy Call into unified mir_call(Method) when possible
+  // Heuristic: find call {func:K,args:[..],dst:R} and match preceding const {dst:K,value:"Box.method/N"}
+  // Receiverは省略（VM 側で静的シングルトンを補完）。LLVM 経路はPoCの範囲外。
+  method methodize_calls_in_mir(mir_json) {
+    return CallMethodizeBox.methodize_calls_in_mir(mir_json)
+  }
+
+  // Lower function body to MIR (minimal support)
+  // Supports: Return(Int), Return(Binary(+|-|*|/, Int|Var, Int|Var)), Return(Call)
+  method _lower_func_body(func_name, box_name, params_arr, body_json, func_map) {
+    local body_str = "" + body_json
+
+    // Specialized path (stub) for Stage1 CLI run entry.
+    // 現時点では観測のみで、MIR は生成せず null を返す。
+    {
+      local is_cli = 0
+      if box_name != null && func_name != null {
+        if box_name == "HakoCli" && func_name == "run" { is_cli = 1 }
+      }
+      if is_cli == 1 {
+        local cli_mir = CliRunLowerBox.lower_run(func_name, box_name, params_arr, body_str, func_map)
+        if cli_mir != null { return cli_mir }
+      }
+    }
+
+    {
+      local basic = FuncBodyBasicLowerBox.lower(func_name, box_name, params_arr, body_str)
+      if basic != null { return basic }
+    }
+
+    {
+      local ext = ExternCallLowerBox.lower_hostbridge(func_name, box_name, params_arr, body_str)
+      if ext != null { return ext }
+    }
+
+    // Check for Return statement
+    local ret_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Return\"", 0)
+    if ret_idx < 0 { return null }
+
+    // Check for Call in Return
+    local call_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Call\"", ret_idx)
+    if call_idx >= 0 {
+      // Return(Call(name, args))
+      return me._lower_return_call(func_name, box_name, params_arr, body_str, call_idx, func_map)
+    }
+
+    // Check for Binary in Return
+    local bin_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Binary\"", ret_idx)
+    if bin_idx >= 0 {
+      // Return(Binary(op, lhs, rhs))
+      return me._lower_return_binary(func_name, box_name, params_arr, body_str, bin_idx)
+    }
+
+    // Check for Return(Int) directly
+    local int_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Int\"", ret_idx)
+    if int_idx >= 0 {
+      local val_idx = JsonFragBox.index_of_from(body_str, "\"value\":", int_idx)
+      if val_idx >= 0 {
+        local val = JsonFragBox.read_int_after(body_str, val_idx + 8)
+        if val != null {
+          // Build params JSON array
+          local params_json = me._build_params_json(params_arr)
+          local arity = JsonFragBox._str_to_int("" + params_arr.length())
+          local mir = "{\\\"name\\\":\\\"" + box_name + "." + func_name + "/" + arity + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[{\\\"id\\\":0,\\\"instructions\\\":[{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + val + "}},{\\\"op\\\":\\\"ret\\\",\\\"value\\\":1}]}]}"
+          return mir
+        }
+      }
+    }
+
+    return null
+  }
+
+  // Lower Return(Binary(op, lhs, rhs))
+  method _lower_return_binary(func_name, box_name, params_arr, body_str, bin_idx) {
+    // Extract op
+    local op_idx = JsonFragBox.index_of_from(body_str, "\"op\":\"", bin_idx)
+    if op_idx < 0 { return null }
+    local op = JsonFragBox.read_string_after(body_str, op_idx + 5)
+    if !(op == "+" || op == "-" || op == "*" || op == "/") { return null }
+
+    // Extract lhs (Var or Int)
+    local lhs_idx = JsonFragBox.index_of_from(body_str, "\"lhs\":{", bin_idx)
+    local lhs_type = null
+    local lhs_val = null
+    if lhs_idx >= 0 {
+      local lhs_type_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"", lhs_idx)
+      if lhs_type_idx >= 0 {
+        lhs_type = JsonFragBox.read_string_after(body_str, lhs_type_idx + 7)
+        if lhs_type == "Var" {
+          local var_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", lhs_type_idx)
+          if var_idx >= 0 { lhs_val = JsonFragBox.read_string_after(body_str, var_idx + 8) }
+        } else if lhs_type == "Int" {
+          local val_idx = JsonFragBox.index_of_from(body_str, "\"value\":", lhs_type_idx)
+          if val_idx >= 0 { lhs_val = JsonFragBox.read_int_after(body_str, val_idx + 8) }
+        }
+      }
+    }
+
+    // Extract rhs (Var or Int)
+    local rhs_idx = JsonFragBox.index_of_from(body_str, "\"rhs\":{", bin_idx)
+    local rhs_type = null
+    local rhs_val = null
+    if rhs_idx >= 0 {
+      local rhs_type_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"", rhs_idx)
+      if rhs_type_idx >= 0 {
+        rhs_type = JsonFragBox.read_string_after(body_str, rhs_type_idx + 7)
+        if rhs_type == "Var" {
+          local var_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", rhs_type_idx)
+          if var_idx >= 0 { rhs_val = JsonFragBox.read_string_after(body_str, var_idx + 8) }
+        } else if rhs_type == "Int" {
+          local val_idx = JsonFragBox.index_of_from(body_str, "\"value\":", rhs_type_idx)
+          if val_idx >= 0 { rhs_val = JsonFragBox.read_int_after(body_str, val_idx + 8) }
+        }
+      }
+    }
+
+    if lhs_type == null || rhs_type == null || lhs_val == null || rhs_val == null { return null }
+
+    // Build MIR function with params
+    local insts = ""
+    local next_reg = 1
+
+    // Map params to registers (params start at r1, r2, ...)
+    local param_map = new MapBox()
+    {
+      local pi = 0
+      local pn = params_arr.length()
+      loop(pi < pn) {
+        param_map.set("" + params_arr.get(pi), "" + next_reg)
+        next_reg = next_reg + 1
+        pi = pi + 1
+      }
+    }
+
+    // Load lhs
+    local lhs_reg = next_reg
+    if lhs_type == "Var" {
+      // Use param register
+      local preg = param_map.get("" + lhs_val)
+      if preg == null { return null }
+      lhs_reg = JsonFragBox._str_to_int("" + preg)
+    } else if lhs_type == "Int" {
+      insts = "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + lhs_val + "}}"
+      lhs_reg = next_reg
+      next_reg = next_reg + 1
+    }
+
+    // Load rhs
+    local rhs_reg = next_reg
+    if rhs_type == "Var" {
+      // Use param register
+      local preg = param_map.get("" + rhs_val)
+      if preg == null { return null }
+      rhs_reg = JsonFragBox._str_to_int("" + preg)
+    } else if rhs_type == "Int" {
+      if insts != "" { insts = insts + "," }
+      insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + rhs_val + "}}"
+      rhs_reg = next_reg
+      next_reg = next_reg + 1
+    }
+
+    // binop
+    if insts != "" { insts = insts + "," }
+    insts = insts + "{\\\"op\\\":\\\"binop\\\",\\\"operation\\\":\\\"" + op + "\\\",\\\"lhs\\\":" + lhs_reg + ",\\\"rhs\\\":" + rhs_reg + ",\\\"dst\\\":" + next_reg + "}"
+    local result_reg = next_reg
+    next_reg = next_reg + 1
+
+    // ret
+    insts = insts + ",{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
+
+    // Build params JSON array
+    local params_json = me._build_params_json(params_arr)
+    local arity = JsonFragBox._str_to_int("" + params_arr.length())
+    local mir = "{\\\"name\\\":\\\"" + box_name + "." + func_name + "/" + arity + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[{\\\"id\\\":0,\\\"instructions\\\":[" + insts + "]}]}"
+    return mir
+  }
+
+  // Lower Return(Call(name, args))
+  method _lower_return_call(func_name, box_name, params_arr, body_str, call_idx, func_map) {
+    // Extract call function name
+    local func_idx = JsonFragBox.index_of_from(body_str, "\"func\":\"", call_idx)
+    if func_idx < 0 { return null }
+    local call_name = JsonFragBox.read_string_after(body_str, func_idx + 8)
+    if call_name == null { return null }
+
+    // Resolve call target
+    local resolved_name = me.resolve_call_target(call_name, func_map)
+
+    // Extract args (minimal: Int or Var)
+    local args_arr = new ArrayBox()
+    local args_idx = JsonFragBox.index_of_from(body_str, "\"args\":[", call_idx)
+    if args_idx >= 0 {
+      // Parse args array (simplified)
+      local args_pos = args_idx + 8
+      loop(args_pos < body_str.length()) {
+        local arg_type_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"", args_pos)
+        if arg_type_idx < 0 { break }
+        if arg_type_idx > call_idx + 200 { break }  // Limit search scope
+
+        local arg_type = JsonFragBox.read_string_after(body_str, arg_type_idx + 7)
+        if arg_type == "Int" {
+          local val_idx = JsonFragBox.index_of_from(body_str, "\"value\":", arg_type_idx)
+          if val_idx >= 0 {
+            local val = JsonFragBox.read_int_after(body_str, val_idx + 8)
+            if val != null {
+              local arg_info = new MapBox()
+              arg_info.set("type", "Int")
+              arg_info.set("value", val)
+              args_arr.push(arg_info)
+            }
+          }
+        } else if arg_type == "Var" {
+          local var_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", arg_type_idx)
+          if var_idx >= 0 {
+            local var_name = JsonFragBox.read_string_after(body_str, var_idx + 8)
+            if var_name != null {
+              local arg_info = new MapBox()
+              arg_info.set("type", "Var")
+              arg_info.set("value", var_name)
+              args_arr.push(arg_info)
+            }
+          }
+        }
+        args_pos = arg_type_idx + 20
+      }
+    }
+
+    // Build MIR for Call
+    local insts = ""
+    local next_reg = 1
+
+    // Map params to registers
+    local param_map = new MapBox()
+    {
+      local pi = 0
+      local pn = params_arr.length()
+      loop(pi < pn) {
+        param_map.set("" + params_arr.get(pi), "" + next_reg)
+        next_reg = next_reg + 1
+        pi = pi + 1
+      }
+    }
+
+    // Build args (materialize immediates/params into registers)
+    local arg_regs = new ArrayBox()
+    {
+      local ai = 0
+      local an = args_arr.length()
+      loop(ai < an) {
+        local arg_info = args_arr.get(ai)
+        local arg_type = "" + arg_info.get("type")
+        if arg_type == "Int" {
+          local val = arg_info.get("value")
+          insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + val + "}}"
+          arg_regs.push(next_reg)
+          next_reg = next_reg + 1
+        } else if arg_type == "Var" {
+          local var_name = "" + arg_info.get("value")
+          local preg = param_map.get(var_name)
+          if preg != null {
+            arg_regs.push(JsonFragBox._str_to_int("" + preg))
+          }
+        }
+        ai = ai + 1
+      }
+    }
+
+    // Build args list
+    local args_list = ""
+    {
+      local ri = 0
+      local rn = arg_regs.length()
+      loop(ri < rn) {
+        if ri > 0 { args_list = args_list + "," }
+        args_list = args_list + ("" + arg_regs.get(ri))
+        ri = ri + 1
+      }
+    }
+
+    // Decide emission form: Global call (legacy) or unified Method (dev: methodize)
+    local result_reg = next_reg
+    {
+      local dm = env.get("HAKO_MIR_BUILDER_METHODIZE")
+      local do_methodize = 0
+      if dm != null && ("" + dm) == "1" { do_methodize = 1 }
+      if do_methodize == 1 && resolved_name.contains(".") {
+        // Methodize PoC: rewrite Global("Box.method") -> mir_call Method(box_name, method, receiver: omitted)
+        // Note: receiver is omitted here; VM will materialize a static singleton when callee.type==Method
+        //       LLVM path may treat args[0] as receiver; PoC canary targets VM backend.
+        local dot_pos = JsonFragBox.index_of_from(resolved_name, ".", 0)
+        local slash_pos = JsonFragBox.index_of_from(resolved_name, "/", 0)
+        if dot_pos >= 0 {
+          local box_part = resolved_name.substring(0, dot_pos)
+          local meth_part = resolved_name.substring(dot_pos + 1, (slash_pos >= 0 ? slash_pos : resolved_name.length()))
+          insts = insts + "," + (
+            "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":" + result_reg + ",\\\"mir_call\\\":{" +
+              "\\\"callee\\\":{\\\"type\\\":\\\"Method\\\",\\\"box_name\\\":\\\"" + box_part + "\\\",\\\"method\\\":\\\"" + meth_part + "\\\"}," +
+              "\\\"args\\\":[" + args_list + "],\\\"effects\\\":[]}}"
+          )
+          next_reg = next_reg + 1
+        } else {
+          // Fallback to legacy call if split failed
+          do_methodize = 0
+        }
+      }
+      if do_methodize != 1 {
+        // Legacy: const func name with arity and call
+        local call_arity = JsonFragBox._str_to_int("" + args_arr.length())
+        local resolved_with_arity = resolved_name + "/" + call_arity
+        insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + result_reg + ",\\\"value\\\":{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"" + resolved_with_arity + "\\\"}}"
+        local func_reg = result_reg
+        result_reg = result_reg + 1
+        next_reg = result_reg + 0
+        insts = insts + ",{\\\"op\\\":\\\"call\\\",\\\"func\\\":" + func_reg + ",\\\"args\\\":[" + args_list + "],\\\"dst\\\":" + result_reg + "}"
+        next_reg = next_reg + 1
+      }
+    }
+
+    // ret
+    insts = insts + ",{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
+
+    // Build params JSON array
+    local params_json = me._build_params_json(params_arr)
+    local arity = JsonFragBox._str_to_int("" + params_arr.length())
+    local mir = "{\\\"name\\\":\\\"" + box_name + "." + func_name + "/" + arity + "\\\",\\\"params\\\":" + params_json + ",\\\"locals\\\":[],\\\"blocks\\\":[{\\\"id\\\":0,\\\"instructions\\\":[" + insts + "]}]}"
+
+    // Debug log
+    if env.get("HAKO_MIR_BUILDER_DEBUG") == "1" {
+      print("[mirbuilder/call:lowered] " + func_name + " -> call(" + resolved_name + ")")
+    }
+
+    return mir
+  }
+
+  // Resolve call target using function map
+  // Toggle: HAKO_MIR_BUILDER_CALL_RESOLVE=1
+  method resolve_call_target(call_name, func_map) {
+    if env.get("HAKO_MIR_BUILDER_CALL_RESOLVE") != "1" { return call_name }
+
+    local resolved = func_map.get(call_name)
+    if resolved != null {
+      if env.get("HAKO_MIR_BUILDER_DEBUG") == "1" {
+        print("[mirbuilder/call:resolve] " + call_name + " => " + resolved)
+      }
+      return "" + resolved
+    }
+    return call_name
+  }
+
+  // Helper: build params JSON array
+  method _build_params_json(params_arr) {
+    local params_json = "["
+    local pi = 0
+    local pn = params_arr.length()
+    loop(pi < pn) {
+      if pi > 0 { params_json = params_json + "," }
+      params_json = params_json + "\\\"" + ("" + params_arr.get(pi)) + "\\\""
+      pi = pi + 1
+    }
+    params_json = params_json + "]"
+    return params_json
+  }
+
+  // Inject function definitions into MIR JSON
+  method inject_funcs(mir_json, func_defs_mir) {
+    if func_defs_mir == null || func_defs_mir == "" { return mir_json }
+
+    // Find "functions":[{ in mir_json and inject after first function
+    local mir_str = "" + mir_json
+    local funcs_idx = JsonFragBox.index_of_from(mir_str, "\"functions\":[", 0)
+    if funcs_idx < 0 { return mir_json }
+
+    // Optional: require presence of a main function (guarded by env)
+    {
+      local req = env.get("HAKO_MIR_BUILDER_REQUIRE_MAIN")
+      if req != null && ("" + req) == "1" {
+        // Minimal check: look for a function with name "main"
+        local main_idx = JsonFragBox.index_of_from(mir_str, "\"name\":\"main\"", funcs_idx)
+        if main_idx < 0 {
+          if env.get("HAKO_SELFHOST_TRACE") == "1" {
+            print("[builder/funcs:fail:no-main]")
+          }
+          return mir_json
+        }
+      }
+    }
+
+    // Find first function's closing }
+    local first_func_start = funcs_idx + 13  // skip "functions":[
+    local brace_depth = 0
+    local first_func_end = -1
+    {
+      local j = first_func_start
+      local in_str = 0
+      local esc = 0
+      loop(j < mir_str.length()) {
+        local ch = mir_str.substring(j, j + 1)
+        if in_str == 1 {
+          if esc == 1 { esc = 0  j = j + 1  continue }
+          if ch == "\\" { esc = 1  j = j + 1  continue }
+          if ch == "\"" { in_str = 0  j = j + 1  continue }
+          j = j + 1
+          continue
+        }
+        if ch == "\"" { in_str = 1  j = j + 1  continue }
+        if ch == "{" { brace_depth = brace_depth + 1  j = j + 1  continue }
+        if ch == "}" {
+          brace_depth = brace_depth - 1
+          if brace_depth == 0 { first_func_end = j + 1  break }
+          j = j + 1
+          continue
+        }
+        j = j + 1
+      }
+    }
+    if first_func_end < 0 { return mir_json }
+
+    // Inject func_defs_mir after first function
+    local result = mir_str.substring(0, first_func_end) + func_defs_mir + mir_str.substring(first_func_end, mir_str.length())
+    return result
+  }
+}

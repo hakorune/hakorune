@@ -1,0 +1,223 @@
+// LoopForm Instruction Box - Unit Test
+// Stage 1: Basic LoopForm generation
+// Stage 2: PHI incoming arrays + computed flags
+
+using "lang/src/llvm_ir/instructions/loopform.hako" as LoopFormInst
+
+static box Main {
+  main() {
+    print("=== LoopForm Instruction Unit Test (Stage 1 + 2) ===")
+
+    // Test 1: 基本的な LoopForm 命令生成
+    me.test_basic_loopform()
+
+    // Test 2: Blocks 検証
+    me.test_blocks_validation()
+
+    // Test 3: Condition モード
+    me.test_condition_modes()
+
+    // Test 4: PHI incoming 配列検証（Stage 2）
+    me.test_phi_incoming_arrays()
+
+    print("=== All Tests Passed! ===")
+    return 0
+  }
+
+  // Test 1: 基本的な LoopForm 命令生成
+  test_basic_loopform() {
+    print("\n[Test 1] Basic LoopForm generation")
+
+    // Blocks マップを作成
+    local blocks = new MapBox()
+    blocks.set("preheader", 10)
+    blocks.set("header", 11)
+    blocks.set("body", 12)
+    blocks.set("dispatch", 13)
+    blocks.set("latch", 14)
+    blocks.set("exit", 15)
+
+    // Options (null でデフォルト使用)
+    local options = null
+
+    local result = LoopFormInst.lower_loopform(1, blocks, 5, options)
+
+    // 期待値: {"op":"loopform","loop_id":1,"blocks":{...},...}
+    print("Generated: " + result)
+
+    // 簡易検証: "loopform" が含まれているか
+    local contains_op = result.indexOf("loopform")
+    if contains_op < 0 {
+      print("ERROR: loopform op not found")
+      return 1
+    }
+
+    // "loop_id":1 が含まれているか
+    local contains_id = result.indexOf("\"loop_id\":1")
+    if contains_id < 0 {
+      print("ERROR: loop_id not found")
+      return 1
+    }
+
+    // "blocks" が含まれているか
+    local contains_blocks = result.indexOf("\"blocks\"")
+    if contains_blocks < 0 {
+      print("ERROR: blocks not found")
+      return 1
+    }
+
+    // "header":11 が含まれているか
+    local contains_header = result.indexOf("\"header\":11")
+    if contains_header < 0 {
+      print("ERROR: header block not found")
+      return 1
+    }
+
+    print("✓ PASS: Basic LoopForm generation")
+    return 0
+  }
+
+  // Test 2: Blocks 検証
+  test_blocks_validation() {
+    print("\n[Test 2] Blocks validation")
+
+    local blocks = new MapBox()
+    blocks.set("preheader", 20)
+    blocks.set("header", 21)
+    blocks.set("body", 22)
+    blocks.set("dispatch", 23)
+    blocks.set("latch", 24)
+    blocks.set("exit", 25)
+
+    local options = null
+    local result = LoopFormInst.lower_loopform(2, blocks, 10, options)
+
+    // 全ブロックIDが含まれているか確認
+    local has_preheader = result.indexOf("\"preheader\":20")
+    local has_header = result.indexOf("\"header\":21")
+    local has_body = result.indexOf("\"body\":22")
+    local has_dispatch = result.indexOf("\"dispatch\":23")
+    local has_latch = result.indexOf("\"latch\":24")
+    local has_exit = result.indexOf("\"exit\":25")
+
+    if has_preheader < 0 || has_header < 0 || has_body < 0 ||
+       has_dispatch < 0 || has_latch < 0 || has_exit < 0 {
+      print("ERROR: Not all blocks found")
+      return 1
+    }
+
+    print("✓ PASS: Blocks validation")
+    return 0
+  }
+
+  // Test 3: Condition モード
+  test_condition_modes() {
+    print("\n[Test 3] Condition modes")
+
+    local blocks = new MapBox()
+    blocks.set("preheader", 30)
+    blocks.set("header", 31)
+    blocks.set("body", 32)
+    blocks.set("dispatch", 33)
+    blocks.set("latch", 34)
+    blocks.set("exit", 35)
+
+    // Test 3a: MIR モード（デフォルト）
+    local options_mir = new MapBox()
+    options_mir.set("mode", "mir")
+
+    local result_mir = LoopFormInst.lower_loopform(3, blocks, 15, options_mir)
+
+    local has_mir_mode = result_mir.indexOf("\"mode\":\"mir\"")
+    if has_mir_mode < 0 {
+      print("ERROR: MIR mode not found")
+      return 1
+    }
+
+    print("✓ PASS: MIR mode")
+
+    // Test 3b: Payload モード（実験的）
+    local options_payload = new MapBox()
+    options_payload.set("mode", "payload")
+    options_payload.set("payload_max", 500000)
+
+    local result_payload = LoopFormInst.lower_loopform(4, blocks, 20, options_payload)
+
+    local has_payload_mode = result_payload.indexOf("\"mode\":\"payload\"")
+    if has_payload_mode < 0 {
+      print("ERROR: Payload mode not found")
+      return 1
+    }
+
+    local has_max = result_payload.indexOf("\"payload_max\":500000")
+    if has_max < 0 {
+      print("ERROR: payload_max not found")
+      return 1
+    }
+
+    print("✓ PASS: Payload mode")
+
+    return 0
+  }
+
+  // Test 4: PHI incoming 配列検証（Stage 2）
+  test_phi_incoming_arrays() {
+    print("\n[Test 4] PHI incoming arrays (Stage 2)")
+
+    local blocks = new MapBox()
+    blocks.set("preheader", 40)
+    blocks.set("header", 41)
+    blocks.set("body", 42)
+    blocks.set("dispatch", 43)
+    blocks.set("latch", 44)
+    blocks.set("exit", 45)
+
+    local options = null
+    local result = LoopFormInst.lower_loopform(5, blocks, 25, options)
+
+    // Test 4a: Header PHI incoming 配列検証
+    // Expected: {"dst":0,"incoming":[{"value":0,"block":40},{"value":0,"block":44,"computed":true}]}
+    local has_header_phi_incoming = result.indexOf("\"header_phi\"")
+    if has_header_phi_incoming < 0 {
+      print("ERROR: header_phi not found")
+      return 1
+    }
+
+    local has_incoming_array = result.indexOf("\"incoming\":[")
+    if has_incoming_array < 0 {
+      print("ERROR: incoming array not found")
+      return 1
+    }
+
+    local has_preheader_incoming = result.indexOf("{\"value\":0,\"block\":40}")
+    if has_preheader_incoming < 0 {
+      print("ERROR: preheader incoming not found")
+      return 1
+    }
+
+    local has_latch_incoming = result.indexOf("{\"value\":0,\"block\":44,\"computed\":true}")
+    if has_latch_incoming < 0 {
+      print("ERROR: latch incoming with computed flag not found")
+      return 1
+    }
+
+    print("✓ PASS: Header PHI incoming array")
+
+    // Test 4b: Dispatch PHI computed フラグ検証
+    local has_dispatch_phis = result.indexOf("\"dispatch_phis\"")
+    if has_dispatch_phis < 0 {
+      print("ERROR: dispatch_phis not found")
+      return 1
+    }
+
+    local has_payload_computed = result.indexOf("{\"value\":0,\"block\":42,\"computed\":true}")
+    if has_payload_computed < 0 {
+      print("ERROR: payload PHI computed flag not found")
+      return 1
+    }
+
+    print("✓ PASS: Dispatch PHI computed flags")
+
+    return 0
+  }
+}

@@ -1,0 +1,26 @@
+// ok.hako — all method calls have correct arity (arguments match definitions)
+
+static box Calculator {
+  method add(a, b) {
+    return a + b
+  }
+
+  method multiply(x, y) {
+    return x * y
+  }
+}
+
+static box Helper {
+  method double(n) {
+    return n * 2
+  }
+}
+
+static box Main {
+  method main() {
+    Calculator.add(1, 2)
+    Calculator.multiply(3, 4)
+    Helper.double(5)
+    return 0
+  }
+}

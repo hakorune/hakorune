@@ -1,0 +1,13 @@
+// Phase 29x X2: explicit-drop minimal fixture
+// Contract:
+// - Shape contains exactly one explicit drop (`x = null`) after one local bind.
+// - With `rc-insertion-minimal`, MIR includes one `release_strong` for old value.
+// - `x` stays null at return, so no return cleanup release is expected.
+
+static box Main {
+    main() {
+        local x = 1
+        x = null
+        return 0
+    }
+}

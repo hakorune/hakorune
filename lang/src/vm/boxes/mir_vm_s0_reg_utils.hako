@@ -1,0 +1,66 @@
+// mir_vm_s0_reg_utils.hako — register and memory accessor utilities split from mir_vm_s0
+// Responsibility: register kind tracking and memory slot accessors.
+
+using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
+using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+
+static box MirVmS0RegUtilsBox {
+  // ==================== Register Utilities ====================
+
+  _reg_has(regs, id) {
+    local v = regs.get("" + id)
+    return v != null
+  }
+
+  _reg_get(regs, id) {
+    local v = regs.get("" + id)
+    if v == null { return 0 }
+    return MirVmS0JsonScanBox._to_i64(v)
+  }
+
+  _reg_set(regs, id, value) {
+    regs.set("" + id, "" + value)
+  }
+
+  _reg_kind_get(kinds, id) {
+    local v = kinds.get("" + id)
+    if v == null { return "scalar" }
+    return "" + v
+  }
+
+  _reg_kind_set(kinds, id, kind) {
+    kinds.set("" + id, "" + kind)
+  }
+
+  _reg_kind_copy(kinds, dst, src) {
+    me._reg_kind_set(kinds, dst, me._reg_kind_get(kinds, src))
+  }
+
+  _reg_text_for_string_ops(regs, kinds, handle_regs, id) {
+    local kind = me._reg_kind_get(kinds, id)
+    if kind == "handle" {
+      local text = MirVmS0StateOpsBox.handle_get(handle_regs, id)
+      if text == null { return null }
+      return "" + text
+    }
+    return "" + me._reg_get(regs, id)
+  }
+
+  // ==================== Memory Utilities ====================
+
+  _mem_get(mem, ptr) {
+    local v = mem.get("" + ptr)
+    if v == null { return 0 }
+    return MirVmS0JsonScanBox._to_i64(v)
+  }
+
+  _mem_set(mem, ptr, value) {
+    mem.set("" + ptr, "" + value)
+  }
+
+  // ==================== Call Check ====================
+
+  _call_is_env_get(seg) {
+    return MirVmS0JsonScanBox._index_of_from(seg, "\"callee\":{\"name\":\"env.get", 0) >= 0
+  }
+}

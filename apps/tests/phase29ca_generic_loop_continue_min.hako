@@ -1,0 +1,17 @@
+// Phase 29ca P3: generic loop v0.1 continue minimal
+// Expect: return 4
+
+static box Main {
+    main() {
+        local i = 0
+        local n = 4
+        loop(i < n) {
+            if i == 1 {
+                i = i + 1
+                continue
+            }
+            i = i + 1
+        }
+        return i
+    }
+}

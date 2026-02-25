@@ -1,0 +1,8 @@
+// ng: contains fancy quotes
+static box Main {
+  method main() {
+    local s = "fancy quotes here"
+    return 0
+  }
+}
+

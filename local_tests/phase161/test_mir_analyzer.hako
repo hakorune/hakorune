@@ -1,0 +1,169 @@
+// local_tests/phase161/test_mir_analyzer.hako
+// Test harness for MirAnalyzerBox (Phase 161-2)
+
+// Test runner for MIR analysis
+box TestRunner {
+  analyzer: MirAnalyzerBox
+  test_name: string
+
+  birth(name, mir_json_text) {
+    me.test_name = name
+    print("==================================================")
+    print("Test: " + name)
+    print("==================================================")
+
+    // Parse MIR JSON - use constructor directly
+    me.analyzer = new MirAnalyzerBox(mir_json_text)
+
+    if me.analyzer == null {
+      print("FAIL: Failed to parse MIR JSON")
+      return null
+    }
+
+    print("PASS: MIR JSON parsed successfully")
+    return me
+  }
+
+  method test_validate_schema() {
+    print("")
+    print("--- Test: validateSchema() ---")
+
+    local valid = me.analyzer.validateSchema()
+
+    if valid == 1 {
+      print("PASS: Schema validation successful")
+    } else {
+      print("FAIL: Schema validation failed")
+    }
+
+    return valid
+  }
+
+  method test_summarize_function(funcIndex, expected_name) {
+    print("")
+    print("--- Test: summarize_function(" + funcIndex + ") ---")
+
+    local summary = me.analyzer.summarize_function(funcIndex)
+
+    if summary == null {
+      print("FAIL: summarize_function returned null")
+      return 0
+    }
+
+    local name = summary.get("name")
+    local block_count = summary.get("block_count")
+    local instruction_count = summary.get("instruction_count")
+    local has_phis = summary.get("has_phis")
+    local has_loops = summary.get("has_loops")
+    local has_ifs = summary.get("has_ifs")
+
+    print("Function name: " + name)
+    print("Blocks: " + block_count)
+    print("Instructions: " + instruction_count)
+    print("Has PHI: " + has_phis)
+    print("Has loops: " + has_loops)
+    print("Has ifs: " + has_ifs)
+
+    if name == expected_name {
+      print("PASS: Function name matches expected: " + expected_name)
+      return 1
+    } else {
+      print("FAIL: Function name mismatch. Expected: " + expected_name + ", Got: " + name)
+      return 0
+    }
+  }
+
+  method test_count_phis(funcIndex, expected_count) {
+    print("")
+    print("--- Test: count_phis(" + funcIndex + ") ---")
+
+    local phi_list = me.analyzer.count_phis(funcIndex)
+
+    if phi_list == null {
+      print("FAIL: count_phis returned null")
+      return 0
+    }
+
+    local count = phi_list.size()
+    print("PHI count: " + count)
+
+    if count == expected_count {
+      print("PASS: PHI count matches expected: " + expected_count)
+
+      // Print details
+      local i = 0
+      loop(i < count) {
+        local phi = phi_list.at(i)
+        local block_id = phi.get("block_id")
+        local dest = phi.get("dest")
+        local incoming_count = phi.get("incoming_count")
+
+        print("  PHI #" + i + ": block=" + block_id + " dest=r" + dest + " incoming=" + incoming_count)
+        i = i + 1
+      }
+
+      return 1
+    } else {
+      print("FAIL: PHI count mismatch. Expected: " + expected_count + ", Got: " + count)
+      return 0
+    }
+  }
+
+  method test_count_loops(funcIndex, expected_count) {
+    print("")
+    print("--- Test: count_loops(" + funcIndex + ") ---")
+
+    local loop_count = me.analyzer.count_loops(funcIndex)
+
+    print("Loop count: " + loop_count)
+
+    if loop_count == expected_count {
+      print("PASS: Loop count matches expected: " + expected_count)
+      return 1
+    } else {
+      print("FAIL: Loop count mismatch. Expected: " + expected_count + ", Got: " + loop_count)
+      return 0
+    }
+  }
+
+  method run_all_tests(funcIndex, expected_name, expected_phi_count, expected_loop_count) {
+    me.test_validate_schema()
+    me.test_summarize_function(funcIndex, expected_name)
+    me.test_count_phis(funcIndex, expected_phi_count)
+    me.test_count_loops(funcIndex, expected_loop_count)
+
+    print("")
+    print("==================================================")
+    print("Test '" + me.test_name + "' completed")
+    print("==================================================")
+  }
+}
+
+// Helper to read file contents (simplified for testing)
+box FileHelper {
+  method read_file(path) {
+    // Placeholder: In real implementation, use FileBox
+    // For now, return null to indicate we need to pass content directly
+    print("[FileHelper] File reading not implemented yet")
+    return null
+  }
+}
+
+// Main entry point
+static box Main {
+  main(args) {
+    print("Phase 161-2: MirAnalyzerBox Test Suite")
+    print("")
+
+    // Note: In actual testing, we'll load JSON files from disk
+    // For now, this is a skeleton that shows the test structure
+
+    print("To run tests:")
+    print("1. Generate MIR JSON: ./target/release/hakorune --dump-mir --emit-mir-json rep1.mir.json rep1_if_simple.hako")
+    print("2. Pass JSON content to TestRunner")
+    print("")
+    print("Test structure defined successfully")
+
+    return 0
+  }
+}

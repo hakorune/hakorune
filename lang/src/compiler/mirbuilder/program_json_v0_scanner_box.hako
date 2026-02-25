@@ -1,0 +1,215 @@
+// program_json_v0_scanner_box.hako
+// Responsibility:
+// - Escape-aware, minimal scanning helpers for Program(JSON v0) emitted by `--emit-program-json-v0`
+// - Isolate string-scan pitfalls (do not use read_digits-style loops at call sites)
+//
+// Fail-fast:
+// - All errors start with: [freeze:contract][hako_mirbuilder][program_json_v0]
+//
+// Notes:
+// - This is not a full JSON parser. It is a tiny, contract-driven scanner for Phase-0.. migrations.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box ProgramJsonV0ScannerBox {
+  _tag() { return "[freeze:contract][hako_mirbuilder][program_json_v0]" }
+
+  _fail(msg) {
+    print(me._tag() + " " + msg)
+    return -1
+  }
+
+  _read_char(s, i) {
+    if s == null { return "" }
+    if i == null { return "" }
+    if i < 0 { return "" }
+    if i >= s.length() { return "" }
+    return s.substring(i, i + 1)
+  }
+
+  // Seek the start position immediately after `needle` (from `from_idx`).
+  // Returns -1 and prints a fail-fast message if not found.
+  seek_after(s, needle, from_idx) {
+    if s == null { return me._fail("input is null") }
+    if needle == null || ("" + needle) == "" { return me._fail("needle is empty") }
+    if from_idx == null { from_idx = 0 }
+    from_idx = StringHelpers.to_i64(from_idx)
+    if from_idx < 0 { from_idx = 0 }
+    local p = StringHelpers.index_of(s, from_idx, needle)
+    if p < 0 { return me._fail("needle not found: " + needle) }
+    return p + needle.length()
+  }
+
+  _min_pos(a, b) {
+    if a < 0 { return b }
+    if b < 0 { return a }
+    if a < b { return a }
+    return b
+  }
+
+  // seek_obj_end_unescaped(s, obj_start) -> idx
+  // - Returns the index immediately after the closing '}' (exclusive).
+  // - Phase-3 scope: no escape sequences, and no braces/quotes inside strings.
+  // - JoinIR-lowerable shape: recursion + StringHelpers.index_of (avoid local `loop` in mirbuilder).
+  _seek_obj_end_unescaped_step(s, i, depth) {
+    if i >= s.length() { return -1 }
+    if depth <= 0 { return i }
+
+    local p_open = StringHelpers.index_of(s, i, "{")
+    local p_close = StringHelpers.index_of(s, i, "}")
+    local p = me._min_pos(p_open, p_close)
+    if p < 0 { return -1 }
+
+    if p == p_open {
+      return me._seek_obj_end_unescaped_step(s, p + 1, depth + 1)
+    }
+
+    // p == p_close
+    return me._seek_obj_end_unescaped_step(s, p + 1, depth - 1)
+  }
+
+  seek_obj_end_unescaped(s, obj_start) {
+    if s == null { me._fail("input is null")  return -1 }
+    if obj_start == null { me._fail("obj_start is null")  return -1 }
+    obj_start = StringHelpers.to_i64(obj_start)
+    if obj_start < 0 || obj_start >= s.length() { me._fail("obj_start out of range")  return -1 }
+    if me._read_char(s, obj_start) != "{" { me._fail("object must start with '{'")  return -1 }
+
+    local end = me._seek_obj_end_unescaped_step(s, obj_start + 1, 1)
+    if end < 0 { me._fail("unterminated object")  return -1 }
+    return end
+  }
+
+  // seek_obj_field_value_start(s, key, obj_start) -> idx
+  // - Returns the index immediately after `"key":` within the object.
+  // - Bounded by object end (Phase-3: unescaped scan).
+  seek_obj_field_value_start(s, key, obj_start) {
+    if s == null { me._fail("input is null")  return -1 }
+    if key == null || ("" + key) == "" { me._fail("key is empty")  return -1 }
+    local end = me.seek_obj_end_unescaped(s, obj_start)
+    if end < 0 { return -1 }
+    local obj = s.substring(obj_start, end)
+    local needle = "\"" + ("" + key) + "\":"
+    local p = StringHelpers.index_of(obj, 0, needle)
+    if p < 0 { me._fail("missing field: " + key)  return -1 }
+    return obj_start + p + needle.length()
+  }
+
+  // seek_obj_field_obj_start(s, key, obj_start) -> idx
+  // - Returns the index of '{' for an object-typed field value.
+  seek_obj_field_obj_start(s, key, obj_start) {
+    local p = me.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if me._read_char(s, p) != "{" { me._fail("field is not an object: " + key)  return -1 }
+    return p
+  }
+
+  // read_string_field_first_in_obj(s, key, obj_start) -> %{ "value" => str, "next" => idx }
+  read_string_field_first_in_obj(s, key, obj_start) {
+    local p = me.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return null }
+    p = StringHelpers.skip_ws(s, p)
+    if me._read_char(s, p) != "\"" { me._fail("string field is not quoted: " + key)  return null }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { me._fail("unterminated string for field: " + key)  return null }
+    return %{"value" => s.substring(p + 1, end_quote), "next" => end_quote + 1}
+  }
+
+  // read_string_field_last_in_obj(s, key, obj_start) -> %{ "value" => str, "next" => idx }
+  // - Uses the last occurrence of `"key":"..."`
+  read_string_field_last_in_obj(s, key, obj_start) {
+    if s == null { me._fail("input is null")  return null }
+    if key == null || ("" + key) == "" { me._fail("key is empty")  return null }
+    local end = me.seek_obj_end_unescaped(s, obj_start)
+    if end < 0 { return null }
+    local obj = s.substring(obj_start, end)
+    local needle = "\"" + ("" + key) + "\":\""
+    local p = StringHelpers.last_index_of(obj, needle)
+    if p < 0 { me._fail("missing field: " + key)  return null }
+    local vstart = p + needle.length()
+    local vend = StringHelpers.index_of(obj, vstart, "\"")
+    if vend < 0 { me._fail("unterminated string for field: " + key)  return null }
+    return %{"value" => obj.substring(vstart, vend), "next" => obj_start + vend + 1}
+  }
+
+  // read_int_field_in_obj(s, key, obj_start) -> %{ "value" => int, "next" => idx }
+  read_int_field_in_obj(s, key, obj_start) {
+    if s == null { me._fail("input is null")  return null }
+    if key == null || ("" + key) == "" { me._fail("key is empty")  return null }
+    local end = me.seek_obj_end_unescaped(s, obj_start)
+    if end < 0 { return null }
+    local obj = s.substring(obj_start, end)
+    local needle = "\"" + ("" + key) + "\":"
+    local p = StringHelpers.index_of(obj, 0, needle)
+    if p < 0 { me._fail("missing field: " + key)  return null }
+    local vpos = StringHelpers.skip_ws(obj, p + needle.length())
+    local end_brace = StringHelpers.index_of(obj, vpos, "}")
+    local end_comma = StringHelpers.index_of(obj, vpos, ",")
+    local end_pos = me._min_pos(end_brace, end_comma)
+    if end_pos < 0 { me._fail("int field has no delimiter: " + key)  return null }
+    local digits = obj.substring(vpos, end_pos)
+    if digits == null || digits.length() == 0 { me._fail("int field is empty: " + key)  return null }
+    return %{"value" => StringHelpers.to_i64(digits), "next" => obj_start + end_pos}
+  }
+
+  // read_int_field_at(s, key, from_idx) -> %{ "value" => int, "next" => idx }
+  // - `key` is the field name without quotes (e.g. "value")
+  read_int_field_at(s, key, from_idx) {
+    if s == null { me._fail("input is null")  return null }
+    if key == null || ("" + key) == "" { me._fail("key is empty")  return null }
+    local needle = "\"" + ("" + key) + "\":"
+    local vpos = me.seek_after(s, needle, from_idx)
+    if vpos < 0 { return null }
+    vpos = StringHelpers.skip_ws(s, vpos)
+    // Avoid digit scanners (read_digits) due to known misreads; slice to delimiter.
+    local end_brace = StringHelpers.index_of(s, vpos, "}")
+    local end_comma = StringHelpers.index_of(s, vpos, ",")
+    local end_pos = me._min_pos(end_brace, end_comma)
+    if end_pos < 0 { me._fail("int field has no delimiter: " + key)  return null }
+    local digits = s.substring(vpos, end_pos)
+    if digits == null || digits.length() == 0 { me._fail("int field is empty: " + key)  return null }
+    return %{"value" => StringHelpers.to_i64(digits), "next" => end_pos}
+  }
+
+  // read_string_field_at(s, key, from_idx) -> %{ "value" => str, "next" => idx }
+  read_string_field_at(s, key, from_idx) {
+    if s == null { me._fail("input is null")  return null }
+    if key == null || ("" + key) == "" { me._fail("key is empty")  return null }
+    local needle = "\"" + ("" + key) + "\":"
+    local p = me.seek_after(s, needle, from_idx)
+    if p < 0 { return null }
+    p = StringHelpers.skip_ws(s, p)
+    if s.substring(p, p + 1) != "\"" { me._fail("string field is not quoted: " + key)  return null }
+    // Phase-3 note: keep scanner JoinIR-friendly (no escape-aware loop scanning here yet).
+    // Contract: Program(JSON v0) emitted by `--emit-program-json-v0` uses plain ASCII for these fields in Phase-2.
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { me._fail("unterminated string for field: " + key)  return null }
+    local value = s.substring(p + 1, end_quote)
+    return %{"value" => value, "next" => end_quote + 1}
+  }
+
+  // read_node_type_at(s, from_idx) -> %{ "type" => "...", "next" => idx }
+  // - `from_idx` must point at '{' of the node object.
+  read_node_type_at(s, from_idx) {
+    if s == null { me._fail("input is null")  return null }
+    from_idx = StringHelpers.to_i64(from_idx)
+    if from_idx < 0 || from_idx >= s.length() { me._fail("from_idx out of range")  return null }
+    if me._read_char(s, from_idx) != "{" { me._fail("node must start with '{'")  return null }
+
+    local end = me.seek_obj_end_unescaped(s, from_idx)
+    if end < 0 { return null }
+
+    local obj = s.substring(from_idx, end)
+    local type_key = "\"type\":\""
+    local tp = StringHelpers.last_index_of(obj, type_key)
+    if tp < 0 { me._fail("node has no type")  return null }
+    local start = tp + type_key.length()
+    local endq = StringHelpers.index_of(obj, start, "\"")
+    if endq < 0 { me._fail("node type missing closing quote")  return null }
+    local t = obj.substring(start, endq)
+    return %{"type" => t, "next" => end}
+  }
+}
+
+static box ProgramJsonV0ScannerMain { main(){ return 0 } }

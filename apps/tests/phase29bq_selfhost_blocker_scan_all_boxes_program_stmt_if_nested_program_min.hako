@@ -1,0 +1,23 @@
+// selfhost scan_all_boxes: Program stmt with If + nested Program in loop body
+// Expected: stdout=4, RC=0
+
+static box Main {
+  main() {
+    local n = 3
+    local i = 0
+
+    loop(i < n) {
+      local next_i = i + 1
+      {
+        local a = 0
+        if a == 0 { next_i = i + 2 }
+        local b = 1
+        { local c = 2 }
+      }
+      i = next_i
+    }
+
+    print(i)
+    return 0
+  }
+}

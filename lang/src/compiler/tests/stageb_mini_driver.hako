@@ -1,0 +1,102 @@
+// stageb_mini_driver.hako — Stage‑B 近似の極小ドライバ
+//
+// 目的:
+//   - StageBDriverBox.main/1 の経路を「最小限」に真似したテスト用ドライバだよ。
+//   - ParserBox + CompilerBuilder.apply_all(LoopSSA/BreakFinder/PhiInjector を含む)
+//     だけを通し、Stage‑B 本体の箱（StageBArgsBox / StageBBodyExtractorBox / FuncScannerBox）
+//     を介さずに SSA/ValueId 問題を再現できるか確認する。
+//
+// 振る舞い:
+//   - lang/src/compiler/tests/stageb_min_sample.hako と同等のソースコード文字列を
+//     内部に埋め込み、ParserBox.parse_program2 → CompilerBuilder.apply_all を実行する。
+//   - 出力は Stage‑1 Program(JSON v0)（LoopSSA 適用後）。VM/Verifier/ログで
+//     BreakFinderBox/LoopSSA 周辺の挙動を観測する。
+
+using lang.compiler.builder.mod as CompilerBuilder
+
+static box StageBMiniDriverBox {
+  method run() {
+    // stageb_min_sample.hako 相当のソースをそのまま埋め込む
+    local src = ""
+
+    // static box TestArgs { ... }
+    src = src + "static box TestArgs {\n"
+    src = src + "  method process(args) {\n"
+    src = src + "    if args != null {\n"
+    src = src + "      local n = args.length()\n"
+    src = src + "      local i = 0\n"
+    src = src + "      loop(i < n) {\n"
+    src = src + "        local item = args.get(i)\n"
+    src = src + "        print(item)\n"
+    src = src + "        i = i + 1\n"
+    src = src + "      }\n"
+    src = src + "    }\n"
+    src = src + "    return 0\n"
+    src = src + "  }\n"
+    src = src + "}\n\n"
+
+    // static box TestSimple { ... }
+    src = src + "static box TestSimple {\n"
+    src = src + "  method run() {\n"
+    src = src + "    local x = new ArrayBox()\n"
+    src = src + "    local len = x.length()\n"
+    src = src + "    print(len)\n"
+    src = src + "    return 0\n"
+    src = src + "  }\n"
+    src = src + "}\n\n"
+
+    // static box TestNested { ... }
+    src = src + "static box TestNested {\n"
+    src = src + "  method complex(data) {\n"
+    src = src + "    if data != null {\n"
+    src = src + "      local count = data.length()\n"
+    src = src + "      if count > 0 {\n"
+    src = src + "        local j = 0\n"
+    src = src + "        loop(j < count) {\n"
+    src = src + "          local val = data.get(j)\n"
+    src = src + "          if val != null {\n"
+    src = src + "            local s = \"\" + val\n"
+    src = src + "            print(s)\n"
+    src = src + "          }\n"
+    src = src + "          j = j + 1\n"
+    src = src + "        }\n"
+    src = src + "      }\n"
+    src = src + "    }\n"
+    src = src + "    return 0\n"
+    src = src + "  }\n"
+    src = src + "}\n\n"
+
+    // static box Main { ... }
+    src = src + "static box Main {\n"
+    src = src + "  method main() {\n"
+    src = src + "    local synthetic_args = new ArrayBox()\n"
+    src = src + "    synthetic_args.push(\"A\")\n"
+    src = src + "    synthetic_args.push(\"B\")\n"
+    src = src + "    local t1 = TestArgs.process(synthetic_args)\n"
+    src = src + "    local t2 = TestSimple.run()\n"
+    src = src + "    local test_data = new ArrayBox()\n"
+    src = src + "    local t3 = TestNested.complex(test_data)\n"
+    src = src + "    return 0\n"
+    src = src + "  }\n"
+    src = src + "}\n"
+
+    // 1) Stage‑1 Program(JSON v0) を生成
+    local p = new ParserBox()
+    p.stage3_enable(1)
+    local ast_json = p.parse_program2(src)
+
+    // 2) CompilerBuilder パイプライン適用（Rewrite/LocalSSA/LoopSSA 等）
+    ast_json = CompilerBuilder.apply_all(ast_json)
+
+    // 3) 出力をそのまま表示（Stage‑B 本体の emit に相当）
+    print(ast_json)
+    return 0
+  }
+}
+
+// エントリポイント: Main.main → StageBMiniDriverBox.run
+static box Main {
+  method main() {
+    return StageBMiniDriverBox.run()
+  }
+}

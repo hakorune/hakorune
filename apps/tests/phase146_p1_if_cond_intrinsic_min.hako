@@ -1,0 +1,15 @@
+// Phase 146 P1: If condition with whitelisted intrinsic (String.length())
+static box Main {
+    main() {
+        local s
+        s = "abc"
+
+        // Compound condition: s.length() == 3
+        // ANF: t = s.length(); if (t == 3)
+        if s.length() == 3 {
+            return 7
+        } else {
+            return 9
+        }
+    }
+}

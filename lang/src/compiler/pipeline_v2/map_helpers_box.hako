@@ -1,0 +1,43 @@
+// map_helpers_box.hako — Pipeline用の軽量ヘルパ（MapBoxの型付き取得）
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+static box MapHelpersBox {
+  _raw_get(m, key) {
+    return BoxHelpers.map_get(m, key)
+  }
+
+  _to_i64(v) { return StringHelpers.to_i64(v) }
+
+  get_str(m, key) {
+    local v = me._raw_get(m, key)
+    if v == null { return "" }
+    if BoxHelpers.is_map(v) {
+      local inner = BoxHelpers.map_get(v, "value")
+      if inner != null { return "" + inner }
+    }
+    return "" + v
+  }
+
+  get_i64(m, key) {
+    local v = me._raw_get(m, key)
+    return BoxHelpers.value_i64(v)
+  }
+
+  expect_str(m, key) { return me.get_str(m, key) }
+  expect_i64(m, key) { return me.get_i64(m, key) }
+
+  opt_str(m, key, def) {
+    local s = me.get_str(m, key)
+    if s == null || s == "" { return def }
+    return s
+  }
+
+  opt_i64(m, key, def) {
+    local n = me.get_i64(m, key)
+    if n == null { return def }
+    return n
+  }
+}
+
+static box MapHelpersStub { main() { return 0 } }

@@ -1,0 +1,26 @@
+box Node {
+    weak parent
+    public { name }
+
+    birth() {
+        me.name = "Node"
+    }
+
+    setParent(p) {
+        me.parent = weak p
+    }
+
+    getName() {
+        return me.name
+    }
+}
+
+static box Main {
+    main() {
+        local n1 = new Node()
+        local n2 = new Node()
+        n1.setParent(n2)  // ✅ weak field + method
+        print("OK: mixed members (weak + method + visibility)")
+        return 0
+    }
+}

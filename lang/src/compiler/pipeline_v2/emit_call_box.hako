@@ -1,0 +1,89 @@
+// EmitCallBox — Return(Call name(int_args...)) を MIR(JSON v0) に最小変換
+// 仕様: 各引数を const i64 として材化し、call を発行、dst を ret する。
+
+using lang.compiler.pipeline_v2.regex_flow as RegexFlow
+using lang.compiler.emit.common.header_emit as HeaderEmitBox
+using selfhost.shared.mir.schema as MirSchemaBox
+
+static box EmitCallBox {
+  _to_str(n) {
+    local v = n
+    if v == 0 { return "0" }
+    if v < 0 { return "-" + EmitCallBox._to_str(0 - v) }
+    local out = ""; local digits = "0123456789"
+    loop (v > 0) {
+      local d = v % 10
+      local ch = digits.substring(d, d+1)
+      out = ch + out
+      v = v / 10
+    }
+    return out
+  }
+  _quote(s) {
+    if s == null { return "\"\"" }
+    local out = ""; local i = 0; local n = s.length()
+    loop (i < n) {
+      local ch = s.substring(i, i+1)
+      if ch == "\\" { out = out + "\\\\" }
+      else { if ch == "\"" { out = out + "\\\"" } else {
+        if ch == "\n" { out = out + "\\n" } else {
+          if ch == "\r" { out = out + "\\r" } else {
+            if ch == "\t" { out = out + "\\t" } else { out = out + ch }
+          }
+        }
+      }}
+      i = i + 1
+    }
+    return "\"" + out + "\""
+  }
+  emit_call_int_args(name, args) {
+    if name == null { name = "" }
+    if args == null { args = [] }
+    // JSON v0 shape (HeaderEmitBox contract): {functions:[{name,params,blocks:[{id,instructions}]}]}
+    // Materialize immediate int args: r1..rN; mir_call Extern(name)(r1..rN)->rK; ret rK
+    local s = "" + args
+    local pos = 0
+    local n = 0
+    // Build instruction JSON (string) pieces (plugins OFFでも動くよう配列を使わない)
+    local body = "["
+    local first = 1
+    // const r1..rN
+    loop(true) {
+      local ds = RegexFlow.digits_from(s, pos)
+      if ds == "" { pos = pos + 1 } else {
+        local vid = 1 + n
+        local vv = RegexFlow.to_int(ds)
+        if first == 1 { first = 0 } else { body = body + "," }
+        body = body + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + EmitCallBox._to_str(vid) + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + EmitCallBox._to_str(vv) + "}}"
+        n = n + 1
+        pos = pos + ds.length()
+      }
+      if pos >= s.length() { break }
+    }
+    local dst = n + 1
+    // mir_call (Extern)
+    {
+      // args JSON: [1,2,...]
+      local args_s = "["; { local i=0; loop(i<n) { if i>0 { args_s = args_s + "," } args_s = args_s + EmitCallBox._to_str(1+i); i=i+1 } } args_s = args_s + "]"
+      local name_q = EmitCallBox._quote("" + name)
+      local call_json = "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":" + EmitCallBox._to_str(dst) +
+                       ",\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":" + name_q + "},\\\"args\\\":" + args_s + ",\\\"effects\\\":[]}}"
+      if first == 1 { first = 0 } else { body = body + "," }
+      body = body + call_json
+    }
+    // ret dst
+    if first == 1 { first = 0 } else { body = body + "," }
+    body = body + "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + EmitCallBox._to_str(dst) + "}"
+    body = body + "]"
+    local module_json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":" + body + "}]}]}"
+    return module_json
+  }
+
+  // JSON v1 (MirCall) emission — shape equivalent（CallEmitBox + HeaderEmitBox）
+  emit_call_int_args_v1(name, args) {
+    // v1 path is shape-equivalent for now — delegate to v0 builder above
+    return EmitCallBox.emit_call_int_args(name, args)
+  }
+}
+
+static box EmitCallStub { main() { return 0 } }

@@ -1,0 +1,16 @@
+// phase29bq_hako_mirbuilder_phase10_multi_local_last_var_min.hako
+// Contract pin:
+//   .hako mirbuilder accepts Local>Local>Print(Var(last_local))>Return(Int).
+//
+// Expected (when run via MIR JSON):
+// - stdout: 7
+// - rc: 0
+
+static box Main {
+  main() {
+    local a = 1
+    local b = 7
+    print(b)
+    return 0
+  }
+}

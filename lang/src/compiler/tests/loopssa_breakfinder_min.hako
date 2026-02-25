@@ -1,0 +1,37 @@
+// loopssa_breakfinder_min.hako — Minimal LoopSSA/BreakFinder JSON test harness
+//
+// 目的:
+//   - Stage‑B を経由せずに、LoopSSA + BreakFinderBox + PhiInjectorBox の経路だけを
+//     小さな Program(JSON v0) 文字列で通すミニハーネスだよ。
+//   - まずは「単純な loop_header/loop_exit パターンで正常に動く」ことを確認する足場として使う。
+//   - 将来的に Stage‑B 最小サンプルから抽出した JSON をここに貼り替えることで、
+//     ValueId(50) 系の問題を再現しやすくすることを想定しているよ。
+//
+// JSON 形状（簡略版）:
+// {
+//   "kind":"Program",
+//   "functions":[
+//     {
+//       "name":"main",
+//       "blocks":[
+//         {"id":0,"loop_header":0,"loop_exit":2},
+//         {"id":1},
+//         {"id":2}
+//       ]
+//     }
+//   ]
+// }
+//
+
+using lang.compiler.builder.ssa.loopssa as LoopSSA
+
+static box Main {
+  method main() {
+    local json = "{\"kind\":\"Program\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"loop_header\":0,\"loop_exit\":2},{\"id\":1},{\"id\":2}]}]}"
+
+    // LoopSSA v2 を直接呼び出すよ（LoopSSA EXIT PHI パスのみ）
+    local out = LoopSSA.stabilize_merges(json)
+    print(out)
+    return 0
+  }
+}

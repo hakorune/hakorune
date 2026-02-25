@@ -1,0 +1,12 @@
+// RVP-C07 capability fixture
+// Contract:
+// - vm-hako runtime currently reports unimplemented for FileBox.read.
+
+static box Main {
+  main() {
+    local f = new FileBox()
+    f.open("apps/tests/gate_log_summarizer/sample_mixed.log", "r")
+    f.read()
+    return 0
+  }
+}

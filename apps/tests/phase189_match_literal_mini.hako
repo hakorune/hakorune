@@ -1,0 +1,14 @@
+// Phase 189: Minimal test for _match_literal pattern
+// Expected behavior: Simple loop with conditional break
+
+static box MatchLiteral {
+  method main() {
+    local matched = 0
+    local i = 0
+    loop(i < 3) {
+      if i == 2 { matched = 1; break }
+      i = i + 1
+    }
+    print(matched)  // Expected: 1 (matched when i==2)
+  }
+}

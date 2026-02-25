@@ -1,0 +1,9 @@
+// LAYER_GUARD — selfhost.mir_builder
+// この層の責務: MIR(JSON v0) の生成（将来的に）。VM/LLVM/実行は非対象。
+
+static box LayerGuard {
+  name() { return "selfhost.mir_builder" }
+  allowed_imports() { return ["json", "mir_spec", "fs"] }
+  forbidden_imports() { return ["vm", "llvm", "runtime", "plugins"] }
+}
+

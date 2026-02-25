@@ -1,0 +1,141 @@
+// phase29y_hako_using_resolver_parity_min.hako
+// Contract pin:
+// - pipeline_v2 UsingResolverBox must parse modules/usings JSON as map state.
+// - UsingResolveSSOTBox must honor workspace -> [modules] override -> module_roots fallback.
+
+using lang.compiler.pipeline_v2.using_resolver_box as UsingResolverBox
+using hako.using.resolve.ssot as UsingResolveSSOTBox
+
+static box Main {
+  main(args) {
+    local modules_json_full = "{\"lang.compiler.emit.common.call_emit\":\"lang/src/compiler/emit/common/call_emit_box.hako\",\"lang.compiler.emit.common.json_emit\":\"lang/src/compiler/emit/common/json_emit_box.hako\"}"
+    local modules_json_override = "{\"lang.compiler.emit.common.call_emit\":\"lang/src/compiler/emit/common/call_emit_box.hako\"}"
+    local usings_json = "[{\"name\":\"CallEmitBox\",\"path\":\"lang.compiler.emit.common.call_emit\"}]"
+
+    local st = UsingResolverBox.state_new()
+    UsingResolverBox.load_usings_json(st, usings_json)
+    UsingResolverBox.load_modules_json(st, modules_json_full)
+
+    local p_exact = UsingResolverBox.resolve_path_alias(st, "lang.compiler.emit.common.call_emit")
+    if p_exact != "lang/src/compiler/emit/common/call_emit_box.hako" {
+      print("FAIL:path_exact")
+      return 11
+    }
+
+    local p_alias = UsingResolverBox.resolve_path_alias(st, "CallEmitBox")
+    if p_alias != "lang/src/compiler/emit/common/call_emit_box.hako" {
+      print("FAIL:path_alias")
+      return 12
+    }
+
+    local ns_alias = UsingResolverBox.resolve_namespace_alias(st, "CallEmitBox")
+    if ns_alias != "lang.compiler.emit.common.call_emit" {
+      print("FAIL:ns_alias")
+      return 13
+    }
+
+    local ns_tail = UsingResolverBox.guess_namespace_from_tail(st, "json_emit")
+    if ns_tail != "lang.compiler.emit.common.json_emit" {
+      print("FAIL:ns_tail")
+      return 14
+    }
+
+    // Missing lookup contract:
+    // MapBox.get missing-key can be non-null sentinel, so resolver must guard
+    // with has()+get and return null for unresolved alias/path.
+    local p_missing = UsingResolverBox.resolve_path_alias(st, "NoSuchAlias")
+    if p_missing != null {
+      print("FAIL:path_missing_not_null")
+      return 15
+    }
+
+    local ns_missing = UsingResolverBox.resolve_namespace_alias(st, "NoSuchAlias")
+    if ns_missing != null {
+      print("FAIL:ns_missing_not_null")
+      return 16
+    }
+
+    local workspace = new MapBox()
+    workspace.set("lang.compiler.emit.common.call_emit", "workspace/old_call_emit.hako")
+    workspace.set("lang.compiler.emit.common.json_emit", "workspace/json_emit.hako")
+
+    local modules = new MapBox()
+    modules.set("lang.compiler.emit.common.call_emit", "lang/src/compiler/emit/common/call_emit_box.hako")
+
+    local roots = new MapBox()
+    roots.set("lang.compiler", "lang/src/compiler")
+
+    local ctx = new MapBox()
+    ctx.set("workspace_modules", workspace)
+    ctx.set("modules", modules)
+    ctx.set("module_roots", roots)
+
+    local r_override = UsingResolveSSOTBox.resolve("lang.compiler.emit.common.call_emit", ctx)
+    if r_override != "lang/src/compiler/emit/common/call_emit_box.hako" {
+      print("FAIL:ssot_override")
+      return 21
+    }
+
+    local r_workspace = UsingResolveSSOTBox.resolve("lang.compiler.emit.common.json_emit", ctx)
+    if r_workspace != "workspace/json_emit.hako" {
+      print("FAIL:ssot_workspace")
+      return 22
+    }
+
+    local r_root = UsingResolveSSOTBox.resolve("lang.compiler.parser.parser_box", ctx)
+    if r_root != "lang/src/compiler/parser/parser_box.hako" {
+      print("FAIL:ssot_root")
+      return 23
+    }
+
+    local merged_json = UsingResolveSSOTBox.resolve_modules(modules_json_override, usings_json, ctx)
+    local merged_state = UsingResolverBox.state_new()
+    UsingResolverBox.load_modules_json(merged_state, merged_json)
+
+    local merged_override = UsingResolverBox.resolve_path_alias(merged_state, "lang.compiler.emit.common.call_emit")
+    if merged_override != "lang/src/compiler/emit/common/call_emit_box.hako" {
+      print("FAIL:merged_override")
+      return 24
+    }
+
+    local merged_workspace = UsingResolverBox.resolve_path_alias(merged_state, "lang.compiler.emit.common.json_emit")
+    if merged_workspace != "workspace/json_emit.hako" {
+      print("FAIL:merged_workspace")
+      return 25
+    }
+
+    // Shared JSON codec contract: parse/encode roundtrip keeps flat map shape stable.
+    local codec_json = "{\"lang.compiler.emit.codec\":\"lang/src/compiler/emit/common/call_emit_box.hako\"}"
+    local codec_state = UsingResolverBox.state_new()
+    UsingResolverBox.load_modules_json(codec_state, codec_json)
+    local codec_path = UsingResolverBox.resolve_path_alias(codec_state, "lang.compiler.emit.codec")
+    if codec_path != "lang/src/compiler/emit/common/call_emit_box.hako" {
+      print("FAIL:codec_decode")
+      return 26
+    }
+
+    local codec_map = UsingResolveSSOTBox.parse_string_map_json(codec_json)
+    local codec_roundtrip = UsingResolveSSOTBox.encode_string_map_json(codec_map)
+    local codec_map2 = UsingResolveSSOTBox.parse_string_map_json(codec_roundtrip)
+    if codec_map2.get("lang.compiler.emit.codec") != "lang/src/compiler/emit/common/call_emit_box.hako" {
+      print("FAIL:codec_roundtrip")
+      return 27
+    }
+
+    // Non-flat JSON is out-of-contract for shared codec.
+    // Nested keys are not guaranteed to be preserved in parse result.
+    local nonflat_json = "{\"flat\":\"ok\",\"nested\":{\"x\":\"y\"}}"
+    local nonflat_map = UsingResolveSSOTBox.parse_string_map_json(nonflat_json)
+    if nonflat_map.get("flat") != "ok" {
+      print("FAIL:codec_nonflat_flat_key_lost")
+      return 28
+    }
+    if nonflat_map.has("x") == true {
+      print("FAIL:codec_nonflat_nested_key_unexpected")
+      return 29
+    }
+
+    print("OK:phase29y_hako_using_resolver_parity")
+    return 0
+  }
+}

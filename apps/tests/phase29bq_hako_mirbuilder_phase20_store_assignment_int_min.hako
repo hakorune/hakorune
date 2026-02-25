@@ -1,0 +1,15 @@
+// phase29bq_hako_mirbuilder_phase20_store_assignment_int_min.hako
+// Contract pin (LS2 / Store minimal):
+//   Local(Int) > Assignment(Int) > Return(Var)
+//
+// Expected (when run via MIR JSON):
+// - rc: 9
+// - stdout: empty
+
+static box Main {
+  main() {
+    local x = 1
+    x = 9
+    return x
+  }
+}

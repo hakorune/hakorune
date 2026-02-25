@@ -1,0 +1,66 @@
+// Stage-B minimal test harness
+// Purpose: Reproduce SSA/ValueId bugs in a minimal 100-line sample
+// This file should pass through Stage-B compilation without SSA errors
+
+static box TestArgs {
+  method process(args) {
+    // Pattern 1: Method call in if-block before loop
+    if args != null {
+      local n = args.length()  // This creates pinned receiver
+      local i = 0
+      loop(i < n) {
+        local item = args.get(i)
+        print(item)
+        i = i + 1
+      }
+    }
+    return 0
+  }
+}
+
+static box TestSimple {
+  method run() {
+    // Pattern 2: Simple method calls without loops
+    local x = new ArrayBox()
+    local len = x.length()
+    print(len)
+    return 0
+  }
+}
+
+static box TestNested {
+  method complex(data) {
+    // Pattern 3: Nested if/loop with method calls
+    if data != null {
+      local count = data.length()
+      if count > 0 {
+        local j = 0
+        loop(j < count) {
+          local val = data.get(j)
+          if val != null {
+            local s = "" + val
+            print(s)
+          }
+          j = j + 1
+        }
+      }
+    }
+    return 0
+  }
+}
+
+static box Main {
+  method main() {
+    // Test all patterns
+    local synthetic_args = new ArrayBox()
+    synthetic_args.push("A")
+    synthetic_args.push("B")
+    local t1 = TestArgs.process(synthetic_args)
+    local t2 = TestSimple.run()
+
+    local test_data = new ArrayBox()
+    local t3 = TestNested.complex(test_data)
+
+    return 0
+  }
+}

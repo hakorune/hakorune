@@ -1,0 +1,11 @@
+box Node {
+    init { weak parent }
+}
+
+static box Main {
+    main() {
+        local n = new Node()
+        n.parent = 42  // ❌ Integer
+        return 0
+    }
+}

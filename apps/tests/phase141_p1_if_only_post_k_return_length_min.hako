@@ -1,0 +1,27 @@
+// Phase 141 P1: ExprLowerer known intrinsic (length0) minimal fixture (if-only)
+//
+// Purpose: Exercise MethodCall lowering via `ReturnValueLowererBox` without loop-boundary merge.
+//
+// Pattern:
+//   s = "abc"
+//   flag = 1
+//   if flag == 1 { s = s } else { s = s }
+//   return s.length()
+//
+// Expected: exit code 3
+// Notes: Dev-only Normalized shadow path (NYASH_JOINIR_DEV=1 + HAKO_JOINIR_STRICT=1)
+
+static box Main {
+    main() {
+        local s
+        local flag
+        s = "abc"
+        flag = 1
+        if flag == 1 {
+            s = s
+        } else {
+            s = s
+        }
+        return s.length()
+    }
+}

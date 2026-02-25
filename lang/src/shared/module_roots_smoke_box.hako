@@ -1,0 +1,7 @@
+// module_roots_smoke_box.hako
+// Purpose: minimal module used to pin `module_roots` resolution (no [modules] entry).
+
+static box ModuleRootsSmokeBox {
+  value() { return 1 }
+}
+

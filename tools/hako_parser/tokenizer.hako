@@ -1,0 +1,136 @@
+// tools/hako_parser/tokenizer.hako - HakoTokenizerBox (Stage-3 aware tokenizer, MVP)
+// Produces tokens with type, lexeme, line, col. Handles strings (escapes), numbers,
+// identifiers, and punctuation. Keywords are normalized to upper-case kinds.
+// no external deps (self-contained tokenizer)
+
+static box HakoTokenizerBox {
+  // Token: Map { type, lexeme, line, col }
+  tokenize(text) {
+    local out = new ArrayBox()
+    if text == null { return out }
+    local n = text.length()
+    local i = 0
+    local line = 1
+    local col = 1
+    while i < n {
+      local ch = text.substring(i,i+1)
+      // whitespace and newlines
+      if ch == " " || ch == "\t" { i = i + 1; col = col + 1; continue }
+      if ch == "\r" { i = i + 1; continue }
+      if ch == "\n" { i = i + 1; line = line + 1; col = 1; continue }
+      // line comment // ... (consume until EOL)
+      if ch == "/" && i+1 < n && text.substring(i+1,i+2) == "/" {
+        // skip until newline
+        i = i + 2; col = col + 2
+        while i < n {
+          local c2 = text.substring(i,i+1)
+          if c2 == "\n" { break }
+          i = i + 1; col = col + 1
+        }
+        continue
+      }
+      // block comment /* ... */ (consume until closing, track newlines)
+      if ch == "/" && i+1 < n && text.substring(i+1,i+2) == "*" {
+        i = i + 2; col = col + 2
+        local closed = 0
+        while i < n {
+          local c2 = text.substring(i,i+1)
+          if c2 == "*" && i+1 < n && text.substring(i+1,i+2) == "/" { i = i + 2; col = col + 2; closed = 1; break }
+          if c2 == "\n" { i = i + 1; line = line + 1; col = 1; continue }
+          i = i + 1; col = col + 1
+        }
+        continue
+      }
+      // string literal "..." with escapes \" \\ \n \t
+      if ch == '"' {
+        local start_col = col
+        local buf = ""
+        i = i + 1; col = col + 1
+        local closed = 0
+        while i < n {
+          local c3 = text.substring(i,i+1)
+          if c3 == '"' { closed = 1; i = i + 1; col = col + 1; break }
+          if c3 == "\\" {
+            if i+1 < n {
+              local esc = text.substring(i+1,i+2)
+              if esc == '"' { buf = buf.concat('"') }
+              else if esc == "\\" { buf = buf.concat("\\") }
+              else if esc == "n" { buf = buf.concat("\n") }
+              else if esc == "t" { buf = buf.concat("\t") }
+              else { buf = buf.concat(esc) }
+              i = i + 2; col = col + 2
+              continue
+            } else { i = i + 1; col = col + 1; break }
+          }
+          buf = buf.concat(c3)
+          i = i + 1; col = col + 1
+        }
+        local tok = new MapBox(); tok.set("type","STRING"); tok.set("lexeme", buf); tok.set("line", line); tok.set("col", start_col)
+        out.push(tok); continue
+      }
+      // number (integer only for MVP)
+      if ch >= "0" && ch <= "9" {
+        local start = i; local start_col = col
+        while i < n {
+          local c4 = text.substring(i,i+1)
+          if !(c4 >= "0" && c4 <= "9") { break }
+          i = i + 1; col = col + 1
+        }
+        local lex = text.substring(start, i)
+        local tok = new MapBox(); tok.set("type","NUMBER"); tok.set("lexeme", lex); tok.set("line", line); tok.set("col", start_col)
+        out.push(tok); continue
+      }
+      // identifier or keyword
+      if me._is_ident_start(ch) == 1 {
+        local start = i; local start_col = col
+        while i < n {
+          local c5 = text.substring(i,i+1)
+          if me._is_ident_char(c5) == 0 { break }
+          i = i + 1; col = col + 1
+        }
+        local lex = text.substring(start, i)
+        local kind = me._kw_kind(lex)
+        local tok = new MapBox(); tok.set("type", kind); tok.set("lexeme", lex); tok.set("line", line); tok.set("col", start_col)
+        out.push(tok); continue
+      }
+      // punctuation / symbols we care about
+      local sym_kind = me._sym_kind(ch)
+      if sym_kind != null {
+        local tok = new MapBox(); tok.set("type", sym_kind); tok.set("lexeme", ch); tok.set("line", line); tok.set("col", col)
+        out.push(tok); i = i + 1; col = col + 1; continue
+      }
+      // unknown char -> emit as PUNC so parser can skip gracefully
+      local tok = new MapBox(); tok.set("type","PUNC"); tok.set("lexeme", ch); tok.set("line", line); tok.set("col", col)
+      out.push(tok); i = i + 1; col = col + 1
+    }
+    return out
+  }
+  _is_ident_start(c) { if c=="_" {return 1}; if c>="A"&&c<="Z" {return 1}; if c>="a"&&c<="z" {return 1}; return 0 }
+  _is_ident_char(c) { if me._is_ident_start(c)==1 { return 1 }; if c>="0"&&c<="9" { return 1 }; return 0 }
+  _kw_kind(lex) {
+    if lex == "using" { return "USING" }
+    if lex == "as" { return "AS" }
+    if lex == "static" { return "STATIC" }
+    if lex == "box" { return "BOX" }
+    if lex == "method" { return "METHOD" }
+    if lex == "include" { return "INCLUDE" }
+    if lex == "while" { return "WHILE" } // Stage-3 tokens (MVP)
+    if lex == "for" { return "FOR" }
+    if lex == "in" { return "IN" }
+    return "IDENT"
+  }
+  _sym_kind(c) {
+    if c == "{" { return "LBRACE" }
+    if c == "}" { return "RBRACE" }
+    if c == "(" { return "LPAREN" }
+    if c == ")" { return "RPAREN" }
+    if c == "," { return "COMMA" }
+    if c == "." { return "DOT" }
+    if c == ":" { return "COLON" }
+    if c == "=" { return "EQ" }
+    if c == ";" { return "SEMI" }
+    return null
+  }
+}
+
+static box HakoTokenizerMain { method main(args) { return 0 } }

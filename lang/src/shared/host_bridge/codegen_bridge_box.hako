@@ -1,0 +1,42 @@
+// codegen_bridge_box.hako — Thin wrapper for env.codegen extern calls
+// Responsibility:
+//   - Provide emit_object/link_object helpers instead of duplicating
+//     hostbridge.extern_invoke("env.codegen", ...) everywhere.
+
+using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
+
+static box CodegenBridgeBox {
+  method emit_object(mir_json) {
+    local args = new ArrayBox()
+    if mir_json != null { args.push("" + mir_json) }
+    return hostbridge.extern_invoke("env.codegen", "emit_object", args)
+  }
+
+  method emit_object_args(args) {
+    local arr = me._ensure_array(args)
+    return hostbridge.extern_invoke("env.codegen", "emit_object", arr)
+  }
+
+  method link_object(obj_path, out_path) {
+    local args = new ArrayBox()
+    if obj_path != null { args.push("" + obj_path) }
+    if out_path != null && ("" + out_path) != "" {
+      args.push("" + out_path)
+    }
+    return hostbridge.extern_invoke("env.codegen", "link_object", args)
+  }
+
+  method link_object_args(args) {
+    local arr = me._ensure_array(args)
+    return hostbridge.extern_invoke("env.codegen", "link_object", arr)
+  }
+
+  method _ensure_array(value) {
+    if value != null && BoxTypeInspectorBox.is_array(value) {
+      return value
+    }
+    local arr = new ArrayBox()
+    if value != null { arr.push(value) }
+    return arr
+  }
+}

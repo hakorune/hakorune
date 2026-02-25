@@ -1,0 +1,15 @@
+// ok.hako — all static boxes are referenced
+
+static box HelperBox {
+  method helper() {
+    return "helper"
+  }
+}
+
+static box Main {
+  method main() {
+    // HelperBox is referenced here
+    HelperBox.helper()
+    return 0
+  }
+}

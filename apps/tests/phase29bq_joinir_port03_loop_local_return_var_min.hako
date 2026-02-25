@@ -1,0 +1,13 @@
+// JIR-PORT-03 fixture (loop minimal)
+// Contract:
+// - Local -> Loop(Var < Int, Assignment Var = Var + Int) -> Return(Var)
+// - Must be lowered by .hako selfhost builder route (no delegate fallback).
+static box Main {
+  main() {
+    local i = 0
+    loop (i < 3) {
+      i = i + 1
+    }
+    return i
+  }
+}

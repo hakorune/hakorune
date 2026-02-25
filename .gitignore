@@ -1,0 +1,154 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+/env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Rust
+/target/
+**/target/
+/.cargo-target/
+Cargo.lock
+plugins/**/Cargo.lock
+
+# 🔧 Rust開発用ディレクトリ（Git追跡除外）
+nyash-rust/
+
+# 🔧 LaTeX生成ファイル（Git追跡除外）
+*.aux
+*.log
+*.out
+*.pdf
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# 開発用秘密フォルダ（完全除外）
+/development/
+/private/
+/docs/private/
+/private_test/
+
+# Test files
+*.tmp
+tmp/
+
+# 🚨 ルートディレクトリ汚染防止（毎回散らかる問題対策）
+# デバッグ・テスト関連ファイル
+/test_*.txt
+/test_*.log
+/build_*.txt
+/mir_*.txt
+/mir_*.log
+/vm_*.log
+/vm_*.json
+/cmp_*.log
+/out.txt
+/err.txt
+/test.txt
+/*_output.txt
+/*_errors.txt
+/*_error.txt
+
+# 一時的なテストファイル（ルートに置かない！）
+/test_*.hako
+
+# HTTP/ネットワークテストログ
+/http_test*.log
+/http_test*.txt
+
+# 分析・コンサルテーション結果
+/*_consultation.txt
+/*_analysis.txt
+/nekocode_*.txt
+*.bak
+*.orig
+test_*.ny
+output_*.ny
+temp_*.ny
+current_task
+
+# Logs
+*.log
+debug_output.txt
+stats_output.txt
+*.jsonl
+*.dot
+
+# LLVM
+*.ll
+*.bc
+*.o
+*.exe
+a.out
+app_*_llvm
+app_link
+string_len_app
+*_app
+
+# Nekocode analysis files (大きなJSONファイル)
+.nekocode_sessions/
+analysis.json
+nekocode-temp/
+tools/nekocode-rust/
+
+# Build outputs and logs
+build_*.txt
+test_*.txt
+*_output.txt
+*_results.txt
+
+# Local test files
+local_tests/
+
+# Windows build artifacts
+*.pdb
+*.exp
+*.lib
+
+# Font files (already in assets/)
+*.ttf
+*.otf
+
+# Backup files
+/backups/
+
+# 📚 論文関連フォルダ（作業中と公開用を分離）
+# 作業中（WIP: Work In Progress）- Git追跡除外
+docs/research/papers-wip/
+docs/research/drafts/
+docs/research/notes/
+
+# 査読中・未公開論文 - Git追跡除外
+docs/research/papers-under-review/
+
+# 完成・公開済み論文は docs/research/papers-published/ に配置（Git追跡対象）.pyenv/
+
+# Local consult bundles (generated)
+consult-*.zip
+
+# Artifacts (local generated bundles / logs / consult packs)
+/artifacts/

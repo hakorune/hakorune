@@ -1,0 +1,70 @@
+// lower_if_compare_box.hako — If(Compare(Int,Int), then Return(Int), else Return(Int)) → compare+branch+ret×2
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+
+static box LowerIfCompareBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+    local k_if = JsonFragBox.index_of_from(s, "\"type\":\"If\"", 0)
+    if k_if < 0 { return null }
+    // cond Compare
+    local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_if)
+    if k_cmp < 0 { return null }
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_cmp)
+    if k_op < 0 { return null }
+    local op = JsonFragBox.read_string_after(s, k_op + 5)
+    if op == null { return null }
+    if !(op == "<" || op == ">" || op == "<=" || op == ">=" || op == "==" || op == "!=") { return null }
+    // lhs/rhs ints
+    local klhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp)
+    if klhs < 0 { return null }
+    local ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", klhs)
+    if ti < 0 { return null }
+    local kv_lhs = JsonFragBox.index_of_from(s, "\"value\":", ti)
+    if kv_lhs < 0 { return null }
+    local lhs_val = JsonFragBox.read_int_after(s, kv_lhs + 8)
+    if lhs_val == null { return null }
+    local krhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp)
+    if krhs < 0 { return null }
+    local ti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", krhs)
+    if ti2 < 0 { return null }
+    local kv_rhs = JsonFragBox.index_of_from(s, "\"value\":", ti2)
+    if kv_rhs < 0 { return null }
+    local rhs_val = JsonFragBox.read_int_after(s, kv_rhs + 8)
+    if rhs_val == null { return null }
+    // then/else return ints (bounded within arrays)
+    local tb = PatternUtilBox.then_array_bounds(s, k_if); if tb == null { return null }
+    local cp = tb.indexOf(":"); if cp < 0 { return null }
+    local lb_then = JsonFragBox._str_to_int(tb.substring(0, cp))
+    local rb_then = JsonFragBox._str_to_int(tb.substring(cp + 1, tb.length()))
+    local rt = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", lb_then)
+    if rt < 0 || rt >= rb_then { return null }
+    local ti3 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rt)
+    if ti3 < 0 || ti3 >= rb_then { return null }
+    local kv_then = JsonFragBox.index_of_from(s, "\"value\":", ti3)
+    if kv_then < 0 || kv_then >= rb_then { return null }
+    local then_val = JsonFragBox.read_int_after(s, kv_then + 8); if then_val == null { return null }
+    local eb = PatternUtilBox.else_array_bounds_after_then(s, k_if); if eb == null { return null }
+    local cp2 = eb.indexOf(":"); if cp2 < 0 { return null }
+    local lb_else = JsonFragBox._str_to_int(eb.substring(0, cp2))
+    local rb_else = JsonFragBox._str_to_int(eb.substring(cp2 + 1, eb.length()))
+    local rt2 = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", lb_else)
+    if rt2 < 0 || rt2 >= rb_else { return null }
+    local ti4 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rt2)
+    if ti4 < 0 || ti4 >= rb_else { return null }
+    local kv_else = JsonFragBox.index_of_from(s, "\"value\":", ti4)
+    if kv_else < 0 || kv_else >= rb_else { return null }
+    local else_val = JsonFragBox.read_int_after(s, kv_else + 8); if else_val == null { return null }
+
+    // Emit MIR v0 JSON as string (functions[]/name="main"/blocks.id)
+    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+      "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs_val + "}}," +
+      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_val + "}}," +
+      "{\"op\":\"compare\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+      "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
+      "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + then_val + "}},{\"op\":\"ret\",\"value\":4}]}," +
+      "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + else_val + "}},{\"op\":\"ret\",\"value\":5}]}]}]}"
+    return mir
+  }
+}

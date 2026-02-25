@@ -1,0 +1,180 @@
+// dispatcher_v1.hako — NyVmDispatcherV1Box
+// Responsibility: minimal MIR JSON v1 executor (const/mir_call(Constructor/Method)/ret)
+
+using selfhost.vm.mir_min as MirVmMin
+using selfhost.vm.helpers.op_handlers as OpHandlersBox
+using selfhost.vm.helpers.instruction_scanner as InstructionScannerBox
+using selfhost.vm.helpers.mini_map as MiniMap
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_ops as StringOps
+using selfhost.vm.hv1.reader as JsonV1ReaderBox
+using selfhost.vm.helpers.v1_schema as V1SchemaBox
+
+using selfhost.vm.helpers.mir_call_v1_handler as MirCallV1HandlerBox
+using selfhost.vm.helpers.v1_phi_table as V1PhiTableBox
+using selfhost.vm.helpers.v1_phi_adapter as V1PhiAdapterBox
+using selfhost.vm.hakorune-vm.ir.types as V1IrTypes
+
+static box NyVmDispatcherV1Box {
+  // Internal scanner (block0 only): const / mir_call / ret
+  run_scan(json) {
+    json = json
+    local seg = JsonV1ReaderBox.get_block0_instructions(json)
+    if seg == "" { return 0 }
+    local regs = new MiniMap()
+    local scan = 0
+    loop(true) {
+      if scan >= seg.length() { break }
+      local tup = InstructionScannerBox.next_tuple(seg, scan)
+      if tup == "" { break }
+      local c1 = StringOps.index_of_from(tup, ",", 0)
+      local c2 = StringOps.index_of_from(tup, ",", c1+1)
+      if c1 < 0 || c2 < 0 { break }
+      local s = JsonFragBox._str_to_int(tup.substring(0, c1))
+      local e = JsonFragBox._str_to_int(tup.substring(c1+1, c2))
+      local op = tup.substring(c2+1, tup.length())
+      local item = seg.substring(s, e)
+      if op == "const" { OpHandlersBox.handle_const(item, regs) }
+      else if op == "mir_call" { MirCallV1HandlerBox.handle(item, regs) }
+      else if op == "ret" { return MirVmMin._handle_ret_op(item, regs, -1, 0, 0) }
+      scan = e
+    }
+    return 0
+  }
+  // Internal scanner with simple flow: const/compare/mir_call/branch/jump/ret (phi→fallback)
+  run_scan_flow(json) {
+    json = json
+    // Build IR once (segments without φ + phi table)
+    local ir = V1SchemaBox.get_function_ir(json)
+    local seg_map = null; local phi_map = null; local blocks_map = null
+    if ir != null { seg_map = ir.get("seg"); phi_map = ir.get("phi"); blocks_map = ir.get("blocks") }
+    local regs = new MiniMap()
+    local last_cmp_dst = -1
+    local last_cmp_val = 0
+    local bb = 0
+    local prev_bb = -1
+    local steps = 0
+    local max_steps = 200000
+    local flow_trace = 0
+    if env.get("HAKO_V1_FLOW_TRACE") == "1" { flow_trace = 1 }
+    local strict_env = env.get("HAKO_V1_PHI_STRICT")
+    local strict = 1
+    if strict_env != null {
+      local se = strict_env
+      if se == "0" || se == "false" || se == "off" { strict = 0 }
+    }
+    local tol_env = env.get("HAKO_V1_PHI_TOLERATE_VOID")
+    local tolerate = 0
+    if tol_env != null {
+      local te = tol_env
+      if te == "1" || te == "true" || te == "on" { tolerate = 1 }
+    }
+    loop(true) {
+      steps = steps + 1
+      if steps > max_steps { return 0 }
+      // Fetch IR-level instruction segment without φ
+      if flow_trace == 1 { print("[flow] enter bb=" + StringHelpers.int_to_str(bb) + ", prev=" + StringHelpers.int_to_str(prev_bb)) }
+      // Prefer direct segment read to avoid dynamic concat type issues in -c runs
+      local seg = V1SchemaBox.block_segment_wo_phi(json, bb)
+      local block_insts = null
+      if blocks_map != null { block_insts = blocks_map.get(StringHelpers.int_to_str(bb)) }
+      if seg == "" { return 0 }
+      // Entry φ apply via pre-parsed table when available; fallback to on-demand scan
+      if prev_bb >= 0 {
+        local se = strict == 1 ? "1" : "0"
+        local te = tolerate == 1 ? "1" : "0"
+        local table = null
+        if phi_map != null { table = phi_map.get(StringHelpers.int_to_str(bb)) }
+        if table == null { table = V1SchemaBox.phi_table_for_block(json, bb) }
+        local rcphi = 0
+        if table != null { rcphi = V1PhiTableBox.apply_table_at_entry(table, regs, prev_bb, se, te, flow_trace) }
+        else { rcphi = V1PhiTableBox.apply_at_entry(json, regs, prev_bb, bb, se, te, flow_trace) }
+        if flow_trace == 1 { print("[flow] phi rc=" + StringHelpers.int_to_str(rcphi)) }
+        if rcphi == -1 { return MirVmMin.run_min(json) }
+      }
+      // Iterate instructions: prefer pre-split array when available
+      if block_insts != null {
+        local idx = 0
+        local count = block_insts.size()
+        loop(idx < count) {
+          local ent = block_insts.get(idx)
+          idx = idx + 1
+          if ent == null { continue }
+          local op = ent.get("op")
+          local item = ent.get("text")
+          if op == null || item == null { continue }
+          // Optional: build typed IR shadow (構造のみ、挙動不変)
+          me._maybe_typed_shadow(ent)
+          // Dispatch
+          if op == "const" { OpHandlersBox.handle_const(item, regs) }
+          else if op == "compare" {
+            OpHandlersBox.handle_compare(item, regs)
+            local dst = ent.get("dst"); if dst == null { dst = JsonFragBox.get_int(item, "dst") }
+            if dst != null {
+              last_cmp_dst = dst
+              local sv = regs.getField(StringHelpers.int_to_str(dst)); if sv != null { last_cmp_val = JsonFragBox._str_to_int(""+sv) } else { last_cmp_val = 0 }
+            }
+          }
+          else if op == "mir_call" { MirCallV1HandlerBox.handle(item, regs) }
+          else if op == "branch" {
+            local c = ent.get("cond"); if c == null { c = JsonFragBox.get_int(item, "cond") }
+            local t = ent.get("then"); if t == null { t = JsonFragBox.get_int(item, "then") }
+            local f = ent.get("else"); if f == null { f = JsonFragBox.get_int(item, "else") }
+            if c != null && t != null && f != null {
+              local cv = 0
+              if c == last_cmp_dst { cv = last_cmp_val } else { local sv = regs.getField(StringHelpers.int_to_str(c)); if sv != null { cv = JsonFragBox._str_to_int(""+sv) } }
+              prev_bb = bb
+              if cv != 0 { bb = t } else { bb = f }
+              break
+            } else { return MirVmMin.run_min(json) }
+          }
+          else if op == "jump" {
+            local tgt = ent.get("target"); if tgt == null { tgt = JsonFragBox.get_int(item, "target") }; if tgt == null { return MirVmMin.run_min(json) }
+            prev_bb = bb
+            bb = tgt; break
+          }
+          else if op == "ret" { return MirVmMin._handle_ret_op(item, regs, last_cmp_dst, last_cmp_val, 0) }
+        }
+      } else { return MirVmMin.run_min(json) }
+    }
+  }
+  // Build typed IR shadow object for debugging/SSOT導入の段階準備（flag: HAKO_V1_TYPED_IR_SHADOW=1）
+  _maybe_typed_shadow(ent) {
+    if env.get("HAKO_V1_TYPED_IR_SHADOW") != "1" { return 0 }
+    local op = ent.get("op"); if op == null { return 0 }
+    // Construct minimal typed IR box per op (構造のみ). 値は文字列/整数としてそのまま格納する。
+    if op == "const" {
+      local b = new V1IrTypes.V1ConstIR(); b.target_reg = ent.get("dst"); b.value = ent.get("text"); return 0
+    }
+    if op == "compare" {
+      local b = new V1IrTypes.V1CompareIR(); b.op = ent.get("cmp"); b.lhs = ent.get("lhs"); b.rhs = ent.get("rhs"); b.target_reg = ent.get("dst"); return 0
+    }
+    if op == "branch" {
+      local b = new V1IrTypes.V1BranchIR(); b.condition = ent.get("cond"); b.then_block = ent.get("then"); b.else_block = ent.get("else"); return 0
+    }
+    if op == "jump" {
+      local b = new V1IrTypes.V1JumpIR(); b.target_block = ent.get("target"); return 0
+    }
+    if op == "ret" {
+      local b = new V1IrTypes.V1RetIR(); b.value = ent.get("value"); return 0
+    }
+    return 0
+  }
+  // Main entry: Choose internal scanner when enabled; otherwise delegate to Mini‑VM
+  run(json) {
+    if env.get("HAKO_TRACE_EXECUTION") == "1" { print("[trace] executor: hakovm (hako)") }
+    // Typed IR primary (限定): 構造IR生成を有効化しつつ既存フローを使用（挙動不変）
+    if env.get("HAKO_V1_TYPED_IR_PRIMARY") == "1" {
+      // ShadowをONにして構造IR生成のオーバーヘッドを観測（必要時）
+      if env.get("HAKO_V1_TYPED_IR_SHADOW") == null { env.set("HAKO_V1_TYPED_IR_SHADOW", "1") }
+      return me.run_scan_flow(json)
+    }
+    if env.get("HAKO_V1_DISPATCHER_FLOW") == "1" { return me.run_scan_flow(json) }
+    if env.get("HAKO_V1_DISPATCHER_INTERNAL") == "1" { return me.run_scan(json) }
+    return MirVmMin.run_min(json)
+  }
+}
+
+static box NyVmDispatcherV1Main { method main(args) { return 0 } }

@@ -1,0 +1,28 @@
+// Phase 102: real-app loop fixture (MiniJsonLoader.read_quoted_from)
+// Goal: Fix accumulator + escape (+2) + quote-break in Pattern2/JoinIR, and keep VM/LLVM EXE parity.
+
+static box Main {
+  read_quoted_min(s, pos) {
+    local i = pos
+    if s.substring(i, i+1) != "\"" { return "" }
+    i = i + 1
+    local out = ""
+    local n = s.length()
+    loop (i < n) {
+      local ch = s.substring(i, i+1)
+      if ch == "\"" { break }
+      if ch == "\\" { i = i + 1  ch = s.substring(i, i+1) }
+      out = out + ch
+      i = i + 1
+    }
+    return out
+  }
+
+  main() {
+    local s = "\"ab\\\"c\""
+    local out = me.read_quoted_min(s, 0)
+    print(out.length())
+    return "OK"
+  }
+}
+

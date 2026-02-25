@@ -1,0 +1,323 @@
+// IfStmtHandler — Handle If statement in Program JSON v0 parsing
+// Responsibility: SSOT handler for minimal If shape parsing and recipe item construction.
+//
+// R4/R6 (minimal):
+// - R4: Local -> If(Var==Int, then Return(Int), else null) -> Return(Int)
+// - R6: Local -> If(Var==Int, then Assignment(Int), else Assignment(Int)) -> Return(Var)
+// - parser/grammar expansion is out of scope.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+using lang.compiler.mirbuilder.stmt_handlers.return_stmt_handler as ReturnStmtHandler
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box IfStmtHandler {
+  _err(tag, msg, next_idx) {
+    return %{
+      "err" => 1,
+      "err_line" => tag + msg,
+      "next_idx" => next_idx,
+      "recipe_item" => RecipeItemBox.seq([])
+    }
+  }
+
+  _ok(next_idx, recipe_item) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "next_idx" => next_idx,
+      "recipe_item" => recipe_item
+    }
+  }
+
+  _then_return_int(program_json, idx, tag) {
+    local then_key = "\"then\":["
+    local p_then = StringHelpers.index_of(program_json, idx, then_key)
+    if p_then < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If missing then array", idx)
+    }
+    local then_start = StringHelpers.skip_ws(program_json, p_then + then_key.length())
+    if ProgramJsonV0ScannerBox._read_char(program_json, then_start) != "{" {
+      return me._err(tag, "[cap_missing/stmt:If] If then must contain exactly one stmt", then_start)
+    }
+
+    local then_stmt_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, then_start)
+    if then_stmt_end < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If then stmt object is invalid", then_start)
+    }
+    local after_then = StringHelpers.skip_ws(program_json, then_stmt_end)
+    if ProgramJsonV0ScannerBox._read_char(program_json, after_then) != "]" {
+      return me._err(tag, "[cap_missing/stmt:If] If then supports exactly one stmt", after_then)
+    }
+
+    local then_stmt = ProgramJsonV0ScannerBox.read_node_type_at(program_json, then_start)
+    if then_stmt == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If then stmt type scan failed", then_start)
+    }
+    local then_type = "" + BoxHelpers.map_get(then_stmt, "type")
+    if then_type != "Return" {
+      return me._err(tag, "[cap_missing/stmt:If] If then must be Return(Int)", then_start)
+    }
+
+    local ret_state = %{
+      "has_return" => 0,
+      "return_kind" => "",
+      "retv" => 0,
+      "ret_var_name" => ""
+    }
+    local ret_out = ReturnStmtHandler.handle(program_json, then_start, then_stmt_end, tag, ret_state)
+    local ret_err = StringHelpers.to_i64(BoxHelpers.map_get(ret_out, "err"))
+    if ret_err != 0 {
+      return me._err(tag, "" + BoxHelpers.map_get(ret_out, "err_line"), then_start)
+    }
+    local ret_kind = "" + BoxHelpers.map_get(ret_out, "return_kind")
+    if ret_kind != "Int" {
+      return me._err(tag, "[cap_missing/stmt:If] If then Return must be Int", then_start)
+    }
+
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "then_retv" => BoxHelpers.map_get(ret_out, "retv")
+    }
+  }
+
+  _read_assignment_int_stmt(program_json, stmt_start, local_name, tag, context_label) {
+    local stmt_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, stmt_start)
+    if stmt_info == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " stmt type scan failed", stmt_start)
+    }
+    local stmt_type = "" + BoxHelpers.map_get(stmt_info, "type")
+    if stmt_type != "Assignment" {
+      return me._err(tag, "[cap_missing/stmt:If] If " + context_label + " must be Assignment(Int)", stmt_start)
+    }
+
+    local stmt_name_out = ProgramJsonV0ScannerBox.read_string_field_last_in_obj(program_json, "name", stmt_start)
+    if stmt_name_out == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " Assignment missing name", stmt_start)
+    }
+    local stmt_name = "" + BoxHelpers.map_get(stmt_name_out, "value")
+    if stmt_name == "" || stmt_name != local_name {
+      return me._err(tag, "[cap_missing/stmt:If] If " + context_label + " Assignment must target the Local var", stmt_start)
+    }
+
+    local expr_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "expr", stmt_start)
+    if expr_start < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " Assignment missing expr object", stmt_start)
+    }
+    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, expr_start)
+    if expr_info == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " Assignment expr node scan failed", stmt_start)
+    }
+    local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
+    if expr_type != "Int" {
+      return me._err(tag, "[cap_missing/expr:Int] If " + context_label + " Assignment expr must be Int", stmt_start)
+    }
+    local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", expr_start)
+    if rhs_out == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " Assignment Int missing value", stmt_start)
+    }
+
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "assign_rhs_int" => BoxHelpers.map_get(rhs_out, "value")
+    }
+  }
+
+  _read_then_assignment_int(program_json, idx, local_name, tag) {
+    local then_key = "\"then\":["
+    local p_then = StringHelpers.index_of(program_json, idx, then_key)
+    if p_then < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If missing then array", idx)
+    }
+    local then_start = StringHelpers.skip_ws(program_json, p_then + then_key.length())
+    if ProgramJsonV0ScannerBox._read_char(program_json, then_start) != "{" {
+      return me._err(tag, "[cap_missing/stmt:If] If then must contain exactly one stmt", then_start)
+    }
+
+    local then_stmt_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, then_start)
+    if then_stmt_end < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If then stmt object is invalid", then_start)
+    }
+    local after_then = StringHelpers.skip_ws(program_json, then_stmt_end)
+    if ProgramJsonV0ScannerBox._read_char(program_json, after_then) != "]" {
+      return me._err(tag, "[cap_missing/stmt:If] If then supports exactly one stmt", after_then)
+    }
+
+    return me._read_assignment_int_stmt(program_json, then_start, local_name, tag, "then")
+  }
+
+  _read_else_assignment_int(program_json, idx, local_name, tag) {
+    local else_start = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "else", idx)
+    if else_start < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If missing else field", idx)
+    }
+    else_start = StringHelpers.skip_ws(program_json, else_start)
+    if ProgramJsonV0ScannerBox._read_char(program_json, else_start) != "[" {
+      return me._err(tag, "[cap_missing/stmt:If] If else must be assignment array in R6 minimal shape", else_start)
+    }
+
+    local else_stmt_start = StringHelpers.skip_ws(program_json, else_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(program_json, else_stmt_start) != "{" {
+      return me._err(tag, "[cap_missing/stmt:If] If else must contain exactly one stmt", else_stmt_start)
+    }
+    local else_stmt_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, else_stmt_start)
+    if else_stmt_end < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If else stmt object is invalid", else_stmt_start)
+    }
+    local after_else = StringHelpers.skip_ws(program_json, else_stmt_end)
+    if ProgramJsonV0ScannerBox._read_char(program_json, after_else) != "]" {
+      return me._err(tag, "[cap_missing/stmt:If] If else supports exactly one stmt", after_else)
+    }
+
+    return me._read_assignment_int_stmt(program_json, else_stmt_start, local_name, tag, "else")
+  }
+
+  _assignment_stmt_item(local_name, assign_rhs_int) {
+    local facts = new MapBox()
+    facts.set("stmt_kind", "Assignment")
+    facts.set("defs", [])
+    facts.set("updates", [local_name])
+    facts.set("uses", [])
+    facts.set("assign_name", local_name)
+    facts.set("assign_rhs_kind", "Int")
+    facts.set("assign_rhs", assign_rhs_int)
+
+    local stmt = RecipeItemBox.seq([])
+    stmt.set("leaf_kind", "Stmt")
+    stmt.set("stmt_kind", "Assignment")
+    stmt.set("facts", facts)
+    return stmt
+  }
+
+  handle(program_json, idx, next_idx, tag, state) {
+    local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
+    local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
+    local has_print = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print"))
+    local has_assignment = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_assignment"))
+    local local_name = "" + BoxHelpers.map_get(state, "local_name")
+
+    if has_local != 1 || local_name == "" {
+      return me._err(tag, "[cap_missing/stmt:If] If requires Local before If", next_idx)
+    }
+    if has_return != 0 {
+      return me._err(tag, "[cap_missing/stmt:If] If after Return is not supported yet", next_idx)
+    }
+    if has_print != 0 || has_assignment != 0 {
+      return me._err(tag, "[cap_missing/stmt:If] If with Print/Assignment before If is not supported yet", next_idx)
+    }
+
+    local cond_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "cond", idx)
+    if cond_start < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If missing cond object", next_idx)
+    }
+    local cond_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, cond_start)
+    if cond_info == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If cond node scan failed", next_idx)
+    }
+    local cond_type = "" + BoxHelpers.map_get(cond_info, "type")
+    if cond_type != "Compare" {
+      return me._err(tag, "[cap_missing/expr:Compare] If cond must be Compare", next_idx)
+    }
+
+    local op_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "op", cond_start)
+    if op_out == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If Compare missing op", next_idx)
+    }
+    local op = "" + BoxHelpers.map_get(op_out, "value")
+    if op != "==" {
+      return me._err(tag, "[cap_missing/expr:Compare] If cond Compare op must be '=='", next_idx)
+    }
+
+    local lhs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "lhs", cond_start)
+    if lhs_start < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If Compare missing lhs", next_idx)
+    }
+    local lhs_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, lhs_start)
+    if lhs_info == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If lhs node scan failed", next_idx)
+    }
+    local lhs_type = "" + BoxHelpers.map_get(lhs_info, "type")
+    if lhs_type != "Var" {
+      return me._err(tag, "[cap_missing/expr:Var] If Compare lhs must be Var", next_idx)
+    }
+    local lhs_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "name", lhs_start)
+    if lhs_name_out == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If Compare lhs Var missing name", next_idx)
+    }
+    local lhs_name = "" + BoxHelpers.map_get(lhs_name_out, "value")
+    if lhs_name == "" || lhs_name != local_name {
+      return me._err(tag, "[cap_missing/stmt:If] If cond lhs must be the Local var", next_idx)
+    }
+
+    local rhs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "rhs", cond_start)
+    if rhs_start < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If Compare missing rhs", next_idx)
+    }
+    local rhs_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, rhs_start)
+    if rhs_info == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If rhs node scan failed", next_idx)
+    }
+    local rhs_type = "" + BoxHelpers.map_get(rhs_info, "type")
+    if rhs_type != "Int" {
+      return me._err(tag, "[cap_missing/expr:Int] If Compare rhs must be Int", next_idx)
+    }
+    local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", rhs_start)
+    if rhs_out == null {
+      return me._err(tag, "[cap_missing/program_json_v0] If Compare rhs Int missing value", next_idx)
+    }
+    local rhs_int = BoxHelpers.map_get(rhs_out, "value")
+
+    local else_start = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "else", idx)
+    if else_start < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If missing else field", next_idx)
+    }
+    else_start = StringHelpers.skip_ws(program_json, else_start)
+    local cond_facts = new MapBox()
+    cond_facts.set("cond_kind", "VarEqInt")
+    cond_facts.set("cond_var_name", lhs_name)
+    cond_facts.set("cond_rhs_int", rhs_int)
+
+    if program_json.substring(else_start, else_start + 4) == "null" {
+      local then_out = me._then_return_int(program_json, idx, tag)
+      local then_err = StringHelpers.to_i64(BoxHelpers.map_get(then_out, "err"))
+      if then_err != 0 {
+        return me._err(tag, "" + BoxHelpers.map_get(then_out, "err_line"), next_idx)
+      }
+      local then_retv = BoxHelpers.map_get(then_out, "then_retv")
+
+      local exit_payload = new MapBox()
+      exit_payload.set("return_kind", "Int")
+      exit_payload.set("retv", then_retv)
+
+      local then_item = RecipeItemBox.exit_item("Return", exit_payload)
+      local else_item = RecipeItemBox.seq([])
+      local if_item = RecipeItemBox.if_item(cond_facts, then_item, else_item)
+      return me._ok(next_idx, if_item)
+    }
+
+    local then_assign_out = me._read_then_assignment_int(program_json, idx, local_name, tag)
+    local then_assign_err = StringHelpers.to_i64(BoxHelpers.map_get(then_assign_out, "err"))
+    if then_assign_err != 0 {
+      return me._err(tag, "" + BoxHelpers.map_get(then_assign_out, "err_line"), next_idx)
+    }
+    local else_assign_out = me._read_else_assignment_int(program_json, idx, local_name, tag)
+    local else_assign_err = StringHelpers.to_i64(BoxHelpers.map_get(else_assign_out, "err"))
+    if else_assign_err != 0 {
+      return me._err(tag, "" + BoxHelpers.map_get(else_assign_out, "err_line"), next_idx)
+    }
+
+    local then_stmt = me._assignment_stmt_item(local_name, BoxHelpers.map_get(then_assign_out, "assign_rhs_int"))
+    local else_stmt = me._assignment_stmt_item(local_name, BoxHelpers.map_get(else_assign_out, "assign_rhs_int"))
+    local if_item = RecipeItemBox.if_item(
+      cond_facts,
+      RecipeItemBox.seq([then_stmt]),
+      RecipeItemBox.seq([else_stmt])
+    )
+    return me._ok(next_idx, if_item)
+  }
+}
+
+static box IfStmtHandlerMain { main() { return 0 } }

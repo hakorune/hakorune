@@ -1,0 +1,35 @@
+// Phase 29bq parser handoff Tier-2: string method chain + compare + &&/|| + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local base = "hakorune"
+      local head = base.substring(0, 4)
+
+      local cond1 = (head == "hako") && (base.length() == 8)
+      if cond1 {
+        out = out + 21
+      } else {
+        out = out + 1
+      }
+
+      local cond2 = (base.substring(4, 8) == "rune") || (head == "xxxx")
+      if cond2 {
+        out = out + 34
+      } else {
+        out = out + 2
+      }
+
+      local cond3 = (base.substring(0, 2) == "ha") && ((base.substring(2, 4) == "ko") || (base.substring(0, 1) == "x"))
+      if cond3 {
+        out = out + 55
+      } else {
+        out = out + 3
+      }
+    } cleanup {
+      out = out + 2300
+    }
+    print(out)
+    return 0
+  }
+}

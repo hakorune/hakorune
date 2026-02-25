@@ -1,0 +1,8 @@
+// ng: alias is never used
+using "selfhost.shared.common.string_helpers" as Str
+
+static box Main {
+  method main() {
+    return 0
+  }
+}

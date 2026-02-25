@@ -1,0 +1,29 @@
+static box Main {
+  main(args) {
+    local src = "using foo\nusing bar"
+    local n = src.length()
+    local i = 0
+    loop(i < n) {
+      local j = i
+      loop(j < n && src.substring(j, j+1) != "\n") { j = j + 1 }
+      local line = src.substring(i, j)
+
+      if line.length() > 0 {
+        local p = line
+        local idx = -1
+        local t = 0
+        loop(t < p.length()) {
+          if p.substring(t,t+1) == " " { idx = t }
+          t = t + 1
+        }
+        if idx >= 0 {
+          p = p.substring(0, idx)
+        }
+        print("Processed: " + p)
+      }
+
+      i = j + 1
+    }
+    return 0
+  }
+}

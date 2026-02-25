@@ -1,0 +1,188 @@
+// LocalSSABox — 材化（materialize）/Copy 挿入の最小ポリシーを集約
+// Phase 15.7: 最小実装。将来 PHI/Call 前の規約をここに集約して拡張する。
+
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+static box LocalSSABox {
+  _maybe_unwrap_instructions(insts) {
+    if insts == null { return null }
+    local repr = "" + insts
+    if repr.indexOf("MapBox(") == 0 {
+      local inner = BoxHelpers.map_get(insts, "instructions")
+      if inner != null { return inner }
+    }
+    return insts
+  }
+
+  // 汎用: copy 命令を insts（ArrayBox of Map）末尾に追加
+  add_copy(insts, dst, src) {
+    if insts == null { return 1 }
+    insts = me._maybe_unwrap_instructions(insts)
+    if insts == null { return 1 }
+    insts.push(%{ "op"=>"copy", "dst"=> dst, "src"=> src })
+    return 0
+  }
+
+  // PHI直後の材化（最小）: いまは add_copy と同じ。将来 PHI 群スキップを実装
+  ensure_after_phis_copy(insts, src, dst) {
+    if insts == null { return 1 }
+    insts = me._maybe_unwrap_instructions(insts)
+    if insts == null { return 1 }
+    if BoxHelpers.is_array(insts) == 0 {
+      return me.add_copy(insts, dst, src)
+    }
+    local n = BoxHelpers.array_len(insts)
+    local i = 0
+    loop (i < n) {
+      local ins = BoxHelpers.array_get(insts, i)
+      if ins == null { break }
+      local op = BoxHelpers.map_get(ins, "op")
+      if op == null || op != "phi" { break }
+      i = i + 1
+    }
+    local insert_at = i  // phi 直後
+    local node = %{ "op"=>"copy", "dst"=> dst, "src"=> src }
+    if insert_at >= n {
+      insts.push(node)
+      return 0
+    }
+    if n > 0 {
+      insts.push(BoxHelpers.array_get(insts, n - 1))
+      local j = n - 1
+      loop (j >= insert_at) {
+        insts.set(j + 1, BoxHelpers.array_get(insts, j))
+        j = j - 1
+      }
+      insts.set(insert_at, node)
+      return 0
+    }
+    insts.push(node)
+    return 0
+  }
+
+  // 新規: 定義直後に copy を挿入（安全・最小）
+  ensure_after_last_def_copy(insts, src, dst) {
+    if insts == null { return 1 }
+    if BoxHelpers.is_array(insts) == 0 { return 1 }
+    local n = BoxHelpers.array_len(insts)
+    local insert_at = n
+    // Find the first terminator index (ret/branch/jump/throw) to ensure block ends with a terminator
+    local term_at = n
+    {
+      local i = 0
+      loop(i < n) {
+        local ins = BoxHelpers.array_get(insts, i)
+        if ins != null {
+          local op = BoxHelpers.map_get(ins, "op")
+          if op == "ret" || op == "branch" || op == "jump" || op == "throw" { term_at = i  break }
+        }
+        i = i + 1
+      }
+    }
+    // 探索: 最後に dst=src を定義した位置
+    {
+      local i = 0
+      loop (i < n) {
+        local ins = BoxHelpers.array_get(insts, i)
+        if ins != null {
+          print("[LS] checking def ins=" + ("" + ins))
+          local d_raw = BoxHelpers.map_get(ins, "dst")
+          print("[LS] dst raw=" + ("" + d_raw))
+          local d = BoxHelpers.value_i64(d_raw)
+          if d != null && d == src { insert_at = i + 1 }
+        }
+        i = i + 1
+      }
+    }
+    // Do not cross terminator: insert before the first terminator if present
+    if insert_at > term_at { insert_at = term_at }
+    local node = %{ "op"=>"copy", "dst"=> dst, "src"=> src }
+    if insert_at >= n { insts.push(node)  return 0 }
+    // 1つ末尾に空きを作る（末尾要素を複製して押し出す）
+    if n > 0 {
+      insts.push(BoxHelpers.array_get(insts, n - 1))
+      local j = n - 1
+      loop (j >= insert_at) {
+        insts.set(j + 1, BoxHelpers.array_get(insts, j))
+        j = j - 1
+      }
+      insts.set(insert_at, node)
+      return 0
+    }
+    insts.push(node)
+    return 0
+  }
+
+  // calls の最小材化: 最後の ret が参照する値 src を探し、src の直後に copy(dst=src+1) を挿入する。
+  // mod_full: { functions: [ { blocks: [ { instructions: [...] } ] } ] }
+  ensure_materialize_last_ret(mod_full) {
+    if mod_full == null { return 1 }
+    local fns = BoxHelpers.map_get(mod_full, "functions")
+    if fns == null || BoxHelpers.array_len(fns) == 0 { return 1 }
+    local blocks = BoxHelpers.map_get(BoxHelpers.array_get(fns, 0), "blocks")
+    if blocks == null || BoxHelpers.array_len(blocks) == 0 { return 1 }
+    local insts = BoxHelpers.map_get(BoxHelpers.array_get(blocks, 0), "instructions")
+    if insts == null || BoxHelpers.array_len(insts) == 0 { return 1 }
+    // ret の引数を探索
+    local n = BoxHelpers.array_len(insts)
+    local src = null
+    {
+      local i = 0
+      loop(i < n) {
+        local ins = BoxHelpers.array_get(insts, i)
+        if ins != null {
+          local op = BoxHelpers.map_get(ins, "op")
+          if op == "ret" {
+            src = BoxHelpers.value_i64(BoxHelpers.map_get(ins, "value"))
+          }
+        }
+        i = i + 1
+      }
+    }
+    if src == null { return 1 }
+    return me.ensure_after_last_def_copy(insts, src, src + 1)
+  }
+
+  // ensure_cond: 最初の branch の cond を検出し、その定義直後に copy を1つ挿入（最小）
+  // - 形状期待: いずれかの block.instructions に { op:"branch", cond:<id>, ... }
+  ensure_cond(mod_full) {
+    if mod_full == null { return 1 }
+    local fns = BoxHelpers.map_get(mod_full, "functions")
+    if fns == null { return 1 }
+    local bn = BoxHelpers.array_len(fns)
+    if bn == 0 { return 1 }
+    local blocks = BoxHelpers.map_get(BoxHelpers.array_get(fns, 0), "blocks")
+    if blocks == null || BoxHelpers.array_len(blocks) == 0 { return 1 }
+    // 探索: 各ブロックの instructions から最初の branch を見つけ、そのブロックで材化
+    local bi = 0
+    local block_count = BoxHelpers.array_len(blocks)
+    loop (bi < block_count) {
+      local insts = BoxHelpers.map_get(BoxHelpers.array_get(blocks, bi), "instructions")
+      local insts_len = BoxHelpers.array_len(insts)
+      if insts_len > 0 {
+        local n = insts_len
+        local cond = null
+        {
+          local i = 0
+          loop(i < n) {
+            local ins = BoxHelpers.array_get(insts, i)
+            if ins != null {
+              local op = BoxHelpers.map_get(ins, "op")
+              if op == "branch" {
+                cond = BoxHelpers.value_i64(BoxHelpers.map_get(ins, "cond"))
+                break
+              }
+            }
+            i = i + 1
+          }
+        }
+        if cond != null { return me.ensure_after_last_def_copy(insts, cond, cond + 2) }
+      }
+      bi = bi + 1
+    }
+    return 1
+  }
+
+}
+
+static box LocalSSAStub { main() { return 0 } }

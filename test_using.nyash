@@ -1,0 +1,7 @@
+using selfhost.vm.hv1.dispatch as NyVmDispatcherV1Box
+static box Main {
+  method main(args) {
+    print("Hello from using!")
+    return 42
+  }
+}

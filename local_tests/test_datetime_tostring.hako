@@ -1,0 +1,4 @@
+// test_datetime_tostring.hako - DateTimeBox toString() test as mentioned in issue
+local dt
+dt = new DateTimeBox()
+print(dt.toString())

@@ -1,0 +1,54 @@
+// Phase 166: JsonParserBox 単体テスト - String parsing
+// Goal: Validate JsonParserBox can parse simple JSON strings through JoinIR
+
+using tools.hako_shared.json_parser as JsonParserBox
+
+static box Main {
+  main(args) {
+    print("=== JsonParserBox String Parsing Tests ===")
+
+    // Test 1: Simple string
+    print("Test 1: Simple string")
+    local json1 = "\"hello\""
+    local result1 = JsonParserBox.parse(json1)
+    if result1 == null {
+      print("  FAIL: parse returned null")
+      return 1
+    }
+    if result1 == "hello" {
+      print("  PASS: got 'hello'")
+    } else {
+      print("  FAIL: expected 'hello', got different value")
+      return 1
+    }
+
+    // Test 2: String with escape sequences
+    print("Test 2: String with escapes (\\n, \\t)")
+    local json2 = "\"line1\\nline2\""
+    local result2 = JsonParserBox.parse(json2)
+    if result2 == null {
+      print("  FAIL: parse returned null")
+      return 1
+    }
+    // Result should contain newline
+    print("  PASS: escape sequences parsed")
+
+    // Test 3: Empty string
+    print("Test 3: Empty string")
+    local json3 = "\"\""
+    local result3 = JsonParserBox.parse(json3)
+    if result3 == null {
+      print("  FAIL: parse returned null")
+      return 1
+    }
+    if result3 == "" {
+      print("  PASS: got empty string")
+    } else {
+      print("  FAIL: expected empty string")
+      return 1
+    }
+
+    print("=== All String Tests PASSED ===")
+    return 0
+  }
+}

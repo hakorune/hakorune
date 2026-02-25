@@ -1,0 +1,14 @@
+// Phase 286 P2.1: Pattern1 → Frag PoC minimal fixture
+// Expected: return 3 (loop 3 times: i=0,1,2 → i=3 で終了)
+// Design: 副作用なし・出力に依存しない（PoC向き）
+
+static box Main {
+    main() {
+        local i
+        i = 0
+        loop(i < 3) {
+            i = i + 1
+        }
+        return i
+    }
+}

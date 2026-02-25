@@ -1,0 +1,39 @@
+// Phase 223-3 E2E Test: Pattern4 skip_whitespace minimal test
+//
+// Tests that LoopBodyLocal in continue condition can be promoted
+// and Pattern4 lowering continues successfully (no Fail-Fast).
+//
+// Pattern: Category A-3 (_skip_whitespace)
+// - Single LoopBodyLocal (ch) in continue condition
+// - Definition: local ch = s.substring(...)
+// - Condition: ch == " " || ch == "\t" || ch == "\n" || ch == "\r"
+// - Action: pos = pos + 1; continue
+//
+// Phase 223-3 Achievement:
+// - Previously: Fail-Fast with "[cf_loop/pattern4] Cannot promote LoopBodyLocal"
+// - Now: Promotion succeeds, Pattern4 lowering continues
+//
+// NOTE: Full correct execution (RC=2) requires Phase 172+ JoinIR Trim lowering.
+// This test verifies promotion works, not final execution correctness.
+
+static box SkipWhitespaceP4Test {
+    main() {
+        local s = "  ab"
+        local pos = 0
+        local n = 4
+
+        loop(pos < n) {
+            local ch = s.substring(pos, pos + 1)
+            if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+                pos = pos + 1
+                continue
+            }
+            break
+        }
+
+        // Phase 223-3: Promotion success allows lowering to proceed
+        // Expected final value after Phase 172+: pos = 2
+        print(pos)
+        return pos
+    }
+}

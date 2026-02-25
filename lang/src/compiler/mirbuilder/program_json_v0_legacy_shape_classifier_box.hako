@@ -1,0 +1,51 @@
+// program_json_v0_legacy_shape_classifier_box.hako
+// Responsibility:
+// - SSOT for legacy shape_kind fallback classification used by ProgramJsonV0PhaseStateConsumerBox.
+// - Keep legacy compatibility logic isolated from recipe-first flow.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box ProgramJsonV0LegacyShapeClassifierBox {
+  classify(
+    has_print,
+    has_local,
+    has_assignment,
+    has_return,
+    print_kind,
+    return_kind,
+    retv
+  ) {
+    local shape_kind = "unknown"
+    if has_return == 1 {
+      if has_assignment == 1 {
+        if has_local == 1 && has_print == 1 && print_kind == "Var" && return_kind == "Int" {
+          if StringHelpers.to_i64(retv) == 0 { shape_kind = "phase7_inc_print_return0" }
+          else { shape_kind = "phase7_inc_print_return_int" }
+        } else { if has_local == 1 && has_print == 0 && return_kind == "Var" {
+          shape_kind = "phase2_inc_return_var"
+        } }
+      } else { if has_print == 1 {
+        if has_local == 1 && print_kind == "BinaryVarInt" && return_kind == "Int" {
+          if StringHelpers.to_i64(retv) == 0 { shape_kind = "phase9_print_binop_return0" }
+          else { shape_kind = "phase9_print_binop_return_int" }
+        } else { if has_local == 1 && print_kind == "Var" && return_kind == "Int" {
+          if StringHelpers.to_i64(retv) == 0 { shape_kind = "phase4_local_print_var_return0" }
+          else { shape_kind = "phase4_local_print_var_return_int" }
+        } else { if has_local == 1 && print_kind == "Var" && return_kind == "Var" {
+          shape_kind = "phase5_local_print_var_return_var"
+        } else { if has_local == 0 && print_kind == "Int" && return_kind == "Int" {
+          shape_kind = "phase2_print_int_return_int"
+        } } } }
+      } else {
+        if has_local == 1 && return_kind == "Var" {
+          shape_kind = "phase2_local_return_var"
+        } else { if has_local == 0 && return_kind == "Int" {
+          shape_kind = "phase1_return_int"
+        } }
+      } }
+    }
+    return shape_kind
+  }
+}
+
+static box ProgramJsonV0LegacyShapeClassifierMain { main() { return 0 } }

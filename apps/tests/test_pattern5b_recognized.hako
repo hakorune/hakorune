@@ -1,0 +1,52 @@
+// Phase 92 P2-3: P5b Test That Matches Pattern Recognizer
+//
+// This test is designed to exactly match what the pattern recognizer expects:
+// 1. Body statement with simple ch assignment
+// 2. Break check: if ch == "\"" { break }
+// 3. Escape check: if ch == "\\" { i = i + 2 } else { i = i + 1 }
+//
+// Expected behavior (simulated string "a\\b\"c"):
+// - i=0: ch='a', not quote, not escape, i=1
+// - i=1: ch='\\', not quote, IS escape, i=3
+// - i=3: ch='\"', IS quote, break
+// - Output: 3
+
+static box Main {
+    get_char(pos) {
+        // Simulate string access: "a\\b\"c"
+        // Position 0: 'a', Position 1: '\\', Position 3: '\"'
+        if pos == 1 {
+            return "\\"
+        }
+        if pos == 3 {
+            return "\""
+        }
+        return "a"
+    }
+
+    main() {
+        local i = 0
+        local len = 5
+        local ch = "a"
+
+        loop(i < len) {
+            // Body statement: simple assignment (not method call)
+            ch = me.get_char(i)
+
+            // Break check (P5b pattern requirement)
+            if ch == "\"" {
+                break
+            }
+
+            // Escape check with conditional increment (P5b pattern)
+            if ch == "\\" {
+                i = i + 2  // Escape: skip 2
+            } else {
+                i = i + 1  // Normal: skip 1
+            }
+        }
+
+        print(i)
+        return 0
+    }
+}

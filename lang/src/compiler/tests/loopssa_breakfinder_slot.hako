@@ -1,0 +1,28 @@
+// loopssa_breakfinder_slot.hako — LoopSSA/BreakFinder 用「最小失敗 JSON」スロット
+//
+// 目的:
+//   - Stage‑B 最小サンプル（stageb_min_sample.hako など）から切り出した
+//     「問題のある Program(JSON v0)」を貼り付けて、LoopSSA v2 /
+//     BreakFinderBox / PhiInjectorBox の挙動を単体で再現するためのスロットだよ。
+//   - 初期状態では loopssa_breakfinder_min.hako と同じ、単純な緑の JSON を使っておく。
+//     バグが再現できる JSON v0 が手に入ったら、下の `json` 文字列を書き換えて使う。
+//
+// 注意:
+//   - ここは「.hako パーサ → LoopSSA」経路のデバッグ専用。Stage‑B 全体ではなく、
+//     LoopSSA/BreakFinderBox 周辺の挙動だけを確認したいときに使ってね。
+//
+
+using lang.compiler.builder.ssa.loopssa as LoopSSA
+
+static box Main {
+  method main() {
+    // TODO: Stage‑B Test2 から切り出した Program(JSON v0) で上書きして使う。
+    // 現在は loopssa_breakfinder_min と同じ単純な緑の JSON だよ。
+    local json = "{\"kind\":\"Program\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"loop_header\":0,\"loop_exit\":2},{\"id\":1},{\"id\":2}]}]}"
+
+    // LoopSSA v2 を直接呼び出す（Exit PHI パスのみ）
+    local out = LoopSSA.stabilize_merges(json)
+    print(out)
+    return 0
+  }
+}

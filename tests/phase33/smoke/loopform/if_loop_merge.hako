@@ -1,0 +1,65 @@
+// LoopForm Smoke Test 3: if-else + loop + merge
+// Tests complex control flow with loopform
+//
+// Expected behavior (when C++ backend implements loopform):
+//   - Conditional branch before loop
+//   - Loop with early exit (break)
+//   - Merge point after loop
+//   - Return merged result
+
+using "lang/src/llvm_ir/instructions/loopform.hako" as LoopFormInst
+
+static box Main {
+  main() {
+    print("=== LoopForm Smoke Test 3: if_loop_merge ===")
+
+    // Simulate: if (cond) { while (i < 3) { if (i == 2) break; i++; } }
+    local blocks = new MapBox()
+    blocks.set("preheader", 20)
+    blocks.set("header", 21)
+    blocks.set("body", 22)
+    blocks.set("dispatch", 23)
+    blocks.set("latch", 24)
+    blocks.set("exit", 25)
+
+    // Use guard to combine condition and structural limit
+    local options = new MapBox()
+    options.set("mode", "mir")
+    options.set("use_guard", 1)
+    options.set("payload_max", 1000000)
+    options.set("enable_safepoint", 1)
+
+    // Generate loopform JSON
+    local json = LoopFormInst.lower_loopform(3, blocks, 30, options)
+
+    // Verify JSON structure
+    local has_loopform = json.indexOf("\"op\":\"loopform\"")
+    if has_loopform < 0 {
+      print("ERROR: loopform op not found")
+      return 1
+    }
+
+    local has_guard = json.indexOf("\"use_guard\":true")
+    if has_guard < 0 {
+      print("ERROR: use_guard not found")
+      return 1
+    }
+
+    local has_dispatch_tag = json.indexOf("\"tag\"")
+    if has_dispatch_tag < 0 {
+      print("ERROR: dispatch tag PHI not found")
+      return 1
+    }
+
+    local has_dispatch_payload = json.indexOf("\"payload\"")
+    if has_dispatch_payload < 0 {
+      print("ERROR: dispatch payload PHI not found")
+      return 1
+    }
+
+    print("✓ PASS: if_loop_merge loopform generated")
+    print("Note: Actual loop execution requires C++ backend implementation")
+
+    return 0
+  }
+}

@@ -1,0 +1,12 @@
+// ok.hako — restricted-loop compliant
+
+static box Main {
+  method main(args) {
+    local i = 0
+    loop (i < 3) {
+      ConsoleBox.println("x")
+      i = i + 1
+    }
+    return 0
+  }
+}

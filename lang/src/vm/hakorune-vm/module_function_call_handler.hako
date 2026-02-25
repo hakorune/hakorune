@@ -1,0 +1,97 @@
+// ModuleFunctionCallHandlerBox - Handle ModuleFunction calls
+// Single Responsibility: Execute static box methods (e.g., StringHelpers.int_to_str)
+
+using selfhost.vm.boxes.result_box as Result
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.hakorune-vm.value_manager as ValueManagerBox
+using selfhost.vm.hakorune-vm.args_extractor as ArgsExtractorBox
+using selfhost.vm.hakorune-vm.core_bridge_ops as CoreBridgeOps
+
+static box ModuleFunctionCallHandlerBox {
+  // TTL: Delegation policy (Phase 20.17 — P1 audit complete)
+  // - Delegated to CoreBridgeOps (collections): ArrayBox.len/0, MapBox.len/0
+  // - Local (string helpers): StringHelpers.int_to_str/1, to_i64/1, json_quote/1,
+  //   is_numeric_str/1, read_digits/2 — Core string boxが整備されるまで本ハンドラで処理
+  //   （20.18+ 段階移行）。HostBridge への経路は最小に保ち、実装の重複を避ける。
+  // Handle module function call
+  // name: module function name (e.g., "StringHelpers.int_to_str")
+  // args_array: ArrayBox containing argument values
+  // dst_reg: destination register (null if no return value)
+  // regs: register MapBox
+  // Returns: Result.Ok(0) or Result.Err(message)
+  handle(mir_call_json, name, args_array, dst_reg, regs) {
+    // Phase 2 MVP: Explicit dispatch for common module functions
+    // Note: call() requires string literal target, so we dispatch explicitly
+    // Future: Extend with more module functions as needed
+
+    local result_val
+    local argc = args_array.length()
+    local want_name = me._canonical_name(name, argc)
+
+    local core_shortcut = CoreBridgeOps.try_modulefn_collection(name, mir_call_json, args_array, dst_reg, regs)
+    if core_shortcut != null {
+      return core_shortcut
+    }
+
+    // StringHelpers.int_to_str/1
+    if want_name == "StringHelpers.int_to_str/1" {
+      if argc != 1 {
+        return Result.Err("module_function: StringHelpers.int_to_str expects 1 arg, got " + StringHelpers.int_to_str(argc))
+      }
+      result_val = StringHelpers.int_to_str(args_array.get(0))
+    }
+    else {
+      // StringHelpers.to_i64/1
+      if want_name == "StringHelpers.to_i64/1" {
+        if argc != 1 {
+          return Result.Err("module_function: StringHelpers.to_i64 expects 1 arg, got " + StringHelpers.int_to_str(argc))
+        }
+        result_val = StringHelpers.to_i64(args_array.get(0))
+      }
+      else {
+        // StringHelpers.json_quote/1
+        if want_name == "StringHelpers.json_quote/1" {
+          if argc != 1 {
+            return Result.Err("module_function: StringHelpers.json_quote expects 1 arg, got " + StringHelpers.int_to_str(argc))
+          }
+          result_val = StringHelpers.json_quote(args_array.get(0))
+        }
+        else {
+          // StringHelpers.is_numeric_str/1
+          if want_name == "StringHelpers.is_numeric_str/1" {
+            if argc != 1 {
+              return Result.Err("module_function: StringHelpers.is_numeric_str expects 1 arg, got " + StringHelpers.int_to_str(argc))
+            }
+            result_val = StringHelpers.is_numeric_str(args_array.get(0))
+          }
+          else {
+            // StringHelpers.read_digits/2
+            if want_name == "StringHelpers.read_digits/2" {
+              if argc != 2 {
+                return Result.Err("module_function: StringHelpers.read_digits expects 2 args, got " + StringHelpers.int_to_str(argc))
+              }
+              result_val = StringHelpers.read_digits(args_array.get(0), args_array.get(1))
+            }
+            else {
+              // Unsupported module function
+              return Result.Err("module_function: unsupported function: " + want_name)
+            }
+          }
+        }
+      }
+    }
+
+    // Store result in destination register
+    if dst_reg != null {
+      ValueManagerBox.set(regs, dst_reg, result_val)
+    }
+
+    return Result.Ok(0)
+  }
+
+  _canonical_name(name, argc) {
+    if name == null { return "" }
+    if name.indexOf("/") >= 0 { return name }
+    return name + "/" + StringHelpers.int_to_str(argc)
+  }
+}

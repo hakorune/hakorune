@@ -1,0 +1,37 @@
+// Phase 29bq parser handoff Tier-3: null compare/logic init + fini + cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local v = null fini {
+        if v == null {
+          out = out + 30
+        } else {
+          out = out + 3
+        }
+      }
+
+      local flag = (v == null) && (null == null) fini {
+        if flag {
+          out = out + 40
+        } else {
+          out = out + 4
+        }
+      }
+
+      if flag {
+        out = out + 5
+      } else {
+        out = out + 1
+      }
+
+      v = "ok"
+      flag = (v == null) || (v != null)
+    } cleanup {
+      out = out + 1500
+    }
+
+    print(out)
+    return 0
+  }
+}

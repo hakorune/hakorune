@@ -1,0 +1,337 @@
+// Exit PHI - PhiInjectorBox
+// Purpose:
+//   - BreakFinderBox が検出した break 情報をもとに、loop exit block へ PHI 相当命令を注入する箱だよ。
+//   - 現状は文字列ベースの簡易実装（synthetic value_id など）だが、将来的には ControlFormBox/LoopScope ベースに差し替える予定。
+// Input:
+//   - json_str: Program(JSON v0) 文字列
+//   - breaks: Array of MapBox（BreakFinderBox 由来: {block_id, exit_id, loop_header}）
+//   - trace_flag: 0 = silent, 1 = dev trace ON（LoopSSA から渡される）
+// Output:
+//   - Modified Program(JSON v0) 文字列（exit block の instructions 先頭に PHI 相当 JSON を挿入）
+
+	static box PhiInjectorBox {
+	  // Main entry: inject PHI nodes for all breaks
+	  // trace_flag: 0 = silent, 1 = dev trace ON（LoopSSA から伝播）
+	  inject_exit_phis(json_str, breaks, trace_flag) {
+	    local trace = trace_flag
+	    if trace == 1 {
+	      print("[phi-injector] start, breaks: " + breaks.length())
+	    }
+	
+	    if breaks.length() == 0 {
+	      if trace == 1 {
+	        print("[phi-injector] no breaks, skipping")
+	      }
+	      return json_str
+	    }
+	
+	    local result = json_str
+	
+	    // Group breaks by exit_id
+	    local exit_groups = me._group_by_exit(breaks)
+	
+	    if trace == 1 {
+	      print("[phi-injector] processing " + exit_groups.length() + " exit blocks")
+	    }
+
+	    // For each exit block, inject PHI nodes
+	    local i = 0
+	    local n = exit_groups.length()
+	    loop(i < n) {
+	      local group = exit_groups.get(i)
+	      local exit_id = "" + group.get("exit_id")
+	      local break_list = group.get("breaks")
+	      // Optional: LoopControl を取り出して v2 実装の観測に使えるようにする
+	      local loop_cf = group.get("loop_control")
+	
+	      if trace == 1 {
+	        print("[phi-injector] exit " + exit_id + " has " + break_list.length() + " breaks")
+	        // 将来の v2 実装に備えて、ControlForm 情報も軽く観測しておく（現在はログのみ）
+	        if loop_cf != null {
+	          print("[phi-injector/v2] loop_control present for exit " + exit_id)
+	        }
+	      }
+
+	      // Collect variable snapshots from all breaks
+	      local phi_vars = me._collect_phi_vars(result, break_list)
+	
+	      // v2 用の入口（観測専用・現在は未使用）
+	      // 将来的には loop_cf / Carrier/Pinned に基づいて phi_vars を構築し直す。
+	      if trace == 1 && loop_cf != null {
+	        // Stub: v2 経路が有効化されたときにここから差し替える想定だよ。
+	        // local phi_vars_v2 = me._collect_phi_vars_v2(result, break_list, loop_cf)
+	        // （現時点ではログのみで、実際の PHI 生成には使わない）
+	        print("[phi-injector/v2] (stub) would collect phi vars via ControlFormBox for exit " + exit_id)
+	      }
+
+	      if phi_vars.length() > 0 {
+	        // Inject PHI instructions
+	        result = me._inject_phis_at_block(result, exit_id, phi_vars)
+	
+	        if trace == 1 {
+	          print("[phi-injector] injected " + phi_vars.length() + " PHI nodes at exit " + exit_id)
+	        }
+	      }
+
+      i = i + 1
+    }
+
+    return result
+  }
+
+	  // Group breaks by exit_id
+	  _group_by_exit(breaks) {
+	    local groups = new ArrayBox()
+	    local exit_ids = new ArrayBox()
+
+    local i = 0
+    local n = breaks.length()
+    loop(i < n) {
+	      local break_info = breaks.get(i)
+	      local exit_id = "" + break_info.get("exit_id")
+
+      // Find or create group
+      local group_idx = me._find_exit_group(exit_ids, exit_id)
+	      if group_idx < 0 {
+	        // New group
+	        local new_group = new MapBox()
+	        new_group.set("exit_id", exit_id)
+	        local break_list = new ArrayBox()
+	        break_list.push(break_info)
+	        new_group.set("breaks", break_list)
+	        // v2 用に loop_control もグループに添付しておく（同じ exit_id なら同じループとみなす）
+	        local lc = break_info.get("loop_control")
+	        if lc != null { new_group.set("loop_control", lc) }
+	        groups.push(new_group)
+	        exit_ids.push(exit_id)
+      } else {
+        // Add to existing group
+        local existing_group = groups.get(group_idx)
+        local break_list = existing_group.get("breaks")
+        break_list.push(break_info)
+      }
+
+      i = i + 1
+    }
+
+    return groups
+  }
+
+  // Find group index for exit_id
+  _find_exit_group(exit_ids, target_id) {
+    local i = 0
+    local n = exit_ids.length()
+    loop(i < n) {
+      if ("" + exit_ids.get(i)) == target_id { return i }
+      i = i + 1
+    }
+    return -1
+  }
+
+	  // Collect variables that need PHI nodes
+	  _collect_phi_vars(json_str, break_list) {
+	    local vars = new ArrayBox()
+	    local var_names = new ArrayBox()
+	
+	    // NOTE (v1/MVP):
+	    //   現在は「よくある変数名」を固定リストで見る簡易版だよ。
+	    //   - 長所: 実装が単純で、Stage‑B 最小ケースの観測には十分。
+	    //   - 短所: 真の Carrier/Pinned を見ていないので、網羅性はない（将来撤退予定）。
+	    //
+	    // v2 では:
+	    //   - BreakFinderBox / ControlFormBox / LoopSSA から LoopScope 情報を受け取り、
+	    //   - Carrier だけを対象に exit PHI を構築する形に差し替える予定だよ。
+	    //   - common_vars のハードコードは v2 実装時に削除する（箱理論 5.1: ハードコード禁止）。
+	    //
+	    // For MVP, assume common variables: i, n, item, etc.
+	    // In full implementation, would trace actual variable definitions
+    local common_vars = new ArrayBox()
+    common_vars.push("i")
+    common_vars.push("n")
+    common_vars.push("item")
+    common_vars.push("j")
+    common_vars.push("count")
+    common_vars.push("val")
+
+    local i = 0
+    local n = common_vars.length()
+    loop(i < n) {
+      local var_name = "" + common_vars.get(i)
+
+      // Check if this var is used in any break block
+      local j = 0
+      local m = break_list.length()
+      local found = 0
+      loop(j < m) {
+        local break_info = break_list.get(j)
+        local block_id = "" + break_info.get("block_id")
+
+        if me._block_uses_var(json_str, block_id, var_name) == 1 {
+          found = 1
+          break
+        }
+
+        j = j + 1
+      }
+
+      if found == 1 {
+        // Create PHI var info
+        local phi_var = new MapBox()
+        phi_var.set("name", var_name)
+
+        // Collect values from all incoming paths
+        local incoming = new ArrayBox()
+
+        local k = 0
+        loop(k < break_list.length()) {
+          local break_info = break_list.get(k)
+          local block_id = "" + break_info.get("block_id")
+          local value_id = me._get_var_value(json_str, block_id, var_name)
+
+          local inc = new MapBox()
+          inc.set("block", block_id)
+          inc.set("value", value_id)
+          incoming.push(inc)
+
+          k = k + 1
+        }
+
+        phi_var.set("incoming", incoming)
+        vars.push(phi_var)
+      }
+
+      i = i + 1
+    }
+
+    return vars
+  }
+
+  // Check if block uses variable
+  _block_uses_var(json_str, block_id, var_name) {
+    local s = "" + json_str
+    local block_start = me._find_block(s, block_id)
+    if block_start < 0 { return 0 }
+
+    // Look for variable reference in block (simplified)
+    local var_pattern = "\"name\":\"" + var_name + "\""
+    local var_pos = me._indexOf(s, var_pattern, block_start)
+    if var_pos < 0 || var_pos > block_start + 1000 { return 0 }
+
+    return 1
+  }
+
+	  // Get variable value in block (simplified - return synthetic value ID)
+	  _get_var_value(json_str, block_id, var_name) {
+	    // For MVP, generate synthetic value IDs based on block and var.
+	    // Format: "r{block_id}_{var_name}" という「ダミー SSA ID」を返しているだけだよ。
+	    //
+	    // v2 では:
+	    //   - JSON v0 から本当の SSA ValueId を追跡するか、
+	    //   - Rust 側 LoopForm v2 / MirSchemaBox から得た補助情報を元に、
+	    //     exit PHI に正しい value_id を配線する設計に差し替える。
+	    //   - この synthetic フォーマットは「観測専用」の一時的なものとして扱う。
+	    //
+	    // In full implementation, would trace actual SSA values
+	    return "r" + block_id + "_" + var_name
+	  }
+
+  // Inject PHI instructions at block start
+  _inject_phis_at_block(json_str, block_id, phi_vars) {
+    local s = "" + json_str
+
+    // Find block definition
+    local block_start = me._find_block(s, block_id)
+    if block_start < 0 { return json_str }
+
+    // Find instructions array start
+    local inst_start = me._indexOf(s, "\"instructions\":[", block_start)
+    if inst_start < 0 || inst_start > block_start + 500 { return json_str }
+
+    // Generate PHI instructions JSON
+    local phi_json = me._generate_phi_json(phi_vars)
+
+    // Insert after '[' of instructions array
+    local insert_pos = inst_start + 16  // len("\"instructions\":[")
+
+    // Check if there are existing instructions
+    local s_after = s.substring(insert_pos, insert_pos + 10)
+    local needs_comma = 0
+    if me._indexOf(s_after, "{", 0) >= 0 && me._indexOf(s_after, "{", 0) < 5 {
+      needs_comma = 1
+    }
+
+    local prefix = s.substring(0, insert_pos)
+    local suffix = s.substring(insert_pos, s.length())
+
+    if needs_comma == 1 {
+      return prefix + phi_json + "," + suffix
+    } else {
+      return prefix + phi_json + suffix
+    }
+  }
+
+  // Generate PHI instructions JSON
+  _generate_phi_json(phi_vars) {
+    local result = ""
+
+    local i = 0
+    local n = phi_vars.length()
+    loop(i < n) {
+      local phi_var = phi_vars.get(i)
+      local var_name = "" + phi_var.get("name")
+      local incoming = phi_var.get("incoming")
+
+      // Generate unique value_id for PHI result (start from 9000)
+      local value_id = 9000 + i
+
+      if i > 0 { result = result + "," }
+
+      result = result + "{\"op\":\"phi\",\"result\":\"r" + value_id + "\""
+      result = result + ",\"incoming\":["
+
+      // Add incoming values
+      local j = 0
+      local m = incoming.length()
+      loop(j < m) {
+        local inc = incoming.get(j)
+        local block = "" + inc.get("block")
+        local value = "" + inc.get("value")
+
+        if j > 0 { result = result + "," }
+        result = result + "{\"block\":\"" + block + "\",\"value\":\"" + value + "\"}"
+
+        j = j + 1
+      }
+
+      result = result + "]"
+      result = result + ",\"comment\":\"exit_phi_" + var_name + "\"}"
+
+      i = i + 1
+    }
+
+    return result
+  }
+
+  // Find block by id in JSON
+  _find_block(json_str, block_id) {
+    local s = "" + json_str
+    local pattern = "\"id\":" + block_id
+    return me._indexOf(s, pattern, 0)
+  }
+
+  // Simple indexOf implementation
+  _indexOf(str, pattern, start) {
+    local s = "" + str
+    local p = "" + pattern
+    local slen = s.length()
+    local plen = p.length()
+    local i = start
+
+    loop(i + plen <= slen) {
+      if s.substring(i, i + plen) == p { return i }
+      i = i + 1
+    }
+
+    return -1
+  }
+}

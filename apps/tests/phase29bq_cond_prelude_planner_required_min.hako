@@ -1,0 +1,28 @@
+// Phase B4: condition prelude in planner-required paths (CondBlockView prelude)
+//
+// Goal: allow `if ({ prelude; cond }) { ... }` inside planner-required lowering.
+//
+// Expected: stdout=0, RC=0
+static box Main {
+  main() {
+    local i = 0
+    local sum = 0
+
+    loop(i < 1) {
+      if ({
+        local x = i
+        x == 0
+      }) {
+        sum = sum + 1
+      }
+      i = i + 1
+    }
+
+    if sum != 1 {
+      print(1)
+      return 0
+    }
+    print(0)
+    return 0
+  }
+}

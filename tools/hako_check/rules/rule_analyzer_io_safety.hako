@@ -1,0 +1,74 @@
+using tools.hako_check.text_ops as TextOps
+// tools/hako_check/rules/rule_analyzer_io_safety.hako — HC021: Analyzer IO Safety
+// Detects analyzer rules that perform direct I/O operations (FileBox, NetworkBox, etc.)
+// Analyzer rules should receive all data through method parameters (CLI-internal push approach).
+
+static box RuleAnalyzerIoSafetyBox {
+  method apply(text, path, out) {
+    if text == null { return 0 }
+
+    // Only check files that look like analyzer rules (contain "Box" and "apply")
+    if text.indexOf("Box") < 0 || text.indexOf("apply") < 0 {
+      return 0
+    }
+
+    local lines = me._split_lines(text)
+    me._scan_lines(lines, 0, path, out)
+
+    return out.size()
+  }
+  _scan_lines(lines, i, path, out) {
+    if i >= lines.size() { return }
+    local ln = lines.get(i)
+    local line_num = i + 1
+
+    // Remove comments for analysis
+    local comment_pos = ln.indexOf("//")
+    local code = ln
+    if comment_pos >= 0 {
+      code = ln.substring(0, comment_pos)
+    }
+
+    // Check for FileBox instantiation
+    if code.indexOf("new FileBox") >= 0 {
+      local msg = "[HC021] analyzer rule uses direct file I/O (new FileBox): use CLI-internal push approach instead"
+      out.push(msg + " :: " + path + ":" + me._itoa(line_num))
+    }
+
+    // Check for file operations (even on passed-in FileBox)
+    if code.indexOf(".open(") >= 0 || code.indexOf(".read(") >= 0 || code.indexOf(".write(") >= 0 {
+      local msg = "[HC021] analyzer rule uses file operations: use CLI-internal push approach instead"
+      out.push(msg + " :: " + path + ":" + me._itoa(line_num))
+    }
+
+    // Check for other dangerous I/O boxes
+    if code.indexOf("new NetworkBox") >= 0 || code.indexOf("new SocketBox") >= 0 {
+      local msg = "[HC021] analyzer rule uses network I/O: use CLI-internal push approach instead"
+      out.push(msg + " :: " + path + ":" + me._itoa(line_num))
+    }
+
+    me._scan_lines(lines, i + 1, path, out)
+  }
+
+  _split_lines(s) {
+    local arr = new ArrayBox()
+    if s == null { return arr }
+    local n = s.length()
+    local last = 0
+    local i = 0
+    loop(i < n) {
+      local ch = s.substring(i, i+1)
+      if ch == "\n" {
+        arr.push(s.substring(last, i))
+        last = i + 1
+      }
+      i = i + 1
+    }
+    if last <= n { arr.push(s.substring(last)) }
+    return arr
+  }
+
+  _itoa(n) { return TextOps._itoa(n) }
+}
+
+static box RuleAnalyzerIoSafetyMain { method main(args) { return 0 } }

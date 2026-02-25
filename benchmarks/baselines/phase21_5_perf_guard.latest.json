@@ -1,0 +1,15 @@
+{
+  "phase": "21.5",
+  "generated_at": "2026-02-20T20:09:42.321164+00:00",
+  "unit": "ms",
+  "rounds": 1,
+  "warmup": 1,
+  "repeat": 1,
+  "numeric_mixed_medium_ny_aot_ms": 8,
+  "apps_vm_total_ms": 582,
+  "apps_vm_per_app_ms": {
+    "controlflow_probe": 55,
+    "gate_log_summarizer": 16,
+    "mir_shape_guard": 511
+  }
+}

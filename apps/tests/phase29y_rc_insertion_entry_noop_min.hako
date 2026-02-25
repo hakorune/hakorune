@@ -1,0 +1,17 @@
+// Phase 29y.1 Task 2: RC insertion pass entry contract fixture (minimal)
+// Contract:
+// - Default build keeps pass as no-op entry (behavior unchanged).
+// - Program remains runnable with overwrite shape present.
+
+static box Main {
+    main() {
+        local v = 1
+        v = 2
+        if v == 2 {
+            print("ok: rc insertion entry noop")
+            return 0
+        }
+        print("ng: unexpected value")
+        return 1
+    }
+}

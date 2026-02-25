@@ -1,0 +1,49 @@
+// emit_mir_json_v0.hako (Phase-0)
+// Responsibility:
+// - Read Program(JSON v0) from env HAKO_PROGRAM_JSON_FILE (FileBox)
+// - Or accept env HAKO_PROGRAM_JSON directly (legacy / small payloads)
+// - Emit MIR JSON v0 to stdout (single line)
+//
+// Fail-fast:
+// - All errors start with: [freeze:contract][hako_mirbuilder]
+
+static box Main {
+  main() {
+    local tag = "[freeze:contract][hako_mirbuilder]"
+
+    local program_json = env.get("HAKO_PROGRAM_JSON")
+    if program_json == null || ("" + program_json) == "" {
+      local path = env.get("HAKO_PROGRAM_JSON_FILE")
+      if path == null || ("" + path) == "" {
+        print(tag + " missing HAKO_PROGRAM_JSON (or HAKO_PROGRAM_JSON_FILE)")
+        return 2
+      }
+
+      local fb = new FileBox()
+      local ok = fb.open("" + path, "r")
+      if ok != 1 {
+        print(tag + " failed to open HAKO_PROGRAM_JSON_FILE: " + path)
+        return 2
+      }
+      program_json = fb.read()
+      fb.close()
+
+      if program_json == null || ("" + program_json) == "" {
+        print(tag + " empty HAKO_PROGRAM_JSON_FILE: " + path)
+        return 2
+      }
+    }
+
+    // ExternCall form (Phase-0): env.mirbuilder_emit(program_json)
+    // Note: `env.<iface>.<method>` is not a surface syntax in the Rust parser yet.
+    local mir_json = env.mirbuilder_emit("" + program_json)
+
+    if mir_json == null || ("" + mir_json) == "" {
+      print(tag + " env.mirbuilder.emit returned null/empty")
+      return 2
+    }
+
+    print("" + mir_json)
+    return 0
+  }
+}

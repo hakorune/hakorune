@@ -1,0 +1,50 @@
+// Phase 92 P2-3: Minimal P5b E2E Test
+//
+// This is a MINIMAL test to verify ConditionalStep emission works.
+// Pattern: Loop with break check + conditional increment (P5b escape pattern)
+//
+// Expected behavior:
+// - i=0: not quote, not escape, i=1
+// - i=1: not quote, not escape, i=2
+// - i=2: not quote, IS escape, i=4
+// - i=4: IS quote, break
+// - Output: 4
+
+static box Main {
+    main() {
+        local i = 0
+        local len = 10
+        local ch = "a"
+        local str = "ab\\cd\"ef"
+
+        loop(i < len) {
+            // Body statement: Simulate character access from string
+            // In real parser, this would be: ch = str.charAt(i)
+            // Here we simplify by checking position
+            if i == 2 {
+                ch = "\\"  // Position 2: backslash
+            } else {
+                if i == 4 {
+                    ch = "\""  // Position 4: quote
+                } else {
+                    ch = "a"  // Other positions: normal char
+                }
+            }
+
+            // Break check (P5b pattern requirement)
+            if ch == "\"" {
+                break
+            }
+
+            // Escape check with conditional increment (P5b pattern)
+            if ch == "\\" {
+                i = i + 2  // Escape: skip 2
+            } else {
+                i = i + 1  // Normal: skip 1
+            }
+        }
+
+        print(i)
+        return 0
+    }
+}

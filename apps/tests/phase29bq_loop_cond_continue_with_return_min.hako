@@ -1,0 +1,44 @@
+// loop(cond) continue-with-return minimal
+// Expected: stdout=0, RC=0 (early exit at out.length() >= 2)
+static box Main {
+  main() {
+    local s = "a//b\nc"
+    local out = ""
+    local i = 0
+    local n = s.length()
+    local in_line = 0
+
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+
+      // Early exit condition (trigger at length 2)
+      if out.length() >= 2 {
+        return 0
+      }
+
+      if in_line == 1 {
+        if ch == "\n" {
+          in_line = 0
+          out = out + ch
+        }
+        i = i + 1
+        continue
+      }
+
+      if ch == "/" && i + 1 < n {
+        local ch2 = s.substring(i + 1, i + 2)
+        if ch2 == "/" {
+          in_line = 1
+          i = i + 2
+          continue
+        }
+      }
+
+      out = out + ch
+      i = i + 1
+    }
+
+    print(out.length())
+    return 0
+  }
+}

@@ -1,0 +1,26 @@
+// loopform_break_and_return.hako
+// 目的: header-cond + break + early-return が混在するループをスモークする
+
+static box Main {
+  compute(limit) {
+    local i = 0
+    // Case A: header-cond (i < limit)
+    loop(i < limit) {
+      if i == 5 { return -1 }      // 早期 return（exit PHI 非対象）
+      if i >= limit - 1 { break }  // exit-break
+      i = i + 1
+    }
+    return i
+  }
+
+  main(args) {
+    // limit が小さい場合は break 経路で終了
+    local r1 = Main.compute(3)
+    print(r1)
+    // limit が大きい場合は i==5 で早期 return
+    local r2 = Main.compute(10)
+    print(r2)
+    return 0
+  }
+}
+

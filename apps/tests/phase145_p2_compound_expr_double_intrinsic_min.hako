@@ -1,0 +1,24 @@
+// Phase 145 P2: Compound expression with two MethodCall operands
+// Pattern: s1.length() + s2.length()
+// Expected: t1 = s1.length(); t2 = s2.length(); result = t1 + t2
+// Exit code: 5 (2 + 3 = 5)
+
+static box Main {
+    main() {
+        local s1
+        s1 = "Hi"  // length = 2
+
+        local s2
+        s2 = "Bye"  // length = 3
+
+        // Compound expression: s1.length() + s2.length()
+        // Should normalize to:
+        //   t1 = s1.length()  (= 2)
+        //   t2 = s2.length()  (= 3)
+        //   result = t1 + t2  (= 2 + 3 = 5)
+        local result
+        result = s1.length() + s2.length()
+
+        return result
+    }
+}

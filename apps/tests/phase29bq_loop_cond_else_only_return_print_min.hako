@@ -1,0 +1,16 @@
+// loop(cond) else-only return with print prelude (effect) inside loop
+// Expected: stdout="OK", RC=0
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 2) {
+      if i == 0 {
+        i = i + 1
+      } else {
+        print("OK")
+        return 0
+      }
+    }
+    return 0
+  }
+}

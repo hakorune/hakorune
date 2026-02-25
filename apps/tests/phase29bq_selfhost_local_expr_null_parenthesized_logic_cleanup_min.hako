@@ -1,0 +1,36 @@
+// Phase 29bq parser handoff Tier-2: local init with parenthesized null-logic + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local n = null
+      local s = "ok"
+      local t = null
+
+      local cond1 = ((n == null) && (s != null)) || (t != null)
+      if cond1 {
+        out = out + 18
+      } else {
+        out = out + 1
+      }
+
+      local cond2 = ((n != null) || (s == null)) && ((t == null) || (n == null))
+      if cond2 {
+        out = out + 20
+      } else {
+        out = out + 2
+      }
+
+      local cond3 = ((n == null) && ((s == null) || (t == null))) && (s != null)
+      if cond3 {
+        out = out + 180
+      } else {
+        out = out + 3
+      }
+    } cleanup {
+      out = out + 1800
+    }
+    print(out)
+    return 0
+  }
+}

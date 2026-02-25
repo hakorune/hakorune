@@ -1,0 +1,23 @@
+static box Main {
+  main(args) {
+    local x = args
+    if x == null {
+      x = new ArrayBox()
+      x.push("default")
+      if x.length() > 0 {
+        local status = "initialized"
+        if x.get(0) != null {
+          status = "has_value: " + x.length()
+        }
+        print("Status: " + status)
+      }
+    } else if x.length() >= 0 {
+      print("Length: " + ("" + x.length()))
+    }
+    if x == null {
+      return 1
+    }
+    print("Final length: " + ("" + x.length()))
+    return 0
+  }
+}

@@ -1,0 +1,16 @@
+// Phase 29ao P21: Pattern1 subset reject (extra body statement)
+// Expected: return 3 (sum increments each iteration)
+
+static box Main {
+    main() {
+        local i
+        local sum
+        i = 0
+        sum = 0
+        loop(i < 3) {
+            sum = sum + 1
+            i = i + 1
+        }
+        return sum
+    }
+}

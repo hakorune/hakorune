@@ -1,0 +1,12 @@
+// Phase 29y.1 Task 2b: overwrite release minimal fixture
+// Contract:
+// - Shape contains exactly one overwrite (`x = 2` after `x = 1`).
+// - With `rc-insertion-minimal`, MIR should include one `release_strong` for old value.
+
+static box Main {
+    main() {
+        local x = 1
+        x = 2
+        return 0
+    }
+}

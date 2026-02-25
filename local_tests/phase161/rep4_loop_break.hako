@@ -1,0 +1,17 @@
+// Phase 161 Representative Function 4: Loop with Break Statement
+// Pattern: Loop with break that creates multiple exit paths
+// Tests: Loop with multiple exits, break target resolution, exit PHI merge
+
+box Main {
+    main() {
+        local i = 0
+
+        loop(true) {
+            if i == 5 {
+                break
+            }
+            print(i)
+            i = i + 1
+        }
+    }
+}

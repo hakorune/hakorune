@@ -1,0 +1,35 @@
+// Phase 163: Test linear search with break (Pattern2)
+// Simulates: loop(j < len) { if found { break } j++ }
+
+static box Main {
+  main(args) {
+    // Simulate searching for a value in an array
+    local target = "needle"
+    local search_list = new ArrayBox()
+    search_list.push("apple")
+    search_list.push("banana")
+    search_list.push("needle")
+    search_list.push("cherry")
+
+    local j = 0
+    local found = 0
+    local search_len = search_list.length()
+
+    loop(j < search_len) {
+      local item = search_list.get(j)
+      if item == target {
+        found = 1
+        break
+      }
+      j = j + 1
+    }
+
+    if found == 1 {
+      print("Found at index: " + ("" + j))
+    } else {
+      print("Not found")
+    }
+
+    return 0
+  }
+}

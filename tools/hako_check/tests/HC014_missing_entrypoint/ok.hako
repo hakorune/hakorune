@@ -1,0 +1,14 @@
+// ok.hako — has Main.main entrypoint
+
+static box Helper {
+  method calculate(x) {
+    return x * 2
+  }
+}
+
+static box Main {
+  method main() {
+    Helper.calculate(42)
+    return 0
+  }
+}

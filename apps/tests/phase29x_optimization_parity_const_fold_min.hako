@@ -1,0 +1,13 @@
+// Phase 29x X64: optimization parity fixture (const_fold track)
+// Contract:
+// - optimize ON/OFF must preserve stdout equivalence.
+// - expression/result path uses arithmetic chain that optimizer may touch.
+
+static box Main {
+    main() {
+        local x = 1 + 2
+        local y = x + 3
+        print(y)
+        return y
+    }
+}

@@ -1,0 +1,33 @@
+// Minimal fixture for group-if with nested loop (FIRST loop pattern)
+// Pattern: group-if { nested-loop; fallthrough-mutation; continue } (ALL paths end with continue)
+// Source: JsonFragBox._decode_escapes/1 first loop (json_frag.hako line 25-40)
+// Key: group-if with nested loop inside, but ALL paths end with continue (no join needed)
+static box Main {
+  main() {
+    local n = 5
+    local out = ""
+    local i = 0
+
+    loop(i < n) {
+      // group-if where ALL paths end with continue
+      if i == 2 {
+        // nested loop (hex-parsing equivalent)
+        local k = 0
+        loop(k < 2) {
+          out = out + "L"
+          k = k + 1
+        }
+        // fallthrough mutation INSIDE group-if, then continue
+        out = out + "X"
+        i = i + 1
+        continue
+      }
+      // Fallback (outside group-if)
+      out = out + "F"
+      i = i + 1
+    }
+
+    print(0)
+    return 0
+  }
+}

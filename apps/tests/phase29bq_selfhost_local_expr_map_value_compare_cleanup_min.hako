@@ -1,0 +1,28 @@
+// Phase 29bq parser handoff Tier-2: map lookup-ish path + compare + || + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local m = new MapBox()
+      m.set("alpha", 7)
+      m.set("beta", 5)
+      local cond_a = (m.get("alpha") != null) || (m.get("none") == 1)
+      if cond_a {
+        out = out + 12
+      } else {
+        out = out + 1
+      }
+
+      local cond_b = (m.get("beta") != null) || (m.get("none") != null)
+      if cond_b {
+        out = out + 13
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 2500
+    }
+    print(out)
+    return 0
+  }
+}

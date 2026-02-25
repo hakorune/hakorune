@@ -1,0 +1,28 @@
+// Phase 29bq parser handoff Tier-2: local init with composite boolean expr (! + null compare + numeric compare) + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local s = null
+      local x = 10
+
+      local cond1 = !(s != null) && ((x + 2) > 10)
+      if cond1 {
+        out = out + 7
+      } else {
+        out = out + 1
+      }
+
+      local cond2 = !(x < 5) && (s == null)
+      if cond2 {
+        out = out + 70
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 700
+    }
+    print(out)
+    return 0
+  }
+}

@@ -1,0 +1,321 @@
+[package]
+name = "nyash-rust"
+version = "0.1.0"
+edition = "2021"
+authors = ["Claude Code <claude@anthropic.com>"]
+description = "Everything is Box in Rust - Ultimate Memory Safe Nyash Implementation"
+license = "MIT"
+repository = "https://github.com/user/nyash"
+keywords = ["language", "interpreter", "box", "memory-safe", "rust"]
+categories = ["development-tools::parsing", "interpreters"]
+
+# Default features - minimal CLI only
+[features]
+default = ["cli", "plugins"]
+# Legacy features removed - archive cleaned up
+e2e = []
+cli = []
+legacy-tests = [] # Legacy/phi-off test suites (pre-JoinIR). Disabled by default.
+plugins-only = []
+builtin-core = []
+builtin-filebox = []  # Enable built-in FileBox provider (SSOT)
+## Silence check-cfg warnings for historical cfg guards (kept off by default)
+vm-legacy = []
+phi-legacy = []
+## JIT-direct only mode: disable legacy VM-arg fallback and plugin-builtins branches
+## (keeps code compiling; VM-integrated JIT paths remain but are inert)
+jit-direct-only = []
+gui = ["dep:egui", "dep:eframe", "dep:egui_extras", "dep:image"]
+gui-examples = ["gui"]
+all-examples = ["gui-examples"]
+dynamic-file = []
+wasm-backend = ["dep:wasmtime", "dep:wabt"]
+# Dev-only normalized JoinIR experiment (Pattern1)
+normalized_dev = []
+# TLV C shim wiring (default OFF): enables optional dependency `nyash-tlv`
+tlv-shim = ["dep:nyash-tlv"]
+# Core C shims (design-stage; default OFF)
+c-core = ["dep:nyash-c-core"]
+# プラグイン機構の有効化（ネイティブ環境のみ推奨）
+plugins = ["dep:libloading"]
+# MIR instruction diet PoC flags (scaffolding only; off by default)
+mir_typeop_poc = []
+mir_refbarrier_unify_poc = []
+# Phase 29z P0: RC insertion pass opt-in (default OFF)
+rc-insertion-minimal = []
+# LLVM features split
+# - llvm-harness: Python/llvmlite harness only（inkwell不要）
+# - llvm-inkwell-legacy: historical Rust/inkwell backend（参照用）
+# keep `llvm` as a compatibility alias to `llvm-harness`
+llvm-harness = []
+llvm-inkwell-legacy = ["dep:inkwell"]
+llvm = ["llvm-harness"]
+# Legacy AST interpreter (off by default). Gates NyashInterpreter usage in runner/tests.
+interpreter-legacy = []
+# Cranelift JIT cfg guard (ARCHIVED): keep feature empty to silence check-cfg warnings.
+cranelift-jit = []
+# (removed) Optional modular MIR builder feature
+# cranelift-jit = [    # ARCHIVED: Moved to archive/jit-cranelift/ during Phase 15
+#   "dep:cranelift-codegen",
+#   "dep:cranelift-frontend",
+#   "dep:cranelift-module",
+#   "dep:cranelift-jit",
+#   "dep:cranelift-object",
+#   "dep:cranelift-native"
+# ]
+aot-plan-import = []
+
+[lib]
+name = "nyash_rust"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+# Bin layout (Stage0/Stage1)
+# - Stage0: Rust bootstrap CLI (`nyash`) — OS entry, VM/LLVM core, minimal runner.
+# - Stage1: Hakorune selfhost binary (`hakorune-selfhost`) is built via tools/selfhost/build_stage1.sh
+#           and lives under target/selfhost/, not as a Cargo [[bin]] (Phase 25.1 design).
+
+# Main CLI binary - always available (Stage0 bootstrap)
+[[bin]]
+name = "nyash"
+path = "src/main.rs"
+
+# Test binary for multi-box plugin loader
+[[bin]]
+name = "test-plugin-loader-v2"
+path = "src/bin/test_plugin_loader_v2.rs"
+required-features = ["dynamic-file"]
+
+[[bin]]
+name = "ny_mir_builder"
+path = "src/bin/ny_mir_builder.rs"
+
+[[bin]]
+name = "rc_insertion_selfcheck"
+path = "src/bin/rc_insertion_selfcheck.rs"
+required-features = ["rc-insertion-minimal"]
+
+# Examples for development - only available as examples, not bins
+[[example]]
+name = "gui_simple_notepad"
+path = "examples/simple_notepad.rs"
+required-features = ["gui-examples"]
+
+[[example]]
+name = "gui_simple_notepad_v2"
+path = "examples/simple_notepad_v2.rs"
+required-features = ["gui-examples"]
+
+[[example]]
+name = "gui_simple_notepad_ascii"
+path = "examples/simple_notepad_ascii.rs"
+required-features = ["gui-examples"]
+
+[[example]]
+name = "gui_debug_notepad"
+path = "examples/debug_notepad.rs"
+required-features = ["gui-examples"]
+
+[[example]]
+name = "gui_nyash_notepad_jp"
+path = "examples/nyash_notepad_jp.rs"
+required-features = ["gui-examples"]
+
+[[example]]
+name = "gui_nyash_explorer"
+path = "examples/nyash_explorer.rs"
+required-features = ["gui-examples"]
+
+[[example]]
+name = "gui_nyash_explorer_with_icons"
+path = "examples/nyash_explorer_with_icons.rs"
+required-features = ["gui-examples"]
+
+[[example]]
+name = "gui_test_icon_extraction"
+path = "examples/test_icon_extraction.rs"
+required-features = ["gui-examples"]
+
+# [[example]]
+# name = "gui_visual_node_prototype"
+# path = "development/egui_research/experiments/visual_node_prototype.rs"
+# required-features = ["gui-examples"]
+
+
+
+[dependencies]
+# エラーハンドリング
+thiserror = "2.0"
+anyhow = "1.0"
+
+# シリアライゼーション（将来のAST永続化用）
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# コマンドライン（将来の CLI用）
+clap = { version = "4.0", features = ["derive"] }
+
+# 並行処理（GlobalBox用）
+lazy_static = "1.5"
+once_cell = "1.20"
+
+# デバッグ・ログ
+log = "0.4"
+env_logger = "0.11"
+libloading = { version = "0.8", optional = true }
+toml = "0.8"
+which = "6"
+nyash-tlv = { path = "crates/nyash_tlv", optional = true, features = ["c-shim"] }
+nyash-c-core = { path = "crates/nyash_c_core", optional = true }
+tempfile = "3.10"
+
+# 日時処理
+chrono = "0.4"
+
+# HTTP通信（HttpClientBox用）
+# reqwest = { version = "0.11", features = ["blocking"] }  # Temporarily disabled
+
+# 正規表現（RegexBox用）
+regex = "1.0"
+rustc-hash = "2.1"
+parking_lot = "0.12"
+
+# WebAssembly対応
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"
+js-sys = "0.3"
+
+# Cranelift JIT (ARCHIVED: moved to archive/jit-cranelift/ during Phase 15)
+# cranelift-codegen = { version = "0.103", optional = true }
+# cranelift-frontend = { version = "0.103", optional = true }
+# cranelift-module = { version = "0.103", optional = true }
+# cranelift-jit = { version = "0.103", optional = true }
+# cranelift-object = { version = "0.103", optional = true }
+# cranelift-native = { version = "0.103", optional = true }
+
+# WASM backend dependencies (Phase 8) - optional for faster builds
+wabt = { version = "0.10", optional = true }
+wasmtime = { version = "35.0.0", optional = true }
+
+# GUI フレームワーク - only when gui feature is enabled
+egui = { version = "0.29", optional = true }
+eframe = { version = "0.29", default-features = false, features = ["default_fonts", "glow"], optional = true }
+egui_extras = { version = "0.29", features = ["image"], optional = true }
+image = { version = "0.25", features = ["png", "ico"], optional = true }
+
+# LLVM backend deps (optional)
+# Move to LLVM 18.1.x toolchains
+inkwell = { version = "0.6.0", features = ["llvm18-1"], optional = true }
+
+# Windows API
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.60", features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem", 
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_Com",
+    "Win32_Graphics_Gdi",
+] }
+
+[target.'cfg(not(windows))'.dependencies]
+# 開発時のスタックオーバーフロー診断用（Windows target では依存を無効化）
+backtrace-on-stack-overflow = "0.3"
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+  "console",
+  "Document", 
+  "Element",
+  "HtmlElement",
+  "Window",
+  "DomTokenList",
+  "CssStyleDeclaration",
+  "HtmlCanvasElement",
+  "CanvasRenderingContext2d",
+  "ImageData",
+  "TextMetrics",
+  "CanvasGradient",
+  "CanvasPattern",
+  "Path2d",
+  "Performance",
+  "MouseEvent",
+  "TouchEvent",
+  "KeyboardEvent",
+  "AudioContext",
+  "AudioContextState",
+  "AudioBuffer",
+  "AudioBufferSourceNode",
+  "GainNode",
+  "AnalyserNode",
+  "AudioDestinationNode",
+  "PeriodicWave",
+  "OscillatorNode",
+]
+
+[dev-dependencies]
+# テスト・ベンチマークツール
+criterion = "0.5"
+tempfile = "3"
+
+[build-dependencies]
+once_cell = "1.20"
+
+# Benchmark configuration (will be added later)
+# [[bench]]
+# name = "box_performance"
+# harness = false
+
+[workspace]
+members = [
+  "crates/*",
+  "plugins/*",
+]
+exclude = [
+  "plugins/nyash-file",
+  "plugins/nyash-test-multibox",
+  # Exclude placeholder/missing crates to keep workspace buildable
+  "plugins/nyash-aot-plugin",
+  "plugins/nyash-mirjsonbuildermin-plugin",
+  "plugins/nyash-set-plugin",
+]
+
+[profile.release]
+# 最適化設定
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+# 開発用設定
+opt-level = 0
+debug = true
+[profile.release.package."nyash-net-plugin"]
+opt-level = "z"
+strip = true
+[profile.release.package."nyash-console-plugin"]
+opt-level = "z"
+strip = true
+[profile.release.package."nyash-counter-plugin"]
+opt-level = "z"
+strip = true
+[profile.release.package."nyash-filebox-plugin"]
+opt-level = "z"
+strip = true
+[profile.release.package."nyash-json-plugin"]
+opt-level = "z"
+strip = true
+[profile.release.package."nyash-math-plugin"]
+opt-level = "z"
+strip = true
+
+[[bin]]
+name = "hakorune-rust"
+path = "src/bin/hakorune_rust.rs"
+
+[[bin]]
+name = "hakorune"
+path = "src/bin/hakorune.rs"

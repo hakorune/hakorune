@@ -1,0 +1,134 @@
+// StringCursor — selfhost-only cursor utilities (ASCII only)
+// SSOT: apps/selfhost-runtime/lib/README.md
+box StringCursor {
+  init { input, pos, len }
+
+  birth(input) {
+    me.reset(input)
+    return 0
+  }
+
+  // Alias helpers (compat/readability)
+  match_char(ch) { return me.consume_char(ch) }
+  consume(s) { return me.expect(s) }
+  read_rest() { return me.read_until("") }
+
+  reset(input) {
+    if !input { input = "" }
+    me.input = input
+    me.pos = 0
+    me.len = input.length()
+    return me
+  }
+
+  set_pos(pos) {
+    if pos == null { pos = 0 }
+    if pos < 0 { pos = 0 }
+    if pos > me.len { pos = me.len }
+    me.pos = pos
+    return me.pos
+  }
+
+  pos() { return me.pos }
+  length() { return me.len }
+  eof() { if me.pos >= me.len { return 1 } return 0 }
+
+  peek() {
+    if me.pos >= me.len { return "" }
+    local s = me.input
+    return s.substring(me.pos, me.pos + 1)
+  }
+
+  peek_at(offset) {
+    if offset == null { offset = 0 }
+    local i = me.pos + offset
+    if i < 0 { return "" }
+    if i >= me.len { return "" }
+    local s = me.input
+    return s.substring(i, i + 1)
+  }
+
+  next() {
+    if me.pos >= me.len { return "" }
+    local s = me.input
+    local ch = s.substring(me.pos, me.pos + 1)
+    me.pos = me.pos + 1
+    return ch
+  }
+
+  advance(n) {
+    if n == null { n = 0 }
+    me.pos = me.pos + n
+    if me.pos < 0 { me.pos = 0 }
+    if me.pos > me.len { me.pos = me.len }
+    return me.pos
+  }
+
+  starts_with(s) {
+    if s == null { return 0 }
+    local m = s.length()
+    if me.pos + m > me.len { return 0 }
+    local src = me.input
+    return src.substring(me.pos, me.pos + m) == s
+  }
+
+  expect(s) {
+    if me.starts_with(s) == 1 {
+      me.pos = me.pos + s.length()
+      return 1
+    }
+    return 0
+  }
+
+  consume_char(ch) {
+    if me.peek() == ch {
+      me.pos = me.pos + 1
+      return 1
+    }
+    return 0
+  }
+
+  skip_ws() {
+    local n = me.len
+    local i = me.pos
+    local s = me.input
+    loop (i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch != " " && ch != "\n" && ch != "\r" && ch != "\t" { break }
+      i = i + 1
+    }
+    me.pos = i
+    return me.pos
+  }
+
+  read_digits() {
+    local out = ""
+    local i = me.pos
+    local s = me.input
+    local n = me.len
+    loop (i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch != "0" && ch != "1" && ch != "2" && ch != "3" && ch != "4" && ch != "5" && ch != "6" && ch != "7" && ch != "8" && ch != "9" { break }
+      out = out + ch
+      i = i + 1
+    }
+    me.pos = i
+    return out
+  }
+
+  read_until(delim) {
+    if delim == null { delim = "" }
+    local out = ""
+    local i = me.pos
+    local s = me.input
+    local n = me.len
+    loop (i < n) {
+      local ch = s.substring(i, i + 1)
+      if delim != "" && ch == delim { break }
+      out = out + ch
+      i = i + 1
+    }
+    me.pos = i
+    return out
+  }
+}

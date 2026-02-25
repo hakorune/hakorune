@@ -1,0 +1,8 @@
+#![doc = "Phase 20.13 loader_front guard — define layer responsibilities."]
+
+static box LOADER_FRONT_GUARD {
+  name() { return "loader_front" }
+  allowed_imports() { return ["json", "env"] }
+  forbidden_imports() { return ["vm_core", "plugins", "ffi"] }
+}
+

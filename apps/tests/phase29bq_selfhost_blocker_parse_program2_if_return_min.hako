@@ -1,0 +1,12 @@
+// parse_program2 if-return-only shape (no loops)
+// Expected: stdout=7, RC=0
+static box Main {
+  main() {
+    local v = 7
+    if v == 0 {
+      return 1
+    }
+    print(v)
+    return 0
+  }
+}

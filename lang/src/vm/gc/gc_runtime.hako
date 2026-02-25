@@ -1,0 +1,32 @@
+// gc_runtime.hako — minimal GC runtime facade (v0; not wired)
+
+using selfhost.vm.gc.gc_box as Gc
+using selfhost.vm.gc.gc_policy_box as GcPolicy
+
+static box GcRuntime {
+  gc: Gc.GcBox
+
+  birth() {
+    from Box.birth()
+    me.gc = new Gc.GcBox()
+  }
+
+  ensure() {
+    if me.gc == null { me.gc = new Gc.GcBox() }
+    return me.gc
+  }
+
+  allocate(_hint) {
+    // v0: metrics only
+    me.ensure().metrics.increment_allocations()
+    // Opportunistically check if a collection is needed (default OFF)
+    me.collect_if_needed()
+  }
+
+  // v0 policy: default OFF (delegates to policy box; thresholds/env gating TBD)
+  should_collect() { return GcPolicy.GcPolicyBox.should_collect() }
+
+  collect_if_needed() {
+    if me.should_collect() == 1 { me.ensure().collect() }
+  }
+}

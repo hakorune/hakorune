@@ -1,0 +1,10 @@
+// Moved from apps/selfhost-compiler/boxes/emitter_box.hako
+// EmitterBox — thin wrapper to emit JSON v0 (extracted)
+using lang.compiler.stage1.json_program_box as JsonProg
+
+static box EmitterBox {
+  emit_program(json, usings_json, externs_json) {
+    if json == null { return json }
+    return JsonProg.normalize(json, usings_json, externs_json)
+  }
+}

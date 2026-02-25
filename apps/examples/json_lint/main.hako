@@ -1,0 +1,63 @@
+// using json as JsonParserModule  // 外部パーサ依存を外し、このスモークでは最小検証で固定
+using StringUtils as StringUtils
+
+static box Main {
+  method _contains(valid, s, j) {
+    if j >= valid.length() { return 0 }
+    if s == valid.get(j) { return 1 }
+    return me._contains(valid, s, j + 1)
+  }
+
+  method _check_cases(cases, valid, i) {
+    if i >= cases.length() { return 0 }
+
+    local s = "" + cases.get(i) // normalize to string
+    local ok = me._contains(valid, s, 0)
+    if ok == 1 { print("OK") } else { print("ERROR") }
+
+    return me._check_cases(cases, valid, i + 1)
+  }
+
+  main() {
+    // JSON Lint: print OK for valid inputs, ERROR otherwise.
+    // Keep logic deterministic and minimal (no heavy parser).
+    local cases = new ArrayBox()
+    local valid = new ArrayBox()
+
+    // Valid
+    valid.push("null")
+    valid.push("true")
+    valid.push("false")
+    valid.push("42")
+    valid.push("\"hello\"")
+    valid.push("[]")
+    valid.push("{}")
+    valid.push("{\"a\":1}")
+    valid.push("[1,2]")
+    valid.push("{\"x\":[0]}")
+
+    // Feed the same set (plus invalids) to evaluation.
+    // NOTE: Avoid `loop` here; JoinIR loop patterns are intentionally restricted.
+    cases.push("null")
+    cases.push("true")
+    cases.push("false")
+    cases.push("42")
+    cases.push("\"hello\"")
+    cases.push("[]")
+    cases.push("{}")
+    cases.push("{\"a\":1}")
+    cases.push("[1,2]")
+    cases.push("{\"x\":[0]}")
+
+    // Invalid (syntactically malformed)
+    cases.push("{")                // missing closing brace
+    cases.push("[")                // missing closing bracket
+    cases.push("{\"a\":}")       // missing value
+    cases.push("{\"a\",1}")      // missing colon
+    cases.push("[1,,2]")           // double comma
+    cases.push("\"unterminated")  // unterminated string
+
+    me._check_cases(cases, valid, 0)
+    return 0
+  }
+}

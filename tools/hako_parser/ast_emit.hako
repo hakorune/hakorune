@@ -1,0 +1,105 @@
+// tools/hako_parser/ast_emit.hako - HakoAstEmitBox (MVP)
+// no external helpers; keep emission self-contained
+
+static box HakoAstEmitBox {
+  // Emit minimal AST JSON v0 from MapBox (stable order)
+  to_json(ast) {
+    if ast == null { return "{\"boxes\":[],\"uses\":[]}" }
+    local uses = me._sort_strings(ast.get("uses"))
+    local boxes = me._sort_boxes(ast.get("boxes"))
+    local out = "{\"uses\":" + me._emit_array(uses) + ",\"boxes\":" + me._emit_boxes(boxes) + "}"
+    return out
+  }
+  _emit_array(arr) {
+    if arr == null { return "[]" }
+    local s = "["
+    local n = arr.size()
+    local i = 0
+    while i < n {
+      local v = arr.get(i)
+      s = s + me._json_quote(v)
+      if i != n-1 { s = s + "," }
+      i = i + 1
+    }
+    return s + "]"
+  }
+  _emit_boxes(boxes) {
+    if boxes == null { return "[]" }
+    local s = "["
+    local n = boxes.size()
+    local i = 0
+    while i < n {
+      local b = boxes.get(i)
+      local name = me._json_quote(b.get("name"))
+      local is_static = b.get("is_static")
+      local methods = me._emit_methods(me._sort_methods(b.get("methods")))
+      s = s + "{\"name\":" + name + ",\"is_static\":" + me._itoa(is_static) + ",\"methods\":" + methods + "}"
+      if i != n-1 { s = s + "," }
+      i = i + 1
+    }
+    return s + "]"
+  }
+  _emit_methods(methods) {
+    if methods == null { return "[]" }
+    local s = "["
+    local n = methods.size()
+    local i = 0
+    while i < n {
+      local m = methods.get(i)
+      local name = me._json_quote(m.get("name"))
+      local arity = me._itoa(m.get("arity"))
+      // span is integer line number
+      local spanv = m.get("span"); if spanv == null { spanv = 0 }
+      s = s + "{\"name\":" + name + ",\"arity\":" + arity + ",\"span\":" + me._itoa(spanv) + "}"
+      if i != n-1 { s = s + "," }
+      i = i + 1
+    }
+    return s + "]"
+  }
+  // Helpers: sorting (naive O(n^2))
+  _sort_strings(arr) { if arr == null { return new ArrayBox() }
+    local out = new ArrayBox(); local i=0; while i<arr.size() { out.push(arr.get(i)); i=i+1 }
+    // selection sort
+    local n = out.size(); local a=0; while a<n { local b=a+1; while b<n { if out.get(b) < out.get(a) { local tmp=out.get(a); out.set(a,out.get(b)); out.set(b,tmp) } b=b+1 } a=a+1 }
+    return out }
+  _sort_boxes(boxes) { if boxes == null { return new ArrayBox() }
+    local out = new ArrayBox(); local i=0; while i<boxes.size() { out.push(boxes.get(i)); i=i+1 }
+    local n=out.size(); local a=0; while a<n { local b=a+1; while b<n { if out.get(b).get("name") < out.get(a).get("name") { local tmp=out.get(a); out.set(a,out.get(b)); out.set(b,tmp) } b=b+1 } a=a+1 }
+    return out }
+  _sort_methods(methods) { if methods == null { return new ArrayBox() }
+    local out = new ArrayBox(); local i=0; while i<methods.size() { out.push(methods.get(i)); i=i+1 }
+    local n=out.size(); local a=0; while a<n { local b=a+1; while b<n {
+      local ma=out.get(a); local mb=out.get(b)
+      local ka = ma.get("name") + "/" + me._itoa(ma.get("arity"))
+      local kb = mb.get("name") + "/" + me._itoa(mb.get("arity"))
+      if kb < ka { local tmp=out.get(a); out.set(a,out.get(b)); out.set(b,tmp) }
+      b=b+1 } a=a+1 }
+    return out }
+  // Local helpers (self-contained)
+  _itoa(n) {
+    local v = 0 + n; if v == 0 { return "0" }
+    local digits = "0123456789"; local out = ""; local tmp = ""
+    while v > 0 { local d = v % 10; tmp = digits.substring(d,d+1) + tmp; v = v / 10 }
+    out = tmp; return out
+  }
+  _json_quote(s) {
+    if s == null { return "\"\"" }
+    local out = ""; local i=0; local n=s.length()
+    while i<n {
+      local ch = s.substring(i,i+1)
+      if ch == "\\" { out = out + "\\\\" } else {
+        if ch == "\"" { out = out + "\\\"" } else {
+          if ch == "\n" { out = out + "\\n" } else {
+            if ch == "\r" { out = out + "\\r" } else {
+              if ch == "\t" { out = out + "\\t" } else { out = out + ch }
+            }
+          }
+        }
+      }
+      i = i + 1
+    }
+    return "\"" + out + "\""
+  }
+}
+
+static box HakoAstEmitMain { method main(args) { return 0 } }

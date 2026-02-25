@@ -1,0 +1,306 @@
+// UsingResolverBox — static, stateful resolver helpers（インスタンス禁止・VM互換）
+// Boundary memo:
+//   - entry/using_resolver_box: file I/O + using 収集、modules_list を MapBox へ積む役。
+//   - pipeline_v2/using_resolver_box: modules_json / using_entries_json を解析して
+//     alias/path を純粋に解決する役（IOなし）。
+//
+// State layout (Map):
+// {
+//   modules_json: String,
+//   modules_map: Map<String,String>,
+//   modules_keys: Array<String>,
+//   alias_to_namespace: Map<String,String>,
+//   alias_keys: Array<String>
+// }
+
+using hako.using.resolve.ssot as UsingResolveSSOTBox
+
+static box UsingResolverBox {
+  state_new() {
+    local st = new MapBox()
+    st.set("modules_json", "")
+    st.set("modules_map", new MapBox())
+    st.set("modules_keys", new ArrayBox())
+    st.set("alias_to_namespace", new MapBox())
+    st.set("alias_keys", new ArrayBox())
+    return st
+  }
+
+  // Load using.aliases JSON from UsingCollectorBox output.
+  // Expected shape: [{"name":"Alias","path":"namespace.or.file"}, ...]
+  load_usings_json(state, usings_json) {
+    if state == null { state = me.state_new() }
+
+    local alias_map = new MapBox()
+    local alias_keys = new ArrayBox()
+
+    if usings_json != null {
+      local s = "" + usings_json
+      local n = s.length()
+      local pos = 0
+      loop(pos < n) {
+        local next_pos = n
+        local name_idx = me._index_of_from(s, "\"name\":\"", pos)
+        if name_idx >= 0 {
+          local alias = me._read_json_string_after(s, name_idx + 8)
+          local obj_end = me._index_of_from(s, "}", name_idx)
+          if obj_end < 0 { obj_end = n }
+
+          local path_idx = me._index_of_from(s, "\"path\":\"", name_idx)
+          if path_idx >= 0 && path_idx < obj_end {
+            local path = me._read_json_string_after(s, path_idx + 8)
+            if alias != null && alias != "" && path != null && path != "" {
+              if me._looks_like_namespace(path) == 1 {
+                if alias_map.has(alias) != true {
+                  alias_keys.push(alias)
+                }
+                alias_map.set(alias, path)
+              }
+            }
+          }
+          next_pos = obj_end + 1
+        }
+        pos = next_pos
+      }
+    }
+
+    state.set("alias_to_namespace", alias_map)
+    state.set("alias_keys", alias_keys)
+    return state
+  }
+
+  // Load modules JSON from nyash/hako module table shape.
+  // Expected format: {"module.path":"file.hako", ...}
+  load_modules_json(state, mod_json) {
+    if state == null { state = me.state_new() }
+
+    local s = ""
+    if mod_json != null { s = "" + mod_json }
+
+    local modules_map = UsingResolveSSOTBox.parse_string_map_json(s)
+    local modules_keys = modules_map.keys()
+    if modules_keys == null { modules_keys = new ArrayBox() }
+
+    state.set("modules_json", s)
+    state.set("modules_map", modules_map)
+    state.set("modules_keys", modules_keys)
+    return state
+  }
+
+  // Resolve path from alias/module key.
+  // Priority:
+  //   1) modules exact key match
+  //   2) alias_to_namespace exact alias -> modules lookup
+  //   3) unique tail match in modules keys
+  resolve_path_alias(state, alias) {
+    if state == null || alias == null { return null }
+    local alias_s = "" + alias
+    if alias_s == "" { return null }
+
+    local modules_map = state.get("modules_map")
+    if modules_map != null {
+      if modules_map.has(alias_s) == true {
+        return modules_map.get(alias_s)
+      }
+    }
+
+    local alias_map = state.get("alias_to_namespace")
+    if alias_map != null {
+      if alias_map.has(alias_s) == true {
+        local ns = alias_map.get(alias_s)
+        if modules_map != null {
+          if modules_map.has(ns) == true {
+            return modules_map.get(ns)
+          }
+        }
+        // File path alias remains valid path even when not present in modules_map.
+        if me._looks_like_namespace(ns) == 0 {
+          return ns
+        }
+      }
+    }
+
+    local found_key = me._find_unique_tail_namespace(state, alias_s)
+    if found_key == null { return null }
+    if modules_map == null { return null }
+    return modules_map.get(found_key)
+  }
+
+  // Resolve namespace from alias/tail.
+  // Priority:
+  //   1) alias_to_namespace exact alias
+  //   2) unique tail match in modules keys
+  resolve_namespace_alias(state, alias) {
+    if state == null || alias == null { return null }
+    local alias_s = "" + alias
+    if alias_s == "" { return null }
+
+    local alias_map = state.get("alias_to_namespace")
+    if alias_map != null {
+      if alias_map.has(alias_s) == true {
+        local ns = alias_map.get(alias_s)
+        if me._looks_like_namespace(ns) == 1 {
+          return ns
+        }
+      }
+    }
+
+    return me._find_unique_tail_namespace(state, alias_s)
+  }
+
+  resolve_module_path_from_alias(state, alias) {
+    return me.resolve_path_alias(state, alias)
+  }
+
+  guess_namespace_from_tail(state, tail) {
+    return me.resolve_namespace_alias(state, tail)
+  }
+
+  // Returns number of explicit alias bindings.
+  upgrade_aliases(state) {
+    if state == null { return 0 }
+    local alias_keys = state.get("alias_keys")
+    if alias_keys == null { return 0 }
+    return alias_keys.length()
+  }
+
+  // Convert state to context JSON for ParserBox.
+  // Format: {"modules": {...}, "aliases": {...}}
+  to_context_json(state) {
+    if state == null {
+      return "{\"modules\":{},\"aliases\":{}}"
+    }
+    local modules_map = state.get("modules_map")
+    local alias_map = state.get("alias_to_namespace")
+    local modules_json = me.map_to_json(modules_map)
+    local aliases_json = me.map_to_json(alias_map)
+    return "{\"modules\":" + modules_json + ",\"aliases\":" + aliases_json + "}"
+  }
+
+  map_to_json(m) {
+    return UsingResolveSSOTBox.encode_string_map_json(m)
+  }
+
+  _find_unique_tail_namespace(state, alias_s) {
+    local keys = state.get("modules_keys")
+    if keys == null { return null }
+
+    local found = null
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local key = "" + keys.get(i)
+      local tail = me._tail_segment(key)
+      if tail == alias_s {
+        if found == null { found = key } else { return null }
+      } else {
+        if me._first_char_case_match(tail, alias_s) == 1 {
+          if found == null { found = key } else { return null }
+        }
+      }
+      i = i + 1
+    }
+    return found
+  }
+
+  _tail_segment(name) {
+    if name == null { return "" }
+    local s = "" + name
+    local pos = s.lastIndexOf(".")
+    if pos < 0 { return s }
+    return s.substring(pos + 1, s.length())
+  }
+
+  _first_char_case_match(a, b) {
+    if a == null || b == null { return 0 }
+    local sa = "" + a
+    local sb = "" + b
+    if sa.length() == 0 || sb.length() == 0 { return 0 }
+    if sa.length() != sb.length() { return 0 }
+
+    local rest_a = sa.substring(1, sa.length())
+    local rest_b = sb.substring(1, sb.length())
+    if rest_a != rest_b { return 0 }
+
+    local ca = sa.substring(0, 1)
+    local cb = sb.substring(0, 1)
+    if ca == cb { return 1 }
+
+    local U = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    local L = "abcdefghijklmnopqrstuvwxyz"
+    local idx_l = L.indexOf(ca)
+    if idx_l >= 0 {
+      if U.substring(idx_l, idx_l + 1) == cb { return 1 }
+    }
+    local idx_u = U.indexOf(ca)
+    if idx_u >= 0 {
+      if L.substring(idx_u, idx_u + 1) == cb { return 1 }
+    }
+    return 0
+  }
+
+  _looks_like_namespace(path) {
+    if path == null { return 0 }
+    local s = "" + path
+    if s == "" { return 0 }
+    if s.length() >= 5 {
+      if s.substring(s.length() - 5, s.length()) == ".hako" { return 0 }
+    }
+    if s.length() >= 1 {
+      if s.substring(0, 1) == "/" { return 0 }
+    }
+    if s.length() >= 2 {
+      if s.substring(0, 2) == "./" { return 0 }
+    }
+    return 1
+  }
+
+  _read_json_string_after(s, start) {
+    if s == null { return null }
+    local n = s.length()
+    if start < 0 || start > n { return null }
+    local end = me._find_json_string_end(s, start)
+    if end < 0 { return null }
+    local raw = s.substring(start, end)
+    return me._decode_json_string(raw)
+  }
+
+  _find_json_string_end(s, start) {
+    return me._index_of_from(s, "\"", start)
+  }
+
+  _decode_json_string(raw) {
+    if raw == null { return "" }
+    return "" + raw
+  }
+
+  _encode_json_string(raw) {
+    if raw == null { return "" }
+    local s = "" + raw
+    s = s.replace("\\", "\\\\")
+    s = s.replace("\"", "\\\"")
+    s = s.replace("\n", "\\n")
+    s = s.replace("\r", "\\r")
+    s = s.replace("\t", "\\t")
+    return s
+  }
+
+  _index_of_from(s, pat, start) {
+    if s == null || pat == null { return -1 }
+    local hay = "" + s
+    local needle = "" + pat
+    local n = hay.length()
+    local m = needle.length()
+    if m <= 0 { return start }
+
+    local i = start
+    if i < 0 { i = 0 }
+    loop(i + m <= n) {
+      if hay.substring(i, i + m) == needle { return i }
+      i = i + 1
+    }
+    return -1
+  }
+}
+
+static box UsingResolverBoxMain { main() { return 0 } }

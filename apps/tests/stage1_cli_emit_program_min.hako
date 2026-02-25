@@ -1,0 +1,24 @@
+// stage1_cli_emit_program_min.hako
+// 目的: Stage1Cli + Stage1UsingResolverBox + BuildBox を直接呼び出す中間テスト。
+// - Rust ブリッジや Stage0 環境変数の組み立てを介さず、
+//   Stage1Cli.emit_program_json(src) をそのまま VM 上で実行する。
+// - src には Stage‑1 minimal と同じ using 1 行を与える。
+
+using lang.src.runner.stage1_cli as Stage1Cli
+
+static box Main {
+  main(args) {
+    // UsingResolver 側の apply フラグは明示的に 1 にしておく。
+    env.set("HAKO_STAGEB_APPLY_USINGS", "1")
+    env.set("HAKO_STAGEB_MODULES_LIST", "Foo=foo/bar.hako")
+
+    // 本線と同様に STAGE1_SOURCE_TEXT 経由でソースを渡し、FileBox 経路は通さない。
+    local src = "using \"foo/bar.hako\" as Foo\n"
+    env.set("STAGE1_SOURCE_TEXT", src)
+
+    // 第1引数は path だが、STAGE1_SOURCE_TEXT があるため _read_file は呼ばれない。
+    local prog = Stage1Cli.emit_program_json("apps/tests/stage1_using_minimal.hako")
+    print("[stage1_cli_emit_program_min] prog=" + ("" + prog))
+    return 0
+  }
+}

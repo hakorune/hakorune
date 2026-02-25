@@ -1,0 +1,19 @@
+box Main {
+  main() {
+    local table = "a|||"
+    local entries = new ArrayBox()
+    local start_box = new ArrayBox()
+    start_box.push(0)
+    local len = table.length()
+    local i = 0
+    loop(i < len) {
+      local start = start_box.get(0)
+      if i >= start && i + 3 <= len && table.substring(i, i + 3) == "|||" && table.substring(start, i) != "" {
+        entries.push(table.substring(start, i))
+        start_box.set(0, i + 3)
+      }
+      i = i + 1
+    }
+    print(entries.length())
+  }
+}

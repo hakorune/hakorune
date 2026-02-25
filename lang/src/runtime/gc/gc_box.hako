@@ -1,0 +1,69 @@
+// GcBox — Policy wrapper (Hakorune) around host GC externs
+// Phase 20.8: docs/導線優先（既定OFF）。Rustはデータ平面（走査/バリア/セーフポイント）、
+// Hakorune はポリシー平面（しきい値/スケジューリング/ログ）を担当するよ。
+// 参考: docs/development/architecture/gc/policy-vs-data-plane.md
+
+static box GcBox {
+  // Return JSON string with counters {safepoints, barrier_reads, barrier_writes}
+  stats() {
+    return gc.stats()
+  }
+
+  // Return total roots count (host handles + modules), best‑effort integer
+  roots_snapshot() {
+    return gc.roots_snapshot()
+  }
+
+  // Request collection (no‑op until host supports it)
+  collect() {
+    // Host may ignore; keep Fail‑Fast if extern missing
+    gc.collect()
+  }
+
+  // Optional lifecycle hooks (no‑op unless host implements)
+  start() { gc.start(); }
+  stop() { gc.stop(); }
+
+  // Example (dev): a tiny cadence policy, OFF by default.
+  // Enable with: HAKO_GC_POLICY_TICK=1 (docs only; call manually from scripts)
+  policy_tick() {
+    if (env.get("HAKO_GC_POLICY_TICK") == "1") {
+      // Read metrics and print a compact line for observation
+      local s = me.stats()
+      console.log("[GcBox] stats=" + s)
+      // Example threshold (no-op unless host implements collect):
+      // me.collect()
+    }
+  }
+
+  // Example (dev): run simple cadence based on env thresholds (strings; best-effort)
+  // HAKO_GC_POLICY_LOG=1       → print stats each tick
+  // HAKO_GC_POLICY_FORCE=1     → call collect() each tick (may be no-op; guard expected)
+  // HAKO_GC_POLICY_EVERY_N=K   → best-effort modulus trigger (tick_count % K == 0)
+  tick_with_policy(tick_count) {
+    local log = env.get("HAKO_GC_POLICY_LOG")
+    local every = env.get("HAKO_GC_POLICY_EVERY_N")
+    local force = env.get("HAKO_GC_POLICY_FORCE")
+
+    if (log == "1") {
+      console.log("[GcBox] stats=" + me.stats())
+    }
+    if (force == "1") {
+      // Gate: host may not implement collect() yet
+      collect()
+      return 0
+    }
+    if (every != "") {
+      // crude parse: treat non-empty string as integer if equals to tick_count string
+      // consumers should pass small positive K
+      local k = every
+      // Only attempt modulus when both are simple digits
+      // (language JSON helpers or numeric ops may be used when available)
+      if (k == "1") {
+        collect()
+        return 0
+      }
+    }
+    return 0
+  }
+}

@@ -1,0 +1,10 @@
+using "apps/lib/json_native/utils/string.hako" as StringUtils
+
+static box Main {
+  main(args) {
+    local ok = 0
+    if StringUtils.ends_with("abc", "c") { ok = 1 }
+    print(ok)
+    return 0
+  }
+}

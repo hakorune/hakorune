@@ -1,0 +1,113 @@
+// Moved from apps/selfhost-compiler/boxes/parser/scan/parser_string_utils_box.hako
+// ParserStringUtilsBox — Minimal self-contained string helpers
+// Responsibility: Backward compatibility wrapper for parser code
+// Notes: sh_core への依存で VM 差分が出たため、ここに最小実装を内包する。
+using sh_core as StringHelpers  // reuse shared helpers to align semantics
+
+static box ParserStringUtilsBox {
+  // Numeric to string (minimal)
+  i2s(v) {
+    local n = ParserStringUtilsBox.to_int(v)
+    if n == 0 { return "0" }
+    if n < 0 { return "-" + ParserStringUtilsBox.i2s(0 - n) }
+    local out = ""
+    loop(n > 0) {
+      local d = n % 10
+      out = "0123456789".substring(d, d + 1) + out
+      n = n / 10
+    }
+    return out
+  }
+
+  is_digit(ch) { return ch >= "0" && ch <= "9" }
+  is_space(ch) { return ch == " " || ch == "\t" || ch == "\n" || ch == "\r" }
+  is_alpha(ch) { return (ch >= "A" && ch <= "Z") || (ch >= "a" && ch <= "z") || ch == "_" }
+
+  starts_with(src, i, pat) {
+    if src == null || pat == null { return 0 }
+    local n = src.length()
+    local m = pat.length()
+    if i + m > n { return 0 }
+    local k = 0
+    loop(k < m) {
+      if src.substring(i + k, i + k + 1) != pat.substring(k, k + 1) { return 0 }
+      k = k + 1
+    }
+    return 1
+  }
+
+  // Keyword match with boundary（Stage‑B 安定性のためここで実装）
+  starts_with_kw(src, i, kw) {
+    if src == null || kw == null { return 0 }
+    local n = src.length()
+    local m = kw.length()
+    if i + m > n { return 0 }
+    local k = 0
+    loop(k < m) {
+      if src.substring(i + k, i + k + 1) != kw.substring(k, k + 1) { return 0 }
+      k = k + 1
+    }
+    local j = i + m
+    if j >= n { return 1 }
+    local ch = src.substring(j, j + 1)
+    if ParserStringUtilsBox.is_alpha(ch) == 1 || ParserStringUtilsBox.is_digit(ch) == 1 { return 0 }
+    return 1
+  }
+
+  index_of(src, i, pat) {
+    if src == null || pat == null { return -1 }
+    local n = src.length()
+    local m = pat.length()
+    if m == 0 { return i }
+    local j = i
+    loop(j + m <= n) {
+      if ParserStringUtilsBox.starts_with(src, j, pat) == 1 { return j }
+      j = j + 1
+    }
+    return -1
+  }
+
+  trim(s) {
+    if s == null { return "" }
+    local str = "" + s
+    local n = str.length()
+
+    // Leading whitespace: use static method to avoid SSA undef (Phase 71-SSA Quick Win)
+    local b = ParserStringUtilsBox.skip_ws(str, 0)
+    if b >= n { return "" }
+
+    // Trailing whitespace: walk backwards until a non-space is found.
+    local e = n
+    loop(e > b) {
+      local ch = str.substring(e - 1, e)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" || ch == ";" { e = e - 1 } else { break }
+    }
+
+    if e > b { return str.substring(b, e) }
+    return ""
+  }
+
+  to_int(s) {
+    if s == null { return 0 }
+    local str = "" + s
+    local n = str.length()
+    if n == 0 { return 0 }
+    local neg = 0
+    local i = 0
+    if str.substring(0, 1) == "-" { neg = 1  i = 1 }
+    local acc = 0
+    loop(i < n) {
+      local ch = str.substring(i, i + 1)
+      if ch < "0" || ch > "9" { break }
+      acc = acc * 10 + ("0123456789".indexOf(ch))
+      i = i + 1
+    }
+    if neg == 1 { return 0 - acc }
+    return acc
+  }
+
+  skip_ws(src, i) {
+    // Delegate to shared helper to stay consistent with Stage‑B parser semantics
+    return StringHelpers.skip_ws(src, i)
+  }
+}

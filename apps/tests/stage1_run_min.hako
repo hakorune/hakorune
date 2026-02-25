@@ -1,0 +1,7 @@
+// Minimal run path fixture for Stage‑1 CLI.
+// Produces a trivial Program(JSON v0) with Main.main returning 0.
+static box Main {
+  main() {
+    return 0
+  }
+}

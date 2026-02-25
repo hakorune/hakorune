@@ -1,0 +1,19 @@
+// Phase 29ac P2: Pattern6 match scan OK minimal
+// Expect: find_ok("abc", "b") -> 1
+
+static box Main {
+    find_ok(s, ch) {
+        local i = 0
+        loop(i < s.length()) {
+            if s.substring(i, i + 1) == ch {
+                return i
+            }
+            i = i + 1
+        }
+        return -1
+    }
+
+    main() {
+        return Main.find_ok("abc", "b")
+    }
+}

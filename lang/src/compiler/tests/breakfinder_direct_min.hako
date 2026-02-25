@@ -1,0 +1,36 @@
+// breakfinder_direct_min.hako — BreakFinderBox 直接呼び出し用の極小ハーネス
+//
+// 目的:
+//   - Stage‑B/LoopSSA を経由せずに、BreakFinderBox.find_breaks/2 自体の
+//     MIR 形状と SSA 性を確認するための最小サンプルだよ。
+//   - Program(JSON v0) 文字列を 1 本用意して、BreakFinderBox.find_breaks(json, trace)
+//     を直接呼び出し、VM/Verifier で undefined receiver などのエラーを観測する。
+//
+// JSON 形状（loopssa_breakfinder_min.hako と同じ単純な緑ケース）:
+// {
+//   "kind":"Program",
+//   "functions":[
+//     {
+//       "name":"main",
+//       "blocks":[
+//         {"id":0,"loop_header":0,"loop_exit":2},
+//         {"id":1},
+//         {"id":2}
+//       ]
+//     }
+//   ]
+// }
+
+using lang.compiler.builder.ssa.exit_phi.break_finder as BreakFinderBox
+
+static box Main {
+  method main() {
+    // 単純な Program(JSON v0) を直接埋め込む
+    local json = "{\"kind\":\"Program\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"loop_header\":0,\"loop_exit\":2},{\"id\":1},{\"id\":2}]}]}"
+
+    // trace_flag=1 で BreakFinderBox 内部の挙動を観測する
+    local breaks = BreakFinderBox.find_breaks(json, 1)
+    print(breaks)
+    return 0
+  }
+}

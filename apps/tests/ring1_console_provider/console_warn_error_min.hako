@@ -1,0 +1,9 @@
+static box Main {
+  main(args) {
+    local c = new ConsoleBox()
+    c.warn("ring1-console-warn")
+    c.error("ring1-console-error")
+    print("CONSOLE_PROVIDER_OK warn=1 error=1")
+    return 0
+  }
+}

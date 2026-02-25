@@ -1,0 +1,509 @@
+// tools/hako_shared/json_parser.hako - JsonParserBox (Phase 171 MVP)
+// .hako native JSON parser for MIR/CFG JSON parsing
+// Replaces 289 lines of hand-written JSON parsing in analysis_consumer.hako
+
+using apps.selfhost_runtime.string_cursor
+
+// JsonParserBox: Main parser (static box, all static methods)
+static box JsonParserBox {
+  // Parse JSON string to MapBox (object) or ArrayBox (array) or primitive
+  // Returns: MapBox (for objects), ArrayBox (for arrays), String, Integer, null
+  method parse(json_str) {
+    if json_str == null { return null }
+
+    local s = me._trim(json_str)
+    if s.length() == 0 { return null }
+
+    return me._parse_value(s, 0).get("value")
+  }
+
+  // Parse JSON string expecting object, returns MapBox or null
+  method parse_object(json_str) {
+    local val = me.parse(json_str)
+    if val == null { return null }
+
+    // Check if it's a MapBox (which indicates object)
+    local test = val.get
+    if test == null { return null }
+    return val
+  }
+
+  // Parse JSON string expecting array, returns ArrayBox or null
+  method parse_array(json_str) {
+    local val = me.parse(json_str)
+    if val == null { return null }
+
+    // Check if it's ArrayBox (which has size method)
+    local test = val.size
+    if test == null { return null }
+    return val
+  }
+
+  // Internal: Parse value at position, returns {value: Any, pos: Integer, type: String} or null
+  _parse_value(s, pos) {
+    local p = me._skip_whitespace(s, pos)
+    if p >= s.length() { return null }
+
+    local ch = s.substring(p, p+1)
+
+    // null
+    if ch == "n" {
+      if me._match_literal(s, p, "null") {
+        local result = new MapBox()
+        result.set("value", null)
+        result.set("pos", p + 4)
+        result.set("type", "null")
+        return result
+      }
+      return null
+    }
+
+    // true
+    if ch == "t" {
+      if me._match_literal(s, p, "true") {
+        local result = new MapBox()
+        result.set("value", 1)
+        result.set("pos", p + 4)
+        result.set("type", "bool")
+        return result
+      }
+      return null
+    }
+
+    // false
+    if ch == "f" {
+      if me._match_literal(s, p, "false") {
+        local result = new MapBox()
+        result.set("value", 0)
+        result.set("pos", p + 5)
+        result.set("type", "bool")
+        return result
+      }
+      return null
+    }
+
+    // number (integer only for MVP)
+    if ch == "-" || (ch >= "0" && ch <= "9") {
+      return me._parse_number(s, p)
+    }
+
+    // string
+    if ch == '"' {
+      return me._parse_string(s, p)
+    }
+
+    // array
+    if ch == "[" {
+      return me._parse_array(s, p)
+    }
+
+    // object
+    if ch == "{" {
+      return me._parse_object(s, p)
+    }
+
+    return null
+  }
+
+  _parse_number(s, pos) {
+    local cur = new StringCursor()
+    cur.reset(s)
+    cur.set_pos(pos)
+
+    local num_str = ""
+
+    // Optional negative sign
+    if cur.peek() == "-" {
+      num_str = cur.next()
+    }
+
+    // Digits (StringCursor.read_digits())
+    num_str = num_str + cur.read_digits()
+
+    if num_str == "" || num_str == "-" { return null }
+
+    local result = new MapBox()
+    result.set("value", me._atoi(num_str))
+    result.set("pos", cur.pos())
+    result.set("type", "number")
+    return result
+  }
+
+  _parse_string(s, pos) {
+    if s.substring(pos, pos+1) != '"' { return null }
+
+    local p = pos + 1
+    local str = ""
+
+    loop(p < s.length()) {
+      local ch = s.substring(p, p+1)
+
+      if ch == '"' {
+        // End of string
+        local result = new MapBox()
+        result.set("value", me._unescape_string(str))
+        result.set("pos", p + 1)
+        result.set("type", "string")
+        return result
+      }
+
+      if ch == "\\" {
+        // Escape sequence (workaround: flatten to avoid MIR nested-if bug)
+        local has_next = 0
+        if p + 1 < s.length() { has_next = 1 }
+
+        if has_next == 0 { return null }
+
+        str = str + ch
+        p = p + 1
+        str = str + s.substring(p, p+1)
+        p = p + 1
+        continue
+      }
+
+      str = str + ch
+      p = p + 1
+    }
+
+    return null
+  }
+
+  _parse_array(s, pos) {
+    if s.substring(pos, pos+1) != "[" { return null }
+
+    local p = pos + 1
+    local arr = new ArrayBox()
+
+    p = me._skip_whitespace(s, p)
+
+    // Empty array
+    if p < s.length() {
+      if s.substring(p, p+1) == "]" {
+        local result = new MapBox()
+        result.set("value", arr)
+        result.set("pos", p + 1)
+        result.set("type", "array")
+        return result
+      }
+    }
+
+    // Parse elements
+    loop(p < s.length()) {
+      local elem_result = me._parse_value(s, p)
+      if elem_result == null { return null }
+
+      local elem = elem_result.get("value")
+      arr.push(elem)
+
+      p = elem_result.get("pos")
+      p = me._skip_whitespace(s, p)
+
+      if p >= s.length() { return null }
+
+      local ch = s.substring(p, p+1)
+      if ch == "]" {
+        local result = new MapBox()
+        result.set("value", arr)
+        result.set("pos", p + 1)
+        result.set("type", "array")
+        return result
+      }
+
+      if ch == "," {
+        p = p + 1
+        p = me._skip_whitespace(s, p)
+        continue
+      }
+
+      return null
+    }
+
+    return null
+  }
+
+  _parse_object(s, pos) {
+    if s.substring(pos, pos+1) != "{" { return null }
+
+    local p = pos + 1
+    local obj = new MapBox()
+
+    p = me._skip_whitespace(s, p)
+
+    // Empty object
+    if p < s.length() {
+      if s.substring(p, p+1) == "}" {
+        local result = new MapBox()
+        result.set("value", obj)
+        result.set("pos", p + 1)
+        result.set("type", "object")
+        return result
+      }
+    }
+
+    // Parse key-value pairs
+    loop(p < s.length()) {
+      p = me._skip_whitespace(s, p)
+
+      // Parse key (must be string)
+      if s.substring(p, p+1) != '"' { return null }
+
+      local key_result = me._parse_string(s, p)
+      if key_result == null { return null }
+
+      local key = key_result.get("value")
+
+      p = key_result.get("pos")
+      p = me._skip_whitespace(s, p)
+
+      // Expect colon
+      if p >= s.length() { return null }
+      if s.substring(p, p+1) != ":" { return null }
+      p = p + 1
+
+      p = me._skip_whitespace(s, p)
+
+      // Parse value
+      local value_result = me._parse_value(s, p)
+      if value_result == null { return null }
+
+      local value = value_result.get("value")
+      obj.set(key, value)
+
+      p = value_result.get("pos")
+      p = me._skip_whitespace(s, p)
+
+      if p >= s.length() { return null }
+
+      local ch = s.substring(p, p+1)
+      if ch == "}" {
+        local result = new MapBox()
+        result.set("value", obj)
+        result.set("pos", p + 1)
+        result.set("type", "object")
+        return result
+      }
+
+      if ch == "," {
+        p = p + 1
+        continue
+      }
+
+      return null
+    }
+
+    return null
+  }
+
+  // Helper functions
+  _skip_whitespace(s, pos) {
+    local cur = new StringCursor()
+    cur.reset(s)
+    cur.set_pos(pos)
+    cur.skip_ws()
+    return cur.pos()
+  }
+
+  _trim(s) {
+    if s == null { return "" }
+
+    // Trim leading whitespace (StringCursor)
+    local cur = new StringCursor()
+    cur.reset(s)
+    cur.skip_ws()
+    local start = cur.pos()
+
+    // Trim trailing whitespace (manual loop)
+    local end = s.length()
+    loop(end > start) {
+      local ch = s.substring(end-1, end)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+        end = end - 1
+      } else {
+        break
+      }
+    }
+
+    return s.substring(start, end)
+  }
+
+  _match_literal(s, pos, literal) {
+    local len = literal.length()
+    if pos + len > s.length() { return 0 }
+
+    local i = 0
+    loop(i < len) {
+      if s.substring(pos + i, pos + i + 1) != literal.substring(i, i + 1) {
+        return 0
+      }
+      i = i + 1
+    }
+
+    return 1
+  }
+
+  _unescape_string(s) {
+    if s == null { return "" }
+
+    local result = ""
+    local i = 0
+
+    loop(i < s.length()) {
+      local ch = s.substring(i, i+1)
+
+      // Workaround: flatten to avoid MIR nested-if bug
+      local is_escape = 0
+      local has_next = 0
+
+      if ch == "\\" { is_escape = 1 }
+      if i + 1 < s.length() { has_next = 1 }
+
+      local process_escape = 0
+      if is_escape == 1 {
+        if has_next == 1 {
+          process_escape = 1
+        }
+      }
+
+      if process_escape == 1 {
+        local next = s.substring(i+1, i+2)
+
+        if next == "n" {
+          result = result + "\n"
+          i = i + 2
+          continue
+        }
+
+        if next == "t" {
+          result = result + "\t"
+          i = i + 2
+          continue
+        }
+
+        if next == "r" {
+          result = result + "\r"
+          i = i + 2
+          continue
+        }
+
+        if next == '"' {
+          result = result + '"'
+          i = i + 2
+          continue
+        }
+
+        if next == "\\" {
+          result = result + "\\"
+          i = i + 2
+          continue
+        }
+
+        // Other escapes: keep as-is for MVP
+        result = result + ch
+        i = i + 1
+        continue
+      }
+
+      result = result + ch
+      i = i + 1
+    }
+
+    return result
+  }
+
+  _atoi(s) {
+    if s == null { return 0 }
+
+    local n = s.length()
+    if n == 0 { return 0 }
+
+    local i = 0
+    local v = 0
+    local negative = 0
+
+    // Check for negative sign
+    if s.substring(0, 1) == "-" {
+      negative = 1
+      i = 1
+    }
+
+    local digits = "0123456789"
+    loop(i < n) {
+      local ch = s.substring(i, i+1)
+      if ch < "0" || ch > "9" { break }
+      local pos = digits.indexOf(ch)
+      if pos < 0 { break }
+      v = v * 10 + pos
+      i = i + 1
+    }
+
+    if negative == 1 {
+      v = 0 - v
+    }
+
+    return v
+  }
+
+  // Parse Program JSON v0 (Phase 172)
+  // Returns ProgramJSONBox or null
+  method parse_program(json_str) {
+    local obj = me.parse_object(json_str)
+    if obj == null { return null }
+
+    // Program JSON必須フィールド確認
+    local version = obj.get("version")
+    local kind = obj.get("kind")
+
+    if version == null { return null }
+    if kind != "Program" { return null }
+
+    // ProgramJSONBox を返す
+    return new ProgramJSONBox(obj)
+  }
+}
+
+// ProgramJSONBox: Program JSON v0 wrapper (Phase 172)
+// Provides type-safe access to Program JSON structure
+box ProgramJSONBox {
+  _obj: MapBox  // Internal: parsed JSON object
+
+  birth(obj) {
+    me._obj = obj
+  }
+
+  method get_version() {
+    return me._obj.get("version")
+  }
+
+  method get_kind() {
+    return me._obj.get("kind")
+  }
+
+  method get_defs() {
+    // Returns ArrayBox (definitions: Box/Method/etc)
+    return me._obj.get("defs")
+  }
+
+  method get_meta() {
+    // Returns MapBox (metadata)
+    return me._obj.get("meta")
+  }
+
+  method get_usings() {
+    // Returns ArrayBox or null (using declarations)
+    local meta = me.get_meta()
+    if meta == null { return null }
+    return meta.get("usings")
+  }
+
+  // Get all objects (for backward compatibility)
+  method get_object() {
+    return me._obj
+  }
+}
+
+// Main entry point (required for standalone execution)
+static box JsonParserMain {
+  main(args) {
+    return 0
+  }
+}

@@ -1,0 +1,38 @@
+// result_box.hako — Result / ResultBox
+// 責務: 処理結果の統一表現（成功値 or エラーメッセージ）
+// 使い方: Result.Ok(val) / Result.Err(msg) → ResultBox
+
+box ResultBox {
+  _tag: StringBox
+  _value: InstanceBox
+
+  birth(tag, val) {
+    me._tag = tag
+    me._value = val
+  }
+
+  is_Ok() {
+    return me._tag == "Ok"
+  }
+
+  is_Err() {
+    return me._tag == "Err"
+  }
+
+  as_Ok() {
+    return me._value
+  }
+
+  as_Err() {
+    return me._value
+  }
+}
+
+static box Result {
+  Ok(value) {
+    return new ResultBox("Ok", value)
+  }
+  Err(error) {
+    return new ResultBox("Err", error)
+  }
+}

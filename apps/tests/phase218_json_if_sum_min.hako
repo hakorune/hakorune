@@ -1,0 +1,48 @@
+// Phase 218: JsonParser-style if-sum pattern test (SIMPLIFIED)
+// Tests: Loop with conditional accumulation using variable-based sum (JsonParser pattern)
+// Target: selfhost JsonParser pattern (e.g., sum = sum + digit when digit > 0)
+//
+// Pattern:
+//   Simulate digits: 0, 1, 3, 0, 5
+//   Skip zero digits (i=0, i=3)
+//   Accumulate valid digits: sum = sum + digit
+//   Final sum: 0 + 1 + 3 + 5 = 9
+//
+// Expected result: 9 (sum of valid digits)
+
+static box JsonIfSumTest {
+    sum_digits(data) {
+        local sum
+        sum = 0
+        local i
+        i = 0
+        local len
+        len = 5
+
+        loop(i < len) {
+            // Simulate digit extraction: [0, 1, 3, 0, 5]
+            // This is simpler than nested-if version
+            // For now, just use i itself as digit (JsonParser would do actual string parsing)
+
+            // JsonParser pattern: if digit > 0 { sum = sum + digit }
+            if i > 0 {
+                // Conditional update: sum = sum + i (simulating: sum = sum + digit)
+                sum = sum + i
+                print(sum)  // Force if to stay in MIR
+            } else {
+                print(0)    // Ensure else branch exists
+            }
+
+            i = i + 1
+        }
+
+        return sum
+    }
+
+    main() {
+        // Test: sum = 1 + 2 + 3 + 4 = 10
+        local result
+        result = JsonIfSumTest.sum_digits(0)  // dummy arg
+        return result
+    }
+}

@@ -1,0 +1,28 @@
+// Phase 252 P0: this.methodcall in break condition
+// Minimal test fixture - simplified to avoid '-' operator (Phase 253 issue)
+
+static box StringUtils {
+    is_digit(ch) {
+        return ch >= "0"
+    }
+
+    count_leading_digits(s) {
+        local i = 0
+        local len = s.length()
+        loop(i < len) {
+            local ch = s.substring(i, i + 1)
+            if not this.is_digit(ch) {
+                break
+            }
+            i = i + 1
+        }
+        return i
+    }
+}
+
+static box Main {
+    main() {
+        local result = StringUtils.count_leading_digits("123abc")
+        return result
+    }
+}

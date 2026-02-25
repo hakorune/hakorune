@@ -1,0 +1,393 @@
+// jsonfrag_normalizer_box.hako — JsonFrag-based MIR(JSON) normalizer (scaffold)
+// Scope: text-level normalization helpers for MIR(JSON) produced via JsonFrag path.
+// Policy: behind dev toggle; starts as pass-through and will be refined in small steps.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.json.utils.json_number_canonical as JsonNumberCanonicalBox
+
+static box JsonFragNormalizerBox {
+  _dq() { return "\"" }
+  _lb() { return "{" }
+  _rb() { return "}" }
+  _lsq() { return "[" }
+  _rsq() { return "]" }
+
+  // Internal: ensure ret has explicit value (minimal, numeric or keep as-is if present)
+  _ret_ensure_value(obj) {
+    if obj == null { return null }
+    local s = "" + obj
+    // If key exists anywhere, keep as-is
+    if s.indexOf(me._dq()+"value"+me._dq()+":") >= 0 { return s }
+    // Insert before the last '}'
+    local n = s.length()
+    if n <= 1 { return s }
+    local tail = s.substring(n-1, n)
+    if tail != me._rb() { return s }
+    return s.substring(0, n-1) + ",\"value\":0}"
+  }
+
+  // Internal: normalize a single block's instructions array text
+  _normalize_instructions_array(arr_text) {
+    if arr_text == null { return "" }
+    local s = "" + arr_text
+    local n = s.length()
+    local i = 0
+    local guard = 0
+    local phi_list = new ArrayBox()
+    local const_list = new ArrayBox()
+    local others_list = new ArrayBox()
+    local seen = new MapBox()  // signature -> 1
+    // Dev-only: purify flag to drop builder-side allocations (e.g., newbox) from JSONFrag output
+    local purify = 0; { local pv = env.get("HAKO_MIR_BUILDER_JSONFRAG_PURIFY"); if pv != null { local pvs = "" + pv; if pvs == "1" { purify = 1 } } }
+    local seen_ret = 0
+    loop(i < n) {
+      guard = guard + 1
+      if guard > 4096 { break }
+      // seek next object '{'
+      local ob = JsonFragBox.index_of_from(s, me._lb(), i)
+      if ob < 0 { break }
+      local ob_end = JsonCursorBox.seek_obj_end(s, ob)
+      if ob_end < 0 { break }
+      local obj = s.substring(ob, ob_end + 1)
+      // advance index to after this object (skip trailing comma via next search)
+      i = ob_end + 1
+      // classify by op
+      local op = JsonFragBox.get_str(obj, "op")
+      if purify == 1 {
+        // Drop builder-side allocations and side-effect calls for JsonFrag purify
+        if op == "newbox" { continue }
+        if op == "boxcall" { continue }
+        if op == "externcall" { continue }
+        if op == "mir_call" { continue }
+      }
+      if op == "phi" {
+        phi_list.push(obj)
+        continue
+      }
+      if op == "const" {
+        // Canonicalize const representation (e.g., f64 value formatting) before dedupe/signature
+        local obj_c = me._const_canonicalize(obj)
+        // Build dedupe signature: dst + value-signature (type-aware: i64/f64/String/raw)
+        local dst = JsonFragBox.get_int(obj_c, "dst")
+        local dstr = (dst == null) ? "?" : StringHelpers.int_to_str(dst)
+        local sig_val = me._const_value_sig(obj_c)
+        local sig = "d:" + dstr + ";val:" + sig_val
+        if seen.get(sig) == null { const_list.push(obj_c)  seen.set(sig, 1) }
+        continue
+      }
+      if op == "ret" {
+        others_list.push(me._ret_ensure_value(obj))
+        // cut: do not allow any instruction after ret in this block
+        seen_ret = 1
+        break
+      }
+      others_list.push(obj)
+    }
+    // Rebuild in normalized order: phi* (as-is order) → const* (stable) → others*
+    local out = ""
+    local first = 1
+    // emit phi
+    {
+      local j = 0
+      local m = phi_list.size()
+      loop(j < m) {
+        local item = phi_list.get(j)
+        if first == 0 { out = out + "," } else { first = 0 }
+        out = out + item
+        j = j + 1
+      }
+    }
+    // emit const
+    {
+      local j2 = 0
+      local m2 = const_list.size()
+      loop(j2 < m2) {
+        local item2 = const_list.get(j2)
+        if first == 0 { out = out + "," } else { first = 0 }
+        out = out + item2
+        j2 = j2 + 1
+      }
+    }
+    // emit others
+    {
+      local j3 = 0
+      local m3 = others_list.size()
+      loop(j3 < m3) {
+        local item3 = others_list.get(j3)
+        if first == 0 { out = out + "," } else { first = 0 }
+        out = out + item3
+        j3 = j3 + 1
+      }
+    }
+    return out
+  }
+
+  // Build a canonical value signature for a const instruction object text
+  _const_value_sig(obj_text) {
+    if obj_text == null { return "?" }
+    local s = "" + obj_text
+    // locate '"value":'
+    local k = s.indexOf(me._dq()+"value"+me._dq()+":")
+    if k < 0 { return "?" }
+    local p = k + (me._dq()+"value"+me._dq()+":").length()
+    if p >= s.length() { return "?" }
+    local ch = s.substring(p, p+1)
+    if ch == me._lb() {
+      // object form
+      local obj_start = p
+      local obj_end = JsonCursorBox.seek_obj_end(s, obj_start)
+      if obj_end < 0 { return "raw:?" }
+      local inner = s.substring(obj_start, obj_end+1)
+      // typed numeric
+      local t = JsonFragBox.get_str(inner, "type")
+      if t == "i64" {
+        local vi = JsonFragBox.get_int(inner, "value")
+        if vi != null { return "i64:" + StringHelpers.int_to_str(vi) }
+        return "i64:?"
+      }
+      if t == "f64" {
+        local keyv = me._dq()+"value"+me._dq()+":"
+        local kv = inner.indexOf(keyv)
+        if kv >= 0 {
+          local vs = JsonFragBox.read_float_after(inner, kv + keyv.length())
+          if vs != null { return "f64:" + vs }
+        }
+        return "f64:?"
+      }
+      // string form: {"String":"..."}
+      local sv = JsonFragBox.get_str(inner, "String")
+      if sv != "" { return "S:" + sv }
+      // fallback: raw object
+      return "raw:" + inner
+    }
+    // primitive value (number literal) — try float then int
+    local vs2 = JsonFragBox.read_float_after(s, p)
+    if vs2 != null { return "num:" + vs2 }
+    local vi2 = JsonFragBox.read_int_after(s, p)
+    if vi2 != null { return "int:" + vi2 }
+    return "?"
+  }
+
+  // Canonicalize const object textual representation for known patterns (f64 formatting)
+  _const_canonicalize(obj_text) {
+    if obj_text == null { return null }
+    local s = "" + obj_text
+    // narrow to object; if malformed, return as-is
+    local t = JsonFragBox.get_str(s, "type")
+    if t == "f64" {
+      // find value position inside object and normalize numeric literal
+      local keyv = me._dq()+"value"+me._dq()+":"
+      local kv = s.indexOf(keyv)
+      if kv >= 0 {
+        // position of number start
+        local p = kv + keyv.length()
+        // skip spaces
+        loop(p < s.length()) { if s.substring(p,p+1) == " " { p = p + 1 } else { break } }
+        // prefer tolerant numeric token reader (supports exponent), fallback to float reader
+        local vs = JsonNumberCanonicalBox.read_num_token(s, p)
+        if vs == null { vs = JsonFragBox.read_float_after(s, p) }
+        if vs != null {
+          local canon = JsonNumberCanonicalBox.canonicalize_f64(vs)
+          // replace substring from p of length vs.length with canon
+          local out = s.substring(0, p) + canon + s.substring(p + vs.length(), s.length())
+          return out
+        }
+      }
+    }
+    return s
+  }
+
+  // Make a minimal canonical float string (trim trailing zeros; ensure at least one fractional digit)
+  _canonicalize_f64_str(fs) {
+    if fs == null { return "0.0" }
+    local s = "" + fs
+    // Normalize case
+    local raw = s
+    // Split sign
+    local sign = ""
+    if s.substring(0,1) == "-" { sign = "-"  s = s.substring(1) }
+    // Handle exponent forms like d(.d*)?[eE][+-]?d+
+    local exp_pos = -1
+    local ei = s.indexOf("e"); if ei < 0 { ei = s.indexOf("E") }
+    if ei >= 0 { exp_pos = ei }
+    if exp_pos >= 0 {
+      local mant = s.substring(0, exp_pos)
+      local exp_str = s.substring(exp_pos+1)
+      // parse exponent sign
+      local esign = 1
+      if exp_str.substring(0,1) == "+" { exp_str = exp_str.substring(1) }
+      else { if exp_str.substring(0,1) == "-" { esign = -1  exp_str = exp_str.substring(1) } }
+      // collect digits only from exp_str
+      local ed = ""
+      local k = 0
+      loop(k < exp_str.length()) { local ch = exp_str.substring(k,k+1); if ch >= "0" && ch <= "9" { ed = ed + ch  k = k + 1 } else { break } }
+      local e = StringHelpers.to_i64(ed)
+      // build digits from mantissa (remove dot)
+      local dotm = mant.indexOf(".")
+      local mdigits = ""
+      local intp = mant
+      local frac = ""
+      if dotm >= 0 { intp = mant.substring(0, dotm); frac = mant.substring(dotm+1) }
+      mdigits = intp + frac
+      // trim leading zeros in mdigits for placement robustness
+      local ms = mdigits
+      local a = 0
+      loop(a < ms.length() && ms.substring(a,a+1) == "0") { a = a + 1 }
+      ms = ms.substring(a)
+      if ms.length() == 0 { return "0.0" }
+      // compute new decimal point index
+      local shift = e * esign
+      local pos = intp.length() + shift
+      // pad with zeros if needed
+      if pos < 0 {
+        // 0.xxx style: need leading zeros
+        local zeros = ""
+        local zc = 0 - pos
+        loop(zc > 0) { zeros = zeros + "0"  zc = zc - 1 }
+        local sfrac = zeros + ms
+        // trim trailing zeros later
+        local out = "0." + sfrac
+        // remove trailing zeros
+        local j2 = out.length()
+        loop(j2 > 0) { if out.substring(j2-1,j2) == "0" { j2 = j2 - 1 } else { break } }
+        out = out.substring(0, j2)
+        if out.substring(out.length()-1) == "." { out = out + "0" }
+        if out == "0.0" { return "0.0" } else { return (sign == "-" && out != "0.0") ? ("-" + out) : out }
+      }
+      if pos >= ms.length() {
+        // integer with trailing zeros needed
+        local zeros2 = ""
+        local zc2 = pos - ms.length()
+        loop(zc2 > 0) { zeros2 = zeros2 + "0"  zc2 = zc2 - 1 }
+        local out2 = ms + zeros2
+        // add .0 to mark f64
+        out2 = out2 + ".0"
+        if out2 == "0.0" { return "0.0" } else { return (sign == "-" && out2 != "0.0") ? ("-" + out2) : out2 }
+      }
+      // general case: insert dot into ms at pos
+      local left = ms.substring(0, pos)
+      local right = ms.substring(pos)
+      // trim trailing zeros in right
+      local j3 = right.length()
+      loop(j3 > 0) { if right.substring(j3-1,j3) == "0" { j3 = j3 - 1 } else { break } }
+      right = right.substring(0, j3)
+      if right.length() == 0 { right = "0" }
+      local out3 = left + "." + right
+      // trim leading zeros in left (leave at least one)
+      local b = 0
+      loop(b + 1 < left.length() && left.substring(b,b+1) == "0") { b = b + 1 }
+      out3 = left.substring(b) + "." + right
+      if out3.substring(0,1) == "." { out3 = "0" + out3 }
+      if out3 == "0.0" { return "0.0" } else { return (sign == "-" && out3 != "0.0") ? ("-" + out3) : out3 }
+    }
+    // Non-exponent path: canonicalize decimals
+    local dot = s.indexOf(".")
+    if dot < 0 { return (sign == "-") ? ("-" + s + ".0") : (s + ".0") }
+    local intp2 = s.substring(0, dot)
+    local frac2 = s.substring(dot+1)
+    // trim trailing zeros
+    local j = frac2.length()
+    loop(j > 0) { if frac2.substring(j-1,j) == "0" { j = j - 1 } else { break } }
+    frac2 = frac2.substring(0, j)
+    local out4 = intp2 + "." + (frac2.length() == 0 ? "0" : frac2)
+    if out4 == "0.0" { return "0.0" }
+    return (sign == "-") ? ("-" + out4) : out4
+  }
+
+  // Read a numeric token (digits, optional dot, optional exponent) starting at pos
+  _read_num_token(text, pos) {
+    if text == null { return null }
+    local s = "" + text
+    local n = s.length()
+    local i = pos
+    if i >= n { return null }
+    // optional sign
+    if s.substring(i,i+1) == "+" || s.substring(i,i+1) == "-" { i = i + 1 }
+    local had = 0
+    // digits before dot
+    loop(i < n) { local ch = s.substring(i,i+1); if ch >= "0" && ch <= "9" { had = 1  i = i + 1 } else { break } }
+    // optional dot + digits
+    if i < n && s.substring(i,i+1) == "." {
+      i = i + 1
+      loop(i < n) { local ch2 = s.substring(i,i+1); if ch2 >= "0" && ch2 <= "9" { had = 1  i = i + 1 } else { break } }
+    }
+    // optional exponent
+    if i < n {
+      local ch3 = s.substring(i,i+1)
+      if ch3 == "e" || ch3 == "E" {
+        i = i + 1
+        if i < n && (s.substring(i,i+1) == "+" || s.substring(i,i+1) == "-") { i = i + 1 }
+        local dig = 0
+        loop(i < n) { local ce = s.substring(i,i+1); if ce >= "0" && ce <= "9" { dig = 1  i = i + 1 } else { break } }
+        if dig == 0 { return null }
+      }
+    }
+    if had == 0 { return null }
+    return s.substring(pos, i)
+  }
+
+  // Normalize PHI placement/order (group at block head) across all blocks
+  normalize_phi(mir_json_text) {
+    return me._normalize_all_blocks(mir_json_text, /*mode*/ "phi")
+  }
+
+  // Normalize return forms (ensure explicit value)
+  normalize_ret(mir_json_text) {
+    return me._normalize_all_blocks(mir_json_text, /*mode*/ "ret")
+  }
+
+  // Normalize const declarations (dedupe/grouping at head)
+  normalize_consts(mir_json_text) {
+    return me._normalize_all_blocks(mir_json_text, /*mode*/ "const")
+  }
+
+  // Shared normalization runner: rewrites each instructions array using _normalize_instructions_array
+  _normalize_all_blocks(mir_json_text, mode) {
+    if mir_json_text == null { return null }
+    local src = "" + mir_json_text
+    local key = me._dq()+"instructions"+me._dq()+":"+me._lsq()
+    local out = ""
+    local pos = 0
+    local n = src.length()
+    local guard = 0
+    loop(pos < n) {
+      guard = guard + 1
+      if guard > 16384 { break }
+      local k = src.indexOf(key, pos)
+      if k < 0 {
+        out = out + src.substring(pos, n)
+        break
+      }
+      local arr_br = k + key.length() - 1  // points at '['
+      // append prefix and the '[' itself
+      out = out + src.substring(pos, arr_br + 1)
+      // locate end of array and extract
+      local arr_end = JsonCursorBox.seek_array_end(src, arr_br)
+      if arr_end < 0 {
+        // malformed array; append rest and break
+        out = out + src.substring(arr_br + 1, n)
+        break
+      }
+      local inner = src.substring(arr_br + 1, arr_end)
+      local normalized = me._normalize_instructions_array(inner)
+      out = out + normalized + me._rsq()
+      pos = arr_end + 1
+    }
+    return out
+  }
+
+  // Apply all normalizations in a safe order.
+  normalize_all(mir_json_text) {
+    if mir_json_text == null { return null }
+    // Order: consts → phi → ret（保守的な順序）
+    local s1 = JsonFragNormalizerBox.normalize_consts(mir_json_text)
+    local s2 = JsonFragNormalizerBox.normalize_phi(s1)
+    local s3 = JsonFragNormalizerBox.normalize_ret(s2)
+    // Optional tag (quiet by default)
+    local tag = env.get("HAKO_MIR_BUILDER_NORMALIZE_TAG")
+    if tag != null && ("" + tag) == "1" { print("[mirbuilder/normalize:jsonfrag:pass]") }
+    return s3
+  }
+}

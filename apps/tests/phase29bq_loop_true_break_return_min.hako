@@ -1,0 +1,23 @@
+// Phase 29bq: loop(true) + break + return minimal fixture
+// Expected output: 0 (ch="" breaks immediately, returns i=0)
+// Matches selfhost LocalSSA._block_insts_end shape (break+return, no GeneralIf nesting)
+
+static box Main {
+    main() {
+        local i = 0
+        local depth = 1
+
+        loop(true) {
+            local ch = ""
+            if ch == "" {
+                break
+            }
+            if depth == 0 {
+                return i
+            }
+            i = i + 1
+        }
+        print(i)
+        return i
+    }
+}

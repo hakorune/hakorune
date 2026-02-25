@@ -1,0 +1,30 @@
+// funcscanner_trim_min.hako
+// Minimal reproduction candidate for FuncScannerBox._trim/1 SSA/PHI issues
+//
+// Purpose:
+// - Call FuncScannerBox._trim/1 directly from a tiny Main.main.
+// - Keep control‑flow as simple as possible（1回呼び出し＋return）。
+// - If the SSA/PHI bug is intrinsic to _trim/1（static helper alias）、
+//   this file単体＋func_scanner.hako だけで再現できるはず。
+
+using lang.compiler.entry.func_scanner as FuncScannerBox
+
+static box Main {
+  main(args) {
+    // 短いテキストを 1 回だけ _trim に通す。
+    local src = "   abc  "
+    print("[trim/min] input='" + src + "'")
+
+    // static helper 経由（こちらが今回のSSOT対象）。
+    local out1 = FuncScannerBox._trim(src)
+    print("[trim/min] _trim='" + out1 + "'")
+
+    // ついでに直接 trim も呼んでおく（挙動比較用）。
+    local out2 = FuncScannerBox.trim(src)
+    print("[trim/min] trim ='" + out2 + "'")
+
+    // いまは SSA/PHI 崩れの再現が目的なので、戻り値は固定 0。
+    return 0
+  }
+}
+

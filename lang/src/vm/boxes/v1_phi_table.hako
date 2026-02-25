@@ -1,0 +1,113 @@
+// v1_phi_table.hako — V1PhiTableBox
+// Responsibility: apply SSA φ at block entry (v1 JSON), using prev_bb to select incoming.
+
+using selfhost.vm.hakorune-vm.json_v1_reader as JsonV1ReaderBox
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_ops as StringOps
+using selfhost.vm.helpers.instruction_scanner as InstructionScannerBox
+using selfhost.vm.helpers.v1_phi_adapter as V1PhiAdapterBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box V1PhiTableBox {
+  // Apply φ for the given block id using prev_bb. Strict/tolerate are string flags ("1"/"0").
+  apply_at_entry(json, regs, prev_bb, bb, strict, tolerate, flow_trace) {
+    if prev_bb == null { return 0 }
+    if bb == null { return 0 }
+    json = "" + json
+    local trace = 0
+    if flow_trace != null { if flow_trace == 1 { trace = 1 } }
+    // find instructions array for the block
+    local start = JsonV1ReaderBox.block_insts_start(json, bb)
+    if start < 0 { return 0 }
+    local endp = JsonFragBox._seek_array_end(json, start)
+    if endp <= start { return 0 }
+    local seg = json.substring(start + 1, endp)
+    local pscan = 0
+    loop(true) {
+      if pscan >= seg.length() { break }
+      local pt = InstructionScannerBox.next_tuple(seg, pscan)
+      if pt == "" { break }
+      local pc1 = StringOps.index_of_from(pt, ",", 0)
+      local pc2 = StringOps.index_of_from(pt, ",", pc1+1)
+      if pc1 < 0 || pc2 < 0 { break }
+      local ps = JsonFragBox._str_to_int(pt.substring(0, pc1))
+      local pe = JsonFragBox._str_to_int(pt.substring(pc1+1, pc2))
+      local pop = pt.substring(pc2+1, pt.length())
+      if pop == "phi" {
+        local pitem = seg.substring(ps, pe)
+        local dstp = JsonFragBox.get_int(pitem, "dst")
+        if dstp == null { return 0 }
+        local chosen = V1PhiAdapterBox.pick_incoming_value_id(pitem, prev_bb, trace)
+        local write = null
+        if chosen == null {
+          if trace == 1 { print("[phi] dst=" + (""+dstp) + " prev=" + (""+prev_bb) + " chosen=null") }
+          if strict == "1" && tolerate != "1" { return -1 }
+          if tolerate == "1" { write = "0" }
+        } else {
+          local srcv = regs.getField(StringHelpers.int_to_str(chosen))
+          if srcv == null {
+            if trace == 1 { print("[phi] dst=" + (""+dstp) + " prev=" + (""+prev_bb) + " chosen=" + (""+chosen) + " srcv=null") }
+            if strict == "1" && tolerate != "1" { return -1 }
+            if tolerate == "1" { write = "0" }
+          } else {
+            if trace == 1 { print("[phi] dst=" + (""+dstp) + " prev=" + (""+prev_bb) + " chosen=" + (""+chosen) + " srcv=" + (""+srcv) + " write=" + (""+srcv)) }
+            write = "" + srcv
+          }
+        }
+        if write != null { regs.setField(StringHelpers.int_to_str(dstp), write) }
+      }
+      pscan = pe
+    }
+    return 0
+  }
+  // Apply φ from a pre-parsed table entry list for a block.
+  // table: ArrayBox of { dst:int, incoming:ArrayBox of [pred:int, val:int] }
+  apply_table_at_entry(table, regs, prev_bb, strict, tolerate, flow_trace) {
+    if table == null { return 0 }
+    local trace = 0
+    if flow_trace != null { if flow_trace == 1 { trace = 1 } }
+    local n = table.size()
+    local i = 0
+    loop(i < n) {
+      local ent = table.get(i)
+      i = i + 1
+      if ent == null { continue }
+      local dstp = ent.get("dst")
+      local inc = ent.get("incoming")
+      if dstp == null || inc == null { continue }
+      local write = null
+      local m = inc.size()
+      local j = 0
+      loop(j < m) {
+        local pair = inc.get(j)
+        j = j + 1
+        if pair == null { continue }
+        // pair = [pred, val]
+        local pred = 0; local val = 0
+        if pair.size() >= 1 { pred = JsonFragBox._str_to_int(""+pair.get(0)) }
+        if pair.size() >= 2 { val = JsonFragBox._str_to_int(""+pair.get(1)) }
+        if pred == prev_bb {
+          local sv = regs.getField(StringHelpers.int_to_str(val))
+          if sv == null {
+            if trace == 1 { print("[phi] dst=" + (""+dstp) + " prev=" + (""+prev_bb) + " chosen=" + (""+val) + " srcv=null") }
+            if strict == "1" && tolerate != "1" { return -1 }
+            if tolerate == "1" { write = "0" }
+          } else {
+            if trace == 1 { print("[phi] dst=" + (""+dstp) + " prev=" + (""+prev_bb) + " chosen=" + (""+val) + " srcv=" + (""+sv) + " write=" + (""+sv)) }
+            write = "" + sv
+          }
+          break
+        }
+      }
+      if write == null {
+        if trace == 1 { print("[phi] dst=" + (""+dstp) + " prev=" + (""+prev_bb) + " chosen=null") }
+        if strict == "1" && tolerate != "1" { return -1 }
+        if tolerate == "1" { write = "0" }
+      }
+      if write != null { regs.setField(StringHelpers.int_to_str(dstp), write) }
+    }
+    return 0
+  }
+}
+
+static box V1PhiTableMain { method main(args) { return 0 } }

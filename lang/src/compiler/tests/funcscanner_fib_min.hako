@@ -1,0 +1,56 @@
+// funcscanner_fib_min.hako — FuncScannerBox + LoopForm v2 minimal harness
+//
+// 目的:
+//   - Stage‑B を経由せず、「FuncScannerBox.scan_all_boxes/1 + LoopForm v2」のみで
+//     fib 風ソースをスキャンしたときの挙動を固定再現する。
+//   - Undefined ValueId（loop/continue + PHI 周り）の問題を、この箱単体で観測できるようにする。
+//
+// 振る舞い:
+//   - fib サンプルと同等の static box TestBox/Main を src に埋め込む。
+//   - FuncScannerBox.scan_all_boxes(src) を呼び出し、defs の数と box/name をログに出す。
+//   - VM 側で NYASH_VM_VERIFY_MIR=1 を付与して実行することで、
+//     LoopForm v2 / FuncScannerBox 周辺の Undefined Value を構造的に追えるようにする。
+
+using lang.compiler.entry.func_scanner as FuncScannerBox
+
+static box Main {
+  method main() {
+    // stageb_fib_program_defs_canary_vm.sh と同等の fib 用ソースを組み立てる
+    local src = ""
+    src = src + "static box TestBox {\n"
+    src = src + "  method fib(n) {\n"
+    src = src + "    local i = 0\n"
+    src = src + "    local a = 0\n"
+    src = src + "    local b = 1\n"
+    src = src + "    loop(i < n) {\n"
+    src = src + "      local t = a + b\n"
+    src = src + "      a = b\n"
+    src = src + "      b = t\n"
+    src = src + "      i = i + 1\n"
+    src = src + "    }\n"
+    src = src + "    return b\n"
+    src = src + "  }\n"
+    src = src + "}\n\n"
+    src = src + "static box Main {\n"
+    src = src + "  method main() {\n"
+    src = src + "    local t = new TestBox()\n"
+    src = src + "    return t.fib(6)\n"
+    src = src + "  }\n"
+    src = src + "}\n"
+
+    // FuncScannerBox を直接呼び出して defs を収集
+    local defs = FuncScannerBox.scan_all_boxes(src)
+    local n = defs.length()
+    print("[funcscanner/fib_min] defs.len=" + ("" + n))
+
+    // 各定義の box/name をダンプ（Stage‑B FuncScanner と比較しやすくする）
+    local i = 0
+    loop(i < n) {
+      local d = defs.get(i)
+      print("[funcscanner/fib_min] def[" + ("" + i) + "] box=" + ("" + d.get("box")) + " name=" + ("" + d.get("name")))
+      i = i + 1
+    }
+
+    return 0
+  }
+}

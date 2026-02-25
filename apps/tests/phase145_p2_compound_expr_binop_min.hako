@@ -1,0 +1,27 @@
+// Phase 145 P2: Compound expression with nested BinaryOp + MethodCall
+// Pattern: x + s.length() + z
+// Expected: t1 = s.length(); t2 = x + t1; result = t2 + z
+// Exit code: 18 (10 + 5 + 3 = 18)
+
+static box Main {
+    main() {
+        local s
+        s = "Hello"  // length = 5
+
+        local x
+        x = 10
+
+        local z
+        z = 3
+
+        // Compound expression: x + s.length() + z
+        // Should normalize to:
+        //   t1 = s.length()  (= 5)
+        //   t2 = x + t1      (= 10 + 5 = 15)
+        //   result = t2 + z  (= 15 + 3 = 18)
+        local result
+        result = x + s.length() + z
+
+        return result
+    }
+}

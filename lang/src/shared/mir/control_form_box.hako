@@ -1,0 +1,82 @@
+// selfhost/shared/mir/control_form_box.hako
+// ControlFormBox — Loop / If 共通ビューの Hakorune 実装版（Layer 2）
+//
+// 目的:
+// - Rust 側の LoopShape / IfShape / ControlForm に対応する箱を .hako 側に用意して、
+//   Stage‑B / LoopSSA からも同じモデルで制御構造を扱えるようにすることだよ。
+// - 現時点では「構造定義のみ」の箱で、コンパイルを通すための最小限の実装になっているよ。
+
+box ControlFormBox {
+  // 共通フィールド（型はコメントで記載）
+  // kind_name: StringBox      // "loop" or "if"
+  // entry: IntegerBox         // BasicBlockId 相当（整数ID）
+  // exits: ArrayBox           // of IntegerBox (BlockId)
+  kind_name
+  entry
+  exits
+
+  // Loop 用フィールド（kind_name == "loop" の時のみ意味を持つ）
+  // loop_preheader: IntegerBox
+  // loop_header: IntegerBox
+  // loop_body: IntegerBox
+  // loop_latch: IntegerBox
+  // loop_exit: IntegerBox
+  loop_preheader
+  loop_header
+  loop_body
+  loop_latch
+  loop_exit
+
+  // If 用フィールド（kind_name == "if" の時のみ意味を持つ）
+  // if_cond: IntegerBox
+  // if_then: IntegerBox
+  // if_else: IntegerBox
+  // if_merge: IntegerBox
+  if_cond
+  if_then
+  if_else
+  if_merge
+
+  is_loop() {
+    return me.kind_name == "loop"
+  }
+
+  is_if() {
+    return me.kind_name == "if"
+  }
+
+  // Loop 用の ControlFormBox を簡易的に構築するヘルパーだよ。
+  //
+  // header_id / exit_id / body_blocks は JSON v0 由来の block id 群。
+  // ここではまだ単純に:
+  // - entry = header_id
+  // - loop_preheader = header_id（将来、明示的な preheader があれば差し替える）
+  // - loop_latch = header_id（MVP: latch 未特定）
+  // - exits = [exit_id]
+  from_loop(header_id, exit_id, body_blocks) {
+    me.kind_name = "loop"
+    me.entry = header_id
+    me.loop_header = header_id
+    me.loop_exit = exit_id
+    me.loop_body = body_blocks
+    // MVP: preheader/latch は header 相当で埋めておく
+    me.loop_preheader = header_id
+    me.loop_latch = header_id
+    me.exits = new ArrayBox()
+    me.exits.push(exit_id)
+  }
+
+  // If 用の ControlFormBox を構築するヘルパーだよ。
+  //
+  // cond_block / then_block / else_block / merge_block は JSON v0 由来の block id。
+  from_if(cond_block, then_block, else_block, merge_block) {
+    me.kind_name = "if"
+    me.entry = cond_block
+    me.if_cond = cond_block
+    me.if_then = then_block
+    me.if_else = else_block
+    me.if_merge = merge_block
+    me.exits = new ArrayBox()
+    me.exits.push(merge_block)
+  }
+}

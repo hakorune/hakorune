@@ -1,0 +1,47 @@
+// verifier_gate_skeleton.hako
+// Phase 29x X33:
+// - Minimal `.hako` verifier gate skeleton for de-rust transfer lane.
+// - Contract: Rust/Hako verifier error-count mismatch must fail-fast.
+
+static box VmVerifierGateSkeleton {
+  _env_or_default(name, fallback) {
+    local raw = env.get(name)
+    if raw == null { return fallback }
+    local s = "" + raw
+    if s == "" { return fallback }
+    return s
+  }
+
+  verify_counts(route, function_name, rust_errors, hako_errors) {
+    if rust_errors != hako_errors {
+      print(
+        "[freeze:contract][derust-verifier/mismatch] route=" + route +
+        " function=" + function_name +
+        " rust_errors=" + rust_errors +
+        " hako_errors=" + hako_errors
+      )
+      return 1
+    }
+    print(
+      "[derust-verifier/check] route=" + route +
+      " function=" + function_name +
+      " errors=" + rust_errors +
+      " source=hako-skeleton"
+    )
+    return 0
+  }
+
+  verify_from_env() {
+    local route = me._env_or_default("HAKO_DERUST_VERIFY_ROUTE", "vm")
+    local function_name = me._env_or_default("HAKO_DERUST_VERIFY_FUNCTION", "main")
+    local rust_errors = me._env_or_default("HAKO_DERUST_VERIFY_RUST_ERRORS", "0")
+    local hako_errors = me._env_or_default("HAKO_DERUST_VERIFY_HAKO_ERRORS", "0")
+    return me.verify_counts(route, function_name, rust_errors, hako_errors)
+  }
+}
+
+static box Main {
+  main() {
+    return VmVerifierGateSkeleton.verify_from_env()
+  }
+}

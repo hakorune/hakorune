@@ -1,0 +1,21 @@
+// Minimal nested loop(cond) shape for ParserBox.parse_program2 (outer loop + inner skip loop)
+// Expected: stdout=2, RC=0
+static box Main {
+  main() {
+    local i = 1
+    local n = 3
+    local cont = 1
+
+    loop(cont == 1) {
+      if i >= n { cont = 0  break }
+      loop(i < n) {
+        if i == 1 { i = i + 1  continue }
+        break
+      }
+      cont = 0
+    }
+
+    print(i)
+    return 0
+  }
+}

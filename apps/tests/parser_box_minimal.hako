@@ -1,0 +1,139 @@
+// Phase 74-SSA: ParserBox minimal reproduction
+// Goal: Reproduce SSA undef by matching ParserBox structure
+// Pattern: me.method() → delegation → static box
+
+static box ParserStringUtilsBox {
+  is_digit(ch) {
+    if ch >= "0" && ch <= "9" { return 1 }
+    return 0
+  }
+
+  to_int(s) {
+    if s == null { return 0 }
+    local str = "" + s
+    local n = str.length()
+    if n == 0 { return 0 }
+    local neg = 0
+    local i = 0
+    if str.substring(0, 1) == "-" { neg = 1  i = 1 }
+    local acc = 0
+    loop(i < n) {
+      local ch = str.substring(i, i + 1)
+      if ch < "0" || ch > "9" { break }
+      acc = acc * 10 + ("0123456789".indexOf(ch))
+      i = i + 1
+    }
+    if neg == 1 { return 0 - acc }
+    return acc
+  }
+
+  skip_ws(src, i) {
+    local n = src.length()
+    loop(i < n) {
+      local ch = src.substring(i, i + 1)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    return i
+  }
+}
+
+box ParserBox {
+  gpos
+  usings_json
+
+  birth() {
+    me.gpos = 0
+    me.usings_json = "[]"
+    return 0
+  }
+
+  gpos_set(i) { me.gpos = i return 0 }
+  gpos_get() { return me.gpos }
+
+  // Delegation methods (Phase 71-SSA: these cause SSA undef)
+  is_digit(ch) {
+    return ParserStringUtilsBox.is_digit(ch)
+  }
+
+  to_int(s) {
+    return ParserStringUtilsBox.to_int(s)
+  }
+
+  skip_ws(src, i) {
+    return ParserStringUtilsBox.skip_ws(src, i)
+  }
+
+  // Method that uses delegation via me.method()
+  parse_something(text) {
+    local pos = text.lastIndexOf("@")
+    if pos >= 0 {
+      local num_str = text.substring(pos+1, text.length())
+      // 🔥 me.to_int() → ParserBox.to_int() → ParserStringUtilsBox.to_int()
+      local num = me.to_int(num_str)
+      me.gpos_set(num)
+      return num
+    }
+    return 0
+  }
+
+  // Method with loop + me delegation call
+  process(text) {
+    local i = 0
+    local n = text.length()
+    loop(i < n) {
+      local ch = text.substring(i, i+1)
+      if me.is_digit(ch) == 1 {  // me経由の委譲呼び出し
+        break
+      }
+      i = i + 1
+    }
+    return i
+  }
+
+  // More complex method with multiple me calls
+  parse_number(src, start) {
+    local i = start
+    local n = src.length()
+
+    // Skip whitespace via me delegation
+    i = me.skip_ws(src, i)
+    if i >= n { return 0 }
+
+    // Find number start
+    local num_start = i
+    loop(i < n) {
+      local ch = src.substring(i, i+1)
+      if me.is_digit(ch) == 1 {
+        i = i + 1
+        continue
+      }
+      break
+    }
+
+    if i > num_start {
+      local num_str = src.substring(num_start, i)
+      return me.to_int(num_str)  // me経由のto_int委譲
+    }
+    return 0
+  }
+}
+
+box Main {
+  main() {
+    local parser = new ParserBox()
+
+    // Test delegation via me
+    local num = parser.parse_something("data@42")
+    local pos = parser.process("abc123")
+    local parsed = parser.parse_number("  789xyz", 0)
+
+    if num == 42 && pos == 3 && parsed == 789 {
+      return 0
+    }
+    return 1
+  }
+}

@@ -1,0 +1,10 @@
+// phase29bq_hako_mirbuilder_phase17_return_boxcall_stringbox_indexof_b_abc_min.hako
+// Contract pin (MIR widening/BoxCall):
+//   Return(BoxCall) one-arg widening accepts only
+//   `new StringBox("abc").indexOf("b")`.
+
+static box Main {
+  main() {
+    return new StringBox("abc").indexOf("b")
+  }
+}

@@ -1,0 +1,48 @@
+// lower_return_binop_box.hako — Return(Binary(Int,Int) op {+,-,*,/}) → const+const+binop+ret
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box LowerReturnBinOpBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
+    if k_ret < 0 { return null }
+    local k_bin = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_ret)
+    if k_bin < 0 { return null }
+    // op
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_bin)
+    if k_op < 0 { return null }
+    local op = JsonFragBox.read_string_after(s, k_op + 5)
+    if op == null { return null }
+    if !(op == "+" || op == "-" || op == "*" || op == "/") { return null }
+    // lhs/rhs object starts
+    local klhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_bin)
+    local krhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_bin)
+    if klhs < 0 { return null }
+    // strictly ensure lhs node is Int by bounding search before rhs start
+    local ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", klhs)
+    if ti < 0 { return null }
+    if krhs >= 0 && ti >= krhs { return null }
+    local kv_lhs = JsonFragBox.index_of_from(s, "\"value\":", ti)
+    if kv_lhs < 0 { return null }
+    if krhs >= 0 && kv_lhs >= krhs { return null }
+    local lhs_val = JsonFragBox.read_int_after(s, kv_lhs + 8)
+    if lhs_val == null { return null }
+    // rhs int
+    if krhs < 0 { return null }
+    local ti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", krhs)
+    if ti2 < 0 { return null }
+    local kv_rhs = JsonFragBox.index_of_from(s, "\"value\":", ti2)
+    if kv_rhs < 0 { return null }
+    local rhs_val = JsonFragBox.read_int_after(s, kv_rhs + 8)
+    if rhs_val == null { return null }
+
+    // Emit minimal MIR JSON v0 (functions array, name="main", blocks.id)
+    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs_val + "}}," +
+      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_val + "}}," +
+      "{\"op\":\"binop\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+      "{\"op\":\"ret\",\"value\":3}]}]}]}"
+    return mir
+  }
+}

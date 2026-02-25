@@ -1,0 +1,9 @@
+using "apps/lib/json_native/utils/string.hako" as StringUtils
+
+static box Main {
+  main(args) {
+    local result = StringUtils.split("a,b,c", ",")
+    print(result.length())
+    return 0
+  }
+}

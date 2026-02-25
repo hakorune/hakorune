@@ -1,0 +1,18 @@
+// Test Case 1: Early return causes unreachable code
+// Expected: HC020 for unreachable block after return
+
+static box TestEarlyReturn {
+  method test(x) {
+    if x > 0 {
+      return 1
+    }
+    // Everything below becomes unreachable basic block
+    local unreachable = 42
+    return unreachable
+  }
+
+  method main() {
+    local result = me.test(5)
+    return 0
+  }
+}

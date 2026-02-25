@@ -1,0 +1,41 @@
+// Phase 130: if-only post-if with add computation (Normalized post_k)
+// Pattern: x=1/2 (conditionally); x = x + 3; return x
+// Expected: Case A (flag=1) → 5, Case B (flag=0) → 4
+//
+// This tests that post_k can execute computation statements:
+// - if branches: update x (then: x=2, else: x=1)
+// - join_k: merge env
+// - post_k: x = x + 3; return x
+// - Case A: 2 + 3 = 5
+// - Case B: 1 + 3 = 4
+
+static box Main {
+    main() {
+        local x
+        local flag
+
+        // Case A: flag=1 → x=2 → x=x+3 → 5
+        x = 2
+        flag = 1
+        if flag == 1 {
+            x = 2
+        } else {
+            x = 1
+        }
+        x = x + 3
+        print(x)
+
+        // Case B: flag=0 → x=1 → x=x+3 → 4
+        x = 1
+        flag = 0
+        if flag == 1 {
+            x = 2
+        } else {
+            x = 1
+        }
+        x = x + 3
+        print(x)
+
+        return "OK"
+    }
+}

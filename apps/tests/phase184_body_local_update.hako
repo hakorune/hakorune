@@ -1,0 +1,26 @@
+// Phase 184: Body-local MIR Lowering Test
+//
+// This test validates that body-local variables can be used in update expressions.
+//
+// Expected behavior:
+// - loop(i < 5) iterates 5 times
+// - Each iteration:
+//   - local temp = i * 2 (body-local variable)
+//   - sum = sum + temp (update expression uses body-local)
+// - Expected sum: 0 + (0*2) + (1*2) + (2*2) + (3*2) + (4*2) = 0+0+2+4+6+8 = 20
+
+static box Main {
+    main() {
+        local sum = 0
+        local i = 0
+
+        loop(i < 5) {
+            local temp = i * 2  // Body-local variable
+            sum = sum + temp    // Use body-local in update expression
+            i = i + 1
+        }
+
+        print(sum)  // Expected: 20
+        return sum
+    }
+}

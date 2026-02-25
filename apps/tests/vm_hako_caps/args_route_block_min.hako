@@ -1,0 +1,10 @@
+// RVP-C02 capability fixture
+// Contract:
+// - vm-hako must execute main(args) bootstrap (birth/push/length) and return args.length().
+
+static box Main {
+  main(args) {
+    local n = args.length()
+    return n
+  }
+}

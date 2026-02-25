@@ -1,0 +1,29 @@
+// Phase 274 P2: TypeOp (is/as) with dynamic values (prevents constant folding)
+
+static box Main {
+    // Helper function that takes a parameter (prevents constant folding)
+    check_integer(x) {
+        if !x.is("Integer") { return 101 }
+        local y = x.as("Integer")
+        if y != x { return 102 }
+        return 0
+    }
+
+    check_string(s) {
+        if !s.is("String") { return 103 }
+        local t = s.as("String")
+        if t != s { return 104 }
+        return 0
+    }
+
+    main() {
+        // Use function calls to prevent constant folding
+        local r1 = me.check_integer(42)
+        if r1 != 0 { return r1 }
+
+        local r2 = me.check_string("hello")
+        if r2 != 0 { return r2 }
+
+        return 3
+    }
+}

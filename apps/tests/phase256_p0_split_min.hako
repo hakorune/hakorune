@@ -1,0 +1,37 @@
+// Phase 256 P0: Minimal split test fixture
+// Tests: split("a,b,c", ",") → ["a","b","c"] → length = 3
+
+static box StringUtils {
+    split(s, separator) {
+        local result = new ArrayBox()
+        if separator.length() == 0 {
+            result.push(s)
+            return result
+        }
+
+        local start = 0
+        local i = 0
+        loop(i <= s.length() - separator.length()) {
+            if s.substring(i, i + separator.length()) == separator {
+                result.push(s.substring(start, i))
+                start = i + separator.length()
+                i = start
+            } else {
+                i = i + 1
+            }
+        }
+
+        if start <= s.length() {
+            result.push(s.substring(start, s.length()))
+        }
+
+        return result
+    }
+}
+
+static box Main {
+    main() {
+        local result = StringUtils.split("a,b,c", ",")
+        return result.length()
+    }
+}

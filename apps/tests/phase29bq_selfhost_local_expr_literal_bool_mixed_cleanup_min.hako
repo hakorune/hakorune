@@ -1,0 +1,25 @@
+// Phase 29bq parser handoff Tier-2: bool literal + compare + mixed logic + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local cond_a = (true == true) && ((1 < 2) || false)
+      if cond_a {
+        out = out + 15
+      } else {
+        out = out + 1
+      }
+
+      local cond_b = (false != true) || ((1 == 2) && true)
+      if cond_b {
+        out = out + 16
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 2600
+    }
+    print(out)
+    return 0
+  }
+}

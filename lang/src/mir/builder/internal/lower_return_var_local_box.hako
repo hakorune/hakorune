@@ -1,0 +1,41 @@
+// lower_return_var_local_box.hako — Pattern: [ Local name=Int, Return Var(name) ] → const+ret
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box LowerReturnVarLocalBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+    // Find Local with name:"x" and expr Int value
+    local k_loc = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", 0)
+    if k_loc < 0 { return null }
+    // Extract name
+    local k_name = JsonFragBox.index_of_from(s, "\"name\":", k_loc); if k_name < 0 { return null }
+    local name = JsonFragBox.read_string_after(s, k_name + 7)
+    if name == null || name == "" { return null }
+    // Ensure expr Int after this Local
+    local k_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_loc)
+    if k_int < 0 { return null }
+    local kv = JsonFragBox.index_of_from(s, "\"value\":", k_int); if kv < 0 { return null }
+    local val = JsonFragBox.read_int_after(s, kv + 8)
+    if val == null { return null }
+    // Following Return Var(name)
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_loc)
+    if k_ret < 0 { return null }
+    // Guard: reject when control-flow stmt appears before Return (handled by dedicated lowers).
+    local k_if = JsonFragBox.index_of_from(s, "\"type\":\"If\"", k_loc + 1)
+    if k_if >= 0 && k_if < k_ret { return null }
+    local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", k_loc + 1)
+    if k_loop >= 0 && k_loop < k_ret { return null }
+    // Verify Var(name)
+    local k_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_ret)
+    if k_var < 0 { return null }
+    local k_vn = JsonFragBox.index_of_from(s, "\"name\":", k_var); if k_vn < 0 { return null }
+    local vname = JsonFragBox.read_string_after(s, k_vn + 7)
+    if vname == null || vname != name { return null }
+
+    // Emit MIR(JSON v0) as string: const+ret
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+           "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + val + "}}," +
+           "{\"op\":\"ret\",\"value\":1}]}]}]}"
+  }
+}

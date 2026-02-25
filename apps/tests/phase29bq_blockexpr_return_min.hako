@@ -1,0 +1,11 @@
+// Phase B2: BlockExpr used as return expression
+// Expected: stdout="", RC=0
+static box Main {
+  main() {
+    return {
+      local x = 1
+      local y = x + 1
+      0
+    }
+  }
+}

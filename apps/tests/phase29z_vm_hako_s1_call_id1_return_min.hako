@@ -1,0 +1,9 @@
+static box Main {
+  id(x) {
+    return x
+  }
+
+  main() {
+    return id(9)
+  }
+}

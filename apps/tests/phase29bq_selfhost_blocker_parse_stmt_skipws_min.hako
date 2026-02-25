@@ -1,0 +1,17 @@
+// Minimal loop(cond) skip-ws shape with else-branch break (parse stmt prelude)
+// Expected: stdout=1, RC=0
+static box Main {
+  main() {
+    local src = " a"
+    local n = src.length()
+    local jj = 0
+
+    loop(jj < n) {
+      local ch = src.substring(jj, jj + 1)
+      if ch == " " { jj = jj + 1 } else { break }
+    }
+
+    print(jj)
+    return 0
+  }
+}

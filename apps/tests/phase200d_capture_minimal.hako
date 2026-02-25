@@ -1,0 +1,38 @@
+// Phase 200-D: Minimal capture test (Pattern 2)
+// This test verifies that captured variables work in JoinIR Pattern 2
+// without using substring or other unsupported methods.
+//
+// Key points:
+// - base/offset are captured (function-scoped constants)
+// - No substring/indexOf in body-local init (Phase 193 limitation)
+// - Simple accumulation using captured value
+// - Break condition: i == 100 (never true, just to trigger Pattern 2)
+
+static box Main {
+    main() {
+        local base = 10       // Captured var (used in multiplication)
+        local offset = 5      // Captured var (used in addition)
+
+        local i = 0
+        local v = 0
+        local n = 3           // Loop 3 times
+
+        // Pattern 2: loop with break (break never fires)
+        loop(i < n) {
+            // Simple break condition that never fires
+            if i == 100 {
+                break
+            }
+
+            // Use captured variable in accumulation
+            // v = v + base
+            // For i=0: v = 0 + 10 = 10
+            // For i=1: v = 10 + 10 = 20
+            // For i=2: v = 20 + 10 = 30
+            v = v + base
+            i = i + 1
+        }
+
+        print(v)  // Expected: 30
+    }
+}

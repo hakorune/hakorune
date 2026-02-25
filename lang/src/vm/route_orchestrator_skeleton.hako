@@ -1,0 +1,52 @@
+// route_orchestrator_skeleton.hako
+// Phase 29x X32:
+// - Minimal `.hako` route selection skeleton for VM lane orchestration.
+// - Contract mirrors Rust `decide_vm_route_plan` precedence:
+//   fallback (explicit) > prefer_vm_hako > default(vm), and backend vm-hako is fixed vm-hako lane.
+
+static box VmRouteOrchestratorSkeleton {
+  _env_flag(name) {
+    local raw = env.get(name)
+    if raw == null { return 0 }
+    if ("" + raw) == "1" { return 1 }
+    return 0
+  }
+
+  _env_backend() {
+    local raw = env.get("HAKO_DERUST_ROUTE_BACKEND")
+    if raw == null { return "vm" }
+    local backend = "" + raw
+    if backend == "" { return "vm" }
+    return backend
+  }
+
+  decide_lane(backend, force_fallback, prefer_vm_hako) {
+    if backend == "vm" {
+      if force_fallback == 1 { return "compat-fallback" }
+      if prefer_vm_hako == 1 { return "vm-hako" }
+      return "vm"
+    }
+    if backend == "vm-hako" { return "vm-hako" }
+    return "unknown"
+  }
+
+  select_from_env() {
+    local backend = me._env_backend()
+    local force_fallback = me._env_flag("HAKO_DERUST_ROUTE_FORCE_FALLBACK")
+    local prefer_vm_hako = me._env_flag("HAKO_DERUST_ROUTE_PREFER_VM_HAKO")
+    local lane = me.decide_lane(backend, force_fallback, prefer_vm_hako)
+    print("[derust-route/select] backend=" + backend + " lane=" + lane + " source=hako-skeleton")
+    return lane
+  }
+}
+
+static box Main {
+  main() {
+    local lane = VmRouteOrchestratorSkeleton.select_from_env()
+    if lane == "unknown" {
+      print("[derust-route/reject] reason=unknown-backend")
+      return 1
+    }
+    return 0
+  }
+}

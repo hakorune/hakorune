@@ -1,0 +1,5 @@
+# fixture	expected	allow_rc	planner_tag
+apps/tests/phase29aq_string_parse_integer_min.hako	12345	0 57	[joinir/planner_first rule=Pattern2] label=LoopBreakRecipe
+apps/tests/phase29aq_string_parse_integer_leading_zero_min.hako	0	0	[joinir/planner_first rule=Pattern2] label=LoopBreakRecipe
+apps/tests/phase29aq_string_parse_integer_ws_min.hako	0	0	[joinir/planner_first rule=Pattern2] label=LoopBreakRecipe
+apps/tests/phase29aq_string_parse_integer_sign_min.hako	-42	0 214	[joinir/planner_first rule=Pattern2] label=LoopBreakRecipe

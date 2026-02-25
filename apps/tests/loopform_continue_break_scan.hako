@@ -1,0 +1,40 @@
+// loopform_continue_break_scan.hako
+// 目的: Region+next_i 型の scan ループで continue + break 混在パターンをスモークする
+
+static box Main {
+  scan(s) {
+    local i = 0
+    local n = s.length()
+    // Case C-ish: constant-true + continue/backedge + break
+    loop(1 == 1) {
+      if i >= n { break }
+
+      // Region+next_i: この周回での「次の i」を 1 箇所に集約
+      local next_i = i
+      local ch = s.substring(i, i + 1)
+
+      if ch == " " {
+        next_i = i + 1
+        i = next_i
+        continue
+      }
+      if ch == "\t" {
+        next_i = i + 2
+        i = next_i
+        continue
+      }
+      // その他の文字で終了
+      break
+    }
+    return i
+  }
+
+  main(args) {
+    // 先頭に space + tab を並べたケースで scan が 3 を返すことを想定
+    local s = " \tX"
+    local r = Main.scan(s)
+    print(r)
+    return 0
+  }
+}
+

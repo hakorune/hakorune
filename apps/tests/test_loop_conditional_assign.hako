@@ -1,0 +1,15 @@
+static box Main {
+  main(args) {
+    local str = "foo/bar/baz"
+    local idx = -1
+    local t = 0
+    loop(t < str.length()) {
+      if str.substring(t, t+1) == "/" {
+        idx = t
+      }
+      t = t + 1
+    }
+    print("Last slash at: " + ("" + idx))
+    return 0
+  }
+}

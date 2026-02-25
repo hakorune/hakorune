@@ -1,0 +1,3 @@
+# fixture_rel|expected_rc|expected_stdout
+apps/tests/phase29x_optimization_parity_const_fold_min.hako|6|6
+apps/tests/phase29x_optimization_parity_cfg_min.hako|42|42

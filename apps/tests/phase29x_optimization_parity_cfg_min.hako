@@ -1,0 +1,18 @@
+// Phase 29x X64: optimization parity fixture (cfg_simplify track)
+// Contract:
+// - optimize ON/OFF must preserve stdout equivalence.
+// - branch shape covers basic CFG simplification-safe path.
+
+static box Main {
+    main() {
+        local v = 0
+        if 1 < 2 {
+            v = 40
+        } else {
+            v = 1
+        }
+        local out = v + 2
+        print(out)
+        return out
+    }
+}

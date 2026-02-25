@@ -1,0 +1,850 @@
+// ReturnStmtHandler — Handle Return statement in Program JSON v0 parsing
+// Responsibility: SSOT handler for Return statement parsing and state update.
+//
+// P4: own the Return logic directly (consumer delegation removed).
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ReturnStmtHandler {
+  // Handle Return statement node and return updated state map.
+  // Parameters are aligned with consumer boxes:
+  //   program_json, idx, next_idx, tag, state
+  handle(program_json, idx, next_idx, tag, state) {
+    local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
+    local return_kind = "" + BoxHelpers.map_get(state, "return_kind")
+    local retv = BoxHelpers.map_get(state, "retv")
+    local ret_var_name = "" + BoxHelpers.map_get(state, "ret_var_name")
+    local ret_box_type = "" + BoxHelpers.map_get(state, "ret_box_type")
+
+    if has_return == 1 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/stmt:Return] multiple returns are not supported yet",
+        "next_idx" => next_idx,
+        "has_return" => has_return,
+        "return_kind" => return_kind,
+        "retv" => retv,
+        "ret_var_name" => ret_var_name,
+        "ret_box_type" => ret_box_type
+      }
+    }
+
+    local expr_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "expr", idx)
+    if expr_start < 0 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Return missing expr object",
+        "next_idx" => next_idx,
+        "has_return" => has_return,
+        "return_kind" => return_kind,
+        "retv" => retv,
+        "ret_var_name" => ret_var_name,
+        "ret_box_type" => ret_box_type
+      }
+    }
+
+    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, expr_start)
+    if expr_info == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Return expr node scan failed",
+        "next_idx" => next_idx,
+        "has_return" => has_return,
+        "return_kind" => return_kind,
+        "retv" => retv,
+        "ret_var_name" => ret_var_name,
+        "ret_box_type" => ret_box_type
+      }
+    }
+
+    local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
+
+    if expr_type == "Int" {
+      local out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", expr_start)
+      if out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Int missing value",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      retv = BoxHelpers.map_get(out, "value")
+      return_kind = "Int"
+      ret_var_name = ""
+      ret_box_type = ""
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "next_idx" => next_idx,
+        "has_return" => 1,
+        "return_kind" => return_kind,
+        "retv" => retv,
+        "ret_var_name" => ret_var_name,
+        "ret_box_type" => ret_box_type
+      }
+    }
+
+    if expr_type == "Var" {
+      local out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "name", expr_start)
+      if out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Var missing name",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local v = "" + BoxHelpers.map_get(out, "value")
+      if v == "" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Var] Return(Var) name is empty",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      ret_var_name = v
+      return_kind = "Var"
+      ret_box_type = ""
+      retv = 0
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "next_idx" => next_idx,
+        "has_return" => 1,
+        "return_kind" => return_kind,
+        "retv" => retv,
+        "ret_var_name" => ret_var_name,
+        "ret_box_type" => ret_box_type
+      }
+    }
+
+    if expr_type == "Call" {
+      local call_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "name", expr_start)
+      if call_name_out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Call missing name",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local call_name = "" + BoxHelpers.map_get(call_name_out, "value")
+      if call_name != "id" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Call] Return Call supports name=id only",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local args_pos = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "args", expr_start)
+      if args_pos < 0 {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Call missing args",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local p = StringHelpers.skip_ws(program_json, args_pos)
+      if p >= program_json.length() || program_json.substring(p, p + 1) != "[" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Call] Return Call args is not array",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      p = StringHelpers.skip_ws(program_json, p + 1)
+      if p < program_json.length() && program_json.substring(p, p + 1) == "]" {
+        return_kind = "CallId0"
+        ret_var_name = ""
+        ret_box_type = ""
+        retv = 0
+        return %{
+          "err" => 0,
+          "err_line" => "",
+          "next_idx" => next_idx,
+          "has_return" => 1,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      if p >= program_json.length() || program_json.substring(p, p + 1) != "{" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Call] Return Call supports args=[] or args=[Int(9|7)] only",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local call_arg_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, p)
+      if call_arg_info == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Call arg node scan failed",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local call_arg_type = "" + BoxHelpers.map_get(call_arg_info, "type")
+      if call_arg_type != "Int" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Call] Return Call arg must be Int(9|7)",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local call_arg_out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", p)
+      if call_arg_out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Call Int arg missing value",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local call_arg_value = StringHelpers.to_i64(BoxHelpers.map_get(call_arg_out, "value"))
+      if call_arg_value != 9 && call_arg_value != 7 {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Call] Return Call arg Int must be 9 or 7",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local call_arg_after = StringHelpers.to_i64(BoxHelpers.map_get(call_arg_info, "next"))
+      call_arg_after = StringHelpers.skip_ws(program_json, call_arg_after)
+      if call_arg_after >= program_json.length() || program_json.substring(call_arg_after, call_arg_after + 1) != "]" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Call] Return Call supports exactly one Int arg",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      if call_arg_value == 9 {
+        return_kind = "CallId1Int9"
+      } else {
+        return_kind = "CallId1Int7"
+      }
+      ret_var_name = ""
+      ret_box_type = ""
+      retv = call_arg_value
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "next_idx" => next_idx,
+        "has_return" => 1,
+        "return_kind" => return_kind,
+        "retv" => retv,
+        "ret_var_name" => ret_var_name,
+        "ret_box_type" => ret_box_type
+      }
+    }
+
+    if expr_type == "Method" {
+      local method_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "method", expr_start)
+      if method_out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Method missing method",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local method_name = "" + BoxHelpers.map_get(method_out, "value")
+      if method_name != "length" && method_name != "indexOf" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Method] Return Method supports method=length|indexOf only",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local method_args_pos = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "args", expr_start)
+      if method_args_pos < 0 {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Method missing args",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local p_method_args = StringHelpers.skip_ws(program_json, method_args_pos)
+      if p_method_args >= program_json.length() || program_json.substring(p_method_args, p_method_args + 1) != "[" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Method] Return Method args is not array",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      p_method_args = StringHelpers.skip_ws(program_json, p_method_args + 1)
+      if method_name == "length" {
+        if p_method_args >= program_json.length() || program_json.substring(p_method_args, p_method_args + 1) != "]" {
+          return %{
+            "err" => 1,
+            "err_line" => tag + "[cap_missing/expr:Method] Return Method length supports empty args only",
+            "next_idx" => next_idx,
+            "has_return" => has_return,
+            "return_kind" => return_kind,
+            "retv" => retv,
+            "ret_var_name" => ret_var_name,
+            "ret_box_type" => ret_box_type
+          }
+        }
+      } else {
+        if p_method_args >= program_json.length() || program_json.substring(p_method_args, p_method_args + 1) != "{" {
+          return %{
+            "err" => 1,
+            "err_line" => tag + "[cap_missing/expr:Method] Return Method indexOf requires one Str arg",
+            "next_idx" => next_idx,
+            "has_return" => has_return,
+            "return_kind" => return_kind,
+            "retv" => retv,
+            "ret_var_name" => ret_var_name,
+            "ret_box_type" => ret_box_type
+          }
+        }
+        local method_arg_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, p_method_args)
+        if method_arg_info == null {
+          return %{
+            "err" => 1,
+            "err_line" => tag + "[cap_missing/program_json_v0] Return Method indexOf arg node scan failed",
+            "next_idx" => next_idx,
+            "has_return" => has_return,
+            "return_kind" => return_kind,
+            "retv" => retv,
+            "ret_var_name" => ret_var_name,
+            "ret_box_type" => ret_box_type
+          }
+        }
+        local method_arg_type = "" + BoxHelpers.map_get(method_arg_info, "type")
+        if method_arg_type != "Str" {
+          return %{
+            "err" => 1,
+            "err_line" => tag + "[cap_missing/expr:Method] Return Method indexOf arg must be Str(\"b\")",
+            "next_idx" => next_idx,
+            "has_return" => has_return,
+            "return_kind" => return_kind,
+            "retv" => retv,
+            "ret_var_name" => ret_var_name,
+            "ret_box_type" => ret_box_type
+          }
+        }
+        local method_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "value", p_method_args)
+        if method_arg_val_out == null {
+          return %{
+            "err" => 1,
+            "err_line" => tag + "[cap_missing/program_json_v0] Return Method indexOf Str arg missing value",
+            "next_idx" => next_idx,
+            "has_return" => has_return,
+            "return_kind" => return_kind,
+            "retv" => retv,
+            "ret_var_name" => ret_var_name,
+            "ret_box_type" => ret_box_type
+          }
+        }
+        local method_arg_val = "" + BoxHelpers.map_get(method_arg_val_out, "value")
+        if method_arg_val != "b" {
+          return %{
+            "err" => 1,
+            "err_line" => tag + "[cap_missing/expr:Method] Return Method indexOf Str arg must be \"b\"",
+            "next_idx" => next_idx,
+            "has_return" => has_return,
+            "return_kind" => return_kind,
+            "retv" => retv,
+            "ret_var_name" => ret_var_name,
+            "ret_box_type" => ret_box_type
+          }
+        }
+        local method_arg_after = StringHelpers.to_i64(BoxHelpers.map_get(method_arg_info, "next"))
+        method_arg_after = StringHelpers.skip_ws(program_json, method_arg_after)
+        if method_arg_after >= program_json.length() || program_json.substring(method_arg_after, method_arg_after + 1) != "]" {
+          return %{
+            "err" => 1,
+            "err_line" => tag + "[cap_missing/expr:Method] Return Method indexOf supports exactly one Str arg",
+            "next_idx" => next_idx,
+            "has_return" => has_return,
+            "return_kind" => return_kind,
+            "retv" => retv,
+            "ret_var_name" => ret_var_name,
+            "ret_box_type" => ret_box_type
+          }
+        }
+      }
+
+      local recv_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "recv", expr_start)
+      if recv_start < 0 {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Method missing recv object",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local recv_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, recv_start)
+      if recv_info == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv node scan failed",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local recv_type = "" + BoxHelpers.map_get(recv_info, "type")
+      if recv_type != "New" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Method] Return Method recv must be New(StringBox(\"abc\"))",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local recv_class_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "class", recv_start)
+      if recv_class_out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv New missing class",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local recv_class_name = "" + BoxHelpers.map_get(recv_class_out, "value")
+      if recv_class_name != "StringBox" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Method] Return Method recv class must be StringBox",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local recv_args_pos = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "args", recv_start)
+      if recv_args_pos < 0 {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv New missing args",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local p_recv_args = StringHelpers.skip_ws(program_json, recv_args_pos)
+      if p_recv_args >= program_json.length() || program_json.substring(p_recv_args, p_recv_args + 1) != "[" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Method] Return Method recv New args is not array",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local first_recv_arg_pos = StringHelpers.skip_ws(program_json, p_recv_args + 1)
+      if first_recv_arg_pos >= program_json.length() || program_json.substring(first_recv_arg_pos, first_recv_arg_pos + 1) != "{" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Method] Return Method recv New requires one Str arg",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local recv_arg_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, first_recv_arg_pos)
+      if recv_arg_info == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv New arg node scan failed",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local recv_arg_type = "" + BoxHelpers.map_get(recv_arg_info, "type")
+      if recv_arg_type != "Str" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Method] Return Method recv New arg must be Str",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local recv_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "value", first_recv_arg_pos)
+      if recv_arg_val_out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv New Str arg missing value",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local recv_arg_val = "" + BoxHelpers.map_get(recv_arg_val_out, "value")
+      if recv_arg_val != "abc" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Method] Return Method recv New Str arg must be \"abc\"",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local recv_arg_after = StringHelpers.to_i64(BoxHelpers.map_get(recv_arg_info, "next"))
+      recv_arg_after = StringHelpers.skip_ws(program_json, recv_arg_after)
+      if recv_arg_after >= program_json.length() || program_json.substring(recv_arg_after, recv_arg_after + 1) != "]" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Method] Return Method recv New supports exactly one Str arg",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      if method_name == "length" {
+        return_kind = "MethodStringBoxLengthAbc"
+      } else {
+        return_kind = "MethodStringBoxIndexOfBAbc"
+      }
+      ret_var_name = ""
+      ret_box_type = ""
+      retv = 0
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "next_idx" => next_idx,
+        "has_return" => 1,
+        "return_kind" => return_kind,
+        "retv" => retv,
+        "ret_var_name" => ret_var_name,
+        "ret_box_type" => ret_box_type
+      }
+    }
+
+    if expr_type == "New" {
+      local class_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "class", expr_start)
+      if class_out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return New missing class",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local class_name = "" + BoxHelpers.map_get(class_out, "value")
+      if class_name == "" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:New] Return New class is empty",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local args_pos = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "args", expr_start)
+      if args_pos < 0 {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return New missing args",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local p = StringHelpers.skip_ws(program_json, args_pos)
+      if p >= program_json.length() || program_json.substring(p, p + 1) != "[" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:New] Return New args is not array",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      p = StringHelpers.skip_ws(program_json, p + 1)
+      if p < program_json.length() && program_json.substring(p, p + 1) == "]" {
+        return_kind = "NewBox"
+        ret_box_type = class_name
+        ret_var_name = ""
+        retv = 0
+        return %{
+          "err" => 0,
+          "err_line" => "",
+          "next_idx" => next_idx,
+          "has_return" => 1,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      if p >= program_json.length() || program_json.substring(p, p + 1) != "{" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:New] Return New supports args=[] or args=[Str(\"abc\")] only",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      if class_name != "StringBox" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:New] Return New one-arg form supports class=StringBox only",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local new_arg_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, p)
+      if new_arg_info == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return New arg node scan failed",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local new_arg_type = "" + BoxHelpers.map_get(new_arg_info, "type")
+      if new_arg_type != "Str" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:New] Return New one-arg form requires Str(\"abc\")",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local new_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "value", p)
+      if new_arg_val_out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return New Str arg missing value",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local new_arg_val = "" + BoxHelpers.map_get(new_arg_val_out, "value")
+      if new_arg_val != "abc" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:New] Return New Str arg must be \"abc\"",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      local new_arg_after = StringHelpers.to_i64(BoxHelpers.map_get(new_arg_info, "next"))
+      new_arg_after = StringHelpers.skip_ws(program_json, new_arg_after)
+      if new_arg_after >= program_json.length() || program_json.substring(new_arg_after, new_arg_after + 1) != "]" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:New] Return New one-arg form supports exactly one Str arg",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+
+      return_kind = "NewBoxStringAbc"
+      ret_box_type = class_name
+      ret_var_name = ""
+      retv = 0
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "next_idx" => next_idx,
+        "has_return" => 1,
+        "return_kind" => return_kind,
+        "retv" => retv,
+        "ret_var_name" => ret_var_name,
+        "ret_box_type" => ret_box_type
+      }
+    }
+
+    return %{
+      "err" => 1,
+      "err_line" => tag + "[cap_missing/expr:Int] Return expr is not supported (expected Int, Var, New(Box, []), New(StringBox(\"abc\")), Call(id()), Call(id(9|7)), Method(New(StringBox(\"abc\")).length()), or Method(New(StringBox(\"abc\")).indexOf(\"b\")))",
+      "next_idx" => next_idx,
+      "has_return" => has_return,
+      "return_kind" => return_kind,
+      "retv" => retv,
+      "ret_var_name" => ret_var_name,
+      "ret_box_type" => ret_box_type
+    }
+  }
+}
+
+static box ReturnStmtHandlerMain { main() { return 0 } }

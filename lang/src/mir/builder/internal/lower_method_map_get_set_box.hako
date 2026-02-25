@@ -1,0 +1,30 @@
+// lower_method_map_get_set_box.hako — Minimal structural MIR for MapBox set/get
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+
+static box LowerMethodMapGetSetBox {
+  try_lower(program_json) {
+    if program_json == null { return null }
+    local s = "" + program_json
+    if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
+    if JsonFragBox.index_of_from(s, "\"class\":\"MapBox\"", 0) < 0 { return null }
+    // Reverse-lookup (safe subset): prefer Local(String) for key, Local(Int) for value
+    local n = s.length()
+    local key = PatternUtilBox.find_any_local_string_before(s, n)
+    if key == null { key = "k" }
+    local val = PatternUtilBox.find_any_local_int_before(s, n)
+    if val == null { val = "5" }
+    // key as const string (inline), value as const int (inline)
+    local json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
+               // new map -> r1
+               "{\"op\":\"mir_call\",\"dst\":1,\"mir_call\":{\"callee\":{\"type\":\"Constructor\",\"box_type\":\"MapBox\"},\"args\":[],\"effects\":[]}}," +
+               // set(r1, key, val)
+               "{\"op\":\"mir_call\",\"mir_call\":{\"callee\":{\"type\":\"Method\",\"box_name\":\"MapBox\",\"method\":\"set\",\"receiver\":1},\"args\":[\"" + key + "\"," + val + "],\"effects\":[]}}," +
+               // get(r1, key) -> r2
+               "{\"op\":\"mir_call\",\"dst\":2,\"mir_call\":{\"callee\":{\"type\":\"Method\",\"box_name\":\"MapBox\",\"method\":\"get\",\"receiver\":1},\"args\":[\"" + key + "\"],\"effects\":[]}}," +
+                // const 0 -> r3, ret r3
+                "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+                "{\"op\":\"ret\",\"value\":3}]}]}]}"
+    return json
+  }
+}

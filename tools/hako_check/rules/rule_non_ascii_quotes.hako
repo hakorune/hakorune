@@ -1,0 +1,28 @@
+using tools.hako_check.text_ops as TextOps
+// HC017: Non-ASCII Quotes detection
+// Detects fancy quotes like " " ' ' and reports their locations.
+static box RuleNonAsciiQuotesBox {
+  apply(text, path, out) {
+    if text == null { return 0 }
+    local lines = me._split_lines(text)
+    me._scan_lines_for_fancy_quotes(lines, 0, path, out)
+    return 0
+  }
+  _scan_lines_for_fancy_quotes(lines, i, path, out) {
+    if i >= lines.size() { return }
+    local ln = lines.get(i)
+    if me._has_fancy_quote(ln) == 1 {
+      out.push("[HC017] non-ASCII quotes detected: " + path + ":" + me._itoa(i+1))
+    }
+    me._scan_lines_for_fancy_quotes(lines, i + 1, path, out)
+  }
+  _has_fancy_quote(s) {
+    if s == null { return 0 }
+    // Disabled until proper UTF-8 support is available.
+    return 0
+  }
+  _split_lines(s) { local arr=new ArrayBox(); if s==null {return arr} local n=s.length(); local last=0; local i=0; loop(i<n){ local ch=s.substring(i,i+1); if ch=="\n" { arr.push(s.substring(last,i)); last=i+1 } i=i+1 } if last<=n { arr.push(s.substring(last)) } return arr }
+  _itoa(n) { return TextOps._itoa(n) }
+}
+
+static box RuleNonAsciiQuotesMain { method main(args) { return 0 } }

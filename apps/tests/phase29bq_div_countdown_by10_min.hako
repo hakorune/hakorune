@@ -1,0 +1,19 @@
+// Phase 29bq: DivCountdownBy10 shape minimal fixture
+// Expected: stdout=123, RC=0
+// Note: out = ch + out prepends digits from LSB to MSB → "123"
+
+static box Main {
+  main() {
+    local v = 123
+    local out = ""
+    local digits = "0123456789"
+    loop (v > 0) {
+      local d = v % 10
+      local ch = digits.substring(d, d + 1)
+      out = ch + out
+      v = v / 10
+    }
+    print(out)
+    return 0
+  }
+}

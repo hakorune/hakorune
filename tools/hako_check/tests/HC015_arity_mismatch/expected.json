@@ -1,0 +1,4 @@
+{"diagnostics":[
+  {"file":"ng.hako","line":1,"rule":"HC015","message":"[HC015] arity mismatch: Calculator.add expects 2 arguments, got 0 :: Calculator.add/0","quickFix":"","severity":"warning"},
+  {"file":"ng.hako","line":1,"rule":"HC015","message":"[HC015] arity mismatch: Helper.double expects 1 arguments, got 2 :: Helper.double/2","quickFix":"","severity":"warning"}
+]}

@@ -1,0 +1,26 @@
+// Phase 132-P4: loop(true) break-once with minimal post-loop computation
+//
+// Purpose: Test loop(true) { <assign>* ; break }; <post-assign>; return in Normalized shadow
+// Expected output: 3
+//
+// Structure:
+//   x = 0              // pre-loop init
+//   loop(true) {       // condition is Bool literal true
+//       x = 1          // body assignment
+//       break          // break at end
+//   }
+//   x = x + 2          // post-loop assignment
+//   return x           // return updated value (1 + 2 = 3)
+
+static box Main {
+    main() {
+        local x
+        x = 0
+        loop(true) {
+            x = 1
+            break
+        }
+        x = x + 2
+        return x
+    }
+}

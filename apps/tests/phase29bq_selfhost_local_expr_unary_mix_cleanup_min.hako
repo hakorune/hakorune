@@ -1,0 +1,19 @@
+// Phase 29bq parser handoff Tier-2: local + unary mix (! and -) + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local neg = -(-3)
+      local cond = !(neg < 0) && (neg == 3)
+      if cond {
+        out = out + 6
+      } else {
+        out = out + 1
+      }
+    } cleanup {
+      out = out + 60
+    }
+    print(out)
+    return 0
+  }
+}

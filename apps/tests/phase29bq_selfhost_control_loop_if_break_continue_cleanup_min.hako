@@ -1,0 +1,27 @@
+// Phase 29bq parser handoff Tier-4: loop + if + break/continue + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    local i = 0
+    {
+      loop(i < 5) {
+        i = i + 1
+        if i == 2 {
+          out = out + 20
+          continue
+        } else {
+          out = out + 3
+        }
+        if i == 4 {
+          out = out + 40
+          break
+        }
+        out = out + 1
+      }
+    } cleanup {
+      out = out + 100
+    }
+    print(out)
+    return 0
+  }
+}

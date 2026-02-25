@@ -1,0 +1,26 @@
+// Phase 29bq: generic_loop_v1 recipe acceptance (then/else if + nested loop)
+// Goal: accept a loop body with if-else + nested loop (no break/continue/return)
+// Expected output: 20
+static box Main {
+  main() {
+    local i = 0
+    local j = 0
+    local sum = 0
+
+    loop(i < 2) {
+      if i == 1 {
+        j = 0
+        loop(j < 2) {
+          sum = sum + 10
+          j = j + 1
+        }
+      } else {
+        sum = sum + 0
+      }
+      i = i + 1
+    }
+
+    print(sum)
+    return 0
+  }
+}

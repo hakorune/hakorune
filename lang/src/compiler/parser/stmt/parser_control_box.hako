@@ -1,0 +1,446 @@
+// Moved from apps/selfhost-compiler/boxes/parser/stmt/parser_control_box.hako
+// ParserControlBox — if/loop/break/continue parser
+// Responsibility: Parse control flow statements
+// API: parse_if, parse_loop, parse_break, parse_continue, parse_block
+
+using sh_core as StringHelpers  // Required: using chain resolution not implemented
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+static box ParserControlBox {
+  // Parse: if (cond) { ... } else { ... }
+  parse_if(src, i, stmt_start, ctx) {
+    // Depth guard (allow nesting, cap runaway recursion)
+    local if_depth_before = 0
+    {
+      local depth_raw = env.get("HAKO_STAGEB_IF_DEPTH")
+      if depth_raw != null { if_depth_before = StringHelpers.to_i64("" + depth_raw) }
+      if if_depth_before >= 64 {
+        print("[stageb/recursion] ParserControlBox.parse_if recursion detected")
+        return "{\"type\":\"If\",\"cond\":{\"type\":\"Bool\",\"value\":false},\"then\":[]}"
+      }
+      env.set("HAKO_STAGEB_IF_DEPTH", StringHelpers.int_to_str(if_depth_before + 1))
+    }
+    local j = i + 2  // skip "if"
+    j = ctx.skip_ws(src, j)
+    local paren = 0
+    if src.substring(j, j+1) == "(" { paren = 1 j = j + 1 }
+
+    local cond = ctx.parse_expr2(src, j)
+    j = ctx.gpos_get()
+
+    if paren == 1 {
+      j = ctx.skip_ws(src, j)
+      if src.substring(j, j+1) == ")" { j = j + 1 }
+    }
+
+    j = ctx.skip_ws(src, j)
+    local then_res = me.parse_block(src, j, ctx)
+    if ParserStringUtilsBox.starts_with("" + then_res, 0, "[freeze:contract]") == 1 {
+      local at_fail_then = then_res.lastIndexOf("@")
+      local fail_then = "" + then_res
+      if at_fail_then >= 0 { fail_then = then_res.substring(0, at_fail_then) }
+      env.set("HAKO_STAGEB_IF_DEPTH", StringHelpers.int_to_str(if_depth_before))
+      ctx.gpos_set(src.length())
+      return fail_then
+    }
+    local at1 = then_res.lastIndexOf("@")
+    local then_json = then_res.substring(0, at1)
+    j = ctx.to_int(then_res.substring(at1+1, then_res.length()))
+    // Be tolerant to off-by-one in block position encoding, but do NOT over-consume
+    // an outer '}' (e.g. loop body end) after parsing an inner if-then block.
+    //
+    // If parse_block already consumed the closing '}', it returns a position right
+    // AFTER it, so src[j-1] == '}' holds. In that case, we must NOT consume another.
+    local then_block_closed = 0
+    if j > 0 && src.substring(j - 1, j) == "}" { then_block_closed = 1 }
+    if then_block_closed == 0 {
+      // parse_block may return pos at the trailing ws before '}' (Stage‑B VM quirks)
+      {
+        local nsrc = src.length()
+        loop(j < nsrc) {
+          local ch = src.substring(j, j + 1)
+          if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { j = j + 1 continue }
+          break
+        }
+      }
+      if j < src.length() && src.substring(j, j + 1) == "}" { j = j + 1 }
+    }
+    // Always normalize to the next token for else-detection.
+    {
+      local nsrc = src.length()
+      loop(j < nsrc) {
+        local ch = src.substring(j, j + 1)
+        if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { j = j + 1 continue }
+        break
+      }
+    }
+    {
+      local tr = env.get("NYASH_PARSER_TRACE")
+      if tr != null && ("" + tr) == "1" {
+        local tail = ""
+        if j < src.length() {
+          local end = j + 12
+          if end > src.length() { end = src.length() }
+          tail = src.substring(j, end)
+        }
+        print("[parser/if:debug] after_then j=" + ("" + j) + " next=\"" + tail + "\"")
+      }
+    }
+
+    local else_json = null
+    if j + 4 <= src.length() && src.substring(j, j + 4) == "else" {
+      j = j + 4
+      {
+        local nsrc = src.length()
+        loop(j < nsrc) {
+          local ch = src.substring(j, j + 1)
+          if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { j = j + 1 continue }
+          break
+        }
+      }
+      local else_res = me.parse_block(src, j, ctx)
+      if ParserStringUtilsBox.starts_with("" + else_res, 0, "[freeze:contract]") == 1 {
+        local at_fail_else = else_res.lastIndexOf("@")
+        local fail_else = "" + else_res
+        if at_fail_else >= 0 { fail_else = else_res.substring(0, at_fail_else) }
+        env.set("HAKO_STAGEB_IF_DEPTH", StringHelpers.int_to_str(if_depth_before))
+        ctx.gpos_set(src.length())
+        return fail_else
+      }
+      local at2 = else_res.lastIndexOf("@")
+      else_json = else_res.substring(0, at2)
+      j = ctx.to_int(else_res.substring(at2+1, else_res.length()))
+      // Same rule as then-branch: tolerate trailing-ws-before-'}' WITHOUT
+      // consuming an outer '}' by mistake.
+      local else_block_closed = 0
+      if j > 0 && src.substring(j - 1, j) == "}" { else_block_closed = 1 }
+      if else_block_closed == 0 {
+        {
+          local nsrc = src.length()
+          loop(j < nsrc) {
+            local ch = src.substring(j, j + 1)
+            if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { j = j + 1 continue }
+            break
+          }
+        }
+        if j < src.length() && src.substring(j, j + 1) == "}" { j = j + 1 }
+      }
+      {
+        local nsrc = src.length()
+        loop(j < nsrc) {
+          local ch = src.substring(j, j + 1)
+          if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { j = j + 1 continue }
+          break
+        }
+      }
+    }
+
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+
+    env.set("HAKO_STAGEB_IF_DEPTH", StringHelpers.int_to_str(if_depth_before))
+    if else_json == null {
+      return "{\"type\":\"If\",\"cond\":" + cond + ",\"then\":" + then_json + "}"
+    } else {
+      return "{\"type\":\"If\",\"cond\":" + cond + ",\"then\":" + then_json + ",\"else\":" + else_json + "}"
+    }
+  }
+
+  // Parse: loop(cond) { ... }
+  // Dev tracing: set HAKO_PARSER_TRACE_LOOP=1 to enable debug prints
+  parse_loop(src, i, stmt_start, ctx) {
+    local loop_depth_before = 0
+    {
+      local depth_raw = env.get("HAKO_STAGEB_LOOP_DEPTH")
+      if depth_raw != null { loop_depth_before = StringHelpers.to_i64("" + depth_raw) }
+      if loop_depth_before >= 64 {
+        print("[stageb/recursion] ParserControlBox.parse_loop recursion detected")
+        return "{\"type\":\"Loop\",\"cond\":{\"type\":\"Bool\",\"value\":false},\"body\":[]}"
+      }
+      env.set("HAKO_STAGEB_LOOP_DEPTH", StringHelpers.int_to_str(loop_depth_before + 1))
+    }
+
+    local trace = 0  // dev-only (disabled in Stage-B runtime: no env API here)
+    local j = i + 4  // skip "loop"
+    j = ctx.skip_ws(src, j)
+    if src.substring(j, j+1) == "(" { j = j + 1 }
+
+    if trace == 1 { print("[parser/loop:trace] after 'loop(' j=" + ctx.i2s(j) + " ch='" + src.substring(j,j+1) + "'") }
+
+    // Phase 42-2: Conditional workaround for PHI bug
+    // - Route A (default): Use workaround (intermediate variables + heuristic recovery)
+    // - Route B (HAKO_JOINIR_NESTED_IF=1): Skip workaround (NestedIfMerge handles PHI correctly)
+    local use_phi_workaround = 1
+    {
+      local nested_if_flag = env.get("HAKO_JOINIR_NESTED_IF")
+      if nested_if_flag != null && ("" + nested_if_flag) == "1" {
+        use_phi_workaround = 0
+      }
+    }
+
+    // Save position before parsing condition (needed for body fallback in both routes)
+    local j_before_cond = j
+    local cond = ""
+
+    if use_phi_workaround == 1 {
+      // Route A: WORKAROUND for critical VM/compiler bug
+      // Without intermediate variable assignments, parse_expr2's gpos updates are
+      // lost in nested loops, causing Loop.cond.rhs→0 and body→[].
+      // Root cause: MIR PHI insertion or register allocation bug in nested loop contexts.
+      // See: tools/smokes/v2/profiles/quick/core/phase2100/stageb_parser_loop_json_canary_vm.sh
+      local j_wa = j_before_cond
+      cond = ctx.parse_expr2(src, j_wa)
+      j = ctx.gpos_get()
+      local j_after_cond = j
+      if trace == 1 { print("[parser/loop:trace] cond_json=" + cond) }
+
+      // Heuristic recovery: some VM/compiler states regress rhs to Int:0.
+      // If so, try to extract identifier after '<' within the original source
+      // and reconstruct rhs as Var(name).
+      if cond.indexOf("\"Compare\"") >= 0 && cond.indexOf("\"op\":\"<\"") >= 0 {
+        if cond.indexOf("\"rhs\":{\"type\":\"Int\",\"value\":0}") >= 0 {
+          local lt_pos = ctx.index_of(src, j_before_cond, "<")
+          if lt_pos >= 0 {
+            local kpos = ctx.skip_ws(src, lt_pos + 1)
+            if kpos < src.length() && ctx.is_alpha(src.substring(kpos, kpos+1)) == 1 {
+              local idp = ctx.read_ident2(src, kpos)
+              local atid = idp.lastIndexOf("@")
+              local rhs_name = idp.substring(0, atid)
+              local prefix_end = cond.lastIndexOf(",\"rhs\":")
+              if prefix_end >= 0 {
+                local prefix = cond.substring(0, prefix_end)
+                cond = prefix + ",\"rhs\":{\"type\":\"Var\",\"name\":\"" + rhs_name + "\"}}"
+                if trace == 1 { print("[parser/loop:trace] rhs recovered as Var:" + rhs_name) }
+              }
+            }
+          }
+        }
+      }
+    } else {
+      // Route B: Simple path (NestedIfMerge generates correct PHI)
+      cond = ctx.parse_expr2(src, j)
+      j = ctx.gpos_get()
+      if trace == 1 { print("[parser/loop:trace] Route B cond_json=" + cond) }
+    }
+
+    j = ctx.skip_ws(src, j)
+    if src.substring(j, j+1) == ")" { j = j + 1 }
+    if trace == 1 { print("[parser/loop:trace] after ')' j=" + ctx.i2s(j) + " ch='" + src.substring(j,j+1) + "'") }
+    j = ctx.skip_ws(src, j)
+    if trace == 1 { print("[parser/loop:trace] before body parse j=" + ctx.i2s(j) + " ch='" + src.substring(j,j+1) + "'") }
+
+    local body_res = me.parse_block(src, j, ctx)
+    if ParserStringUtilsBox.starts_with("" + body_res, 0, "[freeze:contract]") == 1 {
+      local at_fail_loop = body_res.lastIndexOf("@")
+      local fail_loop = "" + body_res
+      if at_fail_loop >= 0 { fail_loop = body_res.substring(0, at_fail_loop) }
+      env.set("HAKO_STAGEB_LOOP_DEPTH", StringHelpers.int_to_str(loop_depth_before))
+      ctx.gpos_set(src.length())
+      return fail_loop
+    }
+    local at3 = body_res.lastIndexOf("@")
+    local body_json = body_res.substring(0, at3)
+    j = ctx.to_int(body_res.substring(at3+1, body_res.length()))
+    if j < src.length() && src.substring(j, j+1) == "}" { j = j + 1 }
+
+    // Fallback: if body parsed empty due to gpos regression, attempt a conservative
+    // single-statement reparse within braces for the canonical loop(i<n){ i=i+1 }
+    if body_json == "[]" {
+      if trace == 1 { print("[parser/loop:trace] empty body detected; attempting conservative fallback parse") }
+      // Try to find '{' and '}' from current stmt_start forward
+      local sb = ctx.index_of(src, j_before_cond, "{")
+      local eb = ctx.index_of(src, j_before_cond, "}")
+      if sb >= 0 && eb > sb {
+        // Reparse block starting at '{' (parse_block expects '{' at j)
+        local inner_i = sb
+        local res2 = me.parse_block(src, inner_i, ctx)
+        local atx = res2.lastIndexOf("@")
+        local body2 = res2.substring(0, atx)
+        if body2 != null && body2.length() > 2 { // not "[]"
+          body_json = body2
+          // keep j as-is from original parse; ctx.gpos_set below will advance to end of block
+          if trace == 1 { print("[parser/loop:trace] fallback body recovered=") print(body_json) }
+        }
+      }
+    }
+
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    env.set("HAKO_STAGEB_LOOP_DEPTH", StringHelpers.int_to_str(loop_depth_before))
+    return "{\"type\":\"Loop\",\"cond\":" + cond + ",\"body\":" + body_json + "}"
+  }
+
+  // Parse: break → {type:"Break"} (Stage-3) or no-op
+  parse_break(src, i, stmt_start, ctx) {
+    {
+      local depth = env.get("HAKO_STAGEB_BREAK_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/recursion] ParserControlBox.parse_break recursion detected")
+        return "{\"type\":\"Break\"}"
+      }
+      env.set("HAKO_STAGEB_BREAK_DEPTH", "1")
+    }
+    local j = i + 5  // skip "break"
+
+    if ctx.stage3_enabled() == 1 {
+      j = ctx.skip_ws(src, j)
+      if j <= stmt_start {
+        if j < src.length() { j = j + 1 } else { j = src.length() }
+      }
+      ctx.gpos_set(j)
+      // Reset recursion guard before returning (Stage-3 path)
+      env.set("HAKO_STAGEB_BREAK_DEPTH", "0")
+      return "{\"type\":\"Break\"}"
+    }
+
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    env.set("HAKO_STAGEB_BREAK_DEPTH", "0")
+    return "{\"type\":\"Expr\",\"expr\":{\"type\":\"Int\",\"value\":0}}"
+  }
+
+  // Parse: continue → {type:"Continue"} (Stage-3) or no-op
+  parse_continue(src, i, stmt_start, ctx) {
+    {
+      local depth = env.get("HAKO_STAGEB_CONTINUE_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/recursion] ParserControlBox.parse_continue recursion detected")
+        return "{\"type\":\"Continue\"}"
+      }
+      env.set("HAKO_STAGEB_CONTINUE_DEPTH", "1")
+    }
+    local j = i + 8  // skip "continue"
+
+    if ctx.stage3_enabled() == 1 {
+      j = ctx.skip_ws(src, j)
+      if j <= stmt_start {
+        if j < src.length() { j = j + 1 } else { j = src.length() }
+      }
+      ctx.gpos_set(j)
+      // Reset recursion guard before returning (Stage-3 path)
+      env.set("HAKO_STAGEB_CONTINUE_DEPTH", "0")
+      return "{\"type\":\"Continue\"}"
+    }
+
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    env.set("HAKO_STAGEB_CONTINUE_DEPTH", "0")
+    return "{\"type\":\"Expr\",\"expr\":{\"type\":\"Int\",\"value\":0}}"
+  }
+
+  // Parse: { stmt1; stmt2; ... }
+  parse_block(src, i, ctx) {
+    local depth_before = 0
+    {
+      local depth_raw = env.get("HAKO_STAGEB_BLOCK_DEPTH")
+      if depth_raw != null { depth_before = StringHelpers.to_i64("" + depth_raw) }
+      if depth_before >= 64 {
+        print("[stageb/recursion] ParserControlBox.parse_block recursion detected")
+        return "[]@" + ctx.i2s(i)
+      }
+      env.set("HAKO_STAGEB_BLOCK_DEPTH", StringHelpers.int_to_str(depth_before + 1))
+    }
+    local j = ctx.skip_ws(src, i)
+    // Stage‑B safety: inline whitespace skip in case ctx.skip_ws fails to advance on VM
+    {
+      local n = src.length()
+      local jj = j
+      loop(jj < n) {
+        local ch = src.substring(jj, jj+1)
+        if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { jj = jj + 1 } else { break }
+      }
+      j = jj
+    }
+    if src.substring(j, j+1) != "{" { return "[]@" + ctx.i2s(j) }
+    j = j + 1
+
+    local body = "["
+    local first = 1
+
+    // MirBuilder-friendly: explicit break instead of flag
+    loop(true) {
+      local j_before_skip = j
+      j = ctx.skip_ws(src, j)
+      // Stage-B safety: inline fallback when ctx.skip_ws fails to advance
+      if j == j_before_skip {
+        local n = src.length()
+        local jj = j
+        loop(jj < n) {
+          local ch = src.substring(jj, jj+1)
+          if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { jj = jj + 1 } else { break }
+        }
+        j = jj
+      }
+
+      if j >= src.length() { break }
+
+      if src.substring(j, j+1) == "}" {
+        j = j + 1
+        break
+      }
+
+      local start_j = j
+      local s = ctx.parse_stmt2(src, j)
+      j = ctx.gpos_get()
+
+      if ParserStringUtilsBox.starts_with("" + s, 0, "[freeze:contract]") == 1 {
+        env.set("HAKO_STAGEB_BLOCK_DEPTH", StringHelpers.int_to_str(depth_before))
+        return ("" + s) + "@" + ctx.i2s(j)
+      }
+
+      // Progress guard: ensure forward movement to avoid infinite loop on malformed input
+      if j <= start_j {
+        if j < src.length() { j = j + 1 } else { j = src.length() }
+        ctx.gpos_set(j)
+      }
+
+      // consume optional semicolons (ASI minimal) - MirBuilder-friendly
+      loop(true) {
+        local before = j
+        j = ctx.skip_ws(src, j)
+        if j < src.length() && src.substring(j, j+1) == ";" {
+          j = j + 1
+          continue
+        }
+        break
+      }
+
+      if s.length() > 0 {
+        if first == 1 {
+          body = body + s
+          first = 0
+        } else {
+          body = body + "," + s
+        }
+      }
+    }
+
+    // Safety: if any parser path accidentally concatenated adjacent objects, repair as valid JSON.
+    // This should be a no-op for already-correct output.
+    {
+      local fixed = ""
+      local k = 0
+      local bn = body.length()
+      loop(k < bn) {
+        local ch = body.substring(k, k + 1)
+        fixed = fixed + ch
+        if ch == "}" && k + 1 < bn && body.substring(k + 1, k + 2) == "{" {
+          fixed = fixed + ","
+        }
+        k = k + 1
+      }
+      body = fixed
+    }
+
+    body = body + "]"
+    env.set("HAKO_STAGEB_BLOCK_DEPTH", StringHelpers.int_to_str(depth_before))
+    return body + "@" + ctx.i2s(j)
+  }
+}

@@ -1,0 +1,106 @@
+using tools.hako_check.text_ops as TextOps
+// tools/hako_check/rules/rule_arity_mismatch.hako — HC015: Arity Mismatch (MVP)
+// Detects method calls with incorrect number of arguments (arity mismatch).
+// MVP version: detects clear Box.method() calls with wrong arity.
+
+static box RuleArityMismatchBox {
+  method apply_ir(ir, path, out) {
+    local calls = ir.get("calls")
+    if calls == null { return 0 }
+
+    local methods = ir.get("methods")
+    if methods == null { return 0 }
+
+    // Check each call for arity mismatch
+    me._scan_calls(calls, 0, methods, out)
+    return out.size()
+  }
+  _scan_calls(calls, i, methods, out) {
+    if i >= calls.size() { return }
+    local call = calls.get(i)
+    if call == null { me._scan_calls(calls, i + 1, methods, out); return }
+
+    local to = call.get("to")
+    if to == null { me._scan_calls(calls, i + 1, methods, out); return }
+
+    // to format: "Box.method/arity"
+    // Extract box, method, and called arity
+    local parts = me._parse_qualified(to)
+    if parts == null { me._scan_calls(calls, i + 1, methods, out); return }
+
+    local box_name = parts.get("box")
+    local method_name = parts.get("method")
+    local called_arity = parts.get("arity")
+
+    // Find if a method with same box.method but different arity exists
+    local expected_arity = me._find_method_arity(methods, box_name, method_name, 0)
+    if expected_arity >= 0 {
+      // Check arity mismatch
+      if expected_arity != called_arity {
+        local msg = "[HC015] arity mismatch: " + box_name + "." + method_name
+        msg = msg + " expects " + me._itoa(expected_arity)
+        msg = msg + " arguments, got " + me._itoa(called_arity)
+        msg = msg + " :: " + to
+        out.push(msg)
+      }
+    }
+
+    me._scan_calls(calls, i + 1, methods, out)
+  }
+
+  _find_method_arity(methods, box_name, method_name, i) {
+    // Search for method with given box.method prefix
+    // Returns arity if found, -1 if not found
+    local prefix = box_name + "." + method_name + "/"
+    if i >= methods.size() { return -1 }
+    local m = methods.get(i)
+    if m != null {
+      if m.indexOf(prefix) == 0 {
+        // Extract arity from "Box.method/arity"
+        local slash_pos = m.lastIndexOf("/")
+        if slash_pos >= 0 {
+          local arity_str = m.substring(slash_pos + 1)
+          return me._atoi(arity_str, 0, 0)
+        }
+      }
+    }
+    return me._find_method_arity(methods, box_name, method_name, i + 1)
+  }
+
+  _parse_qualified(qualified) {
+    // Parse "Box.method/arity" into components
+    if qualified == null { return null }
+
+    local slash_pos = qualified.lastIndexOf("/")
+    if slash_pos < 0 { return null }
+
+    local arity_str = qualified.substring(slash_pos + 1)
+    local arity = me._atoi(arity_str, 0, 0)
+
+    local dot_pos = qualified.lastIndexOf(".")
+    if dot_pos < 0 { return null }
+
+    local box_name = qualified.substring(0, dot_pos)
+    local method_name = qualified.substring(dot_pos + 1, slash_pos)
+
+    local result = new MapBox()
+    result.set("box", box_name)
+    result.set("method", method_name)
+    result.set("arity", arity)
+    return result
+  }
+
+  _itoa(n) { return TextOps._itoa(n) }
+
+  _atoi(s, i, v) {
+    if s == null { return 0 }
+    if i >= s.length() { return v }
+    local ch = s.substring(i, i+1)
+    if ch < "0" || ch > "9" { return v }
+    local pos = "0123456789".indexOf(ch)
+    if pos < 0 { return v }
+    return me._atoi(s, i + 1, v * 10 + pos)
+  }
+}
+
+static box RuleArityMismatchMain { method main(args) { return 0 } }

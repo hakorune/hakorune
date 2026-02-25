@@ -1,0 +1,271 @@
+// LLVM LoopForm Instruction Box — Python loopform.py のHakorune実装
+// 実験的ループ正規化（paper-e-loop-signal-ir）をJSON形式に変換し、C++バックエンドに渡す
+//
+// LoopForm は 6-block 構造でループを表現:
+//   preheader → header → body → dispatch → latch → exit
+//                ↑__________________|
+//
+// 特徴:
+// - break/continue を tag/payload PHI で明示的に処理
+// - Safepoint 自動挿入（GC 安全点）
+// - Iteration counter (structural PHI)
+
+static box LLVMLoopFormInstructionBox {
+
+  // メインエントリーポイント - Pythonのlower_while_loopform()に相当
+  // Stage 1: 基本 LoopForm 構造の JSON 生成
+  // Stage 2: PHI incoming 配列化、computed フラグ追加
+  //
+  // Args:
+  //   loop_id: ループID（整数）
+  //   blocks: ブロックIDマップ
+  //     形式: {"preheader": 10, "header": 11, "body": 12,
+  //            "dispatch": 13, "latch": 14, "exit": 15}
+  //   condition_vid: 条件式の値ID（MIR condition）
+  //   options: オプション設定（MapBox）
+  //     - mode: "mir" | "payload" (default: "mir")
+  //     - payload_max: Payload モード時の上限 (default: 1000000)
+  //     - use_guard: Structural guard 使用 (default: false)
+  //     - enable_safepoint: Safepoint 有効化 (default: true)
+  //
+  // Returns:
+  //   JSON文字列: {"op":"loopform","loop_id":1,"blocks":{...},...}
+  //   Stage 2: Header PHI/Dispatch PHI は incoming 配列 + computed フラグ
+  //
+  lower_loopform(self, loop_id, blocks, condition_vid, options) {
+    // Null チェック
+    if blocks == null {
+      return me._loopform_error_fallback(self, "blocks is null")
+    }
+
+    local json = "{"
+    json = json + "\"op\":\"loopform\""
+    json = json + ",\"loop_id\":" + loop_id.toString()
+
+    // Blocks 構造を JSON 化
+    json = json + ",\"blocks\":" + me._build_blocks_json(self, blocks)
+
+    // Header PHI 情報を JSON 化
+    json = json + ",\"header_phi\":" + me._build_header_phi_json(self, blocks)
+
+    // Condition 情報を JSON 化
+    json = json + ",\"condition\":" + me._build_condition_json(self, condition_vid, options)
+
+    // Dispatch PHI 情報を JSON 化
+    json = json + ",\"dispatch_phis\":" + me._build_dispatch_phis_json(self, blocks)
+
+    // Safepoint 情報を JSON 化
+    json = json + ",\"safepoint\":" + me._build_safepoint_json(self, options)
+
+    json = json + "}"
+    return json
+  }
+
+  // Blocks マップを JSON 化
+  // Args:
+  //   blocks: {"preheader": 10, "header": 11, ...}
+  // Returns:
+  //   JSON: {"preheader":10,"header":11,...}
+  _build_blocks_json(self, blocks) {
+    local json = "{"
+
+    // 6つのブロックIDを取得
+    local preheader = blocks.get("preheader")
+    local header = blocks.get("header")
+    local body = blocks.get("body")
+    local dispatch = blocks.get("dispatch")
+    local latch = blocks.get("latch")
+    local exit = blocks.get("exit")
+
+    json = json + "\"preheader\":" + preheader.toString()
+    json = json + ",\"header\":" + header.toString()
+    json = json + ",\"body\":" + body.toString()
+    json = json + ",\"dispatch\":" + dispatch.toString()
+    json = json + ",\"latch\":" + latch.toString()
+    json = json + ",\"exit\":" + exit.toString()
+
+    json = json + "}"
+    return json
+  }
+
+  // Header PHI 情報を JSON 化
+  // Iteration PHI: φ(0 from preheader, i_next from latch)
+  // Stage 2: incoming 配列形式 - 完全な PHI 構造
+  // Args:
+  //   blocks: ブロックIDマップ
+  // Returns:
+  //   JSON: {"dst":0,"incoming":[{"value":0,"block":10},{"value":0,"block":14,"computed":true}]}
+  _build_header_phi_json(self, blocks) {
+    local preheader = blocks.get("preheader")
+    local latch = blocks.get("latch")
+
+    local json = "{"
+    json = json + "\"dst\":0"  // Placeholder, C++ が決定
+    json = json + ",\"incoming\":["
+
+    // Incoming 1: Preheader からの初期値（定数0）
+    json = json + "{\"value\":0,\"block\":" + preheader.toString() + "}"
+
+    // Incoming 2: Latch からの継続値（i_next_latch = hdr_phi + 1）
+    json = json + ",{\"value\":0,\"block\":" + latch.toString() + ",\"computed\":true}"
+
+    json = json + "]"
+    json = json + "}"
+    return json
+  }
+
+  // Condition 情報を JSON 化
+  // Args:
+  //   vid: MIR condition の値ID
+  //   options: オプション設定
+  // Returns:
+  //   JSON: {"mode":"mir","vid":5}
+  _build_condition_json(self, vid, options) {
+    local mode = "mir"  // Default mode
+    local payload_max = 1000000
+    local use_guard = 0
+
+    // Options から設定を取得
+    if options != null {
+      local has_mode = options.has("mode")
+      if has_mode {
+        mode = options.get("mode")
+      }
+
+      local has_max = options.has("payload_max")
+      if has_max {
+        payload_max = options.get("payload_max")
+      }
+
+      local has_guard = options.has("use_guard")
+      if has_guard {
+        use_guard = options.get("use_guard")
+      }
+    }
+
+    local json = "{"
+    json = json + "\"mode\":\"" + mode + "\""
+    json = json + ",\"vid\":" + vid.toString()
+
+    // Payload モード時は max 値を含める
+    if mode == "payload" {
+      json = json + ",\"payload_max\":" + payload_max.toString()
+    }
+
+    // Guard 使用時
+    if use_guard != 0 {
+      json = json + ",\"use_guard\":true"
+    }
+
+    json = json + "}"
+    return json
+  }
+
+  // Dispatch PHI 情報を JSON 化
+  // Tag PHI: φ(1 from header, 0 from body) — break=1, continue=0
+  // Payload PHI: φ(0 from header, i_next_body from body) — iteration counter
+  // Stage 2: computed フラグでBody計算を明示
+  // Args:
+  //   blocks: ブロックIDマップ
+  // Returns:
+  //   JSON: {"tag":{...},"payload":{...}}
+  _build_dispatch_phis_json(self, blocks) {
+    local header = blocks.get("header")
+    local body = blocks.get("body")
+
+    local json = "{"
+
+    // Tag PHI: break(1) / continue(0) signal
+    json = json + "\"tag\":{"
+    json = json + "\"dst\":0"  // Placeholder, C++ が決定
+    json = json + ",\"incoming\":["
+    json = json + "{\"value\":1,\"block\":" + header.toString() + "}"  // Break from header
+    json = json + ",{\"value\":0,\"block\":" + body.toString() + "}"   // Continue from body
+    json = json + "]}"
+
+    // Payload PHI: iteration counter
+    json = json + ",\"payload\":{"
+    json = json + "\"dst\":0"  // Placeholder, C++ が決定
+    json = json + ",\"incoming\":["
+    json = json + "{\"value\":0,\"block\":" + header.toString() + "}"  // Break時は0（初期値）
+    json = json + ",{\"value\":0,\"block\":" + body.toString() + ",\"computed\":true}"  // Continue時はi_next_body（hdr_phi + 1）
+    json = json + "]}"
+
+    json = json + "}"
+    return json
+  }
+
+  // Safepoint 情報を JSON 化
+  // Args:
+  //   options: オプション設定
+  // Returns:
+  //   JSON: {"enabled":true,"location":"loop_header"}
+  _build_safepoint_json(self, options) {
+    local enabled = 1  // Default: enabled
+
+    // Options から設定を取得
+    if options != null {
+      local has_safepoint = options.has("enable_safepoint")
+      if has_safepoint {
+        enabled = options.get("enable_safepoint")
+      }
+    }
+
+    local json = "{"
+    json = json + "\"enabled\":"
+    if enabled != 0 {
+      json = json + "true"
+    }
+    if enabled == 0 {
+      json = json + "false"
+    }
+    json = json + ",\"location\":\"loop_header\""
+    json = json + "}"
+    return json
+  }
+
+  // エラーフォールバック
+  _loopform_error_fallback(self, message) {
+    // エラー時は空の JSON を返す（C++ backend がエラー処理）
+    return "{\"op\":\"loopform\",\"error\":\"" + message + "\"}"
+  }
+
+  // デバッグ用 - 生成された命令の確認
+  debug_loopform(self, loop_id, blocks, condition_vid, options) {
+    local json = me.lower_loopform(self, loop_id, blocks, condition_vid, options)
+    print("Generated LoopForm instruction: " + json)
+    return json
+  }
+
+  // ヘルパー: blocks 検証（デバッグ用）
+  _validate_blocks(self, blocks) {
+    if blocks == null {
+      return 0
+    }
+
+    // 6つの必須ブロックが存在するか確認
+    local keys = new ArrayBox()
+    keys.push("preheader")
+    keys.push("header")
+    keys.push("body")
+    keys.push("dispatch")
+    keys.push("latch")
+    keys.push("exit")
+
+    local i = 0
+    local len = keys.length()
+    loop(i < len) {
+      local key = keys.get(i)
+      local has_key = blocks.has(key)
+
+      if has_key == 0 {
+        print("WARNING: Missing block key: " + key)
+        return 0
+      }
+
+      i = i + 1
+    }
+
+    return 1
+  }
+}

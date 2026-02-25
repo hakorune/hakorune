@@ -1,0 +1,35 @@
+// Minimal brace-depth loop: loop(cond) with if-else + nested return (no break/continue)
+// Expected: stdout=1, RC=0
+static box ExtractMini {
+  run() {
+    local src = new StringBox("{}")
+    local n = src.length()
+    local depth = 0
+    local i = 0
+
+    loop(i < n) {
+      local ch = src.substring(i, i + 1)
+      if ch == "{" {
+        depth = depth + 1
+      } else {
+        if ch == "}" {
+          depth = depth - 1
+          if depth == 0 {
+            return i
+          }
+        }
+      }
+      i = i + 1
+    }
+
+    return -1
+  }
+}
+
+static box Main {
+  main() {
+    local result = ExtractMini.run()
+    print(result)
+    return 0
+  }
+}

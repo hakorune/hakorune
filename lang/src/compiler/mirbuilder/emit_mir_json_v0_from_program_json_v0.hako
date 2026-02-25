@@ -1,0 +1,71 @@
+// emit_mir_json_v0_from_program_json_v0.hako (Phase-4)
+// Responsibility:
+// - Read Program(JSON v0) from env HAKO_PROGRAM_JSON
+// - Or read from env HAKO_PROGRAM_JSON_FILE (FileBox) when HAKO_PROGRAM_JSON is empty
+// - Emit MIR JSON v0 to stdout (single line)
+//
+// Implementation note:
+// - This file is intentionally thin; parsing and MIR JSON building live in dedicated boxes.
+//
+// Fail-fast:
+// - All errors start with: [freeze:contract][hako_mirbuilder]
+// - Unsupported nodes use: [freeze:contract][hako_mirbuilder][cap_missing/<kind>] ...
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.mir_json_v0_builder_box as MirJsonV0BuilderBox
+
+static box Main {
+  main() {
+    local tag = "[freeze:contract][hako_mirbuilder]"
+
+    local program_json = env.get("HAKO_PROGRAM_JSON")
+    if program_json == null || ("" + program_json) == "" {
+      local path = env.get("HAKO_PROGRAM_JSON_FILE")
+      if path == null || ("" + path) == "" {
+        print(tag + " missing HAKO_PROGRAM_JSON (or HAKO_PROGRAM_JSON_FILE)")
+        return 2
+      }
+
+      local fb = new FileBox()
+      local ok = fb.open("" + path, "r")
+      if ok != 1 {
+        print(tag + " failed to open HAKO_PROGRAM_JSON_FILE: " + path)
+        return 2
+      }
+      program_json = fb.read()
+      fb.close()
+
+      if program_json == null || ("" + program_json) == "" {
+        print(tag + " empty HAKO_PROGRAM_JSON_FILE: " + path)
+        return 2
+      }
+    }
+
+    local state = ProgramJsonV0PhaseStateBox.parse(program_json, tag)
+    if state == null {
+      print(tag + " internal error: ProgramJsonV0PhaseStateBox returned null")
+      return 2
+    }
+    if StringHelpers.to_i64(BoxHelpers.map_get(state, "err")) == 1 {
+      print("" + BoxHelpers.map_get(state, "err_line"))
+      return 2
+    }
+
+    local out = MirJsonV0BuilderBox.build(state, tag)
+    if out == null {
+      print(tag + " internal error: MirJsonV0BuilderBox returned null")
+      return 2
+    }
+    if StringHelpers.to_i64(BoxHelpers.map_get(out, "err")) == 1 {
+      print("" + BoxHelpers.map_get(out, "err_line"))
+      return 2
+    }
+
+    print("" + BoxHelpers.map_get(out, "mir_json"))
+    return 0
+  }
+}
+
+static box EmitMirJsonFromProgramJsonV0Stub { main() { return 0 } }

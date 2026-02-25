@@ -1,0 +1,24 @@
+box Main {
+  main() {
+    local h = "dead"
+    local val = 0
+    local k = 0
+    local ok = 1
+    loop(k < 4) {
+      local c = h.substring(k, k+1)
+      local d = -1
+      if c >= "0" && c <= "9" { d = "0123456789".indexOf(c) }
+      else {
+        if c >= "a" && c <= "f" { d = 10 + ("abcdef".indexOf(c)) }
+        else {
+          if c >= "A" && c <= "F" { d = 10 + ("ABCDEF".indexOf(c)) }
+          else { ok = 0 }
+        }
+      }
+      if d < 0 { ok = 0  break }
+      val = val * 16 + d
+      k = k + 1
+    }
+    print(val)
+  }
+}

@@ -1,0 +1,20 @@
+// Phase 29ai P11: Pattern2 break plan subset OK minimal
+// Expect: exit 15
+
+static box Main {
+    main() {
+        local sum = 0
+        local i = 0
+
+        loop(i < 10) {
+            if i == 5 {
+                sum = sum + 10
+                break
+            }
+            sum = sum + 1
+            i = i + 1
+        }
+
+        return sum
+    }
+}

@@ -1,0 +1,7 @@
+// ng.hako — missing Main.main entrypoint
+
+static box Main {
+  method run() {
+    return 0
+  }
+}

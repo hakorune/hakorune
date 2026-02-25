@@ -1,0 +1,12 @@
+// core_bridge.hako — Transitional bridge to Core dispatcher (opt-in)
+// Not wired by default; allows phased migration without touching runner.
+
+using "hako.vm.core.dispatcher" as NyVmDispatcher
+
+static box HakoruneVmCoreBridge {
+  run(json) {
+    return NyVmDispatcher.run(json)
+  }
+}
+
+static box HakoruneVmCoreBridgeMain { main(args){ return 0 } }

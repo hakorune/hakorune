@@ -1,0 +1,481 @@
+{
+  "capabilities": [
+    "unified_call",
+    "phi",
+    "effects",
+    "callee_typing"
+  ],
+  "cfg": {
+    "functions": [
+      {
+        "blocks": [
+          {
+            "id": 10,
+            "reachable": false,
+            "successors": [
+              11
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 11,
+            "reachable": false,
+            "successors": [
+              12
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 12,
+            "reachable": false,
+            "successors": [
+              13,
+              15
+            ],
+            "terminator": "Branch"
+          },
+          {
+            "id": 13,
+            "reachable": false,
+            "successors": [
+              14
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 14,
+            "reachable": false,
+            "successors": [
+              12
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 15,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          },
+          {
+            "id": 16,
+            "reachable": false,
+            "successors": [
+              12
+            ],
+            "terminator": "Jump"
+          }
+        ],
+        "entry_block": 10,
+        "name": "Main.main/0"
+      },
+      {
+        "blocks": [
+          {
+            "id": 17,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 17,
+        "name": "Main.equals/1"
+      },
+      {
+        "blocks": [
+          {
+            "id": 18,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 18,
+        "name": "Main.toString/0"
+      },
+      {
+        "blocks": [
+          {
+            "id": 0,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 0,
+        "name": "condition_fn"
+      },
+      {
+        "blocks": [
+          {
+            "id": 0,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 0,
+        "name": "main"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "blocks": [
+        {
+          "id": 10,
+          "instructions": [
+            {
+              "dst": 2,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "dst": 3,
+              "op": "copy",
+              "src": 2
+            },
+            {
+              "op": "jump",
+              "target": 11
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "instructions": [
+            {
+              "dst": 4,
+              "op": "copy",
+              "src": 3
+            },
+            {
+              "dst": 4,
+              "op": "copy",
+              "src": 3
+            },
+            {
+              "op": "jump",
+              "target": 12
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "instructions": [
+            {
+              "dst": 5,
+              "incoming": [
+                [
+                  4,
+                  11
+                ],
+                [
+                  18,
+                  14
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 12,
+              "op": "copy",
+              "src": 9
+            },
+            {
+              "dst": 13,
+              "op": "copy",
+              "src": 10
+            },
+            {
+              "dst": 8,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 10
+              }
+            },
+            {
+              "dst": 12,
+              "op": "copy",
+              "src": 9
+            },
+            {
+              "dst": 13,
+              "op": "copy",
+              "src": 10
+            },
+            {
+              "dst": 11,
+              "lhs": 12,
+              "op": "compare",
+              "operation": "<",
+              "rhs": 13
+            },
+            {
+              "dst": 9,
+              "op": "copy",
+              "src": 5
+            },
+            {
+              "dst": 10,
+              "op": "copy",
+              "src": 8
+            },
+            {
+              "dst": 14,
+              "op": "copy",
+              "src": 11
+            },
+            {
+              "cond": 14,
+              "else": 15,
+              "op": "branch",
+              "then": 13
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "instructions": [
+            {
+              "dst": 16,
+              "op": "copy",
+              "src": 5
+            },
+            {
+              "dst": null,
+              "mir_call": {
+                "args": [
+                  9
+                ],
+                "callee": {
+                  "name": "print",
+                  "type": "Global"
+                },
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 15,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "dst": 16,
+              "op": "copy",
+              "src": 5
+            },
+            {
+              "dst": 18,
+              "lhs": 16,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 17
+            },
+            {
+              "dst": 17,
+              "op": "copy",
+              "src": 15
+            },
+            {
+              "op": "jump",
+              "target": 14
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "instructions": [
+            {
+              "op": "jump",
+              "target": 12
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "instructions": [
+            {
+              "dst": 20,
+              "op": "const",
+              "value": {
+                "type": "void",
+                "value": 0
+              }
+            },
+            {
+              "op": "ret",
+              "value": 20
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "instructions": [
+            {
+              "op": "jump",
+              "target": 12
+            }
+          ]
+        }
+      ],
+      "name": "Main.main/0",
+      "params": [
+        0,
+        1
+      ]
+    },
+    {
+      "blocks": [
+        {
+          "id": 17,
+          "instructions": [
+            {
+              "dst": 3,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ],
+      "name": "Main.equals/1",
+      "params": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "blocks": [
+        {
+          "id": 18,
+          "instructions": [
+            {
+              "dst": 2,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "Main("
+              }
+            },
+            {
+              "dst": 3,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": ")"
+              }
+            },
+            {
+              "dst": 6,
+              "lhs": 4,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 5
+            },
+            {
+              "dst": 4,
+              "op": "copy",
+              "src": 2
+            },
+            {
+              "dst": 5,
+              "op": "copy",
+              "src": 3
+            },
+            {
+              "op": "ret",
+              "value": 6
+            }
+          ]
+        }
+      ],
+      "name": "Main.toString/0",
+      "params": [
+        0,
+        1
+      ]
+    },
+    {
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "dst": 1,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "ret",
+              "value": 1
+            }
+          ]
+        }
+      ],
+      "name": "condition_fn",
+      "params": [
+        0
+      ]
+    },
+    {
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "dst": 9,
+              "op": "const",
+              "value": {
+                "type": "void",
+                "value": 0
+              }
+            },
+            {
+              "op": "ret",
+              "value": 9
+            }
+          ]
+        }
+      ],
+      "name": "main",
+      "params": []
+    }
+  ],
+  "metadata": {
+    "build_time": "Phase 15.5 Development",
+    "features": [
+      "mir_call_unification",
+      "json_v1_schema"
+    ],
+    "generator": "nyash-rust",
+    "phase": "15.5"
+  },
+  "schema_version": "1.0"
+}

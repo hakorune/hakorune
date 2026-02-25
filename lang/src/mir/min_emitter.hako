@@ -1,0 +1,118 @@
+// min_emitter.hako — Minimal MIR(JSON v0) emitter (const/ret/binop)
+// Dev/opt‑in helper for P1: Hako‑side JSON generation without touching Rust semantics.
+
+static box MinMirEmitter {
+  _header() { return "{\n  \"kind\": \"MIR\",\n  \"schema_version\": \"1.0\",\n  \"functions\": [\n    {\n      \"name\": \"Main.main\", \"entry\": 1,\n      \"blocks\": [\n        { \"id\": 1, \"instructions\": [\n" }
+  _footer() { return "        ] }\n      ]\n    }\n  ]\n}\n" }
+  _const(dst, val) { return "          {\"op\":\"const\",\"dst\":" + (""+dst) + ",\"value\":{\"type\":\"i64\",\"value\":" + (""+val) + "}},\n" }
+  _ret(val) { return "          {\"op\":\"ret\",\"value\":" + (""+val) + "}\n" }
+  _binop(dst, op, lhs, rhs) {
+    return "          {\"op\":\"binop\",\"dst\":" + (""+dst) + ",\"lhs\":" + (""+lhs) + ",\"rhs\":" + (""+rhs) + ",\"operation\":\"" + op + "\"},\n"
+  }
+
+  emit_ret_i64(n) {
+    return me._header() + me._const(1, n) + me._ret(1) + me._footer()
+  }
+  emit_add_i64(a, b) {
+    // v1 = a; v2 = b; v3 = v1 + v2; ret v3
+    return me._header() + me._const(1, a) + me._const(2, b) + me._binop(3, "Add", 1, 2) + me._ret(3) + me._footer()
+  }
+  // Emit: if (a > b) return 1 else return 0 (multi-block)
+  emit_if_gt_i64(a, b) {
+    local h = "{\n  \"kind\": \"MIR\",\n  \"schema_version\": \"1.0\",\n  \"functions\": [\n    { \"name\": \"Main.main\", \"entry\": 1,\n      \"blocks\": [\n"
+    local b1 = "        {\"id\":1, \"instructions\": [\n"
+      + me._const(1, a)
+      + me._const(2, b)
+      + "          {\"op\":\"compare\",\"dst\":3,\"lhs\":1,\"rhs\":2,\"operation\":\"Gt\"},\n"
+      + "          {\"op\":\"branch\",\"cond\":3,\"then\":2,\"else\":3}\n"
+      + "        ] }\n"
+    local b2 = "      , {\"id\":2, \"instructions\": [\n"
+      + me._const(4, 1)
+      + me._ret(4)
+      + "        ] }\n"
+    local b3 = "      , {\"id\":3, \"instructions\": [\n"
+      + me._const(5, 0)
+      + me._ret(5)
+      + "        ] }\n"
+    local f = "      ]\n    }\n  ]\n}\n"
+    return h + b1 + b2 + b3 + f
+  }
+
+  // Emit: if (a == b) return 1 else return 0
+  emit_if_eq_i64(a, b) {
+    local h = "{\n  \"kind\": \"MIR\",\n  \"schema_version\": \"1.0\",\n  \"functions\": [\n    { \"name\": \"Main.main\", \"entry\": 1,\n      \"blocks\": [\n"
+    local b1 = "        {\"id\":1, \"instructions\": [\n"
+      + me._const(1, a)
+      + me._const(2, b)
+      + "          {\"op\":\"compare\",\"dst\":3,\"lhs\":1,\"rhs\":2,\"operation\":\"Eq\"},\n"
+      + "          {\"op\":\"branch\",\"cond\":3,\"then\":2,\"else\":3}\n"
+      + "        ] }\n"
+    local b2 = "      , {\"id\":2, \"instructions\": [\n"
+      + me._const(4, 1)
+      + me._ret(4)
+      + "        ] }\n"
+    local b3 = "      , {\"id\":3, \"instructions\": [\n"
+      + me._const(5, 0)
+      + me._ret(5)
+      + "        ] }\n"
+    local f = "      ]\n    }\n  ]\n}\n"
+    return h + b1 + b2 + b3 + f
+  }
+
+  // Emit: if (a != b) return 1 else return 0
+  emit_if_ne_i64(a, b) {
+    local h = "{\n  \"kind\": \"MIR\",\n  \"schema_version\": \"1.0\",\n  \"functions\": [\n    { \"name\": \"Main.main\", \"entry\": 1,\n      \"blocks\": [\n"
+    local b1 = "        {\"id\":1, \"instructions\": [\n"
+      + me._const(1, a)
+      + me._const(2, b)
+      + "          {\"op\":\"compare\",\"dst\":3,\"lhs\":1,\"rhs\":2,\"operation\":\"Ne\"},\n"
+      + "          {\"op\":\"branch\",\"cond\":3,\"then\":2,\"else\":3}\n"
+      + "        ] }\n"
+    local b2 = "      , {\"id\":2, \"instructions\": [\n"
+      + me._const(4, 1)
+      + me._ret(4)
+      + "        ] }\n"
+    local b3 = "      , {\"id\":3, \"instructions\": [\n"
+      + me._const(5, 0)
+      + me._ret(5)
+      + "        ] }\n"
+    local f = "      ]\n    }\n  ]\n}\n"
+    return h + b1 + b2 + b3 + f
+  }
+
+  // Emit diamond with PHI:
+  // if (a > b) then v=tv else v=ev; return v
+  emit_diamond_phi_gt_i64(a, b, tv, ev) {
+    local h = "{\n  \"kind\": \"MIR\",\n  \"schema_version\": \"1.0\",\n  \"functions\": [\n    { \"name\": \"Main.main\", \"entry\": 1,\n      \"blocks\": [\n"
+    // bb1: compare + branch to bb2/bb3
+    local b1 = "        {\"id\":1, \"instructions\": [\n"
+      + me._const(1, a)
+      + me._const(2, b)
+      + "          {\"op\":\"compare\",\"dst\":3,\"lhs\":1,\"rhs\":2,\"operation\":\"Gt\"},\n"
+      + "          {\"op\":\"branch\",\"cond\":3,\"then\":2,\"else\":3}\n"
+      + "        ] }\n"
+    // bb2: then path → const tv; jump merge
+    local b2 = "      , {\"id\":2, \"instructions\": [\n"
+      + me._const(4, tv)
+      + "          {\"op\":\"jump\",\"target\":4}\n"
+      + "        ] }\n"
+    // bb3: else path → const ev; jump merge
+    local b3 = "      , {\"id\":3, \"instructions\": [\n"
+      + me._const(5, ev)
+      + "          {\"op\":\"jump\",\"target\":4}\n"
+      + "        ] }\n"
+    // bb4: phi merge; ret v6
+    local b4 = "      , {\"id\":4, \"instructions\": [\n"
+      + "          {\"op\":\"phi\",\"dst\":6,\"values\":[{\"block\":2,\"value\":4},{\"block\":3,\"value\":5}]},\n"
+      + me._ret(6)
+      + "        ] }\n"
+    local f = "      ]\n    }\n  ]\n}\n"
+    return h + b1 + b2 + b3 + b4 + f
+  }
+}
+
+using selfhost.shared.common.entry_point_base as EntryPointBaseBox
+
+static box MinMirEmitterMain {
+  main(args) { return EntryPointBaseBox.main(args) }
+}

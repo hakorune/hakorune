@@ -1,0 +1,28 @@
+// Phase 135 P0: loop(true) break-once with post 0 assigns + return
+//
+// Purpose: Test loop(true) { <assign>* ; break } + return (0 assignments)
+// Expected output: 1
+//
+// Structure:
+//   x = 0         // pre-loop init
+//   loop(true) {  // condition is Bool literal true
+//       x = 1     // body assignment
+//       break     // break at end
+//   }
+//   return x      // direct return (NO post-loop assignments)
+//
+// Difference from Phase 131:
+//   Phase 131: loop only (no return)
+//   Phase 135: loop + return (0 post assignments)
+
+static box Main {
+    main() {
+        local x
+        x = 0
+        loop(true) {
+            x = 1
+            break
+        }
+        return x
+    }
+}

@@ -1,0 +1,36 @@
+// Phase 286 P2: Pattern2 → Frag PoC minimal fixture
+//
+// Purpose: Test Pattern2 (Loop with Conditional Break) using Plan/Frag SSOT
+// Expected output: 42
+//
+// Structure:
+//   i = 0, result = 0     // pre-loop init
+//   loop(i < 2) {         // loop variable condition (avoids Phase143 normalized shadow)
+//       if (i == 1) {     // conditional break (Pattern2 essence!)
+//           result = 42
+//           break
+//       }
+//       i = i + 1         // loop variable update
+//   }
+//   return result         // return updated value (42)
+//
+// PoC Goal:
+//   Pattern2 → DomainPlan → CorePlan → Frag → emit_frag()
+//   (Skip: JoinIR → bridge → merge)
+//
+// Design Note:
+//   - loop(i < 2) instead of loop(true) to avoid Phase143 shadow routing
+//   - has_break=true, has_continue=false → Pattern2Break classification
+
+static box Main {
+    main() {
+        local i, result
+        i = 0
+        result = 0
+        loop(i < 2) {
+            if (i == 1) { result = 42; break }
+            i = i + 1
+        }
+        return result
+    }
+}

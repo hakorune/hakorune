@@ -1,0 +1,80 @@
+// Phase 29bq: ParserExprBox.parse_string2/3 minimal (selfhost blocker extraction)
+// Expected output: {"type":"Str","value":"a"}
+box DummyCtx {
+  gpos_set(v) { return v }
+  esc_json(s) { return s }
+}
+
+static box ParserExprBox {
+  parse_string2(src, i, ctx) {
+    local n = src.length()
+    local j = i + 1
+    local out = ""
+    local guard = 0
+    local max = 200000
+
+    loop(j < n) {
+      if guard > max { break }
+      guard = guard + 1
+      local ch = src.substring(j, j+1)
+
+      if ch == "\"" {
+        j = j + 1
+        ctx.gpos_set(j)
+        return "{\"type\":\"Str\",\"value\":\"" + ctx.esc_json(out) + "\"}"
+      }
+
+      if ch == "\\" && j + 1 < n {
+        local nx = src.substring(j+1, j+2)
+        if nx == "\"" {
+          out = out + "\""
+          j = j + 2
+          continue
+        }
+        if nx == "\\" {
+          out = out + "\\"
+          j = j + 2
+          continue
+        }
+        if nx == "n" {
+          out = out + "\n"
+          j = j + 2
+          continue
+        }
+        if nx == "r" {
+          out = out + "\r"
+          j = j + 2
+          continue
+        }
+        if nx == "t" {
+          out = out + "\t"
+          j = j + 2
+          continue
+        }
+        if nx == "u" && j + 5 < n {
+          out = out + src.substring(j, j+6)
+          j = j + 6
+          continue
+        }
+        out = out + nx
+        j = j + 2
+        continue
+      }
+
+      out = out + ch
+      j = j + 1
+    }
+
+    ctx.gpos_set(j)
+    return "{\"type\":\"Str\",\"value\":\"" + ctx.esc_json(out) + "\"}"
+  }
+}
+
+static box Main {
+  main() {
+    local ctx = new DummyCtx()
+    local out = ParserExprBox.parse_string2("\"a\"", 0, ctx)
+    print(out)
+    return 0
+  }
+}

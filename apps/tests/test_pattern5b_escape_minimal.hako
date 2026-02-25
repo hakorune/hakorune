@@ -1,0 +1,41 @@
+// Phase 92 P1-3: Pattern 5b (Escape Sequence Handling) E2E Test
+//
+// This test verifies that ConditionalStep is correctly used for
+// escape sequence handling patterns.
+//
+// Pattern structure:
+// - Loop with conditional increment
+// - if condition { i = i + 2 } else { i = i + 1 }
+// - ConditionalStep carrier update (P5b pattern)
+//
+// NOTE: This is a simplified version without body-local variables
+// for easier initial testing. Full P5b pattern support (with ch variable)
+// will be tested in Phase 92 P2+.
+
+static box Main {
+    main() {
+        local i
+        local len
+        local count
+
+        i = 0
+        len = 10
+        count = 0
+
+        // Simple conditional increment pattern
+        // (not a full escape sequence handler, but tests ConditionalStep)
+        loop(i < len) {
+            // Conditional increment based on even/odd position
+            if (i % 2) == 0 {
+                i = i + 2  // then_delta (even position: skip 2)
+            } else {
+                i = i + 1  // else_delta (odd position: skip 1)
+            }
+            count = count + 1
+        }
+
+        print(i)
+        print(count)
+        return 0
+    }
+}

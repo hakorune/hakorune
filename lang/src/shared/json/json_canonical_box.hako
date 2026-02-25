@@ -1,0 +1,12 @@
+// json_canonical_box.hako — JsonCanonicalBox (Phase 20.5 Gate A unification)
+// Responsibility: Provide a single entry to canonicalize JSON strings.
+// Current behavior: identity (no-op) until Extern anchor bridging is wired.
+// Future: call host anchor `nyash_json_canonicalize_h` via Extern/HostBridge to obtain canonical form.
+
+static box JsonCanonicalBox {
+  canonicalize(json) {
+    // Phase-A: identity（host bridge未接続の間は常にno-op）
+    // 期待動作: 文字列正規化は将来のExternに委譲。現状はそのまま返す。
+    return "" + json
+  }
+}

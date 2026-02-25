@@ -1,0 +1,14 @@
+// Phase 29x X64: optimization reject fixture
+// Contract:
+// - optimize ON/OFF must both reject with non-zero on division-by-zero path.
+// - failure reason text should stay stable ("Division by zero").
+
+static box Main {
+    main() {
+        local x = 1
+        local y = 0
+        local z = x / y
+        print(z)
+        return z
+    }
+}

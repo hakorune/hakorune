@@ -1,0 +1,31 @@
+// Phase 29bq: selfhost ParserExceptionBox.parse_try/4 minimal (loop_true + Program stmt)
+// Expected output: [ab
+//
+// Target shape:
+// - loop(true)
+// - ExitIf(break) guard
+// - Program stmt containing nested general-if (no loops / no break/continue/return)
+
+static box Main {
+  main() {
+    local j = 0
+    local catches_json = "["
+    local first = 1
+
+    loop(true) {
+      if j >= 2 { break }
+      {
+        j = j + 1
+        if first == 1 {
+          catches_json = catches_json + "a"
+          first = 0
+        } else {
+          catches_json = catches_json + "b"
+        }
+      }
+    }
+
+    print(catches_json)
+    return 0
+  }
+}

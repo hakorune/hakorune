@@ -1,0 +1,28 @@
+// Phase 126: If-only return reads-only input minimal test
+// Expected: 7 (return outer_x as reads-only input)
+//
+// Design (dev-only test):
+// - outer_x=7 is defined in outer scope (not in if-only)
+// - if flag==0 {} doesn't write outer_x (reads-only)
+// - return outer_x should resolve from inputs (reads ∩ available_inputs)
+//
+// Note: This test requires NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1
+// In non-dev mode, this just runs as regular code and should print 7
+
+static box Main {
+    main() {
+        local outer_x
+        local flag
+        outer_x = 7
+        flag = 0
+
+        // If-only pattern: doesn't write outer_x, just reads it
+        if (flag == 0) {
+            // Empty then branch
+        }
+
+        // Return outer_x (reads-only input, not in writes)
+        print(outer_x)
+        return outer_x
+    }
+}

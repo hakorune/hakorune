@@ -1,0 +1,32 @@
+// selfhost parse_string2 return prelude call (ASTNode::Call) minimal
+// Expected: stdout=MISS, RC=0
+static box Helper {
+  make() {
+    return fn(x) { return x }
+  }
+}
+
+static box Main {
+  parse_string2_min(src) {
+    local j = 0
+    local n = src.length()
+
+    loop(j < n) {
+      local ch = src.substring(j, j + 1)
+      if ch == "\"" {
+        j = j + 1
+        Helper.make()(j)
+        return "OUT" + "OK"
+      }
+      j = j + 1
+    }
+
+    return "MISS"
+  }
+
+  main() {
+    local out = Main.parse_string2_min("a")
+    print(out)
+    return 0
+  }
+}

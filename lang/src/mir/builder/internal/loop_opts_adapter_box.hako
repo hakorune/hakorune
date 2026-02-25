@@ -1,0 +1,300 @@
+// loop_opts_adapter_box.hako — Minimal adapter for LoopForm options
+// Purpose: centralize MapBox creation/set so that we can later swap to JsonFrag-based
+// construction without touching all callers.
+
+using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.mir.json_emit as JsonEmitBox
+
+static box LoopOptsBox {
+  new_map() {
+    return new MapBox()
+  }
+  put(m, key, value) {
+    m.set(key, value)
+    return m
+  }
+  // build2: envでJsonFrag直組立を選択（既定は LoopFormBox.build2 に委譲）
+  build2(opts) {
+    using selfhost.shared.mir.loopform as LoopFormBox
+    using "hako.mir.builder.internal.jsonfrag_normalizer" as JsonFragNormalizerBox
+    // Force toggle: always return JsonFrag (dev/test override)
+    if BuilderConfigBox.loop_force_jsonfrag_on() == 1 {
+      local limit = opts.get("limit"); if limit == null { limit = 0 }
+      local limit_s = "" + limit
+      // Minimal while-loop semantics (executable, not just structure):
+      // Block 0 (entry): i0=0, limit=N, jump to loop
+      // Block 1 (loop header): phi i={i0,0}|{i_next,2}, cmp i<limit, branch
+      // Block 2 (body): i_next = i+1, jump back to loop
+      // Block 3 (exit): ret i (final loop variable value)
+      // Value IDs: r1=i0(0), r2=limit(N), r3=phi(i), r4=cmp, r5=i_next, r10=const(1)
+      // PHI semantics: r3 receives r1 from block 0 (entry), r5 from block 2 (backedge)
+      local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+        "{\"id\":0,\"instructions\":[" +
+          "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+          "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + limit_s + "}}," +
+          "{\"op\":\"jump\",\"target\":1}]}," +
+        "{\"id\":1,\"instructions\":[" +
+          "{\"op\":\"phi\",\"dst\":3,\"incoming\":[[1,0],[5,2]]}," +
+          "{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":3,\"rhs\":2,\"dst\":4}," +
+          "{\"op\":\"branch\",\"cond\":4,\"then\":2,\"else\":3}]}," +
+        "{\"id\":2,\"instructions\":[" +
+          "{\"op\":\"const\",\"dst\":10,\"value\":{\"type\":\"i64\",\"value\":1}}," +
+          "{\"op\":\"binop\",\"operation\":\"+\",\"lhs\":3,\"rhs\":10,\"dst\":5}," +
+          "{\"op\":\"jump\",\"target\":1}]}," +
+        "{\"id\":3,\"instructions\":[" +
+          "{\"op\":\"ret\",\"value\":3}]}]}]}"
+      if BuilderConfigBox.trace_enabled() == 1 { print("[mirbuilder/loop_opts:force_jsonfrag:semantics:limit=" + limit_s + "]") }
+      if BuilderConfigBox.jsonfrag_normalize_on() == 1 { mir = JsonFragNormalizerBox.normalize_all(mir) }
+      local mode = BuilderConfigBox.loop_adapter_return_mode()
+      if mode == "map" {
+        local m = me.new_map()
+        m = me.put(m, "mir", mir)
+        return m
+      }
+      return mir
+    }
+    // Opt-in: minimal MIR(JSON) construction for structure validation
+    if BuilderConfigBox.loop_jsonfrag_on() == 1 {
+      // Read limit if present, else default to 0 (safe)
+      local limit = opts.get("limit"); if limit == null { limit = 0 }
+      // Normalize to string
+      local limit_s = "" + limit
+      // Minimal MIR: const 0, const limit, compare <, branch then/else, both paths ret
+      local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+        "{\"id\":0,\"instructions\":[" +
+          "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+          "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + limit_s + "}}," +
+          "{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+          "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
+        "{\"id\":1,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}," +
+        "{\"id\":2,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}]}]}"
+      if BuilderConfigBox.trace_enabled() == 1 { print("[mirbuilder/internal/loop:jsonfrag]") }
+      // Optional: normalization (dev toggle)
+      if BuilderConfigBox.jsonfrag_normalize_on() == 1 { mir = JsonFragNormalizerBox.normalize_all(mir) }
+      // Return mode: default string, optionally wrap into Map
+      local mode = BuilderConfigBox.loop_adapter_return_mode()
+      if mode == "map" {
+        local m = me.new_map()
+        m = me.put(m, "mir", mir)
+        return m
+      }
+      return mir
+    }
+    // Default: delegate to LoopForm and emit canonical JSON via shared JsonEmitBox
+    local module = LoopFormBox.build2(opts)
+    if module == null { return null }
+    local json = JsonEmitBox.to_json(module)
+    if BuilderConfigBox.jsonfrag_normalize_on() == 1 { json = JsonFragNormalizerBox.normalize_all(json) }
+    local mode2 = BuilderConfigBox.loop_adapter_return_mode()
+    if mode2 == "map" {
+      local m2 = me.new_map()
+      m2 = me.put(m2, "mir", json)
+      return m2
+    }
+    return json
+  }
+
+  method _module_to_json(module) {
+    if module == null { return "{}" }
+    local kind = module.get("kind")
+    if kind == null { kind = "MIR" }
+    local schema = module.get("schema_version")
+    if schema == null { schema = "1.0" }
+    local funcs = module.get("functions")
+    local body = me._emit_functions(funcs)
+    return "{\"kind\":" + me._quote(kind) + ",\"schema_version\":" + me._quote(schema) + ",\"functions\":[" + body + "]}"
+  }
+
+  method _emit_functions(funcs) {
+    if funcs == null { return "" }
+    local len = me._array_len(funcs)
+    local out = ""
+    local i = 0
+    loop(i < len) {
+      local func = funcs.get(i)
+      if func != null {
+        if out != "" { out = out + "," }
+        out = out + me._emit_function(func)
+      }
+      i = i + 1
+    }
+    return out
+  }
+
+  method _emit_function(func) {
+    if func == null { return "{\"name\":\"main\",\"blocks\":[]}" }
+    local name = func.get("name")
+    if name == null { name = "main" }
+    local params = func.get("params")
+    local blocks = func.get("blocks")
+    local out = "{\"name\":" + me._quote(name)
+    if params != null && BoxHelpers.is_array(params) {
+      out = out + ",\"params\":" + me._emit_params(params)
+    }
+    if blocks != null {
+      out = out + ",\"blocks\":[" + me._emit_blocks(blocks) + "]"
+    } else {
+      out = out + ",\"blocks\":[]"
+    }
+    out = out + "}"
+    return out
+  }
+
+  method _emit_params(arr) {
+    if arr == null { return "[]" }
+    local len = me._array_len(arr)
+    local out = ""
+    local i = 0
+    loop(i < len) {
+      if out != "" { out = out + "," }
+      out = out + me._quote(arr.get(i))
+      i = i + 1
+    }
+    return "[" + out + "]"
+  }
+
+  method _emit_blocks(blocks) {
+    local len = me._array_len(blocks)
+    local out = ""
+    local i = 0
+    loop(i < len) {
+      local block = blocks.get(i)
+      if block != null {
+        if out != "" { out = out + "," }
+        out = out + me._emit_block(block)
+      }
+      i = i + 1
+    }
+    return out
+  }
+
+  method _emit_block(block) {
+    local id = block.get("id")
+    local insts = block.get("instructions")
+    local body = me._emit_insts(insts)
+    return "{\"id\":" + me._i64(id) + ",\"instructions\":[" + body + "]}"
+  }
+
+  method _emit_insts(insts) {
+    if insts == null { return "" }
+    local len = me._array_len(insts)
+    local out = ""
+    local i = 0
+    loop(i < len) {
+      local inst = insts.get(i)
+      if inst != null {
+        if out != "" { out = out + "," }
+        out = out + me._emit_inst(inst)
+      }
+      i = i + 1
+    }
+    return out
+  }
+
+  method _emit_inst(inst) {
+    local op = "" + inst.get("op")
+    if op == "const" {
+      return "{\"op\":\"const\",\"dst\":" + me._i64(inst.get("dst")) + ",\"value\":" + me._emit_box_value(inst.get("value")) + "}"
+    }
+    if op == "ret" {
+      return "{\"op\":\"ret\",\"value\":" + me._i64(inst.get("value")) + "}"
+    }
+    if op == "jump" {
+      return "{\"op\":\"jump\",\"target\":" + me._i64(inst.get("target")) + "}"
+    }
+    if op == "compare" {
+      local cmp = inst.get("cmp")
+      if cmp == null { cmp = inst.get("operation") }
+      return "{\"op\":\"compare\",\"operation\":" + me._quote(cmp) + ",\"lhs\":" + me._i64(inst.get("lhs")) + ",\"rhs\":" + me._i64(inst.get("rhs")) + ",\"dst\":" + me._i64(inst.get("dst")) + "}"
+    }
+    if op == "branch" {
+      return "{\"op\":\"branch\",\"cond\":" + me._i64(inst.get("cond")) + ",\"then\":" + me._i64(inst.get("then")) + ",\"else\":" + me._i64(inst.get("else")) + "}"
+    }
+    if op == "phi" {
+      return "{\"op\":\"phi\",\"dst\":" + me._i64(inst.get("dst")) + ",\"incoming\":" + me._emit_phi(inst.get("incoming")) + "}"
+    }
+    if op == "binop" {
+      local kind = inst.get("op_kind")
+      if kind == null { kind = inst.get("operation") }
+      return "{\"op\":\"binop\",\"operation\":" + me._quote(kind) + ",\"lhs\":" + me._i64(inst.get("lhs")) + ",\"rhs\":" + me._i64(inst.get("rhs")) + ",\"dst\":" + me._i64(inst.get("dst")) + "}"
+    }
+    if op == "mir_call" {
+      local payload = inst.get("mir_call")
+      local callee = payload.get("callee")
+      local callee_json = "{\"type\":\"Method\",\"box_name\":" + me._quote(callee.get("box_name")) + ",\"method\":" + me._quote(callee.get("method")) + ",\"receiver\":" + me._i64(callee.get("receiver")) + "}"
+      local args_json = me._emit_args(payload.get("args"))
+      return "{\"op\":\"mir_call\",\"dst\":" + me._i64(inst.get("dst")) + ",\"mir_call\":{\"callee\":" + callee_json + ",\"args\":" + args_json + ",\"effects\":[]}}"
+    }
+    if op == "copy" {
+      return "{\"op\":\"copy\",\"src\":" + me._i64(inst.get("src")) + ",\"dst\":" + me._i64(inst.get("dst")) + "}"
+    }
+    return "{\"op\":" + me._quote(op) + "}"
+  }
+
+  method _emit_phi(values) {
+    if values == null { return "[]" }
+    local len = me._array_len(values)
+    local out = ""
+    local i = 0
+    loop(i < len) {
+      local item = values.get(i)
+      if item != null {
+        if out != "" { out = out + "," }
+        out = out + "{\"block\":" + me._i64(item.get("block")) + ",\"value\":" + me._i64(item.get("value")) + "}"
+      }
+      i = i + 1
+    }
+    return "[" + out + "]"
+  }
+
+  method _emit_args(args) {
+    if args == null { return "[]" }
+    local len = me._array_len(args)
+    local out = ""
+    local i = 0
+    loop(i < len) {
+      if out != "" { out = out + "," }
+      out = out + me._i64(args.get(i))
+      i = i + 1
+    }
+    return "[" + out + "]"
+  }
+
+  method _emit_box_value(val) {
+    if val == null { return "{\"type\":\"i64\",\"value\":0}" }
+    local ty = "i64"
+    if BoxHelpers.is_map(val) {
+      local ty_box = BoxHelpers.map_get(val, "type")
+      if ty_box != null { ty = "" + ty_box }
+      local inner = BoxHelpers.value_i64(val)
+      return "{\"type\":" + me._quote(ty) + ",\"value\":" + me._i64(inner) + "}"
+    }
+    // Non-MapBox: treat as plain numeric value
+    local inner2 = BoxHelpers.value_i64(val)
+    return "{\"type\":" + me._quote(ty) + ",\"value\":" + me._i64(inner2) + "}"
+  }
+
+  method _array_len(arr) {
+    // Delegate to shared helper to support both builtin ArrayBox.length (IntegerBox)
+    // and MapBox-wrapped length from plugins.
+    return BoxHelpers.array_len(arr)
+  }
+
+  method _i64(val) {
+    if val == null { return "0" }
+    // Prefer MapBox-wrapped integers when available, otherwise fall back to direct value.
+    if BoxHelpers.is_map(val) {
+      local inner = BoxHelpers.map_get(val, "value")
+      if inner != null { return "" + inner }
+      return "0"
+    }
+    return "" + val
+  }
+
+  method _quote(val) {
+    if val == null { return "\"\"" }
+    return StringHelpers.json_quote("" + val)
+  }
+}

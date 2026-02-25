@@ -1,0 +1,42 @@
+// ok.hako - Safe analyzer rule (CLI-internal push approach)
+// This rule receives all data through parameters and doesn't do direct I/O
+
+static box RuleSafeExampleBox {
+  method apply(text, path, out) {
+    // Safe: uses text parameter passed from CLI
+    if text == null { return 0 }
+
+    local lines = me._split_lines(text)
+    local i = 0
+    while i < lines.size() {
+      local ln = lines.get(i)
+      // Analyze the line
+      if ln.indexOf("unsafe_pattern") >= 0 {
+        out.push("[EXAMPLE] found unsafe pattern")
+      }
+      i = i + 1
+    }
+
+    return out.size()
+  }
+
+  _split_lines(s) {
+    local arr = new ArrayBox()
+    if s == null { return arr }
+    local n = s.length()
+    local last = 0
+    local i = 0
+    loop(i < n) {
+      local ch = s.substring(i, i+1)
+      if ch == "\n" {
+        arr.push(s.substring(last, i))
+        last = i + 1
+      }
+      i = i + 1
+    }
+    if last <= n { arr.push(s.substring(last)) }
+    return arr
+  }
+}
+
+static box RuleSafeExampleMain { method main(args) { return 0 } }

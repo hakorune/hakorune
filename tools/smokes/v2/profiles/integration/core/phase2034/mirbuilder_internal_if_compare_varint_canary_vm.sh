@@ -1,0 +1,33 @@
+#!/bin/bash
+# If(Compare Var/Int or Int/Var) with prior Local Int → compare+branch+ret
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"; if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then ROOT="$ROOT_GIT"; else ROOT="$(cd "$SCRIPT_DIR/../../../../../../../../.." && pwd)"; fi
+source "$ROOT/tools/smokes/v2/lib/test_runner.sh"; require_env || exit 2
+SMOKES_DEV_PREINCLUDE=1 enable_mirbuilder_dev_env
+
+tmp_hako="/tmp/mirbuilder_if_varint_$$.hako"
+cat > "$tmp_hako" <<'HAKO'
+static box Main { method main(args) {
+  // Program(JSON v0) provided via env PROG_JSON
+  local j = env.get("PROG_JSON"); if j == null { print("[fail:nojson]"); return 1 }
+  local a = new ArrayBox(); a.push(j)
+  local out = hostbridge.extern_invoke("env.mirbuilder", "emit", a)
+  if out == null { print("[fail:builder]"); return 1 }
+  print("[MIR_BEGIN]"); print("" + out); print("[MIR_END]")
+  return 0
+} }
+HAKO
+
+# Program(JSON v0): local a=5; if (a>=3) return 1; else return 0
+PROG='{"version":0,"kind":"Program","body":[{"type":"Local","name":"a","expr":{"type":"Int","value":5}},{"type":"If","cond":{"type":"Compare","op":">=","lhs":{"type":"Var","name":"a"},"rhs":{"type":"Int","value":3}},"then":[{"type":"Return","expr":{"type":"Int","value":1}}],"else":[{"type":"Return","expr":{"type":"Int","value":0}}]}]}'
+
+set +e
+out="$(PROG_JSON="$PROG" HAKO_MIR_BUILDER_INTERNAL=1 run_nyash_vm "$tmp_hako" 2>&1 )"; rc=$?
+set -e
+rm -f "$tmp_hako" || true
+
+mir=$(echo "$out" | awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag')
+if [ -n "$mir" ] && echo "$mir" | grep -q '"op":"compare"' && echo "$mir" | grep -q '"op":"branch"'; then
+  echo "[PASS] mirbuilder_internal_if_compare_varint_canary_vm"; exit 0; fi
+echo "[FAIL] mirbuilder_internal_if_compare_varint_canary_vm" >&2; exit 1

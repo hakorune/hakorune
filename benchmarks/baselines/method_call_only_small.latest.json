@@ -1,0 +1,12 @@
+{
+  "bench": "method_call_only_small",
+  "ts": "2025-11-10T02:24:06+09:00",
+  "host": "DESKTOP-K9SQDG2",
+  "unit": "ms",
+  "warmup": 1,
+  "repeat": 3,
+  "c_ms": 1,
+  "py_ms": 9,
+  "ny_vm_ms": 2091,
+  "ny_aot_ms": 0
+}

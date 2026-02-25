@@ -1,0 +1,17 @@
+// Selfhost prelude — single entry for selfhost runtime helpers
+// SSOT: apps/selfhost-runtime/lib/README.md
+
+using apps.selfhost_runtime.mir_loader
+using apps.selfhost_runtime.ops_calls
+
+using apps.lib.boxes.console_std
+using apps.lib.boxes.string_std
+using apps.lib.boxes.array_std
+using apps.lib.boxes.map_std
+
+using apps.selfhost_runtime.string_cursor
+using apps.selfhost_runtime.ast_extractors
+
+static box SelfhostPrelude {
+  main(args) { return 0 }
+}

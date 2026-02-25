@@ -1,0 +1,23 @@
+// Minimal fixture for PhiInjectorBox._collect_phi_vars len-loop pattern
+// Pattern: loop(k < arr.length()) with pure index scan (no exit)
+
+static box Main {
+    main() {
+        local arr = new ArrayBox()
+        arr.push(10)
+        arr.push(20)
+        arr.push(30)
+
+        local k = 0
+        local sum = 0
+
+        loop(k < arr.length()) {
+            local val = arr.get(k)
+            sum = sum + val
+            k = k + 1
+        }
+
+        print(sum)
+        return 0
+    }
+}

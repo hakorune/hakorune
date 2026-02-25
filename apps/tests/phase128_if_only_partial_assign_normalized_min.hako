@@ -1,0 +1,19 @@
+// Phase 128: if-only partial assign (else保持) - Normalized path test
+// NOTE: Phase 128 P3 simplified - full join_k continuation not yet implemented
+// This tests basic assign lowering only
+// Expected: x=1, flag=1, if condition true → return 2
+
+static box Main {
+    main() {
+        local x
+        local flag
+        x = 1
+        flag = 1
+        if flag == 1 {
+            print(2)
+            return "OK"
+        }
+        print(1)
+        return "OK"
+    }
+}

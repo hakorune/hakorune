@@ -1,0 +1,158 @@
+// bundle_resolver.hako — Stage‑B bundling resolver (Box‑first)
+
+static box BundleResolver {
+  // Resolve and merge bundles. Returns merged prefix string or null on error.
+  // Policy:
+  //  - Duplicate named modules are Fail‑Fast ([bundle/duplicate] Name)
+  //  - --require-mod Name must appear in named bundles ([bundle/missing] Name)
+  //  - Merge order: bundle-src* → bundle-mod* (in given order)
+  resolve(bundle_srcs, bundle_names, bundle_mod_srcs, require_mods) {
+    // Shallow recursion guard to prevent accidental self-recursion in Stage‑B bundler.
+    {
+      local depth = env.get("HAKO_STAGEB_BUNDLE_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/recursion] BundleResolver.resolve recursion detected")
+        return null
+      }
+      env.set("HAKO_STAGEB_BUNDLE_DEPTH", "1")
+    }
+    // Alias table via env: HAKO_BUNDLE_ALIAS_TABLE / NYASH_BUNDLE_ALIAS_TABLE
+    // Format: entries separated by '|||', each entry as 'Name:code'
+    local table = env.get("HAKO_BUNDLE_ALIAS_TABLE")
+    if table == null || table == "" { table = env.get("NYASH_BUNDLE_ALIAS_TABLE") }
+    if table != null && table != "" {
+      if bundle_names == null { bundle_names = new ArrayBox() }
+      if bundle_mod_srcs == null { bundle_mod_srcs = new ArrayBox() }
+
+      local entries = new ArrayBox()
+      local start_box = new ArrayBox()
+      start_box.push(0)
+      local len = table.length()
+      local i = 0
+      loop(i < len) {
+        local start = start_box.get(0)
+        if i >= start && i + 3 <= len && table.substring(i, i + 3) == "|||" && table.substring(start, i) != "" {
+          entries.push(table.substring(start, i))
+          start_box.set(0, i + 3)
+        }
+        if i >= start && i + 3 <= len && table.substring(i, i + 3) == "|||" && table.substring(start, i) == "" {
+          start_box.set(0, i + 3)
+        }
+        i = i + 1
+      }
+      local start_final = start_box.get(0)
+      local tail = table.substring(start_final, len)
+      if tail != "" { entries.push(tail) }
+
+      local errors = new ArrayBox()
+      local name_box = new ArrayBox()
+      local code_box = new ArrayBox()
+      name_box.push("")
+      code_box.push("")
+      local e = 0
+      loop(e < entries.length()) {
+        if errors.length() > 0 { break }
+        local seg = entries.get(e)
+        local pos = seg.indexOf(":")
+        name_box.set(0, "")
+        code_box.set(0, "")
+        if pos >= 0 {
+          name_box.set(0, seg.substring(0, pos))
+          code_box.set(0, seg.substring(pos + 1, seg.length()))
+        }
+        if seg != "" && (name_box.get(0) == "" || code_box.get(0) == "") {
+          errors.push("[bundle/alias-table/bad] " + seg)
+        }
+        if seg != "" && name_box.get(0) != "" && code_box.get(0) != "" {
+          bundle_names.push(name_box.get(0))
+          bundle_mod_srcs.push(code_box.get(0))
+        }
+        e = e + 1
+      }
+      if errors.length() > 0 {
+        print(errors.get(0))
+        return null
+      }
+    }
+
+    // Fail on duplicate names
+    local name_map = new MapBox()
+    local dup_error = new ArrayBox()
+    if bundle_names != null && bundle_names.length() > 0 {
+      local i = 0
+      loop(i < bundle_names.length()) {
+        local name_i = "" + bundle_names.get(i)
+        if name_map.has(name_i) == true { dup_error.push("[bundle/duplicate] " + name_i) }
+        if dup_error.length() > 0 { break }
+        name_map.set(name_i, 1)
+        i = i + 1
+      }
+    }
+    if dup_error.length() > 0 {
+      print(dup_error.get(0))
+      return null
+    }
+
+    // Env alias injection (TTL, dev-only): HAKO_BUNDLE_ALIAS_<Name> / NYASH_BUNDLE_ALIAS_<Name>
+    // If a required module is not provided via --bundle-mod, but an env alias
+    // supplies its code, synthesize a named bundle entry before checks/merge.
+    if require_mods != null {
+      if bundle_names == null { bundle_names = new ArrayBox() }
+      if bundle_mod_srcs == null { bundle_mod_srcs = new ArrayBox() }
+      local alias_box = new ArrayBox()
+      alias_box.push("")
+      local i0 = 0
+      loop(i0 < require_mods.length()) {
+        local need = "" + require_mods.get(i0)
+        local alias_key = "HAKO_BUNDLE_ALIAS_" + need
+        alias_box.set(0, env.get(alias_key))
+        if alias_box.get(0) == null || alias_box.get(0) == "" {
+          alias_box.set(0, env.get("NYASH_BUNDLE_ALIAS_" + need))
+        }
+        local code = alias_box.get(0)
+        if name_map.has(need) == false && code != null && code != "" {
+          bundle_names.push(need)
+          bundle_mod_srcs.push("" + code)
+          name_map.set(need, 1)
+        }
+        i0 = i0 + 1
+      }
+    }
+
+    // Check required modules
+    if require_mods != null && require_mods.length() > 0 {
+      local miss_error = new ArrayBox()
+      local idx = 0
+      loop(idx < require_mods.length()) {
+        local need = "" + require_mods.get(idx)
+        if name_map.has(need) == false { miss_error.push("[bundle/missing] " + need) }
+        if miss_error.length() > 0 { break }
+        idx = idx + 1
+      }
+      if miss_error.length() > 0 {
+        print(miss_error.get(0))
+        return null
+      }
+    }
+
+    // Merge in order: bundle-src* → bundle-mod*
+    local merged = ""
+    if bundle_srcs != null {
+      local i = 0
+      loop(i < bundle_srcs.length()) {
+        merged = merged + bundle_srcs.get(i) + "\n"
+        i = i + 1
+      }
+    }
+    if bundle_mod_srcs != null {
+      local i2 = 0
+      loop(i2 < bundle_mod_srcs.length()) {
+        merged = merged + bundle_mod_srcs.get(i2) + "\n"
+        i2 = i2 + 1
+      }
+    }
+    // Clear depth guard before returning
+    env.set("HAKO_STAGEB_BUNDLE_DEPTH", "0")
+    return merged
+  }
+}

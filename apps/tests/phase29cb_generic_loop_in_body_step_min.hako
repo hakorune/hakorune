@@ -1,0 +1,14 @@
+// Phase 29cb P1: generic loop v0.2 in-body step normalization
+// Expect: return 3
+
+static box Main {
+    main() {
+        local i = 0
+        local tmp = 0
+        loop(i < 3) {
+            i = i + 1
+            tmp = 1
+        }
+        return i
+    }
+}

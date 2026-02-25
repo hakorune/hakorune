@@ -1,0 +1,40 @@
+// Phase 258 P0: index_of_string minimal test (実物と同形)
+// Target: StringUtils.index_of_string(s, substr)
+//
+// Loop form (matches actual implementation):
+//   local i = 0
+//   loop(i <= s.length() - substr.length()) {
+//       if s.substring(i, i + substr.length()) == substr { return i }
+//       i = i + 1
+//   }
+//   return -1
+//
+// Expected JoinIR (Phase 258 P0 dynamic needle):
+//   - needle_len = substr.length()  // Dynamic calculation
+//   - bound = len - needle_len
+//   - exit_cond = (i > bound)       // Not found case
+//   - window = s.substring(i, i + needle_len)  // Dynamic window
+//   - if window == substr { return i }  // Found case
+//   - i = i + 1  // Step
+
+static box StringUtils {
+    index_of_string(s, substr) {
+        local i
+        i = 0
+        loop(i <= s.length() - substr.length()) {
+            if s.substring(i, i + substr.length()) == substr {
+                return i
+            }
+            i = i + 1
+        }
+        return -1
+    }
+}
+
+static box Main {
+    main() {
+        local result
+        result = StringUtils.index_of_string("hello world", "world")
+        return result  // Expected: 6 (index of "world" in "hello world")
+    }
+}

@@ -1,0 +1,58 @@
+// Minimal Pattern P5b (Escape Handling) Test Fixture
+// Purpose: Verify JoinIR Canonicalizer recognition of escape sequence patterns
+//
+// Pattern: loop(i < n) with conditional increment on escape character
+// Carriers: i (position), out (accumulator)
+// Exit: break on quote character
+//
+// This pattern is common in string parsing:
+// - JSON string readers
+// - CSV parsers
+// - Template engines
+// - Escape sequence handlers
+//
+// Note: VM path uses `print(out)` instead of `ConsoleBox` here because ConsoleBox methods are
+// not reliably available in this selfhost fixture; the test focus is JoinIR lowering semantics.
+
+static box Main {
+    main() {
+        // Test data: string with escape sequence
+        // Original: "hello\" world"
+        // After parsing: hello" world
+        local s = "hello\\\" world"
+        local n = s.length()
+        local i = 0
+        local out = ""
+
+        // Pattern P5b: Escape sequence handling loop
+        // - Header: loop(i < n)
+        // - Escape check: if ch == "\\" { i = i + 1 }
+        // - Process: out = out + ch
+        // - Update: i = i + 1
+        loop(i < n) {
+            local ch = s.substring(i, i + 1)
+
+            // Break on quote (string boundary)
+            if ch == "\"" {
+                break
+            }
+
+            // Handle escape sequence: skip the escape char itself
+            if ch == "\\" {
+                i = i + 1  // Skip escape character (i increments by +2 total with final i++)
+                if i < n {
+                    ch = s.substring(i, i + 1)
+                }
+            }
+
+            // Accumulate processed character
+            out = out + ch
+            i = i + 1  // Standard increment
+        }
+
+        // Expected output: hello" world (escape removed)
+        print(out)
+
+        return "OK"
+    }
+}

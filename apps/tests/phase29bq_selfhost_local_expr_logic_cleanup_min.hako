@@ -1,0 +1,24 @@
+// Phase 29bq parser handoff Tier-2: local + logical operators + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local both = (2 < 3) && (4 > 1)
+      local either = (2 > 3) || (5 == 5)
+      if both {
+        out = out + 7
+      } else {
+        out = out + 1
+      }
+      if either {
+        out = out + 13
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 80
+    }
+    print(out)
+    return 0
+  }
+}

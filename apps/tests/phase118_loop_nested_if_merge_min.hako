@@ -1,0 +1,18 @@
+// Phase 118: loop + if-only merge parity test
+// Expected output: 2 (numeric line)
+// Calculation: i=0: x=0 (skip), i=1: x=0+1→1, i=2: x=1+1→2
+
+static box Main {
+    main() {
+        local i = 0
+        local x = 0
+        loop(i < 3) {
+            if i > 0 {
+                x = x + 1
+            }
+            i = i + 1
+        }
+        print(x)
+        return "OK"
+    }
+}

@@ -1,0 +1,208 @@
+// Moved from apps/selfhost-compiler/boxes/parser/stmt/parser_exception_box.hako
+// ParserExceptionBox — try/catch/throw/fini parser
+// Responsibility: Parse exception handling constructs
+// API: parse_try(src, i, ctx) -> JSON, parse_throw(src, i, ctx) -> JSON
+
+using sh_core as StringHelpers  // Required: using chain resolution not implemented
+static box ParserExceptionBox {
+  // Parse: throw expr → {type:"Throw", expr:...} (Stage-3) or {type:"Expr", expr:...} (fallback)
+  parse_throw(src, i, stmt_start, ctx) {
+    local j = i + 5  // skip "throw"
+    j = ctx.skip_ws(src, j)
+    local e_throw = ctx.parse_expr2(src, j)
+    j = ctx.gpos_get()
+
+    if ctx.stage3_enabled() == 1 {
+      if j <= stmt_start {
+        if j < src.length() { j = j + 1 } else { j = src.length() }
+      }
+      ctx.gpos_set(j)
+      return "{\"type\":\"Throw\",\"expr\":" + e_throw + "}"
+    }
+
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    return "{\"type\":\"Expr\",\"expr\":" + e_throw + "}"
+  }
+
+  // Parse DropScope registration:
+  // - fini { ... }
+  // - local ... fini { ... } (via parse_fini_with_prelude)
+  // Returns an internal marker statement that is normalized by parse_block/parse_program2.
+  parse_fini(src, i, stmt_start, ctx) {
+    return me.parse_fini_with_prelude(src, i, stmt_start, ctx, "[]")
+  }
+
+  parse_fini_with_prelude(src, i, stmt_start, ctx, prelude_json) {
+    local j = i
+    if ctx.starts_with_kw(src, j, "fini") != 1 { return "" }
+
+    if prelude_json == null || prelude_json.length() == 0 {
+      prelude_json = "[]"
+    }
+
+    j = j + 4  // skip "fini"
+    j = ctx.skip_ws(src, j)
+
+    local fini_res = ctx.parse_block2(src, j)
+    local at_f = fini_res.lastIndexOf("@")
+    local fini_json = "[]"
+    if at_f >= 0 {
+      fini_json = fini_res.substring(0, at_f)
+      j = ctx.to_int(fini_res.substring(at_f + 1, fini_res.length()))
+    }
+
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    return "{\"type\":\"FiniReg\",\"prelude\":" + prelude_json + ",\"fini\":" + fini_json + "}"
+  }
+
+  // Parse catch/cleanup tail after a pre-parsed body JSON.
+  // Inputs:
+  // - try_json: block JSON array (from parse_block2)
+  // - j: cursor right after the body block
+  parse_try_tail(src, j, stmt_start, ctx, try_json) {
+    local catches_json = "["
+    local catch_first = 1
+
+    // zero or more catch - MirBuilder-friendly
+    loop(true) {
+      j = ctx.skip_ws(src, j)
+
+      if ctx.starts_with_kw(src, j, "catch") != 1 { break }
+
+      {
+        j = j + 5
+        j = ctx.skip_ws(src, j)
+        local catch_type = null
+        local catch_param = null
+
+        if src.substring(j, j+1) == "(" {
+          j = j + 1
+          j = ctx.skip_ws(src, j)
+
+          // optional type + name
+          if ctx.is_alpha(src.substring(j, j+1)) {
+            local id1 = ctx.read_ident2(src, j)
+            local at1 = id1.lastIndexOf("@")
+            catch_type = id1.substring(0, at1)
+            j = ctx.to_int(id1.substring(at1+1, id1.length()))
+            j = ctx.skip_ws(src, j)
+          }
+
+          if ctx.is_alpha(src.substring(j, j+1)) {
+            local id2 = ctx.read_ident2(src, j)
+            local at2 = id2.lastIndexOf("@")
+            catch_param = id2.substring(0, at2)
+            j = ctx.to_int(id2.substring(at2+1, id2.length()))
+            j = ctx.skip_ws(src, j)
+          }
+
+          if src.substring(j, j+1) == ")" { j = j + 1 }
+        }
+
+        j = ctx.skip_ws(src, j)
+
+        // catch body
+        local c_res = ctx.parse_block2(src, j)
+        local atc = c_res.lastIndexOf("@")
+        j = ctx.to_int(c_res.substring(atc+1, c_res.length()))
+
+        if ctx.stage3_enabled() == 1 {
+          local entry = "{"
+          local wrote = 0
+
+          if catch_param != null && catch_param.length() > 0 {
+            entry = entry + "\"param\":\"" + ctx.esc_json(catch_param) + "\""
+            wrote = 1
+          }
+
+          if catch_type != null && catch_type.length() > 0 {
+            if wrote == 1 { entry = entry + "," }
+            entry = entry + "\"typeHint\":\"" + ctx.esc_json(catch_type) + "\""
+            wrote = 1
+          }
+
+          local body_json = c_res.substring(0, atc)
+          if wrote == 1 { entry = entry + "," }
+          entry = entry + "\"body\":" + body_json + "}"
+
+          if catch_first == 0 {
+            catches_json = catches_json + "," + entry
+          } else {
+            catches_json = catches_json + entry
+            catch_first = 0
+          }
+        }
+      }
+    }
+
+    catches_json = catches_json + "]"
+
+    // optional cleanup
+    j = ctx.skip_ws(src, j)
+    local finally_json = null
+
+    if ctx.starts_with_kw(src, j, "cleanup") == 1 {
+      j = j + 7
+      j = ctx.skip_ws(src, j)
+      local f_res = ctx.parse_block2(src, j)
+      local atf = f_res.lastIndexOf("@")
+      j = ctx.to_int(f_res.substring(atf+1, f_res.length()))
+      finally_json = f_res.substring(0, atf)
+    }
+
+    if ctx.stage3_enabled() == 1 {
+      if j <= stmt_start {
+        if j < src.length() { j = j + 1 } else { j = src.length() }
+      }
+      ctx.gpos_set(j)
+      local node = "{\"type\":\"Try\",\"try\":" + try_json + ",\"catches\":" + catches_json
+      if finally_json != null { node = node + ",\"finally\":" + finally_json }
+      node = node + "}"
+      return node
+    }
+
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    return "{\"type\":\"Expr\",\"expr\":{\"type\":\"Int\",\"value\":0}}"
+  }
+
+  // Parse: try { ... } (catch ...)* (cleanup { ... })? → {type:"Try", ...} (Stage-3) or no-op
+  parse_try(src, i, stmt_start, ctx) {
+    local j = i + 3  // skip "try"
+    j = ctx.skip_ws(src, j)
+
+    // parse try block
+    local try_res = ctx.parse_block2(src, j)
+    local at_t = try_res.lastIndexOf("@")
+    local try_json = try_res.substring(0, at_t)
+    j = ctx.to_int(try_res.substring(at_t+1, try_res.length()))
+    return me.parse_try_tail(src, j, stmt_start, ctx, try_json)
+  }
+
+  // Parse: { ... } (catch ...)? (cleanup ...)?  -> Try node (Stage-3)
+  // This supports try-less postfix handlers in statement position.
+  parse_block_postfix(src, i, stmt_start, ctx) {
+    local j = ctx.skip_ws(src, i)
+    local try_res = ctx.parse_block2(src, j)
+    local at_t = try_res.lastIndexOf("@")
+    local try_json = try_res.substring(0, at_t)
+    j = ctx.to_int(try_res.substring(at_t+1, try_res.length()))
+    local tail_j = ctx.skip_ws(src, j)
+    if ctx.starts_with_kw(src, tail_j, "catch") != 1 {
+      if ctx.starts_with_kw(src, tail_j, "cleanup") != 1 {
+        // No postfix handler: keep caller on normal expression path.
+        ctx.gpos_set(i)
+        return ""
+      }
+    }
+    return me.parse_try_tail(src, j, stmt_start, ctx, try_json)
+  }
+}

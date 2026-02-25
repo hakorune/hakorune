@@ -1,0 +1,10 @@
+[using.json_native]
+path = "apps/lib/json_native/"
+main = "parser/parser.hako"
+
+[using.string_utils]
+path = "apps/lib/json_native/utils/string.hako"
+
+[using.aliases]
+json = "json_native"
+StringUtils = "string_utils"

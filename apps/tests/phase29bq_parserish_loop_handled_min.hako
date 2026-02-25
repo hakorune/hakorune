@@ -1,0 +1,28 @@
+// Phase 29bq: parser-ish handled loop(cond) baseline
+//
+// Expected output: 30
+static box Main {
+  main() {
+    local j = 0
+    local n = 5
+    local handled = 0
+    local out = 0
+
+    loop(j < n) {
+      handled = 0
+      if j == 0 {
+        out = out + 10
+        handled = handled + 1
+      }
+      if j == 1 {
+        out = out + 20
+        handled = handled + 1
+      }
+      if handled == 0 { break }
+      j = j + 1
+    }
+
+    print(out)
+    return 0
+  }
+}

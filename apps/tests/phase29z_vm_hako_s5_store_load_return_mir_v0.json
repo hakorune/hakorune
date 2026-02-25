@@ -1,0 +1,39 @@
+{
+  "functions": [
+    {
+      "name": "main",
+      "entry_block": 0,
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": { "type": "i64", "value": 7 }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": { "type": "i64", "value": 42 }
+            },
+            {
+              "op": "store",
+              "ptr": 1,
+              "value": 2
+            },
+            {
+              "op": "load",
+              "dst": 3,
+              "ptr": 1
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

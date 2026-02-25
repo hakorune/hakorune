@@ -1,0 +1,72 @@
+// Phase 29bq: selfhost parse_block v2 minimal
+// Expected output: []@2
+static box Ctx {
+  skip_ws(src, j) { return j }
+  gpos_get() { return 0 }
+  i2s(v) { return "2" }
+  touch(v) { return v }
+}
+
+static box Main {
+  parse_block_v2_min(src) {
+    local depth_before = 0
+    local j = 0
+
+    if src.substring(j, j + 1) != "{" {
+      return "[]@" + Ctx.i2s(j)
+    }
+
+    j = j + 1
+
+    local body = "["
+    local first = 1
+
+    loop(true) {
+      j = Ctx.skip_ws(src, j)
+      if j >= src.length() { break }
+      if src.substring(j, j + 1) == "}" {
+        j = j + 1
+        break
+      }
+
+      local start_j = j
+      local s = ""
+      j = Ctx.gpos_get()
+
+      if j <= start_j {
+        if j < src.length() { j = j + 1 }
+        else { j = src.length() }
+        Ctx.touch(j)
+      }
+
+      loop(true) {
+        local before = j
+        j = Ctx.skip_ws(src, j)
+        if j < src.length() && src.substring(j, j + 1) == ";" {
+          j = j + 1
+          continue
+        }
+        break
+      }
+
+      if s.length() > 0 {
+        if first == 1 {
+          body = body + s
+          first = 0
+        } else {
+          body = body + "," + s
+        }
+      }
+    }
+
+    body = body + "]"
+    Ctx.touch(body)
+    return body + "@" + Ctx.i2s(j)
+  }
+
+  main() {
+    local out = Main.parse_block_v2_min("{}")
+    print(out)
+    return 0
+  }
+}

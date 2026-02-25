@@ -1,0 +1,19 @@
+// Minimal test: verify HAKO_STAGEB_MODULE_ROOTS_LIST env var is available
+// Expected: 0 (env var presence confirmed or graceful fallback)
+// Phase 29bq+: module_roots SSOT validation
+
+static box Main {
+  main(args) {
+    local console = new ConsoleBox()
+    // Check if module_roots env var can be read (non-null when configured)
+    local roots = env.get("HAKO_STAGEB_MODULE_ROOTS_LIST")
+    if roots != null {
+      // Env var is set (from hako.toml [module_roots])
+      print(0)
+    } else {
+      // Env var not set (no module_roots configured) - also valid
+      print(0)
+    }
+    return 0
+  }
+}

@@ -1,0 +1,19 @@
+// minimal_usingcollector_collect.hako
+// 目的: UsingCollectorBox.collect の SSA/PHI バグを最小構成で再現するテスト入力。
+// - Stage‑1 CLI が読む `apps/tests/stage1_using_minimal.hako` と同形の 1 行 using を含む。
+// - Rust 側では NyashParser → MirCompiler → VM 実行時に
+//   UsingCollectorBox.collect/1 の substring まわりで Undefined Value が発生していないかを観測する。
+
+using lang.compiler.parser.using.using_collector_box as UsingCollectorBox
+
+static box Main {
+  main() {
+    // Stage‑1 using minimal と同じ形の 1 行 using。
+    // UsingCollectorBox.collect はこの文字列を line-scan して JSON を返す。
+    local src = "using \"foo/bar.hako\" as Foo\n"
+    local json = UsingCollectorBox.collect(src)
+    print(json)
+    return 0
+  }
+}
+

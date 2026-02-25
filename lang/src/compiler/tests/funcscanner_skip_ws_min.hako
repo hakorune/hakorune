@@ -1,0 +1,54 @@
+// funcscanner_skip_ws_min.hako
+// Minimal reproduction case for FuncScannerBox.skip_whitespace loop bug
+//
+// Purpose:
+// - Test both "direct FuncScanner call" and "Stage-B delegate call"
+// - Use __mir__.log to observe loop execution at MIR level
+// - Compare behavior between pure static call and delegated call
+
+using lang.compiler.entry.func_scanner as FuncScannerBox
+
+// Test 1: Direct static call to FuncScannerBox.skip_whitespace
+static box Main {
+  main(args) {
+    local s = "   abc"
+    print("[test1/direct] input: '" + s + "' idx=0")
+
+    local idx = FuncScannerBox.skip_whitespace(s, 0)
+
+    print("[test1/direct] result idx=" + ("" + idx))
+    print("[test1/direct] expected: idx=3 (skip 3 spaces)")
+
+    if idx == 3 {
+      print("[test1/direct] PASS")
+      return 0
+    } else {
+      print("[test1/direct] FAIL: expected 3, got " + ("" + idx))
+      return 1
+    }
+  }
+}
+
+// Test 2: Delegate call via StageBFuncScannerBox (closer to Stage-B path)
+// NOTE: Commenting out for now - need to verify if this path works
+// using lang.compiler.entry.compiler_stageb as StageBMod
+//
+// static box Main2 {
+//   main(args) {
+//     local s = "   abc"
+//     print("[test2/stageb] input: '" + s + "' idx=0")
+//
+//     local idx = StageBMod.StageBFuncScannerBox._skip_whitespace(s, 0)
+//
+//     print("[test2/stageb] result idx=" + ("" + idx))
+//     print("[test2/stageb] expected: idx=3")
+//
+//     if idx == 3 {
+//       print("[test2/stageb] PASS")
+//       return 0
+//     } else {
+//       print("[test2/stageb] FAIL: expected 3, got " + ("" + idx))
+//       return 1
+//     }
+//   }
+// }

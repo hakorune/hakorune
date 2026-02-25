@@ -1,0 +1,137 @@
+// mir_call_array_ops_box.hako — Array operations utilities split from mir_call.hako
+// Responsibility: array metadata keys and method handlers (size/push/pop/clear/get/set).
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+using selfhost.vm.helpers.mir_call_json_scan as MirCallJsonScanBox
+
+static box MirCallArrayOpsBox {
+  // ==================== Array Metadata Keys ====================
+
+  _arr_key(recv_id) {
+    return "arrsize:r" + StringHelpers.int_to_str(recv_id)
+  }
+
+  _arr_val_key(recv_id, idx) {
+    return "arrval:r" + StringHelpers.int_to_str(recv_id) + ":" + StringHelpers.int_to_str(idx)
+  }
+
+  // ==================== Array Metadata Accessor ====================
+
+  _array_metadata_or_fail(state, recv_id, context) {
+    local key = me._arr_key(recv_id)
+    local mem = state.get("mem")
+    local sz = mem.get(key)
+    if sz == null { print("[core/mir_call] " + context + " missing array metadata") return null }
+    // Return ArrayBox instead of array literal
+    local result = new ArrayBox()
+    result.push(mem)
+    result.push(key)
+    result.push(sz)
+    return result
+  }
+
+  // ==================== Array Method Handler ====================
+
+  _handle_array_method(method, inst_json, m, state, recv_id) {
+    if method == "size" {
+      local meta = me._array_metadata_or_fail(state, recv_id, "method(size)")
+      if meta == null { return -1 }
+      local dst = MirCallJsonScanBox._read_dst(inst_json, "method(size)")
+      if dst == null { return -1 }
+      NyVmState.set_reg(state, dst, meta.get(2))
+      return 0
+    }
+    if method == "push" {
+      local meta = me._array_metadata_or_fail(state, recv_id, "method(push)")
+      if meta == null { return -1 }
+      local mem = meta.get(0)
+      local sz = meta.get(2)
+      local val_vid = MirCallJsonScanBox._read_arg_vid_optional(m, 0)
+      local value = 0
+      if val_vid != null { value = NyVmState.get_reg(state, val_vid) }
+      mem.set(me._arr_val_key(recv_id, sz), value)
+      sz = sz + 1
+      mem.set(meta.get(1), sz)
+      local dst_opt = MirCallJsonScanBox._read_optional_vid_field(inst_json, "dst")
+      if dst_opt != null { NyVmState.set_reg(state, dst_opt, sz) }
+      return 0
+    }
+    if method == "pop" {
+      local meta = me._array_metadata_or_fail(state, recv_id, "method(pop)")
+      if meta == null { return -1 }
+      local mem = meta.get(0)
+      local sz = meta.get(2)
+      if sz <= 0 {
+        // Empty → return null (no-op)
+        local dst_empty = MirCallJsonScanBox._read_optional_vid_field(inst_json, "dst")
+        if dst_empty != null { NyVmState.set_reg(state, dst_empty, null) }
+        return 0
+      }
+      sz = sz - 1
+      local val = mem.get(me._arr_val_key(recv_id, sz))
+      mem.set(me._arr_val_key(recv_id, sz), null)
+      mem.set(meta.get(1), sz)
+      local dst_opt = MirCallJsonScanBox._read_optional_vid_field(inst_json, "dst")
+      if dst_opt != null { NyVmState.set_reg(state, dst_opt, val) }
+      return 0
+    }
+    if method == "clear" {
+      // clear(): reset size metadata to 0; values are logically cleared (TTL: metadata-only)
+      local meta = me._array_metadata_or_fail(state, recv_id, "method(clear)")
+      if meta == null { return -1 }
+      local mem = meta.get(0)
+      mem.set(meta.get(1), 0)
+      local dst_opt = MirCallJsonScanBox._read_optional_vid_field(inst_json, "dst")
+      if dst_opt != null { NyVmState.set_reg(state, dst_opt, void) }
+      return 0
+    }
+    if method == "get" {
+      local idx_vid = MirCallJsonScanBox._read_arg_vid(m, 0, "[core/mir_call] method(get) missing index", "[core/mir_call] method(get) bad index")
+      if idx_vid == null { return -1 }
+      local meta = me._array_metadata_or_fail(state, recv_id, "method(get)")
+      if meta == null { return -1 }
+      local mem = meta.get(0)
+      local idx = NyVmState.get_reg(state, idx_vid)
+      if idx < 0 || idx >= meta.get(2) {
+        // OOB → null
+        local dst_oob = MirCallJsonScanBox._read_dst(inst_json, "method(get)")
+        if dst_oob == null { return -1 }
+        NyVmState.set_reg(state, dst_oob, null)
+        return 0
+      }
+      local val = mem.get(me._arr_val_key(recv_id, idx))
+      local dst = MirCallJsonScanBox._read_dst(inst_json, "method(get)")
+      if dst == null { return -1 }
+      NyVmState.set_reg(state, dst, val)
+      return 0
+    }
+    if method == "set" {
+      local meta = me._array_metadata_or_fail(state, recv_id, "method(set)")
+      if meta == null { return -1 }
+      local mem = meta.get(0)
+      local idx_vid = MirCallJsonScanBox._read_arg_vid(m, 0, "[core/mir_call] method(set) missing index", "[core/mir_call] method(set) bad index")
+      if idx_vid == null { return -1 }
+      local val_vid = MirCallJsonScanBox._read_arg_vid(m, 1, "[core/mir_call] method(set) missing value", "[core/mir_call] method(set) bad value")
+      if val_vid == null { return -1 }
+      local idx = NyVmState.get_reg(state, idx_vid)
+      if idx < 0 { print("[core/array/oob_set]"); return -1 }
+      local value = NyVmState.get_reg(state, val_vid)
+      // i > len → OOB fail; i == len → append; 0<=i<len → replace
+      if idx > meta.get(2) { print("[core/array/oob_set]"); return -1 }
+      if idx == meta.get(2) {
+        // append
+        mem.set(me._arr_val_key(recv_id, idx), value)
+        mem.set(meta.get(1), idx + 1)
+      } else {
+        mem.set(me._arr_val_key(recv_id, idx), value)
+      }
+      // Return void
+      local dst_opt = MirCallJsonScanBox._read_optional_vid_field(inst_json, "dst")
+      if dst_opt != null { NyVmState.set_reg(state, dst_opt, void) }
+      return 0
+    }
+    print("[core/mir_call/method_unsupported]")
+    return -1
+  }
+}

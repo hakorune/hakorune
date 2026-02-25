@@ -1,0 +1,58 @@
+// MIR Call Smoke Test 2: Closure creation
+// Tests Closure callee type
+
+using "lang/src/llvm_ir/instructions/mir_call.hako" as MirCallInst
+
+static box Main {
+  main() {
+    print("=== MIR Call Smoke Test 2: closure_simple ===")
+
+    // Simulate: |x, y| { x + y }
+    local callee = new MapBox()
+    callee.set("type", "Closure")
+
+    local params = new ArrayBox()
+    params.push(1)  // param x
+    params.push(2)  // param y
+    callee.set("params", params)
+
+    local captures = new ArrayBox()
+    captures.push(3)  // captured variable
+    callee.set("captures", captures)
+
+    local args = new ArrayBox()
+
+    // Generate mir_call JSON
+    local json = MirCallInst.lower_mir_call(null, callee, args, 4, null)
+
+    // Verify JSON structure
+    local has_mir_call = json.indexOf("\"op\":\"mir_call\"")
+    if has_mir_call < 0 {
+      print("ERROR: op not found")
+      return 1
+    }
+
+    local has_closure = json.indexOf("\"type\":\"Closure\"")
+    if has_closure < 0 {
+      print("ERROR: Closure type not found")
+      return 1
+    }
+
+    local has_params = json.indexOf("\"params\"")
+    if has_params < 0 {
+      print("ERROR: params not found")
+      return 1
+    }
+
+    local has_captures = json.indexOf("\"captures\"")
+    if has_captures < 0 {
+      print("ERROR: captures not found")
+      return 1
+    }
+
+    print("✓ PASS: closure_simple mir_call generated")
+    print("Note: Actual execution requires C++ backend implementation")
+
+    return 0
+  }
+}

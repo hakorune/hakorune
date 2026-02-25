@@ -1,0 +1,18 @@
+[package]
+name = "nyash-tlv"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Minimal TLV codec shim (C FFI) with safe Rust wrappers"
+
+[features]
+default = []
+# Enable building the C shim via cc
+c-shim = []
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+cc = "1.0"
+

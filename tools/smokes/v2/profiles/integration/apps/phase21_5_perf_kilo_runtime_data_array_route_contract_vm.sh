@@ -1,0 +1,106 @@
+#!/bin/bash
+# phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh
+#
+# Contract pin (LLVM-HOT-20 cleanup-8):
+# - RuntimeDataBox get/set in kilo main should prefer Array mono-route.
+# - main IR should use nyash.array.get_hh / nyash.array.set_hhh.
+# - main IR should not keep nyash.runtime_data.get_hh / set_hhh on this path.
+
+set -euo pipefail
+
+source "$(dirname "$0")/../../../lib/test_runner.sh"
+require_env || exit 2
+
+SMOKE_NAME="phase21_5_perf_kilo_runtime_data_array_route_contract_vm"
+EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
+MIR_BUILDER="$NYASH_ROOT/tools/ny_mir_builder.sh"
+BENCH="$NYASH_ROOT/benchmarks/bench_kilo_kernel_small.hako"
+
+if [ ! -f "$EMIT_HELPER" ]; then
+  test_fail "$SMOKE_NAME: emit helper missing: $EMIT_HELPER"
+  exit 2
+fi
+if [ ! -f "$MIR_BUILDER" ]; then
+  test_fail "$SMOKE_NAME: MIR builder missing: $MIR_BUILDER"
+  exit 2
+fi
+if [ ! -f "$BENCH" ]; then
+  test_fail "$SMOKE_NAME: benchmark missing: $BENCH"
+  exit 2
+fi
+
+tmp_mir="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.mir.json")"
+tmp_ir="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.ll")"
+tmp_exe="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.exe")"
+tmp_log="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.log")"
+tmp_main="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.main.ll")"
+
+cleanup() {
+  rm -f "$tmp_mir" "$tmp_ir" "$tmp_exe" "$tmp_log" "$tmp_main" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+set +e
+bash "$EMIT_HELPER" "$BENCH" "$tmp_mir" >"$tmp_log" 2>&1
+emit_rc=$?
+set -e
+if [ "$emit_rc" -ne 0 ]; then
+  tail -n 60 "$tmp_log" || true
+  test_fail "$SMOKE_NAME: MIR emit failed rc=$emit_rc"
+  exit 1
+fi
+
+set +e
+NYASH_LLVM_FAST=1 \
+NYASH_LLVM_FAST_INT="${NYASH_LLVM_FAST_INT:-1}" \
+NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
+NYASH_LLVM_AUTO_SAFEPOINT=0 \
+NYASH_LLVM_DUMP_IR="$tmp_ir" \
+bash "$MIR_BUILDER" --in "$tmp_mir" --emit exe -o "$tmp_exe" --quiet >>"$tmp_log" 2>&1
+build_rc=$?
+set -e
+if [ "$build_rc" -ne 0 ]; then
+  tail -n 80 "$tmp_log" || true
+  test_fail "$SMOKE_NAME: AOT build failed rc=$build_rc"
+  exit 1
+fi
+
+if [ ! -s "$tmp_ir" ]; then
+  test_fail "$SMOKE_NAME: expected IR dump is empty"
+  exit 1
+fi
+
+awk '
+  /^define .*@"main"\(/ { in_main=1 }
+  in_main { print }
+  in_main && /^}$/ { exit }
+' "$tmp_ir" >"$tmp_main"
+
+if ! grep -q '^define .*@"main"' "$tmp_main"; then
+  test_fail "$SMOKE_NAME: main function not found in dumped IR"
+  exit 1
+fi
+
+array_get_count="$(grep -c 'nyash.array.get_hh' "$tmp_main" || true)"
+array_set_count="$(grep -c 'nyash.array.set_hhh' "$tmp_main" || true)"
+runtime_get_count="$(grep -c 'nyash.runtime_data.get_hh' "$tmp_main" || true)"
+runtime_set_count="$(grep -c 'nyash.runtime_data.set_hhh' "$tmp_main" || true)"
+
+if [ "$array_get_count" -lt 1 ]; then
+  test_fail "$SMOKE_NAME: nyash.array.get_hh not observed in main"
+  exit 1
+fi
+if [ "$array_set_count" -lt 1 ]; then
+  test_fail "$SMOKE_NAME: nyash.array.set_hhh not observed in main"
+  exit 1
+fi
+if [ "$runtime_get_count" -ne 0 ]; then
+  test_fail "$SMOKE_NAME: nyash.runtime_data.get_hh remained in main (${runtime_get_count})"
+  exit 1
+fi
+if [ "$runtime_set_count" -ne 0 ]; then
+  test_fail "$SMOKE_NAME: nyash.runtime_data.set_hhh remained in main (${runtime_set_count})"
+  exit 1
+fi
+
+test_pass "$SMOKE_NAME"

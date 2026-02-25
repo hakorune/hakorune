@@ -1,0 +1,27 @@
+// gc_metrics_box.hako — GC metrics (skeleton; not wired)
+
+static box GcMetricsBox {
+  total_allocations: IntegerBox
+  total_collections: IntegerBox
+  total_freed: IntegerBox
+
+  birth() {
+    from Box.birth()
+    me.total_allocations = 0
+    me.total_collections = 0
+    me.total_freed = 0
+  }
+
+  increment_allocations() {
+    me.total_allocations = me.total_allocations + 1
+  }
+
+  increment_collections() {
+    me.total_collections = me.total_collections + 1
+  }
+
+  record_collection(_mark_ms: IntegerBox, _sweep_ms: IntegerBox, _survivors: IntegerBox) {
+    // tracing is gated by HAKO_GC_TRACE; printing is deferred to VM hook
+  }
+}
+

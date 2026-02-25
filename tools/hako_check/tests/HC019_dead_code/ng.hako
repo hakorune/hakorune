@@ -1,0 +1,23 @@
+// ng.hako — contains dead method and dead static box
+
+static box UnusedBox {
+  method helper() {
+    return 42
+  }
+}
+
+static box Main {
+  method main() {
+    // Only calls used_method, leaving unused() and UnusedBox dead
+    me.used_method()
+    return 0
+  }
+
+  method used_method() {
+    return 1
+  }
+
+  method unused() {
+    return 2
+  }
+}

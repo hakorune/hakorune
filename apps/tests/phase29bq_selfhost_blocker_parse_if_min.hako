@@ -1,0 +1,31 @@
+// Phase 29bq: minimal fixture for ParserControlBox.parse_if/4 shape (no loop).
+// Expected: stdout=P, RC=0
+static box Main {
+  main() {
+    local src = "():"
+    local j = 0
+    local paren = 0
+    local then_json = ""
+    local else_json = ""
+    local tmp = ""
+
+    if src.substring(j, j + 1) == "(" {
+      paren = 1
+      j = j + 1
+    }
+    if paren == 1 {
+      if src.substring(j, j + 1) == ")" {
+        j = j + 1
+      }
+    }
+    if src.substring(j, j + 1) == ":" {
+      then_json = "T"
+    } else {
+      else_json = "E"
+    }
+    tmp = then_json + else_json
+
+    print("P")
+    return 0
+  }
+}

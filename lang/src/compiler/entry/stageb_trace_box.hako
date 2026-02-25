@@ -1,0 +1,18 @@
+// StageBTraceBox — dev-only trace helper for Stage-B.
+// - Enabled when HAKO_STAGEB_TRACE=1
+// - Keeps Stage-B behavior unchanged（ログのみ追加）
+
+box StageBTraceBox {
+  log(label) {
+    local flag = env.get("HAKO_STAGEB_TRACE")
+    if flag == null { return 0 }
+    if ("" + flag) != "1" { return 0 }
+    local msg = "[stageb/trace]"
+    if label != null {
+      msg = msg + " " + ("" + label)
+    }
+    print(msg)
+    return 0
+  }
+}
+

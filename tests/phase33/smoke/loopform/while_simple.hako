@@ -1,0 +1,49 @@
+// LoopForm Smoke Test 1: Basic while loop
+// Tests basic while loop structure with loopform
+//
+// Expected behavior (when C++ backend implements loopform):
+//   - Loop from 0 to 4
+//   - Print each iteration
+//   - Return final counter value (5)
+
+using "lang/src/llvm_ir/instructions/loopform.hako" as LoopFormInst
+
+static box Main {
+  main() {
+    print("=== LoopForm Smoke Test 1: while_simple ===")
+
+    // Simulate while loop: while (i < 5) { i++ }
+    local blocks = new MapBox()
+    blocks.set("preheader", 0)
+    blocks.set("header", 1)
+    blocks.set("body", 2)
+    blocks.set("dispatch", 3)
+    blocks.set("latch", 4)
+    blocks.set("exit", 5)
+
+    local options = new MapBox()
+    options.set("mode", "mir")
+    options.set("enable_safepoint", 1)
+
+    // Generate loopform JSON
+    local json = LoopFormInst.lower_loopform(1, blocks, 10, options)
+
+    // Verify JSON structure
+    local has_loopform = json.indexOf("\"op\":\"loopform\"")
+    if has_loopform < 0 {
+      print("ERROR: loopform op not found")
+      return 1
+    }
+
+    local has_safepoint = json.indexOf("\"enabled\":true")
+    if has_safepoint < 0 {
+      print("ERROR: safepoint not enabled")
+      return 1
+    }
+
+    print("✓ PASS: while_simple loopform generated")
+    print("Note: Actual loop execution requires C++ backend implementation")
+
+    return 0
+  }
+}

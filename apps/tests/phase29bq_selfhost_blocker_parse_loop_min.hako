@@ -1,0 +1,115 @@
+// Phase 29bq: selfhost parse_loop real-shape minimal
+// Expected output: {"type":"Loop","cond":"COND","body":[]}
+static box Ctx {
+  skip_ws(src, j) { return j }
+  parse_expr2(src, j) { return "\"COND\"" }
+  gpos_get() { return 0 }
+  gpos_set(j) { return 0 }
+  index_of(src, j, needle) { return -1 }
+  is_alpha(ch) { return 0 }
+  read_ident2(src, j) { return "id@0" }
+  to_int(s) { return 0 }
+  i2s(v) { return "" + v }
+}
+
+static box Main {
+  parse_block(src, j) {
+    return "[]@0"
+  }
+
+  parse_loop_min(src, i, stmt_start) {
+    local loop_depth_before = 0
+    {
+      local depth_raw = env.get("HAKO_STAGEB_LOOP_DEPTH")
+      if depth_raw != null { loop_depth_before = 0 }
+      if loop_depth_before >= 64 {
+        print("[stageb/recursion] ParserControlBox.parse_loop recursion detected")
+        return "{\"type\":\"Loop\",\"cond\":{\"type\":\"Bool\",\"value\":false},\"body\":[]}"
+      }
+      env.set("HAKO_STAGEB_LOOP_DEPTH", "1")
+    }
+
+    local trace = 0
+    local j = i + 4
+    j = Ctx.skip_ws(src, j)
+    if src.substring(j, j + 1) == "(" { j = j + 1 }
+    if trace == 1 { print("trace") }
+
+    local use_phi_workaround = 1
+    {
+      local nested_if_flag = env.get("HAKO_JOINIR_NESTED_IF")
+      if nested_if_flag != null && ("" + nested_if_flag) == "1" {
+        use_phi_workaround = 0
+      }
+    }
+
+    local j_before_cond = j
+    local cond = ""
+
+    if use_phi_workaround == 1 {
+      local j_wa = j_before_cond
+      cond = Ctx.parse_expr2(src, j_wa)
+      j = Ctx.gpos_get()
+      if trace == 1 { print("cond_json") }
+
+      if cond.indexOf("Compare") >= 0 && cond.indexOf("op") >= 0 {
+        if cond.indexOf("rhs") >= 0 {
+          local lt_pos = Ctx.index_of(src, j_before_cond, "<")
+          if lt_pos >= 0 {
+            local kpos = Ctx.skip_ws(src, lt_pos + 1)
+            if kpos < src.length() && Ctx.is_alpha(src.substring(kpos, kpos + 1)) == 1 {
+              local rhs_name = Ctx.read_ident2(src, kpos)
+              local prefix_end = cond.lastIndexOf(",\"rhs\":")
+              if prefix_end >= 0 {
+                local prefix = cond.substring(0, prefix_end)
+                cond = prefix + ",\"rhs\":{\"type\":\"Var\",\"name\":\"" + rhs_name + "\"}}"
+                if trace == 1 { print("rhs recovered") }
+              }
+            }
+          }
+        }
+      }
+    } else {
+      cond = Ctx.parse_expr2(src, j)
+      j = Ctx.gpos_get()
+      if trace == 1 { print("route_b") }
+    }
+
+    j = Ctx.skip_ws(src, j)
+    if src.substring(j, j + 1) == ")" { j = j + 1 }
+    j = Ctx.skip_ws(src, j)
+
+    local body_res = me.parse_block(src, j)
+    local at3 = body_res.lastIndexOf("@")
+    local body_json = body_res.substring(0, at3)
+    j = Ctx.to_int(body_res.substring(at3 + 1, body_res.length()))
+
+    if body_json == "[]" {
+      local sb = Ctx.index_of(src, j_before_cond, "{")
+      local eb = Ctx.index_of(src, j_before_cond, "}")
+      if sb >= 0 && eb > sb {
+        local res2 = me.parse_block(src, sb)
+        local atx = res2.lastIndexOf("@")
+        local body2 = res2.substring(0, atx)
+        if body2 != null && body2.length() > 2 {
+          body_json = body2
+          if trace == 1 { print("fallback") print(body_json) }
+        }
+      }
+    }
+
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 }
+      else { j = src.length() }
+    }
+    Ctx.gpos_set(j)
+    env.set("HAKO_STAGEB_LOOP_DEPTH", "0")
+    return "{\"type\":\"Loop\",\"cond\":" + cond + ",\"body\":" + body_json + "}"
+  }
+
+  main() {
+    local out = Main.parse_loop_min("loop(x){}", 0, 0)
+    print(out)
+    return 0
+  }
+}

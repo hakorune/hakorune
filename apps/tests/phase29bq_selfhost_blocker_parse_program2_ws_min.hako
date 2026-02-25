@@ -1,0 +1,21 @@
+// Minimal loop(cond) + Print-in-loop shape for ParserBox.parse_program2 ws_init
+// Expected: stdout=1, RC=0
+static box Main {
+  main() {
+    local src = " a"
+    local i = 0
+    local n = src.length()
+
+    loop(i < n) {
+      local ch = src.substring(i, i + 1)
+      if ch == " " {
+        i = i + 1
+        continue
+      }
+      break
+    }
+
+    print(i)
+    return 0
+  }
+}

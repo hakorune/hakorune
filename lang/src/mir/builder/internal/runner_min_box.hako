@@ -1,0 +1,56 @@
+// runner_min_box.hako — Minimal builder runner that tries internal lowers in order
+// Purpose: Provide a lightweight path to emit MIR(JSON) from Program(JSON v0)
+// without importing the full MirBuilderBox chain (avoids parser/include flakiness).
+
+using "hako.mir.builder.internal.lower_newbox_constructor" as LowerNewboxConstructorBox
+using "hako.mir.builder.internal.lower_method_array_push" as LowerMethodArrayPushBox
+using "hako.mir.builder.internal.lower_method_array_size" as LowerMethodArraySizeBox
+using "hako.mir.builder.internal.lower_method_array_get_set" as LowerMethodArrayGetSetBox
+using "hako.mir.builder.internal.lower_method_map_size" as LowerMethodMapSizeBox
+using "hako.mir.builder.internal.lower_method_map_get_set" as LowerMethodMapGetSetBox
+using "hako.mir.builder.internal.lower_load_store_local" as LowerLoadStoreLocalBox
+using "hako.mir.builder.internal.lower_typeop_check" as LowerTypeOpCheckBox
+using "hako.mir.builder.internal.lower_typeop_cast" as LowerTypeOpCastBox
+using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
+using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
+using "hako.mir.builder.internal.lower.logical" as LowerReturnLogicalBox
+using "hako.mir.builder.internal.lower_return_bool" as LowerReturnBoolBox
+
+static box BuilderRunnerMinBox {
+  run(program_json) {
+    if program_json == null { return null }
+    local s = "" + program_json
+    // Optional profile: when HAKO_MIR_RUNNER_MIN_NO_METHODS=1, skip method lowers (Core exec-friendly)
+    local no_methods = env.get("HAKO_MIR_RUNNER_MIN_NO_METHODS")
+    local skip_methods = 0
+    if no_methods != null { if ("" + no_methods) == "1" { skip_methods = 1 } }
+    // Prefer method lowers before constructor to allow method cases to win
+    // Prefer push over size so push canary wins
+    if skip_methods == 0 {
+      { local o = LowerMethodArrayPushBox.try_lower(s); if o != null { return o } }
+      { local o = LowerMethodArraySizeBox.try_lower(s); if o != null { return o } }
+      { local o = LowerMethodArrayGetSetBox.try_lower(s); if o != null { return o } }
+      // Map lowers: allow preference override via HAKO_MIR_RUNNER_MIN_PREF_MAP
+      // default: size → get_set; when pref == "getset": get_set → size
+      local map_pref = env.get("HAKO_MIR_RUNNER_MIN_PREF_MAP")
+      if map_pref != null && ("" + map_pref) == "getset" {
+        { local o = LowerMethodMapGetSetBox.try_lower(s); if o != null { return o } }
+        { local o = LowerMethodMapSizeBox.try_lower(s); if o != null { return o } }
+      } else {
+        { local o = LowerMethodMapSizeBox.try_lower(s); if o != null { return o } }
+        { local o = LowerMethodMapGetSetBox.try_lower(s); if o != null { return o } }
+      }
+    }
+    if skip_methods == 0 {
+      { local o = LowerLoadStoreLocalBox.try_lower(s); if o != null { return o } }
+      { local o = LowerTypeOpCheckBox.try_lower(s); if o != null { return o } }
+      { local o = LowerTypeOpCastBox.try_lower(s); if o != null { return o } }
+    }
+    { local o = LowerReturnLogicalBox.try_lower(s); if o != null { return o } }
+    { local o = LowerReturnBoolBox.try_lower(s); if o != null { return o } }
+    { local o = LowerReturnBinOpBox.try_lower(s); if o != null { return o } }
+    { local o = LowerReturnIntBox.try_lower(s); if o != null { return o } }
+    { local o = LowerNewboxConstructorBox.try_lower(s); if o != null { return o } }
+    return null
+  }
+}

@@ -1,0 +1,24 @@
+// pipeline_emit_box.hako — PipelineEmitBox
+// Responsibility: small wrappers that emit MIR(JSON v0) and apply LocalSSA ensures
+
+using lang.compiler.pipeline_v2.emit_call_box as EmitCallBox
+using lang.compiler.pipeline_v2.localvar_ssa_box as LocalSSABox
+using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
+
+static box PipelineEmitBox {
+  // Emit Call(name, int-args) → JSON v0, wrapped with LocalSSA ensures
+  emit_call_int_args_v0(name, args) {
+    local j = EmitCallBox.emit_call_int_args(name, args)
+    return LocalSSABox.ensure_calls(LocalSSABox.ensure_cond(j))
+  }
+
+  // Emit Call(name, int-args) → JSON v1 with metadata.extern_c (if provided)
+  // externs_json: JSON array text like
+  //   [{"func":"Name/Arity","symbol":"c_symbol"}, ...]
+  emit_call_int_args_v1_with_meta(name, args, externs_json) {
+    local jv0 = me.emit_call_int_args_v0(name, args)
+    return MirV1MetaInjectBox.inject_meta_externs(jv0, externs_json)
+  }
+}
+
+static box PipelineEmitMain { main() { return 0 } }

@@ -1,0 +1,17 @@
+// Draft: effectful if (print) inside loop with continue/break
+// Expected: stdout=P, RC=0
+static box Main {
+  main() {
+    local i = 0
+    local n = 3
+
+    loop(i < n) {
+      if i == 0 { print("P") }
+      if i == 1 { i = i + 1  continue }
+      if i == 2 { break }
+      i = i + 1
+    }
+
+    return 0
+  }
+}

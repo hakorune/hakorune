@@ -1,0 +1,24 @@
+// Phase 137 P0: loop(true) break-once with return add minimal fixture
+//
+// Purpose: Test return x + 2 (where x is env variable)
+// Expected output: 3 (x=0, x=1 in loop, return 1+2)
+//
+// Structure:
+//   x = 0         // pre-loop init
+//   loop(true) {  // condition is Bool literal true
+//       x = 1     // body assignment (to make x part of env)
+//       break     // break at end
+//   }
+//   return x + 2  // return add expression
+
+static box Main {
+    main() {
+        local x
+        x = 0
+        loop(true) {
+            x = 1
+            break
+        }
+        return x + 2
+    }
+}

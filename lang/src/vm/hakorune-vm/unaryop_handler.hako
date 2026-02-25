@@ -1,0 +1,11 @@
+// UnaryOpHandlerBox - UnaryOp instruction handler (simplified via CoreHandlerBaseBox)
+// Handles: %dst = op_kind %operand (Neg/Not/BitNot)
+
+using selfhost.vm.hakorune-vm.core_handler_base as CoreHandlerBaseBox
+
+static box UnaryOpHandlerBox {
+  // Handle unaryop instruction via unified core handler
+  // inst_json: {"op":"unaryop","dst":3,"op_kind":"Neg","operand":1}
+  // Returns: Result.Ok(0) or Result.Err(message)
+  handle(inst_json, regs) { return CoreHandlerBaseBox.handle_core_op("unary", inst_json, regs) }
+}

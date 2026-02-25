@@ -1,0 +1,9 @@
+[module]
+name = "selfhost.mir_builder"
+version = "0.1.0"
+
+[exports]
+README = "mir_builder/README.md"
+LayerGuard = "mir_builder/LAYER_GUARD.hako"
+Phi = "mir_builder/phi.hako"
+Verify = "mir_builder/verify.hako"

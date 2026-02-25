@@ -1,0 +1,4 @@
+# Phase 29x X51: Core C ABI delegation ownership allowlist
+
+include/nyrt.h
+src/abi/nyrt_shim.rs

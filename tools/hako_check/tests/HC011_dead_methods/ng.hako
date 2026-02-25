@@ -1,0 +1,12 @@
+// ng.hako — contains dead method (unused)
+
+static box Main {
+  method main() {
+    // no calls here, unused() is unreachable
+    return 0
+  }
+  method unused() {
+    return 1
+  }
+}
+

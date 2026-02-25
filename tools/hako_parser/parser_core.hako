@@ -1,0 +1,152 @@
+// tools/hako_parser/parser_core.hako - HakoParserCoreBox (line-scan MVP)
+static box HakoParserCoreBox {
+  // Parse .hako source into minimal AST map:
+  // {
+  //   uses: Array<String>,
+  //   aliases: Array<{name,alias}>,
+  //   boxes: Array<{name,is_static,methods:Array<{name,arity,span}>}>,
+  //   includes: Array<String>
+  // }
+  parse(text) {
+    local ast = new MapBox()
+    ast.set("uses", new ArrayBox())
+    ast.set("aliases", new ArrayBox())
+    ast.set("boxes", new ArrayBox())
+    ast.set("includes", new ArrayBox())
+    if text == null { return ast }
+
+    local lines = me._split_lines(text)
+    me._parse_lines(lines, 0, null, ast)
+    return ast
+  }
+
+  _parse_lines(lines, i, cur_box, ast) {
+    if i >= lines.size() { return 0 }
+    local raw = lines.get(i)
+    local ln = me._ltrim(raw)
+    local next_box = cur_box
+
+    if ln.indexOf("using \"") == 0 {
+      local mod_name = me._extract_quoted(ln)
+      if mod_name != null {
+        ast.get("uses").push(mod_name)
+        local as_pos = ln.indexOf(" as ")
+        if as_pos >= 0 {
+          local alias = me._rstrip(ln.substring(as_pos + 4))
+          if alias != "" {
+            local rec = new MapBox(); rec.set("name", mod_name); rec.set("alias", alias)
+            ast.get("aliases").push(rec)
+          }
+        }
+      }
+      return me._parse_lines(lines, i + 1, next_box, ast)
+    }
+
+    if ln.indexOf("include \"") == 0 {
+      local inc = me._extract_quoted(ln)
+      if inc != null {
+        ast.get("includes").push("" + (i + 1))
+      }
+      return me._parse_lines(lines, i + 1, next_box, ast)
+    }
+
+    if ln.indexOf("static box ") == 0 || ln.indexOf("box ") == 0 {
+      local is_static = (ln.indexOf("static box ") == 0)
+      local head = is_static ? "static box " : "box "
+      local rest = ln.substring(head.length())
+      local name = me._rstrip(me._upto(rest, " {"))
+      if name != "" {
+        local b = new MapBox(); b.set("name", name); b.set("is_static", is_static); b.set("span_line", i + 1); b.set("methods", new ArrayBox())
+        ast.get("boxes").push(b)
+        next_box = b
+      }
+      return me._parse_lines(lines, i + 1, next_box, ast)
+    }
+
+    if ln.indexOf("method ") == 0 {
+      local rest = ln.substring("method ".length())
+      local p = rest.indexOf("(")
+      local mname = (p > 0) ? rest.substring(0, p) : rest
+      mname = me._rstrip(mname)
+      local arity = me._count_commas_in_parens(rest)
+      if next_box != null {
+        local methods = next_box.get("methods")
+        local m = new MapBox(); m.set("name", mname); m.set("arity", arity); m.set("span", i + 1)
+        methods.push(m)
+      }
+      return me._parse_lines(lines, i + 1, next_box, ast)
+    }
+
+    if me._is_top_level_close(raw) == 1 { next_box = null }
+
+    return me._parse_lines(lines, i + 1, next_box, ast)
+  }
+
+  _extract_quoted(s) {
+    local q1 = s.indexOf("\"")
+    if q1 < 0 { return null }
+    local q2 = s.indexOf("\"", q1 + 1)
+    if q2 <= q1 { return null }
+    return s.substring(q1 + 1, q2)
+  }
+
+  _ltrim(s) {
+    local i = me._skip_ws(s, 0)
+    return s.substring(i)
+  }
+  _skip_ws(s, start) {
+    if s == null { return start }
+    local n = s.length()
+    local i = start
+    loop (i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch != " " && ch != "\t" { break }
+      i = i + 1
+    }
+    return i
+  }
+  _is_top_level_close(raw) {
+    if raw == null { return 0 }
+    if me._trim(raw) != "}" { return 0 }
+    if me._skip_ws(raw, 0) != 0 { return 0 }
+    return 1
+  }
+  _rstrip(s) {
+    return me._trim(s)
+  }
+  _trim(s) {
+    if s == null { return "" }
+    local n = s.length()
+    local i = 0
+    loop(i < n && (s.substring(i,i+1) == " " || s.substring(i,i+1) == "\t")) { i = i + 1 }
+    local j = n
+    loop(j > i && (s.substring(j-1,j) == " " || s.substring(j-1,j) == "\t" || s.substring(j-1,j) == ";")) { j = j - 1 }
+    return s.substring(i, j)
+  }
+  _upto(s, needle) {
+    local p = s.indexOf(needle)
+    if p < 0 { return s }
+    return s.substring(0, p)
+  }
+  _count_commas_in_parens(rest) {
+    local p1 = rest.indexOf("("); local p2 = rest.indexOf(")", p1 + 1)
+    if p1 < 0 || p2 < 0 || p2 <= p1 + 1 { return 0 }
+    local inside = rest.substring(p1 + 1, p2)
+    if inside == "" { return 0 }
+    return 1 + me._count_commas_from(inside, 0)
+  }
+  _count_commas_from(s, start) {
+    local p = s.indexOf(",", start)
+    if p < 0 { return 0 }
+    return 1 + me._count_commas_from(s, p + 1)
+  }
+  _split_lines(s) {
+    local arr = new ArrayBox(); if s == null { return arr }
+    local n = s.length(); local last = 0; local i = 0
+    loop (i < n) { local ch = s.substring(i,i+1); if ch == "\n" { arr.push(s.substring(last,i)); last = i+1 } i = i + 1 }
+    if last <= n { arr.push(s.substring(last)) }
+    return arr
+  }
+}
+
+static box HakoParserCoreMain { method main(args) { return 0 } }

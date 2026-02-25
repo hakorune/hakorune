@@ -1,0 +1,27 @@
+// prelude_v1.hako — Hakorune v1 inline driver prelude (aggregator)
+// Purpose: provide a single include target to stabilize inline hv1 runs.
+// Contents: dispatcher + commonly used helpers/providers (no code, only using).
+
+// Inline hv1 prelude prefers path-based using to avoid alias resolution
+// flakiness in -c runs. This file is dev-only and consumed under preinclude.
+using selfhost.vm.hv1.dispatch as NyVmDispatcherV1Box
+using selfhost.vm.hakorune-vm.extern_provider as HakoruneExternProviderBox
+
+// Helpers (schema/phi)
+using selfhost.vm.helpers.v1_schema as V1SchemaBox
+using selfhost.vm.helpers.v1_phi_table as V1PhiTableBox
+using selfhost.vm.helpers.v1_phi_adapter as V1PhiAdapterBox
+
+// JSON utils
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+
+// Common helpers
+using selfhost.shared.common.string_ops as StringOps
+using selfhost.vm.helpers.mini_map as MiniMap
+
+// Note: This prelude intentionally contains no executable code.
+// Inline drivers should:
+//   1) include this file (path include) under preinclude
+//   2) read JSON from env NYASH_VERIFY_JSON
+//   3) call NyVmDispatcherV1Box.run(json) and print rc last

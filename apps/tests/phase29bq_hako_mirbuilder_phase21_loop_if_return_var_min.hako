@@ -1,0 +1,12 @@
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 3) {
+      if i < 0 {
+        return 7
+      }
+      i = i + 1
+    }
+    return i
+  }
+}

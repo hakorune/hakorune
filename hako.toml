@@ -1,0 +1,687 @@
+# SSOT note:
+# - `hako.toml` is the preferred config file (module registry / using resolution / tasks).
+# - `nyash.toml` remains as a compatibility name (but should not be edited going forward).
+
+[env]
+# Put environment defaults used by tools or examples if needed
+# Enable using resolver by default (can be disabled with NYASH_SKIP_TOML_ENV=1)
+NYASH_ENABLE_USING = "1"
+# Enable dev sugar preexpand for @ local alias (line-head) during parsing
+NYASH_DEV_AT_LOCAL = "1"
+# AOT prep/fast-path defaults (dev/quick friendly; override with NYASH_SKIP_TOML_ENV=1)
+# Collections hot path rewrite (Array/Map boxcall→externcall)
+NYASH_AOT_COLLECTIONS_HOT = "1"
+# Integer fast paths and simple loop hoist (safe CFG-invariant opts)
+NYASH_LLVM_FAST = "1"
+NYASH_MIR_LOOP_HOIST = "1"
+# Map key mode heuristic (h/hh chosen automatically by linearity)
+NYASH_AOT_MAP_KEY_MODE = "auto"
+
+[using]
+paths = ["apps", "lib", ".", "lang/src"]
+
+# Workspace module mapping (lang/ tree)
+[modules.workspace]
+members = [
+  "lang/src/compiler/hako_module.toml",
+  "lang/src/mir/hako_module.toml",
+  "lang/src/shared/hako_module.toml",
+  "lang/src/vm/hako_module.toml",
+  "lang/src/runtime/meta/hako_module.toml",
+  "lang/src/runner/hako_module.toml",
+  "lang/src/llvm_ir/hako_module.toml",
+  "lang/src/opt/hako_module.toml",
+  "lang/src/selfhost/hako_module.toml"
+]
+
+# Optional package-style entries (opt-in via using resolver)
+[using.json_native]
+path = "apps/lib/json_native/"
+main = "parser/parser.hako"
+
+# JSON Native – String utilities as a standalone package (single-file)
+[using.string_utils]
+path = "apps/lib/json_native/utils/string.hako"
+
+[using.aliases]
+# Resolve `using json as ...` to json_native when desired
+json = "json_native"
+StringUtils = "string_utils"
+StringHelpers = "sh_core"
+JsonNode = "json_node"
+
+[using.json_node]
+path = "apps/lib/json_native/core/node.hako"
+
+# JSON stringify (Stage-B compiler dependency)
+[using.stringify]
+path = "lang/src/shared/json/stringify.hako"
+
+# String helpers (Parser dependency)
+[using.sh_core]
+path = "lang/src/shared/common/string_helpers.hako"
+
+[plugin_paths]
+search_paths = ["target/release"]
+
+[module_roots]
+# Prefix → directory mapping for `using` module name resolution.
+# Resolution rule: longest prefix match, then construct `<root>/<suffix>.hako`.
+# Exact matches in [modules] always win over module_roots.
+#
+# Example:
+#   using lang.compiler.entry.func_scanner
+#     → "lang.compiler" matches
+#     → "lang/src/compiler" + "/entry/func_scanner.hako"
+#     → "lang/src/compiler/entry/func_scanner.hako"
+"lang.compiler" = "lang/src/compiler"
+"lang.mir" = "lang/src/mir"
+"lang.shared" = "lang/src/shared"
+"lang.vm" = "lang/src/vm"
+"lang.runtime" = "lang/src/runtime"
+"lang.runner" = "lang/src/runner"
+"lang.llvm_ir" = "lang/src/llvm_ir"
+"lang.opt" = "lang/src/opt"
+"lang.selfhost" = "lang/src/selfhost"
+"apps.selfhost_runtime" = "apps/selfhost-runtime"
+"apps.lib" = "apps/lib"
+"tools.hako_shared" = "tools/hako_shared"
+
+[modules]
+# Core shared helpers (needed by parser/compiler in Stage-B)
+"sh_core" = "lang/src/shared/common/string_helpers.hako"
+"lang.shared.module_roots_priority_box" = "lang/src/shared/module_roots_priority_override_box.hako"
+
+# Selfhost runtime utilities (opt-in; prod profile friendly: no file-path using)
+"apps.selfhost_runtime.prelude" = "apps/selfhost-runtime/selfhost_prelude.hako"
+"apps.selfhost_runtime.mir_loader" = "apps/selfhost-runtime/mir_loader.hako"
+"apps.selfhost_runtime.ops_calls" = "apps/selfhost-runtime/ops_calls.hako"
+"apps.selfhost_runtime.string_cursor" = "apps/selfhost-runtime/lib/string_cursor.hako"
+"apps.selfhost_runtime.ast_extractors" = "apps/selfhost-runtime/lib/ast_extractors.hako"
+
+# Common boxes (used by selfhost runtime)
+"apps.lib.boxes.console_std" = "apps/lib/boxes/console_std.hako"
+"apps.lib.boxes.string_std" = "apps/lib/boxes/string_std.hako"
+"apps.lib.boxes.array_std" = "apps/lib/boxes/array_std.hako"
+"apps.lib.boxes.map_std" = "apps/lib/boxes/map_std.hako"
+
+# Shared tools (prod profile friendly)
+"tools.hako_shared.json_parser" = "tools/hako_shared/json_parser.hako"
+# Map logical namespaces to Nyash source paths (consumed by runner)
+# NOTE (Phase‑20.33): legacy `apps/selfhost/*` modules have been retired.
+# If you still rely on `selfhost.*` keys, migrate to the `lang.*`/`hakorune.*`
+# equivalents below. This removal is intentional to surface stale references.
+
+# Lang compiler (Phase 20.33 migration)
+"lang.compiler.parser.parser_box" = "lang/src/compiler/parser/parser_box.hako"
+"lang.compiler.parser.scan.parser_common_utils_box" = "lang/src/compiler/parser/scan/parser_common_utils_box.hako"
+"lang.compiler.parser.scan.parser_scan_loop_box" = "lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+"lang.compiler.pipeline_v2.stage1_extract_flow" = "lang/src/compiler/pipeline_v2/stage1_extract_flow.hako"
+"lang.compiler.pipeline_v2.emit_compare_box" = "lang/src/compiler/pipeline_v2/emit_compare_box.hako"
+"lang.compiler.pipeline_v2.regex_flow" = "lang/src/compiler/pipeline_v2/regex_flow.hako"
+"lang.compiler.pipeline_v2.emit_call_box" = "lang/src/compiler/pipeline_v2/emit_call_box.hako"
+"lang.compiler.pipeline_v2.emit_method_box" = "lang/src/compiler/pipeline_v2/emit_method_box.hako"
+"lang.compiler.pipeline_v2.emit_newbox_box" = "lang/src/compiler/pipeline_v2/emit_newbox_box.hako"
+"lang.compiler.pipeline_v2.mir_call_box" = "lang/src/compiler/pipeline_v2/mir_call_box.hako"
+"lang.compiler.pipeline_v2.compare_extract_box" = "lang/src/compiler/pipeline_v2/compare_extract_box.hako"
+"lang.compiler.pipeline_v2.normalizer_box" = "lang/src/compiler/pipeline_v2/normalizer_box.hako"
+"lang.compiler.pipeline_v2.map_helpers_box" = "lang/src/compiler/pipeline_v2/map_helpers_box.hako"
+"lang.compiler.pipeline_v2.call_extract_box" = "lang/src/compiler/pipeline_v2/call_extract_box.hako"
+"lang.compiler.pipeline_v2.method_extract_box" = "lang/src/compiler/pipeline_v2/method_extract_box.hako"
+"lang.compiler.pipeline_v2.new_extract_box" = "lang/src/compiler/pipeline_v2/new_extract_box.hako"
+"lang.compiler.pipeline_v2.using_resolver_box" = "lang/src/compiler/pipeline_v2/using_resolver_box.hako"
+"lang.compiler.pipeline_v2.namespace_box" = "lang/src/compiler/pipeline_v2/namespace_box.hako"
+"lang.compiler.pipeline_v2.signature_verifier_box" = "lang/src/compiler/pipeline_v2/signature_verifier_box.hako"
+"lang.compiler.pipeline_v2.stage1_json_scanner_box" = "lang/src/compiler/pipeline_v2/stage1_json_scanner_box.hako"
+"lang.compiler.pipeline_v2.stage1_name_args_normalizer_box" = "lang/src/compiler/pipeline_v2/stage1_name_args_normalizer_box.hako"
+"lang.compiler.pipeline_v2.alias_preflight_box" = "lang/src/compiler/pipeline_v2/alias_preflight_box.hako"
+"lang.compiler.pipeline_v2.stage1_args_parser_box" = "lang/src/compiler/pipeline_v2/stage1_args_parser_box.hako"
+"lang.compiler.pipeline_v2.pipeline_helpers_box" = "lang/src/compiler/pipeline_v2/pipeline_helpers_box.hako"
+"lang.compiler.pipeline_v2.backend_box" = "lang/src/compiler/pipeline_v2/backend_box.hako"
+"lang.compiler.pipeline_v2.execution_pipeline_box" = "lang/src/compiler/pipeline_v2/execution_pipeline_box.hako"
+"lang.compiler.pipeline_v2.mir_builder_box" = "lang/src/compiler/pipeline_v2/mir_builder_box.hako"
+"lang.compiler.pipeline_v2.name_resolve_box" = "lang/src/compiler/pipeline_v2/name_resolve_box.hako"
+"lang.compiler.pipeline_v2.pipeline_emit_box" = "lang/src/compiler/pipeline_v2/pipeline_emit_box.hako"
+"lang.compiler.pipeline_v2.readonly_map_view" = "lang/src/compiler/pipeline_v2/readonly_map_view.hako"
+"lang.compiler.pipeline_v2.stage1_int_args_extract_box" = "lang/src/compiler/pipeline_v2/stage1_int_args_extract_box.hako"
+"lang.compiler.pipeline_v2.terminator_guard_box" = "lang/src/compiler/pipeline_v2/terminator_guard_box.hako"
+"lang.compiler.pipeline_v2.emit_mir_flow" = "lang/src/compiler/pipeline_v2/emit_mir_flow.hako"
+"lang.compiler.pipeline_v2.emit_mir_flow_map" = "lang/src/compiler/pipeline_v2/emit_mir_flow_map.hako"
+"selfhost.shared.json.mir_v1_meta_inject_box" = "lang/src/shared/json/mir_v1_meta_inject_box.hako"
+"selfhost.shared.json.json_inst_encode_box" = "lang/src/shared/json/json_inst_encode_box.hako"
+"lang.compiler.builder.ssa.localvar" = "lang/src/compiler/builder/ssa/local_ssa.hako"
+"lang.compiler.builder.ssa.loopssa" = "lang/src/compiler/builder/ssa/loopssa.hako"
+"lang.compiler.builder.ssa.exit_phi.break_finder" = "lang/src/compiler/builder/ssa/exit_phi/break_finder.hako"
+"lang.compiler.builder.ssa.exit_phi.phi_injector" = "lang/src/compiler/builder/ssa/exit_phi/phi_injector.hako"
+"lang.compiler.pipeline_v2.localvar_ssa_box" = "lang/src/compiler/pipeline_v2/local_ssa_box.hako"
+"lang.compiler.entry.using_resolver_box" = "lang/src/compiler/entry/using_resolver_box.hako"
+"lang.compiler.emit.mir_emitter_box" = "lang/src/compiler/emit/mir_emitter_box.hako"
+"lang.compiler.emit.common.json_emit_box" = "lang/src/compiler/emit/common/json_emit_box.hako"
+"lang.compiler.emit.common.mir_emit_box" = "lang/src/compiler/emit/common/mir_emit_box.hako"
+"lang.compiler.emit.common.call_emit_box" = "lang/src/compiler/emit/common/call_emit_box.hako"
+"lang.compiler.emit.common.newbox_emit_box" = "lang/src/compiler/emit/common/newbox_emit_box.hako"
+"lang.compiler.emit.common.header_emit_box" = "lang/src/compiler/emit/common/header_emit_box.hako"
+"lang.compiler.emit.common.mir_emit" = "lang/src/compiler/emit/common/mir_emit_box.hako"
+"lang.compiler.emit.common.newbox_emit" = "lang/src/compiler/emit/common/newbox_emit_box.hako"
+"lang.compiler.emit.common.header_emit" = "lang/src/compiler/emit/common/header_emit_box.hako"
+"lang.compiler.mirbuilder.program_json_v0_scanner_box" = "lang/src/compiler/mirbuilder/program_json_v0_scanner_box.hako"
+"lang.compiler.mirbuilder.program_json_v0_phase_state_box" = "lang/src/compiler/mirbuilder/program_json_v0_phase_state_box.hako"
+"lang.compiler.mirbuilder.mir_json_v0_builder_box" = "lang/src/compiler/mirbuilder/mir_json_v0_builder_box.hako"
+
+# Shared helpers (selfhost shared/vm) — kept under `lang/` tree
+"selfhost.shared.json.core.json_scan" = "lang/src/shared/json/core/json_scan.hako"
+"selfhost.shared.json.stringify" = "lang/src/shared/json/stringify.hako"
+"selfhost.shared.mir.loopform" = "lang/src/shared/mir/loop_form_box.hako"
+"selfhost.shared.mir.control_form" = "lang/src/shared/mir/control_form_box.hako"
+"selfhost.vm.entry_s0" = "lang/src/vm/boxes/mini_vm_s0_entry.hako"
+"selfhost.vm.mir_s0" = "lang/src/vm/boxes/mir_vm_s0.hako"
+"selfhost.vm.helpers.operator" = "lang/src/vm/boxes/operator_box.hako"
+"selfhost.vm.helpers.mini_mir_v1_scan" = "lang/src/vm/boxes/mini_mir_v1_scan.hako"
+"selfhost.vm.hv1.reader" = "lang/src/vm/hakorune-vm/json_v1_reader.hako"
+"selfhost.vm.hakorune-vm.dispatch" = "lang/src/vm/hakorune-vm/dispatcher_v1.hako"
+"selfhost.vm.hakorune-vm.str_cast" = "lang/src/vm/hakorune-vm/str_cast.hako"
+"selfhost.vm.helpers.compare_ops" = "lang/src/vm/boxes/compare_ops.hako"
+"selfhost.vm.helpers.compare_scan" = "lang/src/vm/boxes/compare_scan_box.hako"
+"selfhost.vm.helpers.phi_apply" = "lang/src/vm/boxes/phi_apply_box.hako"
+"selfhost.vm.helpers.guard" = "lang/src/vm/boxes/guard_box.hako"
+"selfhost.vm.helpers.result" = "lang/src/vm/boxes/result_box.hako"
+"selfhost.vm.helpers.phi_decode" = "lang/src/vm/boxes/phi_decode_box.hako"
+"selfhost.vm.helpers.method_alias_policy" = "lang/src/vm/helpers/method_alias_policy.hako"
+"selfhost.vm.helpers.ret_resolve" = "lang/src/vm/boxes/ret_resolve_simple.hako"
+"selfhost.vm.helpers.gc_hooks" = "lang/src/vm/gc/gc_hooks.hako"
+"selfhost.vm.helpers.arithmetic" = "lang/src/vm/boxes/arithmetic.hako"
+"selfhost.vm.helpers.cfg_navigator" = "lang/src/vm/boxes/cfg_navigator.hako"
+"hakorune.vm.entry" = "lang/src/vm/boxes/mini_vm_entry.hako"
+"hakorune.vm.mir_min" = "lang/src/vm/boxes/mir_vm_min.hako"
+"hakorune.vm.core" = "lang/src/vm/boxes/mini_vm_core.hako"
+
+# Phase 20.34 — Box‑First selfhost build line (aliases for Hako boxes)
+"hako.mir.builder" = "lang/src/mir/builder/MirBuilderBox.hako"
+"hako.mir.builder.min" = "lang/src/mir/builder/MirBuilderMinBox.hako"
+"selfhost.llvm.ir.aot_prep" = "lang/src/llvm_ir/boxes/aot_prep.hako"
+"hako.mir.builder.pattern_registry" = "lang/src/mir/builder/pattern_registry.hako"
+"hako.using.resolve.ssot" = "lang/src/using/resolve_ssot_box.hako"
+"hako.llvm.emit" = "lang/src/llvm_ir/emit/LLVMEmitBox.hako"
+"hako.mir.builder.internal.prog_scan" = "lang/src/mir/builder/internal/prog_scan_box.hako"
+"hako.mir.builder.internal.pattern_util" = "lang/src/mir/builder/internal/pattern_util_box.hako"
+"hako.mir.builder.internal.loop_scan" = "lang/src/mir/builder/internal/loop_scan_box.hako"
+"hako.mir.builder.internal.lower.logical" = "lang/src/mir/builder/internal/lower_return_logical_box.hako"
+
+# MirBuilder internal lowers (alias for using)
+"hako.mir.builder.internal.lower_if_then_else_following_return" = "lang/src/mir/builder/internal/lower_if_then_else_following_return_box.hako"
+"hako.mir.builder.internal.lower_if_nested" = "lang/src/mir/builder/internal/lower_if_nested_box.hako"
+"hako.mir.builder.internal.lower_if_compare" = "lang/src/mir/builder/internal/lower_if_compare_box.hako"
+"hako.mir.builder.internal.lower_if_compare_fold_binints" = "lang/src/mir/builder/internal/lower_if_compare_fold_binints_box.hako"
+"hako.mir.builder.internal.lower_if_compare_fold_varint" = "lang/src/mir/builder/internal/lower_if_compare_fold_varint_box.hako"
+"hako.mir.builder.internal.lower_if_compare_varint" = "lang/src/mir/builder/internal/lower_if_compare_varint_box.hako"
+"hako.mir.builder.internal.lower_if_compare_varvar" = "lang/src/mir/builder/internal/lower_if_compare_varvar_box.hako"
+"hako.mir.builder.internal.lower_loop_sum_bc" = "lang/src/mir/builder/internal/lower_loop_sum_bc_box.hako"
+"hako.mir.builder.internal.lower_loop_sum_bc_box" = "lang/src/mir/builder/internal/lower_loop_sum_bc_box.hako"
+"hako.mir.builder.internal.lower_loop_simple_box" = "lang/src/mir/builder/internal/lower_loop_simple_box.hako"
+"hako.mir.builder.internal.lower_loop_multi_carrier_box" = "lang/src/mir/builder/internal/lower_loop_multi_carrier_box.hako"
+"hako.mir.builder.internal.sentinel_extractor" = "lang/src/mir/builder/internal/sentinel_extractor_box.hako"
+"hako.mir.builder.internal.lower_loop_count_param" = "lang/src/mir/builder/internal/lower_loop_count_param_box.hako"
+"hako.mir.builder.internal.lower_loop_simple" = "lang/src/mir/builder/internal/lower_loop_simple_box.hako"
+"hako.mir.builder.internal.lower_return_var_local" = "lang/src/mir/builder/internal/lower_return_var_local_box.hako"
+"hako.mir.builder.internal.lower_return_string" = "lang/src/mir/builder/internal/lower_return_string_box.hako"
+"hako.mir.builder.internal.lower_return_float" = "lang/src/mir/builder/internal/lower_return_float_box.hako"
+"hako.mir.builder.internal.lower_return_method_array_map" = "lang/src/mir/builder/internal/lower_return_method_array_map_box.hako"
+"hako.mir.builder.internal.lower_return_bool" = "lang/src/mir/builder/internal/lower_return_bool_box.hako"
+"hako.mir.builder.internal.lower_return_binop_varint" = "lang/src/mir/builder/internal/lower_return_binop_varint_box.hako"
+"hako.mir.builder.internal.lower_return_binop_varvar" = "lang/src/mir/builder/internal/lower_return_binop_varvar_box.hako"
+"hako.mir.builder.internal.lower_return_binop" = "lang/src/mir/builder/internal/lower_return_binop_box.hako"
+"hako.mir.builder.internal.lower_return_int" = "lang/src/mir/builder/internal/lower_return_int_box.hako"
+"hako.mir.builder.internal.lower_return_method_string_length" = "lang/src/mir/builder/internal/lower_return_method_string_length_box.hako"
+"hako.mir.builder.internal.lower_return_loop_strlen_sum" = "lang/src/mir/builder/internal/lower_return_loop_strlen_sum_box.hako"
+"hako.mir.builder.internal.lower_newbox_constructor" = "lang/src/mir/builder/internal/lower_newbox_constructor_box.hako"
+"hako.mir.builder.internal.lower_method_array_size" = "lang/src/mir/builder/internal/lower_method_array_size_box.hako"
+"hako.mir.builder.internal.lower_method_array_push" = "lang/src/mir/builder/internal/lower_method_array_push_box.hako"
+"hako.mir.builder.internal.lower_method_array_get_set" = "lang/src/mir/builder/internal/lower_method_array_get_set_box.hako"
+"hako.mir.builder.internal.lower_method_map_size" = "lang/src/mir/builder/internal/lower_method_map_size_box.hako"
+"hako.mir.builder.internal.lower_method_map_get_set" = "lang/src/mir/builder/internal/lower_method_map_get_set_box.hako"
+"hako.mir.builder.internal.lower_load_store_local" = "lang/src/mir/builder/internal/lower_load_store_local_box.hako"
+"hako.mir.builder.internal.lower_typeop_check" = "lang/src/mir/builder/internal/lower_typeop_check_box.hako"
+"hako.mir.builder.internal.lower_typeop_cast" = "lang/src/mir/builder/internal/lower_typeop_cast_box.hako"
+"hako.mir.builder.internal.runner_min" = "lang/src/mir/builder/internal/runner_min_box.hako"
+"hako.mir.builder.internal.jsonfrag_normalizer" = "lang/src/mir/builder/internal/jsonfrag_normalizer_box.hako"
+"hako.mir.builder.internal.builder_config" = "lang/src/mir/builder/internal/builder_config_box.hako"
+"hako.mir.builder.internal.loop_opts_adapter" = "lang/src/mir/builder/internal/loop_opts_adapter_box.hako"
+
+# Stage‑B support modules
+"hako.compiler.entry.bundle_resolver" = "lang/src/compiler/entry/bundle_resolver.hako"
+"hako.vm.core.dispatcher" = "lang/src/vm/core/dispatcher.hako"
+
+# Missing alias for JsonFragBox (used widely in lowers)
+
+# Temporary alias keys removed (Phase‑20.33 TTL reached). Use `selfhost.shared.*` above.
+
+# Numeric core boxes (Phase 21.6)
+"nyash.core.numeric.intarray" = "lang/src/runtime/numeric/intarray_core_box.hako"
+"nyash.core.numeric.matrix_i64" = "lang/src/runtime/numeric/mat_i64_box.hako"
+
+# v2 Plugin libraries (loader reads these for TypeBox ABI)
+[libraries]
+[libraries."libnyash_filebox_plugin.so"]
+boxes = ["FileBox"]
+path = "plugins/nyash-filebox-plugin/libnyash_filebox_plugin.so"
+
+[libraries."libnyash_filebox_plugin.so".FileBox]
+type_id = 6
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_filebox_plugin.so".FileBox.methods]
+birth = { method_id = 0 }
+open = { method_id = 4 }
+read = { method_id = 5 }
+write = { method_id = 6 }
+close = { method_id = 7 }
+exists = { method_id = 8 }
+copyFrom = { method_id = 9 }
+cloneSelf = { method_id = 10 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_path_plugin.so"]
+boxes = ["PathBox"]
+path = "plugins/nyash-path-plugin/libnyash_path_plugin.so"
+
+[libraries."libnyash_path_plugin.so".PathBox]
+type_id = 55
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_path_plugin.so".PathBox.methods]
+birth = { method_id = 0 }
+join = { method_id = 4 }
+dirname = { method_id = 5 }
+basename = { method_id = 6 }
+extname = { method_id = 7 }
+isAbs = { method_id = 8 }
+normalize = { method_id = 9 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_math_plugin.so"]
+boxes = ["MathBox", "TimeBox"]
+path = "plugins/nyash-math-plugin/libnyash_math_plugin.so"
+
+[libraries."libnyash_math_plugin.so".MathBox]
+type_id = 50
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_math_plugin.so".MathBox.methods]
+birth = { method_id = 0 }
+sqrt = { method_id = 4 }
+sin = { method_id = 5 }
+cos = { method_id = 6 }
+round = { method_id = 7 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_math_plugin.so".TimeBox]
+type_id = 51
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_math_plugin.so".TimeBox.methods]
+birth = { method_id = 0 }
+now = { method_id = 4 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_regex_plugin.so"]
+boxes = ["RegexBox"]
+path = "plugins/nyash-regex-plugin/libnyash_regex_plugin.so"
+
+[libraries."libnyash_regex_plugin.so".RegexBox]
+type_id = 52
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_regex_plugin.so".RegexBox.methods]
+birth = { method_id = 0 }
+compile = { method_id = 4 }
+isMatch = { method_id = 5 }
+find = { method_id = 6 }
+replaceAll = { method_id = 7 }
+split = { method_id = 8 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_net_plugin.so"]
+boxes = ["ClientBox", "ResponseBox", "RequestBox", "ServerBox", "SockServerBox", "SockClientBox", "SockConnBox"]
+path = "plugins/nyash-net-plugin/libnyash_net_plugin.so"
+
+[libraries."libnyash_net_plugin.so".ClientBox]
+type_id = 23
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_net_plugin.so".ClientBox.methods]
+birth = { method_id = 0 }
+get = { method_id = 4 }
+post = { method_id = 5 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_net_plugin.so".ResponseBox]
+type_id = 22
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_net_plugin.so".ResponseBox.methods]
+birth = { method_id = 0 }
+setStatus = { method_id = 4 }
+setHeader = { method_id = 5 }
+write = { method_id = 6 }
+readBody = { method_id = 7 }
+getStatus = { method_id = 8 }
+getHeader = { method_id = 9 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_net_plugin.so".RequestBox]
+type_id = 21
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_net_plugin.so".RequestBox.methods]
+birth = { method_id = 0 }
+path = { method_id = 4 }
+readBody = { method_id = 5 }
+respond = { method_id = 6 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_net_plugin.so".ServerBox]
+type_id = 20
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_net_plugin.so".ServerBox.methods]
+birth = { method_id = 0 }
+start = { method_id = 4 }
+stop = { method_id = 5 }
+accept = { method_id = 6 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_net_plugin.so".SockServerBox]
+type_id = 30
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_net_plugin.so".SockServerBox.methods]
+birth = { method_id = 0 }
+start = { method_id = 4 }
+stop = { method_id = 5 }
+accept = { method_id = 6 }
+acceptTimeout = { method_id = 7 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_net_plugin.so".SockClientBox]
+type_id = 32
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_net_plugin.so".SockClientBox.methods]
+birth = { method_id = 0 }
+connect = { method_id = 4 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_net_plugin.so".SockConnBox]
+type_id = 31
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_net_plugin.so".SockConnBox.methods]
+birth = { method_id = 0 }
+send = { method_id = 4 }
+recv = { method_id = 5 }
+close = { method_id = 6 }
+recvTimeout = { method_id = 7 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_encoding_plugin.so"]
+boxes = ["EncodingBox"]
+path = "plugins/nyash-encoding-plugin/libnyash_encoding_plugin.so"
+
+[libraries."libnyash_encoding_plugin.so".EncodingBox]
+type_id = 53
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_encoding_plugin.so".EncodingBox.methods]
+birth = { method_id = 0 }
+toUtf8Bytes = { method_id = 4 }
+fromUtf8Bytes = { method_id = 5 }
+base64Encode = { method_id = 6 }
+base64Decode = { method_id = 7 }
+hexEncode = { method_id = 8 }
+hexDecode = { method_id = 9 }
+fini = { method_id = 4294967295 }
+
+# Provider Verify — minimal required methods (dev warn by default)
+[verify.required_methods]
+# Note: Dynamic plugins may not be present in dev; preflight runs in warn mode.
+StringBox = ["length", "concat"]
+ArrayBox  = ["len", "push", "get"]
+MapBox    = ["has", "get", "set"]
+ConsoleBox = ["print"]
+
+[libraries."libnyash_json_plugin.so"]
+boxes = ["JsonDocBox", "JsonNodeBox"]
+path = "plugins/nyash-json-plugin/libnyash_json_plugin.so"
+
+[libraries."libnyash_json_plugin.so".JsonDocBox]
+type_id = 70
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_json_plugin.so".JsonDocBox.methods]
+birth = { method_id = 0 }
+parse = { method_id = 4 }
+root = { method_id = 5 }
+error = { method_id = 6 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_json_plugin.so".JsonNodeBox]
+type_id = 71
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_json_plugin.so".JsonNodeBox.methods]
+birth = { method_id = 0 }
+kind = { method_id = 4 }
+get = { method_id = 5 }
+size = { method_id = 6 }
+at = { method_id = 7 }
+str = { method_id = 8 }
+int = { method_id = 9 }
+bool = { method_id = 10 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_toml_plugin.so"]
+boxes = ["TOMLBox"]
+path = "plugins/nyash-toml-plugin/libnyash_toml_plugin.so"
+
+[libraries."libnyash_toml_plugin.so".TOMLBox]
+type_id = 54
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_toml_plugin.so".TOMLBox.methods]
+birth = { method_id = 0 }
+parse = { method_id = 4 }
+get = { method_id = 5 }
+toJson = { method_id = 6 }
+fini = { method_id = 4294967295 }
+
+# Python (v2 TypeBox) plugins
+[libraries."libnyash_python_plugin.so"]
+boxes = ["PyRuntimeBox", "PyObjectBox"]
+path = "plugins/nyash-python-plugin/libnyash_python_plugin.so"
+
+[libraries."libnyash_python_plugin.so".PyRuntimeBox]
+type_id = 40
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_python_plugin.so".PyRuntimeBox.methods]
+birth = { method_id = 0 }
+eval = { method_id = 4 }
+import = { method_id = 5 }
+evalR = { method_id = 11 }
+importR = { method_id = 12 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_python_plugin.so".PyObjectBox]
+type_id = 41
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_python_plugin.so".PyObjectBox.methods]
+birth = { method_id = 0 }
+getattr = { method_id = 4 }
+call = { method_id = 5 }
+str = { method_id = 6 }
+callKw = { method_id = 5 }
+getattrR = { method_id = 11 }
+callR = { method_id = 12 }
+callKwR = { method_id = 15 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_python_parser_plugin.so"]
+boxes = ["PythonParserBox"]
+path = "plugins/nyash-python-parser-plugin/libnyash_python_parser_plugin.so"
+
+[libraries."libnyash_python_parser_plugin.so".PythonParserBox]
+type_id = 60
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_python_parser_plugin.so".PythonParserBox.methods]
+birth = { method_id = 0 }
+parse = { method_id = 4 }
+fini = { method_id = 4294967295 }
+
+[libraries."libnyash_python_compiler_plugin.so"]
+boxes = ["PythonCompilerBox"]
+path = "plugins/nyash-python-compiler-plugin/libnyash_python_compiler_plugin.so"
+
+[libraries."libnyash_python_compiler_plugin.so".PythonCompilerBox]
+type_id = 61
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_python_compiler_plugin.so".PythonCompilerBox.methods]
+birth = { method_id = 0 }
+compile = { method_id = 4 }
+fini = { method_id = 4294967295 }
+# StringBox Plugin (Core Box replacement)
+[libraries."libnyash_string_plugin.so"]
+boxes = ["StringBox"]
+path = "plugins/nyash-string-plugin/libnyash_string_plugin.so"
+
+[libraries."libnyash_string_plugin.so".StringBox]
+type_id = 10
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_string_plugin.so".StringBox.methods]
+birth = { method_id = 0 }
+length = { method_id = 1 }
+isEmpty = { method_id = 2 }
+charCodeAt = { method_id = 3 }
+concat = { method_id = 4 }
+fromUtf8 = { method_id = 5 }
+toUtf8 = { method_id = 6 }
+# Note: Below methods are not implemented yet
+# substring = { method_id = 8 }
+# indexOf = { method_id = 10 }
+# lastIndexOf = { method_id = 11 }
+# replace = { method_id = 12 }
+# split = { method_id = 13 }
+# trim = { method_id = 14 }
+# toUpper = { method_id = 15 }
+# toLower = { method_id = 16 }
+fini = { method_id = 4294967295 }
+
+# IntegerBox Plugin (Core Box replacement)
+[libraries."libnyash_integer_plugin.so"]
+boxes = ["IntegerBox"]
+path = "plugins/nyash-integer-plugin/libnyash_integer_plugin.so"
+
+[libraries."libnyash_integer_plugin.so".IntegerBox]
+type_id = 12
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_integer_plugin.so".IntegerBox.methods]
+birth = { method_id = 0 }
+get = { method_id = 1 }
+set = { method_id = 2 }
+fini = { method_id = 4294967295 }
+
+# ArrayBox Plugin (Core Box)
+[libraries."libnyash_array_plugin.so"]
+boxes = ["ArrayBox"]
+path = "plugins/nyash-array-plugin/libnyash_array_plugin.so"
+
+[libraries."libnyash_array_plugin.so".ArrayBox]
+type_id = 5
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_array_plugin.so".ArrayBox.methods]
+birth = { method_id = 0 }
+push = { method_id = 4 }
+get = { method_id = 5 }
+set = { method_id = 6 }
+size = { method_id = 7 }
+length = { method_id = 7 }
+len = { method_id = 7 }
+fini = { method_id = 4294967295 }
+
+# MapBox Plugin (Core Box)
+[libraries."libnyash_map_plugin.so"]
+boxes = ["MapBox"]
+path = "plugins/nyash-map-plugin/libnyash_map_plugin.so"
+
+[libraries."libnyash_map_plugin.so".MapBox]
+type_id = 6
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_map_plugin.so".MapBox.methods]
+birth = { method_id = 0 }
+set = { method_id = 4 }
+get = { method_id = 5 }
+has = { method_id = 6 }
+size = { method_id = 7 }
+length = { method_id = 7 }
+len = { method_id = 7 }
+fini = { method_id = 4294967295 }
+
+# ConsoleBox Plugin (Core Box)
+[libraries."libnyash_console_plugin.so"]
+boxes = ["ConsoleBox"]
+path = "plugins/nyash-console-plugin/libnyash_console_plugin.so"
+
+[libraries."libnyash_console_plugin.so".ConsoleBox]
+type_id = 7
+abi_version = 1
+singleton = false
+
+[libraries."libnyash_console_plugin.so".ConsoleBox.methods]
+birth = { method_id = 0 }
+log = { method_id = 1 }
+print = { method_id = 1 }
+println = { method_id = 1 }  # Phase 122.5: alias for log (same method_id as log)
+fini = { method_id = 4294967295 }
+"tools.hako_check.analysis_consumer" = "tools/hako_check/analysis_consumer.hako"
+"tools.hako_check.rules.rule_include_forbidden" = "tools/hako_check/rules/rule_include_forbidden.hako"
+"tools.hako_check.rules.rule_using_quoted" = "tools/hako_check/rules/rule_using_quoted.hako"
+"tools.hako_check.rules.rule_static_top_assign" = "tools/hako_check/rules/rule_static_top_assign.hako"
+"tools.hako_check.rules.rule_global_assign" = "tools/hako_check/rules/rule_global_assign.hako"
+"tools.hako_check.rules.rule_dead_methods" = "tools/hako_check/rules/rule_dead_methods.hako"
+"tools.hako_check.rules.rule_jsonfrag_usage" = "tools/hako_check/rules/rule_jsonfrag_usage.hako"
+"tools.hako_check.cli" = "tools/hako_check/cli.hako"
+"tools.hako_check.render.graphviz" = "tools/hako_check/render/graphviz.hako"
+"tools.hako_parser.tokenizer" = "tools/hako_parser/tokenizer.hako"
+"tools.hako_parser.parser_core" = "tools/hako_parser/parser_core.hako"
+"tools.hako_parser.ast_emit" = "tools/hako_parser/ast_emit.hako"
+"tools.hako_parser.cli" = "tools/hako_parser/cli.hako"

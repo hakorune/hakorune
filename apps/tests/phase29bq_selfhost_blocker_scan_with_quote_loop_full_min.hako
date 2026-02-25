@@ -1,0 +1,63 @@
+// Phase 29bq: scan_with_quote/3 loop full minimal (selfhost blocker extraction)
+// Expected output: aX@0
+static box ParserScanLoopBox {
+  scan_escape_piece_and_skip(src, pos, end, quote) { return "X@1" }
+}
+
+static box ParserStringUtilsBox {
+  to_int(s) { return 1 }
+}
+
+static box ParserCommonUtilsBox {
+  i2s(v) { return "0" }
+}
+
+static box Main {
+  scan_with_quote_loop_full_min(src, i, quote) {
+    if src == null { return "@" + ParserCommonUtilsBox.i2s(i) }
+    local n = src.length()
+    local j = i
+    if j >= n || src.substring(j, j + 1) != quote { return "@" + ParserCommonUtilsBox.i2s(i) }
+    j = j + 1
+    local out = ""
+    local guard = 0
+    local max = 200000
+    local skip_rem = 0
+    loop(j < n) {
+      if guard > max { return out + "@" + ParserCommonUtilsBox.i2s(j) }
+      guard = guard + 1
+      local ch = src.substring(j, j + 1)
+      local append = ""
+      local skipping = 0
+
+      if skip_rem > 0 {
+        skip_rem = skip_rem - 1
+        skipping = 1
+      }
+
+      if skipping == 0 && ch == quote {
+        return out + "@" + ParserCommonUtilsBox.i2s(j + 1)
+      }
+
+      if skipping == 0 {
+        append = ch
+        if ch == "\\" && j + 1 < n {
+          local esc = ParserScanLoopBox.scan_escape_piece_and_skip(src, j, n, quote)
+          local at = esc.lastIndexOf("@")
+          append = esc.substring(0, at)
+          skip_rem = ParserStringUtilsBox.to_int(esc.substring(at + 1, esc.length()))
+        }
+      }
+
+      out = out + append
+      j = j + 1
+    }
+    return out + "@" + ParserCommonUtilsBox.i2s(j)
+  }
+
+  main() {
+    local out = Main.scan_with_quote_loop_full_min("\"a\\b\"", 0, "\"")
+    print(out)
+    return 0
+  }
+}

@@ -1,0 +1,141 @@
+// mir_vm_s0_args_phi.hako — args array and PHI incoming parsing utilities split from mir_vm_s0
+// Responsibility: parse MIR args arrays and PHI incoming lists.
+
+using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
+
+static box MirVmS0ArgsPhiBox {
+  // ==================== Args Parsing ====================
+
+  _find_args_bounds(seg) {
+    local p_key = MirVmS0JsonScanBox._index_of_from(seg, "\"args\"", 0)
+    if p_key < 0 { return "" }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(seg, ":", p_key + 6)
+    if p_colon < 0 { return "" }
+    local lb = MirVmS0JsonScanBox._index_of_from(seg, "[", p_colon + 1)
+    if lb < 0 { return "" }
+    local rb = MirVmS0JsonScanBox._scan_array_end(seg, lb)
+    if rb <= lb { return "" }
+    return "" + lb + "," + rb
+  }
+
+  _args_is_empty(seg) {
+    local pair = me._find_args_bounds(seg)
+    if pair == "" { return false }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return false }
+    local body = seg.substring(lb + 1, rb)
+    local n = body.length()
+    local i = MirVmS0JsonScanBox._skip_ws_rec(body, 0, n)
+    return i >= n
+  }
+
+  _args_has_second(seg) {
+    local pair = me._find_args_bounds(seg)
+    if pair == "" { return false }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return false }
+    local body = seg.substring(lb + 1, rb)
+    return MirVmS0JsonScanBox._index_of_from(body, ",", 0) >= 0
+  }
+
+  _args_has_third(seg) {
+    local pair = me._find_args_bounds(seg)
+    if pair == "" { return false }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return false }
+    local body = seg.substring(lb + 1, rb)
+    local first = MirVmS0JsonScanBox._index_of_from(body, ",", 0)
+    if first < 0 { return false }
+    return MirVmS0JsonScanBox._index_of_from(body, ",", first + 1) >= 0
+  }
+
+  _args_first(seg) {
+    local pair = me._find_args_bounds(seg)
+    if pair == "" { return null }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return null }
+    local ds = MirVmS0JsonScanBox._read_digits(seg, lb + 1)
+    if ds == "" || ds == "-" { return null }
+    return MirVmS0JsonScanBox._to_i64(ds)
+  }
+
+  _args_second(seg) {
+    local pair = me._find_args_bounds(seg)
+    if pair == "" { return null }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return null }
+    local body = seg.substring(lb + 1, rb)
+    local comma = MirVmS0JsonScanBox._index_of_from(body, ",", 0)
+    if comma < 0 { return null }
+    local ds = MirVmS0JsonScanBox._read_digits(body, comma + 1)
+    if ds == "" || ds == "-" { return null }
+    return MirVmS0JsonScanBox._to_i64(ds)
+  }
+
+  _args_third(seg) {
+    local pair = me._find_args_bounds(seg)
+    if pair == "" { return null }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return null }
+    local body = seg.substring(lb + 1, rb)
+    local first = MirVmS0JsonScanBox._index_of_from(body, ",", 0)
+    if first < 0 { return null }
+    local second = MirVmS0JsonScanBox._index_of_from(body, ",", first + 1)
+    if second < 0 { return null }
+    local ds = MirVmS0JsonScanBox._read_digits(body, second + 1)
+    if ds == "" || ds == "-" { return null }
+    return MirVmS0JsonScanBox._to_i64(ds)
+  }
+
+  // ==================== PHI Parsing ====================
+
+  _find_phi_incoming_bounds(seg) {
+    local p_key = MirVmS0JsonScanBox._index_of_from(seg, "\"incoming\"", 0)
+    if p_key < 0 { return "" }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(seg, ":", p_key + 10)
+    if p_colon < 0 { return "" }
+    local lb = MirVmS0JsonScanBox._index_of_from(seg, "[", p_colon + 1)
+    if lb < 0 { return "" }
+    local rb = MirVmS0JsonScanBox._scan_array_end(seg, lb)
+    if rb <= lb { return "" }
+    return "" + lb + "," + rb
+  }
+
+  _phi_pick_incoming_rec(seg, pos, rb, pred_bb, first_val) {
+    if pos >= rb { return first_val }
+    local inner_lb = MirVmS0JsonScanBox._index_of_from(seg, "[", pos)
+    if inner_lb < 0 || inner_lb >= rb { return first_val }
+    local inner_rb = MirVmS0JsonScanBox._scan_array_end(seg, inner_lb)
+    if inner_rb <= inner_lb || inner_rb > rb { return first_val }
+
+    local inner = seg.substring(inner_lb + 1, inner_rb)
+    local comma = MirVmS0JsonScanBox._index_of_from(inner, ",", 0)
+    local next_first = first_val
+    if comma >= 0 {
+      local ds_val = MirVmS0JsonScanBox._read_digits(inner, 0)
+      local ds_bb = MirVmS0JsonScanBox._read_digits(inner, comma + 1)
+      if ds_val != "" && ds_val != "-" && ds_bb != "" && ds_bb != "-" {
+        local v = MirVmS0JsonScanBox._to_i64(ds_val)
+        local b = MirVmS0JsonScanBox._to_i64(ds_bb)
+        if next_first == null { next_first = v }
+        if pred_bb != null && b == pred_bb { return v }
+      }
+    }
+    return me._phi_pick_incoming_rec(seg, inner_rb + 1, rb, pred_bb, next_first)
+  }
+
+  _phi_pick_incoming(seg, pred_bb) {
+    local pair = me._find_phi_incoming_bounds(seg)
+    if pair == "" { return null }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return null }
+    return me._phi_pick_incoming_rec(seg, lb + 1, rb, pred_bb, null)
+  }
+}

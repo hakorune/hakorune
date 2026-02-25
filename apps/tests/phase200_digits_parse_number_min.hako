@@ -1,0 +1,25 @@
+// Phase 200-B: Minimal parse_number with digits capture
+static box Main {
+    main() {
+        local s = "42abc"
+        local digits = "0123456789"  // ← Captured var
+
+        local p = 0
+        local num_str = ""
+        local n = s.length()
+
+        loop(p < n) {
+            local ch = s.substring(p, p+1)
+            local digit_pos = digits.indexOf(ch)  // ← Uses captured digits
+
+            if digit_pos < 0 {
+                break
+            }
+
+            num_str = num_str + ch
+            p = p + 1
+        }
+
+        print(num_str)  // Expected: "42"
+    }
+}

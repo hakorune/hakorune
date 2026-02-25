@@ -1,0 +1,142 @@
+// json_v0_reader.hako — NyVmJsonV0Reader (skeleton)
+// Escape-aware minimal scanners to locate the first function's first block instructions.
+
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box NyVmJsonV0Reader {
+  _skip_ws(s, i) {
+    local n = s.length()
+    loop(i < n) {
+      local ch = s.substring(i,i+1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { i = i + 1  continue }
+      break
+    }
+    return i
+  }
+
+  // Return substring for the first function object
+  first_function(json) {
+    local p = JsonCursorBox.find_key_dual(json, "\"functions\":[", "\"functions\":[", 0)
+    if p < 0 { return "" }
+    local lb = json.indexOf("[", p)
+    if lb < 0 { return "" }
+    local i = me._skip_ws(json, lb+1)
+    if json.substring(i,i+1) != "{" { return "" }
+    local end = JsonCursorBox.seek_obj_end(json, i)
+    if end < 0 { return "" }
+    return json.substring(i, end+1)
+  }
+
+  // Return substring for the first block object
+  first_block(func_json) {
+    local p = JsonCursorBox.find_key_dual(func_json, "\"blocks\":[", "\"blocks\":[", 0)
+    if p < 0 { return "" }
+    local lb = func_json.indexOf("[", p)
+    if lb < 0 { return "" }
+    local i = me._skip_ws(func_json, lb+1)
+    if func_json.substring(i,i+1) != "{" { return "" }
+    local end = JsonCursorBox.seek_obj_end(func_json, i)
+    if end < 0 { return "" }
+    return func_json.substring(i, end+1)
+  }
+
+  // Return substring for the instructions array content (without the surrounding brackets)
+  block_instructions_json(block_json) {
+    local p = JsonCursorBox.find_key_dual(block_json, "\"instructions\":[", "\"instructions\":[", 0)
+    if p < 0 { return "" }
+    local lb = block_json.indexOf("[", p)
+    if lb < 0 { return "" }
+    local rb = JsonCursorBox.seek_array_end(block_json, lb)
+    if rb < 0 { return "" }
+    return block_json.substring(lb+1, rb)
+  }
+
+  // Read function entry id if present; returns -1 when missing
+  read_entry_id(func_json) {
+    local p = JsonCursorBox.find_key_dual(func_json, "\"entry\":", "\"entry\":", 0)
+    if p < 0 { return -1 }
+    p = func_json.indexOf(":", p)
+    if p < 0 { return -1 }
+    p = p + 1
+    // skip ws
+    loop(true) { local ch = func_json.substring(p,p+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue } break }
+    local digits = JsonCursorBox.digits_from(func_json, p)
+    if digits == "" { return -1 }
+    return StringHelpers.to_i64(digits)
+  }
+
+  // Parse block id from a block JSON object; returns -1 on failure
+  read_block_id(block_json) {
+    local p = JsonCursorBox.find_key_dual(block_json, "\"id\":", "\"id\":", 0)
+    if p < 0 { return -1 }
+    p = block_json.indexOf(":", p)
+    if p < 0 { return -1 }
+    p = p + 1
+    // skip ws
+    loop(true) { local ch = block_json.substring(p,p+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue } break }
+    local digits = JsonCursorBox.digits_from(block_json, p)
+    if digits == "" { return -1 }
+    return StringHelpers.to_i64(digits)
+  }
+
+  // Build a map: key stringified id → block_json
+  build_block_map(func_json) {
+    local out = new MapBox()
+    // locate blocks array
+    local p = JsonCursorBox.find_key_dual(func_json, "\"blocks\":[", "\"blocks\":[", 0)
+    if p < 0 { return out }
+    local lb = func_json.indexOf("[", p)
+    if lb < 0 { return out }
+    local rb = JsonCursorBox.seek_array_end(func_json, lb)
+    if rb < 0 { return out }
+    local arr = func_json.substring(lb+1, rb)
+    // iterate objects
+    local pos = 0
+    local n = arr.length()
+    loop (pos < n) {
+      // skip ws/commas
+      loop (pos < n) {
+        local ch = arr.substring(pos,pos+1)
+        if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" || ch == "," { pos = pos + 1 continue }
+        break
+      }
+      if pos >= n { break }
+      if arr.substring(pos,pos+1) != "{" { break }
+      local end = JsonCursorBox.seek_obj_end(arr, pos)
+      if end < 0 { break }
+      local blk = arr.substring(pos, end+1)
+      local id = me.read_block_id(blk)
+      if id >= 0 {
+        using selfhost.shared.common.string_helpers as StringHelpers
+        out.set(StringHelpers.int_to_str(id), blk)
+      }
+      pos = end + 1
+    }
+    return out
+  }
+
+  // Iterate instructions: return map { obj, next } or Err string when malformed; when finished, returns { obj:null, next:len }
+  next_instruction(insts_json, pos) {
+    local n = insts_json.length()
+    local i = me._skip_ws(insts_json, pos)
+    if i >= n { return new MapBox() } // obj=null, next=len (empty map)
+    // Skip trailing commas or ws
+    loop (i < n) {
+      local ch = insts_json.substring(i,i+1)
+      if ch == "," || ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { i = i + 1 continue }
+      break
+    }
+    if i >= n { return new MapBox() }
+    if insts_json.substring(i,i+1) != "{" { return %{ "error" => "instruction_not_object" } }
+    local end = JsonCursorBox.seek_obj_end(insts_json, i)
+    if end < 0 { return %{ "error" => "instruction_obj_unclosed" } }
+    local obj = insts_json.substring(i, end+1)
+    local out = new MapBox()
+    out.set("obj", obj)
+    out.set("next", end+1)
+    return out
+  }
+}
+
+static box NyVmJsonV0ReaderMain { main(args){ return 0 } }

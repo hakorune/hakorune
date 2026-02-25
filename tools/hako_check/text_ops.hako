@@ -1,0 +1,465 @@
+// tools/hako_check/text_ops.hako - text utilities for hako_check
+// NOTE: restricted-loop utility (no recursion, no nested loops, no continue; step at end)
+static box TextOps {
+  _sanitize(text) {
+    if text == null { return text }
+    // Normalize CRLF -> LF
+    local out_box = new MapBox()
+    out_box.set("value", "")
+    local i = 0
+    loop (i < text.length()) {
+      local ch = text.substring(i, i + 1)
+      me._append_if_not_cr(out_box, ch)
+      i = i + 1
+    }
+    return out_box.get("value")
+  }
+  _append_if_not_cr(out_box, ch) {
+    // NOTE: Fancy quote conversion removed - StringBox lacks byte-level access
+    if out_box == null { return 0 }
+    if ch == "\r" { return 0 }
+    local cur = out_box.get("value")
+    if cur == null { cur = "" }
+    out_box.set("value", cur.concat(ch))
+    return 0
+  }
+  _split_lines(text) {
+    local arr = new ArrayBox()
+    if text == null { return arr }
+    local n = text.length()
+    local last = 0
+    local i = 0
+    loop (i < n) {
+      local ch = text.substring(i, i + 1)
+      if ch == "\n" { arr.push(text.substring(last, i)); last = i + 1 }
+      i = i + 1
+    }
+    if last <= n { arr.push(text.substring(last)) }
+    return arr
+  }
+  _ltrim(s) {
+    if s == null { return "" }
+    local i = me._skip_ws(s, 0)
+    if i > 0 { return s.substring(i) }
+    return s
+  }
+  _skip_ws(s, start) {
+    if s == null { return start }
+    local n = s.length()
+    local i = start
+    loop (i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch != " " && ch != "\t" { break }
+      i = i + 1
+    }
+    return i
+  }
+  _itoa(n) {
+    if n == null { return "0" }
+    return n.toString()
+  }
+  _itoa_abs(v) {
+    if v == null { return "0" }
+    if v < 0 { v = 0 - v }
+    return v.toString()
+  }
+  _json_quote(s) {
+    if s == null { return "\"\"" }
+    if s == "" { return "\"\"" }
+    local out_box = new MapBox()
+    out_box.set("value", "")
+    local i = 0
+    local n = s.length()
+    loop (i < n) {
+      local ch = s.substring(i, i + 1)
+      local esc = me._escape_json_char(ch)
+      local cur = out_box.get("value")
+      out_box.set("value", cur.concat(esc))
+      i = i + 1
+    }
+    return "\"" + out_box.get("value") + "\""
+  }
+  _atoi(s) {
+    if s == null { return 0 }
+    return me._atoi_from(s, 0, 0)
+  }
+  _escape_json_char(ch) {
+    if ch == "\\" { return "\\\\" }
+    if ch == "\"" { return "\\\"" }
+    if ch == "\n" { return "\\n" }
+    if ch == "\r" { return "\\r" }
+    if ch == "\t" { return "\\t" }
+    return ch
+  }
+  _atoi_from(s, i, acc) {
+    if s == null { return acc }
+    if i >= s.length() { return acc }
+    local ch = s.substring(i, i + 1)
+    if ch < "0" || ch > "9" { return acc }
+    local pos = "0123456789".indexOf(ch)
+    if pos < 0 { return acc }
+    local next = acc * 10 + pos
+    return me._atoi_from(s, i + 1, next)
+  }
+  _parse_csv(s) {
+    if s == null { return null }
+    local arr = new ArrayBox()
+    local state = new MapBox()
+    state.set("cur", "")
+    state.set("arr", arr)
+    local i = 0
+    loop (i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      me._parse_csv_step(state, ch)
+      i = i + 1
+    }
+    local tail = state.get("cur")
+    if tail != "" { arr.push(tail) }
+    return arr
+  }
+  _parse_csv_step(state, ch) {
+    if state == null { return 0 }
+    local cur = state.get("cur")
+    if cur == null { cur = "" }
+    if ch == "," {
+      if cur != "" { state.get("arr").push(cur) }
+      state.set("cur", "")
+      return 0
+    }
+    state.set("cur", cur + ch)
+    return 0
+  }
+  _first_delim_index(s) {
+    if s == null { return -1 }
+    local i_space = s.indexOf(" ")
+    local i_tab = s.indexOf("\t")
+    local i_sem = s.indexOf(";")
+    local idx = -1
+    if i_space >= 0 { idx = i_space }
+    if i_tab >= 0 { if idx < 0 || i_tab < idx { idx = i_tab } }
+    if i_sem >= 0 { if idx < 0 || i_sem < idx { idx = i_sem } }
+    return idx
+  }
+  _alias_unused(text, alias) {
+    if text == null || alias == null { return 0 }
+    // 使用判定は保守的に: 'Alias.' / 'Alias(' / 'Alias ' / 'Alias::' のいずれかが存在すれば使用中とみなす
+    local pats = new ArrayBox(); pats.push(alias+"."); pats.push(alias+"("); pats.push(alias+" "); pats.push(alias+"::")
+    local i = 0; loop (i < pats.size()) {
+      if text.indexOf(pats.get(i)) >= 0 { return 0 }
+      i = i + 1
+    }
+    return 1
+  }
+  _has_entrypoint(text) {
+    if text == null { return 1 }
+    // Rough check: presence of 'method main(' is considered as entrypoint
+    if text.indexOf("method main(") >= 0 { return 1 }
+    return 0
+  }
+  // ---- QuickFix (text scope, MVP: HC003 using quoted) ----
+  _fix_text_quick(text) {
+    if text == null { return null }
+    // QuickFix (text scope):
+    //  - HC002 include → using
+    //  - HC003 using 非引用 → 引用化
+    //  - HC016 未使用 alias の削除（using ... as Alias）
+    //  - HC014 missing entrypoint の空スタブ提案
+    local lines = me._split_lines(text)
+    local out = new ArrayBox()
+    local alias_lines = new ArrayBox() // of Map {idx, alias}
+    local state = new MapBox(); state.set("changed", 0)
+    me._fix_text_quick_scan(lines, 0, out, alias_lines, state)
+
+    if alias_lines.size() > 0 {
+      local cur_text = me._join_lines(out)
+      me._remove_unused_aliases(out, alias_lines, alias_lines.size() - 1, cur_text, state)
+      out = me._compact_lines(out)
+    }
+
+    local joined = me._join_lines(out)
+    if me._has_entrypoint(joined) == 0 {
+      // append stub
+      local stub = "\nstatic box Main { method main(args) { return 0 } }"
+      joined = joined + stub
+      state.set("changed", 1)
+      // split again for diff
+      out = me._split_lines(joined)
+    }
+
+    if state.get("changed") == 0 { return text }
+    return me._join_lines(out)
+  }
+  _fix_text_quick_scan(lines, i, out, alias_lines, state) {
+    if lines == null { return 0 }
+    local idx = i
+    loop (idx < lines.size()) {
+      local ln = lines.get(idx)
+      local line1 = me._rewrite_include_line(ln)
+      me._mark_changed(state, ln, line1)
+      local alias = me._extract_using_alias(line1)
+      me._append_alias_if_needed(alias_lines, idx, alias)
+      local line2 = me._rewrite_using_quote_line(line1)
+      me._mark_changed(state, line1, line2)
+      out.push(line2)
+      idx = idx + 1
+    }
+    return 0
+  }
+  _rewrite_include_line(ln) {
+    if ln == null { return ln }
+    local ltrim = me._ltrim(ln)
+    if ltrim.indexOf("include \"") == 0 {
+      // preserve indentation and trailing content (;等)
+      local head_len = ln.indexOf("include \"")
+      if head_len < 0 { head_len = 0 }
+      local head = ln.substring(0, head_len)
+      local rest = ln.substring(head_len)
+      // rest begins with include "
+      local after = rest.substring(8) // length("include ") = 8
+      return head + "using " + after
+    }
+    return ln
+  }
+  _rewrite_using_quote_line(ln) {
+    if ln == null { return ln }
+    local ltrim = me._ltrim(ln)
+    if ltrim.indexOf("using ") == 0 && ltrim.indexOf('using "') != 0 {
+      // rewrite: using X ... -> using "X" ...（X は最初の空白/セミコロンまで）
+      local prefix_len = ln.indexOf("using ")
+      if prefix_len < 0 { prefix_len = 0 }
+      local head = ln.substring(0, prefix_len)
+      local rest = ln.substring(prefix_len)
+      // rest starts with 'using '
+      local after = rest.substring(6)
+      local b = me._first_delim_index(after)
+      if b < 0 { b = after.length() }
+      local name = after.substring(0, b)
+      local tail = after.substring(b)
+      if name.length() > 0 { return head + "using \"" + name + "\"" + tail }
+    }
+    return ln
+  }
+  _extract_using_alias(ln) {
+    if ln == null { return "" }
+    local ltrim = me._ltrim(ln)
+    if ltrim.indexOf("using ") == 0 && ltrim.indexOf(" as ") > 0 {
+      // パターン: using "X" as Alias もしくは using X as Alias
+      local aspos = ltrim.indexOf(" as ")
+      local tail = ltrim.substring(aspos + 4)
+      local end = me._first_delim_index(tail)
+      if end >= 0 { return tail.substring(0, end) }
+      return tail
+    }
+    return ""
+  }
+  _append_alias_if_needed(alias_lines, idx, alias) {
+    if alias == "" { return 0 }
+    local ent = new MapBox(); ent.set("idx", idx); ent.set("alias", alias); alias_lines.push(ent)
+    return 0
+  }
+  _mark_changed(state, before, after) {
+    if state == null { return 0 }
+    if before == after { return 0 }
+    state.set("changed", 1)
+    return 0
+  }
+  _remove_unused_aliases(out, alias_lines, idx, cur_text, state) {
+    local size = alias_lines.size()
+    local cur = 0
+    loop (cur < size) {
+      local rev = size - 1 - cur
+      local ent = alias_lines.get(rev)
+      local line_idx = ent.get("idx")
+      local alias = ent.get("alias")
+      if me._alias_unused(cur_text, alias) == 1 {
+        me._drop_alias_line_if_match(out, line_idx, alias, state)
+      }
+      cur = cur + 1
+    }
+    return 0
+  }
+  _drop_alias_line_if_match(out, idx, alias, state) {
+    if out == null { return 0 }
+    if idx < 0 { return 0 }
+    if idx >= out.size() { return 0 }
+    local l = me._ltrim(out.get(idx))
+    if l.indexOf("using ") == 0 && l.indexOf(" as ") > 0 && l.indexOf(" " + alias) > 0 {
+      out.set(idx, null)
+      if state != null { state.set("changed", 1) }
+    }
+    return 0
+  }
+  _compact_lines(out) {
+    local out2 = new ArrayBox()
+    me._compact_lines_from(out, 0, out2)
+    return out2
+  }
+  _compact_lines_from(out, i, out2) {
+    if out == null { return 0 }
+    local idx = i
+    loop (idx < out.size()) {
+      local v = out.get(idx)
+      me._push_if_not_null(out2, v)
+      idx = idx + 1
+    }
+    return 0
+  }
+  _push_if_not_null(out, v) {
+    if v == null { return 0 }
+    out.push(v)
+    return 0
+  }
+  _join_lines(lines) {
+    if lines == null { return "" }
+    if lines.size() == 0 { return "" }
+    return me._join_lines_from(lines, 0)
+  }
+  _join_lines_from(lines, idx) {
+    if lines == null { return "" }
+    if idx >= lines.size() { return "" }
+    local i = idx
+    local out = ""
+    local sep = ""
+    loop (i < lines.size()) {
+      out = out + sep + lines.get(i)
+      sep = "\n"
+      i = i + 1
+    }
+    return out
+  }
+  _print_unified_diff(path, before, after) {
+    if before == null || after == null || before == after { return 0 }
+    // Minimal unified diff for whole file replacement（MVP）
+    print("--- " + path)
+    print("+++ " + path)
+    print("@@")
+    // Print lines with +/-; this MVP prints only changed lines as + and original as - when they differ line-wise
+    local bl = me._split_lines(before); local al = me._split_lines(after)
+    local max = bl.size(); if al.size() > max { max = al.size() }
+    local i = 0
+    loop (i < max) {
+      local b = me._array_get_or_null(bl, i)
+      local a = me._array_get_or_null(al, i)
+      me._emit_diff_lines(b, a)
+      i = i + 1
+    }
+    return 0
+  }
+  _array_get_or_null(arr, idx) {
+    if arr == null { return null }
+    if idx < 0 { return null }
+    if idx >= arr.size() { return null }
+    return arr.get(idx)
+  }
+  _emit_diff_lines(before, after) {
+    if before == after {
+      local line = ""
+      if after != null { line = after }
+      print(" " + line)
+      return 0
+    }
+    if before != null { print("-" + before) }
+    if after != null { print("+" + after) }
+    return 0
+  }
+  _rename_box_text(text, old, neu) {
+    if text == null || old == null || neu == null { return text }
+    local lines = me._split_lines(text)
+    // Def line: static box Old { → replace Old only after the prefix
+    local i = 0
+    loop (i < lines.size()) {
+      local ln = lines.get(i)
+      local out_ln = me._rewrite_box_def_line(ln, old, neu)
+      out_ln = me._rewrite_box_call_line(out_ln, old, neu)
+      lines.set(i, out_ln)
+      i = i + 1
+    }
+    // join
+    if lines.size() == 0 { return "" }
+    local buf = lines.get(0)
+    local j = 1
+    loop (j < lines.size()) {
+      buf = buf + "\n" + lines.get(j)
+      j = j + 1
+    }
+    return buf
+  }
+  _rewrite_box_def_line(ln, old, neu) {
+    if ln == null { return ln }
+    local pref = "static box " + old + " "
+    if me._ltrim(ln).indexOf(pref) == 0 {
+      return ln.replace(pref, "static box " + neu + " ")
+    }
+    return ln
+  }
+  _rewrite_box_call_line(ln, old, neu) {
+    if ln == null { return ln }
+    // Calls: occurrences of "Old." → "New." when "Old." is found
+    if ln.indexOf(old + ".") >= 0 {
+      // simplistic boundary: avoid replacing inside quoted strings is out of scope (MVP)
+      return ln.replace(old + ".", neu + ".")
+    }
+    return ln
+  }
+  _rename_method_text(text, ast, box, old, neu) {
+    // NOTE(Phase 73): AST-based method rename QuickFix is temporarily disabled
+    // for Stage-3 parser compatibility. For now, return original text unchanged.
+    if text == null { return text }
+    return text
+  }
+  _extract_box_from_hc012(s) {
+    // format: [HC012] dead static box (never referenced): Name
+    if s == null { return null }
+    local p = s.lastIndexOf(":")
+    if p < 0 { return null }
+    local name = s.substring(p+1)
+    // trim spaces
+    local t = me._skip_ws(name, 0)
+    if t > 0 { name = name.substring(t) }
+    return name
+  }
+  _extract_method_from_hc011(s) {
+    // format: [HC011] ... :: Box.method/arity
+    if s == null { return null }
+    local p = s.lastIndexOf("::")
+    if p < 0 { return null }
+    local qual = s.substring(p+2)
+    // trim leading space
+    local t = me._skip_ws(qual, 0)
+    if t > 0 { qual = qual.substring(t) }
+    return qual
+  }
+  _parse_msg_to_diag(msg, path) {
+    if msg == null { return null }
+    // Expect prefixes like: [HC002] ... path:LINE or [HC011] ... :: Method
+    local rule = "HC000"; local i0 = msg.indexOf("["); local i1 = msg.indexOf("]")
+    if i0 == 0 && i1 > 1 { rule = msg.substring(1, i1) }
+    // find last ':' as line separator
+    local line = 1
+    local p = msg.lastIndexOf(":")
+    if p > 0 {
+      // parse after ':' as int (skip spaces, then read digits)
+      local tail = msg.substring(p+1)
+      local q = me._skip_ws(tail, 0)
+      local ch0 = tail.substring(q, q + 1)
+      if ch0 >= "0" && ch0 <= "9" { line = me._atoi_from(tail, q, 0) }
+    }
+    // message: drop path and line suffix
+    local message = msg
+    // naive quickFix suggestions
+    local qf = ""
+    if rule == "HC002" { qf = "Replace include with using (alias)" }
+    if rule == "HC003" { qf = "Quote module name: using \"mod\"" }
+    if rule == "HC010" { qf = "Move assignment into a method (lazy init)" }
+    if rule == "HC011" { qf = "Remove or reference the dead method from an entrypoint" }
+    local sev = "warning"
+    if rule == "HC001" || rule == "HC002" || rule == "HC010" || rule == "HC011" { sev = "error" }
+    if rule == "HC003" || rule == "HC020" { sev = "warning" }
+    local d = new MapBox(); d.set("file", path); d.set("line", line); d.set("rule", rule); d.set("message", message); d.set("quickFix", qf); d.set("severity", sev)
+    return d
+  }
+  _sort_diags(diags) {
+    if diags == null { return new ArrayBox() }
+    return diags
+  }
+}

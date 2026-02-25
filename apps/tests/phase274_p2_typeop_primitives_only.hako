@@ -1,0 +1,19 @@
+// Phase 274 P2: TypeOp (is/as) with primitives only (no user boxes)
+
+static box Main {
+    main() {
+        // Integer check + cast
+        local x = 42
+        if !x.is("Integer") { return 101 }
+        local y = x.as("Integer")
+        if y != 42 { return 102 }
+
+        // String check + cast
+        local s = "hello"
+        if !s.is("String") { return 103 }
+        local t = s.as("String")
+        if t != "hello" { return 104 }
+
+        return 3
+    }
+}

@@ -1,0 +1,12 @@
+// engines/hakorune/engine.hako — Hakorune VM Engine wrapper (skeleton)
+// Thin shim delegating to Core dispatcher during core extraction.
+
+using selfhost.vm.core.dispatcher as NyVmDispatcher
+
+static box HakoruneNyVmEngine {
+  run(json) {
+    return NyVmDispatcher.run(json)
+  }
+}
+
+static box HakoruneNyVmEngineMain { main(args){ return 0 } }

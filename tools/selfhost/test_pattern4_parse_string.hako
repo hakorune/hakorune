@@ -1,0 +1,43 @@
+// Phase 165: Test _parse_string from JsonParserBox (Pattern4 with continue + return)
+// Simulates: loop(p < len) { if quote { return } if escape { continue } else { append } p++ }
+
+static box Main {
+  main(args) {
+    // Simulate string parsing: collect chars until closing quote
+    // Pattern: continue on escape, return on quote
+    local s = "hello\\\"world\"extra"
+    local p = 0
+    local len = s.length()
+    local result = ""
+
+    loop(p < len) {
+      local ch = s.substring(p, p + 1)
+
+      // Check for closing quote
+      if ch == "\"" {
+        print("Found closing quote at position: " + ("" + p))
+        return 0
+      }
+
+      // Check for escape sequence
+      if ch == "\\" {
+        result = result + ch
+        p = p + 1
+        // Skip next character (continuation of escape)
+        if p < len {
+          result = result + s.substring(p, p + 1)
+          p = p + 1
+          continue
+        }
+      }
+
+      // Regular character
+      result = result + ch
+      p = p + 1
+    }
+
+    // If we exit loop without finding quote, return error
+    print("ERROR: No closing quote found")
+    return 1
+  }
+}

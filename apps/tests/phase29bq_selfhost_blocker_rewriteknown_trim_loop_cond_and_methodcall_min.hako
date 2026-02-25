@@ -1,0 +1,31 @@
+// selfhost RewriteKnown._trim minimal (loop(cond) with AND + methodcall)
+// Expected: stdout=ab, RC=0
+static box TrimMini {
+  _is_space(ch) {
+    return ch == " "
+  }
+
+  run() {
+    local text = "  ab  "
+    local a = 0
+    local b = text.length()
+
+    loop(a < b && me._is_space(text.substring(a, a + 1))) {
+      a = a + 1
+    }
+
+    loop(b > a && me._is_space(text.substring(b - 1, b))) {
+      b = b - 1
+    }
+
+    print(text.substring(a, b))
+    return 0
+  }
+}
+
+static box Main {
+  main() {
+    TrimMini.run()
+    return 0
+  }
+}

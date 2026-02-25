@@ -1,0 +1,16 @@
+// Phase 29bq parser handoff: local no-init with postfix cleanup.
+// Expected output: 11
+static box Main {
+  main() {
+    local out = 0
+    {
+      local x
+      x = 1
+      out = out + x
+    } cleanup {
+      out = out + 10
+    }
+    print(out)
+    return 0
+  }
+}

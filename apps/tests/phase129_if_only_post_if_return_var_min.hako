@@ -1,0 +1,22 @@
+// Phase 129: if-only post-if return var (Normalized join_k continuation)
+// Pattern: x=1; if flag==1 { x=2 }; return x
+// Expected: x=2 (flag=1 fixed)
+//
+// This tests that join_k continuation properly merges env:
+// - then: x=2 (updated)
+// - else: x=1 (original)
+// - join_k: receives env_phi and continues to return x
+
+static box Main {
+    main() {
+        local x
+        local flag
+        x = 1
+        flag = 1
+        if flag == 1 {
+            x = 2
+        }
+        print(x)
+        return "OK"
+    }
+}

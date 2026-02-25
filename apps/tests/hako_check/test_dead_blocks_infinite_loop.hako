@@ -1,0 +1,18 @@
+// Test Case 3: Infinite loop causes unreachable code after loop
+// Expected: HC020 for block after loop
+
+static box TestInfiniteLoop {
+  method test() {
+    loop (1) {
+      // Infinite loop - never exits
+    }
+    // Everything below is unreachable
+    return 0
+  }
+
+  method main() {
+    // Note: This will actually hang, but we're testing static analysis
+    // In practice, use with timeout or don't execute
+    return 0
+  }
+}

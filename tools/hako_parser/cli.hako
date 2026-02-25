@@ -1,0 +1,18 @@
+// tools/hako_parser/cli.hako - HakoParserBox CLI (MVP skeleton)
+using tools.hako_parser.parser_core as HakoParserCoreBox
+using tools.hako_parser.ast_emit as HakoAstEmitBox
+
+static box HakoParserBox {
+  run(args) {
+    if args == null || args.size() < 1 { print("[parser/error] missing path"); return 2 }
+    local path = args.get(0)
+    local f = new FileBox(); if f.open(path) == 0 { print("[parser/error] open fail: " + path); return 2 }
+    local text = f.read(); f.close()
+    local ast = HakoParserCoreBox.parse(text)
+    local json = HakoAstEmitBox.to_json(ast)
+    print(json)
+    return 0
+  }
+}
+
+static box HakoParserCliMain { method main(args) { return HakoParserBox.run(args) } }

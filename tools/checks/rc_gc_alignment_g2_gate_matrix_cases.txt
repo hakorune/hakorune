@@ -1,0 +1,7 @@
+# G-RC-2 fast/milestone gate matrix
+# case_id|gate_rel|tier
+g1_lifecycle_parity|tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g1_lifecycle_parity_vm_llvm.sh|fast
+runtime_core_integrated|tools/smokes/v2/profiles/integration/apps/phase29x_runtime_core_gate_vm.sh|fast
+optimization_gate_regression|tools/smokes/v2/profiles/integration/apps/phase29x_optimization_gate_vm.sh|milestone
+g3_cycle_timing_matrix|tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g3_cycle_timing_gate.sh|milestone
+g5_gc_mode_semantics_invariance|tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g5_mode_invariance_vm_llvm.sh|milestone

@@ -1,0 +1,60 @@
+// NewBoxHandlerBox - Handle newbox instruction (Box instantiation)
+// Single Responsibility: Create Box instances (ArrayBox, MapBox, etc.)
+
+using selfhost.vm.boxes.result_box as Result
+using selfhost.vm.hakorune-vm.value_manager as ValueManagerBox
+using selfhost.vm.hakorune-vm.json_field_extractor as JsonFieldExtractor
+using selfhost.vm.hakorune-vm.inst_field_extractor as InstFieldExtractor
+using selfhost.shared.common.string_ops as StringOps
+using selfhost.vm.gc.gc_runtime as GcRuntime
+
+static box NewBoxHandlerBox {
+  // Handle newbox instruction
+  // inst_json: {"op":"newbox","dst":X,"box_type":"ArrayBox","args":[]}
+  // regs: register MapBox
+  // Returns: Result.Ok(0) or Result.Err(message)
+  handle(inst_json, regs) {
+    // Extract dst
+    local dst = JsonFieldExtractor.extract_int(inst_json, "dst")
+    if dst == null {
+      return Result.Err("newbox: dst field not found")
+    }
+
+    // Extract box_type
+    local key_type = "\"box_type\":\""
+    local type_start = inst_json.indexOf(key_type)
+    if type_start < 0 {
+      return Result.Err("newbox: box_type field not found")
+    }
+    type_start = type_start + key_type.length()
+
+    local type_end = StringOps.index_of_from(inst_json, "\"", type_start)
+    if type_end < 0 {
+      return Result.Err("newbox: box_type field end not found")
+    }
+
+    local box_type = inst_json.substring(type_start, type_end)
+
+    // Create Box instance based on type
+    local box_instance = null
+    if box_type == "ArrayBox" {
+      box_instance = new ArrayBox()
+    } else if box_type == "MapBox" {
+      box_instance = new MapBox()
+    } else {
+      return Result.Err("newbox: unsupported box_type: " + box_type)
+    }
+
+    // Store Box instance in destination register
+    ValueManagerBox.set(regs, dst, box_instance)
+    if box_type == "ArrayBox" {
+      ValueManagerBox.set_array_size(regs, dst, 0)
+    } else if box_type == "MapBox" {
+      ValueManagerBox.ensure_map_meta(regs, dst)
+    }
+    // GC v0: metrics only（legacy newbox 経路にも1カウント）
+    GcRuntime.allocate(box_type)
+
+    return Result.Ok(0)
+  }
+}

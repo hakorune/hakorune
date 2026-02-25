@@ -1,0 +1,21 @@
+// stageb_body_extract_minimal.hako
+// Phase 28: StageBBodyExtractorBox.build_body_src minimal loop for JoinIR testing
+// - Case A: loop(i < n) with next_i and simple accumulator
+
+static box StageBBodyExtractorBox {
+  build_body_src(src, args) {
+    local n = src.length()
+    local i = 0
+    local acc = 0
+    loop(i < n) {
+      local next_i = i + 1
+      acc = acc + 1
+      i = next_i
+    }
+    return acc
+  }
+}
+
+static box Main {
+  main() { return 0 }
+}

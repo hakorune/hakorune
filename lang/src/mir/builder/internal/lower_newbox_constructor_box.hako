@@ -1,0 +1,26 @@
+// lower_newbox_constructor_box.hako — Program(JSON v0) with New(Array/Map) → MIR v1 (mir_call Constructor)
+// Scope: minimal safe subset for Phase 20.43 Step‑2
+
+
+static box LowerNewboxConstructorBox {
+  try_lower(program_json) {
+    if program_json == null { return null }
+    local s = "" + program_json
+    // Quick pattern check
+    if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
+    // Find class name (minimal scan)
+    local cls = null
+    if JsonFragBox.index_of_from(s, "\"class\":\"ArrayBox\"", 0) >= 0 { cls = "ArrayBox" }
+    else { if JsonFragBox.index_of_from(s, "\"class\":\"MapBox\"", 0) >= 0 { cls = "MapBox" } }
+    if cls == null { return null }
+    // Only accept known minimal boxes
+    if !(cls == "ArrayBox" || cls == "MapBox") { return null }
+
+    // Emit MIR v1 JSON text directly (no Map/Array construction)
+    local json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
+                 "{\"op\":\"mir_call\",\"dst\":1,\"mir_call\":{\"callee\":{\"type\":\"Constructor\",\"box_type\":\"" + cls + "\"},\"args\":[],\"effects\":[]}}," +
+                 "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+                 "{\"op\":\"ret\",\"value\":2}]}]}]}"
+    return json
+  }
+}

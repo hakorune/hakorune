@@ -1,0 +1,67 @@
+// Phase 33-7: IfMerge lowering test (simple pattern)
+//
+// Pattern: if cond { x=a; y=b } else { x=c; y=d } return x+y
+// Expected:
+//   - cond=true → (x=1, y=2) → return 3
+//   - cond=false → (x=3, y=4) → return 7
+
+static box IfMergeTest {
+    simple_true() {
+        local x
+        local y
+
+        if true {
+            x = 1
+            y = 2
+        } else {
+            x = 3
+            y = 4
+        }
+
+        return x + y
+    }
+
+    simple_false() {
+        local x
+        local y
+
+        if false {
+            x = 1
+            y = 2
+        } else {
+            x = 3
+            y = 4
+        }
+
+        return x + y
+    }
+
+    main() {
+        local result_true
+        local result_false
+
+        result_true = me.simple_true()
+        result_false = me.simple_false()
+
+        print("simple_true: ")
+        print(result_true)
+        print("\n")
+
+        print("simple_false: ")
+        print(result_false)
+        print("\n")
+
+        // Verify results
+        if result_true == 3 {
+            print("PASS: simple_true\n")
+        } else {
+            print("FAIL: simple_true\n")
+        }
+
+        if result_false == 7 {
+            print("PASS: simple_false\n")
+        } else {
+            print("FAIL: simple_false\n")
+        }
+    }
+}

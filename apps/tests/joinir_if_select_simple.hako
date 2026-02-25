@@ -1,0 +1,16 @@
+static box IfSelectTest {
+    main() {
+        local result
+        result = me.test(1)
+        print(result)
+        return 0
+    }
+
+    test(cond) {
+        if cond {
+            return 10
+        } else {
+            return 20
+        }
+    }
+}

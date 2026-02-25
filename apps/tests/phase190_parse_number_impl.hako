@@ -1,0 +1,24 @@
+// Phase 190: Number accumulation test - parse number implementation
+// Tests: num = num * 10 + i pattern with different initial values
+// Uses Pattern 2 (break) to enable carrier support
+//
+// Expected: i=1,2,3 → num = 0*10+1 = 1 → 1*10+2 = 12 → 12*10+3 = 123
+// Result should be 123
+
+static box Main {
+    main() {
+        local num
+        num = 0
+        local i
+        i = 1
+        loop(i < 10) {
+            if i > 3 {
+                break
+            }
+            num = num * 10 + i
+            i = i + 1
+        }
+        print(num)
+        return 0
+    }
+}

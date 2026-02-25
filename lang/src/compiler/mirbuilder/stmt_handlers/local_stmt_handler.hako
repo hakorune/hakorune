@@ -1,0 +1,147 @@
+// LocalStmtHandler — Handle Local statement in Program JSON v0 parsing
+// Responsibility: SSOT handler for Local statement parsing and state update.
+//
+// P2: own the Local logic directly (consumer delegation removed).
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box LocalStmtHandler {
+  // Handle Local statement node and return updated state map.
+  // Parameters are aligned with consumer boxes:
+  //   program_json, idx, next_idx, tag, state
+  handle(program_json, idx, next_idx, tag, state) {
+    local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
+    local local_name = "" + BoxHelpers.map_get(state, "local_name")
+    local local_init = BoxHelpers.map_get(state, "local_init")
+
+    local expr_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "expr", idx)
+    if expr_start < 0 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Local missing expr object",
+        "next_idx" => next_idx,
+        "has_local" => has_local,
+        "local_name" => local_name,
+        "local_init" => local_init
+      }
+    }
+
+    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, expr_start)
+    if expr_info == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Local expr node scan failed",
+        "next_idx" => next_idx,
+        "has_local" => has_local,
+        "local_name" => local_name,
+        "local_init" => local_init
+      }
+    }
+
+    local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
+    if expr_type == "Int" {
+      local out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", expr_start)
+      if out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Local Int missing value",
+          "next_idx" => next_idx,
+          "has_local" => has_local,
+          "local_name" => local_name,
+          "local_init" => local_init
+        }
+      }
+      local_init = BoxHelpers.map_get(out, "value")
+    } else if expr_type == "Var" {
+      local out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "name", expr_start)
+      if out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Local Var missing name",
+          "next_idx" => next_idx,
+          "has_local" => has_local,
+          "local_name" => local_name,
+          "local_init" => local_init
+        }
+      }
+      local src_name = "" + BoxHelpers.map_get(out, "value")
+      if src_name == "" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Var] Local Var name is empty",
+          "next_idx" => next_idx,
+          "has_local" => has_local,
+          "local_name" => local_name,
+          "local_init" => local_init
+        }
+      }
+      if has_local != 1 || local_name == "" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Var] Local Var requires previous Local",
+          "next_idx" => next_idx,
+          "has_local" => has_local,
+          "local_name" => local_name,
+          "local_init" => local_init
+        }
+      }
+      if src_name != local_name {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Var] Local Var must reference previous Local var: " + local_name,
+          "next_idx" => next_idx,
+          "has_local" => has_local,
+          "local_name" => local_name,
+          "local_init" => local_init
+        }
+      }
+    } else {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/expr:Int|Var] Local init is not Int/Var",
+        "next_idx" => next_idx,
+        "has_local" => has_local,
+        "local_name" => local_name,
+        "local_init" => local_init
+      }
+    }
+
+    local out2 = ProgramJsonV0ScannerBox.read_string_field_last_in_obj(program_json, "name", idx)
+    if out2 == null {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Local missing name",
+        "next_idx" => next_idx,
+        "has_local" => has_local,
+        "local_name" => local_name,
+        "local_init" => local_init
+      }
+    }
+
+    local local_value = "" + BoxHelpers.map_get(out2, "value")
+    if local_value == "" {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/stmt:Local] Local name is empty",
+        "next_idx" => next_idx,
+        "has_local" => has_local,
+        "local_name" => local_name,
+        "local_init" => local_init
+      }
+    }
+
+    local_name = local_value
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "next_idx" => next_idx,
+      "has_local" => 1,
+      "local_name" => local_name,
+      "local_init" => local_init
+    }
+  }
+}
+
+static box LocalStmtHandlerMain { main() { return 0 } }

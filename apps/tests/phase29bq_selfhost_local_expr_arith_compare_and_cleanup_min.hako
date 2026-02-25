@@ -1,0 +1,29 @@
+// Phase 29bq parser handoff Tier-2: local init with arithmetic (+,-,*,/) + compare (==/!=) + && + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local a = 8 + 4
+      local b = 30 / 5
+      local c = (a - b) * 2
+
+      local cond1 = ((a + b) == 18) && ((c - 4) != 0)
+      if cond1 {
+        out = out + 23
+      } else {
+        out = out + 1
+      }
+
+      local cond2 = ((a * 3) == 36) && ((b + 6) != 11)
+      if cond2 {
+        out = out + 27
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 2300
+    }
+    print(out)
+    return 0
+  }
+}

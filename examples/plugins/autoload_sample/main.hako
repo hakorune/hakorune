@@ -1,0 +1,13 @@
+using counter
+
+static box Main {
+  main() {
+    // Minimal plugin usage example (CounterBox from nyash-counter-plugin)
+    local c = new CounterBox()
+    c.inc()
+    c.inc()
+    print("Counter value: " + c.get())
+    return 0
+  }
+}
+

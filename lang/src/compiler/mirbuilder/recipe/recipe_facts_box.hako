@@ -1,0 +1,149 @@
+// recipe_facts_box.hako
+// Responsibility:
+// - Extract minimal stmt facts for R1 (`Print`/`Local`/`Assignment`/`Return`).
+// - Build data-only Recipe items from stmt facts (no lowering coupling).
+
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box RecipeFactsBox {
+  _tag(tag) {
+    if tag == null || ("" + tag) == "" { return "[freeze:contract][hako_mirbuilder]" }
+    return "" + tag
+  }
+
+  _err(tag, msg) {
+    return %{
+      "err" => 1,
+      "err_line" => me._tag(tag) + msg,
+      "facts" => me._new_facts(""),
+      "recipe_item" => RecipeItemBox.seq([])
+    }
+  }
+
+  _ok(facts, recipe_item) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "facts" => facts,
+      "recipe_item" => recipe_item
+    }
+  }
+
+  _ok_stmt(stmt_kind, facts) {
+    local recipe_item = me._build_stmt_recipe(stmt_kind, facts)
+    return me._ok(facts, recipe_item)
+  }
+
+  _new_facts(stmt_kind) {
+    local facts = new MapBox()
+    facts.set("stmt_kind", "" + stmt_kind)
+    facts.set("defs", [])
+    facts.set("updates", [])
+    facts.set("uses", [])
+    return facts
+  }
+
+  _contains_name(arr, name) {
+    if arr == null || BoxHelpers.is_array(arr) != 1 { return 0 }
+    local i = 0
+    local n = BoxHelpers.array_len(arr)
+    loop(i < n) {
+      if ("" + BoxHelpers.array_get(arr, i)) == name { return 1 }
+      i = i + 1
+    }
+    return 0
+  }
+
+  _push_name(arr, name) {
+    if name == null || ("" + name) == "" { return arr }
+    if arr == null || BoxHelpers.is_array(arr) != 1 { arr = [] }
+    name = "" + name
+    if me._contains_name(arr, name) == 0 { arr.push(name) }
+    return arr
+  }
+
+  _build_stmt_recipe(stmt_kind, facts) {
+    local item = RecipeItemBox.seq([])
+    item.set("leaf_kind", "Stmt")
+    item.set("stmt_kind", "" + stmt_kind)
+    item.set("facts", facts)
+    return item
+  }
+
+  _from_print(state_after, tag) {
+    local stmt_kind = "Print"
+    local facts = me._new_facts(stmt_kind)
+    local print_kind = "" + BoxHelpers.map_get(state_after, "print_kind")
+    local print_var_name = "" + BoxHelpers.map_get(state_after, "print_var_name")
+    if print_kind == "Var" || print_kind == "BinaryVarInt" {
+      if print_var_name == "" {
+        return me._err(tag, "[recipe_facts][stmt:Print] missing print_var_name for variable print")
+      }
+      facts.set("uses", me._push_name(BoxHelpers.map_get(facts, "uses"), print_var_name))
+    }
+    return me._ok_stmt(stmt_kind, facts)
+  }
+
+  _from_local(state_after, tag) {
+    local stmt_kind = "Local"
+    local facts = me._new_facts(stmt_kind)
+    local local_name = "" + BoxHelpers.map_get(state_after, "local_name")
+    if local_name == "" {
+      return me._err(tag, "[recipe_facts][stmt:Local] missing local_name")
+    }
+    facts.set("defs", me._push_name(BoxHelpers.map_get(facts, "defs"), local_name))
+    facts.set("updates", me._push_name(BoxHelpers.map_get(facts, "updates"), local_name))
+    return me._ok_stmt(stmt_kind, facts)
+  }
+
+  _from_assignment(state_after, tag) {
+    local stmt_kind = "Assignment"
+    local facts = me._new_facts(stmt_kind)
+    local assign_name = "" + BoxHelpers.map_get(state_after, "assign_name")
+    if assign_name == "" {
+      return me._err(tag, "[recipe_facts][stmt:Assignment] missing assign_name")
+    }
+    facts.set("updates", me._push_name(BoxHelpers.map_get(facts, "updates"), assign_name))
+    return me._ok_stmt(stmt_kind, facts)
+  }
+
+  _from_return(state_after, tag) {
+    local stmt_kind = "Return"
+    local facts = me._new_facts(stmt_kind)
+    local return_kind = "" + BoxHelpers.map_get(state_after, "return_kind")
+    if return_kind == "" {
+      return me._err(tag, "[recipe_facts][stmt:Return] missing return_kind")
+    }
+    if return_kind == "Var" {
+      local ret_var_name = "" + BoxHelpers.map_get(state_after, "ret_var_name")
+      if ret_var_name == "" {
+        return me._err(tag, "[recipe_facts][stmt:Return] missing ret_var_name for Return(Var)")
+      }
+      facts.set("uses", me._push_name(BoxHelpers.map_get(facts, "uses"), ret_var_name))
+    }
+    return me._ok_stmt(stmt_kind, facts)
+  }
+
+  from_stmt(stmt_kind, state_before, state_after, tag) {
+    tag = me._tag(tag)
+    if stmt_kind == null || ("" + stmt_kind) == "" {
+      return me._err(tag, "[recipe_facts] missing stmt kind")
+    }
+    if state_before == null || BoxHelpers.is_map(state_before) != 1 {
+      return me._err(tag, "[recipe_facts] missing state_before map")
+    }
+    if state_after == null || BoxHelpers.is_map(state_after) != 1 {
+      return me._err(tag, "[recipe_facts] missing state_after map")
+    }
+
+    stmt_kind = "" + stmt_kind
+    if stmt_kind == "Print" { return me._from_print(state_after, tag) }
+    if stmt_kind == "Local" { return me._from_local(state_after, tag) }
+    if stmt_kind == "Assignment" { return me._from_assignment(state_after, tag) }
+    if stmt_kind == "Return" { return me._from_return(state_after, tag) }
+    return me._err(tag, "[recipe_facts][stmt:" + stmt_kind + "] unsupported stmt kind")
+  }
+}
+
+static box RecipeFactsBoxMain { main() { return 0 } }

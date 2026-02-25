@@ -1,0 +1,15 @@
+box Node {
+    weak parent
+    weak sibling
+}
+
+static box Main {
+    main() {
+        local n1 = new Node()
+        local n2 = new Node()
+        n1.parent = weak n2
+        n1.sibling = n1.parent  // ✅ WeakRef → WeakRef
+        print("OK: weak field transfer")
+        return 0
+    }
+}

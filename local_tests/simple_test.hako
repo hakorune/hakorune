@@ -1,0 +1,3 @@
+console = new ConsoleBox()
+console.log("Hello from Nyash\!")
+console.log("Build test passed\!")

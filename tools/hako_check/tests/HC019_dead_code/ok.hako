@@ -1,0 +1,20 @@
+// ok.hako — all code is reachable
+
+static box HelperBox {
+  method compute() {
+    return 42
+  }
+}
+
+static box Main {
+  method main() {
+    me.helper()
+    local h = new HelperBox()
+    h.compute()
+    return 0
+  }
+
+  method helper() {
+    return 1
+  }
+}

@@ -1,0 +1,11 @@
+static box Main {
+  main(args) {
+    local x = 1
+    if x == 1 {
+      local a = 0
+    } else {
+      local b = 0
+    }
+    return 7
+  }
+}

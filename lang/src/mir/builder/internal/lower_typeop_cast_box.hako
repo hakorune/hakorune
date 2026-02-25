@@ -1,0 +1,27 @@
+// lower_typeop_cast_box.hako — Minimal structural MIR for typeop(Cast)
+
+static box LowerTypeOpCastBox {
+  _accept_shape(s) {
+    if s.indexOf("\"type\":\"Return\"") < 0 { return 0 }
+    // Keep control-flow shapes on dedicated lowers.
+    if s.indexOf("\"type\":\"If\"") >= 0 { return 0 }
+    if s.indexOf("\"type\":\"Loop\"") >= 0 { return 0 }
+    if s.indexOf("\"type\":\"Method\"") < 0 { return 0 }
+    if s.indexOf("\"method\":\"as\"") < 0 && s.indexOf("\"method\":\"cast\"") < 0 { return 0 }
+    if s.indexOf("\"type\":\"String\"") < 0 { return 0 }
+    return 1
+  }
+
+  try_lower(program_json) {
+    if program_json == null { return null }
+    local s = "" + program_json
+    if me._accept_shape(s) != 1 { return null }
+    // Emit v1 JSON: const 100 -> v1, typeop Cast v1 -> v2 (IntegerBox), const 0 -> v3, ret v3
+    local json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
+               "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":100}}," +
+               "{\"op\":\"typeop\",\"op_kind\":\"Cast\",\"dst\":2,\"value\":1,\"ty\":\"IntegerBox\"}," +
+               "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+               "{\"op\":\"ret\",\"value\":3}]}]}]}"
+    return json
+  }
+}

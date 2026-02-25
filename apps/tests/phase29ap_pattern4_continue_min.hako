@@ -1,0 +1,17 @@
+// Phase 29ap P8: Pattern4 continue minimal fixture (plan routing)
+// Expected output: 6
+
+static box Main {
+    main() {
+        local i, sum
+        i = 0
+        sum = 0
+        loop(i < 4) {
+            if (i == 0) { i = i + 1; continue }
+            sum = sum + i
+            i = i + 1
+        }
+        print(sum)
+        return 0
+    }
+}

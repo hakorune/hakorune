@@ -1,0 +1,38 @@
+// Hako v1 Typed IR (SSOT) — structure only
+// Responsibility: Define minimal typed IR boxes used as a shared structure
+// for reading/writing MIR v1 in Hakorune components. No execution logic.
+
+box V1ConstIR {
+  value: StringBox
+  target_reg: IntegerBox
+}
+
+box V1CompareIR {
+  op: StringBox
+  lhs: IntegerBox
+  rhs: IntegerBox
+  target_reg: IntegerBox
+}
+
+box V1BranchIR {
+  condition: IntegerBox
+  then_block: IntegerBox
+  else_block: IntegerBox
+}
+
+box V1JumpIR {
+  target_block: IntegerBox
+}
+
+// incoming: [[pred:int, val:int], ...]
+box V1PhiIR {
+  target_reg: IntegerBox
+  incoming: ArrayBox
+}
+
+box V1RetIR {
+  value: IntegerBox
+}
+
+static box V1IrTypesMain { method main(args) { return 0 } }
+

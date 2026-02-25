@@ -1,0 +1,29 @@
+// state.hako — NyVmState (skeleton)
+// Holds registers and temporary memory. Numeric-only for Phase‑1.
+static box NyVmState {
+  make() {
+    local s = new MapBox()
+    s.set("regs", new MapBox())
+    s.set("mem", new MapBox())
+    return s
+  }
+  _reg_key(id) {
+    using selfhost.shared.common.string_helpers as StringHelpers
+    return "r" + StringHelpers.int_to_str(id)
+  }
+  get_reg(s, id) {
+    local key = me._reg_key(id)
+    local regs = s.get("regs")
+    local v = regs.get(key)
+    if v == null { return 0 }
+    return v
+  }
+  set_reg(s, id, value) {
+    local key = me._reg_key(id)
+    local regs = s.get("regs")
+    regs.set(key, value)
+    return 0
+  }
+}
+
+static box NyVmStateMain { main(args){ return 0 } }

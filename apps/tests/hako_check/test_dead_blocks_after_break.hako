@@ -1,0 +1,31 @@
+// Test Case 4: Code after break in loop is unreachable
+// Expected: HC020 for block after break within loop body
+
+static box TestAfterBreak {
+  method test() {
+    local i = 0
+    loop (i < 10) {
+      if i == 5 {
+        break
+      }
+      i = i + 1
+      // Code after break would be unreachable if break is unconditional
+    }
+    return i
+  }
+
+  method test_unconditional() {
+    loop (1) {
+      break
+      // This is definitely unreachable
+      local x = 1
+    }
+    return 0
+  }
+
+  method main() {
+    local r1 = me.test()
+    local r2 = me.test_unconditional()
+    return r2
+  }
+}

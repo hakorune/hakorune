@@ -1,0 +1,10 @@
+// Map literal percent form: %{"k" => v}
+// Expected: stdout=0, RC=0
+static box Main {
+  main() {
+    local m = %{"a" => 1}
+    print(0)
+    return 0
+  }
+}
+

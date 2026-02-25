@@ -1,0 +1,15 @@
+box Node {
+    public { weak parent, weak delegate }
+    private { secret }
+}
+
+static box Main {
+    main() {
+        local n1 = new Node()
+        local n2 = new Node()
+        n1.parent = weak n2  // ✅ public weak field
+        n1.delegate = weak n2  // ✅ public weak field
+        print("OK: visibility block with weak")
+        return 0
+    }
+}

@@ -1,0 +1,23 @@
+// phase29y_continue_assignment_in_continue_min.hako
+// Regression contract:
+// - assignment inside continue branch must be preserved on next iteration.
+// Contract (current): FINAL=7
+
+static box Main {
+  main(args) {
+    local final = 0
+    local i = 0
+
+    loop (i < 3) {
+      if i == 1 {
+        final = 7
+        i = i + 1
+        continue
+      }
+      i = i + 1
+    }
+
+    print("FINAL=" + final)
+    return 0
+  }
+}

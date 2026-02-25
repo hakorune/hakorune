@@ -1,0 +1,19 @@
+// Phase 132: Minimal test for loop variable return value
+//
+// Tests that exit PHI correctly returns the final loop variable value
+// (not the initial value or module-level garbage).
+//
+// Expected output: RC:3
+// - loop runs 3 iterations (i=0,1,2)
+// - returns final i value (3)
+
+static box Main {
+    main() {
+        local i
+        i = 0
+        loop(i < 3) {
+            i = i + 1
+        }
+        return i
+    }
+}

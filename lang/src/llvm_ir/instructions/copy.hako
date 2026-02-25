@@ -1,0 +1,51 @@
+// LLVM Copy Instruction Box — Python copy.py のHakorune実装
+// MIRコピー命令をJSON形式に変換し、C++バックエンドに渡す
+
+static box LLVMCopyInstructionBox {
+
+  // メインエントリーポイント - Pythonのlower_copy()に相当
+  lower_copy(dst, src) {
+    return me.inst_copy(dst, src)
+  }
+
+  // コピー命令の生成
+  inst_copy(dst, src) {
+    // JSON: {"op":"copy","dst":4,"src":2}
+    return "{\"op\":\"copy\",\"dst\":" + dst + ",\"src\":" + src + "}"
+  }
+
+  // デバッグ用 - 生成された命令の確認
+  debug_copy(dst, src) {
+    local json = me.lower_copy(dst, src)
+    print("Generated copy instruction: " + json)
+    return json
+  }
+
+  // 値の移動（エイリアス）
+  move_value(src_reg, dst_reg) {
+    return me.inst_copy(dst_reg, src_reg)
+  }
+
+  // レジスタのコピー
+  copy_register(src, dst) {
+    return me.inst_copy(dst, src)
+  }
+
+  // パラメータのコピー
+  copy_param(param_num, dst_reg) {
+    return me.inst_copy(dst_reg, param_num)
+  }
+
+  // 複数のコピーをまとめて生成
+  batch_copy(copy_list) {
+    local results = []
+    local i = 0
+    while i < copy_list.length() {
+      local copy = copy_list[i]
+      local json = me.lower_copy(copy.dst, copy.src)
+      results.push(json)
+      i = i + 1
+    }
+    return results
+  }
+}

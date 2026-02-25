@@ -1,0 +1,2 @@
+# intentional [modules] override allowlist
+# (empty by default; new entries require explicit review + SSOT update)

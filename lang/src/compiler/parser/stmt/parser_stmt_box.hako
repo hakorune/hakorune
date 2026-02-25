@@ -1,0 +1,643 @@
+// Moved from apps/selfhost-compiler/boxes/parser/stmt/parser_stmt_box.hako
+// ParserStmtBox — statement parser coordinator
+// Responsibility: Parse statements and delegate to specialized boxes
+// API: parse(src, i, ctx) -> JSON
+
+using sh_core as StringHelpers  // Required: using chain resolution not implemented
+using lang.compiler.parser.stmt.parser_control_box
+using lang.compiler.parser.stmt.parser_exception_box
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+
+static box ParserStmtBox {
+  parse(src, i, ctx) {
+    // Shallow recursion guard: prevent ParserStmtBox.parse from recursively
+    // re-entering itself on the same VM stack（Stage‑B/selfhost 安全弁）。
+    {
+      local depth = env.get("HAKO_STAGEB_STMT_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/recursion] ParserStmtBox.parse recursion detected")
+        // Allow re-entry: reset depth to 1 and continue（ドロップしない）
+        env.set("HAKO_STAGEB_STMT_DEPTH", "1")
+      } else {
+        env.set("HAKO_STAGEB_STMT_DEPTH", "1")
+      }
+    }
+    local j = ParserStringUtilsBox.skip_ws(src, i)
+    // VM 差分で skip_ws が前進しないパスがあったため、手動で最小限の空白スキップをフォローする。
+    {
+      local n = src.length()
+      local jj = j
+      loop(jj < n) {
+        local ch = src.substring(jj, jj+1)
+        if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { jj = jj + 1 } else { break }
+      }
+      j = jj
+    }
+    {
+      local tr = env.get("NYASH_PARSER_TRACE")
+      if tr != null && ("" + tr) == "1" {
+        local ch0 = ""
+        if j < src.length() { ch0 = src.substring(j, j+1) }
+        print("[parser/stmt] enter j=" + ("" + j) + " ch=\"" + ch0 + "\"")
+      }
+    }
+    local stmt_start = j
+
+    if me.is_opt_annotation_prefix(src, j, ctx) == 1 {
+      me.clear_annotation_contract()
+      if ctx.opt_annotations_enabled() != 1 {
+        local msg_reserved = "[freeze:contract][parser/annotation_reserved] enable NYASH_FEATURES=opt-annotations"
+        me.fail_annotation_contract(msg_reserved, src)
+        return msg_reserved
+      }
+      local next_j = me.parse_opt_annotation(src, j, ctx)
+      local anno_err = me.get_annotation_contract()
+      if anno_err.length() > 0 {
+        ctx.gpos_set(src.length())
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return anno_err
+      }
+      if next_j <= stmt_start {
+        if stmt_start < src.length() { next_j = stmt_start + 1 } else { next_j = src.length() }
+      }
+      ctx.gpos_set(next_j)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return ""
+    }
+
+    // annotation: @extern_c("c_symbol","Func/Arity");
+    if ctx.starts_with(src, j, "@extern_c") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=extern_c j=" + ("" + j))
+        }
+      }
+      j = j + 9 // len(\"@extern_c\")
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j+1) == "(" { j = j + 1 }
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      // First string literal: symbol
+      local sym = ""
+      if j < src.length() && src.substring(j, j+1) == "\"" {
+        sym = ctx.read_string_lit(src, j)
+        j = ctx.gpos_get()
+      }
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j+1) == "," { j = j + 1 }
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      // Second string literal: func
+      local func_name = ""
+      if j < src.length() && src.substring(j, j+1) == "\"" {
+        func_name = ctx.read_string_lit(src, j)
+        j = ctx.gpos_get()
+      }
+      // Skip to ')' if present
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j+1) == ")" { j = j + 1 }
+      // Optional semicolon is consumed by caller; still advance if present
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j+1) == ";" { j = j + 1 }
+      ctx.gpos_set(j)
+      // Record annotation in parser context and emit no statement
+      ctx.add_extern_c(sym, func_name)
+      // Reset recursion guard before returning（1回の parse 呼び出しごとに depth をクリアする）
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return ""
+    }
+
+    // using statement
+    if ctx.starts_with_kw(src, j, "using") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=using j=" + ("" + j))
+        }
+      }
+      local out_using = me.parse_using(src, j, stmt_start, ctx)
+      // Reset recursion guard before returning
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_using
+    }
+
+    // return statement
+    if ctx.starts_with_kw(src, j, "return") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=return j=" + ("" + j))
+        }
+      }
+      j = j + 6
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      local default_ret = "{\"type\":\"Int\",\"value\":0}"
+      local expr_json_ret = default_ret
+      local end_pos_ret = j
+      if j < src.length() {
+        local ahead_ret = src.substring(j, j+1)
+        if ahead_ret != "}" && ahead_ret != ";" {
+          expr_json_ret = ctx.parse_expr2(src, j)
+          end_pos_ret = ctx.gpos_get()
+        }
+      }
+      j = end_pos_ret
+      if j <= stmt_start {
+        if j < src.length() { j = j + 1 } else { j = src.length() }
+      }
+      ctx.gpos_set(j)
+      // Reset recursion guard before returning
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return "{\"type\":\"Return\",\"expr\":" + expr_json_ret + "}"
+    }
+
+    // print statement (lower to env.console.log extern)
+    // This keeps Program(JSON v0) runnable under --json-file even when plugins are disabled.
+    if ctx.starts_with_kw(src, j, "print") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=print j=" + ("" + j))
+        }
+      }
+      j = j + 5
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j+1) == "(" { j = j + 1 }
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      local expr_json = "{\"type\":\"Int\",\"value\":0}"
+      local end_pos = j
+      if j < src.length() {
+        local ahead = src.substring(j, j+1)
+        if ahead != ")" && ahead != "}" && ahead != ";" {
+          expr_json = ctx.parse_expr2(src, j)
+          end_pos = ctx.gpos_get()
+        }
+      }
+      j = end_pos
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j+1) == ")" { j = j + 1 }
+      if j <= stmt_start {
+        if j < src.length() { j = j + 1 } else { j = src.length() }
+      }
+      ctx.gpos_set(j)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return "{\"type\":\"Extern\",\"iface\":\"env.console\",\"method\":\"log\",\"args\":[" + expr_json + "]}"
+    }
+
+    // local declaration (Stage-3 compatible: supports both 'local' and 'LOCAL')
+    local is_local_kw = 0
+    local kw_len = 0
+    if ctx.starts_with_kw(src, j, "local") == 1 {
+      is_local_kw = 1
+      kw_len = 5
+    }
+    if is_local_kw == 0 && ctx.stage3_enabled() == 1 {
+      if ctx.starts_with_kw(src, j, "LOCAL") == 1 {
+        is_local_kw = 1
+        kw_len = 5
+      }
+    }
+
+    if is_local_kw == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=local j=" + ("" + j))
+        }
+      }
+      j = j + kw_len
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      local local_stmt_json = ""
+      local local_stmt_first = 1
+
+      loop(true) {
+        local idp = ctx.read_ident2(src, j)
+        local at = idp.lastIndexOf("@")
+        local name = idp.substring(0, at)
+        j = ctx.to_int(idp.substring(at+1, idp.length()))
+        j = ParserStringUtilsBox.skip_ws(src, j)
+
+        local has_initializer = 0
+        if j < src.length() && src.substring(j, j+1) == "=" {
+          local eq_two_local = "="
+          if j + 1 < src.length() { eq_two_local = src.substring(j, j+2) }
+          if eq_two_local != "==" {
+            has_initializer = 1
+            j = j + 1
+          }
+        }
+        j = ParserStringUtilsBox.skip_ws(src, j)
+
+        local expr_json_local = "{\"type\":\"Null\"}"
+        local end_pos_local = j
+        if has_initializer == 1 {
+          local default_local = "{\"type\":\"Int\",\"value\":0}"
+          expr_json_local = default_local
+          if j < src.length() {
+            local ahead_local = src.substring(j, j+1)
+            if ahead_local != "}" && ahead_local != ";" && ahead_local != "," {
+              expr_json_local = ctx.parse_expr2(src, j)
+              end_pos_local = ctx.gpos_get()
+            }
+          }
+        }
+        j = end_pos_local
+
+        local one_local_stmt = "{\"type\":\"Local\",\"name\":\"" + name + "\",\"expr\":" + expr_json_local + "}"
+        if local_stmt_first == 1 {
+          local_stmt_json = one_local_stmt
+          local_stmt_first = 0
+        } else {
+          local_stmt_json = local_stmt_json + "," + one_local_stmt
+        }
+
+        j = ParserStringUtilsBox.skip_ws(src, j)
+        if j < src.length() && src.substring(j, j+1) == "," {
+          j = j + 1
+          j = ParserStringUtilsBox.skip_ws(src, j)
+          continue
+        }
+        break
+      }
+
+      local j_local_tail = ParserStringUtilsBox.skip_ws(src, j)
+      if ctx.starts_with_kw(src, j_local_tail, "fini") == 1 {
+        local prelude_json = "[" + local_stmt_json + "]"
+        local out_local_fini = ParserExceptionBox.parse_fini_with_prelude(src, j_local_tail, stmt_start, ctx, prelude_json)
+        // Reset recursion guard before returning
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return out_local_fini
+      }
+      if j <= stmt_start {
+        if j < src.length() { j = j + 1 } else { j = src.length() }
+      }
+      ctx.gpos_set(j)
+      // Reset recursion guard before returning
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return local_stmt_json
+    }
+
+    // Delegate to specialized boxes
+    if ctx.starts_with_kw(src, j, "if") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=if j=" + ("" + j))
+        }
+      }
+      local out_if = ParserControlBox.parse_if(src, j, stmt_start, ctx)
+      // Reset recursion guard before returning
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_if
+    }
+
+    if ctx.starts_with_kw(src, j, "loop") == 1 {
+      // Guard: require an actual loop header `loop (...)` (keyword boundary is not enough).
+      // This prevents false positives like `loop_depth_before = 0` inside Stage‑B compiler code.
+      local k_loop = j + 4
+      k_loop = ParserStringUtilsBox.skip_ws(src, k_loop)
+      if k_loop >= src.length() || src.substring(k_loop, k_loop+1) != "(" {
+        // Not a loop statement; fall through to assignment / expr.
+      } else {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=loop j=" + ("" + j))
+        }
+      }
+      local out_loop = ParserControlBox.parse_loop(src, j, stmt_start, ctx)
+      // Reset recursion guard before returning
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_loop
+      }
+    }
+
+    if ctx.starts_with_kw(src, j, "break") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=break j=" + ("" + j))
+        }
+      }
+      local out_break = ParserControlBox.parse_break(src, j, stmt_start, ctx)
+      // Reset recursion guard before returning
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_break
+    }
+
+    if ctx.starts_with_kw(src, j, "continue") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=continue j=" + ("" + j))
+        }
+      }
+      local out_cont = ParserControlBox.parse_continue(src, j, stmt_start, ctx)
+      // Reset recursion guard before returning
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_cont
+    }
+
+    if ctx.starts_with_kw(src, j, "throw") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=throw j=" + ("" + j))
+        }
+      }
+      local out_throw = ParserExceptionBox.parse_throw(src, j, stmt_start, ctx)
+      // Reset recursion guard before returning
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_throw
+    }
+
+    if ctx.starts_with_kw(src, j, "try") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=try j=" + ("" + j))
+        }
+      }
+      local out_try = ParserExceptionBox.parse_try(src, j, stmt_start, ctx)
+      // Reset recursion guard before returning
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_try
+    }
+
+    if ctx.starts_with_kw(src, j, "fini") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=fini j=" + ("" + j))
+        }
+      }
+      local out_fini = ParserExceptionBox.parse_fini(src, j, stmt_start, ctx)
+      // Reset recursion guard before returning
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_fini
+    }
+
+    // Stage-3: try-less postfix handler path.
+    // Route only `{ ... } catch/cleanup ...` here; plain `{ ... }` stays on expr fallback path.
+    if ctx.stage3_enabled() == 1 {
+      if j < src.length() && src.substring(j, j+1) == "{" {
+        local has_postfix_kw = 0
+        if ctx.index_of(src, j, "cleanup") >= 0 { has_postfix_kw = 1 }
+        if has_postfix_kw == 0 {
+          if ctx.index_of(src, j, "catch") >= 0 { has_postfix_kw = 1 }
+        }
+        if has_postfix_kw == 1 {
+          {
+            local tr = env.get("NYASH_PARSER_TRACE")
+            if tr != null && ("" + tr) == "1" {
+              print("[parser/stmt] kind=block-postfix-stage3 j=" + ("" + j))
+            }
+          }
+          local out_block_postfix = ParserExceptionBox.parse_block_postfix(src, j, stmt_start, ctx)
+          if out_block_postfix != null && out_block_postfix.length() > 0 {
+            env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+            return out_block_postfix
+          }
+        }
+      }
+    }
+
+    // assignment: IDENT '=' expr（キーワードより後段に配置して、'loop' などを誤認しないようにする）
+    if j < src.length() && ctx.is_alpha(src.substring(j, j+1)) {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=assign-or-local j=" + ("" + j))
+        }
+      }
+      local idp0 = ctx.read_ident2(src, j)
+      local at0 = idp0.lastIndexOf("@")
+      if at0 > 0 {
+        local name0 = idp0.substring(0, at0)
+        local k0 = ctx.to_int(idp0.substring(at0+1, idp0.length()))
+        k0 = ParserStringUtilsBox.skip_ws(src, k0)
+        if k0 < src.length() && src.substring(k0, k0+1) == "=" {
+          local eq_two = "="
+          if k0 + 1 < src.length() { eq_two = src.substring(k0, k0+2) }
+          if eq_two != "==" {
+            k0 = k0 + 1
+            k0 = ParserStringUtilsBox.skip_ws(src, k0)
+            local default_local = "{\"type\":\"Int\",\"value\":0}"
+            local expr_json0 = default_local
+            local end_pos0 = k0
+            if k0 < src.length() {
+              local ahead = src.substring(k0, k0+1)
+              if ahead != "}" && ahead != ";" {
+                expr_json0 = ctx.parse_expr2(src, k0)
+                end_pos0 = ctx.gpos_get()
+              }
+            }
+            k0 = end_pos0
+            if k0 <= stmt_start {
+              if k0 < src.length() { k0 = k0 + 1 } else { k0 = src.length() }
+            }
+            ctx.gpos_set(k0)
+            // Reset recursion guard before returning
+            env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+            return "{\"type\":\"Local\",\"name\":\"" + name0 + "\",\"expr\":" + expr_json0 + "}"
+          }
+        }
+      }
+    }
+
+    // Fallback: expression or unknown token
+    {
+      local tr = env.get("NYASH_PARSER_TRACE")
+      if tr != null && ("" + tr) == "1" {
+        print("[parser/stmt] kind=expr j=" + ("" + j))
+      }
+    }
+    local expr_start = j
+    local e = ctx.parse_expr2(src, j)
+    j = ctx.gpos_get()
+    if j <= expr_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    // Clear depth guard before returning
+    env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+    return "{\"type\":\"Expr\",\"expr\":" + e + "}"
+  }
+
+  // Parse using statement
+  parse_using(src, i, stmt_start, ctx) {
+    local j = i + 5  // skip "using"
+    j = ParserStringUtilsBox.skip_ws(src, j)
+
+    if src.substring(j, j+1) == "\"" {
+      local p = ctx.read_string_lit(src, j)
+      j = ctx.gpos_get()
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      local alias = null
+      if ctx.starts_with_kw(src, j, "as") == 1 {
+        j = j + 2
+        j = ParserStringUtilsBox.skip_ws(src, j)
+        local idp = ctx.read_ident2(src, j)
+        local at = idp.lastIndexOf("@")
+        alias = idp.substring(0, at)
+        j = ctx.to_int(idp.substring(at+1, idp.length()))
+      }
+      ctx.add_using("path", p, alias)
+    } else {
+      if ctx.is_alpha(src.substring(j, j+1)) {
+        local idp = ctx.read_ident2(src, j)
+        local at = idp.lastIndexOf("@")
+        local name = idp.substring(0, at)
+        j = ctx.to_int(idp.substring(at+1, idp.length()))
+        // MirBuilder-friendly: explicit break instead of flag
+        loop(true) {
+          j = ParserStringUtilsBox.skip_ws(src, j)
+          if src.substring(j, j+1) != "." { break }
+          j = j + 1
+          j = ParserStringUtilsBox.skip_ws(src, j)
+          idp = ctx.read_ident2(src, j)
+          at = idp.lastIndexOf("@")
+          name = name + "." + idp.substring(0, at)
+          j = ctx.to_int(idp.substring(at+1, idp.length()))
+        }
+        j = ParserStringUtilsBox.skip_ws(src, j)
+        local alias2 = null
+        if ctx.starts_with_kw(src, j, "as") == 1 {
+          j = j + 2
+          j = ParserStringUtilsBox.skip_ws(src, j)
+          idp = ctx.read_ident2(src, j)
+          at = idp.lastIndexOf("@")
+          alias2 = idp.substring(0, at)
+          j = ctx.to_int(idp.substring(at+1, idp.length()))
+        }
+        ctx.add_using("ns", name, alias2)
+      }
+    }
+
+    // ensure progress
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    // Reset recursion guard before returning (using statements participate in stmt depth tracking)
+    env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+    return ""
+  }
+
+  is_opt_annotation_prefix(src, j, ctx) {
+    if ctx.starts_with(src, j, "@hint") == 1 { return 1 }
+    if ctx.starts_with(src, j, "@contract") == 1 { return 1 }
+    if ctx.starts_with(src, j, "@intrinsic_candidate") == 1 { return 1 }
+    return 0
+  }
+
+  clear_annotation_contract() {
+    env.set("HAKO_PARSER_ANNOTATION_ERR", "")
+    return 0
+  }
+
+  get_annotation_contract() {
+    local msg = env.get("HAKO_PARSER_ANNOTATION_ERR")
+    if msg == null { return "" }
+    return "" + msg
+  }
+
+  fail_annotation_contract(msg, src) {
+    local out = "" + msg
+    env.set("HAKO_PARSER_ANNOTATION_ERR", out)
+    env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+    print(out)
+    // Fail-fast is propagated structurally through parse_block/parse_program.
+    if src == null { return 0 }
+    return src.length()
+  }
+
+  parse_opt_annotation(src, j, ctx) {
+    local k = j + 1  // skip '@'
+    k = ParserStringUtilsBox.skip_ws(src, k)
+
+    local idp = ctx.read_ident2(src, k)
+    local at = idp.lastIndexOf("@")
+    if at <= 0 {
+      return me.fail_annotation_contract("[freeze:contract][parser/annotation] annotation name after '@'", src)
+    }
+    local name = idp.substring(0, at)
+    k = ctx.to_int(idp.substring(at+1, idp.length()))
+    k = ParserStringUtilsBox.skip_ws(src, k)
+
+    if k >= src.length() || src.substring(k, k+1) != "(" {
+      if name == "hint" {
+        return me.fail_annotation_contract("[freeze:contract][parser/annotation] @hint(<ident>)", src)
+      }
+      if name == "contract" {
+        return me.fail_annotation_contract("[freeze:contract][parser/annotation] @contract(<ident>)", src)
+      }
+      if name == "intrinsic_candidate" {
+        return me.fail_annotation_contract("[freeze:contract][parser/annotation] @intrinsic_candidate(\"symbol\")", src)
+      }
+      return me.fail_annotation_contract("[freeze:contract][parser/annotation] supported: hint|contract|intrinsic_candidate", src)
+    }
+    k = k + 1
+    k = ParserStringUtilsBox.skip_ws(src, k)
+
+    if name == "hint" {
+      local argp = ctx.read_ident2(src, k)
+      local at_arg = argp.lastIndexOf("@")
+      if at_arg <= 0 {
+        return me.fail_annotation_contract("[freeze:contract][parser/annotation] @hint(<ident>)", src)
+      }
+      local arg = argp.substring(0, at_arg)
+      if arg != "inline" && arg != "noinline" && arg != "hot" && arg != "cold" {
+        return me.fail_annotation_contract("[freeze:contract][parser/annotation] @hint(inline|noinline|hot|cold)", src)
+      }
+      k = ctx.to_int(argp.substring(at_arg+1, argp.length()))
+    } else {
+      if name == "contract" {
+        local argp = ctx.read_ident2(src, k)
+        local at_arg = argp.lastIndexOf("@")
+        if at_arg <= 0 {
+          return me.fail_annotation_contract("[freeze:contract][parser/annotation] @contract(<ident>)", src)
+        }
+        local arg = argp.substring(0, at_arg)
+        if arg != "pure" && arg != "readonly" && arg != "no_alloc" && arg != "no_safepoint" {
+          return me.fail_annotation_contract("[freeze:contract][parser/annotation] @contract(pure|readonly|no_alloc|no_safepoint)", src)
+        }
+        k = ctx.to_int(argp.substring(at_arg+1, argp.length()))
+      } else {
+        if name == "intrinsic_candidate" {
+          if k >= src.length() {
+            return me.fail_annotation_contract("[freeze:contract][parser/annotation] @intrinsic_candidate(\"symbol\")", src)
+          }
+          local q = src.substring(k, k+1)
+          if q != "\"" && q != "'" {
+            return me.fail_annotation_contract("[freeze:contract][parser/annotation] @intrinsic_candidate(\"symbol\")", src)
+          }
+          local sym = ctx.read_string_lit(src, k)
+          if sym == null || sym.length() == 0 {
+            return me.fail_annotation_contract("[freeze:contract][parser/annotation] @intrinsic_candidate(\"symbol\") with non-empty symbol", src)
+          }
+          k = ctx.gpos_get()
+        } else {
+          return me.fail_annotation_contract("[freeze:contract][parser/annotation] supported: hint|contract|intrinsic_candidate", src)
+        }
+      }
+    }
+
+    k = ParserStringUtilsBox.skip_ws(src, k)
+    if k >= src.length() || src.substring(k, k+1) != ")" {
+      if name == "hint" {
+        return me.fail_annotation_contract("[freeze:contract][parser/annotation] @hint(inline|noinline|hot|cold)", src)
+      }
+      if name == "contract" {
+        return me.fail_annotation_contract("[freeze:contract][parser/annotation] @contract(pure|readonly|no_alloc|no_safepoint)", src)
+      }
+      if name == "intrinsic_candidate" {
+        return me.fail_annotation_contract("[freeze:contract][parser/annotation] @intrinsic_candidate(\"symbol\")", src)
+      }
+      return me.fail_annotation_contract("[freeze:contract][parser/annotation] supported: hint|contract|intrinsic_candidate", src)
+    }
+    k = k + 1
+    k = ParserStringUtilsBox.skip_ws(src, k)
+    if k < src.length() && src.substring(k, k+1) == ";" { k = k + 1 }
+    return k
+  }
+}

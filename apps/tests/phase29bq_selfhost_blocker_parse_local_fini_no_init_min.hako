@@ -1,0 +1,15 @@
+// Phase 29bq parser handoff: local no-init + fini should register DropScope cleanup
+// Expected output: BA
+static box Main {
+  main() {
+    local out = ""
+    {
+      local a fini {
+        out = out + "A"
+      }
+      out = out + "B"
+    }
+    print(out)
+    return 0
+  }
+}

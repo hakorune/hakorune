@@ -1,0 +1,157 @@
+// LLVM PHI Instruction Box — Python phi.py のHakorune実装
+// MIR PHI命令（SSA値マージング）をJSON形式に変換し、C++バックエンドに渡す
+//
+// PHI命令はSSA形式で制御フローの合流点における値のマージを表現する
+// 例: if (cond) { x = 1 } else { x = 2 } → x = PHI(1 from bb1, 2 from bb2)
+
+static box LLVMPhiInstructionBox {
+
+  // メインエントリーポイント - Pythonのlower_phi()に相当
+  // Stage 1: 基本PHI生成（JSON生成のみ）
+  //
+  // Args:
+  //   dst: 出力先レジスタID（整数）
+  //   incoming_list: incoming値のリスト
+  //     形式: [{"value":1,"block":1}, {"value":2,"block":2}, ...]
+  //     - value: 入力値のレジスタID
+  //     - block: その値が来る基本ブロックID
+  //
+  // Returns:
+  //   JSON文字列: {"op":"phi","dst":5,"incoming":[...]}
+  //
+  lower_phi(self, dst, incoming_list) {
+    // 空チェック: incoming が空の場合は 0 定数を返す
+    // Python: phi.py 34-37行の動作と同じ
+    if incoming_list == null {
+      return me._phi_empty_fallback(dst)
+    }
+
+    local list_len = incoming_list.length()
+    if list_len == 0 {
+      return me._phi_empty_fallback(dst)
+    }
+
+    // incoming配列をJSON化
+    local incoming_json = me._build_incoming_array(incoming_list)
+
+    // PHI命令のJSON形式を生成
+    // {"op":"phi","dst":5,"incoming":[{"value":1,"block":1},{"value":2,"block":2}]}
+    return "{\"op\":\"phi\",\"dst\":" + dst + ",\"incoming\":" + incoming_json + "}"
+  }
+
+  // 空のPHI: 0定数にフォールバック
+  // Python: phi.py 34-37行
+  _phi_empty_fallback(self, dst) {
+    // No incoming edges - use zero constant
+    return "{\"op\":\"const\",\"dst\":" + dst + ",\"value\":{\"type\":\"i64\",\"value\":0}}"
+  }
+
+  // incoming配列のJSON化
+  //
+  // Args:
+  //   incoming_list: [{"value":1,"block":1}, {"value":2,"block":2}, ...]
+  //
+  // Returns:
+  //   JSON配列文字列: [{"value":1,"block":1},{"value":2,"block":2}]
+  //
+  _build_incoming_array(self, incoming_list) {
+    local result = "["
+    local first = 1
+
+    // 各incoming要素をJSON化
+    local i = 0
+    local len = incoming_list.length()
+
+    loop(i < len) {
+      local item = incoming_list.get(i)
+
+      // item は {"value":X, "block":Y} の形式のMapBox
+      local value_id = item.get("value")
+      local block_id = item.get("block")
+
+      // カンマ区切り（最初の要素以外）
+      if first == 0 {
+        result = result + ","
+      }
+      first = 0
+
+      // {"value":X,"block":Y} 形式で追加
+      result = result + "{\"value\":" + value_id + ",\"block\":" + block_id + "}"
+
+      i = i + 1
+    }
+
+    result = result + "]"
+    return result
+  }
+
+  // デバッグ用 - 生成された命令の確認
+  debug_phi(self, dst, incoming_list) {
+    local json = me.lower_phi(self, dst, incoming_list)
+    print("Generated PHI instruction: " + json)
+    return json
+  }
+
+  // Stage 2 プレースホルダー: Block End Values管理（将来実装）
+  // Python: phi.py 69-79行の block_end_values スナップショット処理
+  // 注: Hakorune版では不要（C++バックエンドが処理）
+  lower_phi_with_snapshot(self, dst, incoming_list, block_end_values) {
+    // 現時点では基本版と同じ動作
+    return me.lower_phi(self, incoming_list)
+  }
+
+  // Stage 3 プレースホルダー: 型変換処理（将来実装）
+  // Python: phi.py 84-103行の型変換処理
+  // 注: Hakorune版では不要（C++バックエンドが処理）
+  lower_phi_with_type_info(self, dst, incoming_list, type_info) {
+    // 現時点では基本版と同じ動作
+    return me.lower_phi(self, incoming_list)
+  }
+
+  // Stage 4 プレースホルダー: Strict Mode（将来実装）
+  // Python: phi.py 118-121行の NYASH_LLVM_PHI_STRICT チェック
+  // 注: C++バックエンドで実装予定
+  lower_phi_strict(self, dst, incoming_list, strict_mode) {
+    // 現時点では基本版と同じ動作
+    return me.lower_phi(self, incoming_list)
+  }
+
+  // Stage 5 プレースホルダー: 文字列性伝播（将来実装）
+  // Python: phi.py 131-142行の resolver.is_stringish() 処理
+  // 注: C++バックエンドで実装予定
+  lower_phi_with_string_propagation(self, dst, incoming_list, resolver) {
+    // 現時点では基本版と同じ動作
+    return me.lower_phi(self, incoming_list)
+  }
+
+  // ヘルパー: incoming要素の検証（デバッグ用）
+  _validate_incoming(incoming_list) {
+    if incoming_list == null {
+      return 0
+    }
+
+    local len = incoming_list.length()
+    if len == 0 {
+      return 0
+    }
+
+    // 各要素が {"value":X, "block":Y} 形式か確認
+    local i = 0
+    loop(i < len) {
+      local item = incoming_list.get(i)
+
+      // value と block フィールドが存在するか
+      local has_value = item.has("value")
+      local has_block = item.has("block")
+
+      if has_value == 0 || has_block == 0 {
+        print("WARNING: Invalid incoming item at index " + i)
+        return 0
+      }
+
+      i = i + 1
+    }
+
+    return 1
+  }
+}

@@ -1,0 +1,21 @@
+// LoopCondContinueOnly Facts: body に if(...){...;continue} あり、break/return なし
+// Phase 2b-1 short-circuit fixture
+static box Main {
+    main() {
+        local i = 0
+        local s = null
+        local count = 0
+
+        // LHS (i < 0) is false → RHS (s.get(0)) must be skipped
+        // If RHS evaluated, null.get() crashes
+        loop(i < 0 && s.get(0) == 120) {
+            count = count + 1
+            if count > 5 {
+                i = 10
+                continue
+            }
+        }
+
+        print(0)
+    }
+}

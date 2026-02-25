@@ -1,0 +1,34 @@
+// Phase 186: Minimal Body-local Init Lowering Test (Pattern2)
+//
+// Tests that body-local variables with init expressions can be used in update expressions.
+//
+// Expected behavior:
+// - loop(pos < 10) iterates with break condition
+// - Each iteration:
+//   - local digit_pos = pos - start (body-local init expression)
+//   - if digit_pos >= 3 { break }
+//   - sum = sum + digit_pos (use body-local in update)
+//   - pos = pos + 1
+// - Expected sum: 0 + (0-0) + (1-0) + (2-0) = 0+0+1+2 = 3
+
+static box Main {
+    main() {
+        local sum = 0
+        local pos = 0
+        local start = 0
+
+        loop (pos < 10) {
+            local digit_pos = pos - start  // Body-local init expression (Phase 186)
+
+            if digit_pos >= 3 {
+                break  // Break when digit_pos reaches 3
+            }
+
+            sum = sum + digit_pos  // Use body-local in update (Phase 184)
+            pos = pos + 1
+        }
+
+        print(sum)  // Expected: 3 (0+0+1+2)
+        return sum
+    }
+}

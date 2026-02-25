@@ -1,0 +1,12 @@
+#[path = "../sugar_basic_test.rs"]
+pub mod sugar_basic_test;
+#[path = "../sugar_coalesce_test.rs"]
+pub mod sugar_coalesce_test;
+#[path = "../sugar_comp_assign_test.rs"]
+pub mod sugar_comp_assign_test;
+#[path = "../sugar_pipeline_test.rs"]
+pub mod sugar_pipeline_test;
+#[path = "../sugar_range_test.rs"]
+pub mod sugar_range_test;
+#[path = "../sugar_safe_access_test.rs"]
+pub mod sugar_safe_access_test;

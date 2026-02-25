@@ -1,0 +1,46 @@
+// MIR Call Smoke Test 3: Value call (dynamic function)
+// Tests Value callee type
+
+using "lang/src/llvm_ir/instructions/mir_call.hako" as MirCallInst
+
+static box Main {
+  main() {
+    print("=== MIR Call Smoke Test 3: value_simple ===")
+
+    // Simulate: func_value(arg1, arg2)
+    local callee = new MapBox()
+    callee.set("type", "Value")
+    callee.set("value", 5)  // register holding function value
+
+    local args = new ArrayBox()
+    args.push(6)  // arg1
+    args.push(7)  // arg2
+
+    // Generate mir_call JSON
+    local json = MirCallInst.lower_mir_call(null, callee, args, 8, null)
+
+    // Verify JSON structure
+    local has_mir_call = json.indexOf("\"op\":\"mir_call\"")
+    if has_mir_call < 0 {
+      print("ERROR: op not found")
+      return 1
+    }
+
+    local has_value = json.indexOf("\"type\":\"Value\"")
+    if has_value < 0 {
+      print("ERROR: Value type not found")
+      return 1
+    }
+
+    local has_value_id = json.indexOf("\"value\":5")
+    if has_value_id < 0 {
+      print("ERROR: value ID not found")
+      return 1
+    }
+
+    print("✓ PASS: value_simple mir_call generated")
+    print("Note: Actual execution requires C++ backend implementation")
+
+    return 0
+  }
+}

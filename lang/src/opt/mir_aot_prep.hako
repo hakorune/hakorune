@@ -1,0 +1,169 @@
+// AotPrepBox — MIR(JSON) prepare stage (Phase 20.12)
+// Responsibility:
+// - JSON normalization (canonicalization hook)
+// - Safe, local constant fold for minimal single-block const/binop/ret (observability/stability first)
+// Non-responsibility:
+// - Global MIR rewrites, control-flow changes, or optimizer passes（将来の AotPrepV2 へ）
+
+using selfhost.shared.mir.io as MirIoBox
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+
+static box AotPrepBox {
+  // Entry: return prepped JSON string
+  prep(json) {
+    if json == null { return json }
+    local norm = MirIoBox.normalize(json)
+    // Drop trivially-unused string consts (safe, local)
+    local d = me._drop_unused_string_consts(norm)
+    if d != null && d != "" { norm = d }
+    // Try a minimal fold; if not applicable, return normalized JSON
+    local f = me._fold_single_block_binop(norm)
+    if f != null && f != "" { return f }
+    return norm
+  }
+
+  // Minimal fold: pattern = [const i64 dst=1, const i64 dst=2, binop("+|-|*") dst=3 lhs=1 rhs=2, ret value=3]
+  _fold_single_block_binop(json) {
+    // Fast screen: must contain keys we expect
+    if json.indexOf("\"instructions\"") < 0 { return "" }
+    // Find instructions array and slice it (escape-aware)
+    local pos = JsonCursorBox.find_key_dual(json, "\"instructions\"", "\"instructions\"", 0)
+    if pos < 0 { return "" }
+    local start = json.indexOf("[", pos)
+    if start < 0 { return "" }
+    local end = JsonCursorBox.seek_array_end(json, start)
+    if end < 0 { return "" }
+    local body = json.substring(start+1, end)  // inside [ ... ]
+    // Narrow textual pattern checks (builder/wrapper generated JSON)
+    local p0 = body.indexOf("\"op\":\"const\"")
+    if p0 < 0 { return "" }
+    // Extract the two immediate values by scanning digits after known markers
+    local k1 = "\"value\":{\"type\":\"i64\",\"value\":"
+    local a_pos = body.indexOf(k1, p0)
+    if a_pos < 0 { return "" }
+    a_pos = a_pos + k1.length()
+    local a_s = JsonCursorBox.digits_from(body, a_pos)
+    if a_s == null || a_s == "" { return "" }
+    local p1 = body.indexOf("\"op\":\"const\"", a_pos)
+    if p1 < 0 { return "" }
+    local b_pos = body.indexOf(k1, p1)
+    if b_pos < 0 { return "" }
+    b_pos = b_pos + k1.length()
+    local b_s = JsonCursorBox.digits_from(body, b_pos)
+    if b_s == null || b_s == "" { return "" }
+    // operation symbol
+    local opk_pos = body.indexOf("\"operation\":\"", b_pos)
+    if opk_pos < 0 { return "" }
+    opk_pos = opk_pos + 14
+    local opk = body.substring(opk_pos, opk_pos+1)
+    if !(opk == "+" || opk == "-" || opk == "*") { return "" }
+    // ret id must be 3 in wrapper style; safe check
+    if body.indexOf("\"op\":\"ret\"", opk_pos) < 0 { return "" }
+    // Compute
+    local av = me._to_i64(a_s)
+    local bv = me._to_i64(b_s)
+    local rv = 0
+    if opk == "+" { rv = av + bv }
+    else if opk == "-" { rv = av - bv }
+    else { rv = av * bv }
+    // Build folded instruction array: [const rv -> dst:1, ret 1]
+    local folded = "[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + (""+rv) + "}},{\"op\":\"ret\",\"value\":1}]"
+    // Splice back into whole JSON and return
+    return json.substring(0, start+1) + folded + json.substring(end, json.length())
+  }
+
+  _to_i64(s) {
+    // crude but sufficient for our immediate range
+    local i = 0; local neg = 0
+    if s.length() > 0 && s.substring(0,1) == "-" { neg = 1; i = 1 }
+    local out = 0
+    loop (i < s.length()) {
+      local ch = s.substring(i, i+1)
+      if ch < "0" || ch > "9" { break }
+      out = out * 10 + (ch - "0")
+      i = i + 1
+    }
+    if neg { out = 0 - out }
+    return out
+  }
+
+  // Remove const string-handle instructions whose dst is never referenced.
+  // Heuristic (safe): textual scan limited to const(StringBox) objects; validate no reference patterns after.
+  _drop_unused_string_consts(json) {
+    if json == null { return "" }
+    local i = 0
+    local changed = 0
+    // Pattern head we search: "op":"const","dst":<N>,"value":{"type":{"box_type":"StringBox"
+    local pat = "\"op\":\"const\",\"dst\":"
+    loop (true) {
+      local p = json.indexOf(pat, i)
+      if p < 0 { break }
+      // Parse dst number
+      local pnum = p + pat.length()
+      local digits = JsonCursorBox.digits_from(json, pnum)
+      if digits == null || digits == "" { i = p + 1; continue }
+      local dst_s = digits
+      // Check it is a StringBox const
+      local val_pos = json.indexOf("\"value\":", pnum)
+      if val_pos < 0 { i = p + 1; continue }
+      local box_pos = json.indexOf("\"box_type\":\"StringBox\"", val_pos)
+      if box_pos < 0 { i = p + 1; continue }
+      // Determine end of this const object robustly by brace depth scan
+      local obj_start = json.lastIndexOf("{", p)
+      if obj_start < 0 { obj_start = p }
+      local obj_end = me._seek_object_end(json, obj_start)
+      if obj_end < 0 { i = p + 1; continue }
+      // Validate dst is unused after this object
+      local tail = json.substring(obj_end+1, json.length())
+      // Search common reference patterns: ":<dst>" after a key
+      local ref = ":" + dst_s
+      if tail.indexOf(ref) >= 0 {
+        i = p + 1; continue
+      }
+      // Remove this object (and a trailing comma if present)
+      local cut_left = obj_start
+      local cut_right = obj_end + 1
+      // Trim a single trailing comma to keep JSON valid in arrays
+      if cut_right < json.length() {
+        local ch = json.substring(cut_right, cut_right+1)
+        if ch == "," { cut_right = cut_right + 1 }
+      }
+      json = json.substring(0, cut_left) + json.substring(cut_right, json.length())
+      changed = 1
+      i = cut_left
+    }
+    if changed == 1 { return json }
+    return ""
+  }
+
+  // Seek the matching '}' for the object that starts at `start` (points to '{').
+  // Handles nested objects and string literals with escapes.
+  _seek_object_end(s, start) {
+    if s == null { return -1 }
+    if start < 0 || start >= s.length() { return -1 }
+    if s.substring(start, start+1) != "{" { return -1 }
+    local i = start
+    local depth = 0
+    local in_str = 0
+    local esc = 0
+    loop (i < s.length()) {
+      local ch = s.substring(i, i+1)
+      if in_str == 1 {
+        if esc == 1 { esc = 0 }
+        else if ch == "\\" { esc = 1 }
+        else if ch == "\"" { in_str = 0 }
+      } else {
+        if ch == "\"" { in_str = 1 }
+        else if ch == "{" { depth = depth + 1 }
+        else if ch == "}" {
+          depth = depth - 1
+          if depth == 0 { return i }
+        }
+      }
+      i = i + 1
+    }
+    return -1
+  }
+}
+
+static box AotPrepBoxMain { main(args){ return 0 } }

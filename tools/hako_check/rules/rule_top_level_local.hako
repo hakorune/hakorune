@@ -1,0 +1,102 @@
+using tools.hako_check.text_ops as TextOps
+// tools/hako_check/rules/rule_top_level_local.hako — HC018: Top-level local in prelude
+// Detects top-level `local` statements (outside of methods/boxes), which are cleanup omissions.
+
+static box RuleTopLevelLocalBox {
+  method apply(text, path, out) {
+    if text == null { return 0 }
+
+    local lines = me._split_lines(text)
+    me._scan_lines(lines, 0, 0, 0, 0, path, out)
+    return out.size()
+  }
+  _scan_lines(lines, i, in_box, in_method, brace_depth, path, out) {
+    if i >= lines.size() { return }
+    local ln = lines.get(i)
+    local trimmed = me._trim(ln)
+    local next_in_box = in_box
+    local next_in_method = in_method
+    local next_brace = brace_depth
+
+    // Track context: are we inside a box or method?
+    if trimmed.indexOf("box ") == 0 || trimmed.indexOf("static box ") == 0 {
+      next_in_box = 1
+    }
+    if next_in_box == 1 && (trimmed.indexOf("method ") >= 0 || trimmed.indexOf("birth(") >= 0) {
+      next_in_method = 1
+    }
+
+    // Track brace depth
+    next_brace = me._adjust_brace_depth(trimmed, 0, brace_depth)
+    if next_brace == 0 {
+      next_in_method = 0
+      next_in_box = 0
+    }
+
+    // Check for top-level local (not inside method, not a comment)
+    if trimmed.indexOf("local ") == 0 {
+      if next_in_method == 0 && me._is_comment(trimmed) == 0 {
+        out.push("[HC018] top-level local declaration (not allowed): " + path + ":" + me._itoa(i+1))
+      }
+    }
+
+    me._scan_lines(lines, i + 1, next_in_box, next_in_method, next_brace, path, out)
+  }
+  _adjust_brace_depth(s, i, depth) {
+    if i >= s.length() { return depth }
+    local ch = s.substring(i, i+1)
+    local next = depth
+    if ch == "{" { next = depth + 1 }
+    if ch == "}" { next = depth - 1 }
+    return me._adjust_brace_depth(s, i + 1, next)
+  }
+
+  _trim(s) {
+    if s == null { return "" }
+    local end = s.length()
+    local start = me._trim_start(s, 0, end)
+    local final_end = me._trim_end(s, start, end)
+    return s.substring(start, final_end)
+  }
+  _trim_start(s, start, end) {
+    if start >= end { return start }
+    local ch = s.substring(start, start+1)
+    if ch == " " || ch == "\t" { return me._trim_start(s, start + 1, end) }
+    return start
+  }
+  _trim_end(s, start, end) {
+    if end <= start { return end }
+    local ch = s.substring(end-1, end)
+    if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { return me._trim_end(s, start, end - 1) }
+    return end
+  }
+
+  _is_comment(s) {
+    if s == null { return 0 }
+    local trimmed = me._trim(s)
+    if trimmed.indexOf("//") == 0 { return 1 }
+    return 0
+  }
+
+  _split_lines(s) {
+    local arr = new ArrayBox()
+    if s == null { return arr }
+    local n = s.length()
+    local last = 0
+    local i = 0
+    loop(i < n) {
+      local ch = s.substring(i, i+1)
+      if ch == "\n" {
+        arr.push(s.substring(last, i))
+        last = i + 1
+      }
+      i = i + 1
+    }
+    if last <= n { arr.push(s.substring(last)) }
+    return arr
+  }
+
+  _itoa(n) { return TextOps._itoa(n) }
+}
+
+static box RuleTopLevelLocalMain { method main(args) { return 0 } }

@@ -1,0 +1,19 @@
+// Phase C5: Pattern2Break recipe-only gate fixture
+// - Step placement: increment BEFORE break check (Pattern2 structure)
+// - Triggers Pattern2Break via facts.pattern2_break
+// - Expected: recipe-first compose (not DomainPlan)
+static box Main {
+    main() {
+        local i = 0
+        local sum = 0
+
+        loop(i < 10) {
+            i = i + 1
+            if i >= 3 { break }
+            sum = sum + 1
+        }
+
+        print(sum)
+        return 0
+    }
+}

@@ -1,0 +1,60 @@
+// Moved from apps/selfhost-compiler/boxes/parser/scan/parser_string_scan_box.hako
+// ParserStringScanBox — string literal scanner (escape-aware)
+// Responsibility: read a Ny string literal starting at index i (i points to '"').
+// Returns: "<content>@<pos>" where <pos> is the index after the closing quote.
+// Notes: pure string scanning; no external deps.
+
+using lang.compiler.parser.scan.parser_common_utils_box as ParserCommonUtilsBox
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+using lang.compiler.parser.scan.parser_scan_loop_box as ParserScanLoopBox
+
+static box ParserStringScanBox {
+  // Generic scanner with quote abstraction (quote is "\"" or "'")
+  scan_with_quote(src, i, quote) {
+    if src == null { return "@" + ParserCommonUtilsBox.i2s(i) }
+    local n = src.length()
+    local j = i
+    if j >= n || src.substring(j, j+1) != quote { return "@" + ParserCommonUtilsBox.i2s(i) }
+    j = j + 1
+    local out = ""
+    local guard = 0
+    local max = 200000
+    local skip_rem = 0
+    loop(j < n) {
+      if guard > max { return out + "@" + ParserCommonUtilsBox.i2s(j) }
+      guard = guard + 1
+      local ch = src.substring(j, j+1)
+      local append = ""
+      local skipping = 0
+
+      if skip_rem > 0 {
+        skip_rem = skip_rem - 1
+        skipping = 1
+      }
+
+      if skipping == 0 && ch == quote {
+        return out + "@" + ParserCommonUtilsBox.i2s(j + 1)
+      }
+
+      if skipping == 0 {
+        append = ch
+        if ch == "\\" && j + 1 < n {
+          local esc = ParserScanLoopBox.scan_escape_piece_and_skip(src, j, n, quote)
+          local at = esc.lastIndexOf("@")
+          append = esc.substring(0, at)
+          skip_rem = ParserStringUtilsBox.to_int(esc.substring(at + 1, esc.length()))
+        }
+      }
+
+      out = out + append
+      j = j + 1
+    }
+    // if unterminated, return what we have and the last pos to avoid infinite loops
+    return out + "@" + ParserCommonUtilsBox.i2s(j)
+  }
+
+  // Existing: backward-compatible wrapper
+  scan(src, i) {
+    return me.scan_with_quote(src, i, "\"")
+  }
+}

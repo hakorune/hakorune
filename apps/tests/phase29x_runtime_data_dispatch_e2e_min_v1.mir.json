@@ -1,0 +1,119 @@
+{
+  "functions": [
+    {
+      "name": "main",
+      "entry_block": 0,
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            { "op": "newbox", "dst": 1, "type": "ArrayBox", "args": [] },
+            { "op": "const", "dst": 2, "value": { "type": "i64", "value": 0 } },
+            {
+              "op": "mir_call",
+              "dst": 3,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "name": "push",
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "receiver": 1
+                },
+                "args": [2],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 4,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "name": "get",
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "receiver": 1
+                },
+                "args": [2],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 5,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "name": "has",
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "receiver": 1
+                },
+                "args": [2],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            { "op": "newbox", "dst": 6, "type": "MapBox", "args": [] },
+            {
+              "op": "mir_call",
+              "dst": 7,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "name": "set",
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "receiver": 6
+                },
+                "args": [2, 4],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 8,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "name": "has",
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "receiver": 6
+                },
+                "args": [2],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 9,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "name": "get",
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "receiver": 6
+                },
+                "args": [2],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            { "op": "binop", "dst": 10, "operation": "+", "lhs": 3, "rhs": 5 },
+            { "op": "binop", "dst": 11, "operation": "+", "lhs": 7, "rhs": 8 },
+            { "op": "binop", "dst": 12, "operation": "+", "lhs": 10, "rhs": 11 },
+            { "op": "binop", "dst": 13, "operation": "+", "lhs": 12, "rhs": 9 },
+            { "op": "ret", "value": 13 }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+// ok.hako - balanced braces (all { have matching })
+
+static box Calculator {
+  method add(a, b) {
+    return a + b
+  }
+
+  method subtract(a, b) {
+    return a - b
+  }
+}
+
+static box Main {
+  method main() {
+    local result
+    result = Calculator.add(1, 2)
+    return 0
+  }
+}

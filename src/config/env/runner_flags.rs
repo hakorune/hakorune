@@ -1,0 +1,131 @@
+//! Runner/pipeline environment flags and helpers
+
+use super::{env_bool, env_string};
+
+pub fn debug_using() -> bool {
+    env_bool("NYASH_DEBUG_USING")
+}
+
+pub fn modules_env() -> Option<String> {
+    env_string("NYASH_MODULES")
+}
+
+pub fn using_path_env() -> Option<String> {
+    env_string("NYASH_USING_PATH")
+}
+
+pub fn aliases_env() -> Option<String> {
+    env_string("NYASH_ALIASES")
+}
+
+pub fn using_resolver_first() -> bool {
+    env_bool("HAKO_USING_RESOLVER_FIRST")
+}
+
+pub fn using_ssot_enabled() -> bool {
+    env_bool("HAKO_USING_SSOT")
+}
+
+pub fn using_ssot_invoking() -> bool {
+    env_bool("HAKO_USING_SSOT_INVOKING")
+}
+
+pub fn using_ssot_invoking_raw() -> Option<String> {
+    env_string("HAKO_USING_SSOT_INVOKING")
+}
+
+pub fn set_using_ssot_invoking(value: Option<&str>) {
+    if let Some(v) = value {
+        std::env::set_var("HAKO_USING_SSOT_INVOKING", v);
+    } else {
+        let _ = std::env::remove_var("HAKO_USING_SSOT_INVOKING");
+    }
+}
+
+pub fn using_ssot_relative() -> bool {
+    env_bool("HAKO_USING_SSOT_RELATIVE")
+}
+
+pub fn using_ssot_relative_ambig_first_n() -> Option<usize> {
+    env_string("HAKO_USING_SSOT_RELATIVE_AMBIG_FIRST_N")
+        .and_then(|s| s.parse::<usize>().ok())
+}
+
+pub fn emit_mir_trace() -> bool {
+    env_bool("NYASH_EMIT_MIR_TRACE")
+}
+
+pub fn deps_json_path() -> Option<String> {
+    env_string("NYASH_DEPS_JSON")
+}
+
+pub fn fields_top_strict() -> bool {
+    env_bool("NYASH_FIELDS_TOP_STRICT")
+}
+
+pub fn using_strict() -> bool {
+    env_bool("NYASH_USING_STRICT")
+}
+
+pub fn set_cli_verbose(enabled: bool) {
+    if enabled {
+        std::env::set_var("NYASH_CLI_VERBOSE", "1");
+    }
+}
+
+pub fn set_gc_mode(mode: &str) {
+    if !mode.trim().is_empty() {
+        std::env::set_var("NYASH_GC_MODE", mode);
+    }
+}
+
+pub fn set_vm_stats(enabled: bool) {
+    if enabled {
+        std::env::set_var("NYASH_VM_STATS", "1");
+    }
+}
+
+pub fn set_vm_stats_json(enabled: bool) {
+    if enabled {
+        std::env::set_var("NYASH_VM_STATS_JSON", "1");
+    }
+}
+
+pub fn sched_trace_enabled() -> bool {
+    env_bool("NYASH_SCHED_TRACE")
+}
+
+pub fn sched_poll_budget() -> usize {
+    env_string("NYASH_SCHED_POLL_BUDGET")
+        .and_then(|s| s.parse().ok())
+        .filter(|&n: &usize| n > 0)
+        .unwrap_or(1)
+}
+
+/// Whether safepoint bridge should invoke scheduler poll.
+///
+/// Default: true (keep runtime progress semantics unchanged).
+/// Set `NYASH_SCHED_POLL_IN_SAFEPOINT=0` to disable for perf/diagnostic trials.
+pub fn sched_poll_in_safepoint() -> bool {
+    match env_string("NYASH_SCHED_POLL_IN_SAFEPOINT")
+        .map(|s| s.trim().to_ascii_lowercase())
+        .as_deref()
+    {
+        None => true,
+        Some("1" | "true" | "on") => true,
+        Some("0" | "false" | "off") => false,
+        Some(invalid) => {
+            eprintln!(
+                "[freeze:contract][sched/poll_in_safepoint] NYASH_SCHED_POLL_IN_SAFEPOINT='{}' (allowed: 0|1|off|on|false|true)",
+                invalid
+            );
+            std::process::exit(1);
+        }
+    }
+}
+
+pub fn ring0_log_level() -> Option<String> {
+    env_string("NYASH_RING0_LOG_LEVEL")
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+}

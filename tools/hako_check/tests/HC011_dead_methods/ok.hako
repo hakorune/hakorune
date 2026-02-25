@@ -1,0 +1,12 @@
+// ok.hako — no dead methods (all referenced)
+
+static box Main {
+  method main() {
+    // main calls helper, so both are reachable
+    Main.helper()
+  }
+  method helper() {
+    return 0
+  }
+}
+

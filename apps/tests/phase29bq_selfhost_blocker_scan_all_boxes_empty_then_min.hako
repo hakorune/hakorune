@@ -1,0 +1,20 @@
+// scan_all_boxes-derived: loop(cond) with empty then
+// Expected: stdout=0, RC=0
+static box Main {
+  main() {
+    local i = 0
+    local n = 2
+    local flag = 0
+
+    loop(i < n) {
+      if flag == 1 { }
+      else { i = i + 1 }
+
+      if i == 0 { break }
+      i = i + 1
+    }
+
+    print(0)
+    return 0
+  }
+}

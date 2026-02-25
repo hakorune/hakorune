@@ -1,0 +1,39 @@
+#!/bin/bash
+# phase29ao_pattern1_subset_reject_extra_stmt_vm.sh - Pattern1 subset reject extra stmt (VM)
+#
+# Purpose:
+# - Ensure Pattern1 subset enforces "step-only body" under strict/dev shadow adopt.
+#
+# Expected:
+# - Exit code 3 (sum increments to 3). If body is dropped, exit would be 0.
+
+source "$(dirname "$0")/../../../lib/test_runner.sh"
+require_env || exit 2
+
+FIXTURE="$NYASH_ROOT/apps/tests/phase29ao_pattern1_subset_reject_extra_stmt.hako"
+RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
+
+set +e
+OUTPUT=$(timeout "$RUN_TIMEOUT_SECS" env NYASH_DISABLE_PLUGINS=1 HAKO_JOINIR_STRICT=1 "$NYASH_BIN" --backend vm "$FIXTURE" 2>&1)
+EXIT_CODE=$?
+set -e
+
+if [ "$EXIT_CODE" -eq 124 ]; then
+    log_error "phase29ao_pattern1_subset_reject_extra_stmt_vm: hakorune timed out (>${RUN_TIMEOUT_SECS}s)"
+    exit 1
+fi
+
+if [ "$EXIT_CODE" -ne 3 ]; then
+    log_error "phase29ao_pattern1_subset_reject_extra_stmt_vm: expected exit code 3, got $EXIT_CODE"
+    echo "$OUTPUT"
+    exit 1
+fi
+
+if grep -qF "[flowbox/adopt" <<<"$OUTPUT"; then
+    log_error "phase29ao_pattern1_subset_reject_extra_stmt_vm: flowbox adopt tag must not appear"
+    echo "$OUTPUT"
+    exit 1
+fi
+
+log_success "phase29ao_pattern1_subset_reject_extra_stmt_vm: PASS (exit=3)"
+exit 0

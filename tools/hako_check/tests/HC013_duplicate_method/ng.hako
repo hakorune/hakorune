@@ -1,0 +1,18 @@
+// ng.hako — contains duplicate method with same name and arity
+
+static box Calculator {
+  method add(a, b) {
+    return a + b
+  }
+
+  method add(a, b) {
+    return a + b + 1
+  }
+}
+
+static box Main {
+  method main() {
+    Calculator.add(1, 2)
+    return 0
+  }
+}

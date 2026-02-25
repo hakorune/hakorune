@@ -1,0 +1,36 @@
+// EmitNewBoxBox — Return(New class, args[int...]) → MIR(JSON v0)
+// 最小形: 各引数を r1..rN; newbox(class, args=r1..rN) → rK; ret rK
+
+using selfhost.shared.json.mir_builder_min as MirJsonBuilderMin
+using lang.compiler.pipeline_v2.regex_flow as RegexFlow
+using lang.compiler.pipeline_v2.stage1_args_parser_box as Stage1ArgsParserBox
+using selfhost.shared.mir.json_emit as JsonEmitBox
+using selfhost.shared.mir.builder as BlockBuilder
+using lang.compiler.pipeline_v2.localvar_ssa_box as LocalSSABox
+
+static box EmitNewBoxBox {
+  emit_newbox_int_args(class_name, args) {
+    if class_name == null { class_name = "" }
+    if args == null { args = [] }
+    // ArgsParserBox 正規化 → BlockBuilder 直結
+    local vals = Stage1ArgsParserBox.parse_ints(args)
+    if vals == null { return null }
+    local mod_full = BlockBuilder.constructor_call_ival_ret(class_name, vals, class_name)
+    LocalSSABox.ensure_materialize_last_ret(mod_full)
+    return JsonEmitBox.to_json(mod_full)
+  }
+
+  // JSON v1 (MirCall) emission — experimental, shape-only
+  emit_newbox_int_args_v1(class_name, args) {
+    if class_name == null { class_name = "" }
+    if args == null { args = [] }
+    // 同形出力（shared builder に一本化）
+    local vals = Stage1ArgsParserBox.parse_ints(args)
+    if vals == null { return null }
+    local mod_full = BlockBuilder.constructor_call_ival_ret(class_name, vals, class_name)
+    LocalSSABox.ensure_materialize_last_ret(mod_full)
+    return JsonEmitBox.to_json(mod_full)
+  }
+}
+
+static box EmitNewBoxStub { main() { return 0 } }

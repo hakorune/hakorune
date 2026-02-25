@@ -1,0 +1,42 @@
+# test_socket_methods_comprehensive.hako
+# 🚨 Issue #76: SocketBox全メソッドデッドロック確認
+
+static box Main {
+    init { console, results }
+    
+    main() {
+        me.console = new ConsoleBox()
+        me.console.log("🔥 SocketBox全メソッドテスト開始")
+        me.results = new ArrayBox()
+        
+        local socket = new SocketBox()
+        me.console.log("✅ SocketBox作成完了")
+        
+        # Test 1: toString() メソッド
+        me.console.log("Test 1: toString()実行...")
+        local socketStr = socket.toString()    # デッドロック予想
+        me.console.log("❌ toString()完了: " + socketStr)
+        me.results.push("toString:OK")
+        
+        # Test 2: isServer() メソッド
+        me.console.log("Test 2: isServer()実行...")
+        local isServer = socket.isServer()     # デッドロック予想
+        me.console.log("❌ isServer()完了: " + isServer.toString())
+        me.results.push("isServer:OK")
+        
+        # Test 3: bind() メソッド
+        me.console.log("Test 3: bind()実行...")
+        local bindResult = socket.bind("127.0.0.1", 19999)  # デッドロック予想
+        me.console.log("❌ bind()完了: " + bindResult.toString())
+        me.results.push("bind:OK")
+        
+        # Test 4: close() メソッド
+        me.console.log("Test 4: close()実行...")
+        local closeResult = socket.close()     # デッドロック予想
+        me.console.log("❌ close()完了: " + closeResult.toString())
+        me.results.push("close:OK")
+        
+        me.console.log("🎉 全テスト完了: " + me.results.size().toString() + "件成功")
+        return "ALL_METHODS_OK"
+    }
+}

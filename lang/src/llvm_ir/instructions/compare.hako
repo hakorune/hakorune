@@ -1,0 +1,71 @@
+// LLVM Compare Instruction Box — Python compare.py のHakorune実装
+// MIR比較命令をJSON形式に変換し、C++バックエンドに渡す
+
+static box LLVMCompareInstructionBox {
+
+  // メインエントリーポイント - Pythonのlower_compare()に相当
+  lower_compare(self, op, lhs, rhs, dst) {
+    // 比較演算子の検証
+    if !me._is_valid_operator(op) {
+      print("Warning: Invalid compare operator: " + op + ", defaulting to ==")
+      op = "=="
+    }
+    
+    return me.inst_compare(op, lhs, rhs, dst)
+  }
+
+  // 有効な比較演算子の検証
+  _is_valid_operator(self, op) {
+    return op == "==" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">="
+  }
+
+  // 比較命令の生成
+  inst_compare(self, op, lhs, rhs, dst) {
+    return "{\"op\":\"compare\",\"dst\":" + dst + ",\"operation\":\"" + op + "\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  // 各比較演算子の個別メソッド
+  inst_eq(self, lhs, rhs, dst) {
+    return me.inst_compare(self, "==", lhs, rhs, dst)
+  }
+
+  inst_ne(self, lhs, rhs, dst) {
+    return me.inst_compare(self, "!=", lhs, rhs, dst)
+  }
+
+  inst_lt(self, lhs, rhs, dst) {
+    return me.inst_compare(self, "<", lhs, rhs, dst)
+  }
+
+  inst_gt(self, lhs, rhs, dst) {
+    return me.inst_compare(self, ">", lhs, rhs, dst)
+  }
+
+  inst_le(self, lhs, rhs, dst) {
+    return me.inst_compare(self, "<=", lhs, rhs, dst)
+  }
+
+  inst_ge(self, lhs, rhs, dst) {
+    return me.inst_compare(self, ">=", lhs, rhs, dst)
+  }
+
+  // デバッグ用 - 生成された命令の確認
+  debug_compare(self, op, lhs, rhs, dst) {
+    local json = me.lower_compare(self, op, lhs, rhs, dst)
+    print("Generated compare instruction: " + json)
+    return json
+  }
+
+  // 複数の比較をまとめて生成（効率化）
+  batch_compare(self, compare_list) {
+    local results = []
+    local i = 0
+    while i < compare_list.length() {
+      local cmp = compare_list[i]
+      local json = me.lower_compare(self, cmp.op, cmp.lhs, cmp.rhs, cmp.dst)
+      results.push(json)
+      i = i + 1
+    }
+    return results
+  }
+}

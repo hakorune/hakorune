@@ -1,0 +1,1 @@
+{"functions":[{"name":"main","entry_block":0,"blocks":[{"id":0,"instructions":[{"op":"const","dst":1,"value":{"type":"i64","value":7}},{"op":"future_new","dst":2,"value":1},{"op":"const","dst":3,"value":{"type":"i64","value":42}},{"op":"ret","value":3}]}]}]}

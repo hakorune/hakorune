@@ -1,0 +1,10 @@
+// RVP-C03 capability fixture
+// Contract:
+// - vm-hako must execute FileBox.open(path, mode) multi-arg method-call shape.
+
+static box Main {
+  main() {
+    local f = new FileBox()
+    return f.open("/tmp/phase29y_missing_input.txt", "r")
+  }
+}

@@ -1,0 +1,17 @@
+// gc_box.hako — GC v0 (skeleton; not wired)
+
+using selfhost.vm.gc.gc_metrics_box as GcMetrics
+
+static box GcBox {
+  metrics: GcMetrics.GcMetricsBox
+
+  birth() {
+    from Box.birth()
+    me.metrics = new GcMetrics.GcMetricsBox()
+  }
+
+  // Placeholder hooks
+  register_object(_obj) { }
+  should_collect() { return false }
+  collect() { me.metrics.increment_collections() }
+}

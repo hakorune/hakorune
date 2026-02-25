@@ -1,0 +1,21 @@
+# test_socket_deadlock_minimal.hako
+# 🚨 Issue #76: SocketBoxデッドロック最小再現ケース
+
+static box Main {
+    init { console }
+    
+    main() {
+        me.console = new ConsoleBox()
+        me.console.log("🔥 SocketBoxデッドロック最小テスト開始")
+        
+        local socket = new SocketBox()
+        me.console.log("✅ SocketBox作成成功")
+        
+        # ここで無限ブロック予想
+        me.console.log("bind()実行開始...")
+        local result = socket.bind("127.0.0.1", 19999)  
+        me.console.log("❌ この行は出力されない（デッドロック）")
+        
+        return "SHOULD_NOT_REACH"
+    }
+}

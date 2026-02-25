@@ -1,0 +1,47 @@
+// Minimal reproduction of PhiInjectorBox._collect_phi_vars outer loop
+// Target: loop(i < n) with nested break-search-loop + found-if + collect-loop
+static box Main {
+    main() {
+        local common_vars = new ArrayBox()
+        common_vars.push("i")
+        common_vars.push("n")
+        local break_list = new ArrayBox()
+        break_list.push("b1")
+        break_list.push("b2")
+        break_list.push("b3")
+
+        local n = common_vars.length()
+        local results = new ArrayBox()
+
+        local i = 0
+        loop(i < n) {
+            local var_name = "" + common_vars.get(i)
+
+            // Inner loop 1: search with break
+            local j = 0
+            local m = break_list.length()
+            local found = 0
+            loop(j < m) {
+                if j == 1 {
+                    found = 1
+                    break
+                }
+                j = j + 1
+            }
+
+            if found == 1 {
+                // Inner loop 2: collect
+                local k = 0
+                loop(k < m) {
+                    results.push(var_name)
+                    k = k + 1
+                }
+            }
+
+            i = i + 1
+        }
+
+        print(results.length())
+        return 0
+    }
+}

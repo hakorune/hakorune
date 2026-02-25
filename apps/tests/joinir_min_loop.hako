@@ -1,0 +1,26 @@
+// JoinIR カナリアテスト — 最小ループ＋break
+// Phase 26-H: JoinIR 型定義妥当性確認用
+//
+// 期待される JoinIR イメージ:
+// fn main(k_exit) {
+//     loop_step(0, k_exit)
+// }
+//
+// fn loop_step(i, k_exit) {
+//     if i >= 2 {
+//         k_exit(i)  // break
+//     } else {
+//         loop_step(i + 1, k_exit)  // continue
+//     }
+// }
+
+static box JoinIrMin {
+  main() {
+    local i = 0
+    loop(i < 3) {
+      if i >= 2 { break }
+      i = i + 1
+    }
+    return i
+  }
+}

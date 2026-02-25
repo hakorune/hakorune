@@ -1,0 +1,62 @@
+// flow_entry.hako — Pipeline v2 entry box（emit-only）
+// Guard: This box performs no execution. Returns MIR(JSON) as text.
+
+using lang.compiler.pipeline_v2.pipeline as PipelineV2
+using selfhost.shared.json.mir_v1_adapter as MirJsonV1Adapter
+
+static box FlowEntryBox {
+  // Emit legacy v0 JSON（call/boxcall/newbox）。最小入力: Stage‑1 JSON 文字列
+  emit_v0_from_ast(ast_json, prefer_cfg) {
+    return PipelineV2.lower_stage1_to_mir(ast_json, prefer_cfg)
+  }
+  // Emit v0 with using context（alias/module maps）
+  emit_v0_from_ast_with_usings(ast_json, prefer_cfg, usings_json, modules_json) {
+    return PipelineV2.lower_stage1_to_mir_with_usings(ast_json, prefer_cfg, usings_json, modules_json)
+  }
+
+  // Emit v0 with optional using / extern metadata（Stage‑B entry）
+  emit_v0_from_ast_with_context(ast_json, prefer_cfg, usings_json, modules_json, externs_json) {
+    // 1) Prefer lightweight v1→v0 経路（簡単な return/binop/compare/call/new はここで完結）
+    {
+      local j1 = PipelineV2.lower_stage1_to_mir_v1(ast_json, prefer_cfg)
+      if j1 != null { return MirJsonV1Adapter.to_v0(j1) }
+    }
+
+    // 2) using 情報があれば using 解決つきの v0 経路を試す
+    local used_with_usings = 0
+    local out = null
+    if usings_json != null && usings_json != "" && usings_json != "[]" {
+      out = PipelineV2.lower_stage1_to_mir_with_usings(ast_json, prefer_cfg, usings_json, modules_json)
+      if out != null { used_with_usings = 1 }
+    }
+    if out == null {
+      out = PipelineV2.lower_stage1_to_mir(ast_json, prefer_cfg)
+    }
+    // 3) externs が指定され、まだ v1 経路を使っていない場合は v1+meta → v0 を試す
+    if externs_json != null && externs_json != "" && externs_json != "[]" && used_with_usings == 0 {
+      local j2 = PipelineV2.lower_stage1_to_mir_v1_with_meta(ast_json, prefer_cfg, externs_json)
+      if j2 != null { out = MirJsonV1Adapter.to_v0(j2) }
+    }
+    return out
+  }
+
+  // Emit v1 → v0 互換 JSON（unified mir_call を一旦生成して適応）。自己ホスト実行向け
+  emit_v1_compat_from_ast(ast_json, prefer_cfg) {
+    return PipelineV2.lower_stage1_to_mir_v1_compat(ast_json, prefer_cfg)
+  }
+
+  // Emit v1 JSON with metadata.extern_c（externs を v1 の metadata に反映）
+  // externs_json: JSON array text, e.g. [{"func":"Name/Arity","symbol":"c_symbol"}]
+  emit_v1_from_ast_with_meta(ast_json, prefer_cfg, externs_json) {
+    return PipelineV2.lower_stage1_to_mir_v1_with_meta(ast_json, prefer_cfg, externs_json)
+  }
+
+  // Emit v1 JSON + metadata.extern_c を注入し、v0互換に変換
+  emit_v1_compat_from_ast_with_meta(ast_json, prefer_cfg, externs_json) {
+    local j1 = PipelineV2.lower_stage1_to_mir_v1_with_meta(ast_json, prefer_cfg, externs_json)
+    return MirJsonV1Adapter.to_v0(j1)
+  }
+
+  // No-op entry（箱ガード用）
+  main() { return 0 }
+}

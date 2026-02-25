@@ -1,0 +1,67 @@
+// Phase 29bq: ParserLiteralBox.parse_map/3 minimal (selfhost blocker extraction)
+// Expected output: {"type":"Call","name":"map.of","args":[]}
+box DummyCtx {
+  gpos_get() { return 0 }
+  gpos_set(v) { return v }
+  skip_ws(src, j) { return j }
+  parse_expr2(src, j) { return "\"k\"" }
+}
+
+static box ParserLiteralBox {
+  parse_map(src, i, ctx) {
+    local n = src.length()
+    local j = i + 2
+    local out = "["
+    local pair_count = 0
+    local guard = 0
+    local max = 200000
+    loop(guard < max) {
+      j = ctx.skip_ws(src, j)
+
+      if j >= n { break }
+
+      if src.substring(j, j+1) == "}" { break }
+
+      if src.substring(j, j+1) != "\"" {
+        j = j + 1
+      } else {
+        local before = j
+        local key_json = ctx.parse_expr2(src, j)
+        j = ctx.gpos_get()
+        j = ctx.skip_ws(src, j)
+        if j + 1 < n && src.substring(j, j+2) == "=>" { j = j + 2 }
+        else {
+          if j < n { j = j + 1 }
+        }
+        j = ctx.skip_ws(src, j)
+        local val_json = ctx.parse_expr2(src, j)
+        j = ctx.gpos_get()
+
+        if pair_count > 0 { out = out + "," }
+        out = out + key_json + "," + val_json
+        pair_count = pair_count + 1
+
+        if j <= before && j < n { j = j + 1 }
+      }
+
+      j = ctx.skip_ws(src, j)
+      if j < n && src.substring(j, j+1) == "," { j = j + 1 }
+      guard = guard + 1
+    }
+
+    if j < n && src.substring(j, j+1) == "}" { j = j + 1 }
+
+    out = out + "]"
+    ctx.gpos_set(j)
+    return "{\"type\":\"Call\",\"name\":\"map.of\",\"args\":" + out + "}"
+  }
+}
+
+static box Main {
+  main() {
+    local ctx = new DummyCtx()
+    local out = ParserLiteralBox.parse_map("%{}", 0, ctx)
+    print(out)
+    return 0
+  }
+}

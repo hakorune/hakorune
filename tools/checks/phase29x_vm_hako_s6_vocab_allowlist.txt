@@ -1,0 +1,36 @@
+# Phase29x X55: vm-hako S6 vocabulary inventory (source of truth)
+# Keep this list in sync with `check_vm_hako_subset_json` match arms.
+# One op per line.
+
+array_get
+array_set
+await
+barrier
+binop
+boxcall
+branch
+call
+compare
+const
+copy
+debug
+externcall
+future_new
+future_set
+jump
+keepalive
+load
+mir_call
+newbox
+nop
+phi
+ref_new
+release_strong
+ret
+safepoint
+select
+store
+typeop
+unop
+weak_load
+weak_new

@@ -1,0 +1,29 @@
+// Phase 29ab P3: Pattern2 LoopBodyLocal seg Freeze (read-only violation)
+//
+// Goal:
+// - break condition uses LoopBodyLocal seg
+// - seg is reassigned in the loop body (read-only contract violation)
+// - Pattern2 promotion must Freeze (fail-fast)
+//
+// Expected: JoinIR freeze error (non-zero exit)
+
+static box Main {
+    main() {
+        local s = "ab "
+        local i = 0
+
+        loop(i < s.length()) {
+            local seg = s.substring(i, i + 1)
+
+            if seg == " " || seg == "\t" {
+                break
+            }
+
+            seg = "x"
+            i = i + 1
+        }
+
+        print(i)
+        return i
+    }
+}

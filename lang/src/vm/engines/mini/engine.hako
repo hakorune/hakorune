@@ -1,0 +1,12 @@
+// engines/mini/engine.hako — Mini NyVM Engine wrapper (skeleton)
+// For now, delegate to Core dispatcher to keep a single nucleus.
+
+using selfhost.vm.core.dispatcher as NyVmDispatcher
+
+static box MiniNyVmEngine {
+  run(json) {
+    return NyVmDispatcher.run(json)
+  }
+}
+
+static box MiniNyVmEngineMain { main(args){ return 0 } }

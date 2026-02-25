@@ -1,0 +1,48 @@
+#!/bin/bash
+# phase29ao_pattern5_release_adopt_vm.sh - Pattern5 release adopt path smoke (VM)
+#
+# Expected:
+# - Output "3" (or "RC: 3")
+# - No shadow-adopt tag printed (release must not emit tags)
+
+source "$(dirname "$0")/../../../lib/test_runner.sh"
+require_env || exit 2
+
+FIXTURE="$NYASH_ROOT/apps/tests/phase286_pattern5_break_min.hako"
+RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
+
+set +e
+OUTPUT=$(timeout "$RUN_TIMEOUT_SECS" env \
+  -u HAKO_JOINIR_STRICT \
+  -u NYASH_JOINIR_STRICT \
+  -u HAKO_JOINIR_DEBUG \
+  -u NYASH_JOINIR_DEBUG \
+  -u NYASH_JOINIR_DEV \
+  NYASH_DISABLE_PLUGINS=1 \
+  "$NYASH_BIN" "$FIXTURE" 2>&1)
+EXIT_CODE=$?
+set -e
+
+if [ "$EXIT_CODE" -eq 124 ]; then
+    test_fail "phase29ao_pattern5_release_adopt_vm: hakorune timed out (>${RUN_TIMEOUT_SECS}s)"
+    exit 1
+fi
+
+if grep -qF "[flowbox/" <<<"$OUTPUT"; then
+    echo "[FAIL] Release adopt must not print FlowBox tags"
+    echo "$OUTPUT" | tail -n 60 || true
+    test_fail "phase29ao_pattern5_release_adopt_vm: Unexpected tag"
+    exit 1
+fi
+
+if grep -qE "(^3$|RC: 3$)" <<<"$OUTPUT"; then
+    test_pass "phase29ao_pattern5_release_adopt_vm: PASS (output: 3)"
+    exit 0
+fi
+
+echo "[FAIL] Unexpected output (expected: 3)"
+echo "[INFO] Exit code: $EXIT_CODE"
+echo "[INFO] Output:"
+echo "$OUTPUT" | head -n 40 || true
+test_fail "phase29ao_pattern5_release_adopt_vm: Unexpected output"
+exit 1

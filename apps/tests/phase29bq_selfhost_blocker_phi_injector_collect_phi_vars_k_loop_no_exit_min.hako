@@ -1,0 +1,25 @@
+// Minimal fixture for k loop (no-exit effect-only) pattern
+// Pattern: loop(k < list.length()) { effect-only; k = k + 1 }
+// NO if/break/continue/return
+
+static box Main {
+    main() {
+        local list = new ArrayBox()
+        list.push(1)
+        list.push(2)
+        list.push(3)
+
+        local k = 0
+        local sum = 0
+
+        loop(k < list.length()) {
+            local val = list.get(k)
+            sum = sum + val
+            list.set(k, val)         // effect (methodcall)
+            k = k + 1                // const step
+        }
+
+        print(sum)
+        return 0
+    }
+}

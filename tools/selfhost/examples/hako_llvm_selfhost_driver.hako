@@ -1,0 +1,27 @@
+// hako_llvm_selfhost_driver.hako — minimal driver to emit+link via C‑API from Hako
+// Usage (env):
+//   _MIR_JSON: v1 JSON text
+//   _EXE_OUT : output path for linked executable
+// Prints the exe path to stdout.
+
+using selfhost.vm.helpers.mir_call_v1_handler as MirCallV1HandlerBox // not required but keeps linker alive
+using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+
+static box Main {
+  method main(args) {
+    local j = env.get("_MIR_JSON")
+    local exe_out = env.get("_EXE_OUT")
+    if j == null { print("[ERR] _MIR_JSON not set"); return 1 }
+    if exe_out == null { exe_out = "/tmp/hako_selfhost_exe" }
+    // emit object
+    local a = new ArrayBox(); a.push(j)
+    local obj = CodegenBridgeBox.emit_object_args(a)
+    if obj == null { print("[ERR] emit_object failed"); return 2 }
+    // link exe
+    local b = new ArrayBox(); b.push(obj); b.push(exe_out)
+    local exe = CodegenBridgeBox.link_object_args(b)
+    if exe == null { print("[ERR] link_object failed"); return 3 }
+    print("" + exe)
+    return 0
+  }
+}

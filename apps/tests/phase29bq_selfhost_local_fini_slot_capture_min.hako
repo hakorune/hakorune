@@ -1,0 +1,20 @@
+// Phase 29bq parser handoff: local ... fini should bind declaration slot.
+// Expected output: BSC
+static box Main {
+  main() {
+    local out = ""
+    {
+      local x = "A" fini {
+        out = out + x
+      }
+      {
+        local x = "B"
+        out = out + x
+      }
+      x = "C"
+      out = out + "S"
+    }
+    print(out)
+    return 0
+  }
+}

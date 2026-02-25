@@ -1,0 +1,42 @@
+// Phase 164: Test skip_whitespace from JsonParserBox (Pattern3 with if-else PHI + break)
+// Simulates: loop(p < len) { if is_whitespace(ch) { p++ } else { break } }
+
+static box Main {
+  main(args) {
+    // Simulate skipping leading whitespace
+    local s = "   \t\nhello world"
+    local p = 0
+    local len = s.length()
+
+    // Loop with if-else PHI: p is updated in both branches differently
+    loop(p < len) {
+      local ch = s.substring(p, p + 1)
+      // Check if whitespace
+      local is_ws = 0
+      if ch == " " {
+        is_ws = 1
+      } else if ch == "\t" {
+        is_ws = 1
+      } else if ch == "\n" {
+        is_ws = 1
+      } else if ch == "\r" {
+        is_ws = 1
+      }
+
+      if is_ws == 1 {
+        p = p + 1
+      } else {
+        break
+      }
+    }
+
+    // Output result
+    local remaining = s.substring(p, len)
+    print("Skipped leading whitespace")
+    print("Position: " + ("" + p))
+    print("Remaining: " + remaining)
+    print("Expected position: 4")
+    print("Expected remaining: hello world")
+    return 0
+  }
+}

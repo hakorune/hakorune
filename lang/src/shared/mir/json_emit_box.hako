@@ -1,0 +1,314 @@
+// selfhost/shared/mir/json_emit_box.hako
+// JsonEmitBox — Gate C JSON emitter (schema_version 1.0, numbers unwrapped)
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+static box JsonEmitBox {
+  _expect_map(val, context) {
+    if BoxHelpers.is_map(val) { return val }
+    print("[JsonEmitBox] dev assert failed: expected MapBox for " + context)
+    return val
+  }
+  _expect_array(val, context) {
+    if BoxHelpers.is_array(val) { return val }
+    print("[JsonEmitBox] dev assert failed: expected ArrayBox for " + context)
+    return val
+  }
+  _expect_i64(val, context) {
+    if val == null {
+      print("[JsonEmitBox] dev assert failed: expected i64 (non-null) for " + context)
+      return 0
+    }
+    if BoxHelpers.is_map(val) {
+      // MapBox-wrapped integer (possibly nested); delegate unwrapping.
+      return BoxHelpers.value_i64(val)
+    }
+    // Non-MapBox: treat as numeric immediate and normalize via helper.
+    return BoxHelpers.value_i64(val)
+  }
+
+  // ---- helpers ------------------------------------------------------------
+
+  _int_str(val) {
+    return StringHelpers.int_to_str(me._expect_i64(val, "integer field"))
+  }
+
+  _emit_vid_or_null(val) {
+    if val == null { return "null" }
+    return me._int_str(val)
+  }
+
+  _emit_vid_array(arr) {
+    if arr == null { return "[]" }
+    local n = BoxHelpers.array_len(arr)
+    return "[" + me._emit_vid_array_rec(arr, 0, n) + "]"
+  }
+  _emit_vid_array_rec(arr, idx, len) {
+    if idx >= len { return "" }
+    local head = me._emit_vid_or_null(arr.get(idx))
+    local tail = me._emit_vid_array_rec(arr, idx + 1, len)
+    if tail == "" { return head }
+    return head + "," + tail
+  }
+
+  _emit_effects(effects) {
+    if effects == null { return "[]" }
+    local n = BoxHelpers.array_len(effects)
+    return "[" + me._emit_effects_rec(effects, 0, n) + "]"
+  }
+  _emit_effects_rec(effects, idx, len) {
+    if idx >= len { return "" }
+    local head = me._quote(effects.get(idx))
+    local tail = me._emit_effects_rec(effects, idx + 1, len)
+    if tail == "" { return head }
+    return head + "," + tail
+  }
+
+  _emit_callee(callee) {
+    if callee == null { return "{\"type\":\"Extern\",\"name\":\"\"}" }
+    callee = me._expect_map(callee, "mir_call.callee")
+    local ty_box = callee.get("type")
+    local ty = ""
+    if ty_box != null { ty = "" + ty_box }
+    if ty == "Extern" {
+      local name = callee.get("name")
+      if name == null { name = "" }
+      return "{\"type\":\"Extern\",\"name\":" + me._quote(name) + "}"
+    }
+    if ty == "ModuleFunction" {
+      local name = callee.get("name")
+      if name == null { name = "" }
+      return "{\"type\":\"ModuleFunction\",\"name\":" + me._quote(name) + "}"
+    }
+    if ty == "Method" {
+      local box_name = callee.get("box_name")
+      if box_name == null { box_name = "" }
+      local method = callee.get("method")
+      if method == null { method = "" }
+      local receiver = callee.get("receiver")
+      return "{\"type\":\"Method\",\"box_name\":" + me._quote(box_name) +
+             ",\"method\":" + me._quote(method) + ",\"receiver\":" + me._emit_vid_or_null(receiver) + "}"
+    }
+    if ty == "Constructor" {
+      local box_type = callee.get("box_type")
+      if box_type == null { box_type = "" }
+      return "{\"type\":\"Constructor\",\"box_type\":" + me._quote(box_type) + "}"
+    }
+    return "{\"type\":" + me._quote(ty) + "}"
+  }
+
+  _emit_box_value(val) {
+    if val == null { return "{\"type\":\"i64\",\"value\":0}" }
+  	local ty = "i64"
+  	local inner = val
+  	if BoxHelpers.is_map(val) {
+      local ty_box = val.get("type")
+      if ty_box != null { ty = "" + ty_box }
+      local inner_box = val.get("value")
+      if inner_box != null { inner = inner_box }
+    }
+    return "{\"type\":" + me._quote(ty) + ",\"value\":" + me._int_str(inner) + "}"
+  }
+
+  _quote(s) {
+    if s == null { return "\"\"" }
+    return StringHelpers.json_quote("" + s)
+  }
+
+  _emit_phi_values(values) {
+    if values == null { return "[]" }
+    local n = BoxHelpers.array_len(values)
+    return "[" + me._emit_phi_rec(values, 0, n) + "]"
+  }
+  _emit_phi_rec(values, idx, len) {
+    if idx >= len { return "" }
+    local item = values.get(idx)
+    local block_id = null
+    local value_id = null
+    if item != null {
+      block_id = item.get("block")
+      value_id = item.get("value")
+    }
+    local head = "{\"block\":" + me._int_str(block_id) + ",\"value\":" + me._int_str(value_id) + "}"
+    local tail = me._emit_phi_rec(values, idx + 1, len)
+    if tail == "" { return head }
+    return head + "," + tail
+  }
+
+  _emit_inst(inst) {
+    if inst == null { return "{}" }
+    inst = me._expect_map(inst, "instruction")
+    local op = inst.get("op")
+    if op == null { op = "" }
+    if op == "const" {
+      return "{\"op\":\"const\",\"dst\":" + me._int_str(inst.get("dst")) +
+             ",\"value\":" + me._emit_box_value(inst.get("value")) + "}"
+    }
+    if op == "ret" || op == "return" {
+      return "{\"op\":\"ret\",\"value\":" + me._int_str(inst.get("value")) + "}"
+    }
+    if op == "binop" {
+      local kind = inst.get("op_kind")
+      if kind == null { kind = "" }
+      return "{\"op\":\"binop\",\"op_kind\":" + me._quote(kind) + ",\"lhs\":" +
+             me._int_str(inst.get("lhs")) + ",\"rhs\":" + me._int_str(inst.get("rhs")) +
+             ",\"dst\":" + me._int_str(inst.get("dst")) + "}"
+    }
+    if op == "compare" {
+      local cmp = inst.get("cmp")
+      if cmp == null { cmp = "" }
+      return "{\"op\":\"compare\",\"cmp\":" + me._quote(cmp) + ",\"lhs\":" +
+             me._int_str(inst.get("lhs")) + ",\"rhs\":" + me._int_str(inst.get("rhs")) +
+             ",\"dst\":" + me._int_str(inst.get("dst")) + "}"
+    }
+    if op == "branch" {
+      return "{\"op\":\"branch\",\"cond\":" + me._int_str(inst.get("cond")) +
+             ",\"then\":" + me._int_str(inst.get("then")) +
+             ",\"else\":" + me._int_str(inst.get("else")) + "}"
+    }
+    if op == "jump" {
+      return "{\"op\":\"jump\",\"target\":" + me._int_str(inst.get("target")) + "}"
+    }
+    if op == "phi" {
+      return "{\"op\":\"phi\",\"dst\":" + me._int_str(inst.get("dst")) +
+             ",\"values\":" + me._emit_phi_values(inst.get("values")) + "}"
+    }
+    if op == "mir_call" {
+      // SSOT: payload("mir_call") のみを受理。トップレベルの互換フィールドは読まない。
+      local payload = inst.get("mir_call")
+      if payload == null { return "{\"op\":\"mir_call\"}" }
+      payload = me._expect_map(payload, "mir_call payload")
+      local dst_json = me._emit_vid_or_null(inst.get("dst"))
+      local callee_json = me._emit_callee(payload.get("callee"))
+      local args_box = payload.get("args")
+      me._expect_array(args_box, "mir_call.args")
+      local effects_box = payload.get("effects")
+      me._expect_array(effects_box, "mir_call.effects")
+      local args_json = me._emit_vid_array(args_box)
+      local effects_json = me._emit_effects(effects_box)
+      return "{\"op\":\"mir_call\",\"dst\":" + dst_json +
+             ",\"mir_call\":{\"callee\":" + callee_json +
+             ",\"args\":" + args_json +
+             ",\"effects\":" + effects_json + "}}"
+    }
+    // Fallback: emit op only (unexpected instruction kinds are outside P1 scope)
+    return "{\"op\":" + me._quote(op) + "}"
+  }
+
+  _emit_block(block) {
+    if block == null { return "{\"id\":0,\"instructions\":[]}" }
+    local insts = block.get("instructions")
+    if insts == null {
+      return "{\"id\":" + me._int_str(block.get("id")) + ",\"instructions\":[]}"
+    }
+    local n = BoxHelpers.array_len(insts)
+    local body = me._emit_block_rec(insts, 0, n)
+    return "{\"id\":" + me._int_str(block.get("id")) + ",\"instructions\":[" + body + "]}"
+  }
+  _emit_block_rec(insts, idx, len) {
+    if idx >= len { return "" }
+    local head = me._emit_inst(insts.get(idx))
+    local tail = me._emit_block_rec(insts, idx + 1, len)
+    if tail == "" { return head }
+    return head + "," + tail
+  }
+
+  _emit_function(func) {
+    if func == null {
+      return "{\"name\":\"main\",\"blocks\":[]}"
+    }
+    local name = func.get("name")
+    if name == null { name = "main" }
+    // Optional fields: params (array) / flags (map)
+    local params = func.get("params")
+    local flags  = func.get("flags")
+    local blocks = func.get("blocks")
+    if blocks == null {
+      if params != null || flags != null {
+        local head = "{\"name\":" + me._quote(name)
+        if params != null { head = head + ",\"params\":" + me._emit_params(params) }
+        if flags  != null { head = head + ",\"flags\":" + me._emit_flags(flags) }
+        return head + ",\"blocks\":[]}"
+      }
+      return "{\"name\":" + me._quote(name) + ",\"blocks\":[]}"
+    }
+    local n = BoxHelpers.array_len(blocks)
+    local body = me._emit_function_rec(blocks, 0, n)
+    local head2 = "{\"name\":" + me._quote(name)
+    if params != null { head2 = head2 + ",\"params\":" + me._emit_params(params) }
+    if flags  != null { head2 = head2 + ",\"flags\":" + me._emit_flags(flags) }
+    return head2 + ",\"blocks\":[" + body + "]}"
+  }
+  _emit_function_rec(blocks, idx, len) {
+    if idx >= len { return "" }
+    local head = me._emit_block(blocks.get(idx))
+    local tail = me._emit_function_rec(blocks, idx + 1, len)
+    if tail == "" { return head }
+    return head + "," + tail
+  }
+
+  _emit_params(params) {
+    if params == null { return "[]" }
+    if !BoxHelpers.is_array(params) { return "[]" }
+    local n = BoxHelpers.array_len(params)
+    if n == 0 { return "[]" }
+    return "[" + me._emit_params_rec(params, 0, n) + "]"
+  }
+  _emit_params_rec(params, idx, len) {
+    if idx >= len { return "" }
+    local head = me._int_str(params.get(idx))
+    local tail = me._emit_params_rec(params, idx + 1, len)
+    if tail == "" { return head }
+    return head + "," + tail
+  }
+
+  _emit_flags(flags) {
+    if flags == null { return "null" }
+    if !BoxHelpers.is_map(flags) { return "null" }
+    local keys = flags.keys()
+    if keys == null { return "{}" }
+    local n = BoxHelpers.array_len(keys)
+    if n == 0 { return "{}" }
+    local body = me._emit_flags_rec(flags, keys, 0, n)
+    return "{" + body + "}"
+  }
+  _emit_flags_rec(flags, keys, idx, len) {
+    if idx >= len { return "" }
+    local k = keys.get(idx)
+    local v = flags.get(k)
+    local head = me._quote(k) + ":" + me._quote(v)
+    local tail = me._emit_flags_rec(flags, keys, idx + 1, len)
+    if tail == "" { return head }
+    return head + "," + tail
+  }
+
+  to_json(module) {
+    if module == null { return "" }
+    // Prefer single-function fallbackを強化: has() 未実装環境でも repr チェックで検出
+    local f0 = module.get("functions_0")
+    if f0 != null {
+      local one = me._emit_function(f0)
+      return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[" + one + "]}"
+    }
+    // Legacy path: try functions array if available
+    local funcs = module.get("functions")
+    if funcs == null { return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[]}" }
+    local n = BoxHelpers.array_len(funcs)
+    local body = me._emit_module_rec(funcs, 0, n)
+    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[" + body + "]}"
+  }
+  _emit_module_rec(funcs, idx, len) {
+    // Defensive fallback: some environments report size=0 for host-managed arrays.
+    // If len==0 at entry, try to probe index 0 once to recover a single element.
+    if idx == 0 && len == 0 {
+      local first = funcs.get(0)
+      if first != null { len = 1 }
+    }
+    if idx >= len { return "" }
+    local head = me._emit_function(funcs.get(idx))
+    local tail = me._emit_module_rec(funcs, idx + 1, len)
+    if tail == "" { return head }
+    return head + "," + tail
+  }
+}

@@ -1,0 +1,68 @@
+// CommentStripperBox — strip // and /* */ comments from source code
+// Responsibility: State machine to remove line/block comments while preserving strings.
+// Structure tags:
+//   [Region] loop は i/next_i 形で一意に前進。
+//   [BoxShape] 分離抽出 (Phase 29bq+)。
+
+static box CommentStripperBox {
+  // Strip // and /* */ comments from source, preserving string literals.
+  // Returns cleaned source code.
+  strip_comments(src) {
+    if src == null { return "" }
+    local s = "" + src
+    local out = ""
+    local i = 0
+    local n = s.length()
+    local in_str = 0
+    local esc = 0
+    local in_line = 0
+    local in_block = 0
+
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+
+      // Line comment mode: skip until newline
+      if in_line == 1 {
+        if ch == "\n" { in_line = 0  out = out + ch }
+        i = i + 1
+        continue
+      }
+
+      // Block comment mode: skip until */
+      if in_block == 1 {
+        if ch == "*" && i + 1 < n && s.substring(i + 1, i + 2) == "/" {
+          in_block = 0
+          i = i + 2
+          continue
+        }
+        i = i + 1
+        continue
+      }
+
+      // String mode: pass through, handle escapes
+      if in_str == 1 {
+        if esc == 1 { out = out + ch  esc = 0  i = i + 1  continue }
+        if ch == "\\" { out = out + ch  esc = 1  i = i + 1  continue }
+        if ch == "\"" { out = out + ch  in_str = 0  i = i + 1  continue }
+        out = out + ch
+        i = i + 1
+        continue
+      }
+
+      // Not in string/comment
+      if ch == "\"" { out = out + ch  in_str = 1  i = i + 1  continue }
+      if ch == "/" && i + 1 < n {
+        local ch2 = s.substring(i + 1, i + 2)
+        if ch2 == "/" { in_line = 1  i = i + 2  continue }
+        if ch2 == "*" { in_block = 1  i = i + 2  continue }
+      }
+
+      out = out + ch
+      i = i + 1
+    }
+
+    return out
+  }
+}
+
+static box CommentStripperBoxMain { main() { return 0 } }

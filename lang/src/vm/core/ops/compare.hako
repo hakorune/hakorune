@@ -1,0 +1,55 @@
+// ops/compare.hako — NyVmOpCompare (skeleton)
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+
+static box NyVmOpCompare {
+  _read_int(inst_json, key) {
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return null }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return null }
+    p = p + 1
+    loop(true) { local ch = inst_json.substring(p,p+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue } break }
+    local digits = JsonCursorBox.digits_from(inst_json, p)
+    if digits == "" { return null }
+    return StringHelpers.to_i64(digits)
+  }
+  _read_str(inst_json, key) {
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return "" }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return "" }
+    p = p + 1
+    loop(true) { local ch = inst_json.substring(p,p+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue } break }
+    if inst_json.substring(p,p+1) != "\"" { return "" }
+    local end = JsonCursorBox.scan_string_end(inst_json, p)
+    if end < 0 { return "" }
+    return inst_json.substring(p+1, end)
+  }
+  handle(inst_json, state) {
+    // {op:"compare", operation:"==|!=|<|<=|>|>=", lhs:VID, rhs:VID, dst:VID}
+    local dst = me._read_int(inst_json, "dst")
+    local lhs = me._read_int(inst_json, "lhs")
+    local rhs = me._read_int(inst_json, "rhs")
+    local op = me._read_str(inst_json, "operation")
+    if dst == null || lhs == null || rhs == null || op == "" { print("[core/compare] malformed") return -1 }
+    local a = NyVmState.get_reg(state, lhs)
+    local b = NyVmState.get_reg(state, rhs)
+    local r = 0
+    // Support both symbol format ("==") and type format ("Eq") for compatibility
+    if op == "==" || op == "Eq" { if a == b { r = 1 } else { r = 0 } }
+    else if op == "!=" || op == "Ne" { if a != b { r = 1 } else { r = 0 } }
+    else if op == "<" || op == "Lt" { if a < b { r = 1 } else { r = 0 } }
+    else if op == "<=" || op == "Le" { if a <= b { r = 1 } else { r = 0 } }
+    else if op == ">" || op == "Gt" { if a > b { r = 1 } else { r = 0 } }
+    else if op == ">=" || op == "Ge" { if a >= b { r = 1 } else { r = 0 } }
+    else { print("[core/compare] unsupported op: " + op) return -1 }
+    NyVmState.set_reg(state, dst, r)
+    return 0
+  }
+}
+
+static box NyVmOpCompareMain { main(args){ return 0 } }

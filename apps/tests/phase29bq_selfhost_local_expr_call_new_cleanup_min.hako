@@ -1,0 +1,25 @@
+// Phase 29bq parser handoff Tier-2: local init with new + call and postfix cleanup.
+static box Main {
+  id(x) {
+    return x
+  }
+
+  main() {
+    local out = 0
+    {
+      local arr = new ArrayBox()
+      arr.push(10)
+      arr.push(20)
+      local n = Main.id(arr.length())
+      if n == 2 {
+        out = out + 12
+      } else {
+        out = out + 1
+      }
+    } cleanup {
+      out = out + 120
+    }
+    print(out)
+    return 0
+  }
+}

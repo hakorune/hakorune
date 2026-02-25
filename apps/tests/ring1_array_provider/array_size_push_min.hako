@@ -1,0 +1,16 @@
+static box Main {
+  main(args) {
+    local a = new ArrayBox()
+    a.push(11)
+    a.push(22)
+
+    local n = a.size()
+    if n == 2 {
+      print("ARRAY_PROVIDER_OK size=2 get0=" + a.get(0))
+      return 0
+    }
+
+    print("ARRAY_PROVIDER_NG size=" + n)
+    return 1
+  }
+}

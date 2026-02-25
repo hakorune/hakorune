@@ -1,0 +1,28 @@
+// Minimal SSA Bug Reproduction with Loop
+// Pattern: Conditional reassignment inside loop with immediate usage
+// Expected: SSA violation "use of undefined value"
+
+static box MinimalSSABugLoop {
+  main(args) {
+    local src = "using foo\nusing bar\n"
+    local i = 0
+    local n = src.length()
+
+    loop(i < n) {
+      local line = src.substring(i, i + 10)
+
+      // Problem pattern: nested conditions with reassignment + immediate use
+      if line.length() > 0 {
+        line = line.substring(0, 5)     // reassign line
+        if line.length() > 0 && line.substring(0, 1) == "u" {  // immediate use
+          line = line.substring(1, 5)   // another reassign
+          print(line)
+        }
+      }
+
+      i = i + 10
+    }
+
+    return 0
+  }
+}

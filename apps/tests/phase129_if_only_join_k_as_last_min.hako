@@ -1,0 +1,26 @@
+// Phase 129-B: if-only join_k as-last (Normalized shadow, dev-only)
+//
+// Pattern (function g): local x; if flag==1 { x=2; return x } else { return x }
+// - The `if` is the last statement (no post-if).
+// - Both branches return the same variable `x` (PHI forbidden; merge via join_k).
+//
+// Expected: prints "2" (flag=1 fixed)
+
+static box Main {
+    g(flag) {
+        local x
+        x = 1
+        if flag == 1 {
+            x = 2
+            return x
+        } else {
+            return x
+        }
+    }
+
+    main() {
+        print(Main.g(1))
+        return "OK"
+    }
+}
+

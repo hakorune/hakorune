@@ -1,0 +1,16 @@
+// program_json_v0_legacy_order_stage_box.hako
+// Responsibility:
+// - SSOT for legacy stmt order stage classification used by ProgramJsonV0PhaseStateBox.
+// - Keep order gate fallback logic isolated from recipe-first scanner recursion.
+
+static box ProgramJsonV0LegacyOrderStageBox {
+  classify(node_type) {
+    if node_type == "Local" { return 1 }
+    if node_type == "Assignment" { return 2 }
+    if node_type == "Print" { return 3 }
+    if node_type == "Return" { return 4 }
+    return 0
+  }
+}
+
+static box ProgramJsonV0LegacyOrderStageMain { main() { return 0 } }

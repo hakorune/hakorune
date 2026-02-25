@@ -1,0 +1,108 @@
+// recipe_item_box.hako
+// Responsibility:
+// - Recipe item vocabulary SSOT for `.hako` mirbuilder Recipe-first lane (R0).
+// - Data-only representation (no lowering side effects).
+
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+static box RecipeItemBox {
+  _array_or_empty(items) {
+    if items == null { return [] }
+    if BoxHelpers.is_array(items) == 1 { return items }
+    return []
+  }
+
+  _map_or_empty(v) {
+    if v == null { return %{} }
+    if BoxHelpers.is_map(v) == 1 { return v }
+    return %{}
+  }
+
+  seq(items) {
+    return %{
+      "kind" => "Seq",
+      "items" => me._array_or_empty(items)
+    }
+  }
+
+  if_item(cond_facts, then_item, else_item) {
+    if then_item == null { then_item = me.seq([]) }
+    if else_item == null { else_item = me.seq([]) }
+    return %{
+      "kind" => "If",
+      "cond_facts" => me._map_or_empty(cond_facts),
+      "then_item" => then_item,
+      "else_item" => else_item
+    }
+  }
+
+  loop_item(cond_facts, body_item) {
+    if body_item == null { body_item = me.seq([]) }
+    return %{
+      "kind" => "Loop",
+      "cond_facts" => me._map_or_empty(cond_facts),
+      "body_item" => body_item
+    }
+  }
+
+  exit_item(exit_kind, payload) {
+    if exit_kind == null || ("" + exit_kind) == "" { exit_kind = "Return" }
+    return %{
+      "kind" => "Exit",
+      "exit_kind" => "" + exit_kind,
+      "payload" => me._map_or_empty(payload)
+    }
+  }
+
+  kind_of(item) {
+    if item == null { return "" }
+    return "" + BoxHelpers.map_get(item, "kind")
+  }
+
+  is_supported_kind(kind) {
+    if kind == "Seq" { return 1 }
+    if kind == "If" { return 1 }
+    if kind == "Loop" { return 1 }
+    if kind == "Exit" { return 1 }
+    return 0
+  }
+
+  is_valid_item(item) {
+    if item == null || BoxHelpers.is_map(item) != 1 { return 0 }
+    local kind = me.kind_of(item)
+    if me.is_supported_kind(kind) != 1 { return 0 }
+
+    if kind == "Seq" {
+      local items = BoxHelpers.map_get(item, "items")
+      if items == null || BoxHelpers.is_array(items) != 1 { return 0 }
+      return 1
+    }
+
+    if kind == "If" {
+      local then_item = BoxHelpers.map_get(item, "then_item")
+      local else_item = BoxHelpers.map_get(item, "else_item")
+      if then_item == null || BoxHelpers.is_map(then_item) != 1 { return 0 }
+      if else_item == null || BoxHelpers.is_map(else_item) != 1 { return 0 }
+      if me.is_supported_kind(me.kind_of(then_item)) != 1 { return 0 }
+      if me.is_supported_kind(me.kind_of(else_item)) != 1 { return 0 }
+      return 1
+    }
+
+    if kind == "Loop" {
+      local body_item = BoxHelpers.map_get(item, "body_item")
+      if body_item == null || BoxHelpers.is_map(body_item) != 1 { return 0 }
+      if me.is_supported_kind(me.kind_of(body_item)) != 1 { return 0 }
+      return 1
+    }
+
+    if kind == "Exit" {
+      local exit_kind = "" + BoxHelpers.map_get(item, "exit_kind")
+      if exit_kind == "" { return 0 }
+      return 1
+    }
+
+    return 0
+  }
+}
+
+static box RecipeItemBoxMain { main() { return 0 } }

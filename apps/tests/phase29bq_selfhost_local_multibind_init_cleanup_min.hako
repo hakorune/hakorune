@@ -1,0 +1,15 @@
+// Phase 29bq parser handoff: local multi-binding with initializer + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local a = 3, b = 4
+      out = out + a
+      out = out + b
+    } cleanup {
+      out = out + 20
+    }
+    print(out)
+    return 0
+  }
+}

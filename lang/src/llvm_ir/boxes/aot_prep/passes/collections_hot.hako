@@ -1,0 +1,719 @@
+// AotPrepCollectionsHotBox — rewrite Array/Map boxcall to externcall hot paths (AOT-only)
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.llvm.ir.aot_prep.helpers.common as AotPrepHelpers // for is_const_or_linear and _seek_object_end
+
+static box AotPrepCollectionsHotBox {
+  // Small helpers for field reads
+  read_field(text, key) {
+    local needle = "\"" + key + "\":\""
+    local idx = text.indexOf(needle)
+    if idx < 0 { return "" }
+    return JsonFragBox.read_string_after(text, idx + needle.length())
+  }
+  read_digits_field(text, key) {
+    local needle = "\"" + key + "\":"
+    local idx = text.indexOf(needle)
+    if idx < 0 { return "" }
+    return StringHelpers.read_digits(text, idx + needle.length())
+  }
+
+  // Build lightweight type table: vid -> "arr" | "map"
+  // copy_src_map is optional; if provided, used to resolve copy chains in PHI incoming
+  build_type_table(text, copy_src_map) {
+    local tmap = new MapBox()
+    // multi-pass to propagate copy/phi until fixpoint (cap at 12)
+    local pass = 0
+    loop(pass < 12) {
+      local before = tmap.size()
+      local i = 0
+      loop(true) {
+        local os = text.indexOf("{", i)
+        if os < 0 { break }
+        local oe = AotPrepHelpers._seek_object_end(text, os)
+        if oe < 0 { break }
+        local inst = text.substring(os, oe+1)
+        local op = AotPrepCollectionsHotBox.read_field(inst, "op")
+        if op == "newbox" {
+          local dst = AotPrepCollectionsHotBox.read_digits_field(inst, "dst")
+          if dst != "" {
+            if inst.indexOf("\"type\":\"ArrayBox\"") >= 0 { tmap.set(dst, "arr") }
+            if inst.indexOf("\"type\":\"MapBox\"") >= 0 { tmap.set(dst, "map") }
+          }
+        } else if op == "copy" {
+          local dst = AotPrepCollectionsHotBox.read_digits_field(inst, "dst")
+          local src = AotPrepCollectionsHotBox.read_digits_field(inst, "src")
+          if dst != "" && src != "" && tmap.has(src) && !tmap.has(dst) { tmap.set(dst, tmap.get(src)) }
+        } else if op == "phi" {
+          local dst = AotPrepCollectionsHotBox.read_digits_field(inst, "dst")
+          if dst != "" {
+            local kin = inst.indexOf("\"incoming\":[")
+            if kin >= 0 {
+              local abr = inst.indexOf("[", kin)
+              if abr >= 0 {
+                local aend = JsonFragBox._seek_array_end(inst, abr)
+                if aend > abr {
+                  local body = inst.substring(abr+1, aend)
+                  // Accept only when ALL incomings are already typed and all equal
+                  // Use copy resolution when copy_src_map is available
+                  local tval = ""; local all_same = 1
+                  local posb = body.indexOf("[")
+                  loop(posb >= 0) {
+                    local vid = StringHelpers.read_digits(body, posb+1)
+                    // Resolve copy chains before checking type table
+                    if vid != "" && copy_src_map != null {
+                      vid = AotPrepCollectionsHotBox.resolve_copy(copy_src_map, vid)
+                    }
+                    if vid != "" && tmap.has(vid) {
+                      local tv = tmap.get(vid)
+                      if tval == "" { tval = tv } else { if tv != tval { all_same = 0 break } }
+                    } else { all_same = 0 break }
+                    posb = body.indexOf("[", posb+1)
+                  }
+                  if all_same == 1 && tval != "" { tmap.set(dst, tval) }
+                }
+              }
+            }
+          }
+        }
+        i = oe + 1
+      }
+      // Fixpoint check
+      if tmap.size() == before { break }
+      pass = pass + 1
+    }
+    return tmap
+  }
+
+  // Backpropagation: Infer receiver types from boxcall method names
+  // Adds type signals from call sites back to receivers (max 2 iterations)
+  tmap_backprop(text, tmap, copy_src) {
+    local enabled = env.get("NYASH_AOT_CH_BACKPROP")
+    if enabled != null && ("" + enabled) == "0" { return }
+    local trace = env.get("NYASH_AOT_CH_TRACE")
+    local iter = 0
+    loop(iter < 2) {
+      local before = tmap.size()
+      local i = 0
+      loop(true) {
+        local os = text.indexOf("{", i)
+        if os < 0 { break }
+        local oe = AotPrepHelpers._seek_object_end(text, os)
+        if oe < 0 { break }
+        local inst = text.substring(os, oe+1)
+        local op = AotPrepCollectionsHotBox.read_field(inst, "op")
+        if op == "boxcall" {
+          local kbox = inst.indexOf("\"box\":")
+          if kbox >= 0 {
+            local recv_vid = StringHelpers.read_digits(inst, kbox+6)
+            if recv_vid != "" {
+              recv_vid = AotPrepCollectionsHotBox.resolve_copy(copy_src, recv_vid)
+              if !tmap.has(recv_vid) {
+                local mname = AotPrepCollectionsHotBox.read_field(inst, "method")
+                if mname == "push" {
+                  tmap.set(recv_vid, "arr")
+                  if trace != null && (""+trace) == "1" {
+                    print("[aot/collections_hot] backprop recv=" + recv_vid + " => arr via method=" + mname)
+                  }
+                } else if mname == "get" || mname == "set" || mname == "has" {
+                  local kargs = inst.indexOf("\"args\":[")
+                  if kargs >= 0 {
+                    local a0 = StringHelpers.read_digits(inst, kargs+8)
+                    if a0 != "" {
+                      a0 = AotPrepCollectionsHotBox.resolve_copy(copy_src, a0)
+                      // Check if a0 is stringy (const string or linear index)
+                      local is_stringy = 0
+                      local needle_a0 = "\"dst\":" + a0
+                      local pos_a0 = text.indexOf(needle_a0)
+                      if pos_a0 >= 0 {
+                        local os_a0 = text.substring(0, pos_a0).lastIndexOf("{")
+                        if os_a0 >= 0 {
+                          local oe_a0 = AotPrepHelpers._seek_object_end(text, os_a0)
+                          if oe_a0 > os_a0 {
+                            local inst_a0 = text.substring(os_a0, oe_a0+1)
+                            if inst_a0.indexOf("\"box_type\":\"StringBox\"") >= 0 { is_stringy = 1 }
+                            if inst_a0.indexOf("\"method\":\"toString\"") >= 0 { is_stringy = 1 }
+                            if inst_a0.indexOf("\"op\":\"binop\"") >= 0 {
+                              if inst_a0.indexOf("\"operation\":\"+\"") >= 0 || inst_a0.indexOf("\"operation\":\"add\"") >= 0 {
+                                local scan_pos = os_a0 - 100
+                                if scan_pos < 0 { scan_pos = 0 }
+                                local window = text.substring(scan_pos, os_a0 + 200)
+                                if window.indexOf("\"box_type\":\"StringBox\"") >= 0 { is_stringy = 1 }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      if is_stringy == 1 {
+                        tmap.set(recv_vid, "map")
+                        if trace != null && (""+trace) == "1" {
+                          print("[aot/collections_hot] backprop recv=" + recv_vid + " => map via method=" + mname)
+                        }
+                      } else if AotPrepHelpers.is_const_or_linear(text, a0) {
+                        tmap.set(recv_vid, "arr")
+                        if trace != null && (""+trace) == "1" {
+                          print("[aot/collections_hot] backprop recv=" + recv_vid + " => arr via method=" + mname)
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        i = oe + 1
+      }
+      if tmap.size() == before { break }
+      iter = iter + 1
+    }
+  }
+  // Static helpers replacing local fun
+  find_block_span(text, p) {
+    local key = "\"instructions\":["
+    // single-arg lastIndexOf: search within prefix
+    local prefix = text.substring(0, p)
+    local start = prefix.lastIndexOf(key)
+    if start < 0 { return "" }
+    local lb = text.indexOf("[", start)
+    if lb < 0 { return "" }
+    local rb = JsonFragBox._seek_array_end(text, lb)
+    if rb < 0 { return "" }
+    return StringHelpers.int_to_str(lb) + ":" + StringHelpers.int_to_str(rb)
+  }
+
+  // Try to infer type for a value id from its PHI definition on the fly.
+  // copy_src is used to resolve copy chains in incoming vids.
+  // Returns "arr" | "map" | "" (unknown).
+  peek_phi_type(text, dst, tmap, copy_src) {
+    if dst == "" { return "" }
+    // Scan objects and find a phi with matching dst
+    local i = 0
+    loop(true) {
+      local os = text.indexOf("{", i)
+      if os < 0 { break }
+      local oe = AotPrepHelpers._seek_object_end(text, os)
+      if oe < 0 { break }
+      local inst = text.substring(os, oe+1)
+      local op = AotPrepCollectionsHotBox.read_field(inst, "op")
+      if op == "phi" {
+        local kdst = inst.indexOf("\"dst\":")
+        local dvid = (kdst>=0 ? StringHelpers.read_digits(inst, kdst+6) : "")
+        if dvid == dst {
+          local kin = inst.indexOf("\"incoming\":[")
+          if kin >= 0 {
+            local abr = inst.indexOf("[", kin)
+            if abr >= 0 {
+              local aend = JsonFragBox._seek_array_end(inst, abr)
+              if aend > abr {
+                local body = inst.substring(abr+1, aend)
+                local tval = ""; local all_same = 1
+                local posb = body.indexOf("[")
+                loop(posb >= 0) {
+                  local vid = StringHelpers.read_digits(body, posb+1)
+                  // Follow copy chains to original typed vid if available
+                  if vid != "" { vid = AotPrepCollectionsHotBox.resolve_copy(copy_src, vid) }
+                  if vid != "" && tmap.has(vid) {
+                    local tv = tmap.get(vid)
+                    if tval == "" { tval = tv } else { if tv != tval { all_same = 0 break } }
+                  } else { all_same = 0 break }
+                  posb = body.indexOf("[", posb+1)
+                }
+                if all_same == 1 && tval != "" { return tval }
+              }
+            }
+          }
+        }
+      }
+      i = oe + 1
+    }
+    return ""
+  }
+  resolve_copy(copy_src, vid) {
+    local cur = vid
+    local depth = 0
+    loop(true){ if cur == "" { break } if !copy_src.has(cur) { break } cur = copy_src.get(cur); depth = depth + 1; if depth >= 12 { break } }
+    return cur
+  }
+
+  // Resolve receiver type by backward MIR output analysis.
+  // Scans [lb, k) range backward to find last dst assignment for bvid, then analyzes its type.
+  // Returns "arr" | "map" | "" (unknown).
+  resolve_recv_type_backward(out, bvid, lb, k, tmap, copy_src) {
+    if bvid == "" { return "" }
+    // Early return if already in type table (avoid redundant work)
+    if tmap.has(bvid) { return "" }
+
+    // Step 1: Resolve bvid through copy chains to original source
+    local resolved_vid = AotPrepCollectionsHotBox.resolve_copy(copy_src, bvid)
+    if resolved_vid == "" { resolved_vid = bvid }
+
+    // Step 2: Backward scan in [lb, k) range for last "dst":<vid> occurrence
+    local needle = "\"dst\":" + resolved_vid
+    local block_slice = out.substring(lb, k)
+    local last_pos = block_slice.lastIndexOf(needle)
+    if last_pos < 0 { return "" }
+
+    // Convert to absolute position
+    local abs_pos = lb + last_pos
+
+    // Step 3: Find the object containing this dst assignment
+    local obj_start = out.substring(0, abs_pos).lastIndexOf("{")
+    if obj_start < 0 { return "" }
+    local obj_end = AotPrepHelpers._seek_object_end(out, obj_start)
+    if obj_end < 0 || obj_end >= k { return "" }
+
+    local inst = out.substring(obj_start, obj_end+1)
+    local op = AotPrepCollectionsHotBox.read_field(inst, "op")
+
+    // Step 4: Analyze instruction to determine type
+    if op == "newbox" {
+      if inst.indexOf("\"type\":\"ArrayBox\"") >= 0 { return "arr" }
+      if inst.indexOf("\"type\":\"MapBox\"") >= 0 { return "map" }
+      return ""
+    } else if op == "copy" {
+      // Follow copy chain recursively (with depth limit)
+      local ksrc = inst.indexOf("\"src\":")
+      if ksrc >= 0 {
+        local src_vid = StringHelpers.read_digits(inst, ksrc+6)
+        if src_vid != "" {
+          local depth = 0
+          loop(depth < 12) {
+            if tmap.has(src_vid) { return tmap.get(src_vid) }
+            if !copy_src.has(src_vid) { break }
+            src_vid = copy_src.get(src_vid)
+            depth = depth + 1
+          }
+          // Try backward scan again on resolved src_vid
+          if src_vid != "" && src_vid != resolved_vid {
+            return AotPrepCollectionsHotBox.resolve_recv_type_backward(out, src_vid, lb, k, tmap, copy_src)
+          }
+        }
+      }
+      return ""
+    } else if op == "phi" {
+      // Reuse peek_phi_type logic
+      local kdst = inst.indexOf("\"dst\":")
+      local phi_dst = (kdst>=0 ? StringHelpers.read_digits(inst, kdst+6) : "")
+      if phi_dst != "" {
+        return AotPrepCollectionsHotBox.peek_phi_type(out, phi_dst, tmap, copy_src)
+      }
+      return ""
+    }
+
+    return ""
+  }
+  expr_key_in_block(text, block_lb, k, vid, copy_src) {
+    if vid == "" { return "" }
+    local needle = "\"dst\":" + vid
+    local pos = JsonFragBox.index_of_from(text, needle, block_lb)
+    local last = -1
+    while pos >= 0 && pos < k { last = pos; pos = JsonFragBox.index_of_from(text, needle, pos + 1) }
+    if last < 0 { return "" }
+    local os = text.substring(0, last).lastIndexOf("{")
+    if os < 0 { return "" }
+    local oe = AotPrepHelpers._seek_object_end(text, os)
+    if oe < 0 || oe >= k { return "" }
+    local inst = text.substring(os, oe+1)
+    if inst.indexOf("\"op\":\"const\"") >= 0 {
+      local kval = inst.indexOf("\"value\":{\"type\":\"i64\",\"value\":")
+      local val = (kval>=0 ? StringHelpers.read_digits(inst, kval+30) : "")
+      if val != "" { return "const:" + val }
+    }
+    if inst.indexOf("\"op\":\"copy\"") >= 0 {
+      local ksrc = inst.indexOf("\"src\":")
+      local svid = (ksrc>=0 ? StringHelpers.read_digits(inst, ksrc+6) : "")
+      if svid != "" { return "copy:" + AotPrepCollectionsHotBox.resolve_copy(copy_src, svid) }
+    }
+    if inst.indexOf("\"op\":\"binop\"") >= 0 {
+      local lhs_pos = inst.indexOf("\"lhs\":")
+      local rhs_pos = inst.indexOf("\"rhs\":")
+      local op_key = inst.indexOf("\"operation\":\"")
+      if lhs_pos >= 0 && rhs_pos >= 0 && op_key >= 0 {
+        local lhs = StringHelpers.read_digits(inst, lhs_pos + 6)
+        local rhs = StringHelpers.read_digits(inst, rhs_pos + 6)
+        local op = JsonFragBox.read_string_after(inst, op_key + 13)
+        lhs = AotPrepCollectionsHotBox.resolve_copy(copy_src, lhs); rhs = AotPrepCollectionsHotBox.resolve_copy(copy_src, rhs)
+        if op == "+" || op == "add" || op == "*" || op == "mul" {
+          local li = StringHelpers.to_i64(lhs)
+          local ri = StringHelpers.to_i64(rhs)
+          if li != null && ri != null && ri < li { local tmp = lhs; lhs = rhs; rhs = tmp }
+        }
+        return "binop:" + op + ":" + lhs + ":" + rhs
+      }
+    }
+    return ""
+  }
+
+  // Heuristic: detect if key vid in this block is string-ish (derived from StringBox/toString/binop '+')
+  is_stringy_key_in_block(text, block_lb, k, vid, copy_src) {
+    if vid == "" { return 0 }
+    local needle = "\"dst\":" + vid
+    local pos = JsonFragBox.index_of_from(text, needle, block_lb)
+    local last = -1
+    while pos >= 0 && pos < k { last = pos; pos = JsonFragBox.index_of_from(text, needle, pos + 1) }
+    if last < 0 { return 0 }
+    local os = text.substring(0, last).lastIndexOf("{")
+    if os < 0 { return 0 }
+    local oe = AotPrepHelpers._seek_object_end(text, os)
+    if oe < 0 || oe >= k { return 0 }
+    local inst = text.substring(os, oe+1)
+    // Enhanced detection: toString, binop with StringBox const, direct string const
+    if inst.indexOf("\"method\":\"toString\"") >= 0 { return 1 }
+    if inst.indexOf("\"op\":\"const\"") >= 0 {
+      if inst.indexOf("\"box_type\":\"StringBox\"") >= 0 { return 1 }
+    }
+    if inst.indexOf("\"op\":\"binop\"") >= 0 {
+      // If block contains a StringBox const before k, treat as stringy join
+      local head = text.substring(block_lb, k)
+      if head.indexOf("\"box_type\":\"StringBox\"") >= 0 { return 1 }
+    }
+    return 0
+  }
+  find_last_set_index_in_block(text, block_lb, k, recv_vid) {
+    if recv_vid == "" { return "" }
+    local slice = text.substring(block_lb, k)
+    local p = slice.lastIndexOf("\"op\":\"boxcall\"")
+    while p >= 0 {
+      local abs = block_lb + p
+      local os = text.substring(0, abs).lastIndexOf("{")
+      if os < 0 { break }
+      local oe = AotPrepHelpers._seek_object_end(text, os)
+      if oe < 0 || oe >= k { break }
+      local inst = text.substring(os, oe+1)
+      if inst.indexOf("\"method\":\"set\"") >= 0 {
+        local kbox = inst.indexOf("\"box\":")
+        local bid = (kbox>=0 ? StringHelpers.read_digits(inst, kbox+6) : "")
+        if bid == recv_vid {
+          local kargs = inst.indexOf("\"args\":[")
+          if kargs >= 0 {
+            local idx = StringHelpers.read_digits(inst, kargs+8)
+            if idx != "" { return idx }
+          }
+        }
+      }
+      local prefix = slice.substring(0, p)
+      p = prefix.lastIndexOf("\"op\":\"boxcall\"")
+    }
+    return ""
+  }
+  find_last_set_key_in_block(text, block_lb, k, recv_vid) {
+    if recv_vid == "" { return "" }
+    local slice = text.substring(block_lb, k)
+    local p = slice.lastIndexOf("\"op\":\"boxcall\"")
+    while p >= 0 {
+      local abs = block_lb + p
+      local os = text.substring(0, abs).lastIndexOf("{")
+      if os < 0 { break }
+      local oe = AotPrepHelpers._seek_object_end(text, os)
+      if oe < 0 || oe >= k { break }
+      local inst = text.substring(os, oe+1)
+      if inst.indexOf("\"method\":\"set\"") >= 0 {
+        local kbox = inst.indexOf("\"box\":")
+        local bid = (kbox>=0 ? StringHelpers.read_digits(inst, kbox+6) : "")
+        if bid == recv_vid {
+          local kargs = inst.indexOf("\"args\":[")
+          if kargs >= 0 {
+            local keyvid = StringHelpers.read_digits(inst, kargs+8)
+            if keyvid != "" { return keyvid }
+          }
+        }
+      }
+      local prefix = slice.substring(0, p)
+      p = prefix.lastIndexOf("\"op\":\"boxcall\"")
+    }
+    return ""
+  }
+  run(json) {
+    if json == null { return null }
+    local arr_recv = new MapBox()
+    local map_recv = new MapBox()
+    local copy_src = new MapBox()
+    // diagnostics counters (gated by NYASH_AOT_CH_TRACE)
+    local diag_rewrites = 0
+    local diag_unknown = 0
+    {
+      local pos = 0
+      loop(true){
+        local k = JsonFragBox.index_of_from(json, "\"op\":\"newbox\"", pos)
+        if k < 0 { break }
+        local kdst = JsonFragBox.index_of_from(json, "\"dst\":", k)
+        local dsts = StringHelpers.read_digits(json, kdst+6)
+        if dsts != "" {
+          if JsonFragBox.index_of_from(json, "\"type\":\"ArrayBox\"", k) >= 0 { arr_recv.set(dsts, 1) }
+          if JsonFragBox.index_of_from(json, "\"type\":\"MapBox\"", k) >= 0 { map_recv.set(dsts, 1) }
+        }
+        pos = k + 1
+      }
+      pos = 0
+      loop(true){
+        local k = JsonFragBox.index_of_from(json, "\"op\":\"copy\"", pos)
+        if k < 0 { break }
+        local kdst = JsonFragBox.index_of_from(json, "\"dst\":", k)
+        local ksrc = JsonFragBox.index_of_from(json, "\"src\":", k)
+        if kdst >= 0 && ksrc >= 0 {
+          local dsts = StringHelpers.read_digits(json, kdst+6)
+          local srcs = StringHelpers.read_digits(json, ksrc+6)
+          if dsts != "" && srcs != "" { copy_src.set(dsts, srcs) }
+        }
+        pos = k + 1
+      }
+    }
+    if arr_recv.size() == 0 && map_recv.size() == 0 {
+      // Even if no direct newbox, we may have types via copies/phi; still attempt table
+    }
+    // Prepare out text before analysis to align IDs with rewrite scan
+    local out = json
+    // Supplement copy_src by scanning current out text as well
+    {
+      local pos = 0
+      loop(true){
+        local k = JsonFragBox.index_of_from(out, "\"op\":\"copy\"", pos)
+        if k < 0 { break }
+        local kdst = JsonFragBox.index_of_from(out, "\"dst\":", k)
+        local ksrc = JsonFragBox.index_of_from(out, "\"src\":", k)
+        if kdst >= 0 && ksrc >= 0 {
+          local dsts = StringHelpers.read_digits(out, kdst+6)
+          local srcs = StringHelpers.read_digits(out, ksrc+6)
+          if dsts != "" && srcs != "" && !copy_src.has(dsts) { copy_src.set(dsts, srcs) }
+        }
+        pos = k + 1
+      }
+    }
+    // Build lightweight SSA type table (arr/map) on out text for consistency with rewrite scan
+    // Pass copy_src to enable PHI propagation through copy chains (matmul fix)
+    local type_table = AotPrepCollectionsHotBox.build_type_table(out, copy_src)
+    // Backpropagation: infer types from call sites (default enabled)
+    AotPrepCollectionsHotBox.tmap_backprop(out, type_table, copy_src)
+    {
+      // Optional trace
+      local tr = env.get("NYASH_AOT_CH_TRACE")
+      if tr != null && (""+tr) == "1" {
+        print("[aot/collections_hot] arr_recv=" + arr_recv.size() + ", map_recv=" + map_recv.size() + ", tmap_size=" + type_table.size())
+      }
+    }
+    local key_mode = env.get("NYASH_AOT_MAP_KEY_MODE")
+    
+    
+    
+    
+    
+    
+    
+    // rewrites proceed
+    
+    
+    
+    
+    
+    
+    
+    local pos2 = 0
+    local seen_key_vid = new MapBox()
+    loop(true){
+      local k = JsonFragBox.index_of_from(out, "\"op\":\"boxcall\"", pos2)
+      if k < 0 { break }
+      // Determine current object span and parse fields locally
+      local obj_start = -1; local obj_end = -1
+      {
+        local sscan = out.substring(0, k)
+        local probe = sscan.lastIndexOf("{")
+        loop(probe >= 0) {
+          local oe = AotPrepHelpers._seek_object_end(out, probe)
+          if oe >= k { obj_start = probe  obj_end = oe  break }
+          sscan = out.substring(0, probe)
+          probe = sscan.lastIndexOf("{")
+        }
+      }
+      if obj_start < 0 || obj_end < 0 { pos2 = k + 1; continue }
+      local inst = out.substring(obj_start, obj_end+1)
+      local kdst = inst.indexOf("\"dst\":")
+      local dvid = (kdst>=0 ? StringHelpers.read_digits(inst, kdst+6) : "")
+      local kbox = inst.indexOf("\"box\":")
+      if kbox < 0 { pos2 = k + 1; continue }
+      local bvid = StringHelpers.read_digits(inst, kbox+6)
+      if bvid != "" { bvid = AotPrepCollectionsHotBox.resolve_copy(copy_src, bvid) }
+      local mend = inst.indexOf("\"method\":\"")
+      if mend < 0 { pos2 = k + 1; continue }
+      local mname = JsonFragBox.read_string_after(inst, mend+10)
+      // Calculate block span early for backward resolution
+      local span = AotPrepCollectionsHotBox.find_block_span(out, k)
+      local lb = -1; local rb = -1
+      if span != null && span != "" {
+        local sep = span.indexOf(":")
+        if sep >= 0 {
+          local s_lb = span.substring(0, sep)
+          local s_rb = span.substring(sep+1, span.length())
+          lb = StringHelpers.to_i64(s_lb)
+          rb = StringHelpers.to_i64(s_rb)
+        }
+      }
+      // Prefer SSA type table; fallback to direct maps/newbox-scan
+      local ttag = (type_table.has(bvid) ? ("" + type_table.get(bvid)) : "")
+      local is_arr = (ttag == "arr")
+      local is_map = (ttag == "map")
+      if !(is_arr || is_map) {
+        // On-the-fly PHI peek when table lacks the receiver (resolve copy chains)
+        local phi_t = AotPrepCollectionsHotBox.peek_phi_type(out, bvid, type_table, copy_src)
+        if phi_t == "arr" { ttag = "arr"; is_arr = 1 }
+        else if phi_t == "map" { ttag = "map"; is_map = 1 }
+      }
+      if !(is_arr || is_map) {
+        // Backward MIR output analysis within current block
+        if lb != null && rb != null && lb >= 0 && rb >= 0 {
+          local back_t = AotPrepCollectionsHotBox.resolve_recv_type_backward(out, bvid, lb, k, type_table, copy_src)
+          if back_t == "arr" {
+            ttag = "arr"; is_arr = 1
+            local tr = env.get("NYASH_AOT_CH_TRACE")
+            if tr != null && (""+tr) == "1" {
+              print("[aot/collections_hot] recv_backtrace => arr")
+            }
+          } else if back_t == "map" {
+            ttag = "map"; is_map = 1
+            local tr = env.get("NYASH_AOT_CH_TRACE")
+            if tr != null && (""+tr) == "1" {
+              print("[aot/collections_hot] recv_backtrace => map")
+            }
+          }
+        }
+      }
+      if !(is_arr || is_map) {
+        // Method-specific disambiguation: 'push' exists only on ArrayBox
+        if mname == "push" {
+          is_arr = 1
+        }
+      }
+      if !(is_arr || is_map) {
+        is_arr = arr_recv.has(bvid)
+        is_map = map_recv.has(bvid)
+      }
+      if !(is_arr || is_map) {
+        // Fallback classification: scan last newbox before this call (single-arg lastIndexOf)
+        local prefix = out.substring(0, k)
+        local marker = prefix.lastIndexOf("\"op\":\"newbox\"")
+        if marker >= 0 {
+          local os_nb = out.substring(0, marker).lastIndexOf("{")
+          if os_nb >= 0 {
+            local oe_nb = AotPrepHelpers._seek_object_end(out, os_nb)
+            if oe_nb > os_nb {
+            local inst_nb = out.substring(os_nb, oe_nb+1)
+            local kdst_nb = inst_nb.indexOf("\"dst\":")
+            local dst_nb = (kdst_nb>=0 ? StringHelpers.read_digits(inst_nb, kdst_nb+6) : "")
+            {
+              local tr = env.get("NYASH_AOT_CH_TRACE")
+              if tr != null && (""+tr) == "1" {
+                print("[aot/collections_hot] nb.dst=" + dst_nb + ", expect recv=" + bvid + ", typeArr=" + (inst_nb.indexOf("\"ArrayBox\"")>=0) + ", typeMap=" + (inst_nb.indexOf("\"MapBox\"")>=0))
+              }
+            }
+            if dst_nb == bvid {
+              if inst_nb.indexOf("\"type\":\"ArrayBox\"") >= 0 { is_arr = 1 }
+              if inst_nb.indexOf("\"type\":\"MapBox\"") >= 0 { is_map = 1 }
+            }
+          } }
+        }
+      }
+      // Defer unknown handling until after key/idx heuristics
+      local kargs = inst.indexOf("\"args\":[")
+      local a0 = ""; local a1 = ""
+      if kargs >= 0 {
+        a0 = StringHelpers.read_digits(inst, kargs+8)
+        local sep = inst.indexOf(",", kargs)
+        if sep > 0 { a1 = StringHelpers.read_digits(inst, sep+1) }
+      }
+      if a0 != "" { a0 = AotPrepCollectionsHotBox.resolve_copy(copy_src, a0) }
+      {
+        // Trace type table classification before any rewrite to locate Unknowns
+        local tr = env.get("NYASH_AOT_CH_TRACE")
+        if tr != null && (""+tr) == "1" {
+          local tlab = (ttag == "arr" ? "Arr" : (ttag == "map" ? "Map" : "Unknown"))
+          print("[aot/collections_hot] pre-rewrite type_table recv=" + bvid + " => " + tlab + ", mname=" + mname + ", a0=" + a0 + ", a1=" + a1)
+          // Keep legacy line as well for quick skim
+          print("[aot/collections_hot] visit mname=" + mname + ", is_arr=" + is_arr + ", is_map=" + is_map + ", a0=" + a0 + ", a1=" + a1)
+        }
+      }
+      // Within the same block, try safe key/index reuse (lb/rb already calculated earlier)
+      if lb != null && rb != null && lb >= 0 && rb >= 0 {
+        if !(is_arr || is_map) {
+          // Context heuristic: for get/set/has, string-like key => Map, otherwise Array
+          if (mname == "get" || mname == "set" || mname == "has") {
+            if AotPrepCollectionsHotBox.is_stringy_key_in_block(out, lb, k, a0, copy_src) { is_map = 1 } else { is_arr = 1 }
+          }
+        }
+        local key = AotPrepCollectionsHotBox.expr_key_in_block(out, lb, k, a0, copy_src)
+          if key != "" {
+            local sc_key = (is_map ? "map:" : "arr:") + bvid + "|" + key
+            if seen_key_vid.has(sc_key) { a0 = seen_key_vid.get(sc_key) } else { seen_key_vid.set(sc_key, a0) }
+          } else if is_arr && mname == "get" {
+          // Safe set->get index reuse inside same block
+          local prev_idx = AotPrepCollectionsHotBox.find_last_set_index_in_block(out, lb, k, bvid)
+          if prev_idx != "" { a0 = prev_idx }
+        } else if is_map && mname == "get" {
+          // Fallback: reuse last set key vid inside block for same map receiver
+          local prev_key = AotPrepCollectionsHotBox.find_last_set_key_in_block(out, lb, k, bvid)
+          if prev_key != "" { a0 = prev_key }
+        }
+      }
+      if !(is_arr || is_map) {
+        {
+          local tr = env.get("NYASH_AOT_CH_TRACE")
+          if tr != null && (""+tr) == "1" {
+            print("[aot/collections_hot] boxcall mname=" + mname + ", recv=" + bvid + " (not array/map)")
+          }
+        }
+        diag_unknown = diag_unknown + 1
+        pos2 = k + 1; continue }
+      local func = ""; local args = ""
+      if is_arr {
+        if mname == "get" { func = "nyash.array.get_h"; args = bvid + "," + a0 }
+        else if mname == "set" { func = "nyash.array.set_h"; args = bvid + "," + a0 + "," + a1 }
+        else if mname == "push" { func = "nyash.array.push_h"; args = bvid + "," + a0 }
+        else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.array.len_h"; args = bvid }
+      } else if is_map {
+        local mode = key_mode
+        local use_hh = (mode == "hh")
+        if mode == "auto" { use_hh = !AotPrepHelpers.is_const_or_linear(out, a0) }
+        if use_hh {
+          if mname == "get" { func = "nyash.map.get_hh"; args = bvid + "," + a0 }
+          else if mname == "set" { func = "nyash.map.set_hh"; args = bvid + "," + a0 + "," + a1 }
+          else if mname == "has" { func = "nyash.map.has_hh"; args = bvid + "," + a0 }
+          else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.map.size_h"; args = bvid }
+        } else {
+          if mname == "get" { func = "nyash.map.get_h"; args = bvid + "," + a0 }
+          else if mname == "set" { func = "nyash.map.set_h"; args = bvid + "," + a0 + "," + a1 }
+          else if mname == "has" { func = "nyash.map.has_h"; args = bvid + "," + a0 }
+          else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.map.size_h"; args = bvid }
+        }
+      }
+      if func == "" {
+        {
+          local tr = env.get("NYASH_AOT_CH_TRACE")
+          if tr != null && (""+tr) == "1" {
+            print("[aot/collections_hot] skip method=" + mname + ", is_arr=" + is_arr + ", is_map=" + is_map)
+          }
+        }
+        pos2 = k + 1; continue
+      }
+      // obj_start/obj_end already computed above
+      local dst_part = (dvid != "" ? ("\"dst\":" + dvid + ",") : "")
+      local repl = "{" + dst_part + "\"op\":\"externcall\",\"func\":\"" + func + "\",\"args\":[" + args + "]}"
+      out = out.substring(0, obj_start) + repl + out.substring(obj_end+1, out.length())
+      diag_rewrites = diag_rewrites + 1
+      {
+        local tr = env.get("NYASH_AOT_CH_TRACE")
+        if tr != null && (""+tr) == "1" {
+          print("[aot/collections_hot] rewrite " + mname + " -> externcall " + func)
+        }
+      }
+      pos2 = obj_start + repl.length()
+    }
+    {
+      local tr = env.get("NYASH_AOT_CH_TRACE")
+      if tr != null && (""+tr) == "1" {
+        print("[aot/collections_hot] summary rewrites=" + diag_rewrites + ", unknown_recv=" + diag_unknown + ", tmap_size=" + type_table.size())
+      }
+    }
+    return out
+  }
+
+  // _seek_object_end moved to AotPrepHelpers
+}

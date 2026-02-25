@@ -1,0 +1,9 @@
+// phase29bq_hako_mirbuilder_phase14_return_boxcall_stringbox_length_abc_min.hako
+// Contract pin (MIR widening/BoxCall):
+//   Return(Method) accepts only `new StringBox("abc").length()` minimal shape.
+
+static box Main {
+  main() {
+    return new StringBox("abc").length()
+  }
+}

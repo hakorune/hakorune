@@ -1,0 +1,18 @@
+// stageb_program_min_using_only.hako
+// 目的: Stage‑B BuildBox + ParserBox だけで
+//       「using 1 行」の Program(JSON v0) emit 中に型崩れや Compare エラーが出ないか確認する最小ケース。
+//
+// - Stage1Cli や UsingResolver は通さず、BuildBox.emit_program_json_v0(src, null) を直叩きする。
+// - src は Stage‑1 minimal と同じ `using "foo/bar.hako" as Foo\n` 一行。
+
+using lang.compiler.build.build_box as BuildBox
+
+static box Main {
+  main(args) {
+    local src = "using \"foo/bar.hako\" as Foo\n"
+    local prog = BuildBox.emit_program_json_v0(src, null)
+    print("[stageb_program_min_using_only] prog=" + ("" + prog))
+    return 0
+  }
+}
+

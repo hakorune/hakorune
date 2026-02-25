@@ -1,0 +1,31 @@
+// Phase 163: Test _parse_number from JsonParserBox (Pattern2 with break)
+// Simulates: loop(digit_pos >= 0) { num_str += ch; p++; break if non-digit }
+
+static box Main {
+  main(args) {
+    local num_str = "12345abc"
+    local i = 0
+    local digits = "0123456789"
+    local result = ""
+
+    // Simulate _parse_number: collect digits until non-digit
+    loop(i < num_str.length()) {
+      local ch = num_str.substring(i, i + 1)
+      local digit_pos = digits.indexOf(ch)
+
+      // Exit on non-digit
+      if digit_pos < 0 {
+        break
+      }
+
+      // Append digit
+      result = result + ch
+      i = i + 1
+    }
+
+    print("Input: " + num_str)
+    print("Parsed: " + result)
+    print("Stopped at index: " + ("" + i))
+    return 0
+  }
+}

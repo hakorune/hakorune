@@ -1,0 +1,90 @@
+// normalizer_box.hako — Minimal normalizer for Compare maps (cmp/lhs/rhs)
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+static box NormalizerBox {
+  // Normalize cmp/lhs/rhs into MapBox with String keys
+  normalize_cmp(raw) {
+    if raw == null { return null }
+    // TEMP debug
+    if BoxHelpers.is_map(raw) && BoxHelpers.map_get(raw, "cmp") != null { print("DBG:N.cmp_in=1") } else { print("DBG:N.cmp_in=0") }
+    local out = new MapBox()
+    // cmp
+    local cmp = "" + BoxHelpers.map_get(raw, "cmp")
+    if cmp == null || cmp == "" { return null }
+    BoxHelpers.map_set(out, "cmp", cmp)
+    // lhs/rhs (delegate to StringHelpers)
+    local lhs = StringHelpers.to_i64(BoxHelpers.map_get(raw, "lhs"))
+    local rhs = StringHelpers.to_i64(BoxHelpers.map_get(raw, "rhs"))
+    BoxHelpers.map_set(out, "lhs", lhs)
+    BoxHelpers.map_set(out, "rhs", rhs)
+    if BoxHelpers.map_get(out, "cmp") != null { print("DBG:N.cmp_out=1") } else { print("DBG:N.cmp_out=0") }
+    return out
+  }
+
+  // Normalize Call: { name:String, args:[Int...] } → MapBox("name","args:Array<i64>")
+  normalize_call_ints(raw) {
+    if raw == null { return null }
+    local out = new MapBox()
+    local name = "" + BoxHelpers.map_get(raw, "name")
+    if name == null || name == "" { return null }
+    BoxHelpers.map_set(out, "name", name)
+    // args: accept array-like; fallback to empty
+    local arr = new ArrayBox()
+    local src = BoxHelpers.map_get(raw, "args")
+    if src != null {
+      local n = BoxHelpers.array_len(src)
+      local i = 0
+      loop (i < n) {
+        arr.push(StringHelpers.to_i64(BoxHelpers.array_get(src, i)))
+        i = i + 1
+      }
+    }
+    BoxHelpers.map_set(out, "args", arr)
+    return out
+  }
+
+  // Normalize Method: { method:String, args:[Int...] } → MapBox("method","args:Array<i64>")
+  normalize_method_ints(raw) {
+    if raw == null { return null }
+    local out = new MapBox()
+    local m = "" + BoxHelpers.map_get(raw, "method")
+    if m == null || m == "" { return null }
+    BoxHelpers.map_set(out, "method", m)
+    local arr = new ArrayBox()
+    local src = BoxHelpers.map_get(raw, "args")
+    if src != null {
+      local n = BoxHelpers.array_len(src)
+      local i = 0
+      loop (i < n) {
+        arr.push(StringHelpers.to_i64(BoxHelpers.array_get(src, i)))
+        i = i + 1
+      }
+    }
+    BoxHelpers.map_set(out, "args", arr)
+    return out
+  }
+
+  // Normalize New: { class:String, args:[Int...] } → MapBox("class","args:Array<i64>")
+  normalize_new_ints(raw) {
+    if raw == null { return null }
+    local out = new MapBox()
+    local c = "" + BoxHelpers.map_get(raw, "class")
+    if c == null || c == "" { return null }
+    BoxHelpers.map_set(out, "class", c)
+    local arr = new ArrayBox()
+    local src = BoxHelpers.map_get(raw, "args")
+    if src != null {
+      local n = BoxHelpers.array_len(src)
+      local i = 0
+      loop (i < n) {
+        arr.push(StringHelpers.to_i64(BoxHelpers.array_get(src, i)))
+        i = i + 1
+      }
+    }
+    BoxHelpers.map_set(out, "args", arr)
+    return out
+  }
+}
+
+static box NormalizerStub { main() { return 0 } }

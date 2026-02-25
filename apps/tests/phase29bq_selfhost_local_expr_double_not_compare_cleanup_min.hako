@@ -1,0 +1,25 @@
+// Phase 29bq parser handoff Tier-2: local init with double negation (!(!...)) + comparisons + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local cond1 = !(!(3 > 2))
+      if cond1 {
+        out = out + 10
+      } else {
+        out = out + 1
+      }
+
+      local cond2 = !(!((5 - 2) == 3)) && ((4 + 1) > 2)
+      if cond2 {
+        out = out + 100
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 1000
+    }
+    print(out)
+    return 0
+  }
+}

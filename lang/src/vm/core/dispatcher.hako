@@ -1,0 +1,202 @@
+// dispatcher.hako — NyVmDispatcher (skeleton)
+// Minimal linear executor for a single function's first block.
+
+using selfhost.vm.core.state as NyVmState
+using selfhost.vm.core.json_v0_reader as NyVmJsonV0Reader
+using selfhost.vm.core.ops.const as NyVmOpConst
+using selfhost.vm.core.ops.binop as NyVmOpBinOp
+using selfhost.vm.core.ops.ret as NyVmOpRet
+using selfhost.vm.core.ops.compare as NyVmOpCompare
+using selfhost.vm.core.ops.branch as NyVmOpBranch
+using selfhost.vm.core.ops.jump as NyVmOpJump
+using selfhost.vm.core.ops.phi as NyVmOpPhi
+using selfhost.vm.core.ops.copy as NyVmOpCopy
+using selfhost.vm.core.ops.unary as NyVmOpUnary
+using selfhost.vm.core.ops.typeop as NyVmOpTypeOp
+using selfhost.vm.core.ops.load as NyVmOpLoad
+using selfhost.vm.core.ops.store as NyVmOpStore
+using selfhost.vm.core.ops.mir_call as NyVmOpMirCall
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box NyVmDispatcher {
+  // High-level entry: run a MIR(JSON v0) string and return numeric result.
+  run(json) {
+    if json == null || json == "" { print("[core] empty json") return -1 }
+    // Locate first function and build block map
+    local f = NyVmJsonV0Reader.first_function(json)
+    if f == "" { print("[core] function not found") return -1 }
+    local block_map = NyVmJsonV0Reader.build_block_map(f)
+    // Determine entry block id: prefer function.entry, fallback to first block id, else 0
+    local entry = NyVmJsonV0Reader.read_entry_id(f)
+    if entry < 0 {
+      local first_b = NyVmJsonV0Reader.first_block(f)
+      if first_b == "" { print("[core] no blocks") return -1 }
+      entry = NyVmJsonV0Reader.read_block_id(first_b)
+      if entry < 0 { entry = 0 }
+    }
+    // Initialize state and control flow
+    local st = NyVmState.make()
+    // Initialize last error tag slot (used to surface stable tags as return)
+    st.set("last_error_tag", "")
+    // Shared memory map for load/store/mir_call ops
+    local mem = st.get("mem")
+    local current_bb = entry
+    local predecessor = -1
+    // Iteration cap (ENV override: HAKO_CORE_MAX_ITERS | NYASH_CORE_MAX_ITERS)
+    local max_iter = 10000
+    {
+      local v = env.get("HAKO_CORE_MAX_ITERS")
+      if v == null || v == "" { v = env.get("NYASH_CORE_MAX_ITERS") }
+      if v != null && v != "" {
+        local n = StringHelpers.to_i64(v)
+        if n > 0 { max_iter = n }
+      }
+    }
+    local iter = 0
+    loop (iter < max_iter) {
+      iter = iter + 1
+      using selfhost.shared.common.string_helpers as StringHelpers
+      local bjson = block_map.get(StringHelpers.int_to_str(current_bb))
+      if bjson == null { print("[core] block not found: " + StringHelpers.int_to_str(current_bb)) return -1 }
+      // Execute instructions in this block
+      local insts = NyVmJsonV0Reader.block_instructions_json(bjson)
+      if insts == "" { print("[core] empty instructions at bb" + StringHelpers.int_to_str(current_bb)) return -1 }
+
+      // First pass: apply phi nodes
+      {
+        local pos0 = 0
+        loop(true) {
+          local it0 = NyVmJsonV0Reader.next_instruction(insts, pos0)
+          if it0 == null { break }
+          if it0.get != null && it0.get("error") != null { print("[core] json error: " + it0.get("error")) return -1 }
+          local obj0 = it0.get != null ? it0.get("obj") : null
+          local next0 = it0.get != null ? it0.get("next") : null
+          if obj0 == null || obj0 == "" { break }
+          if obj0.indexOf("\"op\":\"phi\"") >= 0 {
+            local rc_phi = NyVmOpPhi.handle(obj0, st, predecessor)
+            if rc_phi < 0 { return rc_phi }
+            if next0 == null { break }
+            pos0 = next0
+            continue
+          }
+          break
+        }
+      }
+
+      // Second pass: execute remaining instructions until a terminator
+      local pos = 0
+      local next_bb = null
+      loop(true) {
+        local it = NyVmJsonV0Reader.next_instruction(insts, pos)
+        if it == null { break }
+        if it.get != null && it.get("error") != null { print("[core] json error: " + it.get("error")) return -1 }
+        local obj = it.get != null ? it.get("obj") : null
+        local nextp = it.get != null ? it.get("next") : null
+        if obj == null || obj == "" { break }
+        if obj.indexOf("\"op\":\"phi\"") >= 0 { pos = nextp != null ? nextp : pos; continue }
+        if obj.indexOf("\"op\":\"const\"") >= 0 {
+          local rc = NyVmOpConst.handle(obj, st)
+          if rc < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return rc
+          }
+        } else if obj.indexOf("\"op\":\"binop\"") >= 0 {
+          local rc2 = NyVmOpBinOp.handle(obj, st)
+          if rc2 < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return rc2
+          }
+        } else if obj.indexOf("\"op\":\"copy\"") >= 0 {
+          local rc_c = NyVmOpCopy.handle(obj, st)
+          if rc_c < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return rc_c
+          }
+        } else if obj.indexOf("\"op\":\"unop\"") >= 0 || obj.indexOf("\"op\":\"unaryop\"") >= 0 {
+          local rc_u = NyVmOpUnary.handle(obj, st)
+          if rc_u < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return rc_u
+          }
+        } else if obj.indexOf("\"op\":\"compare\"") >= 0 {
+          local rc3 = NyVmOpCompare.handle(obj, st)
+          if rc3 < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return rc3
+          }
+        } else if obj.indexOf("\"op\":\"branch\"") >= 0 {
+          local nb = NyVmOpBranch.handle(obj, st)
+          if nb < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return nb
+          }
+          next_bb = nb
+          break
+        } else if obj.indexOf("\"op\":\"jump\"") >= 0 {
+          local nb2 = NyVmOpJump.handle(obj)
+          if nb2 < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return nb2
+          }
+          next_bb = nb2
+          break
+        } else if obj.indexOf("\"op\":\"typeop\"") >= 0 {
+          local rc_t = NyVmOpTypeOp.handle(obj, st)
+          if rc_t < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return rc_t
+          }
+        } else if obj.indexOf("\"op\":\"load\"") >= 0 {
+          local rc_l = NyVmOpLoad.handle(obj, st, mem)
+          if rc_l < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return rc_l
+          }
+        } else if obj.indexOf("\"op\":\"store\"") >= 0 {
+          local rc_s = NyVmOpStore.handle(obj, st, mem)
+          if rc_s < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return rc_s
+          }
+        } else if obj.indexOf("\"op\":\"mir_call\"") >= 0 {
+          local rc_m = NyVmOpMirCall.handle(obj, st)
+          if rc_m < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return rc_m
+          }
+        } else if obj.indexOf("\"op\":\"ret\"") >= 0 {
+          local rrc = NyVmOpRet.handle(obj, st)
+          if rrc < 0 {
+            local tag = st.get("last_error_tag")
+            if tag != null && tag != "" { return tag }
+            return rrc
+          }
+          return rrc
+        } else {
+          print("[core] unsupported op: " + obj)
+          return -1
+        }
+        if nextp == null { break }
+        pos = nextp
+      }
+      if next_bb == null { return 0 }
+      predecessor = current_bb
+      current_bb = next_bb
+    }
+    print("[core] max iterations reached")
+    return -1
+  }
+}
+
+static box NyVmDispatcherMain { main(args){ return 0 } }

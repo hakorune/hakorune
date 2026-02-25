@@ -1,0 +1,10 @@
+// RVP-C01 capability fixture
+// Contract:
+// - vm-hako route must accept newbox(FileBox) and return success.
+
+static box Main {
+  main() {
+    local f = new FileBox()
+    return 0
+  }
+}

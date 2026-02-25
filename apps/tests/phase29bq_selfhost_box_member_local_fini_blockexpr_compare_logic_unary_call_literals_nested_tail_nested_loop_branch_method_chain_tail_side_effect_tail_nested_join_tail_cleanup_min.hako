@@ -1,0 +1,140 @@
+// Phase 29bq parser handoff Tier-16: box method + local/fini + blockexpr + compare/logic + unary/call + null/array-map literal + nested if/else tail + nested loop/branch mix + method-chain tail + side-effect tail + nested-join tail + cleanup cross.
+box Counter {
+  step(delta) {
+    return delta + 1
+  }
+
+  tail_side(value) {
+    local t = value
+    if t > -1 {
+      t = t + 0
+    } else {
+      t = 0
+    }
+    return value
+  }
+
+  cleanup_bonus() {
+    return 101
+  }
+}
+
+static box Main {
+  main() {
+    local counter = new Counter()
+    local out = 0
+
+    {
+      local i = 0
+      local token = {
+        local arr = [10, 20]
+        local m = %{"k" => 1}
+        local n = null
+        local cond = (!(counter.step(0) == 2) && (arr.length() == 2)) || (m == n)
+        local score = 0
+        if cond {
+          if arr.length() == 2 {
+            score = 1
+          } else {
+            score = 2
+          }
+        } else {
+          if n == null {
+            score = 4
+          } else {
+            score = 5
+          }
+        }
+        score
+      } fini {
+        out = out + token
+      }
+
+      loop(i < 3) {
+        i = i + 1
+
+        local mid = {
+          local base = counter.step(i)
+          local arr2 = [base, i]
+          local tmp = 0
+          if arr2.length() == 2 {
+            if base > 0 {
+              tmp = arr2.length() + base
+            } else {
+              tmp = 8
+            }
+          } else {
+            if i > 10 {
+              tmp = 9
+            } else {
+              tmp = 7
+            }
+          }
+
+          local inner = 0
+          local j = 0
+          loop(j < 2) {
+            j = j + 1
+            if j == 1 {
+              inner = inner + counter.step(j)
+              continue
+            } else {
+              if base > 1 {
+                inner = inner + counter.step(base)
+              } else {
+                inner = inner + 1
+              }
+              break
+            }
+          }
+
+          local tail_chain = {
+            local s = "  zz  "
+            s.trim().substring(0, 1).length()
+          }
+
+          local nested_join = {
+            local join_score = 0
+            if base > 1 {
+              if i > 1 {
+                join_score = 2
+              } else {
+                join_score = 2
+              }
+            } else {
+              if arr2.length() == 2 {
+                join_score = 2
+              } else {
+                join_score = 2
+              }
+            }
+            join_score
+          }
+
+          counter.tail_side(tmp + inner + tail_chain + nested_join - 3)
+        }
+
+        local m2 = %{"x" => mid}
+        local cond2 = (!(counter.step(i) == 5) && ((-mid) < -2)) || (m2 == null)
+        if cond2 {
+          out = out + counter.step(mid)
+
+          if i == 2 {
+            continue
+          }
+
+          if i == 3 {
+            break
+          }
+        }
+
+        out = out + counter.step(1)
+      }
+    } cleanup {
+      out = out + counter.cleanup_bonus()
+    }
+
+    print(out)
+    return 0
+  }
+}

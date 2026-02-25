@@ -1,0 +1,21 @@
+// Phase 161 Representative Function 3: Nested If Inside Loop
+// Pattern: If statement nested inside loop generating multiple PHI instructions
+// Tests: Complex PHI detection, nested block analysis, mixed if/loop patterns
+
+box Main {
+    main() {
+        local i = 0
+        local sum = 0
+
+        loop(i < 10) {
+            if i % 2 == 0 {
+                sum = sum + i
+            } else {
+                sum = sum - i
+            }
+            i = i + 1
+        }
+
+        print(sum)
+    }
+}

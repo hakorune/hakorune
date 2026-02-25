@@ -1,0 +1,20 @@
+// parse_program2 AND+substring condition (loop(true) + continue + break)
+// Expected: stdout=1, RC=0
+static box Main {
+  main() {
+    local src = ";"
+    local i = 0
+    local n = src.length()
+
+    loop(true) {
+      if i < n && src.substring(i, i + 1) == ";" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+
+    print(i)
+    return 0
+  }
+}

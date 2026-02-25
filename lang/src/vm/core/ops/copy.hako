@@ -1,0 +1,29 @@
+// ops/copy.hako — NyVmOpCopy
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+
+static box NyVmOpCopy {
+  _read_int(inst_json, key) {
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return null }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return null }
+    p = p + 1
+    loop(true) { local ch = inst_json.substring(p,p+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue } break }
+    local digits = JsonCursorBox.digits_from(inst_json, p)
+    if digits == "" { return null }
+    return StringHelpers.to_i64(digits)
+  }
+  handle(inst_json, state) {
+    local dst = me._read_int(inst_json, "dst")
+    local src = me._read_int(inst_json, "src")
+    if dst == null || src == null { print("[core/copy] missing dst or src") return -1 }
+    local v = NyVmState.get_reg(state, src)
+    NyVmState.set_reg(state, dst, v)
+    return 0
+  }
+}
+
+static box NyVmOpCopyMain { main(args){ return 0 } }

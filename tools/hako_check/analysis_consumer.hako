@@ -1,0 +1,458 @@
+// tools/hako_check/analysis_consumer.hako - HakoAnalysisBuilderBox (MVP)
+// Build a minimal Analysis IR from raw .hako source (no Rust parser needed).
+// IR (MapBox): {
+//   path: String,
+//   uses: Array<String>,
+//   boxes: Array<Map{name,is_static,methods:Array<Map{name,arity,span}}}>,
+//   methods: Array<String> (qualified: Box.method/arity),
+//   calls: Array<Map{from,to}},
+//   entrypoints: Array<String>
+// }
+
+using tools.hako_parser.parser_core as HakoParserCoreBox
+using tools.hako_check.text_ops as TextOps
+
+static box HakoAnalysisBuilderBox {
+  build_from_source(text, path) { return me.build_from_source_flags(text, path, 0) }
+  build_from_source_flags(text, path, no_ast) {
+    local ir = new MapBox()
+    ir.set("path", path)
+    ir.set("uses", new ArrayBox())
+    ir.set("boxes", new ArrayBox())
+    ir.set("methods", new ArrayBox())
+    ir.set("calls", new ArrayBox())
+    ir.set("method_spans", new ArrayBox())
+    ir.set("source", text)
+    local eps = new ArrayBox(); eps.push("Main.main"); eps.push("main"); ir.set("entrypoints", eps)
+    // debug disabled in strict environments
+    local debug = 0
+
+    // Prefer AST (Hako Parser) if possible
+    local ast = null
+    if no_ast == 0 { ast = HakoParserCoreBox.parse(text) }
+    if ast != null {
+      // uses (with fallback for backward compat)
+      local uses = ast.get("uses"); if uses == null { uses = ast.get("uses_arr") }
+      if uses != null { me._push_uses_from_ast(uses, 0, ir) }
+      // aliases (if present)
+      local aliases = ast.get("aliases")
+      if aliases != null { ir.set("aliases", aliases) }
+      // methods (qualified: Box.method/arity) and boxes metadata
+      local boxes_ast = ast.get("boxes"); if boxes_ast == null { boxes_ast = ast.get("boxes_arr") }
+      if boxes_ast != null { me._push_boxes_from_ast(boxes_ast, 0, ir) }
+    }
+
+    // 1) collect using lines(scan text only when AST is empty)
+    local lines = me._split_lines(text)
+    if ir.get("uses") == null || ir.get("uses").size() == 0 {
+      me._scan_uses_in_lines(lines, 0, ir)
+    }
+
+    // 2) scan static/box and methods when AST did not populate any methods or boxes
+    local need_method_scan = 1
+    if ir.get("methods") != null { if ir.get("methods").size() > 0 { need_method_scan = 0 } }
+    // Also scan if boxes array is empty (for HC012 dead static box detection)
+    local need_box_scan = 0
+    if ir.get("boxes") != null { if ir.get("boxes").size() == 0 { need_box_scan = 1 } }
+    if need_method_scan == 1 || need_box_scan == 1 {
+      // debug noop
+      local boxes_arr = me._ensure_array(ir, "boxes")
+      local methods_arr = me._ensure_array(ir, "methods")
+      local spans_arr2 = me._ensure_array(ir, "method_spans")
+      me._scan_boxes_and_methods(lines, 0, null, boxes_arr, methods_arr, spans_arr2)
+    }
+    // Fill method_spans when AST was skipped or incomplete and scan didn't populate spans.
+    local spans_arr = ir.get("method_spans")
+    if spans_arr != null && spans_arr.size() == 0 {
+      me._scan_method_spans_only(lines, 0, null, spans_arr)
+    }
+    // Final fallback: super simple scan over raw text if still no methods
+    if ir.get("methods").size() == 0 { me._scan_methods_fallback(text, ir) }
+
+    // 3) calls: naive pattern Box.method( or Alias.method(  - with arity inference
+    // For MVP, we scan whole text and link within same file boxes only.
+    // debug noop
+    local calls_arr = me._ensure_array(ir, "calls")
+    me._scan_calls_in_lines(lines, 0, ir, calls_arr)
+
+    // Phase 156: Integrate MIR CFG if available
+    local mir_json_text = ir.get("_mir_json_text")
+    if mir_json_text != null {
+      local cfg = me._extract_cfg_from_mir_json(mir_json_text)
+      ir.set("cfg", cfg)
+    } else {
+      // Phase 155: Fallback - empty CFG structure
+      local cfg = new MapBox()
+      local cfg_functions = new ArrayBox()
+      cfg.set("functions", cfg_functions)
+      ir.set("cfg", cfg)
+    }
+
+    return ir
+  }
+
+  // Phase 171-2: Extract CFG from MIR JSON text (parser disabled in selfhost)
+  _extract_cfg_from_mir_json(json_text) {
+    if json_text == null { return me._empty_cfg() }
+    // JSON parser is disabled in this selfhost path; keep CFG empty.
+    return me._empty_cfg()
+  }
+
+  _empty_cfg() {
+    local cfg = new MapBox()
+    local functions = new ArrayBox()
+    cfg.set("functions", functions)
+    return cfg
+  }
+
+  _atoi(s) {
+    if s == null { return 0 }
+    local n = s.length(); if n == 0 { return 0 }
+    local i = 0; local v = 0
+    local digits = "0123456789"
+    while i < n {
+      local ch = s.substring(i,i+1)
+      if ch < "0" || ch > "9" { break }
+      local pos = digits.indexOf(ch)
+      if pos < 0 { break }
+      v = v * 10 + pos
+      i = i + 1
+    }
+    return v
+  }
+
+  // utilities
+  _ltrim(s) {
+    local i = me._skip_ws(s, 0)
+    return s.substring(i)
+  }
+  _skip_ws(s, start) {
+    if s == null { return start }
+    local n = s.length()
+    local i = start
+    loop (i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch != " " && ch != "\t" { break }
+      i = i + 1
+    }
+    return i
+  }
+  _itoa(n) { return TextOps._itoa(n) }
+  _is_top_level_close(raw) {
+    if raw == null { return 0 }
+    if me._trim(raw) != "}" { return 0 }
+    if me._skip_ws(raw, 0) != 0 { return 0 }
+    return 1
+  }
+  _split_lines(s) {
+    local arr = new ArrayBox(); if s == null { return arr }
+    local n = s.length(); local last = 0; local i = 0
+    loop (i < n) { local ch = s.substring(i,i+1); if ch == "\n" { arr.push(s.substring(last,i)); last = i+1 } i = i + 1 }
+    if last <= n { arr.push(s.substring(last)) }
+    return arr
+  }
+  _rstrip(s) {
+    return me._trim(s)
+  }
+  _trim(s) {
+    if s == null { return "" }
+    local n = s.length()
+    local i = 0
+    loop(i < n && (s.substring(i,i+1) == " " || s.substring(i,i+1) == "\t")) { i = i + 1 }
+    local j = n
+    loop(j > i && (s.substring(j-1,j) == " " || s.substring(j-1,j) == "\t" || s.substring(j-1,j) == ";")) { j = j - 1 }
+    return s.substring(i, j)
+  }
+  _upto(s, needle) {
+    local p = s.indexOf(needle)
+    if p < 0 { return me._rstrip(s) }
+    return s.substring(0,p)
+  }
+  _count_commas_in_parens(rest) {
+    // method foo(a,b,c) -> 3 ; if empty -> 0
+    local p1 = rest.indexOf("("); local p2 = rest.indexOf(")", p1+1)
+    if p1 < 0 || p2 < 0 || p2 <= p1+1 { return 0 }
+    local inside = rest.substring(p1+1, p2)
+    if inside == "" { return 0 }
+    return 1 + me._count_commas_from(inside, 0)
+  }
+  _count_commas_from(s, start) {
+    local p = s.indexOf(",", start)
+    if p < 0 { return 0 }
+    return 1 + me._count_commas_from(s, p + 1)
+  }
+  _scan_methods_fallback(text, ir) {
+    if text == null { return 0 }
+    local methods = ir.get("methods")
+    local box_name = "Main"
+    // find "static box Name" to prefer given name
+    local pbox = text.indexOf("static box ")
+    if pbox >= 0 {
+      local after = pbox + "static box ".length()
+      local name = me._scan_ident_fwd(text, after)
+      if name != null { box_name = name }
+    }
+    return me._scan_methods_fallback_from(text, 0, box_name, methods)
+  }
+  _scan_methods_fallback_from(text, pos, box_name, methods) {
+    local k = text.indexOf("method ", pos)
+    if k < 0 { return methods.size() }
+    local i = k + "method ".length()
+    local mname = me._scan_ident_fwd(text, i)
+    if mname == null { return me._scan_methods_fallback_from(text, i + 1, box_name, methods) }
+    local after = i + mname.length()
+    local ar = me._count_commas_in_parens(text.substring(after))
+    methods.push(box_name + "." + mname + "/" + me._itoa(ar))
+    return me._scan_methods_fallback_from(text, after, box_name, methods)
+  }
+  _push_uses_from_ast(uses, idx, ir) {
+    if uses == null { return 0 }
+    if idx >= uses.size() { return 0 }
+    me._ensure_array(ir, "uses").push(uses.get(idx))
+    return me._push_uses_from_ast(uses, idx + 1, ir)
+  }
+  _push_boxes_from_ast(boxes_ast, idx, ir) {
+    if boxes_ast == null { return 0 }
+    if idx >= boxes_ast.size() { return 0 }
+    local b = boxes_ast.get(idx)
+    local name = b.get("name")
+    local is_static = b.get("is_static")
+    local span_line = b.get("span_line")
+
+    local box_info = new MapBox()
+    box_info.set("name", name)
+    box_info.set("is_static", is_static)
+    box_info.set("methods", new ArrayBox())
+    if span_line != null { box_info.set("span_line", span_line) }
+
+    local ms = b.get("methods")
+    if ms != null { me._push_methods_from_box(ms, name, ir, box_info, 0) }
+
+    me._ensure_array(ir, "boxes").push(box_info)
+    return me._push_boxes_from_ast(boxes_ast, idx + 1, ir)
+  }
+  _push_methods_from_box(ms, name, ir, box_info, idx) {
+    if ms == null { return 0 }
+    if idx >= ms.size() { return 0 }
+    local m = ms.get(idx)
+    local qual = name + "." + m.get("name") + "/" + me._itoa(m.get("arity"))
+    me._ensure_array(ir, "methods").push(qual)
+    local spans = me._ensure_array(ir, "method_spans")
+    local rec = new MapBox(); rec.set("name", qual); rec.set("line", m.get("span"))
+    spans.push(rec)
+
+    local method_info = new MapBox()
+    method_info.set("name", m.get("name"))
+    method_info.set("arity", m.get("arity"))
+    method_info.set("span", m.get("span"))
+    local box_info_methods = box_info.get("methods")
+    box_info_methods.push(method_info)
+
+    return me._push_methods_from_box(ms, name, ir, box_info, idx + 1)
+  }
+  _scan_uses_in_lines(lines, idx, ir) {
+    if idx >= lines.size() { return 0 }
+    local ln = me._ltrim(lines.get(idx))
+    if ln.indexOf('using "') == 0 {
+      local q1 = ln.indexOf('"')
+      local q2 = -1
+      if q1 >= 0 { q2 = ln.indexOf('"', q1+1) }
+      if q1 >= 0 && q2 > q1 { me._ensure_array(ir, "uses").push(ln.substring(q1+1, q2)) }
+    }
+    return me._scan_uses_in_lines(lines, idx + 1, ir)
+  }
+  _scan_boxes_and_methods(lines, idx, cur_name, boxes_arr, methods_arr, spans_arr) {
+    if idx >= lines.size() { return 0 }
+    local raw = lines.get(idx)
+    local ln = me._ltrim(raw)
+    if ln.indexOf("static box ") == 0 {
+      local rest = ln.substring("static box ".length())
+      local sp = me._upto(rest, " {")
+      cur_name = sp
+      local b = new MapBox(); b.set("name", cur_name); b.set("is_static", true); b.set("span_line", idx + 1); b.set("methods", new ArrayBox())
+      boxes_arr.push(b)
+      return me._scan_boxes_and_methods(lines, idx + 1, cur_name, boxes_arr, methods_arr, spans_arr)
+    }
+    if ln.indexOf("method ") == 0 || me._is_bare_method_header(ln) == 1 {
+      if cur_name == null { cur_name = "Main" }
+      local rest = (ln.indexOf("method ") == 0) ? ln.substring("method ".length()) : ln
+      local p = rest.indexOf("(")
+      local mname = (p>0) ? rest.substring(0,p) : rest
+      mname = me._rstrip(mname)
+      local arity = me._count_commas_in_parens(rest)
+      local method = new MapBox(); method.set("name", mname); method.set("arity", arity); method.set("span", (idx+1))
+      local last_box = boxes_arr.get(boxes_arr.size()-1)
+      local box_methods = last_box.get("methods")
+      box_methods.push(method)
+      methods_arr.push(cur_name + "." + mname + "/" + me._itoa(arity))
+      if spans_arr != null {
+        local qual = cur_name + "." + mname + "/" + me._itoa(arity)
+        local rec = new MapBox(); rec.set("name", qual); rec.set("line", idx + 1)
+        spans_arr.push(rec)
+      }
+      return me._scan_boxes_and_methods(lines, idx + 1, cur_name, boxes_arr, methods_arr, spans_arr)
+    }
+    if me._is_top_level_close(raw) == 1 { cur_name = null }
+    return me._scan_boxes_and_methods(lines, idx + 1, cur_name, boxes_arr, methods_arr, spans_arr)
+  }
+  _scan_method_spans_only(lines, idx, cur_name, spans_arr) {
+    if spans_arr == null { return 0 }
+    if idx >= lines.size() { return 0 }
+    local raw = lines.get(idx)
+    local ln = me._ltrim(raw)
+    if ln.indexOf("static box ") == 0 || ln.indexOf("box ") == 0 {
+      local is_static = (ln.indexOf("static box ") == 0)
+      local head = is_static ? "static box " : "box "
+      local rest = ln.substring(head.length())
+      local sp = me._upto(rest, " {")
+      cur_name = sp
+      return me._scan_method_spans_only(lines, idx + 1, cur_name, spans_arr)
+    }
+    if ln.indexOf("method ") == 0 || me._is_bare_method_header(ln) == 1 {
+      if cur_name == null { cur_name = "Main" }
+      local rest = (ln.indexOf("method ") == 0) ? ln.substring("method ".length()) : ln
+      local p = rest.indexOf("(")
+      local mname = (p>0) ? rest.substring(0,p) : rest
+      mname = me._rstrip(mname)
+      local arity = me._count_commas_in_parens(rest)
+      local qual = cur_name + "." + mname + "/" + me._itoa(arity)
+      local rec = new MapBox(); rec.set("name", qual); rec.set("line", idx + 1)
+      spans_arr.push(rec)
+      return me._scan_method_spans_only(lines, idx + 1, cur_name, spans_arr)
+    }
+    if me._is_top_level_close(raw) == 1 { cur_name = null }
+    return me._scan_method_spans_only(lines, idx + 1, cur_name, spans_arr)
+  }
+  _is_bare_method_header(ln) {
+    if ln == null { return 0 }
+    if ln.indexOf("method ") == 0 { return 0 }
+    if ln.indexOf("static box ") == 0 { return 0 }
+    if ln.indexOf("box ") == 0 { return 0 }
+    local name = me._scan_ident_fwd(ln, 0)
+    if name == null { return 0 }
+    if me._is_method_keyword(name) == 1 { return 0 }
+    local p = ln.indexOf("(")
+    if p <= 0 { return 0 }
+    local j = name.length()
+    loop (j < p) {
+      local ch = ln.substring(j, j + 1)
+      if ch != " " && ch != "\t" { return 0 }
+      j = j + 1
+    }
+    if ln.indexOf("{", p) < 0 { return 0 }
+    return 1
+  }
+  _is_method_keyword(name) {
+    if name == "if" { return 1 }
+    if name == "while" { return 1 }
+    if name == "for" { return 1 }
+    if name == "loop" { return 1 }
+    if name == "function" { return 1 }
+    if name == "return" { return 1 }
+    if name == "break" { return 1 }
+    if name == "continue" { return 1 }
+    if name == "else" { return 1 }
+    if name == "elif" { return 1 }
+    if name == "elseif" { return 1 }
+    if name == "try" { return 1 }
+    if name == "catch" { return 1 }
+    if name == "switch" { return 1 }
+    if name == "case" { return 1 }
+    if name == "default" { return 1 }
+    return 0
+  }
+  _scan_calls_in_lines(lines, idx, ir, calls_arr) {
+    if idx >= lines.size() { return 0 }
+    local ln = lines.get(idx)
+    local src = me._last_method_for_line(ir, idx+1)
+    me._scan_calls_in_line(ln, src, calls_arr, 0)
+    return me._scan_calls_in_lines(lines, idx + 1, ir, calls_arr)
+  }
+  _scan_calls_in_line(ln, src, calls_arr, pos) {
+    local dot = ln.indexOf(".", pos)
+    if dot < 0 { return 0 }
+    local lhs = me._scan_ident_rev(ln, dot-1)
+    local rhs = me._scan_ident_fwd(ln, dot+1)
+    if lhs != null && rhs != null {
+      local ar = me._infer_call_arity(ln, dot + 1 + rhs.length())
+      local tgt = lhs + "." + rhs + "/" + me._itoa(ar)
+      local c = new MapBox(); c.set("from", src); c.set("to", tgt)
+      calls_arr.push(c)
+    }
+    return me._scan_calls_in_line(ln, src, calls_arr, dot + 1)
+  }
+  _scan_ident_rev(s, i) {
+    if i < 0 { return null }
+    local len = me._scan_ident_rev_len(s, i)
+    if len == 0 { return null }
+    return s.substring(i - len + 1, i + 1)
+  }
+  _scan_ident_rev_len(s, i) {
+    if i < 0 { return 0 }
+    local c = s.substring(i, i+1)
+    if me._is_ident_char(c) == 0 { return 0 }
+    return 1 + me._scan_ident_rev_len(s, i - 1)
+  }
+  _scan_ident_fwd(s, i) {
+    local n = s.length(); if i >= n { return null }
+    local len = me._scan_ident_fwd_len(s, i, n)
+    if len == 0 { return null }
+    return s.substring(i, i + len)
+  }
+  _scan_ident_fwd_len(s, i, n) {
+    if i >= n { return 0 }
+    local c = s.substring(i, i+1)
+    if me._is_ident_char(c) == 0 { return 0 }
+    return 1 + me._scan_ident_fwd_len(s, i + 1, n)
+  }
+  _is_ident_char(c) {
+    if c == "_" { return 1 }
+    if c >= "A" && c <= "Z" { return 1 }
+    if c >= "a" && c <= "z" { return 1 }
+    if c >= "0" && c <= "9" { return 1 }
+    return 0
+  }
+  _last_method_for_line(ir, line_num) {
+    // Conservative: return default entry when spans are not guaranteed to be maps
+    // This avoids runtime errors when method_spans is absent or malformed in MVP builds.
+    return "Main.main/0"
+  }
+  _infer_call_arity(line, after_name_pos) {
+    // Count commas between the first '(' after method name and its matching ')'
+    if line == null { return 0 }
+    local lp = me._seek_lparen(line, after_name_pos)
+    if lp < 0 { return 0 }
+    local res = me._count_commas_any(line, lp + 1, 0, 0)
+    local any = res.get("any")
+    if any == 0 { return 0 }
+    return res.get("commas") + 1
+  }
+  _seek_lparen(line, i) {
+    if i >= line.length() { return -1 }
+    local ch = line.substring(i, i+1)
+    if ch == "(" { return i }
+    if ch != " " && ch != "\t" { return -1 }
+    return me._seek_lparen(line, i + 1)
+  }
+  _count_commas_any(line, i, commas, any) {
+    if i >= line.length() { return me._make_count_result(commas, any) }
+    local ch = line.substring(i, i+1)
+    if ch == ")" { return me._make_count_result(commas, any) }
+    if ch == "," { commas = commas + 1 }
+    if ch != " " && ch != "\t" { any = 1 }
+    return me._count_commas_any(line, i + 1, commas, any)
+  }
+  _make_count_result(commas, any) {
+    local rec = new MapBox(); rec.set("commas", commas); rec.set("any", any)
+    return rec
+  }
+  _ensure_array(m, key) {
+    if m == null { return new ArrayBox() }
+    // If key absent, create and return a new ArrayBox
+    if m.has(key) == 0 { local arr = new ArrayBox(); m.set(key, arr); return arr }
+    // Otherwise return the existing value
+    return m.get(key)
+  }
+}
+
+static box HakoAnalysisBuilderMain { method main(args) { return 0 } }

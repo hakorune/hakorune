@@ -1,0 +1,7 @@
+// module_roots_priority_override_box.hako
+// Purpose: [modules] 側の優先値（value=2）
+
+static box ModuleRootsPriorityBox {
+  value() { return 2 }
+}
+

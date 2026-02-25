@@ -1,0 +1,492 @@
+// TryCleanupStmtHandler — Handle minimal Try(cleanup) statement in Program JSON v0 parsing
+// Responsibility: accept only minimal non-loop postfix cleanup shapes for M7-min-3.
+//
+// Accepted Program(JSON v0) shape (minimal):
+// - type=Try
+// - catches=[]
+// - try=[<single assignment-like stmt>]
+// - finally=[<single print-like stmt>] or [<single assignment-like stmt>]
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+using lang.compiler.mirbuilder.stmt_handlers.assignment_stmt_handler as AssignmentStmtHandler
+using lang.compiler.mirbuilder.stmt_handlers.print_stmt_handler as PrintStmtHandler
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box TryCleanupStmtHandler {
+  _err(
+    tag,
+    msg,
+    next_idx,
+    has_assignment,
+    assign_name,
+    assign_rhs,
+    has_print,
+    printv,
+    print_kind,
+    print_var_name
+  ) {
+    return %{
+      "err" => 1,
+      "err_line" => tag + msg,
+      "next_idx" => next_idx,
+      "has_assignment" => has_assignment,
+      "assign_name" => assign_name,
+      "assign_rhs" => assign_rhs,
+      "has_print" => has_print,
+      "printv" => printv,
+      "print_kind" => print_kind,
+      "print_var_name" => print_var_name,
+      "recipe_item" => RecipeItemBox.seq([])
+    }
+  }
+
+  _ok(
+    next_idx,
+    has_assignment,
+    assign_name,
+    assign_rhs,
+    assign_rhs_kind,
+    has_print,
+    printv,
+    print_kind,
+    print_var_name,
+    recipe_item
+  ) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "next_idx" => next_idx,
+      "has_assignment" => has_assignment,
+      "assign_name" => assign_name,
+      "assign_rhs" => assign_rhs,
+      "assign_rhs_kind" => assign_rhs_kind,
+      "has_print" => has_print,
+      "printv" => printv,
+      "print_kind" => print_kind,
+      "print_var_name" => print_var_name,
+      "recipe_item" => recipe_item
+    }
+  }
+
+  _single_stmt_array_field_start(program_json, obj_start, field, tag) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, field, obj_start)
+    if p < 0 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Try missing " + field + " array",
+        "obj_start" => -1
+      }
+    }
+    p = StringHelpers.skip_ws(program_json, p)
+    if ProgramJsonV0ScannerBox._read_char(program_json, p) != "[" {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Try " + field + " is not array",
+        "obj_start" => -1
+      }
+    }
+
+    local first = StringHelpers.skip_ws(program_json, p + 1)
+    if ProgramJsonV0ScannerBox._read_char(program_json, first) != "{" {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/stmt:Try] Try " + field + " must contain exactly one stmt object",
+        "obj_start" => -1
+      }
+    }
+
+    local first_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, first)
+    if first_end < 0 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Try " + field + " stmt object is invalid",
+        "obj_start" => -1
+      }
+    }
+
+    local after = StringHelpers.skip_ws(program_json, first_end)
+    if ProgramJsonV0ScannerBox._read_char(program_json, after) != "]" {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/stmt:Try] Try " + field + " must contain exactly one stmt object",
+        "obj_start" => -1
+      }
+    }
+
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "obj_start" => first
+    }
+  }
+
+  _ensure_empty_array_field(program_json, obj_start, field, tag) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, field, obj_start)
+    if p < 0 {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Try missing " + field + " array"
+      }
+    }
+    p = StringHelpers.skip_ws(program_json, p)
+    if ProgramJsonV0ScannerBox._read_char(program_json, p) != "[" {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/program_json_v0] Try " + field + " is not array"
+      }
+    }
+    p = StringHelpers.skip_ws(program_json, p + 1)
+    if ProgramJsonV0ScannerBox._read_char(program_json, p) != "]" {
+      return %{
+        "err" => 1,
+        "err_line" => tag + "[cap_missing/stmt:Try] Try " + field + " must be empty in M7-min-1"
+      }
+    }
+    return %{
+      "err" => 0,
+      "err_line" => ""
+    }
+  }
+
+  _state_for_assignment(has_local, has_assignment, has_print, assign_name, assign_rhs) {
+    return %{
+      "has_local" => has_local,
+      "has_assignment" => has_assignment,
+      "has_print" => has_print,
+      "assign_name" => assign_name,
+      "assign_rhs" => assign_rhs
+    }
+  }
+
+  _state_for_print(has_print, printv, print_kind, print_var_name) {
+    return %{
+      "has_print" => has_print,
+      "printv" => printv,
+      "print_kind" => print_kind,
+      "print_var_name" => print_var_name
+    }
+  }
+
+  _stmt_leaf(stmt_kind) {
+    local item = RecipeItemBox.seq([])
+    item.set("leaf_kind", "Stmt")
+    item.set("stmt_kind", stmt_kind)
+    item.set("facts", %{})
+    return item
+  }
+
+  _cleanup_recipe_item() {
+    return RecipeItemBox.seq([
+      me._stmt_leaf("Assignment"),
+      me._stmt_leaf("Print")
+    ])
+  }
+
+  _cleanup_recipe_item_assignment_only() {
+    return me._stmt_leaf("Assignment")
+  }
+
+  handle(program_json, idx, next_idx, tag, state) {
+    local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
+    local has_assignment = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_assignment"))
+    local has_print = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print"))
+    local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
+    local assign_name = "" + BoxHelpers.map_get(state, "assign_name")
+    local assign_rhs = BoxHelpers.map_get(state, "assign_rhs")
+    local printv = BoxHelpers.map_get(state, "printv")
+    local print_kind = "" + BoxHelpers.map_get(state, "print_kind")
+    local print_var_name = "" + BoxHelpers.map_get(state, "print_var_name")
+
+    if has_local != 1 {
+      return me._err(
+        tag,
+        "[cap_missing/stmt:Try] Try(cleanup) requires Local before Try",
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+    if has_return == 1 {
+      return me._err(
+        tag,
+        "[cap_missing/stmt:Try] Try(cleanup) after Return is not supported yet",
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+    if has_assignment == 1 || has_print == 1 {
+      return me._err(
+        tag,
+        "[cap_missing/stmt:Try] Try(cleanup) with prior Assignment/Print is not supported yet",
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+
+    local catches = me._ensure_empty_array_field(program_json, idx, "catches", tag)
+    if StringHelpers.to_i64(BoxHelpers.map_get(catches, "err")) == 1 {
+      return me._err(
+        tag,
+        "" + BoxHelpers.map_get(catches, "err_line"),
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+
+    local try_stmt = me._single_stmt_array_field_start(program_json, idx, "try", tag)
+    if StringHelpers.to_i64(BoxHelpers.map_get(try_stmt, "err")) == 1 {
+      return me._err(
+        tag,
+        "" + BoxHelpers.map_get(try_stmt, "err_line"),
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+
+    local finally_stmt = me._single_stmt_array_field_start(program_json, idx, "finally", tag)
+    if StringHelpers.to_i64(BoxHelpers.map_get(finally_stmt, "err")) == 1 {
+      return me._err(
+        tag,
+        "" + BoxHelpers.map_get(finally_stmt, "err_line"),
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+
+    local try_stmt_start = StringHelpers.to_i64(BoxHelpers.map_get(try_stmt, "obj_start"))
+    local finally_stmt_start = StringHelpers.to_i64(BoxHelpers.map_get(finally_stmt, "obj_start"))
+
+    local try_stmt_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, try_stmt_start)
+    if try_stmt_info == null {
+      return me._err(
+        tag,
+        "[cap_missing/program_json_v0] Try try stmt node scan failed",
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+    local try_stmt_type = "" + BoxHelpers.map_get(try_stmt_info, "type")
+    if try_stmt_type == "Loop" {
+      return me._err(
+        tag,
+        "[cap_missing/stmt:Loop] Try(cleanup) with Loop body is not supported in M7-min-1",
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+    if try_stmt_type != "Local" {
+      return me._err(
+        tag,
+        "[cap_missing/stmt:Try] Try try stmt must be Local in M7-min-1",
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+
+    local finally_stmt_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, finally_stmt_start)
+    if finally_stmt_info == null {
+      return me._err(
+        tag,
+        "[cap_missing/program_json_v0] Try finally stmt node scan failed",
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+    local finally_stmt_type = "" + BoxHelpers.map_get(finally_stmt_info, "type")
+    if finally_stmt_type != "Expr" && finally_stmt_type != "Local" {
+      return me._err(
+        tag,
+        "[cap_missing/stmt:Try] Try finally stmt must be Expr or Local in M7-min-3",
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+
+    local assign_state = me._state_for_assignment(
+      has_local,
+      has_assignment,
+      has_print,
+      assign_name,
+      assign_rhs
+    )
+    local assign_out = AssignmentStmtHandler.handle(program_json, try_stmt_start, next_idx, tag, assign_state)
+    if StringHelpers.to_i64(BoxHelpers.map_get(assign_out, "err")) == 1 {
+      return me._err(
+        tag,
+        "" + BoxHelpers.map_get(assign_out, "err_line"),
+        next_idx,
+        has_assignment,
+        assign_name,
+        assign_rhs,
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+
+    if finally_stmt_type == "Expr" {
+      local print_state = me._state_for_print(has_print, printv, print_kind, print_var_name)
+      local print_out = PrintStmtHandler.handle(program_json, finally_stmt_start, next_idx, tag, print_state)
+      if StringHelpers.to_i64(BoxHelpers.map_get(print_out, "err")) == 1 {
+        return me._err(
+          tag,
+          "" + BoxHelpers.map_get(print_out, "err_line"),
+          next_idx,
+          StringHelpers.to_i64(BoxHelpers.map_get(assign_out, "has_assignment")),
+          "" + BoxHelpers.map_get(assign_out, "assign_name"),
+          BoxHelpers.map_get(assign_out, "assign_rhs"),
+          has_print,
+          printv,
+          print_kind,
+          print_var_name
+        )
+      }
+
+      return me._ok(
+        next_idx,
+        StringHelpers.to_i64(BoxHelpers.map_get(assign_out, "has_assignment")),
+        "" + BoxHelpers.map_get(assign_out, "assign_name"),
+        BoxHelpers.map_get(assign_out, "assign_rhs"),
+        "" + BoxHelpers.map_get(assign_out, "assign_rhs_kind"),
+        StringHelpers.to_i64(BoxHelpers.map_get(print_out, "has_print")),
+        BoxHelpers.map_get(print_out, "printv"),
+        "" + BoxHelpers.map_get(print_out, "print_kind"),
+        "" + BoxHelpers.map_get(print_out, "print_var_name"),
+        me._cleanup_recipe_item()
+      )
+    }
+
+    local finally_assign_state = me._state_for_assignment(
+      has_local,
+      0,
+      0,
+      "",
+      null
+    )
+    local finally_assign_out = AssignmentStmtHandler.handle(
+      program_json,
+      finally_stmt_start,
+      next_idx,
+      tag,
+      finally_assign_state
+    )
+    if StringHelpers.to_i64(BoxHelpers.map_get(finally_assign_out, "err")) == 1 {
+      return me._err(
+        tag,
+        "" + BoxHelpers.map_get(finally_assign_out, "err_line"),
+        next_idx,
+        StringHelpers.to_i64(BoxHelpers.map_get(assign_out, "has_assignment")),
+        "" + BoxHelpers.map_get(assign_out, "assign_name"),
+        BoxHelpers.map_get(assign_out, "assign_rhs"),
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+
+    local try_assign_name = "" + BoxHelpers.map_get(assign_out, "assign_name")
+    local finally_assign_name = "" + BoxHelpers.map_get(finally_assign_out, "assign_name")
+    if try_assign_name == "" || finally_assign_name == "" || try_assign_name != finally_assign_name {
+      return me._err(
+        tag,
+        "[cap_missing/stmt:Try] Try finally Local must update the same var as Try body",
+        next_idx,
+        StringHelpers.to_i64(BoxHelpers.map_get(assign_out, "has_assignment")),
+        try_assign_name,
+        BoxHelpers.map_get(assign_out, "assign_rhs"),
+        has_print,
+        printv,
+        print_kind,
+        print_var_name
+      )
+    }
+
+    local try_rhs = StringHelpers.to_i64(BoxHelpers.map_get(assign_out, "assign_rhs"))
+    local finally_rhs = StringHelpers.to_i64(BoxHelpers.map_get(finally_assign_out, "assign_rhs"))
+    local merged_rhs = try_rhs + finally_rhs
+
+    return me._ok(
+      next_idx,
+      1,
+      try_assign_name,
+      merged_rhs,
+      "AddVarInt",
+      has_print,
+      printv,
+      print_kind,
+      print_var_name,
+      me._cleanup_recipe_item_assignment_only()
+    )
+  }
+}
+
+static box TryCleanupStmtHandlerMain { main() { return 0 } }

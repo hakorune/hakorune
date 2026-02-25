@@ -1,0 +1,14 @@
+box TestNode {
+    value: IntegerBox
+
+    // ❌ Should error immediately (type annotation not supported)
+    setParent(p: Node) {
+        return 0
+    }
+}
+
+static box Main {
+    main() {
+        return 0
+    }
+}

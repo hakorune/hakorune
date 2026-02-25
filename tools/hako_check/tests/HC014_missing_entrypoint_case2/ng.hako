@@ -1,0 +1,8 @@
+// ng.hako — missing Main box entirely (edge case)
+
+static box Utility {
+  method ping() {
+    return 1
+  }
+}
+

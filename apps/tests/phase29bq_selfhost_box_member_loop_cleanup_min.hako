@@ -1,0 +1,41 @@
+// Phase 29bq parser handoff Tier-6: box method access + control-flow + cleanup.
+box Counter {
+  step(delta) {
+    return delta + 1
+  }
+
+  cleanup_bonus() {
+    return 13
+  }
+}
+
+static box Main {
+  main() {
+    local counter = new Counter()
+    local i = 0
+    local out = 0
+
+    {
+      loop(i < 4) {
+        i = i + 1
+
+        if i == 2 {
+          out = out + counter.step(10)
+          continue
+        }
+
+        if i == 4 {
+          out = out + counter.step(20)
+          break
+        }
+
+        out = out + counter.step(i)
+      }
+    } cleanup {
+      out = out + counter.cleanup_bonus()
+    }
+
+    print(out)
+    return 0
+  }
+}

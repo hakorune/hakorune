@@ -1,0 +1,13 @@
+// RVP-C10 capability fixture
+// Contract:
+// - vm-hako route must accept compare(>=) shape and keep execution alive.
+
+static box Main {
+  main() {
+    local x = 2
+    if x >= 2 {
+      return 0
+    }
+    return 1
+  }
+}

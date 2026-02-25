@@ -1,0 +1,52 @@
+//! Ternary lowering (skeleton)
+//!
+//! NOTE: This module is introduced as part of the helper split.
+//! It is not wired yet and should not alter behavior.
+
+use super::super::ast::ExprV0;
+use super::merge::new_block;
+use super::BridgeEnv;
+use crate::ast::Span;
+use crate::mir::{BasicBlockId, MirFunction, ValueId};
+
+use super::expr::{lower_expr_with_scope, VarScope};
+
+#[allow(dead_code)]
+pub(super) fn lower_ternary_expr_with_scope<S: VarScope>(
+    env: &BridgeEnv,
+    f: &mut MirFunction,
+    cur_bb: BasicBlockId,
+    cond: &ExprV0,
+    then_e: &ExprV0,
+    else_e: &ExprV0,
+    vars: &mut S,
+) -> Result<(ValueId, BasicBlockId), String> {
+    let (cval, cur) = lower_expr_with_scope(env, f, cur_bb, cond, vars)?;
+    let then_bb = new_block(f);
+    let else_bb = new_block(f);
+    let merge_bb = new_block(f);
+    crate::mir::ssot::cf_common::set_branch(f, cur, cval, then_bb, else_bb);
+    let (tval, tend) = lower_expr_with_scope(env, f, then_bb, then_e, vars)?;
+    if let Some(bb) = f.get_block_mut(tend) {
+        if !bb.is_terminated() {
+            crate::mir::ssot::cf_common::set_jump(f, tend, merge_bb);
+        }
+    }
+    let (eval, eend) = lower_expr_with_scope(env, f, else_bb, else_e, vars)?;
+    if let Some(bb) = f.get_block_mut(eend) {
+        if !bb.is_terminated() {
+            crate::mir::ssot::cf_common::set_jump(f, eend, merge_bb);
+        }
+    }
+    let out = f.next_value_id();
+    // フェーズM.2: PHI統一処理（no_phi分岐削除）
+    let inputs = vec![(tend, tval), (eend, eval)];
+    crate::mir::ssot::cf_common::insert_phi_at_head_spanned(
+        f,
+        merge_bb,
+        out,
+        inputs,
+        Span::unknown(),
+    )?;
+    Ok((out, merge_bb))
+}

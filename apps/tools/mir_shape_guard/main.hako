@@ -1,0 +1,188 @@
+// APP-3: MIR Shape Guard
+// Summarizes MIR JSON shape from file and fail-fast on collapsed output.
+//
+// Usage:
+//   MIR_SHAPE_INPUT=/path/to/file.mir.json hakorune apps/tools/mir_shape_guard/main.hako
+//   MIR_SHAPE_PROFILE=1 enables extra profile line
+//
+// Output contract (single line):
+//   SUMMARY blocks=<n> branch=<n> compare=<n> phi=<n> ret=<n> collapsed=<0|1>
+// Optional profile line:
+//   PROFILE read_ms=<n> scan_ms=<n> total_ms=<n>
+
+static box Main {
+  main(args) {
+    local path = env.get("MIR_SHAPE_INPUT")
+    if path == null || path == "" {
+      print("[ERROR] MIR_SHAPE_INPUT is required")
+      return 1
+    }
+    local profile = env.get("MIR_SHAPE_PROFILE")
+    local profile_on = 0
+    if profile == "1" {
+      profile_on = 1
+    }
+    local t0 = 0
+    local t1 = 0
+    local t2 = 0
+    local read_ms = 0
+    local scan_ms = 0
+    local total_ms = 0
+    if profile_on == 1 {
+      t0 = env.now_ms()
+    }
+
+    local f = new FileBox()
+    if f.open(path, "r") != 1 {
+      print("[ERROR] Cannot open MIR file: " + path)
+      return 1
+    }
+    local text = f.read()
+    f.close()
+    if profile_on == 1 {
+      t1 = env.now_ms()
+    }
+
+    if text == null || text == "" {
+      print("[ERROR] MIR file is empty: " + path)
+      return 1
+    }
+
+    // Token-count scan:
+    // count exact tokens directly to avoid per-hit substring checks.
+    local blocks = 0
+    local branch = 0
+    local compare = 0
+    local phi = 0
+    local ret = 0
+    local token_id = "\"id\":"
+    local token_op = "\"op\":\""
+    local token_branch = "\"op\":\"branch\""
+    local token_compare = "\"op\":\"compare\""
+    local token_phi = "\"op\":\"phi\""
+    local token_ret = "\"op\":\"ret\""
+
+    local step_id = token_id.length()
+    local step_op = token_op.length()
+    local step_branch = token_branch.length()
+    local step_compare = token_compare.length()
+    local step_phi = token_phi.length()
+    local step_ret = token_ret.length()
+
+    local n = text.length()
+    local p = text.indexOf(token_id)
+    local i = 0
+    loop (i < n) {
+      if p >= 0 {
+        blocks = blocks + 1
+        p = text.indexOf(token_id, p + step_id)
+      }
+      i = i + 1
+      if p < 0 {
+        i = n
+      }
+    }
+
+    p = text.indexOf(token_op)
+    i = 0
+    loop (i < n) {
+      if p >= 0 {
+        local matched = 0
+        local op_head = ""
+        if p + step_op < n {
+          op_head = text.substring(p + step_op, p + step_op + 1)
+        }
+        if op_head == "c" {
+          if text.indexOf(token_compare, p) == p {
+            compare = compare + 1
+            p = text.indexOf(token_op, p + step_compare)
+            matched = 1
+          }
+        }
+        if matched == 0 {
+          if op_head == "b" {
+            if text.indexOf(token_branch, p) == p {
+              branch = branch + 1
+              p = text.indexOf(token_op, p + step_branch)
+              matched = 1
+            }
+          }
+        }
+        if matched == 0 {
+          if op_head == "p" {
+            if text.indexOf(token_phi, p) == p {
+              phi = phi + 1
+              p = text.indexOf(token_op, p + step_phi)
+              matched = 1
+            }
+          }
+        }
+        if matched == 0 {
+          if op_head == "r" {
+            if text.indexOf(token_ret, p) == p {
+              ret = ret + 1
+              p = text.indexOf(token_op, p + step_ret)
+              matched = 1
+            }
+          }
+        }
+        if matched == 0 {
+          p = text.indexOf(token_op, p + step_op)
+        }
+      }
+      i = i + 1
+      if p < 0 {
+        i = n
+      }
+    }
+    if profile_on == 1 {
+      t2 = env.now_ms()
+      read_ms = t1 - t0
+      if read_ms < 0 {
+        read_ms = 0
+      }
+      scan_ms = t2 - t1
+      if scan_ms < 0 {
+        scan_ms = 0
+      }
+      total_ms = t2 - t0
+      if total_ms < 0 {
+        total_ms = 0
+      }
+    }
+
+    local collapsed = 0
+    if blocks <= 1 {
+      if branch == 0 {
+        if compare == 0 {
+          collapsed = 1
+        }
+      }
+    }
+
+    print(
+      "SUMMARY blocks=" + blocks +
+      " branch=" + branch +
+      " compare=" + compare +
+      " phi=" + phi +
+      " ret=" + ret +
+      " collapsed=" + collapsed
+    )
+    if profile_on == 1 {
+      print(
+        "PROFILE read_ms=" + read_ms +
+        " scan_ms=" + scan_ms +
+        " total_ms=" + total_ms
+      )
+    }
+
+    local strict = env.get("MIR_SHAPE_STRICT")
+    if strict == null || strict == "" || strict == "1" {
+      if collapsed == 1 {
+        return 2
+      }
+    }
+    return 0
+  }
+
+}

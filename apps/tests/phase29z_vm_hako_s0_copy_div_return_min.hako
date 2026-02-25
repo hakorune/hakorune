@@ -1,0 +1,8 @@
+static box Main {
+  main(args) {
+    local x = 84
+    local y = x
+    local z = y / 2
+    return z
+  }
+}

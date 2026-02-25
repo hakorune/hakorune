@@ -1,0 +1,42 @@
+// Minimal seek_array_end shape: loop(cond) with nested return (no break/continue)
+// - stdout stable: print(0); return 0
+static box Main {
+    main() {
+        local text = new StringBox("")
+        local n = text.length()
+        local depth = 0
+        local i = 0
+        local in_str = 0
+
+        loop(i < n) {
+            local ch = text.substring(i, i + 1)
+
+            if in_str == 1 {
+                if ch == "\"" {
+                    in_str = 0
+                }
+                if ch == "\\" {
+                    i = i + 1
+                }
+            } else {
+                if ch == "\"" {
+                    in_str = 1
+                }
+                if ch == "[" {
+                    depth = depth + 1
+                }
+                if ch == "]" {
+                    depth = depth - 1
+                    if depth == 0 {
+                        return 0
+                    }
+                }
+            }
+
+            i = i + 1
+        }
+
+        print(0)
+        return 0
+    }
+}

@@ -1,0 +1,76 @@
+// Phase 166: JsonParserBox 単体テスト - Array parsing
+// Goal: Validate JsonParserBox can parse simple JSON arrays through JoinIR
+
+using tools.hako_shared.json_parser as JsonParserBox
+
+static box Main {
+  main(args) {
+    print("=== JsonParserBox Array Parsing Tests ===")
+
+    // Test 1: Simple array with numbers
+    print("Test 1: Simple number array [1, 2, 3]")
+    local json1 = "[1, 2, 3]"
+    local result1 = JsonParserBox.parse(json1)
+    if result1 == null {
+      print("  FAIL: parse returned null")
+      return 1
+    }
+    // Check if it's an ArrayBox by calling size()
+    local size1 = result1.size()
+    if size1 == 3 {
+      print("  PASS: array has 3 elements")
+      local elem0 = result1.get(0)
+      if elem0 == 1 {
+        print("  PASS: first element is 1")
+      } else {
+        print("  FAIL: first element should be 1")
+        return 1
+      }
+    } else {
+      print("  FAIL: array should have 3 elements")
+      return 1
+    }
+
+    // Test 2: Array with strings
+    print("Test 2: String array [\"hello\", \"world\"]")
+    local json2 = "[\"hello\", \"world\"]"
+    local result2 = JsonParserBox.parse(json2)
+    if result2 == null {
+      print("  FAIL: parse returned null")
+      return 1
+    }
+    local size2 = result2.size()
+    if size2 == 2 {
+      print("  PASS: array has 2 elements")
+      local elem0 = result2.get(0)
+      if elem0 == "hello" {
+        print("  PASS: first element is 'hello'")
+      } else {
+        print("  FAIL: first element should be 'hello'")
+        return 1
+      }
+    } else {
+      print("  FAIL: array should have 2 elements")
+      return 1
+    }
+
+    // Test 3: Empty array
+    print("Test 3: Empty array []")
+    local json3 = "[]"
+    local result3 = JsonParserBox.parse(json3)
+    if result3 == null {
+      print("  FAIL: parse returned null")
+      return 1
+    }
+    local size3 = result3.size()
+    if size3 == 0 {
+      print("  PASS: array is empty")
+    } else {
+      print("  FAIL: array should be empty")
+      return 1
+    }
+
+    print("=== All Array Tests PASSED ===")
+    return 0
+  }
+}

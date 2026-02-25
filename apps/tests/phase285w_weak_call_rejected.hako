@@ -1,0 +1,16 @@
+// Phase 285W-Syntax-0.1: Verify weak(x) function call syntax is rejected
+// Expected: Parse error with helpful message
+// SSOT: docs/reference/language/lifecycle.md (weak <expr> only)
+
+box SomeBox {
+    x
+}
+
+static box Main {
+    main() {
+        local obj = new SomeBox()
+        obj.x = 42
+        local w = weak(obj)  // ❌ ERROR: Should be "weak obj"
+        return 0
+    }
+}

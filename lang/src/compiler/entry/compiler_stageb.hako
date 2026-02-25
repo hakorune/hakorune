@@ -1,0 +1,553 @@
+// Stage-B compiler entry — ParserBox → FlowEntry emit-only
+// Notes (Dev/Doc):
+// - Scope: Hako だけで Program(JSON v0) を生成する自己ホスト入口。本文抽出→コメント除去→正規化→parse_program2 で一行JSONを出力。
+// - Robustness: 本文抽出は "method main" なしでも `box Main { main(...) { ... } }` からフォールバック抽出する。
+//               文字列を正しくスキップ（エスケープ対応）しつつ () と {} の対応を検出。// と /* */ のコメントは除去。
+//               前後の空白/改行もトリムして JSON 揺れを低減する。
+// - Known limits: VM の include は未対応。MirBuilder を VM 直で実行する経路は既定OFF（opt‑in検証のみ）。
+// - Policy: Program(JSON) → MIR(JSON) は Rust CLI 変換（Gate‑C）を既定とし、Hako ビルダーは opt‑in で段階導入する。
+// - Toggles around: HAKO_MIR_BUILDER_{INTERNAL,REGISTRY,DELEGATE}（MirBuilder側）。ここでは JSON 生成に専念する。
+// - Recommended: Dev/CI は wrapper（tools/hakorune_emit_mir.sh）経由で Program→MIR を行い、失敗時は Gate‑C に自動委譲する。
+
+// Note: sh_core must be in [modules] for parser dependencies to resolve
+using hako.compiler.entry.bundle_resolver as BundleResolver
+// ParserBox module: use `parser.parser_box` to avoid `box` keyword in path
+using lang.compiler.parser.parser_box as ParserBox
+using lang.compiler.entry.func_scanner as FuncScannerBox
+using lang.compiler.entry.using_resolver as Stage1UsingResolverBox
+using lang.compiler.entry.comment_stripper_box as CommentStripperBox
+using lang.compiler.entry.stageb_trace_box as StageBTraceBox
+using lang.compiler.entry.stageb_body_extractor_box as StageBBodyExtractorBox
+using "lang.compiler.parser.using.using_collector_box" as UsingCollectorBox
+using lang.compiler.builder.mod as CompilerBuilder
+using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+// Phase 152-B: Main Detection Helper (箱化モジュール化)
+// - Supports both legacy and modern entry point patterns
+// - Clear modular separation for pattern detection
+static box MainDetectionHelper {
+  /// Find main() body from source code
+  /// Supports both legacy and modern patterns
+  findMainBody(src) {
+    if src == null { return "" }
+
+    // Pattern 1: Legacy - static method main (deprecated)
+    local result = me.tryLegacyPattern(src)
+    if result != "" { return result }
+
+    // Pattern 2: Modern - static box Main { main() { } }
+    result = me.tryModernPattern(src)
+    if result != "" { return result }
+
+    // Fallback: not found
+    return ""
+  }
+
+  /// Try legacy pattern: "static method main" or "method main"
+  tryLegacyPattern(src) {
+    // Contract: legacy literals are compatibility boundary, not cleanup target.
+    // Removal is gated by migration-order SSOT (producer=0 + Stage-A fallback dependency=0 + gate green).
+    local legacy_static_sig = "static method" + " " + "main"
+    local p = me.findPattern(src, legacy_static_sig)
+    if p >= 0 {
+      return me.extractBodyFromPosition(src, p + legacy_static_sig.length()) // Skip legacy static signature
+    }
+
+    local legacy_method_sig = "method" + " " + "main"
+    p = me.findPattern(src, legacy_method_sig)
+    if p >= 0 {
+      return me.extractBodyFromPosition(src, p + legacy_method_sig.length()) // Skip legacy method signature
+    }
+
+    return ""
+  }
+
+  /// SSOT entry for legacy main-body detection
+  /// Used by both Stage-B and Stage-A fallback paths.
+  findLegacyMainBody(src) {
+    return me.tryLegacyPattern(src)
+  }
+
+  /// Try modern pattern: "static box Main { main(" or "box Main { main("
+  tryModernPattern(src) {
+    // Try "static box Main" first
+    local p = me.findPattern(src, "static box Main")
+    if p < 0 {
+      // Fallback: "box Main"
+      p = me.findPattern(src, "box Main")
+    }
+
+    if p >= 0 {
+      // Find "main(" after Main
+      local start = me.findPattern(src, "main(", p)
+      if start >= 0 {
+        return me.extractBodyFromPosition(src, start)
+      }
+    }
+
+    return ""
+  }
+
+  /// Find pattern in source starting from offset
+  findPattern(src, pat, offset) {
+    if src == null { return -1 }
+    local start = 0
+    if offset != null { start = offset }
+
+    local s = "" + src
+    local n = s.length()
+    local m = pat.length()
+    local i = start
+    loop(i + m <= n) {
+      if s.substring(i, i + m) == pat { return i }
+      i = i + 1
+    }
+    return -1
+  }
+
+  /// Extract method body: from position find matching braces
+  /// Returns complete { ... } block content (inside braces)
+  extractBodyFromPosition(src, pos) {
+    // Find opening brace {
+    local bracePos = me.findPattern(src, "{", pos)
+    if bracePos < 0 { return "" }
+
+    // Find matching closing brace }
+    local depth = 0
+    local i = bracePos
+    local n = ("" + src).length()
+    loop(i < n) {
+      local ch = ("" + src).substring(i, i + 1)
+      if ch == "{" {
+        depth = depth + 1
+      } else if ch == "}" {
+        depth = depth - 1
+        if depth == 0 {
+          // Return body content (inside braces)
+          return ("" + src).substring(bracePos + 1, i)
+        }
+      }
+      i = i + 1
+    }
+
+    return ""
+  }
+}
+
+// Phase 25.1c: CLI argument → source resolution
+static box StageBArgsBox {
+  resolve_src(args) {
+    {
+      local trace_flag = env.get("HAKO_STAGEB_TRACE")
+      if trace_flag != null && ("" + trace_flag) == "1" {
+        print("[stageb/direct] StageBArgsBox.resolve_src ENTERED")
+      }
+    }
+    local tracer = new StageBTraceBox()
+    tracer.log("StageBArgsBox.resolve_src:enter")
+    // 1) Collect source from args or env
+    local src = null
+    local src_file = null
+    if args != null {
+      local i = 0
+      local n = args.length()
+      loop(i < n) {
+        local t = "" + args.get(i)
+        if t == "--source" && i + 1 < n { src = "" + args.get(i + 1)  break }
+        if t == "--source-file" && i + 1 < n { src_file = "" + args.get(i + 1)  i = i + 1 }
+        i = i + 1
+      }
+    }
+    // Prefer explicit source string when provided
+    // If --source-file is used, prefer env-provided content (wrapper supplies HAKO_SOURCE_FILE_CONTENT)
+    if src == null && src_file != null {
+      local inline = env.get("HAKO_SOURCE_FILE_CONTENT")
+      if inline != null { src = "" + inline }
+    }
+    // Phase 73: Fallback to HAKO_SRC env variable (unified I/O path)
+    // This eliminates the need for large argv strings (solves "Argument list too long")
+    if src == null {
+      src = env.get("HAKO_SRC")
+    }
+    if src == null { src = "return 0" }
+
+    {
+      // Trace final source length（dev専用）
+      local l = 0
+      if src != null { l = ("" + src).length() }
+      local tracer = new StageBTraceBox()
+      tracer.log("StageBArgsBox.resolve_src:return_len=" + ("" + l))
+    }
+
+    return src
+  }
+}
+
+// StageBBodyExtractorBox moved to `lang.compiler.entry.stageb_body_extractor_box`.
+
+// Stage‑B wrapper helpers around FuncScannerBox (SSOT).
+static box StageBFuncScannerBox {
+  scan_all_boxes(source) {
+    return FuncScannerBox.scan_all_boxes(source)
+  }
+
+  // Helper: extract Program.body array from Program(JSON) string
+  _extract_body_from_program(prog_json) {
+    if prog_json == null { return "" }
+    local s = "" + prog_json
+    local n = s.length()
+    local head = "\"body\":"
+    local hlen = head.length()
+    local start = -1
+    {
+      local i = 0
+      loop(i + hlen <= n) {
+        if s.substring(i, i + hlen) == head { start = i + hlen  break }
+        i = i + 1
+      }
+    }
+    if start < 0 { return "" }
+
+    // Find '[' after "body":
+    local open = -1
+    {
+      local j = start
+      loop(j < n) {
+        local ch = s.substring(j, j + 1)
+        if ch == "[" { open = j  break }
+        j = j + 1
+      }
+    }
+    if open < 0 { return "" }
+
+    local depth = 0
+    local k = open
+    loop(k < n) {
+      local ch2 = s.substring(k, k + 1)
+      if ch2 == "[" { depth = depth + 1 }
+      else if ch2 == "]" {
+        depth = depth - 1
+        if depth == 0 { return s.substring(open, k + 1) }
+      }
+      k = k + 1
+    }
+    return ""
+  }
+}
+
+static box StageBHelperBox {
+  test_loop(n) {
+    local i = 0
+    loop(i < 3) {
+      i = i + 1
+    }
+  }
+}
+
+// Phase 25.1c: Main driver logic
+static box StageBDriverBox {
+  // Phase 28.2 Quick Win 3: SSOT compile API for compiler.hako direct call
+  // Returns Program(JSON v0) instead of printing it.
+  compile(source, prefer_cfg, stage3, v1_compat) {
+    // 1) Set env vars for internal functions
+    if stage3 != null && stage3 != 0 {
+      env.set("NYASH_PARSER_STAGE3", "1")
+      env.set("HAKO_PARSER_STAGE3", "1")
+    }
+
+    // 2) Create parser
+    local p = new ParserBox()
+    if stage3 != null && stage3 != 0 {
+      p.stage3_enable(1)
+    }
+
+    // 3) Extract body and parse
+    local body_src = StageBBodyExtractorBox.build_body_src(source, null)
+
+    // 4) Parse to JSON
+    local ast_json = "{\"version\":0,\"kind\":\"Program\",\"body\":[]}"
+    if body_src != null {
+      local block_src = "{" + body_src + "}"
+      local block_res = p.parse_block2(block_src, 0)
+      local at = block_res.lastIndexOf("@")
+      if at >= 0 {
+        local body_json = block_res.substring(0, at)
+        if body_json != null && body_json != "" {
+          ast_json = "{\"version\":0,\"kind\":\"Program\",\"body\":" + body_json + "}"
+        }
+      }
+    }
+
+    // 5) Apply SSA transformations
+    ast_json = CompilerBuilder.apply_all(ast_json)
+
+    // 6) Scan for function definitions and build defs JSON (modularized)
+    local methods = StageBFuncScannerBox.scan_all_boxes(source)
+    local defs_json = StageBJsonBuilderBox.build_defs_json(methods)
+
+    // 7) Inject defs into Program JSON (Phase 29bq+ modularization)
+    if defs_json != "" && defs_json.length() > 0 {
+      ast_json = me._inject_json_fragment(ast_json, defs_json)
+    }
+
+    // 8) Return JSON (SSOT - single return point)
+    return ast_json
+  }
+
+  main(args) {
+    // Dev trace to confirm entry dispatch
+    {
+      local trace = env.get("HAKO_STAGEB_TRACE")
+      if trace != null && ("" + trace) == "1" {
+        print("[stageb/main] enter")
+      }
+    }
+
+    // ============================================================================
+    // Phase 25.1c: Guaranteed marker for entry point confirmation (dev-only)
+    // ============================================================================
+    {
+      local marker_flag = env.get("HAKO_STAGEB_TRACE")
+      if marker_flag != null && ("" + marker_flag) == "1" {
+        print("[stageb/marker] StageBDriverBox.main:ENTRY_CONFIRMED")
+      }
+    }
+
+    // ============================================================================
+    // Depth guard: prevent accidental recursion in Stage‑B driver entry
+    // ============================================================================
+    {
+      local depth = env.get("HAKO_STAGEB_DRIVER_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/error] depth_guard tripped: HAKO_STAGEB_DRIVER_DEPTH!=0")
+        return -1
+      }
+      env.set("HAKO_STAGEB_DRIVER_DEPTH", "1")
+    }
+    {
+      local trace = env.get("HAKO_STAGEB_TRACE")
+      if trace != null && ("" + trace) == "1" {
+        // Depth guard cleared → main 続行できることを明示
+        print("[stageb/main] depth ok")
+      }
+    }
+
+    // Dev-only: direct FuncScanner harness
+    {
+      local test_flag = env.get("HAKO_STAGEB_FUNCSCAN_TEST")
+      if test_flag != null && ("" + test_flag) == "1" {
+        print("[stageb/info] FUNC_SCAN_TEST=1 (disabled in this build)")
+        // Clear depth guard before returning
+        env.set("HAKO_STAGEB_DRIVER_DEPTH", "0")
+        return 0
+      }
+    }
+
+    {
+      local tracer = new StageBTraceBox()
+      tracer.log("StageBDriverBox.main:enter")
+    }
+
+    local src = StageBArgsBox.resolve_src(args)
+    {
+      local l = 0
+      if src != null { l = ("" + src).length() }
+      local tracer = new StageBTraceBox()
+      tracer.log("StageBDriverBox.main:after_resolve_src len=" + ("" + l))
+    }
+
+    // 2) Stage‑3 acceptance default ON for selfhost (env may turn off; keep tolerant here)
+    local p = new ParserBox()
+    p.stage3_enable(1)
+
+    // 3) (Temporarily disabled) Extract using/externs — keep minimal path for emit stability
+    // p.extract_usings(src)
+    // local usings_json = p.get_usings_json()
+    // p.extract_externs(src)
+    // local externs_json = p.get_externs_json()
+
+    local body_src = StageBBodyExtractorBox.build_body_src(src, args)
+    if body_src == null {
+      print("[stageb/error] no body_src (StageBBodyExtractorBox returned null)")
+    }
+    {
+      local l2 = 0
+      if body_src != null { l2 = ("" + body_src).length() }
+      local tracer = new StageBTraceBox()
+      tracer.log("StageBDriverBox.main:after_build_body_src len=" + ("" + l2))
+    }
+
+    // 6) Parse and emit Stage‑1 JSON v0 (Program)
+    // Bridge(JSON v0) が Program v0 を受け取り MIR に lowering するため、ここでは AST(JSON v0) を出力する。
+    // 既定で MIR 直出力は行わない（重い経路を避け、一行出力を保証）。
+    // Stage‑B/selfhost: body_src は Main.main 内のブロック本文（外側の {} は含まない）。
+    // 安定性向上のため Program パーサを優先し、空の場合のみ block パーサで再度包んで解釈する。
+    local ast_json = "{\"version\":0,\"kind\":\"Program\",\"body\":[]}"
+    {
+      local body_json = null
+
+      // Prefer block parser with explicit braces to avoid VM dispatch drift seen on program parser.
+      if body_src != null {
+        local block_src = "{" + body_src + "}"
+        local block_res = p.parse_block2(block_src, 0)
+        local at = block_res.lastIndexOf("@")
+        if at >= 0 { body_json = block_res.substring(0, at) }
+        if body_json != null && body_json.length() >= 17 {
+          if body_json.substring(0, 17) == "[freeze:contract]" {
+            print(body_json)
+            return 1
+          }
+        }
+      }
+
+      // Optional: enable program parser fallback only when explicitly requested
+      if (body_json == null || body_json == "" || body_json == "[]") {
+        local allow_prog = env.get("HAKO_STAGEB_PROGRAM_PARSE_FALLBACK")
+        if allow_prog != null && ("" + allow_prog) == "1" {
+          local prog_json = p.parse_program2(body_src)
+          body_json = StageBFuncScannerBox._extract_body_from_program(prog_json)
+        }
+      }
+
+      if body_json != null && body_json != "" {
+        ast_json = "{\"version\":0,\"kind\":\"Program\",\"body\":" + body_json + "}"
+      }
+    }
+    {
+      // AST(JSON v0) の長さを軽く観測
+      local la = 0
+      if ast_json != null { la = ("" + ast_json).length() }
+      local tracer = new StageBTraceBox()
+      tracer.log("StageBDriverBox.main:after_parse_program2 len=" + ("" + la))
+    }
+
+    // 6.3) Apply SSA transformations (CompilerBuilder pipeline)
+    {
+      local trace = env.get("HAKO_COMPILER_BUILDER_TRACE")
+      if trace != null && ("" + trace) == "1" {
+        local preview_len = 200
+        local ajson_len = ("" + ast_json).length()
+        if ajson_len < preview_len { preview_len = ajson_len }
+        print("[compiler-builder] before: " + ("" + ast_json).substring(0, preview_len) + "...")
+      }
+
+      ast_json = CompilerBuilder.apply_all(ast_json)
+
+      if trace != null && ("" + trace) == "1" {
+        local preview_len = 200
+        local ajson_len = ("" + ast_json).length()
+        if ajson_len < preview_len { preview_len = ajson_len }
+        print("[compiler-builder] after: " + ("" + ast_json).substring(0, preview_len) + "...")
+      }
+    }
+
+    // 6.5) Dev-toggle: scan for function definitions (static box { method <name>(...) {...} })
+    // Toggle: HAKO_STAGEB_FUNC_SCAN
+    // Policy:
+    //   - 未設定(null) のときは既定で ON（defs を常に埋める）。
+    //   - 明示的に "0" が入っているときだけ OFF。
+    // Scope: method <name>(params) { ... } outside of main (same box Main)
+    // Output: inject "defs":[{"name":"<name>","params":[...],"body":[...], "box":"Main"}] to Program JSON
+    local defs_json = ""
+    {
+      local func_scan_env = env.get("HAKO_STAGEB_FUNC_SCAN")
+      local func_scan_on = 1
+      // 明示的に "0" のときだけ OFF 扱い。それ以外（null/1/true/on）は ON。
+      if func_scan_env != null && ("" + func_scan_env) == "0" { func_scan_on = 0 }
+      if func_scan_on == 1 {
+        // Use FuncScannerBox (SSOT) to extract method definitions from all boxes.
+        // Note: Only scan main file. Imported modules are resolved via imports at runtime.
+        local methods = FuncScannerBox.scan_all_boxes(src)
+
+        {
+          local cnt = 0
+          if methods != null { cnt = methods.length() }
+          local tracer = new StageBTraceBox()
+          tracer.log("StageBDriverBox.main:func_scan methods=" + ("" + cnt))
+          // Optional detailed trace when HAKO_STAGEB_TRACE=1:
+          // dump each def entry (box/name) to確認 how FuncScannerBox saw the source.
+          if cnt > 0 {
+            local mi = 0
+            loop(mi < cnt) {
+              local def = methods.get(mi)
+              local mbox = "" + def.get("box")
+              local mname = "" + def.get("name")
+              tracer.log("StageBDriverBox.main:func_scan def box=" + mbox + " name=" + mname)
+              mi = mi + 1
+            }
+          }
+        }
+
+        // Build defs JSON array (modularized)
+        defs_json = StageBJsonBuilderBox.build_defs_json(methods)
+      }
+    }
+
+    // 7) Inject defs into Program JSON if available (Phase 29bq+ modularization)
+    if defs_json != "" && defs_json.length() > 0 {
+      ast_json = me._inject_json_fragment(ast_json, defs_json)
+    }
+
+    // Phase 29bq: Inject imports (using aliases) into Program JSON (modularized)
+    {
+      local usings_json = UsingCollectorBox.collect(src)
+      if usings_json != null && usings_json != "[]" && usings_json != "" {
+        // Convert UsingCollector array format to imports object format
+        // Input:  [{"name":"alias","path":"module.path"}, ...]
+        // Output: {"alias":"module.path", ...}
+        local imports_obj = me._convert_usings_to_imports(usings_json)
+        if imports_obj != null && imports_obj != "{}" && imports_obj != "" {
+          local imports_frag = ",\"imports\":" + imports_obj
+          ast_json = me._inject_json_fragment(ast_json, imports_frag)
+        }
+      }
+    }
+
+    // Phase 71-SSA 71-11.1: Guaranteed trace before Program JSON emit
+    {
+      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
+      if marker_enabled != null && ("" + marker_enabled) == "1" {
+        local ajson_len = 0
+        if ast_json != null { ajson_len = ("" + ast_json).length() }
+        print("[stageb/main] BEFORE_EMIT ast_json_len=" + ("" + ajson_len))
+      }
+    }
+    print("[stageb/main] before ast_json")
+    print(ast_json)
+    print("[stageb/main] after ast_json")
+    // Phase 71-SSA 71-11.1: Guaranteed trace after Program JSON emit
+    {
+      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
+      if marker_enabled != null && ("" + marker_enabled) == "1" {
+        print("[stageb/main] AFTER_EMIT success")
+      }
+    }
+    {
+      local tracer = new StageBTraceBox()
+      tracer.log("StageBDriverBox.main:exit rc=0")
+    }
+    // Clear depth guard before returning
+    env.set("HAKO_STAGEB_DRIVER_DEPTH", "0")
+    return 0
+  }
+
+  // Phase 29bq: Convert UsingCollector array to imports object (delegate)
+  _convert_usings_to_imports(usings_json) {
+    return StageBJsonBuilderBox.convert_usings_to_imports(usings_json)
+  }
+
+  // Phase 29bq+: Helper to inject a JSON fragment before the closing } (delegate)
+  _inject_json_fragment(json, fragment) {
+    return StageBJsonBuilderBox.inject_json_fragment(json, fragment)
+  }
+}
+
+// Note: Runner resolves entry as Main.main by default.
+// Provide static box Main with method main(args) as the entry point.
+// Phase 25.1c: Entry point (thin wrapper)
+static box Main {
+  main(args) {
+    return StageBDriverBox.main(args)
+  }
+}

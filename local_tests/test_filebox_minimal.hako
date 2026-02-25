@@ -1,0 +1,6 @@
+// Minimal FileBox test
+print("Starting minimal test...")
+print("About to create FileBox...")
+local fileBox
+fileBox = new FileBox()
+print("FileBox created successfully!")

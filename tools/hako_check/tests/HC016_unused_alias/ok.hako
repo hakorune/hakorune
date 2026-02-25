@@ -1,0 +1,11 @@
+// ok: alias is used
+using "selfhost.shared.common.string_helpers" as Str
+
+static box Main {
+  method main() {
+    local s = "abc"
+    // use alias
+    local n = Str.to_i64("42")
+    return 0
+  }
+}

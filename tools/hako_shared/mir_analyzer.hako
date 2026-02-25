@@ -1,0 +1,382 @@
+// tools/hako_shared/mir_analyzer.hako - MirAnalyzerBox (Phase 161-2)
+// .hako native MIR JSON v1 analyzer for JoinIR/MIR analysis
+// Provides PHI/loop/if detection algorithms
+
+// MirAnalyzerBox: Main analyzer for MIR JSON v1
+box MirAnalyzerBox {
+  _mir_json: MapBox         // Parsed MIR JSON root
+  _functions: ArrayBox      // Cached functions array
+  _verbose: integer         // Verbose mode (0=off, 1=on)
+
+  // Constructor: Parse MIR JSON v1 from text
+  birth(mir_json_text) {
+    me._verbose = 0
+
+    // Parse JSON using JsonParserBox
+    me._mir_json = JsonParserBox.parse_object(mir_json_text)
+
+    if me._mir_json == null {
+      print("[MirAnalyzerBox] ERROR: Failed to parse MIR JSON")
+      return null
+    }
+
+    // Extract functions array
+    me._functions = me._mir_json.get("functions")
+
+    if me._functions == null {
+      print("[MirAnalyzerBox] ERROR: No 'functions' field in MIR JSON")
+      return null
+    }
+
+    if me._verbose == 1 {
+      print("[MirAnalyzerBox] Parsed MIR JSON successfully")
+      print("[MirAnalyzerBox] Functions count: " + me._functions.size())
+    }
+
+    return me
+  }
+
+  // Validate MIR JSON v1 schema
+  validateSchema() {
+    if me._mir_json == null { return 0 }
+
+    // Check required top-level fields
+    local capabilities = me._mir_json.get("capabilities")
+    if capabilities == null {
+      print("[MirAnalyzerBox] ERROR: Missing 'capabilities' field")
+      return 0
+    }
+
+    if me._functions == null {
+      print("[MirAnalyzerBox] ERROR: Missing 'functions' field")
+      return 0
+    }
+
+    // Check functions array is not empty
+    if me._functions.size() == 0 {
+      print("[MirAnalyzerBox] WARNING: Empty functions array")
+    }
+
+    if me._verbose == 1 {
+      print("[MirAnalyzerBox] Schema validation: PASS")
+    }
+
+    return 1
+  }
+
+  // Summarize function metadata
+  // Returns: MapBox with {name, params, blocks, instructions, has_loops, has_ifs, has_phis}
+  summarize_function(funcIndex) {
+    local func = me._get_function(funcIndex)
+    if func == null {
+      print("[MirAnalyzerBox] ERROR: Function index out of bounds: " + funcIndex)
+      return null
+    }
+
+    local summary = new MapBox()
+
+    // Basic metadata
+    local name = func.get("name")
+    summary.set("name", name)
+
+    local params = func.get("params")
+    if params == null {
+      summary.set("param_count", 0)
+    } else {
+      summary.set("param_count", params.size())
+    }
+
+    // Block count
+    local blocks = func.get("blocks")
+    if blocks == null {
+      summary.set("block_count", 0)
+      summary.set("instruction_count", 0)
+      summary.set("has_phis", 0)
+      summary.set("has_loops", 0)
+      summary.set("has_ifs", 0)
+      return summary
+    }
+
+    summary.set("block_count", blocks.size())
+
+    // Count instructions and detect patterns
+    local total_instructions = 0
+    local has_phi = 0
+    local has_branch = 0
+
+    local i = 0
+    loop(i < blocks.size()) {
+      local block = blocks.get(i)
+      local instructions = block.get("instructions")
+
+      if instructions != null {
+        total_instructions = total_instructions + instructions.size()
+
+        // Check for PHI and Branch instructions
+        local j = 0
+        loop(j < instructions.size()) {
+          local inst = instructions.get(j)
+          local op = inst.get("op")
+
+          if op == "phi" {
+            has_phi = 1
+          }
+
+          if op == "branch" {
+            has_branch = 1
+          }
+
+          j = j + 1
+        }
+      }
+
+      i = i + 1
+    }
+
+    summary.set("instruction_count", total_instructions)
+    summary.set("has_phis", has_phi)
+    summary.set("has_ifs", has_branch)
+
+    // Loop detection (basic backward edge check)
+    local has_loop = me._has_backward_edge(blocks)
+    summary.set("has_loops", has_loop)
+
+    if me._verbose == 1 {
+      print("[MirAnalyzerBox] Summary for " + name + ":")
+      print("  Blocks: " + blocks.size())
+      print("  Instructions: " + total_instructions)
+      print("  Has PHI: " + has_phi)
+      print("  Has Branch: " + has_branch)
+      print("  Has Loop: " + has_loop)
+    }
+
+    return summary
+  }
+
+  // Count PHI instructions in function
+  // Returns: ArrayBox of {block_id, dest, incoming_count}
+  count_phis(funcIndex) {
+    local func = me._get_function(funcIndex)
+    if func == null {
+      print("[MirAnalyzerBox] ERROR: Function index out of bounds: " + funcIndex)
+      return null
+    }
+
+    local blocks = func.get("blocks")
+    if blocks == null {
+      return new ArrayBox()
+    }
+
+    local phi_list = new ArrayBox()
+
+    local i = 0
+    loop(i < blocks.size()) {
+      local block = blocks.get(i)
+      local block_id = block.get("id")
+      local instructions = block.get("instructions")
+
+      if instructions != null {
+        local j = 0
+        loop(j < instructions.size()) {
+          local inst = instructions.get(j)
+          local op = inst.get("op")
+
+          if op == "phi" {
+            local phi_info = new MapBox()
+            phi_info.set("block_id", block_id)
+
+            local dest = inst.get("dst")
+            phi_info.set("dest", dest)
+
+            local incoming = inst.get("incoming")
+            if incoming == null {
+              phi_info.set("incoming_count", 0)
+            } else {
+              phi_info.set("incoming_count", incoming.size())
+            }
+
+            phi_list.push(phi_info)
+
+            if me._verbose == 1 {
+              print("[MirAnalyzerBox] PHI found: block=" + block_id + " dest=" + dest)
+            }
+          }
+
+          j = j + 1
+        }
+      }
+
+      i = i + 1
+    }
+
+    return phi_list
+  }
+
+  // Count loops in function (via CFG backward edge detection)
+  // Returns: integer count of loops detected
+  count_loops(funcIndex) {
+    local func = me._get_function(funcIndex)
+    if func == null {
+      print("[MirAnalyzerBox] ERROR: Function index out of bounds: " + funcIndex)
+      return 0
+    }
+
+    local blocks = func.get("blocks")
+    if blocks == null {
+      return 0
+    }
+
+    // Build block_id -> block_index map for quick lookup
+    local block_map = new MapBox()
+    local i = 0
+    loop(i < blocks.size()) {
+      local block = blocks.get(i)
+      local block_id = block.get("id")
+      block_map.set("" + block_id, i)
+      i = i + 1
+    }
+
+    // Count backward edges (target_id < source_id)
+    local loop_count = 0
+
+    i = 0
+    loop(i < blocks.size()) {
+      local block = blocks.get(i)
+      local block_id = block.get("id")
+      local instructions = block.get("instructions")
+
+      if instructions != null {
+        // Check last instruction for control flow
+        local last_idx = instructions.size() - 1
+        if last_idx >= 0 {
+          local last_inst = instructions.get(last_idx)
+          local op = last_inst.get("op")
+
+          // Check jump instruction
+          if op == "jump" {
+            local target = last_inst.get("target")
+            if target != null {
+              if target < block_id {
+                loop_count = loop_count + 1
+
+                if me._verbose == 1 {
+                  print("[MirAnalyzerBox] Backward edge: block " + block_id + " -> " + target)
+                }
+              }
+            }
+          }
+
+          // Check branch instruction (both targets)
+          if op == "branch" {
+            local then_target = last_inst.get("then")
+            local else_target = last_inst.get("else")
+
+            if then_target != null {
+              if then_target < block_id {
+                loop_count = loop_count + 1
+
+                if me._verbose == 1 {
+                  print("[MirAnalyzerBox] Backward edge (then): block " + block_id + " -> " + then_target)
+                }
+              }
+            }
+
+            if else_target != null {
+              if else_target < block_id {
+                loop_count = loop_count + 1
+
+                if me._verbose == 1 {
+                  print("[MirAnalyzerBox] Backward edge (else): block " + block_id + " -> " + else_target)
+                }
+              }
+            }
+          }
+        }
+      }
+
+      i = i + 1
+    }
+
+    return loop_count
+  }
+
+  // Enable/disable verbose mode
+  set_verbose(enabled) {
+    if enabled == 1 {
+      me._verbose = 1
+      print("[MirAnalyzerBox] Verbose mode: ON")
+    } else {
+      me._verbose = 0
+    }
+  }
+
+  // Internal: Get function by index
+  _get_function(funcIndex) {
+    if me._functions == null { return null }
+    if funcIndex < 0 { return null }
+    if funcIndex >= me._functions.size() { return null }
+
+    return me._functions.get(funcIndex)
+  }
+
+  // Internal: Check if function has backward edges (loop indicator)
+  _has_backward_edge(blocks) {
+    if blocks == null { return 0 }
+
+    local i = 0
+    loop(i < blocks.size()) {
+      local block = blocks.get(i)
+      local block_id = block.get("id")
+      local instructions = block.get("instructions")
+
+      if instructions != null {
+        local last_idx = instructions.size() - 1
+        if last_idx >= 0 {
+          local last_inst = instructions.get(last_idx)
+          local op = last_inst.get("op")
+
+          if op == "jump" {
+            local target = last_inst.get("target")
+            if target != null {
+              if target < block_id {
+                return 1
+              }
+            }
+          }
+
+          if op == "branch" {
+            local then_target = last_inst.get("then")
+            local else_target = last_inst.get("else")
+
+            if then_target != null {
+              if then_target < block_id {
+                return 1
+              }
+            }
+
+            if else_target != null {
+              if else_target < block_id {
+                return 1
+              }
+            }
+          }
+        }
+      }
+
+      i = i + 1
+    }
+
+    return 0
+  }
+}
+
+// Main entry point for standalone testing
+static box MirAnalyzerMain {
+  main(args) {
+    print("[MirAnalyzerMain] Phase 161-2 Basic MirAnalyzerBox Implementation")
+    print("[MirAnalyzerMain] Usage: provide MIR JSON file path as argument")
+
+    // TODO: Add file reading and analysis test
+    return 0
+  }
+}

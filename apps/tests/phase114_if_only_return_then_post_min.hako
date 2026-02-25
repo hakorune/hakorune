@@ -1,0 +1,17 @@
+// Phase 114: if-only return+post parity
+// Tests: early return in if-only with post-if statements
+
+static box Main {
+  f(flag) {
+    local x = 1
+    if flag == 1 { return 7 }
+    x = x + 1
+    return x
+  }
+
+  main() {
+    print(f(1))
+    print(f(0))
+    return "OK"
+  }
+}

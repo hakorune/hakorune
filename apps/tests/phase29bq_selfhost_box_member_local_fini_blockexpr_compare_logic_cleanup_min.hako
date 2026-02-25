@@ -1,0 +1,56 @@
+// Phase 29bq parser handoff Tier-9: box method + local/fini + blockexpr + compare/logic + cleanup cross.
+box Counter {
+  step(delta) {
+    return delta + 1
+  }
+
+  cleanup_bonus() {
+    return 101
+  }
+}
+
+static box Main {
+  main() {
+    local counter = new Counter()
+    local out = 0
+
+    {
+      local i = 0
+      local token = {
+        local seed = counter.step(2)
+        seed + 3
+      } fini {
+        out = out + token
+      }
+
+      loop(i < 3) {
+        i = i + 1
+
+        local mid = {
+          local t = counter.step(i)
+          t + 1
+        }
+
+        local cond = ((mid > 3) && (i != 1)) || (token == 6)
+        if cond {
+          out = out + counter.step(mid)
+
+          if i == 2 {
+            continue
+          }
+
+          if i == 3 {
+            break
+          }
+        }
+
+        out = out + counter.step(1)
+      }
+    } cleanup {
+      out = out + counter.cleanup_bonus()
+    }
+
+    print(out)
+    return 0
+  }
+}

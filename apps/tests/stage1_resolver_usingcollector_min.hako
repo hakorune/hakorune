@@ -1,0 +1,27 @@
+// stage1_resolver_usingcollector_min.hako
+// 目的: Stage1UsingResolverBox + UsingCollectorBox のペアだけを合体させたときに
+//       SSA/PHI が崩れずに動くか確認する中間レベルのテスト。
+//
+// - Stage‑1 CLI 本線とは独立に、resolve_for_source(src) → UsingCollectorBox.collect(src)
+//   の経路だけを小さな箱で再現する。
+// - src には Stage‑1 最小ケースと同じ using 1 行を与える。
+
+using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
+
+static box Main {
+  main(args) {
+    // UsingResolver 側の apply フラグを明示的に有効化（prefix 経路を通す）
+    env.set("HAKO_STAGEB_APPLY_USINGS", "1")
+
+    // modules_list は最低限の 1 エントリだけを与える（実際にファイルが存在しなくても良い）。
+    // _read_file が失敗しても prefix 連結をスキップするだけなので、UsingCollector の JSON 生成までは到達する。
+    env.set("HAKO_STAGEB_MODULES_LIST", "Foo=foo/bar.hako")
+
+    // Stage‑1 minimal と同形の 1 行 using
+    local src = "using \"foo/bar.hako\" as Foo\n"
+    local prefix = Stage1UsingResolverBox.resolve_for_source(src)
+    print("[stage1_resolver_usingcollector_min] prefix=" + ("" + prefix))
+    return 0
+  }
+}
+

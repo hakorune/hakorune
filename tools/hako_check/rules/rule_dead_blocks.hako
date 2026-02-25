@@ -1,0 +1,94 @@
+using tools.hako_check.text_ops as TextOps
+// tools/hako_check/rules/rule_dead_blocks.hako — HC020: Unreachable Basic Block Detection
+// Block-level dead code analyzer using MIR CFG information.
+// Phase 154: MIR CFG integration for fine-grained unreachable code detection.
+
+static box DeadBlockAnalyzerBox {
+  // Main entry point for unreachable block analysis
+  // Input: ir (Analysis IR with CFG), path (file path), out (diagnostics array)
+  // Returns: void (like other rules)
+  method apply_ir(ir, path, out) {
+    if ir == null { return }
+    if out == null { return }
+
+    // Phase 154: Requires CFG information from MIR
+    local cfg = ir.get("cfg")
+    if cfg == null {
+      // CFG info not available - skip analysis
+      return
+    }
+
+    local functions = cfg.get("functions")
+    if functions == null || functions.size() == 0 { return }
+
+    // Analyze each function's blocks
+    me._scan_functions(functions, 0, path, out)
+
+    return
+  }
+  _scan_functions(functions, i, path, out) {
+    if i >= functions.size() { return }
+    me._analyze_function_blocks(functions.get(i), path, out)
+    me._scan_functions(functions, i + 1, path, out)
+  }
+
+  // Analyze blocks within a single function
+  _analyze_function_blocks(func, path, out) {
+    if func == null { return }
+
+    local func_name = func.get("name")
+    local blocks = func.get("blocks")
+    if blocks == null || blocks.size() == 0 { return }
+
+    // Scan for unreachable blocks
+    me._scan_blocks(blocks, 0, func_name, path, out)
+
+    return
+  }
+  _scan_blocks(blocks, i, func_name, path, out) {
+    if i >= blocks.size() { return }
+    local block = blocks.get(i)
+    if block == null { me._scan_blocks(blocks, i + 1, func_name, path, out); return }
+
+    local block_id = block.get("id")
+    local reachable = block.get("reachable")
+
+    // Report unreachable blocks (HC020)
+    if reachable == 0 {
+      local terminator = block.get("terminator")
+      local reason = me._infer_unreachable_reason(terminator)
+
+      local msg = "[HC020] Unreachable basic block: fn=" + func_name
+                + " bb=" + me._itoa(block_id)
+
+      if reason != null && reason != "" {
+        msg = msg + " (" + reason + ")"
+      }
+
+      out.push(msg + " :: " + path)
+    }
+
+    me._scan_blocks(blocks, i + 1, func_name, path, out)
+  }
+
+  // Infer reason for unreachability based on terminator type
+  _infer_unreachable_reason(terminator) {
+    if terminator == null { return "no terminator" }
+
+    // Common patterns
+    if terminator == "Return" { return "after early return" }
+    if terminator == "Jump" { return "unreachable branch" }
+    if terminator == "Branch" { return "dead conditional" }
+
+    return ""
+  }
+
+  // Helper: integer to string
+  _itoa(n) { return TextOps._itoa(n) }
+}
+
+static box RuleDeadBlocksMain {
+  method main(args) {
+    return 0
+  }
+}

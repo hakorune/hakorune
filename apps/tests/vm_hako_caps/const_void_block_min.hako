@@ -1,0 +1,14 @@
+// RVP-C09 capability fixture
+// Contract:
+// - vm-hako subset-check currently rejects const(type:void).
+
+static box Main {
+  main() {
+    local x = null
+    if x == null {
+      x = "ok"
+    }
+    print(x)
+    return 0
+  }
+}

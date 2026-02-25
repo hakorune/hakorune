@@ -1,0 +1,32 @@
+// Phase 264 P0: BundleResolver.resolve/4 ループ問題の最小再現
+//
+// 目的:
+// - non-unit increment + conditional assignment のループを Pattern2/fallback で受理
+// - 現状: Pattern2 rejection で FAIL（全経路 exhaust）
+// - 期待: 修正後に PASS（いずれかの経路で受理）
+//
+// ループの特徴:
+// - Non-unit increment: i = i + 2 (not i = i + 1)
+// - Conditional variable assignment: seg = ... (if) ... else seg = ...
+// - LoopBodyLocal: seg 変数が loop body で代入される
+
+static box Main {
+    main() {
+        local i = 0
+        local seg = ""
+
+        loop(i < 10) {
+            // Conditional assignment to seg
+            if i == 0 {
+                seg = "first"
+            } else {
+                seg = "other"
+            }
+
+            // Non-unit increment
+            i = i + 2
+        }
+
+        return 0
+    }
+}

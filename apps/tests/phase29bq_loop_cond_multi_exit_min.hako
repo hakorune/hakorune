@@ -1,0 +1,29 @@
+// Phase 29bq: loop(cond) with break-only and conditional update/join
+// Expected output: 13
+//
+// Shape:
+// - loop(cond)
+// - multiple if(cond) break
+// - conditional update/join
+
+static box Main {
+    main() {
+        local i = 0
+        local guard = 0
+        local max = 5
+        local sum = 0
+
+        loop(guard < max) {
+            if i >= 3 { break }
+
+            if i == 1 { sum = sum + 10 }
+
+            sum = sum + i
+            i = i + 1
+            guard = guard + 1
+        }
+
+        print(sum)
+        return "OK"
+    }
+}

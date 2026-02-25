@@ -1,0 +1,17 @@
+// Test Case 2: Constant false condition creates dead branch
+// Expected: HC020 for unreachable 'then' branch
+
+static box TestAlwaysFalse {
+  method test() {
+    if 0 {
+      // This entire block is unreachable
+      return 999
+    }
+    return 0
+  }
+
+  method main() {
+    local result = me.test()
+    return result
+  }
+}

@@ -1,0 +1,24 @@
+// Phase 142 P0: Loop normalization as single statement
+//
+// Purpose: Verify loop(true) normalization returns consumed=1, allowing
+// subsequent statements (return s.length()) to be processed normally.
+//
+// Expected output: 3 (s="abc" → s.length() → 3)
+//
+// Structure:
+//   s = "abc"        // pre-loop init with string
+//   loop(true) {     // condition is Bool literal true
+//       break        // break at end
+//   }
+//   return s.length() // subsequent statement processed normally
+
+static box Main {
+    main() {
+        local s
+        s = "abc"
+        loop(true) {
+            break
+        }
+        return s.length()
+    }
+}

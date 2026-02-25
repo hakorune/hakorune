@@ -1,0 +1,15 @@
+// AOT Python evalR OK demo (returns Result.Ok)
+// Build:
+//   cargo build --release --features cranelift-jit
+//   ./target/release/hakorune --compile-native examples/aot_py_result_ok.hako -o app && ./app
+
+static box Main {
+  main() {
+    local py, r
+    py = new PyRuntimeBox()
+    // evalR returns a Result-like box; VM prints Ok(...), AOT prints numeric when autodecode is enabled
+    r = py.evalR("1 + 2")
+    me.console.println(r)
+    return 0
+  }
+}

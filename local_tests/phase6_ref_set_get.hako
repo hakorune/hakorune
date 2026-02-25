@@ -1,0 +1,14 @@
+// Phase 6.1 test: Object creation and field access
+box Obj {
+  init { x }
+}
+
+static box Main {
+  main() {
+    local o
+    o = new Obj()
+    o.x = 1
+    print(o.x)
+    return o.x
+  }
+}

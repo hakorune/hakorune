@@ -1,0 +1,48 @@
+// Phase 165: Test _parse_array style from JsonParserBox (Pattern4 with continue + multi-return)
+// Simulates: loop(p < len) { if stop { return } if sep { continue } else { append } p++ }
+
+static box Main {
+  main(args) {
+    // Simulate array element parsing: collect elements until ']'
+    // Pattern: continue on ',' separator, return on ']', error on other
+    local s = "elem1,elem2,elem3]extra"
+    local p = 0
+    local len = s.length()
+    local arr = new ArrayBox()
+    local elem = ""
+
+    loop(p < len) {
+      local ch = s.substring(p, p + 1)
+
+      // Check for array end
+      if ch == "]" {
+        // Save last element if non-empty
+        if elem.length() > 0 {
+          arr.push(elem)
+        }
+        print("Array parsing complete")
+        print("Elements: " + ("" + arr.length()))
+        return 0
+      }
+
+      // Check for element separator
+      if ch == "," {
+        // Save accumulated element
+        if elem.length() > 0 {
+          arr.push(elem)
+          elem = ""
+        }
+        p = p + 1
+        continue
+      }
+
+      // Accumulate element character
+      elem = elem + ch
+      p = p + 1
+    }
+
+    // If we exit loop without finding ']'
+    print("ERROR: Array not terminated with ]")
+    return 1
+  }
+}

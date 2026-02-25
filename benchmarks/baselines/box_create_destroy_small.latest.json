@@ -1,0 +1,12 @@
+{
+  "bench": "box_create_destroy_small",
+  "ts": "2025-11-10T02:23:56+09:00",
+  "host": "DESKTOP-K9SQDG2",
+  "unit": "ms",
+  "warmup": 1,
+  "repeat": 3,
+  "c_ms": 1,
+  "py_ms": 10,
+  "ny_vm_ms": 2116,
+  "ny_aot_ms": 0
+}

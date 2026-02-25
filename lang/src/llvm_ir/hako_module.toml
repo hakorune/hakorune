@@ -1,0 +1,26 @@
+[module]
+name = "selfhost.llvm.ir"
+description = "LLVM Script Builder (IR only; opt-in)"
+
+[exports]
+boxes = [
+  "LLVMModuleBox",
+  "LLVMFunctionBox",
+  "LLVMBuilderBox",
+  "LLVMTypesBox",
+  "LLVMEmitBox",
+  "LLVMV0BuilderBox",
+  "LLVMAotFacadeBox",
+]
+normalize.print = "boxes/normalize/normalize_print.hako"
+normalize.ref = "boxes/normalize/normalize_ref.hako"
+normalize.array_legacy = "boxes/normalize/normalize_array_legacy.hako"
+# aot_prep = "boxes/aot_prep.hako"  # Commented out: conflicts with aot_prep.passes.* below
+aot_prep.passes.strlen = "boxes/aot_prep/passes/strlen.hako"
+aot_prep.passes.loop_hoist = "boxes/aot_prep/passes/loop_hoist.hako"
+aot_prep.passes.const_dedup = "boxes/aot_prep/passes/const_dedup.hako"
+aot_prep.passes.binop_cse = "boxes/aot_prep/passes/binop_cse.hako"
+aot_prep.passes.collections_hot = "boxes/aot_prep/passes/collections_hot.hako"
+aot_prep.passes.fold_const_ret = "boxes/aot_prep/passes/fold_const_ret.hako"
+aot_prep.passes.numeric_core = "boxes/aot_prep/passes/numeric_core.hako"
+aot_prep.helpers.common = "boxes/aot_prep/helpers/common.hako"

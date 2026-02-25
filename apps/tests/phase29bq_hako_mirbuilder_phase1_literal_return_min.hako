@@ -1,0 +1,9 @@
+// Phase-1 pin (hako_mirbuilder): Return(Int) only
+// Expected: stdout="", RC=0
+
+static box Main {
+  main() {
+    return 0
+  }
+}
+

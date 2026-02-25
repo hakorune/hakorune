@@ -1,0 +1,30 @@
+// Phase 29bq parser handoff Tier-2: local init with mixed logic (==/!= + && + ||) + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local a = 5
+      local b = 5
+      local c = 6
+      local d = 6
+
+      local cond1 = ((a == b) && (b != c)) || (a != b)
+      if cond1 {
+        out = out + 13
+      } else {
+        out = out + 1
+      }
+
+      local cond2 = ((a != b) || (c == d)) && (d != c)
+      if cond2 {
+        out = out + 130
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 1300
+    }
+    print(out)
+    return 0
+  }
+}

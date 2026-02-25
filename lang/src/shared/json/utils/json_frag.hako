@@ -1,0 +1,321 @@
+// json_frag.hako — JSON v0 断片抽出ユーティリティ（Box）
+// 責務: 文字列JSONから key:int / key:str を簡便に取り出す。
+// 非責務: 実行・評価（構造検査やVM実行は他箱に委譲）。
+
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box JsonFragBox {
+  // Toggle: enable Unicode \uXXXX decode in string readers
+  _decode_unicode_on() {
+    local v = env.get("HAKO_PARSER_DECODE_UNICODE")
+    if v == null { return 0 }
+    if v == "1" || v == "true" || v == "on" { return 1 }
+    return 0
+  }
+
+  // Decode simple escapes (\\ \" \/ \b \f \n \r \t) and \uXXXX (printable ASCII only)
+  _decode_escapes(s) {
+    if s == null { return null }
+    // Normalize common JSON double-escape: "\\uXXXX" -> "\uXXXX"
+    local src0 = "" + s
+    local n0 = src0.length()
+    local tmp = ""
+    local p = 0
+    loop(p < n0) {
+      local ch0 = src0.substring(p, p+1)
+      if ch0 == "\\" && p + 2 <= n0 && src0.substring(p+1, p+2) == "\\" {
+        if p + 3 <= n0 && src0.substring(p+2, p+3) == "u" {
+          tmp = tmp + "\\u"
+          p = p + 3
+          continue
+        }
+        // generic \\ -> \
+        tmp = tmp + "\\"
+        p = p + 2
+        continue
+      }
+      tmp = tmp + ch0
+      p = p + 1
+    }
+    local s1 = tmp
+    local n = s1.length()
+    if n == 0 { return s1 }
+    local out = ""
+    local i = 0
+    // Printable ASCII table for 0x20..0x7E
+    local ascii = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+    loop(i < n) {
+      local ch = s1.substring(i, i+1)
+      if ch != "\\" { out = out + ch  i = i + 1  continue }
+      // escape
+      if i + 1 >= n { out = out + "\\"  i = i + 1  continue }
+      local e = s1.substring(i+1, i+2)
+      if e == "\\" { out = out + "\\"  i = i + 2  continue }
+      if e == "\"" { out = out + "\""  i = i + 2  continue }
+      if e == "/" { out = out + "/"  i = i + 2  continue }
+      if e == "b" { out = out + "\b"  i = i + 2  continue }
+      if e == "f" { out = out + "\f"  i = i + 2  continue }
+      if e == "n" { out = out + "\n"  i = i + 2  continue }
+      if e == "r" { out = out + "\r"  i = i + 2  continue }
+      if e == "t" { out = out + "\t"  i = i + 2  continue }
+      if e == "u" {
+        // \uXXXX (hex)
+        if i + 6 <= n {
+          local h = s1.substring(i+2, i+6)
+          // parse hex (limited)
+          local val = 0
+          local k = 0
+          local ok = 1
+          loop(k < 4) {
+            local c = h.substring(k, k+1)
+            local d = -1
+            if c >= "0" && c <= "9" { d = "0123456789".indexOf(c) }
+            else {
+              if c >= "a" && c <= "f" { d = 10 + ("abcdef".indexOf(c)) }
+              else { if c >= "A" && c <= "F" { d = 10 + ("ABCDEF".indexOf(c)) } else { ok = 0 }}
+            }
+            if d < 0 { ok = 0  break }
+            val = val * 16 + d
+            k = k + 1
+          }
+          if ok == 1 {
+            // Printable ASCII only (0x20..0x7E)
+            if val >= 32 && val <= 126 {
+              local pos = val - 32
+              out = out + ascii.substring(pos, pos+1)
+              i = i + 6
+              continue
+            }
+            // Surrogate pair handling: collapse \uD83D\uDE00 etc. into a single placeholder
+            // High surrogate range: 55296..56319
+            if val >= 55296 && val <= 56319 {
+              // skip following low surrogate if present
+              if i + 12 <= n && s1.substring(i+6, i+8) == "\\u" { i = i + 12 } else { i = i + 6 }
+              out = out + "?"
+              continue
+            }
+            // Non-ASCII BMP → placeholder
+            out = out + "?"
+            i = i + 6
+            continue
+          }
+        }
+      }
+      // Fallback: keep as-is for unknown escape
+      out = out + ch
+      i = i + 1
+    }
+    return out
+  }
+  // 基本ヘルパ - VM fallback implementations for cross-box static calls
+  index_of_from(hay, needle, pos) {
+    // VM fallback: implement using substring + indexOf
+    if hay == null || needle == null { return -1 }
+    local s = "" + hay
+    local n = s.length()
+    local p2 = pos
+    if p2 < 0 { p2 = 0 }
+    if p2 >= n { return -1 }
+    // Extract substring from pos onwards
+    local substr = s.substring(p2, n)
+    // Find needle in substring
+    local idx = substr.indexOf(needle)
+    if idx < 0 { return -1 }
+    return p2 + idx
+  }
+  last_index_of_from(hay, needle, pos) {
+    // VM fallback: reverse search from pos backwards to start
+    if hay == null || needle == null { return -1 }
+    local s = "" + hay
+    local n = s.length()
+    local p2 = pos
+    if p2 < 0 { return -1 }
+    if p2 >= n { p2 = n - 1 }
+    // Extract substring from 0 to pos (inclusive)
+    local substr = s.substring(0, p2 + 1)
+    // Find last occurrence of needle in substring
+    local idx = substr.lastIndexOf(needle)
+    return idx
+  }
+  read_digits(text, pos) { return StringHelpers.read_digits(text, pos) }
+  _str_to_int(s) { return StringHelpers.to_i64(s) }
+  _to_bool10(ch) { if ch == "t" { return 1 } if ch == "f" { return 0 } return null }
+
+  // Read helpers (pos-based)
+  read_int_from(text, pos) {
+    if text == null { return null }
+    local s = "" + text
+    local i = pos
+    local n = s.length()
+    loop(i < n) { if s.substring(i,i+1) != " " { break } i = i + 1 }
+    local j = i
+    if j < n && (s.substring(j,j+1) == "-" || s.substring(j,j+1) == "+") { j = j + 1 }
+    local had = 0
+    loop(j < n) {
+      local ch = s.substring(j,j+1)
+      if ch >= "0" && ch <= "9" { had = 1 j = j + 1 } else { break }
+    }
+    if had == 0 { return null }
+    return s.substring(i, j)
+  }
+  read_bool_from(text, pos) {
+    if text == null { return null }
+    local s = "" + text
+    local i = pos
+    local n = s.length()
+    loop(i < n) { if s.substring(i,i+1) != " " { break } i = i + 1 }
+    if i < n { return me._to_bool10(s.substring(i,i+1)) }
+    return null
+  }
+  read_string_from(text, pos) {
+    if text == null { return null }
+    local s = "" + text
+    local i = pos
+    local n = s.length()
+    // Find opening quote
+    loop(i < n) { if s.substring(i,i+1) == "\"" { i = i + 1 break } if s.substring(i,i+1) != " " { break } i = i + 1 }
+    local j = i
+    loop(j < n) { if s.substring(j,j+1) == "\"" { break } j = j + 1 }
+    if j <= i { return null }
+    local raw = s.substring(i, j)
+    if me._decode_unicode_on() == 1 { return me._decode_escapes(raw) }
+    return raw
+  }
+  read_float_from(text, pos) {
+    if text == null { return null }
+    local s = "" + text
+    local i = pos
+    local n = s.length()
+    loop(i < n) { if s.substring(i,i+1) != " " { break } i = i + 1 }
+    local j = i
+    if j < n && (s.substring(j,j+1) == "+" || s.substring(j,j+1) == "-") { j = j + 1 }
+    local had = 0
+    loop(j < n) {
+      local ch = s.substring(j,j+1)
+      if (ch >= "0" && ch <= "9") || ch == "." { had = 1 j = j + 1 } else { break }
+    }
+    if had == 0 { return null }
+    return s.substring(i, j)
+  }
+
+  // Read helpers (key-based, start at keyPos)
+  read_int_after(text, key_pos) { return me.read_int_from(text, key_pos) }
+  read_bool_after(text, key_pos) { return me.read_bool_from(text, key_pos) }
+  read_string_after(text, key_pos) { return me.read_string_from(text, key_pos) }
+  read_float_after(text, key_pos) { return me.read_float_from(text, key_pos) }
+
+  // key に続く数値（最初の一致）を返す。見つからなければ null。
+  get_int(seg, key) {
+    local pat1 = "\"" + key + "\":"
+    local p = me.index_of_from(seg, pat1, 0)
+    if p >= 0 {
+      // tolerant: skip whitespace and optional sign
+      local v = me.read_int_after(seg, p + pat1.length())
+      if v != null { return me._str_to_int(v) }
+    }
+    return null
+  }
+
+  // Scan for closing quote (VM fallback for scan_string_end)
+  _scan_string_end(text, quote_pos) {
+    // quote_pos is the position of opening quote
+    // Return position of closing quote, or -1 if not found
+    if text == null { return -1 }
+    local s = "" + text
+    local n = s.length()
+    local i = quote_pos + 1
+    loop(i < n) {
+      local ch = s.substring(i, i+1)
+      if ch == "\"" { return i }
+      if ch == "\\" {
+        i = i + 1  // Skip escaped character
+        if i >= n { return -1 }
+      }
+      i = i + 1
+    }
+    return -1
+  }
+
+  // Seek matching closing bracket (VM fallback for seek_array_end)
+  _seek_array_end(text, lbracket_pos) {
+    // lbracket_pos is the position of '['
+    // Return position of matching ']', or -1 if not found
+    if text == null { return -1 }
+    local s = "" + text
+    local n = s.length()
+    local depth = 0
+    local i = lbracket_pos
+    local in_str = 0
+    loop(i < n) {
+      local ch = s.substring(i, i+1)
+      if in_str == 1 {
+        if ch == "\"" { in_str = 0 }
+        if ch == "\\" { i = i + 1 }  // Skip escaped char
+      } else {
+        if ch == "\"" { in_str = 1 }
+        if ch == "[" { depth = depth + 1 }
+        if ch == "]" {
+          depth = depth - 1
+          if depth == 0 { return i }
+        }
+      }
+      i = i + 1
+    }
+    return -1
+  }
+
+  // key に続く "..." の文字列（最初の一致）を返す。見つからなければ空文字。
+  get_str(seg, key) {
+    local pat = "\"" + key + "\":\""
+    local p = me.index_of_from(seg, pat, 0)
+    if p >= 0 {
+      local vstart = p + pat.length()              // start of value (right after opening quote)
+      local vend = me._scan_string_end(seg, vstart - 1)
+      if vend > vstart {
+        local raw = seg.substring(vstart, vend)
+        if me._decode_unicode_on() == 1 { return me._decode_escapes(raw) }
+        return raw
+      }
+    }
+    return ""
+  }
+
+
+
+  // Strict variants: emit an error when the key is missing
+  get_int_strict(seg, key) {
+    local v = me.get_int(seg, key)
+    if v == null {
+      print("[ERROR] Missing key: " + key)
+    }
+    return v
+  }
+
+  get_str_strict(seg, key) {
+    local v = me.get_str(seg, key)
+    if v == "" {
+      print("[ERROR] Missing key: " + key)
+    }
+    return v
+  }
+  // ブロック0の instructions を丸ごと返す（配列の中身のみ返す）。
+  block0_segment(mjson) {
+    if mjson == null { return "" }
+    // Find the instructions array start reliably
+    local key = "\"instructions\":["
+    local pk = mjson.indexOf(key)
+    if pk < 0 { return "" }
+    // '[' position
+    local arr_bracket = pk + key.length() - 1
+    // Use escape-aware scanner to find matching ']'
+    local endp = me._seek_array_end(mjson, arr_bracket)
+    if endp < 0 { return "" }
+    return mjson.substring(arr_bracket + 1, endp)
+  }
+
+
+  // Alias for legacy/buggy resolvers that drop underscores in method names.
+  // Keep as a thin forwarder to preserve strict naming in source while
+  // unblocking runtimes that accidentally call `block0segment`.
+}

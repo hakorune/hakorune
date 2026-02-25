@@ -1,0 +1,7 @@
+// ng.hako - unbalanced braces (missing closing brace)
+
+static box Main {
+  method main() {
+    return 0
+  // Missing brace
+}

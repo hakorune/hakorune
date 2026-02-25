@@ -1,0 +1,23 @@
+// Phase 29bq parser handoff Tier-2: local init with array/map literals + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local arr = [10, 20]
+      local m = %{"a" => 1}
+      local n = arr.length()
+      if n == 2 {
+        out = out + 2
+      } else {
+        out = out + 1
+      }
+      if m == null {
+        out = out + 1
+      }
+    } cleanup {
+      out = out + 140
+    }
+    print(out)
+    return 0
+  }
+}

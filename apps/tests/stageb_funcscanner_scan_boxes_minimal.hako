@@ -1,0 +1,19 @@
+// stageb_funcscanner_scan_boxes_minimal.hako
+// Phase 28: StageBFuncScannerBox.scan_all_boxes minimal loop for JoinIR testing
+// - Case A: loop(i < n) linear scan, defs is a placeholder accumulator
+
+static box StageBFuncScannerBox {
+  scan_all_boxes(src) {
+    local n = src.length()
+    local i = 0
+    local defs = 0
+    loop(i < n) {
+      i = i + 1
+    }
+    return defs
+  }
+}
+
+static box Main {
+  main() { return 0 }
+}

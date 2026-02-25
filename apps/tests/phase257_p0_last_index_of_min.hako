@@ -1,0 +1,30 @@
+// Phase 257 P0: Minimal last_index_of pattern
+// Pattern: Loop with early return (backward scan)
+//
+// Structure:
+//   loop(i >= 0) {
+//     if (condition) { return value }
+//     i = i - 1
+//   }
+//   return default
+//
+// Target: Extend Pattern2 to handle return (similar to break)
+
+static box Main {
+    main() {
+        local s = "hello world"
+        local ch = "o"
+
+        // Find last occurrence of ch in s
+        local i = s.length() - 1
+
+        loop(i >= 0) {
+            if s.substring(i, i + 1) == ch {
+                return i  // Early return when found
+            }
+            i = i - 1  // Backward scan
+        }
+
+        return -1  // Not found
+    }
+}

@@ -1,0 +1,45 @@
+// MIR Call Smoke Test 1: Global function call
+// Tests basic Global callee type
+
+using "lang/src/llvm_ir/instructions/mir_call.hako" as MirCallInst
+
+static box Main {
+  main() {
+    print("=== MIR Call Smoke Test 1: global_simple ===")
+
+    // Simulate: print("hello")
+    local callee = new MapBox()
+    callee.set("type", "Global")
+    callee.set("name", "print")
+
+    local args = new ArrayBox()
+    args.push(1)  // register ID 1
+
+    // Generate mir_call JSON
+    local json = MirCallInst.lower_mir_call(null, callee, args, 2, null)
+
+    // Verify JSON structure
+    local has_mir_call = json.indexOf("\"op\":\"mir_call\"")
+    if has_mir_call < 0 {
+      print("ERROR: op not found")
+      return 1
+    }
+
+    local has_global = json.indexOf("\"type\":\"Global\"")
+    if has_global < 0 {
+      print("ERROR: Global type not found")
+      return 1
+    }
+
+    local has_name = json.indexOf("\"name\":\"print\"")
+    if has_name < 0 {
+      print("ERROR: function name not found")
+      return 1
+    }
+
+    print("✓ PASS: global_simple mir_call generated")
+    print("Note: Actual execution requires C++ backend implementation")
+
+    return 0
+  }
+}

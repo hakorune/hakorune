@@ -1,0 +1,1 @@
+{"functions":[{"name":"main","entry_block":0,"blocks":[{"id":0,"instructions":[{"op":"new_closure","dst":1,"params":[],"captures":[],"body":[]},{"op":"ret","value":1}]}]}]}

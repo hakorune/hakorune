@@ -1,0 +1,18 @@
+box Node {
+    public weak parent
+    name
+
+    setParent(p) {
+        me.parent = weak p  // ✅ Explicit weak operator (Phase 285W-Syntax-0)
+    }
+}
+
+static box Main {
+    main() {
+        local n1 = new Node()
+        local n2 = new Node()
+        n1.setParent(n2)
+        print("OK: public weak parent sugar syntax")
+        return 0
+    }
+}

@@ -1,0 +1,139 @@
+// lower_loop_local_return_var_box.hako
+// JIR-PORT-03 minimal loop shape:
+//   Local(i = Int init)
+//   Loop(Compare(Var i < Int limit)) { Assignment(i = BinaryOp(Var i + Int step)) }
+//   Return(Var i)
+//
+// Emits a minimal SSA loop skeleton with header phi.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.loop_scan" as LoopScanBox
+using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+
+static box LowerLoopLocalReturnVarBox {
+  _find_key_in_range(s, key_pat, from_pos, end_pos) {
+    local k = JsonFragBox.index_of_from(s, key_pat, from_pos)
+    if k < 0 || k >= end_pos { return -1 }
+    return k
+  }
+
+  _read_string_field_in_range(s, key_pat, from_pos, end_pos) {
+    local k = me._find_key_in_range(s, key_pat, from_pos, end_pos)
+    if k < 0 { return null }
+    local k_colon = JsonFragBox.index_of_from(s, ":", k)
+    if k_colon < 0 || k_colon >= end_pos { return null }
+    return JsonFragBox.read_string_after(s, k_colon + 1)
+  }
+
+  _read_int_field_in_range(s, key_pat, from_pos, end_pos) {
+    local k = me._find_key_in_range(s, key_pat, from_pos, end_pos)
+    if k < 0 { return null }
+    local k_colon = JsonFragBox.index_of_from(s, ":", k)
+    if k_colon < 0 || k_colon >= end_pos { return null }
+    return JsonFragBox.read_int_after(s, k_colon + 1)
+  }
+
+  _find_object_after_key(s, key_pat, from_pos, end_pos) {
+    local k = me._find_key_in_range(s, key_pat, from_pos, end_pos)
+    if k < 0 { return -1 }
+    local k_obj = JsonFragBox.index_of_from(s, "{", k)
+    if k_obj < 0 || k_obj >= end_pos { return -1 }
+    return k_obj
+  }
+
+  _read_compare_limit(s, k_cmp, k_loop, varname) {
+    local n = s.length()
+    local op = me._read_string_field_in_range(s, "\"op\"", k_cmp, n)
+    if op == null || op != "<" { return null }
+
+    local k_lhs = me._find_object_after_key(s, "\"lhs\"", k_cmp, n)
+    if k_lhs < 0 { return null }
+    local k_rhs = me._find_object_after_key(s, "\"rhs\"", k_lhs + 1, n)
+    if k_rhs < 0 || k_rhs >= n { return null }
+
+    local lhs_type = me._read_string_field_in_range(s, "\"type\"", k_lhs, k_rhs)
+    if lhs_type == null || lhs_type != "Var" { return null }
+    local lhs_name = me._read_string_field_in_range(s, "\"name\"", k_lhs, k_rhs)
+    if lhs_name == null || lhs_name != varname { return null }
+
+    local rhs_type = me._read_string_field_in_range(s, "\"type\"", k_rhs, n)
+    if rhs_type == null || rhs_type != "Int" { return null }
+    return me._read_int_field_in_range(s, "\"value\"", k_rhs, n)
+  }
+
+  _read_step_int(s, k_loop, k_ret, varname) {
+    local k_body_key = me._find_key_in_range(s, "\"body\"", k_loop, k_ret)
+    if k_body_key < 0 { return null }
+    local k_body_lb = JsonFragBox.index_of_from(s, "[", k_body_key)
+    if k_body_lb < 0 || k_body_lb >= k_ret { return null }
+    local k_body_rb = JsonFragBox._seek_array_end(s, k_body_lb)
+    if k_body_rb < 0 || k_body_rb >= k_ret { return null }
+
+    local assign_name = me._read_string_field_in_range(s, "\"name\"", k_body_lb, k_body_rb)
+    if assign_name == null || assign_name != varname { return null }
+
+    local k_bin = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_body_lb)
+    if k_bin < 0 || k_bin >= k_body_rb {
+      k_bin = JsonFragBox.index_of_from(s, "\"type\":\"BinaryOp\"", k_body_lb)
+      if k_bin < 0 || k_bin >= k_body_rb { return null }
+    }
+
+    local bin_op = me._read_string_field_in_range(s, "\"op\"", k_body_lb, k_body_rb)
+    if bin_op == null || bin_op != "+" { return null }
+
+    local k_lhs = me._find_object_after_key(s, "\"lhs\"", k_body_lb, k_body_rb)
+    if k_lhs < 0 { return null }
+    local k_rhs = me._find_object_after_key(s, "\"rhs\"", k_lhs + 1, k_body_rb)
+    if k_rhs < 0 || k_rhs >= k_body_rb { return null }
+
+    local lhs_type = me._read_string_field_in_range(s, "\"type\"", k_lhs, k_rhs)
+    if lhs_type == null || lhs_type != "Var" { return null }
+    local lhs_name = me._read_string_field_in_range(s, "\"name\"", k_lhs, k_rhs)
+    if lhs_name == null || lhs_name != varname { return null }
+
+    local rhs_type = me._read_string_field_in_range(s, "\"type\"", k_rhs, k_body_rb)
+    if rhs_type == null || rhs_type != "Int" { return null }
+    return me._read_int_field_in_range(s, "\"value\"", k_rhs, k_body_rb)
+  }
+
+  try_lower(program_json) {
+    if program_json == null { return null }
+    local s = "" + program_json
+
+    local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
+    if k_loop < 0 { return null }
+    local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_loop)
+    if k_cmp < 0 { return null }
+
+    local varname = LoopScanBox.find_loop_var_name(s, k_cmp)
+    if varname == null || varname == "" { return null }
+
+    local init_v = PatternUtilBox.find_local_int_before(s, varname, k_loop)
+    if init_v == null { return null }
+
+    local limit_v = me._read_compare_limit(s, k_cmp, k_loop, varname)
+    if limit_v == null { return null }
+
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_loop)
+    if k_ret < 0 { return null }
+    local k_ret_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_ret)
+    if k_ret_var < 0 { return null }
+    local k_ret_name = JsonFragBox.index_of_from(s, "\"name\"", k_ret_var)
+    if k_ret_name < 0 { return null }
+    local k_ret_name_colon = JsonFragBox.index_of_from(s, ":", k_ret_name)
+    if k_ret_name_colon < 0 { return null }
+    local ret_name = JsonFragBox.read_string_after(s, k_ret_name_colon + 1)
+    if ret_name == null || ret_name != varname { return null }
+
+    local step_v = me._read_step_int(s, k_loop, k_ret, varname)
+    if step_v == null { return null }
+
+    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+      "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + init_v + "}},{\"op\":\"jump\",\"target\":1}]}," +
+      "{\"id\":1,\"instructions\":[{\"op\":\"phi\",\"dst\":2,\"incoming\":[[1,0],[6,3]]},{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + limit_v + "}},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":2,\"rhs\":3,\"dst\":4},{\"op\":\"branch\",\"cond\":4,\"then\":2,\"else\":4}]}," +
+      "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + step_v + "}},{\"op\":\"binop\",\"operation\":\"+\",\"lhs\":2,\"rhs\":5,\"dst\":6},{\"op\":\"jump\",\"target\":3}]}," +
+      "{\"id\":3,\"instructions\":[{\"op\":\"jump\",\"target\":1}]}," +
+      "{\"id\":4,\"instructions\":[{\"op\":\"ret\",\"value\":2}]}]}]}"
+    return mir
+  }
+}

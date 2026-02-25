@@ -1,0 +1,64 @@
+// ParserScanLoopBox — loop-only helpers for parser scan boxes
+// Responsibility: Provide single-increment scan loops (pos++ only)
+using lang.compiler.parser.scan.parser_common_utils_box as ParserCommonUtilsBox
+
+static box ParserScanLoopBox {
+  // Skip while current char is in pred_chars. Returns next pos.
+  skip_while(src, pos, end, pred_chars) {
+    local i = pos
+    loop(i < end) {
+      local ch = src.substring(i, i + 1)
+      if pred_chars.indexOf(ch) < 0 { return i }
+      i = i + 1
+    }
+    return i
+  }
+
+  // Scan until newline or end. Returns pos of newline (or end).
+  scan_until_newline(src, pos, end) {
+    local i = pos
+    loop(i < end) {
+      if src.substring(i, i + 1) == "\n" { return i }
+      i = i + 1
+    }
+    return i
+  }
+
+  // Decode escape sequence starting at backslash (pos). Returns "<piece>@<next_pos>".
+  scan_escape(src, pos, end, quote) {
+    if pos + 1 >= end { return "\\@" + ParserCommonUtilsBox.i2s(pos + 1) }
+    local nx = src.substring(pos + 1, pos + 2)
+    if nx == "\\" { return "\\@" + ParserCommonUtilsBox.i2s(pos + 2) }
+    if nx == "\"" { return "\"@" + ParserCommonUtilsBox.i2s(pos + 2) }
+    if nx == "'" { return "'@" + ParserCommonUtilsBox.i2s(pos + 2) }
+    if nx == "/" { return "/@" + ParserCommonUtilsBox.i2s(pos + 2) }
+    if nx == "b" { return "@" + ParserCommonUtilsBox.i2s(pos + 2) }
+    if nx == "f" { return "@" + ParserCommonUtilsBox.i2s(pos + 2) }
+    if nx == "n" { return "\n@" + ParserCommonUtilsBox.i2s(pos + 2) }
+    if nx == "r" { return "\r@" + ParserCommonUtilsBox.i2s(pos + 2) }
+    if nx == "t" { return "\t@" + ParserCommonUtilsBox.i2s(pos + 2) }
+    if nx == "u" && pos + 5 < end {
+      return src.substring(pos, pos + 6) + "@" + ParserCommonUtilsBox.i2s(pos + 6)
+    }
+    return "\\" + nx + "@" + ParserCommonUtilsBox.i2s(pos + 2)
+  }
+
+  // Decode escape sequence starting at backslash (pos). Returns "<piece>@<skip>".
+  scan_escape_piece_and_skip(src, pos, end, quote) {
+    if pos + 1 >= end { return "\\@" + ParserCommonUtilsBox.i2s(0) }
+    local nx = src.substring(pos + 1, pos + 2)
+    if nx == "\\" { return "\\@" + ParserCommonUtilsBox.i2s(1) }
+    if nx == "\"" { return "\"@" + ParserCommonUtilsBox.i2s(1) }
+    if nx == "'" { return "'@" + ParserCommonUtilsBox.i2s(1) }
+    if nx == "/" { return "/@" + ParserCommonUtilsBox.i2s(1) }
+    if nx == "b" { return "@" + ParserCommonUtilsBox.i2s(1) }
+    if nx == "f" { return "@" + ParserCommonUtilsBox.i2s(1) }
+    if nx == "n" { return "\n@" + ParserCommonUtilsBox.i2s(1) }
+    if nx == "r" { return "\r@" + ParserCommonUtilsBox.i2s(1) }
+    if nx == "t" { return "\t@" + ParserCommonUtilsBox.i2s(1) }
+    if nx == "u" && pos + 5 < end {
+      return src.substring(pos, pos + 6) + "@" + ParserCommonUtilsBox.i2s(5)
+    }
+    return "\\" + nx + "@" + ParserCommonUtilsBox.i2s(1)
+  }
+}

@@ -1,0 +1,11 @@
+using selfhost.vm.entry_s0 as MiniVmS0EntryBox
+static box Main {
+  main(args) {
+    local j = env.get("NYASH_VERIFY_JSON")
+    if j == null || j == "" {
+      print("[vm-hako/contract][missing-json]")
+      return 1
+    }
+    return MiniVmS0EntryBox.run_min(j)
+  }
+}

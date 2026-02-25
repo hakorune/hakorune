@@ -1,0 +1,19 @@
+// Phase 29ab P6: Pattern6 first-fail minimal (contract violation)
+// Expect: JoinIR freeze (step must be i = i + 1)
+
+static box Main {
+    find_bad_step(s, ch) {
+        local i = 0
+        loop(i < s.length()) {
+            if s.substring(i, i + 1) == ch {
+                return i
+            }
+            i = i + 2
+        }
+        return -1
+    }
+
+    main() {
+        return Main.find_bad_step("abc", "b")
+    }
+}

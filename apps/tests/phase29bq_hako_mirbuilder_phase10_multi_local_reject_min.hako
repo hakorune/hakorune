@@ -1,0 +1,17 @@
+// phase29bq_hako_mirbuilder_phase10_multi_local_reject_min.hako
+// Contract pin:
+//   .hako mirbuilder route rejects unsupported multi-Local variant where
+//   print uses a non-last local var.
+//
+// Expected (.hako mirbuilder emit route):
+// - reject tag: [freeze:contract][hako_mirbuilder][cap_missing/expr:Var]
+// - message: Print var must be the Local var
+
+static box Main {
+  main() {
+    local a = 1
+    local b = 2
+    print(a)
+    return 0
+  }
+}

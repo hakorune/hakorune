@@ -1,0 +1,147 @@
+// tools/hako_check/render/graphviz.hako - GraphvizRenderBox (MVP)
+// Render minimal DOT graph from one or more Analysis IRs.
+
+using selfhost.shared.common.string_helpers as Str
+
+static box GraphvizRenderBox {
+  render_multi(irs) {
+    // irs: ArrayBox of IR Map
+    print("digraph Hako {")
+    // Internal key names for node/edge key lists (avoid collisions with user names)
+    local NK_KEY = "__graphviz_nodes__"
+    local EK_KEY = "__graphviz_edges__"
+    // optional graph attributes (kept minimal)
+    // print("  rankdir=LR;")
+    // Node and edge sets to avoid duplicates
+    local nodes = new MapBox()
+    local edges = new MapBox()
+    if irs != null { me._scan_irs(irs, 0, nodes, edges) }
+    // Build clusters by box: group nodes whose name looks like Box.method/arity
+    local groups = new MapBox()
+    local group_keys = new ArrayBox()
+    local nk = nodes.get(NK_KEY)
+    if nk == null { nk = new ArrayBox() }
+    if nk != null { me._build_groups(nk, 0, groups, group_keys) }
+    // Emit clusters
+    me._emit_clusters(group_keys, 0, groups)
+    // Emit edges
+    // Emit edges
+    if edges != null {
+      // edges map key = from + "\t" + to
+      // naive iteration by trying to get keys from a stored list
+      // We kept an ArrayBox under edges.get("__keys__") for listing
+      local ks = edges.get(EK_KEY)
+      if ks == null { ks = new ArrayBox() }
+      if ks != null { me._emit_edges(ks, 0, nodes) }
+    }
+    // Emit standalone nodes not covered by clusters
+    if nk != null { me._emit_standalone_nodes(nk, 0) }
+    print("}")
+    return 0
+  }
+  _scan_irs(irs, i, nodes, edges) {
+    if i >= irs.size() { return }
+    me._render_ir(irs.get(i), nodes, edges)
+    me._scan_irs(irs, i + 1, nodes, edges)
+  }
+  _build_groups(nk, i, groups, group_keys) {
+    if i >= nk.size() { return }
+    local name = nk.get(i)
+    local dot = name.indexOf(".")
+    if dot > 0 {
+      local box_name = name.substring(0, dot)
+      local gkey = "cluster_" + box_name
+      local arr = groups.get(gkey)
+      if arr == null { arr = new ArrayBox(); groups.set(gkey, arr); group_keys.push(gkey) }
+      me._push_group_unique(arr, name)
+    }
+    me._build_groups(nk, i + 1, groups, group_keys)
+  }
+  _push_group_unique(arr, name) {
+    if me._arr_contains(arr, name, 0) == 0 { arr.push(name) }
+  }
+  _arr_contains(arr, name, i) {
+    if i >= arr.size() { return 0 }
+    if arr.get(i) == name { return 1 }
+    return me._arr_contains(arr, name, i + 1)
+  }
+  _emit_clusters(group_keys, i, groups) {
+    if i >= group_keys.size() { return }
+    local gk = group_keys.get(i)
+    print("  subgraph \"" + gk + "\" {")
+    // label = box name (strip "cluster_")
+    local label = gk.substring("cluster_".length())
+    print("    label=\"" + label + "\";")
+    local arr = groups.get(gk)
+    me._emit_cluster_nodes(arr, 0)
+    print("  }")
+    me._emit_clusters(group_keys, i + 1, groups)
+  }
+  _emit_cluster_nodes(arr, i) {
+    if arr == null { return }
+    if i >= arr.size() { return }
+    print("    \"" + arr.get(i) + "\";")
+    me._emit_cluster_nodes(arr, i + 1)
+  }
+  _emit_edges(ks, i, nodes) {
+    if i >= ks.size() { return }
+    local key = ks.get(i)
+    local tab = key.indexOf("\t")
+    if tab > 0 {
+      local src = key.substring(0, tab)
+      local dst = key.substring(tab+1)
+      print("  \"" + src + "\" -> \"" + dst + "\";")
+      // also register nodes (in case they weren't explicitly collected)
+      nodes.set(src, 1)
+      nodes.set(dst, 1)
+    }
+    me._emit_edges(ks, i + 1, nodes)
+  }
+  _emit_standalone_nodes(nk, i) {
+    if i >= nk.size() { return }
+    local name = nk.get(i)
+    local dot = name.indexOf(".")
+    if dot < 0 { print("  \"" + name + "\";") }
+    me._emit_standalone_nodes(nk, i + 1)
+  }
+  _scan_methods(ms, i, nodes) {
+    if i >= ms.size() { return }
+    me._add_node(nodes, ms.get(i))
+    me._scan_methods(ms, i + 1, nodes)
+  }
+  _scan_calls(cs, i, edges) {
+    if i >= cs.size() { return }
+    local c = cs.get(i)
+    local f = c.get("from")
+    local t = c.get("to")
+    me._add_edge(edges, f, t)
+    me._scan_calls(cs, i + 1, edges)
+  }
+  _render_ir(ir, nodes, edges) {
+    if ir == null { return }
+    // methods
+    local ms = ir.get("methods")
+    if ms != null { me._scan_methods(ms, 0, nodes) }
+    // calls
+    local cs = ir.get("calls")
+    if cs != null { me._scan_calls(cs, 0, edges) }
+  }
+  _add_node(nodes, name) {
+    if name == null { return }
+    nodes.set(name, 1)
+    // also store a list of keys for emitting (since Map has no key iterator)
+    local arr = nodes.get("__graphviz_nodes__"); if arr == null { arr = new ArrayBox(); nodes.set("__graphviz_nodes__", arr) }
+    // avoid duplicates
+    if me._arr_contains(arr, name, 0) == 0 { arr.push(name) }
+  }
+  _add_edge(edges, src, dst) {
+    if src == null || dst == null { return }
+    local key = src + "\t" + dst
+    if edges.get(key) == null { edges.set(key, 1) }
+    local arr = edges.get("__graphviz_edges__"); if arr == null { arr = new ArrayBox(); edges.set("__graphviz_edges__", arr) }
+    // avoid duplicates
+    if me._arr_contains(arr, key, 0) == 0 { arr.push(key) }
+  }
+}
+
+static box GraphvizRenderMain { method main(args) { return 0 } }

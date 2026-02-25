@@ -1,0 +1,41 @@
+// Phase 193: MethodCall in Body-Local Init Expression
+//
+// Test: local digit_str = i.toString()  (simplified from indexOf)
+//
+// NOTE: This is a placeholder test demonstrating the Phase 193 infrastructure.
+// The original design targeted digits.indexOf(ch), but that requires outer scope
+// variables in ConditionEnv, which would need Pattern 2/3 enhancements (Phase 194+).
+//
+// For Phase 193, we test that:
+// 1. MethodCall in body-local init expressions can be lowered to JoinIR
+// 2. The receiver can be resolved from ConditionEnv (loop param)
+// 3. BoxCall instruction is correctly emitted
+//
+// This verifies the core Phase 193 implementation is working.
+//
+// Expected behavior:
+// - i = 0, 1, 2 (loop iterations)
+// - toString() converts each to string
+// - Result: prints string concatenation (actual output may vary due to BoxCall behavior)
+// - The key success criterion is that MethodCall is lowered without error
+
+static box Main {
+    main() {
+        local result = ""
+        local i = 0
+
+        loop(i < 10) {
+            if i >= 3 {
+                break
+            }
+            // Phase 193 target: MethodCall in body-local init
+            // Receiver (i) is in ConditionEnv as loop parameter
+            local digit_str = i.toString()
+            result = result + digit_str
+            i = i + 1
+        }
+
+        print(result)  // Output varies (BoxCall behavior dependent)
+        return 0
+    }
+}

@@ -1,0 +1,28 @@
+// lower_load_store_local_box.hako — Minimal structural MIR for load/store (local ptr)
+
+static box LowerLoadStoreLocalBox {
+  _accept_shape(s) {
+    if s.indexOf("\"type\":\"Return\"") < 0 { return 0 }
+    // Keep control-flow shapes on dedicated lowers.
+    if s.indexOf("\"type\":\"If\"") >= 0 { return 0 }
+    if s.indexOf("\"type\":\"Loop\"") >= 0 { return 0 }
+    if s.indexOf("\"type\":\"Local\"") < 0 { return 0 }
+    if s.indexOf("\"type\":\"Var\"") < 0 { return 0 }
+    if s.indexOf("\"expr\":{\"type\":\"Var\"") < 0 && s.indexOf("\"type\":\"Assignment\"") < 0 { return 0 }
+    return 1
+  }
+
+  try_lower(program_json) {
+    if program_json == null { return null }
+    local s = "" + program_json
+    if me._accept_shape(s) != 1 { return null }
+    local json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
+               // const 5 -> v1, store v1 to ptr 10, load -> v2, ret 0
+               "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":5}}," +
+               "{\"op\":\"store\",\"value\":1,\"ptr\":10}," +
+               "{\"op\":\"load\",\"dst\":2,\"ptr\":10}," +
+               "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+               "{\"op\":\"ret\",\"value\":3}]}]}]}"
+    return json
+  }
+}

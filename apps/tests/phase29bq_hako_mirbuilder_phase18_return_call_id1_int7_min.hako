@@ -1,0 +1,13 @@
+// phase29bq_hako_mirbuilder_phase18_return_call_id1_int7_min.hako
+// Contract pin (MIR widening/Call):
+//   Return(Call) one-arg widening accepts `id(7)` minimal shape.
+
+static box Main {
+  id(x) {
+    return x
+  }
+
+  main() {
+    return id(7)
+  }
+}

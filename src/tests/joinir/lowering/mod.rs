@@ -1,0 +1,16 @@
+#[path = "../../mir_joinir_funcscanner_append_defs.rs"]
+pub mod mir_joinir_funcscanner_append_defs;
+#[path = "../../mir_joinir_funcscanner_trim.rs"]
+pub mod mir_joinir_funcscanner_trim;
+#[path = "../../mir_joinir_if_select.rs"]
+pub mod mir_joinir_if_select;
+#[path = "../../mir_joinir_min.rs"]
+pub mod mir_joinir_min;
+#[path = "../../mir_joinir_skip_ws.rs"]
+pub mod mir_joinir_skip_ws;
+#[path = "../../mir_joinir_stage1_using_resolver_min.rs"]
+pub mod mir_joinir_stage1_using_resolver_min;
+#[path = "../../mir_joinir_stageb_body.rs"]
+pub mod mir_joinir_stageb_body;
+#[path = "../../mir_joinir_stageb_funcscanner.rs"]
+pub mod mir_joinir_stageb_funcscanner;

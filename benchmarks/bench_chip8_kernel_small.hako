@@ -1,0 +1,46 @@
+// APP-PERF-01: CHIP-8 kernel benchmark (small)
+// Deterministic emulator-style workload for cross-language comparison
+// 400,000 iterations with branch-heavy logic
+
+static box Main {
+  main() {
+    local n = 400000
+    local i = 0
+    local pc = 0
+    local op = 7
+    local acc = 1
+    local sum = 0
+    local MOD = 1000000007
+    local branch = 0
+    local result = 0
+
+    loop (i < n) {
+      op = (op * 73 + 19) % 65536
+      branch = op % 16
+
+      if branch < 4 {
+        acc = (acc + (op % 251) + pc) % MOD
+      }
+      if branch >= 4 {
+        if branch < 8 {
+          acc = (acc + (op % 127) + 3) % MOD
+        }
+      }
+      if branch >= 8 {
+        if branch < 12 {
+          acc = (acc + (branch * branch) + (pc % 17)) % MOD
+        }
+      }
+      if branch >= 12 {
+        acc = (acc + (op % 97) + (pc % 13) + 11) % MOD
+      }
+
+      pc = (pc + 2 + (op % 3)) % 4096
+      sum = (sum + acc + pc + branch) % MOD
+      i = i + 1
+    }
+
+    result = (sum + acc + pc) % MOD
+    return result
+  }
+}

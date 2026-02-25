@@ -1,0 +1,46 @@
+static box StringUtils {
+    equals(other) {
+        return true
+    }
+
+    is_digit(ch) {
+        // 元の実装を再現（or チェーン）
+        return ch == "0" or ch == "1" or ch == "2"
+    }
+
+    is_integer(s) {
+        // 元の実装に近づける
+        if s.length() == 0 {
+            return false
+        }
+
+        local start = 0
+        if s.substring(0, 1) == "-" {
+            if s.length() == 1 {
+                return false
+            }
+            start = 1
+        }
+
+        local i = start
+        loop(i < s.length()) {
+            // 🔥 THIS IS THE BUG: this.is_digit() in loop
+            if not this.is_digit(s.substring(i, i + 1)) {
+                return false
+            }
+            i = i + 1
+        }
+        return true
+    }
+
+    toString() {
+        return "StringUtils()"
+    }
+}
+
+static box Main {
+    main() {
+        // 元のテストケースと同じ
+        return StringUtils.is_integer("123") ? 7 : 1
+    }
+}

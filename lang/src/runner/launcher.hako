@@ -1,0 +1,407 @@
+// launcher.hako — Stage1 Hakorune CLI launcher (draft)
+//
+// Responsibility
+// - Provide a thin, script-side CLI entrypoint for Stage1 hakorune.
+// - Parse top-level command/subcommand and delegate to dedicated handlers.
+// - Keep implementation fail-fast and minimal; real work is delegated to
+//   runner / compiler / AOT helpers and ultimately Stage0 (Rust) services.
+//
+// Notes
+// - CLI surface is specified in docs/development/runtime/cli-hakorune-stage1.md.
+// - This file only defines the structural dispatcher; individual commands
+//   are implemented incrementally in later phases.
+
+using lang.mir.builder.MirBuilderBox
+using lang.compiler.build.build_box as BuildBox
+using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+
+static box HakoCli {
+  // Entry from Main.main(args)
+  method run(args){
+    @argc = 0
+    if args { argc = args.size() }
+    if argc == 0 {
+      // No command: print minimal usage and fail-fast
+      print("[hakorune] usage: hakorune <command> [options]")
+      return 1
+    }
+
+    @cmd_raw = args.get(0)
+    @cmd = "" + cmd_raw
+
+    if cmd == "run" {
+      return me.cmd_run(args)
+    } else if cmd == "build" {
+      return me.cmd_build(args)
+    } else if cmd == "emit" {
+      return me.cmd_emit(args)
+    } else if cmd == "check" {
+      return me.cmd_check(args)
+    }
+
+    print("[hakorune] unknown command: " + cmd)
+    return 2
+  }
+
+  // hakorune run [options] <entry.hako> [-- script_args...]
+  // - See docs/development/runtime/cli-hakorune-stage1.md for semantics.
+  // - Phase 25.1: placeholder only（構造だけ定義し、後続フェーズで実装）。
+  method cmd_run(args){
+    print("[hakorune] run: not implemented yet")
+    return 90
+  }
+
+  // hakorune build exe [options] <entry.hako>
+  // - High-level wrapper around selfhost_exe_stageb / ny_mir_builder.
+  method cmd_build(args){
+    @argc = 0
+    if args { argc = args.size() }
+    if argc < 2 {
+      print("[hakorune] build: usage: hakorune build exe <source.hako>")
+      return 91
+    }
+
+    @sub_raw = args.get(1)
+    @sub = "" + sub_raw
+    if sub == "exe" {
+      return me.cmd_build_exe(args)
+    }
+
+    print("[hakorune] build: unknown subcommand: " + sub)
+    return 91
+  }
+
+  // hakorune build exe [-o <out>] [--quiet] <source.hako>
+  // - Pipeline: .hako → Program(JSON v0) → MIR(JSON) → env.codegen.emit_object/link_object → EXE
+  // - Requires env.codegen C-API route to be有効化されていること（NYASH_LLVM_USE_CAPI=1, HAKO_V1_EXTERN_PROVIDER_C_ABI=1 等）。
+  method cmd_build_exe(args){
+    @argc = 0
+    if args { argc = args.size() }
+    if argc < 3 {
+      print("[hakorune] build exe: usage: hakorune build exe [-o <out>] [--quiet] <source.hako>")
+      return 91
+    }
+
+    @out_path = null
+    @quiet = 0
+    @source_path = null
+
+    @i = 2
+    loop(i < argc) {
+      @arg_raw = args.get(i)
+      @arg = "" + arg_raw
+      if arg == "-o" || arg == "--out" {
+        if i + 1 >= argc {
+          print("[hakorune] build exe: -o/--out requires a path")
+          return 91
+        }
+        @op_raw = args.get(i + 1)
+        out_path = "" + op_raw
+        i = i + 2
+      } else if arg == "--quiet" {
+        quiet = 1
+        i = i + 1
+      } else {
+        if source_path == null {
+          source_path = arg
+          i = i + 1
+        } else {
+          print("[hakorune] build exe: unexpected extra argument: " + arg)
+          return 91
+        }
+      }
+    }
+
+    if source_path == null || source_path == "" {
+      print("[hakorune] build exe: source path is required")
+      return 91
+    }
+
+    local tag = "[hakorune] build exe"
+    local src = me._read_file(tag, source_path)
+    if src == null { return 91 }
+
+    local prog = BuildBox.emit_program_json_v0(src, null)
+    if prog == null {
+      print("[hakorune] build exe: BuildBox returned null")
+      return 91
+    }
+    local ps = "" + prog
+    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
+      print("[hakorune] build exe: unexpected Program(JSON) output (missing version/kind)")
+      return 91
+    }
+
+    local mir = MirBuilderBox.emit_from_program_json_v0(ps, null)
+    if mir == null {
+      print("[hakorune] build exe: MirBuilderBox returned null")
+      return 91
+    }
+    local ms = "" + mir
+
+    local obj = CodegenBridgeBox.emit_object(ms)
+    if obj == null || ("" + obj) == "" {
+      print("[hakorune] build exe: env.codegen.emit_object failed")
+      return 91
+    }
+    local obj_path = "" + obj
+
+    local exe = CodegenBridgeBox.link_object(obj_path, out_path)
+    if exe == null || ("" + exe) == "" {
+      print("[hakorune] build exe: env.codegen.link_object failed")
+      return 91
+    }
+    local exe_path = "" + exe
+
+    if quiet != 1 {
+      print("[hakorune] build exe: " + exe_path)
+    }
+
+    return 0
+  }
+
+  // hakorune emit {program-json|mir-json} ...
+  // - Surface for Stage-B / MirBuilder pipeline.
+  method cmd_emit(args){
+    @argc = 0
+    if args { argc = args.size() }
+    if argc < 2 {
+      print("[hakorune] emit: usage: hakorune emit mir-json --from-program-json <file>")
+      return 92
+    }
+
+    @sub_raw = args.get(1)
+    @sub = "" + sub_raw
+    if sub == "mir-json" {
+      return me.cmd_emit_mir_json(args)
+    } else if sub == "program-json" {
+      return me.cmd_emit_program_json(args)
+    }
+
+    print("[hakorune] emit: unknown subcommand: " + sub)
+    return 92
+  }
+
+  // hakorune emit program-json <source.hako>
+  // - Compile Hako source to Program(JSON v0) using BuildBox.emit_program_json_v0.
+  // - Output is written to stdout on success.
+  method cmd_emit_program_json(args){
+    @argc = 0
+    if args { argc = args.size() }
+    if argc < 3 {
+      print("[hakorune] emit program-json: usage: hakorune emit program-json [-o <out>] [--quiet] <source.hako>")
+      return 92
+    }
+
+    local path = null
+    local out_path = null
+    local quiet = 0
+
+    local i = 2
+    loop(i < argc) {
+      local arg_raw = args.get(i)
+      local arg = "" + arg_raw
+      if arg == "-o" || arg == "--out" {
+        if i + 1 >= argc {
+          print("[hakorune] emit program-json: -o/--out requires a path")
+          return 92
+        }
+        local op_raw = args.get(i + 1)
+        out_path = "" + op_raw
+        i = i + 2
+      } else if arg == "--quiet" {
+        quiet = 1
+        i = i + 1
+      } else {
+        if path == null {
+          path = arg
+          i = i + 1
+        } else {
+          print("[hakorune] emit program-json: unexpected extra argument: " + arg)
+          return 92
+        }
+      }
+    }
+
+    if path == null || path == "" {
+      print("[hakorune] emit program-json: source path is required")
+      return 92
+    }
+
+    local tag = "[hakorune] emit program-json"
+    local src = me._read_file(tag, path)
+    if src == null { return 92 }
+
+    local prog = BuildBox.emit_program_json_v0(src, null)
+    if prog == null {
+      print("[hakorune] emit program-json: BuildBox returned null")
+      return 92
+    }
+
+    local ps = "" + prog
+    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
+      print("[hakorune] emit program-json: unexpected output (missing version/kind)")
+      return 92
+    }
+
+    if out_path != null && out_path != "" {
+      if me._write_file(tag, out_path, ps, quiet) != 1 {
+        return 92
+      }
+    } else {
+      print(ps)
+    }
+
+    return 0
+  }
+
+  // hakorune emit mir-json [--from-program-json <program.json>] [-o <out>] [--quiet] [<source.hako>]
+  // - Program(JSON v0) から MIR(JSON) を生成する経路に加えて、
+  //   .hako ソースから直接 Program(JSON v0)→MIR(JSON) まで進める経路もサポートする。
+  method cmd_emit_mir_json(args){
+    local argc = 0
+    if args { argc = args.size() }
+
+    local prog_path = null
+    local source_path = null
+    local out_path = null
+    local quiet = 0
+    local i = 2
+    loop(i < argc) {
+      local arg_raw = args.get(i)
+      local arg = "" + arg_raw
+      if arg == "--from-program-json" {
+        if i + 1 >= argc {
+          print("[hakorune] emit mir-json: --from-program-json requires a path")
+          return 92
+        }
+        local p_raw = args.get(i + 1)
+        prog_path = "" + p_raw
+        i = i + 2
+      } else if arg == "-o" || arg == "--out" {
+        if i + 1 >= argc {
+          print("[hakorune] emit mir-json: -o/--out requires a path")
+          return 92
+        }
+        local op_raw = args.get(i + 1)
+        out_path = "" + op_raw
+        i = i + 2
+      } else if arg == "--quiet" {
+        quiet = 1
+        i = i + 1
+      } else {
+        if source_path == null {
+          source_path = arg
+          i = i + 1
+        } else {
+          print("[hakorune] emit mir-json: unknown or unsupported flag: " + arg)
+          return 92
+        }
+      }
+    }
+
+    if prog_path != null && prog_path != "" && source_path != null && source_path != "" {
+      print("[hakorune] emit mir-json: specify either --from-program-json or <source.hako>, not both")
+      return 92
+    }
+
+    if (prog_path == null || prog_path == "") && (source_path == null || source_path == "") {
+      print("[hakorune] emit mir-json: require --from-program-json <file> or <source.hako>")
+      return 92
+    }
+
+    local tag = "[hakorune] emit mir-json"
+    local prog_json = null
+
+    if prog_path != null && prog_path != "" {
+      local prog_text = me._read_file(tag, prog_path)
+      if prog_text == null { return 92 }
+      prog_json = prog_text
+    } else {
+      local src = me._read_file(tag, source_path)
+      if src == null { return 92 }
+      local prog = BuildBox.emit_program_json_v0(src, null)
+      if prog == null {
+        print("[hakorune] emit mir-json: BuildBox returned null")
+        return 92
+      }
+      local ps = "" + prog
+      if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
+        print("[hakorune] emit mir-json: unexpected Program(JSON) output (missing version/kind)")
+        return 92
+      }
+      prog_json = ps
+    }
+
+    local mir = MirBuilderBox.emit_from_program_json_v0(prog_json, null)
+    if mir == null {
+      print("[hakorune] emit mir-json: MirBuilderBox returned null")
+      return 92
+    }
+
+    local ms = "" + mir
+    if out_path != null && out_path != "" {
+      if me._write_file(tag, out_path, ms, quiet) != 1 {
+        return 92
+      }
+    } else {
+      print(ms)
+    }
+
+    return 0
+  }
+
+
+  // hakorune check <entry.hako>
+  // - Reserved for future static checks (syntax/using/subset).
+  method cmd_check(args){
+    print("[hakorune] check: not implemented yet")
+    return 93
+  }
+
+  // Helpers for file I/O (Phase 25.1a: consolidate Stage‑B friendly patterns)
+  method _read_file(tag, path){
+    if path == null || path == "" {
+      print(tag + ": source path is required")
+      return null
+    }
+    local fb = new FileBox()
+    local ok = fb.open(path, "r")
+    if ok != 1 {
+      print(tag + ": failed to open " + path)
+      return null
+    }
+    local content = fb.read()
+    fb.close()
+    if content == null || content == "" {
+      print(tag + ": source is empty")
+      return null
+    }
+    return "" + content
+  }
+
+  method _write_file(tag, path, content, quiet){
+    if path == null || path == "" { return 1 }
+    local fb = new FileBox()
+    local ok = fb.open(path, "w")
+    if ok != 1 {
+      print(tag + ": failed to open output " + path)
+      return 0
+    }
+    fb.write(content)
+    fb.close()
+    if quiet != 1 {
+      print(tag + ": written " + path)
+    }
+    return 1
+  }
+}
+
+static box Main {
+  // Main entrypoint for Stage1 hakorune CLI.
+  // args: raw argv array (excluding executable name).
+  method main(args){
+    @cli = new HakoCli()
+    return cli.run(args)
+  }
+}

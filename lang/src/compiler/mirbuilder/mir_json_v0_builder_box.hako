@@ -1,0 +1,32 @@
+// mir_json_v0_builder_box.hako (CS2 thin entry)
+// Responsibility:
+// - Keep the stable build() entry and delegate shape/emit responsibilities.
+//
+// Fail-fast:
+// - All errors start with: [freeze:contract][hako_mirbuilder]
+
+using lang.compiler.mirbuilder.mir_json_v0_shape_box as MirJsonV0ShapeBox
+using lang.compiler.mirbuilder.mir_json_v0_emit_box as MirJsonV0EmitBox
+
+static box MirJsonV0BuilderBox {
+  _tag(tag) {
+    if tag == null || ("" + tag) == "" { return "[freeze:contract][hako_mirbuilder]" }
+    return "" + tag
+  }
+
+  _fail(tag, msg) {
+    tag = me._tag(tag)
+    return %{"err" => 1, "err_line" => tag + msg, "mir_json" => ""}
+  }
+
+  // build(state, tag) -> %{ err, err_line, mir_json }
+  build(state, tag) {
+    tag = me._tag(tag)
+    if state == null { return me._fail(tag, " internal error: state is null") }
+
+    local shape_inputs = MirJsonV0ShapeBox.shape_inputs_with_recipe(state, tag)
+    return MirJsonV0EmitBox.build_from_shape_inputs(state, tag, shape_inputs)
+  }
+}
+
+static box MirJsonV0BuilderStub { main() { return 0 } }

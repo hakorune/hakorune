@@ -1,0 +1,21 @@
+// ng.hako - Unsafe analyzer rule (uses direct file I/O)
+// This rule violates the CLI-internal push approach by using FileBox
+
+static box RuleUnsafeExampleBox {
+  method apply(text, path, out) {
+    // UNSAFE: directly reads file using FileBox
+    local fb = new FileBox()
+    if fb.open(path) == 0 {
+      local content = fb.read()
+      fb.close()
+
+      if content.indexOf("dangerous") >= 0 {
+        out.push("[EXAMPLE] found dangerous pattern")
+      }
+    }
+
+    return out.size()
+  }
+}
+
+static box RuleUnsafeExampleMain { method main(args) { return 0 } }

@@ -1,0 +1,100 @@
+// Phase 29bq: ParserPeekBox.parse/3 minimal (selfhost blocker extraction)
+// Expected output: []
+box DummyCtx {
+  gpos_get() { return 0 }
+  gpos_set(v) { return v }
+  skip_ws(src, j) { return j }
+  starts_with_kw(src, j, kw) { return 0 }
+  read_string_lit(src, j) { return "x" }
+  parse_expr2(src, j) { return "{\"type\":\"Int\",\"value\":0}" }
+  esc_json(s) { return s }
+}
+
+static box ParserPeekBox {
+  parse(src, i, ctx) {
+    local j = i
+    local n = src.length()
+    local scr = ctx.parse_expr2(src, j)
+    j = ctx.gpos_get()
+    j = ctx.skip_ws(src, j)
+    if src.substring(j, j+1) == "{" { j = j + 1 }
+    j = ctx.skip_ws(src, j)
+
+    local arms_json = "["
+    local arm_count = 0
+    local else_json = null
+
+    local guard = 0
+    local max = 200000
+    loop(guard < max) {
+      j = ctx.skip_ws(src, j)
+      if j >= n { break }
+      if src.substring(j, j+1) == "}" { break }
+
+      if ctx.starts_with_kw(src, j, "else") == 1 {
+        j = j + 4
+        j = ctx.skip_ws(src, j)
+        if src.substring(j, j+2) == "=>" { j = j + 2 }
+        j = ctx.skip_ws(src, j)
+        if src.substring(j, j+1) == "{" {
+          j = j + 1
+          j = ctx.skip_ws(src, j)
+          else_json = ctx.parse_expr2(src, j)
+          j = ctx.gpos_get()
+          j = ctx.skip_ws(src, j)
+          if src.substring(j, j+1) == "}" { j = j + 1 }
+        } else {
+          else_json = ctx.parse_expr2(src, j)
+          j = ctx.gpos_get()
+        }
+      } else {
+        if src.substring(j, j+1) != "\"" {
+          j = j + 1
+        } else {
+          local label_raw = ctx.read_string_lit(src, j)
+          j = ctx.gpos_get()
+          j = ctx.skip_ws(src, j)
+          if src.substring(j, j+2) == "=>" { j = j + 2 }
+          j = ctx.skip_ws(src, j)
+
+          local expr_json = "{\"type\":\"Int\",\"value\":0}"
+          if src.substring(j, j+1) == "{" {
+            j = j + 1
+            j = ctx.skip_ws(src, j)
+            expr_json = ctx.parse_expr2(src, j)
+            j = ctx.gpos_get()
+            j = ctx.skip_ws(src, j)
+            if src.substring(j, j+1) == "}" { j = j + 1 }
+          } else {
+            expr_json = ctx.parse_expr2(src, j)
+            j = ctx.gpos_get()
+          }
+
+          local arm_json = "{\"label\":\"" + ctx.esc_json(label_raw) + "\",\"expr\":" + expr_json + "}"
+          if arm_count > 0 {
+            arms_json = arms_json + ","
+          }
+          arms_json = arms_json + arm_json
+          arm_count = arm_count + 1
+        }
+      }
+
+      guard = guard + 1
+    }
+
+    if j < n && src.substring(j, j+1) == "}" { j = j + 1 }
+    arms_json = arms_json + "]"
+    if else_json == null { else_json = "{\"type\":\"Null\"}" }
+    ctx.gpos_set(j)
+    return arms_json
+  }
+}
+
+static box Main {
+  main() {
+    local ctx = new DummyCtx()
+    local out = ParserPeekBox.parse("", 0, ctx)
+    print(out)
+    return 0
+  }
+}

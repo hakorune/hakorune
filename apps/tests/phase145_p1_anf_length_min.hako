@@ -1,0 +1,22 @@
+// Phase 145 P1: ANF minimal test - String.length() hoist in BinaryOp
+//
+// Pattern: x + s.length()
+//   ↓ ANF transformation
+// t = s.length()
+// result = x + t
+//
+// Expected: exit code 12 (5 + 3 + 4)
+
+static box Main {
+    main() {
+        local s
+        s = "abc"              // String with length 3
+
+        local x
+        x = 5
+
+        local result
+        result = x + s.length()  // 5 + 3 = 8
+        return result + 4        // 8 + 4 = 12
+    }
+}

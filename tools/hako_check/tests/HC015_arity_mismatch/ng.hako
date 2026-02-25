@@ -1,0 +1,21 @@
+// ng.hako — method calls with incorrect arity (argument count mismatch)
+
+static box Calculator {
+  method add(a, b) {
+    return a + b
+  }
+}
+
+static box Helper {
+  method double(n) {
+    return n * 2
+  }
+}
+
+static box Main {
+  method main() {
+    Calculator.add()
+    Helper.double(1, 2)
+    return 0
+  }
+}

@@ -1,0 +1,9 @@
+static box Main {
+    main() {
+        local s = "aé𝄞"
+        local sb = new StringBox("aé𝄞")
+
+        print(1000 + s.length())
+        print(2000 + sb.length())
+    }
+}

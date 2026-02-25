@@ -1,0 +1,72 @@
+// MatI64 — simple i64 matrix box built on top of IntArrayCore.
+// Internal layout: rows, cols, stride, core (IntArrayCore).
+
+using nyash.core.numeric.intarray as IntArrayCore
+
+static box MatI64 {
+  init { rows, cols, stride, core }
+
+  static new(rows, cols) {
+    local total = rows * cols
+    local core = IntArrayCore.new(total)
+    local m = new MatI64()
+    m.rows = rows
+    m.cols = cols
+    m.stride = cols
+    m.core = core
+    return m
+  }
+
+  rowsCount() {
+    return me.rows
+  }
+
+  colsCount() {
+    return me.cols
+  }
+
+  at(r, c) {
+    local idx = r * me.stride + c
+    return me.core.get_unchecked(idx)
+  }
+
+  set(r, c, v) {
+    local idx = r * me.stride + c
+    me.core.set_unchecked(idx, v)
+    return null
+  }
+
+  // Naive O(n^3) matmul: this * b
+  // Box メソッドは numeric core への薄ラッパとして扱う。
+  mul_naive(b) {
+    return NyNumericMatI64.mul_naive(me, b)
+  }
+}
+
+// NyNumericMatI64 — numeric core for MatI64 operations (System Hakorune subset)
+static box NyNumericMatI64 {
+  static mul_naive(a, b) {
+    local n = a.rows
+    local mcols = a.cols
+    local bcols = b.cols
+    // assume shapes are compatible and square for now (Phase 21.6/25 draft)
+    local out = MatI64.new(n, bcols)
+    local i = 0
+    loop(i < n) {
+      local k = 0
+      loop(k < mcols) {
+        local aik = a.at(i, k)
+        local j = 0
+        loop(j < bcols) {
+          local idx = i * out.stride + j
+          local v = out.core.get_unchecked(idx) + aik * b.at(k, j)
+          out.core.set_unchecked(idx, v)
+          j = j + 1
+        }
+        k = k + 1
+      }
+      i = i + 1
+    }
+    return out
+  }
+}

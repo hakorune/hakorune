@@ -1,0 +1,416 @@
+// selfhost/shared/mir/loop_form_box.hako
+// LoopFormBox — minimal loop structure builder (P2: continue/break snapshots + Exit PHI)
+
+using selfhost.shared.mir.schema as MirSchemaBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box LoopFormBox {
+
+  // while (i < limit) {
+  //   if (i == break_value) break;
+  //   if (i == skip_value) continue;
+  //   sum = sum + i;
+  //   i = i + 1;
+  // }
+  // Builds LoopForm structure with Header/Latch PHI + Exit PHI (continue/break aware)
+  method loop_counter(limit, skip_value, break_value) {
+    if skip_value == null { skip_value = 2 }
+    if break_value == null { break_value = limit }
+
+    // Preheader (block 0): initialise loop-carried values and constants, then jump header
+    local pre = new ArrayBox()
+    pre.push(MirSchemaBox.inst_const(1, 0))          // r1 = 0 (initial i)
+    pre.push(MirSchemaBox.inst_const(2, limit))      // r2 = limit
+    pre.push(MirSchemaBox.inst_const(3, 1))          // r3 = step
+    pre.push(MirSchemaBox.inst_const(4, 0))          // r4 = sum
+    pre.push(MirSchemaBox.inst_const(5, skip_value)) // r5 = continue trigger
+    pre.push(MirSchemaBox.inst_const(6, break_value))// r6 = break trigger
+    pre.push(MirSchemaBox.inst_jump(1))              // goto header
+
+    // Header (block 1): PHI(i), PHI(sum), compare, branch
+    local header = new ArrayBox()
+    local phi_i_inputs = new ArrayBox()
+    phi_i_inputs.push(MirSchemaBox.phi_incoming(0, 1))   // from preheader
+    phi_i_inputs.push(MirSchemaBox.phi_incoming(7, 18))  // from latch
+    header.push(MirSchemaBox.inst_phi(10, phi_i_inputs)) // r10 = current i
+
+    local phi_sum_inputs = new ArrayBox()
+    phi_sum_inputs.push(MirSchemaBox.phi_incoming(0, 4))  // from preheader
+    phi_sum_inputs.push(MirSchemaBox.phi_incoming(7, 19)) // from latch
+    header.push(MirSchemaBox.inst_phi(11, phi_sum_inputs))// r11 = current sum
+
+    header.push(MirSchemaBox.inst_compare("Lt", 10, 2, 12))  // r12 = (i < limit)
+    header.push(MirSchemaBox.inst_branch(12, 2, 8))          // body or exit
+
+    // Body entry (block 2): if (i == break) -> break else check continue
+    local body_check_break = new ArrayBox()
+    body_check_break.push(MirSchemaBox.inst_compare("Eq", 10, 6, 13)) // r13 = (i == break)
+    body_check_break.push(MirSchemaBox.inst_branch(13, 3, 4))
+
+    // Break path (block 3): jump directly to exit; exit PHI snapshots current sum
+    local break_block = new ArrayBox()
+    break_block.push(MirSchemaBox.inst_jump(8))
+
+    // Continue check (block 4): if (i == skip) -> continue else body work
+    local continue_check = new ArrayBox()
+    continue_check.push(MirSchemaBox.inst_compare("Eq", 10, 5, 14)) // r14 = (i == skip)
+    continue_check.push(MirSchemaBox.inst_branch(14, 5, 6))
+
+    // Continue path (block 5): snapshot sum, increment i, jump latch
+    local continue_block = new ArrayBox()
+    continue_block.push(MirSchemaBox.inst_binop("Add", 10, 3, 15)) // r15 = i + step
+    continue_block.push(MirSchemaBox.inst_jump(7))
+
+    // Body work (block 6): sum += i; i += step; jump latch
+    local body_block = new ArrayBox()
+    body_block.push(MirSchemaBox.inst_binop("Add", 11, 10, 16)) // r16 = sum + i
+    body_block.push(MirSchemaBox.inst_binop("Add", 10, 3, 17))  // r17 = i + step
+    body_block.push(MirSchemaBox.inst_jump(7))
+
+    // Latch (block 7): PHI merge for continue/normal, then jump header
+    local latch_block = new ArrayBox()
+    local latch_phi_i = new ArrayBox()
+    latch_phi_i.push(MirSchemaBox.phi_incoming(5, 15)) // continue path
+    latch_phi_i.push(MirSchemaBox.phi_incoming(6, 17)) // body path
+    latch_block.push(MirSchemaBox.inst_phi(18, latch_phi_i)) // feeds header.i
+
+    local latch_phi_sum = new ArrayBox()
+    latch_phi_sum.push(MirSchemaBox.phi_incoming(5, 11)) // continue keeps sum
+    latch_phi_sum.push(MirSchemaBox.phi_incoming(6, 16)) // body updated sum
+    latch_block.push(MirSchemaBox.inst_phi(19, latch_phi_sum)) // feeds header.sum
+    latch_block.push(MirSchemaBox.inst_jump(1))
+
+    // Exit (block 8): Merge sums from header fallthrough and break edge, then return
+    local exit_vals = new ArrayBox()
+    exit_vals.push(MirSchemaBox.phi_incoming(1, 11)) // normal completion
+    exit_vals.push(MirSchemaBox.phi_incoming(3, 11)) // break path
+    local exit_block = new ArrayBox()
+    exit_block.push(MirSchemaBox.inst_phi(20, exit_vals))
+    exit_block.push(MirSchemaBox.inst_ret(20))
+
+    // Assemble blocks
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, pre))
+    blocks.push(MirSchemaBox.block(1, header))
+    blocks.push(MirSchemaBox.block(2, body_check_break))
+    blocks.push(MirSchemaBox.block(3, break_block))
+    blocks.push(MirSchemaBox.block(4, continue_check))
+    blocks.push(MirSchemaBox.block(5, continue_block))
+    blocks.push(MirSchemaBox.block(6, body_block))
+    blocks.push(MirSchemaBox.block(7, latch_block))
+    blocks.push(MirSchemaBox.block(8, exit_block))
+
+    return MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+  }
+
+  // loop_count — Minimal counting loop that returns the final counter value i
+  // Shape:
+  //   preheader: r1=0 (i0), r2=limit, r3=1 (step), jump header
+  //   header:    r10 = PHI(i), r11 = (i < limit), branch then:body else:exit
+  //   body:      r12 = i + step, jump latch
+  //   latch:     jump header (PHI incoming from body)
+  //   exit:      ret r10
+  method loop_count(limit) {
+    // Preheader
+    local pre = new ArrayBox()
+    pre.push(MirSchemaBox.inst_const(1, 0))
+    pre.push(MirSchemaBox.inst_const(2, limit))
+    pre.push(MirSchemaBox.inst_const(3, 1))
+    pre.push(MirSchemaBox.inst_jump(1))
+
+    // Header
+    local header = new ArrayBox()
+    local inc = new ArrayBox(); inc.push(MirSchemaBox.phi_incoming(0, 1)); inc.push(MirSchemaBox.phi_incoming(3, 12))
+    header.push(MirSchemaBox.inst_phi(10, inc))
+    header.push(MirSchemaBox.inst_compare("Lt", 10, 2, 11))
+    header.push(MirSchemaBox.inst_branch(11, 2, 4))
+
+    // Body
+    local body = new ArrayBox()
+    body.push(MirSchemaBox.inst_binop("Add", 10, 3, 12))
+    body.push(MirSchemaBox.inst_jump(3))
+
+    // Latch
+    local latch = new ArrayBox()
+    latch.push(MirSchemaBox.inst_jump(1))
+
+    // Exit
+    local exit = new ArrayBox()
+    exit.push(MirSchemaBox.inst_ret(10))
+
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, pre))
+    blocks.push(MirSchemaBox.block(1, header))
+    blocks.push(MirSchemaBox.block(2, body))
+    blocks.push(MirSchemaBox.block(3, latch))
+    blocks.push(MirSchemaBox.block(4, exit))
+    return MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+  }
+
+  // loop_count_param — counting loop with init/step parameters
+  // Returns final i value, starting from init, incremented by step while i < limit
+  method build_loop_count_param(start_value, limit, step) {
+    // Preheader
+    local pre = new ArrayBox()
+    pre.push(MirSchemaBox.inst_const(1, start_value))
+    pre.push(MirSchemaBox.inst_const(2, limit))
+    pre.push(MirSchemaBox.inst_const(3, step))
+    pre.push(MirSchemaBox.inst_jump(1))
+
+    // Header
+    local header = new ArrayBox()
+    local inc = new ArrayBox(); inc.push(MirSchemaBox.phi_incoming(0, 1)); inc.push(MirSchemaBox.phi_incoming(3, 12))
+    header.push(MirSchemaBox.inst_phi(10, inc))
+    header.push(MirSchemaBox.inst_compare("Lt", 10, 2, 11))
+    header.push(MirSchemaBox.inst_branch(11, 2, 4))
+
+    // Body
+    local body = new ArrayBox()
+    body.push(MirSchemaBox.inst_binop("Add", 10, 3, 12))
+    body.push(MirSchemaBox.inst_jump(3))
+
+    // Latch
+    local latch = new ArrayBox(); latch.push(MirSchemaBox.inst_jump(1))
+
+    // Exit
+    local exit = new ArrayBox(); exit.push(MirSchemaBox.inst_ret(10))
+
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, pre))
+    blocks.push(MirSchemaBox.block(1, header))
+    blocks.push(MirSchemaBox.block(2, body))
+    blocks.push(MirSchemaBox.block(3, latch))
+    blocks.push(MirSchemaBox.block(4, exit))
+    return MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+  }
+
+  // Extended param variant: allow custom compare op ("Lt"/"Le"/"Gt"/"Ge") via opts
+  // and negative step (handled by passing negative string for step)
+  method build_loop_count_param_ex(start_value, limit, step, cmp) {
+    local cmpop = "" + cmp
+    if cmpop == null || cmpop == "" { cmpop = "Lt" }
+
+    // Preheader
+    local pre = new ArrayBox()
+    pre.push(MirSchemaBox.inst_const(1, start_value))
+    pre.push(MirSchemaBox.inst_const(2, limit))
+    pre.push(MirSchemaBox.inst_const(3, step))
+    pre.push(MirSchemaBox.inst_jump(1))
+
+    // Header
+    local header = new ArrayBox()
+    local inc = new ArrayBox(); inc.push(MirSchemaBox.phi_incoming(0, 1)); inc.push(MirSchemaBox.phi_incoming(3, 12))
+    header.push(MirSchemaBox.inst_phi(10, inc))
+    header.push(MirSchemaBox.inst_compare(cmpop, 10, 2, 11))
+    header.push(MirSchemaBox.inst_branch(11, 2, 4))
+
+    // Body
+    local body = new ArrayBox()
+    body.push(MirSchemaBox.inst_binop("Add", 10, 3, 12))
+    body.push(MirSchemaBox.inst_jump(3))
+
+    // Latch
+    local latch = new ArrayBox(); latch.push(MirSchemaBox.inst_jump(1))
+
+    // Exit
+    local exit = new ArrayBox(); exit.push(MirSchemaBox.inst_ret(10))
+
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, pre))
+    blocks.push(MirSchemaBox.block(1, header))
+    blocks.push(MirSchemaBox.block(2, body))
+    blocks.push(MirSchemaBox.block(3, latch))
+    blocks.push(MirSchemaBox.block(4, exit))
+    return MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+  }
+
+  // Unified entry — build(mode, limit, skip_value, break_value)
+  // mode:
+  //   - "count"   : counting loop that returns final i (uses loop_count)
+  //   - "sum_bc"  : sum with break/continue sentinels (uses loop_counter)
+  method build(mode, limit, skip_value, break_value) {
+    local m = "" + mode
+    if m == "count" {
+      return me.loop_count(limit)
+    }
+    if m == "count_param" {
+      // Here, skip_value carries init and break_value carries step (temporary param slots)
+      local start_value = skip_value
+      local step = break_value
+      if start_value == null { start_value = 0 }
+      if step == null { step = 1 }
+      return me.build_loop_count_param(start_value, limit, step)
+    }
+    if m == "sum_bc" {
+      if skip_value == null { skip_value = 2 }
+      if break_value == null { break_value = limit }
+      return me.loop_counter(limit, skip_value, break_value)
+    }
+    print("[loopform/unsupported-mode] " + m)
+    return null
+  }
+
+  // Map-based builder: build2({ mode, init, limit, step, skip, break, carriers })
+  method build2(opts) {
+    if opts == null { return null }
+    local mode = "" + opts.get("mode")
+    local start_value = opts.get("init")
+    local limit = opts.get("limit")
+    local step = opts.get("step")
+    local skip_v = opts.get("skip")
+    local break_v = opts.get("break")
+    if mode == "count" {
+      if start_value == null { start_value = 0 }
+      if step == null { step = 1 }
+      local cmp = opts.get("cmp") // optional: "Lt"/"Le"/"Gt"/"Ge"
+      if cmp == null { cmp = "Lt" }
+      return me.build_loop_count_param_ex(start_value, limit, step, cmp)
+    }
+    if mode == "sum_bc" { return me.loop_counter(limit, skip_v, break_v) }
+    if mode == "multi_count" {
+      return me.build_loop_multi_carrier(opts)
+    }
+    print("[loopform/unsupported-mode] " + mode)
+    return null
+  }
+
+  // Multi-carrier loop (fibonacci-style: a, b, i tracking)
+  // Shape: i from 0 to limit, with 2 additional carried variables (a, b)
+  // carriers param: [init_a, init_b] (e.g. [0, 1] for fibonacci)
+  method build_loop_multi_carrier(opts) {
+    local limit_kind = "const"
+    {
+      local lim_any = opts.get("limit_kind")
+      if lim_any != null { limit_kind = "" + lim_any }
+    }
+    local limit_val = opts.get("limit")
+    local limit_param_reg = opts.get("limit_param_reg")
+    if limit_kind == "param" {
+      if limit_param_reg == null { return null }
+      limit_param_reg = StringHelpers.to_i64(limit_param_reg)
+      if limit_param_reg <= 0 { return null }
+    } else {
+      if limit_val == null { limit_val = 10 }
+      limit_val = StringHelpers.to_i64(limit_val)
+      limit_kind = "const"
+    }
+
+    local carriers_any = opts.get("carriers")
+    local carrier_vals = new ArrayBox()
+    if carriers_any != null {
+      local ci = 0
+      local cn = carriers_any.length()
+      loop(ci < cn) {
+        carrier_vals.push(StringHelpers.to_i64(carriers_any.get(ci)))
+        ci = ci + 1
+      }
+    }
+    if carrier_vals.length() < 2 {
+      return null
+    }
+    local carrier_count = carrier_vals.length()
+
+    // Register layout
+    local reg_i_init = 1
+    local reg_limit = 2
+    local reg_carrier_init = new ArrayBox()
+    local idx = 0
+    loop(idx < carrier_count) {
+      reg_carrier_init.push(3 + idx)
+      idx = idx + 1
+    }
+    local reg_step = 3 + carrier_count
+    local reg_i_curr = reg_step + 1
+    local reg_carrier_curr = new ArrayBox()
+    idx = 0
+    loop(idx < carrier_count) {
+      reg_carrier_curr.push(reg_i_curr + idx + 1)
+      idx = idx + 1
+    }
+    local reg_cmp = reg_i_curr + carrier_count + 1
+    local reg_i_next = reg_cmp + 1
+    local reg_carrier_next = new ArrayBox()
+    idx = 0
+    loop(idx < carrier_count) {
+      reg_carrier_next.push(reg_i_next + idx + 1)
+      idx = idx + 1
+    }
+    local next_reg = reg_carrier_next.get(carrier_count - 1) + 1
+
+    // Preheader
+    local pre = new ArrayBox()
+    pre.push(MirSchemaBox.inst_const(reg_i_init, 0))
+    if limit_kind == "const" {
+      pre.push(MirSchemaBox.inst_const(reg_limit, limit_val))
+    } else {
+      pre.push(MirSchemaBox.inst_copy(limit_param_reg, reg_limit))
+    }
+    idx = 0
+    loop(idx < carrier_count) {
+      pre.push(MirSchemaBox.inst_const(reg_carrier_init.get(idx), carrier_vals.get(idx)))
+      idx = idx + 1
+    }
+    pre.push(MirSchemaBox.inst_const(reg_step, 1))
+    pre.push(MirSchemaBox.inst_jump(1))
+
+    // Header with PHIs
+    local header = new ArrayBox()
+    local phi_i = new ArrayBox()
+    phi_i.push(MirSchemaBox.phi_incoming(0, reg_i_init))
+    phi_i.push(MirSchemaBox.phi_incoming(3, reg_i_next))
+    header.push(MirSchemaBox.inst_phi(reg_i_curr, phi_i))
+
+    idx = 0
+    loop(idx < carrier_count) {
+      local phi_car = new ArrayBox()
+      phi_car.push(MirSchemaBox.phi_incoming(0, reg_carrier_init.get(idx)))
+      phi_car.push(MirSchemaBox.phi_incoming(3, reg_carrier_next.get(idx)))
+      header.push(MirSchemaBox.inst_phi(reg_carrier_curr.get(idx), phi_car))
+      idx = idx + 1
+    }
+
+    header.push(MirSchemaBox.inst_compare("Lt", reg_i_curr, reg_limit, reg_cmp))
+    header.push(MirSchemaBox.inst_branch(reg_cmp, 2, 4))
+
+    // Body: compute new value = sum of carriers
+    local body = new ArrayBox()
+    local reg_sum = next_reg
+    next_reg = next_reg + 1
+    body.push(MirSchemaBox.inst_copy(reg_carrier_curr.get(0), reg_sum))
+    local current_sum = reg_sum
+    idx = 1
+    loop(idx < carrier_count) {
+      local reg_tmp = next_reg
+      next_reg = next_reg + 1
+      body.push(MirSchemaBox.inst_binop("Add", current_sum, reg_carrier_curr.get(idx), reg_tmp))
+      current_sum = reg_tmp
+      idx = idx + 1
+    }
+    local reg_new_value = current_sum
+    body.push(MirSchemaBox.inst_jump(3))
+
+    // Latch: i' and carrier shifts
+    local latch = new ArrayBox()
+    latch.push(MirSchemaBox.inst_binop("Add", reg_i_curr, reg_step, reg_i_next))
+    idx = 0
+    loop(idx < carrier_count - 1) {
+      latch.push(MirSchemaBox.inst_copy(reg_carrier_curr.get(idx + 1), reg_carrier_next.get(idx)))
+      idx = idx + 1
+    }
+    latch.push(MirSchemaBox.inst_copy(reg_new_value, reg_carrier_next.get(carrier_count - 1)))
+    latch.push(MirSchemaBox.inst_jump(1))
+
+    // Exit: return last carrier
+    local exit = new ArrayBox()
+    exit.push(MirSchemaBox.inst_ret(reg_carrier_curr.get(carrier_count - 1)))
+
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, pre))
+    blocks.push(MirSchemaBox.block(1, header))
+    blocks.push(MirSchemaBox.block(2, body))
+    blocks.push(MirSchemaBox.block(3, latch))
+    blocks.push(MirSchemaBox.block(4, exit))
+
+    return MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+  }
+}

@@ -1,0 +1,581 @@
+// tools/hako_check/cli.hako - HakoAnalyzerBox (MVP)
+using tools.hako_check.analysis_consumer as HakoAnalysisBuilderBox
+using tools.hako_check.rules.rule_include_forbidden as RuleIncludeForbiddenBox
+using tools.hako_check.rules.rule_using_quoted as RuleUsingQuotedBox
+using tools.hako_check.rules.rule_static_top_assign as RuleStaticTopAssignBox
+using tools.hako_check.rules.rule_global_assign as RuleGlobalAssignBox
+using tools.hako_check.rules.rule_dead_methods as RuleDeadMethodsBox
+using tools.hako_check.rules.rule_jsonfrag_usage as RuleJsonfragUsageBox
+using tools.hako_check.rules.rule_unused_alias as RuleUnusedAliasBox
+using tools.hako_check.rules.rule_non_ascii_quotes as RuleNonAsciiQuotesBox
+using tools.hako_check.rules.rule_dead_static_box as RuleDeadStaticBoxBox
+using tools.hako_check.rules.rule_duplicate_method as RuleDuplicateMethodBox
+using tools.hako_check.rules.rule_missing_entrypoint as RuleMissingEntrypointBox
+using tools.hako_check.rules.rule_top_level_local as RuleTopLevelLocalBox
+using tools.hako_check.rules.rule_arity_mismatch as RuleArityMismatchBox
+using tools.hako_check.rules.rule_stage3_gate as RuleStage3GateBox
+using tools.hako_check.rules.rule_restricted_loop as RuleRestrictedLoopBox
+using tools.hako_check.rules.rule_brace_heuristics as RuleBraceHeuristicsBox
+using tools.hako_check.rules.rule_analyzer_io_safety as RuleAnalyzerIoSafetyBox
+using tools.hako_check.rules.rule_dead_code as DeadCodeAnalyzerBox
+using tools.hako_check.rules.rule_dead_blocks as DeadBlockAnalyzerBox
+using tools.hako_check.render.graphviz as GraphvizRenderBox
+using tools.hako_parser.parser_core as HakoParserCoreBox
+using tools.hako_check.text_ops as TextOps
+
+static box HakoAnalyzerBox {
+  run(args) {
+    if args == null || args.size() < 1 { print("[lint/error] missing paths"); return 2 }
+    local state = me._init_state()
+    return me._run_from(args, 0, state)
+  }
+  _init_state() {
+    local state = new MapBox()
+    state.set("fmt", "text")
+    state.set("debug", 0)
+    state.set("no_ast", 1)
+    state.set("fix_dry_run", 0)
+    state.set("fix_scope", "text")
+    state.set("fix_plan", 0)
+    state.set("ren_boxes", new ArrayBox())
+    state.set("ren_methods", new ArrayBox())
+    state.set("fail", 0)
+    state.set("irs", new ArrayBox())
+    state.set("diags", new ArrayBox())
+    state.set("rules_only", null)
+    state.set("rules_skip", null)
+    state.set("dead_code_mode", 0)
+    state.set("dead_blocks_mode", 0)
+    state.set("mir_json_content", null)
+    return state
+  }
+  _run_from(args, i, state) {
+    if i >= args.size() { return me._finish_run(state) }
+    local p = args.get(i)
+    // handle options
+    if p == "--debug" { state.set("debug", 1); return me._run_from(args, i + 1, state) }
+    if p == "--dead-code" { state.set("dead_code_mode", 1); return me._run_from(args, i + 1, state) }
+    if p == "--dead-blocks" { state.set("dead_blocks_mode", 1); return me._run_from(args, i + 1, state) }
+    if p == "--mir-json-content" {
+      if i + 1 >= args.size() { print("[lint/error] --mir-json-content requires content"); return 2 }
+      state.set("mir_json_content", args.get(i+1))
+      return me._run_from(args, i + 2, state)
+    }
+    if p == "--no-ast" { state.set("no_ast", 1); return me._run_from(args, i + 1, state) }
+    if p == "--force-ast" { state.set("no_ast", 0); return me._run_from(args, i + 1, state) }
+    if p == "--format" {
+      if i + 1 >= args.size() { print("[lint/error] --format requires value"); return 2 }
+      state.set("fmt", args.get(i+1))
+      return me._run_from(args, i + 2, state)
+    }
+    if p == "--fix-dry-run" { state.set("fix_dry_run", 1); return me._run_from(args, i + 1, state) }
+    if p == "--fix-scope" {
+      if i + 1 >= args.size() { print("[lint/error] --fix-scope requires value"); return 2 }
+      state.set("fix_scope", args.get(i+1))
+      return me._run_from(args, i + 2, state)
+    }
+    if p == "--fix-plan" { state.set("fix_plan", 1); return me._run_from(args, i + 1, state) }
+    if p == "--rename-box" {
+      if i + 2 >= args.size() { print("[lint/error] --rename-box requires <Old> <New>"); return 2 }
+      local rec = new MapBox(); rec.set("old", args.get(i+1)); rec.set("new", args.get(i+2))
+      state.get("ren_boxes").push(rec)
+      return me._run_from(args, i + 3, state)
+    }
+    if p == "--rename-method" {
+      if i + 3 >= args.size() { print("[lint/error] --rename-method requires <Box> <Old> <New>"); return 2 }
+      local recm = new MapBox(); recm.set("box", args.get(i+1)); recm.set("old", args.get(i+2)); recm.set("new", args.get(i+3))
+      state.get("ren_methods").push(recm)
+      return me._run_from(args, i + 4, state)
+    }
+    if p == "--rules" {
+      if i + 1 >= args.size() { print("[lint/error] --rules requires CSV"); return 2 }
+      state.set("rules_only", TextOps._parse_csv(args.get(i+1)))
+      return me._run_from(args, i + 2, state)
+    }
+    if p == "--skip-rules" {
+      if i + 1 >= args.size() { print("[lint/error] --skip-rules requires CSV"); return 2 }
+      state.set("rules_skip", TextOps._parse_csv(args.get(i+1)))
+      return me._run_from(args, i + 2, state)
+    }
+    // source handling
+    if p == "--source-file" {
+      if i + 2 >= args.size() { print("[lint/error] --source-file requires <path> <text>"); return 2 }
+      local path = args.get(i+1)
+      local text = args.get(i+2)
+      me._process_source(path, text, state)
+      return me._run_from(args, i + 3, state)
+    }
+    local text = me._read_file_text(p)
+    if text == null {
+      state.set("fail", state.get("fail") + 1)
+      return me._run_from(args, i + 1, state)
+    }
+    me._process_source(p, text, state)
+    return me._run_from(args, i + 1, state)
+  }
+  _read_file_text(path) {
+    local f = new FileBox()
+    if f.open(path) == 0 { print("[lint/error] cannot open: " + path); return null }
+    local text = f.read()
+    f.close()
+    return text
+  }
+  _process_source(p, text, state) {
+    if state == null { return 0 }
+    local fmt = state.get("fmt")
+    local debug = state.get("debug")
+    local no_ast = state.get("no_ast")
+    local fix_dry_run = state.get("fix_dry_run")
+    local fix_plan = state.get("fix_plan")
+    local ren_boxes = state.get("ren_boxes")
+    local ren_methods = state.get("ren_methods")
+    local rules_only = state.get("rules_only")
+    local rules_skip = state.get("rules_skip")
+    local dead_code_mode = state.get("dead_code_mode")
+    local dead_blocks_mode = state.get("dead_blocks_mode")
+    local mir_json_content = state.get("mir_json_content")
+    local irs = state.get("irs")
+    local diags = state.get("diags")
+
+    // keep a copy before sanitize for rules that must see original bytes (HC017, etc.)
+    local text_raw = text
+    // pre-sanitize (ASCII quotes, normalize newlines) - minimal & reversible
+    text = TextOps._sanitize(text)
+
+    // Phase 21.8: QuickFix (--fix-dry-run)
+    if fix_dry_run == 1 && (ren_boxes.size() == 0 && ren_methods.size() == 0) {
+      local patched = TextOps._fix_text_quick(text)
+      if patched != null && patched != text {
+        TextOps._print_unified_diff(p, text, patched)
+      }
+      return 0
+    }
+
+    // AST-scope rename (dry-run or plan)
+    if (ren_boxes.size() > 0 || ren_methods.size() > 0) {
+      if fix_plan == 1 {
+        me._print_refactor_plan_json(p, ren_boxes, ren_methods)
+        return 0
+      }
+      if fix_dry_run == 1 {
+        local patched_ast = me._fix_ast_rename(text, p, ren_boxes, ren_methods)
+        if patched_ast != null && patched_ast != text { TextOps._print_unified_diff(p, text, patched_ast) }
+        return 0
+      }
+    }
+
+    // analysis - only build IR if needed by active rules
+    local ir = null
+    if me._needs_ir(rules_only, rules_skip) == 1 {
+      local want_ast = me._needs_ast(rules_only, rules_skip)
+      local no_ast_eff = no_ast
+      if want_ast == 1 { no_ast_eff = 0 }
+      ir = HakoAnalysisBuilderBox.build_from_source_flags(text, p, no_ast_eff)
+      if ir == null {
+        ir = new MapBox()
+        ir.set("path", p)
+        ir.set("methods", new ArrayBox())
+        ir.set("calls", new ArrayBox())
+        ir.set("boxes", new ArrayBox())
+        ir.set("entrypoints", new ArrayBox())
+      }
+      if mir_json_content != null { ir.set("_mir_json_text", mir_json_content) }
+    } else {
+      ir = new MapBox()
+      ir.set("path", p)
+      ir.set("methods", new ArrayBox())
+      ir.set("calls", new ArrayBox())
+      ir.set("boxes", new ArrayBox())
+      ir.set("entrypoints", new ArrayBox())
+    }
+    // parse AST only when explicitly needed by active rules (include_forbidden fallback allowed)
+    local ast = null
+    if no_ast == 0 && me._needs_ast(rules_only, rules_skip) == 1 { ast = HakoParserCoreBox.parse(text) }
+    if debug == 1 {
+      local mc = (ir.get("methods")!=null)?ir.get("methods").size():0
+      local cc = (ir.get("calls")!=null)?ir.get("calls").size():0
+      local ec = (ir.get("entrypoints")!=null)?ir.get("entrypoints").size():0
+      print("[hako_check/IR] file=" + p + " methods=" + TextOps._itoa(mc) + " calls=" + TextOps._itoa(cc) + " eps=" + TextOps._itoa(ec))
+    }
+    ir.set("debug", debug)
+    irs.push(ir)
+    // rules that work on raw source
+    local out = new ArrayBox()
+    if ast != null {
+      local before = out.size()
+      if me._rule_enabled(rules_only, rules_skip, "include_forbidden") == 1 { RuleIncludeForbiddenBox.apply_ast(ast, p, out) }
+      if out.size() == before && me._rule_enabled(rules_only, rules_skip, "include_forbidden") == 1 { RuleIncludeForbiddenBox.apply(text, p, out) }
+    } else {
+      if me._rule_enabled(rules_only, rules_skip, "include_forbidden") == 1 { RuleIncludeForbiddenBox.apply(text, p, out) }
+    }
+    if me._rule_enabled(rules_only, rules_skip, "using_quoted") == 1 { RuleUsingQuotedBox.apply(text, p, out) }
+    if me._rule_enabled(rules_only, rules_skip, "unused_alias") == 1 { RuleUnusedAliasBox.apply(text, p, out) }
+    if me._rule_enabled(rules_only, rules_skip, "static_top_assign") == 1 { RuleStaticTopAssignBox.apply(text, p, out) }
+    if me._rule_enabled(rules_only, rules_skip, "global_assign") == 1 { RuleGlobalAssignBox.apply(text, p, out) }
+    if me._rule_enabled(rules_only, rules_skip, "non_ascii_quotes") == 1 { RuleNonAsciiQuotesBox.apply(text_raw, p, out) }
+    if me._rule_enabled(rules_only, rules_skip, "jsonfrag_usage") == 1 { RuleJsonfragUsageBox.apply(text, p, out) }
+    if me._rule_enabled(rules_only, rules_skip, "top_level_local") == 1 { RuleTopLevelLocalBox.apply(text, p, out) }
+    if me._rule_enabled(rules_only, rules_skip, "stage3_gate") == 1 { RuleStage3GateBox.apply(text, p, out) }
+    if rules_only != null && me._rule_enabled(rules_only, rules_skip, "restricted_loop") == 1 {
+      RuleRestrictedLoopBox.apply(text, p, out)
+    }
+    local before_hc031 = out.size()
+    if me._rule_enabled(rules_only, rules_skip, "brace_heuristics") == 1 { RuleBraceHeuristicsBox.apply(text_raw, p, out) }
+    if debug == 1 {
+      local added_hc031 = out.size() - before_hc031
+      print("[hako_check/HC031] file=" + p + " added=" + TextOps._itoa(added_hc031) + " total_out=" + TextOps._itoa(out.size()))
+    }
+    if me._rule_enabled(rules_only, rules_skip, "analyzer_io_safety") == 1 { RuleAnalyzerIoSafetyBox.apply(text, p, out) }
+    local before_n = out.size()
+    if me._rule_enabled(rules_only, rules_skip, "dead_methods") == 1 {
+      if debug == 1 { me._log_stderr("[rule/exec] HC011 (dead_methods) " + p) }
+      RuleDeadMethodsBox.apply_ir(ir, p, out)
+    }
+    if debug == 1 {
+      local after_n = out.size()
+      local added = after_n - before_n
+      print("[hako_check/HC011] file=" + p + " added=" + TextOps._itoa(added) + " total_out=" + TextOps._itoa(after_n))
+    }
+    before_n = out.size()
+    if me._rule_enabled(rules_only, rules_skip, "dead_static_box") == 1 {
+      if debug == 1 { me._log_stderr("[rule/exec] HC012 (dead_static_box) " + p) }
+      RuleDeadStaticBoxBox.apply_ir(ir, p, out)
+    }
+    if debug == 1 {
+      local after_n = out.size()
+      local added = after_n - before_n
+      local boxes_count = (ir.get("boxes")!=null)?ir.get("boxes").size():0
+      print("[hako_check/HC012] file=" + p + " boxes=" + TextOps._itoa(boxes_count) + " added=" + TextOps._itoa(added) + " total_out=" + TextOps._itoa(after_n))
+    }
+    before_n = out.size()
+    if me._rule_enabled(rules_only, rules_skip, "duplicate_method") == 1 {
+      if debug == 1 { me._log_stderr("[rule/exec] HC013 (duplicate_method) " + p) }
+      RuleDuplicateMethodBox.apply_ir(ir, p, out)
+    }
+    if debug == 1 {
+      local after_n = out.size()
+      local added = after_n - before_n
+      print("[hako_check/HC013] file=" + p + " added=" + TextOps._itoa(added) + " total_out=" + TextOps._itoa(after_n))
+    }
+    before_n = out.size()
+    if me._rule_enabled(rules_only, rules_skip, "missing_entrypoint") == 1 {
+      if debug == 1 { me._log_stderr("[rule/exec] HC014 (missing_entrypoint) " + p) }
+      RuleMissingEntrypointBox.apply_ir(ir, p, out)
+    }
+    if debug == 1 {
+      local after_n = out.size()
+      local added = after_n - before_n
+      print("[hako_check/HC014] file=" + p + " added=" + TextOps._itoa(added) + " total_out=" + TextOps._itoa(after_n))
+    }
+    before_n = out.size()
+    if me._rule_enabled(rules_only, rules_skip, "arity_mismatch") == 1 {
+      if debug == 1 { me._log_stderr("[rule/exec] HC015 (arity_mismatch) " + p) }
+      RuleArityMismatchBox.apply_ir(ir, p, out)
+    }
+    if debug == 1 {
+      local after_n = out.size()
+      local added = after_n - before_n
+      print("[hako_check/HC015] file=" + p + " added=" + TextOps._itoa(added) + " total_out=" + TextOps._itoa(after_n))
+    }
+    before_n = out.size()
+    if dead_code_mode == 1 || me._rule_enabled(rules_only, rules_skip, "dead_code") == 1 {
+      if debug == 1 { me._log_stderr("[rule/exec] HC019 (dead_code) " + p) }
+      DeadCodeAnalyzerBox.apply_ir(ir, p, out)
+    }
+    if debug == 1 {
+      local after_n = out.size()
+      local added = after_n - before_n
+      print("[hako_check/HC019] file=" + p + " added=" + TextOps._itoa(added) + " total_out=" + TextOps._itoa(after_n))
+    }
+    before_n = out.size()
+    if dead_blocks_mode == 1 || me._rule_enabled(rules_only, rules_skip, "dead_blocks") == 1 {
+      if debug == 1 { me._log_stderr("[rule/exec] HC020 (dead_blocks) " + p) }
+      DeadBlockAnalyzerBox.apply_ir(ir, p, out)
+    }
+    if debug == 1 {
+      local after_n = out.size()
+      local added = after_n - before_n
+      print("[hako_check/HC020] file=" + p + " added=" + TextOps._itoa(added) + " total_out=" + TextOps._itoa(after_n))
+    }
+    local filtered = me._suppress_overlap(out)
+    me._process_filtered_output(filtered, p, state)
+    return 0
+  }
+  _process_filtered_output(filtered, p, state) {
+    local fmt = state.get("fmt")
+    local diags = state.get("diags")
+    local n = filtered.size()
+    if n > 0 && fmt == "text" { me._print_lines(filtered, 0) }
+    me._collect_diags(filtered, 0, p, diags)
+    state.set("fail", state.get("fail") + n)
+    return 0
+  }
+  _print_lines(lines, i) {
+    if lines == null { return 0 }
+    if i >= lines.size() { return 0 }
+    print(lines.get(i))
+    return me._print_lines(lines, i + 1)
+  }
+  _collect_diags(filtered, i, p, diags) {
+    if filtered == null { return 0 }
+    if i >= filtered.size() { return 0 }
+    local msg = filtered.get(i)
+    local d = TextOps._parse_msg_to_diag(msg, p)
+    if d != null { diags.push(d) }
+    return me._collect_diags(filtered, i + 1, p, diags)
+  }
+  _finish_run(state) {
+    local fmt = state.get("fmt")
+    local irs = state.get("irs")
+    local diags = state.get("diags")
+    if state.get("debug") == 1 {
+      local dsz = (diags != null) ? diags.size() : 0
+      print("[hako_check/finish] fmt=" + fmt + " diags=" + TextOps._itoa(dsz))
+    }
+    if fmt == "dot" { me._render_dot_multi(irs) }
+    if fmt == "json-lsp" { me._render_json_lsp(diags) }
+    return state.get("fail")
+  }
+  _render_json_lsp(diags) {
+    // Emit diagnostics pretty-printed to match expected fixtures
+    local sorted = TextOps._sort_diags(diags)
+    print("{\"diagnostics\":[")
+    if sorted != null { me._render_json_lsp_entries(sorted, 0) }
+    print("]}")
+    return 0
+  }
+  _render_json_lsp_entries(diags, i) {
+    if diags == null { return 0 }
+    if i >= diags.size() { return 0 }
+    local d = diags.get(i)
+    local entry = me._json_lsp_entry(d)
+    if i != diags.size()-1 { print(entry + ",") } else { print(entry) }
+    return me._render_json_lsp_entries(diags, i + 1)
+  }
+  _json_lsp_entry(d) {
+    local file = TextOps._json_quote(d.get("file"))
+    local line = TextOps._itoa(d.get("line"))
+    local rule = TextOps._json_quote(d.get("rule"))
+    local msg = TextOps._json_quote(d.get("message"))
+    local qf = me._string_or_empty(d.get("quickFix"))
+    local sev = me._string_or_warning(d.get("severity"))
+    local qfj = TextOps._json_quote(qf)
+    return "  {\"file\":" + file + ",\"line\":" + line + ",\"rule\":" + rule + ",\"message\":" + msg + ",\"quickFix\":" + qfj + ",\"severity\":\"" + sev + "\"}"
+  }
+  _string_or_empty(v) {
+    if v == null { return "" }
+    return v
+  }
+  _string_or_warning(v) {
+    if v == null { return "warning" }
+    return v
+  }
+
+  // ---- AST rename (Box/Method) within a single file ----
+  _fix_ast_rename(text, path, ren_boxes, ren_methods) {
+    if text == null { return null }
+    local out = text
+    // Box rename first (affects definitions and calls)
+    if ren_boxes != null {
+      out = me._apply_box_renames(out, ren_boxes, 0)
+    }
+    // Method renames scoped by box, use AST spans for definitions
+    if ren_methods != null && ren_methods.size() > 0 {
+      // parse AST once to get method span lines
+      local ast = HakoParserCoreBox.parse(out)
+      out = me._apply_method_renames(out, ast, ren_methods, 0)
+    }
+    return out
+  }
+  _apply_box_renames(out, ren_boxes, idx) {
+    if ren_boxes == null { return out }
+    if idx >= ren_boxes.size() { return out }
+    local rb = ren_boxes.get(idx)
+    local next = TextOps._rename_box_text(out, rb.get("old"), rb.get("new"))
+    return me._apply_box_renames(next, ren_boxes, idx + 1)
+  }
+  _apply_method_renames(out, ast, ren_methods, idx) {
+    if ren_methods == null { return out }
+    if idx >= ren_methods.size() { return out }
+    local rm = ren_methods.get(idx)
+    local next = TextOps._rename_method_text(out, ast, rm.get("box"), rm.get("old"), rm.get("new"))
+    return me._apply_method_renames(next, ast, ren_methods, idx + 1)
+  }
+  _print_refactor_plan_json(path, ren_boxes, ren_methods) {
+    // Print a small JSON describing intended refactors and a shell apply skeleton
+    print("{")
+    print("  \"file\": " + TextOps._json_quote(path) + ",")
+    // boxes
+    print("  \"rename_boxes\": [")
+    me._print_rename_boxes(ren_boxes, 0)
+    print("  ],")
+    // methods
+    print("  \"rename_methods\": [")
+    me._print_rename_methods(ren_methods, 0)
+    print("  ],")
+    // apply script (sed-based skeleton; manual review required)
+    print("  \"apply_script\": " + TextOps._json_quote("#!/bin/sh\n# Review before apply\nFILE=\"" + path + "\"\n# Box renames\n"))
+    me._print_apply_script_boxes(ren_boxes, 0)
+    print(TextOps._json_quote("# Method renames\n"))
+    me._print_apply_script_methods(ren_methods, 0)
+    print(TextOps._json_quote("# Definition lines may require manual adjustment if formatting differs\n"))
+    print("}")
+    return 0
+  }
+  _print_rename_boxes(ren_boxes, idx) {
+    if ren_boxes == null { return 0 }
+    if idx >= ren_boxes.size() { return 0 }
+    local rb = ren_boxes.get(idx)
+    local entry = "    {\"old\": " + TextOps._json_quote(rb.get("old")) + ", \"new\": " + TextOps._json_quote(rb.get("new")) + "}"
+    if idx < ren_boxes.size()-1 { entry = entry + "," }
+    print(entry)
+    return me._print_rename_boxes(ren_boxes, idx + 1)
+  }
+  _print_rename_methods(ren_methods, idx) {
+    if ren_methods == null { return 0 }
+    if idx >= ren_methods.size() { return 0 }
+    local rm = ren_methods.get(idx)
+    local entry = "    {\"box\": " + TextOps._json_quote(rm.get("box")) + ", \"old\": " + TextOps._json_quote(rm.get("old")) + ", \"new\": " + TextOps._json_quote(rm.get("new")) + "}"
+    if idx < ren_methods.size()-1 { entry = entry + "," }
+    print(entry)
+    return me._print_rename_methods(ren_methods, idx + 1)
+  }
+  _print_apply_script_boxes(ren_boxes, idx) {
+    if ren_boxes == null { return 0 }
+    if idx >= ren_boxes.size() { return 0 }
+    local rb2 = ren_boxes.get(idx)
+    print(TextOps._json_quote("sed -i -E 's/\\b" + rb2.get("old") + "\\./" + rb2.get("new") + "./g' \"$FILE\"\n") + "+")
+    return me._print_apply_script_boxes(ren_boxes, idx + 1)
+  }
+  _print_apply_script_methods(ren_methods, idx) {
+    if ren_methods == null { return 0 }
+    if idx >= ren_methods.size() { return 0 }
+    local rm2 = ren_methods.get(idx)
+    print(TextOps._json_quote("sed -i -E 's/" + rm2.get("box") + "\\." + rm2.get("old") + "\\(/" + rm2.get("box") + "." + rm2.get("new") + "(/g' \"$FILE\"\n") + "+")
+    return me._print_apply_script_methods(ren_methods, idx + 1)
+  }
+  _needs_ast(only, skip) {
+    // Parse AST when duplicate_method is explicitly requested (needs method spans/definitions precision).
+    if only != null {
+      local i = 0; while i < only.size() { local k = only.get(i); if k == "duplicate_method" { return 1 } if k == "force_ast" { return 1 } i = i + 1 }
+      return 0
+    }
+    // Default (all rules): avoid AST to reduce VM/PHI risks; rely on IR/text fallbacks.
+    return 0
+  }
+  _needs_ir(only, skip) {
+    // IR is needed for rules that analyze methods, calls, or boxes
+    // Text-only rules (brace_heuristics, non_ascii_quotes, etc.) don't need IR
+    if only != null {
+      local i = 0
+      while i < only.size() {
+        local k = only.get(i)
+        // Rules that need IR
+        if k == "dead_methods" { return 1 }
+        if k == "dead_static_box" { return 1 }
+        if k == "dead_code" { return 1 }
+        if k == "duplicate_method" { return 1 }
+        if k == "missing_entrypoint" { return 1 }
+        if k == "arity_mismatch" { return 1 }
+        if k == "include_forbidden" { return 1 }
+        if k == "force_ast" { return 1 }
+        i = i + 1
+      }
+      // If we get here, only text-based rules are active (e.g., brace_heuristics)
+      return 0
+    }
+    // Default (all rules): need IR
+    return 1
+  }
+  _rule_enabled(only, skip, key) {
+    if key == null { return 1 }
+    if only != null {
+      // enabled only if key is present
+      local i = 0; while i < only.size() { if only.get(i) == key { return 1 } i = i + 1 }
+      return 0
+    }
+    if skip != null {
+      local j = 0; while j < skip.size() { if skip.get(j) == key { return 0 } j = j + 1 }
+    }
+    return 1
+  }
+  // Build dead-box set and drop HC011 for methods inside dead boxes
+  _suppress_overlap(out) {
+    if out == null { return new ArrayBox() }
+    local dead = me._collect_dead_boxes(out, 0, new MapBox())
+    return me._filter_overlap(out, dead, 0, new ArrayBox())
+  }
+  _collect_dead_boxes(out, i, dead) {
+    if i >= out.size() { return dead }
+    local s = out.get(i)
+    if me._is_hc012(s) == 1 {
+      local bx = TextOps._extract_box_from_hc012(s)
+      if bx != null { dead.set(bx, 1) }
+    }
+    return me._collect_dead_boxes(out, i + 1, dead)
+  }
+  _filter_overlap(out, dead, i, res) {
+    if i >= out.size() { return res }
+    local s = out.get(i)
+    if me._should_keep_diag(s, dead) == 1 { res.push(s) }
+    return me._filter_overlap(out, dead, i + 1, res)
+  }
+  _should_keep_diag(s, dead) {
+    if me._is_hc011(s) != 1 { return 1 }
+    local qual = TextOps._extract_method_from_hc011(s)
+    if qual == null { return 1 }
+    // method qual: Box.method/arity -> Box
+    local dot = qual.lastIndexOf(".")
+    if dot <= 0 { return 1 }
+    local box_name = qual.substring(0, dot)
+    if dead.has(box_name) == 1 { return 0 }
+    return 1
+  }
+  _is_hc011(s) {
+    if s == null { return 0 }
+    if s.indexOf("[HC011]") == 0 { return 1 }
+    return 0
+  }
+  _is_hc012(s) {
+    if s == null { return 0 }
+    if s.indexOf("[HC012]") == 0 { return 1 }
+    return 0
+  }
+  _render_dot_multi(irs) {
+    // Minimal, safe DOT renderer (inline) to avoid type issues
+    // Build nodes/edges from IR we just created in this CLI
+    print("digraph Hako {")
+    if irs != null { me._emit_dot_edges_from_irs(irs, 0) }
+    print("}")
+    return 0
+  }
+  _emit_dot_edges_from_irs(irs, i) {
+    if i >= irs.size() { return 0 }
+    local ir = irs.get(i)
+    if ir != null {
+      local cs = ir.get("calls")
+      if cs != null { me._emit_dot_edges_from_calls(cs, 0) }
+    }
+    return me._emit_dot_edges_from_irs(irs, i + 1)
+  }
+  _emit_dot_edges_from_calls(cs, i) {
+    if i >= cs.size() { return 0 }
+    local c = cs.get(i)
+    if c != null {
+      local s = c.get("from")
+      local d = c.get("to")
+      if s != null && d != null { print("  \"" + s + "\" -> \"" + d + "\";") }
+    }
+    return me._emit_dot_edges_from_calls(cs, i + 1)
+  }
+  _log_stderr(msg) {
+    // Log rule execution context to help diagnose VM errors
+    // Note: This logs to stdout, but test framework filters it out during JSON extraction
+    // In the future, this should use error() extern function for true stderr output
+    print(msg)
+    return 0
+  }
+}
+
+// Default entry: Main.main so runner resolves without explicit --entry
+static box Main { method main(args) { return HakoAnalyzerBox.run(args) } }

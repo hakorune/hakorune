@@ -1,0 +1,14 @@
+// JoinIR pattern: loop(cond) { if non-exit else break }
+// Expected: stdout=0, RC=0
+static box Main {
+  main() {
+    local b = 0
+    local e = 3
+    loop(e > b) {
+      local ch = " "
+      if ch == " " { e = e - 1 } else { break }
+    }
+    print(e)
+    return 0
+  }
+}

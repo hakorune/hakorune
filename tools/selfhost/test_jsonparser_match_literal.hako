@@ -1,0 +1,31 @@
+// Phase 162: Test _match_literal from JsonParserBox (Pattern1 + return)
+// Target: JsonParserBox._match_literal - Pattern1 (Simple) with return in loop
+
+static box Main {
+  main(args) {
+    // Simulate _match_literal logic
+    local s = "null value"
+    local pos = 0
+    local literal = "null"
+
+    local len = literal.length()
+    if pos + len > s.length() {
+      print("Result: FAIL (out of bounds)")
+      return 0
+    }
+
+    local i = 0
+    loop(i < len) {
+      local ch_s = s.substring(pos + i, pos + i + 1)
+      local ch_lit = literal.substring(i, i + 1)
+      if ch_s != ch_lit {
+        print("Result: NOMATCH")
+        return 0
+      }
+      i = i + 1
+    }
+
+    print("Result: MATCH")
+    return 0
+  }
+}

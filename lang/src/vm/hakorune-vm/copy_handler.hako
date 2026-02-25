@@ -1,0 +1,11 @@
+// CopyHandlerBox - Copy instruction handler (simplified via CoreHandlerBaseBox)
+// Handles: %dst = copy %src
+
+using selfhost.vm.hakorune-vm.core_handler_base as CoreHandlerBaseBox
+
+static box CopyHandlerBox {
+  // Handle copy instruction via unified core handler
+  // inst_json: {"op":"copy","dst":2,"src":1}
+  // Returns: Result.Ok(0) or Result.Err(message)
+  handle(inst_json, regs) { return CoreHandlerBaseBox.handle_core_op("copy", inst_json, regs) }
+}

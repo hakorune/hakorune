@@ -1,0 +1,41 @@
+// Phase 210: Pattern 1 (SimpleWhile) test - match literal implementation
+// Tests: Simple loop without break/continue, early return only
+// Target: _match_literal pattern from JsonParser
+//
+// Expected behavior:
+//   Compare "hello" with "hello" character by character
+//   If all match, return 1
+//   If any mismatch, return 0 (early return)
+//
+// Expected result: 1 (match success)
+
+static box Main {
+    main() {
+        local s
+        s = "hello"
+        local literal
+        literal = "hello"
+        local pos
+        pos = 0
+        local len
+        len = 5
+
+        local i
+        i = 0
+        loop(i < len) {
+            // Character-by-character comparison
+            // Note: Using string equality instead of substring for simplicity
+            // Real _match_literal uses substring(pos+i, pos+i+1)
+
+            // Simplified: just check if we reach the end
+            // (full substring comparison would require StringBox.substring)
+            if i >= len {
+                return 0
+            }
+            i = i + 1
+        }
+
+        // If we exit loop normally, all characters matched
+        return 1
+    }
+}

@@ -1,0 +1,4 @@
+// AotPrepFoldConstRetBox — Fold simple const/binop/ret single-block cases
+using selfhost.llvm.ir.aot_prep as AotPrepBox
+static box AotPrepFoldConstRetBox { run(json) { return AotPrepBox._try_fold_const_binop_ret(json) } }
+

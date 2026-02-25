@@ -1,0 +1,55 @@
+// NormalizePrintBox — rewrite print → externcall(env.console.log)
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box NormalizePrintBox {
+  _seek_object_end(s, start) {
+    if s == null { return -1 }
+    if start < 0 || start >= s.length() { return -1 }
+    if s.substring(start, start+1) != "{" { return -1 }
+    local i = start
+    local depth = 0
+    local in_str = 0
+    local esc = 0
+    loop (i < s.length()) {
+      local ch = s.substring(i, i+1)
+      if in_str == 1 {
+        if esc == 1 { esc = 0 }
+        else if ch == "\\" { esc = 1 }
+        else if ch == "\"" { in_str = 0 }
+      } else {
+        if ch == "\"" { in_str = 1 }
+        else if ch == "{" { depth = depth + 1 }
+        else if ch == "}" { depth = depth - 1  if depth == 0 { return i } }
+      }
+      i = i + 1
+    }
+    return -1
+  }
+
+  run(json) {
+    if json == null { return null }
+    local out = json
+    local pos = 0
+    loop(true) {
+      local k = JsonFragBox.index_of_from(out, "\"op\":\"print\"", pos)
+      if k < 0 { break }
+      // Find enclosing object span
+      local obj_start = out.substring(0, k).lastIndexOf("{")
+      if obj_start < 0 { pos = k + 1; continue }
+      local obj_end = me._seek_object_end(out, obj_start)
+      if obj_end < 0 { pos = k + 1; continue }
+      // Extract value register
+      local kval = JsonFragBox.index_of_from(out, "\"value\":", obj_start)
+      local vreg = (kval>=0 && kval<obj_end ? StringHelpers.read_digits(out, kval+8) : "")
+      // Build externcall
+      local dst_part = ""  // print has no dst
+      local args = (vreg != "" ? vreg : "")
+      local repl = "{" + dst_part + "\"op\":\"externcall\",\"func\":\"env.console.log\",\"args\":[" + args + "]}"
+      out = out.substring(0, obj_start) + repl + out.substring(obj_end+1, out.length())
+      pos = obj_start + repl.length()
+    }
+    return out
+  }
+}

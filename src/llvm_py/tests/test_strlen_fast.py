@@ -1,0 +1,809 @@
+#!/usr/bin/env python3
+import os
+import unittest
+import llvmlite.ir as ir
+
+from src.llvm_py.llvm_builder import NyashLLVMBuilder
+
+
+class TestStrlenFast(unittest.TestCase):
+    def setUp(self):
+        # Ensure FAST toggle is ON for this test
+        os.environ['NYASH_LLVM_FAST'] = '1'
+
+    def tearDown(self):
+        os.environ.pop('NYASH_LLVM_FAST', None)
+
+    def test_newbox_string_length_fast_lowering(self):
+        # Minimal MIR JSON v0-like: const "hello" → newbox StringBox(arg) → boxcall length
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 1,
+                            "instructions": [
+                                {"op": "const", "dst": 10, "value": {"type": "string", "value": "hello"}},
+                                {"op": "newbox", "dst": 20, "type": "StringBox", "args": [10]},
+                                {"op": "boxcall", "dst": 30, "box": 20, "method": "length", "args": []},
+                                {"op": "ret", "value": 30},
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir)
+        # FAST lowering accepts either:
+        # - literal fold to constant (ret i64 5), or
+        # - nyash.string.len_h / nyrt_string_length helper path.
+        self.assertTrue(
+            ('ret i64 5' in ir_txt)
+            or ('call i64 @"nyash.string.len_h"' in ir_txt)
+            or ('call i64 @"nyrt_string_length"' in ir_txt),
+            msg=ir_txt,
+        )
+
+    def test_newbox_string_constructor_avoids_env_box_new_i64x(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 1, "value": {"type": "string", "value": "x"}},
+                                {"op": "newbox", "dst": 2, "type": "StringBox", "args": [1]},
+                                {"op": "ret", "value": 2},
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('@"nyash.box.from_i8_string_const"', ir_txt)
+        self.assertNotIn('@"nyash.env.box.new_i64x"', ir_txt)
+        self.assertNotIn('@"nyash.string.to_i8p_h"', ir_txt)
+
+    def test_const_string_uses_const_intern_helper_when_fast(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 1, "value": {"type": "string", "value": "k"}},
+                                {"op": "ret", "value": 1},
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('@"nyash.box.from_i8_string_const"', ir_txt)
+        self.assertNotIn('@"nyash.box.from_i8_string"(i8*', ir_txt)
+
+    def test_mir_call_length_uses_fast_string_len_route_when_stringish(self):
+        # MIR Call(Method) route (used by benches) should lower to a fast string-length helper.
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 3, "value": {"type": "string", "value": "nyash"}},
+                                {"op": "newbox", "dst": 4, "type": "StringBox", "args": [3]},
+                                {"op": "mir_call", "dst": 5, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "length",
+                                        "receiver": 4
+                                    },
+                                    "args": []
+                                }},
+                                {"op": "ret", "value": 5},
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertTrue(
+            ('call i64 @"nyash.string.len_h"' in ir_txt)
+            or ('call i64 @"nyrt_string_length"' in ir_txt)
+            or ('ret i64 5' in ir_txt),
+            msg=ir_txt,
+        )
+        self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt)
+        self.assertNotIn('call void @"ny_check_safepoint"', ir_txt)
+
+    def test_mir_call_size_uses_fast_strlen_when_stringish(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 3, "value": {"type": "string", "value": "nyash"}},
+                                {"op": "newbox", "dst": 4, "type": "StringBox", "args": [3]},
+                                {"op": "mir_call", "dst": 5, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "size",
+                                        "receiver": 4
+                                    },
+                                    "args": []
+                                }},
+                                {"op": "ret", "value": 5},
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertTrue(
+            'call i64 @"nyrt_string_length"' in ir_txt or 'ret i64 5' in ir_txt,
+            msg=ir_txt,
+        )
+        self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt)
+
+    def test_mir_call_size_stringish_prefers_len_h_when_fast_off(self):
+        # AutoSpecialize v0 contract: when FAST is off but receiver is stringish,
+        # prefer nyash.string.len_h over generic any.length_h.
+        os.environ['NYASH_LLVM_FAST'] = '0'
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 3, "value": {"type": "string", "value": "nyash"}},
+                                {"op": "newbox", "dst": 4, "type": "StringBox", "args": [3]},
+                                {"op": "mir_call", "dst": 5, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "size",
+                                        "receiver": 4
+                                    },
+                                    "args": []
+                                }},
+                                {"op": "ret", "value": 5},
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.string.len_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt)
+        # Restore default for the rest of this test class.
+        os.environ['NYASH_LLVM_FAST'] = '1'
+
+    def test_mir_call_size_arrayish_prefers_array_len_h(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [1],
+                    "metadata": {
+                        "value_types": {
+                            "1": {"kind": "handle", "box_type": "ArrayBox"},
+                        }
+                    },
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "mir_call", "dst": 2, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "size",
+                                        "receiver": 1
+                                    },
+                                    "args": []
+                                }},
+                                {"op": "ret", "value": 2},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.array.len_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt, msg=ir_txt)
+
+    def test_boxcall_size_stringish_prefers_string_len_h(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [1],
+                    "metadata": {
+                        "value_types": {
+                            "1": {"kind": "handle", "box_type": "StringBox"},
+                        }
+                    },
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "boxcall", "dst": 2, "box": 1, "method": "size", "args": []},
+                                {"op": "ret", "value": 2},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.string.len_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt, msg=ir_txt)
+
+    def test_boxcall_size_arrayish_prefers_array_len_h(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [1],
+                    "metadata": {
+                        "value_types": {
+                            "1": {"kind": "handle", "box_type": "ArrayBox"},
+                        }
+                    },
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "boxcall", "dst": 2, "box": 1, "method": "size", "args": []},
+                                {"op": "ret", "value": 2},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.array.len_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt, msg=ir_txt)
+
+    def test_mir_call_runtime_data_push_arrayish_prefers_array_route(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [1, 2],
+                    "metadata": {
+                        "value_types": {
+                            "1": {"kind": "handle", "box_type": "ArrayBox"},
+                            "2": "i64",
+                        }
+                    },
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "mir_call", "dst": 3, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "push",
+                                        "receiver": 1
+                                    },
+                                    "args": [2]
+                                }},
+                                {"op": "ret", "value": 3},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.array.push_hh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.runtime_data.push_hh"', ir_txt, msg=ir_txt)
+
+    def test_mir_call_runtime_data_get_arrayish_integer_key_prefers_array_route(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [1, 2],
+                    "metadata": {
+                        "value_types": {
+                            "1": {"kind": "handle", "box_type": "ArrayBox"},
+                            "2": "i64",
+                        }
+                    },
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "mir_call", "dst": 3, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "get",
+                                        "receiver": 1
+                                    },
+                                    "args": [2]
+                                }},
+                                {"op": "ret", "value": 3},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.array.get_hi"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.array.get_hh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.runtime_data.get_hh"', ir_txt, msg=ir_txt)
+
+    def test_mir_call_runtime_data_get_arrayish_non_integer_key_uses_array_route(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [1, 2],
+                    "metadata": {
+                        "value_types": {
+                            "1": {"kind": "handle", "box_type": "ArrayBox"},
+                            "2": {"kind": "handle", "box_type": "StringBox"},
+                        }
+                    },
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "mir_call", "dst": 3, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "get",
+                                        "receiver": 1
+                                    },
+                                    "args": [2]
+                                }},
+                                {"op": "ret", "value": 3},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.array.get_hh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.array.get_hi"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.runtime_data.get_hh"', ir_txt, msg=ir_txt)
+
+    def test_mir_call_runtime_data_get_newbox_array_receiver_without_metadata(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "newbox", "dst": 1, "type": "ArrayBox", "args": []},
+                                {"op": "const", "dst": 2, "value": {"type": "i64", "value": 0}},
+                                {"op": "mir_call", "dst": 3, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "get",
+                                        "receiver": 1
+                                    },
+                                    "args": [2]
+                                }},
+                                {"op": "ret", "value": 3},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.array.get_hi"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.array.get_hh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.runtime_data.get_hh"', ir_txt, msg=ir_txt)
+
+    def test_mir_call_runtime_data_set_arrayish_integer_key_prefers_array_int_key_route(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [1, 2, 3],
+                    "metadata": {
+                        "value_types": {
+                            "1": {"kind": "handle", "box_type": "ArrayBox"},
+                            "2": "i64",
+                        }
+                    },
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "mir_call", "dst": 4, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "set",
+                                        "receiver": 1
+                                    },
+                                    "args": [2, 3]
+                                }},
+                                {"op": "ret", "value": 4},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.array.set_hih"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.array.set_hhh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.runtime_data.set_hhh"', ir_txt, msg=ir_txt)
+
+    def test_mir_call_runtime_data_set_arrayish_integer_key_and_value_prefers_set_hii(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [1, 2, 3],
+                    "metadata": {
+                        "value_types": {
+                            "1": {"kind": "handle", "box_type": "ArrayBox"},
+                            "2": "i64",
+                            "3": "i64",
+                        }
+                    },
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {
+                                    "op": "mir_call",
+                                    "dst": 4,
+                                    "mir_call": {
+                                        "callee": {
+                                            "type": "Method",
+                                            "box_name": "RuntimeDataBox",
+                                            "name": "set",
+                                            "receiver": 1,
+                                        },
+                                        "args": [2, 3],
+                                    },
+                                },
+                                {"op": "ret", "value": 4},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ""
+        self.assertIn('call i64 @"nyash.array.set_hii"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.array.set_hih"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.array.set_hhh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.runtime_data.set_hhh"', ir_txt, msg=ir_txt)
+
+    def test_mir_call_length_receiver_marked_stringish_by_later_substring_use(self):
+        # cleanup-11 contract:
+        # even when length appears before substring in MIR order, pre-analysis
+        # marks the shared receiver as stringish and avoids generic any.length_h.
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [1],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "mir_call", "dst": 2, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "length",
+                                        "receiver": 1
+                                    },
+                                    "args": []
+                                }},
+                                {"op": "const", "dst": 3, "value": {"type": "i64", "value": 0}},
+                                {"op": "const", "dst": 4, "value": {"type": "i64", "value": 2}},
+                                {"op": "mir_call", "dst": 5, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "substring",
+                                        "receiver": 1
+                                    },
+                                    "args": [3, 4]
+                                }},
+                                {"op": "ret", "value": 2},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ""
+        self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt, msg=ir_txt)
+
+    def test_mir_call_length_get_result_infers_stringish_from_string_set(self):
+        # cleanup-11 contract:
+        # RuntimeData set/push with string values marks receiver element kind,
+        # so later get-result length avoids generic any.length_h.
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "newbox", "dst": 1, "type": "ArrayBox", "args": []},
+                                {"op": "const", "dst": 2, "value": {"type": "string", "value": "abcd"}},
+                                {"op": "const", "dst": 3, "value": {"type": "i64", "value": 0}},
+                                {"op": "mir_call", "dst": 4, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "set",
+                                        "receiver": 1
+                                    },
+                                    "args": [3, 2]
+                                }},
+                                {"op": "mir_call", "dst": 5, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "get",
+                                        "receiver": 1
+                                    },
+                                    "args": [3]
+                                }},
+                                {"op": "mir_call", "dst": 6, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "length",
+                                        "receiver": 5
+                                    },
+                                    "args": []
+                                }},
+                                {"op": "ret", "value": 6},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ""
+        self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt, msg=ir_txt)
+
+    def test_binop_string_concat_chain_prefers_concat3_hhh(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 1, "value": {"type": "string", "value": "ha"}},
+                                {"op": "newbox", "dst": 2, "type": "StringBox", "args": [1]},
+                                {"op": "const", "dst": 3, "value": {"type": "string", "value": "ko"}},
+                                {"op": "newbox", "dst": 4, "type": "StringBox", "args": [3]},
+                                {"op": "binop", "dst": 5, "lhs": 2, "rhs": 4, "operation": "+"},
+                                {"op": "const", "dst": 6, "value": {"type": "string", "value": "run"}},
+                                {"op": "newbox", "dst": 7, "type": "StringBox", "args": [6]},
+                                {"op": "binop", "dst": 8, "lhs": 5, "rhs": 7, "operation": "+"},
+                                {"op": "ret", "value": 8},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.string.concat3_hhh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
+
+    def test_binop_string_concat_chain_right_assoc_prefers_concat3_hhh(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 1, "value": {"type": "string", "value": "ha"}},
+                                {"op": "newbox", "dst": 2, "type": "StringBox", "args": [1]},
+                                {"op": "const", "dst": 3, "value": {"type": "string", "value": "ko"}},
+                                {"op": "newbox", "dst": 4, "type": "StringBox", "args": [3]},
+                                {"op": "const", "dst": 5, "value": {"type": "string", "value": "run"}},
+                                {"op": "newbox", "dst": 6, "type": "StringBox", "args": [5]},
+                                {"op": "binop", "dst": 7, "lhs": 4, "rhs": 6, "operation": "+"},
+                                {"op": "binop", "dst": 8, "lhs": 2, "rhs": 7, "operation": "+"},
+                                {"op": "ret", "value": 8},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.string.concat3_hhh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
+
+    def test_binop_string_concat_non_chain_uses_concat_hh_only(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 1, "value": {"type": "string", "value": "ha"}},
+                                {"op": "newbox", "dst": 2, "type": "StringBox", "args": [1]},
+                                {"op": "const", "dst": 3, "value": {"type": "string", "value": "ko"}},
+                                {"op": "newbox", "dst": 4, "type": "StringBox", "args": [3]},
+                                {"op": "binop", "dst": 5, "lhs": 2, "rhs": 4, "operation": "+"},
+                                {"op": "ret", "value": 5},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat3_hhh"', ir_txt, msg=ir_txt)
+
+    def test_mir_call_length_phi_self_carry_uses_fast_path(self):
+        # Bench-like shape: receiver goes through loop PHI self-carry.
+        # Contract: FAST lowering must avoid any.length_h and safepoint in this route.
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [{"id": 1, "name": "arg0", "type": "i64"}],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 2, "value": {"type": "i64", "value": 0}},
+                                {"op": "const", "dst": 3, "value": {"type": {"kind": "handle", "box_type": "StringBox"}, "value": "nyash"}},
+                                {"op": "newbox", "dst": 4, "type": "StringBox", "args": [3]},
+                                {"op": "const", "dst": 5, "value": {"type": "i64", "value": 0}},
+                                {"op": "copy", "dst": 6, "src": 1},
+                                {"op": "copy", "dst": 8, "src": 2},
+                                {"op": "copy", "dst": 10, "src": 4},
+                                {"op": "copy", "dst": 12, "src": 5},
+                                {"op": "jump", "target": 1},
+                            ],
+                        },
+                        {
+                            "id": 1,
+                            "instructions": [
+                                {"op": "phi", "dst": 7, "incoming": [[6, 0], [7, 3]]},
+                                {"op": "phi", "dst": 9, "incoming": [[8, 0], [19, 3]]},
+                                {"op": "phi", "dst": 11, "incoming": [[10, 0], [11, 3]]},
+                                {"op": "phi", "dst": 13, "incoming": [[12, 0], [17, 3]]},
+                                {"op": "const", "dst": 14, "value": {"type": "i64", "value": 1000}},
+                                {"op": "compare", "dst": 15, "lhs": 9, "rhs": 14, "operation": "<"},
+                                {"op": "branch", "cond": 15, "then": 2, "else": 4},
+                            ],
+                        },
+                        {
+                            "id": 2,
+                            "instructions": [
+                                {"op": "mir_call", "dst": 16, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "length",
+                                        "receiver": 11
+                                    },
+                                    "args": []
+                                }},
+                                {"op": "binop", "dst": 17, "lhs": 13, "rhs": 16, "operation": "+"},
+                                {"op": "const", "dst": 18, "value": {"type": "i64", "value": 1}},
+                                {"op": "binop", "dst": 19, "lhs": 9, "rhs": 18, "operation": "+"},
+                                {"op": "jump", "target": 3},
+                            ],
+                        },
+                        {"id": 3, "instructions": [{"op": "jump", "target": 1}]},
+                        {"id": 4, "instructions": [{"op": "ret", "value": 13}]},
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt)
+        self.assertNotIn('call void @"ny_check_safepoint"', ir_txt)
+        self.assertTrue(
+            ('call i64 @"nyash.string.len_h"' in ir_txt)
+            or ('call i64 @"nyrt_string_length"' in ir_txt),
+            msg=ir_txt,
+        )
+
+
+if __name__ == '__main__':
+    unittest.main()

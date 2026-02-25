@@ -1,0 +1,13 @@
+// JIR-PORT-07 fixture (expression parity seed: unary + compare + logical)
+// Contract:
+// - Unary minus is represented via parser canonical form (Binary 0 - 1).
+// - Compare locals (>=, !=) feed a logical return (&&).
+// - selfhost-first MirBuilder route must not collapse to single-block const+ret fallback.
+static box Main {
+  main() {
+    local neg = -1
+    local cmp_ge = neg >= 0
+    local cmp_ne = neg != 0
+    return cmp_ge && cmp_ne
+  }
+}

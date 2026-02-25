@@ -1,0 +1,52 @@
+// Phase 217: Multi-carrier if-sum pattern test
+// Tests: Loop with 2 accumulators (sum + count) updated conditionally
+// Target: selfhost multi-carrier if-sum pattern (e.g., sum definitions + count items)
+//
+// Expected behavior:
+//   Array has 3 items: [null, "a", "b"]
+//   null items are skipped (i=0)
+//   Valid items are counted (i=1, i=2)
+//   sum += 1, count += 1 when item != null
+//
+// Expected result: sum=2, count=2
+
+static box IfSumMultiTest {
+    sum_and_count(defs) {
+        local sum
+        sum = 0
+        local count
+        count = 0
+        local i
+        i = 0
+        local len
+        len = 3
+
+        loop(i < len) {
+            // Simulate array: [null, "a", "b"]
+            //   i=0 → null (skip both updates)
+            //   i=1 → "a" (increment both)
+            //   i=2 → "b" (increment both)
+
+            if i > 0 {
+                // Conditional updates: both sum and count
+                sum = sum + 1
+                count = count + 1
+                print(sum)    // Force if to stay in MIR
+                print(count)
+            } else {
+                print(0)      // Ensure else branch exists
+            }
+
+            i = i + 1
+        }
+
+        return sum  // Return sum (count is also computed but not returned)
+    }
+
+    main() {
+        // Test: Array [null, "a", "b"] → sum=2, count=2
+        local result
+        result = IfSumMultiTest.sum_and_count(0)  // dummy arg
+        return result
+    }
+}

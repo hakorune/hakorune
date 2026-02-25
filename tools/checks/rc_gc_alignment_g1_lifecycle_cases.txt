@@ -1,0 +1,5 @@
+# G-RC-1 lifecycle parity inventory
+# case_id|fixture_rel|expected_exit
+rc_explicit_drop_min|apps/tests/phase29x_rc_explicit_drop_min.hako|0
+weak_upgrade_success|apps/tests/phase285_weak_basic.hako|2
+weak_upgrade_fail_after_drop|apps/tests/phase285_p2_weak_upgrade_fail_min.hako|1

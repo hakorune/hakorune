@@ -1,0 +1,24 @@
+// lower_return_string_box.hako — Return(String) → const(string) + ret
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box LowerReturnStringBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
+    if k_ret < 0 { return null }
+    local k_str = JsonFragBox.index_of_from(s, "\"type\":\"String\"", k_ret)
+    if k_str < 0 { return null }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_str)
+    if k_val < 0 { return null }
+    local sval = JsonFragBox.read_string_after(s, k_val+8)
+    if sval == null { return null }
+    // Emit MIR(JSON v0) as string: const(string)+ret
+    // sval は既に JSON から読み出した素の文字列なので、JSON 内にエスケープして埋め込む
+    // 簡易エスケープ（" と \ のみ）
+    local esc = ""; { local i=0; local n = sval.length(); loop(i < n) { local ch = sval.substring(i,i+1); if ch == "\\" { esc = esc + "\\\\" } else { if ch == "\"" { esc = esc + "\\\"" } else { esc = esc + ch } } i = i + 1 } }
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+           "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"" + esc + "\"}}," +
+           "{\"op\":\"ret\",\"value\":1}]}]}]}"
+  }
+}

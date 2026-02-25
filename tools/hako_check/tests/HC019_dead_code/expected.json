@@ -1,0 +1,4 @@
+{"diagnostics":[
+  {"file":"ng.hako","line":1,"rule":"HC019","message":"[HC019] unreachable method (dead code): ng.hako :: Main.unused/0","quickFix":"","severity":"warning"},
+  {"file":"ng.hako","line":3,"rule":"HC019","message":"[HC019] dead static box (never referenced): UnusedBox :: ng.hako:3","quickFix":"","severity":"warning"}
+]}

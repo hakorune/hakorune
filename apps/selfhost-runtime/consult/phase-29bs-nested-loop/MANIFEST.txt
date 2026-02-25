@@ -1,0 +1,25 @@
+# Minimal sources for CorePlan nested loop design consult
+# Generated: 2026-01-02
+
+# Inquiry
+ docs/development/current/main/CHATGPT_PRO_INQUIRY_NESTED_LOOP_COREPLAN_JP.md
+
+# CorePlan plan-line
+ src/mir/builder/control_flow/plan/mod.rs
+ src/mir/builder/control_flow/plan/verifier.rs
+ src/mir/builder/control_flow/plan/lowerer.rs
+ src/mir/builder/control_flow/plan/coreloop_body_contract.rs
+ src/mir/builder/control_flow/plan/single_planner/rules.rs
+ src/mir/builder/control_flow/plan/normalizer/mod.rs
+ src/mir/builder/control_flow/plan/normalizer/helpers.rs
+ src/mir/builder/control_flow/plan/generic_loop/facts.rs
+ src/mir/builder/control_flow/plan/generic_loop/normalizer.rs
+ src/mir/builder/control_flow/joinir/patterns/router.rs
+
+# Selfhost compiler real-world loop
+ lang/src/compiler/entry/bundle_resolver.hako
+
+# SSOT docs
+ docs/development/current/main/design/coreplan-migration-roadmap-ssot.md
+ docs/development/current/main/design/joinir-planner-required-gates-ssot.md
+

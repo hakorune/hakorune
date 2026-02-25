@@ -1,0 +1,23 @@
+// Phase 116: if-only keep+call merge parity
+// Test one side keeps original value, other side calls function
+
+static box Main {
+  f(x) {
+    return x + 1
+  }
+
+  g(flag) {
+    local v
+    v = 10
+    if flag == 1 {
+      v = me.f(1)
+    }
+    print(v)
+  }
+
+  main() {
+    me.g(0)
+    me.g(1)
+    return "OK"
+  }
+}

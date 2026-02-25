@@ -1,0 +1,8 @@
+// ok: ASCII quotes only
+static box Main {
+  method main() {
+    local s = "plain ascii"
+    return 0
+  }
+}
+

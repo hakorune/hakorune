@@ -1,0 +1,529 @@
+// Moved from apps/selfhost-compiler/boxes/parser/parser_box.hako
+// ParserBox — Stage‑1 JSON v0 generator (coordinator, delegates to specialized boxes)
+// Responsibility: Coordinate parsing, manage state, delegate to specialized boxes
+// API: parse_program2(src) -> JSON
+
+using sh_core as StringHelpers  // Required: ParserStringUtilsBox depends on this (using chain unresolved)
+using lang.compiler.parser.scan.parser_string_utils_box
+using lang.compiler.parser.scan.parser_ident_scan_box
+using lang.compiler.parser.scan.parser_string_scan_box
+using "lang.compiler.parser.using.using_collector_box"
+using lang.compiler.parser.expr.parser_expr_box
+using lang.compiler.parser.stmt.parser_stmt_box
+using lang.compiler.parser.stmt.parser_control_box
+
+box ParserBox {
+  gpos
+  usings_json
+  externs_json
+  stage3
+
+  birth() {
+    me.gpos = 0
+    me.usings_json = "[]"
+    me.externs_json = "[]"
+    me.stage3 = 0
+    return 0
+  }
+
+  stage3_enable(flag) {
+    if flag == null { flag = 0 }
+    if flag == 0 { me.stage3 = 0 } else { me.stage3 = 1 }
+    return 0
+  }
+
+  stage3_enabled() {
+    if me.stage3 == 1 { return 1 }
+    return 0
+  }
+
+  opt_annotations_enabled() {
+    local raw = env.get("NYASH_FEATURES")
+    if raw == null { return 0 }
+    local s = "" + raw
+    if s.indexOf("opt-annotations") >= 0 { return 1 }
+    if s.indexOf("opt_annotations") >= 0 { return 1 }
+    if s.indexOf("optannotations") >= 0 { return 1 }
+    return 0
+  }
+
+  // Dev-only: enable coarse-grained parser trace when NYASH_PARSER_TRACE=1.
+  trace_enabled() {
+    local v = env.get("NYASH_PARSER_TRACE")
+    if v == null { return 0 }
+    if ("" + v) == "1" { return 1 }
+    return 0
+  }
+
+  // === State management ===
+  gpos_set(i) { me.gpos = i return 0 }
+  gpos_get() { return me.gpos }
+
+  // === JSON utilities ===
+  esc_json(s) {
+    // Defensive: accept null/void and normalize to string once
+    if s == null { return "" }
+    local str = "" + s
+    local out = ""
+    local i = 0
+    local n = str.length()
+    loop(i < n) {
+      local ch = str.substring(i, i+1)
+      local handled = 0
+      if ch == "\\" {
+        out = out + "\\\\"
+        handled = 1
+      }
+      if handled == 0 && ch == "\"" {
+        out = out + "\\\""
+        handled = 1
+      }
+      if handled == 0 && ch == "\n" {
+        out = out + "\\n"
+        handled = 1
+      }
+      if handled == 0 && ch == "\r" {
+        out = out + "\\r"
+        handled = 1
+      }
+      if handled == 0 && ch == "\t" {
+        out = out + "\\t"
+        handled = 1
+      }
+      if handled == 0 {
+        out = out + ch
+      }
+      i = i + 1
+    }
+    return out
+  }
+
+  // === Phase 71-SSA: Removed delegation methods to avoid SSA undef ===
+  // Direct use of ParserStringUtilsBox methods recommended instead
+  // Removed: is_digit, is_space, is_alpha, starts_with, index_of
+  // Use ParserStringUtilsBox.method() directly to avoid ValueId mapping issues
+
+  trim(s) {
+    // Phase 71-SSA: Direct implementation to avoid ValueId mapping issue in static box delegation
+    if s == null { return "" }
+    local str = "" + s
+    local n = str.length()
+
+    local b = ParserStringUtilsBox.skip_ws(str, 0)
+    if b >= n { return "" }
+
+    local e = n
+    loop(e > b) {
+      local ch = str.substring(e - 1, e)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" || ch == ";" { e = e - 1 } else { break }
+    }
+
+    if e > b { return str.substring(b, e) }
+    return ""
+  }
+
+  // Phase 71-SSA: Removed delegation methods to avoid SSA undef
+  // Removed: starts_with_kw, i2s, to_int, skip_ws
+  // Use ParserStringUtilsBox.method() directly instead
+
+  // === Parser contract (instance delegation) ===
+  // ParserControlBox / ParserExprBox expect these helpers on `ctx`.
+  // Implement as instance methods to keep call sites stable while delegating the
+  // actual logic to the static, SSOT helpers.
+  // Keep these ultra-stable: they are used to encode/decode positions like "...]@123".
+  // Prefer direct coercions over recursive helpers to avoid accidental VM/SSA edge cases.
+  i2s(v) {
+    if v == null { return "0" }
+    return "" + v
+  }
+  to_int(s) { return StringHelpers.to_i64("" + s) }
+  skip_ws(src, i) { return StringHelpers.skip_ws(src, i) }
+  is_digit(ch) { return ParserStringUtilsBox.is_digit(ch) }
+  is_space(ch) { return ParserStringUtilsBox.is_space(ch) }
+  is_alpha(ch) { return ParserStringUtilsBox.is_alpha(ch) }
+  starts_with(src, i, pat) { return ParserStringUtilsBox.starts_with(src, i, pat) }
+  starts_with_kw(src, i, kw) { return ParserStringUtilsBox.starts_with_kw(src, i, kw) }
+  index_of(src, i, pat) { return ParserStringUtilsBox.index_of(src, i, pat) }
+
+  // === Delegation to scanner boxes ===
+  read_ident2(src, i) { return ParserIdentScanBox.scan_ident(src, i) }
+
+  read_string_lit(src, i) {
+    local q0 = src.substring(i, i + 1)
+
+    // Check for single quote (Stage-3 only)
+    if q0 == "'" {
+      if me.stage3_enabled() == 1 {
+        // Single-quote string in Stage-3
+        local pair = ParserStringScanBox.scan_with_quote(src, i, "'")
+        local at = pair.lastIndexOf("@")
+        local content = pair.substring(0, at)
+        local pos = 0
+        if at >= 0 { pos = ParserStringUtilsBox.to_int(pair.substring(at+1, pair.length())) }
+        else { pos = i }
+        me.gpos_set(pos)
+        return content
+      } else {
+        // Single-quote not allowed, degrade gracefully
+        // Return empty string and advance 1 char
+        me.gpos_set(i + 1)
+        return ""
+      }
+    }
+
+    // Double-quote string (existing path)
+    local pair = ParserStringScanBox.scan(src, i)
+    local at = pair.lastIndexOf("@")
+    local content = pair.substring(0, at)
+    local pos = 0
+    if at >= 0 { pos = ParserStringUtilsBox.to_int(pair.substring(at+1, pair.length())) }
+    else { pos = i }
+    me.gpos_set(pos)
+    return content
+  }
+
+  // === using system ===
+  add_using(kind, target, alias) {
+    local cur = me.usings_json
+    if cur == null || cur.length() == 0 { cur = "[]" }
+
+    local name = ""
+    local path = null
+
+    if kind == "path" {
+      path = target
+      if alias != null {
+        name = alias
+      } else {
+        local p = target
+        local idx = -1
+        local t = 0
+        loop(t < p.length()) {
+          if p.substring(t,t+1) == "/" { idx = t }
+          t = t + 1
+        }
+        if idx >= 0 { p = p.substring(idx+1, p.length()) }
+
+        if p.length() > 5 && ParserStringUtilsBox.starts_with(p, p.length()-5, ".hako") == 1 {
+          p = p.substring(0, p.length()-5)
+        } else {
+          if p.length() > 6 && ParserStringUtilsBox.starts_with(p, p.length()-6, ".hako") == 1 {
+            p = p.substring(0, p.length()-6)
+          }
+        }
+        name = p
+      }
+    } else {
+      name = target
+      if alias != null { name = alias }
+    }
+
+    local entry = "{\"name\":\"" + me.esc_json(name) + "\""
+    if path != null { entry = entry + ",\"path\":\"" + me.esc_json(path) + "\"" }
+    entry = entry + "}"
+
+    if cur == "[]" {
+      me.usings_json = "[" + entry + "]"
+      return 0
+    }
+
+    local pos = cur.lastIndexOf("]")
+    if pos < 0 {
+      me.usings_json = "[" + entry + "]"
+      return 0
+    }
+
+    me.usings_json = cur.substring(0, pos) + "," + entry + "]"
+    return 0
+  }
+
+  extract_usings(src) {
+    me.usings_json = UsingCollectorBox.collect(src)
+    return 0
+  }
+
+  get_usings_json() {
+    return me.usings_json
+  }
+
+  // Check if a name is a using alias (Phase 173-2)
+  // Used to detect static box calls like JsonParserBox.parse()
+  is_using_alias(name) {
+    if name == null { return 0 }
+    local usings = me.usings_json
+    if usings == null || usings.length() == 0 { return 0 }
+
+    // Search for {"name":"<name>"} pattern in usings JSON
+    local search = "\"name\":\"" + name + "\""
+    local pos = usings.indexOf(search)
+    if pos >= 0 { return 1 }
+    return 0
+  }
+
+  // === extern_c annotations ===
+  add_extern_c(symbol, func) {
+    // Entry shape: {"symbol":"hako_add","func":"Name/Arity"}
+    local sym = symbol
+    if sym == null { sym = "" }
+    local func_name = func
+    if func_name == null { func_name = "" }
+    local entry = "{\"symbol\":\"" + me.esc_json(sym) + "\",\"func\":\"" + me.esc_json(func_name) + "\"}"
+    local cur = me.externs_json
+    if cur == null || cur.length() == 0 { cur = "[]" }
+    if cur == "[]" {
+      me.externs_json = "[" + entry + "]"
+      return 0
+    }
+    local pos = cur.lastIndexOf("]")
+    if pos < 0 {
+      me.externs_json = "[" + entry + "]"
+      return 0
+    }
+    me.externs_json = cur.substring(0, pos) + "," + entry + "]"
+    return 0
+  }
+
+  extract_externs(_src) {
+    // MVP: rely on ParserStmtBox to call add_extern_c during parse; here no-op for now.
+    return 0
+  }
+
+  get_externs_json() {
+    return me.externs_json
+  }
+
+  // === Delegation to ParserExprBox ===
+  parse_expr2(src, i) {
+    return ParserExprBox.parse_expr2(src, i, me)
+  }
+
+  // === Delegation to ParserStmtBox ===
+  parse_stmt2(src, i) {
+    return ParserStmtBox.parse(src, i, me)
+  }
+
+  // === Delegation to ParserControlBox ===
+  parse_block2(src, i) {
+    return ParserControlBox.parse_block(src, i, me)
+  }
+
+  // === Top-level program parser ===
+  parse_program2(src) {
+    // Dev-only: guaranteed direct marker before any env operations
+    {
+      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
+      if marker_enabled != null && ("" + marker_enabled) == "1" {
+        print("[stageb/trace] ParserBox.parse_program2:entry")
+      }
+    }
+
+    // Shallow recursion guard for Stage‑B / selfhost callers:
+    // prevent accidental self-recursion in ParserBox.parse_program2.
+    {
+      local depth = env.get("HAKO_STAGEB_PARSER_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/recursion] ParserBox.parse_program2 recursion detected")
+        // Fail-fast: return an empty Program(JSON) so caller can detect failure.
+        return "{\"version\":0,\"kind\":\"Program\",\"body\":[]}"
+      }
+      env.set("HAKO_STAGEB_PARSER_DEPTH", "1")
+    }
+
+    // Dev-only: marker before trace_enabled() call
+    {
+      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
+      if marker_enabled != null && ("" + marker_enabled) == "1" {
+        print("[stageb/trace] ParserBox.parse_program2:before_trace_enabled")
+      }
+    }
+
+    local trace = me.trace_enabled()
+
+    // Dev-only: marker after trace_enabled() call
+    {
+      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
+      if marker_enabled != null && ("" + marker_enabled) == "1" {
+        print("[stageb/trace] ParserBox.parse_program2:after_trace_enabled trace=" + ("" + trace))
+      }
+    }
+
+    // Inline skip_ws to avoid VM bug: method-with-loop called from within loop
+    local i = 0
+    local n = src.length()
+
+    // Dev-only: marker before src.length() operations
+    {
+      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
+      if marker_enabled != null && ("" + marker_enabled) == "1" {
+        print("[stageb/trace] ParserBox.parse_program2:got_src_length n=" + ("" + n))
+      }
+    }
+
+    if trace == 1 {
+      print("[parser/trace:program2] start len=" + ("" + n) + " stage3=" + ("" + me.stage3))
+    }
+    if i < n {
+      // Fail-fast版: PHI依存を避け、条件付きbreakだけで先頭空白を飛ばす。
+      local ws_loop_count = 0
+      loop(i < n) {
+        ws_loop_count = ws_loop_count + 1
+        if ws_loop_count < 10 || (ws_loop_count % 1000) == 0 {
+          print("[parse_program2:ws_init] loop=" + ("" + ws_loop_count) + " i=" + ("" + i) + " n=" + ("" + n))
+        }
+        local ch = src.substring(i, i + 1)
+        if ws_loop_count < 10 {
+          print("[parse_program2:ws_init] ch='" + ch + "' at i=" + ("" + i))
+        }
+        if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+          i = i + 1
+          continue
+        }
+        break
+      }
+      print("[parse_program2:ws_init] DONE loop_count=" + ("" + ws_loop_count) + " final_i=" + ("" + i))
+    }
+
+    // Dev-only: marker before main loop
+    {
+      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
+      if marker_enabled != null && ("" + marker_enabled) == "1" {
+        print("[stageb/trace] ParserBox.parse_program2:before_main_loop i=" + ("" + i))
+      }
+    }
+
+    local body = "["
+    local first = 1
+    local cont_prog = 1
+
+    // Dev-only program-level progress guard (Phase 25.1c):
+    // - Enabled when HAKO_PARSER_PROG_MAX > 0
+    // - Protects Stage‑B/selfhost callers from infinite top-level loops on malformed input
+    local guard_prog = 0
+    local max_prog = 0
+    {
+      local m = env.get("HAKO_PARSER_PROG_MAX")
+      if m != null {
+        // Safely parse to int; invalid values are treated as 0 (disabled)
+        local mv = 0
+        local ok = 0
+        // Minimal numeric parse: allow decimal digits only
+        local ms = "" + m
+        local mi = 0
+        local ml = ms.length()
+        loop(mi < ml) {
+          local chm = ms.substring(mi, mi + 1)
+          if chm < "0" || chm > "9" { ok = 0  break }
+          if ok == 0 { ok = 1 }
+          mv = mv * 10 + ParserStringUtilsBox.to_int(chm)
+          mi = mi + 1
+        }
+        if ok == 1 && mv > 0 { max_prog = mv }
+      }
+    }
+
+    loop(cont_prog == 1) {
+      // ===== 1) WS SKIP (inline, simple structure) =====
+      loop(i < n) {
+        local ch_ws = src.substring(i, i + 1)
+        if ch_ws == " " || ch_ws == "\n" || ch_ws == "\r" || ch_ws == "\t" {
+          i = i + 1
+          continue
+        }
+        break
+      }
+
+      // ===== 2) EOF/GUARD CHECK (early exit) =====
+      if i >= n {
+        cont_prog = 0
+        break
+      }
+
+      if max_prog > 0 {
+        guard_prog = guard_prog + 1
+        if guard_prog > max_prog {
+          if trace == 1 {
+            print("[parser/program2:guard] max iteration reached at pos=" + ("" + i))
+          }
+          cont_prog = 0
+          break
+        }
+      }
+
+      // ===== 3) PARSE_STMT2 + GPOS_GET (unconditional execution) =====
+      local start_i = i
+      local s = me.parse_stmt2(src, i)
+      i = me.gpos_get()
+
+      if ParserStringUtilsBox.starts_with("" + s, 0, "[freeze:contract]") == 1 {
+        env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+        return "" + s
+      }
+
+      // ===== 4) PROGRESS GUARD (ensure i always advances) =====
+      if i <= start_i {
+        if trace == 1 {
+          print("[parser/trace:program2] progress-guard bump i from " + ("" + start_i) + " to " + ("" + (start_i + 1)))
+        }
+        i = start_i + 1
+        if i > n { i = n }
+        me.gpos_set(i)
+      }
+
+      // ===== 5) TRACE (simplified, at end) =====
+      if trace == 1 {
+        print("[parser/trace:program2] i=" + ("" + i) + " stmt_len=" + ("" + s.length()) + " guard=" + ("" + guard_prog))
+      }
+
+      // ===== 6) CONSUME OPTIONAL SEMICOLONS - MirBuilder-friendly =====
+      loop(true) {
+        local before_semi = i
+
+        // Inline ws skip
+        loop(i < n) {
+          local ch_semi = src.substring(i, i + 1)
+          if ch_semi == " " || ch_semi == "\n" || ch_semi == "\r" || ch_semi == "\t" {
+            i = i + 1
+            continue
+          }
+          break
+        }
+
+        if i < n && src.substring(i, i+1) == ";" {
+          i = i + 1
+          continue
+        }
+
+        break
+      }
+
+      // ===== 7) EMIT STATEMENT =====
+      if s.length() > 0 {
+        if first == 1 {
+          if trace == 1 {
+            print("[parser/trace:program2] emit-first stmt_len=" + ("" + s.length()))
+          }
+          body = body + s
+          first = 0
+        } else {
+          if trace == 1 {
+            print("[parser/trace:program2] emit stmt_len=" + ("" + s.length()))
+          }
+          body = body + "," + s
+        }
+      }
+    }
+
+    body = body + "]"
+    if trace == 1 {
+      print("[parser/trace:program2] done pos=" + ("" + i) + " len=" + ("" + n))
+    }
+    env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+    return "{\"version\":0,\"kind\":\"Program\",\"body\":" + body + "}"
+  }
+}
+
+static box ParserStub {
+  main(args) {
+    return 0
+  }
+}

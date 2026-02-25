@@ -1,0 +1,21 @@
+// result_helpers.hako — Module functions for Result enum (introspection without ArrayBox)
+// Responsibility: expose stable module functions for smokes and app code
+//   ResultHelpers.is_Ok(r: EnumBox) -> 0|1
+//   ResultHelpers.is_Err(r: EnumBox) -> 0|1
+// Implementation detail: uses EnumBox.tag() which is supported by the router
+
+static box ResultHelpers {
+  is_Ok(r) {
+    if r == null { return 0 }
+    // InstanceBox-based enum (macro): tag is stored in field "_tag"
+    local t = r.getField("_tag")
+    if t == "Ok" { return 1 }
+    return 0
+  }
+  is_Err(r) {
+    if r == null { return 0 }
+    local t = r.getField("_tag")
+    if t == "Err" { return 1 }
+    return 0
+  }
+}

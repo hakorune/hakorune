@@ -1,0 +1,34 @@
+// RunnerPlanBuilder (JSON Plan) — Phase 20.26‑C
+// Responsibility: Build a minimal RunnerPlan JSON from a tiny JSON payload.
+// Contract: build/1 accepts a JSON-like string and returns a JSON object string:
+//   {"action":"ExecuteCore|ExecuteVM|ExecuteNyLlvmc|Skip|Error","gate_c":bool,
+//    "engine":"core|vm|llvm", "plugins":bool, "quiet":bool }
+
+static box RunnerPlanBuilder {
+  build(j) {
+    // MVP: naive scan (no JSON parser dependency).
+    // Priority: explicit backend → ExecuteVM/ExecuteNyLlvmc;
+    //           boxes directive → ExecuteBoxes;
+    //           else if gate_c → ExecuteCore; else Skip.
+    local gate = j.indexOf("\"gate_c\":true") >= 0
+    local act = "Skip"
+    if (j.indexOf("\"backend\":\"vm\"") >= 0) { act = "ExecuteVM" }
+    else if (j.indexOf("\"backend\":\"llvm\"") >= 0) { act = "ExecuteNyLlvmc" }
+    // boxes toggle (optional). If present and no stronger action decided, produce ExecuteBoxes
+    local boxes_val = ""
+    if (j.indexOf("\"boxes\":\"hako\"") >= 0) { boxes_val = "hako" }
+    else if (j.indexOf("\"boxes\":\"rust\"") >= 0) { boxes_val = "rust" }
+    if (act == "Skip" && boxes_val != "") { act = "ExecuteBoxes" }
+    else if (act == "Skip" && gate) { act = "ExecuteCore" }
+
+    // Compose a compact JSON string (keys kept minimal and stable)
+    local plan = "{\"action\":\"" + act + "\"," +
+                 "\"gate_c\":" + (gate ? "true" : "false") + "," +
+                 "\"engine\":\"core\"," +
+                 "\"plugins\":false," +
+                 "\"quiet\":true" +
+                 (boxes_val != "" ? ",\"boxes\":\"" + boxes_val + "\"" : "") +
+                 "}"
+    return plan
+  }
+}

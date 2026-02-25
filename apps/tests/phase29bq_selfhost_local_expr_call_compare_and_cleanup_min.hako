@@ -1,0 +1,44 @@
+// Phase 29bq parser handoff Tier-2: method call return values + compare + && + postfix cleanup.
+box Calc {
+  f(v) {
+    return v + 1
+  }
+
+  g(v) {
+    return v * 2
+  }
+}
+
+static box Main {
+  main() {
+    local out = 0
+    {
+      local calc = new Calc()
+
+      local cond1 = (calc.f(4) == 5) && (calc.g(1) != 1)
+      if cond1 {
+        out = out + 41
+      } else {
+        out = out + 1
+      }
+
+      local cond2 = (calc.f(0) == 0) && (calc.g(2) == 4)
+      if cond2 {
+        out = out + 47
+      } else {
+        out = out + 2
+      }
+
+      local cond3 = (calc.f(2) == 3) && (calc.g(3) != 5)
+      if cond3 {
+        out = out + 53
+      } else {
+        out = out + 3
+      }
+    } cleanup {
+      out = out + 2300
+    }
+    print(out)
+    return 0
+  }
+}

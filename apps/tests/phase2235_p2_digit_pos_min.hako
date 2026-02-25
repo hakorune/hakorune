@@ -1,0 +1,51 @@
+// Phase 223.5: A-4 Pattern Test - Digit Position with Cascading LoopBodyLocal
+//
+// Test case: Number parsing loop with cascading LoopBodyLocal dependency
+//   - `ch = s.substring(p, p+1)` → LoopBodyLocal
+//   - `digit_pos = digits.indexOf(ch)` → depends on ch (cascading LoopBodyLocal)
+//   - `if digit_pos < 0 { break }` → break condition uses digit_pos
+//
+// Expected flow:
+//   Input: s = "123abc", digits = "0123456789"
+//   Loop iteration 1: ch = "1", digit_pos = 1, continue
+//   Loop iteration 2: ch = "2", digit_pos = 2, continue
+//   Loop iteration 3: ch = "3", digit_pos = 3, continue
+//   Loop iteration 4: ch = "a", digit_pos = -1, break
+//   Final: p = 3 (after processing "123")
+//
+// Phase 223.5 Result: LoopBodyCondPromoter detects pattern and fails-fast
+// with: "Cannot promote LoopBodyLocal variables ["digit_pos"]: No promotable Trim pattern detected"
+//
+// This is EXPECTED - A-4 cascading pattern is more complex than A-3 Trim.
+// Full cascading promotion support will be implemented in Phase 224+.
+//
+// NOTE: This is a simplified version of json_parser.hako digit parsing.
+
+static box Main {
+    main() {
+        local s = "123abc"
+        local digits = "0123456789"
+        local p = 0
+        local num_str = ""
+
+        // Pattern 2 loop (has break, no continue)
+        loop(p < s.length()) {
+            local ch = s.substring(p, p+1)
+            local digit_pos = digits.indexOf(ch)
+
+            // Exit condition: non-digit character found
+            if digit_pos < 0 {
+                break
+            }
+
+            // Continue parsing: digit found
+            num_str = num_str + ch
+            p = p + 1
+        }
+
+        // Output results
+        print("p = " + p)
+        print("num_str = " + num_str)
+        return p
+    }
+}

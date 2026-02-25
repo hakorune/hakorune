@@ -1,0 +1,10 @@
+// RVP-C05 capability fixture
+// Contract:
+// - vm-hako route must accept externcall(env.get/1) and keep execution alive.
+
+static box Main {
+  main() {
+    env.get("RVP_C05_ENV_KEY")
+    return 0
+  }
+}

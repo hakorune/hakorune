@@ -1,0 +1,38 @@
+# test_socketbox_fix_validation.hako
+# ✅ Validation test for SocketBox deadlock fix
+
+static box Main {
+    init { console }
+    
+    main() {
+        me.console = new ConsoleBox()
+        me.console.log("🎯 SocketBox Deadlock Fix Validation")
+        
+        local socket = new SocketBox()
+        me.console.log("✅ SocketBox created successfully")
+        
+        # Test 1: Basic method calls that were deadlocking
+        me.console.log("Test 1: toString() method...")
+        local str = socket.toString()
+        me.console.log("✅ toString() success: " + str)
+        
+        me.console.log("Test 2: isServer() before bind...")
+        local isServerBefore = socket.isServer()
+        me.console.log("✅ isServer() before: " + isServerBefore.toString())
+        
+        me.console.log("Test 3: bind() method...")
+        local bindResult = socket.bind("127.0.0.1", 18888)
+        me.console.log("✅ bind() success: " + bindResult.toString())
+        
+        me.console.log("Test 4: isServer() after bind...")
+        local isServerAfter = socket.isServer()
+        me.console.log("✅ isServer() after: " + isServerAfter.toString())
+        
+        me.console.log("Test 5: close() method...")
+        local closeResult = socket.close()
+        me.console.log("✅ close() success: " + closeResult.toString())
+        
+        me.console.log("🎉 All SocketBox methods working without deadlock!")
+        return "SOCKETBOX_FIX_VALIDATED"
+    }
+}

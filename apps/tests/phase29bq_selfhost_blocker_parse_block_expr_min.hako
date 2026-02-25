@@ -1,0 +1,57 @@
+// Phase 29bq: ParserLiteralBox.parse_block_expr/3 minimal (selfhost blocker extraction)
+// Expected output: {"type":"Error","message":"BlockExpr requires at least one expression"}
+box DummyCtx {
+  gpos_get() { return 0 }
+  gpos_set(v) { return v }
+  skip_ws(src, j) { return j }
+  parse_stmt2(src, j) { return "{\"type\":\"Int\",\"value\":0}" }
+}
+
+static box ParserLiteralBox {
+  parse_block_expr(src, i, ctx) {
+    local n = src.length()
+    local j = i + 1
+    local prelude = "["
+    local stmts_count = 0
+    local last_stmt = ""
+    local guard = 0
+    local max = 200000
+    loop(guard < max) {
+      j = ctx.skip_ws(src, j)
+      if j >= n { break }
+      if src.substring(j, j+1) == "}" { break }
+
+      local before = j
+      local stmt_json = ctx.parse_stmt2(src, j)
+      j = ctx.gpos_get()
+
+      if stmts_count > 0 {
+        if stmts_count > 1 { prelude = prelude + "," }
+        prelude = prelude + last_stmt
+      }
+      last_stmt = stmt_json
+      stmts_count = stmts_count + 1
+
+      if j <= before && j < n { j = j + 1 }
+      guard = guard + 1
+    }
+    prelude = prelude + "]"
+
+    if j < n && src.substring(j, j+1) == "}" { j = j + 1 }
+    ctx.gpos_set(j)
+
+    if stmts_count == 0 {
+      return "{\"type\":\"Error\",\"message\":\"BlockExpr requires at least one expression\"}"
+    }
+    return "{\"type\":\"BlockExpr\",\"prelude\":" + prelude + ",\"tail\":" + last_stmt + "}"
+  }
+}
+
+static box Main {
+  main() {
+    local ctx = new DummyCtx()
+    local out = ParserLiteralBox.parse_block_expr("{}", 0, ctx)
+    print(out)
+    return 0
+  }
+}

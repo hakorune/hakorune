@@ -1,0 +1,36 @@
+// Phase 29bq parser handoff Tier-3: local blockexpr init + fini + cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local x = {
+        local a = 2
+        a + 3
+      } fini {
+        out = out + x
+      }
+
+      local y = {
+        local b = 4
+        b * 2
+      } fini {
+        out = out + y
+      }
+
+      local cond = (x == 5) && (y == 8)
+      if cond {
+        out = out + 10
+      } else {
+        out = out + 1
+      }
+
+      x = x + 1
+      y = y + x
+    } cleanup {
+      out = out + 1400
+    }
+
+    print(out)
+    return 0
+  }
+}

@@ -1,0 +1,15 @@
+// JIR-PORT-02 fixture (if/merge minimal)
+// Contract:
+// - Local -> If(Var==Int, then Assignment(Int), else Assignment(Int)) -> Return(Var)
+// - Must be lowered by .hako selfhost builder route (no delegate fallback).
+static box Main {
+  main() {
+    local x = 0
+    if x == 0 {
+      x = 1
+    } else {
+      x = 2
+    }
+    return x
+  }
+}

@@ -1,0 +1,466 @@
+// core_bridge_ops.hako — CoreBridgeOps層（vm↔coreブリッジ）
+// Policy:
+//   - hakorune-vm が受け取った MIR(JSON) とレジスタ状態を Core 側の NyVm* ops に橋渡しする「標準ブリッジ」層。
+//   - public な命令シグネチャ／戻り値契約は維持しつつ、JSON 形とレジスタ状態の変換だけを担当する。
+//   - 「minimal/temporary bridge」ではなく、Core 実装に対する安定した入口として扱う。
+
+using selfhost.vm.boxes.result_box as Result
+using selfhost.vm.hakorune-vm.json_field_extractor as JsonFieldExtractor
+using selfhost.vm.hakorune-vm.inst_field_extractor as InstFieldExtractor
+using selfhost.vm.hakorune-vm.value_manager as ValueManagerBox
+using selfhost.vm.hakorune-vm.args_extractor as ArgsExtractorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+using selfhost.vm.core.state as NyVmState
+using selfhost.vm.core.ops.const as NyVmOpConst
+using selfhost.vm.core.ops.binop as NyVmOpBinOp
+using selfhost.vm.core.ops.ret as NyVmOpRet
+using selfhost.vm.core.ops.compare as NyVmOpCompare
+using selfhost.vm.core.ops.branch as NyVmOpBranch
+using selfhost.vm.core.ops.jump as NyVmOpJump
+using selfhost.vm.core.ops.phi as NyVmOpPhi
+using selfhost.vm.core.ops.copy as NyVmOpCopy
+using selfhost.vm.core.ops.unary as NyVmOpUnary
+using selfhost.vm.core.ops.typeop as NyVmOpTypeOp
+using selfhost.vm.core.ops.load as NyVmOpLoad
+using selfhost.vm.core.ops.store as NyVmOpStore
+using selfhost.vm.core.ops.mir_call as NyVmOpMirCall
+
+static box CoreBridgeOps {
+  // TTL: Delegation map (Phase 20.17)
+  // - Collections: prefer Core mir_call to centralize semantics and tags.
+  //   * Array: size/push/pop/get/set → delegated（this file）
+  //   * Map  : len/iterator(set as len)/set/get → delegated（this file）
+  // - Strings: remain on HostBridge/ModuleFunctionCallHandlerBox; add Core support later.
+  //   Avoid shadow semantics here until Core gains a string box.
+  // Apply const via Core
+  apply_const(inst_json, regs) {
+    // Prepare Core state and execute
+    local st = NyVmState.birth()
+    local rc = NyVmOpConst.handle(inst_json, st)
+    if rc < 0 { return Result.Err("const: core failure") }
+    // Reflect dst into hakorune-vm regs using unified extractor
+    local dst = InstFieldExtractor.extract_dst(inst_json)
+    if dst == null { return Result.Err("const: dst not found") }
+    local v = NyVmState.get_reg(st, dst)
+    ValueManagerBox.set(regs, dst, v)
+    return Result.Ok(0)
+  }
+
+  // Apply binop via Core
+  apply_binop(inst_json, regs) {
+    // Extract required fields using unified extractor
+    local dst = InstFieldExtractor.extract_dst(inst_json)
+    if dst == null { return Result.Err("binop: dst field not found") }
+    local binary_ops = InstFieldExtractor.extract_binary_ops(inst_json)
+    if binary_ops.lhs == null { return Result.Err("binop: lhs field not found") }
+    if binary_ops.rhs == null { return Result.Err("binop: rhs field not found") }
+
+    // Use unified binary ops extractor (includes operation normalization)
+    local op = binary_ops.operation
+    if op == null { return Result.Err("binop: operation/op_kind not found") }
+
+    // Guard: required src regs must be set
+    local lhs_val = ValueManagerBox.get(regs, binary_ops.lhs)
+    if lhs_val == null { return Result.Err("binop: lhs v%" + binary_ops.lhs + " is unset") }
+    local rhs_val = ValueManagerBox.get(regs, binary_ops.rhs)
+    if rhs_val == null { return Result.Err("binop: rhs v%" + binary_ops.rhs + " is unset") }
+
+    // Rebuild minimal JSON acceptable to Core
+    local j = "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\"" + op + "\",\"lhs\":" + binary_ops.lhs + ",\"rhs\":" + binary_ops.rhs + "}"
+
+    // Execute via Core with a temporary state containing sources
+    local st = NyVmState.birth()
+    NyVmState.set_reg(st, binary_ops.lhs, lhs_val)
+    NyVmState.set_reg(st, binary_ops.rhs, rhs_val)
+    local rc = NyVmOpBinOp.handle(j, st)
+    if rc < 0 { return Result.Err("binop: core failure") }
+    local out = NyVmState.get_reg(st, dst)
+    ValueManagerBox.set(regs, dst, out)
+    return Result.Ok(0)
+  }
+
+  // Load ret value via Core (instruction form)
+  load_ret_from_instruction(inst_json, regs) {
+    local vid = JsonFieldExtractor.extract_int(inst_json, "value")
+    if vid == null { return Result.Err("ret: value field not found") }
+    local v = ValueManagerBox.get(regs, vid)
+    if v == null { return Result.Err("ret: register v%" + vid + " is unset") }
+    local st = NyVmState.birth()
+    NyVmState.set_reg(st, vid, v)
+    local out = NyVmOpRet.handle(inst_json, st)
+    return Result.Ok(out)
+  }
+
+  // Apply compare via Core
+  apply_compare(inst_json, regs) {
+    local dst = InstFieldExtractor.extract_dst(inst_json)
+    if dst == null { return Result.Err("compare: dst field not found") }
+    local compare_ops = InstFieldExtractor.extract_compare_ops(inst_json)
+    if compare_ops.lhs == null { return Result.Err("compare: lhs field not found") }
+    if compare_ops.rhs == null { return Result.Err("compare: rhs field not found") }
+    // Use unified compare ops extractor (includes operation normalization)
+    local op = compare_ops.operation
+    if op == null { return Result.Err("compare: kind/operation not found") }
+    // Guards
+    local lv = ValueManagerBox.get(regs, compare_ops.lhs)
+    if lv == null { return Result.Err("compare: lhs v%" + compare_ops.lhs + " is unset") }
+    local rv = ValueManagerBox.get(regs, compare_ops.rhs)
+    if rv == null { return Result.Err("compare: rhs v%" + compare_ops.rhs + " is unset") }
+    // Build minimal JSON
+    local j = "{\"op\":\"compare\",\"dst\":" + dst + ",\"operation\":\"" + op + "\",\"lhs\":" + compare_ops.lhs + ",\"rhs\":" + compare_ops.rhs + "}"
+    local st = NyVmState.birth()
+    NyVmState.set_reg(st, compare_ops.lhs, lv)
+    NyVmState.set_reg(st, compare_ops.rhs, rv)
+    local rc = NyVmOpCompare.handle(j, st)
+    if rc < 0 { return Result.Err("compare: core failure") }
+    ValueManagerBox.set(regs, dst, NyVmState.get_reg(st, dst))
+    return Result.Ok(0)
+  }
+
+  // Branch terminator via Core; returns Ok(next_bb)
+  select_branch_next_from_terminator(term_json, regs) {
+    // Extract fields from terminator shape
+    local cond = JsonFieldExtractor.extract_int(term_json, "condition")
+    if cond == null { return Result.Err("branch: condition not found") }
+    local then_bb = JsonFieldExtractor.extract_int(term_json, "then_bb")
+    if then_bb == null { return Result.Err("branch: then_bb not found") }
+    local else_bb = JsonFieldExtractor.extract_int(term_json, "else_bb")
+    if else_bb == null { return Result.Err("branch: else_bb not found") }
+    // Guard and prepare state
+    local cv = ValueManagerBox.get(regs, cond)
+    if cv == null { cv = 0 }
+    local st = NyVmState.birth()
+    NyVmState.set_reg(st, cond, cv)
+    // Minimal JSON for Core
+    local j = "{\"op\":\"branch\",\"cond\":" + cond + ",\"then\":" + then_bb + ",\"else\":" + else_bb + "}"
+    local nb = NyVmOpBranch.handle(j, st)
+    if nb < 0 { return Result.Err("branch: core failure") }
+    return Result.Ok(nb)
+  }
+
+  // Jump terminator via Core; returns Ok(next_bb)
+  select_jump_next_from_terminator(term_json) {
+    local target = JsonFieldExtractor.extract_int(term_json, "target")
+    if target == null { return Result.Err("jump: target not found") }
+    local j = "{\"op\":\"jump\",\"target\":" + target + "}"
+    local nb = NyVmOpJump.handle(j)
+    if nb < 0 { return Result.Err("jump: core failure") }
+    return Result.Ok(nb)
+  }
+
+  // Apply single PHI via Core
+  apply_phi(inst_json, regs, predecessor) {
+    // Collect candidate source vids from inputs and populate state
+    local st = NyVmState.birth()
+    // Minimal scan: find inputs array and iterate pairs [bb,vid]
+    local p = inst_json.indexOf("\"inputs\":[")
+    if p >= 0 {
+      local lb = inst_json.indexOf("[", p)
+      if lb >= 0 {
+        local rb = JsonFieldExtractor.seek_array_end != null ? JsonFieldExtractor.seek_array_end(inst_json, lb) : -1
+        // Fallback: if JsonFieldExtractor provides no seek helper, approximate by using core reader later
+        local arr = rb > lb ? inst_json.substring(lb+1, rb) : inst_json.substring(lb+1, inst_json.length())
+        // Walk for numbers in pairs
+        local pos = 0
+        loop(pos < arr.length()) {
+          // look for '[' of a pair
+          local c = arr.substring(pos,pos+1)
+          if c != "[" { pos = pos + 1 continue }
+          // bb
+          pos = pos + 1
+          // skip spaces
+          loop(pos < arr.length()) { local ch = arr.substring(pos,pos+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { pos = pos + 1 continue } break }
+          // read first int (bb) — ignored here
+          // advance to comma
+          local comma = arr.indexOf(",", pos)
+          if comma < 0 { break }
+          pos = comma + 1
+          loop(pos < arr.length()) { local ch2 = arr.substring(pos,pos+1) if ch2 == " " || ch2 == "\n" || ch2 == "\r" || ch2 == "\t" { pos = pos + 1 continue } break }
+          // read vid digits
+          local i = pos
+          local ds = ""
+          loop(i < arr.length()) { local ch3 = arr.substring(i,i+1) if ch3 >= "0" && ch3 <= "9" { ds = ds + ch3 i = i + 1 continue } break }
+          if ds != "" {
+            local vid = ds + 0 // to i64 via implicit
+            // populate candidate with current regs value or 0
+            local vv = ValueManagerBox.get(regs, vid)
+            if vv == null { vv = 0 }
+            NyVmState.set_reg(st, vid, vv)
+          }
+          // seek to closing ']' of pair
+          local close = arr.indexOf("]", i)
+          pos = close >= 0 ? close + 1 : i
+        }
+      }
+    }
+    // Delegate to Core
+    local rc = NyVmOpPhi.handle(inst_json, st, predecessor)
+    if rc < 0 { return Result.Err("phi: core failure") }
+    // Reflect dst
+    // Extract dst
+    local dst = JsonFieldExtractor.extract_int(inst_json, "dst")
+    if dst == null { return Result.Err("phi: dst not found") }
+    local v = NyVmState.get_reg(st, dst)
+    ValueManagerBox.set(regs, dst, v)
+    return Result.Ok(0)
+  }
+
+  // Copy via Core
+  apply_copy(inst_json, regs) {
+    local dst = JsonFieldExtractor.extract_int(inst_json, "dst")
+    local src = JsonFieldExtractor.extract_int(inst_json, "src")
+    if dst == null || src == null { return Result.Err("copy: dst or src field not found") }
+    local sv = ValueManagerBox.get(regs, src)
+    if sv == null { return Result.Err("copy: src v%" + src + " is unset") }
+    local st = NyVmState.birth()
+    NyVmState.set_reg(st, src, sv)
+    local rc = NyVmOpCopy.handle(inst_json, st)
+    if rc < 0 { return Result.Err("copy: core failure") }
+    ValueManagerBox.set(regs, dst, NyVmState.get_reg(st, dst))
+    return Result.Ok(0)
+  }
+
+  // Unary via Core
+  apply_unary(inst_json, regs) {
+    // Determine operand
+    local opnd = JsonFieldExtractor.extract_int(inst_json, "src")
+    if opnd == null { opnd = JsonFieldExtractor.extract_int(inst_json, "operand") }
+    local dst = JsonFieldExtractor.extract_int(inst_json, "dst")
+    if dst == null || opnd == null { return Result.Err("unaryop: malformed") }
+    local vv = ValueManagerBox.get(regs, opnd)
+    if vv == null { return Result.Err("unaryop: operand v%" + opnd + " is unset") }
+    local st = NyVmState.birth(); NyVmState.set_reg(st, opnd, vv)
+    local rc = NyVmOpUnary.handle(inst_json, st)
+    if rc < 0 { return Result.Err("unaryop: core failure") }
+    ValueManagerBox.set(regs, dst, NyVmState.get_reg(st, dst))
+    return Result.Ok(0)
+  }
+
+  // Typeop via Core
+  apply_typeop(inst_json, regs, mem) {
+    local dst = JsonFieldExtractor.extract_int(inst_json, "dst")
+    local val = JsonFieldExtractor.extract_int(inst_json, "value")
+    if dst == null || val == null { return Result.Err("typeop: dst/value not found") }
+    local op = JsonFieldExtractor.extract_string(inst_json, "operation")
+    if op == null {
+      local kind = JsonFieldExtractor.extract_string(inst_json, "op_kind")
+      if kind == null { return Result.Err("typeop: op_kind/operation not found") }
+      if kind == "Check" { op = "check" }
+      else if kind == "Cast" { op = "cast" }
+      else { return Result.Err("typeop: invalid op_kind: " + kind) }
+    }
+    local vv = ValueManagerBox.get(regs, val)
+    if vv == null { return Result.Err("typeop: value v%" + val + " is unset") }
+    // Build minimal Core JSON: {op:"typeop", operation:"check|cast", src, dst}
+    local j = "{\"op\":\"typeop\",\"operation\":\"" + op + "\",\"src\":" + val + ",\"dst\":" + dst + "}"
+    local st = NyVmState.birth(); NyVmState.set_reg(st, val, vv)
+    local rc = NyVmOpTypeOp.handle(j, st)
+    if rc < 0 { return Result.Err("typeop: core failure") }
+    ValueManagerBox.set(regs, dst, NyVmState.get_reg(st, dst))
+    return Result.Ok(0)
+  }
+
+  // Load via Core
+  apply_load(inst_json, regs, mem) {
+    local dst = JsonFieldExtractor.extract_int(inst_json, "dst")
+    local ptr = JsonFieldExtractor.extract_int(inst_json, "ptr")
+    if dst == null || ptr == null { return Result.Err("load: dst/ptr not found") }
+    local rc = NyVmOpLoad.handle(inst_json, NyVmState.birth(), mem)
+    if rc < 0 { return Result.Err("load: core failure") }
+    ValueManagerBox.set(regs, dst, mem.get("" + ptr))
+    return Result.Ok(0)
+  }
+
+  // Store via Core
+  apply_store(inst_json, regs, mem) {
+    local val = JsonFieldExtractor.extract_int(inst_json, "value")
+    local ptr = JsonFieldExtractor.extract_int(inst_json, "ptr")
+    if val == null || ptr == null { return Result.Err("store: value/ptr not found") }
+    local vv = ValueManagerBox.get(regs, val)
+    if vv == null { return Result.Err("store: value v%" + val + " is unset") }
+    local st = NyVmState.birth(); NyVmState.set_reg(st, val, vv)
+    local rc = NyVmOpStore.handle(inst_json, st, mem)
+    if rc < 0 { return Result.Err("store: core failure") }
+    return Result.Ok(0)
+  }
+
+  // Collection helpers (Array/Map metadata shortcuts). Returns null when not handled.
+  try_method_collection(method, mir_call_json, args_array, dst_reg, regs, receiver_id) {
+    if method == "size" && ValueManagerBox.has_array_meta(regs, receiver_id) {
+      local size = ValueManagerBox.get_array_size(regs, receiver_id)
+      if dst_reg != null { ValueManagerBox.set(regs, dst_reg, size) }
+      return Result.Ok(0)
+    }
+    if method == "push" && ValueManagerBox.has_array_meta(regs, receiver_id) {
+      local next = ValueManagerBox.inc_array_size(regs, receiver_id, 1)
+      if dst_reg != null { ValueManagerBox.set(regs, dst_reg, next) }
+      return Result.Ok(0)
+    }
+    if method == "pop" && ValueManagerBox.has_array_meta(regs, receiver_id) {
+      local next = ValueManagerBox.inc_array_size(regs, receiver_id, -1)
+      if dst_reg != null { ValueManagerBox.set(regs, dst_reg, next) }
+      return Result.Ok(0)
+    }
+    if method == "len" && ValueManagerBox.ensure_map_meta(regs, receiver_id) != null {
+      local len = ValueManagerBox.get_map_len(regs, receiver_id)
+      if dst_reg != null { ValueManagerBox.set(regs, dst_reg, len) }
+      return Result.Ok(0)
+    }
+    if method == "iterator" && ValueManagerBox.ensure_map_meta(regs, receiver_id) != null {
+      // Mirror Core: iterator() returns current len metadata in this MVP
+      local len = ValueManagerBox.get_map_len(regs, receiver_id)
+      if dst_reg != null { ValueManagerBox.set(regs, dst_reg, len) }
+      return Result.Ok(0)
+    }
+    if method == "set" && ValueManagerBox.ensure_map_meta(regs, receiver_id) != null {
+      if args_array.length() < 1 {
+        return Result.Err("method(set): missing key argument")
+      }
+      local key_val = args_array.get(0)
+      local existed = ValueManagerBox.mark_map_entry(regs, receiver_id, key_val)
+      if !existed { ValueManagerBox.inc_map_len(regs, receiver_id, 1) }
+      if dst_reg != null { ValueManagerBox.set(regs, dst_reg, 0) }
+      return Result.Ok(0)
+    }
+    // Map.get — delegate to Core for value retrieval (metadata alone is insufficient)
+    if method == "get" && ValueManagerBox.ensure_map_meta(regs, receiver_id) != null {
+      if dst_reg == null { return Result.Err("method(get): missing destination register") }
+      // Synthesize full instruction JSON for Core: {op:mir_call, dst: D, mir_call: <json>}
+      local inst = "{\"op\":\"mir_call\",\"dst\":" + StringHelpers.int_to_str(dst_reg) + ",\"mir_call\":" + mir_call_json + "}"
+      // Prepare Core state with receiver and first argument loaded
+      local st = NyVmState.birth()
+      // Receiver value
+      local recv_val = ValueManagerBox.get(regs, receiver_id)
+      if recv_val != null { NyVmState.set_reg(st, receiver_id, recv_val) }
+      // First arg id (key)
+      using selfhost.vm.hakorune-vm.args_extractor as ArgsExtractorBox
+      local ids = ArgsExtractorBox.extract_ids(mir_call_json)
+      if ids != null && ids.length() > 0 {
+        local key_id = ids.get(0)
+        local key_val = ValueManagerBox.get(regs, key_id)
+        if key_val != null { NyVmState.set_reg(st, key_id, key_val) }
+      }
+      // Execute via Core
+      local rc = NyVmOpMirCall.handle(inst, st)
+      if rc < 0 { return Result.Err("method(get): core failure") }
+      ValueManagerBox.set(regs, dst_reg, NyVmState.get_reg(st, dst_reg))
+      return Result.Ok(0)
+    }
+    // Array.get — delegate to Core for value retrieval
+    if method == "get" {
+      if dst_reg == null { return Result.Err("method(get): missing destination register") }
+      local inst = "{\"op\":\"mir_call\",\"dst\":" + StringHelpers.int_to_str(dst_reg) + ",\"mir_call\":" + mir_call_json + "}"
+      local st = NyVmState.birth()
+      // Receiver
+      local recv_val = ValueManagerBox.get(regs, receiver_id)
+      if recv_val != null { NyVmState.set_reg(st, receiver_id, recv_val) }
+      // Arg[0]
+      using selfhost.vm.hakorune-vm.args_extractor as ArgsExtractorBox
+      local ids = ArgsExtractorBox.extract_ids(mir_call_json)
+      if ids != null && ids.length() > 0 {
+        local key_id = ids.get(0)
+        local key_val = ValueManagerBox.get(regs, key_id)
+        if key_val != null { NyVmState.set_reg(st, key_id, key_val) }
+      }
+      local rc = NyVmOpMirCall.handle(inst, st)
+      if rc < 0 { return Result.Err("method(get): core failure") }
+      ValueManagerBox.set(regs, dst_reg, NyVmState.get_reg(st, dst_reg))
+      return Result.Ok(0)
+    }
+    // Array.set — delegate to Core for bounds/auto-extend semantics
+    if method == "set" {
+      // dst may be null (void), Core handles optional dst
+      local dst_id = -1
+      if dst_reg != null { dst_id = dst_reg }
+      local inst = "{\"op\":\"mir_call\",\"dst\":" + StringHelpers.int_to_str(dst_id) + ",\"mir_call\":" + mir_call_json + "}"
+      local st = NyVmState.birth()
+      // Receiver
+      local recv_val2 = ValueManagerBox.get(regs, receiver_id)
+      if recv_val2 != null { NyVmState.set_reg(st, receiver_id, recv_val2) }
+      // Args[0], Args[1]
+      using selfhost.vm.hakorune-vm.args_extractor as ArgsExtractorBox
+      local ids2 = ArgsExtractorBox.extract_ids(mir_call_json)
+      if ids2 != null {
+        local i = 0
+        loop(i < ids2.length()) {
+          local id = ids2.get(i)
+          local val = ValueManagerBox.get(regs, id)
+          if val != null { NyVmState.set_reg(st, id, val) }
+          i = i + 1
+        }
+      }
+      local rc2 = NyVmOpMirCall.handle(inst, st)
+      if rc2 < 0 { return Result.Err("method(set): core failure") }
+      if dst_reg != null { ValueManagerBox.set(regs, dst_reg, NyVmState.get_reg(st, dst_reg)) }
+      return Result.Ok(0)
+    }
+    return null
+  }
+
+  try_modulefn_collection(name, mir_call_json, args_array, dst_reg, regs) {
+    local want = me._canonical_modulefn_name(name, args_array.length())
+    if want == "ArrayBox.len/0" {
+      local ids = ArgsExtractorBox.extract_ids(mir_call_json)
+      local recv_id = null
+      if ids != null && ids.length() > 0 { recv_id = ids.get(0) }
+      local len = 0
+      if recv_id != null { len = ValueManagerBox.get_array_size(regs, recv_id) }
+      if dst_reg != null { ValueManagerBox.set(regs, dst_reg, len) }
+      return Result.Ok(0)
+    }
+    if want == "MapBox.len/0" {
+      local ids = ArgsExtractorBox.extract_ids(mir_call_json)
+      local recv_id = null
+      if ids != null && ids.length() > 0 { recv_id = ids.get(0) }
+      if recv_id != null { ValueManagerBox.ensure_map_meta(regs, recv_id) }
+      local len = 0
+      if recv_id != null { len = ValueManagerBox.get_map_len(regs, recv_id) }
+      if dst_reg != null { ValueManagerBox.set(regs, dst_reg, len) }
+      return Result.Ok(0)
+    }
+    if want == "StringHelpers.int_to_str/1" {
+      if dst_reg == null { return Result.Err("modulefn(int_to_str): missing destination register") }
+      using selfhost.vm.hakorune-vm.args_extractor as ArgsExtractorBox
+      local ids = ArgsExtractorBox.extract_ids(mir_call_json)
+      if ids == null || ids.length() < 1 { return Result.Err("modulefn(int_to_str): missing arg") }
+      local id0 = ids.get(0)
+      local val0 = ValueManagerBox.get(regs, id0)
+      local s = "" + val0
+      ValueManagerBox.set(regs, dst_reg, s)
+      return Result.Ok(0)
+    }
+    if want == "StringHelpers.to_i64/1" {
+      if dst_reg == null { return Result.Err("modulefn(to_i64): missing destination register") }
+      using selfhost.vm.hakorune-vm.args_extractor as ArgsExtractorBox
+      local ids = ArgsExtractorBox.extract_ids(mir_call_json)
+      if ids == null || ids.length() < 1 { return Result.Err("modulefn(to_i64): missing arg") }
+      local id0 = ids.get(0)
+      local val0 = ValueManagerBox.get(regs, id0)
+      local s = "" + val0
+      // Allow optional sign + digits only
+      local i = 0
+      if s.length() > 0 && (s.substring(0,1) == "+" || s.substring(0,1) == "-") { i = 1 }
+      local ok = (s.length() > i)
+      loop(i < s.length()) {
+        local ch = s.substring(i,i+1)
+        if !(ch >= "0" && ch <= "9") { ok = false break }
+        i = i + 1
+      }
+      if !ok { return Result.Err("[core/mir_call] string to_i64 bad arg") }
+      // Convert via helper (guards overflow semantics centrally)
+      local n = StringHelpers.to_i64(s)
+      ValueManagerBox.set(regs, dst_reg, n)
+      return Result.Ok(0)
+    }
+    return null
+  }
+
+  _canonical_modulefn_name(name, argc) {
+    if name == null { return "" }
+    if name.indexOf("/") >= 0 { return name }
+    return name + "/" + StringHelpers.int_to_str(argc)
+  }
+}
+
+static box CoreBridgeOpsMain { main(args){ return 0 } }

@@ -1,0 +1,18 @@
+// selfhost scan_all_boxes: Program stmt in loop body
+// Expected: stdout=0, RC=0
+
+static box Main {
+  main() {
+    local n = 1
+    local i = 0
+
+    loop(i < n) {
+      { local a = 0 }
+      if i == 0 { break }
+      i = i + 1
+    }
+
+    print(i)
+    return 0
+  }
+}

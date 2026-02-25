@@ -1,0 +1,25 @@
+// Moved from apps/selfhost-compiler/boxes/parser/scan/parser_number_scan_box.hako
+// ParserNumberScanBox — scan integer literal starting at index i
+// Returns: "{\"type\":\"Int\",\"value\":<digits>}@<pos>"
+
+using lang.compiler.parser.scan.parser_common_utils_box as ParserCommonUtilsBox
+
+static box ParserNumberScanBox {
+  scan_int(src, i) {
+    if src == null { return "{\"type\":\"Int\",\"value\":0}@" + ParserCommonUtilsBox.i2s(i) }
+    local n = src.length()
+    local j = i
+    // MirBuilder-friendly: explicit continue/break instead of flag
+    loop(j < n) {
+      if ParserCommonUtilsBox.is_digit(src.substring(j, j+1)) {
+        j = j + 1
+        continue
+      }
+      break
+    }
+    local s = src.substring(i, j)
+    if s.length() == 0 { s = "0" }
+    return "{\"type\":\"Int\",\"value\":" + s + "}@" + ParserCommonUtilsBox.i2s(j)
+  }
+}
+

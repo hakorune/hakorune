@@ -1,0 +1,104 @@
+// JSON.stringify minimal stub for Stage-B compiler
+// Provides: stringify_map, stringify_array
+
+static box JSON {
+  // Convert Map to JSON string
+  stringify_map(obj) {
+    if obj == null { return "null" }
+    local keys = obj.keys()
+    if keys == null { return "{}" }
+    local n = keys.length()
+    if n == 0 { return "{}" }
+
+    local parts = new ArrayBox()
+    local i = 0
+    loop(i < n) {
+      local k = keys.get(i)
+      local v = obj.get(k)
+      local key_json = me._escape_string(k)
+      local val_json = me._value_to_json(v)
+      parts.push("\"" + key_json + "\":" + val_json)
+      i = i + 1
+    }
+    return "{" + me._join_array(parts, ",") + "}"
+  }
+
+  // Convert Array to JSON string
+  stringify_array(arr) {
+    if arr == null { return "null" }
+    local n = arr.length()
+    if n == 0 { return "[]" }
+
+    local parts = new ArrayBox()
+    local i = 0
+    loop(i < n) {
+      local v = arr.get(i)
+      local val_json = me._value_to_json(v)
+      parts.push(val_json)
+      i = i + 1
+    }
+    return "[" + me._join_array(parts, ",") + "]"
+  }
+
+  // Convert value to JSON representation
+  _value_to_json(v) {
+    if v == null { return "null" }
+    local t = "" + v
+    // Check if it's a number (starts with digit or -)
+    if t.length() > 0 {
+      local first = t.substring(0, 1)
+      if first == "-" || (first >= "0" && first <= "9") {
+        return t
+      }
+    }
+    // Check if it's a boolean
+    if t == "true" || t == "false" { return t }
+    // Check if it's already a JSON object/array
+    if t.length() > 0 {
+      local f = t.substring(0, 1)
+      if f == "{" || f == "[" { return t }
+    }
+    // Otherwise treat as string
+    return "\"" + me._escape_string(t) + "\""
+  }
+
+  // Escape special characters in string
+  _escape_string(s) {
+    if s == null { return "" }
+    local out = ""
+    local i = 0
+    local n = s.length()
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch == "\"" {
+        out = out + "\\\""
+      } else if ch == "\\" {
+        out = out + "\\\\"
+      } else if ch == "\n" {
+        out = out + "\\n"
+      } else if ch == "\r" {
+        out = out + "\\r"
+      } else if ch == "\t" {
+        out = out + "\\t"
+      } else {
+        out = out + ch
+      }
+      i = i + 1
+    }
+    return out
+  }
+
+  // Join array elements with separator
+  _join_array(arr, sep) {
+    if arr == null { return "" }
+    local n = arr.length()
+    if n == 0 { return "" }
+    local out = arr.get(0)
+    local i = 1
+    loop(i < n) {
+      out = out + sep + arr.get(i)
+      i = i + 1
+    }
+    return out
+  }
+}

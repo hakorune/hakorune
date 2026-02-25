@@ -1,0 +1,42 @@
+// Phase 92 P4-1: Minimal E2E test for ConditionalStep support
+//
+// This test verifies that ConditionalStep (conditional carrier increment)
+// works correctly in Pattern2 with break conditions.
+//
+// Pattern: Simple conditional increment based on loop variable
+// Expected output: 3
+//
+// Why 3?
+// - i=0: flag==0, so i becomes 1
+// - i=1: flag==0, so i becomes 2
+// - i=2: flag==0, so i becomes 3
+// - i=3: break condition triggers
+//
+// Phase 92 scope: This test does NOT use body-local variables in conditions
+// to avoid body-local promotion issues (which are outside Phase 92 scope).
+
+static box Main {
+    main() {
+        local i = 0
+        local flag = 0  // Condition variable (not body-local)
+
+        loop(i < 10) {
+            // Break condition (uses loop variable only)
+            if i == 3 {
+                break
+            }
+
+            // Conditional increment (ConditionalStep pattern)
+            // Note: In real P5b patterns, this would be: if ch == '\\' { i = i + 2 } else { i = i + 1 }
+            // But we use flag to avoid body-local promotion issues
+            if flag == 1 {
+                i = i + 2
+            } else {
+                i = i + 1
+            }
+        }
+
+        print(i)
+        return 0
+    }
+}

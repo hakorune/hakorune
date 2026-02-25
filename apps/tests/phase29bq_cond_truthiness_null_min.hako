@@ -1,0 +1,8 @@
+// Condition truthiness: null should TypeError (fail-fast)
+// Expected: output="VM error: Type error: Void in boolean context", RC=1
+static box Main {
+  main() {
+    if null { print("X") }
+    return 0
+  }
+}

@@ -1,0 +1,9 @@
+// phase29bq_hako_mirbuilder_phase16_return_newbox_stringbox_abc_min.hako
+// Contract pin (MIR widening/NewBox):
+//   Return(New) one-arg widening accepts only `new StringBox("abc")`.
+
+static box Main {
+  main() {
+    return new StringBox("abc")
+  }
+}

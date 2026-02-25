@@ -1,0 +1,26 @@
+// Phase 113: FileHandleBox Nyash API Example
+// This demonstrates the Nyash-visible API methods
+
+local h = new FileHandleBox()
+
+// 初回: append モードで書き込み
+h.open("/tmp/example_log.txt", "a")
+h.write("First line\n")
+h.close()
+
+// 再度: append モードで追記
+h.open("/tmp/example_log.txt", "a")
+h.write("Second line\n")
+h.close()
+
+// Read mode で全内容を読む
+h.open("/tmp/example_log.txt", "r")
+local content = h.read()
+print(content)
+
+// メタデータ確認
+if h.exists() {
+    local size = h.size()
+    print("File size: " + size)
+}
+h.close()

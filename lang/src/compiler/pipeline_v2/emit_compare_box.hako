@@ -1,0 +1,85 @@
+// EmitCompareBox — compare/branch/jump/ret の最小 MIR(JSON v0) 生成（string直組み）
+using lang.compiler.pipeline_v2.localvar_ssa_box as LocalSSABox
+using lang.compiler.emit.common.mir_emit as MirEmitBox
+using lang.compiler.emit.common.header_emit as HeaderEmitBox
+
+static box EmitCompareBox {
+  _to_str(n) {
+    local v = n
+    if v == 0 { return "0" }
+    if v < 0 { return "-" + EmitCompareBox._to_str(0 - v) }
+    local out = ""; local digits = "0123456789"
+    loop (v > 0) { local d = v % 10; local ch = digits.substring(d, d+1); out = ch + out; v = v / 10 }
+    return out
+  }
+  _quote(s) {
+    if s == null { return "\"\"" }
+    local out = ""; local i = 0; local n = s.length()
+    loop (i < n) {
+      local ch = s.substring(i, i+1)
+      if ch == "\\" { out = out + "\\\\" }
+      else { if ch == "\"" { out = out + "\\\"" } else {
+        if ch == "\n" { out = out + "\\n" } else {
+          if ch == "\r" { out = out + "\\r" } else {
+            if ch == "\t" { out = out + "\\t" } else { out = out + ch }
+          }
+        }
+      }}
+      i = i + 1
+    }
+    return "\"" + out + "\""
+  }
+  // Return-only variant (prefer_cfg = 0): emit compare → ret directly
+  emit_compare(lhs, rhs, cmp) { return EmitCompareBox.emit_compare_ret(lhs, rhs, cmp, 0) }
+
+  emit_compare_ret(lhs, rhs, cmp, trace) {
+    // dev-trace（最小）
+    if trace == 1 { print("[emit] compare-ret lhs=" + lhs + " rhs=" + rhs + " cmp=" + cmp) }
+    // entry: const lhs/rhs; compare→r3; ret r3（string直組み）
+    local lhs_s = EmitCompareBox._to_str(lhs)
+    local rhs_s = EmitCompareBox._to_str(rhs)
+    local cmp_q = EmitCompareBox._quote("" + cmp)
+    local body = "[" +
+      "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + lhs_s + "}}," +
+      "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":2,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + rhs_s + "}}," +
+      "{\\\"op\\\":\\\"compare\\\",\\\"cmp\\\":" + cmp_q + ",\\\"lhs\\\":1,\\\"rhs\\\":2,\\\"dst\\\":3}," +
+      "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":3}" +
+      "]"
+    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":" + body + "}]}]}"
+  }
+
+  emit_compare_cfg(lhs, rhs, cmp) { return EmitCompareBox.emit_compare_cfg2(lhs, rhs, cmp, 0) }
+
+  emit_compare_cfg2(lhs, rhs, cmp, materialize) { return EmitCompareBox.emit_compare_cfg3(lhs, rhs, cmp, materialize, 0) }
+
+  emit_compare_cfg3(lhs, rhs, cmp, materialize, trace) {
+    if trace == 1 { print("[emit] compare lhs=" + lhs + " rhs=" + rhs + " cmp=" + cmp + " mat=" + materialize) }
+    // normalize cmp (null/empty → Gt)
+    if cmp == null { cmp = "Gt" }
+    if cmp == "" { cmp = "Gt" }
+    // string直組み
+    local lhs_s = EmitCompareBox._to_str(lhs)
+    local rhs_s = EmitCompareBox._to_str(rhs)
+    local cmp_q = EmitCompareBox._quote("" + cmp)
+    // Block 0 instructions
+    local b0 = "[" +
+      "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + lhs_s + "}}," +
+      "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":2,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + rhs_s + "}}," +
+      "{\\\"op\\\":\\\"compare\\\",\\\"cmp\\\":" + cmp_q + ",\\\"lhs\\\":1,\\\"rhs\\\":2,\\\"dst\\\":3}"
+    if materialize == 1 { b0 = b0 + ",{\\\"op\\\":\\\"copy\\\",\\\"dst\\\":4,\\\"src\\\":3}" }
+    // branch uses key "else" (not else_id) to match reader
+    b0 = b0 + ",{\\\"op\\\":\\\"branch\\\",\\\"cond\\\":3,\\\"then\\\":1,\\\"else\\\":2}]"
+
+    // Block 1 (then): set r6=1; jump -> 3
+    local b1 = "[{\"op\":\"const\",\"dst\":6,\"value\":{\"type\":\"i64\",\"value\":1}},{\"op\":\"jump\",\"target\":3}]"
+    // Block 2 (else): set r6=0; jump -> 3
+    local b2 = "[{\"op\":\"const\",\"dst\":6,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"jump\",\"target\":3}]"
+    // Block 3 (merge): ret r6
+    local b3 = "[{\"op\":\"ret\",\"value\":6}]"
+
+    local blocks = "[{\"id\":0,\"instructions\":" + b0 + "},{\"id\":1,\"instructions\":" + b1 + "},{\"id\":2,\"instructions\":" + b2 + "},{\"id\":3,\"instructions\":" + b3 + "}]"
+    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":" + blocks + "}]}"
+}
+}
+
+static box EmitCompareStub { main() { return 0 } }

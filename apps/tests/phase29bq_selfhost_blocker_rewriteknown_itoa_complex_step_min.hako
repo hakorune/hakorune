@@ -1,0 +1,24 @@
+// selfhost RewriteKnown._itoa minimal (loop(cond) with complex step + if-expr value)
+// Expected: stdout=12, RC=0
+static box ItoaMini {
+  run() {
+    local x = 12
+    local s = ""
+
+    loop(x > 0) {
+      local d = x % 10
+      s = (d == 0 ? "0" : (d == 1 ? "1" : "2")) + s
+      x = (x - d) / 10
+    }
+
+    print(s)
+    return 0
+  }
+}
+
+static box Main {
+  main() {
+    ItoaMini.run()
+    return 0
+  }
+}

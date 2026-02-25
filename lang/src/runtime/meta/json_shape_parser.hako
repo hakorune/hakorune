@@ -1,0 +1,153 @@
+// JsonShapeToMap — minimal, opt‑in JSON→Map builder for Using shape (skeleton)
+// Note: This is a very small adapter intended for controlled inputs produced by
+// UsingResolver.shape/1. It does not implement a general JSON parser.
+
+using selfhost.shared.json.utils.json_utils as JsonUtilsBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box JsonShapeToMap {
+  _empty(){ return { using_paths: new ArrayBox(), modules: new ArrayBox(), aliases: {}, packages: {} } }
+
+  _parse_array_of_strings(arr_json){
+    local out = new ArrayBox()
+    if !arr_json || arr_json.length() < 2 { return out }
+    local parts = JsonUtilsBox.split_top_level(arr_json)
+    local i = 0
+    loop(i < parts.length()){
+      local v = StringHelpers.trim(parts.get(i))
+      if v.length() >= 2 && v.substring(0,1) == "\"" && v.substring(v.length()-1, v.length()) == "\"" {
+        out.push(JsonUtilsBox.unescape_string(v.substring(1, v.length()-1)))
+      }
+      i = i + 1
+    }
+    return out
+  }
+
+  _split_object_pairs(obj_json){
+    // Like split_top_level for arrays, but for object key:value pairs inside {...}
+    local out = new ArrayBox()
+    if !obj_json || obj_json.length() < 2 { return out }
+    local n = obj_json.length()
+    local i = 1
+    local start = 1
+    local depth = 0
+    local in_string = 0
+    loop(i < n - 1){
+      local ch = obj_json.substring(i, i + 1)
+      if in_string == 1 {
+        if ch == "\\" { i = i + 2 } else { if ch == "\"" { in_string = 0 } i = i + 1 }
+      } else {
+        if ch == "\"" { in_string = 1 i = i + 1 }
+        else {
+          if ch == "{" || ch == "[" { depth = depth + 1 }
+          else if ch == "}" || ch == "]" { depth = depth - 1 }
+          else if ch == "," && depth == 0 {
+            out.push(obj_json.substring(start, i))
+            start = i + 1
+          }
+          i = i + 1
+        }
+      }
+    }
+    if start < n - 1 { out.push(obj_json.substring(start, n - 1)) }
+    return out
+  }
+
+  _read_key_from_pair(pair_json){
+    // pair_json: '"key" : value'
+    local s = StringHelpers.trim(pair_json)
+    if s.length() < 3 || s.substring(0,1) != "\"" { return null }
+    local end = JsonUtilsBox.skip_string(s, 0)
+    local raw = s.substring(0, end)
+    // raw like "\"key\"@pos" from read_string; we used skip_string, so raw lacks marker
+    // Remove quotes
+    local key = JsonUtilsBox.unescape_string(raw.substring(1, raw.length()-1))
+    return key
+  }
+
+  _read_value_from_pair(pair_json){
+    // Return raw JSON value string
+    local s = StringHelpers.trim(pair_json)
+    // find ':'
+    local idx = StringHelpers.index_of(s, 0, ":")
+    if idx < 0 { return null }
+    idx = StringHelpers.skip_ws(s, idx + 1)
+    local v = JsonUtilsBox.read_value(s, idx)
+    // v includes '@pos' marker — strip it
+    local at = StringHelpers.last_index_of(v, "@")
+    if at >= 0 { return v.substring(0, at) } else { return v }
+  }
+
+  _parse_modules(mods_json){
+    local out = new ArrayBox()
+    if !mods_json || mods_json.length() < 2 { return out }
+    local parts = JsonUtilsBox.split_top_level(mods_json)
+    local i = 0
+    loop(i < parts.length()){
+      local obj = StringHelpers.trim(parts.get(i))
+      if obj.length() >= 2 && obj.substring(0,1) == "{" {
+        local ns = JsonUtilsBox.extract_string_value(obj, "ns", "")
+        local path = JsonUtilsBox.extract_string_value(obj, "path", "")
+        out.push({ ns: ns, path: path })
+      }
+      i = i + 1
+    }
+    return out
+  }
+
+  _parse_aliases(obj_json){
+    local out = {}
+    if !obj_json || obj_json.length() < 2 { return out }
+    local pairs = me._split_object_pairs(obj_json)
+    local i = 0
+    loop(i < pairs.length()){
+      local p = pairs.get(i)
+      local key = me._read_key_from_pair(p)
+      local val_raw = me._read_value_from_pair(p)
+      if key != null && val_raw != null {
+        local v = StringHelpers.trim(val_raw)
+        if v.length() >= 2 && v.substring(0,1) == "\"" && v.substring(v.length()-1, v.length()) == "\"" {
+          out.set(key, JsonUtilsBox.unescape_string(v.substring(1, v.length()-1)))
+        }
+      }
+      i = i + 1
+    }
+    return out
+  }
+
+  _parse_packages(obj_json){
+    local out = {}
+    if !obj_json || obj_json.length() < 2 { return out }
+    local pairs = me._split_object_pairs(obj_json)
+    local i = 0
+    loop(i < pairs.length()){
+      local p = pairs.get(i)
+      local key = me._read_key_from_pair(p)
+      local val_raw = me._read_value_from_pair(p)
+      if key != null && val_raw != null {
+        local kind = JsonUtilsBox.extract_string_value(val_raw, "kind", "")
+        local path = JsonUtilsBox.extract_string_value(val_raw, "path", "")
+        local main = JsonUtilsBox.extract_string_value(val_raw, "main", "")
+        out.set(key, { kind: kind, path: path, main: main })
+      }
+      i = i + 1
+    }
+    return out
+  }
+
+  // parse(json) -> Map with keys: using_paths(Array), modules(Array of Map), aliases(Map), packages(Map)
+  parse(json){
+    if !json { return me._empty() }
+    // Extract each segment
+    local using_arr = JsonUtilsBox.extract_value(json, "using_paths")
+    local mods_arr = JsonUtilsBox.extract_value(json, "modules")
+    local aliases_obj = JsonUtilsBox.extract_value(json, "aliases")
+    local packages_obj = JsonUtilsBox.extract_value(json, "packages")
+
+    local using_paths = me._parse_array_of_strings(using_arr)
+    local modules = me._parse_modules(mods_arr)
+    local aliases = me._parse_aliases(aliases_obj)
+    local packages = me._parse_packages(packages_obj)
+    return { using_paths: using_paths, modules: modules, aliases: aliases, packages: packages }
+  }
+}

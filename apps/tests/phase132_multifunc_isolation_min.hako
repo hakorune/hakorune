@@ -1,0 +1,29 @@
+// Phase 132-P2: Multi-function context isolation test
+// Tests that FunctionLowerContext properly isolates per-function state
+//
+// This creates two separate methods with independent loops to verify
+// that each function's context is cleaned up between calls.
+
+static box Main {
+    helper1(n) {
+        local i = 0
+        loop(i < n) {
+            i = i + 1
+        }
+        return i
+    }
+
+    helper2(n) {
+        local j = 0
+        loop(j < n) {
+            j = j + 1
+        }
+        return j
+    }
+
+    main() {
+        local a = helper1(2)
+        local b = helper2(3)
+        return a + b
+    }
+}

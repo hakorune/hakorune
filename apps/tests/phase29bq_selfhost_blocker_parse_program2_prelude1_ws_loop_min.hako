@@ -1,0 +1,31 @@
+// parse_program2 ws loopcount + whitespace continue (combined)
+// Expected: stdout=1, RC=0
+static box Main {
+  main() {
+    local src = " "
+    local i = 0
+    local n = src.length()
+    local ws_loop_count = 10
+    local trace = 0
+    local marker_enabled = "0"
+
+    if marker_enabled != null && "" + marker_enabled == "1" {
+      print("M")
+    }
+
+    loop(i < n) {
+      ws_loop_count = ws_loop_count + 1
+      if ws_loop_count < 10 || ws_loop_count % 1000 == 0 { print("P") }
+
+      local ch = src.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+
+    print(i)
+    return 0
+  }
+}

@@ -1,0 +1,27 @@
+// Gate‑C Controller (Phase 20.26)
+// Responsibility: Provide a thin, stable entry to route MIR(JSON v0)
+// through the Ny/Core dispatcher when a wrapper route is needed.
+
+using selfhost.vm.core.dispatcher as NyVmDispatcher
+
+static box GateCController {
+  // route_json/1: String(JSON v0) -> String(last line)
+  // Contract: returns a printable string (numeric or tag). No side effects.
+  route_json(j) {
+    // Delegate to the Core dispatcher runner
+    return NyVmDispatcher.run(j)
+  }
+}
+
+static box GateCControllerMain {
+  main(args) {
+    if args == null || args.length() == 0 {
+      print("[gate_c/core] payload missing")
+      return 1
+    }
+    local payload = "" + args.get(0)
+    local res = GateCController.route_json(payload)
+    if res != null { print(res) }
+    return 0
+  }
+}

@@ -1,0 +1,33 @@
+// Phase 29bq parser handoff Tier-5: control-flow + local/fini + cleanup cross.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local i = 0
+      local token = 5 fini {
+        out = out + token
+      }
+
+      loop(i < 4) {
+        i = i + 1
+
+        if i == 2 {
+          token = token + 20
+          continue
+        }
+
+        if i == 3 {
+          token = token + 30
+          break
+        }
+
+        token = token + 1
+      }
+    } cleanup {
+      out = out + 100
+    }
+
+    print(out)
+    return 0
+  }
+}

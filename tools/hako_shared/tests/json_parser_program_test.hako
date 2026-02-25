@@ -1,0 +1,120 @@
+// tools/hako_shared/tests/json_parser_program_test.hako
+// Test for ProgramJSONBox (Phase 172)
+using tools.hako_shared.json_parser as JsonParserBox
+
+static box Main {
+  _test_parse_program() {
+    // Simulating parse_program behavior inline for testing
+    // In real usage, this would be: JsonParserBox.parse_program(json_str)
+    return 1
+  }
+
+  main(args) {
+    print("[TEST] ProgramJSONBox parse_program() test (simplified)")
+
+    // Test 1: Valid Program JSON v0
+    local json1 = "{\"version\":0,\"kind\":\"Program\",\"defs\":[],\"meta\":{\"usings\":[\"nyashstd\"]}}"
+    local prog1 = JsonParserBox.parse_program(json1)
+
+    if prog1 == null {
+      print("[FAIL] Test 1: parse_program returned null")
+      return 1
+    }
+
+    local version = prog1.get_version()
+    if version != 0 {
+      print("[FAIL] Test 1: version should be 0, got " + ("" + version))
+      return 1
+    }
+
+    local kind = prog1.get_kind()
+    if kind != "Program" {
+      print("[FAIL] Test 1: kind should be Program, got " + kind)
+      return 1
+    }
+
+    local defs = prog1.get_defs()
+    if defs == null {
+      print("[FAIL] Test 1: defs should not be null")
+      return 1
+    }
+
+    local usings = prog1.get_usings()
+    if usings == null {
+      print("[FAIL] Test 1: usings should not be null")
+      return 1
+    }
+
+    if usings.size() != 1 {
+      print("[FAIL] Test 1: usings should have 1 element, got " + ("" + usings.size()))
+      return 1
+    }
+
+    local using_val = usings.get(0)
+    if using_val != "nyashstd" {
+      print("[FAIL] Test 1: first using should be nyashstd, got " + using_val)
+      return 1
+    }
+
+    print("[PASS] Test 1: Valid Program JSON v0")
+
+    // Test 2: Invalid JSON (not an object)
+    local json2 = "[1,2,3]"
+    local prog2 = JsonParserBox.parse_program(json2)
+
+    if prog2 != null {
+      print("[FAIL] Test 2: parse_program should return null for array")
+      return 1
+    }
+
+    print("[PASS] Test 2: Invalid JSON (array)")
+
+    // Test 3: Missing version field
+    local json3 = "{\"kind\":\"Program\",\"defs\":[]}"
+    local prog3 = JsonParserBox.parse_program(json3)
+
+    if prog3 != null {
+      print("[FAIL] Test 3: parse_program should return null for missing version")
+      return 1
+    }
+
+    print("[PASS] Test 3: Missing version field")
+
+    // Test 4: Wrong kind
+    local json4 = "{\"version\":0,\"kind\":\"Module\",\"defs\":[]}"
+    local prog4 = JsonParserBox.parse_program(json4)
+
+    if prog4 != null {
+      print("[FAIL] Test 4: parse_program should return null for wrong kind")
+      return 1
+    }
+
+    print("[PASS] Test 4: Wrong kind")
+
+    // Test 5: Complex Program JSON
+    local json5 = "{\"version\":0,\"kind\":\"Program\",\"defs\":[{\"type\":\"Box\",\"name\":\"Main\"},{\"type\":\"Method\",\"name\":\"main\"}],\"meta\":{\"usings\":[\"nyashstd\",\"mylib\"]}}"
+    local prog5 = JsonParserBox.parse_program(json5)
+
+    if prog5 == null {
+      print("[FAIL] Test 5: parse_program returned null")
+      return 1
+    }
+
+    local defs5 = prog5.get_defs()
+    if defs5.size() != 2 {
+      print("[FAIL] Test 5: defs should have 2 elements, got " + ("" + defs5.size()))
+      return 1
+    }
+
+    local usings5 = prog5.get_usings()
+    if usings5.size() != 2 {
+      print("[FAIL] Test 5: usings should have 2 elements, got " + ("" + usings5.size()))
+      return 1
+    }
+
+    print("[PASS] Test 5: Complex Program JSON")
+
+    print("[SUCCESS] All ProgramJSONBox tests passed!")
+    return 0
+  }
+}

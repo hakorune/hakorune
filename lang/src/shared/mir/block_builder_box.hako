@@ -1,0 +1,409 @@
+// selfhost/shared/mir/block_builder_box.hako
+// BlockBuilderBox — small helpers to assemble P1 shapes
+
+using selfhost.shared.mir.schema as MirSchemaBox
+using selfhost.shared.mir.loopform as LoopFormBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box BlockBuilderBox {
+
+  _array_len(arr) {
+    if arr == null { return 0 }
+    return StringHelpers.to_i64(arr.length())
+  }
+
+  _unwrap_vid(val) {
+    if val == null { return null }
+    local repr = "" + val
+    if repr.indexOf("MapBox(") == 0 {
+      local inner = val.get("value")
+      if inner != null { return StringHelpers.to_i64(inner) }
+    }
+    return StringHelpers.to_i64(val)
+  }
+
+  // Ensure every block ends with a terminator (ret/jump/branch/throw)
+  _ensure_terminators(mod_full) {
+    if mod_full == null { return mod_full }
+    local fns = mod_full.get("functions")
+    if fns == null { return mod_full }
+    local fn_count = me._array_len(fns)
+    local fi = 0
+    loop(fi < fn_count) {
+      local func = fns.get(fi)
+      if func != null {
+        local blocks = func.get("blocks")
+        if blocks != null {
+          local bn = me._array_len(blocks)
+          local bi = 0
+          loop(bi < bn) {
+            local block = blocks.get(bi)
+            local insts = null
+            if block != null { insts = block.get("instructions") }
+            if insts != null {
+              local n = me._array_len(insts)
+              if n > 0 {
+                local last = insts.get(n - 1)
+                local op = ""
+                if last != null {
+                  local maybe_op = last.get("op")
+                  if maybe_op != null { op = "" + maybe_op }
+                }
+                if !(op == "ret" || op == "return" || op == "jump" || op == "branch" || op == "throw") {
+                  local idx = 0
+                  local max_vid = -1
+                  local last_dst = -1
+                  loop(idx < n) {
+                    local inst = insts.get(idx)
+                    local dst_map = null
+                    if inst != null { dst_map = inst.get("dst") }
+                    local vid = me._unwrap_vid(dst_map)
+                    if vid != null {
+                      if vid > max_vid { max_vid = vid }
+                      last_dst = vid
+                    }
+                    idx = idx + 1
+                  }
+                  if last_dst < 0 {
+                    last_dst = max_vid + 1
+                    insts.push(MirSchemaBox.inst_const(last_dst, 0))
+                  }
+                  insts.push(MirSchemaBox.inst_ret(last_dst))
+                }
+              } else {
+                insts.push(MirSchemaBox.inst_const(0, 0))
+                insts.push(MirSchemaBox.inst_ret(0))
+              }
+            }
+            bi = bi + 1
+          }
+        }
+      }
+      fi = fi + 1
+    }
+    return mod_full
+  }
+  // const→ret (returns literal)
+  const_ret(val) {
+    local insts = new ArrayBox()
+    // Public name route: MirSchemaBox.* helpers
+    insts.push(MirSchemaBox.inst_const(1, val))
+    insts.push(MirSchemaBox.inst_ret(1))
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, insts))
+    local module = MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+    return me._ensure_terminators(module)
+  }
+
+  _ops_str_from_insts(insts) {
+    if insts == null { return "" }
+    local i = 0; local out = ""
+    local count = me._array_len(insts)
+    loop(i < count) {
+      if i > 0 { out = out + "," }
+      local it = insts.get(i)
+      if it != null {
+        local op = it.get("op")
+        if op != null { out = out + op } else { out = out + "?" }
+      } else { out = out + "?" }
+      i = i + 1
+    }
+    return out
+  }
+
+  _ops_str_from_blocks(blocks) {
+    if blocks == null { return "" }
+    local i = 0; local all = ""
+    local count = me._array_len(blocks)
+    loop(i < count) {
+      if i > 0 { all = all + "|" }
+      local b = blocks.get(i)
+      local insts = null
+      if b != null { insts = b.get("instructions") }
+      all = all + me._ops_str_from_insts(insts)
+      i = i + 1
+    }
+    return all
+  }
+
+  const_ret_ops(val) {
+    // Op-shape helper (no MIR dependency): const → ret
+    // Returns a stable summary string for lightweight tests
+    return "const,ret"
+  }
+
+  // compare→branch→jump→ret (diamond)
+  compare_branch(lhs, rhs, cmp) {
+    // entry
+    local b0 = new ArrayBox()
+    b0.push(MirSchemaBox.inst_const(1, lhs))
+    b0.push(MirSchemaBox.inst_const(2, rhs))
+    b0.push(MirSchemaBox.inst_compare(cmp, 1, 2, 3))
+    b0.push(MirSchemaBox.inst_branch(3, 1, 2))
+    // then/else
+    local b1 = new ArrayBox(); b1.push(MirSchemaBox.inst_const(6, 1)); b1.push(MirSchemaBox.inst_jump(3))
+    local b2 = new ArrayBox(); b2.push(MirSchemaBox.inst_const(6, 0)); b2.push(MirSchemaBox.inst_jump(3))
+    // merge
+    local b3 = new ArrayBox(); b3.push(MirSchemaBox.inst_ret(6))
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, b0))
+    blocks.push(MirSchemaBox.block(1, b1))
+    blocks.push(MirSchemaBox.block(2, b2))
+    blocks.push(MirSchemaBox.block(3, b3))
+    local module = MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+    return me._ensure_terminators(module)
+  }
+
+  // binop: const lhs/rhs; binop -> dst=3; ret 3
+  binop(lhs, rhs, opk) {
+    local b0 = new ArrayBox()
+    b0.push(MirSchemaBox.inst_const(1, lhs))
+    b0.push(MirSchemaBox.inst_const(2, rhs))
+    b0.push(MirSchemaBox.inst_binop(opk, 1, 2, 3))
+    b0.push(MirSchemaBox.inst_ret(3))
+    local blocks = new ArrayBox(); blocks.push(MirSchemaBox.block(0, b0))
+    local module = MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+    return me._ensure_terminators(module)
+  }
+
+  binop_ops(lhs, rhs, opk) {
+    // Op-shape helper (no MIR dependency): const,const → binop → ret
+    // Returns a stable summary string for lightweight tests
+    return "const,const,binop,ret"
+  }
+
+  // loop_counter: ops summary only（配列/Map生成を伴わない純テスト用）
+  loop_counter_ops(limit) {
+    // Summary of operations by shape (preheader|header|body paths|latch|exit)
+    // P1 intent: const,const,const,const,const,const,jump|compare,branch|binop,jump|phi,phi,jump|phi,ret
+    return "const,const,const,const,const,const,jump|compare,branch|binop,jump|phi,phi,jump|phi,ret"
+  }
+
+  // loop_counter: while (i < limit) { i = i + 1 } ; return i
+  loop_counter(limit) {
+    local b0 = new ArrayBox(); b0.push(MirSchemaBox.inst_const(1, 0)); b0.push(MirSchemaBox.inst_const(2, limit)); b0.push(MirSchemaBox.inst_const(4, 1)); b0.push(MirSchemaBox.inst_jump(1))
+    local b1 = new ArrayBox(); b1.push(MirSchemaBox.inst_compare("Lt", 1, 2, 3)); b1.push(MirSchemaBox.inst_branch(3, 2, 3))
+    local b2 = new ArrayBox(); b2.push(MirSchemaBox.inst_binop("Add", 1, 4, 1)); b2.push(MirSchemaBox.inst_jump(1))
+    local b3 = new ArrayBox(); b3.push(MirSchemaBox.inst_ret(1))
+    local blocks = new ArrayBox();
+    blocks.push(MirSchemaBox.block(0, b0)); blocks.push(MirSchemaBox.block(1, b1)); blocks.push(MirSchemaBox.block(2, b2)); blocks.push(MirSchemaBox.block(3, b3))
+    local module = MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+    return me._ensure_terminators(module)
+  }
+
+  // LoopForm variant (with PHI + structured exit) — used by LoopForm tests/bring-up
+  loop_counter_loopform(limit, skip_value, break_value) {
+    local module = LoopFormBox.loop_counter(limit, skip_value, break_value)
+    return me._ensure_terminators(module)
+  }
+
+  loop_counter_loopform_json(limit, skip_value, break_value) {
+    local module = me.loop_counter_loopform(limit, skip_value, break_value)
+    return JsonEmitBox.to_json(module)
+  }
+
+  to_gate_c_json(module) {
+    if module == null { return "" }
+    // NOTE: Caller (e.g. extern_call_ival_ret) already calls _ensure_terminators
+    // Double-call causes corruption. Skip normalization here.
+    return JsonEmitBox.to_json(module)
+  }
+
+  compare_branch_ops(lhs, rhs, cmp) {
+    // Op-shape helper (no MIR dependency):
+    // b0: const,const,compare,branch | b1: const,jump | b2: const,jump | b3: ret
+    return "const,const,compare,branch|const,jump|const,jump|ret"
+  }
+
+  // --- P3 helpers: minimal mir_call shapes ---
+  // extern call (e.g., nyrt.ops.op_eq) with provided arg ids and return
+  extern_call_ret(name, args_ids, dst) {
+    local b0 = [ MirSchemaBox.inst_mir_call_extern(name, args_ids, dst), MirSchemaBox.inst_ret(dst) ]
+    local _m = MirSchemaBox.module(MirSchemaBox.fn_main([ MirSchemaBox.block(0, b0) ]))
+    return me._ensure_terminators(_m)
+  }
+  global_call_ret(name, args_ids, dst, name_literal) {
+    local actual_name = name
+    if name_literal != null {
+      local repr = "" + name
+      if repr.indexOf("ArrayBox(") == 0 {
+        actual_name = name_literal
+      }
+    }
+    local b0 = [ MirSchemaBox.inst_mir_call_global(actual_name, args_ids, dst), MirSchemaBox.inst_ret(dst) ]
+    local _m = MirSchemaBox.module(MirSchemaBox.fn_main([ MirSchemaBox.block(0, b0) ]))
+    return me._ensure_terminators(_m)
+  }
+  method_call_ret(method, recv_id, args_ids, dst, method_literal) {
+    local actual_method = method
+    if method_literal != null {
+      local repr = "" + method
+      if repr.indexOf("ArrayBox(") == 0 {
+        actual_method = method_literal
+      }
+    }
+    local b0 = [ MirSchemaBox.inst_mir_call_method(actual_method, recv_id, args_ids, dst), MirSchemaBox.inst_ret(dst) ]
+    local _m = MirSchemaBox.module(MirSchemaBox.fn_main([ MirSchemaBox.block(0, b0) ]))
+    return me._ensure_terminators(_m)
+  }
+  constructor_call_ret(box_type, args_ids, dst, box_type_literal) {
+    local actual_box_type = box_type
+    if box_type_literal != null {
+      local repr = "" + box_type
+      if repr.indexOf("ArrayBox(") == 0 {
+        actual_box_type = box_type_literal
+      }
+    }
+    local b0 = [ MirSchemaBox.inst_mir_call_constructor(actual_box_type, args_ids, dst), MirSchemaBox.inst_ret(dst) ]
+    local _m = MirSchemaBox.module(MirSchemaBox.fn_main([ MirSchemaBox.block(0, b0) ]))
+    return me._ensure_terminators(_m)
+  }
+
+  // --- P4 thin adapters: immediate-value variants -------------------------
+  // These helpers materialize integer constants for arguments/receiver and
+  // then reuse the minimal call+ret shapes above. Output remains
+  // { version, kind, functions: [...] } compatible.
+
+  extern_call_ival_ret(name, arg_vals, name_literal) {
+    // Materialize r1..rN from arg_vals, call -> r(N+1), ret r(N+1)
+    // Pattern: exact copy of const_ret structure (new ArrayBox(), direct inline)
+    local insts = new ArrayBox()
+    // Preserve literal name even if caller-side evaluation overwrote the first argument.
+    local actual_name = name
+    if name_literal != null {
+      local name_repr = "" + name
+      if name_repr.indexOf("ArrayBox(") == 0 {
+        actual_name = name_literal
+      }
+    }
+    local n = 0
+    local i = 0
+    local m = 0
+    if arg_vals != null { m = me._array_len(arg_vals) }
+    loop(i < m) {
+      insts.push(MirSchemaBox.inst_const(i, arg_vals.get(i)))
+      i = i + 1
+    }
+    n = m
+    local args_ids = new ArrayBox()
+    i = 0
+    loop(i < n) {
+      args_ids.push(i)
+      i = i + 1
+    }
+    local dst = n
+    insts.push(MirSchemaBox.inst_mir_call_extern(actual_name, args_ids, dst))
+    insts.push(MirSchemaBox.inst_ret(dst))
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, insts))
+    local _m = MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+    return me._ensure_terminators(_m)
+  }
+
+  global_call_ival_ret(name, arg_vals, name_literal) {
+    local insts = new ArrayBox()
+    local actual_name = name
+    if name_literal != null {
+      local repr = "" + name
+      if repr.indexOf("ArrayBox(") == 0 {
+        actual_name = name_literal
+      }
+    }
+    local m = 0
+    if arg_vals != null { m = me._array_len(arg_vals) }
+    local i = 0
+    loop(i < m) {
+      insts.push(MirSchemaBox.inst_const(i, arg_vals.get(i)))
+      i = i + 1
+    }
+    local args_ids = new ArrayBox()
+    i = 0
+    loop(i < m) {
+      args_ids.push(i)
+      i = i + 1
+    }
+    local dst = m
+    insts.push(MirSchemaBox.inst_mir_call_global(actual_name, args_ids, dst))
+    insts.push(MirSchemaBox.inst_ret(dst))
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, insts))
+    local _m = MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+    return me._ensure_terminators(_m)
+  }
+
+  method_call_ival_ret(method, recv_val, arg_vals, method_literal) {
+    local insts = new ArrayBox()
+    insts.push(MirSchemaBox.inst_const(0, recv_val))
+    local m = 0
+    if arg_vals != null { m = me._array_len(arg_vals) }
+    local i = 0
+    loop(i < m) {
+      insts.push(MirSchemaBox.inst_const(1 + i, arg_vals.get(i)))
+      i = i + 1
+    }
+    local args_ids = new ArrayBox()
+    i = 0
+    loop(i < m) {
+      args_ids.push(1 + i)
+      i = i + 1
+    }
+    local dst = 1 + m
+    local actual_method = method
+    if method_literal != null {
+      local repr = "" + method
+      if repr.indexOf("ArrayBox(") == 0 {
+        actual_method = method_literal
+      }
+    }
+    insts.push(MirSchemaBox.inst_mir_call_method(actual_method, 0, args_ids, dst))
+    insts.push(MirSchemaBox.inst_ret(dst))
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, insts))
+    local _m = MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+    return me._ensure_terminators(_m)
+  }
+
+  constructor_call_ival_ret(box_type, arg_vals, box_type_literal) {
+    local insts = new ArrayBox()
+    local m = 0
+    if arg_vals != null { m = me._array_len(arg_vals) }
+    local i = 0
+    loop(i < m) {
+      insts.push(MirSchemaBox.inst_const(i, arg_vals.get(i)))
+      i = i + 1
+    }
+    local args_ids = new ArrayBox()
+    i = 0
+    loop(i < m) {
+      args_ids.push(i)
+      i = i + 1
+    }
+    local dst = m
+    local actual_box_type = box_type
+    if box_type_literal != null {
+      local repr = "" + box_type
+      if repr.indexOf("ArrayBox(") == 0 {
+        actual_box_type = box_type_literal
+      }
+    }
+    insts.push(MirSchemaBox.inst_mir_call_constructor(actual_box_type, args_ids, dst))
+    insts.push(MirSchemaBox.inst_ret(dst))
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, insts))
+    local _m = MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+    return me._ensure_terminators(_m)
+  }
+
+
+  // ctor(ArrayBox) → method(size) → ret
+  ctor_then_size_ret() {
+    local b0 = [
+      MirSchemaBox.inst_mir_call_constructor("ArrayBox", new ArrayBox(), 1),
+      MirSchemaBox.inst_mir_call_method("size", 1, new ArrayBox(), 2),
+      MirSchemaBox.inst_ret(2)
+    ]
+    local _m = MirSchemaBox.module(MirSchemaBox.fn_main([ MirSchemaBox.block(0, b0) ]))
+    return me._ensure_terminators(_m)
+  }
+
+}

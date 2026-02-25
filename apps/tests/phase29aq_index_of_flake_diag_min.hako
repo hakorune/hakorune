@@ -1,0 +1,7 @@
+using "apps/lib/json_native/utils/string.hako" as StringUtils
+
+local digits = "0123456789"
+print(digits.length())
+print(StringUtils.index_of(digits, "4"))
+print(StringUtils.parse_integer("-42"))
+

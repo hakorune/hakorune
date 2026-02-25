@@ -1,0 +1,21 @@
+// Minimal loop(true) dotted-name scan for ParserStmtBox.parse_using/4
+// Expected: stdout=a.b, RC=0
+static box Main {
+  main() {
+    local src = "a.b"
+    local j = 1
+    local name = "a"
+
+    loop(true) {
+      if src.substring(j, j + 1) != "." { break }
+      j = j + 1
+      local idp = "b@2"
+      local at = idp.lastIndexOf("@")
+      name = name + "." + idp.substring(0, at)
+      j = 2
+    }
+
+    print(name)
+    return 0
+  }
+}

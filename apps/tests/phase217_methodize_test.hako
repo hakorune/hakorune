@@ -1,0 +1,15 @@
+// Phase 21.7: Methodization test
+// Tests Global("BoxName.method/arity") → Method{receiver=singleton} conversion
+
+static box Calculator {
+    add(a, b) {
+        return a + b
+    }
+
+    main() {
+        // This will be called as Global("Calculator.add/2") by default
+        // With HAKO_MIR_BUILDER_METHODIZE=1, it becomes Method{Calculator.add, recv=singleton}
+        print("Result: " + ("" + Calculator.add(10, 20)))
+        return 0
+    }
+}

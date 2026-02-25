@@ -1,0 +1,24 @@
+// Phase 29bq: selfhost LocalSSA._block_insts_end/2 minimal (loop_true)
+// Expected output: 0
+//
+// Target shape:
+// - loop(true)
+// - nested else-if chain in a carrier update (GeneralIf)
+// - ExitIf(break) + ExitIf(return)
+
+static box Main {
+  main() {
+    local i = 0
+    local depth = 1
+
+    loop(true) {
+      local ch = ""
+      if ch == "" { break }
+      if ch == "[" { depth = depth + 1 } else { if ch == "]" { depth = depth - 1 } }
+      if depth == 0 { return i }
+      i = i + 1
+    }
+    print(i)
+    return 0
+  }
+}

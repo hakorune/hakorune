@@ -1,0 +1,28 @@
+// Phase 29bq parser handoff Tier-2: local init with string substring/compare + postfix cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local base = "hakorune"
+      local head = base.substring(0, 4)
+      local is_head = head == "hako"
+      if is_head {
+        out = out + 4
+      } else {
+        out = out + 1
+      }
+
+      local tail = base.substring(4, 8)
+      local is_tail = tail == "rune"
+      if is_tail {
+        out = out + 40
+      } else {
+        out = out + 2
+      }
+    } cleanup {
+      out = out + 300
+    }
+    print(out)
+    return 0
+  }
+}

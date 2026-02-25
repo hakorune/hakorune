@@ -1,0 +1,19 @@
+static box Main {
+  main() {
+    local i = 0
+    local n = 3
+    loop(i < n) {
+      local next = i + 1
+      if i < 2 {
+        if i == 0 {
+          next = i + 2
+          i = next
+          continue
+        }
+        i = next
+        continue
+      }
+      i = next
+    }
+  }
+}

@@ -1,0 +1,1 @@
+log: /tmp/phase29bq_selfhost_phase118_pattern3_if_sum_min.hako.log

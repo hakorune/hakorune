@@ -1,0 +1,31 @@
+// parse_program2 loop-only shape (no if-return)
+// Expected: stdout=1, RC=0
+static box Main {
+  main() {
+    local i = 0
+    local n = 3
+    local out = 0
+
+    loop(i < n) {
+      if i == 2 { break }
+
+      local ws_loop_count = 10
+      local trace = 0
+      if ws_loop_count < 10 { print("P") }
+      if ws_loop_count < 10 || ws_loop_count % 1000 == 0 { print("P") }
+      if trace == 1 { print("P") }
+      local ch = 0
+      local j = 0
+      loop(j < 2) {
+        if j == 0 { j = j + 1  continue }
+        break
+      }
+
+      out = out + i
+      i = i + 1
+    }
+
+    print(out)
+    return 0
+  }
+}

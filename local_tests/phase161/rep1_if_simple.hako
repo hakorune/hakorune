@@ -1,0 +1,18 @@
+// Phase 161 Representative Function 1: Simple If/Else with PHI Merge
+// Pattern: Basic if/else statement that generates single PHI merge
+// Tests: Branch detection, if-merge identification, single PHI
+
+box Main {
+    main() {
+        local x = 5
+        local result
+
+        if x > 3 {
+            result = 10
+        } else {
+            result = 20
+        }
+
+        print(result)
+    }
+}

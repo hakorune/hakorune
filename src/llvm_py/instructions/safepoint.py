@@ -1,0 +1,133 @@
+"""
+Safepoint instruction lowering
+GC safepoints where runtime can safely collect garbage
+"""
+
+import llvmlite.ir as ir
+from typing import Dict, List, Optional, Any
+
+def lower_safepoint(
+    builder: ir.IRBuilder,
+    module: ir.Module,
+    live_values: List[int],
+    vmap: Dict[int, ir.Value],
+    safepoint_id: Optional[int] = None,
+    resolver=None,
+    preds=None,
+    block_end_values=None,
+    bb_map=None,
+    ctx: Optional[Any] = None
+) -> None:
+    """
+    Lower MIR Safepoint instruction
+    
+    Safepoints are places where GC can safely run.
+    Live values must be tracked for potential relocation.
+    
+    Args:
+        builder: Current LLVM IR builder
+        module: LLVM module
+        live_values: List of value IDs that are live across safepoint
+        vmap: Value map
+        safepoint_id: Optional safepoint identifier
+    """
+    # Look up or declare safepoint function
+    safepoint_func = None
+    for f in module.functions:
+        if f.name == "ny_safepoint":
+            safepoint_func = f
+            break
+    
+    if not safepoint_func:
+        # Declare ny_safepoint(live_count: i64, live_values: i64*) -> void
+        i64 = ir.IntType(64)
+        void = ir.VoidType()
+        func_type = ir.FunctionType(void, [i64, i64.as_pointer()])
+        safepoint_func = ir.Function(module, func_type, name="ny_safepoint")
+    
+    # Prepare live values array
+    i64 = ir.IntType(64)
+    if live_values:
+        # Allocate array for live values
+        array_size = len(live_values)
+        live_array = builder.alloca(i64, size=array_size, name="live_vals")
+        
+        # Store each live value
+        for i, vid in enumerate(live_values):
+            # Prefer BuildCtx if provided
+            r = resolver; p = preds; bev = block_end_values; bbm = bb_map
+            if ctx is not None:
+                try:
+                    r = getattr(ctx, 'resolver', r)
+                    p = getattr(ctx, 'preds', p)
+                    bev = getattr(ctx, 'block_end_values', bev)
+                    bbm = getattr(ctx, 'bb_map', bbm)
+                except Exception:
+                    pass
+            if r is not None and p is not None and bev is not None and bbm is not None:
+                val = r.resolve_i64(vid, builder.block, p, bev, vmap, bbm)
+            else:
+                val = vmap.get(vid, ir.Constant(i64, 0))
+            
+            # Ensure i64 (handles are i64)
+            if hasattr(val, 'type') and val.type.is_pointer:
+                val = builder.ptrtoint(val, i64, name=f"sp_p2i_{vid}")
+            
+            idx = ir.Constant(ir.IntType(32), i)
+            ptr = builder.gep(live_array, [idx])
+            builder.store(val, ptr)
+        
+        # Call safepoint
+        count = ir.Constant(i64, array_size)
+        builder.call(safepoint_func, [count, live_array])
+        
+        # After safepoint, reload values (they may have moved)
+        for i, vid in enumerate(live_values):
+            idx = ir.Constant(ir.IntType(32), i)
+            ptr = builder.gep(live_array, [idx])
+            new_val = builder.load(ptr, name=f"reload_{vid}")
+            vmap[vid] = new_val
+    else:
+        # No live values
+        zero = ir.Constant(i64, 0)
+        null = ir.Constant(i64.as_pointer(), None)
+        builder.call(safepoint_func, [zero, null])
+
+def insert_automatic_safepoint(
+    builder: ir.IRBuilder,
+    module: ir.Module,
+    location: str  # "loop_header", "function_call", etc.
+) -> None:
+    """
+    Insert automatic safepoint at strategic locations
+    
+    Args:
+        builder: Current LLVM IR builder
+        module: LLVM module
+        location: Location type for debugging
+    """
+    # Simple safepoint without tracking specific values
+    # Runtime will scan stack/registers
+    
+    check_func = None
+    for f in module.functions:
+        if f.name == "ny_check_safepoint":
+            check_func = f
+            break
+    
+    if not check_func:
+        # Declare ny_check_safepoint() -> void
+        void = ir.VoidType()
+        func_type = ir.FunctionType(void, [])
+        check_func = ir.Function(module, func_type, name="ny_check_safepoint")
+    
+    # Guard: do not insert into a terminated block; create continuation if needed
+    try:
+        if builder.block is not None and getattr(builder.block, 'terminator', None) is not None:
+            func = builder.block.parent
+            cont = func.append_basic_block(name=f"cont_bb_{builder.block.name}")
+            builder.position_at_end(cont)
+    except Exception:
+        pass
+    # Insert safepoint check
+    builder.call(check_func, [], name=f"safepoint_{location}")

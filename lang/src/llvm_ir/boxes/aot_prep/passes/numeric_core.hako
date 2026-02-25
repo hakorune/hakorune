@@ -1,0 +1,421 @@
+// AotPrepNumericCoreBox — BoxCall→Call transformation for numeric core (Phase 25 MVP)
+// Scope:
+// - Detect MatI64 boxcalls in MIR(JSON v0)
+// - Transform BoxCall(MatI64, "mul_naive") → Call("NyNumericMatI64.mul_naive")
+// - Minimal implementation: MatI64.mul_naive only, no IntArrayCore yet
+// - Enabled with NYASH_AOT_NUMERIC_CORE=1
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.llvm.ir.aot_prep.helpers.common as AotPrepHelpers
+
+static box AotPrepNumericCoreBox {
+  // Main entry point
+  run(json) {
+    if json == null { return json }
+    local enabled = env.get("NYASH_AOT_NUMERIC_CORE")
+    if enabled == null || ("" + enabled) != "1" { return json }
+
+    print("[aot/numeric_core] PASS RUNNING (enabled=" + enabled + ")")
+    local trace = env.get("NYASH_AOT_NUMERIC_CORE_TRACE")
+    local text = "" + json
+
+    // Phase 25 MVP: Build type table and transform BoxCall → Call
+    local tmap = AotPrepNumericCoreBox.build_type_table(text, trace)
+    local copy_map = AotPrepNumericCoreBox.build_copy_map(text, trace)
+
+    // Iterative type propagation: alternate copy and phi propagation to handle chains
+    // like: MatI64.new() → r2 → copy → r10 → phi → r15 → copy → r31
+    local iter = 0
+    loop(iter < 4) {
+      tmap = AotPrepNumericCoreBox.propagate_copy_types(text, tmap, trace)
+      tmap = AotPrepNumericCoreBox.propagate_phi_types(text, tmap, trace)
+      iter = iter + 1
+    }
+
+    // Diagnostic: show all MatI64 vids if trace enabled
+    if trace != null && ("" + trace) == "1" {
+      local mat_vids = new ArrayBox()
+      local keys = tmap.keys()
+      local ki = 0
+      loop(ki < keys.size()) {
+        local key = keys.get(ki)
+        if tmap.get(key) == "MatI64" {
+          mat_vids.push("r" + key)
+        }
+        ki = ki + 1
+      }
+      if mat_vids.size() > 0 {
+        local vids_str = ""
+        local vi = 0
+        loop(vi < mat_vids.size()) {
+          if vi > 0 { vids_str = vids_str + "," }
+          vids_str = vids_str + mat_vids.get(vi)
+          vi = vi + 1
+        }
+        print("[aot/numeric_core] MatI64 vids: " + vids_str)
+      }
+    }
+
+    local result = AotPrepNumericCoreBox.transform_boxcalls(text, tmap, copy_map, trace)
+
+    // If nothing happened and trace is ON, surface a hint
+    if trace != null && ("" + trace) == "1" {
+      if result == text {
+        print("[aot/numeric_core] no transformation applied (0 MatI64.mul_naive boxcalls matched)")
+      }
+    }
+
+    return result
+  }
+
+  // Build simple type table: vid -> "MatI64"
+  // Scans newbox instructions only (no phi/copy propagation for MVP)
+  build_type_table(text, trace) {
+    local tmap = new MapBox()
+    local pos = 0
+    loop(true) {
+      // Find next "op":" marker (like transform_boxcalls pattern)
+      local op_marker = text.indexOf("\"op\":\"", pos)
+      if op_marker < 0 { break }
+
+      // Find the start of this instruction object (the { before "op")
+      local obj_start = text.substring(0, op_marker).lastIndexOf("{")
+      if obj_start < 0 { pos = op_marker + 1 continue }
+
+      // Find the end of this instruction object
+      local obj_end = AotPrepHelpers._seek_object_end(text, obj_start)
+      if obj_end <= obj_start { pos = op_marker + 1 continue }
+
+      local inst = text.substring(obj_start, obj_end + 1)
+      local op = AotPrepNumericCoreBox.read_field(inst, "op")
+
+      if op == "const" {
+        // Check for StringBox "MatI64" const
+        if inst.indexOf("\"box_type\":\"StringBox\"") >= 0 {
+          if inst.indexOf("\"value\":\"MatI64\"") >= 0 {
+            local dst = AotPrepNumericCoreBox.read_digits_field(inst, "dst")
+            if trace != null && ("" + trace) == "1" {
+              print("[aot/numeric_core/debug] const MatI64: dst_raw=" + dst + " from inst: " + inst.substring(0, 100))
+            }
+            if dst != "" {
+              tmap.set(dst, "MatI64_str")
+              if trace != null && ("" + trace) == "1" {
+                print("[aot/numeric_core] const MatI64 string at r" + dst)
+              }
+            }
+          }
+        }
+      } else if op == "boxcall" {
+        // Check for MatI64.new() pattern
+        local box_vid = AotPrepNumericCoreBox.read_digits_field(inst, "box")
+        local method = AotPrepNumericCoreBox.read_field(inst, "method")
+        if method == "new" && box_vid != "" {
+          if trace != null && ("" + trace) == "1" {
+            print("[aot/numeric_core/debug] boxcall.new: box=" + box_vid + " has=" + tmap.has(box_vid) + " type=" + (tmap.has(box_vid) && tmap.get(box_vid) || "none"))
+          }
+          // Resolve box_vid through copy_map to find MatI64_str
+          if tmap.has(box_vid) && tmap.get(box_vid) == "MatI64_str" {
+            local dst = AotPrepNumericCoreBox.read_digits_field(inst, "dst")
+            if dst != "" {
+              tmap.set(dst, "MatI64")
+              if trace != null && ("" + trace) == "1" {
+                print("[aot/numeric_core] MatI64.new() result at r" + dst)
+              }
+            }
+          }
+        }
+      }
+
+      pos = obj_end + 1
+    }
+
+    if trace != null && ("" + trace) == "1" {
+      print("[aot/numeric_core] type table size: " + tmap.size())
+      if tmap.size() == 0 {
+        print("[aot/numeric_core] WARN: no MatI64-related constants detected (MatI64 string/new patterns not found)")
+      }
+    }
+
+    return tmap
+  }
+
+  // Build copy map: dst -> src for resolving copy chains
+  build_copy_map(text, trace) {
+    local cmap = new MapBox()
+    local pos = 0
+    loop(true) {
+      // Find next "op":" marker (like transform_boxcalls pattern)
+      local op_marker = text.indexOf("\"op\":\"", pos)
+      if op_marker < 0 { break }
+
+      // Find the start of this instruction object (the { before "op")
+      local obj_start = text.substring(0, op_marker).lastIndexOf("{")
+      if obj_start < 0 { pos = op_marker + 1 continue }
+
+      // Find the end of this instruction object
+      local obj_end = AotPrepHelpers._seek_object_end(text, obj_start)
+      if obj_end <= obj_start { pos = op_marker + 1 continue }
+
+      local inst = text.substring(obj_start, obj_end + 1)
+      local op = AotPrepNumericCoreBox.read_field(inst, "op")
+
+      if op == "copy" {
+        local dst = AotPrepNumericCoreBox.read_digits_field(inst, "dst")
+        local src = AotPrepNumericCoreBox.read_digits_field(inst, "src")
+        if dst != "" && src != "" {
+          cmap.set(dst, src)
+        }
+      }
+
+      pos = obj_end + 1
+    }
+    return cmap
+  }
+
+  // Propagate MatI64 type through copy instructions
+  // Scans all copy ops and propagates type from src to dst
+  propagate_copy_types(text, tmap, trace) {
+    local pos = 0
+    loop(true) {
+      local op_marker = text.indexOf("\"op\":\"", pos)
+      if op_marker < 0 { break }
+
+      local obj_start = text.substring(0, op_marker).lastIndexOf("{")
+      if obj_start < 0 { pos = op_marker + 1 continue }
+
+      local obj_end = AotPrepHelpers._seek_object_end(text, obj_start)
+      if obj_end <= obj_start { pos = op_marker + 1 continue }
+
+      local inst = text.substring(obj_start, obj_end + 1)
+      local op = AotPrepNumericCoreBox.read_field(inst, "op")
+
+      if op == "copy" {
+        local dst = AotPrepNumericCoreBox.read_digits_field(inst, "dst")
+        local src = AotPrepNumericCoreBox.read_digits_field(inst, "src")
+        if dst != "" && src != "" && tmap.has(src) && !tmap.has(dst) {
+          local src_type = tmap.get(src)
+          if src_type == "MatI64" {
+            tmap.set(dst, "MatI64")
+            if trace != null && ("" + trace) == "1" {
+              print("[aot/numeric_core] copy-prop MatI64: r" + src + " → r" + dst)
+            }
+          }
+        }
+      }
+
+      pos = obj_end + 1
+    }
+    return tmap
+  }
+
+  // Propagate MatI64 type information through phi nodes.
+  // Policy: 「少なくとも1つ MatI64 で、かつMatI64以外の型が混ざっていない」場合に dst を MatI64 とみなす。
+  propagate_phi_types(text, tmap, trace) {
+    local changed = 1
+    local iter = 0
+    loop(iter < 3 && changed == 1) {
+      changed = 0
+      local pos = 0
+      loop(true) {
+        // Find next "op":" marker (same pattern as build_type_table/propagate_copy_types)
+        local op_marker = text.indexOf("\"op\":\"", pos)
+        if op_marker < 0 { break }
+
+        // Find the start of this instruction object (the { before "op")
+        local obj_start = text.substring(0, op_marker).lastIndexOf("{")
+        if obj_start < 0 { pos = op_marker + 1 continue }
+
+        // Find the end of this instruction object
+        local obj_end = AotPrepHelpers._seek_object_end(text, obj_start)
+        if obj_end <= obj_start { pos = op_marker + 1 continue }
+
+        local inst = text.substring(obj_start, obj_end + 1)
+        local op = AotPrepNumericCoreBox.read_field(inst, "op")
+        if op == "phi" {
+          local dst = AotPrepNumericCoreBox.read_digits_field(inst, "dst")
+          if dst != "" && !tmap.has(dst) {
+            local kin = inst.indexOf("\"incoming\":[")
+            if kin >= 0 {
+              local abr = inst.indexOf("[", kin)
+              if abr >= 0 {
+                local aend = JsonFragBox._seek_array_end(inst, abr)
+                if aend > abr {
+                  local body = inst.substring(abr+1, aend)
+                  local all_compatible = 1
+                  local found_mat = 0
+                  local posb = body.indexOf("[")
+                  loop(posb >= 0) {
+                    local vid = StringHelpers.read_digits(body, posb+1)
+                    if vid == "" { posb = body.indexOf("[", posb+1); continue }
+                    if tmap.has(vid) {
+                      local tv = tmap.get(vid)
+                      if tv == "MatI64" {
+                        found_mat = 1
+                      } else {
+                        // 型情報があるのに MatI64 ではない → 競合として扱う
+                        all_compatible = 0
+                        break
+                      }
+                    }
+                    posb = body.indexOf("[", posb+1)
+                  }
+                  if all_compatible == 1 && found_mat == 1 {
+                    tmap.set(dst, "MatI64")
+                    changed = 1
+                    if trace != null && ("" + trace) == "1" {
+                      print("[aot/numeric_core] phi-prop MatI64: r" + dst)
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        pos = obj_end + 1
+      }
+      iter = iter + 1
+    }
+    return tmap
+  }
+
+  // Resolve copy chains: follow src back to original
+  resolve_copy(cmap, vid, depth) {
+    if depth > 10 { return vid }  // Prevent infinite loop
+    if cmap.has(vid) {
+      return AotPrepNumericCoreBox.resolve_copy(cmap, cmap.get(vid), depth + 1)
+    }
+    return vid
+  }
+
+  // Transform BoxCall → Call for MatI64.mul_naive
+  transform_boxcalls(text, tmap, copy_map, trace) {
+    local result = new ArrayBox()
+    local pos = 0
+    local last_copy = 0
+    local transformed_count = 0
+
+    loop(true) {
+      local op_pos = text.indexOf("\"op\":\"boxcall\"", pos)
+      if op_pos < 0 {
+        // Copy remaining text
+        result.push(text.substring(last_copy, text.length()))
+        break
+      }
+
+      // Find enclosing object bounds
+      local obj_start = text.substring(0, op_pos).lastIndexOf("{")
+      if obj_start < 0 { pos = op_pos + 1 continue }
+      local obj_end = AotPrepHelpers._seek_object_end(text, obj_start)
+      if obj_end <= obj_start { pos = op_pos + 1 continue }
+
+      local inst = text.substring(obj_start, obj_end + 1)
+      local box_vid = AotPrepNumericCoreBox.read_digits_field(inst, "box")
+      local method = AotPrepNumericCoreBox.read_field(inst, "method")
+
+      // Resolve box_vid through copy chain
+      if box_vid != "" {
+        box_vid = AotPrepNumericCoreBox.resolve_copy(copy_map, box_vid, 0)
+      }
+
+      // Check if this is MatI64.mul_naive
+      local should_transform = 0
+      if box_vid != "" && tmap.has(box_vid) && tmap.get(box_vid) == "MatI64" {
+        if method == "mul_naive" {
+          should_transform = 1
+        }
+      }
+
+      // Diagnostic logging for skipped transformations
+      if should_transform == 0 && method == "mul_naive" {
+        local reason = "unknown"
+        if box_vid == "" {
+          reason = "no_box_vid"
+        } else if !tmap.has(box_vid) {
+          reason = "type_unknown"
+        } else if tmap.get(box_vid) != "MatI64" {
+          reason = "type_conflict (expected MatI64, got " + tmap.get(box_vid) + ")"
+        }
+
+        if trace != null && ("" + trace) == "1" {
+          local dst = AotPrepNumericCoreBox.read_digits_field(inst, "dst")
+          print("[aot/numeric_core] skip mul_naive@r" + dst + ": box=r" + box_vid + " reason=" + reason)
+        }
+      }
+
+      if should_transform == 1 {
+        // Transform BoxCall → Call
+        // Copy text before this boxcall
+        result.push(text.substring(last_copy, obj_start))
+
+        // Build new Call instruction
+        local dst = AotPrepNumericCoreBox.read_digits_field(inst, "dst")
+        local args_start = inst.indexOf("\"args\":[")
+        local new_inst = "{"
+        if dst != "" {
+          new_inst = new_inst + "\"dst\":" + dst + ","
+        }
+        new_inst = new_inst + "\"op\":\"call\","
+        new_inst = new_inst + "\"name\":\"NyNumericMatI64.mul_naive\""
+
+        // Add args (prepend receiver)
+        if args_start >= 0 {
+          local args_end = JsonFragBox._seek_array_end(inst, args_start + 7)
+          if args_end > args_start {
+            local args_body = inst.substring(args_start + 8, args_end)
+            // Prepend receiver to args
+            new_inst = new_inst + ",\"args\":[" + box_vid
+            if args_body.length() > 0 {
+              new_inst = new_inst + "," + args_body
+            }
+            new_inst = new_inst + "]"
+          }
+        }
+        new_inst = new_inst + "}"
+
+        result.push(new_inst)
+        last_copy = obj_end + 1
+        transformed_count = transformed_count + 1
+
+        if trace != null && ("" + trace) == "1" {
+          print("[aot/numeric_core] transformed BoxCall(MatI64, mul_naive) → Call(NyNumericMatI64.mul_naive)")
+          print("[aot/numeric_core]   old: " + inst)
+          print("[aot/numeric_core]   new: " + new_inst)
+        }
+      }
+
+      pos = obj_end + 1
+    }
+
+    if transformed_count > 0 {
+      print("[aot/numeric_core] transformed " + transformed_count + " BoxCall(s) → Call")
+      // Join result array into single string
+      local final = ""
+      local i = 0
+      loop(i < result.size()) {
+        final = final + result.get(i)
+        i = i + 1
+      }
+      return final
+    }
+
+    // No transformations, return original
+    return text
+  }
+
+  // Helper: read string field from JSON
+  read_field(text, key) {
+    local needle = "\"" + key + "\":\""
+    local idx = text.indexOf(needle)
+    if idx < 0 { return "" }
+    return JsonFragBox.read_string_after(text, idx + needle.length())
+  }
+
+  // Helper: read numeric field from JSON
+  read_digits_field(text, key) {
+    local needle = "\"" + key + "\":"
+    local idx = text.indexOf(needle)
+    if idx < 0 { return "" }
+    return StringHelpers.read_digits(text, idx + needle.length())
+  }
+}

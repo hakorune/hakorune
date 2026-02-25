@@ -1,0 +1,199 @@
+// ProgramJsonV0StateBox — MapBox-based state container for Program JSON v0 parsing
+// Responsibility: Provide typed accessors for parsing state, avoiding 20-parameter method signatures.
+// Structure tags:
+//   [BoxShape] MapBox SSOT pattern (Phase 29bq+ modularization).
+//   [Invariant] birth()/NewBox not used - static box helpers only.
+
+static box ProgramJsonV0StateBox {
+  // Create a new state MapBox with all fields initialized to defaults.
+  create() {
+    local state = new MapBox()
+    // Error tracking
+    state.set("err", "0")
+    state.set("err_line", "")
+    state.set("next_idx", "-1")
+    // Statement flags
+    state.set("has_print", "0")
+    state.set("has_local", "0")
+    state.set("has_assignment", "0")
+    state.set("has_return", "0")
+    // Print state
+    state.set("printv", "0")
+    state.set("print_kind", "")
+    state.set("print_var_name", "")
+    // Local state
+    state.set("local_name", "")
+    state.set("local_init", "0")
+    // Assignment state
+    state.set("assign_name", "")
+    state.set("assign_rhs", "0")
+    state.set("assign_rhs_kind", "")
+    // Return state
+    state.set("return_kind", "")
+    state.set("retv", "0")
+    state.set("ret_var_name", "")
+    // Order tracking
+    state.set("order_stage", "0")
+    state.set("order_last", "")
+    // Shape classification (computed on emit)
+    state.set("shape_kind", "unknown")
+    return state
+  }
+
+  // Create state from explicit values (for migration from old API)
+  create_from(
+    err, err_line, next_idx,
+    has_print, has_local, has_assignment, has_return,
+    printv, print_kind, print_var_name,
+    local_name, local_init,
+    assign_name, assign_rhs, assign_rhs_kind,
+    return_kind, retv, ret_var_name
+  ) {
+    local state = me.create()
+    state.set("err", "" + err)
+    state.set("err_line", "" + err_line)
+    state.set("next_idx", "" + next_idx)
+    state.set("has_print", "" + has_print)
+    state.set("has_local", "" + has_local)
+    state.set("has_assignment", "" + has_assignment)
+    state.set("has_return", "" + has_return)
+    state.set("printv", "" + printv)
+    state.set("print_kind", "" + print_kind)
+    state.set("print_var_name", "" + print_var_name)
+    state.set("local_name", "" + local_name)
+    state.set("local_init", "" + local_init)
+    state.set("assign_name", "" + assign_name)
+    state.set("assign_rhs", "" + assign_rhs)
+    state.set("assign_rhs_kind", "" + assign_rhs_kind)
+    state.set("return_kind", "" + return_kind)
+    state.set("retv", "" + retv)
+    state.set("ret_var_name", "" + ret_var_name)
+    return state
+  }
+
+  // SSOT state map for phase_state/consumer lanes.
+  // Keeps value types as-is (no forced stringification).
+  state_map(
+    has_print,
+    has_local,
+    has_assignment,
+    has_return,
+    printv,
+    print_kind,
+    print_var_name,
+    local_name,
+    local_init,
+    assign_name,
+    assign_rhs,
+    assign_rhs_kind,
+    return_kind,
+    retv,
+    ret_var_name,
+    ret_box_type
+  ) {
+    return %{
+      "has_print" => has_print,
+      "has_local" => has_local,
+      "has_assignment" => has_assignment,
+      "has_return" => has_return,
+      "printv" => printv,
+      "print_kind" => print_kind,
+      "print_var_name" => print_var_name,
+      "local_name" => local_name,
+      "local_init" => local_init,
+      "assign_name" => assign_name,
+      "assign_rhs" => assign_rhs,
+      "assign_rhs_kind" => assign_rhs_kind,
+      "return_kind" => return_kind,
+      "retv" => retv,
+      "ret_var_name" => ret_var_name,
+      "ret_box_type" => ret_box_type
+    }
+  }
+
+  // Clone a state MapBox (shallow copy all keys)
+  clone(state) {
+    if state == null { return me.create() }
+    local copy = new MapBox()
+    local keys = state.keys()
+    if keys == null { return copy }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local k = "" + keys.get(i)
+      local v = state.get(k)
+      if v != null { copy.set(k, "" + v) }
+      i = i + 1
+    }
+    return copy
+  }
+
+  // Typed getters (return appropriate types)
+  get_err(state) { return state.get("err") }
+  get_err_line(state) { return state.get("err_line") }
+  get_next_idx(state) { return state.get("next_idx") }
+  get_has_print(state) { return state.get("has_print") }
+  get_has_local(state) { return state.get("has_local") }
+  get_has_assignment(state) { return state.get("has_assignment") }
+  get_has_return(state) { return state.get("has_return") }
+  get_printv(state) { return state.get("printv") }
+  get_print_kind(state) { return state.get("print_kind") }
+  get_print_var_name(state) { return state.get("print_var_name") }
+  get_local_name(state) { return state.get("local_name") }
+  get_local_init(state) { return state.get("local_init") }
+  get_assign_name(state) { return state.get("assign_name") }
+  get_assign_rhs(state) { return state.get("assign_rhs") }
+  get_assign_rhs_kind(state) { return state.get("assign_rhs_kind") }
+  get_return_kind(state) { return state.get("return_kind") }
+  get_retv(state) { return state.get("retv") }
+  get_ret_var_name(state) { return state.get("ret_var_name") }
+  get_order_stage(state) { return state.get("order_stage") }
+  get_order_last(state) { return state.get("order_last") }
+  get_shape_kind(state) { return state.get("shape_kind") }
+
+  // Typed setters
+  set_err(state, val) { state.set("err", "" + val) }
+  set_err_line(state, val) { state.set("err_line", "" + val) }
+  set_next_idx(state, val) { state.set("next_idx", "" + val) }
+  set_has_print(state, val) { state.set("has_print", "" + val) }
+  set_has_local(state, val) { state.set("has_local", "" + val) }
+  set_has_assignment(state, val) { state.set("has_assignment", "" + val) }
+  set_has_return(state, val) { state.set("has_return", "" + val) }
+  set_printv(state, val) { state.set("printv", "" + val) }
+  set_print_kind(state, val) { state.set("print_kind", "" + val) }
+  set_print_var_name(state, val) { state.set("print_var_name", "" + val) }
+  set_local_name(state, val) { state.set("local_name", "" + val) }
+  set_local_init(state, val) { state.set("local_init", "" + val) }
+  set_assign_name(state, val) { state.set("assign_name", "" + val) }
+  set_assign_rhs(state, val) { state.set("assign_rhs", "" + val) }
+  set_assign_rhs_kind(state, val) { state.set("assign_rhs_kind", "" + val) }
+  set_return_kind(state, val) { state.set("return_kind", "" + val) }
+  set_retv(state, val) { state.set("retv", "" + val) }
+  set_ret_var_name(state, val) { state.set("ret_var_name", "" + val) }
+  set_order_stage(state, val) { state.set("order_stage", "" + val) }
+  set_order_last(state, val) { state.set("order_last", "" + val) }
+  set_shape_kind(state, val) { state.set("shape_kind", "" + val) }
+
+  // Check if state has error
+  has_error(state) {
+    local err = state.get("err")
+    if err == null { return 0 }
+    if ("" + err) == "0" { return 0 }
+    if ("" + err) == "" { return 0 }
+    return 1
+  }
+
+  // Set error state
+  set_error(state, err_line) {
+    state.set("err", "1")
+    state.set("err_line", "" + err_line)
+  }
+
+  // Clear error state
+  clear_error(state) {
+    state.set("err", "0")
+    state.set("err_line", "")
+  }
+}
+
+static box ProgramJsonV0StateBoxMain { main() { return 0 } }

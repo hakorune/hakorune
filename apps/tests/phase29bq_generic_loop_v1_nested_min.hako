@@ -1,0 +1,19 @@
+// Phase 29bq: generic_loop_v1 nested loop body (RecipeBlock recursion)
+// Expected: stdout=1, RC=0
+
+box Main {
+  main() {
+    local i = 0
+    local total = 0
+    loop(i < 1) {
+      local j = 0
+      loop(j < 1) {
+        total = total + 1
+        j = j + 1
+      }
+      i = i + 1
+    }
+    print(total)
+    return 0
+  }
+}

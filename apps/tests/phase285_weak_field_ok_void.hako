@@ -1,0 +1,12 @@
+box Node {
+    weak parent
+}
+
+static box Main {
+    main() {
+        local n = new Node()
+        n.parent = null  // ✅ Clear (null keyword, equivalent to Void)
+        print("OK: Void clear")
+        return 0
+    }
+}

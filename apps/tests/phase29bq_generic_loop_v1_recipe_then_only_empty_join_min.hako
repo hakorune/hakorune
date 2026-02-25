@@ -1,0 +1,30 @@
+// Phase 29bq: generic_loop_v1 recipe acceptance (then-only if with empty join payload)
+// Goal: then-only if with no updates; nested loop outside if (no break/continue/return)
+// Expected output: 3
+// Note: includes a call in then-only to avoid LoopCondBreak acceptance.
+static box Helper {
+  ping(x) {
+    return x
+  }
+}
+
+static box Main {
+  main() {
+    local i = 0
+    local j = 0
+
+    loop(i < 3) {
+      if i == 2 {
+        Helper.ping(i)
+      }
+      j = 0
+      loop(j < 1) {
+        j = j + 1
+      }
+      i = i + 1
+    }
+
+    print(i)
+    return 0
+  }
+}

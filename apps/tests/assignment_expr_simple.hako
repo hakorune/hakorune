@@ -1,0 +1,11 @@
+// Phase 152-A: Grouped assignment expression simple test
+// Test: (x = expr) returns value and assigns to x
+
+static box Main {
+    main() {
+        local x = 0
+        local y = (x = x + 1)
+        // x should be 1, y should be 1
+        return y  // Expected: RC 1
+    }
+}

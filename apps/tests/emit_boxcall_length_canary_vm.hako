@@ -1,0 +1,8 @@
+// Minimal canary for Stage-B emit -> MIR(JSON) testing.
+// StringBox.length boxcall should appear in MIR.
+static box Main {
+  method main() {
+    local s = new StringBox("nyash");
+    return s.length()
+  }
+}

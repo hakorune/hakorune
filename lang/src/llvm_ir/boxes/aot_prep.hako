@@ -1,0 +1,399 @@
+// aot_prep.hako — AotPrepBox (pre-MIR normalizer/optimizer; skeleton)
+// 入出力（最小仕様）
+// - AotPrepBox.prep/1(json_in_path: String) -> String (json_out_path)
+// 責務
+// - JSON(MIR v0) の軽量正規化（キー順/冗長キー削除）と安全な const/binop(+,-,*)/ret の単一ブロック畳み込み
+// - 既定ではパススルー（Rust 側 maybe_prepare_mir_json が実体）。段階的にこちらへ移管する
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.llvm.ir.aot_prep.helpers.common as AotPrepHelpers
+// Modular normalizers（opt‑in, default OFF）
+// Note: To minimize parser surface, provide identity stubs here.
+// Real normalizers can be wired via using in higher layers when needed.
+static box NormalizePrintBox { run(json) { return json } }
+static box NormalizeRefBox { run(json) { return json } }
+static box NormalizeArrayLegacyBox { run(json) { return json } }
+// Externalized core passes (Stage-1: wrappers; impl move is incremental)
+using selfhost.llvm.ir.aot_prep.passes.strlen as AotPrepStrlenBox
+using selfhost.llvm.ir.aot_prep.passes.loop_hoist as AotPrepLoopHoistBox
+using selfhost.llvm.ir.aot_prep.passes.const_dedup as AotPrepConstDedupBox
+using selfhost.llvm.ir.aot_prep.passes.binop_cse as AotPrepBinopCSEBox
+using selfhost.llvm.ir.aot_prep.passes.collections_hot as AotPrepCollectionsHotBox
+using selfhost.llvm.ir.aot_prep.passes.fold_const_ret as AotPrepFoldConstRetBox
+using selfhost.llvm.ir.aot_prep.passes.numeric_core as AotPrepNumericCoreBox
+
+// Pass modules (logical分割; 将来はファイル分割へ移行)
+static box AotPrepPass_Strlen { run(json) { return AotPrepStrlenBox.run(json) } }
+static box AotPrepPass_LoopHoist { run(json) { return AotPrepLoopHoistBox.run(json) } }
+static box AotPrepPass_ConstDedup { run(json) { return AotPrepConstDedupBox.run(json) } }
+static box AotPrepPass_CollectionsHot { run(json) { return AotPrepCollectionsHotBox.run(json) } }
+static box AotPrepPass_BinopCSE { run(json) { return AotPrepBinopCSEBox.run(json) } }
+static box AotPrepPass_NumericCore { run(json) { return AotPrepNumericCoreBox.run(json) } }
+
+static box AotPrepBox {
+  // AotPrepBox.prep
+  // 入力: JSONファイルパス（MIR v0）
+  // 出力: 正規化後のJSONを書き出したパス（<in>.prep.json）。失敗時は入力パスを返す（Fail‑FastはRust側が継続）。
+  prep(json_in_path) {
+    if !json_in_path { return json_in_path }
+    // Read input
+    local fb = new FileBox()
+    fb.open(json_in_path, "r")
+    local src = fb.read()
+    fb.close()
+    if !src { return json_in_path }
+
+    // Phase‑1: 文字列正規化（安定化）
+    // 現状は恒等（将来はHostBridgeでキー順安定化）
+    local canon = "" + src
+
+    // Phase‑2: 安全な単一ブロック const/binop(+,-,*)/ret の畳み込み（最小実装）
+    // 備考: まずは main 関数を優先対象とし、成立時のみ最小 JSON に置換（今後は in‑place 置換へ段階移行）。
+    local out = AotPrepBox._try_fold_const_binop_ret(canon)
+    if !out { out = canon }
+
+    // Phase‑3 (opt-in): 軽いホイスティング/ホットパス
+    // - ループ内の固定文字列 length/len の即値化（実質的な前計算）
+    // - Array/Map の get/set/push/len を AOT 向け externcall に張替え（最短経路）
+    // 既定はOFF。開発時のみ明示フラグで有効化する。
+    local do_hoist = (env.get("NYASH_MIR_LOOP_HOIST") == "1") || (env.get("NYASH_LLVM_FAST") == "1")
+    if do_hoist {
+      local h = AotPrepPass_Strlen.run(out)
+      if h != null && h != "" { out = h }
+      local l = AotPrepPass_LoopHoist.run(out)
+      if l != null && l != "" { out = l }
+      local d = AotPrepPass_ConstDedup.run(out)
+      if d != null && d != "" { out = d }
+      local c = AotPrepPass_BinopCSE.run(out)
+      if c != null && c != "" { out = c }
+    }
+    if env.get("NYASH_AOT_COLLECTIONS_HOT") == "1" {
+      local r = AotPrepPass_CollectionsHot.run(out)
+      if r != null && r != "" { out = r }
+    }
+
+    // Phase‑4 (opt-in): numeric core diagnostics / future lowering
+    if env.get("NYASH_AOT_NUMERIC_CORE") == "1" {
+      local nn = AotPrepPass_NumericCore.run(out)
+      if nn != null && nn != "" { out = nn }
+    }
+
+    // Phase‑3.5 (opt-in): 正規化（Rust normalize.rs からの移行先／既定OFF）
+    if env.get("HAKO_MIR_NORMALIZE_PRINT") == "1" {
+      local np = NormalizePrintBox.run(out)
+      if np != null && np != "" { out = np }
+    }
+    if env.get("HAKO_MIR_NORMALIZE_REF") == "1" {
+      local nr = NormalizeRefBox.run(out)
+      if nr != null && nr != "" { out = nr }
+    }
+    if env.get("HAKO_MIR_NORMALIZE_ARRAY") == "1" {
+      local na = NormalizeArrayLegacyBox.run(out)
+      if na != null && na != "" { out = na }
+    }
+
+    // Decide output path
+    local out_path = json_in_path + ".prep.json"
+    fb.open(out_path, "w")
+    fb.write(out)
+    fb.close()
+    return out_path
+  }
+
+  _is_const_or_linear(json, vid) {
+    if vid == "" { return false }
+    return AotPrepBox._linear_expr(json, vid, 0)
+  }
+
+  _is_const_vid(json, vid) {
+    if vid == "" { return false }
+    local needle = "\"dst\":" + vid
+    local pos = JsonFragBox.index_of_from(json, needle, 0)
+    while pos >= 0 {
+      local start = json.substring(0, pos).lastIndexOf("{")
+      if start < 0 { break }
+      local end = AotPrepBox._seek_object_end(json, start)
+      if end < 0 { break }
+      local inst = json.substring(start, end+1)
+      if inst.indexOf("\"op\":\"const\"") >= 0 { return true }
+      if inst.indexOf("\"op\":\"copy\"") >= 0 {
+        // copy 連鎖を辿って const を認定
+        local ksrc = inst.indexOf("\"src\":")
+        if ksrc >= 0 {
+          local svid = StringHelpers.read_digits(inst, ksrc + 6)
+          if svid != "" { return AotPrepBox._is_const_vid(json, svid) }
+        }
+      }
+      pos = JsonFragBox.index_of_from(json, needle, pos + 1)
+    }
+    return false
+  }
+
+  _linear_expr(json, vid, depth) {
+    if vid == "" { return false }
+    if depth > 10 { return false }
+    if AotPrepBox._is_const_vid(json, vid) { return true }
+    local needle = "\"dst\":" + vid
+    local pos = JsonFragBox.index_of_from(json, needle, 0)
+    while pos >= 0 {
+      local start = json.substring(0, pos).lastIndexOf("{")
+      if start < 0 { break }
+      local end = AotPrepBox._seek_object_end(json, start)
+      if end < 0 { break }
+      local inst = json.substring(start, end+1)
+      // copy は線形性をそのまま伝播
+      if inst.indexOf("\"op\":\"copy\"") >= 0 {
+        local ksrc = inst.indexOf("\"src\":")
+        if ksrc >= 0 {
+          local svid = StringHelpers.read_digits(inst, ksrc + 6)
+          if svid != "" { return AotPrepBox._linear_expr(json, svid, depth + 1) }
+        }
+      }
+      if inst.indexOf("\"op\":\"binop\"") >= 0 {
+        local lhs_pos = inst.indexOf("\"lhs\":")
+        local rhs_pos = inst.indexOf("\"rhs\":")
+        local op_key = inst.indexOf("\"operation\":\"")
+        if lhs_pos >= 0 && rhs_pos >= 0 && op_key >= 0 {
+          local lhs = StringHelpers.read_digits(inst, lhs_pos + 6)
+          local rhs = StringHelpers.read_digits(inst, rhs_pos + 6)
+          local op = JsonFragBox.read_string_after(inst, op_key + 13)
+          if lhs != "" && rhs != "" && (op == "+" || op == "-" || op == "*" || op == "add" || op == "sub" || op == "mul") {
+            if AotPrepBox._is_const_vid(json, lhs) && AotPrepBox._linear_expr(json, rhs, depth + 1) { return true }
+            if AotPrepBox._is_const_vid(json, rhs) && AotPrepBox._linear_expr(json, lhs, depth + 1) { return true }
+          }
+          // allow div/rem with const operand as linear for heuristics
+          if lhs != "" && rhs != "" && (op == "/" || op == "div" || op == "sdiv" || op == "%" || op == "rem" || op == "srem") {
+            // only accept when one side is a const and the other side is linear
+            if (op == "/" || op == "div" || op == "sdiv") {
+              if AotPrepBox._linear_expr(json, lhs, depth + 1) && AotPrepBox._is_const_vid(json, rhs) { return true }
+              if AotPrepBox._is_const_vid(json, lhs) && AotPrepBox._linear_expr(json, rhs, depth + 1) { return true }
+            } else {
+              // rem: treat similarly (mod by const)
+              if AotPrepBox._linear_expr(json, lhs, depth + 1) && AotPrepBox._is_const_vid(json, rhs) { return true }
+            }
+          }
+        }
+      }
+      pos = JsonFragBox.index_of_from(json, needle, pos + 1)
+    }
+    return false
+  }
+
+  // evaluate_binop_constant is provided by AotPrepHelpers
+
+  // 内部: 最小の安全畳み込み（JSON文字列ベース）
+  _find_instr_span_from(s, start_from) {
+    local key = "\"instructions\":["
+    local pos = s.indexOf(key, start_from)
+    if pos < 0 { return "" }
+    local ls = s.indexOf("[", pos)
+    if ls < 0 { return "" }
+    local depth = 0
+    local i = ls
+    local L = s.length()
+    local rs = -1
+    loop(i < L) {
+      local ch = s.substring(i, i+1)
+      if ch == "[" { depth = depth + 1 }
+      if ch == "]" { depth = depth - 1  if depth == 0 { rs = i  break } }
+      i = i + 1
+    }
+    if rs < 0 { return "" }
+    return StringHelpers.int_to_str(ls) + ":" + StringHelpers.int_to_str(rs)
+  }
+
+  _parse_dst(ss, pos) {
+    local k = "\"dst\":"
+    local i = ss.indexOf(k, pos)
+    if i < 0 { return -1 }
+    i = i + k.length()
+    local digs = StringHelpers.read_digits(ss, i)
+    if digs == "" { return -1 }
+    return StringHelpers.to_i64(digs)
+  }
+
+  _parse_val(ss, pos) {
+    local k = "\"value\":{\"type\":\"i64\",\"value\":"
+    local i = ss.indexOf(k, pos)
+    if i < 0 { return null }
+    i = i + k.length()
+    local digs = StringHelpers.read_digits(ss, i)
+    if digs == "" { return null }
+    return StringHelpers.to_i64(digs)
+  }
+
+  _find_num(ss, key, pos) {
+    local k = key
+    local i = ss.indexOf(k, pos)
+    if i < 0 { return -1 }
+    i = i + k.length()
+    local digs = StringHelpers.read_digits(ss, i)
+    if digs == "" { return -1 }
+    return StringHelpers.to_i64(digs)
+  }
+
+  _find_op(ss, pos) {
+    local k = "\"operation\":\""
+    local i = ss.indexOf(k, pos)
+    if i < 0 { return "" }
+    i = i + k.length()
+    local j = ss.indexOf("\"", i)
+    if j < 0 { return "" }
+    return ss.substring(i, j)
+  }
+
+  _try_fold_in_span(s, arr_start, arr_end) {
+    if arr_start < 0 || arr_end < 0 { return null }
+    local body = s.substring(arr_start, arr_end+1)
+    // Need two const, a binop, and a ret in this span
+    local p1 = body.indexOf("\"op\":\"const\"")
+    local p2 = body.indexOf("\"op\":\"const\"", (p1>=0 ? (p1+1) : 0))
+    local pb = body.indexOf("\"op\":\"binop\"", (p2>=0 ? (p2+1) : 0))
+    local pr = body.indexOf("\"op\":\"ret\"", (pb>=0 ? (pb+1) : 0))
+    if p1 < 0 || p2 < 0 || pb < 0 || pr < 0 { return null }
+    // parse
+    local d1 = AotPrepBox._parse_dst(body, p1)
+    local a  = AotPrepBox._parse_val(body, p1)
+    local d2 = AotPrepBox._parse_dst(body, p2)
+    local b  = AotPrepBox._parse_val(body, p2)
+    if d1 < 0 || d2 < 0 || a == null || b == null { return null }
+    local lhs = AotPrepBox._find_num(body, "\"lhs\":", pb)
+    local rhs = AotPrepBox._find_num(body, "\"rhs\":", pb)
+    local bop = AotPrepBox._find_op(body, pb)
+    local d3  = AotPrepBox._find_num(body, "\"dst\":", pb)
+    if lhs != d1 || rhs != d2 || d3 < 0 { return null }
+    local rv = AotPrepBox._find_num(body, "\"value\":", pr)
+    if rv != d3 { return null }
+    // binop allowed: +,-,* only
+    local res = 0
+    if bop == "+" { res = a + b }
+    else { if bop == "-" { res = a - b } else { if bop == "*" { res = a * b } else { return null } } }
+    // build new array and replace in-place
+    local new_insts = "[" +
+      "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + StringHelpers.int_to_str(d1) + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + StringHelpers.int_to_str(res) + "}}," +
+      "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + StringHelpers.int_to_str(d1) + "}]"
+    local head = s.substring(0, arr_start)
+    local tail = s.substring(arr_end + 1, s.length())
+    return head + new_insts + tail
+  }
+
+  _try_fold_const_binop_ret(json) {
+    if !json { return null }
+    // Pass 1: prefer name:"main"
+    local fn_pos = json.indexOf("\"name\":\"main\"")
+    if fn_pos >= 0 {
+      local span = AotPrepBox._find_instr_span_from(json, fn_pos)
+      local ls = -1; local rs = -1
+      if span != null && span != "" {
+        local sep = span.indexOf(":")
+        if sep >= 0 {
+          local s_ls = span.substring(0, sep)
+          local s_rs = span.substring(sep+1, span.length())
+          ls = StringHelpers.to_i64(s_ls)
+          rs = StringHelpers.to_i64(s_rs)
+        }
+      }
+      if ls != null && rs != null && ls >= 0 && rs >= 0 {
+        local repl = AotPrepBox._try_fold_in_span(json, ls, rs)
+        if repl { return repl }
+      }
+    }
+    // Pass 2: scan functions sequentially and attempt per function
+    local froot = json.indexOf("\"functions\":[")
+    if froot < 0 { return null }
+    local scan = froot
+    local tries = 0
+    loop(tries < 16) {
+      local np = json.indexOf("\"name\":\"", scan+1)
+      if np < 0 { break }
+      local span2 = AotPrepBox._find_instr_span_from(json, np)
+      local ls2 = -1; local rs2 = -1
+      if span2 != null && span2 != "" {
+        local sep2 = span2.indexOf(":")
+        if sep2 >= 0 {
+          local s_ls2 = span2.substring(0, sep2)
+          local s_rs2 = span2.substring(sep2+1, span2.length())
+          ls2 = StringHelpers.to_i64(s_ls2)
+          rs2 = StringHelpers.to_i64(s_rs2)
+        }
+      }
+      if ls2 != null && rs2 != null && ls2 >= 0 && rs2 >= 0 {
+        local repl2 = AotPrepBox._try_fold_in_span(json, ls2, rs2)
+        if repl2 { return repl2 }
+        scan = rs2 + 1
+      } else {
+        scan = np + 8
+      }
+      tries = tries + 1
+    }
+    return null
+  }
+
+  // 軽ホイスティング1: 固定文字列の length/len を即値に置換（JSON文字列書換、構造変更なし）
+  // Array/Map hot path: boxcall を externcall に張替え（AOT専用・診断OFFの最短経路）
+  // JSON 内のオブジェクト { ... } の終了位置を探索（入れ子/文字列・エスケープ対応）
+  _seek_object_end(s, start) {
+    if s == null { return -1 }
+    if start < 0 || start >= s.length() { return -1 }
+    if s.substring(start, start+1) != "{" { return -1 }
+    local i = start
+    local depth = 0
+    local in_str = 0
+    local esc = 0
+    loop (i < s.length()) {
+      local ch = s.substring(i, i+1)
+      if in_str == 1 {
+        if esc == 1 { esc = 0 }
+        else if ch == "\\" { esc = 1 }
+        else if ch == "\"" { in_str = 0 }
+      } else {
+        if ch == "\"" { in_str = 1 }
+        else if ch == "{" { depth = depth + 1 }
+        else if ch == "}" {
+          depth = depth - 1
+          if depth == 0 { return i }
+        }
+      }
+      i = i + 1
+    }
+    return -1
+  }
+
+  // AotPrepBox.run_json — E2E (no FileBox). Input: JSON text; Output: JSON text after opt-in passes.
+  run_json(src_json) {
+    if src_json == null { return null }
+    // Phase‑1: 文字列正規化（安定化）
+    local out = "" + src_json
+
+    // Phase‑2: 安全な単一ブロック const/binop(+,-,*)/ret の畳み込み（最小実装）
+    local tmp = AotPrepBox._try_fold_const_binop_ret(out)
+    if tmp != null && tmp != "" { out = tmp }
+
+    // Phase‑3: 軽いホイスティング/ホットパス（opt‑in）
+    local do_hoist = (env.get("NYASH_MIR_LOOP_HOIST") == "1") || (env.get("NYASH_LLVM_FAST") == "1")
+    if do_hoist {
+      local h = AotPrepPass_Strlen.run(out); if h != null && h != "" { out = h }
+      local l = AotPrepPass_LoopHoist.run(out); if l != null && l != "" { out = l }
+      local d = AotPrepPass_ConstDedup.run(out); if d != null && d != "" { out = d }
+      local c = AotPrepPass_BinopCSE.run(out); if c != null && c != "" { out = c }
+    }
+    if env.get("NYASH_AOT_COLLECTIONS_HOT") == "1" {
+      local r = AotPrepPass_CollectionsHot.run(out); if r != null && r != "" { out = r }
+    }
+    // Phase‑4: numeric core transformation (opt‑in)
+    if env.get("NYASH_AOT_NUMERIC_CORE") == "1" {
+      local nn = AotPrepPass_NumericCore.run(out); if nn != null && nn != "" { out = nn }
+    }
+    if env.get("HAKO_MIR_NORMALIZE_PRINT") == "1" {
+      local np = NormalizePrintBox.run(out); if np != null && np != "" { out = np }
+    }
+    if env.get("HAKO_MIR_NORMALIZE_REF") == "1" {
+      local nr = NormalizeRefBox.run(out); if nr != null && nr != "" { out = nr }
+    }
+    if env.get("HAKO_MIR_NORMALIZE_ARRAY") == "1" {
+      local na = NormalizeArrayLegacyBox.run(out); if na != null && na != "" { out = na }
+    }
+    return out
+  }
+}

@@ -1,0 +1,4 @@
+- Phase 95: json_loader escape loopを Phase 94 基盤（BodyLocalDerivedEmitter + p5b_escape_derived_policy）でE2E固定する。
+- 新規フィクスチャ: apps/tests/phase95_json_loader_escape_min.hako（hello" world を出力）
+- ガード: HAKO_JOINIR_STRICT=1 で fail-fast 維持。smoke (integration) で VM 出力を検証。
+- Phase 99追加: 末尾バックスラッシュは best-effort（そのまま出力）として固定。apps/tests/phase99_json_loader_escape_trailing_backslash_min.hako で検証。

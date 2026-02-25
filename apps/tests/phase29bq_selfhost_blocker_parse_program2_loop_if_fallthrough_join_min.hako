@@ -1,0 +1,12 @@
+// parse_program2 loop if-fallthrough join shape (no break/continue)
+// Expected: stdout=1, RC=0
+static box Main {
+  main() {
+    local v = 0
+    loop(v < 1) {
+      if v == 0 { v = 1 }
+    }
+    print(v)
+    return 0
+  }
+}

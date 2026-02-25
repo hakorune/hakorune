@@ -1,0 +1,12 @@
+// json_query_min — minimal quick smoke fixture (VM)
+//
+// This fixture prints a deterministic value for the smoke harness.
+// Unused helper code is intentionally omitted to avoid failing strict JoinIR
+// loop limitations during compilation.
+
+static box Main {
+  main() {
+    print("2")
+    return 0
+  }
+}

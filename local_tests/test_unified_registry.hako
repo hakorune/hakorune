@@ -1,0 +1,30 @@
+// Phase 9.78b: Unified BoxFactory Registry test
+
+print("=== UnifiedBoxRegistry Test ===")
+
+// Test basic Box creation through unified registry
+local str
+str = new StringBox("Hello UnifiedBox!")
+print("StringBox created successfully!")
+
+local num
+num = new IntegerBox(42)
+print("IntegerBox created successfully!")
+
+local flag
+flag = new BoolBox(true)
+print("BoolBox created successfully!")
+
+local arr
+arr = new ArrayBox()
+print("ArrayBox created successfully!")
+
+local mathBox
+mathBox = new MathBox()
+print("MathBox created successfully!")
+
+local console
+console = new ConsoleBox()
+console.log("🎉 All unified registry tests passed!")
+
+print("=== Test completed ===")

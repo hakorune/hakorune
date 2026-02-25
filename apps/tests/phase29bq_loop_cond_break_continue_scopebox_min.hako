@@ -1,0 +1,20 @@
+// Phase 29bq: loop(cond) with ScopeBox container in body (LoopCondBreakContinue)
+// Expected: stdout=5, RC=0
+
+static box Main {
+  main() {
+    local n = 3
+    local i = 0
+    local sum = 0
+    loop(i < n) {
+      {
+        sum = sum + 5
+      }
+      if i == 0 { break }
+      i = i + 1
+    }
+
+    print(sum)
+    return 0
+  }
+}

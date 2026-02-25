@@ -1,0 +1,153 @@
+// Moved from apps/selfhost-compiler/boxes/parser/expr/parser_literal_box.hako
+// ParserLiteralBox — Map/Array/BlockExpr literal parser
+// Responsibility: Parse Map %{"k" => v, ...}, Array [e1, e2, ...], BlockExpr { stmts; expr }
+// API: parse_map(src, i, ctx) -> JSON, parse_array(src, i, ctx) -> JSON, parse_block_expr(src, i, ctx) -> JSON
+
+static box ParserLiteralBox {
+  // B2-4: BlockExpr: { prelude_stmts; tail_expr }
+  // Returns: {"type":"BlockExpr","prelude":[],"tail":{...}}
+  parse_block_expr(src, i, ctx) {
+    local n = src.length()
+    local j = i + 1  // skip opening '{'
+    local prelude = "["
+    local stmts_count = 0
+    local last_stmt = ""
+    local guard = 0
+    local max = 200000
+    loop(guard < max) {
+      j = ctx.skip_ws(src, j)
+      if j >= n { break }
+      if src.substring(j, j+1) == "}" { break }
+
+      local before = j
+      local stmt_json = ctx.parse_stmt2(src, j)
+      j = ctx.gpos_get()
+
+      // Add previous stmt to prelude, save current as potential tail
+      if stmts_count > 0 {
+        if stmts_count > 1 { prelude = prelude + "," }
+        prelude = prelude + last_stmt
+      }
+      last_stmt = stmt_json
+      stmts_count = stmts_count + 1
+
+      // progress guard
+      if j <= before && j < n { j = j + 1 }
+      guard = guard + 1
+    }
+    prelude = prelude + "]"
+
+    // consume closing '}'
+    if j < n && src.substring(j, j+1) == "}" { j = j + 1 }
+    ctx.gpos_set(j)
+
+    // last_stmt becomes tail_expr
+    if stmts_count == 0 {
+      // Empty block - error (BlockExpr needs at least one expression)
+      return "{\"type\":\"Error\",\"message\":\"BlockExpr requires at least one expression\"}"
+    }
+    return "{\"type\":\"BlockExpr\",\"prelude\":" + prelude + ",\"tail\":" + last_stmt + "}"
+  }
+
+  // Map literal: %{"k" => v, ...}
+  // (v1: string keys only) → Call{name:"map.of", args:[Str(k1), v1, Str(k2), v2, ...]}
+  // B2-4: Only called for %{...} now (legacy {...} map is no longer supported)
+  parse_map(src, i, ctx) {
+    local n = src.length()
+    local j = i + 2  // skip opening '%{'
+    local out = "["
+    local pair_count = 0
+    local guard = 0
+    local max = 200000
+    loop(guard < max) {
+      j = ctx.skip_ws(src, j)
+
+      if j >= n { break }
+
+      if src.substring(j, j+1) == "}" { break }
+
+      // key (string only for Stage-2)
+      if src.substring(j, j+1) != "\"" {
+        // degrade by skipping one char to avoid infinite loop
+        j = j + 1
+      } else {
+        local before = j
+
+        // Parse key as an expression (v1: must be string literal)
+        // (Using parse_expr2 here avoids relying on read_string_lit+gpos on this path.)
+        local key_json = ctx.parse_expr2(src, j)
+        j = ctx.gpos_get()
+        j = ctx.skip_ws(src, j)
+        // Expect =>
+        if j + 1 < n && src.substring(j, j+2) == "=>" { j = j + 2 }
+        else {
+          // Malformed separator: advance minimally to avoid infinite loops.
+          if j < n { j = j + 1 }
+        }
+        j = ctx.skip_ws(src, j)
+        local val_json = ctx.parse_expr2(src, j)
+        j = ctx.gpos_get()
+
+        if pair_count > 0 { out = out + "," }
+        out = out + key_json + "," + val_json
+        pair_count = pair_count + 1
+
+        // progress guard (in case of malformed input)
+        if j <= before && j < n { j = j + 1 }
+      }
+
+      // optional comma
+      j = ctx.skip_ws(src, j)
+      if j < n && src.substring(j, j+1) == "," { j = j + 1 }
+      guard = guard + 1
+    }
+
+    // If we stopped at the closing brace, consume it.
+    if j < n && src.substring(j, j+1) == "}" { j = j + 1 }
+
+    out = out + "]"
+    ctx.gpos_set(j)
+    return "{\"type\":\"Call\",\"name\":\"map.of\",\"args\":" + out + "}"
+  }
+
+  // Array literal: [e1, e2, ...] → Call{name:"array.of", args:[...]}
+  parse_array(src, i, ctx) {
+    local n = src.length()
+    local j = i + 1  // skip opening '['
+    local out = "["
+    local elem_count = 0
+    local guard = 0
+    local max = 200000
+    loop(guard < max) {
+      j = ctx.skip_ws(src, j)
+
+      if j >= n { break }
+
+      if src.substring(j, j+1) == "]" { break }
+
+      local before = j
+      local ej = ctx.parse_expr2(src, j)
+      j = ctx.gpos_get()
+
+      if elem_count > 0 { out = out + "," }
+      out = out + ej
+      elem_count = elem_count + 1
+
+      // optional comma+whitespace
+      j = ctx.skip_ws(src, j)
+      if j < n && src.substring(j, j+1) == "," { j = j + 1 }
+
+      // progress guard
+      if j <= before && j < n { j = j + 1 }
+
+      guard = guard + 1
+    }
+
+    // If we stopped at the closing bracket, consume it.
+    if j < n && src.substring(j, j+1) == "]" { j = j + 1 }
+
+    out = out + "]"
+    ctx.gpos_set(j)
+    return "{\"type\":\"Call\",\"name\":\"array.of\",\"args\":" + out + "}"
+  }
+}

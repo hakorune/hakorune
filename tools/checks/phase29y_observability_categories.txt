@@ -1,0 +1,6 @@
+# phase29y observability category inventory (fixed order)
+handles
+locals
+temps
+heap_fields
+singletons

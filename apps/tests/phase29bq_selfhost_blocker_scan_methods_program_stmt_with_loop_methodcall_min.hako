@@ -1,0 +1,25 @@
+// selfhost _scan_methods minimal: Program stmt with nested methodcall loop
+// Expected: stdout=2, RC=0
+
+static box Main {
+  main() {
+    local s = "abc"
+    local n = s.length()
+    local i = 0
+
+    loop(i < n) {
+      if i == 2 { break }
+      {
+        local j = 0
+        loop(j < n) {
+          if s.substring(j, j + 1) == "b" { break }
+          j = j + 1
+        }
+      }
+      i = i + 1
+    }
+
+    print(i)
+    return 0
+  }
+}

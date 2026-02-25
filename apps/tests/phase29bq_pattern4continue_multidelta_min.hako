@@ -1,0 +1,29 @@
+// Phase 29bq: multi-continue + multi-delta update (Pattern4Continue-style)
+//
+// Expected output: 31
+static box Main {
+  main() {
+    local j = 0
+    local n = 6
+    local out = 0
+
+    loop(j < n) {
+      if j == 0 {
+        out = out + 10
+        j = j + 2
+        continue
+      }
+      if j == 2 {
+        out = out + 20
+        j = j + 3
+        continue
+      }
+      if j > 10 { break }
+      out = out + 1
+      j = j + 1
+    }
+
+    print(out)
+    return 0
+  }
+}

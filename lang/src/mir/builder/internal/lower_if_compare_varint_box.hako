@@ -1,0 +1,76 @@
+// lower_if_compare_varint_box.hako — If(Compare Var vs Int | Int vs Var) with prior Local Int
+
+using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box LowerIfCompareVarIntBox {
+  try_lower(program_json){
+    local s = "" + program_json
+    // Locate If → Compare → op using robust index_of_from helpers
+    local k_if = JsonFragBox.index_of_from(s, "\"type\":\"If\"", 0); if k_if < 0 { return null }
+    local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_if); if k_cmp < 0 { return null }
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_cmp); if k_op < 0 { return null }
+    local op_sym = JsonFragBox.read_string_after(s, k_op + 5)
+    // Keep original operator symbol for JSON emission (operation)
+    if op_sym == null { return null }
+    // Var vs Int
+    local klhs_var = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\"", k_cmp)
+    local krhs_int = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", k_cmp)
+    local aval=null; local bval=null
+    if klhs_var >= 0 && krhs_int >= 0 {
+      local k_name = JsonFragBox.index_of_from(s, "\"name\":", klhs_var); if k_name < 0 { return null }
+      local name = JsonFragBox.read_string_after(s, k_name + 7)
+      aval = PatternUtilBox.find_local_int_before(s, name, k_if)
+      local ki = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", krhs_int)
+      if ki >= 0 {
+        local kv = JsonFragBox.index_of_from(s, "\"value\":", ki); if kv < 0 { return null }
+        bval = JsonFragBox.read_int_after(s, kv + 8)
+      }
+    } else {
+      // Int vs Var
+      local klhs_int = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Int\"", k_cmp)
+      local krhs_var = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\"", k_cmp)
+      if klhs_int >= 0 && krhs_var >= 0 {
+        local ki2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", klhs_int)
+        if ki2 >= 0 {
+          local kv2 = JsonFragBox.index_of_from(s, "\"value\":", ki2); if kv2 < 0 { return null }
+          aval = JsonFragBox.read_int_after(s, kv2 + 8)
+        }
+        local k_name2 = JsonFragBox.index_of_from(s, "\"name\":", krhs_var); if k_name2 < 0 { return null }
+        local name2 = JsonFragBox.read_string_after(s, k_name2 + 7)
+        if name2 != null { bval = PatternUtilBox.find_local_int_before(s, name2, k_if) }
+      }
+    }
+    if aval == null || bval == null { return null }
+    // then/else Return(Int) — boundary limited
+    // then bounds
+    local tb = PatternUtilBox.then_array_bounds(s, k_if); if tb == null { return null }
+    local cpos = tb.indexOf(":"); if cpos < 0 { return null }
+    local lb_then = JsonFragBox._str_to_int(tb.substring(0, cpos))
+    local rb_then = JsonFragBox._str_to_int(tb.substring(cpos + 1, tb.length()))
+    // else bounds (after then)
+    local eb = PatternUtilBox.else_array_bounds_after_then(s, k_if); if eb == null { return null }
+    local cpos2 = eb.indexOf(":"); if cpos2 < 0 { return null }
+    local lb_else = JsonFragBox._str_to_int(eb.substring(0, cpos2))
+    local rb_else = JsonFragBox._str_to_int(eb.substring(cpos2 + 1, eb.length()))
+    // then: first Return(Int) strictly within [lb_then, rb_then)
+    local rt1 = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", lb_then); if rt1 < 0 || rt1 >= rb_then { return null }
+    local ti1 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rt1); if ti1 < 0 || ti1 >= rb_then { return null }
+    local kv_then = JsonFragBox.index_of_from(s, "\"value\":", ti1); if kv_then < 0 || kv_then >= rb_then { return null }
+    local then_v = JsonFragBox.read_int_after(s, kv_then + 8); if then_v == null { return null }
+    // else: first Return(Int) strictly within [lb_else, rb_else)
+    local rt2 = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", lb_else); if rt2 < 0 || rt2 >= rb_else { return null }
+    local ti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rt2); if ti2 < 0 || ti2 >= rb_else { return null }
+    local kv_else = JsonFragBox.index_of_from(s, "\"value\":", ti2); if kv_else < 0 || kv_else >= rb_else { return null }
+    local else_v = JsonFragBox.read_int_after(s, kv_else + 8); if else_v == null { return null }
+    // Emit MIR(JSON v0) as string (keep structure consistent with LowerIfCompareBox)
+    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+      "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + aval + "}}," +
+      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + bval + "}}," +
+      "{\"op\":\"compare\",\"operation\":\"" + op_sym + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+      "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
+      "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + then_v + "}},{\"op\":\"ret\",\"value\":4}]}," +
+      "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + else_v + "}},{\"op\":\"ret\",\"value\":5}]}]}]}"
+    return mir
+  }
+}

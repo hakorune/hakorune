@@ -1,0 +1,35 @@
+// selfhost _scan_methods minimal: nested state-machine loop with break/continue
+// Expected: stdout=2, RC=0
+
+static box Main {
+  main() {
+    local n = 3
+    local i = 0
+    loop(i < n) {
+      if i == 2 { break }
+      {
+        local j = 0
+        local in_str
+        local esc
+        loop(j < n) {
+          local ch = "x"
+          if in_str == 1 {
+            if esc == 1 { esc = 0; j = j + 1; continue }
+            if ch == "\\" { esc = 1; j = j + 1; continue }
+            if ch == "\"" { in_str = 0; j = j + 1; continue }
+            j = j + 1
+            continue
+          }
+          if ch == "\"" { in_str = 1; j = j + 1; continue }
+          if j == 2 { break }
+          j = j + 1
+          continue
+        }
+      }
+      i = i + 1
+    }
+
+    print(i)
+    return 0
+  }
+}

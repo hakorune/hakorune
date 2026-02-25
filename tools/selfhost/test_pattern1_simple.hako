@@ -1,0 +1,17 @@
+// Phase 162: Simplest Pattern1 test (no ArrayBox/objects)
+// Just accumulate a counter in a simple loop
+
+static box Main {
+  main(args) {
+    local i = 0
+    local sum = 0
+
+    loop(i < 5) {
+      sum = sum + i
+      i = i + 1
+    }
+
+    print("Sum: " + ("" + sum))
+    return 0
+  }
+}

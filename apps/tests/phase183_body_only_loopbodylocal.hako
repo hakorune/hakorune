@@ -1,0 +1,36 @@
+// Phase 183-3: Demonstrate body-only LoopBodyLocal (doesn't trigger Trim)
+// Goal: Show that LoopBodyLocal used only in body, not in conditions,
+// doesn't trigger Trim lowering
+
+static box Main {
+  main(args) {
+    // Pattern 2 with body-only LoopBodyLocal
+    local result = 0
+    local i = 0
+
+    loop(i < 5) {
+      // Body-only LoopBodyLocal: temp is computed but never appears in any condition
+      local temp = i * 2
+
+      // Break condition doesn't use temp - only uses outer variable i
+      if i == 3 {
+        break
+      }
+
+      result = result + temp
+      i = i + 1
+    }
+
+    // Expected: result = 0*2 + 1*2 + 2*2 = 0 + 2 + 4 = 6
+    // i should be 3 (broke at 3)
+    if result == 6 {
+      if i == 3 {
+        print("PASS: Body-only LoopBodyLocal accepted (no Trim)")
+        return 0
+      }
+    }
+
+    print("FAIL: result or i incorrect")
+    return 1
+  }
+}

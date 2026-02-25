@@ -1,0 +1,25 @@
+// Minimal fixture for PhiInjectorBox._collect_phi_vars: var-step len-loop pattern
+// Pattern: loop(k < arr.length()) with non-const step (k = k + inc), no exit
+
+static box Main {
+    main() {
+        local arr = new ArrayBox()
+        arr.push(1)
+        arr.push(2)
+        arr.push(3)
+        arr.push(4)
+
+        local k = 0
+        local sum = 0
+        local inc = 1
+
+        loop(k < arr.length()) {
+            local v = arr.get(k)
+            sum = sum + v
+            k = k + inc
+        }
+
+        print(sum)
+        return 0
+    }
+}

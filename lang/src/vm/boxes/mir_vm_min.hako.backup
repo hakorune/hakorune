@@ -1,0 +1,456 @@
+// mir_vm_min.hako — Ny製の最小MIR(JSON v0)実行器（const/compare/copy/branch/jump/ret の最小）
+using selfhost.vm.helpers.gc_hooks as GcHooks
+using selfhost.vm.helpers.op_handlers as OpHandlersBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.string_ops as StringOps
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.vm.helpers.operator as OperatorBox
+using selfhost.vm.helpers.compare_ops as CompareOpsBox
+using selfhost.vm.helpers.compare_scan as CompareScanBox
+using selfhost.vm.helpers.phi_apply as PhiApplyBox
+using selfhost.vm.helpers.guard as GuardBox
+using selfhost.vm.helpers.result as Result
+using selfhost.vm.helpers.phi_decode as PhiDecodeBox
+using selfhost.vm.helpers.ret_resolve as RetResolveSimpleBox
+using selfhost.vm.helpers.instruction_scanner as InstructionScannerBox
+
+// Minimal map for Mini‑VM registers (avoid dependency on provider MapBox)
+box MiniMap {
+  field store: String
+  birth() { me.store = "" return 0 }
+  set(key, value) {
+    key = "" + key
+    value = "" + value
+    // remove existing key
+    local out = ""
+    local s = me.store
+    local pos = 0
+    loop(true) {
+      local nl = s.indexOf("\n", pos)
+      if nl < 0 { break }
+      local line = s.substring(pos, nl)
+      local eq = line.indexOf("=")
+      if eq >= 0 {
+        local k = line.substring(0, eq)
+        if k != key { out = out + line + "\n" }
+      }
+      pos = nl + 1
+    }
+    me.store = out + key + "=" + value + "\n"
+    return 0
+  }
+  get(key) {
+    key = "" + key
+    local s = me.store
+    local pos = 0
+    local last = null
+    loop(true) {
+      local nl = s.indexOf("\n", pos)
+      if nl < 0 { break }
+      local line = s.substring(pos, nl)
+      local eq = line.indexOf("=")
+      if eq >= 0 {
+        local k = line.substring(0, eq)
+        if k == key { last = line.substring(eq + 1, line.length()) }
+      }
+      pos = nl + 1
+    }
+    return last
+  }
+}
+
+static box MirVmMin {
+  _tprint(msg) {
+    // Only emit hard errors by default; avoid env dependencies in Mini‑VM
+    // Coerce to string to avoid VoidBox receiver issues during early boot
+    msg = "" + msg
+    if msg.indexOf("[ERROR]") >= 0 { print(msg) }
+  }
+  _d(msg, trace) { if trace == 1 { print(msg) } }
+  _parse_callee_name(seg) {
+    // naive scan: '"callee":{"name":"<sym>"'
+    local key = "\"callee\":{\"name\":\""
+    local p = seg.indexOf(key)
+    if p < 0 { return "" }
+    p = p + key.length()
+    local rest = seg.substring(p, seg.length())
+    local q = rest.indexOf("\"")
+    if q < 0 { return "" }
+    return rest.substring(0, q)
+  }
+  _parse_method_name(seg) {
+    // naive scan: '"callee":{"type":"Method","method":"<sym>"'
+    local key = "\"callee\":{\"type\":\"Method\",\"method\":\""
+    local p = seg.indexOf(key)
+    if p < 0 { return "" }
+    p = p + key.length()
+    local rest = seg.substring(p, seg.length())
+    local q = rest.indexOf("\"")
+    if q < 0 { return "" }
+    return rest.substring(0, q)
+  }
+  _parse_first_arg(seg) {
+    // naive scan: '"args":[ <int>'
+    local key = "\"args\":"
+    local p = seg.indexOf(key)
+    if p < 0 { return null }
+    p = p + key.length()
+    // find first digit or '-'
+    local i = p
+    loop(true) {
+      local ch = seg.substring(i, i+1)
+      if ch == "" { return null }
+      if ch == "-" || (ch >= "0" && ch <= "9") { break }
+      i = i + 1
+    }
+    // collect digits
+    local out = ""
+    loop(true) {
+      local ch = seg.substring(i, i+1)
+      if ch == "" { break }
+      if ch >= "0" && ch <= "9" { out = out + ch  i = i + 1 } else { break }
+    }
+    if out == "" { return null }
+    return JsonFragBox._str_to_int(out)
+  }
+  _handle_mir_call(seg, regs) {
+    // Support minimal externs only (i64 variants). Fail‑Fast for others.
+    local name = me._parse_callee_name(seg)
+    local arg0id = me._parse_first_arg(seg)
+    if name == "" {
+      // Try Method callee
+      local mname = me._parse_method_name(seg)
+      if mname != "" {
+        // Optional: minimal stateful bridge for size/len/length/push
+        // Enabled by HAKO_VM_MIRCALL_SIZESTATE=1 (default OFF). When OFF, emit stub tag and dst=0.
+        local size_state = env.get("HAKO_VM_MIRCALL_SIZESTATE")
+        if size_state == null { size_state = "0" }
+        if ("" + size_state) != "1" {
+          local stub = env.get("HAKO_VM_MIRCALL_STUB"); if stub == null { stub = "1" }
+          if ("" + stub) == "1" { print("[vm/method/stub:" + mname + "]") }
+          local dst0 = JsonFragBox.get_int(seg, "dst"); if dst0 != null { regs.set("" + dst0, "0") }
+          return
+        }
+        // Stateful branch
+        // Keep a simple per-run length counter in regs["__vm_len"]. Default 0.
+        local cur_len_raw = regs.getField("__vm_len"); if cur_len_raw == null { cur_len_raw = "0" }
+        local cur_len = JsonFragBox._str_to_int(cur_len_raw)
+        if mname == "push" {
+          cur_len = cur_len + 1
+          regs.set("__vm_len", "" + cur_len)
+          // push returns void/0 in this minimal path
+          local d1 = JsonFragBox.get_int(seg, "dst"); if d1 != null { regs.set("" + d1, "0") }
+          return
+        }
+        if mname == "len" || mname == "length" || mname == "size" {
+          local d2 = JsonFragBox.get_int(seg, "dst"); if d2 != null { regs.set("" + d2, "" + cur_len) }
+          return
+        }
+        // Others: no-op but keep stub tag for observability
+        print("[vm/method/stub:" + mname + "]")
+        local d3 = JsonFragBox.get_int(seg, "dst"); if d3 != null { regs.set("" + d3, "0") }
+        return
+      }
+      me._tprint("[ERROR] mir_call: missing callee")
+      return
+    }
+    if arg0id == null { arg0id = -1 }
+    // String console: env/nyash console log/warn/error — treat arg0 as string
+    if name == "env.console.log" || name == "nyash.console.log" ||
+       name == "env.console.warn" || name == "nyash.console.warn" ||
+       name == "env.console.error" || name == "nyash.console.error" {
+      local v = ""
+      if arg0id >= 0 {
+        local raw = regs.getField(""+arg0id)
+        v = "" + raw
+      }
+      print(v)
+      return
+    }
+    if name == "hako_console_log_i64" {
+      local v = 0
+      if arg0id >= 0 { v = me._load_reg(regs, arg0id) }
+      print(me._int_to_str(v))
+      return
+    }
+    if name == "hako_bench_noop_i64" || name == "hako_bench_use_value_i64" {
+      // no-op (observability only)
+      return
+    }
+    // Unknown extern: Fail‑Fast (emit once)
+    me._tprint("[ERROR] extern not supported: " + name)
+  }
+  // Compatibility runner (prints and returns). Prefer run_min for quiet return-only.
+  run(mjson) { local v = me._run_min(mjson) print(me._int_to_str(v)) return v }
+  // New: quiet entry that returns the result without printing.
+  run_min(mjson) { return me._run_min(mjson) }
+  // Thin-mode runner (ret resolution simplified)
+  run_thin(mjson) {
+    // Inject a lightweight marker into JSON to toggle thin mode inside _run_min
+    if mjson.substring(0,1) == "{" {
+      local payload = mjson.substring(1, mjson.length())
+      local j2 = "{\"__thin__\":1," + payload
+      local v = me._run_min(j2)
+      print(me._int_to_str(v))
+      return v
+    }
+    // Fallback: no-op when input is unexpected
+    local v = me._run_min(mjson)
+    print(me._int_to_str(v))
+    return v
+  }
+
+  // helpers
+  _int_to_str(n) { return StringHelpers.int_to_str(n) }
+  _is_numeric_str(s){ if s==null {return 0} local n=s.length() if n==0 {return 0} local i=0 if s.substring(0,1)=="-" { if n==1 {return 0} i=1 } loop(i<n){ local ch=s.substring(i,i+1) if ch<"0"||ch>"9" {return 0} i=i+1 } return 1 }
+  _load_reg(regs,id){ local v=regs.getField(""+id) if v==null {return 0} local s=""+v if me._is_numeric_str(s)==1 { return JsonFragBox._str_to_int(s) } return 0 }
+
+  // block helpers
+  _block_insts_start(mjson,bid){ local key="\"id\":"+me._int_to_str(bid) local p=mjson.indexOf(key) if p<0 {return -1} local q=StringOps.index_of_from(mjson,"\"instructions\":[",p) if q<0 {return -1} return q+15 }
+
+  // local copy handler
+  _handle_copy(seg, regs){ local dst=JsonFragBox.get_int(seg,"dst") local src=JsonFragBox.get_int(seg,"src") if dst==null || src==null {return} local v=regs.getField(""+src) regs.setField(""+dst, v) }
+
+  _run_min(mjson) {
+    // Normalize input as string to guarantee String methods availability
+    mjson = "" + mjson
+    // thin_mode=0: legacy heuristics（互換）; thin_mode=1: simplified ret
+    local thin_mode = 0
+    if mjson.indexOf("\"__thin__\":1") >= 0 { thin_mode = 1 }
+    // trace mode for dev: prints [DEBUG] messages
+    local trace = 0
+    if mjson.indexOf("\"__trace__\":1") >= 0 { trace = 1 }
+    // gc trace (mini‑VM専用マーカー; 環境依存を避ける)
+    local gc_trace = 0
+    if mjson.indexOf("\"__gc_trace__\":1") >= 0 { gc_trace = 1 }
+
+    // Safety first: handle simple compare→ret or const→ret in Block 0
+    // without allocating any runtime boxes. This avoids interpreter-level
+    // recursion during early startup (observed as Rust stack overflow) and
+    // covers our selfhost M2 minimal cases.
+    local b0 = JsonFragBox.block0_segment(mjson)
+    if b0 != "" {
+      // 1) Pure const→ret (only when const appears before ret and no other ops present)
+      if b0.indexOf("\"op\":\"compare\"") < 0 && b0.indexOf("\"op\":\"binop\"") < 0 && b0.indexOf("\"op\":\"copy\"") < 0 && b0.indexOf("\"op\":\"jump\"") < 0 && b0.indexOf("\"op\":\"branch\"") < 0 {
+        local ret_pos = b0.indexOf("\"op\":\"ret\"")
+        local const_pos = b0.indexOf("\"op\":\"const\"")
+        if ret_pos >= 0 and const_pos >= 0 and const_pos < ret_pos {
+        // Grab the first typed const value and return it
+        local key = "\"value\":{\"type\":\"i64\",\"value\":"
+        local p = StringOps.index_of_from(b0, key, 0)
+        if p >= 0 {
+          local ds = b0.substring(p + key.length(), b0.length())
+          // read consecutive digits
+          local i = 0
+          local out = ""
+          loop(true) {
+            local ch = ds.substring(i, i+1)
+            if ch == "" { break }
+            if ch >= "0" && ch <= "9" { out = out + ch  i = i + 1 } else { break }
+          }
+          if out != "" { return JsonFragBox._str_to_int(out) }
+        }
+        }
+      }
+      // 2) compare→ret fast-path skipped (handled by main scanner)
+
+    // Use user InstanceBox (MiniMap) with getField/setField to avoid provider dependencies
+    local regs = new MiniMap()
+    local last_cmp_dst = -1
+    local last_cmp_val = 0
+    // Optional: adopt OperatorBox for parity checks when JSON has a special marker
+    local op_adopt = 0
+    if mjson.indexOf("\"__op_adopt__\":1") >= 0 { op_adopt = 1 }
+    // Track last binop materialization within the current scan window
+    local last_binop_dst = -1
+    local last_binop_val = 0
+    local bb = 0
+    local prev_bb = -1
+    local steps = 0
+    local max_steps = 200000
+    loop(true){
+      steps = steps + 1
+      if steps > max_steps { return 0 }
+      local start = me._block_insts_start(mjson, bb)
+      me._d("[DEBUG] start="+me._int_to_str(start), trace)
+      if start < 0 { return 0 }
+      local endp = JsonCursorBox.seek_array_end(mjson, start)
+      me._d("[DEBUG] endp="+me._int_to_str(endp), trace)
+      if endp <= start { return 0 }
+      local inst_seg = mjson.substring(start, endp)
+      me._d("[DEBUG] seglen="+me._int_to_str(inst_seg.length()), trace)
+      // scan objects in this block
+      local scan_pos = 0
+      local inst_count = 0
+      local moved = 0
+      loop(true){
+        if scan_pos >= inst_seg.length() { break }
+        local tup = InstructionScannerBox.next_tuple(inst_seg, scan_pos)
+        if tup == "" { break }
+        // parse "start,end,op"
+        local c1 = StringOps.index_of_from(tup, ",", 0)
+        local c2 = StringOps.index_of_from(tup, ",", c1+1)
+        if c1 < 0 || c2 < 0 { break }
+        local obj_start = JsonFragBox._str_to_int(tup.substring(0, c1))
+        local obj_end = JsonFragBox._str_to_int(tup.substring(c1+1, c2))
+        local op = tup.substring(c2+1, tup.length())
+        local seg = inst_seg.substring(obj_start, obj_end)
+        if op == null { op = "" } if op == "null" { op = "" } if op == 0 { op = "" }
+        if op == "" {
+          if seg.indexOf("op_kind") >= 0 { op = "binop" } else {
+            if seg.indexOf("lhs") >= 0 and seg.indexOf("rhs") >= 0 { op = "compare" } else {
+              if seg.indexOf("cond") >= 0 { op = "branch" } else {
+                if seg.indexOf("target") >= 0 { op = "jump" } else {
+                  if seg.indexOf("src") >= 0 and seg.indexOf("dst") >= 0 { op = "copy" } else { op = "const" }
+                }
+              }
+            }
+          }
+        }
+        if op == "const" {
+          OpHandlersBox.handle_const(seg, regs)
+        }
+        else if op == "copy" { me._handle_copy(seg, regs) }
+        else if op == "binop" {
+          OpHandlersBox.handle_binop(seg, regs)
+          local bdst = JsonFragBox.get_int(seg, "dst")
+          if bdst != null { last_binop_dst = bdst  last_binop_val = me._load_reg(regs, bdst) }
+        }
+        else if op == "compare" {
+          me._d("[DEBUG] compare seg=" + seg, trace)
+          // Safe fast-path: if this block later contains a ret of this dst,
+          // evaluate compare directly from current regs and return immediately.
+          // This avoids deeper handler chains that could recurse in edge cases.
+          local rec = CompareScanBox.parse(seg)
+          local kdst_fast = rec.get("dst")
+          local klhs_fast = rec.get("lhs")
+          local krhs_fast = rec.get("rhs")
+          local kcmp_fast = rec.get("kind")
+          // Determine if a ret exists after this compare in the same block
+          local tail = inst_seg.substring(obj_end, inst_seg.length())
+          local ridt = JsonFragBox.get_int(tail, "value")
+          if kdst_fast != null && klhs_fast != null && krhs_fast != null && ridt != null && ridt == kdst_fast {
+            local a = me._load_reg(regs, klhs_fast)
+            local b = me._load_reg(regs, krhs_fast)
+            local cv_fast = CompareOpsBox.eval(kcmp_fast, a, b)
+            // Store result to keep regs consistent for subsequent ops if any
+            regs.set("" + kdst_fast, "" + cv_fast)
+            last_cmp_dst = kdst_fast
+            last_cmp_val = cv_fast
+            me._d("[DEBUG] compare early return with val=" + me._int_to_str(cv_fast), trace)
+            return cv_fast
+          }
+
+          // Fallback to standard handler when early path is not applicable
+          OpHandlersBox.handle_compare(seg, regs)
+          local kdst = rec.get("dst")
+          me._d("[DEBUG] compare kdst=" + me._int_to_str(kdst), trace)
+          if kdst != null {
+            last_cmp_dst = kdst
+            last_cmp_val = me._load_reg(regs, kdst)
+            me._d("[DEBUG] compare last_cmp_dst=" + me._int_to_str(last_cmp_dst) + " last_cmp_val=" + me._int_to_str(last_cmp_val), trace)
+            me._d("[DEBUG] compare reg["+me._int_to_str(kdst)+"]=" + regs.get(""+kdst), trace)
+          }
+          // Secondary optimization: if a ret follows and targets this dst, return now
+          if ridt != null && kdst != null && ridt == kdst { return last_cmp_val }
+        }
+        else if op == "mir_call" {
+          me._handle_mir_call(seg, regs)
+        }
+        else if op == "branch" {
+          local c = JsonFragBox.get_int(seg, "cond")
+          local t = JsonFragBox.get_int(seg, "then")
+          local e = JsonFragBox.get_int(seg, "else")
+          local cv = 0
+          if c != null {
+            if c == last_cmp_dst { cv = last_cmp_val } else { cv = me._load_reg(regs, c) }
+          }
+          prev_bb = bb
+          if cv != 0 { bb = t } else { bb = e }
+          moved = 1
+          // GC v0 safepoint: back-edge or control transfer
+          GcHooks.safepoint()
+          if gc_trace == 1 { print("[GC] mark=0 sweep=0 survivors=0") }
+          scan_pos = obj_end
+          break
+        }
+        else if op == "jump" {
+          local tgt = JsonFragBox.get_int(seg, "target")
+          if tgt == null { return 0 }
+          prev_bb = bb
+          bb = tgt
+          moved = 1
+          // GC v0 safepoint: back-edge or control transfer
+          GcHooks.safepoint()
+          if gc_trace == 1 { print("[GC] mark=0 sweep=0 survivors=0") }
+          scan_pos = obj_end
+          break
+        }
+        else if op == "phi" {
+          local res = PhiDecodeBox.decode_result(seg, prev_bb)
+          if res.is_Ok() == 1 {
+            local pair = res.as_Ok()
+            PhiApplyBox.apply(pair.get(0), pair.get(1), regs)
+          }
+        } else if op == "throw" {
+          me._tprint("[ERROR] Throw terminator encountered")
+          return -2
+        } else if op == "ret" {
+          local v = JsonFragBox.get_int(seg, "value")
+          if v == null { me._tprint("[ERROR] Undefined ret value field") return -1 }
+          if v == last_cmp_dst {
+            if gc_trace == 1 { print("[GC] mark=0 sweep=0 survivors=0") }
+            return last_cmp_val
+          }
+          local sval = "" + regs.get(""+v)
+          if me._is_numeric_str(sval) == 1 {
+            if gc_trace == 1 { print("[GC] mark=0 sweep=0 survivors=0") }
+            return me._load_reg(regs, v)
+          }
+          me._tprint("[ERROR] Undefined register ret: r"+me._int_to_str(v))
+          return -1
+        }
+        // advance
+        inst_count = inst_count + 1
+        scan_pos = obj_end
+      }
+      if moved == 1 { continue }
+      // Prefer recent compare result when a ret exists targeting it (no recompute)
+      if inst_seg.indexOf("\"op\":\"ret\"") >= 0 {
+        local rstartX = inst_seg.indexOf("\"op\":\"ret\"")
+        local rsegX = inst_seg.substring(rstartX, inst_seg.length())
+        local ridX = JsonFragBox.get_int(rsegX, "value")
+        if ridX != null { if ridX == last_cmp_dst { return last_cmp_val } }
+      }
+      // Fallbacks: prefer recent compare result, else resolve explicit/v1 ret if present, else first const
+      if last_cmp_dst >= 0 { return last_cmp_val }
+      // Detect explicit ret in this block and resolve
+      if inst_seg.indexOf("\"op\":\"ret\"") >= 0 {
+        local rstart = inst_seg.indexOf("\"op\":\"ret\"")
+        local rseg = inst_seg.substring(rstart, inst_seg.length())
+        local rid = JsonFragBox.get_int(rseg, "value")
+        if rid != null {
+          if rid == last_cmp_dst {
+            if gc_trace == 1 { print("[GC] mark=0 sweep=0 survivors=0") }
+            return last_cmp_val
+          }
+          local rv = me._load_reg(regs, rid)
+          if gc_trace == 1 { print("[GC] mark=0 sweep=0 survivors=0") }
+          return rv
+        }
+      }
+      // (typed const fallback moved above)
+      local r = RetResolveSimpleBox.resolve(inst_seg, regs, last_cmp_dst, last_cmp_val)
+      if r != null {
+        if gc_trace == 1 { print("[GC] mark=0 sweep=0 survivors=0") }
+        return r
+      }
+      // Final fallback: return first const (dst=1) if present
+      local first = me._load_reg(regs, 1)
+      return first
+    }
+    return 0
+  }
+
+}

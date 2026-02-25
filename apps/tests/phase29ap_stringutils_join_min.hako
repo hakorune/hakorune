@@ -1,0 +1,12 @@
+using "apps/lib/json_native/utils/string.hako" as StringUtils
+
+static box Main {
+  main(args) {
+    local arr = new ArrayBox()
+    arr.push("a")
+    arr.push("b")
+    arr.push("c")
+    print(StringUtils.join(arr, ","))
+    return 0
+  }
+}

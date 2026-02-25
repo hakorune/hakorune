@@ -1,0 +1,12 @@
+// Phase 152-A: Grouped assignment expression with shortcircuit
+// Test: (x = expr) can be used in conditional expressions
+
+static box Main {
+    main() {
+        local x = 0
+        if ((x = 1) > 0) and true {
+            return x  // Expected: RC 1
+        }
+        return -1
+    }
+}

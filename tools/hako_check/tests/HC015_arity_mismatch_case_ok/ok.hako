@@ -1,0 +1,13 @@
+// ok.hako — arity matches for all calls
+
+static box Math {
+  method add(a, b) { return a + b }
+}
+
+static box Main {
+  method main() {
+    Math.add(1, 2)
+    return 0
+  }
+}
+

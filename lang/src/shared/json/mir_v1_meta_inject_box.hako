@@ -1,0 +1,26 @@
+// mir_v1_meta_inject_box.hako — Inject metadata.extern_c and v1 header into MIR(JSON)
+// Responsibility: Convert a minimal v0-like MIR JSON (with only {"functions":[...]})
+// into a v1 root with kind/schema_version/metadata.extern_c while preserving functions.
+
+static box MirV1MetaInjectBox {
+  // Injects: {"kind":"MIR","schema_version":"1.0","metadata":{"extern_c":EXTERNS}, ...}
+  // - mir_json must be an object JSON starting with '{' and ending with '}'
+  // - externs_json must be a JSON array text (e.g., "[]" or "[{\"func\":...,\"symbol\":...}]")
+  inject_meta_externs(mir_json, externs_json) {
+    if mir_json == null { return null }
+    local s = "" + mir_json
+    if s.length() < 2 { return s }
+    if s.substring(0,1) != "{" { return s }
+    local ext = externs_json
+    if ext == null { ext = "[]" }
+    if ext.length() == 0 { ext = "[]" }
+    // Construct v1 root by inserting header + metadata at the beginning
+    // { <insert here>  existing_without_leading_brace
+    local tail = s.substring(1, s.length())
+    local head = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"metadata\":{\"extern_c\":" + ext + "},"
+    return head + tail
+  }
+}
+
+static box MirV1MetaInjectMain { main(args) { return 0 } }
+

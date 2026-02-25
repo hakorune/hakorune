@@ -1,0 +1,12 @@
+// Selfhost subset (scan): ensure FuncScannerBox is loaded/compiled under planner_required.
+//
+// Runtime behavior is kept minimal (print 0) to avoid plugin-dependent boxes.
+using lang.compiler.entry.func_scanner as FuncScannerMod
+
+static box Main {
+  main() {
+    print(0)
+    return 0
+  }
+}
+

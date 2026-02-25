@@ -1,0 +1,32 @@
+// ops/load.hako — NyVmOpLoad
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.core.state as NyVmState
+
+static box NyVmOpLoad {
+  _read_int(inst_json, key) {
+    local pat = "\"" + key + "\":"
+    local p = JsonCursorBox.find_key_dual(inst_json, pat, pat, 0)
+    if p < 0 { return null }
+    p = inst_json.indexOf(":", p)
+    if p < 0 { return null }
+    p = p + 1
+    loop(true) { local ch = inst_json.substring(p,p+1) if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { p = p + 1 continue } break }
+    local digits = JsonCursorBox.digits_from(inst_json, p)
+    if digits == "" { return null }
+    return StringHelpers.to_i64(digits)
+  }
+  handle(inst_json, state, mem) {
+    // {"op":"load","dst":D,"ptr":P}
+    local dst = me._read_int(inst_json, "dst")
+    local ptr = me._read_int(inst_json, "ptr")
+    if dst == null || ptr == null { print("[core/load] missing dst or ptr") return -1 }
+    local key = StringHelpers.int_to_str(ptr)
+    local v = mem.get(key)
+    if v == null { print("[core/load] memory unset at " + key) return -1 }
+    NyVmState.set_reg(state, dst, v)
+    return 0
+  }
+}
+
+static box NyVmOpLoadMain { main(args){ return 0 } }

@@ -1,0 +1,19 @@
+// Phase 188: String append with character variable
+// Pattern: s = s + ch (StringAppendChar)
+// Pattern 2: Loop with conditional break
+
+static box SAppendChar {
+  method main() {
+    local s = ""
+    local i = 0
+    loop(i < 10) {
+      if i == 3 {
+        break
+      }
+      local ch = "x"
+      s = s + ch
+      i = i + 1
+    }
+    print(s)  // Expected: "xxx"
+  }
+}

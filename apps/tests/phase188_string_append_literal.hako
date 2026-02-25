@@ -1,0 +1,18 @@
+// Phase 188: String append with literal
+// Pattern: s = s + "y" (StringAppendLiteral)
+// Pattern 4: Loop with continue
+
+static box SAppendLit {
+  method main() {
+    local s = ""
+    local i = 0
+    loop(i < 5) {
+      i = i + 1
+      if i > 3 {
+        continue
+      }
+      s = s + "y"
+    }
+    print(s)  // Expected: "yyy"
+  }
+}

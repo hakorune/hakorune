@@ -1,0 +1,28 @@
+// Phase 29bq parser handoff Tier-3: multi local-fini + reassignment + cleanup.
+static box Main {
+  main() {
+    local log = ""
+    local mark = "N"
+
+    {
+      local a = "A" fini {
+        log = log + a
+      }
+      local b = "B" fini {
+        log = log + b
+      }
+      local c = "C" fini {
+        log = log + c
+      }
+
+      a = "a"
+      b = "b"
+      c = "c"
+    } cleanup {
+      mark = "Y"
+    }
+
+    print(log + mark)
+    return 0
+  }
+}

@@ -1,0 +1,36 @@
+// Phase 29bq parser handoff Tier-3: local expr init + compare + fini + cleanup.
+static box Main {
+  main() {
+    local out = 0
+    {
+      local base = 10 fini {
+        out = out + base
+      }
+      local score = base + 5 fini {
+        out = out + score
+      }
+      local flag = (score == 15) && (base < 20) fini {
+        if flag {
+          out = out + 100
+        } else {
+          out = out + 1
+        }
+      }
+
+      if flag {
+        out = out + 7
+      } else {
+        out = out + 2
+      }
+
+      base = 7
+      score = score + base
+      flag = (score > 20) && (base == 7)
+    } cleanup {
+      out = out + 1000
+    }
+
+    print(out)
+    return 0
+  }
+}

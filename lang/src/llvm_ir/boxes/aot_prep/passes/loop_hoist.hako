@@ -1,0 +1,165 @@
+// AotPrepLoopHoistBox — Hoist loop-local consts (binop/div/rem/compare) to block head
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.llvm.ir.aot_prep.helpers.common as AotPrepHelpers  // for evaluate_binop_constant
+
+static box AotPrepLoopHoistBox {
+  // Static helpers (replace anonymous fun)
+  read_field(text, key) {
+    local needle = "\"" + key + "\":\""
+    local idx = text.indexOf(needle)
+    if idx < 0 { return "" }
+    return JsonFragBox.read_string_after(text, idx + needle.length())
+  }
+  read_digits_field(text, key) {
+    local needle = "\"" + key + "\":"
+    local idx = text.indexOf(needle)
+    if idx < 0 { return "" }
+    return StringHelpers.read_digits(text, idx + needle.length())
+  }
+  read_const_value(text) {
+    local needle = "\"value\":{\"type\":\"i64\",\"value\":"
+    local idx = text.indexOf(needle)
+    if idx < 0 { return "" }
+    return StringHelpers.read_digits(text, idx + needle.length())
+  }
+  run(json) {
+    if json == null { return null }
+    local out = json
+    local pos = 0
+    loop(true) {
+      local key = "\"instructions\":["
+      local kinst = out.indexOf(key, pos)
+      if kinst < 0 { break }
+      local lb = out.indexOf("[", kinst)
+      if lb < 0 { break }
+      local rb = JsonFragBox._seek_array_end(out, lb)
+      if rb < 0 { break }
+      local body = out.substring(lb+1, rb)
+      local const_defs = new MapBox()
+      local const_vals = new MapBox()
+      // Pass-1: collect const defs
+      {
+        local i0 = 0
+        loop(true) {
+          local os0 = body.indexOf("{", i0)
+          if os0 < 0 { break }
+          local oe0 = AotPrepHelpers._seek_object_end(body, os0)
+          if oe0 < 0 { break }
+          local inst0 = body.substring(os0, oe0+1)
+          local op0 = AotPrepLoopHoistBox.read_field(inst0, "op")
+          if op0 == "const" {
+            local dst0 = AotPrepLoopHoistBox.read_digits_field(inst0, "dst")
+            local val0 = AotPrepLoopHoistBox.read_const_value(inst0)
+            if dst0 != "" && val0 != "" { const_defs.set(dst0, inst0); const_vals.set(dst0, val0) }
+          }
+          i0 = oe0 + 1
+        }
+      }
+      local folded = true
+      while folded {
+        folded = false
+        local i1 = 0
+        loop(true) {
+          local os1 = body.indexOf("{", i1)
+          if os1 < 0 { break }
+          local oe1 = AotPrepHelpers._seek_object_end(body, os1)
+          if oe1 < 0 { break }
+          local inst1 = body.substring(os1, oe1+1)
+          local op1 = AotPrepLoopHoistBox.read_field(inst1, "op")
+          if op1 == "binop" {
+            local dst1 = AotPrepLoopHoistBox.read_digits_field(inst1, "dst")
+            if dst1 != "" && !const_vals.has(dst1) {
+              local lhs1 = AotPrepLoopHoistBox.read_digits_field(inst1, "lhs")
+              local rhs1 = AotPrepLoopHoistBox.read_digits_field(inst1, "rhs")
+              local operation1 = AotPrepLoopHoistBox.read_field(inst1, "operation")
+              if lhs1 != "" && rhs1 != "" && operation1 != "" {
+                local lhs_val1 = const_vals.has(lhs1) ? const_vals.get(lhs1) : ""
+                local rhs_val1 = const_vals.has(rhs1) ? const_vals.get(rhs1) : ""
+                if lhs_val1 != "" && rhs_val1 != "" {
+                  local computed1 = AotPrepHelpers.evaluate_binop_constant(operation1, lhs_val1, rhs_val1)
+                  if computed1 != "" {
+                    const_defs.set(dst1, inst1)
+                    const_vals.set(dst1, computed1)
+                    folded = true
+                  }
+                }
+              }
+            }
+          }
+          i1 = oe1 + 1
+        }
+      }
+      local needed = new MapBox()
+      {
+        local i2 = 0
+        loop(true) {
+          local os2 = body.indexOf("{", i2)
+          if os2 < 0 { break }
+          local oe2 = AotPrepHelpers._seek_object_end(body, os2)
+          if oe2 < 0 { break }
+          local inst2 = body.substring(os2, oe2+1)
+          local op2 = AotPrepLoopHoistBox.read_field(inst2, "op")
+          if op2 != "const" {
+            // check lhs, rhs, cond, target
+            local rf = AotPrepLoopHoistBox.read_digits_field(inst2, "lhs")
+            if rf != "" && const_defs.has(rf) { needed.set(rf, true) }
+            rf = AotPrepLoopHoistBox.read_digits_field(inst2, "rhs")
+            if rf != "" && const_defs.has(rf) { needed.set(rf, true) }
+            rf = AotPrepLoopHoistBox.read_digits_field(inst2, "cond")
+            if rf != "" && const_defs.has(rf) { needed.set(rf, true) }
+            rf = AotPrepLoopHoistBox.read_digits_field(inst2, "target")
+            if rf != "" && const_defs.has(rf) { needed.set(rf, true) }
+          }
+          i2 = oe2 + 1
+        }
+      }
+      if needed.size() == 0 { pos = rb + 1; continue }
+      // Build merged: hoist first, then keep (two scans)
+      local any_hoist = 0
+      local merged = ""
+      local first = 1
+      {
+        local i3 = 0
+        loop(true) {
+          local os3 = body.indexOf("{", i3)
+          if os3 < 0 { break }
+          local oe3 = AotPrepHelpers._seek_object_end(body, os3)
+          if oe3 < 0 { break }
+          local inst3 = body.substring(os3, oe3+1)
+          local dst3 = AotPrepLoopHoistBox.read_digits_field(inst3, "dst")
+          if dst3 != "" && needed.has(dst3) && const_defs.has(dst3) {
+            if first == 0 { merged = merged + "," }
+            merged = merged + inst3
+            first = 0
+            any_hoist = 1
+          }
+          i3 = oe3 + 1
+        }
+      }
+      if any_hoist == 0 { pos = rb + 1; continue }
+      {
+        local i4 = 0
+        loop(true) {
+          local os4 = body.indexOf("{", i4)
+          if os4 < 0 { break }
+          local oe4 = AotPrepHelpers._seek_object_end(body, os4)
+          if oe4 < 0 { break }
+          local inst4 = body.substring(os4, oe4+1)
+          local dst4 = AotPrepLoopHoistBox.read_digits_field(inst4, "dst")
+          if !(dst4 != "" && needed.has(dst4) && const_defs.has(dst4)) {
+            if first == 0 { merged = merged + "," }
+            merged = merged + inst4
+            first = 0
+          }
+          i4 = oe4 + 1
+        }
+      }
+      out = out.substring(0, lb+1) + merged + out.substring(rb, out.length())
+      pos = lb + merged.length() + 1
+    }
+    return out
+  }
+
+  // _seek_object_end moved to AotPrepHelpers
+}

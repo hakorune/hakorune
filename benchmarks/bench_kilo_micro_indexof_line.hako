@@ -1,0 +1,41 @@
+// kilo/text structural hotspot microbench:
+// indexOf("line") density under stable array/get/set routing.
+static box Main {
+  main() {
+    local rows = 64
+    local ops = 400000
+    local lines = new ArrayBox()
+    local i = 0
+    loop (i < rows) {
+      if (i % 2 == 0) {
+        lines.push("line-seed")
+      } else {
+        lines.push("none-seed")
+      }
+      i = i + 1
+    }
+
+    local hits = 0
+    i = 0
+    loop (i < ops) {
+      local row = i % rows
+      local cur = lines.get(row)
+      local pos = cur.indexOf("line")
+      if (pos >= 0) {
+        hits = hits + 1
+      }
+
+      // Flip payload periodically to keep positive/negative search mix.
+      if (i % 16 == 0) {
+        if (pos >= 0) {
+          lines.set(row, "none-seed")
+        } else {
+          lines.set(row, "line-seed")
+        }
+      }
+      i = i + 1
+    }
+
+    return hits + lines.length()
+  }
+}

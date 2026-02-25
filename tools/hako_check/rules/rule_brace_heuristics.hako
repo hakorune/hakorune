@@ -1,0 +1,116 @@
+using tools.hako_check.text_ops as TextOps
+// tools/hako_check/rules/rule_brace_heuristics.hako — HC031: Brace Heuristics
+// Detects rough brace mismatch ({/}) for early warning.
+// This is a heuristic check, not a full parser.
+
+static box RuleBraceHeuristicsBox {
+  method apply(text, path, out) {
+    if text == null { return 0 }
+
+    local lines = me._split_lines(text)
+    local counts = me._scan_lines(lines, 0, 0, 0)
+    local open_count = counts.get("open")
+    local close_count = counts.get("close")
+
+    // Check for mismatch
+    if open_count != close_count {
+      local msg = "[HC031] brace mismatch - " + me._itoa(open_count) + " open, "
+      msg = msg + me._itoa(close_count) + " close"
+      // File-level diagnostic, report on line 1
+      out.push(msg + " :: " + path + ":1")
+    }
+
+    return out.size()
+  }
+  _scan_lines(lines, i, open_count, close_count) {
+    if i >= lines.size() { return me._make_counts(open_count, close_count) }
+    local ln = lines.get(i)
+
+    // Skip comments
+    local comment_pos = ln.indexOf("//")
+    local scan_text = ln
+    if comment_pos >= 0 {
+      scan_text = ln.substring(0, comment_pos)
+    }
+
+    // Remove string literals (simple heuristic: remove content between quotes)
+    scan_text = me._remove_strings(scan_text)
+
+    // Count braces
+    local line_counts = me._count_braces(scan_text, 0, 0, 0)
+    local next_open = open_count + line_counts.get("open")
+    local next_close = close_count + line_counts.get("close")
+    return me._scan_lines(lines, i + 1, next_open, next_close)
+  }
+  _count_braces(s, i, open_count, close_count) {
+    if i >= s.length() { return me._make_counts(open_count, close_count) }
+    local ch = s.substring(i, i+1)
+    local next_open = open_count
+    local next_close = close_count
+    if ch == "{" { next_open = open_count + 1 }
+    if ch == "}" { next_close = close_count + 1 }
+    return me._count_braces(s, i + 1, next_open, next_close)
+  }
+  _make_counts(open_count, close_count) {
+    local r = new MapBox()
+    r.set("open", open_count)
+    r.set("close", close_count)
+    return r
+  }
+
+  _remove_strings(s) {
+    // Simple heuristic: remove content between double quotes
+    if s == null { return "" }
+    return me._remove_strings_from(s, 0, 0, "")
+  }
+  _remove_strings_from(s, i, in_string, result) {
+    if i >= s.length() { return result }
+    local ch = s.substring(i, i+1)
+    local next_in_string = in_string
+
+    // Toggle string mode on unescaped quotes
+    if ch == "\"" {
+      // Simple check: not escaped (not preceded by \)
+      local escaped = 0
+      if i > 0 {
+        local prev = s.substring(i-1, i)
+        if prev == "\\" { escaped = 1 }
+      }
+      if escaped == 0 {
+        if in_string == 0 { next_in_string = 1 } else { next_in_string = 0 }
+      }
+    }
+
+    // Keep character if not in string
+    local next_result = result
+    if next_in_string == 0 {
+      next_result = result + ch
+    } else {
+      // Replace string content with space to preserve structure
+      next_result = result + " "
+    }
+    return me._remove_strings_from(s, i + 1, next_in_string, next_result)
+  }
+
+  _split_lines(s) {
+    local arr = new ArrayBox()
+    if s == null { return arr }
+    local n = s.length()
+    local last = 0
+    local i = 0
+    loop(i < n) {
+      local ch = s.substring(i, i+1)
+      if ch == "\n" {
+        arr.push(s.substring(last, i))
+        last = i + 1
+      }
+      i = i + 1
+    }
+    if last <= n { arr.push(s.substring(last)) }
+    return arr
+  }
+
+  _itoa(n) { return TextOps._itoa(n) }
+}
+
+static box RuleBraceHeuristicsMain { method main(args) { return 0 } }

@@ -1,0 +1,9 @@
+[module]
+name = "selfhost.opt"
+version = "1.0.0"
+
+[exports]
+# Point AotPrepBox to the actual implementation under llvm_ir/boxes
+AotPrepBox = "../llvm_ir/boxes/aot_prep.hako"
+VMHotPathBox = "../vm/opt/vm_hot_path.hako"
+README = "readme.md"

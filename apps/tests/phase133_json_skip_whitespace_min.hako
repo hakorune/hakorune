@@ -1,0 +1,30 @@
+// Phase 133: Promoted carrier join_id test (Trim A-3 pattern from JsonParser)
+// 目的: Loop + promoted carrier の join_id 問題を検証・修正
+// Issue: promoted carrier 'is_char_match' has no join_id when break is used (Phase 133-P0)
+// Pattern: [cond_promoter] A-3 Trim pattern → [phase229] no join_id (before P1 fix)
+// Fix (P1): Pattern2 skips Trim promoted_pairs resolution, defer to TrimLoopLowerer SSOT
+// Input: "   X" (3 spaces + character)
+// Expected: return 3 (count of leading spaces)
+// Verification: exit code (VM: RC, LLVM EXE: exit code)
+
+static box Main {
+  countSpaces(s) {
+    local count = 0
+    local index = 0
+    loop(index < s.length()) {
+      local char = s.substring(index, index + 1)
+      if char == " " {
+        count = count + 1
+        index = index + 1
+      } else {
+        break
+      }
+    }
+    return count
+  }
+
+  main() {
+    local input = "   X"
+    return me.countSpaces(input)  // Expected: 3
+  }
+}

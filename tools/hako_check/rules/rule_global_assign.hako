@@ -1,0 +1,54 @@
+using tools.hako_check.text_ops as TextOps
+static box RuleGlobalAssignBox {
+  apply(text, path, out) {
+    // HC010: global mutable state 禁止（top-levelの識別子= を雑に検出）
+    local lines = me._split_lines(text)
+    me._scan_lines(lines, 0, 0, 0, path, out)
+  }
+  _scan_lines(lines, i, in_box, in_method, path, out) {
+    if i >= lines.size() { return }
+    local ln = lines.get(i)
+    local t = me._ltrim(ln)
+    local next_in_box = in_box
+    local next_in_method = in_method
+    if t.indexOf("static box ") == 0 { next_in_box = 1; next_in_method = 0 }
+    if next_in_box == 1 && t == "}" { next_in_box = 0; next_in_method = 0 }
+    if next_in_box == 1 && t.indexOf("method ") == 0 { next_in_method = 1 }
+    if next_in_box == 1 && next_in_method == 0 {
+      // at top-level inside box: ident =
+      if me._looks_assign(t) == 1 {
+        out.push("[HC010] global assignment (top-level in box is forbidden): " + path + ":" + me._itoa(i+1))
+      }
+    }
+    me._scan_lines(lines, i + 1, next_in_box, next_in_method, path, out)
+  }
+  _ltrim(s) { return me._ltrim_chars(s, " \t") }
+  _split_lines(s) {
+    local arr = new ArrayBox(); if s == null { return arr }
+    local n = s.length(); local last = 0; local i = 0
+    while i < n { local ch = s.substring(i,i+1); if ch == "\n" { arr.push(s.substring(last,i)); last = i+1 } i = i + 1 }
+    arr.push(s.substring(last)); return arr
+  }
+  _ltrim_chars(s, cs) {
+    local n=s.length()
+    local i = 0
+    while i < n {
+      local ch=s.substring(i,i+1)
+      if ch!=" "&&ch!="\t" { break }
+      i = i + 1
+    }
+    return s.substring(i)
+  }
+  _itoa(n) { return TextOps._itoa(n) }
+  _looks_assign(t) {
+    // very naive: identifier start followed by '=' somewhere (and not 'static box' or 'method')
+    if t.length() < 3 { return 0 }
+    local c = t.substring(0,1)
+    if !((c>="A"&&c<="Z")||(c>="a"&&c<="z")||c=="_") { return 0 }
+    if t.indexOf("static box ") == 0 || t.indexOf("method ") == 0 { return 0 }
+    if t.indexOf("=") > 0 { return 1 }
+    return 0
+  }
+}
+
+static box RuleGlobalAssignMain { method main(args) { return 0 } }

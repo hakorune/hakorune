@@ -1,0 +1,242 @@
+// tools/hako_shared/tests/json_parser_test.hako - JsonParserBox Unit Tests
+// Phase 171 MVP test suite
+
+using tools.hako_shared.json_parser as JsonParserBox
+
+static box JsonParserTestBox {
+  passed
+  failed
+
+  birth() {
+    me.passed = 0
+    me.failed = 0
+  }
+
+  method main(args) {
+    me.test_null()
+    me.test_bool()
+    me.test_number()
+    me.test_string()
+    me.test_array()
+    me.test_object()
+    me.test_nested()
+    me.test_error_cases()
+
+    print("========================================")
+    print("JsonParserBox Test Results:")
+    print("  Passed: " + me._itoa(me.passed))
+    print("  Failed: " + me._itoa(me.failed))
+
+    if me.failed == 0 {
+      print("All tests PASSED!")
+      return 0
+    } else {
+      print("Some tests FAILED")
+      return 1
+    }
+  }
+
+  method test_null() {
+    print("Test: null parsing")
+    local val = JsonParserBox.parse("null")
+    me._assert(val != null, "null should parse")
+    me._assert(val.is_null(), "should be null type")
+    print("  OK")
+  }
+
+  method test_bool() {
+    print("Test: boolean parsing")
+
+    local t = JsonParserBox.parse("true")
+    me._assert(t != null, "true should parse")
+    me._assert(t.is_bool(), "should be bool type")
+    me._assert(t.boolVal == 1, "true should have value 1")
+
+    local f = JsonParserBox.parse("false")
+    me._assert(f != null, "false should parse")
+    me._assert(f.is_bool(), "should be bool type")
+    me._assert(f.boolVal == 0, "false should have value 0")
+
+    print("  OK")
+  }
+
+  method test_number() {
+    print("Test: number parsing")
+
+    local n1 = JsonParserBox.parse("123")
+    me._assert(n1 != null, "positive number should parse")
+    me._assert(n1.is_number(), "should be number type")
+    me._assert(n1.numVal == 123, "should have value 123")
+
+    local n2 = JsonParserBox.parse("-456")
+    me._assert(n2 != null, "negative number should parse")
+    me._assert(n2.is_number(), "should be number type")
+    me._assert(n2.numVal == 0 - 456, "should have value -456")
+
+    local n3 = JsonParserBox.parse("0")
+    me._assert(n3 != null, "zero should parse")
+    me._assert(n3.numVal == 0, "should have value 0")
+
+    print("  OK")
+  }
+
+  method test_string() {
+    print("Test: string parsing")
+
+    local s1 = JsonParserBox.parse('"hello"')
+    me._assert(s1 != null, "simple string should parse")
+    me._assert(s1.is_string(), "should be string type")
+    me._assert(s1.strVal == "hello", "should have value 'hello'")
+
+    local s2 = JsonParserBox.parse('""')
+    me._assert(s2 != null, "empty string should parse")
+    me._assert(s2.strVal == "", "should be empty")
+
+    // Test escape sequences
+    local s3 = JsonParserBox.parse('"hello\\nworld"')
+    me._assert(s3 != null, "string with newline escape should parse")
+    me._assert(s3.strVal.indexOf("\n") >= 0, "should contain newline")
+
+    print("  OK")
+  }
+
+  method test_array() {
+    print("Test: array parsing")
+
+    local arr1 = JsonParserBox.parse("[]")
+    me._assert(arr1 != null, "empty array should parse")
+    me._assert(arr1.is_array(), "should be array type")
+    me._assert(arr1.arrVal.length() == 0, "should be empty")
+
+    local arr2 = JsonParserBox.parse("[1, 2, 3]")
+    me._assert(arr2 != null, "number array should parse")
+    me._assert(arr2.is_array(), "should be array type")
+    me._assert(arr2.arrVal.length() == 3, "should have 3 elements")
+
+    local elem0 = arr2.arrVal.get(0)
+    me._assert(elem0 != null, "element 0 should exist")
+    me._assert(elem0.is_number(), "element 0 should be number")
+    me._assert(elem0.numVal == 1, "element 0 should be 1")
+
+    local arr3 = JsonParserBox.parse('["a", "b", "c"]')
+    me._assert(arr3 != null, "string array should parse")
+    me._assert(arr3.arrVal.length() == 3, "should have 3 elements")
+
+    print("  OK")
+  }
+
+  method test_object() {
+    print("Test: object parsing")
+
+    local obj1 = JsonParserBox.parse("{}")
+    me._assert(obj1 != null, "empty object should parse")
+    me._assert(obj1.is_object(), "should be object type")
+    me._assert(obj1.objVal.size() == 0, "should be empty")
+
+    local obj2 = JsonParserBox.parse('{"key": "value"}')
+    me._assert(obj2 != null, "simple object should parse")
+    me._assert(obj2.is_object(), "should be object type")
+
+    local val = obj2.objVal.get("key")
+    me._assert(val != null, "key should exist")
+    me._assert(val.is_string(), "value should be string")
+    me._assert(val.strVal == "value", "value should be 'value'")
+
+    local obj3 = JsonParserBox.parse('{"a": 1, "b": 2, "c": 3}')
+    me._assert(obj3 != null, "multiple key object should parse")
+    me._assert(obj3.objVal.size() == 3, "should have 3 keys")
+
+    local a = obj3.objVal.get("a")
+    me._assert(a != null && a.numVal == 1, "a should be 1")
+
+    print("  OK")
+  }
+
+  method test_nested() {
+    print("Test: nested structures")
+
+    local nested1 = JsonParserBox.parse('{"arr": [1, 2, 3]}')
+    me._assert(nested1 != null, "object with array should parse")
+
+    local arr_val = nested1.objVal.get("arr")
+    me._assert(arr_val != null, "arr key should exist")
+    me._assert(arr_val.is_array(), "arr should be array")
+    me._assert(arr_val.arrVal.length() == 3, "arr should have 3 elements")
+
+    local nested2 = JsonParserBox.parse('[{"id": 1}, {"id": 2}]')
+    me._assert(nested2 != null, "array of objects should parse")
+    me._assert(nested2.arrVal.length() == 2, "should have 2 objects")
+
+    local obj0 = nested2.arrVal.get(0)
+    me._assert(obj0.is_object(), "element 0 should be object")
+
+    local id0 = obj0.objVal.get("id")
+    me._assert(id0.numVal == 1, "first object id should be 1")
+
+    print("  OK")
+  }
+
+  method test_error_cases() {
+    print("Test: error handling")
+
+    local err1 = JsonParserBox.parse("{")
+    me._assert(err1 == null, "incomplete object should fail")
+
+    local err2 = JsonParserBox.parse("[1,2,]")
+    me._assert(err2 == null, "trailing comma should fail")
+
+    local err3 = JsonParserBox.parse('{"key": }')
+    me._assert(err3 == null, "missing value should fail")
+
+    local err4 = JsonParserBox.parse("")
+    me._assert(err4 == null, "empty string should fail")
+
+    print("  OK")
+  }
+
+  // Test utilities
+  _assert(condition, message) {
+    if condition {
+      me.passed = me.passed + 1
+    } else {
+      me.failed = me.failed + 1
+      print("  FAIL: " + message)
+    }
+  }
+
+  _itoa(n) {
+    local v = 0 + n
+    if v == 0 { return "0" }
+
+    local out = ""
+    local digits = "0123456789"
+    local tmp = ""
+    local negative = 0
+
+    if v < 0 {
+      negative = 1
+      v = 0 - v
+    }
+
+    while v > 0 {
+      local d = v % 10
+      tmp = digits.substring(d, d+1) + tmp
+      v = v / 10
+    }
+
+    if negative == 1 {
+      out = "-" + tmp
+    } else {
+      out = tmp
+    }
+
+    return out
+  }
+}
+
+static box JsonParserTestMain {
+  main(args) {
+    local test = new JsonParserTestBox()
+    return test.main(args)
+  }
+}

@@ -1,0 +1,35 @@
+// Phase 104: read_digits_from loop(true) + break-only minimal fixture
+// Expect numeric output lines: 2 then 1
+
+static box Main {
+  read_digits_min(s, pos) {
+    local i = pos
+    local out = ""
+
+    loop(true) {
+      local ch = s.substring(i, i + 1)
+
+      // end-of-string guard
+      if ch == "" { break }
+
+      // digit check (match real-app shape; keep on one line to avoid ASI ambiguity)
+      if ch == "0" || ch == "1" || ch == "2" || ch == "3" || ch == "4" || ch == "5" || ch == "6" || ch == "7" || ch == "8" || ch == "9" {
+        out = out + ch
+        i = i + 1
+      } else {
+        break
+      }
+    }
+
+    return out
+  }
+
+  main() {
+    local a = read_digits_min("12x", 0)
+    local b = read_digits_min("9", 0)
+
+    print(a.length())
+    print(b.length())
+    return "OK"
+  }
+}

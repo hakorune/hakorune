@@ -1,0 +1,29 @@
+// phase29bq_selfhost_funcscanner_method_boundary_from_birth_min.hako
+// Stage-B FuncScanner method boundary pin:
+//   - delegated constructor call in box body: from Parent.birth(name)
+//   - modern method declarations only (no `method` keyword)
+//   - scanner must not treat `from Parent.birth(...)` as a method definition
+
+static box Parent {
+  ping() {
+    return 1
+  }
+}
+
+static box Child from Parent {
+  from Parent.birth(name)
+
+  legacy_id(x) {
+    return x
+  }
+
+  run() {
+    return legacy_id(2)
+  }
+}
+
+static box Main {
+  main() {
+    return 0
+  }
+}

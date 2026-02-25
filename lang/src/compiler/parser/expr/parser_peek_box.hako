@@ -1,0 +1,102 @@
+// Moved from apps/selfhost-compiler/boxes/parser/expr/parser_peek_box.hako
+// ParserPeekBox — peek expression parser (peek <expr> { "label" => <expr>, ..., else => <expr> })
+// Responsibility: Parse peek expressions (pattern-matching syntax)
+// API: parse(src, i, ctx) -> JSON string
+
+static box ParserPeekBox {
+  parse(src, i, ctx) {
+    // ctx is ParserBox for delegation
+    local j = i
+    local n = src.length()
+
+    // Parse scrutinee expression
+    local scr = ctx.parse_expr2(src, j)
+    j = ctx.gpos_get()
+    j = ctx.skip_ws(src, j)
+
+    // Enter arms block
+    if src.substring(j, j+1) == "{" { j = j + 1 }
+    j = ctx.skip_ws(src, j)
+
+    local arms_json = "["
+    local arm_count = 0
+    local else_json = null
+
+    // JoinIR/CorePlan-friendly loop:
+    // - const step (guard = guard + 1)
+    // - no `continue` (use if/else blocks instead)
+    local guard = 0
+    local max = 200000
+    loop(guard < max) {
+      j = ctx.skip_ws(src, j)
+
+      if j >= n { break }
+
+      if src.substring(j, j+1) == "}" { break }
+
+      // else arm or labeled arm
+      if ctx.starts_with_kw(src, j, "else") == 1 {
+        j = j + 4
+        j = ctx.skip_ws(src, j)
+        if src.substring(j, j+2) == "=>" { j = j + 2 }
+        j = ctx.skip_ws(src, j)
+
+        // else body may be a block or bare expr
+        if src.substring(j, j+1) == "{" {
+          j = j + 1
+          j = ctx.skip_ws(src, j)
+          else_json = ctx.parse_expr2(src, j)
+          j = ctx.gpos_get()
+          j = ctx.skip_ws(src, j)
+          if src.substring(j, j+1) == "}" { j = j + 1 }
+        } else {
+          else_json = ctx.parse_expr2(src, j)
+          j = ctx.gpos_get()
+        }
+      } else {
+        // labeled arm: string literal label
+        if src.substring(j, j+1) != "\"" {
+          // degrade safely to avoid infinite loop
+          j = j + 1
+        } else {
+          local label_raw = ctx.read_string_lit(src, j)
+          j = ctx.gpos_get()
+          j = ctx.skip_ws(src, j)
+          if src.substring(j, j+2) == "=>" { j = j + 2 }
+          j = ctx.skip_ws(src, j)
+
+          // arm expr: block or bare expr
+          local expr_json = "{\"type\":\"Int\",\"value\":0}"
+          if src.substring(j, j+1) == "{" {
+            j = j + 1
+            j = ctx.skip_ws(src, j)
+            expr_json = ctx.parse_expr2(src, j)
+            j = ctx.gpos_get()
+            j = ctx.skip_ws(src, j)
+            if src.substring(j, j+1) == "}" { j = j + 1 }
+          } else {
+            expr_json = ctx.parse_expr2(src, j)
+            j = ctx.gpos_get()
+          }
+
+          local arm_json = "{\"label\":\"" + ctx.esc_json(label_raw) + "\",\"expr\":" + expr_json + "}"
+          if arm_count > 0 {
+            arms_json = arms_json + ","
+          }
+          arms_json = arms_json + arm_json
+          arm_count = arm_count + 1
+        }
+      }
+
+      guard = guard + 1
+    }
+
+    // If we stopped at the closing brace, consume it.
+    if j < n && src.substring(j, j+1) == "}" { j = j + 1 }
+
+    arms_json = arms_json + "]"
+    if else_json == null { else_json = "{\"type\":\"Null\"}" }
+    ctx.gpos_set(j)
+    return "{\"type\":\"Peek\",\"scrutinee\":" + scr + ",\"arms\":" + arms_json + ",\"else\":" + else_json + "}"
+  }
+}

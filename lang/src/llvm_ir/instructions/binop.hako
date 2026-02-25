@@ -1,0 +1,119 @@
+// LLVM BinOp Instruction Box — Python binop.py のHakorune実装
+// MIR二項演算命令をJSON形式に変換し、C++バックエンドに渡す
+
+static box LLVMBinOpInstructionBox {
+
+  // メインエントリーポイント - Pythonのlower_binop()に相当
+  lower_binop(self, op, lhs, rhs, dst) {
+    // 比較演算子はcompare命令に委譲
+    if op == "==" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=" {
+      return me._delegate_to_compare(op, lhs, rhs, dst)
+    }
+    
+    // 算術演算子
+    if op == "+" {
+      return me.inst_binop_add(lhs, rhs, dst)
+    }
+    
+    if op == "-" {
+      return me.inst_binop_sub(lhs, rhs, dst)
+    }
+    
+    if op == "*" {
+      return me.inst_binop_mul(lhs, rhs, dst)
+    }
+    
+    if op == "/" {
+      return me.inst_binop_div(lhs, rhs, dst)
+    }
+    
+    if op == "%" {
+      return me.inst_binop_mod(lhs, rhs, dst)
+    }
+    
+    // ビット演算子
+    if op == "&" {
+      return me.inst_binop_and(lhs, rhs, dst)
+    }
+    
+    if op == "|" {
+      return me.inst_binop_or(lhs, rhs, dst)
+    }
+    
+    if op == "^" {
+      return me.inst_binop_xor(lhs, rhs, dst)
+    }
+    
+    if op == "<<" {
+      return me.inst_binop_shl(lhs, rhs, dst)
+    }
+    
+    if op == ">>" {
+      return me.inst_binop_shr(lhs, rhs, dst)
+    }
+    
+    // 未知の演算子はaddにフォールバック
+    return me.inst_binop_add(lhs, rhs, dst)
+  }
+
+  // 比較演算子の委譲
+  _delegate_to_compare(self, op, lhs, rhs, dst) {
+    // JSON: {"op":"compare","dst":3,"operation":">","lhs":1,"rhs":2}
+    return "{\"op\":\"compare\",\"dst\":" + dst + ",\"operation\":\"" + op + "\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  // 算術演算子
+  inst_binop_add(lhs, rhs, dst) {
+    return "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\"+\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  inst_binop_sub(lhs, rhs, dst) {
+    return "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\"-\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  inst_binop_mul(lhs, rhs, dst) {
+    return "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\"*\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  inst_binop_div(lhs, rhs, dst) {
+    return "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\"/\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  inst_binop_mod(lhs, rhs, dst) {
+    return "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\"%\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  // ビット演算子
+  inst_binop_and(lhs, rhs, dst) {
+    return "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\"&\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  inst_binop_or(lhs, rhs, dst) {
+    return "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\"|\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  inst_binop_xor(lhs, rhs, dst) {
+    return "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\"^\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  inst_binop_shl(lhs, rhs, dst) {
+    return "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\"<<\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  inst_binop_shr(lhs, rhs, dst) {
+    return "{\"op\":\"binop\",\"dst\":" + dst + ",\"operation\":\">>\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+  }
+
+  // デバッグ用 - 生成された命令の確認
+  debug_binop(self, op, lhs, rhs, dst) {
+    local json = me.lower_binop(self, op, lhs, rhs, dst)
+    print("Generated binop instruction: " + json)
+    return json
+  }
+
+  // 文字列連結の特殊処理（簡易版）
+  // Python: concat_hh → Hakorune: binop "+" に委譲
+  inst_string_concat(lhs, rhs, dst) {
+    return me.inst_binop_add(lhs, rhs, dst)
+  }
+}

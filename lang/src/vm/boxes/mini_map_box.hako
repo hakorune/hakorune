@@ -1,0 +1,56 @@
+// mini_map_box.hako — MiniMap
+// Responsibility: minimal string-backed map for Mini‑VM registers
+using selfhost.vm.hakorune-vm.str_cast as StrCast
+
+box MiniMap {
+  store: StringBox
+  birth() {
+    me.store = ""
+    return 0
+  }
+  set(key, value) {
+    key = StrCast.to_str(key)
+    value = StrCast.to_str(value)
+    // remove existing key
+    local out = ""
+    local s = me.store
+    local pos = 0
+    loop(true) {
+      local nl = s.indexOf("\n", pos)
+      if nl < 0 { break }
+      local line = s.substring(pos, nl)
+      local eq = line.indexOf("=")
+      if eq >= 0 {
+        local k = line.substring(0, eq)
+        if k != key { out = out + line + "\n" }
+      }
+      pos = nl + 1
+    }
+    me.store = out + key + "=" + value + "\n"
+    return 0
+  }
+  // Compatibility: hv1 helpers expect getField/setField
+  setField(key, value) { return me.set(key, value) }
+  get(key) {
+    key = StrCast.to_str(key)
+    local s = me.store
+    local pos = 0
+    local last = null
+    loop(true) {
+      local nl = s.indexOf("\n", pos)
+      if nl < 0 { break }
+      local line = s.substring(pos, nl)
+      local eq = line.indexOf("=")
+      if eq >= 0 {
+        local k = line.substring(0, eq)
+        if k == key { last = line.substring(eq + 1, line.length()) }
+      }
+      pos = nl + 1
+    }
+    return last
+  }
+  // Compatibility: hv1 helpers expect getField/setField
+  getField(key) { return me.get(key) }
+}
+
+static box MiniMapMain { method main(args){ return 0 } }

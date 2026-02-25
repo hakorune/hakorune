@@ -1,0 +1,45 @@
+// MirBuilderMinBox — Minimal Program(JSON v0) → MIR(JSON) for opt-in bring-up
+// Scope: small set of lowers only（軽量usingでVM実行を安定化）
+// Toggles: なし（この箱自体は最小/静的）。
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.jsonfrag_normalizer" as NormBox
+using "hako.mir.builder.internal.lower_return_method_array_map" as LowerReturnMethodArrayMapBox
+using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
+using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
+using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
+using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
+using "hako.mir.builder.internal.lower_if_compare_fold_varint" as LowerIfCompareFoldVarIntBox
+using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
+using "hako.mir.builder.internal.lower_return_binop_varvar" as LowerReturnBinOpVarVarBox
+using "hako.mir.builder.internal.lower_if_compare_varint" as LowerIfCompareVarIntBox
+using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVarBox
+
+static box MirBuilderBox {
+  method _norm_json_if_needed(m) {
+    if m == null { return null }
+    local nv = env.get("HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE")
+    if nv != null && ("" + nv) == "1" { return NormBox.normalize_all(m) }
+    return m
+  }
+  // Minimal entry
+  method emit_from_program_json_v0(program_json, opts) {
+    if program_json == null { print("[mirbuilder/min/input:null]"); return null }
+    local s = "" + program_json
+    if !(s.contains("\"version\"")) || !(s.contains("\"kind\"")) { print("[mirbuilder/min/input:invalid]"); return null }
+    // Try minimal patterns (lightweight only)
+    { local out = LowerReturnMethodArrayMapBox.try_lower(s); if out != null { print("[mirbuilder/min:return.method.arraymap]"); return me._norm_json_if_needed(out) } }
+    { local out_v = LowerReturnBinOpVarIntBox.try_lower(s); if out_v != null { print("[mirbuilder/min:return.binop.varint]"); return me._norm_json_if_needed(out_v) } }
+    { local out_b = LowerReturnBinOpBox.try_lower(s); if out_b != null { print("[mirbuilder/min:return.binop.intint]"); return me._norm_json_if_needed(out_b) } }
+    { local out_bvv = LowerReturnBinOpVarVarBox.try_lower(s); if out_bvv != null { print("[mirbuilder/min:return.binop.varvar]"); return me._norm_json_if_needed(out_bvv) } }
+    // Compare lowers: prefer fold/var-based before int-int to avoid greedy match
+    { local out_if_fv = LowerIfCompareFoldVarIntBox.try_lower(s); if out_if_fv != null { print("[mirbuilder/min:if.compare.fold.varint]"); return me._norm_json_if_needed(out_if_fv) } }
+    { local out_if_fb = LowerIfCompareFoldBinIntsBox.try_lower(s); if out_if_fb != null { print("[mirbuilder/min:if.compare.fold.binints]"); return me._norm_json_if_needed(out_if_fb) } }
+    { local out_ifvi = LowerIfCompareVarIntBox.try_lower(s); if out_ifvi != null { print("[mirbuilder/min:if.compare.varint]"); return me._norm_json_if_needed(out_ifvi) } }
+    { local out_ifvv = LowerIfCompareVarVarBox.try_lower(s); if out_ifvv != null { print("[mirbuilder/min:if.compare.varvar]"); return me._norm_json_if_needed(out_ifvv) } }
+    { local out_if = LowerIfCompareBox.try_lower(s); if out_if != null { print("[mirbuilder/min:if.compare.intint]"); return me._norm_json_if_needed(out_if) } }
+    { local out2 = LowerReturnIntBox.try_lower(s); if out2 != null { print("[mirbuilder/min:return.int]"); return me._norm_json_if_needed(out2) } }
+    print("[mirbuilder/min/unsupported]")
+    return null
+  }
+}

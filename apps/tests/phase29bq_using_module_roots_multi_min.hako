@@ -1,0 +1,12 @@
+// Phase 29bq: module_roots resolution pin (two using statements).
+// Expected: stdout=2, rc=0
+
+using lang.shared.module_roots_smoke_box as ModuleRootsSmokeBox
+using lang.shared.common.string_ops as StringOps
+
+static box Main {
+  main() {
+    print(ModuleRootsSmokeBox.value() + StringOps.index_of_from("ab", "b", 0))
+    return 0
+  }
+}

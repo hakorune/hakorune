@@ -1,0 +1,21 @@
+// Phase 29y: reject detail contract fixture
+// Expect: JoinIR freeze with [joinir/reject_detail] reason=...
+
+static box Main {
+  main() {
+    local i = 0
+    local s = "a"
+    loop (i < 10) {
+      i = i + 1
+      if s == "" {
+        break
+      }
+      if i > 2 {
+        i = i + 2
+      }
+      s = ""
+    }
+    print(i)
+    return 0
+  }
+}

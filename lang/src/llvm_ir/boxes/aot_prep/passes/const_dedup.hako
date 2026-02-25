@@ -1,0 +1,63 @@
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.llvm.ir.aot_prep.helpers.common as AotPrepHelpers
+
+static box AotPrepConstDedupBox {
+  run(json) {
+    if json == null { return null }
+    local pos = 0
+    local out = json
+    loop(true) {
+      local kinst = JsonFragBox.index_of_from(out, "\"instructions\"", pos)
+      if kinst < 0 { break }
+      local lb = out.indexOf("[", kinst)
+      if lb < 0 { pos = kinst + 1; continue }
+      local rb = JsonFragBox._seek_array_end(out, lb)
+      if rb < 0 { pos = kinst + 1; continue }
+      local body = out.substring(lb+1, rb)
+      local i = 0
+      local new_body = ""
+      local first_vid_by_value = new MapBox()
+      loop(i < body.length()) {
+        local os = body.indexOf("{", i)
+        if os < 0 {
+          new_body = new_body + body.substring(i, body.length())
+          break
+        }
+        new_body = new_body + body.substring(i, os)
+        local oe = AotPrepHelpers._seek_object_end(body, os)
+        if oe < 0 {
+          new_body = new_body + body.substring(os, body.length())
+          break
+        }
+        local obj = body.substring(os, oe+1)
+        if obj.indexOf("\"op\":\"const\"") >= 0 && obj.indexOf("\"type\":\"i64\"") >= 0 {
+          local kdst = obj.indexOf("\"dst\":")
+          local dsts = (kdst>=0 ? StringHelpers.read_digits(obj, kdst+6) : "")
+          local kval = obj.indexOf("\"value\":{\"type\":\"i64\",\"value\":")
+          local vals = (kval>=0 ? StringHelpers.read_digits(obj, kval+30) : "")
+          if dsts != "" && vals != "" {
+            if first_vid_by_value.has(vals) {
+              local src = first_vid_by_value.get(vals)
+              local repl = "{\"op\":\"copy\",\"dst\":" + dsts + ",\"src\":" + src + "}"
+              new_body = new_body + repl
+            } else {
+              first_vid_by_value.set(vals, dsts)
+              new_body = new_body + obj
+            }
+          } else {
+            new_body = new_body + obj
+          }
+        } else {
+          new_body = new_body + obj
+        }
+        i = oe + 1
+      }
+      out = out.substring(0, lb+1) + new_body + out.substring(rb, out.length())
+      pos = rb + 1
+    }
+    return out
+  }
+
+  // _seek_object_end moved to AotPrepHelpers
+}

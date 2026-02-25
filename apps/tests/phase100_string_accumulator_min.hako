@@ -1,0 +1,15 @@
+static box Main {
+    main() {
+        local out = ""
+        local s = "abc"
+        local i = 0
+        loop(i < 3) {
+            if i >= 3 { break }
+            local ch = s.substring(i, i + 1)
+            out = out + ch
+            i = i + 1
+        }
+        print(out.length())
+        return 0
+    }
+}

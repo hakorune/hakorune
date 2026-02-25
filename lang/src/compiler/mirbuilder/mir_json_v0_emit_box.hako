@@ -1,0 +1,604 @@
+// mir_json_v0_emit_box.hako (CS2)
+// Responsibility:
+// - Emit MIR JSON v0 for a validated shape input.
+//
+// Fail-fast:
+// - All errors start with: [freeze:contract][hako_mirbuilder]
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+static box MirJsonV0EmitBox {
+  _tag(tag) {
+    if tag == null || ("" + tag) == "" { return "[freeze:contract][hako_mirbuilder]" }
+    return "" + tag
+  }
+
+  _fail(tag, msg) {
+    tag = me._tag(tag)
+    return %{"err" => 1, "err_line" => tag + msg, "mir_json" => ""}
+  }
+
+  _ctx_i64(shape_ctx, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(shape_ctx, key))
+  }
+
+  _ctx_s(shape_ctx, key) {
+    return "" + BoxHelpers.map_get(shape_ctx, key)
+  }
+
+  _emit_shape_phase10_if_or_null(shape_kind, tag, shape_ctx) {
+    if shape_kind != "phase10_local_if_vareqint_then_return_int_fallthrough_return_int" {
+      return null
+    }
+
+    local has_local = me._ctx_i64(shape_ctx, "has_local")
+    local has_print = me._ctx_i64(shape_ctx, "has_print")
+    local has_assignment = me._ctx_i64(shape_ctx, "has_assignment")
+    local return_kind = me._ctx_s(shape_ctx, "return_kind")
+    if has_local != 1 || has_print != 0 || has_assignment != 0 || return_kind != "Int" {
+      return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+    }
+
+    local recipe_cond_rhs_int = BoxHelpers.map_get(shape_ctx, "recipe_cond_rhs_int")
+    local recipe_then_retv = BoxHelpers.map_get(shape_ctx, "recipe_then_retv")
+    if recipe_cond_rhs_int == null || recipe_then_retv == null {
+      return me._fail(tag, "[cap_missing/recipe_shape] If shape is missing cond/then payload")
+    }
+
+    local local_init_s = me._ctx_s(shape_ctx, "local_init_s")
+    local retv_s = me._ctx_s(shape_ctx, "retv_s")
+    local cond_rhs_s = "" + recipe_cond_rhs_int
+    local then_retv_s = "" + recipe_then_retv
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + cond_rhs_s + "}},{\"op\":\"compare\",\"operation\":\"==\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]},{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + then_retv_s + "}},{\"op\":\"ret\",\"value\":4}]},{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + retv_s + "}},{\"op\":\"ret\",\"value\":5}]}]}]}"
+    }
+  }
+
+  _emit_shape_phase22_if_merge_or_null(shape_kind, tag, shape_ctx) {
+    if shape_kind != "phase22_local_if_vareqint_then_assign_int_else_assign_int_return_var" {
+      return null
+    }
+
+    local has_local = me._ctx_i64(shape_ctx, "has_local")
+    local has_print = me._ctx_i64(shape_ctx, "has_print")
+    local has_assignment = me._ctx_i64(shape_ctx, "has_assignment")
+    local return_kind = me._ctx_s(shape_ctx, "return_kind")
+    local local_name = me._ctx_s(shape_ctx, "local_name")
+    local ret_var_name = me._ctx_s(shape_ctx, "ret_var_name")
+    if has_local != 1 || has_print != 0 || has_assignment != 0 || return_kind != "Var" {
+      return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+    }
+    if local_name == "" || ret_var_name != local_name {
+      return me._fail(tag, "[cap_missing/expr:Var] If-merge Return(Var) must be Local var")
+    }
+
+    local recipe_cond_rhs_int = BoxHelpers.map_get(shape_ctx, "recipe_cond_rhs_int")
+    local recipe_then_assign_rhs_int = BoxHelpers.map_get(shape_ctx, "recipe_then_assign_rhs_int")
+    local recipe_else_assign_rhs_int = BoxHelpers.map_get(shape_ctx, "recipe_else_assign_rhs_int")
+    if recipe_cond_rhs_int == null || recipe_then_assign_rhs_int == null || recipe_else_assign_rhs_int == null {
+      return me._fail(tag, "[cap_missing/recipe_shape] If-merge shape is missing cond/then/else payload")
+    }
+
+    local local_init_s = me._ctx_s(shape_ctx, "local_init_s")
+    local cond_rhs_s = "" + recipe_cond_rhs_int
+    local then_assign_rhs_s = "" + recipe_then_assign_rhs_int
+    local else_assign_rhs_s = "" + recipe_else_assign_rhs_int
+
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + cond_rhs_s + "}},{\"op\":\"compare\",\"operation\":\"==\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]},{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + then_assign_rhs_s + "}},{\"op\":\"jump\",\"target\":3}]},{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + else_assign_rhs_s + "}},{\"op\":\"jump\",\"target\":3}]},{\"id\":3,\"instructions\":[{\"op\":\"phi\",\"dst\":6,\"incoming\":[[4,1],[5,2]]},{\"op\":\"ret\",\"value\":6}]}]}]}"
+    }
+  }
+
+  _emit_shape_phase11_loop_or_null(shape_kind, tag, shape_ctx) {
+    if shape_kind != "phase11_local_loop_varltint_body_inc_return_var_or_int" {
+      return null
+    }
+
+    local has_local = me._ctx_i64(shape_ctx, "has_local")
+    local has_print = me._ctx_i64(shape_ctx, "has_print")
+    local has_assignment = me._ctx_i64(shape_ctx, "has_assignment")
+    if has_local != 1 || has_print != 0 || has_assignment != 0 {
+      return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+    }
+
+    local return_kind = me._ctx_s(shape_ctx, "return_kind")
+    if return_kind != "Var" && return_kind != "Int" {
+      return me._fail(tag, "[cap_missing/shape_kind] Loop shape requires Return(Var|Int)")
+    }
+    local local_name = me._ctx_s(shape_ctx, "local_name")
+    local ret_var_name = me._ctx_s(shape_ctx, "ret_var_name")
+    if return_kind == "Var" && ret_var_name != local_name {
+      return me._fail(tag, "[cap_missing/expr:Var] Loop Return(Var) must be Local var: " + local_name)
+    }
+
+    local recipe_loop_cond_rhs_int = BoxHelpers.map_get(shape_ctx, "recipe_loop_cond_rhs_int")
+    local recipe_loop_step_int = BoxHelpers.map_get(shape_ctx, "recipe_loop_step_int")
+    if recipe_loop_cond_rhs_int == null || recipe_loop_step_int == null {
+      return me._fail(tag, "[cap_missing/recipe_shape] Loop shape is missing cond/step payload")
+    }
+
+    local local_init_s = me._ctx_s(shape_ctx, "local_init_s")
+    local retv_s = me._ctx_s(shape_ctx, "retv_s")
+    local loop_cond_rhs_s = "" + recipe_loop_cond_rhs_int
+    local loop_step_s = "" + recipe_loop_step_int
+
+    if return_kind == "Var" {
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + loop_cond_rhs_s + "}},{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + loop_step_s + "}},{\"op\":\"jump\",\"target\":1}]},{\"id\":1,\"instructions\":[{\"op\":\"phi\",\"dst\":4,\"incoming\":[[1,0],[6,2]]},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":4,\"rhs\":2,\"dst\":5},{\"op\":\"branch\",\"cond\":5,\"then\":2,\"else\":3}]},{\"id\":2,\"instructions\":[{\"op\":\"binop\",\"dst\":6,\"lhs\":4,\"rhs\":3,\"operation\":\"+\"},{\"op\":\"jump\",\"target\":1}]},{\"id\":3,\"instructions\":[{\"op\":\"ret\",\"value\":4}]}]}]}"
+      }
+    }
+
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + loop_cond_rhs_s + "}},{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + loop_step_s + "}},{\"op\":\"jump\",\"target\":1}]},{\"id\":1,\"instructions\":[{\"op\":\"phi\",\"dst\":4,\"incoming\":[[1,0],[6,2]]},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":4,\"rhs\":2,\"dst\":5},{\"op\":\"branch\",\"cond\":5,\"then\":2,\"else\":3}]},{\"id\":2,\"instructions\":[{\"op\":\"binop\",\"dst\":6,\"lhs\":4,\"rhs\":3,\"operation\":\"+\"},{\"op\":\"jump\",\"target\":1}]},{\"id\":3,\"instructions\":[{\"op\":\"const\",\"dst\":7,\"value\":{\"type\":\"i64\",\"value\":" + retv_s + "}},{\"op\":\"ret\",\"value\":7}]}]}]}"
+    }
+  }
+
+  _emit_shape_phase21_loop_if_or_null(shape_kind, tag, shape_ctx) {
+    if shape_kind != "phase21_local_loop_if_varltint_then_return_int_body_inc_return_var_or_int" {
+      return null
+    }
+
+    local has_local = me._ctx_i64(shape_ctx, "has_local")
+    local has_print = me._ctx_i64(shape_ctx, "has_print")
+    local has_assignment = me._ctx_i64(shape_ctx, "has_assignment")
+    if has_local != 1 || has_print != 0 || has_assignment != 0 {
+      return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+    }
+
+    local return_kind = me._ctx_s(shape_ctx, "return_kind")
+    if return_kind != "Var" && return_kind != "Int" {
+      return me._fail(tag, "[cap_missing/shape_kind] Loop-If shape requires Return(Var|Int)")
+    }
+    local local_name = me._ctx_s(shape_ctx, "local_name")
+    local ret_var_name = me._ctx_s(shape_ctx, "ret_var_name")
+    if return_kind == "Var" && ret_var_name != local_name {
+      return me._fail(tag, "[cap_missing/expr:Var] Loop-If Return(Var) must be Local var: " + local_name)
+    }
+
+    local recipe_loop_cond_rhs_int = BoxHelpers.map_get(shape_ctx, "recipe_loop_cond_rhs_int")
+    local recipe_loop_step_int = BoxHelpers.map_get(shape_ctx, "recipe_loop_step_int")
+    local recipe_loop_if_cond_rhs_int = BoxHelpers.map_get(shape_ctx, "recipe_loop_if_cond_rhs_int")
+    local recipe_loop_if_then_retv = BoxHelpers.map_get(shape_ctx, "recipe_loop_if_then_retv")
+    if recipe_loop_cond_rhs_int == null || recipe_loop_step_int == null || recipe_loop_if_cond_rhs_int == null || recipe_loop_if_then_retv == null {
+      return me._fail(tag, "[cap_missing/recipe_shape] Loop-If shape is missing cond/step/if payload")
+    }
+
+    local local_init_s = me._ctx_s(shape_ctx, "local_init_s")
+    local retv_s = me._ctx_s(shape_ctx, "retv_s")
+    local loop_cond_rhs_s = "" + recipe_loop_cond_rhs_int
+    local loop_step_s = "" + recipe_loop_step_int
+    local loop_if_cond_rhs_s = "" + recipe_loop_if_cond_rhs_int
+    local loop_if_then_retv_s = "" + recipe_loop_if_then_retv
+
+    if return_kind == "Var" {
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + loop_cond_rhs_s + "}},{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + loop_step_s + "}},{\"op\":\"const\",\"dst\":8,\"value\":{\"type\":\"i64\",\"value\":" + loop_if_cond_rhs_s + "}},{\"op\":\"jump\",\"target\":1}]},{\"id\":1,\"instructions\":[{\"op\":\"phi\",\"dst\":4,\"incoming\":[[1,0],[6,3]]},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":4,\"rhs\":2,\"dst\":5},{\"op\":\"branch\",\"cond\":5,\"then\":2,\"else\":5}]},{\"id\":2,\"instructions\":[{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":4,\"rhs\":8,\"dst\":7},{\"op\":\"branch\",\"cond\":7,\"then\":4,\"else\":3}]},{\"id\":3,\"instructions\":[{\"op\":\"binop\",\"dst\":6,\"lhs\":4,\"rhs\":3,\"operation\":\"+\"},{\"op\":\"jump\",\"target\":1}]},{\"id\":4,\"instructions\":[{\"op\":\"const\",\"dst\":10,\"value\":{\"type\":\"i64\",\"value\":" + loop_if_then_retv_s + "}},{\"op\":\"ret\",\"value\":10}]},{\"id\":5,\"instructions\":[{\"op\":\"ret\",\"value\":4}]}]}]}"
+      }
+    }
+
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + loop_cond_rhs_s + "}},{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + loop_step_s + "}},{\"op\":\"const\",\"dst\":8,\"value\":{\"type\":\"i64\",\"value\":" + loop_if_cond_rhs_s + "}},{\"op\":\"jump\",\"target\":1}]},{\"id\":1,\"instructions\":[{\"op\":\"phi\",\"dst\":4,\"incoming\":[[1,0],[6,3]]},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":4,\"rhs\":2,\"dst\":5},{\"op\":\"branch\",\"cond\":5,\"then\":2,\"else\":5}]},{\"id\":2,\"instructions\":[{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":4,\"rhs\":8,\"dst\":7},{\"op\":\"branch\",\"cond\":7,\"then\":4,\"else\":3}]},{\"id\":3,\"instructions\":[{\"op\":\"binop\",\"dst\":6,\"lhs\":4,\"rhs\":3,\"operation\":\"+\"},{\"op\":\"jump\",\"target\":1}]},{\"id\":4,\"instructions\":[{\"op\":\"const\",\"dst\":10,\"value\":{\"type\":\"i64\",\"value\":" + loop_if_then_retv_s + "}},{\"op\":\"ret\",\"value\":10}]},{\"id\":5,\"instructions\":[{\"op\":\"const\",\"dst\":11,\"value\":{\"type\":\"i64\",\"value\":" + retv_s + "}},{\"op\":\"ret\",\"value\":11}]}]}]}"
+    }
+  }
+
+  _emit_shape_non_control_basic_or_null(shape_kind, tag, shape_ctx) {
+    local has_print = me._ctx_i64(shape_ctx, "has_print")
+    local has_local = me._ctx_i64(shape_ctx, "has_local")
+    local has_assignment = me._ctx_i64(shape_ctx, "has_assignment")
+    local print_kind = me._ctx_s(shape_ctx, "print_kind")
+    local return_kind = me._ctx_s(shape_ctx, "return_kind")
+    local print_var_name = me._ctx_s(shape_ctx, "print_var_name")
+    local local_name = me._ctx_s(shape_ctx, "local_name")
+    local local_init_s = me._ctx_s(shape_ctx, "local_init_s")
+    local printv_s = me._ctx_s(shape_ctx, "printv_s")
+    local retv_s = me._ctx_s(shape_ctx, "retv_s")
+    local ret_var_name = me._ctx_s(shape_ctx, "ret_var_name")
+    local ret_box_type = me._ctx_s(shape_ctx, "ret_box_type")
+
+    if shape_kind == "phase1_return_int" {
+      if has_local != 0 || has_print != 0 || has_assignment != 0 || return_kind != "Int" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + retv_s + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase2_local_return_var" {
+      if has_local != 1 || has_print != 0 || has_assignment != 0 || return_kind != "Var" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      if ret_var_name != local_name {
+        return me._fail(tag, "[cap_missing/expr:Var] unknown variable in Return: " + ret_var_name)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase19_load_local_var_return_var" {
+      if has_local != 1 || has_print != 0 || has_assignment != 0 || return_kind != "Var" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      if ret_var_name != local_name {
+        return me._fail(tag, "[cap_missing/expr:Var] Return var must be the Local var: " + local_name)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"store\",\"ptr\":1,\"value\":1},{\"op\":\"load\",\"dst\":2,\"ptr\":1},{\"op\":\"ret\",\"value\":2}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase2_print_int_return_int" {
+      if has_local != 0 || has_print != 1 || has_assignment != 0 || return_kind != "Int" || print_kind != "Int" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + printv_s + "}},{\"op\":\"externcall\",\"func\":\"env.console.log\",\"args\":[1]},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + retv_s + "}},{\"op\":\"ret\",\"value\":2}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase4_local_print_var_return0" || shape_kind == "phase4_local_print_var_return_int" {
+      if has_local != 1 || has_print != 1 || has_assignment != 0 || return_kind != "Int" || print_kind != "Var" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      if print_var_name != local_name {
+        return me._fail(tag, "[cap_missing/expr:Var] Print var must be the Local var: " + local_name)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"externcall\",\"func\":\"env.console.log\",\"args\":[1]},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + retv_s + "}},{\"op\":\"ret\",\"value\":2}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase5_local_print_var_return_var" {
+      if has_local != 1 || has_print != 1 || has_assignment != 0 || return_kind != "Var" || print_kind != "Var" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      if print_var_name != local_name {
+        return me._fail(tag, "[cap_missing/expr:Var] Print var must be the Local var: " + local_name)
+      }
+      if ret_var_name != local_name {
+        return me._fail(tag, "[cap_missing/expr:Var] Return var must be the Local var: " + local_name)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"externcall\",\"func\":\"env.console.log\",\"args\":[1]},{\"op\":\"ret\",\"value\":1}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase12_return_newbox" {
+      if has_local != 0 || has_print != 0 || has_assignment != 0 || return_kind != "NewBox" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      if ret_box_type == "" {
+        return me._fail(tag, "[cap_missing/expr:New] Return(NewBox) requires box type")
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"newbox\",\"dst\":1,\"type\":\"" + ret_box_type + "\",\"args\":[]},{\"op\":\"ret\",\"value\":1}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase16_return_newbox_stringbox_abc" {
+      if has_local != 0 || has_print != 0 || has_assignment != 0 || return_kind != "NewBoxStringAbc" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"abc\"}},{\"op\":\"newbox\",\"dst\":2,\"type\":\"StringBox\",\"args\":[1]},{\"op\":\"ret\",\"value\":2}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase13_return_call_id0" {
+      if has_local != 0 || has_print != 0 || has_assignment != 0 || return_kind != "CallId0" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"id\"}},{\"op\":\"call\",\"dst\":2,\"func\":1,\"args\":[]},{\"op\":\"ret\",\"value\":2}]}]},{\"name\":\"id\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":7}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase15_return_call_id1_int9" {
+      if has_local != 0 || has_print != 0 || has_assignment != 0 || return_kind != "CallId1Int9" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"id\"}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":9}},{\"op\":\"call\",\"dst\":3,\"func\":1,\"args\":[2]},{\"op\":\"ret\",\"value\":3}]}]},{\"name\":\"id\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":9}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase18_return_call_id1_int7" {
+      if has_local != 0 || has_print != 0 || has_assignment != 0 || return_kind != "CallId1Int7" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"id\"}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":7}},{\"op\":\"call\",\"dst\":3,\"func\":1,\"args\":[2]},{\"op\":\"ret\",\"value\":3}]}]},{\"name\":\"id\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":7}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase14_return_boxcall_stringbox_length_abc" {
+      if has_local != 0 || has_print != 0 || has_assignment != 0 || return_kind != "MethodStringBoxLengthAbc" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"abc\"}},{\"op\":\"newbox\",\"dst\":2,\"type\":\"StringBox\",\"args\":[1]},{\"op\":\"boxcall\",\"dst\":3,\"box\":2,\"method\":\"length\",\"args\":[]},{\"op\":\"ret\",\"value\":3}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase17_return_boxcall_stringbox_indexof_b_abc" {
+      if has_local != 0 || has_print != 0 || has_assignment != 0 || return_kind != "MethodStringBoxIndexOfBAbc" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"abc\"}},{\"op\":\"newbox\",\"dst\":2,\"type\":\"StringBox\",\"args\":[1]},{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"string\",\"value\":\"b\"}},{\"op\":\"boxcall\",\"dst\":4,\"box\":2,\"method\":\"indexOf\",\"args\":[3]},{\"op\":\"ret\",\"value\":4}]}]}]}"
+      }
+    }
+
+    return null
+  }
+
+  _emit_shape_non_control_update_or_null(shape_kind, tag, shape_ctx) {
+    local has_print = me._ctx_i64(shape_ctx, "has_print")
+    local has_local = me._ctx_i64(shape_ctx, "has_local")
+    local has_assignment = me._ctx_i64(shape_ctx, "has_assignment")
+    local print_kind = me._ctx_s(shape_ctx, "print_kind")
+    local return_kind = me._ctx_s(shape_ctx, "return_kind")
+    local print_var_name = me._ctx_s(shape_ctx, "print_var_name")
+    local local_name = me._ctx_s(shape_ctx, "local_name")
+    local local_init_s = me._ctx_s(shape_ctx, "local_init_s")
+    local assign_name = me._ctx_s(shape_ctx, "assign_name")
+    local assign_rhs = BoxHelpers.map_get(shape_ctx, "assign_rhs")
+    local assign_rhs_kind = me._ctx_s(shape_ctx, "assign_rhs_kind")
+    if assign_rhs_kind == "null" { assign_rhs_kind = "" }
+    local printv_s = me._ctx_s(shape_ctx, "printv_s")
+    local retv_s = me._ctx_s(shape_ctx, "retv_s")
+    local ret_var_name = me._ctx_s(shape_ctx, "ret_var_name")
+
+    if shape_kind == "phase9_print_binop_return0" || shape_kind == "phase9_print_binop_return_int" {
+      if has_local != 1 || has_print != 1 || has_assignment != 0 || return_kind != "Int" || print_kind != "BinaryVarInt" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      if print_var_name != local_name {
+        return me._fail(tag, "[cap_missing/expr:Var] Print Binary lhs var must be the Local var: " + local_name)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + printv_s + "}},{\"op\":\"binop\",\"dst\":3,\"lhs\":1,\"rhs\":2,\"operation\":\"+\"},{\"op\":\"externcall\",\"func\":\"env.console.log\",\"args\":[3]},{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + retv_s + "}},{\"op\":\"ret\",\"value\":4}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase2_inc_return_var" {
+      if has_local != 1 || has_print != 0 || has_assignment != 1 || return_kind != "Var" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      if assign_rhs_kind != "" && assign_rhs_kind != "AddVarInt" {
+        return me._fail(tag, "[cap_missing/shape_kind] phase2_inc_return_var requires assign_rhs_kind=AddVarInt")
+      }
+      if assign_name != local_name || ret_var_name != local_name {
+        return me._fail(tag, "[cap_missing/expr:Var] Assignment/Return must target the Local var: " + local_name)
+      }
+      local rhs_s = "" + assign_rhs
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_s + "}},{\"op\":\"binop\",\"dst\":3,\"lhs\":1,\"rhs\":2,\"operation\":\"+\"},{\"op\":\"ret\",\"value\":3}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase7_inc_print_return0" || shape_kind == "phase7_inc_print_return_int" {
+      if has_local != 1 || has_print != 1 || has_assignment != 1 || return_kind != "Int" || print_kind != "Var" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      if assign_name != local_name {
+        return me._fail(tag, "[cap_missing/expr:Var] Assignment must target the Local var: " + local_name)
+      }
+      if print_var_name != local_name {
+        return me._fail(tag, "[cap_missing/expr:Var] Print var must be the Local var: " + local_name)
+      }
+      local rhs_s = "" + assign_rhs
+      if assign_rhs_kind == "Int" {
+        return %{
+          "err" => 0,
+          "err_line" => "",
+          "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_s + "}},{\"op\":\"store\",\"ptr\":1,\"value\":2},{\"op\":\"load\",\"dst\":3,\"ptr\":1},{\"op\":\"externcall\",\"func\":\"env.console.log\",\"args\":[3]},{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + retv_s + "}},{\"op\":\"ret\",\"value\":4}]}]}]}"
+        }
+      }
+      if assign_rhs_kind != "" && assign_rhs_kind != "AddVarInt" {
+        return me._fail(tag, "[cap_missing/shape_kind] phase7_inc_print_return* requires assign_rhs_kind=AddVarInt or Int")
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_s + "}},{\"op\":\"binop\",\"dst\":3,\"lhs\":1,\"rhs\":2,\"operation\":\"+\"},{\"op\":\"externcall\",\"func\":\"env.console.log\",\"args\":[3]},{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + retv_s + "}},{\"op\":\"ret\",\"value\":4}]}]}]}"
+      }
+    }
+
+    if shape_kind == "phase20_store_assignment_int_return_var" {
+      if has_local != 1 || has_print != 0 || has_assignment != 1 || return_kind != "Var" {
+        return me._fail(tag, "[cap_missing/shape_kind] mismatch for " + shape_kind)
+      }
+      if assign_rhs_kind != "Int" {
+        return me._fail(tag, "[cap_missing/shape_kind] phase20_store_assignment_int_return_var requires assign_rhs_kind=Int")
+      }
+      if assign_name != local_name || ret_var_name != local_name {
+        return me._fail(tag, "[cap_missing/expr:Var] Assignment/Return must target the Local var: " + local_name)
+      }
+      local rhs_s = "" + assign_rhs
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "mir_json" => "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init_s + "}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_s + "}},{\"op\":\"store\",\"ptr\":1,\"value\":2},{\"op\":\"load\",\"dst\":3,\"ptr\":1},{\"op\":\"ret\",\"value\":3}]}]}]}"
+      }
+    }
+
+    return null
+  }
+
+  _build_mir_by_shape(shape_kind, tag, shape_ctx) {
+    local emit_out = me._emit_shape_non_control_basic_or_null(shape_kind, tag, shape_ctx)
+    if emit_out != null { return emit_out }
+
+    emit_out = me._emit_shape_non_control_update_or_null(shape_kind, tag, shape_ctx)
+    if emit_out != null { return emit_out }
+
+    emit_out = me._emit_shape_phase10_if_or_null(shape_kind, tag, shape_ctx)
+    if emit_out != null { return emit_out }
+
+    emit_out = me._emit_shape_phase22_if_merge_or_null(shape_kind, tag, shape_ctx)
+    if emit_out != null { return emit_out }
+
+    emit_out = me._emit_shape_phase11_loop_or_null(shape_kind, tag, shape_ctx)
+    if emit_out != null { return emit_out }
+
+    emit_out = me._emit_shape_phase21_loop_if_or_null(shape_kind, tag, shape_ctx)
+    if emit_out != null { return emit_out }
+
+    return me._fail(tag, "[cap_missing/shape_kind] unsupported shape_kind: " + shape_kind)
+  }
+
+  _shape_ctx_from_state(
+    state,
+    has_print,
+    has_local,
+    has_assignment,
+    has_return,
+    recipe_cond_rhs_int,
+    recipe_then_retv,
+    recipe_then_assign_rhs_int,
+    recipe_else_assign_rhs_int,
+    recipe_loop_cond_rhs_int,
+    recipe_loop_step_int,
+    recipe_loop_if_cond_rhs_int,
+    recipe_loop_if_then_retv
+  ) {
+    local printv = BoxHelpers.map_get(state, "printv")
+    local local_init = BoxHelpers.map_get(state, "local_init")
+    local retv = BoxHelpers.map_get(state, "retv")
+    local print_kind = "" + BoxHelpers.map_get(state, "print_kind")
+    local return_kind = "" + BoxHelpers.map_get(state, "return_kind")
+    local print_var_name = "" + BoxHelpers.map_get(state, "print_var_name")
+    local local_name = "" + BoxHelpers.map_get(state, "local_name")
+    local assign_name = "" + BoxHelpers.map_get(state, "assign_name")
+    local assign_rhs = BoxHelpers.map_get(state, "assign_rhs")
+    local assign_rhs_kind = "" + BoxHelpers.map_get(state, "assign_rhs_kind")
+    local ret_var_name = "" + BoxHelpers.map_get(state, "ret_var_name")
+    local ret_box_type = "" + BoxHelpers.map_get(state, "ret_box_type")
+    local printv_s = "" + printv
+    local retv_s = "" + retv
+    local local_init_s = "" + local_init
+
+    return %{
+      "has_print" => has_print,
+      "has_local" => has_local,
+      "has_assignment" => has_assignment,
+      "has_return" => has_return,
+      "print_kind" => print_kind,
+      "return_kind" => return_kind,
+      "print_var_name" => print_var_name,
+      "local_name" => local_name,
+      "local_init_s" => local_init_s,
+      "assign_name" => assign_name,
+      "assign_rhs" => assign_rhs,
+      "assign_rhs_kind" => assign_rhs_kind,
+      "printv_s" => printv_s,
+      "retv_s" => retv_s,
+      "ret_var_name" => ret_var_name,
+      "ret_box_type" => ret_box_type,
+      "recipe_cond_rhs_int" => recipe_cond_rhs_int,
+      "recipe_then_retv" => recipe_then_retv,
+      "recipe_then_assign_rhs_int" => recipe_then_assign_rhs_int,
+      "recipe_else_assign_rhs_int" => recipe_else_assign_rhs_int,
+      "recipe_loop_cond_rhs_int" => recipe_loop_cond_rhs_int,
+      "recipe_loop_step_int" => recipe_loop_step_int,
+      "recipe_loop_if_cond_rhs_int" => recipe_loop_if_cond_rhs_int,
+      "recipe_loop_if_then_retv" => recipe_loop_if_then_retv
+    }
+  }
+
+  _ensure_return_present_or_null(shape_inputs, tag) {
+    local has_return = StringHelpers.to_i64(BoxHelpers.map_get(shape_inputs, "has_return"))
+    if has_return != 1 {
+      return me._fail(tag, "[cap_missing/stmt:Return] Program(JSON v0) has no Return")
+    }
+    return null
+  }
+
+  _shape_inputs_error_or_null(shape_inputs) {
+    if StringHelpers.to_i64(BoxHelpers.map_get(shape_inputs, "err")) != 1 {
+      return null
+    }
+
+    return %{
+      "err" => 1,
+      "err_line" => "" + BoxHelpers.map_get(shape_inputs, "err_line"),
+      "mir_json" => ""
+    }
+  }
+
+  _build_from_shape_inputs(state, tag, shape_inputs) {
+    local return_check = me._ensure_return_present_or_null(shape_inputs, tag)
+    if return_check != null { return return_check }
+
+    local shape_kind = "" + BoxHelpers.map_get(shape_inputs, "shape_kind")
+    local shape_ctx = me._shape_ctx_from_state(
+      state,
+      StringHelpers.to_i64(BoxHelpers.map_get(shape_inputs, "has_print")),
+      StringHelpers.to_i64(BoxHelpers.map_get(shape_inputs, "has_local")),
+      StringHelpers.to_i64(BoxHelpers.map_get(shape_inputs, "has_assignment")),
+      StringHelpers.to_i64(BoxHelpers.map_get(shape_inputs, "has_return")),
+      BoxHelpers.map_get(shape_inputs, "recipe_cond_rhs_int"),
+      BoxHelpers.map_get(shape_inputs, "recipe_then_retv"),
+      BoxHelpers.map_get(shape_inputs, "recipe_then_assign_rhs_int"),
+      BoxHelpers.map_get(shape_inputs, "recipe_else_assign_rhs_int"),
+      BoxHelpers.map_get(shape_inputs, "recipe_loop_cond_rhs_int"),
+      BoxHelpers.map_get(shape_inputs, "recipe_loop_step_int"),
+      BoxHelpers.map_get(shape_inputs, "recipe_loop_if_cond_rhs_int"),
+      BoxHelpers.map_get(shape_inputs, "recipe_loop_if_then_retv")
+    )
+    return me._build_mir_by_shape(shape_kind, tag, shape_ctx)
+  }
+
+  build_from_shape_inputs(state, tag, shape_inputs) {
+    local shape_error = me._shape_inputs_error_or_null(shape_inputs)
+    if shape_error != null { return shape_error }
+    return me._build_from_shape_inputs(state, tag, shape_inputs)
+  }
+}
+
+static box MirJsonV0EmitStub { main() { return 0 } }

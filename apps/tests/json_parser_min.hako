@@ -1,0 +1,8 @@
+using tools.hako_shared.json_parser as JsonParserBox
+
+static box Main {
+    main() {
+        local v = JsonParserBox.parse("{\"x\":1}")
+        return 0
+    }
+}

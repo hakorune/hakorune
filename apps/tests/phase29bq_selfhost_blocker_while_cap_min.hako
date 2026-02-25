@@ -1,0 +1,16 @@
+// Minimal fixture for While capability
+// Pattern: while loop (semantically equivalent to loop(cond))
+// Source: UsingResolveSSOTBox.resolve/2 (resolve_ssot_box.hako line 53)
+// Error: [joinir/control_tree/cap_missing/While]
+static box Main {
+  main() {
+    local i = 0
+    local sum = 0
+    while i < 5 {
+      sum = sum + i
+      i = i + 1
+    }
+    print(sum)
+    return 0
+  }
+}

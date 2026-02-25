@@ -1,0 +1,22 @@
+// Phase 29bq selfhost subset: DropScope registration via fini/local ... fini (LIFO)
+// Expected output: SEBAF0
+static box Main {
+  main() {
+    local out = ""
+    {
+      out = out + "S"
+      fini {
+        out = out + "F0"
+      }
+      local a = 1 fini {
+        out = out + "A"
+      }
+      local b = 2 fini {
+        out = out + "B"
+      }
+      out = out + "E"
+    }
+    print(out)
+    return 0
+  }
+}

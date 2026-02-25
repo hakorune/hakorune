@@ -1,0 +1,227 @@
+//! RecipeTree - Minimal vocabulary for recursive lowering
+//!
+//! SSOT: docs/development/current/main/design/recipe-tree-and-parts-ssot.md
+//! Flattened: builders/ and composer/ moved to recipe_tree/ root
+//!
+//! Phase: M1 scaffold (no calls from existing pipeline)
+
+use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::plan::facts::stmt_view::StmtOnlyBlockRecipe;
+use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
+
+pub(in crate::mir::builder) mod common;
+pub(in crate::mir::builder) mod block;
+// Re-export block types explicitly (use block::* doesn't work with visibility)
+pub(in crate::mir::builder) use block::{
+    BlockContractKind, BodyId, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies,
+    RecipeBlock, RecipeItem,
+};
+
+// Builder modules (flattened from builders/)
+pub(in crate::mir::builder) mod loop_simple_while_builder;
+pub(in crate::mir::builder) mod char_map_builder;
+pub(in crate::mir::builder) mod array_join_builder;
+pub(in crate::mir::builder) mod loop_break_builder;
+pub(in crate::mir::builder) mod if_phi_join_builder;
+pub(in crate::mir::builder) mod loop_continue_only_builder;
+pub(in crate::mir::builder) mod loop_true_early_exit_builder;
+pub(in crate::mir::builder) mod scan_with_init_builder;
+pub(in crate::mir::builder) mod split_scan_builder;
+pub(in crate::mir::builder) mod bool_predicate_scan_builder;
+pub(in crate::mir::builder) mod accum_const_loop_builder;
+
+// Composer modules (flattened from composer/)
+mod accum_const_loop_composer;
+mod bool_predicate_scan_composer;
+mod generic_loop_composer;
+mod if_phi_join_composer;
+mod loop_break_composer;
+mod loop_cond_composer;
+mod loop_continue_only_composer;
+mod loop_simple_while_composer;
+mod loop_true_composer;
+mod loop_true_early_exit_composer;
+mod scan_with_init_composer;
+mod split_scan_composer;
+
+pub(in crate::mir::builder) mod contracts;
+pub(in crate::mir::builder) mod matcher;
+pub(in crate::mir::builder) use matcher::RecipeMatcher;
+pub(in crate::mir::builder) mod verified;
+
+// Re-export builder types (maintains backward compatibility)
+pub(in crate::mir::builder) use loop_simple_while_builder::{
+    build_loop_simple_while_recipe,
+    LoopSimpleWhileRecipe,
+};
+pub(in crate::mir::builder) use char_map_builder::{
+    build_char_map_recipe,
+    CharMapRecipe,
+};
+pub(in crate::mir::builder) use array_join_builder::{
+    build_array_join_recipe,
+    ArrayJoinRecipe,
+};
+pub(in crate::mir::builder) use loop_break_builder::{
+    build_loop_break_recipe,
+    LoopBreakRecipe,
+};
+pub(in crate::mir::builder) use if_phi_join_builder::{
+    build_if_phi_join_recipe,
+    IfPhiJoinRecipe,
+};
+pub(in crate::mir::builder) use loop_continue_only_builder::{
+    build_loop_continue_only_recipe,
+    LoopContinueOnlyRecipe,
+};
+pub(in crate::mir::builder) use loop_true_early_exit_builder::{
+    build_loop_true_early_exit_recipe,
+    LoopTrueEarlyExitRecipe,
+};
+pub(in crate::mir::builder) use scan_with_init_builder::{
+    build_scan_with_init_recipe,
+    ScanWithInitRecipe,
+};
+pub(in crate::mir::builder) use split_scan_builder::{
+    build_split_scan_recipe,
+    SplitScanRecipe,
+};
+pub(in crate::mir::builder) use bool_predicate_scan_builder::{
+    build_bool_predicate_scan_recipe,
+    BoolPredicateScanRecipe,
+};
+pub(in crate::mir::builder) use accum_const_loop_builder::{
+    build_accum_const_loop_recipe,
+    AccumConstLoopRecipe,
+};
+
+// ===== RecipeComposer (moved from composer/mod.rs) =====
+pub(in crate::mir::builder) struct RecipeComposer;
+
+// ===== Helper functions (moved from builders/mod.rs) =====
+
+/// Build a block containing only Stmt items.
+pub(in crate::mir::builder) fn build_stmt_only_block(
+    body_id: BodyId,
+    stmt_count: usize,
+) -> RecipeBlock {
+    let items = (0..stmt_count)
+        .map(|idx| RecipeItem::Stmt(StmtRef::new(idx)))
+        .collect();
+    RecipeBlock::new(body_id, items)
+}
+
+/// Build a root block with single IfV2{Join} item.
+pub(in crate::mir::builder) fn build_if_v2_join_root(
+    arena: &mut RecipeBodies,
+    if_body_id: BodyId,
+    cond_view: CondBlockView,
+    then_body: &[crate::ast::ASTNode],
+    else_body: Option<&[crate::ast::ASTNode]>,
+) -> Result<RecipeBlock, String> {
+    // Register then body
+    let then_body_id = arena.register(RecipeBody::new(then_body.to_vec()));
+
+    // Build then block
+    let then_block = build_stmt_only_block(then_body_id, then_body.len());
+
+    // Build else block (if present)
+    let else_block = else_body.map(|eb| {
+        let else_body_id = arena.register(RecipeBody::new(eb.to_vec()));
+        Box::new(build_stmt_only_block(else_body_id, eb.len()))
+    });
+
+    // Build root block with IfV2{Join}
+    Ok(RecipeBlock::new(
+        if_body_id,
+        vec![RecipeItem::IfV2 {
+            if_stmt: StmtRef::new(0),
+            cond_view,
+            contract: IfContractKind::Join,
+            then_block: Box::new(then_block),
+            else_block,
+        }],
+    ))
+}
+
+/// Build arena and root block for single If statement (IfV2{Join}).
+pub(in crate::mir::builder) fn build_arena_and_if_v2_join_root_from_single_if_stmt(
+    stmt: &crate::ast::ASTNode,
+    cond_view: CondBlockView,
+    then_body: &[crate::ast::ASTNode],
+    else_body: Option<&[crate::ast::ASTNode]>,
+) -> Result<(RecipeBodies, RecipeBlock), String> {
+    let mut arena = RecipeBodies::new();
+    let if_body_id = arena.register(RecipeBody::new(vec![stmt.clone()]));
+    let root = build_if_v2_join_root(&mut arena, if_body_id, cond_view, then_body, else_body)?;
+    Ok((arena, root))
+}
+
+pub(in crate::mir::builder) fn build_arena_and_loop_v0_root_from_single_loop_stmt(
+    loop_stmt: &crate::ast::ASTNode,
+    cond_view: CondBlockView,
+    body: &RecipeBody,
+    body_contract: BlockContractKind,
+) -> Result<(RecipeBodies, RecipeBlock), String> {
+    let mut arena = RecipeBodies::new();
+
+    let loop_body_id = arena.register(RecipeBody::new(vec![loop_stmt.clone()]));
+    let nested_body_id = arena.register(body.clone());
+
+    let nested_block = match body_contract {
+        BlockContractKind::StmtOnly => build_stmt_only_block(nested_body_id, body.len()),
+        _ => {
+            return Err(format!(
+                "[freeze:contract][recipe] LoopV0 builder only supports StmtOnly: contract={:?}",
+                body_contract
+            ));
+        }
+    };
+
+    let root = RecipeBlock::new(
+        loop_body_id,
+        vec![RecipeItem::LoopV0 {
+            loop_stmt: StmtRef::new(0),
+            kind: LoopKindV0::WhileLike,
+            cond_view,
+            body_block: Box::new(nested_block),
+            body_contract,
+            features: LoopV0Features::default(),
+        }],
+    );
+
+    Ok((arena, root))
+}
+
+pub(in crate::mir::builder) fn build_arena_and_loop_v0_root_from_nested_stmt_only(
+    loop_stmt: &crate::ast::ASTNode,
+    cond_view: CondBlockView,
+    body_stmt_only: StmtOnlyBlockRecipe,
+    kind: LoopKindV0,
+    features: LoopV0Features,
+) -> Result<(RecipeBodies, RecipeBlock), String> {
+    let mut arena = body_stmt_only.arena;
+
+    let loop_body_id = arena.register(RecipeBody::new(vec![loop_stmt.clone()]));
+    let nested_block = body_stmt_only.block;
+
+    let root = RecipeBlock::new(
+        loop_body_id,
+        vec![RecipeItem::LoopV0 {
+            loop_stmt: StmtRef::new(0),
+            kind,
+            cond_view,
+            body_block: Box::new(nested_block),
+            body_contract: BlockContractKind::StmtOnly,
+            features,
+        }],
+    );
+
+    Ok((arena, root))
+}
+
+// Common exports
+pub(in crate::mir::builder) use common::{ExitKind, IfMode};
+#[allow(unused_imports)] // Public surface for Verified-only lowering; not all phases use it yet.
+pub(in crate::mir::builder) use verified::VerifiedRecipeBlock;

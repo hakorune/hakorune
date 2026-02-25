@@ -1,0 +1,116 @@
+// lower_loop_sum_bc_box.hako — Loop with Compare(i<limit) and body Break/Continue sentinels → LoopFormBox.loop_counter
+// Pattern (naive):
+//   Local i=0; Local s=0;
+//   Loop(cond=Compare(op:"<", lhs=Var("i"), rhs=Int limit), body=[
+//     If(cond=Compare(op:"==", lhs=Var("i"), rhs=Int break_value)) then [Break]
+//     If(cond=Compare(op:"==", lhs=Var("i"), rhs=Int skip_value)) then [Continue]
+//     ...
+//   ])
+//   Return Var("s")
+
+using selfhost.shared.mir.loopform as LoopFormBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.loop_scan" as LoopScanBox
+using "hako.mir.builder.internal.sentinel_extractor" as SentinelExtractorBox
+using "hako.mir.builder.internal.loop_opts_adapter" as LoopOptsBox
+
+static box LowerLoopSumBcBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+    local trace = env.get("HAKO_MIR_BUILDER_TRACE_SUMBC")
+    if trace != null && ("" + trace) == "1" {
+      print("[sum_bc] enter lower")
+    }
+    // Loop and Compare normalize to canonical (<) with dynamic var name
+    local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
+    if k_loop < 0 { return null }
+    local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_loop)
+    if k_cmp < 0 { return null }
+    // discover loop var name from cond (lhs or rhs Var)
+    local varname = null
+    {
+      local kl = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp); local kr = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp)
+      if kl >= 0 && JsonFragBox.index_of_from(s, "\"type\":\"Var\"", kl) >= 0 {
+        local kn = JsonFragBox.index_of_from(s, "\"name\":\"", kl); if kn >= 0 { varname = JsonFragBox.read_string_after(s, kn) }
+      }
+      if varname == null && kr >= 0 && JsonFragBox.index_of_from(s, "\"type\":\"Var\"", kr) >= 0 {
+        local kn2 = JsonFragBox.index_of_from(s, "\"name\":\"", kr); if kn2 >= 0 { varname = JsonFragBox.read_string_after(s, kn2) }
+      }
+    }
+    if varname == null { return null }
+    if trace != null && ("" + trace) == "1" {
+      print("[sum_bc] var=" + varname)
+    }
+    // op: accept '<'/'<=' with var on lhs; also accept swapped '>'/'>=' with var on rhs
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_cmp); if k_op < 0 { return null }
+    local op = JsonFragBox.read_string_after(s, k_op + 5)
+    if op == null { return null }
+    local has_lhs_i = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
+    local has_rhs_i = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
+    if !has_lhs_i && !has_rhs_i { return null }
+    local limit = null
+    if has_lhs_i {
+      if op != "<" && op != "<=" { return null }
+      // rhs Int limit
+      local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp); if k_rhs < 0 { return null }
+      local k_ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs); if k_ti < 0 { return null }
+      local kv = JsonFragBox.index_of_from(s, "\"value\":", k_ti); if kv < 0 { return null }
+      limit = JsonFragBox.read_int_after(s, kv + 8); if limit == null { return null }
+      if op == "<=" { limit = StringHelpers.int_to_str(JsonFragBox._str_to_int(limit) + 1) }
+    } else {
+      // swapped: Int on lhs, Var i on rhs, op should be '>' or '>='
+      if op != ">" && op != ">=" { return null }
+      local k_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp); if k_lhs < 0 { return null }
+      local k_ti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_lhs); if k_ti2 < 0 { return null }
+      local kv2 = JsonFragBox.index_of_from(s, "\"value\":", k_ti2); if kv2 < 0 { return null }
+      limit = JsonFragBox.read_int_after(s, kv2 + 8); if limit == null { return null }
+      if op == ">=" { limit = StringHelpers.int_to_str(JsonFragBox._str_to_int(limit) + 1) }
+    }
+
+    // Break sentinel: use shared extractor
+    local break_value = SentinelExtractorBox.extract(s, "Break", k_loop, varname)
+    // Continue sentinel: use shared extractor
+    local skip_value = SentinelExtractorBox.extract(s, "Continue", k_loop, varname)
+
+    // Defaults when not present (LoopFormBox.loop_counter expects non-null ints)
+    if skip_value == null { skip_value = 2 }
+    if break_value == null { break_value = limit }
+
+    // Trace detected values
+    if trace != null && ("" + trace) == "1" {
+      local skip_str = "" + skip_value
+      local break_str = "" + break_value
+      local limit_str = "" + limit
+      print("[sum_bc] limit=" + limit_str + " skip=" + skip_str + " break=" + break_str)
+    }
+
+    // JsonFrag 直組立（opt-in）: HAKO_MIR_BUILDER_LOOP_JSONFRAG=1
+    {
+      local jf = env.get("HAKO_MIR_BUILDER_LOOP_JSONFRAG")
+      if jf != null && ("" + jf) == "1" {
+        // Minimal MIR(JSON) with compare + branch + ret（構造検証用）
+        local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+          "{\"id\":0,\"instructions\":[" +
+            "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+            "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + limit + "}}," +
+            "{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+            "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
+          "{\"id\":1,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}," +
+          "{\"id\":2,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}]}]}"
+        print("[mirbuilder/internal/loop:jsonfrag]")
+        return mir
+      }
+    }
+    // Use build2 map form (adapter; future JsonFrag化対象)
+    local opts = LoopOptsBox.new_map()
+    opts = LoopOptsBox.put(opts, "mode", "sum_bc")
+    opts = LoopOptsBox.put(opts, "limit", limit)
+    opts = LoopOptsBox.put(opts, "skip", skip_value)
+    opts = LoopOptsBox.put(opts, "break", break_value)
+    if trace != null && ("" + trace) == "1" {
+      print("[sum_bc] building MIR with LoopFormBox")
+    }
+    return LoopOptsBox.build2(opts)
+  }
+}

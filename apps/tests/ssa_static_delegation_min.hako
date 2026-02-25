@@ -1,0 +1,36 @@
+// Phase 74-SSA: Minimal reproduction of static box delegation bug
+// Goal: Reproduce ValueId undef caused by box → static box delegation
+//
+// Pattern: box A delegates to static box B (matches ParserBox → ParserStringUtilsBox)
+// Expected bug: ValueId mapping fails for arguments in delegation
+
+static box TargetBox {
+  is_digit(ch) {
+    if ch >= "0" && ch <= "9" { return 1 }
+    return 0
+  }
+}
+
+box DelegateBox {
+  // Non-static box delegating to static box (matches ParserBox pattern)
+  is_digit(ch) {
+    // This delegation should cause SSA undef (ValueId mapping failure)
+    return TargetBox.is_digit(ch)
+  }
+
+  birth() {
+    return 0
+  }
+}
+
+box Main {
+  main() {
+    local delegate = new DelegateBox()
+    local ch = "7"
+    // Call through delegation
+    local d = delegate.is_digit(ch)
+    // Use result to avoid SSA dead code elimination
+    if d == 1 { return 0 }
+    return 1
+  }
+}

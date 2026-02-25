@@ -1,0 +1,134 @@
+using tools.hako_check.text_ops as TextOps
+// tools/hako_check/rules/rule_duplicate_method.hako — HC013: Duplicate Method
+// Detect methods with the same name and arity defined multiple times in the same box.
+
+static box RuleDuplicateMethodBox {
+  method apply_ir(ir, path, out) {
+    local text = null
+    if ir != null { text = ir.get("source") }
+    // Prefer per-method span records for stable line numbers.
+    // method_spans: Array<{name: "Box.method/arity", line: Int}>
+    local spans = ir.get("method_spans")
+    if spans != null && spans.size() > 0 {
+      return me._scan_method_spans(spans, 0, new MapBox(), out, text)
+    }
+
+    // Fallback: detect duplicates by qualified method name list (may miss line numbers).
+    local methods = ir.get("methods")
+    if methods == null { return 0 }
+    return me._scan_method_quals(methods, 0, new MapBox(), out, text)
+  }
+
+  _scan_method_spans(spans, i, seen, out, text) {
+    if i >= spans.size() { return out.size() }
+    local rec = spans.get(i)
+    if rec == null { return me._scan_method_spans(spans, i + 1, seen, out, text) }
+
+    local qual = rec.get("name")
+    local line = rec.get("line")
+    if qual == null { return me._scan_method_spans(spans, i + 1, seen, out, text) }
+    local count = 0
+    if seen.has(qual) { count = seen.get(qual) }
+    count = count + 1
+    seen.set(qual, count)
+    if count > 1 {
+      if line == null || line <= 1 { line = me._find_method_line(text, qual, count) }
+      out.push("[HC013] duplicate method definition: " + qual + " at line " + me._itoa(line))
+    }
+
+    return me._scan_method_spans(spans, i + 1, seen, out, text)
+  }
+
+  _scan_method_quals(methods, i, seen, out, text) {
+    if i >= methods.size() { return out.size() }
+    local qual = methods.get(i)
+    if qual == null { return me._scan_method_quals(methods, i + 1, seen, out, text) }
+    local count = 0
+    if seen.has(qual) { count = seen.get(qual) }
+    count = count + 1
+    seen.set(qual, count)
+    if count > 1 {
+      local line = me._find_method_line(text, qual, count)
+      out.push("[HC013] duplicate method definition: " + qual + " at line " + me._itoa(line))
+    }
+
+    return me._scan_method_quals(methods, i + 1, seen, out, text)
+  }
+
+  _itoa(n) { return TextOps._itoa(n) }
+
+  _find_method_line(text, qual, target_idx) {
+    if text == null { return 1 }
+    local dot = qual.lastIndexOf(".")
+    local slash = qual.lastIndexOf("/")
+    if dot < 0 || slash < 0 || slash <= dot { return 1 }
+    local box_name = qual.substring(0, dot)
+    local mname = qual.substring(dot + 1, slash)
+    local arity = TextOps._atoi(qual.substring(slash + 1))
+    local lines = TextOps._split_lines(text)
+    return me._scan_method_line(lines, 0, box_name, mname, arity, target_idx, null, 0)
+  }
+
+  _scan_method_line(lines, idx, box_name, mname, arity, target_idx, cur_name, seen) {
+    if lines == null { return 1 }
+    if idx >= lines.size() { return 1 }
+    local raw = lines.get(idx)
+    local ln = TextOps._ltrim(raw)
+    if ln.indexOf("static box ") == 0 || ln.indexOf("box ") == 0 {
+      local head = (ln.indexOf("static box ") == 0) ? "static box " : "box "
+      local rest = ln.substring(head.length())
+      cur_name = me._rstrip(rest)
+      local p = cur_name.indexOf(" {")
+      if p >= 0 { cur_name = cur_name.substring(0, p) }
+      return me._scan_method_line(lines, idx + 1, box_name, mname, arity, target_idx, cur_name, seen)
+    }
+    if ln.indexOf("method ") == 0 {
+      if cur_name == null { cur_name = "Main" }
+      local rest = ln.substring("method ".length())
+      local p = rest.indexOf("(")
+      local name = (p>0) ? rest.substring(0,p) : rest
+      name = me._rstrip(name)
+      local ar = me._count_commas_in_parens(rest)
+      if cur_name == box_name && name == mname && ar == arity {
+        seen = seen + 1
+        if seen == target_idx { return idx + 1 }
+      }
+      return me._scan_method_line(lines, idx + 1, box_name, mname, arity, target_idx, cur_name, seen)
+    }
+    if me._is_top_level_close(raw) == 1 { cur_name = null }
+    return me._scan_method_line(lines, idx + 1, box_name, mname, arity, target_idx, cur_name, seen)
+  }
+
+  _is_top_level_close(raw) {
+    if raw == null { return 0 }
+    local ln = TextOps._ltrim(raw)
+    if ln == "}" || ln == "};" { return 1 }
+    return 0
+  }
+
+  _count_commas_in_parens(rest) {
+    local p1 = rest.indexOf("("); local p2 = rest.indexOf(")", p1+1)
+    if p1 < 0 || p2 < 0 || p2 <= p1+1 { return 0 }
+    local inside = rest.substring(p1+1, p2)
+    if inside == "" { return 0 }
+    return 1 + me._count_commas_from(inside, 0)
+  }
+  _count_commas_from(s, start) {
+    local p = s.indexOf(",", start)
+    if p < 0 { return 0 }
+    return 1 + me._count_commas_from(s, p + 1)
+  }
+
+  _rstrip(s) {
+    if s == null { return "" }
+    return me._rstrip_from(s, s.length())
+  }
+  _rstrip_from(s, i) {
+    if i <= 0 { return "" }
+    local ch = s.substring(i-1, i)
+    if ch != " " && ch != "\t" { return s.substring(0, i) }
+    return me._rstrip_from(s, i - 1)
+  }
+}
+
+static box RuleDuplicateMethodMain { method main(args) { return 0 } }

@@ -1,0 +1,42 @@
+// selfhost _scan_methods: loop(cond) with 3 nested loops (cluster)
+// Expected: stdout=0, RC=0
+
+static box Main {
+  main() {
+    local n = 3
+    local s = "x"
+    local i = 0
+
+    loop(i < n) {
+      if i == 0 { break }
+
+      {
+        local j = 0
+        loop(j < n) {
+          j = j + 1
+        }
+      }
+
+      {
+        local k = 0
+        loop(k < n) {
+          if k == 1 { break }
+          k = k + 1
+        }
+      }
+
+      {
+        local m = 0
+        loop(m < n) {
+          s.length()
+          m = m + 1
+        }
+      }
+
+      i = i + 1
+    }
+
+    print(i)
+    return 0
+  }
+}

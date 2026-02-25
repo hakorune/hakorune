@@ -1,0 +1,25 @@
+// Phase 29bq: GenericLoopV1 with local declaration + continue
+// Expected: stdout=3, RC=0
+// This tests that local variable declarations in loop body work correctly
+// when the loop also contains continue statements.
+
+static box Main {
+  main() {
+    local items = [10, 20, 30]
+    local mi = 0
+    local result = 0
+
+    loop(mi < 3) {
+      local val = items.get(mi)
+      if val == null {
+        mi = mi + 1
+        continue
+      }
+      result = result + 1
+      mi = mi + 1
+    }
+
+    print(result)
+    return 0
+  }
+}

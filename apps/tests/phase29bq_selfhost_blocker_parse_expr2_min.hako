@@ -1,0 +1,21 @@
+// Phase 29bq: minimal fixture for ParserExprBox.parse_expr2/3 loop(true) shape.
+// Expected: stdout=P, RC=0
+static box Main {
+  main() {
+    local src = "&&"
+    local two = ""
+
+    loop(true) {
+      two = src.substring(0, 2)
+      if (two != "&&" && two != "||") {
+        break
+      }
+      if (two == "&&") {
+        break
+      }
+    }
+
+    print("P")
+    return 0
+  }
+}

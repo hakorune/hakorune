@@ -1,0 +1,200 @@
+// Moved from apps/selfhost-compiler/boxes/parser/using/using_collector_box.hako
+// UsingCollectorBox — line-based `using` extractor (Path/Namespace → JSON array)
+// Responsibility: Parse source text line-by-line and produce a JSON array
+//   [{"name":"AliasOrBase","path":"path/if/any"}, ...]
+// Notes:
+// - ParserBox.extract_usings delegates to this box (Phase 2 split)
+// - Pure string scan（依存ゼロ）。Fail‑Fastはせず、安全にスキップでループを進める
+
+using lang.compiler.parser.scan.parser_common_utils_box as ParserCommonUtilsBox
+using lang.compiler.parser.scan.parser_scan_loop_box as ParserScanLoopBox
+
+static box UsingCollectorBox {
+
+  // Public API: collect line-based using declarations to JSON array string
+  // Refactored to LoopForm v2 / Region+next_i pattern (Phase 25.1)
+  collect(src) {
+    if src == null { return "[]" }
+    local n = src.length()
+    local i = 0
+    local line_start = 0
+    local count = 0
+    local out = "["
+
+    // Main line-scanning loop (generic-loop-friendly):
+    // - loop var: i
+    // - const step: i = i + 1
+    // - when we see '\n', process [line_start, i) as one line
+    loop(i < n) {
+      local ch = src.substring(i, i + 1)
+      if ch == "\n" {
+        local line = src.substring(line_start, i)
+        local k = ParserScanLoopBox.skip_while(line, 0, line.length(), " \t")
+
+        // Process if line starts with "using "
+        if ParserCommonUtilsBox.starts_with(line, k, "using ") == 1 {
+          local rest = ParserCommonUtilsBox.trim(line.substring(k + 6, line.length()))
+
+          // Split on ' as ' - initialize all variables before conditional use
+          local as_pos = ParserCommonUtilsBox.index_of(rest, 0, " as ")
+          local target = rest
+          local alias = null
+          if as_pos >= 0 {
+            target = ParserCommonUtilsBox.trim(rest.substring(0, as_pos))
+            alias = ParserCommonUtilsBox.trim(rest.substring(as_pos + 4, rest.length()))
+          }
+
+          // Determine if target is a path or namespace
+          local is_path = 0
+          local tlen = target.length()
+          if tlen > 0 && ParserCommonUtilsBox.starts_with(target, 0, ParserCommonUtilsBox.dq()) == 1 { is_path = is_path + 1 }
+          if tlen > 0 && ParserCommonUtilsBox.starts_with(target, 0, "./") == 1 { is_path = is_path + 1 }
+          if tlen > 0 && ParserCommonUtilsBox.starts_with(target, 0, "/") == 1 { is_path = is_path + 1 }
+          if tlen >= 5 && ParserCommonUtilsBox.starts_with(target, tlen-5, ".hako") == 1 { is_path = is_path + 1 }
+          if tlen >= 6 && ParserCommonUtilsBox.starts_with(target, tlen-6, ".hako") == 1 { is_path = is_path + 1 }
+
+          // Initialize name and path before conditional blocks
+          local name = ""
+          local path = null
+
+          if is_path > 0 {
+            // Strip quotes if present - use temp var to avoid SSA issues
+            local clean_target = target
+            if ParserCommonUtilsBox.starts_with(target, 0, ParserCommonUtilsBox.dq()) == 1 {
+              local temp1 = target.substring(1, target.length())
+              clean_target = temp1
+              if temp1.length() > 0 && temp1.substring(temp1.length()-1, temp1.length()) == ParserCommonUtilsBox.dq() {
+                clean_target = temp1.substring(0, temp1.length()-1)
+              }
+            }
+            path = "" + clean_target
+
+            // Determine name from alias or basename
+            if alias != null {
+              name = "" + alias
+            } else {
+              // Extract basename: use lastIndexOf to avoid nested loops
+              local p = clean_target
+              local idx = p.lastIndexOf("/")
+
+              // Extract substring only if idx found
+              local p2 = p
+              if idx >= 0 { p2 = p.substring(idx+1, p.length()) }
+
+              // Strip extension - use temp vars
+              local p3 = p2
+              if p2.length() > 5 && ParserCommonUtilsBox.starts_with(p2, p2.length()-5, ".hako") == 1 {
+                p3 = p2.substring(0, p2.length()-5)
+              } else if p2.length() > 6 && ParserCommonUtilsBox.starts_with(p2, p2.length()-6, ".hako") == 1 {
+                p3 = p2.substring(0, p2.length()-6)
+              }
+              name = "" + p3
+            }
+          } else {
+            // Namespace using: use alias if present, otherwise use target
+            if alias != null {
+              name = "" + alias
+              // Phase 29bq: Store the full namespace path for JSON v0 imports
+              path = "" + target
+            } else {
+              name = "" + target
+            }
+          }
+
+            // Append entry to output
+            if count > 0 {
+              out = out + ","
+            }
+            out = out + "{" + ParserCommonUtilsBox.dq() + "name" + ParserCommonUtilsBox.dq() + ":" + ParserCommonUtilsBox.dq() + ParserCommonUtilsBox.esc_json(name) + ParserCommonUtilsBox.dq()
+            if path != null {
+              out = out + "," + ParserCommonUtilsBox.dq() + "path" + ParserCommonUtilsBox.dq() + ":" + ParserCommonUtilsBox.dq() + ParserCommonUtilsBox.esc_json(path) + ParserCommonUtilsBox.dq()
+            }
+            out = out + "}"
+            count = count + 1
+        }
+
+        line_start = i + 1
+      }
+
+      i = i + 1
+    }
+
+    // Tail line (no trailing '\n')
+    if line_start < n {
+      local line = src.substring(line_start, n)
+      local k = ParserScanLoopBox.skip_while(line, 0, line.length(), " \t")
+
+      if ParserCommonUtilsBox.starts_with(line, k, "using ") == 1 {
+        local rest = ParserCommonUtilsBox.trim(line.substring(k + 6, line.length()))
+
+        local as_pos = ParserCommonUtilsBox.index_of(rest, 0, " as ")
+        local target = rest
+        local alias = null
+        if as_pos >= 0 {
+          target = ParserCommonUtilsBox.trim(rest.substring(0, as_pos))
+          alias = ParserCommonUtilsBox.trim(rest.substring(as_pos + 4, rest.length()))
+        }
+
+        local is_path = 0
+        local tlen = target.length()
+        if tlen > 0 && ParserCommonUtilsBox.starts_with(target, 0, ParserCommonUtilsBox.dq()) == 1 { is_path = is_path + 1 }
+        if tlen > 0 && ParserCommonUtilsBox.starts_with(target, 0, "./") == 1 { is_path = is_path + 1 }
+        if tlen > 0 && ParserCommonUtilsBox.starts_with(target, 0, "/") == 1 { is_path = is_path + 1 }
+        if tlen >= 5 && ParserCommonUtilsBox.starts_with(target, tlen-5, ".hako") == 1 { is_path = is_path + 1 }
+        if tlen >= 6 && ParserCommonUtilsBox.starts_with(target, tlen-6, ".hako") == 1 { is_path = is_path + 1 }
+
+        local name = ""
+        local path = null
+
+        if is_path > 0 {
+          local clean_target = target
+          if ParserCommonUtilsBox.starts_with(target, 0, ParserCommonUtilsBox.dq()) == 1 {
+            local temp1 = target.substring(1, target.length())
+            clean_target = temp1
+            if temp1.length() > 0 && temp1.substring(temp1.length()-1, temp1.length()) == ParserCommonUtilsBox.dq() {
+              clean_target = temp1.substring(0, temp1.length()-1)
+            }
+          }
+          path = "" + clean_target
+          if alias != null {
+            name = "" + alias
+          } else {
+            local p = clean_target
+            local idx = p.lastIndexOf("/")
+            local p2 = p
+            if idx >= 0 { p2 = p.substring(idx+1, p.length()) }
+            local p3 = p2
+            if p2.length() > 5 && ParserCommonUtilsBox.starts_with(p2, p2.length()-5, ".hako") == 1 {
+              p3 = p2.substring(0, p2.length()-5)
+            } else if p2.length() > 6 && ParserCommonUtilsBox.starts_with(p2, p2.length()-6, ".hako") == 1 {
+              p3 = p2.substring(0, p2.length()-6)
+            }
+            name = "" + p3
+          }
+        } else {
+          // Namespace using: use alias if present, otherwise use target
+          if alias != null {
+            name = "" + alias
+            // Phase 29bq: Store the full namespace path for JSON v0 imports
+            path = "" + target
+          } else {
+            name = "" + target
+          }
+        }
+
+        if count > 0 {
+          out = out + ","
+        }
+        out = out + "{" + ParserCommonUtilsBox.dq() + "name" + ParserCommonUtilsBox.dq() + ":" + ParserCommonUtilsBox.dq() + ParserCommonUtilsBox.esc_json(name) + ParserCommonUtilsBox.dq()
+        if path != null {
+          out = out + "," + ParserCommonUtilsBox.dq() + "path" + ParserCommonUtilsBox.dq() + ":" + ParserCommonUtilsBox.dq() + ParserCommonUtilsBox.esc_json(path) + ParserCommonUtilsBox.dq()
+        }
+        out = out + "}"
+        count = count + 1
+      }
+    }
+
+    out = out + "]"
+    return out
+  }
+}

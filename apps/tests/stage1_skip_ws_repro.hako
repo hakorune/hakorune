@@ -1,0 +1,5 @@
+static box Main {
+  main() {
+    return StringHelpers.skip_ws("  a", 0)
+  }
+}

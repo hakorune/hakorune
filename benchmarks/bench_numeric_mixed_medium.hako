@@ -1,0 +1,29 @@
+// bench_numeric_mixed_medium.hako — 整数演算+分岐+mod ベンチマーク
+// Phase 21.5: String偏重ではない数値計算ベンチ
+
+static box Main {
+  main() {
+    local i = 0
+    local acc = 1
+    local sum = 0
+    local n = 800000
+
+    loop(i < n) {
+      local m = i % 31
+      local t = (i * 3) + (m * 7) + acc
+
+      if m < 10 {
+        acc = acc + (t % 97) + 1
+      } else if m < 20 {
+        acc = acc + (t % 89) + 3
+      } else {
+        acc = acc + (m * m) + (t % 53)
+      }
+
+      sum = sum + (acc % 17)
+      i = i + 1
+    }
+
+    return sum + acc
+  }
+}

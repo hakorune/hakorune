@@ -1,0 +1,6 @@
+static box Main {
+  main(args) {
+    local s = new StringBox()
+    return 7
+  }
+}

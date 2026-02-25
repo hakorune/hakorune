@@ -1,0 +1,9 @@
+// ng.hako — has top-level local declaration (not allowed)
+
+local global_temp
+
+static box Main {
+  method main() {
+    return 0
+  }
+}

@@ -1,0 +1,15 @@
+// Phase 189: Minimal test for _atoi pattern
+// Expected behavior: StringAppend-style loop with early break
+
+static box Atoi {
+  method main() {
+    local result = 0
+    local i = 0
+    loop(i < 3) {
+      if i >= 2 { break }
+      result = result * 10 + i
+      i = i + 1
+    }
+    print(result)  // Expected: 01 -> 1 (0*10+0=0, 0*10+1=1, then break)
+  }
+}

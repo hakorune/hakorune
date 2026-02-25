@@ -1,0 +1,84 @@
+/*! 🚀 Transport Module - Communication Layer Abstraction
+ *
+ * This module defines the Transport trait and implementations for different
+ * communication methods (InProcess, WebSocket, WebRTC, etc.)
+ */
+
+pub mod inprocess;
+
+use crate::boxes::IntentBox;
+
+/// Envelope containing message with metadata
+#[derive(Debug, Clone)]
+pub struct IntentEnvelope {
+    pub from: String,
+    pub to: String,
+    pub intent: IntentBox,
+    pub timestamp: std::time::Instant,
+}
+
+/// Options for sending messages
+#[derive(Debug, Clone, Default)]
+pub struct SendOpts {
+    pub timeout_ms: Option<u64>,
+    pub priority: Option<u8>,
+}
+
+/// Transport errors
+#[derive(Debug, Clone)]
+pub enum TransportError {
+    NodeNotFound(String),
+    NetworkError(String),
+    Timeout(String),
+    SerializationError(String),
+}
+
+/// Abstract transport trait for different communication methods
+pub trait Transport: Send + Sync + std::fmt::Debug {
+    /// Get the node ID of this transport
+    fn node_id(&self) -> &str;
+
+    /// Send a message to a specific node
+    fn send(&self, to: &str, intent: IntentBox, opts: SendOpts) -> Result<(), TransportError>;
+
+    /// Register a callback for receiving messages
+    fn on_receive(&mut self, callback: Box<dyn Fn(IntentEnvelope) + Send + Sync>);
+
+    /// Check if a node is reachable
+    fn is_reachable(&self, node_id: &str) -> bool;
+
+    /// Get transport type identifier
+    fn transport_type(&self) -> &'static str;
+
+    /// Downcast support for dynamic transports
+    fn as_any(&self) -> &dyn std::any::Any
+    where
+        Self: 'static + Sized,
+    {
+        self
+    }
+    fn as_any_mut(&mut self) -> &mut dyn std::any::Any
+    where
+        Self: 'static + Sized,
+    {
+        self
+    }
+
+    /// Register an intent handler (default: no-op)
+    fn register_intent_handler(
+        &mut self,
+        _intent: &str,
+        _cb: Box<dyn Fn(IntentEnvelope) + Send + Sync>,
+    ) {
+    }
+
+    /// Debug helper: enumerate known nodes (if supported)
+    fn debug_list_nodes(&self) -> Option<Vec<String>> {
+        None
+    }
+    fn debug_bus_id(&self) -> Option<String> {
+        None
+    }
+}
+
+pub use inprocess::InProcessTransport;

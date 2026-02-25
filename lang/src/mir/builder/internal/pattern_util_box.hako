@@ -1,0 +1,335 @@
+// pattern_util_box.hako — Shared utilities for MirBuilder lowers
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box PatternUtilBox {
+  map_cmp(sym) { if sym=="<" {return "Lt"} if sym==">" {return "Gt"} if sym=="<=" {return "Le"} if sym==">=" {return "Ge"} if sym=="==" {return "Eq"} if sym=="!=" {return "Ne"} return null }
+  map_binop(sym) { if sym=="+" {return "Add"} if sym=="-" {return "Sub"} if sym=="*" {return "Mul"} if sym=="/" {return "Div"} return null }
+  // Normalize (op, swapped, limit) → (cmp, limit') where cmp in {Lt, Le, Gt, Ge}
+  // swapped=0: i ? L, swapped=1: L ? i
+  normalize_cmp_limit(op, swapped, limit_str) {
+    local op1 = "" + op
+    local ls = "" + limit_str
+    if swapped == 0 {
+      if op1 == "<" { return "Lt:" + ls }
+      if op1 == "<=" { return "Lt:" + StringHelpers.int_to_str(JsonFragBox._str_to_int(ls) + 1) }
+      if op1 == ">" { return "Gt:" + ls }
+      if op1 == ">=" { return "Ge:" + ls }
+      if op1 == "!=" { return "Lt:" + ls } // count(init=0,step=1) 前提の近似
+      return null
+    } else {
+      if op1 == ">" { return "Lt:" + ls }
+      if op1 == ">=" { return "Lt:" + StringHelpers.int_to_str(JsonFragBox._str_to_int(ls) + 1) }
+      if op1 == "<" { return "Gt:" + ls }
+      if op1 == "<=" { return "Ge:" + ls }
+      if op1 == "!=" { return "Lt:" + ls } // 安全近似（入替側）
+      return null
+    }
+  }
+  // Normalize limit for canonical (i < limit) form.
+  // When swapped==0, expects op in {'<','<='}; when swapped==1 (Int on lhs, Var on rhs), expects op in {'>','>='}.
+  // Returns adjusted limit string or null if unsupported.
+  normalize_limit_for_lt(op, swapped, limit_str) {
+    local op1 = "" + op
+    local ls = "" + limit_str
+    if swapped == 0 {
+      if op1 == "<" { return ls }
+      if op1 == "<=" { return StringHelpers.int_to_str(JsonFragBox._str_to_int(ls) + 1) }
+      if op1 == "!=" { return ls } // safe for count(init=0,step=1)
+      return null
+    } else {
+      if op1 == ">" { return ls }
+      if op1 == ">=" { return StringHelpers.int_to_str(JsonFragBox._str_to_int(ls) + 1) }
+      return null
+    }
+  }
+  find_local_int_before(s, name, before_pos) {
+    local pos=0; local last=-1
+    loop(true){
+      local k=JsonFragBox.index_of_from(s, "\"type\":\"Local\"",pos); if k<0||k>=before_pos{break}
+      local kn=JsonFragBox.index_of_from(s, "\"name\":\"",k)
+      if kn>=0{
+        local nm = JsonFragBox.read_string_after(s, kn + 7)
+        if nm == name { last=k }
+      }
+      pos=k+1
+    }
+    if last<0 { return null }
+    // Bound the search between this Local and the next Local/before_pos
+    local next = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", last + 1)
+    if next < 0 || next > before_pos { next = before_pos }
+    // Preferred: direct Local(Int)
+    local k_direct = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Int\"", last)
+    if k_direct >= 0 && k_direct < next {
+      local kv_direct = JsonFragBox.index_of_from(s, "\"value\":", k_direct)
+      if kv_direct >= 0 && kv_direct < next {
+        return JsonFragBox.read_int_after(s, kv_direct + 8)
+      }
+    }
+    // Unary-minus canonicalized form: Local(Binary op Int/Var, Int/Var)
+    local k_bin = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Binary\"", last)
+    if k_bin >= 0 && k_bin < next {
+      local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_bin)
+      if k_op >= 0 && k_op < next {
+        local op = JsonFragBox.read_string_after(s, k_op + 5)
+        if op == "+" || op == "-" || op == "*" || op == "/" {
+          local lhs_v = null
+          local rhs_v = null
+          local k_lhs = JsonFragBox.index_of_from(s, "\"lhs\":", k_bin)
+          local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":", k_bin)
+          if k_lhs >= 0 && k_lhs < next {
+            local k_lhs_i = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_lhs)
+            if k_lhs_i >= 0 && k_lhs_i < next {
+              local kv_lhs = JsonFragBox.index_of_from(s, "\"value\":", k_lhs_i)
+              if kv_lhs >= 0 && kv_lhs < next { lhs_v = JsonFragBox.read_int_after(s, kv_lhs + 8) }
+            } else {
+              local k_lhs_v = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_lhs)
+              if k_lhs_v >= 0 && k_lhs_v < next {
+                local kn_lhs = JsonFragBox.index_of_from(s, "\"name\":", k_lhs_v)
+                if kn_lhs >= 0 && kn_lhs < next {
+                  local lhs_name = JsonFragBox.read_string_after(s, kn_lhs + 7)
+                  if lhs_name != null { lhs_v = me.find_local_int_before(s, lhs_name, last) }
+                }
+              }
+            }
+          }
+          if k_rhs >= 0 && k_rhs < next {
+            local k_rhs_i = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs)
+            if k_rhs_i >= 0 && k_rhs_i < next {
+              local kv_rhs = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_i)
+              if kv_rhs >= 0 && kv_rhs < next { rhs_v = JsonFragBox.read_int_after(s, kv_rhs + 8) }
+            } else {
+              local k_rhs_v = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_rhs)
+              if k_rhs_v >= 0 && k_rhs_v < next {
+                local kn_rhs = JsonFragBox.index_of_from(s, "\"name\":", k_rhs_v)
+                if kn_rhs >= 0 && kn_rhs < next {
+                  local rhs_name = JsonFragBox.read_string_after(s, kn_rhs + 7)
+                  if rhs_name != null { rhs_v = me.find_local_int_before(s, rhs_name, last) }
+                }
+              }
+            }
+          }
+          if lhs_v != null && rhs_v != null {
+            local lhs_n = JsonFragBox._str_to_int("" + lhs_v)
+            local rhs_n = JsonFragBox._str_to_int("" + rhs_v)
+            if op == "+" { return lhs_n + rhs_n }
+            if op == "-" { return lhs_n - rhs_n }
+            if op == "*" { return lhs_n * rhs_n }
+            if op == "/" {
+              if rhs_n == 0 { return null }
+              return lhs_n / rhs_n
+            }
+          }
+        }
+      }
+    }
+    // Tolerant fallback (legacy behavior)
+    local ki = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", last)
+    if ki < 0 || ki >= next { return null }
+    local kv = JsonFragBox.index_of_from(s, "\"value\":", ki)
+    if kv < 0 || kv >= next { return null }
+    return JsonFragBox.read_int_after(s, kv + 8)
+  }
+  find_local_bool_before(s, name, before_pos) {
+    local pos=0; local last=-1
+    loop(true){
+      local k=JsonFragBox.index_of_from(s, "\"type\":\"Local\"",pos); if k<0||k>=before_pos{break}
+      local kn=JsonFragBox.index_of_from(s, "\"name\":\"",k)
+      if kn>=0{
+        local nm = JsonFragBox.read_string_after(s, kn + 7)
+        if nm == name { last=k }
+      }
+      pos=k+1
+    }
+    if last<0 { return null }
+    local next = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", last + 1)
+    if next < 0 || next > before_pos { next = before_pos }
+    // Preferred: direct Local(Bool)
+    local kb = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Bool\"", last)
+    if kb >= 0 && kb < next {
+      local kv = JsonFragBox.index_of_from(s, "\"value\":", kb)
+      if kv >= 0 && kv < next {
+        local b = JsonFragBox.read_bool_after(s, kv + 8)
+        if b != null { return b }
+        // Legacy tolerant form: numeric bool (0/1)
+        local bi = JsonFragBox.read_int_after(s, kv + 8)
+        if bi != null { return bi }
+      }
+    }
+    // Local(Compare ...): evaluate to 0/1 when both sides resolve to int
+    local kc = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Compare\"", last)
+    if kc >= 0 && kc < next {
+      local kop = JsonFragBox.index_of_from(s, "\"op\":", kc)
+      if kop >= 0 && kop < next {
+        local op = JsonFragBox.read_string_after(s, kop + 5)
+        local lhs_v = null
+        local rhs_v = null
+        // LHS: prefer side-anchored shape to avoid picking RHS Int accidentally.
+        local k_lhs_var = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\"", kc)
+        if k_lhs_var >= 0 && k_lhs_var < next {
+          local kn_lhs = JsonFragBox.index_of_from(s, "\"name\":", k_lhs_var)
+          if kn_lhs >= 0 && kn_lhs < next {
+            local lhs_name = JsonFragBox.read_string_after(s, kn_lhs + 7)
+            if lhs_name != null { lhs_v = me.find_local_int_before(s, lhs_name, last) }
+          }
+        } else {
+          local k_lhs_int = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Int\"", kc)
+          if k_lhs_int >= 0 && k_lhs_int < next {
+            local kv_lhs = JsonFragBox.index_of_from(s, "\"value\":", k_lhs_int)
+            if kv_lhs >= 0 && kv_lhs < next { lhs_v = JsonFragBox.read_int_after(s, kv_lhs + 8) }
+          }
+        }
+        // RHS: same side-anchored lookup.
+        local k_rhs_var = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\"", kc)
+        if k_rhs_var >= 0 && k_rhs_var < next {
+          local kn_rhs = JsonFragBox.index_of_from(s, "\"name\":", k_rhs_var)
+          if kn_rhs >= 0 && kn_rhs < next {
+            local rhs_name = JsonFragBox.read_string_after(s, kn_rhs + 7)
+            if rhs_name != null { rhs_v = me.find_local_int_before(s, rhs_name, last) }
+          }
+        } else {
+          local k_rhs_int = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", kc)
+          if k_rhs_int >= 0 && k_rhs_int < next {
+            local kv_rhs = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int)
+            if kv_rhs >= 0 && kv_rhs < next { rhs_v = JsonFragBox.read_int_after(s, kv_rhs + 8) }
+          }
+        }
+        if lhs_v != null && rhs_v != null {
+          local lhs_n = JsonFragBox._str_to_int("" + lhs_v)
+          local rhs_n = JsonFragBox._str_to_int("" + rhs_v)
+          if op == "==" { return (lhs_n == rhs_n) ? 1 : 0 }
+          if op == "!=" { return (lhs_n != rhs_n) ? 1 : 0 }
+          if op == "<" { return (lhs_n < rhs_n) ? 1 : 0 }
+          if op == "<=" { return (lhs_n <= rhs_n) ? 1 : 0 }
+          if op == ">" { return (lhs_n > rhs_n) ? 1 : 0 }
+          if op == ">=" { return (lhs_n >= rhs_n) ? 1 : 0 }
+        }
+      }
+    }
+    return null
+  }
+
+  // Find the last Local(String) with given name before a given position.
+  // Returns raw string or null when not found.
+  find_local_string_before(s, name, before_pos) {
+    local pos=0; local last=-1
+    loop(true){
+      local k=JsonFragBox.index_of_from(s, "\"type\":\"Local\"",pos)
+      if k<0||k>=before_pos{break}
+      local kn=JsonFragBox.index_of_from(s, "\"name\":\"",k)
+      if kn>=0{
+        local nm = JsonFragBox.read_string_after(s, kn + 7)
+        if nm == name { last=k }
+      }
+      pos=k+1
+    }
+    if last<0 { return null }
+    local next=JsonFragBox.index_of_from(s, "\"type\":\"Local\"", last+1)
+    if next<0||next>before_pos{ next=before_pos }
+    local ts=JsonFragBox.index_of_from(s, "\"type\":\"String\"", last)
+    if ts<0||ts>=next { return null }
+    local kv=JsonFragBox.index_of_from(s, "\"value\":\"", ts)
+    if kv<0||kv>=next { return null }
+    return JsonFragBox.read_string_after(s, kv+8)
+  }
+
+  // Find the last Local(Float) with given name before a given position.
+  // Returns float string (as scanned) or null when not found.
+  find_local_float_before(s, name, before_pos) {
+    local pos=0; local last=-1
+    loop(true){
+      local k=JsonFragBox.index_of_from(s, "\"type\":\"Local\"",pos)
+      if k<0||k>=before_pos{break}
+      local kn=JsonFragBox.index_of_from(s, "\"name\":\"",k)
+      if kn>=0{
+        local nm = JsonFragBox.read_string_after(s, kn + 7)
+        if nm == name { last=k }
+      }
+      pos=k+1
+    }
+    if last<0 { return null }
+    local next=JsonFragBox.index_of_from(s, "\"type\":\"Local\"", last+1)
+    if next<0||next>before_pos{ next=before_pos }
+    local tf=JsonFragBox.index_of_from(s, "\"type\":\"Float\"", last)
+    if tf<0||tf>=next { return null }
+    local kv=JsonFragBox.index_of_from(s, "\"value\":", tf)
+    if kv<0||kv>=next { return null }
+    return JsonFragBox.read_float_after(s, kv+8)
+  }
+
+  // Find the last Local(Int) before a given position (name-agnostic).
+  // Returns string digits or null when not found.
+  find_any_local_int_before(s, before_pos) {
+    local pos = 0; local last_k = -1; local n = ("" + s).length()
+    loop(true) {
+      local k = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", pos)
+      if k < 0 || k >= before_pos { break }
+      last_k = k
+      pos = k + 1
+    }
+    if last_k < 0 { return null }
+    // Limit search to the next Local or before_pos
+    local next = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", last_k + 1)
+    if next < 0 || next > before_pos { next = before_pos }
+    // Constrain to Local.expr → Int
+    local ti = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Int\"", last_k)
+    if ti < 0 || ti >= next { return null }
+    local kv = JsonFragBox.index_of_from(s, "\"value\":", ti)
+    if kv < 0 || kv >= next { return null }
+    return JsonFragBox.read_int_after(s, kv + 8)
+  }
+
+  // Find the last Local(String) before a given position (name-agnostic).
+  // Returns raw string (unquoted) or null when not found.
+  find_any_local_string_before(s, before_pos) {
+    local pos = 0; local last_k = -1
+    loop(true) {
+      local k = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", pos)
+      if k < 0 || k >= before_pos { break }
+      last_k = k
+      pos = k + 1
+    }
+    if last_k < 0 { return null }
+    local next = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", last_k + 1)
+    if next < 0 || next > before_pos { next = before_pos }
+    // Constrain to Local.expr → String
+    local ts = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"String\"", last_k)
+    if ts < 0 || ts >= next { return null }
+    local kv = JsonFragBox.index_of_from(s, "\"value\":", ts)
+    if kv < 0 || kv >= next { return null }
+    return JsonFragBox.read_string_after(s, kv + 8)
+  }
+
+  // Find [start,end] bounds for the then array of an If node starting at k_if.
+  // Returns a pair encoded as "lb:rb" (caller compares with < and >), or null on failure.
+  then_array_bounds(s, k_if) {
+    if s == null { return null }
+    local kth = JsonFragBox.index_of_from(s, "\"then\":", k_if)
+    if kth < 0 { return null }
+    local lb = JsonFragBox.index_of_from(s, "[", kth)
+    if lb < 0 { return null }
+    local rb = JsonFragBox._seek_array_end(s, lb)
+    if rb < 0 { return null }
+    return ("" + lb) + ":" + ("" + rb)
+  }
+  // Find [start,end] bounds for the else array that follows the then array of the same If node.
+  // Returns a pair encoded as "lb:rb" or null when not found.
+  else_array_bounds_after_then(s, k_if) {
+    if s == null { return null }
+    // locate then first to avoid matching outer/previous else
+    local kth = JsonFragBox.index_of_from(s, "\"then\":", k_if)
+    if kth < 0 { return null }
+    local lb_then = JsonFragBox.index_of_from(s, "[", kth)
+    if lb_then < 0 { return null }
+    local rb_then = JsonFragBox._seek_array_end(s, lb_then)
+    if rb_then < 0 { return null }
+    local kel = JsonFragBox.index_of_from(s, "\"else\":", rb_then)
+    if kel < 0 { return null }
+    local lb = JsonFragBox.index_of_from(s, "[", kel)
+    if lb < 0 { return null }
+    local rb = JsonFragBox._seek_array_end(s, lb)
+    if rb < 0 { return null }
+    return ("" + lb) + ":" + ("" + rb)
+  }
+}

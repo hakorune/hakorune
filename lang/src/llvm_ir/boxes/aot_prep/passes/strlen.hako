@@ -1,0 +1,93 @@
+// AotPrepStrlenBox — fold length/len for known StringBox receivers (JSON text)
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.llvm.ir.aot_prep.helpers.common as AotPrepHelpers
+
+static box AotPrepStrlenBox {
+  run(json) {
+    if json == null { return null }
+    // 1) const string: vid -> byte length
+    local map_len = new MapBox()
+    {
+      local pos = 0
+      loop(true){
+        local k = JsonFragBox.index_of_from(json, "\"op\":\"const\"", pos)
+        if k < 0 { break }
+        local kdst = JsonFragBox.index_of_from(json, "\"dst\":", k)
+        local kid = StringHelpers.read_digits(json, kdst+6)
+        if kid != "" {
+          local ktp = JsonFragBox.index_of_from(json, "\"type\":", k)
+          if ktp >= 0 {
+            local is_str = (JsonFragBox.index_of_from(json, "\"type\":\"string\"", ktp) >= 0)
+            local is_h_str = (JsonFragBox.index_of_from(json, "\"box_type\":\"StringBox\"", ktp) >= 0)
+            if is_str || is_h_str {
+              local kv = JsonFragBox.index_of_from(json, "\"value\":\"", ktp)
+              if kv >= 0 {
+                local lit = JsonFragBox.read_string_after(json, kv+8)
+                if lit != null {
+                  local blen = (""+lit).length()
+                  map_len.set(StringHelpers.int_to_str(StringHelpers.to_i64(kid)), blen)
+                }
+              }
+            }
+          }
+        }
+        pos = k + 1
+      }
+    }
+    if map_len.size() == 0 { return json }
+    // 2) newbox(StringBox, <const_str_vid>): dst_vid -> byte length
+    local recv_len = new MapBox()
+    {
+      local pos2 = 0
+      loop(true){
+        local k = JsonFragBox.index_of_from(json, "\"op\":\"newbox\"", pos2)
+        if k < 0 { break }
+        local kty = JsonFragBox.index_of_from(json, "\"type\":\"StringBox\"", k)
+        if kty >= 0 {
+          local kdst = JsonFragBox.index_of_from(json, "\"dst\":", k)
+          local dsts = StringHelpers.read_digits(json, kdst+6)
+          local kargs = JsonFragBox.index_of_from(json, "\"args\":[", k)
+          if dsts != "" && kargs >= 0 {
+            local avid = StringHelpers.read_digits(json, kargs+8)
+            if avid != "" && map_len.has(avid) {
+              recv_len.set(dsts, map_len.get(avid))
+            }
+          }
+        }
+        pos2 = k + 1
+      }
+    }
+    if recv_len.size() == 0 { return json }
+    // 3) boxcall length/len → const i64
+    local out = json
+    local pos3 = 0
+    loop(true){
+      local k = JsonFragBox.index_of_from(out, "\"op\":\"boxcall\"", pos3)
+      if k < 0 { break }
+      local mend = JsonFragBox.index_of_from(out, "\"method\":\"", k)
+      if mend < 0 { pos3 = k + 1; continue }
+      local mname = JsonFragBox.read_string_after(out, mend+10)
+      if !(mname == "length" || mname == "len") { pos3 = k + 1; continue }
+      local kbox = JsonFragBox.index_of_from(out, "\"box\":", k)
+      if kbox < 0 { pos3 = k + 1; continue }
+      local bvid = StringHelpers.read_digits(out, kbox+6)
+      if bvid == "" || !recv_len.has(bvid) { pos3 = k + 1; continue }
+      local kdst = JsonFragBox.index_of_from(out, "\"dst\":", k)
+      if kdst < 0 { pos3 = k + 1; continue }
+      local dvid = StringHelpers.read_digits(out, kdst+6)
+      if dvid == "" { pos3 = k + 1; continue }
+      local obj_start = out.substring(0, k).lastIndexOf("{")
+      if obj_start < 0 { pos3 = k + 1; continue }
+      local obj_end = AotPrepHelpers._seek_object_end(out, obj_start)
+      if obj_end < 0 { pos3 = k + 1; continue }
+      local blen = recv_len.get(bvid)
+      local repl = "{\"op\":\"const\",\"dst\":" + dvid + ",\"value\":{\"type\":\"i64\",\"value\":" + StringHelpers.int_to_str(blen) + "}}"
+      out = out.substring(0, obj_start) + repl + out.substring(obj_end+1, out.length())
+      pos3 = obj_start + repl.length()
+    }
+    return out
+  }
+
+  // _seek_object_end moved to AotPrepHelpers
+}

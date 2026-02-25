@@ -1,0 +1,19 @@
+// Phase 137 P0: loop(true) break-once with return add (const + const) minimal fixture
+//
+// Purpose: Test return 5 + 3 (constant + constant)
+// Expected output: 8
+//
+// Structure:
+//   loop(true) {  // condition is Bool literal true
+//       break     // break at end
+//   }
+//   return 5 + 3  // return add expression (const + const)
+
+static box Main {
+    main() {
+        loop(true) {
+            break
+        }
+        return 5 + 3
+    }
+}

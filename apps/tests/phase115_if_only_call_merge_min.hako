@@ -1,0 +1,25 @@
+// Phase 115: if-only call result merge parity
+// Test if-branch call result merge (LLVM fragile pattern)
+
+static box Main {
+  f(x) {
+    return x + 1
+  }
+
+  g(flag) {
+    local v
+    v = 0
+    if flag == 1 {
+      v = me.f(1)
+    } else {
+      v = me.f(2)
+    }
+    print(v)
+  }
+
+  main() {
+    me.g(1)
+    me.g(0)
+    return "OK"
+  }
+}

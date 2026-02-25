@@ -1,0 +1,13 @@
+# Phase 29x X48: route pin allowlist
+# Keep `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` pins limited to these shell entrypoints.
+
+tools/smokes/v2/lib/joinir_planner_first_gate.sh
+tools/smokes/v2/profiles/integration/apps/phase29x_derust_route_dualrun_vm.sh
+tools/smokes/v2/profiles/integration/apps/phase29x_derust_safety_vm.sh
+tools/smokes/v2/profiles/integration/apps/phase29x_derust_strict_default_route_vm.sh
+tools/smokes/v2/profiles/integration/apps/phase29x_derust_verifier_vm.sh
+tools/smokes/v2/profiles/integration/apps/phase29x_vm_hako_s6_parity_gate_vm.sh
+tools/smokes/v2/profiles/integration/apps/phase29x_vm_route_observability_vm.sh
+tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_newclosure_probe_vm.sh
+tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh
+tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh

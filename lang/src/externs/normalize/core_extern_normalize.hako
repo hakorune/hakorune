@@ -1,0 +1,256 @@
+// CoreExternNormalize — Phase 20.26 scaffold
+// Responsibility: provide a stable entry to normalize MIR(JSON v0)
+// from Method/ModuleFunction forms to Extern names. MVP is a no-op
+// placeholder so routing can be tested safely.
+
+using selfhost.vm.core.json_v0_reader as NyVmJsonV0Reader
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
+
+static box CoreExternNormalize {
+  // Normalize entire MIR(JSON v0): ensure entry per function and rewrite
+  // all blocks' instructions for selected String methods → Extern calls.
+  normalize_json(j) {
+    // Find functions array
+    local p_funcs = JsonCursorBox.find_key_dual(j, "\"functions\":[", r#"\"functions\":\["#, 0)
+    if p_funcs < 0 { return j }
+    local lb_funcs = j.indexOf("[", p_funcs)
+    if lb_funcs < 0 { return j }
+    local rb_funcs = JsonCursorBox.seek_array_end(j, lb_funcs)
+    if rb_funcs < 0 { return j }
+
+    // Iterate function objects inside functions array
+    local arr = j.substring(lb_funcs+1, rb_funcs)
+    local out = new ArrayBox()
+    local pos = 0
+    loop(true) {
+      // skip whitespace/commas
+      loop(true) {
+        if pos >= arr.length() { break }
+        local ch = arr.substring(pos,pos+1)
+        if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" || ch == "," { pos = pos + 1 continue }
+        break
+      }
+      if pos >= arr.length() { break }
+      if arr.substring(pos,pos+1) != "{" { break }
+      local end = JsonCursorBox.seek_obj_end(arr, pos)
+      if end < 0 { break }
+      local f = arr.substring(pos, end+1)
+      local f2 = me._rewrite_function_json(f)
+      out.push(f2)
+      pos = end + 1
+    }
+    // Join functions
+    local n = out.length(); local i=0; local joined=""
+    loop(i<n) { joined = joined + out.get(i); if i<n-1 { joined = joined + ",\n    " }; i=i+1 }
+    // Splice back
+    return j.substring(0, lb_funcs+1) + joined + j.substring(rb_funcs, j.length())
+  }
+
+  _rewrite_function_json(f) {
+    // Insert missing entry (derive from first block id)
+    local f2 = f
+    if NyVmJsonV0Reader.read_entry_id(f2) < 0 {
+      local fb = NyVmJsonV0Reader.first_block(f2)
+      if fb != "" {
+        local eid = NyVmJsonV0Reader.read_block_id(fb)
+        if eid >= 0 {
+          local name_pos = f2.indexOf("\"name\":")
+          if name_pos >= 0 {
+            local colon = f2.indexOf(":", name_pos)
+            if colon >= 0 {
+              local q = colon + 1
+              loop(true) { local ch=f2.substring(q,q+1) if ch==" "||ch=="\n"||ch=="\r"||ch=="\t" { q=q+1 continue } break }
+              if f2.substring(q,q+1) == "\"" {
+                local qend = JsonCursorBox.scan_string_end(f2, q)
+                if qend >= 0 {
+                  local prefix = f2.substring(0, qend+1)
+                  local suffix = f2.substring(qend+1, f2.length())
+                  local insert = ", \"entry\": " + ("" + eid)
+                  f2 = prefix + insert + suffix
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Rewrite all blocks' instructions
+    local p_b = JsonCursorBox.find_key_dual(f2, "\"blocks\":[", r#"\"blocks\":\["#, 0)
+    if p_b < 0 { return f2 }
+    local lb_b = f2.indexOf("[", p_b)
+    if lb_b < 0 { return f2 }
+    local rb_b = JsonCursorBox.seek_array_end(f2, lb_b)
+    if rb_b < 0 { return f2 }
+    local blocks = f2.substring(lb_b+1, rb_b)
+    local bout = new ArrayBox()
+    local bp = 0
+    loop(true) {
+      // skip ws/commas
+      loop(true) {
+        if bp >= blocks.length() { break }
+        local ch = blocks.substring(bp,bp+1)
+        if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" || ch == "," { bp = bp + 1 continue }
+        break
+      }
+      if bp >= blocks.length() { break }
+      if blocks.substring(bp,bp+1) != "{" { break }
+      local be = JsonCursorBox.seek_obj_end(blocks, bp)
+      if be < 0 { break }
+      local blk = blocks.substring(bp, be+1)
+      local blk2 = me._rewrite_block_json(blk)
+      bout.push(blk2)
+      bp = be + 1
+    }
+    local nb = bout.length(); local bi=0; local bjoined=""
+    loop(bi<nb) { bjoined=bjoined + bout.get(bi); if bi<nb-1 { bjoined=bjoined + ",\n      " }; bi=bi+1 }
+    return f2.substring(0, lb_b+1) + bjoined + f2.substring(rb_b, f2.length())
+  }
+
+  _rewrite_block_json(blk) {
+    local p_i = JsonCursorBox.find_key_dual(blk, "\"instructions\":[", r#"\"instructions\":\["#, 0)
+    if p_i < 0 { return blk }
+    local lb_i = blk.indexOf("[", p_i)
+    if lb_i < 0 { return blk }
+    local rb_i = JsonCursorBox.seek_array_end(blk, lb_i)
+    if rb_i < 0 { return blk }
+    local insts = blk.substring(lb_i+1, rb_i)
+    local out = new ArrayBox()
+    local pos = 0
+    loop(true) {
+      local it = NyVmJsonV0Reader.next_instruction(insts, pos)
+      local obj = it.get("obj")
+      if obj == null { break }
+      pos = it.get("next")
+      out.push(me._map_string_calls(obj))
+    }
+    // Join back
+    local n = out.length(); local idx = 0; local joined = ""
+    loop(idx < n) { joined = joined + out.get(idx); if idx < n-1 { joined = joined + ",\n" }; idx = idx + 1 }
+    return blk.substring(0, lb_i+1) + joined + blk.substring(rb_i, blk.length())
+  }
+
+  _map_string_calls(obj) {
+    local rep = obj
+    if obj.indexOf("\"op\":\"mir_call\"") < 0 { return rep }
+    local flags = me._flags_fragment(obj)
+    // String.length aliases
+    if obj.indexOf("\"method\":\"length\"") >= 0 || obj.indexOf("\"method\":\"len\"") >= 0 || obj.indexOf("\"method\":\"size\"") >= 0 {
+      local recv = me._read_digits(obj, "receiver"); local dst = me._read_digits(obj, "dst")
+      if recv != "" && dst != "" {
+        return me._build_mir_call(dst, "nyrt.string.length", "[" + recv + "]", flags)
+      }
+      return rep
+    }
+    // String.substring(recv,start,end)
+    if obj.indexOf("\"method\":\"substring\"") >= 0 {
+      local recv = me._read_digits(obj, "receiver"); local dst = me._read_digits(obj, "dst"); local args = me._read_args_digits(obj)
+      if recv != "" && dst != "" && args.length() >= 2 {
+        local a0 = args.get(0); local a1 = args.get(1)
+        return me._build_mir_call(dst, "nyrt.string.substring", "[" + recv + "," + a0 + "," + a1 + "]", flags)
+      }
+      return rep
+    }
+    // String.indexOf/ find (recv, needle[, from])
+    if obj.indexOf("\"method\":\"indexOf\"") >= 0 || obj.indexOf("\"method\":\"find\"") >= 0 {
+      local recv = me._read_digits(obj, "receiver"); local dst = me._read_digits(obj, "dst"); local args = me._read_args_digits(obj)
+      if recv != "" && dst != "" && args.length() >= 1 {
+        local arg_str = "[" + recv + "," + args.get(0)
+        if args.length() >= 2 { arg_str = arg_str + "," + args.get(1) }
+        arg_str = arg_str + "]"
+        return me._build_mir_call(dst, "nyrt.string.indexOf", arg_str, flags)
+      }
+      return rep
+    }
+    // String.lastIndexOf(recv, needle[, from])
+    if obj.indexOf("\"method\":\"lastIndexOf\"") >= 0 {
+      local recv = me._read_digits(obj, "receiver"); local dst = me._read_digits(obj, "dst"); local args = me._read_args_digits(obj)
+      if recv != "" && dst != "" && args.length() >= 1 {
+        local arg_str = "[" + recv + "," + args.get(0)
+        if args.length() >= 2 { arg_str = arg_str + "," + args.get(1) }
+        arg_str = arg_str + "]"
+        return me._build_mir_call(dst, "nyrt.string.lastIndexOf", arg_str, flags)
+      }
+      return rep
+    }
+    // String.replace(recv, needle)
+    if obj.indexOf("\"method\":\"replace\"") >= 0 {
+      local recv = me._read_digits(obj, "receiver"); local dst = me._read_digits(obj, "dst"); local args = me._read_args_digits(obj)
+      if recv != "" && dst != "" && args.length() >= 2 {
+        local a0 = args.get(0); local a1 = args.get(1)
+        return me._build_mir_call(dst, "nyrt.string.replace", "[" + recv + "," + a0 + "," + a1 + "]", flags)
+      }
+      return rep
+    }
+    // String.charAt(recv, idx)
+    if obj.indexOf("\"method\":\"charAt\"") >= 0 {
+      local recv = me._read_digits(obj, "receiver"); local dst = me._read_digits(obj, "dst"); local args = me._read_args_digits(obj)
+      if recv != "" && dst != "" && args.length() >= 1 {
+        local a0 = args.get(0)
+        return me._build_mir_call(dst, "nyrt.string.charAt", "[" + recv + "," + a0 + "]", flags)
+      }
+      return rep
+    }
+    return rep
+  }
+
+  _flags_fragment(json) {
+    if json.indexOf("\"flags\":") < 0 { return "" }
+    if json.indexOf("\"optionality\":\"bang\"") >= 0 {
+      return ",\\\"flags\\\":{\\\"optionality\\\":\\\"bang\\\"}"
+    }
+    if json.indexOf("\"optionality\":\"optional\"") >= 0 {
+      return ",\\\"flags\\\":{\\\"optionality\\\":\\\"optional\\\"}"
+    }
+    // flags present but null/default → omit
+    return ""
+  }
+
+  _build_mir_call(dst, extern_name, args_json, flags_fragment) {
+    local rep = "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":" + dst + ",\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":\\\"" + extern_name + "\\\"},\\\"args\\\":" + args_json
+    if flags_fragment != "" { rep = rep + flags_fragment }
+    rep = rep + "}}"
+    return rep
+  }
+
+  _read_digits(json, key) {
+    local p = JsonCursorBox.find_key_dual(json, "\""+key+"\":", r#"\""+key+"\":"#, 0)
+    if p < 0 { return "" }
+    local colon = json.indexOf(":", p)
+    if colon < 0 { return "" }
+    local ds = JsonCursorBox.digits_from(json, colon+1)
+    return ds
+  }
+
+  // Read args array as digits strings (VIDs). Returns ArrayBox of strings.
+  _read_args_digits(json) {
+    local out = new ArrayBox()
+    local p = JsonCursorBox.find_key_dual(json, "\"args\":[", r#"\"args\":\["#, 0)
+    if p < 0 { return out }
+    local lb = json.indexOf("[", p)
+    if lb < 0 { return out }
+    local i = lb + 1
+    loop(true) {
+      i = me._skip_ws(json, i)
+      if i >= json.length() { break }
+      local ch = json.substring(i,i+1)
+      if ch == "]" { break }
+      local ds = JsonCursorBox.digits_from(json, i)
+      if ds == "" { break }
+      out.push(ds)
+      i = i + ds.length()
+    }
+    return out
+  }
+
+  _skip_ws(json, pos) {
+    local i = pos
+    local n = json.length()
+    loop(i < n) {
+      local ch = json.substring(i,i+1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" || ch == "," { i = i + 1 continue }
+      break
+    }
+    return i
+  }
+}

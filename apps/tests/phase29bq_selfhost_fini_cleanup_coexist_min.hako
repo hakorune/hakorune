@@ -1,0 +1,17 @@
+// Phase 29bq parser handoff: fini and cleanup should both run once on scope exit.
+// Expected output: 111
+static box Main {
+  main() {
+    local out = 0
+    {
+      fini {
+        out = out + 1
+      }
+      out = out + 100
+    } cleanup {
+      out = out + 10
+    }
+    print(out)
+    return 0
+  }
+}

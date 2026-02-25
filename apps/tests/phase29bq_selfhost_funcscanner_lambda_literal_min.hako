@@ -1,0 +1,19 @@
+// phase29bq_selfhost_funcscanner_lambda_literal_min.hako
+// Stage-B lambda literal pin:
+//   return fn(x) { ... }
+// Stage-B currently encodes this as:
+//   - Return(Call name="fn" args=[x])
+//   - Expr(BlockExpr tail=Return(...))
+// This fixture freezes that legacy pair shape until parser/bridge contracts change.
+
+static box Helper {
+  make() {
+    return fn(x) { return x + 1 }
+  }
+}
+
+static box Main {
+  main() {
+    return 0
+  }
+}

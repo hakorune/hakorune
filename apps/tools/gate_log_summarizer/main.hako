@@ -1,0 +1,77 @@
+// apps/tools/gate_log_summarizer/main.hako
+// APP-1: Gate Log Summarizer
+// Summarizes PASS/FAIL/SKIP counts from gate test logs
+//
+// Usage:
+//   GATE_LOG_FILE=path/to/log hakorune main.hako
+//   - If GATE_LOG_FILE is set, use that path
+//   - Otherwise, use default fixture
+
+static box Main {
+  main(args) {
+    // 1. Get log file path (env or default)
+    local filename = env.get("GATE_LOG_FILE")
+    if filename == null || filename == "" {
+      filename = "apps/tests/gate_log_summarizer/sample_mixed.log"
+    }
+
+    // 2. Read file
+    local f = new FileBox()
+    if f.open(filename, "r") != 1 {
+      print("[ERROR] Cannot open file: " + filename)
+      return 1
+    }
+    local content = f.read()
+    f.close()
+
+    // 3. Process lines with loop (early exit when done)
+    local pass_count = 0
+    local fail_count = 0
+    local skip_count = 0
+    local fail_output = ""
+    local remaining = content
+    local i = 0
+
+    loop (i < 100) {
+      local pos = remaining.indexOf("\n")
+      local line = ""
+
+      if pos >= 0 {
+        line = remaining.substring(0, pos)
+        remaining = remaining.substring(pos + 1, remaining.length())
+      } else {
+        if remaining != "" {
+          line = remaining
+          remaining = ""
+        }
+      }
+
+      if line != "" {
+        if line.length() >= 6 {
+          local prefix = line.substring(0, 6)
+          if prefix == "[PASS]" { pass_count = pass_count + 1 }
+          if prefix == "[FAIL]" {
+            fail_count = fail_count + 1
+            fail_output = fail_output + line + "\n"
+          }
+          if prefix == "[SKIP]" { skip_count = skip_count + 1 }
+        }
+      }
+
+      i = i + 1
+      if remaining == "" {
+        i = 100  // early exit
+      }
+    }
+
+    // 4. Output (stdout, contract: 2 + m lines)
+    print("SUMMARY pass=" + pass_count + " fail=" + fail_count + " skip=" + skip_count)
+    print("FAIL_LINES " + fail_count)
+    if fail_output != "" {
+      // Remove trailing newline
+      print(fail_output.substring(0, fail_output.length() - 1))
+    }
+
+    return 0
+  }
+}

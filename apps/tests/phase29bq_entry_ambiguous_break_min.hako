@@ -1,0 +1,19 @@
+// Phase 29bq: entry_ambiguous (pattern2_break vs loop_cond_break_continue)
+// - loop with break to trigger multiple entry candidates under strict/planner_required
+static box Main {
+  main() {
+    local i = 0
+    local sum = 0
+
+    loop(i < 3) {
+      if i == 1 {
+        break
+      }
+      sum = sum + 1
+      i = i + 1
+    }
+
+    print(sum)
+    return 0
+  }
+}

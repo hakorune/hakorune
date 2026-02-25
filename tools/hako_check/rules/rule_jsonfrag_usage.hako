@@ -1,0 +1,13 @@
+static box RuleJsonfragUsageBox {
+  apply(text, path, out) {
+    local warn = 0
+    if text.indexOf("\"mir_call\"") >= 0 || text.indexOf("inst_json") >= 0 || text.indexOf(" seg") >= 0 {
+      if text.indexOf(".indexOf(") >= 0 || text.indexOf(".substring(") >= 0 { warn = 1 }
+    }
+    if warn == 1 && text.indexOf("JsonFragBox.") < 0 {
+      out.push("[HC020] JSON scan likely brittle; prefer JsonFragBox helpers: " + path)
+    }
+  }
+}
+
+static box RuleJsonfragUsageMain { method main(args) { return 0 } }

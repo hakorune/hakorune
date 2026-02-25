@@ -1,0 +1,73 @@
+// Phase 33-7: IfMerge lowering test (multiple variables pattern)
+//
+// Pattern: if cond { x=a; y=b; z=c } else { x=d; y=e; z=f } return x+y+z
+// Expected:
+//   - cond=true → (x=10, y=20, z=30) → return 60
+//   - cond=false → (x=40, y=50, z=60) → return 150
+
+static box IfMergeTest {
+    multiple_true() {
+        local x
+        local y
+        local z
+
+        if true {
+            x = 10
+            y = 20
+            z = 30
+        } else {
+            x = 40
+            y = 50
+            z = 60
+        }
+
+        return x + y + z
+    }
+
+    multiple_false() {
+        local x
+        local y
+        local z
+
+        if false {
+            x = 10
+            y = 20
+            z = 30
+        } else {
+            x = 40
+            y = 50
+            z = 60
+        }
+
+        return x + y + z
+    }
+
+    main() {
+        local result_true
+        local result_false
+
+        result_true = me.multiple_true()
+        result_false = me.multiple_false()
+
+        print("multiple_true: ")
+        print(result_true)
+        print("\n")
+
+        print("multiple_false: ")
+        print(result_false)
+        print("\n")
+
+        // Verify results
+        if result_true == 60 {
+            print("PASS: multiple_true\n")
+        } else {
+            print("FAIL: multiple_true\n")
+        }
+
+        if result_false == 150 {
+            print("PASS: multiple_false\n")
+        } else {
+            print("FAIL: multiple_false\n")
+        }
+    }
+}

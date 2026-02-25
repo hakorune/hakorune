@@ -1,0 +1,26 @@
+// phase29cc_selfhost_funcscanner_typed_params_implements_min.hako
+// Phase-29cc M1 pin:
+//   - box header with generics + implements + from
+//   - typed params should normalize to bare names in Stage-B defs
+
+static box Parent {
+  ping(v: Int) {
+    return v
+  }
+}
+
+interface box Worker<T> {
+  run(x: T)
+}
+
+static box Child<T> from Parent implements Worker<T> {
+  run(x: Int, labels: Map<String, Int>) {
+    return ping(x)
+  }
+}
+
+static box Main {
+  main() {
+    return 0
+  }
+}

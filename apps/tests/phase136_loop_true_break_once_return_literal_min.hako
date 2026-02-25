@@ -1,0 +1,24 @@
+// Phase 136 P0: loop(true) break-once + return literal minimal fixture
+//
+// Purpose: Test loop(true) { <assign>* ; break }; return <int_literal>
+// Expected exit code: 7
+//
+// Structure:
+//   x = 0         // pre-loop init
+//   loop(true) {  // condition is Bool literal true
+//       x = 1     // body assignment
+//       break     // break at end
+//   }
+//   return 7      // return integer literal (not variable)
+
+static box Main {
+    main() {
+        local x
+        x = 0
+        loop(true) {
+            x = 1
+            break
+        }
+        return 7
+    }
+}

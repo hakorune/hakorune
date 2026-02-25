@@ -1,0 +1,22 @@
+// Phase 224-B: MethodCall lowering test - s.length() in loop condition
+//
+// Test case: Simple loop using s.length() in condition
+// Expected: MethodCall should be lowered to BoxCall instruction
+//
+// Pattern 1: Simple while loop (no break, no continue)
+
+static box Main {
+    main() {
+        local s = "Hello"
+        local i = 0
+
+        // Pattern 1 loop with MethodCall in condition
+        loop(i < s.length()) {
+            i = i + 1
+        }
+
+        // Output result
+        print("i = " + i)
+        return i
+    }
+}

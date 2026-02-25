@@ -1,0 +1,24 @@
+// LLVM hot-trace contract bench: repeated identical compare in one loop body.
+static box Main {
+  main() {
+    local i = 0
+    local total = 0
+
+    loop(i < 120000) {
+      local m = i % 31
+
+      if m < 20 {
+        total = total + 1
+      }
+
+      // Same compare pattern again in the same block to trigger compare expr-cache reuse.
+      if m < 20 {
+        total = total + 2
+      }
+
+      i = i + 1
+    }
+
+    return total
+  }
+}

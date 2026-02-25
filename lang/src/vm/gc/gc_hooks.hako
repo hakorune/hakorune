@@ -1,0 +1,7 @@
+// gc_hooks.hako — GC safepoint hooks (no-op skeleton)
+
+static box GcHooks {
+  // Safepoint at well-defined boundaries (no-op in v0)
+  safepoint() { }
+}
+

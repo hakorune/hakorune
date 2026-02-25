@@ -1,0 +1,6 @@
+# Phase29x X59 borrowed/owned conformance matrix cases
+# format: case_id|nyash_kernel_test_name
+
+return_escape_survives_borrowed_release|handle_abi_borrowed_owned_conformance
+multi_escape_chain|handle_abi_borrowed_owned_multi_escape_conformance
+invalid_handles_noop|handle_abi_borrowed_owned_invalid_handles_are_noop

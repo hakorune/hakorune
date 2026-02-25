@@ -1,0 +1,14 @@
+// Phase 161 Representative Function 2: Simple Loop with Back Edge
+// Pattern: Basic loop statement that generates back edge and loop-carried PHI
+// Tests: Loop detection, back edge identification, loop-carried PHI
+
+box Main {
+    main() {
+        local i = 0
+
+        loop(i < 10) {
+            print(i)
+            i = i + 1
+        }
+    }
+}

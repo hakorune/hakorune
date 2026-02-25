@@ -1,0 +1,43 @@
+// Phase 183-3: Pattern2 Break test (_parse_number pattern)
+// Tests: Integer loop with break, body-only LoopBodyLocal
+// This test demonstrates that body-only locals don't trigger Trim promotion
+
+static box Main {
+  main(args) {
+    // Simulate _parse_number: parse digits until non-digit
+    // For simplicity, we use integer accumulation instead of string concat
+    local result = 0
+    local p = 0
+    local limit = 5
+
+    loop(p < limit) {
+      // Body-only LoopBodyLocal: digit_pos computation
+      // In real _parse_number: local digit_pos = "0123456789".indexOf(ch)
+      // Here we simulate: valid digits for p=0,1,2 (values 4,2,7)
+      local digit_pos = -1
+      if p == 0 { digit_pos = 4 }  // '4'
+      if p == 1 { digit_pos = 2 }  // '2'
+      if p == 2 { digit_pos = 7 }  // '7'
+      // p >= 3: digit_pos stays -1 (non-digit)
+
+      // Break on non-digit
+      if digit_pos < 0 {
+        break
+      }
+
+      result = result * 10 + digit_pos
+      p = p + 1
+    }
+
+    // Expected: result = 427 (from digits 4, 2, 7)
+    if result == 427 {
+      if p == 3 {
+        print("PASS: P2 Break with body-only LoopBodyLocal works")
+        return 0
+      }
+    }
+
+    print("FAIL: result or p incorrect")
+    return 1
+  }
+}

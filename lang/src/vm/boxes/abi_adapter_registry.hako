@@ -1,0 +1,77 @@
+// abi_adapter_registry.hako — AbiAdapterRegistryBox
+// Responsibility: Data-driven mapping for Box methods to ABI symbols and call kinds.
+// - Keeps Rust/C-ABI choices out of lowering/VM logic (structure-first)
+// - Supports user Box extension via runtime registration (dev) or static defaults (prod)
+//
+// API (MVP):
+//   resolve(box_type, method) -> MapBox {
+//     symbol:   String   // e.g., "nyash.map.get_h"
+//     call:     String   // "h" or "hh" (arg/value style)
+//     unbox:    String   // "none" | "integer" | (future: "bool"/"float"/"string")
+//   } | null
+//   register(box_type, method, symbol, call, unbox)  // dev/runtime add (toggle-guarded)
+//
+// Policy:
+//   - Defaults cover MapBox/ArrayBox minimal set to align with current kernel symbols.
+//   - Runtime registration is allowed iff env HAKO_ABI_ADAPTER_DEV=1.
+
+using selfhost.shared.common.string_helpers as Str
+
+static box AbiAdapterRegistryBox {
+  _k(bt, m) { return bt + "::" + m }
+
+  // In-memory table (string -> MapBox)
+  // Nyash-friendly: avoid top-level assignments; lazily init in _init_defaults.
+  // _tab: MapBox (created on first use)
+  // _inited: bool (set true after defaults loaded)
+
+  _init_defaults() {
+    if me._tab == null { me._tab = new MapBox() }
+    if me._inited == true { return }
+    me._inited = true
+    // MapBox
+    me._put("MapBox", "birth",   "nyash.map.birth_h", "h", "none")
+    me._put("MapBox", "set",     "nyash.map.set_h",   "h", "none")
+    me._put("MapBox", "get",     "nyash.map.get_h",   "h", "integer")  // returns handle -> needs integer unbox when value required
+    me._put("MapBox", "has",     "nyash.map.has_h",   "h", "none")
+    me._put("MapBox", "size",    "nyash.map.size_h",  "h", "none")
+    me._put("MapBox", "len",     "nyash.map.size_h",  "h", "none")
+    // ArrayBox
+    me._put("ArrayBox", "birth",  "nyash.array.birth_h", "h", "none")
+    me._put("ArrayBox", "push",   "nyash.array.push_h",  "h", "none")
+    me._put("ArrayBox", "len",    "nyash.array.len_h",   "h", "none")
+    me._put("ArrayBox", "length", "nyash.array.len_h",   "h", "none")
+    me._put("ArrayBox", "size",   "nyash.array.len_h",   "h", "none")
+    me._put("ArrayBox", "get",    "nyash.array.get_h",   "h", "none")
+    me._put("ArrayBox", "set",    "nyash.array.set_h",   "h", "none")
+  }
+
+  _put(bt, m, sym, call, unbox) {
+    local k = me._k(bt, m)
+    local v = new MapBox()
+    v.set("symbol", sym)
+    v.set("call", call)
+    v.set("unbox", unbox)
+    me._tab.set(k, v)
+  }
+
+  resolve(box_type, method) {
+    me._init_defaults()
+    if box_type == null || method == null { return null }
+    local k = me._k(box_type, method)
+    if me._tab.has(k) == 1 { return me._tab.get(k) }
+    return null
+  }
+
+  register(box_type, method, symbol, call, unbox) {
+    // allow only in dev mode (explicit opt-in)
+    local dev = env.get("HAKO_ABI_ADAPTER_DEV"); if dev != "1" { return 0 }
+    if box_type == null || method == null || symbol == null { return 0 }
+    if call == null { call = "h" }
+    if unbox == null { unbox = "none" }
+    me._put(""+box_type, ""+method, ""+symbol, ""+call, ""+unbox)
+    return 1
+  }
+}
+
+static box AbiAdapterRegistryMain { method main(args) { return 0 } }

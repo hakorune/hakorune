@@ -1,0 +1,37 @@
+// Phase 29bq: selfhost blocker reproducer (FuncScannerBox._scan_methods outer loop shape)
+//
+// Goal: "loop(i < n)" where the scan window inner loop is wrapped by a statement block `{ ... }`.
+// This shape must be accepted under planner-required (BoxCount: loop_scan_methods_block_v0).
+//
+// Expected: stdout=0, RC=0
+static box Main {
+  main() {
+    local s = "0123456789"
+    local n = 10
+    local i = 0
+
+    loop(i < n) {
+      local next_i = n
+      local k = -1
+      local name_start = 0
+
+      {
+        local pat = ","
+        local m = 1
+        local j = i
+
+        loop(j + m <= n) {
+          if s.substring(j, j + m) == pat { k = j  break }
+          j = j + 1
+        }
+      }
+
+      if k >= 0 { name_start = k + 7 } else { next_i = j + 1 }
+      if next_i <= i { next_i = i + 1 }
+      i = next_i
+    }
+
+    print(0)
+    return 0
+  }
+}

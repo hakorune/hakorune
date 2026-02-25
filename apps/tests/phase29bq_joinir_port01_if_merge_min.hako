@@ -1,0 +1,19 @@
+// JIR-PORT-01 parity probe fixture (if/merge minimal)
+// Contract:
+// - main contains an if/else merge shape.
+// - rust route and .hako route must produce identical canonical MIR for main.
+static box Main {
+  main() {
+    local a = "x"
+    local b = "y"
+    local x = 0
+
+    if a == b {
+      x = 1
+    } else {
+      x = 2
+    }
+
+    return x
+  }
+}

@@ -1,0 +1,5 @@
+{"diagnostics":[
+  {"file":"ng.hako","line":1,"rule":"HC022","message":"[HC022] Suggestion: Use NYASH_PARSER_STAGE3=1 or HAKO_PARSER_STAGE3=1 environment variables","quickFix":"","severity":"warning"},
+  {"file":"ng.hako","line":14,"rule":"HC022","message":"[HC022] Stage-3 construct detected (for): ng.hako:14","quickFix":"","severity":"warning"},
+  {"file":"ng.hako","line":7,"rule":"HC022","message":"[HC022] Stage-3 construct detected (while): ng.hako:7","quickFix":"","severity":"warning"}
+]}

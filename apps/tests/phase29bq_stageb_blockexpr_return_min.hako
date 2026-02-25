@@ -1,0 +1,10 @@
+// Stage-B: BlockExpr return should be stable in Program(JSON v0)
+// Expected: stdout="", RC=0
+static box Main {
+  main() {
+    return {
+      local x = 1
+      0
+    }
+  }
+}

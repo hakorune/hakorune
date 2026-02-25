@@ -1,0 +1,15 @@
+// phase29bq_hako_mirbuilder_phase19_load_local_var_min.hako
+// Contract pin (LS1 / Load minimal):
+//   Local(Int) > Local(Var) > Return(Var)
+//
+// Expected (when run via MIR JSON):
+// - rc: 7
+// - stdout: empty
+
+static box Main {
+  main() {
+    local x = 7
+    local y = x
+    return y
+  }
+}

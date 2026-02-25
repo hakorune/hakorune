@@ -1,0 +1,26 @@
+// Phase 285 P2: WeakRef upgrade failure test (explicit drop + null observation)
+// SSOT: docs/reference/language/lifecycle.md - weak_to_strong() failure → null
+//
+// Test: weak_to_strong() fails after explicit drop (x = null)
+// Note: Uses explicit drop instead of block scope (block scope drop conformance is separate task)
+// Expected: exit 1 (weak_to_strong returns null as expected)
+// Phase 285 P2.1: FIXED with KeepAlive instruction
+
+box SomeBox {
+    x
+}
+
+static box Main {
+    main() {
+        local x = new SomeBox()
+        x.x = 123
+        local w = weak x
+        x = null  // 明示的に strong を切る
+        local y = w.weak_to_strong() // 失敗して null
+        if y == null {
+            return 1  // 期待通り（weak_to_strong 失敗）
+        } else {
+            return 0  // 予期しない成功
+        }
+    }
+}

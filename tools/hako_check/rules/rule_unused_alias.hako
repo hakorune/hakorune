@@ -1,0 +1,57 @@
+using tools.hako_check.text_ops as TextOps
+// HC016: Unused Using/Alias
+// Detects `using ... as Alias` where Alias is never referenced as `Alias.` in the source.
+static box RuleUnusedAliasBox {
+  apply(text, path, out) {
+    if text == null { return 0 }
+    local lines = me._split_lines(text)
+    me._scan_lines_for_alias(lines, 0, text, path, out)
+    return 0
+  }
+  _scan_lines_for_alias(lines, i, text, path, out) {
+    if i >= lines.size() { return }
+    local ln = me._ltrim(lines.get(i))
+    if ln.indexOf("using ") == 0 && ln.indexOf(" as ") > 0 {
+      // parse alias name after ' as '
+      local p = ln.indexOf(" as ")
+      local rest = ln.substring(p + " as ".length())
+      local alias = me._read_ident(rest)
+      if alias != "" {
+        // search usage: alias.
+        local needle = alias + "."
+        if text.indexOf(needle) < 0 {
+          out.push("[HC016] unused alias '" + alias + "' in using: " + path + ":" + me._itoa(i+1))
+        }
+      }
+    }
+    me._scan_lines_for_alias(lines, i + 1, text, path, out)
+  }
+  _split_lines(s) { local arr=new ArrayBox(); if s==null {return arr} local n=s.length(); local last=0; local i=0; loop(i<n){ local ch=s.substring(i,i+1); if ch=="\n" { arr.push(s.substring(last,i)); last=i+1 } i=i+1 } if last<=n { arr.push(s.substring(last)) } return arr }
+  _ltrim(s) { return me._ltrim_chars(s, " \t") }
+  _ltrim_chars(s, cs) {
+    local n=s.length()
+    local idx=0
+    while idx<n {
+      local ch=s.substring(idx,idx+1)
+      if ch!=" " && ch!="\t" { break }
+      idx=idx+1
+    }
+    return s.substring(idx)
+  }
+  _itoa(n) { return TextOps._itoa(n) }
+  _is_ident_char(c) { if c=="_" {return 1}; if c>="A"&&c<="Z" {return 1}; if c>="a"&&c<="z" {return 1}; if c>="0"&&c<="9" {return 1}; return 0 }
+  _read_ident(s) {
+    if s==null {return ""}
+    local endp = me._read_ident_end(s, 0)
+    if endp == 0 { return "" }
+    return s.substring(0, endp)
+  }
+  _read_ident_end(s, i) {
+    if i >= s.length() { return s.length() }
+    local ch = s.substring(i,i+1)
+    if me._is_ident_char(ch)==1 { return me._read_ident_end(s, i+1) }
+    return i
+  }
+}
+
+static box RuleUnusedAliasMain { method main(args) { return 0 } }

@@ -1,0 +1,17 @@
+// phase29bq_hako_mirbuilder_phase10_local_if_return_min.hako
+// R4 pin shape:
+//   Local -> If(Var == Int, then Return(Int), else null) -> Return(Int)
+//
+// Expected (when run via MIR JSON):
+// - stdout: (empty)
+// - rc: 0
+
+static box Main {
+  main() {
+    local v = 7
+    if v == 0 {
+      return 1
+    }
+    return 0
+  }
+}

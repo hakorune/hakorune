@@ -1,0 +1,37 @@
+// Phase 184: Body-local MIR Lowering with Break (Pattern 2)
+//
+// This test validates body-local variables in Pattern 2 (loop with break).
+//
+// Expected behavior:
+// - loop(i < 10) with break when sum >= 15
+// - Each iteration:
+//   - local temp = i * 3 (body-local variable)
+//   - sum = sum + temp (update expression uses body-local)
+//   - if (sum >= 15) break
+// - Expected iterations:
+//   - i=0: temp=0, sum=0+0=0 (continue)
+//   - i=1: temp=3, sum=0+3=3 (continue)
+//   - i=2: temp=6, sum=3+6=9 (continue)
+//   - i=3: temp=9, sum=9+9=18 (>= 15, break)
+// - Expected sum: 18
+
+static box Main {
+    main() {
+        local sum = 0
+        local i = 0
+
+        loop(i < 10) {
+            local temp = i * 3  // Body-local variable
+            sum = sum + temp    // Use body-local in update expression
+
+            if (sum >= 15) {
+                break
+            }
+
+            i = i + 1
+        }
+
+        print(sum)  // Expected: 18
+        return sum
+    }
+}

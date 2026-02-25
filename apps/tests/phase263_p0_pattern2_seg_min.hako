@@ -1,0 +1,25 @@
+// Phase 263 P0: Pattern2 LoopBodyLocal "seg" 問題の最小再現テスト
+//
+// 目的:
+// - loop body で代入される seg 変数を Pattern2 が promote しようとして失敗する
+// - 現状: Pattern2 rejection で FAIL
+// - 期待: 修正後に Pattern1 fallback で PASS
+
+static box Main {
+    main() {
+        local i = 0
+        local seg = ""
+
+        loop(i < 5) {
+            seg = "segment"  // ← loop body で代入（ReadOnlySlot 契約違反）
+
+            if seg == "end" {
+                break
+            }
+
+            i = i + 1
+        }
+
+        return 0
+    }
+}
