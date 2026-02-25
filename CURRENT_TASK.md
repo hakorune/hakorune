@@ -152,6 +152,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_binary_only_selfhost_readiness_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_preemit_io_monitor_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_binary_only_ported_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/mir_shape_guard_vm.sh`
 
 運用ルール:

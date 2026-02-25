@@ -104,6 +104,10 @@ Related:
   1. lane B blocker を `CURRENT_TASK.md` と本書に同期して起票する。
   2. 先に blocked pin を追加してから修正へ進む（ported 先行禁止）。
   3. 修正後は Rust/.hako 2経路の canonical compare 緑を確認して blocker を閉じる。
+- monitor probe（non-gating, default）:
+  - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`
+- blocker trigger check（strict, manual）:
+  - `STRICT=1 bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`
 
 ## 0.6 Stage1 Module Env Cache Contract (lane B, non-gating)
 
@@ -187,6 +191,7 @@ Related:
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_backend_mismatch_block_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_binary_only_selfhost_readiness_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_binary_only_ported_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`
 - push前/週次終端/回帰疑い:
   - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
 - FAIL 時:

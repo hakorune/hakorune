@@ -121,6 +121,7 @@ Related:
   - current blocker: `none`（binary-only emit route は ported、lane B は monitor-only）
   - 実運用は `29bq-90-selfhost-checklist.md` の daily/milestone checklist を回し、PROBE->FIX->PROMOTE で継続する。
   - known parity debt（non-gating）: expression lowering（nested ternary family）は Rust/.hako route の canonical compare で監視し、Rust-only green を観測した時点で blocker を再起動する。
+  - monitor probe: `phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`（strict check: `STRICT=1`）
   - non-gating blocker pin: `phase29y_hako_emit_mir_continue_assignment_timeout_block_vm.sh`（`--hako-emit-mir-json` internal timeout fail-fast marker）
   - non-gating monitor pin: `phase29y_hako_emit_mir_binary_only_ported_vm.sh`（repo外 `--hako-emit-mir-json` ported contract）
   - non-gating monitor pin: `phase29y_hako_emit_mir_preemit_io_monitor_vm.sh`（pre-emit I/O cold/hot 観測。`--strict` は手動 triage 専用）
