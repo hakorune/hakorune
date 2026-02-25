@@ -66,13 +66,24 @@ GATE_29BP="$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bp_planner_req
 GATE_29AE="$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh"
 FAST_VERBOSE="${PHASE29BQ_FAST_VERBOSE:-0}"
 
+phase29bq_run_cmd() {
+  # Normalize shell-script invocation to avoid exec-bit drift in tools/checks.
+  if [ "$#" -gt 0 ] && [ -f "$1" ] && [[ "$1" == *.sh ]]; then
+    local script="$1"
+    shift
+    bash "$script" "$@"
+    return
+  fi
+  "$@"
+}
+
 run_step() {
   local step_name="$1"
   local log_path="$2"
   shift 2
 
   if [ "$FAST_VERBOSE" = "1" ]; then
-    if ! "$@" 2>&1 | tee "$log_path"; then
+    if ! phase29bq_run_cmd "$@" 2>&1 | tee "$log_path"; then
       echo "[FAIL] gate failed: $step_name"
       echo "LOG: $log_path"
       return 1
@@ -80,7 +91,7 @@ run_step() {
     return 0
   fi
 
-  if ! "$@" >"$log_path" 2>&1; then
+  if ! phase29bq_run_cmd "$@" >"$log_path" 2>&1; then
     echo "[FAIL] gate failed: $step_name"
     echo "LOG: $log_path"
     echo "[INFO] last log lines ($step_name):"

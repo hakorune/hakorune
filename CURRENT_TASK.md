@@ -46,7 +46,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_var_values_lock_vm.sh`
     - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm.sh`
   - binary-only contract SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
-- de-rust migration orchestration lane: `phase-29cc / plugin-wave-rollout`（RNR-05 complete; PLG-03 done）
+- de-rust migration orchestration lane: `phase-29cc / plugin-wave-rollout`（RNR-05 complete; PLG-03 done; PLG-04-min1 done）
   - phase SSOT: `docs/development/current/main/phases/phase-29cc/README.md`
   - scope decision（L5 accepted）:
     - `docs/development/current/main/design/de-rust-scope-decision-ssot.md`
@@ -62,8 +62,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md`
   - plugin lane wave-1 pilot lock（PLG-03 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md`
+  - plugin lane wave rollout lock（PLG-04-min1 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-99-plg04-arraybox-wave1-min1-ssot.md`
   - plugin lane active next:
-    - `PLG-04`（wave rollout）
+    - `PLG-04-min2`（wave-1 rollout）
   - execution checklist（progress SSOT）: `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`
   - worker playbook: `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
   - non-plugin residue task-set: `docs/development/current/main/phases/phase-29cc/29cc-92-non-plugin-rust-residue-task-set.md`
@@ -215,6 +217,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - De-rust plugin ABI lock (PLG-01): `docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md`
 - De-rust plugin gate pack lock (PLG-02): `docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md`
 - De-rust plugin wave-1 pilot lock (PLG-03): `docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md`
+- De-rust plugin wave rollout lock (PLG-04-min1): `docs/development/current/main/phases/phase-29cc/29cc-99-plg04-arraybox-wave1-min1-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Code retirement/history policy: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`

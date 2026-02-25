@@ -1,0 +1,18 @@
+// Phase 29cc PLG-04-min1 ArrayBox pilot fixture
+// Contract:
+// - ArrayBox can be constructed through plugin config.
+// - push/get/size route works with integer payloads.
+
+static box Main {
+  main() {
+    local arr
+    local got
+    arr = new ArrayBox()
+    arr.push(3)
+    arr.push(4)
+    got = arr.get(1)
+    print("array_size=" + arr.size())
+    print("array_g1=" + got)
+    return 0
+  }
+}
