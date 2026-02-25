@@ -243,6 +243,11 @@ pub(super) fn is_pure_value_expr(ast: &ASTNode) -> bool {
     match ast {
         ASTNode::Variable { .. } => true,
         ASTNode::Literal { .. } => true,
+        ASTNode::BlockExpr {
+            prelude_stmts,
+            tail_expr,
+            ..
+        } => prelude_stmts.is_empty() && is_pure_value_expr(tail_expr),
         ASTNode::UnaryOp { operand, .. } => is_pure_value_expr(operand),
         ASTNode::BinaryOp {
             operator,

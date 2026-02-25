@@ -795,6 +795,11 @@ fn is_pure_value_expr(ast: &crate::ast::ASTNode) -> bool {
                 && is_pure_value_expr(&then_body[0])
                 && is_pure_value_expr(&else_body[0])
         }
+        ASTNode::BlockExpr {
+            prelude_stmts,
+            tail_expr,
+            ..
+        } => prelude_stmts.is_empty() && is_pure_value_expr(tail_expr),
         ASTNode::UnaryOp { operand, .. } => is_pure_value_expr(operand),
         ASTNode::BinaryOp {
             operator,
@@ -863,5 +868,59 @@ mod tests {
             span: Span::unknown(),
         };
         assert!(is_pure_value_expr(&value_if));
+    }
+
+    #[test]
+    fn value_if_allows_empty_blockexpr_wrapped_branches() {
+        let cond = ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(var("a")),
+            right: Box::new(var("b")),
+            span: Span::unknown(),
+        };
+        let then_expr = ASTNode::BlockExpr {
+            prelude_stmts: vec![],
+            tail_expr: Box::new(int_lit(10)),
+            span: Span::unknown(),
+        };
+        let else_expr = ASTNode::BlockExpr {
+            prelude_stmts: vec![],
+            tail_expr: Box::new(int_lit(20)),
+            span: Span::unknown(),
+        };
+        let value_if = ASTNode::If {
+            condition: Box::new(cond),
+            then_body: vec![then_expr],
+            else_body: Some(vec![else_expr]),
+            span: Span::unknown(),
+        };
+        assert!(is_pure_value_expr(&value_if));
+    }
+
+    #[test]
+    fn value_if_rejects_blockexpr_with_prelude_side_effect() {
+        let cond = ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(var("a")),
+            right: Box::new(var("b")),
+            span: Span::unknown(),
+        };
+        let then_expr = ASTNode::BlockExpr {
+            prelude_stmts: vec![ASTNode::Local {
+                variables: vec!["tmp".to_string()],
+                initial_values: vec![Some(Box::new(int_lit(1)))],
+                span: Span::unknown(),
+            }],
+            tail_expr: Box::new(int_lit(10)),
+            span: Span::unknown(),
+        };
+        let else_expr = int_lit(20);
+        let value_if = ASTNode::If {
+            condition: Box::new(cond),
+            then_body: vec![then_expr],
+            else_body: Some(vec![else_expr]),
+            span: Span::unknown(),
+        };
+        assert!(!is_pure_value_expr(&value_if));
     }
 }
