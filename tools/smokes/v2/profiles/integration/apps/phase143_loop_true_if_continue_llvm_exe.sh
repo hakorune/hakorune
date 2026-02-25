@@ -20,9 +20,9 @@ llvm_exe_preflight_or_skip || exit 0
 require_joinir_dev
 
 # Minimal plugins (Integer ops for comparisons)
-INTEGERBOX_SO="$NYASH_ROOT/target/release/libnyash_integer_plugin.so"
+INTCELLBOX_SO="$NYASH_ROOT/target/release/libnyash_integer_plugin.so"
 LLVM_REQUIRED_PLUGINS=(
-  "IntCellBox|$INTEGERBOX_SO|nyash-integer-plugin"
+  "IntCellBox|$INTCELLBOX_SO|nyash-integer-plugin"
 )
 LLVM_PLUGIN_BUILD_LOG="/tmp/phase143_loop_true_if_continue_llvm_plugin_build.log"
 llvm_exe_ensure_plugins_or_fail || exit 1

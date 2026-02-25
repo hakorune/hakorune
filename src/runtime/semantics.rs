@@ -96,17 +96,22 @@ pub fn coerce_to_i64(b: &dyn NyashBox) -> Option<i64> {
         .as_any()
         .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
     {
-        // IntegerBox.get -> IntegerBox
-        if pb.box_type == "IntegerBox" {
+        // Integer-like plugin boxes expose get() returning IntegerBox/i64-ish.
+        if pb.box_type == "IntegerBox" || pb.box_type == "IntCellBox" {
             let host = crate::runtime::get_global_plugin_host();
             let read_res = host.read();
             if let Ok(ro) = read_res {
                 if let Ok(ret) =
-                    ro.invoke_instance_method("IntegerBox", "get", pb.instance_id(), &[])
+                    ro.invoke_instance_method(pb.box_type.as_str(), "get", pb.instance_id(), &[])
                 {
                     if let Some(vb) = ret {
                         if let Some(ii) = vb.as_any().downcast_ref::<IntegerBox>() {
                             return Some(ii.value);
+                        }
+                        if let Some(s) = coerce_to_string(vb.as_ref()) {
+                            if let Ok(v) = s.trim().parse::<i64>() {
+                                return Some(v);
+                            }
                         }
                     }
                 }

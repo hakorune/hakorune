@@ -10,7 +10,7 @@ static box Main {
         // mixed concat (host string + plugin string)
         print("x = " + a)    // expect x = 12
 
-        // plugin IntegerBox add
+        // IntegerBox add
         local i = new IntegerBox(10)
         local j = new IntegerBox(5)
         print(i + j)         // expect 15
@@ -18,4 +18,3 @@ static box Main {
         return 0
     }
 }
-

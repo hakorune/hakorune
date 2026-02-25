@@ -1,9 +1,9 @@
 use super::super::NyashRunner;
 use crate::runner::json_v0_bridge;
-#[cfg(feature = "interpreter-legacy")]
-use nyash_rust::{interpreter::NyashInterpreter, parser::NyashParser};
 #[cfg(not(feature = "interpreter-legacy"))]
 use nyash_rust::parser::NyashParser;
+#[cfg(feature = "interpreter-legacy")]
+use nyash_rust::{interpreter::NyashInterpreter, parser::NyashParser};
 // Use the library crate's plugin init module rather than the bin crate root
 use crate::cli_v;
 use crate::runner::pipeline::{resolve_using_target, suggest_in_base};
@@ -73,7 +73,9 @@ impl NyashRunner {
                         std::process::exit(1);
                     }
                     if use_ast && !paths.is_empty() {
-                        match crate::runner::modes::common_util::resolve::parse_preludes_to_asts(self, &paths) {
+                        match crate::runner::modes::common_util::resolve::parse_preludes_to_asts(
+                            self, &paths,
+                        ) {
                             Ok(v) => prelude_asts = v,
                             Err(e) => {
                                 if e.starts_with("[freeze:contract][module_registry]") {
@@ -120,17 +122,20 @@ impl NyashRunner {
                 }
                 Err(e) => {
                     crate::runner::modes::common_util::diag::print_parse_error_with_context(
-                        filename,
-                        code_ref,
-                        &e,
+                        filename, code_ref, &e,
                     );
                     process::exit(1);
                 }
             };
         // When using AST prelude mode, combine prelude ASTs + main AST into one Program
         let ast = if use_ast && !prelude_asts.is_empty() {
-            crate::runner::modes::common_util::resolve::merge_prelude_asts_with_main(prelude_asts, &main_ast)
-        } else { main_ast };
+            crate::runner::modes::common_util::resolve::merge_prelude_asts_with_main(
+                prelude_asts,
+                &main_ast,
+            )
+        } else {
+            main_ast
+        };
 
         // Optional: dump AST statement kinds for quick diagnostics
         if crate::config::env::env_bool("NYASH_AST_DUMP") {
@@ -158,7 +163,9 @@ impl NyashRunner {
                         }
                         _ => format!("{:?}", st),
                     };
-                    get_global_ring0().log.debug(&format!("[ast] {}: {}", i, kind));
+                    get_global_ring0()
+                        .log
+                        .debug(&format!("[ast] {}: {}", i, kind));
                 }
             }
             get_global_ring0().log.debug("[ast] dump end");
@@ -231,71 +238,11 @@ impl NyashRunner {
                         println!("✅ Execution completed successfully!");
                     }
                 }
-                // Normalize display via semantics: prefer numeric, then string, then fallback
-                let disp = {
-                    // Special-case: plugin IntegerBox → call .get to fetch numeric value
-                    if let Some(p) = result
-                        .as_any()
-                        .downcast_ref::<nyash_rust::runtime::plugin_loader_v2::PluginBoxV2>(
-                    ) {
-                        if p.box_type == "IntegerBox" {
-                            // Scope the lock strictly to this block
-                            let fetched = {
-                                let host = nyash_rust::runtime::get_global_plugin_host();
-                                let res = if let Ok(ro) = host.read() {
-                                    if let Ok(Some(vb)) = ro.invoke_instance_method(
-                                        "IntegerBox",
-                                        "get",
-                                        p.instance_id(),
-                                        &[],
-                                    ) {
-                                        if let Some(ib) =
-                                            vb.as_any()
-                                                .downcast_ref::<nyash_rust::box_trait::IntegerBox>()
-                                        {
-                                            Some(ib.value.to_string())
-                                        } else {
-                                            Some(vb.to_string_box().value)
-                                        }
-                                    } else {
-                                        None
-                                    }
-                                } else {
-                                    None
-                                };
-                                res
-                            };
-                            if let Some(s) = fetched {
-                                s
-                            } else {
-                                nyash_rust::runtime::semantics::coerce_to_i64(result.as_ref())
-                                    .map(|i| i.to_string())
-                                    .or_else(|| {
-                                        nyash_rust::runtime::semantics::coerce_to_string(
-                                            result.as_ref(),
-                                        )
-                                    })
-                                    .unwrap_or_else(|| result.to_string_box().value)
-                            }
-                        } else {
-                            nyash_rust::runtime::semantics::coerce_to_i64(result.as_ref())
-                                .map(|i| i.to_string())
-                                .or_else(|| {
-                                    nyash_rust::runtime::semantics::coerce_to_string(
-                                        result.as_ref(),
-                                    )
-                                })
-                                .unwrap_or_else(|| result.to_string_box().value)
-                        }
-                    } else {
-                        nyash_rust::runtime::semantics::coerce_to_i64(result.as_ref())
-                            .map(|i| i.to_string())
-                            .or_else(|| {
-                                nyash_rust::runtime::semantics::coerce_to_string(result.as_ref())
-                            })
-                            .unwrap_or_else(|| result.to_string_box().value)
-                    }
-                };
+                // Normalize display via shared semantics: prefer numeric, then string, then fallback.
+                let disp = nyash_rust::runtime::semantics::coerce_to_i64(result.as_ref())
+                    .map(|i| i.to_string())
+                    .or_else(|| nyash_rust::runtime::semantics::coerce_to_string(result.as_ref()))
+                    .unwrap_or_else(|| result.to_string_box().value);
                 if !quiet_pipe {
                     println!("Result: {}", disp);
                 }

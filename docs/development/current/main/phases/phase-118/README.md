@@ -102,14 +102,14 @@ FILEBOX_SO="$NYASH_ROOT/plugins/nyash-filebox-plugin/libnyash_filebox_plugin.so"
 MAPBOX_SO="$NYASH_ROOT/plugins/nyash-map-plugin/libnyash_map_plugin.so"
 STRINGBOX_SO="$NYASH_ROOT/plugins/nyash-string-plugin/libnyash_string_plugin.so"
 CONSOLEBOX_SO="$NYASH_ROOT/plugins/nyash-console-plugin/libnyash_console_plugin.so"
-INTEGERBOX_SO="$NYASH_ROOT/plugins/nyash-integer-plugin/libnyash_integer_plugin.so"
+INTCELLBOX_SO="$NYASH_ROOT/target/release/libnyash_integer_plugin.so"
 
 LLVM_REQUIRED_PLUGINS=(
   "FileBox|$FILEBOX_SO|nyash-filebox-plugin"
   "MapBox|$MAPBOX_SO|nyash-map-plugin"
   "StringBox|$STRINGBOX_SO|nyash-string-plugin"
   "ConsoleBox|$CONSOLEBOX_SO|nyash-console-plugin"
-  "IntegerBox|$INTEGERBOX_SO|nyash-integer-plugin"
+  "IntCellBox|$INTCELLBOX_SO|nyash-integer-plugin"
 )
 LLVM_PLUGIN_BUILD_LOG="/tmp/phase118_loop_nested_if_merge_plugin_build.log"
 llvm_exe_ensure_plugins_or_fail || exit 1
@@ -127,7 +127,7 @@ else
 fi
 ```
 
-**必要プラグイン**: FileBox, MapBox, StringBox, ConsoleBox, IntegerBox（Phase 117と同じセット）
+**必要プラグイン**: FileBox, MapBox, StringBox, ConsoleBox, IntCellBox（Phase 117と同じセット）
 
 **検証**: `llvm_exe_build_and_run_numeric_smoke`（EXPECTED='2', EXPECTED_LINES=1）
 

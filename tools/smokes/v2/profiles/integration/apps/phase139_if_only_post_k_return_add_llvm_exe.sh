@@ -12,15 +12,15 @@ llvm_exe_preflight_or_skip || exit 0
 # Phase 139 is a dev-only Normalized shadow post-if case.
 require_joinir_dev
 
-# Minimal plugin set (StringBox, ConsoleBox, IntegerBox only)
+# Minimal plugin set (StringBox, ConsoleBox, IntCellBox only)
 STRINGBOX_SO="$NYASH_ROOT/plugins/nyash-string-plugin/libnyash_string_plugin.so"
 CONSOLEBOX_SO="$NYASH_ROOT/plugins/nyash-console-plugin/libnyash_console_plugin.so"
-INTEGERBOX_SO="$NYASH_ROOT/target/release/libnyash_integer_plugin.so"
+INTCELLBOX_SO="$NYASH_ROOT/target/release/libnyash_integer_plugin.so"
 
 LLVM_REQUIRED_PLUGINS=(
   "StringBox|$STRINGBOX_SO|nyash-string-plugin"
   "ConsoleBox|$CONSOLEBOX_SO|nyash-console-plugin"
-  "IntCellBox|$INTEGERBOX_SO|nyash-integer-plugin"
+  "IntCellBox|$INTCELLBOX_SO|nyash-integer-plugin"
 )
 LLVM_PLUGIN_BUILD_LOG="/tmp/phase139_if_only_post_k_return_add_plugin_build.log"
 llvm_exe_ensure_plugins_or_fail || exit 1
