@@ -31,9 +31,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - operation policy lock: `LLVM-first / vm-hako monitor-only`
   - policy SSOT: `docs/development/current/main/design/de-rust-lane-map-ssot.md` の `Runtime Operation Policy`
 - config hygiene lane: `none`（monitor-only、SSOT: `phase-29y/84-MODULE-REGISTRY-HYGIENE-SSOT.md`）
-- compiler pipeline lane: `hako-using-resolver-parity`（active: lane-B ternary debt pack）
+- compiler pipeline lane: `hako-using-resolver-parity`（monitor-only: lane-B ternary debt decision fixed）
   - parity gate: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_using_resolver_parity_vm.sh`
-  - active next: `B-TERNARY-02`（unsupported:ternary_no_lower の境界固定）
+  - active next: `none`（B-TERNARY-03 decision fixed）
   - task SSOT:
     - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` の `Lane-B Nested Ternary Debt Pack (B-TERNARY-01..03)`
     - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` の `Binary-only --hako-run Contract (lane B)`
@@ -44,6 +44,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_binary_only_selfhost_readiness_vm.sh`
     - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_binary_only_ported_vm.sh`
     - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_var_values_lock_vm.sh`
+    - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm.sh`
   - binary-only contract SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - de-rust migration orchestration lane: `phase-29cc / none`（RNR-05 complete; monitor-only）
   - phase SSOT: `docs/development/current/main/phases/phase-29cc/README.md`
@@ -79,8 +80,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 ## Immediate Next (this round)
 
 1. `B-TERNARY-01` [done, 2026-02-25]: nested ternary の対応範囲を probe形（int/int）以外へ拡張した（Var(Local Int) values 受理）。
-2. `B-TERNARY-02` [active]: `unsupported:ternary_no_lower` を維持する境界テストを追加し、fail-fast境界を固定する。
-3. `B-TERNARY-03` [next]: parity lock を lane-B fast gate に昇格するか判定し、採否を docs に固定する。
+2. `B-TERNARY-02` [done, 2026-02-25]: `unsupported:ternary_no_lower` を維持する境界テストを追加し、fail-fast境界を固定した。
+3. `B-TERNARY-03` [done, 2026-02-25]: lane-B fast gate 昇格判定は「据え置き（non-gating 維持）」で確定した（var-values canonical mismatch 残存）。
 4. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 
 ## Quick Restart (After Reboot)

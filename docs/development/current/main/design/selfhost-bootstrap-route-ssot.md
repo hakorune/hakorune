@@ -251,12 +251,12 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
    - note:
      - `phase29y_hako_emit_mir_nested_ternary_var_values_min.hako` は `ternary_no_lower` ではなく MIR 出力まで到達する。
      - canonical signature mismatch は B-TERNARY-03 判定対象として保持する。
-2. `B-TERNARY-02` [active]:
+2. `B-TERNARY-02` [done, 2026-02-25]:
    - 対象: 未対応形は `unsupported:ternary_no_lower` を維持し、fail-fast境界を fixture+smoke で固定する。
-   - 追加予定:
+   - 受け入れ:
      - fixture: `apps/tests/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_min.hako`
      - smoke: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm.sh`
-3. `B-TERNARY-03` [next]:
+3. `B-TERNARY-03` [done, 2026-02-25]:
    - 対象: parity lock を lane-B fast gate へ昇格するか判定し、採否を docs に固定する（昇格/据え置きの二択）。
    - 判定入力:
      - `phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`（strict/non-strict）
@@ -264,6 +264,9 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
    - 判定出力:
      - 昇格する場合: lane-B fast gate への組み込み差分を同コミットで固定。
      - 昇格しない場合: non-gating diagnostic pin 維持を明記して終了。
+   - decision (2026-02-25):
+     - `phase29y_hako_emit_mir_nested_ternary_var_values_min.hako` で canonical signature mismatch が残存するため、
+       lane-B fast gate への昇格は **据え置き**（non-gating diagnostics 維持）とする。
 
 禁止:
 - B-TERNARY-01 と B-TERNARY-02/03 を同コミットで混在させない。

@@ -99,6 +99,11 @@ Related:
   - probe fixture（`phase29y_hako_emit_mir_nested_ternary_probe_min.hako`）は strict parity lock 済み。未対応形は fail-fast（`[builder/selfhost-first:unsupported:ternary_no_lower]`）で固定する。
   - lane B の active fixed order は `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` の
     `Lane-B Nested Ternary Debt Pack (B-TERNARY-01..03)` を正本とする。
+  - B-TERNARY-02 boundary lock:
+    - fixture: `apps/tests/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_min.hako`
+    - smoke: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm.sh`
+  - B-TERNARY-03 decision:
+    - var-values fixture は canonical signature mismatch のため lane-B fast gate 昇格は据え置き（non-gating 維持）。
 - blocker 化トリガー（どれか1つで発火）:
   1. 同一 fixture で `--emit-mir-json` は green かつ `--hako-emit-mir-json` が NG。
   2. MIR canonical compare で lane B 差分が確定（`jq -S .` + `diff -u` で差分あり）。

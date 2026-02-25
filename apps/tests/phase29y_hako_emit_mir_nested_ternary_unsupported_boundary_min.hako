@@ -1,0 +1,10 @@
+// Phase 29y lane-B B-TERNARY-02 boundary fixture.
+// Intentional unsupported boundary: simple ternary must stay fail-fast on selfhost-first route.
+static box Main {
+  main(args) {
+    local a = 3
+    local b = 5
+    local v = (a < b) ? 40 : 50
+    return v
+  }
+}
