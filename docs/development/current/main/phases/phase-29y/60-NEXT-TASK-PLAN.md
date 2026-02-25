@@ -92,6 +92,19 @@ Related:
   - lane 未確定のまま複数層へ同時パッチを入れること。
   - blocked pin を作らずに ported smoke へ直接変更すること。
 
+### 0.5.1 Known Parity Debt Lock (Rust parser vs `.hako` parser)
+
+- 現状:
+  - expression lowering（nested ternary family）は Rust 側先行で修正される可能性があり、lane B の non-gating debt として保持する。
+- blocker 化トリガー（どれか1つで発火）:
+  1. 同一 fixture で `--emit-mir-json` は green かつ `--hako-emit-mir-json` が NG。
+  2. MIR canonical compare で lane B 差分が確定（`jq -S .` + `diff -u` で差分あり）。
+  3. parser handoff 対象 fixture で `.hako` route が fail-fast（parse/lower）を返す。
+- 発火時の固定手順:
+  1. lane B blocker を `CURRENT_TASK.md` と本書に同期して起票する。
+  2. 先に blocked pin を追加してから修正へ進む（ported 先行禁止）。
+  3. 修正後は Rust/.hako 2経路の canonical compare 緑を確認して blocker を閉じる。
+
 ## 0.6 Stage1 Module Env Cache Contract (lane B, non-gating)
 
 - 対象: `src/runner/stage1_bridge/modules.rs` の `collect_module_env_lists()`。
