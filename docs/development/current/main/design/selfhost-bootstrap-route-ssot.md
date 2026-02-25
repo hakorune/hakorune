@@ -237,6 +237,35 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
   - note:
     - これは binary-only 導線の安定性固定であり、`stage1 -> stage2` 実バイナリ生成の G1 identity 完了を置き換えるものではない。
 
+## Lane-B Nested Ternary Debt Pack (B-TERNARY-01..03)
+
+目的:
+- Rust route 先行で観測された nested ternary parity debt を、fail-fast境界を崩さずに段階的に縮退する。
+
+固定順序（1 blocker = 1 fixture = 1 smoke = 1 commit）:
+1. `B-TERNARY-01` [active]:
+   - 対象: probe形（int/int固定）以外の nested ternary（var/int 混在）を最小受理で追加する。
+   - 受け入れ:
+     - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`
+     - `STRICT=1 tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`
+2. `B-TERNARY-02`:
+   - 対象: 未対応形は `unsupported:ternary_no_lower` を維持し、fail-fast境界を fixture+smoke で固定する。
+   - 追加予定:
+     - fixture: `apps/tests/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_min.hako`
+     - smoke: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm.sh`
+3. `B-TERNARY-03`:
+   - 対象: parity lock を lane-B fast gate へ昇格するか判定し、採否を docs に固定する（昇格/据え置きの二択）。
+   - 判定入力:
+     - `phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`（strict/non-strict）
+     - `phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm.sh`
+   - 判定出力:
+     - 昇格する場合: lane-B fast gate への組み込み差分を同コミットで固定。
+     - 昇格しない場合: non-gating diagnostic pin 維持を明記して終了。
+
+禁止:
+- B-TERNARY-01 と B-TERNARY-02/03 を同コミットで混在させない。
+- fail-fast marker を silent fallback へ置き換えない。
+
 ## Boundary shrink order (SSOT)
 
 移植順の最短ルート（後戻り防止）:

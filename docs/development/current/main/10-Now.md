@@ -52,6 +52,8 @@ Related:
   - `phase29y_hako_emit_mir_binary_only_ported_vm.sh`（repo外 `--hako-emit-mir-json` ported contract）
 - Compiler pipeline focus（lane B）:
   - `binary-only --hako-emit-mir-json` 契約を優先（SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`）
+  - active next: `B-TERNARY-01`（fixed order: `B-TERNARY-01..03`）
+  - task SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` の `Lane-B Nested Ternary Debt Pack (B-TERNARY-01..03)`
 - De-rust orchestration lane（phase-29cc）:
   - `none`（RNR-05 complete; monitor-only）
   - scope decision（L5）: `docs/development/current/main/design/de-rust-scope-decision-ssot.md`（accepted）
