@@ -51,6 +51,9 @@ nyash-rust/
 /private/
 /docs/private/
 /private_test/
+/AGENTS.md
+/CLAUDE.md
+/CODEX.md
 
 # Test files
 *.tmp
