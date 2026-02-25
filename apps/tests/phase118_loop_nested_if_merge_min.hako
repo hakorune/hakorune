@@ -13,6 +13,6 @@ static box Main {
             i = i + 1
         }
         print(x)
-        return "OK"
+        return 0
     }
 }

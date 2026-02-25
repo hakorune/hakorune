@@ -44,11 +44,27 @@ def lower_select(
     """
     trace_debug(f"[select] lowering: dst={dst_vid}, cond={cond_vid}, then={then_val_vid}, else={else_val_vid}")
 
+    def _resolve_vid(vid: int, label: str):
+        # Same-block values (fresh compare/binop/select results) live in current vmap.
+        # Snapshot-only lookup misses these and can collapse ternary to constants.
+        val = vmap_ctx.get(vid)
+        if val is not None:
+            return val
+        val = resolver._value_at_end_i64(
+            vid,
+            int(str(builder.block.name).replace('bb', '')),
+            preds,
+            block_end_values,
+            vmap_ctx,
+            bb_map,
+        )
+        if val is None:
+            trace_debug(f"[select] {label} fallback to 0")
+            return ir.Constant(ir.IntType(64), 0)
+        return val
+
     # Load condition value (must be i1/bool)
-    cond = resolver._value_at_end_i64(cond_vid, int(str(builder.block.name).replace('bb', '')), preds, block_end_values, vmap_ctx, bb_map)
-    if cond is None:
-        cond = ir.Constant(ir.IntType(64), 0)
-        trace_debug(f"[select] cond fallback to 0")
+    cond = _resolve_vid(cond_vid, "cond")
 
     # Convert cond to i1 (boolean) if needed
     if cond.type != ir.IntType(1):
@@ -57,15 +73,8 @@ def lower_select(
         trace_debug(f"[select] converted cond to i1: {cond}")
 
     # Load then_val and else_val
-    then_val = resolver._value_at_end_i64(then_val_vid, int(str(builder.block.name).replace('bb', '')), preds, block_end_values, vmap_ctx, bb_map)
-    if then_val is None:
-        then_val = ir.Constant(ir.IntType(64), 0)
-        trace_debug(f"[select] then_val fallback to 0")
-
-    else_val = resolver._value_at_end_i64(else_val_vid, int(str(builder.block.name).replace('bb', '')), preds, block_end_values, vmap_ctx, bb_map)
-    if else_val is None:
-        else_val = ir.Constant(ir.IntType(64), 0)
-        trace_debug(f"[select] else_val fallback to 0")
+    then_val = _resolve_vid(then_val_vid, "then_val")
+    else_val = _resolve_vid(else_val_vid, "else_val")
 
     # Ensure both branches have same type
     if then_val.type != else_val.type:

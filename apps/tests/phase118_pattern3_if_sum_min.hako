@@ -28,7 +28,6 @@ static box Main {
         }
 
         print(sum)
-        return "OK"
+        return 0
     }
 }
-
