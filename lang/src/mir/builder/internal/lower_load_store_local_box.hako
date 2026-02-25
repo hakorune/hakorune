@@ -6,6 +6,11 @@ static box LowerLoadStoreLocalBox {
     // Keep control-flow shapes on dedicated lowers.
     if s.indexOf("\"type\":\"If\"") >= 0 { return 0 }
     if s.indexOf("\"type\":\"Loop\"") >= 0 { return 0 }
+    if s.indexOf("\"type\":\"Ternary\"") >= 0 { return 0 }
+    if s.indexOf("\"type\":\"Compare\"") >= 0 { return 0 }
+    if s.indexOf("\"type\":\"BinaryOp\"") >= 0 { return 0 }
+    if s.indexOf("\"type\":\"Method\"") >= 0 { return 0 }
+    if s.indexOf("\"type\":\"Call\"") >= 0 { return 0 }
     if s.indexOf("\"type\":\"Local\"") < 0 { return 0 }
     if s.indexOf("\"type\":\"Var\"") < 0 { return 0 }
     if s.indexOf("\"expr\":{\"type\":\"Var\"") < 0 && s.indexOf("\"type\":\"Assignment\"") < 0 { return 0 }

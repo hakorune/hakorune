@@ -165,6 +165,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - lane 未確定のまま複数層へ同時パッチを入れない。
 - known parity debt（non-blocking, lane B monitor item）:
   - expression lowering（nested ternary family）は Rust route 修正先行の既知差分候補として扱う。
+  - `.hako` route は未対応形を fail-fast（`[builder/selfhost-first:unsupported:ternary_no_lower]`）で返し、誤った擬似 MIR 成功を禁止する。
   - Rust route green / `.hako` route NG を観測した時点で lane B blocker を再起動し、ported 昇格を凍結する。
 
 ## Quick Entry: Selfhost Migration

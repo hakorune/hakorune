@@ -96,6 +96,7 @@ Related:
 
 - 現状:
   - expression lowering（nested ternary family）は Rust 側先行で修正される可能性があり、lane B の non-gating debt として保持する。
+  - `.hako` route は `LowerLoadStoreLocalBox` の過受理を閉じ、未対応形は fail-fast（`[builder/selfhost-first:unsupported:ternary_no_lower]`）で固定する。
 - blocker 化トリガー（どれか1つで発火）:
   1. 同一 fixture で `--emit-mir-json` は green かつ `--hako-emit-mir-json` が NG。
   2. MIR canonical compare で lane B 差分が確定（`jq -S .` + `diff -u` で差分あり）。

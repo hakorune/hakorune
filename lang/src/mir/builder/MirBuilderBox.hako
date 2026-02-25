@@ -535,9 +535,13 @@ static box MirBuilderBox {
         }
 
         // Unsupported internal shape → try defs fallback (dev: HAKO_MIR_BUILDER_FUNCS=1)
+        local has_ternary = 0
+        if s.indexOf("\"type\":\"Ternary\"") >= 0 { has_ternary = 1 }
         print("[mirbuilder/internal/unsupported] supported: Return(Int|Binary(Int,Int)|Call) and Expr(Call env.console.log Int)+Return(Int)")
         if func_defs_mir != null && func_defs_mir != "" {
           me._log_builder_fail("defs_only")
+        } else if has_ternary == 1 {
+          me._log_builder_fail("ternary_no_lower")
         } else {
           me._log_builder_fail("no_match")
         }

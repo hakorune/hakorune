@@ -11,6 +11,10 @@ static box Main { method main(args) {
   local j = '{"version":0,"kind":"Program","body":[{"type":"Local","name":"x","expr":{"type":"Int","value":7}},{"type":"Local","name":"y","expr":{"type":"Var","name":"x"}},{"type":"Return","expr":{"type":"Var","name":"y"}}]}'
   local out = LowerLoadStoreLocalBox.try_lower(j)
   if out == null { print("NULL"); return 1 }
+  local jt = '{"version":0,"kind":"Program","body":[{"type":"Local","name":"a","expr":{"type":"Int","value":3}},{"type":"Local","name":"b","expr":{"type":"Int","value":5}},{"type":"Local","name":"v","expr":{"type":"Ternary","cond":{"type":"Compare","op":"<","lhs":{"type":"Var","name":"a"},"rhs":{"type":"Var","name":"b"}},"then":{"type":"Int","value":40},"else":{"type":"Int","value":60}}},{"type":"Return","expr":{"type":"Var","name":"v"}}]}'
+  local out_t = LowerLoadStoreLocalBox.try_lower(jt)
+  if out_t != null { print("UNEXPECTED_TERNARY_MATCH"); return 2 }
+  print("[TERNARY_REJECT_OK]")
   print("[MIR_OUT_BEGIN]")
   print("" + out)
   print("[MIR_OUT_END]")
@@ -26,6 +30,18 @@ set -e
 
 if [ $RC -ne 0 ]; then
   echo "[FAIL] lower_load_store_local_direct_struct: lower run rc=$RC" >&2
+  echo "$OUT" | tail -n 80 >&2
+  exit 1
+fi
+
+if echo "$OUT" | grep -q 'UNEXPECTED_TERNARY_MATCH'; then
+  echo "[FAIL] lower_load_store_local_direct_struct: ternary shape must be rejected" >&2
+  echo "$OUT" | tail -n 80 >&2
+  exit 1
+fi
+
+if ! echo "$OUT" | grep -q '\[TERNARY_REJECT_OK\]'; then
+  echo "[FAIL] lower_load_store_local_direct_struct: missing ternary reject marker" >&2
   echo "$OUT" | tail -n 80 >&2
   exit 1
 fi
