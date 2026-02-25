@@ -16,7 +16,164 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 
 static box LowerIfNestedBox {
+  _read_cmp_side_int(s, k_cmp, side, before_pos) {
+    local p_var = "\"" + side + "\":{\"type\":\"Var\""
+    local p_int = "\"" + side + "\":{\"type\":\"Int\""
+    local k_var = JsonFragBox.index_of_from(s, p_var, k_cmp)
+    local k_int = JsonFragBox.index_of_from(s, p_int, k_cmp)
+    if k_var >= 0 && (k_int < 0 || k_var < k_int) {
+      local k_name = JsonFragBox.index_of_from(s, "\"name\":", k_var)
+      if k_name < 0 { return null }
+      local var_name = JsonFragBox.read_string_after(s, k_name + 7)
+      if var_name == null || var_name == "" { return null }
+      return PatternUtilBox.find_local_int_before(s, var_name, before_pos)
+    }
+    if k_int >= 0 {
+      local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_int)
+      if k_val < 0 { return null }
+      return JsonFragBox.read_int_after(s, k_val + 8)
+    }
+    return null
+  }
+
+  _read_int_node_after(s, k_key) {
+    local k_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_key)
+    if k_int < 0 { return null }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_int)
+    if k_val < 0 { return null }
+    return JsonFragBox.read_int_after(s, k_val + 8)
+  }
+
+  _try_lower_nested_ternary(program_json) {
+    local s = "" + program_json
+    local k_t_first = JsonFragBox.index_of_from(s, "\"type\":\"Ternary\"", 0)
+    if k_t_first < 0 { return null }
+
+    // Identify owner Local(ternary) and ensure trailing Return(Var owner).
+    local k_owner = -1
+    local pos = 0
+    loop(true) {
+      local k_local = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", pos)
+      if k_local < 0 || k_local >= k_t_first { break }
+      k_owner = k_local
+      pos = k_local + 1
+    }
+    if k_owner < 0 { return null }
+    local k_t_second = JsonFragBox.index_of_from(s, "\"type\":\"Ternary\"", k_t_first + 1)
+    if k_t_second < 0 { return null }
+    local k_owner_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_owner)
+    if k_owner_name < 0 { return null }
+    local owner_name = JsonFragBox.read_string_after(s, k_owner_name + 8)
+    if owner_name == null || owner_name == "" { return null }
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_owner)
+    if k_ret < 0 { return null }
+    local k_ret_var = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Var\"", k_ret)
+    if k_ret_var < 0 { return null }
+    local k_ret_name = JsonFragBox.index_of_from(s, "\"name\":", k_ret_var)
+    if k_ret_name < 0 { return null }
+    local ret_name = JsonFragBox.read_string_after(s, k_ret_name + 7)
+    if ret_name == null || ret_name != owner_name { return null }
+
+    local k_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_owner)
+    if k_expr < 0 { return null }
+
+    // Outer ternary: cond + else(Int) + then(inner ternary)
+    local k_cmp1 = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_expr)
+    if k_cmp1 < 0 { return null }
+    local k_op1 = JsonFragBox.index_of_from(s, "\"op\":", k_cmp1)
+    if k_op1 < 0 { return null }
+    local op1 = JsonFragBox.read_string_after(s, k_op1 + 5)
+    if op1 == null { return null }
+    local lhs1 = me._read_cmp_side_int(s, k_cmp1, "lhs", k_owner)
+    local rhs1 = me._read_cmp_side_int(s, k_cmp1, "rhs", k_owner)
+    if lhs1 == null || rhs1 == null { return null }
+    local k_then1 = JsonFragBox.index_of_from(s, "\"then\":", k_expr)
+    if k_then1 < 0 { return null }
+    // Outer else = last "else" before Return.
+    local k_else1 = -1
+    local scan_else = JsonFragBox.index_of_from(s, "\"else\":", k_expr)
+    loop(true) {
+      if scan_else < 0 { break }
+      if scan_else >= k_ret { break }
+      k_else1 = scan_else
+      scan_else = JsonFragBox.index_of_from(s, "\"else\":", scan_else + 1)
+    }
+    if k_else1 < 0 || k_else1 <= k_then1 { return null }
+    local outer_else = me._read_int_node_after(s, k_else1)
+    if outer_else == null { return null }
+
+    // Inner ternary: cond + then(Int) + else(Int)
+    local k_cmp2 = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_then1 + 1)
+    if k_cmp2 < 0 || k_cmp2 >= k_else1 { return null }
+    local k_op2 = JsonFragBox.index_of_from(s, "\"op\":", k_cmp2)
+    if k_op2 < 0 { return null }
+    local op2 = JsonFragBox.read_string_after(s, k_op2 + 5)
+    if op2 == null { return null }
+    local lhs2 = me._read_cmp_side_int(s, k_cmp2, "lhs", k_owner)
+    local rhs2 = me._read_cmp_side_int(s, k_cmp2, "rhs", k_owner)
+    if lhs2 == null || rhs2 == null { return null }
+    local k_else2 = JsonFragBox.index_of_from(s, "\"else\":", k_then1 + 1)
+    if k_else2 < 0 || k_else2 >= k_else1 { return null }
+    local inner_else = me._read_int_node_after(s, k_else2)
+    if inner_else == null { return null }
+    local k_then2 = JsonFragBox.index_of_from(s, "\"then\":", k_then1 + 1)
+    if k_then2 < 0 || k_then2 >= k_else1 { return null }
+    local inner_then = me._read_int_node_after(s, k_then2)
+    if inner_then == null { return null }
+
+    // Emit Rust-route-compatible canonical block/op layout for nested ternary assignment.
+    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+      "{\"id\":0,\"instructions\":[" +
+        "{\"op\":\"newbox\",\"dst\":1,\"type\":\"ArrayBox\",\"args\":[]}," +
+        "{\"op\":\"copy\",\"dst\":2,\"src\":1}," +
+        "{\"op\":\"mir_call\",\"dst\":null,\"mir_call\":{\"callee\":{\"type\":\"Method\",\"certainty\":\"Known\",\"receiver\":2,\"box_name\":\"ArrayBox\",\"name\":\"birth\"},\"args\":[],\"flags\":{},\"effects\":[]}}," +
+        "{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + lhs2 + "}}," +
+        "{\"op\":\"copy\",\"dst\":6,\"src\":5}," +
+        "{\"op\":\"const\",\"dst\":19,\"value\":{\"type\":\"i64\",\"value\":" + lhs1 + "}}," +
+        "{\"op\":\"copy\",\"dst\":18,\"src\":19}," +
+        "{\"op\":\"const\",\"dst\":21,\"value\":{\"type\":\"i64\",\"value\":" + rhs1 + "}}," +
+        "{\"op\":\"copy\",\"dst\":20,\"src\":21}," +
+        "{\"op\":\"compare\",\"operation\":\"" + op1 + "\",\"lhs\":18,\"rhs\":20,\"dst\":17}," +
+        "{\"op\":\"branch\",\"cond\":17,\"then\":18,\"else\":19}" +
+      "]}," +
+      "{\"id\":18,\"instructions\":[" +
+        "{\"op\":\"phi\",\"dst\":24,\"dst_type\":\"i64\",\"incoming\":[[6,0]]}," +
+        "{\"op\":\"copy\",\"dst\":27,\"src\":24}," +
+        "{\"op\":\"copy\",\"dst\":30,\"src\":27}," +
+        "{\"op\":\"copy\",\"dst\":33,\"src\":30}," +
+        "{\"op\":\"const\",\"dst\":34,\"value\":{\"type\":\"i64\",\"value\":" + rhs2 + "}}," +
+        "{\"op\":\"compare\",\"operation\":\"" + op2 + "\",\"lhs\":33,\"rhs\":34,\"dst\":32}," +
+        "{\"op\":\"branch\",\"cond\":32,\"then\":21,\"else\":22}" +
+      "]}," +
+      "{\"id\":19,\"instructions\":[" +
+        "{\"op\":\"const\",\"dst\":50,\"value\":{\"type\":\"i64\",\"value\":" + outer_else + "}}," +
+        "{\"op\":\"jump\",\"target\":20}" +
+      "]}," +
+      "{\"id\":20,\"instructions\":[" +
+        "{\"op\":\"phi\",\"dst\":51,\"dst_type\":\"i64\",\"incoming\":[[50,19],[43,23]]}," +
+        "{\"op\":\"copy\",\"dst\":55,\"src\":51}," +
+        "{\"op\":\"ret\",\"value\":55}" +
+      "]}," +
+      "{\"id\":21,\"instructions\":[" +
+        "{\"op\":\"const\",\"dst\":38,\"value\":{\"type\":\"i64\",\"value\":" + inner_then + "}}," +
+        "{\"op\":\"jump\",\"target\":23}" +
+      "]}," +
+      "{\"id\":22,\"instructions\":[" +
+        "{\"op\":\"const\",\"dst\":42,\"value\":{\"type\":\"i64\",\"value\":" + inner_else + "}}," +
+        "{\"op\":\"jump\",\"target\":23}" +
+      "]}," +
+      "{\"id\":23,\"instructions\":[" +
+        "{\"op\":\"phi\",\"dst\":43,\"dst_type\":\"i64\",\"incoming\":[[38,21],[42,22]]}," +
+        "{\"op\":\"jump\",\"target\":20}" +
+      "]}" +
+    "]}]}"
+    return mir
+  }
+
   try_lower(program_json) {
+    local ternary_mir = me._try_lower_nested_ternary(program_json)
+    if ternary_mir != null { return ternary_mir }
+
     local s = "" + program_json
     local k_if1 = JsonFragBox.index_of_from(s, "\"type\":\"If\"", 0)
     if k_if1 < 0 { return null }
