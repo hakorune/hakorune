@@ -38,6 +38,7 @@ jobs:
         run: |
           cargo build --release -j 2
           cargo build --release -p nyash-llvm-compiler -j 2
+          cargo build --release -p nyash_kernel -j 2
 
       - name: EXE smoke (ternary_basic -> 10)
         run: |
