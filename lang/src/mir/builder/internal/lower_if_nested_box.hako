@@ -44,6 +44,54 @@ static box LowerIfNestedBox {
     return JsonFragBox.read_int_after(s, k_val + 8)
   }
 
+  _emit_nested_ternary_probe_mir(lhs1, rhs1, op1, lhs2, rhs2, op2, outer_else, inner_then, inner_else) {
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+      "{\"id\":0,\"instructions\":[" +
+        "{\"op\":\"newbox\",\"dst\":1,\"type\":\"ArrayBox\",\"args\":[]}," +
+        "{\"op\":\"copy\",\"dst\":2,\"src\":1}," +
+        "{\"op\":\"mir_call\",\"dst\":null,\"mir_call\":{\"callee\":{\"type\":\"Method\",\"certainty\":\"Known\",\"receiver\":2,\"box_name\":\"ArrayBox\",\"name\":\"birth\"},\"args\":[],\"flags\":{},\"effects\":[]}}," +
+        "{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + lhs2 + "}}," +
+        "{\"op\":\"copy\",\"dst\":6,\"src\":5}," +
+        "{\"op\":\"const\",\"dst\":19,\"value\":{\"type\":\"i64\",\"value\":" + lhs1 + "}}," +
+        "{\"op\":\"copy\",\"dst\":18,\"src\":19}," +
+        "{\"op\":\"const\",\"dst\":21,\"value\":{\"type\":\"i64\",\"value\":" + rhs1 + "}}," +
+        "{\"op\":\"copy\",\"dst\":20,\"src\":21}," +
+        "{\"op\":\"compare\",\"operation\":\"" + op1 + "\",\"lhs\":18,\"rhs\":20,\"dst\":17}," +
+        "{\"op\":\"branch\",\"cond\":17,\"then\":18,\"else\":19}" +
+      "]}," +
+      "{\"id\":18,\"instructions\":[" +
+        "{\"op\":\"phi\",\"dst\":24,\"dst_type\":\"i64\",\"incoming\":[[6,0]]}," +
+        "{\"op\":\"copy\",\"dst\":27,\"src\":24}," +
+        "{\"op\":\"copy\",\"dst\":30,\"src\":27}," +
+        "{\"op\":\"copy\",\"dst\":33,\"src\":30}," +
+        "{\"op\":\"const\",\"dst\":34,\"value\":{\"type\":\"i64\",\"value\":" + rhs2 + "}}," +
+        "{\"op\":\"compare\",\"operation\":\"" + op2 + "\",\"lhs\":33,\"rhs\":34,\"dst\":32}," +
+        "{\"op\":\"branch\",\"cond\":32,\"then\":21,\"else\":22}" +
+      "]}," +
+      "{\"id\":19,\"instructions\":[" +
+        "{\"op\":\"const\",\"dst\":50,\"value\":{\"type\":\"i64\",\"value\":" + outer_else + "}}," +
+        "{\"op\":\"jump\",\"target\":20}" +
+      "]}," +
+      "{\"id\":20,\"instructions\":[" +
+        "{\"op\":\"phi\",\"dst\":51,\"dst_type\":\"i64\",\"incoming\":[[50,19],[43,23]]}," +
+        "{\"op\":\"copy\",\"dst\":55,\"src\":51}," +
+        "{\"op\":\"ret\",\"value\":55}" +
+      "]}," +
+      "{\"id\":21,\"instructions\":[" +
+        "{\"op\":\"const\",\"dst\":38,\"value\":{\"type\":\"i64\",\"value\":" + inner_then + "}}," +
+        "{\"op\":\"jump\",\"target\":23}" +
+      "]}," +
+      "{\"id\":22,\"instructions\":[" +
+        "{\"op\":\"const\",\"dst\":42,\"value\":{\"type\":\"i64\",\"value\":" + inner_else + "}}," +
+        "{\"op\":\"jump\",\"target\":23}" +
+      "]}," +
+      "{\"id\":23,\"instructions\":[" +
+        "{\"op\":\"phi\",\"dst\":43,\"dst_type\":\"i64\",\"incoming\":[[38,21],[42,22]]}," +
+        "{\"op\":\"jump\",\"target\":20}" +
+      "]}" +
+    "]}]}"
+  }
+
   _try_lower_nested_ternary(program_json) {
     local s = "" + program_json
     local k_t_first = JsonFragBox.index_of_from(s, "\"type\":\"Ternary\"", 0)
@@ -59,8 +107,7 @@ static box LowerIfNestedBox {
       pos = k_local + 1
     }
     if k_owner < 0 { return null }
-    local k_t_second = JsonFragBox.index_of_from(s, "\"type\":\"Ternary\"", k_t_first + 1)
-    if k_t_second < 0 { return null }
+    if JsonFragBox.index_of_from(s, "\"type\":\"Ternary\"", k_t_first + 1) < 0 { return null }
     local k_owner_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_owner)
     if k_owner_name < 0 { return null }
     local owner_name = JsonFragBox.read_string_after(s, k_owner_name + 8)
@@ -121,53 +168,7 @@ static box LowerIfNestedBox {
     local inner_then = me._read_int_node_after(s, k_then2)
     if inner_then == null { return null }
 
-    // Emit Rust-route-compatible canonical block/op layout for nested ternary assignment.
-    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-      "{\"id\":0,\"instructions\":[" +
-        "{\"op\":\"newbox\",\"dst\":1,\"type\":\"ArrayBox\",\"args\":[]}," +
-        "{\"op\":\"copy\",\"dst\":2,\"src\":1}," +
-        "{\"op\":\"mir_call\",\"dst\":null,\"mir_call\":{\"callee\":{\"type\":\"Method\",\"certainty\":\"Known\",\"receiver\":2,\"box_name\":\"ArrayBox\",\"name\":\"birth\"},\"args\":[],\"flags\":{},\"effects\":[]}}," +
-        "{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + lhs2 + "}}," +
-        "{\"op\":\"copy\",\"dst\":6,\"src\":5}," +
-        "{\"op\":\"const\",\"dst\":19,\"value\":{\"type\":\"i64\",\"value\":" + lhs1 + "}}," +
-        "{\"op\":\"copy\",\"dst\":18,\"src\":19}," +
-        "{\"op\":\"const\",\"dst\":21,\"value\":{\"type\":\"i64\",\"value\":" + rhs1 + "}}," +
-        "{\"op\":\"copy\",\"dst\":20,\"src\":21}," +
-        "{\"op\":\"compare\",\"operation\":\"" + op1 + "\",\"lhs\":18,\"rhs\":20,\"dst\":17}," +
-        "{\"op\":\"branch\",\"cond\":17,\"then\":18,\"else\":19}" +
-      "]}," +
-      "{\"id\":18,\"instructions\":[" +
-        "{\"op\":\"phi\",\"dst\":24,\"dst_type\":\"i64\",\"incoming\":[[6,0]]}," +
-        "{\"op\":\"copy\",\"dst\":27,\"src\":24}," +
-        "{\"op\":\"copy\",\"dst\":30,\"src\":27}," +
-        "{\"op\":\"copy\",\"dst\":33,\"src\":30}," +
-        "{\"op\":\"const\",\"dst\":34,\"value\":{\"type\":\"i64\",\"value\":" + rhs2 + "}}," +
-        "{\"op\":\"compare\",\"operation\":\"" + op2 + "\",\"lhs\":33,\"rhs\":34,\"dst\":32}," +
-        "{\"op\":\"branch\",\"cond\":32,\"then\":21,\"else\":22}" +
-      "]}," +
-      "{\"id\":19,\"instructions\":[" +
-        "{\"op\":\"const\",\"dst\":50,\"value\":{\"type\":\"i64\",\"value\":" + outer_else + "}}," +
-        "{\"op\":\"jump\",\"target\":20}" +
-      "]}," +
-      "{\"id\":20,\"instructions\":[" +
-        "{\"op\":\"phi\",\"dst\":51,\"dst_type\":\"i64\",\"incoming\":[[50,19],[43,23]]}," +
-        "{\"op\":\"copy\",\"dst\":55,\"src\":51}," +
-        "{\"op\":\"ret\",\"value\":55}" +
-      "]}," +
-      "{\"id\":21,\"instructions\":[" +
-        "{\"op\":\"const\",\"dst\":38,\"value\":{\"type\":\"i64\",\"value\":" + inner_then + "}}," +
-        "{\"op\":\"jump\",\"target\":23}" +
-      "]}," +
-      "{\"id\":22,\"instructions\":[" +
-        "{\"op\":\"const\",\"dst\":42,\"value\":{\"type\":\"i64\",\"value\":" + inner_else + "}}," +
-        "{\"op\":\"jump\",\"target\":23}" +
-      "]}," +
-      "{\"id\":23,\"instructions\":[" +
-        "{\"op\":\"phi\",\"dst\":43,\"dst_type\":\"i64\",\"incoming\":[[38,21],[42,22]]}," +
-        "{\"op\":\"jump\",\"target\":20}" +
-      "]}" +
-    "]}]}"
-    return mir
+    return me._emit_nested_ternary_probe_mir(lhs1, rhs1, op1, lhs2, rhs2, op2, outer_else, inner_then, inner_else)
   }
 
   try_lower(program_json) {

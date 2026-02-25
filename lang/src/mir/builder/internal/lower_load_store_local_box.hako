@@ -1,6 +1,112 @@
-// lower_load_store_local_box.hako — Minimal structural MIR for load/store (local ptr)
+// lower_load_store_local_box.hako — Minimal Local(Int/Assign) -> store/load lowering
+using selfhost.shared.common.string_helpers as StringHelpers
 
 static box LowerLoadStoreLocalBox {
+  _find_from(s, pat, start_pos) {
+    return s.indexOf(pat, start_pos)
+  }
+
+  _skip_ws(s, pos) {
+    local i = pos
+    local n = s.length()
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    return i
+  }
+
+  _read_quoted_after(s, pos) {
+    local i = me._skip_ws(s, pos)
+    local n = s.length()
+    if i >= n { return null }
+    if s.substring(i, i + 1) != "\"" { return null }
+    local j = i + 1
+    loop(j < n) {
+      if s.substring(j, j + 1) == "\"" { return s.substring(i + 1, j) }
+      j = j + 1
+    }
+    return null
+  }
+
+  _first_delim_after(s, start_pos) {
+    local n = s.length()
+    local end = n
+    local p = s.indexOf(",", start_pos)
+    if p >= 0 && p < end { end = p }
+    p = s.indexOf("}", start_pos)
+    if p >= 0 && p < end { end = p }
+    p = s.indexOf("]", start_pos)
+    if p >= 0 && p < end { end = p }
+    return end
+  }
+
+  _read_int_after(s, pos) {
+    local i = me._skip_ws(s, pos)
+    local n = s.length()
+    if i >= n { return null }
+    local e = me._first_delim_after(s, i)
+    local tok = s.substring(i, e)
+    local trimmed = StringHelpers.trim(tok)
+    if trimmed == "" { return null }
+    return StringHelpers.to_i64(trimmed)
+  }
+
+  _next_local_or_end(s, k_local) {
+    local n = s.length()
+    local k_next = me._find_from(s, "\"type\":\"Local\"", k_local + 1)
+    if k_next < 0 { return n }
+    return k_next
+  }
+
+  _read_local_name(s, k_local) {
+    local k_name = me._find_from(s, "\"name\":", k_local)
+    if k_name < 0 { return null }
+    return me._read_quoted_after(s, k_name + 7)
+  }
+
+  _read_local_int_expr_in_range(s, k_local, rb) {
+    local k_int = me._find_from(s, "\"expr\":{\"type\":\"Int\"", k_local)
+    if k_int < 0 || k_int >= rb { return null }
+    local k_val = me._find_from(s, "\"value\":", k_int)
+    if k_val < 0 || k_val >= rb { return null }
+    return me._read_int_after(s, k_val + 8)
+  }
+
+  _read_return_var_name_at(s, k_ret) {
+    local k_var = me._find_from(s, "\"expr\":{\"type\":\"Var\"", k_ret)
+    if k_var < 0 { return null }
+    local k_name = me._find_from(s, "\"name\":", k_var)
+    if k_name < 0 { return null }
+    return me._read_quoted_after(s, k_name + 7)
+  }
+
+  _read_assignment_int_before(s, target_name, before_pos) {
+    local pat = "\"type\":\"Assignment\",\"name\":\"" + target_name + "\""
+    local k_asn = s.lastIndexOf(pat)
+    if k_asn < 0 || k_asn >= before_pos { return null }
+    local k_int = me._find_from(s, "\"expr\":{\"type\":\"Int\"", k_asn)
+    if k_int < 0 || k_int >= before_pos { return null }
+    local k_val = me._find_from(s, "\"value\":", k_int)
+    if k_val < 0 || k_val >= before_pos { return null }
+    return me._read_int_after(s, k_val + 8)
+  }
+
+  _is_local_alias_to_var_in_range(s, k_local, base_name, rb) {
+    local k_var = me._find_from(s, "\"expr\":{\"type\":\"Var\"", k_local)
+    if k_var < 0 || k_var >= rb { return 0 }
+    local k_var_name = me._find_from(s, "\"name\":", k_var)
+    if k_var_name < 0 || k_var_name >= rb { return 0 }
+    local src_name = me._read_quoted_after(s, k_var_name + 7)
+    if src_name == null { return 0 }
+    if src_name != base_name { return 0 }
+    return 1
+  }
+
   _accept_shape(s) {
     if s.indexOf("\"type\":\"Return\"") < 0 { return 0 }
     // Keep control-flow shapes on dedicated lowers.
@@ -21,13 +127,38 @@ static box LowerLoadStoreLocalBox {
     if program_json == null { return null }
     local s = "" + program_json
     if me._accept_shape(s) != 1 { return null }
+
+    local k_local0 = me._find_from(s, "\"type\":\"Local\"", 0)
+    if k_local0 < 0 { return null }
+    local rb0 = me._next_local_or_end(s, k_local0)
+    local base_name = me._read_local_name(s, k_local0)
+    if base_name == null || base_name == "" { return null }
+    local init_val = me._read_local_int_expr_in_range(s, k_local0, rb0)
+    if init_val == null { return null }
+
+    local k_ret = me._find_from(s, "\"type\":\"Return\"", k_local0 + 1)
+    if k_ret < 0 { return null }
+    local ret_name = me._read_return_var_name_at(s, k_ret)
+    if ret_name == null || ret_name == "" { return null }
+
+    local assigned_val = me._read_assignment_int_before(s, base_name, k_ret)
+    local final_val = init_val
+    if assigned_val != null { final_val = assigned_val }
+
+    if ret_name != base_name {
+      local pat_alias = "\"type\":\"Local\",\"name\":\"" + ret_name + "\""
+      local k_alias = me._find_from(s, pat_alias, k_local0 + 1)
+      if k_alias < 0 || k_alias >= k_ret { return null }
+      local rb_alias = me._next_local_or_end(s, k_alias)
+      if rb_alias > k_ret { rb_alias = k_ret }
+      if me._is_local_alias_to_var_in_range(s, k_alias, base_name, rb_alias) != 1 { return null }
+    }
+
     local json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
-               // const 5 -> v1, store v1 to ptr 10, load -> v2, ret 0
-               "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":5}}," +
+               "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + final_val + "}}," +
                "{\"op\":\"store\",\"value\":1,\"ptr\":10}," +
                "{\"op\":\"load\",\"dst\":2,\"ptr\":10}," +
-               "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":0}}," +
-               "{\"op\":\"ret\",\"value\":3}]}]}]}"
+               "{\"op\":\"ret\",\"value\":2}]}]}]}"
     return json
   }
 }
