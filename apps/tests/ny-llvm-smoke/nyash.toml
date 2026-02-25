@@ -136,6 +136,7 @@ ConsoleBox  = 5
 ArrayBox    = 10
 MapBox      = 11
 IntegerBox  = 12
+IntCellBox  = 112
 StringBox   = 13
 CounterBox  = 7
 HttpServerBox   = 20
@@ -203,15 +204,15 @@ has   = { method_id = 3, args = ["key"] }
 set   = { method_id = 4, args = ["key", "value"] }
 fini  = { method_id = 4294967295 }
 
-# IntegerBox plugin (basic numeric box)
+# IntCellBox plugin (mutable integer cell)
 [libraries."libnyash_integer_plugin"]
-boxes = ["IntegerBox"]
-path = "./plugins/nyash-integer-plugin/target/release/libnyash_integer_plugin"
+boxes = ["IntCellBox"]
+path = "./target/release/libnyash_integer_plugin"
 
-[libraries."libnyash_integer_plugin".IntegerBox]
-type_id = 12
+[libraries."libnyash_integer_plugin".IntCellBox]
+type_id = 112
 
-[libraries."libnyash_integer_plugin".IntegerBox.methods]
+[libraries."libnyash_integer_plugin".IntCellBox.methods]
 birth = { method_id = 0 }
 get   = { method_id = 1 }
 set   = { method_id = 2, args = ["value"] }

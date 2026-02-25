@@ -122,7 +122,7 @@ static box Main {
     main() {
         // These should use plugin implementations when available
         local str = new StringBox()
-        local int = new IntegerBox()
+        local int = new IntCellBox()
         local arr = new ArrayBox()
 
         print("Plugin priority test passed")

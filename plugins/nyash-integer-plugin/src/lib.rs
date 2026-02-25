@@ -1,4 +1,4 @@
-//! Nyash IntegerBox Plugin — TypeBox v2 (minimal)
+//! Nyash IntCellBox Plugin — TypeBox v2 (minimal)
 //! Methods: birth(0), get(1), set(2), fini(u32::MAX)
 
 use once_cell::sync::Lazy;
@@ -13,7 +13,6 @@ use std::sync::{
 // Error codes
 const OK: i32 = 0;
 const E_SHORT: i32 = -1;
-const E_TYPE: i32 = -2;
 const E_METHOD: i32 = -3;
 const E_ARGS: i32 = -4;
 const E_PLUGIN: i32 = -5;
@@ -25,94 +24,12 @@ const M_GET: u32 = 1;
 const M_SET: u32 = 2;
 const M_FINI: u32 = u32::MAX;
 
-// Assigned type id (nyash.toml must match)
-const TYPE_ID_INTEGER: u32 = 12;
-
 struct IntInstance {
     value: i64,
 }
 
 static INST: Lazy<Mutex<HashMap<u32, IntInstance>>> = Lazy::new(|| Mutex::new(HashMap::new()));
 static NEXT_ID: AtomicU32 = AtomicU32::new(1);
-
-// legacy v1 abi/init removed
-
-/* legacy v1 entry removed
-#[no_mangle]
-pub extern "C" fn nyash_plugin_invoke(
-    type_id: u32,
-    method_id: u32,
-    instance_id: u32,
-    args: *const u8,
-    args_len: usize,
-    result: *mut u8,
-    result_len: *mut usize,
-) -> i32 {
-    if type_id != TYPE_ID_INTEGER {
-        return E_TYPE;
-    }
-    unsafe {
-        match method_id {
-            M_BIRTH => {
-                if result_len.is_null() {
-                    return E_ARGS;
-                }
-                if preflight(result, result_len, 4) {
-                    return E_SHORT;
-                }
-                // Optional initial value from first arg (i64/i32)
-                let init = read_arg_i64(args, args_len, 0).unwrap_or(0);
-                let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
-                if let Ok(mut m) = INST.lock() {
-                    m.insert(id, IntInstance { value: init });
-                } else {
-                    return E_PLUGIN;
-                }
-                let b = id.to_le_bytes();
-                std::ptr::copy_nonoverlapping(b.as_ptr(), result, 4);
-                *result_len = 4;
-                OK
-            }
-            M_FINI => {
-                if let Ok(mut m) = INST.lock() {
-                    m.remove(&instance_id);
-                    OK
-                } else {
-                    E_PLUGIN
-                }
-            }
-            M_GET => {
-                if let Ok(m) = INST.lock() {
-                    if let Some(inst) = m.get(&instance_id) {
-                        return write_tlv_i64(inst.value, result, result_len);
-                    } else {
-                        return E_HANDLE;
-                    }
-                } else {
-                    return E_PLUGIN;
-                }
-            }
-            M_SET => {
-                let v = match read_arg_i64(args, args_len, 0) {
-                    Some(v) => v,
-                    None => return E_ARGS,
-                };
-                if let Ok(mut m) = INST.lock() {
-                    if let Some(inst) = m.get_mut(&instance_id) {
-                        inst.value = v;
-                        return write_tlv_i64(inst.value, result, result_len);
-                    } else {
-                        return E_HANDLE;
-                    }
-                } else {
-                    return E_PLUGIN;
-                }
-            }
-            _ => E_METHOD,
-        }
-    }
-}
-*/
 
 // ===== TypeBox FFI (resolve/invoke_id) =====
 #[repr(C)]
@@ -127,7 +44,7 @@ pub struct NyashTypeBoxFfi {
 }
 unsafe impl Sync for NyashTypeBoxFfi {}
 
-extern "C" fn integer_resolve(name: *const c_char) -> u32 {
+extern "C" fn intcell_resolve(name: *const c_char) -> u32 {
     if name.is_null() {
         return 0;
     }
@@ -139,7 +56,7 @@ extern "C" fn integer_resolve(name: *const c_char) -> u32 {
     }
 }
 
-extern "C" fn integer_invoke_id(
+extern "C" fn intcell_invoke_id(
     instance_id: u32,
     method_id: u32,
     args: *const u8,
@@ -147,83 +64,85 @@ extern "C" fn integer_invoke_id(
     result: *mut u8,
     result_len: *mut usize,
 ) -> i32 {
-    unsafe {
-        match method_id {
-            M_BIRTH => {
-                // Create new IntegerBox instance
-                let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
-                let init = read_arg_i64(args, args_len, 0).unwrap_or(0);
-                eprintln!("[IntegerBox] M_BIRTH called: id={}, init={}", id, init);
-                if let Ok(mut m) = INST.lock() {
-                    m.insert(id, IntInstance { value: init });
-                    return write_tlv_handle(TYPE_ID_INTEGER, id, result, result_len);
-                } else {
-                    return E_PLUGIN;
-                }
+    match method_id {
+        M_BIRTH => {
+            // Birth contract (v2): return raw u32 instance_id (LE, 4 bytes).
+            let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
+            let init = read_arg_i64(args, args_len, 0).unwrap_or(0);
+            if let Ok(mut m) = INST.lock() {
+                m.insert(id, IntInstance { value: init });
+                return write_u32(id, result, result_len);
+            } else {
+                return E_PLUGIN;
             }
-            M_FINI => {
-                // Destroy IntegerBox instance
-                if let Ok(mut m) = INST.lock() {
-                    m.remove(&instance_id);
-                    return OK;
-                } else {
-                    return E_PLUGIN;
-                }
+        }
+        M_FINI => {
+            // Destroy IntCellBox instance
+            if let Ok(mut m) = INST.lock() {
+                m.remove(&instance_id);
+                return OK;
+            } else {
+                return E_PLUGIN;
             }
-            M_GET => {
-                if let Ok(m) = INST.lock() {
-                    if let Some(inst) = m.get(&instance_id) {
-                        return write_tlv_i64(inst.value, result, result_len);
-                    } else {
-                        return E_HANDLE;
-                    }
+        }
+        M_GET => {
+            if let Ok(m) = INST.lock() {
+                if let Some(inst) = m.get(&instance_id) {
+                    return write_tlv_i64(inst.value, result, result_len);
                 } else {
-                    return E_PLUGIN;
+                    return E_HANDLE;
                 }
+            } else {
+                return E_PLUGIN;
             }
-            M_SET => {
-                let v = match read_arg_i64(args, args_len, 0) {
+        }
+        M_SET => {
+            // Some MIR paths include receiver in args[0] for method calls.
+            // Accept either args[0] or args[1] as the numeric payload.
+            let v =
+                match read_arg_i64(args, args_len, 0).or_else(|| read_arg_i64(args, args_len, 1)) {
                     Some(v) => v,
                     None => return E_ARGS,
                 };
-                if let Ok(mut m) = INST.lock() {
-                    if let Some(inst) = m.get_mut(&instance_id) {
-                        inst.value = v;
-                        return write_tlv_i64(inst.value, result, result_len);
-                    } else {
-                        return E_HANDLE;
-                    }
+            if let Ok(mut m) = INST.lock() {
+                if let Some(inst) = m.get_mut(&instance_id) {
+                    inst.value = v;
+                    return write_tlv_i64(inst.value, result, result_len);
                 } else {
-                    return E_PLUGIN;
+                    return E_HANDLE;
                 }
+            } else {
+                return E_PLUGIN;
             }
-            _ => E_METHOD,
         }
+        _ => E_METHOD,
     }
 }
 
 #[no_mangle]
-pub static nyash_typebox_IntegerBox: NyashTypeBoxFfi = NyashTypeBoxFfi {
+pub static nyash_typebox_IntCellBox: NyashTypeBoxFfi = NyashTypeBoxFfi {
     abi_tag: 0x54594258, // 'TYBX'
     version: 1,
     struct_size: std::mem::size_of::<NyashTypeBoxFfi>() as u16,
-    name: b"IntegerBox\0".as_ptr() as *const c_char,
-    resolve: Some(integer_resolve),
-    invoke_id: Some(integer_invoke_id),
+    name: b"IntCellBox\0".as_ptr() as *const c_char,
+    resolve: Some(intcell_resolve),
+    invoke_id: Some(intcell_invoke_id),
     capabilities: 0,
 };
 
-fn preflight(result: *mut u8, result_len: *mut usize, needed: usize) -> bool {
+fn write_u32(v: u32, result: *mut u8, result_len: *mut usize) -> i32 {
     unsafe {
         if result_len.is_null() {
-            return false;
+            return E_ARGS;
         }
-        if result.is_null() || *result_len < needed {
-            *result_len = needed;
-            return true;
+        if result.is_null() || *result_len < 4 {
+            *result_len = 4;
+            return E_SHORT;
         }
+        std::ptr::copy_nonoverlapping(v.to_le_bytes().as_ptr(), result, 4);
+        *result_len = 4;
+        OK
     }
-    false
 }
 
 fn write_tlv_result(payloads: &[(u8, &[u8])], result: *mut u8, result_len: *mut usize) -> i32 {
@@ -256,18 +175,6 @@ fn write_tlv_i64(v: i64, result: *mut u8, result_len: *mut usize) -> i32 {
     write_tlv_result(&[(3u8, &v.to_le_bytes())], result, result_len)
 }
 
-fn write_tlv_handle(
-    type_id: u32,
-    instance_id: u32,
-    result: *mut u8,
-    result_len: *mut usize,
-) -> i32 {
-    let mut payload = Vec::with_capacity(8);
-    payload.extend_from_slice(&type_id.to_le_bytes());
-    payload.extend_from_slice(&instance_id.to_le_bytes());
-    write_tlv_result(&[(8u8, &payload)], result, result_len)
-}
-
 fn read_arg_i64(args: *const u8, args_len: usize, n: usize) -> Option<i64> {
     if args.is_null() || args_len < 4 {
         return None;
@@ -295,6 +202,15 @@ fn read_arg_i64(args: *const u8, args_len: usize, n: usize) -> Option<i64> {
                     b.copy_from_slice(&buf[off + 4..off + 8]);
                     let v = i32::from_le_bytes(b) as i64;
                     return Some(v);
+                }
+                (6, _) => {
+                    let bytes = &buf[off + 4..off + 4 + size];
+                    if let Ok(s) = std::str::from_utf8(bytes) {
+                        if let Ok(v) = s.trim().parse::<i64>() {
+                            return Some(v);
+                        }
+                    }
+                    return None;
                 }
                 _ => return None,
             }

@@ -12,7 +12,6 @@
 pub fn gather_core_required_providers() -> Vec<String> {
     vec![
         "StringBox".to_string(),
-        "IntegerBox".to_string(),
         "ArrayBox".to_string(),
         "ConsoleBox".to_string(),
     ]
@@ -41,7 +40,6 @@ pub fn gather_required_providers() -> Vec<String> {
         "ArrayBox".to_string(),
         "MapBox".to_string(),
         "StringBox".to_string(),
-        "IntegerBox".to_string(),
     ];
     v
 }

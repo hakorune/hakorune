@@ -47,6 +47,15 @@ impl BoxFactoryRegistry {
         let mut providers = self.providers.write().unwrap();
 
         for (box_name, plugin_name) in &config.plugins {
+            if is_reserved_plugin_override_box(box_name) {
+                crate::runtime::ring0::ensure_global_ring0_initialized()
+                    .log
+                    .error(&format!(
+                    "[plugin/config] reserved core box '{}' cannot be overridden by plugin '{}' (use IntCellBox for mutable integer)",
+                    box_name, plugin_name
+                ));
+                continue;
+            }
             providers.insert(box_name.clone(), BoxProvider::Plugin(plugin_name.clone()));
         }
     }
@@ -102,6 +111,22 @@ impl BoxFactoryRegistry {
             )
         })
     }
+}
+
+fn is_reserved_plugin_override_box(box_name: &str) -> bool {
+    // Keep this narrow: only IntegerBox is reserved because VM treats it as a core numeric box.
+    if box_name != "IntegerBox" {
+        return false;
+    }
+
+    // Explicit escape hatch for diagnostics/migration only.
+    if let Some(allow) = env::plugin_override_types() {
+        if allow.iter().any(|t| t == box_name) {
+            return false;
+        }
+    }
+
+    true
 }
 
 impl Clone for BoxProvider {
@@ -163,5 +188,18 @@ mod tests {
             BoxProvider::Plugin(name) => assert_eq!(name, "filebox"),
             _ => panic!("Expected plugin provider"),
         }
+    }
+
+    #[test]
+    fn test_integerbox_plugin_override_rejected_by_default() {
+        let registry = BoxFactoryRegistry::new();
+
+        let mut config = PluginConfig::default();
+        config
+            .plugins
+            .insert("IntegerBox".to_string(), "integerbox".to_string());
+        registry.apply_plugin_config(&config);
+
+        assert!(registry.get_provider("IntegerBox").is_none());
     }
 }

@@ -20,10 +20,10 @@ require_joinir_dev
 
 # Minimal plugins (String + Integer for s.length())
 STRINGBOX_SO="$NYASH_ROOT/plugins/nyash-string-plugin/libnyash_string_plugin.so"
-INTEGERBOX_SO="$NYASH_ROOT/plugins/nyash-integer-plugin/libnyash_integer_plugin.so"
+INTEGERBOX_SO="$NYASH_ROOT/target/release/libnyash_integer_plugin.so"
 LLVM_REQUIRED_PLUGINS=(
   "StringBox|$STRINGBOX_SO|nyash-string-plugin"
-  "IntegerBox|$INTEGERBOX_SO|nyash-integer-plugin"
+  "IntCellBox|$INTEGERBOX_SO|nyash-integer-plugin"
 )
 LLVM_PLUGIN_BUILD_LOG="/tmp/phase142_loop_stmt_llvm_plugin_build.log"
 llvm_exe_ensure_plugins_or_fail || exit 1

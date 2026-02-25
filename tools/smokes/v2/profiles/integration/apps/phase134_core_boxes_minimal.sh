@@ -1,6 +1,6 @@
 #!/bin/bash
 # Phase 134 P1: Core box strict check smoke test
-# Tests: STRICT mode requires core boxes (StringBox/IntegerBox/ArrayBox/ConsoleBox)
+# Tests: STRICT mode requires core boxes (StringBox/ArrayBox/ConsoleBox)
 # Acceptance: When NYASH_VM_PLUGIN_STRICT=1, missing core box → exit(1)
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
@@ -46,12 +46,12 @@ else
 fi
 
 # ===== Test 2: Check core box SSOT definition =====
-echo "[INFO] Phase 134 P1: Verifying core box SSOT (4 boxes: String/Integer/Array/Console)"
+echo "[INFO] Phase 134 P1: Verifying core box SSOT (3 boxes: String/Array/Console)"
 
 # This is a compile-time check - we verify via the implementation
 # The actual verification is in the strict mode test above
 # Here we just document the expectation
-CORE_BOX_COUNT=4
+CORE_BOX_COUNT=3
 echo "[INFO] Phase 134 P1: Core box count: $CORE_BOX_COUNT (SSOT in plugin_guard.rs)"
 PASS_COUNT=$((PASS_COUNT + 1))
 

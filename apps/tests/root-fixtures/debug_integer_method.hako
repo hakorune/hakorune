@@ -1,6 +1,6 @@
-// Test IntegerBox method calls
-print("Testing IntegerBox methods:")
-local i = new IntegerBox(42)
+// Test IntCellBox method calls
+print("Testing IntCellBox methods:")
+local i = new IntCellBox(42)
 print("Constructor result:")
 print(i)
 print("Calling get() method:")

@@ -615,17 +615,17 @@ toUtf8 = { method_id = 6 }
 # toLower = { method_id = 16 }
 fini = { method_id = 4294967295 }
 
-# IntegerBox Plugin (Core Box replacement)
+# IntCellBox Plugin (mutable integer cell)
 [libraries."libnyash_integer_plugin.so"]
-boxes = ["IntegerBox"]
-path = "plugins/nyash-integer-plugin/libnyash_integer_plugin.so"
+boxes = ["IntCellBox"]
+path = "target/release/libnyash_integer_plugin.so"
 
-[libraries."libnyash_integer_plugin.so".IntegerBox]
-type_id = 12
+[libraries."libnyash_integer_plugin.so".IntCellBox]
+type_id = 112
 abi_version = 1
 singleton = false
 
-[libraries."libnyash_integer_plugin.so".IntegerBox.methods]
+[libraries."libnyash_integer_plugin.so".IntCellBox.methods]
 birth = { method_id = 0 }
 get = { method_id = 1 }
 set = { method_id = 2 }

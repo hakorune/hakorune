@@ -1,13 +1,13 @@
-// IntegerBox plugin demo with ConsoleBox
+// IntCellBox plugin demo with ConsoleBox
 static box Main {
   main() {
     local c
     c = new ConsoleBox()
     
     local i
-    i = new IntegerBox()
+    i = new IntCellBox()
     i.set(42)
-    c.println("IntegerBox set to 42")
+    c.println("IntCellBox set to 42")
     c.println("get() = " + i.get())
     
     return i.get()

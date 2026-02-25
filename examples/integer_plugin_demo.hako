@@ -1,13 +1,12 @@
-// IntegerBox plugin demo
+// IntCellBox plugin demo
 // Build: (cd plugins/nyash-integer-plugin && cargo build --release)
 
 static box Main {
   main() {
     local i
-    i = new IntegerBox()
+    i = new IntCellBox()
     i.set(42)
     me.console.log("get()=", i.get())
     return i.get()
   }
 }
-

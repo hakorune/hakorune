@@ -1,0 +1,16 @@
+// Phase 29cc PLG-04-min2 IntCellBox pilot fixture
+// Contract:
+// - IntCellBox can be constructed through plugin config.
+// - set()/get() updates and returns integer state.
+
+static box Main {
+  main() {
+    local c
+    local v
+    c = new IntCellBox(5)
+    c.set(7)
+    v = c.get()
+    print("intcell=" + v)
+    return 0
+  }
+}
