@@ -6,6 +6,7 @@ Scope: plugin lane の gate pack（PLG-02）を固定し、quick/milestone 受�
 Related:
   - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md
   - docs/development/current/main/phases/phase-29cc/README.md
   - tools/plugin_v2_smoke.sh
   - tools/smoke_plugins.sh
@@ -74,7 +75,7 @@ current blocker:
 ## 5. Next
 
 active next:
-- `PLG-03`（wave-1 pilot）
+- `PLG-04`（wave rollout）
 
 promotion condition:
 - satisfied（2026-02-25）

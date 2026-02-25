@@ -16,6 +16,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md
   - docs/tools/README.md
 ---
 
@@ -55,14 +56,15 @@ Related:
   - active next: `none`（B-TERNARY-03 decision fixed: non-gating維持）
   - task SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` の `Lane-B Nested Ternary Debt Pack (B-TERNARY-01..03)`
 - De-rust orchestration lane（phase-29cc）:
-  - `none`（RNR-05 complete; monitor-only）
+  - `plugin-wave-rollout`（RNR-05 complete; PLG-03 done）
   - scope decision（L5）: `docs/development/current/main/design/de-rust-scope-decision-ssot.md`（accepted）
   - strict readiness（L4）: `tools/selfhost/check_phase29x_x23_readiness.sh --strict` -> `status=READY`（2026-02-25）
   - done declaration（non-plugin）: `docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md`（accepted）
   - plugin lane bootstrap（docs-first）: `docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md`（provisional）
   - plugin lane ABI lock（PLG-01 done）: `docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md`（accepted）
   - plugin lane gate pack lock（PLG-02 done）: `docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md`（accepted）
-  - plugin lane active next: `PLG-03`（wave-1 pilot）
+  - plugin lane wave-1 pilot lock（PLG-03 done）: `docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md`（accepted）
+  - plugin lane active next: `PLG-04`（wave rollout）
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）
   - `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
@@ -131,6 +133,7 @@ Related:
 - De-rust plugin lane bootstrap: `docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md`
 - De-rust plugin ABI lock (PLG-01): `docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md`
 - De-rust plugin gate pack lock (PLG-02): `docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md`
+- De-rust plugin wave-1 pilot lock (PLG-03): `docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`
 - Compiler pipeline: `docs/development/current/main/design/compiler-pipeline-ssot.md`

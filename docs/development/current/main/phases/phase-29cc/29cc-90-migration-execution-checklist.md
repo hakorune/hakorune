@@ -112,3 +112,4 @@ Related:
 - [x] plugin lane bootstrap SSOT fixed (`29cc-95-plugin-lane-bootstrap-ssot.md`)
 - [x] plugin lane `PLG-01` ABI/loader acceptance lock fixed (`29cc-96-plugin-abi-loader-acceptance-lock-ssot.md`)
 - [x] plugin lane `PLG-02` gate pack lock accepted (`29cc-97-plugin-gate-pack-lock-ssot.md`)
+- [x] plugin lane `PLG-03` wave-1 CounterBox pilot accepted (`29cc-98-plg03-counterbox-wave1-pilot-ssot.md`)

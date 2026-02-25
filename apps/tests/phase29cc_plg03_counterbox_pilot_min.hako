@@ -1,0 +1,17 @@
+// Phase 29cc PLG-03 CounterBox pilot fixture
+// Contract:
+// - CounterBox can be constructed through plugin config.
+// - inc() updates internal state.
+// - get() returns the incremented count.
+
+static box Main {
+  main() {
+    local c
+    local n
+    c = new CounterBox()
+    c.inc()
+    n = c.get()
+    print("counter=" + n)
+    return 0
+  }
+}

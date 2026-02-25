@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md
   - docs/reference/plugin-system/bid-ffi-v1-actual-specification.md
   - docs/reference/plugin-system/migration-guide.md
   - docs/reference/architecture/dynamic-plugin-flow.md
@@ -89,11 +90,11 @@ Out of scope（このレーンでは扱わない）:
 1. `PLG-00` boundary lock（この文書 + 入口同期）
 2. [done] `PLG-01` ABI/nyash.toml acceptance lock（fail-fast 条件の固定）
 3. [done] `PLG-02` gate pack lock（quick/milestone lock, accepted）
-4. `PLG-03` wave-1 pilot（1 plugin = 1 blocker = 1 commit）
+4. [done] `PLG-03` wave-1 pilot（CounterBox, 1 plugin = 1 blocker = 1 commit）
 5. `PLG-04` wave rollout（wave-1 -> wave-2 -> wave-3）
 
 Current active next:
-- `PLG-03`（wave-1 pilot）
+- `PLG-04`（wave rollout）
 
 Progress:
 - `PLG-01` done（2026-02-25）:
@@ -102,6 +103,8 @@ Progress:
   - `29cc-97-plugin-gate-pack-lock-ssot.md`（accepted）
   - `PLG-02-BFIX-01` done（Ring0 init panic 解消）
   - `PLG-02-BFIX-02` done（legacy nyash binary exit2 解消）
+- `PLG-03` done（2026-02-25）:
+  - `29cc-98-plg03-counterbox-wave1-pilot-ssot.md`（accepted）
 
 ## 5. Gate Pack (locked)
 
