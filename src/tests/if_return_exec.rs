@@ -28,3 +28,22 @@ fn vm_if_then_return_true() {
         .expect("vm exec failed");
     assert_eq!(result.to_string_box().value, "1");
 }
+
+#[test]
+fn vm_nested_ternary_returns_inner_value() {
+    // Regression: nested ternary must keep expression semantics and return 50.
+    let code = r#"
+local a = 3
+local b = 5
+local v = (a < b) ? ((b < 0) ? 40 : 50) : 60
+return v
+"#;
+    let ast = NyashParser::parse_from_string(code).expect("parse failed");
+    let mut compiler = crate::mir::MirCompiler::new();
+    let compile_result = compiler.compile(ast).expect("mir compile failed");
+    let mut vm = VM::new();
+    let result = vm
+        .execute_module(&compile_result.module)
+        .expect("vm exec failed");
+    assert_eq!(result.to_string_box().value, "50");
+}

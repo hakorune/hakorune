@@ -9,6 +9,17 @@ fn is_sugar_enabled() -> bool {
     crate::parser::sugar_gate::is_enabled()
 }
 
+#[inline]
+fn wrap_ternary_branch_expr(expr: ASTNode) -> ASTNode {
+    // Keep ternary branches in expression lane.
+    // Without this wrapper, nested ternary can be treated as statement-if in block lowering.
+    ASTNode::BlockExpr {
+        prelude_stmts: Vec::new(),
+        tail_expr: Box::new(expr),
+        span: Span::unknown(),
+    }
+}
+
 impl NyashParser {
     pub(crate) fn expr_parse_ternary(&mut self) -> Result<ASTNode, ParseError> {
         let cond = self.expr_parse_coalesce()?;
@@ -19,8 +30,8 @@ impl NyashParser {
             let else_expr = self.parse_expression()?;
             return Ok(ASTNode::If {
                 condition: Box::new(cond),
-                then_body: vec![then_expr],
-                else_body: Some(vec![else_expr]),
+                then_body: vec![wrap_ternary_branch_expr(then_expr)],
+                else_body: Some(vec![wrap_ternary_branch_expr(else_expr)]),
                 span: Span::unknown(),
             });
         }
