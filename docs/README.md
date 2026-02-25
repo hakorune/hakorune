@@ -72,6 +72,7 @@
 運用ルール（提案）:
 - **新規仕様/設計**: まずは `private/` に置き、安定したら `reference/` or `design/` へ昇格する。
 - **Rust 実装寄りの話**: `development/` 配下に置く（セルフホスト側は `private/roadmap` 等）。
+- **current/main の計画本文**: public は stub、正本は `docs/private/development/current/main/` に置く（境界SSOT: `development/current/main/design/private-doc-boundary-migration-ssot.md`）。
 - **古い資料・置き換え済み**: 内容を変えずに `archive/` 以下へ移動し、先頭に「Archived / 新しい場所」の一行メモを書く。
 - **ユーザー向けに見せたいもの**: `guides/`, `how-to/`, `quick-reference/`, `releases/` を優先する。
 
