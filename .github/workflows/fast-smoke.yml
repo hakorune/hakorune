@@ -42,21 +42,21 @@ jobs:
       - name: EXE smoke (ternary_basic -> 10)
         run: |
           mkdir -p tmp
-          ./target/release/nyash --emit-mir-json tmp/tb.json --backend mir apps/tests/ternary_basic.hako
+          ./target/release/hakorune --emit-mir-json tmp/tb.json --backend mir apps/tests/ternary_basic.hako
           ./target/release/ny-llvmc --in tmp/tb.json --emit exe --nyrt target/release --out tmp/tb
           set +e; ./tmp/tb >/dev/null 2>&1; CODE=$?; set -e
           echo "exit=$CODE"; test "$CODE" -eq 10
 
       - name: EXE smoke (ternary_nested -> 50)
         run: |
-          ./target/release/nyash --emit-mir-json tmp/tn.json --backend mir apps/tests/ternary_nested.hako
+          ./target/release/hakorune --emit-mir-json tmp/tn.json --backend mir apps/tests/ternary_nested.hako
           ./target/release/ny-llvmc --in tmp/tn.json --emit exe --nyrt target/release --out tmp/tn
           set +e; ./tmp/tn >/dev/null 2>&1; CODE=$?; set -e
           echo "exit=$CODE"; test "$CODE" -eq 50
 
       - name: EXE smoke (peek_expr_block -> 1)
         run: |
-          ./target/release/nyash --emit-mir-json tmp/pb.json --backend mir apps/tests/peek_expr_block.hako
+          ./target/release/hakorune --emit-mir-json tmp/pb.json --backend mir apps/tests/peek_expr_block.hako
           ./target/release/ny-llvmc --in tmp/pb.json --emit exe --nyrt target/release --out tmp/pb
           set +e; ./tmp/pb >/dev/null 2>&1; CODE=$?; set -e
           echo "exit=$CODE"; test "$CODE" -eq 1
