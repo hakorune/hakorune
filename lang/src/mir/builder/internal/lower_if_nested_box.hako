@@ -36,12 +36,22 @@ static box LowerIfNestedBox {
     return null
   }
 
-  _read_int_node_after(s, k_key) {
+  _read_int_or_var_node_after(s, k_key, before_pos) {
     local k_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_key)
-    if k_int < 0 { return null }
-    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_int)
-    if k_val < 0 { return null }
-    return JsonFragBox.read_int_after(s, k_val + 8)
+    local k_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_key)
+    if k_int >= 0 && (k_var < 0 || k_int < k_var) {
+      local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_int)
+      if k_val < 0 { return null }
+      return JsonFragBox.read_int_after(s, k_val + 8)
+    }
+    if k_var >= 0 {
+      local k_name = JsonFragBox.index_of_from(s, "\"name\":", k_var)
+      if k_name < 0 { return null }
+      local var_name = JsonFragBox.read_string_after(s, k_name + 7)
+      if var_name == null || var_name == "" { return null }
+      return PatternUtilBox.find_local_int_before(s, var_name, before_pos)
+    }
+    return null
   }
 
   _emit_nested_ternary_probe_mir(lhs1, rhs1, op1, lhs2, rhs2, op2, outer_else, inner_then, inner_else) {
@@ -124,7 +134,7 @@ static box LowerIfNestedBox {
     local k_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_owner)
     if k_expr < 0 { return null }
 
-    // Outer ternary: cond + else(Int) + then(inner ternary)
+    // Outer ternary: cond + else(Int|Var(Local Int)) + then(inner ternary)
     local k_cmp1 = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_expr)
     if k_cmp1 < 0 { return null }
     local k_op1 = JsonFragBox.index_of_from(s, "\"op\":", k_cmp1)
@@ -146,10 +156,10 @@ static box LowerIfNestedBox {
       scan_else = JsonFragBox.index_of_from(s, "\"else\":", scan_else + 1)
     }
     if k_else1 < 0 || k_else1 <= k_then1 { return null }
-    local outer_else = me._read_int_node_after(s, k_else1)
+    local outer_else = me._read_int_or_var_node_after(s, k_else1, k_owner)
     if outer_else == null { return null }
 
-    // Inner ternary: cond + then(Int) + else(Int)
+    // Inner ternary: cond + then(Int|Var(Local Int)) + else(Int|Var(Local Int))
     local k_cmp2 = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_then1 + 1)
     if k_cmp2 < 0 || k_cmp2 >= k_else1 { return null }
     local k_op2 = JsonFragBox.index_of_from(s, "\"op\":", k_cmp2)
@@ -161,11 +171,11 @@ static box LowerIfNestedBox {
     if lhs2 == null || rhs2 == null { return null }
     local k_else2 = JsonFragBox.index_of_from(s, "\"else\":", k_then1 + 1)
     if k_else2 < 0 || k_else2 >= k_else1 { return null }
-    local inner_else = me._read_int_node_after(s, k_else2)
+    local inner_else = me._read_int_or_var_node_after(s, k_else2, k_owner)
     if inner_else == null { return null }
     local k_then2 = JsonFragBox.index_of_from(s, "\"then\":", k_then1 + 1)
     if k_then2 < 0 || k_then2 >= k_else1 { return null }
-    local inner_then = me._read_int_node_after(s, k_then2)
+    local inner_then = me._read_int_or_var_node_after(s, k_then2, k_owner)
     if inner_then == null { return null }
 
     return me._emit_nested_ternary_probe_mir(lhs1, rhs1, op1, lhs2, rhs2, op2, outer_else, inner_then, inner_else)

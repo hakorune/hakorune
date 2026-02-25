@@ -1,0 +1,13 @@
+// Phase 29y lane-B B-TERNARY-01 fixture.
+// Nested ternary with Var(Local Int) values in then/else arms.
+static box Main {
+  main(args) {
+    local a = 3
+    local b = 5
+    local t = 40
+    local u = 50
+    local w = 60
+    local v = (a < b) ? ((b < 0) ? t : u) : w
+    return v
+  }
+}

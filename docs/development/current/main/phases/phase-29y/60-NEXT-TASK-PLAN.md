@@ -109,6 +109,7 @@ Related:
   3. 修正後は Rust/.hako 2経路の canonical compare 緑を確認して blocker を閉じる。
 - monitor probe（non-gating, default）:
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_var_values_lock_vm.sh`
 - blocker trigger check（strict, manual）:
   - `STRICT=1 bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`
 
