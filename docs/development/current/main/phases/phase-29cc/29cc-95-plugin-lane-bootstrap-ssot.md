@@ -95,7 +95,7 @@ Out of scope（このレーンでは扱わない）:
 5. `PLG-04` wave rollout（wave-1 -> wave-2 -> wave-3）
 
 Current active next:
-- `PLG-04`（wave rollout）
+- `PLG-04-min2`（wave-1 rollout）
 
 Progress:
 - `PLG-01` done（2026-02-25）:
