@@ -22,7 +22,7 @@ static box Main {
     local s = "\"ab\\\"c\""
     local out = me.read_quoted_min(s, 0)
     print(out.length())
-    return "OK"
+    return 0
   }
 }
 

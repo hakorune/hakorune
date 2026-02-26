@@ -17,6 +17,6 @@ static box Main {
     }
 
     print(x)
-    return "OK"
+    return 0
   }
 }

@@ -20,6 +20,6 @@ static box Main {
   main() {
     me.g(1)
     me.g(0)
-    return "OK"
+    return 0
   }
 }

@@ -14,6 +14,6 @@ static box Main {
   main() {
     print(g(0))
     print(g(1))
-    return "OK"
+    return 0
   }
 }

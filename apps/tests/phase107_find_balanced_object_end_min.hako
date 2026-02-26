@@ -19,6 +19,6 @@ static box Main {
   main() {
     print(find_balanced_object_end("{}", 0))
     print(find_balanced_object_end("{{}}", 0))
-    return "OK"
+    return 0
   }
 }

@@ -33,6 +33,6 @@ static box Main {
 
         // Current behavior: trailing backslash is included in output
         print(out)
-        return "OK"
+        return 0
     }
 }

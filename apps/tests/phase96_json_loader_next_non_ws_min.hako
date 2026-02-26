@@ -27,6 +27,6 @@ static box Main {
         print(next_non_ws(" " + " " + "hi"))          // expect 2
         print(next_non_ws(" " + "\t"))                // expect -1
         print(next_non_ws("\n" + "\r" + "\t" + "X"))  // expect 3 (mixed newline/CR/tab)
-        return "OK"
+        return 0
     }
 }
