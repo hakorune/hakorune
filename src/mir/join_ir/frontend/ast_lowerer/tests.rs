@@ -420,3 +420,53 @@ fn test_read_quoted_from_lowering_instructions() {
         "[Phase 45] test_read_quoted_from_lowering_instructions PASSED",
     );
 }
+
+/// Phase 46: escape branch が stale step を使わないことを確認
+#[test]
+fn test_read_quoted_escape_ifmerge_uses_merged_values() {
+    let program_json = serde_json::json!({
+        "defs": [{
+            "name": "read_quoted_from",
+            "params": ["s", "pos"],
+            "body": { "body": [] }
+        }]
+    });
+
+    let mut lowerer = AstToJoinIrLowerer::new();
+    let join_module = lowerer.lower_read_quoted_pattern(&program_json);
+
+    let loop_step_func = join_module
+        .functions
+        .values()
+        .find(|f| f.name.contains("loop_step"))
+        .expect("loop_step function");
+
+    let mut merged_i = None;
+    let mut merged_ch = None;
+    let mut out_uses_merged_ch = false;
+    let mut step_uses_merged_i = false;
+
+    for inst in &loop_step_func.body {
+        match inst {
+            JoinInst::IfMerge { merges, .. } => {
+                assert_eq!(merges.len(), 2, "read_quoted IfMerge should merge i and ch");
+                merged_i = Some(merges[0].dst);
+                merged_ch = Some(merges[1].dst);
+            }
+            JoinInst::Compute(crate::mir::join_ir::MirLikeInst::BinOp { lhs, rhs, .. }) => {
+                if Some(*rhs) == merged_ch || Some(*lhs) == merged_ch {
+                    out_uses_merged_ch = true;
+                }
+                if Some(*lhs) == merged_i {
+                    step_uses_merged_i = true;
+                }
+            }
+            _ => {}
+        }
+    }
+
+    assert!(merged_i.is_some(), "IfMerge should define merged i");
+    assert!(merged_ch.is_some(), "IfMerge should define merged ch");
+    assert!(out_uses_merged_ch, "out update must use merged ch value");
+    assert!(step_uses_merged_i, "step update must use merged i value");
+}

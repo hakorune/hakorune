@@ -46,9 +46,7 @@ impl AstToJoinIrLowerer {
     ///   loop (i < n) {
     ///     local ch = s.substring(i, i+1)
     ///     if ch == "\"" { break }  // Found closing quote
-    ///     // NOTE: Escape handling (if ch == "\\") has known PHI issue
-    ///     //       Variable reassignment inside if-block doesn't generate PHI
-    ///     //       This will be addressed by JoinIR IfMerge improvements
+    ///     // Escape handling merges post-if values via JoinInst::IfMerge
     ///     out = out + ch
     ///     i = i + 1
     ///   }

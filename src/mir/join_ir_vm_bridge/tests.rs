@@ -5,6 +5,10 @@ use crate::mir::join_ir_ops::JoinValue;
 use crate::mir::{BinaryOp, CompareOp as MirCompareOp, Effect, MirInstruction, ValueId};
 use crate::runtime::get_global_ring0;
 
+fn ensure_ring0_initialized() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+}
+
 #[test]
 fn test_convert_const_inst() {
     let join_const = crate::mir::join_ir::MirLikeInst::Const {
@@ -100,6 +104,8 @@ fn test_convert_print_inst_to_externcall() {
 /// HAKO_JOINIR_READ_QUOTED=1 が設定されている場合のみ実行。
 #[test]
 fn test_read_quoted_from_joinir_to_mir_conversion() {
+    ensure_ring0_initialized();
+
     // Dev flag がない場合はスキップ
     if !crate::config::env::joinir_dev::read_quoted_enabled() {
         get_global_ring0().log.debug(
@@ -199,12 +205,13 @@ fn test_convert_string_const_inst() {
 /// - T3: `abc` at pos 0 → `` (guard fail, no quote)
 /// - T4: `xx"def"` at pos 2 → `def`
 ///
-/// # Known Limitation
+/// # Escape Case Gate
 ///
-/// T5 (escape handling) is skipped due to known PHI issue
-/// with variable reassignment inside if-blocks.
+/// T5 (escape handling) runs when `HAKO_JOINIR_READ_QUOTED_IFMERGE=1`.
 #[test]
 fn test_read_quoted_from_route_b_e2e() {
+    ensure_ring0_initialized();
+
     // Dev flag がない場合はスキップ
     if !crate::config::env::joinir_dev::read_quoted_enabled() {
         get_global_ring0().log.debug(
