@@ -101,7 +101,14 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin lane active next:
     - `none`（monitor-only）
   - wasm lane active next:
-    - `WSM-02+`（non-blocking parallel）
+    - `WSM-02a`（assignment/local path unblock）
+  - wasm grammar/map SSOT:
+    - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
+  - wasm migration fixed order（WSM-02+）:
+    - `WSM-02a`: assignment/local path unblock（`Copy`/`ReleaseStrong` 最小対応）
+    - `WSM-02b`: ExternCall coverage expansion（1 extern familyずつ）
+    - `WSM-02c`: BoxCall coverage expansion（1 method familyずつ）
+    - `WSM-02d`: boundary gates（supported/unsupported 両境界固定）
   - execution checklist（progress SSOT）: `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`
   - worker playbook: `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
   - non-plugin residue task-set: `docs/development/current/main/phases/phase-29cc/29cc-92-non-plugin-rust-residue-task-set.md`
@@ -277,6 +284,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - De-rust plugin wave-3 rollout lock (PLG-06-min3): `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`
 - De-rust plugin wave-3 rollout lock (PLG-06-min4): `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`
 - De-rust wasm lane lock (WSM-01): `docs/development/current/main/phases/phase-29cc/29cc-117-wsm01-wasm-unsupported-inventory-sync-ssot.md`
+- De-rust wasm grammar/map lock: `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Code retirement/history policy: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`
