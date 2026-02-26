@@ -1,0 +1,16 @@
+// Phase 29cc PLG-05-min2 TOML plugin pilot fixture
+// Contract:
+// - TOMLBox can be constructed through plugin config.
+// - parse/get method route works in VM.
+
+static box Main {
+  main(args) {
+    local t
+    local ok
+    t = new TOMLBox()
+    ok = t.parse("a = 7")
+    print("toml_ok=" + ok)
+    print("toml_a=" + t.get("a"))
+    return 0
+  }
+}

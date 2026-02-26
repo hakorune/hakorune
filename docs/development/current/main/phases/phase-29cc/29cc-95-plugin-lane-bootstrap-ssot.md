@@ -127,7 +127,10 @@ Progress:
   - `29cc-104-plg04-filebox-wave1-min6-ssot.md`（accepted）
 - `PLG-05-min1` done（2026-02-26）:
   - `29cc-106-plg05-json-wave2-min1-ssot.md`（accepted）
-  - active next: `PLG-05-min2`（wave-2 rollout）
+  - active next: `PLG-05-min3`（wave-2 rollout）
+- `PLG-05-min2` done（2026-02-26）:
+  - `29cc-107-plg05-toml-wave2-min2-ssot.md`（accepted）
+  - active next: `PLG-05-min3`（wave-2 rollout）
 
 ## 5. Gate Pack (locked)
 

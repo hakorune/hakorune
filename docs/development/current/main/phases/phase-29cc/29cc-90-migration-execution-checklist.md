@@ -122,3 +122,4 @@ Related:
 - [x] plugin lane `PLG-04-min6` wave-1 FileBox rollout accepted (`29cc-104-plg04-filebox-wave1-min6-ssot.md`)
 - [x] post-wave1 route lock accepted (`29cc-105-post-wave1-route-lock-ssot.md`)
 - [x] plugin lane `PLG-05-min1` wave-2 Json entry lock accepted (`29cc-106-plg05-json-wave2-min1-ssot.md`)
+- [x] plugin lane `PLG-05-min2` wave-2 TOML rollout accepted (`29cc-107-plg05-toml-wave2-min2-ssot.md`)

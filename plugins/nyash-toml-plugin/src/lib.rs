@@ -75,7 +75,7 @@ pub extern "C" fn nyash_plugin_invoke(
                 }
             }
             M_PARSE => {
-                let text = match read_arg_string(args, args_len, 0) {
+                let text = match read_user_arg_string(args, args_len, 0, "TOMLBox(") {
                     Some(s) => s,
                     None => return E_ARGS,
                 };
@@ -91,7 +91,7 @@ pub extern "C" fn nyash_plugin_invoke(
                 }
             }
             M_GET => {
-                let path = match read_arg_string(args, args_len, 0) {
+                let path = match read_user_arg_string(args, args_len, 0, "TOMLBox(") {
                     Some(s) => s,
                     None => return E_ARGS,
                 };
@@ -214,7 +214,7 @@ extern "C" fn toml_invoke_id(
                 }
             }
             M_PARSE => {
-                let text = match read_arg_string(args, args_len, 0) {
+                let text = match read_user_arg_string(args, args_len, 0, "TOMLBox(") {
                     Some(s) => s,
                     None => return E_ARGS,
                 };
@@ -230,7 +230,7 @@ extern "C" fn toml_invoke_id(
                 }
             }
             M_GET => {
-                let path = match read_arg_string(args, args_len, 0) {
+                let path = match read_user_arg_string(args, args_len, 0, "TOMLBox(") {
                     Some(s) => s,
                     None => return E_ARGS,
                 };
@@ -379,4 +379,17 @@ fn read_arg_string(args: *const u8, args_len: usize, n: usize) -> Option<String>
         off += 4 + size;
     }
     None
+}
+
+fn read_user_arg_string(
+    args: *const u8,
+    args_len: usize,
+    n: usize,
+    self_prefix: &str,
+) -> Option<String> {
+    let s = read_arg_string(args, args_len, n)?;
+    if s.starts_with(self_prefix) && s.ends_with(')') {
+        return read_arg_string(args, args_len, n + 1);
+    }
+    Some(s)
 }
