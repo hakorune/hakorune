@@ -222,19 +222,31 @@ fn js_binding_for_import(name: &str) -> Option<String> {
         "console_error" => Some(js_console_binding("console_error", "error")),
         "console_info" => Some(js_console_binding("console_info", "info")),
         "console_debug" => Some(js_console_binding("console_debug", "debug")),
-        "canvas_fillRect" => Some(js_canvas_fill_rect_binding()),
-        "canvas_fillText" => Some(js_canvas_fill_text_binding()),
-        "canvas_clear" => Some(js_canvas_clear_binding()),
-        "canvas_strokeRect" => Some(js_canvas_stroke_rect_binding()),
-        "canvas_beginPath" => Some(js_canvas_begin_path_binding()),
-        "canvas_arc" => Some(js_canvas_arc_binding()),
-        "canvas_fill" => Some(js_canvas_fill_binding()),
-        "canvas_stroke" => Some(js_canvas_stroke_binding()),
-        "canvas_setFillStyle" => Some(js_canvas_set_fill_style_binding()),
-        "canvas_setStrokeStyle" => Some(js_canvas_set_stroke_style_binding()),
-        "canvas_setLineWidth" => Some(js_canvas_set_line_width_binding()),
-        _ => None,
+        _ => js_canvas_binding_by_name(name),
     }
+}
+
+type JsBindingFactory = fn() -> String;
+
+const CANVAS_JS_BINDINGS: [(&str, JsBindingFactory); 11] = [
+    ("canvas_fillRect", js_canvas_fill_rect_binding),
+    ("canvas_fillText", js_canvas_fill_text_binding),
+    ("canvas_clear", js_canvas_clear_binding),
+    ("canvas_strokeRect", js_canvas_stroke_rect_binding),
+    ("canvas_beginPath", js_canvas_begin_path_binding),
+    ("canvas_arc", js_canvas_arc_binding),
+    ("canvas_fill", js_canvas_fill_binding),
+    ("canvas_stroke", js_canvas_stroke_binding),
+    ("canvas_setFillStyle", js_canvas_set_fill_style_binding),
+    ("canvas_setStrokeStyle", js_canvas_set_stroke_style_binding),
+    ("canvas_setLineWidth", js_canvas_set_line_width_binding),
+];
+
+fn js_canvas_binding_by_name(name: &str) -> Option<String> {
+    CANVAS_JS_BINDINGS
+        .iter()
+        .find_map(|(binding_name, factory)| (*binding_name == name).then_some(factory))
+        .map(|factory| factory())
 }
 
 fn js_console_binding(import_name: &str, console_method: &str) -> String {

@@ -100,17 +100,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`
   - plugin lane active next:
     - `none`（monitor-only）
-  - wasm lane active next:
-    - `WSM-G3-min11`（gap inventory refresh + next 1語彙 pin）
-    - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
-  - wasm lane lock history（SSOT pointer）:
-    - `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
-  - wasm series lock set（WSM-G2/G3）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md` .. `docs/development/current/main/phases/phase-29cc/29cc-146-wsm-g3-min10-canvas-setlinewidth-lock-ssot.md`
-  - wasm latest lock（WSM-02d-min4 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
-  - wasm latest lock（WSM-G3-min10 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-146-wsm-g3-min10-canvas-setlinewidth-lock-ssot.md`
+  - wasm lane status SSOT（active next / latest lock / lock history）:
+    - `docs/development/current/main/phases/phase-29cc/README.md`
+  - wasm lane G2 task plan:
+    - `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm grammar/map SSOT:
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
   - wasm `.hako`-only output roadmap SSOT:
