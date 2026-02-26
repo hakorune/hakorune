@@ -100,7 +100,7 @@ Still unsupported (fail-fast):
    - gap: `env.dom.*` / `env.anim.*` の語彙設計未着手（G3以降）
 
 ## Next Candidates (WSM-02+)
-- Expand extern-call coverage beyond current 3 names.
+- Maintain extern-call coverage via 1-shape contract locks (add only when new demo/API requires it).
 - Expand BoxCall coverage for core methods used by selfhost fixtures.
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.

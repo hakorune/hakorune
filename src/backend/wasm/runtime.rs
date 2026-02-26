@@ -389,6 +389,16 @@ fn canvas_import_arity(import_name: &str) -> Option<usize> {
 mod tests {
     use super::*;
 
+    fn assert_js_has_all(js: &str, needles: &[&str]) {
+        for needle in needles {
+            assert!(
+                js.contains(needle),
+                "expected generated JS to contain: {}",
+                needle
+            );
+        }
+    }
+
     #[test]
     fn test_runtime_imports_creation() {
         let runtime = RuntimeImports::new();
@@ -546,24 +556,34 @@ mod tests {
     fn runtime_imports_canvas_fill_circle_js_binding() {
         let runtime = RuntimeImports::new();
         let js = runtime.get_js_import_object();
-        assert!(js.contains("canvas_fillCircle"));
-        assert!(js.contains("ctx.beginPath"));
-        assert!(js.contains("ctx.arc"));
-        assert!(js.contains("ctx.fillStyle"));
-        assert!(js.contains("ctx.fill"));
+        assert_js_has_all(
+            &js,
+            &[
+                "canvas_fillCircle",
+                "ctx.beginPath",
+                "ctx.arc",
+                "ctx.fillStyle",
+                "ctx.fill",
+            ],
+        );
     }
 
     #[test]
     fn runtime_imports_canvas_draw_line_js_binding() {
         let runtime = RuntimeImports::new();
         let js = runtime.get_js_import_object();
-        assert!(js.contains("canvas_drawLine"));
-        assert!(js.contains("ctx.beginPath"));
-        assert!(js.contains("ctx.moveTo"));
-        assert!(js.contains("ctx.lineTo"));
-        assert!(js.contains("ctx.strokeStyle"));
-        assert!(js.contains("ctx.lineWidth"));
-        assert!(js.contains("ctx.stroke"));
+        assert_js_has_all(
+            &js,
+            &[
+                "canvas_drawLine",
+                "ctx.beginPath",
+                "ctx.moveTo",
+                "ctx.lineTo",
+                "ctx.strokeStyle",
+                "ctx.lineWidth",
+                "ctx.stroke",
+            ],
+        );
     }
 
     #[test]
