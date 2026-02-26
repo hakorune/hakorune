@@ -31,6 +31,7 @@ Supported extern names in `instructions.rs`:
 - `env.canvas.setFillStyle`
 - `env.canvas.setStrokeStyle`
 - `env.canvas.setLineWidth`
+- `env.canvas.fillCircle`
 
 Unsupported extern calls fail-fast with:
 - `Unsupported extern call: <name> (supported: ...)`
@@ -87,7 +88,7 @@ Still unsupported (fail-fast):
 1. Canvas drawing core
    - used by demo: `setFillStyle`, `setStrokeStyle`, `setLineWidth`, `strokeRect`, `beginPath`, `arc`, `fill`, `stroke`, `clear`
    - backend status: `env.canvas.fillRect`, `env.canvas.fillText`, `env.canvas.clear`, `env.canvas.strokeRect`, `env.canvas.beginPath`, `env.canvas.arc`, `env.canvas.fill`, `env.canvas.stroke`, `env.canvas.setFillStyle`, `env.canvas.setStrokeStyle`, `env.canvas.setLineWidth` が supported
-   - gap: 残りメソッド（`fillCircle`/`drawLine` など）の extern contract / runtime import / codegen route 未整備
+   - gap: 残りメソッド（`drawLine` など）の extern contract / runtime import / codegen route 未整備
 2. Console helper expansion
    - used by demo: `console.log/error`（JS側は多用）
    - backend status: `log/warn/error/info/debug` は supported
@@ -103,5 +104,4 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - G3 queue:
-  - `canvas.fillCircle`（WSM-G3-min12）を `1 blocker = 1 shape` で追加し、fixture/gate を先に固定する。
-  - `canvas.drawLine`（WSM-G3-min13）を同方式で続行する（固定順: fillCircle -> drawLine）。
+  - `canvas.drawLine`（WSM-G3-min13）を `1 blocker = 1 shape` で追加し、fixture/gate を先に固定する。

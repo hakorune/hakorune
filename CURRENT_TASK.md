@@ -132,7 +132,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. `WSM-G3-min12`（canvas 1語彙）: `fillCircle` を fixture/gate で固定する。
+1. `WSM-G3-min13`（canvas 1語彙）: `drawLine` を fixture/gate で固定する。
 2. `WSM-02d` gate pack は lightweight/milestone の二段運用を維持する。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 
