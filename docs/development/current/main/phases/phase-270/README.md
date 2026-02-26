@@ -35,7 +35,7 @@ static box Main {
 
 ### VM Smoke Test作成 ✅
 
-**ファイル**: `tools/smokes/v2/profiles/integration/apps/phase270_p0_loop_min_const_vm.sh`
+**ファイル**: `tools/smokes/v2/profiles/integration/apps/archive/phase270_p0_loop_min_const_vm.sh`
 
 ```bash
 #!/bin/bash
@@ -154,7 +154,7 @@ cargo build --release
 
 #### Smoke test成功
 ```bash
-HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration/apps/phase270_p0_loop_min_const_vm.sh
+HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration/apps/archive/phase270_p0_loop_min_const_vm.sh
 # [PASS] phase270_p0_loop_min_const_vm
 ```
 
@@ -232,7 +232,7 @@ HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration
 
 ### P0成功条件
 - ✅ `apps/tests/phase270_p0_loop_min_const.hako` 作成
-- ✅ `tools/smokes/v2/profiles/integration/apps/phase270_p0_loop_min_const_vm.sh` 作成
+- ✅ `tools/smokes/v2/profiles/integration/apps/archive/phase270_p0_loop_min_const_vm.sh` 作成
 - ✅ Pattern1がtest-only stubと判明 → P1へ
 
 ### P1成功条件
@@ -240,7 +240,7 @@ HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration
 - ✅ router登録（Pattern1より前）
 - ✅ `cargo build --release` 成功
 - ✅ `./target/release/hakorune --backend vm apps/tests/phase270_p0_loop_min_const.hako` → exit code 3
-- ✅ `bash tools/smokes/v2/profiles/integration/apps/phase270_p0_loop_min_const_vm.sh` → PASS
+- ✅ `bash tools/smokes/v2/profiles/integration/apps/archive/phase270_p0_loop_min_const_vm.sh` → PASS
 - ✅ `./tools/smokes/v2/run.sh --profile quick` → 45/46 PASS（退行なし）
 - ✅ ドキュメント更新完了（`phases/phase-270/README.md`新規作成）
 

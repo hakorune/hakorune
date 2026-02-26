@@ -117,7 +117,7 @@ Phase 286 では JoinIR line を “第2の lowerer” として放置せず、*
 
 **成果物**:
 - `apps/tests/phase286_pattern4_frag_poc.hako` (最小fixture: single continue)
-- `tools/smokes/v2/profiles/integration/apps/phase286_pattern4_frag_poc.sh` (integration smoke)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern4_frag_poc.sh` (integration smoke)
 - `src/mir/builder/control_flow/plan/mod.rs` (Pattern4ContinuePlan struct追加)
 - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern4.rs` (extract_pattern4_plan追加)
 - `src/mir/builder/control_flow/joinir/patterns/router.rs` (Plan routing追加)
@@ -182,7 +182,7 @@ Phase 286 では JoinIR line を “第2の lowerer” として放置せず、*
 
 **成果物**:
 - `apps/tests/phase286_pattern9_frag_poc.hako` (最小fixture: const accumulation)
-- `tools/smokes/v2/profiles/integration/apps/phase286_pattern9_frag_poc.sh` (integration smoke)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern9_frag_poc.sh` (integration smoke)
 - `src/mir/builder/control_flow/plan/mod.rs` (Pattern9AccumConstLoopPlan + DomainPlan variant)
 - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern9.rs` (extract_pattern9_plan() 新規)
 - `src/mir/builder/control_flow/joinir/patterns/extractors/mod.rs` (pattern9 モジュール追加)
@@ -256,7 +256,7 @@ Phase 286 では JoinIR line を “第2の lowerer” として放置せず、*
 
 **成果物** (予定):
 - `apps/tests/phase286_pattern8_plan_poc.hako` (新規: 非 static box fixture)
-- `tools/smokes/v2/profiles/integration/apps/phase286_pattern8_plan_poc_vm.sh` (新規: integration smoke)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern8_plan_poc_vm.sh` (新規: integration smoke)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: Pattern8BoolPredicateScanPlan + DomainPlan variant)
 - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern8.rs` (新規: extract_pattern8_plan)
 - `src/mir/builder/control_flow/joinir/patterns/extractors/mod.rs` (変更: pattern8 モジュール追加)
@@ -383,7 +383,7 @@ preheader → header(PHI: i_current, carrier_current)
 
 **成果物** (予定):
 - `apps/tests/phase286_pattern2_break_no_update_min.hako` (新規: break without update fixture)
-- `tools/smokes/v2/profiles/integration/apps/phase286_pattern2_break_no_update_vm.sh` (新規)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern2_break_no_update_vm.sh` (新規)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: Pattern2BreakPlan + DomainPlan variant)
 - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern2.rs` (変更: extract_pattern2_plan)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern2_break)
@@ -443,8 +443,8 @@ preheader → header(PHI: i, carrier) → body(exit_cond)
 **成果物** (予定):
 - `apps/tests/phase286_pattern5_return_min.hako` (Fixture A)
 - `apps/tests/phase286_pattern5_break_min.hako` (Fixture B)
-- `tools/smokes/v2/profiles/integration/apps/phase286_pattern5_return_vm.sh`
-- `tools/smokes/v2/profiles/integration/apps/phase286_pattern5_break_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_return_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh`
 - `src/mir/builder/control_flow/plan/mod.rs` (Pattern5InfiniteEarlyExitPlan + Pattern5ExitKind)
 - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern5.rs` (extract_pattern5_plan)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern5_infinite_early_exit)

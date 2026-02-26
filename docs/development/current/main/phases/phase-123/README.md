@@ -151,7 +151,7 @@ if (flag == 1) {
 - `apps/tests/phase123_if_only_return_literal_min.hako` (output: 7)
 
 **Smoke**:
-- `tools/smokes/v2/profiles/integration/apps/phase123_if_only_normalized_semantics_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase123_if_only_normalized_semantics_vm.sh`
   - Target: New fixture
   - Dev+strict: `NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1`
   - Output validation: `output_validator.sh`
@@ -175,9 +175,9 @@ cargo test --lib
 
 # Smoke tests
 bash tools/smokes/v2/profiles/integration/apps/archive/phase121_shadow_if_only_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase122_if_only_normalized_emit_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase122_if_only_normalized_emit_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/phase118_loop_nested_if_merge_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase123_if_only_normalized_semantics_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase123_if_only_normalized_semantics_vm.sh
 ```
 
 ## Node Support Design
@@ -238,7 +238,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase123_if_only_normalized_seman
 
 4. **Integration smoke** (`P4`):
    - New fixture: `apps/tests/phase123_if_only_return_literal_min.hako`
-   - Smoke test: `tools/smokes/v2/profiles/integration/apps/phase123_if_only_normalized_semantics_vm.sh`
+   - Smoke test: `tools/smokes/v2/profiles/integration/apps/archive/phase123_if_only_normalized_semantics_vm.sh`
    - Status: PASSING
 
 5. **Documentation** (`P5`):
@@ -277,7 +277,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase123_if_only_normalized_seman
 
 **Files Created**:
 - `apps/tests/phase123_if_only_return_literal_min.hako`: Minimal test fixture
-- `tools/smokes/v2/profiles/integration/apps/phase123_if_only_normalized_semantics_vm.sh`: Smoke test
+- `tools/smokes/v2/profiles/integration/apps/archive/phase123_if_only_normalized_semantics_vm.sh`: Smoke test
 
 **Tests Added**:
 - `test_return_variable_out_of_scope`: Verifies graceful degradation
@@ -298,7 +298,7 @@ cargo test --lib control_tree::normalized_shadow::builder::tests
 # Result: 8 passed
 
 # Integration smoke
-bash tools/smokes/v2/profiles/integration/apps/phase123_if_only_normalized_semantics_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase123_if_only_normalized_semantics_vm.sh
 # Result: PASS
 
 # Legacy tests still passing

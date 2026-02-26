@@ -90,7 +90,7 @@
   - 期待出力: 1
 
 **新規 smoke test**:
-- \`tools/smokes/v2/profiles/integration/apps/phase122_if_only_normalized_emit_vm.sh\`
+- \`tools/smokes/v2/profiles/integration/apps/archive/phase122_if_only_normalized_emit_vm.sh\`
   - Test 1: phase122 新規 fixture（emission logging 確認）
   - Test 2: phase103 regression check（既存動作維持）
 
@@ -162,7 +162,7 @@ cargo test --lib normalized_shadow
 # → 12 passed; 0 failed
 
 # スモークテスト
-bash tools/smokes/v2/profiles/integration/apps/phase122_if_only_normalized_emit_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase122_if_only_normalized_emit_vm.sh
 # → 2 passed; 0 failed
 
 # 回帰テスト

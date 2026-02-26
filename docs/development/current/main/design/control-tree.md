@@ -291,7 +291,7 @@ StepTree は capability を“宣言”し、未対応は **Fail-Fast（dev-only
 - 期待出力: 数値 1-2 行
 
 **Smoke test**:
-- `tools/smokes/v2/profiles/integration/apps/phase122_if_only_normalized_emit_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase122_if_only_normalized_emit_vm.sh`
 - 期待: 既存実行は PASS + dev-only strict でも落ちない
 
 ### デバッグ出力（dev-only）

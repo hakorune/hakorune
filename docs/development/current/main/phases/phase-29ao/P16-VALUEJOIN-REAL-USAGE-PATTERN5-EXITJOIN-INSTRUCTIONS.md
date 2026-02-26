@@ -75,7 +75,7 @@ args を揃えておく（Fail-Fast を安定させる）。
 
 P16 の実使用を “JoinIR regression gate” で固定したい場合は、phase29ae pack に Pattern5 VM 代表を 1 本足す:
 
-- 対象: `tools/smokes/v2/profiles/integration/apps/phase286_pattern5_break_vm.sh`
+- 対象: `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh`
 - pack 追加案:
   - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` に
     `run_filter "pattern5_break_vm" "phase286_pattern5_break_vm" || exit 1` を追加

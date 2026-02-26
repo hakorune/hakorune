@@ -23,10 +23,10 @@ Scope: self-host 後に "脱Rustランタイム（NyRT/.hako）" を進める前
 - APP-1（Gate Log Summarizer）導線:
   - 指示書: `docs/development/current/main/phases/phase-29y/70-APP-FIRST-OUTSOURCE-INSTRUCTIONS.md`
   - app README: `apps/tools/gate_log_summarizer/README.md`
-  - app smoke: `tools/smokes/v2/profiles/integration/apps/gate_log_summarizer_vm.sh`
+  - app smoke: `tools/smokes/v2/profiles/integration/apps/archive/gate_log_summarizer_vm.sh`
 - APP-2（Controlflow Probe）導線:
   - app README: `apps/tools/controlflow_probe/README.md`
-  - app smoke: `tools/smokes/v2/profiles/integration/apps/controlflow_probe_vm.sh`
+  - app smoke: `tools/smokes/v2/profiles/integration/apps/archive/controlflow_probe_vm.sh`
 - APP-3（MIR Shape Guard）導線:
   - app README: `apps/tools/mir_shape_guard/README.md`
   - app smoke: `tools/smokes/v2/profiles/integration/apps/mir_shape_guard_vm.sh`

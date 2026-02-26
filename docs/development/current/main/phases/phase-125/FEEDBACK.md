@@ -30,7 +30,7 @@
 
 ### P5: fixture + smoke（VM） ✅
 - fixture: `apps/tests/phase125_if_only_return_readonly_input_min.hako`
-- smoke: `tools/smokes/v2/profiles/integration/apps/phase125_if_only_return_input_vm.sh`
+- smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase125_if_only_return_input_vm.sh`
 - 結果: PASS (exit code 7)
 - Note: 構造のみ（P3 実装後に完全動作）
 

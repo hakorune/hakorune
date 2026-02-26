@@ -46,8 +46,8 @@ Related:
 - `bash tools/smokes/v2/profiles/integration/apps/phase103_if_only_vm.sh` が PASS
 - `bash tools/smokes/v2/profiles/integration/apps/phase103_if_only_llvm_exe.sh` が PASS（前提不足は SKIP）
 - 回帰確認:
-  - `bash tools/smokes/v2/profiles/integration/apps/phase94_p5b_escape_e2e.sh` が PASS
-  - `bash tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh` が PASS（前提不足は SKIP）
+  - `bash tools/smokes/v2/profiles/integration/apps/archive/phase94_p5b_escape_e2e.sh` が PASS
+  - `bash tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh` が PASS（前提不足は SKIP）
 - 新しい環境変数は追加しない（既存の `HAKO_JOINIR_STRICT` などで制御）。
 
 ## DONE（P0）

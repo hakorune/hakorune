@@ -1441,8 +1441,8 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
   - `loop_cond_check`: match shape.then で Jump target を動的決定
 - Fixtures & Tests:
   - `apps/tests/phase143_loop_true_if_continue_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase143_loop_true_if_continue_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase143_loop_true_if_continue_llvm_exe.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_continue_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_continue_llvm_exe.sh`
 - 検証: 契約ベース（shape.validate_for_p1() で P1 制約チェック）
 - 注記: Phase 131 Pattern matching Issue 既知（ルーティング層の pre-existing failure）
 
@@ -1463,8 +1463,8 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - Fixtures:
   - `apps/tests/phase143_loop_true_if_break_min.hako`（expected exit code 7）
 - Smoke tests:
-  - VM: `tools/smokes/v2/profiles/integration/apps/phase143_loop_true_if_break_vm.sh` ✅ PASS
-  - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/phase143_loop_true_if_break_llvm_exe.sh` ✅ PASS
+  - VM: `tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_break_vm.sh` ✅ PASS
+  - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_break_llvm_exe.sh` ✅ PASS
 - Regression: Phase 131-142 green（no regressions）
 - 統計: +400 lines（loop_true_if_break_continue.rs）, 0 change to existing code
 - 入口: `docs/development/current/main/phases/phase-143-loopvocab/README.md`
@@ -1749,8 +1749,8 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
   - `src/mir/builder/control_flow/joinir/legacy/README.md` - legacy 撤去条件
 - テスト配置: `src/mir/builder/control_flow/joinir/merge/tests/continuation_contract.rs`
 - 検証:
-  - `bash tools/smokes/v2/profiles/integration/apps/phase132_loop_true_break_once_post_add_vm.sh`
-  - `bash tools/smokes/v2/profiles/integration/apps/phase132_loop_true_break_once_post_add_llvm_exe.sh`
+  - `bash tools/smokes/v2/profiles/integration/apps/archive/phase132_loop_true_break_once_post_add_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/apps/archive/phase132_loop_true_break_once_post_add_llvm_exe.sh`
 - 回帰: Phase 131/97 維持確認（全 PASS）
 - 入口: `docs/development/current/main/phases/phase-132/README.md`
 
@@ -2107,35 +2107,35 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 - P5b escape（`ch` 再代入 + `i` の +1/+2）を “derived（Select）” として扱い、VM E2E を固定。
   - 新箱: `BodyLocalDerivedEmitter` + 明示ポリシー（strict で理由付き Fail-Fast）
-  - integration smoke: `tools/smokes/v2/profiles/integration/apps/phase94_p5b_escape_e2e.sh`
+  - integration smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase94_p5b_escape_e2e.sh`
   - Phase 記録（入口）: `docs/development/current/main/phases/phase-94/README.md`
 
 ## 2025‑12‑16：Phase 95（短報）
 
 - MiniJsonLoader の escape ループを Phase 94 基盤で固定（派生 body-local + 条件付き skip）。
   - フィクスチャ: `apps/tests/phase95_json_loader_escape_min.hako`
-  - smoke: `tools/smokes/v2/profiles/integration/apps/phase95_json_loader_escape_vm.sh`
+  - smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase95_json_loader_escape_vm.sh`
   - Phase 記録（入口）: `docs/development/current/main/phases/phase-95/README.md`
 
 ## 2025‑12‑16：Phase 96（短報）
 
 - Trim系 policy 化を開始し、MiniJsonLoader の next_non_ws ループを fixtures/smoke に追加。
   - フィクスチャ: `apps/tests/phase96_json_loader_next_non_ws_min.hako`
-  - smoke: `tools/smokes/v2/profiles/integration/apps/phase96_json_loader_next_non_ws_vm.sh`
+  - smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase96_json_loader_next_non_ws_vm.sh`
   - Phase 記録（入口）: `docs/development/current/main/phases/phase-96/README.md`
 
 ## 2025‑12‑16：Phase 97（短報）
 
 - Phase 95/96 の MiniJsonLoader fixture を LLVM EXE ラインでも固定し、JoinIR/Trim の退行検出を強化。
-  - smoke: `tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh`（next_non_ws）
-  - smoke: `tools/smokes/v2/profiles/integration/apps/phase97_json_loader_escape_llvm_exe.sh`（escape）
+  - smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh`（next_non_ws）
+  - smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase97_json_loader_escape_llvm_exe.sh`（escape）
   - Phase 記録（入口）: `docs/development/current/main/phases/phase-97/README.md`
 
 ## 2025‑12‑17：Phase 98（短報）
 
 - plugin loader に strict fail-fast を導入し（HAKO_JOINIR_STRICT=1）、FileBox/MapBox の LLVM EXE parity を持続可能に。
-  - smoke: `tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh`
-  - smoke: `tools/smokes/v2/profiles/integration/apps/phase97_json_loader_escape_llvm_exe.sh`
+  - smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh`
+  - smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase97_json_loader_escape_llvm_exe.sh`
   - Phase 記録（入口）: `docs/development/current/main/phases/phase-98/README.md`
 
 ## 2025‑12‑17：Phase 102（短報）

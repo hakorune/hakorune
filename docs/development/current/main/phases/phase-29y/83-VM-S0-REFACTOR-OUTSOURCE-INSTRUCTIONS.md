@@ -89,7 +89,7 @@ Related:
 ## 7. Acceptance Commands (must report)
 
 1. `bash tools/smokes/v2/profiles/integration/apps/vm_hako_caps_app1_summary_contract_ported_vm.sh`
-2. `bash tools/smokes/v2/profiles/integration/apps/vm_hako_caps_app1_summary_contract_block_vm.sh`
+2. `bash tools/smokes/v2/profiles/integration/apps/archive/vm_hako_caps_app1_summary_contract_block_vm.sh`
 3. `bash tools/smokes/v2/profiles/integration/apps/phase29y_vm_hako_caps_gate_vm.sh`
 4. `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 5. `bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh`

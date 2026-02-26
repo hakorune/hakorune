@@ -16,10 +16,10 @@ Phase96/97 の Trim/escape を "実コード寄り" に1段上げ、実アプリ
 
 ## 検証
 - cargo test --lib
-- bash tools/smokes/v2/profiles/integration/apps/phase96_json_loader_next_non_ws_vm.sh
-- bash tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh
-- bash tools/smokes/v2/profiles/integration/apps/phase99_escape_trailing_backslash_vm.sh
-- bash tools/smokes/v2/profiles/integration/apps/phase99_escape_trailing_backslash_llvm_exe.sh
+- bash tools/smokes/v2/profiles/integration/apps/archive/phase96_json_loader_next_non_ws_vm.sh
+- bash tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh
+- bash tools/smokes/v2/profiles/integration/apps/archive/phase99_escape_trailing_backslash_vm.sh
+- bash tools/smokes/v2/profiles/integration/apps/archive/phase99_escape_trailing_backslash_llvm_exe.sh
 
 ## 原則
 - **pattern増殖なし**: 既存の Policy/Recipe/Emitter で表現できる範囲だけを追加

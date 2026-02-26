@@ -100,8 +100,8 @@ k_else(unused in P0)
 **Fixture**: `apps/tests/phase143_loop_true_if_break_min.hako`
 
 **Tests**:
-- `tools/smokes/v2/profiles/integration/apps/phase143_loop_true_if_break_vm.sh`
-- `tools/smokes/v2/profiles/integration/apps/phase143_loop_true_if_break_llvm_exe.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_break_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_break_llvm_exe.sh`
 
 Expected exit code: 7
 
@@ -152,10 +152,10 @@ P1 の fixture は **意図的に non-terminating**（break/else/state update �
 
 - Fixture: `apps/tests/phase143_loop_true_if_continue_min.hako`
 - VM smoke (timeout contract):
-  - `tools/smokes/v2/profiles/integration/apps/phase143_loop_true_if_continue_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_continue_vm.sh`
   - Contract: `HAKO_VM_MAX_STEPS=0` + `timeout ${SMOKES_P143_CONTINUE_TIMEOUT_SECS:-1}` → exit code `124`
 - LLVM EXE smoke (timeout contract):
-  - `tools/smokes/v2/profiles/integration/apps/phase143_loop_true_if_continue_llvm_exe.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_continue_llvm_exe.sh`
   - Contract: `RUN_TIMEOUT_SECS=${SMOKES_P143_CONTINUE_TIMEOUT_SECS:-1}` → exit code `124`
 
 ---
@@ -182,8 +182,8 @@ All out-of-scope patterns return `Ok(None)` for graceful fallback to legacy rout
 ### Fixtures + Tests
 
 2. **apps/tests/phase143_loop_true_if_break_min.hako**
-3. **tools/smokes/v2/profiles/integration/apps/phase143_loop_true_if_break_vm.sh**
-4. **tools/smokes/v2/profiles/integration/apps/phase143_loop_true_if_break_llvm_exe.sh**
+3. **tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_break_vm.sh**
+4. **tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_break_llvm_exe.sh**
 
 ---
 

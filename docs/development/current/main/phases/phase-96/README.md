@@ -1,4 +1,4 @@
 - Phase 96: MiniJsonLoader の next_non_ws ループを Trim policy/SSOT で固定。
 - フィクスチャ: apps/tests/phase96_json_loader_next_non_ws_min.hako（期待: `2`, `-1`, `3` を出力、Phase 99で3ケース目追加）
-- smoke: tools/smokes/v2/profiles/integration/apps/phase96_json_loader_next_non_ws_vm.sh（VM, strict、3行出力一致チェック）
-- smoke: tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh（LLVM EXE parity、Phase 99で3行対応）
+- smoke: tools/smokes/v2/profiles/integration/apps/archive/phase96_json_loader_next_non_ws_vm.sh（VM, strict、3行出力一致チェック）
+- smoke: tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh（LLVM EXE parity、Phase 99で3行対応）

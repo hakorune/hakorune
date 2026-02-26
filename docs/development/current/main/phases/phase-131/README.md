@@ -209,7 +209,7 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_
 
 # Regressions (minimum 2)
 bash tools/smokes/v2/profiles/integration/apps/archive/phase130_if_only_post_if_add_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh
 ```
 
 ### Step 4: Commits

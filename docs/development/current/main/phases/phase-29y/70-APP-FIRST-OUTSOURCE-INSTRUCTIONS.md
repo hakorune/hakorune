@@ -33,7 +33,7 @@ Related:
 3. Fixture logs:
    - `apps/tests/gate_log_summarizer/sample_mixed.log`
 4. Smoke:
-   - `tools/smokes/v2/profiles/integration/apps/gate_log_summarizer_vm.sh`
+   - `tools/smokes/v2/profiles/integration/apps/archive/gate_log_summarizer_vm.sh`
 
 ## 3. Output Contract (stable)
 
@@ -63,7 +63,7 @@ FAIL_LINES 2
 
 実装AIは次を実行して結果を添えること。
 
-1. `bash tools/smokes/v2/profiles/integration/apps/gate_log_summarizer_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/apps/archive/gate_log_summarizer_vm.sh`
 2. `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 3. `bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh`
 

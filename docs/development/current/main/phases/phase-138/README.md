@@ -129,12 +129,12 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase137_loop_true_break_
 bash tools/smokes/v2/profiles/integration/apps/archive/phase137_loop_true_break_once_post_return_add_llvm_exe.sh
 
 # Phase 97 regression (2 tests)
-bash tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh
-bash tools/smokes/v2/profiles/integration/apps/phase97_json_loader_escape_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase97_json_loader_escape_llvm_exe.sh
 
 # Phase 131/135/136 regression
 bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase135_loop_true_break_once_post_empty_return_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase135_loop_true_break_once_post_empty_return_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_once_return_literal_vm.sh
 ```
 

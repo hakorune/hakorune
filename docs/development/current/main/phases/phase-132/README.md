@@ -154,8 +154,8 @@ Expected contract for fixture: exit code `3` (1 + 2)
 - New fixture: `apps/tests/phase132_loop_true_break_once_post_add_min.hako`
   - Expected exit code: `3` (1 + 2)
   - Form: x=0; loop(true) { x=1; break }; x=x+2; return x
-- VM smoke: `tools/smokes/v2/profiles/integration/apps/phase132_loop_true_break_once_post_add_vm.sh`
-- LLVM EXE smoke: `tools/smokes/v2/profiles/integration/apps/phase132_loop_true_break_once_post_add_llvm_exe.sh`
+- VM smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase132_loop_true_break_once_post_add_vm.sh`
+- LLVM EXE smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase132_loop_true_break_once_post_add_llvm_exe.sh`
 
 #### Step 2: Implementation
 
@@ -173,15 +173,15 @@ cargo test --lib
 cargo build --release -p nyash-rust --features llvm
 
 # Phase 132-P4 smokes (NEW)
-bash tools/smokes/v2/profiles/integration/apps/phase132_loop_true_break_once_post_add_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase132_loop_true_break_once_post_add_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase132_loop_true_break_once_post_add_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase132_loop_true_break_once_post_add_llvm_exe.sh
 
 # Regressions (Phase 131)
 bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_llvm_exe.sh
 
 # Regressions (Phase 97 - stable baseline)
-bash tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh
 ```
 
 #### Step 4: Commits

@@ -50,7 +50,7 @@
 ## P4（完了）: E2E固定（最小）+ 回帰最小化
 
 - unit: `src/mir/join_ir/lowering/condition_lowerer.rs` に body-local 解決のユニットテストを追加
-- integration smoke: `tools/smokes/v2/profiles/integration/apps/phase92_pattern2_baseline.sh`
+- integration smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase92_pattern2_baseline.sh`
   - Case A: `apps/tests/loop_min_while.hako`（既存 Pattern2Break の退行チェック）
   - Case B: `apps/tests/phase92_conditional_step_minimal.hako`（ConditionalStep の最小確認）
 - 詳細ログ（歴史）:

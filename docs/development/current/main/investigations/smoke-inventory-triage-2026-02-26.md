@@ -7,16 +7,15 @@
 
 ## Current Snapshot
 
-- total: `344` (`Include archive: 0` default)
-- total: `254` (`Include archive: 0` default)
+- total: `213` (`Include archive: 0` default)
 - referenced: `155`
-- orphan candidate: `99`
+- orphan candidate: `58`
 - orphan wrapper candidate: `0`
 - with archive included: total `365`, orphan `210`
 - suffix breakdown:
-  - `vm`: `223`
-  - `llvm_exe`: `9`
-  - `other`: `22`
+  - `vm`: `198`
+  - `llvm_exe`: `0`
+  - `other`: `15`
 
 ## This Round (completed)
 
@@ -68,6 +67,11 @@
    - families: `phase145`, `phase254`, `phase256`, `phase257`, `phase258`, `phase259`, `phase263`, `phase269`, `phase274`, `phase275`, `phase283`, `phase284`
    - updated docs command paths from `apps/...` to `apps/archive/...` for moved scripts
    - verification: `phase29y_lane_gate_quick_vm.sh` PASS
+12. Batch-H (archive isolation + doc-path sync) done:
+   - moved 41 additional non-`phase29` orphan scripts to archive
+   - families/utilities: `phase122`, `phase123`, `phase124`, `phase125`, `phase132`, `phase133`, `phase135`, `phase143`, `phase264`, `phase270`, `phase286`, `phase87`, `phase92`, `phase94`, `phase95`, `phase96`, `phase97`, `phase99`, `controlflow_probe_vm`, `gate_log_summarizer_vm`, `string_cp_mode_min_vm`, `vm_hako_caps_*_block_vm`
+   - updated docs command paths from `apps/...` to `apps/archive/...` for moved scripts
+   - verification: `phase29y_lane_gate_quick_vm.sh` PASS
 
 ## Findings
 
@@ -77,14 +81,12 @@
 
 ## Next Batches (ordered)
 
-1. Batch-H (archive or retire):
-   - remaining orphan candidates are mainly `phase29` lineage + utility singletons (`controlflow_probe_vm`, `gate_log_summarizer_vm`, `phase87/92/94/95/96/97/99`)
-   - archive non-gate singletons first, then decide `phase29` group by gate contract
-2. Batch-I (gate-pack consolidation):
+1. Batch-I (phase29 isolation):
+   - remaining orphan candidates are now `phase29` lineage only (58)
+   - split into: gate-linked keep / archive-safe by docs-only references
+2. Batch-J (gate-pack consolidation):
    - optionally re-promote selected archive groups into explicit gate packs when needed
    - keep fixture coverage while limiting top-level app-script fan-out
-   - scripts still orphan after Batch-A/B
-   - move to archive or remove after docs pointer update
 
 ## Guardrails
 

@@ -4,7 +4,7 @@ Scope: code+tests+docs（strict/dev のみ、仕様不変）
 Related:
   - docs/development/current/main/phases/phase-29ao/README.md
   - tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh
-  - tools/smokes/v2/profiles/integration/apps/phase286_pattern5_break_vm.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh
   - src/mir/builder/control_flow/joinir/patterns/router.rs
   - src/mir/builder/control_flow/plan/normalizer/pattern5_infinite_early_exit.rs
   - src/mir/builder/control_flow/plan/facts/pattern5_infinite_early_exit_facts.rs

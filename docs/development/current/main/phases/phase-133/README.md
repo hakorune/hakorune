@@ -118,8 +118,8 @@ for node in assign_nodes {
 - Expected exit code: **6** (1 + 2 + 3)
 
 ### Smoke Tests
-1. **VM**: `tools/smokes/v2/profiles/integration/apps/phase133_loop_true_break_once_post_multi_add_vm.sh`
-2. **LLVM EXE**: `tools/smokes/v2/profiles/integration/apps/phase133_loop_true_break_once_post_multi_add_llvm_exe.sh`
+1. **VM**: `tools/smokes/v2/profiles/integration/apps/archive/phase133_loop_true_break_once_post_multi_add_vm.sh`
+2. **LLVM EXE**: `tools/smokes/v2/profiles/integration/apps/archive/phase133_loop_true_break_once_post_multi_add_llvm_exe.sh`
 
 ### Regression Tests
 - ✅ Phase 132 (exit code 3)
@@ -134,20 +134,20 @@ cargo test --lib
 # Result: 1176 passed; 0 failed
 
 # Phase 133 smokes
-bash tools/smokes/v2/profiles/integration/apps/phase133_loop_true_break_once_post_multi_add_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase133_loop_true_break_once_post_multi_add_vm.sh
 # Result: PASS (exit code 6)
 
-bash tools/smokes/v2/profiles/integration/apps/phase133_loop_true_break_once_post_multi_add_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase133_loop_true_break_once_post_multi_add_llvm_exe.sh
 # Result: PASS (exit code 6)
 
 # Regression smokes
-bash tools/smokes/v2/profiles/integration/apps/phase132_loop_true_break_once_post_add_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase132_loop_true_break_once_post_add_llvm_exe.sh
 # Result: PASS (exit code 3)
 
 bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_llvm_exe.sh
 # Result: PASS (exit code 1)
 
-bash tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh
 # Result: PASS (numeric output)
 ```
 
@@ -187,8 +187,8 @@ This is a dev-only Normalized shadow feature. With toggle OFF, the pattern falls
    - Updated debug logging
 
 2. `apps/tests/phase133_loop_true_break_once_post_multi_add_min.hako` (new)
-3. `tools/smokes/v2/profiles/integration/apps/phase133_loop_true_break_once_post_multi_add_vm.sh` (new)
-4. `tools/smokes/v2/profiles/integration/apps/phase133_loop_true_break_once_post_multi_add_llvm_exe.sh` (new)
+3. `tools/smokes/v2/profiles/integration/apps/archive/phase133_loop_true_break_once_post_multi_add_vm.sh` (new)
+4. `tools/smokes/v2/profiles/integration/apps/archive/phase133_loop_true_break_once_post_multi_add_llvm_exe.sh` (new)
 
 ## Acceptance Criteria
 

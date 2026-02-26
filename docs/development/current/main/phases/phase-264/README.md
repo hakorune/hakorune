@@ -179,7 +179,7 @@ fn has_if_sum_signature(scope: Option<&LoopScopeShape>) -> bool {
 
 ### Test 1: Phase 264 P0 Minimal Repro
 ```bash
-bash tools/smokes/v2/profiles/integration/apps/phase264_p0_bundle_resolver_loop_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase264_p0_bundle_resolver_loop_vm.sh
 # Expected: PASS
 ```
 

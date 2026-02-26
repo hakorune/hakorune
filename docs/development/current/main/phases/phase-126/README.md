@@ -62,7 +62,7 @@
   - 例: `local outer_x = 7; if flag==0 { /* outer_x を読まない */ } return outer_x`
   - `outer_x` が writes に入らない（代入しない）
   - `outer_x` が reads に入る（return で参照）
-- smoke test: `tools/smokes/v2/profiles/integration/apps/phase125_if_only_return_input_vm.sh`
+- smoke test: `tools/smokes/v2/profiles/integration/apps/archive/phase125_if_only_return_input_vm.sh`
 - 期待: `NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1` で exit code 7
 
 ## 受け入れ基準

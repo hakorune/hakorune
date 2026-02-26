@@ -223,11 +223,11 @@ Related:
 - APP-1 実装:
   - `apps/tools/gate_log_summarizer/README.md`
 - APP-1 smoke:
-  - `tools/smokes/v2/profiles/integration/apps/gate_log_summarizer_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/gate_log_summarizer_vm.sh`
 - APP-2 実装:
   - `apps/tools/controlflow_probe/README.md`
 - APP-2 smoke:
-  - `tools/smokes/v2/profiles/integration/apps/controlflow_probe_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/controlflow_probe_vm.sh`
 - APP-3 実装:
   - `apps/tools/mir_shape_guard/README.md`
 - APP-3 smoke:

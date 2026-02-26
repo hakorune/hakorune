@@ -130,7 +130,7 @@ let comp_ctx = compilation_context::CompilationContext::with_plugin_sigs(plugin_
 
 ### Integration Tests
 ```bash
-✅ bash tools/smokes/v2/profiles/integration/apps/phase135_trim_mir_verify.sh
+✅ bash tools/smokes/v2/profiles/integration/apps/archive/phase135_trim_mir_verify.sh
    [PASS] verify: MIR is valid (SSA/ValueId OK)
 ```
 
