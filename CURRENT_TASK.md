@@ -105,20 +105,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm lane lock history（SSOT pointer）:
     - `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
+  - wasm series lock set（WSM-G2/G3）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md` .. `docs/development/current/main/phases/phase-29cc/29cc-140-wsm-g3-min4-canvas-beginpath-lock-ssot.md`
   - wasm latest lock（WSM-02d-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
-  - wasm latest lock（WSM-G2-min1 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
-  - wasm latest lock（WSM-G2-min2 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
-  - wasm latest lock（WSM-G2-min3 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-136-wsm-g2-min3-guide-alignment-lock-ssot.md`
-  - wasm latest lock（WSM-G3-min1 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-137-wsm-g3-min1-gap-inventory-lock-ssot.md`
-  - wasm latest lock（WSM-G3-min2 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-138-wsm-g3-min2-canvas-clear-lock-ssot.md`
-  - wasm latest lock（WSM-G3-min3 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-139-wsm-g3-min3-canvas-strokerect-lock-ssot.md`
   - wasm latest lock（WSM-G3-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-140-wsm-g3-min4-canvas-beginpath-lock-ssot.md`
   - wasm grammar/map SSOT:

@@ -255,122 +255,13 @@ impl RuntimeImports {
             js.push_str(&format!("  {}: {{\n", module_name));
 
             for function in functions {
-                match function.name.as_str() {
-                    "print" => {
-                        js.push_str("    print: (value) => console.log(value),\n");
-                    }
-                    "print_str" => {
-                        js.push_str("    print_str: (ptr, len) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n");
-                        js.push_str("      console.log(str);\n");
-                        js.push_str("    },\n");
-                    }
-                    "console_log" => {
-                        js.push_str("    console_log: (ptr, len) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n");
-                        js.push_str("      console.log(str);\n");
-                        js.push_str("    },\n");
-                    }
-                    "console_warn" => {
-                        js.push_str("    console_warn: (ptr, len) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n");
-                        js.push_str("      console.warn(str);\n");
-                        js.push_str("    },\n");
-                    }
-                    "console_error" => {
-                        js.push_str("    console_error: (ptr, len) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n");
-                        js.push_str("      console.error(str);\n");
-                        js.push_str("    },\n");
-                    }
-                    "console_info" => {
-                        js.push_str("    console_info: (ptr, len) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n");
-                        js.push_str("      console.info(str);\n");
-                        js.push_str("    },\n");
-                    }
-                    "console_debug" => {
-                        js.push_str("    console_debug: (ptr, len) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n");
-                        js.push_str("      console.debug(str);\n");
-                        js.push_str("    },\n");
-                    }
-                    "canvas_fillRect" => {
-                        js.push_str("    canvas_fillRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n");
-                        js.push_str("      const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n");
-                        js.push_str("      const canvas = document.getElementById(canvasId);\n");
-                        js.push_str("      if (canvas) {\n");
-                        js.push_str("        const ctx = canvas.getContext('2d');\n");
-                        js.push_str("        ctx.fillStyle = color;\n");
-                        js.push_str("        ctx.fillRect(x, y, w, h);\n");
-                        js.push_str("      }\n");
-                        js.push_str("    },\n");
-                    }
-                    "canvas_fillText" => {
-                        js.push_str("    canvas_fillText: (canvasIdPtr, canvasIdLen, textPtr, textLen, x, y, fontPtr, fontLen, colorPtr, colorLen) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n");
-                        js.push_str("      const text = new TextDecoder().decode(new Uint8Array(memory.buffer, textPtr, textLen));\n");
-                        js.push_str("      const font = new TextDecoder().decode(new Uint8Array(memory.buffer, fontPtr, fontLen));\n");
-                        js.push_str("      const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n");
-                        js.push_str("      const canvas = document.getElementById(canvasId);\n");
-                        js.push_str("      if (canvas) {\n");
-                        js.push_str("        const ctx = canvas.getContext('2d');\n");
-                        js.push_str("        ctx.font = font;\n");
-                        js.push_str("        ctx.fillStyle = color;\n");
-                        js.push_str("        ctx.fillText(text, x, y);\n");
-                        js.push_str("      }\n");
-                        js.push_str("    },\n");
-                    }
-                    "canvas_clear" => {
-                        js.push_str("    canvas_clear: (canvasIdPtr, canvasIdLen) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n");
-                        js.push_str("      const canvas = document.getElementById(canvasId);\n");
-                        js.push_str("      if (canvas) {\n");
-                        js.push_str("        const ctx = canvas.getContext('2d');\n");
-                        js.push_str("        ctx.clearRect(0, 0, canvas.width, canvas.height);\n");
-                        js.push_str("      }\n");
-                        js.push_str("    },\n");
-                    }
-                    "canvas_strokeRect" => {
-                        js.push_str("    canvas_strokeRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n");
-                        js.push_str("      const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n");
-                        js.push_str("      const canvas = document.getElementById(canvasId);\n");
-                        js.push_str("      if (canvas) {\n");
-                        js.push_str("        const ctx = canvas.getContext('2d');\n");
-                        js.push_str("        ctx.strokeStyle = color;\n");
-                        js.push_str("        ctx.strokeRect(x, y, w, h);\n");
-                        js.push_str("      }\n");
-                        js.push_str("    },\n");
-                    }
-                    "canvas_beginPath" => {
-                        js.push_str("    canvas_beginPath: (canvasIdPtr, canvasIdLen) => {\n");
-                        js.push_str("      const memory = instance.exports.memory;\n");
-                        js.push_str("      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n");
-                        js.push_str("      const canvas = document.getElementById(canvasId);\n");
-                        js.push_str("      if (canvas) {\n");
-                        js.push_str("        const ctx = canvas.getContext('2d');\n");
-                        js.push_str("        ctx.beginPath();\n");
-                        js.push_str("      }\n");
-                        js.push_str("    },\n");
-                    }
-                    _ => {
-                        js.push_str(&format!(
-                            "    {}: () => {{ throw new Error('Not implemented: {}'); }},\n",
-                            function.name, function.name
-                        ));
-                    }
+                if let Some(binding) = js_binding_for_import(&function.name) {
+                    js.push_str(&binding);
+                } else {
+                    js.push_str(&format!(
+                        "    {}: () => {{ throw new Error('Not implemented: {}'); }},\n",
+                        function.name, function.name
+                    ));
                 }
             }
 
@@ -416,6 +307,50 @@ imports.push({}_func.into());
 
         Ok(rust_code)
     }
+}
+
+fn js_binding_for_import(name: &str) -> Option<String> {
+    match name {
+        "print" => Some("    print: (value) => console.log(value),\n".to_string()),
+        "print_str" => Some(js_console_binding("print_str", "log")),
+        "console_log" => Some(js_console_binding("console_log", "log")),
+        "console_warn" => Some(js_console_binding("console_warn", "warn")),
+        "console_error" => Some(js_console_binding("console_error", "error")),
+        "console_info" => Some(js_console_binding("console_info", "info")),
+        "console_debug" => Some(js_console_binding("console_debug", "debug")),
+        "canvas_fillRect" => Some(js_canvas_fill_rect_binding()),
+        "canvas_fillText" => Some(js_canvas_fill_text_binding()),
+        "canvas_clear" => Some(js_canvas_clear_binding()),
+        "canvas_strokeRect" => Some(js_canvas_stroke_rect_binding()),
+        "canvas_beginPath" => Some(js_canvas_begin_path_binding()),
+        _ => None,
+    }
+}
+
+fn js_console_binding(import_name: &str, console_method: &str) -> String {
+    format!(
+        "    {import_name}: (ptr, len) => {{\n      const memory = instance.exports.memory;\n      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n      console.{console_method}(str);\n    }},\n"
+    )
+}
+
+fn js_canvas_fill_rect_binding() -> String {
+    "    canvas_fillRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.fillStyle = color;\n        ctx.fillRect(x, y, w, h);\n      }\n    },\n".to_string()
+}
+
+fn js_canvas_fill_text_binding() -> String {
+    "    canvas_fillText: (canvasIdPtr, canvasIdLen, textPtr, textLen, x, y, fontPtr, fontLen, colorPtr, colorLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const text = new TextDecoder().decode(new Uint8Array(memory.buffer, textPtr, textLen));\n      const font = new TextDecoder().decode(new Uint8Array(memory.buffer, fontPtr, fontLen));\n      const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.font = font;\n        ctx.fillStyle = color;\n        ctx.fillText(text, x, y);\n      }\n    },\n".to_string()
+}
+
+fn js_canvas_clear_binding() -> String {
+    "    canvas_clear: (canvasIdPtr, canvasIdLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.clearRect(0, 0, canvas.width, canvas.height);\n      }\n    },\n".to_string()
+}
+
+fn js_canvas_stroke_rect_binding() -> String {
+    "    canvas_strokeRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.strokeStyle = color;\n        ctx.strokeRect(x, y, w, h);\n      }\n    },\n".to_string()
+}
+
+fn js_canvas_begin_path_binding() -> String {
+    "    canvas_beginPath: (canvasIdPtr, canvasIdLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.beginPath();\n      }\n    },\n".to_string()
 }
 
 #[cfg(test)]
