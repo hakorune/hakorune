@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1 done, PLG-04-min2 done, PLG-04-min3 done, PLG-04-min4 done, PLG-04-min5 done, PLG-04 active)
+Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1 done, PLG-04-min2 done, PLG-04-min3 done, PLG-04-min4 done, PLG-04-min5 done, PLG-04-min6 done, PLG-04 wave-1 complete)
 Scope: Rust -> .hako migration orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
@@ -23,6 +23,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-101-plg04-mapbox-wave1-min3-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-102-plg04-stringbox-wave1-min4-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md
 ---
 
 # Phase 29cc: Rust -> .hako Migration Orchestration
@@ -93,7 +94,9 @@ Related:
   - `docs/development/current/main/phases/phase-29cc/29cc-102-plg04-stringbox-wave1-min4-ssot.md`
 - plugin lane `PLG-04-min5` は done（wave-1 ConsoleBox rollout）:
   - `docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md`
-  - active next: `PLG-04-min6`（wave-1 rollout）
+- plugin lane `PLG-04-min6` は done（wave-1 FileBox rollout）:
+  - `docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md`
+  - active next: `none`（wave-1 complete）
 
 ## M4 Tail Cleanup (retired parser flags)
 
@@ -154,3 +157,4 @@ Related:
 - plugin wave rollout lock (PLG-04-min3): `docs/development/current/main/phases/phase-29cc/29cc-101-plg04-mapbox-wave1-min3-ssot.md`
 - plugin wave rollout lock (PLG-04-min4): `docs/development/current/main/phases/phase-29cc/29cc-102-plg04-stringbox-wave1-min4-ssot.md`
 - plugin wave rollout lock (PLG-04-min5): `docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md`
+- plugin wave rollout lock (PLG-04-min6): `docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md`

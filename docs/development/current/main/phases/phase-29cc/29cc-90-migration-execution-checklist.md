@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
   - docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md
@@ -118,3 +119,4 @@ Related:
 - [x] plugin lane `PLG-04-min3` wave-1 MapBox rollout accepted (`29cc-101-plg04-mapbox-wave1-min3-ssot.md`)
 - [x] plugin lane `PLG-04-min4` wave-1 StringBox rollout accepted (`29cc-102-plg04-stringbox-wave1-min4-ssot.md`)
 - [x] plugin lane `PLG-04-min5` wave-1 ConsoleBox rollout accepted (`29cc-103-plg04-consolebox-wave1-min5-ssot.md`)
+- [x] plugin lane `PLG-04-min6` wave-1 FileBox rollout accepted (`29cc-104-plg04-filebox-wave1-min6-ssot.md`)

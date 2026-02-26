@@ -1,0 +1,19 @@
+// Phase 29cc PLG-04-min6 FileBox pilot fixture
+// Contract:
+// - FileBox can be constructed through plugin config.
+// - open/read/close method route works in VM.
+
+static box Main {
+  main() {
+    local path
+    local f
+    local s
+    path = "phase29cc_filebox_input.txt"
+    f = new FileBox()
+    f.open(path, "r")
+    s = f.read()
+    f.close()
+    print("file_read=" + s)
+    return 0
+  }
+}
