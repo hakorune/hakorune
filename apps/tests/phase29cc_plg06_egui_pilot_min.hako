@@ -1,0 +1,20 @@
+// Phase 29cc PLG-06-min4 Egui plugin pilot fixture
+// Contract:
+// - EguiBox can be constructed through plugin config.
+// - open/uiLabel/pollEvent/run routes can be invoked in VM.
+
+static box Main {
+  main(args) {
+    local ui
+    local ev
+    local runret
+    ui = new EguiBox()
+    ui.open(320, 200, "demo")
+    ui.uiLabel("hello")
+    ev = ui.pollEvent()
+    runret = ui.run()
+    print("egui_ev=" + ev)
+    print("egui_run=" + runret)
+    return 0
+  }
+}

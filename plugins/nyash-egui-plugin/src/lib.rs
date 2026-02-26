@@ -58,7 +58,7 @@ pub struct NyashTypeBoxFfi {
 // This simple POD struct contains raw pointers; mark as Sync for static export
 unsafe impl Sync for NyashTypeBoxFfi {}
 
-const ABI_TAG: u32 = 0x58594254; // 'T''Y''B''X' little-endian (TYBX)
+const ABI_TAG: u32 = 0x54594258; // 'TYBX'
 
 extern "C" fn tb_resolve(name: *const std::os::raw::c_char) -> u32 {
     unsafe {
@@ -81,8 +81,8 @@ extern "C" fn tb_resolve(name: *const std::os::raw::c_char) -> u32 {
 }
 
 extern "C" fn tb_invoke_id(
-    _method_id: u32,
     instance_id: u32,
+    method_id: u32,
     args: *const u8,
     args_len: usize,
     result: *mut u8,
@@ -90,7 +90,7 @@ extern "C" fn tb_invoke_id(
 ) -> i32 {
     nyash_plugin_invoke(
         TID_EGUI,
-        _method_id,
+        method_id,
         instance_id,
         args,
         args_len,

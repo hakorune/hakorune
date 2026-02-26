@@ -131,3 +131,4 @@ Related:
 - [x] plugin lane `PLG-06-min1` wave-3 entry lock accepted (`29cc-113-plg06-pycompiler-wave3-min1-ssot.md`)
 - [x] plugin lane `PLG-06-min2` wave-3 Python rollout accepted (`29cc-114-plg06-python-wave3-min2-ssot.md`)
 - [x] plugin lane `PLG-06-min3` wave-3 PythonParser rollout accepted (`29cc-115-plg06-pyparser-wave3-min3-ssot.md`)
+- [x] plugin lane `PLG-06-min4` wave-3 Egui rollout accepted (`29cc-116-plg06-egui-wave3-min4-ssot.md`)

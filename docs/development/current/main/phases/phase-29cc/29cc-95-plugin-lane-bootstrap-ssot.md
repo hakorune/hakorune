@@ -109,7 +109,7 @@ Out of scope（このレーンでは扱わない）:
 5. `PLG-04` wave rollout（wave-1 -> wave-2 -> wave-3）
 
 Current active next:
-- `PLG-06-min2`（wave-3 rollout）
+- `none`（monitor-only）
 
 Progress:
 - `PLG-01` done（2026-02-25）:
@@ -153,7 +153,9 @@ Progress:
   - `29cc-114-plg06-python-wave3-min2-ssot.md`（accepted）
 - `PLG-06-min3` done（2026-02-26）:
   - `29cc-115-plg06-pyparser-wave3-min3-ssot.md`（accepted）
-  - active next: `PLG-06-min4`（wave-3 rollout）
+- `PLG-06-min4` done（2026-02-26）:
+  - `29cc-116-plg06-egui-wave3-min4-ssot.md`（accepted）
+  - active next: `none`（monitor-only）
 
 ## 5. Gate Pack (locked)
 

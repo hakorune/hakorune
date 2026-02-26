@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1..min6 done, PLG-04 wave-1 complete, PLG-05-min1..min7 done, PLG-06-min1..min3 done)
+Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1..min6 done, PLG-04 wave-1 complete, PLG-05-min1..min7 done, PLG-06-min1..min4 done)
 Scope: Rust -> .hako migration orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
@@ -66,7 +66,7 @@ Related:
 |---|---|---|
 | wave-1 | done (`PLG-04-min6`) | `29cc-104` |
 | wave-2 | done (`PLG-05-min7`) | `29cc-112` |
-| wave-3 | in progress (`PLG-06-min1..min3` done) | `29cc-115` |
+| wave-3 | done (`PLG-06-min1..min4`) | `29cc-116` |
 
 - M4 done（monitor-only closeout completed）:
   - M1 parser parity と M2 mirbuilder parity は gate 固定済み
@@ -108,7 +108,7 @@ Related:
   - `docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md`
 - plugin lane `PLG-04-min6` は done（wave-1 FileBox rollout）:
   - `docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md`
-  - active next: `PLG-06-min4`（wave-3 rollout）
+  - active next: `none`（monitor-only）
 - plugin lane `PLG-05-min1` は done（wave-2 Json entry lock）:
   - `docs/development/current/main/phases/phase-29cc/29cc-106-plg05-json-wave2-min1-ssot.md`
 - plugin lane `PLG-05-min2` は done（wave-2 TOML rollout）:
@@ -129,7 +129,9 @@ Related:
   - `docs/development/current/main/phases/phase-29cc/29cc-114-plg06-python-wave3-min2-ssot.md`
 - plugin lane `PLG-06-min3` は done（wave-3 rollout, PythonParser plugin）:
   - `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`
-  - active next: `PLG-06-min4`（wave-3 rollout）
+- plugin lane `PLG-06-min4` は done（wave-3 rollout, Egui plugin）:
+  - `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`
+  - active next: `none`（monitor-only）
 - post-wave1 route lock（accepted）:
   - `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
   - wasm lane active next: `WSM-01`（non-blocking parallel）
@@ -205,3 +207,4 @@ Related:
 - plugin wave-3 entry lock (PLG-06-min1): `docs/development/current/main/phases/phase-29cc/29cc-113-plg06-pycompiler-wave3-min1-ssot.md`
 - plugin wave-3 rollout lock (PLG-06-min2): `docs/development/current/main/phases/phase-29cc/29cc-114-plg06-python-wave3-min2-ssot.md`
 - plugin wave-3 rollout lock (PLG-06-min3): `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`
+- plugin wave-3 rollout lock (PLG-06-min4): `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`
