@@ -82,6 +82,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-107-plg05-toml-wave2-min2-ssot.md`
   - plugin lane active next:
     - `PLG-05-min3`（wave-2 rollout）
+    - note: RegexBox probe は method route 不整合（core縮退）で未PROMOTE。まず route contract 固定が必要
   - wasm lane active next:
     - `WSM-01`（non-blocking parallel）
   - execution checklist（progress SSOT）: `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`

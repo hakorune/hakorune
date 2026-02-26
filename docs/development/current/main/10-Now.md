@@ -25,6 +25,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-106-plg05-json-wave2-min1-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-107-plg05-toml-wave2-min2-ssot.md
   - docs/tools/README.md
 ---
 
@@ -82,6 +83,7 @@ Related:
   - plugin wave-2 entry lock（PLG-05-min1 done）: `docs/development/current/main/phases/phase-29cc/29cc-106-plg05-json-wave2-min1-ssot.md`（accepted）
   - plugin wave-2 rollout lock（PLG-05-min2 done）: `docs/development/current/main/phases/phase-29cc/29cc-107-plg05-toml-wave2-min2-ssot.md`（accepted）
   - plugin lane active next: `PLG-05-min3`（wave-2 rollout）
+  - note: RegexBox probe は method route が core縮退し未PROMOTE（`29cc-95` progress欄を正本）
   - wasm lane active next: `WSM-01`（non-blocking parallel）
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）

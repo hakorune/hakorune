@@ -26,6 +26,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-106-plg05-json-wave2-min1-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-107-plg05-toml-wave2-min2-ssot.md
 ---
 
 # Phase 29cc: Rust -> .hako Migration Orchestration

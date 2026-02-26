@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 SMOKE_NAME="phase29cc_plg05_toml_pilot_vm"
