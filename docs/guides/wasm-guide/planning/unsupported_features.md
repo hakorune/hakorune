@@ -36,6 +36,7 @@ Supported methods in `builtins.rs`:
 - `info`
 - `debug`
 - `warn`
+- `error`
 
 Unsupported methods fail-fast with:
 - `Unsupported BoxCall method: <name> (supported: ...)`

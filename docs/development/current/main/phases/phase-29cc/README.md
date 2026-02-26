@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1..min6 done, PLG-04 wave-1 complete, PLG-05-min1..min7 done, PLG-06-min1..min4 done, WSM-02b-min1/min2/min3/min4 done, WSM-02c-min1/min2/min3 done)
+Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1..min6 done, PLG-04 wave-1 complete, PLG-05-min1..min7 done, PLG-06-min1..min4 done, WSM-02b-min1/min2/min3/min4 done, WSM-02c-min1/min2/min3/min4 done)
 Scope: Rust -> .hako migration orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
@@ -148,7 +148,9 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-126-wsm02c-min2-boxcall-console-debug-ssot.md`
   - wasm lane lock（WSM-02c-min3 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-127-wsm02c-min3-boxcall-console-warn-ssot.md`
-  - wasm lane active next: `WSM-02c-min4`（BoxCall coverage expansion）
+  - wasm lane lock（WSM-02c-min4 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-128-wsm02c-min4-boxcall-console-error-ssot.md`
+  - wasm lane active next: `WSM-02d-min1`（boundary gates）
 
 ## M4 Tail Cleanup (retired parser flags)
 
@@ -233,3 +235,4 @@ Related:
 - wasm lane lock (WSM-02c-min1): `docs/development/current/main/phases/phase-29cc/29cc-125-wsm02c-min1-boxcall-console-info-ssot.md`
 - wasm lane lock (WSM-02c-min2): `docs/development/current/main/phases/phase-29cc/29cc-126-wsm02c-min2-boxcall-console-debug-ssot.md`
 - wasm lane lock (WSM-02c-min3): `docs/development/current/main/phases/phase-29cc/29cc-127-wsm02c-min3-boxcall-console-warn-ssot.md`
+- wasm lane lock (WSM-02c-min4): `docs/development/current/main/phases/phase-29cc/29cc-128-wsm02c-min4-boxcall-console-error-ssot.md`
