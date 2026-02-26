@@ -1,0 +1,14 @@
+// Phase 29cc PLG-04-min5 ConsoleBox pilot fixture
+// Contract:
+// - ConsoleBox can be constructed through plugin config.
+// - println() method route works in VM.
+// - Emits a deterministic success marker.
+
+static box Main {
+  main() {
+    local c
+    c = new ConsoleBox()
+    c.println("consolebox_pilot_ok=1")
+    return 0
+  }
+}
