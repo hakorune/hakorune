@@ -7,13 +7,13 @@
 
 ## Current Snapshot
 
-- total: `156` (`Include archive: 0` default)
+- total: `155` (`Include archive: 0` default)
 - referenced: `155`
-- orphan candidate: `1`
+- orphan candidate: `0`
 - orphan wrapper candidate: `0`
 - with archive included: total `365`, orphan `210`
 - suffix breakdown:
-  - `vm`: `143`
+  - `vm`: `142`
   - `llvm_exe`: `0`
   - `other`: `13`
 
@@ -77,6 +77,12 @@
    - kept `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` active due `CURRENT_TASK.md` reference
    - updated docs command paths from `apps/...` to `apps/archive/...` for moved scripts
    - verification: `phase29y_lane_gate_quick_vm.sh` PASS
+14. Batch-J (final orphan cleanup) done:
+   - moved `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` to archive
+   - synced `CURRENT_TASK.md` pointer to archive path
+   - verification:
+     - `phase29y_lane_gate_quick_vm.sh` PASS
+     - `smoke_inventory_report.sh` => orphan candidates `0`
 
 ## Findings
 
@@ -86,12 +92,12 @@
 
 ## Next Batches (ordered)
 
-1. Batch-J (final orphan cleanup):
-   - decide whether to archive/keep the single remaining orphan: `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
-   - if archived, sync `CURRENT_TASK.md` pointers to archive path
-2. Batch-K (gate-pack consolidation):
+1. Batch-K (gate-pack consolidation):
    - optionally re-promote selected archive groups into explicit gate packs when needed
    - keep fixture coverage while limiting top-level app-script fan-out
+2. Batch-L (inventory policy hardening):
+   - keep `archive` excluded by default
+   - add CI/check to fail when new orphan appears in active apps set
 
 ## Guardrails
 

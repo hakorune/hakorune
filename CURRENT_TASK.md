@@ -1015,7 +1015,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
         - 検証:
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_auto_specialize.py src/llvm_py/tests/test_strlen_fast.py`
           - `cargo test -p nyash_kernel array_runtime_data_route_hh_contract_roundtrip -- --nocapture`
-          - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+          - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
           - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
           - `tools/checks/dev_gate.sh quick`
           - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
@@ -1197,7 +1197,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
             - `src/llvm_py/tests/test_mir_call_auto_specialize.py`
             - `src/llvm_py/tests/test_strlen_fast.py`
             - `crates/nyash_kernel/src/tests.rs` (`array_runtime_data_route_hi_contract_roundtrip`)
-            - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+            - `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
             - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - docs:
             - `docs/development/current/main/design/auto-specialize-box-ssot.md`（AS-03b）
@@ -1211,7 +1211,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_auto_specialize.py src/llvm_py/tests/test_strlen_fast.py`
           - `cargo test -p nyash_kernel array_runtime_data_route_hh_contract_roundtrip -- --nocapture`
           - `cargo test -p nyash_kernel array_runtime_data_route_hi_contract_roundtrip -- --nocapture`
-          - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+          - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
           - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - `tools/checks/dev_gate.sh quick`
           - `PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
