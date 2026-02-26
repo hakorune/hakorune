@@ -104,5 +104,5 @@ Still unsupported (fail-fast):
 - Expand BoxCall coverage for core methods used by selfhost fixtures.
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
-- P2 queue:
-  - `WSM-P2-min1`: `.hako` 生成 WAT の `wat2wasm` bridge 契約を lock する。
+- P3 queue:
+  - `WSM-P3-min1`: JS import object 生成契約（supported list / fail-fast 文言）を `.hako` 側へ移植する。

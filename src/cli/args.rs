@@ -123,7 +123,7 @@ pub fn build_command() -> Command {
         .arg(Arg::new("no-optimize").long("no-optimize").help("Disable MIR optimizer passes").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("backend").long("backend").value_name("BACKEND").help("Backend: vm (default), vm-hako (S0 frame), llvm, interpreter").default_value("vm"))
         .arg(Arg::new("verbose").long("verbose").short('v').help("Verbose CLI output (sets NYASH_CLI_VERBOSE=1)").action(clap::ArgAction::SetTrue))
-        .arg(Arg::new("compile-wasm").long("compile-wasm").help("Compile to WebAssembly").action(clap::ArgAction::SetTrue))
+        .arg(Arg::new("compile-wasm").long("compile-wasm").help("Compile to WebAssembly binary (.wasm)").action(clap::ArgAction::SetTrue))
         .arg(
             Arg::new("emit-wat")
                 .long("emit-wat")

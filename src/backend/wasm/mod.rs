@@ -65,11 +65,11 @@ impl WasmBackend {
         let wat_text = self.compile_to_wat(mir_module)?;
 
         // Phase 9.77 Task 1.3: Fix UTF-8 encoding error in WAT→WASM conversion
-        self.wat_to_wasm(&wat_text)
+        self.convert_wat_to_wasm(&wat_text)
     }
 
     /// Convert WAT text to WASM binary with proper UTF-8 handling
-    fn wat_to_wasm(&self, wat_source: &str) -> Result<Vec<u8>, WasmError> {
+    pub fn convert_wat_to_wasm(&self, wat_source: &str) -> Result<Vec<u8>, WasmError> {
         // Debug: Print WAT source for analysis
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!("🔍 WAT Source Debug (length: {}):", wat_source.len()));
@@ -203,5 +203,27 @@ mod tests {
         // Should handle empty module gracefully
         let result = backend.compile_to_wat(module);
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_wat_to_wasm_ascii_guard_fails_fast() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let backend = WasmBackend::new();
+        let err = backend
+            .convert_wat_to_wasm("(module (func (export \"main\") (result i32) i32.const 0 ;; あ))")
+            .expect_err("non-ascii WAT must fail fast");
+        let msg = err.to_string();
+        assert!(msg.contains("WAT source contains non-ASCII characters"));
+    }
+
+    #[test]
+    fn test_wat_to_wasm_invalid_wat_fails_fast() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let backend = WasmBackend::new();
+        let err = backend
+            .convert_wat_to_wasm("(module (func")
+            .expect_err("malformed WAT must fail fast");
+        let msg = err.to_string();
+        assert!(msg.contains("WAT to WASM conversion failed"));
     }
 }

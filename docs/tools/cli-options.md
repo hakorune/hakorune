@@ -30,7 +30,7 @@
   - 詳細: `docs/reference/runtime/gc.md`
 
 ## WASM/AOT
-- `--compile-wasm`: WATを出力
+- `--compile-wasm`: WASMバイナリ（`.wasm`）を出力（wat2wasm bridge経由）
 - `--compile-native` / `--aot`: AOT実行ファイル出力（要wasm-backend）
 - `--output, -o FILE`: 出力先を指定
 

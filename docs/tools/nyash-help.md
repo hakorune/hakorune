@@ -17,7 +17,7 @@ Options:
       --verify                   Verify MIR integrity and exit
       --mir-verbose              Show verbose MIR output with statistics
       --backend <BACKEND>        Choose execution backend: 'interpreter' (default), 'vm', or 'llvm' [default: interpreter]
-      --compile-wasm             Compile to WebAssembly (WAT format) instead of executing
+      --compile-wasm             Compile to WebAssembly binary (.wasm) instead of executing
       --compile-native           Compile to native AOT executable using wasmtime precompilation
       --aot                      Short form of --compile-native
   -o, --output <FILE>            Output file (for WASM compilation or AOT executable)
@@ -30,4 +30,3 @@ Options:
 ```
 
 関連: CLIオプション早見表は `docs/tools/cli-options.md`
-

@@ -9,6 +9,8 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md
   - docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-150-wsm-p1-min1-emit-wat-cli-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-151-wsm-p1-min2-wat-parity-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-152-wsm-p2-min1-wat2wasm-bridge-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -40,6 +42,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 3. **P2 Toolchain Bridge (`wat2wasm`)**
    - `.hako` が生成した WAT を外部ツール連結で `.wasm` 化する（Rust wasm codegen 本体を使わない）。
    - 受け入れは「WAT->WASM 変換後の browser demo/headless gate 緑」。
+   - bridge lock（done）: `29cc-152`（`phase29cc_wsm_p2_min1_bridge_lock_vm.sh`）。
 4. **P3 Runtime Contract Port**
    - JS import object 生成契約（supported list / fail-fast 文言）を `.hako` 側へ移植。
    - Rust runtime は fallback ではなく thin compatibility lane として残す。
@@ -60,6 +63,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 2. `tools/checks/dev_gate.sh wasm-demo-g3-full`
 3. `tools/checks/dev_gate.sh portability`
 4. `cargo check --features wasm-backend --bin hakorune`（移行期間のみ）
+5. `tools/checks/dev_gate.sh wasm-boundary-lite`（P1/P2 境界ロック）
 
 ## Operation Rule
 1. 新しい WASM 語彙追加は今まで通り docs-first（SSOT -> smoke -> code）。

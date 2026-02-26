@@ -22,7 +22,7 @@ impl NyashRunner {
     }
 
     #[cfg(feature = "wasm-backend")]
-    fn compile_file_to_wat_text(&self, filename: &str) -> String {
+    fn compile_file_to_mir_module(&self, filename: &str) -> nyash_rust::mir::MirModule {
         // Read the file
         let code = match fs::read_to_string(filename) {
             Ok(content) => content,
@@ -50,10 +50,29 @@ impl NyashRunner {
                 }
             };
 
+        compile_result.module
+    }
+
+    #[cfg(feature = "wasm-backend")]
+    fn compile_file_to_wat_text(&self, filename: &str) -> String {
         // Compile to WAT text
+        let mir_module = self.compile_file_to_mir_module(filename);
         let mut wasm_backend = WasmBackend::new();
-        match wasm_backend.compile_to_wat(compile_result.module) {
+        match wasm_backend.compile_to_wat(mir_module) {
             Ok(wat) => wat,
+            Err(e) => {
+                eprintln!("❌ WASM compilation error: {}", e);
+                process::exit(1);
+            }
+        }
+    }
+
+    #[cfg(feature = "wasm-backend")]
+    fn compile_file_to_wasm_bytes(&self, filename: &str) -> Vec<u8> {
+        let mir_module = self.compile_file_to_mir_module(filename);
+        let mut wasm_backend = WasmBackend::new();
+        match wasm_backend.compile_module(mir_module) {
+            Ok(wasm) => wasm,
             Err(e) => {
                 eprintln!("❌ WASM compilation error: {}", e);
                 process::exit(1);
@@ -64,7 +83,7 @@ impl NyashRunner {
     /// Execute WASM compilation mode (split)
     #[cfg(feature = "wasm-backend")]
     pub(crate) fn execute_wasm_mode(&self, filename: &str) {
-        let wat_text = self.compile_file_to_wat_text(filename);
+        let wasm_bytes = self.compile_file_to_wasm_bytes(filename);
 
         // Determine output file
         let groups = self.config.as_groups();
@@ -77,11 +96,19 @@ impl NyashRunner {
                 filename
             }
         });
-        let output_file = format!("{}.wat", output);
+        let output_file = format!("{}.wasm", output);
 
-        match fs::write(&output_file, wat_text) {
-            Ok(()) => { println!("✅ WASM compilation successful!\nOutput written to: {}", output_file); },
-            Err(e) => { eprintln!("❌ Error writing WASM file {}: {}", output_file, e); process::exit(1); }
+        match fs::write(&output_file, wasm_bytes) {
+            Ok(()) => {
+                println!(
+                    "✅ WASM binary compilation successful!\nOutput written to: {}",
+                    output_file
+                );
+            }
+            Err(e) => {
+                eprintln!("❌ Error writing WASM file {}: {}", output_file, e);
+                process::exit(1);
+            }
         }
     }
 

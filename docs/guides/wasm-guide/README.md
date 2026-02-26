@@ -46,6 +46,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[WSM-G3-min13 実装ロック](../../development/current/main/phases/phase-29cc/29cc-149-wsm-g3-min13-canvas-drawline-lock-ssot.md)** - `env.canvas.drawLine` の contract/import/binding/gate を固定した記録。
 - **[WSM-P1-min1 実装ロック](../../development/current/main/phases/phase-29cc/29cc-150-wsm-p1-min1-emit-wat-cli-lock-ssot.md)** - `--emit-wat` CLI 入口を固定した記録。
 - **[WSM-P1-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-151-wsm-p1-min2-wat-parity-lock-ssot.md)** - fixture単位の WAT parity（direct vs `--emit-wat`）を固定した記録。
+- **[WSM-P2-min1 実装ロック](../../development/current/main/phases/phase-29cc/29cc-152-wsm-p2-min1-wat2wasm-bridge-lock-ssot.md)** - `wat2wasm` bridge（normal/boundary/error）を固定した記録。
 
 ## 🚀 クイックスタート
 
@@ -55,6 +56,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 ```bash
 # 基本コンパイル
 ./target/release/hakorune --compile-wasm program.hako
+# -> program.wasm が出力される
 
 # AOT コンパイル（配布用）
 ./target/release/hakorune --aot program.hako
