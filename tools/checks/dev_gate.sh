@@ -53,6 +53,7 @@ list_profiles() {
     - phase29cc_wsm_p4_min1_docs_lock_vm.sh
     - phase29cc_wsm_p4_min2_binary_writer_lock_vm.sh
     - phase29cc_wsm_p4_min3_hako_writer_docs_lock_vm.sh
+    - phase29cc_wsm_p4_min4_hako_writer_const_parity_vm.sh
   wasm-demo-g2:
     - phase29cc_wsm_g2_min1_bridge_build_vm.sh
     - phase29cc_wsm_g2_browser_run_vm.sh
@@ -144,6 +145,8 @@ run_wasm_boundary_lite() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p4_min2_binary_writer_lock_vm.sh
   run_step "wasm p4 .hako writer docs lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p4_min3_hako_writer_docs_lock_vm.sh
+  run_step "wasm p4 .hako writer const parity lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p4_min4_hako_writer_const_parity_vm.sh
 }
 
 run_wasm_demo_g2() {

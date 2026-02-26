@@ -1,0 +1,9 @@
+// Phase 29cc WSM-P4-min4 const-return fixture
+// Contract:
+// - Minimal main() returning integer constant for binary-writer pilot parity.
+
+static box Main {
+  main() {
+    return 7
+  }
+}

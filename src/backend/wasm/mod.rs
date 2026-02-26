@@ -17,7 +17,7 @@ pub use memory::{BoxLayout, MemoryManager};
 pub use runtime::RuntimeImports;
 // pub use executor::WasmExecutor; // TODO: Fix WASM executor build errors
 
-use crate::mir::MirModule;
+use crate::mir::{ConstValue, MirInstruction, MirModule};
 
 /// WASM compilation error
 #[derive(Debug)]
@@ -62,11 +62,48 @@ impl WasmBackend {
 
     /// Compile MIR module to WASM bytes
     pub fn compile_module(&mut self, mir_module: MirModule) -> Result<Vec<u8>, WasmError> {
+        // WSM-P4-min4 pilot:
+        // For the strict minimal shape (main returns integer const),
+        // bypass WAT and emit wasm binary directly.
+        if let Some(value) = self.try_extract_minimal_main_i32_const(&mir_module) {
+            return binary_writer::build_minimal_main_i32_const_module(value);
+        }
+
         // Generate WAT (WebAssembly Text) first for debugging
         let wat_text = self.compile_to_wat(mir_module)?;
 
         // Phase 9.77 Task 1.3: Fix UTF-8 encoding error in WAT→WASM conversion
         self.convert_wat_to_wasm(&wat_text)
+    }
+
+    fn try_extract_minimal_main_i32_const(&self, mir_module: &MirModule) -> Option<i32> {
+        let main = mir_module.get_function("main")?;
+        if main.blocks.len() != 1 {
+            return None;
+        }
+
+        let entry = main.blocks.get(&main.entry_block)?;
+        if entry.instructions.len() != 1 {
+            return None;
+        }
+
+        let MirInstruction::Const { dst, value } = &entry.instructions[0] else {
+            return None;
+        };
+        let MirInstruction::Return {
+            value: Some(ret_val),
+        } = entry.terminator.as_ref()?
+        else {
+            return None;
+        };
+        if ret_val != dst {
+            return None;
+        }
+
+        let ConstValue::Integer(n) = value else {
+            return None;
+        };
+        i32::try_from(*n).ok()
     }
 
     /// Contract helper for WSM-P4-min2.
@@ -241,5 +278,33 @@ mod tests {
             .build_minimal_i32_const_wasm(7)
             .expect("binary writer helper must succeed");
         assert!(wasm.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
+    }
+
+    #[test]
+    fn wasm_binary_writer_pilot_extract_min_const_return_contract() {
+        use crate::mir::{BasicBlockId, FunctionSignature, MirFunction, MirType, ValueId};
+
+        let sig = FunctionSignature {
+            name: "main".to_string(),
+            params: Vec::new(),
+            return_type: MirType::Integer,
+            effects: crate::mir::EffectMask::PURE,
+        };
+        let entry = BasicBlockId::new(0);
+        let mut func = MirFunction::new(sig, entry);
+        let block = func.get_block_mut(entry).expect("entry block");
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(7),
+        });
+        block.add_instruction(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+
+        let mut module = MirModule::new("test".to_string());
+        module.add_function(func);
+
+        let backend = WasmBackend::new();
+        assert_eq!(backend.try_extract_minimal_main_i32_const(&module), Some(7));
     }
 }
