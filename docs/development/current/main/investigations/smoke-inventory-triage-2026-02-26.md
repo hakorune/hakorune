@@ -8,14 +8,15 @@
 ## Current Snapshot
 
 - total: `344` (`Include archive: 0` default)
+- total: `326` (`Include archive: 0` default)
 - referenced: `155`
-- orphan candidate: `189`
+- orphan candidate: `171`
 - orphan wrapper candidate: `0`
 - with archive included: total `365`, orphan `210`
 - suffix breakdown:
-  - `vm`: `297`
-  - `llvm_exe`: `50`
-  - `other`: `35`
+  - `vm`: `261`
+  - `llvm_exe`: `35`
+  - `other`: `30`
 
 ## This Round (completed)
 
@@ -42,6 +43,11 @@
    - moved orphan-heavy families to `tools/smokes/v2/profiles/integration/apps/archive/`
    - families: `phase100`, `phase103`, `phase104`, `phase107`, `phase118` (21 files)
    - inventory default now excludes archive (`SMOKE_INVENTORY_INCLUDE_ARCHIVE=0`)
+7. Batch-C (archive isolation, selective) done:
+   - moved 18 additional orphan scripts to archive after zero-inbound-ref check
+   - families: `phase143` (P2 bc/cb), `phase145` (P2 compound expr), `phase252` (p0 break cond), `phase275` (eq/plus), `phase284` (p1 return), `phase286` (pattern1/2 frag)
+   - kept `phase259_p0_is_integer_llvm_exe.sh` in active due doc reference
+   - verification: `phase29y_lane_gate_quick_vm.sh` PASS
 
 ## Findings
 
@@ -51,10 +57,12 @@
 
 ## Next Batches (ordered)
 
-1. Batch-B (gate-pack consolidation):
-   - group standalone `phase100/103/104/107/118` into one entry gate (vm + llvm_exe pair packs)
-   - keep fixture coverage, reduce top-level script count
-2. Batch-C (archive or retire):
+1. Batch-D (archive or retire):
+   - continue zero-inbound-ref archive moves for remaining orphan families (`phase136/137/146/285/...`)
+   - skip any script referenced from `docs/development/current/main/**` until docs pointers are cleaned
+2. Batch-E (gate-pack consolidation):
+   - optionally re-promote selected archive groups into explicit gate packs when needed
+   - keep fixture coverage while limiting top-level app-script fan-out
    - scripts still orphan after Batch-A/B
    - move to archive or remove after docs pointer update
 
