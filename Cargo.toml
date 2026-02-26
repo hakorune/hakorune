@@ -68,7 +68,10 @@ aot-plan-import = []
 [lib]
 name = "nyash_rust"
 path = "src/lib.rs"
-crate-type = ["cdylib", "rlib"]
+# Keep default host/test builds on a single artifact kind to avoid
+# Cargo output filename collisions during `cargo test`.
+# Note: archived wasm prototype is out-of-CI and may require local override.
+crate-type = ["rlib"]
 doctest = false
 
 # Bin layout (Stage0/Stage1)
