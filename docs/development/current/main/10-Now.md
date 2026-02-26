@@ -57,7 +57,7 @@ Related:
   - active next: `none`（B-TERNARY-03 decision fixed: non-gating維持）
   - task SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` の `Lane-B Nested Ternary Debt Pack (B-TERNARY-01..03)`
 - De-rust orchestration lane（phase-29cc）:
-  - `plugin-wave-rollout`（RNR-05 complete; PLG-03 done; PLG-04-min1 done）
+  - `plugin-wave-rollout`（RNR-05 complete; PLG-03 done; PLG-04-min1 done; PLG-04-min2 done）
   - scope decision（L5）: `docs/development/current/main/design/de-rust-scope-decision-ssot.md`（accepted）
   - strict readiness（L4）: `tools/selfhost/check_phase29x_x23_readiness.sh --strict` -> `status=READY`（2026-02-25）
   - done declaration（non-plugin）: `docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md`（accepted）
@@ -66,7 +66,8 @@ Related:
   - plugin lane gate pack lock（PLG-02 done）: `docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md`（accepted）
   - plugin lane wave-1 pilot lock（PLG-03 done）: `docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md`（accepted）
   - plugin lane wave rollout lock（PLG-04-min1 done）: `docs/development/current/main/phases/phase-29cc/29cc-99-plg04-arraybox-wave1-min1-ssot.md`（accepted）
-  - plugin lane active next: `PLG-04-min2`（wave-1 rollout）
+  - plugin lane wave rollout lock（PLG-04-min2 done）: `docs/development/current/main/phases/phase-29cc/29cc-100-plg04-intcellbox-reserved-core-lock-ssot.md`（accepted）
+  - plugin lane active next: `PLG-04-min3`（wave-1 rollout）
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）
   - `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
@@ -137,6 +138,7 @@ Related:
 - De-rust plugin gate pack lock (PLG-02): `docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md`
 - De-rust plugin wave-1 pilot lock (PLG-03): `docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md`
 - De-rust plugin wave rollout lock (PLG-04-min1): `docs/development/current/main/phases/phase-29cc/29cc-99-plg04-arraybox-wave1-min1-ssot.md`
+- De-rust plugin wave rollout lock (PLG-04-min2): `docs/development/current/main/phases/phase-29cc/29cc-100-plg04-intcellbox-reserved-core-lock-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`
 - Compiler pipeline: `docs/development/current/main/design/compiler-pipeline-ssot.md`

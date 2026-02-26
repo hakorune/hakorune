@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-99-plg04-arraybox-wave1-min1-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-100-plg04-intcellbox-reserved-core-lock-ssot.md
   - docs/reference/plugin-system/bid-ffi-v1-actual-specification.md
   - docs/reference/plugin-system/migration-guide.md
   - docs/reference/architecture/dynamic-plugin-flow.md
@@ -95,7 +96,7 @@ Out of scope（このレーンでは扱わない）:
 5. `PLG-04` wave rollout（wave-1 -> wave-2 -> wave-3）
 
 Current active next:
-- `PLG-04-min2`（wave-1 rollout）
+- `PLG-04-min3`（wave-1 rollout）
 
 Progress:
 - `PLG-01` done（2026-02-25）:
@@ -108,7 +109,9 @@ Progress:
   - `29cc-98-plg03-counterbox-wave1-pilot-ssot.md`（accepted）
 - `PLG-04-min1` done（2026-02-25）:
   - `29cc-99-plg04-arraybox-wave1-min1-ssot.md`（accepted）
-  - active next: `PLG-04-min2`（wave-1 rollout）
+- `PLG-04-min2` done（2026-02-26）:
+  - `29cc-100-plg04-intcellbox-reserved-core-lock-ssot.md`（accepted）
+  - active next: `PLG-04-min3`（wave-1 rollout）
 
 ## 5. Gate Pack (locked)
 
