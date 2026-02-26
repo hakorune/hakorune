@@ -3,7 +3,7 @@
 # Tests: Even with plugin failures, plugins are not disabled entirely
 # Acceptance: "plugins disabled (config=nyash.toml)" should NOT appear in output
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 export SMOKES_USE_PYVM=0
 require_env || exit 2
 

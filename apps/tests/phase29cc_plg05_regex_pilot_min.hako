@@ -1,0 +1,16 @@
+// Phase 29cc PLG-05-min3 Regex plugin pilot fixture
+// Contract:
+// - RegexBox can be constructed through plugin config.
+// - compile/isMatch/find/replaceAll method routes work in VM.
+
+static box Main {
+  main(args) {
+    local r
+    r = new RegexBox()
+    r.compile("h.llo")
+    print("regex_match_hello=" + r.isMatch("hello"))
+    print("regex_find=" + r.find("xx hallo yy"))
+    print("regex_replace=" + r.replaceAll("hallo hello", "X"))
+    return 0
+  }
+}

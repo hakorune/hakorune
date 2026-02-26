@@ -12,6 +12,41 @@ use crate::backend::mir_interpreter::handlers::temp_dispatch::{
 use crate::boxes::string_ops;
 
 impl MirInterpreter {
+    fn normalize_plugin_method_args<'a>(
+        &mut self,
+        receiver: &VMValue,
+        args: &'a [ValueId],
+    ) -> &'a [ValueId] {
+        let Some((recv_box_type, recv_instance_id)) = (match receiver {
+            VMValue::BoxRef(bx) => bx
+                .as_any()
+                .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
+                .map(|p| (p.box_type.as_str(), p.inner.instance_id)),
+            _ => None,
+        }) else {
+            return args;
+        };
+
+        let Some(first_arg) = args.first() else {
+            return args;
+        };
+
+        let is_duplicate_receiver = match self.reg_load(*first_arg) {
+            Ok(VMValue::BoxRef(arg_bx)) => arg_bx
+                .as_any()
+                .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
+                .map(|p| p.inner.instance_id == recv_instance_id && p.box_type == recv_box_type)
+                .unwrap_or(false),
+            _ => false,
+        };
+
+        if is_duplicate_receiver {
+            &args[1..]
+        } else {
+            args
+        }
+    }
+
     pub(super) fn execute_method_callee(
         &mut self,
         box_name: &str,
@@ -139,7 +174,8 @@ impl MirInterpreter {
                     method, a0
                 ));
             }
-            let out = self.execute_method_call(&recv_val, method, args)?;
+            let method_args = self.normalize_plugin_method_args(&recv_val, args);
+            let out = self.execute_method_call(&recv_val, method, method_args)?;
             if dev_trace && is_kw {
                 get_global_ring0()
                     .log

@@ -20,6 +20,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-106-plg05-json-wave2-min1-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-107-plg05-toml-wave2-min2-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-108-plg05-regex-wave2-min3-ssot.md
   - docs/reference/plugin-system/bid-ffi-v1-actual-specification.md
   - docs/reference/plugin-system/migration-guide.md
   - docs/reference/architecture/dynamic-plugin-flow.md
@@ -103,7 +104,7 @@ Out of scope（このレーンでは扱わない）:
 5. `PLG-04` wave rollout（wave-1 -> wave-2 -> wave-3）
 
 Current active next:
-- `PLG-05-min3`（wave-2 rollout）
+- `PLG-05-min4`（wave-2 rollout）
 
 Progress:
 - `PLG-01` done（2026-02-25）:
@@ -131,8 +132,9 @@ Progress:
   - active next: `PLG-05-min3`（wave-2 rollout）
 - `PLG-05-min2` done（2026-02-26）:
   - `29cc-107-plg05-toml-wave2-min2-ssot.md`（accepted）
-  - `PLG-05-min3`（RegexBox）は probe で method route 不整合（`isMatch/replaceAll` が core経路へ縮退）を確認、未PROMOTEで継続
-  - active next: `PLG-05-min3`（wave-2 rollout）
+- `PLG-05-min3` done（2026-02-26）:
+  - `29cc-108-plg05-regex-wave2-min3-ssot.md`（accepted）
+  - active next: `PLG-05-min4`（wave-2 rollout）
 
 ## 5. Gate Pack (locked)
 

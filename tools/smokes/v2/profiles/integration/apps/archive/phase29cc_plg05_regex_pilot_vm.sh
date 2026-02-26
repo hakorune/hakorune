@@ -1,0 +1,151 @@
+#!/bin/bash
+# Phase 29cc PLG-05-min3: Regex plugin wave-2 pilot smoke (VM)
+# Contract:
+# - RegexBox is loaded via per-run nyash.toml.
+# - compile/isMatch/find/replaceAll method route works in VM.
+# - Fixture prints regex_match_hello=true, regex_find=hallo, regex_replace=X X and exits cleanly.
+
+set -euo pipefail
+
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
+require_env || exit 2
+
+SMOKE_NAME="phase29cc_plg05_regex_pilot_vm"
+FIXTURE="$NYASH_ROOT/apps/tests/phase29cc_plg05_regex_pilot_min.hako"
+WORK_DIR="$(mktemp -d -t phase29cc_plg05_regex.XXXXXX)"
+OUTPUT_FILE="$WORK_DIR/output.log"
+
+cleanup() {
+  rm -rf "$WORK_DIR"
+}
+trap cleanup EXIT
+
+detect_lib_ext() {
+  case "$(uname -s)" in
+    Darwin) echo "dylib" ;;
+    MINGW*|MSYS*|CYGWIN*|Windows_NT) echo "dll" ;;
+    *) echo "so" ;;
+  esac
+}
+
+lib_name_for() {
+  local base="$1"
+  local ext="$2"
+  if [ "$ext" = "dll" ]; then
+    echo "${base}.dll"
+  else
+    echo "lib${base}.${ext}"
+  fi
+}
+
+if [ ! -f "$FIXTURE" ]; then
+  test_fail "$SMOKE_NAME: fixture missing ($FIXTURE)"
+  exit 1
+fi
+
+EXT="$(detect_lib_ext)"
+REGEX_LIB_NAME="$(lib_name_for nyash_regex_plugin "$EXT")"
+REGEX_LIB_PATH="$NYASH_ROOT/target/release/$REGEX_LIB_NAME"
+STRING_LIB_NAME="$(lib_name_for nyash_string_plugin "$EXT")"
+STRING_LIB_PATH="$NYASH_ROOT/target/release/$STRING_LIB_NAME"
+
+log_info "$SMOKE_NAME: building regex plugin release artifact"
+(cd "$NYASH_ROOT" && cargo build -p nyash-regex-plugin --release >/dev/null)
+
+if [ ! -f "$REGEX_LIB_PATH" ]; then
+  test_fail "$SMOKE_NAME: regex plugin artifact missing ($REGEX_LIB_PATH)"
+  exit 1
+fi
+
+log_info "$SMOKE_NAME: building string plugin release artifact"
+(cd "$NYASH_ROOT/plugins/nyash-string-plugin" && cargo build --release >/dev/null)
+
+if [ ! -f "$STRING_LIB_PATH" ]; then
+  test_fail "$SMOKE_NAME: string plugin artifact missing ($STRING_LIB_PATH)"
+  exit 1
+fi
+
+cat > "$WORK_DIR/nyash.toml" << EOF2
+[libraries."$STRING_LIB_NAME"]
+boxes = ["StringBox"]
+path = "$STRING_LIB_PATH"
+
+[libraries."$STRING_LIB_NAME".StringBox]
+type_id = 10
+abi_version = 1
+singleton = false
+
+[libraries."$STRING_LIB_NAME".StringBox.methods]
+birth = { method_id = 0 }
+length = { method_id = 1 }
+len = { method_id = 1 }
+isEmpty = { method_id = 2 }
+charCodeAt = { method_id = 3 }
+concat = { method_id = 4 }
+toUtf8 = { method_id = 6 }
+toString = { method_id = 6 }
+fini = { method_id = 4294967295 }
+
+[libraries."$REGEX_LIB_NAME"]
+boxes = ["RegexBox"]
+path = "$REGEX_LIB_PATH"
+
+[libraries."$REGEX_LIB_NAME".RegexBox]
+type_id = 52
+abi_version = 1
+singleton = false
+
+[libraries."$REGEX_LIB_NAME".RegexBox.methods]
+birth = { method_id = 0, args = ["pattern?"] }
+compile = { method_id = 1, args = ["pattern"] }
+isMatch = { method_id = 2, args = ["text"], returns_result = true }
+find = { method_id = 3, args = ["text"], returns_result = true }
+replaceAll = { method_id = 4, args = ["text", "repl"], returns_result = true }
+split = { method_id = 5, args = ["text", "limit"], returns_result = true }
+fini = { method_id = 4294967295 }
+EOF2
+
+cp "$FIXTURE" "$WORK_DIR/main.hako"
+
+set +e
+(
+  cd "$WORK_DIR"
+  NYASH_DISABLE_PLUGINS=0 \
+  NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
+  NYASH_VM_USE_FALLBACK=0 \
+  "$NYASH_BIN" --backend vm ./main.hako >"$OUTPUT_FILE" 2>&1
+)
+RC=$?
+set -e
+
+if [ "$RC" -ne 0 ]; then
+  tail -n 120 "$OUTPUT_FILE" || true
+  test_fail "$SMOKE_NAME: vm run failed rc=$RC"
+  exit 1
+fi
+
+if ! grep -q 'regex_match_hello=true' "$OUTPUT_FILE"; then
+  tail -n 120 "$OUTPUT_FILE" || true
+  test_fail "$SMOKE_NAME: expected output 'regex_match_hello=true' not found"
+  exit 1
+fi
+
+if ! grep -q 'regex_find=hallo' "$OUTPUT_FILE"; then
+  tail -n 120 "$OUTPUT_FILE" || true
+  test_fail "$SMOKE_NAME: expected output 'regex_find=hallo' not found"
+  exit 1
+fi
+
+if ! grep -q 'regex_replace=X X' "$OUTPUT_FILE"; then
+  tail -n 120 "$OUTPUT_FILE" || true
+  test_fail "$SMOKE_NAME: expected output 'regex_replace=X X' not found"
+  exit 1
+fi
+
+if grep -q 'Unknown Box type: RegexBox' "$OUTPUT_FILE"; then
+  tail -n 120 "$OUTPUT_FILE" || true
+  test_fail "$SMOKE_NAME: stale unknown-box regression (RegexBox)"
+  exit 1
+fi
+
+test_pass "$SMOKE_NAME: PASS (Regex plugin pilot locked)"
