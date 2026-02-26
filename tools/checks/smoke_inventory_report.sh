@@ -17,7 +17,7 @@ fi
 mapfile -t scripts < <(find "$APPS_DIR" -type f -name '*.sh' | sort)
 
 {
-  echo "path	family	suffix	fullpath_ref_count	basename_ref_count	class"
+  echo "path	family	suffix	fullpath_ref_count	basename_ref_count	wrapper_only	class"
   for path in "${scripts[@]}"; do
     base="$(basename "$path")"
     stem="${base%.sh}"
@@ -40,20 +40,32 @@ mapfile -t scripts < <(find "$APPS_DIR" -type f -name '*.sh' | sort)
         | wc -l | tr -d ' '
     )"
 
+    if rg -q '^[[:space:]]*exec[[:space:]]+".*\.sh"[[:space:]]*' "$path" \
+      && ! rg -q 'test_runner\.sh|require_env|test_pass|test_fail' "$path"; then
+      wrapper_only="1"
+    else
+      wrapper_only="0"
+    fi
+
     if [[ "$fullpath_ref_count" -eq 0 && "$basename_ref_count" -eq 0 ]]; then
-      class="orphan_candidate"
+      if [[ "$wrapper_only" -eq 1 ]]; then
+        class="orphan_wrapper_candidate"
+      else
+        class="orphan_candidate"
+      fi
     else
       class="referenced"
     fi
 
-    printf "%s\t%s\t%s\t%s\t%s\t%s\n" \
-      "$path" "$family" "$suffix" "$fullpath_ref_count" "$basename_ref_count" "$class"
+    printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
+      "$path" "$family" "$suffix" "$fullpath_ref_count" "$basename_ref_count" "$wrapper_only" "$class"
   done
 } > "$REPORT_TSV"
 
 total="$(wc -l < "$REPORT_TSV")"
 data_rows="$(( total - 1 ))"
-orphans="$(awk -F'\t' 'NR>1 && $6=="orphan_candidate"{c++} END{print c+0}' "$REPORT_TSV")"
+orphans="$(awk -F'\t' 'NR>1 && ($7=="orphan_candidate" || $7=="orphan_wrapper_candidate"){c++} END{print c+0}' "$REPORT_TSV")"
+orphan_wrappers="$(awk -F'\t' 'NR>1 && $7=="orphan_wrapper_candidate"{c++} END{print c+0}' "$REPORT_TSV")"
 referenced="$(( data_rows - orphans ))"
 
 {
@@ -63,6 +75,7 @@ referenced="$(( data_rows - orphans ))"
   echo "Total: $data_rows"
   echo "Referenced: $referenced"
   echo "Orphan candidates: $orphans"
+  echo "  - Wrapper-only orphan candidates: $orphan_wrappers"
   echo
   echo "Suffix breakdown:"
   awk -F'\t' 'NR>1{c[$3]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort
@@ -71,7 +84,10 @@ referenced="$(( data_rows - orphans ))"
   awk -F'\t' 'NR>1{c[$2]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort -k2,2nr | head -n 20
   echo
   echo "Top orphan candidate families:"
-  awk -F'\t' 'NR>1 && $6=="orphan_candidate"{c[$2]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort -k2,2nr | head -n 20
+  awk -F'\t' 'NR>1 && ($7=="orphan_candidate" || $7=="orphan_wrapper_candidate"){c[$2]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort -k2,2nr | head -n 20
+  echo
+  echo "Top orphan wrapper candidate families:"
+  awk -F'\t' 'NR>1 && $7=="orphan_wrapper_candidate"{c[$2]++} END{for (k in c) printf "  %s\t%d\n", k, c[k]}' "$REPORT_TSV" | sort -k2,2nr | head -n 20
 } > "$SUMMARY_TXT"
 
 echo "[PASS] smoke inventory written:"

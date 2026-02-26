@@ -7,9 +7,10 @@
 
 ## Current Snapshot
 
-- total: `382`
-- referenced: `156`
-- orphan candidate: `226`
+- total: `365`
+- referenced: `155`
+- orphan candidate: `210`
+- orphan wrapper candidate: `0`
 - suffix breakdown:
   - `vm`: `297`
   - `llvm_exe`: `50`
@@ -29,6 +30,13 @@
 3. Verified:
    - `phase29y_lane_gate_quick_vm.sh` PASS
    - `phase29y_lane_gate_vm.sh` PASS
+4. Batch-A done:
+   - removed 17 orphan `phase29z_vm_hako_*_parity_vm.sh` wrappers
+   - commit: `e5fc306a0`
+5. X56 gate drift fix:
+   - `phase29x_vm_hako_s6_vocab_guard.sh` now tracks `src/runner/modes/vm_hako/subset_check.rs`
+   - S6 parity gate reject step aligned to `phase29z_vm_hako_s5_newclosure_probe_vm.sh`
+   - commit: `b55825c74`
 
 ## Findings
 
@@ -38,13 +46,10 @@
 
 ## Next Batches (ordered)
 
-1. Batch-A (safe delete candidates):
-   - trivial wrapper scripts that only `exec` shared helper and have zero inbound refs in `tools/checks` + `tools/smokes`
-   - apply in small commits (5-10 files each) with gate replay
-2. Batch-B (gate-pack consolidation):
+1. Batch-B (gate-pack consolidation):
    - group standalone `phase100/103/104/107/118` into one entry gate (vm + llvm_exe pair packs)
    - keep fixture coverage, reduce top-level script count
-3. Batch-C (archive or retire):
+2. Batch-C (archive or retire):
    - scripts still orphan after Batch-A/B
    - move to archive or remove after docs pointer update
 
