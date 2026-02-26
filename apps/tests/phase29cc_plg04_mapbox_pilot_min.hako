@@ -1,0 +1,20 @@
+// Phase 29cc PLG-04-min3 MapBox pilot fixture
+// Contract:
+// - MapBox can be constructed through plugin config.
+// - set/get/size method route works in VM.
+
+static box Main {
+  main() {
+    local m
+    local s
+    local g
+    m = new MapBox()
+    m.set(1, 4)
+    m.set(2, 8)
+    s = m.size()
+    g = m.get(1)
+    print("map_size=" + s)
+    print("map_g1=" + g)
+    return 0
+  }
+}

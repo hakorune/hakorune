@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1 done, PLG-04-min2 done, PLG-04 active)
+Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1 done, PLG-04-min2 done, PLG-04-min3 done, PLG-04 active)
 Scope: Rust -> .hako migration orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
@@ -19,6 +19,8 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-99-plg04-arraybox-wave1-min1-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-100-plg04-intcellbox-reserved-core-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-101-plg04-mapbox-wave1-min3-ssot.md
 ---
 
 # Phase 29cc: Rust -> .hako Migration Orchestration
@@ -83,7 +85,9 @@ Related:
   - `docs/development/current/main/phases/phase-29cc/29cc-99-plg04-arraybox-wave1-min1-ssot.md`
 - plugin lane `PLG-04-min2` は done（wave-1 IntCellBox reserved-core lock）:
   - `docs/development/current/main/phases/phase-29cc/29cc-100-plg04-intcellbox-reserved-core-lock-ssot.md`
-  - active next: `PLG-04-min3`（wave-1 rollout）
+- plugin lane `PLG-04-min3` は done（wave-1 MapBox rollout）:
+  - `docs/development/current/main/phases/phase-29cc/29cc-101-plg04-mapbox-wave1-min3-ssot.md`
+  - active next: `PLG-04-min4`（wave-1 rollout）
 
 ## M4 Tail Cleanup (retired parser flags)
 
@@ -141,3 +145,4 @@ Related:
 - plugin wave-1 pilot lock (PLG-03): `docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md`
 - plugin wave rollout lock (PLG-04-min1): `docs/development/current/main/phases/phase-29cc/29cc-99-plg04-arraybox-wave1-min1-ssot.md`
 - plugin wave rollout lock (PLG-04-min2): `docs/development/current/main/phases/phase-29cc/29cc-100-plg04-intcellbox-reserved-core-lock-ssot.md`
+- plugin wave rollout lock (PLG-04-min3): `docs/development/current/main/phases/phase-29cc/29cc-101-plg04-mapbox-wave1-min3-ssot.md`
