@@ -147,7 +147,23 @@ class Resolver:
 
     def is_stringish(self, value_id: int) -> bool:
         try:
-            return int(value_id) in self.string_ids
+            vid = int(value_id)
+            if vid in self.string_ids:
+                return True
+            # TypeFacts fallback: some loop/phi paths carry only metadata kind=string.
+            vtypes = getattr(self, "value_types", None)
+            if isinstance(vtypes, dict):
+                meta = vtypes.get(vid)
+                if isinstance(meta, dict):
+                    kind = meta.get("kind")
+                    if kind == "string":
+                        return True
+                    if kind == "handle" and meta.get("box_type") == "StringBox":
+                        return True
+                elif isinstance(meta, str):
+                    if meta in ("string", "String", "StringBox"):
+                        return True
+            return False
         except Exception:
             return False
 
