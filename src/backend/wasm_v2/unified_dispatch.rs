@@ -5,7 +5,7 @@
 
 #![cfg(feature = "wasm-backend")]
 
-use crate::box_trait::{BoolBox, NyashBox, StringBox, VoidBox};
+use crate::box_trait::{NyashBox, VoidBox};
 use crate::boxes::{ArrayBox, ConsoleBox, MapBox};
 
 /// 受信ボックス/メソッド名/アリティからスロットを解決し、識別子を返す。

@@ -5,12 +5,13 @@ set -euo pipefail
 # Purpose: single-entry developer gate with tiered profiles.
 #
 # Usage:
-#   tools/checks/dev_gate.sh [quick|hotpath|portability|milestone|milestone-runtime|milestone-perf]
+#   tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|portability|milestone|milestone-runtime|milestone-perf]
 #   tools/checks/dev_gate.sh --list
 #
 # Profiles:
 #   quick     : day-to-day lightweight checks (default)
 #   hotpath   : quick + phase21.5 perf hotpath contract bundle
+#   wasm-boundary-lite : quick + wasm-backend compile + boundary fast-fail unit locks
 #   portability : cross-platform maintenance guards (Windows WSL/CMD + macOS readiness)
 #   milestone-runtime : hotpath + runtime/selfhost milestone smoke
 #   milestone-perf    : hotpath + phase21.5 full perf milestone checks
@@ -22,7 +23,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 usage() {
   cat <<'USAGE'
 Usage:
-  tools/checks/dev_gate.sh [quick|hotpath|portability|milestone|milestone-runtime|milestone-perf]
+  tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|portability|milestone|milestone-runtime|milestone-perf]
   tools/checks/dev_gate.sh --list
 USAGE
 }
@@ -37,6 +38,12 @@ list_profiles() {
   hotpath:
     - quick
     - tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath
+  wasm-boundary-lite:
+    - quick
+    - cargo check --features wasm-backend --bin hakorune
+    - cargo test --features wasm-backend extern_contract_supported_name_maps_to_import -- --nocapture
+    - cargo test --features wasm-backend test_unsupported_extern_call_fails_fast_with_supported_list -- --nocapture
+    - cargo test --features wasm-backend test_unsupported_boxcall_method_fails_fast_with_supported_list -- --nocapture
   portability:
     - tools/checks/windows_wsl_cmd_smoke.sh (preflight by default)
     - tools/checks/macos_portability_guard.sh
@@ -77,6 +84,18 @@ run_hotpath() {
   run_step "phase21.5 perf gate bundle (hotpath)" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
       tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath
+}
+
+run_wasm_boundary_lite() {
+  run_quick
+  run_step "cargo check (wasm-backend)" \
+    cargo check --features wasm-backend --bin hakorune
+  run_step "wasm extern contract lock" \
+    cargo test --features wasm-backend extern_contract_supported_name_maps_to_import -- --nocapture
+  run_step "wasm extern unsupported boundary lock" \
+    cargo test --features wasm-backend test_unsupported_extern_call_fails_fast_with_supported_list -- --nocapture
+  run_step "wasm boxcall unsupported boundary lock" \
+    cargo test --features wasm-backend test_unsupported_boxcall_method_fails_fast_with_supported_list -- --nocapture
 }
 
 run_portability() {
@@ -122,6 +141,9 @@ case "${PROFILE}" in
     ;;
   hotpath)
     run_hotpath
+    ;;
+  wasm-boundary-lite)
+    run_wasm_boundary_lite
     ;;
   portability)
     run_portability

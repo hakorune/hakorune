@@ -129,7 +129,6 @@ pub struct AotStats {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::MirModule;
 
     #[test]
     fn test_aot_backend_creation() {

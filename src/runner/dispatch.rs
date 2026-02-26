@@ -149,7 +149,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
     if groups.compile_wasm {
         #[cfg(feature = "wasm-backend")]
         {
-            super::modes::wasm::execute_wasm_mode(runner, filename);
+            runner.execute_wasm_mode(filename);
             return;
         }
         #[cfg(not(feature = "wasm-backend"))]

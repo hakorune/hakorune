@@ -102,23 +102,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `none`（monitor-only）
   - wasm lane active next:
     - `WSM-02d-min2`（boundary gates）
-  - wasm lane lock（WSM-02b-min1 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`
-  - wasm lane lock（WSM-02b-min2 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-122-wsm02b-min2-console-error-extern-ssot.md`
-  - wasm lane lock（WSM-02b-min3 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-123-wsm02b-min3-console-info-extern-ssot.md`
-  - wasm lane lock（WSM-02b-min4 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-124-wsm02b-min4-console-debug-extern-ssot.md`
-  - wasm lane lock（WSM-02c-min1 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-125-wsm02c-min1-boxcall-console-info-ssot.md`
-  - wasm lane lock（WSM-02c-min2 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-126-wsm02c-min2-boxcall-console-debug-ssot.md`
-  - wasm lane lock（WSM-02c-min3 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-127-wsm02c-min3-boxcall-console-warn-ssot.md`
-  - wasm lane lock（WSM-02c-min4 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-128-wsm02c-min4-boxcall-console-error-ssot.md`
-  - wasm lane lock（WSM-02d-min1 done）:
+  - wasm lane lock history（SSOT pointer）:
+    - `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
+  - wasm latest lock（WSM-02d-min1 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-129-wsm02d-min1-boundary-fastfail-tests-ssot.md`
   - wasm grammar/map SSOT:
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
@@ -148,7 +134,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 1. `WSM-02d-min2..`（boundary gates）: wasm demo-min fixture lock を追加し、境界テストを gate 化する。
 2. `projects/nyash-wasm` の demo-min を 1 fixture に固定して G2 入口を作る。
-3. wasm lane の gate profile を lightweight / milestone に分けて運用固定する。
+3. wasm lane の gate profile を lightweight / milestone に分けて運用固定する（`tools/checks/dev_gate.sh wasm-boundary-lite` 追加）。
 4. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 
 ## Quick Restart (After Reboot)

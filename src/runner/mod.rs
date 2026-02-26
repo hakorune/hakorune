@@ -9,9 +9,6 @@ use nyash_rust::cli::CliConfig;
 // prune heavy unused imports here; modules import what they need locally
 // pruned unused runtime imports in this module
 
-#[cfg(feature = "wasm-backend")]
-use nyash_rust::backend::{aot::AotBackend, wasm::WasmBackend};
-
 #[cfg(feature = "llvm-inkwell-legacy")]
 use nyash_rust::backend::llvm_compile_and_execute;
 use std::{fs, process};

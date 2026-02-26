@@ -9,9 +9,15 @@
 
 #[cfg(feature = "wasm-backend")]
 use crate::backend::WasmBackend;
+#[cfg(feature = "wasm-backend")]
+use crate::mir::MirCompiler;
+#[cfg(feature = "wasm-backend")]
+use crate::parser::NyashParser;
 // VM import removed with vm-legacy
 // Interpreter and MirCompiler removed
 use std::fs;
+#[cfg(feature = "wasm-backend")]
+use std::time::Instant;
 
 #[derive(Debug)]
 pub struct BenchmarkResult {
