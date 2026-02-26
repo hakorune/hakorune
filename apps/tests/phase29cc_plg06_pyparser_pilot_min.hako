@@ -1,0 +1,15 @@
+// Phase 29cc PLG-06-min3 PythonParser plugin pilot fixture
+// Contract:
+// - PythonParserBox can be constructed through plugin config.
+// - parse method route can be invoked in VM (current bridge returns void).
+
+static box Main {
+  main(args) {
+    local p
+    local out
+    p = new PythonParserBox()
+    out = p.parse("def f():\n  return 1\n")
+    print("pyparser_out=" + out)
+    return 0
+  }
+}

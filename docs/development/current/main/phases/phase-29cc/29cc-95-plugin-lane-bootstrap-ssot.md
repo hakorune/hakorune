@@ -149,7 +149,11 @@ Progress:
   - `29cc-112-plg05-net-wave2-min7-ssot.md`（accepted）
 - `PLG-06-min1` done（2026-02-26）:
   - `29cc-113-plg06-pycompiler-wave3-min1-ssot.md`（accepted）
-  - active next: `PLG-06-min2`（wave-3 rollout）
+- `PLG-06-min2` done（2026-02-26）:
+  - `29cc-114-plg06-python-wave3-min2-ssot.md`（accepted）
+- `PLG-06-min3` done（2026-02-26）:
+  - `29cc-115-plg06-pyparser-wave3-min3-ssot.md`（accepted）
+  - active next: `PLG-06-min4`（wave-3 rollout）
 
 ## 5. Gate Pack (locked)
 

@@ -21,6 +21,7 @@ declare -a VM_PLUGIN_SMOKES=(
   "tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg05_net_pilot_vm.sh"
   "tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg06_pycompiler_pilot_vm.sh"
   "tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg06_python_pilot_vm.sh"
+  "tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg06_pyparser_pilot_vm.sh"
 )
 
 echo "[vm-plugin-smoke] delegate: phase29cc pilot manifest (${#VM_PLUGIN_SMOKES[@]} scripts)"

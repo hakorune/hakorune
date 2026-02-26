@@ -33,6 +33,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-112-plg05-net-wave2-min7-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-113-plg06-pycompiler-wave3-min1-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-114-plg06-python-wave3-min2-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md
   - docs/tools/README.md
 ---
 
@@ -72,7 +73,7 @@ Related:
   - active next: `none`（B-TERNARY-03 decision fixed: non-gating維持）
   - task SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` の `Lane-B Nested Ternary Debt Pack (B-TERNARY-01..03)`
 - De-rust orchestration lane（phase-29cc）:
-  - `plugin-wave-rollout`（RNR-05 complete; PLG-03 done; PLG-04-min1..min6 done; wave-1 complete; PLG-05-min1/min2/min3/min4/min5/min6/min7 done; PLG-06-min1/min2 done）
+  - `plugin-wave-rollout`（RNR-05 complete; PLG-03 done; PLG-04-min1..min6 done; wave-1 complete; PLG-05-min1/min2/min3/min4/min5/min6/min7 done; PLG-06-min1/min2/min3 done）
   - scope decision（L5）: `docs/development/current/main/design/de-rust-scope-decision-ssot.md`（accepted）
   - strict readiness（L4）: `tools/selfhost/check_phase29x_x23_readiness.sh --strict` -> `status=READY`（2026-02-25）
   - done declaration（non-plugin）: `docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md`（accepted）
@@ -96,7 +97,8 @@ Related:
   - plugin wave-2 rollout lock（PLG-05-min7 done）: `docs/development/current/main/phases/phase-29cc/29cc-112-plg05-net-wave2-min7-ssot.md`（accepted）
   - plugin wave-3 entry lock（PLG-06-min1 done）: `docs/development/current/main/phases/phase-29cc/29cc-113-plg06-pycompiler-wave3-min1-ssot.md`（accepted）
   - plugin wave-3 rollout lock（PLG-06-min2 done）: `docs/development/current/main/phases/phase-29cc/29cc-114-plg06-python-wave3-min2-ssot.md`（accepted）
-  - plugin lane active next: `PLG-06-min3`（wave-3 rollout）
+  - plugin wave-3 rollout lock（PLG-06-min3 done）: `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`（accepted）
+  - plugin lane active next: `PLG-06-min4`（wave-3 rollout）
   - wasm lane active next: `WSM-01`（non-blocking parallel）
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）
@@ -183,6 +185,7 @@ Related:
 - De-rust plugin wave-2 rollout lock (PLG-05-min7): `docs/development/current/main/phases/phase-29cc/29cc-112-plg05-net-wave2-min7-ssot.md`
 - De-rust plugin wave-3 entry lock (PLG-06-min1): `docs/development/current/main/phases/phase-29cc/29cc-113-plg06-pycompiler-wave3-min1-ssot.md`
 - De-rust plugin wave-3 rollout lock (PLG-06-min2): `docs/development/current/main/phases/phase-29cc/29cc-114-plg06-python-wave3-min2-ssot.md`
+- De-rust plugin wave-3 rollout lock (PLG-06-min3): `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`
 - Compiler pipeline: `docs/development/current/main/design/compiler-pipeline-ssot.md`
