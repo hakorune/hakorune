@@ -5,7 +5,7 @@ set -euo pipefail
 # Purpose: single-entry developer gate with tiered profiles.
 #
 # Usage:
-#   tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3|portability|milestone|milestone-runtime|milestone-perf]
+#   tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|portability|milestone|milestone-runtime|milestone-perf]
 #   tools/checks/dev_gate.sh --list
 #
 # Profiles:
@@ -23,7 +23,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 usage() {
   cat <<'USAGE'
 Usage:
-  tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3|portability|milestone|milestone-runtime|milestone-perf]
+  tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|portability|milestone|milestone-runtime|milestone-perf]
   tools/checks/dev_gate.sh --list
 USAGE
 }
@@ -49,14 +49,18 @@ list_profiles() {
   wasm-demo-g2:
     - phase29cc_wsm_g2_min1_bridge_build_vm.sh
     - phase29cc_wsm_g2_browser_run_vm.sh
-  wasm-demo-g3:
+  wasm-demo-g3-core:
     - wasm-demo-g2
     - phase29cc_wsm_g3_canvas_clear_contract_vm.sh
     - phase29cc_wsm_g3_canvas_strokerect_contract_vm.sh
     - phase29cc_wsm_g3_canvas_beginpath_contract_vm.sh
+  wasm-demo-g3-full:
+    - wasm-demo-g3-core
     - phase29cc_wsm_g3_canvas_arc_contract_vm.sh
     - phase29cc_wsm_g3_canvas_fill_contract_vm.sh
     - phase29cc_wsm_g3_canvas_stroke_contract_vm.sh
+  wasm-demo-g3:
+    - wasm-demo-g3-full (backward compatible alias)
   portability:
     - tools/checks/windows_wsl_cmd_smoke.sh (preflight by default)
     - tools/checks/macos_portability_guard.sh
@@ -123,7 +127,7 @@ run_wasm_demo_g2() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh
 }
 
-run_wasm_demo_g3() {
+run_wasm_demo_g3_core() {
   run_wasm_demo_g2
   run_step "wasm g3 canvas.clear contract lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_clear_contract_vm.sh
@@ -131,6 +135,10 @@ run_wasm_demo_g3() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_strokerect_contract_vm.sh
   run_step "wasm g3 canvas.beginPath contract lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_beginpath_contract_vm.sh
+}
+
+run_wasm_demo_g3_full() {
+  run_wasm_demo_g3_core
   run_step "wasm g3 canvas.arc contract lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_arc_contract_vm.sh
   run_step "wasm g3 canvas.fill contract lock" \
@@ -191,8 +199,11 @@ case "${PROFILE}" in
   wasm-demo-g2)
     run_wasm_demo_g2
     ;;
-  wasm-demo-g3)
-    run_wasm_demo_g3
+  wasm-demo-g3-core)
+    run_wasm_demo_g3_core
+    ;;
+  wasm-demo-g3-full|wasm-demo-g3)
+    run_wasm_demo_g3_full
     ;;
   portability)
     run_portability

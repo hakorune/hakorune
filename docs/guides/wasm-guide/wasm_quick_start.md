@@ -6,7 +6,7 @@
 2. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh`
 3. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh`
 4. `tools/checks/dev_gate.sh wasm-demo-g2`
-5. `tools/checks/dev_gate.sh wasm-demo-g3`
+5. `tools/checks/dev_gate.sh wasm-demo-g3-core`（最小）または `tools/checks/dev_gate.sh wasm-demo-g3-full`（フル）
 
 参照SSOT:
 - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`

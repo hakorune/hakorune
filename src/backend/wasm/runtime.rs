@@ -37,24 +37,14 @@ impl RuntimeImports {
     /// Add standard runtime function imports
     fn add_standard_imports(&mut self) {
         // env.print for debugging output
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "print".to_string(),
-            params: vec!["i32".to_string()],
-            result: None,
-        });
-
+        self.push_env_i32_import("print", 1, None);
         // env.print_str for string debugging (ptr, len)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "print_str".to_string(),
-            params: vec!["i32".to_string(), "i32".to_string()],
-            result: None,
-        });
+        self.push_env_i32_import("print_str", 2, None);
 
         // Phase 9.7: Box FFI/ABI imports per BID specifications
 
-        // ExternCall imports (2x i32) shared with codegen contract.
+        // ExternCall imports shared with codegen contract.
+        // Console imports are fixed (ptr,len). Canvas imports are map-driven by arity.
         for (_, import_name) in EXTERN_CALL_MAP {
             if matches!(
                 import_name,
@@ -64,160 +54,39 @@ impl RuntimeImports {
                     | "console_info"
                     | "console_debug"
             ) {
-                self.imports.push(ImportFunction {
-                    module: "env".to_string(),
-                    name: import_name.to_string(),
-                    params: vec!["i32".to_string(), "i32".to_string()],
-                    result: None,
-                });
+                self.push_env_i32_import(import_name, 2, None);
+                continue;
+            }
+            if let Some(arity) = canvas_import_arity(import_name) {
+                self.push_env_i32_import(import_name, arity, None);
             }
         }
-
-        // env.canvas_fillRect for canvas.fillRect(canvas_id, x, y, w, h, color)
-        // Parameters: (canvas_id_ptr, canvas_id_len, x, y, w, h, color_ptr, color_len)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "canvas_fillRect".to_string(),
-            params: vec![
-                "i32".to_string(),
-                "i32".to_string(), // canvas_id (ptr, len)
-                "i32".to_string(),
-                "i32".to_string(),
-                "i32".to_string(),
-                "i32".to_string(), // x, y, w, h
-                "i32".to_string(),
-                "i32".to_string(), // color (ptr, len)
-            ],
-            result: None,
-        });
-
-        // env.canvas_fillText for canvas.fillText(canvas_id, text, x, y, font, color)
-        // Parameters: (canvas_id_ptr, canvas_id_len, text_ptr, text_len, x, y, font_ptr, font_len, color_ptr, color_len)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "canvas_fillText".to_string(),
-            params: vec![
-                "i32".to_string(),
-                "i32".to_string(), // canvas_id (ptr, len)
-                "i32".to_string(),
-                "i32".to_string(), // text (ptr, len)
-                "i32".to_string(),
-                "i32".to_string(), // x, y
-                "i32".to_string(),
-                "i32".to_string(), // font (ptr, len)
-                "i32".to_string(),
-                "i32".to_string(), // color (ptr, len)
-            ],
-            result: None,
-        });
-
-        // env.canvas_clear for canvas.clear(canvas_id)
-        // Parameters: (canvas_id_ptr, canvas_id_len)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "canvas_clear".to_string(),
-            params: vec!["i32".to_string(), "i32".to_string()],
-            result: None,
-        });
-
-        // env.canvas_strokeRect for canvas.strokeRect(canvas_id, x, y, w, h, color)
-        // Parameters: (canvas_id_ptr, canvas_id_len, x, y, w, h, color_ptr, color_len)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "canvas_strokeRect".to_string(),
-            params: vec![
-                "i32".to_string(),
-                "i32".to_string(), // canvas_id (ptr, len)
-                "i32".to_string(),
-                "i32".to_string(),
-                "i32".to_string(),
-                "i32".to_string(), // x, y, w, h
-                "i32".to_string(),
-                "i32".to_string(), // color (ptr, len)
-            ],
-            result: None,
-        });
-
-        // env.canvas_beginPath for canvas.beginPath(canvas_id)
-        // Parameters: (canvas_id_ptr, canvas_id_len)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "canvas_beginPath".to_string(),
-            params: vec!["i32".to_string(), "i32".to_string()],
-            result: None,
-        });
-
-        // env.canvas_arc for canvas.arc(canvas_id, x, y, radius, start_angle, end_angle)
-        // Parameters: (canvas_id_ptr, canvas_id_len, x, y, radius, start_angle, end_angle)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "canvas_arc".to_string(),
-            params: vec![
-                "i32".to_string(),
-                "i32".to_string(), // canvas_id (ptr, len)
-                "i32".to_string(),
-                "i32".to_string(),
-                "i32".to_string(),
-                "i32".to_string(),
-                "i32".to_string(), // x, y, radius, start, end
-            ],
-            result: None,
-        });
-
-        // env.canvas_fill for canvas.fill(canvas_id)
-        // Parameters: (canvas_id_ptr, canvas_id_len)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "canvas_fill".to_string(),
-            params: vec!["i32".to_string(), "i32".to_string()],
-            result: None,
-        });
-
-        // env.canvas_stroke for canvas.stroke(canvas_id)
-        // Parameters: (canvas_id_ptr, canvas_id_len)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "canvas_stroke".to_string(),
-            params: vec!["i32".to_string(), "i32".to_string()],
-            result: None,
-        });
 
         // Phase 9.77: BoxCall runtime functions
 
         // box_to_string - Convert any Box to string representation
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "box_to_string".to_string(),
-            params: vec!["i32".to_string()], // box_ptr
-            result: Some("i32".to_string()), // string_box_ptr
-        });
+        self.push_env_i32_import("box_to_string", 1, Some("i32"));
 
         // box_print - Print any Box to console
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "box_print".to_string(),
-            params: vec!["i32".to_string()], // box_ptr
-            result: None,
-        });
+        self.push_env_i32_import("box_print", 1, None);
 
         // box_equals - Compare two Boxes for equality
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "box_equals".to_string(),
-            params: vec!["i32".to_string(), "i32".to_string()], // box1_ptr, box2_ptr
-            result: Some("i32".to_string()),                    // bool result
-        });
+        self.push_env_i32_import("box_equals", 2, Some("i32"));
 
         // box_clone - Clone a Box
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "box_clone".to_string(),
-            params: vec!["i32".to_string()], // box_ptr
-            result: Some("i32".to_string()), // cloned_box_ptr
-        });
+        self.push_env_i32_import("box_clone", 1, Some("i32"));
 
         // Future: env.file_read, env.file_write for file I/O
         // Future: env.http_request for network access
+    }
+
+    fn push_env_i32_import(&mut self, name: &str, param_count: usize, result: Option<&str>) {
+        self.imports.push(ImportFunction {
+            module: "env".to_string(),
+            name: name.to_string(),
+            params: vec!["i32".to_string(); param_count],
+            result: result.map(str::to_string),
+        });
     }
 
     /// Get all import declarations in WAT format
@@ -371,36 +240,82 @@ fn js_console_binding(import_name: &str, console_method: &str) -> String {
     )
 }
 
+fn js_canvas_ctx_binding(
+    import_name: &str,
+    params: &str,
+    extra_setup: &str,
+    ctx_call: &str,
+) -> String {
+    format!(
+        "    {import_name}: ({params}) => {{\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {{\n        const ctx = canvas.getContext('2d');\n{extra_setup}        {ctx_call};\n      }}\n    }},\n"
+    )
+}
+
 fn js_canvas_fill_rect_binding() -> String {
-    "    canvas_fillRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.fillStyle = color;\n        ctx.fillRect(x, y, w, h);\n      }\n    },\n".to_string()
+    js_canvas_ctx_binding(
+        "canvas_fillRect",
+        "canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen",
+        "        const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n        ctx.fillStyle = color;\n",
+        "ctx.fillRect(x, y, w, h)",
+    )
 }
 
 fn js_canvas_fill_text_binding() -> String {
-    "    canvas_fillText: (canvasIdPtr, canvasIdLen, textPtr, textLen, x, y, fontPtr, fontLen, colorPtr, colorLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const text = new TextDecoder().decode(new Uint8Array(memory.buffer, textPtr, textLen));\n      const font = new TextDecoder().decode(new Uint8Array(memory.buffer, fontPtr, fontLen));\n      const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.font = font;\n        ctx.fillStyle = color;\n        ctx.fillText(text, x, y);\n      }\n    },\n".to_string()
+    js_canvas_ctx_binding(
+        "canvas_fillText",
+        "canvasIdPtr, canvasIdLen, textPtr, textLen, x, y, fontPtr, fontLen, colorPtr, colorLen",
+        "        const text = new TextDecoder().decode(new Uint8Array(memory.buffer, textPtr, textLen));\n        const font = new TextDecoder().decode(new Uint8Array(memory.buffer, fontPtr, fontLen));\n        const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n        ctx.font = font;\n        ctx.fillStyle = color;\n",
+        "ctx.fillText(text, x, y)",
+    )
 }
 
 fn js_canvas_clear_binding() -> String {
-    "    canvas_clear: (canvasIdPtr, canvasIdLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.clearRect(0, 0, canvas.width, canvas.height);\n      }\n    },\n".to_string()
+    js_canvas_ctx_binding(
+        "canvas_clear",
+        "canvasIdPtr, canvasIdLen",
+        "",
+        "ctx.clearRect(0, 0, canvas.width, canvas.height)",
+    )
 }
 
 fn js_canvas_stroke_rect_binding() -> String {
-    "    canvas_strokeRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.strokeStyle = color;\n        ctx.strokeRect(x, y, w, h);\n      }\n    },\n".to_string()
+    js_canvas_ctx_binding(
+        "canvas_strokeRect",
+        "canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen",
+        "        const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n        ctx.strokeStyle = color;\n",
+        "ctx.strokeRect(x, y, w, h)",
+    )
 }
 
 fn js_canvas_begin_path_binding() -> String {
-    "    canvas_beginPath: (canvasIdPtr, canvasIdLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.beginPath();\n      }\n    },\n".to_string()
+    js_canvas_ctx_binding("canvas_beginPath", "canvasIdPtr, canvasIdLen", "", "ctx.beginPath()")
 }
 
 fn js_canvas_arc_binding() -> String {
-    "    canvas_arc: (canvasIdPtr, canvasIdLen, x, y, radius, startAngle, endAngle) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.arc(x, y, radius, startAngle, endAngle);\n      }\n    },\n".to_string()
+    js_canvas_ctx_binding(
+        "canvas_arc",
+        "canvasIdPtr, canvasIdLen, x, y, radius, startAngle, endAngle",
+        "",
+        "ctx.arc(x, y, radius, startAngle, endAngle)",
+    )
 }
 
 fn js_canvas_fill_binding() -> String {
-    "    canvas_fill: (canvasIdPtr, canvasIdLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.fill();\n      }\n    },\n".to_string()
+    js_canvas_ctx_binding("canvas_fill", "canvasIdPtr, canvasIdLen", "", "ctx.fill()")
 }
 
 fn js_canvas_stroke_binding() -> String {
-    "    canvas_stroke: (canvasIdPtr, canvasIdLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.stroke();\n      }\n    },\n".to_string()
+    js_canvas_ctx_binding("canvas_stroke", "canvasIdPtr, canvasIdLen", "", "ctx.stroke()")
+}
+
+fn canvas_import_arity(import_name: &str) -> Option<usize> {
+    match import_name {
+        "canvas_fillRect" | "canvas_strokeRect" => Some(8),
+        "canvas_fillText" => Some(10),
+        "canvas_clear" | "canvas_beginPath" | "canvas_fill" | "canvas_stroke" => Some(2),
+        "canvas_arc" => Some(7),
+        _ => None,
+    }
 }
 
 #[cfg(test)]

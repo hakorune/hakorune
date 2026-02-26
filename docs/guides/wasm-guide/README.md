@@ -8,7 +8,8 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - min1 gate: `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh`
 - min2 gate: `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh`
 - 日常まとめ実行: `tools/checks/dev_gate.sh wasm-demo-g2`
-- G3最小実行: `tools/checks/dev_gate.sh wasm-demo-g3`
+- G3最小実行: `tools/checks/dev_gate.sh wasm-demo-g3-core`
+- G3フル実行: `tools/checks/dev_gate.sh wasm-demo-g3-full`（`wasm-demo-g3` は互換alias）
 - SSOT:
   - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
