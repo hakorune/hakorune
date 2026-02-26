@@ -103,4 +103,5 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - G3 queue:
-  - `canvas.fillCircle` の 1語彙を `1 blocker = 1 shape` で追加し、fixture/gate を先に固定する。
+  - `canvas.fillCircle`（WSM-G3-min12）を `1 blocker = 1 shape` で追加し、fixture/gate を先に固定する。
+  - `canvas.drawLine`（WSM-G3-min13）を同方式で続行する（固定順: fillCircle -> drawLine）。
