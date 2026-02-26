@@ -12,7 +12,7 @@ Related:
   - tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_array_get_parity_vm.sh
   - tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_array_set_parity_vm.sh
   - tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_await_non_future_reject_vm.sh
-  - tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh
+  - tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_newclosure_probe_vm.sh
 ---
 
 # 29x-82: VM-Hako S6 Dual-Run Parity Gate Pack (SSOT)
@@ -35,7 +35,7 @@ Integrated steps:
 2. `phase29z_vm_hako_s5_array_get_parity_vm.sh`（success parity, route pin helper 経由）
 3. `phase29z_vm_hako_s5_array_set_parity_vm.sh`（success parity, route pin helper 経由）
 4. `phase29z_vm_hako_s5_await_non_future_reject_vm.sh`（reject parity, route pin helper 経由）
-5. `phase29z_vm_hako_backend_frame_vm.sh`（reject fail-fast contract）
+5. `phase29z_vm_hako_s5_newclosure_probe_vm.sh`（reject fail-fast contract）
 
 ## 2. Contract
 

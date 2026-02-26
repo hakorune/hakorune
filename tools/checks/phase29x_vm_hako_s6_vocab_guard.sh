@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 ALLOWLIST="$ROOT_DIR/tools/checks/phase29x_vm_hako_s6_vocab_allowlist.txt"
-TARGET="$ROOT_DIR/src/runner/modes/vm_hako.rs"
+TARGET="$ROOT_DIR/src/runner/modes/vm_hako/subset_check.rs"
 
 cd "$ROOT_DIR"
 
@@ -59,7 +59,7 @@ awk '
     }
   }
 
-  /^[[:space:]]*fn[[:space:]]+check_vm_hako_subset_json[[:space:]]*\(/ {
+  /^[[:space:]]*(pub\([[:alnum:]_]+\)[[:space:]]+)?fn[[:space:]]+check_vm_hako_subset_json[[:space:]]*\(/ {
     in_fn = 1
   }
 

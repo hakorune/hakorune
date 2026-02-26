@@ -23,7 +23,7 @@ required_steps=(
   phase29z_vm_hako_s5_array_get_parity_vm.sh
   phase29z_vm_hako_s5_array_set_parity_vm.sh
   phase29z_vm_hako_s5_await_non_future_reject_vm.sh
-  phase29z_vm_hako_backend_frame_vm.sh
+  phase29z_vm_hako_s5_newclosure_probe_vm.sh
 )
 
 for step in "${required_steps[@]}"; do
