@@ -101,11 +101,13 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin lane active next:
     - `none`（monitor-only）
   - wasm lane active next:
-    - `WSM-02b-min3`（ExternCall coverage expansion）
+    - `WSM-02b-min4`（ExternCall coverage expansion）
   - wasm lane lock（WSM-02b-min1 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`
   - wasm lane lock（WSM-02b-min2 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-122-wsm02b-min2-console-error-extern-ssot.md`
+  - wasm lane lock（WSM-02b-min3 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-123-wsm02b-min3-console-info-extern-ssot.md`
   - wasm grammar/map SSOT:
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
   - wasm migration fixed order（WSM-02+）:
@@ -132,15 +134,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. `B-TERNARY-01` [done, 2026-02-25]: nested ternary の対応範囲を probe形（int/int）以外へ拡張した（Var(Local Int) values 受理）。
-2. `B-TERNARY-02` [done, 2026-02-25]: `unsupported:ternary_no_lower` を維持する境界テストを追加し、fail-fast境界を固定した。
-3. `B-TERNARY-03` [done, 2026-02-25]: lane-B fast gate 昇格判定は「据え置き（non-gating 維持）」で確定した（var-values canonical mismatch 残存）。
+1. `WSM-02b-min4`（ExternCall coverage expansion）: console family の残り候補 1件を 1コミットで固定。
+2. `WSM-02c-min1..`（BoxCall coverage expansion）: `builtins.rs` の supported-list を demo最小に合わせて段階追加。
+3. `WSM-02d-min1..`（boundary gates）: wasm supported/unsupported 境界 fixture と demo-min lock を追加。
 4. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
-5. smoke hygiene sprint（priority batch, 2026-02-26）:
-  - [in-progress] strict VM smoke lane policy を明示固定（`HAKO_JOINIR_STRICT=1` かつ rust-vm想定スモークは `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` を契約化）
-  - [in-progress] LLVM EXE build/link race を全経路で排他（`tools/build_llvm.sh` に global lock、runner lockと二重化しない）
-  - [done] `cargo test` output filename collision 警告の縮退（`[lib] crate-type` を host/test 導線優先の `rlib` 単独に統一）
-  - [in-progress] smoke 過密整理（inventory + orphan candidate 可視化）を追加し、統合/削除候補を固定
 
 ## Quick Restart (After Reboot)
 
@@ -295,6 +292,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - De-rust wasm demo-goal lock: `docs/development/current/main/phases/phase-29cc/29cc-120-wasm-demo-goal-contract-ssot.md`
 - De-rust wasm lane lock (WSM-02b-min1): `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`
 - De-rust wasm lane lock (WSM-02b-min2): `docs/development/current/main/phases/phase-29cc/29cc-122-wsm02b-min2-console-error-extern-ssot.md`
+- De-rust wasm lane lock (WSM-02b-min3): `docs/development/current/main/phases/phase-29cc/29cc-123-wsm02b-min3-console-info-extern-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Code retirement/history policy: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`

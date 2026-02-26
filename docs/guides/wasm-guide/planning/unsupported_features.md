@@ -18,6 +18,7 @@ Supported extern names in `instructions.rs`:
 - `env.console.log`
 - `env.console.warn`
 - `env.console.error`
+- `env.console.info`
 - `env.canvas.fillRect`
 - `env.canvas.fillText`
 
