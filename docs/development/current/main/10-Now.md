@@ -106,6 +106,7 @@ Related:
   - plugin wave-3 rollout lock（PLG-06-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`（accepted）
   - plugin lane active next: `none`（monitor-only）
   - wasm lane active next: `WSM-G2-min1`（browser demo-run minimal plan, docs-first）
+  - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm lane lock history（SSOT pointer）: `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
   - wasm latest lock（WSM-02d-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`（accepted）
   - `docs/development/current/main/phases/phase-29cc/README.md`
@@ -133,6 +134,7 @@ Related:
 8. `docs/development/current/main/design/joinir-port-task-pack-ssot.md`
 9. `docs/tools/README.md`
 10. `docs/development/current/main/phases/phase-29cc/README.md`
+11. `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
 
 ## Daily Commands
 

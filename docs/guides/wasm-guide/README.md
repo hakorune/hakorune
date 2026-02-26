@@ -13,6 +13,9 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[FFI/BIDチュートリアル](ffi-bid-tutorial.md)** - 外部API統合方法
 - **[メモリ管理](memory-management.md)** - WASM メモリレイアウト・最適化
 
+### 現在のWASMデモタスク
+- **[WSM G2 ブラウザデモタスク](../../development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md)** - `projects/nyash-wasm` を G2 (browser demo minimum) で再到達するための直近 3〜5 タスクを docs-first で固定し、run loop → headless smoke → dev guide の順で gate を固める。
+
 ## 🚀 クイックスタート
 
 ### WASM コンパイル

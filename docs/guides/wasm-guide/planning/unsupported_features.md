@@ -63,6 +63,11 @@ Still unsupported (fail-fast):
 - Keep unsupported paths fail-fast with explicit supported-list diagnostics.
 - Keep this inventory synchronized to actual source files.
 
+## WSM G2 ブラウザデモとの接続
+- `projects/nyash-wasm/nyash_playground.html` を G2 run loop 稼働対象として再定義し、`apps/tests/phase29cc_wsm02d_demo_min.hako` の `console.log/warn/error/info/debug` 呼び出しと gate を一致させる狙いを `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md` が定義している。
+- `ConsoleBox.group` のような scope-out helper は `phase29cc_wsm02d_demo_unsupported_boundary_vm.sh` で fail-fast なので、このドキュメントで inventory に登録して unsupported inventory 側の記録を補完する。
+- headless smoke `phase29cc_wsm_g2_browser_run_*` を `tools/checks/dev_gate.sh wasm-demo-g2` 等に追加する際は、この unsupported list を参照して fail-fast 判定を gate に突き合わせる。
+
 ## Next Candidates (WSM-02+)
 - Expand extern-call coverage beyond current 3 names.
 - Expand BoxCall coverage for core methods used by selfhost fixtures.

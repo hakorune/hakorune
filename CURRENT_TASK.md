@@ -102,6 +102,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `none`（monitor-only）
   - wasm lane active next:
     - `WSM-G2-min1`（browser demo-run minimal plan, docs-first）
+    - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm lane lock history（SSOT pointer）:
     - `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
   - wasm latest lock（WSM-02d-min4 done）:
