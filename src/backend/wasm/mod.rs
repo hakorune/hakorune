@@ -6,6 +6,7 @@
  */
 
 mod codegen;
+mod extern_contract;
 mod memory;
 mod runtime;
 // mod executor; // TODO: Fix WASM executor build errors

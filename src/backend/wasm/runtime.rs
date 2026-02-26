@@ -6,6 +6,7 @@
  */
 
 use super::WasmError;
+use crate::backend::wasm::extern_contract::EXTERN_CALL_MAP;
 
 /// Runtime import definitions for WASM modules
 pub struct RuntimeImports {
@@ -53,21 +54,17 @@ impl RuntimeImports {
 
         // Phase 9.7: Box FFI/ABI imports per BID specifications
 
-        // env.console_log for console.log(message) - (string_ptr, string_len)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "console_log".to_string(),
-            params: vec!["i32".to_string(), "i32".to_string()],
-            result: None,
-        });
-
-        // env.console_warn for console.warn(message) - (string_ptr, string_len)
-        self.imports.push(ImportFunction {
-            module: "env".to_string(),
-            name: "console_warn".to_string(),
-            params: vec!["i32".to_string(), "i32".to_string()],
-            result: None,
-        });
+        // ExternCall imports (2x i32) shared with codegen contract.
+        for (_, import_name) in EXTERN_CALL_MAP {
+            if matches!(import_name, "console_log" | "console_warn") {
+                self.imports.push(ImportFunction {
+                    module: "env".to_string(),
+                    name: import_name.to_string(),
+                    params: vec!["i32".to_string(), "i32".to_string()],
+                    result: None,
+                });
+            }
+        }
 
         // env.canvas_fillRect for canvas.fillRect(canvas_id, x, y, w, h, color)
         // Parameters: (canvas_id_ptr, canvas_id_len, x, y, w, h, color_ptr, color_len)

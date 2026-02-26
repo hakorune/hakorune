@@ -1,4 +1,5 @@
 use super::WasmError;
+use crate::backend::wasm::extern_contract::{extern_import_name, supported_extern_calls_csv};
 use crate::mir::{BinaryOp, CompareOp, ConstValue, ValueId};
 use crate::mir::MirInstruction;
 use super::codegen::WasmCodegen;
@@ -152,18 +153,13 @@ impl WasmCodegen {
                 ..
             } => {
                 // Generate call to external function import
-                let call_target = match extern_name.as_str() {
-                    "env.console.log" => "console_log",
-                    "env.console.warn" => "console_warn",
-                    "env.canvas.fillRect" => "canvas_fillRect",
-                    "env.canvas.fillText" => "canvas_fillText",
-                    _ => {
-                        return Err(WasmError::UnsupportedInstruction(format!(
-                            "Unsupported extern call: {} (supported: env.console.log, env.console.warn, env.canvas.fillRect, env.canvas.fillText)",
-                            extern_name
-                        )))
-                    }
-                };
+                let call_target = extern_import_name(extern_name).ok_or_else(|| {
+                    WasmError::UnsupportedInstruction(format!(
+                        "Unsupported extern call: {} (supported: {})",
+                        extern_name,
+                        supported_extern_calls_csv()
+                    ))
+                })?;
 
                 let mut instructions = Vec::new();
 

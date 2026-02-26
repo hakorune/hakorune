@@ -239,8 +239,7 @@ extern "C" fn string_invoke_id(
     result: *mut u8,
     result_len: *mut usize,
 ) -> i32 {
-    unsafe {
-        match method_id {
+    match method_id {
             M_BIRTH => {
                 // Create new StringBox instance
                 let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
@@ -381,8 +380,7 @@ extern "C" fn string_invoke_id(
 
                 return write_tlv_bool(true, result, result_len);
             }
-            _ => E_METHOD,
-        }
+        _ => E_METHOD,
     }
 }
 
@@ -397,18 +395,6 @@ pub static nyash_typebox_StringBox: NyashTypeBoxFfi = NyashTypeBoxFfi {
     capabilities: 0,
 };
 
-fn preflight(result: *mut u8, result_len: *mut usize, needed: usize) -> bool {
-    unsafe {
-        if result_len.is_null() {
-            return false;
-        }
-        if result.is_null() || *result_len < needed {
-            *result_len = needed;
-            return true;
-        }
-    }
-    false
-}
 fn write_tlv_result(payloads: &[(u8, &[u8])], result: *mut u8, result_len: *mut usize) -> i32 {
     if result_len.is_null() {
         return E_ARGS;

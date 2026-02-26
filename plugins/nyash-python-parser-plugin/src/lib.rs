@@ -115,7 +115,6 @@ pub struct NyashTypeBoxFfi {
 }
 unsafe impl Sync for NyashTypeBoxFfi {}
 
-const TYPE_ID_PARSER: u32 = 60;
 const METHOD_BIRTH: u32 = 0;
 const METHOD_PARSE: u32 = 1;
 const METHOD_FINI: u32 = u32::MAX;

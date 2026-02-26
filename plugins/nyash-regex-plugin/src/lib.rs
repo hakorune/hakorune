@@ -11,7 +11,6 @@ use std::sync::{
 // Error/status codes aligned with other plugins
 const OK: i32 = 0;
 const E_SHORT: i32 = -1;
-const E_TYPE: i32 = -2;
 const E_METHOD: i32 = -3;
 const E_ARGS: i32 = -4;
 const E_PLUGIN: i32 = -5;
@@ -25,9 +24,6 @@ const M_FIND: u32 = 3; // find(text) -> String (first match or empty)
 const M_REPLACE_ALL: u32 = 4; // replaceAll(text, repl) -> String
 const M_SPLIT: u32 = 5; // split(text, limit) -> String (joined by '\n') minimal
 const M_FINI: u32 = u32::MAX; // fini()
-
-// Assign an unused type id (see nyash.toml [box_types])
-const TYPE_ID_REGEX: u32 = 52;
 
 struct RegexInstance {
     re: Option<Regex>,
@@ -442,9 +438,6 @@ fn write_tlv_result(payloads: &[(u8, &[u8])], result: *mut u8, result_len: *mut 
         *result_len = needed;
     }
     OK
-}
-fn write_tlv_i64(v: i64, result: *mut u8, result_len: *mut usize) -> i32 {
-    write_tlv_result(&[(3u8, &v.to_le_bytes())], result, result_len)
 }
 fn write_tlv_bool(v: bool, result: *mut u8, result_len: *mut usize) -> i32 {
     write_tlv_result(&[(1u8, &[if v { 1u8 } else { 0u8 }])], result, result_len)

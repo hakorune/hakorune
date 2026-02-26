@@ -9,7 +9,6 @@ extern "C" {
         -> *mut c_void;
     pub fn nyjson_doc_free(doc: *mut c_void);
     pub fn nyjson_doc_root(doc: *mut c_void) -> *mut c_void;
-    pub fn nyjson_is_null(v: *mut c_void) -> i32;
     pub fn nyjson_is_bool(v: *mut c_void) -> i32;
     pub fn nyjson_is_int(v: *mut c_void) -> i32;
     pub fn nyjson_is_real(v: *mut c_void) -> i32;

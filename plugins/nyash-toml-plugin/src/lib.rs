@@ -9,7 +9,6 @@ use std::sync::{
 
 const OK: i32 = 0;
 const E_SHORT: i32 = -1;
-const E_TYPE: i32 = -2;
 const E_METHOD: i32 = -3;
 const E_ARGS: i32 = -4;
 const E_PLUGIN: i32 = -5;
@@ -20,8 +19,6 @@ const M_PARSE: u32 = 1; // parse(text) -> bool
 const M_GET: u32 = 2; // get(path.dot.segments) -> string (toml-display) or empty
 const M_TO_JSON: u32 = 3; // toJson() -> string (JSON)
 const M_FINI: u32 = u32::MAX; // fini()
-
-const TYPE_ID_TOML: u32 = 54;
 
 struct TomlInstance {
     value: Option<toml::Value>,
@@ -291,24 +288,6 @@ pub static nyash_typebox_TOMLBox: NyashTypeBoxFfi = NyashTypeBoxFfi {
     invoke_id: Some(toml_invoke_id),
     capabilities: 0,
 };
-
-fn toml_to_json(v: &toml::Value) -> serde_json::Value {
-    match v {
-        toml::Value::String(s) => serde_json::Value::String(s.clone()),
-        toml::Value::Integer(i) => serde_json::Value::from(*i),
-        toml::Value::Float(f) => serde_json::Value::from(*f),
-        toml::Value::Boolean(b) => serde_json::Value::from(*b),
-        toml::Value::Datetime(dt) => serde_json::Value::String(dt.to_string()),
-        toml::Value::Array(arr) => serde_json::Value::Array(arr.iter().map(toml_to_json).collect()),
-        toml::Value::Table(map) => {
-            let mut m = serde_json::Map::new();
-            for (k, vv) in map.iter() {
-                m.insert(k.clone(), toml_to_json(vv));
-            }
-            serde_json::Value::Object(m)
-        }
-    }
-}
 
 fn preflight(result: *mut u8, result_len: *mut usize, needed: usize) -> bool {
     unsafe {

@@ -1,4 +1,4 @@
-# WASM Backend Unsupported Inventory (WSM-02b-min1)
+# WASM Backend Unsupported Inventory
 
 ## Last Updated
 - 2026-02-26
