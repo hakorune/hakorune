@@ -105,4 +105,4 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - P4 queue:
-  - `WSM-P4-min1`: wasm binary writer（section/LEB128）の最小契約を docs-first で固定する。
+  - `WSM-P4-min2`: binary writer skeleton（magic/version + section/LEB128 最小）を実装し、fixture/gate を lock する。
