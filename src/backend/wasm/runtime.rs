@@ -56,7 +56,7 @@ impl RuntimeImports {
 
         // ExternCall imports (2x i32) shared with codegen contract.
         for (_, import_name) in EXTERN_CALL_MAP {
-            if matches!(import_name, "console_log" | "console_warn") {
+            if matches!(import_name, "console_log" | "console_warn" | "console_error") {
                 self.imports.push(ImportFunction {
                     module: "env".to_string(),
                     name: import_name.to_string(),
@@ -237,6 +237,13 @@ impl RuntimeImports {
                         js.push_str("      console.warn(str);\n");
                         js.push_str("    },\n");
                     }
+                    "console_error" => {
+                        js.push_str("    console_error: (ptr, len) => {\n");
+                        js.push_str("      const memory = instance.exports.memory;\n");
+                        js.push_str("      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n");
+                        js.push_str("      console.error(str);\n");
+                        js.push_str("    },\n");
+                    }
                     "canvas_fillRect" => {
                         js.push_str("    canvas_fillRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {\n");
                         js.push_str("      const memory = instance.exports.memory;\n");
@@ -329,6 +336,7 @@ mod tests {
         assert!(!runtime.imports.is_empty());
         assert!(runtime.has_import("print"));
         assert!(runtime.has_import("console_warn"));
+        assert!(runtime.has_import("console_error"));
     }
 
     #[test]
@@ -369,6 +377,7 @@ mod tests {
         assert!(js.contains("print"));
         assert!(js.contains("console.log"));
         assert!(js.contains("console.warn"));
+        assert!(js.contains("console.error"));
     }
 
     #[test]

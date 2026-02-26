@@ -1,8 +1,9 @@
 /// Canonical extern-call contract shared by WASM codegen and runtime imports.
 /// Keep this list as single source of truth for supported extern call names.
-pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 4] = [
+pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 5] = [
     ("env.console.log", "console_log"),
     ("env.console.warn", "console_warn"),
+    ("env.console.error", "console_error"),
     ("env.canvas.fillRect", "canvas_fillRect"),
     ("env.canvas.fillText", "canvas_fillText"),
 ];

@@ -101,9 +101,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin lane active next:
     - `none`（monitor-only）
   - wasm lane active next:
-    - `WSM-02b-min2`（ExternCall coverage expansion）
+    - `WSM-02b-min3`（ExternCall coverage expansion）
   - wasm lane lock（WSM-02b-min1 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`
+  - wasm lane lock（WSM-02b-min2 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-122-wsm02b-min2-console-error-extern-ssot.md`
   - wasm grammar/map SSOT:
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
   - wasm migration fixed order（WSM-02+）:
@@ -292,6 +294,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - De-rust wasm lane lock (WSM-02a): `docs/development/current/main/phases/phase-29cc/29cc-119-wsm02a-assignment-local-unblock-ssot.md`
 - De-rust wasm demo-goal lock: `docs/development/current/main/phases/phase-29cc/29cc-120-wasm-demo-goal-contract-ssot.md`
 - De-rust wasm lane lock (WSM-02b-min1): `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`
+- De-rust wasm lane lock (WSM-02b-min2): `docs/development/current/main/phases/phase-29cc/29cc-122-wsm02b-min2-console-error-extern-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Code retirement/history policy: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`

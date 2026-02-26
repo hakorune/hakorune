@@ -17,6 +17,7 @@ This document tracks current unsupported surface for the Rust WASM backend based
 Supported extern names in `instructions.rs`:
 - `env.console.log`
 - `env.console.warn`
+- `env.console.error`
 - `env.canvas.fillRect`
 - `env.canvas.fillText`
 
