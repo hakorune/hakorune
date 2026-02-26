@@ -19,6 +19,8 @@ Related:
 
 ## Decision
 1. WAT出力安定化のため、WASM codegen の関数生成順と data segment 出力順を決定化した。
+   - 関数は `function name` の辞書順で生成する。
+   - data segment は `(offset, string)` のタプル順で生成する。
 2. `tests/wasm_demo_min_fixture.rs` に parity contract（direct vs `--emit-wat`）を追加し、厳密文字列一致を固定した。
 3. parity smoke `phase29cc_wsm_p1_parity_wat_vm.sh` を追加し、`tools/checks/dev_gate.sh wasm-boundary-lite` へ組み込んだ。
 

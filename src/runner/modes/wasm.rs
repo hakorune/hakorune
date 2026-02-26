@@ -6,6 +6,22 @@ use std::{fs, process};
 
 impl NyashRunner {
     #[cfg(feature = "wasm-backend")]
+    fn parse_ast_for_wasm_emit(&self, filename: &str, code: &str) -> nyash_rust::ast::ASTNode {
+        let ast = match NyashParser::parse_from_string(code) {
+            Ok(ast) => ast,
+            Err(e) => {
+                crate::runner::modes::common_util::diag::print_parse_error_with_context(
+                    filename, code, &e,
+                );
+                process::exit(1);
+            }
+        };
+        // Keep WASM emit route macro-free for deterministic parity checks against
+        // fixture-level compile_to_wat contracts.
+        ast
+    }
+
+    #[cfg(feature = "wasm-backend")]
     fn compile_file_to_wat_text(&self, filename: &str) -> String {
         // Read the file
         let code = match fs::read_to_string(filename) {
@@ -17,17 +33,7 @@ impl NyashRunner {
         };
 
         // Parse to AST
-        let ast = match NyashParser::parse_from_string(&code) {
-            Ok(ast) => ast,
-            Err(e) => {
-                crate::runner::modes::common_util::diag::print_parse_error_with_context(
-                    filename, &code, &e,
-                );
-                process::exit(1);
-            }
-        };
-        // Keep WASM emit route macro-free for deterministic parity checks against
-        // fixture-level compile_to_wat contracts.
+        let ast = self.parse_ast_for_wasm_emit(filename, &code);
 
         // Compile to MIR
         let mut mir_compiler = MirCompiler::new();
