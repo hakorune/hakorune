@@ -101,16 +101,16 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin lane active next:
     - `none`（monitor-only）
   - wasm lane active next:
-    - `WSM-G3-min9`（canvas setStrokeStyle 1語彙 fixture/gate lock）
+    - `WSM-G3-min10`（canvas setLineWidth 1語彙 fixture/gate lock）
     - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm lane lock history（SSOT pointer）:
     - `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
   - wasm series lock set（WSM-G2/G3）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md` .. `docs/development/current/main/phases/phase-29cc/29cc-144-wsm-g3-min8-canvas-setfillstyle-lock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md` .. `docs/development/current/main/phases/phase-29cc/29cc-145-wsm-g3-min9-canvas-setstrokestyle-lock-ssot.md`
   - wasm latest lock（WSM-02d-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
-  - wasm latest lock（WSM-G3-min8 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-144-wsm-g3-min8-canvas-setfillstyle-lock-ssot.md`
+  - wasm latest lock（WSM-G3-min9 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-145-wsm-g3-min9-canvas-setstrokestyle-lock-ssot.md`
   - wasm grammar/map SSOT:
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
   - wasm `.hako`-only output roadmap SSOT:
@@ -139,7 +139,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. `WSM-G3-min9`（canvas 1語彙）: `setStrokeStyle` を fixture/gate で固定する。
+1. `WSM-G3-min10`（canvas 1語彙）: `setLineWidth` を fixture/gate で固定する。
 2. `WSM-02d` gate pack は lightweight/milestone の二段運用を維持する。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 

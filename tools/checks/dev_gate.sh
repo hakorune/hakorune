@@ -60,6 +60,7 @@ list_profiles() {
     - phase29cc_wsm_g3_canvas_fill_contract_vm.sh
     - phase29cc_wsm_g3_canvas_stroke_contract_vm.sh
     - phase29cc_wsm_g3_canvas_setfillstyle_contract_vm.sh
+    - phase29cc_wsm_g3_canvas_setstrokestyle_contract_vm.sh
   wasm-demo-g3:
     - wasm-demo-g3-full (backward compatible alias)
   portability:
@@ -148,6 +149,8 @@ run_wasm_demo_g3_full() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_stroke_contract_vm.sh
   run_step "wasm g3 canvas.setFillStyle contract lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_setfillstyle_contract_vm.sh
+  run_step "wasm g3 canvas.setStrokeStyle contract lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_setstrokestyle_contract_vm.sh
 }
 
 run_portability() {

@@ -231,6 +231,7 @@ fn js_binding_for_import(name: &str) -> Option<String> {
         "canvas_fill" => Some(js_canvas_fill_binding()),
         "canvas_stroke" => Some(js_canvas_stroke_binding()),
         "canvas_setFillStyle" => Some(js_canvas_set_fill_style_binding()),
+        "canvas_setStrokeStyle" => Some(js_canvas_set_stroke_style_binding()),
         _ => None,
     }
 }
@@ -318,6 +319,15 @@ fn js_canvas_set_fill_style_binding() -> String {
     )
 }
 
+fn js_canvas_set_stroke_style_binding() -> String {
+    js_canvas_ctx_binding(
+        "canvas_setStrokeStyle",
+        "canvasIdPtr, canvasIdLen, colorPtr, colorLen",
+        "        const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n",
+        "ctx.strokeStyle = color",
+    )
+}
+
 fn canvas_import_arity(import_name: &str) -> Option<usize> {
     match import_name {
         "canvas_fillRect" | "canvas_strokeRect" => Some(8),
@@ -325,6 +335,7 @@ fn canvas_import_arity(import_name: &str) -> Option<usize> {
         "canvas_clear" | "canvas_beginPath" | "canvas_fill" | "canvas_stroke" => Some(2),
         "canvas_arc" => Some(7),
         "canvas_setFillStyle" => Some(4),
+        "canvas_setStrokeStyle" => Some(4),
         _ => None,
     }
 }
@@ -349,6 +360,7 @@ mod tests {
         assert!(runtime.has_import("canvas_fill"));
         assert!(runtime.has_import("canvas_stroke"));
         assert!(runtime.has_import("canvas_setFillStyle"));
+        assert!(runtime.has_import("canvas_setStrokeStyle"));
     }
 
     #[test]
@@ -399,6 +411,7 @@ mod tests {
         assert!(js.contains("canvas_fill"));
         assert!(js.contains("canvas_stroke"));
         assert!(js.contains("canvas_setFillStyle"));
+        assert!(js.contains("canvas_setStrokeStyle"));
         assert!(js.contains("clearRect"));
         assert!(js.contains("strokeRect"));
         assert!(js.contains("beginPath"));
@@ -406,6 +419,7 @@ mod tests {
         assert!(js.contains("ctx.fill"));
         assert!(js.contains("ctx.stroke"));
         assert!(js.contains("ctx.fillStyle"));
+        assert!(js.contains("ctx.strokeStyle"));
     }
 
     #[test]
@@ -455,6 +469,14 @@ mod tests {
         let js = runtime.get_js_import_object();
         assert!(js.contains("canvas_setFillStyle"));
         assert!(js.contains("ctx.fillStyle"));
+    }
+
+    #[test]
+    fn runtime_imports_canvas_set_stroke_style_js_binding() {
+        let runtime = RuntimeImports::new();
+        let js = runtime.get_js_import_object();
+        assert!(js.contains("canvas_setStrokeStyle"));
+        assert!(js.contains("ctx.strokeStyle"));
     }
 
     #[test]
