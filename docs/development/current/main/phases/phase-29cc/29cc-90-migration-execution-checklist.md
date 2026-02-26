@@ -127,3 +127,4 @@ Related:
 - [x] plugin lane `PLG-05-min4` wave-2 Encoding rollout accepted (`29cc-109-plg05-encoding-wave2-min4-ssot.md`)
 - [x] plugin lane `PLG-05-min5` wave-2 Path rollout accepted (`29cc-110-plg05-path-wave2-min5-ssot.md`)
 - [x] plugin lane `PLG-05-min6` wave-2 Math rollout accepted (`29cc-111-plg05-math-wave2-min6-ssot.md`)
+- [x] plugin lane `PLG-05-min7` wave-2 Net rollout accepted (`29cc-112-plg05-net-wave2-min7-ssot.md`)

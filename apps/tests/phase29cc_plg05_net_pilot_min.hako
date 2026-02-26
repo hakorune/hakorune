@@ -1,0 +1,16 @@
+// Phase 29cc PLG-05-min7 Net plugin pilot fixture
+// Contract:
+// - ResponseBox can be constructed through plugin config.
+// - setHeader/getHeader/write/readBody routes work in VM.
+
+static box Main {
+  main(args) {
+    local r
+    r = new ResponseBox()
+    r.setHeader("X-Test", "ok")
+    r.write("body-123")
+    print("net_header=" + r.getHeader("X-Test"))
+    print("net_body=" + r.readBody())
+    return 0
+  }
+}
