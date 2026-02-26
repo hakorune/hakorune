@@ -157,28 +157,28 @@ Week 2 contract pin (X7):
 
 Week 2 contract pin (X8):
 - fixture: `apps/tests/phase29x_rc_return_cleanup_min.hako`
-- smoke: `tools/smokes/v2/profiles/integration/apps/phase29x_rc_return_cleanup_vm.sh`
-- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_return_cleanup_vm.sh` PASS（baseline + `rc_insertion_selfcheck`）
+- smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_return_cleanup_vm.sh`
+- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_return_cleanup_vm.sh` PASS（baseline + `rc_insertion_selfcheck`）
 
 Week 2 contract pin (X9):
 - fixture: `apps/tests/phase29x_rc_break_cleanup_min.hako`
-- smoke: `tools/smokes/v2/profiles/integration/apps/phase29x_rc_break_cleanup_vm.sh`
-- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_break_cleanup_vm.sh` PASS（baseline + `rc_insertion_selfcheck`）
+- smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_break_cleanup_vm.sh`
+- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_break_cleanup_vm.sh` PASS（baseline + `rc_insertion_selfcheck`）
 
 Week 2 contract pin (X10):
 - fixture: `apps/tests/phase29x_rc_continue_cleanup_min.hako`
-- smoke: `tools/smokes/v2/profiles/integration/apps/phase29x_rc_continue_cleanup_vm.sh`
-- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_continue_cleanup_vm.sh` PASS（baseline + `rc_insertion_selfcheck`）
+- smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_continue_cleanup_vm.sh`
+- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_continue_cleanup_vm.sh` PASS（baseline + `rc_insertion_selfcheck`）
 
 Week 2 contract pin (X11):
-- smoke: `tools/smokes/v2/profiles/integration/apps/phase29x_rc_phi_edge_verifier_vm.sh`
+- smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_phi_edge_verifier_vm.sh`
 - fail-fast tag: `[freeze:contract][rc_insertion/phi_edge_mismatch]`
-- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_phi_edge_verifier_vm.sh` PASS（baseline + fail-fast tag observed）
+- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_phi_edge_verifier_vm.sh` PASS（baseline + fail-fast tag observed）
 
 Week 2 contract pin (X12):
-- smoke: `tools/smokes/v2/profiles/integration/apps/phase29x_rc_three_rules_vm.sh`
+- smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_three_rules_vm.sh`
 - marker: `[rc_three_rules] overwrite=ok explicit_drop=ok scope_end=ok`
-- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_three_rules_vm.sh` PASS
+- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_three_rules_vm.sh` PASS
 
 Week 2 done:
 - RC 3 規則がすべて fixture+gate で固定
@@ -331,7 +331,7 @@ Post-X23 contract pin (X30):
 Post-X23 contract pin (X31):
 - SSOT: `docs/development/current/main/phases/phase-29x/29x-57-thin-rust-gate-pack-ssot.md`
 - contract: X24-X30 を `phase29x_thin_rust_gate_vm.sh` 1コマンドで再現し、gate pack を固定
-- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/phase29x_thin_rust_gate_vm.sh` PASS
+- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_thin_rust_gate_vm.sh` PASS
 
 Lane D done:
 - route / verifier / safety の責務が薄いRust層で一箇所化されている
@@ -401,7 +401,7 @@ Lane F contract pin (X38):
 Lane F contract pin (X39):
 - SSOT: `docs/development/current/main/phases/phase-29x/29x-65-rust-lane-optin-isolation-ssot.md`
 - contract: Rust lane 入口を `tools/compat/phase29x_rust_lane_gate.sh` に隔離し、`PHASE29X_ALLOW_RUST_LANE=1` 明示時のみ実行を許可
-- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/phase29x_rust_lane_optin_only.sh` PASS
+- evidence (2026-02-13): `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rust_lane_optin_only.sh` PASS
 
 Lane F contract pin (X40):
 - SSOT: `docs/development/current/main/phases/phase-29x/29x-66-llvm-only-build-done-sync-ssot.md`

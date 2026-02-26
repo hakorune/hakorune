@@ -20,12 +20,12 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-30: Phase 29ao P34 完了** ✅
 - 目的: Pattern2 negative ケース（freeze/notapplicable）で shadow adopt タグが出ないことを回帰で固定（仕様不変）
-- 変更: `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_seg_notapplicable_min_vm.sh` / `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_seg_freeze_min_vm.sh` / `docs/development/current/main/phases/phase-29ao/README.md` / `docs/development/current/main/10-Now.md` / `docs/development/current/main/30-Backlog.md` / `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+- 変更: `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_notapplicable_min_vm.sh` / `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_freeze_min_vm.sh` / `docs/development/current/main/phases/phase-29ao/README.md` / `docs/development/current/main/10-Now.md` / `docs/development/current/main/30-Backlog.md` / `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
 **2025-12-30: Phase 29ao P33 完了** ✅
 - 目的: Pattern2 LoopBodyLocal を planner 由来 Pattern2Break に引き上げ、strict/dev の shadow adopt タグを回帰で固定（仕様不変）
-- 変更: `src/mir/builder/control_flow/plan/facts/pattern2_break_facts.rs` / `src/mir/builder/control_flow/plan/normalizer/pattern2_break.rs` / `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_min_vm.sh` / `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` / `docs/development/current/main/phases/phase-29ao/README.md` / `docs/development/current/main/10-Now.md` / `docs/development/current/main/30-Backlog.md` / `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+- 変更: `src/mir/builder/control_flow/plan/facts/pattern2_break_facts.rs` / `src/mir/builder/control_flow/plan/normalizer/pattern2_break.rs` / `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` / `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` / `docs/development/current/main/phases/phase-29ao/README.md` / `docs/development/current/main/10-Now.md` / `docs/development/current/main/30-Backlog.md` / `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
 **2025-12-30: Phase 29ao P32 完了** ✅
@@ -45,7 +45,7 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-30: Phase 29ao P29 完了** ✅
 - 目的: regression gate 全パターンで shadow adopt タグを必須化し、strict/dev 実踏みを SSOT 化（仕様不変）
-- 変更: `src/mir/builder/control_flow/joinir/patterns/router.rs` / `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh` / `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern5_strict_shadow_vm.sh` / `tools/smokes/v2/profiles/integration/apps/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh` / `tools/smokes/v2/profiles/integration/apps/phase118_pattern3_if_sum_vm.sh` / `tools/smokes/v2/lib/test_runner.sh` / `docs/development/current/main/phases/phase-29ae/README.md` / `docs/development/current/main/phases/phase-29ao/README.md` / `docs/development/current/main/10-Now.md` / `docs/development/current/main/30-Backlog.md` / `CURRENT_TASK.md` / `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+- 変更: `src/mir/builder/control_flow/joinir/patterns/router.rs` / `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh` / `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern5_strict_shadow_vm.sh` / `tools/smokes/v2/profiles/integration/apps/archive/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh` / `tools/smokes/v2/profiles/integration/apps/phase118_pattern3_if_sum_vm.sh` / `tools/smokes/v2/lib/test_runner.sh` / `docs/development/current/main/phases/phase-29ae/README.md` / `docs/development/current/main/phases/phase-29ao/README.md` / `docs/development/current/main/10-Now.md` / `docs/development/current/main/30-Backlog.md` / `CURRENT_TASK.md` / `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
 **2025-12-30: Phase 29ao P28 完了** ✅
@@ -394,7 +394,7 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-29: Phase 29ai P15 完了** ✅
 - 目的: strict/dev のときだけ LoopBodyLocal facts を安定タグで観測できるようにする（仕様不変）
-- 実装: `src/mir/builder/control_flow/plan/single_planner/rules.rs` / `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` / `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_min_vm.sh`
+- 実装: `src/mir/builder/control_flow/plan/single_planner/rules.rs` / `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` / `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh`
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` PASS
 
 **2025-12-29: Phase 29ai P14 完了** ✅
@@ -494,13 +494,13 @@ Next: Phase 29ao P37（TBD）
 - 目的: Pattern2 の LoopBodyLocal promotion の最小ケースを fixture+integration smoke で固定
 - 実装: carrier binding policy を導入し、ConditionOnly / LoopLocalZero を host binding しない
 - 追加: `apps/tests/phase29ab_pattern2_loopbodylocal_min.hako`
-- Smoke: `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_min_vm.sh`
+- Smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh`
 - 検証: `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern2_*"` PASS
 
 **2025-12-28: Phase 29ab P2 完了** ✅
 - 目的: Pattern2 Trim（A-3）相当の `LoopBodyLocal(seg)` 最小ケースを fixture+integration smoke で固定
 - 追加: `apps/tests/phase29ab_pattern2_loopbodylocal_seg_min.hako`
-- Smoke: `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
+- Smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
 - 検証: `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern2_*"` PASS（2/2）
 
 **2025-12-28: Phase 29ab P3 完了** ✅
@@ -519,14 +519,14 @@ Next: Phase 29ao P37（TBD）
 - 目的: Pattern7 SplitScan の「形は近いが契約違反」ケースを extractor 段で freeze に固定（SSOT化）
 - 実装: `src/mir/builder/control_flow/joinir/patterns/pattern7_split_scan.rs`（`freeze_with_hint("phase29ab/pattern7/contract", ...)`）
 - fixture: `apps/tests/phase29ab_pattern7_splitscan_contract_min.hako`
-- smoke: `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern7_splitscan_contract_min_vm.sh`
+- smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern7_splitscan_contract_min_vm.sh`
 - 検証: `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern7_*"` PASS
 
 **2025-12-28: Phase 29ab P6 完了** ✅
 - 目的: Pattern6 ScanWithInit の near-miss（契約違反）を extractor 段で freeze に固定（SSOT化）
 - 実装: `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`（`[joinir/phase29ab/pattern6/contract]`）
 - fixture: `apps/tests/phase29ab_pattern6_scan_with_init_contract_min.hako`
-- smoke: `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern6_scan_with_init_contract_min_vm.sh`
+- smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern6_scan_with_init_contract_min_vm.sh`
 - 検証: `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern6_*"` PASS
 
 **2025-12-28: Phase 29ab P7 完了** ✅

@@ -16,16 +16,16 @@ Pattern6/7 の OK/contract fixtures 一覧は SSOT に集約:
 ### Pattern2 / Phase 263
 - Pattern2 LoopBodyLocal min:
   - `apps/tests/phase29ab_pattern2_loopbodylocal_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_min_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh`
 - Pattern2 LoopBodyLocal seg:
   - `apps/tests/phase29ab_pattern2_loopbodylocal_seg_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
 - Pattern2 seg notapplicable:
   - `apps/tests/phase29ab_pattern2_seg_notapplicable_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_seg_notapplicable_min_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_notapplicable_min_vm.sh`
 - Pattern2 seg freeze:
   - `apps/tests/phase29ab_pattern2_seg_freeze_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_seg_freeze_min_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_freeze_min_vm.sh`
 - Phase 263 realworld seg (Derived slot path):
   - `apps/tests/phase263_pattern2_seg_realworld_min.hako`
   - `tools/smokes/v2/profiles/integration/apps/archive/phase263_pattern2_seg_realworld_min_vm.sh`

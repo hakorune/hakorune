@@ -6,7 +6,7 @@ Scope: Phase 29x X31 thin-rust gate pack 固定（X24-X30 contract evidence を1
 Related:
   - docs/development/current/main/phases/phase-29x/29x-50-thin-rust-boundary-lock-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-56-thin-rust-core-cabi-min-surface-ssot.md
-  - tools/smokes/v2/profiles/integration/apps/phase29x_thin_rust_gate_vm.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase29x_thin_rust_gate_vm.sh
   - tools/checks/vm_route_bypass_guard.sh
   - tools/checks/vm_verifier_gate_guard.sh
   - tools/checks/vm_safety_gate_guard.sh
@@ -24,7 +24,7 @@ X24-X30 の thin-rust 契約を個別実行のまま残さず、
 
 Canonical command:
 
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29x_thin_rust_gate_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_thin_rust_gate_vm.sh`
 
 この gate は次を順に実行する:
 
@@ -43,7 +43,7 @@ Canonical command:
 ## 3. Evidence (X31)
 
 1. `cargo check -q --bin hakorune`
-2. `bash tools/smokes/v2/profiles/integration/apps/phase29x_thin_rust_gate_vm.sh`
+2. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_thin_rust_gate_vm.sh`
 
 ## 4. Next Step
 

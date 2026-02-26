@@ -171,7 +171,7 @@ Related:
   - `src/runner/modes/mod.rs`
   - `src/runner/modes/vm_hako.rs`
   - `src/cli/args.rs`
-  - `tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh`
 - 変更:
   - `--backend vm-hako` を dispatcher で受理し、専用 mode へ配線。
   - S0a は backend frame のみ実装し、実行は `[vm-hako/unimplemented] phase=s0a ... op=*` で fail-fast 固定（fallback なし）。
@@ -234,59 +234,59 @@ Related:
   - [x] D6-clean-10: `new_closure` の現状挙動を cross-route probe smoke で固定。`phase29z_vm_hako_s5_newclosure_probe_vm.sh` を追加し、rust-vm は `unsupported op 'new_closure' in mir_json_v0 loader`、hako-runner は `[vm-hako/unimplemented op=new_closure]` で fail-fast、両routeとも `rc=1` を契約化。
   - [x] D6-clean-12: `NewClosure` の MIR JSON emit を canonical `mir_call(callee=Closure)` へ統一し、`backend_core_ops` allowlist/emitters を同期。併せて `vm_hako` driver + planner gate + newclosure probe の route を `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` で rust-vm lane に固定し、strict/dev route drift を抑止。
   - [x] 検証: `cargo check -q --bin hakorune` PASS。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s1_call_id0_return_parity_vm.sh` PASS（`vm=7`, `vm-hako=7`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s1_call_id1_return_parity_vm.sh` PASS（`vm=9`, `vm-hako=9`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s1_boxcall_id1_return_parity_vm.sh` PASS（`vm=9`, `vm-hako=9`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s2_externcall_print_i64_return_parity_vm.sh` PASS（`vm=7`, `vm-hako=7`, `print=9`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（`rc=1`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s1_call_id1_return_parity_vm.sh` PASS（post-D6-min21 recheck）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s2_externcall_print_i64_return_parity_vm.sh` PASS（post-D6-min21 recheck）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min21 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s1_call_id0_return_parity_vm.sh` PASS（`vm=7`, `vm-hako=7`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s1_call_id1_return_parity_vm.sh` PASS（`vm=9`, `vm-hako=9`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s1_boxcall_id1_return_parity_vm.sh` PASS（`vm=9`, `vm-hako=9`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s2_externcall_print_i64_return_parity_vm.sh` PASS（`vm=7`, `vm-hako=7`, `print=9`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（`rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s1_call_id1_return_parity_vm.sh` PASS（post-D6-min21 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s2_externcall_print_i64_return_parity_vm.sh` PASS（post-D6-min21 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min21 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min21: `5/5`, `stageb_total_secs=15`, `avg_case_secs=3.20`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s2_externcall_print_bool_compare_return_parity_vm.sh` PASS（`vm=7`, `vm-hako=7`, `bool01='1 0'`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min22 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s2_externcall_print_bool_compare_return_parity_vm.sh` PASS（`vm=7`, `vm-hako=7`, `bool01='1 0'`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min22 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min22: `5/5`, `stageb_total_secs=20`, `avg_case_secs=4.00`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s2_externcall_print_i64_return_parity_vm.sh` PASS（post-D6-min23 recheck）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s2_externcall_print_bool_compare_return_parity_vm.sh` PASS（post-D6-min23 recheck）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min23 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s2_externcall_print_i64_return_parity_vm.sh` PASS（post-D6-min23 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s2_externcall_print_bool_compare_return_parity_vm.sh` PASS（post-D6-min23 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min23 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min23: `5/5`, `stageb_total_secs=20`, `avg_case_secs=4.00`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s2_externcall_print_i64_return_parity_vm.sh` PASS（post-D6-min24 recheck）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s2_externcall_print_bool_compare_return_parity_vm.sh` PASS（post-D6-min24 recheck）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min24 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s2_externcall_print_i64_return_parity_vm.sh` PASS（post-D6-min24 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s2_externcall_print_bool_compare_return_parity_vm.sh` PASS（post-D6-min24 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min24 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min24: `5/5`, `stageb_total_secs=20`, `avg_case_secs=4.00`）。
   - [x] 検証: `cargo check -q --bin hakorune` PASS（post-D6-min25）。
   - [x] 検証: `cargo test -q mir_call_print_ -- --nocapture` PASS（post-D6-min25）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s2_externcall_print_i64_return_parity_vm.sh` PASS（post-D6-min25 recheck）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s2_externcall_print_bool_compare_return_parity_vm.sh` PASS（post-D6-min25 recheck）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min25 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s2_externcall_print_i64_return_parity_vm.sh` PASS（post-D6-min25 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s2_externcall_print_bool_compare_return_parity_vm.sh` PASS（post-D6-min25 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min25 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min25）。
   - [x] 検証: `cargo test -q subset_accepts_nop -- --nocapture` PASS（post-D6-min26）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s3_nop_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min26 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min26 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min26: `5/5`, `stageb_total_secs=18`, `avg_case_secs=3.60`）。
   - [x] 検証: `cargo test -q subset_accepts_safepoint -- --nocapture` PASS（post-D6-min27）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s3_safepoint_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min27 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min27 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min27）。
   - [x] 検証: `cargo test -q subset_accepts_keepalive -- --nocapture` PASS（post-D6-min28）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s3_keepalive_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min28 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min28 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min28: `5/5`, `stageb_total_secs=22`, `avg_case_secs=4.40`）。
   - [x] 検証: `cargo test -q subset_accepts_release_strong -- --nocapture` PASS（post-D6-min29）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s3_release_strong_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min29 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min29 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min29: `5/5`, `stageb_total_secs=20`, `avg_case_secs=4.00`）。
   - [x] 検証: `cargo test -q subset_accepts_debug -- --nocapture` PASS（post-D6-min30）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s4_debug_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min30 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min30 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min30: `5/5`, `stageb_total_secs=24`, `avg_case_secs=4.80`）。
   - [x] 検証: `cargo test -q subset_accepts_debug_log -- --nocapture` PASS（post-D6-min31）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s4_debug_log_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min31 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min31 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min31: `5/5`, `stageb_total_secs=11`, `avg_case_secs=2.20`）。
   - [x] 検証: `cargo test -q subset_accepts_select -- --nocapture` PASS（post-D6-min32）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s4_select_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min32 recheck）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min32 recheck）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min32: `5/5`, `stageb_total_secs=20`, `avg_case_secs=4.00`）。
   - [x] 検証: `cargo test -q subset_accepts_barrier -- --nocapture` PASS（post-D6-min33）。
   - [x] 検証: `cargo check -q --bin hakorune` PASS（post-D6-min33）。
@@ -302,76 +302,76 @@ Related:
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s4_debug_log_parity_vm.sh` PASS（post-D6-clean-4; `rust-vm=42`, `hako-runner=42`）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s4_select_parity_vm.sh` PASS（post-D6-clean-4; `rust-vm=42`, `hako-runner=42`）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s4_bool_const_ws_parity_vm.sh` PASS（post-D6-clean-4; `rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s4_scanner_depth_guard_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=1`, depth-guard contract）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-clean-4 recheck; `phase=s4d`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s4_scanner_depth_guard_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=1`, depth-guard contract）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-clean-4 recheck; `phase=s4d`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-clean-4: `5/5`, `stageb_total_secs=22`, `avg_case_secs=4.40`）。
   - [x] 検証: `cargo test -q vm_hako::tests::subset_accepts_load` PASS（post-D6-min34）。
   - [x] 検証: `cargo test -q vm_hako::tests::subset_rejects_load_missing_ptr` PASS（post-D6-min34）。
   - [x] 検証: `cargo build --release --bin hakorune` PASS（post-D6-min34）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_load_parity_vm.sh` PASS（`rust-vm=0`, `hako-runner=0`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min34 recheck; `phase=s5a`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min34 recheck; `phase=s5a`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min34: `5/5`, `stageb_total_secs=20`, `avg_case_secs=4.00`）。
   - [x] 検証: `cargo test -q vm_hako::tests::subset_accepts_store` PASS（post-D6-min35）。
   - [x] 検証: `cargo test -q vm_hako::tests::subset_rejects_store_missing_value` PASS（post-D6-min35）。
   - [x] 検証: `cargo build --release --bin hakorune` PASS（post-D6-min35）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_store_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min35 recheck; `phase=s5b`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min35 recheck; `phase=s5b`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min35: `5/5`, `stageb_total_secs=20`, `avg_case_secs=4.00`）。
   - [x] 検証: `cargo test -q vm_hako::tests::subset_accepts_phi` PASS（post-D6-min36）。
   - [x] 検証: `cargo test -q vm_hako::tests::subset_rejects_phi_missing_incoming` PASS（post-D6-min36）。
   - [x] 検証: `cargo build --release --bin hakorune` PASS（post-D6-min36）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_phi_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min36 recheck; `phase=s5c`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min36 recheck; `phase=s5c`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min36: `5/5`, `stageb_total_secs=18`, `avg_case_secs=3.60`）。
   - [x] 検証: `cargo test -q vm_hako::tests::subset_accepts_typeop_check_integer -- --nocapture` PASS（post-D6-min37）。
   - [x] 検証: `cargo test -q vm_hako::tests::subset_rejects_typeop_missing_target_type -- --nocapture` PASS（post-D6-min37）。
   - [x] 検証: `cargo build --release --bin hakorune` PASS（post-D6-min37）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_typeop_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min37 recheck; `phase=s5d`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min37 recheck; `phase=s5d`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min37: `5/5`, `stageb_total_secs=18`, `avg_case_secs=3.60`）。
   - [x] 検証: `cargo test -q vm_hako::tests::subset_accepts_weak_new_and_weak_load -- --nocapture` PASS（post-D6-min38）。
   - [x] 検証: `cargo test -q vm_hako::tests::subset_rejects_weak_new_missing_box_val -- --nocapture` PASS（post-D6-min38）。
   - [x] 検証: `cargo build --release --bin hakorune` PASS（post-D6-min38）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_weakref_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min38 recheck; `phase=s5e`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min38 recheck; `phase=s5e`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min38: `5/5`, `stageb_total_secs=20`, `avg_case_secs=4.00`）。
   - [x] 検証: `cargo test -q vm_hako::tests:: -- --nocapture` PASS（post-D6-clean-7/8; 26 tests）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_weakref_parity_vm.sh` PASS（post-D6-clean-5/6 recheck; `rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_weakref_non_box_reject_vm.sh` PASS（post-D6-clean-5; `rust-vm=1`, `hako-runner=1`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-clean-8 recheck; `phase=s5e`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s5_weakref_non_box_reject_vm.sh` PASS（post-D6-clean-5; `rust-vm=1`, `hako-runner=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-clean-8 recheck; `phase=s5e`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-clean-8: `5/5`, `stageb_total_secs=20`, `avg_case_secs=4.00`）。
   - [x] 検証: `cargo test -q vm_hako::tests:: -- --nocapture` PASS（post-D6-min39; 28 tests）。
   - [x] 検証: `cargo build --release --bin hakorune` PASS（post-D6-min39）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_refnew_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_weakref_parity_vm.sh` PASS（post-D6-min39 recheck; `rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_weakref_non_box_reject_vm.sh` PASS（post-D6-min39 recheck; `rust-vm=1`, `hako-runner=1`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min39 recheck; `phase=s5f`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_s5_weakref_non_box_reject_vm.sh` PASS（post-D6-min39 recheck; `rust-vm=1`, `hako-runner=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min39 recheck; `phase=s5f`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min39: `5/5`, `stageb_total_secs=18`, `avg_case_secs=3.80`）。
   - [x] 検証: `cargo test -q vm_hako::tests:: -- --nocapture` PASS（post-D6-min40; 30 tests）。
   - [x] 検証: `cargo build --release --bin hakorune` PASS（post-D6-min40）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_future_new_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_refnew_parity_vm.sh` PASS（post-D6-min40 recheck; `rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min40 recheck; `phase=s5g`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min40 recheck; `phase=s5g`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min40: `5/5`, `stageb_total_secs=21`, `avg_case_secs=4.20`）。
   - [x] 検証: `cargo test -q vm_hako::tests:: -- --nocapture` PASS（post-D6-min41; 32 tests）。
   - [x] 検証: `cargo build --release --bin hakorune` PASS（post-D6-min41）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_future_set_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_future_new_parity_vm.sh` PASS（post-D6-min41 recheck; `rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min41 recheck; `phase=s5h`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min41 recheck; `phase=s5h`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min41: `5/5`, `stageb_total_secs=21`, `avg_case_secs=4.20`）。
   - [x] 検証: `cargo test -q vm_hako::tests:: -- --nocapture` PASS（post-D6-min42; 34 tests）。
   - [x] 検証: `cargo build --release --bin hakorune` PASS（post-D6-min42）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_await_parity_vm.sh` PASS（`rust-vm=42`, `hako-runner=42`）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_future_set_parity_vm.sh` PASS（post-D6-min42 recheck; `rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min42 recheck; `phase=s5i`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-min42 recheck; `phase=s5i`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-min42: `5/5`, `stageb_total_secs=18`, `avg_case_secs=3.60`）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_await_non_future_reject_vm.sh` PASS（post-D6-clean-9; `rust-vm=1`, `hako-runner=1`, `await-non-future`）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_await_parity_vm.sh` PASS（post-D6-clean-9 recheck; `rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-clean-9 recheck; `phase=s5i`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-clean-9 recheck; `phase=s5i`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-clean-9: `5/5`, `stageb_total_secs=22`, `avg_case_secs=4.40`）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_newclosure_probe_vm.sh` PASS（post-D6-clean-10; `rust-vm=1`, `hako-runner=1`, `new_closure` probe contract）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_await_parity_vm.sh` PASS（post-D6-clean-10 recheck; `rust-vm=42`, `hako-runner=42`）。
-  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-clean-10 recheck; `phase=s5i`, `rc=1`）。
+  - [x] 検証: `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh` PASS（post-D6-clean-10 recheck; `phase=s5i`, `rc=1`）。
   - [x] 回帰確認: `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（post-D6-clean-10: `5/5`, `stageb_total_secs=20`, `avg_case_secs=4.00`）。
   - [x] 検証: `cargo test -q mir_json_allowlist_accepts_new_closure` PASS（post-D6-clean-12）。
   - [x] 検証: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS（post-D6-clean-12）。

@@ -23,7 +23,7 @@ Pattern7（split-scan）の最小ケースについて、Facts が `Ok(Some(...)
 以下の既存 fixture/smoke を “SplitScan subset” の SSOT として使う:
 
 - Fixture: `apps/tests/phase29ab_pattern7_splitscan_ok_min.hako`
-- Smoke: `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern7_splitscan_ok_min_vm.sh`
+- Smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern7_splitscan_ok_min_vm.sh`
 - Regression pack: `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
 ## Implementation Steps（Critical Order）

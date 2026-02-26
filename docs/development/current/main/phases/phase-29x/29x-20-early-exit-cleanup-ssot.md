@@ -65,8 +65,8 @@ Docs:
 
 Current executable evidence:
 - `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_scope_end_release_vm.sh` PASS
-- `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_break_cleanup_vm.sh` PASS
-- `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_continue_cleanup_vm.sh` PASS
+- `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_break_cleanup_vm.sh` PASS
+- `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_continue_cleanup_vm.sh` PASS
 - `cargo run -q --bin rc_insertion_selfcheck --features rc-insertion-minimal` PASS
 
 ## 5. Next tasks

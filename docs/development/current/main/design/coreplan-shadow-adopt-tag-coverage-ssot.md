@@ -37,10 +37,10 @@ Related:
 | Scenario | Smoke | Tag |
 |---|---|---|
 | Pattern1 strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh` | `pattern1_simplewhile` |
-| Pattern2 break subset (planner) | `tools/smokes/v2/profiles/integration/apps/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh` | `pattern2_break_subset` |
+| Pattern2 break subset (planner) | `tools/smokes/v2/profiles/integration/apps/archive/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh` | `pattern2_break_subset` |
 | Pattern2 realworld (phase263) | `tools/smokes/v2/profiles/integration/apps/archive/phase263_pattern2_seg_realworld_min_vm.sh` | `pattern2_break_subset` |
-| Pattern2 loopbodylocal (2 cases) | `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_min_vm.sh` | `pattern2_break_subset` |
-| Pattern2 loopbodylocal seg (2 cases) | `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` | `pattern2_break_subset` |
+| Pattern2 loopbodylocal (2 cases) | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` | `pattern2_break_subset` |
+| Pattern2 loopbodylocal seg (2 cases) | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` | `pattern2_break_subset` |
 | Pattern3 If-Phi | `tools/smokes/v2/profiles/integration/apps/phase118_pattern3_if_sum_vm.sh` | `pattern3_ifphi` |
 | Pattern5 strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern5_strict_shadow_vm.sh` | `pattern5_infinite_early_exit` |
 | Pattern6 strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern6_strict_shadow_vm.sh` | `pattern6_scan_with_init` |
@@ -51,8 +51,8 @@ Related:
 
 | Scenario | Smoke | Forbidden tag |
 |---|---|---|
-| Pattern2 NotApplicable | `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_seg_notapplicable_min_vm.sh` | `pattern2_break_subset` |
-| Pattern2 Freeze | `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_seg_freeze_min_vm.sh` | `pattern2_break_subset` |
+| Pattern2 NotApplicable | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_notapplicable_min_vm.sh` | `pattern2_break_subset` |
+| Pattern2 Freeze | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_freeze_min_vm.sh` | `pattern2_break_subset` |
 | Pattern1 subset reject (extra stmt) | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_subset_reject_extra_stmt_vm.sh` | `pattern1_simplewhile` |
 
 ## Gate (SSOT)

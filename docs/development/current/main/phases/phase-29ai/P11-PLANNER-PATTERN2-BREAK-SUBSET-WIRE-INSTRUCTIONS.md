@@ -79,7 +79,7 @@ loop(i < N) {
 
 追加（推奨）:
 - `apps/tests/phase29ai_pattern2_break_plan_subset_ok_min.hako`
-- `tools/smokes/v2/profiles/integration/apps/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh`
 
 方針:
 - 既存 Pattern2 の複雑系 fixture は変えない（回帰パック維持）。

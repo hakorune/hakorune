@@ -7,7 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29x/29x-64-llvm-only-daily-default-ssot.md
   - tools/compat/README.md
   - tools/compat/phase29x_rust_lane_gate.sh
-  - tools/smokes/v2/profiles/integration/apps/phase29x_rust_lane_optin_only.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase29x_rust_lane_optin_only.sh
 ---
 
 # Phase 29x X39: Rust Lane Opt-In Isolation SSOT
@@ -33,7 +33,7 @@ Related:
 
 ## 3. Evidence (X39)
 
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29x_rust_lane_optin_only.sh`
+1. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rust_lane_optin_only.sh`
 
 ## 4. Next Step
 

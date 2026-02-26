@@ -7,15 +7,15 @@
 
 ## Current Snapshot
 
-- total: `213` (`Include archive: 0` default)
+- total: `156` (`Include archive: 0` default)
 - referenced: `155`
-- orphan candidate: `58`
+- orphan candidate: `1`
 - orphan wrapper candidate: `0`
 - with archive included: total `365`, orphan `210`
 - suffix breakdown:
-  - `vm`: `198`
+  - `vm`: `143`
   - `llvm_exe`: `0`
-  - `other`: `15`
+  - `other`: `13`
 
 ## This Round (completed)
 
@@ -72,6 +72,11 @@
    - families/utilities: `phase122`, `phase123`, `phase124`, `phase125`, `phase132`, `phase133`, `phase135`, `phase143`, `phase264`, `phase270`, `phase286`, `phase87`, `phase92`, `phase94`, `phase95`, `phase96`, `phase97`, `phase99`, `controlflow_probe_vm`, `gate_log_summarizer_vm`, `string_cp_mode_min_vm`, `vm_hako_caps_*_block_vm`
    - updated docs command paths from `apps/...` to `apps/archive/...` for moved scripts
    - verification: `phase29y_lane_gate_quick_vm.sh` PASS
+13. Batch-I (phase29 isolation + doc-path sync) done:
+   - moved 57 additional `phase29` orphan scripts to archive
+   - kept `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` active due `CURRENT_TASK.md` reference
+   - updated docs command paths from `apps/...` to `apps/archive/...` for moved scripts
+   - verification: `phase29y_lane_gate_quick_vm.sh` PASS
 
 ## Findings
 
@@ -81,10 +86,10 @@
 
 ## Next Batches (ordered)
 
-1. Batch-I (phase29 isolation):
-   - remaining orphan candidates are now `phase29` lineage only (58)
-   - split into: gate-linked keep / archive-safe by docs-only references
-2. Batch-J (gate-pack consolidation):
+1. Batch-J (final orphan cleanup):
+   - decide whether to archive/keep the single remaining orphan: `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+   - if archived, sync `CURRENT_TASK.md` pointers to archive path
+2. Batch-K (gate-pack consolidation):
    - optionally re-promote selected archive groups into explicit gate packs when needed
    - keep fixture coverage while limiting top-level app-script fan-out
 

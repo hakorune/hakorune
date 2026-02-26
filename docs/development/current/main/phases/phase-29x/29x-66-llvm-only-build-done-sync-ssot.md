@@ -9,7 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29x/29x-65-rust-lane-optin-isolation-ssot.md
   - tools/smokes/v2/profiles/integration/apps/phase29x_llvm_cabi_link_min.sh
   - tools/smokes/v2/profiles/integration/apps/phase29x_llvm_only_daily_gate.sh
-  - tools/smokes/v2/profiles/integration/apps/phase29x_rust_lane_optin_only.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase29x_rust_lane_optin_only.sh
   - tools/compat/phase29x_rust_lane_gate.sh
 ---
 
@@ -31,7 +31,7 @@ Rust build retirement lane（X37-X40）の完了条件を
 
 1. `bash tools/smokes/v2/profiles/integration/apps/phase29x_llvm_cabi_link_min.sh`
 2. `bash tools/smokes/v2/profiles/integration/apps/phase29x_llvm_only_daily_gate.sh`
-3. `bash tools/smokes/v2/profiles/integration/apps/phase29x_rust_lane_optin_only.sh`
+3. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rust_lane_optin_only.sh`
 
 ## 2. Rollback / Escape Hatches
 

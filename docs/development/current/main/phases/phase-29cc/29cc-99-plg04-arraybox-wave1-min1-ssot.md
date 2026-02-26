@@ -11,7 +11,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - apps/tests/phase29cc_plg04_arraybox_pilot_min.hako
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_plg04_arraybox_pilot_vm.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg04_arraybox_pilot_vm.sh
   - tools/vm_plugin_smoke.sh
 ---
 
@@ -40,7 +40,7 @@ Out of scope:
 ## 2. Contract Lock
 
 1. fixture: `apps/tests/phase29cc_plg04_arraybox_pilot_min.hako`
-2. smoke: `tools/smokes/v2/profiles/integration/apps/phase29cc_plg04_arraybox_pilot_vm.sh`
+2. smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg04_arraybox_pilot_vm.sh`
 3. pass条件:
    - VM実行が `rc=0`
    - 出力に `array_size=2` と `array_g1=4` を含む
@@ -48,7 +48,7 @@ Out of scope:
 
 ## 3. Evidence (2026-02-25)
 
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg04_arraybox_pilot_vm.sh` -> PASS
+1. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg04_arraybox_pilot_vm.sh` -> PASS
 2. `bash tools/vm_plugin_smoke.sh` -> PASS（CounterBox + ArrayBox pilot）
 3. `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` -> PASS
 4. `cargo check --bin hakorune` -> PASS

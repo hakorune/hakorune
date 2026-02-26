@@ -145,23 +145,23 @@ RC lane (X4-X5):
 
 RC lane (X8):
 
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_return_cleanup_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_return_cleanup_vm.sh`
 
 RC lane (X9):
 
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_break_cleanup_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_break_cleanup_vm.sh`
 
 RC lane (X10):
 
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_continue_cleanup_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_continue_cleanup_vm.sh`
 
 RC lane (X11):
 
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_phi_edge_verifier_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_phi_edge_verifier_vm.sh`
 
 RC lane (X12):
 
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29x_rc_three_rules_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_three_rules_vm.sh`
 
 Observability lane (X13):
 
@@ -310,7 +310,7 @@ VM route lane (X19-X22):
 3. `bash tools/smokes/v2/profiles/integration/selfhost/phase29x_vm_route_non_strict_compat_boundary_vm.sh`
 4. `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_smoke_vm.sh`
 5. `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_program_reject_smoke_vm.sh`
-6. `bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh`
+6. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29z_vm_hako_backend_frame_vm.sh`
 7. `tools/selfhost/record_phase29x_x22_evidence.sh <day> [YYYY-MM-DD]`（X22 証跡行を生成）
 8. `tools/selfhost/check_phase29x_x22_evidence.sh --strict`（X22 完了判定）
 9. `tools/selfhost/check_phase29x_x23_readiness.sh --strict`（X23 着手前の機械判定）
@@ -342,7 +342,7 @@ Thin-rust lane (X24-X31):
 23. `bash tools/smokes/v2/profiles/integration/apps/phase29x_core_cabi_surface_guard_vm.sh`（X30）
 24. `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_smoke_vm.sh`
 25. `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_program_reject_smoke_vm.sh`
-26. `bash tools/smokes/v2/profiles/integration/apps/phase29x_thin_rust_gate_vm.sh`（X31）
+26. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_thin_rust_gate_vm.sh`（X31）
 
 De-rust transfer lane (X32-X36):
 
@@ -356,7 +356,7 @@ LLVM-only retirement lane (X37-X40):
 
 1. `bash tools/smokes/v2/profiles/integration/apps/phase29x_llvm_cabi_link_min.sh`（X37）
 2. `bash tools/smokes/v2/profiles/integration/apps/phase29x_llvm_only_daily_gate.sh`（X38）
-3. `bash tools/smokes/v2/profiles/integration/apps/phase29x_rust_lane_optin_only.sh`（X39）
+3. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_rust_lane_optin_only.sh`（X39）
 4. `PHASE29X_ALLOW_RUST_LANE=1 tools/compat/phase29x_rust_lane_gate.sh --dry-run`（X39）
 5. `cat docs/development/current/main/phases/phase-29x/29x-66-llvm-only-build-done-sync-ssot.md`（X40）
 

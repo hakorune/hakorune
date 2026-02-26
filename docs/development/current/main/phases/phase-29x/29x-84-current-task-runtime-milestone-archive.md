@@ -44,15 +44,15 @@ Related:
 5.15 Latest runtime-lane milestone
    `X7` fixed: early-exit cleanup（return/break/continue）の順序契約を `docs/development/current/main/phases/phase-29x/29x-20-early-exit-cleanup-ssot.md` で固定。次タスクは `X8`（return path 実装 + smoke）。
 5.16 Latest runtime-lane milestone
-   `X8` fixed: return path cleanup を `apps/tests/phase29x_rc_return_cleanup_min.hako` と `tools/smokes/v2/profiles/integration/apps/phase29x_rc_return_cleanup_vm.sh` で固定（baseline + `rc_insertion_selfcheck`）。
+   `X8` fixed: return path cleanup を `apps/tests/phase29x_rc_return_cleanup_min.hako` と `tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_return_cleanup_vm.sh` で固定（baseline + `rc_insertion_selfcheck`）。
 5.17 Latest runtime-lane milestone
-   `X9` fixed: break path cleanup を `apps/tests/phase29x_rc_break_cleanup_min.hako` と `tools/smokes/v2/profiles/integration/apps/phase29x_rc_break_cleanup_vm.sh` で固定（baseline + `rc_insertion_selfcheck`）。次タスクは `X10`（continue path 実装 + smoke）。
+   `X9` fixed: break path cleanup を `apps/tests/phase29x_rc_break_cleanup_min.hako` と `tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_break_cleanup_vm.sh` で固定（baseline + `rc_insertion_selfcheck`）。次タスクは `X10`（continue path 実装 + smoke）。
 5.18 Latest runtime-lane milestone
-   `X10` fixed: continue path cleanup を `apps/tests/phase29x_rc_continue_cleanup_min.hako` と `tools/smokes/v2/profiles/integration/apps/phase29x_rc_continue_cleanup_vm.sh` で固定（baseline + `rc_insertion_selfcheck`）。
+   `X10` fixed: continue path cleanup を `apps/tests/phase29x_rc_continue_cleanup_min.hako` と `tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_continue_cleanup_vm.sh` で固定（baseline + `rc_insertion_selfcheck`）。
 5.19 Latest runtime-lane milestone
-   `X11` fixed: PHI/edge verifier を `src/mir/passes/rc_insertion.rs` に追加し、矛盾時は `[freeze:contract][rc_insertion/phi_edge_mismatch]` で fail-fast 固定。`src/bin/rc_insertion_selfcheck.rs` に edge-args/phi-input の負例を追加し、`tools/smokes/v2/profiles/integration/apps/phase29x_rc_phi_edge_verifier_vm.sh` でタグ観測を契約化。次タスクは `X12`（RC 3規則包括 smoke）。
+   `X11` fixed: PHI/edge verifier を `src/mir/passes/rc_insertion.rs` に追加し、矛盾時は `[freeze:contract][rc_insertion/phi_edge_mismatch]` で fail-fast 固定。`src/bin/rc_insertion_selfcheck.rs` に edge-args/phi-input の負例を追加し、`tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_phi_edge_verifier_vm.sh` でタグ観測を契約化。次タスクは `X12`（RC 3規則包括 smoke）。
 5.20 Latest runtime-lane milestone
-   `X12` fixed: RC 3規則包括 smoke を `tools/smokes/v2/profiles/integration/apps/phase29x_rc_three_rules_vm.sh` で追加し、`rc_insertion_selfcheck` の安定マーカー `[rc_three_rules] overwrite=ok explicit_drop=ok scope_end=ok` を契約化。次タスクは `X13`（observability 拡張設計）。
+   `X12` fixed: RC 3規則包括 smoke を `tools/smokes/v2/profiles/integration/apps/archive/phase29x_rc_three_rules_vm.sh` で追加し、`rc_insertion_selfcheck` の安定マーカー `[rc_three_rules] overwrite=ok explicit_drop=ok scope_end=ok` を契約化。次タスクは `X13`（observability 拡張設計）。
 5.21 Latest runtime-lane milestone
    `X13` fixed: observability 拡張設計を `docs/development/current/main/phases/phase-29x/29x-30-observability-extension-ssot.md` で固定し、5カテゴリ語彙（`locals/temps/heap_fields/handles/singletons`）と X14-X17 の実装境界をSSOT化。次タスクは `X14`（temps 実装 + smoke）。
 5.22 Latest runtime-lane milestone
@@ -96,7 +96,7 @@ Related:
 5.41 Latest runtime-lane milestone
    `X30` fixed: Core C ABI 最小面を `route/verifier/safety/lifecycle` の 6 symbol に固定し、`include/nyrt.h` / `src/abi/nyrt_shim.rs` / `docs/reference/abi/nyrt_c_abi_v0.md` / `docs/reference/abi/ABI_BOUNDARY_MATRIX.md` を同期。`nyrt_verify_mir_json` / `nyrt_safety_check_mir_json` を shim へ追加し、lifecycle retain/release contract（`retain_h(0)=0`, `release_h(0)` no-op）を tests で固定。`tools/checks/nyrt_core_cabi_surface_guard.sh` と `phase29x_core_cabi_surface_guard_vm.sh` を追加し、`29x-56-thin-rust-core-cabi-min-surface-ssot.md` / `README/29x-90/29x-91` を同期。次タスクは `X31`（thin-rust gate pack 固定）。
 5.42 Latest runtime-lane milestone
-   `X31` fixed: X24-X30 の contract evidence を `tools/smokes/v2/profiles/integration/apps/phase29x_thin_rust_gate_vm.sh` に集約し、route/verifier/safety/cabi guard+smoke を 1コマンドで再現可能に固定。`29x-57-thin-rust-gate-pack-ssot.md` を追加し、`README/29x-90/29x-91` と完了状態を同期。次タスクは `X32`（`.hako` route orchestrator skeleton）。
+   `X31` fixed: X24-X30 の contract evidence を `tools/smokes/v2/profiles/integration/apps/archive/phase29x_thin_rust_gate_vm.sh` に集約し、route/verifier/safety/cabi guard+smoke を 1コマンドで再現可能に固定。`29x-57-thin-rust-gate-pack-ssot.md` を追加し、`README/29x-90/29x-91` と完了状態を同期。次タスクは `X32`（`.hako` route orchestrator skeleton）。
 5.43 Latest runtime-lane milestone
    `X32` fixed: `.hako` route skeleton（`lang/src/vm/route_orchestrator_skeleton.hako`）を追加し、Rust `route_orchestrator` との dual-run smoke（`phase29x_derust_route_dualrun_vm.sh`）で lane 選択一致を 4ケース固定。`29x-58-derust-route-orchestrator-skeleton-ssot.md` を追加し、`README/29x-90/29x-91` と進捗を同期。次タスクは `X33`（`.hako` verifier 経路導入）。
 5.44 Latest runtime-lane milestone

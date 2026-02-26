@@ -5,8 +5,8 @@ Related:
   - docs/development/current/main/phases/phase-29ao/README.md
   - docs/development/current/main/design/coreplan-migration-roadmap-ssot.md
   - tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh
-  - tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_min_vm.sh
-  - tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh
   - src/mir/builder/control_flow/plan/facts/pattern2_break_facts.rs
   - src/mir/builder/control_flow/plan/facts/pattern2_loopbodylocal_facts.rs
   - src/mir/builder/control_flow/plan/planner/build.rs
@@ -40,8 +40,8 @@ Goal: `phase29ab_pattern2_loopbodylocal_{min,seg_min}` が strict/dev で **plan
 - `./tools/smokes/v2/run.sh --profile quick` が通る（既定挙動不変）
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` が通る
 - 次の 2 つの既存 integration smoke が strict/dev の raw output で shadow adopt タグを必須で満たす:
-  - `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_min_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
 
 ## 実装手順（安全順）
 
@@ -84,8 +84,8 @@ Goal: `phase29ab_pattern2_loopbodylocal_{min,seg_min}` が strict/dev で **plan
 ### Step 4: 既存 smoke を “タグ必須” に昇格（filter_noise を避ける）
 
 対象:
-- `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_min_vm.sh`
-- `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
 
 方針:
 - `filter_noise` は `[coreplan/shadow_adopt:*]` を落とすので、raw `OUTPUT` でタグを検証する。

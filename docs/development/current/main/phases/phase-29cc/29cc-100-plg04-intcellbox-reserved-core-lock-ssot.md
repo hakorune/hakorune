@@ -53,7 +53,7 @@ Out of scope:
 
 ## 4. Evidence (2026-02-26)
 
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg04_intcellbox_pilot_vm.sh` -> PASS
+1. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg04_intcellbox_pilot_vm.sh` -> PASS
 2. `bash tools/vm_plugin_smoke.sh` -> PASS
 3. `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` -> PASS
 4. `bash tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh` -> PASS

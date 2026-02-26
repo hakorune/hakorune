@@ -4,7 +4,7 @@ Scope: code+tests+docs（strict/dev のみ、仕様不変）
 Related:
   - docs/development/current/main/phases/phase-29ao/README.md
   - tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh
-  - tools/smokes/v2/profiles/integration/apps/phase29ab_pattern7_splitscan_ok_min_vm.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern7_splitscan_ok_min_vm.sh
   - src/mir/builder/control_flow/joinir/patterns/router.rs
   - src/mir/builder/control_flow/plan/normalizer/pattern_split_scan.rs
   - src/mir/builder/control_flow/plan/facts/loop_facts.rs
