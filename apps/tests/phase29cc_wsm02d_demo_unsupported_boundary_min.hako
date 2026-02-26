@@ -1,0 +1,11 @@
+// Phase 29cc WSM-02d-min3 demo-goal unsupported boundary fixture
+// Contract:
+// - Scope-out demo helpers (ConsoleBox.group) must fail-fast on wasm compile path.
+
+static box Main {
+  main() {
+    local console = new ConsoleBox()
+    console.group("wsm02d_demo_scope_out")
+    return 0
+  }
+}

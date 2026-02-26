@@ -65,7 +65,7 @@ Daily:
 
 Milestone (WASM demo goal):
 1. `bash tools/vm_plugin_smoke.sh`
-2. WASM demo-min fixture pack（WSM-02d で追加予定）
+2. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_min_boundary_vm.sh`
 
 ## 5. Decision
 

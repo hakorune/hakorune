@@ -1,0 +1,16 @@
+// Phase 29cc WSM-02d-min2 demo-min fixture
+// Contract:
+// - ConsoleBox method calls used by nyash-wasm demo minimum compile to WASM.
+// - Supported method family: log/warn/error/info/debug.
+
+static box Main {
+  main() {
+    local console = new ConsoleBox()
+    console.log("wsm02d_demo_min_log")
+    console.warn("wsm02d_demo_min_warn")
+    console.error("wsm02d_demo_min_error")
+    console.info("wsm02d_demo_min_info")
+    console.debug("wsm02d_demo_min_debug")
+    return 0
+  }
+}

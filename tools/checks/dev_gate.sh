@@ -44,6 +44,8 @@ list_profiles() {
     - cargo test --features wasm-backend extern_contract_supported_name_maps_to_import -- --nocapture
     - cargo test --features wasm-backend test_unsupported_extern_call_fails_fast_with_supported_list -- --nocapture
     - cargo test --features wasm-backend test_unsupported_boxcall_method_fails_fast_with_supported_list -- --nocapture
+    - phase29cc_wsm02d_demo_min_boundary_vm.sh
+    - phase29cc_wsm02d_demo_unsupported_boundary_vm.sh
   portability:
     - tools/checks/windows_wsl_cmd_smoke.sh (preflight by default)
     - tools/checks/macos_portability_guard.sh
@@ -96,6 +98,10 @@ run_wasm_boundary_lite() {
     cargo test --features wasm-backend test_unsupported_extern_call_fails_fast_with_supported_list -- --nocapture
   run_step "wasm boxcall unsupported boundary lock" \
     cargo test --features wasm-backend test_unsupported_boxcall_method_fails_fast_with_supported_list -- --nocapture
+  run_step "wasm demo-min fixture boundary lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_min_boundary_vm.sh
+  run_step "wasm demo unsupported boundary lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_unsupported_boundary_vm.sh
 }
 
 run_portability() {
