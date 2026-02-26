@@ -101,11 +101,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin lane active next:
     - `none`（monitor-only）
   - wasm lane active next:
-    - `WSM-02d-min4`（boundary gates）
+    - `WSM-G2-min1`（browser demo-run minimal plan, docs-first）
   - wasm lane lock history（SSOT pointer）:
     - `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
-  - wasm latest lock（WSM-02d-min3 done）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md`
+  - wasm latest lock（WSM-02d-min4 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
   - wasm grammar/map SSOT:
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
   - wasm migration fixed order（WSM-02+）:
@@ -132,8 +132,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. `WSM-02d-min4..`（boundary gates）: `wasm-boundary-lite` から milestone gate への昇格条件を固定し、節目実行を lock 化する。
-2. `WSM-02d` gate pack を lightweight/milestone で使い分け、日常は `wasm-boundary-lite` を維持する。
+1. `WSM-G2-min1..`（browser demo-run minimal plan）: `projects/nyash-wasm` の run loop 最小構成を docs-first で固定する。
+2. `WSM-02d` gate pack は lightweight/milestone の二段運用を維持する。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 
 ## Quick Restart (After Reboot)
@@ -298,6 +298,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - De-rust wasm lane lock (WSM-02d-min1): `docs/development/current/main/phases/phase-29cc/29cc-129-wsm02d-min1-boundary-fastfail-tests-ssot.md`
 - De-rust wasm lane lock (WSM-02d-min2): `docs/development/current/main/phases/phase-29cc/29cc-130-wsm02d-min2-demo-min-fixture-lock-ssot.md`
 - De-rust wasm lane lock (WSM-02d-min3): `docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md`
+- De-rust wasm lane lock (WSM-02d-min4): `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Code retirement/history policy: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`

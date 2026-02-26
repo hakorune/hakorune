@@ -51,6 +51,7 @@ list_profiles() {
     - tools/checks/macos_portability_guard.sh
   milestone-runtime:
     - hotpath
+    - phase29cc_wsm02d_milestone_gate_vm.sh
     - phase29y_no_compat_mainline_vm.sh
     - phase29x_derust_done_matrix_vm.sh
   milestone-perf:
@@ -113,6 +114,8 @@ run_portability() {
 
 run_milestone_runtime() {
   run_hotpath
+  run_step "phase29cc wasm WSM-02d milestone gate" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_milestone_gate_vm.sh
   run_step "phase29y no-compat mainline smoke" \
     bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   run_step "phase29x de-rust done matrix smoke" \
