@@ -113,6 +113,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-143-wsm-g3-min7-canvas-stroke-lock-ssot.md`
   - wasm grammar/map SSOT:
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
+  - wasm `.hako`-only output roadmap SSOT:
+    - `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
   - wasm migration fixed order（WSM-02+）:
     - `WSM-02a`: assignment/local path unblock（`Copy`/`ReleaseStrong` 最小対応）
     - `WSM-02b`: ExternCall coverage expansion（1 extern familyずつ）

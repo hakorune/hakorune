@@ -111,6 +111,7 @@ Related:
   - wasm latest lock（WSM-G3-min7 done）: `docs/development/current/main/phases/phase-29cc/29cc-143-wsm-g3-min7-canvas-stroke-lock-ssot.md`
   - wasm lane lock history（SSOT pointer）: `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
   - wasm latest lock（WSM-02d-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`（accepted）
+  - wasm `.hako`-only output roadmap SSOT: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）
   - `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`

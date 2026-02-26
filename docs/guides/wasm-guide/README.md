@@ -13,6 +13,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - SSOT:
   - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
+  - `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
 
 ## 📖 ドキュメント一覧
 

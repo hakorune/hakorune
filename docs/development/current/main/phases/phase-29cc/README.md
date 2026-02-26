@@ -174,6 +174,8 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-139-wsm-g3-min3-canvas-strokerect-lock-ssot.md`
   - wasm latest lock（WSM-G3-min7 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-143-wsm-g3-min7-canvas-stroke-lock-ssot.md`
+  - wasm `.hako`-only output roadmap SSOT:
+    - `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
 
 ## M4 Tail Cleanup (retired parser flags)
 
