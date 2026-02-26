@@ -71,7 +71,16 @@ pub(in crate::mir::builder) fn apply_generic_loop_step(
     loop_var: &str,
     error_prefix: &str,
 ) -> Result<(), String> {
-    let phi_bindings = loop_carriers::build_loop_bindings(&[(loop_var, skeleton.loop_var_current)]);
+    // Prefer the post-body loop-var when available (e.g. conditional pre-step update in body).
+    // This keeps generic_loop_v1 escape-style loops correct: body may produce `i_pre`,
+    // and step must evaluate `i = i_pre + 1`, not `loop_var_current + 1`.
+    let loop_var_step_src = builder
+        .variable_ctx
+        .variable_map
+        .get(loop_var)
+        .copied()
+        .unwrap_or(skeleton.loop_var_current);
+    let phi_bindings = loop_carriers::build_loop_bindings(&[(loop_var, loop_var_step_src)]);
     let step_effects = match loop_increment {
         ASTNode::Variable { .. } => {
             let (step_val, mut effects) =

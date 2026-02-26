@@ -183,7 +183,7 @@ fn extract_delta_pair_from_if(body: &[ASTNode], idx: usize) -> Option<(String, i
             }
         }
 
-        let (escape_delta, counter_name) = match (escape_delta, counter_name) {
+        let (mut escape_delta, counter_name) = match (escape_delta, counter_name) {
             (Some(d), Some(n)) => (d, n),
             _ => return None,
         };
@@ -218,6 +218,10 @@ fn extract_delta_pair_from_if(body: &[ASTNode], idx: usize) -> Option<(String, i
             }
             found_delta?
         };
+
+        if else_body.is_none() {
+            escape_delta += normal_delta;
+        }
 
         // Phase 92 P0-3: Return condition along with deltas
         Some((counter_name, escape_delta, normal_delta, condition.clone()))

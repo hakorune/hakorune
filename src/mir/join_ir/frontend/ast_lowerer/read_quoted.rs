@@ -349,8 +349,6 @@ impl AstToJoinIrLowerer {
         // 4. Escape 処理: if ch == "\\" { i = i + 1; ch = s.substring(i, i+1) }
         // ========================================
         // Phase 46: IfMerge で if-body 後の値をマージ
-        let enable_escape = crate::mir::join_ir::env_flag_is_1("HAKO_JOINIR_READ_QUOTED_IFMERGE");
-
         // 条件と then 側の値を事前計算（投機的実行）
         let step_backslash = step_ctx.alloc_var();
         loop_step_body.push(JoinInst::Compute(crate::mir::join_ir::MirLikeInst::Const {
@@ -397,34 +395,27 @@ impl AstToJoinIrLowerer {
         });
 
         // IfMerge: if-body 後の i と ch をマージ
-        let (i_after_esc, ch_merged) = if enable_escape {
-            let i_after_esc = step_ctx.alloc_var();
-            let ch_merged = step_ctx.alloc_var();
+        let i_after_esc = step_ctx.alloc_var();
+        let ch_merged = step_ctx.alloc_var();
 
-            loop_step_body.push(JoinInst::IfMerge {
-                cond: esc_cond,
-                merges: vec![
-                    MergePair {
-                        dst: i_after_esc,
-                        then_val: i_esc,  // i + 1 (BinOp::Add, Integer)
-                        else_val: step_i, // i (Integer param)
-                        type_hint: Some(crate::mir::MirType::Integer), // Phase 64-2: ループカウンタ型確定
-                    },
-                    MergePair {
-                        dst: ch_merged,
-                        then_val: ch_esc,  // substring 結果 (String)
-                        else_val: step_ch, // substring 結果 (String)
-                        type_hint: Some(crate::mir::MirType::String), // Phase 64-2: 文字列型確定
-                    },
-                ],
-                k_next: None,
-            });
-
-            (i_after_esc, ch_merged)
-        } else {
-            // 旧パス: escape 未対応（step_i と step_ch をそのまま使う）
-            (step_i, step_ch)
-        };
+        loop_step_body.push(JoinInst::IfMerge {
+            cond: esc_cond,
+            merges: vec![
+                MergePair {
+                    dst: i_after_esc,
+                    then_val: i_esc,  // i + 1 (BinOp::Add, Integer)
+                    else_val: step_i, // i (Integer param)
+                    type_hint: Some(crate::mir::MirType::Integer), // Phase 64-2: ループカウンタ型確定
+                },
+                MergePair {
+                    dst: ch_merged,
+                    then_val: ch_esc,  // substring 結果 (String)
+                    else_val: step_ch, // substring 結果 (String)
+                    type_hint: Some(crate::mir::MirType::String), // Phase 64-2: 文字列型確定
+                },
+            ],
+            k_next: None,
+        });
 
         // ========================================
         // 5. Accumulator: out = out + ch_merged

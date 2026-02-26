@@ -357,6 +357,20 @@ def collect_integerish_value_ids(blocks: List[Dict[str, Any]]) -> Set[int]:
                             changed = True
                     continue
 
+                if op == "mir_call":
+                    mc = ins.get("mir_call")
+                    if isinstance(mc, dict):
+                        callee = mc.get("callee")
+                        if isinstance(callee, dict):
+                            ctype = str(callee.get("type") or "")
+                            name = str(callee.get("name") or "")
+                            # length-like methods always produce integer-like values.
+                            if ctype == "Method" and name in ("length", "len", "size"):
+                                if dst not in integerish:
+                                    integerish.add(dst)
+                                    changed = True
+                    continue
+
                 if op == "phi":
                     vals = _incoming_value_ids(ins.get("incoming"))
                     if not vals:

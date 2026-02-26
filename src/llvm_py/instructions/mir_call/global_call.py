@@ -97,6 +97,8 @@ def lower_global_call(builder, module, func_name, args, dst_vid, vmap, resolver,
                     # Phase 285LLVM-1.5: Unified type checking via resolver_helpers
                     is_stringish = is_stringish_legacy(resolver, int(arg_id))
                     is_handle = is_handle_type(resolver, int(arg_id))
+                    integerish_ids = getattr(resolver, "integerish_ids", set()) if resolver is not None else set()
+                    is_integerish = int(arg_id) in integerish_ids
 
                     # Debug logging: handle detection
                     if is_handle and os.environ.get('NYASH_CLI_VERBOSE') == '1':
@@ -105,12 +107,15 @@ def lower_global_call(builder, module, func_name, args, dst_vid, vmap, resolver,
 
                     v_to_print = arg_val
                     # Phase 285LLVM-1.4: Only box if NOT stringish AND NOT already a handle
-                    if func_name == "print" and not is_stringish and not is_handle:
+                    if func_name == "print" and not is_stringish and (not is_handle or is_integerish):
                         # Raw i64 value: box it before printing
                         # Debug logging: raw i64 boxing
                         if os.environ.get('NYASH_CLI_VERBOSE') == '1':
                             import sys
-                            print(f"[llvm-py/types] print arg %{arg_id}: raw i64, box.from_i64 called", file=sys.stderr)
+                            print(
+                                f"[llvm-py/types] print arg %{arg_id}: raw/integerish i64, box.from_i64 called",
+                                file=sys.stderr,
+                            )
                         boxer = None
                         for f in module.functions:
                             if f.name == "nyash.box.from_i64":
