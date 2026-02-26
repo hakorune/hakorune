@@ -45,6 +45,14 @@ Out of scope:
    - 出力に `pyc_out=void` を含む
    - `Unknown Box type: PythonCompilerBox` を含まない
 
+## 2.1 Known Debt (explicit)
+
+- debt tag: `[plg06/pycompiler:return-bridge]`
+- 現状: `compile` 呼び出しは成功するが戻り値は `void` で観測される。
+- 昇格条件（PLG-06-min2 以降）:
+  1. `compile` 戻り値が VM caller へ string として橋渡しされる
+  2. この文書と smoke を `pyc_out=static box Generated...` 契約へ置換する
+
 ## 3. Evidence (2026-02-26)
 
 1. `bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg06_pycompiler_pilot_vm.sh` -> PASS

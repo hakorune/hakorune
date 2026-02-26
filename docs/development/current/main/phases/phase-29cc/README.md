@@ -60,6 +60,14 @@ Related:
 
 ## Current focus
 
+### Plugin Progress Snapshot
+
+| Wave | Status | Lock |
+|---|---|---|
+| wave-1 | done (`PLG-04-min6`) | `29cc-104` |
+| wave-2 | done (`PLG-05-min7`) | `29cc-112` |
+| wave-3 | in progress (`PLG-06-min1` done) | `29cc-113` |
+
 - M4 done（monitor-only closeout completed）:
   - M1 parser parity と M2 mirbuilder parity は gate 固定済み
   - M3 runtime bridge thinning の主要 gate は緑（lane gate / no-compat mainline）

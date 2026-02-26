@@ -6,7 +6,7 @@ const NYB_SUCCESS: i32 = 0;
 const NYB_E_INVALID_METHOD: i32 = -3;
 const NYB_E_SHORT_BUFFER: i32 = -1;
 
-const TYPE_ID_COMPILER: u32 = 61;
+const _TYPE_ID_COMPILER: u32 = 61;
 const METHOD_BIRTH: u32 = 0;
 const METHOD_COMPILE: u32 = 1;
 const METHOD_FINI: u32 = u32::MAX;

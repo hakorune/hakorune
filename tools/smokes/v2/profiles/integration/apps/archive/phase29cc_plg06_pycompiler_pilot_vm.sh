@@ -4,6 +4,9 @@
 # - PythonCompilerBox is loaded via per-run nyash.toml.
 # - compile method route can be invoked in VM.
 # - Fixture currently prints pyc_out=void (known bridge contract) and exits cleanly.
+# Debt tag:
+# - [plg06/pycompiler:return-bridge] compile result is not bridged to caller yet.
+#   When fixed, replace this contract with non-void payload assertion.
 
 set -euo pipefail
 
