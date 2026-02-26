@@ -49,6 +49,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[WSM-P2-min1 実装ロック](../../development/current/main/phases/phase-29cc/29cc-152-wsm-p2-min1-wat2wasm-bridge-lock-ssot.md)** - `wat2wasm` bridge（normal/boundary/error）を固定した記録。
 - **[WSM-P3-min1 実装ロック](../../development/current/main/phases/phase-29cc/29cc-153-wsm-p3-min1-import-object-lock-ssot.md)** - JS import object 生成契約（supported list / fail-fast 文言）を固定した記録。
 - **[WSM-P4-min1 設計ロック](../../development/current/main/phases/phase-29cc/29cc-154-wsm-p4-min1-binary-writer-doc-lock-ssot.md)** - wasm binary writer（section/LEB128）最小契約を docs-first で固定した記録。
+- **[WSM-P4-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-155-wsm-p4-min2-binary-writer-skeleton-lock-ssot.md)** - wasm binary writer skeleton（magic/version + section/LEB128 + main export）を unit/smoke で固定した記録。
 
 ## 🚀 クイックスタート
 

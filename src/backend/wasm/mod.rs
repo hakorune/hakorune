@@ -6,6 +6,7 @@
  */
 
 mod codegen;
+mod binary_writer;
 mod extern_contract;
 mod memory;
 mod runtime;
@@ -66,6 +67,12 @@ impl WasmBackend {
 
         // Phase 9.77 Task 1.3: Fix UTF-8 encoding error in WAT→WASM conversion
         self.convert_wat_to_wasm(&wat_text)
+    }
+
+    /// Contract helper for WSM-P4-min2.
+    /// Emits the minimum valid wasm binary without WAT conversion.
+    pub fn build_minimal_i32_const_wasm(&self, value: i32) -> Result<Vec<u8>, WasmError> {
+        binary_writer::build_minimal_main_i32_const_module(value)
     }
 
     /// Convert WAT text to WASM binary with proper UTF-8 handling
@@ -225,5 +232,14 @@ mod tests {
             .expect_err("malformed WAT must fail fast");
         let msg = err.to_string();
         assert!(msg.contains("WAT to WASM conversion failed"));
+    }
+
+    #[test]
+    fn wasm_binary_writer_minimal_module_contract() {
+        let backend = WasmBackend::new();
+        let wasm = backend
+            .build_minimal_i32_const_wasm(7)
+            .expect("binary writer helper must succeed");
+        assert!(wasm.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
     }
 }

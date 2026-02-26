@@ -158,12 +158,12 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md`
   - wasm lane lock（WSM-02d-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
-  - wasm lane active next: `WSM-P4-min2`（binary writer skeleton 実装 lock）
+  - wasm lane active next: `WSM-P4-min3`（.hako writer entry + parity lock docs-first）
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest locks（recent 3）:
     - `docs/development/current/main/phases/phase-29cc/29cc-152-wsm-p2-min1-wat2wasm-bridge-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-153-wsm-p3-min1-import-object-lock-ssot.md`
-    - `docs/development/current/main/phases/phase-29cc/29cc-154-wsm-p4-min1-binary-writer-doc-lock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-155-wsm-p4-min2-binary-writer-skeleton-lock-ssot.md`
   - wasm full lock history pointer:
     - `docs/development/current/main/10-Now.md`（Read First Order: phase-29cc lock list）
   - wasm `.hako`-only output roadmap SSOT:

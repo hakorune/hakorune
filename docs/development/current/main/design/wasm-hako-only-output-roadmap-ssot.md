@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-152-wsm-p2-min1-wat2wasm-bridge-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-153-wsm-p3-min1-import-object-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-154-wsm-p4-min1-binary-writer-doc-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-155-wsm-p4-min2-binary-writer-skeleton-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -53,6 +54,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - `.hako` 側に wasm binary writer（section/LEB128）を実装し、WAT依存を外す。
    - 受け入れは「`.hako` 単独で `.wasm` 出力 + 既存 wasm smoke 緑」。
    - docs lock（done）: `29cc-154`（`phase29cc_wsm_p4_min1_docs_lock_vm.sh`）。
+   - skeleton lock（done）: `29cc-155`（`phase29cc_wsm_p4_min2_binary_writer_lock_vm.sh`）。
 6. **P5 Default Cutover**
    - 既定経路を `.hako` emitter/binary writer に切替。Rust backend は `--legacy-wasm-rust` 相当の互換 lane に縮退。
    - 連続マイルストーンで緑を確認後、互換 lane を retire 判定。
