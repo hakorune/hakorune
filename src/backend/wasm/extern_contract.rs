@@ -1,6 +1,6 @@
 /// Canonical extern-call contract shared by WASM codegen and runtime imports.
 /// Keep this list as single source of truth for supported extern call names.
-pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 7] = [
+pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 8] = [
     ("env.console.log", "console_log"),
     ("env.console.warn", "console_warn"),
     ("env.console.error", "console_error"),
@@ -8,6 +8,7 @@ pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 7] = [
     ("env.console.debug", "console_debug"),
     ("env.canvas.fillRect", "canvas_fillRect"),
     ("env.canvas.fillText", "canvas_fillText"),
+    ("env.canvas.clear", "canvas_clear"),
 ];
 
 pub(crate) fn extern_import_name(extern_name: &str) -> Option<&'static str> {
@@ -33,6 +34,7 @@ mod tests {
         assert_eq!(extern_import_name("env.console.log"), Some("console_log"));
         assert_eq!(extern_import_name("env.console.debug"), Some("console_debug"));
         assert_eq!(extern_import_name("env.canvas.fillRect"), Some("canvas_fillRect"));
+        assert_eq!(extern_import_name("env.canvas.clear"), Some("canvas_clear"));
     }
 
     #[test]
@@ -49,5 +51,6 @@ mod tests {
         assert!(csv.contains("env.console.error"));
         assert!(csv.contains("env.console.info"));
         assert!(csv.contains("env.console.debug"));
+        assert!(csv.contains("env.canvas.clear"));
     }
 }

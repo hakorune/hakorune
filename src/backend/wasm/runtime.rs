@@ -111,6 +111,15 @@ impl RuntimeImports {
             result: None,
         });
 
+        // env.canvas_clear for canvas.clear(canvas_id)
+        // Parameters: (canvas_id_ptr, canvas_id_len)
+        self.imports.push(ImportFunction {
+            module: "env".to_string(),
+            name: "canvas_clear".to_string(),
+            params: vec!["i32".to_string(), "i32".to_string()],
+            result: None,
+        });
+
         // Phase 9.77: BoxCall runtime functions
 
         // box_to_string - Convert any Box to string representation
@@ -294,6 +303,17 @@ impl RuntimeImports {
                         js.push_str("      }\n");
                         js.push_str("    },\n");
                     }
+                    "canvas_clear" => {
+                        js.push_str("    canvas_clear: (canvasIdPtr, canvasIdLen) => {\n");
+                        js.push_str("      const memory = instance.exports.memory;\n");
+                        js.push_str("      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n");
+                        js.push_str("      const canvas = document.getElementById(canvasId);\n");
+                        js.push_str("      if (canvas) {\n");
+                        js.push_str("        const ctx = canvas.getContext('2d');\n");
+                        js.push_str("        ctx.clearRect(0, 0, canvas.width, canvas.height);\n");
+                        js.push_str("      }\n");
+                        js.push_str("    },\n");
+                    }
                     _ => {
                         js.push_str(&format!(
                             "    {}: () => {{ throw new Error('Not implemented: {}'); }},\n",
@@ -360,6 +380,7 @@ mod tests {
         assert!(runtime.has_import("console_error"));
         assert!(runtime.has_import("console_info"));
         assert!(runtime.has_import("console_debug"));
+        assert!(runtime.has_import("canvas_clear"));
     }
 
     #[test]
@@ -403,6 +424,8 @@ mod tests {
         assert!(js.contains("console.error"));
         assert!(js.contains("console.info"));
         assert!(js.contains("console.debug"));
+        assert!(js.contains("canvas_clear"));
+        assert!(js.contains("clearRect"));
     }
 
     #[test]

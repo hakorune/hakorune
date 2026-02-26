@@ -22,6 +22,7 @@ Supported extern names in `instructions.rs`:
 - `env.console.debug`
 - `env.canvas.fillRect`
 - `env.canvas.fillText`
+- `env.canvas.clear`
 
 Unsupported extern calls fail-fast with:
 - `Unsupported extern call: <name> (supported: ...)`
@@ -77,8 +78,8 @@ Still unsupported (fail-fast):
 ### 呼び出しギャップ（優先順）
 1. Canvas drawing core
    - used by demo: `setFillStyle`, `setStrokeStyle`, `setLineWidth`, `strokeRect`, `beginPath`, `arc`, `fill`, `stroke`, `clear`
-   - backend status: `env.canvas.fillRect`, `env.canvas.fillText` のみ supported
-   - gap: 残りメソッドの extern contract / runtime import / codegen route 未整備
+   - backend status: `env.canvas.fillRect`, `env.canvas.fillText`, `env.canvas.clear` が supported
+   - gap: 残りメソッド（`strokeRect` など）の extern contract / runtime import / codegen route 未整備
 2. Console helper expansion
    - used by demo: `console.log/error`（JS側は多用）
    - backend status: `log/warn/error/info/debug` は supported
@@ -94,4 +95,4 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - G3 queue:
-  - `canvas.strokeRect` または `canvas.clear` の 1語彙を `1 blocker = 1 shape` で追加し、fixture/gate を先に固定する。
+  - `canvas.strokeRect` の 1語彙を `1 blocker = 1 shape` で追加し、fixture/gate を先に固定する。
