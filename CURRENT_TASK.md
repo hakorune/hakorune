@@ -268,8 +268,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   1. [in-progress] strict VM lane contract: `HAKO_JOINIR_STRICT=1` スモークで rust-vm想定ケースの `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` を段階適用（vm-hako専用ゲートは除外）
   2. [in-progress] LLVM lock contract: `tools/build_llvm.sh` の global lock + `llvm_exe_with_build_lock` 連携で並列衝突を封止
   3. [in-progress] inventory SSOT: `tools/checks/smoke_inventory_report.sh` で `integration/apps` の referenced/orphan candidate を可視化
-  4. [pending] orphan candidate を `daily/quick/milestone/full` の入口基準で classify し、archive or gate 統合計画を phase docs に反映
-  5. [done] cargo output filename collision warning を抑制（`Cargo.toml` の `[lib] crate-type` を `rlib` 単独へ調整）
+  4. [in-progress] orphan candidate を `daily/quick/milestone/full` の入口基準で classify し、archive or gate 統合計画を phase docs に反映
+  5. [done] alias-only wrapper 5本を削除（`*_block_vm.sh -> *_ported_vm.sh`）
+  6. [in-progress] inventory baseline refresh: `integration/apps` 382（referenced 156 / orphan candidate 226）
+  7. [done] cargo output filename collision warning を抑制（`Cargo.toml` の `[lib] crate-type` を `rlib` 単独へ調整）
 
 - config hygiene lane:
   1. [done] `[modules]` 直追加停止 + export追加導線固定
