@@ -34,6 +34,7 @@ Supported methods in `builtins.rs`:
 - `clone`
 - `log`
 - `info`
+- `debug`
 
 Unsupported methods fail-fast with:
 - `Unsupported BoxCall method: <name> (supported: ...)`
