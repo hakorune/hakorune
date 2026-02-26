@@ -158,7 +158,7 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md`
   - wasm lane lock（WSM-02d-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
-  - wasm lane active next: `WSM-G3-min1`（canvas/enhanced demo gap inventory）
+  - wasm lane active next: `WSM-G3-min2`（canvas 1語彙 fixture/gate lock）
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest lock（WSM-G2-min1 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
@@ -166,6 +166,8 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
   - wasm latest lock（WSM-G2-min3 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-136-wsm-g2-min3-guide-alignment-lock-ssot.md`
+  - wasm latest lock（WSM-G3-min1 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-137-wsm-g3-min1-gap-inventory-lock-ssot.md`
 
 ## M4 Tail Cleanup (retired parser flags)
 

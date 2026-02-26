@@ -101,7 +101,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin lane active next:
     - `none`（monitor-only）
   - wasm lane active next:
-    - `WSM-G3-min1`（canvas/enhanced demo gap inventory）
+    - `WSM-G3-min2`（canvas 1語彙 fixture/gate lock）
     - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm lane lock history（SSOT pointer）:
     - `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
@@ -113,6 +113,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
   - wasm latest lock（WSM-G2-min3 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-136-wsm-g2-min3-guide-alignment-lock-ssot.md`
+  - wasm latest lock（WSM-G3-min1 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-137-wsm-g3-min1-gap-inventory-lock-ssot.md`
   - wasm grammar/map SSOT:
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
   - wasm migration fixed order（WSM-02+）:
@@ -139,7 +141,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. `WSM-G3-min1`（gap inventory）: `canvas_playground.html` / `enhanced_playground.html` の API ギャップを棚卸しし、fixture/gate 優先順位を固定する。
+1. `WSM-G3-min2`（canvas 1語彙）: `strokeRect` または `clear` のどちらか1件を fixture/gate で先に固定する。
 2. `WSM-02d` gate pack は lightweight/milestone の二段運用を維持する。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 

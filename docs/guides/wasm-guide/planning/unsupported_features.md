@@ -68,8 +68,30 @@ Still unsupported (fail-fast):
 - `ConsoleBox.group` のような scope-out helper は `phase29cc_wsm02d_demo_unsupported_boundary_vm.sh` で fail-fast なので、このドキュメントで inventory に登録して unsupported inventory 側の記録を補完する。
 - headless smoke `phase29cc_wsm_g2_browser_run_*` を `tools/checks/dev_gate.sh wasm-demo-g2` 等に追加する際は、この unsupported list を参照して fail-fast 判定を gate に突き合わせる。
 
+## WSM G3-min1 Gap Inventory（canvas/enhanced demo）
+
+### 対象デモ
+- `projects/nyash-wasm/canvas_playground.html`
+- `projects/nyash-wasm/enhanced_playground.html`
+
+### 呼び出しギャップ（優先順）
+1. Canvas drawing core
+   - used by demo: `setFillStyle`, `setStrokeStyle`, `setLineWidth`, `strokeRect`, `beginPath`, `arc`, `fill`, `stroke`, `clear`
+   - backend status: `env.canvas.fillRect`, `env.canvas.fillText` のみ supported
+   - gap: 残りメソッドの extern contract / runtime import / codegen route 未整備
+2. Console helper expansion
+   - used by demo: `console.log/error`（JS側は多用）
+   - backend status: `log/warn/error/info/debug` は supported
+   - gap: `group/groupEnd/separator` は scope-out（fail-fast維持）
+3. DOM/event bridge
+   - demo needs direct DOM updates and animation loop (`requestAnimationFrame`)
+   - backend status: dedicated extern contract なし
+   - gap: `env.dom.*` / `env.anim.*` の語彙設計未着手（G3以降）
+
 ## Next Candidates (WSM-02+)
 - Expand extern-call coverage beyond current 3 names.
 - Expand BoxCall coverage for core methods used by selfhost fixtures.
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
+- G3 queue:
+  - `canvas.strokeRect` または `canvas.clear` の 1語彙を `1 blocker = 1 shape` で追加し、fixture/gate を先に固定する。
