@@ -105,4 +105,4 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - P4 queue:
-  - `WSM-P4-min6`: pilot shape 判定を shape table（箱化）へ整理し、parity gate を table 経由で lock する。
+  - `WSM-P5-min1`: default cutover docs-first lock（`.hako` writer 既定昇格の境界/gate 固定）。

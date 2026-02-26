@@ -33,4 +33,5 @@ P4-min4 の `return 7` に加え、`return -1` parity を lock して binary wri
 3. fail-fast 原則を維持（silent fallback なし）。
 
 ## Next
-- `WSM-P4-min6`: pilot shape 判定を shape table（箱化）へ整理し、既存 parity を table 経由で固定する。
+- `WSM-P4-min6` は `29cc-159` で完了。
+- 次は `WSM-P5-min1`: default cutover docs-first lock（既定切替の境界/gate 固定）。
