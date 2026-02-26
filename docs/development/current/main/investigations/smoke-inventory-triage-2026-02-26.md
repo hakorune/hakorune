@@ -7,10 +7,11 @@
 
 ## Current Snapshot
 
-- total: `365`
+- total: `344` (`Include archive: 0` default)
 - referenced: `155`
-- orphan candidate: `210`
+- orphan candidate: `189`
 - orphan wrapper candidate: `0`
+- with archive included: total `365`, orphan `210`
 - suffix breakdown:
   - `vm`: `297`
   - `llvm_exe`: `50`
@@ -37,6 +38,10 @@
    - `phase29x_vm_hako_s6_vocab_guard.sh` now tracks `src/runner/modes/vm_hako/subset_check.rs`
    - S6 parity gate reject step aligned to `phase29z_vm_hako_s5_newclosure_probe_vm.sh`
    - commit: `b55825c74`
+6. Batch-B (archive isolation) done:
+   - moved orphan-heavy families to `tools/smokes/v2/profiles/integration/apps/archive/`
+   - families: `phase100`, `phase103`, `phase104`, `phase107`, `phase118` (21 files)
+   - inventory default now excludes archive (`SMOKE_INVENTORY_INCLUDE_ARCHIVE=0`)
 
 ## Findings
 

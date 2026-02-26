@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 APPS_DIR="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps"
 OUT_DIR="${SMOKE_INVENTORY_OUT_DIR:-$ROOT_DIR/target/smoke_inventory}"
+INCLUDE_ARCHIVE="${SMOKE_INVENTORY_INCLUDE_ARCHIVE:-0}"
 mkdir -p "$OUT_DIR"
 
 REPORT_TSV="$OUT_DIR/integration_apps_inventory.tsv"
@@ -14,7 +15,11 @@ if [[ ! -d "$APPS_DIR" ]]; then
   exit 1
 fi
 
-mapfile -t scripts < <(find "$APPS_DIR" -type f -name '*.sh' | sort)
+if [[ "$INCLUDE_ARCHIVE" == "1" ]]; then
+  mapfile -t scripts < <(find "$APPS_DIR" -type f -name '*.sh' | sort)
+else
+  mapfile -t scripts < <(find "$APPS_DIR" -type f -name '*.sh' -not -path '*/archive/*' | sort)
+fi
 
 {
   echo "path	family	suffix	fullpath_ref_count	basename_ref_count	wrapper_only	class"
@@ -72,6 +77,7 @@ referenced="$(( data_rows - orphans ))"
   echo "Smoke Inventory Summary"
   echo "Date: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
   echo "Dir: $APPS_DIR"
+  echo "Include archive: $INCLUDE_ARCHIVE"
   echo "Total: $data_rows"
   echo "Referenced: $referenced"
   echo "Orphan candidates: $orphans"
