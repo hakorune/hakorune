@@ -1283,10 +1283,10 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
   - `apps/tests/phase146_p0_if_cond_unified_min.hako`（P0: pure cond, expected exit 7）
   - `apps/tests/phase146_p1_if_cond_intrinsic_min.hako`（P1: `s.length() == 3`, expected exit 7）
 - Smokes:
-  - `tools/smokes/v2/profiles/integration/apps/phase146_p0_if_cond_unified_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase146_p0_if_cond_unified_llvm_exe.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase146_p1_if_cond_intrinsic_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase146_p1_if_cond_intrinsic_llvm_exe.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase146_p0_if_cond_unified_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase146_p0_if_cond_unified_llvm_exe.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase146_p1_if_cond_intrinsic_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase146_p1_if_cond_intrinsic_llvm_exe.sh`
 - Flags:
   - `HAKO_ANF_DEV=1`（dev-only: ANF routing 有効化）
   - `HAKO_ANF_ALLOW_PURE=1`（dev-only: PureOnly scope で ANF 有効化）

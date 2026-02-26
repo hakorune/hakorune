@@ -8,15 +8,15 @@
 ## Current Snapshot
 
 - total: `344` (`Include archive: 0` default)
-- total: `326` (`Include archive: 0` default)
+- total: `308` (`Include archive: 0` default)
 - referenced: `155`
-- orphan candidate: `171`
+- orphan candidate: `153`
 - orphan wrapper candidate: `0`
 - with archive included: total `365`, orphan `210`
 - suffix breakdown:
-  - `vm`: `261`
-  - `llvm_exe`: `35`
-  - `other`: `30`
+  - `vm`: `252`
+  - `llvm_exe`: `28`
+  - `other`: `28`
 
 ## This Round (completed)
 
@@ -48,6 +48,11 @@
    - families: `phase143` (P2 bc/cb), `phase145` (P2 compound expr), `phase252` (p0 break cond), `phase275` (eq/plus), `phase284` (p1 return), `phase286` (pattern1/2 frag)
    - kept `phase259_p0_is_integer_llvm_exe.sh` in active due doc reference
    - verification: `phase29y_lane_gate_quick_vm.sh` PASS
+8. Batch-D (archive isolation + doc-path sync) done:
+   - moved 18 additional orphan scripts to archive
+   - families: `phase136`, `phase137`, `phase146`, `phase285`
+   - updated docs command paths from `apps/...` to `apps/archive/...` for moved scripts
+   - verification: `phase29y_lane_gate_quick_vm.sh` PASS
 
 ## Findings
 
@@ -57,10 +62,10 @@
 
 ## Next Batches (ordered)
 
-1. Batch-D (archive or retire):
-   - continue zero-inbound-ref archive moves for remaining orphan families (`phase136/137/146/285/...`)
+1. Batch-E (archive or retire):
+   - continue zero-inbound-ref archive moves for remaining orphan families (`phase102/113/114/115/116/117/121/128/...`)
    - skip any script referenced from `docs/development/current/main/**` until docs pointers are cleaned
-2. Batch-E (gate-pack consolidation):
+2. Batch-F (gate-pack consolidation):
    - optionally re-promote selected archive groups into explicit gate packs when needed
    - keep fixture coverage while limiting top-level app-script fan-out
    - scripts still orphan after Batch-A/B

@@ -89,12 +89,12 @@ ASTNode::Literal { value: LiteralValue::Integer(i), .. } => {
 ### Smoke Tests
 
 **VM**:
-- `tools/smokes/v2/profiles/integration/apps/phase136_loop_true_break_once_return_literal_vm.sh`
-- `tools/smokes/v2/profiles/integration/apps/phase136_loop_true_break_once_post_return_literal_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_once_return_literal_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_once_post_return_literal_vm.sh`
 
 **LLVM EXE**:
-- `tools/smokes/v2/profiles/integration/apps/phase136_loop_true_break_once_return_literal_llvm_exe.sh`
-- `tools/smokes/v2/profiles/integration/apps/phase136_loop_true_break_once_post_return_literal_llvm_exe.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_once_return_literal_llvm_exe.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_once_post_return_literal_llvm_exe.sh`
 
 ## Verification
 
@@ -103,10 +103,10 @@ ASTNode::Literal { value: LiteralValue::Integer(i), .. } => {
 cargo build --release -p nyash-rust --features llvm
 
 # Phase 136 smokes (4 tests)
-bash tools/smokes/v2/profiles/integration/apps/phase136_loop_true_break_once_return_literal_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase136_loop_true_break_once_post_return_literal_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase136_loop_true_break_once_return_literal_llvm_exe.sh
-bash tools/smokes/v2/profiles/integration/apps/phase136_loop_true_break_once_post_return_literal_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_once_return_literal_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_once_post_return_literal_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_once_return_literal_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_once_post_return_literal_llvm_exe.sh
 
 # Regressions
 bash tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_vm.sh

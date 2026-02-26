@@ -92,11 +92,11 @@ Phase 146 enables ANF (A-Normal Form) transformation for loop and if conditions,
 
 ```bash
 # VM
-./tools/smokes/v2/profiles/integration/apps/phase146_p0_if_cond_unified_vm.sh
+./tools/smokes/v2/profiles/integration/apps/archive/phase146_p0_if_cond_unified_vm.sh
 # Expected: exit 7
 
 # LLVM EXE
-./tools/smokes/v2/profiles/integration/apps/phase146_p0_if_cond_unified_llvm_exe.sh
+./tools/smokes/v2/profiles/integration/apps/archive/phase146_p0_if_cond_unified_llvm_exe.sh
 # Expected: exit 7
 ```
 
@@ -105,12 +105,12 @@ Phase 146 enables ANF (A-Normal Form) transformation for loop and if conditions,
 ```bash
 # VM (dev-only)
 HAKO_ANF_DEV=1 HAKO_ANF_ALLOW_PURE=1 \
-  ./tools/smokes/v2/profiles/integration/apps/phase146_p1_if_cond_intrinsic_vm.sh
+  ./tools/smokes/v2/profiles/integration/apps/archive/phase146_p1_if_cond_intrinsic_vm.sh
 # Expected: exit 7
 
 # LLVM EXE (dev-only)
 HAKO_ANF_DEV=1 HAKO_ANF_ALLOW_PURE=1 \
-  ./tools/smokes/v2/profiles/integration/apps/phase146_p1_if_cond_intrinsic_llvm_exe.sh
+  ./tools/smokes/v2/profiles/integration/apps/archive/phase146_p1_if_cond_intrinsic_llvm_exe.sh
 # Expected: exit 7
 ```
 

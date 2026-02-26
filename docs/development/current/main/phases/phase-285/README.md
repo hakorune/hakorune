@@ -355,15 +355,15 @@ If any of the following are missing, treat weak smokes as **unsupported** and sc
   - P2 の weak-fail は明示 drop 方式で固定
 
 **VM smoke scripts（2本）**:
-1. `tools/smokes/v2/profiles/integration/apps/phase285_p2_weak_upgrade_success_vm.sh`
+1. `tools/smokes/v2/profiles/integration/apps/archive/phase285_p2_weak_upgrade_success_vm.sh`
    - Fixture A 実行、期待: **exit 2** → **PASS**
-2. `tools/smokes/v2/profiles/integration/apps/phase285_p2_weak_upgrade_fail_vm.sh`
+2. `tools/smokes/v2/profiles/integration/apps/archive/phase285_p2_weak_upgrade_fail_vm.sh`
    - Fixture B 実行、期待: **exit 1** → **PASS**
 
 **LLVM smoke scripts（2本）**:
-3. `tools/smokes/v2/profiles/integration/apps/phase285_p2_weak_upgrade_success_llvm.sh`
+3. `tools/smokes/v2/profiles/integration/apps/archive/phase285_p2_weak_upgrade_success_llvm.sh`
    - Fixture A 実行（LLVM harness）、期待: **exit 2** → **PASS** または理由付き SKIP
-4. `tools/smokes/v2/profiles/integration/apps/phase285_p2_weak_upgrade_fail_llvm.sh`
+4. `tools/smokes/v2/profiles/integration/apps/archive/phase285_p2_weak_upgrade_fail_llvm.sh`
    - Fixture B 実行（LLVM harness）、期待: **exit 1** → **PASS** または理由付き SKIP
 
 **LLVM 対応**:
