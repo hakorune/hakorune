@@ -129,3 +129,4 @@ Related:
 - [x] plugin lane `PLG-05-min6` wave-2 Math rollout accepted (`29cc-111-plg05-math-wave2-min6-ssot.md`)
 - [x] plugin lane `PLG-05-min7` wave-2 Net rollout accepted (`29cc-112-plg05-net-wave2-min7-ssot.md`)
 - [x] plugin lane `PLG-06-min1` wave-3 entry lock accepted (`29cc-113-plg06-pycompiler-wave3-min1-ssot.md`)
+- [x] plugin lane `PLG-06-min2` wave-3 Python rollout accepted (`29cc-114-plg06-python-wave3-min2-ssot.md`)

@@ -1,0 +1,15 @@
+// Phase 29cc PLG-06-min2 Python plugin pilot fixture
+// Contract:
+// - PyRuntimeBox can be constructed through plugin config.
+// - evalR method route can be invoked in VM and returns PyObjectBox handle text.
+
+static box Main {
+  main(args) {
+    local py
+    local out
+    py = new PyRuntimeBox()
+    out = py.evalR("1+2")
+    print("pyr_out=" + out)
+    return 0
+  }
+}
