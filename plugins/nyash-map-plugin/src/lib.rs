@@ -7,46 +7,35 @@ use std::collections::HashMap;
 use std::ffi::CStr;
 use std::os::raw::c_char;
 use std::sync::{
-    atomic::{AtomicU32, Ordering},
+    atomic::AtomicU32,
     Mutex,
 };
 
 // Error codes
 const NYB_SUCCESS: i32 = 0;
 const NYB_E_SHORT_BUFFER: i32 = -1;
-const NYB_E_INVALID_TYPE: i32 = -2;
 const NYB_E_INVALID_METHOD: i32 = -3;
 const NYB_E_INVALID_ARGS: i32 = -4;
 const NYB_E_PLUGIN_ERROR: i32 = -5;
 const NYB_E_INVALID_HANDLE: i32 = -8;
 
 // Methods
-const METHOD_BIRTH: u32 = 0;
 const METHOD_SIZE: u32 = 1;
 const METHOD_GET: u32 = 2; // args: i64 key -> TLV i64
 const METHOD_HAS: u32 = 3; // args: i64 key -> TLV bool
 const METHOD_SET: u32 = 4; // args: key(int|string), value(i64) -> TLV i64 (size)
-const METHOD_REMOVE: u32 = 6; // args: key(int|string) -> TLV bool (removed)
-const METHOD_CLEAR: u32 = 7; // args: () -> TLV i64 (size after clear=0)
 const METHOD_KEYS_S: u32 = 8; // args: () -> TLV string (newline-joined keys)
-const METHOD_GET_OR: u32 = 9; // args: key(int|string), default(i64) -> TLV i64
-const METHOD_FINI: u32 = u32::MAX;
 // Extended string-key methods
-const METHOD_SET_STR: u32 = 10; // setS(name: string, val: i64) -> i64(size)
 const METHOD_GET_STR: u32 = 11; // getS(name: string) -> i64
 const METHOD_HAS_STR: u32 = 12; // hasS(name: string) -> bool
 const METHOD_VALUES_S: u32 = 13; // valuesStr() -> string (newline-joined)
-const METHOD_TO_JSON: u32 = 14; // toJson() -> string
-
-// Type id (nyash.toml に合わせる)
-const TYPE_ID_MAP: u32 = 11;
 
 struct MapInstance {
     data_i64: HashMap<i64, i64>,
     data_str: HashMap<String, i64>,
 }
 static INSTANCES: Lazy<Mutex<HashMap<u32, MapInstance>>> = Lazy::new(|| Mutex::new(HashMap::new()));
-static INSTANCE_COUNTER: AtomicU32 = AtomicU32::new(1);
+static _INSTANCE_COUNTER: AtomicU32 = AtomicU32::new(1);
 
 // legacy v1 abi/init removed
 
@@ -629,36 +618,7 @@ pub static nyash_typebox_MapBox: NyashTypeBoxFfi = NyashTypeBoxFfi {
     capabilities: 0,
 };
 
-fn escape_json(s: &str) -> String {
-    let mut out = String::with_capacity(s.len() + 8);
-    for ch in s.chars() {
-        match ch {
-            '"' => out.push_str("\\\""),
-            '\\' => out.push_str("\\\\"),
-            '\n' => out.push_str("\\n"),
-            '\r' => out.push_str("\\r"),
-            '\t' => out.push_str("\\t"),
-            c if c.is_control() => out.push_str(&format!("\\u{:04x}", c as u32)),
-            c => out.push(c),
-        }
-    }
-    out
-}
-
 // TLV helpers
-fn preflight(result: *mut u8, result_len: *mut usize, needed: usize) -> bool {
-    unsafe {
-        if result_len.is_null() {
-            return false;
-        }
-        if result.is_null() || *result_len < needed {
-            *result_len = needed;
-            return true;
-        }
-    }
-    false
-}
-
 fn write_tlv_result(payloads: &[(u8, &[u8])], result: *mut u8, result_len: *mut usize) -> i32 {
     if result_len.is_null() {
         return NYB_E_INVALID_ARGS;

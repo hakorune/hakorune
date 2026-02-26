@@ -11,7 +11,6 @@ use std::sync::{
 // Error codes
 const OK: i32 = 0;
 const E_SHORT: i32 = -1;
-const E_TYPE: i32 = -2;
 const E_METHOD: i32 = -3;
 const E_ARGS: i32 = -4;
 const E_FAIL: i32 = -5;
@@ -60,12 +59,6 @@ mod tlv {
         buf.push(8);
         buf.push(0);
         buf.extend_from_slice(&v.to_le_bytes());
-    }
-    pub fn encode_void(buf: &mut Vec<u8>) {
-        buf.push(9);
-        buf.push(0);
-        buf.push(0);
-        buf.push(0);
     }
     pub fn decode_first(args: &[u8]) -> Option<(u16, u16, usize)> {
         if args.len() < 8 {

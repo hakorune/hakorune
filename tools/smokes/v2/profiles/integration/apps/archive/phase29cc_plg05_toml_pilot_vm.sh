@@ -8,6 +8,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/plugin_pilot_common.sh"
 require_env || exit 2
 
 SMOKE_NAME="phase29cc_plg05_toml_pilot_vm"
@@ -20,28 +21,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-detect_lib_ext() {
-  case "$(uname -s)" in
-    Darwin) echo "dylib" ;;
-    MINGW*|MSYS*|CYGWIN*|Windows_NT) echo "dll" ;;
-    *) echo "so" ;;
-  esac
-}
-
-lib_name_for() {
-  local base="$1"
-  local ext="$2"
-  if [ "$ext" = "dll" ]; then
-    echo "${base}.dll"
-  else
-    echo "lib${base}.${ext}"
-  fi
-}
-
-if [ ! -f "$FIXTURE" ]; then
-  test_fail "$SMOKE_NAME: fixture missing ($FIXTURE)"
-  exit 1
-fi
+require_fixture_file "$SMOKE_NAME" "$FIXTURE" || exit 1
 
 EXT="$(detect_lib_ext)"
 TOML_LIB_NAME="$(lib_name_for nyash_toml_plugin "$EXT")"
@@ -49,42 +29,11 @@ TOML_LIB_PATH="$NYASH_ROOT/target/release/$TOML_LIB_NAME"
 STRING_LIB_NAME="$(lib_name_for nyash_string_plugin "$EXT")"
 STRING_LIB_PATH="$NYASH_ROOT/target/release/$STRING_LIB_NAME"
 
-log_info "$SMOKE_NAME: building toml plugin release artifact"
-(cd "$NYASH_ROOT" && cargo build -p nyash-toml-plugin --release >/dev/null)
-
-if [ ! -f "$TOML_LIB_PATH" ]; then
-  test_fail "$SMOKE_NAME: toml plugin artifact missing ($TOML_LIB_PATH)"
-  exit 1
-fi
-
-log_info "$SMOKE_NAME: building string plugin release artifact"
-(cd "$NYASH_ROOT/plugins/nyash-string-plugin" && cargo build --release >/dev/null)
-
-if [ ! -f "$STRING_LIB_PATH" ]; then
-  test_fail "$SMOKE_NAME: string plugin artifact missing ($STRING_LIB_PATH)"
-  exit 1
-fi
+build_plugin_release_checked "$SMOKE_NAME" "toml" "$TOML_LIB_PATH" -p nyash-toml-plugin || exit 1
+build_string_plugin_release_checked "$SMOKE_NAME" "$STRING_LIB_PATH" || exit 1
 
 cat > "$WORK_DIR/nyash.toml" << EOF2
-[libraries."$STRING_LIB_NAME"]
-boxes = ["StringBox"]
-path = "$STRING_LIB_PATH"
-
-[libraries."$STRING_LIB_NAME".StringBox]
-type_id = 10
-abi_version = 1
-singleton = false
-
-[libraries."$STRING_LIB_NAME".StringBox.methods]
-birth = { method_id = 0 }
-length = { method_id = 1 }
-len = { method_id = 1 }
-isEmpty = { method_id = 2 }
-charCodeAt = { method_id = 3 }
-concat = { method_id = 4 }
-toUtf8 = { method_id = 6 }
-toString = { method_id = 6 }
-fini = { method_id = 4294967295 }
+$(append_stringbox_toml "$STRING_LIB_NAME" "$STRING_LIB_PATH")
 
 [libraries."$TOML_LIB_NAME"]
 boxes = ["TOMLBox"]

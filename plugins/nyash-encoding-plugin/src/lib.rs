@@ -1,5 +1,6 @@
 //! Nyash EncodingBox Plugin - UTF-8/Base64/Hex helpers
 
+use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::{
@@ -9,11 +10,9 @@ use std::sync::{
 
 const OK: i32 = 0;
 const E_SHORT: i32 = -1;
-const E_TYPE: i32 = -2;
 const E_METHOD: i32 = -3;
 const E_ARGS: i32 = -4;
 const E_PLUGIN: i32 = -5;
-const E_HANDLE: i32 = -8;
 
 const M_BIRTH: u32 = 0; // constructor (stateless)
 const M_TO_UTF8_BYTES: u32 = 1; // toUtf8Bytes(s) -> bytes
@@ -23,9 +22,6 @@ const M_BASE64_DEC: u32 = 4; // base64Decode(str) -> bytes
 const M_HEX_ENC: u32 = 5; // hexEncode(s|bytes) -> string
 const M_HEX_DEC: u32 = 6; // hexDecode(str) -> bytes
 const M_FINI: u32 = u32::MAX;
-
-// Assign an unused type id
-const TYPE_ID_ENCODING: u32 = 53;
 
 struct EncInstance; // stateless
 
@@ -95,14 +91,14 @@ pub extern "C" fn nyash_plugin_invoke(
             }
             M_BASE64_ENC => {
                 if let Some(b) = read_arg_bytes(args, args_len, 0) {
-                    let s = base64::encode(b);
+                    let s = BASE64_STANDARD.encode(b);
                     return write_tlv_string(&s, result, result_len);
                 }
                 let s = match read_arg_string(args, args_len, 0) {
                     Some(v) => v,
                     None => return E_ARGS,
                 };
-                let enc = base64::encode(s.as_bytes());
+                let enc = BASE64_STANDARD.encode(s.as_bytes());
                 write_tlv_string(&enc, result, result_len)
             }
             M_BASE64_DEC => {
@@ -110,7 +106,7 @@ pub extern "C" fn nyash_plugin_invoke(
                     Some(v) => v,
                     None => return E_ARGS,
                 };
-                match base64::decode(s.as_bytes()) {
+                match BASE64_STANDARD.decode(s.as_bytes()) {
                     Ok(b) => write_tlv_bytes(&b, result, result_len),
                     Err(_) => write_tlv_bytes(&[], result, result_len),
                 }
@@ -230,14 +226,14 @@ extern "C" fn encoding_invoke_id(
             }
             M_BASE64_ENC => {
                 if let Some(b) = read_arg_bytes(args, args_len, 0) {
-                    let s = base64::encode(b);
+                    let s = BASE64_STANDARD.encode(b);
                     return write_tlv_string(&s, result, result_len);
                 }
                 let s = match read_arg_string(args, args_len, 0) {
                     Some(v) => v,
                     None => return E_ARGS,
                 };
-                let enc = base64::encode(s.as_bytes());
+                let enc = BASE64_STANDARD.encode(s.as_bytes());
                 write_tlv_string(&enc, result, result_len)
             }
             M_BASE64_DEC => {
@@ -245,7 +241,7 @@ extern "C" fn encoding_invoke_id(
                     Some(v) => v,
                     None => return E_ARGS,
                 };
-                match base64::decode(s.as_bytes()) {
+                match BASE64_STANDARD.decode(s.as_bytes()) {
                     Ok(b) => write_tlv_bytes(&b, result, result_len),
                     Err(_) => write_tlv_bytes(&[], result, result_len),
                 }

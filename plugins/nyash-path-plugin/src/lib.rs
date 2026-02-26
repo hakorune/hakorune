@@ -3,7 +3,7 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::ffi::CStr;
-use std::path::{Component, Path};
+use std::path::Path;
 use std::sync::{
     atomic::{AtomicU32, Ordering},
     Mutex,
@@ -11,7 +11,6 @@ use std::sync::{
 
 const OK: i32 = 0;
 const E_SHORT: i32 = -1;
-const E_TYPE: i32 = -2;
 const E_METHOD: i32 = -3;
 const E_ARGS: i32 = -4;
 const E_PLUGIN: i32 = -5;
@@ -24,8 +23,6 @@ const M_EXTNAME: u32 = 4; // extname(path) -> string
 const M_IS_ABS: u32 = 5; // isAbs(path) -> bool
 const M_NORMALIZE: u32 = 6; // normalize(path) -> string
 const M_FINI: u32 = u32::MAX; // fini
-
-const TYPE_ID_PATH: u32 = 55;
 
 struct PathInstance; // stateless
 
