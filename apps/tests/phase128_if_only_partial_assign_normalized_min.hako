@@ -11,9 +11,9 @@ static box Main {
         flag = 1
         if flag == 1 {
             print(2)
-            return "OK"
+            return 0
         }
         print(1)
-        return "OK"
+        return 0
     }
 }

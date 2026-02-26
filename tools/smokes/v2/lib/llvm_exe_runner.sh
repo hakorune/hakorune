@@ -213,6 +213,10 @@ llvm_exe_build_and_run_numeric_smoke() {
   # - EXPECTED (multiline)
   # - EXPECTED_LINES (number of numeric lines to compare)
   #
+  # Fixture contract (LLVM EXE):
+  # - Program should exit with code 0.
+  # - Prefer `return 0` in fixture main() to avoid handle-id exit collisions.
+  #
   # Optional:
   # - LLVM_BUILD_LOG
   # - RUN_TIMEOUT_SECS
