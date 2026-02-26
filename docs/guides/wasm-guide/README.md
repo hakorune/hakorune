@@ -15,6 +15,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 
 ### 現在のWASMデモタスク
 - **[WSM G2 ブラウザデモタスク](../../development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md)** - `projects/nyash-wasm` を G2 (browser demo minimum) で再到達するための直近 3〜5 タスクを docs-first で固定し、run loop → headless smoke → dev guide の順で gate を固める。
+- **[WSM-G2-min1 実装ロック](../../development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md)** - 独立 bridge crate で browser run loop 最小構成（ConsoleBox 5メソッド）を固定した受け入れ記録。
 
 ## 🚀 クイックスタート
 

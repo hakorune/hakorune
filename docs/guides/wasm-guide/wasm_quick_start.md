@@ -144,6 +144,6 @@ cd www && python3 -m http.server 8000
 
 ## G2 ブラウザデモタスク（現行 2026-02-26）
 
-1. `projects/nyash-wasm/build.sh` を使って wasm パッケージを再生成し、`nyash_playground.html` の Run ボタンが `ConsoleBox` の `log/warn/error/info/debug` を呼び出す最小デモであることを確認する。詳細な手順と acceptance wire が `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md` に記載している。
-2. `python3 -m http.server` などで静的サーバーを立て、`nyash_playground.html` を headless ブラウザ（例: `node`+`playwright`）で開いて Run→コンソール出力を `wsm02d_demo_min_log` 〜 `wsm02d_demo_min_debug` で監視する smoke を整備する。出力マーキングは `apps/tests/phase29cc_wsm02d_demo_min.hako` と `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_min_boundary_vm.sh` で gate 固定済みなので、この手順を docs で共有する。
-3. headless smoke を `tools/checks/dev_gate.sh wasm-demo-g2` または類似の milestone entry へ追加し、`phase29cc_wsm02d_demo_min_*` の log マーカーで失敗を fail-fast にするとこの lane の acceptance 被りを防げる。
+1. `projects/nyash-wasm/build.sh` は `projects/nyash-wasm/bridge/` の独立 crate を build して `projects/nyash-wasm/pkg/` を更新する（ルート crate の wasm 互換性に依存しない）。
+2. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh` で build + export + playground marker を固定し、`ConsoleBox` の `log/warn/error/info/debug` 最小 run-loop を fail-fast で検証する。
+3. `WSM-G2-min1` の受け入れ記録は `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`。次段は `WSM-G2-min2`（headless run automation smoke）に進める。

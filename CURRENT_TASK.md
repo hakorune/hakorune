@@ -101,12 +101,14 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin lane active next:
     - `none`（monitor-only）
   - wasm lane active next:
-    - `WSM-G2-min1`（browser demo-run minimal plan, docs-first）
+    - `WSM-G2-min2`（browser run automation smoke）
     - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm lane lock history（SSOT pointer）:
     - `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
   - wasm latest lock（WSM-02d-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
+  - wasm latest lock（WSM-G2-min1 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
   - wasm grammar/map SSOT:
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
   - wasm migration fixed order（WSM-02+）:
@@ -133,7 +135,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. `WSM-G2-min1..`（browser demo-run minimal plan）: `projects/nyash-wasm` の run loop 最小構成を docs-first で固定する。
+1. `WSM-G2-min2`（browser run automation）: headless smoke を追加し、Run ボタンの出力契約を自動検証する。
 2. `WSM-02d` gate pack は lightweight/milestone の二段運用を維持する。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 

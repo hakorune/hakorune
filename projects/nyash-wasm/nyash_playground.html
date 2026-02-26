@@ -187,21 +187,17 @@
                 <div class="left-panel">
                     <label for="editor">📝 Nyash Code:</label>
                     <textarea id="editor" placeholder="// Nyashコードをここに書くにゃ！
-// 🎯 正統派Nyashスタイル - static box Main!
+// WSM-G2-min1 ConsoleBox run-loop minimum
 
 static box Main {
-    init { console, x, y, result }
-    
     main() {
-        me.console = new WebConsoleBox(\"output\")
-        me.console.log(\"🎉 Hello from Nyash!\")
-        
-        me.x = 42
-        me.y = 58
-        me.result = me.x + me.y
-        me.console.log(\"x + y = \" + me.result)
-        
-        return \"Success!\"
+        local console = new ConsoleBox()
+        console.log(\"wsm02d_demo_min_log\")
+        console.warn(\"wsm02d_demo_min_warn\")
+        console.error(\"wsm02d_demo_min_error\")
+        console.info(\"wsm02d_demo_min_info\")
+        console.debug(\"wsm02d_demo_min_debug\")
+        return 0
     }
 }"></textarea>
                 </div>
@@ -283,20 +279,10 @@ static box Main {
             const code = document.getElementById('editor').value;
             const output = document.getElementById('output');
             
-            // Web出力Boxを使用しているかチェック
-            const usesWebOutputBox = code.includes('WebDisplayBox') || code.includes('WebConsoleBox') || code.includes('WebCanvasBox');
-            
             try {
                 const result = nyash.eval(code);
-                
-                if (usesWebOutputBox) {
-                    // Web出力Boxが制御するので、JavaScriptは何もしない
-                    console.log('Web output box is controlling the output panel');
-                } else {
-                    // Web出力Boxを使わない場合は、通常通りJavaScriptで出力
-                    output.textContent += '> ' + result + '\\n';
-                    output.scrollTop = output.scrollHeight;
-                }
+                output.textContent += '> ' + result + '\\n';
+                output.scrollTop = output.scrollHeight;
             } catch (error) {
                 output.textContent += '❌ Error: ' + error.message + '\\n';
                 output.scrollTop = output.scrollHeight;

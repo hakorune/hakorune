@@ -11,15 +11,18 @@ if ! command -v wasm-pack &> /dev/null; then
     cargo install wasm-pack
 fi
 
-# Go to project root
-cd "$(dirname "$0")/../.."
+# Go to bridge crate
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BRIDGE_DIR="${SCRIPT_DIR}/bridge"
+OUT_DIR="${SCRIPT_DIR}/pkg"
 
 # Build WASM package
 echo "🔨 Building WASM package..."
-wasm-pack build --target web --out-dir projects/nyash-wasm/pkg
+cd "${BRIDGE_DIR}"
+wasm-pack build --target web --out-dir "${OUT_DIR}"
 
 # Return to wasm project directory
-cd projects/nyash-wasm
+cd "${SCRIPT_DIR}"
 
 echo "✅ Build complete!"
 echo ""

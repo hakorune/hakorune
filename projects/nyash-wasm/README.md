@@ -1,6 +1,6 @@
-# 🌐 Nyash WebAssembly Project (Archived / Unmaintained)
+# 🌐 Nyash WebAssembly Project
 
-Status: This directory contains an older WASM/browser prototype. It is not part of CI and may not build with current Nyash. Instructions below are historical and provided as-is.
+Status: `WSM-G2-min1` まで復旧済み。`projects/nyash-wasm/bridge` を wasm build のSSOTとし、`nyash_playground.html` の ConsoleBox 5メソッド最小run-loopを固定している。次は `WSM-G2-min2`（headless automation smoke）。
 
 ## 🚀 Quick Start (experimental)
 
@@ -8,9 +8,8 @@ Status: This directory contains an older WASM/browser prototype. It is not part 
 # Install wasm-pack (if not already installed)
 cargo install wasm-pack
 
-# Build WASM module
-cd /mnt/c/git/nyash
-wasm-pack build --target web --out-dir projects/nyash-wasm/pkg
+# Build WASM module (bridge crate)
+bash projects/nyash-wasm/build.sh
 
 # Start local server (example)
 cd projects/nyash-wasm
@@ -20,13 +19,11 @@ python3 -m http.server 8000
 # Navigate to: http://localhost:8000/nyash_playground.html
 ```
 
-## 🎯 Features (historical)
+## 🎯 Features (G2-min1 baseline)
 
-- **🐱 Full Nyash Language** - Complete interpreter running in browser
-- **📦 ConsoleBox** - Browser console integration  
-- **🔍 DebugBox** - Real-time debugging in browser
-- **⚡ All Operators** - NOT/AND/OR/Division fully supported
-- **🎮 Interactive Playground** - Code editor with examples
+- **📦 ConsoleBox 5 methods** - `log/warn/error/info/debug` の run-loop 最小実装
+- **🧪 Build smoke** - `phase29cc_wsm_g2_min1_bridge_build_vm.sh` で契約固定
+- **🎮 Interactive Playground** - `nyash_playground.html` の Run ボタンで最小デモ確認
 
 ## 📁 File Structure
 
@@ -35,39 +32,31 @@ projects/nyash-wasm/
 ├── README.md                 # This file
 ├── nyash_playground.html     # Interactive playground
 ├── build.sh                  # Build script
+├── bridge/                   # wasm-pack target crate (SSOT)
 └── pkg/                      # Generated WASM files (after build)
     ├── nyash_rust.js
     ├── nyash_rust_bg.wasm
     └── ...
 ```
 
-## 🎨 Example Code (historical)
+## 🎨 Example Code (G2-min1 contract)
 
 ```nyash
-// Browser console output
-console = new ConsoleBox()
-console.log("Hello from Nyash in Browser!")
-
-// Math with new operators
-x = 10
-y = 3
-console.log("Division: " + (x / y))          // 3.333...
-console.log("Logic: " + (x > 5 and y < 5))  // true
-
-// Debugging
-debug = new DebugBox()
-debug.startTracking()
-debug.trackBox(x, "my_number")
-console.log(debug.memoryReport())
+local console = new ConsoleBox()
+console.log("wsm02d_demo_min_log")
+console.warn("wsm02d_demo_min_warn")
+console.error("wsm02d_demo_min_error")
+console.info("wsm02d_demo_min_info")
+console.debug("wsm02d_demo_min_debug")
 ```
 
 ## 🔧 Development
 
 ### Build Process
-1. Rust code compiled to WebAssembly using wasm-bindgen
-2. NyashWasm struct exported with eval() method  
-3. ConsoleBox uses web-sys for browser console access
-4. HTML playground provides interactive interface
+1. `projects/nyash-wasm/bridge` を `wasm-pack` で build
+2. `NyashWasm` を `pkg/nyash_rust.js` として export
+3. `nyash_playground.html` から `NyashWasm.eval()` を呼び、ConsoleBox 5メソッドをブラウザ側へ出力
+4. スモークで build/export/marker を fail-fast 固定
 
 ### Architecture
 ```
