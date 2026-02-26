@@ -54,6 +54,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[WSM-P4-min4 実装ロック](../../development/current/main/phases/phase-29cc/29cc-157-wsm-p4-min4-hako-writer-const-parity-lock-ssot.md)** - const-return fixture 1件の binary-writer parity pilot を固定した記録。
 - **[WSM-P4-min5 実装ロック](../../development/current/main/phases/phase-29cc/29cc-158-wsm-p4-min5-neg-const-parity-lock-ssot.md)** - `return -1` 形（signed LEB128 境界）の parity を固定した記録。
 - **[WSM-P4-min6 実装ロック](../../development/current/main/phases/phase-29cc/29cc-159-wsm-p4-min6-shape-table-lock-ssot.md)** - pilot shape 判定を shape table（箱化）へ移し、table 経由 lock を固定した記録。
+- **[WSM-P5-min1 設計ロック](../../development/current/main/phases/phase-29cc/29cc-160-wsm-p5-min1-default-cutover-doc-lock-ssot.md)** - default cutover（既定 route 切替）の境界・互換・gate を docs-first で固定した記録。
 
 ## 🚀 クイックスタート
 
