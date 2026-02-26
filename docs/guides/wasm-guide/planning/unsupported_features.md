@@ -1,4 +1,4 @@
-# WASM Backend Unsupported Inventory (WSM-02a)
+# WASM Backend Unsupported Inventory (WSM-02b-min1)
 
 ## Last Updated
 - 2026-02-26
@@ -16,6 +16,7 @@ This document tracks current unsupported surface for the Rust WASM backend based
 ### 1. Extern call support (partial)
 Supported extern names in `instructions.rs`:
 - `env.console.log`
+- `env.console.warn`
 - `env.canvas.fillRect`
 - `env.canvas.fillText`
 

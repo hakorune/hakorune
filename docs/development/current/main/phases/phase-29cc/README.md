@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1..min6 done, PLG-04 wave-1 complete, PLG-05-min1..min7 done, PLG-06-min1..min4 done)
+Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1..min6 done, PLG-04 wave-1 complete, PLG-05-min1..min7 done, PLG-06-min1..min4 done, WSM-02b-min1 done)
 Scope: Rust -> .hako migration orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
@@ -134,7 +134,9 @@ Related:
   - active next: `none`（monitor-only）
 - post-wave1 route lock（accepted）:
   - `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
-  - wasm lane active next: `WSM-02b`（ExternCall coverage expansion）
+  - wasm lane lock（WSM-02b-min1 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`
+  - wasm lane active next: `WSM-02b-min2`（ExternCall coverage expansion）
 
 ## M4 Tail Cleanup (retired parser flags)
 
@@ -212,3 +214,4 @@ Related:
 - wasm grammar/map lock: `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
 - wasm lane lock (WSM-02a): `docs/development/current/main/phases/phase-29cc/29cc-119-wsm02a-assignment-local-unblock-ssot.md`
 - wasm demo-goal lock: `docs/development/current/main/phases/phase-29cc/29cc-120-wasm-demo-goal-contract-ssot.md`
+- wasm lane lock (WSM-02b-min1): `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`

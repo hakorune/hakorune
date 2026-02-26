@@ -61,6 +61,14 @@ impl RuntimeImports {
             result: None,
         });
 
+        // env.console_warn for console.warn(message) - (string_ptr, string_len)
+        self.imports.push(ImportFunction {
+            module: "env".to_string(),
+            name: "console_warn".to_string(),
+            params: vec!["i32".to_string(), "i32".to_string()],
+            result: None,
+        });
+
         // env.canvas_fillRect for canvas.fillRect(canvas_id, x, y, w, h, color)
         // Parameters: (canvas_id_ptr, canvas_id_len, x, y, w, h, color_ptr, color_len)
         self.imports.push(ImportFunction {
@@ -225,6 +233,13 @@ impl RuntimeImports {
                         js.push_str("      console.log(str);\n");
                         js.push_str("    },\n");
                     }
+                    "console_warn" => {
+                        js.push_str("    console_warn: (ptr, len) => {\n");
+                        js.push_str("      const memory = instance.exports.memory;\n");
+                        js.push_str("      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n");
+                        js.push_str("      console.warn(str);\n");
+                        js.push_str("    },\n");
+                    }
                     "canvas_fillRect" => {
                         js.push_str("    canvas_fillRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {\n");
                         js.push_str("      const memory = instance.exports.memory;\n");
@@ -316,6 +331,7 @@ mod tests {
         let runtime = RuntimeImports::new();
         assert!(!runtime.imports.is_empty());
         assert!(runtime.has_import("print"));
+        assert!(runtime.has_import("console_warn"));
     }
 
     #[test]
@@ -355,6 +371,7 @@ mod tests {
         assert!(js.contains("env"));
         assert!(js.contains("print"));
         assert!(js.contains("console.log"));
+        assert!(js.contains("console.warn"));
     }
 
     #[test]

@@ -154,11 +154,12 @@ impl WasmCodegen {
                 // Generate call to external function import
                 let call_target = match extern_name.as_str() {
                     "env.console.log" => "console_log",
+                    "env.console.warn" => "console_warn",
                     "env.canvas.fillRect" => "canvas_fillRect",
                     "env.canvas.fillText" => "canvas_fillText",
                     _ => {
                         return Err(WasmError::UnsupportedInstruction(format!(
-                            "Unsupported extern call: {} (supported: env.console.log, env.canvas.fillRect, env.canvas.fillText)",
+                            "Unsupported extern call: {} (supported: env.console.log, env.console.warn, env.canvas.fillRect, env.canvas.fillText)",
                             extern_name
                         )))
                     }
