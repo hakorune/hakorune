@@ -313,7 +313,7 @@ fn canonical_compare_operation(inst: &Value) -> Option<&'static str> {
     None
 }
 
-const VM_HAKO_COMPARE_ALLOWLIST: [&str; 4] = ["==", "!=", "<", ">="];
+const VM_HAKO_COMPARE_ALLOWLIST: [&str; 5] = ["==", "!=", "<", ">", ">="];
 
 pub(super) fn vm_hako_supported_compare_operation(inst: &Value) -> Option<&'static str> {
     let sym = canonical_compare_operation(inst)?;

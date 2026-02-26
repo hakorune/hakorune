@@ -429,7 +429,8 @@ static box MirVmS0Box {
         if kind == "Eq" { sym = "==" }
         else { if kind == "Ne" { sym = "!=" }
         else { if kind == "Lt" { sym = "<" }
-        else { if kind == "Ge" { sym = ">=" } } } }
+        else { if kind == "Gt" { sym = ">" }
+        else { if kind == "Ge" { sym = ">=" } } } } }
       }
 
       local a = me._reg_get(regs, lhs)
@@ -471,6 +472,11 @@ static box MirVmS0Box {
       }
       if sym == ">=" {
         if a >= b { me._reg_set(regs, dst, 1) } else { me._reg_set(regs, dst, 0) }
+        me._reg_kind_set(kinds, dst, "scalar")
+        return "__NEXT__"
+      }
+      if sym == ">" {
+        if a > b { me._reg_set(regs, dst, 1) } else { me._reg_set(regs, dst, 0) }
         me._reg_kind_set(kinds, dst, "scalar")
         return "__NEXT__"
       }

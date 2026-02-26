@@ -256,7 +256,7 @@ fn subset_accepts_compare_greater_equal_op_kind_alias() {
 }
 
 #[test]
-fn subset_rejects_compare_greater_than_outside_vm_hako_allowlist() {
+fn subset_accepts_compare_greater_than_in_vm_hako_allowlist() {
     let mir_json = json!({
         "functions": [{
             "name": "main",
@@ -287,7 +287,7 @@ fn subset_rejects_compare_greater_than_outside_vm_hako_allowlist() {
     })
     .to_string();
     let out = check_vm_hako_subset_json(&mir_json);
-    assert_eq!(out, Err(("main".to_string(), 0, "compare(>)".to_string())));
+    assert_eq!(out, Ok(()));
 }
 
 #[test]
