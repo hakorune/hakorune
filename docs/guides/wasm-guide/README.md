@@ -32,6 +32,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[WSM-G3-min1 台帳ロック](../../development/current/main/phases/phase-29cc/29cc-137-wsm-g3-min1-gap-inventory-lock-ssot.md)** - canvas/enhanced demo で必要な API ギャップを優先順で固定した台帳。
 - **[WSM-G3-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-138-wsm-g3-min2-canvas-clear-lock-ssot.md)** - `env.canvas.clear` の contract/import/binding/gate を固定した記録。
 - **[WSM-G3-min3 実装ロック](../../development/current/main/phases/phase-29cc/29cc-139-wsm-g3-min3-canvas-strokerect-lock-ssot.md)** - `env.canvas.strokeRect` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min4 実装ロック](../../development/current/main/phases/phase-29cc/29cc-140-wsm-g3-min4-canvas-beginpath-lock-ssot.md)** - `env.canvas.beginPath` の contract/import/binding/gate を固定した記録。
 
 ## 🚀 クイックスタート
 

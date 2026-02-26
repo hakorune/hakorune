@@ -1,5 +1,5 @@
 ---
-Status: Active (WSM-G2-min1/min2/min3 done, WSM-G3-min1/min2/min3 done, WSM-G3-min4 next)
+Status: Active (WSM-G2-min1/min2/min3 done, WSM-G3-min1/min2/min3/min4 done, WSM-G3-min5 next)
 Decision: pending
 Date: 2026-02-26
 Scope: wasm lane G2 "browser demo-run minimal" のタスクを docs-first で固定する。
@@ -33,7 +33,7 @@ WSM lane が `projects/nyash-wasm` を G2 (browser demo minimum) で再到達す
    - `docs/guides/wasm-guide/wasm_quick_start.md` および `docs/guides/wasm-guide/README.md` の G2/Run セクションに、「`projects/nyash-wasm` を再building・Run する手順」「Headless smoke のコマンド」「Acceptance gate を通ること」の 3点を追記し、`29cc-133` を新しい SSOT pointer として紹介する。
    - `docs/guides/wasm-guide/planning/unsupported_features.md` にも、G2 で fail-fast させるべき追加 boundary（`ConsoleBox.group` など）を追記して `phase29cc_wsm02d_demo_unsupported_boundary_vm.sh` の目的を明示する。
 
-4. **G3 prep (WSM-G3-min1/min2/min3 done; WSM-G3-min4 active next)**
+4. **G3 prep (WSM-G3-min1/min2/min3/min4 done; WSM-G3-min5 active next)**
    - G2 通過後は `projects/nyash-wasm/canvas_playground.html` や `enhanced_playground.html` に載っていた歴史的デモを G3 タスクとして再現する予定。これらの HTML で使われていた Box/Canvas/DOM API を `29cc-118` 以降の BoxCall/ExternCall coverage 拡張に接続するため、当該 HTML が呼ぶメソッド/extern 仕様と現行 backend のギャップを `docs/guides/wasm-guide/planning/unsupported_features.md` にまとめ、優先順位付きで列挙する。
 
 ## Next pointer
