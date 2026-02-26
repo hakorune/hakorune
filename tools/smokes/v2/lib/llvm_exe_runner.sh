@@ -103,6 +103,16 @@ check_output_contract() {
   esac
 }
 
+llvm_exe_strip_noise() {
+  # SSOT for non-payload lines produced by runtime/plugin boot.
+  grep -Ev '^\[|^Net plugin:|^$'
+}
+
+llvm_exe_first_payload_line() {
+  local output="${1:-}"
+  printf "%s\n" "$output" | llvm_exe_strip_noise | head -n 1 | tr -d '\r'
+}
+
 llvm_exe_cargo_target_dir() {
   # Use the workspace target dir by default so `NYASH_BIN` and plugin artifacts match local dev expectations.
   local target_dir="${LLVM_EXE_CARGO_TARGET_DIR:-$NYASH_ROOT/target}"
@@ -271,7 +281,7 @@ llvm_exe_build_and_run_numeric_smoke() {
   fi
 
   local clean
-  clean=$(printf "%s\n" "$output" | grep -v '^\[' | grep -E '^-?[0-9]+$' | head -n "$EXPECTED_LINES" | tr -d '\r')
+  clean=$(printf "%s\n" "$output" | llvm_exe_strip_noise | grep -E '^-?[0-9]+$' | head -n "$EXPECTED_LINES" | tr -d '\r')
 
   echo "[INFO] CLEAN output:"
   echo "$clean"

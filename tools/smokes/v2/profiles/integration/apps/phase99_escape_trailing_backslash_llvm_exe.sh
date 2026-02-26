@@ -52,7 +52,7 @@ if [ "$EXIT_CODE" -ne 0 ]; then
 fi
 
 # Current behavior: trailing backslash is preserved in output
-CLEAN=$(printf "%s\n" "$OUTPUT" | grep -Ev "^\[|^Net plugin:|^$" | head -n 1 | tr -d '\r')
+CLEAN=$(llvm_exe_first_payload_line "$OUTPUT")
 EXPECTED="hello\\"
 
 echo "[INFO] CLEAN output:"
