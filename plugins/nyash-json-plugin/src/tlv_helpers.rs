@@ -100,6 +100,21 @@ pub fn read_arg_string(args: *const u8, args_len: usize, n: usize) -> Option<Str
     None
 }
 
+/// Some call paths may include receiver textual form as arg0
+/// (e.g. "JsonDocBox(1)"). This helper skips it when detected.
+pub fn read_user_arg_string(
+    args: *const u8,
+    args_len: usize,
+    n: usize,
+    self_prefix: &str,
+) -> Option<String> {
+    let s = read_arg_string(args, args_len, n)?;
+    if s.starts_with(self_prefix) && s.ends_with(')') {
+        return read_arg_string(args, args_len, n + 1);
+    }
+    Some(s)
+}
+
 pub fn read_arg_i64(args: *const u8, args_len: usize, n: usize) -> Option<i64> {
     if args.is_null() || args_len < 4 {
         return None;

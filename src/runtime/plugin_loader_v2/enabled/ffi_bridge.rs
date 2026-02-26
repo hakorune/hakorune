@@ -267,15 +267,24 @@ fn decode_tlv_result(box_type: &str, data: &[u8]) -> BidResult<Option<Box<dyn Ny
                 if let Some((ret_type, inst)) =
                     crate::runtime::plugin_ffi_common::decode::plugin_handle(payload)
                 {
+                    let (ret_box_type, fini_method_id) =
+                        if let Some(meta) =
+                            crate::runtime::plugin_loader_v2::enabled::metadata_for_type_id(
+                                ret_type,
+                            ) {
+                            (meta.box_type, meta.fini_method_id)
+                        } else {
+                            (box_type.to_string(), None)
+                        };
                     let handle = Arc::new(super::types::PluginHandleInner {
                         type_id: ret_type,
                         invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
                         instance_id: inst,
-                        fini_method_id: None,
+                        fini_method_id,
                         finalized: std::sync::atomic::AtomicBool::new(false),
                     });
                     Box::new(super::types::PluginBoxV2 {
-                        box_type: box_type.to_string(),
+                        box_type: ret_box_type,
                         inner: handle,
                     })
                 } else {

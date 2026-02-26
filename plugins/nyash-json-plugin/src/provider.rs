@@ -6,7 +6,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::ffi::CString;
 use std::sync::{
-    atomic::{AtomicU32, Ordering},
+    atomic::AtomicU32,
     Arc, Mutex,
 };
 

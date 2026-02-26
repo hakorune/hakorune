@@ -102,7 +102,7 @@ pub extern "C" fn jsonnode_invoke_id(
                 }
             },
             JN_GET => {
-                let key = match read_arg_string(args, args_len, 0) {
+                let key = match read_user_arg_string(args, args_len, 0, "JsonNodeBox(") {
                     Some(s) => s,
                     None => return E_ARGS,
                 };
@@ -189,7 +189,9 @@ pub extern "C" fn jsonnode_invoke_id(
                 }
             },
             JN_AT => {
-                let idx = match read_arg_i64(args, args_len, 0) {
+                let idx = match read_arg_i64(args, args_len, 0)
+                    .or_else(|| read_arg_i64(args, args_len, 1))
+                {
                     Some(v) => v,
                     None => return E_ARGS,
                 };

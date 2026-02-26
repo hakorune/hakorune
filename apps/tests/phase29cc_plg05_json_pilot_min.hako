@@ -1,0 +1,19 @@
+// Phase 29cc PLG-05-min1 Json plugin pilot fixture
+// Contract:
+// - JsonDocBox/JsonNodeBox can be constructed through plugin config.
+// - parse/root/get/int/str method route works in VM.
+
+static box Main {
+  main(args) {
+    local doc
+    local json
+    local root
+    json = "{\"kind\":\"Program\",\"statements\":[]}"
+    doc = new JsonDocBox()
+    doc.parse(json)
+    root = doc.root()
+    print("json_kind=" + root.get("kind").str())
+    print("json_stmt_size=" + root.get("statements").size())
+    return 0
+  }
+}

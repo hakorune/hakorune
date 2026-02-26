@@ -6,9 +6,8 @@ use crate::provider::{
     provider_kind, provider_parse, DocInst, NodeRep, ProviderKind, DOCS, NEXT_ID, NODES,
 };
 use crate::tlv_helpers::*;
-use serde_json::Value;
 use std::ffi::{CStr, CString};
-use std::os::raw::{c_char, c_void};
+use std::os::raw::c_char;
 use std::sync::{atomic::Ordering, Arc};
 
 pub extern "C" fn jsondoc_resolve(name: *const c_char) -> u32 {
@@ -45,7 +44,7 @@ pub extern "C" fn jsondoc_invoke_id(
                 return write_u32(id, result, result_len);
             }
             JD_PARSE => {
-                let text = match read_arg_string(args, args_len, 0) {
+                let text = match read_user_arg_string(args, args_len, 0, "JsonDocBox(") {
                     Some(s) => s,
                     None => return E_ARGS,
                 };
