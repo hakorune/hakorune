@@ -43,6 +43,27 @@ if ! command -v llvm-config-18 >/dev/null 2>&1; then
   exit 2
 fi
 
+# Global build lock (SSOT):
+# - Protects shared outputs (target/aot_objects, tmp exe names) from parallel smoke collisions.
+# - Can be disabled explicitly via NYASH_LLVM_BUILD_LOCK=0.
+# - Nested callers that already hold the lock should set NYASH_LLVM_BUILD_LOCK_HELD=1.
+if [[ "${NYASH_LLVM_BUILD_LOCK:-1}" != "0" ]] \
+  && [[ "${NYASH_LLVM_BUILD_LOCK_HELD:-0}" != "1" ]] \
+  && command -v flock >/dev/null 2>&1; then
+  LOCK_TARGET_DIR="${CARGO_TARGET_DIR:-$PWD/target}"
+  mkdir -p "$LOCK_TARGET_DIR"
+  LOCK_FILE="${NYASH_LLVM_BUILD_LOCK_FILE:-$LOCK_TARGET_DIR/.build_llvm.lock}"
+  LOCK_TIMEOUT_SECS="${NYASH_LLVM_BUILD_LOCK_TIMEOUT_SECS:-120}"
+
+  exec {NYASH_LLVM_LOCK_FD}> "$LOCK_FILE"
+  if ! flock -w "$LOCK_TIMEOUT_SECS" "$NYASH_LLVM_LOCK_FD"; then
+    echo "error: build_llvm lock timeout (${LOCK_TIMEOUT_SECS}s): $LOCK_FILE" >&2
+    eval "exec ${NYASH_LLVM_LOCK_FD}>&-"
+    exit 3
+  fi
+  trap 'flock -u "$NYASH_LLVM_LOCK_FD" 2>/dev/null || true; eval "exec ${NYASH_LLVM_LOCK_FD}>&-" 2>/dev/null || true' EXIT
+fi
+
 # Use the cargo target dir when set (helps LLVM EXE smokes that build under /tmp).
 CARGO_TARGET_DIR_EFFECTIVE="${CARGO_TARGET_DIR:-$PWD/target}"
 

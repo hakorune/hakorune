@@ -143,7 +143,7 @@ llvm_exe_with_build_lock() {
     return 1
   fi
 
-  "$@"
+  NYASH_LLVM_BUILD_LOCK_HELD=1 "$@"
   local cmd_rc=$?
   flock -u "$fd"
   eval "exec ${fd}>&-"

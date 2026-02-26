@@ -105,6 +105,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 2. `B-TERNARY-02` [done, 2026-02-25]: `unsupported:ternary_no_lower` を維持する境界テストを追加し、fail-fast境界を固定した。
 3. `B-TERNARY-03` [done, 2026-02-25]: lane-B fast gate 昇格判定は「据え置き（non-gating 維持）」で確定した（var-values canonical mismatch 残存）。
 4. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
+5. smoke hygiene sprint（priority batch, 2026-02-26）:
+  - [in-progress] strict VM smoke lane policy を明示固定（`HAKO_JOINIR_STRICT=1` かつ rust-vm想定スモークは `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` を契約化）
+  - [in-progress] LLVM EXE build/link race を全経路で排他（`tools/build_llvm.sh` に global lock、runner lockと二重化しない）
+  - [pending] `cargo test` output filename collision 警告の縮退方針を確定（target構成/実行手順のどちらで吸収するか）
+  - [in-progress] smoke 過密整理（inventory + orphan candidate 可視化）を追加し、統合/削除候補を固定
 
 ## Quick Restart (After Reboot)
 
@@ -258,6 +263,13 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - 進捗は phase 文書へ記録し、ここは「入口リンク」と「current blocker」だけを更新する。
 
 ## Remaining Tasks (ordered; SSOT)
+
+- smoke hygiene lane (new):
+  1. [in-progress] strict VM lane contract: `HAKO_JOINIR_STRICT=1` スモークで rust-vm想定ケースの `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` を段階適用（vm-hako専用ゲートは除外）
+  2. [in-progress] LLVM lock contract: `tools/build_llvm.sh` の global lock + `llvm_exe_with_build_lock` 連携で並列衝突を封止
+  3. [in-progress] inventory SSOT: `tools/checks/smoke_inventory_report.sh` で `integration/apps` の referenced/orphan candidate を可視化
+  4. [pending] orphan candidate を `daily/quick/milestone/full` の入口基準で classify し、archive or gate 統合計画を phase docs に反映
+  5. [pending] cargo output filename collision warning を抑制する最小設計（Cargo target split または test run serialization）を決定
 
 - config hygiene lane:
   1. [done] `[modules]` 直追加停止 + export追加導線固定

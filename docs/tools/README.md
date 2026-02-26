@@ -179,6 +179,19 @@ macOS（hardware がない間の契約ガード）:
 bash tools/checks/macos_portability_guard.sh
 ```
 
+## 11. Smoke Inventory (overgrowth triage)
+
+`integration/apps` の過密状態を可視化して、orphan 候補を洗い出す:
+
+```bash
+bash tools/checks/smoke_inventory_report.sh
+cat target/smoke_inventory/integration_apps_summary.txt
+```
+
+出力:
+- `target/smoke_inventory/integration_apps_inventory.tsv`
+- `target/smoke_inventory/integration_apps_summary.txt`
+
 ## 推奨デバッグ順
 
 1. 失敗 fixture を1つに固定
