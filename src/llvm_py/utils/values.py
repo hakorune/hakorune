@@ -61,6 +61,15 @@ def resolve_i64_strict(
     trace_hot_count(resolver, f"resolve_fallback_{scope}")
     return resolver.resolve_i64(value_id, current_block, preds, block_end_values, vmap, bb_map)
 
+def _is_global_vmap(vmap: Dict[int, Any], resolver: Any) -> bool:
+    """Return True when the write target is resolver's global vmap SSOT."""
+    try:
+        gv = getattr(resolver, "global_vmap", None)
+        return isinstance(gv, dict) and (vmap is gv)
+    except Exception:
+        return False
+
+
 def safe_vmap_write(vmap: Dict[int, Any], dst: int, value: Any, context: str = "", resolver=None, block_id: Optional[int] = None) -> None:
     """
     PHI overwrite protection for vmap writes + def_blocks registration (P0-1 unified).
@@ -83,17 +92,19 @@ def safe_vmap_write(vmap: Dict[int, Any], dst: int, value: Any, context: str = "
     """
     existing = vmap.get(dst)
     if existing is not None and hasattr(existing, 'add_incoming'):
-        # PHI node detected - overwrite forbidden (SSOT principle)
-        if os.environ.get('NYASH_LLVM_STRICT') == '1':
-            raise RuntimeError(
-                f"[LLVM_PY/{context}] Cannot overwrite PHI dst={dst}. "
-                f"ValueId namespace collision detected. "
-                f"Existing: PHI node, Attempted: {type(value).__name__}"
-            )
-        # STRICT not enabled - warn and skip
-        if is_phi_trace_enabled():
-            print(f"[vmap/warn] Skipping overwrite of PHI dst={dst} in context={context}", file=sys.stderr)
-        return  # Do not overwrite PHI
+        if _is_global_vmap(vmap, resolver):
+            # Global vmap is the PHI SSOT; overwrite is forbidden.
+            if os.environ.get('NYASH_LLVM_STRICT') == '1':
+                raise RuntimeError(
+                    f"[LLVM_PY/{context}] Cannot overwrite PHI dst={dst}. "
+                    f"ValueId namespace collision detected. "
+                    f"Existing: PHI node, Attempted: {type(value).__name__}"
+                )
+            # STRICT not enabled - warn and skip
+            if is_phi_trace_enabled():
+                print(f"[vmap/warn] Skipping overwrite of PHI dst={dst} in context={context}", file=sys.stderr)
+            return  # Do not overwrite PHI
+        # Block-local vmap snapshots may legally shadow PHIs with concrete values.
 
     # Safe to write
     vmap[dst] = value

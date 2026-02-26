@@ -433,6 +433,32 @@ def lower_binop(
                     return val
                 return ir.Constant(i64, 0)
 
+            def any_to_string_handle(handle_val, tag: str):
+                callee = None
+                for f in builder.module.functions:
+                    if f.name == 'nyash.any.toString_h':
+                        callee = f
+                        break
+                if callee is None:
+                    callee = ir.Function(
+                        builder.module,
+                        ir.FunctionType(i64, [i64]),
+                        name='nyash.any.toString_h',
+                    )
+                return builder.call(callee, [handle_val], name=f"any_tostr_h_{tag}_{dst}")
+
+            def needs_stringify_bridge(vid: int, tagged: bool, raw, val) -> bool:
+                if tagged:
+                    return False
+                # Plain i64 constants are likely primitive numerics.
+                try:
+                    c = raw if isinstance(raw, ir.Constant) else val
+                    if isinstance(c, ir.Constant) and isinstance(c.type, ir.IntType) and c.type.width == 64:
+                        return True
+                except Exception:
+                    pass
+                return False
+
             # Phase 196: TypeFacts/Resolver SSOT - Use handle+handle only when BOTH are strings.
             # Root cause (Phase 102): loop-carried string accumulator may be i64-handle but not present in value_types;
             # tag lookup MUST consult resolver.is_stringish()/string_ids.
@@ -465,34 +491,40 @@ def lower_binop(
             # Phase 131-15-P1 DEBUG
             if os.environ.get('NYASH_BINOP_DEBUG') == '1':
                 print(f"  [concat path] lhs_tag={lhs_tag} rhs_tag={rhs_tag}")
-            if lhs_tag and rhs_tag:
-                # Both sides string-ish: concat_hh(handle, handle)
-                hl = to_handle(lhs_raw, lhs_val, 'l', lhs)
-                hr = to_handle(rhs_raw, rhs_val, 'r', rhs)
-                concat3_info = _concat3_chain_args(lhs_raw, rhs_raw, hl, hr)
-                if concat3_info is not None:
-                    concat3_args, folded_call = concat3_info
-                    hhh_fnty = ir.FunctionType(i64, [i64, i64, i64])
-                    callee3 = None
-                    for f in builder.module.functions:
-                        if f.name == 'nyash.string.concat3_hhh':
-                            callee3 = f
-                            break
-                    if callee3 is None:
-                        callee3 = ir.Function(builder.module, hhh_fnty, name='nyash.string.concat3_hhh')
-                    res = builder.call(callee3, list(concat3_args), name=f"concat3_hhh_{dst}")
-                    _prune_dead_chain_call(builder, folded_call)
-                else:
-                    hh_fnty = ir.FunctionType(i64, [i64, i64])
-                    callee = None
-                    for f in builder.module.functions:
-                        if f.name == 'nyash.string.concat_hh':
-                            callee = f
-                            break
-                    if callee is None:
-                        callee = ir.Function(builder.module, hh_fnty, name='nyash.string.concat_hh')
-                    res = builder.call(callee, [hl, hr], name=f"concat_hh_{dst}")
-                safe_vmap_write(vmap, dst, res, "binop_concat", resolver=resolver)
+            # Always materialize concat result in string path.
+            # If tags are partial/missing, bridge through any.toString_h to avoid
+            # treating raw numeric i64 as a host-handle.
+            hl = to_handle(lhs_raw, lhs_val, 'l', lhs)
+            hr = to_handle(rhs_raw, rhs_val, 'r', rhs)
+            if needs_stringify_bridge(lhs, lhs_tag, lhs_raw, lhs_val):
+                hl = any_to_string_handle(hl, 'l')
+            if needs_stringify_bridge(rhs, rhs_tag, rhs_raw, rhs_val):
+                hr = any_to_string_handle(hr, 'r')
+
+            concat3_info = _concat3_chain_args(lhs_raw, rhs_raw, hl, hr)
+            if concat3_info is not None:
+                concat3_args, folded_call = concat3_info
+                hhh_fnty = ir.FunctionType(i64, [i64, i64, i64])
+                callee3 = None
+                for f in builder.module.functions:
+                    if f.name == 'nyash.string.concat3_hhh':
+                        callee3 = f
+                        break
+                if callee3 is None:
+                    callee3 = ir.Function(builder.module, hhh_fnty, name='nyash.string.concat3_hhh')
+                res = builder.call(callee3, list(concat3_args), name=f"concat3_hhh_{dst}")
+                _prune_dead_chain_call(builder, folded_call)
+            else:
+                hh_fnty = ir.FunctionType(i64, [i64, i64])
+                callee = None
+                for f in builder.module.functions:
+                    if f.name == 'nyash.string.concat_hh':
+                        callee = f
+                        break
+                if callee is None:
+                    callee = ir.Function(builder.module, hh_fnty, name='nyash.string.concat_hh')
+                res = builder.call(callee, [hl, hr], name=f"concat_hh_{dst}")
+            safe_vmap_write(vmap, dst, res, "binop_concat", resolver=resolver)
             # Phase 275 C2: String+String only - mixed concat removed
             # Tag result as string handle so subsequent '+' stays in string domain
             try:

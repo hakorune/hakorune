@@ -132,12 +132,24 @@ fn with_lossy_string_pair<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R
 
 #[inline(always)]
 fn concat_pair_from_spans(a_h: i64, b_h: i64) -> Option<i64> {
-    with_string_pair_span(a_h, b_h, |a, b| concat_to_string_handle(&[a, b]))
+    let merged = with_string_pair_span(a_h, b_h, |a, b| {
+        let mut out = String::with_capacity(a.len() + b.len());
+        out.push_str(a);
+        out.push_str(b);
+        out
+    })?;
+    Some(string_handle_from_owned(merged))
 }
 
 #[inline(always)]
 fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
-    with_string_pair_fast_str(a_h, b_h, |a, b| concat_to_string_handle(&[a, b]))
+    let merged = with_string_pair_fast_str(a_h, b_h, |a, b| {
+        let mut out = String::with_capacity(a.len() + b.len());
+        out.push_str(a);
+        out.push_str(b);
+        out
+    })?;
+    Some(string_handle_from_owned(merged))
 }
 
 #[inline(always)]
