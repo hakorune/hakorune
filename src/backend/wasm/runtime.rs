@@ -58,7 +58,11 @@ impl RuntimeImports {
         for (_, import_name) in EXTERN_CALL_MAP {
             if matches!(
                 import_name,
-                "console_log" | "console_warn" | "console_error" | "console_info"
+                "console_log"
+                    | "console_warn"
+                    | "console_error"
+                    | "console_info"
+                    | "console_debug"
             ) {
                 self.imports.push(ImportFunction {
                     module: "env".to_string(),
@@ -254,6 +258,13 @@ impl RuntimeImports {
                         js.push_str("      console.info(str);\n");
                         js.push_str("    },\n");
                     }
+                    "console_debug" => {
+                        js.push_str("    console_debug: (ptr, len) => {\n");
+                        js.push_str("      const memory = instance.exports.memory;\n");
+                        js.push_str("      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n");
+                        js.push_str("      console.debug(str);\n");
+                        js.push_str("    },\n");
+                    }
                     "canvas_fillRect" => {
                         js.push_str("    canvas_fillRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {\n");
                         js.push_str("      const memory = instance.exports.memory;\n");
@@ -348,6 +359,7 @@ mod tests {
         assert!(runtime.has_import("console_warn"));
         assert!(runtime.has_import("console_error"));
         assert!(runtime.has_import("console_info"));
+        assert!(runtime.has_import("console_debug"));
     }
 
     #[test]
@@ -390,6 +402,7 @@ mod tests {
         assert!(js.contains("console.warn"));
         assert!(js.contains("console.error"));
         assert!(js.contains("console.info"));
+        assert!(js.contains("console.debug"));
     }
 
     #[test]

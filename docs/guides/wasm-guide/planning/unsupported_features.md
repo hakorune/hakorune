@@ -19,6 +19,7 @@ Supported extern names in `instructions.rs`:
 - `env.console.warn`
 - `env.console.error`
 - `env.console.info`
+- `env.console.debug`
 - `env.canvas.fillRect`
 - `env.canvas.fillText`
 

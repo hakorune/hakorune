@@ -105,10 +105,11 @@ Related:
   - plugin wave-3 rollout lock（PLG-06-min3 done）: `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`（accepted）
   - plugin wave-3 rollout lock（PLG-06-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`（accepted）
   - plugin lane active next: `none`（monitor-only）
-  - wasm lane active next: `WSM-02b-min4`（ExternCall coverage expansion）
+  - wasm lane active next: `WSM-02c-min1`（BoxCall coverage expansion）
   - wasm lane lock（WSM-02b-min1 done）: `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`（accepted）
   - wasm lane lock（WSM-02b-min2 done）: `docs/development/current/main/phases/phase-29cc/29cc-122-wsm02b-min2-console-error-extern-ssot.md`（accepted）
   - wasm lane lock（WSM-02b-min3 done）: `docs/development/current/main/phases/phase-29cc/29cc-123-wsm02b-min3-console-info-extern-ssot.md`（accepted）
+  - wasm lane lock（WSM-02b-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-124-wsm02b-min4-console-debug-extern-ssot.md`（accepted）
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）
   - `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
@@ -203,6 +204,7 @@ Related:
 - De-rust wasm lane lock (WSM-02b-min1): `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`
 - De-rust wasm lane lock (WSM-02b-min2): `docs/development/current/main/phases/phase-29cc/29cc-122-wsm02b-min2-console-error-extern-ssot.md`
 - De-rust wasm lane lock (WSM-02b-min3): `docs/development/current/main/phases/phase-29cc/29cc-123-wsm02b-min3-console-info-extern-ssot.md`
+- De-rust wasm lane lock (WSM-02b-min4): `docs/development/current/main/phases/phase-29cc/29cc-124-wsm02b-min4-console-debug-extern-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`
 - Compiler pipeline: `docs/development/current/main/design/compiler-pipeline-ssot.md`
