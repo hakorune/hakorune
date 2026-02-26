@@ -102,8 +102,8 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 - `apps/tests/phase286_pattern5_return_min.hako` (exit 7) - Return-in-infinite-loop
 
 **smoke スクリプト**:
-- `tools/smokes/v2/profiles/integration/apps/phase284_p2_return_in_loop_vm.sh` (VM)
-- `tools/smokes/v2/profiles/integration/apps/phase284_p2_return_in_loop_llvm.sh` (LLVM harness)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase284_p2_return_in_loop_vm.sh` (VM)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase284_p2_return_in_loop_llvm.sh` (LLVM harness)
 
 **受け入れ条件**:
 - integration（VM）PASS

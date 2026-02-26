@@ -273,7 +273,7 @@
 
 **Pattern6 Smoke (Optional)**:
 ```bash
-bash tools/smokes/v2/profiles/integration/apps/phase258_p0_index_of_string_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase258_p0_index_of_string_llvm_exe.sh
 ```
 
 **Pattern7 Smoke (Optional)**:

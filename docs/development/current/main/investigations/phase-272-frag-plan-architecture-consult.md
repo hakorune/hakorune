@@ -43,9 +43,9 @@ Phase 271（docs-only）で撤去条件を SSOT 化済み（`edgecfg-fragments.m
 ### Phase 272 P0（進行中）: Pattern6→Pattern7 の順で Frag 化
 
 - Pattern6: `index_of` 形（scan with init）
-  - fixture/smoke: `apps/tests/phase254_p0_index_of_min.hako` / `tools/smokes/v2/profiles/integration/apps/phase254_p0_index_of_vm.sh`
+  - fixture/smoke: `apps/tests/phase254_p0_index_of_min.hako` / `tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_vm.sh`
 - Pattern7: `split` 形（tokenization with variable step + side effects）
-  - fixture/smoke: `apps/tests/phase256_p0_split_min.hako` / `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_vm.sh`
+  - fixture/smoke: `apps/tests/phase256_p0_split_min.hako` / `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_vm.sh`
 
 ---
 

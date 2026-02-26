@@ -17,12 +17,12 @@
 ## smoke スクリプト
 
 ### VM 版
-- ファイル: `tools/smokes/v2/profiles/integration/apps/phase284_p2_return_in_loop_vm.sh`
+- ファイル: `tools/smokes/v2/profiles/integration/apps/archive/phase284_p2_return_in_loop_vm.sh`
 - 実行: `./target/release/hakorune --backend vm <fixture>`
 - 判定: exit code または stdout で固定
 
 ### LLVM 版
-- ファイル: `tools/smokes/v2/profiles/integration/apps/phase284_p2_return_in_loop_llvm.sh`
+- ファイル: `tools/smokes/v2/profiles/integration/apps/archive/phase284_p2_return_in_loop_llvm.sh`
 - 実行: `NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend llvm <fixture>`
 - SKIP ポリシー: LLVM feature がビルドに含まれていない場合は `test_skip` で理由付き SKIP
 
@@ -46,8 +46,8 @@ fi
 ./tools/smokes/v2/run.sh --profile quick
 
 # integration 単発
-bash tools/smokes/v2/profiles/integration/apps/phase284_p2_return_in_loop_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase284_p2_return_in_loop_llvm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase284_p2_return_in_loop_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase284_p2_return_in_loop_llvm.sh
 
 # integration 全体（フィルタ付き）
 ./tools/smokes/v2/run.sh --profile integration --filter "*phase284*"

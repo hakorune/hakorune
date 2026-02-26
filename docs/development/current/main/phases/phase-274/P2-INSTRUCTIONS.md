@@ -129,7 +129,7 @@ Checklist:
 
 4) Add LLVM smoke (integration)
 - New script (name suggestion):
-  - `tools/smokes/v2/profiles/integration/apps/phase274_p2_typeop_is_as_llvm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase274_p2_typeop_is_as_llvm.sh`
 - Run:
   - `NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend llvm apps/tests/phase274_p2_typeop_primitives_only.hako`
 - Expect: exit code `3` (same as VM).

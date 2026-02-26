@@ -46,10 +46,10 @@ After Phase 275 (C2), implicit `"String" + Integer` is a TypeError. The fixture 
 - `apps/tests/loop_if_phi.hako` runs on VM without undefined ValueId errors and prints `sum=9`.
 
 Recommended smoke checks:
-- VM: `tools/smokes/v2/profiles/integration/apps/phase283_p0_loop_if_phi_vm.sh`
+- VM: `tools/smokes/v2/profiles/integration/apps/archive/phase283_p0_loop_if_phi_vm.sh`
   - Checks stdout output: `sum=9`
   - Exit code: 0
-- LLVM harness: `tools/smokes/v2/profiles/integration/apps/phase283_p0_loop_if_phi_llvm.sh`
+- LLVM harness: `tools/smokes/v2/profiles/integration/apps/archive/phase283_p0_loop_if_phi_llvm.sh`
   - **Note**: LLVM harness (`NYASH_LLVM_USE_HARNESS=1`) suppresses program stdout
   - Only check: `Result: 0` line in stderr (exit code = 0)
   - Direct execution: `NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend llvm apps/tests/loop_if_phi.hako`

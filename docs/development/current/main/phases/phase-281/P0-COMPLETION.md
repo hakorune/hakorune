@@ -12,8 +12,8 @@ Target:
 
 ## Verification
 
-- VM smoke: `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_vm.sh` PASS（exit=3）
-- LLVM smoke: `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_llvm_exe.sh` PASS（exit=3）
+- VM smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_vm.sh` PASS（exit=3）
+- LLVM smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_llvm_exe.sh` PASS（exit=3）
 
 ## Notes
 

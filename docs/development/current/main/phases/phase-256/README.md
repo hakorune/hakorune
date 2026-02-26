@@ -177,8 +177,8 @@ Option A（Pattern 7 新設）を推奨。
 
 1) 最小 fixture + v2 smoke（integration）
 - `apps/tests/phase256_p0_split_min.hako`
-- `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_vm.sh`
-- `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_llvm_exe.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_llvm_exe.sh`
 
 2) DetectorBox（構造のみ）
 - ループ条件が `i <= s.length() - sep.length()` 形
@@ -217,8 +217,8 @@ Option A（Pattern 7 新設）を推奨。
 
 - Fixture & smokes（integration）:
   - `apps/tests/phase256_p0_split_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_llvm_exe.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_llvm_exe.sh`
 - Pattern 7:
   - Detector / Extractor / JoinIR lowerer / MirBuilder 統合まで実装
   - JoinIR lowerer は可変 step を `JoinInst::Select` で表現
@@ -269,9 +269,9 @@ Option A（Pattern 7 新設）を推奨。
    - 期待: “def-before-use” が各 BasicBlock 内で成立する
 
 4) 受け入れ基準（P1.5）
-   - `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_vm.sh` が PASS
-   - `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_llvm_exe.sh` が PASS
-- 既存: `tools/smokes/v2/profiles/integration/apps/phase254_p0_index_of_vm.sh` が PASS 維持
+   - `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_vm.sh` が PASS
+   - `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_llvm_exe.sh` が PASS
+- 既存: `tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_vm.sh` が PASS 維持
 
 #### 診断アップデート（2025-12-20）
 
@@ -457,8 +457,8 @@ Option A（Pattern 7 新設）を推奨。
 - `HAKORUNE_BIN` の既定値を追加し、手動実行の再現性を上げる
 
 受け入れ（確認）:
-- `HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration/apps/phase256_p0_split_vm.sh` PASS（exit=3）
-- `HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration/apps/phase254_p0_index_of_vm.sh` PASS（exit=1）
+- `HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_vm.sh` PASS（exit=3）
+- `HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_vm.sh` PASS（exit=1）
 
 ### リファクタリング方針（P1.6候補 / 先送り推奨）
 

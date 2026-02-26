@@ -82,7 +82,7 @@ Goal: `apps/tests/phase263_pattern2_seg_realworld_min.hako` が JoinIR 回帰 SS
 - “strict/dev で通った” を **タグ必須で固定**し、将来の退行を機械で検知する。
 
 対象:
-- `tools/smokes/v2/profiles/integration/apps/phase263_pattern2_seg_realworld_min_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase263_pattern2_seg_realworld_min_vm.sh`
 
 やること:
 - `HAKO_JOINIR_STRICT=1` が既に有効なので、raw output に `[coreplan/shadow_adopt:pattern2_break_subset]` が含まれることを必須にする。

@@ -23,8 +23,8 @@ P2 Goal:
 ## Regression / Validation
 
 - VM:
-  - `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_vm.sh` PASS（Pattern7）
-  - `tools/smokes/v2/profiles/integration/apps/phase258_p0_index_of_string_vm.sh` PASS（Pattern6）
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_vm.sh` PASS（Pattern7）
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase258_p0_index_of_string_vm.sh` PASS（Pattern6）
 
 ## Notes
 

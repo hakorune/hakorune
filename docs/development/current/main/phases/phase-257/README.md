@@ -192,8 +192,8 @@ return/break を正規化して共通語彙へ落とし、JoinIR patterns を縮
 
 1) **Fixture & integration smokes**（完了）
    - `apps/tests/phase257_p0_last_index_of_min.hako`
-   - `tools/smokes/v2/profiles/integration/apps/phase257_p0_last_index_of_vm.sh`
-   - `tools/smokes/v2/profiles/integration/apps/phase257_p0_last_index_of_llvm_exe.sh`
+   - `tools/smokes/v2/profiles/integration/apps/archive/phase257_p0_last_index_of_vm.sh`
+   - `tools/smokes/v2/profiles/integration/apps/archive/phase257_p0_last_index_of_llvm_exe.sh`
 
 2) **Pattern6 detector/extractor 拡張（reverse scan）**
    - `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
@@ -203,7 +203,7 @@ return/break を正規化して共通語彙へ落とし、JoinIR patterns を縮
    - reverse scan の stop 判定・step を JoinIR へ落とす（語彙は既存 Pattern6 を維持）
 
 4) **検証**
-   - `bash tools/smokes/v2/profiles/integration/apps/phase257_p0_last_index_of_vm.sh`
+   - `bash tools/smokes/v2/profiles/integration/apps/archive/phase257_p0_last_index_of_vm.sh`
    - `./tools/smokes/v2/run.sh --profile quick`（最初の FAIL が次へ進む）
 
 ### 注意（P0ではやらない）

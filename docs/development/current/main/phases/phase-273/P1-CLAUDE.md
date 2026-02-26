@@ -106,7 +106,7 @@ P1で入れる最小の不変条件（例）:
 ## Step 5: 回帰確認（P0 と同等）
 
 最低限:
-- `tools/smokes/v2/profiles/integration/apps/phase254_p0_index_of_vm.sh` PASS
+- `tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_vm.sh` PASS
 
 ---
 

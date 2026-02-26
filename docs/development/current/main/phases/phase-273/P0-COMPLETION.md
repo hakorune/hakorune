@@ -19,7 +19,7 @@ Behavior / limits:
 - `step_lit != 1`（reverse scan）も `Ok(None)` で fallthrough（P1+）
 
 Regression:
-- `tools/smokes/v2/profiles/integration/apps/phase254_p0_index_of_vm.sh` PASS
+- `tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_vm.sh` PASS
 
 Files:
 - `src/mir/builder/control_flow/plan/mod.rs`

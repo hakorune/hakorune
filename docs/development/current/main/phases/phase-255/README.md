@@ -170,8 +170,8 @@ let boundary = JoinInlineBoundaryBuilder::new()
 
 **実行**:
 ```bash
-HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration/apps/phase254_p0_index_of_vm.sh
-HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration/apps/phase254_p0_index_of_llvm_exe.sh
+HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_vm.sh
+HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_llvm_exe.sh
 ```
 
 **期待**: 両方 PASS（exit code 1）

@@ -74,14 +74,14 @@ P3 でやらない:
 ### Task 5: 回帰テスト
 
 VM:
-- `bash tools/smokes/v2/profiles/integration/apps/phase254_p0_index_of_vm.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/phase256_p0_split_vm.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/phase258_p0_index_of_string_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/archive/phase258_p0_index_of_string_vm.sh`
 
 LLVM（必ず harness で、mock禁止）:
 - `cargo build --release --features llvm`
-- `bash tools/smokes/v2/profiles/integration/apps/phase256_p0_split_llvm_exe.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/phase258_p0_index_of_string_llvm_exe.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_llvm_exe.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/archive/phase258_p0_index_of_string_llvm_exe.sh`
 
 注意:
 - `NYASH_LLVM_USE_HARNESS=1` で `--features llvm` が無い場合は fail-fast する（mock禁止）。

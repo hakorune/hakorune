@@ -30,7 +30,7 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-30: Phase 29ao P32 完了** ✅
 - 目的: Pattern2 real-world を planner subset に引き上げ、strict/dev で Facts→CorePlan shadow adopt を踏ませる（仕様不変）
-- 変更: `src/mir/builder/control_flow/plan/facts/pattern2_break_facts.rs` / `tools/smokes/v2/profiles/integration/apps/phase263_pattern2_seg_realworld_min_vm.sh` / `docs/development/current/main/phases/phase-29ao/README.md` / `docs/development/current/main/10-Now.md` / `docs/development/current/main/30-Backlog.md` / `CURRENT_TASK.md` / `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+- 変更: `src/mir/builder/control_flow/plan/facts/pattern2_break_facts.rs` / `tools/smokes/v2/profiles/integration/apps/archive/phase263_pattern2_seg_realworld_min_vm.sh` / `docs/development/current/main/phases/phase-29ao/README.md` / `docs/development/current/main/10-Now.md` / `docs/development/current/main/30-Backlog.md` / `CURRENT_TASK.md` / `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
 **2025-12-30: Phase 29ao P31 完了** ✅
@@ -512,7 +512,7 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-28: Phase 29ab P4 完了** ✅
 - 目的: Phase 263 の実ログ seg を Derived slot 方針で通し、fixture+integration smoke で PASS 固定
-- Smoke: `tools/smokes/v2/profiles/integration/apps/phase263_pattern2_seg_realworld_min_vm.sh`
+- Smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase263_pattern2_seg_realworld_min_vm.sh`
 - 追加/調整: `String.indexOf(search, fromIndex)` の2引数対応（arity解決を含む）を VM/JoinIR lowering 側で整備
 
 **2025-12-28: Phase 29ab P5 完了** ✅
@@ -905,7 +905,7 @@ Next: Phase 29ao P37（TBD）
 - 完了: Rust VM が `MirInstruction::TypeOp`（Check/Cast）を実行可能
 - fixture/smoke:
   - `apps/tests/phase274_p1_typeop_is_as_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase274_p1_typeop_is_as_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase274_p1_typeop_is_as_vm.sh`
 
 ## 2025-12-22：Phase 274（P2）— LLVM TypeOp alignment ✅
 
@@ -913,14 +913,14 @@ Next: Phase 29ao P37（TBD）
 - 重要修正: MIR JSON emitter（bin）で `typeop` が欠落していたため、JSON に `op:"typeop"` を出力するよう修正
 - fixture/smoke（LLVM）:
   - `apps/tests/phase274_p2_typeop_primitives_only.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase274_p2_typeop_is_as_llvm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase274_p2_typeop_is_as_llvm.sh`
 
 ## 2025-12-22：Phase 272（P0.2）— Pattern7 Frag+emit_frag 移行 ✅
 
 - 目的: Pattern7（split scan）を `Frag + emit_frag()` 経路へ移行し、terminator emission を SSOT に集約する（副作用 `result.push` を含む）
 - 状況: Phase 272 P0.1（Pattern6）+ P0.2（Pattern7）ともに ✅ 完了
 - 入口 fixture/smoke:
-  - Pattern7: `apps/tests/phase256_p0_split_min.hako` + `tools/smokes/v2/profiles/integration/apps/phase256_p0_split_vm.sh`
+  - Pattern7: `apps/tests/phase256_p0_split_min.hako` + `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_vm.sh`
 - SSOT: `docs/development/current/main/design/edgecfg-fragments.md`（合成則/bridge撤去条件）
 - 詳細: `docs/development/current/main/phases/phase-272/README.md`
 
@@ -937,13 +937,13 @@ Next: Phase 29ao P37（TBD）
 - 実装: MethodCall 共通入口で `This/Me` receiver を最優先で検出し、static call へ正規化（ハードコード無し）
 - fixture/smoke:
   - `apps/tests/phase269_p1_2_this_method_in_loop_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase269_p1_2_this_method_in_loop_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase269_p1_2_this_method_in_loop_vm.sh`
 - 受け入れ: MIR dump に receiver `const "StringUtils"` が出ない / `call_method StringUtils.is_digit/1`（同等の static call）になる
 
 ## 2025-12-22：Phase 269 P1（Pattern8 EdgeCFG lowering）— SSA を閉じる ✅
 
 - 完了: header に `i_current = phi [i_init, preheader], [i_next, step_bb]` を入れて SSA を閉じ、header/body/step の参照を `i_current` に統一
-- 検証: `tools/smokes/v2/profiles/integration/apps/phase269_p0_pattern8_frag_vm.sh` PASS（+ 回帰 `phase259_p0_is_integer_vm` PASS）
+- 検証: `tools/smokes/v2/profiles/integration/apps/archive/phase269_p0_pattern8_frag_vm.sh` PASS（+ 回帰 `phase259_p0_is_integer_vm` PASS）
 - 詳細: `docs/development/current/main/phases/phase-269/README.md`
 
 ## 2025-12-21：Phase 270（P0+P1）— JoinIR-only minimal loop SSOT ✅
@@ -1256,8 +1256,8 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - Fixtures:
   - `apps/tests/phase259_p0_is_integer_min.hako`（expected exit 7）
 - Smokes:
-  - `tools/smokes/v2/profiles/integration/apps/phase259_p0_is_integer_vm.sh` ✅ PASS
-  - `tools/smokes/v2/profiles/integration/apps/phase259_p0_is_integer_llvm_exe.sh`（LLVM harness 要設定）
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase259_p0_is_integer_vm.sh` ✅ PASS
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase259_p0_is_integer_llvm_exe.sh`（LLVM harness 要設定）
 - Key Implementation:
   - `src/mir/builder/control_flow/joinir/patterns/pattern8_scan_bool_predicate.rs`（新規）
   - `src/mir/join_ir/lowering/scan_bool_predicate_minimal.rs`（新規）

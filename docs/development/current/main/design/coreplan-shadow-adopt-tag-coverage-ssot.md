@@ -38,7 +38,7 @@ Related:
 |---|---|---|
 | Pattern1 strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh` | `pattern1_simplewhile` |
 | Pattern2 break subset (planner) | `tools/smokes/v2/profiles/integration/apps/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh` | `pattern2_break_subset` |
-| Pattern2 realworld (phase263) | `tools/smokes/v2/profiles/integration/apps/phase263_pattern2_seg_realworld_min_vm.sh` | `pattern2_break_subset` |
+| Pattern2 realworld (phase263) | `tools/smokes/v2/profiles/integration/apps/archive/phase263_pattern2_seg_realworld_min_vm.sh` | `pattern2_break_subset` |
 | Pattern2 loopbodylocal (2 cases) | `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_min_vm.sh` | `pattern2_break_subset` |
 | Pattern2 loopbodylocal seg (2 cases) | `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` | `pattern2_break_subset` |
 | Pattern3 If-Phi | `tools/smokes/v2/profiles/integration/apps/phase118_pattern3_if_sum_vm.sh` | `pattern3_ifphi` |

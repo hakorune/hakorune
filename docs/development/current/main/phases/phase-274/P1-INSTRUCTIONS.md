@@ -18,7 +18,7 @@ SSOT:
   - type-name mapping: `src/mir/builder/calls/special_handlers.rs` (`parse_type_name_to_mir`)
 - A fixture exists for P1 acceptance:
   - `apps/tests/phase274_p1_typeop_is_as_min.hako`
-  - smoke: `tools/smokes/v2/profiles/integration/apps/phase274_p1_typeop_is_as_vm.sh`
+  - smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase274_p1_typeop_is_as_vm.sh`
 
 ---
 
@@ -62,7 +62,7 @@ cargo build --release
 
 ```bash
 HAKORUNE_BIN=./target/release/hakorune bash \
-  tools/smokes/v2/profiles/integration/apps/phase274_p1_typeop_is_as_vm.sh
+  tools/smokes/v2/profiles/integration/apps/archive/phase274_p1_typeop_is_as_vm.sh
 ```
 
 Expected:

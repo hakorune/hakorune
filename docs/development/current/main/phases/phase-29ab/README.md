@@ -28,7 +28,7 @@ Pattern6/7 の OK/contract fixtures 一覧は SSOT に集約:
   - `tools/smokes/v2/profiles/integration/apps/phase29ab_pattern2_seg_freeze_min_vm.sh`
 - Phase 263 realworld seg (Derived slot path):
   - `apps/tests/phase263_pattern2_seg_realworld_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase263_pattern2_seg_realworld_min_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase263_pattern2_seg_realworld_min_vm.sh`
 
 ## Commands
 

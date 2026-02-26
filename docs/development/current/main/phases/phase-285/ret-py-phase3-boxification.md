@@ -96,7 +96,7 @@ NYASH_LLVM_USE_HARNESS=1 NYASH_DISABLE_PLUGINS=1 \
 
 ### Integration Test
 ```bash
-bash tools/smokes/v2/profiles/integration/apps/phase284_p2_return_in_loop_llvm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase284_p2_return_in_loop_llvm.sh
 # Expected: PASS ✅
 ```
 

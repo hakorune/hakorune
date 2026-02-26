@@ -68,7 +68,7 @@ Status: ✅ done (2025-12-22)
 
 Artifacts:
 - Fixture: `apps/tests/phase274_p1_typeop_is_as_min.hako`
-- Smoke: `tools/smokes/v2/profiles/integration/apps/phase274_p1_typeop_is_as_vm.sh`
+- Smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase274_p1_typeop_is_as_vm.sh`
 - VM handler: `src/backend/mir_interpreter/handlers/type_ops.rs`
 
 ### P2 (impl): align LLVM (llvmlite harness) `TypeOp` to SSOT
@@ -96,7 +96,7 @@ Artifacts:
 - LLVM TypeOp lowering: `src/llvm_py/instructions/typeop.py`
 - MIR JSON emission fix (bin): `src/runner/mir_json_emit/mod.rs` (emit `op:"typeop"`)
 - Fixture (LLVM-safe): `apps/tests/phase274_p2_typeop_primitives_only.hako`
-- Smoke (LLVM): `tools/smokes/v2/profiles/integration/apps/phase274_p2_typeop_is_as_llvm.sh`
+- Smoke (LLVM): `tools/smokes/v2/profiles/integration/apps/archive/phase274_p2_typeop_is_as_llvm.sh`
 
 ### P3 (decision + optional impl): tighten or document coercions
 

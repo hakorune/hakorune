@@ -8,15 +8,15 @@
 ## Current Snapshot
 
 - total: `344` (`Include archive: 0` default)
-- total: `278` (`Include archive: 0` default)
+- total: `254` (`Include archive: 0` default)
 - referenced: `155`
-- orphan candidate: `123`
+- orphan candidate: `99`
 - orphan wrapper candidate: `0`
 - with archive included: total `365`, orphan `210`
 - suffix breakdown:
-  - `vm`: `237`
-  - `llvm_exe`: `15`
-  - `other`: `26`
+  - `vm`: `223`
+  - `llvm_exe`: `9`
+  - `other`: `22`
 
 ## This Round (completed)
 
@@ -63,6 +63,11 @@
    - families: `phase129`, `phase130`, `phase131`, `phase134`, `phase139`, `phase141`, `phase142`
    - updated docs command paths from `apps/...` to `apps/archive/...` for moved scripts
    - verification: `phase29y_lane_gate_quick_vm.sh` PASS
+11. Batch-G (archive isolation + doc-path sync) done:
+   - moved 24 additional orphan scripts to archive
+   - families: `phase145`, `phase254`, `phase256`, `phase257`, `phase258`, `phase259`, `phase263`, `phase269`, `phase274`, `phase275`, `phase283`, `phase284`
+   - updated docs command paths from `apps/...` to `apps/archive/...` for moved scripts
+   - verification: `phase29y_lane_gate_quick_vm.sh` PASS
 
 ## Findings
 
@@ -72,10 +77,10 @@
 
 ## Next Batches (ordered)
 
-1. Batch-G (archive or retire):
-   - continue zero-inbound-ref archive moves for remaining orphan families (`phase145/254/256/257/258/259/263/269/274/275/283/284/...`)
-   - skip any script referenced from `docs/development/current/main/**` until docs pointers are cleaned
-2. Batch-H (gate-pack consolidation):
+1. Batch-H (archive or retire):
+   - remaining orphan candidates are mainly `phase29` lineage + utility singletons (`controlflow_probe_vm`, `gate_log_summarizer_vm`, `phase87/92/94/95/96/97/99`)
+   - archive non-gate singletons first, then decide `phase29` group by gate contract
+2. Batch-I (gate-pack consolidation):
    - optionally re-promote selected archive groups into explicit gate packs when needed
    - keep fixture coverage while limiting top-level app-script fan-out
    - scripts still orphan after Batch-A/B

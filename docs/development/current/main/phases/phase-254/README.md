@@ -105,8 +105,8 @@ index_of(s, ch) {
 
 - **Task 1**: 最小 fixture + smoke scripts（integration）: ✅ 完了
   - `apps/tests/phase254_p0_index_of_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase254_p0_index_of_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase254_p0_index_of_llvm_exe.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_llvm_exe.sh`
 
 - **Task 2**: デバッグ実行（現状把握）: ✅ 完了
   - Pattern 3 と判定されるが "if-sum ではない" で reject される
