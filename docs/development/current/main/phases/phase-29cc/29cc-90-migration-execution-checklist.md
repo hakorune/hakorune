@@ -116,3 +116,4 @@ Related:
 - [x] plugin lane `PLG-04-min1` wave-1 ArrayBox rollout accepted (`29cc-99-plg04-arraybox-wave1-min1-ssot.md`)
 - [x] plugin lane `PLG-04-min2` wave-1 IntCellBox reserved-core lock accepted (`29cc-100-plg04-intcellbox-reserved-core-lock-ssot.md`)
 - [x] plugin lane `PLG-04-min3` wave-1 MapBox rollout accepted (`29cc-101-plg04-mapbox-wave1-min3-ssot.md`)
+- [x] plugin lane `PLG-04-min4` wave-1 StringBox rollout accepted (`29cc-102-plg04-stringbox-wave1-min4-ssot.md`)

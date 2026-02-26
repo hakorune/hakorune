@@ -1,0 +1,20 @@
+// Phase 29cc PLG-04-min4 StringBox pilot fixture
+// Contract:
+// - StringBox can be constructed through plugin config.
+// - length() method route works in VM.
+
+static box Main {
+  main() {
+    local s
+    local n
+    local t
+    local m
+    s = new StringBox("abc")
+    n = s.length()
+    t = s + "de"
+    m = t.length()
+    print("string_len=" + n)
+    print("string_len2=" + m)
+    return 0
+  }
+}
