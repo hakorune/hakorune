@@ -158,7 +158,7 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md`
   - wasm lane lock（WSM-02d-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
-  - wasm lane active next: `WSM-G3-min13`（canvas drawLine 1語彙 fixture/gate lock）
+  - wasm lane active next: `WSM-P1-min2`（fixture単位の WAT parity 比較 lock）
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest lock（WSM-G2-min1 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
@@ -178,6 +178,10 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-147-wsm-g3-min11-fillcircle-drawline-gap-lock-ssot.md`
   - wasm latest lock（WSM-G3-min12 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-148-wsm-g3-min12-canvas-fillcircle-lock-ssot.md`
+  - wasm latest lock（WSM-G3-min13 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-149-wsm-g3-min13-canvas-drawline-lock-ssot.md`
+  - wasm latest lock（WSM-P1-min1 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-150-wsm-p1-min1-emit-wat-cli-lock-ssot.md`
   - wasm `.hako`-only output roadmap SSOT:
     - `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
 

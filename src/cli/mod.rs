@@ -44,6 +44,7 @@ pub struct CliConfig {
     pub jit_direct: bool,
     pub emit_cfg: Option<String>,
     pub emit_ast_json: Option<String>,
+    pub emit_wat: Option<String>,
     pub emit_program_json_v0: Option<String>,
     pub cli_verbose: bool,
     pub run_task: Option<String>,
@@ -133,6 +134,7 @@ impl CliConfig {
             emit: EmitConfig {
                 emit_cfg: self.emit_cfg.clone(),
                 emit_mir_json: self.emit_mir_json.clone(),
+                emit_wat: self.emit_wat.clone(),
                 emit_ast_json: self.emit_ast_json.clone(),
                 emit_program_json_v0: self.emit_program_json_v0.clone(),
                 hako_emit_program_json: self.hako_emit_program_json,
@@ -194,6 +196,7 @@ impl Default for CliConfig {
             jit_native_f64: false,
             jit_native_bool: false,
             emit_cfg: None,
+            emit_wat: None,
             emit_ast_json: None,
             emit_program_json_v0: None,
             jit_only: false,

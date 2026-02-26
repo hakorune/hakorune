@@ -5,13 +5,15 @@ use nyash_rust::{parser::NyashParser, mir::MirCompiler, backend::wasm::WasmBacke
 use std::{fs, process};
 
 impl NyashRunner {
-    /// Execute WASM compilation mode (split)
     #[cfg(feature = "wasm-backend")]
-    pub(crate) fn execute_wasm_mode(&self, filename: &str) {
+    fn compile_file_to_wat_text(&self, filename: &str) -> String {
         // Read the file
         let code = match fs::read_to_string(filename) {
             Ok(content) => content,
-            Err(e) => { eprintln!("❌ Error reading file {}: {}", filename, e); process::exit(1); }
+            Err(e) => {
+                eprintln!("❌ Error reading file {}: {}", filename, e);
+                process::exit(1);
+            }
         };
 
         // Parse to AST
@@ -19,9 +21,7 @@ impl NyashRunner {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(
-                    filename,
-                    &code,
-                    &e,
+                    filename, &code, &e,
                 );
                 process::exit(1);
             }
@@ -30,21 +30,34 @@ impl NyashRunner {
 
         // Compile to MIR
         let mut mir_compiler = MirCompiler::new();
-        let compile_result = match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
-            &mut mir_compiler,
-            ast,
-            Some(filename),
-        ) {
-            Ok(result) => result,
-            Err(e) => { eprintln!("❌ MIR compilation error: {}", e); process::exit(1); }
-        };
+        let compile_result =
+            match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
+                &mut mir_compiler,
+                ast,
+                Some(filename),
+            ) {
+                Ok(result) => result,
+                Err(e) => {
+                    eprintln!("❌ MIR compilation error: {}", e);
+                    process::exit(1);
+                }
+            };
 
         // Compile to WAT text
         let mut wasm_backend = WasmBackend::new();
-        let wat_text = match wasm_backend.compile_to_wat(compile_result.module) {
+        match wasm_backend.compile_to_wat(compile_result.module) {
             Ok(wat) => wat,
-            Err(e) => { eprintln!("❌ WASM compilation error: {}", e); process::exit(1); }
-        };
+            Err(e) => {
+                eprintln!("❌ WASM compilation error: {}", e);
+                process::exit(1);
+            }
+        }
+    }
+
+    /// Execute WASM compilation mode (split)
+    #[cfg(feature = "wasm-backend")]
+    pub(crate) fn execute_wasm_mode(&self, filename: &str) {
+        let wat_text = self.compile_file_to_wat_text(filename);
 
         // Determine output file
         let groups = self.config.as_groups();
@@ -62,6 +75,24 @@ impl NyashRunner {
         match fs::write(&output_file, wat_text) {
             Ok(()) => { println!("✅ WASM compilation successful!\nOutput written to: {}", output_file); },
             Err(e) => { eprintln!("❌ Error writing WASM file {}: {}", output_file, e); process::exit(1); }
+        }
+    }
+
+    /// Emit WAT to explicit file path and exit.
+    #[cfg(feature = "wasm-backend")]
+    pub(crate) fn execute_emit_wat_mode(&self, filename: &str, output_file: &str) {
+        let wat_text = self.compile_file_to_wat_text(filename);
+        match fs::write(output_file, wat_text) {
+            Ok(()) => {
+                println!(
+                    "✅ WAT emit successful!\nOutput written to: {}",
+                    output_file
+                );
+            }
+            Err(e) => {
+                eprintln!("❌ Error writing WAT file {}: {}", output_file, e);
+                process::exit(1);
+            }
         }
     }
 }

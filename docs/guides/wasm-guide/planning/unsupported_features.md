@@ -32,6 +32,7 @@ Supported extern names in `instructions.rs`:
 - `env.canvas.setStrokeStyle`
 - `env.canvas.setLineWidth`
 - `env.canvas.fillCircle`
+- `env.canvas.drawLine`
 
 Unsupported extern calls fail-fast with:
 - `Unsupported extern call: <name> (supported: ...)`
@@ -87,8 +88,8 @@ Still unsupported (fail-fast):
 ### 呼び出しギャップ（優先順）
 1. Canvas drawing core
    - used by demo: `setFillStyle`, `setStrokeStyle`, `setLineWidth`, `strokeRect`, `beginPath`, `arc`, `fill`, `stroke`, `clear`
-   - backend status: `env.canvas.fillRect`, `env.canvas.fillText`, `env.canvas.clear`, `env.canvas.strokeRect`, `env.canvas.beginPath`, `env.canvas.arc`, `env.canvas.fill`, `env.canvas.stroke`, `env.canvas.setFillStyle`, `env.canvas.setStrokeStyle`, `env.canvas.setLineWidth` が supported
-   - gap: 残りメソッド（`drawLine` など）の extern contract / runtime import / codegen route 未整備
+   - backend status: `env.canvas.fillRect`, `env.canvas.fillText`, `env.canvas.clear`, `env.canvas.strokeRect`, `env.canvas.beginPath`, `env.canvas.arc`, `env.canvas.fill`, `env.canvas.stroke`, `env.canvas.setFillStyle`, `env.canvas.setStrokeStyle`, `env.canvas.setLineWidth`, `env.canvas.fillCircle`, `env.canvas.drawLine` が supported
+   - gap: core drawing については主要語彙の contract/runtime route を固定済み
 2. Console helper expansion
    - used by demo: `console.log/error`（JS側は多用）
    - backend status: `log/warn/error/info/debug` は supported
@@ -103,5 +104,5 @@ Still unsupported (fail-fast):
 - Expand BoxCall coverage for core methods used by selfhost fixtures.
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
-- G3 queue:
-  - `canvas.drawLine`（WSM-G3-min13）を `1 blocker = 1 shape` で追加し、fixture/gate を先に固定する。
+- P1 queue:
+  - `WSM-P1-min2`: fixture単位の WAT parity 比較を lock する。

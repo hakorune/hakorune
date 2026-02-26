@@ -145,6 +145,20 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         return;
     }
 
+    if groups.emit.emit_wat.is_some() {
+        #[cfg(feature = "wasm-backend")]
+        {
+            let output_path = groups.emit.emit_wat.as_ref().expect("emit_wat presence checked");
+            runner.execute_emit_wat_mode(filename, output_path);
+            return;
+        }
+        #[cfg(not(feature = "wasm-backend"))]
+        {
+            eprintln!("❌ WAT emit not available. Please rebuild with: cargo build --features wasm-backend");
+            process::exit(1);
+        }
+    }
+
     // WASM / AOT (feature-gated)
     if groups.compile_wasm {
         #[cfg(feature = "wasm-backend")]

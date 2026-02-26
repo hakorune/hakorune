@@ -46,6 +46,7 @@ list_profiles() {
     - cargo test --features wasm-backend test_unsupported_boxcall_method_fails_fast_with_supported_list -- --nocapture
     - phase29cc_wsm02d_demo_min_boundary_vm.sh
     - phase29cc_wsm02d_demo_unsupported_boundary_vm.sh
+    - phase29cc_wsm_p1_emit_wat_cli_vm.sh
   wasm-demo-g2:
     - phase29cc_wsm_g2_min1_bridge_build_vm.sh
     - phase29cc_wsm_g2_browser_run_vm.sh
@@ -63,6 +64,7 @@ list_profiles() {
     - phase29cc_wsm_g3_canvas_setstrokestyle_contract_vm.sh
     - phase29cc_wsm_g3_canvas_setlinewidth_contract_vm.sh
     - phase29cc_wsm_g3_canvas_fillcircle_contract_vm.sh
+    - phase29cc_wsm_g3_canvas_drawline_contract_vm.sh
   wasm-demo-g3:
     - wasm-demo-g3-full (backward compatible alias)
   portability:
@@ -122,6 +124,8 @@ run_wasm_boundary_lite() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_min_boundary_vm.sh
   run_step "wasm demo unsupported boundary lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_unsupported_boundary_vm.sh
+  run_step "wasm p1 emit-wat CLI lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p1_emit_wat_cli_vm.sh
 }
 
 run_wasm_demo_g2() {
@@ -157,6 +161,8 @@ run_wasm_demo_g3_full() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_setlinewidth_contract_vm.sh
   run_step "wasm g3 canvas.fillCircle contract lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_fillcircle_contract_vm.sh
+  run_step "wasm g3 canvas.drawLine contract lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_drawline_contract_vm.sh
 }
 
 run_portability() {

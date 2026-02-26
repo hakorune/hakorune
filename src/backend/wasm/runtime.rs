@@ -228,7 +228,7 @@ fn js_binding_for_import(name: &str) -> Option<String> {
 
 type JsBindingFactory = fn() -> String;
 
-const CANVAS_JS_BINDINGS: [(&str, JsBindingFactory); 12] = [
+const CANVAS_JS_BINDINGS: [(&str, JsBindingFactory); 13] = [
     ("canvas_fillRect", js_canvas_fill_rect_binding),
     ("canvas_fillText", js_canvas_fill_text_binding),
     ("canvas_clear", js_canvas_clear_binding),
@@ -241,6 +241,7 @@ const CANVAS_JS_BINDINGS: [(&str, JsBindingFactory); 12] = [
     ("canvas_setStrokeStyle", js_canvas_set_stroke_style_binding),
     ("canvas_setLineWidth", js_canvas_set_line_width_binding),
     ("canvas_fillCircle", js_canvas_fill_circle_binding),
+    ("canvas_drawLine", js_canvas_draw_line_binding),
 ];
 
 fn js_canvas_binding_by_name(name: &str) -> Option<String> {
@@ -360,6 +361,15 @@ fn js_canvas_fill_circle_binding() -> String {
     )
 }
 
+fn js_canvas_draw_line_binding() -> String {
+    js_canvas_ctx_binding(
+        "canvas_drawLine",
+        "canvasIdPtr, canvasIdLen, x1, y1, x2, y2, colorPtr, colorLen, width",
+        "        const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n        ctx.strokeStyle = color;\n        ctx.lineWidth = width;\n        ctx.beginPath();\n",
+        "ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke()",
+    )
+}
+
 fn canvas_import_arity(import_name: &str) -> Option<usize> {
     match import_name {
         "canvas_fillRect" | "canvas_strokeRect" => Some(8),
@@ -370,6 +380,7 @@ fn canvas_import_arity(import_name: &str) -> Option<usize> {
         "canvas_setStrokeStyle" => Some(4),
         "canvas_setLineWidth" => Some(3),
         "canvas_fillCircle" => Some(7),
+        "canvas_drawLine" => Some(9),
         _ => None,
     }
 }
@@ -397,6 +408,7 @@ mod tests {
         assert!(runtime.has_import("canvas_setStrokeStyle"));
         assert!(runtime.has_import("canvas_setLineWidth"));
         assert!(runtime.has_import("canvas_fillCircle"));
+        assert!(runtime.has_import("canvas_drawLine"));
     }
 
     #[test]
@@ -450,6 +462,7 @@ mod tests {
         assert!(js.contains("canvas_setStrokeStyle"));
         assert!(js.contains("canvas_setLineWidth"));
         assert!(js.contains("canvas_fillCircle"));
+        assert!(js.contains("canvas_drawLine"));
         assert!(js.contains("clearRect"));
         assert!(js.contains("strokeRect"));
         assert!(js.contains("beginPath"));
@@ -460,6 +473,8 @@ mod tests {
         assert!(js.contains("ctx.strokeStyle"));
         assert!(js.contains("ctx.lineWidth"));
         assert!(js.contains("Math.PI * 2"));
+        assert!(js.contains("ctx.moveTo"));
+        assert!(js.contains("ctx.lineTo"));
     }
 
     #[test]
@@ -536,6 +551,19 @@ mod tests {
         assert!(js.contains("ctx.arc"));
         assert!(js.contains("ctx.fillStyle"));
         assert!(js.contains("ctx.fill"));
+    }
+
+    #[test]
+    fn runtime_imports_canvas_draw_line_js_binding() {
+        let runtime = RuntimeImports::new();
+        let js = runtime.get_js_import_object();
+        assert!(js.contains("canvas_drawLine"));
+        assert!(js.contains("ctx.beginPath"));
+        assert!(js.contains("ctx.moveTo"));
+        assert!(js.contains("ctx.lineTo"));
+        assert!(js.contains("ctx.strokeStyle"));
+        assert!(js.contains("ctx.lineWidth"));
+        assert!(js.contains("ctx.stroke"));
     }
 
     #[test]

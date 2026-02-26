@@ -1,6 +1,6 @@
 /// Canonical extern-call contract shared by WASM codegen and runtime imports.
 /// Keep this list as single source of truth for supported extern call names.
-pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 17] = [
+pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 18] = [
     ("env.console.log", "console_log"),
     ("env.console.warn", "console_warn"),
     ("env.console.error", "console_error"),
@@ -18,6 +18,7 @@ pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 17] = [
     ("env.canvas.setStrokeStyle", "canvas_setStrokeStyle"),
     ("env.canvas.setLineWidth", "canvas_setLineWidth"),
     ("env.canvas.fillCircle", "canvas_fillCircle"),
+    ("env.canvas.drawLine", "canvas_drawLine"),
 ];
 
 pub(crate) fn extern_import_name(extern_name: &str) -> Option<&'static str> {
@@ -71,6 +72,10 @@ mod tests {
             extern_import_name("env.canvas.fillCircle"),
             Some("canvas_fillCircle")
         );
+        assert_eq!(
+            extern_import_name("env.canvas.drawLine"),
+            Some("canvas_drawLine")
+        );
     }
 
     #[test]
@@ -97,6 +102,7 @@ mod tests {
         assert!(csv.contains("env.canvas.setStrokeStyle"));
         assert!(csv.contains("env.canvas.setLineWidth"));
         assert!(csv.contains("env.canvas.fillCircle"));
+        assert!(csv.contains("env.canvas.drawLine"));
     }
 
     #[test]
@@ -159,6 +165,14 @@ mod tests {
         assert_eq!(
             extern_import_name("env.canvas.fillCircle"),
             Some("canvas_fillCircle")
+        );
+    }
+
+    #[test]
+    fn extern_contract_canvas_draw_line_supported() {
+        assert_eq!(
+            extern_import_name("env.canvas.drawLine"),
+            Some("canvas_drawLine")
         );
     }
 }

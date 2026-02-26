@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md
   - docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-150-wsm-p1-min1-emit-wat-cli-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -35,6 +36,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 2. **P1 WAT Emitter Parity**
    - `.hako` 側に WAT emitter（最小命令セット）を作り、Rust 出力と fixture 単位で同値化。
    - 受け入れは「同一 fixture の WAT 比較 + 既存 wasm smoke 緑」。
+   - 入口ロック（done）: `--emit-wat`（`29cc-150`）。
 3. **P2 Toolchain Bridge (`wat2wasm`)**
    - `.hako` が生成した WAT を外部ツール連結で `.wasm` 化する（Rust wasm codegen 本体を使わない）。
    - 受け入れは「WAT->WASM 変換後の browser demo/headless gate 緑」。

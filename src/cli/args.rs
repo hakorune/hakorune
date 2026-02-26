@@ -124,6 +124,15 @@ pub fn build_command() -> Command {
         .arg(Arg::new("backend").long("backend").value_name("BACKEND").help("Backend: vm (default), vm-hako (S0 frame), llvm, interpreter").default_value("vm"))
         .arg(Arg::new("verbose").long("verbose").short('v').help("Verbose CLI output (sets NYASH_CLI_VERBOSE=1)").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("compile-wasm").long("compile-wasm").help("Compile to WebAssembly").action(clap::ArgAction::SetTrue))
+        .arg(
+            Arg::new("emit-wat")
+                .long("emit-wat")
+                .value_name("FILE")
+                .help("Emit WebAssembly Text (WAT) to FILE and exit")
+                .conflicts_with("compile-wasm")
+                .conflicts_with("compile-native")
+                .conflicts_with("aot"),
+        )
         .arg(Arg::new("compile-native").long("compile-native").help("Compile to native executable (AOT)").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("aot").long("aot").help("Short form of --compile-native").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("output").long("output").short('o').value_name("FILE").help("Output file for compilation"))
@@ -222,6 +231,7 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         jit_native_f64: matches.get_flag("jit-native-f64"),
         jit_native_bool: matches.get_flag("jit-native-bool"),
         emit_cfg: matches.get_one::<String>("emit-cfg").cloned(),
+        emit_wat: matches.get_one::<String>("emit-wat").cloned(),
         jit_only: matches.get_flag("jit-only"),
         jit_direct: matches.get_flag("jit-direct"),
         cli_verbose: matches.get_flag("verbose"),
@@ -470,5 +480,28 @@ mod tests {
             "/tmp/rust.json",
         ]);
         assert!(result.is_err(), "conflicting emit routes must be rejected");
+    }
+
+    #[test]
+    fn emit_wat_route_parses_and_sets_output_path() {
+        let matches = build_command()
+            .try_get_matches_from(["hakorune", "--emit-wat", "/tmp/out.wat", "apps/min.hako"])
+            .expect("emit-wat args should parse");
+
+        let cfg = from_matches(&matches);
+        assert_eq!(cfg.emit_wat.as_deref(), Some("/tmp/out.wat"));
+        assert_eq!(cfg.file.as_deref(), Some("apps/min.hako"));
+    }
+
+    #[test]
+    fn emit_wat_conflicts_with_compile_wasm() {
+        let result = build_command().try_get_matches_from([
+            "hakorune",
+            "--emit-wat",
+            "/tmp/out.wat",
+            "--compile-wasm",
+            "apps/min.hako",
+        ]);
+        assert!(result.is_err(), "emit-wat and compile-wasm must conflict");
     }
 }
