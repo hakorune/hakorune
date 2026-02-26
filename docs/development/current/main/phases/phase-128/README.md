@@ -75,7 +75,7 @@
 - `apps/tests/phase128_if_only_partial_assign_normalized_min.hako`
   - `x=1; if flag==1 { x=2 }; return x`
   - 期待: flag=0→1, flag=1→2
-- `tools/smokes/v2/profiles/integration/apps/phase128_if_only_partial_assign_normalized_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase128_if_only_partial_assign_normalized_vm.sh`
   - `NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1`
   - output_validator で `1\n2` を固定
 

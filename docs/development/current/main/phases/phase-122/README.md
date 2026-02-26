@@ -166,7 +166,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase122_if_only_normalized_emit_
 # → 2 passed; 0 failed
 
 # 回帰テスト
-bash tools/smokes/v2/profiles/integration/apps/phase121_shadow_if_only_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase121_shadow_if_only_vm.sh
 # → 3 passed; 0 failed（既存動作維持）
 \`\`\`
 

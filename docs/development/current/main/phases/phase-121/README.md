@@ -115,7 +115,7 @@ cargo test --lib normalized_shadow
 
 ### Smoke Tests ✅
 ```bash
-bash tools/smokes/v2/profiles/integration/apps/phase121_shadow_if_only_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase121_shadow_if_only_vm.sh
 # [PASS] phase121_shadow_if_only_vm: All tests passed
 ```
 
@@ -166,8 +166,8 @@ Phase 121 is complete. Future work:
 - `src/mir/control_tree/normalized_shadow/contracts.rs`
 - `src/mir/control_tree/normalized_shadow/builder.rs`
 - `src/mir/control_tree/normalized_shadow/parity_contract.rs`
-- `tools/smokes/v2/profiles/integration/apps/phase121_shadow_if_only_vm.sh`
-- `tools/smokes/v2/profiles/integration/apps/phase121_shadow_if_only_llvm_exe.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase121_shadow_if_only_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase121_shadow_if_only_llvm_exe.sh`
 
 **Modified files** (2):
 - `src/mir/control_tree/mod.rs` (normalized_shadow module export)

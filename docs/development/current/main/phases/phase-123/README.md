@@ -174,7 +174,7 @@ if (flag == 1) {
 cargo test --lib
 
 # Smoke tests
-bash tools/smokes/v2/profiles/integration/apps/phase121_shadow_if_only_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase121_shadow_if_only_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/phase122_if_only_normalized_emit_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/phase118_loop_nested_if_merge_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/phase123_if_only_normalized_semantics_vm.sh
@@ -302,6 +302,6 @@ bash tools/smokes/v2/profiles/integration/apps/phase123_if_only_normalized_seman
 # Result: PASS
 
 # Legacy tests still passing
-bash tools/smokes/v2/profiles/integration/apps/phase121_shadow_if_only_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase121_shadow_if_only_vm.sh
 # Result: Should still pass (graceful degradation)
 ```

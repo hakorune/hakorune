@@ -37,14 +37,14 @@ g(1)  // → 2 (f(1) = 1+1 = 2)
 
 ### 2. VM smoke test
 
-**ファイル**: `tools/smokes/v2/profiles/integration/apps/phase116_if_only_keep_plus_call_vm.sh`
+**ファイル**: `tools/smokes/v2/profiles/integration/apps/archive/phase116_if_only_keep_plus_call_vm.sh`
 
 - `output_validator.sh` を使用して数値2行 `10\n2` を検証
 - 実行条件: `NYASH_DISABLE_PLUGINS=1 HAKO_JOINIR_STRICT=1`
 
 ### 3. LLVM EXE smoke test
 
-**ファイル**: `tools/smokes/v2/profiles/integration/apps/phase116_if_only_keep_plus_call_llvm_exe.sh`
+**ファイル**: `tools/smokes/v2/profiles/integration/apps/archive/phase116_if_only_keep_plus_call_llvm_exe.sh`
 
 - `llvm_exe_runner.sh` を利用（plugin dlopen/cache/build-all SSOT）
 - `llvm_exe_build_and_run_numeric_smoke` で出力検証（`10\n2`）
@@ -53,13 +53,13 @@ g(1)  // → 2 (f(1) = 1+1 = 2)
 
 ```bash
 # VM smoke test
-bash tools/smokes/v2/profiles/integration/apps/phase116_if_only_keep_plus_call_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase116_if_only_keep_plus_call_vm.sh
 
 # LLVM EXE smoke test
-bash tools/smokes/v2/profiles/integration/apps/phase116_if_only_keep_plus_call_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase116_if_only_keep_plus_call_llvm_exe.sh
 
 # 回帰テスト (Phase 115)
-bash tools/smokes/v2/profiles/integration/apps/phase115_if_only_call_merge_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase115_if_only_call_merge_llvm_exe.sh
 ```
 
 ## 技術的詳細

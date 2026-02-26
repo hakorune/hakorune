@@ -58,14 +58,14 @@ No new implementation was required - Phase 114 validates that this pattern works
 
 ### Smoke Tests
 
-1. **VM Backend**: `tools/smokes/v2/profiles/integration/apps/phase114_if_only_return_then_post_vm.sh`
+1. **VM Backend**: `tools/smokes/v2/profiles/integration/apps/archive/phase114_if_only_return_then_post_vm.sh`
    ```bash
-   bash tools/smokes/v2/profiles/integration/apps/phase114_if_only_return_then_post_vm.sh
+   bash tools/smokes/v2/profiles/integration/apps/archive/phase114_if_only_return_then_post_vm.sh
    ```
 
-2. **LLVM EXE Backend**: `tools/smokes/v2/profiles/integration/apps/phase114_if_only_return_then_post_llvm_exe.sh`
+2. **LLVM EXE Backend**: `tools/smokes/v2/profiles/integration/apps/archive/phase114_if_only_return_then_post_llvm_exe.sh`
    ```bash
-   bash tools/smokes/v2/profiles/integration/apps/phase114_if_only_return_then_post_llvm_exe.sh
+   bash tools/smokes/v2/profiles/integration/apps/archive/phase114_if_only_return_then_post_llvm_exe.sh
    ```
 
 Both tests run with:
@@ -84,15 +84,15 @@ All regression tests pass without modifications.
 
 ```bash
 # Quick VM test
-bash tools/smokes/v2/profiles/integration/apps/phase114_if_only_return_then_post_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase114_if_only_return_then_post_vm.sh
 
 # Full LLVM EXE test (requires plugins)
-bash tools/smokes/v2/profiles/integration/apps/phase114_if_only_return_then_post_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase114_if_only_return_then_post_llvm_exe.sh
 
 # Regression verification
 bash tools/smokes/v2/profiles/integration/apps/phase103_if_only_early_return_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase113_if_only_partial_assign_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase113_if_only_partial_assign_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase113_if_only_partial_assign_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase113_if_only_partial_assign_llvm_exe.sh
 ```
 
 ## Architecture Notes

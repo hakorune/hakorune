@@ -4,6 +4,6 @@
 - 固定: accumulator（`out = out + ch`）＋ escape（`\\` → 次の1文字を取り込み）＋ quote 終端（`"` で break）。
 - フィクスチャ: `apps/tests/phase102_realapp_read_quoted_min.hako`（期待: `out.length() == 4`）
 - smoke:
-  - VM: `tools/smokes/v2/profiles/integration/apps/phase102_realapp_read_quoted_vm.sh`
-  - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/phase102_realapp_read_quoted_llvm_exe.sh`
+  - VM: `tools/smokes/v2/profiles/integration/apps/archive/phase102_realapp_read_quoted_vm.sh`
+  - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/archive/phase102_realapp_read_quoted_llvm_exe.sh`
 - 次候補: `parse_object` / `parse_array` の key/value ループ（Pattern4 continue + return 混在）や read_digits 系。

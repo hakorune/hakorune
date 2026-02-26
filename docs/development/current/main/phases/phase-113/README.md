@@ -15,10 +15,10 @@ if-only (no else) で片側だけ代入がある場合、else 側では変数の
 
 ```bash
 # VM
-bash tools/smokes/v2/profiles/integration/apps/phase113_if_only_partial_assign_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase113_if_only_partial_assign_vm.sh
 
 # LLVM EXE
-bash tools/smokes/v2/profiles/integration/apps/phase113_if_only_partial_assign_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase113_if_only_partial_assign_llvm_exe.sh
 ```
 
 Expected output: `1\n2`

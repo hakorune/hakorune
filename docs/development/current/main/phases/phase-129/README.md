@@ -150,8 +150,8 @@ x=1; flag=1; if flag==1 { x=2 }; print(x); return "OK"
 cargo test --lib
 
 # Smoke tests (baseline)
-bash tools/smokes/v2/profiles/integration/apps/phase128_if_only_partial_assign_normalized_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase128_if_only_partial_assign_normalized_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase128_if_only_partial_assign_normalized_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase128_if_only_partial_assign_normalized_llvm_exe.sh
 bash tools/smokes/v2/profiles/integration/apps/phase129_join_k_as_last_vm.sh
 
 # Regression

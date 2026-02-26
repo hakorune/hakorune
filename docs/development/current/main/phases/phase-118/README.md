@@ -145,7 +145,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase118_loop_nested_if_merge_llv
 
 ### 回帰テスト（Phase 117）
 ```bash
-bash tools/smokes/v2/profiles/integration/apps/phase117_if_only_nested_if_call_merge_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase117_if_only_nested_if_call_merge_llvm_exe.sh
 ```
 
 ## 成果物

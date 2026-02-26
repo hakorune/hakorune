@@ -2142,8 +2142,8 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 - real-app（MiniJsonLoader.read_quoted_from）の loop を最小抽出し、VM + LLVM EXE で regression を固定（期待: length=4）。
   - フィクスチャ: `apps/tests/phase102_realapp_read_quoted_min.hako`
-  - smoke: `tools/smokes/v2/profiles/integration/apps/phase102_realapp_read_quoted_vm.sh`
-  - smoke: `tools/smokes/v2/profiles/integration/apps/phase102_realapp_read_quoted_llvm_exe.sh`
+  - smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase102_realapp_read_quoted_vm.sh`
+  - smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase102_realapp_read_quoted_llvm_exe.sh`
   - Phase 記録（入口）: `docs/development/current/main/phases/phase-102/README.md`
 
 ## 2025‑12‑14：現状サマリ
