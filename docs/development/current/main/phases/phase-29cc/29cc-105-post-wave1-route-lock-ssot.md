@@ -61,5 +61,5 @@ When WASM/runtime touched:
 
 ## 4. Active Next
 
-- plugin lane active next: `PLG-05-min5`（wave-2 rollout）
+- plugin lane active next: `PLG-05-min6`（wave-2 rollout）
 - wasm lane active next: `WSM-01`（non-blocking parallel）

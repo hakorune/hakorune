@@ -1,0 +1,15 @@
+// Phase 29cc PLG-05-min5 Path plugin pilot fixture
+// Contract:
+// - PathBox can be constructed through plugin config.
+// - join/extname/isAbs method routes work in VM.
+
+static box Main {
+  main(args) {
+    local p
+    p = new PathBox()
+    print("path_join=" + p.join("a", "b"))
+    print("path_ext=" + p.extname("a/b/c.txt"))
+    print("path_abs=" + p.isAbs("a/b"))
+    return 0
+  }
+}
