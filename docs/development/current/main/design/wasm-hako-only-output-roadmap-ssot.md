@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-150-wsm-p1-min1-emit-wat-cli-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-151-wsm-p1-min2-wat-parity-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-152-wsm-p2-min1-wat2wasm-bridge-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-153-wsm-p3-min1-import-object-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -46,6 +47,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 4. **P3 Runtime Contract Port**
    - JS import object 生成契約（supported list / fail-fast 文言）を `.hako` 側へ移植。
    - Rust runtime は fallback ではなく thin compatibility lane として残す。
+   - runtime contract lock（done）: `29cc-153`（`phase29cc_wsm_p3_min1_import_object_lock_vm.sh`）。
 5. **P4 Wasm Binary Writer (Rust-free output)**
    - `.hako` 側に wasm binary writer（section/LEB128）を実装し、WAT依存を外す。
    - 受け入れは「`.hako` 単独で `.wasm` 出力 + 既存 wasm smoke 緑」。

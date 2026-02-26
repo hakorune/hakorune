@@ -146,8 +146,8 @@ impl RuntimeImports {
         js.push_str("const importObject = {\n");
 
         // Group by module
-        let mut modules: std::collections::HashMap<String, Vec<&ImportFunction>> =
-            std::collections::HashMap::new();
+        let mut modules: std::collections::BTreeMap<String, Vec<&ImportFunction>> =
+            std::collections::BTreeMap::new();
         for import in &self.imports {
             modules
                 .entry(import.module.clone())
@@ -155,7 +155,8 @@ impl RuntimeImports {
                 .push(import);
         }
 
-        for (module_name, functions) in modules {
+        for (module_name, mut functions) in modules {
+            functions.sort_by(|a, b| a.name.cmp(&b.name));
             js.push_str(&format!("  {}: {{\n", module_name));
 
             for function in functions {
@@ -163,7 +164,7 @@ impl RuntimeImports {
                     js.push_str(&binding);
                 } else {
                     js.push_str(&format!(
-                        "    {}: () => {{ throw new Error('Not implemented: {}'); }},\n",
+                        "    {}: () => {{ throw new Error('Unsupported import binding: {}'); }},\n",
                         function.name, function.name
                     ));
                 }
@@ -388,6 +389,7 @@ fn canvas_import_arity(import_name: &str) -> Option<usize> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::backend::wasm::extern_contract::EXTERN_CALL_MAP;
 
     fn assert_js_has_all(js: &str, needles: &[&str]) {
         for needle in needles {
@@ -584,6 +586,55 @@ mod tests {
                 "ctx.stroke",
             ],
         );
+    }
+
+    #[test]
+    fn runtime_imports_js_object_covers_extern_contract_imports() {
+        let runtime = RuntimeImports::new();
+        let js = runtime.get_js_import_object();
+        for (_, import_name) in EXTERN_CALL_MAP {
+            assert!(
+                js.contains(import_name),
+                "js importObject must contain binding for {}",
+                import_name
+            );
+        }
+    }
+
+    #[test]
+    fn runtime_imports_js_object_has_no_unsupported_binding_for_standard_imports() {
+        let runtime = RuntimeImports::new();
+        let js = runtime.get_js_import_object();
+        assert!(
+            !js.contains("Unsupported import binding: print"),
+            "print import must not fallback"
+        );
+        assert!(
+            !js.contains("Unsupported import binding: print_str"),
+            "print_str import must not fallback"
+        );
+        for (_, import_name) in EXTERN_CALL_MAP {
+            let marker = format!("Unsupported import binding: {}", import_name);
+            assert!(
+                !js.contains(&marker),
+                "extern/canvas binding must not fallback: {}",
+                import_name
+            );
+        }
+    }
+
+    #[test]
+    fn runtime_imports_js_object_unknown_binding_uses_fail_fast_message() {
+        let mut runtime = RuntimeImports::new();
+        runtime.add_import(
+            "env".to_string(),
+            "custom_unbound_import".to_string(),
+            vec![],
+            None,
+        );
+        let js = runtime.get_js_import_object();
+        assert!(js.contains("custom_unbound_import"));
+        assert!(js.contains("Unsupported import binding: custom_unbound_import"));
     }
 
     #[test]

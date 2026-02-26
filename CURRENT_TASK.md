@@ -132,7 +132,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. `WSM-P3-min1`（.hako-only roadmap P3）: JS import object 生成契約（supported list / fail-fast 文言）の移植契約を lock する。
+1. `WSM-P4-min1`（.hako-only roadmap P4）: wasm binary writer（section/LEB128）の docs-first 最小契約を lock する。
 2. `WSM-02d` gate pack は lightweight/milestone の二段運用を維持する。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 4. wasm `.hako`-only output 計画は `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` を正本とし、固定順 `WAT出力 -> wat2wasm連結 -> wasmバイナリ直書き` で進める。
