@@ -26,7 +26,7 @@ Related:
   - src/runtime/plugin_loader_unified.rs
   - src/runtime/plugin_loader_v2/enabled/loader/library.rs
   - src/config/nyash_toml_v2.rs
-  - tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh
   - tools/plugin_v2_smoke.sh
   - tools/smoke_plugins.sh
   - tools/plugins/build-all.sh
@@ -137,7 +137,7 @@ Progress:
 Daily quick:
 1. `cargo check --bin hakorune`
 2. `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
-3. `bash tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh`
+3. `bash tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh`
 
 Milestone:
 1. `bash tools/plugin_v2_smoke.sh`

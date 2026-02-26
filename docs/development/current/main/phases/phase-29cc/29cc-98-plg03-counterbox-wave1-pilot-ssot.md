@@ -51,7 +51,7 @@ Out of scope:
 1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg03_counterbox_pilot_vm.sh` -> PASS
 2. `bash tools/vm_plugin_smoke.sh` -> PASS（pilot smoke へ委譲）
 3. `cargo check --bin hakorune` -> PASS
-4. `bash tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh` -> PASS
+4. `bash tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh` -> PASS
 
 ## 4. Decision
 

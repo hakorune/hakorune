@@ -48,7 +48,7 @@ Decision: accepted
 Daily quick (plugin mainline):
 1. `cargo check --bin hakorune`
 2. `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
-3. `bash tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh`
+3. `bash tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh`
 
 Milestone:
 1. `bash tools/plugin_v2_smoke.sh`

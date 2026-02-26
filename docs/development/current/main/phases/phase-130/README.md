@@ -32,8 +32,8 @@ Add a “post-if update then return” fixture that forces post_k to execute and
   - Case B: `flag=0` → expected `4`
   - Output: `5\n4`
 - Smokes (integration):
-  - `tools/smokes/v2/profiles/integration/apps/phase130_if_only_post_if_add_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase130_if_only_post_if_add_llvm_exe.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase130_if_only_post_if_add_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase130_if_only_post_if_add_llvm_exe.sh`
   - Use `output_validator.sh` numeric-line assertion.
   - LLVM EXE smoke uses `llvm_exe_runner.sh` + plugin gating.
 
@@ -71,12 +71,12 @@ Commands:
 cargo test --lib
 
 # New Phase 130 smokes
-bash tools/smokes/v2/profiles/integration/apps/phase130_if_only_post_if_add_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase130_if_only_post_if_add_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase130_if_only_post_if_add_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase130_if_only_post_if_add_llvm_exe.sh
 
 # Regressions (minimum)
-bash tools/smokes/v2/profiles/integration/apps/phase129_if_only_post_if_return_var_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase129_join_k_as_last_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase129_if_only_post_if_return_var_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase129_join_k_as_last_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase128_if_only_partial_assign_normalized_vm.sh
 ```
 
@@ -91,8 +91,8 @@ Phase 130 successfully completed on 2025-12-18:
 
 - **P0 (Fixtures + Smokes)**: ✅ DONE
   - Fixture: `apps/tests/phase130_if_only_post_if_add_min.hako` (expects 5\n4)
-  - VM smoke: `tools/smokes/v2/profiles/integration/apps/phase130_if_only_post_if_add_vm.sh` PASS
-  - LLVM EXE smoke: `tools/smokes/v2/profiles/integration/apps/phase130_if_only_post_if_add_llvm_exe.sh`
+  - VM smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase130_if_only_post_if_add_vm.sh` PASS
+  - LLVM EXE smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase130_if_only_post_if_add_llvm_exe.sh`
     - PASS when hakorune can emit LLVM objects (built with `--features llvm` and llvmlite available)
     - Otherwise SKIP (missing LLVM prerequisites)
 

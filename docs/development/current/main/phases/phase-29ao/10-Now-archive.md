@@ -1521,8 +1521,8 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - Fixture:
   - `apps/tests/phase141_p1_if_only_post_k_return_length_min.hako`（expected exit code 3）
 - Smoke tests:
-  - VM: `tools/smokes/v2/profiles/integration/apps/phase141_p1_if_only_post_k_return_length_vm.sh`
-  - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/phase141_p1_if_only_post_k_return_length_llvm_exe.sh`
+  - VM: `tools/smokes/v2/profiles/integration/apps/archive/phase141_p1_if_only_post_k_return_length_vm.sh`
+  - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/archive/phase141_p1_if_only_post_k_return_length_llvm_exe.sh`
 - 入口: `docs/development/current/main/phases/phase-141/README.md`
 
 ## 2025-12-19：Phase 141 P0 完了 ✅
@@ -1557,8 +1557,8 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - Fixture:
   - `apps/tests/phase139_if_only_post_k_return_add_min.hako`（expected exit code 4）
 - Smoke tests:
-  - VM: `tools/smokes/v2/profiles/integration/apps/phase139_if_only_post_k_return_add_vm.sh`
-  - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/phase139_if_only_post_k_return_add_llvm_exe.sh`
+  - VM: `tools/smokes/v2/profiles/integration/apps/archive/phase139_if_only_post_k_return_add_vm.sh`
+  - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/archive/phase139_if_only_post_k_return_add_llvm_exe.sh`
 - 入口: `docs/development/current/main/phases/phase-139/README.md`
 
 ## 2025-12-18：Phase 138 完了 ✅
@@ -1762,8 +1762,8 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
   - `loop(true) { x = 1; break }; return x` は exit code `1`
   - DirectValue mode（PHI-free）で exit 値を `variable_map` に再接続
 - 検証:
-  - `bash tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_vm.sh`
-  - `bash tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_llvm_exe.sh`
+  - `bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_llvm_exe.sh`
 - 環境: WSL の一時的な EXDEV（`Invalid cross-device link`）は `wsl --shutdown` 再起動で解消、上記 + `phase97_next_non_ws_llvm_exe.sh` まで PASS
 - 入口: `docs/development/current/main/phases/phase-131/README.md`
 

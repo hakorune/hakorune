@@ -150,24 +150,24 @@ static box Main {
 
 #### VM Smoke Test
 
-**File**: `tools/smokes/v2/profiles/integration/apps/phase142_loop_stmt_only_then_return_length_min_vm.sh`
+**File**: `tools/smokes/v2/profiles/integration/apps/archive/phase142_loop_stmt_only_then_return_length_min_vm.sh`
 
 **Command**:
 ```bash
-bash tools/smokes/v2/profiles/integration/apps/phase142_loop_stmt_only_then_return_length_min_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase142_loop_stmt_only_then_return_length_min_vm.sh
 ```
 
 **Result**: ✅ PASS (exit code 3)
 
 #### LLVM EXE Smoke Test
 
-**File**: `tools/smokes/v2/profiles/integration/apps/phase142_loop_stmt_only_then_return_length_min_llvm_exe.sh`
+**File**: `tools/smokes/v2/profiles/integration/apps/archive/phase142_loop_stmt_only_then_return_length_min_llvm_exe.sh`
 
 **Status**: ✅ P1 COMPLETE (LLVM EXE parity achieved)
 
 **Command**:
 ```bash
-bash tools/smokes/v2/profiles/integration/apps/phase142_loop_stmt_only_then_return_length_min_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase142_loop_stmt_only_then_return_length_min_llvm_exe.sh
 ```
 
 **Result**: ✅ PASS (exit code 3, parity with VM)
@@ -273,7 +273,7 @@ NormalizationPlan::loop_only() → consumed = 1 (loop のみ)
 ### Tests
 
 4. `apps/tests/phase142_loop_stmt_only_then_return_length_min.hako` (NEW)
-5. `tools/smokes/v2/profiles/integration/apps/phase142_loop_stmt_only_then_return_length_min_vm.sh` (NEW)
+5. `tools/smokes/v2/profiles/integration/apps/archive/phase142_loop_stmt_only_then_return_length_min_vm.sh` (NEW)
 
 ### Documentation
 
@@ -299,13 +299,13 @@ cargo test -p nyash-rust --lib mir::builder::control_flow::normalization
 ### Regression Tests
 ```bash
 # Phase 131 regression
-bash tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_vm.sh
 
 # Phase 141 regression
-bash tools/smokes/v2/profiles/integration/apps/phase141_p1_if_only_post_k_return_length_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase141_p1_if_only_post_k_return_length_vm.sh
 
 # Phase 142-loopstmt P0
-bash tools/smokes/v2/profiles/integration/apps/phase142_loop_stmt_only_then_return_length_min_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase142_loop_stmt_only_then_return_length_min_vm.sh
 ```
 
 ---
@@ -314,7 +314,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase142_loop_stmt_only_then_retu
 
 ### P1: LLVM EXE Smoke Test (DONE ✅)
 
-- File: `tools/smokes/v2/profiles/integration/apps/phase142_loop_stmt_only_then_return_length_min_llvm_exe.sh`
+- File: `tools/smokes/v2/profiles/integration/apps/archive/phase142_loop_stmt_only_then_return_length_min_llvm_exe.sh`
 - Gate: `llvm_exe_preflight_or_skip` により、Phase 130 の LLVM EXE 前提が満たされない環境では SKIP を維持
 - Contract: exit code 3 parity with VM
 

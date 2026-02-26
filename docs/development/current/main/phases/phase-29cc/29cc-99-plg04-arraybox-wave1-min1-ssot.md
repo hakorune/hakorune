@@ -52,7 +52,7 @@ Out of scope:
 2. `bash tools/vm_plugin_smoke.sh` -> PASS（CounterBox + ArrayBox pilot）
 3. `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` -> PASS
 4. `cargo check --bin hakorune` -> PASS
-5. `bash tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh` -> PASS
+5. `bash tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh` -> PASS
 
 ## 4. Decision
 

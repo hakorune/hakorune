@@ -118,8 +118,8 @@ require_joinir_dev
 ```
 
 **適用済み箇所**:
-- `tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_llvm_exe.sh`
-- `tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_vm.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_llvm_exe.sh`
+- `tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_vm.sh`
 
 ## SSOT Contracts
 
@@ -186,8 +186,8 @@ Expected contract for fixture: exit code `1` (return value)
 - New fixture: `apps/tests/phase131_loop_true_break_once_min.hako`
   - Expected exit code: `1`
   - Form: x=0; loop(true) { x=1; break }; return x
-- VM smoke: `tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_vm.sh`
-- LLVM EXE smoke: `tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_llvm_exe.sh`
+- VM smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_vm.sh`
+- LLVM EXE smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_llvm_exe.sh`
 
 ### Step 2: Implementation
 
@@ -204,11 +204,11 @@ Expected contract for fixture: exit code `1` (return value)
 cargo test --lib
 
 # Phase 131 smokes
-bash tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_llvm_exe.sh
 
 # Regressions (minimum 2)
-bash tools/smokes/v2/profiles/integration/apps/phase130_if_only_post_if_add_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase130_if_only_post_if_add_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh
 ```
 

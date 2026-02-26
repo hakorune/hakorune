@@ -40,12 +40,12 @@
 ## 検証
 
 ### P0: Best-Effort Loading
-- ✅ Smoke: `tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh`
+- ✅ Smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh`
 - ✅ Test: "plugins disabled (config=nyash.toml)" ログなし
 - ✅ Test: --dump-mir 成功 (exit code 0)
 
 ### P1: Core Box Guard
-- ✅ Smoke: `tools/smokes/v2/profiles/integration/apps/phase134_core_boxes_minimal.sh`
+- ✅ Smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase134_core_boxes_minimal.sh`
 - ✅ Test: NYASH_VM_PLUGIN_STRICT=1 で core box 揃っていれば PASS
 - ✅ Test: core box SSOT 定義（4 boxes）
 
@@ -65,8 +65,8 @@
 
 ## 参考
 
-- **P0 Smoke**: `tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh`
-- **P1 Smoke**: `tools/smokes/v2/profiles/integration/apps/phase134_core_boxes_minimal.sh`
+- **P0 Smoke**: `tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh`
+- **P1 Smoke**: `tools/smokes/v2/profiles/integration/apps/archive/phase134_core_boxes_minimal.sh`
 - **SSOT**: `src/runner/modes/common_util/plugin_guard.rs` (gather_core_required_providers)
 - **修正コミット**:
   - `ccd23423` feat(plugin_loader): Phase 134 P0 - Best-effort plugin loading

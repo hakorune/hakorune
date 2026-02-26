@@ -55,8 +55,8 @@ Related:
 
 - Fixture: `apps/tests/phase141_p1_if_only_post_k_return_length_min.hako`（expected exit code 3）
 - Smoke tests:
-  - VM: `tools/smokes/v2/profiles/integration/apps/phase141_p1_if_only_post_k_return_length_vm.sh`
-  - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/phase141_p1_if_only_post_k_return_length_llvm_exe.sh`
+  - VM: `tools/smokes/v2/profiles/integration/apps/archive/phase141_p1_if_only_post_k_return_length_vm.sh`
+  - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/archive/phase141_p1_if_only_post_k_return_length_llvm_exe.sh`
 
 ## Phase 141 P1.5: SSOT Reinforcement (Registry + available_inputs + diagnostics)
 

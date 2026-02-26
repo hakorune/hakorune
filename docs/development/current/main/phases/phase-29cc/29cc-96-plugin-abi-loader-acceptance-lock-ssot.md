@@ -13,7 +13,7 @@ Related:
   - src/runtime/plugin_loader_v2/enabled/loader/library.rs
   - src/runtime/plugin_loader_unified.rs
   - src/config/nyash_toml_v2.rs
-  - tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh
 ---
 
 # 29cc-96 Plugin ABI/Loader Acceptance Lock SSOT
@@ -42,7 +42,7 @@ Related:
 
 1. `cargo check --bin hakorune` -> PASS
 2. `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` -> PASS
-3. `bash tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh` -> PASS
+3. `bash tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh` -> PASS
 
 ## 4. Decision
 

@@ -177,8 +177,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase132_loop_true_break_once_pos
 bash tools/smokes/v2/profiles/integration/apps/phase132_loop_true_break_once_post_add_llvm_exe.sh
 
 # Regressions (Phase 131)
-bash tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_llvm_exe.sh
 
 # Regressions (Phase 97 - stable baseline)
 bash tools/smokes/v2/profiles/integration/apps/phase97_next_non_ws_llvm_exe.sh

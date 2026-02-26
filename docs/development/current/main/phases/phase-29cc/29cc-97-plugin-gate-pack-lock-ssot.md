@@ -10,7 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/README.md
   - tools/plugin_v2_smoke.sh
   - tools/smoke_plugins.sh
-  - tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh
   - tools/checks/windows_wsl_cmd_smoke.sh
   - src/runtime/ring0/mod.rs
 ---
@@ -27,7 +27,7 @@ Related:
 Quick (daily):
 1. `cargo check --bin hakorune`
 2. `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
-3. `bash tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh`
+3. `bash tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh`
 4. `bash tools/checks/phase29y_derust_blocker_sync_guard.sh`
 
 Milestone:

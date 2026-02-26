@@ -33,8 +33,8 @@ Related:
 - Fixture:
   - `apps/tests/phase139_if_only_post_k_return_add_min.hako`（expected exit code 4）
 - Smokes:
-  - `tools/smokes/v2/profiles/integration/apps/phase139_if_only_post_k_return_add_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase139_if_only_post_k_return_add_llvm_exe.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase139_if_only_post_k_return_add_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/archive/phase139_if_only_post_k_return_add_llvm_exe.sh`
 - regressions:
   - Phase 136/137/138（return 系）
   - Phase 97（loop(i<n) フォールバック確認）

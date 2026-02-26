@@ -152,7 +152,7 @@ cargo test --lib
 # Smoke tests (baseline)
 bash tools/smokes/v2/profiles/integration/apps/archive/phase128_if_only_partial_assign_normalized_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase128_if_only_partial_assign_normalized_llvm_exe.sh
-bash tools/smokes/v2/profiles/integration/apps/phase129_join_k_as_last_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase129_join_k_as_last_vm.sh
 
 # Regression
 bash tools/smokes/v2/profiles/integration/apps/phase103_if_only_llvm_exe.sh

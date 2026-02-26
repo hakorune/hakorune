@@ -109,7 +109,7 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_
 bash tools/smokes/v2/profiles/integration/apps/archive/phase136_loop_true_break_once_post_return_literal_llvm_exe.sh
 
 # Regressions
-bash tools/smokes/v2/profiles/integration/apps/phase131_loop_true_break_once_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/phase135_loop_true_break_once_post_empty_return_vm.sh
 ```
 

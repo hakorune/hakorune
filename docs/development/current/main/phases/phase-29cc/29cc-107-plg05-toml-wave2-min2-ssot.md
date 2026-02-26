@@ -50,7 +50,7 @@ Out of scope:
 1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg05_toml_pilot_vm.sh` -> PASS
 2. `bash tools/vm_plugin_smoke.sh` -> PASS（CounterBox + wave-1 pilots + wave-2 Json/TOML pilots）
 3. `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` -> PASS
-4. `bash tools/smokes/v2/profiles/integration/apps/phase134_plugin_best_effort_init.sh` -> PASS
+4. `bash tools/smokes/v2/profiles/integration/apps/archive/phase134_plugin_best_effort_init.sh` -> PASS
 5. `cargo check --bin hakorune` -> PASS
 
 ## 4. Decision
