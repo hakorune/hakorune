@@ -163,4 +163,4 @@ cd www && python3 -m http.server 8000
 1. `projects/nyash-wasm/build.sh` は `projects/nyash-wasm/bridge/` の独立 crate を build して `projects/nyash-wasm/pkg/` を更新する（ルート crate の wasm 互換性に依存しない）。
 2. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh` で build + export + playground marker を固定し、`ConsoleBox` の `log/warn/error/info/debug` 最小 run-loop を fail-fast で検証する。
 3. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh` で `autorun=1` headless chromium run を検証する。日常実行は `tools/checks/dev_gate.sh wasm-demo-g2` を使う。
-4. 受け入れ記録は `29cc-134`（min1）/`29cc-135`（min2）/`29cc-136`（min3）/`29cc-137`（G3-min1）/`29cc-138`（G3-min2）/`29cc-139`（G3-min3）/`29cc-140`（G3-min4）/`29cc-141`（G3-min5）を参照し、次段 `WSM-G3-min6`（fill 1語彙）へ進める。
+4. 受け入れ記録は `29cc-134`（min1）/`29cc-135`（min2）/`29cc-136`（min3）/`29cc-137`（G3-min1）/`29cc-138`（G3-min2）/`29cc-139`（G3-min3）/`29cc-140`（G3-min4）/`29cc-141`（G3-min5）/`29cc-142`（G3-min6）を参照し、次段 `WSM-G3-min7`（stroke 1語彙）へ進める。
