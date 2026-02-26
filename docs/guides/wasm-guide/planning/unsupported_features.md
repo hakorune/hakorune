@@ -105,4 +105,4 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - P4 queue:
-  - `WSM-P4-min3`: `.hako` 側 writer 入口（最小 fixture 1件）と parity gate を docs-first で lock する。
+  - `WSM-P4-min4`: `.hako` writer 最小実装（const-return fixture 1件）と bytes parity smoke を lock する。
