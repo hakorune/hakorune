@@ -33,6 +33,7 @@ Supported methods in `builtins.rs`:
 - `equals`
 - `clone`
 - `log`
+- `info`
 
 Unsupported methods fail-fast with:
 - `Unsupported BoxCall method: <name> (supported: ...)`

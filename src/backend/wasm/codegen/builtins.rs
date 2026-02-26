@@ -18,8 +18,9 @@ impl WasmCodegen {
             "equals" => self.generate_equals_call(dst, box_val, args),
             "clone" => self.generate_clone_call(dst, box_val),
             "log" => self.generate_log_call(dst, box_val, args),
+            "info" => self.generate_info_call(dst, box_val, args),
             _ => Err(WasmError::UnsupportedInstruction(format!(
-                "Unsupported BoxCall method: {} (supported: toString, print, equals, clone, log)",
+                "Unsupported BoxCall method: {} (supported: toString, print, equals, clone, log, info)",
                 method
             ))),
         }
@@ -137,9 +138,31 @@ impl WasmCodegen {
         box_val: ValueId,
         args: &[ValueId],
     ) -> Result<Vec<String>, WasmError> {
+        self.generate_console_call("log", "console_log", dst, box_val, args)
+    }
+
+    /// Generate info() method call - Console info output (ConsoleBox.info)
+    fn generate_info_call(
+        &mut self,
+        dst: Option<ValueId>,
+        box_val: ValueId,
+        args: &[ValueId],
+    ) -> Result<Vec<String>, WasmError> {
+        self.generate_console_call("info", "console_info", dst, box_val, args)
+    }
+
+    fn generate_console_call(
+        &mut self,
+        method_name: &str,
+        target_import: &str,
+        dst: Option<ValueId>,
+        box_val: ValueId,
+        args: &[ValueId],
+    ) -> Result<Vec<String>, WasmError> {
         let mut instructions = vec![format!(
-            ";; log() implementation for ValueId({})",
-            box_val.as_u32()
+            ";; {}() implementation for ValueId({})",
+            method_name,
+            box_val.as_u32(),
         )];
 
         // Load box_val (ConsoleBox instance)
@@ -150,8 +173,8 @@ impl WasmCodegen {
             instructions.push(format!("local.get ${}", self.get_local_index(*arg)?));
         }
 
-        // Call console log function
-        instructions.push("call $console_log".to_string());
+        // Call console output function
+        instructions.push(format!("call ${}", target_import));
 
         // Store void result if destination is provided
         if let Some(dst) = dst {
