@@ -2,7 +2,7 @@ use super::WasmError;
 use crate::backend::wasm::extern_contract::{extern_import_name, supported_extern_calls_csv};
 use crate::mir::{BinaryOp, CompareOp, ConstValue, ValueId};
 use crate::mir::MirInstruction;
-use super::codegen::WasmCodegen;
+use super::WasmCodegen;
 
 impl WasmCodegen {
     /// Generate WASM instructions for a single MIR instruction

@@ -1,6 +1,6 @@
 use super::WasmError;
 use crate::mir::ValueId;
-use super::codegen::WasmCodegen;
+use super::WasmCodegen;
 
 impl WasmCodegen {
     /// Generate BoxCall method invocation

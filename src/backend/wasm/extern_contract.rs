@@ -23,3 +23,31 @@ pub(crate) fn supported_extern_calls_csv() -> String {
         .collect::<Vec<_>>()
         .join(", ")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn extern_contract_supported_name_maps_to_import() {
+        assert_eq!(extern_import_name("env.console.log"), Some("console_log"));
+        assert_eq!(extern_import_name("env.console.debug"), Some("console_debug"));
+        assert_eq!(extern_import_name("env.canvas.fillRect"), Some("canvas_fillRect"));
+    }
+
+    #[test]
+    fn extern_contract_unsupported_name_is_none() {
+        assert_eq!(extern_import_name("env.console.trace"), None);
+        assert_eq!(extern_import_name("env.canvas.strokeRect"), None);
+    }
+
+    #[test]
+    fn extern_contract_supported_csv_contains_known_entries() {
+        let csv = supported_extern_calls_csv();
+        assert!(csv.contains("env.console.log"));
+        assert!(csv.contains("env.console.warn"));
+        assert!(csv.contains("env.console.error"));
+        assert!(csv.contains("env.console.info"));
+        assert!(csv.contains("env.console.debug"));
+    }
+}

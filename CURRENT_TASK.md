@@ -101,7 +101,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin lane active next:
     - `none`（monitor-only）
   - wasm lane active next:
-    - `WSM-02d-min1`（boundary gates）
+    - `WSM-02d-min2`（boundary gates）
   - wasm lane lock（WSM-02b-min1 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`
   - wasm lane lock（WSM-02b-min2 done）:
@@ -118,6 +118,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-127-wsm02c-min3-boxcall-console-warn-ssot.md`
   - wasm lane lock（WSM-02c-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-128-wsm02c-min4-boxcall-console-error-ssot.md`
+  - wasm lane lock（WSM-02d-min1 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-129-wsm02d-min1-boundary-fastfail-tests-ssot.md`
   - wasm grammar/map SSOT:
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
   - wasm migration fixed order（WSM-02+）:
@@ -144,7 +146,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. `WSM-02d-min1..`（boundary gates）: wasm supported/unsupported 境界 fixture と demo-min lock を追加。
+1. `WSM-02d-min2..`（boundary gates）: wasm demo-min fixture lock を追加し、境界テストを gate 化する。
 2. `projects/nyash-wasm` の demo-min を 1 fixture に固定して G2 入口を作る。
 3. wasm lane の gate profile を lightweight / milestone に分けて運用固定する。
 4. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
@@ -308,6 +310,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - De-rust wasm lane lock (WSM-02c-min2): `docs/development/current/main/phases/phase-29cc/29cc-126-wsm02c-min2-boxcall-console-debug-ssot.md`
 - De-rust wasm lane lock (WSM-02c-min3): `docs/development/current/main/phases/phase-29cc/29cc-127-wsm02c-min3-boxcall-console-warn-ssot.md`
 - De-rust wasm lane lock (WSM-02c-min4): `docs/development/current/main/phases/phase-29cc/29cc-128-wsm02c-min4-boxcall-console-error-ssot.md`
+- De-rust wasm lane lock (WSM-02d-min1): `docs/development/current/main/phases/phase-29cc/29cc-129-wsm02d-min1-boundary-fastfail-tests-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Code retirement/history policy: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`

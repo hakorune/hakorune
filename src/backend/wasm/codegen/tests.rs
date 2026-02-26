@@ -1,7 +1,8 @@
 #[cfg(test)]
 mod tests {
     use super::super::{WasmCodegen, WasmModule};
-    use crate::mir::{ConstValue, ValueId};
+    use crate::backend::wasm::WasmError;
+    use crate::mir::{Callee, ConstValue, EffectMask, MirInstruction, ValueId};
 
     #[test]
     fn test_wasm_module_wat_generation() {
@@ -33,5 +34,46 @@ mod tests {
         });
         
         assert!(result.is_err()); // Should fail without local mapping
+    }
+
+    #[test]
+    fn test_unsupported_extern_call_fails_fast_with_supported_list() {
+        let mut codegen = WasmCodegen::new();
+        let result = codegen.generate_instruction(&MirInstruction::Call {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Extern("env.console.trace".to_string())),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+
+        match result {
+            Err(WasmError::UnsupportedInstruction(msg)) => {
+                assert!(msg.contains("Unsupported extern call: env.console.trace"));
+                assert!(msg.contains("supported:"));
+                assert!(msg.contains("env.console.log"));
+                assert!(msg.contains("env.console.debug"));
+            }
+            other => panic!("expected unsupported extern error, got: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_unsupported_boxcall_method_fails_fast_with_supported_list() {
+        let mut codegen = WasmCodegen::new();
+        let result = codegen.generate_box_call(None, ValueId::new(0), "trace", &[]);
+
+        match result {
+            Err(WasmError::UnsupportedInstruction(msg)) => {
+                assert!(msg.contains("Unsupported BoxCall method: trace"));
+                assert!(msg.contains("supported:"));
+                assert!(msg.contains("log"));
+                assert!(msg.contains("info"));
+                assert!(msg.contains("debug"));
+                assert!(msg.contains("warn"));
+                assert!(msg.contains("error"));
+            }
+            other => panic!("expected unsupported boxcall error, got: {:?}", other),
+        }
     }
 }
