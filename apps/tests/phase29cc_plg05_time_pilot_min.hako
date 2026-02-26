@@ -1,0 +1,13 @@
+// Phase 29cc PLG-05-min6 Math plugin pilot fixture (TimeBox route)
+// Contract:
+// - TimeBox can be constructed through plugin config.
+// - now method route works in VM and returns a numeric timestamp.
+
+static box Main {
+  main(args) {
+    local t
+    t = new TimeBox()
+    print("time_now=" + t.now())
+    return 0
+  }
+}

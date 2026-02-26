@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1..min6 done, PLG-04 wave-1 complete, PLG-05-min1..min5 done)
+Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1..min6 done, PLG-04 wave-1 complete, PLG-05-min1..min6 done)
 Scope: Rust -> .hako migration orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
@@ -100,7 +100,7 @@ Related:
   - `docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md`
 - plugin lane `PLG-04-min6` は done（wave-1 FileBox rollout）:
   - `docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md`
-  - active next: `PLG-05-min6`（wave-2 rollout）
+  - active next: `PLG-05-min7`（wave-2 rollout）
 - plugin lane `PLG-05-min1` は done（wave-2 Json entry lock）:
   - `docs/development/current/main/phases/phase-29cc/29cc-106-plg05-json-wave2-min1-ssot.md`
 - plugin lane `PLG-05-min2` は done（wave-2 TOML rollout）:
@@ -111,7 +111,9 @@ Related:
   - `docs/development/current/main/phases/phase-29cc/29cc-109-plg05-encoding-wave2-min4-ssot.md`
 - plugin lane `PLG-05-min5` は done（wave-2 Path rollout）:
   - `docs/development/current/main/phases/phase-29cc/29cc-110-plg05-path-wave2-min5-ssot.md`
-  - active next: `PLG-05-min6`（wave-2 rollout）
+- plugin lane `PLG-05-min6` は done（wave-2 Math rollout）:
+  - `docs/development/current/main/phases/phase-29cc/29cc-111-plg05-math-wave2-min6-ssot.md`
+  - active next: `PLG-05-min7`（wave-2 rollout）
 - post-wave1 route lock（accepted）:
   - `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
   - wasm lane active next: `WSM-01`（non-blocking parallel）
@@ -182,3 +184,4 @@ Related:
 - plugin wave-2 rollout lock (PLG-05-min3): `docs/development/current/main/phases/phase-29cc/29cc-108-plg05-regex-wave2-min3-ssot.md`
 - plugin wave-2 rollout lock (PLG-05-min4): `docs/development/current/main/phases/phase-29cc/29cc-109-plg05-encoding-wave2-min4-ssot.md`
 - plugin wave-2 rollout lock (PLG-05-min5): `docs/development/current/main/phases/phase-29cc/29cc-110-plg05-path-wave2-min5-ssot.md`
+- plugin wave-2 rollout lock (PLG-05-min6): `docs/development/current/main/phases/phase-29cc/29cc-111-plg05-math-wave2-min6-ssot.md`
