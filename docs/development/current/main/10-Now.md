@@ -23,6 +23,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-102-plg04-stringbox-wave1-min4-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md
   - docs/tools/README.md
 ---
 
@@ -76,7 +77,9 @@ Related:
   - plugin lane wave rollout lock（PLG-04-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-102-plg04-stringbox-wave1-min4-ssot.md`（accepted）
   - plugin lane wave rollout lock（PLG-04-min5 done）: `docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md`（accepted）
   - plugin lane wave rollout lock（PLG-04-min6 done）: `docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md`（accepted）
-  - plugin lane active next: `none`（wave-1 complete）
+  - post-wave1 route lock（accepted）: `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
+  - plugin lane active next: `PLG-05-min1`（wave-2 entry lock）
+  - wasm lane active next: `WSM-01`（non-blocking parallel）
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）
   - `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
@@ -152,6 +155,7 @@ Related:
 - De-rust plugin wave rollout lock (PLG-04-min4): `docs/development/current/main/phases/phase-29cc/29cc-102-plg04-stringbox-wave1-min4-ssot.md`
 - De-rust plugin wave rollout lock (PLG-04-min5): `docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md`
 - De-rust plugin wave rollout lock (PLG-04-min6): `docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md`
+- De-rust post-wave1 route lock: `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`
 - Compiler pipeline: `docs/development/current/main/design/compiler-pipeline-ssot.md`

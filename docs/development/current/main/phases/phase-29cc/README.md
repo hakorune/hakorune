@@ -24,6 +24,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-102-plg04-stringbox-wave1-min4-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md
 ---
 
 # Phase 29cc: Rust -> .hako Migration Orchestration
@@ -96,7 +97,10 @@ Related:
   - `docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md`
 - plugin lane `PLG-04-min6` は done（wave-1 FileBox rollout）:
   - `docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md`
-  - active next: `none`（wave-1 complete）
+  - active next: `PLG-05-min1`（wave-2 entry lock）
+- post-wave1 route lock（accepted）:
+  - `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
+  - wasm lane active next: `WSM-01`（non-blocking parallel）
 
 ## M4 Tail Cleanup (retired parser flags)
 
@@ -158,3 +162,4 @@ Related:
 - plugin wave rollout lock (PLG-04-min4): `docs/development/current/main/phases/phase-29cc/29cc-102-plg04-stringbox-wave1-min4-ssot.md`
 - plugin wave rollout lock (PLG-04-min5): `docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md`
 - plugin wave rollout lock (PLG-04-min6): `docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md`
+- post-wave1 route lock: `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
