@@ -134,7 +134,7 @@ Related:
   - active next: `none`（monitor-only）
 - post-wave1 route lock（accepted）:
   - `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
-  - wasm lane active next: `WSM-01`（non-blocking parallel）
+  - wasm lane active next: `WSM-02+`（non-blocking parallel）
 
 ## M4 Tail Cleanup (retired parser flags)
 
@@ -208,3 +208,4 @@ Related:
 - plugin wave-3 rollout lock (PLG-06-min2): `docs/development/current/main/phases/phase-29cc/29cc-114-plg06-python-wave3-min2-ssot.md`
 - plugin wave-3 rollout lock (PLG-06-min3): `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`
 - plugin wave-3 rollout lock (PLG-06-min4): `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`
+- wasm lane lock (WSM-01): `docs/development/current/main/phases/phase-29cc/29cc-117-wsm01-wasm-unsupported-inventory-sync-ssot.md`

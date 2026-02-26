@@ -146,7 +146,7 @@ impl WasmCodegen {
                     "env.canvas.fillText" => "canvas_fillText",
                     _ => {
                         return Err(WasmError::UnsupportedInstruction(format!(
-                            "Unsupported extern call: {}",
+                            "Unsupported extern call: {} (supported: env.console.log, env.canvas.fillRect, env.canvas.fillText)",
                             extern_name
                         )))
                     }

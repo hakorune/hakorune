@@ -19,7 +19,7 @@ impl WasmCodegen {
             "clone" => self.generate_clone_call(dst, box_val),
             "log" => self.generate_log_call(dst, box_val, args),
             _ => Err(WasmError::UnsupportedInstruction(format!(
-                "Unsupported BoxCall method: {}",
+                "Unsupported BoxCall method: {} (supported: toString, print, equals, clone, log)",
                 method
             ))),
         }
