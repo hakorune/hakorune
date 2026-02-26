@@ -134,9 +134,14 @@ impl WasmCodegen {
             }
         }
 
-        // Generate functions
-        for (name, function) in &mir_module.functions {
-            let wasm_function = self.generate_function(name, function.clone())?;
+        // Generate functions in deterministic order to keep WAT output stable.
+        let mut function_names: Vec<String> = mir_module.functions.keys().cloned().collect();
+        function_names.sort();
+        for name in function_names {
+            let function = mir_module.functions.get(&name).ok_or_else(|| {
+                WasmError::CodegenError(format!("Function not found during codegen: {}", name))
+            })?;
+            let wasm_function = self.generate_function(&name, function.clone())?;
             wasm_module.functions.push(wasm_function);
         }
 
@@ -272,8 +277,10 @@ impl WasmCodegen {
     /// Generate data segments for all registered string literals
     fn generate_data_segments(&self) -> Vec<String> {
         let mut segments = Vec::new();
+        let mut ordered: Vec<(&String, &u32)> = self.string_literals.iter().collect();
+        ordered.sort_by(|(sa, oa), (sb, ob)| oa.cmp(ob).then_with(|| sa.cmp(sb)));
 
-        for (string, &offset) in &self.string_literals {
+        for (string, &offset) in ordered {
             let string_bytes = string.as_bytes();
 
             // Convert to hex-escaped string for WAT

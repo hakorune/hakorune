@@ -45,6 +45,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[WSM-G3-min12 実装ロック](../../development/current/main/phases/phase-29cc/29cc-148-wsm-g3-min12-canvas-fillcircle-lock-ssot.md)** - `env.canvas.fillCircle` の contract/import/binding/gate を固定した記録。
 - **[WSM-G3-min13 実装ロック](../../development/current/main/phases/phase-29cc/29cc-149-wsm-g3-min13-canvas-drawline-lock-ssot.md)** - `env.canvas.drawLine` の contract/import/binding/gate を固定した記録。
 - **[WSM-P1-min1 実装ロック](../../development/current/main/phases/phase-29cc/29cc-150-wsm-p1-min1-emit-wat-cli-lock-ssot.md)** - `--emit-wat` CLI 入口を固定した記録。
+- **[WSM-P1-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-151-wsm-p1-min2-wat-parity-lock-ssot.md)** - fixture単位の WAT parity（direct vs `--emit-wat`）を固定した記録。
 
 ## 🚀 クイックスタート
 

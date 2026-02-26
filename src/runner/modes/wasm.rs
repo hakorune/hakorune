@@ -26,7 +26,8 @@ impl NyashRunner {
                 process::exit(1);
             }
         };
-        let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
+        // Keep WASM emit route macro-free for deterministic parity checks against
+        // fixture-level compile_to_wat contracts.
 
         // Compile to MIR
         let mut mir_compiler = MirCompiler::new();

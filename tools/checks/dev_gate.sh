@@ -47,6 +47,7 @@ list_profiles() {
     - phase29cc_wsm02d_demo_min_boundary_vm.sh
     - phase29cc_wsm02d_demo_unsupported_boundary_vm.sh
     - phase29cc_wsm_p1_emit_wat_cli_vm.sh
+    - phase29cc_wsm_p1_parity_wat_vm.sh
   wasm-demo-g2:
     - phase29cc_wsm_g2_min1_bridge_build_vm.sh
     - phase29cc_wsm_g2_browser_run_vm.sh
@@ -126,6 +127,8 @@ run_wasm_boundary_lite() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_unsupported_boundary_vm.sh
   run_step "wasm p1 emit-wat CLI lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p1_emit_wat_cli_vm.sh
+  run_step "wasm p1 fixture WAT parity lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p1_parity_wat_vm.sh
 }
 
 run_wasm_demo_g2() {

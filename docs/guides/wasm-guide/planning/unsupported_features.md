@@ -104,5 +104,5 @@ Still unsupported (fail-fast):
 - Expand BoxCall coverage for core methods used by selfhost fixtures.
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
-- P1 queue:
-  - `WSM-P1-min2`: fixture単位の WAT parity 比較を lock する。
+- P2 queue:
+  - `WSM-P2-min1`: `.hako` 生成 WAT の `wat2wasm` bridge 契約を lock する。
