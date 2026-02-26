@@ -120,6 +120,24 @@ impl RuntimeImports {
             result: None,
         });
 
+        // env.canvas_strokeRect for canvas.strokeRect(canvas_id, x, y, w, h, color)
+        // Parameters: (canvas_id_ptr, canvas_id_len, x, y, w, h, color_ptr, color_len)
+        self.imports.push(ImportFunction {
+            module: "env".to_string(),
+            name: "canvas_strokeRect".to_string(),
+            params: vec![
+                "i32".to_string(),
+                "i32".to_string(), // canvas_id (ptr, len)
+                "i32".to_string(),
+                "i32".to_string(),
+                "i32".to_string(),
+                "i32".to_string(), // x, y, w, h
+                "i32".to_string(),
+                "i32".to_string(), // color (ptr, len)
+            ],
+            result: None,
+        });
+
         // Phase 9.77: BoxCall runtime functions
 
         // box_to_string - Convert any Box to string representation
@@ -314,6 +332,19 @@ impl RuntimeImports {
                         js.push_str("      }\n");
                         js.push_str("    },\n");
                     }
+                    "canvas_strokeRect" => {
+                        js.push_str("    canvas_strokeRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {\n");
+                        js.push_str("      const memory = instance.exports.memory;\n");
+                        js.push_str("      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n");
+                        js.push_str("      const color = new TextDecoder().decode(new Uint8Array(memory.buffer, colorPtr, colorLen));\n");
+                        js.push_str("      const canvas = document.getElementById(canvasId);\n");
+                        js.push_str("      if (canvas) {\n");
+                        js.push_str("        const ctx = canvas.getContext('2d');\n");
+                        js.push_str("        ctx.strokeStyle = color;\n");
+                        js.push_str("        ctx.strokeRect(x, y, w, h);\n");
+                        js.push_str("      }\n");
+                        js.push_str("    },\n");
+                    }
                     _ => {
                         js.push_str(&format!(
                             "    {}: () => {{ throw new Error('Not implemented: {}'); }},\n",
@@ -381,6 +412,7 @@ mod tests {
         assert!(runtime.has_import("console_info"));
         assert!(runtime.has_import("console_debug"));
         assert!(runtime.has_import("canvas_clear"));
+        assert!(runtime.has_import("canvas_strokeRect"));
     }
 
     #[test]
@@ -425,7 +457,18 @@ mod tests {
         assert!(js.contains("console.info"));
         assert!(js.contains("console.debug"));
         assert!(js.contains("canvas_clear"));
+        assert!(js.contains("canvas_strokeRect"));
         assert!(js.contains("clearRect"));
+        assert!(js.contains("strokeRect"));
+    }
+
+    #[test]
+    fn runtime_imports_canvas_stroke_rect_js_binding() {
+        let runtime = RuntimeImports::new();
+        let js = runtime.get_js_import_object();
+        assert!(js.contains("canvas_strokeRect"));
+        assert!(js.contains("strokeStyle"));
+        assert!(js.contains("strokeRect"));
     }
 
     #[test]

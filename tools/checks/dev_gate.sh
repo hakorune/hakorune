@@ -52,6 +52,7 @@ list_profiles() {
   wasm-demo-g3:
     - wasm-demo-g2
     - phase29cc_wsm_g3_canvas_clear_contract_vm.sh
+    - phase29cc_wsm_g3_canvas_strokerect_contract_vm.sh
   portability:
     - tools/checks/windows_wsl_cmd_smoke.sh (preflight by default)
     - tools/checks/macos_portability_guard.sh
@@ -122,6 +123,8 @@ run_wasm_demo_g3() {
   run_wasm_demo_g2
   run_step "wasm g3 canvas.clear contract lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_clear_contract_vm.sh
+  run_step "wasm g3 canvas.strokeRect contract lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_strokerect_contract_vm.sh
 }
 
 run_portability() {

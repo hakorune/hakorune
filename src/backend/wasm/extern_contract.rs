@@ -1,6 +1,6 @@
 /// Canonical extern-call contract shared by WASM codegen and runtime imports.
 /// Keep this list as single source of truth for supported extern call names.
-pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 8] = [
+pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 9] = [
     ("env.console.log", "console_log"),
     ("env.console.warn", "console_warn"),
     ("env.console.error", "console_error"),
@@ -9,6 +9,7 @@ pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 8] = [
     ("env.canvas.fillRect", "canvas_fillRect"),
     ("env.canvas.fillText", "canvas_fillText"),
     ("env.canvas.clear", "canvas_clear"),
+    ("env.canvas.strokeRect", "canvas_strokeRect"),
 ];
 
 pub(crate) fn extern_import_name(extern_name: &str) -> Option<&'static str> {
@@ -35,12 +36,16 @@ mod tests {
         assert_eq!(extern_import_name("env.console.debug"), Some("console_debug"));
         assert_eq!(extern_import_name("env.canvas.fillRect"), Some("canvas_fillRect"));
         assert_eq!(extern_import_name("env.canvas.clear"), Some("canvas_clear"));
+        assert_eq!(
+            extern_import_name("env.canvas.strokeRect"),
+            Some("canvas_strokeRect")
+        );
     }
 
     #[test]
     fn extern_contract_unsupported_name_is_none() {
         assert_eq!(extern_import_name("env.console.trace"), None);
-        assert_eq!(extern_import_name("env.canvas.strokeRect"), None);
+        assert_eq!(extern_import_name("env.canvas.beginPath"), None);
     }
 
     #[test]
@@ -52,5 +57,14 @@ mod tests {
         assert!(csv.contains("env.console.info"));
         assert!(csv.contains("env.console.debug"));
         assert!(csv.contains("env.canvas.clear"));
+        assert!(csv.contains("env.canvas.strokeRect"));
+    }
+
+    #[test]
+    fn extern_contract_canvas_stroke_rect_supported() {
+        assert_eq!(
+            extern_import_name("env.canvas.strokeRect"),
+            Some("canvas_strokeRect")
+        );
     }
 }
