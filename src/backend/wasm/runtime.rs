@@ -173,6 +173,15 @@ impl RuntimeImports {
             result: None,
         });
 
+        // env.canvas_stroke for canvas.stroke(canvas_id)
+        // Parameters: (canvas_id_ptr, canvas_id_len)
+        self.imports.push(ImportFunction {
+            module: "env".to_string(),
+            name: "canvas_stroke".to_string(),
+            params: vec!["i32".to_string(), "i32".to_string()],
+            result: None,
+        });
+
         // Phase 9.77: BoxCall runtime functions
 
         // box_to_string - Convert any Box to string representation
@@ -351,6 +360,7 @@ fn js_binding_for_import(name: &str) -> Option<String> {
         "canvas_beginPath" => Some(js_canvas_begin_path_binding()),
         "canvas_arc" => Some(js_canvas_arc_binding()),
         "canvas_fill" => Some(js_canvas_fill_binding()),
+        "canvas_stroke" => Some(js_canvas_stroke_binding()),
         _ => None,
     }
 }
@@ -389,6 +399,10 @@ fn js_canvas_fill_binding() -> String {
     "    canvas_fill: (canvasIdPtr, canvasIdLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.fill();\n      }\n    },\n".to_string()
 }
 
+fn js_canvas_stroke_binding() -> String {
+    "    canvas_stroke: (canvasIdPtr, canvasIdLen) => {\n      const memory = instance.exports.memory;\n      const canvasId = new TextDecoder().decode(new Uint8Array(memory.buffer, canvasIdPtr, canvasIdLen));\n      const canvas = document.getElementById(canvasId);\n      if (canvas) {\n        const ctx = canvas.getContext('2d');\n        ctx.stroke();\n      }\n    },\n".to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -407,6 +421,7 @@ mod tests {
         assert!(runtime.has_import("canvas_beginPath"));
         assert!(runtime.has_import("canvas_arc"));
         assert!(runtime.has_import("canvas_fill"));
+        assert!(runtime.has_import("canvas_stroke"));
     }
 
     #[test]
@@ -455,11 +470,13 @@ mod tests {
         assert!(js.contains("canvas_beginPath"));
         assert!(js.contains("canvas_arc"));
         assert!(js.contains("canvas_fill"));
+        assert!(js.contains("canvas_stroke"));
         assert!(js.contains("clearRect"));
         assert!(js.contains("strokeRect"));
         assert!(js.contains("beginPath"));
         assert!(js.contains("arc("));
         assert!(js.contains("ctx.fill"));
+        assert!(js.contains("ctx.stroke"));
     }
 
     #[test]
@@ -493,6 +510,14 @@ mod tests {
         let js = runtime.get_js_import_object();
         assert!(js.contains("canvas_fill"));
         assert!(js.contains("ctx.fill"));
+    }
+
+    #[test]
+    fn runtime_imports_canvas_stroke_js_binding() {
+        let runtime = RuntimeImports::new();
+        let js = runtime.get_js_import_object();
+        assert!(js.contains("canvas_stroke"));
+        assert!(js.contains("ctx.stroke"));
     }
 
     #[test]
