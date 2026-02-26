@@ -109,6 +109,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `WSM-02b`: ExternCall coverage expansion（1 extern familyずつ）
     - `WSM-02c`: BoxCall coverage expansion（1 method familyずつ）
     - `WSM-02d`: boundary gates（supported/unsupported 両境界固定）
+  - wasm demo goal pointer:
+    - `docs/development/current/main/phases/phase-29cc/29cc-120-wasm-demo-goal-contract-ssot.md`
   - execution checklist（progress SSOT）: `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`
   - worker playbook: `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
   - non-plugin residue task-set: `docs/development/current/main/phases/phase-29cc/29cc-92-non-plugin-rust-residue-task-set.md`
@@ -286,6 +288,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - De-rust wasm lane lock (WSM-01): `docs/development/current/main/phases/phase-29cc/29cc-117-wsm01-wasm-unsupported-inventory-sync-ssot.md`
 - De-rust wasm grammar/map lock: `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
 - De-rust wasm lane lock (WSM-02a): `docs/development/current/main/phases/phase-29cc/29cc-119-wsm02a-assignment-local-unblock-ssot.md`
+- De-rust wasm demo-goal lock: `docs/development/current/main/phases/phase-29cc/29cc-120-wasm-demo-goal-contract-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Code retirement/history policy: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`
