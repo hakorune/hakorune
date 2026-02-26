@@ -179,3 +179,19 @@ fn wasm_demo_min_const_return_binary_writer_parity_contract() {
         "binary-writer pilot parity mismatch for const-return fixture"
     );
 }
+
+#[test]
+fn wasm_demo_min_const_return_neg1_binary_writer_parity_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_p4_min_const_return_neg1.hako";
+    let emitted = compile_fixture_to_wasm_direct(fixture_rel);
+
+    let backend = WasmBackend::new();
+    let baseline = backend
+        .build_minimal_i32_const_wasm(-1)
+        .expect("baseline writer must succeed");
+
+    assert_eq!(
+        emitted, baseline,
+        "binary-writer pilot parity mismatch for const-return(-1) fixture"
+    );
+}

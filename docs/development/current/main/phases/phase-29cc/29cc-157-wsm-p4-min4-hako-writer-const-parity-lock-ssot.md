@@ -41,4 +41,4 @@ P4-min3 で固定した entry/parity 契約に対して、最小 fixture 1件で
 3. P4-min4 は pilot lock。一般 shape への拡張は次段で個別固定する。
 
 ## Next
-- `WSM-P4-min5`: binary writer pilot shape を 1形追加（例: const 0 / const negative）し、shape table + parity gate を更新する。
+- `WSM-P4-min6`: pilot shape 判定を shape table（箱化）へ整理し、parity gate を table 経由で lock する。

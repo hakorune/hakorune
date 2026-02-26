@@ -105,4 +105,4 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - P4 queue:
-  - `WSM-P4-min5`: binary writer pilot shape を 1形追加し、shape table + parity gate を lock する。
+  - `WSM-P4-min6`: pilot shape 判定を shape table（箱化）へ整理し、parity gate を table 経由で lock する。

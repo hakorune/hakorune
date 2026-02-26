@@ -16,6 +16,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-155-wsm-p4-min2-binary-writer-skeleton-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-156-wsm-p4-min3-hako-writer-entry-parity-doc-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-157-wsm-p4-min4-hako-writer-const-parity-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-158-wsm-p4-min5-neg-const-parity-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -59,6 +60,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - skeleton lock（done）: `29cc-155`（`phase29cc_wsm_p4_min2_binary_writer_lock_vm.sh`）。
    - `.hako` entry/parity docs lock（done）: `29cc-156`（`phase29cc_wsm_p4_min3_hako_writer_docs_lock_vm.sh`）。
    - const-return parity lock（done）: `29cc-157`（`phase29cc_wsm_p4_min4_hako_writer_const_parity_vm.sh`）。
+   - negative const parity lock（done）: `29cc-158`（`phase29cc_wsm_p4_min5_hako_writer_neg_const_parity_vm.sh`）。
 6. **P5 Default Cutover**
    - 既定経路を `.hako` emitter/binary writer に切替。Rust backend は `--legacy-wasm-rust` 相当の互換 lane に縮退。
    - 連続マイルストーンで緑を確認後、互換 lane を retire 判定。

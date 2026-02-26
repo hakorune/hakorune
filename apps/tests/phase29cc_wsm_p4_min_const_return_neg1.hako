@@ -1,0 +1,9 @@
+// Phase 29cc WSM-P4-min5 const-return(-1) fixture
+// Contract:
+// - Signed LEB128 boundary parity lock for binary-writer pilot.
+
+static box Main {
+  main() {
+    return -1
+  }
+}

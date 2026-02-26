@@ -121,40 +121,48 @@ pub(super) fn build_unary_op(
     operator: String,
     operand: ASTNode,
 ) -> Result<ValueId, String> {
+    let return_type = match operator.as_str() {
+        "-" | "~" => MirType::Integer,
+        "!" | "not" => MirType::Bool,
+        _ => return Err(format!("Unsupported unary operator: {}", operator)),
+    };
+    if operator == "-" {
+        if let ASTNode::Literal {
+            value: crate::ast::LiteralValue::Integer(n),
+            ..
+        } = &operand
+        {
+            if let Some(negated) = n.checked_neg() {
+                let dst = crate::mir::builder::emission::constant::emit_integer(builder, negated)?;
+                builder.type_ctx.value_types.insert(dst, MirType::Integer);
+                return Ok(dst);
+            }
+        }
+    }
     let operand_val = builder.build_expression(operand)?;
     let all_call = crate::config::env::builder_operator_box_all_call();
     if all_call {
-        let (name, guard_prefix, rett) = match operator.as_str() {
-            "-" => (
-                "NegOperator.apply/1",
-                "NegOperator.apply/",
-                MirType::Integer,
-            ),
-            "!" | "not" => ("NotOperator.apply/1", "NotOperator.apply/", MirType::Bool),
-            "~" => (
-                "BitNotOperator.apply/1",
-                "BitNotOperator.apply/",
-                MirType::Integer,
-            ),
-            _ => ("", "", MirType::Integer),
+        let (name, guard_prefix) = match operator.as_str() {
+            "-" => ("NegOperator.apply/1", "NegOperator.apply/"),
+            "!" | "not" => ("NotOperator.apply/1", "NotOperator.apply/"),
+            "~" => ("BitNotOperator.apply/1", "BitNotOperator.apply/"),
+            _ => unreachable!("validated by return_type"),
         };
-        if !name.is_empty() {
-            let in_guard = builder
-                .scope_ctx
-                .current_function
-                .as_ref()
-                .map(|f| f.signature.name.starts_with(guard_prefix))
-                .unwrap_or(false);
-            let dst = builder.next_value_id();
-            if !in_guard {
-                builder.emit_legacy_call(
-                    Some(dst),
-                    super::super::builder_calls::CallTarget::Global(name.to_string()),
-                    vec![operand_val],
-                )?;
-                builder.type_ctx.value_types.insert(dst, rett);
-                return Ok(dst);
-            }
+        let in_guard = builder
+            .scope_ctx
+            .current_function
+            .as_ref()
+            .map(|f| f.signature.name.starts_with(guard_prefix))
+            .unwrap_or(false);
+        let dst = builder.next_value_id();
+        if !in_guard {
+            builder.emit_legacy_call(
+                Some(dst),
+                super::super::builder_calls::CallTarget::Global(name.to_string()),
+                vec![operand_val],
+            )?;
+            builder.type_ctx.value_types.insert(dst, return_type.clone());
+            return Ok(dst);
         }
     }
     // Core-13 純化: UnaryOp を直接 展開（Neg/Not/BitNot）
@@ -169,6 +177,7 @@ pub(super) fn build_unary_op(
                     lhs: zero,
                     rhs: operand_val,
                 })?;
+                builder.type_ctx.value_types.insert(dst, return_type.clone());
                 return Ok(dst);
             }
             "!" | "not" => {
@@ -181,6 +190,7 @@ pub(super) fn build_unary_op(
                     operand_val,
                     f,
                 )?;
+                builder.type_ctx.value_types.insert(dst, return_type.clone());
                 return Ok(dst);
             }
             "~" => {
@@ -192,6 +202,7 @@ pub(super) fn build_unary_op(
                     lhs: operand_val,
                     rhs: all1,
                 })?;
+                builder.type_ctx.value_types.insert(dst, return_type.clone());
                 return Ok(dst);
             }
             _ => {}
@@ -204,5 +215,6 @@ pub(super) fn build_unary_op(
         op: mir_op,
         operand: operand_val,
     })?;
+    builder.type_ctx.value_types.insert(dst, return_type);
     Ok(dst)
 }

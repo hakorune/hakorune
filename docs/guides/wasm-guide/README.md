@@ -52,6 +52,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[WSM-P4-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-155-wsm-p4-min2-binary-writer-skeleton-lock-ssot.md)** - wasm binary writer skeleton（magic/version + section/LEB128 + main export）を unit/smoke で固定した記録。
 - **[WSM-P4-min3 設計ロック](../../development/current/main/phases/phase-29cc/29cc-156-wsm-p4-min3-hako-writer-entry-parity-doc-lock-ssot.md)** - `.hako` writer 入口（最小 fixture）と bytes parity gate の契約を docs-first で固定した記録。
 - **[WSM-P4-min4 実装ロック](../../development/current/main/phases/phase-29cc/29cc-157-wsm-p4-min4-hako-writer-const-parity-lock-ssot.md)** - const-return fixture 1件の binary-writer parity pilot を固定した記録。
+- **[WSM-P4-min5 実装ロック](../../development/current/main/phases/phase-29cc/29cc-158-wsm-p4-min5-neg-const-parity-lock-ssot.md)** - `return -1` 形（signed LEB128 境界）の parity を固定した記録。
 
 ## 🚀 クイックスタート
 
