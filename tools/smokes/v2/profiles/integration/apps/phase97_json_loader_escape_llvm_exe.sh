@@ -26,7 +26,7 @@ OUTPUT_EXE="$NYASH_ROOT/tmp/phase97_json_loader_escape_llvm_exe"
 echo "[INFO] Building: $INPUT_HAKO → $OUTPUT_EXE"
 
 BUILD_LOG="/tmp/phase97_json_loader_escape_build.log"
-if ! env NYASH_DISABLE_PLUGINS=0 "$NYASH_ROOT/tools/build_llvm.sh" "$INPUT_HAKO" -o "$OUTPUT_EXE" 2>&1 | tee "$BUILD_LOG"; then
+if ! llvm_exe_with_build_lock env NYASH_DISABLE_PLUGINS=0 "$NYASH_ROOT/tools/build_llvm.sh" "$INPUT_HAKO" -o "$OUTPUT_EXE" 2>&1 | tee "$BUILD_LOG"; then
     echo "[FAIL] build_llvm.sh failed"
     tail -n 80 "$BUILD_LOG"
     exit 1

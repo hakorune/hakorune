@@ -22,6 +22,7 @@ set +e
 OUTPUT=$(timeout "$RUN_TIMEOUT_SECS" env \
   NYASH_DISABLE_PLUGINS=1 \
   HAKO_JOINIR_STRICT=1 \
+  NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
   "$NYASH_BIN" --backend vm "$INPUT" 2>&1)
 EXIT_CODE=$?
 set -e
@@ -57,4 +58,3 @@ else
   test_fail "phase102_realapp_read_quoted_vm: $FAIL_COUNT test(s) failed"
   exit 1
 fi
-

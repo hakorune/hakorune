@@ -120,6 +120,36 @@ llvm_exe_cargo_target_dir() {
   echo "$target_dir"
 }
 
+llvm_exe_lock_file() {
+  echo "${LLVM_EXE_LOCK_FILE:-$NYASH_ROOT/target/.llvm_exe_build.lock}"
+}
+
+llvm_exe_with_build_lock() {
+  if ! command -v flock >/dev/null 2>&1; then
+    "$@"
+    return $?
+  fi
+
+  local lock_file
+  lock_file="$(llvm_exe_lock_file)"
+  mkdir -p "$(dirname "$lock_file")"
+
+  local timeout_secs="${LLVM_EXE_LOCK_TIMEOUT_SECS:-120}"
+  local fd
+  exec {fd}> "$lock_file"
+  if ! flock -w "$timeout_secs" "$fd"; then
+    echo "[FAIL] LLVM EXE build lock timeout: $lock_file (${timeout_secs}s)"
+    eval "exec ${fd}>&-"
+    return 1
+  fi
+
+  "$@"
+  local cmd_rc=$?
+  flock -u "$fd"
+  eval "exec ${fd}>&-"
+  return "$cmd_rc"
+}
+
 llvm_exe_preflight_or_skip() {
   if ! command -v llvm-config-18 &>/dev/null; then
     test_skip "llvm-config-18 not found"
@@ -253,7 +283,7 @@ llvm_exe_build_and_run_numeric_smoke() {
   mkdir -p "$(dirname "$obj_out")"
 
   local build_log="${LLVM_BUILD_LOG:-/tmp/llvm_exe_build.log}"
-  if ! env CARGO_TARGET_DIR="$cargo_target_dir" NYASH_BIN="$nyash_bin" NYASH_LLVM_OBJ_OUT="$obj_out" NYASH_DISABLE_PLUGINS=0 \
+  if ! llvm_exe_with_build_lock env CARGO_TARGET_DIR="$cargo_target_dir" NYASH_BIN="$nyash_bin" NYASH_LLVM_OBJ_OUT="$obj_out" NYASH_DISABLE_PLUGINS=0 \
     "$NYASH_ROOT/tools/build_llvm.sh" "$INPUT_HAKO" -o "$OUTPUT_EXE" 2>&1 | tee "$build_log"; then
     echo "[FAIL] build_llvm.sh failed"
     tail -n 80 "$build_log"
@@ -323,7 +353,7 @@ llvm_exe_build_and_run_expect_exit_code() {
   mkdir -p "$(dirname "$obj_out")"
 
   local build_log="${LLVM_BUILD_LOG:-/tmp/llvm_exe_build.log}"
-  if ! env CARGO_TARGET_DIR="$cargo_target_dir" NYASH_BIN="$nyash_bin" NYASH_LLVM_OBJ_OUT="$obj_out" NYASH_DISABLE_PLUGINS=0 \
+  if ! llvm_exe_with_build_lock env CARGO_TARGET_DIR="$cargo_target_dir" NYASH_BIN="$nyash_bin" NYASH_LLVM_OBJ_OUT="$obj_out" NYASH_DISABLE_PLUGINS=0 \
     "$NYASH_ROOT/tools/build_llvm.sh" "$INPUT_HAKO" -o "$OUTPUT_EXE" 2>&1 | tee "$build_log"; then
     echo "[FAIL] build_llvm.sh failed"
     tail -n 80 "$build_log"
