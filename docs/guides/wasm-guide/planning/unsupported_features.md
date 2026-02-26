@@ -1,4 +1,4 @@
-# WASM Backend Unsupported Inventory (WSM-01)
+# WASM Backend Unsupported Inventory (WSM-02a)
 
 ## Last Updated
 - 2026-02-26
@@ -33,11 +33,24 @@ Supported methods in `builtins.rs`:
 Unsupported methods fail-fast with:
 - `Unsupported BoxCall method: <name> (supported: ...)`
 
-### 3. Executor status
+### 3. Core instruction support (partial)
+Supported core instructions in `instructions.rs` include:
+- `Const`, `BinOp`, `Compare`, `Return`
+- `Jump`, `Branch`
+- `Copy`
+- `ReleaseStrong` (no-op lowering)
+- `KeepAlive` (no-op lowering)
+
+Still unsupported (fail-fast):
+- `Load`
+- `Store`
+- other MIR instructions not explicitly matched
+
+### 4. Executor status
 - `src/backend/wasm/executor.rs` is not currently active in mainline.
 - `src/backend/wasm/mod.rs` exports compiler/codegen/runtime only.
 
-## WSM-01 Decision (accepted)
+## WSM-01 + WSM-02a Decision (accepted)
 - Do not add broad fallback behavior.
 - Keep unsupported paths fail-fast with explicit supported-list diagnostics.
 - Keep this inventory synchronized to actual source files.
@@ -45,4 +58,5 @@ Unsupported methods fail-fast with:
 ## Next Candidates (WSM-02+)
 - Expand extern-call coverage beyond current 3 names.
 - Expand BoxCall coverage for core methods used by selfhost fixtures.
+- Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.

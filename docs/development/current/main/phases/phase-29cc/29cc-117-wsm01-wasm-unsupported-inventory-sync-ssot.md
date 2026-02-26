@@ -54,4 +54,4 @@ Out of scope:
 Decision: accepted
 
 - `WSM-01`（inventory sync + fail-fast diagnostics）は完了。
-- wasm lane active next は `WSM-02a`（assignment/local path unblock）。
+- wasm lane active next は `WSM-02b`（ExternCall coverage expansion）。

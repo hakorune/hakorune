@@ -134,7 +134,7 @@ Related:
   - active next: `none`（monitor-only）
 - post-wave1 route lock（accepted）:
   - `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
-  - wasm lane active next: `WSM-02a`（assignment/local path unblock）
+  - wasm lane active next: `WSM-02b`（ExternCall coverage expansion）
 
 ## M4 Tail Cleanup (retired parser flags)
 
@@ -210,3 +210,4 @@ Related:
 - plugin wave-3 rollout lock (PLG-06-min4): `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`
 - wasm lane lock (WSM-01): `docs/development/current/main/phases/phase-29cc/29cc-117-wsm01-wasm-unsupported-inventory-sync-ssot.md`
 - wasm grammar/map lock: `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
+- wasm lane lock (WSM-02a): `docs/development/current/main/phases/phase-29cc/29cc-119-wsm02a-assignment-local-unblock-ssot.md`

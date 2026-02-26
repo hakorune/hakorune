@@ -65,4 +65,4 @@ When WASM/runtime touched:
 ## 4. Active Next
 
 - plugin lane active next: `none`（monitor-only）
-- wasm lane active next: `WSM-02a`（assignment/local path unblock）
+- wasm lane active next: `WSM-02b`（ExternCall coverage expansion）

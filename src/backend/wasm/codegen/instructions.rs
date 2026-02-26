@@ -107,6 +107,18 @@ impl WasmCodegen {
                 Ok(Vec::new())
             }
 
+            // WSM-02a: SSA/local path unblock
+            MirInstruction::Copy { dst, src } => Ok(vec![
+                format!("local.get ${}", self.get_local_index(*src)?),
+                format!("local.set ${}", self.get_local_index(*dst)?),
+            ]),
+
+            MirInstruction::ReleaseStrong { .. } | MirInstruction::KeepAlive { .. } => {
+                // Current WASM backend does not model runtime RC/GC semantics yet.
+                // Keep fail-fast for unsupported mutating ops, but treat release/liveness hints as no-op.
+                Ok(Vec::new())
+            }
+
             // Control Flow Instructions (Critical for loops and conditions)
             MirInstruction::Jump { target, .. } => {
                 // Unconditional jump to target basic block
