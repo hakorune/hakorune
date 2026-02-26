@@ -262,6 +262,14 @@ static box Main {
                 output.textContent = '🎉 Nyash WASM initialized successfully!\\n' + 
                                    nyash.version() + '\\n\\n' +
                                    'Ready to execute Nyash code...\\n';
+
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('autorun') === '1') {
+                    setTimeout(() => {
+                        window.runNyash();
+                        output.textContent += '[autorun] done\\n';
+                    }, 0);
+                }
                 
             } catch (error) {
                 document.getElementById('loading').innerHTML = 

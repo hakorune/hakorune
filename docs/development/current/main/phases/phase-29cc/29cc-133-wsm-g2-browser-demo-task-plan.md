@@ -1,5 +1,5 @@
 ---
-Status: Active (WSM-G2-min1 done, WSM-G2-min2 next)
+Status: Active (WSM-G2-min1/min2 done, WSM-G2-min3 next)
 Decision: pending
 Date: 2026-02-26
 Scope: wasm lane G2 "browser demo-run minimal" のタスクを docs-first で固定する。
@@ -24,12 +24,12 @@ WSM lane が `projects/nyash-wasm` を G2 (browser demo minimum) で再到達す
    - コンパイル側は 29cc-130 で追加した demo-min fixture と `tests/wasm_demo_min_fixture.rs`、`tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_min_boundary_vm.sh` で現状固定済み。ここではその出力が `nyash_playground` の `console.log/warn/error/info/debug` 呼び出しと一致することを docs に拾う。
    - Acceptance: `projects/nyash-wasm/build.sh`（もしくは今後の `--compile-wasm` 書式）で wasm を再ビルドし、ローカル HTTP サーバーで `nyash_playground.html` を開いて Run ボタンをクリックしたときにログが 1行ずつ流れる手順を書く。これにより「ブラウザ run loop の最小仕様」が決まる。
 
-2. **G2 run automation (WSM-G2-min2, active next)**
+2. **G2 run automation (WSM-G2-min2, done)**
    - ブラウザ run loop を headless で再現する smoke を追加（例: `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh`）し、`tools/checks/dev_gate.sh wasm-demo-g2` エントリで milestone 確認を入れる。
    - スモークは `projects/nyash-wasm/build.sh` で wasm を産み、`python3 -m http.server` などで静的サーバーを立て、`node`/`puppeteer`/`playwright` などの軽量 headless で `nyash_playground.html` を開いて Run → コンソール出力を期待値（`wsm02d_demo_min_*`）と比較する構成の手順を docs でまとめる。
    - Refer to bootstrap scripts such as `phase29cc_wsm02d_demo_min_boundary_vm.sh` for instrumentation (logging markers, strict failure on missing markers) so the cc gate remains deterministic.
 
-3. **WSM guide alignment (docs for contributors)**
+3. **WSM guide alignment (WSM-G2-min3, active next)**
    - `docs/guides/wasm-guide/wasm_quick_start.md` および `docs/guides/wasm-guide/README.md` の G2/Run セクションに、「`projects/nyash-wasm` を再building・Run する手順」「Headless smoke のコマンド」「Acceptance gate を通ること」の 3点を追記し、`29cc-133` を新しい SSOT pointer として紹介する。
    - `docs/guides/wasm-guide/planning/unsupported_features.md` にも、G2 で fail-fast させるべき追加 boundary（`ConsoleBox.group` など）を追記して `phase29cc_wsm02d_demo_unsupported_boundary_vm.sh` の目的を明示する。
 

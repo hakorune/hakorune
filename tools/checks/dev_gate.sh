@@ -5,7 +5,7 @@ set -euo pipefail
 # Purpose: single-entry developer gate with tiered profiles.
 #
 # Usage:
-#   tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|portability|milestone|milestone-runtime|milestone-perf]
+#   tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|portability|milestone|milestone-runtime|milestone-perf]
 #   tools/checks/dev_gate.sh --list
 #
 # Profiles:
@@ -23,7 +23,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 usage() {
   cat <<'USAGE'
 Usage:
-  tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|portability|milestone|milestone-runtime|milestone-perf]
+  tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|portability|milestone|milestone-runtime|milestone-perf]
   tools/checks/dev_gate.sh --list
 USAGE
 }
@@ -46,6 +46,9 @@ list_profiles() {
     - cargo test --features wasm-backend test_unsupported_boxcall_method_fails_fast_with_supported_list -- --nocapture
     - phase29cc_wsm02d_demo_min_boundary_vm.sh
     - phase29cc_wsm02d_demo_unsupported_boundary_vm.sh
+  wasm-demo-g2:
+    - phase29cc_wsm_g2_min1_bridge_build_vm.sh
+    - phase29cc_wsm_g2_browser_run_vm.sh
   portability:
     - tools/checks/windows_wsl_cmd_smoke.sh (preflight by default)
     - tools/checks/macos_portability_guard.sh
@@ -105,6 +108,13 @@ run_wasm_boundary_lite() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_unsupported_boundary_vm.sh
 }
 
+run_wasm_demo_g2() {
+  run_step "wasm g2 min1 bridge build baseline" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh
+  run_step "wasm g2 min2 headless run baseline" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh
+}
+
 run_portability() {
   run_step "windows WSL/CMD smoke (preflight)" \
     bash tools/checks/windows_wsl_cmd_smoke.sh
@@ -153,6 +163,9 @@ case "${PROFILE}" in
     ;;
   wasm-boundary-lite)
     run_wasm_boundary_lite
+    ;;
+  wasm-demo-g2)
+    run_wasm_demo_g2
     ;;
   portability)
     run_portability

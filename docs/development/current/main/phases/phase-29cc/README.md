@@ -158,10 +158,12 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md`
   - wasm lane lock（WSM-02d-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
-  - wasm lane active next: `WSM-G2-min2`（browser run automation smoke）
+  - wasm lane active next: `WSM-G2-min3`（WASM guide alignment）
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest lock（WSM-G2-min1 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
+  - wasm latest lock（WSM-G2-min2 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
 
 ## M4 Tail Cleanup (retired parser flags)
 
