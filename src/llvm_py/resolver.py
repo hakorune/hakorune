@@ -203,6 +203,39 @@ class Resolver:
         # Non-STRICT: fallback to 0
         return ir.Constant(ir.IntType(64), 0)
 
+    def resolve_same_block_then_snapshot_i64(
+        self,
+        value_id: int,
+        current_block: ir.Block,
+        preds: Dict[int, list],
+        block_end_values: Dict[int, Dict[int, Any]],
+        vmap: Dict[int, Any],
+        bb_map: Optional[Dict[int, ir.Block]] = None,
+        fallback_zero: bool = True,
+    ) -> Optional[ir.Value]:
+        """Resolve i64 with same-block vmap priority, then snapshot fallback.
+
+        This is the SSOT lookup order for instructions (e.g. select) that can
+        consume values produced earlier in the same basic block.
+        """
+        direct = vmap.get(value_id)
+        if direct is not None:
+            return direct
+
+        try:
+            block_id = int(str(current_block.name).replace("bb", ""))
+        except Exception:
+            block_id = 0
+
+        resolved = self._value_at_end_i64(
+            value_id, block_id, preds, block_end_values, vmap, bb_map
+        )
+        if resolved is not None:
+            return resolved
+        if fallback_zero:
+            return ir.Constant(self.i64, 0)
+        return None
+
     def resolve_incoming(self, pred_block_id: int, value_id: int, context=None) -> ir.Value:
         """P0-2: PHI incoming resolution (snapshot-only reference)
         Phase 132-P1: Use context Box for function-local state isolation

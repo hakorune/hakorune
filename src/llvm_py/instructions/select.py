@@ -45,19 +45,28 @@ def lower_select(
     trace_debug(f"[select] lowering: dst={dst_vid}, cond={cond_vid}, then={then_val_vid}, else={else_val_vid}")
 
     def _resolve_vid(vid: int, label: str):
-        # Same-block values (fresh compare/binop/select results) live in current vmap.
-        # Snapshot-only lookup misses these and can collapse ternary to constants.
-        val = vmap_ctx.get(vid)
-        if val is not None:
-            return val
-        val = resolver._value_at_end_i64(
-            vid,
-            int(str(builder.block.name).replace('bb', '')),
-            preds,
-            block_end_values,
-            vmap_ctx,
-            bb_map,
-        )
+        if hasattr(resolver, "resolve_same_block_then_snapshot_i64"):
+            val = resolver.resolve_same_block_then_snapshot_i64(
+                vid,
+                builder.block,
+                preds,
+                block_end_values,
+                vmap_ctx,
+                bb_map,
+                fallback_zero=False,
+            )
+        else:
+            # Backward-compatible path for resolver stubs in isolated tests.
+            val = vmap_ctx.get(vid)
+            if val is None:
+                val = resolver._value_at_end_i64(
+                    vid,
+                    int(str(builder.block.name).replace('bb', '')),
+                    preds,
+                    block_end_values,
+                    vmap_ctx,
+                    bb_map,
+                )
         if val is None:
             trace_debug(f"[select] {label} fallback to 0")
             return ir.Constant(ir.IntType(64), 0)
