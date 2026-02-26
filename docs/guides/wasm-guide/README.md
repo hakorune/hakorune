@@ -33,6 +33,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[WSM-G3-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-138-wsm-g3-min2-canvas-clear-lock-ssot.md)** - `env.canvas.clear` の contract/import/binding/gate を固定した記録。
 - **[WSM-G3-min3 実装ロック](../../development/current/main/phases/phase-29cc/29cc-139-wsm-g3-min3-canvas-strokerect-lock-ssot.md)** - `env.canvas.strokeRect` の contract/import/binding/gate を固定した記録。
 - **[WSM-G3-min4 実装ロック](../../development/current/main/phases/phase-29cc/29cc-140-wsm-g3-min4-canvas-beginpath-lock-ssot.md)** - `env.canvas.beginPath` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min5 実装ロック](../../development/current/main/phases/phase-29cc/29cc-141-wsm-g3-min5-canvas-arc-lock-ssot.md)** - `env.canvas.arc` の contract/import/binding/gate を固定した記録。
 
 ## 🚀 クイックスタート
 
