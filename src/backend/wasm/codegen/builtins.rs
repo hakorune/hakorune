@@ -20,8 +20,9 @@ impl WasmCodegen {
             "log" => self.generate_log_call(dst, box_val, args),
             "info" => self.generate_info_call(dst, box_val, args),
             "debug" => self.generate_debug_call(dst, box_val, args),
+            "warn" => self.generate_warn_call(dst, box_val, args),
             _ => Err(WasmError::UnsupportedInstruction(format!(
-                "Unsupported BoxCall method: {} (supported: toString, print, equals, clone, log, info, debug)",
+                "Unsupported BoxCall method: {} (supported: toString, print, equals, clone, log, info, debug, warn)",
                 method
             ))),
         }
@@ -160,6 +161,16 @@ impl WasmCodegen {
         args: &[ValueId],
     ) -> Result<Vec<String>, WasmError> {
         self.generate_console_call("debug", "console_debug", dst, box_val, args)
+    }
+
+    /// Generate warn() method call - Console warning output (ConsoleBox.warn)
+    fn generate_warn_call(
+        &mut self,
+        dst: Option<ValueId>,
+        box_val: ValueId,
+        args: &[ValueId],
+    ) -> Result<Vec<String>, WasmError> {
+        self.generate_console_call("warn", "console_warn", dst, box_val, args)
     }
 
     fn generate_console_call(
