@@ -1,4 +1,19 @@
-# 🚀 Nyash WASM クイックスタート実装（注意: 現状メンテ外）
+# 🚀 Nyash WASM クイックスタート実装
+
+## 現行の最短手順（WSM-G2 2026-02-26）
+
+1. `bash projects/nyash-wasm/build.sh`
+2. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh`
+3. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh`
+4. `tools/checks/dev_gate.sh wasm-demo-g2`
+
+参照SSOT:
+- `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
+- `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
+
+---
+
+## 履歴資料（旧プロトタイプ手順）
 
 このガイドは歴史的資料です。WASM/ブラウザ経路は現在メンテ対象外で、記載手順は最新のNyashと一致しない場合があります。実験する場合は `projects/nyash-wasm/` を参考に自己責任でお試しください。
 
@@ -147,4 +162,4 @@ cd www && python3 -m http.server 8000
 1. `projects/nyash-wasm/build.sh` は `projects/nyash-wasm/bridge/` の独立 crate を build して `projects/nyash-wasm/pkg/` を更新する（ルート crate の wasm 互換性に依存しない）。
 2. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh` で build + export + playground marker を固定し、`ConsoleBox` の `log/warn/error/info/debug` 最小 run-loop を fail-fast で検証する。
 3. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh` で `autorun=1` headless chromium run を検証する。日常実行は `tools/checks/dev_gate.sh wasm-demo-g2` を使う。
-4. 受け入れ記録は `29cc-134`（min1）と `29cc-135`（min2）を参照し、次段 `WSM-G2-min3`（guide alignment）へ進める。
+4. 受け入れ記録は `29cc-134`（min1）/`29cc-135`（min2）/`29cc-136`（min3）を参照し、次段 `WSM-G3-min1`（canvas/enhanced gap inventory）へ進める。

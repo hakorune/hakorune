@@ -105,10 +105,11 @@ Related:
   - plugin wave-3 rollout lock（PLG-06-min3 done）: `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`（accepted）
   - plugin wave-3 rollout lock（PLG-06-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`（accepted）
   - plugin lane active next: `none`（monitor-only）
-  - wasm lane active next: `WSM-G2-min3`（WASM guide alignment）
+  - wasm lane active next: `WSM-G3-min1`（canvas/enhanced demo gap inventory）
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest lock（WSM-G2-min1 done）: `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
   - wasm latest lock（WSM-G2-min2 done）: `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
+  - wasm latest lock（WSM-G2-min3 done）: `docs/development/current/main/phases/phase-29cc/29cc-136-wsm-g2-min3-guide-alignment-lock-ssot.md`
   - wasm lane lock history（SSOT pointer）: `docs/development/current/main/phases/phase-29cc/README.md`（WSM-02b/02c/02d 一覧）
   - wasm latest lock（WSM-02d-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`（accepted）
   - `docs/development/current/main/phases/phase-29cc/README.md`
@@ -139,6 +140,7 @@ Related:
 11. `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
 12. `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
 13. `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
+14. `docs/development/current/main/phases/phase-29cc/29cc-136-wsm-g2-min3-guide-alignment-lock-ssot.md`
 
 ## Daily Commands
 

@@ -2,6 +2,16 @@
 
 Nyash WebAssembly（WASM）実行に関する包括的ガイド
 
+## ✅ 現行の運用入口（G2固定）
+
+- build: `bash projects/nyash-wasm/build.sh`
+- min1 gate: `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh`
+- min2 gate: `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh`
+- 日常まとめ実行: `tools/checks/dev_gate.sh wasm-demo-g2`
+- SSOT:
+  - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
+  - `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
+
 ## 📖 ドキュメント一覧
 
 ### 基本ガイド
@@ -17,8 +27,11 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[WSM G2 ブラウザデモタスク](../../development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md)** - `projects/nyash-wasm` を G2 (browser demo minimum) で再到達するための直近 3〜5 タスクを docs-first で固定し、run loop → headless smoke → dev guide の順で gate を固める。
 - **[WSM-G2-min1 実装ロック](../../development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md)** - 独立 bridge crate で browser run loop 最小構成（ConsoleBox 5メソッド）を固定した受け入れ記録。
 - **[WSM-G2-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md)** - headless chromium autorun smoke と `dev_gate.sh wasm-demo-g2` 追加による自動検証ロック。
+- **[WSM-G2-min3 実装ロック](../../development/current/main/phases/phase-29cc/29cc-136-wsm-g2-min3-guide-alignment-lock-ssot.md)** - guide/quickstart の運用入口一本化（現行導線と履歴資料の分離）を固定した記録。
 
 ## 🚀 クイックスタート
+
+> 注記: 下記の `--compile-wasm` / `--aot` は長期目標の一般経路。現時点で日常運用する browser demo は上の「現行の運用入口（G2固定）」を使うこと。
 
 ### WASM コンパイル
 ```bash
