@@ -1,5 +1,7 @@
 use super::super::NyashRunner;
 #[cfg(feature = "wasm-backend")]
+use crate::config::env::WasmRoutePolicyMode;
+#[cfg(feature = "wasm-backend")]
 use nyash_rust::{parser::NyashParser, mir::MirCompiler, backend::wasm::WasmBackend};
 #[cfg(feature = "wasm-backend")]
 use std::{fs, process};
@@ -71,7 +73,14 @@ impl NyashRunner {
     fn compile_file_to_wasm_bytes(&self, filename: &str) -> Vec<u8> {
         let mir_module = self.compile_file_to_mir_module(filename);
         let mut wasm_backend = WasmBackend::new();
-        match wasm_backend.compile_module(mir_module) {
+        let route_policy = crate::config::env::wasm_route_policy_mode();
+        let compile_result = match route_policy {
+            // Current default keeps Rust backend route while P5 cutover is staged.
+            WasmRoutePolicyMode::Default => wasm_backend.compile_module(mir_module),
+            // Explicit compatibility lane for phased default cutover.
+            WasmRoutePolicyMode::LegacyWasmRust => wasm_backend.compile_module(mir_module),
+        };
+        match compile_result {
             Ok(wasm) => wasm,
             Err(e) => {
                 eprintln!("❌ WASM compilation error: {}", e);

@@ -105,4 +105,4 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - P4 queue:
-  - `WSM-P5-min2`: default/legacy route policy の最小実装と cutover routing gate lock。
+  - `WSM-P5-min3`: `default` route の `.hako` lane 切替と legacy 差分 gate lock。

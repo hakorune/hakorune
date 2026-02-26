@@ -2,6 +2,26 @@
 
 use super::{env_bool, env_string};
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum WasmRoutePolicyMode {
+    Default,
+    LegacyWasmRust,
+}
+
+fn parse_wasm_route_policy_mode(raw: Option<&str>) -> Result<WasmRoutePolicyMode, String> {
+    let Some(value) = raw.map(str::trim).filter(|s| !s.is_empty()) else {
+        return Ok(WasmRoutePolicyMode::Default);
+    };
+    match value.to_ascii_lowercase().as_str() {
+        "default" => Ok(WasmRoutePolicyMode::Default),
+        "legacy" | "legacy-wasm-rust" => Ok(WasmRoutePolicyMode::LegacyWasmRust),
+        other => Err(format!(
+            "[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='{}' (allowed: default|legacy|legacy-wasm-rust)",
+            other
+        )),
+    }
+}
+
 pub fn debug_using() -> bool {
     env_bool("NYASH_DEBUG_USING")
 }
@@ -128,4 +148,57 @@ pub fn ring0_log_level() -> Option<String> {
     env_string("NYASH_RING0_LOG_LEVEL")
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty())
+}
+
+/// WASM output route policy.
+///
+/// Env:
+/// - `NYASH_WASM_ROUTE_POLICY=default|legacy|legacy-wasm-rust`
+/// - default: `default`
+pub fn wasm_route_policy_mode() -> WasmRoutePolicyMode {
+    let raw = env_string("NYASH_WASM_ROUTE_POLICY");
+    match parse_wasm_route_policy_mode(raw.as_deref()) {
+        Ok(mode) => mode,
+        Err(message) => {
+            eprintln!("{}", message);
+            std::process::exit(1);
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn wasm_route_policy_defaults_to_default() {
+        assert_eq!(
+            parse_wasm_route_policy_mode(None).expect("default should parse"),
+            WasmRoutePolicyMode::Default
+        );
+        assert_eq!(
+            parse_wasm_route_policy_mode(Some("")).expect("empty should parse"),
+            WasmRoutePolicyMode::Default
+        );
+    }
+
+    #[test]
+    fn wasm_route_policy_accepts_legacy_aliases() {
+        assert_eq!(
+            parse_wasm_route_policy_mode(Some("legacy")).expect("legacy should parse"),
+            WasmRoutePolicyMode::LegacyWasmRust
+        );
+        assert_eq!(
+            parse_wasm_route_policy_mode(Some("legacy-wasm-rust"))
+                .expect("legacy-wasm-rust should parse"),
+            WasmRoutePolicyMode::LegacyWasmRust
+        );
+    }
+
+    #[test]
+    fn wasm_route_policy_rejects_invalid_value() {
+        let err = parse_wasm_route_policy_mode(Some("auto"))
+            .expect_err("invalid policy must fail-fast");
+        assert!(err.starts_with("[freeze:contract][wasm/route-policy]"));
+    }
 }

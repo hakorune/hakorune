@@ -312,6 +312,12 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: None,
         },
         EnvVarMeta {
+            name: "NYASH_WASM_ROUTE_POLICY",
+            description: "WASM route policy: default|legacy|legacy-wasm-rust",
+            applies_to: AppliesTo::Compiler,
+            default: Some("default"),
+        },
+        EnvVarMeta {
             name: "NYASH_USING_DYLIB_AUTOLOAD",
             description: "Auto-load [using.*] dylib packages (1=true)",
             applies_to: AppliesTo::Compiler,

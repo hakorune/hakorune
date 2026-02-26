@@ -19,6 +19,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-158-wsm-p4-min5-neg-const-parity-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-159-wsm-p4-min6-shape-table-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-160-wsm-p5-min1-default-cutover-doc-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-161-wsm-p5-min2-route-policy-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -68,6 +69,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - 既定経路を `.hako` emitter/binary writer に切替。Rust backend は `--legacy-wasm-rust` 相当の互換 lane に縮退。
    - 連続マイルストーンで緑を確認後、互換 lane を retire 判定。
    - docs lock（done）: `29cc-160`（`phase29cc_wsm_p5_min1_default_cutover_docs_lock_vm.sh`）。
+   - route policy lock（done）: `29cc-161`（`phase29cc_wsm_p5_min2_route_policy_lock_vm.sh`）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。
