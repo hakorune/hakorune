@@ -1,5 +1,6 @@
 use super::super::*;
 use serde_json::json;
+use std::path::PathBuf;
 
 #[test]
 fn subset_accepts_const_void() {
@@ -288,6 +289,36 @@ fn subset_accepts_compare_greater_than_in_vm_hako_allowlist() {
     .to_string();
     let out = check_vm_hako_subset_json(&mir_json);
     assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn vm_hako_runtime_compare_contract_is_in_sync() {
+    let runtime_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("lang")
+        .join("src")
+        .join("vm")
+        .join("boxes")
+        .join("mir_vm_s0.hako");
+    let runtime_src = std::fs::read_to_string(&runtime_path)
+        .expect("read lang/src/vm/boxes/mir_vm_s0.hako");
+
+    // Rust subset allowlist and Hako runtime implementation must stay aligned.
+    for sym in ["==", "!=", "<", ">", ">="] {
+        assert!(
+            runtime_src.contains(&format!("if sym == \"{}\"", sym)),
+            "missing compare runtime branch for '{}' in {}",
+            sym,
+            runtime_path.display()
+        );
+    }
+    for alias in ["Eq", "Ne", "Lt", "Gt", "Ge"] {
+        assert!(
+            runtime_src.contains(&format!("kind == \"{}\"", alias)),
+            "missing compare op_kind alias '{}' in {}",
+            alias,
+            runtime_path.display()
+        );
+    }
 }
 
 #[test]

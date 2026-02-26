@@ -313,6 +313,8 @@ fn canonical_compare_operation(inst: &Value) -> Option<&'static str> {
     None
 }
 
+// Keep in sync with compare handling in `lang/src/vm/boxes/mir_vm_s0.hako`.
+// Drift is guarded by `vm_hako_runtime_compare_contract_is_in_sync` test.
 const VM_HAKO_COMPARE_ALLOWLIST: [&str; 5] = ["==", "!=", "<", ">", ">="];
 
 pub(super) fn vm_hako_supported_compare_operation(inst: &Value) -> Option<&'static str> {
