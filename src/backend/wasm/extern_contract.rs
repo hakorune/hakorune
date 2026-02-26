@@ -1,6 +1,6 @@
 /// Canonical extern-call contract shared by WASM codegen and runtime imports.
 /// Keep this list as single source of truth for supported extern call names.
-pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 13] = [
+pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 14] = [
     ("env.console.log", "console_log"),
     ("env.console.warn", "console_warn"),
     ("env.console.error", "console_error"),
@@ -14,6 +14,7 @@ pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 13] = [
     ("env.canvas.arc", "canvas_arc"),
     ("env.canvas.fill", "canvas_fill"),
     ("env.canvas.stroke", "canvas_stroke"),
+    ("env.canvas.setFillStyle", "canvas_setFillStyle"),
 ];
 
 pub(crate) fn extern_import_name(extern_name: &str) -> Option<&'static str> {
@@ -51,6 +52,10 @@ mod tests {
         assert_eq!(extern_import_name("env.canvas.arc"), Some("canvas_arc"));
         assert_eq!(extern_import_name("env.canvas.fill"), Some("canvas_fill"));
         assert_eq!(extern_import_name("env.canvas.stroke"), Some("canvas_stroke"));
+        assert_eq!(
+            extern_import_name("env.canvas.setFillStyle"),
+            Some("canvas_setFillStyle")
+        );
     }
 
     #[test]
@@ -73,6 +78,7 @@ mod tests {
         assert!(csv.contains("env.canvas.arc"));
         assert!(csv.contains("env.canvas.fill"));
         assert!(csv.contains("env.canvas.stroke"));
+        assert!(csv.contains("env.canvas.setFillStyle"));
     }
 
     #[test]
@@ -104,5 +110,13 @@ mod tests {
     #[test]
     fn extern_contract_canvas_stroke_supported() {
         assert_eq!(extern_import_name("env.canvas.stroke"), Some("canvas_stroke"));
+    }
+
+    #[test]
+    fn extern_contract_canvas_set_fill_style_supported() {
+        assert_eq!(
+            extern_import_name("env.canvas.setFillStyle"),
+            Some("canvas_setFillStyle")
+        );
     }
 }
