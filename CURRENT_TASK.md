@@ -46,7 +46,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_var_values_lock_vm.sh`
     - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm.sh`
   - binary-only contract SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
-- de-rust migration orchestration lane: `phase-29cc / plugin-wave-rollout`（RNR-05 complete; PLG-03 done; PLG-04-min1..min6 done; wave-1 complete; PLG-05-min1/min2/min3 done）
+- de-rust migration orchestration lane: `phase-29cc / plugin-wave-rollout`（RNR-05 complete; PLG-03 done; PLG-04-min1..min6 done; wave-1 complete; PLG-05-min1/min2/min3/min4 done）
   - phase SSOT: `docs/development/current/main/phases/phase-29cc/README.md`
   - scope decision（L5 accepted）:
     - `docs/development/current/main/design/de-rust-scope-decision-ssot.md`
@@ -82,8 +82,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-107-plg05-toml-wave2-min2-ssot.md`
   - plugin wave-2 rollout lock（PLG-05-min3 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-108-plg05-regex-wave2-min3-ssot.md`
+  - plugin wave-2 rollout lock（PLG-05-min4 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-109-plg05-encoding-wave2-min4-ssot.md`
   - plugin lane active next:
-    - `PLG-05-min4`（wave-2 rollout）
+    - `PLG-05-min5`（wave-2 rollout）
   - wasm lane active next:
     - `WSM-01`（non-blocking parallel）
   - execution checklist（progress SSOT）: `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`
@@ -252,6 +254,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - De-rust plugin wave-2 entry lock (PLG-05-min1): `docs/development/current/main/phases/phase-29cc/29cc-106-plg05-json-wave2-min1-ssot.md`
 - De-rust plugin wave-2 rollout lock (PLG-05-min2): `docs/development/current/main/phases/phase-29cc/29cc-107-plg05-toml-wave2-min2-ssot.md`
 - De-rust plugin wave-2 rollout lock (PLG-05-min3): `docs/development/current/main/phases/phase-29cc/29cc-108-plg05-regex-wave2-min3-ssot.md`
+- De-rust plugin wave-2 rollout lock (PLG-05-min4): `docs/development/current/main/phases/phase-29cc/29cc-109-plg05-encoding-wave2-min4-ssot.md`
 - De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Code retirement/history policy: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
 - Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`

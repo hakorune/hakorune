@@ -1,0 +1,14 @@
+// Phase 29cc PLG-05-min4 Encoding plugin pilot fixture
+// Contract:
+// - EncodingBox can be constructed through plugin config.
+// - base64Encode/hexEncode method routes work in VM.
+
+static box Main {
+  main(args) {
+    local e
+    e = new EncodingBox()
+    print("enc_b64=" + e.base64Encode("hello"))
+    print("enc_hex=" + e.hexEncode("hello"))
+    return 0
+  }
+}

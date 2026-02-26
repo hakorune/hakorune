@@ -124,3 +124,4 @@ Related:
 - [x] plugin lane `PLG-05-min1` wave-2 Json entry lock accepted (`29cc-106-plg05-json-wave2-min1-ssot.md`)
 - [x] plugin lane `PLG-05-min2` wave-2 TOML rollout accepted (`29cc-107-plg05-toml-wave2-min2-ssot.md`)
 - [x] plugin lane `PLG-05-min3` wave-2 Regex rollout accepted (`29cc-108-plg05-regex-wave2-min3-ssot.md`)
+- [x] plugin lane `PLG-05-min4` wave-2 Encoding rollout accepted (`29cc-109-plg05-encoding-wave2-min4-ssot.md`)
