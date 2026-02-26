@@ -32,14 +32,20 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 1. **P0 Contract Lock (ongoing)**
    - 1 blocker = 1 shape で extern/boxcall 語彙を固定。
    - 受け入れは `phase29cc_wsm_g3_*_contract_vm.sh` と `tools/checks/dev_gate.sh wasm-demo-g3-*`。
-2. **P1 Emitter Parity**
-   - `.hako` 側に WASM emitter（最小命令セット）を作り、Rust 出力と fixture 単位で同値化。
-   - 受け入れは「同一 fixture の emit 比較 + 既存 wasm smoke 緑」。
-3. **P2 Runtime Contract Port**
+2. **P1 WAT Emitter Parity**
+   - `.hako` 側に WAT emitter（最小命令セット）を作り、Rust 出力と fixture 単位で同値化。
+   - 受け入れは「同一 fixture の WAT 比較 + 既存 wasm smoke 緑」。
+3. **P2 Toolchain Bridge (`wat2wasm`)**
+   - `.hako` が生成した WAT を外部ツール連結で `.wasm` 化する（Rust wasm codegen 本体を使わない）。
+   - 受け入れは「WAT->WASM 変換後の browser demo/headless gate 緑」。
+4. **P3 Runtime Contract Port**
    - JS import object 生成契約（supported list / fail-fast 文言）を `.hako` 側へ移植。
    - Rust runtime は fallback ではなく thin compatibility lane として残す。
-4. **P3 Default Cutover**
-   - 既定経路を `.hako` emitter に切替。Rust backend は `--legacy-wasm-rust` 相当の互換 lane に縮退。
+5. **P4 Wasm Binary Writer (Rust-free output)**
+   - `.hako` 側に wasm binary writer（section/LEB128）を実装し、WAT依存を外す。
+   - 受け入れは「`.hako` 単独で `.wasm` 出力 + 既存 wasm smoke 緑」。
+6. **P5 Default Cutover**
+   - 既定経路を `.hako` emitter/binary writer に切替。Rust backend は `--legacy-wasm-rust` 相当の互換 lane に縮退。
    - 連続マイルストーンで緑を確認後、互換 lane を retire 判定。
 
 ## Non-Goals
