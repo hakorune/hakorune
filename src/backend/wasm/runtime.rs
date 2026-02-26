@@ -232,6 +232,7 @@ fn js_binding_for_import(name: &str) -> Option<String> {
         "canvas_stroke" => Some(js_canvas_stroke_binding()),
         "canvas_setFillStyle" => Some(js_canvas_set_fill_style_binding()),
         "canvas_setStrokeStyle" => Some(js_canvas_set_stroke_style_binding()),
+        "canvas_setLineWidth" => Some(js_canvas_set_line_width_binding()),
         _ => None,
     }
 }
@@ -328,6 +329,15 @@ fn js_canvas_set_stroke_style_binding() -> String {
     )
 }
 
+fn js_canvas_set_line_width_binding() -> String {
+    js_canvas_ctx_binding(
+        "canvas_setLineWidth",
+        "canvasIdPtr, canvasIdLen, width",
+        "",
+        "ctx.lineWidth = width",
+    )
+}
+
 fn canvas_import_arity(import_name: &str) -> Option<usize> {
     match import_name {
         "canvas_fillRect" | "canvas_strokeRect" => Some(8),
@@ -336,6 +346,7 @@ fn canvas_import_arity(import_name: &str) -> Option<usize> {
         "canvas_arc" => Some(7),
         "canvas_setFillStyle" => Some(4),
         "canvas_setStrokeStyle" => Some(4),
+        "canvas_setLineWidth" => Some(3),
         _ => None,
     }
 }
@@ -361,6 +372,7 @@ mod tests {
         assert!(runtime.has_import("canvas_stroke"));
         assert!(runtime.has_import("canvas_setFillStyle"));
         assert!(runtime.has_import("canvas_setStrokeStyle"));
+        assert!(runtime.has_import("canvas_setLineWidth"));
     }
 
     #[test]
@@ -412,6 +424,7 @@ mod tests {
         assert!(js.contains("canvas_stroke"));
         assert!(js.contains("canvas_setFillStyle"));
         assert!(js.contains("canvas_setStrokeStyle"));
+        assert!(js.contains("canvas_setLineWidth"));
         assert!(js.contains("clearRect"));
         assert!(js.contains("strokeRect"));
         assert!(js.contains("beginPath"));
@@ -420,6 +433,7 @@ mod tests {
         assert!(js.contains("ctx.stroke"));
         assert!(js.contains("ctx.fillStyle"));
         assert!(js.contains("ctx.strokeStyle"));
+        assert!(js.contains("ctx.lineWidth"));
     }
 
     #[test]
@@ -477,6 +491,14 @@ mod tests {
         let js = runtime.get_js_import_object();
         assert!(js.contains("canvas_setStrokeStyle"));
         assert!(js.contains("ctx.strokeStyle"));
+    }
+
+    #[test]
+    fn runtime_imports_canvas_set_line_width_js_binding() {
+        let runtime = RuntimeImports::new();
+        let js = runtime.get_js_import_object();
+        assert!(js.contains("canvas_setLineWidth"));
+        assert!(js.contains("ctx.lineWidth"));
     }
 
     #[test]

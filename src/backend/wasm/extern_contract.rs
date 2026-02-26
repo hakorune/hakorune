@@ -1,6 +1,6 @@
 /// Canonical extern-call contract shared by WASM codegen and runtime imports.
 /// Keep this list as single source of truth for supported extern call names.
-pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 15] = [
+pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 16] = [
     ("env.console.log", "console_log"),
     ("env.console.warn", "console_warn"),
     ("env.console.error", "console_error"),
@@ -16,6 +16,7 @@ pub(crate) const EXTERN_CALL_MAP: [(&str, &str); 15] = [
     ("env.canvas.stroke", "canvas_stroke"),
     ("env.canvas.setFillStyle", "canvas_setFillStyle"),
     ("env.canvas.setStrokeStyle", "canvas_setStrokeStyle"),
+    ("env.canvas.setLineWidth", "canvas_setLineWidth"),
 ];
 
 pub(crate) fn extern_import_name(extern_name: &str) -> Option<&'static str> {
@@ -61,6 +62,10 @@ mod tests {
             extern_import_name("env.canvas.setStrokeStyle"),
             Some("canvas_setStrokeStyle")
         );
+        assert_eq!(
+            extern_import_name("env.canvas.setLineWidth"),
+            Some("canvas_setLineWidth")
+        );
     }
 
     #[test]
@@ -85,6 +90,7 @@ mod tests {
         assert!(csv.contains("env.canvas.stroke"));
         assert!(csv.contains("env.canvas.setFillStyle"));
         assert!(csv.contains("env.canvas.setStrokeStyle"));
+        assert!(csv.contains("env.canvas.setLineWidth"));
     }
 
     #[test]
@@ -131,6 +137,14 @@ mod tests {
         assert_eq!(
             extern_import_name("env.canvas.setStrokeStyle"),
             Some("canvas_setStrokeStyle")
+        );
+    }
+
+    #[test]
+    fn extern_contract_canvas_set_line_width_supported() {
+        assert_eq!(
+            extern_import_name("env.canvas.setLineWidth"),
+            Some("canvas_setLineWidth")
         );
     }
 }
