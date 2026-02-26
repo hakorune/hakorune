@@ -1,0 +1,15 @@
+// Phase 29cc PLG-06-min1 PythonCompiler plugin pilot fixture
+// Contract:
+// - PythonCompilerBox can be constructed through plugin config.
+// - compile method route can be invoked in VM (current bridge returns void).
+
+static box Main {
+  main(args) {
+    local c
+    local out
+    c = new PythonCompilerBox()
+    out = c.compile("{}")
+    print("pyc_out=" + out)
+    return 0
+  }
+}

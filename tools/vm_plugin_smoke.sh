@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR=$(cd "$(dirname "$0")/.." && pwd)
 cd "$ROOT_DIR"
 
-echo "[vm-plugin-smoke] delegate: phase29cc CounterBox + Wave-1 pilots + Wave-2 Json/TOML/Regex/Encoding/Path/Time/Net pilot smokes"
+echo "[vm-plugin-smoke] delegate: phase29cc CounterBox + Wave-1 pilots + Wave-2 Json/TOML/Regex/Encoding/Path/Time/Net + Wave-3 PythonCompiler pilot smokes"
 bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg03_counterbox_pilot_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg04_arraybox_pilot_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg04_intcellbox_pilot_vm.sh
@@ -19,3 +19,4 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg05_encoding_
 bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg05_path_pilot_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg05_time_pilot_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg05_net_pilot_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg06_pycompiler_pilot_vm.sh
