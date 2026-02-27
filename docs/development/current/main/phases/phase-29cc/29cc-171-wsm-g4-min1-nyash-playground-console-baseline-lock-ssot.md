@@ -45,4 +45,4 @@ Related:
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next
-- `WSM-G4-min2`: `projects/nyash-wasm` canvas primer（最小1語彙）を docs-first で固定する。
+- `WSM-G4-min2`: `projects/nyash-wasm` canvas primer（最小1語彙）を docs-first で固定する（done: `29cc-172`）。

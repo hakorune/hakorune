@@ -1,6 +1,6 @@
 # 🌐 Nyash WebAssembly Project
 
-Status: `WSM-G4-min1` まで固定済み。`projects/nyash-wasm/bridge` を wasm build のSSOTとし、`nyash_playground.html` の ConsoleBox 5メソッド baseline（run loop + fixture parity）を lock している。次は `WSM-G4-min2`（canvas primer）。
+Status: `WSM-G4-min2` まで固定済み。`projects/nyash-wasm/bridge` を wasm build のSSOTとし、`nyash_playground.html` の ConsoleBox 5メソッド baseline（run loop + fixture parity）と canvas primer（最小語彙 `clear`）を lock している。次は `WSM-G4-min3`（canvas fixture parity）。
 
 ## 🚀 Quick Start (experimental)
 
@@ -24,6 +24,7 @@ python3 -m http.server 8000
 - **📦 ConsoleBox 5 methods** - `log/warn/error/info/debug` の run-loop 最小実装
 - **🧪 Build smoke** - `phase29cc_wsm_g2_min1_bridge_build_vm.sh` で契約固定
 - **🧪 Migration baseline smoke** - `phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh` で run loop + fixture parity を固定
+- **🧪 Canvas primer smoke** - `phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh` で primer vocabulary を固定
 - **🎮 Interactive Playground** - `nyash_playground.html` の Run ボタンで最小デモ確認
 
 ## 📁 File Structure
