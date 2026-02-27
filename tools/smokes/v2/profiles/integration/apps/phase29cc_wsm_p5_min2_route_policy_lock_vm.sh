@@ -1,7 +1,7 @@
 #!/bin/bash
 # phase29cc_wsm_p5_min2_route_policy_lock_vm.sh
 # Contract pin:
-# - WSM-P5-min2 route policy lock for default/legacy lane selection.
+# - WSM-P5-min2 route policy lock for default lane selection.
 
 set -euo pipefail
 
@@ -18,7 +18,7 @@ for needle in \
   "WSM-P5-min2" \
   "NYASH_WASM_ROUTE_POLICY" \
   "default" \
-  "legacy-wasm-rust" \
+  "allowed: default" \
   "fail-fast"; do
   if ! grep -q "$needle" "$doc"; then
     test_fail "phase29cc_wsm_p5_min2_route_policy_lock_vm: missing keyword in lock doc: $needle"

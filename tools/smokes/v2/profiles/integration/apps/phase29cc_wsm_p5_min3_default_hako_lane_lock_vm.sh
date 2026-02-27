@@ -19,7 +19,7 @@ for needle in \
   "default" \
   "hako-lane" \
   "bridge" \
-  "legacy-wasm-rust"; do
+  "route policy"; do
   if ! grep -q "$needle" "$doc"; then
     test_fail "phase29cc_wsm_p5_min3_default_hako_lane_lock_vm: missing keyword in lock doc: $needle"
     exit 1
@@ -27,6 +27,6 @@ for needle in \
 done
 
 cargo test --features wasm-backend wasm_compile_route_policy_ -- --nocapture
-cargo test --features wasm-backend wasm_demo_min_fixture_legacy_route_retired_failfast_contract -- --nocapture
+cargo test --features wasm-backend wasm_demo_min_fixture_legacy_route_policy_rejected_contract -- --nocapture
 
 test_pass "phase29cc_wsm_p5_min3_default_hako_lane_lock_vm: PASS (WSM-P5-min3 default hako-lane lock)"

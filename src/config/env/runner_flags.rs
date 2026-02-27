@@ -5,7 +5,6 @@ use super::{env_bool, env_string};
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum WasmRoutePolicyMode {
     Default,
-    LegacyWasmRust,
 }
 
 fn parse_wasm_route_policy_mode(raw: Option<&str>) -> Result<WasmRoutePolicyMode, String> {
@@ -14,9 +13,8 @@ fn parse_wasm_route_policy_mode(raw: Option<&str>) -> Result<WasmRoutePolicyMode
     };
     match value.to_ascii_lowercase().as_str() {
         "default" => Ok(WasmRoutePolicyMode::Default),
-        "legacy" | "legacy-wasm-rust" => Ok(WasmRoutePolicyMode::LegacyWasmRust),
         other => Err(format!(
-            "[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='{}' (allowed: default|legacy|legacy-wasm-rust)",
+            "[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='{}' (allowed: default)",
             other
         )),
     }
@@ -153,7 +151,7 @@ pub fn ring0_log_level() -> Option<String> {
 /// WASM output route policy.
 ///
 /// Env:
-/// - `NYASH_WASM_ROUTE_POLICY=default|legacy|legacy-wasm-rust`
+/// - `NYASH_WASM_ROUTE_POLICY=default`
 /// - default: `default`
 pub fn wasm_route_policy_mode() -> WasmRoutePolicyMode {
     let raw = env_string("NYASH_WASM_ROUTE_POLICY");
@@ -192,23 +190,20 @@ mod tests {
     }
 
     #[test]
-    fn wasm_route_policy_accepts_legacy_aliases() {
-        assert_eq!(
-            parse_wasm_route_policy_mode(Some("legacy")).expect("legacy should parse"),
-            WasmRoutePolicyMode::LegacyWasmRust
-        );
-        assert_eq!(
-            parse_wasm_route_policy_mode(Some("legacy-wasm-rust"))
-                .expect("legacy-wasm-rust should parse"),
-            WasmRoutePolicyMode::LegacyWasmRust
-        );
-    }
-
-    #[test]
     fn wasm_route_policy_rejects_invalid_value() {
         let err = parse_wasm_route_policy_mode(Some("auto"))
             .expect_err("invalid policy must fail-fast");
         assert!(err.starts_with("[freeze:contract][wasm/route-policy]"));
+    }
+
+    #[test]
+    fn wasm_route_policy_rejects_legacy_aliases() {
+        let err_legacy =
+            parse_wasm_route_policy_mode(Some("legacy")).expect_err("legacy alias must fail-fast");
+        assert!(err_legacy.contains("(allowed: default)"));
+        let err_legacy_rust = parse_wasm_route_policy_mode(Some("legacy-wasm-rust"))
+            .expect_err("legacy-wasm-rust alias must fail-fast");
+        assert!(err_legacy_rust.contains("(allowed: default)"));
     }
 
     #[test]

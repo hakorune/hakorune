@@ -14,14 +14,12 @@ use std::{fs, process};
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum WasmCompileRoute {
     HakoDefaultBridge,
-    LegacyRust,
 }
 
 #[cfg(feature = "wasm-backend")]
 fn select_wasm_compile_route(policy: WasmRoutePolicyMode) -> WasmCompileRoute {
     match policy {
         WasmRoutePolicyMode::Default => WasmCompileRoute::HakoDefaultBridge,
-        WasmRoutePolicyMode::LegacyWasmRust => WasmCompileRoute::LegacyRust,
     }
 }
 
@@ -29,7 +27,6 @@ fn select_wasm_compile_route(policy: WasmRoutePolicyMode) -> WasmCompileRoute {
 fn wasm_route_policy_name(policy: WasmRoutePolicyMode) -> &'static str {
     match policy {
         WasmRoutePolicyMode::Default => "default",
-        WasmRoutePolicyMode::LegacyWasmRust => "legacy-wasm-rust",
     }
 }
 
@@ -136,15 +133,6 @@ impl NyashRunner {
                     Err(err) => Err(err),
                 }
             }
-            // Explicit compatibility lane for phased cutover.
-            WasmCompileRoute::LegacyRust => {
-                emit_wasm_route_trace(route_policy, "legacy-rust", None);
-                eprintln!(
-                    "[freeze:contract][wasm/legacy-route-retired] policy={} lane=legacy-rust status=retired",
-                    wasm_route_policy_name(route_policy)
-                );
-                process::exit(1);
-            }
         };
         match compile_result {
             Ok(wasm) => wasm,
@@ -217,17 +205,7 @@ mod tests {
     }
 
     #[test]
-    fn wasm_compile_route_policy_legacy_maps_to_legacy_rust_contract() {
-        let route = select_wasm_compile_route(WasmRoutePolicyMode::LegacyWasmRust);
-        assert_eq!(route, WasmCompileRoute::LegacyRust);
-    }
-
-    #[test]
     fn wasm_route_policy_name_contract() {
         assert_eq!(wasm_route_policy_name(WasmRoutePolicyMode::Default), "default");
-        assert_eq!(
-            wasm_route_policy_name(WasmRoutePolicyMode::LegacyWasmRust),
-            "legacy-wasm-rust"
-        );
     }
 }

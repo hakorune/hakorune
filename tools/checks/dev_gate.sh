@@ -63,8 +63,7 @@ list_profiles() {
     - phase29cc_wsm_p5_min5_native_helper_lock_vm.sh
     - phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh
     - phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh
-    - phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh
-    - phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh
+    - phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
   wasm-demo-g2:
     - phase29cc_wsm_g2_min1_bridge_build_vm.sh
     - phase29cc_wsm_g2_browser_run_vm.sh
@@ -169,10 +168,8 @@ run_wasm_boundary_lite_p5() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh
   run_step "wasm p5 shape trace lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh
-  run_step "wasm p5 legacy retire readiness lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh
-  run_step "wasm p5 legacy retire execution lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh
+    run_step "wasm p5 legacy hard-remove lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
 }
 
 run_wasm_boundary_lite() {

@@ -313,7 +313,7 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
         },
         EnvVarMeta {
             name: "NYASH_WASM_ROUTE_POLICY",
-            description: "WASM route policy: default|legacy|legacy-wasm-rust",
+            description: "WASM route policy: default",
             applies_to: AppliesTo::Compiler,
             default: Some("default"),
         },
