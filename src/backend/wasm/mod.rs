@@ -69,6 +69,13 @@ pub fn compile_hako_native_shape_emit(
             )?;
             return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
         }
+        if let Some(shape_id) = shape_table::detect_p10_min9_debug_native_promotable_shape(mir_module) {
+            let bytes = binary_writer::build_loop_extern_call_skeleton_module_with_import(
+                4,
+                LoopExternImport::ConsoleDebug,
+            )?;
+            return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
+        }
         if let Some(shape_id) = shape_table::detect_p10_min4_native_promotable_shape(mir_module) {
             let bytes = binary_writer::build_loop_extern_call_skeleton_module(3)?;
             return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
@@ -240,6 +247,18 @@ impl WasmBackend {
         binary_writer::build_loop_extern_call_skeleton_module_with_import(
             iterations,
             LoopExternImport::ConsoleError,
+        )
+    }
+
+    /// Contract helper for WSM-P10-min9.
+    /// Emits loop/branch/call skeleton importing `env.console_debug`.
+    pub fn build_loop_extern_debug_skeleton_wasm(
+        &self,
+        iterations: i32,
+    ) -> Result<Vec<u8>, WasmError> {
+        binary_writer::build_loop_extern_call_skeleton_module_with_import(
+            iterations,
+            LoopExternImport::ConsoleDebug,
         )
     }
 

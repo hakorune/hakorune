@@ -31,6 +31,7 @@ pub(crate) enum LoopExternImport {
     ConsoleWarn,
     ConsoleInfo,
     ConsoleError,
+    ConsoleDebug,
 }
 
 impl LoopExternImport {
@@ -40,6 +41,7 @@ impl LoopExternImport {
             LoopExternImport::ConsoleWarn => "console_warn",
             LoopExternImport::ConsoleInfo => "console_info",
             LoopExternImport::ConsoleError => "console_error",
+            LoopExternImport::ConsoleDebug => "console_debug",
         }
     }
 }
@@ -443,6 +445,18 @@ mod tests {
         assert!(
             import_payload.windows(b"console_error".len()).any(|w| w == b"console_error"),
             "error import must be encoded in import section"
+        );
+    }
+
+    #[test]
+    fn wasm_binary_writer_loop_extern_debug_import_contract() {
+        let wasm = build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleDebug)
+            .expect("writer must succeed");
+        let import_payload =
+            find_section_payload(&wasm, SECTION_IMPORT).expect("import section missing");
+        assert!(
+            import_payload.windows(b"console_debug".len()).any(|w| w == b"console_debug"),
+            "debug import must be encoded in import section"
         );
     }
 }

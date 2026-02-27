@@ -129,7 +129,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md`（min2）
     - `docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md`（min3）
     - `docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md`（min4）
-  - wasm P10 locks（min1 accepted-but-blocked, min2/min3/min4/min5/min6/min7/min8 accepted）:
+  - wasm P10 locks（min1 accepted-but-blocked, min2/min3/min4/min5/min6/min7/min8/min9 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md`（min1）
     - `docs/development/current/main/phases/phase-29cc/29cc-195-wsm-p10-min2-loop-extern-matcher-inventory-lock-ssot.md`（min2）
     - `docs/development/current/main/phases/phase-29cc/29cc-196-wsm-p10-min3-loop-extern-writer-section-lock-ssot.md`（min3）
@@ -138,8 +138,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-199-wsm-p10-min6-warn-native-promotion-lock-ssot.md`（min6）
     - `docs/development/current/main/phases/phase-29cc/29cc-200-wsm-p10-min7-info-native-promotion-lock-ssot.md`（min7）
     - `docs/development/current/main/phases/phase-29cc/29cc-201-wsm-p10-min8-error-native-promotion-lock-ssot.md`（min8）
+    - `docs/development/current/main/phases/phase-29cc/29cc-202-wsm-p10-min9-debug-native-promotion-lock-ssot.md`（min9）
   - wasm lane active next:
-    - `WSM-P10-min9`（loop/extern debug family native promotion lock）
+    - `WSM-P10-min10`（loop/extern native promotion closeout lock）
   - wasm migration fixed order（WSM-02+）:
     - `WSM-02a`: assignment/local path unblock（`Copy`/`ReleaseStrong` 最小対応）
     - `WSM-02b`: ExternCall coverage expansion（1 extern familyずつ）
@@ -164,8 +165,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. wasm lane: `WSM-P10-min9`（loop/extern debug family native promotion lock）へ進める。
-2. `WSM-P7..P10-min8` lock（`29cc-184..201`）を維持し、default-only 契約を崩さない。
+1. wasm lane: `WSM-P10-min10`（loop/extern native promotion closeout lock）へ進める。
+2. `WSM-P7..P10-min9` lock（`29cc-184..202`）を維持し、default-only 契約を崩さない。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 4. wasm `.hako`-only output 計画は `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` を正本とし、固定順 `WAT出力 -> wat2wasm連結 -> wasmバイナリ直書き` で進める。
 
@@ -230,6 +231,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - `bash tools/checks/phase29cc_wsm_p10_warn_native_promotion_guard.sh`（WSM-P10 warn native promotion lock 監査）
 - `bash tools/checks/phase29cc_wsm_p10_info_native_promotion_guard.sh`（WSM-P10 info native promotion lock 監査）
 - `bash tools/checks/phase29cc_wsm_p10_error_native_promotion_guard.sh`（WSM-P10 error native promotion lock 監査）
+- `bash tools/checks/phase29cc_wsm_p10_debug_native_promotion_guard.sh`（WSM-P10 debug native promotion lock 監査）
 - `bash tools/checks/windows_wsl_cmd_smoke.sh --build --cmd-smoke`（WSL環境の週次Windows smoke）
 - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`

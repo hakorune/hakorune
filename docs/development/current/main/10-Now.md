@@ -129,7 +129,7 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md`
-  - wasm P10 locks（min1 accepted-but-blocked, min2/min3/min4/min5/min6/min7/min8 accepted）:
+  - wasm P10 locks（min1 accepted-but-blocked, min2/min3/min4/min5/min6/min7/min8/min9 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-195-wsm-p10-min2-loop-extern-matcher-inventory-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-196-wsm-p10-min3-loop-extern-writer-section-lock-ssot.md`
@@ -138,7 +138,8 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-199-wsm-p10-min6-warn-native-promotion-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-200-wsm-p10-min7-info-native-promotion-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-201-wsm-p10-min8-error-native-promotion-lock-ssot.md`
-  - wasm lane active next: `WSM-P10-min9`（loop/extern debug family native promotion lock）
+    - `docs/development/current/main/phases/phase-29cc/29cc-202-wsm-p10-min9-debug-native-promotion-lock-ssot.md`
+  - wasm lane active next: `WSM-P10-min10`（loop/extern native promotion closeout lock）
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）
   - `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
@@ -255,6 +256,7 @@ Related:
 - `bash tools/checks/phase29cc_wsm_p10_warn_native_promotion_guard.sh`（WSM-P10 warn native promotion lock）
 - `bash tools/checks/phase29cc_wsm_p10_info_native_promotion_guard.sh`（WSM-P10 info native promotion lock）
 - `bash tools/checks/phase29cc_wsm_p10_error_native_promotion_guard.sh`（WSM-P10 error native promotion lock）
+- `bash tools/checks/phase29cc_wsm_p10_debug_native_promotion_guard.sh`（WSM-P10 debug native promotion lock）
 - `bash tools/checks/windows_wsl_cmd_smoke.sh --build --cmd-smoke`（WSL週次Windows smoke）
 
 ## Runtime Diagnostic Pins (non-gating)

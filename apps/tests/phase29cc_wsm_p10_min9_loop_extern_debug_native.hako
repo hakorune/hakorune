@@ -1,0 +1,13 @@
+// Phase 29cc WSM-P10-min9 debug native promotion fixture
+// Contract: default hako-lane promotes debug+fixed4 shape to native emit.
+
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 4) {
+      i = i + 1
+    }
+    console.debug(i)
+    return i
+  }
+}

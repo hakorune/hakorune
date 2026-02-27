@@ -107,6 +107,7 @@ list_profiles() {
     - tools/checks/phase29cc_wsm_p10_warn_native_promotion_guard.sh
     - tools/checks/phase29cc_wsm_p10_info_native_promotion_guard.sh
     - tools/checks/phase29cc_wsm_p10_error_native_promotion_guard.sh
+    - tools/checks/phase29cc_wsm_p10_debug_native_promotion_guard.sh
   milestone-runtime:
     - hotpath
     - phase29cc_wsm02d_milestone_gate_vm.sh
@@ -293,6 +294,8 @@ run_portability() {
     bash tools/checks/phase29cc_wsm_p10_info_native_promotion_guard.sh
   run_step "WSM-P10 error native promotion guard" \
     bash tools/checks/phase29cc_wsm_p10_error_native_promotion_guard.sh
+  run_step "WSM-P10 debug native promotion guard" \
+    bash tools/checks/phase29cc_wsm_p10_debug_native_promotion_guard.sh
 }
 
 run_milestone_runtime() {
