@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done, RNR-05 done, non-plugin done declared, PLG-03 done, PLG-04-min1..min6 done, PLG-04 wave-1 complete, PLG-05-min1..min7 done, PLG-06-min1..min4 done, WSM-02b-min1/min2/min3/min4 done, WSM-02c-min1/min2/min3/min4 done, WSM-02d-min1/min2/min3/min4 done, WSM-P5-min1..min8 done)
+Status: Active (M0-M4 done; plugin waves done through PLG-06-min4; wasm lane done through WSM-P5-min8)
 Scope: Rust -> .hako migration orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md

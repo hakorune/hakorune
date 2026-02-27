@@ -127,20 +127,7 @@ run_hotpath() {
       tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath
 }
 
-run_wasm_boundary_lite() {
-  run_quick
-  run_step "cargo check (wasm-backend)" \
-    cargo check --features wasm-backend --bin hakorune
-  run_step "wasm extern contract lock" \
-    cargo test --features wasm-backend extern_contract_supported_name_maps_to_import -- --nocapture
-  run_step "wasm extern unsupported boundary lock" \
-    cargo test --features wasm-backend test_unsupported_extern_call_fails_fast_with_supported_list -- --nocapture
-  run_step "wasm boxcall unsupported boundary lock" \
-    cargo test --features wasm-backend test_unsupported_boxcall_method_fails_fast_with_supported_list -- --nocapture
-  run_step "wasm demo-min fixture boundary lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_min_boundary_vm.sh
-  run_step "wasm demo unsupported boundary lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_unsupported_boundary_vm.sh
+run_wasm_boundary_lite_p1_to_p3() {
   run_step "wasm p1 emit-wat CLI lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p1_emit_wat_cli_vm.sh
   run_step "wasm p1 fixture WAT parity lock" \
@@ -149,6 +136,9 @@ run_wasm_boundary_lite() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p2_min1_bridge_lock_vm.sh
   run_step "wasm p3 import object contract lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p3_min1_import_object_lock_vm.sh
+}
+
+run_wasm_boundary_lite_p4() {
   run_step "wasm p4 binary-writer docs lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p4_min1_docs_lock_vm.sh
   run_step "wasm p4 binary-writer skeleton lock" \
@@ -161,6 +151,9 @@ run_wasm_boundary_lite() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p4_min5_hako_writer_neg_const_parity_vm.sh
   run_step "wasm p4 shape table lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p4_min6_shape_table_lock_vm.sh
+}
+
+run_wasm_boundary_lite_p5() {
   run_step "wasm p5 default cutover docs lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min1_default_cutover_docs_lock_vm.sh
   run_step "wasm p5 route policy lock" \
@@ -177,6 +170,25 @@ run_wasm_boundary_lite() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh
   run_step "wasm p5 legacy retire readiness lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh
+}
+
+run_wasm_boundary_lite() {
+  run_quick
+  run_step "cargo check (wasm-backend)" \
+    cargo check --features wasm-backend --bin hakorune
+  run_step "wasm extern contract lock" \
+    cargo test --features wasm-backend extern_contract_supported_name_maps_to_import -- --nocapture
+  run_step "wasm extern unsupported boundary lock" \
+    cargo test --features wasm-backend test_unsupported_extern_call_fails_fast_with_supported_list -- --nocapture
+  run_step "wasm boxcall unsupported boundary lock" \
+    cargo test --features wasm-backend test_unsupported_boxcall_method_fails_fast_with_supported_list -- --nocapture
+  run_step "wasm demo-min fixture boundary lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_min_boundary_vm.sh
+  run_step "wasm demo unsupported boundary lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_unsupported_boundary_vm.sh
+  run_wasm_boundary_lite_p1_to_p3
+  run_wasm_boundary_lite_p4
+  run_wasm_boundary_lite_p5
 }
 
 run_wasm_demo_g2() {

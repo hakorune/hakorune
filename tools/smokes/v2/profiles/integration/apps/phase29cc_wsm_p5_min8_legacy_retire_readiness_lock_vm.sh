@@ -7,6 +7,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/phase29cc_wsm_p5_route_trace_common.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-167-wsm-p5-min8-legacy-retire-readiness-lock-ssot.md"
@@ -27,8 +28,6 @@ for needle in \
   fi
 done
 
-cargo test --features wasm-backend wasm_route_policy_name_contract -- --nocapture
-cargo test --features wasm-backend wasm_demo_route_trace_reports_shape_id_for_native_default_contract -- --nocapture
-cargo test --features wasm-backend wasm_demo_route_trace_reports_bridge_and_legacy_contract -- --nocapture
+run_wsm_p5_route_trace_contract_tests_readiness
 
 test_pass "phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm: PASS (WSM-P5-min8 legacy retire readiness lock)"

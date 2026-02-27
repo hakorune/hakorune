@@ -7,6 +7,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/phase29cc_wsm_p5_route_trace_common.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-166-wsm-p5-min7-shape-trace-lock-ssot.md"
@@ -27,8 +28,6 @@ for needle in \
   fi
 done
 
-cargo test --features wasm-backend wasm_route_policy_name_contract -- --nocapture
-cargo test --features wasm-backend wasm_hako_default_lane_trace_ -- --nocapture
-cargo test --features wasm-backend wasm_demo_route_trace_reports_ -- --nocapture
+run_wsm_p5_route_trace_contract_tests_full
 
 test_pass "phase29cc_wsm_p5_min7_shape_trace_lock_vm: PASS (WSM-P5-min7 shape trace lock)"
