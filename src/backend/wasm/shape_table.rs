@@ -5,6 +5,7 @@ const P10_LOOP_EXTERN_CANDIDATE_ID: &str = "wsm.p10.main_loop_extern_call.v0";
 const P10_MIN4_NATIVE_SHAPE_ID: &str = "wsm.p10.main_loop_extern_call.fixed3.v0";
 const P10_MIN6_WARN_NATIVE_SHAPE_ID: &str = "wsm.p10.main_loop_extern_call.warn.fixed4.v0";
 const P10_MIN7_INFO_NATIVE_SHAPE_ID: &str = "wsm.p10.main_loop_extern_call.info.fixed4.v0";
+const P10_MIN8_ERROR_NATIVE_SHAPE_ID: &str = "wsm.p10.main_loop_extern_call.error.fixed4.v0";
 const P10_MIN5_WARN_INVENTORY_ID: &str = "wsm.p10.main_loop_extern_call.warn.fixed3.inventory.v0";
 const P10_MIN5_INFO_INVENTORY_ID: &str = "wsm.p10.main_loop_extern_call.info.fixed3.inventory.v0";
 const P10_MIN5_ERROR_INVENTORY_ID: &str = "wsm.p10.main_loop_extern_call.error.fixed3.inventory.v0";
@@ -173,6 +174,19 @@ pub(crate) fn detect_p10_min7_info_native_promotable_shape(
         "info",
         "env.console.info",
         P10_MIN7_INFO_NATIVE_SHAPE_ID,
+    )
+}
+
+/// WSM-P10-min8 error-family native promotion matcher.
+/// Keep strict boundary so min5 inventory fixtures remain bridge-only.
+pub(crate) fn detect_p10_min8_error_native_promotable_shape(
+    mir_module: &MirModule,
+) -> Option<&'static str> {
+    detect_p10_fixed4_console_method_native_shape(
+        mir_module,
+        "error",
+        "env.console.error",
+        P10_MIN8_ERROR_NATIVE_SHAPE_ID,
     )
 }
 
@@ -1022,6 +1036,33 @@ mod tests {
         assert!(
             detect_p10_min7_info_native_promotable_shape(&module).is_none(),
             "fixed3 info shape must stay outside min7 promotion and remain min5 inventory"
+        );
+    }
+
+    #[test]
+    fn wasm_shape_table_detects_p10_min8_error_native_promotable_contract() {
+        let mut module = make_p10_loop_console_method_module("error");
+        let main = module.get_function_mut("main").expect("main function exists");
+        for block in main.blocks.values_mut() {
+            for inst in &mut block.instructions {
+                if let MirInstruction::Const { value, .. } = inst {
+                    if *value == ConstValue::Integer(3) {
+                        *value = ConstValue::Integer(4);
+                    }
+                }
+            }
+        }
+        let found = detect_p10_min8_error_native_promotable_shape(&module)
+            .expect("p10 min8 error native shape should match");
+        assert_eq!(found, "wsm.p10.main_loop_extern_call.error.fixed4.v0");
+    }
+
+    #[test]
+    fn wasm_shape_table_rejects_p10_min8_error_native_promotable_for_fixed3_contract() {
+        let module = make_p10_loop_console_method_module("error");
+        assert!(
+            detect_p10_min8_error_native_promotable_shape(&module).is_none(),
+            "fixed3 error shape must stay outside min8 promotion and remain min5 inventory"
         );
     }
 }

@@ -1,0 +1,13 @@
+// Phase 29cc WSM-P10-min5 error inventory fixture
+// Contract: expansion inventory only; default route remains bridge/native-helper rejects.
+
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 3) {
+      i = i + 1
+    }
+    console.error(i)
+    return i
+  }
+}
