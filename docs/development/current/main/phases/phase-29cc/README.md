@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done; plugin waves done through PLG-06-min4; wasm lane done through WSM-P9-min4)
+Status: Active (M0-M4 done; plugin waves done through PLG-06-min4; wasm lane done through WSM-P10-min1)
 Scope: Rust -> .hako migration orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
@@ -172,12 +172,14 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md`
-  - wasm lane active next: `WSM-P10-min1`（loop/extern call native emit design lock）
+  - wasm lane P10 design lock（accepted-but-blocked done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md`
+  - wasm lane active next: `WSM-P10-min2`（loop+extern matcher inventory lock, analysis-only）
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest locks（recent 3）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md`
   - wasm full lock history pointer:
     - `docs/development/current/main/10-Now.md`（Read First Order: phase-29cc lock list）
   - wasm `.hako`-only output roadmap SSOT:

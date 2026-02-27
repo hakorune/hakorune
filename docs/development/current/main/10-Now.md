@@ -129,7 +129,9 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md`
-  - wasm lane active next: `WSM-P10-min1`（loop/extern call native emit design lock）
+  - wasm P10 design lock（accepted-but-blocked done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md`
+  - wasm lane active next: `WSM-P10-min2`（loop+extern matcher inventory lock, analysis-only）
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）
   - `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
@@ -216,6 +218,7 @@ Related:
 69. `docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md`
 70. `docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md`
 71. `docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md`
+72. `docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md`
 
 ## Daily Commands
 
@@ -237,6 +240,7 @@ Related:
 - `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`（WSM-P8 bridge retire readiness）
 - `bash tools/checks/phase29cc_wsm_p9_non_native_inventory_guard.sh`（WSM-P9 non-native shrink）
 - `bash tools/checks/phase29cc_wsm_p9_bridge_retire_refresh_guard.sh`（WSM-P9 bridge retire refresh）
+- `bash tools/checks/phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh`（WSM-P10 loop/extern native emit design lock）
 - `bash tools/checks/windows_wsl_cmd_smoke.sh --build --cmd-smoke`（WSL週次Windows smoke）
 
 ## Runtime Diagnostic Pins (non-gating)

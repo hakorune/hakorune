@@ -46,6 +46,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -131,7 +132,9 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - min2 loop/canvas primer bridge lock（accepted-but-blocked done）: `29cc-191`（`phase29cc_wsm_p9_min2_loop_canvas_primer_bridge_lock_vm.sh`）。
    - min3 canvas_advanced bridge lock（accepted-but-blocked done）: `29cc-192`（`phase29cc_wsm_p9_min3_canvas_advanced_bridge_lock_vm.sh`）。
    - min4 bridge retire refresh lock（accepted-but-blocked done）: `29cc-193`（`phase29cc_wsm_p9_bridge_retire_refresh_guard.sh`）。
-   - next: `WSM-P10-min1`（loop/extern call native emit design lock）。
+12. **P10 Loop/Extern Native Emit (design-first)**
+   - min1 design lock（accepted-but-blocked done）: `29cc-194`（`phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh`）。
+   - next: `WSM-P10-min2`（loop+extern matcher inventory lock, analysis-only）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。
