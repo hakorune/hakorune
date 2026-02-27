@@ -408,6 +408,30 @@ fn wasm_demo_default_route_p10_min4_uses_native_helper_contract() {
 }
 
 #[test]
+fn wasm_demo_default_route_p10_min5_warn_inventory_rejected_by_native_helper_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_p10_min5_loop_extern_warn_inventory.hako";
+    let mir_module = compile_fixture_to_mir_module(fixture_rel);
+    let bytes = compile_hako_native_shape_bytes(&mir_module)
+        .expect("native helper should succeed and return boundary result for min5 warn inventory");
+    assert!(
+        bytes.is_none(),
+        "p10 min5 warn inventory must stay bridge-only and be rejected by native helper"
+    );
+}
+
+#[test]
+fn wasm_demo_default_route_p10_min5_info_inventory_rejected_by_native_helper_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_p10_min5_loop_extern_info_inventory.hako";
+    let mir_module = compile_fixture_to_mir_module(fixture_rel);
+    let bytes = compile_hako_native_shape_bytes(&mir_module)
+        .expect("native helper should succeed and return boundary result for min5 info inventory");
+    assert!(
+        bytes.is_none(),
+        "p10 min5 info inventory must stay bridge-only and be rejected by native helper"
+    );
+}
+
+#[test]
 fn wasm_demo_route_trace_reports_shape_id_for_native_default_contract() {
     let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p5_min6_const_copy_return.hako");
     let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native");

@@ -134,7 +134,7 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-195-wsm-p10-min2-loop-extern-matcher-inventory-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-196-wsm-p10-min3-loop-extern-writer-section-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-197-wsm-p10-min4-single-fixture-native-promotion-lock-ssot.md`
-  - wasm lane active next: `WSM-P10-min5`（loop/extern native promotion expansion inventory lock）
+  - wasm lane active next: `WSM-P10-min6`（loop/extern warn family native promotion lock）
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）
   - `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
@@ -247,6 +247,7 @@ Related:
 - `bash tools/checks/phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh`（WSM-P10 loop/extern matcher inventory lock）
 - `bash tools/checks/phase29cc_wsm_p10_loop_extern_writer_section_guard.sh`（WSM-P10 loop/extern writer section lock）
 - `bash tools/checks/phase29cc_wsm_p10_single_fixture_native_promotion_guard.sh`（WSM-P10 single fixture native promotion lock）
+- `bash tools/checks/phase29cc_wsm_p10_expansion_inventory_guard.sh`（WSM-P10 expansion inventory lock）
 - `bash tools/checks/windows_wsl_cmd_smoke.sh --build --cmd-smoke`（WSL週次Windows smoke）
 
 ## Runtime Diagnostic Pins (non-gating)

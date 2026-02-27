@@ -124,6 +124,10 @@ impl WasmBackend {
             // WSM-P10-min2 analysis-only inventory hook.
             // Keep default route bridge-only while making matcher observable in codepath.
             let _p10_candidate_id = shape_table::detect_p10_loop_extern_call_candidate(mir_module);
+            // WSM-P10-min5 expansion inventory hook (analysis-only).
+            // Keep route unchanged while fixing next native-promotion candidates.
+            let _p10_min5_inventory_id =
+                shape_table::detect_p10_min5_expansion_inventory_shape(mir_module);
             WasmHakoDefaultLaneTrace {
                 plan: WasmHakoDefaultLanePlan::BridgeRustBackend,
                 shape_id: None,
