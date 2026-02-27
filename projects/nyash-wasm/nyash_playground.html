@@ -259,9 +259,9 @@ static box Main {
                 
                 // Show version info in output
                 const output = document.getElementById('output');
-                output.textContent = '🎉 Nyash WASM initialized successfully!\\n' + 
-                                   nyash.version() + '\\n\\n' +
-                                   'Ready to execute Nyash code...\\n';
+                output.textContent = '🎉 Nyash WASM initialized successfully!\n' + 
+                                   nyash.version() + '\n\n' +
+                                   'Ready to execute Nyash code...\n';
 
                 const params = new URLSearchParams(window.location.search);
                 if (params.get('autorun') === '1') {
@@ -294,10 +294,13 @@ static box Main {
             
             try {
                 const result = nyash.eval(code);
-                output.textContent += '> ' + result + '\\n';
+                output.textContent += '> ' + result + '\n';
                 output.scrollTop = output.scrollHeight;
             } catch (error) {
-                output.textContent += '❌ Error: ' + error.message + '\\n';
+                const errText = (error && typeof error.message === 'string' && error.message.length > 0)
+                    ? error.message
+                    : String(error);
+                output.textContent += '❌ Error: ' + errText + '\n';
                 output.scrollTop = output.scrollHeight;
             }
         };

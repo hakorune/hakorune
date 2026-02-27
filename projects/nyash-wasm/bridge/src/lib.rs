@@ -69,36 +69,36 @@ fn collect_console_calls(code: &str) -> Vec<ConsoleCall> {
 }
 
 fn parse_first_string_arg(input: &str) -> Option<(String, usize)> {
-    let bytes = input.as_bytes();
-    if bytes.is_empty() {
-        return None;
-    }
-    let quote = bytes[0];
-    if quote != b'"' && quote != b'\'' {
+    let mut chars = input.char_indices();
+    let (_, quote) = chars.next()?;
+    if quote != '"' && quote != '\'' {
         return None;
     }
 
-    let mut i = 1usize;
-    let mut escaped = false;
     let mut out = String::new();
-    while i < bytes.len() {
-        let b = bytes[i];
+    let mut escaped = false;
+    for (idx, ch) in chars {
         if escaped {
-            out.push(b as char);
+            match ch {
+                'n' => out.push('\n'),
+                'r' => out.push('\r'),
+                't' => out.push('\t'),
+                '\\' => out.push('\\'),
+                '"' => out.push('"'),
+                '\'' => out.push('\''),
+                other => out.push(other),
+            }
             escaped = false;
-            i += 1;
             continue;
         }
-        if b == b'\\' {
+        if ch == '\\' {
             escaped = true;
-            i += 1;
             continue;
         }
-        if b == quote {
-            return Some((out, i + 1));
+        if ch == quote {
+            return Some((out, idx + ch.len_utf8()));
         }
-        out.push(b as char);
-        i += 1;
+        out.push(ch);
     }
     None
 }
