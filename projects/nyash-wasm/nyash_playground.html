@@ -241,45 +241,218 @@ static box Main {
     </div>
     
     <script type="module">
-        import init, { NyashWasm } from './pkg/nyash_rust.js';
-        
-        let nyash;
-        
-        async function initializeNyash() {
-            try {
-                // Initialize WASM module
-                await init();
-                
-                // Create Nyash interpreter instance
-                nyash = new NyashWasm();
-                
-                // Show playground and hide loading
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('playground').style.display = 'block';
-                
-                // Show version info in output
-                const output = document.getElementById('output');
-                output.textContent = '🎉 Nyash WASM initialized successfully!\n' + 
-                                   nyash.version() + '\n\n' +
-                                   'Ready to execute Nyash code...\n';
-                renderCanvasStatus("bridge", "Canvas commands are not executed in this bridge.");
+        let wasmInstance = null;
+        let bridgeNyash = null;
+        let nativeMode = false;
+        const textDecoder = new TextDecoder();
 
-                const params = new URLSearchParams(window.location.search);
-                if (params.get('autorun') === '1') {
-                    setTimeout(() => {
-                        const example = params.get('example');
-                        if (example && typeof window.loadExample === 'function') {
-                            window.loadExample(example);
-                            output.textContent += `[autorun-example] ${example}\\n`;
-                        }
-                        window.runNyash();
-                        output.textContent += '[autorun] done\\n';
-                    }, 0);
+        function appendOutput(line) {
+            const output = document.getElementById('output');
+            output.textContent += line + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutputArea() {
+            document.getElementById('output').textContent = '';
+        }
+
+        function readUtf8(ptr, len) {
+            const memory = wasmInstance && wasmInstance.exports && wasmInstance.exports.memory;
+            if (!memory) return '';
+            if (ptr < 0 || len < 0) return '';
+            return textDecoder.decode(new Uint8Array(memory.buffer, ptr, len));
+        }
+
+        function readUtf8Safe(ptr, len) {
+            const memory = wasmInstance && wasmInstance.exports && wasmInstance.exports.memory;
+            if (!memory) return '';
+            if (ptr < 0 || len < 0) return '';
+            const bufferLen = memory.buffer.byteLength;
+            if (ptr >= bufferLen) return '';
+            const maxLen = Math.min(len, 256);
+            const end = Math.min(ptr + maxLen, bufferLen);
+            if (end <= ptr) return '';
+            const raw = textDecoder.decode(new Uint8Array(memory.buffer, ptr, end - ptr));
+            return raw.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim();
+        }
+
+        function handleConsoleImport(method, ptr, len) {
+            const fallback = readUtf8Safe(ptr, len);
+            if (fallback) {
+                appendOutput(`[${method}] ${fallback}`);
+            } else {
+                appendOutput(`[${method}] <unresolved>`);
+            }
+        }
+
+        function withCanvasContext(canvasIdPtr, canvasIdLen, op) {
+            const canvasId = readUtf8(canvasIdPtr, canvasIdLen);
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            op(canvas, ctx);
+        }
+
+        function createImportObject() {
+            return {
+                env: {
+                    print: (value) => appendOutput(`[print] ${value}`),
+                    print_str: (ptr, len) => appendOutput(`[print] ${readUtf8(ptr, len)}`),
+                    // Minimal ABI contract for native playground:
+                    // box_to_string currently behaves as identity for StringBox handles.
+                    box_to_string: (boxHandle) => boxHandle | 0,
+                    box_print: (_boxHandle) => {
+                        throw new Error("unsupported import: env.box_print");
+                    },
+                    box_equals: (_lhs, _rhs) => {
+                        throw new Error("unsupported import: env.box_equals");
+                    },
+                    box_clone: (_boxHandle) => {
+                        throw new Error("unsupported import: env.box_clone");
+                    },
+                    console_log: (ptr, len) => handleConsoleImport("log", ptr, len),
+                    console_warn: (ptr, len) => handleConsoleImport("warn", ptr, len),
+                    console_error: (ptr, len) => handleConsoleImport("error", ptr, len),
+                    console_info: (ptr, len) => handleConsoleImport("info", ptr, len),
+                    console_debug: (ptr, len) => handleConsoleImport("debug", ptr, len),
+                    canvas_fillRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {
+                        const color = readUtf8(colorPtr, colorLen);
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => {
+                            ctx.fillStyle = color;
+                            ctx.fillRect(x, y, w, h);
+                        });
+                    },
+                    canvas_fillText: (canvasIdPtr, canvasIdLen, textPtr, textLen, x, y, fontPtr, fontLen, colorPtr, colorLen) => {
+                        const text = readUtf8(textPtr, textLen);
+                        const font = readUtf8(fontPtr, fontLen);
+                        const color = readUtf8(colorPtr, colorLen);
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => {
+                            ctx.font = font;
+                            ctx.fillStyle = color;
+                            ctx.fillText(text, x, y);
+                        });
+                    },
+                    canvas_clear: (canvasIdPtr, canvasIdLen) => {
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (canvas, ctx) => {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        });
+                    },
+                    canvas_strokeRect: (canvasIdPtr, canvasIdLen, x, y, w, h, colorPtr, colorLen) => {
+                        const color = readUtf8(colorPtr, colorLen);
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => {
+                            ctx.strokeStyle = color;
+                            ctx.strokeRect(x, y, w, h);
+                        });
+                    },
+                    canvas_beginPath: (canvasIdPtr, canvasIdLen) => {
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => ctx.beginPath());
+                    },
+                    canvas_arc: (canvasIdPtr, canvasIdLen, x, y, radius, startAngle, endAngle) => {
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => ctx.arc(x, y, radius, startAngle, endAngle));
+                    },
+                    canvas_fill: (canvasIdPtr, canvasIdLen) => {
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => ctx.fill());
+                    },
+                    canvas_stroke: (canvasIdPtr, canvasIdLen) => {
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => ctx.stroke());
+                    },
+                    canvas_setFillStyle: (canvasIdPtr, canvasIdLen, colorPtr, colorLen) => {
+                        const color = readUtf8(colorPtr, colorLen);
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => { ctx.fillStyle = color; });
+                    },
+                    canvas_setStrokeStyle: (canvasIdPtr, canvasIdLen, colorPtr, colorLen) => {
+                        const color = readUtf8(colorPtr, colorLen);
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => { ctx.strokeStyle = color; });
+                    },
+                    canvas_setLineWidth: (canvasIdPtr, canvasIdLen, width) => {
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => { ctx.lineWidth = width; });
+                    },
+                    canvas_fillCircle: (canvasIdPtr, canvasIdLen, x, y, radius, colorPtr, colorLen) => {
+                        const color = readUtf8(colorPtr, colorLen);
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => {
+                            ctx.fillStyle = color;
+                            ctx.beginPath();
+                            ctx.arc(x, y, radius, 0, Math.PI * 2);
+                            ctx.fill();
+                        });
+                    },
+                    canvas_drawLine: (canvasIdPtr, canvasIdLen, x1, y1, x2, y2, colorPtr, colorLen, width) => {
+                        const color = readUtf8(colorPtr, colorLen);
+                        withCanvasContext(canvasIdPtr, canvasIdLen, (_, ctx) => {
+                            ctx.strokeStyle = color;
+                            ctx.lineWidth = width;
+                            ctx.beginPath();
+                            ctx.moveTo(x1, y1);
+                            ctx.lineTo(x2, y2);
+                            ctx.stroke();
+                        });
+                    }
                 }
-                
-            } catch (error) {
-                document.getElementById('loading').innerHTML = 
-                    '<div class="error">❌ Failed to load Nyash WASM: ' + error.message + '</div>';
+            };
+        }
+
+        async function compileToWasmBytes(code) {
+            const response = await fetch('/api/compile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code })
+            });
+            if (!response.ok) {
+                let errText = `compile failed: HTTP ${response.status}`;
+                try {
+                    const payload = await response.json();
+                    if (payload && payload.error) errText = payload.error;
+                } catch (_) {
+                    // ignore parse error
+                }
+                throw new Error(errText);
+            }
+            return await response.arrayBuffer();
+        }
+
+        async function detectNativeCompileApi() {
+            try {
+                const res = await fetch('/api/health', { method: 'GET' });
+                if (!res.ok) return false;
+                const payload = await res.json();
+                return Boolean(payload && payload.ok);
+            } catch (_) {
+                return false;
+            }
+        }
+
+        async function tryInitializeBridgeFallback() {
+            const module = await import('./pkg/nyash_rust.js');
+            await module.default();
+            bridgeNyash = new module.NyashWasm();
+        }
+
+        async function initializeNyash() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('playground').style.display = 'block';
+            nativeMode = await detectNativeCompileApi();
+            if (nativeMode) {
+                appendOutput('Nyash native playground ready');
+                appendOutput('Run flow: .hako -> /api/compile -> wasm instantiate -> main()');
+                renderCanvasStatus("native", "Native wasm route is ready.");
+            } else {
+                await tryInitializeBridgeFallback();
+                appendOutput('Nyash bridge fallback ready');
+                appendOutput(bridgeNyash.version());
+                appendOutput('Run flow: NyashWasm.eval(code) (console-only bridge)');
+                renderCanvasStatus("native", "Bridge fallback mode.");
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('autorun') === '1') {
+                const example = params.get('example');
+                if (example && typeof window.loadExample === 'function') {
+                    window.loadExample(example);
+                    appendOutput(`[autorun-example] ${example}`);
+                }
+                await window.runNyash();
+                appendOutput('[autorun] done');
             }
         }
 
@@ -292,10 +465,10 @@ static box Main {
             const bg = mode === "error" ? "#2a0f12" : mode === "ok" ? "#0f2a18" : "#111827";
             const fg = mode === "error" ? "#ff9aa2" : mode === "ok" ? "#9ff2b0" : "#93c5fd";
             const title = mode === "error"
-                ? "Bridge mode: execution error"
+                ? "Native mode: execution error"
                 : mode === "ok"
-                    ? "Bridge mode: console calls executed"
-                    : "Bridge mode: console-only runner";
+                    ? "Native mode: run completed"
+                    : "Native mode: waiting";
 
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -309,88 +482,71 @@ static box Main {
             ctx.font = "13px monospace";
             ctx.fillText(detail, 16, 74);
             ctx.fillStyle = "#cbd5e1";
-            ctx.fillText("Use console.log/warn/error/info/debug literal calls.", 16, 104);
+            ctx.fillText("Canvas commands run through wasm imports.", 16, 104);
         }
-        
-        // Global functions for buttons
-        window.runNyash = function() {
-            if (!nyash) {
-                alert('Nyash is not loaded yet!');
-                return;
-            }
-            
+
+        window.runNyash = async function () {
             const code = document.getElementById('editor').value;
-            const output = document.getElementById('output');
-            
             try {
-                renderCanvasStatus("bridge", "Running in bridge mode...");
-                const result = nyash.eval(code);
-                output.textContent += '> ' + result + '\n';
-                output.scrollTop = output.scrollHeight;
-                renderCanvasStatus("ok", "Run completed. Output is shown in console panel.");
+                if (nativeMode) {
+                    appendOutput('[run] compiling...');
+                    renderCanvasStatus("native", "Compiling...");
+                    const wasmBuffer = await compileToWasmBytes(code);
+                    appendOutput(`[run] compile ok (${wasmBuffer.byteLength} bytes)`);
+
+                    const importObject = createImportObject();
+                    const result = await WebAssembly.instantiate(wasmBuffer, importObject);
+                    wasmInstance = result.instance;
+                    if (!wasmInstance.exports || typeof wasmInstance.exports.main !== 'function') {
+                        throw new Error('compiled wasm has no exported main()');
+                    }
+                    const exitCode = wasmInstance.exports.main();
+                    appendOutput(`[run] main() => ${exitCode}`);
+                    renderCanvasStatus("ok", "Execution completed.");
+                } else {
+                    const runResult = bridgeNyash.eval(code);
+                    appendOutput(`[run] bridge eval => ${runResult}`);
+                    renderCanvasStatus("ok", "Bridge execution completed.");
+                }
             } catch (error) {
                 const errText = (error && typeof error.message === 'string' && error.message.length > 0)
                     ? error.message
                     : String(error);
-                output.textContent += '❌ Error: ' + errText + '\n';
-                output.scrollTop = output.scrollHeight;
+                appendOutput(`❌ Error: ${errText}`);
                 renderCanvasStatus("error", errText);
             }
         };
-        
-        window.clearOutput = function() {
-            document.getElementById('output').textContent = '';
-            renderCanvasStatus("bridge", "Canvas commands are not executed in this bridge.");
+
+        window.clearOutput = function () {
+            clearOutputArea();
+            renderCanvasStatus("native", "Ready.");
         };
-        
-        window.showVersion = function() {
-            if (nyash) {
-                const output = document.getElementById('output');
-                output.textContent += '📋 ' + nyash.version() + '\\n';
-                output.textContent += '🎯 Static Box Mainパターン: ✅ 実装済み\\n';
-                output.textContent += '🔒 変数宣言厳密性: ✅ 有効\\n';
-                output.textContent += '⚡ 演算子(AND/OR/NOT/除算): ✅ 対応済み\\n';
-                output.textContent += '🌐 WebCanvasBox + WebConsoleBox: ✅ 利用可能\\n\\n';
-                output.scrollTop = output.scrollHeight;
+
+        window.showVersion = function () {
+            if (nativeMode) {
+                appendOutput('Nyash native playground');
+                appendOutput('Route: hako_native (compile-wasm)');
+            } else if (bridgeNyash) {
+                appendOutput(bridgeNyash.version());
+                appendOutput('Route: legacy_bridge fallback');
             }
         };
-        
-        window.showHelp = function() {
-            const output = document.getElementById('output');
-            output.textContent += `📚 Nyash クイックヘルプ:
 
-🎯 このページの実行モデル (WSM-G2 bridge):
-- console.log("...")
-- console.warn("...")
-- console.error("...")
-- console.info("...")
-- console.debug("...")
-
-上の5メソッドを literal 文字列で呼ぶ形だけを実行するよ。
-me.console や WebCanvasBox は bridge 実行対象外。
-
-🎯 推奨コード形:
-static box Main {
-    main() {
-        local console
-        console = new ConsoleBox()
-        console.log("hello")
-        return 0
-    }
-}
-`;
-            output.scrollTop = output.scrollHeight;
+        window.showHelp = function () {
+            appendOutput('📚 Nyash クイックヘルプ');
+            appendOutput('- Start server: python3 projects/nyash-wasm/dev_server.py');
+            appendOutput('- Run flow: editor code -> /api/compile -> wasm main()');
+            appendOutput('- Current native-safe examples are console + G4 marker fixtures');
+            appendOutput('- Full WebCanvasBox method lowering is tracked as next phase');
         };
-        
-        window.loadExample = function(type) {
+
+        window.loadExample = function (type) {
             const editor = document.getElementById('editor');
-            
+
             const examples = {
-                hello: `// Console baseline (bridge-safe)
-static box Main {
+                hello: `static box Main {
     main() {
-        local console
-        console = new ConsoleBox()
+        local console = new ConsoleBox()
         console.log("hello_log")
         console.warn("hello_warn")
         console.error("hello_error")
@@ -399,125 +555,85 @@ static box Main {
         return 0
     }
 }`,
-
-                math: `// Math sample (messages are fixed literals in bridge mode)
-static box Main {
+                math: `static box Main {
     main() {
-        local console
-        local a
-        local b
-        a = 10
-        b = 5
-        console = new ConsoleBox()
-        console.info("math_case_start")
-        console.log("a_plus_b_is_15")
-        console.log("a_minus_b_is_5")
-        console.log("a_mul_b_is_50")
-        console.log("a_div_b_is_2")
-        console.debug("math_case_end")
+        local console = new ConsoleBox()
+        local a = 10
+        local b = 5
+        console.info("math_start")
+        console.log("a_plus_b")
+        console.debug("math_done")
         return 0
     }
 }`,
-
-                debug: `// Debug sample (bridge-safe)
-static box Main {
+                debug: `static box Main {
     main() {
-        local console
-        console = new ConsoleBox()
-        console.info("debug_session_start")
-        console.log("tracking_enabled")
-        console.warn("sample_warning")
+        local console = new ConsoleBox()
+        console.info("debug_start")
+        console.warn("sample_warn")
         console.error("sample_error")
-        console.debug("debug_session_end")
+        console.debug("debug_end")
         return 0
     }
 }`,
-
-                webdisplay: `// WebDisplay placeholder in bridge mode
-static box Main {
+                webdisplay: `static box Main {
     main() {
-        local console
-        console = new ConsoleBox()
-        console.log("webdisplay_not_supported_in_bridge")
-        console.info("use_console_methods_only_here")
+        local console = new ConsoleBox()
+        console.info("webdisplay_demo")
         return 0
     }
 }`,
-
-                webcanvas: `// WebCanvas placeholder in bridge mode
-// wsm_g4_min2_canvas_primer_lock
+                webcanvas: `// wsm_g4_min2_canvas_primer_lock
 // wsm_g4_min2_canvas_vocab_clear
 // wsm_g4_min3_webcanvas_source_lock
 // new WebCanvasBox("game-canvas", 400, 250)
 // me.canvas.clear()
 static box Main {
     main() {
-        local console
-        console = new ConsoleBox()
+        local console = new ConsoleBox()
         console.log("wsm_g4_min3_webcanvas_marker_1")
-        console.log("webcanvas_not_supported_in_bridge")
-        console.info("canvas_area_shows_bridge_status")
-        console.debug("switch_to_native_wasm_path_for_canvas")
         console.log("wsm_g4_min3_webcanvas_marker_2")
         return 0
     }
 }`,
-
-                canvas_advanced: `// Advanced canvas placeholder in bridge mode
-// wsm_g4_min4_canvas_advanced_source_lock
+                canvas_advanced: `// wsm_g4_min4_canvas_advanced_source_lock
 static box Main {
     main() {
-        local console
-        console = new ConsoleBox()
+        local console = new ConsoleBox()
         console.log("wsm_g4_min4_canvas_advanced_marker_1")
-        console.warn("canvas_advanced_not_supported_in_bridge")
-        console.info("open_native_wasm_playground_for_graphics")
-        console.log("wsm_g4_min4_canvas_advanced_marker_2")
+        console.info("wsm_g4_min4_canvas_advanced_marker_2")
         return 0
     }
 }`,
-
-                operators: `// Operators sample (bridge-safe literals)
-static box Main {
+                operators: `static box Main {
     main() {
-        local console
-        console = new ConsoleBox()
-        console.info("operators_case_start")
-        console.log("not_and_or_supported_in_language")
-        console.debug("bridge_captures_literal_console_calls")
+        local console = new ConsoleBox()
+        console.info("operators_start")
+        console.log("operators_done")
         return 0
     }
 }`,
-
-                async: `// Computation placeholder in bridge mode
-static box Main {
+                async: `static box Main {
     main() {
-        local console
-        console = new ConsoleBox()
-        console.log("async_demo_placeholder")
-        console.info("bridge_runs_simple_console_calls_only")
+        local console = new ConsoleBox()
+        console.info("async_demo_placeholder")
         return 0
+    }
 }`,
-
-                artists: `// Artists placeholder in bridge mode
-static box Main {
+                artists: `static box Main {
     main() {
-        local console
-        console = new ConsoleBox()
-        console.log("artists_demo_placeholder")
-        console.warn("object_graphics_sample_is_not_bridge_supported")
-        console.info("use_native_pipeline_for_full_features")
+        local console = new ConsoleBox()
+        console.info("artists_demo_placeholder")
         return 0
     }
 }`
             };
-            
+
             if (examples[type]) {
                 editor.value = examples[type];
             }
         };
-        
-        // Initialize when page loads
+
         initializeNyash();
     </script>
 </body>

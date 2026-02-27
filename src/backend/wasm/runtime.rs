@@ -218,6 +218,10 @@ fn js_binding_for_import(name: &str) -> Option<String> {
     match name {
         "print" => Some("    print: (value) => console.log(value),\n".to_string()),
         "print_str" => Some(js_console_binding("print_str", "log")),
+        "box_to_string" => Some("    box_to_string: (boxHandle) => (boxHandle | 0),\n".to_string()),
+        "box_print" => Some(js_unsupported_binding("box_print")),
+        "box_equals" => Some(js_unsupported_binding("box_equals")),
+        "box_clone" => Some(js_unsupported_binding("box_clone")),
         "console_log" => Some(js_console_binding("console_log", "log")),
         "console_warn" => Some(js_console_binding("console_warn", "warn")),
         "console_error" => Some(js_console_binding("console_error", "error")),
@@ -255,6 +259,12 @@ fn js_canvas_binding_by_name(name: &str) -> Option<String> {
 fn js_console_binding(import_name: &str, console_method: &str) -> String {
     format!(
         "    {import_name}: (ptr, len) => {{\n      const memory = instance.exports.memory;\n      const str = new TextDecoder().decode(new Uint8Array(memory.buffer, ptr, len));\n      console.{console_method}(str);\n    }},\n"
+    )
+}
+
+fn js_unsupported_binding(import_name: &str) -> String {
+    format!(
+        "    {import_name}: () => {{ throw new Error('Unsupported import binding: {import_name}'); }},\n"
     )
 }
 

@@ -11,12 +11,11 @@ cargo install wasm-pack
 # Build WASM module (bridge crate)
 bash projects/nyash-wasm/build.sh
 
-# Start local server (example)
-cd projects/nyash-wasm
-python3 -m http.server 8000
+# Start local dev server (static + compile API)
+python3 projects/nyash-wasm/dev_server.py --port 8001
 
 # Open browser
-# Navigate to: http://localhost:8000/nyash_playground.html
+# Navigate to: http://localhost:8001/nyash_playground.html
 ```
 
 ## 🎯 Features (G4-min1 baseline)
@@ -61,18 +60,18 @@ console.debug("wsm02d_demo_min_debug")
 ### Build Process
 1. `projects/nyash-wasm/bridge` を `wasm-pack` で build
 2. `NyashWasm` を `pkg/nyash_rust.js` として export
-3. `nyash_playground.html` から `NyashWasm.eval()` を呼び、ConsoleBox 5メソッドをブラウザ側へ出力
+3. `nyash_playground.html` は `/api/compile` 経由で `.hako -> wasm` を実行
 4. スモークで build/export/marker を fail-fast 固定
 
 ### Architecture
 ```
 Browser JavaScript
     ↓
-NyashWasm.eval(code)
-    ↓ 
-NyashInterpreter (Rust)
+POST /api/compile (dev_server.py)
     ↓
-ConsoleBox → web_sys::console
+hakorune --compile-wasm
+    ↓
+WebAssembly.instantiate + env imports
 ```
 
 ## 🎉 Coming Soon

@@ -192,19 +192,38 @@ impl WasmCodegen {
         box_val: ValueId,
         args: &[ValueId],
     ) -> Result<Vec<String>, WasmError> {
+        if args.is_empty() {
+            return Err(WasmError::CodegenError(format!(
+                "{}() expects at least 1 argument, got {}",
+                method_name,
+                args.len()
+            )));
+        }
+
         let mut instructions = vec![format!(
-            ";; {}() implementation for ValueId({})",
+            ";; {}() implementation for ConsoleBox ValueId({})",
             method_name,
             box_val.as_u32(),
         )];
 
-        // Load box_val (ConsoleBox instance)
-        instructions.push(format!("local.get ${}", self.get_local_index(box_val)?));
-
-        // Load all arguments
-        for arg in args {
-            instructions.push(format!("local.get ${}", self.get_local_index(*arg)?));
-        }
+        // Console imports are ABI-fixed as (ptr,len), so convert argument Box to StringBox first.
+        // Accept both call shapes:
+        // - [message]
+        // - [receiver_like, message]
+        // and always treat the last argument as the message payload.
+        let arg = args[args.len() - 1];
+        // ptr = box_to_string(arg).data_ptr
+        instructions.push(format!("local.get ${}", self.get_local_index(arg)?));
+        instructions.push("call $box_to_string".to_string());
+        instructions.push("i32.const 12".to_string());
+        instructions.push("i32.add".to_string());
+        instructions.push("i32.load".to_string());
+        // len = box_to_string(arg).length
+        instructions.push(format!("local.get ${}", self.get_local_index(arg)?));
+        instructions.push("call $box_to_string".to_string());
+        instructions.push("i32.const 16".to_string());
+        instructions.push("i32.add".to_string());
+        instructions.push("i32.load".to_string());
 
         // Call console output function
         instructions.push(format!("call ${}", target_import));
