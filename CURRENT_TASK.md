@@ -120,8 +120,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md`（min2）
     - `docs/development/current/main/phases/phase-29cc/29cc-186-wsm-p7-min3-two-demo-lock-ssot.md`（min3）
     - `docs/development/current/main/phases/phase-29cc/29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md`（min4）
+  - wasm P8 compat bridge retire lock（accepted-but-blocked done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md`（min1）
   - wasm lane active next:
-    - `WSM-P8-min1`（compat retire execution lock, accepted-but-blocked）
+    - `none`（monitor-only）
   - wasm migration fixed order（WSM-02+）:
     - `WSM-02a`: assignment/local path unblock（`Copy`/`ReleaseStrong` 最小対応）
     - `WSM-02b`: ExternCall coverage expansion（1 extern familyずつ）
@@ -146,8 +148,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. wasm lane: `WSM-P8-min1`（compat retire execution lock, accepted-but-blocked）。
-2. `WSM-P7-min1..min4` lock（`29cc-184..187`）を維持し、default-only 契約を崩さない。
+1. wasm lane は monitor-only 維持（`29cc-188` lock 後、blocker再発時のみ failure-driven 再起動）。
+2. `WSM-P7-min1..min4` と `WSM-P8-min1` lock（`29cc-184..188`）を維持し、default-only 契約を崩さない。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 4. wasm `.hako`-only output 計画は `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` を正本とし、固定順 `WAT出力 -> wat2wasm連結 -> wasmバイナリ直書き` で進める。
 
@@ -201,6 +203,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - `tools/checks/dev_gate.sh milestone`（推奨: 統合セット）
 - `tools/checks/dev_gate.sh portability`（週次: Windows/macOS portability preflight）
 - `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`（WSM-P7 default-only 監査）
+- `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`（WSM-P8 compat bridge retire readiness 監査）
 - `bash tools/checks/windows_wsl_cmd_smoke.sh --build --cmd-smoke`（WSL環境の週次Windows smoke）
 - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`

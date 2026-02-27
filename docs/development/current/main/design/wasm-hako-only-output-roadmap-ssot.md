@@ -40,6 +40,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-186-wsm-p7-min3-two-demo-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -116,6 +117,9 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - default hako-only guard lock（done）: `29cc-185`（`phase29cc_wsm_p7_min2_default_hako_only_guard_vm.sh`）。
    - two-demo lock（done）: `29cc-186`（`phase29cc_wsm_p7_min3_two_demo_lock_vm.sh`）。
    - compat retention lock（accepted-but-blocked done）: `29cc-187`（`phase29cc_wsm_p7_min4_compat_retention_lock_vm.sh`）。
+10. **P8 Compat Bridge Retire Readiness Lock**
+   - default-only 契約を維持しつつ、`BridgeRustBackend` 撤去判定を accepted-but-blocked で固定する。
+   - bridge retire readiness lock（accepted-but-blocked done）: `29cc-188`（`phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh`）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

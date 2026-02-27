@@ -96,6 +96,7 @@ list_profiles() {
     - tools/checks/macos_portability_guard.sh
     - tools/checks/phase29cc_plg07_filebox_binary_retire_readiness_guard.sh
     - tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh
+    - tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh
   milestone-runtime:
     - hotpath
     - phase29cc_wsm02d_milestone_gate_vm.sh
@@ -260,6 +261,8 @@ run_portability() {
     bash tools/checks/phase29cc_plg07_filebox_binary_retire_readiness_guard.sh
   run_step "WSM-P7 default hako-only guard" \
     bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh
+  run_step "WSM-P8 bridge retire readiness guard" \
+    bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh
 }
 
 run_milestone_runtime() {

@@ -139,3 +139,4 @@ Related:
 - [x] wasm lane `WSM-P7-min2` default hako-only guard lock accepted (`29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md`)
 - [x] wasm lane `WSM-P7-min3` two-demo lock accepted (`29cc-186-wsm-p7-min3-two-demo-lock-ssot.md`)
 - [x] wasm lane `WSM-P7-min4` compat retention lock accepted-but-blocked (`29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md`)
+- [x] wasm lane `WSM-P8-min1` bridge retire readiness lock accepted-but-blocked (`29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md`)

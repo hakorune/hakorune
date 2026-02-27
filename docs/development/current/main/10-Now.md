@@ -120,7 +120,9 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-186-wsm-p7-min3-two-demo-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md`
-  - wasm lane active next: `WSM-P8-min1`（compat retire execution lock, accepted-but-blocked）
+  - wasm P8 compat bridge retire lock（accepted-but-blocked done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md`
+  - wasm lane active next: `none`（monitor-only）
   - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`（progress SSOT）
   - `docs/development/current/main/phases/phase-29cc/29cc-91-worker-parallel-playbook.md`
@@ -201,6 +203,7 @@ Related:
 63. `docs/development/current/main/phases/phase-29cc/29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md`
 64. `docs/development/current/main/phases/phase-29cc/29cc-186-wsm-p7-min3-two-demo-lock-ssot.md`
 65. `docs/development/current/main/phases/phase-29cc/29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md`
+66. `docs/development/current/main/phases/phase-29cc/29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md`
 
 ## Daily Commands
 
@@ -219,6 +222,7 @@ Related:
 - `bash tools/checks/phase29cc_plg07_filebox_binary_dualrun_guard.sh`（PLG-07 dual-run parity）
 - `bash tools/checks/phase29cc_plg07_filebox_binary_retire_readiness_guard.sh`（PLG-07 retire readiness）
 - `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`（WSM-P7 default hako-only）
+- `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`（WSM-P8 bridge retire readiness）
 - `bash tools/checks/windows_wsl_cmd_smoke.sh --build --cmd-smoke`（WSL週次Windows smoke）
 
 ## Runtime Diagnostic Pins (non-gating)
