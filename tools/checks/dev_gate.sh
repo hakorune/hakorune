@@ -98,6 +98,7 @@ list_profiles() {
     - tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh
     - tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh
     - tools/checks/phase29cc_wsm_p9_non_native_inventory_guard.sh
+    - tools/checks/phase29cc_wsm_p9_bridge_retire_refresh_guard.sh
   milestone-runtime:
     - hotpath
     - phase29cc_wsm02d_milestone_gate_vm.sh
@@ -266,6 +267,8 @@ run_portability() {
     bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh
   run_step "WSM-P9 non-native inventory guard" \
     bash tools/checks/phase29cc_wsm_p9_non_native_inventory_guard.sh
+  run_step "WSM-P9 bridge retire refresh guard" \
+    bash tools/checks/phase29cc_wsm_p9_bridge_retire_refresh_guard.sh
 }
 
 run_milestone_runtime() {

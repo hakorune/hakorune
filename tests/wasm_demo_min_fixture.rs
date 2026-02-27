@@ -254,6 +254,34 @@ fn wasm_demo_default_hako_lane_bridge_non_pilot_contract() {
 }
 
 #[test]
+fn wasm_demo_default_hako_lane_bridge_webcanvas_fixture_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_g4_min3_webcanvas_fixture_min.hako";
+    let mir_module = compile_fixture_to_mir_module(fixture_rel);
+    let mut backend = WasmBackend::new();
+    let (_wasm_bytes, plan) = backend
+        .compile_hako_default_lane(mir_module)
+        .expect("default hako-lane compile must succeed");
+    assert_eq!(
+        plan,
+        nyash_rust::backend::wasm::WasmHakoDefaultLanePlan::BridgeRustBackend
+    );
+}
+
+#[test]
+fn wasm_demo_default_hako_lane_bridge_canvas_advanced_fixture_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.hako";
+    let mir_module = compile_fixture_to_mir_module(fixture_rel);
+    let mut backend = WasmBackend::new();
+    let (_wasm_bytes, plan) = backend
+        .compile_hako_default_lane(mir_module)
+        .expect("default hako-lane compile must succeed");
+    assert_eq!(
+        plan,
+        nyash_rust::backend::wasm::WasmHakoDefaultLanePlan::BridgeRustBackend
+    );
+}
+
+#[test]
 fn wasm_demo_default_hako_lane_native_const_copy_shape_contract() {
     let fixture_rel = "apps/tests/phase29cc_wsm_p5_min6_const_copy_return.hako";
     let mir_module = compile_fixture_to_mir_module(fixture_rel);
@@ -456,6 +484,60 @@ fn wasm_demo_route_trace_reports_bridge_and_legacy_policy_rejected_contract() {
         stderr_legacy
             .contains("[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='legacy-wasm-rust' (allowed: default)"),
         "legacy policy reject freeze tag must be emitted"
+    );
+}
+
+#[test]
+fn wasm_demo_route_trace_reports_bridge_for_webcanvas_fixture_contract() {
+    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_g4_min3_webcanvas_fixture_min.hako");
+    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_webcanvas_bridge");
+    out_base.set_extension("");
+    let out_file = out_base.with_extension("wasm");
+    let _ = fs::remove_file(&out_file);
+
+    let output = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "default")
+        .env("NYASH_WASM_ROUTE_TRACE", "1")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_base)
+        .arg(&fixture)
+        .output()
+        .expect("default route compile-wasm with trace must launch");
+    assert!(output.status.success(), "default route compile-wasm should succeed");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("[wasm/route-trace] policy=default plan=bridge-rust-backend shape_id=-"),
+        "webcanvas fixture must currently report bridge plan in route trace"
+    );
+}
+
+#[test]
+fn wasm_demo_route_trace_reports_bridge_for_canvas_advanced_fixture_contract() {
+    let fixture =
+        wasm_common::fixture_path("apps/tests/phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.hako");
+    let mut out_base =
+        wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_canvas_advanced_bridge");
+    out_base.set_extension("");
+    let out_file = out_base.with_extension("wasm");
+    let _ = fs::remove_file(&out_file);
+
+    let output = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "default")
+        .env("NYASH_WASM_ROUTE_TRACE", "1")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_base)
+        .arg(&fixture)
+        .output()
+        .expect("default route compile-wasm with trace must launch");
+    assert!(output.status.success(), "default route compile-wasm should succeed");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("[wasm/route-trace] policy=default plan=bridge-rust-backend shape_id=-"),
+        "canvas_advanced fixture must currently report bridge plan in route trace"
     );
 }
 

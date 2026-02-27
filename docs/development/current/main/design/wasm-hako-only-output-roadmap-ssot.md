@@ -43,6 +43,9 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-189-wsm-p9-min0-non-native-inventory-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-190-wsm-p9-min1-const-binop-native-shape-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -125,7 +128,10 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 11. **P9 Non-Native Shrink (shape-by-shape)**
    - min0 inventory lock（done）: `29cc-189`（`phase29cc_wsm_p9_min0_non_native_inventory_lock_vm.sh`）。
    - min1 const-binop native shape lock（done）: `29cc-190`（`phase29cc_wsm_p9_min1_const_binop_native_lock_vm.sh`）。
-   - next: `WSM-P9-min2`（loop + canvas primer shape）。
+   - min2 loop/canvas primer bridge lock（accepted-but-blocked done）: `29cc-191`（`phase29cc_wsm_p9_min2_loop_canvas_primer_bridge_lock_vm.sh`）。
+   - min3 canvas_advanced bridge lock（accepted-but-blocked done）: `29cc-192`（`phase29cc_wsm_p9_min3_canvas_advanced_bridge_lock_vm.sh`）。
+   - min4 bridge retire refresh lock（accepted-but-blocked done）: `29cc-193`（`phase29cc_wsm_p9_bridge_retire_refresh_guard.sh`）。
+   - next: `WSM-P10-min1`（loop/extern call native emit design lock）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。
