@@ -310,6 +310,20 @@ fn wasm_demo_default_hako_lane_native_const_binop_shape_contract() {
 }
 
 #[test]
+fn wasm_demo_default_hako_lane_native_p10_min4_loop_extern_shape_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_p10_min4_loop_extern_native.hako";
+    let mir_module = compile_fixture_to_mir_module(fixture_rel);
+    let mut backend = WasmBackend::new();
+    let (_wasm_bytes, plan) = backend
+        .compile_hako_default_lane(mir_module)
+        .expect("default hako-lane compile must succeed");
+    assert_eq!(
+        plan,
+        nyash_rust::backend::wasm::WasmHakoDefaultLanePlan::NativeShapeTable
+    );
+}
+
+#[test]
 fn wasm_demo_default_route_pilot_uses_native_helper_contract() {
     let fixture_rel = "apps/tests/phase29cc_wsm_p4_min_const_return.hako";
     let mir_module = compile_fixture_to_mir_module(fixture_rel);
@@ -376,6 +390,24 @@ fn wasm_demo_default_route_const_binop_uses_native_helper_contract() {
 }
 
 #[test]
+fn wasm_demo_default_route_p10_min4_uses_native_helper_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_p10_min4_loop_extern_native.hako";
+    let mir_module = compile_fixture_to_mir_module(fixture_rel);
+    let bytes = compile_hako_native_shape_bytes(&mir_module)
+        .expect("native helper should succeed")
+        .expect("p10 min4 loop/extern shape should be emitted by native helper");
+
+    let backend = WasmBackend::new();
+    let baseline = backend
+        .build_loop_extern_call_skeleton_wasm(3)
+        .expect("loop extern skeleton baseline writer must succeed");
+    assert_eq!(
+        bytes, baseline,
+        "default-route native helper output mismatch for p10 min4 fixture"
+    );
+}
+
+#[test]
 fn wasm_demo_route_trace_reports_shape_id_for_native_default_contract() {
     let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p5_min6_const_copy_return.hako");
     let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native");
@@ -428,6 +460,34 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_const_binop_contract() {
             "[wasm/route-trace] policy=default plan=native-shape-table shape_id=wsm.p9.main_return_i32_const_binop.v0"
         ),
         "route trace must include native shape_id for const-binop-return fixture"
+    );
+}
+
+#[test]
+fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min4_contract() {
+    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p10_min4_loop_extern_native.hako");
+    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_p10_min4");
+    out_base.set_extension("");
+    let out_file = out_base.with_extension("wasm");
+    let _ = fs::remove_file(&out_file);
+
+    let output = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "default")
+        .env("NYASH_WASM_ROUTE_TRACE", "1")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_base)
+        .arg(&fixture)
+        .output()
+        .expect("default route compile-wasm with trace must launch");
+    assert!(output.status.success(), "default route compile-wasm should succeed");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains(
+            "[wasm/route-trace] policy=default plan=native-shape-table shape_id=wsm.p10.main_loop_extern_call.fixed3.v0"
+        ),
+        "route trace must include native shape_id for p10 min4 loop/extern fixture"
     );
 }
 

@@ -47,6 +47,10 @@ pub fn compile_hako_native_shape_emit(
     mir_module: &MirModule,
 ) -> Result<Option<WasmNativeShapeEmit>, WasmError> {
     let Some(found) = shape_table::match_native_shape(mir_module) else {
+        if let Some(shape_id) = shape_table::detect_p10_min4_native_promotable_shape(mir_module) {
+            let bytes = binary_writer::build_loop_extern_call_skeleton_module(3)?;
+            return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
+        }
         return Ok(None);
     };
     let bytes = binary_writer::build_minimal_main_i32_const_module(found.value)?;

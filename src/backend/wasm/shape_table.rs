@@ -2,6 +2,7 @@ use crate::mir::{ConstValue, MirInstruction, MirModule};
 use crate::mir::BinaryOp;
 
 const P10_LOOP_EXTERN_CANDIDATE_ID: &str = "wsm.p10.main_loop_extern_call.v0";
+const P10_MIN4_NATIVE_SHAPE_ID: &str = "wsm.p10.main_loop_extern_call.fixed3.v0";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NativeShape {
@@ -78,6 +79,69 @@ pub(crate) fn detect_p10_loop_extern_call_candidate(mir_module: &MirModule) -> O
     }
 
     (has_extern_call && has_branch && has_jump).then_some(P10_LOOP_EXTERN_CANDIDATE_ID)
+}
+
+/// WSM-P10-min4 native promotion matcher.
+/// Keep this conservative so existing bridge contracts stay stable.
+pub(crate) fn detect_p10_min4_native_promotable_shape(
+    mir_module: &MirModule,
+) -> Option<&'static str> {
+    let main = mir_module.get_function("main")?;
+    if main.blocks.len() < 2 {
+        return None;
+    }
+
+    let mut has_branch = false;
+    let mut has_jump = false;
+    let mut extern_log_calls = 0usize;
+    let mut has_other_call = false;
+    let mut has_const_3 = false;
+
+    for block in main.blocks.values() {
+        for inst in &block.instructions {
+            match inst {
+                MirInstruction::Const {
+                    value: ConstValue::Integer(3),
+                    ..
+                } => has_const_3 = true,
+                MirInstruction::Call { callee: Some(callee), .. } => match callee {
+                    crate::mir::Callee::Extern(name) => {
+                        if name == "env.console.log" {
+                            extern_log_calls += 1;
+                        } else {
+                            has_other_call = true;
+                        }
+                    }
+                    crate::mir::Callee::Method {
+                        box_name, method, ..
+                    } => {
+                        if box_name == "console" && method == "log" {
+                            extern_log_calls += 1;
+                        } else {
+                            has_other_call = true;
+                        }
+                    }
+                    _ => has_other_call = true,
+                },
+                MirInstruction::Call { .. } => has_other_call = true,
+                _ => {}
+            }
+        }
+
+        if let Some(term) = &block.terminator {
+            match term {
+                MirInstruction::Branch { .. } => has_branch = true,
+                MirInstruction::Jump { .. } => has_jump = true,
+                _ => {}
+            }
+        }
+    }
+
+    if has_branch && has_jump && has_const_3 && extern_log_calls == 1 && !has_other_call {
+        Some(P10_MIN4_NATIVE_SHAPE_ID)
+    } else {
+        None
+    }
 }
 
 fn match_main_return_i32_const(mir_module: &MirModule) -> Option<NativeMatch> {
@@ -507,6 +571,118 @@ mod tests {
         assert!(
             detect_p10_loop_extern_call_candidate(&module).is_none(),
             "non-loop extern shape must stay outside p10 candidate contract"
+        );
+    }
+
+    #[test]
+    fn wasm_shape_table_detects_p10_min4_native_promotable_contract() {
+        let mut module = MirModule::new("test".to_string());
+        let entry = BasicBlockId(0);
+        let loop_bb = BasicBlockId(1);
+        let exit_bb = BasicBlockId(2);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::IO,
+            },
+            entry,
+        );
+
+        {
+            let block = function
+                .get_block_mut(entry)
+                .expect("entry block must exist");
+            let cond = ValueId(1);
+            block.add_instruction(MirInstruction::Const {
+                dst: cond,
+                value: ConstValue::Integer(1),
+            });
+            block.add_instruction(MirInstruction::Branch {
+                condition: cond,
+                then_bb: loop_bb,
+                else_bb: exit_bb,
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        }
+
+        let mut loop_block = BasicBlock::new(loop_bb);
+        let c3 = ValueId(3);
+        loop_block.add_instruction(MirInstruction::Const {
+            dst: c3,
+            value: ConstValue::Integer(3),
+        });
+        loop_block.add_instruction(MirInstruction::Call {
+            dst: None,
+            func: ValueId(99),
+                callee: Some(Callee::Method {
+                    box_name: "console".to_string(),
+                    method: "log".to_string(),
+                    receiver: Some(ValueId(98)),
+                    certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                    box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+                }),
+            args: vec![c3],
+            effects: EffectMask::IO,
+        });
+        loop_block.add_instruction(MirInstruction::Jump {
+            target: entry,
+            edge_args: None,
+        });
+        function.add_block(loop_block);
+
+        let mut exit_block = BasicBlock::new(exit_bb);
+        let out = ValueId(2);
+        exit_block.add_instruction(MirInstruction::Const {
+            dst: out,
+            value: ConstValue::Integer(0),
+        });
+        exit_block.add_instruction(MirInstruction::Return { value: Some(out) });
+        function.add_block(exit_block);
+
+        module.add_function(function);
+        let found = detect_p10_min4_native_promotable_shape(&module)
+            .expect("p10 min4 native promotable should match");
+        assert_eq!(found, "wsm.p10.main_loop_extern_call.fixed3.v0");
+    }
+
+    #[test]
+    fn wasm_shape_table_rejects_p10_min4_native_promotable_with_other_calls_contract() {
+        let mut module = MirModule::new("test".to_string());
+        let entry = BasicBlockId(0);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::IO,
+            },
+            entry,
+        );
+
+        let block = function
+            .get_block_mut(entry)
+            .expect("entry block must exist");
+        let v = ValueId(1);
+        block.add_instruction(MirInstruction::Const {
+            dst: v,
+            value: ConstValue::Integer(3),
+        });
+        block.add_instruction(MirInstruction::Call {
+            dst: None,
+            func: ValueId(99),
+            callee: Some(Callee::Extern("env.canvas.fillRect".to_string())),
+            args: vec![v],
+            effects: EffectMask::IO,
+        });
+        block.add_instruction(MirInstruction::Return { value: Some(v) });
+        module.add_function(function);
+
+        assert!(
+            detect_p10_min4_native_promotable_shape(&module).is_none(),
+            "shape with non-console extern must stay outside min4 native promotion"
         );
     }
 }

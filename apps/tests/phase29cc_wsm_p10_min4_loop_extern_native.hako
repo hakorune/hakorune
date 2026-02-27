@@ -1,0 +1,14 @@
+// Phase 29cc WSM-P10-min4 loop/extern native promotion fixture
+// Contract:
+// - default hako-lane can promote this single loop+extern shape to native emit.
+
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 3) {
+      i = i + 1
+    }
+    console.log(i)
+    return i
+  }
+}
