@@ -116,6 +116,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
   - wasm `.hako`-only output roadmap SSOT:
     - `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
+  - wasm route governance（fixed 3 routes）:
+    - `hako_native`（default）/ `rust_native`（parity）/ `legacy_bridge`（monitor-only）
+    - SSOT: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` の `Route Governance (fixed)`
   - wasm P7 hako-only locks（done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-184-wsm-p7-min1-hako-only-done-criteria-lock-ssot.md`（min1）
     - `docs/development/current/main/phases/phase-29cc/29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md`（min2）
@@ -171,6 +174,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 2. wasm lane は monitor-only を維持し、failure-driven でのみ blocker を再起動する。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 4. wasm `.hako`-only output 計画は `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` を正本とし、固定順 `WAT出力 -> wat2wasm連結 -> wasmバイナリ直書き` で進める。
+5. wasm route は `hako_native/rust_native/legacy_bridge` の 3 つに固定し、新規 route を増やさない。
 
 ## Quick Restart (After Reboot)
 

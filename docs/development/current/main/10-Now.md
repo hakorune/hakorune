@@ -116,6 +116,8 @@ Related:
   - wasm lane status SSOT（active next / latest lock / lock history）: `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm `.hako`-only output roadmap SSOT: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
+  - wasm route governance（fixed）: `hako_native`（default）/ `rust_native`（parity）/ `legacy_bridge`（monitor-only）
+    - 詳細SSOT: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` の `Route Governance (fixed)`
   - wasm P7 hako-only locks（accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-184-wsm-p7-min1-hako-only-done-criteria-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md`

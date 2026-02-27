@@ -193,6 +193,9 @@ Related:
     - `docs/development/current/main/10-Now.md`（Read First Order: phase-29cc lock list）
   - wasm `.hako`-only output roadmap SSOT:
     - `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
+  - wasm route governance（fixed 3 routes）:
+    - `hako_native`（default）/ `rust_native`（parity）/ `legacy_bridge`（monitor-only）
+    - 詳細: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` の `Route Governance (fixed)`
   - plugin de-rust cutover order SSOT（new）:
     - `docs/development/current/main/phases/phase-29cc/29cc-178-plg07-plugin-derust-cutover-order-ssot.md`
   - plugin de-rust filebox binary lock（PLG-07-min1/min2 done）:

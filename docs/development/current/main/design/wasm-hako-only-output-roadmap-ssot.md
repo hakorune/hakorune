@@ -62,6 +62,22 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 2. `.hako` 側は段階移行中で、契約固定（fixture/smoke/SSOT）が主役。
 3. したがって現時点では Rust 依存は必要。無理に切り離さず、契約を先に固定する。
 
+## Route Governance (fixed)
+WASM 実行経路は以下の 3 つに固定する。これ以外の新規 route 名/経路は追加しない。
+
+1. `hako_native`:
+   - 既定経路。`.hako` 側の emitter/binary writer を通す。
+2. `rust_native`:
+   - parity/回帰確認用の比較経路。既定では選ばない。
+3. `legacy_bridge`:
+   - blocker 切り分け専用。monitor-only。新機能を追加しない。
+
+運用ルール:
+1. shape 拡張は `hako_native` を先に実装し、`legacy_bridge` への追加は禁止する。
+2. `rust_native` は parity 観測と fail-fast 境界のためにのみ使い、最適化や機能の主実装先にしない。
+3. route policy の変更は docs-first（SSOT更新 -> gate追加/更新 -> 実装）で行う。
+4. `legacy_bridge` は緑維持のみ許可し、修正は「回帰を止める最小差分」に限定する。
+
 ## Target Boundary (to-be)
 1. `.hako` compiler が MIR -> WASM text/binary を生成する。
 2. Rust 側は最小の実行ブリッジと配布保守（Windows/macOS/CI）に限定する。
@@ -161,3 +177,4 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 1. 新しい WASM 語彙追加は今まで通り docs-first（SSOT -> smoke -> code）。
 2. `.hako` 移植タスクを切るときも「1語彙/1契約/1コミット」原則を維持する。
 3. blocker 判定は `CURRENT_TASK.md` の wasm lane active next を正本にする。
+4. route 増殖を防ぐため、実装PRごとに「今回触る route（`hako_native` / `rust_native` / `legacy_bridge`）」を明記する。

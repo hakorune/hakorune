@@ -31,16 +31,30 @@ fn wasm_route_policy_name(policy: WasmRoutePolicyMode) -> &'static str {
 }
 
 #[cfg(feature = "wasm-backend")]
-fn emit_wasm_route_trace(policy: WasmRoutePolicyMode, plan: &'static str, shape_id: Option<&str>) {
+fn wasm_route_name_for_plan(plan: &'static str) -> &'static str {
+    match plan {
+        "native-shape-table" => "hako_native",
+        "bridge-rust-backend" => "rust_native",
+        _ => "unknown",
+    }
+}
+
+#[cfg(feature = "wasm-backend")]
+fn emit_wasm_route_trace_with_route(
+    policy: WasmRoutePolicyMode,
+    plan: &'static str,
+    shape_id: Option<&str>,
+) {
     if !crate::config::env::wasm_route_trace_enabled() {
         return;
     }
     let shape = shape_id.unwrap_or("-");
     eprintln!(
-        "[wasm/route-trace] policy={} plan={} shape_id={}",
+        "[wasm/route-trace] policy={} plan={} shape_id={} route={}",
         wasm_route_policy_name(policy),
         plan,
-        shape
+        shape,
+        wasm_route_name_for_plan(plan)
     );
 }
 
@@ -119,7 +133,7 @@ impl NyashRunner {
             WasmCompileRoute::HakoDefaultBridge => {
                 match compile_hako_native_shape_emit(&mir_module) {
                     Ok(Some(emitted)) => {
-                        emit_wasm_route_trace(
+                        emit_wasm_route_trace_with_route(
                             route_policy,
                             "native-shape-table",
                             Some(emitted.shape_id),
@@ -127,7 +141,11 @@ impl NyashRunner {
                         Ok(emitted.bytes)
                     }
                     Ok(None) => {
-                        emit_wasm_route_trace(route_policy, "bridge-rust-backend", None);
+                        emit_wasm_route_trace_with_route(
+                            route_policy,
+                            "bridge-rust-backend",
+                            None,
+                        );
                         wasm_backend.compile_module(mir_module)
                     }
                     Err(err) => Err(err),
@@ -207,5 +225,11 @@ mod tests {
     #[test]
     fn wasm_route_policy_name_contract() {
         assert_eq!(wasm_route_policy_name(WasmRoutePolicyMode::Default), "default");
+    }
+
+    #[test]
+    fn wasm_route_name_for_plan_contract() {
+        assert_eq!(wasm_route_name_for_plan("native-shape-table"), "hako_native");
+        assert_eq!(wasm_route_name_for_plan("bridge-rust-backend"), "rust_native");
     }
 }
