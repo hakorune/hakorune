@@ -115,6 +115,13 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
   - wasm `.hako`-only output roadmap SSOT:
     - `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
+  - wasm P7 hako-only locks（done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-184-wsm-p7-min1-hako-only-done-criteria-lock-ssot.md`（min1）
+    - `docs/development/current/main/phases/phase-29cc/29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md`（min2）
+    - `docs/development/current/main/phases/phase-29cc/29cc-186-wsm-p7-min3-two-demo-lock-ssot.md`（min3）
+    - `docs/development/current/main/phases/phase-29cc/29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md`（min4）
+  - wasm lane active next:
+    - `WSM-P8-min1`（compat retire execution lock, accepted-but-blocked）
   - wasm migration fixed order（WSM-02+）:
     - `WSM-02a`: assignment/local path unblock（`Copy`/`ReleaseStrong` 最小対応）
     - `WSM-02b`: ExternCall coverage expansion（1 extern familyずつ）
@@ -139,8 +146,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. wasm lane: `none`（G4 closeout 完了、monitor-only を維持）。
-2. `WSM-02d` gate pack は lightweight/milestone の二段運用を維持する。
+1. wasm lane: `WSM-P8-min1`（compat retire execution lock, accepted-but-blocked）。
+2. `WSM-P7-min1..min4` lock（`29cc-184..187`）を維持し、default-only 契約を崩さない。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 4. wasm `.hako`-only output 計画は `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` を正本とし、固定順 `WAT出力 -> wat2wasm連結 -> wasmバイナリ直書き` で進める。
 
@@ -193,6 +200,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - `tools/checks/dev_gate.sh milestone-perf`（節目: perf 側）
 - `tools/checks/dev_gate.sh milestone`（推奨: 統合セット）
 - `tools/checks/dev_gate.sh portability`（週次: Windows/macOS portability preflight）
+- `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`（WSM-P7 default-only 監査）
 - `bash tools/checks/windows_wsl_cmd_smoke.sh --build --cmd-smoke`（WSL環境の週次Windows smoke）
 - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`

@@ -135,3 +135,7 @@ Related:
 - [x] plugin lane `PLG-07-min1/min2` FileBox binary Rust parity lock accepted (`29cc-179-plg07-min1-min2-filebox-binary-rust-parity-lock-ssot.md`)
 - [x] plugin lane `PLG-07-min3/min4/min5` `.hako` parity + dual-run + default switch accepted (`29cc-180`/`29cc-181`/`29cc-182`)
 - [x] plugin lane `PLG-07-min6` retire readiness lock accepted (`29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`)
+- [x] wasm lane `WSM-P7-min1` hako-only done criteria lock accepted (`29cc-184-wsm-p7-min1-hako-only-done-criteria-lock-ssot.md`)
+- [x] wasm lane `WSM-P7-min2` default hako-only guard lock accepted (`29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md`)
+- [x] wasm lane `WSM-P7-min3` two-demo lock accepted (`29cc-186-wsm-p7-min3-two-demo-lock-ssot.md`)
+- [x] wasm lane `WSM-P7-min4` compat retention lock accepted-but-blocked (`29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md`)

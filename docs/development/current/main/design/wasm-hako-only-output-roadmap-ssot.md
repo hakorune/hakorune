@@ -36,6 +36,10 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-174-wsm-g4-min4-canvas-advanced-fixture-parity-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-175-wsm-g4-min5-headless-two-example-parity-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-176-wsm-g4-min6-gate-promotion-closeout-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-184-wsm-p7-min1-hako-only-done-criteria-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-186-wsm-p7-min3-two-demo-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -106,6 +110,12 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - canvas_advanced fixture parity lock（done）: `29cc-174`（`phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh`）。
    - headless two-example parity lock（done）: `29cc-175`（`phase29cc_wsm_g4_min5_headless_two_examples_vm.sh`）。
    - G4 closeout gate lock（done）: `29cc-176`（`phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh`）。
+9. **P7 Hako-Only Done Criteria Lock**
+   - P6/G4 lock を束ねて `.hako`-only 完了判定を再起動し、default-only 契約を継続監査する。
+   - done criteria lock（done）: `29cc-184`（`hako-only done criteria`）。
+   - default hako-only guard lock（done）: `29cc-185`（`phase29cc_wsm_p7_min2_default_hako_only_guard_vm.sh`）。
+   - two-demo lock（done）: `29cc-186`（`phase29cc_wsm_p7_min3_two_demo_lock_vm.sh`）。
+   - compat retention lock（accepted-but-blocked done）: `29cc-187`（`phase29cc_wsm_p7_min4_compat_retention_lock_vm.sh`）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。
