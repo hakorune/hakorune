@@ -73,6 +73,16 @@ Script
     bash tools/selfhost/sync_lane_a_state.sh
     bash tools/checks/phase29bq_joinir_port_sync_guard.sh
     ```
+- tools/selfhost/sync_wasm_lane_state.sh
+  - wasm lane pointer 同期ヘルパー（`CURRENT_TASK.md` / `phase-29cc/README.md` / `10-Now.md`）。
+  - 使い方:
+    ```bash
+    bash tools/selfhost/sync_wasm_lane_state.sh \
+      --lock-doc docs/development/current/main/phases/phase-29cc/29cc-163-wsm-p5-min4-hako-lane-bridge-shrink-lock-ssot.md \
+      --next-id WSM-P5-min5 \
+      --next-task-text ".hako emitter/binary writer 実体路を 1 shape 接続し、bridge fallback 非依存 case を lock する。" \
+      --readme-note "1-shape real `.hako` emitter/binary writer route lock"
+    ```
 
 Examples
 ```bash

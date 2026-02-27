@@ -88,14 +88,16 @@ impl WasmBackend {
         &mut self,
         mir_module: MirModule,
     ) -> Result<(Vec<u8>, WasmHakoDefaultLanePlan), WasmError> {
-        let plan = self.plan_hako_default_lane(&mir_module);
-        let bytes = match plan {
-            WasmHakoDefaultLanePlan::NativePilotShape => {
-                let found = shape_table::match_pilot_shape(&mir_module)
-                    .expect("native pilot plan must have pilot shape");
-                binary_writer::build_minimal_main_i32_const_module(found.value)?
-            }
-            WasmHakoDefaultLanePlan::BridgeRustBackend => self.compile_module(mir_module)?,
+        let pilot_match = shape_table::match_pilot_shape(&mir_module);
+        let (plan, bytes) = match pilot_match {
+            Some(found) => (
+                WasmHakoDefaultLanePlan::NativePilotShape,
+                binary_writer::build_minimal_main_i32_const_module(found.value)?,
+            ),
+            None => (
+                WasmHakoDefaultLanePlan::BridgeRustBackend,
+                self.compile_module(mir_module)?,
+            ),
         };
         Ok((bytes, plan))
     }

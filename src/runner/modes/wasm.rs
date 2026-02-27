@@ -93,12 +93,9 @@ impl NyashRunner {
         let compile_result = match compile_route {
             // P5-min3: default route is switched to "hako lane".
             // Current lane implementation is bridge-only and delegates to Rust backend.
-            WasmCompileRoute::HakoDefaultBridge => {
-                match wasm_backend.compile_hako_default_lane(mir_module) {
-                    Ok((bytes, _plan)) => Ok(bytes),
-                    Err(err) => Err(err),
-                }
-            }
+            WasmCompileRoute::HakoDefaultBridge => wasm_backend
+                .compile_hako_default_lane(mir_module)
+                .map(|(bytes, _plan)| bytes),
             // Explicit compatibility lane for phased cutover.
             WasmCompileRoute::LegacyRust => wasm_backend.compile_module(mir_module),
         };
