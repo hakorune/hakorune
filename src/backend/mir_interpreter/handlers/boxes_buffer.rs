@@ -1,6 +1,6 @@
 use super::*;
 use super::temp_dispatch::{
-    with_temp_receiver_dispatch, TMP_OUT_INSTANCE_METHOD_BRIDGE, TMP_RECV_INSTANCE_METHOD_BRIDGE,
+    with_temp_receiver_dispatch, TMP_OUT_BUFFER_METHOD_BRIDGE, TMP_RECV_BUFFER_METHOD_BRIDGE,
 };
 use crate::boxes::math_box::FloatBox;
 
@@ -131,8 +131,8 @@ pub(super) fn try_handle_buffer_box_methodcall(
     with_temp_receiver_dispatch(
         this,
         receiver,
-        TMP_RECV_INSTANCE_METHOD_BRIDGE,
-        TMP_OUT_INSTANCE_METHOD_BRIDGE,
+        TMP_RECV_BUFFER_METHOD_BRIDGE,
+        TMP_OUT_BUFFER_METHOD_BRIDGE,
         |vm, recv_tmp, out_tmp| try_handle_buffer_box(vm, Some(out_tmp), recv_tmp, method, args),
     )
 }

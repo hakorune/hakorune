@@ -12,6 +12,8 @@ pub(super) const TMP_RECV_FILE_METHOD_BRIDGE: ValueId = ValueId(999_999_998);
 pub(super) const TMP_OUT_FILE_METHOD_BRIDGE: ValueId = ValueId(999_999_999);
 pub(super) const TMP_RECV_PATH_METHOD_BRIDGE: ValueId = ValueId(999_999_990);
 pub(super) const TMP_OUT_PATH_METHOD_BRIDGE: ValueId = ValueId(999_999_991);
+pub(super) const TMP_RECV_BUFFER_METHOD_BRIDGE: ValueId = ValueId(999_999_988);
+pub(super) const TMP_OUT_BUFFER_METHOD_BRIDGE: ValueId = ValueId(999_999_989);
 
 pub(super) fn with_temp_receiver_dispatch<F>(
     vm: &mut MirInterpreter,

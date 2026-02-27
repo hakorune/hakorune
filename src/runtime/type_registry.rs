@@ -17,6 +17,8 @@
  *   - 200..: Map 系（size/len/has/get/set/delete ほか拡張）
  *   - 300..: String 系（len/substring/concat/indexOf/replace/trim/toUpper/toLower）
  *   - 400..: Console 系（log/warn/error/clear）
+ *   - 500..: Buffer 系（typed binary I/O。現在は VM handler dispatch を SSOT とし、slot は未固定）
+ *   - 600..: File 系（readBytes/writeBytes。現在は VM handler dispatch を SSOT とし、slot は未固定）
  *
  * Phase 124: Primitive type support
  * - Primitive types (String, Integer, Array) are now registered with same slot numbers as their Box variants
