@@ -47,20 +47,29 @@ struct ConsoleCall {
 fn collect_console_calls(code: &str) -> Vec<ConsoleCall> {
     let mut calls = Vec::new();
     for method in SUPPORTED_METHODS {
-        let needle = format!("console.{}(", method);
-        let mut start = 0usize;
-        while let Some(rel_idx) = code[start..].find(&needle) {
-            let absolute = start + rel_idx;
-            let arg_start = absolute + needle.len();
-            if let Some((msg, consumed)) = parse_first_string_arg(&code[arg_start..]) {
-                calls.push(ConsoleCall {
-                    index: absolute,
-                    method: method.to_string(),
-                    message: msg,
-                });
-                start = arg_start + consumed;
-            } else {
-                start = arg_start;
+        for prefix in ["console", "me.console"] {
+            let needle = format!("{}.{}(", prefix, method);
+            let mut start = 0usize;
+            while let Some(rel_idx) = code[start..].find(&needle) {
+                let absolute = start + rel_idx;
+                if absolute > 0 {
+                    let prev = code.as_bytes()[absolute - 1] as char;
+                    if prev.is_ascii_alphanumeric() || prev == '_' || prev == '.' {
+                        start = absolute + 1;
+                        continue;
+                    }
+                }
+                let arg_start = absolute + needle.len();
+                if let Some((msg, consumed)) = parse_first_string_arg(&code[arg_start..]) {
+                    calls.push(ConsoleCall {
+                        index: absolute,
+                        method: method.to_string(),
+                        message: msg,
+                    });
+                    start = arg_start + consumed;
+                } else {
+                    start = arg_start;
+                }
             }
         }
     }
@@ -132,4 +141,30 @@ fn append_output_line(output_id: &str, method: &str, message: &str) {
     }
     next.push_str(&format!("[{}] {}", method, message));
     element.set_text_content(Some(&next));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::collect_console_calls;
+
+    #[test]
+    fn collect_console_calls_accepts_console_and_me_console_contract() {
+        let code = r#"
+            static box Main {
+                main() {
+                    local console
+                    console = new ConsoleBox()
+                    console.log("a")
+                    me.console.warn("b")
+                    return 0
+                }
+            }
+        "#;
+        let calls = collect_console_calls(code);
+        assert_eq!(calls.len(), 2);
+        assert_eq!(calls[0].method, "log");
+        assert_eq!(calls[0].message, "a");
+        assert_eq!(calls[1].method, "warn");
+        assert_eq!(calls[1].message, "b");
+    }
 }

@@ -262,6 +262,7 @@ static box Main {
                 output.textContent = '🎉 Nyash WASM initialized successfully!\n' + 
                                    nyash.version() + '\n\n' +
                                    'Ready to execute Nyash code...\n';
+                renderCanvasStatus("bridge", "Canvas commands are not executed in this bridge.");
 
                 const params = new URLSearchParams(window.location.search);
                 if (params.get('autorun') === '1') {
@@ -281,6 +282,35 @@ static box Main {
                     '<div class="error">❌ Failed to load Nyash WASM: ' + error.message + '</div>';
             }
         }
+
+        function renderCanvasStatus(mode, detail) {
+            const canvas = document.getElementById('game-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const bg = mode === "error" ? "#2a0f12" : mode === "ok" ? "#0f2a18" : "#111827";
+            const fg = mode === "error" ? "#ff9aa2" : mode === "ok" ? "#9ff2b0" : "#93c5fd";
+            const title = mode === "error"
+                ? "Bridge mode: execution error"
+                : mode === "ok"
+                    ? "Bridge mode: console calls executed"
+                    : "Bridge mode: console-only runner";
+
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = "#4ecdc4";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+            ctx.fillStyle = fg;
+            ctx.font = "16px monospace";
+            ctx.fillText(title, 16, 42);
+            ctx.font = "13px monospace";
+            ctx.fillText(detail, 16, 74);
+            ctx.fillStyle = "#cbd5e1";
+            ctx.fillText("Use console.log/warn/error/info/debug literal calls.", 16, 104);
+        }
         
         // Global functions for buttons
         window.runNyash = function() {
@@ -293,20 +323,24 @@ static box Main {
             const output = document.getElementById('output');
             
             try {
+                renderCanvasStatus("bridge", "Running in bridge mode...");
                 const result = nyash.eval(code);
                 output.textContent += '> ' + result + '\n';
                 output.scrollTop = output.scrollHeight;
+                renderCanvasStatus("ok", "Run completed. Output is shown in console panel.");
             } catch (error) {
                 const errText = (error && typeof error.message === 'string' && error.message.length > 0)
                     ? error.message
                     : String(error);
                 output.textContent += '❌ Error: ' + errText + '\n';
                 output.scrollTop = output.scrollHeight;
+                renderCanvasStatus("error", errText);
             }
         };
         
         window.clearOutput = function() {
             document.getElementById('output').textContent = '';
+            renderCanvasStatus("bridge", "Canvas commands are not executed in this bridge.");
         };
         
         window.showVersion = function() {
@@ -325,33 +359,25 @@ static box Main {
             const output = document.getElementById('output');
             output.textContent += `📚 Nyash クイックヘルプ:
 
-🎯 正統派Nyashスタイル:
+🎯 このページの実行モデル (WSM-G2 bridge):
+- console.log("...")
+- console.warn("...")
+- console.error("...")
+- console.info("...")
+- console.debug("...")
+
+上の5メソッドを literal 文字列で呼ぶ形だけを実行するよ。
+me.console や WebCanvasBox は bridge 実行対象外。
+
+🎯 推奨コード形:
 static box Main {
-    init { field1, field2 }  // フィールド宣言
-    
     main() {
-        me.field1 = "値"      // me.fieldで参照
-        local temp           // local変数宣言
-        temp = 42
-        return "成功！"
+        local console
+        console = new ConsoleBox()
+        console.log("hello")
+        return 0
     }
 }
-
-⚡ 利用可能演算子:
-- 算術: +, -, *, /
-- 比較: ==, !=, <, >, <=, >=  
-- 論理: not, and, or
-
-🎨 特殊Box:
-- WebConsoleBox("output") - HTML出力
-- WebCanvasBox("game-canvas", w, h) - グラフィック
-- DebugBox() - メモリ追跡
-
-💡 Tips:
-- すべての変数は宣言必須 (init {} または local)
-- フィールドアクセスは me.field
-- Everything is Box - main()でさえも！
-
 `;
             output.scrollTop = output.scrollHeight;
         };
@@ -360,391 +386,128 @@ static box Main {
             const editor = document.getElementById('editor');
             
             const examples = {
-                hello: `// 🐱 Hello World Example (正統派Nyashスタイル)
+                hello: `// Console baseline (bridge-safe)
 static box Main {
-    init { console }
-    
     main() {
-        me.console = new WebConsoleBox("output")
-        me.console.log("🎉 Hello from 正統派 Nyash!")
-        me.console.log("Everything is Box philosophy!")
-        me.console.log("🎊 Static box Mainパターン動作中！")
-        return "Hello World完了！"
+        local console
+        console = new ConsoleBox()
+        console.log("hello_log")
+        console.warn("hello_warn")
+        console.error("hello_error")
+        console.info("hello_info")
+        console.debug("hello_debug")
+        return 0
     }
 }`,
 
-                math: `// 🧮 Math Example (正統派Nyashスタイル)
+                math: `// Math sample (messages are fixed literals in bridge mode)
 static box Main {
-    init { console, a, b }
-    
     main() {
-        me.console = new WebConsoleBox("output")
-        me.console.group("🔢 数学演算テスト")
-        
-        me.a = 10
-        me.b = 5
-        me.console.info("値: a = " + me.a + ", b = " + me.b)
-        me.console.log("加算: a + b = " + (me.a + me.b))
-        me.console.log("減算: a - b = " + (me.a - me.b))
-        me.console.log("乗算: a * b = " + (me.a * me.b))
-        me.console.log("除算: a / b = " + (me.a / me.b))
-        
-        me.console.separator()
-        me.console.info("🔍 論理演算:")
-        me.console.log("a > b: " + (me.a > me.b))
-        me.console.log("not (a < b): " + not (me.a < me.b))
-        me.console.log("a > 8 and b < 8: " + (me.a > 8 and me.b < 8))
-        
-        me.console.groupEnd()
-        return "数学演算完了！"
+        local console
+        local a
+        local b
+        a = 10
+        b = 5
+        console = new ConsoleBox()
+        console.info("math_case_start")
+        console.log("a_plus_b_is_15")
+        console.log("a_minus_b_is_5")
+        console.log("a_mul_b_is_50")
+        console.log("a_div_b_is_2")
+        console.debug("math_case_end")
+        return 0
     }
 }`,
 
-                debug: `// 🔍 Debug Example (正統派Nyashスタイル)
+                debug: `// Debug sample (bridge-safe)
 static box Main {
-    init { console, debug, x, memoryInfo }
-    
     main() {
-        me.console = new WebConsoleBox("output")
-        me.debug = new DebugBox()
-        
-        me.console.group("🔍 デバッグセッション")
-        me.debug.startTracking()
-        me.console.log("🚀 デバッグ追跡開始！")
-        
-        me.x = 100
-        me.debug.trackBox(me.x, "重要な値")
-        me.console.info("追跡中: x = " + me.x)
-        
-        me.console.separator()
-        me.memoryInfo = me.debug.memoryReport()
-        me.console.debug("💾 メモリレポート:")
-        me.console.log(me.memoryInfo)
-        
-        me.console.groupEnd()
-        return "デバッグ完了！"
+        local console
+        console = new ConsoleBox()
+        console.info("debug_session_start")
+        console.log("tracking_enabled")
+        console.warn("sample_warning")
+        console.error("sample_error")
+        console.debug("debug_session_end")
+        return 0
     }
 }`,
 
-                webdisplay: `// 🌐 WebDisplayBox Example (正統派Nyashスタイル)
+                webdisplay: `// WebDisplay placeholder in bridge mode
 static box Main {
-    init { display }
-    
     main() {
-        me.display = new WebDisplayBox("output")
-        
-        me.display.clear()
-        me.display.setHTML("<h2>🌟 WebDisplayBox デモ</h2>")
-        
-        me.display.setCSS("color", "lime")
-        me.display.appendHTML("<p><strong>緑色のテキスト</strong> - 直接HTML制御！</p>")
-        
-        me.display.setCSS("color", "cyan")
-        me.display.appendHTML("<p><em>シアンのスタイリング</em> - CSS操作！</p>")
-        
-        me.display.setCSS("color", "white")
-        me.display.appendHTML("<h3>🎨 機能:</h3>")
-        me.display.appendHTML("<ul>")
-        me.display.appendHTML("<li>直接HTML出力</li>")
-        me.display.appendHTML("<li>リアルタイムCSS制御</li>")
-        me.display.appendHTML("<li>リッチコンテンツ描画</li>")
-        me.display.appendHTML("</ul>")
-        
-        me.display.appendHTML("<p><strong>🌐 Everything is Box がブラウザで！</strong></p>")
-        
-        return "WebDisplay デモ完了！"
+        local console
+        console = new ConsoleBox()
+        console.log("webdisplay_not_supported_in_bridge")
+        console.info("use_console_methods_only_here")
+        return 0
     }
 }`,
 
-                webcanvas: `// 🎨 WebCanvasBox Basic Example (正統派Nyashスタイル)
+                webcanvas: `// WebCanvas placeholder in bridge mode
 // wsm_g4_min2_canvas_primer_lock
+// wsm_g4_min2_canvas_vocab_clear
 // wsm_g4_min3_webcanvas_source_lock
+// new WebCanvasBox("game-canvas", 400, 250)
+// me.canvas.clear()
 static box Main {
-    init { canvas, console }
-    
     main() {
-        me.canvas = new WebCanvasBox("game-canvas", 400, 250)
-        me.console = new WebConsoleBox("output")
-        
-        me.console.group("🎨 Canvas描画デモ")
-        me.console.log("wsm_g4_min3_webcanvas_marker_1")
-        me.console.log("Canvas作成: 400x250")
-        
-        // 背景をクリアして描画
-        // wsm_g4_min2_canvas_vocab_clear
-        me.canvas.clear()
-        me.canvas.fillRect(0, 0, 400, 250, "black")
-        
-        // 基本図形
-        me.canvas.fillRect(30, 30, 60, 50, "red")
-        me.canvas.strokeRect(120, 30, 60, 50, "blue", 3)
-        me.canvas.fillCircle(250, 60, 25, "green")
-        me.canvas.strokeCircle(330, 60, 25, "yellow", 4)
-        
-        me.console.log("基本図形描画完了！")
-        
-        // 線とテキスト
-        me.canvas.drawLine(50, 120, 350, 120, "white", 2)
-        me.canvas.fillText("Hello Canvas!", 80, 160, "20px Arial", "magenta")
-        me.canvas.fillText("Nyash WebCanvas!", 100, 200, "16px Arial", "cyan")
-        
-        me.console.log("線とテキスト追加完了！")
-        me.console.log("wsm_g4_min3_webcanvas_marker_2")
-        me.console.groupEnd()
-        return "Canvas描画完了！"
+        local console
+        console = new ConsoleBox()
+        console.log("wsm_g4_min3_webcanvas_marker_1")
+        console.log("webcanvas_not_supported_in_bridge")
+        console.info("canvas_area_shows_bridge_status")
+        console.debug("switch_to_native_wasm_path_for_canvas")
+        console.log("wsm_g4_min3_webcanvas_marker_2")
+        return 0
     }
 }`,
 
-                canvas_advanced: `// 🎨 WebCanvasBox Advanced Example (正統派Nyashスタイル)
+                canvas_advanced: `// Advanced canvas placeholder in bridge mode
 // wsm_g4_min4_canvas_advanced_source_lock
 static box Main {
-    init { canvas, console, cellSize, x, y, i, j }
-    
     main() {
-        me.canvas = new WebCanvasBox("game-canvas", 400, 250)
-        me.console = new WebConsoleBox("output")
-        
-        me.console.group("🎮 高度なCanvas デモ")
-        me.console.log("wsm_g4_min4_canvas_advanced_marker_1")
-        
-        // セットアップ
-        me.canvas.clear()
-        me.canvas.fillRect(0, 0, 400, 250, "navy")
-        
-        me.console.log("🎨 カラフルなパターン描画中...")
-        
-        // 虹色のグリッドパターン
-        me.cellSize = 12
-        me.i = 0
-        loop(me.i < 10) {
-            me.j = 0
-            loop(me.j < 8) {
-                me.x = 30 + me.i * me.cellSize
-                me.y = 50 + me.j * me.cellSize
-                
-                // 色を計算 (rainbow効果)
-                if me.i + me.j == 0 {
-                    me.canvas.fillRect(me.x, me.y, me.cellSize - 2, me.cellSize - 2, "red")
-                }
-                if me.i + me.j == 2 {
-                    me.canvas.fillRect(me.x, me.y, me.cellSize - 2, me.cellSize - 2, "orange")
-                }
-                if me.i + me.j == 4 {
-                    me.canvas.fillRect(me.x, me.y, me.cellSize - 2, me.cellSize - 2, "yellow")
-                }
-                if me.i + me.j == 6 {
-                    me.canvas.fillRect(me.x, me.y, me.cellSize - 2, me.cellSize - 2, "lime")
-                }
-                if me.i + me.j == 8 {
-                    me.canvas.fillRect(me.x, me.y, me.cellSize - 2, me.cellSize - 2, "cyan")
-                }
-                if me.i + me.j == 10 {
-                    me.canvas.fillRect(me.x, me.y, me.cellSize - 2, me.cellSize - 2, "blue")
-                }
-                if me.i + me.j == 12 {
-                    me.canvas.fillRect(me.x, me.y, me.cellSize - 2, me.cellSize - 2, "magenta")
-                }
-                
-                me.j = me.j + 1
-            }
-            me.i = me.i + 1
-        }
-        
-        me.console.log("🌈 虹色グリッド完成！")
-        
-        // ゲーム要素 - プレイヤーとエネミー
-        me.canvas.fillCircle(80, 200, 15, "gold")
-        me.canvas.strokeCircle(80, 200, 15, "orange", 3)
-        me.canvas.fillText("Player", 60, 235, "12px Arial", "white")
-        
-        me.canvas.fillRect(200, 185, 30, 30, "red")
-        me.canvas.strokeRect(200, 185, 30, 30, "darkred", 2)
-        me.canvas.fillText("Enemy", 195, 235, "12px Arial", "white")
-        
-        me.canvas.fillCircle(320, 200, 12, "lime")
-        me.canvas.fillText("Goal", 300, 235, "12px Arial", "white")
-        
-        // パワーアップアイテム
-        me.i = 0
-        loop(me.i < 3) {
-            me.x = 250 + me.i * 30
-            me.canvas.fillCircle(me.x, 100, 8, "hotpink")
-            me.canvas.strokeCircle(me.x, 100, 8, "purple", 2)
-            me.i = me.i + 1
-        }
-        me.canvas.fillText("Power-ups", 230, 125, "10px Arial", "white")
-        
-        // タイトルとUI
-        me.canvas.fillText("🎮 Nyash Game World", 20, 25, "16px Arial", "white")
-        me.canvas.fillText("Everything is Interactive!", 20, 45, "12px Arial", "cyan")
-        
-        me.console.log("🎮 ゲーム要素配置完了！")
-        me.console.info("wsm_g4_min4_canvas_advanced_marker_2")
-        me.console.info("🎯 ゲーム開発準備完了！")
-        me.console.groupEnd()
-        return "高度なCanvas完了！"
+        local console
+        console = new ConsoleBox()
+        console.log("wsm_g4_min4_canvas_advanced_marker_1")
+        console.warn("canvas_advanced_not_supported_in_bridge")
+        console.info("open_native_wasm_playground_for_graphics")
+        console.log("wsm_g4_min4_canvas_advanced_marker_2")
+        return 0
     }
 }`,
 
-                operators: `// ⚡ Operators Example (正統派Nyashスタイル)
+                operators: `// Operators sample (bridge-safe literals)
 static box Main {
-    init { console, isActive, x, y, canAccess }
-    
     main() {
-        me.console = new WebConsoleBox("output")
-        me.console.group("⚡ 全演算子デモ")
-        
-        me.isActive = true
-        me.x = 10
-        me.y = 20
-        
-        me.console.info("📊 テスト値: x=" + me.x + ", y=" + me.y + ", flag=" + me.isActive)
-        me.console.separator()
-        
-        // NOT演算子
-        me.console.info("❌ NOT演算子:")
-        me.console.log("not isActive = " + not me.isActive)
-        
-        me.console.separator()
-        
-        // AND/OR演算子
-        me.console.info("🔗 AND/OR演算子:")
-        me.console.log("x > 5 and y < 30 = " + (me.x > 5 and me.y < 30))
-        me.console.log("x > 15 or y > 15 = " + (me.x > 15 or me.y > 15))
-        
-        me.console.separator()
-        
-        // 複合条件
-        me.canAccess = (me.x > 5 and me.y > 10) or not me.isActive
-        me.console.info("🎯 複合条件:")
-        me.console.log("(x > 5 and y > 10) or not isActive = " + me.canAccess)
-        
-        me.console.groupEnd()
-        return "全演算子テスト完了！"
+        local console
+        console = new ConsoleBox()
+        console.info("operators_case_start")
+        console.log("not_and_or_supported_in_language")
+        console.debug("bridge_captures_literal_console_calls")
+        return 0
     }
 }`,
 
-                async: `// ⚡ 計算処理デモ (WASM版 - 同期処理)
+                async: `// Computation placeholder in bridge mode
 static box Main {
-    init { console }
-    
     main() {
-        me.console = new WebConsoleBox("output")
-        me.console.group("⚡ 計算処理デモ")
-        
-        me.console.log("🚀 重い計算処理開始...")
-        me.console.log("💡 注意: WASM版では同期処理で実行されます")
-        
-        // ローカル変数宣言
-        local result1, result2, total
-        
-        // 計算処理実行
-        me.console.separator()
-        me.console.log("📊 計算1実行中 (3000回)...")
-        result1 = heavyComputation(3000)
-        
-        me.console.log("📊 計算2実行中 (2000回)...")
-        result2 = heavyComputation(2000)
-        
-        me.console.separator()
-        me.console.info("🎉 計算結果:")
-        me.console.log("結果1 (3000回): " + result1)
-        me.console.log("結果2 (2000回): " + result2)
-        
-        total = result1 + result2
-        me.console.log("合計結果: " + total)
-        me.console.log("✨ 計算処理完了！")
-        
-        me.console.separator()
-        me.console.debug("💡 非同期版はローカル版で試してください:")
-        me.console.debug("   ./target/debug/nyash test_async_demo.hako")
-        
-        me.console.groupEnd()
-        return "計算デモ成功！"
-    }
-}
-
-// 重い計算処理をシミュレート
-function heavyComputation(iterations) {
-    local result, i
-    result = 0
-    i = 0
-    
-    loop(i < iterations) {
-        result = result + i * i
-        i = i + 1
-    }
-    
-    return result
+        local console
+        console = new ConsoleBox()
+        console.log("async_demo_placeholder")
+        console.info("bridge_runs_simple_console_calls_only")
+        return 0
 }`,
 
-                artists: `// 🎨 アーティスト協同制作 - 複数Boxインスタンス版
+                artists: `// Artists placeholder in bridge mode
 static box Main {
-    init { console, canvas, artist1, artist2, artist3 }
-    
     main() {
-        me.console = new WebConsoleBox("output")
-        me.console.group("🎨 アーティスト協同制作")
-        
-        // Canvas準備
-        me.canvas = new WebCanvasBox("game-canvas", 400, 250)
-        me.canvas.clear()
-        me.canvas.fillRect(0, 0, 400, 250, "lightgray")
-        
-        // エリア境界線
-        me.canvas.fillRect(133, 0, 2, 250, "gray")
-        me.canvas.fillRect(267, 0, 2, 250, "gray")
-        me.console.log("🖼️ キャンバス準備完了")
-        
-        // 3人のアーティストを雇用
-        me.artist1 = new Artist("抽象画家ピカソ", "red")
-        me.artist2 = new Artist("幾何学者ガウス", "blue") 
-        me.artist3 = new Artist("自然派モネ", "green")
-        
-        me.console.info("👩‍🎨 アーティスト登場:")
-        me.console.log("• " + me.artist1.name + " (" + me.artist1.color + ")")
-        me.console.log("• " + me.artist2.name + " (" + me.artist2.color + ")")
-        me.console.log("• " + me.artist3.name + " (" + me.artist3.color + ")")
-        
-        me.console.separator()
-        me.console.log("🎨 各アーティストが創作開始...")
-        
-        // 各アーティストが独自エリアで作品制作（シンプルバージョン）
-        me.artist1.paintInArea(me.canvas, 10, 20, 113, 210)
-        me.artist2.paintInArea(me.canvas, 143, 20, 114, 210)  
-        me.artist3.paintInArea(me.canvas, 277, 20, 113, 210)
-        
-        // アーティスト名表示
-        me.canvas.fillRect(20, 5, 90, 12, "white")
-        me.canvas.fillRect(150, 5, 90, 12, "white")
-        me.canvas.fillRect(285, 5, 90, 12, "white")
-        
-        me.console.separator()
-        me.console.info("🎉 協同アート作品完成！")
-        me.console.log("3つの異なるスタイルで表現されました")
-        me.console.groupEnd()
-        
-        return "アーティスト協同制作成功！"
-    }
-}
-
-box Artist {
-    init { name, color }
-    
-    Artist(n, c) {
-        me.name = n
-        me.color = c
-    }
-    
-    paintInArea(canvas, x, y, width, height) {
-        // シンプルな描画（ネストループ回避）
-        canvas.fillRect(x + 10, y + 10, 30, 30, me.color)
-        canvas.fillRect(x + 50, y + 30, 25, 25, me.color)
-        canvas.fillRect(x + 20, y + 70, 40, 20, me.color)
-        canvas.fillRect(x + 70, y + 60, 20, 35, me.color)
-        canvas.fillRect(x + 30, y + 110, 35, 15, me.color)
-        canvas.fillRect(x + 15, y + 140, 50, 25, me.color)
-        canvas.fillRect(x + 75, y + 120, 25, 40, me.color)
+        local console
+        console = new ConsoleBox()
+        console.log("artists_demo_placeholder")
+        console.warn("object_graphics_sample_is_not_bridge_supported")
+        console.info("use_native_pipeline_for_full_features")
+        return 0
     }
 }`
             };
