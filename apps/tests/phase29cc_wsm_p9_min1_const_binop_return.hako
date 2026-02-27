@@ -1,0 +1,9 @@
+// Phase 29cc WSM-P9-min1 const-binop-return fixture
+// Contract:
+// - Native shape-table should accept const -> const -> binop -> return integer flow.
+
+static box Main {
+  main() {
+    return 40 + 2
+  }
+}

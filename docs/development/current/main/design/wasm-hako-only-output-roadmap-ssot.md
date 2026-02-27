@@ -41,6 +41,8 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-186-wsm-p7-min3-two-demo-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-189-wsm-p9-min0-non-native-inventory-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-190-wsm-p9-min1-const-binop-native-shape-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -120,6 +122,10 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 10. **P8 Compat Bridge Retire Readiness Lock**
    - default-only 契約を維持しつつ、`BridgeRustBackend` 撤去判定を accepted-but-blocked で固定する。
    - bridge retire readiness lock（accepted-but-blocked done）: `29cc-188`（`phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh`）。
+11. **P9 Non-Native Shrink (shape-by-shape)**
+   - min0 inventory lock（done）: `29cc-189`（`phase29cc_wsm_p9_min0_non_native_inventory_lock_vm.sh`）。
+   - min1 const-binop native shape lock（done）: `29cc-190`（`phase29cc_wsm_p9_min1_const_binop_native_lock_vm.sh`）。
+   - next: `WSM-P9-min2`（loop + canvas primer shape）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

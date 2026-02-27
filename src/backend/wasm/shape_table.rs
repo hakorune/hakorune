@@ -1,9 +1,11 @@
 use crate::mir::{ConstValue, MirInstruction, MirModule};
+use crate::mir::BinaryOp;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NativeShape {
     MainReturnI32Const,
     MainReturnI32ConstViaCopy,
+    MainReturnI32ConstBinOp,
 }
 
 impl NativeShape {
@@ -11,6 +13,7 @@ impl NativeShape {
         match self {
             NativeShape::MainReturnI32Const => "wsm.p4.main_return_i32_const.v0",
             NativeShape::MainReturnI32ConstViaCopy => "wsm.p5.main_return_i32_const_via_copy.v0",
+            NativeShape::MainReturnI32ConstBinOp => "wsm.p9.main_return_i32_const_binop.v0",
         }
     }
 }
@@ -26,6 +29,7 @@ type ShapeMatcher = fn(&MirModule) -> Option<NativeMatch>;
 const NATIVE_SHAPE_TABLE: &[ShapeMatcher] = &[
     match_main_return_i32_const,
     match_main_return_i32_const_via_copy,
+    match_main_return_i32_const_binop,
 ];
 
 pub(crate) fn match_native_shape(mir_module: &MirModule) -> Option<NativeMatch> {
@@ -112,11 +116,86 @@ fn match_main_return_i32_const_via_copy(mir_module: &MirModule) -> Option<Native
     })
 }
 
+fn match_main_return_i32_const_binop(mir_module: &MirModule) -> Option<NativeMatch> {
+    let main = mir_module.get_function("main")?;
+    if main.blocks.len() != 1 {
+        return None;
+    }
+
+    let entry = main.blocks.get(&main.entry_block)?;
+    if entry.instructions.len() != 3 {
+        return None;
+    }
+
+    let MirInstruction::Const {
+        dst: lhs_dst,
+        value: lhs_value,
+    } = &entry.instructions[0]
+    else {
+        return None;
+    };
+    let MirInstruction::Const {
+        dst: rhs_dst,
+        value: rhs_value,
+    } = &entry.instructions[1]
+    else {
+        return None;
+    };
+    let MirInstruction::BinOp {
+        dst: binop_dst,
+        op,
+        lhs,
+        rhs,
+    } = &entry.instructions[2]
+    else {
+        return None;
+    };
+    if lhs != lhs_dst || rhs != rhs_dst {
+        return None;
+    }
+
+    let MirInstruction::Return {
+        value: Some(ret_val),
+    } = entry.terminator.as_ref()?
+    else {
+        return None;
+    };
+    if ret_val != binop_dst {
+        return None;
+    }
+
+    let ConstValue::Integer(lhs_n) = lhs_value else {
+        return None;
+    };
+    let ConstValue::Integer(rhs_n) = rhs_value else {
+        return None;
+    };
+
+    let folded = fold_i64_binop(*op, *lhs_n, *rhs_n)?;
+    let value = i32::try_from(folded).ok()?;
+    Some(NativeMatch {
+        shape: NativeShape::MainReturnI32ConstBinOp,
+        value,
+    })
+}
+
+fn fold_i64_binop(op: BinaryOp, lhs: i64, rhs: i64) -> Option<i64> {
+    match op {
+        BinaryOp::Add => lhs.checked_add(rhs),
+        BinaryOp::Sub => lhs.checked_sub(rhs),
+        BinaryOp::Mul => lhs.checked_mul(rhs),
+        BinaryOp::Div => lhs.checked_div(rhs),
+        BinaryOp::Mod => lhs.checked_rem(rhs),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirType, ValueId,
+        BasicBlockId, BinaryOp, EffectMask, FunctionSignature, MirFunction, MirInstruction,
+        MirType, ValueId,
     };
 
     fn make_module_with_single_const_return(value: i64) -> MirModule {
@@ -205,5 +284,88 @@ mod tests {
         let found = match_native_shape(&module).expect("const-copy-return shape should match");
         assert_eq!(found.shape.id(), "wsm.p5.main_return_i32_const_via_copy.v0");
         assert_eq!(found.value, 8);
+    }
+
+    #[test]
+    fn wasm_shape_table_matches_const_binop_return_contract() {
+        let mut module = MirModule::new("test".to_string());
+        let entry = BasicBlockId(0);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            entry,
+        );
+        let block = function
+            .get_block_mut(entry)
+            .expect("entry block must exist");
+        let lhs = ValueId(1);
+        let rhs = ValueId(2);
+        let out = ValueId(3);
+        block.add_instruction(MirInstruction::Const {
+            dst: lhs,
+            value: ConstValue::Integer(40),
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: rhs,
+            value: ConstValue::Integer(2),
+        });
+        block.add_instruction(MirInstruction::BinOp {
+            dst: out,
+            op: BinaryOp::Add,
+            lhs,
+            rhs,
+        });
+        block.add_instruction(MirInstruction::Return { value: Some(out) });
+        module.add_function(function);
+
+        let found = match_native_shape(&module).expect("const-binop-return shape should match");
+        assert_eq!(found.shape.id(), "wsm.p9.main_return_i32_const_binop.v0");
+        assert_eq!(found.value, 42);
+    }
+
+    #[test]
+    fn wasm_shape_table_rejects_const_binop_div_by_zero_contract() {
+        let mut module = MirModule::new("test".to_string());
+        let entry = BasicBlockId(0);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            entry,
+        );
+        let block = function
+            .get_block_mut(entry)
+            .expect("entry block must exist");
+        let lhs = ValueId(1);
+        let rhs = ValueId(2);
+        let out = ValueId(3);
+        block.add_instruction(MirInstruction::Const {
+            dst: lhs,
+            value: ConstValue::Integer(7),
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: rhs,
+            value: ConstValue::Integer(0),
+        });
+        block.add_instruction(MirInstruction::BinOp {
+            dst: out,
+            op: BinaryOp::Div,
+            lhs,
+            rhs,
+        });
+        block.add_instruction(MirInstruction::Return { value: Some(out) });
+        module.add_function(function);
+
+        assert!(
+            match_native_shape(&module).is_none(),
+            "const-binop-return must fail-fast on invalid arithmetic"
+        );
     }
 }

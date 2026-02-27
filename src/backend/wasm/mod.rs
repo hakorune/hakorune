@@ -538,4 +538,43 @@ mod tests {
         assert_eq!(emitted.shape_id, "wsm.p5.main_return_i32_const_via_copy.v0");
         assert!(emitted.bytes.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
     }
+
+    #[test]
+    fn wasm_hako_native_shape_emit_reports_shape_id_for_const_binop_return_contract() {
+        let sig = FunctionSignature {
+            name: "main".to_string(),
+            params: Vec::new(),
+            return_type: MirType::Integer,
+            effects: crate::mir::EffectMask::PURE,
+        };
+        let entry = BasicBlockId::new(0);
+        let mut func = MirFunction::new(sig, entry);
+        let block = func.get_block_mut(entry).expect("entry block");
+        let lhs = ValueId::new(1);
+        let rhs = ValueId::new(2);
+        let out = ValueId::new(3);
+        block.add_instruction(MirInstruction::Const {
+            dst: lhs,
+            value: ConstValue::Integer(40),
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: rhs,
+            value: ConstValue::Integer(2),
+        });
+        block.add_instruction(MirInstruction::BinOp {
+            dst: out,
+            op: crate::mir::BinaryOp::Add,
+            lhs,
+            rhs,
+        });
+        block.add_instruction(MirInstruction::Return { value: Some(out) });
+        let mut module = MirModule::new("test".to_string());
+        module.add_function(func);
+
+        let emitted = compile_hako_native_shape_emit(&module)
+            .expect("native shape emit should succeed")
+            .expect("shape should match");
+        assert_eq!(emitted.shape_id, "wsm.p9.main_return_i32_const_binop.v0");
+        assert!(emitted.bytes.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
+    }
 }
