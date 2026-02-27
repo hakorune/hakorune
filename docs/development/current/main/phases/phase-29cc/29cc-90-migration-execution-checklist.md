@@ -146,3 +146,4 @@ Related:
 - [x] wasm lane `WSM-P9-min3` canvas_advanced bridge lock accepted-but-blocked (`29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md`)
 - [x] wasm lane `WSM-P9-min4` bridge retire refresh lock accepted-but-blocked (`29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md`)
 - [x] wasm lane `WSM-P10-min1` loop/extern native emit design lock accepted-but-blocked (`29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md`)
+- [x] wasm lane `WSM-P10-min2` loop/extern matcher inventory lock accepted (`29cc-195-wsm-p10-min2-loop-extern-matcher-inventory-lock-ssot.md`)

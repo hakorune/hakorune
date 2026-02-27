@@ -134,7 +134,8 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - min4 bridge retire refresh lock（accepted-but-blocked done）: `29cc-193`（`phase29cc_wsm_p9_bridge_retire_refresh_guard.sh`）。
 12. **P10 Loop/Extern Native Emit (design-first)**
    - min1 design lock（accepted-but-blocked done）: `29cc-194`（`phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh`）。
-   - next: `WSM-P10-min2`（loop+extern matcher inventory lock, analysis-only）。
+   - min2 matcher inventory lock（accepted done）: `29cc-195`（`phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh`）。
+   - next: `WSM-P10-min3`（loop/branch/call writer section contract lock）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

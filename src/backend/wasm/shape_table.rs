@@ -1,6 +1,8 @@
 use crate::mir::{ConstValue, MirInstruction, MirModule};
 use crate::mir::BinaryOp;
 
+const P10_LOOP_EXTERN_CANDIDATE_ID: &str = "wsm.p10.main_loop_extern_call.v0";
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NativeShape {
     MainReturnI32Const,
@@ -39,6 +41,43 @@ pub(crate) fn match_native_shape(mir_module: &MirModule) -> Option<NativeMatch> 
         }
     }
     None
+}
+
+/// Analysis-only candidate detector for WSM-P10.
+/// This does not alter route planning and remains bridge-only.
+pub(crate) fn detect_p10_loop_extern_call_candidate(mir_module: &MirModule) -> Option<&'static str> {
+    let main = mir_module.get_function("main")?;
+    if main.blocks.len() < 2 {
+        return None;
+    }
+
+    let mut has_extern_call = false;
+    let mut has_branch = false;
+    let mut has_jump = false;
+
+    for block in main.blocks.values() {
+        for inst in &block.instructions {
+            if matches!(
+                inst,
+                MirInstruction::Call {
+                    callee: Some(crate::mir::Callee::Extern(_)),
+                    ..
+                }
+            ) {
+                has_extern_call = true;
+            }
+        }
+
+        if let Some(term) = &block.terminator {
+            match term {
+                MirInstruction::Branch { .. } => has_branch = true,
+                MirInstruction::Jump { .. } => has_jump = true,
+                _ => {}
+            }
+        }
+    }
+
+    (has_extern_call && has_branch && has_jump).then_some(P10_LOOP_EXTERN_CANDIDATE_ID)
 }
 
 fn match_main_return_i32_const(mir_module: &MirModule) -> Option<NativeMatch> {
@@ -194,8 +233,8 @@ fn fold_i64_binop(op: BinaryOp, lhs: i64, rhs: i64) -> Option<i64> {
 mod tests {
     use super::*;
     use crate::mir::{
-        BasicBlockId, BinaryOp, EffectMask, FunctionSignature, MirFunction, MirInstruction,
-        MirType, ValueId,
+        BasicBlock, BasicBlockId, BinaryOp, Callee, EffectMask, FunctionSignature, MirFunction,
+        MirInstruction, MirType, ValueId,
     };
 
     fn make_module_with_single_const_return(value: i64) -> MirModule {
@@ -366,6 +405,108 @@ mod tests {
         assert!(
             match_native_shape(&module).is_none(),
             "const-binop-return must fail-fast on invalid arithmetic"
+        );
+    }
+
+    #[test]
+    fn wasm_shape_table_detects_p10_loop_extern_candidate_contract() {
+        let mut module = MirModule::new("test".to_string());
+        let entry = BasicBlockId(0);
+        let loop_bb = BasicBlockId(1);
+        let exit_bb = BasicBlockId(2);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::IO,
+            },
+            entry,
+        );
+
+        {
+            let block = function
+                .get_block_mut(entry)
+                .expect("entry block must exist");
+            let cond = ValueId(1);
+            block.add_instruction(MirInstruction::Const {
+                dst: cond,
+                value: ConstValue::Integer(1),
+            });
+            block.add_instruction(MirInstruction::Branch {
+                condition: cond,
+                then_bb: loop_bb,
+                else_bb: exit_bb,
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        }
+
+        let mut loop_block = BasicBlock::new(loop_bb);
+        loop_block.add_instruction(MirInstruction::Call {
+            dst: None,
+            func: ValueId(99),
+            callee: Some(Callee::Extern("env.console.log".to_string())),
+            args: vec![ValueId(1)],
+            effects: EffectMask::IO,
+        });
+        loop_block.add_instruction(MirInstruction::Jump {
+            target: entry,
+            edge_args: None,
+        });
+        function.add_block(loop_block);
+
+        let mut exit_block = BasicBlock::new(exit_bb);
+        let out = ValueId(2);
+        exit_block.add_instruction(MirInstruction::Const {
+            dst: out,
+            value: ConstValue::Integer(0),
+        });
+        exit_block.add_instruction(MirInstruction::Return { value: Some(out) });
+        function.add_block(exit_block);
+
+        module.add_function(function);
+
+        let found =
+            detect_p10_loop_extern_call_candidate(&module).expect("p10 candidate should match");
+        assert_eq!(found, "wsm.p10.main_loop_extern_call.v0");
+    }
+
+    #[test]
+    fn wasm_shape_table_rejects_p10_candidate_without_loop_contract() {
+        let mut module = MirModule::new("test".to_string());
+        let entry = BasicBlockId(0);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::IO,
+            },
+            entry,
+        );
+
+        let block = function
+            .get_block_mut(entry)
+            .expect("entry block must exist");
+        let v = ValueId(1);
+        block.add_instruction(MirInstruction::Const {
+            dst: v,
+            value: ConstValue::Integer(1),
+        });
+        block.add_instruction(MirInstruction::Call {
+            dst: None,
+            func: ValueId(99),
+            callee: Some(Callee::Extern("env.console.log".to_string())),
+            args: vec![v],
+            effects: EffectMask::IO,
+        });
+        block.add_instruction(MirInstruction::Return { value: Some(v) });
+        module.add_function(function);
+
+        assert!(
+            detect_p10_loop_extern_call_candidate(&module).is_none(),
+            "non-loop extern shape must stay outside p10 candidate contract"
         );
     }
 }
