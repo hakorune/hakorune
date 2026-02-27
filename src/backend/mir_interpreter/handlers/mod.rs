@@ -14,6 +14,7 @@ mod boxcall_dispatch;
 mod boxcall_prelude;
 mod boxes;
 mod boxes_array;
+mod boxes_buffer;
 mod boxes_file;
 mod boxes_instance;
 mod boxes_map;

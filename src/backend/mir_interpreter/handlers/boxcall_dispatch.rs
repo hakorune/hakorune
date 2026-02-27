@@ -96,6 +96,10 @@ pub(super) fn dispatch_box_call_handlers(
         trace_dispatch!(method, "array_box");
         return Ok(true);
     }
+    if super::boxes_buffer::try_handle_buffer_box(this, dst, box_val, method, args)? {
+        trace_dispatch!(method, "buffer_box");
+        return Ok(true);
+    }
     if super::boxes_map::try_handle_map_box(this, dst, box_val, method, args)? {
         trace_dispatch!(method, "map_box");
         return Ok(true);

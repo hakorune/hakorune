@@ -161,9 +161,9 @@ Related:
   - wasm lane active next: `none`（monitor-only, failure-driven）
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest locks（recent 3）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-174-wsm-g4-min4-canvas-advanced-fixture-parity-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-175-wsm-g4-min5-headless-two-example-parity-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-176-wsm-g4-min6-gate-promotion-closeout-lock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-177-wsm-p4-min7-buffer-file-binary-contract-lock-ssot.md`
   - wasm full lock history pointer:
     - `docs/development/current/main/10-Now.md`（Read First Order: phase-29cc lock list）
   - wasm `.hako`-only output roadmap SSOT:

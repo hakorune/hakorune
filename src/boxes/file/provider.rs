@@ -98,7 +98,18 @@ pub trait FileIo: Send + Sync {
     fn caps(&self) -> FileCaps;
     fn open(&self, path: &str) -> FileResult<()>;
     fn read(&self) -> FileResult<String>;
+    fn read_bytes(&self) -> FileResult<Vec<u8>> {
+        self.read().map(|text| text.into_bytes())
+    }
     fn write(&self, text: &str) -> FileResult<()>; // Phase 108: write support
+    fn write_bytes(&self, bytes: &[u8]) -> FileResult<()> {
+        let text = std::str::from_utf8(bytes).map_err(|_| {
+            FileError::Unsupported(
+                "Binary write is not supported by this FileBox provider".to_string(),
+            )
+        })?;
+        self.write(text)
+    }
     fn close(&self) -> FileResult<()>;
 
     /// Phase 111: Downcast support for metadata access

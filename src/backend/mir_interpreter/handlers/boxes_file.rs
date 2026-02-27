@@ -6,6 +6,8 @@ use super::temp_dispatch::{
 const FILEBOX_OPEN_ARG_ERROR: &str =
     "FileBox.open: requires 1 (path) or 2 (path, mode) arguments";
 const FILEBOX_READ_ARG_ERROR: &str = "FileBox.read: requires 0 arguments";
+const FILEBOX_READ_BYTES_ARG_ERROR: &str = "FileBox.readBytes: requires 0 arguments";
+const FILEBOX_WRITE_BYTES_ARG_ERROR: &str = "FileBox.writeBytes: requires 1 argument";
 const FILEBOX_CLOSE_ARG_ERROR: &str = "FileBox.close: requires 0 arguments";
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -22,7 +24,7 @@ pub(super) fn try_handle_file_box(
     args: &[ValueId],
     mode: FileBoxDispatchMode,
 ) -> Result<bool, VMError> {
-    if !matches!(method, "open" | "read" | "close") {
+    if !matches!(method, "open" | "read" | "readBytes" | "writeBytes" | "close") {
         return Ok(false);
     }
 
@@ -55,6 +57,25 @@ pub(super) fn try_handle_file_box(
                 Err(_) => this.write_void(dst),
             }
         }
+        "readBytes" => {
+            validate_read_close_args(this, args, mode, FILEBOX_READ_BYTES_ARG_ERROR)?;
+            match file_box.ny_read_bytes() {
+                Ok(bytes) => {
+                    let arr = crate::boxes::array::ArrayBox::new();
+                    for byte in bytes {
+                        arr.push(Box::new(crate::box_trait::IntegerBox::new(byte as i64)));
+                    }
+                    this.write_result(dst, VMValue::from_nyash_box(Box::new(arr)));
+                }
+                Err(_) => this.write_void(dst),
+            }
+        }
+        "writeBytes" => {
+            let value_id = resolve_write_bytes_arg(this, args, mode)?;
+            let value = this.load_as_box(value_id)?;
+            let out = file_box.writeBytes(value);
+            this.write_result(dst, VMValue::from_nyash_box(out));
+        }
         "close" => {
             validate_read_close_args(this, args, mode, FILEBOX_CLOSE_ARG_ERROR)?;
             let _ = file_box.ny_close();
@@ -64,6 +85,34 @@ pub(super) fn try_handle_file_box(
     }
 
     Ok(true)
+}
+
+fn resolve_write_bytes_arg(
+    this: &mut MirInterpreter,
+    args: &[ValueId],
+    mode: FileBoxDispatchMode,
+) -> Result<ValueId, VMError> {
+    match mode {
+        FileBoxDispatchMode::BoxCall => {
+            if args.len() != 1 {
+                return Err(this.err_invalid(FILEBOX_WRITE_BYTES_ARG_ERROR));
+            }
+            Ok(args[0])
+        }
+        FileBoxDispatchMode::MethodCall => {
+            if args.is_empty() || args.len() > 2 {
+                return Err(this.err_invalid(FILEBOX_WRITE_BYTES_ARG_ERROR));
+            }
+            if args.len() == 1 {
+                return Ok(args[0]);
+            }
+            if is_filebox_value(this, args[0])? {
+                Ok(args[1])
+            } else {
+                Err(this.err_invalid(FILEBOX_WRITE_BYTES_ARG_ERROR))
+            }
+        }
+    }
 }
 
 pub(super) fn try_handle_file_box_boxcall(
@@ -299,5 +348,16 @@ mod tests {
         )
         .expect_err("boxcall read([recv]) must error");
         assert!(format!("{:?}", err).contains("FileBox.read: requires 0 arguments"));
+
+        let err = try_handle_file_box(
+            &mut interp,
+            Some(dst_id),
+            recv_id,
+            "writeBytes",
+            &[],
+            FileBoxDispatchMode::BoxCall,
+        )
+        .expect_err("boxcall writeBytes([]) must error");
+        assert!(format!("{:?}", err).contains("FileBox.writeBytes: requires 1 argument"));
     }
 }

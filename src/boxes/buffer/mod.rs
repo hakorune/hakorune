@@ -162,6 +162,112 @@ impl BufferBox {
         }
     }
 
+    pub fn write_u8(&self, value: i64) -> Result<usize, String> {
+        if !(0..=255).contains(&value) {
+            return Err(format!("write_u8 value out of range (0..255): {}", value));
+        }
+        let mut data = self.data.write().unwrap();
+        data.push(value as u8);
+        Ok(data.len())
+    }
+
+    pub fn write_u16(&self, value: i64) -> Result<usize, String> {
+        if !(0..=u16::MAX as i64).contains(&value) {
+            return Err(format!(
+                "write_u16 value out of range (0..65535): {}",
+                value
+            ));
+        }
+        let mut data = self.data.write().unwrap();
+        data.extend_from_slice(&(value as u16).to_le_bytes());
+        Ok(data.len())
+    }
+
+    pub fn write_u32(&self, value: i64) -> Result<usize, String> {
+        if !(0..=u32::MAX as i64).contains(&value) {
+            return Err(format!(
+                "write_u32 value out of range (0..4294967295): {}",
+                value
+            ));
+        }
+        let mut data = self.data.write().unwrap();
+        data.extend_from_slice(&(value as u32).to_le_bytes());
+        Ok(data.len())
+    }
+
+    pub fn write_u64(&self, value: i64) -> Result<usize, String> {
+        if value < 0 {
+            return Err(format!("write_u64 value must be non-negative: {}", value));
+        }
+        let mut data = self.data.write().unwrap();
+        data.extend_from_slice(&(value as u64).to_le_bytes());
+        Ok(data.len())
+    }
+
+    pub fn write_f32(&self, value: f64) -> usize {
+        let mut data = self.data.write().unwrap();
+        data.extend_from_slice(&(value as f32).to_le_bytes());
+        data.len()
+    }
+
+    pub fn write_f64(&self, value: f64) -> usize {
+        let mut data = self.data.write().unwrap();
+        data.extend_from_slice(&value.to_le_bytes());
+        data.len()
+    }
+
+    pub fn read_u8(&self, offset: i64) -> Result<u8, String> {
+        let offset = checked_offset(offset)?;
+        let data = self.data.read().unwrap();
+        if offset >= data.len() {
+            return Err(format!("read_u8 out of range: offset={}", offset));
+        }
+        Ok(data[offset])
+    }
+
+    pub fn read_u16(&self, offset: i64) -> Result<u16, String> {
+        let bytes = self.read_exact(offset, 2)?;
+        Ok(u16::from_le_bytes([bytes[0], bytes[1]]))
+    }
+
+    pub fn read_u32(&self, offset: i64) -> Result<u32, String> {
+        let bytes = self.read_exact(offset, 4)?;
+        Ok(u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]))
+    }
+
+    pub fn read_u64(&self, offset: i64) -> Result<u64, String> {
+        let bytes = self.read_exact(offset, 8)?;
+        Ok(u64::from_le_bytes([
+            bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
+        ]))
+    }
+
+    pub fn read_f32(&self, offset: i64) -> Result<f32, String> {
+        let bytes = self.read_exact(offset, 4)?;
+        Ok(f32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]))
+    }
+
+    pub fn read_f64(&self, offset: i64) -> Result<f64, String> {
+        let bytes = self.read_exact(offset, 8)?;
+        Ok(f64::from_le_bytes([
+            bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
+        ]))
+    }
+
+    fn read_exact(&self, offset: i64, len: usize) -> Result<Vec<u8>, String> {
+        let offset = checked_offset(offset)?;
+        let data = self.data.read().unwrap();
+        if offset + len > data.len() {
+            return Err(format!(
+                "read out of range: offset={} len={} buffer_len={}",
+                offset,
+                len,
+                data.len()
+            ));
+        }
+        Ok(data[offset..offset + len].to_vec())
+    }
+
     /// ⭐ Phase 10: Zero-copy detection - check if buffer is shared with another buffer
     pub fn is_shared_with(&self, other: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         if let Some(other_buffer) = other.as_any().downcast_ref::<BufferBox>() {
@@ -276,5 +382,43 @@ impl std::fmt::Debug for BufferBox {
             .field("id", &self.base.id)
             .field("length", &data.len())
             .finish()
+    }
+}
+
+fn checked_offset(offset: i64) -> Result<usize, String> {
+    if offset < 0 {
+        return Err(format!("offset must be >= 0: {}", offset));
+    }
+    Ok(offset as usize)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bufferbox_numeric_rw_contract() {
+        let b = BufferBox::new();
+
+        b.write_u8(0x12).expect("write_u8");
+        b.write_u16(0x3456).expect("write_u16");
+        b.write_u32(0x789ABCDE).expect("write_u32");
+        b.write_u64(0x1122334455667788).expect("write_u64");
+        b.write_f32(3.5);
+        b.write_f64(-7.25);
+
+        assert_eq!(b.read_u8(0).expect("read_u8"), 0x12);
+        assert_eq!(b.read_u16(1).expect("read_u16"), 0x3456);
+        assert_eq!(b.read_u32(3).expect("read_u32"), 0x789ABCDE);
+        assert_eq!(b.read_u64(7).expect("read_u64"), 0x1122334455667788);
+        assert_eq!(b.read_f32(15).expect("read_f32"), 3.5f32);
+        assert_eq!(b.read_f64(19).expect("read_f64"), -7.25f64);
+    }
+
+    #[test]
+    fn bufferbox_numeric_bounds_contract() {
+        let b = BufferBox::new();
+        assert!(b.write_u8(256).is_err());
+        assert!(b.read_u16(0).is_err());
     }
 }

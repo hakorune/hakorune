@@ -17,7 +17,9 @@ pub mod provider; // trait FileIo / FileCaps / FileError // Builtin FileBox Prov
 // Re-export FileHandleBox for easier access
 pub use handle_box::FileHandleBox;
 
-use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox};
+use crate::box_trait::{BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBox};
+use crate::boxes::array::ArrayBox;
+use crate::boxes::buffer::BufferBox;
 use crate::runtime::provider_lock;
 use std::any::Any;
 use std::sync::Arc;
@@ -124,6 +126,30 @@ impl FileBox {
         }
     }
 
+    pub fn read_bytes(&self) -> Result<Vec<u8>, String> {
+        if let Some(ref provider) = self.provider {
+            provider
+                .read_bytes()
+                .map_err(|e| format!("Read bytes failed: {}", e))
+        } else {
+            Err(no_provider_available())
+        }
+    }
+
+    pub fn write_bytes(&self, data: &[u8]) -> Result<(), String> {
+        if let Some(ref provider) = self.provider {
+            let caps = provider.caps();
+            if !caps.write {
+                return Err(write_not_supported());
+            }
+            provider
+                .write_bytes(data)
+                .map_err(|e| format!("Write bytes failed: {}", e))
+        } else {
+            Err(no_provider_available())
+        }
+    }
+
     /// Nyash VM helper: open file into this FileBox's provider state.
     ///
     /// This is intentionally small and host-driven: it enables `.hako` tooling
@@ -140,6 +166,16 @@ impl FileBox {
         self.read_to_string()
     }
 
+    /// Nyash VM helper: read file bytes from the currently opened file.
+    pub fn ny_read_bytes(&self) -> Result<Vec<u8>, String> {
+        self.read_bytes()
+    }
+
+    /// Nyash VM helper: write file bytes to the currently opened file.
+    pub fn ny_write_bytes(&self, data: &[u8]) -> Result<(), String> {
+        self.write_bytes(data)
+    }
+
     /// Nyash VM helper: close the currently opened file.
     pub fn ny_close(&self) -> Result<(), String> {
         let provider = self.provider.as_ref().ok_or_else(no_provider_available)?;
@@ -152,6 +188,20 @@ impl FileBox {
         match self.read_to_string() {
             Ok(content) => Box::new(StringBox::new(&content)),
             Err(e) => Box::new(StringBox::new(&format!("Error reading file: {}", e))),
+        }
+    }
+
+    /// バイト列を読み取る（ArrayBox<Integer 0..255>）
+    pub fn readBytes(&self) -> Box<dyn NyashBox> {
+        match self.read_bytes() {
+            Ok(content) => {
+                let arr = ArrayBox::new();
+                for byte in content {
+                    arr.push(Box::new(IntegerBox::new(byte as i64)));
+                }
+                Box::new(arr)
+            }
+            Err(e) => Box::new(StringBox::new(format!("Error reading bytes: {}", e))),
         }
     }
 
@@ -178,6 +228,22 @@ impl FileBox {
                 "Error: {}",
                 no_provider_available()
             )))
+        }
+    }
+
+    /// バイト列を書き込む（ArrayBox<Integer 0..255> または BufferBox）
+    pub fn writeBytes(&self, content: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
+        let bytes = if let Some(buffer_box) = content.as_any().downcast_ref::<BufferBox>() {
+            Ok(buffer_box.to_vec())
+        } else if let Some(array_box) = content.as_any().downcast_ref::<ArrayBox>() {
+            arraybox_to_bytes(array_box)
+        } else {
+            Err("writeBytes() requires ArrayBox<Integer> or BufferBox".to_string())
+        };
+
+        match bytes.and_then(|b| self.write_bytes(&b)) {
+            Ok(()) => Box::new(StringBox::new("OK".to_string())),
+            Err(e) => Box::new(StringBox::new(format!("Error: {}", e))),
         }
     }
 
@@ -245,6 +311,24 @@ impl std::fmt::Display for FileBox {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.fmt_box(f)
     }
+}
+
+fn arraybox_to_bytes(array_box: &ArrayBox) -> Result<Vec<u8>, String> {
+    let items = array_box.items.read();
+    let mut out = Vec::with_capacity(items.len());
+    for item in items.iter() {
+        let Some(int_box) = item.as_any().downcast_ref::<IntegerBox>() else {
+            return Err("ArrayBox must contain only IntegerBox values".to_string());
+        };
+        if !(0..=255).contains(&int_box.value) {
+            return Err(format!(
+                "ArrayBox byte value out of range (0..255): {}",
+                int_box.value
+            ));
+        }
+        out.push(int_box.value as u8);
+    }
+    Ok(out)
 }
 
 #[cfg(test)]
@@ -411,5 +495,31 @@ mod tests {
         assert!(equals_box.value);
 
         cleanup_test_file(tmp_path);
+    }
+
+    #[test]
+    fn test_filebox_read_write_bytes_roundtrip() {
+        init_test_provider();
+
+        let tmp_path = "/tmp/phase110_test_filebox_bytes.bin";
+        setup_test_file(tmp_path, "seed");
+
+        let fb = FileBox::open(tmp_path).expect("open failed");
+        let bytes = vec![0, 1, 2, 3, 254, 255];
+        fb.write_bytes(&bytes).expect("write bytes failed");
+
+        let roundtrip = fb.read_bytes().expect("read bytes failed");
+        assert_eq!(roundtrip, bytes);
+
+        cleanup_test_file(tmp_path);
+    }
+
+    #[test]
+    fn test_arraybox_to_bytes_rejects_out_of_range() {
+        let arr = ArrayBox::new();
+        arr.push(Box::new(IntegerBox::new(256)));
+
+        let err = arraybox_to_bytes(&arr).expect_err("must reject out-of-range values");
+        assert!(err.contains("out of range"));
     }
 }

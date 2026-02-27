@@ -18,6 +18,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-157-wsm-p4-min4-hako-writer-const-parity-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-158-wsm-p4-min5-neg-const-parity-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-159-wsm-p4-min6-shape-table-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-177-wsm-p4-min7-buffer-file-binary-contract-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-160-wsm-p5-min1-default-cutover-doc-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-161-wsm-p5-min2-route-policy-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-162-wsm-p5-min3-default-hako-lane-lock-ssot.md
@@ -80,6 +81,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - const-return parity lock（done）: `29cc-157`（`phase29cc_wsm_p4_min4_hako_writer_const_parity_vm.sh`）。
    - negative const parity lock（done）: `29cc-158`（`phase29cc_wsm_p4_min5_hako_writer_neg_const_parity_vm.sh`）。
    - shape table lock（done）: `29cc-159`（`phase29cc_wsm_p4_min6_shape_table_lock_vm.sh`）。
+   - Buffer/File binary contract lock（done）: `29cc-177`（typed BufferBox API + FileBox readBytes/writeBytes）。
 6. **P5 Default Cutover**
    - 既定経路を `.hako` emitter/binary writer に切替。Rust backend は `--legacy-wasm-rust` 相当の互換 lane に縮退。
    - 連続マイルストーンで緑を確認後、互換 lane を retire 判定。

@@ -858,6 +858,12 @@ impl MirInterpreter {
             {
                 return Ok(out);
             }
+            // BufferBox fallback: typed binary read/write helpers.
+            if let Some(out) = super::boxes_buffer::try_handle_buffer_box_methodcall(
+                self, receiver, method, args,
+            )? {
+                return Ok(out);
+            }
             // PathBox fallback: join/dirname/basename/extname/isAbs/normalize via provider dispatch.
             if let Some(out) =
                 super::boxes_path::try_handle_path_box_methodcall(self, receiver, method, args)?

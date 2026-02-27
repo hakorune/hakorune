@@ -110,6 +110,23 @@ impl FileIo for Ring0FsFileIo {
         }
     }
 
+    fn read_bytes(&self) -> FileResult<Vec<u8>> {
+        let current_path = self.path.read().unwrap();
+
+        match current_path.as_ref() {
+            Some(path) => {
+                let path_obj = Path::new(path);
+                self.ring0
+                    .fs
+                    .read(path_obj)
+                    .map_err(|e| FileError::Io(format!("Read failed: {}", e)))
+            }
+            None => Err(FileError::Io(
+                "No file is currently open. Call open() first.".to_string(),
+            )),
+        }
+    }
+
     fn write(&self, text: &str) -> FileResult<()> {
         let current_path = self.path.read().unwrap();
         let current_mode = self.mode.read().unwrap();
@@ -140,6 +157,42 @@ impl FileIo for Ring0FsFileIo {
                             "Cannot write in read-only mode".to_string(),
                         ))
                     }
+                    _ => Err(FileError::Unsupported(format!(
+                        "Unsupported mode: {}",
+                        mode
+                    ))),
+                }
+            }
+            (None, _) => Err(FileError::Io(
+                "No file is currently open. Call open() first.".to_string(),
+            )),
+            (Some(_), None) => Err(FileError::Io(
+                "File mode not set. Internal error.".to_string(),
+            )),
+        }
+    }
+
+    fn write_bytes(&self, data: &[u8]) -> FileResult<()> {
+        let current_path = self.path.read().unwrap();
+        let current_mode = self.mode.read().unwrap();
+
+        match (current_path.as_ref(), current_mode.as_ref()) {
+            (Some(path), Some(mode)) => {
+                let path_obj = Path::new(path);
+                match mode.as_str() {
+                    "w" => self
+                        .ring0
+                        .fs
+                        .write_all(path_obj, data)
+                        .map_err(|e| FileError::Io(format!("Write failed: {}", e))),
+                    "a" => self
+                        .ring0
+                        .fs
+                        .append_all(path_obj, data)
+                        .map_err(|e| FileError::Io(format!("Append failed: {}", e))),
+                    "r" => Err(FileError::Unsupported(
+                        "Cannot write in read-only mode".to_string(),
+                    )),
                     _ => Err(FileError::Unsupported(format!(
                         "Unsupported mode: {}",
                         mode
