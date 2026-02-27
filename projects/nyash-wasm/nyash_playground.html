@@ -266,6 +266,11 @@ static box Main {
                 const params = new URLSearchParams(window.location.search);
                 if (params.get('autorun') === '1') {
                     setTimeout(() => {
+                        const example = params.get('example');
+                        if (example && typeof window.loadExample === 'function') {
+                            window.loadExample(example);
+                            output.textContent += `[autorun-example] ${example}\\n`;
+                        }
                         window.runNyash();
                         output.textContent += '[autorun] done\\n';
                     }, 0);
@@ -450,6 +455,7 @@ static box Main {
 
                 webcanvas: `// 🎨 WebCanvasBox Basic Example (正統派Nyashスタイル)
 // wsm_g4_min2_canvas_primer_lock
+// wsm_g4_min3_webcanvas_source_lock
 static box Main {
     init { canvas, console }
     
@@ -458,6 +464,7 @@ static box Main {
         me.console = new WebConsoleBox("output")
         
         me.console.group("🎨 Canvas描画デモ")
+        me.console.log("wsm_g4_min3_webcanvas_marker_1")
         me.console.log("Canvas作成: 400x250")
         
         // 背景をクリアして描画
@@ -479,12 +486,14 @@ static box Main {
         me.canvas.fillText("Nyash WebCanvas!", 100, 200, "16px Arial", "cyan")
         
         me.console.log("線とテキスト追加完了！")
+        me.console.log("wsm_g4_min3_webcanvas_marker_2")
         me.console.groupEnd()
         return "Canvas描画完了！"
     }
 }`,
 
                 canvas_advanced: `// 🎨 WebCanvasBox Advanced Example (正統派Nyashスタイル)
+// wsm_g4_min4_canvas_advanced_source_lock
 static box Main {
     init { canvas, console, cellSize, x, y, i, j }
     
@@ -493,6 +502,7 @@ static box Main {
         me.console = new WebConsoleBox("output")
         
         me.console.group("🎮 高度なCanvas デモ")
+        me.console.log("wsm_g4_min4_canvas_advanced_marker_1")
         
         // セットアップ
         me.canvas.clear()
@@ -566,6 +576,7 @@ static box Main {
         me.canvas.fillText("Everything is Interactive!", 20, 45, "12px Arial", "cyan")
         
         me.console.log("🎮 ゲーム要素配置完了！")
+        me.console.info("wsm_g4_min4_canvas_advanced_marker_2")
         me.console.info("🎯 ゲーム開発準備完了！")
         me.console.groupEnd()
         return "高度なCanvas完了！"

@@ -31,6 +31,10 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-170-wsm-p6-min1-route-policy-default-noop-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-171-wsm-g4-min1-nyash-playground-console-baseline-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-172-wsm-g4-min2-nyash-playground-canvas-primer-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-173-wsm-g4-min3-webcanvas-fixture-parity-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-174-wsm-g4-min4-canvas-advanced-fixture-parity-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-175-wsm-g4-min5-headless-two-example-parity-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-176-wsm-g4-min6-gate-promotion-closeout-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -96,6 +100,10 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - `projects/nyash-wasm` の移植開始点として playground console baseline を lock する。
    - baseline lock（done）: `29cc-171`（`phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh`）。
    - canvas primer lock（done）: `29cc-172`（`phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh`）。
+   - webcanvas fixture parity lock（done）: `29cc-173`（`phase29cc_wsm_g4_min3_webcanvas_fixture_parity_vm.sh`）。
+   - canvas_advanced fixture parity lock（done）: `29cc-174`（`phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh`）。
+   - headless two-example parity lock（done）: `29cc-175`（`phase29cc_wsm_g4_min5_headless_two_examples_vm.sh`）。
+   - G4 closeout gate lock（done）: `29cc-176`（`phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh`）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

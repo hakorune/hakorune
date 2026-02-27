@@ -1,0 +1,13 @@
+// Phase 29cc WSM-G4-min4 canvas_advanced fixture parity
+// Contract:
+// - Playground `canvas_advanced` route keeps source markers fixed.
+// - WASM compile parity is pinned by ConsoleBox marker lines.
+
+static box Main {
+  main() {
+    local console = new ConsoleBox()
+    console.log("wsm_g4_min4_canvas_advanced_marker_1")
+    console.info("wsm_g4_min4_canvas_advanced_marker_2")
+    return 0
+  }
+}

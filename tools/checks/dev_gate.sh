@@ -70,6 +70,10 @@ list_profiles() {
     - phase29cc_wsm_g2_browser_run_vm.sh
     - phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh
     - phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh
+    - phase29cc_wsm_g4_min3_webcanvas_fixture_parity_vm.sh
+    - phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh
+    - phase29cc_wsm_g4_min5_headless_two_examples_vm.sh
+    - phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh
   wasm-demo-g3-core:
     - wasm-demo-g2
     - phase29cc_wsm_g3_canvas_clear_contract_vm.sh
@@ -205,6 +209,14 @@ run_wasm_demo_g2() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh
   run_step "wasm g4 min2 playground canvas primer lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh
+  run_step "wasm g4 min3 webcanvas fixture parity lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min3_webcanvas_fixture_parity_vm.sh
+  run_step "wasm g4 min4 canvas_advanced fixture parity lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh
+  run_step "wasm g4 min5 headless two-example parity lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh
+  run_step "wasm g4 min6 gate promotion closeout lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh
 }
 
 run_wasm_demo_g3_core() {

@@ -1,6 +1,6 @@
 # 🌐 Nyash WebAssembly Project
 
-Status: `WSM-G4-min2` まで固定済み。`projects/nyash-wasm/bridge` を wasm build のSSOTとし、`nyash_playground.html` の ConsoleBox 5メソッド baseline（run loop + fixture parity）と canvas primer（最小語彙 `clear`）を lock している。次は `WSM-G4-min3`（canvas fixture parity）。
+Status: `WSM-G4-min6` まで固定済み。`projects/nyash-wasm/bridge` を wasm build のSSOTとし、`nyash_playground.html` の Console baseline / canvas primer / webcanvas+canvas_advanced の fixture+headless parity を lock 済み。wasm lane は monitor-only。
 
 ## 🚀 Quick Start (experimental)
 
@@ -25,6 +25,10 @@ python3 -m http.server 8000
 - **🧪 Build smoke** - `phase29cc_wsm_g2_min1_bridge_build_vm.sh` で契約固定
 - **🧪 Migration baseline smoke** - `phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh` で run loop + fixture parity を固定
 - **🧪 Canvas primer smoke** - `phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh` で primer vocabulary を固定
+- **🧪 Webcanvas fixture parity smoke** - `phase29cc_wsm_g4_min3_webcanvas_fixture_parity_vm.sh`
+- **🧪 Canvas advanced fixture parity smoke** - `phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh`
+- **🧪 Headless two-example parity smoke** - `phase29cc_wsm_g4_min5_headless_two_examples_vm.sh`
+- **🧪 G4 closeout smoke** - `phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh`
 - **🎮 Interactive Playground** - `nyash_playground.html` の Run ボタンで最小デモ確認
 
 ## 📁 File Structure

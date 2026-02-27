@@ -484,3 +484,19 @@ fn wasm_demo_min_const_return_neg1_binary_writer_parity_contract() {
         "binary-writer pilot parity mismatch for const-return(-1) fixture"
     );
 }
+
+#[test]
+fn wasm_demo_g4_min3_webcanvas_fixture_compile_to_wat_contract() {
+    let wat = compile_fixture_to_wat_direct("apps/tests/phase29cc_wsm_g4_min3_webcanvas_fixture_min.hako");
+    assert!(wat.contains("(export \"main\" (func $main))"));
+    assert!(wat.contains("\"console_log\""));
+}
+
+#[test]
+fn wasm_demo_g4_min4_canvas_advanced_fixture_compile_to_wat_contract() {
+    let wat =
+        compile_fixture_to_wat_direct("apps/tests/phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.hako");
+    assert!(wat.contains("(export \"main\" (func $main))"));
+    assert!(wat.contains("\"console_log\""));
+    assert!(wat.contains("\"console_info\""));
+}
