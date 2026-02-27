@@ -1,6 +1,6 @@
 # 🌐 Nyash WebAssembly Project
 
-Status: `WSM-G2-min1` まで復旧済み。`projects/nyash-wasm/bridge` を wasm build のSSOTとし、`nyash_playground.html` の ConsoleBox 5メソッド最小run-loopを固定している。次は `WSM-G2-min2`（headless automation smoke）。
+Status: `WSM-G4-min1` まで固定済み。`projects/nyash-wasm/bridge` を wasm build のSSOTとし、`nyash_playground.html` の ConsoleBox 5メソッド baseline（run loop + fixture parity）を lock している。次は `WSM-G4-min2`（canvas primer）。
 
 ## 🚀 Quick Start (experimental)
 
@@ -19,10 +19,11 @@ python3 -m http.server 8000
 # Navigate to: http://localhost:8000/nyash_playground.html
 ```
 
-## 🎯 Features (G2-min1 baseline)
+## 🎯 Features (G4-min1 baseline)
 
 - **📦 ConsoleBox 5 methods** - `log/warn/error/info/debug` の run-loop 最小実装
 - **🧪 Build smoke** - `phase29cc_wsm_g2_min1_bridge_build_vm.sh` で契約固定
+- **🧪 Migration baseline smoke** - `phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh` で run loop + fixture parity を固定
 - **🎮 Interactive Playground** - `nyash_playground.html` の Run ボタンで最小デモ確認
 
 ## 📁 File Structure

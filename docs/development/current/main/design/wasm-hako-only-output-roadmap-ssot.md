@@ -29,6 +29,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-168-wsm-p5-min9-legacy-retire-execution-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-169-wsm-p5-min10-legacy-hard-remove-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-170-wsm-p6-min1-route-policy-default-noop-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-171-wsm-g4-min1-nyash-playground-console-baseline-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -90,6 +91,9 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 7. **P6 Route Policy Stabilization**
    - route policy env を default-only no-op として維持するか、完全撤去するかの判断を段階固定する。
    - default-only no-op lock（done）: `29cc-170`（`phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh`）。
+8. **G4 Project Migration Baseline**
+   - `projects/nyash-wasm` の移植開始点として playground console baseline を lock する。
+   - baseline lock（done）: `29cc-171`（`phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh`）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

@@ -68,6 +68,7 @@ list_profiles() {
   wasm-demo-g2:
     - phase29cc_wsm_g2_min1_bridge_build_vm.sh
     - phase29cc_wsm_g2_browser_run_vm.sh
+    - phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh
   wasm-demo-g3-core:
     - wasm-demo-g2
     - phase29cc_wsm_g3_canvas_clear_contract_vm.sh
@@ -199,6 +200,8 @@ run_wasm_demo_g2() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh
   run_step "wasm g2 min2 headless run baseline" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh
+  run_step "wasm g4 min1 playground console baseline lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh
 }
 
 run_wasm_demo_g3_core() {
