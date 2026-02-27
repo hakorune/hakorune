@@ -25,6 +25,21 @@ const VALUE_TYPE_I32: u8 = 0x7f;
 const BLOCKTYPE_EMPTY: u8 = 0x40;
 const EXPORT_KIND_FUNC: u8 = 0x00;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LoopExternImport {
+    ConsoleLog,
+    ConsoleWarn,
+}
+
+impl LoopExternImport {
+    fn field_name(self) -> &'static str {
+        match self {
+            LoopExternImport::ConsoleLog => "console_log",
+            LoopExternImport::ConsoleWarn => "console_warn",
+        }
+    }
+}
+
 pub(crate) fn encode_u32_leb128(mut value: u32) -> Vec<u8> {
     let mut out = Vec::new();
     loop {
@@ -109,12 +124,13 @@ fn build_loop_extern_type_section_payload() -> Vec<u8> {
     ]
 }
 
-fn build_loop_extern_import_section_payload() -> Vec<u8> {
-    // import "env"."console_log" as func type[0]
+fn build_loop_extern_import_section_payload(import: LoopExternImport) -> Vec<u8> {
+    // import "env"."console_log|console_warn" as func type[0]
+    let field = import.field_name().as_bytes();
     let mut payload = vec![0x01, 0x03];
     payload.extend_from_slice(b"env");
-    payload.push(0x0b);
-    payload.extend_from_slice(b"console_log");
+    payload.push(field.len() as u8);
+    payload.extend_from_slice(field);
     payload.push(EXPORT_KIND_FUNC);
     payload.push(0x00);
     payload
@@ -216,6 +232,13 @@ pub(crate) fn build_minimal_main_i32_const_module(value: i32) -> Result<Vec<u8>,
 ///   block { loop { if counter >= iterations { break }; call import(counter); counter += 1; continue } }
 ///   return counter
 pub(crate) fn build_loop_extern_call_skeleton_module(iterations: i32) -> Result<Vec<u8>, WasmError> {
+    build_loop_extern_call_skeleton_module_with_import(iterations, LoopExternImport::ConsoleLog)
+}
+
+pub(crate) fn build_loop_extern_call_skeleton_module_with_import(
+    iterations: i32,
+    import: LoopExternImport,
+) -> Result<Vec<u8>, WasmError> {
     if iterations < 0 {
         return Err(WasmError::WasmValidationError(
             "loop extern skeleton requires non-negative iterations".to_string(),
@@ -229,7 +252,7 @@ pub(crate) fn build_loop_extern_call_skeleton_module(iterations: i32) -> Result<
     let type_payload = build_loop_extern_type_section_payload();
     append_section(&mut module, SECTION_TYPE, &type_payload);
 
-    let import_payload = build_loop_extern_import_section_payload();
+    let import_payload = build_loop_extern_import_section_payload(import);
     append_section(&mut module, SECTION_IMPORT, &import_payload);
 
     let function_payload = build_loop_extern_function_section_payload();
@@ -380,6 +403,18 @@ mod tests {
         assert!(
             msg.contains("non-negative iterations"),
             "error should mention iteration contract: {msg}"
+        );
+    }
+
+    #[test]
+    fn wasm_binary_writer_loop_extern_warn_import_contract() {
+        let wasm = build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleWarn)
+            .expect("writer must succeed");
+        let import_payload =
+            find_section_payload(&wasm, SECTION_IMPORT).expect("import section missing");
+        assert!(
+            import_payload.windows(b"console_warn".len()).any(|w| w == b"console_warn"),
+            "warn import must be encoded in import section"
         );
     }
 }

@@ -19,6 +19,7 @@ pub use runtime::RuntimeImports;
 // pub use executor::WasmExecutor; // TODO: Fix WASM executor build errors
 
 use crate::mir::MirModule;
+use self::binary_writer::LoopExternImport;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WasmHakoDefaultLanePlan {
@@ -47,6 +48,13 @@ pub fn compile_hako_native_shape_emit(
     mir_module: &MirModule,
 ) -> Result<Option<WasmNativeShapeEmit>, WasmError> {
     let Some(found) = shape_table::match_native_shape(mir_module) else {
+        if let Some(shape_id) = shape_table::detect_p10_min6_warn_native_promotable_shape(mir_module) {
+            let bytes = binary_writer::build_loop_extern_call_skeleton_module_with_import(
+                4,
+                LoopExternImport::ConsoleWarn,
+            )?;
+            return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
+        }
         if let Some(shape_id) = shape_table::detect_p10_min4_native_promotable_shape(mir_module) {
             let bytes = binary_writer::build_loop_extern_call_skeleton_module(3)?;
             return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
@@ -183,6 +191,18 @@ impl WasmBackend {
         iterations: i32,
     ) -> Result<Vec<u8>, WasmError> {
         binary_writer::build_loop_extern_call_skeleton_module(iterations)
+    }
+
+    /// Contract helper for WSM-P10-min6.
+    /// Emits loop/branch/call skeleton importing `env.console_warn`.
+    pub fn build_loop_extern_warn_skeleton_wasm(
+        &self,
+        iterations: i32,
+    ) -> Result<Vec<u8>, WasmError> {
+        binary_writer::build_loop_extern_call_skeleton_module_with_import(
+            iterations,
+            LoopExternImport::ConsoleWarn,
+        )
     }
 
     /// Convert WAT text to WASM binary with proper UTF-8 handling

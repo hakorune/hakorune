@@ -3,6 +3,7 @@ use crate::mir::BinaryOp;
 
 const P10_LOOP_EXTERN_CANDIDATE_ID: &str = "wsm.p10.main_loop_extern_call.v0";
 const P10_MIN4_NATIVE_SHAPE_ID: &str = "wsm.p10.main_loop_extern_call.fixed3.v0";
+const P10_MIN6_WARN_NATIVE_SHAPE_ID: &str = "wsm.p10.main_loop_extern_call.warn.fixed4.v0";
 const P10_MIN5_WARN_INVENTORY_ID: &str = "wsm.p10.main_loop_extern_call.warn.fixed3.inventory.v0";
 const P10_MIN5_INFO_INVENTORY_ID: &str = "wsm.p10.main_loop_extern_call.info.fixed3.inventory.v0";
 const P10_MIN5_ERROR_INVENTORY_ID: &str = "wsm.p10.main_loop_extern_call.error.fixed3.inventory.v0";
@@ -143,6 +144,69 @@ pub(crate) fn detect_p10_min4_native_promotable_shape(
 
     if has_branch && has_jump && has_const_3 && extern_log_calls == 1 && !has_other_call {
         Some(P10_MIN4_NATIVE_SHAPE_ID)
+    } else {
+        None
+    }
+}
+
+/// WSM-P10-min6 warn-family native promotion matcher.
+/// Keep strict boundary so min5 inventory fixtures remain bridge-only.
+pub(crate) fn detect_p10_min6_warn_native_promotable_shape(
+    mir_module: &MirModule,
+) -> Option<&'static str> {
+    let main = mir_module.get_function("main")?;
+    if main.blocks.len() < 2 {
+        return None;
+    }
+
+    let mut has_branch = false;
+    let mut has_jump = false;
+    let mut has_const_4 = false;
+    let mut warn_calls = 0usize;
+    let mut has_other_call = false;
+
+    for block in main.blocks.values() {
+        for inst in &block.instructions {
+            match inst {
+                MirInstruction::Const {
+                    value: ConstValue::Integer(4),
+                    ..
+                } => has_const_4 = true,
+                MirInstruction::Call { callee: Some(callee), .. } => match callee {
+                    crate::mir::Callee::Extern(name) => {
+                        if name == "env.console.warn" {
+                            warn_calls += 1;
+                        } else {
+                            has_other_call = true;
+                        }
+                    }
+                    crate::mir::Callee::Method {
+                        box_name, method, ..
+                    } => {
+                        if box_name == "console" && method == "warn" {
+                            warn_calls += 1;
+                        } else {
+                            has_other_call = true;
+                        }
+                    }
+                    _ => has_other_call = true,
+                },
+                MirInstruction::Call { .. } => has_other_call = true,
+                _ => {}
+            }
+        }
+
+        if let Some(term) = &block.terminator {
+            match term {
+                MirInstruction::Branch { .. } => has_branch = true,
+                MirInstruction::Jump { .. } => has_jump = true,
+                _ => {}
+            }
+        }
+    }
+
+    if has_branch && has_jump && has_const_4 && warn_calls == 1 && !has_other_call {
+        Some(P10_MIN6_WARN_NATIVE_SHAPE_ID)
     } else {
         None
     }
@@ -876,6 +940,33 @@ mod tests {
         assert!(
             detect_p10_min5_expansion_inventory_shape(&module).is_none(),
             "log shape belongs to min4 promotion and must stay outside min5 expansion inventory"
+        );
+    }
+
+    #[test]
+    fn wasm_shape_table_detects_p10_min6_warn_native_promotable_contract() {
+        let mut module = make_p10_loop_console_method_module("warn");
+        let main = module.get_function_mut("main").expect("main function exists");
+        for block in main.blocks.values_mut() {
+            for inst in &mut block.instructions {
+                if let MirInstruction::Const { value, .. } = inst {
+                    if *value == ConstValue::Integer(3) {
+                        *value = ConstValue::Integer(4);
+                    }
+                }
+            }
+        }
+        let found = detect_p10_min6_warn_native_promotable_shape(&module)
+            .expect("p10 min6 warn native shape should match");
+        assert_eq!(found, "wsm.p10.main_loop_extern_call.warn.fixed4.v0");
+    }
+
+    #[test]
+    fn wasm_shape_table_rejects_p10_min6_warn_native_promotable_for_fixed3_contract() {
+        let module = make_p10_loop_console_method_module("warn");
+        assert!(
+            detect_p10_min6_warn_native_promotable_shape(&module).is_none(),
+            "fixed3 warn shape must stay outside min6 promotion and remain min5 inventory"
         );
     }
 }

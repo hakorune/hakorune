@@ -1,0 +1,13 @@
+// Phase 29cc WSM-P10-min6 warn native promotion fixture
+// Contract: default hako-lane promotes warn+fixed4 shape to native emit.
+
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 4) {
+      i = i + 1
+    }
+    console.warn(i)
+    return i
+  }
+}

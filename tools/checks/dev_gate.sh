@@ -104,6 +104,7 @@ list_profiles() {
     - tools/checks/phase29cc_wsm_p10_loop_extern_writer_section_guard.sh
     - tools/checks/phase29cc_wsm_p10_single_fixture_native_promotion_guard.sh
     - tools/checks/phase29cc_wsm_p10_expansion_inventory_guard.sh
+    - tools/checks/phase29cc_wsm_p10_warn_native_promotion_guard.sh
   milestone-runtime:
     - hotpath
     - phase29cc_wsm02d_milestone_gate_vm.sh
@@ -284,6 +285,8 @@ run_portability() {
     bash tools/checks/phase29cc_wsm_p10_single_fixture_native_promotion_guard.sh
   run_step "WSM-P10 expansion inventory guard" \
     bash tools/checks/phase29cc_wsm_p10_expansion_inventory_guard.sh
+  run_step "WSM-P10 warn native promotion guard" \
+    bash tools/checks/phase29cc_wsm_p10_warn_native_promotion_guard.sh
 }
 
 run_milestone_runtime() {
