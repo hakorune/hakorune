@@ -168,6 +168,19 @@ Related:
     - `docs/development/current/main/10-Now.md`（Read First Order: phase-29cc lock list）
   - wasm `.hako`-only output roadmap SSOT:
     - `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
+  - plugin de-rust cutover order SSOT（new）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-178-plg07-plugin-derust-cutover-order-ssot.md`
+  - plugin de-rust filebox binary lock（PLG-07-min1/min2 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-179-plg07-min1-min2-filebox-binary-rust-parity-lock-ssot.md`
+  - plugin de-rust filebox `.hako` parity lock（PLG-07-min3 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-180-plg07-min3-filebox-binary-hako-parity-lock-ssot.md`
+  - plugin de-rust filebox dual-run gate lock（PLG-07-min4 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-181-plg07-min4-filebox-binary-dualrun-gate-lock-ssot.md`
+  - plugin de-rust filebox default switch lock（PLG-07-min5 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-182-plg07-min5-filebox-default-switch-lock-ssot.md`
+  - plugin de-rust filebox retire readiness lock（PLG-07-min6 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`
+  - plugin lane active next: `PLG-07-min7`（retire execution lock, accepted-but-blocked）
 
 ## M4 Tail Cleanup (retired parser flags)
 

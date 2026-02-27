@@ -132,3 +132,6 @@ Related:
 - [x] plugin lane `PLG-06-min2` wave-3 Python rollout accepted (`29cc-114-plg06-python-wave3-min2-ssot.md`)
 - [x] plugin lane `PLG-06-min3` wave-3 PythonParser rollout accepted (`29cc-115-plg06-pyparser-wave3-min3-ssot.md`)
 - [x] plugin lane `PLG-06-min4` wave-3 Egui rollout accepted (`29cc-116-plg06-egui-wave3-min4-ssot.md`)
+- [x] plugin lane `PLG-07-min1/min2` FileBox binary Rust parity lock accepted (`29cc-179-plg07-min1-min2-filebox-binary-rust-parity-lock-ssot.md`)
+- [x] plugin lane `PLG-07-min3/min4/min5` `.hako` parity + dual-run + default switch accepted (`29cc-180`/`29cc-181`/`29cc-182`)
+- [x] plugin lane `PLG-07-min6` retire readiness lock accepted (`29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`)

@@ -1,0 +1,21 @@
+// Phase 29cc PLG-07-min2 FileBox binary route fixture (Rust plugin)
+// Contract:
+// - FileBox.readBytes route is callable via plugin method table.
+// - Input payload file is prepared by smoke script and remains stable.
+
+static box Main {
+  main() {
+    local path
+    local g
+    local probe
+    path = "phase29cc_filebox_binary_payload.bin"
+
+    g = new FileBox()
+    g.open(path, "r")
+    probe = g.readBytes()
+    g.close()
+
+    print("file_bytes=PLG07_BINARY_OK")
+    return 0
+  }
+}

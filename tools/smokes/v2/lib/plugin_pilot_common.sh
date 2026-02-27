@@ -80,3 +80,35 @@ toString = { method_id = 6 }
 fini = { method_id = 4294967295 }
 EOF
 }
+
+append_filebox_toml() {
+  local lib_name="$1"
+  local lib_path="$2"
+  local include_binary_methods="${3:-0}"
+  cat << EOF
+[libraries."$lib_name"]
+boxes = ["FileBox"]
+path = "$lib_path"
+
+[libraries."$lib_name".FileBox]
+type_id = 6
+abi_version = 1
+singleton = false
+
+[libraries."$lib_name".FileBox.methods]
+birth = { method_id = 0 }
+open = { method_id = 1 }
+read = { method_id = 2 }
+write = { method_id = 3 }
+close = { method_id = 4 }
+EOF
+  if [ "$include_binary_methods" = "1" ]; then
+    cat << EOF
+readBytes = { method_id = 6 }
+writeBytes = { method_id = 9 }
+EOF
+  fi
+  cat << EOF
+fini = { method_id = 4294967295 }
+EOF
+}

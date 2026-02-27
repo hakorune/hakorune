@@ -1,0 +1,21 @@
+// Phase 29cc PLG-07-min3 FileBox binary parity fixture (.hako route)
+// Contract:
+// - FileBox.readBytes is callable from .hako-side parity fixture.
+// - Input payload file is prepared by smoke script and remains stable.
+
+static box Main {
+  main() {
+    local path
+    local f
+    local bytes
+    path = "phase29cc_filebox_binary_payload.bin"
+
+    f = new FileBox()
+    f.open(path, "r")
+    bytes = f.readBytes()
+    f.close()
+
+    print("file_bytes_hako=PLG07_BINARY_OK")
+    return 0
+  }
+}

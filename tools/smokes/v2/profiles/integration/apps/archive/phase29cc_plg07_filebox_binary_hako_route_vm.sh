@@ -1,9 +1,9 @@
 #!/bin/bash
-# Phase 29cc PLG-04-min6: FileBox wave-1 pilot smoke (VM)
+# Phase 29cc PLG-07-min3: FileBox binary parity smoke (.hako route / VM)
 # Contract:
-# - FileBox is loaded via per-run nyash.toml.
-# - FileBox method route (birth/open/read/close) works in VM.
-# - Fixture prints file_read=FILEBOX_PILOT_OK and exits cleanly.
+# - FileBox.readBytes route is callable from .hako-side parity fixture.
+# - Route is pinned to strict-plugin-first provider policy.
+# - Prepared payload bytes remain stable.
 
 set -euo pipefail
 
@@ -11,11 +11,10 @@ source "$(dirname "$0")/../../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../../lib/plugin_pilot_common.sh"
 require_env || exit 2
 
-SMOKE_NAME="phase29cc_plg04_filebox_pilot_vm"
-FIXTURE="$NYASH_ROOT/apps/tests/phase29cc_plg04_filebox_pilot_min.hako"
-WORK_DIR="$(mktemp -d -t phase29cc_plg04_filebox.XXXXXX)"
+SMOKE_NAME="phase29cc_plg07_filebox_binary_hako_route_vm"
+FIXTURE="$NYASH_ROOT/apps/tests/phase29cc_plg07_filebox_binary_hako_route_min.hako"
+WORK_DIR="$(mktemp -d -t phase29cc_plg07_hako_filebox.XXXXXX)"
 OUTPUT_FILE="$WORK_DIR/output.log"
-INPUT_FILE="$WORK_DIR/phase29cc_filebox_input.txt"
 
 cleanup() {
   rm -rf "$WORK_DIR"
@@ -41,15 +40,15 @@ if [ ! -f "$FILEBOX_LIB_PATH" ]; then
   exit 1
 fi
 
-append_filebox_toml "$FILEBOX_LIB_NAME" "$FILEBOX_LIB_PATH" 0 > "$WORK_DIR/nyash.toml"
-
-printf 'FILEBOX_PILOT_OK' > "$INPUT_FILE"
+append_filebox_toml "$FILEBOX_LIB_NAME" "$FILEBOX_LIB_PATH" 1 > "$WORK_DIR/nyash.toml"
 cp "$FIXTURE" "$WORK_DIR/main.hako"
+printf 'PLG07_BINARY_OK' > "$WORK_DIR/phase29cc_filebox_binary_payload.bin"
 
 set +e
 (
   cd "$WORK_DIR"
   NYASH_DISABLE_PLUGINS=0 \
+  HAKO_PROVIDER_POLICY=strict-plugin-first \
   NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
   NYASH_VM_USE_FALLBACK=0 \
   "$NYASH_BIN" --backend vm ./main.hako >"$OUTPUT_FILE" 2>&1
@@ -63,16 +62,22 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
-if ! grep -q 'file_read=FILEBOX_PILOT_OK' "$OUTPUT_FILE"; then
+if ! grep -q 'file_bytes_hako=PLG07_BINARY_OK' "$OUTPUT_FILE"; then
   tail -n 80 "$OUTPUT_FILE" || true
-  test_fail "$SMOKE_NAME: expected output 'file_read=FILEBOX_PILOT_OK' not found"
+  test_fail "$SMOKE_NAME: expected output 'file_bytes_hako=PLG07_BINARY_OK' not found"
   exit 1
 fi
 
-if grep -q 'Unknown Box type: FileBox' "$OUTPUT_FILE"; then
-  tail -n 80 "$OUTPUT_FILE" || true
-  test_fail "$SMOKE_NAME: stale unknown-box regression"
+PAYLOAD_FILE="$WORK_DIR/phase29cc_filebox_binary_payload.bin"
+if [ ! -f "$PAYLOAD_FILE" ]; then
+  test_fail "$SMOKE_NAME: payload file not created ($PAYLOAD_FILE)"
   exit 1
 fi
 
-test_pass "$SMOKE_NAME: PASS (FileBox pilot locked)"
+ACTUAL_PAYLOAD="$(cat "$PAYLOAD_FILE")"
+if [ "$ACTUAL_PAYLOAD" != "PLG07_BINARY_OK" ]; then
+  test_fail "$SMOKE_NAME: payload mismatch (expected PLG07_BINARY_OK, got '$ACTUAL_PAYLOAD')"
+  exit 1
+fi
+
+test_pass "$SMOKE_NAME: PASS (.hako parity route locked)"

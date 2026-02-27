@@ -17,8 +17,10 @@ pub const METHOD_READ: u32 = 2;
 pub const METHOD_WRITE: u32 = 3;
 pub const METHOD_CLOSE: u32 = 4;
 pub const METHOD_EXISTS: u32 = 5;
+pub const METHOD_READ_BYTES: u32 = 6;
 pub const METHOD_COPY_FROM: u32 = 7; // New: copyFrom(other: Handle)
 pub const METHOD_CLONE_SELF: u32 = 8; // New: cloneSelf() -> Handle
+pub const METHOD_WRITE_BYTES: u32 = 9;
 pub const METHOD_FINI: u32 = u32::MAX; // Destructor
 
 // ============ TLV Tags ============

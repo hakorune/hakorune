@@ -24,8 +24,18 @@ id = 2
 args = [ { name = "path", type = "string", optional = true } ]
 returns = { type = "string" }
 
+[FileBox.methods.readBytes]
+id = 6
+args = [ { name = "path", type = "string", optional = true } ]
+returns = { type = "bytes" }
+
 [FileBox.methods.write]
 id = 3
+args = [ { name = "path", type = "string", optional = true }, { name = "data", type = "bytes" } ]
+returns = { type = "i32" }
+
+[FileBox.methods.writeBytes]
+id = 9
 args = [ { name = "path", type = "string", optional = true }, { name = "data", type = "bytes" } ]
 returns = { type = "i32" }
 
@@ -42,4 +52,3 @@ thread_safe = true
 windows = "target/x86_64-pc-windows-msvc/release/nyash_filebox_plugin.dll"
 linux   = "target/release/libnyash_filebox_plugin.so"
 macos   = "target/release/libnyash_filebox_plugin.dylib"
-

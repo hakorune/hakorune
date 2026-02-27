@@ -99,7 +99,14 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin wave-3 rollout lock（PLG-06-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`
   - plugin lane active next:
-    - `none`（monitor-only）
+    - `PLG-07-min7`（retire execution lock, accepted-but-blocked）
+  - plugin de-rust PLG-07 locks:
+    - `docs/development/current/main/phases/phase-29cc/29cc-178-plg07-plugin-derust-cutover-order-ssot.md`（cutover order）
+    - `docs/development/current/main/phases/phase-29cc/29cc-179-plg07-min1-min2-filebox-binary-rust-parity-lock-ssot.md`（min1/min2）
+    - `docs/development/current/main/phases/phase-29cc/29cc-180-plg07-min3-filebox-binary-hako-parity-lock-ssot.md`（min3）
+    - `docs/development/current/main/phases/phase-29cc/29cc-181-plg07-min4-filebox-binary-dualrun-gate-lock-ssot.md`（min4）
+    - `docs/development/current/main/phases/phase-29cc/29cc-182-plg07-min5-filebox-default-switch-lock-ssot.md`（min5）
+    - `docs/development/current/main/phases/phase-29cc/29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`（min6）
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
