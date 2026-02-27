@@ -31,26 +31,6 @@ for smoke in "${VM_PLUGIN_SMOKES[@]}"; do
   bash "$smoke"
 done
 
-run_plg07_optional_smoke() {
-  local env_name="$1"
-  local script_path="$2"
-  local label="$3"
-  if [ "${!env_name:-0}" = "1" ]; then
-    echo "[vm-plugin-smoke] $label"
-    bash "$script_path"
-  fi
-}
-
-# PLG-07-min5 default switch:
-# - default: .hako route only (Rust compat OFF)
-# - optional compat: enable NYASH_PLG07_COMPAT_RUST=1
-# - optional dual-run parity check: enable NYASH_PLG07_DUALRUN=1
-run_plg07_optional_smoke \
-  "NYASH_PLG07_COMPAT_RUST" \
-  "tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg07_filebox_binary_rust_route_vm.sh" \
-  "PLG-07 compat route enabled (rust)"
-
-run_plg07_optional_smoke \
-  "NYASH_PLG07_DUALRUN" \
-  "tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg07_filebox_binary_dualrun_vm.sh" \
-  "PLG-07 dual-run parity enabled"
+# PLG-07-min7 retire execution:
+# - keep FileBox binary on .hako route only
+# - Rust compat / dual-run routes are retired from default execution entry

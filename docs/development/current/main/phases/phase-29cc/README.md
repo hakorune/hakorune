@@ -205,7 +205,9 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-182-plg07-min5-filebox-default-switch-lock-ssot.md`
   - plugin de-rust filebox retire readiness lock（PLG-07-min6 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`
-  - plugin lane active next: `PLG-07-min7`（retire execution lock, accepted-but-blocked）
+  - plugin de-rust filebox retire execution lock（PLG-07-min7 done）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-204-plg07-min7-filebox-retire-execution-lock-ssot.md`
+  - plugin lane active next: `none`（PLG-07 closeout complete; monitor-only）
 
 ## M4 Tail Cleanup (retired parser flags)
 

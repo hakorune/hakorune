@@ -26,13 +26,13 @@ if printf '%s\n' "$MANIFEST_BLOCK" | rg -q 'phase29cc_plg07_filebox_binary_dualr
   exit 1
 fi
 
-if ! rg -q "NYASH_PLG07_COMPAT_RUST" "$TARGET"; then
-  echo "[plg07-default-switch-guard] compat toggle NYASH_PLG07_COMPAT_RUST missing" >&2
+if rg -q "NYASH_PLG07_COMPAT_RUST" "$TARGET"; then
+  echo "[plg07-default-switch-guard] compat toggle NYASH_PLG07_COMPAT_RUST must be retired" >&2
   exit 1
 fi
 
-if ! rg -q "NYASH_PLG07_DUALRUN" "$TARGET"; then
-  echo "[plg07-default-switch-guard] dual-run toggle NYASH_PLG07_DUALRUN missing" >&2
+if rg -q "NYASH_PLG07_DUALRUN" "$TARGET"; then
+  echo "[plg07-default-switch-guard] dual-run toggle NYASH_PLG07_DUALRUN must be retired" >&2
   exit 1
 fi
 

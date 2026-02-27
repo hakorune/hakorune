@@ -99,6 +99,7 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-181-plg07-min4-filebox-binary-dualrun-gate-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-182-plg07-min5-filebox-default-switch-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-204-plg07-min7-filebox-retire-execution-lock-ssot.md`
   - post-wave1 route lock（accepted）: `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
   - plugin wave-2 entry lock（PLG-05-min1 done）: `docs/development/current/main/phases/phase-29cc/29cc-106-plg05-json-wave2-min1-ssot.md`（accepted）
   - plugin wave-2 rollout lock（PLG-05-min2 done）: `docs/development/current/main/phases/phase-29cc/29cc-107-plg05-toml-wave2-min2-ssot.md`（accepted）
@@ -111,7 +112,7 @@ Related:
   - plugin wave-3 rollout lock（PLG-06-min2 done）: `docs/development/current/main/phases/phase-29cc/29cc-114-plg06-python-wave3-min2-ssot.md`（accepted）
   - plugin wave-3 rollout lock（PLG-06-min3 done）: `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`（accepted）
   - plugin wave-3 rollout lock（PLG-06-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`（accepted）
-  - plugin lane active next: `PLG-07-min7`（retire execution lock, accepted-but-blocked）
+  - plugin lane active next: `none`（PLG-07 closeout complete; monitor-only）
   - wasm lane status SSOT（active next / latest lock / lock history）: `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm `.hako`-only output roadmap SSOT: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
@@ -242,9 +243,7 @@ Related:
 - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 - `tools/checks/dev_gate.sh portability`（cross-platform preflight）
-- `bash tools/checks/phase29cc_plg07_filebox_binary_default_switch_guard.sh`（PLG-07 default switch）
-- `bash tools/checks/phase29cc_plg07_filebox_binary_dualrun_guard.sh`（PLG-07 dual-run parity）
-- `bash tools/checks/phase29cc_plg07_filebox_binary_retire_readiness_guard.sh`（PLG-07 retire readiness）
+- `bash tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh`（PLG-07 retire execution）
 - `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`（WSM-P7 default hako-only）
 - `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`（WSM-P8 bridge retire readiness）
 - `bash tools/checks/phase29cc_wsm_p9_non_native_inventory_guard.sh`（WSM-P9 non-native shrink）

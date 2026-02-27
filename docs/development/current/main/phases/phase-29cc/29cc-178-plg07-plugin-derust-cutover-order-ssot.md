@@ -46,6 +46,8 @@ Related:
    - Rust plugin は compat route（既定OFF）へ縮退。
 6. `PLG-07-min6` Rust plugin retire decision
    - retire 条件を満たした場合のみ Rust plugin route を撤去。
+7. `PLG-07-min7` Rust compat route retire execution
+   - min6 readiness 条件を満たした後、compat/dual-run 導線を retire して `.hako` 単一路線へ固定。
 
 ## 3. Rust plugin retire/archive criteria (strict)
 
@@ -67,7 +69,8 @@ Related:
 3. `PLG-07-min4` は `29cc-181` で lock 済み。
 4. `PLG-07-min5` は `29cc-182` で lock 済み。
 5. `PLG-07-min6` は `29cc-183` で readiness lock 済み。
-6. 次は `PLG-07-min7` retire execution lock（accepted-but-blocked; 連続2 milestone 判定後）。
+6. `PLG-07-min7` は `29cc-204` で retire execution lock 済み。
+7. 次は `none`（PLG-07 closeout complete; monitor-only）。
 
 ## 5. Non-goals
 
