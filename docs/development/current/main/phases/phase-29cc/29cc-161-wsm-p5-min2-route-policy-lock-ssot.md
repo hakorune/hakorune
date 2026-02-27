@@ -30,4 +30,5 @@ Related:
 
 ## Next
 - `WSM-P5-min3` は `29cc-162` で完了（default=hako-lane bridge lock）。
-- 次は `WSM-P5-min4`: bridge 依存を縮退し、`.hako` 実体路の lock を 1 shape ずつ追加する。
+- `WSM-P5-min4` は `29cc-163` で完了（native/bridge plan 境界 lock）。
+- 次は `WSM-P5-min5`: `.hako` 実体路を 1 shape 接続し、bridge fallback 非依存 lock を追加する。

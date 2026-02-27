@@ -2,7 +2,7 @@ use super::super::NyashRunner;
 #[cfg(feature = "wasm-backend")]
 use crate::config::env::WasmRoutePolicyMode;
 #[cfg(feature = "wasm-backend")]
-use nyash_rust::{parser::NyashParser, mir::MirCompiler, backend::wasm::WasmBackend};
+use nyash_rust::{backend::wasm::WasmBackend, mir::MirCompiler, parser::NyashParser};
 #[cfg(feature = "wasm-backend")]
 use std::{fs, process};
 
@@ -93,7 +93,12 @@ impl NyashRunner {
         let compile_result = match compile_route {
             // P5-min3: default route is switched to "hako lane".
             // Current lane implementation is bridge-only and delegates to Rust backend.
-            WasmCompileRoute::HakoDefaultBridge => wasm_backend.compile_module(mir_module),
+            WasmCompileRoute::HakoDefaultBridge => {
+                match wasm_backend.compile_hako_default_lane(mir_module) {
+                    Ok((bytes, _plan)) => Ok(bytes),
+                    Err(err) => Err(err),
+                }
+            }
             // Explicit compatibility lane for phased cutover.
             WasmCompileRoute::LegacyRust => wasm_backend.compile_module(mir_module),
         };

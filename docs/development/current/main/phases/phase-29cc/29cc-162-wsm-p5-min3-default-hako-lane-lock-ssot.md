@@ -39,4 +39,5 @@ Related:
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next
-- `WSM-P5-min4`: `default(hako-lane)` の bridge 依存を縮退し、`.hako` emitter/binary writer 実体路へ 1 shape ずつ切替する。
+- `WSM-P5-min4` は `29cc-163` で完了（native/bridge plan 境界 lock）。
+- 次は `WSM-P5-min5`: `.hako` emitter/binary writer 実体路を 1 shape 接続し、bridge fallback 非依存 case を lock する。

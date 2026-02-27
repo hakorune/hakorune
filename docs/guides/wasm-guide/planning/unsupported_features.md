@@ -105,4 +105,4 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - P4 queue:
-  - `WSM-P5-min4`: `default(hako-lane)` の bridge 依存を 1 shape ずつ縮退し、`.hako` 実体路 lock を追加。
+  - `WSM-P5-min5`: `.hako` emitter/binary writer 実体路を 1 shape 接続し、bridge fallback 非依存 lock を追加。

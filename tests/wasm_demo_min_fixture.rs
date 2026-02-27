@@ -12,30 +12,27 @@ mod wasm_common;
 
 fn compile_fixture_to_wat_direct(rel: &str) -> String {
     let _ = nyash_rust::runtime::ring0::ensure_global_ring0_initialized();
-    let fixture = wasm_common::fixture_path(rel);
-    let source = fs::read_to_string(&fixture).expect("fixture should be readable");
-    let ast = NyashParser::parse_from_string(&source).expect("fixture should parse");
-    let mut compiler = MirCompiler::new();
-    let mir_module = compiler
-        .compile(ast)
-        .expect("fixture should lower to MIR")
-        .module;
+    let mir_module = compile_fixture_to_mir_module(rel);
     let mut wasm_backend = WasmBackend::new();
     wasm_backend
         .compile_to_wat(mir_module)
         .expect("fixture should compile to WAT")
 }
 
-fn compile_fixture_to_wasm_direct(rel: &str) -> Vec<u8> {
+fn compile_fixture_to_mir_module(rel: &str) -> nyash_rust::mir::MirModule {
     let _ = nyash_rust::runtime::ring0::ensure_global_ring0_initialized();
     let fixture = wasm_common::fixture_path(rel);
     let source = fs::read_to_string(&fixture).expect("fixture should be readable");
     let ast = NyashParser::parse_from_string(&source).expect("fixture should parse");
     let mut compiler = MirCompiler::new();
-    let mir_module = compiler
+    compiler
         .compile(ast)
         .expect("fixture should lower to MIR")
-        .module;
+        .module
+}
+
+fn compile_fixture_to_wasm_direct(rel: &str) -> Vec<u8> {
+    let mir_module = compile_fixture_to_mir_module(rel);
     let mut wasm_backend = WasmBackend::new();
     wasm_backend
         .compile_module(mir_module)
@@ -224,6 +221,38 @@ fn wasm_demo_min_fixture_route_policy_default_vs_legacy_cli_parity_contract() {
     assert_eq!(
         bytes_default, bytes_legacy,
         "WSM-P5-min3 bridge parity mismatch: default(hako-lane) vs legacy(rust-lane)"
+    );
+}
+
+#[test]
+fn wasm_demo_default_hako_lane_native_pilot_shape_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_p4_min_const_return.hako";
+    let mir_module = compile_fixture_to_mir_module(fixture_rel);
+    let mut backend = WasmBackend::new();
+    let (wasm_bytes, plan) = backend
+        .compile_hako_default_lane(mir_module)
+        .expect("default hako-lane compile must succeed");
+    assert_eq!(
+        plan,
+        nyash_rust::backend::wasm::WasmHakoDefaultLanePlan::NativePilotShape
+    );
+    assert!(
+        wasm_bytes.starts_with(&[0x00, 0x61, 0x73, 0x6d]),
+        "native pilot path must emit wasm binary"
+    );
+}
+
+#[test]
+fn wasm_demo_default_hako_lane_bridge_non_pilot_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm02d_demo_min.hako";
+    let mir_module = compile_fixture_to_mir_module(fixture_rel);
+    let mut backend = WasmBackend::new();
+    let (_wasm_bytes, plan) = backend
+        .compile_hako_default_lane(mir_module)
+        .expect("default hako-lane compile must succeed");
+    assert_eq!(
+        plan,
+        nyash_rust::backend::wasm::WasmHakoDefaultLanePlan::BridgeRustBackend
     );
 }
 

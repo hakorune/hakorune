@@ -132,7 +132,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. `WSM-P5-min4`（.hako-only roadmap P5）: `default(hako-lane)` の bridge 依存を 1 shape ずつ縮退し、`.hako` emitter/binary writer 実体路の gate を lock する。
+1. `WSM-P5-min5`（.hako-only roadmap P5）: `.hako` emitter/binary writer 実体路を 1 shape 接続し、bridge fallback 非依存 case を lock する。
 2. `WSM-02d` gate pack は lightweight/milestone の二段運用を維持する。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 4. wasm `.hako`-only output 計画は `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` を正本とし、固定順 `WAT出力 -> wat2wasm連結 -> wasmバイナリ直書き` で進める。

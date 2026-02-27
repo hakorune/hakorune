@@ -20,6 +20,12 @@ pub use runtime::RuntimeImports;
 
 use crate::mir::MirModule;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WasmHakoDefaultLanePlan {
+    NativePilotShape,
+    BridgeRustBackend,
+}
+
 /// WASM compilation error
 #[derive(Debug)]
 pub enum WasmError {
@@ -59,6 +65,39 @@ impl WasmBackend {
             memory_manager: MemoryManager::new(),
             runtime: RuntimeImports::new(),
         }
+    }
+
+    /// Decide plan for default hako-lane compilation.
+    ///
+    /// - `NativePilotShape`: emit wasm bytes directly for strict pilot shape.
+    /// - `BridgeRustBackend`: delegate to Rust backend compile pipeline.
+    pub fn plan_hako_default_lane(&self, mir_module: &MirModule) -> WasmHakoDefaultLanePlan {
+        if shape_table::match_pilot_shape(mir_module).is_some() {
+            WasmHakoDefaultLanePlan::NativePilotShape
+        } else {
+            WasmHakoDefaultLanePlan::BridgeRustBackend
+        }
+    }
+
+    /// Compile with explicit default hako-lane planning.
+    ///
+    /// Current state:
+    /// - native path is available for pilot shape only.
+    /// - non-pilot shapes are bridged to Rust backend path.
+    pub fn compile_hako_default_lane(
+        &mut self,
+        mir_module: MirModule,
+    ) -> Result<(Vec<u8>, WasmHakoDefaultLanePlan), WasmError> {
+        let plan = self.plan_hako_default_lane(&mir_module);
+        let bytes = match plan {
+            WasmHakoDefaultLanePlan::NativePilotShape => {
+                let found = shape_table::match_pilot_shape(&mir_module)
+                    .expect("native pilot plan must have pilot shape");
+                binary_writer::build_minimal_main_i32_const_module(found.value)?
+            }
+            WasmHakoDefaultLanePlan::BridgeRustBackend => self.compile_module(mir_module)?,
+        };
+        Ok((bytes, plan))
     }
 
     /// Compile MIR module to WASM bytes
@@ -279,5 +318,40 @@ mod tests {
         let found = shape_table::match_pilot_shape(&module).expect("pilot shape should match");
         assert_eq!(found.value, 7);
         assert_eq!(found.shape.id(), "wsm.p4.main_return_i32_const.v0");
+    }
+
+    #[test]
+    fn wasm_hako_default_lane_plan_native_for_pilot_shape_contract() {
+        let sig = FunctionSignature {
+            name: "main".to_string(),
+            params: Vec::new(),
+            return_type: MirType::Integer,
+            effects: crate::mir::EffectMask::PURE,
+        };
+        let entry = BasicBlockId::new(0);
+        let mut func = MirFunction::new(sig, entry);
+        let block = func.get_block_mut(entry).expect("entry block");
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(7),
+        });
+        block.add_instruction(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+
+        let mut module = MirModule::new("test".to_string());
+        module.add_function(func);
+
+        let backend = WasmBackend::new();
+        let plan = backend.plan_hako_default_lane(&module);
+        assert_eq!(plan, WasmHakoDefaultLanePlan::NativePilotShape);
+    }
+
+    #[test]
+    fn wasm_hako_default_lane_plan_bridge_for_non_pilot_shape_contract() {
+        let module = MirModule::new("test".to_string());
+        let backend = WasmBackend::new();
+        let plan = backend.plan_hako_default_lane(&module);
+        assert_eq!(plan, WasmHakoDefaultLanePlan::BridgeRustBackend);
     }
 }
