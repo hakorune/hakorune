@@ -154,3 +154,4 @@ Related:
 - [x] wasm lane `WSM-P10-min7` info native promotion lock accepted (`29cc-200-wsm-p10-min7-info-native-promotion-lock-ssot.md`)
 - [x] wasm lane `WSM-P10-min8` error native promotion lock accepted (`29cc-201-wsm-p10-min8-error-native-promotion-lock-ssot.md`)
 - [x] wasm lane `WSM-P10-min9` debug native promotion lock accepted (`29cc-202-wsm-p10-min9-debug-native-promotion-lock-ssot.md`)
+- [x] wasm lane `WSM-P10-min10` native promotion closeout lock accepted (`29cc-203-wsm-p10-min10-native-promotion-closeout-lock-ssot.md`)

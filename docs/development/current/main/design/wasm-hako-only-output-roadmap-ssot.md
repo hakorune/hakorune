@@ -142,7 +142,8 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - min7 info native promotion lock（accepted done）: `29cc-200`（`phase29cc_wsm_p10_info_native_promotion_guard.sh`）。
    - min8 error native promotion lock（accepted done）: `29cc-201`（`phase29cc_wsm_p10_error_native_promotion_guard.sh`）。
    - min9 debug native promotion lock（accepted done）: `29cc-202`（`phase29cc_wsm_p10_debug_native_promotion_guard.sh`）。
-   - next: `WSM-P10-min10`（loop/extern native promotion closeout lock）。
+   - min10 native promotion closeout lock（accepted done）: `29cc-203`（`phase29cc_wsm_p10_native_promotion_closeout_guard.sh`）。
+   - next: `none`（P10 closeout complete; monitor-only）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。
