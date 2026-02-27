@@ -1,6 +1,6 @@
 #![cfg(feature = "wasm-backend")]
 
-use nyash_rust::backend::wasm::WasmBackend;
+use nyash_rust::backend::wasm::{compile_hako_native_pilot_bytes, WasmBackend};
 use nyash_rust::mir::MirCompiler;
 use nyash_rust::parser::NyashParser;
 use std::fs;
@@ -253,6 +253,36 @@ fn wasm_demo_default_hako_lane_bridge_non_pilot_contract() {
     assert_eq!(
         plan,
         nyash_rust::backend::wasm::WasmHakoDefaultLanePlan::BridgeRustBackend
+    );
+}
+
+#[test]
+fn wasm_demo_default_route_pilot_uses_native_helper_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_p4_min_const_return.hako";
+    let mir_module = compile_fixture_to_mir_module(fixture_rel);
+    let bytes = compile_hako_native_pilot_bytes(&mir_module)
+        .expect("native helper should succeed")
+        .expect("pilot shape should be emitted by native helper");
+
+    let backend = WasmBackend::new();
+    let baseline = backend
+        .build_minimal_i32_const_wasm(7)
+        .expect("baseline writer must succeed");
+    assert_eq!(
+        bytes, baseline,
+        "default-route native helper output mismatch for pilot fixture"
+    );
+}
+
+#[test]
+fn wasm_demo_default_route_native_helper_rejects_non_pilot_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm02d_demo_min.hako";
+    let mir_module = compile_fixture_to_mir_module(fixture_rel);
+    let bytes = compile_hako_native_pilot_bytes(&mir_module)
+        .expect("native helper should return Ok(None) for non-pilot");
+    assert!(
+        bytes.is_none(),
+        "native helper must reject non-pilot fixture and keep bridge fallback boundary explicit"
     );
 }
 

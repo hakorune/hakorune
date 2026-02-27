@@ -58,6 +58,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[WSM-P5-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-161-wsm-p5-min2-route-policy-lock-ssot.md)** - `NYASH_WASM_ROUTE_POLICY` による default/legacy route policy SSOT と fail-fast 境界を固定した記録。
 - **[WSM-P5-min3 実装ロック](../../development/current/main/phases/phase-29cc/29cc-162-wsm-p5-min3-default-hako-lane-lock-ssot.md)** - `default` route を hako-lane 名義（bridge実装）へ切替し、legacy との差分 parity gate を固定した記録。
 - **[WSM-P5-min4 実装ロック](../../development/current/main/phases/phase-29cc/29cc-163-wsm-p5-min4-hako-lane-bridge-shrink-lock-ssot.md)** - default(hako-lane) の native/bridge 計画境界（`NativePilotShape`/`BridgeRustBackend`）を固定した記録。
+- **[WSM-P5-min5 実装ロック](../../development/current/main/phases/phase-29cc/29cc-164-wsm-p5-min5-native-helper-lock-ssot.md)** - default(hako-lane) pilot 1shape の native helper 実体路（bridge非依存）を固定した記録。
 
 ## 🚀 クイックスタート
 

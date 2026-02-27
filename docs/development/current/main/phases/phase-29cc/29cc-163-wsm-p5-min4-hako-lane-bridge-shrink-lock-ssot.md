@@ -45,4 +45,5 @@ pilot shape では native path、非pilot shape では bridge fallback とし、
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next
-- `WSM-P5-min5`: `.hako` emitter/binary writer 実体路を 1 shape で接続し、bridge fallback 非依存の case を lock する。
+- `WSM-P5-min5` は `29cc-164` で完了（native helper 1-shape lock）。
+- 次は `WSM-P5-min6`: pilot 以外の 1 shape を `.hako` 実体路へ拡張し、fallback 範囲をさらに縮退する。
