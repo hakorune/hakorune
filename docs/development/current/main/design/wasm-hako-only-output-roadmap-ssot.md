@@ -135,7 +135,8 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 12. **P10 Loop/Extern Native Emit (design-first)**
    - min1 design lock（accepted-but-blocked done）: `29cc-194`（`phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh`）。
    - min2 matcher inventory lock（accepted done）: `29cc-195`（`phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh`）。
-   - next: `WSM-P10-min3`（loop/branch/call writer section contract lock）。
+   - min3 writer section lock（accepted done）: `29cc-196`（`phase29cc_wsm_p10_loop_extern_writer_section_guard.sh`）。
+   - next: `WSM-P10-min4`（1 fixture native emit promotion lock）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

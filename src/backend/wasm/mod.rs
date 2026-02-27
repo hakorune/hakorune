@@ -168,6 +168,15 @@ impl WasmBackend {
         binary_writer::build_minimal_main_i32_const_module(value)
     }
 
+    /// Contract helper for WSM-P10-min3.
+    /// Emits loop/branch/call writer skeleton without changing default route.
+    pub fn build_loop_extern_call_skeleton_wasm(
+        &self,
+        iterations: i32,
+    ) -> Result<Vec<u8>, WasmError> {
+        binary_writer::build_loop_extern_call_skeleton_module(iterations)
+    }
+
     /// Convert WAT text to WASM binary with proper UTF-8 handling
     pub fn convert_wat_to_wasm(&self, wat_source: &str) -> Result<Vec<u8>, WasmError> {
         // Debug: Print WAT source for analysis
@@ -337,6 +346,16 @@ mod tests {
             .build_minimal_i32_const_wasm(7)
             .expect("binary writer helper must succeed");
         assert!(wasm.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
+    }
+
+    #[test]
+    fn wasm_binary_writer_loop_extern_skeleton_contract() {
+        let backend = WasmBackend::new();
+        let wasm = backend
+            .build_loop_extern_call_skeleton_wasm(3)
+            .expect("loop extern skeleton helper must succeed");
+        assert!(wasm.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
+        assert!(wasm.windows(4).any(|w| w == b"main"));
     }
 
     #[test]

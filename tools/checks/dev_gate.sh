@@ -101,6 +101,7 @@ list_profiles() {
     - tools/checks/phase29cc_wsm_p9_bridge_retire_refresh_guard.sh
     - tools/checks/phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh
     - tools/checks/phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh
+    - tools/checks/phase29cc_wsm_p10_loop_extern_writer_section_guard.sh
   milestone-runtime:
     - hotpath
     - phase29cc_wsm02d_milestone_gate_vm.sh
@@ -275,6 +276,8 @@ run_portability() {
     bash tools/checks/phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh
   run_step "WSM-P10 loop/extern matcher inventory guard" \
     bash tools/checks/phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh
+  run_step "WSM-P10 loop/extern writer section guard" \
+    bash tools/checks/phase29cc_wsm_p10_loop_extern_writer_section_guard.sh
 }
 
 run_milestone_runtime() {

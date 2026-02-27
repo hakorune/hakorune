@@ -129,11 +129,12 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md`（min2）
     - `docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md`（min3）
     - `docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md`（min4）
-  - wasm P10 locks（accepted-but-blocked done）:
+  - wasm P10 locks（min1 accepted-but-blocked, min2/min3 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md`（min1）
     - `docs/development/current/main/phases/phase-29cc/29cc-195-wsm-p10-min2-loop-extern-matcher-inventory-lock-ssot.md`（min2）
+    - `docs/development/current/main/phases/phase-29cc/29cc-196-wsm-p10-min3-loop-extern-writer-section-lock-ssot.md`（min3）
   - wasm lane active next:
-    - `WSM-P10-min3`（loop/branch/call writer section contract lock）
+    - `WSM-P10-min4`（1 fixture native emit promotion lock）
   - wasm migration fixed order（WSM-02+）:
     - `WSM-02a`: assignment/local path unblock（`Copy`/`ReleaseStrong` 最小対応）
     - `WSM-02b`: ExternCall coverage expansion（1 extern familyずつ）
@@ -158,8 +159,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. wasm lane: `WSM-P10-min3`（loop/branch/call writer section contract lock）へ進める。
-2. `WSM-P7..P10-min2` lock（`29cc-184..195`）を維持し、default-only 契約を崩さない。
+1. wasm lane: `WSM-P10-min4`（1 fixture native emit promotion lock）へ進める。
+2. `WSM-P7..P10-min3` lock（`29cc-184..196`）を維持し、default-only 契約を崩さない。
 3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
 4. wasm `.hako`-only output 計画は `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` を正本とし、固定順 `WAT出力 -> wat2wasm連結 -> wasmバイナリ直書き` で進める。
 
@@ -218,6 +219,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - `bash tools/checks/phase29cc_wsm_p9_bridge_retire_refresh_guard.sh`（WSM-P9 bridge retire refresh 監査）
 - `bash tools/checks/phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh`（WSM-P10 loop/extern native emit design lock 監査）
 - `bash tools/checks/phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh`（WSM-P10 loop/extern matcher inventory lock 監査）
+- `bash tools/checks/phase29cc_wsm_p10_loop_extern_writer_section_guard.sh`（WSM-P10 loop/extern writer section lock 監査）
 - `bash tools/checks/windows_wsl_cmd_smoke.sh --build --cmd-smoke`（WSL環境の週次Windows smoke）
 - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
