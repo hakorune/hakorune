@@ -64,6 +64,7 @@ list_profiles() {
     - phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh
     - phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh
     - phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
+    - phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
   wasm-demo-g2:
     - phase29cc_wsm_g2_min1_bridge_build_vm.sh
     - phase29cc_wsm_g2_browser_run_vm.sh
@@ -166,10 +167,12 @@ run_wasm_boundary_lite_p5() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min5_native_helper_lock_vm.sh
   run_step "wasm p5 shape expand lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh
-  run_step "wasm p5 shape trace lock" \
+    run_step "wasm p5 shape trace lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh
     run_step "wasm p5 legacy hard-remove lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
+    run_step "wasm p6 route policy default-only no-op lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
 }
 
 run_wasm_boundary_lite() {

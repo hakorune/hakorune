@@ -400,6 +400,60 @@ fn wasm_demo_route_trace_reports_bridge_and_legacy_policy_rejected_contract() {
 }
 
 #[test]
+fn wasm_demo_min_fixture_route_policy_default_noop_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_p4_min_const_return.hako";
+    let fixture = wasm_common::fixture_path(fixture_rel);
+
+    let mut out_unset_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_noop_unset");
+    out_unset_base.set_extension("");
+    let out_unset = out_unset_base.with_extension("wasm");
+    let _ = fs::remove_file(&out_unset);
+
+    let mut out_default_base =
+        wasm_common::target_temp_wat_path("phase29cc_wsm_route_noop_default_env");
+    out_default_base.set_extension("");
+    let out_default = out_default_base.with_extension("wasm");
+    let _ = fs::remove_file(&out_default);
+
+    let output_unset = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_unset_base)
+        .arg(&fixture)
+        .output()
+        .expect("compile-wasm without route policy env must launch");
+    assert!(
+        output_unset.status.success(),
+        "compile-wasm without route policy env should succeed"
+    );
+
+    let output_default = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "default")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_default_base)
+        .arg(&fixture)
+        .output()
+        .expect("compile-wasm with default route policy env must launch");
+    assert!(
+        output_default.status.success(),
+        "compile-wasm with NYASH_WASM_ROUTE_POLICY=default should succeed"
+    );
+
+    let bytes_unset = fs::read(&out_unset).expect("unset route policy output should be readable");
+    let bytes_default =
+        fs::read(&out_default).expect("default route policy output should be readable");
+    let _ = fs::remove_file(&out_unset);
+    let _ = fs::remove_file(&out_default);
+    assert_eq!(
+        bytes_unset, bytes_default,
+        "route policy env should be no-op when value is default"
+    );
+}
+
+#[test]
 fn wasm_demo_min_const_return_binary_writer_parity_contract() {
     let fixture_rel = "apps/tests/phase29cc_wsm_p4_min_const_return.hako";
     let emitted = compile_fixture_to_wasm_direct(fixture_rel);

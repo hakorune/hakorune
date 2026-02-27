@@ -28,6 +28,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-167-wsm-p5-min8-legacy-retire-readiness-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-168-wsm-p5-min9-legacy-retire-execution-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-169-wsm-p5-min10-legacy-hard-remove-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-170-wsm-p6-min1-route-policy-default-noop-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -86,6 +87,9 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - legacy retire readiness lock（done）: `29cc-167`（`phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh`）。
    - legacy retire execution lock（done）: `29cc-168`（`phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh`）。
    - legacy hard-remove lock（done）: `29cc-169`（`phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh`）。
+7. **P6 Route Policy Stabilization**
+   - route policy env を default-only no-op として維持するか、完全撤去するかの判断を段階固定する。
+   - default-only no-op lock（done）: `29cc-170`（`phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh`）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

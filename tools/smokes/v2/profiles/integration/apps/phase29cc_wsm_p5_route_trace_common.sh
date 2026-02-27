@@ -25,3 +25,8 @@ run_wsm_p5_legacy_hard_remove_contract_tests() {
 run_wsm_p5_legacy_retire_execution_contract_tests() {
   run_wsm_p5_legacy_hard_remove_contract_tests
 }
+
+run_wsm_p6_route_policy_default_noop_contract_tests() {
+  cargo test --features wasm-backend wasm_route_policy_ -- --nocapture
+  cargo test --features wasm-backend wasm_demo_min_fixture_route_policy_default_noop_contract -- --nocapture
+}

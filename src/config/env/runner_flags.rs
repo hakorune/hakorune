@@ -187,6 +187,10 @@ mod tests {
             parse_wasm_route_policy_mode(Some("")).expect("empty should parse"),
             WasmRoutePolicyMode::Default
         );
+        assert_eq!(
+            parse_wasm_route_policy_mode(Some("default")).expect("explicit default should parse"),
+            WasmRoutePolicyMode::Default
+        );
     }
 
     #[test]

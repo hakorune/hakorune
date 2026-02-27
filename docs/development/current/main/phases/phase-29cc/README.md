@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done; plugin waves done through PLG-06-min4; wasm lane done through WSM-P5-min10)
+Status: Active (M0-M4 done; plugin waves done through PLG-06-min4; wasm lane done through WSM-P6-min1)
 Scope: Rust -> .hako migration orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
@@ -158,12 +158,12 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md`
   - wasm lane lock（WSM-02d-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
-  - wasm lane active next: `WSM-P6-min1`（default-only policy env keep/remove decision lock）
+  - wasm lane active next: `WSM-G4-min1`（projects/nyash-wasm migration baseline lock）
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest locks（recent 3）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-167-wsm-p5-min8-legacy-retire-readiness-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-168-wsm-p5-min9-legacy-retire-execution-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-169-wsm-p5-min10-legacy-hard-remove-lock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-170-wsm-p6-min1-route-policy-default-noop-lock-ssot.md`
   - wasm full lock history pointer:
     - `docs/development/current/main/10-Now.md`（Read First Order: phase-29cc lock list）
   - wasm `.hako`-only output roadmap SSOT:
