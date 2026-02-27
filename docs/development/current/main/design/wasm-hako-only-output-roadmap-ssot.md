@@ -139,7 +139,8 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - min4 single fixture native promotion lock（accepted done）: `29cc-197`（`phase29cc_wsm_p10_single_fixture_native_promotion_guard.sh`）。
    - min5 expansion inventory lock（accepted done）: `29cc-198`（`phase29cc_wsm_p10_expansion_inventory_guard.sh`）。
    - min6 warn native promotion lock（accepted done）: `29cc-199`（`phase29cc_wsm_p10_warn_native_promotion_guard.sh`）。
-   - next: `WSM-P10-min7`（loop/extern info family native promotion lock）。
+   - min7 info native promotion lock（accepted done）: `29cc-200`（`phase29cc_wsm_p10_info_native_promotion_guard.sh`）。
+   - next: `WSM-P10-min8`（loop/extern error family native promotion lock）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

@@ -29,6 +29,7 @@ const EXPORT_KIND_FUNC: u8 = 0x00;
 pub(crate) enum LoopExternImport {
     ConsoleLog,
     ConsoleWarn,
+    ConsoleInfo,
 }
 
 impl LoopExternImport {
@@ -36,6 +37,7 @@ impl LoopExternImport {
         match self {
             LoopExternImport::ConsoleLog => "console_log",
             LoopExternImport::ConsoleWarn => "console_warn",
+            LoopExternImport::ConsoleInfo => "console_info",
         }
     }
 }
@@ -415,6 +417,18 @@ mod tests {
         assert!(
             import_payload.windows(b"console_warn".len()).any(|w| w == b"console_warn"),
             "warn import must be encoded in import section"
+        );
+    }
+
+    #[test]
+    fn wasm_binary_writer_loop_extern_info_import_contract() {
+        let wasm = build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleInfo)
+            .expect("writer must succeed");
+        let import_payload =
+            find_section_payload(&wasm, SECTION_IMPORT).expect("import section missing");
+        assert!(
+            import_payload.windows(b"console_info".len()).any(|w| w == b"console_info"),
+            "info import must be encoded in import section"
         );
     }
 }

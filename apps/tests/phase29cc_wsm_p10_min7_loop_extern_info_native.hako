@@ -1,0 +1,13 @@
+// Phase 29cc WSM-P10-min7 info native promotion fixture
+// Contract: default hako-lane promotes info+fixed4 shape to native emit.
+
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 4) {
+      i = i + 1
+    }
+    console.info(i)
+    return i
+  }
+}
