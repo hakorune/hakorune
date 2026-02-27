@@ -31,8 +31,8 @@ Related:
 2. route contract tests
    - `wasm_compile_route_policy_default_maps_to_hako_bridge_contract`
    - `wasm_compile_route_policy_legacy_maps_to_legacy_rust_contract`
-3. CLI parity fixture
-   - `wasm_demo_min_fixture_route_policy_default_vs_legacy_cli_parity_contract`
+3. CLI boundary fixture（min9で retire execution 契約へ更新）
+   - `wasm_demo_min_fixture_legacy_route_retired_failfast_contract`
 
 ## Acceptance
 - `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min3_default_hako_lane_lock_vm.sh`

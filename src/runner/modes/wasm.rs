@@ -139,7 +139,11 @@ impl NyashRunner {
             // Explicit compatibility lane for phased cutover.
             WasmCompileRoute::LegacyRust => {
                 emit_wasm_route_trace(route_policy, "legacy-rust", None);
-                wasm_backend.compile_module(mir_module)
+                eprintln!(
+                    "[freeze:contract][wasm/legacy-route-retired] policy={} lane=legacy-rust status=retired",
+                    wasm_route_policy_name(route_policy)
+                );
+                process::exit(1);
             }
         };
         match compile_result {

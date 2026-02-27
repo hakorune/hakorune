@@ -26,6 +26,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-165-wsm-p5-min6-shape-expand-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-166-wsm-p5-min7-shape-trace-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-167-wsm-p5-min8-legacy-retire-readiness-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-168-wsm-p5-min9-legacy-retire-execution-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -82,6 +83,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - shape expand lock（done）: `29cc-165`（`phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh`）。
    - shape trace lock（done）: `29cc-166`（`phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh`）。
    - legacy retire readiness lock（done）: `29cc-167`（`phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh`）。
+   - legacy retire execution lock（done）: `29cc-168`（`phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh`）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

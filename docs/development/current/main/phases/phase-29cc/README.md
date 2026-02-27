@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done; plugin waves done through PLG-06-min4; wasm lane done through WSM-P5-min8)
+Status: Active (M0-M4 done; plugin waves done through PLG-06-min4; wasm lane done through WSM-P5-min9)
 Scope: Rust -> .hako migration orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
@@ -158,7 +158,7 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md`
   - wasm lane lock（WSM-02d-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
-  - wasm lane active next: `WSM-P5-min9`（legacy lane retire execution lock (readiness-fixed follow-up)）
+  - wasm lane active next: `WSM-P5-min10`（legacy hard-remove lock after execution-retired boundary）
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest locks（recent 3）:
     - `docs/development/current/main/phases/phase-29cc/29cc-165-wsm-p5-min6-shape-expand-lock-ssot.md`

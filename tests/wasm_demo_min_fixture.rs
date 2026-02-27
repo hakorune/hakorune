@@ -162,7 +162,7 @@ fn wasm_demo_min_fixture_compile_wasm_cli_emits_wasm_contract() {
 }
 
 #[test]
-fn wasm_demo_min_fixture_route_policy_default_vs_legacy_cli_parity_contract() {
+fn wasm_demo_min_fixture_legacy_route_retired_failfast_contract() {
     let fixture_rel = "apps/tests/phase29cc_wsm_p4_min_const_return.hako";
     let fixture = wasm_common::fixture_path(fixture_rel);
 
@@ -190,22 +190,27 @@ fn wasm_demo_min_fixture_route_policy_default_vs_legacy_cli_parity_contract() {
         "default route compile-wasm should succeed"
     );
 
-    let status_legacy = Command::new(wasm_common::hakorune_bin_path())
+    let output_legacy = Command::new(wasm_common::hakorune_bin_path())
         .env("NYASH_USE_NY_COMPILER", "0")
         .env("NYASH_WASM_ROUTE_POLICY", "legacy-wasm-rust")
         .arg("--compile-wasm")
         .arg("-o")
         .arg(&out_legacy_base)
         .arg(&fixture)
-        .status()
+        .output()
         .expect("legacy route compile-wasm must launch");
     assert!(
-        status_legacy.success(),
-        "legacy route compile-wasm should succeed"
+        !output_legacy.status.success(),
+        "legacy route compile-wasm must fail-fast after retire execution lock"
+    );
+    let stderr_legacy = String::from_utf8_lossy(&output_legacy.stderr);
+    assert!(
+        stderr_legacy
+            .contains("[freeze:contract][wasm/legacy-route-retired] policy=legacy-wasm-rust lane=legacy-rust status=retired"),
+        "legacy route retire freeze tag must be emitted"
     );
 
     let bytes_default = fs::read(&out_default).expect("default route output should be readable");
-    let bytes_legacy = fs::read(&out_legacy).expect("legacy route output should be readable");
 
     let _ = fs::remove_file(&out_default);
     let _ = fs::remove_file(&out_legacy);
@@ -213,14 +218,6 @@ fn wasm_demo_min_fixture_route_policy_default_vs_legacy_cli_parity_contract() {
     assert!(
         bytes_default.starts_with(&[0x00, 0x61, 0x73, 0x6d]),
         "default route must emit wasm binary"
-    );
-    assert!(
-        bytes_legacy.starts_with(&[0x00, 0x61, 0x73, 0x6d]),
-        "legacy route must emit wasm binary"
-    );
-    assert_eq!(
-        bytes_default, bytes_legacy,
-        "WSM-P5-min3 bridge parity mismatch: default(hako-lane) vs legacy(rust-lane)"
     );
 }
 
@@ -347,7 +344,7 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_default_contract() {
 }
 
 #[test]
-fn wasm_demo_route_trace_reports_bridge_and_legacy_contract() {
+fn wasm_demo_route_trace_reports_bridge_and_legacy_retired_contract() {
     let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm02d_demo_min.hako");
     let mut out_default_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_bridge");
     out_default_base.set_extension("");
@@ -386,11 +383,19 @@ fn wasm_demo_route_trace_reports_bridge_and_legacy_contract() {
         .arg(&fixture)
         .output()
         .expect("legacy route compile-wasm with trace must launch");
-    assert!(output_legacy.status.success(), "legacy route compile-wasm should succeed");
+    assert!(
+        !output_legacy.status.success(),
+        "legacy route compile-wasm must fail-fast after retire execution lock"
+    );
     let stderr_legacy = String::from_utf8_lossy(&output_legacy.stderr);
     assert!(
         stderr_legacy.contains("[wasm/route-trace] policy=legacy-wasm-rust plan=legacy-rust shape_id=-"),
         "legacy policy must report legacy-rust plan in route trace"
+    );
+    assert!(
+        stderr_legacy
+            .contains("[freeze:contract][wasm/legacy-route-retired] policy=legacy-wasm-rust lane=legacy-rust status=retired"),
+        "legacy route retire freeze tag must be emitted"
     );
 }
 
