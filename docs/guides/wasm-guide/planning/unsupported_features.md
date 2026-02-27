@@ -105,4 +105,4 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - P4 queue:
-  - `WSM-P5-min7`: shape-table native path の shape-id 可観測性（route trace）を lock し、legacy lane 縮退判定の観測契約を固定。
+  - `WSM-P5-min8`: legacy lane retire readiness（trace 証跡 + gate 統計）を docs-first で固定し、retire 判定基準を lock。

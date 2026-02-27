@@ -24,6 +24,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-163-wsm-p5-min4-hako-lane-bridge-shrink-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-164-wsm-p5-min5-native-helper-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-165-wsm-p5-min6-shape-expand-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-166-wsm-p5-min7-shape-trace-lock-ssot.md
   - src/backend/wasm/
   - projects/nyash-wasm/
 ---
@@ -78,6 +79,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
    - bridge shrink lock（done）: `29cc-163`（`phase29cc_wsm_p5_min4_hako_lane_bridge_shrink_vm.sh`）。
    - native helper lock（done）: `29cc-164`（`phase29cc_wsm_p5_min5_native_helper_lock_vm.sh`）。
    - shape expand lock（done）: `29cc-165`（`phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh`）。
+   - shape trace lock（done）: `29cc-166`（`phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh`）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

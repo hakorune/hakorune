@@ -60,6 +60,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 - **[WSM-P5-min4 実装ロック](../../development/current/main/phases/phase-29cc/29cc-163-wsm-p5-min4-hako-lane-bridge-shrink-lock-ssot.md)** - default(hako-lane) の native/bridge 計画境界（`NativePilotShape`/`BridgeRustBackend`）を固定した記録。
 - **[WSM-P5-min5 実装ロック](../../development/current/main/phases/phase-29cc/29cc-164-wsm-p5-min5-native-helper-lock-ssot.md)** - default(hako-lane) pilot 1shape の native helper 実体路（bridge非依存）を固定した記録。
 - **[WSM-P5-min6 実装ロック](../../development/current/main/phases/phase-29cc/29cc-165-wsm-p5-min6-shape-expand-lock-ssot.md)** - native shape-table を `const->copy->return` まで拡張し、default(hako-lane) の fallback 範囲を縮退した記録。
+- **[WSM-P5-min7 実装ロック](../../development/current/main/phases/phase-29cc/29cc-166-wsm-p5-min7-shape-trace-lock-ssot.md)** - route trace に shape_id を固定出力し、default/legacy 判定の観測契約を lock した記録。
 
 ## 🚀 クイックスタート
 

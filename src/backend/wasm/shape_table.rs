@@ -7,7 +7,6 @@ pub(crate) enum NativeShape {
 }
 
 impl NativeShape {
-    #[cfg(test)]
     pub(crate) fn id(self) -> &'static str {
         match self {
             NativeShape::MainReturnI32Const => "wsm.p4.main_return_i32_const.v0",

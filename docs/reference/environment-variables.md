@@ -123,6 +123,7 @@ Throw surface policy:
 | --- | --- | --- | --- |
 | `NYASH_ROOT=/path/to/repo` | unset | Any | リポジトリルートのヒント（パス解決・ツール用途）。未指定なら自動推定 |
 | `NYASH_WASM_ROUTE_POLICY=default\|legacy\|legacy-wasm-rust` | `default` | WASM (`--backend wasm`) | WASM 出力 route policy。`default`/`legacy-wasm-rust` のみ受理し、無効値は fail-fast（`[freeze:contract][wasm/route-policy]`）。 |
+| `NYASH_WASM_ROUTE_TRACE=1` | OFF | WASM (`--backend wasm`) | route 決定時に1行の観測ログを出す（`[wasm/route-trace] policy=<...> plan=<...> shape_id=<...>`）。 |
 | `NYASH_VM_USE_PY=1` | Removed (no-op) | Historical only | runtime/selfhost route 分岐は撤去済み。必要なら `tools/historical/pyvm/pyvm_runner.py` を直接使う |
 | `NYASH_PIPE_USE_PYVM=1` | Removed (no-op) | Historical only | `--ny-parser-pipe` 分岐は撤去済み。必要なら historical スクリプトの direct route を使う |
 | `NYASH_VM_PLUGIN_STRICT=1` | OFF | Any | 必須プラグイン欠如で fail-fast |

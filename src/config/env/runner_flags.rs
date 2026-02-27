@@ -166,6 +166,15 @@ pub fn wasm_route_policy_mode() -> WasmRoutePolicyMode {
     }
 }
 
+/// Whether WASM route trace line is emitted.
+///
+/// Env:
+/// - `NYASH_WASM_ROUTE_TRACE=1` enables a single stable trace line
+///   with policy/plan/shape_id when compile-wasm route is chosen.
+pub fn wasm_route_trace_enabled() -> bool {
+    env_bool("NYASH_WASM_ROUTE_TRACE")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -200,5 +209,11 @@ mod tests {
         let err = parse_wasm_route_policy_mode(Some("auto"))
             .expect_err("invalid policy must fail-fast");
         assert!(err.starts_with("[freeze:contract][wasm/route-policy]"));
+    }
+
+    #[test]
+    fn wasm_route_trace_defaults_off_contract() {
+        std::env::remove_var("NYASH_WASM_ROUTE_TRACE");
+        assert!(!wasm_route_trace_enabled());
     }
 }

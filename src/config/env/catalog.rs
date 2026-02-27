@@ -318,6 +318,12 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: Some("default"),
         },
         EnvVarMeta {
+            name: "NYASH_WASM_ROUTE_TRACE",
+            description: "Emit one-line wasm route trace with shape_id (1=true)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
             name: "NYASH_USING_DYLIB_AUTOLOAD",
             description: "Auto-load [using.*] dylib packages (1=true)",
             applies_to: AppliesTo::Compiler,

@@ -56,6 +56,7 @@ Do not rely on implicit `$NYASH_ROOT` / `$NYASH_BIN`.
 Prefer stable, structured tags over ad-hoc `eprintln!`:
 
 - Reject logs: `reject: <reason> idx=<n> kind=<ASTKind> handoff=<target>`
+- WASM route trace (dev/diagnostic only, `NYASH_WASM_ROUTE_TRACE=1`): `[wasm/route-trace] policy=<default|legacy-wasm-rust> plan=<native-shape-table|bridge-rust-backend|legacy-rust> shape_id=<id|->`
 - `reject: exit_allowed_recipe_build_failed` means ExitAllowed recipe construction failed; treat as out-of-scope and update the recipe SSOT or accept shape.
 - Contract freeze (Pattern6/7): `[joinir/phase29ab/pattern6/contract]`, `[joinir/phase29ab/pattern7/contract]`
 - Generic-loop candidate diagnostics (dev/debug only): `[plan/reject_detail] box=generic_loop_v* reason=no_valid_loop_var_candidates last_fail=<Kind>`

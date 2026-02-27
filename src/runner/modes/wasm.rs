@@ -3,7 +3,7 @@ use super::super::NyashRunner;
 use crate::config::env::WasmRoutePolicyMode;
 #[cfg(feature = "wasm-backend")]
 use nyash_rust::{
-    backend::wasm::{compile_hako_native_shape_bytes, WasmBackend},
+    backend::wasm::{compile_hako_native_shape_emit, WasmBackend},
     mir::MirCompiler,
     parser::NyashParser,
 };
@@ -23,6 +23,28 @@ fn select_wasm_compile_route(policy: WasmRoutePolicyMode) -> WasmCompileRoute {
         WasmRoutePolicyMode::Default => WasmCompileRoute::HakoDefaultBridge,
         WasmRoutePolicyMode::LegacyWasmRust => WasmCompileRoute::LegacyRust,
     }
+}
+
+#[cfg(feature = "wasm-backend")]
+fn wasm_route_policy_name(policy: WasmRoutePolicyMode) -> &'static str {
+    match policy {
+        WasmRoutePolicyMode::Default => "default",
+        WasmRoutePolicyMode::LegacyWasmRust => "legacy-wasm-rust",
+    }
+}
+
+#[cfg(feature = "wasm-backend")]
+fn emit_wasm_route_trace(policy: WasmRoutePolicyMode, plan: &'static str, shape_id: Option<&str>) {
+    if !crate::config::env::wasm_route_trace_enabled() {
+        return;
+    }
+    let shape = shape_id.unwrap_or("-");
+    eprintln!(
+        "[wasm/route-trace] policy={} plan={} shape_id={}",
+        wasm_route_policy_name(policy),
+        plan,
+        shape
+    );
 }
 
 impl NyashRunner {
@@ -98,14 +120,27 @@ impl NyashRunner {
             // P5-min6: default(hako-lane) tries native shape-table helper first.
             // Fallback to bridge route only when outside native shape-table contract.
             WasmCompileRoute::HakoDefaultBridge => {
-                match compile_hako_native_shape_bytes(&mir_module) {
-                    Ok(Some(bytes)) => Ok(bytes),
-                    Ok(None) => wasm_backend.compile_module(mir_module),
+                match compile_hako_native_shape_emit(&mir_module) {
+                    Ok(Some(emitted)) => {
+                        emit_wasm_route_trace(
+                            route_policy,
+                            "native-shape-table",
+                            Some(emitted.shape_id),
+                        );
+                        Ok(emitted.bytes)
+                    }
+                    Ok(None) => {
+                        emit_wasm_route_trace(route_policy, "bridge-rust-backend", None);
+                        wasm_backend.compile_module(mir_module)
+                    }
                     Err(err) => Err(err),
                 }
             }
             // Explicit compatibility lane for phased cutover.
-            WasmCompileRoute::LegacyRust => wasm_backend.compile_module(mir_module),
+            WasmCompileRoute::LegacyRust => {
+                emit_wasm_route_trace(route_policy, "legacy-rust", None);
+                wasm_backend.compile_module(mir_module)
+            }
         };
         match compile_result {
             Ok(wasm) => wasm,
@@ -181,5 +216,14 @@ mod tests {
     fn wasm_compile_route_policy_legacy_maps_to_legacy_rust_contract() {
         let route = select_wasm_compile_route(WasmRoutePolicyMode::LegacyWasmRust);
         assert_eq!(route, WasmCompileRoute::LegacyRust);
+    }
+
+    #[test]
+    fn wasm_route_policy_name_contract() {
+        assert_eq!(wasm_route_policy_name(WasmRoutePolicyMode::Default), "default");
+        assert_eq!(
+            wasm_route_policy_name(WasmRoutePolicyMode::LegacyWasmRust),
+            "legacy-wasm-rust"
+        );
     }
 }

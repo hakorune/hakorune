@@ -319,6 +319,82 @@ fn wasm_demo_default_route_const_copy_uses_native_helper_contract() {
 }
 
 #[test]
+fn wasm_demo_route_trace_reports_shape_id_for_native_default_contract() {
+    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p5_min6_const_copy_return.hako");
+    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native");
+    out_base.set_extension("");
+    let out_file = out_base.with_extension("wasm");
+    let _ = fs::remove_file(&out_file);
+
+    let output = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "default")
+        .env("NYASH_WASM_ROUTE_TRACE", "1")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_base)
+        .arg(&fixture)
+        .output()
+        .expect("default route compile-wasm with trace must launch");
+    assert!(output.status.success(), "default route compile-wasm should succeed");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains(
+            "[wasm/route-trace] policy=default plan=native-shape-table shape_id=wsm.p5.main_return_i32_const_via_copy.v0"
+        ),
+        "route trace must include native shape_id for const-copy-return fixture"
+    );
+}
+
+#[test]
+fn wasm_demo_route_trace_reports_bridge_and_legacy_contract() {
+    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm02d_demo_min.hako");
+    let mut out_default_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_bridge");
+    out_default_base.set_extension("");
+    let out_default = out_default_base.with_extension("wasm");
+    let _ = fs::remove_file(&out_default);
+
+    let output_default = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "default")
+        .env("NYASH_WASM_ROUTE_TRACE", "1")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_default_base)
+        .arg(&fixture)
+        .output()
+        .expect("default route compile-wasm with trace must launch");
+    assert!(output_default.status.success(), "default route compile-wasm should succeed");
+    let stderr_default = String::from_utf8_lossy(&output_default.stderr);
+    assert!(
+        stderr_default.contains("[wasm/route-trace] policy=default plan=bridge-rust-backend shape_id=-"),
+        "default non-native fixture must report bridge plan in route trace"
+    );
+
+    let mut out_legacy_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_legacy");
+    out_legacy_base.set_extension("");
+    let out_legacy = out_legacy_base.with_extension("wasm");
+    let _ = fs::remove_file(&out_legacy);
+
+    let output_legacy = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "legacy-wasm-rust")
+        .env("NYASH_WASM_ROUTE_TRACE", "1")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_legacy_base)
+        .arg(&fixture)
+        .output()
+        .expect("legacy route compile-wasm with trace must launch");
+    assert!(output_legacy.status.success(), "legacy route compile-wasm should succeed");
+    let stderr_legacy = String::from_utf8_lossy(&output_legacy.stderr);
+    assert!(
+        stderr_legacy.contains("[wasm/route-trace] policy=legacy-wasm-rust plan=legacy-rust shape_id=-"),
+        "legacy policy must report legacy-rust plan in route trace"
+    );
+}
+
+#[test]
 fn wasm_demo_min_const_return_binary_writer_parity_contract() {
     let fixture_rel = "apps/tests/phase29cc_wsm_p4_min_const_return.hako";
     let emitted = compile_fixture_to_wasm_direct(fixture_rel);
