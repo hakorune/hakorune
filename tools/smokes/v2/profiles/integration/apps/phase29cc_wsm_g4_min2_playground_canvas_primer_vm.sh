@@ -37,7 +37,12 @@ for needle in \
   "wsm_g4_min2_canvas_primer_lock" \
   "wsm_g4_min2_canvas_vocab_clear" \
   "new WebCanvasBox(\"game-canvas\", 400, 250)" \
-  "me.canvas.clear()"; do
+  "me.canvas.clear()" \
+  "fillRect(" \
+  "strokeRect(" \
+  "fillCircle(" \
+  "drawLine(" \
+  "fillText("; do
   if ! grep -Fq "$needle" "$html"; then
     test_fail "phase29cc_wsm_g4_min2_playground_canvas_primer_vm: missing keyword in nyash_playground.html: $needle"
     exit 1

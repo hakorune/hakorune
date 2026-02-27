@@ -11,8 +11,11 @@ cargo install wasm-pack
 # Build WASM module (bridge crate)
 bash projects/nyash-wasm/build.sh
 
-# Start local dev server (static + compile API)
-python3 projects/nyash-wasm/dev_server.py --port 8001
+# Build bridge + static prebuilt wasm demos
+bash projects/nyash-wasm/build.sh
+
+# Start static server
+cd projects/nyash-wasm && python3 -m http.server 8001
 
 # Open browser
 # Navigate to: http://localhost:8001/nyash_playground.html
@@ -28,7 +31,7 @@ python3 projects/nyash-wasm/dev_server.py --port 8001
 - **🧪 Canvas advanced fixture parity smoke** - `phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh`
 - **🧪 Headless two-example parity smoke** - `phase29cc_wsm_g4_min5_headless_two_examples_vm.sh`
 - **🧪 G4 closeout smoke** - `phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh`
-- **🎮 Interactive Playground** - `nyash_playground.html` の Run ボタンで最小デモ確認
+- **🎮 Interactive Playground** - `nyash_playground.html` の Run ボタンで prebuilt demo 実行
 
 ## 📁 File Structure
 
@@ -37,6 +40,7 @@ projects/nyash-wasm/
 ├── README.md                 # This file
 ├── nyash_playground.html     # Interactive playground
 ├── build.sh                  # Build script
+├── prebuilt/                 # Static prebuilt wasm demos for playground
 ├── bridge/                   # wasm-pack target crate (SSOT)
 └── pkg/                      # Generated WASM files (after build)
     ├── nyash_rust.js
@@ -60,19 +64,24 @@ console.debug("wsm02d_demo_min_debug")
 ### Build Process
 1. `projects/nyash-wasm/bridge` を `wasm-pack` で build
 2. `NyashWasm` を `pkg/nyash_rust.js` として export
-3. `nyash_playground.html` は `/api/compile` 経由で `.hako -> wasm` を実行
-4. スモークで build/export/marker を fail-fast 固定
+3. `apps/tests/*` fixture から `prebuilt/*.wasm` を生成
+4. `nyash_playground.html` は prebuilt wasm を読み込んで実行
+5. スモークで build/export/marker を fail-fast 固定
 
 ### Architecture
 ```
 Browser JavaScript
     ↓
-POST /api/compile (dev_server.py)
-    ↓
-hakorune --compile-wasm
+fetch ./prebuilt/*.wasm
     ↓
 WebAssembly.instantiate + env imports
 ```
+
+## 📌 Operation Policy
+
+- 配信は static-first（`python -m http.server` / GitHub static hosting）を基本とする。
+- `prebuilt/` 生成物は playground配信契約の一部としてコミット運用する。
+- ソース更新時は `bash projects/nyash-wasm/build.sh` を実行し、`pkg/` と `prebuilt/` を同期する。
 
 ## 🎉 Coming Soon
 

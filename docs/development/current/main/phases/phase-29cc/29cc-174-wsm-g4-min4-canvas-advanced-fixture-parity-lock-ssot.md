@@ -14,7 +14,8 @@ Depends:
 
 ## Goal
 
-`nyash_playground.html` の `canvas_advanced` ルートについて、source marker と fixture compile parity を同時に固定する。
+`nyash_playground.html` の `canvas_advanced` ルートについて、source marker と
+fixture compile parity（loop + draw primitives）を同時に固定する。
 
 ## Scope
 
@@ -23,6 +24,7 @@ Depends:
    - `wsm_g4_min4_canvas_advanced_marker_1`
    - `wsm_g4_min4_canvas_advanced_marker_2`
 2. fixture `phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.hako` の compile parity を固定する。
+   - fixture は marker のみではなく、loop を含む描画語彙を含む。
 3. 新しい wasm extern/boxcall 語彙は追加しない。
 
 ## Implementation Contract

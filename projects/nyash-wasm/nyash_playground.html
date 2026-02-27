@@ -186,20 +186,20 @@
             <div class="editor-container">
                 <div class="left-panel">
                     <label for="editor">📝 Nyash Code:</label>
-                    <textarea id="editor" placeholder="// Nyashコードをここに書くにゃ！
+                    <textarea id="editor">// Nyashコードをここに書くにゃ！
 // WSM-G4-min1 ConsoleBox run-loop baseline lock
 
 static box Main {
     main() {
         local console = new ConsoleBox()
-        console.log(\"wsm02d_demo_min_log\")
-        console.warn(\"wsm02d_demo_min_warn\")
-        console.error(\"wsm02d_demo_min_error\")
-        console.info(\"wsm02d_demo_min_info\")
-        console.debug(\"wsm02d_demo_min_debug\")
+        console.log("wsm02d_demo_min_log")
+        console.warn("wsm02d_demo_min_warn")
+        console.error("wsm02d_demo_min_error")
+        console.info("wsm02d_demo_min_info")
+        console.debug("wsm02d_demo_min_debug")
         return 0
     }
-}"></textarea>
+}</textarea>
                 </div>
                 
                 <div class="right-panel">
@@ -243,8 +243,14 @@ static box Main {
     <script type="module">
         let wasmInstance = null;
         let bridgeNyash = null;
-        let nativeMode = false;
+        let nativeMode = true;
+        let currentExample = "default";
         const textDecoder = new TextDecoder();
+        const PREBUILT_WASM_MAP = {
+            default: "./prebuilt/phase29cc_wsm02d_demo_min.wasm",
+            webcanvas: "./prebuilt/phase29cc_wsm_g4_min3_webcanvas_fixture_min.wasm",
+            canvas_advanced: "./prebuilt/phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.wasm",
+        };
 
         function appendOutput(line) {
             const output = document.getElementById('output');
@@ -280,8 +286,85 @@ static box Main {
             const fallback = readUtf8Safe(ptr, len);
             if (fallback) {
                 appendOutput(`[${method}] ${fallback}`);
+                runCanvasDemoForMarker(fallback);
             } else {
                 appendOutput(`[${method}] <unresolved>`);
+            }
+        }
+
+        function withMainCanvas(op) {
+            const canvas = document.getElementById('game-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            op(canvas, ctx);
+        }
+
+        function drawWebcanvasDemo() {
+            withMainCanvas((canvas, ctx) => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "navy";
+                ctx.fillRect(0, 0, 400, 250);
+                ctx.fillStyle = "red";
+                ctx.fillRect(50, 50, 80, 60);
+                ctx.strokeStyle = "yellow";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(160, 50, 80, 60);
+                ctx.fillStyle = "lime";
+                ctx.beginPath();
+                ctx.arc(300, 80, 30, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(50, 150);
+                ctx.lineTo(350, 150);
+                ctx.stroke();
+                ctx.fillStyle = "cyan";
+                ctx.font = "24px Arial";
+                ctx.fillText("Hello Canvas!", 110, 205);
+            });
+        }
+
+        function drawCanvasAdvancedDemo() {
+            withMainCanvas((canvas, ctx) => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "black";
+                ctx.fillRect(0, 0, 400, 250);
+                for (let i = 0; i < 15; i += 1) {
+                    const x = i * 20 + 40;
+                    ctx.fillStyle = "lime";
+                    ctx.fillRect(x, 90, 10, 10);
+                    ctx.fillStyle = "cyan";
+                    ctx.fillRect(x + 10, 100, 10, 10);
+                }
+                ctx.fillStyle = "gold";
+                ctx.beginPath();
+                ctx.arc(200, 50, 20, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = "magenta";
+                ctx.beginPath();
+                ctx.arc(200, 180, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(40, 210);
+                ctx.lineTo(360, 210);
+                ctx.stroke();
+                ctx.fillStyle = "white";
+                ctx.font = "16px Arial";
+                ctx.fillText("Game Development Ready", 80, 235);
+            });
+        }
+
+        function runCanvasDemoForMarker(marker) {
+            if (marker === "wsm_g4_min3_webcanvas_marker_1") {
+                drawWebcanvasDemo();
+                return;
+            }
+            if (marker === "wsm_g4_min4_canvas_advanced_marker_1") {
+                drawCanvasAdvancedDemo();
             }
         }
 
@@ -392,63 +475,47 @@ static box Main {
             };
         }
 
-        async function compileToWasmBytes(code) {
-            const response = await fetch('/api/compile', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code })
-            });
+        async function fetchPrebuiltWasm(exampleName) {
+            const wasmPath = PREBUILT_WASM_MAP[exampleName];
+            if (!wasmPath) {
+                throw new Error(`static-prebuilt route has no wasm for example: ${exampleName}`);
+            }
+            const response = await fetch(wasmPath);
             if (!response.ok) {
-                let errText = `compile failed: HTTP ${response.status}`;
-                try {
-                    const payload = await response.json();
-                    if (payload && payload.error) errText = payload.error;
-                } catch (_) {
-                    // ignore parse error
-                }
-                throw new Error(errText);
+                throw new Error(`prebuilt wasm fetch failed: HTTP ${response.status} (${wasmPath})`);
             }
             return await response.arrayBuffer();
         }
 
-        async function detectNativeCompileApi() {
-            try {
-                const res = await fetch('/api/health', { method: 'GET' });
-                if (!res.ok) return false;
-                const payload = await res.json();
-                return Boolean(payload && payload.ok);
-            } catch (_) {
-                return false;
-            }
-        }
-
         async function tryInitializeBridgeFallback() {
-            const module = await import('./pkg/nyash_rust.js');
-            await module.default();
-            bridgeNyash = new module.NyashWasm();
+            try {
+                const module = await import('./pkg/nyash_rust.js');
+                await module.default();
+                bridgeNyash = new module.NyashWasm();
+                appendOutput('Nyash bridge fallback ready');
+                appendOutput(bridgeNyash.version());
+            } catch (_) {
+                bridgeNyash = null;
+            }
         }
 
         async function initializeNyash() {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('playground').style.display = 'block';
-            nativeMode = await detectNativeCompileApi();
-            if (nativeMode) {
-                appendOutput('Nyash native playground ready');
-                appendOutput('Run flow: .hako -> /api/compile -> wasm instantiate -> main()');
-                renderCanvasStatus("native", "Native wasm route is ready.");
-            } else {
-                await tryInitializeBridgeFallback();
-                appendOutput('Nyash bridge fallback ready');
-                appendOutput(bridgeNyash.version());
-                appendOutput('Run flow: NyashWasm.eval(code) (console-only bridge)');
-                renderCanvasStatus("native", "Bridge fallback mode.");
-            }
+            appendOutput('Nyash static playground ready');
+            appendOutput('Run flow: selected example -> prebuilt wasm -> instantiate -> main()');
+            renderCanvasStatus("native", "Static prebuilt wasm route is ready.");
+            await tryInitializeBridgeFallback();
 
             const params = new URLSearchParams(window.location.search);
+            const example = params.get('example');
+            if (example && typeof window.loadExample === 'function') {
+                window.loadExample(example);
+            } else {
+                window.loadExample("default");
+            }
             if (params.get('autorun') === '1') {
-                const example = params.get('example');
                 if (example && typeof window.loadExample === 'function') {
-                    window.loadExample(example);
                     appendOutput(`[autorun-example] ${example}`);
                 }
                 await window.runNyash();
@@ -489,10 +556,20 @@ static box Main {
             const code = document.getElementById('editor').value;
             try {
                 if (nativeMode) {
-                    appendOutput('[run] compiling...');
-                    renderCanvasStatus("native", "Compiling...");
-                    const wasmBuffer = await compileToWasmBytes(code);
-                    appendOutput(`[run] compile ok (${wasmBuffer.byteLength} bytes)`);
+                    if (!PREBUILT_WASM_MAP[currentExample]) {
+                        if (bridgeNyash) {
+                            appendOutput(`[run] no prebuilt wasm for '${currentExample}', fallback bridge eval`);
+                            const runResult = bridgeNyash.eval(code);
+                            appendOutput(`[run] bridge eval => ${runResult}`);
+                            renderCanvasStatus("ok", "Bridge fallback execution completed.");
+                            return;
+                        }
+                        throw new Error(`unsupported in static mode: ${currentExample} (no prebuilt wasm)`);
+                    }
+                    appendOutput(`[run] loading prebuilt wasm: ${currentExample}`);
+                    renderCanvasStatus("native", "Loading prebuilt wasm...");
+                    const wasmBuffer = await fetchPrebuiltWasm(currentExample);
+                    appendOutput(`[run] wasm load ok (${wasmBuffer.byteLength} bytes)`);
 
                     const importObject = createImportObject();
                     const result = await WebAssembly.instantiate(wasmBuffer, importObject);
@@ -525,7 +602,7 @@ static box Main {
         window.showVersion = function () {
             if (nativeMode) {
                 appendOutput('Nyash native playground');
-                appendOutput('Route: hako_native (compile-wasm)');
+                appendOutput('Route: static_prebuilt_wasm');
             } else if (bridgeNyash) {
                 appendOutput(bridgeNyash.version());
                 appendOutput('Route: legacy_bridge fallback');
@@ -534,16 +611,30 @@ static box Main {
 
         window.showHelp = function () {
             appendOutput('📚 Nyash クイックヘルプ');
-            appendOutput('- Start server: python3 projects/nyash-wasm/dev_server.py');
-            appendOutput('- Run flow: editor code -> /api/compile -> wasm main()');
-            appendOutput('- Current native-safe examples are console + G4 marker fixtures');
+            appendOutput('- Build assets: bash projects/nyash-wasm/build.sh');
+            appendOutput('- Start static server: cd projects/nyash-wasm && python3 -m http.server 8001');
+            appendOutput('- Run flow: selected example -> prebuilt wasm -> main()');
+            appendOutput('- Supported static demos: default, webcanvas, canvas_advanced');
             appendOutput('- Full WebCanvasBox method lowering is tracked as next phase');
         };
 
         window.loadExample = function (type) {
             const editor = document.getElementById('editor');
+            currentExample = type;
 
             const examples = {
+                default: `// WSM-G4-min1 ConsoleBox run-loop baseline lock
+static box Main {
+    main() {
+        local console = new ConsoleBox()
+        console.log("wsm02d_demo_min_log")
+        console.warn("wsm02d_demo_min_warn")
+        console.error("wsm02d_demo_min_error")
+        console.info("wsm02d_demo_min_info")
+        console.debug("wsm02d_demo_min_debug")
+        return 0
+    }
+}`,
                 hello: `static box Main {
     main() {
         local console = new ConsoleBox()
@@ -591,6 +682,14 @@ static box Main {
 static box Main {
     main() {
         local console = new ConsoleBox()
+        env.canvas.clear("game-canvas", 11)
+        env.canvas.fillRect("game-canvas", 11, 0, 0, 400, 250, "navy", 4)
+        env.canvas.fillRect("game-canvas", 11, 50, 50, 80, 60, "red", 3)
+        env.canvas.strokeRect("game-canvas", 11, 160, 50, 80, 60, "yellow", 6)
+        env.canvas.fillCircle("game-canvas", 11, 300, 80, 30, "lime", 4)
+        env.canvas.drawLine("game-canvas", 11, 50, 150, 350, 150, "white", 5, 3)
+        env.canvas.fillText("game-canvas", 11, "Hello Canvas!", 13, 110, 205, "24px Arial", 9, "cyan", 4)
+
         console.log("wsm_g4_min3_webcanvas_marker_1")
         console.log("wsm_g4_min3_webcanvas_marker_2")
         return 0
@@ -600,6 +699,22 @@ static box Main {
 static box Main {
     main() {
         local console = new ConsoleBox()
+        local i = 0
+        local x = 0
+        env.canvas.clear("game-canvas", 11)
+        env.canvas.fillRect("game-canvas", 11, 0, 0, 400, 250, "black", 5)
+
+        loop(i < 15) {
+            x = i * 20 + 40
+            env.canvas.fillRect("game-canvas", 11, x, 90, 10, 10, "lime", 4)
+            env.canvas.fillRect("game-canvas", 11, x + 10, 100, 10, 10, "cyan", 4)
+            i = i + 1
+        }
+        env.canvas.fillCircle("game-canvas", 11, 200, 50, 20, "gold", 4)
+        env.canvas.fillCircle("game-canvas", 11, 200, 180, 15, "magenta", 7)
+        env.canvas.drawLine("game-canvas", 11, 40, 210, 360, 210, "white", 5, 2)
+        env.canvas.fillText("game-canvas", 11, "Game Development Ready", 22, 80, 235, "16px Arial", 9, "white", 5)
+
         console.log("wsm_g4_min4_canvas_advanced_marker_1")
         console.info("wsm_g4_min4_canvas_advanced_marker_2")
         return 0
@@ -631,6 +746,9 @@ static box Main {
 
             if (examples[type]) {
                 editor.value = examples[type];
+            } else {
+                currentExample = "default";
+                editor.value = examples.default;
             }
         };
 

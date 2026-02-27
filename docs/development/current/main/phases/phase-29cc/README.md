@@ -184,6 +184,9 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-202-wsm-p10-min9-debug-native-promotion-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-203-wsm-p10-min10-native-promotion-closeout-lock-ssot.md`
   - wasm lane active next: `none`（P10 closeout complete; monitor-only）
+  - playground runtime contract（new）:
+    - static-first route: `selected example -> prebuilt wasm -> main()`
+    - prebuilt assets: `projects/nyash-wasm/prebuilt/*.wasm`（`build.sh` で生成・更新）
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest locks（recent 3）:
     - `docs/development/current/main/phases/phase-29cc/29cc-201-wsm-p10-min8-error-native-promotion-lock-ssot.md`
