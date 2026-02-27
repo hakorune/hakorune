@@ -6,6 +6,21 @@ use nyash_rust::{parser::NyashParser, mir::MirCompiler, backend::wasm::WasmBacke
 #[cfg(feature = "wasm-backend")]
 use std::{fs, process};
 
+#[cfg(feature = "wasm-backend")]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum WasmCompileRoute {
+    HakoDefaultBridge,
+    LegacyRust,
+}
+
+#[cfg(feature = "wasm-backend")]
+fn select_wasm_compile_route(policy: WasmRoutePolicyMode) -> WasmCompileRoute {
+    match policy {
+        WasmRoutePolicyMode::Default => WasmCompileRoute::HakoDefaultBridge,
+        WasmRoutePolicyMode::LegacyWasmRust => WasmCompileRoute::LegacyRust,
+    }
+}
+
 impl NyashRunner {
     #[cfg(feature = "wasm-backend")]
     fn parse_ast_for_wasm_emit(&self, filename: &str, code: &str) -> nyash_rust::ast::ASTNode {
@@ -74,11 +89,13 @@ impl NyashRunner {
         let mir_module = self.compile_file_to_mir_module(filename);
         let mut wasm_backend = WasmBackend::new();
         let route_policy = crate::config::env::wasm_route_policy_mode();
-        let compile_result = match route_policy {
-            // Current default keeps Rust backend route while P5 cutover is staged.
-            WasmRoutePolicyMode::Default => wasm_backend.compile_module(mir_module),
-            // Explicit compatibility lane for phased default cutover.
-            WasmRoutePolicyMode::LegacyWasmRust => wasm_backend.compile_module(mir_module),
+        let compile_route = select_wasm_compile_route(route_policy);
+        let compile_result = match compile_route {
+            // P5-min3: default route is switched to "hako lane".
+            // Current lane implementation is bridge-only and delegates to Rust backend.
+            WasmCompileRoute::HakoDefaultBridge => wasm_backend.compile_module(mir_module),
+            // Explicit compatibility lane for phased cutover.
+            WasmCompileRoute::LegacyRust => wasm_backend.compile_module(mir_module),
         };
         match compile_result {
             Ok(wasm) => wasm,
@@ -137,5 +154,22 @@ impl NyashRunner {
                 process::exit(1);
             }
         }
+    }
+}
+
+#[cfg(all(test, feature = "wasm-backend"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn wasm_compile_route_policy_default_maps_to_hako_bridge_contract() {
+        let route = select_wasm_compile_route(WasmRoutePolicyMode::Default);
+        assert_eq!(route, WasmCompileRoute::HakoDefaultBridge);
+    }
+
+    #[test]
+    fn wasm_compile_route_policy_legacy_maps_to_legacy_rust_contract() {
+        let route = select_wasm_compile_route(WasmRoutePolicyMode::LegacyWasmRust);
+        assert_eq!(route, WasmCompileRoute::LegacyRust);
     }
 }

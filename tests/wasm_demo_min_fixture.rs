@@ -165,6 +165,69 @@ fn wasm_demo_min_fixture_compile_wasm_cli_emits_wasm_contract() {
 }
 
 #[test]
+fn wasm_demo_min_fixture_route_policy_default_vs_legacy_cli_parity_contract() {
+    let fixture_rel = "apps/tests/phase29cc_wsm_p4_min_const_return.hako";
+    let fixture = wasm_common::fixture_path(fixture_rel);
+
+    let mut out_default_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_default");
+    out_default_base.set_extension("");
+    let out_default = PathBuf::from(format!("{}.wasm", out_default_base.to_string_lossy()));
+    let _ = fs::remove_file(&out_default);
+
+    let mut out_legacy_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_legacy");
+    out_legacy_base.set_extension("");
+    let out_legacy = PathBuf::from(format!("{}.wasm", out_legacy_base.to_string_lossy()));
+    let _ = fs::remove_file(&out_legacy);
+
+    let status_default = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "default")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_default_base)
+        .arg(&fixture)
+        .status()
+        .expect("default route compile-wasm must launch");
+    assert!(
+        status_default.success(),
+        "default route compile-wasm should succeed"
+    );
+
+    let status_legacy = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "legacy-wasm-rust")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_legacy_base)
+        .arg(&fixture)
+        .status()
+        .expect("legacy route compile-wasm must launch");
+    assert!(
+        status_legacy.success(),
+        "legacy route compile-wasm should succeed"
+    );
+
+    let bytes_default = fs::read(&out_default).expect("default route output should be readable");
+    let bytes_legacy = fs::read(&out_legacy).expect("legacy route output should be readable");
+
+    let _ = fs::remove_file(&out_default);
+    let _ = fs::remove_file(&out_legacy);
+
+    assert!(
+        bytes_default.starts_with(&[0x00, 0x61, 0x73, 0x6d]),
+        "default route must emit wasm binary"
+    );
+    assert!(
+        bytes_legacy.starts_with(&[0x00, 0x61, 0x73, 0x6d]),
+        "legacy route must emit wasm binary"
+    );
+    assert_eq!(
+        bytes_default, bytes_legacy,
+        "WSM-P5-min3 bridge parity mismatch: default(hako-lane) vs legacy(rust-lane)"
+    );
+}
+
+#[test]
 fn wasm_demo_min_const_return_binary_writer_parity_contract() {
     let fixture_rel = "apps/tests/phase29cc_wsm_p4_min_const_return.hako";
     let emitted = compile_fixture_to_wasm_direct(fixture_rel);

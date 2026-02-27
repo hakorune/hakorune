@@ -29,4 +29,5 @@ Related:
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next
-- `WSM-P5-min3`: `default` を `.hako` lane に切替し、`legacy-wasm-rust` との差分を fixture/gate で lock する。
+- `WSM-P5-min3` は `29cc-162` で完了（default=hako-lane bridge lock）。
+- 次は `WSM-P5-min4`: bridge 依存を縮退し、`.hako` 実体路の lock を 1 shape ずつ追加する。
