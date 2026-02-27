@@ -64,71 +64,39 @@ fn append_section(module: &mut Vec<u8>, section_id: u8, payload: &[u8]) {
     module.extend_from_slice(payload);
 }
 
-/// Build the minimum valid wasm module with:
-/// - one function type: () -> i32
-/// - one function exported as "main"
-/// - code: i32.const <value>; end
-pub(crate) fn build_minimal_main_i32_const_module(value: i32) -> Result<Vec<u8>, WasmError> {
-    let mut module = Vec::new();
-    module.extend_from_slice(&WASM_MAGIC);
-    module.extend_from_slice(&WASM_VERSION_1);
+fn build_minimal_type_section_payload() -> Vec<u8> {
+    // [vec(1), functype(0x60), params(0), results(1 i32)]
+    vec![0x01, FUNC_TYPE, 0x00, 0x01, VALUE_TYPE_I32]
+}
 
-    // Type section: [vec(1), functype(0x60), params(0), results(1 i32)]
-    let type_payload = vec![0x01, FUNC_TYPE, 0x00, 0x01, VALUE_TYPE_I32];
-    append_section(&mut module, SECTION_TYPE, &type_payload);
+fn build_minimal_function_section_payload() -> Vec<u8> {
+    // [vec(1), type_index(0)]
+    vec![0x01, 0x00]
+}
 
-    // Function section: [vec(1), type_index(0)]
-    let function_payload = vec![0x01, 0x00];
-    append_section(&mut module, SECTION_FUNCTION, &function_payload);
+fn build_main_export_section_payload(function_index: u8) -> Vec<u8> {
+    let mut payload = vec![0x01, 0x04];
+    payload.extend_from_slice(b"main");
+    payload.push(EXPORT_KIND_FUNC);
+    payload.push(function_index);
+    payload
+}
 
-    // Export section: export "main" -> func index 0
-    let mut export_payload = vec![0x01, 0x04];
-    export_payload.extend_from_slice(b"main");
-    export_payload.push(EXPORT_KIND_FUNC);
-    export_payload.push(0x00);
-    append_section(&mut module, SECTION_EXPORT, &export_payload);
-
-    // Code section: one body with no locals and i32.const value
+fn build_minimal_const_code_section_payload(value: i32) -> Vec<u8> {
+    // one body with no locals and i32.const value
     let mut body = vec![0x00, OP_I32_CONST];
     body.extend_from_slice(&encode_i32_leb128(value));
     body.push(OP_END);
-    let mut code_payload = vec![0x01];
-    code_payload.extend_from_slice(&encode_u32_leb128(body.len() as u32));
-    code_payload.extend_from_slice(&body);
-    append_section(&mut module, SECTION_CODE, &code_payload);
-
-    if module.len() < 8 {
-        return Err(WasmError::WasmValidationError(
-            "binary writer emitted truncated module".to_string(),
-        ));
-    }
-    Ok(module)
+    let mut payload = vec![0x01];
+    payload.extend_from_slice(&encode_u32_leb128(body.len() as u32));
+    payload.extend_from_slice(&body);
+    payload
 }
 
-/// Build a loop/branch/call skeleton module for WSM-P10-min3 writer contract.
-///
-/// Shape:
-/// - import: env.console_log(i32) -> void
-/// - export: main() -> i32
-/// - body:
-///   local i32 counter
-///   block { loop { if counter >= iterations { break }; call import(counter); counter += 1; continue } }
-///   return counter
-pub(crate) fn build_loop_extern_call_skeleton_module(iterations: i32) -> Result<Vec<u8>, WasmError> {
-    if iterations < 0 {
-        return Err(WasmError::WasmValidationError(
-            "loop extern skeleton requires non-negative iterations".to_string(),
-        ));
-    }
-
-    let mut module = Vec::new();
-    module.extend_from_slice(&WASM_MAGIC);
-    module.extend_from_slice(&WASM_VERSION_1);
-
-    // Type section:
+fn build_loop_extern_type_section_payload() -> Vec<u8> {
     // - type[0]: (i32) -> ()
     // - type[1]: () -> i32
-    let type_payload = vec![
+    vec![
         0x02,
         FUNC_TYPE,
         0x01,
@@ -138,31 +106,26 @@ pub(crate) fn build_loop_extern_call_skeleton_module(iterations: i32) -> Result<
         0x00,
         0x01,
         VALUE_TYPE_I32,
-    ];
-    append_section(&mut module, SECTION_TYPE, &type_payload);
+    ]
+}
 
-    // Import section:
+fn build_loop_extern_import_section_payload() -> Vec<u8> {
     // import "env"."console_log" as func type[0]
-    let mut import_payload = vec![0x01, 0x03];
-    import_payload.extend_from_slice(b"env");
-    import_payload.push(0x0b);
-    import_payload.extend_from_slice(b"console_log");
-    import_payload.push(EXPORT_KIND_FUNC);
-    import_payload.push(0x00);
-    append_section(&mut module, SECTION_IMPORT, &import_payload);
+    let mut payload = vec![0x01, 0x03];
+    payload.extend_from_slice(b"env");
+    payload.push(0x0b);
+    payload.extend_from_slice(b"console_log");
+    payload.push(EXPORT_KIND_FUNC);
+    payload.push(0x00);
+    payload
+}
 
-    // Function section: one local function (main) with type[1]
-    let function_payload = vec![0x01, 0x01];
-    append_section(&mut module, SECTION_FUNCTION, &function_payload);
+fn build_loop_extern_function_section_payload() -> Vec<u8> {
+    // one local function (main) with type[1]
+    vec![0x01, 0x01]
+}
 
-    // Export section: export "main" => function index 1 (index 0 is imported func)
-    let mut export_payload = vec![0x01, 0x04];
-    export_payload.extend_from_slice(b"main");
-    export_payload.push(EXPORT_KIND_FUNC);
-    export_payload.push(0x01);
-    append_section(&mut module, SECTION_EXPORT, &export_payload);
-
-    // Code section for main:
+fn build_loop_extern_code_section_payload(iterations: i32) -> Vec<u8> {
     // locals: 1 x i32 (counter at local index 0)
     let mut body = vec![0x01, 0x01, VALUE_TYPE_I32];
     // counter = 0
@@ -207,9 +170,76 @@ pub(crate) fn build_loop_extern_call_skeleton_module(iterations: i32) -> Result<
     body.push(0x00);
     body.push(OP_END);
 
-    let mut code_payload = vec![0x01];
-    code_payload.extend_from_slice(&encode_u32_leb128(body.len() as u32));
-    code_payload.extend_from_slice(&body);
+    let mut payload = vec![0x01];
+    payload.extend_from_slice(&encode_u32_leb128(body.len() as u32));
+    payload.extend_from_slice(&body);
+    payload
+}
+
+/// Build the minimum valid wasm module with:
+/// - one function type: () -> i32
+/// - one function exported as "main"
+/// - code: i32.const <value>; end
+pub(crate) fn build_minimal_main_i32_const_module(value: i32) -> Result<Vec<u8>, WasmError> {
+    let mut module = Vec::new();
+    module.extend_from_slice(&WASM_MAGIC);
+    module.extend_from_slice(&WASM_VERSION_1);
+
+    let type_payload = build_minimal_type_section_payload();
+    append_section(&mut module, SECTION_TYPE, &type_payload);
+
+    let function_payload = build_minimal_function_section_payload();
+    append_section(&mut module, SECTION_FUNCTION, &function_payload);
+
+    // export "main" -> func index 0
+    let export_payload = build_main_export_section_payload(0x00);
+    append_section(&mut module, SECTION_EXPORT, &export_payload);
+
+    let code_payload = build_minimal_const_code_section_payload(value);
+    append_section(&mut module, SECTION_CODE, &code_payload);
+
+    if module.len() < 8 {
+        return Err(WasmError::WasmValidationError(
+            "binary writer emitted truncated module".to_string(),
+        ));
+    }
+    Ok(module)
+}
+
+/// Build a loop/branch/call skeleton module for WSM-P10-min3 writer contract.
+///
+/// Shape:
+/// - import: env.console_log(i32) -> void
+/// - export: main() -> i32
+/// - body:
+///   local i32 counter
+///   block { loop { if counter >= iterations { break }; call import(counter); counter += 1; continue } }
+///   return counter
+pub(crate) fn build_loop_extern_call_skeleton_module(iterations: i32) -> Result<Vec<u8>, WasmError> {
+    if iterations < 0 {
+        return Err(WasmError::WasmValidationError(
+            "loop extern skeleton requires non-negative iterations".to_string(),
+        ));
+    }
+
+    let mut module = Vec::new();
+    module.extend_from_slice(&WASM_MAGIC);
+    module.extend_from_slice(&WASM_VERSION_1);
+
+    let type_payload = build_loop_extern_type_section_payload();
+    append_section(&mut module, SECTION_TYPE, &type_payload);
+
+    let import_payload = build_loop_extern_import_section_payload();
+    append_section(&mut module, SECTION_IMPORT, &import_payload);
+
+    let function_payload = build_loop_extern_function_section_payload();
+    append_section(&mut module, SECTION_FUNCTION, &function_payload);
+
+    // export "main" => function index 1 (index 0 is imported func)
+    let export_payload = build_main_export_section_payload(0x01);
+    append_section(&mut module, SECTION_EXPORT, &export_payload);
+
+    let code_payload = build_loop_extern_code_section_payload(iterations);
     append_section(&mut module, SECTION_CODE, &code_payload);
 
     if module.len() < 8 {
