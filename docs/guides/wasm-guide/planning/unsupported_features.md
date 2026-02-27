@@ -105,4 +105,4 @@ Still unsupported (fail-fast):
 - Cover `Load` / `Store` path required by assignment/local deep shapes.
 - Add wasm-focused gate fixtures that assert supported/unsupported boundaries.
 - P4 queue:
-  - `WSM-P5-min6`: `.hako` emitter/binary writer 実体路を pilot 以外へ 1 shape 拡張し、fallback 範囲をさらに縮退。
+  - `WSM-P5-min7`: shape-table native path の shape-id 可観測性（route trace）を lock し、legacy lane 縮退判定の観測契約を固定。

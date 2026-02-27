@@ -61,6 +61,7 @@ list_profiles() {
     - phase29cc_wsm_p5_min3_default_hako_lane_lock_vm.sh
     - phase29cc_wsm_p5_min4_hako_lane_bridge_shrink_vm.sh
     - phase29cc_wsm_p5_min5_native_helper_lock_vm.sh
+    - phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh
   wasm-demo-g2:
     - phase29cc_wsm_g2_min1_bridge_build_vm.sh
     - phase29cc_wsm_g2_browser_run_vm.sh
@@ -168,6 +169,8 @@ run_wasm_boundary_lite() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min4_hako_lane_bridge_shrink_vm.sh
   run_step "wasm p5 native helper lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min5_native_helper_lock_vm.sh
+  run_step "wasm p5 shape expand lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh
 }
 
 run_wasm_demo_g2() {

@@ -1,0 +1,10 @@
+// Phase 29cc WSM-P5-min6 const-copy-return fixture
+// Contract:
+// - Native shape-table should accept const -> copy -> return integer flow.
+
+static box Main {
+  main() {
+    local value = 8
+    return value
+  }
+}

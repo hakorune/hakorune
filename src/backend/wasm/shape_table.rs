@@ -1,31 +1,36 @@
 use crate::mir::{ConstValue, MirInstruction, MirModule};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum PilotShape {
+pub(crate) enum NativeShape {
     MainReturnI32Const,
+    MainReturnI32ConstViaCopy,
 }
 
-impl PilotShape {
+impl NativeShape {
     #[cfg(test)]
     pub(crate) fn id(self) -> &'static str {
         match self {
-            PilotShape::MainReturnI32Const => "wsm.p4.main_return_i32_const.v0",
+            NativeShape::MainReturnI32Const => "wsm.p4.main_return_i32_const.v0",
+            NativeShape::MainReturnI32ConstViaCopy => "wsm.p5.main_return_i32_const_via_copy.v0",
         }
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct PilotMatch {
-    pub(crate) shape: PilotShape,
+pub(crate) struct NativeMatch {
+    pub(crate) shape: NativeShape,
     pub(crate) value: i32,
 }
 
-type ShapeMatcher = fn(&MirModule) -> Option<PilotMatch>;
+type ShapeMatcher = fn(&MirModule) -> Option<NativeMatch>;
 
-const PILOT_SHAPE_TABLE: &[ShapeMatcher] = &[match_main_return_i32_const];
+const NATIVE_SHAPE_TABLE: &[ShapeMatcher] = &[
+    match_main_return_i32_const,
+    match_main_return_i32_const_via_copy,
+];
 
-pub(crate) fn match_pilot_shape(mir_module: &MirModule) -> Option<PilotMatch> {
-    for matcher in PILOT_SHAPE_TABLE {
+pub(crate) fn match_native_shape(mir_module: &MirModule) -> Option<NativeMatch> {
+    for matcher in NATIVE_SHAPE_TABLE {
         if let Some(found) = matcher(mir_module) {
             return Some(found);
         }
@@ -33,7 +38,7 @@ pub(crate) fn match_pilot_shape(mir_module: &MirModule) -> Option<PilotMatch> {
     None
 }
 
-fn match_main_return_i32_const(mir_module: &MirModule) -> Option<PilotMatch> {
+fn match_main_return_i32_const(mir_module: &MirModule) -> Option<NativeMatch> {
     let main = mir_module.get_function("main")?;
     if main.blocks.len() != 1 {
         return None;
@@ -61,8 +66,49 @@ fn match_main_return_i32_const(mir_module: &MirModule) -> Option<PilotMatch> {
         return None;
     };
     let value = i32::try_from(*n).ok()?;
-    Some(PilotMatch {
-        shape: PilotShape::MainReturnI32Const,
+    Some(NativeMatch {
+        shape: NativeShape::MainReturnI32Const,
+        value,
+    })
+}
+
+fn match_main_return_i32_const_via_copy(mir_module: &MirModule) -> Option<NativeMatch> {
+    let main = mir_module.get_function("main")?;
+    if main.blocks.len() != 1 {
+        return None;
+    }
+
+    let entry = main.blocks.get(&main.entry_block)?;
+    if entry.instructions.len() != 2 {
+        return None;
+    }
+
+    let MirInstruction::Const { dst, value } = &entry.instructions[0] else {
+        return None;
+    };
+    let MirInstruction::Copy { dst: copy_dst, src } = &entry.instructions[1] else {
+        return None;
+    };
+    if src != dst {
+        return None;
+    }
+
+    let MirInstruction::Return {
+        value: Some(ret_val),
+    } = entry.terminator.as_ref()?
+    else {
+        return None;
+    };
+    if ret_val != copy_dst {
+        return None;
+    }
+
+    let ConstValue::Integer(n) = value else {
+        return None;
+    };
+    let value = i32::try_from(*n).ok()?;
+    Some(NativeMatch {
+        shape: NativeShape::MainReturnI32ConstViaCopy,
         value,
     })
 }
@@ -102,7 +148,7 @@ mod tests {
     #[test]
     fn wasm_shape_table_matches_min_const_return_contract() {
         let module = make_module_with_single_const_return(-1);
-        let found = match_pilot_shape(&module).expect("shape table should match");
+        let found = match_native_shape(&module).expect("shape table should match");
         assert_eq!(found.shape.id(), "wsm.p4.main_return_i32_const.v0");
         assert_eq!(found.value, -1);
     }
@@ -121,8 +167,44 @@ mod tests {
         });
 
         assert!(
-            match_pilot_shape(&module).is_none(),
+            match_native_shape(&module).is_none(),
             "shape table must fail-fast outside strict pilot shape"
         );
+    }
+
+    #[test]
+    fn wasm_shape_table_matches_const_copy_return_contract() {
+        let mut module = MirModule::new("test".to_string());
+        let entry = BasicBlockId(0);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            entry,
+        );
+        let block = function
+            .get_block_mut(entry)
+            .expect("entry block must exist");
+        let const_dst = ValueId(1);
+        let copy_dst = ValueId(2);
+        block.add_instruction(MirInstruction::Const {
+            dst: const_dst,
+            value: ConstValue::Integer(8),
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: copy_dst,
+            src: const_dst,
+        });
+        block.add_instruction(MirInstruction::Return {
+            value: Some(copy_dst),
+        });
+        module.add_function(function);
+
+        let found = match_native_shape(&module).expect("const-copy-return shape should match");
+        assert_eq!(found.shape.id(), "wsm.p5.main_return_i32_const_via_copy.v0");
+        assert_eq!(found.value, 8);
     }
 }

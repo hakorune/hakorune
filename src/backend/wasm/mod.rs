@@ -22,17 +22,17 @@ use crate::mir::MirModule;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WasmHakoDefaultLanePlan {
-    NativePilotShape,
+    NativeShapeTable,
     BridgeRustBackend,
 }
 
-/// Compile strict pilot shape directly to wasm bytes for default hako-lane.
+/// Compile strict native shape-table subset directly to wasm bytes for default hako-lane.
 ///
 /// Returns:
-/// - `Ok(Some(bytes))` when pilot shape matched and native binary writer emitted.
-/// - `Ok(None)` when shape is outside pilot contract.
-pub fn compile_hako_native_pilot_bytes(mir_module: &MirModule) -> Result<Option<Vec<u8>>, WasmError> {
-    let Some(found) = shape_table::match_pilot_shape(mir_module) else {
+/// - `Ok(Some(bytes))` when supported shape matched and native binary writer emitted.
+/// - `Ok(None)` when shape is outside current native contract.
+pub fn compile_hako_native_shape_bytes(mir_module: &MirModule) -> Result<Option<Vec<u8>>, WasmError> {
+    let Some(found) = shape_table::match_native_shape(mir_module) else {
         return Ok(None);
     };
     let bytes = binary_writer::build_minimal_main_i32_const_module(found.value)?;
@@ -82,11 +82,11 @@ impl WasmBackend {
 
     /// Decide plan for default hako-lane compilation.
     ///
-    /// - `NativePilotShape`: emit wasm bytes directly for strict pilot shape.
+    /// - `NativeShapeTable`: emit wasm bytes directly for shape-table-matched subset.
     /// - `BridgeRustBackend`: delegate to Rust backend compile pipeline.
     pub fn plan_hako_default_lane(&self, mir_module: &MirModule) -> WasmHakoDefaultLanePlan {
-        if shape_table::match_pilot_shape(mir_module).is_some() {
-            WasmHakoDefaultLanePlan::NativePilotShape
+        if shape_table::match_native_shape(mir_module).is_some() {
+            WasmHakoDefaultLanePlan::NativeShapeTable
         } else {
             WasmHakoDefaultLanePlan::BridgeRustBackend
         }
@@ -95,14 +95,14 @@ impl WasmBackend {
     /// Compile with explicit default hako-lane planning.
     ///
     /// Current state:
-    /// - native path is available for pilot shape only.
-    /// - non-pilot shapes are bridged to Rust backend path.
+    /// - native path is available for shape-table-matched subset.
+    /// - non-matching shapes are bridged to Rust backend path.
     pub fn compile_hako_default_lane(
         &mut self,
         mir_module: MirModule,
     ) -> Result<(Vec<u8>, WasmHakoDefaultLanePlan), WasmError> {
-        let (plan, bytes) = match compile_hako_native_pilot_bytes(&mir_module)? {
-            Some(bytes) => (WasmHakoDefaultLanePlan::NativePilotShape, bytes),
+        let (plan, bytes) = match compile_hako_native_shape_bytes(&mir_module)? {
+            Some(bytes) => (WasmHakoDefaultLanePlan::NativeShapeTable, bytes),
             None => (
                 WasmHakoDefaultLanePlan::BridgeRustBackend,
                 self.compile_module(mir_module)?,
@@ -113,10 +113,10 @@ impl WasmBackend {
 
     /// Compile MIR module to WASM bytes
     pub fn compile_module(&mut self, mir_module: MirModule) -> Result<Vec<u8>, WasmError> {
-        // WSM-P4-min4 pilot:
-        // For the strict minimal shape (main returns integer const),
+        // WSM-P5-min6 native shape table:
+        // For the native subset (main returns integer const family),
         // bypass WAT and emit wasm binary directly.
-        if let Some(found) = shape_table::match_pilot_shape(&mir_module) {
+        if let Some(found) = shape_table::match_native_shape(&mir_module) {
             return binary_writer::build_minimal_main_i32_const_module(found.value);
         }
 
@@ -305,7 +305,7 @@ mod tests {
     }
 
     #[test]
-    fn wasm_binary_writer_pilot_extract_min_const_return_contract() {
+    fn wasm_binary_writer_extract_min_const_return_contract() {
         let sig = FunctionSignature {
             name: "main".to_string(),
             params: Vec::new(),
@@ -326,13 +326,13 @@ mod tests {
         let mut module = MirModule::new("test".to_string());
         module.add_function(func);
 
-        let found = shape_table::match_pilot_shape(&module).expect("pilot shape should match");
+        let found = shape_table::match_native_shape(&module).expect("native shape should match");
         assert_eq!(found.value, 7);
         assert_eq!(found.shape.id(), "wsm.p4.main_return_i32_const.v0");
     }
 
     #[test]
-    fn wasm_hako_default_lane_plan_native_for_pilot_shape_contract() {
+    fn wasm_hako_default_lane_plan_native_for_shape_table_contract() {
         let sig = FunctionSignature {
             name: "main".to_string(),
             params: Vec::new(),
@@ -355,7 +355,7 @@ mod tests {
 
         let backend = WasmBackend::new();
         let plan = backend.plan_hako_default_lane(&module);
-        assert_eq!(plan, WasmHakoDefaultLanePlan::NativePilotShape);
+        assert_eq!(plan, WasmHakoDefaultLanePlan::NativeShapeTable);
     }
 
     #[test]
@@ -367,7 +367,7 @@ mod tests {
     }
 
     #[test]
-    fn wasm_hako_native_pilot_bytes_emits_for_pilot_shape_contract() {
+    fn wasm_hako_native_shape_bytes_emits_for_pilot_shape_contract() {
         let sig = FunctionSignature {
             name: "main".to_string(),
             params: Vec::new(),
@@ -388,17 +388,51 @@ mod tests {
         let mut module = MirModule::new("test".to_string());
         module.add_function(func);
 
-        let bytes = compile_hako_native_pilot_bytes(&module)
+        let bytes = compile_hako_native_shape_bytes(&module)
             .expect("native helper should succeed")
             .expect("pilot shape must emit bytes");
         assert!(bytes.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
     }
 
     #[test]
-    fn wasm_hako_native_pilot_bytes_rejects_non_pilot_contract() {
+    fn wasm_hako_native_shape_bytes_rejects_non_pilot_contract() {
         let module = MirModule::new("test".to_string());
-        let bytes = compile_hako_native_pilot_bytes(&module)
+        let bytes = compile_hako_native_shape_bytes(&module)
             .expect("native helper should return Ok(None) for non-pilot");
         assert!(bytes.is_none());
+    }
+
+    #[test]
+    fn wasm_hako_native_shape_bytes_emits_for_const_copy_return_contract() {
+        let sig = FunctionSignature {
+            name: "main".to_string(),
+            params: Vec::new(),
+            return_type: MirType::Integer,
+            effects: crate::mir::EffectMask::PURE,
+        };
+        let entry = BasicBlockId::new(0);
+        let mut func = MirFunction::new(sig, entry);
+        let block = func.get_block_mut(entry).expect("entry block");
+        let const_dst = ValueId::new(1);
+        let copy_dst = ValueId::new(2);
+        block.add_instruction(MirInstruction::Const {
+            dst: const_dst,
+            value: ConstValue::Integer(8),
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: copy_dst,
+            src: const_dst,
+        });
+        block.add_instruction(MirInstruction::Return {
+            value: Some(copy_dst),
+        });
+
+        let mut module = MirModule::new("test".to_string());
+        module.add_function(func);
+
+        let bytes = compile_hako_native_shape_bytes(&module)
+            .expect("native helper should succeed")
+            .expect("const-copy-return shape must emit bytes");
+        assert!(bytes.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
     }
 }

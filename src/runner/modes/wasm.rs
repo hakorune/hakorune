@@ -3,7 +3,7 @@ use super::super::NyashRunner;
 use crate::config::env::WasmRoutePolicyMode;
 #[cfg(feature = "wasm-backend")]
 use nyash_rust::{
-    backend::wasm::{compile_hako_native_pilot_bytes, WasmBackend},
+    backend::wasm::{compile_hako_native_shape_bytes, WasmBackend},
     mir::MirCompiler,
     parser::NyashParser,
 };
@@ -95,10 +95,10 @@ impl NyashRunner {
         let route_policy = crate::config::env::wasm_route_policy_mode();
         let compile_route = select_wasm_compile_route(route_policy);
         let compile_result = match compile_route {
-            // P5-min5: default(hako-lane) tries native 1-shape helper first.
-            // Fallback to bridge route only when outside pilot shape.
+            // P5-min6: default(hako-lane) tries native shape-table helper first.
+            // Fallback to bridge route only when outside native shape-table contract.
             WasmCompileRoute::HakoDefaultBridge => {
-                match compile_hako_native_pilot_bytes(&mir_module) {
+                match compile_hako_native_shape_bytes(&mir_module) {
                     Ok(Some(bytes)) => Ok(bytes),
                     Ok(None) => wasm_backend.compile_module(mir_module),
                     Err(err) => Err(err),
