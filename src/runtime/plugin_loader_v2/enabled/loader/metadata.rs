@@ -95,7 +95,7 @@ pub(super) fn metadata_for_type_id(
         lib_name: lib_name.to_string(),
         box_type: box_type.to_string(),
         type_id: resolved_type,
-        invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
+        invoke_box_fn: box_invoke_fn_for_type_id(loader, resolved_type),
         fini_method_id: fini_method,
     })
 }

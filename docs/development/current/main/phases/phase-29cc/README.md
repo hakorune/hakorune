@@ -381,3 +381,5 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-227-runtime-a3-min2-types-handle-route-cutover-lock-ssot.md`
   - runtime A3-min3 globals/errors/extern fail-fast lock（29cc-228, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-228-runtime-a3-min3-globals-errors-extern-failfast-lock-ssot.md`
+  - runtime A3-min4 PluginBoxMetadata route-aware lock（29cc-229, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-229-runtime-a3-min4-pluginboxmetadata-routeaware-lock-ssot.md`

@@ -5,6 +5,8 @@ use std::sync::{Arc, RwLock};
 
 pub type InvokeFn =
     unsafe extern "C" fn(u32, u32, u32, *const u8, usize, *mut u8, *mut usize) -> i32;
+pub type BoxInvokeFn =
+    extern "C" fn(u32, u32, *const u8, usize, *mut u8, *mut usize) -> i32;
 
 #[derive(Debug, Clone)]
 pub struct PluginBoxV2 {
@@ -17,7 +19,7 @@ pub struct PluginBoxMetadata {
     pub lib_name: String,
     pub box_type: String,
     pub type_id: u32,
-    pub invoke_fn: InvokeFn,
+    pub invoke_box_fn: Option<BoxInvokeFn>,
     pub fini_method_id: Option<u32>,
 }
 

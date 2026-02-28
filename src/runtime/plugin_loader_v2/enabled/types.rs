@@ -22,7 +22,7 @@ pub struct PluginBoxMetadata {
     pub lib_name: String,
     pub box_type: String,
     pub type_id: u32,
-    pub invoke_fn: InvokeFn,
+    pub invoke_box_fn: Option<BoxInvokeFn>,
     pub fini_method_id: Option<u32>,
 }
 
