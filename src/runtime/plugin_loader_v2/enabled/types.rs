@@ -50,21 +50,41 @@ impl Drop for PluginHandleInner {
                         fini_id, self.instance_id
                     ));
                 }
-                let tlv_args: [u8; 4] = [1, 0, 0, 0];
-                let _ = super::host_bridge::invoke_alloc_with_route(
-                    self.invoke_box_fn,
-                    self.invoke_fn,
-                    self.type_id,
-                    fini_id,
-                    self.instance_id,
-                    &tlv_args,
-                );
+                let tlv_args = PluginHandleInner::fini_tlv_args();
+                let _ = self.invoke_self(fini_id, &tlv_args);
             }
         }
     }
 }
 
 impl PluginHandleInner {
+    #[inline]
+    fn invoke_with_instance(
+        &self,
+        method_id: u32,
+        instance_id: u32,
+        tlv_args: &[u8],
+    ) -> (i32, usize, Vec<u8>) {
+        super::host_bridge::invoke_alloc_with_route(
+            self.invoke_box_fn,
+            self.invoke_fn,
+            self.type_id,
+            method_id,
+            instance_id,
+            tlv_args,
+        )
+    }
+
+    #[inline]
+    fn invoke_self(&self, method_id: u32, tlv_args: &[u8]) -> (i32, usize, Vec<u8>) {
+        self.invoke_with_instance(method_id, self.instance_id, tlv_args)
+    }
+
+    #[inline]
+    fn fini_tlv_args() -> [u8; 4] {
+        [1, 0, 0, 0]
+    }
+
     pub fn finalize_now(&self) {
         if let Some(fini_id) = self.fini_method_id {
             if !self
@@ -72,15 +92,8 @@ impl PluginHandleInner {
                 .swap(true, std::sync::atomic::Ordering::SeqCst)
             {
                 crate::runtime::leak_tracker::finalize_plugin("PluginBox", self.instance_id);
-                let tlv_args: [u8; 4] = [1, 0, 0, 0];
-                let _ = super::host_bridge::invoke_alloc_with_route(
-                    self.invoke_box_fn,
-                    self.invoke_fn,
-                    self.type_id,
-                    fini_id,
-                    self.instance_id,
-                    &tlv_args,
-                );
+                let tlv_args = Self::fini_tlv_args();
+                let _ = self.invoke_self(fini_id, &tlv_args);
             }
         }
     }
@@ -141,14 +154,7 @@ impl NyashBox for PluginBoxV2 {
             ));
         }
         let tlv_args = [1u8, 0, 0, 0];
-        let (result, out_len, out_buf) = super::host_bridge::invoke_alloc_with_route(
-            self.inner.invoke_box_fn,
-            self.inner.invoke_fn,
-            self.inner.type_id,
-            0,
-            0,
-            &tlv_args,
-        );
+        let (result, out_len, out_buf) = self.inner.invoke_with_instance(0, 0, &tlv_args);
         if result == 0 && out_len >= 4 {
             let new_instance_id =
                 u32::from_le_bytes([out_buf[0], out_buf[1], out_buf[2], out_buf[3]]);

@@ -259,6 +259,7 @@ Related:
       - execution-path-zero は中間マイルストーンとして扱う
     - latest cleanup（2026-02-28）:
       - `enabled/route_resolver.rs` を追加し、`ffi_bridge`/`instance_manager` の type/birth/method route 解析を単一責務へ集約
+      - `enabled/types.rs` の `PluginHandleInner` helper で drop/finalize/clone の host_bridge route 呼び出しを集約
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:
