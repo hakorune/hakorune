@@ -130,3 +130,38 @@ pub(super) fn resolve_birth_and_fini_for_lib(
     let birth_id = birth_id.ok_or(BidError::InvalidMethod)?;
     Ok((birth_id, fini_id))
 }
+
+pub(super) fn resolve_type_and_fini_for_lib(
+    loader: &PluginLoaderV2,
+    lib_name: &str,
+    box_type: &str,
+    fallback_type_id: u32,
+) -> BidResult<(u32, Option<u32>)> {
+    let mut resolved_type = type_id_from_selected_lib(loader, lib_name, box_type)?
+        .unwrap_or(fallback_type_id);
+    let mut fini_id = None;
+
+    if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
+        if let Some(box_conf) = cfg.get_box_config(lib_name, box_type, toml_value) {
+            if resolved_type == fallback_type_id {
+                resolved_type = box_conf.type_id;
+            }
+            fini_id = box_conf.methods.get("fini").map(|m| m.method_id);
+        }
+    }
+
+    if fini_id.is_none() {
+        let map = loader.box_specs.read().map_err(|_| BidError::PluginError)?;
+        let key = (lib_name.to_string(), box_type.to_string());
+        if let Some(spec) = map.get(&key) {
+            if resolved_type == fallback_type_id {
+                if let Some(tid) = spec.type_id {
+                    resolved_type = tid;
+                }
+            }
+            fini_id = spec.fini_method_id;
+        }
+    }
+
+    Ok((resolved_type, fini_id))
+}
