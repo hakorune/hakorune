@@ -6,7 +6,7 @@ cd "$ROOT_DIR"
 
 CONCAT_ROUTE_SMOKE="tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh"
 ARRAY_ROUTE_SMOKE="tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh"
-LOCK_DOC="docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md"
+LOCK_DOC="docs/development/current/main/phases/phase-29cc/29cc-217-runtime-vm-aot-route-lock-ssot.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 
 for file in \

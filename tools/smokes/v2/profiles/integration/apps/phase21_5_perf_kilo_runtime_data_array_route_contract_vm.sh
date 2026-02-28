@@ -15,6 +15,12 @@ SMOKE_NAME="phase21_5_perf_kilo_runtime_data_array_route_contract_vm"
 EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
 MIR_BUILDER="$NYASH_ROOT/tools/ny_mir_builder.sh"
 BENCH="$NYASH_ROOT/benchmarks/bench_kilo_kernel_small.hako"
+ROUTE_ARRAY_GET="nyash.array.get_hi"
+ROUTE_ARRAY_SET="nyash.array.set_hih"
+LEGACY_ARRAY_GET="nyash.array.get_hh"
+LEGACY_ARRAY_SET="nyash.array.set_hhh"
+RUNTIME_GET="nyash.runtime_data.get_hh"
+RUNTIME_SET="nyash.runtime_data.set_hhh"
 
 if [ ! -f "$EMIT_HELPER" ]; then
   test_fail "$SMOKE_NAME: emit helper missing: $EMIT_HELPER"
@@ -81,35 +87,40 @@ if ! grep -q '^define .*@"main"' "$tmp_main"; then
   exit 1
 fi
 
-array_get_count="$(grep -c 'nyash.array.get_hi' "$tmp_main" || true)"
-array_set_count="$(grep -c 'nyash.array.set_hih' "$tmp_main" || true)"
-runtime_get_count="$(grep -c 'nyash.runtime_data.get_hh' "$tmp_main" || true)"
-runtime_set_count="$(grep -c 'nyash.runtime_data.set_hhh' "$tmp_main" || true)"
-legacy_array_get_count="$(grep -c 'nyash.array.get_hh' "$tmp_main" || true)"
-legacy_array_set_count="$(grep -c 'nyash.array.set_hhh' "$tmp_main" || true)"
+count_symbol() {
+  local symbol="$1"
+  grep -c "$symbol" "$tmp_main" || true
+}
+
+array_get_count="$(count_symbol "$ROUTE_ARRAY_GET")"
+array_set_count="$(count_symbol "$ROUTE_ARRAY_SET")"
+runtime_get_count="$(count_symbol "$RUNTIME_GET")"
+runtime_set_count="$(count_symbol "$RUNTIME_SET")"
+legacy_array_get_count="$(count_symbol "$LEGACY_ARRAY_GET")"
+legacy_array_set_count="$(count_symbol "$LEGACY_ARRAY_SET")"
 
 if [ "$array_get_count" -lt 1 ]; then
-  test_fail "$SMOKE_NAME: nyash.array.get_hi not observed in main"
+  test_fail "$SMOKE_NAME: ${ROUTE_ARRAY_GET} not observed in main"
   exit 1
 fi
 if [ "$array_set_count" -lt 1 ]; then
-  test_fail "$SMOKE_NAME: nyash.array.set_hih not observed in main"
+  test_fail "$SMOKE_NAME: ${ROUTE_ARRAY_SET} not observed in main"
   exit 1
 fi
 if [ "$runtime_get_count" -ne 0 ]; then
-  test_fail "$SMOKE_NAME: nyash.runtime_data.get_hh remained in main (${runtime_get_count})"
+  test_fail "$SMOKE_NAME: ${RUNTIME_GET} remained in main (${runtime_get_count})"
   exit 1
 fi
 if [ "$runtime_set_count" -ne 0 ]; then
-  test_fail "$SMOKE_NAME: nyash.runtime_data.set_hhh remained in main (${runtime_set_count})"
+  test_fail "$SMOKE_NAME: ${RUNTIME_SET} remained in main (${runtime_set_count})"
   exit 1
 fi
 if [ "$legacy_array_get_count" -ne 0 ]; then
-  test_fail "$SMOKE_NAME: legacy nyash.array.get_hh remained in main (${legacy_array_get_count})"
+  test_fail "$SMOKE_NAME: legacy ${LEGACY_ARRAY_GET} remained in main (${legacy_array_get_count})"
   exit 1
 fi
 if [ "$legacy_array_set_count" -ne 0 ]; then
-  test_fail "$SMOKE_NAME: legacy nyash.array.set_hhh remained in main (${legacy_array_set_count})"
+  test_fail "$SMOKE_NAME: legacy ${LEGACY_ARRAY_SET} remained in main (${legacy_array_set_count})"
   exit 1
 fi
 

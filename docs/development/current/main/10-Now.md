@@ -120,6 +120,8 @@ Related:
   - runtime execution-path observability lock（29cc-215 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard: `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
+  - runtime VM+AOT route lock（29cc-217 accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-217-runtime-vm-aot-route-lock-ssot.md`
     - guard: `bash tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh`
   - runtime V0 ABI slice lock（29cc-216 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`
