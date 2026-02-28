@@ -158,6 +158,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - `docs/development/current/main/phases/phase-29cc/29cc-228-runtime-a3-min3-globals-errors-extern-failfast-lock-ssot.md`
   - runtime A3-min4 PluginBoxMetadata route-aware lock（29cc-229 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-229-runtime-a3-min4-pluginboxmetadata-routeaware-lock-ssot.md`
+  - runtime A3 closeout lock（29cc-230 accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-230-runtime-a3-closeout-lock-ssot.md`
   - plugin method resolver fail-fast lock（29cc-218 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-218-plugin-method-resolver-failfast-lock-ssot.md`
   - instance manager boundary lock（29cc-219 accepted）:

@@ -200,6 +200,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `PluginBoxMetadata` は `invoke_box_fn: Option<BoxInvokeFn>` を保持
       - metadata 生成時に `box_invoke_fn_for_type_id` を解決して保存
       - enabled/stub の型定義を同期
+  - runtime A3 closeout lock（29cc-230, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-230-runtime-a3-closeout-lock-ssot.md`
+    - fixed:
+      - A3-min1..min4 の done criteria を統合
+      - next boundary を B1-min1（kernel invoke_core/birth）へ固定
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
@@ -278,7 +283,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 8. de-rust runtime は `29cc-220` を active lock とし、long-term は source-zero、現フェーズは route-zero + stability（no-delete-first）で C ABI cutover 順を固定する。
 9. route drift 監査は `29cc-215`（observability）+ `29cc-217`（VM+AOT route）を正本にして運用する。
 10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
-11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`29cc-221` の順序で `1 commit = 1 boundary` で route cutover を進める（A1-min1/A1-min2/A2-min1/A2-min2/A3-min1/A3-min2/A3-min3/A3-min4 done / next A3 closeout: loader/types/globals/errors/extern 監査固定）。
+11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`29cc-221` の順序で `1 commit = 1 boundary` で route cutover を進める（A1-min1/A1-min2/A2-min1/A2-min2/A3-min1/A3-min2/A3-min3/A3-min4/A3-closeout done / next B1-min1: invoke_core/birth）。
 12. AOT/perf 最適化は route-zero + stability 達成後に再開可否を判断する（いまは monitor-only 維持）。
 
 ## Future Ideas (Not Active)

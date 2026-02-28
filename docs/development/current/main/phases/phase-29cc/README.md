@@ -383,3 +383,5 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-228-runtime-a3-min3-globals-errors-extern-failfast-lock-ssot.md`
   - runtime A3-min4 PluginBoxMetadata route-aware lock（29cc-229, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-229-runtime-a3-min4-pluginboxmetadata-routeaware-lock-ssot.md`
+  - runtime A3 closeout lock（29cc-230, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-230-runtime-a3-closeout-lock-ssot.md`
