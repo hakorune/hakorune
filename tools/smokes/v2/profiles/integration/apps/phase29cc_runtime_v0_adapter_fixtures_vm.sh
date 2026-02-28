@@ -3,7 +3,8 @@
 # Contract lock (Step-3 adapter fixtures):
 # - array_set_i64 / array_get_i64 semantics under adapter ON
 # - strict mode freeze contract exists in handler source
-# - string_len fixture remains green with adapter ON (route liveness lock)
+# - string_len adapter route contract exists in source (registry + handler + core box)
+# - string fixture remains green under adapter ON (behavior smoke)
 
 set -euo pipefail
 
@@ -13,6 +14,8 @@ require_env || exit 2
 SMOKE_NAME="phase29cc_runtime_v0_adapter_fixtures_vm"
 STRING_FIXTURE="$NYASH_ROOT/apps/tests/phase29cc_plg04_stringbox_pilot_min.hako"
 HANDLER_FILE="$NYASH_ROOT/lang/src/vm/boxes/mir_call_v1_handler.hako"
+REGISTRY_FILE="$NYASH_ROOT/lang/src/vm/boxes/abi_adapter_registry.hako"
+STRING_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/string_core_box.hako"
 
 JSON_ARRAY_OK='{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[{"op":"mir_call","dst":1,"mir_call":{"callee":{"type":"Constructor","box_type":"ArrayBox"},"args":[],"effects":["alloc"],"flags":{}}},{"op":"const","dst":2,"value":{"type":"i64","value":0}},{"op":"const","dst":3,"value":{"type":"i64","value":42}},{"op":"mir_call","dst":4,"mir_call":{"callee":{"type":"Method","box_name":"ArrayBox","method":"set","receiver":1},"args":[2,3],"effects":[],"flags":{}}},{"op":"mir_call","dst":5,"mir_call":{"callee":{"type":"Method","box_name":"ArrayBox","method":"get","receiver":1},"args":[2],"effects":[],"flags":{}}},{"op":"ret","value":5}]}]}]}'
 JSON_ARRAY_SET_FAIL='{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[{"op":"mir_call","dst":1,"mir_call":{"callee":{"type":"Constructor","box_type":"ArrayBox"},"args":[],"effects":["alloc"],"flags":{}}},{"op":"const","dst":2,"value":{"type":"i64","value":-1}},{"op":"const","dst":3,"value":{"type":"i64","value":7}},{"op":"mir_call","dst":4,"mir_call":{"callee":{"type":"Method","box_name":"ArrayBox","method":"set","receiver":1},"args":[2,3],"effects":[],"flags":{}}},{"op":"ret","value":4}]}]}]}'
@@ -44,6 +47,33 @@ set -e
 if [ "$rc_array_set_fail" -ne 0 ]; then
   echo "$out_array_set_fail" | tail -n 120 >&2 || true
   test_fail "$SMOKE_NAME: array set fail-case rc mismatch (got=$rc_array_set_fail expect=0)"
+  exit 1
+fi
+
+for f in "$REGISTRY_FILE" "$STRING_CORE_FILE"; do
+  if [ ! -f "$f" ]; then
+    test_fail "$SMOKE_NAME: missing file ($f)"
+    exit 1
+  fi
+done
+
+if ! rg -F -q 'me._put("StringBox", "length", "nyash.string.len_h"' "$REGISTRY_FILE"; then
+  test_fail "$SMOKE_NAME: StringBox.length adapter registry contract missing"
+  exit 1
+fi
+
+if ! rg -F -q 'StringCoreBox.len_i64(' "$HANDLER_FILE"; then
+  test_fail "$SMOKE_NAME: handler string core route contract missing"
+  exit 1
+fi
+
+if ! rg -F -q '[vm/adapter/string_core:len_i64]' "$HANDLER_FILE"; then
+  test_fail "$SMOKE_NAME: handler string adapter trace tag contract missing"
+  exit 1
+fi
+
+if ! rg -F -q 'externcall "nyash.string.len_h"' "$STRING_CORE_FILE"; then
+  test_fail "$SMOKE_NAME: string core extern route contract missing"
   exit 1
 fi
 
@@ -92,4 +122,4 @@ if ! echo "$out_string" | rg -q '^string_len2='; then
   exit 1
 fi
 
-test_pass "$SMOKE_NAME: PASS (array_get_i64/array_set_i64/string_len adapter fixtures locked)"
+test_pass "$SMOKE_NAME: PASS (array_get_i64/array_set_i64 + string_len adapter route locked)"

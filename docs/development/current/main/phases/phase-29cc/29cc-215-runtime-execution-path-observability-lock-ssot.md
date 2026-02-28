@@ -40,6 +40,8 @@ Related:
 
 1. `phase29cc_runtime_execution_path_zero_guard.sh` が green。
 2. `dev_gate.sh runtime-exec-zero` が green。
+3. `phase29cc_runtime_v0_adapter_fixtures_vm.sh` で
+   `[vm/adapter/string_core:len_i64]` タグ契約（handler source）が監査される（adapter route drift 検知）。
 3. `CURRENT_TASK.md` / `10-Now.md` / `phase-29cc/README.md` に lock 参照が同期されている。
 
 ## Not in this lock
