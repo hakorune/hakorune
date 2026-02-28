@@ -132,6 +132,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/reference/abi/nyrt_host_surface_v0.md`
   - Step-2 host facade contract lock（docs-first）:
     - `docs/development/current/main/design/hako-host-facade-contract-ssot.md`
+  - Step-2 host facade wiring（code-first, no-delete-first）:
+    - `lang/src/runtime/host/host_facade_box.hako` を追加し、`extern_provider` / `extern_call_handler` / `mir_vm_s0` の direct `env.get`/console/extern invoke 経路を HostFacade 経由へ統一（2026-02-28）
   - runtime execution-path observability lock（29cc-215, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard:

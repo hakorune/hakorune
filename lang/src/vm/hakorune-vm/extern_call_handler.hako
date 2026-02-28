@@ -4,6 +4,7 @@
 using selfhost.vm.boxes.result_box as Result
 using selfhost.vm.hakorune-vm.value_manager as ValueManagerBox
 using selfhost.shared.common.string_helpers as StringHelpers
+using lang.runtime.host.host_facade_box as HostFacadeBox
 
 static box ExternCallHandlerBox {
   // Handle extern function call
@@ -39,15 +40,17 @@ static box ExternCallHandlerBox {
     if name == "env.get" {
       local key = null
       if args_array != null && args_array.length() >= 1 { key = "" + args_array.get(0) }
-      local v = null
-      if key != null { v = env.get(key) }
+      local v = HostFacadeBox.call("runtime", "env.get", key)
       if dst_reg != null { ValueManagerBox.set(regs, dst_reg, v) }
       return Result.Ok(0)
     }
-    // Delegation: forward externs to Rust via hostbridge trampoline.
+    // Delegation: forward externs through the HostFacade loader route.
     if args_array == null { args_array = new ArrayBox() }
+    local payload = new ArrayBox()
+    payload.push(name)
+    payload.push(args_array)
     local ret
-    ret = hostbridge.extern_invoke(name, args_array)
+    ret = HostFacadeBox.call("loader", "extern_invoke", payload)
 
     if dst_reg != null { ValueManagerBox.set(regs, dst_reg, ret) }
     return Result.Ok(0)

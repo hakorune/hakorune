@@ -12,6 +12,7 @@ using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 using selfhost.vm.helpers.mir_s0_reg_utils as MirVmS0RegUtilsBox
 using selfhost.vm.helpers.mir_s0_args_phi as MirVmS0ArgsPhiBox
 using selfhost.vm.helpers.mir_s0_block_loc as MirVmS0BlockLocBox
+using lang.runtime.host.host_facade_box as HostFacadeBox
 
 static box MirVmS0Box {
   // ==================== Delegates to MirVmS0JsonScanBox ====================
@@ -840,7 +841,7 @@ static box MirVmS0Box {
       if me._call_is_env_get(seg) {
         local key_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0)
         if key_text == null { return "[vm-hako/contract][call-env.get-key-handle-missing]" }
-        local env_val = env.get(key_text)
+        local env_val = HostFacadeBox.call("runtime", "env.get", key_text)
         if env_val == null {
           me._reg_set(regs, dst, 0)
           me._reg_kind_set(kinds, dst, "scalar")
@@ -867,9 +868,9 @@ static box MirVmS0Box {
         if me._reg_kind_get(kinds, arg0) == "handle" {
           local out_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0)
           if out_text == null { return "[vm-hako/contract][externcall-print-handle-missing]" }
-          print(out_text)
+          HostFacadeBox.call("runtime", "console.log", out_text)
         } else {
-          print(me._reg_get(regs, arg0))
+          HostFacadeBox.call("runtime", "console.log", me._reg_get(regs, arg0))
         }
         return "__NEXT__"
       }
@@ -879,7 +880,7 @@ static box MirVmS0Box {
         if key_reg == null { return "[vm-hako/contract][externcall-env.get-arg0-missing]" }
         local key_text = MirVmS0StateOpsBox.handle_get(handle_regs, key_reg)
         if key_text == null { return "[vm-hako/contract][externcall-env.get-key-handle-missing]" }
-        local env_val = env.get(key_text)
+        local env_val = HostFacadeBox.call("runtime", "env.get", key_text)
         local dst_env = me._find_int(seg, "dst")
         if dst_env != null {
           if env_val == null {

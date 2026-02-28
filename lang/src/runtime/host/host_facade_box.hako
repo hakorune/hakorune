@@ -1,0 +1,97 @@
+// host_facade_box.hako — HostFacadeBox
+// Responsibility: single `.hako` host-call entry for runtime/vm callers.
+
+using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
+
+static box HostFacadeBox {
+  call(kind, selector, payload) {
+    if kind == null || selector == null { return null }
+
+    if kind == "runtime" {
+      return me._call_runtime(selector, payload)
+    }
+    if kind == "loader" {
+      return me._call_loader(selector, payload)
+    }
+
+    // Reserved categories (`process|fs|net|time`) are added in later steps.
+    return null
+  }
+
+  _call_runtime(selector, payload) {
+    if selector == "env.get" {
+      local key = me._payload_as_text(payload)
+      if key == null { return null }
+      return env.get(key)
+    }
+
+    if selector == "console.log" {
+      me._console_print("", payload)
+      return 0
+    }
+    if selector == "console.warn" {
+      me._console_print("[warn] ", payload)
+      return 0
+    }
+    if selector == "console.error" {
+      me._console_print("[error] ", payload)
+      return 0
+    }
+    if selector == "console.info" {
+      me._console_print("[info] ", payload)
+      return 0
+    }
+    if selector == "console.debug" {
+      me._console_print("[debug] ", payload)
+      return 0
+    }
+
+    return null
+  }
+
+  _call_loader(selector, payload) {
+    if selector != "extern_invoke" { return null }
+    local name = me._payload_name(payload)
+    if name == null || name == "" { return null }
+    local args = me._payload_args(payload)
+    return hostbridge.extern_invoke(name, args)
+  }
+
+  _payload_as_text(payload) {
+    if payload == null { return null }
+    if BoxTypeInspectorBox.is_array(payload) {
+      if payload.length() <= 0 { return null }
+      local first = payload.get(0)
+      if first == null { return null }
+      return "" + first
+    }
+    return "" + payload
+  }
+
+  _payload_name(payload) {
+    if payload == null || !BoxTypeInspectorBox.is_array(payload) { return null }
+    if payload.length() <= 0 { return null }
+    local name = payload.get(0)
+    if name == null { return null }
+    return "" + name
+  }
+
+  _payload_args(payload) {
+    if payload == null || !BoxTypeInspectorBox.is_array(payload) { return new ArrayBox() }
+    if payload.length() <= 1 { return new ArrayBox() }
+    local args = payload.get(1)
+    if args != null && BoxTypeInspectorBox.is_array(args) {
+      return args
+    }
+    local out = new ArrayBox()
+    if args != null { out.push(args) }
+    return out
+  }
+
+  _console_print(prefix, payload) {
+    local text = ""
+    if payload != null { text = "" + payload }
+    print(prefix + text)
+  }
+}
+
