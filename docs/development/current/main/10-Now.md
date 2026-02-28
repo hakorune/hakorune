@@ -180,6 +180,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - `docs/development/current/main/phases/phase-29cc/29cc-239-kernel-b3-min1-future-route-lock-ssot.md`
   - kernel B3-min2 invoke route lock（29cc-240 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-240-kernel-b3-min2-invoke-route-lock-ssot.md`
+  - kernel B3 closeout lock（29cc-241 accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-241-kernel-b3-closeout-lock-ssot.md`
   - plugin method resolver fail-fast lock（29cc-218 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-218-plugin-method-resolver-failfast-lock-ssot.md`
   - instance manager boundary lock（29cc-219 accepted）:
