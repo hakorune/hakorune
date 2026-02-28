@@ -314,76 +314,22 @@ pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, ar
     // Build TLV args for payload (excluding method name)
     let nargs_total = argc.max(0) as usize; // includes method_name
     let nargs_payload = nargs_total.saturating_sub(1);
+    if nargs_payload > 1 && nyash_rust::config::env::fail_fast() {
+        return 0;
+    }
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs_payload as u16);
-    // ✂️ REMOVED: Legacy VM argument encoding - replaced by Plugin-First architecture
-    // encode_from_legacy_into closure removed - no longer accessing VMValue args
-    let mut encode_from_legacy_into = |dst: &mut Vec<u8>, _pos: usize| {
-        // In Plugin-First architecture, legacy VM slot expansion is replaced by explicit placeholder.
-        super::invoke_core::encode_legacy_placeholder_arg(dst);
-    };
-    let mut encode_arg_into = |dst: &mut Vec<u8>, val: i64, pos: usize| {
-        let mut appended = false;
-        if val > 0 {
-            if let Some(obj) = nyash_rust::runtime::host_handles::get(val as u64) {
-                if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-                    let host = nyash_rust::runtime::get_global_plugin_host();
-                    if let Ok(hg) = host.read() {
-                        if p.box_type == "StringBox" {
-                            if let Ok(Some(sb)) = hg.invoke_instance_method(
-                                "StringBox",
-                                "toUtf8",
-                                p.instance_id(),
-                                &[],
-                            ) {
-                                if let Some(s) = sb.as_any().downcast_ref::<StringBox>() {
-                                    nyash_rust::runtime::plugin_ffi_common::encode::string(
-                                        dst, &s.value,
-                                    );
-                                    appended = true;
-                                    return;
-                                }
-                            }
-                        } else if p.box_type == "IntegerBox" {
-                            if let Ok(Some(ibx)) =
-                                hg.invoke_instance_method("IntegerBox", "get", p.instance_id(), &[])
-                            {
-                                if let Some(i) = ibx.as_any().downcast_ref::<IntegerBox>() {
-                                    nyash_rust::runtime::plugin_ffi_common::encode::i64(
-                                        dst, i.value,
-                                    );
-                                    appended = true;
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    nyash_rust::runtime::plugin_ffi_common::encode::plugin_handle(
-                        dst,
-                        p.inner.type_id,
-                        p.instance_id(),
-                    );
-                    appended = true;
-                    return;
-                }
-            }
-        }
-        let before = dst.len();
-        encode_from_legacy_into(dst, pos);
-        if dst.len() != before {
-            appended = true;
-        }
-        if !appended {
-            nyash_rust::runtime::plugin_ffi_common::encode::i64(dst, val);
-        }
-    };
     // a1 is method name; payload starts at position 2
     if nargs_payload >= 1 {
-        encode_arg_into(&mut buf, a2, 2);
+        crate::encode::nyrt_encode_arg(&mut buf, a2);
     }
     if nargs_payload > 1 && std::env::var("NYASH_JIT_ARGS_HANDLE_ONLY").ok().as_deref() != Some("1")
     {
+        if nyash_rust::config::env::fail_fast() {
+            return 0;
+        }
         for pos in 3..=nargs_payload {
-            encode_from_legacy_into(&mut buf, pos);
+            let _ = pos;
+            super::invoke_core::encode_legacy_placeholder_arg(&mut buf);
         }
     }
     // Create Future and schedule async invoke
