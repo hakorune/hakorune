@@ -16,6 +16,13 @@ Related:
 
 execution-path-zero へ向けた最初の ABI 実装範囲を 3 語彙に固定し、実装拡散を防ぐ。
 
+## Term definition
+
+`adapter route contract`:
+- registry mapping が存在する
+- handler route + trace tag 契約が存在する
+- runtime core box が ABI symbol へ接続される
+
 ## Slice vocabulary (fixed)
 
 1. `string_len`

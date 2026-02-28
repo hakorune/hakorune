@@ -17,6 +17,13 @@ Related:
 
 `execution-path-zero` を「主観」ではなくログ契約と guard で監査できる状態に固定する。
 
+## Term definition
+
+`adapter route contract`:
+- registry mapping が存在する
+- handler route + trace tag 契約が存在する
+- runtime core box が ABI symbol へ接続される
+
 ## Route drift observability lock
 
 1. 起動時に `runner_plugin_init` が次の1行タグを出せること:
@@ -42,7 +49,7 @@ Related:
 2. `dev_gate.sh runtime-exec-zero` が green。
 3. `phase29cc_runtime_v0_adapter_fixtures_vm.sh` で
    `[vm/adapter/string_core:len_i64]` タグ契約（handler source）が監査される（adapter route drift 検知）。
-3. `CURRENT_TASK.md` / `10-Now.md` / `phase-29cc/README.md` に lock 参照が同期されている。
+4. `CURRENT_TASK.md` / `10-Now.md` / `phase-29cc/README.md` に lock 参照が同期されている。
 
 ## Not in this lock
 

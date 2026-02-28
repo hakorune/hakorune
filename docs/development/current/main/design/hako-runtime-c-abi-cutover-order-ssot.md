@@ -94,6 +94,7 @@ Related:
 - 受け入れ:
   - adapter fixture smoke（3 関数）
   - `string_len` は adapter route 契約（registry + handler tag + core box）で固定
+    （実行値検証は behavior smoke、経路監査は source contract として分離）
   - lane C quick gate 緑
 
 ### Step 4: One-route cutover (kilo monitor)
