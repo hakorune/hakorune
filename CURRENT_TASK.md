@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-02-25
+Date: 2026-02-28
 Scope: Repo root の互換入口。詳細ログは `docs/development/current/main/` 側を正本にする。
 
 ## Purpose
@@ -283,7 +283,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 8. de-rust runtime は `29cc-220` を active lock とし、long-term は source-zero、現フェーズは route-zero + stability（no-delete-first）で C ABI cutover 順を固定する。
 9. route drift 監査は `29cc-215`（observability）+ `29cc-217`（VM+AOT route）を正本にして運用する。
 10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
-11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`29cc-221` の順序で `1 commit = 1 boundary` で route cutover を進める（A1-min1/A1-min2/A2-min1/A2-min2/A3-min1/A3-min2/A3-min3/A3-min4/A3-closeout/B1-min1/B1-min2/B1-min3/B1-closeout/B2-min1/B2-min2/B2-closeout/B3-min1/B3-min2/B3-closeout/kernel-residue-closeout done / active 29cc-220-route-zero-sync）。
+11. de-rust residue（plugin kernel + plugin_loader_v2）line は `29cc-221` 固定順（A1..A3/B1..B3）で closeout 済み。runtime lane は route-zero-sync closeout（29cc-243）を受けて monitor-only に戻し、failure-driven reopen のみ許可する。
 12. B1-min1 lock（docs-first）:
   - `docs/development/current/main/phases/phase-29cc/29cc-231-kernel-b1-min1-invoke-birth-route-cutover-lock-ssot.md`
 13. B1-min1 closeout lock（done）:
@@ -308,7 +308,16 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `docs/development/current/main/phases/phase-29cc/29cc-241-kernel-b3-closeout-lock-ssot.md`
 23. kernel-residue-closeout lock（done）:
   - `docs/development/current/main/phases/phase-29cc/29cc-242-kernel-residue-closeout-lock-ssot.md`
-24. active next: 29cc-220-route-zero-sync（route-zero + stability 判定同期）
+24. active next: 29bq-selfhost-hako-migration（mirbuilder first / parser later）
+  - handoff lock:
+    - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
+  - execution order SSOT:
+    - `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
+    - `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
+  - latest quick evidence（2026-02-28, Stage2 fixed）:
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+    - `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（`5/5`, `stageb_total_secs=19`, `avg_case_secs=3.80`）
+    - `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` PASS
 12. AOT/perf 最適化は route-zero + stability 達成後に再開可否を判断する（いまは monitor-only 維持）。
 
 ## Future Ideas (Not Active)

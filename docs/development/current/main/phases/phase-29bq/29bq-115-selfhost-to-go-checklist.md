@@ -40,6 +40,9 @@ Related:
 - [x] identity full を再検証する
   - `tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2`
 - [x] PASS 証拠を `29bq-91` と `CURRENT_TASK.md` に同期する
+- [x] quick refresh（2026-02-28, stage2 fixed）:
+  - `bash tools/selfhost_identity_check.sh --mode smoke --skip-build` PASS
+  - `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` PASS
 
 運用注記:
 - `--cli-mode` 省略時は stage1-first 既定（`stage1-cli(.stage2)`）を使う。

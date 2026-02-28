@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
   - docs/development/current/main/phases/phase-29cc/29cc-92-non-plugin-rust-residue-task-set.md
   - docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-93-rnr05-loop-scan-range-shape-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md
@@ -256,6 +257,12 @@ Related:
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）
       - execution-path-zero は中間マイルストーンとして扱う
+  - runtime route-zero-sync closeout lock（29cc-243, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
+    - fixed:
+      - route-zero + stability 判定同期は closeout
+      - runtime lane は monitor-only（failure-driven reopen）
+      - next handoff は selfhost `.hako` migration（29bq: mirbuilder first / parser later）
   - runtime execution-path observability lock（29cc-215, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard:

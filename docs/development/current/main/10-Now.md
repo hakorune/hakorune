@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-02-25
+Date: 2026-02-28
 Scope: main ラインの「現在地」と「実行入口」だけを置く薄いインデックス。
 Related:
   - CURRENT_TASK.md
@@ -131,6 +131,12 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
   - runtime source-zero cutover lock（29cc-220 active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - zero definition: long-term=source-zero / phase done=route-zero + stability（no-delete-first）
+  - runtime route-zero-sync closeout lock（29cc-243 accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
+    - fixed:
+      - route-zero + stability 判定同期は完了
+      - de-rust runtime lane は monitor-only（failure-driven reopen）
+      - next handoff は selfhost `.hako` migration（29bq, mirbuilder first）
   - runtime execution-path observability lock（29cc-215 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard: `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
