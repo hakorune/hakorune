@@ -99,7 +99,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin wave-3 rollout lock（PLG-06-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`
   - plugin lane active next:
-    - `PLG-HM2-min3`（route policy matrix lock）
+    - `none`（PLG-HM2-min1/min2/min3 done; monitor-only, failure-driven reopen）
   - plugin de-rust PLG-07 locks:
     - `docs/development/current/main/phases/phase-29cc/29cc-178-plg07-plugin-derust-cutover-order-ssot.md`（cutover order）
     - `docs/development/current/main/phases/phase-29cc/29cc-179-plg07-min1-min2-filebox-binary-rust-parity-lock-ssot.md`（min1/min2）
@@ -108,12 +108,14 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-182-plg07-min5-filebox-default-switch-lock-ssot.md`（min5）
     - `docs/development/current/main/phases/phase-29cc/29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`（min6）
     - `docs/development/current/main/phases/phase-29cc/29cc-204-plg07-min7-filebox-retire-execution-lock-ssot.md`（min7）
-  - plugin HM2 recovery line lock（PLG-HM2-min1 active）:
+  - plugin HM2 recovery line lock（PLG-HM2-min1 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-210-plg-hm2-core-wave2-rust-recovery-line-lock-ssot.md`
-  - plugin HM2 route matrix lock（PLG-HM2-min2 active）:
+  - plugin HM2 route matrix lock（PLG-HM2-min2 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-211-plg-hm2-min2-core6-static-wave2-compat-ceiling-lock-ssot.md`
-  - plugin HM2 route policy matrix lock（PLG-HM2-min3 active）:
+  - plugin HM2 route policy matrix lock（PLG-HM2-min3 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-212-plg-hm2-min3-route-policy-matrix-lock-ssot.md`
+  - plugin HM3 candidate memo（not active, docs-first backlog）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-213-plg-hm3-next-blocker-candidate-memo.md`
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
@@ -182,7 +184,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 4. wasm lane は monitor-only を維持し、failure-driven でのみ blocker を再起動する。
 5. wasm route は `hako_native/rust_native/legacy_bridge` の 3 つに固定し、新規 route を増やさない。
 6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
-7. plugin de-rust は `PLG-HM2-min3` を active にして、route policy matrix（`exec_mode x factory_policy`）を lock する。`plugin-module-core8` gate は HM2-min3 guard を含む契約に更新する。
+7. plugin de-rust HM2（min1/min2/min3）は done。plugin lane は monitor-only（`active next: none`）を維持し、failure-driven でのみ reopen する。
 
 ## Future Ideas (Not Active)
 

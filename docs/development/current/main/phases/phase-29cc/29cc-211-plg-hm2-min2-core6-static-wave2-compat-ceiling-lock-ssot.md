@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Decision: accepted
 Date: 2026-02-28
 Scope: PLG-HM2-min2 として plugin route matrix を固定し、Core6 static route と Wave2 compat ceiling を drift 監視する。

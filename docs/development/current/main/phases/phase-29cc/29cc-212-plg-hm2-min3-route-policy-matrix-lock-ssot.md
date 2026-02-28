@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Done
 Decision: accepted
 Date: 2026-02-28
 Scope: PLG-HM2-min3 として plugin route policy matrix（exec_mode x factory_policy）を固定し、mainline 既定と compat 組み合わせの監査を fail-fast 化する。
@@ -44,6 +44,13 @@ plugin route policy の運用マトリクス（`NYASH_PLUGIN_EXEC_MODE` x `NYASH
 - `bash tools/checks/phase29cc_plg_hm2_min3_route_policy_matrix_guard.sh`
 - `tools/checks/dev_gate.sh plugin-module-core8`
 - `tools/checks/dev_gate.sh portability`
+
+## Completion Evidence
+
+- `bash tools/checks/phase29cc_plg_hm2_rust_recovery_line_guard.sh`
+- `bash tools/checks/phase29cc_plg_hm2_min2_core6_wave2_ceiling_guard.sh`
+- `bash tools/checks/phase29cc_plg_hm2_min3_route_policy_matrix_guard.sh`
+- `tools/checks/dev_gate.sh plugin-module-core8`
 
 ## Next (fixed order)
 
