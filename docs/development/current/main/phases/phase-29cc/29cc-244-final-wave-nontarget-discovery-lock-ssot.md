@@ -76,3 +76,15 @@ Related:
 
 - この lock は「順序固定」のための discovery lock であり、source 削除は扱わない。
 - mac/windows の再ビルド保守のため、Rust source は当面残置する。
+
+## Execution Status (2026-02-28)
+
+- [x] Commit 1 done: `handle_helpers.rs` boundary fixed
+  - commit: `e8e9e2d79`
+  - contracts pinned: invalid handle short-circuit / array index fail-safe
+- [x] Commit 2 done: `module_string_dispatch.rs` boundary fixed
+  - commit: `ea54764df`
+  - contracts pinned: unknown route `None` / freeze decode contracts
+- [x] Commit 3 done: `array.rs` boundary fixed
+  - commit: `a53c9a53d`
+  - contracts pinned: legacy `set_h -> 0` + `hi/hii` fail-safe aliases
