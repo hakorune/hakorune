@@ -142,6 +142,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - latest cleanup (2026-02-28): `enabled/loader/singletons.rs` の lock unwrap/status無視を撤去し、singleton生成を strict error contract に統一
     - latest cleanup (2026-02-28): `enabled/instance_manager.rs` の `shutdown_singletons` を `BidResult<()>` へ統一し、`globals.shutdown_plugins_v2` も poison lock を fail-fast 化
     - latest cleanup (2026-02-28): `crates/nyash_kernel/src/plugin/compat_invoke_core.rs` を追加し、`invoke_core` の legacy route/encode helper を compat層へ分離
+    - latest cleanup (2026-02-28): `crates/nyash_kernel/src/encode.rs` に `nyrt_encode_arg` を追加し、`invoke/by_id`・`invoke/by_name` を mainline encode + fail-fast arity guard へ移行
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:

@@ -1,4 +1,4 @@
-use crate::encode::nyrt_encode_arg_or_legacy;
+use crate::encode::nyrt_encode_arg;
 use crate::plugin::invoke_core;
 
 #[no_mangle]
@@ -14,14 +14,17 @@ pub extern "C" fn nyash_plugin_invoke3_i64(
         return 0;
     };
     let nargs = argc.max(0) as usize;
+    if nargs > 2 && nyash_rust::config::env::fail_fast() {
+        return 0;
+    }
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
     if nargs >= 1 {
-        nyrt_encode_arg_or_legacy(&mut buf, a1, 1);
+        nyrt_encode_arg(&mut buf, a1);
     }
     if nargs >= 2 {
-        nyrt_encode_arg_or_legacy(&mut buf, a2, 2);
+        nyrt_encode_arg(&mut buf, a2);
     }
-    if nargs > 2 {
+    if nargs > 2 && !nyash_rust::config::env::fail_fast() {
         invoke_core::encode_legacy_vm_args_range(&mut buf, 3, nargs);
     }
     let Some((tag, sz, payload)) = invoke_core::plugin_invoke_call(
@@ -49,14 +52,17 @@ pub extern "C" fn nyash_plugin_invoke3_f64(
         return 0.0;
     };
     let nargs = argc.max(0) as usize;
+    if nargs > 2 && nyash_rust::config::env::fail_fast() {
+        return 0.0;
+    }
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
     if nargs >= 1 {
-        nyrt_encode_arg_or_legacy(&mut buf, a1, 1);
+        nyrt_encode_arg(&mut buf, a1);
     }
     if nargs >= 2 {
-        nyrt_encode_arg_or_legacy(&mut buf, a2, 2);
+        nyrt_encode_arg(&mut buf, a2);
     }
-    if nargs > 2 {
+    if nargs > 2 && !nyash_rust::config::env::fail_fast() {
         invoke_core::encode_legacy_vm_args_range(&mut buf, 3, nargs);
     }
     let Some((tag, sz, payload)) = invoke_core::plugin_invoke_call(

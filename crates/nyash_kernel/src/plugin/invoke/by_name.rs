@@ -1,4 +1,4 @@
-use crate::encode::nyrt_encode_arg_or_legacy;
+use crate::encode::nyrt_encode_arg;
 use crate::plugin::invoke_core;
 use crate::plugin::invoke::instance_fields::{handle_instance_get_field, handle_instance_set_field};
 
@@ -46,6 +46,9 @@ fn nyash_plugin_invoke_name_common_i64(method: &str, argc: i64, a0: i64, _a1: i6
     } as u32;
 
     let nargs = argc.saturating_sub(1).max(0) as usize;
+    if nargs > 0 && nyash_rust::config::env::fail_fast() {
+        return 0;
+    }
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
     for _ in 0..nargs {
         invoke_core::encode_legacy_placeholder_arg(&mut buf);
@@ -121,10 +124,21 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
     } as u32;
 
     let nargs = argc.max(0) as usize;
+    if nargs > 2 && nyash_rust::config::env::fail_fast() {
+        return 0;
+    }
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
-    nyrt_encode_arg_or_legacy(&mut buf, a1, 1);
+    nyrt_encode_arg(&mut buf, a1);
     if nargs >= 2 {
-        nyrt_encode_arg_or_legacy(&mut buf, a2, 2);
+        nyrt_encode_arg(&mut buf, a2);
+    }
+    if nargs > 2 {
+        if nyash_rust::config::env::fail_fast() {
+            return 0;
+        }
+        for _ in 3..=nargs {
+            invoke_core::encode_legacy_placeholder_arg(&mut buf);
+        }
     }
     let Some((tag, sz, payload)) =
         invoke_core::plugin_invoke_call(invoke, type_id, method_id, instance_id, &buf)

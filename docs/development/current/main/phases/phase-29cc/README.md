@@ -269,6 +269,7 @@ Related:
       - `enabled/loader/singletons.rs` の `RwLock unwrap` と invoke status 無視を撤去し、singleton prebirth を strict error contract へ統一
       - `enabled/instance_manager.rs` の `shutdown_singletons` を `BidResult<()>` 契約へ統一し、`globals` shutdown path も lock poison を fail-fast 化
       - `crates/nyash_kernel/src/plugin/compat_invoke_core.rs` を追加し、`invoke_core` の generic fallback/legacy encode helper を compat層へ分離
+      - `crates/nyash_kernel/src/encode.rs` に mainline `nyrt_encode_arg` を追加し、`invoke/by_id`・`invoke/by_name` を mainline encode + fail-fast arity guard へ移行
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:

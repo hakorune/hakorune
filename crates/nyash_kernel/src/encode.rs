@@ -8,10 +8,10 @@ pub(crate) fn nyrt_encode_from_legacy_at(_buf: &mut Vec<u8>, _pos: usize) {
     // No-op: Plugin-First architecture handles encoding directly through unified plugin system
 }
 
-/// Simplified encoding for Plugin-First architecture (replaces legacy encoding)
-pub(crate) fn nyrt_encode_arg_or_legacy(buf: &mut Vec<u8>, val: i64, _pos: usize) {
+/// Mainline argument encoding for Plugin-First architecture.
+pub(crate) fn nyrt_encode_arg(buf: &mut Vec<u8>, val: i64) {
     use nyash_rust::runtime::host_handles;
-    // Handle direct values and plugin objects, bypass legacy VM fallback
+    // Handle direct values and plugin objects; no legacy VM slot fallback.
     if val > 0 {
         if let Some(obj) = host_handles::get(val as u64) {
             if let Some(bufbox) = obj
@@ -63,4 +63,10 @@ pub(crate) fn nyrt_encode_arg_or_legacy(buf: &mut Vec<u8>, val: i64, _pos: usize
     }
     // Fallback: encode as i64 for non-plugin objects
     nyash_rust::runtime::plugin_ffi_common::encode::i64(buf, val);
+}
+
+/// Compat-only wrapper kept for old call sites while route-zero cutover is in progress.
+#[allow(dead_code)]
+pub(crate) fn nyrt_encode_arg_or_legacy(buf: &mut Vec<u8>, val: i64, _pos: usize) {
+    nyrt_encode_arg(buf, val);
 }
