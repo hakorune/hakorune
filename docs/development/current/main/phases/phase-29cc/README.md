@@ -391,3 +391,5 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-232-kernel-b1-min1-closeout-lock-ssot.md`
   - kernel B1-min2 runtime state route lock（29cc-233, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-233-kernel-b1-min2-runtime-state-route-lock-ssot.md`
+  - kernel B1-min3 instance lifecycle route lock（29cc-234, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-234-kernel-b1-min3-instance-lifecycle-route-lock-ssot.md`
