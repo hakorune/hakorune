@@ -10,18 +10,40 @@ pub(super) fn resolve_lib_box_for_type_id(
     loader: &PluginLoaderV2,
     type_id: u32,
 ) -> Option<(String, String)> {
-    let config = loader.config.as_ref()?;
-    let toml_value = loader.config_toml.as_ref()?;
-    for (lib_name, lib_def) in &config.libraries {
-        for box_name in &lib_def.boxes {
-            if let Some(box_conf) = config.get_box_config(lib_name, box_name, toml_value) {
-                if box_conf.type_id == type_id {
-                    return Some((lib_name.to_string(), box_name.to_string()));
+    if let (Some(config), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
+        for (lib_name, lib_def) in &config.libraries {
+            for box_name in &lib_def.boxes {
+                if let Some(box_conf) = config.get_box_config(lib_name, box_name, toml_value) {
+                    if box_conf.type_id == type_id {
+                        return Some((lib_name.to_string(), box_name.to_string()));
+                    }
                 }
             }
         }
     }
-    None
+
+    if crate::config::env::fail_fast() {
+        return None;
+    }
+
+    // Compat-only fallback when config is missing:
+    // choose deterministic lexical (lib, box) for this type_id.
+    let map = loader.box_specs.read().ok()?;
+    let mut cands: Vec<(String, String)> = map
+        .iter()
+        .filter_map(|((lib, bt), spec)| {
+            if spec.type_id == Some(type_id) {
+                Some((lib.clone(), bt.clone()))
+            } else {
+                None
+            }
+        })
+        .collect();
+    if cands.is_empty() {
+        return None;
+    }
+    cands.sort_by(|a, b| a.0.cmp(&b.0).then_with(|| a.1.cmp(&b.1)));
+    cands.into_iter().next()
 }
 
 fn selected_library_name(loader: &PluginLoaderV2, box_type: &str) -> Option<String> {
@@ -102,6 +124,31 @@ pub(super) fn resolve_method_id_for_lib(
                     return Ok(mid);
                 }
             }
+        }
+    }
+
+    Err(BidError::InvalidMethod)
+}
+
+pub(super) fn resolve_method_returns_result_for_lib(
+    loader: &PluginLoaderV2,
+    lib_name: &str,
+    box_type: &str,
+    method_name: &str,
+) -> BidResult<bool> {
+    if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
+        if let Some(bc) = cfg.get_box_config(lib_name, box_type, toml_value) {
+            if let Some(method_spec) = bc.methods.get(method_name) {
+                return Ok(method_spec.returns_result);
+            }
+        }
+    }
+
+    let map = loader.box_specs.read().map_err(|_| BidError::PluginError)?;
+    let key = (lib_name.to_string(), box_type.to_string());
+    if let Some(spec) = map.get(&key) {
+        if let Some(ms) = spec.methods.get(method_name) {
+            return Ok(ms.returns_result);
         }
     }
 

@@ -11,30 +11,15 @@ pub(super) fn box_invoke_fn_for_type_id(
     loader: &PluginLoaderV2,
     type_id: u32,
 ) -> Option<BoxInvokeFn> {
-    if let Some((lib_name, box_type)) =
-        super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id)
-    {
+    if let Some((lib_name, box_type)) = super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id) {
         if let Some(spec) = specs::get_spec(loader, &lib_name, &box_type) {
-                if spec.invoke_id.is_none() && super::util::dbg_on() {
-                    get_global_ring0().log.debug(&format!(
-                        "[PluginLoaderV2] WARN: no per-Box invoke for {}.{} (type_id={}). Calls will fail with E_PLUGIN until plugin migrates to v2.",
-                        lib_name, box_type, type_id
-                    ));
-                }
-                return spec.invoke_id;
-        }
-    }
-    if crate::config::env::fail_fast() {
-        return None;
-    }
-    // Compat-only fallback: scan cached specs when config mapping is unavailable.
-    if let Ok(map) = loader.box_specs.read() {
-        for ((_lib, _bt), spec) in map.iter() {
-            if let Some(tid) = spec.type_id {
-                if tid == type_id {
-                    return spec.invoke_id;
-                }
+            if spec.invoke_id.is_none() && super::util::dbg_on() {
+                get_global_ring0().log.debug(&format!(
+                    "[PluginLoaderV2] WARN: no per-Box invoke for {}.{} (type_id={}). Calls will fail with E_PLUGIN until plugin migrates to v2.",
+                    lib_name, box_type, type_id
+                ));
             }
+            return spec.invoke_id;
         }
     }
     None

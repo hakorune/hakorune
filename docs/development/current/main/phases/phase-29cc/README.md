@@ -263,6 +263,7 @@ Related:
       - `enabled/loader/singletons.rs` の type_id/fini route 判定を `route_resolver` に統一
       - `enabled/loader/metadata.rs` の type_id/fini route 判定重複を `route_resolver` に統一
       - `enabled/loader/metadata.rs` の type逆引き（type_id->lib/box）も `route_resolver` に統一
+      - `enabled/method_resolver.rs` の method_id/returns_result/handle 解決を `route_resolver` へ統一し、method route SSOT を固定
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:
