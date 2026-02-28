@@ -378,8 +378,8 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-244-final-wave-nontarget-discovery-lock-ssot.md`
     - fixed:
       - Non-target 7 files の entry/caller/ABI/complexity を統合棚卸し
-      - first 3 commit slices（handle_helpers -> module_string_dispatch -> array）を固定
-      - execution done: `e8e9e2d79` / `ea54764df` / `a53c9a53d`
+      - 7 commit slices（handle_helpers -> module_string_dispatch -> array -> map -> string -> intarray -> console）を固定
+      - execution done: `e8e9e2d79` / `ea54764df` / `a53c9a53d` / `5a575c503` / `ecd44c43d` / `ca0d82dd0` / `5f191ff25`
   - runtime A1-min1 method_resolver route cutover lock（29cc-222, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-222-runtime-a1-min1-method-resolver-route-cutover-lock-ssot.md`
   - runtime A1-min2 instance_manager route cutover lock（29cc-223, accepted）:

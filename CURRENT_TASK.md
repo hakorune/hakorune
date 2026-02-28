@@ -170,8 +170,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-244-final-wave-nontarget-discovery-lock-ssot.md`
     - fixed:
       - Non-target 7 files の call/ABI/complexity を統合棚卸し
-      - first 3 commit slices（handle_helpers -> module_string_dispatch -> array）を固定
-      - first 3 commit slices を実装完了（`e8e9e2d79` / `ea54764df` / `a53c9a53d`）
+      - 7 commit slices（handle_helpers -> module_string_dispatch -> array -> map -> string -> intarray -> console）を固定
+      - 7 commit slices を実装完了（`e8e9e2d79` / `ea54764df` / `a53c9a53d` / `5a575c503` / `ecd44c43d` / `ca0d82dd0` / `5f191ff25`）
   - runtime A1-min1 method_resolver route cutover lock（29cc-222, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-222-runtime-a1-min1-method-resolver-route-cutover-lock-ssot.md`
     - fixed:

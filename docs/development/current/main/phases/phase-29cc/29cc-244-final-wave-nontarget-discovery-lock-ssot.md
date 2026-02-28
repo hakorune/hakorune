@@ -41,7 +41,7 @@ Related:
 | `intarray.rs` | numeric int-array API | hako runtime intarray core | `new_h/len_h/get_hi/set_hii`。setterは `0/1` 契約。 | `NYASH_CLI_VERBOSE` | Medium | 6 |
 | `console.rs` | logging / readline exports | C shim, runtime logging paths | `nyash.console.*`。invalid handle は fail-safe（数値出力 or empty）。 | legacy `print` alias | Low | 7 |
 
-## First 3 Commit Slices (fixed)
+## Commit Slices (fixed)
 
 ### Commit 1: Handle cache foundation boundary
 - Scope: `crates/nyash_kernel/src/plugin/handle_helpers.rs` only
@@ -64,6 +64,34 @@ Related:
   - underscore export / dotted alias / runtime_data alias すべて解決可能
   - legacy `set_h -> 0` 契約を維持
   - array get/set/push/length の失敗時 fail-safe を維持
+
+### Commit 4: Map API boundary
+- Scope: `crates/nyash_kernel/src/plugin/map.rs` only
+- Goal: `nyash.map.*` の helper境界と invalid handle fail-safe 契約を固定
+- Acceptance:
+  - `set_h/set_hh` の completion code `0` 維持
+  - `size/get/has` の invalid handle `0` 維持
+
+### Commit 5: String C-buffer boundary
+- Scope: `crates/nyash_kernel/src/plugin/string.rs` only
+- Goal: C-string 生成経路の重複縮退と `to_i8p_h` fallback 契約固定
+- Acceptance:
+  - C buffer helper が単一路線（挙動不変）
+  - `to_i8p_h` invalid/missing handle で numeric string を返す
+
+### Commit 6: IntArray boundary
+- Scope: `crates/nyash_kernel/src/plugin/intarray.rs` only
+- Goal: downcast境界を集約し、`len/get/set` の bounds/invalid 契約を固定
+- Acceptance:
+  - `set_hii`: success=`0` / fail=`1`
+  - `len_h/get_hi`: invalid/bounds で `0`
+
+### Commit 7: Console boundary
+- Scope: `crates/nyash_kernel/src/plugin/console.rs` only
+- Goal: handle文字列化/出力 prefix 重複の縮退と null-safe export 契約固定
+- Acceptance:
+  - `log/warn/error/trace` の null pointer 入力は `0`
+  - handle系 API は fail-safe return `0` を維持
 
 ## Reopen Criteria (failure-driven)
 
@@ -88,3 +116,15 @@ Related:
 - [x] Commit 3 done: `array.rs` boundary fixed
   - commit: `a53c9a53d`
   - contracts pinned: legacy `set_h -> 0` + `hi/hii` fail-safe aliases
+- [x] Commit 4 done: `map.rs` boundary fixed
+  - commit: `5a575c503`
+  - contracts pinned: helper dedupe + invalid handle fail-safe (`size/get/has -> 0`, `set -> 0`)
+- [x] Commit 5 done: `string.rs` boundary fixed
+  - commit: `ecd44c43d`
+  - contracts pinned: C-buffer path dedupe + `to_i8p_h` fallback numeric string contract
+- [x] Commit 6 done: `intarray.rs` boundary fixed
+  - commit: `ca0d82dd0`
+  - contracts pinned: downcast boundary SSOT + bounds/invalid return codes
+- [x] Commit 7 done: `console.rs` boundary fixed
+  - commit: `5f191ff25`
+  - contracts pinned: handle text helper SSOT + null-safe export return
