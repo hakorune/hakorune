@@ -407,3 +407,5 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-240-kernel-b3-min2-invoke-route-lock-ssot.md`
   - kernel B3 closeout lock（29cc-241, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-241-kernel-b3-closeout-lock-ssot.md`
+  - kernel residue closeout lock（29cc-242, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-242-kernel-residue-closeout-lock-ssot.md`

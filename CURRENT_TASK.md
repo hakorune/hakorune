@@ -283,7 +283,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 8. de-rust runtime は `29cc-220` を active lock とし、long-term は source-zero、現フェーズは route-zero + stability（no-delete-first）で C ABI cutover 順を固定する。
 9. route drift 監査は `29cc-215`（observability）+ `29cc-217`（VM+AOT route）を正本にして運用する。
 10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
-11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`29cc-221` の順序で `1 commit = 1 boundary` で route cutover を進める（A1-min1/A1-min2/A2-min1/A2-min2/A3-min1/A3-min2/A3-min3/A3-min4/A3-closeout/B1-min1/B1-min2/B1-min3/B1-closeout/B2-min1/B2-min2/B2-closeout/B3-min1/B3-min2/B3-closeout done / active kernel-residue-closeout）。
+11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`29cc-221` の順序で `1 commit = 1 boundary` で route cutover を進める（A1-min1/A1-min2/A2-min1/A2-min2/A3-min1/A3-min2/A3-min3/A3-min4/A3-closeout/B1-min1/B1-min2/B1-min3/B1-closeout/B2-min1/B2-min2/B2-closeout/B3-min1/B3-min2/B3-closeout/kernel-residue-closeout done / active 29cc-220-route-zero-sync）。
 12. B1-min1 lock（docs-first）:
   - `docs/development/current/main/phases/phase-29cc/29cc-231-kernel-b1-min1-invoke-birth-route-cutover-lock-ssot.md`
 13. B1-min1 closeout lock（done）:
@@ -306,7 +306,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `docs/development/current/main/phases/phase-29cc/29cc-240-kernel-b3-min2-invoke-route-lock-ssot.md`
 22. B3-closeout lock（done）:
   - `docs/development/current/main/phases/phase-29cc/29cc-241-kernel-b3-closeout-lock-ssot.md`
-23. active next: kernel-residue-closeout（B1/B2/B3 統合 lock）
+23. kernel-residue-closeout lock（done）:
+  - `docs/development/current/main/phases/phase-29cc/29cc-242-kernel-residue-closeout-lock-ssot.md`
+24. active next: 29cc-220-route-zero-sync（route-zero + stability 判定同期）
 12. AOT/perf 最適化は route-zero + stability 達成後に再開可否を判断する（いまは monitor-only 維持）。
 
 ## Future Ideas (Not Active)
