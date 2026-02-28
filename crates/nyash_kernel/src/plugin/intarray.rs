@@ -118,6 +118,13 @@ fn get_core(handle: i64) -> Option<std::sync::Arc<dyn NyashBox>> {
     handles::get(handle as u64)
 }
 
+#[inline]
+fn with_intarray_core<R>(handle: i64, f: impl FnOnce(&IntArrayCore) -> R) -> Option<R> {
+    let obj = get_core(handle)?;
+    let core = obj.as_any().downcast_ref::<IntArrayCore>()?;
+    Some(f(core))
+}
+
 #[export_name = "nyash.intarray.new_h"]
 pub extern "C" fn nyash_intarray_new_h(len: i64) -> i64 {
     let core = IntArrayCore::new(len);
@@ -131,32 +138,20 @@ pub extern "C" fn nyash_intarray_new_h(len: i64) -> i64 {
 
 #[export_name = "nyash.intarray.len_h"]
 pub extern "C" fn nyash_intarray_len_h(handle: i64) -> i64 {
-    if let Some(obj) = get_core(handle) {
-        if let Some(core) = obj.as_any().downcast_ref::<IntArrayCore>() {
-            return core.len_i64();
-        }
-    }
-    0
+    with_intarray_core(handle, |core| core.len_i64()).unwrap_or(0)
 }
 
 #[export_name = "nyash.intarray.get_hi"]
 pub extern "C" fn nyash_intarray_get_hi(handle: i64, idx: i64) -> i64 {
-    if let Some(obj) = get_core(handle) {
-        if let Some(core) = obj.as_any().downcast_ref::<IntArrayCore>() {
-            if let Some(v) = core.get_i64(idx) {
-                return v;
-            }
-        }
-    }
-    0
+    with_intarray_core(handle, |core| core.get_i64(idx))
+        .flatten()
+        .unwrap_or(0)
 }
 
 #[export_name = "nyash.intarray.set_hii"]
 pub extern "C" fn nyash_intarray_set_hii(handle: i64, idx: i64, val: i64) -> i64 {
-    if let Some(obj) = get_core(handle) {
-        if let Some(core) = obj.as_any().downcast_ref::<IntArrayCore>() {
-            return if core.set_i64(idx, val) { 0 } else { 1 };
-        }
+    match with_intarray_core(handle, |core| core.set_i64(idx, val)) {
+        Some(true) => 0,
+        _ => 1,
     }
-    1
 }
