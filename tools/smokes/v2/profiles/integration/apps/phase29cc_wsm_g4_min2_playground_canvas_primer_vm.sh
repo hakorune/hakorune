@@ -2,7 +2,7 @@
 # phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh
 # Contract pin:
 # - WSM-G4-min2: nyash_playground canvas primer lock
-# - min vocab: WasmCanvasBox + clear
+# - min vocab: marker-driven canvas draw hooks (no comment-vocab dependency)
 
 set -euo pipefail
 
@@ -36,13 +36,11 @@ done
 for needle in \
   "wsm_g4_min2_canvas_primer_lock" \
   "wsm_g4_min2_canvas_vocab_clear" \
-  "new WasmCanvasBox()" \
-  "canvas.clear(\"game-canvas\", 11)" \
-  "fillRect(" \
-  "strokeRect(" \
-  "fillCircle(" \
-  "drawLine(" \
-  "fillText("; do
+  "drawWebcanvasDemo" \
+  "drawCanvasAdvancedDemo" \
+  "runCanvasDemoForMarker" \
+  "wsm_g4_min3_webcanvas_marker_1" \
+  "wsm_g4_min4_canvas_advanced_marker_1"; do
   if ! grep -Fq "$needle" "$html"; then
     test_fail "phase29cc_wsm_g4_min2_playground_canvas_primer_vm: missing keyword in nyash_playground.html: $needle"
     exit 1

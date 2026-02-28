@@ -35,3 +35,6 @@ native wasm compile で fail-fast せず通す。
 - この lock は route policy (`default => native-shape-table / bridge`) を変更しない。
 - shape table 外は引き続き bridge plan だが、bridge backend compile 時の wasm codegen で
   `Callee::Global` が受理されることを保証する。
+- `WSM-G4-min3/min4` は現時点で prebuilt 安定性を優先し、fixture 側は marker 出力、
+  playground 側は marker-driven JS draw hook（`runCanvasDemoForMarker`）で運用する。
+  WasmBox 直ルートは別タスクで昇格する。

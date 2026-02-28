@@ -17,7 +17,7 @@ Depends:
 `WSM-G4-min1` の Console baseline を壊さず、`projects/nyash-wasm/nyash_playground.html` における
 Canvas primer の最小語彙を docs-first で固定する。
 
-この min2 は `WebCanvasBox` の primer 語彙（`clear + draw primitives`）を lock し、
+この min2 は marker-driven canvas primer 語彙（`draw hooks + markers`）を lock し、
 advanced 形や追加 API 拡張は次タスクへ分離する。
 
 ## Scope
@@ -26,14 +26,13 @@ advanced 形や追加 API 拡張は次タスクへ分離する。
 2. primer shape は次の marker/vocab で固定する（順序は不問）。
    - `wsm_g4_min2_canvas_primer_lock`
    - `wsm_g4_min2_canvas_vocab_clear`
-   - `new WebCanvasBox("game-canvas", 400, 250)`
-   - `me.canvas.clear()`
-   - `me.canvas.fillRect(...)`
-   - `me.canvas.strokeRect(...)`
-   - `me.canvas.fillCircle(...)`
-   - `me.canvas.drawLine(...)`
-   - `me.canvas.fillText(...)`
+   - `drawWebcanvasDemo`
+   - `drawCanvasAdvancedDemo`
+   - `runCanvasDemoForMarker`
+   - `wsm_g4_min3_webcanvas_marker_1`
+   - `wsm_g4_min4_canvas_advanced_marker_1`
 3. `WSM-G4-min2` では新しい extern/boxcall を増やさない。
+4. smoke は HTML コメントに依存しない（実コード/marker のみを契約対象にする）。
 4. acceptance は docs lock + 既存 wasm gate の緑で固定する。
 
 ## Implementation Contract
