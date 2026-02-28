@@ -198,3 +198,43 @@ pub extern "C" fn nyash_array_set_hii_alias(handle: i64, idx: i64, value_i64: i6
 pub extern "C" fn nyash_array_has_hi_alias(handle: i64, idx: i64) -> i64 {
     array_has_by_index(handle, idx)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use nyash_rust::box_trait::NyashBox;
+    use nyash_rust::boxes::array::ArrayBox;
+    use nyash_rust::runtime::host_handles as handles;
+    use std::sync::Arc;
+
+    fn new_array_handle() -> i64 {
+        let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+        handles::to_handle_arc(arr) as i64
+    }
+
+    #[test]
+    fn legacy_set_h_returns_zero_but_applies_value() {
+        let handle = new_array_handle();
+        assert_eq!(nyash_array_push_h(handle, 11), 1);
+
+        // Legacy contract keeps return=0 even when applied.
+        assert_eq!(nyash_array_set_h(handle, 0, 77), 0);
+        assert_eq!(nyash_array_get_h(handle, 0), 77);
+    }
+
+    #[test]
+    fn hi_hii_aliases_keep_fail_safe_contract() {
+        let handle = new_array_handle();
+        assert_eq!(nyash_array_push_h(handle, 10), 1);
+        assert_eq!(nyash_array_get_hi_alias(handle, 0), 10);
+
+        assert_eq!(nyash_array_set_hii_alias(handle, 0, 33), 1);
+        assert_eq!(nyash_array_get_hi_alias(handle, 0), 33);
+        assert_eq!(nyash_array_has_hi_alias(handle, 0), 1);
+
+        // Out-of-bounds keeps fail-safe return values.
+        assert_eq!(nyash_array_get_hi_alias(handle, 3), 0);
+        assert_eq!(nyash_array_set_hii_alias(handle, 3, 9), 0);
+        assert_eq!(nyash_array_has_hi_alias(handle, 3), 0);
+    }
+}
