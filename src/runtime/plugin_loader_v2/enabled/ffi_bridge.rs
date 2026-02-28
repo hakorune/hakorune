@@ -114,7 +114,7 @@ impl PluginLoaderV2 {
         }
 
         let invoke_box = self.box_invoke_fn_for_type_id(type_id);
-        let (_code, out_len, out) = super::host_bridge::invoke_alloc_with_route(
+        let (code, out_len, out) = super::host_bridge::invoke_alloc_with_route(
             invoke_box,
             super::super::nyash_plugin_invoke_v2_shim,
             type_id,
@@ -122,6 +122,15 @@ impl PluginLoaderV2 {
             instance_id,
             &tlv,
         );
+        if code != 0 {
+            if dbg_on() {
+                get_global_ring0().log.debug(&format!(
+                    "[PluginLoaderV2] ERR: invoke failed {}.{} code={} type_id={} method_id={} instance_id={}",
+                    box_type, method_name, code, type_id, method_id, instance_id
+                ));
+            }
+            return Err(BidError::PluginError);
+        }
 
         // Decode TLV (first entry) generically
         decode_tlv_result(box_type, &out[..out_len])

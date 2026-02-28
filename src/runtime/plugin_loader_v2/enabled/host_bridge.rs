@@ -81,5 +81,11 @@ pub fn invoke_alloc_with_route(
         // Keep E_PLUGIN parity with nyash_plugin_invoke_v2_shim when no route exists.
         return (-5, 0, Vec::new());
     }
-    invoke_alloc(invoke_shim, type_id, method_id, instance_id, tlv_args)
+    super::compat_host_bridge::invoke_alloc_compat(
+        invoke_shim,
+        type_id,
+        method_id,
+        instance_id,
+        tlv_args,
+    )
 }

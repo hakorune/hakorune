@@ -265,6 +265,7 @@ Related:
       - `enabled/loader/metadata.rs` の type逆引き（type_id->lib/box）も `route_resolver` に統一
       - `enabled/method_resolver.rs` の method_id/returns_result/handle 解決を `route_resolver` へ統一し、method route SSOT を固定
       - `enabled/compat_method_resolver.rs` へ legacy file fallback を隔離し、compat呼び出し点を `method_resolver` 1箇所へ固定
+      - `enabled/compat_host_bridge.rs` へ shim invoke fallback を隔離し、`ffi_bridge` invoke non-zero code を fail-fast 化
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:
