@@ -232,7 +232,9 @@ Related:
       - `tools/checks/dev_gate.sh plugin-module-core8`
   - plugin HM2 recovery line lock（PLG-HM2-min1 active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-210-plg-hm2-core-wave2-rust-recovery-line-lock-ssot.md`
-  - plugin lane active next: `PLG-HM2-min1`（Core+Wave2 Rust recovery line CI lock）
+  - plugin HM2 route matrix lock（PLG-HM2-min2 active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-211-plg-hm2-min2-core6-static-wave2-compat-ceiling-lock-ssot.md`
+  - plugin lane active next: `PLG-HM2-min2`（Core6 static route + Wave2 compat ceiling lock）
 
 ## M4 Tail Cleanup (retired parser flags)
 

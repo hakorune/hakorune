@@ -43,6 +43,7 @@ list_profiles() {
     - phase29cc_plg_hm1_contract_tests_vm.sh
   plugin-module-core8:
     - plugin-module-core8-light
+    - tools/checks/phase29cc_plg_hm2_min2_core6_wave2_ceiling_guard.sh
     - tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
     - tools/vm_plugin_smoke.sh
   wasm-boundary-lite:
@@ -180,6 +181,8 @@ run_plugin_module_core8_light() {
 
 run_plugin_module_core8() {
   run_plugin_module_core8_light
+  run_step "PLG-HM2 min2 core6/wave2 ceiling guard" \
+    bash tools/checks/phase29cc_plg_hm2_min2_core6_wave2_ceiling_guard.sh
   run_step "PLG-07 retire execution guard" \
     bash tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
   run_step "vm plugin smoke manifest" \

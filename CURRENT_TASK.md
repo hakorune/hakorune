@@ -110,6 +110,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-204-plg07-min7-filebox-retire-execution-lock-ssot.md`（min7）
   - plugin HM2 recovery line lock（PLG-HM2-min1 active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-210-plg-hm2-core-wave2-rust-recovery-line-lock-ssot.md`
+  - plugin HM2 route matrix lock（PLG-HM2-min2 active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-211-plg-hm2-min2-core6-static-wave2-compat-ceiling-lock-ssot.md`
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
@@ -178,7 +180,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 4. wasm lane は monitor-only を維持し、failure-driven でのみ blocker を再起動する。
 5. wasm route は `hako_native/rust_native/legacy_bridge` の 3 つに固定し、新規 route を増やさない。
 6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
-7. plugin de-rust は `PLG-HM2-min1` を active にして、Core+Wave2 の Rust recovery line（CI matrix）を固定する。退役保存はソース複製を作らず、`code-retirement-history-policy-ssot` のとおり tag+commit 境界で管理する。
+7. plugin de-rust は `PLG-HM2-min2` を active にして、Core6 static route と Wave2 compat ceiling（Math/Net dynamic 維持）を lock する。`plugin-module-core8` gate は HM2 専用 guard を含む契約に更新する。
 
 ## Quick Restart (After Reboot)
 
