@@ -160,3 +160,56 @@ fn encode_string_handle(text: &str) -> i64 {
     let boxed_text: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(StringBox::new(text));
     host_handles::to_handle_arc(boxed_text) as i64
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn module_handle(name: &str) -> i64 {
+        encode_string_handle(name)
+    }
+
+    fn decode_result(handle: i64) -> String {
+        decode_string_handle(handle).expect("result string handle")
+    }
+
+    #[test]
+    fn unknown_route_returns_none() {
+        let recv = module_handle("lang.compiler.unknown");
+        assert_eq!(try_dispatch(recv, "resolve_for_source", 0, 0, 0), None);
+    }
+
+    #[test]
+    fn using_resolver_route_returns_empty_string_handle() {
+        let recv = module_handle(USING_RESOLVER_MODULE);
+        let out = try_dispatch(recv, "resolve_for_source", 0, 0, 0).expect("dispatch result");
+        assert_eq!(decode_result(out), "");
+    }
+
+    #[test]
+    fn build_box_missing_arg_returns_zero_handle() {
+        let recv = module_handle(BUILD_BOX_MODULE);
+        let out = try_dispatch(recv, "emit_program_json_v0", 0, 0, 0).expect("dispatch result");
+        assert_eq!(out, 0);
+    }
+
+    #[test]
+    fn mir_builder_missing_arg_returns_freeze_contract_handle() {
+        let recv = module_handle(MIR_BUILDER_MODULE);
+        let out =
+            try_dispatch(recv, "emit_from_program_json_v0", 0, 0, 0).expect("dispatch result");
+        let message = decode_result(out);
+        assert!(message.starts_with("[freeze:contract][stage1_mir_builder]"));
+        assert!(message.contains("missing arg0"));
+    }
+
+    #[test]
+    fn mir_builder_decode_failure_returns_freeze_contract_handle() {
+        let recv = module_handle(MIR_BUILDER_MODULE);
+        let out =
+            try_dispatch(recv, "emit_from_program_json_v0", 1, -1, -1).expect("dispatch result");
+        let message = decode_result(out);
+        assert!(message.starts_with("[freeze:contract][stage1_mir_builder]"));
+        assert!(message.contains("decode failed"));
+    }
+}
