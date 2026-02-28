@@ -12,17 +12,17 @@ pub fn get_global_loader_v2() -> Arc<RwLock<PluginLoaderV2>> {
 
 pub fn init_global_loader_v2(config_path: &str) -> BidResult<()> {
     let loader = get_global_loader_v2();
-    let mut loader = loader.write().unwrap();
+    let mut loader = super::errors::from_rwlock_write(loader.write())?;
     loader.load_config(config_path)?;
     drop(loader);
     let loader = get_global_loader_v2();
-    let loader = loader.read().unwrap();
+    let loader = super::errors::from_rwlock_read(loader.read())?;
     loader.load_all_plugins()
 }
 
 pub fn shutdown_plugins_v2() -> BidResult<()> {
     let loader = get_global_loader_v2();
-    let loader = loader.read().unwrap();
+    let loader = super::errors::from_rwlock_read(loader.read())?;
     loader.shutdown_singletons();
     Ok(())
 }

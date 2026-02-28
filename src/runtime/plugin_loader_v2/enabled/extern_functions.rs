@@ -42,8 +42,13 @@ pub fn extern_call(
         "env.mirbuilder" => handle_mirbuilder(method_name, args),
         "env.codegen" => handle_codegen(method_name, args),
         "env.box_introspect" => handle_box_introspect(method_name, args),
-        _ => Err(BidError::PluginError),
+        _ => reject_unknown(iface_name, method_name),
     }
+}
+
+#[inline]
+fn reject_unknown(_iface_name: &str, _method_name: &str) -> BidResult<Option<Box<dyn NyashBox>>> {
+    Err(BidError::PluginError)
 }
 
 fn should_trace_call_extern(target: &str, method: &str) -> bool {
@@ -484,6 +489,13 @@ mod tests {
     fn test_unknown_interface() {
         let args = vec![];
         let result = extern_call("unknown.interface", "method", &args);
+        assert!(matches!(result, Err(BidError::PluginError)));
+    }
+
+    #[test]
+    fn test_unknown_method() {
+        let args = vec![];
+        let result = extern_call("env.console", "unknown_method", &args);
         assert!(matches!(result, Err(BidError::PluginError)));
     }
 }
