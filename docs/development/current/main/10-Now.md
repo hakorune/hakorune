@@ -75,7 +75,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
 - Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
-- Optimization policy (runtime): de-rust 経路固定（29cc-214/215/216/217 guard 緑）まで perf/AOT 最適化は monitor-only。
+- Optimization policy (runtime): de-rust 経路固定（29cc-220/215/216/217 guard 緑）まで perf/AOT 最適化は monitor-only。
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - JoinIR parity probe pin（JIR-PORT-01）:
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port01_parity_probe_vm.sh`
@@ -128,9 +128,9 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
   - plugin wave-3 rollout lock（PLG-06-min3 done）: `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`（accepted）
   - plugin wave-3 rollout lock（PLG-06-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`（accepted）
   - plugin lane active next: `none`（PLG-07 closeout complete; monitor-only）
-  - runtime thin-to-zero execution-path lock（29cc-214 active）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md`
-    - zero definition: done = execution-path-zero（mainline/CI既定で Rust runtime/plugin loader 非依存）
+  - runtime source-zero cutover lock（29cc-220 active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
+    - zero definition: done = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
   - runtime execution-path observability lock（29cc-215 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard: `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
@@ -140,6 +140,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
   - runtime V0 ABI slice lock（29cc-216 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`
     - guard: `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+  - runtime/plugin residue inventory lock（29cc-221 active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md`
   - plugin method resolver fail-fast lock（29cc-218 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-218-plugin-method-resolver-failfast-lock-ssot.md`
   - instance manager boundary lock（29cc-219 accepted）:
@@ -278,7 +280,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
 - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 - `tools/checks/dev_gate.sh portability`（cross-platform preflight）
-- `tools/checks/dev_gate.sh runtime-exec-zero`（execution-path-zero observability）
+- `tools/checks/dev_gate.sh runtime-exec-zero`（execution-path-zero observability。source-zero までの中間ゲート）
 - `bash tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh`（PLG-07 retire execution）
 - `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`（WSM-P7 default hako-only）
 - `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`（WSM-P8 bridge retire readiness）

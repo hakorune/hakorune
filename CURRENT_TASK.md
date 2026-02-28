@@ -120,11 +120,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `nyash-fixture-plugin` = test-only keep
       - `nyash-integer-plugin` = mainline keep（IntCellBox）
       - `nyash-math` = retire（legacy duplicate; `nyash-math-plugin` is active line）
-  - runtime thin-to-zero execution-path lock（29cc-214, active）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md`
+  - runtime source-zero cutover lock（29cc-220, active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - zero definition（fixed）:
-      - done = execution-path-zero（mainline/CI既定で Rust runtime/plugin loader 非依存）
-      - source-zero（Rust実装完全撤去）は別フェーズ
+      - done = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
+      - execution-path-zero は中間マイルストーンとして扱う
   - runtime execution-path observability lock（29cc-215, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard:
@@ -148,10 +148,12 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - fixed:
       - `create_box` は resolve/invoke/build の3段責務へ分離
       - birth 契約解決は `config -> spec -> fail-fast`
-  - worker refresh（2026-02-28, runtime/plugin residue snapshot）:
-    - `crates/nyash_kernel/src/plugin/*` は mainline 経路として残存（特に `invoke.rs`, `future.rs`, `birth.rs`, `invoke_core.rs`, `string.rs`, `runtime_data.rs`, `value_codec/`）。
-    - `src/runtime/plugin_loader_v2/enabled/*` は execution-path-zero 観点で「薄化途中」。`host_bridge.rs` は薄い shim、`ffi_bridge.rs`/`instance_manager.rs`/`method_resolver.rs`/`loader/*` は Rust 依存ロジックとして残存。
-    - 互換保持のみの残存（legacy index route など）は compat 境界として明示し、mainline へ戻さない。
+  - runtime/plugin residue inventory lock（29cc-221, active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md`
+    - fixed:
+      - runtime plugin loader residue と kernel plugin residue を責務単位で固定
+      - 1 boundary = 1 commit で source-zero へ縮退
+      - compat route は default-off を維持
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
@@ -215,7 +217,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - latest (2026-02-28): `c_ms=77`, `py_ms=108`, `ny_vm_ms=979`, `ny_aot_ms=905`, `ratio_c_aot=0.09`, `aot_status=ok`
   - active next: `none`（monitor-only）
   - optimization resume policy（fixed）:
-    - 脱Rustの経路固定（29cc-214/215/216/217 の guard 緑）が揃うまで最適化は monitor-only。
+    - 脱Rustの経路固定（29cc-220/215/216/217 の guard 緑）が揃うまで最適化は monitor-only。
     - 最適化タスクは `Future Ideas` 扱いに固定し、runtime/plugin loader 経路の薄化完了後に再昇格する。
 
 ## Immediate Next (this round)
@@ -227,11 +229,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 5. wasm route は `hako_native/rust_native/legacy_bridge` の 3 つに固定し、新規 route を増やさない。
 6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
 7. plugin de-rust HM2（min1/min2/min3）は done。plugin lane は monitor-only（`active next: none`）を維持し、failure-driven でのみ reopen する。
-8. de-rust runtime は `29cc-214` を active lock とし、execution-path-zero 定義（実行経路0）を正本にして C ABI cutover 順を固定する。
+8. de-rust runtime は `29cc-220` を active lock とし、source-zero 定義（Rust runtime/plugin 実装撤去）を正本にして C ABI cutover 順を固定する。
 9. route drift 監査は `29cc-215`（observability）+ `29cc-217`（VM+AOT route）を正本にして運用する。
 10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
-11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`1 commit = 1 boundary` で薄化する。
-12. AOT/perf 最適化は de-rust 経路固定後に再開する（いまは monitor-only 維持）。
+11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`29cc-221` の順序で `1 commit = 1 boundary` で撤去する。
+12. AOT/perf 最適化は source-zero 達成後に再開する（いまは monitor-only 維持）。
 
 ## Future Ideas (Not Active)
 
@@ -292,7 +294,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - `tools/checks/dev_gate.sh milestone-perf`（節目: perf 側）
 - `tools/checks/dev_gate.sh milestone`（推奨: 統合セット）
 - `tools/checks/dev_gate.sh portability`（週次: Windows/macOS portability preflight）
-- `tools/checks/dev_gate.sh runtime-exec-zero`（execution-path-zero 観測 + VM+AOT route lock）
+- `tools/checks/dev_gate.sh runtime-exec-zero`（execution-path-zero 観測 + VM+AOT route lock; source-zero まで中間ゲート）
 - `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`（WSM-P7 default-only 監査）
 - `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`（WSM-P8 compat bridge retire readiness 監査）
 - `bash tools/checks/phase29cc_wsm_p9_non_native_inventory_guard.sh`（WSM-P9 non-native shrink 監査）

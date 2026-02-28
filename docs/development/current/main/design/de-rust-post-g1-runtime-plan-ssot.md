@@ -13,7 +13,7 @@ Related:
 
 ## 0. Conclusion
 
-- Yes: 順序は `D4 docs同期 -> runtime de-rust (29y.1) -> .hako VM 本体移行` で正しい。
+- Yes: 順序は `D4 docs同期 -> runtime de-rust (29y.1) -> source-zero cutover -> .hako VM 本体移行` で正しい。
 - ただし最小差分として、runtime de-rust 着手前に 1 タスクを挟む。
   - D5-min1: Selfhost Stage-A runtime route の Program->MIR（Rust `json_v0_bridge`）境界を切り、MIR-first 契約へ固定する。
 
@@ -23,8 +23,9 @@ Related:
 2. D5-min1（Stage-A runtime route の MIR-first 化 + fail-fast）
 3. Phase 29y.1（ABI shim -> RC insertion minimal -> observability）
 4. .hako VM dual-run parity（S0 subset から開始）
-5. VM/LLVM optimization（verify 可能な局所最適化から）
-6. Optional GC/cycle collector（意味論非変更を前提に最後に実施）
+5. runtime/plugin source-zero（compat default-off 固定 + Rust source撤去）
+6. VM/LLVM optimization（verify 可能な局所最適化から）
+7. Optional GC/cycle collector（意味論非変更を前提に最後に実施）
 
 ## 1.5 GC policy lock (2026-02-13)
 
@@ -105,9 +106,11 @@ Related:
 - 同一 MIR 入力で Rust VM / LLVM / .hako VM の観測結果が一致
 - ABI/RC/observability の Phase29y smoke が継続 green
 
-### 6.3 Rust-optional done
-- daily/CI/selfhost 主経路が Rust runtime に依存せず回る
-- Rust fallback は明示フラグ時のみ許可
+### 6.3 Source-zero done
+- runtime/plugin の Rust 実装 source が撤去済み
+- daily/CI/selfhost 主経路が `.hako + ABI` のみで回る
+- compat fallback は既定OFF（明示時のみ）
+- Core C ABI / TypeBox ABI v2 の 2 面契約が継続 green
 
 ## 7. Two-Week Plan (2026-02-11 start, provisional)
 

@@ -12,6 +12,8 @@ Related:
   - docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
   - docs/development/current/main/phases/phase-29cc/29cc-92-non-plugin-rust-residue-task-set.md
+  - docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-93-rnr05-loop-scan-range-shape-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
@@ -248,11 +250,11 @@ Related:
       - `nyash-fixture-plugin` = test-only keep
       - `nyash-integer-plugin` = mainline keep（IntCellBox）
       - `nyash-math` = retire（legacy duplicate; `nyash-math-plugin` is active line）
-  - runtime thin-to-zero execution-path lock（29cc-214, active）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md`
+  - runtime source-zero cutover lock（29cc-220, active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - zero definition（fixed）:
-      - done = execution-path-zero（mainline/CI既定で Rust runtime/plugin loader 非依存）
-      - source-zero（Rust実装完全撤去）は別フェーズ
+      - done = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
+      - execution-path-zero は中間マイルストーンとして扱う
   - runtime execution-path observability lock（29cc-215, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard:
@@ -359,3 +361,8 @@ Related:
 - wasm lane lock (WSM-02d-min2): `docs/development/current/main/phases/phase-29cc/29cc-130-wsm02d-min2-demo-min-fixture-lock-ssot.md`
 - wasm lane lock (WSM-02d-min3): `docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md`
 - wasm lane lock (WSM-02d-min4): `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
+  - runtime/plugin residue inventory lock（29cc-221, active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md`
+    - fixed:
+      - plugin_loader_v2 residue と kernel plugin residue を責務単位で棚卸し
+      - retire order を `1 boundary = 1 commit` で固定

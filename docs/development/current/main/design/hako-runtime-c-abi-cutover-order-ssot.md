@@ -2,11 +2,11 @@
 Status: Active
 Decision: accepted
 Date: 2026-02-28
-Scope: `.hako` 完結（Rust thin wrapper化）へ向けた runtime C ABI cutover の実行順を固定する。
+Scope: `.hako` 完結（Rust runtime/plugin source-zero）へ向けた runtime C ABI cutover の実行順を固定する。
 Related:
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md
   - docs/development/current/main/phases/phase-29y/10-ABI-SSOT.md
@@ -20,9 +20,9 @@ Related:
 ## Goal
 
 - 最終形を `.hako` 主体に寄せる。
-- Rust は runtime 意味論の実体ではなく、thin wrapper と検証導線へ縮退する。
+- Rust runtime/plugin source を撤去し、mainline/CI 既定を `.hako + ABI` のみに固定する。
 - 既存契約（borrowed/owned, fail-fast, gate）を壊さずに移行する。
-- done 判定は `execution-path-zero`（mainline/CI既定で Rust runtime/plugin loader 非依存）で固定する。
+- done 判定は `source-zero`（runtime/plugin の Rust 実装撤去 + mainline/CI 既定 no-compat）で固定する。
 
 ## Non-goals
 
@@ -38,6 +38,7 @@ Related:
 2. 関数ABIは `args borrowed / return owned` を維持する。
 3. `GC` と `poll` は独立スイッチとして維持する。
 4. 失敗は fail-fast タグで停止し、silent fallback を禁止する。
+5. compat route は既定OFF。明示指定時のみ許可する。
 
 ## Precondition (before cutover work)
 
@@ -110,6 +111,31 @@ Related:
 - 以降は 1 語彙ずつ同じ型で拡張する。
 - 1コミットに複数語彙を混ぜない。
 
+### Step 6: Plugin loader source-zero (small boundaries)
+
+- `src/runtime/plugin_loader_v2/enabled/*` を責務境界ごとに撤去する。
+- 推奨順:
+  1. `method_resolver.rs`
+  2. `instance_manager.rs`
+  3. `ffi_bridge.rs` / `host_bridge.rs`
+  4. `loader/*`（config/spec/library）
+- 1 boundary = 1 commit を維持し、受理追加を混ぜない。
+
+### Step 7: Kernel plugin infra source-zero (small boundaries)
+
+- `crates/nyash_kernel/src/plugin/*` を責務境界ごとに撤去する。
+- 推奨順:
+  1. `invoke_core.rs` / `birth.rs` / `runtime_data.rs` / `semantics.rs`
+  2. `value_codec/*`
+  3. `future.rs` / `invoke.rs`
+- TypeBox ABI v2 契約（resolve + invoke_id TLV）を維持し、Core C ABI へ意味論を混ぜない。
+
+### Step 8: Route lock + source delete
+
+- mainline/CI で compat route を完全に無効化する。
+- runtime/plugin の Rust 実装 source を削除する。
+- 既存履歴は git を正本とし、別アーカイブは作らない。
+
 ## Optional External Review Checkpoint
 
 - 外部相談（例: ChatGPT Pro）は Step 1 完了時に 1 回だけ行う。
@@ -120,4 +146,7 @@ Related:
 
 - Step 0/1 の docs 固定が完了し、次実装が 1 本に絞れている。
 - 実装は Step 2 から順番に着手する。
-- source-zero（Rust 実装完全撤去）は別フェーズで扱う。
+- source-zero の判定:
+  - runtime/plugin Rust source が撤去されている
+  - compat default-off が mainline/CI で固定されている
+  - Core C ABI / TypeBox ABI v2 の 2 面以外に新規 ABI 面がない

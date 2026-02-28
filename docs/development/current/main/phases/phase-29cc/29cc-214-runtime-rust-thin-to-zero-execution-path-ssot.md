@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Historical (superseded by 29cc-220)
 Decision: accepted
 Date: 2026-02-28
 Scope: de-rust の最終ゴールを「実行経路0（execution-path-zero）」で固定し、runtime/plugin loader の薄化順序を docs-first で確定する。
@@ -15,6 +15,10 @@ Related:
 ---
 
 # 29cc-214 Runtime Rust Thin-to-Zero Execution Path Lock
+
+> Superseded: `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
+>  
+> 本文書の `execution-path-zero` は中間マイルストーンとして継続参照する。
 
 ## Purpose
 
