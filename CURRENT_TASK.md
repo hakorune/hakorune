@@ -12,7 +12,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Current Blocker (SSOT)
 
-- compiler lane: `phase-29bq / none`（active: monitor-only）
+- compiler lane: `phase-29bq / failure-driven`（active: resumed）
   - joinir migration task SSOT（lane A）:
     - `docs/development/current/main/design/joinir-port-task-pack-ssot.md`
   - lane A mirror sync helper:
@@ -25,7 +25,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - done: `JIR-PORT-05`（promotion boundary lock）
   - done: `JIR-PORT-06`（monitor-only boundary lock）
   - done: `JIR-PORT-07`（expression parity seed lock: unary+compare+logic）
-  - next: `none`（tail active）
+  - next: `29bq-115 / strict_nested accept-min1`（reject-lock 維持, 1-shape only）
 - runtime lane: `phase-29y / none`（current blocker: `none`。fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
   - commit boundary lock: `phase-29y/60-NEXT-TASK-PLAN.md` の `0.3 RVP Commit Boundary Lock (active rule)`
   - operation policy lock: `LLVM-first / vm-hako monitor-only`
@@ -136,6 +136,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `lang/src/runtime/host/host_facade_box.hako` を追加し、`extern_provider` / `extern_call_handler` / `mir_vm_s0` の direct `env.get`/console/extern invoke 経路を HostFacade 経由へ統一（2026-02-28）
     - `codegen_bridge` / `host_bridge` / `mir_io` と `extern_provider` C-ABI branch の direct hostbridge 呼びを HostFacade loader selector 経由へ統一（2026-02-28）
     - guard: `tools/checks/phase29cc_hostfacade_direct_call_guard.sh`（runtime/shared/vm で direct hostbridge 呼びの allowlist 監査）
+    - latest: PASS（2026-02-28, residual direct hostbridge calls: 0）
   - runtime execution-path observability lock（29cc-215, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard:

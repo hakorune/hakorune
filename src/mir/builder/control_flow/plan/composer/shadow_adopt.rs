@@ -2,6 +2,7 @@
 
 use super::coreloop_gates::coreloop_base_gate;
 use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::{
@@ -21,6 +22,7 @@ use crate::mir::builder::control_flow::plan::observability::flowbox_tags;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
+use crate::mir::loop_pattern_detection::LoopPatternKind;
 
 pub(in crate::mir::builder) struct ShadowAdoptOutcome {
     pub core_plan: LoweredRecipe,
@@ -141,6 +143,9 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
     if allow_generic_loop {
         return None;
     }
+    if allow_strict_nested_pattern4_min1(outcome, ctx) {
+        return None;
+    }
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -182,6 +187,105 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
         plan_repr
     ));
     Some(freeze.to_string())
+}
+
+fn allow_strict_nested_pattern4_min1(
+    outcome: &PlanBuildOutcome,
+    ctx: &LoopPatternContext,
+) -> bool {
+    if outcome.plan.is_some() {
+        return false;
+    }
+    if ctx.pattern_kind != LoopPatternKind::Pattern4Continue {
+        return false;
+    }
+    let Some(facts) = outcome.facts.as_ref() else {
+        return false;
+    };
+    if !facts.nested_loop {
+        return false;
+    }
+    if !facts.exit_usage.has_continue || facts.exit_usage.has_break || facts.exit_usage.has_return {
+        return false;
+    }
+
+    let Some(pattern4) = facts.facts.pattern4_continue.as_ref() else {
+        return false;
+    };
+    if pattern4.carrier_updates.len() != 1 {
+        return false;
+    }
+
+    let Some(loop_upper_bound) = extract_lt_var_int(&pattern4.condition, &pattern4.loop_var) else {
+        return false;
+    };
+    let Some(continue_lower_bound) =
+        extract_ge_var_int(&pattern4.continue_condition, &pattern4.loop_var)
+    else {
+        return false;
+    };
+
+    continue_lower_bound > loop_upper_bound
+        && is_add_one_of_var(&pattern4.loop_increment, &pattern4.loop_var)
+}
+
+fn extract_lt_var_int(node: &ASTNode, var_name: &str) -> Option<i64> {
+    match node {
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left,
+            right,
+            ..
+        } if matches!(left.as_ref(), ASTNode::Variable { name, .. } if name == var_name) => {
+            match right.as_ref() {
+                ASTNode::Literal {
+                    value: LiteralValue::Integer(n),
+                    ..
+                } => Some(*n),
+                _ => None,
+            }
+        }
+        _ => None,
+    }
+}
+
+fn extract_ge_var_int(node: &ASTNode, var_name: &str) -> Option<i64> {
+    match node {
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::GreaterEqual,
+            left,
+            right,
+            ..
+        } if matches!(left.as_ref(), ASTNode::Variable { name, .. } if name == var_name) => {
+            match right.as_ref() {
+                ASTNode::Literal {
+                    value: LiteralValue::Integer(n),
+                    ..
+                } => Some(*n),
+                _ => None,
+            }
+        }
+        _ => None,
+    }
+}
+
+fn is_add_one_of_var(node: &ASTNode, var_name: &str) -> bool {
+    matches!(
+        node,
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            left,
+            right,
+            ..
+        } if matches!(left.as_ref(), ASTNode::Variable { name, .. } if name == var_name)
+            && matches!(
+                right.as_ref(),
+                ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    ..
+                }
+            )
+    )
 }
 
 pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(

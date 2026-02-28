@@ -223,6 +223,7 @@ Body lowering policy: `body_exit_allowed` is used only when `BodyLoweringPolicy:
 | `apps/tests/phase29bq_selfhost_subset_scan_funcs_import_min.hako` | `break_continue/facts.rs` | `break_continue/recipe.rs` | `loop_cond_break_continue_pipeline/` | `selfhost-only` |
 | `apps/tests/phase29bq_map_literal_percent_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `map_literal_percent_min` |
 | `apps/tests/phase29bq_strict_nested_loop_guard_min.hako` | `composer/shadow_adopt.rs (strict_nested_loop_guard)` | `(freeze)` | `(freeze)` | `strict_nested_loop_guard_min` |
+| `apps/tests/phase29bq_strict_nested_loop_guard_accept_min.hako` | `composer/shadow_adopt.rs (strict_nested_loop_guard, accept-min1)` | `(n/a)` | `shadow adopt allowlist` | `strict_nested_loop_guard_accept_min` |
 | `apps/tests/phase29bq_selfhost_blocker_trim_generic_loop_min.hako` | `generic_loop/facts/` | `generic_loop/recipe.rs` | `generic_loop_pipeline.rs` | `selfhost_trim_generic_loop_min` |
 | `apps/tests/phase29bq_selfhost_blocker_rewriteknown_trim_loop_cond_and_methodcall_min.hako` | `generic_loop/facts/` | `generic_loop/recipe.rs` | `generic_loop_pipeline.rs` | `selfhost_rewriteknown_trim_loop_cond_and_methodcall_min` |
 | `apps/tests/phase29bq_selfhost_blocker_parse_if_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `selfhost_parse_if_min` |
@@ -388,7 +389,7 @@ This section is kept only as historical snapshot/context. Operational order is d
 | P0 | BlockExpr validation (value contexts beyond basic return) | done (pinned) |
 | P0 | cond_prelude support | done |
 | P1 | not operator support | done |
-| P1 | E2E tests expansion | next |
+| P1 | E2E tests expansion | done |
 | P2 | error message improvements | later |
 | P3 | performance optimization | later |
 
@@ -406,10 +407,15 @@ This section is kept only as historical snapshot/context. Operational order is d
 - not operator support:
   - [x] grammar + lowering + fixture pin (`phase29bq_selfhost_local_expr_unary_not_cleanup_min.hako`; probe: `./tools/selfhost/run.sh --gate --planner-required 1 --filter phase29bq_selfhost_local_expr_unary_not_cleanup_min --max-cases 1`, 2026-02-25 PASS)
 - E2E tests expansion:
-  - [ ] add 2–3 selfhost cases
-  - [ ] milestone canary run
+  - [x] add 2–3 selfhost cases
+    - evidence probes (2026-02-28):
+      - `./tools/selfhost/run.sh --gate --planner-required 1 --filter mirror_sync_tail_cleanup_min --max-cases 1 --timeout-secs 120`
+      - `./tools/selfhost/run.sh --gate --planner-required 1 --filter local_fini_multi_lifo_cleanup_min --max-cases 1 --timeout-secs 120`
+      - `./tools/selfhost/run.sh --gate --planner-required 1 --filter local_expr_blockexpr_fini_cleanup_min --max-cases 1 --timeout-secs 120`
+  - [x] milestone canary run
+    - evidence (2026-02-28): `RUN_TIMEOUT_SECS=120 SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` (`198/198`, `total_secs=682`, `avg_case_secs=3.44`, `jobs=4`)
 
-Selfhost canary reported: 198/198 tests PASS (milestone run on 2026-02-25, `total_secs=649`, `avg_case_secs=3.28`).
+Selfhost canary reported: 198/198 tests PASS (milestone run on 2026-02-28, `total_secs=682`, `avg_case_secs=3.44`).
 
 ## Latest updates (log)
 - Lane A daily monitor evidence (2026-02-25): `bash ./tools/selfhost/run_lane_a_daily.sh` PASS.

@@ -1,0 +1,24 @@
+box Main {
+  func main() {
+    local i;
+    local sum;
+    i = 0;
+    sum = 0;
+    loop(i < 3) {
+      if i >= 99 {
+        continue;
+      }
+      sum = sum + 1;
+      local j;
+      j = 0;
+      loop(j < 2) {
+        j = j + 1;
+      }
+      i = i + 1;
+    }
+    if sum == 3 {
+      return 0;
+    }
+    return 9;
+  }
+}

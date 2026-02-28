@@ -65,6 +65,10 @@ Related:
 - [x] `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（`5/5`, `stageb_total_secs=19`, `avg_case_secs=3.80`）
 - [x] `bash tools/selfhost_identity_check.sh --mode smoke --skip-build` PASS（Program/MIR MATCH）
 - [x] `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` PASS（Program/MIR MATCH）
+- [x] quick probe: `./tools/selfhost/run.sh --gate --planner-required 1 --filter mirror_sync_tail_cleanup_min --max-cases 1 --timeout-secs 120` PASS（`1/1`, `stageb_total_secs=4`, `avg_case_secs=4.00`）
+- [x] quick probe: `./tools/selfhost/run.sh --gate --planner-required 1 --filter local_fini_multi_lifo_cleanup_min --max-cases 1 --timeout-secs 120` PASS（`1/1`, `stageb_total_secs=3`, `avg_case_secs=3.00`）
+- [x] quick probe: `./tools/selfhost/run.sh --gate --planner-required 1 --filter local_expr_blockexpr_fini_cleanup_min --max-cases 1 --timeout-secs 120` PASS（`1/1`, `stageb_total_secs=3`, `avg_case_secs=3.00`）
+- [x] milestone canary refresh: `RUN_TIMEOUT_SECS=120 SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS（`198/198`, `total_secs=682`, `avg_case_secs=3.44`, `jobs=4`）
 
 ### 2.4 Post-migration default checks（.hako MirBuilder移植後）
 

@@ -23,6 +23,11 @@ Related:
 - [x] full selfhost canary green（`198/198`, `jobs=4`）
 - [x] stage identity full check green（`tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2`）
 - [x] route parity 3点セット green（stageb/runtime/runtime-mode）
+- [x] re-entry probes refresh（2026-02-28）:
+  - `mirror_sync_tail_cleanup_min` PASS
+  - `local_fini_multi_lifo_cleanup_min` PASS
+  - `local_expr_blockexpr_fini_cleanup_min` PASS
+  - full canary PASS（`198/198`, `total_secs=682`, `avg_case_secs=3.44`, `jobs=4`）
 
 注意:
 - ここからの closeout では、機能追加ではなく「証拠の固定」と「再現手順の安定化」を優先する。
@@ -119,6 +124,10 @@ Related:
     - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase20_store_assignment_int_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase20_store_assignment_int_min_vm.sh`
 - [ ] 深い nested control widening（break/continue 複合形、複雑 cleanup）
+  - [x] NCW1: strict-nested accept-min1 を追加し、既存 reject pin を維持
+    - accept fixture: `apps/tests/phase29bq_strict_nested_loop_guard_accept_min.hako`
+    - reject fixture (keep): `apps/tests/phase29bq_strict_nested_loop_guard_min.hako`
+    - fast gate case ids: `strict_nested_loop_guard_accept_min` / `strict_nested_loop_guard_min`
 
 運用ルール:
 - BoxCount は 1形=1fixture=1commit。

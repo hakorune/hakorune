@@ -70,13 +70,13 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
 
 ## Current Snapshot
 
-- Compiler lane: `phase-29bq`（JIR-PORT-00..07 done / active blocker=`none` / next=`none`）
+- Compiler lane: `phase-29bq`（JIR-PORT-00..07 done / active blocker=`none` / next=`29bq-115 strict_nested accept-min1`）
 - Lane A status mirror SSOT: `CURRENT_TASK.md`（この文書は mirror）
 - Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
 - Optimization policy (runtime): de-rust 経路固定（29cc-220/215/216/217 guard 緑）まで perf/AOT 最適化は monitor-only。
-- JoinIR port mode（lane A）: monitor-only（failure-driven）
+- JoinIR port mode（lane A）: failure-driven resumed（1-shape rule）
 - JoinIR parity probe pin（JIR-PORT-01）:
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port01_parity_probe_vm.sh`
 - App-first: APP-1（Gate Log Summarizer）acceptance PASS 済み
@@ -156,6 +156,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - guard: `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
   - hostfacade direct-call allowlist lock（runtime/shared/vm）:
     - `bash tools/checks/phase29cc_hostfacade_direct_call_guard.sh`
+    - latest: PASS（2026-02-28, residual direct hostbridge calls: 0）
   - runtime VM+AOT route lock（29cc-217 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-217-runtime-vm-aot-route-lock-ssot.md`
     - guard: `bash tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh`
