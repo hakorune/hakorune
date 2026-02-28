@@ -193,6 +193,24 @@ fn string_len_h_invalid_handle_contract() {
 }
 
 #[test]
+fn string_to_i8p_h_fallback_contract() {
+    use std::ffi::CStr;
+
+    let c0 = nyash_string_to_i8p_h(0);
+    assert!(!c0.is_null());
+    let s0 = unsafe { CStr::from_ptr(c0) }.to_str().expect("utf8");
+    assert_eq!(s0, "0");
+
+    let missing = 9_876_543_210_i64;
+    let c_missing = nyash_string_to_i8p_h(missing);
+    assert!(!c_missing.is_null());
+    let s_missing = unsafe { CStr::from_ptr(c_missing) }
+        .to_str()
+        .expect("utf8");
+    assert_eq!(s_missing, missing.to_string());
+}
+
+#[test]
 fn string_indexof_lastindexof_single_byte_contract() {
     let hay: Arc<dyn NyashBox> = Arc::new(StringBox::new("abba-bba".to_string()));
     let hay_h = handles::to_handle_arc(hay) as i64;

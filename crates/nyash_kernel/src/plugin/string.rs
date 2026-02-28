@@ -1,4 +1,17 @@
 // ---- String helpers for LLVM lowering ----
+#[inline]
+fn into_c_string_ptr(mut bytes: Vec<u8>) -> *mut i8 {
+    bytes.push(0);
+    let boxed = bytes.into_boxed_slice();
+    let raw = Box::into_raw(boxed) as *mut u8;
+    raw as *mut i8
+}
+
+#[inline]
+fn string_to_c_string_ptr(s: String) -> *mut i8 {
+    into_c_string_ptr(s.into_bytes())
+}
+
 // Exported as: nyash_string_new(i8* ptr, i32 len) -> i8*
 #[no_mangle]
 pub extern "C" fn nyash_string_new(ptr: *const u8, len: i32) -> *mut i8 {
@@ -13,10 +26,7 @@ pub extern "C" fn nyash_string_new(ptr: *const u8, len: i32) -> *mut i8 {
         ptr::copy_nonoverlapping(ptr, buf.as_mut_ptr(), n);
         buf.set_len(n);
     }
-    buf.push(0);
-    let boxed = buf.into_boxed_slice();
-    let raw = Box::into_raw(boxed) as *mut u8;
-    raw as *mut i8
+    into_c_string_ptr(buf)
 }
 
 // ---- String concat helpers for LLVM lowering ----
@@ -36,11 +46,7 @@ pub extern "C" fn nyash_string_concat_ss(a: *const i8, b: *const i8) -> *mut i8 
             }
         }
     }
-    let mut bytes = s.into_bytes();
-    bytes.push(0);
-    let boxed = bytes.into_boxed_slice();
-    let raw = Box::into_raw(boxed) as *mut u8;
-    raw as *mut i8
+    string_to_c_string_ptr(s)
 }
 
 // Exported as: nyash.string.concat_si(i8* a, i64 b) -> i8*
@@ -57,11 +63,7 @@ pub extern "C" fn nyash_string_concat_si(a: *const i8, b: i64) -> *mut i8 {
         }
     }
     s.push_str(&b.to_string());
-    let mut bytes = s.into_bytes();
-    bytes.push(0);
-    let boxed = bytes.into_boxed_slice();
-    let raw = Box::into_raw(boxed) as *mut u8;
-    raw as *mut i8
+    string_to_c_string_ptr(s)
 }
 
 // Exported as: nyash.string.concat_is(i64 a, i8* b) -> i8*
@@ -77,11 +79,7 @@ pub extern "C" fn nyash_string_concat_is(a: i64, b: *const i8) -> *mut i8 {
             }
         }
     }
-    let mut bytes = s.into_bytes();
-    bytes.push(0);
-    let boxed = bytes.into_boxed_slice();
-    let raw = Box::into_raw(boxed) as *mut u8;
-    raw as *mut i8
+    string_to_c_string_ptr(s)
 }
 
 // Exported as: nyash.string.substring_sii(i8* s, i64 start, i64 end) -> i8*
@@ -110,11 +108,7 @@ pub extern "C" fn nyash_string_substring_sii(s: *const i8, start: i64, end: i64)
     }
     let (st_u, en_u) = (st as usize, en as usize);
     let sub = &src[st_u.min(src.len())..en_u.min(src.len())];
-    let mut bytes = sub.as_bytes().to_vec();
-    bytes.push(0);
-    let boxed = bytes.into_boxed_slice();
-    let raw = Box::into_raw(boxed) as *mut u8;
-    raw as *mut i8
+    into_c_string_ptr(sub.as_bytes().to_vec())
 }
 
 // Exported as: nyash.string.lastIndexOf_ss(i8* s, i8* needle) -> i64
@@ -181,27 +175,13 @@ pub extern "C" fn nyash_string_to_i8p_h(handle: i64) -> *mut i8 {
     use nyash_rust::runtime::host_handles as handles;
     if handle <= 0 {
         // return "0" for consistency with existing fallback behavior
-        let s = handle.to_string();
-        let mut bytes = s.into_bytes();
-        bytes.push(0);
-        let boxed = bytes.into_boxed_slice();
-        let raw = Box::into_raw(boxed) as *mut u8;
-        return raw as *mut i8;
+        return string_to_c_string_ptr(handle.to_string());
     }
     if let Some(obj) = handles::get(handle as u64) {
         let s = obj.to_string_box().value;
-        let mut bytes = s.into_bytes();
-        bytes.push(0);
-        let boxed = bytes.into_boxed_slice();
-        let raw = Box::into_raw(boxed) as *mut u8;
-        raw as *mut i8
+        string_to_c_string_ptr(s)
     } else {
         // not found -> print numeric handle string
-        let s = handle.to_string();
-        let mut bytes = s.into_bytes();
-        bytes.push(0);
-        let boxed = bytes.into_boxed_slice();
-        let raw = Box::into_raw(boxed) as *mut u8;
-        raw as *mut i8
+        string_to_c_string_ptr(handle.to_string())
     }
 }
