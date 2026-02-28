@@ -134,40 +134,16 @@ fn resolve_method_id_for_lib(
     box_type: &str,
     method_name: &str,
 ) -> BidResult<u32> {
-    // 1) Config mapping
-    if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
-        if let Some(bc) = cfg.get_box_config(lib_name, box_type, toml_value) {
-            if let Some(method_spec) = bc.methods.get(method_name) {
-                return Ok(method_spec.method_id);
+    super::route_resolver::resolve_method_id_for_lib(loader, lib_name, box_type, method_name)
+        .map_err(|err| {
+            if dbg_on() {
+                get_global_ring0().log.debug(&format!(
+                    "[PluginLoaderV2] ERR: method resolve failed for {}.{} in lib={} ({:?})",
+                    box_type, method_name, lib_name, err
+                ));
             }
-        }
-    }
-
-    // 2) TypeBox spec mapping for the selected library
-    if let Ok(map) = loader.box_specs.read() {
-        let key = (lib_name.to_string(), box_type.to_string());
-        if let Some(spec) = map.get(&key) {
-            if let Some(ms) = spec.methods.get(method_name) {
-                return Ok(ms.method_id);
-            }
-            if let Some(res_fn) = spec.resolve_fn {
-                if let Ok(cstr) = std::ffi::CString::new(method_name) {
-                    let mid = res_fn(cstr.as_ptr());
-                    if mid != 0 {
-                        return Ok(mid);
-                    }
-                }
-            }
-        }
-    }
-
-    if dbg_on() {
-        get_global_ring0().log.debug(&format!(
-            "[PluginLoaderV2] ERR: method resolve failed for {}.{} in lib={}",
-            box_type, method_name, lib_name
-        ));
-    }
-    Err(BidError::InvalidMethod)
+            err
+        })
 }
 
 fn should_trace_tlv_shim(box_type: &str, method: &str) -> bool {
@@ -245,36 +221,7 @@ fn should_route_ccore(box_type: &str, method: &str) -> bool {
 
 /// Resolve type information for a box
 fn resolve_type_info(loader: &PluginLoaderV2, box_type: &str) -> BidResult<(String, u32)> {
-    if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
-        if let Some((lib_name, _)) = cfg.find_library_for_box(box_type) {
-            if let Some(bc) = cfg.get_box_config(lib_name, box_type, &toml_value) {
-                return Ok((lib_name.to_string(), bc.type_id));
-            } else {
-                let key = (lib_name.to_string(), box_type.to_string());
-                let map = loader.box_specs.read().map_err(|_| BidError::PluginError)?;
-                let tid = map
-                    .get(&key)
-                    .and_then(|s| s.type_id)
-                    .ok_or(BidError::InvalidType)?;
-                return Ok((lib_name.to_string(), tid));
-            }
-        }
-    }
-
-    // Compat-only fallback: if config is absent and fail-fast is relaxed, choose deterministic lib.
-    if !crate::config::env::fail_fast() {
-        let map = loader.box_specs.read().map_err(|_| BidError::PluginError)?;
-        let mut cands: Vec<(String, u32)> = map
-            .iter()
-            .filter(|((_, bt), _)| bt == box_type)
-            .filter_map(|((lib, _), spec)| spec.type_id.map(|tid| (lib.clone(), tid)))
-            .collect();
-        if !cands.is_empty() {
-            cands.sort_by(|a, b| a.0.cmp(&b.0));
-            return Ok(cands[0].clone());
-        }
-    }
-    Err(BidError::InvalidType)
+    super::route_resolver::resolve_type_info(loader, box_type)
 }
 
 /// Decode TLV result into a NyashBox

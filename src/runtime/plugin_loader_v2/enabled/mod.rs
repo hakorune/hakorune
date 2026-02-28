@@ -6,6 +6,7 @@ mod host_bridge;
 mod instance_manager;
 mod loader;
 mod method_resolver;
+mod route_resolver;
 mod types;
 
 pub use extern_functions::handle_box_introspect;

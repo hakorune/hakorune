@@ -1,0 +1,132 @@
+//! Shared route resolver for plugin loader v2.
+//!
+//! Keeps config/spec/compat resolution policy in one place so bridge and
+//! instance manager do not duplicate route logic.
+
+use super::loader::PluginLoaderV2;
+use crate::bid::{BidError, BidResult};
+
+fn selected_library_name(loader: &PluginLoaderV2, box_type: &str) -> Option<String> {
+    let cfg = loader.config.as_ref()?;
+    let (_lib_name, _lib_def) = cfg.find_library_for_box(box_type)?;
+    Some(_lib_name.to_string())
+}
+
+fn type_id_from_selected_lib(
+    loader: &PluginLoaderV2,
+    lib_name: &str,
+    box_type: &str,
+) -> BidResult<Option<u32>> {
+    if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
+        if let Some(box_conf) = cfg.get_box_config(lib_name, box_type, toml_value) {
+            return Ok(Some(box_conf.type_id));
+        }
+    }
+    let map = loader.box_specs.read().map_err(|_| BidError::PluginError)?;
+    Ok(map
+        .get(&(lib_name.to_string(), box_type.to_string()))
+        .and_then(|spec| spec.type_id))
+}
+
+pub(super) fn resolve_type_info(
+    loader: &PluginLoaderV2,
+    box_type: &str,
+) -> BidResult<(String, u32)> {
+    if let Some(lib_name) = selected_library_name(loader, box_type) {
+        let type_id =
+            type_id_from_selected_lib(loader, &lib_name, box_type)?.ok_or(BidError::InvalidType)?;
+        return Ok((lib_name, type_id));
+    }
+
+    if crate::config::env::fail_fast() {
+        return Err(BidError::InvalidType);
+    }
+
+    // Compat-only fallback when config is missing:
+    // choose a deterministic lexical library for this box_type.
+    let map = loader.box_specs.read().map_err(|_| BidError::PluginError)?;
+    let mut cands: Vec<(String, u32)> = map
+        .iter()
+        .filter(|((_, bt), _)| bt == box_type)
+        .filter_map(|((lib, _), spec)| spec.type_id.map(|tid| (lib.clone(), tid)))
+        .collect();
+    if cands.is_empty() {
+        return Err(BidError::InvalidType);
+    }
+    cands.sort_by(|a, b| a.0.cmp(&b.0));
+    Ok(cands[0].clone())
+}
+
+pub(super) fn resolve_method_id_for_lib(
+    loader: &PluginLoaderV2,
+    lib_name: &str,
+    box_type: &str,
+    method_name: &str,
+) -> BidResult<u32> {
+    if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
+        if let Some(bc) = cfg.get_box_config(lib_name, box_type, toml_value) {
+            if let Some(method_spec) = bc.methods.get(method_name) {
+                return Ok(method_spec.method_id);
+            }
+        }
+    }
+
+    let map = loader.box_specs.read().map_err(|_| BidError::PluginError)?;
+    let key = (lib_name.to_string(), box_type.to_string());
+    if let Some(spec) = map.get(&key) {
+        if let Some(ms) = spec.methods.get(method_name) {
+            return Ok(ms.method_id);
+        }
+        if let Some(res_fn) = spec.resolve_fn {
+            if let Ok(cstr) = std::ffi::CString::new(method_name) {
+                let mid = res_fn(cstr.as_ptr());
+                if mid != 0 {
+                    return Ok(mid);
+                }
+            }
+        }
+    }
+
+    Err(BidError::InvalidMethod)
+}
+
+pub(super) fn resolve_birth_and_fini_for_lib(
+    loader: &PluginLoaderV2,
+    lib_name: &str,
+    box_type: &str,
+) -> BidResult<(u32, Option<u32>)> {
+    let mut birth_id = None;
+    let mut fini_id = None;
+
+    if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
+        if let Some(box_conf) = cfg.get_box_config(lib_name, box_type, toml_value) {
+            birth_id = box_conf.methods.get("birth").map(|m| m.method_id);
+            fini_id = box_conf.methods.get("fini").map(|m| m.method_id);
+        }
+    }
+
+    if birth_id.is_none() || fini_id.is_none() {
+        let map = loader.box_specs.read().map_err(|_| BidError::PluginError)?;
+        let key = (lib_name.to_string(), box_type.to_string());
+        if let Some(spec) = map.get(&key) {
+            if birth_id.is_none() {
+                if let Some(ms) = spec.methods.get("birth") {
+                    birth_id = Some(ms.method_id);
+                } else if let Some(res_fn) = spec.resolve_fn {
+                    if let Ok(cstr) = std::ffi::CString::new("birth") {
+                        let mid = res_fn(cstr.as_ptr());
+                        if mid != 0 {
+                            birth_id = Some(mid);
+                        }
+                    }
+                }
+            }
+            if fini_id.is_none() {
+                fini_id = spec.fini_method_id;
+            }
+        }
+    }
+
+    let birth_id = birth_id.ok_or(BidError::InvalidMethod)?;
+    Ok((birth_id, fini_id))
+}

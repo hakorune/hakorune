@@ -257,6 +257,8 @@ Related:
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）
       - execution-path-zero は中間マイルストーンとして扱う
+    - latest cleanup（2026-02-28）:
+      - `enabled/route_resolver.rs` を追加し、`ffi_bridge`/`instance_manager` の type/birth/method route 解析を単一責務へ集約
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:

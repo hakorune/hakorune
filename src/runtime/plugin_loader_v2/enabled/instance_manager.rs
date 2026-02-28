@@ -56,66 +56,9 @@ fn resolve_instance_birth_contract(
     loader: &PluginLoaderV2,
     box_type: &str,
 ) -> BidResult<ResolvedBirthContract> {
-    let (mut type_id_opt, mut birth_id_opt, mut fini_id) = (None, None, None);
-    let mut selected_lib: Option<String> = None;
-
-    // Try config mapping first (when available)
-    if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
-        if let Some((lib_name, _)) = cfg.find_library_for_box(box_type) {
-            selected_lib = Some(lib_name.to_string());
-            if let Some(box_conf) = cfg.get_box_config(lib_name, box_type, &toml_value) {
-                type_id_opt = Some(box_conf.type_id);
-                birth_id_opt = box_conf.methods.get("birth").map(|m| m.method_id);
-                fini_id = box_conf.methods.get("fini").map(|m| m.method_id);
-            }
-        }
-    }
-
-    // Fallback: use TypeBox FFI spec for the selected library only.
-    if type_id_opt.is_none() || birth_id_opt.is_none() {
-        if let Ok(map) = loader.box_specs.read() {
-            let key = match selected_lib {
-                Some(ref lib) => (lib.clone(), box_type.to_string()),
-                None => {
-                    // In fail-fast mode, avoid generic cross-library scan.
-                    if crate::config::env::fail_fast() {
-                        return Err(BidError::InvalidType);
-                    }
-                    // Compat-only fallback: deterministic lexical selection by library name.
-                    let mut cands: Vec<String> = map
-                        .iter()
-                        .filter(|((_, bt), _)| bt == box_type)
-                        .map(|((lib, _), _)| lib.clone())
-                        .collect();
-                    if cands.is_empty() {
-                        return Err(BidError::InvalidType);
-                    }
-                    cands.sort();
-                    (cands[0].clone(), box_type.to_string())
-                }
-            };
-            if let Some(spec) = map.get(&key) {
-                if type_id_opt.is_none() {
-                    type_id_opt = spec.type_id;
-                }
-                if birth_id_opt.is_none() {
-                    if let Some(ms) = spec.methods.get("birth") {
-                        birth_id_opt = Some(ms.method_id);
-                    } else if let Some(res_fn) = spec.resolve_fn {
-                        if let Ok(cstr) = std::ffi::CString::new("birth") {
-                            let mid = res_fn(cstr.as_ptr());
-                            if mid != 0 {
-                                birth_id_opt = Some(mid);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    let type_id = type_id_opt.ok_or(BidError::InvalidType)?;
-    let birth_id = birth_id_opt.ok_or(BidError::InvalidMethod)?;
+    let (lib_name, type_id) = super::route_resolver::resolve_type_info(loader, box_type)?;
+    let (birth_id, fini_id) =
+        super::route_resolver::resolve_birth_and_fini_for_lib(loader, &lib_name, box_type)?;
 
     Ok(ResolvedBirthContract {
         type_id,

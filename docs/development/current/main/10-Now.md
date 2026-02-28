@@ -131,6 +131,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
   - runtime source-zero cutover lock（29cc-220 active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - zero definition: long-term=source-zero / phase done=route-zero + stability（no-delete-first）
+    - latest cleanup (2026-02-28): `enabled/route_resolver.rs` を新設し、`ffi_bridge`/`instance_manager` の route 解決重複を共通化
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:

@@ -126,6 +126,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）
       - execution-path-zero は中間マイルストーンとして扱う
+    - latest cleanup（2026-02-28）:
+      - `src/runtime/plugin_loader_v2/enabled/route_resolver.rs` を追加し、`ffi_bridge`/`instance_manager` の type/birth/method route 解決を共通化（compat fallback は fail-fast policy 下に限定）
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:
