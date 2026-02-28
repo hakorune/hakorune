@@ -209,8 +209,8 @@ resolve_path() {
 }
 
 run_gate() {
-  if [ ! -x "$GATE_SCRIPT" ]; then
-    echo "[selfhost/run] gate script missing/executable: $GATE_SCRIPT" >&2
+  if [ ! -f "$GATE_SCRIPT" ]; then
+    echo "[selfhost/run] gate script not found: $GATE_SCRIPT" >&2
     exit 2
   fi
 
@@ -294,8 +294,8 @@ run_runtime() {
 }
 
 run_direct() {
-  if [ ! -x "$DIRECT_STAGEB_SCRIPT" ]; then
-    echo "[selfhost/run] direct script missing/executable: $DIRECT_STAGEB_SCRIPT" >&2
+  if [ ! -f "$DIRECT_STAGEB_SCRIPT" ]; then
+    echo "[selfhost/run] direct script not found: $DIRECT_STAGEB_SCRIPT" >&2
     exit 2
   fi
 
@@ -321,12 +321,12 @@ run_direct() {
   fi
 
   echo "[selfhost/run] mode=direct source=$(basename "$source_path")" >&2
-  "$DIRECT_STAGEB_SCRIPT" "${args[@]}"
+  bash "$DIRECT_STAGEB_SCRIPT" "${args[@]}"
 }
 
 run_steady_state() {
-  if [ ! -x "$STEADY_STATE_SCRIPT" ]; then
-    echo "[selfhost/run] steady-state script missing/executable: $STEADY_STATE_SCRIPT" >&2
+  if [ ! -f "$STEADY_STATE_SCRIPT" ]; then
+    echo "[selfhost/run] steady-state script not found: $STEADY_STATE_SCRIPT" >&2
     exit 2
   fi
 
