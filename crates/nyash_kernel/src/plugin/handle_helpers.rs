@@ -18,6 +18,11 @@ thread_local! {
 }
 
 #[inline(always)]
+fn clear_cache_slot() {
+    HANDLE_CACHE.with(|slot| *slot.borrow_mut() = None);
+}
+
+#[inline(always)]
 fn with_cache_entry<R>(
     handle: i64,
     drop_epoch: u64,
@@ -95,6 +100,11 @@ fn object_from_handle_cached(handle: i64) -> Option<Arc<dyn NyashBox>> {
         return None;
     }
     let drop_epoch = handles::drop_epoch();
+    object_from_handle_cached_with_epoch(handle, drop_epoch)
+}
+
+#[inline(always)]
+fn object_from_handle_cached_with_epoch(handle: i64, drop_epoch: u64) -> Option<Arc<dyn NyashBox>> {
     if let Some(obj) = cache_load(handle, drop_epoch) {
         return Some(obj);
     }
@@ -149,7 +159,7 @@ mod tests {
 
     #[test]
     fn cache_invalidates_on_drop_epoch_when_handle_is_reused() {
-        HANDLE_CACHE.with(|slot| *slot.borrow_mut() = None);
+        clear_cache_slot();
 
         let arr_a: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
         let h = handles::to_handle_arc(arr_a.clone()) as i64;
@@ -174,7 +184,7 @@ mod tests {
 
     #[test]
     fn cached_handle_lookup_still_resolves_type_routes() {
-        HANDLE_CACHE.with(|slot| *slot.borrow_mut() = None);
+        clear_cache_slot();
 
         let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
         let map: Arc<dyn NyashBox> = Arc::new(MapBox::new());
@@ -193,5 +203,35 @@ mod tests {
         assert!(object_from_handle_cached(scalar_h).is_some());
         let arr_value2 = with_array_or_map(arr_h, |_| 30, |_| 40).expect("array route 2");
         assert_eq!(arr_value2, 30);
+    }
+
+    #[test]
+    fn invalid_handle_short_circuits_all_routes() {
+        clear_cache_slot();
+
+        assert!(object_from_handle_cached(0).is_none());
+        assert!(with_array_box(-1, |_| 1).is_none());
+        assert!(with_map_box(-1, |_| 1).is_none());
+        assert!(with_instance_box(-1, |_| 1).is_none());
+        assert!(with_array_or_map(-1, |_| 1, |_| 2).is_none());
+    }
+
+    #[test]
+    fn array_get_index_fail_safe_contract() {
+        clear_cache_slot();
+
+        let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+        let handle = handles::to_handle_arc(arr.clone()) as i64;
+        assert_eq!(array_get_index_encoded_i64(handle, -1), None);
+        assert_eq!(array_get_index_encoded_i64(handle, 0), None);
+
+        let array_box = arr
+            .as_any()
+            .downcast_ref::<ArrayBox>()
+            .expect("array downcast");
+        let _ = array_box.push(Box::new(IntegerBox::new(42)));
+
+        assert_eq!(array_get_index_encoded_i64(handle, 0), Some(42));
+        assert_eq!(array_get_index_encoded_i64(handle, 1), None);
     }
 }
