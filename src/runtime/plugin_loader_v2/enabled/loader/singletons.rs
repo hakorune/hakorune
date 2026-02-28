@@ -30,24 +30,16 @@ pub(super) fn ensure_singleton_handle(
     {
         return Ok(());
     }
-    let toml_value = loader.config_toml.as_ref().ok_or(BidError::PluginError)?;
-    let config = loader.config.as_ref().ok_or(BidError::PluginError)?;
     let plugins = loader.plugins.read().unwrap();
     let _plugin = plugins.get(lib_name).ok_or(BidError::PluginError)?;
-    let type_id = if let Some(spec) = loader
-        .box_specs
-        .read()
-        .unwrap()
-        .get(&(lib_name.to_string(), box_type.to_string()))
-    {
-        spec.type_id
-            .unwrap_or_else(|| config.box_types.get(box_type).copied().unwrap_or(0))
-    } else {
-        let box_conf = config
-            .get_box_config(lib_name, box_type, toml_value)
-            .ok_or(BidError::InvalidType)?;
-        box_conf.type_id
-    };
+
+    let (resolved_lib, type_id) = super::super::route_resolver::resolve_type_info(loader, box_type)?;
+    if resolved_lib != lib_name {
+        return Err(BidError::InvalidType);
+    }
+    let (_birth_id, fini_id) =
+        super::super::route_resolver::resolve_birth_and_fini_for_lib(loader, lib_name, box_type)?;
+
     let tlv_args = crate::runtime::plugin_ffi_common::encode_empty_args();
     let invoke_box = loader.box_invoke_fn_for_type_id(type_id);
     let (_status, _, out_vec) = host_bridge::invoke_alloc_with_route(
@@ -62,19 +54,6 @@ pub(super) fn ensure_singleton_handle(
         return Err(BidError::PluginError);
     }
     let instance_id = u32::from_le_bytes([out_vec[0], out_vec[1], out_vec[2], out_vec[3]]);
-    let fini_id = if let Some(spec) = loader
-        .box_specs
-        .read()
-        .unwrap()
-        .get(&(lib_name.to_string(), box_type.to_string()))
-    {
-        spec.fini_method_id
-    } else {
-        let box_conf = config
-            .get_box_config(lib_name, box_type, toml_value)
-            .ok_or(BidError::InvalidType)?;
-        box_conf.methods.get("fini").map(|m| m.method_id)
-    };
     let handle = Arc::new(types::PluginHandleInner {
         type_id,
         invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
