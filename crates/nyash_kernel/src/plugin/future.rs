@@ -588,3 +588,28 @@ pub extern "C" fn nyash_future_delay_i64(ms: i64) -> i64 {
     });
     handle as i64
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn future_spawn_method_invalid_receiver_returns_zero() {
+        assert_eq!(
+            nyash_future_spawn_method_h(0, 0, 0, 0, std::ptr::null(), std::ptr::null()),
+            0
+        );
+    }
+
+    #[test]
+    fn future_spawn_instance3_invalid_receiver_returns_zero() {
+        assert_eq!(nyash_future_spawn_instance3_i64(0, 0, 0, 0), 0);
+        assert_eq!(nyash_future_spawn_instance3_i64(-1, 0, 0, 1), 0);
+    }
+
+    #[test]
+    fn env_future_invalid_handle_paths_return_zero() {
+        assert_eq!(env_future_set(0, 1), 0);
+        assert_eq!(env_future_await(0), 0);
+    }
+}

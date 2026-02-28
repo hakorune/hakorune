@@ -401,3 +401,5 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-237-kernel-b2-min2-borrowed-handle-route-lock-ssot.md`
   - kernel B2 closeout lock（29cc-238, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-238-kernel-b2-closeout-lock-ssot.md`
+  - kernel B3-min1 future route lock（29cc-239, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-239-kernel-b3-min1-future-route-lock-ssot.md`
