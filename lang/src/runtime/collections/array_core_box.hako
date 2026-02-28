@@ -1,0 +1,13 @@
+// ArrayCoreBox — thin VM runtime wrapper over array i64 ABI helpers
+// Responsibility: provide VM-low-level i64 get/set path without std-layer coupling.
+
+static box ArrayCoreBox {
+  get_i64(handle, idx) {
+    return externcall "nyash.array.get_hi"(handle, idx)
+  }
+
+  set_i64(handle, idx, value) {
+    return externcall "nyash.array.set_hii"(handle, idx, value)
+  }
+}
+

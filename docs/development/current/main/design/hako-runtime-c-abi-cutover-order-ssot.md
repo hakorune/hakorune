@@ -7,6 +7,8 @@ Related:
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md
   - docs/development/current/main/phases/phase-29y/10-ABI-SSOT.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/abi/nyrt_c_abi_v0.md
@@ -71,6 +73,7 @@ Related:
 - 受け入れ:
   - ABI 仕様の関数表が 3 関数で確定
   - 既存テストに対応 contract 名が追加される
+  - lock: `29cc-216-runtime-v0-abi-slice-lock-ssot.md`
 
 ### Step 2: Rust thin wrapper lock (small code)
 
@@ -83,6 +86,8 @@ Related:
 ### Step 3: `.hako` adapter lock (small code)
 
 - `.hako` 側に同形 adapter を作り、3 関数だけ直結する。
+- VM low-level の配線は `lang/src/runtime/collections/array_core_box.hako` を正本入口とし、
+  `lang/src/vm/boxes/mir_call_v1_handler.hako` からのみ呼ぶ。
 - Rust fallback を暗黙利用しない（strict で fail-fast）。
 - 受け入れ:
   - adapter fixture smoke（3 関数）

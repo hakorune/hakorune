@@ -21,6 +21,7 @@ Only two ABIs are canonical:
 | Runtime verifier/safety gates | Core C ABI | `docs/reference/abi/nyrt_c_abi_v0.md`, `include/nyrt.h` | `verify_mir_json/safety_check_mir_json` | Active |
 | Plugin -> host reverse call | Core C ABI | `include/nyrt_host_api.h`, `docs/development/abi/host_api.md` | host handle call by `name` / stable `slot` | Active |
 | Handle lifecycle (retain/release) | Core C ABI | `docs/development/current/main/phases/phase-29y/10-ABI-SSOT.md`, `docs/development/current/main/phases/phase-29x/29x-86-abi-borrowed-owned-conformance-extension-ssot.md`, `crates/nyash_kernel/src/ffi/lifecycle.rs` | `borrowed/owned` contract, strong lifecycle ops + matrix conformance cases | Active |
+| Runtime V0 helper slice (`string_len`, `array_get_i64`, `array_set_i64`) | Core C ABI | `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`, `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`, `lang/src/runtime/collections/array_core_box.hako` | execution-path-zero 向けの最小語彙固定（Step-1） | Active |
 | Plugin Box method dispatch | TypeBox ABI v2 | `docs/reference/plugin-abi/nyash_abi_v2.md`, `include/nyash_abi.h` | per-Box `resolve + invoke_id(TLV)` | Active |
 | Basic Box direct C facade (`hako_str_*`, `hako_arr_*`, `hako_map_*`) | `hako_abi_v1` draft | `dist/0.1.0-linux-x86_64/include/hako_abi_v1.h` | design proposal only | Non-canonical |
 
@@ -43,3 +44,5 @@ Only two ABIs are canonical:
   - Expected: `[abi-borrowed-owned-matrix-guard] ok`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29x_abi_borrowed_owned_conformance_vm.sh`
   - Expected: X51 precondition + borrowed/owned matrix conformance are replayable in one gate.
+- `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+  - Expected: `[runtime-v0-abi-slice-guard] ok`
