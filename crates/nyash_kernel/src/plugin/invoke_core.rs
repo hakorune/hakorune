@@ -51,7 +51,7 @@ pub fn resolve_invoke_route_for_type(
     super::compat_invoke_core::resolve_generic_fallback_route(fallback_invoke)
 }
 
-/// Resolve receiver from a0: prefer handle registry; fallback to legacy VM args when allowed.
+/// Resolve receiver from a0: handle registry only (legacy VM receiver fallback removed).
 pub fn resolve_receiver_for_a0(a0: i64) -> Option<Receiver> {
     // 1) Handle registry (preferred)
     if a0 > 0 {
@@ -229,12 +229,18 @@ pub fn jit_args_handle_only_enabled() -> bool {
 
 #[inline]
 pub fn encode_legacy_placeholder_arg(dst: &mut Vec<u8>) {
+    if nyash_rust::config::env::fail_fast() {
+        return;
+    }
     super::compat_invoke_core::encode_legacy_placeholder_arg(dst);
 }
 
 #[inline]
 pub fn encode_legacy_vm_args_range(dst: &mut Vec<u8>, start_pos: usize, end_pos_inclusive: usize) {
-    if start_pos > end_pos_inclusive || jit_args_handle_only_enabled() {
+    if nyash_rust::config::env::fail_fast()
+        || start_pos > end_pos_inclusive
+        || jit_args_handle_only_enabled()
+    {
         return;
     }
     super::compat_invoke_core::encode_legacy_vm_args_range(dst, start_pos, end_pos_inclusive);

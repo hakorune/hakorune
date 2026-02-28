@@ -272,6 +272,7 @@ Related:
       - `crates/nyash_kernel/src/encode.rs` に mainline `nyrt_encode_arg` を追加し、`invoke/by_id`・`invoke/by_name` を mainline encode + fail-fast arity guard へ移行
       - `crates/nyash_kernel/src/plugin/future.rs` の payload encode を mainline優先へ寄せ、`fail_fast` 時の多引数経路を reject（compat時のみ placeholder）へ固定
       - B1/B2/B3 closeout lock は accepted を維持しつつ、implementation-truth recheck（compat入口残件のdocs同期）を継続
+      - `crates/nyash_kernel/src/plugin/invoke_core.rs` の `encode_legacy_*` wrapper を fail-fast guard 付きに統一し、mainline/compat 境界を固定
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:

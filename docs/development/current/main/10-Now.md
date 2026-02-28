@@ -144,6 +144,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - latest cleanup (2026-02-28): `crates/nyash_kernel/src/plugin/compat_invoke_core.rs` を追加し、`invoke_core` の legacy route/encode helper を compat層へ分離
     - latest cleanup (2026-02-28): `crates/nyash_kernel/src/encode.rs` に `nyrt_encode_arg` を追加し、`invoke/by_id`・`invoke/by_name` を mainline encode + fail-fast arity guard へ移行
     - latest cleanup (2026-02-28): `crates/nyash_kernel/src/plugin/future.rs` の payload encode を `nyrt_encode_arg` 優先に統一し、`fail_fast` 時の多引数ルートを reject 化
+    - latest cleanup (2026-02-28): `crates/nyash_kernel/src/plugin/invoke_core.rs` の `encode_legacy_*` wrapper を fail-fast guard 付きにし、mainline から compat encode へ落ちない契約を固定
     - latest sync (2026-02-28): B1/B2/B3 closeout lock は accepted を維持しつつ、implementation-truth recheck（compat entrypoint残件同期）を継続
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
