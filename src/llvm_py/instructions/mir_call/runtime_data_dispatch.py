@@ -6,6 +6,9 @@ to avoid drift between method_call and mir_call_legacy lowerers.
 Array receiver mono-route (AS-03) is selected here as well.
 """
 
+import os
+from functools import lru_cache
+
 from llvmlite import ir
 from .auto_specialize import (
     prefer_runtime_data_array_i64_key_i64_value_route,
@@ -40,6 +43,34 @@ _RUNTIME_DATA_ARRAY_I64_KEY_METHODS = {
 _RUNTIME_DATA_ARRAY_I64_KEY_I64_VALUE_METHODS = {
     "set": ("nyash.array.set_hii", "unified_array_set_hii", 2),
 }
+
+@lru_cache(maxsize=1)
+def _runtime_data_array_route_policy():
+    """
+    RuntimeDataBox array-route policy SSOT.
+
+    - default (`array_mono`): keep current mono-route (`nyash.array.*`)
+    - `runtime_data_only`: force `nyash.runtime_data.*` even when array hints match
+    """
+    raw = str(os.getenv("NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY", "array_mono") or "array_mono")
+    policy = raw.strip().lower()
+    if policy in ("array_mono", "array", "default"):
+        return "array_mono"
+    if policy in ("runtime_data_only", "runtime_data"):
+        return "runtime_data_only"
+    raise RuntimeError(
+        "unsupported NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY="
+        f"{raw!r} (expected: array_mono|runtime_data_only)"
+    )
+
+
+def _prefer_array_mono_route_default():
+    return _runtime_data_array_route_policy() == "array_mono"
+
+
+def _reset_runtime_data_array_route_policy_cache_for_tests():
+    _runtime_data_array_route_policy.cache_clear()
+
 
 def select_runtime_data_call_spec(
     *,
@@ -107,7 +138,7 @@ def lower_runtime_data_method_call(
     resolver=None,
     receiver_vid=None,
     arg_vids=None,
-    prefer_array_mono_route=True,
+    prefer_array_mono_route=None,
 ):
     """
     Lower RuntimeDataBox method call to kernel runtime_data exports.
@@ -116,6 +147,9 @@ def lower_runtime_data_method_call(
       - LLVM value when handled (including fail-fast zero for arity mismatch)
       - None when call is not a RuntimeDataBox target/method
     """
+    if prefer_array_mono_route is None:
+        prefer_array_mono_route = _prefer_array_mono_route_default()
+
     spec = select_runtime_data_call_spec(
         method=method,
         box_name=box_name,

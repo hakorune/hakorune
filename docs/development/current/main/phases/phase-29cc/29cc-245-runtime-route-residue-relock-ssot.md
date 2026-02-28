@@ -57,6 +57,10 @@ Related:
   - `runtime_data_dispatch` の symbol 選択を `select_runtime_data_call_spec()` へ集約
   - default は現行維持（array mono-route 優先）
   - caller 明示時のみ runtime_data-only route を選べる境界を追加
+- 2026-02-28: RZ-ARRAY-min2 (route policy lock) 着手
+  - `NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY`（`array_mono|runtime_data_only`）を追加
+  - default は `array_mono` に固定し、`29cc-217` route lock と整合
+  - 無効値は fail-fast（RuntimeError）
 
 ## Gate Contract
 

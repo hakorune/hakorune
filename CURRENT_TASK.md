@@ -144,14 +144,16 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - runtime route residue relock（29cc-245, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-245-runtime-route-residue-relock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-246-rz-array-min1-route-selector-lock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-247-rz-array-min2-route-policy-lock-ssot.md`
     - fixed:
       - mainline 実行経路に残る Rust 依存（link / loader / kernel export）を 2026-02-28 時点で再棚卸し
       - 次境界を `RZ-LINK-min1 -> RZ-ARRAY-min1 -> RZ-LOADER-min1` の順で固定
       - 最適化と route cutover を分離（route先行、no-delete-first 維持）
       - `src/runner/modes/common_util/exec.rs` で `NYASH_LLVM_USE_HARNESS=1` 時のみ `verify_nyrt_dir` をスキップ（既定挙動は維持）
       - RuntimeDataBox array mono-route の symbol 選択を `select_runtime_data_call_spec()` に集約し、route切替境界を1箇所化（既定挙動は維持）
+      - `NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY`（`array_mono|runtime_data_only`）を追加し、default=`array_mono` 固定で policy 切替境界を導入（invalid は fail-fast）
     - active next:
-      - `RZ-ARRAY-min2`（`nyash.array.get_hi/set_hii` mainline 既定 route を runtime_data-only へ切替する可否判断と gate lock）
+      - `RZ-LOADER-min1`（`plugin_loader_v2/enabled` の resolver/instance route 境界を `.hako` host facade 前提で集約）
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:

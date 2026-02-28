@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+import os
 import unittest
 
 from src.llvm_py.instructions.mir_call.runtime_data_dispatch import (
+    _prefer_array_mono_route_default,
+    _reset_runtime_data_array_route_policy_cache_for_tests,
     select_runtime_data_call_spec,
 )
 
@@ -17,6 +20,10 @@ class _DummyResolver:
 
 
 class TestRuntimeDataDispatchPolicy(unittest.TestCase):
+    def tearDown(self):
+        os.environ.pop("NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY", None)
+        _reset_runtime_data_array_route_policy_cache_for_tests()
+
     def test_default_prefers_array_i64_route_when_hints_match(self):
         resolver = _DummyResolver(
             value_types={
@@ -64,6 +71,22 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
             arg_vids=[1],
         )
         self.assertIsNone(spec)
+
+    def test_policy_default_is_array_mono(self):
+        os.environ.pop("NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY", None)
+        _reset_runtime_data_array_route_policy_cache_for_tests()
+        self.assertTrue(_prefer_array_mono_route_default())
+
+    def test_policy_runtime_data_only_switch(self):
+        os.environ["NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY"] = "runtime_data_only"
+        _reset_runtime_data_array_route_policy_cache_for_tests()
+        self.assertFalse(_prefer_array_mono_route_default())
+
+    def test_policy_invalid_value_fails_fast(self):
+        os.environ["NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY"] = "unexpected"
+        _reset_runtime_data_array_route_policy_cache_for_tests()
+        with self.assertRaises(RuntimeError):
+            _prefer_array_mono_route_default()
 
 
 if __name__ == "__main__":
