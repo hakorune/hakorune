@@ -229,7 +229,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `cd /home/tomoaki/git/hakorune-selfhost`
   - `git status -sb`
   - `tools/checks/dev_gate.sh quick`
-  - `PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 PERF_GATE_KILO_PARITY_LOCK_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
+  - `PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
   - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
 - 再開タスク: `phase-29y / fixed-order monitor`（selfhost/de-rust mainline guard）
 
@@ -273,7 +273,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - `tools/checks/dev_gate.sh milestone-perf`（節目: perf 側）
 - `tools/checks/dev_gate.sh milestone`（推奨: 統合セット）
 - `tools/checks/dev_gate.sh portability`（週次: Windows/macOS portability preflight）
-- `tools/checks/dev_gate.sh runtime-exec-zero`（execution-path-zero 観測契約）
+- `tools/checks/dev_gate.sh runtime-exec-zero`（execution-path-zero 観測 + VM+AOT route lock）
 - `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`（WSM-P7 default-only 監査）
 - `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`（WSM-P8 compat bridge retire readiness 監査）
 - `bash tools/checks/phase29cc_wsm_p9_non_native_inventory_guard.sh`（WSM-P9 non-native shrink 監査）
