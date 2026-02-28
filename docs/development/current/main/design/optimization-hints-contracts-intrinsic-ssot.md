@@ -15,6 +15,19 @@ Related:
 
 helper 境界コストが支配するワークロードに対して、特別処理を散らさずに最小の注釈面を導入する。
 
+## Implementation Status Snapshot (2026-02-28)
+
+| Item | Syntax Parse | Program(JSON) parity | Runtime Verifier | Registry Consistency Gate | Backend Optimization Use | Status |
+|---|---|---|---|---|---|---|
+| `@hint` | done | done (noop) | n/a | n/a | todo | provisional |
+| `@contract` | done | done (noop) | todo | n/a | todo | provisional |
+| `@intrinsic_candidate` | done | done (noop) | n/a | todo | todo | provisional |
+
+補足:
+1. 現在の parser 実装は `noop` 契約（意味不変）で固定。
+2. verifier / registry gate / backend 利用が揃うまでは `not active`（研究バックログ）として扱う。
+3. active 化は docs-first で lane/task へ昇格したときのみ許可する。
+
 ## Non-goals
 
 - ユーザーコード全体への大量注釈導入
@@ -114,3 +127,14 @@ grammar ON の最小受け入れ:
 
 1. `cargo test parser_opt_annotations -- --nocapture`
 2. `bash tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh`
+
+## Activation Rule (Not Active -> Active)
+
+この仕様は現時点で `Provisional / Not Active`。次を満たした時だけ active 実装へ昇格する。
+
+1. `CURRENT_TASK.md` の `Current blocker` に対象 lane/task が追加されている。
+2. `docs/development/current/main/30-Backlog.md` から対象項目を昇格済み（not active 表記を外す）。
+3. 次の順序を崩さない:
+   - verifier 導入（contract 破れ fail-fast）
+   - registry consistency gate 導入（intrinsic 整合 fail-fast）
+   - backend 最適化利用（hint/contract/intrinsic の本利用）

@@ -48,6 +48,7 @@ Related:
 
 - この文書は入口専用。進捗履歴や長文ログは phase/design へ置く。
 - Next task の正本は `phase-29y/60-NEXT-TASK-PLAN.md` に固定する。
+- 研究/将来案（Python系を含む）は `Current blocker` に混ぜず、`30-Backlog.md` を正本にして管理する。
 
 ## Quick Restart Pointer
 

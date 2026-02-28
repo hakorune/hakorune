@@ -182,6 +182,14 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
 7. plugin de-rust は `PLG-HM2-min2` を active にして、Core6 static route と Wave2 compat ceiling（Math/Net dynamic 維持）を lock する。`plugin-module-core8` gate は HM2 専用 guard を含む契約に更新する。
 
+## Future Ideas (Not Active)
+
+- Python AOT / HybridPy / Translation Validation / ReproBuild などの研究案は `future backlog` 扱いに固定し、Current blocker には含めない。
+- optimization annotation（`@hint/@contract/@intrinsic_candidate`）は parser noop まで実装済みだが、本利用（verifier/registry/backend）は `not active` として扱う（SSOT: `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`）。
+- public summary: `docs/development/current/main/30-Backlog.md`
+- private canonical: `docs/private/development/current/main/30-Backlog.md`
+- 運用ルール: backlog 案を採用する時だけ docs-first で lane/task に昇格する（それまでは monitor-only）。
+
 ## Quick Restart (After Reboot)
 
 - 単一入口: `docs/development/current/main/05-Restart-Quick-Resume.md`
