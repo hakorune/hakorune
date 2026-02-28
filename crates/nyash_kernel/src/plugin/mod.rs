@@ -1,5 +1,6 @@
 pub mod array;
 pub mod birth;
+mod compat_invoke_core;
 pub mod console;
 pub mod future;
 mod handle_helpers;

@@ -139,6 +139,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - latest cleanup (2026-02-28): `enabled/method_resolver.rs` の method_id/returns_result/handle 解決を `route_resolver` へ集約し、compat時も selected-lib route を維持
     - latest cleanup (2026-02-28): `enabled/compat_method_resolver.rs` へ legacy file fallback を隔離し、compat起動点を `method_resolver` の1箇所へ固定
     - latest cleanup (2026-02-28): `enabled/compat_host_bridge.rs` へ shim fallback を隔離し、`ffi_bridge` の invoke non-zero code を `PluginError` fail-fast に固定
+    - latest cleanup (2026-02-28): `enabled/loader/singletons.rs` の lock unwrap/status無視を撤去し、singleton生成を strict error contract に統一
+    - latest cleanup (2026-02-28): `crates/nyash_kernel/src/plugin/compat_invoke_core.rs` を追加し、`invoke_core` の legacy route/encode helper を compat層へ分離
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:

@@ -48,7 +48,7 @@ pub fn resolve_invoke_route_for_type(
     if nyash_rust::config::env::fail_fast() {
         return None;
     }
-    Some(("PluginBox".to_string(), fallback_invoke, None))
+    super::compat_invoke_core::resolve_generic_fallback_route(fallback_invoke)
 }
 
 /// Resolve receiver from a0: prefer handle registry; fallback to legacy VM args when allowed.
@@ -229,7 +229,7 @@ pub fn jit_args_handle_only_enabled() -> bool {
 
 #[inline]
 pub fn encode_legacy_placeholder_arg(dst: &mut Vec<u8>) {
-    nyash_rust::runtime::plugin_ffi_common::encode::i64(dst, 0);
+    super::compat_invoke_core::encode_legacy_placeholder_arg(dst);
 }
 
 #[inline]
@@ -237,7 +237,5 @@ pub fn encode_legacy_vm_args_range(dst: &mut Vec<u8>, start_pos: usize, end_pos_
     if start_pos > end_pos_inclusive || jit_args_handle_only_enabled() {
         return;
     }
-    for pos in start_pos..=end_pos_inclusive {
-        crate::encode::nyrt_encode_from_legacy_at(dst, pos);
-    }
+    super::compat_invoke_core::encode_legacy_vm_args_range(dst, start_pos, end_pos_inclusive);
 }

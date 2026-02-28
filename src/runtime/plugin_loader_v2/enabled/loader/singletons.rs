@@ -22,15 +22,16 @@ pub(super) fn ensure_singleton_handle(
     lib_name: &str,
     box_type: &str,
 ) -> BidResult<()> {
+    let singleton_key = (lib_name.to_string(), box_type.to_string());
     if loader
         .singletons
         .read()
-        .unwrap()
-        .contains_key(&(lib_name.to_string(), box_type.to_string()))
+        .map_err(|_| BidError::PluginError)?
+        .contains_key(&singleton_key)
     {
         return Ok(());
     }
-    let plugins = loader.plugins.read().unwrap();
+    let plugins = loader.plugins.read().map_err(|_| BidError::PluginError)?;
     let _plugin = plugins.get(lib_name).ok_or(BidError::PluginError)?;
 
     let (resolved_lib, type_id) = super::super::route_resolver::resolve_type_info(loader, box_type)?;
@@ -42,7 +43,7 @@ pub(super) fn ensure_singleton_handle(
 
     let tlv_args = crate::runtime::plugin_ffi_common::encode_empty_args();
     let invoke_box = loader.box_invoke_fn_for_type_id(type_id);
-    let (_status, _, out_vec) = host_bridge::invoke_alloc_with_route(
+    let (status, _, out_vec) = host_bridge::invoke_alloc_with_route(
         invoke_box,
         super::super::nyash_plugin_invoke_v2_shim,
         type_id,
@@ -50,7 +51,7 @@ pub(super) fn ensure_singleton_handle(
         0,
         &tlv_args,
     );
-    if out_vec.len() < 4 {
+    if status != 0 || out_vec.len() < 4 {
         return Err(BidError::PluginError);
     }
     let instance_id = u32::from_le_bytes([out_vec[0], out_vec[1], out_vec[2], out_vec[3]]);
@@ -65,8 +66,8 @@ pub(super) fn ensure_singleton_handle(
     loader
         .singletons
         .write()
-        .unwrap()
-        .insert((lib_name.to_string(), box_type.to_string()), handle);
+        .map_err(|_| BidError::PluginError)?
+        .insert(singleton_key, handle);
     crate::runtime::cache_versions::bump_version(&format!("BoxRef:{}", box_type));
     Ok(())
 }
