@@ -73,6 +73,8 @@ list_profiles() {
     - phase29cc_wsm_g4_min3_webcanvas_fixture_parity_vm.sh
     - phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh
     - phase29cc_wsm_g4_min5_headless_two_examples_vm.sh
+    - phase29cc_wsm_g4_min7_webdisplay_fixture_parity_vm.sh
+    - phase29cc_wsm_g4_min8_global_call_probe_vm.sh
     - phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh
   wasm-demo-g3-core:
     - wasm-demo-g2
@@ -230,6 +232,10 @@ run_wasm_demo_g2() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh
   run_step "wasm g4 min5 headless two-example parity lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh
+  run_step "wasm g4 min7 webdisplay fixture parity lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min7_webdisplay_fixture_parity_vm.sh
+  run_step "wasm g4 min8 global call native box lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min8_global_call_probe_vm.sh
   run_step "wasm g4 min6 gate promotion closeout lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh
 }

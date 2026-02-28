@@ -2,7 +2,7 @@
 # phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh
 # Contract pin:
 # - WSM-G4-min2: nyash_playground canvas primer lock
-# - min vocab: WebCanvasBox + clear
+# - min vocab: WasmCanvasBox + clear
 
 set -euo pipefail
 
@@ -36,8 +36,8 @@ done
 for needle in \
   "wsm_g4_min2_canvas_primer_lock" \
   "wsm_g4_min2_canvas_vocab_clear" \
-  "new WebCanvasBox(\"game-canvas\", 400, 250)" \
-  "me.canvas.clear()" \
+  "new WasmCanvasBox()" \
+  "canvas.clear(\"game-canvas\", 11)" \
   "fillRect(" \
   "strokeRect(" \
   "fillCircle(" \

@@ -6,6 +6,16 @@
 static box Main {
   main() {
     local console = new ConsoleBox()
+    local x1 = 40
+    local x2 = 60
+    local x3 = 80
+    console.log("spark:" + x1)
+    console.log("spark:" + x2)
+    console.log("spark:" + x3)
+    console.log("orb:200,50,20")
+    console.log("orb:200,180,15")
+    console.log("line:40,210->360,210")
+    console.log("text:Game Development Ready")
     console.log("wsm_g4_min4_canvas_advanced_marker_1")
     console.info("wsm_g4_min4_canvas_advanced_marker_2")
     return 0

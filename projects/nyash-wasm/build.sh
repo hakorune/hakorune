@@ -53,6 +53,7 @@ compile_prebuilt() {
 }
 
 compile_prebuilt "apps/tests/phase29cc_wsm02d_demo_min.hako" "phase29cc_wsm02d_demo_min"
+compile_prebuilt "apps/tests/phase29cc_wsm_g4_min7_webdisplay_fixture_min.hako" "phase29cc_wsm_g4_min7_webdisplay_fixture_min"
 compile_prebuilt "apps/tests/phase29cc_wsm_g4_min3_webcanvas_fixture_min.hako" "phase29cc_wsm_g4_min3_webcanvas_fixture_min"
 compile_prebuilt "apps/tests/phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.hako" "phase29cc_wsm_g4_min4_canvas_advanced_fixture_min"
 

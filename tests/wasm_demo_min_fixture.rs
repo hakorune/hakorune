@@ -990,3 +990,12 @@ fn wasm_demo_g4_min4_canvas_advanced_fixture_compile_to_wat_contract() {
     assert!(wat.contains("\"console_log\""));
     assert!(wat.contains("\"console_info\""));
 }
+
+#[test]
+fn wasm_demo_g4_min8_global_call_probe_compile_to_wat_contract() {
+    let wat =
+        compile_fixture_to_wat_direct("apps/tests/phase29cc_wsm_g4_min8_global_call_probe_min.hako");
+    assert!(wat.contains("(export \"main\" (func $main))"));
+    assert!(wat.contains("(func $WsmProbeBox.ping/1"));
+    assert!(wat.contains("call $WsmProbeBox.ping/1"));
+}

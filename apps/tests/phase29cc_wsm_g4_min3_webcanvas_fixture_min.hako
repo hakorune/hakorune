@@ -6,7 +6,17 @@
 static box Main {
   main() {
     local console = new ConsoleBox()
+    local x = 50
+    local y = 50
+    local w = 80
+    local h = 60
+    local radius = 30
+    local line_width = 3
+    local text = "Hello Canvas!"
     console.log("wsm_g4_min3_webcanvas_marker_1")
+    console.log("rect:" + x + "," + y + "," + w + "," + h)
+    console.log("circle:" + radius + ",linew:" + line_width)
+    console.log("text:" + text)
     console.log("wsm_g4_min3_webcanvas_marker_2")
     return 0
   }

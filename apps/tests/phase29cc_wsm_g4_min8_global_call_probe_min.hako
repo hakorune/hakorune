@@ -1,0 +1,18 @@
+// Phase 29cc WSM-G4-min8 global call probe
+// Contract:
+// - user-defined Box method call is lowered via Callee::Global in Main
+// - wasm backend must emit call $WsmProbeBox.ping/1 with param declaration
+
+box WsmProbeBox {
+  ping(x) {
+    return x + 1
+  }
+}
+
+static box Main {
+  main() {
+    local probe = new WsmProbeBox()
+    local y = probe.ping(41)
+    return y
+  }
+}

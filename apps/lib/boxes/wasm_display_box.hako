@@ -1,0 +1,21 @@
+// WasmDisplayBox - minimal display facade for static-native playground demos
+
+box WasmDisplayBox {
+  title(text) {
+    local console = new ConsoleBox()
+    console.info(text)
+    return 0
+  }
+
+  html(text) {
+    local console = new ConsoleBox()
+    console.log(text)
+    return 0
+  }
+
+  line(text) {
+    local console = new ConsoleBox()
+    console.log(text)
+    return 0
+  }
+}

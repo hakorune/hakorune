@@ -9,6 +9,7 @@ use super::{MemoryManager, RuntimeImports, WasmError};
 use crate::mir::{
     BasicBlockId,
     MirFunction,
+    MirType,
     MirModule,
     ValueId,
 };
@@ -89,6 +90,9 @@ pub struct WasmCodegen {
     /// String literals and their data segment offsets
     string_literals: HashMap<String, u32>,
     next_data_offset: u32,
+    /// Function signature lookup for global call lowering.
+    function_param_counts: HashMap<String, usize>,
+    function_return_types: HashMap<String, MirType>,
 }
 
 impl WasmCodegen {
@@ -98,6 +102,8 @@ impl WasmCodegen {
             next_local_index: 0,
             string_literals: HashMap::new(),
             next_data_offset: 0x1000, // Start data after initial heap space
+            function_param_counts: HashMap::new(),
+            function_return_types: HashMap::new(),
         }
     }
 
@@ -109,6 +115,14 @@ impl WasmCodegen {
         runtime: &RuntimeImports,
     ) -> Result<WasmModule, WasmError> {
         let mut wasm_module = WasmModule::new();
+        self.function_param_counts.clear();
+        self.function_return_types.clear();
+        for (name, function) in &mir_module.functions {
+            self.function_param_counts
+                .insert(name.clone(), function.params.len());
+            self.function_return_types
+                .insert(name.clone(), function.signature.return_type.clone());
+        }
 
         // Add memory declaration (64KB initial)
         wasm_module.memory = "(memory (export \"memory\") 1)".to_string();
@@ -173,6 +187,11 @@ impl WasmCodegen {
         let mut function_body = String::new();
         function_body.push_str(&format!("(func ${} ", name));
 
+        // Parameters are mapped to i32 handles in current WASM backend.
+        for pid in &mir_function.params {
+            function_body.push_str(&format!(" (param ${} i32)", pid.as_u32()));
+        }
+
         // Add return type if not void
         match mir_function.signature.return_type {
             crate::mir::MirType::Integer => function_body.push_str(" (result i32)"),
@@ -190,7 +209,7 @@ impl WasmCodegen {
         let local_count = self.count_locals(&mir_function)?;
         if local_count > 0 {
             // Declare individual local variables for each ValueId
-            for i in 0..local_count {
+            for i in mir_function.params.len() as u32..local_count {
                 function_body.push_str(&format!(" (local ${} i32)", i));
             }
         }
@@ -210,27 +229,81 @@ impl WasmCodegen {
 
     /// Count local variables needed for the function
     fn count_locals(&mut self, mir_function: &MirFunction) -> Result<u32, WasmError> {
-        let mut max_value_id = 0;
+        let mut value_ids: std::collections::BTreeSet<u32> = std::collections::BTreeSet::new();
+        self.current_locals.clear();
+        self.next_local_index = 0;
 
-        for (_, block) in &mir_function.blocks {
+        // Reserve parameter slots first to match function signature order.
+        for pid in &mir_function.params {
+            self.current_locals.insert(*pid, self.next_local_index);
+            self.next_local_index += 1;
+        }
+
+        for block in mir_function.blocks.values() {
             for instruction in &block.instructions {
                 if let Some(value_id) = instruction.dst_value() {
-                    max_value_id = max_value_id.max(value_id.as_u32());
+                    if value_id != ValueId::INVALID {
+                        value_ids.insert(value_id.as_u32());
+                    }
                 }
                 for used_value in instruction.used_values() {
-                    max_value_id = max_value_id.max(used_value.as_u32());
+                    if used_value != ValueId::INVALID {
+                        value_ids.insert(used_value.as_u32());
+                    }
+                }
+            }
+            if let Some(terminator) = &block.terminator {
+                if let Some(value_id) = terminator.dst_value() {
+                    if value_id != ValueId::INVALID {
+                        value_ids.insert(value_id.as_u32());
+                    }
+                }
+                for used_value in terminator.used_values() {
+                    if used_value != ValueId::INVALID {
+                        value_ids.insert(used_value.as_u32());
+                    }
                 }
             }
         }
 
-        // Assign local indices to value IDs
-        for i in 0..=max_value_id {
-            let value_id = ValueId::new(i);
+        // Assign local indices to non-parameter ValueIds in stable order.
+        for raw in value_ids {
+            let value_id = ValueId::new(raw);
+            if self.current_locals.contains_key(&value_id) {
+                continue;
+            }
             self.current_locals.insert(value_id, self.next_local_index);
             self.next_local_index += 1;
         }
 
         Ok(self.next_local_index)
+    }
+
+    pub(crate) fn get_function_param_count(&self, name: &str) -> Option<usize> {
+        self.function_param_counts.get(name).copied()
+    }
+
+    pub(crate) fn function_has_return_value(&self, name: &str) -> Result<bool, WasmError> {
+        let ty = self.function_return_types.get(name).ok_or_else(|| {
+            WasmError::UnsupportedInstruction(format!(
+                "Unknown global callee: {}",
+                name
+            ))
+        })?;
+        match ty {
+            MirType::Integer | MirType::Bool => Ok(true),
+            MirType::Void => Ok(false),
+            other => Err(WasmError::UnsupportedInstruction(format!(
+                "Unsupported global return type for {}: {:?}",
+                name, other
+            ))),
+        }
+    }
+
+    pub(crate) fn supported_global_calls_csv(&self) -> String {
+        let mut names: Vec<&str> = self.function_param_counts.keys().map(String::as_str).collect();
+        names.sort_unstable();
+        names.join(", ")
     }
 
     /// Generate WASM instructions for a basic block

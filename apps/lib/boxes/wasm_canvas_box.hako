@@ -1,0 +1,33 @@
+// WasmCanvasBox - thin facade to env.canvas.* extern APIs
+
+box WasmCanvasBox {
+  clear(canvas_id, canvas_id_len) {
+    env.canvas.clear(canvas_id, canvas_id_len)
+    return 0
+  }
+
+  fillRect(canvas_id, canvas_id_len, x, y, w, h, color, color_len) {
+    env.canvas.fillRect(canvas_id, canvas_id_len, x, y, w, h, color, color_len)
+    return 0
+  }
+
+  strokeRect(canvas_id, canvas_id_len, x, y, w, h, color, color_len) {
+    env.canvas.strokeRect(canvas_id, canvas_id_len, x, y, w, h, color, color_len)
+    return 0
+  }
+
+  fillCircle(canvas_id, canvas_id_len, x, y, radius, color, color_len) {
+    env.canvas.fillCircle(canvas_id, canvas_id_len, x, y, radius, color, color_len)
+    return 0
+  }
+
+  drawLine(canvas_id, canvas_id_len, x1, y1, x2, y2, color, color_len, width) {
+    env.canvas.drawLine(canvas_id, canvas_id_len, x1, y1, x2, y2, color, color_len, width)
+    return 0
+  }
+
+  fillText(canvas_id, canvas_id_len, text, text_len, x, y, font, font_len, color, color_len) {
+    env.canvas.fillText(canvas_id, canvas_id_len, text, text_len, x, y, font, font_len, color, color_len)
+    return 0
+  }
+}

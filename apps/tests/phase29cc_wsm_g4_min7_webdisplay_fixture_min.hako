@@ -1,0 +1,34 @@
+// Phase 29cc WSM-G4-min7 webdisplay fixture parity
+// Contract:
+// - Playground `webdisplay` route has a static prebuilt wasm target.
+// - Compile/run parity is pinned by ConsoleBox marker lines.
+
+static box Main {
+  main() {
+    local display = new WasmDisplayBox()
+    display.title("webdisplay_demo")
+    display.html("<h2>WebDisplayBox demo placeholder</h2>")
+    display.line("<p>Static playground route keeps this as console text.</p>")
+    display.title("wsm_g4_min7_webdisplay_marker_1")
+    display.line("wsm_g4_min7_webdisplay_marker_2")
+    return 0
+  }
+}
+
+box WasmDisplayBox {
+  title(text) {
+    local console = new ConsoleBox()
+    console.info(text)
+    return 0
+  }
+  html(text) {
+    local console = new ConsoleBox()
+    console.log(text)
+    return 0
+  }
+  line(text) {
+    local console = new ConsoleBox()
+    console.log(text)
+    return 0
+  }
+}

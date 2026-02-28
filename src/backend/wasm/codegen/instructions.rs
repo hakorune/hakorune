@@ -181,6 +181,57 @@ impl WasmCodegen {
                 Ok(instructions)
             }
 
+            // Global function call codegen (canonical Call + Callee::Global)
+            MirInstruction::Call {
+                dst,
+                callee: Some(crate::mir::Callee::Global(func_name)),
+                args,
+                ..
+            } => {
+                let expected_params = self.get_function_param_count(func_name).ok_or_else(|| {
+                    WasmError::UnsupportedInstruction(format!(
+                        "Unsupported global call: {} (supported: {})",
+                        func_name,
+                        self.supported_global_calls_csv()
+                    ))
+                })?;
+
+                if args.len() > expected_params {
+                    return Err(WasmError::UnsupportedInstruction(format!(
+                        "Global call arity mismatch: {} expects <= {} args, got {}",
+                        func_name,
+                        expected_params,
+                        args.len()
+                    )));
+                }
+
+                let mut instructions = Vec::new();
+                for arg in args {
+                    instructions.push(format!("local.get ${}", self.get_local_index(*arg)?));
+                }
+                for _ in args.len()..expected_params {
+                    instructions.push("i32.const 0".to_string());
+                }
+                instructions.push(format!("call ${}", func_name));
+
+                let has_return = self.function_has_return_value(func_name)?;
+                match (dst, has_return) {
+                    (Some(dst), true) => {
+                        instructions.push(format!("local.set ${}", self.get_local_index(*dst)?));
+                    }
+                    (Some(dst), false) => {
+                        instructions.push("i32.const 0".to_string());
+                        instructions.push(format!("local.set ${}", self.get_local_index(*dst)?));
+                    }
+                    (None, true) => {
+                        instructions.push("drop".to_string());
+                    }
+                    (None, false) => {}
+                }
+
+                Ok(instructions)
+            }
+
             // Method call codegen (canonical Call + Callee::Method with receiver)
             MirInstruction::Call {
                 dst,
