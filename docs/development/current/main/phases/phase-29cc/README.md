@@ -224,6 +224,11 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`
   - plugin de-rust filebox retire execution lock（PLG-07-min7 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-204-plg07-min7-filebox-retire-execution-lock-ssot.md`
+  - plugin module-provider lock（PLG-HM1 min1..min5 done; monitor-only）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-209-plg-hm1-core8-module-provider-lock-ssot.md`
+    - dev gate:
+      - `tools/checks/dev_gate.sh plugin-module-core8-light`
+      - `tools/checks/dev_gate.sh plugin-module-core8`
   - plugin lane active next: `none`（PLG-07 closeout complete; monitor-only）
 
 ## M4 Tail Cleanup (retired parser flags)

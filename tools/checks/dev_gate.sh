@@ -5,7 +5,7 @@ set -euo pipefail
 # Purpose: single-entry developer gate with tiered profiles.
 #
 # Usage:
-#   tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
+#   tools/checks/dev_gate.sh [quick|hotpath|plugin-module-core8-light|plugin-module-core8|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
 #   tools/checks/dev_gate.sh --list
 #
 # Profiles:
@@ -23,7 +23,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 usage() {
   cat <<'USAGE'
 Usage:
-  tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
+  tools/checks/dev_gate.sh [quick|hotpath|plugin-module-core8-light|plugin-module-core8|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
   tools/checks/dev_gate.sh --list
 USAGE
 }
@@ -38,6 +38,16 @@ list_profiles() {
   hotpath:
     - quick
     - tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath
+  plugin-module-core8-light:
+    - cargo check --bin hakorune
+    - phase29cc_plg_hm1_min1_plugin_exec_mode_lock_vm.sh
+    - phase29cc_plg_hm1_min2_core_module_route_skip_lock_vm.sh
+    - phase29cc_plg_hm1_min3_file_path_module_first_lock_vm.sh
+    - phase29cc_plg_hm1_min4_math_net_compat_inventory_lock_vm.sh
+  plugin-module-core8:
+    - plugin-module-core8-light
+    - tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
+    - tools/vm_plugin_smoke.sh
   wasm-boundary-lite:
     - quick
     - cargo check --features wasm-backend --bin hakorune
@@ -161,6 +171,27 @@ run_hotpath() {
   run_step "phase21.5 perf gate bundle (hotpath)" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
       tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath
+}
+
+run_plugin_module_core8_light() {
+  run_step "cargo check" \
+    cargo check --bin hakorune
+  run_step "plugin exec mode env lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg_hm1_min1_plugin_exec_mode_lock_vm.sh
+  run_step "plugin module-first core route skip lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg_hm1_min2_core_module_route_skip_lock_vm.sh
+  run_step "plugin module-first file/path route skip lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg_hm1_min3_file_path_module_first_lock_vm.sh
+  run_step "plugin module-first math/net compat inventory lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg_hm1_min4_math_net_compat_inventory_lock_vm.sh
+}
+
+run_plugin_module_core8() {
+  run_plugin_module_core8_light
+  run_step "PLG-07 retire execution guard" \
+    bash tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
+  run_step "vm plugin smoke manifest" \
+    bash tools/vm_plugin_smoke.sh
 }
 
 run_wasm_boundary_lite_p1_to_p3() {
@@ -382,6 +413,12 @@ case "${PROFILE}" in
     ;;
   hotpath)
     run_hotpath
+    ;;
+  plugin-module-core8-light)
+    run_plugin_module_core8_light
+    ;;
+  plugin-module-core8)
+    run_plugin_module_core8
     ;;
   wasm-boundary-lite)
     run_wasm_boundary_lite

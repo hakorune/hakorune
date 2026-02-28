@@ -176,6 +176,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 4. wasm lane は monitor-only を維持し、failure-driven でのみ blocker を再起動する。
 5. wasm route は `hako_native/rust_native/legacy_bridge` の 3 つに固定し、新規 route を増やさない。
 6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
+7. plugin de-rust の `PLG-HM1`（min1..min5）は lock 済み。`module_first` は Core6（Array/String/Map/Console/File/Path）で固定し、Math/Net は dynamic compat を維持する（gate: `tools/checks/dev_gate.sh plugin-module-core8-light` / `tools/checks/dev_gate.sh plugin-module-core8`）。
 
 ## Quick Restart (After Reboot)
 

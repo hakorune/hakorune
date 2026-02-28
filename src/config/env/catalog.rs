@@ -236,6 +236,12 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             applies_to: AppliesTo::BoxFactory,
             default: None,
         },
+        EnvVarMeta {
+            name: "NYASH_PLUGIN_EXEC_MODE",
+            description: "Plugin execution mode: module_first|dynamic_only|dynamic_first",
+            applies_to: AppliesTo::BoxFactory,
+            default: Some("module_first"),
+        },
         // Runtime (Phase 29ab)
         EnvVarMeta {
             name: "NYASH_STR_CP",

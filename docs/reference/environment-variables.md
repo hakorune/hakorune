@@ -355,7 +355,8 @@ NYASH_CLI_VERBOSE=2 \
 | 変数 | デフォルト | 適用経路 | 説明 |
 | --- | --- | --- | --- |
 | `NYASH_DISABLE_PLUGINS=1` | OFF | Any | プラグイン無効化 |
-| `NYASH_BOX_FACTORY_POLICY={builtin_first|plugin_first}` | `builtin_first` | Any | Box factory の優先順位 |
+| `NYASH_BOX_FACTORY_POLICY={builtin_first|compat_plugin_first|strict_plugin_first}` | `builtin_first` | Any | Box factory の優先順位 |
+| `NYASH_PLUGIN_EXEC_MODE={module_first|dynamic_only|dynamic_first}` | `module_first` | Any | プラグイン実行経路。`module_first` は Core6（Array/String/Map/Console/File/Path）を dynamic route から除外。Math/Net は compat lane（dynamic）維持。 |
 | `NYASH_DEV_PROVIDER_TRACE=1` | OFF | Any | provider/box/method 選択の候補・採用ログを出力（dev-only）。 |
 | `NYASH_FILEBOX_MODE={auto|plugin|builtin}` | `auto` | Any | FileBox 実装選択 |
 

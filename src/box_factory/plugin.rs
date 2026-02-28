@@ -23,6 +23,20 @@ impl PluginBoxFactory {
     }
 }
 
+fn is_core_module_first_box(name: &str) -> bool {
+    matches!(
+        name,
+        "ArrayBox" | "StringBox" | "MapBox" | "ConsoleBox" | "FileBox" | "PathBox"
+    )
+}
+
+fn should_skip_dynamic_route(name: &str, mode: env::PluginExecMode) -> bool {
+    match mode {
+        env::PluginExecMode::ModuleFirst => is_core_module_first_box(name),
+        env::PluginExecMode::DynamicOnly | env::PluginExecMode::DynamicFirst => false,
+    }
+}
+
 impl BoxFactory for PluginBoxFactory {
     fn create_box(
         &self,
@@ -42,6 +56,22 @@ impl BoxFactory for PluginBoxFactory {
                 message: format!(
                     "Plugins disabled (NYASH_DISABLE_PLUGINS=1), cannot create {}",
                     name
+                ),
+            });
+        }
+
+        let exec_mode = env::plugin_exec_mode();
+        if should_skip_dynamic_route(name, exec_mode) {
+            if env::cli_verbose_enabled() || env::debug_plugin() {
+                get_global_ring0().log.debug(&format!(
+                    "[plugin/route] skip dynamic route box={} mode={:?} reason=core_module_first",
+                    name, exec_mode
+                ));
+            }
+            return Err(RuntimeError::InvalidOperation {
+                message: format!(
+                    "[freeze:contract][plugin/route] dynamic route skipped for {} in mode={:?}",
+                    name, exec_mode
                 ),
             });
         }
@@ -73,5 +103,54 @@ impl BoxFactory for PluginBoxFactory {
         let _registry = get_global_registry();
         // TODO: Add method to check if registry has any providers
         true
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn core_module_first_box_set_contract() {
+        assert!(is_core_module_first_box("ArrayBox"));
+        assert!(is_core_module_first_box("StringBox"));
+        assert!(is_core_module_first_box("MapBox"));
+        assert!(is_core_module_first_box("ConsoleBox"));
+        assert!(is_core_module_first_box("FileBox"));
+        assert!(is_core_module_first_box("PathBox"));
+        assert!(!is_core_module_first_box("MathBox"));
+        assert!(!is_core_module_first_box("NetClientBox"));
+    }
+
+    #[test]
+    fn should_skip_dynamic_route_contract() {
+        assert!(should_skip_dynamic_route(
+            "StringBox",
+            env::PluginExecMode::ModuleFirst
+        ));
+        assert!(should_skip_dynamic_route(
+            "FileBox",
+            env::PluginExecMode::ModuleFirst
+        ));
+        assert!(should_skip_dynamic_route(
+            "PathBox",
+            env::PluginExecMode::ModuleFirst
+        ));
+        assert!(!should_skip_dynamic_route(
+            "MathBox",
+            env::PluginExecMode::ModuleFirst
+        ));
+        assert!(!should_skip_dynamic_route(
+            "NetClientBox",
+            env::PluginExecMode::ModuleFirst
+        ));
+        assert!(!should_skip_dynamic_route(
+            "StringBox",
+            env::PluginExecMode::DynamicOnly
+        ));
+        assert!(!should_skip_dynamic_route(
+            "StringBox",
+            env::PluginExecMode::DynamicFirst
+        ));
     }
 }
