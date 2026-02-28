@@ -164,6 +164,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - `docs/development/current/main/phases/phase-29cc/29cc-231-kernel-b1-min1-invoke-birth-route-cutover-lock-ssot.md`
   - kernel B1-min1 closeout lock（29cc-232 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-232-kernel-b1-min1-closeout-lock-ssot.md`
+  - kernel B1-min2 runtime state route lock（29cc-233 accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-233-kernel-b1-min2-runtime-state-route-lock-ssot.md`
   - plugin method resolver fail-fast lock（29cc-218 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-218-plugin-method-resolver-failfast-lock-ssot.md`
   - instance manager boundary lock（29cc-219 accepted）:

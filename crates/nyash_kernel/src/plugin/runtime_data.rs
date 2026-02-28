@@ -114,3 +114,16 @@ pub extern "C" fn nyash_runtime_data_push_hh(recv_h: i64, val_any: i64) -> i64 {
     )
     .unwrap_or(0)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn runtime_data_invalid_handle_returns_zero() {
+        assert_eq!(nyash_runtime_data_get_hh(0, 1), 0);
+        assert_eq!(nyash_runtime_data_set_hhh(0, 1, 2), 0);
+        assert_eq!(nyash_runtime_data_has_hh(0, 1), 0);
+        assert_eq!(nyash_runtime_data_push_hh(0, 1), 0);
+    }
+}

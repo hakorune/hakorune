@@ -45,3 +45,15 @@ pub extern "C" fn nyash_semantics_add_hh_export(lhs_h: i64, rhs_h: i64) -> i64 {
         std::sync::Arc::new(StringBox::new(format!("{}{}", ls, rs)));
     handles::to_handle_arc(arc) as i64
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn semantics_add_invalid_handles_returns_zero() {
+        assert_eq!(nyash_semantics_add_hh_export(0, 1), 0);
+        assert_eq!(nyash_semantics_add_hh_export(1, 0), 0);
+        assert_eq!(nyash_semantics_add_hh_export(-1, -1), 0);
+    }
+}

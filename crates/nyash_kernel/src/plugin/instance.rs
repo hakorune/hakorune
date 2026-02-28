@@ -40,3 +40,23 @@ pub extern "C" fn nyash_instance_set_field_h(handle: i64, name: *const i8, val_h
     })
     .unwrap_or(0)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::ffi::CString;
+
+    #[test]
+    fn instance_get_field_invalid_input_returns_zero() {
+        assert_eq!(nyash_instance_get_field_h(0, std::ptr::null()), 0);
+        let name = CString::new("x").unwrap();
+        assert_eq!(nyash_instance_get_field_h(0, name.as_ptr()), 0);
+    }
+
+    #[test]
+    fn instance_set_field_invalid_input_returns_zero() {
+        assert_eq!(nyash_instance_set_field_h(0, std::ptr::null(), 0), 0);
+        let name = CString::new("x").unwrap();
+        assert_eq!(nyash_instance_set_field_h(0, name.as_ptr(), 0), 0);
+    }
+}
