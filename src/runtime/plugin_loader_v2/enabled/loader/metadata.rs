@@ -5,36 +5,16 @@ use super::super::{
 use super::specs;
 use super::PluginLoaderV2;
 use crate::box_trait::NyashBox;
-use crate::config::nyash_toml_v2::NyashConfigV2;
 use crate::runtime::get_global_ring0;
-
-type TomlValue = toml::Value;
-
-fn find_box_by_type_id<'a>(
-    config: &'a NyashConfigV2,
-    toml_value: &'a TomlValue,
-    type_id: u32,
-) -> Option<(&'a str, &'a str)> {
-    for (lib_name, lib_def) in &config.libraries {
-        for box_name in &lib_def.boxes {
-            if let Some(box_conf) = config.get_box_config(lib_name, box_name, toml_value) {
-                if box_conf.type_id == type_id {
-                    return Some((lib_name.as_str(), box_name.as_str()));
-                }
-            }
-        }
-    }
-    None
-}
 
 pub(super) fn box_invoke_fn_for_type_id(
     loader: &PluginLoaderV2,
     type_id: u32,
 ) -> Option<BoxInvokeFn> {
-    if let (Some(config), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref())
+    if let Some((lib_name, box_type)) =
+        super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id)
     {
-        if let Some((lib_name, box_type)) = find_box_by_type_id(config, toml_value, type_id) {
-            if let Some(spec) = specs::get_spec(loader, lib_name, box_type) {
+        if let Some(spec) = specs::get_spec(loader, &lib_name, &box_type) {
                 if spec.invoke_id.is_none() && super::util::dbg_on() {
                     get_global_ring0().log.debug(&format!(
                         "[PluginLoaderV2] WARN: no per-Box invoke for {}.{} (type_id={}). Calls will fail with E_PLUGIN until plugin migrates to v2.",
@@ -42,7 +22,6 @@ pub(super) fn box_invoke_fn_for_type_id(
                     ));
                 }
                 return spec.invoke_id;
-            }
         }
     }
     if crate::config::env::fail_fast() {
@@ -65,19 +44,17 @@ pub(super) fn metadata_for_type_id(
     loader: &PluginLoaderV2,
     type_id: u32,
 ) -> Option<PluginBoxMetadata> {
-    let config = loader.config.as_ref()?;
-    let toml_value = loader.config_toml.as_ref()?;
-    let (lib_name, box_type) = find_box_by_type_id(config, toml_value, type_id)?;
+    let (lib_name, box_type) = super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id)?;
     let plugins = loader.plugins.read().ok()?;
-    let _plugin = plugins.get(lib_name)?.clone();
+    let _plugin = plugins.get(&lib_name)?.clone();
     let (resolved_type, fini_method) =
         super::super::route_resolver::resolve_type_and_fini_for_lib(
-            loader, lib_name, box_type, type_id,
+            loader, &lib_name, &box_type, type_id,
         )
         .ok()?;
     Some(PluginBoxMetadata {
-        lib_name: lib_name.to_string(),
-        box_type: box_type.to_string(),
+        lib_name: lib_name.clone(),
+        box_type: box_type.clone(),
         type_id: resolved_type,
         invoke_box_fn: box_invoke_fn_for_type_id(loader, resolved_type),
         fini_method_id: fini_method,
@@ -89,18 +66,16 @@ pub(super) fn construct_existing_instance(
     type_id: u32,
     instance_id: u32,
 ) -> Option<Box<dyn NyashBox>> {
-    let config = loader.config.as_ref()?;
-    let toml_value = loader.config_toml.as_ref()?;
-    let (lib_name, box_type) = find_box_by_type_id(config, toml_value, type_id)?;
+    let (lib_name, box_type) = super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id)?;
     let plugins = loader.plugins.read().ok()?;
-    let _plugin = plugins.get(lib_name)?.clone();
+    let _plugin = plugins.get(&lib_name)?.clone();
     let (_resolved_type, fini_method_id) =
         super::super::route_resolver::resolve_type_and_fini_for_lib(
-            loader, lib_name, box_type, type_id,
+            loader, &lib_name, &box_type, type_id,
         )
         .ok()?;
     let bx = construct_plugin_box(
-        box_type.to_string(),
+        box_type,
         type_id,
         super::super::nyash_plugin_invoke_v2_shim,
         instance_id,

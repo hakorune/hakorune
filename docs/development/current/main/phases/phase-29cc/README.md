@@ -262,6 +262,7 @@ Related:
       - `enabled/types.rs` の `PluginHandleInner` helper で drop/finalize/clone の host_bridge route 呼び出しを集約
       - `enabled/loader/singletons.rs` の type_id/fini route 判定を `route_resolver` に統一
       - `enabled/loader/metadata.rs` の type_id/fini route 判定重複を `route_resolver` に統一
+      - `enabled/loader/metadata.rs` の type逆引き（type_id->lib/box）も `route_resolver` に統一
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:

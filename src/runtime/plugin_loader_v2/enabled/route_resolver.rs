@@ -6,6 +6,24 @@
 use super::loader::PluginLoaderV2;
 use crate::bid::{BidError, BidResult};
 
+pub(super) fn resolve_lib_box_for_type_id(
+    loader: &PluginLoaderV2,
+    type_id: u32,
+) -> Option<(String, String)> {
+    let config = loader.config.as_ref()?;
+    let toml_value = loader.config_toml.as_ref()?;
+    for (lib_name, lib_def) in &config.libraries {
+        for box_name in &lib_def.boxes {
+            if let Some(box_conf) = config.get_box_config(lib_name, box_name, toml_value) {
+                if box_conf.type_id == type_id {
+                    return Some((lib_name.to_string(), box_name.to_string()));
+                }
+            }
+        }
+    }
+    None
+}
+
 fn selected_library_name(loader: &PluginLoaderV2, box_type: &str) -> Option<String> {
     let cfg = loader.config.as_ref()?;
     let (_lib_name, _lib_def) = cfg.find_library_for_box(box_type)?;
