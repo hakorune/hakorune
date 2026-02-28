@@ -40,10 +40,7 @@ list_profiles() {
     - tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath
   plugin-module-core8-light:
     - cargo check --bin hakorune
-    - phase29cc_plg_hm1_min1_plugin_exec_mode_lock_vm.sh
-    - phase29cc_plg_hm1_min2_core_module_route_skip_lock_vm.sh
-    - phase29cc_plg_hm1_min3_file_path_module_first_lock_vm.sh
-    - phase29cc_plg_hm1_min4_math_net_compat_inventory_lock_vm.sh
+    - phase29cc_plg_hm1_contract_tests_vm.sh
   plugin-module-core8:
     - plugin-module-core8-light
     - tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
@@ -176,14 +173,8 @@ run_hotpath() {
 run_plugin_module_core8_light() {
   run_step "cargo check" \
     cargo check --bin hakorune
-  run_step "plugin exec mode env lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg_hm1_min1_plugin_exec_mode_lock_vm.sh
-  run_step "plugin module-first core route skip lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg_hm1_min2_core_module_route_skip_lock_vm.sh
-  run_step "plugin module-first file/path route skip lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg_hm1_min3_file_path_module_first_lock_vm.sh
-  run_step "plugin module-first math/net compat inventory lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg_hm1_min4_math_net_compat_inventory_lock_vm.sh
+  run_step "PLG-HM1 consolidated contract lock (min1..min4)" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_plg_hm1_contract_tests_vm.sh
 }
 
 run_plugin_module_core8() {

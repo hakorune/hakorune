@@ -123,25 +123,21 @@ mod tests {
     }
 
     #[test]
-    fn should_skip_dynamic_route_contract() {
+    fn should_skip_dynamic_route_core4_contract() {
         assert!(should_skip_dynamic_route(
             "StringBox",
             env::PluginExecMode::ModuleFirst
         ));
         assert!(should_skip_dynamic_route(
-            "FileBox",
+            "ArrayBox",
             env::PluginExecMode::ModuleFirst
         ));
         assert!(should_skip_dynamic_route(
-            "PathBox",
+            "MapBox",
             env::PluginExecMode::ModuleFirst
         ));
-        assert!(!should_skip_dynamic_route(
-            "MathBox",
-            env::PluginExecMode::ModuleFirst
-        ));
-        assert!(!should_skip_dynamic_route(
-            "NetClientBox",
+        assert!(should_skip_dynamic_route(
+            "ConsoleBox",
             env::PluginExecMode::ModuleFirst
         ));
         assert!(!should_skip_dynamic_route(
@@ -151,6 +147,30 @@ mod tests {
         assert!(!should_skip_dynamic_route(
             "StringBox",
             env::PluginExecMode::DynamicFirst
+        ));
+    }
+
+    #[test]
+    fn should_skip_dynamic_route_file_path_contract() {
+        assert!(should_skip_dynamic_route(
+            "FileBox",
+            env::PluginExecMode::ModuleFirst
+        ));
+        assert!(should_skip_dynamic_route(
+            "PathBox",
+            env::PluginExecMode::ModuleFirst
+        ));
+    }
+
+    #[test]
+    fn should_keep_dynamic_route_math_net_compat_contract() {
+        assert!(!should_skip_dynamic_route(
+            "MathBox",
+            env::PluginExecMode::ModuleFirst
+        ));
+        assert!(!should_skip_dynamic_route(
+            "NetClientBox",
+            env::PluginExecMode::ModuleFirst
         ));
     }
 }
