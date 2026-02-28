@@ -1,0 +1,78 @@
+---
+Status: Active
+Decision: accepted
+Date: 2026-02-28
+Scope: 29cc-221 の Non-target（keep-for-now）群を source-zero final wave 向けに棚卸しし、実装順を decision-complete に固定する。
+Related:
+  - docs/development/current/main/phases/phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/README.md
+  - CURRENT_TASK.md
+  - crates/nyash_kernel/src/plugin/array.rs
+  - crates/nyash_kernel/src/plugin/string.rs
+  - crates/nyash_kernel/src/plugin/map.rs
+  - crates/nyash_kernel/src/plugin/console.rs
+  - crates/nyash_kernel/src/plugin/intarray.rs
+  - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
+  - crates/nyash_kernel/src/plugin/handle_helpers.rs
+---
+
+# 29cc-244 Final-Wave Non-target Discovery Lock
+
+## Purpose
+
+`29cc-221` の Non-target 群を「どれから切るか」「どこが高リスクか」で迷走しないよう、呼び出し経路・ABI契約・移植難度を 1 枚に固定する。
+
+## Decision Summary
+
+- すべての実装順は `1 boundary = 1 commit` を維持する。
+- final wave の先頭は `handle_helpers.rs` と `module_string_dispatch.rs` を優先する。
+- `array/map/string/console/intarray` は上記基盤の後に切る。
+- no-delete-first を維持し、compat default-off は変更しない。
+
+## Integrated Inventory (decision-complete)
+
+| Module | Role | Main callers | ABI touchpoints / contract | Compat dependency | Complexity | Recommended order |
+|---|---|---|---|---|---|---|
+| `handle_helpers.rs` | handle cache / typed box bridge | `array.rs`, `map.rs`, `instance.rs`, `runtime_data.rs` | `with_array_box/with_map_box/with_instance_box` が `None` を返す fail-safe 契約。drop epoch + TLS cache を保持。 | cache miss / stale handle は silent `None` | High | 1 |
+| `module_string_dispatch.rs` | Stage1 module string dispatch | `invoke/by_name.rs` | `try_dispatch` + encode/decode string handle。契約違反は `[freeze:contract]` 文字列ハンドルで返す。 | `HAKO_STAGE1_MODULE_DISPATCH_TRACE` | High | 2 |
+| `array.rs` | array handle API exports | tests, lowerers, ABI clients | `nyash.array.*` / alias exports。legacy `set_h` は常時 `0`（互換）で、hh/hi ルートは成否を返す。 | `NYASH_CLI_VERBOSE` と legacy set contract | High | 3 |
+| `map.rs` | map handle API exports | tests, JIT/LLVM lowering | `nyash.map.*` exports。`set_h` は互換 `0` 返却、`has/get` は失敗時 `0`。 | `NYASH_LLVM_MAP_DEBUG` と legacy set contract | Medium-High | 4 |
+| `string.rs` | string C ABI + handle helpers | tests, lowering | `concat/substring/length/to_i8p_h`。null/invalid UTF-8 は null or sentinel return。 | legacy `concat_si/is` shim 維持 | Medium | 5 |
+| `intarray.rs` | numeric int-array API | hako runtime intarray core | `new_h/len_h/get_hi/set_hii`。setterは `0/1` 契約。 | `NYASH_CLI_VERBOSE` | Medium | 6 |
+| `console.rs` | logging / readline exports | C shim, runtime logging paths | `nyash.console.*`。invalid handle は fail-safe（数値出力 or empty）。 | legacy `print` alias | Low | 7 |
+
+## First 3 Commit Slices (fixed)
+
+### Commit 1: Handle cache foundation boundary
+- Scope: `crates/nyash_kernel/src/plugin/handle_helpers.rs` only
+- Goal: cache/epoch/typed helper 契約を source-zero final wave 向けに固定
+- Acceptance:
+  - `handle_helpers.rs` の既存 test (`cache_invalidation_on_drop_epoch`, `array_or_map_route_detection`) green
+  - array/map/instance/runtime_data の呼び出し点に契約変更が波及しない
+
+### Commit 2: Stage1 dispatch boundary
+- Scope: `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` only
+- Goal: Stage1 module dispatch の handle/JSON 契約を固定
+- Acceptance:
+  - `invoke/by_name.rs` 経路で `try_dispatch` が同一契約を維持
+  - freeze contract (`[freeze:contract]`) を崩さない
+
+### Commit 3: Array API boundary
+- Scope: `crates/nyash_kernel/src/plugin/array.rs` only
+- Goal: `nyash.array.*` 系の mainline/compat 契約を固定
+- Acceptance:
+  - underscore export / dotted alias / runtime_data alias すべて解決可能
+  - legacy `set_h -> 0` 契約を維持
+  - array get/set/push/length の失敗時 fail-safe を維持
+
+## Reopen Criteria (failure-driven)
+
+- 以下のどれかが発生したときのみ final wave を reopen する:
+  1. runtime/plugin route guard fail
+  2. ABI contract drift（戻り値/失敗時挙動の差）
+  3. Stage1 dispatch freeze contract drift
+
+## Assumptions
+
+- この lock は「順序固定」のための discovery lock であり、source 削除は扱わない。
+- mac/windows の再ビルド保守のため、Rust source は当面残置する。

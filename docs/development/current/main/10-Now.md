@@ -165,6 +165,11 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - guard: `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
   - runtime/plugin residue inventory lock（29cc-221 active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md`
+  - final-wave non-target discovery lock（29cc-244 accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-244-final-wave-nontarget-discovery-lock-ssot.md`
+    - fixed:
+      - Non-target 7 files の call/ABI/complexity を統合棚卸し
+      - first 3 commit slices（handle_helpers -> module_string_dispatch -> array）を固定
   - runtime A1-min1 method_resolver route cutover lock（29cc-222 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-222-runtime-a1-min1-method-resolver-route-cutover-lock-ssot.md`
   - runtime A1-min2 instance_manager route cutover lock（29cc-223 accepted）:

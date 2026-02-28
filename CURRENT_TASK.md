@@ -166,6 +166,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - runtime plugin loader residue と kernel plugin residue を責務単位で固定
       - 1 boundary = 1 commit で route cutover を先行（source削除は延期）
       - compat route は default-off を維持
+  - final-wave non-target discovery lock（29cc-244, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-244-final-wave-nontarget-discovery-lock-ssot.md`
+    - fixed:
+      - Non-target 7 files の call/ABI/complexity を統合棚卸し
+      - first 3 commit slices（handle_helpers -> module_string_dispatch -> array）を固定
   - runtime A1-min1 method_resolver route cutover lock（29cc-222, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-222-runtime-a1-min1-method-resolver-route-cutover-lock-ssot.md`
     - fixed:
