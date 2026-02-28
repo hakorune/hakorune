@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
+  - docs/development/current/main/design/hako-host-facade-contract-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/abi/nyrt_c_abi_v0.md
@@ -72,6 +73,8 @@ Related:
 
 - `.hako` 側に HostFacade（呼び口）を作る。
 - 既定経路を facade 経由に統一し、direct host call を禁止する。
+- contract SSOT:
+  - `docs/development/current/main/design/hako-host-facade-contract-ssot.md`
 
 ### Step 3: Runtime/plugin meaning migration
 
@@ -102,6 +105,16 @@ Related:
 3. `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
 4. `tools/checks/dev_gate.sh portability`
 5. `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2`
+
+## Promotion Criteria (fixed)
+
+Step 2 -> Step 3 昇格は次をすべて満たした時のみ許可する。
+
+1. HostFacade contract が docs/code で同期されている。
+2. direct host call が runtime/plugin から排除されている（HostFacade 経由のみ）。
+3. `runtime-exec-zero` / `execution_path_zero_guard` / `v0_abi_slice_guard` が green。
+4. `portability` gate が green。
+5. `identity full` が green。
 
 ## Explicitly Deferred
 

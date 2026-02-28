@@ -9,6 +9,7 @@ Purpose:
 Related:
 - `docs/reference/abi/ABI_BOUNDARY_MATRIX.md`
 - `docs/reference/abi/nyrt_c_abi_v0.md`
+- `docs/development/current/main/design/hako-host-facade-contract-ssot.md`
 - `include/nyrt.h`
 - `include/nyrt_host_api.h`
 
@@ -33,6 +34,26 @@ Host-facing API は次の 5 カテゴリに限定する。
 | Handle lifecycle | `nyrt_handle_retain_h`, `nyrt_handle_release_h` | `include/nyrt.h` | borrowed/owned lifecycle boundary |
 | Runtime V0 helper slice | `string_len`, `array_get_i64`, `array_set_i64` (route lock) | runtime/plugin route lock docs | `.hako` runtime entry boxes from VM callsite (`string_core_box`/`array_core_box`) |
 
+## 2.1 Current vs Planned Extensions (explicit)
+
+`process/fs/net/time` は host category として予約するが、v0 canonical symbol にはまだ追加しない。
+
+| Category | v0 status | Canonical symbol status |
+| --- | --- | --- |
+| Runtime lifecycle/bootstrap | Active | fixed |
+| Runtime execution/verification | Active | fixed |
+| Host reverse-call bridge | Active | fixed |
+| Handle lifecycle | Active | fixed |
+| Runtime V0 helper slice | Active | fixed-route |
+| Process | Planned | not-exported |
+| File system | Planned | not-exported |
+| Network | Planned | not-exported |
+| Time | Planned | not-exported |
+
+Rule:
+1. planned category を実装に昇格する場合は docs-first で symbol table に追加する。
+2. `include/nyrt.h` / `include/nyrt_host_api.h` へ先に実装を足してから docs を追従させる運用は禁止。
+
 ## 3. Ownership and Error Contract
 
 1. ABI contract is `args borrowed / return owned`.
@@ -56,3 +77,13 @@ These must remain in `.hako` side logic owner.
 4. `tools/checks/dev_gate.sh runtime-exec-zero`
 
 Expected: all green while maintaining only two canonical ABI surfaces (Core C ABI, TypeBox ABI v2).
+
+## 6. Promotion Gate (Step-2 -> Step-3)
+
+1. HostFacade contract:
+   - `docs/development/current/main/design/hako-host-facade-contract-ssot.md`
+2. `tools/checks/dev_gate.sh runtime-exec-zero`
+3. `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
+4. `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+5. `tools/checks/dev_gate.sh portability`
+6. `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2`

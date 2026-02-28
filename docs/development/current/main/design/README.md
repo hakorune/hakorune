@@ -27,6 +27,7 @@
 - De-Rust post-G1 runtime plan（runtime lane の実行順序/保守契約SSOT）: `docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md`
 - Hako runtime C ABI cutover order（`.hako` 完結へ向けた移行順SSOT）: `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
 - Hako fullstack host-ABI completion（意味論`.hako`集約 + host最小ABIの最終形SSOT）: `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
+- Hako host facade contract（HostFacade 単一入口/I-F/昇格ゲートSSOT）: `docs/development/current/main/design/hako-host-facade-contract-ssot.md`
 - WASM `.hako`-only output roadmap（WASM出力の Rust->`.hako` 移行順SSOT）: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
 - PyVM retreat（historical/opt-in 契約SSOT）: `docs/development/current/main/design/pyvm-retreat-ssot.md`
 - Planner Entry Guards（Facts の reject_reason/handoff 構造化）: `docs/development/current/main/design/planner-entry-guards-ssot.md`

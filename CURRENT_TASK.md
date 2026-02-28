@@ -130,6 +130,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:
     - `docs/reference/abi/nyrt_host_surface_v0.md`
+  - Step-2 host facade contract lock（docs-first）:
+    - `docs/development/current/main/design/hako-host-facade-contract-ssot.md`
   - runtime execution-path observability lock（29cc-215, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard:
