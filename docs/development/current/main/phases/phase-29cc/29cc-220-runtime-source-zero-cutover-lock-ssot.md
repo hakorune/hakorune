@@ -2,7 +2,7 @@
 Status: Active
 Decision: accepted
 Date: 2026-02-28
-Scope: runtime/plugin de-rust の最終ゴールを source-zero に固定し、compat default-off と撤去順を docs-first で確定する。
+Scope: runtime/plugin de-rust の最終ゴールを source-zero に固定しつつ、現フェーズは no-delete-first（経路切替先行）で進める。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -19,6 +19,7 @@ Related:
 ## Purpose
 
 `execution-path-zero` で止めず、runtime/plugin の Rust 実装を source-zero まで進めるための完了条件を固定する。
+ただし本フェーズでは Rust source の物理削除を行わず、経路切替を先行して安全性を確保する。
 
 ## Source-Zero Definition (fixed)
 
@@ -28,6 +29,14 @@ Related:
    - `crates/nyash_kernel/src/plugin/*` の runtime/plugin 実装が撤去済み。
    - mainline/CI 既定で compat route を使用しない（compat default-off）。
 3. Rust 側の残置は portability/build scaffolding に限定する（runtime/plugin 意味論実装は残さない）。
+
+## Current Phase Target (fixed)
+
+1. このフェーズの done は **route-zero + stability** とする。
+2. route-zero + stability の定義:
+   - mainline/CI 既定が `.hako + ABI` のみで実行される（compat default-off）。
+   - runtime/plugin Rust route は未使用化され、guard で drift が監査可能。
+   - Rust source は削除しない（復元/保険のため残置）。
 
 ## Boundary Lock (must keep)
 
@@ -51,7 +60,7 @@ Related:
    - `invoke_core.rs` / `birth.rs` / `runtime_data.rs` / `semantics.rs`
    - `value_codec/*`
    - `future.rs` / `invoke.rs`
-5. source delete + guard lock 更新
+5. no-delete route lock 更新（source delete は将来フェーズへ延期）
 
 ## Acceptance
 
@@ -59,6 +68,14 @@ Related:
 2. `tools/checks/dev_gate.sh runtime-exec-zero` と route guard が green。
 3. mainline で compat route が呼ばれない（ログ監査で drift 無し）。
 4. ABI lane guard（Core C ABI + TypeBox ABI v2）が継続 green。
+
+## Deferred Deletion Gate (future)
+
+Rust source 削除は次の条件を満たした後に別 lock で実施する。
+
+1. mac 実機でのローカルビルド運用が確立している。
+2. portability CI（macOS/Windows）が一定期間連続で green。
+3. route drift guard で Rust route 未使用が継続確認できる。
 
 ## Not in this lock
 

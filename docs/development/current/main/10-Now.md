@@ -130,7 +130,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
   - plugin lane active next: `none`（PLG-07 closeout complete; monitor-only）
   - runtime source-zero cutover lock（29cc-220 active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
-    - zero definition: done = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
+    - zero definition: long-term=source-zero / phase done=route-zero + stability（no-delete-first）
   - runtime execution-path observability lock（29cc-215 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard: `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`

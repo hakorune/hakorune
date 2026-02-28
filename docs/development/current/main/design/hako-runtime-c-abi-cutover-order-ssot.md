@@ -2,7 +2,7 @@
 Status: Active
 Decision: accepted
 Date: 2026-02-28
-Scope: `.hako` 完結（Rust runtime/plugin source-zero）へ向けた runtime C ABI cutover の実行順を固定する。
+Scope: `.hako` 完結（Rust runtime/plugin source-zero）へ向けた runtime C ABI cutover の実行順を固定する（no-delete-first）。
 Related:
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
@@ -130,11 +130,11 @@ Related:
   3. `future.rs` / `invoke.rs`
 - TypeBox ABI v2 契約（resolve + invoke_id TLV）を維持し、Core C ABI へ意味論を混ぜない。
 
-### Step 8: Route lock + source delete
+### Step 8: Route lock (no-delete-first)
 
 - mainline/CI で compat route を完全に無効化する。
-- runtime/plugin の Rust 実装 source を削除する。
-- 既存履歴は git を正本とし、別アーカイブは作らない。
+- runtime/plugin の Rust 実装 source は残置する（復元/保険目的）。
+- 既存履歴は git を正本とし、ローカル復元 tarball を並行保全する。
 
 ## Optional External Review Checkpoint
 
@@ -146,7 +146,8 @@ Related:
 
 - Step 0/1 の docs 固定が完了し、次実装が 1 本に絞れている。
 - 実装は Step 2 から順番に着手する。
-- source-zero の判定:
-  - runtime/plugin Rust source が撤去されている
+- 現フェーズ done（route-zero + stability）の判定:
   - compat default-off が mainline/CI で固定されている
+  - runtime/plugin Rust route が未使用化されている
   - Core C ABI / TypeBox ABI v2 の 2 面以外に新規 ABI 面がない
+- source-zero（物理削除）は将来フェーズで実施する。

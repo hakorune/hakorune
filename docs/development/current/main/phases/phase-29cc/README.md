@@ -253,7 +253,8 @@ Related:
   - runtime source-zero cutover lock（29cc-220, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - zero definition（fixed）:
-      - done = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
+      - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
+      - phase done = route-zero + stability（no-delete-first）
       - execution-path-zero は中間マイルストーンとして扱う
   - runtime execution-path observability lock（29cc-215, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
