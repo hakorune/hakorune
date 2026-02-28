@@ -18,9 +18,8 @@ fi
 for needle in \
   "WSM-P6-min1" \
   "NYASH_WASM_ROUTE_POLICY" \
-  "default-only" \
-  "no-op" \
-  "allowed: default" \
+  "default + rust_native" \
+  "allowed: default|rust_native" \
   "wasm-boundary-lite"; do
   if ! grep -Fq "$needle" "$doc"; then
     test_fail "phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm: missing keyword in lock doc: $needle"

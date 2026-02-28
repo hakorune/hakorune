@@ -206,7 +206,7 @@ fn wasm_demo_min_fixture_legacy_route_policy_rejected_contract() {
     let stderr_legacy = String::from_utf8_lossy(&output_legacy.stderr);
     assert!(
         stderr_legacy
-            .contains("[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='legacy-wasm-rust' (allowed: default)"),
+            .contains("[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='legacy-wasm-rust' (allowed: default|rust_native)"),
         "legacy policy reject freeze tag must be emitted"
     );
 
@@ -830,8 +830,58 @@ fn wasm_demo_route_trace_reports_bridge_and_legacy_policy_rejected_contract() {
     );
     assert!(
         stderr_legacy
-            .contains("[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='legacy-wasm-rust' (allowed: default)"),
+            .contains("[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='legacy-wasm-rust' (allowed: default|rust_native)"),
         "legacy policy reject freeze tag must be emitted"
+    );
+}
+
+#[test]
+fn wasm_demo_route_trace_reports_rust_native_forced_contract() {
+    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm02d_demo_min.hako");
+    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_forced_rust_native");
+    out_base.set_extension("");
+    let out_file = out_base.with_extension("wasm");
+    let _ = fs::remove_file(&out_file);
+
+    let output = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "rust_native")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_base)
+        .arg(&fixture)
+        .output()
+        .expect("rust_native forced compile-wasm must launch");
+    assert!(output.status.success(), "rust_native forced compile-wasm should succeed");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("[wasm/route-trace] policy=rust_native plan=bridge-rust-backend shape_id=- route=rust_native"),
+        "forced rust_native route must emit route-trace line with rust_native route"
+    );
+}
+
+#[test]
+fn wasm_demo_route_trace_is_emitted_without_trace_env_contract() {
+    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm02d_demo_min.hako");
+    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_always_on");
+    out_base.set_extension("");
+    let out_file = out_base.with_extension("wasm");
+    let _ = fs::remove_file(&out_file);
+
+    let output = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "default")
+        .arg("--compile-wasm")
+        .arg("-o")
+        .arg(&out_base)
+        .arg(&fixture)
+        .output()
+        .expect("default compile-wasm must launch");
+    assert!(output.status.success(), "default compile-wasm should succeed");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("[wasm/route-trace] policy=default"),
+        "compile-wasm must always emit wasm route-trace line"
     );
 }
 
@@ -980,6 +1030,9 @@ fn wasm_demo_g4_min3_webcanvas_fixture_compile_to_wat_contract() {
     let wat = compile_fixture_to_wat_direct("apps/tests/phase29cc_wsm_g4_min3_webcanvas_fixture_min.hako");
     assert!(wat.contains("(export \"main\" (func $main))"));
     assert!(wat.contains("\"console_log\""));
+    assert!(wat.contains("\"canvas_clear\""));
+    assert!(wat.contains("\"canvas_fillRect\""));
+    assert!(wat.contains("\"canvas_fillText\""));
 }
 
 #[test]
@@ -989,6 +1042,9 @@ fn wasm_demo_g4_min4_canvas_advanced_fixture_compile_to_wat_contract() {
     assert!(wat.contains("(export \"main\" (func $main))"));
     assert!(wat.contains("\"console_log\""));
     assert!(wat.contains("\"console_info\""));
+    assert!(wat.contains("\"canvas_clear\""));
+    assert!(wat.contains("\"canvas_fillRect\""));
+    assert!(wat.contains("\"canvas_fillText\""));
 }
 
 #[test]

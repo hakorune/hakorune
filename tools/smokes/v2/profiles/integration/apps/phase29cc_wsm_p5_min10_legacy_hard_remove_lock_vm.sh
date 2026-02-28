@@ -19,7 +19,7 @@ for needle in \
   "WSM-P5-min10" \
   "hard-remove" \
   "NYASH_WASM_ROUTE_POLICY" \
-  "allowed: default" \
+  "allowed: default|rust_native" \
   "legacy-wasm-rust" \
   "[freeze:contract][wasm/route-policy]" \
   "wasm-boundary-lite"; do

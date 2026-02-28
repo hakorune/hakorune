@@ -1,23 +1,43 @@
 // Phase 29cc WSM-G4-min3 webcanvas fixture parity
 // Contract:
 // - Playground `webcanvas` route keeps source markers fixed.
-// - WASM compile parity is pinned by ConsoleBox marker lines.
+// - WasmCanvasBox facade is kept in-source for wasm-native path parity.
 
 static box Main {
   main() {
     local console = new ConsoleBox()
-    local x = 50
-    local y = 50
-    local w = 80
-    local h = 60
-    local radius = 30
-    local line_width = 3
+    local canvas = new WasmCanvasBox()
+    local canvas_id = "game-canvas"
+    local canvas_id_len = 11
+    local navy = "navy"
+    local red = "red"
+    local cyan = "cyan"
     local text = "Hello Canvas!"
+    local font = "24px Arial"
+
     console.log("wsm_g4_min3_webcanvas_marker_1")
-    console.log("rect:" + x + "," + y + "," + w + "," + h)
-    console.log("circle:" + radius + ",linew:" + line_width)
-    console.log("text:" + text)
+    canvas.clear(canvas_id, canvas_id_len)
+    canvas.fillRect(canvas_id, canvas_id_len, 0, 0, 400, 250, navy, 4)
+    canvas.fillRect(canvas_id, canvas_id_len, 50, 50, 80, 60, red, 3)
+    canvas.fillText(canvas_id, canvas_id_len, text, 13, 120, 180, font, 10, cyan, 4)
     console.log("wsm_g4_min3_webcanvas_marker_2")
+    return 0
+  }
+}
+
+box WasmCanvasBox {
+  clear(canvas_id, canvas_id_len) {
+    env.canvas.clear(canvas_id, canvas_id_len)
+    return 0
+  }
+
+  fillRect(canvas_id, canvas_id_len, x, y, w, h, color, color_len) {
+    env.canvas.fillRect(canvas_id, canvas_id_len, x, y, w, h, color, color_len)
+    return 0
+  }
+
+  fillText(canvas_id, canvas_id_len, text, text_len, x, y, font, font_len, color, color_len) {
+    env.canvas.fillText(canvas_id, canvas_id_len, text, text_len, x, y, font, font_len, color, color_len)
     return 0
   }
 }

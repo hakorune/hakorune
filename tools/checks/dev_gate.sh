@@ -5,7 +5,7 @@ set -euo pipefail
 # Purpose: single-entry developer gate with tiered profiles.
 #
 # Usage:
-#   tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|portability|milestone|milestone-runtime|milestone-perf]
+#   tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
 #   tools/checks/dev_gate.sh --list
 #
 # Profiles:
@@ -23,7 +23,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 usage() {
   cat <<'USAGE'
 Usage:
-  tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|portability|milestone|milestone-runtime|milestone-perf]
+  tools/checks/dev_gate.sh [quick|hotpath|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
   tools/checks/dev_gate.sh --list
 USAGE
 }
@@ -70,8 +70,8 @@ list_profiles() {
     - phase29cc_wsm_g2_browser_run_vm.sh
     - phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh
     - phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh
-    - phase29cc_wsm_g4_min3_webcanvas_fixture_parity_vm.sh
-    - phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh
+    - phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh
+    - phase29cc_wsm_g4_min10_canvas_advanced_wasmbox_repromotion_vm.sh
     - phase29cc_wsm_g4_min5_headless_two_examples_vm.sh
     - phase29cc_wsm_g4_min7_webdisplay_fixture_parity_vm.sh
     - phase29cc_wsm_g4_min8_global_call_probe_vm.sh
@@ -93,6 +93,17 @@ list_profiles() {
     - phase29cc_wsm_g3_canvas_drawline_contract_vm.sh
   wasm-demo-g3:
     - wasm-demo-g3-full (backward compatible alias)
+  wasm-freeze-core:
+    - cargo check --features wasm-backend --bin hakorune
+    - phase29cc_wsm_freeze_min1_route_policy_rust_native_env_vm.sh
+    - phase29cc_wsm_freeze_min2_route_trace_always_on_vm.sh
+    - phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh
+    - phase29cc_wsm_g4_min10_canvas_advanced_wasmbox_repromotion_vm.sh
+    - phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
+    - phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
+  wasm-freeze-parity:
+    - wasm-freeze-core
+    - cargo test --features wasm-backend wasm_demo_route_trace_reports_rust_native_forced_contract -- --nocapture
   portability:
     - tools/checks/windows_wsl_cmd_smoke.sh (preflight by default)
     - tools/checks/macos_portability_guard.sh
@@ -226,10 +237,10 @@ run_wasm_demo_g2() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh
   run_step "wasm g4 min2 playground canvas primer lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh
-  run_step "wasm g4 min3 webcanvas fixture parity lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min3_webcanvas_fixture_parity_vm.sh
-  run_step "wasm g4 min4 canvas_advanced fixture parity lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh
+  run_step "wasm g4 min9 webcanvas WasmCanvasBox re-promotion lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh
+  run_step "wasm g4 min10 canvas_advanced WasmCanvasBox re-promotion lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min10_canvas_advanced_wasmbox_repromotion_vm.sh
   run_step "wasm g4 min5 headless two-example parity lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh
   run_step "wasm g4 min7 webdisplay fixture parity lock" \
@@ -268,6 +279,29 @@ run_wasm_demo_g3_full() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_fillcircle_contract_vm.sh
   run_step "wasm g3 canvas.drawLine contract lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g3_canvas_drawline_contract_vm.sh
+}
+
+run_wasm_freeze_core() {
+  run_step "cargo check (wasm-backend)" \
+    cargo check --features wasm-backend --bin hakorune
+  run_step "wasm freeze min1 route policy rust_native env lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_freeze_min1_route_policy_rust_native_env_vm.sh
+  run_step "wasm freeze min2 route-trace always-on lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_freeze_min2_route_trace_always_on_vm.sh
+  run_step "wasm g4 min9 webcanvas WasmCanvasBox re-promotion lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh
+  run_step "wasm g4 min10 canvas_advanced WasmCanvasBox re-promotion lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min10_canvas_advanced_wasmbox_repromotion_vm.sh
+  run_step "wasm p5 legacy hard-remove lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
+  run_step "wasm p6 route policy freeze lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
+}
+
+run_wasm_freeze_parity() {
+  run_wasm_freeze_core
+  run_step "wasm rust_native parity route-trace contract" \
+    cargo test --features wasm-backend wasm_demo_route_trace_reports_rust_native_forced_contract -- --nocapture
 }
 
 run_portability() {
@@ -357,6 +391,12 @@ case "${PROFILE}" in
     ;;
   wasm-demo-g3-full|wasm-demo-g3)
     run_wasm_demo_g3_full
+    ;;
+  wasm-freeze-core)
+    run_wasm_freeze_core
+    ;;
+  wasm-freeze-parity)
+    run_wasm_freeze_parity
     ;;
   portability)
     run_portability

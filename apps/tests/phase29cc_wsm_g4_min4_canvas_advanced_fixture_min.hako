@@ -1,23 +1,50 @@
 // Phase 29cc WSM-G4-min4 canvas_advanced fixture parity
 // Contract:
 // - Playground `canvas_advanced` route keeps source markers fixed.
-// - WASM compile parity is pinned by ConsoleBox marker lines.
+// - WasmCanvasBox facade remains active for advanced canvas vocabulary parity.
 
 static box Main {
   main() {
     local console = new ConsoleBox()
-    local x1 = 40
-    local x2 = 60
-    local x3 = 80
-    console.log("spark:" + x1)
-    console.log("spark:" + x2)
-    console.log("spark:" + x3)
-    console.log("orb:200,50,20")
-    console.log("orb:200,180,15")
-    console.log("line:40,210->360,210")
-    console.log("text:Game Development Ready")
+    local canvas = new WasmCanvasBox()
+    local canvas_id = "game-canvas"
+    local canvas_id_len = 11
+    local black = "black"
+    local lime = "lime"
+    local cyan = "cyan"
+    local white = "white"
+    local yellow = "yellow"
+    local font = "16px Arial"
+    local title = "Game Development Ready"
+
+    canvas.clear(canvas_id, canvas_id_len)
+    canvas.fillRect(canvas_id, canvas_id_len, 0, 0, 400, 250, black, 5)
+    canvas.fillRect(canvas_id, canvas_id_len, 40, 80, 10, 10, lime, 4)
+    canvas.fillRect(canvas_id, canvas_id_len, 60, 90, 10, 10, cyan, 4)
+    canvas.fillRect(canvas_id, canvas_id_len, 80, 100, 10, 10, lime, 4)
+    canvas.fillRect(canvas_id, canvas_id_len, 170, 40, 60, 30, yellow, 6)
+    canvas.fillRect(canvas_id, canvas_id_len, 170, 170, 60, 25, white, 5)
+    canvas.fillText(canvas_id, canvas_id_len, title, 22, 70, 230, font, 10, white, 5)
+
     console.log("wsm_g4_min4_canvas_advanced_marker_1")
     console.info("wsm_g4_min4_canvas_advanced_marker_2")
+    return 0
+  }
+}
+
+box WasmCanvasBox {
+  clear(canvas_id, canvas_id_len) {
+    env.canvas.clear(canvas_id, canvas_id_len)
+    return 0
+  }
+
+  fillRect(canvas_id, canvas_id_len, x, y, w, h, color, color_len) {
+    env.canvas.fillRect(canvas_id, canvas_id_len, x, y, w, h, color, color_len)
+    return 0
+  }
+
+  fillText(canvas_id, canvas_id_len, text, text_len, x, y, font, font_len, color, color_len) {
+    env.canvas.fillText(canvas_id, canvas_id_len, text, text_len, x, y, font, font_len, color, color_len)
     return 0
   }
 }

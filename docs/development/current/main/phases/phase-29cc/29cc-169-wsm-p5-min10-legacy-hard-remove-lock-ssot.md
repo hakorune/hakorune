@@ -19,14 +19,14 @@ Related:
 `WSM-P5-min9` で実行境界 retire（accepted-but-blocked）まで固定した legacy lane を、受理境界（policy parse）から完全に削除する。
 
 ## Decision
-1. `NYASH_WASM_ROUTE_POLICY` の受理値は `default` のみ。
-2. `legacy` / `legacy-wasm-rust` を含む非 `default` 値は parse 境界で fail-fast する。
-3. fail-fast タグは `[freeze:contract][wasm/route-policy]` を使用し、`(allowed: default)` を明示する。
+1. `NYASH_WASM_ROUTE_POLICY` の受理値は `default | rust_native`。
+2. `legacy` / `legacy-wasm-rust` を含む非 `default|rust_native` 値は parse 境界で fail-fast する。
+3. fail-fast タグは `[freeze:contract][wasm/route-policy]` を使用し、`(allowed: default|rust_native)` を明示する。
 4. wasm compile route enum/parse/route/test/docs を同コミットで同期し、legacy 実行分岐は残さない（hard-remove）。
 
 ## Implemented
 1. `src/config/env/runner_flags.rs`
-   - route policy parser を default-only へ固定。
+   - route policy parser を `default | rust_native` へ固定。
    - legacy alias 受理テストを reject テストへ置換。
 2. `src/runner/modes/wasm.rs`
    - `LegacyRust` compile route 分岐を削除。

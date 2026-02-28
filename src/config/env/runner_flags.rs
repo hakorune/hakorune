@@ -5,6 +5,7 @@ use super::{env_bool, env_string};
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum WasmRoutePolicyMode {
     Default,
+    RustNative,
 }
 
 fn parse_wasm_route_policy_mode(raw: Option<&str>) -> Result<WasmRoutePolicyMode, String> {
@@ -13,8 +14,9 @@ fn parse_wasm_route_policy_mode(raw: Option<&str>) -> Result<WasmRoutePolicyMode
     };
     match value.to_ascii_lowercase().as_str() {
         "default" => Ok(WasmRoutePolicyMode::Default),
+        "rust_native" => Ok(WasmRoutePolicyMode::RustNative),
         other => Err(format!(
-            "[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='{}' (allowed: default)",
+            "[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='{}' (allowed: default|rust_native)",
             other
         )),
     }
@@ -201,13 +203,22 @@ mod tests {
     }
 
     #[test]
+    fn wasm_route_policy_accepts_rust_native() {
+        assert_eq!(
+            parse_wasm_route_policy_mode(Some("rust_native"))
+                .expect("rust_native should parse"),
+            WasmRoutePolicyMode::RustNative
+        );
+    }
+
+    #[test]
     fn wasm_route_policy_rejects_legacy_aliases() {
         let err_legacy =
             parse_wasm_route_policy_mode(Some("legacy")).expect_err("legacy alias must fail-fast");
-        assert!(err_legacy.contains("(allowed: default)"));
+        assert!(err_legacy.contains("(allowed: default|rust_native)"));
         let err_legacy_rust = parse_wasm_route_policy_mode(Some("legacy-wasm-rust"))
             .expect_err("legacy-wasm-rust alias must fail-fast");
-        assert!(err_legacy_rust.contains("(allowed: default)"));
+        assert!(err_legacy_rust.contains("(allowed: default|rust_native)"));
     }
 
     #[test]

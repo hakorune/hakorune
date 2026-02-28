@@ -62,6 +62,25 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 2. `.hako` 側は段階移行中で、契約固定（fixture/smoke/SSOT）が主役。
 3. したがって現時点では Rust 依存は必要。無理に切り離さず、契約を先に固定する。
 
+## Rust WASM Lifecycle (fixed: Stop -> Freeze -> Retire)
+Rust WASM（`src/backend/wasm/*`）は以下の 3 段階で扱う。big-bang での即削除は禁止。
+
+1. Stop（現在）
+   - Rust WASM は新機能追加を停止し、回帰修正/移植支援のみ許可する。
+   - `.hako` 側を主ラインとして shape/fixture/gate を先に追加する。
+2. Freeze（次段）
+   - Rust WASM は parity 観測 lane（`rust_native`）へ縮退し、挙動を固定する。
+   - fallback は silent で入れず、route trace で必ず可視化する。
+3. Retire（最終段）
+   - Done Criteria 到達後、Rust WASM codegen の主経路を撤去する。
+   - 撤去後も portability 保守に必要な thin runtime は残してよい（codegen本体は戻さない）。
+
+Retire Done Criteria（固定）:
+1. `projects/nyash-wasm` 主要デモ（default/webcanvas/canvas_advanced/webdisplay）が `hako_native` で緑。
+2. `tools/checks/dev_gate.sh wasm-demo-g2` と `tools/checks/dev_gate.sh wasm-boundary-lite` が継続緑。
+3. non-native inventory が monitor-only 許容範囲に収まり、`legacy_bridge` 新規追加が 0。
+4. route policy は `hako_native/rust_native/legacy_bridge` の 3固定を維持し、`legacy_bridge` は blocker切り分け専用。
+
 ## Route Governance (fixed)
 WASM 実行経路は以下の 3 つに固定する。これ以外の新規 route 名/経路は追加しない。
 
@@ -75,8 +94,10 @@ WASM 実行経路は以下の 3 つに固定する。これ以外の新規 route
 運用ルール:
 1. shape 拡張は `hako_native` を先に実装し、`legacy_bridge` への追加は禁止する。
 2. `rust_native` は parity 観測と fail-fast 境界のためにのみ使い、最適化や機能の主実装先にしない。
+   - 有効化は `NYASH_WASM_ROUTE_POLICY=rust_native` 明示時のみ（Freeze-1）。
 3. route policy の変更は docs-first（SSOT更新 -> gate追加/更新 -> 実装）で行う。
 4. `legacy_bridge` は緑維持のみ許可し、修正は「回帰を止める最小差分」に限定する。
+5. `--compile-wasm` は route trace を常時 1 行出力し、silent fallback を禁止する（Freeze-1）。
 
 ## Target Boundary (to-be)
 1. `.hako` compiler が MIR -> WASM text/binary を生成する。
@@ -167,11 +188,13 @@ WASM 実行経路は以下の 3 つに固定する。これ以外の新規 route
 3. `.hako` 側で未固定の語彙を silently accept しない（fail-fast 維持）。
 
 ## Acceptance Gates (minimum)
-1. `tools/checks/dev_gate.sh wasm-demo-g3-core`
-2. `tools/checks/dev_gate.sh wasm-demo-g3-full`
-3. `tools/checks/dev_gate.sh portability`
-4. `cargo check --features wasm-backend --bin hakorune`（移行期間のみ）
-5. `tools/checks/dev_gate.sh wasm-boundary-lite`（P1/P2 境界ロック）
+0. `tools/checks/dev_gate.sh wasm-freeze-core`
+1. `tools/checks/dev_gate.sh wasm-freeze-parity`
+2. `tools/checks/dev_gate.sh wasm-demo-g3-core`
+3. `tools/checks/dev_gate.sh wasm-demo-g3-full`
+4. `tools/checks/dev_gate.sh portability`
+5. `cargo check --features wasm-backend --bin hakorune`（移行期間のみ）
+6. `tools/checks/dev_gate.sh wasm-boundary-lite`（P1/P2 境界ロック）
 
 ## Operation Rule
 1. 新しい WASM 語彙追加は今まで通り docs-first（SSOT -> smoke -> code）。

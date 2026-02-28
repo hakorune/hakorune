@@ -170,11 +170,12 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. wasm lane: `WSM-P7..P10-min10` lock（`29cc-184..203`）を維持し、default-only 契約を崩さない。
-2. wasm lane は monitor-only を維持し、failure-driven でのみ blocker を再起動する。
-3. lane A / lane C / perf / de-rust orchestration は monitor-only を維持し、failure-driven でのみ blocker 再起動する。
-4. wasm `.hako`-only output 計画は `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md` を正本とし、固定順 `WAT出力 -> wat2wasm連結 -> wasmバイナリ直書き` で進める。
+1. wasm lane: `WSM-P7..P10-min10` + `WSM-G4-min9/min10` lock（`29cc-184..203`, `29cc-206`, `29cc-207`）を維持し、default-only 契約を崩さない。
+2. Rust WASM lifecycle は `Stop -> Freeze -> Retire` の固定順で運用する（SSOT: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`）。
+3. 現在は Stop 段として Rust WASM 新機能追加を停止し、`.hako` 主ラインで shape/gate を先行する。
+4. wasm lane は monitor-only を維持し、failure-driven でのみ blocker を再起動する。
 5. wasm route は `hako_native/rust_native/legacy_bridge` の 3 つに固定し、新規 route を増やさない。
+6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする。
 
 ## Quick Restart (After Reboot)
 

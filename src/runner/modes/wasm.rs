@@ -14,12 +14,14 @@ use std::{fs, process};
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum WasmCompileRoute {
     HakoDefaultBridge,
+    RustNativeForced,
 }
 
 #[cfg(feature = "wasm-backend")]
 fn select_wasm_compile_route(policy: WasmRoutePolicyMode) -> WasmCompileRoute {
     match policy {
         WasmRoutePolicyMode::Default => WasmCompileRoute::HakoDefaultBridge,
+        WasmRoutePolicyMode::RustNative => WasmCompileRoute::RustNativeForced,
     }
 }
 
@@ -27,6 +29,7 @@ fn select_wasm_compile_route(policy: WasmRoutePolicyMode) -> WasmCompileRoute {
 fn wasm_route_policy_name(policy: WasmRoutePolicyMode) -> &'static str {
     match policy {
         WasmRoutePolicyMode::Default => "default",
+        WasmRoutePolicyMode::RustNative => "rust_native",
     }
 }
 
@@ -35,7 +38,10 @@ fn wasm_route_name_for_plan(plan: &'static str) -> &'static str {
     match plan {
         "native-shape-table" => "hako_native",
         "bridge-rust-backend" => "rust_native",
-        _ => "unknown",
+        _ => panic!(
+            "[freeze:contract][wasm/route-trace] unknown plan '{}': route must be hako_native|rust_native",
+            plan
+        ),
     }
 }
 
@@ -45,9 +51,6 @@ fn emit_wasm_route_trace_with_route(
     plan: &'static str,
     shape_id: Option<&str>,
 ) {
-    if !crate::config::env::wasm_route_trace_enabled() {
-        return;
-    }
     let shape = shape_id.unwrap_or("-");
     eprintln!(
         "[wasm/route-trace] policy={} plan={} shape_id={} route={}",
@@ -151,6 +154,11 @@ impl NyashRunner {
                     Err(err) => Err(err),
                 }
             }
+            // Freeze-1: explicit rust_native route for parity/diagnostic only.
+            WasmCompileRoute::RustNativeForced => {
+                emit_wasm_route_trace_with_route(route_policy, "bridge-rust-backend", None);
+                wasm_backend.compile_module(mir_module)
+            }
         };
         match compile_result {
             Ok(wasm) => wasm,
@@ -223,8 +231,18 @@ mod tests {
     }
 
     #[test]
+    fn wasm_compile_route_policy_rust_native_maps_to_forced_rust_contract() {
+        let route = select_wasm_compile_route(WasmRoutePolicyMode::RustNative);
+        assert_eq!(route, WasmCompileRoute::RustNativeForced);
+    }
+
+    #[test]
     fn wasm_route_policy_name_contract() {
         assert_eq!(wasm_route_policy_name(WasmRoutePolicyMode::Default), "default");
+        assert_eq!(
+            wasm_route_policy_name(WasmRoutePolicyMode::RustNative),
+            "rust_native"
+        );
     }
 
     #[test]
