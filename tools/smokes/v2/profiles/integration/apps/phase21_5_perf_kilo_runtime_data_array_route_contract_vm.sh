@@ -2,8 +2,8 @@
 # phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh
 #
 # Contract pin (LLVM-HOT-20 cleanup-8):
-# - RuntimeDataBox get/set in kilo main should prefer Array mono-route.
-# - main IR should use nyash.array.get_hh / nyash.array.set_hhh.
+# - RuntimeDataBox get/set in kilo main should prefer Array direct int-key route.
+# - main IR should use nyash.array.get_hi / nyash.array.set_hih.
 # - main IR should not keep nyash.runtime_data.get_hh / set_hhh on this path.
 
 set -euo pipefail
@@ -81,17 +81,19 @@ if ! grep -q '^define .*@"main"' "$tmp_main"; then
   exit 1
 fi
 
-array_get_count="$(grep -c 'nyash.array.get_hh' "$tmp_main" || true)"
-array_set_count="$(grep -c 'nyash.array.set_hhh' "$tmp_main" || true)"
+array_get_count="$(grep -c 'nyash.array.get_hi' "$tmp_main" || true)"
+array_set_count="$(grep -c 'nyash.array.set_hih' "$tmp_main" || true)"
 runtime_get_count="$(grep -c 'nyash.runtime_data.get_hh' "$tmp_main" || true)"
 runtime_set_count="$(grep -c 'nyash.runtime_data.set_hhh' "$tmp_main" || true)"
+legacy_array_get_count="$(grep -c 'nyash.array.get_hh' "$tmp_main" || true)"
+legacy_array_set_count="$(grep -c 'nyash.array.set_hhh' "$tmp_main" || true)"
 
 if [ "$array_get_count" -lt 1 ]; then
-  test_fail "$SMOKE_NAME: nyash.array.get_hh not observed in main"
+  test_fail "$SMOKE_NAME: nyash.array.get_hi not observed in main"
   exit 1
 fi
 if [ "$array_set_count" -lt 1 ]; then
-  test_fail "$SMOKE_NAME: nyash.array.set_hhh not observed in main"
+  test_fail "$SMOKE_NAME: nyash.array.set_hih not observed in main"
   exit 1
 fi
 if [ "$runtime_get_count" -ne 0 ]; then
@@ -100,6 +102,14 @@ if [ "$runtime_get_count" -ne 0 ]; then
 fi
 if [ "$runtime_set_count" -ne 0 ]; then
   test_fail "$SMOKE_NAME: nyash.runtime_data.set_hhh remained in main (${runtime_set_count})"
+  exit 1
+fi
+if [ "$legacy_array_get_count" -ne 0 ]; then
+  test_fail "$SMOKE_NAME: legacy nyash.array.get_hh remained in main (${legacy_array_get_count})"
+  exit 1
+fi
+if [ "$legacy_array_set_count" -ne 0 ]; then
+  test_fail "$SMOKE_NAME: legacy nyash.array.set_hhh remained in main (${legacy_array_set_count})"
   exit 1
 fi
 
