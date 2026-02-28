@@ -42,6 +42,10 @@ int nyrt_hostcall(const char* name, const char* method,
 int64_t nyrt_handle_retain_h(int64_t handle);
 void nyrt_handle_release_h(int64_t handle);
 
+// Runtime V0 helper slice (`string_len`, `array_get_i64`, `array_set_i64`) is
+// currently exported as plugin-style symbols (`nyash.*`) and routed from
+// `.hako` VM entry boxes. See docs/reference/abi/nyrt_c_abi_v0.md.
+
 #ifdef __cplusplus
 }
 #endif

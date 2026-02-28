@@ -9,6 +9,7 @@ using selfhost.vm.hakorune-vm.extern_provider as HakoruneExternProviderBox
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
 using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox
 using lang.runtime.collections.array_core_box as ArrayCoreBox
+using lang.runtime.collections.string_core_box as StringCoreBox
 
 static box MirCallV1HandlerBox {
   // キー正規化ヘルパー（SSOT）
@@ -164,6 +165,17 @@ static box MirCallV1HandlerBox {
                   if val_str != null { regs.setField(StringHelpers.int_to_str(dst_get), ""+val_str) }
                   // val_str == null の時は setField しない（null 表現）
                 }
+                return
+              }
+            }
+            // String.length/len/size: prefer VM runtime core i64 route
+            if btype == "StringBox" && MethodAliasPolicy.is_size_alias(mname) == 1 {
+              local recv_hs = me._read_reg_i64_or_null(regs, rid)
+              if recv_hs != null {
+                local len_i64 = StringCoreBox.len_i64(recv_hs)
+                local dst_sl = JsonFragBox.get_int(seg, "dst")
+                if dst_sl != null { regs.setField(StringHelpers.int_to_str(dst_sl), StringHelpers.int_to_str(len_i64)) }
+                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/adapter/string_core:len_i64]") }
                 return
               }
             }

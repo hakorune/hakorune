@@ -86,7 +86,9 @@ Related:
 ### Step 3: `.hako` adapter lock (small code)
 
 - `.hako` 側に同形 adapter を作り、3 関数だけ直結する。
-- VM low-level の配線は `lang/src/runtime/collections/array_core_box.hako` を正本入口とし、
+- VM low-level の配線は
+  `lang/src/runtime/collections/array_core_box.hako`（array系）と
+  `lang/src/runtime/collections/string_core_box.hako`（string_len）を正本入口とし、
   `lang/src/vm/boxes/mir_call_v1_handler.hako` からのみ呼ぶ。
 - Rust fallback を暗黙利用しない（strict で fail-fast）。
 - 受け入れ:

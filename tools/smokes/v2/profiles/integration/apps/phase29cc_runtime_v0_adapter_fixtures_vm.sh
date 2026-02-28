@@ -3,7 +3,7 @@
 # Contract lock (Step-3 adapter fixtures):
 # - array_set_i64 / array_get_i64 semantics under adapter ON
 # - strict mode freeze contract exists in handler source
-# - string_len fixture remains green with adapter ON
+# - string_len fixture remains green with adapter ON (route liveness lock)
 
 set -euo pipefail
 

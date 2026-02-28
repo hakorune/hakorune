@@ -125,6 +125,15 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - zero definition（fixed）:
       - done = execution-path-zero（mainline/CI既定で Rust runtime/plugin loader 非依存）
       - source-zero（Rust実装完全撤去）は別フェーズ
+  - runtime execution-path observability lock（29cc-215, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
+    - guard:
+      - `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
+      - `tools/checks/dev_gate.sh runtime-exec-zero`
+  - runtime V0 ABI slice lock（29cc-216, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`
+    - guard:
+      - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
@@ -195,6 +204,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
 7. plugin de-rust HM2（min1/min2/min3）は done。plugin lane は monitor-only（`active next: none`）を維持し、failure-driven でのみ reopen する。
 8. de-rust runtime は `29cc-214` を active lock とし、execution-path-zero 定義（実行経路0）を正本にして C ABI cutover 順を固定する。
+9. route drift 観測は `29cc-215` lock + `phase29cc_runtime_execution_path_zero_guard.sh` を正本にして監査する。
+10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
 
 ## Future Ideas (Not Active)
 
@@ -234,6 +245,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - `tools/checks/dev_gate.sh --list`（profile内容の確認）
 - `cargo check --bin hakorune`
 - `bash tools/checks/phase29y_derust_blocker_sync_guard.sh`
+- `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
+- `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
 - `bash tools/selfhost/run_lane_a_daily.sh`
 - `bash tools/checks/ring1_core_scope_guard.sh`
 - `bash tools/checks/module_registry_hygiene_guard.sh`
@@ -253,6 +266,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - `tools/checks/dev_gate.sh milestone-perf`（節目: perf 側）
 - `tools/checks/dev_gate.sh milestone`（推奨: 統合セット）
 - `tools/checks/dev_gate.sh portability`（週次: Windows/macOS portability preflight）
+- `tools/checks/dev_gate.sh runtime-exec-zero`（execution-path-zero 観測契約）
 - `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`（WSM-P7 default-only 監査）
 - `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`（WSM-P8 compat bridge retire readiness 監査）
 - `bash tools/checks/phase29cc_wsm_p9_non_native_inventory_guard.sh`（WSM-P9 non-native shrink 監査）

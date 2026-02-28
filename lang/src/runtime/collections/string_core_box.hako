@@ -1,0 +1,9 @@
+// StringCoreBox — thin VM runtime wrapper over string i64 ABI helper
+// Responsibility: provide VM-low-level i64 length path without std-layer coupling.
+
+static box StringCoreBox {
+  len_i64(handle) {
+    return externcall "nyash.string.len_h"(handle)
+  }
+}
+

@@ -13,4 +13,5 @@ Scope: VM low-level collection runtime wrappers for cutover phases.
 - `array_core_box.hako`
   - `get_i64(handle, idx)` -> `nyash.array.get_hi`
   - `set_i64(handle, idx, value)` -> `nyash.array.set_hii`
-
+- `string_core_box.hako`
+  - `len_i64(handle)` -> `nyash.string.len_h`

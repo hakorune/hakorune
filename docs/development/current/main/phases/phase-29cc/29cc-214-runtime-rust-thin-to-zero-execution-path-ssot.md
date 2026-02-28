@@ -8,6 +8,8 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-29cc/README.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
 ---
@@ -39,7 +41,9 @@ Related:
 
 1. Docs boundary sync（this lock）
 2. Route drift observability lock（Rust route 使用の検知タグを固定）
+   - lock: `29cc-215-runtime-execution-path-observability-lock-ssot.md`
 3. ABI slice lock（`string_len` / `array_get_i64` / `array_set_i64`）
+   - lock: `29cc-216-runtime-v0-abi-slice-lock-ssot.md`
 4. Rust thin wrapper lock（marshal + fail-fast のみ）
 5. `.hako` adapter default lock（mainline を `.hako` 優先へ）
 6. Vocabulary expansion（1語彙=1契約=1commit）

@@ -253,6 +253,15 @@ Related:
     - zero definition（fixed）:
       - done = execution-path-zero（mainline/CI既定で Rust runtime/plugin loader 非依存）
       - source-zero（Rust実装完全撤去）は別フェーズ
+  - runtime execution-path observability lock（29cc-215, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
+    - guard:
+      - `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
+      - `tools/checks/dev_gate.sh runtime-exec-zero`
+  - runtime V0 ABI slice lock（29cc-216, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`
+    - guard:
+      - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
 
 ## M4 Tail Cleanup (retired parser flags)
 

@@ -117,6 +117,12 @@ Related:
   - runtime thin-to-zero execution-path lock（29cc-214 active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md`
     - zero definition: done = execution-path-zero（mainline/CI既定で Rust runtime/plugin loader 非依存）
+  - runtime execution-path observability lock（29cc-215 accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
+    - guard: `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
+  - runtime V0 ABI slice lock（29cc-216 accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`
+    - guard: `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
   - wasm lane status SSOT（active next / latest lock / lock history）: `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm `.hako`-only output roadmap SSOT: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
@@ -242,6 +248,8 @@ Related:
 - `bash tools/selfhost/run_lane_a_daily.sh`
 - `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh`
+- `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
+- `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
 - `PHASE29Y_DERUST_DONE_MATRIX_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_quick_vm.sh`（診断補助。quick既定セットには含めない）
 
 ## Milestone Commands
@@ -249,6 +257,7 @@ Related:
 - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 - `tools/checks/dev_gate.sh portability`（cross-platform preflight）
+- `tools/checks/dev_gate.sh runtime-exec-zero`（execution-path-zero observability）
 - `bash tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh`（PLG-07 retire execution）
 - `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`（WSM-P7 default hako-only）
 - `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`（WSM-P8 bridge retire readiness）

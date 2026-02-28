@@ -44,6 +44,10 @@ static box AbiAdapterRegistryBox {
     me._put("ArrayBox", "size",   "nyash.array.len_h",   "h", "none")
     me._put("ArrayBox", "get",    "nyash.array.get_h",   "h", "none")
     me._put("ArrayBox", "set",    "nyash.array.set_h",   "h", "none")
+    // StringBox (V0 helper slice: length aliases)
+    me._put("StringBox", "len",    "nyash.string.len_h", "h", "none")
+    me._put("StringBox", "length", "nyash.string.len_h", "h", "none")
+    me._put("StringBox", "size",   "nyash.string.len_h", "h", "none")
   }
 
   _put(bt, m, sym, call, unbox) {

@@ -46,6 +46,9 @@ pub fn init_bid_plugins() {
     match init_global_plugin_host(&cfg_path) {
         Ok(()) => {
             if plugin_debug || cli_verbose {
+                let plugin_exec_mode = crate::config::env::plugin_exec_mode();
+                let box_factory_policy = crate::config::env::box_factory_policy()
+                    .unwrap_or_else(|| "builtin_first(default)".to_string());
                 get_global_ring0().log.info(&format!(
                     "[plugin/init] plugin host initialized from {}",
                     cfg_path
@@ -53,6 +56,12 @@ pub fn init_bid_plugins() {
                 get_global_ring0().log.info(&format!(
                     "[plugin-loader] backend={}",
                     crate::runtime::plugin_loader_v2::backend_kind()
+                ));
+                get_global_ring0().log.info(&format!(
+                    "[runtime/exec-path] plugin_loader_backend={} plugin_exec_mode={:?} box_factory_policy={}",
+                    crate::runtime::plugin_loader_v2::backend_kind(),
+                    plugin_exec_mode,
+                    box_factory_policy
                 ));
             }
             let host = get_global_plugin_host();

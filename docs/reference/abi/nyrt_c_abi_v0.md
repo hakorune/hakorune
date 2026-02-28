@@ -57,13 +57,36 @@ Implementation reference:
 Semantic contract reference:
 - `docs/development/current/main/phases/phase-29y/10-ABI-SSOT.md`
 
-## 4. Compatibility Policy
+## 4. Runtime V0 Helper Slice (execution-path-zero)
+
+execution-path-zero cutover では、以下 3 語彙を固定する。
+
+1. `string_len`
+2. `array_get_i64`
+3. `array_set_i64`
+
+Ownership contract:
+
+1. `args borrowed / return owned` を維持する。
+2. 失敗は strict/dev で fail-fast とし、silent fallback を許可しない。
+
+Entry lock:
+
+1. `lang/src/runtime/collections/string_core_box.hako` (`string_len`)
+2. `lang/src/runtime/collections/array_core_box.hako` (`array_get_i64`, `array_set_i64`)
+
+Detailed SSOT:
+
+- `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`
+- `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
+
+## 5. Compatibility Policy
 
 1. Keep C ABI signatures stable in v0 lane.
 2. Breaking changes require new symbol versioning (`*_v1`, etc.).
 3. Never move plugin method semantics into Core C ABI; keep them in TypeBox ABI.
 
-## 5. Non-goals
+## 6. Non-goals
 
 - Defining TypeBox plugin dispatch wire protocol (belongs to TypeBox ABI v2).
 - Defining GC algorithm details (only lifecycle boundary contracts are fixed here).
