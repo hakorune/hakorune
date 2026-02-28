@@ -136,6 +136,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `src/runtime/plugin_loader_v2/enabled/compat_method_resolver.rs` を新設し、legacy file fallback を compat専用モジュールへ隔離（mainline解決は method/route resolver に固定）
       - `src/runtime/plugin_loader_v2/enabled/compat_host_bridge.rs` を新設し、shim invoke fallback を compat専用へ隔離。`ffi_bridge` は non-zero invoke code を即時 `PluginError` で fail-fast
       - `src/runtime/plugin_loader_v2/enabled/loader/singletons.rs` の `RwLock unwrap` と invoke status 無視を撤去し、singleton prebirth 経路を `BidError::PluginError` fail-fast に統一
+      - `src/runtime/plugin_loader_v2/enabled/instance_manager.rs` の `shutdown_singletons` を `BidResult<()>` 契約へ統一し、`globals` 経由 shutdown も lock poison を `PluginError` で fail-fast
       - `crates/nyash_kernel/src/plugin/compat_invoke_core.rs` を新設し、`invoke_core` の generic fallback route / legacy arg encode を compat専用へ分離（mainlineは handle route SSOT を維持）
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`

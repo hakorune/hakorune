@@ -1,5 +1,6 @@
 use super::PluginLoaderV2;
 use crate::bid::{BidError, BidResult};
+use crate::runtime::get_global_ring0;
 use crate::runtime::plugin_loader_v2::enabled::{host_bridge, types};
 
 pub(super) fn prebirth_singletons(loader: &PluginLoaderV2) -> BidResult<()> {
@@ -52,6 +53,16 @@ pub(super) fn ensure_singleton_handle(
         &tlv_args,
     );
     if status != 0 || out_vec.len() < 4 {
+        if super::util::dbg_on() {
+            get_global_ring0().log.debug(&format!(
+                "[plugin/route:singleton_fail] lib={} box={} type_id={} status={} out_len={}",
+                lib_name,
+                box_type,
+                type_id,
+                status,
+                out_vec.len()
+            ));
+        }
         return Err(BidError::PluginError);
     }
     let instance_id = u32::from_le_bytes([out_vec[0], out_vec[1], out_vec[2], out_vec[3]]);

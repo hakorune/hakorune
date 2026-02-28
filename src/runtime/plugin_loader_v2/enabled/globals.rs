@@ -23,6 +23,5 @@ pub fn init_global_loader_v2(config_path: &str) -> BidResult<()> {
 pub fn shutdown_plugins_v2() -> BidResult<()> {
     let loader = get_global_loader_v2();
     let loader = super::errors::from_rwlock_read(loader.read())?;
-    loader.shutdown_singletons();
-    Ok(())
+    loader.shutdown_singletons()
 }
