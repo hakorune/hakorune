@@ -120,6 +120,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `nyash-fixture-plugin` = test-only keep
       - `nyash-integer-plugin` = mainline keep（IntCellBox）
       - `nyash-math` = retire（legacy duplicate; `nyash-math-plugin` is active line）
+  - runtime thin-to-zero execution-path lock（29cc-214, active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md`
+    - zero definition（fixed）:
+      - done = execution-path-zero（mainline/CI既定で Rust runtime/plugin loader 非依存）
+      - source-zero（Rust実装完全撤去）は別フェーズ
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
@@ -189,6 +194,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 5. wasm route は `hako_native/rust_native/legacy_bridge` の 3 つに固定し、新規 route を増やさない。
 6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
 7. plugin de-rust HM2（min1/min2/min3）は done。plugin lane は monitor-only（`active next: none`）を維持し、failure-driven でのみ reopen する。
+8. de-rust runtime は `29cc-214` を active lock とし、execution-path-zero 定義（実行経路0）を正本にして C ABI cutover 順を固定する。
 
 ## Future Ideas (Not Active)
 

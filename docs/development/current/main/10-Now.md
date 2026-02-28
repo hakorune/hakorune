@@ -114,6 +114,9 @@ Related:
   - plugin wave-3 rollout lock（PLG-06-min3 done）: `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`（accepted）
   - plugin wave-3 rollout lock（PLG-06-min4 done）: `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`（accepted）
   - plugin lane active next: `none`（PLG-07 closeout complete; monitor-only）
+  - runtime thin-to-zero execution-path lock（29cc-214 active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md`
+    - zero definition: done = execution-path-zero（mainline/CI既定で Rust runtime/plugin loader 非依存）
   - wasm lane status SSOT（active next / latest lock / lock history）: `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm `.hako`-only output roadmap SSOT: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`

@@ -1,11 +1,12 @@
 ---
-Status: Provisional SSOT
-Decision: provisional
-Date: 2026-02-24
+Status: Active
+Decision: accepted
+Date: 2026-02-28
 Scope: `.hako` 完結（Rust thin wrapper化）へ向けた runtime C ABI cutover の実行順を固定する。
 Related:
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md
   - docs/development/current/main/phases/phase-29y/10-ABI-SSOT.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/abi/nyrt_c_abi_v0.md
@@ -19,6 +20,7 @@ Related:
 - 最終形を `.hako` 主体に寄せる。
 - Rust は runtime 意味論の実体ではなく、thin wrapper と検証導線へ縮退する。
 - 既存契約（borrowed/owned, fail-fast, gate）を壊さずに移行する。
+- done 判定は `execution-path-zero`（mainline/CI既定で Rust runtime/plugin loader 非依存）で固定する。
 
 ## Non-goals
 
@@ -109,3 +111,4 @@ Related:
 
 - Step 0/1 の docs 固定が完了し、次実装が 1 本に絞れている。
 - 実装は Step 2 から順番に着手する。
+- source-zero（Rust 実装完全撤去）は別フェーズで扱う。

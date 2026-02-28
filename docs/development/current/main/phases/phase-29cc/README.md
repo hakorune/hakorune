@@ -248,6 +248,11 @@ Related:
       - `nyash-fixture-plugin` = test-only keep
       - `nyash-integer-plugin` = mainline keep（IntCellBox）
       - `nyash-math` = retire（legacy duplicate; `nyash-math-plugin` is active line）
+  - runtime thin-to-zero execution-path lock（29cc-214, active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md`
+    - zero definition（fixed）:
+      - done = execution-path-zero（mainline/CI既定で Rust runtime/plugin loader 非依存）
+      - source-zero（Rust実装完全撤去）は別フェーズ
 
 ## M4 Tail Cleanup (retired parser flags)
 
