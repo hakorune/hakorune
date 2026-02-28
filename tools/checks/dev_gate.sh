@@ -5,7 +5,7 @@ set -euo pipefail
 # Purpose: single-entry developer gate with tiered profiles.
 #
 # Usage:
-#   tools/checks/dev_gate.sh [quick|hotpath|plugin-module-core8-light|plugin-module-core8|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
+#   tools/checks/dev_gate.sh [quick|hotpath|plugin-module-core8-light|plugin-module-core8|runtime-exec-zero|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
 #   tools/checks/dev_gate.sh --list
 #
 # Profiles:
@@ -23,7 +23,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 usage() {
   cat <<'USAGE'
 Usage:
-  tools/checks/dev_gate.sh [quick|hotpath|plugin-module-core8-light|plugin-module-core8|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
+  tools/checks/dev_gate.sh [quick|hotpath|plugin-module-core8-light|plugin-module-core8|runtime-exec-zero|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
   tools/checks/dev_gate.sh --list
 USAGE
 }
@@ -47,6 +47,12 @@ list_profiles() {
     - tools/checks/phase29cc_plg_hm2_min3_route_policy_matrix_guard.sh (HM2 fixed order: min2 -> min3)
     - tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
     - tools/vm_plugin_smoke.sh
+  runtime-exec-zero:
+    - plugin-module-core8-light
+    - tools/checks/phase29cc_runtime_execution_path_zero_guard.sh
+    - tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh
+    - phase29cc_runtime_v0_adapter_fixtures_vm.sh
+    - tools/checks/phase29cc_plg_hm2_min3_route_policy_matrix_guard.sh
   wasm-boundary-lite:
     - quick
     - cargo check --features wasm-backend --bin hakorune
@@ -192,6 +198,18 @@ run_plugin_module_core8() {
     bash tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
   run_step "vm plugin smoke manifest" \
     bash tools/vm_plugin_smoke.sh
+}
+
+run_runtime_exec_zero() {
+  run_plugin_module_core8_light
+  run_step "runtime execution-path-zero observability guard" \
+    bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh
+  run_step "runtime V0 ABI slice lock guard" \
+    bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh
+  run_step "runtime V0 adapter fixture smoke" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh
+  run_step "PLG-HM2 min3 route policy matrix guard" \
+    bash tools/checks/phase29cc_plg_hm2_min3_route_policy_matrix_guard.sh
 }
 
 run_wasm_boundary_lite_p1_to_p3() {
@@ -347,6 +365,10 @@ run_portability() {
     bash tools/checks/phase29cc_plg_hm2_rust_recovery_line_guard.sh
   run_step "PLG-HM2 min3 route policy matrix guard" \
     bash tools/checks/phase29cc_plg_hm2_min3_route_policy_matrix_guard.sh
+  run_step "runtime execution-path-zero observability guard" \
+    bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh
+  run_step "runtime V0 ABI slice lock guard" \
+    bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh
   run_step "PLG-07 retire execution guard" \
     bash tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
   run_step "WSM-P7 default hako-only guard" \
@@ -423,6 +445,9 @@ case "${PROFILE}" in
     ;;
   plugin-module-core8)
     run_plugin_module_core8
+    ;;
+  runtime-exec-zero)
+    run_runtime_exec_zero
     ;;
   wasm-boundary-lite)
     run_wasm_boundary_lite
