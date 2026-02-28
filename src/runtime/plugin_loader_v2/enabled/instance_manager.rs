@@ -9,6 +9,13 @@ use crate::runtime::plugin_loader_v2::enabled::{
 };
 use std::sync::Arc;
 
+#[derive(Clone, Copy, Debug)]
+struct ResolvedBirthContract {
+    type_id: u32,
+    birth_id: u32,
+    fini_id: Option<u32>,
+}
+
 fn dbg_on() -> bool {
     std::env::var("PLUGIN_DEBUG").is_ok()
 }
@@ -20,60 +27,13 @@ impl PluginLoaderV2 {
         box_type: &str,
         _args: &[Box<dyn NyashBox>],
     ) -> BidResult<Box<dyn NyashBox>> {
-        // Non-recursive: directly call plugin 'birth' and construct PluginBoxV2
-
-        // Resolve type_id, birth_id, and fini_id
-        let (type_id, birth_id, fini_id) = resolve_box_ids(self, box_type)?;
+        // Non-recursive: resolve birth contract -> invoke birth -> construct PluginBoxV2
+        let contract = resolve_instance_birth_contract(self, box_type)?;
+        let instance_id = invoke_birth_and_decode_instance_id(box_type, contract)?;
+        let bx = build_plugin_box_handle(box_type, contract, instance_id);
 
         // Get loaded plugin invoke
         let _plugins = self.plugins.read().map_err(|_| BidError::PluginError)?;
-
-        // Call birth (no args TLV) and read returned instance id (little-endian u32 in bytes 0..4)
-        if dbg_on() {
-            get_global_ring0().log.debug(&format!(
-                "[PluginLoaderV2] invoking birth: box_type={} type_id={} birth_id={}",
-                box_type, type_id, birth_id
-            ));
-        }
-
-        let tlv = crate::runtime::plugin_ffi_common::encode_empty_args();
-        let (code, out_len, out_buf) = super::host_bridge::invoke_alloc(
-            super::super::nyash_plugin_invoke_v2_shim,
-            type_id,
-            birth_id,
-            0,
-            &tlv,
-        );
-
-        if dbg_on() {
-            get_global_ring0().log.debug(&format!(
-                "[PluginLoaderV2] create_box: box_type={} type_id={} birth_id={} code={} out_len={}",
-                box_type, type_id, birth_id, code, out_len
-            ));
-            if out_len > 0 {
-                get_global_ring0().log.debug(&format!(
-                    "[PluginLoaderV2] create_box: out[0..min(8)]={:02x?}",
-                    &out_buf[..out_len.min(8)]
-                ));
-            }
-        }
-
-        if code != 0 || out_len < 4 {
-            return Err(BidError::PluginError);
-        }
-
-        let instance_id = u32::from_le_bytes([out_buf[0], out_buf[1], out_buf[2], out_buf[3]]);
-
-        let bx = PluginBoxV2 {
-            box_type: box_type.to_string(),
-            inner: Arc::new(PluginHandleInner {
-                type_id,
-                invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
-                instance_id,
-                fini_method_id: fini_id,
-                finalized: std::sync::atomic::AtomicBool::new(false),
-            }),
-        };
 
         // Diagnostics: register for leak tracking (optional)
         crate::runtime::leak_tracker::register_plugin(box_type, instance_id);
@@ -91,8 +51,11 @@ impl PluginLoaderV2 {
     }
 }
 
-/// Resolve box IDs (type_id, birth_id, fini_id) from configuration or specs
-fn resolve_box_ids(loader: &PluginLoaderV2, box_type: &str) -> BidResult<(u32, u32, Option<u32>)> {
+/// Resolve birth contract (type_id, birth_id, fini_id) from configuration or specs.
+fn resolve_instance_birth_contract(
+    loader: &PluginLoaderV2,
+    box_type: &str,
+) -> BidResult<ResolvedBirthContract> {
     let (mut type_id_opt, mut birth_id_opt, mut fini_id) = (None, None, None);
 
     // Try config mapping first (when available)
@@ -133,5 +96,70 @@ fn resolve_box_ids(loader: &PluginLoaderV2, box_type: &str) -> BidResult<(u32, u
     let type_id = type_id_opt.ok_or(BidError::InvalidType)?;
     let birth_id = birth_id_opt.ok_or(BidError::InvalidMethod)?;
 
-    Ok((type_id, birth_id, fini_id))
+    Ok(ResolvedBirthContract {
+        type_id,
+        birth_id,
+        fini_id,
+    })
+}
+
+/// Invoke plugin birth and decode returned instance id from first 4 bytes (little-endian).
+fn invoke_birth_and_decode_instance_id(
+    box_type: &str,
+    contract: ResolvedBirthContract,
+) -> BidResult<u32> {
+    if dbg_on() {
+        get_global_ring0().log.debug(&format!(
+            "[PluginLoaderV2] invoking birth: box_type={} type_id={} birth_id={}",
+            box_type, contract.type_id, contract.birth_id
+        ));
+    }
+
+    let tlv = crate::runtime::plugin_ffi_common::encode_empty_args();
+    let (code, out_len, out_buf) = super::host_bridge::invoke_alloc(
+        super::super::nyash_plugin_invoke_v2_shim,
+        contract.type_id,
+        contract.birth_id,
+        0,
+        &tlv,
+    );
+
+    if dbg_on() {
+        get_global_ring0().log.debug(&format!(
+            "[PluginLoaderV2] create_box: box_type={} type_id={} birth_id={} code={} out_len={}",
+            box_type, contract.type_id, contract.birth_id, code, out_len
+        ));
+        if out_len > 0 {
+            get_global_ring0().log.debug(&format!(
+                "[PluginLoaderV2] create_box: out[0..min(8)]={:02x?}",
+                &out_buf[..out_len.min(8)]
+            ));
+        }
+    }
+
+    if code != 0 || out_len < 4 {
+        return Err(BidError::PluginError);
+    }
+
+    Ok(u32::from_le_bytes([
+        out_buf[0], out_buf[1], out_buf[2], out_buf[3],
+    ]))
+}
+
+/// Build a PluginBoxV2 handle from resolved birth contract and created instance id.
+fn build_plugin_box_handle(
+    box_type: &str,
+    contract: ResolvedBirthContract,
+    instance_id: u32,
+) -> PluginBoxV2 {
+    PluginBoxV2 {
+        box_type: box_type.to_string(),
+        inner: Arc::new(PluginHandleInner {
+            type_id: contract.type_id,
+            invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
+            instance_id,
+            fini_method_id: contract.fini_id,
+            finalized: std::sync::atomic::AtomicBool::new(false),
+        }),
+    }
 }

@@ -142,6 +142,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - guard: `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
   - plugin method resolver fail-fast lock（29cc-218 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-218-plugin-method-resolver-failfast-lock-ssot.md`
+  - instance manager boundary lock（29cc-219 accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-219-instance-manager-boundary-lock-ssot.md`
   - wasm lane status SSOT（active next / latest lock / lock history）: `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm `.hako`-only output roadmap SSOT: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`

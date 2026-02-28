@@ -143,6 +143,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - fixed:
       - `resolve_method_id` の legacy file fallback は `NYASH_FAIL_FAST=0` 時のみ許可
       - default (`NYASH_FAIL_FAST=1`) は `InvalidMethod` で fail-fast
+  - instance manager boundary lock（29cc-219, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-219-instance-manager-boundary-lock-ssot.md`
+    - fixed:
+      - `create_box` は resolve/invoke/build の3段責務へ分離
+      - birth 契約解決は `config -> spec -> fail-fast`
   - worker refresh（2026-02-28, runtime/plugin residue snapshot）:
     - `crates/nyash_kernel/src/plugin/*` は mainline 経路として残存（特に `invoke.rs`, `future.rs`, `birth.rs`, `invoke_core.rs`, `string.rs`, `runtime_data.rs`, `value_codec/`）。
     - `src/runtime/plugin_loader_v2/enabled/*` は execution-path-zero 観点で「薄化途中」。`host_bridge.rs` は薄い shim、`ffi_bridge.rs`/`instance_manager.rs`/`method_resolver.rs`/`loader/*` は Rust 依存ロジックとして残存。

@@ -268,6 +268,8 @@ Related:
       - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
   - plugin method resolver fail-fast lock（29cc-218, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-218-plugin-method-resolver-failfast-lock-ssot.md`
+  - instance manager boundary lock（29cc-219, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-219-instance-manager-boundary-lock-ssot.md`
 
 ## M4 Tail Cleanup (retired parser flags)
 
