@@ -175,7 +175,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 3. 現在は Stop 段として Rust WASM 新機能追加を停止し、`.hako` 主ラインで shape/gate を先行する。
 4. wasm lane は monitor-only を維持し、failure-driven でのみ blocker を再起動する。
 5. wasm route は `hako_native/rust_native/legacy_bridge` の 3 つに固定し、新規 route を増やさない。
-6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする。
+6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
 
 ## Quick Restart (After Reboot)
 

@@ -40,4 +40,4 @@ Related:
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next
-- `WSM-Freeze-min2`: rust_native parity lane と hako_native mainline lane の gate 分離を固定する。
+- `WSM-Freeze-min3`（done）: `rust_native` の適用範囲を compile-wasm のみに固定する。

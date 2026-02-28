@@ -61,6 +61,16 @@ fn emit_wasm_route_trace_with_route(
     );
 }
 
+#[cfg(feature = "wasm-backend")]
+fn enforce_wasm_route_policy_scope_for_emit_wat() {
+    if crate::config::env::wasm_route_policy_mode() == WasmRoutePolicyMode::RustNative {
+        eprintln!(
+            "[freeze:contract][wasm/route-policy-scope] NYASH_WASM_ROUTE_POLICY=rust_native is compile-wasm only"
+        );
+        process::exit(1);
+    }
+}
+
 impl NyashRunner {
     #[cfg(feature = "wasm-backend")]
     fn parse_ast_for_wasm_emit(&self, filename: &str, code: &str) -> nyash_rust::ast::ASTNode {
@@ -204,6 +214,7 @@ impl NyashRunner {
     /// Emit WAT to explicit file path and exit.
     #[cfg(feature = "wasm-backend")]
     pub(crate) fn execute_emit_wat_mode(&self, filename: &str, output_file: &str) {
+        enforce_wasm_route_policy_scope_for_emit_wat();
         let wat_text = self.compile_file_to_wat_text(filename);
         match fs::write(output_file, wat_text) {
             Ok(()) => {
@@ -249,5 +260,11 @@ mod tests {
     fn wasm_route_name_for_plan_contract() {
         assert_eq!(wasm_route_name_for_plan("native-shape-table"), "hako_native");
         assert_eq!(wasm_route_name_for_plan("bridge-rust-backend"), "rust_native");
+    }
+
+    #[test]
+    #[should_panic(expected = "route must be hako_native|rust_native")]
+    fn wasm_route_name_for_plan_rejects_unknown_contract() {
+        let _ = wasm_route_name_for_plan("legacy-rust");
     }
 }

@@ -190,11 +190,15 @@ Related:
   - wasm G4 WasmCanvasBox re-promotion locks（min9/min10 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-206-wsm-g4-min9-webcanvas-wasmbox-repromotion-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-207-wsm-g4-min10-canvas-advanced-wasmbox-repromotion-lock-ssot.md`
+  - wasm freeze locks（min1/min2/min3 done）:
+    - `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_freeze_min1_route_policy_rust_native_env_vm.sh`
+    - `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_freeze_min2_route_trace_always_on_vm.sh`
+    - `docs/development/current/main/phases/phase-29cc/29cc-208-wsm-freeze-min3-route-policy-scope-lock-ssot.md`
   - wasm lane G2 task plan: `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
   - wasm latest locks（recent 3）:
-    - `docs/development/current/main/phases/phase-29cc/29cc-205-wsm-g4-min8-global-call-probe-fixture-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-206-wsm-g4-min9-webcanvas-wasmbox-repromotion-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-207-wsm-g4-min10-canvas-advanced-wasmbox-repromotion-lock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-208-wsm-freeze-min3-route-policy-scope-lock-ssot.md`
   - wasm full lock history pointer:
     - `docs/development/current/main/10-Now.md`（Read First Order: phase-29cc lock list）
   - wasm `.hako`-only output roadmap SSOT:

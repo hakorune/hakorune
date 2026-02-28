@@ -95,6 +95,7 @@ WASM 実行経路は以下の 3 つに固定する。これ以外の新規 route
 1. shape 拡張は `hako_native` を先に実装し、`legacy_bridge` への追加は禁止する。
 2. `rust_native` は parity 観測と fail-fast 境界のためにのみ使い、最適化や機能の主実装先にしない。
    - 有効化は `NYASH_WASM_ROUTE_POLICY=rust_native` 明示時のみ（Freeze-1）。
+   - 適用範囲は `--compile-wasm` のみ。`--emit-wat` で指定された場合は fail-fast（Freeze-3）。
 3. route policy の変更は docs-first（SSOT更新 -> gate追加/更新 -> 実装）で行う。
 4. `legacy_bridge` は緑維持のみ許可し、修正は「回帰を止める最小差分」に限定する。
 5. `--compile-wasm` は route trace を常時 1 行出力し、silent fallback を禁止する（Freeze-1）。
@@ -146,6 +147,7 @@ WASM 実行経路は以下の 3 つに固定する。これ以外の新規 route
 7. **P6 Route Policy Stabilization**
    - route policy env を default-only no-op として維持するか、完全撤去するかの判断を段階固定する。
    - default-only no-op lock（done）: `29cc-170`（`phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh`）。
+   - compile-wasm scope lock（done）: `29cc-208`（`phase29cc_wsm_freeze_min3_route_policy_scope_emit_wat_vm.sh`）。
 8. **G4 Project Migration Baseline**
    - `projects/nyash-wasm` の移植開始点として playground console baseline を lock する。
    - baseline lock（done）: `29cc-171`（`phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh`）。

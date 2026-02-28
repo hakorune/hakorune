@@ -97,6 +97,7 @@ list_profiles() {
     - cargo check --features wasm-backend --bin hakorune
     - phase29cc_wsm_freeze_min1_route_policy_rust_native_env_vm.sh
     - phase29cc_wsm_freeze_min2_route_trace_always_on_vm.sh
+    - phase29cc_wsm_freeze_min3_route_policy_scope_emit_wat_vm.sh
     - phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh
     - phase29cc_wsm_g4_min10_canvas_advanced_wasmbox_repromotion_vm.sh
     - phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
@@ -288,6 +289,8 @@ run_wasm_freeze_core() {
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_freeze_min1_route_policy_rust_native_env_vm.sh
   run_step "wasm freeze min2 route-trace always-on lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_freeze_min2_route_trace_always_on_vm.sh
+  run_step "wasm freeze min3 rust_native compile-wasm-only scope lock" \
+    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_freeze_min3_route_policy_scope_emit_wat_vm.sh
   run_step "wasm g4 min9 webcanvas WasmCanvasBox re-promotion lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh
   run_step "wasm g4 min10 canvas_advanced WasmCanvasBox re-promotion lock" \

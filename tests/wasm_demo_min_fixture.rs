@@ -861,6 +861,37 @@ fn wasm_demo_route_trace_reports_rust_native_forced_contract() {
 }
 
 #[test]
+fn wasm_demo_emit_wat_rejects_rust_native_policy_scope_contract() {
+    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm02d_demo_min.hako");
+    let out_wat = wasm_common::target_temp_wat_path("phase29cc_wsm_emit_wat_rust_native_scope");
+    let _ = fs::remove_file(&out_wat);
+
+    let output = Command::new(wasm_common::hakorune_bin_path())
+        .env("NYASH_USE_NY_COMPILER", "0")
+        .env("NYASH_WASM_ROUTE_POLICY", "rust_native")
+        .arg("--emit-wat")
+        .arg(&out_wat)
+        .arg(&fixture)
+        .output()
+        .expect("emit-wat with rust_native route policy must launch");
+    assert!(
+        !output.status.success(),
+        "emit-wat must fail-fast when rust_native policy is set"
+    );
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains(
+            "[freeze:contract][wasm/route-policy-scope] NYASH_WASM_ROUTE_POLICY=rust_native is compile-wasm only"
+        ),
+        "emit-wat scope guard must emit freeze contract tag"
+    );
+    assert!(
+        !out_wat.exists(),
+        "emit-wat output file must not be produced when scope guard fails"
+    );
+}
+
+#[test]
 fn wasm_demo_route_trace_is_emitted_without_trace_env_contract() {
     let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm02d_demo_min.hako");
     let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_always_on");
