@@ -371,3 +371,5 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-222-runtime-a1-min1-method-resolver-route-cutover-lock-ssot.md`
   - runtime A1-min2 instance_manager route cutover lock（29cc-223, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-223-runtime-a1-min2-instance-manager-route-cutover-lock-ssot.md`
+  - runtime A2-min1 ffi_bridge route hardening lock（29cc-224, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-224-runtime-a2-min1-ffi-bridge-route-hardening-lock-ssot.md`

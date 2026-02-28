@@ -167,6 +167,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `instance_manager` birth contract は selected library key 優先
       - generic scan は compat-only（`NYASH_FAIL_FAST=0`）
       - fail-fast 既定は `BidError::InvalidType/InvalidMethod` で停止
+  - runtime A2-min1 ffi_bridge route hardening lock（29cc-224, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-224-runtime-a2-min1-ffi-bridge-route-hardening-lock-ssot.md`
+    - fixed:
+      - `resolve_type_info` mainline fail-fast で generic box scan を禁止
+      - config不在時の fallback は compat-only + lexical deterministic
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
@@ -245,7 +250,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 8. de-rust runtime は `29cc-220` を active lock とし、long-term は source-zero、現フェーズは route-zero + stability（no-delete-first）で C ABI cutover 順を固定する。
 9. route drift 監査は `29cc-215`（observability）+ `29cc-217`（VM+AOT route）を正本にして運用する。
 10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
-11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`29cc-221` の順序で `1 commit = 1 boundary` で route cutover を進める（A1-min1/A1-min2 done / next A2-min1: ffi_bridge）。
+11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`29cc-221` の順序で `1 commit = 1 boundary` で route cutover を進める（A1-min1/A1-min2/A2-min1 done / next A2-min2: host_bridge）。
 12. AOT/perf 最適化は route-zero + stability 達成後に再開可否を判断する（いまは monitor-only 維持）。
 
 ## Future Ideas (Not Active)

@@ -257,10 +257,19 @@ fn resolve_type_info(loader: &PluginLoaderV2, box_type: &str) -> BidResult<(Stri
                 return Ok((lib_name.to_string(), tid));
             }
         }
-    } else {
+    }
+
+    // Compat-only fallback: if config is absent and fail-fast is relaxed, choose deterministic lib.
+    if !crate::config::env::fail_fast() {
         let map = loader.box_specs.read().map_err(|_| BidError::PluginError)?;
-        if let Some(((lib, _), spec)) = map.iter().find(|((_, bt), _)| bt == box_type) {
-            return Ok((lib.clone(), spec.type_id.ok_or(BidError::InvalidType)?));
+        let mut cands: Vec<(String, u32)> = map
+            .iter()
+            .filter(|((_, bt), _)| bt == box_type)
+            .filter_map(|((lib, _), spec)| spec.type_id.map(|tid| (lib.clone(), tid)))
+            .collect();
+        if !cands.is_empty() {
+            cands.sort_by(|a, b| a.0.cmp(&b.0));
+            return Ok(cands[0].clone());
         }
     }
     Err(BidError::InvalidType)
