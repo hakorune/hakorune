@@ -54,6 +54,19 @@ Related:
 
 - 再起動直後の最短導線は `docs/development/current/main/05-Restart-Quick-Resume.md` を正本とする。
 - 実行順と blocker の参照先を 1 画面で辿れる状態を保つ。
+- 最短コマンド（kilo VM+AOT route lock 同期済み）:
+
+```bash
+cd /home/tomoaki/git/hakorune-selfhost
+git status -sb
+tools/checks/dev_gate.sh quick
+PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 \
+PERF_GATE_AOT_SKIP_BUILD_CHECK=1 \
+PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 \
+PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 \
+PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK=1 \
+bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
+```
 
 ## Current Snapshot
 
@@ -62,6 +75,7 @@ Related:
 - Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
+- Optimization policy (runtime): de-rust 経路固定（29cc-214/215/216/217 guard 緑）まで perf/AOT 最適化は monitor-only。
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - JoinIR parity probe pin（JIR-PORT-01）:
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port01_parity_probe_vm.sh`

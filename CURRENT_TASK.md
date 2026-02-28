@@ -138,6 +138,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`
     - guard:
       - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+  - worker refresh（2026-02-28, runtime/plugin residue snapshot）:
+    - `crates/nyash_kernel/src/plugin/*` は mainline 経路として残存（特に `invoke.rs`, `future.rs`, `birth.rs`, `invoke_core.rs`, `string.rs`, `runtime_data.rs`, `value_codec/`）。
+    - `src/runtime/plugin_loader_v2/enabled/*` は execution-path-zero 観点で「薄化途中」。`host_bridge.rs` は薄い shim、`ffi_bridge.rs`/`instance_manager.rs`/`method_resolver.rs`/`loader/*` は Rust 依存ロジックとして残存。
+    - 互換保持のみの残存（legacy index route など）は compat 境界として明示し、mainline へ戻さない。
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
@@ -200,6 +204,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - canonical measure: `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 5`
     - latest (2026-02-28): `c_ms=77`, `py_ms=108`, `ny_vm_ms=979`, `ny_aot_ms=905`, `ratio_c_aot=0.09`, `aot_status=ok`
   - active next: `none`（monitor-only）
+  - optimization resume policy（fixed）:
+    - 脱Rustの経路固定（29cc-214/215/216/217 の guard 緑）が揃うまで最適化は monitor-only。
+    - 最適化タスクは `Future Ideas` 扱いに固定し、runtime/plugin loader 経路の薄化完了後に再昇格する。
 
 ## Immediate Next (this round)
 
@@ -213,6 +220,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 8. de-rust runtime は `29cc-214` を active lock とし、execution-path-zero 定義（実行経路0）を正本にして C ABI cutover 順を固定する。
 9. route drift 監査は `29cc-215`（observability）+ `29cc-217`（VM+AOT route）を正本にして運用する。
 10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
+11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`1 commit = 1 boundary` で薄化する。
+12. AOT/perf 最適化は de-rust 経路固定後に再開する（いまは monitor-only 維持）。
 
 ## Future Ideas (Not Active)
 
