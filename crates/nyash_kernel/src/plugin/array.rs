@@ -1,8 +1,7 @@
 // ---- Array helpers for LLVM lowering (handle-based) ----
 use super::handle_helpers::{array_get_index_encoded_i64, with_array_box};
 use super::value_codec::{
-    any_arg_to_box, any_arg_to_box_with_profile, any_arg_to_index, int_arg_to_box,
-    integer_box_to_i64, CodecProfile,
+    any_arg_to_box, any_arg_to_box_with_profile, any_arg_to_index, CodecProfile,
 };
 
 #[inline(always)]
@@ -67,21 +66,11 @@ pub extern "C" fn nyash_array_get_h(handle: i64, idx: i64) -> i64 {
     if cli_verbose_enabled() {
         eprintln!("[ARR] get_h(handle={}, idx={})", handle, idx);
     }
-    if handle <= 0 || idx < 0 {
-        return 0;
+    let out = array_get_by_index(handle, idx);
+    if cli_verbose_enabled() {
+        eprintln!("[ARR] get_h => {}", out);
     }
-    with_array_box(handle, |arr| {
-        let val = arr.get_index_i64(idx);
-        if let Some(iv) = integer_box_to_i64(val.as_ref()) {
-            if cli_verbose_enabled() {
-                eprintln!("[ARR] get_h => {}", iv);
-            }
-            iv
-        } else {
-            0
-        }
-    })
-    .unwrap_or(0)
+    out
 }
 
 // Exported as: nyash_array_set_h(i64 handle, i64 idx, i64 val) -> i64
@@ -90,15 +79,10 @@ pub extern "C" fn nyash_array_set_h(handle: i64, idx: i64, val: i64) -> i64 {
     if cli_verbose_enabled() {
         eprintln!("[ARR] set_h(handle={}, idx={}, val={})", handle, idx, val);
     }
-    if handle <= 0 || idx < 0 {
-        return 0;
+    let applied = array_set_by_index_i64_value(handle, idx, val);
+    if cli_verbose_enabled() {
+        eprintln!("[ARR] set_h applied={} (legacy return=0)", applied);
     }
-    let _ = with_array_box(handle, |arr| {
-        let _applied = arr.try_set_index_i64(idx, int_arg_to_box(val));
-        if cli_verbose_enabled() {
-            eprintln!("[ARR] set_h done; size now {}", arr.len());
-        }
-    });
     // Legacy ABI contract: nyash.array.set_h reports completion with `0`
     // and does not expose applied/non-applied via return code.
     0

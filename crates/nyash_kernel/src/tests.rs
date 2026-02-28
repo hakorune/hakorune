@@ -187,6 +187,12 @@ fn string_indexof_hh_cached_pair_route_roundtrip() {
 }
 
 #[test]
+fn string_len_h_invalid_handle_contract() {
+    assert_eq!(nyash_string_len_h(0), 0);
+    assert_eq!(nyash_string_len_h(-1), 0);
+}
+
+#[test]
 fn string_indexof_lastindexof_single_byte_contract() {
     let hay: Arc<dyn NyashBox> = Arc::new(StringBox::new("abba-bba".to_string()));
     let hay_h = handles::to_handle_arc(hay) as i64;
@@ -570,6 +576,16 @@ fn array_set_h_legacy_return_code_contract() {
     assert_eq!(nyash_array_set_h(array_handle, 1, 42), 0);
     assert_eq!(nyash_array_get_h(array_handle, 1), 42);
     assert_eq!(nyash_array_length_h(array_handle), 2);
+}
+
+#[test]
+fn runtime_v0_slice_invalid_handle_contract() {
+    // V0 slice contract: invalid/negative handles are immediate zero path.
+    assert_eq!(nyash_string_len_h(0), 0);
+    assert_eq!(nyash_array_get_hi_alias(0, 0), 0);
+    assert_eq!(nyash_array_get_hi_alias(-1, 0), 0);
+    assert_eq!(nyash_array_set_hii_alias(0, 0, 1), 0);
+    assert_eq!(nyash_array_set_hii_alias(-1, 0, 1), 0);
 }
 
 #[test]
