@@ -126,6 +126,7 @@ list_profiles() {
     - tools/checks/macos_portability_guard.sh
     - tools/checks/phase29cc_plg_hm2_rust_recovery_line_guard.sh
     - tools/checks/phase29cc_plg_hm2_min3_route_policy_matrix_guard.sh
+    - tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh
     - tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
     - tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh
     - tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh
@@ -370,6 +371,8 @@ run_portability() {
     bash tools/checks/phase29cc_plg_hm2_min3_route_policy_matrix_guard.sh
   run_step "runtime execution-path-zero observability guard" \
     bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh
+  run_step "runtime VM+AOT route lock guard (kilo contracts)" \
+    bash tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh
   run_step "runtime V0 ABI slice lock guard" \
     bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh
   run_step "PLG-07 retire execution guard" \

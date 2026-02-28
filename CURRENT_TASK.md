@@ -134,7 +134,6 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - guard:
       - `bash tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh`
       - `tools/checks/dev_gate.sh runtime-exec-zero`
-      - `tools/checks/dev_gate.sh runtime-exec-zero`
   - runtime V0 ABI slice lock（29cc-216, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`
     - guard:
@@ -197,6 +196,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py`
     - `cargo test -p nyash_kernel box_from_i8_string_const_reuses_handle -- --nocapture`
     - `PERF_LADDER_AOT_SMALL=1 PERF_LADDER_AOT_MEDIUM=1 NYASH_LLVM_SKIP_BUILD=1 tools/perf/run_progressive_ladder_21_5.sh quick`（AOT行 `status=ok`）
+  - WSL variance lock（single-run値で判定しない）:
+    - canonical measure: `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 5`
+    - latest (2026-02-28): `c_ms=77`, `py_ms=108`, `ny_vm_ms=979`, `ny_aot_ms=905`, `ratio_c_aot=0.09`, `aot_status=ok`
   - active next: `none`（monitor-only）
 
 ## Immediate Next (this round)
@@ -209,7 +211,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
 7. plugin de-rust HM2（min1/min2/min3）は done。plugin lane は monitor-only（`active next: none`）を維持し、failure-driven でのみ reopen する。
 8. de-rust runtime は `29cc-214` を active lock とし、execution-path-zero 定義（実行経路0）を正本にして C ABI cutover 順を固定する。
-9. route drift 観測は `29cc-215` lock + `phase29cc_runtime_execution_path_zero_guard.sh` を正本にして監査する。
+9. route drift 監査は `29cc-215`（observability）+ `29cc-217`（VM+AOT route）を正本にして運用する。
 10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
 
 ## Future Ideas (Not Active)

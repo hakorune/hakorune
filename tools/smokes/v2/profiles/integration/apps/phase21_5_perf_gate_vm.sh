@@ -25,23 +25,23 @@ if [ ! -f "$OPTIONAL_STEPS_FILE" ]; then
   exit 2
 fi
 
-run_optional_gate_step() {
+declare -A EXECUTED_GATE_STEPS=()
+
+run_gate_step_once() {
   local gate_name="$1"
-  local env_name="$2"
-  local step_path="$3"
-  local flag_value="${!env_name:-0}"
-  if [[ "${flag_value}" == "1" ]]; then
-    run_gate_step "${gate_name}" "${step_path}"
-  elif [[ "${flag_value}" != "0" ]]; then
-    test_fail "${gate_name}: invalid ${env_name}=${flag_value} (expected 0|1)"
-    exit 2
+  local step_path="$2"
+  if [[ -n "${EXECUTED_GATE_STEPS[$step_path]+x}" ]]; then
+    echo "[INFO] ${gate_name}: skip duplicate optional step ${step_path}"
+    return 0
   fi
+  run_gate_step "${gate_name}" "${step_path}"
+  EXECUTED_GATE_STEPS["$step_path"]=1
 }
 
-run_gate_step "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_mir_shape_contract_vm.sh"
-run_gate_step "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_direct_emit_dominance_block_vm.sh"
-run_gate_step "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_fast_regfile_contract_vm.sh"
-run_gate_step "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_numeric_mixed_medium_aot_contract_vm.sh"
+run_gate_step_once "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_mir_shape_contract_vm.sh"
+run_gate_step_once "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_direct_emit_dominance_block_vm.sh"
+run_gate_step_once "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_fast_regfile_contract_vm.sh"
+run_gate_step_once "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_numeric_mixed_medium_aot_contract_vm.sh"
 
 while IFS=$'\t' read -r env_name step_path _rest; do
   env_name="${env_name%$'\r'}"
@@ -53,7 +53,13 @@ while IFS=$'\t' read -r env_name step_path _rest; do
     test_fail "phase21_5_perf_gate_vm: invalid optional steps row (missing path) env=${env_name}"
     exit 2
   fi
-  run_optional_gate_step "phase21_5_perf_gate_vm" "${env_name}" "${step_path}"
+  flag_value="${!env_name:-0}"
+  if [[ "${flag_value}" == "1" ]]; then
+    run_gate_step_once "phase21_5_perf_gate_vm" "${step_path}"
+  elif [[ "${flag_value}" != "0" ]]; then
+    test_fail "phase21_5_perf_gate_vm: invalid ${env_name}=${flag_value} (expected 0|1)"
+    exit 2
+  fi
 done < "$OPTIONAL_STEPS_FILE"
 
 test_pass "phase21_5_perf_gate_vm: PASS (phase21.5 quick contracts locked)"
