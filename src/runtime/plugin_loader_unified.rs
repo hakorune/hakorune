@@ -175,6 +175,11 @@ impl PluginHost {
                 {
                     (m.method_id, m.returns_result)
                 } else {
+                    // No implicit resolver fallback in fail-fast mode.
+                    // Keep legacy fallback only when explicitly relaxed.
+                    if crate::config::env::fail_fast() {
+                        return Err(BidError::InvalidMethod);
+                    }
                     let l = self.loader.read().unwrap();
                     let mid = l
                         .resolve_method_id(box_type, method_name)
@@ -227,6 +232,9 @@ impl PluginHost {
         }
 
         // Fallback: delegate to loader (TypeBox, file-based, etc.)
+        if crate::config::env::fail_fast() {
+            return Err(BidError::InvalidMethod);
+        }
         let l = self.loader.read().unwrap();
         let mid = l
             .resolve_method_id(box_type, method_name)

@@ -367,3 +367,5 @@ Related:
     - fixed:
       - plugin_loader_v2 residue と kernel plugin residue を責務単位で棚卸し
       - retire order を `1 boundary = 1 commit` で固定
+  - runtime A1-min1 method_resolver route cutover lock（29cc-222, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-222-runtime-a1-min1-method-resolver-route-cutover-lock-ssot.md`

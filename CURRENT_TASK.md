@@ -155,6 +155,12 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - runtime plugin loader residue と kernel plugin residue を責務単位で固定
       - 1 boundary = 1 commit で route cutover を先行（source削除は延期）
       - compat route は default-off を維持
+  - runtime A1-min1 method_resolver route cutover lock（29cc-222, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-222-runtime-a1-min1-method-resolver-route-cutover-lock-ssot.md`
+    - fixed:
+      - `ffi_bridge` mainline は `resolve_method_id()` 依存を排除（selected lib config/spec/resolve_fn 限定）
+      - `plugin_loader_unified::resolve_method` fallback は compat-only（`NYASH_FAIL_FAST=0`）
+      - fail-fast 既定は `BidError::InvalidMethod` で停止
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
@@ -233,7 +239,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 8. de-rust runtime は `29cc-220` を active lock とし、long-term は source-zero、現フェーズは route-zero + stability（no-delete-first）で C ABI cutover 順を固定する。
 9. route drift 監査は `29cc-215`（observability）+ `29cc-217`（VM+AOT route）を正本にして運用する。
 10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
-11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`29cc-221` の順序で `1 commit = 1 boundary` で撤去する。
+11. 次の主戦場は de-rust residue（plugin kernel + plugin_loader_v2）とし、`29cc-221` の順序で `1 commit = 1 boundary` で route cutover を進める（A1-min1 done / next A1-min2: instance_manager）。
 12. AOT/perf 最適化は route-zero + stability 達成後に再開可否を判断する（いまは monitor-only 維持）。
 
 ## Future Ideas (Not Active)

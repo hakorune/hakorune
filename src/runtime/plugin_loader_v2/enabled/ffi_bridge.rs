@@ -23,19 +23,9 @@ impl PluginLoaderV2 {
         // Resolve (lib_name, type_id) either from config or cached specs
         let (lib_name, type_id) = resolve_type_info(self, box_type)?;
 
-        // Resolve method id via config or TypeBox resolve()
-        let method_id = match self.resolve_method_id(box_type, method_name) {
-            Ok(mid) => mid,
-            Err(e) => {
-                if dbg_on() {
-                    get_global_ring0().log.debug(&format!(
-                        "[PluginLoaderV2] ERR: method resolve failed for {}.{}: {:?}",
-                        box_type, method_name, e
-                    ));
-                }
-                return Err(BidError::InvalidMethod);
-            }
-        };
+        // Mainline path: resolve from selected library config/spec only.
+        // This avoids route drift into legacy resolver fallback paths.
+        let method_id = resolve_method_id_for_lib(self, &lib_name, box_type, method_name)?;
 
         // Get plugin handle
         let plugins = self.plugins.read().map_err(|_| BidError::PluginError)?;
@@ -134,6 +124,48 @@ impl PluginLoaderV2 {
         // Decode TLV (first entry) generically
         decode_tlv_result(box_type, &out[..out_len])
     }
+}
+
+fn resolve_method_id_for_lib(
+    loader: &PluginLoaderV2,
+    lib_name: &str,
+    box_type: &str,
+    method_name: &str,
+) -> BidResult<u32> {
+    // 1) Config mapping
+    if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
+        if let Some(bc) = cfg.get_box_config(lib_name, box_type, toml_value) {
+            if let Some(method_spec) = bc.methods.get(method_name) {
+                return Ok(method_spec.method_id);
+            }
+        }
+    }
+
+    // 2) TypeBox spec mapping for the selected library
+    if let Ok(map) = loader.box_specs.read() {
+        let key = (lib_name.to_string(), box_type.to_string());
+        if let Some(spec) = map.get(&key) {
+            if let Some(ms) = spec.methods.get(method_name) {
+                return Ok(ms.method_id);
+            }
+            if let Some(res_fn) = spec.resolve_fn {
+                if let Ok(cstr) = std::ffi::CString::new(method_name) {
+                    let mid = res_fn(cstr.as_ptr());
+                    if mid != 0 {
+                        return Ok(mid);
+                    }
+                }
+            }
+        }
+    }
+
+    if dbg_on() {
+        get_global_ring0().log.debug(&format!(
+            "[PluginLoaderV2] ERR: method resolve failed for {}.{} in lib={}",
+            box_type, method_name, lib_name
+        ));
+    }
+    Err(BidError::InvalidMethod)
 }
 
 fn should_trace_tlv_shim(box_type: &str, method: &str) -> bool {
