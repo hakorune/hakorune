@@ -68,8 +68,20 @@ impl PluginLoaderV2 {
             }
         }
 
-        // Try file-based resolution as last resort
-        self.resolve_method_id_from_file(box_type, method_name)
+        // Legacy file-based fallback is compat-only.
+        // In fail-fast mode (default), unresolved methods must fail explicitly.
+        if !crate::config::env::fail_fast() {
+            return self.resolve_method_id_from_file(box_type, method_name);
+        }
+
+        if crate::config::env::dev_provider_trace() {
+            let ring0 = crate::runtime::get_global_ring0();
+            ring0.log.debug(&format!(
+                "[provider/trace] reject legacy file fallback box_type={} method={} reason=fail_fast",
+                box_type, method_name
+            ));
+        }
+        Err(BidError::InvalidMethod)
     }
 
     /// Resolve method ID from file (legacy fallback)
