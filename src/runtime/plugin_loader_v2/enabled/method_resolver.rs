@@ -19,7 +19,14 @@ impl PluginLoaderV2 {
         }
         // Legacy file-based fallback is compat-only.
         if !crate::config::env::fail_fast() {
-            return self.resolve_method_id_from_file(box_type, method_name);
+            if crate::config::env::dev_provider_trace() {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!(
+                    "[provider/trace] compat legacy file fallback box_type={} method={}",
+                    box_type, method_name
+                ));
+            }
+            return super::compat_method_resolver::resolve_method_id_from_file(box_type, method_name);
         }
 
         if crate::config::env::dev_provider_trace() {
@@ -30,18 +37,6 @@ impl PluginLoaderV2 {
             ));
         }
         Err(BidError::InvalidMethod)
-    }
-
-    /// Resolve method ID from file (legacy fallback)
-    fn resolve_method_id_from_file(&self, box_type: &str, method_name: &str) -> BidResult<u32> {
-        // Legacy file-based resolution (to be deprecated)
-        match (box_type, method_name) {
-            ("StringBox", "concat") => Ok(102),
-            ("StringBox", "upper") => Ok(103),
-            ("CounterBox", "inc") => Ok(102),
-            ("CounterBox", "get") => Ok(103),
-            _ => Err(BidError::InvalidMethod),
-        }
     }
 
     /// Check if a method returns a Result type

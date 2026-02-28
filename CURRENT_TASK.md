@@ -133,6 +133,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `src/runtime/plugin_loader_v2/enabled/loader/metadata.rs` の type_id/fini 解決を `route_resolver` 経由へ統一し、metadata/construct_existing の重複判定を縮退
       - `src/runtime/plugin_loader_v2/enabled/loader/metadata.rs` の `type_id -> (lib,box)` 逆引きも `route_resolver` へ移設し、metadata 側の独自探索を撤去
       - `src/runtime/plugin_loader_v2/enabled/method_resolver.rs` の method_id/returns_result 解決を `route_resolver` へ統一し、`resolve_method_handle` も selected-lib route SSOT へ集約
+      - `src/runtime/plugin_loader_v2/enabled/compat_method_resolver.rs` を新設し、legacy file fallback を compat専用モジュールへ隔離（mainline解決は method/route resolver に固定）
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:

@@ -1,3 +1,4 @@
+mod compat_method_resolver;
 mod errors;
 mod extern_functions;
 mod ffi_bridge;

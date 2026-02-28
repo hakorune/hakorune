@@ -137,6 +137,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - latest cleanup (2026-02-28): `enabled/loader/metadata.rs` の type_id/fini 解決重複を `route_resolver` に統一
     - latest cleanup (2026-02-28): `enabled/loader/metadata.rs` の type逆引き（type_id->lib/box）を `route_resolver` に統一
     - latest cleanup (2026-02-28): `enabled/method_resolver.rs` の method_id/returns_result/handle 解決を `route_resolver` へ集約し、compat時も selected-lib route を維持
+    - latest cleanup (2026-02-28): `enabled/compat_method_resolver.rs` へ legacy file fallback を隔離し、compat起動点を `method_resolver` の1箇所へ固定
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:
