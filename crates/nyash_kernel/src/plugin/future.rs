@@ -28,9 +28,9 @@ pub extern "C" fn nyash_future_spawn_method_h(
             invoke = Some(p.inner.invoke_fn);
         }
     }
-    if invoke.is_none() {
+    let Some(inv) = invoke else {
         return 0;
-    }
+    };
     // Build TLV from tagged arrays (argc includes receiver)
     let nargs = argc.saturating_sub(1).max(0) as usize;
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
@@ -118,7 +118,6 @@ pub extern "C" fn nyash_future_spawn_method_h(
     // Copy data for async task
     let cap: usize = 512;
     let tlv = buf.clone();
-    let inv = invoke.unwrap();
     nyash_rust::runtime::global_hooks::spawn_task(
         "nyash.future.spawn_method_h",
         Box::new(move || {
@@ -257,10 +256,9 @@ pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, ar
         } else {
             (0, 0, None)
         };
-    if invoke.is_none() {
+    let Some(invoke) = invoke else {
         return 0;
-    }
-    let invoke = invoke.unwrap();
+    };
     // Determine box type name from type_id
     let box_type_name = nyash_rust::runtime::plugin_loader_v2::metadata_for_type_id(real_type_id)
         .map(|meta| meta.box_type)
@@ -320,9 +318,8 @@ pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, ar
     // ✂️ REMOVED: Legacy VM argument encoding - replaced by Plugin-First architecture
     // encode_from_legacy_into closure removed - no longer accessing VMValue args
     let mut encode_from_legacy_into = |dst: &mut Vec<u8>, _pos: usize| {
-        // ✂️ REMOVED: Legacy VM argument processing
-        // In Plugin-First architecture, arguments are explicitly passed via handles
-        nyash_rust::runtime::plugin_ffi_common::encode::i64(dst, 0); // Default placeholder
+        // In Plugin-First architecture, legacy VM slot expansion is replaced by explicit placeholder.
+        super::invoke_core::encode_legacy_placeholder_arg(dst);
     };
     let mut encode_arg_into = |dst: &mut Vec<u8>, val: i64, pos: usize| {
         let mut appended = false;

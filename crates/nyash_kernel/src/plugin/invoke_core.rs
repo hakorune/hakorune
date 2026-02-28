@@ -221,3 +221,23 @@ pub fn decode_entry_to_f64(tag: u8, sz: usize, payload: &[u8]) -> Option<f64> {
         _ => None,
     }
 }
+
+#[inline]
+pub fn jit_args_handle_only_enabled() -> bool {
+    std::env::var("NYASH_JIT_ARGS_HANDLE_ONLY").ok().as_deref() == Some("1")
+}
+
+#[inline]
+pub fn encode_legacy_placeholder_arg(dst: &mut Vec<u8>) {
+    nyash_rust::runtime::plugin_ffi_common::encode::i64(dst, 0);
+}
+
+#[inline]
+pub fn encode_legacy_vm_args_range(dst: &mut Vec<u8>, start_pos: usize, end_pos_inclusive: usize) {
+    if start_pos > end_pos_inclusive || jit_args_handle_only_enabled() {
+        return;
+    }
+    for pos in start_pos..=end_pos_inclusive {
+        crate::encode::nyrt_encode_from_legacy_at(dst, pos);
+    }
+}
