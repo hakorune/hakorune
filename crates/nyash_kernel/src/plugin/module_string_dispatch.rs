@@ -8,6 +8,18 @@ const USING_RESOLVER_MODULE: &str = "lang.compiler.entry.using_resolver";
 const MIR_BUILDER_MODULE: &str = "lang.mir.builder.MirBuilderBox";
 const TRACE_ENV: &str = "HAKO_STAGE1_MODULE_DISPATCH_TRACE";
 
+#[inline(always)]
+fn trace_enabled() -> bool {
+    std::env::var(TRACE_ENV).ok().as_deref() == Some("1")
+}
+
+#[inline(always)]
+fn trace_log(message: impl AsRef<str>) {
+    if trace_enabled() {
+        eprintln!("{}", message.as_ref());
+    }
+}
+
 struct DispatchRoute {
     module: &'static str,
     method: &'static str,
@@ -45,22 +57,17 @@ pub(crate) fn try_dispatch(
     arg2: i64,
 ) -> Option<i64> {
     let module_name = decode_string_handle(recv_handle)?;
-    let trace_enabled = std::env::var(TRACE_ENV).ok().as_deref() == Some("1");
-    if trace_enabled {
-        eprintln!(
-            "[stage1/module_dispatch] probe module={} method={} argc={}",
-            module_name, method_name, arg_count
-        );
-    }
+    trace_log(format!(
+        "[stage1/module_dispatch] probe module={} method={} argc={}",
+        module_name, method_name, arg_count
+    ));
 
     for route in DISPATCH_ROUTES {
         if module_name == route.module && method_name == route.method {
-            if trace_enabled {
-                eprintln!(
-                    "[stage1/module_dispatch] hit module={} method={}",
-                    route.module, route.method
-                );
-            }
+            trace_log(format!(
+                "[stage1/module_dispatch] hit module={} method={}",
+                route.module, route.method
+            ));
             return (route.handler)(arg_count, arg1, arg2);
         }
     }
@@ -98,7 +105,6 @@ fn handle_mir_builder_emit_from_program_json_v0(
     arg1: i64,
     arg2: i64,
 ) -> Option<i64> {
-    let trace_enabled = std::env::var(TRACE_ENV).ok().as_deref() == Some("1");
     if arg_count < 1 {
         return Some(encode_string_handle(
             "[freeze:contract][stage1_mir_builder] missing arg0(program_json)",
@@ -107,35 +113,29 @@ fn handle_mir_builder_emit_from_program_json_v0(
     let program_json = match decode_string_handle(arg1).or_else(|| decode_string_handle(arg2)) {
         Some(text) => text,
         None => {
-            if trace_enabled {
-                eprintln!(
-                    "[stage1/module_dispatch] mir_builder decode failed: arg1={} arg2={}",
-                    arg1, arg2
-                );
-            }
+            trace_log(format!(
+                "[stage1/module_dispatch] mir_builder decode failed: arg1={} arg2={}",
+                arg1, arg2
+            ));
             return Some(encode_string_handle(
                 "[freeze:contract][stage1_mir_builder] arg0 decode failed",
             ));
         }
     };
-    if trace_enabled {
-        eprintln!(
-            "[stage1/module_dispatch] mir_builder input_bytes={}",
-            program_json.len()
-        );
-    }
+    trace_log(format!(
+        "[stage1/module_dispatch] mir_builder input_bytes={}",
+        program_json.len()
+    ));
     let mir_json = match nyash_rust::host_providers::mir_builder::program_json_to_mir_json_with_imports(
         &program_json,
         BTreeMap::new(),
     ) {
         Ok(json_text) => json_text,
         Err(error_text) => {
-            if trace_enabled {
-                eprintln!(
-                    "[stage1/module_dispatch] mir_builder error: {}",
-                    error_text
-                );
-            }
+            trace_log(format!(
+                "[stage1/module_dispatch] mir_builder error: {}",
+                error_text
+            ));
             return Some(encode_string_handle(&format!(
                 "[freeze:contract][stage1_mir_builder] {}",
                 error_text

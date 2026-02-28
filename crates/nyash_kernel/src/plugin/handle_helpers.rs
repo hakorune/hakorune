@@ -17,6 +17,7 @@ thread_local! {
     static HANDLE_CACHE: RefCell<Option<HandleCacheEntry>> = RefCell::new(None);
 }
 
+#[cfg(test)]
 #[inline(always)]
 fn clear_cache_slot() {
     HANDLE_CACHE.with(|slot| *slot.borrow_mut() = None);

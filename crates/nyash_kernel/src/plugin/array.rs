@@ -60,6 +60,11 @@ fn array_has_by_index(handle: i64, idx: i64) -> i64 {
     with_array_box(handle, |arr| if arr.has_index_i64(idx) { 1 } else { 0 }).unwrap_or(0)
 }
 
+#[inline(always)]
+fn decode_index_key(key_any: i64) -> Option<i64> {
+    any_arg_to_index(key_any)
+}
+
 // Exported as: nyash_array_get_h(i64 handle, i64 idx) -> i64
 #[no_mangle]
 pub extern "C" fn nyash_array_get_h(handle: i64, idx: i64) -> i64 {
@@ -140,7 +145,7 @@ pub extern "C" fn nyash_array_len_h_alias(handle: i64) -> i64 {
 // Keep contracts aligned with nyash.runtime_data.* when receiver is ArrayBox.
 #[export_name = "nyash.array.get_hh"]
 pub extern "C" fn nyash_array_get_hh_alias(handle: i64, key_any: i64) -> i64 {
-    let Some(idx) = any_arg_to_index(key_any) else {
+    let Some(idx) = decode_index_key(key_any) else {
         return 0;
     };
     array_get_by_index(handle, idx)
@@ -148,7 +153,7 @@ pub extern "C" fn nyash_array_get_hh_alias(handle: i64, key_any: i64) -> i64 {
 
 #[export_name = "nyash.array.set_hhh"]
 pub extern "C" fn nyash_array_set_hhh_alias(handle: i64, key_any: i64, val_any: i64) -> i64 {
-    let Some(idx) = any_arg_to_index(key_any) else {
+    let Some(idx) = decode_index_key(key_any) else {
         return 0;
     };
     array_set_by_index(handle, idx, val_any)
@@ -156,7 +161,7 @@ pub extern "C" fn nyash_array_set_hhh_alias(handle: i64, key_any: i64, val_any: 
 
 #[export_name = "nyash.array.has_hh"]
 pub extern "C" fn nyash_array_has_hh_alias(handle: i64, key_any: i64) -> i64 {
-    let Some(idx) = any_arg_to_index(key_any) else {
+    let Some(idx) = decode_index_key(key_any) else {
         return 0;
     };
     array_has_by_index(handle, idx)
