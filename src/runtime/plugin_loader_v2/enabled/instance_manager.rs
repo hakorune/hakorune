@@ -57,10 +57,12 @@ fn resolve_instance_birth_contract(
     box_type: &str,
 ) -> BidResult<ResolvedBirthContract> {
     let (mut type_id_opt, mut birth_id_opt, mut fini_id) = (None, None, None);
+    let mut selected_lib: Option<String> = None;
 
     // Try config mapping first (when available)
     if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
         if let Some((lib_name, _)) = cfg.find_library_for_box(box_type) {
+            selected_lib = Some(lib_name.to_string());
             if let Some(box_conf) = cfg.get_box_config(lib_name, box_type, &toml_value) {
                 type_id_opt = Some(box_conf.type_id);
                 birth_id_opt = box_conf.methods.get("birth").map(|m| m.method_id);
@@ -69,11 +71,30 @@ fn resolve_instance_birth_contract(
         }
     }
 
-    // Fallback: use TypeBox FFI spec if config is missing for this box
+    // Fallback: use TypeBox FFI spec for the selected library only.
     if type_id_opt.is_none() || birth_id_opt.is_none() {
         if let Ok(map) = loader.box_specs.read() {
-            // Find any spec that matches this box_type
-            if let Some((_, spec)) = map.iter().find(|((_lib, bt), _)| bt == &box_type) {
+            let key = match selected_lib {
+                Some(ref lib) => (lib.clone(), box_type.to_string()),
+                None => {
+                    // In fail-fast mode, avoid generic cross-library scan.
+                    if crate::config::env::fail_fast() {
+                        return Err(BidError::InvalidType);
+                    }
+                    // Compat-only fallback: deterministic lexical selection by library name.
+                    let mut cands: Vec<String> = map
+                        .iter()
+                        .filter(|((_, bt), _)| bt == box_type)
+                        .map(|((lib, _), _)| lib.clone())
+                        .collect();
+                    if cands.is_empty() {
+                        return Err(BidError::InvalidType);
+                    }
+                    cands.sort();
+                    (cands[0].clone(), box_type.to_string())
+                }
+            };
+            if let Some(spec) = map.get(&key) {
                 if type_id_opt.is_none() {
                     type_id_opt = spec.type_id;
                 }
