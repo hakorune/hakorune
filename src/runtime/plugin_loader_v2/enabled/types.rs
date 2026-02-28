@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use super::host_bridge::InvokeFn;
+use super::host_bridge::{BoxInvokeFn, InvokeFn};
 use crate::box_trait::{BoxCore, NyashBox, StringBox};
 use crate::runtime::get_global_ring0;
 use std::any::Any;
@@ -31,6 +31,7 @@ pub struct PluginBoxMetadata {
 pub struct PluginHandleInner {
     pub type_id: u32,
     pub invoke_fn: InvokeFn,
+    pub invoke_box_fn: Option<BoxInvokeFn>,
     pub instance_id: u32,
     pub fini_method_id: Option<u32>,
     pub(super) finalized: std::sync::atomic::AtomicBool,
@@ -50,7 +51,8 @@ impl Drop for PluginHandleInner {
                     ));
                 }
                 let tlv_args: [u8; 4] = [1, 0, 0, 0];
-                let _ = super::host_bridge::invoke_alloc(
+                let _ = super::host_bridge::invoke_alloc_with_route(
+                    self.invoke_box_fn,
                     self.invoke_fn,
                     self.type_id,
                     fini_id,
@@ -71,7 +73,8 @@ impl PluginHandleInner {
             {
                 crate::runtime::leak_tracker::finalize_plugin("PluginBox", self.instance_id);
                 let tlv_args: [u8; 4] = [1, 0, 0, 0];
-                let _ = super::host_bridge::invoke_alloc(
+                let _ = super::host_bridge::invoke_alloc_with_route(
+                    self.invoke_box_fn,
                     self.invoke_fn,
                     self.type_id,
                     fini_id,
@@ -138,7 +141,8 @@ impl NyashBox for PluginBoxV2 {
             ));
         }
         let tlv_args = [1u8, 0, 0, 0];
-        let (result, out_len, out_buf) = super::host_bridge::invoke_alloc(
+        let (result, out_len, out_buf) = super::host_bridge::invoke_alloc_with_route(
+            self.inner.invoke_box_fn,
             self.inner.invoke_fn,
             self.inner.type_id,
             0,
@@ -153,6 +157,7 @@ impl NyashBox for PluginBoxV2 {
                 inner: Arc::new(PluginHandleInner {
                     type_id: self.inner.type_id,
                     invoke_fn: self.inner.invoke_fn,
+                    invoke_box_fn: self.inner.invoke_box_fn,
                     instance_id: new_instance_id,
                     fini_method_id: self.inner.fini_method_id,
                     finalized: std::sync::atomic::AtomicBool::new(false),
@@ -205,6 +210,7 @@ pub fn make_plugin_box_v2(
         inner: Arc::new(PluginHandleInner {
             type_id,
             invoke_fn,
+            invoke_box_fn: super::box_invoke_for_type_id(type_id),
             instance_id,
             fini_method_id: None,
             finalized: std::sync::atomic::AtomicBool::new(false),
@@ -225,6 +231,7 @@ pub fn construct_plugin_box(
         inner: Arc::new(PluginHandleInner {
             type_id,
             invoke_fn,
+            invoke_box_fn: super::box_invoke_for_type_id(type_id),
             instance_id,
             fini_method_id,
             finalized: std::sync::atomic::AtomicBool::new(false),

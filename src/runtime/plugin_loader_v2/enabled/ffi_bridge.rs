@@ -322,6 +322,7 @@ fn decode_tlv_result(box_type: &str, data: &[u8]) -> BidResult<Option<Box<dyn Ny
                     let handle = Arc::new(super::types::PluginHandleInner {
                         type_id: ret_type,
                         invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
+                        invoke_box_fn: super::super::box_invoke_for_type_id(ret_type),
                         instance_id: inst,
                         fini_method_id,
                         finalized: std::sync::atomic::AtomicBool::new(false),

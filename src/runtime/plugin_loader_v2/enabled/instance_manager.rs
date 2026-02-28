@@ -180,6 +180,7 @@ fn build_plugin_box_handle(
         inner: Arc::new(PluginHandleInner {
             type_id: contract.type_id,
             invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
+            invoke_box_fn: super::super::box_invoke_for_type_id(contract.type_id),
             instance_id,
             fini_method_id: contract.fini_id,
             finalized: std::sync::atomic::AtomicBool::new(false),

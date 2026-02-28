@@ -78,6 +78,7 @@ pub(super) fn ensure_singleton_handle(
     let handle = Arc::new(types::PluginHandleInner {
         type_id,
         invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
+        invoke_box_fn: loader.box_invoke_fn_for_type_id(type_id),
         instance_id,
         fini_method_id: fini_id,
         finalized: std::sync::atomic::AtomicBool::new(false),
