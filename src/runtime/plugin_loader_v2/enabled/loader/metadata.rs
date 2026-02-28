@@ -45,6 +45,10 @@ pub(super) fn box_invoke_fn_for_type_id(
             }
         }
     }
+    if crate::config::env::fail_fast() {
+        return None;
+    }
+    // Compat-only fallback: scan cached specs when config mapping is unavailable.
     if let Ok(map) = loader.box_specs.read() {
         for ((_lib, _bt), spec) in map.iter() {
             if let Some(tid) = spec.type_id {

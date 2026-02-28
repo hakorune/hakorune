@@ -375,3 +375,5 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-224-runtime-a2-min1-ffi-bridge-route-hardening-lock-ssot.md`
   - runtime A2-min2 host_bridge route cutover lock（29cc-225, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-225-runtime-a2-min2-host-bridge-route-cutover-lock-ssot.md`
+  - runtime A3-min1 loader metadata route hardening lock（29cc-226, accepted）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-226-runtime-a3-min1-loader-metadata-route-hardening-lock-ssot.md`
