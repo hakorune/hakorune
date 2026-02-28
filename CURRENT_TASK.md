@@ -314,7 +314,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 8. de-rust runtime は `29cc-220` を active lock とし、long-term は source-zero、現フェーズは route-zero + stability（no-delete-first）で C ABI cutover 順を固定する。
 9. route drift 監査は `29cc-215`（observability）+ `29cc-217`（VM+AOT route）を正本にして運用する。
 10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
-11. de-rust residue（plugin kernel + plugin_loader_v2）line は `29cc-221` 固定順（A1..A3/B1..B3）で closeout 済み。runtime lane は route-zero-sync closeout（29cc-243）を受けて monitor-only に戻し、failure-driven reopen のみ許可する。
+11. de-rust residue（plugin kernel + plugin_loader_v2）line は `29cc-221` 固定順（A1..A3/B1..B3）を維持し、実装真実ベースで closeout 再検証中。runtime lane は route-zero-sync closeout（29cc-243）方針を維持しつつ、compat入口の残件同期が終わるまで failure-driven で扱う。
 12. B1-min1 lock（docs-first）:
   - `docs/development/current/main/phases/phase-29cc/29cc-231-kernel-b1-min1-invoke-birth-route-cutover-lock-ssot.md`
 13. B1-min1 closeout lock（done）:
@@ -323,21 +323,21 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `docs/development/current/main/phases/phase-29cc/29cc-233-kernel-b1-min2-runtime-state-route-lock-ssot.md`
 15. B1-min3 lock（done）:
   - `docs/development/current/main/phases/phase-29cc/29cc-234-kernel-b1-min3-instance-lifecycle-route-lock-ssot.md`
-16. B1-closeout lock（done）:
+16. B1-closeout lock（accepted / implementation-truth recheck）:
   - `docs/development/current/main/phases/phase-29cc/29cc-235-kernel-b1-closeout-lock-ssot.md`
 17. B2-min1 lock（done）:
   - `docs/development/current/main/phases/phase-29cc/29cc-236-kernel-b2-min1-value-codec-encode-decode-route-lock-ssot.md`
 18. B2-min2 lock（done）:
   - `docs/development/current/main/phases/phase-29cc/29cc-237-kernel-b2-min2-borrowed-handle-route-lock-ssot.md`
-19. B2-closeout lock（done）:
+19. B2-closeout lock（accepted / implementation-truth recheck）:
   - `docs/development/current/main/phases/phase-29cc/29cc-238-kernel-b2-closeout-lock-ssot.md`
 20. B3-min1 lock（done）:
   - `docs/development/current/main/phases/phase-29cc/29cc-239-kernel-b3-min1-future-route-lock-ssot.md`
 21. B3-min2 lock（done）:
   - `docs/development/current/main/phases/phase-29cc/29cc-240-kernel-b3-min2-invoke-route-lock-ssot.md`
-22. B3-closeout lock（done）:
+22. B3-closeout lock（accepted / implementation-truth recheck）:
   - `docs/development/current/main/phases/phase-29cc/29cc-241-kernel-b3-closeout-lock-ssot.md`
-23. kernel-residue-closeout lock（done）:
+23. kernel-residue-closeout lock（accepted / implementation-truth recheck）:
   - `docs/development/current/main/phases/phase-29cc/29cc-242-kernel-residue-closeout-lock-ssot.md`
 24. active next: 29bq-selfhost-hako-migration（mirbuilder first / parser later）
   - handoff lock:
