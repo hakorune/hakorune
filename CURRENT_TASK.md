@@ -12,7 +12,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Current Blocker (SSOT)
 
-- compiler lane: `phase-29bq / failure-driven`（active: resumed）
+- compiler lane: `phase-29bq / monitor-only`（active: failure-driven reopen only）
   - joinir migration task SSOT（lane A）:
     - `docs/development/current/main/design/joinir-port-task-pack-ssot.md`
   - lane A mirror sync helper:
@@ -25,7 +25,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - done: `JIR-PORT-05`（promotion boundary lock）
   - done: `JIR-PORT-06`（monitor-only boundary lock）
   - done: `JIR-PORT-07`（expression parity seed lock: unary+compare+logic）
-  - next: `29bq-115 / strict_nested accept-min1`（reject-lock 維持, 1-shape only）
+  - next: `none`（strict_nested accept-min1 done; failure-driven reopen only）
 - runtime lane: `phase-29y / none`（current blocker: `none`。fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
   - commit boundary lock: `phase-29y/60-NEXT-TASK-PLAN.md` の `0.3 RVP Commit Boundary Lock (active rule)`
   - operation policy lock: `LLVM-first / vm-hako monitor-only`
