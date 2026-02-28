@@ -385,3 +385,5 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-229-runtime-a3-min4-pluginboxmetadata-routeaware-lock-ssot.md`
   - runtime A3 closeout lock（29cc-230, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-230-runtime-a3-closeout-lock-ssot.md`
+  - kernel B1-min1 invoke/birth route cutover lock（29cc-231, active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-231-kernel-b1-min1-invoke-birth-route-cutover-lock-ssot.md`

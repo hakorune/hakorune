@@ -201,9 +201,34 @@ pub extern "C" fn nyash_future_spawn_method_h(
                             // Map type_id -> box type name (best-effort)
                             let meta_opt =
                                 nyash_rust::runtime::plugin_loader_v2::metadata_for_type_id(r_type);
+                            let shim_invoke = nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim
+                                as unsafe extern "C" fn(
+                                    u32,
+                                    u32,
+                                    u32,
+                                    *const u8,
+                                    usize,
+                                    *mut u8,
+                                    *mut usize,
+                                ) -> i32;
                             let (box_type_name, invoke_ptr, fini_id) = if let Some(meta) = meta_opt
                             {
-                                (meta.box_type.clone(), meta.invoke_fn, meta.fini_method_id)
+                                if meta.invoke_box_fn.is_none()
+                                    && nyash_rust::config::env::fail_fast()
+                                {
+                                    fut_box.set_result(Box::new(
+                                        nyash_rust::box_trait::VoidBox::new(),
+                                    ));
+                                    return;
+                                }
+                                (
+                                    meta.box_type.clone(),
+                                    shim_invoke,
+                                    meta.fini_method_id,
+                                )
+                            } else if nyash_rust::config::env::fail_fast() {
+                                fut_box.set_result(Box::new(nyash_rust::box_trait::VoidBox::new()));
+                                return;
                             } else {
                                 ("PluginBox".to_string(), inv, None)
                             };

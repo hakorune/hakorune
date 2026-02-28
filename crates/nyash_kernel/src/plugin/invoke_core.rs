@@ -11,6 +11,19 @@ pub struct Receiver {
     pub invoke: unsafe extern "C" fn(u32, u32, u32, *const u8, usize, *mut u8, *mut usize) -> i32,
 }
 
+#[inline]
+fn plugin_shim_invoke() -> unsafe extern "C" fn(
+    u32,
+    u32,
+    u32,
+    *const u8,
+    usize,
+    *mut u8,
+    *mut usize,
+) -> i32 {
+    nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim
+}
+
 /// Resolve receiver from a0: prefer handle registry; fallback to legacy VM args when allowed.
 pub fn resolve_receiver_for_a0(a0: i64) -> Option<Receiver> {
     // 1) Handle registry (preferred)
@@ -124,10 +137,15 @@ pub fn decode_entry_to_i64(
                 i.copy_from_slice(&payload[4..8]);
                 let r_type = u32::from_le_bytes(t);
                 let r_inst = u32::from_le_bytes(i);
-                // Use metadata if available to set box_type/invoke_fn
+                // Route-aware: metadata decides whether the type has a valid box invoke route.
                 let meta_opt = nyash_rust::runtime::plugin_loader_v2::metadata_for_type_id(r_type);
                 let (box_type_name, invoke_ptr) = if let Some(meta) = meta_opt {
-                    (meta.box_type.clone(), meta.invoke_fn)
+                    if meta.invoke_box_fn.is_none() && nyash_rust::config::env::fail_fast() {
+                        return None;
+                    }
+                    (meta.box_type.clone(), plugin_shim_invoke())
+                } else if nyash_rust::config::env::fail_fast() {
+                    return None;
                 } else {
                     ("PluginBox".to_string(), fallback_invoke)
                 };

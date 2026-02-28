@@ -54,7 +54,16 @@ pub extern "C" fn nyash_box_birth_i64_export(type_id: i64, argc: i64, a1: i64, a
         return 0;
     };
     let box_type_name = meta.box_type.clone();
-    let invoke_fn = meta.invoke_fn;
+    if meta.invoke_box_fn.is_none() && nyash_rust::config::env::fail_fast() {
+        if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
+            eprintln!(
+                "nyrt: birth_i64 {} (type_id={}) FAILED: missing box invoke route",
+                box_type_name, type_id
+            );
+        }
+        return 0;
+    }
+    let invoke_fn = nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim;
     let method_id: u32 = 0; // birth
     let instance_id: u32 = 0; // static
                               // Build TLV args
@@ -122,17 +131,15 @@ pub extern "C" fn nyash_box_birth_i64_export(type_id: i64, argc: i64, a1: i64, a
     // Extended argument support removed with legacy VM system archival
     let mut out = vec![0u8; 1024];
     let mut out_len: usize = out.len();
-    let rc = unsafe {
-        invoke_fn(
-            type_id as u32,
-            method_id,
-            instance_id,
-            buf.as_ptr(),
-            buf.len(),
-            out.as_mut_ptr(),
-            &mut out_len,
-        )
-    };
+    let rc = invoke_fn(
+        type_id as u32,
+        method_id,
+        instance_id,
+        buf.as_ptr(),
+        buf.len(),
+        out.as_mut_ptr(),
+        &mut out_len,
+    );
     if rc != 0 {
         if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
             eprintln!(
