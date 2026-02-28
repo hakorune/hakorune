@@ -13,6 +13,9 @@ Only two ABIs are canonical:
 
 `hako_abi_v1` is not a third canonical ABI. It remains a design-first draft only.
 
+Host-facing Core C ABI surface lock:
+- `docs/reference/abi/nyrt_host_surface_v0.md`
+
 ## 2. Boundary Matrix
 
 | Boundary | ABI | Canonical docs/headers | Scope | Status |

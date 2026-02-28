@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/abi/nyrt_c_abi_v0.md
+  - docs/reference/abi/nyrt_host_surface_v0.md
 ---
 
 # Hako Fullstack Host-ABI Completion (SSOT)
@@ -64,6 +65,8 @@ Related:
 
 - host API を用途別に固定する（loader/process/fs/net/time）。
 - 署名契約（borrowed/owned, error contract）を表で固定する。
+- reference SSOT:
+  - `docs/reference/abi/nyrt_host_surface_v0.md`
 
 ### Step 2: `.hako` facade lock
 

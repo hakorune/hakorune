@@ -73,6 +73,8 @@ weak の等価性（identity）は backend 差が出にくい token を SSOT と
 
 - ABIの既存ドキュメント（参考）:
   - `docs/reference/abi/nyrt_c_abi_v0.md`
+  - `docs/reference/abi/nyrt_host_surface_v0.md`
+  - `docs/reference/abi/ABI_BOUNDARY_MATRIX.md`
   - `docs/reference/abi/NYASH_ABI_MIN_CORE.md`
 - 言語意味論 SSOT（参照のみ）:
   - `docs/reference/language/lifecycle.md`

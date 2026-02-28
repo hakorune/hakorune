@@ -10,6 +10,7 @@ Important boundary:
 
 See also:
 - `docs/reference/abi/ABI_BOUNDARY_MATRIX.md`
+- `docs/reference/abi/nyrt_host_surface_v0.md`
 - `docs/development/current/main/phases/phase-29y/10-ABI-SSOT.md`
 
 ## 1. Scope
@@ -79,6 +80,15 @@ Detailed SSOT:
 
 - `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`
 - `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
+
+## 4.1 Host Surface Lock (Step-1)
+
+Core C ABI host-facing symbols are fixed by category in:
+- `docs/reference/abi/nyrt_host_surface_v0.md`
+
+Rule:
+1. Host layer only provides bridge/bootstrap/lifecycle primitives.
+2. Runtime/plugin semantic policy must stay in `.hako` side.
 
 ## 5. Compatibility Policy
 

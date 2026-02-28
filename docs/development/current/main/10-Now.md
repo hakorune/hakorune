@@ -133,6 +133,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - zero definition: long-term=source-zero / phase done=route-zero + stability（no-delete-first）
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
+  - Step-1 host ABI surface lock（docs-first）:
+    - `docs/reference/abi/nyrt_host_surface_v0.md`
   - runtime route-zero-sync closeout lock（29cc-243 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:
