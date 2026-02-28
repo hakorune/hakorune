@@ -6,6 +6,7 @@ Scope: `.hako` 完結（Rust runtime/plugin source-zero）へ向けた runtime C
 Related:
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
+  - docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md

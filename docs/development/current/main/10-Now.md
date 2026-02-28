@@ -131,6 +131,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
   - runtime source-zero cutover lock（29cc-220 active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - zero definition: long-term=source-zero / phase done=route-zero + stability（no-delete-first）
+  - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
+    - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - runtime route-zero-sync closeout lock（29cc-243 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:

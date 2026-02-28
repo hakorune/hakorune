@@ -126,6 +126,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）
       - execution-path-zero は中間マイルストーンとして扱う
+  - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
+    - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - runtime execution-path observability lock（29cc-215, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard:
