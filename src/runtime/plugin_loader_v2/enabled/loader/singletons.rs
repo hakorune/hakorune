@@ -49,7 +49,9 @@ pub(super) fn ensure_singleton_handle(
         box_conf.type_id
     };
     let tlv_args = crate::runtime::plugin_ffi_common::encode_empty_args();
-    let (_status, _, out_vec) = host_bridge::invoke_alloc(
+    let invoke_box = loader.box_invoke_fn_for_type_id(type_id);
+    let (_status, _, out_vec) = host_bridge::invoke_alloc_with_route(
+        invoke_box,
         super::super::nyash_plugin_invoke_v2_shim,
         type_id,
         0,

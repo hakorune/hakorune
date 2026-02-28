@@ -113,7 +113,9 @@ impl PluginLoaderV2 {
             ));
         }
 
-        let (_code, out_len, out) = super::host_bridge::invoke_alloc(
+        let invoke_box = self.box_invoke_fn_for_type_id(type_id);
+        let (_code, out_len, out) = super::host_bridge::invoke_alloc_with_route(
+            invoke_box,
             super::super::nyash_plugin_invoke_v2_shim,
             type_id,
             method_id,

@@ -137,7 +137,9 @@ fn invoke_birth_and_decode_instance_id(
     }
 
     let tlv = crate::runtime::plugin_ffi_common::encode_empty_args();
-    let (code, out_len, out_buf) = super::host_bridge::invoke_alloc(
+    let invoke_box = super::super::box_invoke_for_type_id(contract.type_id);
+    let (code, out_len, out_buf) = super::host_bridge::invoke_alloc_with_route(
+        invoke_box,
         super::super::nyash_plugin_invoke_v2_shim,
         contract.type_id,
         contract.birth_id,
