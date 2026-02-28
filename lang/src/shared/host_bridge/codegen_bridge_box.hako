@@ -1,7 +1,7 @@
 // codegen_bridge_box.hako — Thin wrapper for env.codegen extern calls
 // Responsibility:
 //   - Provide emit_object/link_object helpers instead of duplicating
-//     hostbridge.extern_invoke("env.codegen", ...) everywhere.
+//     HostFacadeBox.call("loader","codegen.*", ...) everywhere.
 
 using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 using lang.runtime.host.host_facade_box as HostFacadeBox

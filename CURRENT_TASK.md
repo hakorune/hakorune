@@ -135,6 +135,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - Step-2 host facade wiring（code-first, no-delete-first）:
     - `lang/src/runtime/host/host_facade_box.hako` を追加し、`extern_provider` / `extern_call_handler` / `mir_vm_s0` の direct `env.get`/console/extern invoke 経路を HostFacade 経由へ統一（2026-02-28）
     - `codegen_bridge` / `host_bridge` / `mir_io` と `extern_provider` C-ABI branch の direct hostbridge 呼びを HostFacade loader selector 経由へ統一（2026-02-28）
+    - guard: `tools/checks/phase29cc_hostfacade_direct_call_guard.sh`（runtime/shared/vm で direct hostbridge 呼びの allowlist 監査）
   - runtime execution-path observability lock（29cc-215, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard:

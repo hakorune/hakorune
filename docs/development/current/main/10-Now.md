@@ -154,6 +154,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
   - runtime execution-path observability lock（29cc-215 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard: `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
+  - hostfacade direct-call allowlist lock（runtime/shared/vm）:
+    - `bash tools/checks/phase29cc_hostfacade_direct_call_guard.sh`
   - runtime VM+AOT route lock（29cc-217 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-217-runtime-vm-aot-route-lock-ssot.md`
     - guard: `bash tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh`

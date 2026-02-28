@@ -19,12 +19,33 @@ static box HostFacadeBox {
   }
 
   _call_runtime(selector, payload) {
-    if selector == "env.get" {
-      local key = me._payload_as_text(payload)
-      if key == null { return null }
-      return env.get(key)
-    }
+    local out = me._dispatch_runtime_env(selector, payload)
+    if out != null { return out }
+    out = me._dispatch_runtime_console(selector, payload)
+    if out != null { return out }
 
+    return null
+  }
+
+  _call_loader(selector, payload) {
+    local out = me._dispatch_loader_extern(selector, payload)
+    if out != null { return out }
+    out = me._dispatch_loader_codegen(selector, payload)
+    if out != null { return out }
+    out = me._dispatch_loader_box(selector, payload)
+    if out != null { return out }
+
+    return null
+  }
+
+  _dispatch_runtime_env(selector, payload) {
+    if selector != "env.get" { return null }
+    local key = me._payload_as_text(payload)
+    if key == null { return null }
+    return env.get(key)
+  }
+
+  _dispatch_runtime_console(selector, payload) {
     if selector == "console.log" {
       me._console_print("", payload)
       return 0
@@ -45,64 +66,70 @@ static box HostFacadeBox {
       me._console_print("[debug] ", payload)
       return 0
     }
-
     return null
   }
 
-  _call_loader(selector, payload) {
+  _dispatch_loader_extern(selector, payload) {
     if selector == "extern_invoke" {
       local name = me._payload_name(payload)
       if name == null || name == "" { return null }
       local args = me._payload_args(payload)
       return hostbridge.extern_invoke(name, args)
     }
-
-    if selector == "codegen.emit_object" {
-      local args = me._payload_as_array(payload)
-      return hostbridge.extern_invoke("env.codegen", "emit_object", args)
-    }
-
-    if selector == "codegen.link_object" {
-      local args = me._payload_as_array(payload)
-      return hostbridge.extern_invoke("env.codegen", "link_object", args)
-    }
-
     if selector == "mirbuilder.emit" {
       local args = me._payload_as_array(payload)
       return hostbridge.extern_invoke("env.mirbuilder", "emit", args)
     }
-
     if selector == "box_introspect.kind" {
       local args = me._payload_as_array(payload)
       return hostbridge.extern_invoke("env.box_introspect", "kind", args)
     }
+    return null
+  }
 
+  _dispatch_loader_codegen(selector, payload) {
+    if selector == "codegen.emit_object" {
+      local args = me._payload_as_array(payload)
+      return hostbridge.extern_invoke("env.codegen", "emit_object", args)
+    }
+    if selector == "codegen.link_object" {
+      local args = me._payload_as_array(payload)
+      return hostbridge.extern_invoke("env.codegen", "link_object", args)
+    }
+    return null
+  }
+
+  _dispatch_loader_box(selector, payload) {
     if selector == "box.new" {
       local name = me._payload_name(payload)
       if name == null || name == "" { return null }
       local args = me._payload_args(payload)
       return hostbridge.box_new(name, args)
     }
-
     if selector == "box.call" {
-      if payload == null || !BoxTypeInspectorBox.is_array(payload) { return null }
-      if payload.length() <= 1 { return null }
-      local inst = payload.get(0)
-      local method = payload.get(1)
-      if inst == null || method == null { return null }
-      local args = new ArrayBox()
-      if payload.length() > 2 {
-        local raw_args = payload.get(2)
-        if raw_args != null && BoxTypeInspectorBox.is_array(raw_args) {
-          args = raw_args
-        } else {
-          args = me._payload_as_array(raw_args)
-        }
-      }
-      return hostbridge.box_call(inst, "" + method, args)
+      local map = me._payload_box_call(payload)
+      if map == null { return null }
+      return hostbridge.box_call(map.get("inst"), map.get("method"), map.get("args"))
     }
-
     return null
+  }
+
+  _payload_box_call(payload) {
+    if payload == null || !BoxTypeInspectorBox.is_array(payload) { return null }
+    if payload.length() <= 1 { return null }
+    local inst = payload.get(0)
+    local method = payload.get(1)
+    if inst == null || method == null { return null }
+    local args = new ArrayBox()
+    if payload.length() > 2 {
+      local raw_args = payload.get(2)
+      args = me._payload_as_array(raw_args)
+    }
+    local out = new MapBox()
+    out.set("inst", inst)
+    out.set("method", "" + method)
+    out.set("args", args)
+    return out
   }
 
   _payload_as_text(payload) {
@@ -127,13 +154,7 @@ static box HostFacadeBox {
   _payload_args(payload) {
     if payload == null || !BoxTypeInspectorBox.is_array(payload) { return new ArrayBox() }
     if payload.length() <= 1 { return new ArrayBox() }
-    local args = payload.get(1)
-    if args != null && BoxTypeInspectorBox.is_array(args) {
-      return args
-    }
-    local out = new ArrayBox()
-    if args != null { out.push(args) }
-    return out
+    return me._payload_as_array(payload.get(1))
   }
 
   _payload_as_array(payload) {

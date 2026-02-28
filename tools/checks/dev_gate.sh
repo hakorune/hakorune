@@ -50,6 +50,7 @@ list_profiles() {
   runtime-exec-zero:
     - plugin-module-core8-light
     - tools/checks/phase29cc_runtime_execution_path_zero_guard.sh
+    - tools/checks/phase29cc_hostfacade_direct_call_guard.sh
     - tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh
     - tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh
     - phase29cc_runtime_v0_adapter_fixtures_vm.sh
@@ -206,6 +207,8 @@ run_runtime_exec_zero() {
   run_plugin_module_core8_light
   run_step "runtime execution-path-zero observability guard" \
     bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh
+  run_step "hostfacade direct-call allowlist guard" \
+    bash tools/checks/phase29cc_hostfacade_direct_call_guard.sh
   run_step "runtime VM+AOT route lock guard (kilo contracts)" \
     bash tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh
   run_step "runtime V0 ABI slice lock guard" \
