@@ -242,8 +242,12 @@ Related:
     - `bash tools/checks/phase29cc_plg_hm2_min2_core6_wave2_ceiling_guard.sh`
     - `bash tools/checks/phase29cc_plg_hm2_min3_route_policy_matrix_guard.sh`
     - `tools/checks/dev_gate.sh plugin-module-core8`
-  - plugin HM3 candidate memo（not active, docs-first）:
+  - plugin residue classification lock（29cc-213, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-213-plg-hm3-next-blocker-candidate-memo.md`
+    - fixed:
+      - `nyash-fixture-plugin` = test-only keep
+      - `nyash-integer-plugin` = mainline keep（IntCellBox）
+      - `nyash-math` = retire（legacy duplicate; `nyash-math-plugin` is active line）
 
 ## M4 Tail Cleanup (retired parser flags)
 

@@ -114,8 +114,12 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-211-plg-hm2-min2-core6-static-wave2-compat-ceiling-lock-ssot.md`
   - plugin HM2 route policy matrix lock（PLG-HM2-min3 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-212-plg-hm2-min3-route-policy-matrix-lock-ssot.md`
-  - plugin HM3 candidate memo（not active, docs-first backlog）:
+  - plugin residue classification lock（29cc-213, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-213-plg-hm3-next-blocker-candidate-memo.md`
+    - fixed:
+      - `nyash-fixture-plugin` = test-only keep
+      - `nyash-integer-plugin` = mainline keep（IntCellBox）
+      - `nyash-math` = retire（legacy duplicate; `nyash-math-plugin` is active line）
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
