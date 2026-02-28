@@ -1,5 +1,19 @@
 // ---- ExternCall helpers for LLVM lowering ----
 // Exported as: nyash.console.log(i8* cstr) -> i64
+#[inline]
+fn handle_to_text(handle: i64) -> Option<String> {
+    nyash_rust::runtime::host_handles::get(handle as u64).map(|obj| obj.to_string_box().value)
+}
+
+#[inline]
+fn emit_stderr_with_prefix(prefix: &str, handle: i64) {
+    if let Some(text) = handle_to_text(handle) {
+        eprintln!("{}{}", prefix, text);
+    } else {
+        eprintln!("{}{}", prefix, handle);
+    }
+}
+
 #[export_name = "nyash.console.log"]
 pub extern "C" fn nyash_console_log_export(ptr: *const i8) -> i64 {
     if ptr.is_null() {
@@ -24,10 +38,8 @@ pub extern "C" fn print(ptr: *const i8) -> i64 {
 // Exported as: nyash.console.log_handle(i64 handle) -> i64
 #[export_name = "nyash.console.log_handle"]
 pub extern "C" fn nyash_console_log_handle(handle: i64) -> i64 {
-    use nyash_rust::runtime::host_handles as handles;
-    if let Some(obj) = handles::get(handle as u64) {
-        let s = obj.to_string_box().value;
-        println!("{}", s);
+    if let Some(text) = handle_to_text(handle) {
+        println!("{}", text);
     } else {
         // Fallback: handle is an unboxed integer (Phase 131-10)
         println!("{}", handle);
@@ -41,13 +53,7 @@ pub extern "C" fn nyash_console_warn_handle(handle: i64) -> i64 {
     if handle <= 0 {
         return 0;
     }
-
-    if let Some(obj) = nyash_rust::runtime::host_handles::get(handle as u64) {
-        let s = obj.to_string_box().value;
-        eprintln!("WARN: {}", s);
-    } else {
-        eprintln!("WARN: {}", handle);
-    }
+    emit_stderr_with_prefix("WARN: ", handle);
     0
 }
 
@@ -57,13 +63,7 @@ pub extern "C" fn nyash_console_error_handle(handle: i64) -> i64 {
     if handle <= 0 {
         return 0;
     }
-
-    if let Some(obj) = nyash_rust::runtime::host_handles::get(handle as u64) {
-        let s = obj.to_string_box().value;
-        eprintln!("ERROR: {}", s);
-    } else {
-        eprintln!("ERROR: {}", handle);
-    }
+    emit_stderr_with_prefix("ERROR: ", handle);
     0
 }
 
@@ -73,13 +73,7 @@ pub extern "C" fn nyash_debug_trace_handle(handle: i64) -> i64 {
     if handle <= 0 {
         return 0;
     }
-
-    if let Some(obj) = nyash_rust::runtime::host_handles::get(handle as u64) {
-        let s = obj.to_string_box().value;
-        eprintln!("TRACE: {}", s);
-    } else {
-        eprintln!("TRACE: {}", handle);
-    }
+    emit_stderr_with_prefix("TRACE: ", handle);
     0
 }
 

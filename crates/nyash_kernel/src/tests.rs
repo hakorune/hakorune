@@ -765,6 +765,19 @@ fn intarray_invalid_and_bounds_contract() {
 }
 
 #[test]
+fn console_null_and_invalid_handle_contract() {
+    assert_eq!(nyash_console_log_export(std::ptr::null()), 0);
+    assert_eq!(nyash_console_warn_export(std::ptr::null()), 0);
+    assert_eq!(nyash_console_error_export(std::ptr::null()), 0);
+    assert_eq!(nyash_debug_trace_export(std::ptr::null()), 0);
+
+    assert_eq!(nyash_console_log_handle(0), 0);
+    assert_eq!(nyash_console_warn_handle(0), 0);
+    assert_eq!(nyash_console_error_handle(0), 0);
+    assert_eq!(nyash_debug_trace_handle(0), 0);
+}
+
+#[test]
 fn runtime_data_dispatch_invalid_receiver_returns_zero() {
     let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new("not-array-or-map".to_string()));
     let receiver_handle = handles::to_handle_arc(receiver) as i64;
