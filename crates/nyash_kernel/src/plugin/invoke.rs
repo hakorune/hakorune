@@ -574,28 +574,11 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
                     i.copy_from_slice(&payload[4..8]);
                     let r_type = u32::from_le_bytes(t);
                     let r_inst = u32::from_le_bytes(i);
-                    let meta_opt =
-                        nyash_rust::runtime::plugin_loader_v2::metadata_for_type_id(r_type);
-                    let shim_invoke = nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim
-                        as unsafe extern "C" fn(
-                            u32,
-                            u32,
-                            u32,
-                            *const u8,
-                            usize,
-                            *mut u8,
-                            *mut usize,
-                        ) -> i32;
-                    let (box_type_name, invoke_ptr) = if let Some(meta) = meta_opt {
-                        if meta.invoke_box_fn.is_none() && nyash_rust::config::env::fail_fast() {
-                            return 0;
-                        }
-                        (meta.box_type.clone(), shim_invoke)
-                    } else if nyash_rust::config::env::fail_fast() {
-                        return 0;
-                    } else {
-                        (box_type.clone(), invoke.unwrap())
-                    };
+                    let (box_type_name, invoke_ptr, _fini_id) =
+                        match invoke_core::resolve_invoke_route_for_type(r_type, invoke.unwrap()) {
+                            Some(v) => v,
+                            None => return 0,
+                        };
                     let pb = nyash_rust::runtime::plugin_loader_v2::make_plugin_box_v2(
                         box_type_name,
                         r_type,

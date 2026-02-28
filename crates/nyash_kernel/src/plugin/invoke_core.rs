@@ -8,11 +8,15 @@ use nyash_rust::runtime::plugin_loader_v2::PluginBoxV2;
 pub struct Receiver {
     pub instance_id: u32,
     pub real_type_id: u32,
-    pub invoke: unsafe extern "C" fn(u32, u32, u32, *const u8, usize, *mut u8, *mut usize) -> i32,
+    pub invoke: InvokeFn,
 }
 
 #[inline]
-fn plugin_shim_invoke() -> unsafe extern "C" fn(
+fn plugin_shim_invoke() -> InvokeFn {
+    nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim
+}
+
+pub type InvokeFn = unsafe extern "C" fn(
     u32,
     u32,
     u32,
@@ -20,8 +24,31 @@ fn plugin_shim_invoke() -> unsafe extern "C" fn(
     usize,
     *mut u8,
     *mut usize,
-) -> i32 {
-    nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim
+) -> i32;
+
+/// Resolve route for a plugin object returned as TLV handle(tag=8).
+///
+/// Mainline (`NYASH_FAIL_FAST=1`):
+/// - metadata missing -> None
+/// - metadata present but no box route -> None
+///
+/// Compat (`NYASH_FAIL_FAST=0`):
+/// - metadata missing -> fallback invoke + generic box type
+pub fn resolve_invoke_route_for_type(
+    type_id: u32,
+    fallback_invoke: InvokeFn,
+) -> Option<(String, InvokeFn, Option<u32>)> {
+    let meta_opt = nyash_rust::runtime::plugin_loader_v2::metadata_for_type_id(type_id);
+    if let Some(meta) = meta_opt {
+        if meta.invoke_box_fn.is_none() && nyash_rust::config::env::fail_fast() {
+            return None;
+        }
+        return Some((meta.box_type, plugin_shim_invoke(), meta.fini_method_id));
+    }
+    if nyash_rust::config::env::fail_fast() {
+        return None;
+    }
+    Some(("PluginBox".to_string(), fallback_invoke, None))
 }
 
 /// Resolve receiver from a0: prefer handle registry; fallback to legacy VM args when allowed.
@@ -45,7 +72,7 @@ pub fn resolve_receiver_for_a0(a0: i64) -> Option<Receiver> {
 
 /// Call plugin invoke with dynamic buffer growth, returning first TLV entry on success.
 pub fn plugin_invoke_call(
-    invoke: unsafe extern "C" fn(u32, u32, u32, *const u8, usize, *mut u8, *mut usize) -> i32,
+    invoke: InvokeFn,
     type_id: u32,
     method_id: u32,
     instance_id: u32,
@@ -99,15 +126,7 @@ pub fn decode_entry_to_i64(
     tag: u8,
     sz: usize,
     payload: &[u8],
-    fallback_invoke: unsafe extern "C" fn(
-        u32,
-        u32,
-        u32,
-        *const u8,
-        usize,
-        *mut u8,
-        *mut usize,
-    ) -> i32,
+    fallback_invoke: InvokeFn,
 ) -> Option<i64> {
     match tag {
         2 => nyash_rust::runtime::plugin_ffi_common::decode::i32(payload).map(|v| v as i64),
@@ -137,18 +156,8 @@ pub fn decode_entry_to_i64(
                 i.copy_from_slice(&payload[4..8]);
                 let r_type = u32::from_le_bytes(t);
                 let r_inst = u32::from_le_bytes(i);
-                // Route-aware: metadata decides whether the type has a valid box invoke route.
-                let meta_opt = nyash_rust::runtime::plugin_loader_v2::metadata_for_type_id(r_type);
-                let (box_type_name, invoke_ptr) = if let Some(meta) = meta_opt {
-                    if meta.invoke_box_fn.is_none() && nyash_rust::config::env::fail_fast() {
-                        return None;
-                    }
-                    (meta.box_type.clone(), plugin_shim_invoke())
-                } else if nyash_rust::config::env::fail_fast() {
-                    return None;
-                } else {
-                    ("PluginBox".to_string(), fallback_invoke)
-                };
+                let (box_type_name, invoke_ptr, _fini_id) =
+                    resolve_invoke_route_for_type(r_type, fallback_invoke)?;
                 let pb = nyash_rust::runtime::plugin_loader_v2::make_plugin_box_v2(
                     box_type_name,
                     r_type,

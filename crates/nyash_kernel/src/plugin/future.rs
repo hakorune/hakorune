@@ -198,40 +198,17 @@ pub extern "C" fn nyash_future_spawn_method_h(
                             i.copy_from_slice(&payload[4..8]);
                             let r_type = u32::from_le_bytes(t);
                             let r_inst = u32::from_le_bytes(i);
-                            // Map type_id -> box type name (best-effort)
-                            let meta_opt =
-                                nyash_rust::runtime::plugin_loader_v2::metadata_for_type_id(r_type);
-                            let shim_invoke = nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim
-                                as unsafe extern "C" fn(
-                                    u32,
-                                    u32,
-                                    u32,
-                                    *const u8,
-                                    usize,
-                                    *mut u8,
-                                    *mut usize,
-                                ) -> i32;
-                            let (box_type_name, invoke_ptr, fini_id) = if let Some(meta) = meta_opt
-                            {
-                                if meta.invoke_box_fn.is_none()
-                                    && nyash_rust::config::env::fail_fast()
+                            let (box_type_name, invoke_ptr, fini_id) =
+                                match super::invoke_core::resolve_invoke_route_for_type(r_type, inv)
                                 {
-                                    fut_box.set_result(Box::new(
-                                        nyash_rust::box_trait::VoidBox::new(),
-                                    ));
-                                    return;
-                                }
-                                (
-                                    meta.box_type.clone(),
-                                    shim_invoke,
-                                    meta.fini_method_id,
-                                )
-                            } else if nyash_rust::config::env::fail_fast() {
-                                fut_box.set_result(Box::new(nyash_rust::box_trait::VoidBox::new()));
-                                return;
-                            } else {
-                                ("PluginBox".to_string(), inv, None)
-                            };
+                                    Some(v) => v,
+                                    None => {
+                                        fut_box.set_result(Box::new(
+                                            nyash_rust::box_trait::VoidBox::new(),
+                                        ));
+                                        return;
+                                    }
+                                };
                             let pb = nyash_rust::runtime::plugin_loader_v2::construct_plugin_box(
                                 box_type_name,
                                 r_type,
