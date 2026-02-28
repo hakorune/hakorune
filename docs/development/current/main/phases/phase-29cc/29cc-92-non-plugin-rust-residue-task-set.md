@@ -54,6 +54,17 @@ Current active next:
 - closeout:
   - non-plugin de-rust done 宣言は `29cc-94-derust-non-plugin-done-sync-ssot.md` を正本とする。
 
+## Monitor Refresh (2026-02-28)
+
+non-plugin residue lane の monitor-only 状態を再確認した。
+
+- `bash tools/checks/phase29y_derust_blocker_sync_guard.sh` -> PASS
+- `bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_quick_vm.sh` -> PASS
+- `tools/checks/dev_gate.sh plugin-module-core8` -> PASS（HM2-min2/min3 追加後も plugin lane 契約は維持）
+
+判定:
+- non-plugin residue は `none` 維持（failure-driven reopen 条件なし）
+
 RNR-02 progress:
 - min1 done（2026-02-24）: `subset_check` の shared helper 参照を `shape_contract` 経由に切替。
 - min2 done（2026-02-24）: shared shape/canonicalization 実装を `shape_contract` へ移設し、`payload_normalize` は参照側へ縮退。
