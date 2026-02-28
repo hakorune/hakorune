@@ -114,6 +114,13 @@ fn verify_nyrt_dir(dir: &str) -> Result<(), String> {
     Err(hint_nyrt_missing(dir))
 }
 
+#[inline(always)]
+fn skip_nyrt_precheck() -> bool {
+    // Keep default behavior unchanged. Harness/dev route can opt out of
+    // runner-side precheck and let ny-llvmc decide its own runtime path.
+    std::env::var("NYASH_LLVM_USE_HARNESS").ok().as_deref() == Some("1")
+}
+
 /// Emit native executable via ny-llvmc (lib-side MIR)
 #[allow(dead_code)]
 pub fn ny_llvmc_emit_exe_lib(
@@ -147,8 +154,12 @@ pub fn ny_llvmc_emit_exe_lib(
         })
         .unwrap_or_else(|| "target/release".to_string());
     let nyrt_dir_final = nyrt_dir.unwrap_or(&default_nyrt);
-    verify_nyrt_dir(nyrt_dir_final)?;
-    cmd.arg("--nyrt").arg(nyrt_dir_final);
+    if !skip_nyrt_precheck() {
+        verify_nyrt_dir(nyrt_dir_final)?;
+        cmd.arg("--nyrt").arg(nyrt_dir_final);
+    } else if let Some(explicit_nyrt) = nyrt_dir {
+        cmd.arg("--nyrt").arg(explicit_nyrt);
+    }
     if let Some(flags) = extra_libs {
         if !flags.trim().is_empty() {
             cmd.arg("--libs").arg(flags);
@@ -204,8 +215,12 @@ pub fn ny_llvmc_emit_exe_bin(
         })
         .unwrap_or_else(|| "target/release".to_string());
     let nyrt_dir_final = nyrt_dir.unwrap_or(&default_nyrt);
-    verify_nyrt_dir(nyrt_dir_final)?;
-    cmd.arg("--nyrt").arg(nyrt_dir_final);
+    if !skip_nyrt_precheck() {
+        verify_nyrt_dir(nyrt_dir_final)?;
+        cmd.arg("--nyrt").arg(nyrt_dir_final);
+    } else if let Some(explicit_nyrt) = nyrt_dir {
+        cmd.arg("--nyrt").arg(explicit_nyrt);
+    }
     if let Some(flags) = extra_libs {
         if !flags.trim().is_empty() {
             cmd.arg("--libs").arg(flags);

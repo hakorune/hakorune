@@ -141,6 +141,17 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `crates/nyash_kernel/src/encode.rs` に mainline用 `nyrt_encode_arg` を追加し、`plugin/invoke/by_id.rs`・`plugin/invoke/by_name.rs` を mainline encode + `fail_fast` 時2引数超rejectへ切替
       - `crates/nyash_kernel/src/plugin/future.rs` の spawn_instance3 payload encode を mainline `nyrt_encode_arg` 優先へ寄せ、`fail_fast` 時は 1payload 超を即時reject（compat時のみ placeholder 維持）
       - `crates/nyash_kernel/src/plugin/invoke_core.rs` の `encode_legacy_*` wrapper に `fail_fast` ガードを追加し、mainline での誤経路侵入を構造的に遮断
+  - runtime route residue relock（29cc-245, active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-245-runtime-route-residue-relock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-246-rz-array-min1-route-selector-lock-ssot.md`
+    - fixed:
+      - mainline 実行経路に残る Rust 依存（link / loader / kernel export）を 2026-02-28 時点で再棚卸し
+      - 次境界を `RZ-LINK-min1 -> RZ-ARRAY-min1 -> RZ-LOADER-min1` の順で固定
+      - 最適化と route cutover を分離（route先行、no-delete-first 維持）
+      - `src/runner/modes/common_util/exec.rs` で `NYASH_LLVM_USE_HARNESS=1` 時のみ `verify_nyrt_dir` をスキップ（既定挙動は維持）
+      - RuntimeDataBox array mono-route の symbol 選択を `select_runtime_data_call_spec()` に集約し、route切替境界を1箇所化（既定挙動は維持）
+    - active next:
+      - `RZ-ARRAY-min2`（`nyash.array.get_hi/set_hii` mainline 既定 route を runtime_data-only へ切替する可否判断と gate lock）
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:

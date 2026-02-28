@@ -41,6 +41,60 @@ _RUNTIME_DATA_ARRAY_I64_KEY_I64_VALUE_METHODS = {
     "set": ("nyash.array.set_hii", "unified_array_set_hii", 2),
 }
 
+def select_runtime_data_call_spec(
+    *,
+    method,
+    box_name,
+    resolver=None,
+    receiver_vid=None,
+    arg_vids=None,
+    prefer_array_mono_route=True,
+):
+    """
+    Select RuntimeDataBox call target symbol in one place.
+
+    RZ-ARRAY-min1:
+    - default behavior stays unchanged (`prefer_array_mono_route=True`)
+    - callers can explicitly choose runtime_data-only route without touching
+      lowerer internals.
+    """
+    method_name = str(method or "")
+    if str(box_name or "") != "RuntimeDataBox":
+        return None
+
+    if not prefer_array_mono_route:
+        return _RUNTIME_DATA_METHODS.get(method_name)
+
+    if prefer_runtime_data_array_route(
+        method=method_name,
+        box_name=box_name,
+        resolver=resolver,
+        receiver_vid=receiver_vid,
+        arg_vids=arg_vids,
+    ):
+        if prefer_runtime_data_array_i64_key_route(
+            method=method_name,
+            resolver=resolver,
+            arg_vids=arg_vids,
+        ):
+            if prefer_runtime_data_array_i64_key_i64_value_route(
+                method=method_name,
+                resolver=resolver,
+                arg_vids=arg_vids,
+            ):
+                spec = _RUNTIME_DATA_ARRAY_I64_KEY_I64_VALUE_METHODS.get(method_name)
+                if spec is None:
+                    spec = _RUNTIME_DATA_ARRAY_I64_KEY_METHODS.get(method_name)
+            else:
+                spec = _RUNTIME_DATA_ARRAY_I64_KEY_METHODS.get(method_name)
+            if spec is None:
+                spec = _RUNTIME_DATA_ARRAY_METHODS.get(method_name)
+        else:
+            spec = _RUNTIME_DATA_ARRAY_METHODS.get(method_name)
+    else:
+        spec = _RUNTIME_DATA_METHODS.get(method_name)
+    return spec
+
 
 def lower_runtime_data_method_call(
     builder,
@@ -53,6 +107,7 @@ def lower_runtime_data_method_call(
     resolver=None,
     receiver_vid=None,
     arg_vids=None,
+    prefer_array_mono_route=True,
 ):
     """
     Lower RuntimeDataBox method call to kernel runtime_data exports.
@@ -61,36 +116,14 @@ def lower_runtime_data_method_call(
       - LLVM value when handled (including fail-fast zero for arity mismatch)
       - None when call is not a RuntimeDataBox target/method
     """
-    if box_name != "RuntimeDataBox":
-        return None
-    if prefer_runtime_data_array_route(
+    spec = select_runtime_data_call_spec(
         method=method,
         box_name=box_name,
         resolver=resolver,
         receiver_vid=receiver_vid,
         arg_vids=arg_vids,
-    ):
-        if prefer_runtime_data_array_i64_key_route(
-            method=method,
-            resolver=resolver,
-            arg_vids=arg_vids,
-        ):
-            if prefer_runtime_data_array_i64_key_i64_value_route(
-                method=method,
-                resolver=resolver,
-                arg_vids=arg_vids,
-            ):
-                spec = _RUNTIME_DATA_ARRAY_I64_KEY_I64_VALUE_METHODS.get(method)
-                if spec is None:
-                    spec = _RUNTIME_DATA_ARRAY_I64_KEY_METHODS.get(method)
-            else:
-                spec = _RUNTIME_DATA_ARRAY_I64_KEY_METHODS.get(method)
-            if spec is None:
-                spec = _RUNTIME_DATA_ARRAY_METHODS.get(method)
-        else:
-            spec = _RUNTIME_DATA_ARRAY_METHODS.get(method)
-    else:
-        spec = _RUNTIME_DATA_METHODS.get(method)
+        prefer_array_mono_route=prefer_array_mono_route,
+    )
     if spec is None:
         return None
 
