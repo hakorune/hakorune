@@ -224,13 +224,15 @@ Related:
     - `docs/development/current/main/phases/phase-29cc/29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`
   - plugin de-rust filebox retire execution lock（PLG-07-min7 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-204-plg07-min7-filebox-retire-execution-lock-ssot.md`
-  - plugin module-provider lock（PLG-HM1 min1..min5 done; monitor-only）:
+  - plugin module-provider lock（PLG-HM1 min1..min5 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-209-plg-hm1-core8-module-provider-lock-ssot.md`
     - lock運用: `plugin-module-core8-light` は `phase29cc_plg_hm1_contract_tests_vm.sh`（min1..min4 集約）を正本にする
     - dev gate:
       - `tools/checks/dev_gate.sh plugin-module-core8-light`
       - `tools/checks/dev_gate.sh plugin-module-core8`
-  - plugin lane active next: `none`（PLG-07 closeout complete; monitor-only）
+  - plugin HM2 recovery line lock（PLG-HM2-min1 active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-210-plg-hm2-core-wave2-rust-recovery-line-lock-ssot.md`
+  - plugin lane active next: `PLG-HM2-min1`（Core+Wave2 Rust recovery line CI lock）
 
 ## M4 Tail Cleanup (retired parser flags)
 

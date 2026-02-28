@@ -99,7 +99,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - plugin wave-3 rollout lock（PLG-06-min4 done）:
     - `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`
   - plugin lane active next:
-    - `none`（PLG-07 closeout complete; monitor-only）
+    - `PLG-HM2-min1`（Rust recovery line CI lock）
   - plugin de-rust PLG-07 locks:
     - `docs/development/current/main/phases/phase-29cc/29cc-178-plg07-plugin-derust-cutover-order-ssot.md`（cutover order）
     - `docs/development/current/main/phases/phase-29cc/29cc-179-plg07-min1-min2-filebox-binary-rust-parity-lock-ssot.md`（min1/min2）
@@ -108,6 +108,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-182-plg07-min5-filebox-default-switch-lock-ssot.md`（min5）
     - `docs/development/current/main/phases/phase-29cc/29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`（min6）
     - `docs/development/current/main/phases/phase-29cc/29cc-204-plg07-min7-filebox-retire-execution-lock-ssot.md`（min7）
+  - plugin HM2 recovery line lock（PLG-HM2-min1 active）:
+    - `docs/development/current/main/phases/phase-29cc/29cc-210-plg-hm2-core-wave2-rust-recovery-line-lock-ssot.md`
   - wasm lane status SSOT（active next / latest lock / lock history）:
     - `docs/development/current/main/phases/phase-29cc/README.md`
   - wasm lane G2 task plan:
@@ -176,7 +178,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 4. wasm lane は monitor-only を維持し、failure-driven でのみ blocker を再起動する。
 5. wasm route は `hako_native/rust_native/legacy_bridge` の 3 つに固定し、新規 route を増やさない。
 6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
-7. plugin de-rust の `PLG-HM1`（min1..min5）は lock 済み。`module_first` は Core6（Array/String/Map/Console/File/Path）で固定し、Math/Net は dynamic compat を維持する（light gate SSOT: `phase29cc_plg_hm1_contract_tests_vm.sh`、gate: `tools/checks/dev_gate.sh plugin-module-core8-light` / `tools/checks/dev_gate.sh plugin-module-core8`）。
+7. plugin de-rust は `PLG-HM2-min1` を active にして、Core+Wave2 の Rust recovery line（CI matrix）を固定する。退役保存はソース複製を作らず、`code-retirement-history-policy-ssot` のとおり tag+commit 境界で管理する。
 
 ## Quick Restart (After Reboot)
 

@@ -36,3 +36,40 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Check hakorune
         run: cargo check --bin hakorune -q
+
+  plugin-recovery-check:
+    name: Plugin recovery check (${{ matrix.os }} / ${{ matrix.plugin.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        plugin:
+          - name: array
+            manifest: plugins/nyash-array-plugin/Cargo.toml
+          - name: map
+            manifest: plugins/nyash-map-plugin/Cargo.toml
+          - name: string
+            manifest: plugins/nyash-string-plugin/Cargo.toml
+          - name: console
+            manifest: plugins/nyash-console-plugin/Cargo.toml
+          - name: filebox
+            manifest: plugins/nyash-filebox-plugin/Cargo.toml
+          - name: path
+            manifest: plugins/nyash-path-plugin/Cargo.toml
+          - name: math
+            manifest: plugins/nyash-math-plugin/Cargo.toml
+          - name: net
+            manifest: plugins/nyash-net-plugin/Cargo.toml
+    steps:
+      - name: Enable Git long paths
+        if: runner.os == 'Windows'
+        run: git config --global core.longpaths true
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Check plugin crate
+        run: cargo check --manifest-path ${{ matrix.plugin.manifest }} -q

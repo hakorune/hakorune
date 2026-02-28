@@ -115,6 +115,7 @@ list_profiles() {
   portability:
     - tools/checks/windows_wsl_cmd_smoke.sh (preflight by default)
     - tools/checks/macos_portability_guard.sh
+    - tools/checks/phase29cc_plg_hm2_rust_recovery_line_guard.sh
     - tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
     - tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh
     - tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh
@@ -334,6 +335,8 @@ run_portability() {
     bash tools/checks/windows_wsl_cmd_smoke.sh
   run_step "macOS portability guard" \
     bash tools/checks/macos_portability_guard.sh
+  run_step "PLG-HM2 rust recovery line guard" \
+    bash tools/checks/phase29cc_plg_hm2_rust_recovery_line_guard.sh
   run_step "PLG-07 retire execution guard" \
     bash tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh
   run_step "WSM-P7 default hako-only guard" \
