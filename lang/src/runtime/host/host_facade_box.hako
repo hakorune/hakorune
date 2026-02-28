@@ -50,11 +50,59 @@ static box HostFacadeBox {
   }
 
   _call_loader(selector, payload) {
-    if selector != "extern_invoke" { return null }
-    local name = me._payload_name(payload)
-    if name == null || name == "" { return null }
-    local args = me._payload_args(payload)
-    return hostbridge.extern_invoke(name, args)
+    if selector == "extern_invoke" {
+      local name = me._payload_name(payload)
+      if name == null || name == "" { return null }
+      local args = me._payload_args(payload)
+      return hostbridge.extern_invoke(name, args)
+    }
+
+    if selector == "codegen.emit_object" {
+      local args = me._payload_as_array(payload)
+      return hostbridge.extern_invoke("env.codegen", "emit_object", args)
+    }
+
+    if selector == "codegen.link_object" {
+      local args = me._payload_as_array(payload)
+      return hostbridge.extern_invoke("env.codegen", "link_object", args)
+    }
+
+    if selector == "mirbuilder.emit" {
+      local args = me._payload_as_array(payload)
+      return hostbridge.extern_invoke("env.mirbuilder", "emit", args)
+    }
+
+    if selector == "box_introspect.kind" {
+      local args = me._payload_as_array(payload)
+      return hostbridge.extern_invoke("env.box_introspect", "kind", args)
+    }
+
+    if selector == "box.new" {
+      local name = me._payload_name(payload)
+      if name == null || name == "" { return null }
+      local args = me._payload_args(payload)
+      return hostbridge.box_new(name, args)
+    }
+
+    if selector == "box.call" {
+      if payload == null || !BoxTypeInspectorBox.is_array(payload) { return null }
+      if payload.length() <= 1 { return null }
+      local inst = payload.get(0)
+      local method = payload.get(1)
+      if inst == null || method == null { return null }
+      local args = new ArrayBox()
+      if payload.length() > 2 {
+        local raw_args = payload.get(2)
+        if raw_args != null && BoxTypeInspectorBox.is_array(raw_args) {
+          args = raw_args
+        } else {
+          args = me._payload_as_array(raw_args)
+        }
+      }
+      return hostbridge.box_call(inst, "" + method, args)
+    }
+
+    return null
   }
 
   _payload_as_text(payload) {
@@ -88,10 +136,18 @@ static box HostFacadeBox {
     return out
   }
 
+  _payload_as_array(payload) {
+    if payload != null && BoxTypeInspectorBox.is_array(payload) {
+      return payload
+    }
+    local out = new ArrayBox()
+    if payload != null { out.push(payload) }
+    return out
+  }
+
   _console_print(prefix, payload) {
     local text = ""
     if payload != null { text = "" + payload }
     print(prefix + text)
   }
 }
-

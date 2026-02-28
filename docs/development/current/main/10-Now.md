@@ -142,6 +142,9 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - `lang/src/vm/hakorune-vm/extern_provider.hako`
     - `lang/src/vm/hakorune-vm/extern_call_handler.hako`
     - `lang/src/vm/boxes/mir_vm_s0.hako`
+    - `lang/src/shared/host_bridge/codegen_bridge_box.hako`
+    - `lang/src/shared/host_bridge/host_bridge_box.hako`
+    - `lang/src/shared/mir/mir_io_box.hako`
   - runtime route-zero-sync closeout lock（29cc-243 accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:

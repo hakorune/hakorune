@@ -18,6 +18,7 @@ using selfhost.vm.hakorune-vm.backward_object_scanner as BackwardObjectScannerBo
 using selfhost.vm.hakorune-vm.block_iterator as BlockIteratorBox
 using selfhost.shared.common.common_imports as CommonImports
 using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.host_bridge.host_bridge as HostBridgeBox
 
 static box MirIoBox {
   // Internal: provider gate (yyjson)
@@ -50,15 +51,15 @@ static box MirIoBox {
     if me._provider_gate_on() == 0 { return null }
     if json == null { return Result.Err("json provider: input is null") }
     // Construct JsonDocBox without ArrayBox dependency
-    local doc = hostbridge.box_new0("JsonDocBox")
+    local doc = HostBridgeBox.box_new0("JsonDocBox")
     if doc == null { return Result.Err("json provider: box_new failed") }
     // parse(json) — 1-arg convenience wrapper
-    hostbridge.box_call1(doc, "parse", json)
+    HostBridgeBox.box_call1(doc, "parse", json)
     // check error()
-    local err = hostbridge.box_call0(doc, "error")
+    local err = HostBridgeBox.box_call0(doc, "error")
     if err != null && err != "" { return Result.Err("json provider: parse failed: " + err) }
     // root() — existence確認のみ（成功時は Ok(0) を返す）
-    local node = hostbridge.box_call0(doc, "root")
+    local node = HostBridgeBox.box_call0(doc, "root")
     if node == null { return Result.Err("json provider: root failed") }
     return Result.Ok(0)
   }

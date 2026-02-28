@@ -4,17 +4,18 @@
 //     hostbridge.extern_invoke("env.codegen", ...) everywhere.
 
 using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
+using lang.runtime.host.host_facade_box as HostFacadeBox
 
 static box CodegenBridgeBox {
   method emit_object(mir_json) {
     local args = new ArrayBox()
     if mir_json != null { args.push("" + mir_json) }
-    return hostbridge.extern_invoke("env.codegen", "emit_object", args)
+    return HostFacadeBox.call("loader", "codegen.emit_object", args)
   }
 
   method emit_object_args(args) {
     local arr = me._ensure_array(args)
-    return hostbridge.extern_invoke("env.codegen", "emit_object", arr)
+    return HostFacadeBox.call("loader", "codegen.emit_object", arr)
   }
 
   method link_object(obj_path, out_path) {
@@ -23,12 +24,12 @@ static box CodegenBridgeBox {
     if out_path != null && ("" + out_path) != "" {
       args.push("" + out_path)
     }
-    return hostbridge.extern_invoke("env.codegen", "link_object", args)
+    return HostFacadeBox.call("loader", "codegen.link_object", args)
   }
 
   method link_object_args(args) {
     local arr = me._ensure_array(args)
-    return hostbridge.extern_invoke("env.codegen", "link_object", arr)
+    return HostFacadeBox.call("loader", "codegen.link_object", arr)
   }
 
   method _ensure_array(value) {

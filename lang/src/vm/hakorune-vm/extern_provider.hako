@@ -32,8 +32,8 @@ static box HakoruneExternProviderBox {
       // Optional C‑ABI bridge（既定OFF）: タグを出力しつつ、Rust 側 extern_provider に最小接続
         if env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1" {
           print("[extern/c-abi:mirbuilder.emit]")
-          // Call through to Core extern dispatcher and return the produced JSON (v1)
-          local out = hostbridge.extern_invoke("env.mirbuilder", "emit", args)
+          // Call through HostFacade loader route and return produced JSON (v1)
+          local out = HostFacadeBox.call("loader", "mirbuilder.emit", args)
           return "" + out
       }
       // Default: return empty string (verify/dev stub keeps rc=0)
@@ -56,7 +56,7 @@ static box HakoruneExternProviderBox {
     if name == "env.box_introspect.kind" {
       if env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1" {
         if env.get("HAKO_CABI_TRACE") == "1" { print("[extern/c-abi:box_introspect.kind]") }
-        local out = hostbridge.extern_invoke("env.box_introspect", "kind", args)
+        local out = HostFacadeBox.call("loader", "box_introspect.kind", args)
         return "" + out
       }
       return ""
