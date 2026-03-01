@@ -98,7 +98,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - active lock: `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - boundary lock: `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - hook lock: `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
-    - status: `HFK-min1..min6 done`, active next=`RZ-LC-min4 closeout`（Lane-C reopen / source-keep）
+    - status: `HFK-min1..min6 done`, active next=`none`（monitor-only, failure-driven reopen）
     - latest: `NYASH_VM_USE_FALLBACK=0` では hook 未登録時に `invoke/by_name` / `future.spawn_instance3` / string exports の Rust fallback を禁止（mainline no-compat hardening）
     - latest2: `invoke_core` / `plugin_loader_v2/route_resolver` の compat fallback も `NYASH_VM_USE_FALLBACK=0` で拒否（fallback policy SSOT alignment）
     - latest3: fallback policy 判定を `vm_compat_fallback_allowed()` へ集約し、hook-miss は route-tag trace 付き fail-fast（`NYRT_E_HOOK_MISS` / freeze-handle）に固定（`hako_forward_bridge`）
@@ -108,21 +108,24 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - wasm lane: done through `WSM-P10`, active next=`none`（monitor-only）
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Perf lane（phase-21.5）:
-  - monitor-only（`RZ-LC-min4 closeout` 完了まで凍結）
-  - closeout 完了後の handoff 先（micro/asm -> kilo の順で再開）
+  - monitor-only（runtime lane とは別コミット境界で運用）
+  - latest closeout evidence (2026-03-01, head=`68ea40af29`):
+    - `tools/checks/dev_gate.sh runtime-exec-zero` green
+    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
+  - handoff 先（micro/asm -> kilo の順で再開）
   - source keep policy とは分離して進める
 - De-Rust lane map: `A=Compiler Meaning / B=Compiler Pipeline / C=Runtime Port`
   - SSOT: `docs/development/current/main/design/de-rust-lane-map-ssot.md`
 
 ## Immediate Next
 
-1. Lane-C reopen（source-keep）の `RZ-LC-min4 closeout` を固定し、完了後は monitor-only へ戻す。
+1. Lane-C（source-keep）は monitor-only を維持し、reopen は failure-driven に限定する。
 2. done contract は次の 2 コマンドを正本に固定する:
    - `tools/checks/dev_gate.sh runtime-exec-zero`
    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 3. runtime boundary を触るコミットは `tools/checks/dev_gate.sh portability` も必須にする。
 4. Rust source は保存固定とし、削除タスクは現時点で開始しない。
-5. 最適化 lane（micro/asm -> kilo）は Lane-C closeout 後に再開する。
+5. 最適化 lane（micro/asm -> kilo）は runtime closeout contract 緑を前提に別コミット境界で再開する。
 
 ## Read First Order
 

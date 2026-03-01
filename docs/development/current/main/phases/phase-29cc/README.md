@@ -303,17 +303,20 @@ Related:
       - `crates/nyash_kernel/src/plugin/invoke_core.rs` / `src/runtime/plugin_loader_v2/enabled/route_resolver.rs` も compat fallback を `NYASH_VM_USE_FALLBACK=0` で拒否する契約へ統一（fallback policy SSOT alignment）
       - fallback policy 判定を `src/config/env/vm_backend_flags.rs::vm_compat_fallback_allowed()` に集約し、`hako_forward_bridge` の hook-miss helper で no-compat fail-fast（`NYRT_E_HOOK_MISS` / freeze-handle）+ route-tag 観測を統一
       - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を compat-export-only 契約で更新
-      - next fixed order（29cc-254）: HFK-min1..min6 done、active next は `RZ-LC-min4 closeout`（Lane-C reopen / source-keep）
+      - next fixed order（29cc-254）: HFK-min1..min6 done、active next は `none`（monitor-only, failure-driven reopen）
       - execution-path-zero closeout contract（2026-03-01, head=`4e34f0bc1`）:
         - `tools/checks/dev_gate.sh runtime-exec-zero` green
         - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
-      - runtime lane handoff: `RZ-LC-min2 -> min3`（loader/kernel boundary sync）を実施済み。`RZ-LC-min4` closeout 後に optimization lane（micro/asm -> kilo）へ戻す
+      - runtime lane handoff: `RZ-LC-min2 -> min3`（loader/kernel boundary sync）を実施済み。runtime closeout contract 緑の間は optimization lane（micro/asm -> kilo）を別コミット境界で再開可能
+      - closeout reconfirm（2026-03-01, head=`68ea40af29`）:
+        - `tools/checks/dev_gate.sh runtime-exec-zero` green
+        - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:
       - route-zero + stability 判定同期は closeout
       - runtime lane は monitor-only（failure-driven reopen）
-      - selfhost `.hako` migration（29bq: mirbuilder first / parser later）は履歴上の handoff。現行の active next は `RZ-LC-min4 closeout`（Lane-C reopen）
+      - selfhost `.hako` migration（29bq: mirbuilder first / parser later）は履歴上の handoff。現行の active next は `none`（Lane-C monitor-only）
   - runtime execution-path observability lock（29cc-215, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md`
     - guard:

@@ -56,7 +56,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - active lock: `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - boundary lock: `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - hook lock: `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
-    - current status: `HFK-min1..min6 done`, active next=`RZ-LC-min4 closeout`
+    - current status: `HFK-min1..min6 done`, active next=`none`（monitor-only, failure-driven reopen）
     - latest: `NYASH_VM_USE_FALLBACK=0` 時は hook 未登録の `invoke/by_name` / `future.spawn_instance3` / string exports が Rust fallback へ落ちない契約へ更新（mainline no-compat path hardening）
     - latest2: `invoke_core` と `plugin_loader_v2/route_resolver` の compat fallback も `NYASH_VM_USE_FALLBACK=0` で拒否する契約へ統一（fallback policy SSOT alignment）
     - latest3: fallback policy 判定を `vm_compat_fallback_allowed()`（`src/config/env/vm_backend_flags.rs`）へ集約。`hako_forward_bridge` は hook-miss helpers を提供し、string/by_name/future の no-compat path は `NYRT_E_HOOK_MISS`（scalar）/ freeze-handle（handle戻り）で fail-fast を固定。
@@ -66,7 +66,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - wasm lane status: done through `WSM-P10` / active next=`none`（monitor-only）
   - done judgement matrix SSOT:
     - `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
-- perf lane: `phase-21.5 / llvm-aot-hotpath`（monitor-only: blocked by `RZ-LC-min4 closeout`）
+- perf lane: `phase-21.5 / llvm-aot-hotpath`（monitor-only: runtime lane とは別コミット境界で運用）
   - scope: `numeric_mixed_medium` / `method_call_only` / `chip8_kernel_small` / `kilo_kernel_small`（C/AOT 比較） + VM monitor-only
   - task SSOT: `docs/private/roadmap/phases/phase-21.5/PLAN.md`
   - Step-2 acceptance lock (fixed):
@@ -76,20 +76,23 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - WSL variance lock（single-run値で判定しない）:
     - canonical measure: `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 5`
     - latest (2026-02-28): `c_ms=77`, `py_ms=108`, `ny_vm_ms=979`, `ny_aot_ms=905`, `ratio_c_aot=0.09`, `aot_status=ok`
-  - active next: `none`（Lane-C closeout 完了まで凍結）
+  - active next: `none`（failure-driven reopen only）
   - optimization resume policy（fixed）:
-    - resume trigger: `RZ-LC-min4 closeout` 完了 + de-rust runtime closeout contract（`runtime-exec-zero` + `phase29y_no_compat_mainline_vm`）green。
+    - resume trigger: de-rust runtime closeout contract（`runtime-exec-zero` + `phase29y_no_compat_mainline_vm`）green。
+    - latest evidence (2026-03-01, head=`68ea40af29`):
+      - `tools/checks/dev_gate.sh runtime-exec-zero` green
+      - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
     - source keep policy と最適化は混ぜず、別コミット境界で進める。
 
 ## Immediate Next (this round)
 
-1. `RZ-LC-min4` closeout を実施し、Lane-C reopen（source-keep）を monitor-only へ戻す。
-2. done contract は次の 2 本で固定する:
+1. Lane-C（source-keep）は monitor-only を維持し、reopen は failure-driven に限定する。
+2. done contract は次の 2 本を継続監査する:
    - `tools/checks/dev_gate.sh runtime-exec-zero`
    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 3. runtime boundary を触るコミットは `tools/checks/dev_gate.sh portability` も合わせて green を維持する。
 4. Rust source は保存固定とし、削除タスクは当面起票しない（明示指示が出るまで停止）。
-5. 最適化 lane（micro/asm -> kilo）は Lane-C closeout 後に再開する。
+5. 最適化 lane（micro/asm -> kilo）は runtime closeout contract を前提に別コミット境界で進める。
 
 ## Future Ideas (Not Active)
 
@@ -109,7 +112,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `tools/checks/dev_gate.sh runtime-exec-zero`
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 - 再開タスク: `phase-29y / fixed-order monitor`（selfhost/de-rust mainline guard）
-- perf 実行は `RZ-LC-min4 closeout` 完了まで禁止（monitor-only）。
+- perf 実行は runtime closeout contract 緑を前提に、runtime lane と別コミット境界で実施する。
 
 ## Read-First Navigation
 
