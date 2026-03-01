@@ -84,5 +84,7 @@ source-zero の最終形では「関数ポインタ保持/登録面」も C ABI 
    - `crates/nyash_kernel/src/hako_forward.rs` は `nyrt.hako.register_*` 互換export専用へ縮退。
    - `plugin/invoke/by_name.rs` / `plugin/future.rs` / `exports/string.rs` は bridge 経由へ統一。
    - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を compat-export-only 契約へ更新。
-6. HFK-min6 active:
-   - Deletion Gate docs prep（physical delete は no-delete-first 維持、Rust source は条件達成まで当分保存）
+6. HFK-min6 done:
+   - `29cc-220` の Deferred Deletion Gate を fixed criteria 化。
+   - physical delete は引き続き別 lock 管理（no-delete-first 維持）。
+   - Rust source は Deletion Gate 条件達成まで当分保存。

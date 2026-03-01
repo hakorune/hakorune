@@ -91,3 +91,4 @@ Moved to: docs/development/current/main/phases/phase-131/131-03-llvm-lowering-in
 - 新しい Phase 文書は `main/phases/` に入れる（`main/` 直下に増やさない）。
 - 設計図（SSOT）は `main/design/` に寄せる（Phase の完了サマリと混ぜない）。
 - `10-Now.md` は「現状の要約＋正本リンク」に徹し、詳細ログの本文は抱え込まない。
+- `phase-29cc` の詳細進捗は `docs/development/current/main/phases/phase-29cc/README.md` を正本に集約し、`CURRENT_TASK.md` / `10-Now.md` は要約のみを保持する。

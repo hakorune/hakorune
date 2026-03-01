@@ -269,6 +269,7 @@ Related:
     - zero definition（fixed）:
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）
+      - Rust source は Deletion Gate 条件達成まで当分保存（物理削除は別 lock）
       - execution-path-zero は中間マイルストーンとして扱う
     - static-link policy（fixed）:
       - core runtime（host/kernel）は static-first（`libnyash_kernel.a` 正本）を維持
@@ -299,7 +300,7 @@ Related:
       - `crates/nyash_kernel/src/hako_forward.rs` は `nyrt.hako.register_*` 互換export専用へ縮退（compat-only）
       - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` / `crates/nyash_kernel/src/plugin/future.rs` / `crates/nyash_kernel/src/exports/string.rs` は bridge 経由へ統一
       - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を compat-export-only 契約で更新
-      - next fixed order（29cc-254）: HFK-min1..min5 done、active next は HFK-min6（Deletion Gate docs prep）
+      - next fixed order（29cc-254）: HFK-min1..min6 done、active next は `none`（monitor-only / no-delete-first）
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:

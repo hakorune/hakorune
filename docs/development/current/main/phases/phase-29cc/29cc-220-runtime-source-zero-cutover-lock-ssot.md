@@ -1,7 +1,7 @@
 ---
 Status: Active
 Decision: accepted
-Date: 2026-02-28
+Date: 2026-03-01
 Scope: runtime/plugin de-rust の最終ゴールを source-zero に固定しつつ、現フェーズは no-delete-first（経路切替先行）で進める。
 Related:
   - CURRENT_TASK.md
@@ -80,13 +80,26 @@ Related:
   - 残存Rust境界は `AOT link / plugin_loader_v2 / C ABI entry` の3本に固定。
   - core runtime は static-first（`libnyash_kernel.a`）を維持し、外部 plugin dynamic は補助経路に固定。
 
-## Deferred Deletion Gate (future)
+## Deferred Deletion Gate (fixed criteria)
 
-Rust source 削除は次の条件を満たした後に別 lock で実施する。
+Rust source の物理削除は次の条件を**全て**満たした後に、別 lock でのみ実施する。
+1つでも未達の間は `no-delete-first` を維持する。
 
-1. mac 実機でのローカルビルド運用が確立している。
-2. portability CI（macOS/Windows）が一定期間連続で green。
-3. route drift guard で Rust route 未使用が継続確認できる。
+1. mac local build evidence（必須）
+   - mac 実機で `cargo build --release --bin hakorune` を実行し、当該 head で成功させる。
+   - 実行コマンドと head SHA を phase-29cc 側 docs に記録する。
+2. portability CI stability（必須）
+   - `Windows check` と `macOS build (release)` が、`main` の直近 10 run 連続で green。
+   - 再実行でのみ通る run はカウントしない。
+3. route drift guard stability（必須）
+   - 同一 head で以下が green:
+     - `tools/checks/dev_gate.sh runtime-exec-zero`
+     - `tools/checks/dev_gate.sh portability`
+     - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
+   - これを 5 回連続（節目 run 単位）で確認する。
+4. rollback readiness（必須）
+   - Rust bootstrap 復旧手順（build command / gate command / 失敗時戻し方）が docs に固定済み。
+   - source delete lock に「restore from git history」の導線を明記する。
 
 ## Not in this lock
 
