@@ -124,6 +124,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - static-link boundary lock（29cc-253, active）:
       - `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
+    - hako-forward hook C ABI cutover order lock（29cc-254, active）:
+      - `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
     - zero definition（fixed）:
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）
@@ -159,6 +161,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `src/runner/modes/common_util/exec.rs` に `default_nyrt_dir()` / `apply_nyrt_arg()` を追加し、`emit-exe` の nyrt 解決・precheck適用を lib/bin 経路で共通化（static-first 契約の重複撤去）
       - `crates/nyash_kernel/src/hako_forward.rs` を新設し、`nyrt.hako.register_{plugin_invoke_by_name,future_spawn_instance,string_dispatch}` の forward hook 登録面を追加（未登録時は現行Rust実装を維持）
       - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` / `crates/nyash_kernel/src/plugin/future.rs` / `crates/nyash_kernel/src/exports/string.rs` に `.hako` forward 優先呼びを追加し、C ABI entry から `.hako` 正本への移行導線を固定
+    - next fixed order（29cc-254, docs-first）:
+      - HFK-min1: host ABI docs (`nyrt_host_surface_v0`) に `nyrt_hako_register_*` planned extension 契約を追記
+      - HFK-min2: `include/nyrt.h` + `lang/c-abi/shims/hako_kernel.c` に forward registry を実装（Rustは暫定保持）
+      - HFK-min3: kernel entry は C shim registry 正本へ切替、Rust `hako_forward` はトランポリンへ縮退
+      - HFK-min4: runtime-exec-zero + portability + GitHub Actions (linux/windows/mac) で cutover を固定
   - runtime route residue relock（29cc-245, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-245-runtime-route-residue-relock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-246-rz-array-min1-route-selector-lock-ssot.md`

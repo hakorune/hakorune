@@ -132,6 +132,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - static-link boundary lock（29cc-253 active）:
       - `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
+    - hako-forward hook C ABI cutover lock（29cc-254 active）:
+      - `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
     - zero definition: long-term=source-zero / phase done=route-zero + stability（no-delete-first）
     - static-link policy: core runtime（host/kernel）は static-first（`libnyash_kernel.a` 正本）を維持、外部 plugin dynamic は補助経路
     - latest cleanup (2026-02-28): `enabled/route_resolver.rs` を新設し、`ffi_bridge`/`instance_manager` の route 解決重複を共通化
@@ -155,6 +157,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - latest cleanup (2026-03-01): `runner/common_util/exec.rs` の `--emit-exe` nyrt 解決・precheck適用を `apply_nyrt_arg()` へ集約し、static-first 契約の重複分岐を撤去
     - latest cleanup (2026-03-01): `crates/nyash_kernel/src/hako_forward.rs` を追加し、`nyrt.hako.register_*` で `.hako` 実装への forward hook を登録可能化（未登録時は現行Rust経路）
     - latest cleanup (2026-03-01): `invoke/by_name` / `future.spawn_instance3` / `exports/string` が forward hook を優先する境界に切替（Phase A: C ABI entry -> `.hako` 移行導線）
+    - next fixed order (2026-03-01): `29cc-254` に HFK-min1..min4 を固定（docs -> header/shim -> kernel wiring -> portability gate）
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:
