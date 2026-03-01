@@ -79,7 +79,7 @@ Related:
 
 この節は「closeout を止めない」。新規 blocker が出た時だけ着手する。
 
-- [ ] parser capability widening（box/static box decl, method decl, lambda など）
+- [x] parser capability widening baseline（PW1-3 完了。failure-driven reopen only）
   - [x] PW1: delegated box header `box Child from Parent { ... }` を `FuncScannerBox.scan_all_boxes` で受理（fixture: `apps/tests/phase29bq_selfhost_funcscanner_box_from_min.hako`, pin: `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_funcscanner_box_from_min_vm.sh`）
   - [x] PW2: method decl widening（`static`/modern 宣言の境界固定）
     - fixture: `apps/tests/phase29bq_selfhost_funcscanner_method_boundary_from_birth_min.hako`
@@ -87,7 +87,7 @@ Related:
   - [x] PW3: lambda literal widening（`fn(...) { ... }`）
     - fixture: `apps/tests/phase29bq_selfhost_funcscanner_lambda_literal_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_lambda_literal_pair_min_vm.sh`
-- [ ] MIR instruction widening（Call/BoxCall/NewBox/Load/Store など）
+- [x] MIR instruction widening baseline（MIW1-7 + LS0-2 完了）
   - [x] MIW1: `Return(NewBox)` 最小受理（`args=[]` のみ）
     - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase12_return_newbox_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase12_return_newbox_min_vm.sh`
@@ -123,7 +123,7 @@ Related:
   - [x] LS2: Store minimal pin を固定（`Local(Int)>Assignment(Int)>Return(Var)`）
     - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase20_store_assignment_int_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase20_store_assignment_int_min_vm.sh`
-- [ ] 深い nested control widening（break/continue 複合形、複雑 cleanup）
+- [x] 深い nested control widening baseline（NCW1 完了。追加は failure-driven）
   - [x] NCW1: strict-nested accept-min1 を追加し、既存 reject pin を維持
     - accept fixture: `apps/tests/phase29bq_strict_nested_loop_guard_accept_min.hako`
     - reject fixture (keep): `apps/tests/phase29bq_strict_nested_loop_guard_min.hako`
