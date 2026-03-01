@@ -83,7 +83,8 @@ stdout 比較の揺れを避けるため、原則 `HAKO_JOINIR_DEBUG=0`。
 
 - [ ] 日常運用は `quick(5件)` + `probe(1件)` を標準にする（full canary を常時回さない）。
 - [ ] 旧基準値（2026-02-08）: full canary は `187` cases / `total_secs=798` / `avg_case_secs=4.27`（比較用に保持）。
-- [x] 最新基準値（2026-02-10）: full canary は `198` cases / `total_secs=871` / `avg_case_secs=4.40`（parallel `jobs=4`）。
+- [x] full canary 基準値（履歴固定, 2026-02-10）: `198` cases / `total_secs=871` / `avg_case_secs=4.40`（parallel `jobs=4`）。
+- [x] 現行運用基準（2026-02-28〜2026-03-01）: quick + steady-state evidence を日常基準とする（本節 2.4 の実測値を正本とする）。
 - [ ] full canary は節目だけ実行する:
   - `planner_required_selfhost_subset.tsv` を更新して PROMOTE するとき
   - Rust 実装（bridge/parser/mirbuilder）を変更して push 前の最終確認をするとき

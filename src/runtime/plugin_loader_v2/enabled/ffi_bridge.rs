@@ -124,7 +124,7 @@ fn decode_tlv_result(
                     let route = super::route_resolver::resolve_invoke_route_contract(loader, ret_type);
                     let handle = Arc::new(super::types::PluginHandleInner {
                         type_id: ret_type,
-                        invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
+                        invoke_fn: route.invoke_shim_fn,
                         invoke_box_fn: route.invoke_box_fn,
                         instance_id: inst,
                         fini_method_id,

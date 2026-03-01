@@ -46,7 +46,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_var_values_lock_vm.sh`
     - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm.sh`
   - binary-only contract SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
-- de-rust migration orchestration lane: `phase-29cc / monitor-only`
+- de-rust migration orchestration lane: `phase-29cc / reopen (runtime Lane-C boundary sync, source-keep)`
   - phase dashboard（SSOT）: `docs/development/current/main/phases/phase-29cc/README.md`
   - execution checklist: `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`
   - scope decision（L5 accepted）: `docs/development/current/main/design/de-rust-scope-decision-ssot.md`
@@ -56,11 +56,13 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - active lock: `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - boundary lock: `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - hook lock: `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
-    - current status: `HFK-min1..min6 done`, active next=`none`（monitor-only / source-keep）
+    - current status: `HFK-min1..min6 done`, active next=`RZ-LC-min4 closeout`
     - latest: `NYASH_VM_USE_FALLBACK=0` 時は hook 未登録の `invoke/by_name` / `future.spawn_instance3` / string exports が Rust fallback へ落ちない契約へ更新（mainline no-compat path hardening）
     - latest2: `invoke_core` と `plugin_loader_v2/route_resolver` の compat fallback も `NYASH_VM_USE_FALLBACK=0` で拒否する契約へ統一（fallback policy SSOT alignment）
     - latest3: fallback policy 判定を `vm_compat_fallback_allowed()`（`src/config/env/vm_backend_flags.rs`）へ集約。`hako_forward_bridge` は hook-miss helpers を提供し、string/by_name/future の no-compat path は `NYRT_E_HOOK_MISS`（scalar）/ freeze-handle（handle戻り）で fail-fast を固定。
-    - source keep policy: Rust source は保存固定（削除タスクは起票しない / reopen対象外）
+    - latest4: `plugin_loader_v2` loader/instance/ffi の invoke route を `InvokeRouteContract` 再利用へ統一し、`invoke_core` に named receiver+method 解決 / invoke+decode helper を追加（`by_name` / `future` entry の重複を縮退）。
+    - source keep policy: Rust source は保存固定（削除タスクは起票しない）
+    - target model: `.hako` 主経路で runtime/plugin の mainline 実装を成立させ、Rust 意味論の mainline 依存を 0 行化する（source keep）
   - wasm lane status: done through `WSM-P10` / active next=`none`（monitor-only）
   - done judgement matrix SSOT:
     - `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
@@ -81,14 +83,13 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. de-rust runtime execution-path-zero closeout は完了として扱う（source-keep 維持）。
+1. `RZ-LC-min4` closeout を実施し、Lane-C reopen（source-keep）を monitor-only へ戻す。
 2. done contract は次の 2 本で固定する:
    - `tools/checks/dev_gate.sh runtime-exec-zero`
    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
-3. de-rust lane（phase-29cc）は monitor-only を維持し、failure-driven でのみ reopen する。
+3. runtime boundary を触るコミットは `tools/checks/dev_gate.sh portability` も合わせて green を維持する。
 4. Rust source は保存固定とし、削除タスクは当面起票しない（明示指示が出るまで停止）。
-5. 次の実装優先は最適化 lane（micro/asm -> kilo）へ handoff する。
-6. 最適化と source keep policy 更新は混ぜない（1 boundary = 1 commit を維持）。
+5. 最適化 lane（micro/asm -> kilo）は Lane-C closeout 後に再開する。
 
 ## Future Ideas (Not Active)
 

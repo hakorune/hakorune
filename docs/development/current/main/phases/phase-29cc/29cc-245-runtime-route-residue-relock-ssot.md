@@ -21,6 +21,7 @@ Related:
 - mainline route の健全性確認は `no_compat_mainline` と `runtime-exec-zero` を継続使用する。
 - 次の境界は最適化ではなく route cutover を優先する。
 - `no-delete-first` を維持し、source 削除は扱わない。
+- target model は「Rust source を保存したまま、mainline の runtime/plugin 意味論依存を 0 行化（`.hako` 主経路化）」とする。
 
 ## Residue Inventory (2026-02-28 refresh)
 
@@ -40,12 +41,14 @@ Related:
 
 ## Fixed Next Order
 
-1. RZ-LINK-min1  
-   `emit-exe` 経路の `libnyash_kernel.a` 前提を optional route 化（既定は現行維持）
-2. RZ-ARRAY-min1  
-   `nyash.array.get_hi/set_hii` の mainline 呼び先を `.hako` 側 route へ寄せるための境界分離
-3. RZ-LOADER-min1  
-   loader/unified の route resolver 境界を `.hako` host facade 経由で固定
+1. RZ-LC-min1 (docs sync)
+   - `CURRENT_TASK.md` / `10-Now.md` / `phase-29cc/README.md` を Lane-C reopen + source-keep で同期する。
+2. RZ-LC-min2 (loader boundary)
+   - `plugin_loader_v2` の mainline 判定源を `route_resolver` へ集約し、compat/dev 分岐を隔離する。
+3. RZ-LC-min3 (kernel entry boundary)
+   - `invoke/by_name` / `future` / `exports` の mainline 呼び先を `.hako forward bridge` 優先へ固定し、Rust 側は thin compat を維持する。
+4. RZ-LC-min4 (closeout)
+   - `runtime-exec-zero` + `no_compat_mainline` + `portability` 緑で Lane-C を monitor-only へ戻し、最適化 lane へ handoff する。
 
 ## Execution Status
 
@@ -77,6 +80,15 @@ Related:
   - `route_resolver` に `resolve_birth_contract_for_lib()` を追加
   - `loader/singletons` / `instance_manager` / `ffi_bridge` / `types` の invoke route 解決を contract 経由へ統一
   - global 直lookup での route 判定を縮退（挙動不変）
+- 2026-03-01: RZ-KERNEL-min1 (entry invoke helper thin lock) 着手
+  - `crates/nyash_kernel/src/plugin/invoke_core.rs` に `resolve_named_method_for_handle()` / `invoke_named_receiver_to_i64()` を追加
+  - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` の receiver+method 解決 / invoke+decode 重複を helper 経由へ統一
+  - `crates/nyash_kernel/src/plugin/future.rs` の `spawn_instance3` method 解決を helper 経由へ統一
+  - hook優先・fallback policy（`NYASH_VM_USE_FALLBACK`）の挙動は不変
+- 2026-03-01: RZ-LC-min4 (closeout gate refresh) 実施
+  - `tools/checks/dev_gate.sh runtime-exec-zero` green
+  - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
+  - `tools/checks/dev_gate.sh portability` green
 
 ## Gate Contract
 

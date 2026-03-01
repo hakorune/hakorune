@@ -23,15 +23,8 @@ fn plugin_shim_invoke() -> InvokeFn {
     nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim
 }
 
-pub type InvokeFn = unsafe extern "C" fn(
-    u32,
-    u32,
-    u32,
-    *const u8,
-    usize,
-    *mut u8,
-    *mut usize,
-) -> i32;
+pub type InvokeFn =
+    unsafe extern "C" fn(u32, u32, u32, *const u8, usize, *mut u8, *mut usize) -> i32;
 
 #[inline]
 fn compat_fallback_allowed() -> bool {
@@ -100,14 +93,22 @@ pub fn resolve_named_receiver_for_handle(recv_handle: i64) -> Option<NamedReceiv
 }
 
 /// Resolve method id by name for a plugin receiver route.
-pub fn resolve_method_id_for_named_receiver(
-    receiver: &NamedReceiver,
-    method: &str,
-) -> Option<u32> {
+pub fn resolve_method_id_for_named_receiver(receiver: &NamedReceiver, method: &str) -> Option<u32> {
     let host = nyash_rust::runtime::plugin_loader_unified::get_global_plugin_host();
     let guard = host.read().ok()?;
     let handle = guard.resolve_method(&receiver.box_type, method).ok()?;
     Some(handle.method_id as u32)
+}
+
+/// Resolve receiver + method id together for name-based invoke routes.
+#[inline]
+pub fn resolve_named_method_for_handle(
+    recv_handle: i64,
+    method: &str,
+) -> Option<(NamedReceiver, u32)> {
+    let receiver = resolve_named_receiver_for_handle(recv_handle)?;
+    let method_id = resolve_method_id_for_named_receiver(&receiver, method)?;
+    Some((receiver, method_id))
 }
 
 /// Call plugin invoke with dynamic buffer growth, returning first TLV entry on success.
@@ -159,6 +160,23 @@ pub fn plugin_invoke_call(
         return None;
     }
     Some((tag_ret, sz_ret, payload_ret))
+}
+
+/// Invoke a named receiver/method and decode first TLV entry to i64.
+#[inline]
+pub fn invoke_named_receiver_to_i64(
+    receiver: &NamedReceiver,
+    method_id: u32,
+    tlv_args: &[u8],
+) -> Option<i64> {
+    let (tag, sz, payload) = plugin_invoke_call(
+        receiver.invoke,
+        receiver.real_type_id,
+        method_id,
+        receiver.instance_id,
+        tlv_args,
+    )?;
+    decode_entry_to_i64(tag, sz, payload.as_slice(), receiver.invoke)
 }
 
 /// Decode a single TLV entry to i64 with side-effects (handle registration) when applicable.

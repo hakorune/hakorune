@@ -59,10 +59,11 @@ pub(super) fn construct_existing_instance(
             loader, &lib_name, &box_type, type_id,
         )
         .ok()?;
+    let route = super::super::route_resolver::resolve_invoke_route_contract(loader, type_id);
     let bx = construct_plugin_box(
         box_type,
         type_id,
-        super::super::nyash_plugin_invoke_v2_shim,
+        route.invoke_shim_fn,
         instance_id,
         fini_method_id,
     );

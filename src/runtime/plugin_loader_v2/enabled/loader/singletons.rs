@@ -66,8 +66,8 @@ pub(super) fn ensure_singleton_handle(
     let instance_id = u32::from_le_bytes([out_vec[0], out_vec[1], out_vec[2], out_vec[3]]);
     let handle = Arc::new(types::PluginHandleInner {
         type_id,
-        invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
-        invoke_box_fn: loader.box_invoke_fn_for_type_id(type_id),
+        invoke_fn: route.invoke_shim_fn,
+        invoke_box_fn: route.invoke_box_fn,
         instance_id,
         fini_method_id: fini_id,
         finalized: std::sync::atomic::AtomicBool::new(false),

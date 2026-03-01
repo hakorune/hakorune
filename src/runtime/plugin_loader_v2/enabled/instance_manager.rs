@@ -116,7 +116,7 @@ fn build_plugin_box_handle(
         box_type: box_type.to_string(),
         inner: Arc::new(PluginHandleInner {
             type_id: contract.type_id,
-            invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
+            invoke_fn: route.invoke_shim_fn,
             invoke_box_fn: route.invoke_box_fn,
             instance_id,
             fini_method_id: contract.fini_id,

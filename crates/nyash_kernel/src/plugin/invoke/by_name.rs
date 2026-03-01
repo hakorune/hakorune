@@ -1,9 +1,16 @@
 use crate::encode::nyrt_encode_arg;
+use crate::plugin::invoke::instance_fields::{
+    handle_instance_get_field, handle_instance_set_field,
+};
 use crate::plugin::invoke_core;
-use crate::plugin::invoke::instance_fields::{handle_instance_get_field, handle_instance_set_field};
 
 #[no_mangle]
-pub extern "C" fn nyash_plugin_invoke_name_getattr_i64(argc: i64, a0: i64, a1: i64, a2: i64) -> i64 {
+pub extern "C" fn nyash_plugin_invoke_name_getattr_i64(
+    argc: i64,
+    a0: i64,
+    a1: i64,
+    a2: i64,
+) -> i64 {
     nyash_plugin_invoke_name_common_i64("getattr", argc, a0, a1, a2)
 }
 
@@ -12,11 +19,14 @@ pub extern "C" fn nyash_plugin_invoke_name_call_i64(argc: i64, a0: i64, a1: i64,
     nyash_plugin_invoke_name_common_i64("call", argc, a0, a1, a2)
 }
 
-fn nyash_plugin_invoke_name_common_i64(method: &str, argc: i64, a0: i64, _a1: i64, _a2: i64) -> i64 {
-    let Some(receiver) = invoke_core::resolve_named_receiver_for_handle(a0) else {
-        return 0;
-    };
-    let Some(method_id) = invoke_core::resolve_method_id_for_named_receiver(&receiver, method)
+fn nyash_plugin_invoke_name_common_i64(
+    method: &str,
+    argc: i64,
+    a0: i64,
+    _a1: i64,
+    _a2: i64,
+) -> i64 {
+    let Some((receiver, method_id)) = invoke_core::resolve_named_method_for_handle(a0, method)
     else {
         return 0;
     };
@@ -25,24 +35,11 @@ fn nyash_plugin_invoke_name_common_i64(method: &str, argc: i64, a0: i64, _a1: i6
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
     // This shim has no explicit a1/a2 payload path; compat mode recovers
     // arguments from legacy VM slots (fail_fast=0 only).
-    if nargs > 0
-        && !invoke_core::encode_legacy_args_with_failfast_policy(&mut buf, 1, nargs)
-    {
+    if nargs > 0 && !invoke_core::encode_legacy_args_with_failfast_policy(&mut buf, 1, nargs) {
         return 0;
     }
 
-    let Some((tag, sz, payload)) =
-        invoke_core::plugin_invoke_call(
-            receiver.invoke,
-            receiver.real_type_id,
-            method_id,
-            receiver.instance_id,
-            &buf,
-        )
-    else {
-        return 0;
-    };
-    invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), receiver.invoke).unwrap_or(0)
+    invoke_core::invoke_named_receiver_to_i64(&receiver, method_id, &buf).unwrap_or(0)
 }
 
 #[export_name = "nyash.plugin.invoke_by_name_i64"]
@@ -56,13 +53,9 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
     if method.is_null() {
         return 0;
     }
-    if let Some(v) = crate::hako_forward_bridge::call_plugin_invoke_by_name(
-        recv_handle,
-        method,
-        argc,
-        a1,
-        a2,
-    ) {
+    if let Some(v) =
+        crate::hako_forward_bridge::call_plugin_invoke_by_name(recv_handle, method, argc, a1, a2)
+    {
         return v;
     }
     if !crate::hako_forward_bridge::rust_fallback_allowed() {
@@ -91,10 +84,8 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
             }
         }
     }
-    let Some(receiver) = invoke_core::resolve_named_receiver_for_handle(recv_handle) else {
-        return 0;
-    };
-    let Some(method_id) = invoke_core::resolve_method_id_for_named_receiver(&receiver, method_str)
+    let Some((receiver, method_id)) =
+        invoke_core::resolve_named_method_for_handle(recv_handle, method_str)
     else {
         return 0;
     };
@@ -113,16 +104,5 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
             return 0;
         }
     }
-    let Some((tag, sz, payload)) =
-        invoke_core::plugin_invoke_call(
-            receiver.invoke,
-            receiver.real_type_id,
-            method_id,
-            receiver.instance_id,
-            &buf,
-        )
-    else {
-        return 0;
-    };
-    invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), receiver.invoke).unwrap_or(0)
+    invoke_core::invoke_named_receiver_to_i64(&receiver, method_id, &buf).unwrap_or(0)
 }
