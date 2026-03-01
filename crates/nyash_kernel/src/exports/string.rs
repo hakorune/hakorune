@@ -191,8 +191,13 @@ fn allow_rust_string_fallback() -> bool {
 }
 
 #[inline(always)]
-fn hook_miss_return_zero(route: &str) -> i64 {
-    hako_forward_bridge::hook_miss_return_zero(route)
+fn hook_miss_scalar_error(route: &str) -> i64 {
+    hako_forward_bridge::hook_miss_error_code(route)
+}
+
+#[inline(always)]
+fn hook_miss_freeze_handle(route: &str) -> i64 {
+    hako_forward_bridge::hook_miss_freeze_handle(route)
 }
 
 #[inline(always)]
@@ -245,7 +250,7 @@ pub extern "C" fn nyash_string_len_h(handle: i64) -> i64 {
         return v;
     }
     if !allow_rust_string_fallback() {
-        return hook_miss_return_zero("string.len_h");
+        return hook_miss_scalar_error("string.len_h");
     }
     if jit_trace_len_enabled() {
         let present = if handle > 0 {
@@ -285,7 +290,7 @@ pub extern "C" fn nyash_string_charcode_at_h_export(handle: i64, idx: i64) -> i6
         return v;
     }
     if !allow_rust_string_fallback() {
-        return hook_miss_return_zero("string.charCodeAt_h");
+        return hook_miss_scalar_error("string.charCodeAt_h");
     }
     if idx < 0 {
         return -1;
@@ -309,7 +314,7 @@ pub extern "C" fn nyash_string_concat_hh_export(a_h: i64, b_h: i64) -> i64 {
         return v;
     }
     if !allow_rust_string_fallback() {
-        return hook_miss_return_zero("string.concat_hh");
+        return hook_miss_freeze_handle("string.concat_hh");
     }
     if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
         return out;
@@ -330,7 +335,7 @@ pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) 
         return v;
     }
     if !allow_rust_string_fallback() {
-        return hook_miss_return_zero("string.concat3_hhh");
+        return hook_miss_freeze_handle("string.concat3_hhh");
     }
     // Hot path: resolve all 3 handles once and reuse the same objects for
     // both direct String route and StringView-compatible fallback route.
@@ -374,7 +379,7 @@ pub extern "C" fn nyash_string_eq_hh_export(a_h: i64, b_h: i64) -> i64 {
         return v;
     }
     if !allow_rust_string_fallback() {
-        return hook_miss_return_zero("string.eq_hh");
+        return hook_miss_scalar_error("string.eq_hh");
     }
     compare_string_pair_hh(a_h, b_h, |lhs, rhs| lhs == rhs)
 }
@@ -392,7 +397,7 @@ pub extern "C" fn nyash_string_substring_hii_export(h: i64, start: i64, end: i64
         return v;
     }
     if !allow_rust_string_fallback() {
-        return hook_miss_return_zero("string.substring_hii");
+        return hook_miss_freeze_handle("string.substring_hii");
     }
     if h <= 0 {
         return 0;
@@ -432,7 +437,7 @@ pub extern "C" fn nyash_string_indexof_hh_export(h: i64, n: i64) -> i64 {
         return v;
     }
     if !allow_rust_string_fallback() {
-        return hook_miss_return_zero("string.indexOf_hh");
+        return hook_miss_scalar_error("string.indexOf_hh");
     }
     search_string_pair_hh(h, n, empty_needle_indexof, find_substr_byte_index)
 }
@@ -446,7 +451,7 @@ pub extern "C" fn nyash_string_lastindexof_hh_export(h: i64, n: i64) -> i64 {
         return v;
     }
     if !allow_rust_string_fallback() {
-        return hook_miss_return_zero("string.lastIndexOf_hh");
+        return hook_miss_scalar_error("string.lastIndexOf_hh");
     }
     search_string_pair_hh(h, n, empty_needle_lastindexof, rfind_substr_byte_index)
 }
@@ -458,7 +463,7 @@ pub extern "C" fn nyash_string_lt_hh_export(a_h: i64, b_h: i64) -> i64 {
         return v;
     }
     if !allow_rust_string_fallback() {
-        return hook_miss_return_zero("string.lt_hh");
+        return hook_miss_scalar_error("string.lt_hh");
     }
     compare_string_pair_hh(a_h, b_h, |lhs, rhs| lhs < rhs)
 }
@@ -473,7 +478,7 @@ pub extern "C" fn nyash_string_from_u64x2_export(lo: i64, hi: i64, len: i64) -> 
         return v;
     }
     if !allow_rust_string_fallback() {
-        return hook_miss_return_zero("string.from_u64x2");
+        return hook_miss_freeze_handle("string.from_u64x2");
     }
     let l = if len < 0 {
         0

@@ -120,14 +120,38 @@ pub fn rust_fallback_allowed() -> bool {
 }
 
 #[inline]
-pub fn hook_miss_return_zero(route: &str) -> i64 {
+fn trace_hook_miss(route: &str, policy: &str) {
     if nyash_rust::config::env::vm_route_trace() {
         eprintln!(
-            "[hako-forward/hook-miss] route={} policy=return0_on_fallback_off",
-            route
+            "[hako-forward/hook-miss] route={} policy={}",
+            route, policy
         );
     }
-    0
+}
+
+/// Canonical error code when a hook-capable scalar route misses registration
+/// while `NYASH_VM_USE_FALLBACK=0`.
+pub const NYRT_E_HOOK_MISS: i64 = -0x4E59_0001;
+
+#[inline]
+pub fn hook_miss_error_code(route: &str) -> i64 {
+    trace_hook_miss(route, "error_code_on_fallback_off");
+    NYRT_E_HOOK_MISS
+}
+
+#[inline]
+pub fn hook_miss_freeze_handle(route: &str) -> i64 {
+    use nyash_rust::box_trait::{NyashBox, StringBox};
+    use nyash_rust::runtime::host_handles;
+    use std::sync::Arc;
+
+    trace_hook_miss(route, "freeze_handle_on_fallback_off");
+    let msg = format!(
+        "[freeze:contract][hako_forward/hook_miss] route={} require=hook_registered_or_NYASH_VM_USE_FALLBACK=1",
+        route
+    );
+    let boxed: Arc<dyn NyashBox> = Arc::new(StringBox::new(msg));
+    host_handles::to_handle_arc(boxed) as i64
 }
 
 #[cfg(test)]

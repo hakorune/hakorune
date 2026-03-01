@@ -57,9 +57,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - boundary lock: `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - hook lock: `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
     - current status: `HFK-min1..min6 done`, active next=`none`（monitor-only / no-delete-first）
-    - latest: `NYASH_VM_USE_FALLBACK=0` 時は hook 未登録の `invoke/by_name` / `future.spawn_instance3` / string exports が Rust fallback へ落ちず `0` を返す契約へ更新（mainline no-compat path hardening）
+    - latest: `NYASH_VM_USE_FALLBACK=0` 時は hook 未登録の `invoke/by_name` / `future.spawn_instance3` / string exports が Rust fallback へ落ちない契約へ更新（mainline no-compat path hardening）
     - latest2: `invoke_core` と `plugin_loader_v2/route_resolver` の compat fallback も `NYASH_VM_USE_FALLBACK=0` で拒否する契約へ統一（fallback policy SSOT alignment）
-    - latest3: fallback policy 判定を `vm_compat_fallback_allowed()`（`src/config/env/vm_backend_flags.rs`）へ集約。`hako_forward_bridge` は hook-miss trace helper を提供し、string/by_name/future の no-compat return0 を route-tag 観測可能化。
+    - latest3: fallback policy 判定を `vm_compat_fallback_allowed()`（`src/config/env/vm_backend_flags.rs`）へ集約。`hako_forward_bridge` は hook-miss helpers を提供し、string/by_name/future の no-compat path は `NYRT_E_HOOK_MISS`（scalar）/ freeze-handle（handle戻り）で fail-fast を固定。
     - deletion policy: Rust source は Deletion Gate 条件達成まで保存（物理削除は別 lock）
   - wasm lane status: done through `WSM-P10` / active next=`none`（monitor-only）
   - done judgement matrix SSOT:

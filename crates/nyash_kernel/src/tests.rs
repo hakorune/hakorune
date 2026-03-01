@@ -7,6 +7,17 @@ use nyash_rust::{
 use std::ffi::CString;
 use std::sync::Arc;
 
+fn decode_string_like_handle(handle: i64) -> Option<String> {
+    if handle <= 0 {
+        return None;
+    }
+    let object = handles::get(handle as u64)?;
+    if let Some(string_box) = object.as_any().downcast_ref::<StringBox>() {
+        return Some(string_box.value.clone());
+    }
+    Some(object.to_string_box().value)
+}
+
 unsafe extern "C" fn fake_i32(
     _t: u32,
     _m: u32,
@@ -201,8 +212,16 @@ fn string_exports_disable_rust_fallback_when_policy_is_off() {
         crate::hako_forward_bridge::with_test_reset(|| {
             let src: Arc<dyn NyashBox> = Arc::new(StringBox::new("abc".to_string()));
             let src_h = handles::to_handle_arc(src) as i64;
-            assert_eq!(nyash_string_len_h(src_h), 0);
-            assert_eq!(nyash_string_concat_hh_export(src_h, src_h), 0);
+            assert_eq!(
+                nyash_string_len_h(src_h),
+                crate::hako_forward_bridge::NYRT_E_HOOK_MISS
+            );
+            let concat_h = nyash_string_concat_hh_export(src_h, src_h);
+            assert!(concat_h > 0);
+            let concat_text =
+                decode_string_like_handle(concat_h).expect("concat freeze handle string");
+            assert!(concat_text.contains("[freeze:contract][hako_forward/hook_miss]"));
+            assert!(concat_text.contains("route=string.concat_hh"));
         });
     });
 }
@@ -403,7 +422,25 @@ fn invoke_by_name_disable_rust_fallback_when_policy_is_off() {
                 source_handle,
                 0,
             );
-            assert_eq!(result_handle, 0);
+            assert!(result_handle > 0);
+            let result_text =
+                decode_string_like_handle(result_handle).expect("hook-miss freeze string");
+            assert!(result_text.contains("[freeze:contract][hako_forward/hook_miss]"));
+            assert!(result_text.contains("route=plugin.invoke_by_name"));
+        });
+    });
+}
+
+#[test]
+fn future_spawn_instance_disable_rust_fallback_when_policy_is_off() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "0", || {
+        crate::hako_forward_bridge::with_test_reset(|| {
+            let result_handle = nyash_future_spawn_instance3_i64(1, 2, 3, 4);
+            assert!(result_handle > 0);
+            let result_text =
+                decode_string_like_handle(result_handle).expect("hook-miss freeze string");
+            assert!(result_text.contains("[freeze:contract][hako_forward/hook_miss]"));
+            assert!(result_text.contains("route=future.spawn_instance3"));
         });
     });
 }

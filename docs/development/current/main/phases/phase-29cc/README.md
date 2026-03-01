@@ -299,9 +299,9 @@ Related:
       - `crates/nyash_kernel/src/hako_forward_bridge.rs` を追加し、`call_*` / `string_ops` / canonical register helper を集約
       - `crates/nyash_kernel/src/hako_forward.rs` は `nyrt.hako.register_*` 互換export専用へ縮退（compat-only）
       - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` / `crates/nyash_kernel/src/plugin/future.rs` / `crates/nyash_kernel/src/exports/string.rs` は bridge 経由へ統一
-      - `NYASH_VM_USE_FALLBACK=0` 時は hook 未登録の `invoke/by_name` / `future.spawn_instance3` / string exports が Rust fallback を通らず `0` を返す契約へ更新（mainline no-compat hardening）
+      - `NYASH_VM_USE_FALLBACK=0` 時は hook 未登録の `invoke/by_name` / `future.spawn_instance3` / string exports が Rust fallback を通らない契約へ更新（mainline no-compat hardening）
       - `crates/nyash_kernel/src/plugin/invoke_core.rs` / `src/runtime/plugin_loader_v2/enabled/route_resolver.rs` も compat fallback を `NYASH_VM_USE_FALLBACK=0` で拒否する契約へ統一（fallback policy SSOT alignment）
-      - fallback policy 判定を `src/config/env/vm_backend_flags.rs::vm_compat_fallback_allowed()` に集約し、`hako_forward_bridge::hook_miss_return_zero` で no-compat return0 の route-tag 観測を統一
+      - fallback policy 判定を `src/config/env/vm_backend_flags.rs::vm_compat_fallback_allowed()` に集約し、`hako_forward_bridge` の hook-miss helper で no-compat fail-fast（`NYRT_E_HOOK_MISS` / freeze-handle）+ route-tag 観測を統一
       - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を compat-export-only 契約で更新
       - next fixed order（29cc-254）: HFK-min1..min6 done、active next は `none`（monitor-only / no-delete-first）
       - execution-path-zero closeout contract（2026-03-01, head=`4e34f0bc1`）:
