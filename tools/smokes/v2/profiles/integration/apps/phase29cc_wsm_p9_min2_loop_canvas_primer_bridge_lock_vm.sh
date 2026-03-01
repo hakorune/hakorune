@@ -5,6 +5,7 @@
 
 set -euo pipefail
 source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/phase29cc_wsm_cargo_test_common.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md"
@@ -20,7 +21,7 @@ for needle in "WSM-P9-min2" "accepted-but-blocked" "BridgeRustBackend" "bridge-r
   fi
 done
 
-cargo test --features wasm-backend wasm_demo_default_hako_lane_bridge_webcanvas_fixture_contract -- --nocapture
-cargo test --features wasm-backend wasm_demo_route_trace_reports_bridge_for_webcanvas_fixture_contract -- --nocapture
+run_wsm_targeted_contract_test "wasm_demo_default_hako_lane_bridge_webcanvas_fixture_contract"
+run_wsm_targeted_contract_test "wasm_demo_route_trace_reports_bridge_for_webcanvas_fixture_contract"
 
 test_pass "phase29cc_wsm_p9_min2_loop_canvas_primer_bridge_lock_vm: PASS (WSM-P9-min2 loop/canvas primer bridge lock)"

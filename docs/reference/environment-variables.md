@@ -347,6 +347,7 @@ NYASH_CLI_VERBOSE=2 \
 | --- | --- | --- | --- |
 | `SMOKES_REPRO=N` | OFF | tools | 失敗したスモークを最大 N 回だけ同条件で再実行する（フレーク検知）。ログを `/tmp/hakorune_smoke_*.log` に保持する。 |
 | `HAKO_SILENT_TAGS={0\|1}` | `1` | tools | `[provider/select:*]` などの noisy tag line をフィルタする（`0` で raw を表示）。 |
+| `NYASH_WASM_TARGETED_CARGO_TEST={0\|1}` | `1` | tools (`phase29cc_wsm_*`) | wasm smoke contract の `cargo test` を `--lib` / `--test wasm_demo_min_fixture` に絞って実行する。`0` で従来の広域 `cargo test <filter>` に戻す（診断向け）。 |
 
 ---
 

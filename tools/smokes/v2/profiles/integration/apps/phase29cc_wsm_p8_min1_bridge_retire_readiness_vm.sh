@@ -7,6 +7,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/phase29cc_wsm_cargo_test_common.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md"
@@ -29,8 +30,8 @@ for needle in \
 done
 
 bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p7_min4_compat_retention_lock_vm.sh
-cargo test --features wasm-backend wasm_hako_default_lane_plan_bridge_for_non_pilot_shape_contract -- --nocapture
-cargo test --features wasm-backend wasm_hako_default_lane_trace_has_none_shape_id_for_bridge_contract -- --nocapture
-cargo test --features wasm-backend wasm_demo_default_hako_lane_bridge_non_pilot_contract -- --nocapture
+run_wsm_targeted_contract_test "wasm_hako_default_lane_plan_bridge_for_non_pilot_shape_contract"
+run_wsm_targeted_contract_test "wasm_hako_default_lane_trace_has_none_shape_id_for_bridge_contract"
+run_wsm_targeted_contract_test "wasm_demo_default_hako_lane_bridge_non_pilot_contract"
 
 test_pass "phase29cc_wsm_p8_min1_bridge_retire_readiness_vm: PASS (WSM-P8-min1 bridge retire readiness lock)"

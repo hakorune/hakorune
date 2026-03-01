@@ -6,6 +6,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/phase29cc_wsm_cargo_test_common.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-189-wsm-p9-min0-non-native-inventory-lock-ssot.md"
@@ -26,8 +27,8 @@ for needle in \
   fi
 done
 
-cargo test --features wasm-backend wasm_hako_default_lane_plan_bridge_for_non_pilot_shape_contract -- --nocapture
-cargo test --features wasm-backend wasm_hako_default_lane_trace_has_none_shape_id_for_bridge_contract -- --nocapture
-cargo test --features wasm-backend wasm_demo_default_hako_lane_bridge_non_pilot_contract -- --nocapture
+run_wsm_targeted_contract_test "wasm_hako_default_lane_plan_bridge_for_non_pilot_shape_contract"
+run_wsm_targeted_contract_test "wasm_hako_default_lane_trace_has_none_shape_id_for_bridge_contract"
+run_wsm_targeted_contract_test "wasm_demo_default_hako_lane_bridge_non_pilot_contract"
 
 test_pass "phase29cc_wsm_p9_min0_non_native_inventory_lock_vm: PASS (WSM-P9-min0 non-native inventory lock)"

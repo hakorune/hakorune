@@ -2,6 +2,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/phase29cc_wsm_cargo_test_common.sh"
 require_env || exit 2
 
 require_p10_doc_keywords() {
@@ -25,7 +26,13 @@ require_p10_doc_keywords() {
 
 run_p10_contract_tests() {
   local cmd
+  local filter
   for cmd in "$@"; do
-    eval "$cmd"
+    if [[ "$cmd" =~ ^cargo[[:space:]]+test[[:space:]]+--features[[:space:]]+wasm-backend[[:space:]]+([^[:space:]]+)[[:space:]]+--[[:space:]]+--nocapture$ ]]; then
+      filter="${BASH_REMATCH[1]}"
+      run_wsm_targeted_contract_test "$filter"
+    else
+      eval "$cmd"
+    fi
   done
 }

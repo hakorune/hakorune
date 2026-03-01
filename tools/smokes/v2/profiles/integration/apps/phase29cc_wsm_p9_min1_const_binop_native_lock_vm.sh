@@ -6,6 +6,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/phase29cc_wsm_cargo_test_common.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-190-wsm-p9-min1-const-binop-native-shape-lock-ssot.md"
@@ -25,8 +26,8 @@ for needle in \
   fi
 done
 
-cargo test --features wasm-backend wasm_demo_default_hako_lane_native_const_binop_shape_contract -- --nocapture
-cargo test --features wasm-backend wasm_demo_default_route_const_binop_uses_native_helper_contract -- --nocapture
-cargo test --features wasm-backend wasm_demo_route_trace_reports_shape_id_for_native_const_binop_contract -- --nocapture
+run_wsm_targeted_contract_test "wasm_demo_default_hako_lane_native_const_binop_shape_contract"
+run_wsm_targeted_contract_test "wasm_demo_default_route_const_binop_uses_native_helper_contract"
+run_wsm_targeted_contract_test "wasm_demo_route_trace_reports_shape_id_for_native_const_binop_contract"
 
 test_pass "phase29cc_wsm_p9_min1_const_binop_native_lock_vm: PASS (WSM-P9-min1 const-binop native shape lock)"

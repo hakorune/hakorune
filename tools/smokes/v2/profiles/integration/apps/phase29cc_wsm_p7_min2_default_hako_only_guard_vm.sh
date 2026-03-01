@@ -29,6 +29,6 @@ for needle in \
 done
 
 run_wsm_p6_route_policy_default_noop_contract_tests
-cargo test --features wasm-backend wasm_hako_default_lane_trace_ -- --nocapture
+run_wsm_targeted_contract_test "wasm_hako_default_lane_trace_"
 
 test_pass "phase29cc_wsm_p7_min2_default_hako_only_guard_vm: PASS (WSM-P7-min2 default hako-only guard lock)"
