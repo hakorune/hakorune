@@ -193,6 +193,22 @@ fn string_len_h_invalid_handle_contract() {
 }
 
 #[test]
+fn string_exports_prefer_hako_forward_hook_when_registered() {
+    extern "C" fn string_hook(op: i64, a0: i64, a1: i64, a2: i64) -> i64 {
+        op * 1000 + a0 + a1 + a2
+    }
+
+    crate::hako_forward::with_test_reset(|| {
+        assert_eq!(
+            crate::hako_forward::nyrt_hako_register_string_dispatch(string_hook),
+            1
+        );
+        assert_eq!(nyash_string_len_h(7), 1007);
+        assert_eq!(nyash_string_concat_hh_export(3, 4), 3007);
+    });
+}
+
+#[test]
 fn string_to_i8p_h_fallback_contract() {
     use std::ffi::CStr;
 

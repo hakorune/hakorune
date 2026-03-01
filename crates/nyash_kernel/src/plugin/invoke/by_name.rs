@@ -56,6 +56,15 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
     if method.is_null() {
         return 0;
     }
+    if let Some(v) = crate::hako_forward::call_plugin_invoke_by_name(
+        recv_handle,
+        method,
+        argc,
+        a1,
+        a2,
+    ) {
+        return v;
+    }
     let mname = unsafe { std::ffi::CStr::from_ptr(method) };
     let Ok(method_str) = mname.to_str() else {
         return 0;

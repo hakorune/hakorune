@@ -157,6 +157,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `src/runtime/plugin_loader_v2/enabled/compat_method_resolver.rs` に `resolve_method_id_with_compat_policy()` を追加し、legacy file fallback の fail-fast/trace 判定を compat層へ集約
       - `src/runtime/plugin_loader_v2/enabled/method_resolver.rs` の compat fallback 分岐を1呼び出しに縮退し、mainline method route を保持
       - `src/runner/modes/common_util/exec.rs` に `default_nyrt_dir()` / `apply_nyrt_arg()` を追加し、`emit-exe` の nyrt 解決・precheck適用を lib/bin 経路で共通化（static-first 契約の重複撤去）
+      - `crates/nyash_kernel/src/hako_forward.rs` を新設し、`nyrt.hako.register_{plugin_invoke_by_name,future_spawn_instance,string_dispatch}` の forward hook 登録面を追加（未登録時は現行Rust実装を維持）
+      - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` / `crates/nyash_kernel/src/plugin/future.rs` / `crates/nyash_kernel/src/exports/string.rs` に `.hako` forward 優先呼びを追加し、C ABI entry から `.hako` 正本への移行導線を固定
   - runtime route residue relock（29cc-245, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-245-runtime-route-residue-relock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-246-rz-array-min1-route-selector-lock-ssot.md`

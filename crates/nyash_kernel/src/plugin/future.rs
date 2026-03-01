@@ -273,6 +273,9 @@ pub extern "C" fn nyash_future_spawn_method_h(
 pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, argc: i64) -> i64 {
     use nyash_rust::box_trait::{NyashBox, StringBox};
 
+    if let Some(v) = crate::hako_forward::call_future_spawn_instance(a0, a1, a2, argc) {
+        return v;
+    }
     if a0 <= 0 {
         return 0;
     }
@@ -463,5 +466,20 @@ mod tests {
     fn env_future_invalid_handle_paths_return_zero() {
         assert_eq!(env_future_set(0, 1), 0);
         assert_eq!(env_future_await(0), 0);
+    }
+
+    #[test]
+    fn future_spawn_instance_prefers_hako_forward_hook_when_registered() {
+        extern "C" fn future_hook(_a0: i64, _a1: i64, _a2: i64, _argc: i64) -> i64 {
+            777
+        }
+
+        crate::hako_forward::with_test_reset(|| {
+            assert_eq!(
+                crate::hako_forward::nyrt_hako_register_future_spawn_instance(future_hook),
+                1
+            );
+            assert_eq!(nyash_future_spawn_instance3_i64(0, 0, 0, 0), 777);
+        });
     }
 }
