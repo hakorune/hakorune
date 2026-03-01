@@ -66,7 +66,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - wasm lane status: done through `WSM-P10` / active next=`none`（monitor-only）
   - done judgement matrix SSOT:
     - `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
-- perf lane: `phase-21.5 / llvm-aot-hotpath`（reopen: micro/asm -> kilo）
+- perf lane: `phase-21.5 / llvm-aot-hotpath`（monitor-only: blocked by `RZ-LC-min4 closeout`）
   - scope: `numeric_mixed_medium` / `method_call_only` / `chip8_kernel_small` / `kilo_kernel_small`（C/AOT 比較） + VM monitor-only
   - task SSOT: `docs/private/roadmap/phases/phase-21.5/PLAN.md`
   - Step-2 acceptance lock (fixed):
@@ -76,9 +76,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - WSL variance lock（single-run値で判定しない）:
     - canonical measure: `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 5`
     - latest (2026-02-28): `c_ms=77`, `py_ms=108`, `ny_vm_ms=979`, `ny_aot_ms=905`, `ratio_c_aot=0.09`, `aot_status=ok`
-  - active next: `optimization-reopen`（micro/asm -> kilo）
+  - active next: `none`（Lane-C closeout 完了まで凍結）
   - optimization resume policy（fixed）:
-    - de-rust runtime closeout contract（`runtime-exec-zero` + `phase29y_no_compat_mainline_vm`）が緑の間は最適化レーンを進めてよい。
+    - resume trigger: `RZ-LC-min4 closeout` 完了 + de-rust runtime closeout contract（`runtime-exec-zero` + `phase29y_no_compat_mainline_vm`）green。
     - source keep policy と最適化は混ぜず、別コミット境界で進める。
 
 ## Immediate Next (this round)
@@ -106,9 +106,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `cd /home/tomoaki/git/hakorune-selfhost`
   - `git status -sb`
   - `tools/checks/dev_gate.sh quick`
-  - `PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
-  - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
+  - `tools/checks/dev_gate.sh runtime-exec-zero`
+  - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 - 再開タスク: `phase-29y / fixed-order monitor`（selfhost/de-rust mainline guard）
+- perf 実行は `RZ-LC-min4 closeout` 完了まで禁止（monitor-only）。
 
 ## Read-First Navigation
 

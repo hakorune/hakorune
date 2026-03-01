@@ -54,18 +54,14 @@ Related:
 
 - 再起動直後の最短導線は `docs/development/current/main/05-Restart-Quick-Resume.md` を正本とする。
 - 実行順と blocker の参照先を 1 画面で辿れる状態を保つ。
-- 最短コマンド（kilo VM+AOT route lock 同期済み）:
+- 最短コマンド（runtime closeout 優先 / perf凍結）:
 
 ```bash
 cd /home/tomoaki/git/hakorune-selfhost
 git status -sb
 tools/checks/dev_gate.sh quick
-PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 \
-PERF_GATE_AOT_SKIP_BUILD_CHECK=1 \
-PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 \
-PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 \
-PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK=1 \
-bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
+tools/checks/dev_gate.sh runtime-exec-zero
+bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 ```
 
 ## Current Snapshot
@@ -112,7 +108,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
   - wasm lane: done through `WSM-P10`, active next=`none`（monitor-only）
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Perf lane（phase-21.5）:
-  - de-rust runtime Lane-C closeout 後の handoff 先（micro/asm -> kilo の順で再開）
+  - monitor-only（`RZ-LC-min4 closeout` 完了まで凍結）
+  - closeout 完了後の handoff 先（micro/asm -> kilo の順で再開）
   - source keep policy とは分離して進める
 - De-Rust lane map: `A=Compiler Meaning / B=Compiler Pipeline / C=Runtime Port`
   - SSOT: `docs/development/current/main/design/de-rust-lane-map-ssot.md`
