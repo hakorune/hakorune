@@ -141,6 +141,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `crates/nyash_kernel/src/encode.rs` に mainline用 `nyrt_encode_arg` を追加し、`plugin/invoke/by_id.rs`・`plugin/invoke/by_name.rs` を mainline encode + `fail_fast` 時2引数超rejectへ切替。compat時は `encode_legacy_vm_args_range(...)` で trailing payload を legacy VM slots から復元
       - `crates/nyash_kernel/src/plugin/future.rs` の spawn_instance3 payload encode を mainline `nyrt_encode_arg` 優先へ寄せ、`fail_fast` 時は 1payload 超を即時reject。compat時は `encode_legacy_vm_args_range(3..)` を使用して trailing payload を legacy VM slots から復元
       - `crates/nyash_kernel/src/plugin/mod.rs` に B3 public wiring contract test（`b3_public_wiring_contract_compiles`）を追加し、future/invoke entrypoint re-export drift を compile-time で fail-fast 監査
+      - `tools/checks/dev_gate.sh runtime-exec-zero` に B3 wiring contract test を組み込み、entrypoint配線ドリフト監査を日常ゲート化
       - `crates/nyash_kernel/src/plugin/invoke_core.rs` の compat encode helper を `fail_fast` ガード付き `encode_legacy_vm_args_range()` へ統一し、未使用 placeholder helper を撤去（mainline の誤経路侵入を構造的に遮断）
       - `29cc-242` / `29cc-220` に B3 closeout 実行証跡を同期し、kernel residue closeout -> route-zero + stability 判定導線を固定
   - runtime route residue relock（29cc-245, active）:

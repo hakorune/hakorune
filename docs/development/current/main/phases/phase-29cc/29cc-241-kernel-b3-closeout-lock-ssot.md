@@ -38,6 +38,9 @@ kernel residue B3（`future.rs` / `invoke.rs` / `mod.rs`）の route 契約を c
   mod wiring drift を compile-time/test で fail-fast 検知できるようにした。
 - 2026-03-01: `invoke_core` / `compat_invoke_core` の未使用 placeholder helper を撤去し、
   B3 compat payload encode 経路を `encode_legacy_vm_args_range()` へ一本化した。
+- 2026-03-01: `tools/checks/dev_gate.sh runtime-exec-zero` に
+  `plugin::wiring_tests::b3_public_wiring_contract_compiles` を組み込み、
+  B3 wiring lock を日常ゲートに昇格。
 
 ## Next Boundary (fixed)
 
