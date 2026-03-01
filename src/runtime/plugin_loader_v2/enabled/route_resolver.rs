@@ -293,3 +293,64 @@ pub(super) fn resolve_invoke_route_contract(
         invoke_shim_fn: super::super::nyash_plugin_invoke_v2_shim,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::nyash_toml_v2::NyashConfigV2;
+    use crate::runtime::plugin_loader_v2::enabled::PluginLoaderV2;
+
+    fn seed_loader_with_spec() -> PluginLoaderV2 {
+        let mut loader = PluginLoaderV2::new();
+        let toml_str = r#"
+[libraries]
+[libraries.demo]
+boxes = ["DemoBox"]
+path = "./libdemo.so"
+
+[libraries.demo.DemoBox]
+type_id = 42
+
+[libraries.demo.DemoBox.methods]
+birth = { method_id = 1 }
+fini = { method_id = 999 }
+run = { method_id = 7, returns_result = true }
+"#;
+        loader.config = Some(NyashConfigV2::from_str(toml_str).expect("parse config"));
+        loader.config_toml = Some(toml::from_str::<toml::Value>(toml_str).expect("parse raw toml"));
+        loader
+    }
+
+    #[test]
+    fn resolve_method_contract_from_specs() {
+        let loader = seed_loader_with_spec();
+        let got = resolve_method_contract(&loader, "DemoBox", "run").expect("method contract");
+        assert_eq!(got.lib_name, "demo");
+        assert_eq!(got.type_id, 42);
+        assert_eq!(got.method_id, 7);
+        assert!(got.returns_result);
+    }
+
+    #[test]
+    fn resolve_birth_contract_from_specs() {
+        let loader = seed_loader_with_spec();
+        let got = resolve_birth_contract(&loader, "DemoBox").expect("birth contract");
+        assert_eq!(got.type_id, 42);
+        assert_eq!(got.birth_id, 1);
+        assert_eq!(got.fini_id, Some(999));
+    }
+
+    #[test]
+    fn resolve_invoke_route_contract_returns_shim_when_invoke_box_missing() {
+        let loader = seed_loader_with_spec();
+        let got = resolve_invoke_route_contract(&loader, 42);
+        assert!(got.invoke_box_fn.is_none());
+        // With no per-box invoke function, shim returns E_PLUGIN (-5).
+        let mut out = [0u8; 8];
+        let mut out_len: usize = out.len();
+        let code = unsafe {
+            (got.invoke_shim_fn)(42, 7, 1, std::ptr::null(), 0, out.as_mut_ptr(), &mut out_len)
+        };
+        assert_eq!(code, -5);
+    }
+}

@@ -253,6 +253,13 @@ Related:
       - `nyash-math` = retire（legacy duplicate; `nyash-math-plugin` is active line）
   - runtime source-zero cutover lock（29cc-220, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
+    - route residue relock series:
+      - `docs/development/current/main/phases/phase-29cc/29cc-245-runtime-route-residue-relock-ssot.md`
+      - `docs/development/current/main/phases/phase-29cc/29cc-246-rz-array-min1-route-selector-lock-ssot.md`
+      - `docs/development/current/main/phases/phase-29cc/29cc-247-rz-array-min2-route-policy-lock-ssot.md`
+      - `docs/development/current/main/phases/phase-29cc/29cc-248-rz-loader-min1-route-contract-box-lock-ssot.md`
+      - `docs/development/current/main/phases/phase-29cc/29cc-249-rz-loader-min2-ffi-host-route-contract-lock-ssot.md`
+      - `docs/development/current/main/phases/phase-29cc/29cc-250-rz-loader-min3-compat-ffi-branch-isolation-lock-ssot.md`
     - zero definition（fixed）:
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）

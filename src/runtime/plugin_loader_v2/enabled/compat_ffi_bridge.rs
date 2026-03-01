@@ -96,68 +96,42 @@ pub(super) fn maybe_trace_tlv_shim(box_type: &str, method_name: &str, argc: usiz
 
 fn should_trace_tlv_shim(box_type: &str, method: &str) -> bool {
     if let Ok(flt) = env::var("HAKO_TLV_SHIM_FILTER") {
-        let key = format!("{}.{}", box_type, method);
-        for pat in flt.split(',') {
-            let p = pat.trim();
-            if p.is_empty() {
-                continue;
-            }
-            if p == method || p == key {
-                return true;
-            }
-        }
-        return false;
+        return matches_filter_or_key(&flt, box_type, method);
     }
     box_type == "MapBox" && method == "set"
 }
 
 fn should_trace_cwrap(box_type: &str, method: &str) -> bool {
     if let Ok(flt) = env::var("HAKO_PLUGIN_LOADER_C_WRAP_FILTER") {
-        let key = format!("{}.{}", box_type, method);
-        for pat in flt.split(',') {
-            let p = pat.trim();
-            if p.is_empty() {
-                continue;
-            }
-            if p == method || p == key {
-                return true;
-            }
-        }
-        return false;
+        return matches_filter_or_key(&flt, box_type, method);
     }
     box_type == "MapBox" && method == "set"
 }
 
 fn should_trace_call(target: &str, method: &str) -> bool {
     if let Ok(flt) = env::var("HAKO_CALL_TRACE_FILTER") {
-        let key = format!("{}.{}", target, method);
-        for pat in flt.split(',') {
-            let p = pat.trim();
-            if p.is_empty() {
-                continue;
-            }
-            if p == method || p == key {
-                return true;
-            }
-        }
-        return false;
+        return matches_filter_or_key(&flt, target, method);
     }
     true
 }
 
 fn should_route_ccore(box_type: &str, method: &str) -> bool {
     if let Ok(flt) = env::var("HAKO_C_CORE_TARGETS") {
-        let key = format!("{}.{}", box_type, method);
-        for pat in flt.split(',') {
-            let p = pat.trim();
-            if p.is_empty() {
-                continue;
-            }
-            if p == method || p == key {
-                return true;
-            }
-        }
-        return false;
+        return matches_filter_or_key(&flt, box_type, method);
     }
     box_type == "MapBox" && method == "set"
+}
+
+fn matches_filter_or_key(filter_csv: &str, box_or_target: &str, method: &str) -> bool {
+    let key = format!("{}.{}", box_or_target, method);
+    for pat in filter_csv.split(',') {
+        let p = pat.trim();
+        if p.is_empty() {
+            continue;
+        }
+        if p == method || p == key {
+            return true;
+        }
+    }
+    false
 }
