@@ -2,7 +2,7 @@
 Status: Active
 Decision: accepted
 Date: 2026-03-01
-Scope: `nyrt.hako.register_*` を Rust 暫定橋から Core C ABI 正本へ移し、source-zero の最終撤去順を固定する。
+Scope: `nyrt_hako_register_*`/`nyrt_hako_try_*` を Core C ABI 正本に固定し、`nyrt.hako.register_*` は互換aliasとして維持しつつ source-zero の最終撤去順を固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -59,3 +59,19 @@ source-zero の最終形では「関数ポインタ保持/登録面」も C ABI 
 2. `runtime-exec-zero` が緑
 3. `portability` が緑
 4. `CURRENT_TASK.md` / `10-Now.md` / `phase-29cc/README.md` に本 lock が参照される
+
+## Execution Update (2026-03-01)
+
+1. HFK-min1 done:
+   - `docs/reference/abi/nyrt_host_surface_v0.md` に `nyrt_hako_register_*` / `nyrt_hako_try_*` を active symbol として固定。
+2. HFK-min2 done:
+   - `include/nyrt.h` に register/try contract を追加。
+   - `lang/c-abi/shims/hako_kernel.c` に C registry 実装を追加。
+3. HFK-min3 done:
+   - `crates/nyash_kernel/src/hako_forward.rs` は C registry 呼び出しトランポリンへ縮退。
+   - 互換のため `nyrt.hako.register_*` dot-name export は維持（実体保持なし）。
+4. HFK-min4 active:
+   - `tools/checks/dev_gate.sh runtime-exec-zero`
+   - `tools/checks/dev_gate.sh portability`
+   - local result (2026-03-01): both green
+   - remaining: GitHub Actions linux/windows/mac run log sync

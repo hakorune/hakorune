@@ -1,12 +1,45 @@
-use std::sync::atomic::{AtomicUsize, Ordering};
-
 pub type HakoPluginInvokeByNameFn = extern "C" fn(i64, *const i8, i64, i64, i64) -> i64;
 pub type HakoFutureSpawnInstanceFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 pub type HakoStringDispatchFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 
-static HAKO_PLUGIN_INVOKE_BY_NAME: AtomicUsize = AtomicUsize::new(0);
-static HAKO_FUTURE_SPAWN_INSTANCE: AtomicUsize = AtomicUsize::new(0);
-static HAKO_STRING_DISPATCH: AtomicUsize = AtomicUsize::new(0);
+mod ffi {
+    use super::{
+        HakoFutureSpawnInstanceFn, HakoPluginInvokeByNameFn, HakoStringDispatchFn,
+    };
+
+    unsafe extern "C" {
+        pub fn nyrt_hako_register_plugin_invoke_by_name(
+            f: Option<HakoPluginInvokeByNameFn>,
+        ) -> i64;
+        pub fn nyrt_hako_register_future_spawn_instance(
+            f: Option<HakoFutureSpawnInstanceFn>,
+        ) -> i64;
+        pub fn nyrt_hako_register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64;
+
+        pub fn nyrt_hako_try_plugin_invoke_by_name(
+            recv_handle: i64,
+            method: *const i8,
+            argc: i64,
+            a1: i64,
+            a2: i64,
+            out_value: *mut i64,
+        ) -> i32;
+        pub fn nyrt_hako_try_future_spawn_instance(
+            a0: i64,
+            a1: i64,
+            a2: i64,
+            argc: i64,
+            out_value: *mut i64,
+        ) -> i32;
+        pub fn nyrt_hako_try_string_dispatch(
+            op: i64,
+            a0: i64,
+            a1: i64,
+            a2: i64,
+            out_value: *mut i64,
+        ) -> i32;
+    }
+}
 
 pub mod string_ops {
     pub const LEN_H: i64 = 1;
@@ -21,36 +54,6 @@ pub mod string_ops {
     pub const FROM_U64X2: i64 = 10;
 }
 
-#[inline]
-fn load_plugin_invoke_by_name() -> Option<HakoPluginInvokeByNameFn> {
-    let raw = HAKO_PLUGIN_INVOKE_BY_NAME.load(Ordering::Acquire);
-    if raw == 0 {
-        return None;
-    }
-    // SAFETY: function pointers are registered by trusted runtime setup code.
-    Some(unsafe { std::mem::transmute(raw) })
-}
-
-#[inline]
-fn load_future_spawn_instance() -> Option<HakoFutureSpawnInstanceFn> {
-    let raw = HAKO_FUTURE_SPAWN_INSTANCE.load(Ordering::Acquire);
-    if raw == 0 {
-        return None;
-    }
-    // SAFETY: function pointers are registered by trusted runtime setup code.
-    Some(unsafe { std::mem::transmute(raw) })
-}
-
-#[inline]
-fn load_string_dispatch() -> Option<HakoStringDispatchFn> {
-    let raw = HAKO_STRING_DISPATCH.load(Ordering::Acquire);
-    if raw == 0 {
-        return None;
-    }
-    // SAFETY: function pointers are registered by trusted runtime setup code.
-    Some(unsafe { std::mem::transmute(raw) })
-}
-
 pub fn call_plugin_invoke_by_name(
     recv_handle: i64,
     method: *const i8,
@@ -58,43 +61,54 @@ pub fn call_plugin_invoke_by_name(
     a1: i64,
     a2: i64,
 ) -> Option<i64> {
-    let f = load_plugin_invoke_by_name()?;
-    Some(f(recv_handle, method, argc, a1, a2))
+    let mut out = 0i64;
+    // SAFETY: nyrt_hako_try_* C-ABI symbols are linked from nyash_kernel C registry.
+    let ok = unsafe {
+        ffi::nyrt_hako_try_plugin_invoke_by_name(recv_handle, method, argc, a1, a2, &mut out)
+    };
+    if ok == 0 { None } else { Some(out) }
 }
 
 pub fn call_future_spawn_instance(a0: i64, a1: i64, a2: i64, argc: i64) -> Option<i64> {
-    let f = load_future_spawn_instance()?;
-    Some(f(a0, a1, a2, argc))
+    let mut out = 0i64;
+    // SAFETY: nyrt_hako_try_* C-ABI symbols are linked from nyash_kernel C registry.
+    let ok = unsafe { ffi::nyrt_hako_try_future_spawn_instance(a0, a1, a2, argc, &mut out) };
+    if ok == 0 { None } else { Some(out) }
 }
 
 pub fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
-    let f = load_string_dispatch()?;
-    Some(f(op, a0, a1, a2))
+    let mut out = 0i64;
+    // SAFETY: nyrt_hako_try_* C-ABI symbols are linked from nyash_kernel C registry.
+    let ok = unsafe { ffi::nyrt_hako_try_string_dispatch(op, a0, a1, a2, &mut out) };
+    if ok == 0 { None } else { Some(out) }
 }
 
 #[export_name = "nyrt.hako.register_plugin_invoke_by_name"]
 pub extern "C" fn nyrt_hako_register_plugin_invoke_by_name(f: HakoPluginInvokeByNameFn) -> i64 {
-    HAKO_PLUGIN_INVOKE_BY_NAME.store(f as usize, Ordering::Release);
-    1
+    // SAFETY: function pointer is passed through to C registry as an opaque callback.
+    unsafe { ffi::nyrt_hako_register_plugin_invoke_by_name(Some(f)) }
 }
 
 #[export_name = "nyrt.hako.register_future_spawn_instance"]
 pub extern "C" fn nyrt_hako_register_future_spawn_instance(f: HakoFutureSpawnInstanceFn) -> i64 {
-    HAKO_FUTURE_SPAWN_INSTANCE.store(f as usize, Ordering::Release);
-    1
+    // SAFETY: function pointer is passed through to C registry as an opaque callback.
+    unsafe { ffi::nyrt_hako_register_future_spawn_instance(Some(f)) }
 }
 
 #[export_name = "nyrt.hako.register_string_dispatch"]
 pub extern "C" fn nyrt_hako_register_string_dispatch(f: HakoStringDispatchFn) -> i64 {
-    HAKO_STRING_DISPATCH.store(f as usize, Ordering::Release);
-    1
+    // SAFETY: function pointer is passed through to C registry as an opaque callback.
+    unsafe { ffi::nyrt_hako_register_string_dispatch(Some(f)) }
 }
 
 #[cfg(test)]
 pub(crate) fn reset_for_tests() {
-    HAKO_PLUGIN_INVOKE_BY_NAME.store(0, Ordering::Release);
-    HAKO_FUTURE_SPAWN_INSTANCE.store(0, Ordering::Release);
-    HAKO_STRING_DISPATCH.store(0, Ordering::Release);
+    // SAFETY: test-only reset uses NULL registration to clear C registry slots.
+    unsafe {
+        let _ = ffi::nyrt_hako_register_plugin_invoke_by_name(None);
+        let _ = ffi::nyrt_hako_register_future_spawn_instance(None);
+        let _ = ffi::nyrt_hako_register_string_dispatch(None);
+    }
 }
 
 #[cfg(test)]

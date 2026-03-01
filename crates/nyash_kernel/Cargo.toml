@@ -11,3 +11,6 @@ crate-type = ["staticlib", "rlib"]
 nyash-rust = { path = "../../" }
 serde_json = "1.0"  # Phase 285LLVM-1.1: For parsing fields JSON
 memchr = "2"
+
+[build-dependencies]
+cc = "1"

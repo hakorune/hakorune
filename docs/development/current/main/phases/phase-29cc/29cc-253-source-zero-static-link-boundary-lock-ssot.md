@@ -61,10 +61,8 @@ core runtime の結合方針を static-first で確定する。
    - `crates/nyash_kernel/src/plugin/future.rs`
      - spawn entry の receiver route 解決を `invoke_core` 経由へ統一。
    - `crates/nyash_kernel/src/hako_forward.rs`
-     - `nyrt.hako.register_plugin_invoke_by_name`
-     - `nyrt.hako.register_future_spawn_instance`
-     - `nyrt.hako.register_string_dispatch`
-     を追加し、`.hako` 正本への forward hook 境界を固定。
+     - `nyrt_hako_try_*` C registry を正本として参照するトランポリンへ縮退。
+     - `nyrt.hako.register_*` は互換aliasとして維持し、登録実体保持を撤去。
    - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` / `crates/nyash_kernel/src/plugin/future.rs` / `crates/nyash_kernel/src/exports/string.rs`
      - register 済み hook を優先して `.hako` 実装へ forward。
      - hook 未登録時のみ既存Rust実装へフォールスルー（互換維持）。

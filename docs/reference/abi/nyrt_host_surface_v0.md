@@ -1,6 +1,6 @@
 # NyRT Host Surface v0 (Core C ABI Host-Facing Slice)
 
-Updated: 2026-02-28
+Updated: 2026-03-01
 
 Purpose:
 - `.hako` 主体移行時の host 境界を「最小 surface」に固定する。
@@ -15,13 +15,14 @@ Related:
 
 ## 1. Surface Categories (fixed)
 
-Host-facing API は次の 5 カテゴリに限定する。
+Host-facing API は次の 6 カテゴリに限定する。
 
 1. Runtime lifecycle/bootstrap
 2. Runtime execution/verification
 3. Host reverse-call bridge (plugin -> host)
 4. Handle lifecycle
 5. Runtime V0 helper slice
+6. Hako forward hook registry
 
 ## 2. Canonical Symbol Table
 
@@ -33,6 +34,7 @@ Host-facing API は次の 5 カテゴリに限定する。
 | Host reverse-call bridge | `nyrt_hostcall`, `nyrt_host_call_name`, `nyrt_host_call_slot` | `include/nyrt.h`, `include/nyrt_host_api.h` | TLV bridge (`slot` preferred for stable dispatch) |
 | Handle lifecycle | `nyrt_handle_retain_h`, `nyrt_handle_release_h` | `include/nyrt.h` | borrowed/owned lifecycle boundary |
 | Runtime V0 helper slice | `string_len`, `array_get_i64`, `array_set_i64` (route lock) | runtime/plugin route lock docs | `.hako` runtime entry boxes from VM callsite (`string_core_box`/`array_core_box`) |
+| Hako forward hook registry | `nyrt_hako_register_*`, `nyrt_hako_try_*` | `include/nyrt.h` | C registry for `.hako` callback forward (dot-name aliases remain compatibility surface) |
 
 ## 2.1 Current vs Planned Extensions (explicit)
 
@@ -45,6 +47,7 @@ Host-facing API は次の 5 カテゴリに限定する。
 | Host reverse-call bridge | Active | fixed |
 | Handle lifecycle | Active | fixed |
 | Runtime V0 helper slice | Active | fixed-route |
+| Hako forward hook registry | Active | fixed |
 | Process | Planned | not-exported |
 | File system | Planned | not-exported |
 | Network | Planned | not-exported |
@@ -59,6 +62,7 @@ Rule:
 1. ABI contract is `args borrowed / return owned`.
 2. `retain_h(0) -> 0`, `release_h(0)` is no-op.
 3. strict/dev path is fail-fast; silent fallback is prohibited.
+4. `nyrt_hako_try_*` returns `0` when hook is absent and must not mutate execution state.
 
 ## 4. Explicitly Disallowed in Host Layer
 

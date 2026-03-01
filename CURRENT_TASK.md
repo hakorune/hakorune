@@ -159,13 +159,15 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `src/runtime/plugin_loader_v2/enabled/compat_method_resolver.rs` に `resolve_method_id_with_compat_policy()` を追加し、legacy file fallback の fail-fast/trace 判定を compat層へ集約
       - `src/runtime/plugin_loader_v2/enabled/method_resolver.rs` の compat fallback 分岐を1呼び出しに縮退し、mainline method route を保持
       - `src/runner/modes/common_util/exec.rs` に `default_nyrt_dir()` / `apply_nyrt_arg()` を追加し、`emit-exe` の nyrt 解決・precheck適用を lib/bin 経路で共通化（static-first 契約の重複撤去）
-      - `crates/nyash_kernel/src/hako_forward.rs` を新設し、`nyrt.hako.register_{plugin_invoke_by_name,future_spawn_instance,string_dispatch}` の forward hook 登録面を追加（未登録時は現行Rust実装を維持）
-      - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` / `crates/nyash_kernel/src/plugin/future.rs` / `crates/nyash_kernel/src/exports/string.rs` に `.hako` forward 優先呼びを追加し、C ABI entry から `.hako` 正本への移行導線を固定
+      - `crates/nyash_kernel/src/hako_forward.rs` を C-registry トランポリンへ切替し、`nyrt_hako_try_*` 正本 + `nyrt.hako.register_*` 互換alias を固定（Rust-local registry state は撤去）
+      - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` / `crates/nyash_kernel/src/plugin/future.rs` / `crates/nyash_kernel/src/exports/string.rs` の forward 優先呼びは継続しつつ、dispatch source を C registry 正本へ移行
+      - `include/nyrt.h` に `nyrt_hako_register_*` / `nyrt_hako_try_*` を追加し、`lang/c-abi/shims/hako_kernel.c` へ同契約の registry 実装を追加
+      - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を追加し、`hako_forward.rs` への registry state 再流入を fail-fast 監査（runtime-exec-zero 組み込み）
     - next fixed order（29cc-254, docs-first）:
-      - HFK-min1: host ABI docs (`nyrt_host_surface_v0`) に `nyrt_hako_register_*` planned extension 契約を追記
-      - HFK-min2: `include/nyrt.h` + `lang/c-abi/shims/hako_kernel.c` に forward registry を実装（Rustは暫定保持）
-      - HFK-min3: kernel entry は C shim registry 正本へ切替、Rust `hako_forward` はトランポリンへ縮退
-      - HFK-min4: runtime-exec-zero + portability + GitHub Actions (linux/windows/mac) で cutover を固定
+      - HFK-min1: done（`nyrt_host_surface_v0` を active symbol に同期）
+      - HFK-min2: done（`include/nyrt.h` + `lang/c-abi/shims/hako_kernel.c` 実装）
+      - HFK-min3: done（kernel entry の C registry 正本化、`hako_forward` トランポリン縮退）
+      - HFK-min4: active（runtime-exec-zero + portability + GitHub Actions）
   - runtime route residue relock（29cc-245, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-245-runtime-route-residue-relock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-246-rz-array-min1-route-selector-lock-ssot.md`

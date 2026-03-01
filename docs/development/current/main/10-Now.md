@@ -155,9 +155,10 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - latest cleanup (2026-03-01): `invoke_core` に named receiver/method解決ヘルパーを追加し、`invoke/by_name` の receiver解決 + TLV decode重複を縮退（entry thin化）
     - latest cleanup (2026-03-01): `future.rs` の spawn系 receiver route 解決を `invoke_core` 経由へ統一し、`plugin_loader_v2` の compat method fallback 判定を `compat_method_resolver` へ集約
     - latest cleanup (2026-03-01): `runner/common_util/exec.rs` の `--emit-exe` nyrt 解決・precheck適用を `apply_nyrt_arg()` へ集約し、static-first 契約の重複分岐を撤去
-    - latest cleanup (2026-03-01): `crates/nyash_kernel/src/hako_forward.rs` を追加し、`nyrt.hako.register_*` で `.hako` 実装への forward hook を登録可能化（未登録時は現行Rust経路）
-    - latest cleanup (2026-03-01): `invoke/by_name` / `future.spawn_instance3` / `exports/string` が forward hook を優先する境界に切替（Phase A: C ABI entry -> `.hako` 移行導線）
-    - next fixed order (2026-03-01): `29cc-254` に HFK-min1..min4 を固定（docs -> header/shim -> kernel wiring -> portability gate）
+    - latest cleanup (2026-03-01): `include/nyrt.h` に `nyrt_hako_register_*` / `nyrt_hako_try_*` を追加し、`lang/c-abi/shims/hako_kernel.c` に forward registry 実装を追加（HFK-min2）
+    - latest cleanup (2026-03-01): `crates/nyash_kernel/src/hako_forward.rs` を C-registry トランポリンへ縮退し、`nyrt.hako.register_*` は互換aliasとして維持（HFK-min3）
+    - latest cleanup (2026-03-01): `tools/checks/phase29cc_hako_forward_registry_guard.sh` を追加し、`runtime-exec-zero` に C-registry contract 監査を組み込み
+    - next fixed order (2026-03-01): `29cc-254` は HFK-min1..min3 done、HFK-min4（runtime-exec-zero/portability/Actions）を active で固定
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:

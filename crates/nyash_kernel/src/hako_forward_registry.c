@@ -1,0 +1,53 @@
+#include <stdint.h>
+
+typedef int64_t (*nyrt_hako_plugin_invoke_by_name_fn)(
+    int64_t recv_handle, const char* method, int64_t argc, int64_t a1, int64_t a2);
+typedef int64_t (*nyrt_hako_future_spawn_instance_fn)(
+    int64_t a0, int64_t a1, int64_t a2, int64_t argc);
+typedef int64_t (*nyrt_hako_string_dispatch_fn)(
+    int64_t op, int64_t a0, int64_t a1, int64_t a2);
+
+static nyrt_hako_plugin_invoke_by_name_fn g_hako_plugin_invoke_by_name = 0;
+static nyrt_hako_future_spawn_instance_fn g_hako_future_spawn_instance = 0;
+static nyrt_hako_string_dispatch_fn g_hako_string_dispatch = 0;
+
+int64_t nyrt_hako_register_plugin_invoke_by_name(nyrt_hako_plugin_invoke_by_name_fn f) {
+  g_hako_plugin_invoke_by_name = f;
+  return 1;
+}
+
+int64_t nyrt_hako_register_future_spawn_instance(nyrt_hako_future_spawn_instance_fn f) {
+  g_hako_future_spawn_instance = f;
+  return 1;
+}
+
+int64_t nyrt_hako_register_string_dispatch(nyrt_hako_string_dispatch_fn f) {
+  g_hako_string_dispatch = f;
+  return 1;
+}
+
+int nyrt_hako_try_plugin_invoke_by_name(
+    int64_t recv_handle,
+    const char* method,
+    int64_t argc,
+    int64_t a1,
+    int64_t a2,
+    int64_t* out_value) {
+  if (!g_hako_plugin_invoke_by_name || !out_value) return 0;
+  *out_value = g_hako_plugin_invoke_by_name(recv_handle, method, argc, a1, a2);
+  return 1;
+}
+
+int nyrt_hako_try_future_spawn_instance(
+    int64_t a0, int64_t a1, int64_t a2, int64_t argc, int64_t* out_value) {
+  if (!g_hako_future_spawn_instance || !out_value) return 0;
+  *out_value = g_hako_future_spawn_instance(a0, a1, a2, argc);
+  return 1;
+}
+
+int nyrt_hako_try_string_dispatch(
+    int64_t op, int64_t a0, int64_t a1, int64_t a2, int64_t* out_value) {
+  if (!g_hako_string_dispatch || !out_value) return 0;
+  *out_value = g_hako_string_dispatch(op, a0, a1, a2);
+  return 1;
+}

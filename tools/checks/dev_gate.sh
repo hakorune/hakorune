@@ -51,6 +51,7 @@ list_profiles() {
     - plugin-module-core8-light
     - cargo test -p nyash_kernel plugin::wiring_tests::b3_public_wiring_contract_compiles -- --nocapture
     - tools/checks/phase29cc_kernel_b3_compat_isolation_guard.sh
+    - tools/checks/phase29cc_hako_forward_registry_guard.sh
     - tools/checks/phase29cc_runtime_execution_path_zero_guard.sh
     - tools/checks/phase29cc_hostfacade_direct_call_guard.sh
     - tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh
@@ -211,6 +212,8 @@ run_runtime_exec_zero() {
     cargo test -p nyash_kernel plugin::wiring_tests::b3_public_wiring_contract_compiles -- --nocapture
   run_step "kernel B3 compat isolation guard" \
     bash tools/checks/phase29cc_kernel_b3_compat_isolation_guard.sh
+  run_step "hako forward C-registry guard" \
+    bash tools/checks/phase29cc_hako_forward_registry_guard.sh
   run_step "runtime execution-path-zero observability guard" \
     bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh
   run_step "hostfacade direct-call allowlist guard" \
