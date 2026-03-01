@@ -73,12 +73,16 @@ impl PluginLoaderV2 {
         }
 
         // Decode TLV (first entry) generically
-        decode_tlv_result(box_type, &out[..out_len])
+        decode_tlv_result(self, box_type, &out[..out_len])
     }
 }
 
 /// Decode TLV result into a NyashBox
-fn decode_tlv_result(box_type: &str, data: &[u8]) -> BidResult<Option<Box<dyn NyashBox>>> {
+fn decode_tlv_result(
+    loader: &PluginLoaderV2,
+    box_type: &str,
+    data: &[u8],
+) -> BidResult<Option<Box<dyn NyashBox>>> {
     if let Some((tag, _sz, payload)) = crate::runtime::plugin_ffi_common::decode::tlv_first(data) {
         let bx: Box<dyn NyashBox> = match tag {
             1 => Box::new(crate::box_trait::BoolBox::new(
@@ -110,19 +114,18 @@ fn decode_tlv_result(box_type: &str, data: &[u8]) -> BidResult<Option<Box<dyn Ny
                 if let Some((ret_type, inst)) =
                     crate::runtime::plugin_ffi_common::decode::plugin_handle(payload)
                 {
-                    let (ret_box_type, fini_method_id) =
-                        if let Some(meta) =
-                            crate::runtime::plugin_loader_v2::enabled::metadata_for_type_id(
-                                ret_type,
-                            ) {
+                    let (ret_box_type, fini_method_id) = if let Some(meta) =
+                        loader.metadata_for_type_id(ret_type)
+                    {
                             (meta.box_type, meta.fini_method_id)
                         } else {
                             (box_type.to_string(), None)
                         };
+                    let route = super::route_resolver::resolve_invoke_route_contract(loader, ret_type);
                     let handle = Arc::new(super::types::PluginHandleInner {
                         type_id: ret_type,
                         invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
-                        invoke_box_fn: super::super::box_invoke_for_type_id(ret_type),
+                        invoke_box_fn: route.invoke_box_fn,
                         instance_id: inst,
                         fini_method_id,
                         finalized: std::sync::atomic::AtomicBool::new(false),

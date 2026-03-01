@@ -9,6 +9,13 @@ fn dbg_on() -> bool {
     std::env::var("NYASH_DEBUG_PLUGIN").unwrap_or_default() == "1"
 }
 
+fn resolve_global_invoke_box_fn(type_id: u32) -> Option<BoxInvokeFn> {
+    let loader = super::globals::get_global_loader_v2();
+    let guard = loader.read().ok()?;
+    let route = super::route_resolver::resolve_invoke_route_contract(&guard, type_id);
+    route.invoke_box_fn
+}
+
 /// Loaded plugin information (library handle + exported addresses)
 pub struct LoadedPluginV2 {
     pub(super) _lib: Arc<libloading::Library>,
@@ -216,7 +223,7 @@ pub fn make_plugin_box_v2(
         inner: Arc::new(PluginHandleInner {
             type_id,
             invoke_fn,
-            invoke_box_fn: super::box_invoke_for_type_id(type_id),
+            invoke_box_fn: resolve_global_invoke_box_fn(type_id),
             instance_id,
             fini_method_id: None,
             finalized: std::sync::atomic::AtomicBool::new(false),
@@ -237,7 +244,7 @@ pub fn construct_plugin_box(
         inner: Arc::new(PluginHandleInner {
             type_id,
             invoke_fn,
-            invoke_box_fn: super::box_invoke_for_type_id(type_id),
+            invoke_box_fn: resolve_global_invoke_box_fn(type_id),
             instance_id,
             fini_method_id,
             finalized: std::sync::atomic::AtomicBool::new(false),

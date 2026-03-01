@@ -148,6 +148,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/phases/phase-29cc/29cc-248-rz-loader-min1-route-contract-box-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-249-rz-loader-min2-ffi-host-route-contract-lock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-250-rz-loader-min3-compat-ffi-branch-isolation-lock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-251-rz-loader-min4-loader-types-route-reuse-lock-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-252-rz-loader-min4-closeout-route-zero-stability-lock-ssot.md`
     - fixed:
       - mainline 実行経路に残る Rust 依存（link / loader / kernel export）を 2026-02-28 時点で再棚卸し
       - 次境界を `RZ-LINK-min1 -> RZ-ARRAY-min1 -> RZ-LOADER-min1` の順で固定
@@ -158,8 +160,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `route_resolver` に method/birth route contract 箱を追加し、`method_resolver` / `instance_manager` の route 解決重複を集約（挙動不変）
       - `route_resolver` に invoke route contract 箱を追加し、`ffi_bridge` / `instance_manager` の invoke route 解決を統一（挙動不変）
       - `ffi_bridge` の compat/dev trace/probe 分岐を `compat_ffi_bridge` へ隔離し、mainline invoke 責務を縮退（挙動不変）
+      - `route_resolver` に `resolve_birth_contract_for_lib` を追加し、`loader/singletons` の type/birth/fini 判定を契約再利用へ統一
+      - `instance_manager` / `ffi_bridge` / `types` の invoke_box route 解決を `resolve_invoke_route_contract` へ統一
     - active next:
-      - `RZ-LOADER-min4`（`loader/*` / `types.rs` の route contract 再利用点を棚卸しし、次の統合境界を固定）
+      - `none`（RZ-LOADER-min4 closeout done; monitor-only, failure-driven reopen）
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:

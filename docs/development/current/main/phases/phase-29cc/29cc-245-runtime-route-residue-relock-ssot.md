@@ -73,11 +73,16 @@ Related:
   - `ffi_bridge` の compat/dev trace/probe 分岐を `compat_ffi_bridge` へ移設
   - mainline invoke フローを route解決・invoke・decode へ縮退
   - ENV契約とログタグは維持（挙動不変）
+- 2026-03-01: RZ-LOADER-min4 (loader/types route contract reuse) 着手
+  - `route_resolver` に `resolve_birth_contract_for_lib()` を追加
+  - `loader/singletons` / `instance_manager` / `ffi_bridge` / `types` の invoke route 解決を contract 経由へ統一
+  - global 直lookup での route 判定を縮退（挙動不変）
 
 ## Gate Contract
 
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 - `tools/checks/dev_gate.sh runtime-exec-zero`
+- `cargo test route_resolver::tests -- --nocapture`
 
 ## Reopen Criteria
 

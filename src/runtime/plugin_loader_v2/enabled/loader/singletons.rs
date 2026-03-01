@@ -35,18 +35,16 @@ pub(super) fn ensure_singleton_handle(
     let plugins = loader.plugins.read().map_err(|_| BidError::PluginError)?;
     let _plugin = plugins.get(lib_name).ok_or(BidError::PluginError)?;
 
-    let (resolved_lib, type_id) = super::super::route_resolver::resolve_type_info(loader, box_type)?;
-    if resolved_lib != lib_name {
-        return Err(BidError::InvalidType);
-    }
-    let (_birth_id, fini_id) =
-        super::super::route_resolver::resolve_birth_and_fini_for_lib(loader, lib_name, box_type)?;
+    let birth_contract =
+        super::super::route_resolver::resolve_birth_contract_for_lib(loader, lib_name, box_type)?;
+    let type_id = birth_contract.type_id;
+    let fini_id = birth_contract.fini_id;
 
     let tlv_args = crate::runtime::plugin_ffi_common::encode_empty_args();
-    let invoke_box = loader.box_invoke_fn_for_type_id(type_id);
+    let route = super::super::route_resolver::resolve_invoke_route_contract(loader, type_id);
     let (status, _, out_vec) = host_bridge::invoke_alloc_with_route(
-        invoke_box,
-        super::super::nyash_plugin_invoke_v2_shim,
+        route.invoke_box_fn,
+        route.invoke_shim_fn,
         type_id,
         0,
         0,

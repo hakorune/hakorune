@@ -260,6 +260,8 @@ Related:
       - `docs/development/current/main/phases/phase-29cc/29cc-248-rz-loader-min1-route-contract-box-lock-ssot.md`
       - `docs/development/current/main/phases/phase-29cc/29cc-249-rz-loader-min2-ffi-host-route-contract-lock-ssot.md`
       - `docs/development/current/main/phases/phase-29cc/29cc-250-rz-loader-min3-compat-ffi-branch-isolation-lock-ssot.md`
+      - `docs/development/current/main/phases/phase-29cc/29cc-251-rz-loader-min4-loader-types-route-reuse-lock-ssot.md`
+      - `docs/development/current/main/phases/phase-29cc/29cc-252-rz-loader-min4-closeout-route-zero-stability-lock-ssot.md`
     - zero definition（fixed）:
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）
@@ -275,6 +277,8 @@ Related:
       - `enabled/compat_host_bridge.rs` へ shim invoke fallback を隔離し、`ffi_bridge` invoke non-zero code を fail-fast 化
       - `enabled/loader/singletons.rs` の `RwLock unwrap` と invoke status 無視を撤去し、singleton prebirth を strict error contract へ統一
       - `enabled/instance_manager.rs` の `shutdown_singletons` を `BidResult<()>` 契約へ統一し、`globals` shutdown path も lock poison を fail-fast 化
+      - `enabled/loader/singletons.rs` の type/birth/fini 解決を `resolve_birth_contract_for_lib` 経由へ統一
+      - `enabled/instance_manager.rs` / `enabled/ffi_bridge.rs` / `enabled/types.rs` の invoke_box route 解決を `resolve_invoke_route_contract` 契約へ統一
       - `crates/nyash_kernel/src/plugin/compat_invoke_core.rs` を追加し、`invoke_core` の generic fallback/legacy encode helper を compat層へ分離
       - `crates/nyash_kernel/src/encode.rs` に mainline `nyrt_encode_arg` を追加し、`invoke/by_id`・`invoke/by_name` を mainline encode + fail-fast arity guard へ移行
       - `crates/nyash_kernel/src/plugin/future.rs` の payload encode を mainline優先へ寄せ、`fail_fast` 時の多引数経路を reject（compat時のみ placeholder）へ固定

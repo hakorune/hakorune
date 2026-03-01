@@ -25,7 +25,7 @@ impl PluginLoaderV2 {
         // Non-recursive: resolve birth contract -> invoke birth -> construct PluginBoxV2
         let contract = resolve_instance_birth_contract(self, box_type)?;
         let instance_id = invoke_birth_and_decode_instance_id(self, box_type, contract)?;
-        let bx = build_plugin_box_handle(box_type, contract, instance_id);
+        let bx = build_plugin_box_handle(self, box_type, contract, instance_id);
 
         // Get loaded plugin invoke
         let _plugins = self.plugins.read().map_err(|_| BidError::PluginError)?;
@@ -106,16 +106,18 @@ fn invoke_birth_and_decode_instance_id(
 
 /// Build a PluginBoxV2 handle from resolved birth contract and created instance id.
 fn build_plugin_box_handle(
+    loader: &PluginLoaderV2,
     box_type: &str,
     contract: BirthRouteContract,
     instance_id: u32,
 ) -> PluginBoxV2 {
+    let route = super::route_resolver::resolve_invoke_route_contract(loader, contract.type_id);
     PluginBoxV2 {
         box_type: box_type.to_string(),
         inner: Arc::new(PluginHandleInner {
             type_id: contract.type_id,
             invoke_fn: super::super::nyash_plugin_invoke_v2_shim,
-            invoke_box_fn: super::super::box_invoke_for_type_id(contract.type_id),
+            invoke_box_fn: route.invoke_box_fn,
             instance_id,
             fini_method_id: contract.fini_id,
             finalized: std::sync::atomic::AtomicBool::new(false),

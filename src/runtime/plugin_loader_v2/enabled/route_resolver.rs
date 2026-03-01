@@ -284,6 +284,21 @@ pub(super) fn resolve_birth_contract(
     })
 }
 
+pub(super) fn resolve_birth_contract_for_lib(
+    loader: &PluginLoaderV2,
+    lib_name: &str,
+    box_type: &str,
+) -> BidResult<BirthRouteContract> {
+    let type_id =
+        type_id_from_selected_lib(loader, lib_name, box_type)?.ok_or(BidError::InvalidType)?;
+    let (birth_id, fini_id) = resolve_birth_and_fini_for_lib(loader, lib_name, box_type)?;
+    Ok(BirthRouteContract {
+        type_id,
+        birth_id,
+        fini_id,
+    })
+}
+
 pub(super) fn resolve_invoke_route_contract(
     loader: &PluginLoaderV2,
     type_id: u32,
@@ -335,6 +350,16 @@ run = { method_id = 7, returns_result = true }
     fn resolve_birth_contract_from_specs() {
         let loader = seed_loader_with_spec();
         let got = resolve_birth_contract(&loader, "DemoBox").expect("birth contract");
+        assert_eq!(got.type_id, 42);
+        assert_eq!(got.birth_id, 1);
+        assert_eq!(got.fini_id, Some(999));
+    }
+
+    #[test]
+    fn resolve_birth_contract_for_lib_from_specs() {
+        let loader = seed_loader_with_spec();
+        let got =
+            resolve_birth_contract_for_lib(&loader, "demo", "DemoBox").expect("birth contract");
         assert_eq!(got.type_id, 42);
         assert_eq!(got.birth_id, 1);
         assert_eq!(got.fini_id, Some(999));
