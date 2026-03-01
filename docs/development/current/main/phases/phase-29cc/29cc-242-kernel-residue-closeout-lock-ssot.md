@@ -31,6 +31,15 @@ Related:
 3. `tools/checks/dev_gate.sh runtime-exec-zero` green
 4. `phase29y_no_compat_mainline_vm.sh` green
 
+## Execution update
+
+- 2026-03-01: B3 closeout line（future/invoke/mod）を再固定。
+  - `future.rs` / `invoke/by_name.rs` の compat payload encode を `encode_legacy_vm_args_range()` へ統一。
+  - `plugin/mod.rs` に `b3_public_wiring_contract_compiles` を追加し、B3 entrypoint re-export drift を fail-fast 監視。
+  - `invoke_core` / `compat_invoke_core` の未使用 placeholder helper を撤去。
+- 2026-03-01 acceptance refresh: `cargo check --bin hakorune`, `cargo check -p nyash_kernel`,
+  `tools/checks/dev_gate.sh runtime-exec-zero`, `phase29y_no_compat_mainline_vm.sh` すべて green。
+
 ## Next Boundary (fixed)
 
 1. `29cc-220` route-zero + stability 判定同期（docs sync + guard evidence）

@@ -69,6 +69,13 @@ Related:
 3. mainline で compat route が呼ばれない（ログ監査で drift 無し）。
 4. ABI lane guard（Core C ABI + TypeBox ABI v2）が継続 green。
 
+## Execution update
+
+- 2026-03-01: kernel B3 closeout（29cc-241/242）を同期。
+  - future/invoke の compat payload encode を `encode_legacy_vm_args_range()` に統一。
+  - `plugin/mod.rs` の B3 wiring contract test で entrypoint re-export drift を監視。
+  - runtime-exec-zero / no-compat-mainline gate は継続 green。
+
 ## Deferred Deletion Gate (future)
 
 Rust source 削除は次の条件を満たした後に別 lock で実施する。
