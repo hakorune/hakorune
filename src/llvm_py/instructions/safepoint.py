@@ -5,6 +5,7 @@ GC safepoints where runtime can safely collect garbage
 
 import llvmlite.ir as ir
 from typing import Dict, List, Optional, Any
+import os
 
 def lower_safepoint(
     builder: ir.IRBuilder,
@@ -106,6 +107,16 @@ def insert_automatic_safepoint(
         module: LLVM module
         location: Location type for debugging
     """
+    # Perf/runtime policy:
+    # when GC and scheduler polling are both disabled, safepoint checks become
+    # pure boundary overhead. Skip insertion in this mode.
+    gc_mode = str(os.environ.get("NYASH_GC_MODE", "") or "").strip().lower()
+    poll_mode = str(os.environ.get("NYASH_SCHED_POLL_IN_SAFEPOINT", "") or "").strip().lower()
+    gc_off = gc_mode in ("off", "0", "false", "disabled")
+    poll_off = poll_mode in ("off", "0", "false", "disabled")
+    if gc_off and poll_off:
+        return
+
     # Simple safepoint without tracking specific values
     # Runtime will scan stack/registers
     

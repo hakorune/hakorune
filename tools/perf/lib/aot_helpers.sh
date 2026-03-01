@@ -124,6 +124,8 @@ perf_build_aot_exe() {
   if ! NYASH_LLVM_SKIP_BUILD="${skip_build}" \
       NYASH_LLVM_FAST=1 \
       NYASH_LLVM_FAST_INT="${NYASH_LLVM_FAST_INT:-1}" \
+      NYASH_GC_MODE="${NYASH_GC_MODE:-off}" \
+      NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}" \
       bash "${root_dir}/tools/ny_mir_builder.sh" \
       --in "${in_json}" \
       --emit exe \
