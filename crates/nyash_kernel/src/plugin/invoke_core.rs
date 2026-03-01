@@ -228,14 +228,6 @@ pub fn jit_args_handle_only_enabled() -> bool {
 }
 
 #[inline]
-pub fn encode_legacy_placeholder_arg(dst: &mut Vec<u8>) {
-    if nyash_rust::config::env::fail_fast() {
-        return;
-    }
-    super::compat_invoke_core::encode_legacy_placeholder_arg(dst);
-}
-
-#[inline]
 pub fn encode_legacy_vm_args_range(dst: &mut Vec<u8>, start_pos: usize, end_pos_inclusive: usize) {
     if nyash_rust::config::env::fail_fast()
         || start_pos > end_pos_inclusive

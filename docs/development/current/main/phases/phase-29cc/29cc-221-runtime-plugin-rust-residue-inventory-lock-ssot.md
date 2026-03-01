@@ -142,6 +142,11 @@ Execution update:
 - 2026-03-01 (B3-min2): `invoke/by_name.rs` の compat payload も placeholder 埋めを廃止し、
   `encode_legacy_vm_args_range()` へ統一。
   mainline（`NYASH_FAIL_FAST=1`）は従来どおり reject/fail-fast を維持。
+- 2026-03-01 (B3-min3): `plugin/mod.rs` に B3 public wiring contract test を追加し、
+  crate-root re-export（future/invoke entrypoints）の崩れを compile-time で fail-fast 監視。
+- 2026-03-01 (B3-min4): `invoke_core` / `compat_invoke_core` から未使用の
+  `encode_legacy_placeholder_arg` を撤去し、compat payload encode を
+  `encode_legacy_vm_args_range()` 経路へ一本化。
 
 ## Non-target (keep for now)
 

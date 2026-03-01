@@ -7,11 +7,6 @@ pub(super) fn resolve_generic_fallback_route(
 }
 
 #[inline]
-pub(super) fn encode_legacy_placeholder_arg(dst: &mut Vec<u8>) {
-    nyash_rust::runtime::plugin_ffi_common::encode::i64(dst, 0);
-}
-
-#[inline]
 pub(super) fn encode_legacy_vm_args_range(
     dst: &mut Vec<u8>,
     start_pos: usize,

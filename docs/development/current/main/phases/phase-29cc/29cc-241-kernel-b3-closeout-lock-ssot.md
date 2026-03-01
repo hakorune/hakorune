@@ -30,6 +30,15 @@ kernel residue B3（`future.rs` / `invoke.rs` / `mod.rs`）の route 契約を c
 3. `tools/checks/dev_gate.sh runtime-exec-zero` green
 4. `phase29y_no_compat_mainline_vm.sh` green
 
+## Execution update
+
+- 2026-03-01: `crates/nyash_kernel/src/plugin/mod.rs` に
+  `b3_public_wiring_contract_compiles` を追加。
+  B3対象 entrypoints の crate-root re-export を function signature bind で固定し、
+  mod wiring drift を compile-time/test で fail-fast 検知できるようにした。
+- 2026-03-01: `invoke_core` / `compat_invoke_core` の未使用 placeholder helper を撤去し、
+  B3 compat payload encode 経路を `encode_legacy_vm_args_range()` へ一本化した。
+
 ## Next Boundary (fixed)
 
 1. kernel residue closeout（B1/B2/B3 統合 lock）
