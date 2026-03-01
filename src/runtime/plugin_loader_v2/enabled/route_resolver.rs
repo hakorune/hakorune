@@ -6,6 +6,20 @@
 use super::loader::PluginLoaderV2;
 use crate::bid::{BidError, BidResult};
 
+#[derive(Clone, Debug)]
+pub(super) struct MethodRouteContract {
+    pub type_id: u32,
+    pub method_id: u32,
+    pub returns_result: bool,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub(super) struct BirthRouteContract {
+    pub type_id: u32,
+    pub birth_id: u32,
+    pub fini_id: Option<u32>,
+}
+
 pub(super) fn resolve_lib_box_for_type_id(
     loader: &PluginLoaderV2,
     type_id: u32,
@@ -229,4 +243,34 @@ pub(super) fn resolve_type_and_fini_for_lib(
     }
 
     Ok((resolved_type, fini_id))
+}
+
+pub(super) fn resolve_method_contract(
+    loader: &PluginLoaderV2,
+    box_type: &str,
+    method_name: &str,
+) -> BidResult<MethodRouteContract> {
+    let (lib_name, type_id) = resolve_type_info(loader, box_type)?;
+    let method_id = resolve_method_id_for_lib(loader, &lib_name, box_type, method_name)?;
+    let returns_result =
+        resolve_method_returns_result_for_lib(loader, &lib_name, box_type, method_name)
+            .unwrap_or(false);
+    Ok(MethodRouteContract {
+        type_id,
+        method_id,
+        returns_result,
+    })
+}
+
+pub(super) fn resolve_birth_contract(
+    loader: &PluginLoaderV2,
+    box_type: &str,
+) -> BidResult<BirthRouteContract> {
+    let (lib_name, type_id) = resolve_type_info(loader, box_type)?;
+    let (birth_id, fini_id) = resolve_birth_and_fini_for_lib(loader, &lib_name, box_type)?;
+    Ok(BirthRouteContract {
+        type_id,
+        birth_id,
+        fini_id,
+    })
 }

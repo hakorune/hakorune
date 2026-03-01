@@ -61,6 +61,10 @@ Related:
   - `NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY`（`array_mono|runtime_data_only`）を追加
   - default は `array_mono` に固定し、`29cc-217` route lock と整合
   - 無効値は fail-fast（RuntimeError）
+- 2026-03-01: RZ-LOADER-min1 (route contract box lock) 着手
+  - `route_resolver` に `MethodRouteContract` / `BirthRouteContract` を追加
+  - `resolve_method_contract()` / `resolve_birth_contract()` を追加し resolver/instance の重複判定を集約
+  - 既定挙動（fail-fast/compat 条件）は不変
 
 ## Gate Contract
 

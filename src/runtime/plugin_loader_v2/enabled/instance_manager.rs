@@ -9,12 +9,7 @@ use crate::runtime::plugin_loader_v2::enabled::{
 };
 use std::sync::Arc;
 
-#[derive(Clone, Copy, Debug)]
-struct ResolvedBirthContract {
-    type_id: u32,
-    birth_id: u32,
-    fini_id: Option<u32>,
-}
+use super::route_resolver::BirthRouteContract;
 
 fn dbg_on() -> bool {
     std::env::var("PLUGIN_DEBUG").is_ok()
@@ -59,22 +54,14 @@ impl PluginLoaderV2 {
 fn resolve_instance_birth_contract(
     loader: &PluginLoaderV2,
     box_type: &str,
-) -> BidResult<ResolvedBirthContract> {
-    let (lib_name, type_id) = super::route_resolver::resolve_type_info(loader, box_type)?;
-    let (birth_id, fini_id) =
-        super::route_resolver::resolve_birth_and_fini_for_lib(loader, &lib_name, box_type)?;
-
-    Ok(ResolvedBirthContract {
-        type_id,
-        birth_id,
-        fini_id,
-    })
+) -> BidResult<BirthRouteContract> {
+    super::route_resolver::resolve_birth_contract(loader, box_type)
 }
 
 /// Invoke plugin birth and decode returned instance id from first 4 bytes (little-endian).
 fn invoke_birth_and_decode_instance_id(
     box_type: &str,
-    contract: ResolvedBirthContract,
+    contract: BirthRouteContract,
 ) -> BidResult<u32> {
     if dbg_on() {
         get_global_ring0().log.debug(&format!(
@@ -119,7 +106,7 @@ fn invoke_birth_and_decode_instance_id(
 /// Build a PluginBoxV2 handle from resolved birth contract and created instance id.
 fn build_plugin_box_handle(
     box_type: &str,
-    contract: ResolvedBirthContract,
+    contract: BirthRouteContract,
     instance_id: u32,
 ) -> PluginBoxV2 {
     PluginBoxV2 {
