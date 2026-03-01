@@ -28,6 +28,12 @@ pub(super) struct InvokeRouteContract {
     pub invoke_shim_fn: InvokeFn,
 }
 
+#[inline]
+fn compat_fallback_allowed() -> bool {
+    // Runtime/plugin compat fallback must follow the same route policy gate.
+    std::env::var("NYASH_VM_USE_FALLBACK").ok().as_deref() != Some("0")
+}
+
 pub(super) fn resolve_lib_box_for_type_id(
     loader: &PluginLoaderV2,
     type_id: u32,
@@ -44,7 +50,7 @@ pub(super) fn resolve_lib_box_for_type_id(
         }
     }
 
-    if crate::config::env::fail_fast() {
+    if crate::config::env::fail_fast() || !compat_fallback_allowed() {
         return None;
     }
 
@@ -100,7 +106,7 @@ pub(super) fn resolve_type_info(
         return Ok((lib_name, type_id));
     }
 
-    if crate::config::env::fail_fast() {
+    if crate::config::env::fail_fast() || !compat_fallback_allowed() {
         return Err(BidError::InvalidType);
     }
 
@@ -315,6 +321,27 @@ mod tests {
     use crate::config::nyash_toml_v2::NyashConfigV2;
     use crate::runtime::plugin_loader_v2::enabled::PluginLoaderV2;
 
+    static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    fn with_env_vars<F: FnOnce()>(pairs: &[(&str, &str)], f: F) {
+        let _guard = ENV_LOCK.lock().expect("env lock");
+        let prev: Vec<(String, Option<String>)> = pairs
+            .iter()
+            .map(|(k, _)| ((*k).to_string(), std::env::var(k).ok()))
+            .collect();
+        for (k, v) in pairs {
+            std::env::set_var(k, v);
+        }
+        f();
+        for (k, prev_v) in prev {
+            if let Some(v) = prev_v {
+                std::env::set_var(&k, v);
+            } else {
+                std::env::remove_var(&k);
+            }
+        }
+    }
+
     fn seed_loader_with_spec() -> PluginLoaderV2 {
         let mut loader = PluginLoaderV2::new();
         let toml_str = r#"
@@ -377,5 +404,39 @@ run = { method_id = 7, returns_result = true }
             (got.invoke_shim_fn)(42, 7, 1, std::ptr::null(), 0, out.as_mut_ptr(), &mut out_len)
         };
         assert_eq!(code, -5);
+    }
+
+    #[test]
+    fn resolve_type_info_compat_fallback_respects_vm_fallback_policy() {
+        let loader = PluginLoaderV2::new();
+        let mut spec_path = std::env::temp_dir();
+        spec_path.push(format!(
+            "phase29cc_route_resolver_{}_{}.toml",
+            std::process::id(),
+            "compat_fallback"
+        ));
+        std::fs::write(&spec_path, "[DemoBox]\ntype_id = 77\n").expect("write spec");
+        loader.ingest_box_specs_from_nyash_box(
+            "demo",
+            &["DemoBox".to_string()],
+            spec_path.as_path(),
+        );
+        let _ = std::fs::remove_file(&spec_path);
+
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "1")],
+            || {
+                let got = resolve_type_info(&loader, "DemoBox").expect("compat fallback route");
+                assert_eq!(got.0, "demo");
+                assert_eq!(got.1, 77);
+            },
+        );
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "0")],
+            || {
+                let got = resolve_type_info(&loader, "DemoBox");
+                assert!(matches!(got, Err(BidError::InvalidType)));
+            },
+        );
     }
 }

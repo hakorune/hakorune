@@ -33,13 +33,19 @@ pub type InvokeFn = unsafe extern "C" fn(
     *mut usize,
 ) -> i32;
 
+#[inline]
+fn compat_fallback_allowed() -> bool {
+    // Keep fallback policy SSOT aligned with runtime route contracts.
+    crate::hako_forward_bridge::rust_fallback_allowed()
+}
+
 /// Resolve route for a plugin object returned as TLV handle(tag=8).
 ///
 /// Mainline (`NYASH_FAIL_FAST=1`):
 /// - metadata missing -> None
 /// - metadata present but no box route -> None
 ///
-/// Compat (`NYASH_FAIL_FAST=0`):
+/// Compat (`NYASH_FAIL_FAST=0` and `NYASH_VM_USE_FALLBACK!=0`):
 /// - metadata missing -> fallback invoke + generic box type
 pub fn resolve_invoke_route_for_type(
     type_id: u32,
@@ -52,7 +58,7 @@ pub fn resolve_invoke_route_for_type(
         }
         return Some((meta.box_type, plugin_shim_invoke(), meta.fini_method_id));
     }
-    if nyash_rust::config::env::fail_fast() {
+    if nyash_rust::config::env::fail_fast() || !compat_fallback_allowed() {
         return None;
     }
     super::compat_invoke_core::resolve_generic_fallback_route(fallback_invoke)
@@ -286,4 +292,64 @@ pub fn encode_legacy_args_with_failfast_policy(
     }
     encode_legacy_vm_args_range(dst, start_pos, end_pos_inclusive);
     true
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    fn with_env_vars<F: FnOnce()>(pairs: &[(&str, &str)], f: F) {
+        let _guard = ENV_LOCK.lock().expect("env lock");
+        let prev: Vec<(String, Option<String>)> = pairs
+            .iter()
+            .map(|(k, _)| ((*k).to_string(), std::env::var(k).ok()))
+            .collect();
+        for (k, v) in pairs {
+            std::env::set_var(k, v);
+        }
+        f();
+        for (k, prev_v) in prev {
+            if let Some(v) = prev_v {
+                std::env::set_var(&k, v);
+            } else {
+                std::env::remove_var(&k);
+            }
+        }
+    }
+
+    unsafe extern "C" fn fallback_stub(
+        _type_id: u32,
+        _method_id: u32,
+        _instance_id: u32,
+        _args: *const u8,
+        _args_len: usize,
+        _result: *mut u8,
+        _result_len: *mut usize,
+    ) -> i32 {
+        0
+    }
+
+    #[test]
+    fn resolve_invoke_route_allows_compat_when_enabled() {
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "1")],
+            || {
+                let route = resolve_invoke_route_for_type(u32::MAX, fallback_stub);
+                assert!(route.is_some());
+            },
+        );
+    }
+
+    #[test]
+    fn resolve_invoke_route_blocks_compat_when_fallback_off() {
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "0")],
+            || {
+                let route = resolve_invoke_route_for_type(u32::MAX, fallback_stub);
+                assert!(route.is_none());
+            },
+        );
+    }
 }

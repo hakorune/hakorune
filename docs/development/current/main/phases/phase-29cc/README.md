@@ -300,6 +300,7 @@ Related:
       - `crates/nyash_kernel/src/hako_forward.rs` は `nyrt.hako.register_*` 互換export専用へ縮退（compat-only）
       - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` / `crates/nyash_kernel/src/plugin/future.rs` / `crates/nyash_kernel/src/exports/string.rs` は bridge 経由へ統一
       - `NYASH_VM_USE_FALLBACK=0` 時は hook 未登録の `invoke/by_name` / `future.spawn_instance3` / string exports が Rust fallback を通らず `0` を返す契約へ更新（mainline no-compat hardening）
+      - `crates/nyash_kernel/src/plugin/invoke_core.rs` / `src/runtime/plugin_loader_v2/enabled/route_resolver.rs` も compat fallback を `NYASH_VM_USE_FALLBACK=0` で拒否する契約へ統一（fallback policy SSOT alignment）
       - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を compat-export-only 契約で更新
       - next fixed order（29cc-254）: HFK-min1..min6 done、active next は `none`（monitor-only / no-delete-first）
       - execution-path-zero closeout contract（2026-03-01, head=`4e34f0bc1`）:
