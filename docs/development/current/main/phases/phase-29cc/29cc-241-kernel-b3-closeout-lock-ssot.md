@@ -41,6 +41,9 @@ kernel residue B3（`future.rs` / `invoke.rs` / `mod.rs`）の route 契約を c
 - 2026-03-01: `tools/checks/dev_gate.sh runtime-exec-zero` に
   `plugin::wiring_tests::b3_public_wiring_contract_compiles` を組み込み、
   B3 wiring lock を日常ゲートに昇格。
+- 2026-03-01: `tools/checks/phase29cc_kernel_b3_compat_isolation_guard.sh` を追加し、
+  `compat_invoke_core` 呼び出しが `invoke_core.rs` 以外へ漏れないことを監査。
+  同 guard を `runtime-exec-zero` に組み込み済み。
 
 ## Next Boundary (fixed)
 

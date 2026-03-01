@@ -286,6 +286,7 @@ Related:
       - `crates/nyash_kernel/src/plugin/invoke_core.rs` の compat encode helper を fail-fast guard 付き `encode_legacy_vm_args_range()` に統一し、未使用 placeholder helper を撤去
       - `crates/nyash_kernel/src/plugin/mod.rs` に B3 public wiring contract test（`b3_public_wiring_contract_compiles`）を追加し、future/invoke entrypoint re-export drift を fail-fast 監査
       - `tools/checks/dev_gate.sh runtime-exec-zero` に B3 wiring contract test を追加し、entrypoint配線監査を日常ゲート化
+      - `tools/checks/phase29cc_kernel_b3_compat_isolation_guard.sh` を追加し、`compat_invoke_core` 呼び出しが `invoke_core.rs` 以外へ漏れないことを監査（runtime-exec-zero 組み込み）
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:

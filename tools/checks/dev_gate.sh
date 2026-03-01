@@ -50,6 +50,7 @@ list_profiles() {
   runtime-exec-zero:
     - plugin-module-core8-light
     - cargo test -p nyash_kernel plugin::wiring_tests::b3_public_wiring_contract_compiles -- --nocapture
+    - tools/checks/phase29cc_kernel_b3_compat_isolation_guard.sh
     - tools/checks/phase29cc_runtime_execution_path_zero_guard.sh
     - tools/checks/phase29cc_hostfacade_direct_call_guard.sh
     - tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh
@@ -208,6 +209,8 @@ run_runtime_exec_zero() {
   run_plugin_module_core8_light
   run_step "kernel B3 public wiring contract lock" \
     cargo test -p nyash_kernel plugin::wiring_tests::b3_public_wiring_contract_compiles -- --nocapture
+  run_step "kernel B3 compat isolation guard" \
+    bash tools/checks/phase29cc_kernel_b3_compat_isolation_guard.sh
   run_step "runtime execution-path-zero observability guard" \
     bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh
   run_step "hostfacade direct-call allowlist guard" \
