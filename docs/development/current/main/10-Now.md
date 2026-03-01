@@ -158,7 +158,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - latest cleanup (2026-03-01): `include/nyrt.h` に `nyrt_hako_register_*` / `nyrt_hako_try_*` を追加し、`lang/c-abi/shims/hako_kernel.c` に forward registry 実装を追加（HFK-min2）
     - latest cleanup (2026-03-01): `crates/nyash_kernel/src/hako_forward.rs` を C-registry トランポリンへ縮退し、`nyrt.hako.register_*` は互換aliasとして維持（HFK-min3）
     - latest cleanup (2026-03-01): `tools/checks/phase29cc_hako_forward_registry_guard.sh` を追加し、`runtime-exec-zero` に C-registry contract 監査を組み込み
-    - next fixed order (2026-03-01): `29cc-254` は HFK-min1..min3 done、HFK-min4（runtime-exec-zero/portability/Actions）を active で固定
+    - next fixed order (2026-03-01): `29cc-254` は HFK-min1..min4 done（HFK-min4: runtime-exec-zero/portability/Actions run `22537383295` success, head=`169bba46a`）、active next は HFK-min5（Rust hook retirement readiness）
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:

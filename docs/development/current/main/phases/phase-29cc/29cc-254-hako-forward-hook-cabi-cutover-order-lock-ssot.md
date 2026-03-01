@@ -70,8 +70,14 @@ source-zero の最終形では「関数ポインタ保持/登録面」も C ABI 
 3. HFK-min3 done:
    - `crates/nyash_kernel/src/hako_forward.rs` は C registry 呼び出しトランポリンへ縮退。
    - 互換のため `nyrt.hako.register_*` dot-name export は維持（実体保持なし）。
-4. HFK-min4 active:
+4. HFK-min4 done:
    - `tools/checks/dev_gate.sh runtime-exec-zero`
    - `tools/checks/dev_gate.sh portability`
    - local result (2026-03-01): both green
-   - remaining: GitHub Actions linux/windows/mac run log sync
+   - GitHub Actions result (2026-03-01): run `22537383295` success
+     - head SHA: `169bba46a2fc6b4cd22065581859b9ec5b2a9dd2`
+     - `Windows check`: success
+     - `macOS build (release)`: success
+     - plugin recovery matrix（ubuntu/windows/macos）: all success
+5. HFK-min5 active:
+   - Rust hook retirement readiness（deletion gate 前の削除可能化確認）へ移行

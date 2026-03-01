@@ -167,7 +167,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - HFK-min1: done（`nyrt_host_surface_v0` を active symbol に同期）
       - HFK-min2: done（`include/nyrt.h` + `lang/c-abi/shims/hako_kernel.c` 実装）
       - HFK-min3: done（kernel entry の C registry 正本化、`hako_forward` トランポリン縮退）
-      - HFK-min4: active（runtime-exec-zero + portability + GitHub Actions）
+      - HFK-min4: done（runtime-exec-zero + portability + GitHub Actions run `22537383295` success / head=`169bba46a`）
+      - HFK-min5: active（Rust hook retirement readiness / deletion gate 前準備）
   - runtime route residue relock（29cc-245, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-245-runtime-route-residue-relock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-246-rz-array-min1-route-selector-lock-ssot.md`
