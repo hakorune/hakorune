@@ -139,6 +139,9 @@ Execution update:
 - 2026-03-01 (B3-min1): `future.rs` の `spawn_instance3` trailing payload を compat helper
   `encode_legacy_vm_args_range(3..nargs_payload)` へ統一。
   mainline（`NYASH_FAIL_FAST=1`）は `nargs_payload > 1` を即時 reject のまま維持。
+- 2026-03-01 (B3-min2): `invoke/by_name.rs` の compat payload も placeholder 埋めを廃止し、
+  `encode_legacy_vm_args_range()` へ統一。
+  mainline（`NYASH_FAIL_FAST=1`）は従来どおり reject/fail-fast を維持。
 
 ## Non-target (keep for now)
 
