@@ -281,9 +281,11 @@ Related:
       - `enabled/instance_manager.rs` / `enabled/ffi_bridge.rs` / `enabled/types.rs` の invoke_box route 解決を `resolve_invoke_route_contract` 契約へ統一
       - `crates/nyash_kernel/src/plugin/compat_invoke_core.rs` を追加し、`invoke_core` の generic fallback/legacy encode helper を compat層へ分離
       - `crates/nyash_kernel/src/encode.rs` に mainline `nyrt_encode_arg` を追加し、`invoke/by_id`・`invoke/by_name` を mainline encode + fail-fast arity guard へ移行
-      - `crates/nyash_kernel/src/plugin/future.rs` の payload encode を mainline優先へ寄せ、`fail_fast` 時の多引数経路を reject（compat時のみ placeholder）へ固定
+      - `crates/nyash_kernel/src/plugin/future.rs` / `plugin/invoke/by_name.rs` の compat payload encode を `encode_legacy_vm_args_range()` に統一し、`fail_fast` 時の多引数経路は reject に固定
       - B1/B2/B3 closeout lock は accepted を維持しつつ、implementation-truth recheck（compat入口残件のdocs同期）を継続
-      - `crates/nyash_kernel/src/plugin/invoke_core.rs` の `encode_legacy_*` wrapper を fail-fast guard 付きに統一し、mainline/compat 境界を固定
+      - `crates/nyash_kernel/src/plugin/invoke_core.rs` の compat encode helper を fail-fast guard 付き `encode_legacy_vm_args_range()` に統一し、未使用 placeholder helper を撤去
+      - `crates/nyash_kernel/src/plugin/mod.rs` に B3 public wiring contract test（`b3_public_wiring_contract_compiles`）を追加し、future/invoke entrypoint re-export drift を fail-fast 監査
+      - `tools/checks/dev_gate.sh runtime-exec-zero` に B3 wiring contract test を追加し、entrypoint配線監査を日常ゲート化
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:
