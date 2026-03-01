@@ -122,10 +122,15 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `nyash-math` = retire（legacy duplicate; `nyash-math-plugin` is active line）
   - runtime source-zero cutover lock（29cc-220, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
+    - static-link boundary lock（29cc-253, active）:
+      - `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - zero definition（fixed）:
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）
       - execution-path-zero は中間マイルストーンとして扱う
+    - static-link policy（fixed）:
+      - core runtime（host/kernel）は static-first（`libnyash_kernel.a` 正本）を維持
+      - 外部 plugin は dynamic load を許可するが、mainline route の正本にはしない
     - latest cleanup（2026-02-28）:
       - `src/runtime/plugin_loader_v2/enabled/route_resolver.rs` を追加し、`ffi_bridge`/`instance_manager` の type/birth/method route 解決を共通化（compat fallback は fail-fast policy 下に限定）
       - `src/runtime/plugin_loader_v2/enabled/types.rs` の `drop/finalize/clone` 呼び出しを `PluginHandleInner` helper へ集約し、host_bridge route policy 呼び出し点を単一路線化

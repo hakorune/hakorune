@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
   - docs/development/current/main/phases/phase-29cc/29cc-92-non-plugin-rust-residue-task-set.md
   - docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-93-rnr05-loop-scan-range-shape-ssot.md
@@ -253,6 +254,8 @@ Related:
       - `nyash-math` = retire（legacy duplicate; `nyash-math-plugin` is active line）
   - runtime source-zero cutover lock（29cc-220, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
+    - static-link boundary lock（29cc-253, active）:
+      - `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - route residue relock series:
       - `docs/development/current/main/phases/phase-29cc/29cc-245-runtime-route-residue-relock-ssot.md`
       - `docs/development/current/main/phases/phase-29cc/29cc-246-rz-array-min1-route-selector-lock-ssot.md`
@@ -266,6 +269,9 @@ Related:
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）
       - execution-path-zero は中間マイルストーンとして扱う
+    - static-link policy（fixed）:
+      - core runtime（host/kernel）は static-first（`libnyash_kernel.a` 正本）を維持
+      - 外部 plugin は dynamic load を許可するが、mainline route の正本にはしない
     - latest cleanup（2026-02-28）:
       - `enabled/route_resolver.rs` を追加し、`ffi_bridge`/`instance_manager` の type/birth/method route 解析を単一責務へ集約
       - `enabled/types.rs` の `PluginHandleInner` helper で drop/finalize/clone の host_bridge route 呼び出しを集約

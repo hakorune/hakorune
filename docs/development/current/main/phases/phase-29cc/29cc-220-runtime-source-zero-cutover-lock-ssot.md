@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-29cc/README.md
+  - docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-214-runtime-rust-thin-to-zero-execution-path-ssot.md
@@ -75,6 +76,9 @@ Related:
   - future/invoke の compat payload encode を `encode_legacy_vm_args_range()` に統一。
   - `plugin/mod.rs` の B3 wiring contract test で entrypoint re-export drift を監視。
   - runtime-exec-zero / no-compat-mainline gate は継続 green。
+- 2026-03-01: static-link boundary decision（29cc-253）を同期。
+  - 残存Rust境界は `AOT link / plugin_loader_v2 / C ABI entry` の3本に固定。
+  - core runtime は static-first（`libnyash_kernel.a`）を維持し、外部 plugin dynamic は補助経路に固定。
 
 ## Deferred Deletion Gate (future)
 

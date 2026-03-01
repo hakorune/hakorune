@@ -130,7 +130,10 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
   - plugin lane active next: `none`（PLG-07 closeout complete; monitor-only）
   - runtime source-zero cutover lock（29cc-220 active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
+    - static-link boundary lock（29cc-253 active）:
+      - `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - zero definition: long-term=source-zero / phase done=route-zero + stability（no-delete-first）
+    - static-link policy: core runtime（host/kernel）は static-first（`libnyash_kernel.a` 正本）を維持、外部 plugin dynamic は補助経路
     - latest cleanup (2026-02-28): `enabled/route_resolver.rs` を新設し、`ffi_bridge`/`instance_manager` の route 解決重複を共通化
     - latest cleanup (2026-02-28): `enabled/types.rs` の `PluginHandleInner` に invoke helper を追加し、drop/finalize/clone の route 呼び出し重複を縮退
     - latest cleanup (2026-02-28): `enabled/loader/singletons.rs` の type_id/fini 解決を `route_resolver` へ統一
@@ -146,6 +149,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - latest cleanup (2026-02-28): `crates/nyash_kernel/src/plugin/future.rs` の payload encode を `nyrt_encode_arg` 優先に統一し、`fail_fast` 時の多引数ルートを reject 化
     - latest cleanup (2026-02-28): `crates/nyash_kernel/src/plugin/invoke_core.rs` の `encode_legacy_*` wrapper を fail-fast guard 付きにし、mainline から compat encode へ落ちない契約を固定
     - latest sync (2026-02-28): B1/B2/B3 closeout lock は accepted を維持しつつ、implementation-truth recheck（compat entrypoint残件同期）を継続
+    - latest sync (2026-03-01): 残境界 3 本（AOT link / plugin_loader_v2 / C ABI entry）を固定し、static-first で順次 `.hako` 置換する方針を lock
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:
