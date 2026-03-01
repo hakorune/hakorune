@@ -4,10 +4,12 @@
 //! instance manager do not duplicate route logic.
 
 use super::loader::PluginLoaderV2;
+use super::host_bridge::{BoxInvokeFn, InvokeFn};
 use crate::bid::{BidError, BidResult};
 
 #[derive(Clone, Debug)]
 pub(super) struct MethodRouteContract {
+    pub lib_name: String,
     pub type_id: u32,
     pub method_id: u32,
     pub returns_result: bool,
@@ -18,6 +20,12 @@ pub(super) struct BirthRouteContract {
     pub type_id: u32,
     pub birth_id: u32,
     pub fini_id: Option<u32>,
+}
+
+#[derive(Clone, Copy)]
+pub(super) struct InvokeRouteContract {
+    pub invoke_box_fn: Option<BoxInvokeFn>,
+    pub invoke_shim_fn: InvokeFn,
 }
 
 pub(super) fn resolve_lib_box_for_type_id(
@@ -256,6 +264,7 @@ pub(super) fn resolve_method_contract(
         resolve_method_returns_result_for_lib(loader, &lib_name, box_type, method_name)
             .unwrap_or(false);
     Ok(MethodRouteContract {
+        lib_name,
         type_id,
         method_id,
         returns_result,
@@ -273,4 +282,14 @@ pub(super) fn resolve_birth_contract(
         birth_id,
         fini_id,
     })
+}
+
+pub(super) fn resolve_invoke_route_contract(
+    loader: &PluginLoaderV2,
+    type_id: u32,
+) -> InvokeRouteContract {
+    InvokeRouteContract {
+        invoke_box_fn: loader.box_invoke_fn_for_type_id(type_id),
+        invoke_shim_fn: super::super::nyash_plugin_invoke_v2_shim,
+    }
 }

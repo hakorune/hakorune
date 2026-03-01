@@ -24,7 +24,7 @@ impl PluginLoaderV2 {
     ) -> BidResult<Box<dyn NyashBox>> {
         // Non-recursive: resolve birth contract -> invoke birth -> construct PluginBoxV2
         let contract = resolve_instance_birth_contract(self, box_type)?;
-        let instance_id = invoke_birth_and_decode_instance_id(box_type, contract)?;
+        let instance_id = invoke_birth_and_decode_instance_id(self, box_type, contract)?;
         let bx = build_plugin_box_handle(box_type, contract, instance_id);
 
         // Get loaded plugin invoke
@@ -60,6 +60,7 @@ fn resolve_instance_birth_contract(
 
 /// Invoke plugin birth and decode returned instance id from first 4 bytes (little-endian).
 fn invoke_birth_and_decode_instance_id(
+    loader: &PluginLoaderV2,
     box_type: &str,
     contract: BirthRouteContract,
 ) -> BidResult<u32> {
@@ -71,10 +72,10 @@ fn invoke_birth_and_decode_instance_id(
     }
 
     let tlv = crate::runtime::plugin_ffi_common::encode_empty_args();
-    let invoke_box = super::super::box_invoke_for_type_id(contract.type_id);
+    let route = super::route_resolver::resolve_invoke_route_contract(loader, contract.type_id);
     let (code, out_len, out_buf) = super::host_bridge::invoke_alloc_with_route(
-        invoke_box,
-        super::super::nyash_plugin_invoke_v2_shim,
+        route.invoke_box_fn,
+        route.invoke_shim_fn,
         contract.type_id,
         contract.birth_id,
         0,

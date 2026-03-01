@@ -65,6 +65,10 @@ Related:
   - `route_resolver` に `MethodRouteContract` / `BirthRouteContract` を追加
   - `resolve_method_contract()` / `resolve_birth_contract()` を追加し resolver/instance の重複判定を集約
   - 既定挙動（fail-fast/compat 条件）は不変
+- 2026-03-01: RZ-LOADER-min2 (ffi/host route contract lock) 着手
+  - `route_resolver` に `InvokeRouteContract` を追加
+  - `ffi_bridge` / `instance_manager` の invoke route 解決を contract 箱経由へ統一
+  - `host_bridge::invoke_alloc_with_route()` 呼び出し点の判定源を集約（挙動不変）
 
 ## Gate Contract
 

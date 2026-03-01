@@ -20,12 +20,12 @@ impl PluginLoaderV2 {
         instance_id: u32,
         args: &[Box<dyn NyashBox>],
     ) -> BidResult<Option<Box<dyn NyashBox>>> {
-        // Resolve (lib_name, type_id) either from config or cached specs
-        let (lib_name, type_id) = resolve_type_info(self, box_type)?;
-
-        // Mainline path: resolve from selected library config/spec only.
+        // Mainline path: resolve route contract from selected library config/spec only.
         // This avoids route drift into legacy resolver fallback paths.
-        let method_id = resolve_method_id_for_lib(self, &lib_name, box_type, method_name)?;
+        let contract = super::route_resolver::resolve_method_contract(self, box_type, method_name)?;
+        let type_id = contract.type_id;
+        let method_id = contract.method_id;
+        let lib_name = contract.lib_name;
 
         // Get plugin handle
         let plugins = self.plugins.read().map_err(|_| BidError::PluginError)?;
@@ -113,10 +113,10 @@ impl PluginLoaderV2 {
             ));
         }
 
-        let invoke_box = self.box_invoke_fn_for_type_id(type_id);
+        let route = super::route_resolver::resolve_invoke_route_contract(self, type_id);
         let (code, out_len, out) = super::host_bridge::invoke_alloc_with_route(
-            invoke_box,
-            super::super::nyash_plugin_invoke_v2_shim,
+            route.invoke_box_fn,
+            route.invoke_shim_fn,
             type_id,
             method_id,
             instance_id,
@@ -135,24 +135,6 @@ impl PluginLoaderV2 {
         // Decode TLV (first entry) generically
         decode_tlv_result(box_type, &out[..out_len])
     }
-}
-
-fn resolve_method_id_for_lib(
-    loader: &PluginLoaderV2,
-    lib_name: &str,
-    box_type: &str,
-    method_name: &str,
-) -> BidResult<u32> {
-    super::route_resolver::resolve_method_id_for_lib(loader, lib_name, box_type, method_name)
-        .map_err(|err| {
-            if dbg_on() {
-                get_global_ring0().log.debug(&format!(
-                    "[PluginLoaderV2] ERR: method resolve failed for {}.{} in lib={} ({:?})",
-                    box_type, method_name, lib_name, err
-                ));
-            }
-            err
-        })
 }
 
 fn should_trace_tlv_shim(box_type: &str, method: &str) -> bool {
@@ -226,11 +208,6 @@ fn should_route_ccore(box_type: &str, method: &str) -> bool {
     }
     // Default minimal scope: MapBox.set only
     box_type == "MapBox" && method == "set"
-}
-
-/// Resolve type information for a box
-fn resolve_type_info(loader: &PluginLoaderV2, box_type: &str) -> BidResult<(String, u32)> {
-    super::route_resolver::resolve_type_info(loader, box_type)
 }
 
 /// Decode TLV result into a NyashBox
