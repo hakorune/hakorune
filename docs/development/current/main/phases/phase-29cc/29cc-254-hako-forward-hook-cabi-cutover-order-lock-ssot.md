@@ -85,4 +85,4 @@ source-zero の最終形では「関数ポインタ保持/登録面」も C ABI 
    - `plugin/invoke/by_name.rs` / `plugin/future.rs` / `exports/string.rs` は bridge 経由へ統一。
    - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を compat-export-only 契約へ更新。
 6. HFK-min6 active:
-   - Deletion Gate docs prep（physical delete は no-delete-first 維持）
+   - Deletion Gate docs prep（physical delete は no-delete-first 維持、Rust source は条件達成まで当分保存）

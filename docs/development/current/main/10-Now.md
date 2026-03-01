@@ -134,7 +134,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
       - `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - hako-forward hook C ABI cutover lock（29cc-254 active）:
       - `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
-    - zero definition: long-term=source-zero / phase done=route-zero + stability（no-delete-first）
+    - zero definition: long-term=source-zero / phase done=route-zero + stability（no-delete-first, Rust source は Deletion Gate 条件達成まで当分保存）
     - static-link policy: core runtime（host/kernel）は static-first（`libnyash_kernel.a` 正本）を維持、外部 plugin dynamic は補助経路
     - latest cleanup (2026-02-28): `enabled/route_resolver.rs` を新設し、`ffi_bridge`/`instance_manager` の route 解決重複を共通化
     - latest cleanup (2026-02-28): `enabled/types.rs` の `PluginHandleInner` に invoke helper を追加し、drop/finalize/clone の route 呼び出し重複を縮退

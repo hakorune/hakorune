@@ -129,6 +129,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - zero definition（fixed）:
       - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
       - phase done = route-zero + stability（no-delete-first）
+      - Rust source は Deletion Gate 条件達成まで当分保存（物理削除は別 lock）
       - execution-path-zero は中間マイルストーンとして扱う
     - static-link policy（fixed）:
       - core runtime（host/kernel）は static-first（`libnyash_kernel.a` 正本）を維持
