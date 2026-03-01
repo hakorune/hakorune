@@ -150,6 +150,9 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - latest cleanup (2026-02-28): `crates/nyash_kernel/src/plugin/invoke_core.rs` の `encode_legacy_*` wrapper を fail-fast guard 付きにし、mainline から compat encode へ落ちない契約を固定
     - latest sync (2026-02-28): B1/B2/B3 closeout lock は accepted を維持しつつ、implementation-truth recheck（compat entrypoint残件同期）を継続
     - latest sync (2026-03-01): 残境界 3 本（AOT link / plugin_loader_v2 / C ABI entry）を固定し、static-first で順次 `.hako` 置換する方針を lock
+    - latest cleanup (2026-03-01): `invoke_core` に named receiver/method解決ヘルパーを追加し、`invoke/by_name` の receiver解決 + TLV decode重複を縮退（entry thin化）
+    - latest cleanup (2026-03-01): `future.rs` の spawn系 receiver route 解決を `invoke_core` 経由へ統一し、`plugin_loader_v2` の compat method fallback 判定を `compat_method_resolver` へ集約
+    - latest cleanup (2026-03-01): `runner/common_util/exec.rs` の `--emit-exe` nyrt 解決・precheck適用を `apply_nyrt_arg()` へ集約し、static-first 契約の重複分岐を撤去
   - fullstack completion SSOT（meaning in `.hako`, host as minimal ABI）:
     - `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
   - Step-1 host ABI surface lock（docs-first）:

@@ -3,7 +3,7 @@
 // Exported as: nyash.future.spawn_method_h(type_id, method_id, argc, recv_h, vals*, tags*) -> i64 (FutureBox handle)
 #[export_name = "nyash.future.spawn_method_h"]
 pub extern "C" fn nyash_future_spawn_method_h(
-    type_id: i64,
+    _type_id: i64,
     method_id: i64,
     argc: i64,
     recv_h: i64,
@@ -15,20 +15,7 @@ pub extern "C" fn nyash_future_spawn_method_h(
     if recv_h <= 0 {
         return 0;
     }
-    // Resolve receiver invoke
-    let mut instance_id: u32 = 0;
-    let mut real_type_id: u32 = type_id as u32;
-    let mut invoke: Option<
-        unsafe extern "C" fn(u32, u32, u32, *const u8, usize, *mut u8, *mut usize) -> i32,
-    > = None;
-    if let Some(obj) = nyash_rust::runtime::host_handles::get(recv_h as u64) {
-        if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-            instance_id = p.instance_id();
-            real_type_id = p.inner.type_id;
-            invoke = Some(p.inner.invoke_fn);
-        }
-    }
-    let Some(inv) = invoke else {
+    let Some(receiver) = super::invoke_core::resolve_receiver_for_a0(recv_h) else {
         return 0;
     };
     // Build TLV from tagged arrays (argc includes receiver)
@@ -118,17 +105,18 @@ pub extern "C" fn nyash_future_spawn_method_h(
     // Copy data for async task
     let cap: usize = 512;
     let tlv = buf.clone();
+    let inv = receiver.invoke;
     nyash_rust::runtime::global_hooks::spawn_task(
         "nyash.future.spawn_method_h",
         Box::new(move || {
             // Growable output buffer loop
             let mut out = vec![0u8; cap];
             let mut out_len: usize = out.len();
-            let rc = unsafe {
-                inv(
-                    real_type_id,
+                let rc = unsafe {
+                    inv(
+                    receiver.real_type_id,
                     method_id as u32,
-                    instance_id,
+                    receiver.instance_id,
                     tlv.as_ptr(),
                     tlv.len(),
                     out.as_mut_ptr(),
@@ -198,7 +186,7 @@ pub extern "C" fn nyash_future_spawn_method_h(
                             let r_type = u32::from_le_bytes(t);
                             let r_inst = u32::from_le_bytes(i);
                             let (box_type_name, invoke_ptr, fini_id) =
-                                match super::invoke_core::resolve_invoke_route_for_type(r_type, inv)
+                                match super::invoke_core::resolve_invoke_route_for_type(r_type, receiver.invoke)
                                 {
                                     Some(v) => v,
                                     None => {
@@ -241,33 +229,21 @@ pub extern "C" fn nyash_future_spawn_method_h(
 #[export_name = "nyash.future.spawn_instance3_i64"]
 pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, argc: i64) -> i64 {
     use nyash_rust::box_trait::{IntegerBox, NyashBox, StringBox};
-    use nyash_rust::runtime::plugin_loader_v2::PluginBoxV2;
     if a0 <= 0 {
         return 0;
     }
-    // Resolve receiver invoke and type id/name
-    let (instance_id, real_type_id, invoke) =
-        if let Some(obj) = nyash_rust::runtime::host_handles::get(a0 as u64) {
-            if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-                (p.instance_id(), p.inner.type_id, Some(p.inner.invoke_fn))
-            } else {
-                (0, 0, None)
-            }
-        } else {
-            (0, 0, None)
-        };
-    let Some(invoke) = invoke else {
+    let Some(receiver) = super::invoke_core::resolve_named_receiver_for_handle(a0) else {
         return 0;
     };
-    // Determine box type name from type_id
-    let box_type_name = nyash_rust::runtime::plugin_loader_v2::metadata_for_type_id(real_type_id)
-        .map(|meta| meta.box_type)
-        .unwrap_or_else(|| "PluginBox".to_string());
+    let box_type_name = receiver.box_type.clone();
     // Determine method name string (from a1 handle→StringBox, or a1 as C string pointer, or legacy VM args)
     let mut method_name: Option<String> = None;
     if a1 > 0 {
-        if let Some(obj) = nyash_rust::runtime::host_handles::get(a1 as u64) {
-            if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
+            if let Some(obj) = nyash_rust::runtime::host_handles::get(a1 as u64) {
+                if let Some(p) = obj
+                    .as_any()
+                    .downcast_ref::<nyash_rust::runtime::plugin_loader_v2::PluginBoxV2>()
+                {
                 if p.box_type == "StringBox" {
                     // Limit the lifetime of the read guard to this inner block by avoiding an outer binding
                     if let Ok(hg) = nyash_rust::runtime::get_global_plugin_host().read() {
@@ -301,15 +277,9 @@ pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, ar
         None => return 0,
     };
     // Resolve method_id via PluginHost
-    let mh_opt = nyash_rust::runtime::plugin_loader_unified::get_global_plugin_host()
-        .read()
-        .ok()
-        .and_then(|h| h.resolve_method(&box_type_name, &method_name).ok());
-    let method_id = if let Some(mh) = mh_opt {
-        mh.method_id
-    } else {
-        0
-    };
+    let method_id =
+        super::invoke_core::resolve_method_id_for_named_receiver(&receiver, &method_name)
+            .unwrap_or(0);
     if method_id == 0 { /* dynamic plugins may use 0 for birth; disallow here */ }
     // Build TLV args for payload (excluding method name)
     let nargs_total = argc.max(0) as usize; // includes method_name
@@ -347,10 +317,10 @@ pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, ar
                 let mut out = vec![0u8; cap];
                 let mut out_len: usize = out.len();
                 let rc = unsafe {
-                    invoke(
-                        real_type_id,
+                    (receiver.invoke)(
+                        receiver.real_type_id,
                         method_id as u32,
-                        instance_id,
+                        receiver.instance_id,
                         tlv.as_ptr(),
                         tlv.len(),
                         out.as_mut_ptr(),
@@ -417,7 +387,7 @@ pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, ar
                                     nyash_rust::runtime::plugin_loader_v2::construct_plugin_box(
                                         box_type_name.clone(),
                                         r_type,
-                                        invoke,
+                                        receiver.invoke,
                                         r_inst,
                                         None,
                                     );

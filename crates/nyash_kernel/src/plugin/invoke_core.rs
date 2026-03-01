@@ -11,6 +11,13 @@ pub struct Receiver {
     pub invoke: InvokeFn,
 }
 
+pub struct NamedReceiver {
+    pub instance_id: u32,
+    pub real_type_id: u32,
+    pub box_type: String,
+    pub invoke: InvokeFn,
+}
+
 #[inline]
 fn plugin_shim_invoke() -> InvokeFn {
     nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim
@@ -68,6 +75,33 @@ pub fn resolve_receiver_for_a0(a0: i64) -> Option<Receiver> {
     // ✂️ REMOVED: Legacy VM argument receiver resolution
     // Plugin-First architecture requires explicit handle-based receiver resolution only
     None
+}
+
+/// Resolve a plugin receiver for name-based invoke shims.
+/// This includes the concrete box_type string used by method resolution.
+pub fn resolve_named_receiver_for_handle(recv_handle: i64) -> Option<NamedReceiver> {
+    if recv_handle <= 0 {
+        return None;
+    }
+    let obj = nyash_rust::runtime::host_handles::get(recv_handle as u64)?;
+    let p = obj.as_any().downcast_ref::<PluginBoxV2>()?;
+    Some(NamedReceiver {
+        instance_id: p.instance_id(),
+        real_type_id: p.inner.type_id,
+        box_type: p.box_type.clone(),
+        invoke: p.inner.invoke_fn,
+    })
+}
+
+/// Resolve method id by name for a plugin receiver route.
+pub fn resolve_method_id_for_named_receiver(
+    receiver: &NamedReceiver,
+    method: &str,
+) -> Option<u32> {
+    let host = nyash_rust::runtime::plugin_loader_unified::get_global_plugin_host();
+    let guard = host.read().ok()?;
+    let handle = guard.resolve_method(&receiver.box_type, method).ok()?;
+    Some(handle.method_id as u32)
 }
 
 /// Call plugin invoke with dynamic buffer growth, returning first TLV entry on success.

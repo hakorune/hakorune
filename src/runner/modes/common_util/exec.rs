@@ -121,6 +121,32 @@ fn skip_nyrt_precheck() -> bool {
     std::env::var("NYASH_LLVM_USE_HARNESS").ok().as_deref() == Some("1")
 }
 
+fn default_nyrt_dir() -> String {
+    std::env::var("NYASH_EMIT_EXE_NYRT")
+        .ok()
+        .or_else(|| {
+            std::env::var("NYASH_ROOT")
+                .ok()
+                .map(|r| format!("{}/target/release", r))
+        })
+        .unwrap_or_else(|| "target/release".to_string())
+}
+
+fn apply_nyrt_arg(
+    cmd: &mut std::process::Command,
+    nyrt_dir: Option<&str>,
+) -> Result<(), String> {
+    let default_nyrt = default_nyrt_dir();
+    let nyrt_dir_final = nyrt_dir.unwrap_or(&default_nyrt);
+    if !skip_nyrt_precheck() {
+        verify_nyrt_dir(nyrt_dir_final)?;
+        cmd.arg("--nyrt").arg(nyrt_dir_final);
+    } else if let Some(explicit_nyrt) = nyrt_dir {
+        cmd.arg("--nyrt").arg(explicit_nyrt);
+    }
+    Ok(())
+}
+
 /// Emit native executable via ny-llvmc (lib-side MIR)
 #[allow(dead_code)]
 pub fn ny_llvmc_emit_exe_lib(
@@ -145,21 +171,7 @@ pub fn ny_llvmc_emit_exe_lib(
         .arg("exe")
         .arg("--out")
         .arg(exe_out);
-    let default_nyrt = std::env::var("NYASH_EMIT_EXE_NYRT")
-        .ok()
-        .or_else(|| {
-            std::env::var("NYASH_ROOT")
-                .ok()
-                .map(|r| format!("{}/target/release", r))
-        })
-        .unwrap_or_else(|| "target/release".to_string());
-    let nyrt_dir_final = nyrt_dir.unwrap_or(&default_nyrt);
-    if !skip_nyrt_precheck() {
-        verify_nyrt_dir(nyrt_dir_final)?;
-        cmd.arg("--nyrt").arg(nyrt_dir_final);
-    } else if let Some(explicit_nyrt) = nyrt_dir {
-        cmd.arg("--nyrt").arg(explicit_nyrt);
-    }
+    apply_nyrt_arg(&mut cmd, nyrt_dir)?;
     if let Some(flags) = extra_libs {
         if !flags.trim().is_empty() {
             cmd.arg("--libs").arg(flags);
@@ -206,21 +218,7 @@ pub fn ny_llvmc_emit_exe_bin(
         .arg("exe")
         .arg("--out")
         .arg(exe_out);
-    let default_nyrt = std::env::var("NYASH_EMIT_EXE_NYRT")
-        .ok()
-        .or_else(|| {
-            std::env::var("NYASH_ROOT")
-                .ok()
-                .map(|r| format!("{}/target/release", r))
-        })
-        .unwrap_or_else(|| "target/release".to_string());
-    let nyrt_dir_final = nyrt_dir.unwrap_or(&default_nyrt);
-    if !skip_nyrt_precheck() {
-        verify_nyrt_dir(nyrt_dir_final)?;
-        cmd.arg("--nyrt").arg(nyrt_dir_final);
-    } else if let Some(explicit_nyrt) = nyrt_dir {
-        cmd.arg("--nyrt").arg(explicit_nyrt);
-    }
+    apply_nyrt_arg(&mut cmd, nyrt_dir)?;
     if let Some(flags) = extra_libs {
         if !flags.trim().is_empty() {
             cmd.arg("--libs").arg(flags);

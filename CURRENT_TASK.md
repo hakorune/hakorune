@@ -150,6 +150,13 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `tools/checks/phase29cc_kernel_b3_compat_isolation_guard.sh` を追加し、`compat_invoke_core` 呼び出しが `invoke_core.rs` 以外へ漏れないことを監査（runtime-exec-zero 組み込み済み）
       - `crates/nyash_kernel/src/plugin/invoke_core.rs` の compat encode helper を `fail_fast` ガード付き `encode_legacy_vm_args_range()` へ統一し、未使用 placeholder helper を撤去（mainline の誤経路侵入を構造的に遮断）
       - `29cc-242` / `29cc-220` に B3 closeout 実行証跡を同期し、kernel residue closeout -> route-zero + stability 判定導線を固定
+    - latest cleanup（2026-03-01）:
+      - `crates/nyash_kernel/src/plugin/invoke_core.rs` に `NamedReceiver` / `resolve_named_receiver_for_handle()` / `resolve_method_id_for_named_receiver()` を追加し、name-based invoke の receiver解決と method解決を1箇所へ集約
+      - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` の `PluginBoxV2` 直接解決・tag別decode重複を撤去し、`invoke_core::{plugin_invoke_call,decode_entry_to_i64}` 経由へ統一（C ABI entry thin化）
+      - `crates/nyash_kernel/src/plugin/future.rs` の `spawn_method_h` / `spawn_instance3_i64` を `invoke_core` 受信者解決へ寄せ、receiver route重複を縮退
+      - `src/runtime/plugin_loader_v2/enabled/compat_method_resolver.rs` に `resolve_method_id_with_compat_policy()` を追加し、legacy file fallback の fail-fast/trace 判定を compat層へ集約
+      - `src/runtime/plugin_loader_v2/enabled/method_resolver.rs` の compat fallback 分岐を1呼び出しに縮退し、mainline method route を保持
+      - `src/runner/modes/common_util/exec.rs` に `default_nyrt_dir()` / `apply_nyrt_arg()` を追加し、`emit-exe` の nyrt 解決・precheck適用を lib/bin 経路で共通化（static-first 契約の重複撤去）
   - runtime route residue relock（29cc-245, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-245-runtime-route-residue-relock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-246-rz-array-min1-route-selector-lock-ssot.md`

@@ -51,6 +51,26 @@ core runtime の結合方針を static-first で確定する。
      - C ABI symbol surface は維持（互換破壊しない）
      - 実体は `.hako` 実装へ寄せ、Rust 側は薄い境界に縮退
 
+## Implementation Sync (2026-03-01)
+
+1. C ABI entry thin化（boundary-3）
+   - `crates/nyash_kernel/src/plugin/invoke_core.rs`
+     - `NamedReceiver` と named receiver/method 解決 helper を追加。
+   - `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
+     - receiver 解決・method 解決・TLV decode の重複を `invoke_core` 経由へ統一。
+   - `crates/nyash_kernel/src/plugin/future.rs`
+     - spawn entry の receiver route 解決を `invoke_core` 経由へ統一。
+
+2. runtime/plugin loader compat境界の集約（boundary-2）
+   - `src/runtime/plugin_loader_v2/enabled/compat_method_resolver.rs`
+     - `resolve_method_id_with_compat_policy()` を追加し、fail-fast/trace 判定を compat層へ集約。
+   - `src/runtime/plugin_loader_v2/enabled/method_resolver.rs`
+     - compat fallback 分岐を 1 呼び出しへ縮退。
+
+3. AOT link boundary の重複撤去（boundary-1）
+   - `src/runner/modes/common_util/exec.rs`
+     - `default_nyrt_dir()` / `apply_nyrt_arg()` を追加し、`ny_llvmc_emit_exe_lib/bin` の static-first precheck 適用を共通化。
+
 ## Acceptance
 
 1. `tools/checks/dev_gate.sh runtime-exec-zero` green

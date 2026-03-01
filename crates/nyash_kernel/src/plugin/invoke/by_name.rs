@@ -13,37 +13,13 @@ pub extern "C" fn nyash_plugin_invoke_name_call_i64(argc: i64, a0: i64, a1: i64,
 }
 
 fn nyash_plugin_invoke_name_common_i64(method: &str, argc: i64, a0: i64, _a1: i64, _a2: i64) -> i64 {
-    use nyash_rust::runtime::plugin_loader_v2::PluginBoxV2;
-
-    let mut instance_id: u32 = 0;
-    let mut type_id: u32 = 0;
-    let mut box_type: Option<String> = None;
-    let mut invoke: Option<invoke_core::InvokeFn> = None;
-    if a0 > 0 {
-        if let Some(obj) = nyash_rust::runtime::host_handles::get(a0 as u64) {
-            if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-                instance_id = p.instance_id();
-                type_id = p.inner.type_id;
-                box_type = Some(p.box_type.clone());
-                invoke = Some(p.inner.invoke_fn);
-            }
-        }
-    }
-    let Some(invoke) = invoke else {
+    let Some(receiver) = invoke_core::resolve_named_receiver_for_handle(a0) else {
         return 0;
     };
-    let box_type = box_type.unwrap_or_default();
-    let mh = if let Ok(host) =
-        nyash_rust::runtime::plugin_loader_unified::get_global_plugin_host().read()
-    {
-        host.resolve_method(&box_type, method)
-    } else {
+    let Some(method_id) = invoke_core::resolve_method_id_for_named_receiver(&receiver, method)
+    else {
         return 0;
     };
-    let method_id = match mh {
-        Ok(h) => h.method_id,
-        Err(_) => return 0,
-    } as u32;
 
     let nargs = argc.saturating_sub(1).max(0) as usize;
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
@@ -57,11 +33,17 @@ fn nyash_plugin_invoke_name_common_i64(method: &str, argc: i64, a0: i64, _a1: i6
     }
 
     let Some((tag, sz, payload)) =
-        invoke_core::plugin_invoke_call(invoke, type_id, method_id, instance_id, &buf)
+        invoke_core::plugin_invoke_call(
+            receiver.invoke,
+            receiver.real_type_id,
+            method_id,
+            receiver.instance_id,
+            &buf,
+        )
     else {
         return 0;
     };
-    invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), invoke).unwrap_or(0)
+    invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), receiver.invoke).unwrap_or(0)
 }
 
 #[export_name = "nyash.plugin.invoke_by_name_i64"]
@@ -87,11 +69,6 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
     }
 
     use nyash_rust::instance_v2::InstanceBox;
-    use nyash_rust::runtime::plugin_loader_v2::PluginBoxV2;
-    let mut instance_id: u32 = 0;
-    let mut type_id: u32 = 0;
-    let mut box_type: Option<String> = None;
-    let mut invoke: Option<invoke_core::InvokeFn> = None;
     if recv_handle > 0 {
         if let Some(obj) = nyash_rust::runtime::host_handles::get(recv_handle as u64) {
             if let Some(inst) = obj.as_any().downcast_ref::<InstanceBox>() {
@@ -101,29 +78,15 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
                     _ => 0,
                 };
             }
-            if let Some(p) = obj.as_any().downcast_ref::<PluginBoxV2>() {
-                instance_id = p.instance_id();
-                type_id = p.inner.type_id;
-                box_type = Some(p.box_type.clone());
-                invoke = Some(p.inner.invoke_fn);
-            }
         }
     }
-    let Some(invoke) = invoke else {
+    let Some(receiver) = invoke_core::resolve_named_receiver_for_handle(recv_handle) else {
         return 0;
     };
-    let box_type = box_type.unwrap_or_default();
-    let mh = if let Ok(host) =
-        nyash_rust::runtime::plugin_loader_unified::get_global_plugin_host().read()
-    {
-        host.resolve_method(&box_type, method_str)
-    } else {
+    let Some(method_id) = invoke_core::resolve_method_id_for_named_receiver(&receiver, method_str)
+    else {
         return 0;
     };
-    let method_id = match mh {
-        Ok(h) => h.method_id,
-        Err(_) => return 0,
-    } as u32;
 
     let nargs = argc.max(0) as usize;
     if nargs > 2 && nyash_rust::config::env::fail_fast() {
@@ -141,65 +104,15 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
         invoke_core::encode_legacy_vm_args_range(&mut buf, 3, nargs);
     }
     let Some((tag, sz, payload)) =
-        invoke_core::plugin_invoke_call(invoke, type_id, method_id, instance_id, &buf)
+        invoke_core::plugin_invoke_call(
+            receiver.invoke,
+            receiver.real_type_id,
+            method_id,
+            receiver.instance_id,
+            &buf,
+        )
     else {
         return 0;
     };
-
-    match tag {
-        3 => {
-            if payload.len() == 8 {
-                let mut b = [0u8; 8];
-                b.copy_from_slice(payload.as_slice());
-                return i64::from_le_bytes(b);
-            }
-        }
-        1 => {
-            return if nyash_rust::runtime::plugin_ffi_common::decode::bool(payload.as_slice())
-                .unwrap_or(false)
-            {
-                1
-            } else {
-                0
-            };
-        }
-        8 => {
-            if payload.len() == 8 {
-                let mut t = [0u8; 4];
-                t.copy_from_slice(&payload[0..4]);
-                let mut i = [0u8; 4];
-                i.copy_from_slice(&payload[4..8]);
-                let r_type = u32::from_le_bytes(t);
-                let r_inst = u32::from_le_bytes(i);
-                let Some((box_type_name, invoke_ptr, _)) =
-                    invoke_core::resolve_invoke_route_for_type(r_type, invoke)
-                else {
-                    return 0;
-                };
-                let pb = nyash_rust::runtime::plugin_loader_v2::make_plugin_box_v2(
-                    box_type_name,
-                    r_type,
-                    r_inst,
-                    invoke_ptr,
-                );
-                let arc: std::sync::Arc<dyn nyash_rust::box_trait::NyashBox> =
-                    std::sync::Arc::new(pb);
-                let h = nyash_rust::runtime::host_handles::to_handle_arc(arc) as u64;
-                return h as i64;
-            }
-        }
-        5 => {
-            if std::env::var("NYASH_JIT_NATIVE_F64").ok().as_deref() == Some("1")
-                && payload.len() == 8
-            {
-                let mut b = [0u8; 8];
-                b.copy_from_slice(payload.as_slice());
-                let f = f64::from_le_bytes(b);
-                return f as i64;
-            }
-        }
-        _ => {}
-    }
-    let _ = sz;
-    0
+    invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), receiver.invoke).unwrap_or(0)
 }

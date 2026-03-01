@@ -3,7 +3,7 @@
 //! This module handles all method ID resolution, method handle resolution,
 //! and metadata queries for plugin methods.
 
-use crate::bid::{BidError, BidResult};
+use crate::bid::BidResult;
 use crate::runtime::plugin_loader_v2::enabled::PluginLoaderV2;
 
 impl PluginLoaderV2 {
@@ -17,26 +17,7 @@ impl PluginLoaderV2 {
                 method_name,
             );
         }
-        // Legacy file-based fallback is compat-only.
-        if !crate::config::env::fail_fast() {
-            if crate::config::env::dev_provider_trace() {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!(
-                    "[provider/trace] compat legacy file fallback box_type={} method={}",
-                    box_type, method_name
-                ));
-            }
-            return super::compat_method_resolver::resolve_method_id_from_file(box_type, method_name);
-        }
-
-        if crate::config::env::dev_provider_trace() {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[provider/trace] reject legacy file fallback box_type={} method={} reason=fail_fast",
-                box_type, method_name
-            ));
-        }
-        Err(BidError::InvalidMethod)
+        super::compat_method_resolver::resolve_method_id_with_compat_policy(box_type, method_name)
     }
 
     /// Check if a method returns a Result type
