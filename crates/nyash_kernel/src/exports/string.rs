@@ -219,7 +219,22 @@ fn concat_pair_from_spans(a_h: i64, b_h: i64) -> Option<i64> {
 
 #[inline(always)]
 fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
-    let merged = with_string_pair_fast_str(a_h, b_h, concat_two_str)?;
+    if a_h <= 0 || b_h <= 0 {
+        return None;
+    }
+    let merged = handles::with_pair(a_h as u64, b_h as u64, |a_obj, b_obj| {
+        let a_obj = a_obj?;
+        let b_obj = b_obj?;
+        if let (Some(a_sb), Some(b_sb)) = (
+            a_obj.as_any().downcast_ref::<StringBox>(),
+            b_obj.as_any().downcast_ref::<StringBox>(),
+        ) {
+            return Some(concat_two_str(a_sb.value.as_str(), b_sb.value.as_str()));
+        }
+        let a = a_obj.as_ref().as_str_fast()?;
+        let b = b_obj.as_ref().as_str_fast()?;
+        Some(concat_two_str(a, b))
+    })?;
     Some(string_handle_from_owned(merged))
 }
 
