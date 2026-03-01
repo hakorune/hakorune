@@ -160,6 +160,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `src/runtime/plugin_loader_v2/enabled/method_resolver.rs` の compat fallback 分岐を1呼び出しに縮退し、mainline method route を保持
       - `src/runner/modes/common_util/exec.rs` に `default_nyrt_dir()` / `apply_nyrt_arg()` を追加し、`emit-exe` の nyrt 解決・precheck適用を lib/bin 経路で共通化（static-first 契約の重複撤去）
       - `crates/nyash_kernel/src/hako_forward.rs` を C-registry トランポリンへ切替し、`nyrt_hako_try_*` 正本 + `nyrt.hako.register_*` 互換alias を固定（Rust-local registry state は撤去）
+      - `crates/nyash_kernel/src/hako_forward_bridge.rs` を追加し、`call_*` / `string_ops` / canonical register helper を bridge へ集約。`hako_forward.rs` は compat export-only へ縮退
       - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` / `crates/nyash_kernel/src/plugin/future.rs` / `crates/nyash_kernel/src/exports/string.rs` の forward 優先呼びは継続しつつ、dispatch source を C registry 正本へ移行
       - `include/nyrt.h` に `nyrt_hako_register_*` / `nyrt_hako_try_*` を追加し、`lang/c-abi/shims/hako_kernel.c` へ同契約の registry 実装を追加
       - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を追加し、`hako_forward.rs` への registry state 再流入を fail-fast 監査（runtime-exec-zero 組み込み）
@@ -168,7 +169,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - HFK-min2: done（`include/nyrt.h` + `lang/c-abi/shims/hako_kernel.c` 実装）
       - HFK-min3: done（kernel entry の C registry 正本化、`hako_forward` トランポリン縮退）
       - HFK-min4: done（runtime-exec-zero + portability + GitHub Actions run `22537383295` success / head=`169bba46a`）
-      - HFK-min5: active（Rust hook retirement readiness / deletion gate 前準備）
+      - HFK-min5: done（`hako_forward.rs` compat export-only 縮退 + `hako_forward_bridge.rs` 集約）
+      - HFK-min6: active（Deletion Gate docs prep / no-delete-first）
   - runtime route residue relock（29cc-245, active）:
     - `docs/development/current/main/phases/phase-29cc/29cc-245-runtime-route-residue-relock-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-246-rz-array-min1-route-selector-lock-ssot.md`

@@ -5,7 +5,7 @@ use super::string_view::{
     resolve_string_span_pair_from_handles, string_is_empty_from_handle as string_is_empty_impl,
     string_len_from_handle as string_len_impl, string_view_from_span_range,
 };
-use crate::hako_forward;
+use crate::hako_forward_bridge;
 use memchr::{memchr, memmem, memrchr};
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
@@ -182,7 +182,7 @@ fn bool_to_i64(value: bool) -> i64 {
 
 #[inline(always)]
 fn hako_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
-    hako_forward::call_string_dispatch(op, a0, a1, a2)
+    hako_forward_bridge::call_string_dispatch(op, a0, a1, a2)
 }
 
 #[inline(always)]
@@ -231,7 +231,7 @@ fn rfind_substr_byte_index(hay: &str, needle: &str) -> Option<usize> {
 // String.len_h(handle) -> i64
 #[export_name = "nyash.string.len_h"]
 pub extern "C" fn nyash_string_len_h(handle: i64) -> i64 {
-    if let Some(v) = hako_string_dispatch(hako_forward::string_ops::LEN_H, handle, 0, 0) {
+    if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::LEN_H, handle, 0, 0) {
         return v;
     }
     if jit_trace_len_enabled() {
@@ -267,7 +267,7 @@ pub extern "C" fn nyrt_string_length(ptr: *const i8, _mode: i64) -> i64 {
 #[export_name = "nyash.string.charCodeAt_h"]
 pub extern "C" fn nyash_string_charcode_at_h_export(handle: i64, idx: i64) -> i64 {
     if let Some(v) =
-        hako_string_dispatch(hako_forward::string_ops::CHARCODE_AT_H, handle, idx, 0)
+        hako_string_dispatch(hako_forward_bridge::string_ops::CHARCODE_AT_H, handle, idx, 0)
     {
         return v;
     }
@@ -287,7 +287,9 @@ pub extern "C" fn nyash_string_charcode_at_h_export(handle: i64, idx: i64) -> i6
 // String.concat_hh(lhs_h, rhs_h) -> handle
 #[export_name = "nyash.string.concat_hh"]
 pub extern "C" fn nyash_string_concat_hh_export(a_h: i64, b_h: i64) -> i64 {
-    if let Some(v) = hako_string_dispatch(hako_forward::string_ops::CONCAT_HH, a_h, b_h, 0) {
+    if let Some(v) =
+        hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT_HH, a_h, b_h, 0)
+    {
         return v;
     }
     if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
@@ -303,7 +305,9 @@ pub extern "C" fn nyash_string_concat_hh_export(a_h: i64, b_h: i64) -> i64 {
 // String.concat3_hhh(a_h, b_h, c_h) -> handle
 #[export_name = "nyash.string.concat3_hhh"]
 pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) -> i64 {
-    if let Some(v) = hako_string_dispatch(hako_forward::string_ops::CONCAT3_HHH, a_h, b_h, c_h) {
+    if let Some(v) =
+        hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT3_HHH, a_h, b_h, c_h)
+    {
         return v;
     }
     // Hot path: resolve all 3 handles once and reuse the same objects for
@@ -344,7 +348,7 @@ pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) 
 // String.eq_hh(lhs_h, rhs_h) -> i64 (0/1)
 #[export_name = "nyash.string.eq_hh"]
 pub extern "C" fn nyash_string_eq_hh_export(a_h: i64, b_h: i64) -> i64 {
-    if let Some(v) = hako_string_dispatch(hako_forward::string_ops::EQ_HH, a_h, b_h, 0) {
+    if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::EQ_HH, a_h, b_h, 0) {
         return v;
     }
     compare_string_pair_hh(a_h, b_h, |lhs, rhs| lhs == rhs)
@@ -353,7 +357,12 @@ pub extern "C" fn nyash_string_eq_hh_export(a_h: i64, b_h: i64) -> i64 {
 // String.substring_hii(handle, start, end) -> handle
 #[export_name = "nyash.string.substring_hii"]
 pub extern "C" fn nyash_string_substring_hii_export(h: i64, start: i64, end: i64) -> i64 {
-    if let Some(v) = hako_string_dispatch(hako_forward::string_ops::SUBSTRING_HII, h, start, end)
+    if let Some(v) = hako_string_dispatch(
+        hako_forward_bridge::string_ops::SUBSTRING_HII,
+        h,
+        start,
+        end,
+    )
     {
         return v;
     }
@@ -391,7 +400,7 @@ pub extern "C" fn nyash_string_substring_hii_export(h: i64, start: i64, end: i64
 // String.indexOf_hh(haystack_h, needle_h) -> i64
 #[export_name = "nyash.string.indexOf_hh"]
 pub extern "C" fn nyash_string_indexof_hh_export(h: i64, n: i64) -> i64 {
-    if let Some(v) = hako_string_dispatch(hako_forward::string_ops::INDEXOF_HH, h, n, 0) {
+    if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::INDEXOF_HH, h, n, 0) {
         return v;
     }
     search_string_pair_hh(h, n, empty_needle_indexof, find_substr_byte_index)
@@ -400,7 +409,9 @@ pub extern "C" fn nyash_string_indexof_hh_export(h: i64, n: i64) -> i64 {
 // String.lastIndexOf_hh(haystack_h, needle_h) -> i64
 #[export_name = "nyash.string.lastIndexOf_hh"]
 pub extern "C" fn nyash_string_lastindexof_hh_export(h: i64, n: i64) -> i64 {
-    if let Some(v) = hako_string_dispatch(hako_forward::string_ops::LASTINDEXOF_HH, h, n, 0) {
+    if let Some(v) =
+        hako_string_dispatch(hako_forward_bridge::string_ops::LASTINDEXOF_HH, h, n, 0)
+    {
         return v;
     }
     search_string_pair_hh(h, n, empty_needle_lastindexof, rfind_substr_byte_index)
@@ -409,7 +420,7 @@ pub extern "C" fn nyash_string_lastindexof_hh_export(h: i64, n: i64) -> i64 {
 // String.lt_hh(lhs_h, rhs_h) -> i64 (0/1)
 #[export_name = "nyash.string.lt_hh"]
 pub extern "C" fn nyash_string_lt_hh_export(a_h: i64, b_h: i64) -> i64 {
-    if let Some(v) = hako_string_dispatch(hako_forward::string_ops::LT_HH, a_h, b_h, 0) {
+    if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::LT_HH, a_h, b_h, 0) {
         return v;
     }
     compare_string_pair_hh(a_h, b_h, |lhs, rhs| lhs < rhs)
@@ -420,7 +431,7 @@ pub extern "C" fn nyash_string_lt_hh_export(a_h: i64, b_h: i64) -> i64 {
 #[export_name = "nyash.string.from_u64x2"]
 pub extern "C" fn nyash_string_from_u64x2_export(lo: i64, hi: i64, len: i64) -> i64 {
     if let Some(v) =
-        hako_string_dispatch(hako_forward::string_ops::FROM_U64X2, lo, hi, len)
+        hako_string_dispatch(hako_forward_bridge::string_ops::FROM_U64X2, lo, hi, len)
     {
         return v;
     }

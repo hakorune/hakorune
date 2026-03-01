@@ -198,9 +198,9 @@ fn string_exports_prefer_hako_forward_hook_when_registered() {
         op * 1000 + a0 + a1 + a2
     }
 
-    crate::hako_forward::with_test_reset(|| {
+    crate::hako_forward_bridge::with_test_reset(|| {
         assert_eq!(
-            crate::hako_forward::nyrt_hako_register_string_dispatch(string_hook),
+            crate::hako_forward_bridge::register_string_dispatch(Some(string_hook)),
             1
         );
         assert_eq!(nyash_string_len_h(7), 1007);

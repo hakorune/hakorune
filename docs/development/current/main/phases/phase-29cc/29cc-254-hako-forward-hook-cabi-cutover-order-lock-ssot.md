@@ -43,7 +43,7 @@ source-zero の最終形では「関数ポインタ保持/登録面」も C ABI 
    - GitHub Actions（linux/windows/mac）で hook 経路が崩れていないことを確認
 
 5. HFK-min5: Rust hook retirement readiness
-   - `hako_forward.rs` のレジストリ状態保持を削除可能化
+   - `hako_forward.rs` を互換dot-name export専用へ縮退し、実呼び出し/定数は `hako_forward_bridge.rs` へ集約
    - 削除は別 lock（Deletion Gate）で実施
 
 ## Contracts
@@ -79,5 +79,10 @@ source-zero の最終形では「関数ポインタ保持/登録面」も C ABI 
      - `Windows check`: success
      - `macOS build (release)`: success
      - plugin recovery matrix（ubuntu/windows/macos）: all success
-5. HFK-min5 active:
-   - Rust hook retirement readiness（deletion gate 前の削除可能化確認）へ移行
+5. HFK-min5 done:
+   - `crates/nyash_kernel/src/hako_forward_bridge.rs` を新設し、`call_*` / `string_ops` / canonical register helper を移設。
+   - `crates/nyash_kernel/src/hako_forward.rs` は `nyrt.hako.register_*` 互換export専用へ縮退。
+   - `plugin/invoke/by_name.rs` / `plugin/future.rs` / `exports/string.rs` は bridge 経由へ統一。
+   - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を compat-export-only 契約へ更新。
+6. HFK-min6 active:
+   - Deletion Gate docs prep（physical delete は no-delete-first 維持）

@@ -56,7 +56,7 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
     if method.is_null() {
         return 0;
     }
-    if let Some(v) = crate::hako_forward::call_plugin_invoke_by_name(
+    if let Some(v) = crate::hako_forward_bridge::call_plugin_invoke_by_name(
         recv_handle,
         method,
         argc,

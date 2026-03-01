@@ -35,9 +35,9 @@ fn invoke_by_name_prefers_hako_forward_hook_when_registered() {
         4242
     }
 
-    crate::hako_forward::with_test_reset(|| {
+    crate::hako_forward_bridge::with_test_reset(|| {
         assert_eq!(
-            crate::hako_forward::nyrt_hako_register_plugin_invoke_by_name(by_name_hook),
+            crate::hako_forward_bridge::register_plugin_invoke_by_name(Some(by_name_hook)),
             1
         );
 
