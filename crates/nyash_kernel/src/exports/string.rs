@@ -1,7 +1,8 @@
 // String-related C ABI exports.
 
 use super::string_view::{
-    clamp_i64_range, resolve_string_span_from_handle, resolve_string_span_from_obj,
+    clamp_i64_range, resolve_string_span_from_handle, resolve_string_span_from_handle_nocache,
+    resolve_string_span_from_obj, StringViewBox,
     resolve_string_span_pair_from_handles, string_is_empty_from_handle as string_is_empty_impl,
     string_len_from_handle as string_len_impl, string_view_from_span_range,
 };
@@ -11,6 +12,7 @@ use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     runtime::host_handles as handles,
 };
+use std::ptr;
 use std::sync::{Arc, OnceLock};
 
 fn env_flag_cached(_cell: &'static OnceLock<bool>, key: &str) -> bool {
@@ -24,17 +26,58 @@ fn env_flag_cached(_cell: &'static OnceLock<bool>, key: &str) -> bool {
     }
 }
 
+fn env_flag_default_on_cached(_cell: &'static OnceLock<bool>, key: &str) -> bool {
+    #[cfg(test)]
+    {
+        match std::env::var(key).ok().as_deref() {
+            Some("0") => false,
+            Some("off") => false,
+            Some("false") => false,
+            Some(_) => true,
+            None => true,
+        }
+    }
+    #[cfg(not(test))]
+    {
+        *_cell.get_or_init(|| match std::env::var(key).ok().as_deref() {
+            Some("0") => false,
+            Some("off") => false,
+            Some("false") => false,
+            Some(_) => true,
+            None => true,
+        })
+    }
+}
+
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
+    if handle <= 0 {
+        return None;
+    }
+    let fast_len = handles::with_handle(handle as u64, |obj| {
+        obj.and_then(|boxed| boxed.as_ref().as_str_fast().map(|s| s.len() as i64))
+    });
+    if fast_len.is_some() {
+        return fast_len;
+    }
     string_len_impl(handle)
 }
 
 pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
+    if handle <= 0 {
+        return None;
+    }
+    let fast_empty = handles::with_handle(handle as u64, |obj| {
+        obj.and_then(|boxed| boxed.as_ref().as_str_fast().map(str::is_empty))
+    });
+    if fast_empty.is_some() {
+        return fast_empty;
+    }
     string_is_empty_impl(handle)
 }
 
 fn substring_view_enabled() -> bool {
     static SUBSTRING_VIEW_ENABLED: OnceLock<bool> = OnceLock::new();
-    env_flag_cached(&SUBSTRING_VIEW_ENABLED, "NYASH_LLVM_FAST")
+    env_flag_default_on_cached(&SUBSTRING_VIEW_ENABLED, "NYASH_LLVM_FAST")
 }
 
 fn jit_trace_len_enabled() -> bool {
@@ -46,6 +89,36 @@ fn string_handle_from_owned(value: String) -> i64 {
     nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
     let arc: Arc<dyn NyashBox> = Arc::new(StringBox::new(value));
     handles::to_handle_arc(arc) as i64
+}
+
+#[inline(always)]
+fn concat_two_str(a: &str, b: &str) -> String {
+    let a_len = a.len();
+    let total = a_len + b.len();
+    let mut out = String::with_capacity(total);
+    unsafe {
+        let buf = out.as_mut_vec();
+        buf.set_len(total);
+        ptr::copy_nonoverlapping(a.as_ptr(), buf.as_mut_ptr(), a_len);
+        ptr::copy_nonoverlapping(b.as_ptr(), buf.as_mut_ptr().add(a_len), b.len());
+    }
+    out
+}
+
+#[inline(always)]
+fn concat_three_str(a: &str, b: &str, c: &str) -> String {
+    let a_len = a.len();
+    let b_len = b.len();
+    let total = a_len + b_len + c.len();
+    let mut out = String::with_capacity(total);
+    unsafe {
+        let buf = out.as_mut_vec();
+        buf.set_len(total);
+        ptr::copy_nonoverlapping(a.as_ptr(), buf.as_mut_ptr(), a_len);
+        ptr::copy_nonoverlapping(b.as_ptr(), buf.as_mut_ptr().add(a_len), b_len);
+        ptr::copy_nonoverlapping(c.as_ptr(), buf.as_mut_ptr().add(a_len + b_len), c.len());
+    }
+    out
 }
 
 fn shared_empty_string_handle() -> i64 {
@@ -64,6 +137,13 @@ fn shared_empty_string_handle() -> i64 {
 }
 
 fn concat_to_string_handle(parts: &[&str]) -> i64 {
+    match parts.len() {
+        0 => return string_handle_from_owned(String::new()),
+        1 => return string_handle_from_owned(parts[0].to_string()),
+        2 => return string_handle_from_owned(concat_two_str(parts[0], parts[1])),
+        3 => return string_handle_from_owned(concat_three_str(parts[0], parts[1], parts[2])),
+        _ => {}
+    }
     let mut total = 0usize;
     for p in parts {
         total += p.len();
@@ -133,23 +213,13 @@ fn with_lossy_string_pair<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R
 
 #[inline(always)]
 fn concat_pair_from_spans(a_h: i64, b_h: i64) -> Option<i64> {
-    let merged = with_string_pair_span(a_h, b_h, |a, b| {
-        let mut out = String::with_capacity(a.len() + b.len());
-        out.push_str(a);
-        out.push_str(b);
-        out
-    })?;
+    let merged = with_string_pair_span(a_h, b_h, concat_two_str)?;
     Some(string_handle_from_owned(merged))
 }
 
 #[inline(always)]
 fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
-    let merged = with_string_pair_fast_str(a_h, b_h, |a, b| {
-        let mut out = String::with_capacity(a.len() + b.len());
-        out.push_str(a);
-        out.push_str(b);
-        out
-    })?;
+    let merged = with_string_pair_fast_str(a_h, b_h, concat_two_str)?;
     Some(string_handle_from_owned(merged))
 }
 
@@ -341,11 +411,7 @@ pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) 
     // both direct String route and StringView-compatible fallback route.
     if a_h > 0 && b_h > 0 && c_h > 0 {
         if let Some(out) = handles::with_str3(a_h as u64, b_h as u64, c_h as u64, |a, b, c| {
-            let mut out = String::with_capacity(a.len() + b.len() + c.len());
-            out.push_str(a);
-            out.push_str(b);
-            out.push_str(c);
-            out
+            concat_three_str(a, b, c)
         }) {
             return string_handle_from_owned(out);
         }
@@ -402,7 +468,96 @@ pub extern "C" fn nyash_string_substring_hii_export(h: i64, start: i64, end: i64
     if h <= 0 {
         return 0;
     }
-    let Some(span) = resolve_string_span_from_handle(h) else {
+    enum BorrowedSubstringPlan {
+        ReturnHandle,
+        ReturnEmpty,
+        Materialize(String),
+        CreateView {
+            base_handle: i64,
+            base_obj: Arc<dyn NyashBox>,
+            start: usize,
+            end: usize,
+        },
+        Fallback,
+    }
+    if let Some(plan) = handles::with_handle(h as u64, |obj| {
+        let Some(obj) = obj else {
+            return None;
+        };
+        if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
+            let (st_rel, en_rel) = clamp_i64_range(sb.value.len(), start, end);
+            if st_rel == 0 && en_rel == sb.value.len() {
+                return Some(BorrowedSubstringPlan::ReturnHandle);
+            }
+            if st_rel == en_rel {
+                return Some(BorrowedSubstringPlan::ReturnEmpty);
+            }
+            let Some(sub_slice) = sb.value.get(st_rel..en_rel) else {
+                // Preserve legacy byte-range contract: invalid UTF-8 boundary slice => empty string.
+                return Some(BorrowedSubstringPlan::ReturnEmpty);
+            };
+            if !substring_view_enabled() {
+                return Some(BorrowedSubstringPlan::Materialize(sub_slice.to_string()));
+            }
+            return Some(BorrowedSubstringPlan::CreateView {
+                base_handle: h,
+                base_obj: obj.clone(),
+                start: st_rel,
+                end: en_rel,
+            });
+        }
+        if let Some(view) = obj.as_any().downcast_ref::<StringViewBox>() {
+            let Some(base_sb) = view.base_obj.as_any().downcast_ref::<StringBox>() else {
+                return Some(BorrowedSubstringPlan::Fallback);
+            };
+            let mut parent_st = view.start.min(base_sb.value.len());
+            let mut parent_en = view.end.min(base_sb.value.len());
+            if parent_en < parent_st {
+                std::mem::swap(&mut parent_st, &mut parent_en);
+            }
+            let parent_len = parent_en.saturating_sub(parent_st);
+            let (st_rel, en_rel) = clamp_i64_range(parent_len, start, end);
+            if st_rel == 0 && en_rel == parent_len {
+                return Some(BorrowedSubstringPlan::ReturnHandle);
+            }
+            if st_rel == en_rel {
+                return Some(BorrowedSubstringPlan::ReturnEmpty);
+            }
+            let abs_st = parent_st.saturating_add(st_rel);
+            let abs_en = parent_st.saturating_add(en_rel);
+            let Some(sub_slice) = base_sb.value.get(abs_st..abs_en) else {
+                return Some(BorrowedSubstringPlan::ReturnEmpty);
+            };
+            if !substring_view_enabled() {
+                return Some(BorrowedSubstringPlan::Materialize(sub_slice.to_string()));
+            }
+            return Some(BorrowedSubstringPlan::CreateView {
+                base_handle: view.base_handle,
+                base_obj: view.base_obj.clone(),
+                start: abs_st,
+                end: abs_en,
+            });
+        }
+        Some(BorrowedSubstringPlan::Fallback)
+    }) {
+        match plan {
+            BorrowedSubstringPlan::ReturnHandle => return h,
+            BorrowedSubstringPlan::ReturnEmpty => return shared_empty_string_handle(),
+            BorrowedSubstringPlan::Materialize(value) => return string_handle_from_owned(value),
+            BorrowedSubstringPlan::CreateView {
+                base_handle,
+                base_obj,
+                start,
+                end,
+            } => {
+                let view = StringViewBox::new(base_handle, base_obj, start, end);
+                let arc: Arc<dyn NyashBox> = Arc::new(view);
+                return handles::to_handle_arc(arc) as i64;
+            }
+            BorrowedSubstringPlan::Fallback => {}
+        }
+    }
+    let Some(span) = resolve_string_span_from_handle_nocache(h) else {
         return shared_empty_string_handle();
     };
     let span_len = span.len();

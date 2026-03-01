@@ -63,6 +63,13 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - latest4: `plugin_loader_v2` loader/instance/ffi の invoke route を `InvokeRouteContract` 再利用へ統一し、`invoke_core` に named receiver+method 解決 / invoke+decode helper を追加（`by_name` / `future` entry の重複を縮退）。
     - source keep policy: Rust source は保存固定（削除タスクは起票しない）
     - target model: `.hako` 主経路で runtime/plugin の mainline 実装を成立させ、Rust 意味論の mainline 依存を 0 行化する（source keep）
+    - kernel naming lock（混線防止）:
+      - `kernel-mainline`: `.hako` 主経路（`NYASH_VM_USE_FALLBACK=0`）で hook miss は fail-fast。
+      - `kernel-bootstrap`: Rust static archive（`libnyash_kernel.a`）を使う起動・互換維持用の保存経路（source keep）。
+    - execution order lock:
+      1. runtime/de-rust の経路契約を維持（no-compat mainline guard を先に固定）。
+      2. perf 復旧は `kernel-bootstrap` で baseline を戻す（runtime変更と混ぜない）。
+      3. baseline 回復後に `kernel-mainline` 最適化へ移る（別コミット境界）。
   - wasm lane status: done through `WSM-P10` / active next=`none`（monitor-only）
   - done judgement matrix SSOT:
     - `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
@@ -75,7 +82,15 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `PERF_LADDER_AOT_SMALL=1 PERF_LADDER_AOT_MEDIUM=1 NYASH_LLVM_SKIP_BUILD=1 tools/perf/run_progressive_ladder_21_5.sh quick`（AOT行 `status=ok`）
   - WSL variance lock（single-run値で判定しない）:
     - canonical measure: `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 5`
-    - latest (2026-02-28): `c_ms=77`, `py_ms=108`, `ny_vm_ms=979`, `ny_aot_ms=905`, `ratio_c_aot=0.09`, `aot_status=ok`
+    - latest (2026-03-01): `c_ms=79`, `py_ms=111`, `ny_vm_ms=1015`, `ny_aot_ms=747`, `ratio_c_aot=0.11`, `aot_status=ok`
+  - micro-first recovery lock（active）:
+    - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_getset 1 7`
+      - latest (2026-03-01): `ny_aot_ms=49`
+    - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 7`
+      - latest (2026-03-01): `ny_aot_ms=64`
+    - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 7`
+      - latest (2026-03-01): `ny_aot_ms=14`
+    - rule: micro 改善が確認できた変更だけを `kilo_kernel_small` へ持ち上げる（kilo 先行の試行錯誤は禁止）。
   - active next: `none`（failure-driven reopen only）
   - optimization resume policy（fixed）:
     - resume trigger: de-rust runtime closeout contract（`runtime-exec-zero` + `phase29y_no_compat_mainline_vm`）green。
@@ -83,6 +98,18 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `tools/checks/dev_gate.sh runtime-exec-zero` green
       - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
     - source keep policy と最適化は混ぜず、別コミット境界で進める。
+    - kernel lane scope:
+      - current perf recovery target: `kernel-bootstrap`（Rust static archive lane）
+      - deferred target: `kernel-mainline`（`.hako` no-compat lane）
+  - regression recovery pack（active, docs-fixed）:
+    1. `AOT stale artifact` を止める（bench 実行時は `PERF_AOT_SKIP_BUILD=0` 固定）。
+    2. `emit route` を固定する（Stage-B/helper fallback が起きた run は perf 結果として受理しない）。
+    3. `set_hih -> set_hii` 昇格を unblock する（`collect_integerish_value_ids` の RuntimeData value 伝播を拡張）。
+    4. micro -> kilo の順で再計測し、`set_hii` emit と ratio 変化を同時確認する。
+  - regression recovery acceptance:
+    - `bench_kilo_micro_array_getset` の AOT object で `nyash.array.set_hii` を観測できること。
+    - `kilo_kernel_small` で `ratio_c_aot` が現状基準（0.10）を上回ること。
+    - 計測 run は `PERF_AOT_SKIP_BUILD=0` を必須にすること。
 
 ## Immediate Next (this round)
 
@@ -93,6 +120,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 3. runtime boundary を触るコミットは `tools/checks/dev_gate.sh portability` も合わせて green を維持する。
 4. Rust source は保存固定とし、削除タスクは当面起票しない（明示指示が出るまで停止）。
 5. 最適化 lane（micro/asm -> kilo）は runtime closeout contract を前提に別コミット境界で進める。
+6. kernel lane は命名を固定して運用する（`kernel-bootstrap` -> `kernel-mainline` の順序を逆転しない）。
+7. perf regression recovery pack を順序固定で実施する（rebuild固定 -> emit route固定 -> micro単体改善 -> kilo反映）。
 
 ## Future Ideas (Not Active)
 

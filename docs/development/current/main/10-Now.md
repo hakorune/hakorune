@@ -105,6 +105,10 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - latest4: `plugin_loader_v2` loader/instance/ffi invoke route を `InvokeRouteContract` 再利用で統一。`invoke_core` に named route helper を追加し、`by_name` / `future` entry の重複を縮退。
     - Rust source は保存固定（削除タスクは当面起票しない）
     - target: `.hako` 主経路で runtime/plugin の mainline 依存を 0 行化（source keep）
+    - kernel naming lock:
+      - `kernel-mainline`: `.hako` no-compat 実行経路（`NYASH_VM_USE_FALLBACK=0`）
+      - `kernel-bootstrap`: Rust static archive（`libnyash_kernel.a`）起動経路（source keep）
+    - order lock: `runtime契約維持 -> bootstrap baseline回復 -> mainline最適化`
   - wasm lane: done through `WSM-P10`, active next=`none`（monitor-only）
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Perf lane（phase-21.5）:
@@ -114,6 +118,13 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
   - handoff 先（micro/asm -> kilo の順で再開）
   - source keep policy とは分離して進める
+  - current scope lock: baseline 回復は `kernel-bootstrap` を対象にする（`kernel-mainline` 最適化と混在させない）
+  - latest benchmark snapshot (2026-03-01):
+    - `kilo_kernel_small`: `c_ms=79`, `py_ms=111`, `ny_vm_ms=1015`, `ny_aot_ms=747`, `ratio_c_aot=0.11`
+    - `kilo_micro_array_getset`: `ny_aot_ms=49`
+    - `kilo_micro_substring_concat`: `ny_aot_ms=64`
+  - active recovery rule:
+    - 先に micro で改善を確定し、確定した差分のみ `kilo_kernel_small` へ反映する（kilo先行の探索は禁止）。
 - De-Rust lane map: `A=Compiler Meaning / B=Compiler Pipeline / C=Runtime Port`
   - SSOT: `docs/development/current/main/design/de-rust-lane-map-ssot.md`
 
@@ -126,6 +137,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 3. runtime boundary を触るコミットは `tools/checks/dev_gate.sh portability` も必須にする。
 4. Rust source は保存固定とし、削除タスクは現時点で開始しない。
 5. 最適化 lane（micro/asm -> kilo）は runtime closeout contract 緑を前提に別コミット境界で再開する。
+6. kernel lane 命名を固定運用する（`kernel-mainline` と `kernel-bootstrap` を混同しない）。
 
 ## Read First Order
 
