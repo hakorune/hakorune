@@ -116,7 +116,18 @@ pub fn register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64 {
 /// when a `.hako` hook is not registered.
 #[inline]
 pub fn rust_fallback_allowed() -> bool {
-    std::env::var("NYASH_VM_USE_FALLBACK").ok().as_deref() != Some("0")
+    nyash_rust::config::env::vm_compat_fallback_allowed()
+}
+
+#[inline]
+pub fn hook_miss_return_zero(route: &str) -> i64 {
+    if nyash_rust::config::env::vm_route_trace() {
+        eprintln!(
+            "[hako-forward/hook-miss] route={} policy=return0_on_fallback_off",
+            route
+        );
+    }
+    0
 }
 
 #[cfg(test)]

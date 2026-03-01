@@ -58,6 +58,15 @@ pub fn vm_use_fallback() -> bool {
     env_bool("NYASH_VM_USE_FALLBACK")
 }
 
+/// Compat fallback policy shared by runtime/kernel internals.
+///
+/// Contract:
+/// - `NYASH_VM_USE_FALLBACK=0` => compat fallback prohibited
+/// - otherwise => compat fallback allowed by policy (subject to additional gates)
+pub fn vm_compat_fallback_allowed() -> bool {
+    std::env::var("NYASH_VM_USE_FALLBACK").ok().as_deref() != Some("0")
+}
+
 /// Trace VM route selection decisions.
 pub fn vm_route_trace() -> bool {
     env_bool("NYASH_VM_ROUTE_TRACE")

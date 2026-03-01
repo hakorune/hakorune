@@ -105,6 +105,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - status: `HFK-min1..min6 done`, active next=`none`（monitor-only / no-delete-first）
     - latest: `NYASH_VM_USE_FALLBACK=0` では hook 未登録時に `invoke/by_name` / `future.spawn_instance3` / string exports の Rust fallback を禁止（mainline no-compat hardening）
     - latest2: `invoke_core` / `plugin_loader_v2/route_resolver` の compat fallback も `NYASH_VM_USE_FALLBACK=0` で拒否（fallback policy SSOT alignment）
+    - latest3: fallback policy 判定を `vm_compat_fallback_allowed()` へ集約し、hook-miss return0 は route-tag trace で観測可能化（`hako_forward_bridge::hook_miss_return_zero`）
     - Rust source は Deletion Gate 条件達成まで保存（physical delete は別 lock）
   - wasm lane: done through `WSM-P10`, active next=`none`（monitor-only）
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`

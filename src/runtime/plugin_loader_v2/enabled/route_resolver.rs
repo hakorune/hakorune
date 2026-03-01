@@ -31,7 +31,7 @@ pub(super) struct InvokeRouteContract {
 #[inline]
 fn compat_fallback_allowed() -> bool {
     // Runtime/plugin compat fallback must follow the same route policy gate.
-    std::env::var("NYASH_VM_USE_FALLBACK").ok().as_deref() != Some("0")
+    crate::config::env::vm_compat_fallback_allowed()
 }
 
 pub(super) fn resolve_lib_box_for_type_id(

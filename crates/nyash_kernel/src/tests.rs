@@ -1,24 +1,11 @@
 use super::*;
+use crate::test_support::with_env_var;
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     runtime::{host_handles as handles, plugin_loader_v2::make_plugin_box_v2},
 };
 use std::ffi::CString;
 use std::sync::Arc;
-
-static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
-
-fn with_env_var<F: FnOnce()>(key: &str, value: &str, f: F) {
-    let _guard = ENV_LOCK.lock().expect("env lock");
-    let prev = std::env::var(key).ok();
-    std::env::set_var(key, value);
-    f();
-    if let Some(v) = prev {
-        std::env::set_var(key, v);
-    } else {
-        std::env::remove_var(key);
-    }
-}
 
 unsafe extern "C" fn fake_i32(
     _t: u32,

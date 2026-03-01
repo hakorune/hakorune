@@ -297,27 +297,7 @@ pub fn encode_legacy_args_with_failfast_policy(
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
-
-    fn with_env_vars<F: FnOnce()>(pairs: &[(&str, &str)], f: F) {
-        let _guard = ENV_LOCK.lock().expect("env lock");
-        let prev: Vec<(String, Option<String>)> = pairs
-            .iter()
-            .map(|(k, _)| ((*k).to_string(), std::env::var(k).ok()))
-            .collect();
-        for (k, v) in pairs {
-            std::env::set_var(k, v);
-        }
-        f();
-        for (k, prev_v) in prev {
-            if let Some(v) = prev_v {
-                std::env::set_var(&k, v);
-            } else {
-                std::env::remove_var(&k);
-            }
-        }
-    }
+    use crate::test_support::with_env_vars;
 
     unsafe extern "C" fn fallback_stub(
         _type_id: u32,

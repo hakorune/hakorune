@@ -277,7 +277,7 @@ pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, ar
         return v;
     }
     if !crate::hako_forward_bridge::rust_fallback_allowed() {
-        return 0;
+        return crate::hako_forward_bridge::hook_miss_return_zero("future.spawn_instance3");
     }
     if a0 <= 0 {
         return 0;

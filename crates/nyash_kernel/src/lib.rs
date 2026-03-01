@@ -16,4 +16,7 @@ pub use ffi::weak::*;
 pub use plugin::*;
 
 #[cfg(test)]
+mod test_support;
+
+#[cfg(test)]
 mod tests;
