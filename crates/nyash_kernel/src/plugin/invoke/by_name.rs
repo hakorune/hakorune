@@ -23,13 +23,12 @@ fn nyash_plugin_invoke_name_common_i64(method: &str, argc: i64, a0: i64, _a1: i6
 
     let nargs = argc.saturating_sub(1).max(0) as usize;
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);
-    if nargs > 0 {
-        if nyash_rust::config::env::fail_fast() {
-            return 0;
-        }
-        // This shim has no explicit a1/a2 payload path; compat mode recovers
-        // arguments from legacy VM slots.
-        invoke_core::encode_legacy_vm_args_range(&mut buf, 1, nargs);
+    // This shim has no explicit a1/a2 payload path; compat mode recovers
+    // arguments from legacy VM slots (fail_fast=0 only).
+    if nargs > 0
+        && !invoke_core::encode_legacy_args_with_failfast_policy(&mut buf, 1, nargs)
+    {
+        return 0;
     }
 
     let Some((tag, sz, payload)) =
@@ -98,10 +97,9 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
         nyrt_encode_arg(&mut buf, a2);
     }
     if nargs > 2 {
-        if nyash_rust::config::env::fail_fast() {
+        if !invoke_core::encode_legacy_args_with_failfast_policy(&mut buf, 3, nargs) {
             return 0;
         }
-        invoke_core::encode_legacy_vm_args_range(&mut buf, 3, nargs);
     }
     let Some((tag, sz, payload)) =
         invoke_core::plugin_invoke_call(

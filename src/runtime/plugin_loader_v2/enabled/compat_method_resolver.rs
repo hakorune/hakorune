@@ -34,3 +34,28 @@ pub(super) fn resolve_method_id_with_compat_policy(
     }
     resolve_method_id_from_file(box_type, method_name)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn compat_method_table_maps_known_entries() {
+        assert_eq!(resolve_method_id_from_file("StringBox", "concat").unwrap(), 102);
+        assert_eq!(resolve_method_id_from_file("StringBox", "upper").unwrap(), 103);
+        assert_eq!(resolve_method_id_from_file("CounterBox", "inc").unwrap(), 102);
+        assert_eq!(resolve_method_id_from_file("CounterBox", "get").unwrap(), 103);
+    }
+
+    #[test]
+    fn compat_method_table_rejects_unknown_entries() {
+        assert!(matches!(
+            resolve_method_id_from_file("StringBox", "missing"),
+            Err(BidError::InvalidMethod)
+        ));
+        assert!(matches!(
+            resolve_method_id_from_file("UnknownBox", "concat"),
+            Err(BidError::InvalidMethod)
+        ));
+    }
+}

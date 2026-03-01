@@ -271,3 +271,19 @@ pub fn encode_legacy_vm_args_range(dst: &mut Vec<u8>, start_pos: usize, end_pos_
     }
     super::compat_invoke_core::encode_legacy_vm_args_range(dst, start_pos, end_pos_inclusive);
 }
+
+#[inline]
+pub fn encode_legacy_args_with_failfast_policy(
+    dst: &mut Vec<u8>,
+    start_pos: usize,
+    end_pos_inclusive: usize,
+) -> bool {
+    if start_pos > end_pos_inclusive {
+        return true;
+    }
+    if nyash_rust::config::env::fail_fast() {
+        return false;
+    }
+    encode_legacy_vm_args_range(dst, start_pos, end_pos_inclusive);
+    true
+}
