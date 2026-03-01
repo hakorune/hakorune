@@ -4,7 +4,6 @@ use crate::bid::{BidError, BidResult};
 use crate::box_trait::NyashBox;
 use crate::runtime::get_global_ring0;
 use crate::runtime::plugin_loader_v2::enabled::PluginLoaderV2;
-use std::env;
 use std::sync::Arc;
 
 fn dbg_on() -> bool {
@@ -31,80 +30,21 @@ impl PluginLoaderV2 {
         let plugins = self.plugins.read().map_err(|_| BidError::PluginError)?;
         let _plugin = plugins.get(&lib_name).ok_or(BidError::PluginError)?;
 
-        // Optional C wrapper (Phase 22.2: design insertion point; default OFF)
-        if env::var("HAKO_PLUGIN_LOADER_C_WRAP").ok().as_deref() == Some("1") {
-            if should_trace_cwrap(box_type, method_name) {
-                get_global_ring0()
-                    .log
-                    .debug(&format!("[cwrap:invoke:{}.{}]", box_type, method_name));
-            }
-            // Future: route into a thin C shim here. For now, fall through to normal path.
-        }
-
-        // Optional C-core probe (design): emit tag and optionally call into c-core when enabled
-        if env::var("HAKO_C_CORE_ENABLE").ok().as_deref() == Some("1")
-            && should_route_ccore(box_type, method_name)
-        {
-            get_global_ring0()
-                .log
-                .debug(&format!("[c-core:invoke:{}.{}]", box_type, method_name));
-            #[cfg(feature = "c-core")]
-            {
-                // MapBox.set: call C-core stub (no-op) with available info
-                if box_type == "MapBox" && method_name == "set" {
-                    let key = args
-                        .get(0)
-                        .map(|b| b.to_string_box().value)
-                        .unwrap_or_default();
-                    let val = args
-                        .get(1)
-                        .map(|b| b.to_string_box().value)
-                        .unwrap_or_default();
-                    let _ = nyash_c_core::core_map_set(type_id as i32, instance_id, &key, &val);
-                } else if box_type == "ArrayBox" && method_name == "push" {
-                    // For design stage, pass 0 (we don't rely on c-core result)
-                    let _ = nyash_c_core::core_array_push(type_id as i32, instance_id, 0);
-                } else if box_type == "ArrayBox" && method_name == "get" {
-                    let _ = nyash_c_core::core_array_get(type_id as i32, instance_id, 0);
-                } else if box_type == "ArrayBox"
-                    && (method_name == "size" || method_name == "len" || method_name == "length")
-                {
-                    let _ = nyash_c_core::core_array_len(type_id as i32, instance_id);
-                } else {
-                    // Generic probe
-                    let _ =
-                        nyash_c_core::core_probe_invoke(box_type, method_name, args.len() as i32);
-                }
-            }
-        }
+        super::compat_ffi_bridge::maybe_probe_c_wrap(box_type, method_name);
+        super::compat_ffi_bridge::maybe_probe_c_core(
+            box_type,
+            method_name,
+            args,
+            type_id,
+            instance_id,
+        );
 
         // Encode TLV args via shared helper (numeric→string→toString)
         let tlv = crate::runtime::plugin_ffi_common::encode_args(args);
 
-        // Unified call trace (optional): plugin calls
-        if env::var("HAKO_CALL_TRACE").ok().as_deref() == Some("1") {
-            if should_trace_call(box_type, method_name) {
-                get_global_ring0()
-                    .log
-                    .debug(&format!("[call:{}.{}]", box_type, method_name));
-            }
-        }
+        super::compat_ffi_bridge::maybe_trace_call(box_type, method_name);
 
-        // Optional trace for TLV shim path (debug only; default OFF)
-        if env::var("HAKO_TLV_SHIM_TRACE").ok().as_deref() == Some("1")
-            && env::var("HAKO_TLV_SHIM").ok().as_deref() == Some("1")
-        {
-            if should_trace_tlv_shim(box_type, method_name) {
-                get_global_ring0()
-                    .log
-                    .debug(&format!("[tlv/shim:{}.{}]", box_type, method_name));
-                if env::var("HAKO_TLV_SHIM_TRACE_DETAIL").ok().as_deref() == Some("1") {
-                    get_global_ring0()
-                        .log
-                        .debug(&format!("[tlv/shim:detail argc={}]", args.len()));
-                }
-            }
-        }
+        super::compat_ffi_bridge::maybe_trace_tlv_shim(box_type, method_name, args.len());
 
         if dbg_on() {
             get_global_ring0().log.debug(&format!(
@@ -135,79 +75,6 @@ impl PluginLoaderV2 {
         // Decode TLV (first entry) generically
         decode_tlv_result(box_type, &out[..out_len])
     }
-}
-
-fn should_trace_tlv_shim(box_type: &str, method: &str) -> bool {
-    // Filter provided → honor it
-    if let Ok(flt) = env::var("HAKO_TLV_SHIM_FILTER") {
-        let key = format!("{}.{}", box_type, method);
-        for pat in flt.split(',') {
-            let p = pat.trim();
-            if p.is_empty() {
-                continue;
-            }
-            if p == method || p == key {
-                return true;
-            }
-        }
-        return false;
-    }
-    // Default (minimal noise): only trace MapBox.set to begin with
-    box_type == "MapBox" && method == "set"
-}
-
-fn should_trace_cwrap(box_type: &str, method: &str) -> bool {
-    // Filter provided → honor it
-    if let Ok(flt) = env::var("HAKO_PLUGIN_LOADER_C_WRAP_FILTER") {
-        let key = format!("{}.{}", box_type, method);
-        for pat in flt.split(',') {
-            let p = pat.trim();
-            if p.is_empty() {
-                continue;
-            }
-            if p == method || p == key {
-                return true;
-            }
-        }
-        return false;
-    }
-    // Default (minimal noise): only trace MapBox.set to begin with
-    box_type == "MapBox" && method == "set"
-}
-
-fn should_trace_call(target: &str, method: &str) -> bool {
-    if let Ok(flt) = env::var("HAKO_CALL_TRACE_FILTER") {
-        let key = format!("{}.{}", target, method);
-        for pat in flt.split(',') {
-            let p = pat.trim();
-            if p.is_empty() {
-                continue;
-            }
-            if p == method || p == key {
-                return true;
-            }
-        }
-        return false;
-    }
-    true
-}
-
-fn should_route_ccore(box_type: &str, method: &str) -> bool {
-    if let Ok(flt) = env::var("HAKO_C_CORE_TARGETS") {
-        let key = format!("{}.{}", box_type, method);
-        for pat in flt.split(',') {
-            let p = pat.trim();
-            if p.is_empty() {
-                continue;
-            }
-            if p == method || p == key {
-                return true;
-            }
-        }
-        return false;
-    }
-    // Default minimal scope: MapBox.set only
-    box_type == "MapBox" && method == "set"
 }
 
 /// Decode TLV result into a NyashBox

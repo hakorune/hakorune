@@ -69,6 +69,10 @@ Related:
   - `route_resolver` に `InvokeRouteContract` を追加
   - `ffi_bridge` / `instance_manager` の invoke route 解決を contract 箱経由へ統一
   - `host_bridge::invoke_alloc_with_route()` 呼び出し点の判定源を集約（挙動不変）
+- 2026-03-01: RZ-LOADER-min3 (compat/dev branch isolation) 着手
+  - `ffi_bridge` の compat/dev trace/probe 分岐を `compat_ffi_bridge` へ移設
+  - mainline invoke フローを route解決・invoke・decode へ縮退
+  - ENV契約とログタグは維持（挙動不変）
 
 ## Gate Contract
 
