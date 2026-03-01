@@ -56,11 +56,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - active lock: `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
     - boundary lock: `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - hook lock: `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
-    - current status: `HFK-min1..min6 done`, active next=`none`（monitor-only / no-delete-first）
+    - current status: `HFK-min1..min6 done`, active next=`none`（monitor-only / source-keep）
     - latest: `NYASH_VM_USE_FALLBACK=0` 時は hook 未登録の `invoke/by_name` / `future.spawn_instance3` / string exports が Rust fallback へ落ちない契約へ更新（mainline no-compat path hardening）
     - latest2: `invoke_core` と `plugin_loader_v2/route_resolver` の compat fallback も `NYASH_VM_USE_FALLBACK=0` で拒否する契約へ統一（fallback policy SSOT alignment）
     - latest3: fallback policy 判定を `vm_compat_fallback_allowed()`（`src/config/env/vm_backend_flags.rs`）へ集約。`hako_forward_bridge` は hook-miss helpers を提供し、string/by_name/future の no-compat path は `NYRT_E_HOOK_MISS`（scalar）/ freeze-handle（handle戻り）で fail-fast を固定。
-    - deletion policy: Rust source は Deletion Gate 条件達成まで保存（物理削除は別 lock）
+    - source keep policy: Rust source は保存固定（削除タスクは起票しない / reopen対象外）
   - wasm lane status: done through `WSM-P10` / active next=`none`（monitor-only）
   - done judgement matrix SSOT:
     - `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
@@ -77,18 +77,18 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - active next: `optimization-reopen`（micro/asm -> kilo）
   - optimization resume policy（fixed）:
     - de-rust runtime closeout contract（`runtime-exec-zero` + `phase29y_no_compat_mainline_vm`）が緑の間は最適化レーンを進めてよい。
-    - source-zero 物理撤去と最適化は混ぜず、別コミット境界で進める。
+    - source keep policy と最適化は混ぜず、別コミット境界で進める。
 
 ## Immediate Next (this round)
 
-1. de-rust runtime execution-path-zero closeout は完了として扱う（no-delete-first 維持）。
+1. de-rust runtime execution-path-zero closeout は完了として扱う（source-keep 維持）。
 2. done contract は次の 2 本で固定する:
    - `tools/checks/dev_gate.sh runtime-exec-zero`
    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 3. de-rust lane（phase-29cc）は monitor-only を維持し、failure-driven でのみ reopen する。
-4. Rust source は Deletion Gate 条件達成まで保存し、物理削除は別 lock でのみ実施する。
+4. Rust source は保存固定とし、削除タスクは当面起票しない（明示指示が出るまで停止）。
 5. 次の実装優先は最適化 lane（micro/asm -> kilo）へ handoff する。
-6. 最適化と source-zero 物理撤去は混ぜない（1 boundary = 1 commit を維持）。
+6. 最適化と source keep policy 更新は混ぜない（1 boundary = 1 commit を維持）。
 
 ## Future Ideas (Not Active)
 

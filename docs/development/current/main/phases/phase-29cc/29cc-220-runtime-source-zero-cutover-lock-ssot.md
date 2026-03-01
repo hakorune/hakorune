@@ -2,7 +2,7 @@
 Status: Active
 Decision: accepted
 Date: 2026-03-01
-Scope: runtime/plugin de-rust の最終ゴールを source-zero に固定しつつ、現フェーズは no-delete-first（経路切替先行）で進める。
+Scope: runtime/plugin de-rust の最終ゴールを source-zero に固定しつつ、現フェーズは source-keep（経路切替先行）で進める。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -22,6 +22,12 @@ Related:
 `execution-path-zero` で止めず、runtime/plugin の Rust 実装を source-zero まで進めるための完了条件を固定する。
 ただし本フェーズでは Rust source の物理削除を行わず、経路切替を先行して安全性を確保する。
 
+## Source Keep Lock (active)
+
+1. Rust source は保存固定とする。
+2. 削除タスクは当面起票しない（owner の明示指示があるまで実施しない）。
+3. 日常運用は route-zero stability の監査に限定する。
+
 ## Source-Zero Definition (fixed)
 
 1. この lane の done は **source-zero** とする。
@@ -37,7 +43,7 @@ Related:
 2. route-zero + stability の定義:
    - mainline/CI 既定が `.hako + ABI` のみで実行される（compat default-off）。
    - runtime/plugin Rust route は未使用化され、guard で drift が監査可能。
-   - Rust source は削除しない（復元/保険のため残置）。
+   - Rust source は保存固定（復元/保険のため残置）。
 
 ## Boundary Lock (must keep)
 
@@ -61,7 +67,7 @@ Related:
    - `invoke_core.rs` / `birth.rs` / `runtime_data.rs` / `semantics.rs`
    - `value_codec/*`
    - `future.rs` / `invoke.rs`
-5. no-delete route lock 更新（source delete は将来フェーズへ延期）
+5. source-keep lock 更新（source delete task は停止）
 
 ## Acceptance
 
@@ -92,10 +98,10 @@ execution-path-zero done 判定は次の 2 コマンドを正本にする。
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`: green
   - runtime lane は monitor-only（failure-driven reopen）へ移行。
 
-## Deferred Deletion Gate (fixed criteria)
+## Historical Deletion Criteria (inactive reference)
 
-Rust source の物理削除は次の条件を**全て**満たした後に、別 lock でのみ実施する。
-1つでも未達の間は `no-delete-first` を維持する。
+この節は履歴参照専用。日常運用では実行しない。
+Rust source の物理削除は明示指示があるまで停止する。
 
 1. mac local build evidence（必須）
    - mac 実機で `cargo build --release --bin hakorune` を実行し、当該 head で成功させる。

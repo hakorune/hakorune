@@ -267,9 +267,9 @@ Related:
       - `docs/development/current/main/phases/phase-29cc/29cc-251-rz-loader-min4-loader-types-route-reuse-lock-ssot.md`
       - `docs/development/current/main/phases/phase-29cc/29cc-252-rz-loader-min4-closeout-route-zero-stability-lock-ssot.md`
     - zero definition（fixed）:
-      - long-term goal = source-zero（runtime/plugin の Rust実装撤去 + mainline/CI no-compat）
-      - phase done = route-zero + stability（no-delete-first）
-      - Rust source は Deletion Gate 条件達成まで当分保存（物理削除は別 lock）
+      - long-term goal = source-zero（runtime/plugin の Rust実装移行 + mainline/CI no-compat）
+      - phase done = route-zero + stability（source-keep）
+      - Rust source は保存固定（削除タスクは当面起票しない）
       - execution-path-zero は中間マイルストーンとして扱う
     - static-link policy（fixed）:
       - core runtime（host/kernel）は static-first（`libnyash_kernel.a` 正本）を維持
@@ -303,7 +303,7 @@ Related:
       - `crates/nyash_kernel/src/plugin/invoke_core.rs` / `src/runtime/plugin_loader_v2/enabled/route_resolver.rs` も compat fallback を `NYASH_VM_USE_FALLBACK=0` で拒否する契約へ統一（fallback policy SSOT alignment）
       - fallback policy 判定を `src/config/env/vm_backend_flags.rs::vm_compat_fallback_allowed()` に集約し、`hako_forward_bridge` の hook-miss helper で no-compat fail-fast（`NYRT_E_HOOK_MISS` / freeze-handle）+ route-tag 観測を統一
       - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を compat-export-only 契約で更新
-      - next fixed order（29cc-254）: HFK-min1..min6 done、active next は `none`（monitor-only / no-delete-first）
+      - next fixed order（29cc-254）: HFK-min1..min6 done、active next は `none`（monitor-only / source-keep）
       - execution-path-zero closeout contract（2026-03-01, head=`4e34f0bc1`）:
         - `tools/checks/dev_gate.sh runtime-exec-zero` green
         - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
