@@ -103,6 +103,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
     - boundary lock: `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - hook lock: `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
     - status: `HFK-min1..min6 done`, active next=`none`（monitor-only / no-delete-first）
+    - latest: `NYASH_VM_USE_FALLBACK=0` では hook 未登録時に `invoke/by_name` / `future.spawn_instance3` / string exports の Rust fallback を禁止（mainline no-compat hardening）
     - Rust source は Deletion Gate 条件達成まで保存（physical delete は別 lock）
   - wasm lane: done through `WSM-P10`, active next=`none`（monitor-only）
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`

@@ -57,6 +57,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - boundary lock: `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
     - hook lock: `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
     - current status: `HFK-min1..min6 done`, active next=`none`（monitor-only / no-delete-first）
+    - latest: `NYASH_VM_USE_FALLBACK=0` 時は hook 未登録の `invoke/by_name` / `future.spawn_instance3` / string exports が Rust fallback へ落ちず `0` を返す契約へ更新（mainline no-compat path hardening）
     - deletion policy: Rust source は Deletion Gate 条件達成まで保存（物理削除は別 lock）
   - wasm lane status: done through `WSM-P10` / active next=`none`（monitor-only）
   - done judgement matrix SSOT:

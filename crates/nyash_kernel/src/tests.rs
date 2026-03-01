@@ -209,6 +209,18 @@ fn string_exports_prefer_hako_forward_hook_when_registered() {
 }
 
 #[test]
+fn string_exports_disable_rust_fallback_when_policy_is_off() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "0", || {
+        crate::hako_forward_bridge::with_test_reset(|| {
+            let src: Arc<dyn NyashBox> = Arc::new(StringBox::new("abc".to_string()));
+            let src_h = handles::to_handle_arc(src) as i64;
+            assert_eq!(nyash_string_len_h(src_h), 0);
+            assert_eq!(nyash_string_concat_hh_export(src_h, src_h), 0);
+        });
+    });
+}
+
+#[test]
 fn string_to_i8p_h_fallback_contract() {
     use std::ffi::CStr;
 
@@ -381,6 +393,32 @@ fn invoke_by_name_build_box_unsupported_source_returns_freeze_tag() {
         .value
         .clone();
     assert!(result_text.contains("[freeze:contract][stage1_program_json_v0]"));
+}
+
+#[test]
+fn invoke_by_name_disable_rust_fallback_when_policy_is_off() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "0", || {
+        crate::hako_forward_bridge::with_test_reset(|| {
+            let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new(
+                "lang.compiler.entry.using_resolver_box".to_string(),
+            ));
+            let receiver_handle = handles::to_handle_arc(receiver) as i64;
+            let source: Arc<dyn NyashBox> = Arc::new(StringBox::new(
+                "static box Main { main() { return 0 } }".to_string(),
+            ));
+            let source_handle = handles::to_handle_arc(source) as i64;
+            let method = CString::new("resolve_for_source").expect("CString");
+
+            let result_handle = nyash_plugin_invoke_by_name_i64(
+                receiver_handle,
+                method.as_ptr(),
+                1,
+                source_handle,
+                0,
+            );
+            assert_eq!(result_handle, 0);
+        });
+    });
 }
 
 #[test]

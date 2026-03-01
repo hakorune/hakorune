@@ -65,6 +65,9 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
     ) {
         return v;
     }
+    if !crate::hako_forward_bridge::rust_fallback_allowed() {
+        return 0;
+    }
     let mname = unsafe { std::ffi::CStr::from_ptr(method) };
     let Ok(method_str) = mname.to_str() else {
         return 0;

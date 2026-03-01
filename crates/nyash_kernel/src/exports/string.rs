@@ -186,6 +186,11 @@ fn hako_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
 }
 
 #[inline(always)]
+fn allow_rust_string_fallback() -> bool {
+    hako_forward_bridge::rust_fallback_allowed()
+}
+
+#[inline(always)]
 fn empty_needle_indexof(_hay: &str) -> i64 {
     0
 }
@@ -234,6 +239,9 @@ pub extern "C" fn nyash_string_len_h(handle: i64) -> i64 {
     if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::LEN_H, handle, 0, 0) {
         return v;
     }
+    if !allow_rust_string_fallback() {
+        return 0;
+    }
     if jit_trace_len_enabled() {
         let present = if handle > 0 {
             handles::get(handle as u64).is_some()
@@ -271,6 +279,9 @@ pub extern "C" fn nyash_string_charcode_at_h_export(handle: i64, idx: i64) -> i6
     {
         return v;
     }
+    if !allow_rust_string_fallback() {
+        return 0;
+    }
     if idx < 0 {
         return -1;
     }
@@ -292,6 +303,9 @@ pub extern "C" fn nyash_string_concat_hh_export(a_h: i64, b_h: i64) -> i64 {
     {
         return v;
     }
+    if !allow_rust_string_fallback() {
+        return 0;
+    }
     if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
         return out;
     }
@@ -309,6 +323,9 @@ pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) 
         hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT3_HHH, a_h, b_h, c_h)
     {
         return v;
+    }
+    if !allow_rust_string_fallback() {
+        return 0;
     }
     // Hot path: resolve all 3 handles once and reuse the same objects for
     // both direct String route and StringView-compatible fallback route.
@@ -351,6 +368,9 @@ pub extern "C" fn nyash_string_eq_hh_export(a_h: i64, b_h: i64) -> i64 {
     if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::EQ_HH, a_h, b_h, 0) {
         return v;
     }
+    if !allow_rust_string_fallback() {
+        return 0;
+    }
     compare_string_pair_hh(a_h, b_h, |lhs, rhs| lhs == rhs)
 }
 
@@ -365,6 +385,9 @@ pub extern "C" fn nyash_string_substring_hii_export(h: i64, start: i64, end: i64
     )
     {
         return v;
+    }
+    if !allow_rust_string_fallback() {
+        return 0;
     }
     if h <= 0 {
         return 0;
@@ -403,6 +426,9 @@ pub extern "C" fn nyash_string_indexof_hh_export(h: i64, n: i64) -> i64 {
     if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::INDEXOF_HH, h, n, 0) {
         return v;
     }
+    if !allow_rust_string_fallback() {
+        return 0;
+    }
     search_string_pair_hh(h, n, empty_needle_indexof, find_substr_byte_index)
 }
 
@@ -414,6 +440,9 @@ pub extern "C" fn nyash_string_lastindexof_hh_export(h: i64, n: i64) -> i64 {
     {
         return v;
     }
+    if !allow_rust_string_fallback() {
+        return 0;
+    }
     search_string_pair_hh(h, n, empty_needle_lastindexof, rfind_substr_byte_index)
 }
 
@@ -422,6 +451,9 @@ pub extern "C" fn nyash_string_lastindexof_hh_export(h: i64, n: i64) -> i64 {
 pub extern "C" fn nyash_string_lt_hh_export(a_h: i64, b_h: i64) -> i64 {
     if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::LT_HH, a_h, b_h, 0) {
         return v;
+    }
+    if !allow_rust_string_fallback() {
+        return 0;
     }
     compare_string_pair_hh(a_h, b_h, |lhs, rhs| lhs < rhs)
 }
@@ -434,6 +466,9 @@ pub extern "C" fn nyash_string_from_u64x2_export(lo: i64, hi: i64, len: i64) -> 
         hako_string_dispatch(hako_forward_bridge::string_ops::FROM_U64X2, lo, hi, len)
     {
         return v;
+    }
+    if !allow_rust_string_fallback() {
+        return 0;
     }
     let l = if len < 0 {
         0
