@@ -91,6 +91,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 7`
       - latest (2026-03-01): `ny_aot_ms=14`
     - rule: micro 改善が確認できた変更だけを `kilo_kernel_small` へ持ち上げる（kilo 先行の試行錯誤は禁止）。
+    - latest kernel-asm note (2026-03-01):
+      - `nyash.array.set_his` share improved (`~7.4% -> ~5.8%`) after single-lookup pair route.
+      - `nyash.string.concat_hh` remains top user-space hotspot (`~8.5%` class); next optimization focus is concat structure.
   - active next: `none`（failure-driven reopen only）
   - optimization resume policy（fixed）:
     - resume trigger: de-rust runtime closeout contract（`runtime-exec-zero` + `phase29y_no_compat_mainline_vm`）green。

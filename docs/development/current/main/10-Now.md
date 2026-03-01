@@ -125,6 +125,9 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `kilo_micro_substring_concat`: `ny_aot_ms=64`
   - active recovery rule:
     - 先に micro で改善を確定し、確定した差分のみ `kilo_kernel_small` へ反映する（kilo先行の探索は禁止）。
+  - latest kernel asm note (2026-03-01):
+    - `nyash.array.set_his` share improved (`~7.4% -> ~5.8%`) by pair-route single lookup.
+    - `nyash.string.concat_hh` stays top user-space hotspot (`~8.5%` class); next focus is concat structure-level optimization.
 - De-Rust lane map: `A=Compiler Meaning / B=Compiler Pipeline / C=Runtime Port`
   - SSOT: `docs/development/current/main/design/de-rust-lane-map-ssot.md`
 
