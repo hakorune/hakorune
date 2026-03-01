@@ -135,6 +135,11 @@ Acceptance:
 - mainline で legacy/compat entry が不在（Rust source は残置可）
 - plugin gate pack green
 
+Execution update:
+- 2026-03-01 (B3-min1): `future.rs` の `spawn_instance3` trailing payload を compat helper
+  `encode_legacy_vm_args_range(3..nargs_payload)` へ統一。
+  mainline（`NYASH_FAIL_FAST=1`）は `nargs_payload > 1` を即時 reject のまま維持。
+
 ## Non-target (keep for now)
 
 - `array.rs` / `string.rs` / `map.rs` / `console.rs` / `intarray.rs` / `module_string_dispatch.rs` / `handle_helpers.rs`

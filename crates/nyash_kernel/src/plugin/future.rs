@@ -322,14 +322,14 @@ pub extern "C" fn nyash_future_spawn_instance3_i64(a0: i64, a1: i64, a2: i64, ar
     if nargs_payload >= 1 {
         crate::encode::nyrt_encode_arg(&mut buf, a2);
     }
-    if nargs_payload > 1 && std::env::var("NYASH_JIT_ARGS_HANDLE_ONLY").ok().as_deref() != Some("1")
-    {
+    if nargs_payload > 1 {
         if nyash_rust::config::env::fail_fast() {
             return 0;
         }
-        for pos in 3..=nargs_payload {
-            let _ = pos;
-            super::invoke_core::encode_legacy_placeholder_arg(&mut buf);
+        if !super::invoke_core::jit_args_handle_only_enabled() {
+            // Compat-only: recover trailing args from legacy VM slots.
+            // Mainline keeps fail-fast above and never touches this path.
+            super::invoke_core::encode_legacy_vm_args_range(&mut buf, 3, nargs_payload);
         }
     }
     // Create Future and schedule async invoke
