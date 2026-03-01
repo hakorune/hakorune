@@ -66,9 +66,16 @@ Related:
 ## Acceptance
 
 1. `CURRENT_TASK.md` / `10-Now.md` / `phase-29cc/README.md` が source-zero 定義で同期されている。
-2. `tools/checks/dev_gate.sh runtime-exec-zero` と route guard が green。
+2. `tools/checks/dev_gate.sh runtime-exec-zero` が green。
 3. mainline で compat route が呼ばれない（ログ監査で drift 無し）。
 4. ABI lane guard（Core C ABI + TypeBox ABI v2）が継続 green。
+
+## Execution-Path-Zero Closeout Contract (fixed)
+
+execution-path-zero done 判定は次の 2 コマンドを正本にする。
+
+1. `tools/checks/dev_gate.sh runtime-exec-zero`
+2. `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 
 ## Execution update
 
@@ -79,6 +86,11 @@ Related:
 - 2026-03-01: static-link boundary decision（29cc-253）を同期。
   - 残存Rust境界は `AOT link / plugin_loader_v2 / C ABI entry` の3本に固定。
   - core runtime は static-first（`libnyash_kernel.a`）を維持し、外部 plugin dynamic は補助経路に固定。
+- 2026-03-01: execution-path-zero closeout を同期。
+  - head: `4e34f0bc1`
+  - `tools/checks/dev_gate.sh runtime-exec-zero`: green
+  - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`: green
+  - runtime lane は monitor-only（failure-driven reopen）へ移行。
 
 ## Deferred Deletion Gate (fixed criteria)
 

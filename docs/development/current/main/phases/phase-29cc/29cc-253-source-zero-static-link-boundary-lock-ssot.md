@@ -84,6 +84,12 @@ core runtime の結合方針を static-first で確定する。
 3. `CURRENT_TASK.md` / `phase-29cc/README.md` が本 lock を参照し、固定順が一致
 4. static-first 方針（core static / external plugin dynamic optional）が docs 間で矛盾しない
 
+## Closeout State (execution-path-zero)
+
+1. boundary-1/2/3 は execution-path-zero 基準で closeout 済み。
+2. 本 lock は source-zero（物理撤去）へ向けた境界定義として active 維持。
+3. runtime lane は monitor-only（failure-driven reopen）で運用する。
+
 ## Not in this lock
 
 1. Rust source の物理削除（Deletion Gate 条件達成後に別 lock）

@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-02-28
+Date: 2026-03-01
 Scope: Repo root の互換入口。詳細ログは `docs/development/current/main/` 側を正本にする。
 
 ## Purpose
@@ -61,7 +61,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - wasm lane status: done through `WSM-P10` / active next=`none`（monitor-only）
   - done judgement matrix SSOT:
     - `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
-- perf lane: `phase-21.5 / llvm-aot-hotpath`（monitor-only）
+- perf lane: `phase-21.5 / llvm-aot-hotpath`（reopen: micro/asm -> kilo）
   - scope: `numeric_mixed_medium` / `method_call_only` / `chip8_kernel_small` / `kilo_kernel_small`（C/AOT 比較） + VM monitor-only
   - task SSOT: `docs/private/roadmap/phases/phase-21.5/PLAN.md`
   - Step-2 acceptance lock (fixed):
@@ -71,59 +71,21 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - WSL variance lock（single-run値で判定しない）:
     - canonical measure: `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 5`
     - latest (2026-02-28): `c_ms=77`, `py_ms=108`, `ny_vm_ms=979`, `ny_aot_ms=905`, `ratio_c_aot=0.09`, `aot_status=ok`
-  - active next: `none`（monitor-only）
+  - active next: `optimization-reopen`（micro/asm -> kilo）
   - optimization resume policy（fixed）:
-    - 脱Rustの経路固定（29cc-220/215/216/217 の guard 緑）が揃うまで最適化は monitor-only。
-    - 最適化タスクは `Future Ideas` 扱いに固定し、runtime/plugin loader 経路の薄化完了後に再昇格する。
+    - de-rust runtime closeout contract（`runtime-exec-zero` + `phase29y_no_compat_mainline_vm`）が緑の間は最適化レーンを進めてよい。
+    - source-zero 物理撤去と最適化は混ぜず、別コミット境界で進める。
 
 ## Immediate Next (this round)
 
-1. wasm lane: `WSM-P7..P10-min10` + `WSM-G4-min9/min10` lock（`29cc-184..203`, `29cc-206`, `29cc-207`）を維持し、default-only 契約を崩さない。
-2. Rust WASM lifecycle は `Stop -> Freeze -> Retire` の固定順で運用する（SSOT: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`）。
-3. 現在は Stop 段として Rust WASM 新機能追加を停止し、`.hako` 主ラインで shape/gate を先行する。
-4. wasm lane は monitor-only を維持し、failure-driven でのみ blocker を再起動する。
-5. wasm route は `hako_native/rust_native/legacy_bridge` の 3 つに固定し、新規 route を増やさない。
-6. Freeze 監査は `tools/checks/dev_gate.sh wasm-freeze-core` / `tools/checks/dev_gate.sh wasm-freeze-parity` を正本にする（min3: `rust_native` compile-wasm-only scope lock を含む）。
-7. plugin de-rust HM2（min1/min2/min3）は done。plugin lane は monitor-only（`active next: none`）を維持し、failure-driven でのみ reopen する。
-8. de-rust runtime は `29cc-220` を active lock とし、long-term は source-zero、現フェーズは route-zero + stability（no-delete-first）で C ABI cutover 順を固定する。
-9. route drift 監査は `29cc-215`（observability）+ `29cc-217`（VM+AOT route）を正本にして運用する。
-10. V0 ABI slice（3語彙）は `29cc-216` lock を正本にし、`string_len/array_get_i64/array_set_i64` 以外を混ぜない。
-11. de-rust residue（plugin kernel + plugin_loader_v2）line は `29cc-221` 固定順（A1..A3/B1..B3）を維持し、実装真実ベースで closeout 再検証中。runtime lane は route-zero-sync closeout（29cc-243）方針を維持しつつ、compat入口の残件同期が終わるまで failure-driven で扱う。
-12. B1-min1 lock（docs-first）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-231-kernel-b1-min1-invoke-birth-route-cutover-lock-ssot.md`
-13. B1-min1 closeout lock（done）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-232-kernel-b1-min1-closeout-lock-ssot.md`
-14. B1-min2 lock（done）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-233-kernel-b1-min2-runtime-state-route-lock-ssot.md`
-15. B1-min3 lock（done）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-234-kernel-b1-min3-instance-lifecycle-route-lock-ssot.md`
-16. B1-closeout lock（accepted / implementation-truth recheck）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-235-kernel-b1-closeout-lock-ssot.md`
-17. B2-min1 lock（done）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-236-kernel-b2-min1-value-codec-encode-decode-route-lock-ssot.md`
-18. B2-min2 lock（done）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-237-kernel-b2-min2-borrowed-handle-route-lock-ssot.md`
-19. B2-closeout lock（accepted / implementation-truth recheck）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-238-kernel-b2-closeout-lock-ssot.md`
-20. B3-min1 lock（done）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-239-kernel-b3-min1-future-route-lock-ssot.md`
-21. B3-min2 lock（done）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-240-kernel-b3-min2-invoke-route-lock-ssot.md`
-22. B3-closeout lock（accepted / implementation-truth recheck）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-241-kernel-b3-closeout-lock-ssot.md`
-23. kernel-residue-closeout lock（accepted / implementation-truth recheck）:
-  - `docs/development/current/main/phases/phase-29cc/29cc-242-kernel-residue-closeout-lock-ssot.md`
-24. active next: 29bq-selfhost-hako-migration（mirbuilder first / parser later）
-  - handoff lock:
-    - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
-  - execution order SSOT:
-    - `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
-    - `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
-  - latest quick evidence（2026-02-28, Stage2 fixed）:
-    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
-    - `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（`5/5`, `stageb_total_secs=19`, `avg_case_secs=3.80`）
-    - `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` PASS
-12. AOT/perf 最適化は route-zero + stability 達成後に再開可否を判断する（いまは monitor-only 維持）。
+1. de-rust runtime execution-path-zero closeout は完了として扱う（no-delete-first 維持）。
+2. done contract は次の 2 本で固定する:
+   - `tools/checks/dev_gate.sh runtime-exec-zero`
+   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
+3. de-rust lane（phase-29cc）は monitor-only を維持し、failure-driven でのみ reopen する。
+4. Rust source は Deletion Gate 条件達成まで保存し、物理削除は別 lock でのみ実施する。
+5. 次の実装優先は最適化 lane（micro/asm -> kilo）へ handoff する。
+6. 最適化と source-zero 物理撤去は混ぜない（1 boundary = 1 commit を維持）。
 
 ## Future Ideas (Not Active)
 

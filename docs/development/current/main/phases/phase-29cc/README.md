@@ -301,6 +301,10 @@ Related:
       - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` / `crates/nyash_kernel/src/plugin/future.rs` / `crates/nyash_kernel/src/exports/string.rs` は bridge 経由へ統一
       - `tools/checks/phase29cc_hako_forward_registry_guard.sh` を compat-export-only 契約で更新
       - next fixed order（29cc-254）: HFK-min1..min6 done、active next は `none`（monitor-only / no-delete-first）
+      - execution-path-zero closeout contract（2026-03-01, head=`4e34f0bc1`）:
+        - `tools/checks/dev_gate.sh runtime-exec-zero` green
+        - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
+      - runtime lane handoff: de-rust は monitor-only、次優先は optimization lane（micro/asm -> kilo）
   - runtime route-zero-sync closeout lock（29cc-243, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md`
     - fixed:

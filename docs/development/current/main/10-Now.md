@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-02-28
+Date: 2026-03-01
 Scope: main ラインの「現在地」と「実行入口」だけを置く薄いインデックス。
 Related:
   - CURRENT_TASK.md
@@ -75,7 +75,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
 - Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
-- Optimization policy (runtime): de-rust 経路固定（29cc-220/215/216/217 guard 緑）まで perf/AOT 最適化は monitor-only。
+- Optimization policy (runtime): de-rust runtime closeout contract 緑を前提に、最適化 lane（micro/asm -> kilo）へ handoff する。
 - JoinIR port mode（lane A）: monitor-only（failure-driven reopen）
 - JoinIR parity probe pin（JIR-PORT-01）:
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port01_parity_probe_vm.sh`
@@ -107,10 +107,19 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
   - wasm lane: done through `WSM-P10`, active next=`none`（monitor-only）
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Perf lane（phase-21.5）:
-  - monitor-only（劣化検知時のみ failure-driven で再起動）
-  - selfhost/de-rust を優先し、日常ループでは最適化タスクを proactive に起動しない
+  - de-rust runtime closeout 後の handoff 先（micro/asm -> kilo の順で再開）
+  - source-zero 物理撤去とは分離して進める
 - De-Rust lane map: `A=Compiler Meaning / B=Compiler Pipeline / C=Runtime Port`
   - SSOT: `docs/development/current/main/design/de-rust-lane-map-ssot.md`
+
+## Immediate Next
+
+1. de-rust runtime は execution-path-zero done（monitor-only）を維持し、failure-driven reopen のみ許可する。
+2. done contract は次の 2 コマンドを正本に固定する:
+   - `tools/checks/dev_gate.sh runtime-exec-zero`
+   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
+3. 次の実装優先は最適化 lane（micro/asm -> kilo）へ切り替える。
+4. Rust source の物理削除は Deletion Gate 条件達成後の別 lock とし、現時点では開始しない。
 
 ## Read First Order
 
