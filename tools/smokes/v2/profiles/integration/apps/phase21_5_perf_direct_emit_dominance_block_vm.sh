@@ -4,7 +4,7 @@
 # Contract pin:
 # - direct emit routes (`--emit-mir-json` / `--emit-exe`) must fail-fast on verifier errors.
 # - matrix: route=vm|mir × emit=mir|exe
-# - helper route (`tools/hakorune_emit_mir.sh`) must still produce buildable MIR.
+# - hako-helper route (`emit_mir_route.sh --route hako-helper`) must still produce buildable MIR.
 
 set -euo pipefail
 
