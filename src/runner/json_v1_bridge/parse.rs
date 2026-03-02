@@ -7,6 +7,34 @@ use serde_json::Value;
 
 use super::super::mir_json::common as mirjson_common;
 
+fn infer_param_count_from_v1_func(func: &Value, func_name: &str) -> Result<usize, String> {
+    if let Some(params) = func.get("params").and_then(Value::as_array) {
+        for (idx, p) in params.iter().enumerate() {
+            let pid = p
+                .as_u64()
+                .or_else(|| p.get("id").and_then(Value::as_u64))
+                .ok_or_else(|| {
+                    format!(
+                        "function '{}' params[{}] must be integer id (or object with id)",
+                        func_name, idx
+                    )
+                })?;
+            if pid != idx as u64 {
+                return Err(format!(
+                    "[freeze:contract][json_v1_bridge/params] function '{}' params must be canonical [0..N-1]; got id {} at index {}",
+                    func_name, pid, idx
+                ));
+            }
+        }
+        return Ok(params.len());
+    }
+    if let Some((_box_name, _method, arity)) = crate::mir::naming::decode_static_method(func_name)
+    {
+        return Ok(arity);
+    }
+    Ok(0)
+}
+
 /// Try to parse MIR JSON v1 schema into a MIR module.
 /// Returns Ok(None) when the input is not v1 (schema_version missing).
 /// Currently supports a minimal subset required for Gate-C parity tests:
@@ -63,14 +91,15 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
             .ok_or_else(|| format!("function '{}' entry block missing id", func_name))?;
         let entry_bb = BasicBlockId::new(entry_id as u32);
 
+        let inferred_param_count = infer_param_count_from_v1_func(func, &func_name)?;
         let mut signature = FunctionSignature {
             name: func_name.clone(),
-            params: Vec::new(),
+            params: vec![MirType::Unknown; inferred_param_count],
             return_type: MirType::Unknown,
             effects: EffectMask::PURE,
         };
         let mut mir_fn = MirFunction::new(signature.clone(), entry_bb);
-        let mut max_value_id: u32 = 0;
+        let mut max_value_id: u32 = inferred_param_count as u32;
 
         for block in blocks {
             let block_id = block
@@ -134,9 +163,7 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                             dst: ValueId::new(dst),
                             src: ValueId::new(src),
                         });
-                        if dst >= max_value_id {
-                            max_value_id = dst + 1;
-                        }
+                        max_value_id = max_value_id.max(dst + 1).max(src + 1);
                     }
                     "binop" => {
                         let dst = require_u64(inst, "dst", "binop dst")? as u32;
@@ -155,7 +182,7 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                             lhs: ValueId::new(lhs),
                             rhs: ValueId::new(rhs),
                         });
-                        max_value_id = max_value_id.max(dst + 1);
+                        max_value_id = max_value_id.max(dst + 1).max(lhs + 1).max(rhs + 1);
                     }
                     "compare" => {
                         let dst = require_u64(inst, "dst", "compare dst")? as u32;
@@ -198,7 +225,7 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                             lhs: ValueId::new(lhs),
                             rhs: ValueId::new(rhs),
                         });
-                        max_value_id = max_value_id.max(dst + 1);
+                        max_value_id = max_value_id.max(dst + 1).max(lhs + 1).max(rhs + 1);
                     }
                     "branch" => {
                         let cond = require_u64(inst, "cond", "branch cond")? as u32;
@@ -211,6 +238,7 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                             then_edge_args: None,
                             else_edge_args: None,
                         });
+                        max_value_id = max_value_id.max(cond + 1);
                     }
                     "jump" => {
                         let target = require_u64(inst, "target", "jump target")? as u32;
@@ -228,7 +256,19 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                             inputs: pairs,
                             type_hint: None, // Phase 63-6
                         });
-                        max_value_id = max_value_id.max(dst + 1);
+                        let mut phi_max = dst + 1;
+                        for (_pred, value) in block_ref
+                            .instructions
+                            .last()
+                            .and_then(|i| match i {
+                                MirInstruction::Phi { inputs, .. } => Some(inputs.as_slice()),
+                                _ => None,
+                            })
+                            .unwrap_or(&[])
+                        {
+                            phi_max = phi_max.max(value.as_u32() + 1);
+                        }
+                        max_value_id = max_value_id.max(phi_max);
                     }
                     "ret" => {
                         let value = inst
@@ -326,6 +366,16 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                                     args: argv,
                                     effects,
                                 });
+                                if let Some(arg_max) =
+                                    block_ref.instructions.last().and_then(|i| match i {
+                                        MirInstruction::Call { args, .. } => {
+                                            args.iter().map(|v| v.as_u32()).max()
+                                        }
+                                        _ => None,
+                                    })
+                                {
+                                    max_value_id = max_value_id.max(arg_max + 1);
+                                }
                                 if let Some(d) = dst_opt {
                                     max_value_id = max_value_id.max(d.as_u32() + 1);
                                 }
@@ -354,6 +404,9 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                                     box_type: bt.to_string(),
                                     args: argv.clone(),
                                 });
+                                if let Some(arg_max) = argv.iter().map(|v| v.as_u32()).max() {
+                                    max_value_id = max_value_id.max(arg_max + 1);
+                                }
                                 max_value_id = max_value_id.max(dst.as_u32() + 1);
                             }
                             "Method" => {
@@ -398,6 +451,16 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                                     args: argv,
                                     effects,
                                 });
+                                if let Some(arg_max) =
+                                    block_ref.instructions.last().and_then(|i| match i {
+                                        MirInstruction::Call { args, .. } => {
+                                            args.iter().map(|v| v.as_u32()).max()
+                                        }
+                                        _ => None,
+                                    })
+                                {
+                                    max_value_id = max_value_id.max(arg_max + 1);
+                                }
                                 if let Some(d) = dst_opt {
                                     max_value_id = max_value_id.max(d.as_u32() + 1);
                                 }
@@ -510,6 +573,17 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                                         args: argv,
                                         effects,
                                     });
+                                    max_value_id = max_value_id.max(fid + 1);
+                                    if let Some(arg_max) =
+                                        block_ref.instructions.last().and_then(|i| match i {
+                                            MirInstruction::Call { args, .. } => {
+                                                args.iter().map(|v| v.as_u32()).max()
+                                            }
+                                            _ => None,
+                                        })
+                                    {
+                                        max_value_id = max_value_id.max(arg_max + 1);
+                                    }
                                     if let Some(d) = dst_opt {
                                         max_value_id = max_value_id.max(d.as_u32() + 1);
                                     }
@@ -533,6 +607,16 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                                     args: argv,
                                     effects: EffectMask::IO,
                                 });
+                                if let Some(arg_max) =
+                                    block_ref.instructions.last().and_then(|i| match i {
+                                        MirInstruction::Call { args, .. } => {
+                                            args.iter().map(|v| v.as_u32()).max()
+                                        }
+                                        _ => None,
+                                    })
+                                {
+                                    max_value_id = max_value_id.max(arg_max + 1);
+                                }
                                 if let Some(d) = dst_opt {
                                     max_value_id = max_value_id.max(d.as_u32() + 1);
                                 }
@@ -559,6 +643,17 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
                                     args: argv,
                                     effects,
                                 });
+                                max_value_id = max_value_id.max(fid + 1);
+                                if let Some(arg_max) =
+                                    block_ref.instructions.last().and_then(|i| match i {
+                                        MirInstruction::Call { args, .. } => {
+                                            args.iter().map(|v| v.as_u32()).max()
+                                        }
+                                        _ => None,
+                                    })
+                                {
+                                    max_value_id = max_value_id.max(arg_max + 1);
+                                }
                                 if let Some(d) = dst_opt {
                                     max_value_id = max_value_id.max(d.as_u32() + 1);
                                 }
@@ -582,7 +677,7 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
             }
         }
         mir_fn.signature = signature;
-        mir_fn.next_value_id = max_value_id;
+        mir_fn.next_value_id = max_value_id.max(mir_fn.next_value_id);
         module.add_function(mir_fn);
     }
 
@@ -640,5 +735,47 @@ mod tests {
                 (BasicBlockId::new(2), ValueId::new(3))
             ]
         );
+    }
+
+    #[test]
+    fn parse_v1_params_array_sets_function_arity() {
+        let payload = r#"{
+          "schema_version":"1.0",
+          "functions":[
+            {
+              "name":"AddOperator.apply/2",
+              "params":[0,1],
+              "blocks":[
+                { "id":0, "instructions":[
+                  {"op":"copy","dst":2,"src":0},
+                  {"op":"copy","dst":3,"src":1},
+                  {"op":"binop","operation":"+","lhs":2,"rhs":3,"dst":4},
+                  {"op":"ret","value":4}
+                ]}
+              ]
+            },
+            {
+              "name":"main",
+              "params":[],
+              "blocks":[
+                { "id":10, "instructions":[
+                  {"op":"const","dst":1,"value":{"type":"i64","value":2}},
+                  {"op":"const","dst":2,"value":{"type":"i64","value":3}},
+                  {"op":"ret","value":1}
+                ]}
+              ]
+            }
+          ]
+        }"#;
+
+        let module = try_parse_v1_to_module(payload)
+            .expect("v1 parse must succeed")
+            .expect("schema_version=1.0 must be handled");
+        let func = module
+            .get_function("AddOperator.apply/2")
+            .expect("operator function exists");
+        assert_eq!(func.signature.params.len(), 2);
+        assert_eq!(func.params, vec![ValueId::new(0), ValueId::new(1)]);
+        assert!(func.next_value_id >= 5);
     }
 }

@@ -17,6 +17,13 @@ pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
     skeleton: &mut GenericLoopSkeleton,
 ) -> Result<(), String> {
     let pre_body_map = builder.variable_ctx.variable_map.clone();
+    // Keep loop-step lowering anchored to the current header PHI in v0 route.
+    // Without this rebinding, post_body_map can retain the init value and
+    // step-only loops (e.g. i = i + k) become constant updates.
+    builder
+        .variable_ctx
+        .variable_map
+        .insert(facts.loop_var.clone(), skeleton.loop_var_current);
 
     let body_plans =
         generic_loop_body::lower_generic_loop_v0_body(builder, facts, &skeleton.phi_bindings, ctx)?;

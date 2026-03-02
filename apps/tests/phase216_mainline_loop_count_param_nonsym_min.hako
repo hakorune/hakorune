@@ -1,0 +1,10 @@
+static box Main {
+  method main() {
+    local n = 12
+    local i = 2
+    loop (i < n) {
+      i = i + 3
+    }
+    return i
+  }
+}
