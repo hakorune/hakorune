@@ -12,7 +12,7 @@ require_env || exit 2
 APP="$NYASH_ROOT/apps/tools/mir_shape_guard/main.hako"
 FIXTURE_HAKO="$NYASH_ROOT/apps/tests/phase29bq_joinir_port07_expr_unary_compare_logic_seed_min.hako"
 COLLAPSED_FIXTURE="$NYASH_ROOT/apps/tests/mir_shape_guard/collapsed_min.mir.json"
-EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 
 if [ ! -f "$APP" ]; then
   test_fail "mir_shape_guard_vm: app not found: $APP"
@@ -26,8 +26,8 @@ if [ ! -f "$COLLAPSED_FIXTURE" ]; then
   test_fail "mir_shape_guard_vm: collapsed fixture not found: $COLLAPSED_FIXTURE"
   exit 2
 fi
-if [ ! -f "$EMIT_HELPER" ]; then
-  test_fail "mir_shape_guard_vm: emit helper missing: $EMIT_HELPER"
+if [ ! -x "$EMIT_ROUTE" ]; then
+  test_fail "mir_shape_guard_vm: emit route helper missing/executable: $EMIT_ROUTE"
   exit 2
 fi
 
@@ -36,14 +36,12 @@ TMP_EMIT_LOG="$(mktemp /tmp/mir_shape_guard_emit.XXXXXX.log)"
 
 set +e
 env NYASH_DISABLE_PLUGINS=1 \
-    HAKO_SELFHOST_BUILDER_FIRST=1 \
-    HAKO_SELFHOST_NO_DELEGATE=1 \
     HAKO_JOINIR_STRICT=1 \
     HAKO_JOINIR_PLANNER_REQUIRED=1 \
     NYASH_JOINIR_STRICT=1 \
     NYASH_JOINIR_DEV=1 \
     NYASH_NY_COMPILER_TIMEOUT_MS=30000 \
-    bash "$EMIT_HELPER" "$FIXTURE_HAKO" "$TMP_MIR" >"$TMP_EMIT_LOG" 2>&1
+    "$EMIT_ROUTE" --route hako-mainline --timeout-secs 30 --out "$TMP_MIR" --input "$FIXTURE_HAKO" >"$TMP_EMIT_LOG" 2>&1
 rc_emit=$?
 set -e
 

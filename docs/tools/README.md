@@ -118,6 +118,12 @@ tools/hakorune_emit_mir_compat.sh <input.hako> <out.json>
 補足:
 - `tools/hakorune_emit_mir.sh` は互換用途も含む共通実装。
 - mainline 契約確認は `*_mainline.sh` を優先する。
+- smoke 共通 route wrapper:
+
+```bash
+tools/smokes/v2/lib/emit_mir_route.sh --route direct --timeout-secs 30 --out /tmp/out.mir.json --input apps/tests/fixture.hako
+tools/smokes/v2/lib/emit_mir_route.sh --route hako-mainline --timeout-secs 30 --out /tmp/out.mir.json --input apps/tests/fixture.hako
+```
 
 ## 8. Perf Gate Preset Runner (Phase 21.5)
 

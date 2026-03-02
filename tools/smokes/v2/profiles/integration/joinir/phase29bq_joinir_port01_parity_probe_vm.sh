@@ -32,9 +32,9 @@ if [ ! -f "$FIXTURE" ]; then
   exit 2
 fi
 
-EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
-if [ ! -f "$EMIT_HELPER" ]; then
-  test_fail "$SMOKE_NAME: helper missing: $EMIT_HELPER"
+EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
+if [ ! -x "$EMIT_ROUTE" ]; then
+  test_fail "$SMOKE_NAME: emit route helper missing/executable: $EMIT_ROUTE"
   exit 2
 fi
 
@@ -113,19 +113,18 @@ RUST_ROUTE_ENV=(
 
 HAKO_ROUTE_ENV=(
 )
+HAKO_ROUTE_KIND="direct"
 
 if [ "$HAKO_ROUTE_EXPECT" = "selfhost-first" ]; then
-  HAKO_ROUTE_ENV+=(HAKO_SELFHOST_BUILDER_FIRST=1)
-  HAKO_ROUTE_ENV+=(HAKO_SELFHOST_NO_DELEGATE=1)
+  HAKO_ROUTE_KIND="hako-mainline"
 else
-  HAKO_ROUTE_ENV+=(HAKO_EMIT_MIR_FORCE_DIRECT=1)
+  HAKO_ROUTE_KIND="direct"
 fi
 
 run_route_with_log() {
-  local timeout_secs="$1"
-  local log_path="$2"
-  shift 2
-  timeout "$timeout_secs" env "$@" >"$log_path" 2>&1
+  local log_path="$1"
+  shift
+  env "$@" >"$log_path" 2>&1
 }
 
 canonicalize_main_signature() {
@@ -141,19 +140,17 @@ canonicalize_main_signature() {
 
 set +e
 run_route_with_log \
-  "$RUN_TIMEOUT_SECS" \
   "$RUST_LOG" \
   "${COMMON_ENV[@]}" \
   "${RUST_ROUTE_ENV[@]}" \
-  "$NYASH_BIN" --emit-mir-json "$TMP_RUST_MIR" "$FIXTURE"
+  "$EMIT_ROUTE" --route direct --timeout-secs "$RUN_TIMEOUT_SECS" --out "$TMP_RUST_MIR" --input "$FIXTURE"
 rc_rust=$?
 
 run_route_with_log \
-  "$RUN_TIMEOUT_SECS" \
   "$HAKO_LOG" \
   "${COMMON_ENV[@]}" \
   "${HAKO_ROUTE_ENV[@]}" \
-  bash "$EMIT_HELPER" "$FIXTURE" "$TMP_HAKO_MIR"
+  "$EMIT_ROUTE" --route "$HAKO_ROUTE_KIND" --timeout-secs "$RUN_TIMEOUT_SECS" --out "$TMP_HAKO_MIR" --input "$FIXTURE"
 rc_hako=$?
 set -e
 

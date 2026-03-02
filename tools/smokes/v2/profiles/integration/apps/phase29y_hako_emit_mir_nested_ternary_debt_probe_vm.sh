@@ -17,7 +17,7 @@ RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-25}"
 STRICT="${STRICT:-0}"
 ROUTE_JOINIR_STRICT="${HAKO_JOINIR_STRICT:-1}"
 ROUTE_JOINIR_PLANNER_REQUIRED="${HAKO_JOINIR_PLANNER_REQUIRED:-1}"
-EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 
 if ! [[ "$RUN_TIMEOUT_SECS" =~ ^[0-9]+$ ]]; then
   test_fail "$SMOKE_NAME: timeout must be integer: $RUN_TIMEOUT_SECS"
@@ -34,8 +34,8 @@ if [ ! -f "$INPUT" ]; then
   exit 2
 fi
 
-if [ ! -f "$EMIT_HELPER" ]; then
-  test_fail "$SMOKE_NAME: helper missing: $EMIT_HELPER"
+if [ ! -x "$EMIT_ROUTE" ]; then
+  test_fail "$SMOKE_NAME: emit route helper missing/executable: $EMIT_ROUTE"
   exit 2
 fi
 
@@ -75,7 +75,7 @@ HAKO_BASE_ENV=(
 set +e
 RUST_OUTPUT=$(timeout "$RUN_TIMEOUT_SECS" env \
   "${RUST_BASE_ENV[@]}" \
-  "$NYASH_BIN" --emit-mir-json "$TMP_RUST_MIR" "$INPUT" 2>&1)
+  "$EMIT_ROUTE" --route direct --timeout-secs 0 --out "$TMP_RUST_MIR" --input "$INPUT" 2>&1)
 RUST_RC=$?
 set -e
 
@@ -99,7 +99,7 @@ fi
 set +e
 HAKO_OUTPUT=$(timeout "$RUN_TIMEOUT_SECS" env \
   "${HAKO_BASE_ENV[@]}" \
-  bash "$EMIT_HELPER" "$INPUT" "$TMP_HAKO_MIR" 2>&1)
+  "$EMIT_ROUTE" --route hako-mainline --timeout-secs 0 --out "$TMP_HAKO_MIR" --input "$INPUT" 2>&1)
 HAKO_RC=$?
 set -e
 

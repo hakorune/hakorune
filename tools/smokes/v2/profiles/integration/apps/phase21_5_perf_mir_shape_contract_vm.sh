@@ -11,10 +11,21 @@ source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
 SMOKE_NAME="phase21_5_perf_mir_shape_contract_vm"
-EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
+# Keep legacy-stable behavior by default; direct route can be probed via EMIT_ROUTE_KIND=direct.
+EMIT_ROUTE_KIND="${EMIT_ROUTE_KIND:-hako-helper}"
+EMIT_TIMEOUT_SECS="${EMIT_TIMEOUT_SECS:-30}"
 
-if [ ! -f "$EMIT_HELPER" ]; then
-  test_fail "$SMOKE_NAME: emit helper missing: $EMIT_HELPER"
+if [ ! -x "$EMIT_ROUTE" ]; then
+  test_fail "$SMOKE_NAME: emit route helper missing/executable: $EMIT_ROUTE"
+  exit 2
+fi
+if [ "$EMIT_ROUTE_KIND" != "direct" ] && [ "$EMIT_ROUTE_KIND" != "hako-mainline" ] && [ "$EMIT_ROUTE_KIND" != "hako-helper" ]; then
+  test_fail "$SMOKE_NAME: EMIT_ROUTE_KIND must be direct|hako-mainline|hako-helper (actual=$EMIT_ROUTE_KIND)"
+  exit 2
+fi
+if ! [[ "$EMIT_TIMEOUT_SECS" =~ ^[0-9]+$ ]]; then
+  test_fail "$SMOKE_NAME: EMIT_TIMEOUT_SECS must be integer: $EMIT_TIMEOUT_SECS"
   exit 2
 fi
 
@@ -42,7 +53,7 @@ run_case() {
   fi
 
   set +e
-  bash "$EMIT_HELPER" "$input" "$tmp_mir" >"$tmp_log" 2>&1
+  "$EMIT_ROUTE" --route "$EMIT_ROUTE_KIND" --timeout-secs "$EMIT_TIMEOUT_SECS" --out "$tmp_mir" --input "$input" >"$tmp_log" 2>&1
   local rc=$?
   set -e
   if [ "$rc" -ne 0 ]; then

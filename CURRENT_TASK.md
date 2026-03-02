@@ -183,9 +183,11 @@ status (2026-03-02):
 2. perf SSOT 置換:
    - 対象: `tools/perf/lib/aot_helpers.sh` と呼び出し元ベンチ群。
    - 目的: `PERF_AOT_PREFER_HELPER` / `PERF_AOT_HELPER_ONLY` を縮退し、strict は direct 優先に固定。
+   - status (2026-03-02): `_hk` lane は `PERF_AOT_DIRECT_ONLY=1` を既定化し、AOT route 行に `aot_direct_only` を追加（helper への暗黙退避を fail-fast 化）。
 3. smoke 共通化:
    - 対象: `tools/smokes/v2/profiles/**`（helper 参照群）
    - 目的: emit 呼び出しを `tools/smokes/v2/lib/` の共通関数へ集約し、一括置換を可能にする。
+   - status (2026-03-02): 共通 wrapper `tools/smokes/v2/lib/emit_mir_route.sh` を追加し、active smoke（concat3 / phase29y nested ternary / joinir port01 / mir_shape_guard / perf_mir_shape）を route 指定呼び出しへ移行。
 4. check 置換:
    - 対象: `tools/hako_check.sh`, `tools/test_stageb_using.sh`, `test_numeric_core_phi.sh`
    - 目的: helper 依存と `|| true` 握りを整理し、direct 経路で fail-fast 契約へ統一。
@@ -231,7 +233,7 @@ status (2026-03-02):
 
 - `tools/checks/dev_gate.sh quick`（推奨: 日常の軽量セット）
 - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_concat3_assoc_contract_vm.sh`（concat3-normalization min1 contract）
-- `rg -n "hakorune_emit_mir(_mainline|_compat)?\\.sh|PERF_AOT_(PREFER_HELPER|HELPER_ONLY)|EMIT_HELPER" tools`（helper撤去の残件監査）
+- `rg -n "hakorune_emit_mir(_mainline|_compat)?\\.sh|PERF_AOT_(DIRECT_ONLY|PREFER_HELPER|HELPER_ONLY)|EMIT_HELPER|emit_mir_route\\.sh" tools`（helper撤去の残件監査）
 - `tools/checks/dev_gate.sh runtime-exec-zero`（no-compat mainline guard）
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 - `HAKO_EMIT_MIR_MAINLINE_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --reuse-if-fresh 1`

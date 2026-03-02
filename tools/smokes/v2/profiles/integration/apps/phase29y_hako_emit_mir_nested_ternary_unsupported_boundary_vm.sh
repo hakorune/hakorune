@@ -11,6 +11,7 @@ require_env || exit 2
 
 SMOKE_NAME="phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm"
 INPUT_FIXTURE="${NYASH_ROOT}/apps/tests/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_min.hako"
+EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 TMP_RUST_MIR="$(mktemp /tmp/phase29y_nested_ternary_unsupported_rust.XXXXXX.json)"
 TMP_HAKO_MIR="$(mktemp /tmp/phase29y_nested_ternary_unsupported_hako.XXXXXX.json)"
 
@@ -23,6 +24,10 @@ if [ ! -f "${INPUT_FIXTURE}" ]; then
   test_fail "${SMOKE_NAME}: fixture missing: ${INPUT_FIXTURE}"
   exit 2
 fi
+if [ ! -x "$EMIT_ROUTE" ]; then
+  test_fail "${SMOKE_NAME}: emit route helper missing/executable: $EMIT_ROUTE"
+  exit 2
+fi
 
 set +e
 RUST_OUT="$(env \
@@ -33,7 +38,7 @@ RUST_OUT="$(env \
   NYASH_JOINIR_STRICT=0 \
   HAKO_JOINIR_STRICT="${HAKO_JOINIR_STRICT:-1}" \
   HAKO_JOINIR_PLANNER_REQUIRED="${HAKO_JOINIR_PLANNER_REQUIRED:-1}" \
-  "${NYASH_BIN}" --emit-mir-json "${TMP_RUST_MIR}" "${INPUT_FIXTURE}" 2>&1)"
+  "$EMIT_ROUTE" --route direct --timeout-secs 0 --out "${TMP_RUST_MIR}" --input "${INPUT_FIXTURE}" 2>&1)"
 RUST_RC=$?
 
 HAKO_OUT="$(env \
@@ -44,10 +49,7 @@ HAKO_OUT="$(env \
   NYASH_JOINIR_STRICT=0 \
   HAKO_JOINIR_STRICT="${HAKO_JOINIR_STRICT:-1}" \
   HAKO_JOINIR_PLANNER_REQUIRED="${HAKO_JOINIR_PLANNER_REQUIRED:-1}" \
-  HAKO_SELFHOST_BUILDER_FIRST=1 \
-  HAKO_SELFHOST_NO_DELEGATE=1 \
-  HAKO_EMIT_MIR_MAINLINE_ONLY=1 \
-  bash "${NYASH_ROOT}/tools/hakorune_emit_mir.sh" "${INPUT_FIXTURE}" "${TMP_HAKO_MIR}" 2>&1)"
+  "$EMIT_ROUTE" --route hako-mainline --timeout-secs 0 --out "${TMP_HAKO_MIR}" --input "${INPUT_FIXTURE}" 2>&1)"
 HAKO_RC=$?
 set -e
 
