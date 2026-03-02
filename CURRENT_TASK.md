@@ -147,6 +147,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 11. `build-maintenance`（cargo）は host 保守時のみ実行する。
 12. Rust source は保存固定とし、削除タスクは当面起票しない（明示指示が出るまで停止）。
 13. 最適化 lane（micro/asm -> kilo）は helper撤去の build 導線 lock 後に進める。
+14. phase216 mainline blocker pin:
+   - loop emit blocker（`LowerLoopSimpleBox.try_lower/1` undefined ValueId）を fixture+block canary で固定。
+   - binop は baseline（`1+2 => 3`）と precedence blocker（`1+2*3 != 7`）を分離して監視する。
 
 ## Concat3 Normalization Pack (active / ordered)
 

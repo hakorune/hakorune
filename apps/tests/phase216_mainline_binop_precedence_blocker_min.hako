@@ -1,0 +1,5 @@
+static box Main {
+  method main() {
+    return 1 + 2 * 3
+  }
+}
