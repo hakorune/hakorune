@@ -715,7 +715,8 @@ static box MirVmS0Box {
         me._reg_kind_set(kinds, dst_len, "scalar")
         return "__NEXT__"
       }
-      return MirVmS0BoxcallExecBox.apply_length(box_recv, dst_len, regs, kinds, array_lens)
+      local box_key_len = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      return MirVmS0BoxcallExecBox.apply_length(box_key_len, dst_len, regs, kinds, array_lens)
     }
 
     if method == "indexOf" {
@@ -772,7 +773,17 @@ static box MirVmS0Box {
     if method == "push" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local push_arg0 = me._args_first(seg)
-      return MirVmS0BoxcallExecBox.apply_push(box_recv, push_arg0, array_lens)
+      local box_key_push = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      return MirVmS0BoxcallExecBox.apply_push(box_key_push, push_arg0, regs, array_lens)
+    }
+
+    if method == "get" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_get = me._find_int(seg, "dst")
+      if dst_get == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local get_arg0 = me._args_first(seg)
+      local box_key_get = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      return MirVmS0BoxcallExecBox.apply_get(box_key_get, get_arg0, dst_get, regs, kinds, array_lens)
     }
 
     local dst_box = me._find_int(seg, "dst")

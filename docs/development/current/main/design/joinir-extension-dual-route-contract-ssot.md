@@ -53,9 +53,7 @@ Related:
   - `apps/tests/phase29bq_selfhost_blocker_phi_injector_collect_phi_vars_nested_loop_no_exit_var_step_min.hako`
 - current boundary (GREEN for planner path):
   - rust reference route: `18` and `RC: 0`
-  - hako mainline route: planner freeze は再発していない（lane tag=`vm-hako`）
-  - known monitor-only gap:
-    - runtime subset marker: `[vm-hako/unimplemented op=boxcall1 method=get]`（RC=1 を許容監視）
+  - hako mainline route: `18` and `RC: 0`（lane tag=`vm-hako`）
 - scope:
   - Planner-required で `Pattern1` を通過した後、`main` の loop-cond lowering で `None -> freeze` になる shape を受理対象にする。
 - non-goal:
@@ -77,8 +75,8 @@ Related:
   - `tools/smokes/v2/profiles/integration/joinir/phase29c0_joinir_ext_shape01_red_seed_vm.sh`
 - lock policy:
   1. rust reference route（`NYASH_VM_HAKO_PREFER_STRICT_DEV=0`）で GREEN (`18`, `RC:0`) を確認する。
-  2. hako mainline route（`NYASH_VM_HAKO_PREFER_STRICT_DEV=1`）で planner freeze 不在と lane tag=`vm-hako` を確認する。
-  3. 既知の runtime subset gap marker（`[vm-hako/unimplemented op=boxcall1 method=get]`）以外の non-zero は拒否する。
+  2. hako mainline route（`NYASH_VM_HAKO_PREFER_STRICT_DEV=1`）で GREEN (`18`, `RC:0`) と lane tag=`vm-hako` を確認する。
+  3. 両 route で non-zero は拒否する。
   4. 両方で route report と lane tag を確認し、fallback drift を拒否する。
 
 ### JIR-EXT-02: `.hako` Mainline Implementation

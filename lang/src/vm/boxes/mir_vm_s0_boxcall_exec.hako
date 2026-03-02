@@ -9,22 +9,37 @@ static box MirVmS0BoxcallExecBox {
       MirVmS0StateOpsBox.box_len_set(array_lens, box_birth, 0)
     }
     if dst_birth != null {
-      regs.set("" + dst_birth, "0")
+      regs.set("" + dst_birth, "" + dst_birth)
       kinds.set("" + dst_birth, "box")
       MirVmS0StateOpsBox.box_len_set(array_lens, dst_birth, 0)
     }
     return "__NEXT__"
   }
 
-  apply_push(box_recv, arg0_box, array_lens) {
+  apply_push(box_key, arg0_box, regs, array_lens) {
     if arg0_box == null { return "[vm-hako/contract][boxcall-arg0-missing]" }
-    local cur_len = MirVmS0StateOpsBox.box_len_get(array_lens, box_recv)
-    MirVmS0StateOpsBox.box_len_set(array_lens, box_recv, cur_len + 1)
+    local cur_len = MirVmS0StateOpsBox.box_len_get(array_lens, box_key)
+    local push_val = MirVmS0StateOpsBox.reg_i64_get(regs, arg0_box)
+    MirVmS0StateOpsBox.array_val_set(array_lens, box_key, cur_len, push_val)
+    MirVmS0StateOpsBox.box_len_set(array_lens, box_key, cur_len + 1)
     return "__NEXT__"
   }
 
-  apply_length(box_recv, dst_box, regs, kinds, array_lens) {
-    regs.set("" + dst_box, "" + MirVmS0StateOpsBox.box_len_get(array_lens, box_recv))
+  apply_get(box_key, index_reg, dst_box, regs, kinds, array_lens) {
+    if index_reg == null { return "[vm-hako/contract][boxcall-get-arg0-missing]" }
+    local idx = MirVmS0StateOpsBox.reg_i64_get(regs, index_reg)
+    local len = MirVmS0StateOpsBox.box_len_get(array_lens, box_key)
+    local out = 0
+    if idx >= 0 && idx < len {
+      out = MirVmS0StateOpsBox.array_val_get(array_lens, box_key, idx)
+    }
+    regs.set("" + dst_box, "" + out)
+    kinds.set("" + dst_box, "scalar")
+    return "__NEXT__"
+  }
+
+  apply_length(box_key, dst_box, regs, kinds, array_lens) {
+    regs.set("" + dst_box, "" + MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
     kinds.set("" + dst_box, "scalar")
     return "__NEXT__"
   }

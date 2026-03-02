@@ -47,6 +47,20 @@ static box MirVmS0StateOpsBox {
     me.box_len_set(array_lens, dst, me.box_len_get(array_lens, src))
   }
 
+  _array_val_key(box_id, index) {
+    return "v:" + box_id + ":" + me._to_i64(index)
+  }
+
+  array_val_set(array_lens, box_id, index, value) {
+    array_lens.set(me._array_val_key(box_id, index), "" + me._to_i64(value))
+  }
+
+  array_val_get(array_lens, box_id, index) {
+    local v = me.map_get_or_null(array_lens, me._array_val_key(box_id, index))
+    if v == null { return 0 }
+    return me._to_i64(v)
+  }
+
   handle_get(handle_regs, id) {
     return me.map_get_or_null(handle_regs, id)
   }

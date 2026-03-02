@@ -38,7 +38,6 @@ run_green_route() {
   local kernel_lane="$5"
   local joinir_lane="$6"
   local expected_line="$7"
-  local allow_known_subset_gap="${8:-0}"
 
   joinir_route_report_emit "$vm_lane" "$kernel_lane" "$joinir_lane" "backend-vm"
   joinir_route_report_require_no_fallback || return 1
@@ -82,12 +81,6 @@ run_green_route() {
       echo "$output" | tail -n 120 >&2 || true
       return 1
     fi
-  elif [ "$allow_known_subset_gap" = "1" ]; then
-    if ! grep -q "\\[vm-hako/unimplemented op=boxcall1 method=get\\]" <<<"$output"; then
-      echo "[FAIL] $SMOKE_NAME[$label]: non-zero rc without known vm-hako subset marker" >&2
-      echo "$output" | tail -n 120 >&2 || true
-      return 1
-    fi
   else
     echo "[FAIL] $SMOKE_NAME[$label]: expected GREEN (rc=0), got rc=$rc" >&2
     echo "$output" | tail -n 80 >&2 || true
@@ -97,14 +90,14 @@ run_green_route() {
   return 0
 }
 
-run_green_route "rust-reference" "0" "vm" "rust" "rust" "rust" "$EXPECTED_LINE" "0" || {
+run_green_route "rust-reference" "0" "vm" "rust" "rust" "rust" "$EXPECTED_LINE" || {
   test_fail "$SMOKE_NAME: rust-reference green lock failed"
   exit 1
 }
 
-run_green_route "hako-mainline" "1" "vm-hako" "hako" "hako" "hako" "$EXPECTED_LINE" "1" || {
+run_green_route "hako-mainline" "1" "vm-hako" "hako" "hako" "hako" "$EXPECTED_LINE" || {
   test_fail "$SMOKE_NAME: hako-mainline green lock failed"
   exit 1
 }
 
-test_pass "$SMOKE_NAME: PASS (green acceptance locked; vm-hako subset-gap marker explicitly tolerated)"
+test_pass "$SMOKE_NAME: PASS (green acceptance locked on both routes)"
