@@ -423,7 +423,17 @@ fn build_if_item(
             {
                 return Some(LoopCondBreakContinueItem::GeneralIf(recipe));
             }
-
+            if allow_extended
+                && is_supported_bool_expr_with_canon(condition, allow_extended)
+                && !stmt.contains_non_local_exit_outside_loops()
+            {
+                // Use ProgramBlock(None) so lowering goes through `lower_loop_cond_stmt`,
+                // which supports generic if-join fallback for branch-local nested loops.
+                return Some(LoopCondBreakContinueItem::ProgramBlock {
+                    stmt: stmt_ref,
+                    stmt_only: None,
+                });
+            }
             None
         }
         None => {
@@ -438,7 +448,10 @@ fn build_if_item(
                     && !stmt.contains_non_local_exit_outside_loops()
                 {
                     *conditional_update_seen += 1;
-                    return Some(LoopCondBreakContinueItem::Stmt(stmt_ref));
+                    return Some(LoopCondBreakContinueItem::ProgramBlock {
+                        stmt: stmt_ref,
+                        stmt_only: None,
+                    });
                 }
             }
             if allow_extended
@@ -453,6 +466,13 @@ fn build_if_item(
                         stmt_ref,
                         Some(exit_allowed_block),
                     ));
+                }
+                if is_supported_bool_expr_with_canon(condition, allow_extended) {
+                    *conditional_update_seen += 1;
+                    return Some(LoopCondBreakContinueItem::ProgramBlock {
+                        stmt: stmt_ref,
+                        stmt_only: None,
+                    });
                 }
             }
             None

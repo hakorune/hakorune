@@ -66,8 +66,16 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
             return Ok(None);
         }
     }
+    let body_exit_allowed_probe = if allow_extended && counts.return_count > 0 {
+        try_build_exit_allowed_block_recipe(body, allow_extended)
+    } else {
+        None
+    };
     if counts.return_count > 0 {
-        if !allow_extended || !returns_only_in_exit_if(body, allow_extended) {
+        let returns_shape_ok = returns_only_in_exit_if(body, allow_extended);
+        let allow_return_via_exit_allowed =
+            allow_extended && body_exit_allowed_probe.is_some();
+        if !allow_extended || (!returns_shape_ok && !allow_return_via_exit_allowed) {
             log_reject(
                 "loop_cond_break_continue",
                 RejectReason::ReturnInBody,
@@ -241,7 +249,9 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
 
     let body_exit_allowed = match body_lowering_policy {
         BodyLoweringPolicy::ExitAllowed { .. } => {
-            try_build_exit_allowed_block_recipe(body, allow_extended)
+            body_exit_allowed_probe
+                .clone()
+                .or_else(|| try_build_exit_allowed_block_recipe(body, allow_extended))
         }
         BodyLoweringPolicy::RecipeOnly => None,
     };

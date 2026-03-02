@@ -44,12 +44,16 @@ impl PlannerGate {
 }
 
 fn freeze_planner_required_none(ctx: &LoopPatternContext) -> String {
-    planner::Freeze::contract(&format!(
+    let mut msg = format!(
         "planner required, but planner returned None (legacy fallback forbidden): func={} cond={} body_len={}",
         ctx.func_name,
         ctx.condition.node_type(),
         ctx.body.len()
-    ))
+    );
+    if let Some(detail) = crate::mir::builder::control_flow::plan::facts::reject_reason::take_last_plan_reject_detail() {
+        msg.push_str(&format!("\nDetail: [joinir/reject_detail] {detail}"));
+    }
+    planner::Freeze::contract(&msg)
     .with_hint("Disable HAKO_JOINIR_PLANNER_REQUIRED, or extend Facts→Planner coverage for this case.")
     .to_string()
 }

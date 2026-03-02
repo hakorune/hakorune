@@ -199,10 +199,23 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
                 "generic_loop_v1: cannot build recipe for body",
             ));
         }
+        let detailed_reject = format!(
+            "box=generic_loop_v1 reason=no_valid_loop_var_candidates raw={} no_increment={} step_placement_none={} control_flow_after_step={} step_invalid={} recipe_unbuildable={} v0_guard={}",
+            raw_candidates,
+            reject_no_increment,
+            reject_step_placement_none,
+            reject_control_flow_after_step,
+            reject_step_invalid,
+            reject_recipe_unbuildable,
+            reject_v0_guard
+        );
         log_reject(
             "generic_loop_v1",
             RejectReason::NoValidLoopVarCandidates,
             handoff_tables::for_generic_loop,
+        );
+        crate::mir::builder::control_flow::plan::facts::reject_reason::set_last_plan_reject_detail(
+            detailed_reject,
         );
         return Ok(None);
     }
