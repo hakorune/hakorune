@@ -14,10 +14,11 @@ impl NyashRunner {
 
         // Quiet mode for child pipelines (e.g., selfhost compiler JSON emit)
         let quiet_pipe = crate::config::env::env_bool("NYASH_JSON_ONLY");
-        if std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() == Some("1") {
+        let emit_trace = std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() == Some("1");
+        if emit_trace {
             let ring0 = crate::runtime::ring0::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[runner/vm] entry file={} quiet_pipe={} mode=stage-b?{}",
+            ring0.log.info(&format!(
+                "[runner/vm:emit-trace] phase=entry file={} quiet_pipe={} mode=stage-b?{}",
                 filename,
                 quiet_pipe,
                 std::env::var("HAKO_STAGEB_TRACE")
@@ -220,6 +221,13 @@ impl NyashRunner {
         );
 
         // Parse main code (after text-merge and Hako normalization)
+        if emit_trace {
+            let ring0 = crate::runtime::ring0::get_global_ring0();
+            ring0.log.info(&format!(
+                "[runner/vm:emit-trace] phase=parse.begin merged_bytes={}",
+                code_final.len()
+            ));
+        }
         let ast_combined = match NyashParser::parse_from_string(&code_final) {
             Ok(ast) => ast,
             Err(e) => {
@@ -250,6 +258,18 @@ impl NyashRunner {
                 process::exit(1);
             }
         };
+        if emit_trace {
+            let ring0 = crate::runtime::ring0::get_global_ring0();
+            let top_level_stmt_count = if let ASTNode::Program { statements, .. } = &ast_combined {
+                statements.len()
+            } else {
+                0
+            };
+            ring0.log.info(&format!(
+                "[runner/vm:emit-trace] phase=parse.done top_level_statements={}",
+                top_level_stmt_count
+            ));
+        }
 
         // Optional: dump AST statement kinds for quick diagnostics
         if std::env::var("NYASH_AST_DUMP").ok().as_deref() == Some("1") {
@@ -284,9 +304,29 @@ impl NyashRunner {
         }
 
         // Macro expand (if enabled)
+        if emit_trace {
+            let ring0 = crate::runtime::ring0::get_global_ring0();
+            ring0.log.info("[runner/vm:emit-trace] phase=macro.begin");
+        }
         let ast = crate::r#macro::maybe_expand_and_dump(&ast_combined, false);
+        if emit_trace {
+            let ring0 = crate::runtime::ring0::get_global_ring0();
+            let top_level_stmt_count = if let ASTNode::Program { statements, .. } = &ast {
+                statements.len()
+            } else {
+                0
+            };
+            ring0.log.info(&format!(
+                "[runner/vm:emit-trace] phase=macro.done top_level_statements={}",
+                top_level_stmt_count
+            ));
+        }
 
         // Minimal user-defined Box support (inline factory)
+        if emit_trace {
+            let ring0 = crate::runtime::ring0::get_global_ring0();
+            ring0.log.info("[runner/vm:emit-trace] phase=user-factory.begin");
+        }
         let static_box_decls = {
             use crate::{
                 box_factory::{BoxFactory, RuntimeError},
@@ -462,8 +502,19 @@ impl NyashRunner {
             // Return static_box_decls for VM registration
             static_box_decls
         };
+        if emit_trace {
+            let ring0 = crate::runtime::ring0::get_global_ring0();
+            ring0.log.info(&format!(
+                "[runner/vm:emit-trace] phase=user-factory.done static_boxes={}",
+                static_box_decls.len()
+            ));
+        }
 
         // Compile to MIR
+        if emit_trace {
+            let ring0 = crate::runtime::ring0::get_global_ring0();
+            ring0.log.info("[runner/vm:emit-trace] phase=compile.begin");
+        }
         let mut compiler = MirCompiler::with_options(!self.config.no_optimize);
         let compile = match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
             &mut compiler,
@@ -477,6 +528,13 @@ impl NyashRunner {
                 process::exit(1);
             }
         };
+        if emit_trace {
+            let ring0 = crate::runtime::ring0::get_global_ring0();
+            ring0.log.info(&format!(
+                "[runner/vm:emit-trace] phase=compile.done functions={}",
+                compile.module.functions.len()
+            ));
+        }
 
         // Optional barrier-elision for parity with fallback path
         let mut module_vm = compile.module.clone();
@@ -578,18 +636,18 @@ impl NyashRunner {
         // Routing logic is centralized in join_ir_vm_bridge_dispatch module
         try_run_joinir_vm_bridge(&module_vm, quiet_pipe);
 
-        if std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() == Some("1") {
+        if emit_trace {
             let ring0 = crate::runtime::ring0::get_global_ring0();
-            ring0.log.debug("[runner/vm] calling execute_module");
+            ring0.log.info("[runner/vm:emit-trace] phase=execute.begin");
         }
         match vm.execute_module(&module_vm) {
             Ok(ret) => {
                 use crate::box_trait::{BoolBox, IntegerBox};
 
-                if std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() == Some("1") {
+                if emit_trace {
                     let ring0 = crate::runtime::ring0::get_global_ring0();
-                    ring0.log.debug(&format!(
-                        "[runner/vm] vm_result={}",
+                    ring0.log.info(&format!(
+                        "[runner/vm:emit-trace] phase=execute.done result={}",
                         ret.to_string_box().value
                     ));
                 }

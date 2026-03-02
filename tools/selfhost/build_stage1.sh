@@ -76,12 +76,12 @@ Defaults:
     output exe  : target/selfhost/hakorune.stage1_cli
 
 Notes:
-  - This script uses the Stage-B + MirBuilder pipeline:
+  - This script uses selfhost_exe_stageb helper-free emit + ny_mir_builder pipeline:
       <entry.hako>
-        → tools/hakorune_emit_mir.sh (Program(JSON v0 → MIR JSON)
+        → tools/selfhost_exe_stageb.sh (route selectable via HAKORUNE_STAGE1_EMIT_ROUTE)
         → tools/ny_mir_builder.sh --emit exe
   - The Rust binary (Stage0) is treated as bootstrap and is resolved via
-    the existing helpers inside hakorune_emit_mir.sh / ny_mir_builder.sh.
+    selfhost_exe_stageb.sh / ny_mir_builder.sh.
   - Default timeout is 900 seconds to avoid hanging forever on large launcher builds.
     Set --timeout-secs 0 to disable timeout.
   - Default reuse mode is enabled (`--reuse-if-fresh 1`) to speed up daily loops.
@@ -181,7 +181,6 @@ FRESH_DEPS=(
   "$ENTRY"
   "$ROOT/tools/selfhost/build_stage1.sh"
   "$ROOT/tools/selfhost_exe_stageb.sh"
-  "$ROOT/tools/hakorune_emit_mir.sh"
   "$ROOT/tools/ny_mir_builder.sh"
   "$ROOT/tools/selfhost/lib/stage1_contract.sh"
   "$ROOT/lang/src/compiler/entry/compiler_stageb.hako"

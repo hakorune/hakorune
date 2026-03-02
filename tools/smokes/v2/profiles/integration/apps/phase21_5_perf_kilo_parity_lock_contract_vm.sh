@@ -13,7 +13,7 @@ source "$(dirname "$0")/../../../lib/perf_crosslang_contract.sh"
 require_env || exit 2
 
 SMOKE_NAME="phase21_5_perf_kilo_parity_lock_contract_vm"
-KEY="kilo_kernel_small"
+KEY="kilo_kernel_small_hk"
 SCRIPT="${NYASH_ROOT}/tools/perf/bench_compare_c_py_vs_hako.sh"
 MIN_RATIO="${PERF_KILO_PARITY_MIN_RATIO:-0.95}"
 
@@ -28,6 +28,7 @@ set +e
 OUTPUT=$(
   PERF_VM_TIMEOUT="${PERF_VM_TIMEOUT:-60s}" \
   HAKO_VM_MAX_STEPS="${HAKO_VM_MAX_STEPS:-300000000}" \
+  PERF_VM_FORCE_NO_FALLBACK=1 \
   "${SCRIPT}" "${KEY}" 1 3 2>&1
 )
 RC=$?

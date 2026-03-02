@@ -7,6 +7,7 @@ perf_crosslang_require_inputs() {
   local script_path="$2"
   local key="$3"
   local root="${NYASH_ROOT:-}"
+  local dataset_key="${key}"
 
   if [[ -z "${root}" ]]; then
     test_fail "${smoke_name}: NYASH_ROOT is not set"
@@ -17,15 +18,20 @@ perf_crosslang_require_inputs() {
     test_fail "${smoke_name}: Script not executable: ${script_path}"
     return 1
   fi
-  if [[ ! -f "${root}/benchmarks/bench_${key}.hako" ]]; then
+  if [[ -f "${root}/tools/perf/lib/bench_key_alias.sh" ]]; then
+    # shellcheck source=tools/perf/lib/bench_key_alias.sh
+    source "${root}/tools/perf/lib/bench_key_alias.sh"
+    dataset_key="$(perf_resolve_bench_dataset_key "${key}")"
+  fi
+  if [[ ! -f "${root}/benchmarks/bench_${dataset_key}.hako" ]]; then
     test_fail "${smoke_name}: Hako benchmark not found"
     return 1
   fi
-  if [[ ! -f "${root}/benchmarks/c/bench_${key}.c" ]]; then
+  if [[ ! -f "${root}/benchmarks/c/bench_${dataset_key}.c" ]]; then
     test_fail "${smoke_name}: C benchmark not found"
     return 1
   fi
-  if [[ ! -f "${root}/benchmarks/python/bench_${key}.py" ]]; then
+  if [[ ! -f "${root}/benchmarks/python/bench_${dataset_key}.py" ]]; then
     test_fail "${smoke_name}: Python benchmark not found"
     return 1
   fi
@@ -64,4 +70,35 @@ perf_crosslang_assert_output() {
       return 1
     fi
   done
+
+  if ! printf '%s\n' "${output}" | grep -q "\[bench4-route\] name=${key} "; then
+    printf '%s\n' "${output}" | tail -n 40 || true
+    test_fail "${smoke_name}: Missing [bench4-route] marker for ${key}"
+    return 1
+  fi
+  for route_key in kernel_lane fallback_guard vm_engine vm_lane route_probe result_parity; do
+    if ! printf '%s\n' "${output}" | grep -qE "${route_key}=[^[:space:]]+"; then
+      printf '%s\n' "${output}" | tail -n 40 || true
+      test_fail "${smoke_name}: Missing route key: ${route_key}="
+      return 1
+    fi
+  done
+
+  if [[ "${key}" == *_hk ]]; then
+    if ! printf '%s\n' "${output}" | grep -q 'kernel_lane=hk'; then
+      printf '%s\n' "${output}" | tail -n 40 || true
+      test_fail "${smoke_name}: hk key must report kernel_lane=hk"
+      return 1
+    fi
+    if ! printf '%s\n' "${output}" | grep -q 'fallback_guard=strict-no-fallback'; then
+      printf '%s\n' "${output}" | tail -n 40 || true
+      test_fail "${smoke_name}: hk key must report fallback_guard=strict-no-fallback"
+      return 1
+    fi
+    if ! printf '%s\n' "${output}" | grep -q 'result_parity=ok'; then
+      printf '%s\n' "${output}" | tail -n 40 || true
+      test_fail "${smoke_name}: hk key must report result_parity=ok"
+      return 1
+    fi
+  fi
 }

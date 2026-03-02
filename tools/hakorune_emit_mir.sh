@@ -45,6 +45,143 @@ CODE="$(cat "$IN")"
 STAGEB_JOINIR_STRICT="${HAKO_JOINIR_STRICT:-1}"
 STAGEB_JOINIR_PLANNER_REQUIRED="${HAKO_JOINIR_PLANNER_REQUIRED:-1}"
 
+extract_using_imports_json_from_source() {
+  local src_file="$1"
+  python3 - "$src_file" <<'PY'
+import json
+import pathlib
+import re
+import sys
+
+path = pathlib.Path(sys.argv[1])
+try:
+    text = path.read_text(encoding="utf-8")
+except Exception:
+    print("{}")
+    raise SystemExit(0)
+
+imports = {}
+for raw in text.splitlines():
+    line = raw.split("//", 1)[0].strip()
+    if not line.startswith("using "):
+        continue
+    if line.endswith(";"):
+        line = line[:-1].strip()
+    body = line[len("using "):].strip()
+    if not body:
+        continue
+
+    alias = None
+    target = body
+    if " as " in body:
+        target, alias = body.rsplit(" as ", 1)
+        target = target.strip()
+        alias = alias.strip()
+
+    if not target:
+        continue
+
+    if len(target) >= 2 and target[0] == target[-1] and target[0] in ("'", '"'):
+        target = target[1:-1]
+    if not target:
+        continue
+
+    if not alias:
+        parts = [p for p in re.split(r"[./]", target) if p]
+        if not parts:
+            continue
+        alias = parts[-1]
+
+    if not alias:
+        continue
+
+    imports[alias] = target
+
+print(json.dumps(imports, separators=(",", ":")))
+PY
+}
+
+merge_import_maps_json() {
+  local left_json="${1-}"
+  local right_json="${2-}"
+  if [ -z "$left_json" ]; then
+    left_json='{}'
+  fi
+  if [ -z "$right_json" ]; then
+    right_json='{}'
+  fi
+  python3 - "$left_json" "$right_json" <<'PY'
+import json
+import sys
+
+def parse_obj(raw):
+    if raw is None or str(raw).strip() == "":
+        return {}
+    try:
+        v = json.loads(raw)
+    except Exception:
+        return {}
+    return v if isinstance(v, dict) else {}
+
+left = parse_obj(sys.argv[1] if len(sys.argv) > 1 else "{}")
+right = parse_obj(sys.argv[2] if len(sys.argv) > 2 else "{}")
+out = dict(left)
+out.update(right)
+print(json.dumps(out, separators=(",", ":")))
+PY
+}
+
+merge_program_json_imports() {
+  local prog_json="$1"
+  local imports_json="${2-}"
+  if [ -z "$imports_json" ]; then
+    imports_json='{}'
+  fi
+  python3 - "$prog_json" "$imports_json" <<'PY'
+import json
+import sys
+
+prog_raw = sys.argv[1]
+imports_raw = sys.argv[2] if len(sys.argv) > 2 else "{}"
+
+try:
+    prog = json.loads(prog_raw)
+except Exception:
+    print(prog_raw)
+    raise SystemExit(0)
+
+if not isinstance(prog, dict):
+    print(prog_raw)
+    raise SystemExit(0)
+
+try:
+    imports = json.loads(imports_raw) if imports_raw.strip() else {}
+except Exception:
+    imports = {}
+if not isinstance(imports, dict):
+    imports = {}
+
+current = prog.get("imports")
+if not isinstance(current, dict):
+    current = {}
+
+for k, v in imports.items():
+    if isinstance(k, str) and isinstance(v, str) and k and v and k not in current:
+        current[k] = v
+
+prog["imports"] = current
+print(json.dumps(prog, separators=(",", ":")))
+PY
+}
+
+SOURCE_USING_IMPORTS_JSON="$(extract_using_imports_json_from_source "$IN")"
+BASE_MIRBUILDER_IMPORTS_JSON="${HAKO_MIRBUILDER_IMPORTS-}"
+if [ -z "$BASE_MIRBUILDER_IMPORTS_JSON" ]; then
+  BASE_MIRBUILDER_IMPORTS_JSON='{}'
+fi
+MERGED_MIRBUILDER_IMPORTS_JSON="$(merge_import_maps_json "$BASE_MIRBUILDER_IMPORTS_JSON" "$SOURCE_USING_IMPORTS_JSON")"
+export HAKO_MIRBUILDER_IMPORTS="$MERGED_MIRBUILDER_IMPORTS_JSON"
+
 try_direct_emit_mir_json() {
   local out_path="$1"
   rm -f "$out_path" || true
@@ -179,6 +316,10 @@ if ! printf '%s' "$PROG_JSON_OUT" | grep -q '"kind"\s*:\s*"Program"'; then
   echo "[FAIL] Stage‑B output invalid and direct emit failed" >&2
   exit 1
 fi
+
+# Stage-B Program(JSON) may omit alias-less using entries in `imports`.
+# Merge source-derived using aliases so Program→MIR delegate paths stay stable.
+PROG_JSON_OUT="$(merge_program_json_imports "$PROG_JSON_OUT" "$MERGED_MIRBUILDER_IMPORTS_JSON")"
 
 # 2) Convert Program(JSON v0) → MIR(JSON)
 #    Prefer selfhost builder first when explicitly requested; otherwise use delegate (Gate‑C) for stability.

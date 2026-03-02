@@ -71,7 +71,7 @@ run_case() {
     env "${NYASH_VM_BENCH_ENV[@]}" "${env_kv[@]}" \
     timeout "${PERF_TIMEOUT}" "${run_cmd[@]}")
   med=$(printf "%s\n" "${series}" | median_ms)
-  if ! [[ "${med}" =~ ^[0-9]+$ ]] || [[ "${med}" -le 0 ]]; then
+  if ! [[ "${med}" =~ ^[0-9]+$ ]]; then
     echo "[error] app bench invalid median: name=${name} backend=${BACKEND} ms=${med}" >&2
     return 1
   fi

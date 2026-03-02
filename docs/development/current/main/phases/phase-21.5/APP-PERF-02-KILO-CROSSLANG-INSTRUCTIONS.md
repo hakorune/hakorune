@@ -11,7 +11,12 @@ Scope: Phase 21.5 perf lane（real-app style baseline）
 - 参照: C と Python
 - 対象: `kilo` 由来の deterministic kernel（I/O なし、固定ループ）
 
-このタスクは **1ブロッカー=1受理形** として、`kilo_kernel_small` のみを追加する。
+このタスクは **1ブロッカー=1受理形** として、dataset `kilo_kernel_small` を追加する。
+運用キーは lane を分けて扱う:
+
+- `kilo_kernel_small_hk`（kernel-mainline / strict no-fallback）
+- `kilo_kernel_small_rk`（kernel-bootstrap）
+- `kilo_kernel_small`（legacy alias）
 
 ## Deliverables（6 files）
 
@@ -62,12 +67,17 @@ tools/perf/bench_compare_c_py_vs_hako.sh <bench_key> [warmup] [repeat]
 APP-PERF-02時点の許可キー:
 
 - `chip8_kernel_small`
+- `chip8_kernel_small_hk`
+- `chip8_kernel_small_rk`
 - `kilo_kernel_small`
+- `kilo_kernel_small_hk`
+- `kilo_kernel_small_rk`
 
 出力契約（1行）:
 
 ```text
 [bench4] name=kilo_kernel_small c_ms=<n> py_ms=<n> ny_vm_ms=<n> ny_aot_ms=<n> ratio_c_vm=<r> ratio_c_py=<r> ratio_c_aot=<r> aot_status=<ok|skip|fail>
+[bench4-route] name=kilo_kernel_small_hk dataset=kilo_kernel_small kernel_lane=<hk|rk|default> kernel_name=<kernel-mainline|kernel-bootstrap> fallback_guard=<...> vm_engine=<...> result_parity=<ok|skip>
 ```
 
 ## Smoke Contract
@@ -76,11 +86,12 @@ APP-PERF-02時点の許可キー:
 
 検証項目:
 
-1. `bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 1` が終了コード 0
-2. 出力に `[bench4] name=kilo_kernel_small` がある
+1. `bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 1` が終了コード 0
+2. 出力に `[bench4] name=kilo_kernel_small_hk` がある
 3. `aot_status=ok` がある
 4. `c_ms=` `py_ms=` `ny_vm_ms=` `ny_aot_ms=` の各キーがある
 5. `ratio_c_vm=` `ratio_c_py=` `ratio_c_aot=` の各キーがある
+6. `[bench4-route]` があり `kernel_lane=hk` / `fallback_guard=strict-no-fallback` / `result_parity=ok` を満たす
 
 ## Gate Wiring（optional）
 
@@ -103,7 +114,8 @@ APP-PERF-02 は full preset に optional で配線する:
 
 ```bash
 # 1) new 4-way compare
-tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 1
+PERF_VM_FORCE_NO_FALLBACK=1 \
+tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 1
 
 # 2) contract smoke
 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_kernel_crosslang_contract_vm.sh

@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-01
+Date: 2026-03-02
 Scope: Repo root の互換入口。詳細ログは `docs/development/current/main/` 側を正本にする。
 
 ## Purpose
@@ -9,12 +9,28 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - root から最短で current blocker と実行順へ到達するための入口。
 - 長文の進捗履歴はここに蓄積しない。
 - runtime lane の Next は `phase-29y/60-NEXT-TASK-PLAN.md` を単一正本に固定する。
+- kernel/build lane の混線防止は `docs/development/current/main/design/build-lane-separation-ssot.md` を正本にする。
+
+## Focus Lock (2026-03-02)
+
+- primary target: `kernel-mainline`（`.hako` kernel）を日常の既定経路に固定する。
+- no-fallback: `NYASH_VM_USE_FALLBACK=0` 前提で fail-fast を維持する（silent fallback 禁止）。
+- cargo role: `build-maintenance` のみ（host artifact 保守・portability 監査）。
+- daily role: `build-mainline`（cargo 非依存ループ）で `.hako` kernel 最適化を進める。
+- emit route role: `hakorune --emit-mir-json` 直経路を mainline SSOT とし、helper 経路は互換監視を除いて段階撤去する。
+- helper policy: hakorune→hakorune build で helper 依存を残したまま最適化へ進まない（先に導線を一本化する）。
 
 ## Current Blocker (SSOT)
 
 - compiler lane: `phase-29bq / monitor-only`（active: failure-driven reopen only）
   - joinir migration task SSOT（lane A）:
     - `docs/development/current/main/design/joinir-port-task-pack-ssot.md`
+  - joinir extension contract SSOT（lane A reopen runbook）:
+    - `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
+    - active seed: `JIR-EXT-SHAPE-01`（GREEN lock / vm-hako subset-gap monitor）
+      - fixture: `apps/tests/phase29bq_selfhost_blocker_phi_injector_collect_phi_vars_nested_loop_no_exit_var_step_min.hako`
+      - gate: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only ext-red`
+      - note: rust-reference は `18 / RC:0`、hako-mainline は planner path green だが runtime subset gap（`[vm-hako/unimplemented op=boxcall1 method=get]`）を監視継続。
   - lane A mirror sync helper:
     - `bash tools/selfhost/sync_lane_a_state.sh`
   - done: `JIR-PORT-00`（Boundary Lock, docs-first）
@@ -68,20 +84,20 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `kernel-bootstrap`: Rust static archive（`libnyash_kernel.a`）を使う起動・互換維持用の保存経路（source keep）。
     - execution order lock:
       1. runtime/de-rust の経路契約を維持（no-compat mainline guard を先に固定）。
-      2. perf 復旧は `kernel-bootstrap` で baseline を戻す（runtime変更と混ぜない）。
-      3. baseline 回復後に `kernel-mainline` 最適化へ移る（別コミット境界）。
+      2. 日常最適化は `kernel-mainline` を既定経路に固定する（fallbackなし）。
+      3. `kernel-bootstrap` は保守 lane（artifact refresh / portability / 切り分け）に限定する。
   - wasm lane status: done through `WSM-P10` / active next=`none`（monitor-only）
   - done judgement matrix SSOT:
     - `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - perf lane: `phase-21.5 / llvm-aot-hotpath`（monitor-only: runtime lane とは別コミット境界で運用）
-  - scope: `numeric_mixed_medium` / `method_call_only` / `chip8_kernel_small` / `kilo_kernel_small`（C/AOT 比較） + VM monitor-only
+  - scope: `numeric_mixed_medium` / `method_call_only` / `chip8_kernel_small` / `kilo_kernel_small_hk`（C/AOT 比較） + VM monitor-only
   - task SSOT: `docs/private/roadmap/phases/phase-21.5/PLAN.md`
   - Step-2 acceptance lock (fixed):
     - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py`
     - `cargo test -p nyash_kernel box_from_i8_string_const_reuses_handle -- --nocapture`
     - `PERF_LADDER_AOT_SMALL=1 PERF_LADDER_AOT_MEDIUM=1 NYASH_LLVM_SKIP_BUILD=1 tools/perf/run_progressive_ladder_21_5.sh quick`（AOT行 `status=ok`）
   - WSL variance lock（single-run値で判定しない）:
-    - canonical measure: `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 5`
+    - canonical measure: `bash tools/perf/run_kilo_hk_bench.sh strict 1 5`
     - latest (2026-03-01): `c_ms=79`, `py_ms=111`, `ny_vm_ms=1015`, `ny_aot_ms=747`, `ratio_c_aot=0.11`, `aot_status=ok`
   - micro-first recovery lock（active）:
     - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_getset 1 7`
@@ -90,7 +106,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - latest (2026-03-01): `ny_aot_ms=64`
     - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 7`
       - latest (2026-03-01): `ny_aot_ms=14`
-    - rule: micro 改善が確認できた変更だけを `kilo_kernel_small` へ持ち上げる（kilo 先行の試行錯誤は禁止）。
+    - rule: micro 改善が確認できた変更だけを `kilo_kernel_small_hk` へ持ち上げる（kilo 先行の試行錯誤は禁止）。
     - latest kernel-asm note (2026-03-01):
       - `nyash.array.set_his` share improved (`~7.4% -> ~5.8%`) after single-lookup pair route.
       - `nyash.string.concat_hh` remains top user-space hotspot (`~8.5%` class); next optimization focus is concat structure.
@@ -102,8 +118,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
     - source keep policy と最適化は混ぜず、別コミット境界で進める。
     - kernel lane scope:
-      - current perf recovery target: `kernel-bootstrap`（Rust static archive lane）
-      - deferred target: `kernel-mainline`（`.hako` no-compat lane）
+      - primary target: `kernel-mainline`（`.hako` no-compat lane）
+      - maintenance target: `kernel-bootstrap`（Rust static archive lane）
   - regression recovery pack（active, docs-fixed）:
     1. `AOT stale artifact` を止める（bench 実行時は `PERF_AOT_SKIP_BUILD=0` 固定）。
     2. `emit route` を固定する（Stage-B/helper fallback が起きた run は perf 結果として受理しない）。
@@ -111,20 +127,43 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     4. micro -> kilo の順で再計測し、`set_hii` emit と ratio 変化を同時確認する。
   - regression recovery acceptance:
     - `bench_kilo_micro_array_getset` の AOT object で `nyash.array.set_hii` を観測できること。
-    - `kilo_kernel_small` で `ratio_c_aot` が現状基準（0.10）を上回ること。
+    - `kilo_kernel_small_hk` で `ratio_c_aot` が現状基準（0.10）を上回ること。
     - 計測 run は `PERF_AOT_SKIP_BUILD=0` を必須にすること。
 
 ## Immediate Next (this round)
 
-1. Lane-C（source-keep）は monitor-only を維持し、reopen は failure-driven に限定する。
-2. done contract は次の 2 本を継続監査する:
+1. helper撤去を最優先で開始する（build→perf→smoke/check→wrapper削除の順を固定）。
+2. hakorune→hakorune build 導線を `hakorune --emit-mir-json` 直経路へ一本化する（`tools/selfhost/build_stage1.sh` / `tools/selfhost_exe_stageb.sh` から helper 依存を外す）。
+3. perf emit SSOT を direct 中心へ移行する（`tools/perf/lib/aot_helpers.sh` の helper 優先スイッチを段階縮退）。
+4. smoke/check の emit 呼び出しを共通関数へ寄せ、helper 直呼びを一括で置換する。
+5. `.hako` kernel mainline（no-fallback）を日常経路として固定する。
+6. done contract は次の 2 本を継続監査する:
    - `tools/checks/dev_gate.sh runtime-exec-zero`
    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
-3. runtime boundary を触るコミットは `tools/checks/dev_gate.sh portability` も合わせて green を維持する。
-4. Rust source は保存固定とし、削除タスクは当面起票しない（明示指示が出るまで停止）。
-5. 最適化 lane（micro/asm -> kilo）は runtime closeout contract を前提に別コミット境界で進める。
-6. kernel lane は命名を固定して運用する（`kernel-bootstrap` -> `kernel-mainline` の順序を逆転しない）。
-7. perf regression recovery pack を順序固定で実施する（rebuild固定 -> emit route固定 -> micro単体改善 -> kilo反映）。
+7. `build-mainline`（cargo 非依存）を daily default に固定する。
+8. `build-maintenance`（cargo）は host 保守時のみ実行する。
+9. Rust source は保存固定とし、削除タスクは当面起票しない（明示指示が出るまで停止）。
+10. 最適化 lane（micro/asm -> kilo）は helper撤去の build 導線 lock 後に進める。
+
+## Helper Retirement Pack (active / ordered)
+
+1. build 導線置換:
+   - 対象: `tools/selfhost/build_stage1.sh`, `tools/selfhost_exe_stageb.sh`
+   - 目的: helper 直呼びを外し、`hakorune --emit-mir-json` 直経路へ一本化。
+   - status (2026-03-02): `hakorune_emit_mir.sh` 直呼びを撤去し、`selfhost_exe_stageb.sh` は helper-free 実装へ移行（default route=`stageb-delegate`）。
+   - pending: `launcher.hako` の direct は `macro.begin` 後に stall しやすく、macro OFF 時は merged prelude 側で JoinIR freeze（`BuildBox.emit_program_json_v0` / `JsonFragBox.read_int_from`）へ到達する。direct 一本化は JoinIR coverage 拡張後に昇格。
+2. perf SSOT 置換:
+   - 対象: `tools/perf/lib/aot_helpers.sh` と呼び出し元ベンチ群。
+   - 目的: `PERF_AOT_PREFER_HELPER` / `PERF_AOT_HELPER_ONLY` を縮退し、strict は direct 優先に固定。
+3. smoke 共通化:
+   - 対象: `tools/smokes/v2/profiles/**`（helper 参照群）
+   - 目的: emit 呼び出しを `tools/smokes/v2/lib/` の共通関数へ集約し、一括置換を可能にする。
+4. check 置換:
+   - 対象: `tools/hako_check.sh`, `tools/test_stageb_using.sh`, `test_numeric_core_phi.sh`
+   - 目的: helper 依存と `|| true` 握りを整理し、direct 経路で fail-fast 契約へ統一。
+5. wrapper/helper 撤去:
+   - 対象: `tools/hakorune_emit_mir_mainline.sh`, `tools/hakorune_emit_mir_compat.sh`, `tools/hakorune_emit_mir.sh`, `tools/cache/phase29x_l1_mir_cache.sh`
+   - 目的: 参照ゼロ確認後に削除/縮退し、build/perf/smoke gate を再固定。
 
 ## Future Ideas (Not Active)
 
@@ -156,14 +195,21 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 6. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
 7. `docs/development/current/main/design/joinir-planner-required-gates-ssot.md`
 8. `docs/development/current/main/design/joinir-port-task-pack-ssot.md`
-9. `docs/tools/README.md`
+9. `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
+10. `docs/tools/README.md`
+11. `docs/development/current/main/design/build-lane-separation-ssot.md`
 
-## Daily Commands
+## Daily Commands (build-mainline / cargo-free default)
 
 - `tools/checks/dev_gate.sh quick`（推奨: 日常の軽量セット）
+- `rg -n "hakorune_emit_mir(_mainline|_compat)?\\.sh|PERF_AOT_(PREFER_HELPER|HELPER_ONLY)|EMIT_HELPER" tools`（helper撤去の残件監査）
+- `tools/checks/dev_gate.sh runtime-exec-zero`（no-compat mainline guard）
+- `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
+- `HAKO_EMIT_MIR_MAINLINE_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --reuse-if-fresh 1`
+- `build_stage1` が artifact 欠落で失敗した場合は `Maintenance Commands` を先に1回実行する。
+- `bash tools/perf/run_kilo_hk_bench.sh strict 1 3`
 - `tools/checks/dev_gate.sh hotpath`（perf/hotpath を触ったとき）
 - `tools/checks/dev_gate.sh --list`（profile内容の確認）
-- `cargo check --bin hakorune`
 - `bash tools/checks/phase29y_derust_blocker_sync_guard.sh`
 - `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
 - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
@@ -179,6 +225,12 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - `PERF_SUBTRACT_STARTUP=1 bash tools/perf/bench_compare_c_vs_hako.sh box_create_destroy_small 1 3`
 - `tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath`
 - `tools/perf/run_progressive_ladder_21_5.sh quick`
+
+## Maintenance Commands (build-maintenance / cargo)
+
+- `cargo check --release --bin hakorune`
+- `cargo build --release --bin hakorune`
+- `(cd crates/nyash_kernel && cargo build --release)`
 
 ## Milestone Commands
 

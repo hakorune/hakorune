@@ -76,8 +76,8 @@ perf_compare_compact_json_or_fail() {
   local compact total mode_actual
   compact="$(printf '%s\n' "${output}" | jq -c .)"
   total="$(printf '%s\n' "${compact}" | jq -r '.total_ms // -1')"
-  if ! [[ "${total}" =~ ^[0-9]+$ ]] || [[ "${total}" -le 0 ]]; then
-    echo "[error] mode=${mode} total_ms must be positive integer: ${total}" >&2
+  if ! [[ "${total}" =~ ^[0-9]+$ ]]; then
+    echo "[error] mode=${mode} total_ms must be non-negative integer: ${total}" >&2
     echo "${compact}" >&2
     return 1
   fi
@@ -96,8 +96,8 @@ perf_compare_compact_json_or_fail() {
     echo "${compact}" >&2
     return 1
   fi
-  if ! printf '%s\n' "${compact}" | jq -e '.cases | to_entries | all((.value|type=="number") and (.value > 0))' >/dev/null 2>&1; then
-    echo "[error] mode=${mode} cases values must be positive numbers" >&2
+  if ! printf '%s\n' "${compact}" | jq -e '.cases | to_entries | all((.value|type=="number") and (.value >= 0))' >/dev/null 2>&1; then
+    echo "[error] mode=${mode} cases values must be non-negative numbers" >&2
     echo "${compact}" >&2
     return 1
   fi

@@ -9,6 +9,7 @@
 #    chip8_ratio_c_aot, chip8_ny_aot_ms, kilo_ratio_c_aot, kilo_ny_aot_ms,
 #    apps_total_ms, apps_hotspot_ms, entry_source_total_ms, entry_prebuilt_total_ms, entry_delta_ms
 # 5) entry_winner is source|mir_shape_prebuilt
+# 6) kilo route mode fields are present and locked (diagnostic lane)
 
 set -euo pipefail
 
@@ -28,6 +29,7 @@ OUTPUT=$(
   NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
   PERF_VM_TIMEOUT="${PERF_VM_TIMEOUT:-60s}" \
   HAKO_VM_MAX_STEPS="${HAKO_VM_MAX_STEPS:-300000000}" \
+  PERF_BUNDLE_KILO_MODE=diagnostic \
   PERF_APPS_ENTRY_MODE_DELTA_SAMPLES="${PERF_APPS_ENTRY_MODE_DELTA_SAMPLES:-1}" \
   "${SCRIPT}" 1 1 1 1 2>&1
 )
@@ -81,6 +83,27 @@ fi
 if ! echo "${OUTPUT}" | grep -qE "apps_hotspot_case=[^[:space:]]+"; then
   echo "${OUTPUT}" | tail -n 80 || true
   test_fail "${SMOKE_NAME}: missing apps_hotspot_case"
+  exit 1
+fi
+
+if ! echo "${OUTPUT}" | grep -q "kilo_mode=diagnostic"; then
+  echo "${OUTPUT}" | tail -n 80 || true
+  test_fail "${SMOKE_NAME}: kilo_mode is not diagnostic"
+  exit 1
+fi
+if ! echo "${OUTPUT}" | grep -q "kilo_result_parity=skip"; then
+  echo "${OUTPUT}" | tail -n 80 || true
+  test_fail "${SMOKE_NAME}: kilo_result_parity is not skip in diagnostic mode"
+  exit 1
+fi
+if ! echo "${OUTPUT}" | grep -q "kilo_fallback_guard=strict-no-fallback"; then
+  echo "${OUTPUT}" | tail -n 80 || true
+  test_fail "${SMOKE_NAME}: kilo_fallback_guard is not strict-no-fallback"
+  exit 1
+fi
+if ! echo "${OUTPUT}" | grep -qE "kilo_vm_engine=(rust-vm|hako-vm|unknown)"; then
+  echo "${OUTPUT}" | tail -n 80 || true
+  test_fail "${SMOKE_NAME}: invalid kilo_vm_engine"
   exit 1
 fi
 

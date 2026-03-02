@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-03-01
+Date: 2026-03-02
 Scope: main ラインの「現在地」と「実行入口」だけを置く薄いインデックス。
 Related:
   - CURRENT_TASK.md
@@ -12,6 +12,8 @@ Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-scope-decision-ssot.md
+  - docs/development/current/main/design/build-lane-separation-ssot.md
+  - docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md
   - docs/development/current/main/design/private-doc-boundary-migration-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md
@@ -49,6 +51,14 @@ Related:
 - この文書は入口専用。進捗履歴や長文ログは phase/design へ置く。
 - Next task の正本は `phase-29y/60-NEXT-TASK-PLAN.md` に固定する。
 - 研究/将来案（Python系を含む）は `Current blocker` に混ぜず、`30-Backlog.md` を正本にして管理する。
+- kernel/build lane の混線防止は `design/build-lane-separation-ssot.md` を正本にする。
+
+## Focus Lock (2026-03-02)
+
+- 日常の kernel は `kernel-mainline`（`.hako`）を既定にする。
+- no-fallback 契約を固定する（`NYASH_VM_USE_FALLBACK=0`, silent fallback 禁止）。
+- cargo は `build-maintenance`（host保守）専用に分離する。
+- 日常ループは `build-mainline`（cargo-free）で進める。
 
 ## Quick Restart Pointer
 
@@ -73,6 +83,12 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
 - Optimization policy (runtime): de-rust runtime closeout contract 緑を前提に、最適化 lane（micro/asm -> kilo）へ handoff する。
 - JoinIR port mode（lane A）: monitor-only（failure-driven reopen）
+- JoinIR extension runbook（lane A reopen）:
+  - `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
+  - active green seed: `JIR-EXT-SHAPE-01`（vm-hako subset-gap monitor）
+    - fixture: `apps/tests/phase29bq_selfhost_blocker_phi_injector_collect_phi_vars_nested_loop_no_exit_var_step_min.hako`
+    - gate: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only ext-red`
+    - latest (2026-03-02): rust-reference=`18 / RC:0`、hako-mainline は planner freeze なし（lane tag=`vm-hako`）だが runtime subset gap `boxcall1 get` は未解消。
 - JoinIR parity probe pin（JIR-PORT-01）:
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port01_parity_probe_vm.sh`
 - App-first: APP-1（Gate Log Summarizer）acceptance PASS 済み
@@ -108,7 +124,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - kernel naming lock:
       - `kernel-mainline`: `.hako` no-compat 実行経路（`NYASH_VM_USE_FALLBACK=0`）
       - `kernel-bootstrap`: Rust static archive（`libnyash_kernel.a`）起動経路（source keep）
-    - order lock: `runtime契約維持 -> bootstrap baseline回復 -> mainline最適化`
+    - order lock: `runtime契約維持 -> mainline最適化（既定） -> bootstrap保守`
   - wasm lane: done through `WSM-P10`, active next=`none`（monitor-only）
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Perf lane（phase-21.5）:
@@ -118,13 +134,18 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
   - handoff 先（micro/asm -> kilo の順で再開）
   - source keep policy とは分離して進める
-  - current scope lock: baseline 回復は `kernel-bootstrap` を対象にする（`kernel-mainline` 最適化と混在させない）
+  - current scope lock:
+    - primary: `kernel-mainline`（`.hako` no-compat）
+    - maintenance: `kernel-bootstrap`（Rust static archive）
   - latest benchmark snapshot (2026-03-01):
-    - `kilo_kernel_small`: `c_ms=79`, `py_ms=111`, `ny_vm_ms=1015`, `ny_aot_ms=747`, `ratio_c_aot=0.11`
+    - `kilo_kernel_small_hk`: `c_ms=79`, `py_ms=111`, `ny_vm_ms=1015`, `ny_aot_ms=747`, `ratio_c_aot=0.11`
     - `kilo_micro_array_getset`: `ny_aot_ms=49`
     - `kilo_micro_substring_concat`: `ny_aot_ms=64`
   - active recovery rule:
-    - 先に micro で改善を確定し、確定した差分のみ `kilo_kernel_small` へ反映する（kilo先行の探索は禁止）。
+    - 先に micro で改善を確定し、確定した差分のみ `kilo_kernel_small_hk` へ反映する（kilo先行の探索は禁止）。
+    - hk 計測は `PERF_VM_FORCE_NO_FALLBACK=1` で route strict を維持する（silent fallback 禁止）。
+    - hk 計測は `PERF_REQUIRE_AOT_RESULT_PARITY=1`（既定）で VM/AOT の結果一致を必須化する。不一致時はベンチ結果を採用しない。
+    - 再開時の固定入口は `tools/perf/run_kilo_hk_bench.sh` を使う（`strict` / `diagnostic`）。
   - latest kernel asm note (2026-03-01):
     - `nyash.array.set_his` share improved (`~7.4% -> ~5.8%`) by pair-route single lookup.
     - `nyash.string.concat_hh` stays top user-space hotspot (`~8.5%` class); next focus is concat structure-level optimization.
@@ -133,14 +154,14 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 
 ## Immediate Next
 
-1. Lane-C（source-keep）は monitor-only を維持し、reopen は failure-driven に限定する。
+1. `.hako` kernel mainline（no-fallback）を日常経路として固定する。
 2. done contract は次の 2 コマンドを正本に固定する:
    - `tools/checks/dev_gate.sh runtime-exec-zero`
    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
-3. runtime boundary を触るコミットは `tools/checks/dev_gate.sh portability` も必須にする。
-4. Rust source は保存固定とし、削除タスクは現時点で開始しない。
-5. 最適化 lane（micro/asm -> kilo）は runtime closeout contract 緑を前提に別コミット境界で再開する。
-6. kernel lane 命名を固定運用する（`kernel-mainline` と `kernel-bootstrap` を混同しない）。
+3. `build-mainline`（cargo-free）を daily default に固定する。
+4. `build-maintenance`（cargo）は host 保守時のみ実行する。
+5. Rust source は保存固定とし、削除タスクは現時点で開始しない。
+6. 最適化 lane（micro/asm -> kilo）は runtime closeout contract 緑を前提に別コミット境界で再開する。
 
 ## Read First Order
 
@@ -217,15 +238,26 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 71. `docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md`
 72. `docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md`
 
-## Daily Commands
+## Daily Commands (build-mainline / cargo-free default)
 
-- `cargo check --bin hakorune`
+- `tools/checks/dev_gate.sh quick`
+- `tools/checks/dev_gate.sh runtime-exec-zero`
+- `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
+- `HAKO_EMIT_MIR_MAINLINE_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --reuse-if-fresh 1`
+- `build_stage1` が artifact 欠落で失敗した場合は `Maintenance Commands` を先に1回実行する。
+- `bash tools/perf/run_kilo_hk_bench.sh strict 1 3`
 - `bash tools/selfhost/run_lane_a_daily.sh`
 - `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh`
 - `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
 - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
 - `PHASE29Y_DERUST_DONE_MATRIX_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_quick_vm.sh`（診断補助。quick既定セットには含めない）
+
+## Maintenance Commands (build-maintenance / cargo)
+
+- `cargo check --release --bin hakorune`
+- `cargo build --release --bin hakorune`
+- `(cd crates/nyash_kernel && cargo build --release)`
 
 ## Milestone Commands
 
@@ -317,6 +349,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Compiler pipeline: `docs/development/current/main/design/compiler-pipeline-ssot.md`
 - De-rust compiler roadmap: `docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md`
 - JoinIR port task pack (lane A): `docs/development/current/main/design/joinir-port-task-pack-ssot.md`
+- JoinIR extension dual-route contract (lane A): `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
 - Dev tools quick entry: `docs/tools/README.md`
 - Runtime GC policy/order: `docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md`
 - Selfhost migration order: `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`

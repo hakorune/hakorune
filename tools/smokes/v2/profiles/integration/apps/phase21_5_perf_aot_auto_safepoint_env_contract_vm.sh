@@ -5,6 +5,8 @@
 # - PERF_AOT_AUTO_SAFEPOINT must be 0|1 (invalid value -> fail-fast rc=2).
 # - When PERF_AOT_AUTO_SAFEPOINT is unset, NYASH_LLVM_AUTO_SAFEPOINT is accepted as fallback.
 # - PERF_SKIP_VM_PREFLIGHT must be 0|1 (invalid value -> fail-fast rc=2).
+# - PERF_VM_FORCE_NO_FALLBACK must be 0|1 (invalid value -> fail-fast rc=2).
+# - *_hk key requires PERF_VM_FORCE_NO_FALLBACK=1 (silent fallback guard).
 
 set -euo pipefail
 
@@ -88,6 +90,49 @@ fi
 if ! printf '%s\n' "$bad_preflight_out" | grep -q 'PERF_SKIP_VM_PREFLIGHT must be 0|1'; then
   printf '%s\n' "$bad_preflight_out"
   test_fail "$SMOKE_NAME: missing fail-fast error for invalid PERF_SKIP_VM_PREFLIGHT"
+  exit 1
+fi
+
+# Case 4: invalid PERF_VM_FORCE_NO_FALLBACK must fail-fast.
+set +e
+bad_fallback_guard_out="$(
+  PERF_VM_FORCE_NO_FALLBACK=2 \
+  PERF_AOT=1 \
+  NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
+  bash "$SCRIPT" "$KEY" 1 1 2>&1
+)"
+bad_fallback_guard_rc=$?
+set -e
+if [ "$bad_fallback_guard_rc" -eq 0 ]; then
+  printf '%s\n' "$bad_fallback_guard_out"
+  test_fail "$SMOKE_NAME: invalid PERF_VM_FORCE_NO_FALLBACK unexpectedly succeeded"
+  exit 1
+fi
+if ! printf '%s\n' "$bad_fallback_guard_out" | grep -q 'PERF_VM_FORCE_NO_FALLBACK must be 0|1'; then
+  printf '%s\n' "$bad_fallback_guard_out"
+  test_fail "$SMOKE_NAME: missing fail-fast error for invalid PERF_VM_FORCE_NO_FALLBACK"
+  exit 1
+fi
+
+# Case 5: *_hk key must require strict no-fallback.
+set +e
+missing_hk_strict_out="$(
+  PERF_VM_FORCE_NO_FALLBACK=0 \
+  PERF_AOT=1 \
+  PERF_SKIP_VM_PREFLIGHT=1 \
+  NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
+  bash "$SCRIPT" "kilo_kernel_small_hk" 1 1 2>&1
+)"
+missing_hk_strict_rc=$?
+set -e
+if [ "$missing_hk_strict_rc" -eq 0 ]; then
+  printf '%s\n' "$missing_hk_strict_out"
+  test_fail "$SMOKE_NAME: hk strict guard unexpectedly succeeded without PERF_VM_FORCE_NO_FALLBACK=1"
+  exit 1
+fi
+if ! printf '%s\n' "$missing_hk_strict_out" | grep -q "requires strict route: set PERF_VM_FORCE_NO_FALLBACK=1"; then
+  printf '%s\n' "$missing_hk_strict_out"
+  test_fail "$SMOKE_NAME: missing hk strict guard message"
   exit 1
 fi
 

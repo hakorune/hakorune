@@ -1,6 +1,5 @@
 use super::borrowed_handle::{maybe_borrow_string_handle, maybe_borrow_string_handle_with_epoch};
 use nyash_rust::{
-    config::env::ArrayFastValueDecodePolicyMode,
     box_trait::{IntegerBox, NyashBox, StringBox},
     runtime::host_handles as handles,
 };
@@ -25,13 +24,6 @@ pub(crate) fn int_arg_to_box(arg: i64) -> Box<dyn NyashBox> {
 pub(crate) fn decode_array_fast_value(arg: i64) -> ArrayFastDecodedValue {
     if arg <= 0 {
         return ArrayFastDecodedValue::ImmediateI64(arg);
-    }
-    let mode = nyash_rust::config::env::array_fast_value_decode_policy_mode();
-    if !matches!(mode, ArrayFastValueDecodePolicyMode::ScalarPrefer) {
-        return ArrayFastDecodedValue::Boxed(any_arg_to_box_with_profile(
-            arg,
-            CodecProfile::ArrayFastBorrowString,
-        ));
     }
     handles::with_handle(arg as u64, |obj| {
         let Some(obj) = obj else {
@@ -61,11 +53,8 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
                 int_arg_to_box(arg)
             });
         }
-        let scalar_prefer = profile == CodecProfile::ArrayFastBorrowString
-            && matches!(
-                nyash_rust::config::env::array_fast_value_decode_policy_mode(),
-                ArrayFastValueDecodePolicyMode::ScalarPrefer
-            );
+        // Phase-29cc route lock: ArrayFastBorrowString keeps scalar-prefer behavior.
+        let scalar_prefer = profile == CodecProfile::ArrayFastBorrowString;
         return handles::with_handle(arg as u64, |obj| {
             let Some(obj) = obj else {
                 return int_arg_to_box(arg);

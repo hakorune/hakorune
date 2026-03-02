@@ -1,0 +1,12 @@
+// kernel_hub_box.hako — Runtime kernel namespace anchor.
+// Keep this box minimal; concrete kernels live under string/array/numeric.
+
+static box KernelHub {
+  name() {
+    return "selfhost.runtime.kernel";
+  }
+
+  flavor() {
+    return "hk";
+  }
+}

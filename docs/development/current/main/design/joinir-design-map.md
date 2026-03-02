@@ -8,6 +8,7 @@ Related:
 - SSOT: [`docs/development/current/main/joinir-boundary-builder-pattern.md`](../joinir-boundary-builder-pattern.md)
 - SSOT: [`docs/development/current/main/design/loop-canonicalizer.md`](./loop-canonicalizer.md)
 - SSOT: [`docs/development/current/main/design/recipe-first-entry-contract-ssot.md`](./recipe-first-entry-contract-ssot.md) ← Recipe-first 主軸
+- SSOT: [`docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`](./joinir-extension-dual-route-contract-ssot.md) ← 拡張時の固定順序
 
 このドキュメントは Phase ログではなく、「JoinIR を触る人が迷子にならず、どこを直すべきかが一発で分かる」ための設計図（地図）です。  
 詳細な経緯・作業ログは `docs/development/current/main/phases/` と `docs/development/current/main/investigations/` に分離します。
@@ -21,6 +22,7 @@ Related:
 
 - 「JoinIR が何を保証し、何を Fail-Fast で落とすべきか」→ `joinir-architecture-overview.md`
 - 「どのファイルを触るべきか」「入口はどこか」「追加手順は？」→ この `joinir-design-map.md`
+- 「Rust/.hako を同一契約でどう拡張するか（docs-first + gate-first）」→ `joinir-extension-dual-route-contract-ssot.md`
 - 「経緯/ログ/切り分け」→ `docs/development/current/main/phases/` と `docs/development/current/main/investigations/`
 
 ---

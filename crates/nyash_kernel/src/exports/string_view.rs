@@ -205,6 +205,11 @@ fn resolve_string_span_from_handle_uncached(handle: i64) -> Option<StringSpan> {
 }
 
 #[inline(always)]
+pub(crate) fn resolve_string_span_from_handle_nocache(handle: i64) -> Option<StringSpan> {
+    resolve_string_span_from_handle_uncached(handle)
+}
+
+#[inline(always)]
 fn resolve_string_span_from_handle_with_epoch(handle: i64, drop_epoch: u64) -> Option<StringSpan> {
     if handle <= 0 {
         return None;

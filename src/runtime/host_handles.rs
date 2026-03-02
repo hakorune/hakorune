@@ -111,6 +111,10 @@ struct Registry {
     // slots/free are updated together under one write lock to avoid
     // double-lock overhead on alloc/drop hot paths.
     table: RwLock<SlotTable>,
+    // In non-test builds policy mode is process-static (env is OnceLock-cached),
+    // so keep a local copy to avoid repeated lookup on alloc/drop hot paths.
+    #[cfg(not(test))]
+    alloc_policy_mode: HostHandleAllocPolicyMode,
 }
 
 #[inline(always)]
@@ -131,20 +135,40 @@ fn slot_str_ref<'a>(table: &'a SlotTable, h: u64) -> Option<&'a str> {
 
 impl Registry {
     fn new() -> Self {
-        let mut slots = Vec::with_capacity(8192);
+        #[cfg(not(test))]
+        let alloc_policy_mode = active_host_handle_alloc_policy_mode();
+        // Perf lane notes:
+        // string-heavy kernels allocate/drop many transient handles.
+        // Start denser to reduce growth realloc spikes on hot paths.
+        let mut slots = Vec::with_capacity(131072);
         slots.push(None);
         Self {
             drop_epoch: AtomicU64::new(0),
             table: RwLock::new(SlotTable {
                 next: 1,
                 slots,
-                free: Vec::with_capacity(1024),
+                free: Vec::with_capacity(65536),
             }),
+            #[cfg(not(test))]
+            alloc_policy_mode,
         }
     }
+
+    #[inline(always)]
+    fn alloc_policy_mode(&self) -> HostHandleAllocPolicyMode {
+        #[cfg(test)]
+        {
+            active_host_handle_alloc_policy_mode()
+        }
+        #[cfg(not(test))]
+        {
+            self.alloc_policy_mode
+        }
+    }
+
     fn alloc(&self, obj: Arc<dyn NyashBox>) -> u64 {
         let mut table = self.table.write();
-        let policy_mode = active_host_handle_alloc_policy_mode();
+        let policy_mode = self.alloc_policy_mode();
         if let Some(h) = take_reusable_handle(policy_mode, &mut table.free) {
             let idx = usize::try_from(h).expect("[host_handles] reusable handle overflow");
             assert!(
@@ -273,7 +297,7 @@ impl Registry {
             false
         };
         if removed {
-            recycle_handle(active_host_handle_alloc_policy_mode(), &mut table.free, h);
+            recycle_handle(self.alloc_policy_mode(), &mut table.free, h);
             self.drop_epoch.fetch_add(1, Ordering::Relaxed);
         }
     }

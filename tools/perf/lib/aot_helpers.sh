@@ -90,6 +90,19 @@ perf_emit_mir_json() {
   local hako_prog=$3
   local out_json=$4
   local direct_tried=0
+  local prefer_helper="${PERF_AOT_PREFER_HELPER:-0}"
+  local helper_only="${PERF_AOT_HELPER_ONLY:-0}"
+
+  if [[ "${prefer_helper}" == "1" ]]; then
+    if perf_emit_mir_json_helper "${root_dir}" "${hako_prog}" "${out_json}"; then
+      return 0
+    fi
+    if [[ "${helper_only}" == "1" ]]; then
+      PERF_AOT_LAST_EMIT_ROUTE="none"
+      perf_aot_set_status "skip" "emit_helper_only_failed" "emit"
+      return 1
+    fi
+  fi
 
   if [[ -n "${hako_bin}" && -x "${hako_bin}" ]]; then
     direct_tried=1

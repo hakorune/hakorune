@@ -9,7 +9,7 @@ Scope: Phase 21.5 perf lane（micro + app integration）
 
 1. micro cross-language baseline（APP-PERF-01/02）
   - `chip8_kernel_small`
-  - `kilo_kernel_small`
+  - `kilo_kernel_small_hk`（dataset alias: `kilo_kernel_small`）
 2. app wallclock（apps/tools）
   - `bench_apps_wallclock.sh`
   - `bench_apps_entry_mode_compare.sh`
@@ -31,9 +31,16 @@ Scope: Phase 21.5 perf lane（micro + app integration）
 ```text
 [bench4-app] chip8_aot_status=<ok|skip|fail> chip8_ratio_c_aot=<r> chip8_ny_aot_ms=<n> \
              kilo_aot_status=<ok|skip|fail> kilo_ratio_c_aot=<r> kilo_ny_aot_ms=<n> \
+             kilo_mode=<strict|diagnostic> kilo_result_parity=<ok|skip> \
+             kilo_fallback_guard=<strict-no-fallback|...> kilo_vm_engine=<rust-vm|hako-vm|unknown> \
              apps_total_ms=<n> apps_hotspot_case=<name> apps_hotspot_ms=<n> \
              entry_source_total_ms=<n> entry_prebuilt_total_ms=<n> entry_delta_ms=<n> entry_winner=<name>
 ```
+
+補足:
+
+- `PERF_BUNDLE_KILO_MODE=strict`（既定）は `kilo_kernel_small_hk` の parity を必須化する。
+- parity mismatch を調査中に計測だけ回したい場合は `PERF_BUNDLE_KILO_MODE=diagnostic` を使う。
 
 ## Rules（必須）
 
@@ -46,6 +53,7 @@ Scope: Phase 21.5 perf lane（micro + app integration）
 
 ```bash
 # 1) unified harness
+PERF_BUNDLE_KILO_MODE=diagnostic \
 tools/perf/bench_crosslang_apps_bundle.sh 1 1 1 1
 
 # 2) contract smoke

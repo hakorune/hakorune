@@ -28,7 +28,9 @@ fi
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TARGET_DIR="${ROOT_DIR}/target"
-HAKO_PROG="${ROOT_DIR}/benchmarks/bench_${KEY}.hako"
+source "${ROOT_DIR}/tools/perf/lib/bench_key_alias.sh"
+BENCH_DATASET_KEY="$(perf_resolve_bench_dataset_key "${KEY}")"
+HAKO_PROG="${ROOT_DIR}/benchmarks/bench_${BENCH_DATASET_KEY}.hako"
 HAKORUNE_BIN="${TARGET_DIR}/release/hakorune"
 AOT_EXE="${TARGET_DIR}/perf_ny_${KEY}.microasm.${BASHPID}.exe"
 PERF_DATA="/tmp/${KEY}.microasm.${BASHPID}.perf.data"

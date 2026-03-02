@@ -1,10 +1,11 @@
 ---
 Status: Active
-Date: 2026-02-23
+Date: 2026-03-02
 Scope: 再起動直後に 2〜5 分で開発再開するための最短手順。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/build-lane-separation-ssot.md
   - docs/tools/README.md
 ---
 
@@ -21,21 +22,35 @@ Related:
 cd /home/tomoaki/git/hakorune-selfhost
 git status -sb
 tools/checks/dev_gate.sh quick
-PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 \
-PERF_GATE_AOT_SKIP_BUILD_CHECK=1 \
-PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 \
-PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 \
-PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK=1 \
-bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh
+tools/checks/dev_gate.sh runtime-exec-zero
+bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
+HAKO_EMIT_MIR_MAINLINE_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 \
+tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --reuse-if-fresh 1
 ```
 
-## 今日の再開点（perf lane）
+- `build_stage1` が artifact 欠落で失敗した場合は、下の「保守レーン」を先に 1 回実行する。
 
-- Active next: `LLVM-HOT-20`（kilo/text workload の structural hotspot 仕分け）
-- 最初の計測（基準線）:
+## 今日の再開点（kernel-mainline lane）
+
+- Active next: `.hako` kernel mainline 最適化（no-fallback 固定）
+- 最初の計測（strict / route drift 検知）:
 
 ```bash
-bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3
+bash tools/perf/run_kilo_hk_bench.sh strict 1 3
+```
+
+- 診断用（速度だけ見る暫定。結果一致ガードを外す）:
+
+```bash
+bash tools/perf/run_kilo_hk_bench.sh diagnostic 1 3
+```
+
+## 保守レーン（必要時のみ）
+
+```bash
+cargo check --release --bin hakorune
+cargo build --release --bin hakorune
+(cd crates/nyash_kernel && cargo build --release)
 ```
 
 ## 参照順（迷ったら）

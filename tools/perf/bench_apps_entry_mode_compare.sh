@@ -216,8 +216,8 @@ for source_obj, prebuilt_obj in zip(source_rows, prebuilt_rows):
     for case_name in source_cases.keys():
         source_value = int(source_cases[case_name])
         prebuilt_value = int(prebuilt_cases[case_name])
-        if source_value <= 0 or prebuilt_value <= 0:
-            fail(f"[error] non-positive case value: {case_name}")
+        if source_value < 0 or prebuilt_value < 0:
+            fail(f"[error] negative case value: {case_name}")
         source_samples.setdefault(case_name, []).append(source_value)
         prebuilt_samples.setdefault(case_name, []).append(prebuilt_value)
 

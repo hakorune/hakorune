@@ -213,8 +213,19 @@ fn with_lossy_string_pair<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R
 
 #[inline(always)]
 fn concat_pair_from_spans(a_h: i64, b_h: i64) -> Option<i64> {
-    let merged = with_string_pair_span(a_h, b_h, concat_two_str)?;
-    Some(string_handle_from_owned(merged))
+    let out = with_string_pair_span(a_h, b_h, |a, b| {
+        if a.is_empty() {
+            return Ok(b_h);
+        }
+        if b.is_empty() {
+            return Ok(a_h);
+        }
+        Err(concat_two_str(a, b))
+    })?;
+    match out {
+        Ok(h) => Some(h),
+        Err(merged) => Some(string_handle_from_owned(merged)),
+    }
 }
 
 #[inline(always)]
@@ -222,20 +233,35 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 {
         return None;
     }
-    let merged = handles::with_pair(a_h as u64, b_h as u64, |a_obj, b_obj| {
+    let out = handles::with_pair(a_h as u64, b_h as u64, |a_obj, b_obj| {
         let a_obj = a_obj?;
         let b_obj = b_obj?;
         if let (Some(a_sb), Some(b_sb)) = (
             a_obj.as_any().downcast_ref::<StringBox>(),
             b_obj.as_any().downcast_ref::<StringBox>(),
         ) {
-            return Some(concat_two_str(a_sb.value.as_str(), b_sb.value.as_str()));
+            if a_sb.value.is_empty() {
+                return Some(Ok(b_h));
+            }
+            if b_sb.value.is_empty() {
+                return Some(Ok(a_h));
+            }
+            return Some(Err(concat_two_str(a_sb.value.as_str(), b_sb.value.as_str())));
         }
         let a = a_obj.as_ref().as_str_fast()?;
         let b = b_obj.as_ref().as_str_fast()?;
-        Some(concat_two_str(a, b))
+        if a.is_empty() {
+            return Some(Ok(b_h));
+        }
+        if b.is_empty() {
+            return Some(Ok(a_h));
+        }
+        Some(Err(concat_two_str(a, b)))
     })?;
-    Some(string_handle_from_owned(merged))
+    match out {
+        Ok(h) => Some(h),
+        Err(merged) => Some(string_handle_from_owned(merged)),
+    }
 }
 
 #[inline(always)]
@@ -426,9 +452,30 @@ pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) 
     // both direct String route and StringView-compatible fallback route.
     if a_h > 0 && b_h > 0 && c_h > 0 {
         if let Some(out) = handles::with_str3(a_h as u64, b_h as u64, c_h as u64, |a, b, c| {
-            concat_three_str(a, b, c)
+            if a.is_empty() {
+                if b.is_empty() {
+                    return Ok(c_h);
+                }
+                if c.is_empty() {
+                    return Ok(b_h);
+                }
+                return Err(concat_two_str(b, c));
+            }
+            if b.is_empty() {
+                if c.is_empty() {
+                    return Ok(a_h);
+                }
+                return Err(concat_two_str(a, c));
+            }
+            if c.is_empty() {
+                return Err(concat_two_str(a, b));
+            }
+            Err(concat_three_str(a, b, c))
         }) {
-            return string_handle_from_owned(out);
+            return match out {
+                Ok(h) => h,
+                Err(merged) => string_handle_from_owned(merged),
+            };
         }
 
         let (a_obj, b_obj, c_obj) = handles::get3(a_h as u64, b_h as u64, c_h as u64);
@@ -438,11 +485,28 @@ pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) 
                 resolve_string_span_from_obj(b_h, b_obj),
                 resolve_string_span_from_obj(c_h, c_obj),
             ) {
-                return concat_to_string_handle(&[
-                    a_span.as_str(),
-                    b_span.as_str(),
-                    c_span.as_str(),
-                ]);
+                let a = a_span.as_str();
+                let b = b_span.as_str();
+                let c = c_span.as_str();
+                if a.is_empty() {
+                    if b.is_empty() {
+                        return c_h;
+                    }
+                    if c.is_empty() {
+                        return b_h;
+                    }
+                    return string_handle_from_owned(concat_two_str(b, c));
+                }
+                if b.is_empty() {
+                    if c.is_empty() {
+                        return a_h;
+                    }
+                    return string_handle_from_owned(concat_two_str(a, c));
+                }
+                if c.is_empty() {
+                    return string_handle_from_owned(concat_two_str(a, b));
+                }
+                return concat_to_string_handle(&[a, b, c]);
             }
         }
     }

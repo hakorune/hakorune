@@ -16,6 +16,8 @@ Layout (initial)
   - `README.md` — responsibilities, build notes, platform caveats
   - `include/` — public headers (mirrored or thin wrappers)
   - `shims/` — libc-backed shim(s) for canaries and local testing
+- `src/runtime/kernel/` — `.hako` runtime kernel logic (default edit lane)
+- `src/runtime/host/` — host-call routing facade only
 
 Build & Link (dev)
 - C shim: build a shared library to satisfy symbols for the LLVM line canaries.

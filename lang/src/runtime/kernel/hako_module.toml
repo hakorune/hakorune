@@ -1,0 +1,6 @@
+[module]
+name = "selfhost.runtime.kernel"
+version = "1.0.0"
+
+[exports]
+KernelHub = "kernel_hub_box.hako"

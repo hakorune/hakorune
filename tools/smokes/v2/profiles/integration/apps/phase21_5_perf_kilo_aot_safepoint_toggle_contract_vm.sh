@@ -3,12 +3,12 @@
 #
 # Contract pin:
 # - bench4 AOT lane respects PERF_AOT_AUTO_SAFEPOINT toggle.
-# - On kilo_kernel_small, safepoint=0 must not be slower than safepoint=1.
+# - On kilo_kernel_small_hk, safepoint=0 must not be slower than safepoint=1.
 
 set -euo pipefail
 
 SMOKE_NAME="phase21_5_perf_kilo_aot_safepoint_toggle_contract_vm"
-KEY="kilo_kernel_small"
+KEY="kilo_kernel_small_hk"
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
@@ -23,6 +23,7 @@ run_case() {
   local safepoint="$1"
   PERF_AOT=1 \
   PERF_SKIP_VM_PREFLIGHT=1 \
+  PERF_VM_FORCE_NO_FALLBACK=1 \
   NYASH_LLVM_FAST=1 \
   NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
   PERF_AOT_AUTO_SAFEPOINT="$safepoint" \

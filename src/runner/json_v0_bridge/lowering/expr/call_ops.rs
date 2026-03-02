@@ -317,11 +317,16 @@ fn lower_stageb_static_method_call<S: VarScope>(
     scope: &mut S,
 ) -> Result<Option<(ValueId, BasicBlockId)>, String> {
     let recv_is_import_alias = env.imports.contains_key(recv_name);
+    let import_maps_to_self = env
+        .imports
+        .get(recv_name)
+        .map(|mapped| mapped == recv_name)
+        .unwrap_or(false);
     for box_name in stageb_method_candidates(env, recv_name) {
         // Program(JSON v0) often carries imported static calls only via `imports`,
         // while `defs` stays empty. In that shape, allow alias-qualified static calls
         // to lower directly instead of falling back to runtime String.method(...).
-        let force_alias_static = recv_is_import_alias && box_name == recv_name;
+        let force_alias_static = recv_is_import_alias && import_maps_to_self && box_name == recv_name;
         if let Some(hit) =
             lower_stageb_static_call_for_box(
                 env,

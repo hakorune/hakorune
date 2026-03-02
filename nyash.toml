@@ -28,6 +28,7 @@ members = [
   "lang/src/shared/hako_module.toml",
   "lang/src/vm/hako_module.toml",
   "lang/src/runtime/meta/hako_module.toml",
+  "lang/src/runtime/kernel/hako_module.toml",
   "lang/src/runner/hako_module.toml",
   "lang/src/llvm_ir/hako_module.toml",
   "lang/src/opt/hako_module.toml",

@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md
   - docs/development/current/main/design/joinir-planner-required-gates-ssot.md
+  - docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md
   - docs/development/current/main/design/compiler-expressivity-first-policy.md
   - docs/development/current/main/design/ai-handoff-and-debug-contract.md
 ---
