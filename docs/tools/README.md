@@ -101,29 +101,24 @@ SSOT:
 - `docs/development/current/main/design/ring1-core-provider-promotion-template-ssot.md`
 - `tools/checks/ring1_domains.tsv`（accepted/provisional の判定源）
 
-## 7. Program→MIR Route Wrappers
+## 7. Program→MIR Route Wrapper（SSOT）
 
-mainline（compat fallback 禁止）:
-
-```bash
-tools/hakorune_emit_mir_mainline.sh <input.hako> <out.json>
-```
-
-compat（delegate/fallback 診断用）:
-
-```bash
-tools/hakorune_emit_mir_compat.sh <input.hako> <out.json>
-```
-
-補足:
-- `tools/hakorune_emit_mir.sh` は互換用途も含む共通実装。
-- mainline 契約確認は `*_mainline.sh` を優先する。
-- smoke 共通 route wrapper:
+日常の入口（smoke/check/perf/dev/cache 含む）は `emit_mir_route.sh` を使う:
 
 ```bash
 tools/smokes/v2/lib/emit_mir_route.sh --route direct --timeout-secs 30 --out /tmp/out.mir.json --input apps/tests/fixture.hako
 tools/smokes/v2/lib/emit_mir_route.sh --route hako-mainline --timeout-secs 30 --out /tmp/out.mir.json --input apps/tests/fixture.hako
+tools/smokes/v2/lib/emit_mir_route.sh --route hako-helper --timeout-secs 30 --out /tmp/out.mir.json --input apps/tests/fixture.hako
 ```
+
+route の意味:
+- `direct`: `hakorune --emit-mir-json` 直経路
+- `hako-mainline`: selfhost-first + no-delegate + mainline-only（fail-fast）
+- `hako-helper`: helper 既定経路（診断/互換向け）
+
+補足:
+- `tools/hakorune_emit_mir_mainline.sh` / `tools/hakorune_emit_mir_compat.sh` は薄い互換ラッパとして維持。
+- `tools/hakorune_emit_mir.sh` は内部実装であり、新規スクリプトからの直呼びは行わない。
 
 ## 8. Perf Gate Preset Runner (Phase 21.5)
 

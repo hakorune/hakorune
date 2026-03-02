@@ -57,11 +57,12 @@ Unified entry (ops):
 - route smoke でも `run.sh` を wrapper 入口として使い、運用入口と検証入口を一致させる。
 
 Emit route wrappers（Program→MIR）:
-- mainline（compat fallback 禁止）:
+- SSOT entry:
+  - `tools/smokes/v2/lib/emit_mir_route.sh --route {direct|hako-mainline|hako-helper} --out <mir.json> --input <src.hako>`
+- legacy thin wrappers（互換用途）:
   - `tools/hakorune_emit_mir_mainline.sh <input.hako> <out.json>`
-- compat（delegate/fallback 診断用）:
   - `tools/hakorune_emit_mir_compat.sh <input.hako> <out.json>`
-- 共有実装:
+- helper 実装:
   - `tools/hakorune_emit_mir.sh`
   - `HAKO_EMIT_MIR_MAINLINE_ONLY=1` のとき、Stage-B 失敗/invalid payload で direct fallback せず fail-fast する。
 

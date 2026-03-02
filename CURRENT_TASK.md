@@ -187,14 +187,15 @@ status (2026-03-02):
 3. smoke 共通化:
    - 対象: `tools/smokes/v2/profiles/**`（helper 参照群）
    - 目的: emit 呼び出しを `tools/smokes/v2/lib/` の共通関数へ集約し、一括置換を可能にする。
-   - status (2026-03-02): 共通 wrapper `tools/smokes/v2/lib/emit_mir_route.sh` を追加し、active smoke（concat3 / phase29y nested ternary / joinir port01 / mir_shape_guard / perf_mir_shape）と phase21.5 perf contract 群（apps/integration）の emit 呼び出しを route 指定へ移行。
+   - status (2026-03-02): 共通 wrapper `tools/smokes/v2/lib/emit_mir_route.sh` を追加し、active smoke（concat3 / phase29y nested ternary / joinir port01 / mir_shape_guard / perf_mir_shape）と phase21.5 perf contract 群（apps/integration）に加えて、`integration/core` / `integration/joinir` / `quick/core` の helper 直呼びを route 指定へ移行完了。
 4. check 置換:
    - 対象: `tools/hako_check.sh`, `tools/test_stageb_using.sh`, `test_numeric_core_phi.sh`
    - 目的: helper 依存と `|| true` 握りを整理し、direct 経路で fail-fast 契約へ統一。
    - status (2026-03-02): 3ファイルを `tools/smokes/v2/lib/emit_mir_route.sh` 経由へ移行。`hako_check.sh` の `|| true` 握りを除去し、`HAKO_CHECK_REQUIRE_MIR=1` で strict fail-fast 可能にした（既定は warn 継続）。
 5. wrapper/helper 撤去:
-   - 対象: `tools/hakorune_emit_mir_mainline.sh`, `tools/hakorune_emit_mir_compat.sh`, `tools/hakorune_emit_mir.sh`, `tools/cache/phase29x_l1_mir_cache.sh`
-   - 目的: 参照ゼロ確認後に削除/縮退し、build/perf/smoke gate を再固定。
+   - 対象: `tools/hakorune_emit_mir_mainline.sh`, `tools/hakorune_emit_mir_compat.sh`, `tools/hakorune_emit_mir.sh`
+   - 目的: `emit_mir_route.sh` への移行完了後、互換ラッパの縮退/撤去条件を固定する。
+   - status (2026-03-02): `tools/cache/phase29x_l1_mir_cache.sh` / `tools/dev*` / `tools/perf/microbench.sh` は route wrapper 経由へ移行完了。`tools` 配下の helper 直呼びは互換ラッパ（mainline/compat）を除き撤去済み。
 
 ## Future Ideas (Not Active)
 

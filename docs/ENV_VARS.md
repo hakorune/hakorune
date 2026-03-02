@@ -74,7 +74,7 @@ Using/Resolver
 
 Builder/Emit (Selfhost)
 - HAKO_SELFHOST_BUILDER_FIRST=1
-  - Prefer Hako MirBuilder path first; delegates to provider/legacy on failure. Used by `tools/hakorune_emit_mir.sh` and bench scripts.
+  - Prefer Hako MirBuilder path first; delegates to provider/legacy on failure. Used by `tools/smokes/v2/lib/emit_mir_route.sh --route hako-helper` and bench scripts.
 - HAKO_MIR_BUILDER_BOX=hako.mir.builder|min
   - Choose selfhost builder box (full or minimal runner).
 - HAKO_SELFHOST_TRACE=1
@@ -89,7 +89,7 @@ Builder/Emit (Selfhost)
 
 Provider path (delegate)
 - HAKO_MIR_NORMALIZE_PROVIDER=1
-  - Provider（Rust）出力の MIR(JSON) に対して、Hako の JsonFrag 正規化パスを適用する（tools/hakorune_emit_mir.sh 内部）。
+  - Provider（Rust）出力の MIR(JSON) に対して、Hako の JsonFrag 正規化パスを適用する（hako-helper route 内部）。
   - 互換維持のため既定はOFF。Box 系で ret ブロックに副作用命令が残るようなケースの暫定純化に利用できる。
 
 - NYASH_LLVM_FAST_INT=1
