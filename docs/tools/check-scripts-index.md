@@ -23,6 +23,7 @@ tools/checks/dev_gate.sh quick
 | Script | Purpose |
 | --- | --- |
 | `tools/checks/env_dead_accessors_report.sh` | `src/config/env/*.rs` の dead accessor 候補と doc-only 候補をCSVで棚卸し。 |
+| `tools/checks/route_env_probe.sh` | emit route 直前の Env / route 表示を確認する。 |
 
 使い方:
 

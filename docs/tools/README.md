@@ -7,6 +7,7 @@ Related:
 - docs/how-to/smokes.md
 - docs/tools/cli-options.md
 - docs/tools/check-scripts-index.md
+- docs/tools/script-index.md
 
 ## 目的別の入口
 
@@ -202,6 +203,18 @@ cat target/smoke_inventory/integration_apps_summary.txt
 cat docs/tools/check-scripts-index.md
 tools/checks/env_dead_accessors_report.sh
 ```
+
+## 13. Script Index (導線まとまり)
+
+全 `.sh` 導線を SSOT で見たい場合は、まずこのインデックスに当たる:
+
+```bash
+cat docs/tools/script-index.md
+tools/checks/route_env_probe.sh --route hako-mainline --source apps/tests/minimal.hako
+```
+
+`route_env_probe` は、`emit_mir_route.sh` 実行前の
+`NYASH_MIR_CONCAT3_CANON` や fallback トグルを1回で確認する短絡入口。
 
 ## 推奨デバッグ順
 
