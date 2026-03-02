@@ -513,7 +513,9 @@ def lower_binop(
                 if callee3 is None:
                     callee3 = ir.Function(builder.module, hhh_fnty, name='nyash.string.concat3_hhh')
                 res = builder.call(callee3, list(concat3_args), name=f"concat3_hhh_{dst}")
-                _prune_dead_chain_call(builder, folded_call)
+                # Keep folded concat_hh alive for now.
+                # Lowering is single-pass, so future instructions/blocks may still reference it
+                # via copy/release/phi, and eager pruning can create undefined IR values.
             else:
                 hh_fnty = ir.FunctionType(i64, [i64, i64])
                 callee = None

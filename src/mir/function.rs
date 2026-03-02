@@ -84,34 +84,11 @@ impl MirFunction {
         let mut blocks = HashMap::new();
         blocks.insert(entry_block, BasicBlock::new(entry_block));
 
-        // 📦 Hotfix 1 + 4 + 8: Reserve ValueIds for function parameters at creation time
-        // Parameter ValueIds are %0, %1, ..., %N-1 where N = signature.params.len()
-        //
-        // 📦 Hotfix 8: Instance method receiver detection (Fixed Hotfix 4 logic inversion)
-        // - Instance methods (me.method()) have implicit 'me' receiver (params[0]: Box type)
-        // - Static methods (StaticBox.method()) have NO receiver (params[0]: non-Box type)
-        //
-        // Detection: If function name contains "." (box method) AND
-        // params[0] IS a Box type → instance method → needs +1 for receiver
+        // Reserve ValueIds exactly for `signature.params` (%0..%N-1).
+        // `signature.params` is the SSOT for callable arity and already includes
+        // `me` for instance methods lowered by MirBuilder.
         let param_count = signature.params.len() as u32;
-        let has_implicit_receiver = if signature.name.contains('.') {
-            // Box method (instance or static)
-            if signature.params.is_empty() {
-                // No params → static method with no receiver
-                // (e.g., StaticBox.method() with 0 params)
-                false
-            } else {
-                // Check if first param is Box type (instance method) or not (static method)
-                // ✅ FIXED: Instance method (Box type) → true, Static method (non-Box) → false
-                matches!(signature.params[0], MirType::Box(_))
-            }
-        } else {
-            // Global function → no receiver
-            false
-        };
-
-        let receiver_count = if has_implicit_receiver { 1 } else { 0 };
-        let total_value_ids = param_count + receiver_count;
+        let total_value_ids = param_count;
         let initial_counter = total_value_ids.max(1); // At least 1 to reserve ValueId(0) as sentinel
 
         // 🔥 Hotfix 5: Pre-populate params vector with reserved ValueIds
@@ -128,7 +105,7 @@ impl MirFunction {
                 "[MirFunction::new] fn='{}' params={}, receiver={}, total={}, initial_counter={}, pre_params={:?}",
                 signature.name,
                 param_count,
-                receiver_count,
+                0,
                 total_value_ids,
                 initial_counter,
                 pre_params

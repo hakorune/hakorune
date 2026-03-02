@@ -98,11 +98,16 @@ impl MeCallPolicyBox {
                 }
             }
 
-            // Fallback: treat me.method(...) as a static method on the enclosing box.
-            //  - 旧挙動では me を Box 値として Method 呼び出ししようとしていたが、
-            //    static box 文脈では実体インスタンスが存在しないため UndefinedValue を生みやすい。
-            //  - ここでは receiver を持たない Global call に揃え、FuncScannerBox などの
-            //    static ヘルパー呼び出しを安全に扱う。
+            // Fallback 1: if `me` is bound, keep instance semantics.
+            // This avoids silently turning `me.method(...)` into a static call.
+            if let Ok(me_id) = super::stmts::variable_stmt::build_me_expression(builder) {
+                let dst =
+                    builder.handle_standard_method_call(me_id, method.to_string(), arguments)?;
+                return Ok(Some(dst));
+            }
+
+            // Fallback 2: static helper context (no bound `me`) keeps legacy static lowering.
+            // This path is mainly for static-box helper code where receiver is intentionally absent.
             let static_dst = builder.handle_static_method_call(cls, method, arguments)?;
             return Ok(Some(static_dst));
         }

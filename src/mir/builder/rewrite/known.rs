@@ -62,6 +62,31 @@ fn rewrite_enabled() -> bool {
     }
 }
 
+fn rewrite_call_args_for_signature(
+    builder: &MirBuilder,
+    fname: &str,
+    object_value: ValueId,
+    mut arg_values: Vec<ValueId>,
+) -> Vec<ValueId> {
+    let expected_params = builder
+        .current_module
+        .as_ref()
+        .and_then(|module| module.functions.get(fname))
+        .map(|func| func.signature.params.len());
+
+    // Static-lowered methods have params == arg_values.len().
+    // Instance-lowered methods have params == arg_values.len() + 1 (receiver first).
+    let prepend_receiver = !matches!(expected_params, Some(n) if n == arg_values.len());
+    if prepend_receiver {
+        let mut call_args = Vec::with_capacity(arg_values.len() + 1);
+        call_args.push(object_value);
+        call_args.append(&mut arg_values);
+        call_args
+    } else {
+        arg_values
+    }
+}
+
 /// Try Known‑route instance→function rewrite.
 /// 既存の安全ガード（user_defined/存在確認/ENV）を尊重して関数化する。
 #[allow(dead_code)]
@@ -70,7 +95,7 @@ pub(crate) fn try_known_rewrite(
     object_value: ValueId,
     cls: &str,
     method: &str,
-    mut arg_values: Vec<ValueId>,
+    arg_values: Vec<ValueId>,
 ) -> Option<Result<ValueId, String>> {
     // Global gate
     if !rewrite_enabled() {
@@ -115,10 +140,10 @@ pub(crate) fn try_known_rewrite(
     if !((module_has || allow_userbox_rewrite) || (from_new_origin && allow_new_origin)) {
         return None;
     }
-    // Materialize function call: pass 'me' first, then args (unified call)
-    let mut call_args = Vec::with_capacity(arity + 1);
-    call_args.push(object_value);
-    call_args.append(&mut arg_values);
+    // Materialize function call according to lowered function signature:
+    // - instance: receiver + args
+    // - static:   args only
+    let mut call_args = rewrite_call_args_for_signature(builder, &fname, object_value, arg_values);
     if let Err(e) = crate::mir::builder::ssa::local::finalize_args(builder, &mut call_args) {
         return Some(Err(e));
     }
@@ -152,7 +177,7 @@ pub(crate) fn try_known_rewrite_to_dst(
     object_value: ValueId,
     cls: &str,
     method: &str,
-    mut arg_values: Vec<ValueId>,
+    arg_values: Vec<ValueId>,
 ) -> Option<Result<ValueId, String>> {
     if !rewrite_enabled() {
         return None;
@@ -194,9 +219,7 @@ pub(crate) fn try_known_rewrite_to_dst(
         return None;
     }
     // unified global function call (module-local)
-    let mut call_args = Vec::with_capacity(arity + 1);
-    call_args.push(object_value);
-    call_args.append(&mut arg_values);
+    let mut call_args = rewrite_call_args_for_signature(builder, &fname, object_value, arg_values);
     if let Err(e) = crate::mir::builder::ssa::local::finalize_args(builder, &mut call_args) {
         return Some(Err(e));
     }
@@ -228,7 +251,7 @@ pub(crate) fn try_unique_suffix_rewrite(
     builder: &mut MirBuilder,
     object_value: ValueId,
     method: &str,
-    mut arg_values: Vec<ValueId>,
+    arg_values: Vec<ValueId>,
 ) -> Option<Result<ValueId, String>> {
     if !rewrite_enabled() {
         return None;
@@ -259,10 +282,8 @@ pub(crate) fn try_unique_suffix_rewrite(
     }
 
     // unified
-    let mut call_args = Vec::with_capacity(arg_values.len() + 1);
-    call_args.push(object_value); // 'me'
     let arity_us = arg_values.len();
-    call_args.append(&mut arg_values);
+    let mut call_args = rewrite_call_args_for_signature(builder, &fname, object_value, arg_values);
     if let Err(e) = crate::mir::builder::ssa::local::finalize_args(builder, &mut call_args) {
         return Some(Err(e));
     }
@@ -293,7 +314,7 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
     want_dst: Option<ValueId>,
     object_value: ValueId,
     method: &str,
-    mut arg_values: Vec<ValueId>,
+    arg_values: Vec<ValueId>,
 ) -> Option<Result<ValueId, String>> {
     if !rewrite_enabled() {
         return None;
@@ -322,15 +343,13 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
         return None;
     }
 
-    let _name_const = match crate::mir::builder::name_const::make_name_const_result(builder, &fname)
-    {
-        Ok(v) => v,
-        Err(e) => return Some(Err(e)),
-    };
-    let mut call_args = Vec::with_capacity(arg_values.len() + 1);
-    call_args.push(object_value);
+    let _name_const =
+        match crate::mir::builder::name_const::make_name_const_result(builder, &fname) {
+            Ok(v) => v,
+            Err(e) => return Some(Err(e)),
+        };
     let arity_us = arg_values.len();
-    call_args.append(&mut arg_values);
+    let mut call_args = rewrite_call_args_for_signature(builder, &fname, object_value, arg_values);
     if let Err(e) = crate::mir::builder::ssa::local::finalize_args(builder, &mut call_args) {
         return Some(Err(e));
     }

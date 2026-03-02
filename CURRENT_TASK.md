@@ -27,10 +27,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `docs/development/current/main/design/joinir-port-task-pack-ssot.md`
   - joinir extension contract SSOT（lane A reopen runbook）:
     - `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
-    - active seed: `JIR-EXT-SHAPE-01`（GREEN lock / vm-hako subset-gap monitor）
+    - active seed: `JIR-EXT-SHAPE-01`（GREEN lock）
       - fixture: `apps/tests/phase29bq_selfhost_blocker_phi_injector_collect_phi_vars_nested_loop_no_exit_var_step_min.hako`
       - gate: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only ext-red`
-      - note: rust-reference は `18 / RC:0`、hako-mainline は planner path green だが runtime subset gap（`[vm-hako/unimplemented op=boxcall1 method=get]`）を監視継続。
+      - note: rust-reference / hako-mainline ともに `18 / RC:0`（lane tag: `vm` / `vm-hako`）で green lock 済み。
   - lane A mirror sync helper:
     - `bash tools/selfhost/sync_lane_a_state.sh`
   - done: `JIR-PORT-00`（Boundary Lock, docs-first）
@@ -151,7 +151,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
    - 対象: `tools/selfhost/build_stage1.sh`, `tools/selfhost_exe_stageb.sh`
    - 目的: helper 直呼びを外し、`hakorune --emit-mir-json` 直経路へ一本化。
    - status (2026-03-02): `hakorune_emit_mir.sh` 直呼びを撤去し、`selfhost_exe_stageb.sh` は helper-free 実装へ移行（default route=`stageb-delegate`）。
-   - pending: `launcher.hako` の direct は `macro.begin` 後に stall しやすく、macro OFF 時は merged prelude 側で JoinIR freeze（`BuildBox.emit_program_json_v0` / `JsonFragBox.read_int_from`）へ到達する。direct 一本化は JoinIR coverage 拡張後に昇格。
+   - latest unblock (2026-03-02): direct route の global-call arity blocker（`ParserBox.esc_json/1`, `HakoCli.run/1`）は解消し、次の fail-fast は LLVM harness parse (`PHINode should have one entry for each predecessor`) へ前進。
+   - pending: `launcher.hako` direct は JoinIR coverage 課題に加えて LLVM PHI predecessor 整合の blocker が残る。direct 一本化の昇格は PHI blocker 解消後に実施。
 2. perf SSOT 置換:
    - 対象: `tools/perf/lib/aot_helpers.sh` と呼び出し元ベンチ群。
    - 目的: `PERF_AOT_PREFER_HELPER` / `PERF_AOT_HELPER_ONLY` を縮退し、strict は direct 優先に固定。

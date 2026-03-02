@@ -28,6 +28,35 @@ use super::function_lowering;
 use crate::ast::ASTNode;
 use crate::mir::builder::{MirBuilder, MirInstruction, MirType};
 
+fn parse_declared_method_arity(func_name: &str) -> Option<usize> {
+    let (_, tail) = func_name.rsplit_once('/')?;
+    tail.parse::<usize>().ok()
+}
+
+fn is_constructor_name(func_name: &str) -> bool {
+    func_name.contains(".birth/") || func_name.contains(".init/") || func_name.contains(".pack/")
+}
+
+fn normalize_instance_method_params(func_name: &str, mut params: Vec<String>) -> Vec<String> {
+    let Some(declared_arity) = parse_declared_method_arity(func_name) else {
+        return params;
+    };
+
+    if params.len() == declared_arity {
+        return params;
+    }
+
+    // Defensive normalization is constructor-only.
+    // Instance methods need receiver + declared args, so normalizing them here
+    // can create arity regressions (e.g. run/1 declared=1 call=2).
+    if is_constructor_name(func_name) && params.len() == declared_arity + 1 {
+        params.remove(0);
+        return params;
+    }
+
+    params
+}
+
 impl MirBuilder {
     // ============================================================================
     // Step 4: 本体lowering (Body Lowering)
@@ -312,6 +341,7 @@ impl MirBuilder {
         params: Vec<String>,
         body: Vec<ASTNode>,
     ) -> Result<(), String> {
+        let params = normalize_instance_method_params(&func_name, params);
         if crate::config::env::joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(

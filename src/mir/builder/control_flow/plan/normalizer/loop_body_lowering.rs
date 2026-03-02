@@ -185,7 +185,30 @@ pub(in crate::mir::builder) fn lower_method_call_stmt(
                 effects: EffectMask::PURE.add(crate::mir::Effect::Io),
             });
         }
-        ASTNode::This { .. } | ASTNode::Me { .. } => {
+        ASTNode::Me { .. } => {
+            if let Some(&value_id) = phi_bindings
+                .get("me")
+                .or_else(|| builder.variable_ctx.variable_map.get("me"))
+            {
+                effects.push(CoreEffectPlan::MethodCall {
+                    dst: None,
+                    object: value_id,
+                    method: method.clone(),
+                    args: arg_ids,
+                    effects: EffectMask::PURE.add(crate::mir::Effect::Io),
+                });
+            } else if let Some(box_name) = builder.comp_ctx.current_static_box.clone() {
+                let func = format!("{}.{}/{}", box_name, method, arguments.len());
+                effects.push(CoreEffectPlan::GlobalCall {
+                    dst: None,
+                    func,
+                    args: arg_ids,
+                });
+            } else {
+                return Err(format!("{error_prefix}: me.method without bound receiver"));
+            }
+        }
+        ASTNode::This { .. } => {
             if let Some(box_name) = builder.comp_ctx.current_static_box.clone() {
                 let func = format!("{}.{}/{}", box_name, method, arguments.len());
                 effects.push(CoreEffectPlan::GlobalCall {

@@ -85,10 +85,10 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - JoinIR port mode（lane A）: monitor-only（failure-driven reopen）
 - JoinIR extension runbook（lane A reopen）:
   - `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
-  - active green seed: `JIR-EXT-SHAPE-01`（vm-hako subset-gap monitor）
+  - active green seed: `JIR-EXT-SHAPE-01`
     - fixture: `apps/tests/phase29bq_selfhost_blocker_phi_injector_collect_phi_vars_nested_loop_no_exit_var_step_min.hako`
     - gate: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only ext-red`
-    - latest (2026-03-02): rust-reference=`18 / RC:0`、hako-mainline は planner freeze なし（lane tag=`vm-hako`）だが runtime subset gap `boxcall1 get` は未解消。
+    - latest (2026-03-02): rust-reference / hako-mainline ともに `18 / RC:0`（lane tag=`vm` / `vm-hako`）で green lock。
 - JoinIR parity probe pin（JIR-PORT-01）:
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port01_parity_probe_vm.sh`
 - App-first: APP-1（Gate Log Summarizer）acceptance PASS 済み
@@ -104,6 +104,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - `binary-only --hako-emit-mir-json` 契約を優先（SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`）
   - active next: `none`（B-TERNARY-03 decision fixed: non-gating維持）
   - task SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` の `Lane-B Nested Ternary Debt Pack (B-TERNARY-01..03)`
+  - direct-route debug (2026-03-02): `build_stage1.sh` direct は arity blocker（`ParserBox.esc_json/1` / `HakoCli.run/1`）を解消し、現 blocker は LLVM harness parse（`PHINode should have one entry for each predecessor`）。
 - De-rust orchestration lane（phase-29cc）:
   - status dashboard（SSOT）: `docs/development/current/main/phases/phase-29cc/README.md`
   - execution checklist: `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`

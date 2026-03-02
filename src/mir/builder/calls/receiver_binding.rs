@@ -28,27 +28,33 @@ impl MirBuilder {
         method: &str,
         arguments: &[ASTNode],
     ) -> Result<Option<ValueId>, String> {
-        if !matches!(object, ASTNode::This { .. } | ASTNode::Me { .. }) {
-            return Ok(None);
-        }
-
-        // Priority 1: static box → compile-time static call normalization
-        if let Some(box_name) = self.comp_ctx.current_static_box.clone() {
-            if crate::config::env::builder_trace_normalize() {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!(
-                    "[trace:normalize] this.{}() → {}.{}() (static call)",
-                    method, box_name, method
-                ));
+        match object {
+            ASTNode::Me { .. } => {
+                // `me.method(...)` must remain on instance semantics.
+                // Static normalization here would drop receiver and break arity.
+                self.handle_me_method_call(method, arguments)
             }
-            // this.method(args) → current_static_box.method/arity(args)
-            // Delegate to static_resolution module for static method handling
-            return Ok(Some(self.handle_static_method_call(
-                &box_name, method, arguments,
-            )?));
-        }
+            ASTNode::This { .. } => {
+                // Priority 1 for `this`: static box → compile-time static call normalization
+                if let Some(box_name) = self.comp_ctx.current_static_box.clone() {
+                    if crate::config::env::builder_trace_normalize() {
+                        let ring0 = crate::runtime::get_global_ring0();
+                        ring0.log.debug(&format!(
+                            "[trace:normalize] this.{}() → {}.{}() (static call)",
+                            method, box_name, method
+                        ));
+                    }
+                    // this.method(args) → current_static_box.method/arity(args)
+                    // Delegate to static_resolution module for static method handling
+                    return Ok(Some(self.handle_static_method_call(
+                        &box_name, method, arguments,
+                    )?));
+                }
 
-        // Instance method fallback (requires variable_map["me"])
-        self.handle_me_method_call(method, arguments)
+                // Instance fallback (requires variable_map["me"])
+                self.handle_me_method_call(method, arguments)
+            }
+            _ => Ok(None),
+        }
     }
 }

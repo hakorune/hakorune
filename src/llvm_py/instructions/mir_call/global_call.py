@@ -8,6 +8,7 @@ to LLVM IR.
 from typing import Dict, Any, Optional
 from llvmlite import ir
 import os
+import sys
 from utils.resolver_helpers import is_handle_type, is_stringish_legacy
 from .arg_resolver import make_call_arg_resolver
 
@@ -102,7 +103,6 @@ def lower_global_call(builder, module, func_name, args, dst_vid, vmap, resolver,
 
                     # Debug logging: handle detection
                     if is_handle and os.environ.get('NYASH_CLI_VERBOSE') == '1':
-                        import sys
                         print(f"[llvm-py/types] print arg %{arg_id}: is_handle=True, skip boxing", file=sys.stderr)
 
                     v_to_print = arg_val
@@ -111,7 +111,6 @@ def lower_global_call(builder, module, func_name, args, dst_vid, vmap, resolver,
                         # Raw i64 value: box it before printing
                         # Debug logging: raw i64 boxing
                         if os.environ.get('NYASH_CLI_VERBOSE') == '1':
-                            import sys
                             print(
                                 f"[llvm-py/types] print arg %{arg_id}: raw/integerish i64, box.from_i64 called",
                                 file=sys.stderr,
@@ -132,6 +131,19 @@ def lower_global_call(builder, module, func_name, args, dst_vid, vmap, resolver,
                 arg_val = builder.ptrtoint(arg_val, expected_type, name=f"global_p2i_{i}")
 
         call_args.append(arg_val)
+
+    if not func.function_type.var_arg and len(call_args) != len(func.args):
+        print(
+            (
+                "[llvm-py/arity/global] "
+                f"name={func_name} declared={len(func.args)} "
+                f"call={len(call_args)} raw_args={args}"
+            ),
+            file=sys.stderr,
+        )
+        raise RuntimeError(
+            f"global call arity mismatch: {func_name} declared={len(func.args)} call={len(call_args)}"
+        )
 
     # Make the call - TRUE UNIFIED
     result = builder.call(func, call_args, name=f"unified_global_{func_name}")

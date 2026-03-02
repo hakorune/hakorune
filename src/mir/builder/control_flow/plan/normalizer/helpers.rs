@@ -479,7 +479,33 @@ impl super::PlanNormalizer {
                             effects: EffectMask::PURE.add(Effect::Io),
                         });
                     }
-                    ASTNode::This { .. } | ASTNode::Me { .. } => {
+                    ASTNode::Me { .. } => {
+                        if let Some(&object_id) = phi_bindings
+                            .get("me")
+                            .or_else(|| builder.variable_ctx.variable_map.get("me"))
+                        {
+                            arg_effects.push(CoreEffectPlan::MethodCall {
+                                dst: Some(result_id),
+                                object: object_id,
+                                method: method.clone(),
+                                args: arg_ids,
+                                effects: EffectMask::PURE.add(Effect::Io),
+                            });
+                        } else if let Some(box_name) = builder.comp_ctx.current_static_box.clone() {
+                            // Static-box helper contexts may not materialize `me`.
+                            let func = format!("{}.{}/{}", box_name, method, arguments.len());
+                            arg_effects.push(CoreEffectPlan::GlobalCall {
+                                dst: Some(result_id),
+                                func,
+                                args: arg_ids,
+                            });
+                        } else {
+                            return Err(
+                                "[normalizer] me.method() without bound receiver".to_string()
+                            );
+                        }
+                    }
+                    ASTNode::This { .. } => {
                         if let Some(box_name) = builder.comp_ctx.current_static_box.clone() {
                             let func = format!("{}.{}/{}", box_name, method, arguments.len());
                             arg_effects.push(CoreEffectPlan::GlobalCall {
