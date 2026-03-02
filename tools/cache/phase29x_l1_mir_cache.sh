@@ -70,7 +70,7 @@ if [ ! -f "$INPUT_PATH" ]; then
   exit 2
 fi
 
-if [ ! -x "$KEY_TOOL" ]; then
+if [ ! -f "$KEY_TOOL" ]; then
   echo "phase29x_l1_mir_cache: key tool missing: $KEY_TOOL" >&2
   exit 2
 fi
@@ -86,7 +86,7 @@ else
   exit 2
 fi
 
-KEY_INFO="$("$KEY_TOOL" --input "$INPUT_PATH" --profile "$PROFILE" --backend "$BACKEND" --target "$TARGET")"
+KEY_INFO="$(bash "$KEY_TOOL" --input "$INPUT_PATH" --profile "$PROFILE" --backend "$BACKEND" --target "$TARGET")"
 
 key_of() {
   local name="$1"

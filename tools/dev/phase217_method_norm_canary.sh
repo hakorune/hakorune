@@ -14,17 +14,18 @@ HAKO
 
 TMP_JSON=$(mktemp --suffix .json)
 
-# Emit MIR(JSON) with defs + call resolution
-HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_STAGEB_FUNC_SCAN=1 HAKO_MIR_BUILDER_FUNCS=1 HAKO_MIR_BUILDER_CALL_RESOLVE=1 \
-  bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON" --input "$TMP_SRC" >/dev/null
+# Emit MIR(JSON) via direct route (v1 schema + unified call contract)
+HAKO_STAGEB_FUNC_SCAN=1 HAKO_MIR_BUILDER_FUNCS=1 HAKO_MIR_BUILDER_CALL_RESOLVE=1 \
+  bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route direct --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON" --input "$TMP_SRC" >/dev/null
 
 # Check that names include arity suffix '/2'
-if ! rg -q '"name"\s*:\s*"Main.add/2"' "$TMP_JSON"; then
+if ! rg -q '"name"\s*:\s*"Main\.add/2"' "$TMP_JSON"; then
   echo "[FAIL] missing arity-suffixed function name Main.add/2" >&2
   exit 1
 fi
-if ! rg -q '"value"\s*:\s*"Main.add/2"' "$TMP_JSON"; then
-  echo "[FAIL] missing arity-suffixed call target Main.add/2" >&2
+if ! rg -q '"value"\s*:\s*"Main\.add/2"' "$TMP_JSON" \
+   && ! (rg -q '"box_name"\s*:\s*"Main"' "$TMP_JSON" && rg -q '"name"\s*:\s*"add"' "$TMP_JSON" && rg -q '"type"\s*:\s*"Method"' "$TMP_JSON"); then
+  echo "[FAIL] missing methodized call target for Main.add" >&2
   exit 1
 fi
 
