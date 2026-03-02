@@ -174,6 +174,11 @@ status (2026-03-02):
 
 ## Helper Retirement Pack (active / ordered)
 
+contract note (fixed):
+- `helper retirement` は Program→MIR の入口整理（route/wrapper縮退）を指す。
+- JSON v0 bridge contract（Program(JSON v0) 受理・橋渡し）は撤退対象に含めない。
+- 本packは `jsonv0` を削除せず、emit route の drift と silent fallback を減らすことを目的とする。
+
 1. build 導線置換:
    - 対象: `tools/selfhost/build_stage1.sh`, `tools/selfhost_exe_stageb.sh`
    - 目的: helper 直呼びを外し、`hakorune --emit-mir-json` 直経路へ一本化。

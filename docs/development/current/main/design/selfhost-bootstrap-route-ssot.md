@@ -66,6 +66,11 @@ Emit route wrappers（Program→MIR）:
   - `tools/hakorune_emit_mir.sh`
   - `HAKO_EMIT_MIR_MAINLINE_ONLY=1` のとき、Stage-B 失敗/invalid payload で direct fallback せず fail-fast する。
 
+route contract note（fixed）:
+- helper 撤退は route/wrapper の集約を意味し、JSON v0 bridge contract の削除は含まない。
+- Program(JSON v0) を生成して MIR/VM に橋渡しする契約は本SSOTで維持する。
+- したがって `hako-helper` は縮退対象でも、`json_v0` は保持対象である。
+
 ## Concurrency / Async Policy (SSOT)
 
 selfhost 復帰の議論で混線しやすい点を、ここで固定する。

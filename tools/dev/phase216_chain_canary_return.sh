@@ -16,7 +16,7 @@ HAKO_SELFHOST_BUILDER_FIRST=1 \
 NYASH_USE_NY_COMPILER=0 HAKO_DISABLE_NY_COMPILER=1 \
 NYASH_FEATURES=stage3 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
 NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-  bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON" --input "$TMP_SRC" >/dev/null
+  bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-mainline --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON" --input "$TMP_SRC" >/dev/null
 
 NYASH_LLVM_BACKEND=crate NYASH_LLVM_SKIP_BUILD=1 \
 NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
