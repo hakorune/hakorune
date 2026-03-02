@@ -1,107 +1,42 @@
-// lower_loop_simple_box.hako — Loop(Compare i < N) → counting loop (i from 0 to N) returning i
-// Notes: minimal scanner that extracts limit N from Program(JSON v0) Loop cond rhs Int.
+// lower_loop_simple_box.hako — minimal/stable loop lowering for hako-mainline.
+// Accept only: loop(Var < Int). Any other shape returns null and is delegated.
 
-using selfhost.shared.mir.loopform as LoopFormBox
-using "hako.mir.builder.internal.prog_scan" as ProgScanBox
-using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.json.utils.json_frag as JsonFragBox
-using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 using "hako.mir.builder.internal.loop_scan" as LoopScanBox
 using "hako.mir.builder.internal.loop_opts_adapter" as LoopOptsBox
-using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
 
 static box LowerLoopSimpleBox {
   try_lower(program_json) {
     local s = "" + program_json
-    // Find Loop with cond Compare and normalize to canonical (<) with dynamic var name
     local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
     if k_loop < 0 { return null }
+
     local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_loop)
     if k_cmp < 0 { return null }
-    // discover loop var name from cond (lhs or rhs Var)
+
     local varname = LoopScanBox.find_loop_var_name(s, k_cmp)
     if varname == null { return null }
 
-    // op: accept '<' / '<=' as-is, '!=' (with var on lhs) as '<', and swapped '>' / '>=' (with var on rhs)
+    // Stable contract: only lhs=Var(varname), rhs=Int, op="<"
+    local has_lhs_i = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
+    local has_rhs_i = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
+    if !has_lhs_i { return null }
+    if has_rhs_i { return null }
+
     local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_cmp); if k_op < 0 { return null }
     local op = JsonFragBox.read_string_after(s, k_op + 5)
     if op == null { return null }
-    // Determine where Var(varname) is and extract the Int from the opposite side
-    local has_lhs_i = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
-    local has_rhs_i = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
-    if !has_lhs_i && !has_rhs_i { return null }
+    if op != "<" { return null }
 
-    local swapped = 0
-    local limit = null
-    if has_lhs_i {
-      // rhs Int value
-      local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp); if k_rhs < 0 { return null }
-      local k_ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs); if k_ti < 0 { return null }
-      local k_v = JsonFragBox.index_of_from(s, "\"value\":", k_ti); if k_v < 0 { return null }
-      limit = JsonFragBox.read_int_after(s, k_v + 8)
-      if limit == null { return null }
-    } else {
-      // Var is on rhs; lhs must be Int
-      swapped = 1
-      local k_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp); if k_lhs < 0 { return null }
-      local k_ti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_lhs); if k_ti2 < 0 { return null }
-      local k_v2 = JsonFragBox.index_of_from(s, "\"value\":", k_ti2); if k_v2 < 0 { return null }
-      limit = JsonFragBox.read_int_after(s, k_v2 + 8)
-      if limit == null { return null }
-    }
+    local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp); if k_rhs < 0 { return null }
+    local k_ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs); if k_ti < 0 { return null }
+    local k_v = JsonFragBox.index_of_from(s, "\"value\":", k_ti); if k_v < 0 { return null }
+    local limit = JsonFragBox.read_int_after(s, k_v + 8)
+    if limit == null { return null }
 
-    // Normalize to canonical '<' using shared helper; only accept Lt in simple box
-    local norm = PatternUtilBox.normalize_cmp_limit(op, swapped, limit)
-    if norm == null { return null }
-    local cpos = StringOps.index_of_from(norm, ":", 0); if cpos < 0 { return null }
-    local cmp = norm.substring(0, cpos)
-    limit = norm.substring(cpos+1, norm.length())
-
-    // FORCE mode: aggressive fallback for non-Lt cases
-    if cmp != "Lt" {
-      if BuilderConfigBox.loop_force_jsonfrag_on() == 1 {
-        // Fallback: find any local Int before Compare as limit candidate
-        local fallback_limit = PatternUtilBox.find_any_local_int_before(s, k_cmp)
-        if fallback_limit != null {
-          limit = fallback_limit
-          cmp = "Lt"  // Force canonical < form
-          if BuilderConfigBox.trace_enabled() == 1 {
-            print("[mirbuilder/internal/loop:force_fallback:limit=" + limit + "]")
-          }
-        } else {
-          return null  // Fallback also failed
-        }
-      } else {
-        return null  // Strict mode: reject non-Lt
-      }
-    }
-
-    // JsonFrag 直組立（opt-in）: HAKO_MIR_BUILDER_LOOP_JSONFRAG=1 or FORCE
-    {
-      local force = BuilderConfigBox.loop_force_jsonfrag_on()
-      local normal = BuilderConfigBox.loop_jsonfrag_on()
-      if force == 1 || normal == 1 {
-        // Minimal MIR(JSON) with compare + branch + ret（構造検証用）
-        // Note: semanticsは簡略（canaryはトークン検出のみ）
-        local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-          "{\"id\":0,\"instructions\":[" +
-            "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}}," +
-            "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + limit + "}}," +
-            "{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
-            "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
-          "{\"id\":1,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}," +
-          "{\"id\":2,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}]}]}"
-        local tag = force == 1 ? "force_jsonfrag" : "jsonfrag"
-        if BuilderConfigBox.trace_enabled() == 1 { print("[mirbuilder/internal/loop:" + tag + "]") }
-        return mir
-      }
-    }
-    // Delegate to shared loop form builder (counting mode) via build2（既定）
-    // Adapter centralizes Map creation（JsonFrag化の踏み台）
     local opts = LoopOptsBox.new_map()
     opts = LoopOptsBox.put(opts, "mode", "count")
     opts = LoopOptsBox.put(opts, "limit", limit)
-    // init/step are optional; default to 0/1 inside LoopFormBox
     return LoopOptsBox.build2(opts)
   }
 }

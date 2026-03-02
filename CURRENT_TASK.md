@@ -150,6 +150,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 14. phase216 mainline blocker pin:
    - loop emit blocker（`LowerLoopSimpleBox.try_lower/1` undefined ValueId）を fixture+block canary で固定。
    - binop は baseline（`1+2 => 3`）と precedence blocker（`1+2*3 != 7`）を分離して監視する。
+15. phase216 debug status (2026-03-02, active):
+   - loop blocker は継続（`LowerLoopSimpleBox.try_lower/1` で `use of undefined value ValueId(...)`）。
+   - `LowerLoopSimpleBox` は mainline 安定化のため `loop(Var < Int)` 限定実装へ縮退済み。
+   - binop precedence は `LowerReturnBinOpBox` の誤受理（nested rhs Binary を Int と誤認）を修正し、blocker rc は `3 -> 4` へ更新（未解消）。
 
 ## Concat3 Normalization Pack (active / ordered)
 

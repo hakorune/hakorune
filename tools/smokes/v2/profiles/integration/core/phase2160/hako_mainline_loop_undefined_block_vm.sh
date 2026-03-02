@@ -43,7 +43,7 @@ if [[ "$rc" -eq 0 ]]; then
   exit 1
 fi
 
-if ! rg -q "LowerLoopSimpleBox\\.try_lower/1" "${TMP_LOG}"; then
+if ! rg -q "LowerLoopSimpleBox\\.(try_lower|_lower_from_cmp|_emit_or_build_with_limit)/" "${TMP_LOG}"; then
   echo "[SKIP] fail reason drift (missing LowerLoopSimpleBox tag)"
   exit 0
 fi

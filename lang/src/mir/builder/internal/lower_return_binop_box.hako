@@ -15,24 +15,18 @@ static box LowerReturnBinOpBox {
     local op = JsonFragBox.read_string_after(s, k_op + 5)
     if op == null { return null }
     if !(op == "+" || op == "-" || op == "*" || op == "/") { return null }
-    // lhs/rhs object starts
-    local klhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_bin)
-    local krhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_bin)
-    if klhs < 0 { return null }
-    // strictly ensure lhs node is Int by bounding search before rhs start
-    local ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", klhs)
-    if ti < 0 { return null }
-    if krhs >= 0 && ti >= krhs { return null }
-    local kv_lhs = JsonFragBox.index_of_from(s, "\"value\":", ti)
-    if kv_lhs < 0 { return null }
-    if krhs >= 0 && kv_lhs >= krhs { return null }
+    // Require direct Binary(Int, Int) shape.
+    // This avoids accidentally matching nested rhs Binary like 1 + (2 * 3) as (1 + 2).
+    local klhs = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Int\"", k_bin)
+    local krhs = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", k_bin)
+    if klhs < 0 || krhs < 0 { return null }
+    if klhs >= krhs { return null }
+    local kv_lhs = JsonFragBox.index_of_from(s, "\"value\":", klhs)
+    if kv_lhs < 0 || kv_lhs >= krhs { return null }
     local lhs_val = JsonFragBox.read_int_after(s, kv_lhs + 8)
     if lhs_val == null { return null }
-    // rhs int
-    if krhs < 0 { return null }
-    local ti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", krhs)
-    if ti2 < 0 { return null }
-    local kv_rhs = JsonFragBox.index_of_from(s, "\"value\":", ti2)
+    // rhs int (direct child only)
+    local kv_rhs = JsonFragBox.index_of_from(s, "\"value\":", krhs)
     if kv_rhs < 0 { return null }
     local rhs_val = JsonFragBox.read_int_after(s, kv_rhs + 8)
     if rhs_val == null { return null }

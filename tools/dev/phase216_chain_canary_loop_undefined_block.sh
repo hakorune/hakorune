@@ -35,7 +35,7 @@ if [[ "$rc" -eq 0 ]]; then
   exit 1
 fi
 
-if ! rg -q "LowerLoopSimpleBox\\.try_lower/1" "$LOG_OUT"; then
+if ! rg -q "LowerLoopSimpleBox\\.(try_lower|_lower_from_cmp|_emit_or_build_with_limit)/" "$LOG_OUT"; then
   echo "[FAIL] phase216_loop_undefined_block: fail reason drift (missing LowerLoopSimpleBox tag)" >&2
   rm -f "$TMP_JSON" "$LOG_OUT" 2>/dev/null || true
   exit 1
