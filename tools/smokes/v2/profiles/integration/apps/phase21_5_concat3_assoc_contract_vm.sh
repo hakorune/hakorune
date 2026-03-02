@@ -14,6 +14,7 @@ SMOKE_NAME="phase21_5_concat3_assoc_contract_vm"
 EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
 MIR_BUILDER="$NYASH_ROOT/tools/ny_mir_builder.sh"
 FIXTURE="$NYASH_ROOT/apps/tests/phase21_5_concat3_assoc_contract.hako"
+PARITY_FIXTURE="$NYASH_ROOT/apps/tests/phase21_5_concat3_semantics_parity_contract.hako"
 
 if [ ! -f "$EMIT_HELPER" ]; then
   test_fail "$SMOKE_NAME: emit helper missing: $EMIT_HELPER"
@@ -27,15 +28,22 @@ if [ ! -f "$FIXTURE" ]; then
   test_fail "$SMOKE_NAME: fixture missing: $FIXTURE"
   exit 2
 fi
+if [ ! -f "$PARITY_FIXTURE" ]; then
+  test_fail "$SMOKE_NAME: parity fixture missing: $PARITY_FIXTURE"
+  exit 2
+fi
 
 tmp_mir="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.mir.json")"
 tmp_ir="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.ll")"
 tmp_exe="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.exe")"
 tmp_main="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.main.ll")"
 tmp_log="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.log")"
+tmp_vm0="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.vm0.out")"
+tmp_vm1="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.vm1.out")"
+tmp_expected="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.expected.out")"
 
 cleanup() {
-  rm -f "$tmp_mir" "$tmp_ir" "$tmp_exe" "$tmp_main" "$tmp_log" >/dev/null 2>&1 || true
+  rm -f "$tmp_mir" "$tmp_ir" "$tmp_exe" "$tmp_main" "$tmp_log" "$tmp_vm0" "$tmp_vm1" "$tmp_expected" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 
@@ -138,6 +146,44 @@ fi
 
 if [ "$concat_hh_count" -ne 0 ]; then
   test_fail "$SMOKE_NAME: concat_hh call remained in main (count=$concat_hh_count)"
+  exit 1
+fi
+
+cat > "$tmp_expected" <<'EOF'
+hakorun
+hakorun
+x1020
+10x20
+x30
+EOF
+
+set +e
+NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
+NYASH_MIR_CONCAT3_CANON=0 run_nyash_vm "$PARITY_FIXTURE" >"$tmp_vm0" 2>&1
+vm0_rc=$?
+NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
+NYASH_MIR_CONCAT3_CANON=1 run_nyash_vm "$PARITY_FIXTURE" >"$tmp_vm1" 2>&1
+vm1_rc=$?
+set -e
+
+if [ "$vm0_rc" -ne 0 ] || [ "$vm1_rc" -ne 0 ]; then
+  test_fail "$SMOKE_NAME: parity fixture vm run failed (canon0_rc=$vm0_rc canon1_rc=$vm1_rc)"
+  echo "[canon0-output]" >&2
+  cat "$tmp_vm0" >&2 || true
+  echo "[canon1-output]" >&2
+  cat "$tmp_vm1" >&2 || true
+  exit 1
+fi
+
+if ! diff -u "$tmp_vm0" "$tmp_vm1" >/dev/null 2>&1; then
+  test_fail "$SMOKE_NAME: output mismatch between NYASH_MIR_CONCAT3_CANON=0 and =1"
+  diff -u "$tmp_vm0" "$tmp_vm1" >&2 || true
+  exit 1
+fi
+
+if ! diff -u "$tmp_expected" "$tmp_vm0" >/dev/null 2>&1; then
+  test_fail "$SMOKE_NAME: parity fixture output drifted from expected contract"
+  diff -u "$tmp_expected" "$tmp_vm0" >&2 || true
   exit 1
 fi
 

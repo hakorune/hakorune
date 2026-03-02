@@ -1,0 +1,20 @@
+static box Main {
+  main(args) {
+    local a = "ha"
+    local b = "ko"
+    local c = "run"
+
+    local left = (a + b) + c
+    local right = a + (b + c)
+    local mixed_left = ("x" + 10) + 20
+    local mixed_right = 10 + ("x" + 20)
+    local no_fold_target = "x" + (10 + 20)
+
+    print(left)
+    print(right)
+    print(mixed_left)
+    print(mixed_right)
+    print(no_fold_target)
+    return 0
+  }
+}
