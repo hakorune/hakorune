@@ -14,7 +14,7 @@ set -euo pipefail
 #   PERF_AOT_AUTO_SAFEPOINT=0|1 # default 0 in bench4 AOT lane (invalid values fail-fast)
 #   PERF_ROUTE_PROBE=1          # set 0 to disable one-shot vm route marker probe
 #   PERF_AOT_DIRECT_ONLY=0|1    # default 1 for *_hk, direct --emit-mir-json only
-#   PERF_AOT_PREFER_HELPER=0|1  # when 1, prefer tools/hakorune_emit_mir.sh route for MIR emit
+#   PERF_AOT_PREFER_HELPER=0|1  # when 1, prefer emit_mir_route.sh --route hako-helper for MIR emit
 #   PERF_AOT_HELPER_ONLY=0|1    # when 1, fail-fast if helper emit fails (no direct fallback)
 #   PERF_REQUIRE_AOT_RESULT_PARITY=0|1
 #     - default: 1 for *_hk keys, 0 otherwise

@@ -20,7 +20,7 @@ HAKO_STAGEB_FUNC_SCAN=1 \
 HAKO_MIR_BUILDER_FUNCS=1 \
 HAKO_MIR_BUILDER_CALL_RESOLVE=1 \
 NYASH_JSON_SCHEMA_V1=1 NYASH_MIR_UNIFIED_CALL=1 \
-  bash "$ROOT/tools/hakorune_emit_mir.sh" "$TMP_SRC" "$TMP_JSON" >/dev/null
+  bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON" --input "$TMP_SRC" >/dev/null
 
 # Require v1 root and a mir_call
 rg -q '"schema_version"' "$TMP_JSON" || { echo "[FAIL] missing schema_version in output" >&2; exit 1; }
@@ -35,4 +35,3 @@ fi
 
 rm -f "$TMP_SRC" "$TMP_JSON" 2>/dev/null || true
 exit 0
-

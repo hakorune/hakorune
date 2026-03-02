@@ -16,7 +16,7 @@ TMP_JSON=$(mktemp --suffix .json)
 
 # Emit MIR(JSON) with defs + call resolution
 HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_STAGEB_FUNC_SCAN=1 HAKO_MIR_BUILDER_FUNCS=1 HAKO_MIR_BUILDER_CALL_RESOLVE=1 \
-  bash "$ROOT/tools/hakorune_emit_mir.sh" "$TMP_SRC" "$TMP_JSON" >/dev/null
+  bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON" --input "$TMP_SRC" >/dev/null
 
 # Check that names include arity suffix '/2'
 if ! rg -q '"name"\s*:\s*"Main.add/2"' "$TMP_JSON"; then

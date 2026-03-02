@@ -553,7 +553,7 @@ C
            HAKO_SELFHOST_BUILDER_FIRST=0 HAKO_SELFHOST_NO_DELEGATE=0 \
            NYASH_AOT_COLLECTIONS_HOT=1 NYASH_LLVM_FAST=1 NYASH_MIR_LOOP_HOIST=1 NYASH_AOT_MAP_KEY_MODE=auto \
            HAKO_MIR_BUILDER_LOOP_JSONFRAG="${HAKO_MIR_BUILDER_LOOP_JSONFRAG:-0}" \
-           bash "$ROOT/tools/hakorune_emit_mir.sh" "$HAKO_FILE" "$TMP_CHECK_JSON" \
+           bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_CHECK_JSON" --input "$HAKO_FILE" \
            >/dev/null 2>&1; then
         echo "[SKIP] matmul emit unstable (try PERF_USE_JSONFRAG=1 for diagnosis)" >&2
         rm -f "$TMP_CHECK_JSON" "$HAKO_FILE" "$C_FILE" 2>/dev/null || true
@@ -933,9 +933,10 @@ if [[ "$EXE_MODE" = "1" ]]; then
        NYASH_AOT_NUMERIC_CORE="${NYASH_AOT_NUMERIC_CORE:-0}" \
        NYASH_AOT_NUMERIC_CORE_TRACE="${NYASH_AOT_NUMERIC_CORE_TRACE:-0}" \
        NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-       NYASH_JSON_ONLY=1 bash "$ROOT/tools/hakorune_emit_mir.sh" "$HAKO_FILE" "$TMP_JSON" 2>&1 | tee /tmp/matmul_emit_log.txt | grep -E "\[prep:|provider/emit\]" >&2; then
+       NYASH_JSON_ONLY=1 bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON" --input "$HAKO_FILE" 2>&1 | tee /tmp/matmul_emit_log.txt >/dev/null; then
     echo "[FAIL] emit MIR JSON failed (hint: set PERF_USE_PROVIDER=1 or HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG=1)" >&2; exit 3
   fi
+  grep -E "\[prep:|provider/emit\]" /tmp/matmul_emit_log.txt >&2 || true
 
   # Quick diagnostics: ensure AotPrep rewrites are present and jsonfrag fallback is not used
   # DEBUG: Copy TMP_JSON for inspection
@@ -944,7 +945,7 @@ if [[ "$EXE_MODE" = "1" ]]; then
   echo "[matmul/debug] Direct externcall count: $(grep -o '"op":"externcall"' "$TMP_JSON" 2>/dev/null | wc -l)" >&2
   diag_mir_json "$TMP_JSON"
 
-  # AotPrep is now applied in hakorune_emit_mir.sh via HAKO_APPLY_AOT_PREP=1
+  # AotPrep is now applied in hako-helper route via HAKO_APPLY_AOT_PREP=1
   # Build EXE via helper (selects crate backend ny-llvmc under the hood)
   if ! NYASH_LLVM_BACKEND=crate NYASH_LLVM_SKIP_BUILD=1 \
        NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \

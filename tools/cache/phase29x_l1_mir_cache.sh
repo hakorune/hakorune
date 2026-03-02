@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 KEY_TOOL="$ROOT_DIR/tools/cache/phase29x_cache_keys.sh"
-EMIT_MIR_TOOL="$ROOT_DIR/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE_TOOL="$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh"
 
 INPUT_PATH=""
 PROFILE="strict-dev"
@@ -141,14 +141,14 @@ env -i \
 emit_rc=$?
 set -e
 
-if [ "$emit_rc" -ne 0 ] && [ -f "$EMIT_MIR_TOOL" ]; then
+if [ "$emit_rc" -ne 0 ] && [ -f "$EMIT_ROUTE_TOOL" ]; then
   set +e
   env -i \
     PATH="$PATH" \
     HOME="${HOME:-}" \
     LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" \
     NYASH_BIN="$NYASH_BIN_PATH" \
-    bash "$EMIT_MIR_TOOL" "$INPUT_PATH" "$tmp_mir" >/dev/null 2>&1
+    bash "$EMIT_ROUTE_TOOL" --route hako-helper --timeout-secs 30 --out "$tmp_mir" --input "$INPUT_PATH" >/dev/null 2>&1
   emit_rc=$?
   set -e
 fi

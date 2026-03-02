@@ -5,7 +5,7 @@
 #   tools/dev_numeric_core_prep.sh <input.hako> <out.json>
 # Notes:
 #   - HAKO_APPLY_AOT_PREP=1 と NYASH_AOT_NUMERIC_CORE=1 を必ず立てて、
-#     tools/hakorune_emit_mir.sh を呼び出す。
+#     emit_mir_route.sh (--route hako-helper) を呼び出す。
 #   - NYASH_SKIP_TOML_ENV / NYASH_DISABLE_PLUGINS など、開発用の最小クリーン環境を既定ONにする。
 
 set -euo pipefail
@@ -43,7 +43,6 @@ export NYASH_JSON_ONLY="${NYASH_JSON_ONLY:-1}"
 echo "[dev_numeric_core] input=$IN out=$OUT" >&2
 echo "[dev_numeric_core] HAKO_APPLY_AOT_PREP=$HAKO_APPLY_AOT_PREP NYASH_AOT_NUMERIC_CORE=$NYASH_AOT_NUMERIC_CORE" >&2
 
-bash "$ROOT/tools/hakorune_emit_mir.sh" "$IN" "$OUT"
+bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$OUT" --input "$IN"
 
 echo "[dev_numeric_core] MIR JSON written with numeric_core+AotPrep: $OUT" >&2
-

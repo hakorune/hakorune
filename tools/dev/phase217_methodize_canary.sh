@@ -23,7 +23,7 @@ HAKO_MIR_BUILDER_METHODIZE=1 \
 NYASH_USE_NY_COMPILER=0 HAKO_DISABLE_NY_COMPILER=1 \
 NYASH_FEATURES=stage3 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
 NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-  bash "$ROOT/tools/hakorune_emit_mir.sh" "$TMP_SRC" "$TMP_JSON" >/dev/null
+  bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON" --input "$TMP_SRC" >/dev/null
 
 # Observability: prefer mir_call(Method), but tolerate delegate(Global) during bring-up
 if ! rg -q '"op"\s*:\s*"mir_call"' "$TMP_JSON" || ! rg -q '"callee"\s*:\s*\{[^}]*"type"\s*:\s*"Method"' "$TMP_JSON"; then
