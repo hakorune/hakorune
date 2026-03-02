@@ -31,7 +31,7 @@ rc_vm=$?
 set -e
 
 # Emit MIR JSON and build EXE (crate backend)
-if ! NYASH_JSON_ONLY=1 timeout "${HAKO_BUILD_TIMEOUT:-10}" bash "$ROOT/tools/hakorune_emit_mir.sh" "$TMP_HAKO" "$TMP_JSON" >/dev/null 2>&1; then
+if ! NYASH_JSON_ONLY=1 bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-10}" --out "$TMP_JSON" --input "$TMP_HAKO" >/dev/null 2>&1; then
   echo "[FAIL] exe_vm_parity_ret42: failed to emit MIR JSON" >&2
   exit 1
 fi

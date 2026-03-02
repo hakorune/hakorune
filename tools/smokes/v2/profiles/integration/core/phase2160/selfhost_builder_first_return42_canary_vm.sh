@@ -20,7 +20,7 @@ OUT_JSON=$(mktemp --suffix .json)
 set +e
 NYASH_FAIL_FAST=0 \
 HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=0 \
-"${ROOT_DIR}/tools/hakorune_emit_mir.sh" "${TMP_HAKO}" "${OUT_JSON}" >/dev/null 2>&1
+bash "${ROOT_DIR}/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-10}" --out "${OUT_JSON}" --input "${TMP_HAKO}" >/dev/null 2>&1
 rc=$?
 set -e
 rm -f "$TMP_HAKO" || true
@@ -29,4 +29,3 @@ if ! grep -q '"functions"' "$OUT_JSON"; then echo "[SKIP] MIR JSON missing funct
 echo "[PASS] selfhost_builder_first_return42"
 rm -f "$OUT_JSON" || true
 exit 0
-

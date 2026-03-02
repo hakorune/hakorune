@@ -75,9 +75,11 @@ run_step() {
 }
 
 run_step "internal-only emit: cleanup_only_min" \
-  bash "$ROOT_DIR/hakorune_emit_mir_mainline.sh" \
-  "$NYASH_ROOT/apps/tests/phase29bq_selfhost_cleanup_only_min.hako" \
-  "/tmp/phase29bq_cleanup_only_internal.mir.json"
+  bash "$ROOT_DIR/smokes/v2/lib/emit_mir_route.sh" \
+  --route hako-mainline \
+  --timeout-secs 60 \
+  --input "$NYASH_ROOT/apps/tests/phase29bq_selfhost_cleanup_only_min.hako" \
+  --out "/tmp/phase29bq_cleanup_only_internal.mir.json"
 
 run_step "pin: cleanup_try_min" \
   bash "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_cleanup_try_min_vm.sh"
@@ -132,9 +134,11 @@ run_step "pin: ls0_mir_json_v0_load_store_min" \
 
 if [ "$RUN_STAGE1" -eq 1 ]; then
   run_step "internal-only emit milestone: stage1_cli" \
-    bash "$ROOT_DIR/hakorune_emit_mir_mainline.sh" \
-    "$NYASH_ROOT/lang/src/runner/stage1_cli.hako" \
-    "/tmp/stage1_cli_fullbuilder.mir.json"
+    bash "$ROOT_DIR/smokes/v2/lib/emit_mir_route.sh" \
+    --route hako-mainline \
+    --timeout-secs 120 \
+    --input "$NYASH_ROOT/lang/src/runner/stage1_cli.hako" \
+    --out "/tmp/stage1_cli_fullbuilder.mir.json"
 fi
 
 if [ "$RUN_BQ" -eq 1 ]; then

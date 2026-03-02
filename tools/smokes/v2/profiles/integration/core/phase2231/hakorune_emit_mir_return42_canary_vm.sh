@@ -14,7 +14,7 @@ static box Main { method main(args) { return 42 } }
 HAKO
 
 set +e
-out=$("$ROOT/tools/hakorune_emit_mir.sh" "$TMP_HAKO" "$TMP_JSON" 2>&1)
+out=$(bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON" --input "$TMP_HAKO" 2>&1)
 rc=$?
 set -e
 if [ $rc -ne 0 ] || [ ! -s "$TMP_JSON" ]; then
@@ -35,4 +35,3 @@ fi
 
 echo "[PASS] hakorune_emit_mir_return42_canary_vm"
 exit 0
-

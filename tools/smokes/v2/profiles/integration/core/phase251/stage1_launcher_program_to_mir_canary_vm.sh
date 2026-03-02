@@ -28,7 +28,7 @@ trap 'rm -f "$OUT_JSON" "$LOG_OUT" || true' EXIT
 set +e
 HAKO_SELFHOST_BUILDER_FIRST=0 \
 NYASH_JSON_ONLY=1 \
-bash "$ROOT_DIR/tools/hakorune_emit_mir.sh" "$SRC" "$OUT_JSON" >"$LOG_OUT" 2>&1
+bash "$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-120}" --out "$OUT_JSON" --input "$SRC" >"$LOG_OUT" 2>&1
 rc=$?
 set -e
 

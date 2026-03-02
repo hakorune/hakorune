@@ -33,8 +33,8 @@ trap 'rm -f "$TMP_HAKO" "$TMP_JSON" "$EXE_OUT" "$IR_DUMP" 2>/dev/null || true' E
 # Emit MIR(JSON) via selfhost-first
 # Prefer selfhost-first; on failure, delegate to Rust builder for stability
 if ! HAKO_SELFHOST_BUILDER_FIRST=1 NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 NYASH_JSON_ONLY=1 \
-     bash "$ROOT/tools/hakorune_emit_mir.sh" "$TMP_HAKO" "$TMP_JSON" >/dev/null 2>&1; then
-  if ! NYASH_JSON_ONLY=1 bash "$ROOT/tools/hakorune_emit_mir.sh" "$TMP_HAKO" "$TMP_JSON" >/dev/null 2>&1; then
+     bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-10}" --out "$TMP_JSON" --input "$TMP_HAKO" >/dev/null 2>&1; then
+  if ! NYASH_JSON_ONLY=1 bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-10}" --out "$TMP_JSON" --input "$TMP_HAKO" >/dev/null 2>&1; then
     echo "[SKIP] if_merge_canary: failed to emit MIR JSON (both paths)"; exit 0
   fi
 fi

@@ -24,7 +24,7 @@ trap 'rm -f "$TMP_HAKO" "$TMP_JSON" "$EXE_OUT" 2>/dev/null || true' EXIT
 LOG_OUT=$(mktemp)
 if ! HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_MIR_BUILDER_LOOP_JSONFRAG=1 HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE=1 HAKO_MIR_BUILDER_JSONFRAG_PURIFY=1 HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG=1 \
       NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-      NYASH_JSON_ONLY=1 timeout "${HAKO_BUILD_TIMEOUT:-10}" bash "$ROOT/tools/hakorune_emit_mir.sh" "$TMP_HAKO" "$TMP_JSON" >"$LOG_OUT" 2>&1; then
+      NYASH_JSON_ONLY=1 bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-10}" --out "$TMP_JSON" --input "$TMP_HAKO" >"$LOG_OUT" 2>&1; then
   echo "[FAIL] stageb_loop_jsonfrag: failed to emit MIR JSON"; tail -n 60 "$LOG_OUT" >&2; exit 1
 fi
 

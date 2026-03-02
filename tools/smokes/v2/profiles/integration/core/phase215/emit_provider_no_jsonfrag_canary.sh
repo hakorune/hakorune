@@ -20,7 +20,7 @@ set +e
 HAKO_SELFHOST_BUILDER_FIRST=0 \
 HAKO_MIR_BUILDER_LOOP_JSONFRAG=0 \
 HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG=0 \
-NYASH_JSON_ONLY=1 bash "$ROOT_DIR/tools/hakorune_emit_mir.sh" "$SRC" "$OUT" 2>"$LOG" 1>/dev/null
+NYASH_JSON_ONLY=1 bash "$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$OUT" --input "$SRC" 2>"$LOG" 1>/dev/null
 rc=$?
 set -e
 

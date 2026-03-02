@@ -22,7 +22,7 @@ trap 'rm -f "${TMP_HAKO}" "${TMP_JSON}" "${EXE_OUT}" || true' EXIT
 
 # Prefer robust Program->MIR via CLI; fallback to Stage‑B wrapper if needed
 if ! NYASH_FAIL_FAST=0 "${BIN}" --emit-mir-json "${TMP_JSON}" "${TMP_HAKO}" >/dev/null 2>&1; then
-  if ! bash "${ROOT_DIR}/tools/hakorune_emit_mir.sh" "${TMP_HAKO}" "${TMP_JSON}" >/dev/null 2>&1; then
+  if ! bash "${ROOT_DIR}/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-10}" --out "${TMP_JSON}" --input "${TMP_HAKO}" >/dev/null 2>&1; then
     echo "[SKIP] cannot produce MIR JSON on this host"; exit 0
   fi
 fi

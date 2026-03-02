@@ -33,13 +33,13 @@ if [[ "$FIXTURE" != /* ]]; then
   FIXTURE="$NYASH_ROOT/$FIXTURE"
 fi
 
-EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 if [ ! -f "$FIXTURE" ]; then
   test_fail "$SMOKE_NAME: fixture missing: $FIXTURE"
   exit 2
 fi
-if [ ! -f "$EMIT_HELPER" ]; then
-  test_fail "$SMOKE_NAME: helper missing: $EMIT_HELPER"
+if [ ! -x "$EMIT_ROUTE" ]; then
+  test_fail "$SMOKE_NAME: emit route helper missing/executable: $EMIT_ROUTE"
   exit 2
 fi
 
@@ -66,14 +66,12 @@ TIMEOUT_MS=$((RUN_TIMEOUT_SECS * 1000))
 set +e
 timeout "$RUN_TIMEOUT_SECS" env \
   NYASH_DISABLE_PLUGINS=1 \
-  HAKO_SELFHOST_BUILDER_FIRST=1 \
-  HAKO_SELFHOST_NO_DELEGATE=1 \
   HAKO_JOINIR_STRICT=1 \
   HAKO_JOINIR_PLANNER_REQUIRED=1 \
   NYASH_JOINIR_STRICT=1 \
   NYASH_JOINIR_DEV=1 \
   NYASH_NY_COMPILER_TIMEOUT_MS="$TIMEOUT_MS" \
-  bash "$EMIT_HELPER" "$FIXTURE" "$TMP_MIR" >"$HAKO_LOG" 2>&1
+  "$EMIT_ROUTE" --route hako-mainline --timeout-secs 0 --out "$TMP_MIR" --input "$FIXTURE" >"$HAKO_LOG" 2>&1
 rc_hako=$?
 set -e
 

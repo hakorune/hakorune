@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# E2E Canary: hakorune_emit_mir.sh robustly emits MIR(JSON) via selfhost-first and provider-first paths
+# E2E Canary: emit_mir_route wrapper robustly emits MIR(JSON) via selfhost-first and provider-first paths
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/../../../../../../.." && pwd)"
@@ -29,7 +29,7 @@ set +e
   HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE=1 \
   HAKO_MIR_BUILDER_JSONFRAG_PURIFY=1 \
   NYASH_JSON_ONLY=1 \
-  bash "$ROOT_DIR/tools/hakorune_emit_mir.sh" "$TEST_HAKO" "$TMP_JSON1" >/dev/null 2>&1)
+  bash "$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON1" --input "$TEST_HAKO" >/dev/null 2>&1)
 rc1=$?
 set -e
 
@@ -55,7 +55,7 @@ set +e
   HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE=1 \
   HAKO_MIR_BUILDER_JSONFRAG_PURIFY=1 \
   NYASH_JSON_ONLY=1 \
-  bash "$ROOT_DIR/tools/hakorune_emit_mir.sh" "$TEST_HAKO" "$TMP_JSON2" >/dev/null 2>&1)
+  bash "$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$TMP_JSON2" --input "$TEST_HAKO" >/dev/null 2>&1)
 rc2=$?
 set -e
 

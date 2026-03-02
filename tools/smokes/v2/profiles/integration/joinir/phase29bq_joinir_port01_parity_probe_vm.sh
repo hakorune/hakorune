@@ -3,7 +3,7 @@
 # JIR-PORT-01 contract:
 # - Same fixture is lowered through:
 #   1) Rust route (`--emit-mir-json`)
-#   2) .hako route (`tools/hakorune_emit_mir.sh` with selfhost builder-first)
+#   2) .hako route (`tools/smokes/v2/lib/emit_mir_route.sh --route hako-mainline`)
 # - Canonical MIR for function `main` must be identical.
 
 set -euo pipefail

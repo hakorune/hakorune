@@ -34,7 +34,7 @@ trap 'rm -f "$TMP_JSON" "$TMP_HAKO" "$EXE_OUT" 2>/dev/null || true' EXIT
 
 # Emit MIR JSON (wrapper fallback) and build EXE (crate backend)
 set +e
-if ! NYASH_JSON_ONLY=1 timeout "${HAKO_BUILD_TIMEOUT:-10}" bash "$ROOT_DIR/tools/hakorune_emit_mir.sh" "$TMP_HAKO" "$TMP_JSON" >/dev/null 2>&1; then
+if ! NYASH_JSON_ONLY=1 bash "$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-10}" --out "$TMP_JSON" --input "$TMP_HAKO" >/dev/null 2>&1; then
   echo "[SKIP] failed to emit MIR JSON"; exit 0
 fi
 set -e

@@ -38,7 +38,7 @@ trap 'rm -f "$TEST_HAKO" "$OUT_MIR" "$LOG_OUT" || true' EXIT
 
 set +e
 HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_MIR_BUILDER_FUNCS=1 HAKO_SELFHOST_TRACE=1 NYASH_JSON_ONLY=1 \
-  bash "$ROOT_DIR/tools/hakorune_emit_mir.sh" "$TEST_HAKO" "$OUT_MIR" >"$LOG_OUT" 2>&1
+  bash "$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-60}" --out "$OUT_MIR" --input "$TEST_HAKO" >"$LOG_OUT" 2>&1
 rc=$?
 set -e
 

@@ -18,16 +18,21 @@ static box Main { method main(args){
 HAKO
 
 # Emit MIR JSON via selfhost wrapper (quiet JSON)
-if ! NYASH_JSON_ONLY=1 timeout "${HAKO_BUILD_TIMEOUT:-10}" bash "$ROOT/tools/hakorune_emit_mir.sh" "$TMP_HAKO" "$TMP_JSON" >/dev/null 2>&1; then
+if ! NYASH_JSON_ONLY=1 bash "$ROOT/tools/smokes/v2/lib/emit_mir_route.sh" --route hako-helper --timeout-secs "${HAKO_BUILD_TIMEOUT:-10}" --out "$TMP_JSON" --input "$TMP_HAKO" >/dev/null 2>&1; then
   echo "[FAIL] emit_boxcall_length: emit-mir-json failed"; exit 1
 fi
 
-# Expect a boxcall length
-if ! rg -n '"op"\s*:\s*"boxcall"' "$TMP_JSON" >/dev/null 2>&1; then
-  echo "[FAIL] emit_boxcall_length: boxcall not found in MIR JSON"; head -n 120 "$TMP_JSON" >&2; exit 1
-fi
-if ! rg -n '"method"\s*:\s*"length"' "$TMP_JSON" >/dev/null 2>&1; then
-  echo "[FAIL] emit_boxcall_length: method length not found"; head -n 120 "$TMP_JSON" >&2; exit 1
+# Expect length call in either legacy boxcall or unified mir_call form.
+if rg -n '"op"\s*:\s*"boxcall"' "$TMP_JSON" >/dev/null 2>&1; then
+  if ! rg -n '"method"\s*:\s*"length"' "$TMP_JSON" >/dev/null 2>&1; then
+    echo "[FAIL] emit_boxcall_length: boxcall method length not found"; head -n 120 "$TMP_JSON" >&2; exit 1
+  fi
+elif rg -n '"op"\s*:\s*"mir_call"' "$TMP_JSON" >/dev/null 2>&1; then
+  if ! rg -n '"name"\s*:\s*"length"' "$TMP_JSON" >/dev/null 2>&1; then
+    echo "[FAIL] emit_boxcall_length: mir_call callee length not found"; head -n 120 "$TMP_JSON" >&2; exit 1
+  fi
+else
+  echo "[FAIL] emit_boxcall_length: neither boxcall nor mir_call found in MIR JSON"; head -n 120 "$TMP_JSON" >&2; exit 1
 fi
 
 echo "[PASS] emit_boxcall_length_canary_vm"
