@@ -20,8 +20,6 @@ Selection & Precedence
 
 Instrumentation & Diagnostics
 - `NYASH_GC_METRICS=1`: print brief metrics (allocs/bytes/cycles/pauses)
-- `NYASH_GC_METRICS_JSON=1`: emit JSON metrics for CI/aggregation
-- `NYASH_GC_ALLOC_THRESHOLD=<N>`: warn or fail when allocations/bytes exceed threshold
 - Optional lane diag tag (metrics ON only): `[gc/optional:mode] mode=<...> collect_sp=<...> collect_alloc=<...>`
 
 Operational Guidance

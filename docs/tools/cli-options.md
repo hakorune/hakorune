@@ -25,8 +25,7 @@
   - `minorgen` / `stw` / `rc` は非対応（指定時は fail-fast）
 - 関連ENV
   - `NYASH_GC_MODE`（CLIが優先）
-  - `NYASH_GC_METRICS` / `NYASH_GC_METRICS_JSON`
-  - `NYASH_GC_ALLOC_THRESHOLD`
+  - `NYASH_GC_METRICS`
   - 詳細: `docs/reference/runtime/gc.md`
 
 ## WASM/AOT

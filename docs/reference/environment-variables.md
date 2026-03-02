@@ -333,7 +333,6 @@ NYASH_CLI_VERBOSE=2 \
 | `NYASH_GC_MODE={auto|rc+cycle|off}` | `rc+cycle` | Any | GC モード選択。運用SSOTで固定されている比較対象は `rc+cycle/off`（意味論不変ゲート）。その他の値は fail-fast。 |
 | `NYASH_GC_TRACE=1` | OFF | Any | GC トレース出力 (0-3) |
 | `NYASH_GC_METRICS=1` | OFF | Any | GC メトリクス (text)。`rc+cycle` 時は optional GC 診断タグ（`[gc/optional:mode]`）も出力。 |
-| `NYASH_GC_METRICS_JSON=1` | OFF | Any | GC メトリクス (JSON) |
 | `NYASH_VM_TRACE=1` | OFF | Any | VM 実行トレース |
 | `NYASH_LEAK_LOG={1\|2}` | OFF | Any | Exit-time leak report (Phase 285)。`1`=summary counts, `2`=verbose (names/entries) |
 

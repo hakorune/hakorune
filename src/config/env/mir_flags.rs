@@ -138,10 +138,6 @@ pub fn gc_trace() -> bool {
     env_bool("NYASH_GC_TRACE")
 }
 
-pub fn gc_barrier_trace() -> bool {
-    env_bool("NYASH_GC_BARRIER_TRACE")
-}
-
 pub fn runtime_checkpoint_trace() -> bool {
     env_bool("NYASH_RUNTIME_CHECKPOINT_TRACE")
 }
@@ -179,16 +175,6 @@ pub fn gc_mode_typed() -> Result<crate::runtime::gc_mode::GcMode, crate::runtime
 /// Brief metrics emission (text)
 pub fn gc_metrics() -> bool {
     std::env::var("NYASH_GC_METRICS").ok().as_deref() == Some("1")
-}
-
-/// JSON metrics emission (single line)
-pub fn gc_metrics_json() -> bool {
-    std::env::var("NYASH_GC_METRICS_JSON").ok().as_deref() == Some("1")
-}
-
-/// Optional allocation threshold; if Some(n) and exceeded, print warning
-pub fn gc_alloc_threshold() -> Option<u64> {
-    std::env::var("NYASH_GC_ALLOC_THRESHOLD").ok()?.parse().ok()
 }
 
 // ---- Cleanup (method-level postfix) policy toggles ----

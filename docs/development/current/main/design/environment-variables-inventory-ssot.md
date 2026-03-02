@@ -4,11 +4,21 @@
 
 `NYASH_*` 環境変数の「目的不明/未使用/重複」を一覧化し、削除 or 非推奨の判断材料を SSOT に固定する。
 
+## 監査コマンド（SSOT）
+
+```bash
+tools/checks/env_dead_accessors_report.sh
+```
+
+- `dead`: 実コード/ツール参照ゼロの no-op 候補
+- `doc-only`: docs や一部スクリプトのみで観測される候補
+
 ## 現状
 
 - **120個以上**の環境変数が存在
 - **エイリアス混在**: `NYASH_*` ↔ `HAKO_*` (8組以上)
 - **未使用候補**: `NYASH_SYNTAX_SUGAR_LEVEL`、`NYASH_TEST_*` 系
+- 2026-03-02 no-op削減: `NYASH_GC_BARRIER_TRACE` / `NYASH_GC_METRICS_JSON` / `NYASH_GC_ALLOC_THRESHOLD` を撤去
 - **分散定義**: 13ファイルに実装が分散
 - **ドキュメント**: `docs/reference/environment-variables.md` (556行)
 
