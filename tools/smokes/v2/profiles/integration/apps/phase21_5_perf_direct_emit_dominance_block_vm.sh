@@ -13,7 +13,8 @@ require_env || exit 2
 
 SMOKE_NAME="phase21_5_perf_direct_emit_dominance_block_vm"
 BENCH="$NYASH_ROOT/benchmarks/bench_box_create_destroy.hako"
-EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
+EMIT_TIMEOUT_SECS="${EMIT_TIMEOUT_SECS:-30}"
 MIR_BUILDER="$NYASH_ROOT/tools/ny_mir_builder.sh"
 HAKO_BIN="${NYASH_BIN:-$NYASH_ROOT/target/release/hakorune}"
 
@@ -25,8 +26,8 @@ if [ ! -x "$HAKO_BIN" ]; then
   test_fail "$SMOKE_NAME: hakorune binary missing: $HAKO_BIN"
   exit 2
 fi
-if [ ! -f "$EMIT_HELPER" ]; then
-  test_fail "$SMOKE_NAME: emit helper missing: $EMIT_HELPER"
+if [ ! -x "$EMIT_ROUTE" ]; then
+  test_fail "$SMOKE_NAME: emit route helper missing/executable: $EMIT_ROUTE"
   exit 2
 fi
 if [ ! -f "$MIR_BUILDER" ]; then
@@ -93,7 +94,7 @@ run_expect_failfast "route=mir emit-exe" "mir" "emit-exe/direct-verify" "$TMP_DI
 
 # 2) helper route must still work and produce buildable MIR.
 set +e
-bash "$EMIT_HELPER" "$BENCH" "$TMP_HELPER_MIR" >"$TMP_HELPER_LOG" 2>&1
+"$EMIT_ROUTE" --route hako-helper --timeout-secs "$EMIT_TIMEOUT_SECS" --out "$TMP_HELPER_MIR" --input "$BENCH" >"$TMP_HELPER_LOG" 2>&1
 helper_rc=$?
 set -e
 if [ "$helper_rc" -ne 0 ]; then

@@ -187,7 +187,7 @@ status (2026-03-02):
 3. smoke 共通化:
    - 対象: `tools/smokes/v2/profiles/**`（helper 参照群）
    - 目的: emit 呼び出しを `tools/smokes/v2/lib/` の共通関数へ集約し、一括置換を可能にする。
-   - status (2026-03-02): 共通 wrapper `tools/smokes/v2/lib/emit_mir_route.sh` を追加し、active smoke（concat3 / phase29y nested ternary / joinir port01 / mir_shape_guard / perf_mir_shape）を route 指定呼び出しへ移行。
+   - status (2026-03-02): 共通 wrapper `tools/smokes/v2/lib/emit_mir_route.sh` を追加し、active smoke（concat3 / phase29y nested ternary / joinir port01 / mir_shape_guard / perf_mir_shape）と phase21.5 perf contract 群（apps/integration）の emit 呼び出しを route 指定へ移行。
 4. check 置換:
    - 対象: `tools/hako_check.sh`, `tools/test_stageb_using.sh`, `test_numeric_core_phi.sh`
    - 目的: helper 依存と `|| true` 握りを整理し、direct 経路で fail-fast 契約へ統一。

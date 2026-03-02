@@ -12,15 +12,16 @@ require_env || exit 2
 
 SMOKE_NAME="phase21_5_perf_loop_i1_branch_contract_vm"
 BENCH="$NYASH_ROOT/benchmarks/bench_box_create_destroy.hako"
-EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
+EMIT_TIMEOUT_SECS="${EMIT_TIMEOUT_SECS:-30}"
 MIR_BUILDER="$NYASH_ROOT/tools/ny_mir_builder.sh"
 
 if [ ! -f "$BENCH" ]; then
   test_fail "$SMOKE_NAME: benchmark missing: $BENCH"
   exit 2
 fi
-if [ ! -f "$EMIT_HELPER" ]; then
-  test_fail "$SMOKE_NAME: emit helper missing: $EMIT_HELPER"
+if [ ! -x "$EMIT_ROUTE" ]; then
+  test_fail "$SMOKE_NAME: emit route helper missing/executable: $EMIT_ROUTE"
   exit 2
 fi
 if [ ! -f "$MIR_BUILDER" ]; then
@@ -39,7 +40,7 @@ cleanup() {
 trap cleanup EXIT
 
 set +e
-bash "$EMIT_HELPER" "$BENCH" "$TMP_MIR" >"$TMP_LOG" 2>&1
+"$EMIT_ROUTE" --route hako-helper --timeout-secs "$EMIT_TIMEOUT_SECS" --out "$TMP_MIR" --input "$BENCH" >"$TMP_LOG" 2>&1
 emit_rc=$?
 set -e
 if [ "$emit_rc" -ne 0 ]; then

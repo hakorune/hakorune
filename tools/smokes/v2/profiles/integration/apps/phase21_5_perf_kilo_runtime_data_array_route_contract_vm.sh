@@ -12,7 +12,8 @@ source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
 SMOKE_NAME="phase21_5_perf_kilo_runtime_data_array_route_contract_vm"
-EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
+EMIT_TIMEOUT_SECS="${EMIT_TIMEOUT_SECS:-30}"
 MIR_BUILDER="$NYASH_ROOT/tools/ny_mir_builder.sh"
 BENCH="$NYASH_ROOT/benchmarks/bench_kilo_kernel_small.hako"
 ROUTE_ARRAY_GET="nyash.array.get_hi"
@@ -22,8 +23,8 @@ LEGACY_ARRAY_SET="nyash.array.set_hhh"
 RUNTIME_GET="nyash.runtime_data.get_hh"
 RUNTIME_SET="nyash.runtime_data.set_hhh"
 
-if [ ! -f "$EMIT_HELPER" ]; then
-  test_fail "$SMOKE_NAME: emit helper missing: $EMIT_HELPER"
+if [ ! -x "$EMIT_ROUTE" ]; then
+  test_fail "$SMOKE_NAME: emit route helper missing/executable: $EMIT_ROUTE"
   exit 2
 fi
 if [ ! -f "$MIR_BUILDER" ]; then
@@ -47,7 +48,7 @@ cleanup() {
 trap cleanup EXIT
 
 set +e
-bash "$EMIT_HELPER" "$BENCH" "$tmp_mir" >"$tmp_log" 2>&1
+"$EMIT_ROUTE" --route hako-helper --timeout-secs "$EMIT_TIMEOUT_SECS" --out "$tmp_mir" --input "$BENCH" >"$tmp_log" 2>&1
 emit_rc=$?
 set -e
 if [ "$emit_rc" -ne 0 ]; then

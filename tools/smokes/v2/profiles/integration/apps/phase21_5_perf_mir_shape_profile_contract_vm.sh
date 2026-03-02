@@ -15,7 +15,8 @@ require_env || exit 2
 
 SMOKE_NAME="phase21_5_perf_mir_shape_profile_contract_vm"
 APP="$NYASH_ROOT/apps/tools/mir_shape_guard/main.hako"
-EMIT_HELPER="$NYASH_ROOT/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
+EMIT_TIMEOUT_SECS="${EMIT_TIMEOUT_SECS:-30}"
 SOURCE_HAKO="$NYASH_ROOT/benchmarks/bench_method_call_only_small.hako"
 SCAN_MAX_MS="${PERF_MIR_SHAPE_SCAN_MAX_MS:-50}"
 
@@ -23,8 +24,8 @@ if [ ! -f "$APP" ]; then
   test_fail "$SMOKE_NAME: app not found: $APP"
   exit 2
 fi
-if [ ! -f "$EMIT_HELPER" ]; then
-  test_fail "$SMOKE_NAME: emit helper missing: $EMIT_HELPER"
+if [ ! -x "$EMIT_ROUTE" ]; then
+  test_fail "$SMOKE_NAME: emit route helper missing/executable: $EMIT_ROUTE"
   exit 2
 fi
 if [ ! -f "$SOURCE_HAKO" ]; then
@@ -44,7 +45,7 @@ cleanup() {
 trap cleanup EXIT
 
 set +e
-bash "$EMIT_HELPER" "$SOURCE_HAKO" "$TMP_MIR" >"$TMP_LOG" 2>&1
+"$EMIT_ROUTE" --route hako-helper --timeout-secs "$EMIT_TIMEOUT_SECS" --out "$TMP_MIR" --input "$SOURCE_HAKO" >"$TMP_LOG" 2>&1
 emit_rc=$?
 set -e
 if [ "$emit_rc" -ne 0 ]; then
