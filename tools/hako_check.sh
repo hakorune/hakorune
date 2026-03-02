@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="${NYASH_BIN:-$ROOT/target/release/hakorune}"
+EMIT_ROUTE="${ROOT}/tools/smokes/v2/lib/emit_mir_route.sh"
 
 if [ ! -x "$BIN" ]; then
   echo "[ERROR] hakorune binary not found: $BIN" >&2
@@ -53,11 +54,39 @@ run_one() {
   # Phase 156: Generate MIR JSON for CFG-based analysis and pass inline
   local mir_json_path="/tmp/hako_check_mir_$$.json"
   local mir_json_content=""
-  if [ -x "$ROOT/tools/hakorune_emit_mir.sh" ]; then
-    "$ROOT/tools/hakorune_emit_mir.sh" "$f" "$mir_json_path" >/dev/null 2>&1 || true
+  local emit_timeout="${HAKO_CHECK_EMIT_TIMEOUT_SECS:-20}"
+  local require_mir="${HAKO_CHECK_REQUIRE_MIR:-0}"
+  local emit_log="/tmp/hako_check_emit_$$.log"
+  if ! [[ "$emit_timeout" =~ ^[0-9]+$ ]]; then
+    echo "[ERROR] HAKO_CHECK_EMIT_TIMEOUT_SECS must be integer: $emit_timeout" >&2
+    fail=$((fail+1))
+    return
+  fi
+  if [ -x "$EMIT_ROUTE" ]; then
+    set +e
+    NYASH_DISABLE_PLUGINS=1 \
+    NYASH_VM_USE_FALLBACK=0 \
+    NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
+      "$EMIT_ROUTE" --route direct --timeout-secs "$emit_timeout" --out "$mir_json_path" --input "$f" >"$emit_log" 2>&1
+    local emit_rc=$?
+    set -e
+    if [ "$emit_rc" -ne 0 ]; then
+      if [ "$require_mir" = "1" ]; then
+        echo "[FAIL] emit-mir failed for hako_check target: $f (rc=$emit_rc)" >&2
+        tail -n 80 "$emit_log" >&2 || true
+        rm -f "$emit_log" "$mir_json_path"
+        fail=$((fail+1))
+        return
+      fi
+      if [ "${HAKO_CHECK_VERBOSE:-0}" = "1" ] || [ "${HAKO_CHECK_DEBUG:-0}" = "1" ]; then
+        echo "[WARN] emit-mir unavailable for target (continuing without mir-json): $f rc=$emit_rc" >&2
+        tail -n 20 "$emit_log" >&2 || true
+      fi
+    fi
     if [ -f "$mir_json_path" ]; then
       mir_json_content="$(cat "$mir_json_path")"
     fi
+    rm -f "$emit_log"
   fi
 
   # Build args array with optional MIR JSON
@@ -66,6 +95,7 @@ run_one() {
     args_arr+=("--mir-json-content" "$mir_json_content")
   fi
 
+  set +e
   NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
   NYASH_DISABLE_NY_COMPILER=1 \
@@ -81,9 +111,11 @@ run_one() {
   HAKO_CHECK_DEBUG="${HAKO_CHECK_DEBUG:-0}" \
   HAKO_CHECK_VERBOSE="${HAKO_CHECK_VERBOSE:-0}" \
   "$BIN" --backend vm "$ROOT/tools/hako_check/cli.hako" -- "${args_arr[@]}" --format "$FORMAT" $EXTRA_ARGS \
-    >"/tmp/hako_lint_out_$$.log" 2>&1 || true
+    >"/tmp/hako_lint_out_$$.log" 2>&1
+  local cmd_rc=$?
+  set -e
   local out rc
-  out="$(cat "/tmp/hako_lint_out_$$.log")"; rc=0
+  out="$(cat "/tmp/hako_lint_out_$$.log")"; rc="$cmd_rc"
 
   # Phase 1: Filter out debug noise unless HAKO_CHECK_DEBUG=1
   if [ "${HAKO_CHECK_DEBUG:-0}" != "1" ]; then
@@ -113,6 +145,7 @@ if [ "$FORMAT" = "dot" ]; then
     ARGS+=(--source-file "$f" "$text")
   done
 
+  set +e
   NYASH_DISABLE_PLUGINS=1 \
   NYASH_BOX_FACTORY_POLICY=builtin_first \
   NYASH_DISABLE_NY_COMPILER=1 \
@@ -127,8 +160,9 @@ if [ "$FORMAT" = "dot" ]; then
   NYASH_JSON_ONLY=1 \
   NYASH_NY_COMPILER_TIMEOUT_MS="${NYASH_NY_COMPILER_TIMEOUT_MS:-8000}" \
   "$BIN" --backend vm "$ROOT/tools/hako_check/cli.hako" -- --format dot "${FILES[@]}" \
-    >"/tmp/hako_lint_out_$$.log" 2>/tmp/hako_lint_err_$$.log || true
+    >"/tmp/hako_lint_out_$$.log" 2>/tmp/hako_lint_err_$$.log
   rc=$?
+  set -e
   # Only print DOT graph body to STDOUT
   awk '/^digraph /, /^}/' "/tmp/hako_lint_out_$$.log"
   rm -f "/tmp/hako_lint_out_$$.log" "/tmp/hako_lint_err_$$.log"

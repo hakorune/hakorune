@@ -13,6 +13,7 @@ if [ ! -f "$ROOT/target/release/nyash" ]; then
 fi
 
 NYASH_BIN="$ROOT/target/release/nyash"
+EMIT_ROUTE="$ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 
 # Test 1: Basic using resolution (currently should work without HAKO_STAGEB_USING_RESOLVE)
 echo "=== Test 1: Basic Stage-B compilation (existing path) ==="
@@ -60,9 +61,9 @@ else
     HAKO_STAGEB_USING_RESOLVE=1 HAKO_MODULES_JSON="$MODULES_JSON" "$NYASH_BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$(cat /tmp/test_stageb_using.hako)" 2>&1 | tail -20
 fi
 
-# Test 3: Verify existing emit_mir.sh path still works
+# Test 3: Verify shared emit route wrapper still works
 echo ""
-echo "=== Test 3: Verify hakorune_emit_mir.sh compatibility ==="
+echo "=== Test 3: Verify emit route wrapper compatibility ==="
 cat > /tmp/test_emit_simple.hako <<'EOF'
 local i = 0
 loop(i < 10) {
@@ -71,10 +72,15 @@ loop(i < 10) {
 return i
 EOF
 
-if bash "$ROOT/tools/hakorune_emit_mir.sh" /tmp/test_emit_simple.hako /tmp/test_emit_output.json 2>&1 | grep -q "OK"; then
-    echo "✓ Test 3 PASSED: emit_mir.sh still works"
+if [ ! -x "$EMIT_ROUTE" ]; then
+    echo "✗ Test 3 FAILED: emit route helper missing: $EMIT_ROUTE"
+    exit 1
+fi
+
+if "$EMIT_ROUTE" --route hako-helper --timeout-secs 30 --out /tmp/test_emit_output.json --input /tmp/test_emit_simple.hako 2>&1 | grep -q "OK"; then
+    echo "✓ Test 3 PASSED: emit route wrapper still works"
 else
-    echo "✗ Test 3 FAILED: emit_mir.sh broken"
+    echo "✗ Test 3 FAILED: emit route wrapper broken"
 fi
 
 echo ""

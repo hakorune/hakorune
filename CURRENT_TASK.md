@@ -191,6 +191,7 @@ status (2026-03-02):
 4. check 置換:
    - 対象: `tools/hako_check.sh`, `tools/test_stageb_using.sh`, `test_numeric_core_phi.sh`
    - 目的: helper 依存と `|| true` 握りを整理し、direct 経路で fail-fast 契約へ統一。
+   - status (2026-03-02): 3ファイルを `tools/smokes/v2/lib/emit_mir_route.sh` 経由へ移行。`hako_check.sh` の `|| true` 握りを除去し、`HAKO_CHECK_REQUIRE_MIR=1` で strict fail-fast 可能にした（既定は warn 継続）。
 5. wrapper/helper 撤去:
    - 対象: `tools/hakorune_emit_mir_mainline.sh`, `tools/hakorune_emit_mir_compat.sh`, `tools/hakorune_emit_mir.sh`, `tools/cache/phase29x_l1_mir_cache.sh`
    - 目的: 参照ゼロ確認後に削除/縮退し、build/perf/smoke gate を再固定。

@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+EMIT_ROUTE="$ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 
 echo "=== Phase 25 MVP: Testing PHI Type Propagation Fix ==="
 echo ""
@@ -21,8 +23,13 @@ static box Main {
 EOF
 
 # Build with AOT prep
+if [ ! -x "$EMIT_ROUTE" ]; then
+  echo "❌ emit route helper missing: $EMIT_ROUTE"
+  exit 1
+fi
+
 HAKO_APPLY_AOT_PREP=1 NYASH_AOT_NUMERIC_CORE=1 NYASH_AOT_NUMERIC_CORE_TRACE=1 \
-  bash tools/hakorune_emit_mir.sh /tmp/test_matmul_simple.hako /tmp/test_simple_result.json
+  "$EMIT_ROUTE" --route hako-helper --timeout-secs 60 --out /tmp/test_simple_result.json --input /tmp/test_matmul_simple.hako
 
 # Check for transformation
 if grep -q '"name":"NyNumericMatI64.mul_naive"' /tmp/test_simple_result.json; then
