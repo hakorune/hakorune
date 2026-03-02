@@ -21,12 +21,52 @@ use crate::mir::builder::control_flow::plan::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::facts::LoopScanPhiVarsV0Facts;
 use super::recipe::{LoopScanPhiSegment, NestedLoopRecipe};
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
+
+fn collect_assigned_vars_in_stmt(stmt: &ASTNode, out: &mut BTreeSet<String>) {
+    match stmt {
+        ASTNode::Assignment { target, .. } => {
+            if let ASTNode::Variable { name, .. } = target.as_ref() {
+                out.insert(name.clone());
+            }
+        }
+        ASTNode::If {
+            then_body,
+            else_body,
+            ..
+        } => {
+            for s in then_body {
+                collect_assigned_vars_in_stmt(s, out);
+            }
+            if let Some(else_body) = else_body.as_ref() {
+                for s in else_body {
+                    collect_assigned_vars_in_stmt(s, out);
+                }
+            }
+        }
+        ASTNode::Loop { body, .. } | ASTNode::While { body, .. } | ASTNode::ForRange { body, .. } => {
+            for s in body {
+                collect_assigned_vars_in_stmt(s, out);
+            }
+        }
+        ASTNode::Program { statements, .. } => {
+            for s in statements {
+                collect_assigned_vars_in_stmt(s, out);
+            }
+        }
+        ASTNode::ScopeBox { body, .. } => {
+            for s in body {
+                collect_assigned_vars_in_stmt(s, out);
+            }
+        }
+        _ => {}
+    }
+}
 
 fn apply_loop_final_values_to_bindings(
     builder: &mut MirBuilder,
@@ -288,38 +328,59 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(
             limit_var, LOOP_SCAN_PHI_VARS_ERR
         ));
     }
-    let init_val = builder
-        .variable_ctx
-        .variable_map
-        .get(&loop_var)
-        .copied()
-        .ok_or_else(|| {
-            format!(
-                "[freeze:contract][loop_scan_phi_vars_v0] loop var {} missing init: ctx={}",
-                loop_var, LOOP_SCAN_PHI_VARS_ERR
-            )
-        })?;
-    let ty = builder
-        .type_ctx
-        .get_type(init_val)
-        .cloned()
-        .unwrap_or(MirType::Integer);
 
-    let header_phi_dst = builder.alloc_typed(ty.clone());
-    let step_phi_dst = builder.alloc_typed(ty.clone());
-    let after_phi_dst = builder.alloc_typed(ty);
+    let mut carrier_vars = vec![loop_var.clone()];
+    if recipe.found_if_stmt.is_none() {
+        let mut assigned = BTreeSet::new();
+        collect_assigned_vars_in_stmt(&recipe.inner_loop_search, &mut assigned);
+        for var in assigned {
+            if var == loop_var || var == limit_var {
+                continue;
+            }
+            if builder.variable_ctx.variable_map.contains_key(&var) {
+                carrier_vars.push(var);
+            }
+        }
+    }
 
     let mut carrier_inits = BTreeMap::new();
-    carrier_inits.insert(loop_var.clone(), init_val);
-
     let mut carrier_phis = BTreeMap::new();
-    carrier_phis.insert(loop_var.clone(), header_phi_dst);
-
     let mut carrier_step_phis = BTreeMap::new();
-    carrier_step_phis.insert(loop_var.clone(), step_phi_dst);
-
     let mut break_phi_dsts = BTreeMap::new();
-    break_phi_dsts.insert(loop_var.clone(), after_phi_dst);
+
+    for var in carrier_vars {
+        let init_val = builder
+            .variable_ctx
+            .variable_map
+            .get(&var)
+            .copied()
+            .ok_or_else(|| {
+                if var == loop_var {
+                    format!(
+                        "[freeze:contract][loop_scan_phi_vars_v0] loop var {} missing init: ctx={}",
+                        var, LOOP_SCAN_PHI_VARS_ERR
+                    )
+                } else {
+                    format!(
+                        "[freeze:contract][loop_scan_phi_vars_v0] carrier var {} missing init: ctx={}",
+                        var, LOOP_SCAN_PHI_VARS_ERR
+                    )
+                }
+            })?;
+        let ty = builder
+            .type_ctx
+            .get_type(init_val)
+            .cloned()
+            .unwrap_or(MirType::Integer);
+        let header_phi_dst = builder.alloc_typed(ty.clone());
+        let step_phi_dst = builder.alloc_typed(ty.clone());
+        let after_phi_dst = builder.alloc_typed(ty);
+
+        carrier_inits.insert(var.clone(), init_val);
+        carrier_phis.insert(var.clone(), header_phi_dst);
+        carrier_step_phis.insert(var.clone(), step_phi_dst);
+        break_phi_dsts.insert(var, after_phi_dst);
+    }
 
     let mut current_bindings = carrier_phis.clone();
     for (name, value_id) in &current_bindings {
@@ -382,14 +443,16 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(
         &break_phi_dsts,
         &segments[1],
     )?);
-    body_plans.extend(lower_found_if_stmt(
-        builder,
-        &mut current_bindings,
-        &carrier_step_phis,
-        &break_phi_dsts,
-        &recipe.found_if_stmt,
-        ctx,
-    )?);
+    if let Some(found_if_stmt) = recipe.found_if_stmt.as_ref() {
+        body_plans.extend(lower_found_if_stmt(
+            builder,
+            &mut current_bindings,
+            &carrier_step_phis,
+            &break_phi_dsts,
+            found_if_stmt,
+            ctx,
+        )?);
+    }
     body_plans.extend(lower_segment(
         builder,
         &mut current_bindings,

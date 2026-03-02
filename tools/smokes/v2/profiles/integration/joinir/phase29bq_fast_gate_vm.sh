@@ -38,7 +38,8 @@ Usage:
   phase29bq_fast_gate_vm.sh [--full] [--only <mode-or-case_id>]
 
 Notes:
-  - Built-in modes: bq, 29bp, 29ae, full
+  - Built-in modes: bq, 29bp, 29ae, ext-red, full
+  - ext-red mode is a GREEN acceptance lock for JIR-EXT-SHAPE-01.
   - Any other --only value is treated as case_id and must exist in:
     tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv
 EOF
@@ -151,6 +152,7 @@ LOG_HAKO_MIRBUILDER_NO_HOSTBRIDGE="$LOG_DIR/${RUN_ID}_hako_mirbuilder_no_hostbri
 LOG_29BP="$LOG_DIR/${RUN_ID}_29bp.log"
 LOG_29AE="$LOG_DIR/${RUN_ID}_29ae.log"
 LOG_JOINIR_PORT07_EXPR_PARITY_SEED="$LOG_DIR/${RUN_ID}_joinir_port07_expr_parity_seed.log"
+LOG_JOINIR_EXT_SHAPE01_GREEN="$LOG_DIR/${RUN_ID}_joinir_ext_shape01_green.log"
 
 run_bq_gates() {
   run_step "no_cross_layer_builder_emit" "$LOG_BUILDER_EMIT_VISIBILITY" \
@@ -259,7 +261,7 @@ case_in_list() {
 
 validate_mode() {
   case "$MODE" in
-    bq|29bp|29ae|full) return 0 ;;
+    bq|29bp|29ae|ext-red|full) return 0 ;;
     *)
       if case_in_list "$MODE"; then
         return 0
@@ -282,6 +284,10 @@ case "$MODE" in
     ;;
   29ae)
     run_gate "$GATE_29AE" "$LOG_29AE"
+    ;;
+  ext-red)
+    run_step "phase29c0_joinir_ext_shape01_green_accept_vm (mode=ext-red)" "$LOG_JOINIR_EXT_SHAPE01_GREEN" \
+      "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29c0_joinir_ext_shape01_red_seed_vm.sh"
     ;;
   full)
     run_bq_gates

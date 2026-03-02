@@ -52,6 +52,17 @@ fn is_var_plus_one(ast: &ASTNode, var: &str) -> bool {
     )
 }
 
+fn is_var_plus_expr(ast: &ASTNode, var: &str) -> bool {
+    matches!(
+        ast,
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            left,
+            ..
+        } if as_var_name(left.as_ref()) == Some(var)
+    )
+}
+
 /// Check if condition is `var < var` (Variable < Variable)
 fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)> {
     match ast {
@@ -129,6 +140,77 @@ fn is_inc_stmt(stmt: &ASTNode, loop_var: &str) -> bool {
     }
 }
 
+/// Check if stmt is `var = var + <expr>` where step is non-const (+1 is rejected).
+fn is_var_step_stmt_nonconst(stmt: &ASTNode, loop_var: &str) -> bool {
+    match stmt {
+        ASTNode::Assignment { target, value, .. } => {
+            as_var_name(target.as_ref()) == Some(loop_var)
+                && is_var_plus_expr(value.as_ref(), loop_var)
+                && !is_var_plus_one(value.as_ref(), loop_var)
+        }
+        _ => false,
+    }
+}
+
+fn contains_exit_anywhere(stmts: &[ASTNode]) -> bool {
+    for stmt in stmts {
+        match stmt {
+            ASTNode::Break { .. }
+            | ASTNode::Continue { .. }
+            | ASTNode::Return { .. }
+            | ASTNode::Throw { .. } => return true,
+            ASTNode::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                if contains_exit_anywhere(then_body) {
+                    return true;
+                }
+                if else_body.as_ref().is_some_and(|b| contains_exit_anywhere(b)) {
+                    return true;
+                }
+            }
+            ASTNode::Loop { body, .. }
+            | ASTNode::While { body, .. }
+            | ASTNode::ForRange { body, .. }
+            | ASTNode::Program {
+                statements: body, ..
+            }
+            | ASTNode::ScopeBox { body, .. } => {
+                if contains_exit_anywhere(body) {
+                    return true;
+                }
+            }
+            _ => {}
+        }
+    }
+    false
+}
+
+fn is_loop_without_exit(stmt: &ASTNode) -> bool {
+    match stmt {
+        ASTNode::Loop { body, .. } => !contains_exit_anywhere(body),
+        _ => false,
+    }
+}
+
+fn build_nested_loop_recipe(stmt: &ASTNode) -> Option<NestedLoopRecipe> {
+    match stmt {
+        ASTNode::Loop {
+            condition,
+            body: inner_body,
+            ..
+        } => Some(NestedLoopRecipe {
+            cond_view: CondBlockView::from_expr(condition),
+            loop_stmt: stmt.clone(),
+            body: RecipeBody::new(inner_body.to_vec()),
+            body_stmt_only: try_build_stmt_only_block_recipe(inner_body),
+        }),
+        _ => None,
+    }
+}
+
 fn contains_exit_outside_nested_loops(stmts: &[ASTNode]) -> bool {
     fn walk(stmts: &[ASTNode]) -> bool {
         for stmt in stmts {
@@ -194,53 +276,108 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
         return Ok(None);
     };
 
-    // Body: exactly 7 statements (includes `local m = break_list.length()`).
-    if body.len() != 7 {
-        debug_reject(&format!("body_len={} expected=7", body.len()));
-        return Ok(None);
-    }
+    let (prefix_end, nested_idx, step_start, recipe) = match body.len() {
+        7 => {
+            // Stmt 0: local var_name = ... (any local with init)
+            if !is_local_decl(&body[0]) {
+                debug_reject("stmt0_not_local");
+                return Ok(None);
+            }
 
-    // Stmt 0: local var_name = ... (any local with init)
-    if !is_local_decl(&body[0]) {
-        debug_reject("stmt0_not_local");
-        return Ok(None);
-    }
+            // Stmt 1: local j = 0
+            if !is_local_init_zero(&body[1]) {
+                debug_reject("stmt1_not_local_init_zero");
+                return Ok(None);
+            }
 
-    // Stmt 1: local j = 0
-    if !is_local_init_zero(&body[1]) {
-        debug_reject("stmt1_not_local_init_zero");
-        return Ok(None);
-    }
+            // Stmt 2: local m = ...
+            if !is_local_decl(&body[2]) {
+                debug_reject("stmt2_not_local_m");
+                return Ok(None);
+            }
 
-    // Stmt 2: local m = ...
-    if !is_local_decl(&body[2]) {
-        debug_reject("stmt2_not_local_m");
-        return Ok(None);
-    }
+            // Stmt 3: local found = 0
+            if !is_local_init_zero(&body[3]) {
+                debug_reject("stmt3_not_local_found_init_zero");
+                return Ok(None);
+            }
 
-    // Stmt 3: local found = 0
-    if !is_local_init_zero(&body[3]) {
-        debug_reject("stmt3_not_local_found_init_zero");
-        return Ok(None);
-    }
+            // Stmt 4: loop(...) with break
+            if !is_loop_with_break(&body[4]) {
+                debug_reject("stmt4_not_loop_with_break");
+                return Ok(None);
+            }
 
-    // Stmt 4: loop(...) with break
-    if !is_loop_with_break(&body[4]) {
-        debug_reject("stmt4_not_loop_with_break");
-        return Ok(None);
-    }
+            // Stmt 5: if ... { ... }
+            if !is_if_stmt(&body[5]) {
+                debug_reject("stmt5_not_if");
+                return Ok(None);
+            }
 
-    // Stmt 5: if ... { ... }
-    if !is_if_stmt(&body[5]) {
-        debug_reject("stmt5_not_if");
-        return Ok(None);
-    }
+            // Stmt 6: i = i + 1
+            if !is_inc_stmt(&body[6], &loop_var) {
+                debug_reject("stmt6_not_inc");
+                return Ok(None);
+            }
 
-    // Stmt 6: i = i + 1
-    if !is_inc_stmt(&body[6], &loop_var) {
-        debug_reject("stmt6_not_inc");
-        return Ok(None);
-    }
+            (
+                4usize,
+                4usize,
+                6usize,
+                LoopScanPhiVarsV0Recipe {
+                    local_var_name_stmt: Some(body[0].clone()),
+                    local_j_stmt: body[1].clone(),
+                    local_m_stmt: body[2].clone(),
+                    local_found_stmt: Some(body[3].clone()),
+                    inner_loop_search: body[4].clone(),
+                    found_if_stmt: Some(body[5].clone()),
+                    step_inc_stmt: body[6].clone(),
+                },
+            )
+        }
+        4 => {
+            // EXT-SHAPE-01:
+            //   local j = 0
+            //   local m = ...
+            //   loop(j < m) { ... no exit ... }
+            //   i = i + <non-const expr>
+            if !is_local_init_zero(&body[0]) {
+                debug_reject("stmt0_not_local_j_init_zero_ext_shape01");
+                return Ok(None);
+            }
+            if !is_local_decl(&body[1]) {
+                debug_reject("stmt1_not_local_m_ext_shape01");
+                return Ok(None);
+            }
+            if !is_loop_without_exit(&body[2]) {
+                debug_reject("stmt2_not_loop_no_exit_ext_shape01");
+                return Ok(None);
+            }
+            if !is_var_step_stmt_nonconst(&body[3], &loop_var) {
+                debug_reject("stmt3_not_nonconst_var_step_ext_shape01");
+                return Ok(None);
+            }
+
+            (
+                2usize,
+                2usize,
+                3usize,
+                LoopScanPhiVarsV0Recipe {
+                    local_var_name_stmt: None,
+                    local_j_stmt: body[0].clone(),
+                    local_m_stmt: body[1].clone(),
+                    local_found_stmt: None,
+                    inner_loop_search: body[2].clone(),
+                    found_if_stmt: None,
+                    step_inc_stmt: body[3].clone(),
+                },
+            )
+        }
+        _ => {
+            debug_reject(&format!("body_len={} expected=7_or_4", body.len()));
+            return Ok(None);
+        }
+    };
 
     // Outer loop body must not contain exits outside nested loops.
     if contains_exit_outside_nested_loops(body) {
@@ -250,29 +387,17 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
 
     const ALLOW_EXTENDED: bool = true;
 
-    let Some(prefix_linear) = try_build_no_exit_block_recipe(&body[..4], ALLOW_EXTENDED) else {
+    let Some(prefix_linear) = try_build_no_exit_block_recipe(&body[..prefix_end], ALLOW_EXTENDED) else {
         debug_reject("segments_prefix_not_no_exit");
         return Ok(None);
     };
 
-    let nested_loop_search = match &body[4] {
-        ASTNode::Loop {
-            condition,
-            body: inner_body,
-            ..
-        } => NestedLoopRecipe {
-            cond_view: CondBlockView::from_expr(condition),
-            loop_stmt: body[4].clone(),
-            body: RecipeBody::new(inner_body.to_vec()),
-            body_stmt_only: try_build_stmt_only_block_recipe(inner_body),
-        },
-        _ => {
-            debug_reject("segments_inner_loop_not_loop");
-            return Ok(None);
-        }
+    let Some(nested_loop_search) = build_nested_loop_recipe(&body[nested_idx]) else {
+        debug_reject("segments_inner_loop_not_loop");
+        return Ok(None);
     };
 
-    let Some(step_linear) = try_build_no_exit_block_recipe(&body[6..], ALLOW_EXTENDED) else {
+    let Some(step_linear) = try_build_no_exit_block_recipe(&body[step_start..], ALLOW_EXTENDED) else {
         debug_reject("segments_step_not_no_exit");
         return Ok(None);
     };
@@ -282,15 +407,7 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
         limit_var,
         condition: condition.clone(),
         body_lowering_policy: BodyLoweringPolicy::RecipeOnly,
-        recipe: LoopScanPhiVarsV0Recipe {
-            local_var_name_stmt: body[0].clone(),
-            local_j_stmt: body[1].clone(),
-            local_m_stmt: body[2].clone(),
-            local_found_stmt: body[3].clone(),
-            inner_loop_search: body[4].clone(),
-            found_if_stmt: body[5].clone(),
-            step_inc_stmt: body[6].clone(),
-        },
+        recipe,
         segments: vec![
             LoopScanPhiSegment::Linear(prefix_linear),
             LoopScanPhiSegment::NestedLoop(nested_loop_search),
@@ -343,6 +460,15 @@ mod tests {
         }
     }
 
+    fn method_call(object: ASTNode, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
+        ASTNode::MethodCall {
+            object: Box::new(object),
+            method: method.to_string(),
+            arguments,
+            span: Span::unknown(),
+        }
+    }
+
     fn local(name: &str, init: Option<ASTNode>) -> ASTNode {
         ASTNode::Local {
             variables: vec![name.to_string()],
@@ -386,5 +512,95 @@ mod tests {
             facts.body_lowering_policy,
             BodyLoweringPolicy::RecipeOnly
         ));
+        assert!(facts.recipe.found_if_stmt.is_some());
+    }
+
+    #[test]
+    fn accepts_ext_shape01_body_len4_nested_no_exit_nonconst_var_step() {
+        std::env::set_var("NYASH_JOINIR_DEV", "1");
+        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+
+        let condition = binop(BinaryOperator::Less, var("i"), var("n"));
+        let body = vec![
+            local("j", Some(int(0))),
+            local("m", Some(method_call(var("arr"), "length", vec![]))),
+            ASTNode::Loop {
+                condition: Box::new(binop(BinaryOperator::Less, var("j"), var("m"))),
+                body: vec![assign(var("j"), binop(BinaryOperator::Add, var("j"), int(1)))],
+                span: Span::unknown(),
+            },
+            assign(
+                var("i"),
+                binop(
+                    BinaryOperator::Add,
+                    var("i"),
+                    method_call(var("arr"), "get", vec![int(0)]),
+                ),
+            ),
+        ];
+
+        let facts = try_extract_loop_scan_phi_vars_v0_facts(&condition, &body)
+            .expect("extract ok")
+            .expect("facts");
+
+        assert!(matches!(
+            facts.body_lowering_policy,
+            BodyLoweringPolicy::RecipeOnly
+        ));
+        assert_eq!(facts.segments.len(), 3);
+        assert!(facts.recipe.found_if_stmt.is_none());
+    }
+
+    #[test]
+    fn rejects_ext_shape01_when_nested_loop_contains_exit() {
+        std::env::set_var("NYASH_JOINIR_DEV", "1");
+        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+
+        let condition = binop(BinaryOperator::Less, var("i"), var("n"));
+        let body = vec![
+            local("j", Some(int(0))),
+            local("m", Some(method_call(var("arr"), "length", vec![]))),
+            ASTNode::Loop {
+                condition: Box::new(binop(BinaryOperator::Less, var("j"), var("m"))),
+                body: vec![ASTNode::Break {
+                    span: Span::unknown(),
+                }],
+                span: Span::unknown(),
+            },
+            assign(
+                var("i"),
+                binop(
+                    BinaryOperator::Add,
+                    var("i"),
+                    method_call(var("arr"), "get", vec![int(0)]),
+                ),
+            ),
+        ];
+
+        let facts = try_extract_loop_scan_phi_vars_v0_facts(&condition, &body)
+            .expect("extract ok");
+        assert!(facts.is_none());
+    }
+
+    #[test]
+    fn rejects_ext_shape01_when_step_is_const_plus_one() {
+        std::env::set_var("NYASH_JOINIR_DEV", "1");
+        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+
+        let condition = binop(BinaryOperator::Less, var("i"), var("n"));
+        let body = vec![
+            local("j", Some(int(0))),
+            local("m", Some(method_call(var("arr"), "length", vec![]))),
+            ASTNode::Loop {
+                condition: Box::new(binop(BinaryOperator::Less, var("j"), var("m"))),
+                body: vec![assign(var("j"), binop(BinaryOperator::Add, var("j"), int(1)))],
+                span: Span::unknown(),
+            },
+            assign(var("i"), binop(BinaryOperator::Add, var("i"), int(1))),
+        ];
+
+        let facts = try_extract_loop_scan_phi_vars_v0_facts(&condition, &body)
+            .expect("extract ok");
+        assert!(facts.is_none());
     }
 }
