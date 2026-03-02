@@ -159,7 +159,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
    - phase216 `loop_count_param_nonsym` の `vm step budget exceeded` は解消。原因は Rust direct route の generic-loop v0 で loop var を header PHI に再束縛せず step lowering に入っていた点（`src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs` 修正済み）。
    - direct 再発防止 canary を追加: `tools/dev/phase216_direct_loop_progression_canary.sh`（`--emit-mir-json` -> `--mir-json-file` で rc=14、step source=phi source を固定）。
    - phase216 direct sweep 実施済み: `phase216_mainline_*` 4件は emit/run とも green（rc: 3/7/14/10）、`step budget exceeded` / `Invalid value` は 0件。
-   - next split: phase216 外（loop-carried update を含む fixture 群）へ sweep 範囲を拡張し、同種の stale loop-state を探索する。
+   - `.hako emit` 実行契約 pin を追加: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_jsonfile_exec_contract_vm.sh`（binary-only で `--hako-emit-mir-json` -> `--mir-json-file` rc=42）。
+   - phase216 外 sweep を追加: `tools/dev/direct_loop_progression_sweep.sh`（既定 fixture 8件）で direct route の loop progression を継続監視。
+   - next split: sweep 対象を `phase29bq/phase29ca` 系へ段階拡張し、emit fail を 0 件に寄せる。
 
 ## Concat3 Normalization Pack (active / ordered)
 
@@ -198,7 +200,7 @@ contract note (fixed):
    - status (2026-03-02): `hakorune_emit_mir.sh` 直呼びを撤去し、`selfhost_exe_stageb.sh` は helper-free 実装へ移行（default route=`stageb-delegate`）。
    - latest unblock (2026-03-02): direct route の global-call arity blocker（`ParserBox.esc_json/1`, `HakoCli.run/1`）は解消し、次の fail-fast は LLVM harness parse (`PHINode should have one entry for each predecessor`) へ前進。
    - pending: `launcher.hako` direct は JoinIR coverage 課題に加えて LLVM PHI predecessor 整合の blocker が残る。direct 一本化の昇格は PHI blocker 解消後に実施。
-   - latest direct issue (2026-03-02): `AddOperator.apply/2` の `ValueId(0)` と phase216 step-budget は解消済み。次は direct route の loop progression sweep を phase216 外へ拡張する。
+   - latest direct issue (2026-03-02): `AddOperator.apply/2` の `ValueId(0)` と phase216 step-budget は解消済み。phase216 外 sweep は追加済みで、次は sweep 範囲を `phase29bq/phase29ca` 系へ拡張する。
 2. perf SSOT 置換:
    - 対象: `tools/perf/lib/aot_helpers.sh` と呼び出し元ベンチ群。
    - 目的: `PERF_AOT_PREFER_HELPER` / `PERF_AOT_HELPER_ONLY` を縮退し、strict は direct 優先に固定。
@@ -211,6 +213,7 @@ contract note (fixed):
    - 対象: `tools/hako_check.sh`, `tools/test_stageb_using.sh`, `test_numeric_core_phi.sh`
    - 目的: helper 依存と `|| true` 握りを整理し、direct 経路で fail-fast 契約へ統一。
    - status (2026-03-02): 3ファイルを `tools/smokes/v2/lib/emit_mir_route.sh` 経由へ移行。`hako_check.sh` の `|| true` 握りを除去し、`HAKO_CHECK_REQUIRE_MIR=1` で strict fail-fast 可能にした（既定は warn 継続）。
+   - status2 (2026-03-02): fallback 混入の fail-fast として `tools/checks/route_no_fallback_guard.sh` を追加し、`tools/checks/dev_gate.sh quick` に組み込んだ（`route_env_probe.sh --require-no-fallback` 契約）。
 5. wrapper/helper 撤去:
    - 対象: `tools/hakorune_emit_mir_mainline.sh`, `tools/hakorune_emit_mir_compat.sh`, `tools/hakorune_emit_mir.sh`
    - 目的: `emit_mir_route.sh` への移行完了後、互換ラッパの縮退/撤去条件を固定する。

@@ -11,17 +11,19 @@ set -euo pipefail
 usage() {
   cat <<'USAGE'
 Usage:
-  route_env_probe.sh --route <direct|hako-mainline|hako-helper> [--source <path>] [--run]
+  route_env_probe.sh --route <direct|hako-mainline|hako-helper> [--source <path>] [--run] [--require-no-fallback]
 
 Examples:
   route_env_probe.sh --route direct --source apps/tests/minimal.hako
   route_env_probe.sh --route hako-mainline --source apps/tests/minimal.hako --run
+  route_env_probe.sh --route direct --require-no-fallback
 USAGE
 }
 
 ROUTE=""
 SOURCE=""
 RUN_EMIT=0
+REQUIRE_NO_FALLBACK=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -35,6 +37,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --run)
       RUN_EMIT=1
+      shift
+      ;;
+    --require-no-fallback)
+      REQUIRE_NO_FALLBACK=1
       shift
       ;;
     -h|--help)
@@ -76,6 +82,8 @@ declare -a KEYS=(
   NYASH_BIN
   NYASH_ROOT
   NYASH_VM_USE_FALLBACK
+  PERF_AOT_PREFER_HELPER
+  PERF_AOT_HELPER_ONLY
   NYASH_FAIL_FAST
   NYASH_MIR_CONCAT3_CANON
   NYASH_STRING_SPAN_CACHE_POLICY
@@ -92,6 +100,40 @@ declare -a KEYS=(
   NYASH_STAGE1_BINARY_ONLY_RUN_DIRECT
   STAGE1_SOURCE
 )
+
+is_enabled_env() {
+  local raw="${1:-}"
+  local lower="${raw,,}"
+  case "$lower" in
+    ""|0|false|off|no|unset)
+      return 1
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
+require_disabled_env() {
+  local key="$1"
+  local val="${!key-}"
+  if is_enabled_env "$val"; then
+    echo "[route_env_probe] [FAIL] require-no-fallback: ${key}=${val} must be unset/0/false/off/no" >&2
+    return 1
+  fi
+  return 0
+}
+
+if [[ "$REQUIRE_NO_FALLBACK" -eq 1 ]]; then
+  if [[ "$ROUTE" == "hako-helper" ]]; then
+    echo "[route_env_probe] [FAIL] require-no-fallback forbids route=hako-helper" >&2
+    exit 2
+  fi
+  require_disabled_env NYASH_VM_USE_FALLBACK
+  require_disabled_env HAKO_MIR_BUILDER_DELEGATE
+  require_disabled_env PERF_AOT_PREFER_HELPER
+  require_disabled_env PERF_AOT_HELPER_ONLY
+fi
 
 echo "[route_env_probe] route = $ROUTE"
 echo "[route_env_probe] NYASH_BIN = $NYASH_BIN"

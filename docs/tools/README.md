@@ -153,7 +153,7 @@ tools/checks/dev_gate.sh milestone-perf
 ```
 
 プロファイル:
-- `quick`: 毎コミット前の軽量セット（`cargo check` + `strlen_fast` unittest + chip8 crosslang smoke）
+- `quick`: 毎コミット前の軽量セット（`route_no_fallback_guard` + `cargo check` + `strlen_fast` unittest + chip8 crosslang smoke）
 - `hotpath`: `quick` + `phase21.5 perf gate bundle (hotpath)`
 - `portability`: `windows_wsl_cmd_smoke`（既定は preflight）+ `macos_portability_guard`
 - `milestone-runtime`: `hotpath` + `phase29y_no_compat_mainline_vm`
@@ -211,6 +211,8 @@ tools/checks/env_dead_accessors_report.sh
 ```bash
 cat docs/tools/script-index.md
 tools/checks/route_env_probe.sh --route hako-mainline --source apps/tests/minimal.hako
+tools/checks/route_env_probe.sh --route direct --require-no-fallback
+tools/checks/route_no_fallback_guard.sh
 ```
 
 `route_env_probe` は、`emit_mir_route.sh` 実行前の

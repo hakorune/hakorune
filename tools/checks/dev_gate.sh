@@ -32,6 +32,7 @@ list_profiles() {
   cat <<'LIST'
 [dev-gate] profiles:
   quick:
+    - tools/checks/route_no_fallback_guard.sh
     - cargo check --bin hakorune
     - PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
     - phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
@@ -168,6 +169,9 @@ run_step() {
 }
 
 run_quick() {
+  run_step "route no-fallback guard" \
+    bash tools/checks/route_no_fallback_guard.sh
+
   run_step "cargo check" \
     cargo check --bin hakorune
 
