@@ -486,6 +486,7 @@ env NYASH_FEATURES=stage3 NYASH_LLVM_USE_HARNESS=1 \
 | `NYASH_VERIFY_RET_PURITY=1` | OFF | Any | return ブロックの純粋性検証 |
 | `NYASH_ME_CALL_ARITY_STRICT=1` | OFF | Any | me.method の arity 不一致でエラー |
 | `NYASH_MIR_DISABLE_OPT=1` | OFF | Any | MIR Optimizer 全体を無効化（開発/診断用、`src/mir/optimizer.rs`） |
+| `NYASH_MIR_CONCAT3_CANON=1` | OFF | Any | MIR Pass 6.6 の concat3 正規化を有効化（`(a+b)+c` / `a+(b+c)` → `nyash.string.concat3_hhh`）。実験的opt-in。 |
 | `NYASH_TRACE_VARMAP=1` | OFF | Any | `MirBuilder.variable_map` の状態をトレース出力（`[varmap/<tag>] {name=ValueId(..),..}`）。JoinIR loop 統合のデバッグ用。 |
 | `NYASH_DCE_TRACE=1` | OFF | Any | DCE パスが削除した純粋命令を stderr にログ出力（`src/mir/passes/dce.rs`）。 |
 

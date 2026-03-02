@@ -6,6 +6,7 @@ Related:
 - tools/hako_check/README.md
 - docs/how-to/smokes.md
 - docs/tools/cli-options.md
+- docs/tools/check-scripts-index.md
 
 ## 目的別の入口
 
@@ -191,6 +192,15 @@ cat target/smoke_inventory/integration_apps_summary.txt
 出力:
 - `target/smoke_inventory/integration_apps_inventory.tsv`
 - `target/smoke_inventory/integration_apps_summary.txt`
+
+## 12. Checks Script Index
+
+`tools/checks/*.sh` の用途一覧（ENV棚卸し含む）:
+
+```bash
+cat docs/tools/check-scripts-index.md
+tools/checks/env_dead_accessors_report.sh
+```
 
 ## 推奨デバッグ順
 
