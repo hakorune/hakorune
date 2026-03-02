@@ -60,6 +60,21 @@ perf_aot_resolve_skip_build() {
   fi
 }
 
+perf_aot_resolve_bool_01() {
+  local name="$1"
+  local value="$2"
+  case "${value}" in
+    0|1)
+      printf '%s\n' "${value}"
+      return 0
+      ;;
+    *)
+      echo "[error] ${name} must be 0|1: got '${value}'" >&2
+      return 1
+      ;;
+  esac
+}
+
 perf_aot_should_retry_helper_after_build_fail() {
   local root_dir=$1
   local skip_build
@@ -92,6 +107,9 @@ perf_emit_mir_json() {
   local direct_tried=0
   local prefer_helper="${PERF_AOT_PREFER_HELPER:-0}"
   local helper_only="${PERF_AOT_HELPER_ONLY:-0}"
+  local direct_only
+
+  direct_only="$(perf_aot_resolve_bool_01 "PERF_AOT_DIRECT_ONLY" "${PERF_AOT_DIRECT_ONLY:-0}")" || return 1
 
   if [[ "${prefer_helper}" == "1" ]]; then
     if perf_emit_mir_json_helper "${root_dir}" "${hako_prog}" "${out_json}"; then
@@ -110,8 +128,22 @@ perf_emit_mir_json() {
       PERF_AOT_LAST_EMIT_ROUTE="direct"
       return 0
     fi
+    if [[ "${direct_only}" == "1" ]]; then
+      PERF_AOT_LAST_EMIT_ROUTE="none"
+      perf_aot_set_status "skip" "emit_direct_only_failed" "emit"
+      return 1
+    fi
+  elif [[ "${direct_only}" == "1" ]]; then
+    PERF_AOT_LAST_EMIT_ROUTE="none"
+    perf_aot_set_status "skip" "emit_direct_binary_missing" "emit"
+    return 1
   fi
   if perf_emit_mir_json_helper "${root_dir}" "${hako_prog}" "${out_json}"; then
+    if [[ "${direct_only}" == "1" ]]; then
+      PERF_AOT_LAST_EMIT_ROUTE="none"
+      perf_aot_set_status "skip" "emit_direct_only_rejected_helper_route" "emit"
+      return 1
+    fi
     return 0
   fi
   PERF_AOT_LAST_EMIT_ROUTE="none"

@@ -13,6 +13,7 @@ set -euo pipefail
 #   PERF_VM_FORCE_NO_FALLBACK=0 # set 1 to force NYASH_VM_USE_FALLBACK=0 (route strict)
 #   PERF_AOT_AUTO_SAFEPOINT=0|1 # default 0 in bench4 AOT lane (invalid values fail-fast)
 #   PERF_ROUTE_PROBE=1          # set 0 to disable one-shot vm route marker probe
+#   PERF_AOT_DIRECT_ONLY=0|1    # default 1 for *_hk, direct --emit-mir-json only
 #   PERF_AOT_PREFER_HELPER=0|1  # when 1, prefer tools/hakorune_emit_mir.sh route for MIR emit
 #   PERF_AOT_HELPER_ONLY=0|1    # when 1, fail-fast if helper emit fails (no direct fallback)
 #   PERF_REQUIRE_AOT_RESULT_PARITY=0|1
@@ -94,14 +95,25 @@ if [[ "${KERNEL_LANE}" == "hk" ]]; then
 fi
 REQUIRE_AOT_RESULT_PARITY="$(perf_resolve_bool_01_env PERF_REQUIRE_AOT_RESULT_PARITY "${RESULT_PARITY_DEFAULT}")" || exit $?
 AOT_HELPER_ONLY_DEFAULT="0"
+PERF_AOT_DIRECT_ONLY_DEFAULT="0"
 if [[ "${KERNEL_LANE}" == "hk" ]]; then
-  AOT_HELPER_ONLY_DEFAULT="1"
+  AOT_HELPER_ONLY_DEFAULT="0"
+  PERF_AOT_DIRECT_ONLY_DEFAULT="1"
 fi
+AOT_PREFER_HELPER_DEFAULT="0"
 AOT_HELPER_ONLY="$(perf_resolve_bool_01_env PERF_AOT_HELPER_ONLY "${AOT_HELPER_ONLY_DEFAULT}")" || exit $?
-AOT_PREFER_HELPER_DEFAULT="${AOT_HELPER_ONLY}"
+AOT_DIRECT_ONLY="$(perf_resolve_bool_01_env PERF_AOT_DIRECT_ONLY "${PERF_AOT_DIRECT_ONLY_DEFAULT}")" || exit $?
 AOT_PREFER_HELPER="$(perf_resolve_bool_01_env PERF_AOT_PREFER_HELPER "${AOT_PREFER_HELPER_DEFAULT}")" || exit $?
 if [[ "${AOT_HELPER_ONLY}" == "1" && "${AOT_PREFER_HELPER}" != "1" ]]; then
   echo "[error] PERF_AOT_HELPER_ONLY=1 requires PERF_AOT_PREFER_HELPER=1" >&2
+  exit 2
+fi
+if [[ "${AOT_DIRECT_ONLY}" == "1" && "${AOT_PREFER_HELPER}" == "1" ]]; then
+  echo "[error] PERF_AOT_DIRECT_ONLY=1 is incompatible with PERF_AOT_PREFER_HELPER=1" >&2
+  exit 2
+fi
+if [[ "${AOT_DIRECT_ONLY}" == "1" && "${AOT_HELPER_ONLY}" == "1" ]]; then
+  echo "[error] PERF_AOT_DIRECT_ONLY=1 is incompatible with PERF_AOT_HELPER_ONLY=1" >&2
   exit 2
 fi
 
@@ -231,7 +243,7 @@ EXE_OUT="${TARGET_DIR}/perf_ny_${KEY}.${BASHPID}.exe"
 TMP_AOT_FILES+=("${EXE_OUT}")
 AOT_AUTO_SAFEPOINT="$(perf_resolve_aot_auto_safepoint)" || exit $?
 if NYASH_LLVM_AUTO_SAFEPOINT="${AOT_AUTO_SAFEPOINT}" \
-  PERF_AOT_PREFER_HELPER="${AOT_PREFER_HELPER}" PERF_AOT_HELPER_ONLY="${AOT_HELPER_ONLY}" \
+  PERF_AOT_DIRECT_ONLY="${AOT_DIRECT_ONLY}" PERF_AOT_PREFER_HELPER="${AOT_PREFER_HELPER}" PERF_AOT_HELPER_ONLY="${AOT_HELPER_ONLY}" \
   perf_run_aot_bench_series "${ROOT_DIR}" "${HAKORUNE_BIN}" "${HAKO_PROG}" "${EXE_OUT}" "${WARMUP}" "${REPEAT}" "${AOT_TIMEOUT_SEC}"; then
   NY_AOT_MED="${PERF_AOT_LAST_MED_MS}"
   AOT_STATUS="${PERF_AOT_LAST_STATUS}"
@@ -308,8 +320,8 @@ fi
 # Output single line (parse by key, not fixed-width)
 printf "[bench4] name=%s c_ms=%s py_ms=%s ny_vm_ms=%s ny_aot_ms=%s ratio_c_vm=%s ratio_c_py=%s ratio_c_aot=%s aot_status=%s\n" \
   "${KEY}" "${C_MED}" "${PY_MED}" "${NY_VM_MED}" "${NY_AOT_MED}" "${RATIO_C_VM}" "${RATIO_C_PY}" "${RATIO_C_AOT}" "${AOT_STATUS_OUT}"
-printf "[bench4-route] name=%s dataset=%s kernel_lane=%s kernel_name=%s fallback_guard=%s vm_engine=%s vm_lane=%s vm_reason=%s derust_lane=%s derust_source=%s derust_reason=%s aot_emit_route=%s route_probe=%s result_parity=%s vm_result=%s aot_result=%s\n" \
+printf "[bench4-route] name=%s dataset=%s kernel_lane=%s kernel_name=%s fallback_guard=%s vm_engine=%s vm_lane=%s vm_reason=%s derust_lane=%s derust_source=%s derust_reason=%s aot_direct_only=%s aot_emit_route=%s route_probe=%s result_parity=%s vm_result=%s aot_result=%s\n" \
   "${KEY}" "${BENCH_DATASET_KEY}" "${KERNEL_LANE}" "${KERNEL_NAME}" \
   "$([[ "${VM_FORCE_NO_FALLBACK}" == "1" ]] && printf '%s' "strict-no-fallback" || printf '%s' "runtime-default")" \
-  "${VM_ENGINE}" "${VM_ROUTE_LANE}" "${VM_ROUTE_REASON}" "${DERUST_ROUTE_LANE}" "${DERUST_SOURCE}" "${DERUST_REASON}" "${AOT_EMIT_ROUTE}" \
+  "${VM_ENGINE}" "${VM_ROUTE_LANE}" "${VM_ROUTE_REASON}" "${DERUST_ROUTE_LANE}" "${DERUST_SOURCE}" "${DERUST_REASON}" "${AOT_DIRECT_ONLY}" "${AOT_EMIT_ROUTE}" \
   "${ROUTE_PROBE_ENABLED}" "${RESULT_PARITY_STATUS}" "${VM_RESULT_MARKER}" "${AOT_RESULT_MARKER}"

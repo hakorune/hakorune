@@ -510,6 +510,7 @@ env NYASH_FEATURES=stage3 NYASH_LLVM_USE_HARNESS=1 \
 | `PERF_SUBTRACT_STARTUP={0\|1}` | `0` | tools/perf (`bench_compare_c_vs_hako.sh`) | VM/AOT の startup baseline を差し引く。`0/1` 以外は fail-fast。 |
 | `PERF_AOT_SKIP_BUILD={auto\|0\|1}` | `auto` | tools/perf | AOT helper の再ビルド制御。`auto` は必要成果物が揃っているときだけ build skip。`0` は常に build、`1` は常に skip。`auto/0/1` 以外は fail-fast。 |
 | `PERF_AOT_AUTO_SAFEPOINT={0\|1}` | `0` | tools/perf (`bench_compare_c_py_vs_hako.sh`) | AOT 比較レーンで `NYASH_LLVM_AUTO_SAFEPOINT` を上書き。未指定時は `NYASH_LLVM_AUTO_SAFEPOINT` を fallback 参照。`0/1` 以外は fail-fast。 |
+| `PERF_AOT_DIRECT_ONLY={0\|1}` | `*_hk` は `1`、それ以外 `0` | tools/perf (`bench_compare_c_py_vs_hako.sh`) | direct の `--emit-mir-json` のみで MIR 生成を試行。`1` で helper 再試行禁止（直行路で失敗したら skip）。 |
 | `PERF_SKIP_VM_PREFLIGHT={0\|1}` | `0` | tools/perf | VM preflight を省略（AOT契約だけを見たい場合）。`0/1` 以外は fail-fast。 |
 | `PERF_VM_FORCE_NO_FALLBACK={0\|1}` | `0` | tools/perf (`bench_compare_c_py_vs_hako.sh`) | VM/AOT 実行時に `NYASH_VM_USE_FALLBACK=0` を強制。`*_hk` key はこの値が `1` でないと fail-fast。 |
 | `PERF_ROUTE_PROBE={0\|1}` | `1` | tools/perf (`bench_compare_c_py_vs_hako.sh`) | one-shot route probe を実行して `[bench4-route]`（`vm_lane` / `derust_source`）を出力。`0/1` 以外は fail-fast。 |
