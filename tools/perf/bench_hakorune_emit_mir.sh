@@ -21,8 +21,8 @@ fi
 IN="$1"; ROUNDS="${2:-5}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"; ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-EMIT="$ROOT/tools/hakorune_emit_mir.sh"
-if [[ ! -x "$EMIT" ]]; then echo "error: $EMIT not found/executable" >&2; exit 2; fi
+EMIT_ROUTE_HELPER="$ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
+if [[ ! -x "$EMIT_ROUTE_HELPER" ]]; then echo "error: $EMIT_ROUTE_HELPER not found/executable" >&2; exit 2; fi
 if [[ ! -f "$IN" ]]; then echo "error: input not found: $IN" >&2; exit 2; fi
 
 sha1() {
@@ -37,7 +37,7 @@ for ((i=1; i<=ROUNDS; i++)); do
   rm -f "$OUT" || true
   start=$(date +%s%3N)
   # Forward env toggles implicitly
-  if ! "$EMIT" "$IN" "$OUT" >/dev/null 2>&1; then
+  if ! "$EMIT_ROUTE_HELPER" --route hako-helper --timeout-secs "${PERF_EMIT_TIMEOUT_SECS:-120}" --out "$OUT" --input "$IN" >/dev/null 2>&1; then
     echo "$i,ERROR,0,NA"; continue
   fi
   end=$(date +%s%3N)
@@ -50,4 +50,3 @@ for ((i=1; i<=ROUNDS; i++)); do
 done
 
 exit 0
-

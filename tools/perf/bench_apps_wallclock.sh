@@ -92,7 +92,8 @@ if [[ -n "${PERF_APPS_MIR_SHAPE_PREBUILT}" ]]; then
 else
   MIR_PREBUILT="${ROOT_DIR}/apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json"
 fi
-EMIT_HELPER="${ROOT_DIR}/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE_HELPER="${ROOT_DIR}/tools/smokes/v2/lib/emit_mir_route.sh"
+PERF_APPS_EMIT_TIMEOUT_SECS="${PERF_APPS_EMIT_TIMEOUT_SECS:-60}"
 
 if [[ ! -f "${FIXTURE_LOG}" ]]; then
   echo "[error] fixture log not found: ${FIXTURE_LOG}" >&2
@@ -118,8 +119,8 @@ prepare_ms=0
 mir_emit_ms=0
 prepare_t0=$(time_ms)
 if [[ "${mir_shape_input_mode}" == "emit" ]]; then
-  if [[ ! -f "${EMIT_HELPER}" ]]; then
-    echo "[error] emit helper not found: ${EMIT_HELPER}" >&2
+  if [[ ! -x "${EMIT_ROUTE_HELPER}" ]]; then
+    echo "[error] emit route helper not found: ${EMIT_ROUTE_HELPER}" >&2
     exit 2
   fi
   if [[ ! -f "${MIR_SOURCE}" ]]; then
@@ -128,7 +129,7 @@ if [[ "${mir_shape_input_mode}" == "emit" ]]; then
   fi
   TMP_MIR=$(mktemp /tmp/perf_app_mir_shape.XXXXXX.json)
   emit_t0=$(time_ms)
-  if ! bash "${EMIT_HELPER}" "${MIR_SOURCE}" "${TMP_MIR}" >/dev/null 2>&1; then
+  if ! "${EMIT_ROUTE_HELPER}" --route hako-helper --timeout-secs "${PERF_APPS_EMIT_TIMEOUT_SECS}" --out "${TMP_MIR}" --input "${MIR_SOURCE}" >/dev/null 2>&1; then
     echo "[error] failed to emit MIR for mir_shape_guard input: ${MIR_SOURCE}" >&2
     exit 1
   fi

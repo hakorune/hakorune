@@ -12,11 +12,11 @@ fi
 IN="$1"; ROUNDS="${2:-3}"
 
 ROOT="$(cd "$(dirname "$0")"/../.. && pwd)"
-EMIT="$ROOT/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE_HELPER="$ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 BENCH="$ROOT/tools/perf/bench_hakorune_emit_mir.sh"
 CMP="$ROOT/tools/perf/compare_mir_json.sh"
 
-for f in "$EMIT" "$BENCH" "$CMP"; do
+for f in "$EMIT_ROUTE_HELPER" "$BENCH" "$CMP"; do
   [[ -x "$f" ]] || { echo "error: missing executable: $f" >&2; exit 2; }
 done
 [[ -f "$IN" ]] || { echo "error: input not found: $IN" >&2; exit 2; }
@@ -42,8 +42,8 @@ OUT_SELF="/tmp/dual_mir_selfhost_$$.json"
 trap 'rm -f "$OUT_PROV" "$OUT_SELF" || true' EXIT
 
 # Produce concrete MIR JSONs
-HAKO_SELFHOST_BUILDER_FIRST=0 "$EMIT" "$IN" "$OUT_PROV" >/dev/null 2>&1 || true
-HAKO_SELFHOST_BUILDER_FIRST=1 "$EMIT" "$IN" "$OUT_SELF" >/dev/null 2>&1 || true
+HAKO_SELFHOST_BUILDER_FIRST=0 "$EMIT_ROUTE_HELPER" --route hako-helper --timeout-secs 120 --out "$OUT_PROV" --input "$IN" >/dev/null 2>&1 || true
+HAKO_SELFHOST_BUILDER_FIRST=1 "$EMIT_ROUTE_HELPER" --route hako-helper --timeout-secs 120 --out "$OUT_SELF" --input "$IN" >/dev/null 2>&1 || true
 
 echo "== Dual‑Emit Bench Summary =="
 echo "input: $IN  rounds: $ROUNDS"
@@ -63,4 +63,3 @@ echo "\n== Selfhost CSV =="
 printf '%s\n' "$self_csv" | sed -n '1,20p'
 
 exit 0
-

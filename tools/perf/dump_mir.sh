@@ -29,6 +29,12 @@ fi
 
 ROOT="$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || true)"
 [[ -z "$ROOT" ]] && ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+EMIT_ROUTE_HELPER="$ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
+
+if [[ ! -x "$EMIT_ROUTE_HELPER" ]]; then
+  echo "[FAIL] emit route helper not found: $EMIT_ROUTE_HELPER" >&2
+  exit 2
+fi
 
 TMP_OUT=$(mktemp --suffix .mir.json)
 trap 'rm -f "$TMP_OUT" >/dev/null 2>&1 || true' EXIT
@@ -38,7 +44,7 @@ emit_provider() {
   set +e
   NYASH_SKIP_TOML_ENV=1 NYASH_DISABLE_PLUGINS=0 NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
   HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_TRY_MIN=1 HAKO_MIR_NORMALIZE_PROVIDER=0 NYASH_JSON_ONLY=1 \
-  "$ROOT/tools/hakorune_emit_mir.sh" "$INPUT" "$TMP_OUT" >/dev/null 2>&1
+  "$EMIT_ROUTE_HELPER" --route hako-helper --timeout-secs 60 --out "$TMP_OUT" --input "$INPUT" >/dev/null 2>&1
   local rc=$?
   set -e
   return $rc
@@ -48,7 +54,7 @@ emit_jsonfrag() {
   NYASH_SKIP_TOML_ENV=1 NYASH_DISABLE_PLUGINS=1 \
   HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_MIR_BUILDER_LOOP_JSONFRAG=1 HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG=1 \
   HAKO_MIR_BUILDER_JSONFRAG_PURIFY=1 NYASH_JSON_ONLY=1 \
-  "$ROOT/tools/hakorune_emit_mir.sh" "$INPUT" "$TMP_OUT" >/dev/null
+  "$EMIT_ROUTE_HELPER" --route hako-helper --timeout-secs 60 --out "$TMP_OUT" --input "$INPUT" >/dev/null
 }
 
 if [[ "$MODE" = "provider" ]]; then

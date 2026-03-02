@@ -35,7 +35,7 @@ ROOT_DIR=$(cd "$(dirname "$0")/../.." && pwd)
 TARGET_DIR="${ROOT_DIR}/target"
 HAKO_PROG="${ROOT_DIR}/benchmarks/bench_${KEY}.hako"
 HAKORUNE_BIN="${TARGET_DIR}/release/hakorune"
-EMIT_HELPER="${ROOT_DIR}/tools/hakorune_emit_mir.sh"
+EMIT_ROUTE_HELPER="${ROOT_DIR}/tools/smokes/v2/lib/emit_mir_route.sh"
 
 source "${ROOT_DIR}/tools/perf/lib/bench_env.sh"
 VM_TIMEOUT="$(perf_vm_timeout_resolve fast)"
@@ -71,8 +71,8 @@ if [[ ! -f "${HAKO_PROG}" ]]; then
   echo "[error] Hako program not found: ${HAKO_PROG}" >&2
   exit 2
 fi
-if [[ "${EMIT_ROUTE}" == "helper" && ! -f "${EMIT_HELPER}" ]]; then
-  echo "[error] emit helper not found: ${EMIT_HELPER}" >&2
+if [[ "${EMIT_ROUTE}" == "helper" && ! -x "${EMIT_ROUTE_HELPER}" ]]; then
+  echo "[error] emit route helper not found: ${EMIT_ROUTE_HELPER}" >&2
   exit 2
 fi
 
@@ -168,7 +168,7 @@ emit_once_strict() {
     out=$(
       env NYASH_DISABLE_PLUGINS=1 \
           timeout "${EMIT_TIMEOUT}" \
-          bash "${EMIT_HELPER}" "${HAKO_PROG}" "${TMP_MIR}" 2>&1
+          "${EMIT_ROUTE_HELPER}" --route hako-helper --timeout-secs 0 --out "${TMP_MIR}" --input "${HAKO_PROG}" 2>&1
     )
   else
     out=$(

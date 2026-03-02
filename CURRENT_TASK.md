@@ -183,7 +183,7 @@ status (2026-03-02):
 2. perf SSOT 置換:
    - 対象: `tools/perf/lib/aot_helpers.sh` と呼び出し元ベンチ群。
    - 目的: `PERF_AOT_PREFER_HELPER` / `PERF_AOT_HELPER_ONLY` を縮退し、strict は direct 優先に固定。
-   - status (2026-03-02): `_hk` lane は `PERF_AOT_DIRECT_ONLY=1` を既定化し、AOT route 行に `aot_direct_only` を追加（helper への暗黙退避を fail-fast 化）。
+   - status (2026-03-02): `_hk` lane は `PERF_AOT_DIRECT_ONLY=1` を既定化し、AOT route 行に `aot_direct_only` を追加（helper への暗黙退避を fail-fast 化）。`tools/perf/lib/aot_helpers.sh` / `bench_*` / `dump_*` の helper 呼び出しは `tools/smokes/v2/lib/emit_mir_route.sh` 経由へ移行。
 3. smoke 共通化:
    - 対象: `tools/smokes/v2/profiles/**`（helper 参照群）
    - 目的: emit 呼び出しを `tools/smokes/v2/lib/` の共通関数へ集約し、一括置換を可能にする。

@@ -91,7 +91,13 @@ perf_emit_mir_json_helper() {
   local root_dir=$1
   local hako_prog=$2
   local out_json=$3
-  if bash "${root_dir}/tools/hakorune_emit_mir.sh" "${hako_prog}" "${out_json}" >/dev/null 2>&1; then
+  local emit_route="${root_dir}/tools/smokes/v2/lib/emit_mir_route.sh"
+  if [[ ! -x "${emit_route}" ]]; then
+    PERF_AOT_LAST_EMIT_ROUTE="none"
+    perf_aot_set_status "skip" "emit_route_helper_missing" "emit"
+    return 1
+  fi
+  if "${emit_route}" --route hako-helper --timeout-secs "${PERF_AOT_EMIT_TIMEOUT_SECS:-60}" --out "${out_json}" --input "${hako_prog}" >/dev/null 2>&1; then
     PERF_AOT_LAST_EMIT_ROUTE="helper"
     return 0
   fi

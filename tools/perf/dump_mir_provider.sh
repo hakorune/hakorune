@@ -21,6 +21,12 @@ fi
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 [[ -z "$ROOT" ]] && ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+EMIT_ROUTE_HELPER="$ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
+
+if [[ ! -x "$EMIT_ROUTE_HELPER" ]]; then
+  echo "[FAIL] emit route helper not found: $EMIT_ROUTE_HELPER" >&2
+  exit 2
+fi
 
 TMP_JSON=$(mktemp --suffix .mir.json)
 trap 'rm -f "$TMP_JSON" >/dev/null 2>&1 || true' EXIT
@@ -29,7 +35,7 @@ trap 'rm -f "$TMP_JSON" >/dev/null 2>&1 || true' EXIT
 set +e
 HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 HAKO_SELFHOST_TRACE=1 \
 NYASH_DISABLE_PLUGINS=0 NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-"$ROOT/tools/hakorune_emit_mir.sh" "$INPUT" "$TMP_JSON" 2>"$TMP_JSON.err"
+"$EMIT_ROUTE_HELPER" --route hako-helper --timeout-secs 60 --out "$TMP_JSON" --input "$INPUT" 2>"$TMP_JSON.err"
 rc=$?
 set -e
 if [[ $rc -ne 0 ]]; then
@@ -37,7 +43,7 @@ if [[ $rc -ne 0 ]]; then
   tail -n 80 "$TMP_JSON.err" >&2 || true
   echo "[INFO] falling back to provider-first" >&2
   if ! NYASH_DISABLE_PLUGINS=0 NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-       "$ROOT/tools/hakorune_emit_mir.sh" "$INPUT" "$TMP_JSON" >/dev/null 2>&1; then
+       "$EMIT_ROUTE_HELPER" --route hako-helper --timeout-secs 60 --out "$TMP_JSON" --input "$INPUT" >/dev/null 2>&1; then
     echo "[FAIL] provider-first emit failed too" >&2
     exit 3
   fi
@@ -61,4 +67,3 @@ for f in j.get('functions',[]):
     print('  bb', b.get('id'), dict(c))
 PY
 fi
-
