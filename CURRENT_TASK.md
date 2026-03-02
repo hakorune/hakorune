@@ -132,18 +132,45 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. helper撤去を最優先で開始する（build→perf→smoke/check→wrapper削除の順を固定）。
-2. hakorune→hakorune build 導線を `hakorune --emit-mir-json` 直経路へ一本化する（`tools/selfhost/build_stage1.sh` / `tools/selfhost_exe_stageb.sh` から helper 依存を外す）。
-3. perf emit SSOT を direct 中心へ移行する（`tools/perf/lib/aot_helpers.sh` の helper 優先スイッチを段階縮退）。
-4. smoke/check の emit 呼び出しを共通関数へ寄せ、helper 直呼びを一括で置換する。
-5. `.hako` kernel mainline（no-fallback）を日常経路として固定する。
-6. done contract は次の 2 本を継続監査する:
+1. `concat3-normalization` フェーズを開始する（docs-first、Rust/.hako 共通契約を先に固定）。
+2. Rust/MIR 側で `concat_hh` chain -> `concat3_hhh` 正規化を先行実装し、Python backend の chain/prune 依存を段階縮退する。
+3. `.hako` 側は同時実装ではなく「契約同期のみ」を先に行い、実装追従は Rust 側の green lock 後に進める。
+4. helper撤去を継続する（build→perf→smoke/check→wrapper削除の順を固定）。
+5. hakorune→hakorune build 導線を `hakorune --emit-mir-json` 直経路へ一本化する（`tools/selfhost/build_stage1.sh` / `tools/selfhost_exe_stageb.sh` から helper 依存を外す）。
+6. perf emit SSOT を direct 中心へ移行する（`tools/perf/lib/aot_helpers.sh` の helper 優先スイッチを段階縮退）。
+7. smoke/check の emit 呼び出しを共通関数へ寄せ、helper 直呼びを一括で置換する。
+8. `.hako` kernel mainline（no-fallback）を日常経路として固定する。
+9. done contract は次の 2 本を継続監査する:
    - `tools/checks/dev_gate.sh runtime-exec-zero`
    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
-7. `build-mainline`（cargo 非依存）を daily default に固定する。
-8. `build-maintenance`（cargo）は host 保守時のみ実行する。
-9. Rust source は保存固定とし、削除タスクは当面起票しない（明示指示が出るまで停止）。
-10. 最適化 lane（micro/asm -> kilo）は helper撤去の build 導線 lock 後に進める。
+10. `build-mainline`（cargo 非依存）を daily default に固定する。
+11. `build-maintenance`（cargo）は host 保守時のみ実行する。
+12. Rust source は保存固定とし、削除タスクは当面起票しない（明示指示が出るまで停止）。
+13. 最適化 lane（micro/asm -> kilo）は helper撤去の build 導線 lock 後に進める。
+
+## Concat3 Normalization Pack (active / ordered)
+
+status (2026-03-02):
+- contract-smoke(min1) added: `apps/tests/phase21_5_concat3_assoc_contract.hako`
+- gate script added: `tools/smokes/v2/profiles/integration/apps/phase21_5_concat3_assoc_contract_vm.sh`
+- Rust/MIR pass added: `src/mir/passes/concat3_canonicalize.rs`（left/right assoc chain を `Extern(nyash.string.concat3_hhh)` へ正規化）
+- optimizer hook added: `src/mir/optimizer.rs` Pass 6.6（`NYASH_MIR_CONCAT3_CANON=1` のときのみ有効）
+- runtime/lowering sync:
+  - VM extern fallback: `src/backend/mir_interpreter/handlers/calls/externs.rs`
+  - LLVM extern signature: `src/llvm_py/instructions/externcall.py`
+- latest: direct emit route（`HAKO_EMIT_MIR_FORCE_DIRECT=1`）+ contract smoke で MIR/IR 両方 `concat3_hhh >= 2` / `concat_hh == 0` を green lock。
+
+1. 契約固定（Rust/.hako 共通）:
+   - `.hako` と Rust の両経路で「`(a+b)+c` / `a+(b+c)` は `concat3_hhh` に収束」を docs/test で先に固定する。
+   - ここでは実装を増やさず、契約と gate だけ同期する。
+2. Rust/MIR 実装（先行）:
+   - done (opt-in): MIR 側 `concat3` 正規化を実装済み。現状は perf parity 観測中のため `NYASH_MIR_CONCAT3_CANON=1` で有効化する。
+   - acceptance: `tools/checks/dev_gate.sh quick` + `bash tools/smokes/v2/profiles/integration/apps/phase21_5_concat3_assoc_contract_vm.sh`。
+3. `.hako` 実装追従（後行）:
+   - Rust と同じ契約に合わせて `.hako` 側を追従実装し、差分は最小コミットで分離する。
+4. Python backend cleanup（最終）:
+   - `concat` chain/prune ロジックを撤去し、`concat3` 変換責務を MIR 側 SSOT へ一本化する。
+   - 撤去条件: Rust/.hako 両経路の parity と perf micro が green。
 
 ## Helper Retirement Pack (active / ordered)
 
@@ -203,6 +230,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 ## Daily Commands (build-mainline / cargo-free default)
 
 - `tools/checks/dev_gate.sh quick`（推奨: 日常の軽量セット）
+- `bash tools/smokes/v2/profiles/integration/apps/phase21_5_concat3_assoc_contract_vm.sh`（concat3-normalization min1 contract）
 - `rg -n "hakorune_emit_mir(_mainline|_compat)?\\.sh|PERF_AOT_(PREFER_HELPER|HELPER_ONLY)|EMIT_HELPER" tools`（helper撤去の残件監査）
 - `tools/checks/dev_gate.sh runtime-exec-zero`（no-compat mainline guard）
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`

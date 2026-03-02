@@ -65,6 +65,7 @@ def lower_externcall(
         "nyash.string.len_h": (i64, [i64]),
         "nyash.string.charCodeAt_h": (i64, [i64, i64]),
         "nyash.string.concat_hh": (i64, [i64, i64]),
+        "nyash.string.concat3_hhh": (i64, [i64, i64, i64]),
         "nyash.string.eq_hh": (i64, [i64, i64]),
         "nyash.string.substring_hii": (i64, [i64, i64, i64]),
         "nyash.string.indexOf_hh": (i64, [i64, i64]),

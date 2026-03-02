@@ -2,6 +2,7 @@
 // Minimal scaffold to unblock builds when type hint propagation is not yet implemented.
 
 pub mod callsite_canonicalize;
+pub mod concat3_canonicalize;
 pub mod cse;
 pub mod dce;
 pub mod escape;

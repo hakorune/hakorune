@@ -126,9 +126,21 @@ impl MirOptimizer {
         }
 
         // Pass 6.5: Call-site canonicalization lane entry (MCL-0 scaffold)
-        let canonicalized = crate::mir::passes::callsite_canonicalize::canonicalize_callsites(module);
+        let canonicalized =
+            crate::mir::passes::callsite_canonicalize::canonicalize_callsites(module);
         if canonicalized > 0 {
             stats.intrinsic_optimizations += canonicalized;
+        }
+
+        // Pass 6.6 (opt-in): String concat chain canonicalization
+        //   (a + b) + c / a + (b + c) -> call extern nyash.string.concat3_hhh(a, b, c)
+        // NOTE: kept behind env gate while tuning perf parity with backend-local concat folding.
+        if std::env::var("NYASH_MIR_CONCAT3_CANON").ok().as_deref() == Some("1") {
+            let concat3 =
+                crate::mir::passes::concat3_canonicalize::canonicalize_string_concat3(module);
+            if concat3 > 0 {
+                stats.intrinsic_optimizations += concat3;
+            }
         }
 
         // Pass 7 (optional): Core-13 pure normalization
@@ -315,10 +327,7 @@ fn diagnose_unlowered_type_ops(optimizer: &MirOptimizer, module: &MirModule) -> 
             for inst in &block.instructions {
                 match inst {
                     MirInstruction::Call {
-                        callee:
-                            Some(crate::mir::Callee::Method {
-                                method, ..
-                            }),
+                        callee: Some(crate::mir::Callee::Method { method, .. }),
                         ..
                     } if method == "is"
                         || method == "as"
@@ -549,10 +558,8 @@ mod tests {
     #[test]
     fn test_method_call_not_rewritten_even_if_legacy_env_is_set() {
         let _guard = env_guard().lock().expect("env mutex poisoned");
-        let _restore = EnvVarRestore::set(&[
-            ("NYASH_MIR_PLUGIN_INVOKE", "1"),
-            ("NYASH_PLUGIN_ONLY", "1"),
-        ]);
+        let _restore =
+            EnvVarRestore::set(&[("NYASH_MIR_PLUGIN_INVOKE", "1"), ("NYASH_PLUGIN_ONLY", "1")]);
 
         let signature = FunctionSignature {
             name: "main".to_string(),

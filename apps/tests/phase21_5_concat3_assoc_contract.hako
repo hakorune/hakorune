@@ -1,0 +1,14 @@
+static box Main {
+  main(args) {
+    local a = "ha"
+    local b = "ko"
+    local c = "run"
+
+    local left = (a + b) + c
+    local right = a + (b + c)
+
+    print(left)
+    print(right)
+    return 0
+  }
+}
