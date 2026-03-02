@@ -154,15 +154,19 @@ def _value_has_users_in_function(func, target, *, ignore=None) -> bool:
     return False
 
 
-def _prune_dead_chain_call(builder: ir.IRBuilder, folded_call) -> None:
-    """Remove folded concat_hh call when it became dead after concat3 rewrite."""
+def _prune_dead_chain_call(builder: ir.IRBuilder, folded_call, replacement_call=None) -> None:
+    """
+    Remove folded concat_hh call only when it is proven dead in the current function.
+    `replacement_call` is ignored when checking uses (concat3 naturally references
+    original operands, not folded_call).
+    """
     if folded_call is None:
         return
     parent = getattr(folded_call, "parent", None)
     if parent is None:
         return
     func = getattr(parent, "parent", None)
-    if _value_has_users_in_function(func, folded_call):
+    if _value_has_users_in_function(func, folded_call, ignore=replacement_call):
         return
     try:
         parent.instructions.remove(folded_call)
@@ -513,9 +517,7 @@ def lower_binop(
                 if callee3 is None:
                     callee3 = ir.Function(builder.module, hhh_fnty, name='nyash.string.concat3_hhh')
                 res = builder.call(callee3, list(concat3_args), name=f"concat3_hhh_{dst}")
-                # Keep folded concat_hh alive for now.
-                # Lowering is single-pass, so future instructions/blocks may still reference it
-                # via copy/release/phi, and eager pruning can create undefined IR values.
+                _prune_dead_chain_call(builder, folded_call, replacement_call=res)
             else:
                 hh_fnty = ir.FunctionType(i64, [i64, i64])
                 callee = None

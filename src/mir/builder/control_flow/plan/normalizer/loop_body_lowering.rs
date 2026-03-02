@@ -3,6 +3,7 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::calls::extern_calls;
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
+use crate::mir::builder::control_flow::plan::normalizer::common::lower_me_this_method_effect;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, ConstValue, EffectMask, MirType, ValueId};
@@ -185,51 +186,19 @@ pub(in crate::mir::builder) fn lower_method_call_stmt(
                 effects: EffectMask::PURE.add(crate::mir::Effect::Io),
             });
         }
-        ASTNode::Me { .. } => {
-            if let Some(&value_id) = phi_bindings
-                .get("me")
-                .or_else(|| builder.variable_ctx.variable_map.get("me"))
-            {
-                effects.push(CoreEffectPlan::MethodCall {
-                    dst: None,
-                    object: value_id,
-                    method: method.clone(),
-                    args: arg_ids,
-                    effects: EffectMask::PURE.add(crate::mir::Effect::Io),
-                });
-            } else if let Some(box_name) = builder.comp_ctx.current_static_box.clone() {
-                let func = format!("{}.{}/{}", box_name, method, arguments.len());
-                effects.push(CoreEffectPlan::GlobalCall {
-                    dst: None,
-                    func,
-                    args: arg_ids,
-                });
-            } else {
-                return Err(format!("{error_prefix}: me.method without bound receiver"));
-            }
-        }
-        ASTNode::This { .. } => {
-            if let Some(box_name) = builder.comp_ctx.current_static_box.clone() {
-                let func = format!("{}.{}/{}", box_name, method, arguments.len());
-                effects.push(CoreEffectPlan::GlobalCall {
-                    dst: None,
-                    func,
-                    args: arg_ids,
-                });
-            } else if let Some(&value_id) = phi_bindings
-                .get("me")
-                .or_else(|| builder.variable_ctx.variable_map.get("me"))
-            {
-                effects.push(CoreEffectPlan::MethodCall {
-                    dst: None,
-                    object: value_id,
-                    method: method.clone(),
-                    args: arg_ids,
-                    effects: EffectMask::PURE.add(crate::mir::Effect::Io),
-                });
-            } else {
-                return Err(format!("{error_prefix}: this.method without static box"));
-            }
+        ASTNode::Me { .. } | ASTNode::This { .. } => {
+            let effect = lower_me_this_method_effect(
+                builder,
+                phi_bindings,
+                object.as_ref(),
+                method,
+                arg_ids,
+                arguments.len(),
+                None,
+                format!("{error_prefix}: me.method without bound receiver"),
+                format!("{error_prefix}: this.method without static box"),
+            )?;
+            effects.push(effect);
         }
         _ => {
             let (object_id, mut obj_effects) =

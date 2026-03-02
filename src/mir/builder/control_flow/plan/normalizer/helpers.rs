@@ -1,3 +1,4 @@
+use super::common::lower_me_this_method_effect;
 use super::CoreEffectPlan;
 use crate::mir::builder::calls::extern_calls;
 use crate::mir::builder::MirBuilder;
@@ -479,56 +480,19 @@ impl super::PlanNormalizer {
                             effects: EffectMask::PURE.add(Effect::Io),
                         });
                     }
-                    ASTNode::Me { .. } => {
-                        if let Some(&object_id) = phi_bindings
-                            .get("me")
-                            .or_else(|| builder.variable_ctx.variable_map.get("me"))
-                        {
-                            arg_effects.push(CoreEffectPlan::MethodCall {
-                                dst: Some(result_id),
-                                object: object_id,
-                                method: method.clone(),
-                                args: arg_ids,
-                                effects: EffectMask::PURE.add(Effect::Io),
-                            });
-                        } else if let Some(box_name) = builder.comp_ctx.current_static_box.clone() {
-                            // Static-box helper contexts may not materialize `me`.
-                            let func = format!("{}.{}/{}", box_name, method, arguments.len());
-                            arg_effects.push(CoreEffectPlan::GlobalCall {
-                                dst: Some(result_id),
-                                func,
-                                args: arg_ids,
-                            });
-                        } else {
-                            return Err(
-                                "[normalizer] me.method() without bound receiver".to_string()
-                            );
-                        }
-                    }
-                    ASTNode::This { .. } => {
-                        if let Some(box_name) = builder.comp_ctx.current_static_box.clone() {
-                            let func = format!("{}.{}/{}", box_name, method, arguments.len());
-                            arg_effects.push(CoreEffectPlan::GlobalCall {
-                                dst: Some(result_id),
-                                func,
-                                args: arg_ids,
-                            });
-                        } else if let Some(&object_id) = phi_bindings
-                            .get("me")
-                            .or_else(|| builder.variable_ctx.variable_map.get("me"))
-                        {
-                            arg_effects.push(CoreEffectPlan::MethodCall {
-                                dst: Some(result_id),
-                                object: object_id,
-                                method: method.clone(),
-                                args: arg_ids,
-                                effects: EffectMask::PURE.add(Effect::Io),
-                            });
-                        } else {
-                            return Err(
-                                "[normalizer] this.method() without current_static_box".to_string()
-                            );
-                        }
+                    ASTNode::Me { .. } | ASTNode::This { .. } => {
+                        let effect = lower_me_this_method_effect(
+                            builder,
+                            phi_bindings,
+                            object.as_ref(),
+                            method,
+                            arg_ids,
+                            arguments.len(),
+                            Some(result_id),
+                            "[normalizer] me.method() without bound receiver".to_string(),
+                            "[normalizer] this.method() without current_static_box".to_string(),
+                        )?;
+                        arg_effects.push(effect);
                     }
                     _ => {
                         let (object_id, mut object_effects) =

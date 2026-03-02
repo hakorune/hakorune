@@ -1,8 +1,17 @@
 use crate::ast::ASTNode;
 use crate::backend::VM;
 use crate::mir::printer::MirPrinter;
-use crate::mir::{instruction::MirInstruction, types::CompareOp, MirCompiler, MirVerifier};
+use crate::mir::{instruction::MirInstruction, types::CompareOp, Callee, MirCompiler, MirVerifier};
 use crate::parser::NyashParser;
+use std::sync::Once;
+
+fn ensure_ring0_initialized() {
+    use crate::runtime::ring0::{default_ring0, init_global_ring0};
+    static INIT: Once = Once::new();
+    INIT.call_once(|| {
+        init_global_ring0(default_ring0());
+    });
+}
 
 fn ensure_stage3_env() {
     std::env::set_var("NYASH_FEATURES", "stage3");
@@ -61,6 +70,31 @@ static box Main {
 }
 "#;
     test_main_src.to_string()
+}
+
+fn stage1_cli_static_call_arity_fixture_src() -> String {
+    r#"
+static box ParserBox {
+  esc_json(value) {
+    if value == null { return "{}" }
+    return value
+  }
+}
+
+static box HakoCli {
+  run(args) {
+    local encoded = ParserBox.esc_json(args)
+    return encoded
+  }
+}
+
+static box Main {
+  main(args) {
+    return HakoCli.run(args)
+  }
+}
+"#
+    .to_string()
 }
 
 /// Stage1Cli.emit_program_json 経路の最小再現を Rust テスト側に持ち込むハーネス。
@@ -135,4 +169,92 @@ fn mir_stage1_cli_emit_program_min_exec_hits_type_error() {
     // 最小形では正常に 0 を返すことを期待。
     let v = exec.expect("Stage1Cli minimal path should execute");
     assert_eq!(v.to_string_box().value, "0");
+}
+
+#[test]
+fn mir_stage1_cli_static_call_arity_contract_parserbox_hakocli() {
+    ensure_stage3_env();
+    ensure_ring0_initialized();
+    let src = stage1_cli_static_call_arity_fixture_src();
+
+    let ast: ASTNode = NyashParser::parse_from_string(&src).expect("parse ok");
+    let mut mc = MirCompiler::with_options(false);
+    let cr = mc.compile(ast).expect("compile");
+
+    let mut parserbox_hits = 0usize;
+    let mut hakocli_hits = 0usize;
+
+    for func in cr.module.functions.values() {
+        for block in func.blocks.values() {
+            for inst in &block.instructions {
+                let MirInstruction::Call {
+                    callee: Some(callee),
+                    args,
+                    ..
+                } = inst
+                else {
+                    continue;
+                };
+
+                match callee {
+                    Callee::Method {
+                        box_name,
+                        method,
+                        receiver,
+                        ..
+                    } if box_name == "ParserBox" && method == "esc_json" => {
+                        assert!(
+                            receiver.is_none(),
+                            "ParserBox.esc_json must stay static (no receiver)"
+                        );
+                        assert_eq!(
+                            args.len(),
+                            1,
+                            "ParserBox.esc_json call args must stay arity=1"
+                        );
+                        parserbox_hits += 1;
+                    }
+                    Callee::Global(name) if name == "ParserBox.esc_json/1" => {
+                        assert_eq!(
+                            args.len(),
+                            1,
+                            "ParserBox.esc_json/1 global call args must stay arity=1"
+                        );
+                        parserbox_hits += 1;
+                    }
+                    Callee::Method {
+                        box_name,
+                        method,
+                        receiver,
+                        ..
+                    } if box_name == "HakoCli" && method == "run" => {
+                        assert!(
+                            receiver.is_none(),
+                            "HakoCli.run must stay static (no receiver)"
+                        );
+                        assert_eq!(args.len(), 1, "HakoCli.run call args must stay arity=1");
+                        hakocli_hits += 1;
+                    }
+                    Callee::Global(name) if name == "HakoCli.run/1" => {
+                        assert_eq!(
+                            args.len(),
+                            1,
+                            "HakoCli.run/1 global call args must stay arity=1"
+                        );
+                        hakocli_hits += 1;
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    assert!(
+        parserbox_hits > 0,
+        "Expected at least one ParserBox.esc_json callsite in MIR"
+    );
+    assert!(
+        hakocli_hits > 0,
+        "Expected at least one HakoCli.run callsite in MIR"
+    );
 }

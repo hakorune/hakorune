@@ -7,6 +7,7 @@ Following the design principles in docs/development/design/legacy/LLVM_LAYER_OVE
 import json
 import sys
 import os
+import re
 from typing import Dict, Any, Optional, List, Tuple
 import llvmlite.ir as ir
 import llvmlite.binding as llvm
@@ -22,6 +23,91 @@ from mir_analysis import scan_call_arities
 
 from resolver import Resolver
 from mir_reader import MIRReader
+
+_FUNC_DECL_RE = re.compile(r"^define\b.*@([^(]+)\(")
+_BLOCK_LABEL_RE = re.compile(r"^([A-Za-z$._][\w$.-]*):")
+_BR_LABEL_RE = re.compile(r"label\s+%([A-Za-z$._][\w$.-]*)")
+_PHI_DEF_RE = re.compile(r"^([%A-Za-z$._][\w$.\-]*)\s*=\s*phi\b")
+_PHI_INCOMING_PRED_RE = re.compile(r",\s*%([A-Za-z$._][\w$.-]*)\s*\]")
+
+
+def _first_phi_verify_mismatch(ir_text: str) -> Optional[Dict[str, Any]]:
+    """Best-effort detector for PHI predecessor/incoming mismatch from textual IR."""
+    current_func: Optional[str] = None
+    current_block: Optional[str] = None
+    block_preds: Dict[str, set[str]] = {}
+    phi_rows: List[Dict[str, Any]] = []
+
+    def flush_current_function() -> Optional[Dict[str, Any]]:
+        if current_func is None:
+            return None
+        for row in phi_rows:
+            cfg_preds = sorted(block_preds.get(row["block"], set()))
+            incoming_preds = list(row["incoming_preds"])
+            if len(incoming_preds) != len(cfg_preds) or set(incoming_preds) != set(cfg_preds):
+                return {
+                    "function": current_func,
+                    "block": row["block"],
+                    "phi": row["phi"],
+                    "incoming_count": len(incoming_preds),
+                    "pred_count": len(cfg_preds),
+                    "incoming_preds": incoming_preds,
+                    "cfg_preds": cfg_preds,
+                    "line": row["line"],
+                }
+        return None
+
+    for raw_line in ir_text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        if current_func is None:
+            m_func = _FUNC_DECL_RE.match(line)
+            if m_func:
+                current_func = m_func.group(1)
+                current_block = None
+                block_preds = {}
+                phi_rows = []
+            continue
+
+        if line.startswith("}"):
+            mismatch = flush_current_function()
+            if mismatch is not None:
+                return mismatch
+            current_func = None
+            current_block = None
+            continue
+
+        m_label = _BLOCK_LABEL_RE.match(line)
+        if m_label:
+            current_block = m_label.group(1)
+            block_preds.setdefault(current_block, set())
+            continue
+
+        if current_block is None:
+            continue
+
+        for target in _BR_LABEL_RE.findall(line):
+            block_preds.setdefault(target, set()).add(current_block)
+
+        if " = phi " not in line:
+            continue
+
+        m_phi = _PHI_DEF_RE.match(line)
+        if m_phi is None:
+            continue
+        phi_rows.append(
+            {
+                "block": current_block,
+                "phi": m_phi.group(1),
+                "incoming_preds": _PHI_INCOMING_PRED_RE.findall(line),
+                "line": line,
+            }
+        )
+
+    return flush_current_function()
+
 
 class NyashLLVMBuilder:
     """Main LLVM IR builder for Nyash MIR"""
@@ -93,7 +179,6 @@ class NyashLLVMBuilder:
             return self._create_dummy_main()
         
         # Pre-declare all functions with default i64 signature to allow cross-calls
-        import re
         for func_data in functions:
             name = func_data.get("name", "unknown")
             # Derive arity:
@@ -260,7 +345,26 @@ class NyashLLVMBuilder:
         mod = llvm.parse_assembly(ir_text)
         # Allow skipping verifier for iterative bring-up
         if os.environ.get('NYASH_LLVM_SKIP_VERIFY') != '1':
-            mod.verify()
+            try:
+                mod.verify()
+            except Exception:
+                mismatch = _first_phi_verify_mismatch(ir_text)
+                if mismatch is not None:
+                    print(
+                        (
+                            "[llvm_builder/phi_verify] "
+                            f"func={mismatch['function']} "
+                            f"block={mismatch['block']} "
+                            f"phi={mismatch['phi']} "
+                            f"incoming={mismatch['incoming_count']} "
+                            f"preds={mismatch['pred_count']} "
+                            f"incoming_preds={mismatch['incoming_preds']} "
+                            f"cfg_preds={mismatch['cfg_preds']} "
+                            f"line='{mismatch['line']}'"
+                        ),
+                        file=sys.stderr,
+                    )
+                raise
 
         # PERF-only fast path: run standard LLVM module optimization passes before codegen.
         # Keep default behavior unchanged; this is gated by NYASH_LLVM_FAST=1.
