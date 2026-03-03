@@ -1,5 +1,6 @@
 use crate::ast::ASTNode;
 use super::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe;
+#[cfg(test)]
 use super::facts::pattern2_loopbodylocal_facts::Pattern2LoopBodyLocalFacts;
 
 /// Phase 29bq P2.x: Extracted structure for LoopCondContinueWithReturn
@@ -328,6 +329,7 @@ pub(in crate::mir::builder) enum Pattern2StepPlacement {
 }
 
 #[derive(Debug, Clone)]
+#[cfg(test)]
 pub(in crate::mir::builder) struct Pattern2BreakPlan {
     /// Loop variable name (e.g., "i")
     pub loop_var: String,
@@ -355,6 +357,7 @@ pub(in crate::mir::builder) struct Pattern2BreakPlan {
 /// Phase 29ai P14: Promotion hint metadata for Pattern2BreakPlan
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
+#[cfg(test)]
 pub(in crate::mir::builder) enum Pattern2PromotionHint {
     LoopBodyLocal(Pattern2LoopBodyLocalFacts),
 }
