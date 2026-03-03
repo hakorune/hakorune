@@ -1,4 +1,4 @@
-/// Macro to define PlanRuleId enum, PLAN_RULE_ORDER array, and rule_name() function.
+/// Macro to define PlanRuleId enum, PLAN_RULE_ORDER array, and legacy rule-name map.
 ///
 /// This provides a single source of truth for rule variants, their order, and display names.
 /// Eliminates manual sync across 3 locations (enum, array, rule_name function).
@@ -23,7 +23,7 @@ macro_rules! define_plan_rules {
             ),*
         ];
 
-        pub(in crate::mir::builder) fn rule_name(id: PlanRuleId) -> &'static str {
+        pub(in crate::mir::builder) fn planner_rule_legacy_name(id: PlanRuleId) -> &'static str {
             match id {
                 $(PlanRuleId::$variant => $name,)*
             }
@@ -66,6 +66,14 @@ define_plan_rules! {
     Pattern1 => "Pattern1_SimpleWhile (Phase 286 P2.1)";
 }
 
+/// Preferred rule label used in planner entry logs.
+///
+/// D1 policy: human-facing labels are semantic (Pattern-number free) by default.
+/// Legacy labels remain available via `planner_rule_legacy_name`.
+pub(in crate::mir::builder) fn rule_name(id: PlanRuleId) -> &'static str {
+    planner_rule_semantic_label(id)
+}
+
 /// Semantic rule label (Pattern-number free).
 ///
 /// This is the preferred vocabulary for UI/debug labels and docs.
@@ -85,5 +93,31 @@ pub(in crate::mir::builder) fn planner_rule_semantic_label(id: PlanRuleId) -> &'
         PlanRuleId::LoopCondContinueOnly => "LoopContinueOnly",
         PlanRuleId::LoopCondContinueWithReturn => "LoopContinueWithReturn",
         PlanRuleId::LoopCondReturnInBody => "LoopReturnInBody",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rule_name_uses_semantic_label() {
+        assert_eq!(rule_name(PlanRuleId::Pattern2), "LoopBreakRecipe");
+        assert_eq!(
+            rule_name(PlanRuleId::LoopCondReturnInBody),
+            "LoopReturnInBody"
+        );
+    }
+
+    #[test]
+    fn legacy_rule_name_alias_is_preserved() {
+        assert_eq!(
+            planner_rule_legacy_name(PlanRuleId::Pattern2),
+            "Pattern2_Break (Phase 286 P3.1)"
+        );
+        assert_eq!(
+            planner_rule_legacy_name(PlanRuleId::Pattern1),
+            "Pattern1_SimpleWhile (Phase 286 P2.1)"
+        );
     }
 }

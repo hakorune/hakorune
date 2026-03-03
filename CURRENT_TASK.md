@@ -236,6 +236,10 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   1. D1: `PlanRuleId` / entry 名の Pattern 数値語彙を意味語彙へ置換（互換 alias を先に置く）。
   2. D2: `DomainPlan` の残存責務を label-only へ縮退し、router の依存を除去する。
   3. D3: `normalizer/pattern*.rs` の entry-path 依存を 0 にして撤去する。
+- Phase D progress (2026-03-03):
+  - D1 started: `single_planner/rule_order.rs` で `rule_name()` を semantic label SSOT に切替。
+  - compatibility: 旧 Pattern 表示は `planner_rule_legacy_name()` として保持（gate/tag の期待値互換を維持）。
+  - verification: `cargo test -q rule_name_uses_semantic_label --lib` / `cargo test -q legacy_rule_name_alias_is_preserved --lib` / `phase29x-probe emit_fail=0`。
 
 - direct route debug status (2026-03-03, active):
   - `Invalid value ... ValueId(0)`（`AddOperator.apply/2`）は解消。原因は `json_v1_bridge` が v1 payload の `params` を読まず、関数 arity を 0 で復元していた点だった（`src/runner/json_v1_bridge/parse.rs` 修正済み）。
