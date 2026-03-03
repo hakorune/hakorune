@@ -20,37 +20,37 @@ use handlers::*;
 pub(crate) const ENTRIES: &[Entry] = &[
     Entry {
         name: "loop_break_recipe",
-        predicate: pred_pattern2_break,
+        predicate: pred_loop_break_recipe,
         route: Some(route_loop_break_recipe),
     },
     Entry {
         name: "if_phi_join",
-        predicate: pred_pattern3_ifphi,
+        predicate: pred_if_phi_join,
         route: Some(route_if_phi_join),
     },
     Entry {
         name: "loop_continue_only",
-        predicate: pred_pattern4_continue,
+        predicate: pred_loop_continue_only_pattern,
         route: Some(route_loop_continue_only),
     },
     Entry {
         name: "loop_true_early_exit",
-        predicate: pred_pattern5_infinite_early_exit,
+        predicate: pred_loop_true_early_exit,
         route: Some(route_loop_true_early_exit),
     },
     Entry {
         name: "loop_simple_while",
-        predicate: pred_pattern1_simplewhile,
+        predicate: pred_loop_simple_while,
         route: Some(route_loop_simple_while),
     },
     Entry {
         name: "loop_char_map",
-        predicate: pred_pattern1_char_map,
+        predicate: pred_loop_char_map,
         route: Some(route_loop_char_map),
     },
     Entry {
         name: "loop_array_join",
-        predicate: pred_pattern1_array_join,
+        predicate: pred_loop_array_join,
         route: Some(route_loop_array_join),
     },
     Entry {
@@ -65,12 +65,12 @@ pub(crate) const ENTRIES: &[Entry] = &[
     },
     Entry {
         name: "bool_predicate_scan",
-        predicate: pred_pattern8_bool_predicate_scan,
+        predicate: pred_bool_predicate_scan,
         route: Some(route_bool_predicate_scan),
     },
     Entry {
         name: "accum_const_loop",
-        predicate: pred_pattern9_accum_const_loop,
+        predicate: pred_accum_const_loop,
         route: Some(route_accum_const_loop),
     },
     Entry {
@@ -147,11 +147,11 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
     let mut names = Vec::new();
     let scan_methods_candidate =
         pred_loop_scan_methods_block_v0(facts) || pred_loop_scan_methods_v0(facts);
-    let pattern3_candidate = pred_pattern3_ifphi(facts);
-    let pattern4_candidate = pred_pattern4_continue(facts);
-    let pattern5_candidate = pred_pattern5_infinite_early_exit(facts);
-    let array_join_candidate = pred_pattern1_array_join(facts);
-    let char_map_candidate = pred_pattern1_char_map(facts);
+    let pattern3_candidate = pred_if_phi_join(facts);
+    let pattern4_candidate = pred_loop_continue_only_pattern(facts);
+    let pattern5_candidate = pred_loop_true_early_exit(facts);
+    let array_join_candidate = pred_loop_array_join(facts);
+    let char_map_candidate = pred_loop_char_map(facts);
     for entry in ENTRIES {
         if entry.name == "loop_cond_break_continue" && scan_methods_candidate {
             continue;
@@ -178,7 +178,7 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
     if char_map_candidate {
         names.retain(|name| *name != "generic_loop_v1");
     }
-    if pred_pattern1_simplewhile(facts) {
+    if pred_loop_simple_while(facts) {
         names.retain(|name| *name != "generic_loop_v1");
     }
     if pred_loop_bundle_resolver_v0(facts) {

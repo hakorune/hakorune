@@ -240,6 +240,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - D1 started: `single_planner/rule_order.rs` で `rule_name()` を semantic label SSOT に切替。
   - compatibility: 旧 Pattern 表示は `planner_rule_legacy_name()` として保持（gate/tag の期待値互換を維持）。
   - D1 follow-up: `planner/pattern_shadow.rs` で semantic rule key を主語にし、legacy `loop/pattern*` は alias 正規化で互換維持。
+  - D1 follow-up2 (2026-03-04): `joinir/patterns/registry` の predicate 名を semantic 語彙（`pred_loop_break_recipe` など）へ移行。旧 `pred_pattern*` は互換 alias として残し、挙動非変更で入口語彙のみ整理。
   - D2 starter: `DomainPlan::kind_label()` を追加し、`single_planner/rules.rs` の payload非依存箇所（freeze文言・variant判定）を label-based へ集約。
   - D2 follow-up: `DomainPlanKind` を導入し、`rules.rs` の planner 判定を variant match から kind 比較へ置換（payload 非依存化を前進）。
   - D3 starter: dead entry path の本番依存を縮退（`composer/mod.rs` で `coreloop_{single_entry,v0,v1}` を `#[cfg(test)]` 化、`normalizer/mod.rs` で `pattern_{scan_with_init,split_scan}` module 宣言を `#[cfg(test)]` 化）。
