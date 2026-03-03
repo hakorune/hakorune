@@ -37,7 +37,7 @@ if grep -qF "[flowbox/adopt box_kind=Loop" <<<"$OUTPUT" \
     exit 0
 fi
 
-if planner_first_tag_matches "$OUTPUT" "[joinir/planner_first rule=Pattern1]"; then
+if planner_first_tag_matches "$OUTPUT" "[joinir/planner_first rule=LoopSimpleWhile]"; then
     test_pass "phase29ca_generic_loop_continue_strict_shadow_vm: PASS (exit=4, planner-first tag)"
     exit 0
 fi

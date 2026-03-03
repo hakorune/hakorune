@@ -15,6 +15,6 @@ run_planner_first_gate \
     "phase29bq_conditional_update_join_planner_required_vm" \
     "$FIXTURE" \
     "$expected" \
-    "[joinir/planner_first rule=Pattern1]" \
+    "[joinir/planner_first rule=LoopSimpleWhile]" \
     "0" \
     "$RUN_TIMEOUT_SECS" || exit 1

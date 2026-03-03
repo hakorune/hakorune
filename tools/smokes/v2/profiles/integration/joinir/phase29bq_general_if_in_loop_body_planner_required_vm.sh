@@ -15,7 +15,7 @@ run_planner_first_gate \
     "phase29bq_general_if_in_loop_body_planner_required_vm" \
     "$FIXTURE" \
     "$expected" \
-    "[joinir/planner_first rule=Pattern1]" \
+    "[joinir/planner_first rule=LoopSimpleWhile]" \
     "0" \
     "$RUN_TIMEOUT_SECS" || exit 1
 

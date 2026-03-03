@@ -1,3 +1,3 @@
 # fixture	expected	allow_rc	planner_tag	reason
-apps/tests/phase29aq_string_parse_integer_sign_min.hako	-42	0 214	[joinir/planner_first rule=Pattern2] label=LoopBreakRecipe	parse_integer sign case (recent flake boundary)
-apps/tests/phase29aq_string_parse_integer_ws_min.hako	0	0	[joinir/planner_first rule=Pattern2] label=LoopBreakRecipe	parse_integer ws case (planner-first coverage)
+apps/tests/phase29aq_string_parse_integer_sign_min.hako	-42	0 214	[joinir/planner_first rule=LoopBreakRecipe] label=LoopBreakRecipe	parse_integer sign case (recent flake boundary)
+apps/tests/phase29aq_string_parse_integer_ws_min.hako	0	0	[joinir/planner_first rule=LoopBreakRecipe] label=LoopBreakRecipe	parse_integer ws case (planner-first coverage)

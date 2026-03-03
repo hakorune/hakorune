@@ -15,7 +15,7 @@ run_planner_first_gate \
     "phase29bq_step_then_tail_break_planner_required_vm" \
     "$FIXTURE" \
     "$expected" \
-    "[joinir/planner_first rule=Pattern2]" \
+    "[joinir/planner_first rule=LoopBreakRecipe]" \
     "0" \
     "$RUN_TIMEOUT_SECS" || exit 1
 

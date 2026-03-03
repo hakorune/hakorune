@@ -69,33 +69,60 @@ planner_first_pattern_semantic_rule() {
   esac
 }
 
+planner_first_semantic_legacy_rule() {
+  local semantic_rule="$1"
+  case "$semantic_rule" in
+    LoopSimpleWhile) echo "Pattern1" ;;
+    LoopBreakRecipe) echo "Pattern2" ;;
+    IfPhiJoin) echo "Pattern3" ;;
+    LoopContinueOnly) echo "Pattern4" ;;
+    LoopTrueEarlyExit) echo "Pattern5" ;;
+    ScanWithInit) echo "Pattern6" ;;
+    SplitScan) echo "Pattern7" ;;
+    BoolPredicateScan) echo "Pattern8" ;;
+    AccumConstLoop) echo "Pattern9" ;;
+    *) echo "" ;;
+  esac
+}
+
 planner_first_compat_tag() {
   local tag="$1"
-  local legacy_rule semantic_rule label
+  local rule_token legacy_rule semantic_rule label
 
-  if [[ ! "$tag" =~ rule=(Pattern[1-9]) ]]; then
+  if [[ ! "$tag" =~ rule=([^][:space:]|]+) ]]; then
     echo ""
     return 0
   fi
-  legacy_rule="${BASH_REMATCH[1]}"
+  rule_token="${BASH_REMATCH[1]}"
 
   label=""
   if [[ "$tag" =~ label=([^[:space:]|]+) ]]; then
     label="${BASH_REMATCH[1]}"
   fi
 
-  if [ -n "$label" ]; then
-    semantic_rule="$label"
-  else
-    semantic_rule="$(planner_first_pattern_semantic_rule "$legacy_rule")"
-  fi
-
-  if [ -z "$semantic_rule" ]; then
-    echo ""
+  # legacy -> semantic
+  if [[ "$rule_token" =~ ^Pattern[1-9]$ ]]; then
+    legacy_rule="$rule_token"
+    if [ -n "$label" ]; then
+      semantic_rule="$label"
+    else
+      semantic_rule="$(planner_first_pattern_semantic_rule "$legacy_rule")"
+    fi
+    if [ -z "$semantic_rule" ]; then
+      echo ""
+      return 0
+    fi
+    echo "${tag/rule=$legacy_rule/rule=$semantic_rule}"
     return 0
   fi
 
-  echo "${tag/rule=$legacy_rule/rule=$semantic_rule}"
+  # semantic -> legacy
+  legacy_rule="$(planner_first_semantic_legacy_rule "$rule_token")"
+  if [ -z "$legacy_rule" ]; then
+    echo ""
+    return 0
+  fi
+  echo "${tag/rule=$rule_token/rule=$legacy_rule}"
 }
 
 run_planner_first_gate() {

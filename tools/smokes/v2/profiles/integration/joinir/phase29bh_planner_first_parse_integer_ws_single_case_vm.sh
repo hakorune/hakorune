@@ -15,6 +15,6 @@ run_planner_first_gate \
     "phase29bh_planner_first_parse_integer_ws_single_case_vm" \
     "$FIXTURE" \
     "$expected" \
-    "[joinir/planner_first rule=Pattern2]" \
+    "[joinir/planner_first rule=LoopBreakRecipe]" \
     "0" \
     "$RUN_TIMEOUT_SECS" || exit 1
