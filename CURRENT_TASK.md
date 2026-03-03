@@ -248,6 +248,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - D3 follow-up3 (2026-03-04): `Pattern2BreakPlan` を `normalizer/pattern2_break.rs` の module-local test-only 型へ移設し、`domain.rs` / `plan/mod.rs` から Pattern2 legacy payload 定義・re-export を撤去。
   - verification: `cargo test -q rule_name_uses_semantic_label --lib` / `cargo test -q legacy_rule_name_alias_is_preserved --lib` / `cargo test -q legacy_rule_aliases_map_to_semantic_priority --lib` / `cargo test -q domain_plan_kind_and_label_match --lib` / `phase29bq_fast_gate_vm --only loop_cond_continue_with_return_min` / `phase29bq_fast_gate_vm --only loop_header_shortcircuit_continue_with_return_min` / `phase29x-probe emit_fail=0`。
   - verification2 (2026-03-04): `cargo build --release --bin hakorune` / `bash tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` / `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` が green。
+  - verification3 (2026-03-04): `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` は継続して `emit_fail=0 / run_nonzero=18 / run_ok=100 / route_blocker=0` を維持。
 
 - direct route debug status (2026-03-03, active):
   - `Invalid value ... ValueId(0)`（`AddOperator.apply/2`）は解消。原因は `json_v1_bridge` が v1 payload の `params` を読まず、関数 arity を 0 で復元していた点だった（`src/runner/json_v1_bridge/parse.rs` 修正済み）。
