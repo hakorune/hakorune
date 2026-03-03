@@ -377,13 +377,20 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
     }))
 }
 
-/// Sync current_bindings from variable_map for carrier variables.
+/// Fill missing carrier bindings from variable_map.
+///
+/// Do not overwrite existing carrier bindings in `current_bindings`.
+/// Overwriting can clobber header-phi tracking with stale pre-loop values when
+/// nested loop lowering does not intentionally update an outer carrier.
 pub(super) fn sync_carrier_bindings(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
 ) {
     for (name, _) in carrier_phis {
+        if current_bindings.contains_key(name) {
+            continue;
+        }
         if let Some(value_id) = builder.variable_ctx.variable_map.get(name) {
             current_bindings.insert(name.clone(), *value_id);
         }

@@ -9,10 +9,10 @@ use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::mark_
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts::{
     try_extract_nested_loop_depth1_facts, NestedLoopDepth1Facts, NestedLoopDepth1Kind,
 };
-use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
+use crate::mir::builder::control_flow::plan::nested_loop_plan::lower_nested_loop_plan_with_recipe_first;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::{single_planner, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::cell::Cell;
 
@@ -89,12 +89,12 @@ fn lower_nested_loop_depth1_from_facts(
         false,
         false,
     );
-    let (domain_plan, _outcome) = single_planner::try_build_domain_plan_with_outcome(&ctx)?;
-    let Some(domain_plan) = domain_plan else {
-        return Err(format!(
-            "{error_prefix}: nested loop {} has no plan",
-            facts.kind.context_name()
-        ));
-    };
-    PlanNormalizer::normalize(builder, domain_plan, &ctx)
+    lower_nested_loop_plan_with_recipe_first(
+        builder,
+        &facts.condition,
+        &facts.body.body,
+        &ctx,
+        error_prefix,
+        "nested_loop_depth1",
+    )
 }

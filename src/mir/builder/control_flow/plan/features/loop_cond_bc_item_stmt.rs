@@ -199,7 +199,7 @@ fn lower_if_stmt(
         let mut lower_then =
             |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
                 let mut then_bindings = bindings.clone();
-                lower_stmt_list_no_direct_exit(
+                let plans = lower_stmt_list_no_direct_exit(
                     builder,
                     &mut then_bindings,
                     carrier_phis,
@@ -208,7 +208,9 @@ fn lower_if_stmt(
                     &mut then_carrier_updates,
                     then_body,
                     LOOP_COND_ERR,
-                )
+                )?;
+                *bindings = then_bindings;
+                Ok(plans)
             };
 
         let should_update_binding =
@@ -323,7 +325,7 @@ fn lower_if_stmt(
         let mut lower_then =
             |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
                 let mut then_bindings = bindings.clone();
-                lower_stmt_list_no_direct_exit(
+                let plans = lower_stmt_list_no_direct_exit(
                     builder,
                     &mut then_bindings,
                     carrier_phis,
@@ -332,14 +334,16 @@ fn lower_if_stmt(
                     &mut then_carrier_updates,
                     then_body,
                     LOOP_COND_ERR,
-                )
+                )?;
+                *bindings = then_bindings;
+                Ok(plans)
             };
 
         let mut else_carrier_updates = BTreeMap::new();
         let mut lower_else =
             |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
                 let mut else_bindings = bindings.clone();
-                lower_stmt_list_no_direct_exit(
+                let plans = lower_stmt_list_no_direct_exit(
                     builder,
                     &mut else_bindings,
                     carrier_phis,
@@ -348,7 +352,9 @@ fn lower_if_stmt(
                     &mut else_carrier_updates,
                     else_body,
                     LOOP_COND_ERR,
-                )
+                )?;
+                *bindings = else_bindings;
+                Ok(plans)
             };
 
         let should_update_binding =

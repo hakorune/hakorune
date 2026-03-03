@@ -194,6 +194,16 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `loop_cond_return_in_body_facts` に `if-else-if(return)` 受理形を追加し、`generic_loop_v1` への誤フォールスルー（`no_valid_loop_var_candidates`）を解消。
     - fixture `phase29bq_selfhost_blocker_parse_program2_loop_if_else_if_return_min.hako` が `emit=0/run=0` に遷移。
   - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
+- update (2026-03-04, blocker-triage follow-up / bq green):
+  - command: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
+  - result: `PASS (mode=bq)`
+  - fix note:
+    - `loop_cond_break_continue` の nested loop でキャリア同期が古い値を上書きする不具合を修正（`sync_carrier_bindings` を「欠損補完のみ」に変更）。
+    - nested depth1 の `single_planner=None` で即 freeze していた経路を `nested_loop_plan` の recipe-first fallback へ統合（`nested-break-continue-pure has no plan` 解消）。
+    - `loop_cond` join-if fallback で branch bindings を書き戻していなかった不具合を修正（`depth = depth + 1` 欠落を解消）。
+  - gate contract tune:
+    - planner tag の移行揺れを OR 許容に更新（`selfhost_seek_array_end_return_if_min` / `selfhost_extract_body_brace_return_min` / `selfhost_phi_injector_nested_loop_count_min`）。
+    - `selfhost_parse_program2_loop_if_else_if_return_min` の expected tag を実挙動（`LoopCondReturnInBody`）へ更新。
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
@@ -239,7 +249,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 - Phase D legacy isolation -> deletion lock (2026-03-04, cleanliness-first):
   - legacy の定義（この文脈）:
-    - `PatternN` 語彙を直接期待する gate/tsv/script 依存（例: `[joinir/planner_first rule=Pattern2]`）。
+    - `PatternN` 語彙を直接期待する gate/tsv/script 依存（例: `[joinir/planner_first rule=LoopBreakRecipe]` へ移行前の旧期待値）。
     - compiler core の受理/計画/lower ロジックではなく、主に検証境界の互換語彙を指す。
   - cleanliness rule:
     - compiler core（facts/planner/composer/lower）へ legacy 語彙を再注入しない。
@@ -258,10 +268,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - D1 started: `single_planner/rule_order.rs` で `rule_name()` を semantic label SSOT に切替。
   - compatibility: 旧 Pattern 表示は `planner_rule_legacy_name()` として保持（gate/tag の期待値互換を維持）。
   - D1 follow-up: `planner/pattern_shadow.rs` で semantic rule key を主語にし、legacy `loop/pattern*` は alias 正規化で互換維持。
-  - D1 follow-up2 (2026-03-04): `joinir/patterns/registry` の predicate 名を semantic 語彙（`pred_loop_break_recipe` など）へ移行。旧 `pred_pattern*` は互換 alias として残し、挙動非変更で入口語彙のみ整理。
+  - D1 follow-up2 (2026-03-04): `joinir/patterns/registry` の predicate 名を semantic 語彙（`pred_loop_break_recipe` など）へ移行。旧 `pred_pattern*` は L4 まで互換 alias として保持。
   - D1/L1 isolate started (2026-03-04): `tools/smokes/v2/lib/joinir_planner_first_gate.sh` の `planner_first_tag_matches` を semantic/legacy 両対応へ拡張（`PatternN` 期待に対して `rule=<semantic>` を許容）。`phase29ca/phase29cb` strict-shadow gate も固定 `grep Pattern1` から共通 matcher 呼び出しへ移行。
   - D1/L2 migrate (2026-03-04): `tools/smokes/v2/profiles/integration/{joinir,selfhost}` の planner-first 期待タグを `PatternN` から semantic rule 名へ段階置換（16 files）。matcher は双方向互換（legacy<->semantic）で移行期間を吸収。
   - D1/L3 flip (2026-03-04): `src/mir/builder/control_flow/plan/planner/tags.rs` の `planner_first rule=*` 出力を Pattern 数値語彙から semantic rule 名へ切替。
+  - D1/L4 delete (2026-03-04): `predicates.rs` から `pred_pattern*` alias を削除し、`joinir_planner_first_gate.sh` から semantic/legacy 双方向互換 matcher を撤去。planner-first tag 契約を semantic exact-match に固定。
   - D2 starter: `DomainPlan::kind_label()` を追加し、`single_planner/rules.rs` の payload非依存箇所（freeze文言・variant判定）を label-based へ集約。
   - D2 follow-up: `DomainPlanKind` を導入し、`rules.rs` の planner 判定を variant match から kind 比較へ置換（payload 非依存化を前進）。
   - D3 starter: dead entry path の本番依存を縮退（`composer/mod.rs` で `coreloop_{single_entry,v0,v1}` を `#[cfg(test)]` 化、`normalizer/mod.rs` で `pattern_{scan_with_init,split_scan}` module 宣言を `#[cfg(test)]` 化）。
@@ -288,6 +299,15 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `phase29ca_direct_verify_dominance_block_canary.sh` => PASS
     - `phase29x-probe` => `emit_fail=0 / route_blocker=0 / run_nonzero=18 / run_ok=100` 維持
     - `phase29bq_fast_gate_vm --only bq` は同一 fixture（`parse_string2_return_prelude_call_min`）で `flowbox/adopt` tag mismatch FAIL 継続（語彙切替の前後で同系統）。
+  - verification7 (2026-03-04, L4 delete):
+    - `cargo build --release --bin hakorune` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bh_planner_first_single_case_vm.sh` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_step_then_tail_break_planner_required_vm.sh` => PASS
+    - `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => PASS
+    - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` => `emit_fail=0 / route_blocker=0 / run_nonzero=18 / run_ok=100`
 
 - direct route debug status (2026-03-03, active):
   - `Invalid value ... ValueId(0)`（`AddOperator.apply/2`）は解消。原因は `json_v1_bridge` が v1 payload の `params` を読まず、関数 arity を 0 で復元していた点だった（`src/runner/json_v1_bridge/parse.rs` 修正済み）。
