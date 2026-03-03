@@ -65,3 +65,25 @@ define_plan_rules! {
     // Phase 286 P2.1
     Pattern1 => "Pattern1_SimpleWhile (Phase 286 P2.1)";
 }
+
+/// Semantic rule label (Pattern-number free).
+///
+/// This is the preferred vocabulary for UI/debug labels and docs.
+pub(in crate::mir::builder) fn planner_rule_semantic_label(id: PlanRuleId) -> &'static str {
+    match id {
+        PlanRuleId::Pattern1 => "LoopSimpleWhile",
+        PlanRuleId::Pattern2 => "LoopBreakRecipe",
+        PlanRuleId::Pattern3 => "IfPhiJoin",
+        PlanRuleId::Pattern4 => "LoopContinueOnly",
+        PlanRuleId::Pattern5 => "LoopTrueEarlyExit",
+        PlanRuleId::Pattern6 => "ScanWithInit",
+        PlanRuleId::Pattern7 => "SplitScan",
+        PlanRuleId::Pattern8 => "BoolPredicateScan",
+        PlanRuleId::Pattern9 => "AccumConstLoop",
+        PlanRuleId::LoopTrueBreak => "LoopTrueBreakContinue",
+        PlanRuleId::LoopCondBreak => "LoopExitIfBreakContinue",
+        PlanRuleId::LoopCondContinueOnly => "LoopContinueOnly",
+        PlanRuleId::LoopCondContinueWithReturn => "LoopContinueWithReturn",
+        PlanRuleId::LoopCondReturnInBody => "LoopReturnInBody",
+    }
+}

@@ -4,7 +4,9 @@
 //! - Keep `[joinir/planner_first rule=...]` tags stable across refactors.
 //! - Prevent TSV expectations from drifting due to incidental formatting changes.
 
-use crate::mir::builder::control_flow::plan::single_planner::PlanRuleId;
+use crate::mir::builder::control_flow::plan::single_planner::{
+    planner_rule_semantic_label, PlanRuleId,
+};
 
 pub(in crate::mir::builder) fn planner_first_tag(rule_id: PlanRuleId) -> &'static str {
     match rule_id {
@@ -28,22 +30,7 @@ pub(in crate::mir::builder) fn planner_first_tag(rule_id: PlanRuleId) -> &'stati
 }
 
 pub(in crate::mir::builder) fn planner_first_display_label(rule_id: PlanRuleId) -> &'static str {
-    match rule_id {
-        PlanRuleId::Pattern1 => "LoopSimpleWhile",
-        PlanRuleId::Pattern2 => "LoopBreakRecipe",
-        PlanRuleId::Pattern3 => "IfPhiJoin",
-        PlanRuleId::Pattern4 => "LoopContinueOnly",
-        PlanRuleId::Pattern5 => "LoopTrueEarlyExit",
-        PlanRuleId::Pattern6 => "ScanWithInit",
-        PlanRuleId::Pattern7 => "SplitScan",
-        PlanRuleId::Pattern8 => "BoolPredicateScan",
-        PlanRuleId::Pattern9 => "AccumConstLoop",
-        PlanRuleId::LoopTrueBreak => "LoopTrueBreakContinue",
-        PlanRuleId::LoopCondBreak => "LoopExitIfBreakContinue",
-        PlanRuleId::LoopCondContinueOnly => "LoopContinueOnly",
-        PlanRuleId::LoopCondContinueWithReturn => "LoopContinueWithReturn",
-        PlanRuleId::LoopCondReturnInBody => "LoopReturnInBody",
-    }
+    planner_rule_semantic_label(rule_id)
 }
 
 pub(in crate::mir::builder) fn planner_first_tag_with_label(rule_id: PlanRuleId) -> String {

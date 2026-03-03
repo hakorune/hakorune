@@ -11,7 +11,9 @@ use super::DomainPlan;
 mod rules;
 mod rule_order;
 
-pub(in crate::mir::builder) use rule_order::PlanRuleId;
+pub(in crate::mir::builder) use rule_order::{
+    planner_rule_semantic_label, PlanRuleId,
+};
 
 pub(in crate::mir::builder) fn try_build_domain_plan_with_outcome(
     ctx: &LoopPatternContext,
