@@ -171,6 +171,11 @@ pub(super) fn lower_simple_effect_stmt(
             )?;
             Ok(Some(effects_to_plans(effects)))
         }
+        ASTNode::Call { .. } => {
+            let (_value_id, effects) =
+                PlanNormalizer::lower_value_ast(stmt, builder, current_bindings)?;
+            Ok(Some(effects_to_plans(effects)))
+        }
         ASTNode::Print { expression, .. } => {
             let (value_id, mut effects) =
                 PlanNormalizer::lower_value_ast(expression, builder, current_bindings)?;

@@ -7,6 +7,7 @@
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
+use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
@@ -177,7 +178,22 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
                 &break_phi_dsts,
                 verified,
                 LOOP_COND_ERR,
-            )?
+            )
+            .or_else(|err| {
+                if !err.contains("if body must be single-exit") {
+                    return Err(err);
+                }
+                lower_loop_cond_body_items(
+                    builder,
+                    &mut current_bindings,
+                    &carrier_phis,
+                    &carrier_step_phis,
+                    &break_phi_dsts,
+                    &facts.recipe.body,
+                    &facts.recipe.items,
+                    facts.propagate_nested_carriers,
+                )
+            })?
         }
         BodyLoweringPolicy::RecipeOnly => lower_loop_cond_body_items(
             builder,
@@ -188,7 +204,36 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
             &facts.recipe.body,
             &facts.recipe.items,
             facts.propagate_nested_carriers,
-        )?,
+        )
+        .or_else(|err| {
+            if !err.contains("if body must be single-exit") {
+                return Err(err);
+            }
+
+            let fallback = facts
+                .body_exit_allowed
+                .clone()
+                .or_else(|| try_build_exit_allowed_block_recipe(&facts.recipe.body.body, true))
+                .or_else(|| try_build_exit_allowed_block_recipe(&facts.recipe.body.body, false));
+            let Some(body_exit_allowed) = fallback else {
+                return Err(err);
+            };
+
+            let verified = parts::entry::verify_exit_allowed_block_with_pre(
+                &body_exit_allowed.arena,
+                &body_exit_allowed.block,
+                LOOP_COND_ERR,
+                Some(&builder.variable_ctx.variable_map),
+            )?;
+            parts::entry::lower_exit_allowed_block_verified(
+                builder,
+                &mut current_bindings,
+                &carrier_step_phis,
+                &break_phi_dsts,
+                verified,
+                LOOP_COND_ERR,
+            )
+        })?,
     };
 
     let body_entry_bindings = current_bindings.clone();
@@ -357,7 +402,7 @@ fn lower_loop_cond_body_items(
 ) -> Result<Vec<LoweredRecipe>, String> {
     let mut carrier_updates = BTreeMap::new();
     let mut body_plans = Vec::new();
-    for item in items {
+    for (idx, item) in items.iter().enumerate() {
         let mut plans = super::loop_cond_bc_item::lower_loop_cond_item(
             builder,
             current_bindings,
@@ -368,7 +413,8 @@ fn lower_loop_cond_body_items(
             body,
             item,
             propagate_nested,
-        )?;
+        )
+        .map_err(|err| format!("{err} [loop_cond_item idx={idx} kind={item:?}]"))?;
         body_plans.append(&mut plans);
     }
     Ok(body_plans)

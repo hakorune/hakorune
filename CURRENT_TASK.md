@@ -177,15 +177,23 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - fix note:
     - `CoreEffectPlan::Select` emission で 2-pred merge のとき、incoming の定義ブロックが pred 対応する形を検出できれば `MirInstruction::Phi` に置換するように変更（`effect_emission.rs`）。
   - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
+- update (2026-03-03, fifth pass / loop_cond emit-other collapse):
+  - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+  - result: `emit_fail=1`, `run_nonzero=18`, `run_ok=99`, `route_blocker=0`（total=118）
+  - class: `emit:joinir-reject=1`（`emit:other=0`, `emit:direct-verify=0`）
+  - fix note:
+    - `unsupported stmt Call` を `loop_cond` stmt lowering に受理追加（`ASTNode::Call`）。
+    - generic loop step で BinOp 専用前提を除去し、非算術 step は value lowering + copy にフォールバック。
+    - `ContinueWithPhiArgs` の incoming を常時 `ssa::local::try_ensure(..., LocalKind::Arg)` で predecessor 局所化し、dominance を固定。
+  - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
   - `if_effect_empty`（3）を解消（3 -> 0, direct-verify へ前進）
   - class shift: `emit:other 11 -> 4`（`emit_fail` 総数は 13 維持）
 - current head blockers:
-  1. single-exit 系 fail-fast（2件: `then_last=Return` 1 + `then_last=Assignment else_last=If` 1）
-  2. 単発エラー `unsupported stmt Call`（1）
-  3. 単発エラー `Expected BinOp`（1）
+  1. `emit:joinir-reject`（1件）: `phase29bq_selfhost_blocker_parse_program2_loop_if_else_if_return_min.hako`
+  2. `route_blocker`（step-budget / Invalid value）は 0 維持
 - files touched in this round（restart-safe context）:
   - `src/mir/builder/control_flow/plan/normalizer/helpers.rs`
   - `src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs`
@@ -229,14 +237,14 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - phase216 外 sweep は profile 化済み: `tools/dev/direct_loop_progression_sweep.sh`（`default`/`phase29x-green`/`phase29x-probe`）。
   - phase29x probe latest（`--profile phase29x-probe`, 2026-03-03）:
     - scope: `phase29bq|phase29ca|phase29cb` かつ `(loop|generic_loop|loop_cond|loop_true)` = 118 fixtures。
-    - latest: `emit_fail=4`, `run_nonzero=16`, `run_ok=98`, `route_blocker(step-budget/Invalid value)=0`。
-    - class: `emit:other=4`, `run:vm-error=3`（`emit:direct-verify=0`）。
+    - latest: `emit_fail=1`, `run_nonzero=18`, `run_ok=99`, `route_blocker(step-budget/Invalid value)=0`。
+    - class: `emit:joinir-reject=1`, `run:vm-error=3`（`emit:direct-verify=0`, `emit:other=0`）。
   - direct-verify / dominance guard:
     - canary: `tools/dev/phase29ca_direct_verify_dominance_block_canary.sh`（expected: `emit_rc=0` + `run_rc=4`）。
     - current residual: `emit:direct-verify=0`（clear）。
   - current blocker class（head order）:
-    - `emit:other` は 4 件（single-exit 2 + `unsupported stmt Call` 1 + `Expected BinOp` 1）。`direct-verify` は 0 件。
-    - single-exit 系 fail-fast は合計2件（`then_last=Return` 1 + `then_last=Assignment else_last=If` 1）。
+    - emit blocker は `emit:joinir-reject` の 1 件のみ（fixture: `phase29bq_selfhost_blocker_parse_program2_loop_if_else_if_return_min.hako`）。
+    - `route_blocker` / `emit:direct-verify` / `emit:other` は 0 件。
   - improvements in this round:
     - `Unsupported value AST: MapLiteral`（7）を解消
     - `Unsupported binary operator: Or`（7）を解消

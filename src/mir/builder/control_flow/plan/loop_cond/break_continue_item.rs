@@ -126,7 +126,8 @@ fn build_loop_cond_break_continue_item(
         ASTNode::Assignment { .. }
         | ASTNode::Local { .. }
         | ASTNode::MethodCall { .. }
-        | ASTNode::FunctionCall { .. } => Some(LoopCondBreakContinueItem::Stmt(stmt_ref)),
+        | ASTNode::FunctionCall { .. }
+        | ASTNode::Call { .. } => Some(LoopCondBreakContinueItem::Stmt(stmt_ref)),
         ASTNode::Print { .. } => {
             if allow_extended {
                 Some(LoopCondBreakContinueItem::Stmt(stmt_ref))
@@ -367,9 +368,28 @@ fn build_if_item(
         debug,
     ) {
         Some(IfStmtKind::ExitIf) => {
+            let tail_is_exit = |body: &[ASTNode]| {
+                matches!(
+                    body.last(),
+                    Some(ASTNode::Return { .. } | ASTNode::Break { .. } | ASTNode::Continue { .. })
+                )
+            };
+            let is_tail_exit_shape =
+                tail_is_exit(then_body) && else_body.map_or(true, |b| tail_is_exit(b));
             *exit_if_seen += 1;
             let exit_allowed_block =
                 try_build_exit_allowed_block_recipe(std::slice::from_ref(stmt), allow_extended);
+            if !is_tail_exit_shape
+                && exit_allowed_block
+                    .as_ref()
+                    .is_some_and(|block| !exit_allowed_block_has_non_stmt_items(block))
+            {
+                *conditional_update_seen += 1;
+                return Some(LoopCondBreakContinueItem::ProgramBlock {
+                    stmt: stmt_ref,
+                    stmt_only: None,
+                });
+            }
             Some(LoopCondBreakContinueItem::exit_if_with_optional_block(
                 stmt_ref,
                 exit_allowed_block,
@@ -379,23 +399,31 @@ fn build_if_item(
             let Some(else_body) = else_body else {
                 return None;
             };
-            let (continue_prelude, fallthrough_body) =
-                build_continue_if_with_else_recipes(
-                    then_body,
-                    else_body,
-                    continue_in_then,
-                    allow_nested,
-                    allow_extended,
-                    max_nested_loops,
-                    debug,
-                )?;
-            *continue_if_seen += 1;
-            Some(LoopCondBreakContinueItem::ContinueIfWithElse {
-                if_stmt: stmt_ref,
+            if let Some((continue_prelude, fallthrough_body)) = build_continue_if_with_else_recipes(
+                then_body,
+                else_body,
                 continue_in_then,
-                continue_prelude,
-                fallthrough_body,
-            })
+                allow_nested,
+                allow_extended,
+                max_nested_loops,
+                debug,
+            ) {
+                *continue_if_seen += 1;
+                Some(LoopCondBreakContinueItem::ContinueIfWithElse {
+                    if_stmt: stmt_ref,
+                    continue_in_then,
+                    continue_prelude,
+                    fallthrough_body,
+                })
+            } else if allow_extended {
+                *conditional_update_seen += 1;
+                Some(LoopCondBreakContinueItem::ProgramBlock {
+                    stmt: stmt_ref,
+                    stmt_only: None,
+                })
+            } else {
+                None
+            }
         }
         Some(IfStmtKind::ConditionalUpdate) => {
             *conditional_update_seen += 1;
@@ -461,23 +489,38 @@ fn build_if_item(
                     std::slice::from_ref(stmt),
                     allow_extended,
                 ) {
+                    if !exit_allowed_block_has_non_stmt_items(&exit_allowed_block) {
+                        *conditional_update_seen += 1;
+                        return Some(LoopCondBreakContinueItem::ProgramBlock {
+                            stmt: stmt_ref,
+                            stmt_only: None,
+                        });
+                    }
                     *exit_if_seen += 1;
                     return Some(LoopCondBreakContinueItem::exit_if_with_optional_block(
                         stmt_ref,
                         Some(exit_allowed_block),
                     ));
                 }
-                if is_supported_bool_expr_with_canon(condition, allow_extended) {
-                    *conditional_update_seen += 1;
-                    return Some(LoopCondBreakContinueItem::ProgramBlock {
-                        stmt: stmt_ref,
-                        stmt_only: None,
-                    });
-                }
+                *conditional_update_seen += 1;
+                return Some(LoopCondBreakContinueItem::ProgramBlock {
+                    stmt: stmt_ref,
+                    stmt_only: None,
+                });
             }
             None
         }
     }
+}
+
+fn exit_allowed_block_has_non_stmt_items(
+    block: &crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe,
+) -> bool {
+    block
+        .block
+        .items
+        .iter()
+        .any(|item| !matches!(item, crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem::Stmt(_)))
 }
 
 fn if_has_any_exit_signals(then_body: &[ASTNode], else_body: Option<&Vec<ASTNode>>) -> bool {

@@ -120,20 +120,17 @@ impl super::PlanLowerer {
                     .ok_or_else(|| "[lowerer] ContinueWithPhiArgs without current block".to_string())?;
                 let frame = Self::resolve_loop_frame_mut(loop_stack, depth)?;
                 builder.ensure_block_exists(frame.continue_target)?;
-                let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
-                    && crate::config::env::joinir_dev::planner_required_enabled();
                 let phi_args_len = phi_args.len();
                 let debug_ctx = debug_ctx::build(builder);
                 for (dst, src) in phi_args {
-                    let incoming = if strict_planner_required {
-                        crate::mir::builder::ssa::local::try_ensure(
-                            builder,
-                            src,
-                            crate::mir::builder::ssa::local::LocalKind::Arg,
-                        )?
-                    } else {
-                        src
-                    };
+                    // Always localize continue-phi incoming values at the emitting predecessor.
+                    // This preserves dominance when `src` was defined on a sibling branch and
+                    // allows pure defs (e.g. BinOp) to be rematerialized in-place.
+                    let incoming = crate::mir::builder::ssa::local::try_ensure(
+                        builder,
+                        src,
+                        crate::mir::builder::ssa::local::LocalKind::Arg,
+                    )?;
                     if let Some(debug_ctx) = &debug_ctx {
                         let incoming_def_bb = debug_ctx.def_blocks.get(&incoming).copied();
                         let ring0 = crate::runtime::get_global_ring0();

@@ -1,6 +1,6 @@
 //! GenericLoop step/cond feature (apply-only).
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
@@ -82,16 +82,16 @@ pub(in crate::mir::builder) fn apply_generic_loop_step(
         .unwrap_or(skeleton.loop_var_current);
     let phi_bindings = loop_carriers::build_loop_bindings(&[(loop_var, loop_var_step_src)]);
     let step_effects = match loop_increment {
-        ASTNode::Variable { .. } => {
-            let (step_val, mut effects) =
-                PlanNormalizer::lower_value_ast(loop_increment, builder, &phi_bindings)?;
-            effects.push(CoreEffectPlan::Copy {
-                dst: skeleton.loop_var_next,
-                src: step_val,
-            });
-            effects
-        }
-        _ => {
+        ASTNode::BinaryOp { operator, .. }
+            if matches!(
+                operator,
+                BinaryOperator::Add
+                    | BinaryOperator::Subtract
+                    | BinaryOperator::Multiply
+                    | BinaryOperator::Divide
+                    | BinaryOperator::Modulo
+            ) =>
+        {
             let (loop_inc_lhs, loop_inc_op, loop_inc_rhs, loop_inc_consts) =
                 PlanNormalizer::lower_binop_ast(loop_increment, builder, &phi_bindings)?;
             let mut effects = loop_inc_consts;
@@ -100,6 +100,15 @@ pub(in crate::mir::builder) fn apply_generic_loop_step(
                 lhs: loop_inc_lhs,
                 op: loop_inc_op,
                 rhs: loop_inc_rhs,
+            });
+            effects
+        }
+        _ => {
+            let (step_val, mut effects) =
+                PlanNormalizer::lower_value_ast(loop_increment, builder, &phi_bindings)?;
+            effects.push(CoreEffectPlan::Copy {
+                dst: skeleton.loop_var_next,
+                src: step_val,
             });
             effects
         }

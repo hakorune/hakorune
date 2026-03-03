@@ -20,6 +20,7 @@ use super::break_continue_types::{LoopCondBreakAcceptKind, LoopCondBreakContinue
 use super::break_continue_validator_exit::returns_only_in_exit_if;
 use crate::mir::policies::BodyLoweringPolicy;
 use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 
 /// Core extraction function for loop_cond_break_continue facts.
@@ -135,6 +136,28 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
             );
             return Ok(None);
         }
+    }
+
+    // ExitIf item with a stmt-only exit-allowed payload is not structurally safe in this route:
+    // lowering can collapse branch-specific values onto a shared predecessor and violate dominance.
+    // Let other loop routes handle these shapes.
+    let has_stmt_only_exit_if_payload = recipe.items.iter().any(|item| {
+        let LoopCondBreakContinueItem::ExitIf { block: Some(block), .. } = item else {
+            return false;
+        };
+        block
+            .block
+            .items
+            .iter()
+            .all(|it| matches!(it, RecipeItem::Stmt(_)))
+    });
+    if has_stmt_only_exit_if_payload {
+        log_reject(
+            "loop_cond_break_continue",
+            RejectReason::UnsupportedStmt,
+            handoff_tables::for_loop_cond_break_continue,
+        );
+        return Ok(None);
     }
 
     let program_block_seen = recipe

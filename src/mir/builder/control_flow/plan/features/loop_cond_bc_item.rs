@@ -56,7 +56,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
         else {
             return Err(format!("{LOOP_COND_ERR}: exit_if is not if"));
         };
-        return lower_if_exit_stmt_with_break_phi_args(
+        match lower_if_exit_stmt_with_break_phi_args(
             builder,
             current_bindings,
             carrier_step_phis,
@@ -65,7 +65,26 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
             then_body,
             else_body.as_ref(),
             LOOP_COND_ERR,
-        );
+        ) {
+            Ok(plans) => return Ok(plans),
+            Err(err) => {
+                if !err.contains("if body must be single-exit") {
+                    return Err(err);
+                }
+                // Narrow fallback: complex nested-exit tails are lowered through the
+                // generic stmt path, which can still reject with a direct-exit contract.
+                return lower_loop_cond_stmt(
+                    builder,
+                    current_bindings,
+                    carrier_phis,
+                    carrier_step_phis,
+                    break_phi_dsts,
+                    carrier_updates,
+                    false,
+                    stmt,
+                );
+            }
+        }
     }
 
     if item.is_tail_break() {
