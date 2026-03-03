@@ -26,6 +26,7 @@ use super::{legacy, registry};
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::expectations;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
+use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::facts::reject_reason;
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
@@ -313,9 +314,30 @@ pub(crate) fn route_loop_pattern(
         }
     }
 
-    // In release, allow recipe-first only when the current loop body has no nested loops.
-    // This keeps nested-loop cases on the release_adopt path for safety.
-    let release_recipe_first_allowed = !detect_nested_loop(ctx.body);
+    // In release, keep nested-loop recipe-first blocked by default.
+    // Exception: loop_cond_break_continue with explicit exit-driven accept kinds.
+    let release_recipe_first_allowed = if !detect_nested_loop(ctx.body) {
+        true
+    } else {
+        outcome
+            .facts
+            .as_ref()
+            .is_some_and(|facts| {
+                if !(facts.exit_usage.has_break && facts.exit_usage.has_continue)
+                    || facts.exit_usage.has_return
+                {
+                    return false;
+                }
+                let Some(loop_cond) = facts.facts.loop_cond_break_continue.as_ref() else {
+                    return false;
+                };
+                !matches!(
+                    loop_cond.accept_kind,
+                    LoopCondBreakAcceptKind::NestedLoopOnly
+                        | LoopCondBreakAcceptKind::ProgramBlockNoExit
+                )
+            })
+    };
     if let Some(value) = registry::try_route_recipe_first(builder, ctx, &outcome, &env)? {
         if strict_or_dev || release_recipe_first_allowed {
             trace_entry_route("recipe_first");

@@ -1,6 +1,7 @@
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 use crate::mir::builder::control_flow::plan::composer;
+use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
@@ -44,6 +45,55 @@ fn route_standard(
         entry.flowbox_via_release
     };
     lower_verified_core_plan(builder, ctx, env.strict_or_dev, outcome.facts.as_ref(), core_plan, via)
+}
+
+fn release_skips_nested_loop(ctx: &LoopPatternContext, env: &RouterEnv) -> bool {
+    !env.planner_required && detect_nested_loop(ctx.body)
+}
+
+fn release_allows_loop_cond_break_continue(
+    _ctx: &LoopPatternContext,
+    outcome: &PlanBuildOutcome,
+    env: &RouterEnv,
+) -> bool {
+    if env.planner_required {
+        return true;
+    }
+    let Some(facts) = outcome
+        .facts
+        .as_ref()
+        .and_then(|facts| facts.facts.loop_cond_break_continue.as_ref())
+    else {
+        return false;
+    };
+    // Release route allows nested-loop shapes only when loop_cond_break_continue
+    // found an explicit exit-driven form. Keep passive cluster forms blocked.
+    !matches!(
+        facts.accept_kind,
+        LoopCondBreakAcceptKind::NestedLoopOnly | LoopCondBreakAcceptKind::ProgramBlockNoExit
+    )
+}
+
+fn release_allows_loop_scan_methods_block_v0(
+    outcome: &PlanBuildOutcome,
+    env: &RouterEnv,
+) -> bool {
+    if env.planner_required {
+        return true;
+    }
+    let Some(facts) = outcome
+        .facts
+        .as_ref()
+        .and_then(|facts| facts.facts.loop_scan_methods_block_v0.as_ref())
+    else {
+        return false;
+    };
+    !facts.recipe.segments.iter().any(|segment| {
+        matches!(
+            segment,
+            crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::ScanSegment::NestedLoop(_)
+        )
+    })
 }
 
 pub(crate) fn route_loop_break_recipe(
@@ -394,7 +444,7 @@ pub(crate) fn route_loop_scan_methods_v0(
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg: "loop_scan_methods_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_methods_v0,
-        planner_required_only: true,
+        planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::Pattern1),
@@ -410,10 +460,14 @@ pub(crate) fn route_loop_scan_methods_block_v0(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
+    if !release_allows_loop_scan_methods_block_v0(outcome, env) {
+        return Ok(None);
+    }
+
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg: "loop_scan_methods_block_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_methods_block_v0,
-        planner_required_only: true,
+        planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::Pattern1),
@@ -432,7 +486,7 @@ pub(crate) fn route_loop_scan_phi_vars_v0(
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg: "loop_scan_phi_vars_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_phi_vars_v0,
-        planner_required_only: true,
+        planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::Never,
         plan_rule: None,
@@ -451,7 +505,7 @@ pub(crate) fn route_loop_scan_v0(
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg: "loop_scan_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_v0,
-        planner_required_only: true,
+        planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::LoopCondBreak),
@@ -470,7 +524,7 @@ pub(crate) fn route_loop_collect_using_entries_v0(
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg: "loop_collect_using_entries_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_collect_using_entries_v0,
-        planner_required_only: true,
+        planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::Pattern1),
@@ -489,7 +543,7 @@ pub(crate) fn route_loop_bundle_resolver_v0(
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg: "loop_bundle_resolver_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_bundle_resolver_v0,
-        planner_required_only: true,
+        planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::Never,
         plan_rule: None,
@@ -505,12 +559,16 @@ pub(crate) fn route_loop_true_break_continue(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
+    if release_skips_nested_loop(ctx, env) {
+        return Ok(None);
+    }
+
     let compose = RecipeComposer::compose_loop_true_break_continue_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
         missing_contract_msg: "loop_true_break_continue requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_true_break_continue_recipe,
-        planner_required_only: true,
+        planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::LoopTrueBreak),
@@ -528,15 +586,8 @@ pub(crate) fn route_loop_cond_break_continue(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
-    if !env.planner_required {
-        let accept_kind = outcome
-            .facts
-            .as_ref()
-            .and_then(|facts| facts.facts.loop_cond_break_continue.as_ref())
-            .map(|facts| facts.accept_kind);
-        if accept_kind != Some(LoopCondBreakAcceptKind::ConditionalUpdate) {
-            return Ok(None);
-        }
+    if !release_allows_loop_cond_break_continue(ctx, outcome, env) {
+        return Ok(None);
     }
 
     let compose = RecipeComposer::compose_loop_cond_break_continue_recipe;
@@ -562,12 +613,16 @@ pub(crate) fn route_loop_cond_continue_only(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
+    if release_skips_nested_loop(ctx, env) {
+        return Ok(None);
+    }
+
     let compose = RecipeComposer::compose_loop_cond_continue_only_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
         missing_contract_msg: "loop_cond_continue_only requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_continue_only_recipe,
-        planner_required_only: true,
+        planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::LoopCondContinueOnly),
@@ -585,12 +640,16 @@ pub(crate) fn route_loop_cond_continue_with_return(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
+    if release_skips_nested_loop(ctx, env) {
+        return Ok(None);
+    }
+
     let compose = RecipeComposer::compose_loop_cond_continue_with_return_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
         missing_contract_msg: "loop_cond_continue_with_return requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_continue_with_return_recipe,
-        planner_required_only: true,
+        planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
         plan_rule: Some(PlanRuleId::LoopCondContinueWithReturn),

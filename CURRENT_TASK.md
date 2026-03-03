@@ -137,6 +137,11 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md` の `AI mistake-resistant rules (always-on)`
 - execution rule: 1 blocker = 1受理形 = fixture+gate = 1 commit（BoxCount / BoxShape 混在禁止）
 - monitor-only note: `Concat3 Normalization Pack` と `Helper Retirement Pack` は本ラウンド中は監視のみ（混線禁止）
+- compiler fixed order (2026-03-03, explicit):
+  1. `phase29x-probe` 直近 blocker を先に解消する（direct route の fail class を先に 0 へ寄せる）。
+  2. blocker 解消後にのみ、Phase D cleanup（Pattern 名の撤去 / DomainPlan 縮退）へ着手する。
+  3. BoxCount（受理形追加）と BoxShape（命名/層整理）は同一コミットに混ぜない。
+  4. Pattern/Domain cleanup は docs SSOT（`recipe-first-migration-phased-plan-proposal.md` の Phase D）を gate にして進める。
 
 ## Restart Handoff (2026-03-03 / codex update)
 
@@ -179,6 +184,21 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   2. single-exit 系 fail-fast（2）を Recipe 契約へ集約（`loop_cond_break_continue`）
   3. 単発 `unsupported stmt Call` を isolate して fixture+gate 固定
   4. 単発 `Expected BinOp` を isolate して fixture+gate 固定
+
+## Compiler Cleanup Order (2026-03-03, SSOT)
+
+- decision:
+  - 先に `direct route` の目先 blocker を落とし切る。
+  - その後に Pattern/Domain cleanup（Phase D）へ移る。
+- rationale:
+  - blocker未解消のまま Pattern/Domain 削除を混ぜると、BoxCount と BoxShape が競合して原因切り分けが崩れるため。
+- Phase D entry condition:
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` の残件を current blocker 許容範囲まで縮小。
+  - `tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` を green 維持。
+- Phase D execution order (after blocker stabilization):
+  1. D1: `PlanRuleId` / entry 名の Pattern 数値語彙を意味語彙へ置換（互換 alias を先に置く）。
+  2. D2: `DomainPlan` の残存責務を label-only へ縮退し、router の依存を除去する。
+  3. D3: `normalizer/pattern*.rs` の entry-path 依存を 0 にして撤去する。
 
 - direct route debug status (2026-03-03, active):
   - `Invalid value ... ValueId(0)`（`AddOperator.apply/2`）は解消。原因は `json_v1_bridge` が v1 payload の `params` を読まず、関数 arity を 0 で復元していた点だった（`src/runner/json_v1_bridge/parse.rs` 修正済み）。
