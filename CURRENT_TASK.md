@@ -261,6 +261,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - D1 follow-up2 (2026-03-04): `joinir/patterns/registry` の predicate 名を semantic 語彙（`pred_loop_break_recipe` など）へ移行。旧 `pred_pattern*` は互換 alias として残し、挙動非変更で入口語彙のみ整理。
   - D1/L1 isolate started (2026-03-04): `tools/smokes/v2/lib/joinir_planner_first_gate.sh` の `planner_first_tag_matches` を semantic/legacy 両対応へ拡張（`PatternN` 期待に対して `rule=<semantic>` を許容）。`phase29ca/phase29cb` strict-shadow gate も固定 `grep Pattern1` から共通 matcher 呼び出しへ移行。
   - D1/L2 migrate (2026-03-04): `tools/smokes/v2/profiles/integration/{joinir,selfhost}` の planner-first 期待タグを `PatternN` から semantic rule 名へ段階置換（16 files）。matcher は双方向互換（legacy<->semantic）で移行期間を吸収。
+  - D1/L3 flip (2026-03-04): `src/mir/builder/control_flow/plan/planner/tags.rs` の `planner_first rule=*` 出力を Pattern 数値語彙から semantic rule 名へ切替。
   - D2 starter: `DomainPlan::kind_label()` を追加し、`single_planner/rules.rs` の payload非依存箇所（freeze文言・variant判定）を label-based へ集約。
   - D2 follow-up: `DomainPlanKind` を導入し、`rules.rs` の planner 判定を variant match から kind 比較へ置換（payload 非依存化を前進）。
   - D3 starter: dead entry path の本番依存を縮退（`composer/mod.rs` で `coreloop_{single_entry,v0,v1}` を `#[cfg(test)]` 化、`normalizer/mod.rs` で `pattern_{scan_with_init,split_scan}` module 宣言を `#[cfg(test)]` 化）。
@@ -281,6 +282,12 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - PASS: `phase29bh_planner_first_single_case_vm.sh`
     - PASS: `phase29bq_step_then_tail_break_planner_required_vm.sh`
     - note: `phase29bq_fast_gate_vm.sh --only bq` は既知 fixture `phase29bq_selfhost_blocker_parse_string2_return_prelude_call_min` で `flowbox/adopt` tag mismatch により FAIL（本変更の planner tag 語彙移行とは独立。要切り分け継続）。
+  - verification6 (2026-03-04, L3 flip):
+    - `cargo build --release --bin hakorune` => PASS
+    - `phase29bi` / `phase29bj` / `phase29bo` / `phase29bh(single,ws)` / `phase29bq_step_then_tail_break` / `phase29bq_general_if_in_loop_body` => PASS
+    - `phase29ca_direct_verify_dominance_block_canary.sh` => PASS
+    - `phase29x-probe` => `emit_fail=0 / route_blocker=0 / run_nonzero=18 / run_ok=100` 維持
+    - `phase29bq_fast_gate_vm --only bq` は同一 fixture（`parse_string2_return_prelude_call_min`）で `flowbox/adopt` tag mismatch FAIL 継続（語彙切替の前後で同系統）。
 
 - direct route debug status (2026-03-03, active):
   - `Invalid value ... ValueId(0)`（`AddOperator.apply/2`）は解消。原因は `json_v1_bridge` が v1 payload の `params` を読まず、関数 arity を 0 で復元していた点だった（`src/runner/json_v1_bridge/parse.rs` 修正済み）。
