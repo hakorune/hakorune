@@ -69,23 +69,63 @@ pub(in crate::mir::builder) fn apply_if_joins(
         caller = Some(format!("{}:{}:{}", loc.file(), loc.line(), loc.column()));
     }
 
+    let release_def_blocks = if strict_planner_required_debug {
+        None
+    } else {
+        builder
+            .scope_ctx
+            .current_function
+            .as_ref()
+            .map(crate::mir::verification::utils::compute_def_blocks)
+    };
+
     for join in joins {
+        let mut then_in = join.then_val;
+        let mut else_in = join.else_val;
+        let mut then_reaches_merge_local = then_reaches_merge;
+        let mut else_reaches_merge_local = else_reaches_merge;
+
+        if let Some(def_blocks) = release_def_blocks.as_ref() {
+            if then_reaches_merge_local && !def_blocks.contains_key(&then_in) {
+                if let Some(pre_val) = join.pre_val {
+                    if def_blocks.contains_key(&pre_val) {
+                        then_in = pre_val;
+                    } else {
+                        then_reaches_merge_local = false;
+                    }
+                } else {
+                    then_reaches_merge_local = false;
+                }
+            }
+            if else_reaches_merge_local && !def_blocks.contains_key(&else_in) {
+                if let Some(pre_val) = join.pre_val {
+                    if def_blocks.contains_key(&pre_val) {
+                        else_in = pre_val;
+                    } else {
+                        else_reaches_merge_local = false;
+                    }
+                } else {
+                    else_reaches_merge_local = false;
+                }
+            }
+        }
+
         let mut inputs: Vec<(BasicBlockId, ValueId)> = Vec::new();
         let mut then_pred = None;
         let mut else_pred = None;
-        if then_reaches_merge {
+        if then_reaches_merge_local {
             let pred = then_end_bb.ok_or_else(|| {
                 "[lowerer] Missing then end block for CorePlan::If".to_string()
             })?;
             then_pred = Some(pred);
-            inputs.push((pred, join.then_val));
+            inputs.push((pred, then_in));
         }
-        if else_reaches_merge {
+        if else_reaches_merge_local {
             let pred = else_end_bb.ok_or_else(|| {
                 "[lowerer] Missing else end block for CorePlan::If".to_string()
             })?;
             else_pred = Some(pred);
-            inputs.push((pred, join.else_val));
+            inputs.push((pred, else_in));
         }
         if inputs.is_empty() {
             continue;
@@ -109,9 +149,9 @@ pub(in crate::mir::builder) fn apply_if_joins(
                 join.name,
                 join.dst.0,
                 then_pred,
-                join.then_val.0,
+                then_in.0,
                 else_pred,
-                join.else_val.0,
+                else_in.0,
                 caller.file(),
                 caller.line(),
                 caller.column()
@@ -125,8 +165,8 @@ pub(in crate::mir::builder) fn apply_if_joins(
             let merge_bb = merge_bb;
             let caller = caller.as_ref().unwrap();
 
-            let then_def_bb = then_pred.and_then(|_| def_blocks.get(&join.then_val).copied());
-            let else_def_bb = else_pred.and_then(|_| def_blocks.get(&join.else_val).copied());
+            let then_def_bb = then_pred.and_then(|_| def_blocks.get(&then_in).copied());
+            let else_def_bb = else_pred.and_then(|_| def_blocks.get(&else_in).copied());
 
             {
                 let func = builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
@@ -180,8 +220,8 @@ pub(in crate::mir::builder) fn apply_if_joins(
                 // meaningful pre-if binding to compare against.
                 if let Some(pre_val) = join.pre_val {
                     let (pre_const, pre_root) = resolve_const_int(pre_val);
-                    let (then_const, then_root) = resolve_const_int(join.then_val);
-                    let (else_const, else_root) = resolve_const_int(join.else_val);
+                    let (then_const, then_root) = resolve_const_int(then_in);
+                    let (else_const, else_root) = resolve_const_int(else_in);
 
                     let pre_is_zero = pre_const == Some(0);
                     let then_is_zero = then_const == Some(0);
@@ -191,10 +231,10 @@ pub(in crate::mir::builder) fn apply_if_joins(
                         pre_is_zero,
                         pre_val,
                         pre_root,
-                        join.then_val,
+                        then_in,
                         then_is_zero,
                         then_root,
-                        join.else_val,
+                        else_in,
                         else_is_zero,
                         else_root,
                     );
@@ -230,11 +270,11 @@ pub(in crate::mir::builder) fn apply_if_joins(
                             pre_const_str,
                             pre_root_str,
                             then_pred,
-                            join.then_val.0,
+                            then_in.0,
                             then_const_str,
                             then_root_str,
                             else_pred,
-                            join.else_val.0,
+                            else_in.0,
                             else_const_str,
                             else_root_str,
                             caller
@@ -249,7 +289,7 @@ pub(in crate::mir::builder) fn apply_if_joins(
                         Some(dominators.dominates(def_bb, pred))
                     })
                 })
-                .unwrap_or(!then_reaches_merge);
+                .unwrap_or(!then_reaches_merge_local);
 
             let else_ok = else_pred
                 .and_then(|pred| {
@@ -257,7 +297,7 @@ pub(in crate::mir::builder) fn apply_if_joins(
                         Some(dominators.dominates(def_bb, pred))
                     })
                 })
-                .unwrap_or(!else_reaches_merge);
+                .unwrap_or(!else_reaches_merge_local);
 
             if !then_ok || !else_ok {
                 return Err(format!(
@@ -267,10 +307,10 @@ pub(in crate::mir::builder) fn apply_if_joins(
                     join.name,
                     join.dst.0,
                     then_pred,
-                    join.then_val.0,
+                    then_in.0,
                     then_def_bb,
                     else_pred,
-                    join.else_val.0,
+                    else_in.0,
                     else_def_bb,
                     caller
                 ));

@@ -144,6 +144,14 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe`
   - result: `emit_fail=13`, `run_nonzero=9`, `run_ok=96`, `route_blocker=0`（total=118）
   - class: `emit:direct-verify=9`, `emit:other=4`
+- update (2026-03-03, second pass):
+  - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+  - result: `emit_fail=10`, `run_nonzero=12`, `run_ok=96`, `route_blocker=0`（total=118）
+  - class: `emit:direct-verify=6`, `emit:other=4`
+  - direct-verify head `%290` blocker fixed:
+    - fixture: `phase29bq_selfhost_box_member_local_fini_blockexpr_compare_logic_unary_call_literals_nested_tail_nested_loop_branch_cleanup_min.hako`
+    - `--emit-mir-json` now `emit-ok` (previously `Undefined value %290 used in block bb55`)
+  - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）

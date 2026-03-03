@@ -19,7 +19,9 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::ConstValue;
 use std::collections::BTreeMap;
 
-use super::block::{lower_block_internal, BlockKindInternal, BoxedLowerStmtFn};
+use super::block::{
+    lower_block_internal, plans_exit_on_all_paths, BlockKindInternal, BoxedLowerStmtFn,
+};
 use crate::mir::builder::control_flow::plan::parts::join_scope::{
     collect_branch_local_vars_from_block_recursive, collect_branch_local_vars_from_maps,
     filter_branch_locals_from_maps,
@@ -36,17 +38,32 @@ fn snapshot_branch_map(
     map
 }
 
-fn recipe_plan_is_terminal(plan: &LoweredRecipe) -> bool {
-    match plan {
-        CorePlan::Exit(_) => true,
-        CorePlan::Effect(CoreEffectPlan::ExitIf { .. }) => true,
-        CorePlan::Seq(items) => items.last().is_some_and(recipe_plan_is_terminal),
-        _ => false,
-    }
+fn branch_is_terminal(plans: &[LoweredRecipe]) -> bool {
+    plans_exit_on_all_paths(plans)
 }
 
-fn branch_is_terminal(plans: &[LoweredRecipe]) -> bool {
-    plans.last().is_some_and(recipe_plan_is_terminal)
+#[derive(Clone, Copy)]
+struct BranchExitShape {
+    then_exits: bool,
+    one_sided_exit: bool,
+    both_sides_exit: bool,
+    no_join_continuation: bool,
+}
+
+fn analyze_branch_exit_shape(
+    then_plans: &[LoweredRecipe],
+    else_plans: Option<&[LoweredRecipe]>,
+) -> BranchExitShape {
+    let then_exits = branch_is_terminal(then_plans);
+    let else_exits = else_plans.is_some_and(branch_is_terminal);
+    let one_sided_exit = then_exits ^ else_exits;
+    let both_sides_exit = then_exits && else_exits;
+    BranchExitShape {
+        then_exits,
+        one_sided_exit,
+        both_sides_exit,
+        no_join_continuation: one_sided_exit || both_sides_exit,
+    }
 }
 
 /// Lower if with join payload, using injected stmt lowerer (NoExit context).
@@ -129,14 +146,8 @@ pub(super) fn lower_if_join_with_stmt_lowerer<'a>(
     // This path lowers branches under NoExit join contract, but keep the same
     // exit-shape signal handling as the general join path to avoid binding
     // join dsts that have no dominating definition.
-    let then_exits = branch_is_terminal(&then_plans);
-    let else_exits = else_plans
-        .as_ref()
-        .is_some_and(|plans| branch_is_terminal(plans));
-    let one_sided_exit = then_exits ^ else_exits;
-    let both_sides_exit = then_exits && else_exits;
-    let no_join_continuation = one_sided_exit || both_sides_exit;
-    let joins = if no_join_continuation {
+    let exit_shape = analyze_branch_exit_shape(&then_plans, else_plans.as_deref());
+    let joins = if exit_shape.no_join_continuation {
         Vec::new()
     } else {
         build_join_payload(builder, &pre_if_map, &then_map, &else_map)?
@@ -151,17 +162,21 @@ pub(super) fn lower_if_join_with_stmt_lowerer<'a>(
         joins.clone(),
         error_prefix,
     )?;
-    debug_log_if_join_lit3_origin(builder, &plans, one_sided_exit);
+    debug_log_if_join_lit3_origin(builder, &plans, exit_shape.one_sided_exit);
 
-    if one_sided_exit {
-        let continuing_map = if then_exits { &else_map } else { &then_map };
+    if exit_shape.one_sided_exit {
+        let continuing_map = if exit_shape.then_exits {
+            &else_map
+        } else {
+            &then_map
+        };
         builder.variable_ctx.variable_map = continuing_map.clone();
         for (name, value_id) in continuing_map {
             if should_update_binding(name, current_bindings) {
                 current_bindings.insert(name.clone(), *value_id);
             }
         }
-    } else if both_sides_exit {
+    } else if exit_shape.both_sides_exit {
         // Both branches terminate: no continuation bindings to apply.
     } else {
         for join in &joins {
@@ -369,20 +384,13 @@ where
     builder.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings;
 
-    let then_exits = branch_is_terminal(&then_plans);
-    let else_exits = else_plans
-        .as_ref()
-        .is_some_and(|plans| branch_is_terminal(plans));
-    let both_sides_exit = then_exits && else_exits;
-
     // If exactly one branch exits, the `if` has no join point on that side.
     // If both branches exit, there is no continuation join point either.
     // In both cases, join payload must be empty (otherwise cond lowering may append
     // join Copy plans after an Exit, violating V11).
     //
     // After lowering, bindings must reflect the *continuing* branch map.
-    let one_sided_exit = then_exits ^ else_exits;
-    let no_join_continuation = one_sided_exit || both_sides_exit;
+    let exit_shape = analyze_branch_exit_shape(&then_plans, else_plans.as_deref());
     let branch_locals = collect_branch_local_vars_from_maps(&pre_if_map, &then_map, &else_map);
     let (then_map, else_map) = filter_branch_locals_from_maps(
         &pre_if_map,
@@ -390,7 +398,7 @@ where
         &else_map,
         &branch_locals,
     );
-    let joins = if no_join_continuation {
+    let joins = if exit_shape.no_join_continuation {
         Vec::new()
     } else {
         build_join_payload(builder, &pre_if_map, &then_map, &else_map)?
@@ -406,17 +414,21 @@ where
         error_prefix,
     )?;
 
-    debug_log_if_join_lit3_origin(builder, &plans, one_sided_exit);
+    debug_log_if_join_lit3_origin(builder, &plans, exit_shape.one_sided_exit);
 
-    if one_sided_exit {
-        let continuing_map = if then_exits { &else_map } else { &then_map };
+    if exit_shape.one_sided_exit {
+        let continuing_map = if exit_shape.then_exits {
+            &else_map
+        } else {
+            &then_map
+        };
         builder.variable_ctx.variable_map = continuing_map.clone();
         for (name, value_id) in continuing_map {
             if should_update_binding(name, current_bindings) {
                 current_bindings.insert(name.clone(), *value_id);
             }
         }
-    } else if both_sides_exit {
+    } else if exit_shape.both_sides_exit {
         // Both branches terminate: no continuation bindings to apply.
     } else {
         for join in &joins {

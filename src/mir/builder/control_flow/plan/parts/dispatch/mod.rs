@@ -18,6 +18,7 @@ pub(in crate::mir::builder) use block::{
     lower_no_exit_block_verified,
     lower_no_exit_block_with_stmt_lowerer_verified,
     lower_stmt_only_block,
+    plans_exit_on_all_paths,
 };
 
 pub(in crate::mir::builder) use if_join::{

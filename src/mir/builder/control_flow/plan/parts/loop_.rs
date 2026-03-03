@@ -525,7 +525,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
             ));
         }
     }
-    let body_exits_all_paths = plans_exit_on_all_paths_local(&body_plans);
+    let body_exits_all_paths = super::dispatch::plans_exit_on_all_paths(&body_plans);
     if !body_exits_all_paths {
         for (name, _) in &frame.carrier_step_phis {
             let selected = builder
@@ -621,35 +621,6 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     }))
 }
 
-fn plans_exit_on_all_paths_local(plans: &[LoweredRecipe]) -> bool {
-    plans.last().is_some_and(core_plan_exits_on_all_paths_local)
-}
-
-fn core_plan_exits_on_all_paths_local(plan: &LoweredRecipe) -> bool {
-    match plan {
-        CorePlan::Exit(_) => true,
-        CorePlan::If(if_plan) => {
-            plans_exit_on_all_paths_local(&if_plan.then_plans)
-                && if_plan
-                    .else_plans
-                    .as_ref()
-                    .is_some_and(|p| plans_exit_on_all_paths_local(p))
-        }
-        CorePlan::BranchN(branch) => {
-            branch
-                .arms
-                .iter()
-                .all(|arm| plans_exit_on_all_paths_local(&arm.plans))
-                && branch
-                    .else_plans
-                    .as_ref()
-                    .is_some_and(|p| plans_exit_on_all_paths_local(p))
-        }
-        CorePlan::Seq(inner) => plans_exit_on_all_paths_local(inner),
-        CorePlan::Effect(_) | CorePlan::Loop(_) => false,
-    }
-}
-
 fn collect_defined_values_from_plans(
     plans: &[LoweredRecipe],
     out: &mut BTreeSet<ValueId>,
@@ -658,12 +629,12 @@ fn collect_defined_values_from_plans(
         match plan {
             CorePlan::Effect(effect) => collect_defined_values_from_effect(effect, out),
             CorePlan::If(if_plan) => {
-                let then_exits = plans_exit_on_all_paths_local(&if_plan.then_plans);
-                let else_exits = if_plan
+                let then_has_exit = plans_have_non_local_exit(&if_plan.then_plans);
+                let else_has_exit = if_plan
                     .else_plans
                     .as_ref()
-                    .is_some_and(|plans| plans_exit_on_all_paths_local(plans));
-                if !(then_exits && else_exits) {
+                    .is_some_and(|plans| plans_have_non_local_exit(plans));
+                if !then_has_exit && !else_has_exit {
                     for join in &if_plan.joins {
                         out.insert(join.dst);
                     }
@@ -685,6 +656,59 @@ fn collect_defined_values_from_plans(
             CorePlan::Loop(loop_plan) => collect_defined_values_from_plans(&loop_plan.body, out),
             CorePlan::Exit(_) => {}
         }
+    }
+}
+
+fn plans_have_non_local_exit(plans: &[LoweredRecipe]) -> bool {
+    plans.iter().any(plan_has_non_local_exit)
+}
+
+fn plan_has_non_local_exit(plan: &LoweredRecipe) -> bool {
+    match plan {
+        CorePlan::Exit(_) => true,
+        CorePlan::Effect(effect) => effect_has_non_local_exit(effect),
+        CorePlan::If(if_plan) => {
+            plans_have_non_local_exit(&if_plan.then_plans)
+                || if_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_have_non_local_exit(plans))
+        }
+        CorePlan::BranchN(branch) => {
+            branch
+                .arms
+                .iter()
+                .any(|arm| plans_have_non_local_exit(&arm.plans))
+                || branch
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_have_non_local_exit(plans))
+        }
+        CorePlan::Seq(inner) => plans_have_non_local_exit(inner),
+        CorePlan::Loop(loop_plan) => {
+            plans_have_non_local_exit(&loop_plan.body)
+                || loop_plan
+                    .block_effects
+                    .iter()
+                    .any(|(_, effects)| effects.iter().any(effect_has_non_local_exit))
+        }
+    }
+}
+
+fn effect_has_non_local_exit(effect: &CoreEffectPlan) -> bool {
+    match effect {
+        CoreEffectPlan::ExitIf { .. } => true,
+        CoreEffectPlan::IfEffect {
+            then_effects,
+            else_effects,
+            ..
+        } => {
+            then_effects.iter().any(effect_has_non_local_exit)
+                || else_effects
+                    .as_ref()
+                    .is_some_and(|effects| effects.iter().any(effect_has_non_local_exit))
+        }
+        _ => false,
     }
 }
 

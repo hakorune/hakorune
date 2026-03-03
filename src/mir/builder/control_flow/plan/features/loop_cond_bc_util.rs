@@ -65,12 +65,40 @@ pub(super) fn lower_simple_effect_stmt(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
     stmt: &ASTNode,
     error_prefix: &str,
 ) -> Result<Option<Vec<LoweredRecipe>>, String> {
     match stmt {
         ASTNode::Assignment { target, value, .. } => {
+            if let ASTNode::Variable { name, .. } = target.as_ref() {
+                if value_has_blockexpr_prelude_loop(value) {
+                    let (value_id, plans) = lower_value_stmt_with_blockexpr_loop_prelude(
+                        builder,
+                        current_bindings,
+                        carrier_phis,
+                        carrier_step_phis,
+                        break_phi_dsts,
+                        carrier_updates,
+                        value,
+                        error_prefix,
+                    )?;
+                    if carrier_phis.contains_key(name) {
+                        carrier_updates.insert(name.clone(), value_id);
+                    }
+                    if carrier_phis.contains_key(name) || current_bindings.contains_key(name) {
+                        current_bindings.insert(name.clone(), value_id);
+                    }
+                    builder
+                        .variable_ctx
+                        .variable_map
+                        .insert(name.clone(), value_id);
+                    return Ok(Some(plans));
+                }
+            }
+
             let effects = lower_assignment_stmt(
                 builder,
                 current_bindings,
@@ -87,6 +115,35 @@ pub(super) fn lower_simple_effect_stmt(
             initial_values,
             ..
         } => {
+            if variables.len() != initial_values.len() {
+                return Err(format!("{error_prefix}: local init arity mismatch"));
+            }
+            if initial_values
+                .iter()
+                .flatten()
+                .any(|value| value_has_blockexpr_prelude_loop(value))
+            {
+                let mut plans = Vec::new();
+                for (name, init) in variables.iter().zip(initial_values.iter()) {
+                    let init_node = loop_body_lowering::local_init_node_or_null(init.as_ref());
+                    let (value_id, mut init_plans) =
+                        lower_value_stmt_with_blockexpr_loop_prelude(
+                            builder,
+                            current_bindings,
+                            carrier_phis,
+                            carrier_step_phis,
+                            break_phi_dsts,
+                            carrier_updates,
+                            init_node.as_ref(),
+                            error_prefix,
+                        )?;
+                    plans.append(&mut init_plans);
+                    current_bindings.insert(name.clone(), value_id);
+                    builder.variable_ctx.variable_map.insert(name.clone(), value_id);
+                }
+                return Ok(Some(plans));
+            }
+
             let effects = lower_local_init_stmt(
                 builder,
                 current_bindings,
@@ -127,6 +184,90 @@ pub(super) fn lower_simple_effect_stmt(
             Ok(Some(effects_to_plans(effects)))
         }
         _ => Ok(None),
+    }
+}
+
+fn lower_value_stmt_with_blockexpr_loop_prelude(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
+    carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
+    value: &ASTNode,
+    error_prefix: &str,
+) -> Result<(crate::mir::ValueId, Vec<LoweredRecipe>), String> {
+    let ASTNode::BlockExpr {
+        prelude_stmts,
+        tail_expr,
+        ..
+    } = value
+    else {
+        let (value_id, effects) = PlanNormalizer::lower_value_ast(value, builder, current_bindings)?;
+        return Ok((value_id, effects_to_plans(effects)));
+    };
+
+    if !prelude_stmts
+        .iter()
+        .any(|stmt| stmt_has_loop_stmt_recursive(stmt))
+    {
+        let (value_id, effects) = PlanNormalizer::lower_value_ast(value, builder, current_bindings)?;
+        return Ok((value_id, effects_to_plans(effects)));
+    }
+
+    for stmt in prelude_stmts {
+        if stmt.contains_non_local_exit_outside_loops() {
+            return Err(format!(
+                "[freeze:contract][blockexpr] {error_prefix}: exit stmt is forbidden in BlockExpr prelude"
+            ));
+        }
+    }
+
+    let mut block_bindings = current_bindings.clone();
+    let mut plans = Vec::new();
+    for stmt in prelude_stmts {
+        let mut stmt_plans = lower_loop_cond_stmt(
+            builder,
+            &mut block_bindings,
+            carrier_phis,
+            carrier_step_phis,
+            break_phi_dsts,
+            carrier_updates,
+            false,
+            stmt,
+        )?;
+        plans.append(&mut stmt_plans);
+    }
+
+    let (tail_id, tail_effects) =
+        PlanNormalizer::lower_value_ast(tail_expr.as_ref(), builder, &block_bindings)?;
+    plans.extend(effects_to_plans(tail_effects));
+    Ok((tail_id, plans))
+}
+
+fn value_has_blockexpr_prelude_loop(value: &ASTNode) -> bool {
+    let ASTNode::BlockExpr { prelude_stmts, .. } = value else {
+        return false;
+    };
+    prelude_stmts.iter().any(stmt_has_loop_stmt_recursive)
+}
+
+fn stmt_has_loop_stmt_recursive(stmt: &ASTNode) -> bool {
+    match stmt {
+        ASTNode::Loop { .. } | ASTNode::While { .. } => true,
+        ASTNode::If {
+            then_body,
+            else_body,
+            ..
+        } => {
+            then_body.iter().any(stmt_has_loop_stmt_recursive)
+                || else_body
+                    .as_ref()
+                    .is_some_and(|body| body.iter().any(stmt_has_loop_stmt_recursive))
+        }
+        ASTNode::Program { statements, .. } => statements.iter().any(stmt_has_loop_stmt_recursive),
+        ASTNode::ScopeBox { body, .. } => body.iter().any(stmt_has_loop_stmt_recursive),
+        _ => false,
     }
 }
 

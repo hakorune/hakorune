@@ -10,7 +10,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{
     IfContractKind, RecipeBodies, RecipeBlock, RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::VerifiedRecipeBlock;
-use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use super::super::stmt as parts_stmt;
 #[cfg(debug_assertions)]
@@ -229,7 +229,7 @@ pub(super) fn lower_block_internal<'a>(
 // Exit path helpers
 // ============================================================================
 
-pub(super) fn plans_exit_on_all_paths(plans: &[LoweredRecipe]) -> bool {
+pub(in crate::mir::builder) fn plans_exit_on_all_paths(plans: &[LoweredRecipe]) -> bool {
     plans.last().is_some_and(core_plan_exits_on_all_paths)
 }
 
@@ -254,7 +254,40 @@ fn core_plan_exits_on_all_paths(plan: &LoweredRecipe) -> bool {
                     .is_some_and(|p| plans_exit_on_all_paths(p))
         }
         CorePlan::Seq(inner) => plans_exit_on_all_paths(inner),
-        CorePlan::Effect(_) | CorePlan::Loop(_) => false,
+        CorePlan::Effect(effect) => effect_exits_on_all_paths(effect),
+        CorePlan::Loop(_) => false,
+    }
+}
+
+fn effect_exits_on_all_paths(effect: &CoreEffectPlan) -> bool {
+    match effect {
+        CoreEffectPlan::IfEffect {
+            then_effects,
+            else_effects,
+            ..
+        } => else_effects.as_ref().is_some_and(|else_effects| {
+            effects_exit_on_all_paths(then_effects) && effects_exit_on_all_paths(else_effects)
+        }),
+        CoreEffectPlan::ExitIf { .. } => false,
+        _ => false,
+    }
+}
+
+fn effects_exit_on_all_paths(effects: &[CoreEffectPlan]) -> bool {
+    effects.last().is_some_and(effect_item_exits_on_all_paths)
+}
+
+fn effect_item_exits_on_all_paths(effect: &CoreEffectPlan) -> bool {
+    match effect {
+        CoreEffectPlan::ExitIf { .. } => true,
+        CoreEffectPlan::IfEffect {
+            then_effects,
+            else_effects,
+            ..
+        } => else_effects.as_ref().is_some_and(|else_effects| {
+            effects_exit_on_all_paths(then_effects) && effects_exit_on_all_paths(else_effects)
+        }),
+        _ => false,
     }
 }
 

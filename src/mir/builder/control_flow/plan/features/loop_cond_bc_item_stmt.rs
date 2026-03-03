@@ -32,6 +32,8 @@ pub(in crate::mir::builder) fn lower_loop_cond_stmt(
         builder,
         current_bindings,
         carrier_phis,
+        carrier_step_phis,
+        break_phi_dsts,
         carrier_updates,
         stmt,
         LOOP_COND_ERR,
