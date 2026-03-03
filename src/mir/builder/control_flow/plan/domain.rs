@@ -21,6 +21,17 @@ pub(in crate::mir::builder) enum DomainPlan {
     LoopCondContinueWithReturn(LoopCondContinueWithReturnPlan),
 }
 
+impl DomainPlan {
+    /// Stable variant label for diagnostics and planner logs.
+    ///
+    /// Keep this payload-free so call sites can avoid coupling to variant internals.
+    pub(in crate::mir::builder) fn kind_label(&self) -> &'static str {
+        match self {
+            DomainPlan::LoopCondContinueWithReturn(_) => "LoopCondContinueWithReturn",
+        }
+    }
+}
+
 /// Phase 273 P0: Scan direction for forward/reverse scan
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum ScanDirection {

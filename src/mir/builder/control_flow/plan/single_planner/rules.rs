@@ -222,8 +222,8 @@ pub(super) fn try_build_domain_plan_with_outcome(
         if gate.planner_required {
             if let Some(domain) = planner_hit.as_ref() {
                 return Err(planner::Freeze::contract(&format!(
-                    "planner_required forbids DomainPlan: {:?}",
-                    domain
+                    "planner_required forbids DomainPlan kind={}",
+                    domain.kind_label()
                 ))
                 .to_string());
             }
@@ -275,22 +275,24 @@ pub(super) fn try_build_domain_plan_with_outcome(
 }
 
 fn try_take_planner(planner_opt: &Option<DomainPlan>, kind: PlanRuleId) -> Option<DomainPlan> {
-    use crate::mir::builder::control_flow::plan::DomainPlan;
-
     let planner_present = planner_opt.is_some();
-    let taken = match kind {
-        PlanRuleId::LoopCondContinueWithReturn => {
-            if let Some(DomainPlan::LoopCondContinueWithReturn(_)) = planner_opt {
-                planner_opt.clone()
-            } else {
-                None
-            }
-        }
+    let taken = match planner_opt {
+        Some(plan) if planner_matches_rule(plan, kind) => Some(plan.clone()),
         _ => None,
     };
 
     plan_trace::trace_try_take_planner(kind, planner_present, taken.is_some());
     taken
+}
+
+fn planner_matches_rule(plan: &DomainPlan, kind: PlanRuleId) -> bool {
+    matches!(
+        (kind, plan),
+        (
+            PlanRuleId::LoopCondContinueWithReturn,
+            DomainPlan::LoopCondContinueWithReturn(_)
+        )
+    )
 }
 
 fn fallback_extract(
