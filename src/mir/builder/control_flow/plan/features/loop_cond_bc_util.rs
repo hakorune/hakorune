@@ -16,6 +16,46 @@ use std::collections::BTreeMap;
 use super::loop_cond_bc::LOOP_COND_ERR;
 use super::loop_cond_bc_item_stmt::lower_loop_cond_stmt;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum DirectExitRejectReason {
+    BlockContainsDirectExit,
+    ExitMustBeInsideIf,
+    BreakMustBeLast,
+    ReturnMustBeLast,
+}
+
+const DIRECT_EXIT_REJECT_TAG: &str = "[loop_cond/direct_exit]";
+
+fn direct_exit_reason_text(reason: DirectExitRejectReason) -> &'static str {
+    match reason {
+        DirectExitRejectReason::BlockContainsDirectExit => "block contains direct exit",
+        DirectExitRejectReason::ExitMustBeInsideIf => "exit must be inside if",
+        DirectExitRejectReason::BreakMustBeLast => "break must be last",
+        DirectExitRejectReason::ReturnMustBeLast => "return must be last",
+    }
+}
+
+pub(in crate::mir::builder) fn direct_exit_reject(
+    error_prefix: &str,
+    reason: DirectExitRejectReason,
+) -> String {
+    format!(
+        "{error_prefix}: {DIRECT_EXIT_REJECT_TAG} {}",
+        direct_exit_reason_text(reason)
+    )
+}
+
+pub(in crate::mir::builder) fn is_direct_exit_reject(err: &str) -> bool {
+    if err.contains(DIRECT_EXIT_REJECT_TAG) {
+        return true;
+    }
+    // Backward-compatible fallback for legacy message shapes.
+    err.contains(": block contains direct exit")
+        || err.contains(": exit must be inside if")
+        || err.contains(": break must be last")
+        || err.contains(": return must be last")
+}
+
 pub(super) fn get_stmt<'a>(body: &'a RecipeBody, stmt_ref: StmtRef) -> Result<&'a ASTNode, String> {
     body.get_ref(stmt_ref)
         .ok_or_else(|| format!("{LOOP_COND_ERR}: missing stmt idx={}", stmt_ref.index()))
@@ -150,9 +190,35 @@ pub(super) fn lower_stmt_list_no_direct_exit(
             stmt,
         )?;
         if plans.iter().any(|plan| matches!(plan, CorePlan::Exit(_))) {
-            return Err(format!("{error_prefix}: block contains direct exit"));
+            return Err(direct_exit_reject(
+                error_prefix,
+                DirectExitRejectReason::BlockContainsDirectExit,
+            ));
         }
         block_plans.append(&mut plans);
     }
     Ok(block_plans)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        direct_exit_reject, is_direct_exit_reject, DirectExitRejectReason,
+    };
+
+    #[test]
+    fn direct_exit_reject_is_tagged_and_detectable() {
+        let err = direct_exit_reject(
+            "[normalizer] loop_cond_break_continue",
+            DirectExitRejectReason::ExitMustBeInsideIf,
+        );
+        assert!(is_direct_exit_reject(&err));
+        assert!(err.contains("[loop_cond/direct_exit]"));
+    }
+
+    #[test]
+    fn direct_exit_reject_accepts_legacy_strings() {
+        let legacy = "[normalizer] loop_cond_break_continue: break must be last";
+        assert!(is_direct_exit_reject(legacy));
+    }
 }

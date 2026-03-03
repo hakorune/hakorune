@@ -207,6 +207,23 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
         } => {
             let cond_view = CondBlockView::from_expr(condition);
 
+            // Keep no-exit `if` prelude lowering available in release as well.
+            // Without this, mixed continue/break branches that contain nested no-exit `if`
+            // in prelude can fail in exit-branch lowering and fall through to distant
+            // "nested loop has no plan" errors.
+            if let Some(recipe) = try_build_no_exit_block_recipe(std::slice::from_ref(stmt), true) {
+                let plans = super::entry::lower_no_exit_block(
+                    builder,
+                    branch_bindings,
+                    carrier_step_phis,
+                    break_phi_dsts,
+                    &recipe.arena,
+                    &recipe.block,
+                    error_prefix,
+                )?;
+                return Ok(plans);
+            }
+
             let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
                 || crate::config::env::joinir_dev_enabled();
             let planner_required =

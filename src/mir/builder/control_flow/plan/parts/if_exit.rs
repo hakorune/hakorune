@@ -10,6 +10,7 @@ use super::exit_branch::{
     split_exit_branch,
 };
 use super::stmt::lower_return_prelude_stmt;
+use super::var_map_scope::with_saved_variable_map;
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
@@ -150,9 +151,9 @@ fn lower_if_exit_stmt_impl_view(
     let (else_prelude, else_exit, _else_is_return) = match else_body {
         Some(body) => {
             let (prelude, exit, is_return) = split_exit_branch(body, error_prefix)?;
-            if !prelude.is_empty() {
-                return Err(format!("{error_prefix}: else prelude unsupported"));
-            }
+            // Allow else-prelude for exit-if lowering as well.
+            // This keeps then/else branch handling symmetric and supports
+            // `if { ...; continue } else { <no-exit prelude>; break }` shapes.
             (Some(prelude), Some(exit), is_return)
         }
         None => (None, None, false),
@@ -252,61 +253,62 @@ fn try_lower_return_before_continue_view(
         return Ok(None);
     }
 
-    let saved_map = builder.variable_ctx.variable_map.clone();
-    let mut branch_bindings = current_bindings.clone();
-    let mut then_plans = Vec::new();
-    for stmt in &then_body[..then_body.len() - 2] {
-        then_plans.extend(lower_return_prelude_stmt(
-            builder,
-            &mut branch_bindings,
-            carrier_step_phis,
-            break_phi_dsts,
-            stmt,
-            error_prefix,
-        )?);
-    }
-    // Inner condition comes from AST, use ASTNode-based wrapper
-    then_plans.extend(match break_phi_dsts {
-        Some(break_phi_dsts) => lower_if_exit_stmt_with_break_phi_args(
-            builder,
-            &branch_bindings,
-            carrier_step_phis,
-            break_phi_dsts,
-            inner_cond,
-            inner_then,
-            None,
-            error_prefix,
-        )?,
-        None => lower_if_exit_stmt(
-            builder,
-            &branch_bindings,
-            carrier_step_phis,
-            inner_cond,
-            inner_then,
-            None,
-            error_prefix,
-        )?,
-    });
-    then_plans.extend(match break_phi_dsts {
-        Some(break_phi_dsts) => lower_exit_branch_with_prelude_with_break_phi_args(
-            builder,
-            &branch_bindings,
-            carrier_step_phis,
-            break_phi_dsts,
-            &[],
-            last,
-            error_prefix,
-        )?,
-        None => lower_exit_branch_with_prelude(
-            builder,
-            &branch_bindings,
-            carrier_step_phis,
-            &[],
-            last,
-            error_prefix,
-        )?,
-    });
-    builder.variable_ctx.variable_map = saved_map;
+    let then_plans = with_saved_variable_map(builder, |builder| {
+        let mut branch_bindings = current_bindings.clone();
+        let mut then_plans = Vec::new();
+        for stmt in &then_body[..then_body.len() - 2] {
+            then_plans.extend(lower_return_prelude_stmt(
+                builder,
+                &mut branch_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                stmt,
+                error_prefix,
+            )?);
+        }
+        // Inner condition comes from AST, use ASTNode-based wrapper
+        then_plans.extend(match break_phi_dsts {
+            Some(break_phi_dsts) => lower_if_exit_stmt_with_break_phi_args(
+                builder,
+                &branch_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                inner_cond,
+                inner_then,
+                None,
+                error_prefix,
+            )?,
+            None => lower_if_exit_stmt(
+                builder,
+                &branch_bindings,
+                carrier_step_phis,
+                inner_cond,
+                inner_then,
+                None,
+                error_prefix,
+            )?,
+        });
+        then_plans.extend(match break_phi_dsts {
+            Some(break_phi_dsts) => lower_exit_branch_with_prelude_with_break_phi_args(
+                builder,
+                &branch_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                &[],
+                last,
+                error_prefix,
+            )?,
+            None => lower_exit_branch_with_prelude(
+                builder,
+                &branch_bindings,
+                carrier_step_phis,
+                &[],
+                last,
+                error_prefix,
+            )?,
+        });
+        Ok(then_plans)
+    })?;
 
     let plans = lower_cond_branch(
         builder,
@@ -354,44 +356,45 @@ fn try_lower_nested_exit_if_view(
         }
     }
 
-    let saved_map = builder.variable_ctx.variable_map.clone();
-    let mut branch_bindings = current_bindings.clone();
-    let mut then_plans = Vec::new();
-    if then_body.len() > 1 {
-        for stmt in &then_body[..then_body.len() - 1] {
-            then_plans.extend(lower_return_prelude_stmt(
+    let then_plans = with_saved_variable_map(builder, |builder| {
+        let mut branch_bindings = current_bindings.clone();
+        let mut then_plans = Vec::new();
+        if then_body.len() > 1 {
+            for stmt in &then_body[..then_body.len() - 1] {
+                then_plans.extend(lower_return_prelude_stmt(
+                    builder,
+                    &mut branch_bindings,
+                    carrier_step_phis,
+                    break_phi_dsts,
+                    stmt,
+                    error_prefix,
+                )?);
+            }
+        }
+        // Inner condition comes from AST, use ASTNode-based wrapper
+        then_plans.extend(match break_phi_dsts {
+            Some(break_phi_dsts) => lower_if_exit_stmt_with_break_phi_args(
                 builder,
-                &mut branch_bindings,
+                &branch_bindings,
                 carrier_step_phis,
                 break_phi_dsts,
-                stmt,
+                inner_cond,
+                inner_then,
+                inner_else.as_ref(),
                 error_prefix,
-            )?);
-        }
-    }
-    // Inner condition comes from AST, use ASTNode-based wrapper
-    then_plans.extend(match break_phi_dsts {
-        Some(break_phi_dsts) => lower_if_exit_stmt_with_break_phi_args(
-            builder,
-            &branch_bindings,
-            carrier_step_phis,
-            break_phi_dsts,
-            inner_cond,
-            inner_then,
-            inner_else.as_ref(),
-            error_prefix,
-        )?,
-        None => lower_if_exit_stmt(
-            builder,
-            &branch_bindings,
-            carrier_step_phis,
-            inner_cond,
-            inner_then,
-            inner_else.as_ref(),
-            error_prefix,
-        )?,
-    });
-    builder.variable_ctx.variable_map = saved_map;
+            )?,
+            None => lower_if_exit_stmt(
+                builder,
+                &branch_bindings,
+                carrier_step_phis,
+                inner_cond,
+                inner_then,
+                inner_else.as_ref(),
+                error_prefix,
+            )?,
+        });
+        Ok(then_plans)
+    })?;
 
     let plans = lower_cond_branch(
         builder,

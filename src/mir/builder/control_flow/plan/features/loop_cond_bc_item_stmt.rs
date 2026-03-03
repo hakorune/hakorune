@@ -14,7 +14,8 @@ use std::collections::BTreeMap;
 
 use super::loop_cond_bc::LOOP_COND_ERR;
 use super::loop_cond_bc_util::{
-    lower_simple_effect_stmt, lower_stmt_list_no_direct_exit, lower_stmt_list_no_exit,
+    direct_exit_reject, is_direct_exit_reject, lower_simple_effect_stmt,
+    lower_stmt_list_no_direct_exit, lower_stmt_list_no_exit, DirectExitRejectReason,
 };
 
 pub(in crate::mir::builder) fn lower_loop_cond_stmt(
@@ -106,7 +107,10 @@ pub(in crate::mir::builder) fn lower_loop_cond_stmt(
         }
         ASTNode::Break { .. } => {
             if !is_last {
-                return Err(format!("{LOOP_COND_ERR}: break must be last"));
+                return Err(direct_exit_reject(
+                    LOOP_COND_ERR,
+                    DirectExitRejectReason::BreakMustBeLast,
+                ));
             }
             Ok(vec![CorePlan::Exit(
                 parts::exit::build_break_with_phi_args(
@@ -116,10 +120,16 @@ pub(in crate::mir::builder) fn lower_loop_cond_stmt(
                 )?,
             )])
         }
-        ASTNode::Continue { .. } => Err(format!("{LOOP_COND_ERR}: exit must be inside if")),
+        ASTNode::Continue { .. } => Err(direct_exit_reject(
+            LOOP_COND_ERR,
+            DirectExitRejectReason::ExitMustBeInsideIf,
+        )),
         ASTNode::Return { value, .. } => {
             if !is_last {
-                return Err(format!("{LOOP_COND_ERR}: return must be last"));
+                return Err(direct_exit_reject(
+                    LOOP_COND_ERR,
+                    DirectExitRejectReason::ReturnMustBeLast,
+                ));
             }
             parts::entry::lower_return_with_effects(
                 builder,
@@ -355,7 +365,7 @@ fn lower_if_stmt(
         ) {
             Ok(plans) => return Ok(plans),
             Err(err) => {
-                if !err.contains(": block contains direct exit") {
+                if !is_direct_exit_reject(&err) {
                     return Err(err);
                 }
             }

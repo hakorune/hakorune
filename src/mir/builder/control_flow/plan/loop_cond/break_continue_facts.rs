@@ -239,7 +239,14 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
         matches!(item, LoopCondBreakContinueItem::ThenOnlyBreakIf { .. })
     });
     let is_parse_string2 = matches_parse_string2_shape(body);
-    let body_lowering_policy = if !allow_extended || has_then_only_break || is_parse_string2 {
+    let body_lowering_policy = if !allow_extended
+        || has_then_only_break
+        || is_parse_string2
+        || program_block_seen
+    {
+        // ProgramBlock items are lowered item-by-item via recipe path.
+        // Forcing ExitAllowed here can reject valid recipes when the whole-body
+        // exit_allowed block is unavailable (e.g. nested-if + break tail shapes).
         BodyLoweringPolicy::RecipeOnly
     } else {
         BodyLoweringPolicy::ExitAllowed {
@@ -554,6 +561,57 @@ mod tests {
         assert!(matches!(
             facts.recipe.items[3],
             LoopCondBreakContinueItem::Stmt(_)
+        ));
+    }
+
+    #[test]
+    fn program_block_with_exit_signals_prefers_recipe_only() {
+        let condition = cond_lt("j", 3);
+        let body = vec![
+            assign_inc("j"),
+            ASTNode::If {
+                condition: Box::new(cond_eq_zero("j")),
+                then_body: vec![
+                    assign_inc("x"),
+                    ASTNode::Continue {
+                        span: Span::unknown(),
+                    },
+                ],
+                else_body: Some(vec![
+                    ASTNode::If {
+                        condition: Box::new(cond_ge_zero("x")),
+                        then_body: vec![assign_inc("x")],
+                        else_body: Some(vec![assign_inc("x")]),
+                        span: Span::unknown(),
+                    },
+                    ASTNode::Break {
+                        span: Span::unknown(),
+                    },
+                ]),
+                span: Span::unknown(),
+            },
+            assign_inc("j"),
+        ];
+
+        let facts = try_extract_loop_cond_break_continue_facts_inner(
+            &condition,
+            &body,
+            true,
+            true,
+            false,
+            MAX_NESTED_LOOPS,
+            None,
+        )
+        .expect("freeze")
+        .expect("facts");
+
+        assert!(matches!(
+            facts.recipe.items[1],
+            LoopCondBreakContinueItem::ProgramBlock { .. }
+        ));
+        assert!(matches!(
+            facts.body_lowering_policy,
+            BodyLoweringPolicy::RecipeOnly
         ));
     }
 }

@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-02
+Date: 2026-03-03
 Scope: Repo root の互換入口。詳細ログは `docs/development/current/main/` 側を正本にする。
 
 ## Purpose
@@ -132,36 +132,66 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 
 ## Immediate Next (this round)
 
-1. `concat3-normalization` フェーズを開始する（docs-first、Rust/.hako 共通契約を先に固定）。
-2. Rust/MIR 側で `concat_hh` chain -> `concat3_hhh` 正規化を先行実装し、Python backend の chain/prune 依存を段階縮退する。
-3. `.hako` 側は同時実装ではなく「契約同期のみ」を先に行い、実装追従は Rust 側の green lock 後に進める。
-4. helper撤去を継続する（build→perf→smoke/check→wrapper削除の順を固定）。
-5. hakorune→hakorune build 導線を `hakorune --emit-mir-json` 直経路へ一本化する（`tools/selfhost/build_stage1.sh` / `tools/selfhost_exe_stageb.sh` から helper 依存を外す）。
-6. perf emit SSOT を direct 中心へ移行する（`tools/perf/lib/aot_helpers.sh` の helper 優先スイッチを段階縮退）。
-7. smoke/check の emit 呼び出しを共通関数へ寄せ、helper 直呼びを一括で置換する。
-8. `.hako` kernel mainline（no-fallback）を日常経路として固定する。
-9. done contract は次の 2 本を継続監査する:
-   - `tools/checks/dev_gate.sh runtime-exec-zero`
-   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
-10. `build-mainline`（cargo 非依存）を daily default に固定する。
-11. `build-maintenance`（cargo）は host 保守時のみ実行する。
-12. Rust source は保存固定とし、削除タスクは当面起票しない（明示指示が出るまで停止）。
-13. 最適化 lane（micro/asm -> kilo）は helper撤去の build 導線 lock 後に進める。
-14. phase216 mainline blocker pin:
-   - loop emit blocker（`LowerLoopSimpleBox.try_lower/1` undefined ValueId）を fixture+block canary で固定。
-   - binop は baseline（`1+2 => 3`）と precedence blocker（`1+2*3 != 7`）を分離して監視する。
-15. phase216 debug status (2026-03-02, active):
-   - loop blocker は継続（`LowerLoopSimpleBox.try_lower/1` で `use of undefined value ValueId(...)`）。
-   - `LowerLoopSimpleBox` は mainline 安定化のため `loop(Var < Int)` 限定実装へ縮退済み。
-   - binop precedence は `LowerReturnBinOpBox` の誤受理（nested rhs Binary を Int と誤認）を修正し、blocker rc は `3 -> 4` へ更新（未解消）。
-16. direct route debug status (2026-03-02, active):
-   - `Invalid value ... ValueId(0)`（`AddOperator.apply/2`）は解消。原因は `json_v1_bridge` が v1 payload の `params` を読まず、関数 arity を 0 で復元していた点だった（`src/runner/json_v1_bridge/parse.rs` 修正済み）。
-   - phase216 `loop_count_param_nonsym` の `vm step budget exceeded` は解消。原因は Rust direct route の generic-loop v0 で loop var を header PHI に再束縛せず step lowering に入っていた点（`src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs` 修正済み）。
-   - direct 再発防止 canary を追加: `tools/dev/phase216_direct_loop_progression_canary.sh`（`--emit-mir-json` -> `--mir-json-file` で rc=14、step source=phi source を固定）。
-   - phase216 direct sweep 実施済み: `phase216_mainline_*` 4件は emit/run とも green（rc: 3/7/14/10）、`step budget exceeded` / `Invalid value` は 0件。
-   - `.hako emit` 実行契約 pin を追加: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_jsonfile_exec_contract_vm.sh`（binary-only で `--hako-emit-mir-json` -> `--mir-json-file` rc=42）。
-   - phase216 外 sweep を追加: `tools/dev/direct_loop_progression_sweep.sh`（既定 fixture 8件）で direct route の loop progression を継続監視。
-   - next split: sweep 対象を `phase29bq/phase29ca` 系へ段階拡張し、emit fail を 0 件に寄せる。
+- docs-first / compiler lane SSOT:
+  - `docs/development/current/main/design/compiler-task-map-ssot.md` の `Phase29x Direct Route Recovery Pack (2026-03-03)`
+  - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md` の `AI mistake-resistant rules (always-on)`
+- execution rule: 1 blocker = 1受理形 = fixture+gate = 1 commit（BoxCount / BoxShape 混在禁止）
+- monitor-only note: `Concat3 Normalization Pack` と `Helper Retirement Pack` は本ラウンド中は監視のみ（混線禁止）
+
+## Restart Handoff (2026-03-03 / codex update)
+
+- latest probe（direct route SSOT）:
+  - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe`
+  - result: `emit_fail=13`, `run_nonzero=9`, `run_ok=96`, `route_blocker=0`（total=118）
+  - class: `emit:direct-verify=2`, `emit:other=11`
+- progress in this round:
+  - `emit_fail: 20 -> 13`
+  - `generic loop v0: nested loop has no plan（box_member cluster）: 7 -> 0`
+  - blocker shift: `nested loop has no plan` -> `Unsupported value AST: MapLiteral`
+- current head blockers:
+  1. `Unsupported value AST: MapLiteral`（7, box_member cluster）
+  2. single-exit 系 fail-fast（2件: `then_last=Return` 1 + `then_last=Assignment else_last=If` 1）
+  3. `emit:direct-verify` residual（2, `scan_methods_nested_loop_idx19/28`）
+  4. 単発エラー（`unsupported stmt Call` 1件 / `Expected BinOp` 1件）
+- files touched in this round（restart-safe context）:
+  - `src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs`
+  - `src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs`
+  - `src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs`
+  - `src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs`
+  - `src/mir/builder/control_flow/plan/parts/stmt.rs`
+  - `src/mir/builder/control_flow/plan/parts/if_exit.rs`
+  - `CURRENT_TASK.md`
+- next fixed order（resume point）:
+  1. `Unsupported value AST: MapLiteral` 群（7）を reducer し、受理形を 1 つずつ固定
+  2. single-exit 系 fail-fast（2）を Recipe 契約へ集約（`loop_cond_break_continue`）
+  3. `emit:direct-verify` 残り2件（idx19/28）を dominance contract で切り分け
+  4. 単発2件（`unsupported stmt Call` / `Expected BinOp`）を isolate して固定
+
+- direct route debug status (2026-03-03, active):
+  - `Invalid value ... ValueId(0)`（`AddOperator.apply/2`）は解消。原因は `json_v1_bridge` が v1 payload の `params` を読まず、関数 arity を 0 で復元していた点だった（`src/runner/json_v1_bridge/parse.rs` 修正済み）。
+  - phase216 `loop_count_param_nonsym` の `vm step budget exceeded` は解消。原因は Rust direct route の generic-loop v0 で loop var を header PHI に再束縛せず step lowering に入っていた点（`src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs` 修正済み）。
+  - direct 再発防止 canary を追加: `tools/dev/phase216_direct_loop_progression_canary.sh`（`--emit-mir-json` -> `--mir-json-file` で rc=14、step source=phi source を固定）。
+  - phase216 direct sweep 実施済み: `phase216_mainline_*` 4件は emit/run とも green（rc: 3/7/14/10）、`step budget exceeded` / `Invalid value` は 0件。
+  - `.hako emit` 実行契約 pin を追加: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_jsonfile_exec_contract_vm.sh`（binary-only で `--hako-emit-mir-json` -> `--mir-json-file` rc=42）。
+  - phase216 外 sweep は profile 化済み: `tools/dev/direct_loop_progression_sweep.sh`（`default`/`phase29x-green`/`phase29x-probe`）。
+  - phase29x probe latest（`--profile phase29x-probe`, 2026-03-03）:
+    - scope: `phase29bq|phase29ca|phase29cb` かつ `(loop|generic_loop|loop_cond|loop_true)` = 118 fixtures。
+    - latest: `emit_fail=13`, `run_nonzero=9`, `run_ok=96`, `route_blocker(step-budget/Invalid value)=0`。
+    - class: `emit:direct-verify=2`, `emit:other=11`, `run:vm-error=3`。
+  - direct-verify / dominance guard:
+    - canary: `tools/dev/phase29ca_direct_verify_dominance_block_canary.sh`（expected: `emit_rc=0` + `run_rc=4`）。
+    - current residual: `emit:direct-verify=2`（`scan_methods_nested_loop_idx19/28`）。
+  - current blocker class（head order）:
+    - `emit:other` は 11 件（head: `Unsupported value AST: MapLiteral` = 7）。
+    - single-exit 系 fail-fast は合計2件（`then_last=Return` 1 + `then_last=Assignment else_last=If` 1）。
+  - improvements in this round:
+    - `emit_fail: 20 -> 13`
+    - `generic loop v0: nested loop has no plan（box_member cluster）: 7 -> 0`
+  - note: `parser/throw_reserved` は phase29x-probe 監視対象から解消（throw-negative は `apps/tests/parser_throw_reserved*_min.hako` へ分離）。
+  - note2: Rust VM の `Catch` 命令実装は post-selfhost deferred（現行 lane は throw-free + `NYASH_TRY_RESULT_MODE=1` 固定）。
+  - note3: `loop_scan_methods_block_v0 ... nested loop has no plan` は解消（2 -> 0）。
+  - detail/timeline SSOT:
+    - `docs/development/current/main/investigations/phase29x-direct-route-probe-2026-03-02.md`
 
 ## Concat3 Normalization Pack (active / ordered)
 
@@ -200,7 +230,7 @@ contract note (fixed):
    - status (2026-03-02): `hakorune_emit_mir.sh` 直呼びを撤去し、`selfhost_exe_stageb.sh` は helper-free 実装へ移行（default route=`stageb-delegate`）。
    - latest unblock (2026-03-02): direct route の global-call arity blocker（`ParserBox.esc_json/1`, `HakoCli.run/1`）は解消し、次の fail-fast は LLVM harness parse (`PHINode should have one entry for each predecessor`) へ前進。
    - pending: `launcher.hako` direct は JoinIR coverage 課題に加えて LLVM PHI predecessor 整合の blocker が残る。direct 一本化の昇格は PHI blocker 解消後に実施。
-   - latest direct issue (2026-03-02): `AddOperator.apply/2` の `ValueId(0)` と phase216 step-budget は解消済み。phase216 外 sweep は追加済みで、次は sweep 範囲を `phase29bq/phase29ca` 系へ拡張する。
+   - latest direct issue (2026-03-02): `AddOperator.apply/2` の `ValueId(0)` / phase216 step-budget / phase29ca direct-verify（dominance/Phi）は解消済み。次ブロッカーは `phase29x-probe` 残件（`emit:other=27`）の段階解消。
 2. perf SSOT 置換:
    - 対象: `tools/perf/lib/aot_helpers.sh` と呼び出し元ベンチ群。
    - 目的: `PERF_AOT_PREFER_HELPER` / `PERF_AOT_HELPER_ONLY` を縮退し、strict は direct 優先に固定。

@@ -48,6 +48,26 @@ This is the ordered task map for compiler cleanliness. Use this order unless a n
      - ルーティングの SSOT は Facts/Recipe/Verifier に寄せ、patterns 層は “どの入口を呼ぶか” だけにする。
      - ただし release 挙動は変えない（構造整理で fail-fast 位置を動かす場合は strict/dev(+planner_required) 限定）。
 
+## Phase29x Direct Route Recovery Pack (2026-03-03)
+
+Baseline probe (fixed):
+- command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe`
+- result: `emit_fail=13`, `run_nonzero=9`, `run_ok=96`, `route_blocker=0`（total=118）
+- class: `emit:direct-verify=2`, `emit:other=11`, `run:vm-error=3`
+
+Fixed order (this round):
+1) `Unsupported value AST: MapLiteral` 群（box_member cluster=7）を先に減らす
+2) single-exit 系 fail-fast（`loop_cond_break_continue`）を Recipe 契約で整理する
+3) `emit:direct-verify` 残り2件（`scan_methods_nested_loop_idx19/28`）を dominance 契約で切り分ける
+4) 残る単発2件（`unsupported stmt Call` / `Expected BinOp`）を 1件ずつ isolate して fixture+gate で固定する
+
+Round guardrails (AI mistake resistant):
+- 1 blocker = 1受理形 = fixture+gate = 1 commit（BoxCount と BoxShape を混ぜない）
+- `planner_required` で string-match fallback を増やさない（受理判断は Recipe/Verifier SSOT 側へ寄せる）
+- `variable_map` の一時退避復元は `parts::var_map_scope::with_saved_variable_map` を使い、手動 restore を増やさない
+- 受理形を増やしたコミットでは StepTree/Extractor/Parity 観測SSOTを同コミット更新する
+- 各ステップ完了時に probe を再実行し、`emit_fail` と class 差分を `CURRENT_TASK.md` に反映する
+
 ## Priority Order (current)
 
 NOTE:
