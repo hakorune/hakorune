@@ -241,7 +241,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - compatibility: 旧 Pattern 表示は `planner_rule_legacy_name()` として保持（gate/tag の期待値互換を維持）。
   - D1 follow-up: `planner/pattern_shadow.rs` で semantic rule key を主語にし、legacy `loop/pattern*` は alias 正規化で互換維持。
   - D2 starter: `DomainPlan::kind_label()` を追加し、`single_planner/rules.rs` の payload非依存箇所（freeze文言・variant判定）を label-based へ集約。
-  - verification: `cargo test -q rule_name_uses_semantic_label --lib` / `cargo test -q legacy_rule_name_alias_is_preserved --lib` / `cargo test -q legacy_rule_aliases_map_to_semantic_priority --lib` / `phase29bq_fast_gate_vm --only loop_cond_continue_with_return_min` / `phase29bq_fast_gate_vm --only loop_header_shortcircuit_continue_with_return_min` / `phase29x-probe emit_fail=0`。
+  - D2 follow-up: `DomainPlanKind` を導入し、`rules.rs` の planner 判定を variant match から kind 比較へ置換（payload 非依存化を前進）。
+  - verification: `cargo test -q rule_name_uses_semantic_label --lib` / `cargo test -q legacy_rule_name_alias_is_preserved --lib` / `cargo test -q legacy_rule_aliases_map_to_semantic_priority --lib` / `cargo test -q domain_plan_kind_and_label_match --lib` / `phase29bq_fast_gate_vm --only loop_cond_continue_with_return_min` / `phase29bq_fast_gate_vm --only loop_header_shortcircuit_continue_with_return_min` / `phase29x-probe emit_fail=0`。
 
 - direct route debug status (2026-03-03, active):
   - `Invalid value ... ValueId(0)`（`AddOperator.apply/2`）は解消。原因は `json_v1_bridge` が v1 payload の `params` を読まず、関数 arity を 0 で復元していた点だった（`src/runner/json_v1_bridge/parse.rs` 修正済み）。

@@ -21,14 +21,56 @@ pub(in crate::mir::builder) enum DomainPlan {
     LoopCondContinueWithReturn(LoopCondContinueWithReturnPlan),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum DomainPlanKind {
+    LoopCondContinueWithReturn,
+}
+
 impl DomainPlan {
+    /// Payload-free kind for rule routing/selection.
+    pub(in crate::mir::builder) fn kind(&self) -> DomainPlanKind {
+        match self {
+            DomainPlan::LoopCondContinueWithReturn(_) => DomainPlanKind::LoopCondContinueWithReturn,
+        }
+    }
+
     /// Stable variant label for diagnostics and planner logs.
     ///
     /// Keep this payload-free so call sites can avoid coupling to variant internals.
     pub(in crate::mir::builder) fn kind_label(&self) -> &'static str {
-        match self {
-            DomainPlan::LoopCondContinueWithReturn(_) => "LoopCondContinueWithReturn",
+        match self.kind() {
+            DomainPlanKind::LoopCondContinueWithReturn => "LoopCondContinueWithReturn",
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{ASTNode, LiteralValue};
+    use crate::ast::Span;
+    use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe;
+    use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnItem;
+    use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
+
+    #[test]
+    fn domain_plan_kind_and_label_match() {
+        let recipe = ContinueWithReturnRecipe::new(
+            vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
+            vec![ContinueWithReturnItem::Stmt(StmtRef::new(0))],
+        );
+        let plan = DomainPlan::LoopCondContinueWithReturn(LoopCondContinueWithReturnPlan {
+            condition: ASTNode::Literal {
+                value: LiteralValue::Bool(true),
+                span: Span::unknown(),
+            },
+            recipe,
+        });
+
+        assert_eq!(plan.kind(), DomainPlanKind::LoopCondContinueWithReturn);
+        assert_eq!(plan.kind_label(), "LoopCondContinueWithReturn");
     }
 }
 

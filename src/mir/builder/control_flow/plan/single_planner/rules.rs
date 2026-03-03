@@ -9,6 +9,7 @@ use crate::mir::builder::control_flow::plan::facts::pattern2_loopbodylocal_facts
 use crate::mir::builder::control_flow::plan::planner::{self, PlanBuildOutcome, PlannerContext};
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::DomainPlan;
+use crate::mir::builder::control_flow::plan::DomainPlanKind;
 
 use super::rule_order::{rule_name, PlanRuleId, PLAN_RULE_ORDER};
 
@@ -287,10 +288,10 @@ fn try_take_planner(planner_opt: &Option<DomainPlan>, kind: PlanRuleId) -> Optio
 
 fn planner_matches_rule(plan: &DomainPlan, kind: PlanRuleId) -> bool {
     matches!(
-        (kind, plan),
+        (kind, plan.kind()),
         (
             PlanRuleId::LoopCondContinueWithReturn,
-            DomainPlan::LoopCondContinueWithReturn(_)
+            DomainPlanKind::LoopCondContinueWithReturn
         )
     )
 }
