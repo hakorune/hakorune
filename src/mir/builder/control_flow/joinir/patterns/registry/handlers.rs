@@ -3,14 +3,12 @@ use crate::mir::ValueId;
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
-use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner::PlanRuleId;
 use crate::mir::builder::control_flow::plan::verifier::PlanVerifier;
-use crate::mir::builder::control_flow::plan::Pattern2BreakPlan;
 
 use super::super::router::{lower_verified_core_plan, LoopPatternContext};
 use super::types::{PlannerFirstMode, RouterEnv, StandardEntry};
@@ -115,23 +113,7 @@ pub(crate) fn route_loop_break_recipe(
     }
 
     let facts = outcome.facts.as_ref().expect("loop_break_recipe facts present");
-    let pattern2 = facts
-        .facts
-        .pattern2_break
-        .as_ref()
-        .expect("loop_break_recipe is present");
-    let parts = Pattern2BreakPlan {
-        loop_var: pattern2.loop_var.clone(),
-        carrier_var: pattern2.carrier_var.clone(),
-        loop_condition: pattern2.loop_condition.clone(),
-        break_condition: pattern2.break_condition.clone(),
-        carrier_update_in_break: pattern2.carrier_update_in_break.clone(),
-        carrier_update_in_body: pattern2.carrier_update_in_body.clone(),
-        loop_increment: pattern2.loop_increment.clone(),
-        step_placement: pattern2.step_placement,
-        promotion: None,
-    };
-    let core_plan = PlanNormalizer::normalize_pattern2_break(builder, parts, ctx)
+    let core_plan = RecipeComposer::compose_pattern2_break_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
     if env.strict_or_dev {

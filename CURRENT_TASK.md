@@ -243,7 +243,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - D2 starter: `DomainPlan::kind_label()` を追加し、`single_planner/rules.rs` の payload非依存箇所（freeze文言・variant判定）を label-based へ集約。
   - D2 follow-up: `DomainPlanKind` を導入し、`rules.rs` の planner 判定を variant match から kind 比較へ置換（payload 非依存化を前進）。
   - D3 starter: dead entry path の本番依存を縮退（`composer/mod.rs` で `coreloop_{single_entry,v0,v1}` を `#[cfg(test)]` 化、`normalizer/mod.rs` で `pattern_{scan_with_init,split_scan}` module 宣言を `#[cfg(test)]` 化）。
+  - D3 follow-up (2026-03-04): `route_loop_break_recipe` を `PlanNormalizer::normalize_pattern2_break` 直呼びから `RecipeComposer::compose_pattern2_break_recipe` に置換し、Pattern2 normalizer の runtime 入口依存を 0 化（`normalizer/pattern2_break.rs` は `#[cfg(test)]` へ縮退）。
   - verification: `cargo test -q rule_name_uses_semantic_label --lib` / `cargo test -q legacy_rule_name_alias_is_preserved --lib` / `cargo test -q legacy_rule_aliases_map_to_semantic_priority --lib` / `cargo test -q domain_plan_kind_and_label_match --lib` / `phase29bq_fast_gate_vm --only loop_cond_continue_with_return_min` / `phase29bq_fast_gate_vm --only loop_header_shortcircuit_continue_with_return_min` / `phase29x-probe emit_fail=0`。
+  - verification2 (2026-03-04): `cargo build --release --bin hakorune` / `bash tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` / `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` が green。
 
 - direct route debug status (2026-03-03, active):
   - `Invalid value ... ValueId(0)`（`AddOperator.apply/2`）は解消。原因は `json_v1_bridge` が v1 payload の `params` を読まず、関数 arity を 0 で復元していた点だった（`src/runner/json_v1_bridge/parse.rs` 修正済み）。

@@ -22,6 +22,7 @@ mod pattern_int_to_str;
 mod pattern_escape_map;
 mod pattern_split_lines;
 mod pattern_skip_ws;
+#[cfg(test)]
 mod pattern2_break;
 #[cfg(test)]
 mod pattern_scan_with_init;
