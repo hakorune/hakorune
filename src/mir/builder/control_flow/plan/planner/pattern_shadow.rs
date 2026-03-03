@@ -8,30 +8,49 @@
 use super::candidates::PlanCandidate;
 use crate::mir::builder::control_flow::plan::trace;
 
+/// Canonicalize legacy pattern-style rule ids into semantic ids.
+///
+/// D1 policy: semantic ids are preferred; legacy aliases remain accepted.
+fn canonical_shadow_rule(rule: &str) -> &str {
+    match rule {
+        "loop/pattern1_simplewhile" => "loop/loop_simple_while",
+        "loop/pattern1_char_map" => "loop/char_map",
+        "loop/pattern1_array_join" => "loop/array_join",
+        "loop/pattern2_break" => "loop/loop_break_recipe",
+        "loop/pattern3_ifphi" => "loop/if_phi_join",
+        "loop/pattern4_continue" => "loop/loop_continue_only",
+        "loop/pattern5_infinite_early_exit" => "loop/loop_true_early_exit",
+        "loop/pattern8_bool_predicate_scan" => "loop/bool_predicate_scan",
+        "loop/pattern9_accum_const_loop" => "loop/accum_const_loop",
+        _ => rule,
+    }
+}
+
 /// Priority table: rule → priority (lower = higher priority)
 ///
 /// DIAGNOSTIC ONLY - not authoritative. Actual selection uses push order.
 /// Unknown rules get priority 255 (lowest) by design.
 fn rule_priority(rule: &str) -> u8 {
-    match rule {
+    let canonical = canonical_shadow_rule(rule);
+    match canonical {
         // TIER 1: High-Priority Scans
         "loop/scan_with_init" => 10,
         "loop/split_scan" => 11,
 
         // TIER 2: Classic Patterns
-        "loop/pattern2_break" => 20,
-        "loop/pattern3_ifphi" => 21,
-        "loop/pattern4_continue" => 22,
-        "loop/pattern5_infinite_early_exit" => 23,
+        "loop/loop_break_recipe" => 20,
+        "loop/if_phi_join" => 21,
+        "loop/loop_continue_only" => 22,
+        "loop/loop_true_early_exit" => 23,
 
         // TIER 3: Specialized
-        "loop/pattern8_bool_predicate_scan" => 30,
-        "loop/pattern9_accum_const_loop" => 31,
+        "loop/bool_predicate_scan" => 30,
+        "loop/accum_const_loop" => 31,
 
         // TIER 4: Pattern 1 Variants
-        "loop/pattern1_char_map" => 40,
-        "loop/pattern1_array_join" => 41,
-        "loop/pattern1_simplewhile" => 42,
+        "loop/char_map" => 40,
+        "loop/array_join" => 41,
+        "loop/loop_simple_while" => 42,
 
         // TIER 5: V0 Fallbacks
         "loop/flag_exit_v0" => 50,
@@ -76,5 +95,26 @@ fn shadow_pick_rule(candidates: &[PlanCandidate]) -> Option<&'static str> {
 pub fn trace_shadow_pick(candidates: &[PlanCandidate]) {
     if let Some(shadow_rule) = shadow_pick_rule(candidates) {
         trace::trace_pattern_shadow_pick(shadow_rule, candidates.len());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::rule_priority;
+
+    #[test]
+    fn legacy_rule_aliases_map_to_semantic_priority() {
+        assert_eq!(
+            rule_priority("loop/pattern2_break"),
+            rule_priority("loop/loop_break_recipe")
+        );
+        assert_eq!(
+            rule_priority("loop/pattern1_simplewhile"),
+            rule_priority("loop/loop_simple_while")
+        );
+        assert_eq!(
+            rule_priority("loop/pattern8_bool_predicate_scan"),
+            rule_priority("loop/bool_predicate_scan")
+        );
     }
 }
