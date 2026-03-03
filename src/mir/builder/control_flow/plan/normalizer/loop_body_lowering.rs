@@ -1,12 +1,12 @@
 //! Shared lowering helpers for loop body statements (generic_loop_v0/v1 + loop_true_break_continue).
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::calls::extern_calls;
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::control_flow::plan::normalizer::common::lower_me_this_method_effect;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::MirBuilder;
-use crate::mir::{BinaryOp, ConstValue, EffectMask, MirType, ValueId};
+use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, MirType, ValueId};
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 
@@ -317,6 +317,27 @@ pub(in crate::mir::builder) fn lower_bool_expr(
             let (value_id, effects) = PlanNormalizer::lower_value_ast(ast, builder, phi_bindings)?;
             debug_log_bool_expr_binop_lit3(builder, &effects, "simple");
             Ok((value_id, effects))
+        }
+        ASTNode::UnaryOp {
+            operator: UnaryOperator::Not,
+            operand,
+            ..
+        } => {
+            let (inner, mut effects) = lower_bool_expr(builder, phi_bindings, operand, error_prefix)?;
+            let false_id = builder.alloc_typed(MirType::Bool);
+            effects.push(CoreEffectPlan::Const {
+                dst: false_id,
+                value: ConstValue::Bool(false),
+            });
+            let dst = builder.alloc_typed(MirType::Bool);
+            effects.push(CoreEffectPlan::Compare {
+                dst,
+                lhs: inner,
+                op: CompareOp::Eq,
+                rhs: false_id,
+            });
+            debug_log_bool_expr_binop_lit3(builder, &effects, "not");
+            Ok((dst, effects))
         }
         ASTNode::BinaryOp {
             operator,

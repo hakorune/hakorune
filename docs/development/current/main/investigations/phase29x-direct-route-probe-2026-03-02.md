@@ -51,6 +51,16 @@ bash tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe
      - single-exit family（`then_last=Return` / `then_last=Assignment else_last=If`）= 2
      - `emit:direct-verify` residual = 2（`scan_methods_nested_loop_idx19/28`）
      - singletons: `unsupported stmt Call` = 1, `Expected BinOp` = 1
+9. after map/or + cond-prelude branch cleanup（2026-03-03）
+   - `emit_fail=13`, `run_nonzero=9`, `run_ok=96`, `route_blocker=0`
+   - class: `emit:direct-verify=9`, `emit:other=4`, `run:vm-error=3`
+   - head detail:
+     - `emit:direct-verify` = 9（`scan_methods_nested_loop_idx19/28` + box_member 7）
+     - single-exit family（`then_last=Return` / `then_last=Assignment else_last=If`）= 2
+     - singletons: `unsupported stmt Call` = 1, `Expected BinOp` = 1
+   - note:
+     - `Unsupported value AST: MapLiteral` / `Unsupported binary operator: Or` / `if_effect_empty` は解消。
+     - box_member cluster は dominance/merge (`Undefined value %290 ... bb55`) へ前進。
 
 ## Resolved: emit:direct-verify (6 fixtures)
 
@@ -71,11 +81,12 @@ bash tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe
 
 ## Current Head Blocker
 
-- class: `[normalizer] Unsupported value AST: MapLiteral`
-- count: 7（2026-03-03 latest snapshot）
+- class: `[freeze:contract][emit-mir/direct-verify]`（dominance/undefined value）
+- count: 9（2026-03-03 latest snapshot）
 - representative fixtures:
   - `apps/tests/phase29bq_selfhost_box_member_local_fini_blockexpr_compare_logic_unary_call_literals_nested_tail_nested_loop_branch_cleanup_min.hako`
   - `apps/tests/phase29bq_selfhost_box_member_local_fini_blockexpr_compare_logic_unary_call_literals_nested_tail_nested_loop_branch_method_chain_tail_cleanup_min.hako`
+  - `apps/tests/phase29bq_selfhost_blocker_scan_methods_nested_loop_idx19_min.hako`
   - `apps/tests/phase29bq_selfhost_box_member_local_fini_blockexpr_compare_logic_unary_call_literals_nested_tail_nested_loop_branch_method_chain_tail_side_effect_tail_nested_join_tail_dual_tail_sync_guard_sync_tail_mirror_sync_tail_cleanup_min.hako`
 
 ## Guard Canary

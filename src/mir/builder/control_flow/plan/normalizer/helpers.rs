@@ -267,7 +267,7 @@ impl super::PlanNormalizer {
         // This mirrors `MirBuilder::build_expression_impl`.
         builder.metadata_ctx.set_current_span(ast.span());
 
-        use crate::ast::{ASTNode, LiteralValue, UnaryOperator};
+        use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
         use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
         use crate::mir::{BinaryOp, ConstValue, MirType};
 
@@ -393,7 +393,12 @@ impl super::PlanNormalizer {
                     });
                     Ok((dst, effects))
                 }
-                UnaryOperator::Not => Err("[normalizer] Unary 'not' is condition-only".to_string()),
+                UnaryOperator::Not => super::loop_body_lowering::lower_bool_expr(
+                    builder,
+                    phi_bindings,
+                    ast,
+                    "[normalizer] value bool unary not",
+                ),
                 UnaryOperator::Weak => Err("[normalizer] Unary 'weak' is not supported yet".to_string()),
             },
             ASTNode::MethodCall { object, method, arguments, .. } => {
@@ -555,7 +560,107 @@ impl super::PlanNormalizer {
 
                 Ok((result_id, effects))
             }
-            ASTNode::BinaryOp { .. } => {
+            ASTNode::ArrayLiteral { elements, .. } => {
+                let array_id = builder.next_value_id();
+                Self::record_newbox_metadata(builder, array_id, "ArrayBox");
+
+                let mut effects = vec![
+                    CoreEffectPlan::NewBox {
+                        dst: array_id,
+                        box_type: "ArrayBox".to_string(),
+                        args: vec![],
+                    },
+                    // Keep parity with expression lowering: ArrayBox is explicitly born
+                    // before element pushes.
+                    CoreEffectPlan::MethodCall {
+                        dst: None,
+                        object: array_id,
+                        method: "birth".to_string(),
+                        args: vec![],
+                        effects: EffectMask::MUT,
+                    },
+                ];
+
+                for element in elements {
+                    let (element_id, mut element_effects) =
+                        Self::lower_value_ast(element, builder, phi_bindings)?;
+                    effects.append(&mut element_effects);
+                    effects.push(CoreEffectPlan::MethodCall {
+                        dst: None,
+                        object: array_id,
+                        method: "push".to_string(),
+                        args: vec![element_id],
+                        effects: EffectMask::MUT,
+                    });
+                }
+
+                Ok((array_id, effects))
+            }
+            ASTNode::MapLiteral { entries, .. } => {
+                let map_id = builder.next_value_id();
+                Self::record_newbox_metadata(builder, map_id, "MapBox");
+
+                let mut effects = vec![
+                    CoreEffectPlan::NewBox {
+                        dst: map_id,
+                        box_type: "MapBox".to_string(),
+                        args: vec![],
+                    },
+                    // Keep parity with expression lowering: MapBox is explicitly born
+                    // before entry writes.
+                    CoreEffectPlan::MethodCall {
+                        dst: None,
+                        object: map_id,
+                        method: "birth".to_string(),
+                        args: vec![],
+                        effects: EffectMask::MUT,
+                    },
+                ];
+
+                for (key, value) in entries {
+                    let key_literal = ASTNode::Literal {
+                        value: LiteralValue::String(key.clone()),
+                        span: crate::ast::Span::unknown(),
+                    };
+                    let (key_id, mut key_effects) =
+                        Self::lower_value_ast(&key_literal, builder, phi_bindings)?;
+                    effects.append(&mut key_effects);
+
+                    let (value_id, mut value_effects) =
+                        Self::lower_value_ast(value, builder, phi_bindings)?;
+                    effects.append(&mut value_effects);
+
+                    effects.push(CoreEffectPlan::MethodCall {
+                        dst: None,
+                        object: map_id,
+                        method: "set".to_string(),
+                        args: vec![key_id, value_id],
+                        effects: EffectMask::MUT,
+                    });
+                }
+
+                Ok((map_id, effects))
+            }
+            ASTNode::BinaryOp { operator, .. } => {
+                if matches!(
+                    operator,
+                    BinaryOperator::And
+                        | BinaryOperator::Or
+                        | BinaryOperator::Less
+                        | BinaryOperator::LessEqual
+                        | BinaryOperator::Greater
+                        | BinaryOperator::GreaterEqual
+                        | BinaryOperator::Equal
+                        | BinaryOperator::NotEqual
+                ) {
+                    return super::loop_body_lowering::lower_bool_expr(
+                        builder,
+                        phi_bindings,
+                        ast,
+                        "[normalizer] value bool binary",
+                    );
+                }
+
                 let (lhs, op, rhs, mut consts) =
                     Self::lower_binop_ast(ast, builder, phi_bindings)?;
                 let result_id = builder.alloc_typed(MirType::Integer);
@@ -635,9 +740,11 @@ impl super::PlanNormalizer {
             } => {
                 // Phase B2-7: BlockExpr in value-required contexts (planner-required normalizer).
                 //
-                // v1 safety contract: forbid non-local exits in prelude (recursive check).
+                // v1 safety contract: forbid non-local exits in prelude.
+                // `break/continue` inside nested loops are allowed; only exits that can
+                // escape the prelude scope are rejected.
                 for stmt in prelude_stmts {
-                    if stmt.contains_non_local_exit() {
+                    if stmt.contains_non_local_exit_outside_loops() {
                         return Err(
                             "[freeze:contract][blockexpr] exit stmt is forbidden in BlockExpr prelude"
                                 .to_string(),
@@ -821,6 +928,10 @@ fn is_pure_value_expr(ast: &crate::ast::ASTNode) -> bool {
 mod tests {
     use super::is_pure_value_expr;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+    use crate::mir::builder::control_flow::plan::PlanNormalizer;
+    use crate::mir::builder::control_flow::plan::CoreEffectPlan;
+    use crate::mir::builder::MirBuilder;
+    use std::collections::BTreeMap;
 
     fn var(name: &str) -> ASTNode {
         ASTNode::Variable {
@@ -832,6 +943,13 @@ mod tests {
     fn int_lit(value: i64) -> ASTNode {
         ASTNode::Literal {
             value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn bool_lit(value: bool) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Bool(value),
             span: Span::unknown(),
         }
     }
@@ -912,5 +1030,84 @@ mod tests {
             span: Span::unknown(),
         };
         assert!(!is_pure_value_expr(&value_if));
+    }
+
+    #[test]
+    fn lower_value_ast_accepts_map_literal_and_emits_set_calls() {
+        let map_expr = ASTNode::MapLiteral {
+            entries: vec![
+                ("x".to_string(), int_lit(1)),
+                ("y".to_string(), int_lit(2)),
+            ],
+            span: Span::unknown(),
+        };
+        let mut builder = MirBuilder::new();
+        let (map_id, effects) =
+            PlanNormalizer::lower_value_ast(&map_expr, &mut builder, &BTreeMap::new())
+                .expect("MapLiteral should lower in value context");
+
+        match effects.first() {
+            Some(CoreEffectPlan::NewBox { dst, box_type, args }) => {
+                assert_eq!(*dst, map_id);
+                assert_eq!(box_type, "MapBox");
+                assert!(args.is_empty());
+            }
+            other => panic!("first effect must be NewBox(MapBox), got {:?}", other),
+        }
+        match effects.get(1) {
+            Some(CoreEffectPlan::MethodCall {
+                dst: None,
+                object,
+                method,
+                args,
+                ..
+            }) => {
+                assert_eq!(*object, map_id);
+                assert_eq!(method, "birth");
+                assert!(args.is_empty());
+            }
+            other => panic!("second effect must be birth() call, got {:?}", other),
+        }
+
+        let set_calls = effects
+            .iter()
+            .filter(|effect| {
+                if let CoreEffectPlan::MethodCall {
+                    dst: None,
+                    object,
+                    method,
+                    args,
+                    ..
+                } = effect
+                {
+                    *object == map_id && method == "set" && args.len() == 2
+                } else {
+                    false
+                }
+        })
+            .count();
+        assert_eq!(set_calls, 2);
+    }
+
+    #[test]
+    fn lower_value_ast_accepts_bool_or_with_unary_not() {
+        let expr = ASTNode::BinaryOp {
+            operator: BinaryOperator::Or,
+            left: Box::new(ASTNode::UnaryOp {
+                operator: crate::ast::UnaryOperator::Not,
+                operand: Box::new(bool_lit(true)),
+                span: Span::unknown(),
+            }),
+            right: Box::new(bool_lit(false)),
+            span: Span::unknown(),
+        };
+        let mut builder = MirBuilder::new();
+        let result =
+            PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new());
+        assert!(
+            result.is_ok(),
+            "bool Or/Not should lower in value context, got {:?}",
+            result
+        );
     }
 }

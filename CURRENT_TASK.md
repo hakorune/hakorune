@@ -143,29 +143,34 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
 - latest probe（direct route SSOT）:
   - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe`
   - result: `emit_fail=13`, `run_nonzero=9`, `run_ok=96`, `route_blocker=0`（total=118）
-  - class: `emit:direct-verify=2`, `emit:other=11`
+  - class: `emit:direct-verify=9`, `emit:other=4`
 - progress in this round:
-  - `emit_fail: 20 -> 13`
-  - `generic loop v0: nested loop has no plan（box_member cluster）: 7 -> 0`
-  - blocker shift: `nested loop has no plan` -> `Unsupported value AST: MapLiteral`
+  - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
+  - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
+  - `if_effect_empty`（3）を解消（3 -> 0, direct-verify へ前進）
+  - class shift: `emit:other 11 -> 4`（`emit_fail` 総数は 13 維持）
 - current head blockers:
-  1. `Unsupported value AST: MapLiteral`（7, box_member cluster）
+  1. `emit:direct-verify`（9: box_member 7 + `scan_methods_nested_loop_idx19/28` 2）
   2. single-exit 系 fail-fast（2件: `then_last=Return` 1 + `then_last=Assignment else_last=If` 1）
-  3. `emit:direct-verify` residual（2, `scan_methods_nested_loop_idx19/28`）
-  4. 単発エラー（`unsupported stmt Call` 1件 / `Expected BinOp` 1件）
+  3. 単発エラー `unsupported stmt Call`（1）
+  4. 単発エラー `Expected BinOp`（1）
 - files touched in this round（restart-safe context）:
-  - `src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs`
-  - `src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs`
+  - `src/mir/builder/control_flow/plan/normalizer/helpers.rs`
+  - `src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs`
+  - `src/mir/builder/control_flow/plan/normalizer/cond_lowering_prelude.rs`
+  - `src/mir/builder/control_flow/plan/parts/loop_.rs`
+  - `src/mir/builder/control_flow/plan/parts/dispatch/if_join.rs`
   - `src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs`
   - `src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs`
+  - `src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs`
   - `src/mir/builder/control_flow/plan/parts/stmt.rs`
   - `src/mir/builder/control_flow/plan/parts/if_exit.rs`
   - `CURRENT_TASK.md`
 - next fixed order（resume point）:
-  1. `Unsupported value AST: MapLiteral` 群（7）を reducer し、受理形を 1 つずつ固定
+  1. `emit:direct-verify` 9件を dominance 契約で切り分け（先頭: `Undefined value %290 ... bb55`）
   2. single-exit 系 fail-fast（2）を Recipe 契約へ集約（`loop_cond_break_continue`）
-  3. `emit:direct-verify` 残り2件（idx19/28）を dominance contract で切り分け
-  4. 単発2件（`unsupported stmt Call` / `Expected BinOp`）を isolate して固定
+  3. 単発 `unsupported stmt Call` を isolate して fixture+gate 固定
+  4. 単発 `Expected BinOp` を isolate して fixture+gate 固定
 
 - direct route debug status (2026-03-03, active):
   - `Invalid value ... ValueId(0)`（`AddOperator.apply/2`）は解消。原因は `json_v1_bridge` が v1 payload の `params` を読まず、関数 arity を 0 で復元していた点だった（`src/runner/json_v1_bridge/parse.rs` 修正済み）。
@@ -177,16 +182,18 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - phase29x probe latest（`--profile phase29x-probe`, 2026-03-03）:
     - scope: `phase29bq|phase29ca|phase29cb` かつ `(loop|generic_loop|loop_cond|loop_true)` = 118 fixtures。
     - latest: `emit_fail=13`, `run_nonzero=9`, `run_ok=96`, `route_blocker(step-budget/Invalid value)=0`。
-    - class: `emit:direct-verify=2`, `emit:other=11`, `run:vm-error=3`。
+    - class: `emit:direct-verify=9`, `emit:other=4`, `run:vm-error=3`。
   - direct-verify / dominance guard:
     - canary: `tools/dev/phase29ca_direct_verify_dominance_block_canary.sh`（expected: `emit_rc=0` + `run_rc=4`）。
-    - current residual: `emit:direct-verify=2`（`scan_methods_nested_loop_idx19/28`）。
+    - current residual: `emit:direct-verify=9`（`scan_methods_nested_loop_idx19/28` + box_member 7）。
   - current blocker class（head order）:
-    - `emit:other` は 11 件（head: `Unsupported value AST: MapLiteral` = 7）。
+    - `emit:direct-verify` は 9 件（head: `Undefined value %290 used in block bb55 at instruction 0`）。
+    - `emit:other` は 4 件（single-exit 2 + `unsupported stmt Call` 1 + `Expected BinOp` 1）。
     - single-exit 系 fail-fast は合計2件（`then_last=Return` 1 + `then_last=Assignment else_last=If` 1）。
   - improvements in this round:
-    - `emit_fail: 20 -> 13`
-    - `generic loop v0: nested loop has no plan（box_member cluster）: 7 -> 0`
+    - `Unsupported value AST: MapLiteral`（7）を解消
+    - `Unsupported binary operator: Or`（7）を解消
+    - `if_effect_empty`（3）を解消
   - note: `parser/throw_reserved` は phase29x-probe 監視対象から解消（throw-negative は `apps/tests/parser_throw_reserved*_min.hako` へ分離）。
   - note2: Rust VM の `Catch` 命令実装は post-selfhost deferred（現行 lane は throw-free + `NYASH_TRY_RESULT_MODE=1` 固定）。
   - note3: `loop_scan_methods_block_v0 ... nested loop has no plan` は解消（2 -> 0）。

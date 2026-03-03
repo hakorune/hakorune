@@ -53,13 +53,13 @@ This is the ordered task map for compiler cleanliness. Use this order unless a n
 Baseline probe (fixed):
 - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe`
 - result: `emit_fail=13`, `run_nonzero=9`, `run_ok=96`, `route_blocker=0`（total=118）
-- class: `emit:direct-verify=2`, `emit:other=11`, `run:vm-error=3`
+- class: `emit:direct-verify=9`, `emit:other=4`, `run:vm-error=3`
 
 Fixed order (this round):
-1) `Unsupported value AST: MapLiteral` 群（box_member cluster=7）を先に減らす
-2) single-exit 系 fail-fast（`loop_cond_break_continue`）を Recipe 契約で整理する
-3) `emit:direct-verify` 残り2件（`scan_methods_nested_loop_idx19/28`）を dominance 契約で切り分ける
-4) 残る単発2件（`unsupported stmt Call` / `Expected BinOp`）を 1件ずつ isolate して fixture+gate で固定する
+1) `emit:direct-verify` 9件（box_member 7 + `scan_methods_nested_loop_idx19/28`）を dominance 契約で切り分ける
+2) single-exit 系 fail-fast（`loop_cond_break_continue`）2件を Recipe 契約で整理する
+3) 単発 `unsupported stmt Call`（1）を isolate して fixture+gate で固定する
+4) 単発 `Expected BinOp`（1）を isolate して fixture+gate で固定する
 
 Round guardrails (AI mistake resistant):
 - 1 blocker = 1受理形 = fixture+gate = 1 commit（BoxCount と BoxShape を混ぜない）

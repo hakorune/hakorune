@@ -405,6 +405,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
             pre_bindings_for_verify.insert(var.clone(), *value_id);
         }
     }
+    let body_entry_bindings = body_bindings.clone();
     let body_plans = match body_contract {
         BlockContractKind::StmtOnly => {
             let verified = super::entry::verify_stmt_only_block_with_pre(
@@ -484,6 +485,9 @@ pub(in crate::mir::builder) fn lower_loop_v0(
 
     // Fallthrough: explicit backedge with carrier values (fills step-join PHIs).
     let mut body_plans = body_plans;
+    let mut body_defined_values = BTreeSet::new();
+    collect_defined_values_from_plans(&body_plans, &mut body_defined_values);
+    let body_entry_values: BTreeSet<ValueId> = body_entry_bindings.values().copied().collect();
     if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
         let mut lit3_dsts = Vec::new();
         let mut lit3_spans = Vec::new();
@@ -521,19 +525,37 @@ pub(in crate::mir::builder) fn lower_loop_v0(
             ));
         }
     }
-    for (name, _) in &frame.carrier_step_phis {
-        if let Some(value_id) = builder.variable_ctx.variable_map.get(name) {
-            body_bindings.insert(name.clone(), *value_id);
-        } else if planner_required {
-            return Err(contract_err(&format!("carrier_map_missing var={name}")));
+    let body_exits_all_paths = plans_exit_on_all_paths_local(&body_plans);
+    if !body_exits_all_paths {
+        for (name, _) in &frame.carrier_step_phis {
+            let selected = builder
+                .variable_ctx
+                .variable_map
+                .get(name)
+                .copied()
+                .and_then(|candidate| {
+                    if body_defined_values.contains(&candidate)
+                        || body_entry_values.contains(&candidate)
+                    {
+                        Some(candidate)
+                    } else {
+                        body_entry_bindings.get(name).copied()
+                    }
+                })
+                .or_else(|| body_entry_bindings.get(name).copied());
+            if let Some(value_id) = selected {
+                body_bindings.insert(name.clone(), value_id);
+            } else if planner_required {
+                return Err(contract_err(&format!("carrier_map_missing var={name}")));
+            }
         }
+        body_plans.push(CorePlan::Exit(super::exit::build_continue_with_phi_args(
+            builder,
+            &frame.carrier_step_phis,
+            &body_bindings,
+            LOOP_V0_ERR,
+        )?));
     }
-    body_plans.push(CorePlan::Exit(super::exit::build_continue_with_phi_args(
-        builder,
-        &frame.carrier_step_phis,
-        &body_bindings,
-        LOOP_V0_ERR,
-    )?));
 
     // Build block_effects: merge header_result.block_effects + static entries
     let mut block_effects: Vec<(crate::mir::BasicBlockId, Vec<CoreEffectPlan>)> =
@@ -597,6 +619,109 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         step_mode,
         has_explicit_step,
     }))
+}
+
+fn plans_exit_on_all_paths_local(plans: &[LoweredRecipe]) -> bool {
+    plans.last().is_some_and(core_plan_exits_on_all_paths_local)
+}
+
+fn core_plan_exits_on_all_paths_local(plan: &LoweredRecipe) -> bool {
+    match plan {
+        CorePlan::Exit(_) => true,
+        CorePlan::If(if_plan) => {
+            plans_exit_on_all_paths_local(&if_plan.then_plans)
+                && if_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|p| plans_exit_on_all_paths_local(p))
+        }
+        CorePlan::BranchN(branch) => {
+            branch
+                .arms
+                .iter()
+                .all(|arm| plans_exit_on_all_paths_local(&arm.plans))
+                && branch
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|p| plans_exit_on_all_paths_local(p))
+        }
+        CorePlan::Seq(inner) => plans_exit_on_all_paths_local(inner),
+        CorePlan::Effect(_) | CorePlan::Loop(_) => false,
+    }
+}
+
+fn collect_defined_values_from_plans(
+    plans: &[LoweredRecipe],
+    out: &mut BTreeSet<ValueId>,
+) {
+    for plan in plans {
+        match plan {
+            CorePlan::Effect(effect) => collect_defined_values_from_effect(effect, out),
+            CorePlan::If(if_plan) => {
+                let then_exits = plans_exit_on_all_paths_local(&if_plan.then_plans);
+                let else_exits = if_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_exit_on_all_paths_local(plans));
+                if !(then_exits && else_exits) {
+                    for join in &if_plan.joins {
+                        out.insert(join.dst);
+                    }
+                }
+                collect_defined_values_from_plans(&if_plan.then_plans, out);
+                if let Some(else_plans) = &if_plan.else_plans {
+                    collect_defined_values_from_plans(else_plans, out);
+                }
+            }
+            CorePlan::BranchN(branch) => {
+                for arm in &branch.arms {
+                    collect_defined_values_from_plans(&arm.plans, out);
+                }
+                if let Some(else_plans) = &branch.else_plans {
+                    collect_defined_values_from_plans(else_plans, out);
+                }
+            }
+            CorePlan::Seq(inner) => collect_defined_values_from_plans(inner, out),
+            CorePlan::Loop(loop_plan) => collect_defined_values_from_plans(&loop_plan.body, out),
+            CorePlan::Exit(_) => {}
+        }
+    }
+}
+
+fn collect_defined_values_from_effect(effect: &CoreEffectPlan, out: &mut BTreeSet<ValueId>) {
+    match effect {
+        CoreEffectPlan::MethodCall { dst, .. }
+        | CoreEffectPlan::GlobalCall { dst, .. }
+        | CoreEffectPlan::ValueCall { dst, .. }
+        | CoreEffectPlan::ExternCall { dst, .. } => {
+            if let Some(dst) = dst {
+                out.insert(*dst);
+            }
+        }
+        CoreEffectPlan::NewBox { dst, .. }
+        | CoreEffectPlan::BinOp { dst, .. }
+        | CoreEffectPlan::Compare { dst, .. }
+        | CoreEffectPlan::Select { dst, .. }
+        | CoreEffectPlan::Const { dst, .. }
+        | CoreEffectPlan::Copy { dst, .. } => {
+            out.insert(*dst);
+        }
+        CoreEffectPlan::IfEffect {
+            then_effects,
+            else_effects,
+            ..
+        } => {
+            for nested in then_effects {
+                collect_defined_values_from_effect(nested, out);
+            }
+            if let Some(else_effects) = else_effects {
+                for nested in else_effects {
+                    collect_defined_values_from_effect(nested, out);
+                }
+            }
+        }
+        CoreEffectPlan::ExitIf { .. } => {}
+    }
 }
 
 fn debug_log_block_effects_binop_lit3(builder: &MirBuilder, effects: &[CoreEffectPlan]) {
