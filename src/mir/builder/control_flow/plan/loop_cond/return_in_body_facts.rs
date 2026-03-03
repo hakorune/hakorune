@@ -42,6 +42,10 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_return_in_body_facts(
 
     let matched = if matches_seek_array_end_shape(body)? {
         "seek_array_end"
+    } else if matches_if_else_all_return_shape(body)? {
+        "if_else_all_return"
+    } else if matches_if_else_if_return_shape(body)? {
+        "if_else_if_return"
     } else if matches_brace_balance_shape(body)? {
         "brace_balance"
     } else if matches_simple_if_return_then_step_shape(body)? {
@@ -80,6 +84,99 @@ fn matches_simple_if_return_then_step_shape(body: &[ASTNode]) -> Result<bool, Fr
         return Ok(false);
     }
     Ok(matches!(body[1], ASTNode::Assignment { .. }))
+}
+
+fn matches_if_else_all_return_shape(body: &[ASTNode]) -> Result<bool, Freeze> {
+    if body.len() != 1 {
+        return Ok(false);
+    }
+    let ASTNode::If {
+        condition,
+        then_body,
+        else_body,
+        ..
+    } = &body[0]
+    else {
+        return Ok(false);
+    };
+    if !is_supported_bool_expr_with_canon(condition, true) {
+        return Ok(false);
+    }
+    let Some(else_body) = else_body else {
+        return Ok(false);
+    };
+    Ok(block_guarantees_return(then_body)? && block_guarantees_return(else_body)?)
+}
+
+fn matches_if_else_if_return_shape(body: &[ASTNode]) -> Result<bool, Freeze> {
+    if body.len() != 1 {
+        return Ok(false);
+    }
+    let ASTNode::If {
+        condition,
+        then_body,
+        else_body,
+        ..
+    } = &body[0]
+    else {
+        return Ok(false);
+    };
+    if !is_supported_bool_expr_with_canon(condition, true) {
+        return Ok(false);
+    }
+    if !block_guarantees_return(then_body)? {
+        return Ok(false);
+    }
+    let Some(else_body) = else_body else {
+        return Ok(false);
+    };
+    if else_body.len() != 1 {
+        return Ok(false);
+    }
+    let ASTNode::If {
+        condition: nested_cond,
+        then_body: nested_then,
+        else_body: nested_else,
+        ..
+    } = &else_body[0]
+    else {
+        return Ok(false);
+    };
+    if !is_supported_bool_expr_with_canon(nested_cond, true) {
+        return Ok(false);
+    }
+    if nested_else.is_some() {
+        return Ok(false);
+    }
+    block_guarantees_return(nested_then)
+}
+
+fn block_guarantees_return(stmts: &[ASTNode]) -> Result<bool, Freeze> {
+    for stmt in stmts {
+        match stmt {
+            ASTNode::Return { .. } => return Ok(true),
+            ASTNode::If {
+                condition,
+                then_body,
+                else_body,
+                ..
+            } => {
+                if !is_supported_bool_expr_with_canon(condition, true) {
+                    return Ok(false);
+                }
+                let Some(else_body) = else_body else {
+                    continue;
+                };
+                if block_guarantees_return(then_body)?
+                    && block_guarantees_return(else_body)?
+                {
+                    return Ok(true);
+                }
+            }
+            _ => {}
+        }
+    }
+    Ok(false)
 }
 
 fn matches_balanced_depth_scan_shape(condition: &ASTNode, body: &[ASTNode]) -> Result<bool, Freeze> {
@@ -607,5 +704,34 @@ mod tests {
             .expect("extract ok")
             .expect("facts");
         assert_eq!(facts.recipe.body.body.len(), 2);
+    }
+
+    #[test]
+    fn return_in_body_if_else_if_return_shape_matches() {
+        std::env::set_var("NYASH_JOINIR_DEV", "1");
+
+        let condition = binop(BinaryOperator::Less, var("v"), int(1));
+        let body = vec![ASTNode::If {
+            condition: Box::new(binop(BinaryOperator::Equal, var("v"), int(0))),
+            then_body: vec![ASTNode::Return {
+                value: Some(Box::new(int(0))),
+                span: Span::unknown(),
+            }],
+            else_body: Some(vec![ASTNode::If {
+                condition: Box::new(binop(BinaryOperator::Equal, var("v"), int(1))),
+                then_body: vec![ASTNode::Return {
+                    value: Some(Box::new(int(1))),
+                    span: Span::unknown(),
+                }],
+                else_body: None,
+                span: Span::unknown(),
+            }]),
+            span: Span::unknown(),
+        }];
+
+        let facts = try_extract_loop_cond_return_in_body_facts(&condition, &body)
+            .expect("extract ok")
+            .expect("facts");
+        assert_eq!(facts.recipe.body.body.len(), 1);
     }
 }
