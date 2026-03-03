@@ -7,6 +7,7 @@
 #   - planner-first tag (the plan line may bypass shadow adopt tagging).
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../lib/joinir_planner_first_gate.sh"
 require_env || exit 2
 
 FIXTURE="$NYASH_ROOT/apps/tests/phase29ca_generic_loop_continue_min.hako"
@@ -36,7 +37,7 @@ if grep -qF "[flowbox/adopt box_kind=Loop" <<<"$OUTPUT" \
     exit 0
 fi
 
-if grep -qF "[joinir/planner_first rule=Pattern1]" <<<"$OUTPUT"; then
+if planner_first_tag_matches "$OUTPUT" "[joinir/planner_first rule=Pattern1]"; then
     test_pass "phase29ca_generic_loop_continue_strict_shadow_vm: PASS (exit=4, planner-first tag)"
     exit 0
 fi
