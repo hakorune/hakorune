@@ -1,7 +1,5 @@
 use crate::ast::ASTNode;
 use super::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe;
-#[cfg(test)]
-use super::facts::pattern2_loopbodylocal_facts::Pattern2LoopBodyLocalFacts;
 
 /// Phase 29bq P2.x: Extracted structure for LoopCondContinueWithReturn
 #[derive(Debug, Clone)]
@@ -296,70 +294,13 @@ pub(in crate::mir::builder) struct Pattern3IfPhiPlan {
     pub loop_increment: ASTNode,
 }
 
-/// Phase 286 P3.1: Extracted structure for Pattern2 (Loop with Conditional Break)
-///
-/// This structure contains all the information needed to lower a break-style loop.
-///
-/// Key insight: after_bb PHI merges break path and natural exit path carrier values.
-/// - break path: carrier_break = carrier_update_in_break (if Some) or carrier_current (if None)
-/// - natural exit: carrier_out = carrier_current (from header PHI)
-/// - after_bb PHI: carrier_out = PHI(header: carrier_current, break_then: carrier_break)
-///
-/// CFG structure (6 blocks):
-/// ```
-/// preheader → header(PHI: i_current, carrier_current)
-///               ↓
-///            body(break_cond check)
-///               ↓
-///          ┌────┴────┐
-///     break_then    step
-///     (optional      ↓
-///      update)    header (back-edge)
-///          ↓
-///        after_bb(PHI: carrier_out)
-///          ↑
-///        header (natural exit when !cond_loop)
-/// ```
+/// Phase 286 P3.1: Step placement vocabulary for Pattern2 break-style loops.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum Pattern2StepPlacement {
     /// Loop increment executes at the end of the iteration (default).
     Last,
     /// Loop increment executes before the break check in the body.
     BeforeBreak,
-}
-
-#[derive(Debug, Clone)]
-#[cfg(test)]
-pub(in crate::mir::builder) struct Pattern2BreakPlan {
-    /// Loop variable name (e.g., "i")
-    pub loop_var: String,
-    /// Carrier variable name (e.g., "sum", "result")
-    pub carrier_var: String,
-    /// Loop condition AST (e.g., `i < 3`)
-    pub loop_condition: ASTNode,
-    /// Break condition AST (e.g., `i == 1`)
-    pub break_condition: ASTNode,
-    /// Carrier update in break path (None if no update before break)
-    pub carrier_update_in_break: Option<ASTNode>,
-    /// Carrier update in normal body path (e.g., `sum + 1`)
-    pub carrier_update_in_body: ASTNode,
-    /// Loop increment expression AST (e.g., `i + 1`)
-    pub loop_increment: ASTNode,
-    /// Phase 29bq: Step placement for the loop increment.
-    ///
-    /// This is strict/dev + planner-required only; release routing should not depend on this.
-    pub step_placement: Pattern2StepPlacement,
-    /// Optional promotion hint for LoopBodyLocal handling (planner-only metadata)
-    #[allow(dead_code)]
-    pub promotion: Option<Pattern2PromotionHint>,
-}
-
-/// Phase 29ai P14: Promotion hint metadata for Pattern2BreakPlan
-#[allow(dead_code)]
-#[derive(Debug, Clone)]
-#[cfg(test)]
-pub(in crate::mir::builder) enum Pattern2PromotionHint {
-    LoopBodyLocal(Pattern2LoopBodyLocalFacts),
 }
 
 /// Phase 286 P3.2: Exit kind for Pattern5 infinite loop

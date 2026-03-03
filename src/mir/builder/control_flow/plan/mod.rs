@@ -231,6 +231,4 @@ pub(in crate::mir::builder) use self::domain::{
     SplitScanPlan,
 };
 #[cfg(test)]
-pub(in crate::mir::builder) use self::domain::Pattern2BreakPlan;
-#[cfg(test)]
 pub(in crate::mir::builder) use self::domain::scan_direction_from_step_lit;

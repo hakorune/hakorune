@@ -1,6 +1,7 @@
 use super::helpers::create_phi_bindings;
 use super::{CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe};
-use crate::mir::builder::control_flow::plan::Pattern2BreakPlan;
+use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::Pattern2StepPlacement;
 use crate::mir::basic_block::EdgeArgs;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::{
     BlockParams, Frag,
@@ -13,6 +14,18 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::{BinaryOp, ConstValue, MirType, ValueId};
 use std::collections::BTreeMap;
+
+#[derive(Debug, Clone)]
+struct Pattern2BreakPlan {
+    loop_var: String,
+    carrier_var: String,
+    loop_condition: ASTNode,
+    break_condition: ASTNode,
+    carrier_update_in_break: Option<ASTNode>,
+    carrier_update_in_body: ASTNode,
+    loop_increment: ASTNode,
+    step_placement: Pattern2StepPlacement,
+}
 
 impl super::PlanNormalizer {
     /// Pattern2Break → CorePlan 変換
@@ -56,7 +69,7 @@ impl super::PlanNormalizer {
 
         let step_before_break = matches!(
             parts.step_placement,
-            crate::mir::builder::control_flow::plan::Pattern2StepPlacement::BeforeBreak
+            Pattern2StepPlacement::BeforeBreak
         );
 
         // Step 1: Block allocation (6 blocks)
