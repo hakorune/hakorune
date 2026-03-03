@@ -18,6 +18,67 @@ use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreExitPlan};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 
+fn try_emit_select_as_phi_for_merge(
+    builder: &mut MirBuilder,
+    dst: ValueId,
+    then_val: ValueId,
+    else_val: ValueId,
+) -> Result<bool, String> {
+    let Some(cur_bb) = builder.current_block else {
+        return Ok(false);
+    };
+    let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+        return Ok(false);
+    };
+
+    let preds_map = crate::mir::verification::utils::compute_predecessors(func);
+    let Some(preds) = preds_map.get(&cur_bb) else {
+        return Ok(false);
+    };
+    if preds.len() != 2 {
+        return Ok(false);
+    }
+
+    let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
+    let Some(then_def_bb) = def_blocks.get(&then_val).copied() else {
+        return Ok(false);
+    };
+    let Some(else_def_bb) = def_blocks.get(&else_val).copied() else {
+        return Ok(false);
+    };
+
+    let pred_a = preds[0];
+    let pred_b = preds[1];
+
+    let exact_ab = then_def_bb == pred_a && else_def_bb == pred_b;
+    let exact_ba = then_def_bb == pred_b && else_def_bb == pred_a;
+    let (option_ab, option_ba) = if exact_ab || exact_ba {
+        (exact_ab, exact_ba)
+    } else {
+        let dominators = crate::mir::verification::utils::compute_dominators(func);
+        (
+            dominators.dominates(then_def_bb, pred_a)
+                && dominators.dominates(else_def_bb, pred_b),
+            dominators.dominates(then_def_bb, pred_b)
+                && dominators.dominates(else_def_bb, pred_a),
+        )
+    };
+
+    let inputs = match (option_ab, option_ba) {
+        (true, false) => vec![(pred_a, then_val), (pred_b, else_val)],
+        (false, true) => vec![(pred_b, then_val), (pred_a, else_val)],
+        _ => return Ok(false),
+    };
+
+    let type_hint = builder.type_ctx.get_type(dst).cloned();
+    builder.emit_instruction(MirInstruction::Phi {
+        dst,
+        inputs,
+        type_hint,
+    })?;
+    Ok(true)
+}
+
 impl super::PlanLowerer {
     /// Emit a single CoreEffectPlan as MirInstruction
     #[track_caller]
@@ -148,6 +209,9 @@ impl super::PlanLowerer {
                 then_val,
                 else_val,
             } => {
+                if try_emit_select_as_phi_for_merge(builder, *dst, *then_val, *else_val)? {
+                    return Ok(());
+                }
                 builder.emit_instruction(MirInstruction::Select {
                     dst: *dst,
                     cond: *cond,

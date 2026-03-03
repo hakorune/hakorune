@@ -165,16 +165,27 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `phase29bq_selfhost_blocker_scan_methods_nested_loop_idx19_min.hako` (`emit=0, run=0`)
     - `phase29bq_selfhost_blocker_scan_methods_nested_loop_idx28_min.hako` (`emit=0, run=0`)
   - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
+- update (2026-03-03, fourth pass / box_member direct-verify cleared):
+  - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+  - result: `emit_fail=4`, `run_nonzero=16`, `run_ok=98`, `route_blocker=0`（total=118）
+  - class: `emit:other=4`（`emit:direct-verify=0`）
+  - resolved fixtures:
+    - `phase29bq_selfhost_box_member_local_fini_blockexpr_compare_logic_unary_call_literals_nested_tail_nested_loop_branch_method_chain_tail_side_effect_tail_nested_join_tail_cleanup_min.hako`
+    - `phase29bq_selfhost_box_member_local_fini_blockexpr_compare_logic_unary_call_literals_nested_tail_nested_loop_branch_method_chain_tail_side_effect_tail_nested_join_tail_dual_tail_sync_cleanup_min.hako`
+    - `phase29bq_selfhost_box_member_local_fini_blockexpr_compare_logic_unary_call_literals_nested_tail_nested_loop_branch_method_chain_tail_side_effect_tail_nested_join_tail_dual_tail_sync_guard_sync_tail_cleanup_min.hako`
+    - `phase29bq_selfhost_box_member_local_fini_blockexpr_compare_logic_unary_call_literals_nested_tail_nested_loop_branch_method_chain_tail_side_effect_tail_nested_join_tail_dual_tail_sync_guard_sync_tail_mirror_sync_tail_cleanup_min.hako`
+  - fix note:
+    - `CoreEffectPlan::Select` emission で 2-pred merge のとき、incoming の定義ブロックが pred 対応する形を検出できれば `MirInstruction::Phi` に置換するように変更（`effect_emission.rs`）。
+  - canary: `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh` => `PASS (emit_rc=0, run_rc=4)`
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
   - `if_effect_empty`（3）を解消（3 -> 0, direct-verify へ前進）
   - class shift: `emit:other 11 -> 4`（`emit_fail` 総数は 13 維持）
 - current head blockers:
-  1. `emit:direct-verify`（4: box_member nested method-chain tail）
-  2. single-exit 系 fail-fast（2件: `then_last=Return` 1 + `then_last=Assignment else_last=If` 1）
-  3. 単発エラー `unsupported stmt Call`（1）
-  4. 単発エラー `Expected BinOp`（1）
+  1. single-exit 系 fail-fast（2件: `then_last=Return` 1 + `then_last=Assignment else_last=If` 1）
+  2. 単発エラー `unsupported stmt Call`（1）
+  3. 単発エラー `Expected BinOp`（1）
 - files touched in this round（restart-safe context）:
   - `src/mir/builder/control_flow/plan/normalizer/helpers.rs`
   - `src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs`
@@ -186,12 +197,13 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs`
   - `src/mir/builder/control_flow/plan/parts/stmt.rs`
   - `src/mir/builder/control_flow/plan/parts/if_exit.rs`
+  - `src/mir/builder/control_flow/plan/lowerer/effect_emission.rs`
   - `CURRENT_TASK.md`
 - next fixed order（resume point）:
-  1. `emit:direct-verify` 9件を dominance 契約で切り分け（先頭: `Undefined value %290 ... bb55`）
-  2. single-exit 系 fail-fast（2）を Recipe 契約へ集約（`loop_cond_break_continue`）
-  3. 単発 `unsupported stmt Call` を isolate して fixture+gate 固定
-  4. 単発 `Expected BinOp` を isolate して fixture+gate 固定
+  1. single-exit 系 fail-fast（2）を Recipe 契約へ集約（`loop_cond_break_continue`）
+  2. 単発 `unsupported stmt Call` を isolate して fixture+gate 固定
+  3. 単発 `Expected BinOp` を isolate して fixture+gate 固定
+  4. 上記 `emit:other=4` が 0 になったら Phase D cleanup（D1→D2→D3）へ移行
 
 ## Compiler Cleanup Order (2026-03-03, SSOT)
 
@@ -217,14 +229,13 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - phase216 外 sweep は profile 化済み: `tools/dev/direct_loop_progression_sweep.sh`（`default`/`phase29x-green`/`phase29x-probe`）。
   - phase29x probe latest（`--profile phase29x-probe`, 2026-03-03）:
     - scope: `phase29bq|phase29ca|phase29cb` かつ `(loop|generic_loop|loop_cond|loop_true)` = 118 fixtures。
-    - latest: `emit_fail=13`, `run_nonzero=9`, `run_ok=96`, `route_blocker(step-budget/Invalid value)=0`。
-    - class: `emit:direct-verify=9`, `emit:other=4`, `run:vm-error=3`。
+    - latest: `emit_fail=4`, `run_nonzero=16`, `run_ok=98`, `route_blocker(step-budget/Invalid value)=0`。
+    - class: `emit:other=4`, `run:vm-error=3`（`emit:direct-verify=0`）。
   - direct-verify / dominance guard:
     - canary: `tools/dev/phase29ca_direct_verify_dominance_block_canary.sh`（expected: `emit_rc=0` + `run_rc=4`）。
-    - current residual: `emit:direct-verify=9`（`scan_methods_nested_loop_idx19/28` + box_member 7）。
+    - current residual: `emit:direct-verify=0`（clear）。
   - current blocker class（head order）:
-    - `emit:direct-verify` は 9 件（head: `Undefined value %290 used in block bb55 at instruction 0`）。
-    - `emit:other` は 4 件（single-exit 2 + `unsupported stmt Call` 1 + `Expected BinOp` 1）。
+    - `emit:other` は 4 件（single-exit 2 + `unsupported stmt Call` 1 + `Expected BinOp` 1）。`direct-verify` は 0 件。
     - single-exit 系 fail-fast は合計2件（`then_last=Return` 1 + `then_last=Assignment else_last=If` 1）。
   - improvements in this round:
     - `Unsupported value AST: MapLiteral`（7）を解消
