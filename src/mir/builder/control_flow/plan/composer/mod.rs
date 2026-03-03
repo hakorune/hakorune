@@ -4,10 +4,13 @@
 //! Flattened: coreloop_v0/ and coreloop_v1/ moved to composer/ root
 
 pub(super) mod coreloop_gates;
+#[cfg(test)]
 pub(super) mod coreloop_single_entry;
+#[cfg(test)]
 mod coreloop_v0;
 #[cfg(test)]
 mod coreloop_v0_tests;
+#[cfg(test)]
 pub(super) mod coreloop_v1;
 #[cfg(test)]
 mod coreloop_v1_tests;
@@ -39,8 +42,10 @@ pub(in crate::mir::builder) use shadow_adopt::{
     PrePlanShadowOutcome,
     ShadowAdoptOutcome,
 };
+#[cfg(test)]
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use coreloop_single_entry::try_compose_core_loop_from_facts;
+#[cfg(test)]
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use coreloop_v0::try_compose_core_loop_v0;
 pub(in crate::mir::builder) use branchn_return::{

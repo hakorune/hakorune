@@ -23,7 +23,9 @@ mod pattern_escape_map;
 mod pattern_split_lines;
 mod pattern_skip_ws;
 mod pattern2_break;
+#[cfg(test)]
 mod pattern_scan_with_init;
+#[cfg(test)]
 mod pattern_split_scan;
 mod value_join_args;
 pub(in crate::mir::builder) mod common;

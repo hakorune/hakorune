@@ -242,6 +242,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - D1 follow-up: `planner/pattern_shadow.rs` で semantic rule key を主語にし、legacy `loop/pattern*` は alias 正規化で互換維持。
   - D2 starter: `DomainPlan::kind_label()` を追加し、`single_planner/rules.rs` の payload非依存箇所（freeze文言・variant判定）を label-based へ集約。
   - D2 follow-up: `DomainPlanKind` を導入し、`rules.rs` の planner 判定を variant match から kind 比較へ置換（payload 非依存化を前進）。
+  - D3 starter: dead entry path の本番依存を縮退（`composer/mod.rs` で `coreloop_{single_entry,v0,v1}` を `#[cfg(test)]` 化、`normalizer/mod.rs` で `pattern_{scan_with_init,split_scan}` module 宣言を `#[cfg(test)]` 化）。
   - verification: `cargo test -q rule_name_uses_semantic_label --lib` / `cargo test -q legacy_rule_name_alias_is_preserved --lib` / `cargo test -q legacy_rule_aliases_map_to_semantic_priority --lib` / `cargo test -q domain_plan_kind_and_label_match --lib` / `phase29bq_fast_gate_vm --only loop_cond_continue_with_return_min` / `phase29bq_fast_gate_vm --only loop_header_shortcircuit_continue_with_return_min` / `phase29x-probe emit_fail=0`。
 
 - direct route debug status (2026-03-03, active):
