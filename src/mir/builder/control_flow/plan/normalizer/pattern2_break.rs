@@ -16,7 +16,7 @@ use crate::mir::{BinaryOp, ConstValue, MirType, ValueId};
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone)]
-struct Pattern2BreakPlan {
+pub(in crate::mir::builder) struct Pattern2BreakPlan {
     loop_var: String,
     carrier_var: String,
     loop_condition: ASTNode,
