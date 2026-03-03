@@ -236,6 +236,24 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   1. D1: `PlanRuleId` / entry 名の Pattern 数値語彙を意味語彙へ置換（互換 alias を先に置く）。
   2. D2: `DomainPlan` の残存責務を label-only へ縮退し、router の依存を除去する。
   3. D3: `normalizer/pattern*.rs` の entry-path 依存を 0 にして撤去する。
+
+- Phase D legacy isolation -> deletion lock (2026-03-04, cleanliness-first):
+  - legacy の定義（この文脈）:
+    - `PatternN` 語彙を直接期待する gate/tsv/script 依存（例: `[joinir/planner_first rule=Pattern2]`）。
+    - compiler core の受理/計画/lower ロジックではなく、主に検証境界の互換語彙を指す。
+  - cleanliness rule:
+    - compiler core（facts/planner/composer/lower）へ legacy 語彙を再注入しない。
+    - legacy 互換は `tools/smokes` 側の境界でのみ一時保持する（single mapping SSOT）。
+  - fixed order:
+    1. L1 isolate: gate 側の planner tag matcher を semantic/legacy 両対応へ集約（compiler 本体は semantic 優先のまま）。
+    2. L2 migrate: `phase29bq_fast_gate_cases.tsv` / `planner_required_cases.tsv` 等の `PatternN` 期待値を semantic rule 名へ段階置換。
+    3. L3 flip: `planner/tags.rs` の `planner_first rule=*` 出力を semantic rule 名へ切替（gate 側は既に受理済みであること）。
+    4. L4 delete: `pred_pattern*` など legacy alias と `PatternN` 期待値を削除し、境界互換コードを撤去。
+  - acceptance:
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
+    - `bash tools/dev/phase29ca_direct_verify_dominance_block_canary.sh`
+    - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` で `emit_fail=0` / `route_blocker=0` 維持。
 - Phase D progress (2026-03-03):
   - D1 started: `single_planner/rule_order.rs` で `rule_name()` を semantic label SSOT に切替。
   - compatibility: 旧 Pattern 表示は `planner_rule_legacy_name()` として保持（gate/tag の期待値互換を維持）。
