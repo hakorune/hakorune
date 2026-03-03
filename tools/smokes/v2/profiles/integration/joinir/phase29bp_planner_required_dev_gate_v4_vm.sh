@@ -33,7 +33,12 @@ run_gate() {
   local gate="$1"
   local log_path="$2"
 
-  if ! "$gate" 2>&1 | tee "$log_path"; then
+  local -a cmd=("$gate")
+  if [[ "$gate" == *.sh && -f "$gate" ]]; then
+    cmd=(bash "$gate")
+  fi
+
+  if ! "${cmd[@]}" 2>&1 | tee "$log_path"; then
     echo "[FAIL] gate failed: $gate"
     echo "LOG: $log_path"
     return 1

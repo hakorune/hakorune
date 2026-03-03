@@ -720,7 +720,7 @@ static box MirVmS0Box {
     }
 
     if method == "indexOf" {
-      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
       local dst_idx = me._find_int(seg, "dst")
       if dst_idx == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       local needle_reg = me._args_first(seg)
@@ -731,7 +731,16 @@ static box MirVmS0Box {
       local needle_text = MirVmS0StateOpsBox.handle_get(handle_regs, needle_reg)
       if needle_text == null { return "[vm-hako/contract][boxcall-indexOf-needle-handle-missing]" }
 
-      local idx = recv_text.indexOf(needle_text)
+      local idx = 0
+      if me._args_has_second(seg) {
+        local start_reg = me._args_second(seg)
+        if start_reg == null { return "[vm-hako/contract][boxcall-indexOf-arg1-missing]" }
+        local start_idx = MirVmS0StateOpsBox.reg_i64_get(regs, start_reg)
+        if start_idx < 0 { start_idx = 0 }
+        idx = recv_text.indexOf(needle_text, start_idx)
+      } else {
+        idx = recv_text.indexOf(needle_text)
+      }
       me._reg_set(regs, dst_idx, idx)
       me._reg_kind_set(kinds, dst_idx, "scalar")
       return "__NEXT__"

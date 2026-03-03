@@ -341,11 +341,14 @@ fn validate_boxcall_zero_or_one_reg_shape(
 }
 
 fn validate_boxcall_indexof_shape(inst: &Value, args: &[Value]) -> Result<(), String> {
-    if args.len() != 1 {
-        return Err("boxcall(indexOf:args!=1)".to_string());
+    if args.is_empty() || args.len() > 2 {
+        return Err("boxcall(indexOf:args!=1or2)".to_string());
     }
     if args.first().and_then(|v| v.as_u64()).is_none() {
         return Err("boxcall(indexOf:arg0:non-reg)".to_string());
+    }
+    if args.len() == 2 && args.get(1).and_then(|v| v.as_u64()).is_none() {
+        return Err("boxcall(indexOf:arg1:non-reg)".to_string());
     }
     ensure_u64_fields(
         inst,

@@ -21,7 +21,7 @@ run_filter() {
     fi
 
     log_info "phase29ae_regression_pack_vm: ${label} (${filter})"
-    if ! "$NYASH_ROOT/tools/smokes/v2/run.sh" "${args[@]}"; then
+    if ! bash "$NYASH_ROOT/tools/smokes/v2/run.sh" "${args[@]}"; then
         dump_adopt_env_on_failure
         log_error "phase29ae_regression_pack_vm: ${label} failed"
         return 1

@@ -404,9 +404,59 @@ fn subset_rejects_boxcall_indexof_without_arg() {
         Err((
             "main".to_string(),
             0,
-            "boxcall(indexOf:args!=1)".to_string()
+            "boxcall(indexOf:args!=1or2)".to_string()
         ))
     );
+}
+
+#[test]
+fn subset_accepts_boxcall_indexof_with_two_args() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": {
+                            "type": { "box_type": "StringBox", "kind": "handle" },
+                            "value": "a|||"
+                        }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": {
+                            "type": { "box_type": "StringBox", "kind": "handle" },
+                            "value": "|||"
+                        }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 3,
+                        "value": { "type": "i64", "value": 0 }
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "indexOf",
+                        "box": 1,
+                        "dst": 4,
+                        "args": [2, 3]
+                    },
+                    {
+                        "op": "ret",
+                        "value": 4
+                    }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
 }
 
 #[test]

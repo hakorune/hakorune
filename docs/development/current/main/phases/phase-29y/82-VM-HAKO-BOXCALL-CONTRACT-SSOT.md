@@ -27,7 +27,7 @@ Related:
 | `read` | `0` or `1`（receiver mirror） | `boxcall(read:args>1)` / `boxcall(read:arg0:non-reg)` | `op=boxcall args>1` / `boxcall-read-file-missing` |
 | `close` | `0` or `1`（receiver mirror） | `boxcall(close:args>1)` / `boxcall(close:arg0:non-reg)` | `op=boxcall args>1` / `boxcall-close-file-missing` |
 | `length` | `0` | `boxcall(length:args!=0)` | `op=boxcall args>1` |
-| `indexOf` | `1` | `boxcall(indexOf:args!=1)` | `op=boxcall args>1` / `boxcall-indexOf-*` |
+| `indexOf` | `1` or `2` | `boxcall(indexOf:args!=1or2)` | `op=boxcall args>2` / `boxcall-indexOf-*` |
 | `substring` | `2` | `boxcall(substring:args!=2)` | `op=boxcall args<2` / `op=boxcall args>2` / `boxcall-substring-*` |
 | (other methods) | `<=1` | `boxcall(args>1)` | `op=boxcall args>1` / method-specific unimplemented |
 

@@ -323,78 +323,76 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                         return Ok(plans);
                     }
                 }
+            }
 
-                fn tail_is_exit(body: &[ASTNode]) -> bool {
-                    matches!(
-                        body.last(),
-                        Some(ASTNode::Return { .. } | ASTNode::Break { .. } | ASTNode::Continue { .. })
-                    )
-                }
+            fn tail_is_exit(body: &[ASTNode]) -> bool {
+                matches!(
+                    body.last(),
+                    Some(ASTNode::Return { .. } | ASTNode::Break { .. } | ASTNode::Continue { .. })
+                )
+            }
 
-                // If it is not an exit-if shape, do not fall back to exit-if lowering.
-                // That fallback produces long-distance errors like "if body must be single-exit"
-                // for general join-bearing `if` forms (e.g., nested-if + assignments).
-                let is_exit_if_shape =
-                    tail_is_exit(then_body) && else_body.as_ref().map_or(true, |b| tail_is_exit(b));
-                if !is_exit_if_shape {
-                    let should_update_binding =
-                        |name: &str, bindings: &BTreeMap<String, crate::mir::ValueId>| {
-                            bindings.contains_key(name)
-                        };
-
-                    let lower_stmt_list = |builder: &mut MirBuilder,
-                                               bindings: &mut BTreeMap<
-                        String,
-                        crate::mir::ValueId,
-                    >,
-                                               stmts: &[ASTNode]| {
-                        let mut plans = Vec::new();
-                        for stmt in stmts {
-                            plans.extend(lower_return_prelude_stmt(
-                                builder,
-                                bindings,
-                                carrier_step_phis,
-                                break_phi_dsts,
-                                stmt,
-                                error_prefix,
-                            )?);
-                        }
-                        Ok::<_, String>(plans)
+            // If it is not an exit-if shape, do not fall back to exit-if lowering.
+            // That fallback produces long-distance errors like "if body must be single-exit"
+            // for general join-bearing `if` forms (e.g., nested-if + assignments).
+            let is_exit_if_shape =
+                tail_is_exit(then_body) && else_body.as_ref().map_or(true, |b| tail_is_exit(b));
+            if !is_exit_if_shape {
+                let should_update_binding =
+                    |name: &str, bindings: &BTreeMap<String, crate::mir::ValueId>| {
+                        bindings.contains_key(name)
                     };
 
-                    let mut lower_then = |builder: &mut MirBuilder,
-                                          bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
+                let lower_stmt_list = |builder: &mut MirBuilder,
+                                           bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+                                           stmts: &[ASTNode]| {
+                    let mut plans = Vec::new();
+                    for stmt in stmts {
+                        plans.extend(lower_return_prelude_stmt(
+                            builder,
+                            bindings,
+                            carrier_step_phis,
+                            break_phi_dsts,
+                            stmt,
+                            error_prefix,
+                        )?);
+                    }
+                    Ok::<_, String>(plans)
+                };
+
+                let mut lower_then =
+                    |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
                         lower_stmt_list(builder, bindings, then_body)
                     };
 
-                    if let Some(else_body) = else_body.as_ref() {
-                        let mut lower_else =
-                            |builder: &mut MirBuilder,
-                             bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
-                                lower_stmt_list(builder, bindings, else_body)
-                            };
-                        return super::entry::lower_if_join_with_branch_lowerers(
-                            builder,
-                            branch_bindings,
-                            &cond_view,
-                            error_prefix,
-                            &mut lower_then,
-                            Some(&mut lower_else),
-                            &should_update_binding,
-                        );
-                    }
-
+                if let Some(else_body) = else_body.as_ref() {
+                    let mut lower_else =
+                        |builder: &mut MirBuilder,
+                         bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
+                            lower_stmt_list(builder, bindings, else_body)
+                        };
                     return super::entry::lower_if_join_with_branch_lowerers(
                         builder,
                         branch_bindings,
                         &cond_view,
                         error_prefix,
                         &mut lower_then,
-                        None,
+                        Some(&mut lower_else),
                         &should_update_binding,
                     );
                 }
+
+                return super::entry::lower_if_join_with_branch_lowerers(
+                    builder,
+                    branch_bindings,
+                    &cond_view,
+                    error_prefix,
+                    &mut lower_then,
+                    None,
+                    &should_update_binding,
+                );
             }
+
             match break_phi_dsts {
                 Some(break_phi_dsts) => lower_if_exit_stmt_with_break_phi_args_view(
                     builder,

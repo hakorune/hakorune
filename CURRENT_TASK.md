@@ -1752,3 +1752,26 @@ contract note (fixed):
   8. [done] `JIR-PORT-07`（expression parity port: unary+compare+logic seed）
   9. [next] `none`（tail active）
   10. JoinIR 移植は `joinir-port-task-pack-ssot.md` の fixed order（JIR-PORT-00..07）で実施
+
+## 2026-03-04 Restart Handoff (phase29bq/29bp unblock follow-up)
+
+- status:
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only 29bp` = PASS
+- this round fixes:
+  - VM-Hako `indexOf` 契約を `1 or 2 args` へ拡張（subset-check + vm_s0 + unit/doc 同期）
+  - loop-cond の join-bearing `if` が `planner_required` 非依存で join-if 経路へ入るよう修正（`if body must be single-exit` 誤freeze除去）
+  - Pattern2 loop-break recipe:
+    - `carrier_var == loop_var` かつ同一更新式の二重適用を dedupe（`2` 化回帰を解消）
+    - `carrier_update_in_break`（`if { sum = ...; break }`）を recipe 化対応
+  - archive smoke 相対パス崩れ対応:
+    - `phase29ae_regression_pack_vm.sh` を `bash .../run.sh` 呼び出しへ
+    - `tools/smokes/v2/profiles/lib/*.sh` compatibility shim 追加（`test_runner/output_validator/llvm_exe_runner/plugin_pilot_common`）
+- key regression restored:
+  - `phase263_pattern2_seg_realworld_min_vm` が `output: 4` に復帰
+  - `phase29ai_pattern2_break_plan_subset_ok_min_vm` が `RC=15` に復帰
+- next fixed order:
+  1. このコミットを先に確定
+  2. `phase29bp` を一度再実行して再現性確認（PASS 維持）
+  3. Pattern/Domain cleanup（legacy domain 入口の isolate -> delete）へ復帰
+  4. SSOT (`joinir-planner-required-gates-ssot.md` / design README) の「Pattern削除順」を同期

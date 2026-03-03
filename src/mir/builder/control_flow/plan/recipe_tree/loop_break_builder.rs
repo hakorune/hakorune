@@ -61,18 +61,22 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
     break_cond_view: CondBlockView,
     facts: &Pattern2BreakFacts,
 ) -> Option<LoopBreakRecipe> {
-    // Minimal implementation: only support simple case without carrier_update_in_break
-    if facts.carrier_update_in_break.is_some() {
-        return None;
-    }
-
     let mut arena = RecipeBodies::new();
 
     // Body 0: loop statement itself
     let loop_body_id = arena.register(RecipeBody::new(vec![loop_stmt.clone()]));
 
-    // Body 1: break statement (for Exit item)
-    let break_body_id = arena.register(RecipeBody::new(vec![ASTNode::Break { span: dummy_span() }]));
+    // Body 1: break-then body (optional carrier update + break)
+    let mut break_then_body = Vec::new();
+    if let Some(carrier_update_in_break) = &facts.carrier_update_in_break {
+        break_then_body.push(ASTNode::Assignment {
+            target: Box::new(dummy_var(&facts.carrier_var)),
+            value: Box::new(carrier_update_in_break.clone()),
+            span: dummy_span(),
+        });
+    }
+    break_then_body.push(ASTNode::Break { span: dummy_span() });
+    let break_body_id = arena.register(RecipeBody::new(break_then_body));
 
     // Body 2: combined loop body [if_stmt, carrier_update, loop_increment]
     let break_if_stmt = ASTNode::If {
@@ -92,30 +96,59 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
         value: Box::new(facts.loop_increment.clone()),
         span: dummy_span(),
     };
+    // When carrier_var and loop_var point to the same variable with the same update expression,
+    // applying both statements causes a double-step bug (e.g. i := f(i); i := f(i) again).
+    // Keep a single step statement in that case.
+    let dedupe_carrier_update = facts.carrier_var == facts.loop_var
+        && facts.carrier_update_in_body == facts.loop_increment;
+
     let (combined_body, if_idx, carrier_idx, step_idx) = match facts.step_placement {
-        Pattern2StepPlacement::Last => (
-            vec![break_if_stmt, carrier_update_stmt, loop_increment_stmt],
-            0,
-            1,
-            2,
-        ),
-        Pattern2StepPlacement::BeforeBreak => (
-            vec![loop_increment_stmt, break_if_stmt, carrier_update_stmt],
-            1,
-            2,
-            0,
-        ),
+        Pattern2StepPlacement::Last => {
+            let mut body = vec![break_if_stmt, loop_increment_stmt];
+            let if_idx = 0usize;
+            let step_idx = 1usize;
+            let carrier_idx = if dedupe_carrier_update {
+                None
+            } else {
+                body.insert(1, carrier_update_stmt);
+                Some(1usize)
+            };
+            let step_idx = if dedupe_carrier_update { step_idx } else { 2usize };
+            (body, if_idx, carrier_idx, step_idx)
+        }
+        Pattern2StepPlacement::BeforeBreak => {
+            let mut body = vec![loop_increment_stmt, break_if_stmt];
+            let step_idx = 0usize;
+            let if_idx = 1usize;
+            let carrier_idx = if dedupe_carrier_update {
+                None
+            } else {
+                body.push(carrier_update_stmt);
+                Some(2usize)
+            };
+            (body, if_idx, carrier_idx, step_idx)
+        }
     };
     let combined_body_id = arena.register(RecipeBody::new(combined_body));
 
-    // Build break then block: [Exit(Break)]
-    let break_then_block = RecipeBlock::new(
-        break_body_id,
+    // Build break-then block:
+    // - without carrier_update_in_break: [Exit(Break)]
+    // - with carrier_update_in_break: [Stmt(update), Exit(Break)]
+    let break_then_items = if facts.carrier_update_in_break.is_some() {
+        vec![
+            RecipeItem::Stmt(StmtRef::new(0)),
+            RecipeItem::Exit {
+                kind: ExitKind::Break { depth: 1 },
+                stmt: StmtRef::new(1),
+            },
+        ]
+    } else {
         vec![RecipeItem::Exit {
             kind: ExitKind::Break { depth: 1 },
             stmt: StmtRef::new(0),
-        }],
-    );
+        }]
+    };
+    let break_then_block = RecipeBlock::new(break_body_id, break_then_items);
 
     // Build IfV2 referencing stmt 0 in combined_body
     let break_if_item = RecipeItem::IfV2 {
@@ -129,16 +162,21 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
     // Build loop body block. Item order determines evaluation order, so
     // step-before-break must place the step stmt ahead of the break-if.
     let loop_body_items = match facts.step_placement {
-        Pattern2StepPlacement::Last => vec![
-            break_if_item,
-            RecipeItem::Stmt(StmtRef::new(carrier_idx)), // carrier_update_in_body
-            RecipeItem::Stmt(StmtRef::new(step_idx)),    // loop_increment
-        ],
-        Pattern2StepPlacement::BeforeBreak => vec![
-            RecipeItem::Stmt(StmtRef::new(step_idx)),    // loop_increment
-            break_if_item,
-            RecipeItem::Stmt(StmtRef::new(carrier_idx)), // carrier_update_in_body
-        ],
+        Pattern2StepPlacement::Last => {
+            let mut items = vec![break_if_item];
+            if let Some(carrier_idx) = carrier_idx {
+                items.push(RecipeItem::Stmt(StmtRef::new(carrier_idx))); // carrier_update_in_body
+            }
+            items.push(RecipeItem::Stmt(StmtRef::new(step_idx))); // loop_increment
+            items
+        }
+        Pattern2StepPlacement::BeforeBreak => {
+            let mut items = vec![RecipeItem::Stmt(StmtRef::new(step_idx)), break_if_item]; // loop_increment, break-if
+            if let Some(carrier_idx) = carrier_idx {
+                items.push(RecipeItem::Stmt(StmtRef::new(carrier_idx))); // carrier_update_in_body
+            }
+            items
+        }
     };
     let loop_body_block = RecipeBlock::new(combined_body_id, loop_body_items);
 
@@ -165,7 +203,7 @@ mod tests {
     use crate::ast::LiteralValue;
 
     #[test]
-    fn test_build_loop_break_recipe_returns_none_for_carrier_in_break() {
+    fn test_build_loop_break_recipe_supports_carrier_update_in_break() {
         let span = dummy_span();
         let cond = ASTNode::Variable {
             name: "cond".to_string(),
@@ -211,6 +249,76 @@ mod tests {
             &facts,
         );
 
-        assert!(result.is_none(), "Should return None for carrier_update_in_break");
+        assert!(result.is_some(), "Should build recipe for carrier_update_in_break");
+    }
+
+    #[test]
+    fn dedupes_double_update_when_carrier_and_loop_var_are_identical() {
+        let span = dummy_span();
+        let cond = ASTNode::Variable {
+            name: "cond".to_string(),
+            span,
+        };
+        let break_cond = ASTNode::Variable {
+            name: "break_cond".to_string(),
+            span,
+        };
+        let step_expr = ASTNode::BinaryOp {
+            operator: crate::ast::BinaryOperator::Add,
+            left: Box::new(ASTNode::Variable {
+                name: "i".to_string(),
+                span,
+            }),
+            right: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span,
+            }),
+            span,
+        };
+        let facts = Pattern2BreakFacts {
+            loop_var: "i".to_string(),
+            carrier_var: "i".to_string(),
+            loop_condition: cond.clone(),
+            break_condition: break_cond.clone(),
+            carrier_update_in_break: None,
+            carrier_update_in_body: step_expr.clone(),
+            loop_increment: step_expr,
+            step_placement: crate::mir::builder::control_flow::plan::Pattern2StepPlacement::Last,
+        };
+        let loop_stmt = ASTNode::Loop {
+            condition: Box::new(cond),
+            body: vec![],
+            span: dummy_span(),
+        };
+
+        let recipe = build_loop_break_recipe(
+            &loop_stmt,
+            CondBlockView::from_expr(&facts.loop_condition),
+            CondBlockView::from_expr(&facts.break_condition),
+            &facts,
+        )
+        .expect("recipe should be built");
+
+        let loop_item = recipe.root.items.first().expect("root should contain loop");
+        let crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem::LoopV0 {
+            body_block,
+            ..
+        } = loop_item
+        else {
+            panic!("expected LoopV0 root item");
+        };
+
+        assert_eq!(
+            body_block.items.len(),
+            2,
+            "break-if + step only (no duplicate carrier update)"
+        );
+        assert!(matches!(
+            body_block.items.as_slice(),
+            [
+                crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem::IfV2 { .. },
+                crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem::Stmt(_)
+            ]
+        ));
     }
 }
