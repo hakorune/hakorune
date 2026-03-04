@@ -152,7 +152,7 @@ mod tests {
     }
 
     #[test]
-    fn planner_skips_split_scan_domain_plan() {
+    fn planner_skips_split_scan_single_plan_payload() {
         let facts = LoopFacts {
             split_scan: Some(SplitScanFacts {
                 s_var: "s".to_string(),
@@ -176,7 +176,7 @@ mod tests {
     }
 
     #[test]
-    fn planner_skips_scan_with_init_domain_plan() {
+    fn planner_skips_scan_with_init_single_plan_payload() {
         let facts = LoopFacts {
             scan_with_init: Some(scan_with_init(1)),
             ..base_loop_facts()

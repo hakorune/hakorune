@@ -74,7 +74,7 @@ fn debug_log_recipe_only_entry(rule_id: PlanRuleId) {
     let ring0 = crate::runtime::get_global_ring0();
     let label = planner_rule_semantic_label(rule_id);
     ring0.log.debug(&format!(
-        "[recipe:entry] {}: recipe-only (domain_plan suppressed)",
+        "[recipe:entry] {}: recipe-only (planner payload suppressed)",
         label
     ));
 }
@@ -176,7 +176,7 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
         let name = rule_name(rule_id);
         let planner_hit = planner_hits_rule(planner_present, rule_id);
 
-        // Recipe-only rules route through compose path (domain_plan suppressed).
+        // Recipe-only rules route through compose path (planner payload suppressed).
         if planner_hit && is_recipe_only_rule(rule_id) {
             gate.log_planner_first(rule_id);
             debug_log_recipe_only_entry(rule_id);
@@ -203,10 +203,10 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
             (None, true)
         };
 
-        if let Some(domain_plan) = plan_opt {
+        if let Some(loop_plan) = plan_opt {
             let log_msg = format!("route=plan strategy=extract rule={}", name);
             trace::trace().pattern("route", &log_msg, true);
-            outcome.plan = Some(domain_plan);
+            outcome.plan = Some(loop_plan);
             return Ok(outcome);
         } else if log_none && ctx.debug {
             let debug_msg = format!("{} extraction returned None, trying next rule", name);
@@ -232,7 +232,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn recipe_only_rule_is_domain_plan_only() {
+    fn recipe_only_rule_is_single_plan_payload_only() {
         assert!(is_recipe_only_rule(PlanRuleId::LoopCondContinueWithReturn));
         assert!(!is_recipe_only_rule(PlanRuleId::LoopBreakRecipe));
         assert!(!is_recipe_only_rule(PlanRuleId::IfPhiJoin));

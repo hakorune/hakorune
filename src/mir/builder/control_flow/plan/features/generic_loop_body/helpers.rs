@@ -82,8 +82,8 @@ pub(super) fn lower_nested_loop_plan(
 
     let mut outcome = single_planner::try_build_outcome(&nested_ctx)?;
 
-    if let Some(domain_plan) = outcome.plan.take() {
-        return PlanNormalizer::normalize(builder, domain_plan, &nested_ctx);
+    if let Some(loop_plan) = outcome.plan.take() {
+        return PlanNormalizer::normalize(builder, loop_plan, &nested_ctx);
     }
     if let Some(facts) = outcome.facts.as_ref() {
         if planner_required && facts.facts.loop_true_break_continue.is_some() {

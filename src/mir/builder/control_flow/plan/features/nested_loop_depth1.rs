@@ -123,10 +123,10 @@ fn lower_nested_loop_single_planner(
 ) -> Result<LoweredRecipe, String> {
     let ctx = LoopPatternContext::new(condition, body, "<nested>", false, false);
     let mut outcome = single_planner::try_build_outcome(&ctx)?;
-    let Some(domain_plan) = outcome.plan.take() else {
+    let Some(loop_plan) = outcome.plan.take() else {
         return Err(format!("{error_prefix}: nested loop has no plan"));
     };
-    PlanNormalizer::normalize(builder, domain_plan, &ctx)
+    PlanNormalizer::normalize(builder, loop_plan, &ctx)
 }
 
 pub(in crate::mir::builder) fn mark_nested_loop_preheader_fresh(
