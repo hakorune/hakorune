@@ -219,6 +219,16 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `cargo check --release --bin hakorune` => PASS
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only 29bp` => PASS（再実行で安定）
+- update (2026-03-04, direct-verify blocker hotfix):
+  - commit: `dedd91ba4` (`fix direct-verify dominance via LocalSSA select rematerialization`)
+  - fix note:
+    - `phase29x-probe` で再発した `emit:direct-verify=1`（`scan_methods_nested_loop_state_machine_min`）を修正。
+    - `CoreEffectPlan::Copy` emission で source を LocalSSA materialize するように変更。
+    - LocalSSA `ensure_inner` に `MirInstruction::Select` の rematerialize 経路を追加（merge block の predecessor-only 値 copy を抑止）。
+  - verification:
+    - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` => `emit_fail=0 / run_nonzero=18 / run_ok=100 / route_blocker=0`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only 29bp` => PASS（単体再実行）
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
