@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `d7842eafb` refactor D5 rename single-planner route logs from pattern to rule vocabulary
+    - `single_planner/rules.rs` の route log 主語を `pattern` から `rule` へ統一
+    - planner 抽出経路の可観測語彙を semantic 命名に揃える
+    - 動作は不変（ログ語彙のみ整理）
   - `0cff7a360` refactor D5 gate strict shadow-adopt fallback to planner-none routes
     - `joinir/patterns/router.rs` の strict/dev 側 shadow_adopt fallback も `domain_plan=None` 経路のみに限定
     - strict/release で fallback 適用条件を揃え、暫定経路の適用面積をさらに縮小
@@ -283,6 +287,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-d7842eafb, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-d7842eafb）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-d7842eafb, elapsed=`0:05.08`）
   - `cargo build --release --bin hakorune`（post-0cff7a360, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-0cff7a360）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
