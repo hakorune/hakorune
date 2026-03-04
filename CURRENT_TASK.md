@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `e90d5074a` refactor D5 narrow normalizer public surface by moving pattern helper imports to module paths
+    - `normalizer/mod.rs` から pattern minimal helper の再公開 (`normalize_*_minimal`) を撤去し、public surface を縮小
+    - `composer/shadow_adopt.rs` は `normalizer::pattern_*` module 直参照へ移行
+    - `composer/coreloop_v0.rs`（test-only）も `pattern1_coreloop_builder` 直参照へ同期
   - `5af900fe3` refactor D5 remove remaining domain_plan naming in planner flow and tests
     - `single_planner/rules.rs` の debug/comment/local 名を `planner payload` 語彙へ統一
     - nested loop planner helper（`features/{nested_loop_depth1,generic_loop_body/helpers}.rs`）の `domain_plan` 変数名を撤去
@@ -673,6 +677,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-5af900fe3)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-5af900fe3, elapsed=`0:04.19`）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-e90d5074a)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-e90d5074a, elapsed=`0:04.75`）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -682,6 +690,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - known note:
   - `cargo test -q --lib facts_extracts_pattern9_const_accum_success` は現作業ツリーで既存 mismatch（本ラウンド差分では未変更）
+  - `cargo test -q --lib coreloop` は現作業ツリー既存 FAIL 4件（`carrier_init_missing` 系、`coreloop_v0/v1` の reject expectation mismatch）
   - `plan/mod.rs` の file-level `dead_code` allow は現時点で撤去不可（撤去試行時に `cargo build` で `233 warnings` 顕在化）。
   - 残 suppressions（2026-03-04 時点）:
     - `plan/mod.rs`（umbrella / remove時 233 warnings）
@@ -698,6 +707,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
    - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
    - `DomainPlan` alias 撤去（`fa1efcb21`）と `src/mir/builder/control_flow/{plan,joinir}` 内の残語彙撤去（`27cbe50d2`, `5af900fe3`）まで完了。
+   - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）。次は file placement（`normalizer/pattern*.rs` を composer 側へ段階移設）を小分けで進める。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
