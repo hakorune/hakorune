@@ -7,17 +7,15 @@
 //! Notes:
 //! - This module is intended to become the only place that creates `VerifiedRecipeBlock`.
 
-use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, ExitKind, RecipeBodies, RecipeBlock,
-};
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::{
     verify_block_contract_with_pre, VerifiedRecipeBlock,
 };
-use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CorePlan, LoweredRecipe,
+use crate::mir::builder::control_flow::plan::recipe_tree::{
+    BlockContractKind, ExitKind, RecipeBlock, RecipeBodies,
 };
+use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::ConstValue;
 use std::collections::BTreeMap;
@@ -32,6 +30,23 @@ pub(in crate::mir::builder) use super::loop_::{
     lower_loop_v0, lower_loop_with_body_block, lower_nested_loop_depth1_stmt_only,
     lower_nested_loop_recipe_stmt_only,
 };
+
+pub(in crate::mir::builder) fn lower_cond_prelude_stmt_as_plan(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    stmt: &crate::ast::ASTNode,
+    error_prefix: &str,
+) -> Result<Vec<LoweredRecipe>, String> {
+    let empty_carrier_step_phis = BTreeMap::new();
+    super::stmt::lower_return_prelude_stmt(
+        builder,
+        current_bindings,
+        &empty_carrier_step_phis,
+        None,
+        stmt,
+        error_prefix,
+    )
+}
 
 pub(in crate::mir::builder) fn verify_exit_only_block_with_pre<'a>(
     arena: &'a RecipeBodies,
@@ -219,7 +234,8 @@ pub(in crate::mir::builder) fn lower_no_exit_block(
     block: &RecipeBlock,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    let verified = verify_no_exit_block_with_pre(arena, block, error_prefix, Some(current_bindings))?;
+    let verified =
+        verify_no_exit_block_with_pre(arena, block, error_prefix, Some(current_bindings))?;
     lower_no_exit_block_verified(
         builder,
         current_bindings,
@@ -429,7 +445,8 @@ where
     ) -> Result<Vec<LoweredRecipe>, String>,
     ShouldUpdateBinding: Fn(&str, &BTreeMap<String, crate::mir::ValueId>) -> bool,
 {
-    let verified = verify_no_exit_block_with_pre(arena, block, error_prefix, Some(current_bindings))?;
+    let verified =
+        verify_no_exit_block_with_pre(arena, block, error_prefix, Some(current_bindings))?;
     lower_no_exit_block_with_stmt_lowerer_verified(
         builder,
         current_bindings,

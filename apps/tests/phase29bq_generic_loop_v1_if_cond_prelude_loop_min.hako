@@ -1,0 +1,20 @@
+static box Main {
+  main() {
+    local i = 0
+    local sum = 0
+    loop(i < 3) {
+      if ({
+        local j = 0
+        loop(j < 1) {
+          j = j + 1
+        }
+        j == 1
+      }) {
+        sum = sum + 1
+      }
+      i = i + 1
+    }
+    print(sum)
+    return 0
+  }
+}

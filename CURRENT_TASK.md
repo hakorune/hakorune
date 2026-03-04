@@ -273,6 +273,21 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `cargo check --release --bin hakorune` => PASS
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
     - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` => `emit_fail=0 / route_blocker=0 / run_nonzero=18 / run_ok=100`
+- update (2026-03-04, cond_prelude BlockExpr loop route lock):
+  - fix note:
+    - `cond_prelude` 語彙に loop-like stmt を追加（`Loop/While/ForRange`）。
+    - if-branch 条件 lowering は loop-like prelude を plan-level prelude route へ切替（`lower_cond_prelude_stmt_as_plan` 経由）。
+    - `loop_cond_break_continue` の `ConditionalUpdateIf` は loop-like condition prelude を受理しないように制限し、`GeneralIf` へルーティング。
+    - direct route pin fixture を追加:
+      - `apps/tests/phase29bq_generic_loop_v1_if_cond_prelude_loop_min.hako`
+      - `tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv` に case_id `generic_loop_v1_if_cond_prelude_loop_min` を追加。
+  - verification:
+    - `cargo test -q --lib cond_prelude_vocab_accepts_if_and_loop_like_stmt` => PASS
+    - `cargo test -q --lib prelude_loop_detection_recurses_into_if_branches` => PASS
+    - `cargo test -q --lib generic_loop_v1_accepts_if_condition_with_blockexpr_loop_prelude` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only generic_loop_v1_if_cond_prelude_loop_min` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+    - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` => `emit_fail=0 / route_blocker=0 / run_nonzero=18 / run_ok=101`（total=119）
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
@@ -296,10 +311,9 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `src/mir/builder/control_flow/plan/lowerer/effect_emission.rs`
   - `CURRENT_TASK.md`
 - next fixed order（resume point）:
-  1. cond_prelude: `BlockExpr` prelude の `Loop` 受理を追加し、`phase29x-probe` の direct route 契約で固定する。
-  2. D2: `DomainPlan` を label-only へ縮退し router 依存を除去
-  3. D3: `normalizer/pattern*.rs` の entry-path 依存を 0 にして撤去
-  4. D系の各段で fixture+fast-gate を更新し、BoxShape と BoxCount を混在させない
+  1. D2: `DomainPlan` を label-only へ縮退し router 依存を除去
+  2. D3: `normalizer/pattern*.rs` の entry-path 依存を 0 にして撤去
+  3. D系の各段で fixture+fast-gate を更新し、BoxShape と BoxCount を混在させない
 
 ## Compiler Cleanup Order (2026-03-03, SSOT)
 

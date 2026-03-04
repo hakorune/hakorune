@@ -2,7 +2,9 @@ use super::common::lower_me_this_method_effect;
 use super::CoreEffectPlan;
 use crate::mir::builder::calls::extern_calls;
 use crate::mir::builder::MirBuilder;
-use crate::mir::{BasicBlockId, BinaryOp, CompareOp, ConstValue, Effect, EffectMask, MirType, ValueId};
+use crate::mir::{
+    BasicBlockId, BinaryOp, CompareOp, ConstValue, Effect, EffectMask, MirType, ValueId,
+};
 use std::collections::{BTreeMap, HashSet};
 
 // ============================================================================
@@ -111,7 +113,12 @@ impl super::PlanNormalizer {
         use crate::ast::{ASTNode, BinaryOperator};
 
         match ast {
-            ASTNode::BinaryOp { operator, left, right, .. } => {
+            ASTNode::BinaryOp {
+                operator,
+                left,
+                right,
+                ..
+            } => {
                 let op = match operator {
                     BinaryOperator::Less => CompareOp::Lt,
                     BinaryOperator::LessEqual => CompareOp::Le,
@@ -153,7 +160,12 @@ impl super::PlanNormalizer {
         use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
         match ast {
-            ASTNode::BinaryOp { operator, left, right, .. } => {
+            ASTNode::BinaryOp {
+                operator,
+                left,
+                right,
+                ..
+            } => {
                 let op = match operator {
                     BinaryOperator::Add => BinaryOp::Add,
                     BinaryOperator::Subtract => BinaryOp::Sub,
@@ -348,9 +360,7 @@ impl super::PlanNormalizer {
                 Ok((value_id, vec![const_effect]))
             }
             ASTNode::UnaryOp {
-                operator,
-                operand,
-                ..
+                operator, operand, ..
             } => match operator {
                 UnaryOperator::Minus => {
                     let (rhs, mut effects) = Self::lower_value_ast(operand, builder, phi_bindings)?;
@@ -399,9 +409,16 @@ impl super::PlanNormalizer {
                     ast,
                     "[normalizer] value bool unary not",
                 ),
-                UnaryOperator::Weak => Err("[normalizer] Unary 'weak' is not supported yet".to_string()),
+                UnaryOperator::Weak => {
+                    Err("[normalizer] Unary 'weak' is not supported yet".to_string())
+                }
             },
-            ASTNode::MethodCall { object, method, arguments, .. } => {
+            ASTNode::MethodCall {
+                object,
+                method,
+                arguments,
+                ..
+            } => {
                 let mut arg_ids = Vec::new();
                 let mut arg_effects = Vec::new();
                 for arg in arguments {
@@ -446,8 +463,7 @@ impl super::PlanNormalizer {
                                 args: arg_ids,
                                 effects: EffectMask::PURE.add(Effect::Io),
                             });
-                        } else if let Some(&value_id) =
-                            builder.variable_ctx.variable_map.get(name)
+                        } else if let Some(&value_id) = builder.variable_ctx.variable_map.get(name)
                         {
                             arg_effects.push(CoreEffectPlan::MethodCall {
                                 dst: Some(result_id),
@@ -516,9 +532,7 @@ impl super::PlanNormalizer {
                 Ok((result_id, arg_effects))
             }
             ASTNode::Call {
-                callee,
-                arguments,
-                ..
+                callee, arguments, ..
             } => {
                 let (callee_id, mut effects) =
                     Self::lower_value_ast(callee, builder, phi_bindings)?;
@@ -540,7 +554,9 @@ impl super::PlanNormalizer {
 
                 Ok((result_id, effects))
             }
-            ASTNode::New { class, arguments, .. } => {
+            ASTNode::New {
+                class, arguments, ..
+            } => {
                 let mut arg_ids = Vec::new();
                 let mut effects = Vec::new();
                 for arg in arguments {
@@ -661,8 +677,7 @@ impl super::PlanNormalizer {
                     );
                 }
 
-                let (lhs, op, rhs, mut consts) =
-                    Self::lower_binop_ast(ast, builder, phi_bindings)?;
+                let (lhs, op, rhs, mut consts) = Self::lower_binop_ast(ast, builder, phi_bindings)?;
                 let result_id = builder.alloc_typed(MirType::Integer);
 
                 if crate::config::env::joinir_dev::strict_enabled()
@@ -751,13 +766,20 @@ impl super::PlanNormalizer {
                         );
                     }
                 }
+                if crate::mir::builder::control_flow::plan::policies::cond_prelude_vocab::prelude_has_loop_like_stmt(prelude_stmts) {
+                    return Err(
+                        "[freeze:contract][cond_prelude] blockexpr value prelude with loop-like stmt requires branch-plan route"
+                            .to_string(),
+                    );
+                }
 
-                let (bindings, mut effects) = super::cond_lowering_prelude::lower_cond_prelude_stmts(
-                    builder,
-                    phi_bindings,
-                    prelude_stmts,
-                    "[normalizer][blockexpr]",
-                )?;
+                let (bindings, mut effects) =
+                    super::cond_lowering_prelude::lower_cond_prelude_stmts(
+                        builder,
+                        phi_bindings,
+                        prelude_stmts,
+                        "[normalizer][blockexpr]",
+                    )?;
 
                 let (tail_id, mut tail_effects) =
                     Self::lower_value_ast(tail_expr.as_ref(), builder, &bindings)?;
@@ -774,7 +796,9 @@ impl super::PlanNormalizer {
                     return Err("[normalizer] value-if requires else branch".to_string());
                 };
                 if then_body.len() != 1 || else_body.len() != 1 {
-                    return Err("[normalizer] value-if requires single expr in each branch".to_string());
+                    return Err(
+                        "[normalizer] value-if requires single expr in each branch".to_string()
+                    );
                 }
                 let then_expr = &then_body[0];
                 let else_expr = &else_body[0];
@@ -928,8 +952,8 @@ fn is_pure_value_expr(ast: &crate::ast::ASTNode) -> bool {
 mod tests {
     use super::is_pure_value_expr;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::plan::PlanNormalizer;
     use crate::mir::builder::control_flow::plan::CoreEffectPlan;
+    use crate::mir::builder::control_flow::plan::PlanNormalizer;
     use crate::mir::builder::MirBuilder;
     use std::collections::BTreeMap;
 
@@ -1035,10 +1059,7 @@ mod tests {
     #[test]
     fn lower_value_ast_accepts_map_literal_and_emits_set_calls() {
         let map_expr = ASTNode::MapLiteral {
-            entries: vec![
-                ("x".to_string(), int_lit(1)),
-                ("y".to_string(), int_lit(2)),
-            ],
+            entries: vec![("x".to_string(), int_lit(1)), ("y".to_string(), int_lit(2))],
             span: Span::unknown(),
         };
         let mut builder = MirBuilder::new();
@@ -1047,7 +1068,11 @@ mod tests {
                 .expect("MapLiteral should lower in value context");
 
         match effects.first() {
-            Some(CoreEffectPlan::NewBox { dst, box_type, args }) => {
+            Some(CoreEffectPlan::NewBox {
+                dst,
+                box_type,
+                args,
+            }) => {
                 assert_eq!(*dst, map_id);
                 assert_eq!(box_type, "MapBox");
                 assert!(args.is_empty());
@@ -1084,7 +1109,7 @@ mod tests {
                 } else {
                     false
                 }
-        })
+            })
             .count();
         assert_eq!(set_calls, 2);
     }
@@ -1102,8 +1127,7 @@ mod tests {
             span: Span::unknown(),
         };
         let mut builder = MirBuilder::new();
-        let result =
-            PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new());
+        let result = PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new());
         assert!(
             result.is_ok(),
             "bool Or/Not should lower in value context, got {:?}",

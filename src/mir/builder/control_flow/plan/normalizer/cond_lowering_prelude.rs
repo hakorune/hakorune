@@ -2,9 +2,11 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_value;
-use crate::mir::builder::control_flow::plan::policies::cond_prelude_vocab::{classify_cond_prelude_stmt, CondPreludeStmtKind};
+use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
+use crate::mir::builder::control_flow::plan::policies::cond_prelude_vocab::{
+    classify_cond_prelude_stmt, CondPreludeStmtKind,
+};
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{CompareOp, ConstValue, Effect, EffectMask, MirType, ValueId};
@@ -24,17 +26,32 @@ pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelud
     let mut effects = Vec::new();
     for stmt in prelude_stmts {
         if stmt.contains_non_local_exit_outside_loops() {
-            return Err("[freeze:contract][cond_prelude] exit stmt is forbidden in condition prelude".to_string());
+            return Err(
+                "[freeze:contract][cond_prelude] exit stmt is forbidden in condition prelude"
+                    .to_string(),
+            );
         }
 
         let Some(kind) = classify_cond_prelude_stmt(stmt) else {
-            return Err(format!("[freeze:contract][cond_prelude] {error_prefix}: unsupported stmt: {}", stmt.node_type()));
+            return Err(format!(
+                "[freeze:contract][cond_prelude] {error_prefix}: unsupported stmt: {}",
+                stmt.node_type()
+            ));
         };
 
         match kind {
             CondPreludeStmtKind::Assignment => {
-                let ASTNode::Assignment { target, value, .. } = stmt else { unreachable!() };
-                let (name, value_id, mut stmt_effects) = loop_body_lowering::lower_assignment_value(builder, &bindings, target, value, error_prefix)?;
+                let ASTNode::Assignment { target, value, .. } = stmt else {
+                    unreachable!()
+                };
+                let (name, value_id, mut stmt_effects) =
+                    loop_body_lowering::lower_assignment_value(
+                        builder,
+                        &bindings,
+                        target,
+                        value,
+                        error_prefix,
+                    )?;
                 bindings.insert(name.clone(), value_id);
                 builder.variable_ctx.variable_map.insert(name, value_id);
                 effects.append(&mut stmt_effects);
@@ -66,17 +83,14 @@ pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelud
 
                 let mut if_cond = cond_id;
                 let mut if_then_effects = then_effects;
-                let mut if_else_effects = if has_else {
-                    Some(else_effects)
-                } else {
-                    None
-                };
+                let mut if_else_effects = if has_else { Some(else_effects) } else { None };
 
                 if let Some(else_effects) = if_else_effects.take() {
                     if if_then_effects.is_empty() && else_effects.is_empty() {
                         if_else_effects = None;
                     } else if if_then_effects.is_empty() {
-                        let (neg_cond, mut neg_effects) = build_negated_bool_value(builder, cond_id);
+                        let (neg_cond, mut neg_effects) =
+                            build_negated_bool_value(builder, cond_id);
                         effects.append(&mut neg_effects);
                         if_cond = neg_cond;
                         if_then_effects = else_effects;
@@ -133,9 +147,27 @@ pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelud
                     builder.variable_ctx.variable_map.insert(name, merged_id);
                 }
             }
+            CondPreludeStmtKind::Loop => {
+                return Err(format!(
+                    "[freeze:contract][cond_prelude] {error_prefix}: loop-like stmt in condition prelude requires plan-level branch route"
+                ));
+            }
             CondPreludeStmtKind::Local => {
-                let ASTNode::Local { variables, initial_values, .. } = stmt else { unreachable!() };
-                let (inits, mut stmt_effects) = loop_body_lowering::lower_local_init_values(builder, &bindings, variables, initial_values, error_prefix)?;
+                let ASTNode::Local {
+                    variables,
+                    initial_values,
+                    ..
+                } = stmt
+                else {
+                    unreachable!()
+                };
+                let (inits, mut stmt_effects) = loop_body_lowering::lower_local_init_values(
+                    builder,
+                    &bindings,
+                    variables,
+                    initial_values,
+                    error_prefix,
+                )?;
                 for (name, value_id) in inits {
                     bindings.insert(name.clone(), value_id);
                     builder.variable_ctx.variable_map.insert(name, value_id);
@@ -143,16 +175,29 @@ pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelud
                 effects.append(&mut stmt_effects);
             }
             CondPreludeStmtKind::MethodCall => {
-                let mut stmt_effects = loop_body_lowering::lower_method_call_stmt(builder, &bindings, stmt, error_prefix)?;
+                let mut stmt_effects = loop_body_lowering::lower_method_call_stmt(
+                    builder,
+                    &bindings,
+                    stmt,
+                    error_prefix,
+                )?;
                 effects.append(&mut stmt_effects);
             }
             CondPreludeStmtKind::FunctionCall => {
-                let mut stmt_effects = loop_body_lowering::lower_function_call_stmt(builder, &bindings, stmt, error_prefix)?;
+                let mut stmt_effects = loop_body_lowering::lower_function_call_stmt(
+                    builder,
+                    &bindings,
+                    stmt,
+                    error_prefix,
+                )?;
                 effects.append(&mut stmt_effects);
             }
             CondPreludeStmtKind::Print => {
-                let ASTNode::Print { expression, .. } = stmt else { unreachable!() };
-                let (value_id, mut stmt_effects) = PlanNormalizer::lower_value_ast(expression, builder, &bindings)?;
+                let ASTNode::Print { expression, .. } = stmt else {
+                    unreachable!()
+                };
+                let (value_id, mut stmt_effects) =
+                    PlanNormalizer::lower_value_ast(expression, builder, &bindings)?;
                 stmt_effects.push(CoreEffectPlan::ExternCall {
                     dst: None,
                     iface_name: "env.console".to_string(),

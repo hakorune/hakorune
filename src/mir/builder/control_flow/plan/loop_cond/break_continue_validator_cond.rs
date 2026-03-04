@@ -4,12 +4,14 @@
 //! assignments/locals with optional exit at the end of the branch.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
 use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::{
-    NoExitBlockRecipe, try_build_no_exit_block_recipe,
+    try_build_no_exit_block_recipe, NoExitBlockRecipe,
 };
+use crate::mir::builder::control_flow::plan::policies::cond_prelude_vocab::prelude_has_loop_like_stmt;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::ExitKind;
 
 /// Check if an if statement is a conditional update pattern.
@@ -22,6 +24,14 @@ pub(in super::super) fn is_conditional_update_if(
     else_body: Option<&Vec<ASTNode>>,
     allow_extended: bool,
 ) -> bool {
+    // ConditionalUpdate lowering currently lowers condition prelude as effects-only.
+    // Loop-like prelude stmts require branch-plan lowering, so keep this shape out-of-scope
+    // for ConditionalUpdate and let `GeneralIf` handle it.
+    let cond_view = CondBlockView::from_expr(condition);
+    if prelude_has_loop_like_stmt(&cond_view.prelude_stmts) {
+        return false;
+    }
+
     if !is_supported_bool_expr_with_canon(condition, allow_extended) {
         return false;
     }

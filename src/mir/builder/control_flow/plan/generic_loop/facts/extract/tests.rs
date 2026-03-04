@@ -285,4 +285,37 @@ mod tests {
         assert_eq!(v1.loop_var, "i");
         assert_is_loop_var_plus_one(&v1.loop_increment, "i");
     }
+
+    #[test]
+    fn generic_loop_v1_accepts_if_condition_with_blockexpr_loop_prelude() {
+        std::env::set_var("NYASH_JOINIR_DEV", "1");
+        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+
+        let cond = bin(BinaryOperator::Less, var("i"), lit_i(3));
+        let prelude_loop = ASTNode::Loop {
+            condition: Box::new(bin(BinaryOperator::Less, var("j"), lit_i(1))),
+            body: vec![assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1)))],
+            span: Span::unknown(),
+        };
+        let if_cond = ASTNode::BlockExpr {
+            prelude_stmts: vec![local_init("j", lit_i(0)), prelude_loop],
+            tail_expr: Box::new(bin(BinaryOperator::Equal, var("j"), lit_i(1))),
+            span: Span::unknown(),
+        };
+        let body = vec![
+            ASTNode::If {
+                condition: Box::new(if_cond),
+                then_body: vec![assign("sum", bin(BinaryOperator::Add, var("sum"), lit_i(1)))],
+                else_body: None,
+                span: Span::unknown(),
+            },
+            assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+        ];
+
+        let facts = try_extract_generic_loop_v1_facts(&cond, &body)
+            .expect("v1: no freeze")
+            .expect("v1 should match");
+        assert_eq!(facts.loop_var, "i");
+        assert!(facts.body_exit_allowed.is_some());
+    }
 }

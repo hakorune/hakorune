@@ -1,17 +1,18 @@
 //! Loop header short-circuit condition lowering.
 
+use super::cond_lowering_prelude::lower_cond_prelude_stmts;
+use super::cond_lowering_value_expr::lower_cond_value_expr;
 use crate::ast::{ASTNode, BinaryOperator, UnaryOperator};
 use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
-use crate::mir::builder::control_flow::plan::edgecfg_facade::BranchStub;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::plan::edgecfg_facade::BranchStub;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
+use crate::mir::builder::control_flow::plan::policies::cond_prelude_vocab::prelude_has_loop_like_stmt;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
-use super::cond_lowering_prelude::lower_cond_prelude_stmts;
-use super::cond_lowering_value_expr::lower_cond_value_expr;
 
 #[derive(Debug)]
 pub struct LoopHeaderCondResult {
@@ -43,8 +44,25 @@ pub fn lower_loop_header_cond(
     after_args: EdgeArgs,
     error_prefix: &str,
 ) -> Result<LoopHeaderCondResult, String> {
-    let (bindings, prelude_effects) = lower_cond_prelude_stmts(builder, phi_bindings, &cond.prelude_stmts, error_prefix)?;
-    let mut result = lower_loop_header_cond_expr(builder, &bindings, &cond.tail_expr, current_bb, body_bb, after_bb, body_args, after_args, error_prefix)?;
+    if prelude_has_loop_like_stmt(&cond.prelude_stmts) {
+        return Err(format!(
+            "[freeze:contract][cond_prelude] {error_prefix}: loop-like stmt in loop-header prelude is unsupported in effect-only route"
+        ));
+    }
+
+    let (bindings, prelude_effects) =
+        lower_cond_prelude_stmts(builder, phi_bindings, &cond.prelude_stmts, error_prefix)?;
+    let mut result = lower_loop_header_cond_expr(
+        builder,
+        &bindings,
+        &cond.tail_expr,
+        current_bb,
+        body_bb,
+        after_bb,
+        body_args,
+        after_args,
+        error_prefix,
+    )?;
 
     if !prelude_effects.is_empty() {
         let entry = result.block_effects.entry(current_bb).or_default();
@@ -68,13 +86,50 @@ fn lower_loop_header_cond_expr(
     error_prefix: &str,
 ) -> Result<LoopHeaderCondResult, String> {
     match expr {
-        ASTNode::UnaryOp { operator: UnaryOperator::Not, operand, .. } => {
-            lower_loop_header_cond_expr(builder, phi_bindings, operand, current_bb, after_bb, body_bb, after_args, body_args, error_prefix)
-        }
-        ASTNode::BinaryOp { operator: BinaryOperator::And, left, right, .. } => {
+        ASTNode::UnaryOp {
+            operator: UnaryOperator::Not,
+            operand,
+            ..
+        } => lower_loop_header_cond_expr(
+            builder,
+            phi_bindings,
+            operand,
+            current_bb,
+            after_bb,
+            body_bb,
+            after_args,
+            body_args,
+            error_prefix,
+        ),
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::And,
+            left,
+            right,
+            ..
+        } => {
             let intermediate_bb = builder.next_block_id();
-            let lhs_result = lower_loop_header_cond_expr(builder, phi_bindings, left, current_bb, intermediate_bb, after_bb, empty_carriers_args(), after_args.clone(), error_prefix)?;
-            let rhs_result = lower_loop_header_cond_expr(builder, phi_bindings, right, intermediate_bb, body_bb, after_bb, body_args, after_args, error_prefix)?;
+            let lhs_result = lower_loop_header_cond_expr(
+                builder,
+                phi_bindings,
+                left,
+                current_bb,
+                intermediate_bb,
+                after_bb,
+                empty_carriers_args(),
+                after_args.clone(),
+                error_prefix,
+            )?;
+            let rhs_result = lower_loop_header_cond_expr(
+                builder,
+                phi_bindings,
+                right,
+                intermediate_bb,
+                body_bb,
+                after_bb,
+                body_args,
+                after_args,
+                error_prefix,
+            )?;
 
             let mut block_effects = lhs_result.block_effects;
             for (bb, effects) in rhs_result.block_effects {
@@ -84,12 +139,41 @@ fn lower_loop_header_cond_expr(
             let mut branches = lhs_result.branches;
             branches.extend(rhs_result.branches);
 
-            Ok(LoopHeaderCondResult { block_effects, branches, first_cond: lhs_result.first_cond })
+            Ok(LoopHeaderCondResult {
+                block_effects,
+                branches,
+                first_cond: lhs_result.first_cond,
+            })
         }
-        ASTNode::BinaryOp { operator: BinaryOperator::Or, left, right, .. } => {
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Or,
+            left,
+            right,
+            ..
+        } => {
             let intermediate_bb = builder.next_block_id();
-            let lhs_result = lower_loop_header_cond_expr(builder, phi_bindings, left, current_bb, body_bb, intermediate_bb, body_args.clone(), empty_carriers_args(), error_prefix)?;
-            let rhs_result = lower_loop_header_cond_expr(builder, phi_bindings, right, intermediate_bb, body_bb, after_bb, body_args, after_args, error_prefix)?;
+            let lhs_result = lower_loop_header_cond_expr(
+                builder,
+                phi_bindings,
+                left,
+                current_bb,
+                body_bb,
+                intermediate_bb,
+                body_args.clone(),
+                empty_carriers_args(),
+                error_prefix,
+            )?;
+            let rhs_result = lower_loop_header_cond_expr(
+                builder,
+                phi_bindings,
+                right,
+                intermediate_bb,
+                body_bb,
+                after_bb,
+                body_args,
+                after_args,
+                error_prefix,
+            )?;
 
             let mut block_effects = lhs_result.block_effects;
             for (bb, effects) in rhs_result.block_effects {
@@ -99,10 +183,15 @@ fn lower_loop_header_cond_expr(
             let mut branches = lhs_result.branches;
             branches.extend(rhs_result.branches);
 
-            Ok(LoopHeaderCondResult { block_effects, branches, first_cond: lhs_result.first_cond })
+            Ok(LoopHeaderCondResult {
+                block_effects,
+                branches,
+                first_cond: lhs_result.first_cond,
+            })
         }
         _ => {
-            let (cond_id, effects) = lower_cond_value_expr(builder, phi_bindings, expr, error_prefix)?;
+            let (cond_id, effects) =
+                lower_cond_value_expr(builder, phi_bindings, expr, error_prefix)?;
             if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
                 let mut int3_dsts = Vec::new();
                 let mut binop_add_rhs = Vec::new();
@@ -154,15 +243,14 @@ fn lower_loop_header_cond_expr(
             block_effects.insert(current_bb, effects);
 
             let branch = edgecfg_stubs::build_branch_stub(
-                current_bb,
-                cond_id,
-                body_bb,
-                body_args,
-                after_bb,
-                after_args,
+                current_bb, cond_id, body_bb, body_args, after_bb, after_args,
             );
 
-            Ok(LoopHeaderCondResult { block_effects, branches: vec![branch], first_cond: cond_id })
+            Ok(LoopHeaderCondResult {
+                block_effects,
+                branches: vec![branch],
+                first_cond: cond_id,
+            })
         }
     }
 }
