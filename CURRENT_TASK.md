@@ -81,6 +81,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `b14958530` refactor D5 reduce joinir merge dead-code surface and wire config knobs
+    - `joinir/merge/config.rs` の `exit_reconnect_mode` / `allow_missing_exit_block` を runtime 側で実参照し、field-level `allow(dead_code)` を撤去
+    - `coordinator/phase_5_6.rs` で `effective_mode = config override > boundary mode` を明示（既定挙動は不変）
+    - `coordinator/phase_4_5.rs` で `allow_missing_exit_block` を contract 生成に反映（既定値 `true` 維持）
+    - `merge_result.rs` の未使用 helper API (`new` / `add_*`) を削除
+    - `exit_args_collector.rs` / `terminator_rewrite.rs` / `loop_header_phi_info.rs` で test-only 化と実参照化により `allow(dead_code)` を縮退
   - `9206a9052` refactor D5 remove exit_kind dead_code allows via strict sanity checks
     - `edgecfg/api/exit_kind.rs` の `Continue/Unwind/Cancel` と helper method の `allow(dead_code)` を撤去
     - `edgecfg/api/verify.rs` strict 入口に ExitKind semantic sanity check（debug_assert）を追加
@@ -210,6 +216,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-b14958530, `warning: 0`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-b14958530）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-b14958530）
   - `cargo build --release --bin hakorune`（post-9206a9052）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-9206a9052）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
@@ -402,6 +412,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - 残 suppressions（2026-03-04 時点）:
     - `plan/mod.rs`（umbrella / remove時 233 warnings）
     - `plan/extractors/common_helpers.rs`（他差分が同居する dirty file のため未着手）
+    - `joinir/patterns/router.rs`（LoopPatternContext 互換fieldの段階的撤去待ち）
+    - `joinir/trace.rs`（未配線 trace helper の整理待ち）
 
 ## next fixed order (resume point)
 
