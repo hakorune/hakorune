@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `061a18494` refactor D5 scope release shadow-adopt fallback to planner-none routes
+    - `joinir/patterns/router.rs` の release adopt fallback を `domain_plan=None` 経路のみに限定
+    - release fallback の適用面積を縮小し、暫定経路の責務を明示
+    - recipe-first / planner 経路に優先順位を寄せる縮退（挙動維持）
   - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
     - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
     - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
@@ -275,6 +279,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-061a18494, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-061a18494）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-061a18494, elapsed=`0:04.98`）
   - `cargo build --release --bin hakorune`（post-95a12aaef, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-95a12aaef）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
