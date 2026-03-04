@@ -2002,3 +2002,19 @@ contract note (fixed):
     - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` (`PASS`)
     - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` (`PASS`)
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, D5 single_planner dead guard pruning):
+  - `single_planner/rules.rs` の DomainPlan-only 化に合わせて dead path を整理:
+    - `is_recipe_only_rule` を `LoopCondContinueWithReturn` のみへ縮退
+    - ループ内の unreachable Pattern2Break recipe-contract ガードを削除
+    - 到達不能な `planner_required` mismatch freeze helper/state を削除
+  - add/adjust tests:
+    - `recipe_only_rule_is_domain_plan_only`
+    - `loop_cond_continue_with_return_is_always_recipe_only`
+    - `promotion_hint_tag_matches_shape`（継続）
+  - verification:
+    - `cargo test -q --lib recipe_only_rule_is_domain_plan_only`
+    - `cargo test -q --lib loop_cond_continue_with_return_is_always_recipe_only`
+    - `cargo test -q --lib promotion_hint_tag_matches_shape`
+    - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)

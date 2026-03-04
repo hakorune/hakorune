@@ -64,26 +64,8 @@ fn freeze_planner_required_none(ctx: &LoopPatternContext) -> String {
         .to_string()
 }
 
-fn freeze_planner_required_mismatch() -> String {
-    planner::Freeze::bug(
-        "planner required, but DomainPlan did not match any rule (internal mismatch)",
-    )
-    .with_hint("Check DomainPlan variant ↔ PlanRuleId mapping in try_take_planner().")
-    .to_string()
-}
-
-fn is_recipe_only_rule(rule_id: PlanRuleId, planner_required: bool) -> bool {
-    if matches!(rule_id, PlanRuleId::LoopCondContinueWithReturn) {
-        return true;
-    }
-    planner_required
-        && matches!(
-            rule_id,
-            PlanRuleId::LoopBreakRecipe
-                | PlanRuleId::IfPhiJoin
-                | PlanRuleId::LoopContinueRecipe
-                | PlanRuleId::LoopTrueEarlyExit
-        )
+fn is_recipe_only_rule(rule_id: PlanRuleId) -> bool {
+    matches!(rule_id, PlanRuleId::LoopCondContinueWithReturn)
 }
 
 fn debug_log_recipe_only_entry(rule_id: PlanRuleId) {
@@ -192,30 +174,13 @@ pub(super) fn try_build_domain_plan_with_outcome(
 
     emit_pattern2_promotion_hint_tag(promotion_facts);
 
-    let mut planner_matched_any_rule = false;
     for rule_id in PLAN_RULE_ORDER {
         let rule_id = *rule_id;
         let name = rule_name(rule_id);
         let planner_hit = planner_hits_rule(planner_kind, rule_id);
 
-        // Phase C: Pattern2Break requires recipe contract (planner_required only)
-        if gate.planner_required && matches!(rule_id, PlanRuleId::LoopBreakRecipe) {
-            if planner_hit && outcome.recipe_contract.is_none() {
-                return Err(planner::Freeze::contract(
-                    "Pattern2Break requires recipe_contract in planner_required mode",
-                )
-                .to_string());
-            }
-            if crate::config::env::joinir_dev::debug_enabled() && planner_hit {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0
-                    .log
-                    .debug("[recipe:entry] pattern2_break: recipe_contract enforced");
-            }
-        }
-
         // Recipe-only rules route through compose path (domain_plan suppressed).
-        if planner_hit && is_recipe_only_rule(rule_id, gate.planner_required) {
+        if planner_hit && is_recipe_only_rule(rule_id) {
             gate.log_planner_first(rule_id);
             debug_log_recipe_only_entry(rule_id);
             return Ok((None, outcome));
@@ -232,7 +197,6 @@ pub(super) fn try_build_domain_plan_with_outcome(
         }
 
         let (plan_opt, log_none) = if planner_hit {
-            planner_matched_any_rule = true;
             gate.log_planner_first(rule_id);
             (outcome.plan.take(), false)
         } else if gate.planner_required {
@@ -249,10 +213,6 @@ pub(super) fn try_build_domain_plan_with_outcome(
             let debug_msg = format!("{} extraction returned None, trying next pattern", name);
             trace::trace().debug("route", &debug_msg);
         }
-    }
-
-    if gate.planner_required && planner_kind.is_some() && !planner_matched_any_rule {
-        return Err(freeze_planner_required_mismatch());
     }
 
     Ok((None, outcome))
@@ -280,23 +240,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn recipe_only_rules_require_planner_required_for_pattern_family() {
-        assert!(is_recipe_only_rule(PlanRuleId::LoopBreakRecipe, true));
-        assert!(is_recipe_only_rule(PlanRuleId::LoopTrueEarlyExit, true));
-        assert!(!is_recipe_only_rule(PlanRuleId::LoopBreakRecipe, false));
-        assert!(!is_recipe_only_rule(PlanRuleId::LoopTrueEarlyExit, false));
+    fn recipe_only_rule_is_domain_plan_only() {
+        assert!(is_recipe_only_rule(PlanRuleId::LoopCondContinueWithReturn));
+        assert!(!is_recipe_only_rule(PlanRuleId::LoopBreakRecipe));
+        assert!(!is_recipe_only_rule(PlanRuleId::IfPhiJoin));
     }
 
     #[test]
     fn loop_cond_continue_with_return_is_always_recipe_only() {
-        assert!(is_recipe_only_rule(
-            PlanRuleId::LoopCondContinueWithReturn,
-            false
-        ));
-        assert!(is_recipe_only_rule(
-            PlanRuleId::LoopCondContinueWithReturn,
-            true
-        ));
+        assert!(is_recipe_only_rule(PlanRuleId::LoopCondContinueWithReturn));
     }
 
     #[test]
