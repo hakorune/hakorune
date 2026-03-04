@@ -81,6 +81,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `6d85176d2` refactor D5 trim unused reexports in verifier policy and joinir merge facade
+    - `plan/verifier/mod.rs` から未使用の `CanonicalLoopFacts` 再公開を削除
+    - `plan/policies/.../balanced_depth_scan_policy.rs` を `BalancedDepthScanPolicyResult` のみ再公開へ縮退
+    - `joinir/merge/mod.rs` の未使用 `MergeConfig` 再公開を削除し、`MergeContracts` 再公開の不要 suppression を撤去
+    - re-export surface を実使用に寄せ、`allow(unused_imports)` 依存を削減
   - `0aac809b8` refactor D5 gate legacy normalization loop_with_post path to tests
     - `normalization/plan.rs` の `PlanKind::LoopWithPost` と `NormalizationPlan::loop_with_post()` を `#[cfg(test)]` 化
     - `normalization/execute_box.rs` の `execute_loop_with_post` を `#[cfg(test)]` 化
@@ -233,6 +238,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-6d85176d2, `warning: 0`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-6d85176d2）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-6d85176d2）
   - `cargo build --release --bin hakorune`（post-0aac809b8, `warning: 0`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-0aac809b8）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
