@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! Shared scan-loop segment vocabulary (SSOT).
 //!
 //! Purpose:

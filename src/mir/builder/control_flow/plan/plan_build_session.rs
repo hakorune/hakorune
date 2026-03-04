@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! PlanBuildSession - Plan lowering の手順 SSOT（Phase 29bq+）
 //!
 //! # 目的

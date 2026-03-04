@@ -1,5 +1,4 @@
 //! ExitMap feature helpers (break/continue blocks → CorePlan exits).
-#![allow(dead_code)]
 
 use super::exit_branch;
 use crate::ast::ASTNode;

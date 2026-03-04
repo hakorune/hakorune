@@ -2,7 +2,6 @@
 //!
 //! Note: Core implementations moved to parts::exit_branch (M5i).
 //! Functions here delegate to parts for backward compatibility.
-#![allow(dead_code)]
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::parts::entry as parts_entry;
@@ -144,15 +143,6 @@ pub(in crate::mir::builder) fn build_continue_exit_plan(depth: usize) -> CoreExi
 /// Consolidates Continue generation to a single location (BoxShape).
 pub(in crate::mir::builder) fn build_continue_only(depth: usize) -> LoweredRecipe {
     CorePlan::Exit(build_continue_exit_plan(depth))
-}
-
-/// Build a CoreExitPlan::Return with Option<ValueId> (for loop_cond_* pipelines).
-///
-/// Consolidates Return(Option<ValueId>) generation to a single location (BoxShape).
-pub(in crate::mir::builder) fn build_return_exit_plan_opt(
-    ret_val: Option<crate::mir::ValueId>,
-) -> CoreExitPlan {
-    CoreExitPlan::Return(ret_val)
 }
 
 /// Delegate to parts::entry (SSOT for Return lowering).

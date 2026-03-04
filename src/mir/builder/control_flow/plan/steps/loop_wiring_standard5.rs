@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! Step: Standard5 loop CFG wiring
 //! (plan::steps SSOT)
 //!
@@ -63,18 +62,6 @@ pub fn build_standard5_frag(
         wires,
         branches,
     }
-}
-
-/// Convenience: Build complete Standard5 Frag in one call.
-///
-/// edge_args は caller が用意（通常は empty_carriers_args()）
-pub fn build_standard5_loop_frag(
-    frame: &CoreLoopFrame,
-    cond_loop: ValueId,
-    edge_args: EdgeArgs,
-) -> Frag {
-    let (branches, wires) = build_standard5_wiring(frame, cond_loop, edge_args);
-    build_standard5_frag(frame.header_bb, branches, wires)
 }
 
 /// Helper: Create empty EdgeArgs with CarriersOnly layout.
