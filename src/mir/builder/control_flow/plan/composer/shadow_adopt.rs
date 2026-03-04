@@ -2,6 +2,11 @@
 
 use super::coreloop_gates::coreloop_base_gate;
 use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
+use super::legacy_pattern_minimals::{
+    normalize_escape_map_minimal, normalize_int_to_str_minimal,
+    normalize_is_integer_minimal, normalize_skip_ws_minimal,
+    normalize_split_lines_minimal, normalize_starts_with_minimal,
+};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
@@ -15,12 +20,6 @@ use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::normalizer::{
     normalize_generic_loop_v0, normalize_generic_loop_v1,
 };
-use crate::mir::builder::control_flow::plan::normalizer::pattern_escape_map::normalize_escape_map_minimal;
-use crate::mir::builder::control_flow::plan::normalizer::pattern_int_to_str::normalize_int_to_str_minimal;
-use crate::mir::builder::control_flow::plan::normalizer::pattern_is_integer::normalize_is_integer_minimal;
-use crate::mir::builder::control_flow::plan::normalizer::pattern_skip_ws::normalize_skip_ws_minimal;
-use crate::mir::builder::control_flow::plan::normalizer::pattern_split_lines::normalize_split_lines_minimal;
-use crate::mir::builder::control_flow::plan::normalizer::pattern_starts_with::normalize_starts_with_minimal;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
