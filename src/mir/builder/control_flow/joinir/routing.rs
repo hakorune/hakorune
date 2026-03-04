@@ -591,6 +591,7 @@ impl MirBuilder {
                     );
                 }
             }
+            #[cfg(test)]
             _ => {
                 // Fallback for any other pattern (should not happen in Phase 142+)
                 if debug {

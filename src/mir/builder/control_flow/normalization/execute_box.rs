@@ -63,6 +63,7 @@ impl NormalizationExecuteBox {
             PlanKind::LoopOnly => {
                 Self::execute_loop_only(builder, remaining, func_name, debug, prefix_variables)
             }
+            #[cfg(test)]
             _ => {
                 // Fallback for any other pattern (should not happen in Phase 142+)
                 Err("[normalization/execute] Unexpected pattern kind (Phase 142+ should only have LoopOnly)".to_string())
@@ -162,7 +163,7 @@ impl NormalizationExecuteBox {
     /// Execute Phase 132-133: Loop + post assignments + return
     ///
     /// ## Phase 141 P1.5: Added prefix_variables parameter
-    #[allow(dead_code)]
+    #[cfg(test)]
     fn execute_loop_with_post(
         builder: &mut MirBuilder,
         plan: &NormalizationPlan,

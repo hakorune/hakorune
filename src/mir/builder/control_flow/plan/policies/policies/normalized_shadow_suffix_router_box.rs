@@ -72,6 +72,7 @@ impl NormalizedShadowSuffixRouterBox {
         if debug {
             let description = match &plan.kind {
                 PlanKind::LoopOnly => "Loop-only pattern".to_string(),
+                #[cfg(test)]
                 _ => "Unknown pattern (should not happen)".to_string(),
             };
             trace.routing("suffix_router", func_name, &description);

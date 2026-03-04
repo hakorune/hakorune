@@ -17,7 +17,6 @@ pub struct NormalizationPlan {
 
 /// Kind of normalization pattern detected
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[allow(dead_code)]
 pub enum PlanKind {
     /// Phase 131: loop(true) { ... break } alone
     ///
@@ -38,6 +37,7 @@ pub enum PlanKind {
     ///
     /// Pattern: loop + N assignments + return
     /// Example: `loop(true) { x = 1; break }; x = x + 2; return x`
+    #[cfg(test)]
     #[deprecated(
         since = "Phase 142 P0",
         note = "Use LoopOnly instead. Normalization unit is now statement-level."
@@ -66,8 +66,8 @@ impl NormalizationPlan {
         since = "Phase 142 P0",
         note = "Use loop_only() instead. Statement-level normalization makes this obsolete."
     )]
+    #[cfg(test)]
     #[allow(deprecated)]
-    #[allow(dead_code)]
     pub fn loop_with_post(post_assign_count: usize) -> Self {
         // consumed = 1 (loop) + N (assigns) + 1 (return)
         let consumed = 1 + post_assign_count + 1;
