@@ -49,8 +49,6 @@
 //! Phase 255 P2: Common Utilities
 //! - common/: Shared helper functions (moved to plan/, thin wrapper)
 
-#![allow(dead_code)]
-
 pub(in crate::mir::builder) mod router;
 pub(in crate::mir::builder) mod registry;
 pub(in crate::mir::builder) mod legacy;
