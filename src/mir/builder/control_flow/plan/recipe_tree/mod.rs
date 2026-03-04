@@ -223,5 +223,3 @@ pub(in crate::mir::builder) fn build_arena_and_loop_v0_root_from_nested_stmt_onl
 
 // Common exports
 pub(in crate::mir::builder) use common::{ExitKind, IfMode};
-#[allow(unused_imports)] // Public surface for Verified-only lowering; not all phases use it yet.
-pub(in crate::mir::builder) use verified::VerifiedRecipeBlock;
