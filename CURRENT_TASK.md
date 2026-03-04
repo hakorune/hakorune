@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `96591f62b` refactor D5 migrate skip_ws minimal normalizer from normalizer to composer legacy_minimals
+    - `normalizer/pattern_skip_ws.rs` を `composer/legacy_minimals/skip_ws.rs` へ移設（rename）
+    - `composer/legacy_pattern_minimals.rs` の `skip_ws` 参照を composer 側実装へ切替
+    - `normalizer/{mod.rs,legacy_minimals.rs}` から `skip_ws` module/export を撤去（1箱分の file placement 完了）
   - `f2ad5c305` refactor D5 encapsulate normalizer pattern helpers behind legacy_minimals window
     - `normalizer/legacy_minimals.rs` を新設し、pattern helper 参照の窓口を1箇所に集約
     - `normalizer/mod.rs` の `pattern*.rs` module visibility を private に戻し、`legacy_minimals` 経由へ整理
@@ -697,6 +701,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-f2ad5c305)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-f2ad5c305, elapsed=`0:04.60`）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-96591f62b)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-96591f62b, elapsed=`0:04.67`）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -725,7 +733,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `DomainPlan` alias 撤去（`fa1efcb21`）と `src/mir/builder/control_flow/{plan,joinir}` 内の残語彙撤去（`27cbe50d2`, `5af900fe3`）まで完了。
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
    - `normalizer` 側も `legacy_minimals` 窓口へ統一済み（`f2ad5c305`）。
-   - 次は file placement（`normalizer/pattern*.rs` を composer 側へ段階移設）を小分けで進める。
+   - file placement は `skip_ws` 1件を composer 側へ移設済み（`96591f62b`）。
+   - 次は `is_integer / starts_with / int_to_str / escape_map / split_lines` を1件ずつ同手順で移設する。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
