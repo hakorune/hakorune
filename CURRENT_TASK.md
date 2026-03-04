@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `9206a9052` refactor D5 remove exit_kind dead_code allows via strict sanity checks
+    - `edgecfg/api/exit_kind.rs` の `Continue/Unwind/Cancel` と helper method の `allow(dead_code)` を撤去
+    - `edgecfg/api/verify.rs` strict 入口に ExitKind semantic sanity check（debug_assert）を追加
+    - suppression ではなく不変条件チェックで enum 語彙を保持
   - `f236a9736` refactor D5 drop redundant unused_imports allows in edgecfg api reexports
     - `edgecfg/api/mod.rs` の `BlockParams` 再公開から不要 `allow(unused_imports)` を削除
     - `edgecfg/api/compose/mod.rs` の `if_` 再公開から不要 `allow(unused_imports)` を削除
@@ -206,6 +210,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-9206a9052）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-9206a9052）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-9206a9052）
+  - `cargo build --release --bin hakorune`（warning baseline re-check: `warning: 0`, post-9206a9052）
   - `cargo build --release --bin hakorune`（post-f236a9736）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-f236a9736）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
