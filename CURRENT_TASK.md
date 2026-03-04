@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `495dfd032` refactor D5 remove unused predicate scan emitter and phi wrapper dead helper
+    - `emission/loop_predicate_scan.rs` を削除（参照ゼロの未使用モジュール撤去）
+    - `emission/phi.rs` の未使用 helper `insert_loop_phi` を削除し、module comment を現行責務に同期
+    - `emission/mod.rs` の module wire/comment を実体に同期
   - `49c97d94f` fix D5 restore pattern2 promotion hint tag emission
   - `c2ab89104` refactor D5 prune dead single planner recipe-only guards
   - `936b7766a` docs D5 sync planner SSOT comments with domain-plan-only flow
@@ -176,6 +180,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-495dfd032）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-495dfd032）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-495dfd032）
+  - `cargo build --release --bin hakorune`（warning baseline re-check: `warning: 0`）
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
   - `cargo test -q --lib planner_prefers_none_when_no_candidates`
   - `cargo test -q --lib planner_skips_scan_with_init_domain_plan`
