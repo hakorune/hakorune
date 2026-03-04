@@ -1,60 +1,10 @@
-//! PHI Insertion - Thin wrapper for builder context
+//! PHI helpers for branch-entry materialization.
 //!
-//! Purpose: Eliminate PHI insertion boilerplate across Pattern6/7/8
-//!
-//! Architecture:
-//! - SSOT: insert_phi_at_head_spanned() in src/mir/ssot/cf_common.rs
-//! - This module: Builder context extraction (current_function, span) + fail-fast
-//!
-//! Refactoring Context:
-//! - Before: Pattern6/7/8 each have ~15 lines of boilerplate (if let Some(ref mut func) ...)
-//! - After: Single function call with error propagation
+//! This module keeps branch-entry PHI wiring in one place so if/short-circuit
+//! lowering paths do not duplicate variable-map synchronization logic.
 
 use crate::mir::builder::MirBuilder;
-use crate::mir::ssot::cf_common::insert_phi_at_head_spanned;
 use crate::mir::{BasicBlockId, ValueId};
-
-/// Insert PHI node at block header (builder wrapper)
-///
-/// # Arguments
-/// - `builder`: MirBuilder (for current_function, span extraction)
-/// - `block`: Target block for PHI insertion
-/// - `phi_dst`: Destination ValueId for PHI result
-/// - `phi_inputs`: Vec of (predecessor_block, value) pairs
-///
-/// # Errors
-/// Returns Err if current_function is None (fail-fast)
-///
-/// # Example
-/// ```ignore
-/// // Pattern6/7/8 header PHI insertion
-/// insert_loop_phi(
-///     builder,
-///     header_bb,
-///     i_current,
-///     vec![(preheader_bb, i_init_val), (step_bb, i_next)],
-///     "pattern7",
-/// )?;
-/// ```
-pub(in crate::mir::builder) fn insert_loop_phi(
-    builder: &mut MirBuilder,
-    block: BasicBlockId,
-    phi_dst: ValueId,
-    phi_inputs: Vec<(BasicBlockId, ValueId)>,
-    context: &str,
-) -> Result<(), String> {
-    let func = builder
-        .scope_ctx
-        .current_function
-        .as_mut()
-        .ok_or_else(|| format!("[{}] insert_loop_phi: No current function", context))?;
-
-    let span = builder.metadata_ctx.current_span();
-
-    insert_phi_at_head_spanned(func, block, phi_dst, phi_inputs, span)?;
-
-    Ok(())
-}
 
 /// Materialize all variables from pre_if_var_map as single-pred PHIs at block entry.
 ///
