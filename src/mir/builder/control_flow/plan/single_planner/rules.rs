@@ -86,7 +86,7 @@ fn promotion_hint_tag(shape: &LoopBodyLocalShape) -> &'static str {
     }
 }
 
-fn emit_pattern2_promotion_hint_tag(promotion_shape: Option<&LoopBodyLocalShape>) {
+fn emit_loop_break_promotion_hint_tag(promotion_shape: Option<&LoopBodyLocalShape>) {
     let Some(shape) = promotion_shape else {
         return;
     };
@@ -169,7 +169,7 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
         .and_then(|facts| facts.facts.pattern2_loopbodylocal.as_ref())
         .map(|facts| &facts.shape);
 
-    emit_pattern2_promotion_hint_tag(promotion_facts);
+    emit_loop_break_promotion_hint_tag(promotion_facts);
 
     for rule_id in PLAN_RULE_ORDER {
         let rule_id = *rule_id;
