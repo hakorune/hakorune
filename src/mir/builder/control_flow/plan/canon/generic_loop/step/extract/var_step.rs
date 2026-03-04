@@ -1,7 +1,7 @@
 use crate::ast::{ASTNode, BinaryOperator};
 use std::collections::BTreeSet;
 
-use super::shared::collect_assigned_var_names;
+use super::shared::{collect_assigned_var_names, contains_var_name};
 
 pub(super) fn extract_var_step_increment(body: &[ASTNode], loop_var: &str) -> Option<ASTNode> {
     for stmt in body {
@@ -29,10 +29,9 @@ pub(super) fn extract_var_step_increment(body: &[ASTNode], loop_var: &str) -> Op
 
         let is_loop_var =
             |node: &ASTNode| matches!(node, ASTNode::Variable { name, .. } if name == loop_var);
-        let is_any_var = |node: &ASTNode| matches!(node, ASTNode::Variable { .. });
 
-        if (is_loop_var(left.as_ref()) && is_any_var(right.as_ref()))
-            || (is_any_var(left.as_ref()) && is_loop_var(right.as_ref()))
+        if (is_loop_var(left.as_ref()) && !contains_var_name(right.as_ref(), loop_var))
+            || (!contains_var_name(left.as_ref(), loop_var) && is_loop_var(right.as_ref()))
         {
             return Some(value.as_ref().clone());
         }

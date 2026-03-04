@@ -73,6 +73,46 @@ mod tests {
         }
     }
 
+    fn assert_is_loop_var_plus_one(expr: &ASTNode, loop_var: &str) {
+        match expr {
+            ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left,
+                right,
+                ..
+            } => {
+                let left_is_var = matches!(
+                    left.as_ref(),
+                    ASTNode::Variable { name, .. } if name == loop_var
+                );
+                let right_is_var = matches!(
+                    right.as_ref(),
+                    ASTNode::Variable { name, .. } if name == loop_var
+                );
+                let left_is_one = matches!(
+                    left.as_ref(),
+                    ASTNode::Literal {
+                        value: LiteralValue::Integer(1),
+                        ..
+                    }
+                );
+                let right_is_one = matches!(
+                    right.as_ref(),
+                    ASTNode::Literal {
+                        value: LiteralValue::Integer(1),
+                        ..
+                    }
+                );
+                assert!(
+                    (left_is_var && right_is_one) || (right_is_var && left_is_one),
+                    "expected {loop_var}+1 style step, got {:?}",
+                    expr
+                );
+            }
+            _ => panic!("expected binary add step, got {:?}", expr),
+        }
+    }
+
     #[test]
     fn generic_loop_v0_allows_loop_var_from_add_expr_in_condition() {
         let cond = bin(
@@ -189,5 +229,60 @@ mod tests {
             facts.body_lowering_policy,
             BodyLoweringPolicy::RecipeOnly
         ));
+    }
+
+    #[test]
+    fn generic_loop_nested_program_stmt_preserves_outer_loop_step_expr() {
+        std::env::set_var("NYASH_JOINIR_DEV", "1");
+        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+
+        let outer_cond = bin(BinaryOperator::Less, var("i"), var("n"));
+        let inner_cond = bin(BinaryOperator::Less, var("j"), var("n"));
+        let inner_body = vec![
+            ASTNode::If {
+                condition: Box::new(bin(BinaryOperator::Equal, var("j"), lit_i(1))),
+                then_body: vec![ASTNode::Break {
+                    span: Span::unknown(),
+                }],
+                else_body: None,
+                span: Span::unknown(),
+            },
+            assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+        ];
+        let body = vec![
+            ASTNode::If {
+                condition: Box::new(bin(BinaryOperator::Equal, var("i"), lit_i(2))),
+                then_body: vec![ASTNode::Break {
+                    span: Span::unknown(),
+                }],
+                else_body: None,
+                span: Span::unknown(),
+            },
+            ASTNode::Program {
+                statements: vec![
+                    local_init("j", lit_i(0)),
+                    ASTNode::Loop {
+                        condition: Box::new(inner_cond),
+                        body: inner_body,
+                        span: Span::unknown(),
+                    },
+                ],
+                span: Span::unknown(),
+            },
+            assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+        ];
+
+        if let Some(v0) = try_extract_generic_loop_v0_facts(&outer_cond, &body)
+            .expect("v0: no freeze")
+        {
+            assert_eq!(v0.loop_var, "i");
+            assert_is_loop_var_plus_one(&v0.loop_increment, "i");
+        }
+
+        let v1 = try_extract_generic_loop_v1_facts(&outer_cond, &body)
+            .expect("v1: no freeze")
+            .expect("v1 should match");
+        assert_eq!(v1.loop_var, "i");
+        assert_is_loop_var_plus_one(&v1.loop_increment, "i");
     }
 }
