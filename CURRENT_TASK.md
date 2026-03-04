@@ -2082,3 +2082,15 @@ contract note (fixed):
     - `cargo build --release --bin hakorune`
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` (`PASS`)
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, D5 planner shadow semantic-key cleanup):
+  - `planner/pattern_shadow.rs` の priority table を現行 semantic rule key へ更新し、legacy `loop/pattern*` 語彙を撤去。
+    - keep: `loop_cond_continue_with_return`, `loop_cond_break_continue`, `loop_cond_continue_only`, `loop_cond_return_in_body`
+    - keep: `cluster*` / `nested_depth*` の diagnostic bucket
+    - unknown fallback は `255` を維持
+  - note:
+    - `pattern_shadow` は ambiguous candidate 時の診断専用（selection SSOT ではない）なので挙動不変。
+  - verification:
+    - `cargo test -q --lib semantic_rule_priority_is_stable`
+    - `cargo test -q --lib planner_rule_order_is_domain_plan_only`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
