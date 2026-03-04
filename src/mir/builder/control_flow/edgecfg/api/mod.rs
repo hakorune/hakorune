@@ -37,9 +37,5 @@ pub use branch_stub::BranchStub; // Phase 267 P0: 追加
 // 検証関数
  // Phase 266: strict 版追加
 
-// Phase 267 P0: wires + branches → MIR terminator 変換
-#[allow(unused_imports)] // Re-exported API (used by other modules / tooling); may be unused within this module.
-pub use emit::emit_frag;
-
 // Phase 29bq+: sealing 層中立化
 pub use frag_emit_session::FragEmitSession;
