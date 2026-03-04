@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `f236a9736` refactor D5 drop redundant unused_imports allows in edgecfg api reexports
+    - `edgecfg/api/mod.rs` の `BlockParams` 再公開から不要 `allow(unused_imports)` を削除
+    - `edgecfg/api/compose/mod.rs` の `if_` 再公開から不要 `allow(unused_imports)` を削除
+    - `emit_frag` 再公開は現状使用実態に合わせて抑制維持（warning baseline `0`）
   - `3c55a3d2f` refactor D5 gate edgecfg compose legacy helpers to test-only
     - `edgecfg/api/compose/{seq,loop_,cleanup}.rs` の legacy helper を `#[cfg(test)]` 化
     - `compose/mod.rs` の再公開を実使用に合わせて test-only 化（`if_` は runtime 維持）
@@ -202,6 +206,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-f236a9736）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-f236a9736）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-f236a9736）
+  - `cargo build --release --bin hakorune`（warning baseline re-check: `warning: 0`, post-f236a9736）
   - `cargo build --release --bin hakorune`（post-3c55a3d2f）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-3c55a3d2f）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
