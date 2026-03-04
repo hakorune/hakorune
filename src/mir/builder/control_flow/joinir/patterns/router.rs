@@ -318,13 +318,13 @@ pub(crate) fn route_loop_pattern(
     // Phase-1: recipe-first paths return above; reaching here means no recipe-first match.
     // Phase-2: do not attempt shadow_adopt if recipe-first matched (entry is locked earlier).
     // Phase-3: release also returns above when recipe-first matched (shadow_adopt fallback skipped).
-    if strict_or_dev {
+    if strict_or_dev && domain_plan.is_none() {
         if let Some(value) = lower_shadow_adopt_pre_plan(
             builder,
             ctx,
             strict_or_dev,
             &outcome,
-            domain_plan.is_none(),
+            true,
         )? {
             trace_entry_route("shadow_adopt");
             return Ok(Some(value));
