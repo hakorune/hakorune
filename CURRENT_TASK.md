@@ -89,6 +89,24 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `22532f0bf` refactor D5 delete dead pattern8 plan-side module
   - `6d5b1ab7c` refactor D5 align planner shadow with semantic rule keys
   - `32f735d9c` refactor D5 gate facts loop_tests as test-only module
+  - `WIP` planner/build test cleanup (commit pending):
+    - `planner/build_tests.rs` を helper ベースへ再編（`LoopFacts` 重複初期化を共通化）
+    - file size: `903 -> 425` lines（挙動不変）
+
+- verification (latest cleanup round):
+  - `cargo test -q --lib planner_skips_split_scan_domain_plan`
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo test -q --lib planner_skips_scan_with_init_domain_plan`
+  - `cargo test -q --lib planner_ignores_scan_with_init_negative_step`
+  - `cargo test -q --lib planner_ignores_scan_with_init_feature_staging`
+  - `cargo test -q --lib planner_gates_non_loop_skeletons`
+  - `cargo test -q --lib planner_does_not_build_pattern1_simplewhile_plan_from_facts`
+  - `cargo test -q --lib planner_does_not_build_pattern1_char_map_plan_from_facts`
+  - `cargo test -q --lib planner_does_not_build_pattern1_array_join_plan_from_facts`
+  - `cargo test -q --lib planner_does_not_build_pattern8_bool_predicate_scan_plan_from_facts`
+  - `cargo test -q --lib planner_does_not_build_pattern9_accum_const_loop_plan_from_facts`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -101,7 +119,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. D5-E: `planner/build_tests.rs` の legacy-heavy negative tests を DomainPlan-only 契約へ整理。
+1. 上記 `planner/build_tests.rs` cleanup を commit 確定する。
 2. D5-E: `single_planner/rule_order.rs` の legacy label 互換を最小化（gate互換を維持する範囲）。
 3. D5-E: `facts/planner` 側の dead import / dead comment を掃除して SSOT と同期。
 4. 各ステップで `bq` + `phase29x-probe` を回し、`emit_fail=0` / `route_blocker=0` を維持確認。

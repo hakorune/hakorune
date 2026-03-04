@@ -7,37 +7,32 @@
 #[cfg(test)]
 mod tests {
     use super::super::build::*;
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
-        cond_profile_from_scan_shapes, ConditionShape, StepShape,
-    };
+    use super::super::context::PlannerContext;
+    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         ExitKindFacts, ExitMapFacts, ExitUsageFacts, LoopFeatureFacts,
     };
     use crate::mir::builder::control_flow::plan::facts::loop_types::{
         LoopFacts, ScanWithInitFacts, SplitScanFacts,
     };
-    use crate::mir::builder::control_flow::plan::facts::pattern1_simplewhile_facts::{
-        Pattern1SimpleWhileFacts,
-    };
-    use crate::mir::builder::control_flow::plan::facts::pattern1_char_map_facts::{
-        Pattern1CharMapFacts,
-    };
-    use crate::mir::builder::control_flow::plan::facts::pattern1_array_join_facts::{
-        Pattern1ArrayJoinFacts,
-    };
-    use crate::mir::builder::control_flow::plan::facts::pattern8_bool_predicate_scan_facts::{
-        Pattern8BoolPredicateScanFacts,
-    };
-    use crate::mir::builder::control_flow::plan::facts::pattern9_accum_const_loop_facts::{
-        Pattern9AccumConstLoopFacts,
+    use crate::mir::builder::control_flow::plan::facts::pattern1_array_join_facts::
+        Pattern1ArrayJoinFacts;
+    use crate::mir::builder::control_flow::plan::facts::pattern1_char_map_facts::
+        Pattern1CharMapFacts;
+    use crate::mir::builder::control_flow::plan::facts::pattern1_simplewhile_facts::
+        Pattern1SimpleWhileFacts;
+    use crate::mir::builder::control_flow::plan::facts::pattern8_bool_predicate_scan_facts::
+        Pattern8BoolPredicateScanFacts;
+    use crate::mir::builder::control_flow::plan::facts::pattern9_accum_const_loop_facts::
+        Pattern9AccumConstLoopFacts;
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
+        cond_profile_from_scan_shapes, ConditionShape, StepShape,
     };
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
         SkeletonFacts, SkeletonKind,
     };
     use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::plan::DomainPlan;
-    use super::super::context::PlannerContext;
-    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use std::collections::{BTreeMap, BTreeSet};
 
     fn v(name: &str) -> ASTNode {
@@ -82,9 +77,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn planner_skips_split_scan_domain_plan() {
-        let facts = LoopFacts {
+    fn base_loop_facts() -> LoopFacts {
+        LoopFacts {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton: SkeletonFacts {
@@ -93,6 +87,75 @@ mod tests {
             },
             features: LoopFeatureFacts::default(),
             scan_with_init: None,
+            split_scan: None,
+            pattern1_simplewhile: None,
+            pattern1_char_map: None,
+            pattern1_array_join: None,
+            pattern_is_integer: None,
+            pattern_starts_with: None,
+            pattern_int_to_str: None,
+            pattern_escape_map: None,
+            pattern_split_lines: None,
+            pattern_skip_ws: None,
+            generic_loop_v0: None,
+            generic_loop_v1: None,
+            pattern3_ifphi: None,
+            pattern4_continue: None,
+            pattern5_infinite_early_exit: None,
+            loop_true_break_continue: None,
+            loop_cond_break_continue: None,
+            loop_cond_continue_only: None,
+            loop_cond_continue_with_return: None,
+            loop_cond_return_in_body: None,
+            loop_scan_v0: None,
+            loop_scan_methods_block_v0: None,
+            loop_scan_methods_v0: None,
+            loop_scan_phi_vars_v0: None,
+            loop_bundle_resolver_v0: None,
+            loop_collect_using_entries_v0: None,
+            pattern8_bool_predicate_scan: None,
+            pattern9_accum_const_loop: None,
+            pattern2_break: None,
+            pattern2_loopbodylocal: None,
+            pattern6_nested_minimal: None,
+        }
+    }
+
+    fn base_loop_facts_with_skeleton(kind: SkeletonKind) -> LoopFacts {
+        LoopFacts {
+            skeleton: SkeletonFacts {
+                kind,
+                ..Default::default()
+            },
+            ..base_loop_facts()
+        }
+    }
+
+    fn base_loop_facts_with_features(features: LoopFeatureFacts) -> LoopFacts {
+        LoopFacts {
+            features,
+            ..base_loop_facts()
+        }
+    }
+
+    fn plan_from_facts(facts: LoopFacts) -> Option<DomainPlan> {
+        let canonical = canonicalize_loop_facts(facts);
+        build_plan_from_facts(canonical).expect("Ok")
+    }
+
+    fn scan_with_init(step_lit: i64) -> ScanWithInitFacts {
+        ScanWithInitFacts {
+            loop_var: "i".to_string(),
+            haystack: "s".to_string(),
+            needle: "ch".to_string(),
+            step_lit,
+            dynamic_needle: false,
+        }
+    }
+
+    #[test]
+    fn planner_skips_split_scan_domain_plan() {
+        let facts = LoopFacts {
             split_scan: Some(SplitScanFacts {
                 s_var: "s".to_string(),
                 sep_var: "separator".to_string(),
@@ -101,367 +164,64 @@ mod tests {
                 start_var: "start".to_string(),
                 shape: crate::mir::builder::control_flow::plan::facts::scan_shapes::SplitScanShape::Minimal,
             }),
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            ..base_loop_facts()
         };
-        let canonical = canonicalize_loop_facts(facts);
-        let plan = build_plan_from_facts(canonical).expect("Ok");
 
+        let plan = plan_from_facts(facts);
         assert!(plan.is_none());
     }
 
     #[test]
     fn planner_prefers_none_when_no_candidates() {
-        let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
-            step_shape: StepShape::Unknown,
-            skeleton: SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
-            features: LoopFeatureFacts::default(),
-            scan_with_init: None,
-            split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
-        };
-        let canonical = canonicalize_loop_facts(facts);
-        let plan = build_plan_from_facts(canonical).expect("Ok");
+        let plan = plan_from_facts(base_loop_facts());
         assert!(plan.is_none());
     }
 
     #[test]
     fn planner_skips_scan_with_init_domain_plan() {
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
-            step_shape: StepShape::Unknown,
-            skeleton: SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
-            features: LoopFeatureFacts::default(),
-            scan_with_init: Some(ScanWithInitFacts {
-                loop_var: "i".to_string(),
-                haystack: "s".to_string(),
-                needle: "ch".to_string(),
-                step_lit: 1,
-                dynamic_needle: false,
-            }),
-            split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            scan_with_init: Some(scan_with_init(1)),
+            ..base_loop_facts()
         };
-        let canonical = canonicalize_loop_facts(facts);
-        let plan = build_plan_from_facts(canonical).expect("Ok");
+
+        let plan = plan_from_facts(facts);
         assert!(plan.is_none());
     }
 
     #[test]
     fn planner_ignores_scan_with_init_negative_step() {
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
-            step_shape: StepShape::Unknown,
-            skeleton: SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
-            features: LoopFeatureFacts::default(),
-            scan_with_init: Some(ScanWithInitFacts {
-                loop_var: "i".to_string(),
-                haystack: "s".to_string(),
-                needle: "ch".to_string(),
-                step_lit: -1,
-                dynamic_needle: false,
-            }),
-            split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            scan_with_init: Some(scan_with_init(-1)),
+            ..base_loop_facts()
         };
-        let canonical = canonicalize_loop_facts(facts);
-        let plan = build_plan_from_facts(canonical).expect("Ok");
+
+        let plan = plan_from_facts(facts);
         assert!(plan.is_none());
     }
 
     #[test]
     fn planner_ignores_scan_with_init_feature_staging() {
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
-            step_shape: StepShape::Unknown,
-            skeleton: SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
-            features: feature_facts_with_usage(ExitUsageFacts {
+            scan_with_init: Some(scan_with_init(1)),
+            ..base_loop_facts_with_features(feature_facts_with_usage(ExitUsageFacts {
                 has_break: true,
                 has_continue: false,
                 has_return: false,
                 has_unwind: false,
-            }),
-            scan_with_init: Some(ScanWithInitFacts {
-                loop_var: "i".to_string(),
-                haystack: "s".to_string(),
-                needle: "ch".to_string(),
-                step_lit: 1,
-                dynamic_needle: false,
-            }),
-            split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            }))
         };
-        let canonical = canonicalize_loop_facts(facts);
-        let plan = build_plan_from_facts(canonical).expect("Ok");
+
+        let plan = plan_from_facts(facts);
         assert!(plan.is_none());
     }
 
     #[test]
     fn planner_gates_non_loop_skeletons() {
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
-            step_shape: StepShape::Unknown,
-            skeleton: SkeletonFacts {
-                kind: SkeletonKind::If2,
-                ..Default::default()
-            },
-            features: LoopFeatureFacts::default(),
-            scan_with_init: Some(ScanWithInitFacts {
-                loop_var: "i".to_string(),
-                haystack: "s".to_string(),
-                needle: "ch".to_string(),
-                step_lit: 1,
-                dynamic_needle: false,
-            }),
-            split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            scan_with_init: Some(scan_with_init(1)),
+            ..base_loop_facts_with_skeleton(SkeletonKind::If2)
         };
+
         let canonical = canonicalize_loop_facts(facts);
         let plan = build_plan_from_facts_ctx(&PlannerContext::default_for_legacy(), canonical)
             .expect("Ok");
@@ -484,62 +244,15 @@ mod tests {
         };
 
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
-            step_shape: StepShape::Unknown,
-            skeleton: SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
-            features: LoopFeatureFacts::default(),
-            scan_with_init: None,
-            split_scan: None,
             pattern1_simplewhile: Some(Pattern1SimpleWhileFacts {
                 loop_var: "i".to_string(),
-                condition: loop_condition.clone(),
-                loop_increment: loop_increment.clone(),
+                condition: loop_condition,
+                loop_increment,
             }),
-            pattern1_char_map: None,
-            pattern1_array_join: None,
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            ..base_loop_facts()
         };
-        let canonical = canonicalize_loop_facts(facts);
-        let plan = build_plan_from_facts(canonical).expect("Ok");
+
+        let plan = plan_from_facts(facts);
         assert!(plan.is_none());
     }
 
@@ -564,20 +277,10 @@ mod tests {
         };
 
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
-            step_shape: StepShape::Unknown,
-            skeleton: SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
-            features: LoopFeatureFacts::default(),
-            scan_with_init: None,
-            split_scan: None,
-            pattern1_simplewhile: None,
             pattern1_char_map: Some(Pattern1CharMapFacts {
                 loop_var: "i".to_string(),
-                condition: loop_condition.clone(),
-                loop_increment: loop_increment.clone(),
+                condition: loop_condition,
+                loop_increment,
                 haystack_var: "s".to_string(),
                 result_var: "result".to_string(),
                 receiver_var: "me".to_string(),
@@ -587,47 +290,10 @@ mod tests {
                     &StepShape::Unknown,
                 ),
             }),
-            pattern1_array_join: None,
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            ..base_loop_facts()
         };
-        let canonical = canonicalize_loop_facts(facts);
-        let plan = build_plan_from_facts(canonical).expect("Ok");
+
+        let plan = plan_from_facts(facts);
         assert!(plan.is_none());
     }
 
@@ -658,22 +324,11 @@ mod tests {
         };
 
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
-            step_shape: StepShape::Unknown,
-            skeleton: SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
-            features: LoopFeatureFacts::default(),
-            scan_with_init: None,
-            split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
             pattern1_array_join: Some(Pattern1ArrayJoinFacts {
                 loop_var: "i".to_string(),
-                condition: loop_condition.clone(),
-                if_condition: if_condition.clone(),
-                loop_increment: loop_increment.clone(),
+                condition: loop_condition,
+                if_condition,
+                loop_increment,
                 array_var: "arr".to_string(),
                 result_var: "result".to_string(),
                 separator_var: "sep".to_string(),
@@ -682,46 +337,10 @@ mod tests {
                     &StepShape::Unknown,
                 ),
             }),
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            ..base_loop_facts()
         };
-        let canonical = canonicalize_loop_facts(facts);
-        let plan = build_plan_from_facts(canonical).expect("Ok");
+
+        let plan = plan_from_facts(facts);
         assert!(plan.is_none());
     }
 
@@ -740,75 +359,27 @@ mod tests {
         };
 
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
-            step_shape: StepShape::Unknown,
-            skeleton: SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
-            features: feature_facts_with_usage(ExitUsageFacts {
-                has_break: true,
-                has_continue: false,
-                has_return: false,
-                has_unwind: false,
-            }),
-            scan_with_init: None,
-            split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
             pattern8_bool_predicate_scan: Some(Pattern8BoolPredicateScanFacts {
                 loop_var: "i".to_string(),
                 haystack: "s".to_string(),
                 predicate_receiver: "me".to_string(),
                 predicate_method: "is_digit".to_string(),
-                condition: condition.clone(),
+                condition,
                 step_lit: 1,
                 cond_profile: cond_profile_from_scan_shapes(
                     &ConditionShape::Unknown,
                     &StepShape::Unknown,
                 ),
             }),
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            ..base_loop_facts_with_features(feature_facts_with_usage(ExitUsageFacts {
+                has_break: true,
+                has_continue: false,
+                has_return: false,
+                has_unwind: false,
+            }))
         };
-        let canonical = canonicalize_loop_facts(facts);
-        let plan = build_plan_from_facts(canonical).expect("Ok");
 
+        let plan = plan_from_facts(facts);
         assert!(plan.is_none());
     }
 
@@ -834,70 +405,21 @@ mod tests {
         };
 
         let facts = LoopFacts {
-            condition_shape: ConditionShape::Unknown,
-            step_shape: StepShape::Unknown,
-            skeleton: SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
-            features: LoopFeatureFacts::default(),
-            scan_with_init: None,
-            split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
-            pattern_is_integer: None,
-
-            pattern_starts_with: None,
-
-
-            pattern_int_to_str: None,
-
-
-            pattern_escape_map: None,
-
-
-            pattern_split_lines: None,
-
-
-
-            pattern_skip_ws: None,
-            generic_loop_v0: None,
-            generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
-            loop_true_break_continue: None,
-            loop_cond_break_continue: None,
-            loop_cond_continue_only: None,
-            loop_cond_continue_with_return: None,
-            loop_cond_return_in_body: None,
-            loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
-            loop_scan_methods_v0: None,
-            loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
-            loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
             pattern9_accum_const_loop: Some(Pattern9AccumConstLoopFacts {
                 loop_var: "i".to_string(),
                 acc_var: "sum".to_string(),
-                condition: condition.clone(),
-                acc_update: acc_update.clone(),
-                loop_increment: loop_increment.clone(),
+                condition,
+                acc_update,
+                loop_increment,
                 cond_profile: cond_profile_from_scan_shapes(
                     &ConditionShape::Unknown,
                     &StepShape::Unknown,
                 ),
             }),
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            ..base_loop_facts()
         };
-        let canonical = canonicalize_loop_facts(facts);
-        let plan = build_plan_from_facts(canonical).expect("Ok");
 
+        let plan = plan_from_facts(facts);
         assert!(plan.is_none());
     }
-
 }
