@@ -290,6 +290,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - known note:
   - `cargo test -q --lib facts_extracts_pattern9_const_accum_success` は現作業ツリーで既存 mismatch（本ラウンド差分では未変更）
   - `plan/mod.rs` の file-level `dead_code` allow は現時点で撤去不可（撤去試行時に `cargo build` で `233 warnings` 顕在化）。
+  - 残 suppressions（2026-03-04 時点）:
+    - `plan/mod.rs`（umbrella / remove時 233 warnings）
+    - `joinir/merge/rewriter/mod.rs`（remove時 rewriter submodules 10+ warnings）
+    - `joinir/merge/tail_call_lowering_policy.rs`（remove時 policy box 全体が未参照 warning）
+    - `plan/extractors/common_helpers.rs`（他差分が同居する dirty file のため未着手）
 
 ## next fixed order (resume point)
 
