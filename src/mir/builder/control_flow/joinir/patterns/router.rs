@@ -4,7 +4,7 @@
 //!
 //! # Architecture
 //!
-//! - single_planner derives a DomainPlan + facts outcome (SSOT)
+//! - single_planner derives planner/facts outcome (SSOT)
 //! - composer adopts CorePlan (strict/dev shadow or release adopt)
 //! - PlanLowerer emits MIR from CorePlan (emit_frag SSOT)
 //!
@@ -223,7 +223,7 @@ pub(crate) fn route_loop_pattern(
     use super::super::trace;
 
     // Phase 29ai P5: Single entrypoint for plan extraction (router has no rule table).
-    let (_domain_plan, outcome) = single_planner::try_build_domain_plan_with_outcome(ctx)?;
+    let outcome = single_planner::try_build_outcome(ctx)?;
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
     let planner_required =

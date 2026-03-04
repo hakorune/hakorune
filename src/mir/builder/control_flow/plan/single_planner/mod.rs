@@ -20,3 +20,11 @@ pub(in crate::mir::builder) fn try_build_domain_plan_with_outcome(
 ) -> Result<(Option<DomainPlan>, PlanBuildOutcome), String> {
     rules::try_build_domain_plan_with_outcome(ctx)
 }
+
+pub(in crate::mir::builder) fn try_build_outcome(
+    ctx: &LoopPatternContext,
+) -> Result<PlanBuildOutcome, String> {
+    // Keep legacy tuple API for compatibility; router path consumes outcome only.
+    let (_plan, outcome) = rules::try_build_domain_plan_with_outcome(ctx)?;
+    Ok(outcome)
+}
