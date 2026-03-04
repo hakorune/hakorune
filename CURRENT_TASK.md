@@ -147,6 +147,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `a8485b441` refactor D5 remove dead_code allows from parts loop modules
     - `parts/conditional_update.rs` / `parts/loop_.rs` の file-level `dead_code` allow を撤去
     - loop body contract lowering と conditional update parts を suppression なしで維持
+  - `1fc72c5a2` refactor D5 prune dead call helper utilities
+    - `calls/function_lowering.rs` / `calls/special_handlers.rs` の未参照 helper 10件を削除
+    - file-level `dead_code` allow を撤去し、call helper 層の dead-noise を縮退
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -248,6 +251,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-parts-loop-allow-drop)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-parts-loop-allow-drop）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-calls-dead-helper-prune)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-calls-dead-helper-prune）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -257,6 +265,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - known note:
   - `cargo test -q --lib facts_extracts_pattern9_const_accum_success` は現作業ツリーで既存 mismatch（本ラウンド差分では未変更）
+  - `plan/mod.rs` の file-level `dead_code` allow は現時点で撤去不可（撤去試行時に `cargo build` で `233 warnings` 顕在化）。
 
 ## next fixed order (resume point)
 
