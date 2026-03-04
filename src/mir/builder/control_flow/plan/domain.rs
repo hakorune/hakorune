@@ -101,50 +101,6 @@ pub(in crate::mir::builder) fn scan_direction_from_step_lit(
     }
 }
 
-/// Phase 273 P0: Extracted structure for scan-with-init pattern
-///
-/// This structure contains all the information needed to lower a index_of-style loop.
-/// Moved from legacy scan-with-init extractor for centralization.
-#[derive(Debug, Clone)]
-#[allow(dead_code)]
-#[cfg(test)]
-pub(in crate::mir::builder) struct ScanWithInitPlan {
-    /// Loop variable name (e.g., "i")
-    pub loop_var: String,
-    /// Haystack variable name (e.g., "s")
-    pub haystack: String,
-    /// Needle variable name (e.g., "ch")
-    pub needle: String,
-    /// Step literal (Phase 257: can be 1 forward or -1 reverse)
-    pub step_lit: i64,
-    /// Early return expression (P0: must be Variable(loop_var))
-    pub early_return_expr: ASTNode,
-    /// Not-found return literal (P0: must be -1)
-    pub not_found_return_lit: i64,
-    /// Scan direction (Phase 257 P0)
-    pub scan_direction: ScanDirection,
-    /// Phase 258 P0: True if dynamic needle (substr.length()), false if fixed (ch)
-    pub dynamic_needle: bool,
-}
-
-/// Phase 273 P2: Extracted structure for split-scan pattern
-///
-/// This structure contains all the information needed to lower a split-style loop.
-#[derive(Debug, Clone)]
-#[cfg(test)]
-pub(in crate::mir::builder) struct SplitScanPlan {
-    /// Haystack variable name (e.g., "s")
-    pub s_var: String,
-    /// Separator variable name (e.g., "separator")
-    pub sep_var: String,
-    /// Accumulator variable name (e.g., "result", ArrayBox)
-    pub result_var: String,
-    /// Loop index variable name (e.g., "i")
-    pub i_var: String,
-    /// Segment start position variable name (e.g., "start")
-    pub start_var: String,
-}
-
 /// Phase 286 P2: Extracted structure for Pattern4 (Loop with Continue)
 ///
 /// This structure contains all the information needed to lower a continue-style loop.

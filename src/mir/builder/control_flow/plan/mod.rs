@@ -230,5 +230,5 @@ pub(in crate::mir::builder) use self::domain::{
 };
 #[cfg(test)]
 pub(in crate::mir::builder) use self::domain::{
-    scan_direction_from_step_lit, ScanDirection, ScanWithInitPlan, SplitScanPlan,
+    scan_direction_from_step_lit,
 };

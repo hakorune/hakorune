@@ -7,5 +7,3 @@
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::edgecfg::api::{
     BlockParams, BranchStub, EdgeStub, ExitKind, Frag, FragEmitSession,
 };
-#[cfg(test)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::edgecfg::api::compose;
