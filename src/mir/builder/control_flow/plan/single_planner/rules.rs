@@ -187,7 +187,7 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
         if gate.planner_required && planner_hit {
             if let Some(plan) = outcome.plan.as_ref() {
                 return Err(planner::Freeze::contract(&format!(
-                    "planner_required forbids DomainPlan kind={}",
+                    "planner_required forbids plan label={}",
                     domain_plan_label(plan)
                 ))
                 .to_string());
