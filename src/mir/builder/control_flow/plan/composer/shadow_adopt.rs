@@ -168,7 +168,7 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
                     pattern4.carrier_updates.keys().cloned().collect();
                 carrier_vars.sort();
                 format!(
-                    "Some(Pattern4Continue(loop_var={:?}, carriers={:?}, condition={:?}, continue_condition={:?}, carrier_updates={:?}, loop_increment={:?}))",
+                    "Some(Pattern4Continue(Pattern4ContinuePlan {{ loop_var: {:?}, carrier_vars: {:?}, condition: {:?}, continue_condition: {:?}, carrier_updates: {:?}, loop_increment: {:?} }}))",
                     pattern4.loop_var,
                     carrier_vars,
                     pattern4.condition,

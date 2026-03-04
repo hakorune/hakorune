@@ -384,6 +384,17 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `cargo test -q --lib coreloop_v1_rejects_pattern5_with_cleanup` => PASS
       - `cargo build --release --bin hakorune` => PASS
       - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+  - D5 follow-up (2026-03-04, planner semantic-only alias cleanup):
+    - `planner/pattern_shadow.rs` から legacy `loop/pattern* -> semantic` 正規化を撤去し、shadow priority 判定を semantic rule 名のみへ固定。
+    - `single_planner/rule_order.rs` から `PlanRuleId::Pattern1..9` 互換 alias const を撤去（semantic variant のみ維持）。
+    - nested guard diagnostics は既存 fixture 契約（`Pattern4ContinuePlan {...}` 文字列）を維持する形式へ戻し、strict gate 互換を保持。
+    - verification:
+      - `cargo test -q --lib semantic_rule_priority_is_stable` => PASS
+      - `cargo test -q --lib rule_name_uses_semantic_label` => PASS
+      - `cargo test -q --lib legacy_rule_name_alias_is_preserved` => PASS
+      - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only strict_nested_loop_guard_min` => PASS
+      - `cargo build --release --bin hakorune` => PASS
+      - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
@@ -407,7 +418,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `src/mir/builder/control_flow/plan/lowerer/effect_emission.rs`
   - `CURRENT_TASK.md`
 - next fixed order（resume point）:
-  1. D5続き: `facts/planner` 側に残る Pattern語彙の dead entry を棚卸しし、isolate -> delete を段階実施する
+  1. D5続き: `facts/planner` 側に残る Pattern語彙（特に `pattern8/9`, `scan/split`）の dead entry を棚卸しし、isolate -> delete を段階実施する
   2. D5続き: extractor/composer の test-only dead file を洗い出し、削除順を固定して縮退する
   3. D系の各段で fixture+fast-gate を更新し、BoxShape と BoxCount を混在させない
 

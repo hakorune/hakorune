@@ -66,29 +66,6 @@ define_plan_rules! {
     LoopSimpleWhile => "Pattern1_SimpleWhile (Phase 286 P2.1)";
 }
 
-impl PlanRuleId {
-    // Compatibility aliases kept during Phase D cleanup.
-    // These will be removed when all callsites/tests stop using PatternN names.
-    #[allow(non_upper_case_globals)]
-    pub(in crate::mir::builder) const Pattern1: Self = Self::LoopSimpleWhile;
-    #[allow(non_upper_case_globals)]
-    pub(in crate::mir::builder) const Pattern2: Self = Self::LoopBreakRecipe;
-    #[allow(non_upper_case_globals)]
-    pub(in crate::mir::builder) const Pattern3: Self = Self::IfPhiJoin;
-    #[allow(non_upper_case_globals)]
-    pub(in crate::mir::builder) const Pattern4: Self = Self::LoopContinueRecipe;
-    #[allow(non_upper_case_globals)]
-    pub(in crate::mir::builder) const Pattern5: Self = Self::LoopTrueEarlyExit;
-    #[allow(non_upper_case_globals)]
-    pub(in crate::mir::builder) const Pattern6: Self = Self::ScanWithInit;
-    #[allow(non_upper_case_globals)]
-    pub(in crate::mir::builder) const Pattern7: Self = Self::SplitScan;
-    #[allow(non_upper_case_globals)]
-    pub(in crate::mir::builder) const Pattern8: Self = Self::BoolPredicateScan;
-    #[allow(non_upper_case_globals)]
-    pub(in crate::mir::builder) const Pattern9: Self = Self::AccumConstLoop;
-}
-
 /// Preferred rule label used in planner entry logs.
 ///
 /// D1 policy: human-facing labels are semantic (Pattern-number free) by default.
@@ -142,12 +119,5 @@ mod tests {
             planner_rule_legacy_name(PlanRuleId::LoopSimpleWhile),
             "Pattern1_SimpleWhile (Phase 286 P2.1)"
         );
-    }
-
-    #[test]
-    fn legacy_pattern_alias_constants_are_preserved() {
-        assert_eq!(PlanRuleId::Pattern2, PlanRuleId::LoopBreakRecipe);
-        assert_eq!(PlanRuleId::Pattern1, PlanRuleId::LoopSimpleWhile);
-        assert_eq!(PlanRuleId::Pattern8, PlanRuleId::BoolPredicateScan);
     }
 }

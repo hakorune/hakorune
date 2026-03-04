@@ -8,31 +8,12 @@
 use super::candidates::PlanCandidate;
 use crate::mir::builder::control_flow::plan::trace;
 
-/// Canonicalize legacy pattern-style rule ids into semantic ids.
-///
-/// D1 policy: semantic ids are preferred; legacy aliases remain accepted.
-fn canonical_shadow_rule(rule: &str) -> &str {
-    match rule {
-        "loop/pattern1_simplewhile" => "loop/loop_simple_while",
-        "loop/pattern1_char_map" => "loop/char_map",
-        "loop/pattern1_array_join" => "loop/array_join",
-        "loop/pattern2_break" => "loop/loop_break_recipe",
-        "loop/pattern3_ifphi" => "loop/if_phi_join",
-        "loop/pattern4_continue" => "loop/loop_continue_only",
-        "loop/pattern5_infinite_early_exit" => "loop/loop_true_early_exit",
-        "loop/pattern8_bool_predicate_scan" => "loop/bool_predicate_scan",
-        "loop/pattern9_accum_const_loop" => "loop/accum_const_loop",
-        _ => rule,
-    }
-}
-
 /// Priority table: rule → priority (lower = higher priority)
 ///
 /// DIAGNOSTIC ONLY - not authoritative. Actual selection uses push order.
 /// Unknown rules get priority 255 (lowest) by design.
 fn rule_priority(rule: &str) -> u8 {
-    let canonical = canonical_shadow_rule(rule);
-    match canonical {
+    match rule {
         // TIER 1: High-Priority Scans
         "loop/scan_with_init" => 10,
         "loop/split_scan" => 11,
@@ -103,18 +84,9 @@ mod tests {
     use super::rule_priority;
 
     #[test]
-    fn legacy_rule_aliases_map_to_semantic_priority() {
-        assert_eq!(
-            rule_priority("loop/pattern2_break"),
-            rule_priority("loop/loop_break_recipe")
-        );
-        assert_eq!(
-            rule_priority("loop/pattern1_simplewhile"),
-            rule_priority("loop/loop_simple_while")
-        );
-        assert_eq!(
-            rule_priority("loop/pattern8_bool_predicate_scan"),
-            rule_priority("loop/bool_predicate_scan")
-        );
+    fn semantic_rule_priority_is_stable() {
+        assert_eq!(rule_priority("loop/loop_break_recipe"), 20);
+        assert_eq!(rule_priority("loop/loop_simple_while"), 42);
+        assert_eq!(rule_priority("loop/bool_predicate_scan"), 30);
     }
 }
