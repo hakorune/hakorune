@@ -109,7 +109,7 @@ pub(crate) fn route_loop_break_recipe(
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
         return Err(Freeze::contract(
-            "Pattern2Break requires recipe_contract in planner_required mode",
+            "LoopBreakRecipe requires recipe_contract in planner_required mode",
         )
         .to_string());
     }
@@ -176,7 +176,7 @@ pub(crate) fn route_if_phi_join(
 
     if env.planner_required && outcome.recipe_contract.is_none() {
         return Err(Freeze::contract(
-            "Pattern3IfPhi requires recipe_contract in planner_required mode",
+            "IfPhiJoin requires recipe_contract in planner_required mode",
         )
         .to_string());
     }
@@ -213,7 +213,7 @@ pub(crate) fn route_loop_continue_only(
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
         return Err(Freeze::contract(
-            "Pattern4Continue requires recipe_contract in planner_required mode",
+            "LoopContinueOnly requires recipe_contract in planner_required mode",
         )
         .to_string());
     }
@@ -264,7 +264,7 @@ pub(crate) fn route_loop_true_early_exit(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg:
-            "Pattern5InfiniteEarlyExit requires recipe_contract in planner_required mode",
+            "LoopTrueEarlyExit requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern5_infinite_early_exit_recipe,
         planner_required_only: false,
         skip_without_contract: true,
@@ -284,7 +284,7 @@ pub(crate) fn route_loop_simple_while(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg:
-            "Pattern1SimpleWhile requires recipe_contract in planner_required mode",
+            "LoopSimpleWhile requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern1_simple_while_recipe,
         planner_required_only: false,
         skip_without_contract: false,
@@ -303,7 +303,7 @@ pub(crate) fn route_loop_char_map(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
-        missing_contract_msg: "Pattern1CharMap requires recipe_contract in planner_required mode",
+        missing_contract_msg: "LoopCharMap requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern1_char_map_recipe,
         planner_required_only: true,
         skip_without_contract: false,
@@ -322,7 +322,7 @@ pub(crate) fn route_loop_array_join(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
-        missing_contract_msg: "Pattern1ArrayJoin requires recipe_contract in planner_required mode",
+        missing_contract_msg: "LoopArrayJoin requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern1_array_join_recipe,
         planner_required_only: false,
         skip_without_contract: true,
@@ -342,7 +342,7 @@ pub(crate) fn route_scan_with_init(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg:
-            "Pattern6ScanWithInit requires recipe_contract in planner_required mode",
+            "ScanWithInit requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern6_scan_with_init_recipe,
         planner_required_only: false,
         skip_without_contract: true,
@@ -361,7 +361,7 @@ pub(crate) fn route_split_scan(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
-        missing_contract_msg: "Pattern7SplitScan requires recipe_contract in planner_required mode",
+        missing_contract_msg: "SplitScan requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern7_split_scan_recipe,
         planner_required_only: false,
         skip_without_contract: true,
@@ -381,7 +381,7 @@ pub(crate) fn route_bool_predicate_scan(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg:
-            "Pattern8BoolPredicateScan requires recipe_contract in planner_required mode",
+            "BoolPredicateScan requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern8_bool_predicate_scan_recipe,
         planner_required_only: false,
         skip_without_contract: false,
@@ -401,7 +401,7 @@ pub(crate) fn route_accum_const_loop(
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
         return Err(Freeze::contract(
-            "Pattern9AccumConstLoop requires recipe_contract in planner_required mode",
+            "AccumConstLoop requires recipe_contract in planner_required mode",
         )
         .to_string());
     }

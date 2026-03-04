@@ -7,7 +7,7 @@ macro_rules! define_plan_rules {
     (
         $(
             $(#[$variant_meta:meta])*
-            $variant:ident => $name:expr;
+            $variant:ident;
         )*
     ) => {
         #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -23,36 +23,36 @@ macro_rules! define_plan_rules {
 // Define plan rules with unified enum, order array, and name function
 define_plan_rules! {
     // Phase 273 (tag/label compatibility; planner order excludes these)
-    ScanWithInit => "Pattern6_ScanWithInit (Phase 273)";
-    SplitScan => "Pattern7_SplitScan (Phase 273)";
+    ScanWithInit;
+    SplitScan;
 
     // Phase 286 P3.2
-    LoopTrueEarlyExit => "Pattern5_InfiniteEarlyExit (Phase 286 P3.2)";
+    LoopTrueEarlyExit;
 
     // Phase 29bq P2
-    LoopTrueBreak => "LoopTrueBreak (Phase 29bq P2)";
-    LoopCondBreak => "LoopCondBreak (Phase 29bq P2)";
-    LoopCondContinueOnly => "LoopCondContinueOnly (Phase 29bq P2.x)";
-    LoopCondContinueWithReturn => "LoopCondContinueWithReturn (Phase 29bq P2.x)";
-    LoopCondReturnInBody => "LoopCondReturnInBody (Phase 29bq P2.x)";
+    LoopTrueBreak;
+    LoopCondBreak;
+    LoopCondContinueOnly;
+    LoopCondContinueWithReturn;
+    LoopCondReturnInBody;
 
     // Phase 286 P2.4
-    BoolPredicateScan => "Pattern8_BoolPredicateScan (Phase 286 P2.4)";
+    BoolPredicateScan;
 
     // Phase 286 P2.6
-    IfPhiJoin => "Pattern3_IfPhi (Phase 286 P2.6)";
+    IfPhiJoin;
 
     // Phase 286 P2
-    LoopContinueRecipe => "Pattern4_Continue (Phase 286 P2)";
+    LoopContinueRecipe;
 
     // Phase 286 P2.3
-    AccumConstLoop => "Pattern9_AccumConstLoop (Phase 286 P2.3)";
+    AccumConstLoop;
 
     // Phase 286 P3.1
-    LoopBreakRecipe => "Pattern2_Break (Phase 286 P3.1)";
+    LoopBreakRecipe;
 
     // Phase 286 P2.1
-    LoopSimpleWhile => "Pattern1_SimpleWhile (Phase 286 P2.1)";
+    LoopSimpleWhile;
 }
 
 /// Rule order used by single_planner DomainPlan selection.
