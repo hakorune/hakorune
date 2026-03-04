@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `355dee3a6` refactor D5 remove dead generic-loop and recipe-tree facade reexports
+    - `plan/generic_loop/mod.rs` から未使用 facade re-export 3群（extract/facts_types/shape_resolution）を削除
+    - `plan/recipe_tree/mod.rs` から未使用 `VerifiedRecipeBlock` 再公開を削除
+    - `allow(unused_imports)` 依存を増やさず、runtime 実使用面に再公開面積を同期
   - `6d85176d2` refactor D5 trim unused reexports in verifier policy and joinir merge facade
     - `plan/verifier/mod.rs` から未使用の `CanonicalLoopFacts` 再公開を削除
     - `plan/policies/.../balanced_depth_scan_policy.rs` を `BalancedDepthScanPolicyResult` のみ再公開へ縮退
@@ -238,6 +242,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-355dee3a6, `warning: 0`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-355dee3a6）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-355dee3a6）
   - `cargo build --release --bin hakorune`（post-6d85176d2, `warning: 0`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-6d85176d2）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
