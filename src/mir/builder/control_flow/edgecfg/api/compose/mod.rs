@@ -77,7 +77,6 @@ mod seq;
 
 #[cfg(test)]
 pub(crate) use cleanup::cleanup;
-#[allow(unused_imports)]
 pub(crate) use if_::if_;
 #[cfg(test)]
 pub(crate) use loop_::loop_;

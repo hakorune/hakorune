@@ -28,7 +28,6 @@ pub mod frag_emit_session; // Phase 29bq+: sealing 層中立化
 // 公開型（安定）
 pub use exit_kind::ExitKind;
 pub use edge_stub::EdgeStub;
-#[allow(unused_imports)]
 pub use block_params::BlockParams;
 pub use frag::Frag;
 pub use branch_stub::BranchStub; // Phase 267 P0: 追加
