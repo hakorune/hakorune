@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `3c55a3d2f` refactor D5 gate edgecfg compose legacy helpers to test-only
+    - `edgecfg/api/compose/{seq,loop_,cleanup}.rs` の legacy helper を `#[cfg(test)]` 化
+    - `compose/mod.rs` の再公開を実使用に合わせて test-only 化（`if_` は runtime 維持）
+    - `allow(dead_code)` 依存を増やさず warning baseline `0` を維持
   - `5ea8ef625` refactor D5 trim dead helper suppressions in remapper and edgecfg verify
     - `joinir_id_remapper.rs` の未使用 `remap_block` helper を削除
     - `edgecfg/api/verify.rs` の legacy `verify_frag_invariants` を `#[cfg(test)]` へ移行
@@ -198,6 +202,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-3c55a3d2f）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-3c55a3d2f）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-3c55a3d2f）
+  - `cargo build --release --bin hakorune`（warning baseline re-check: `warning: 0`, post-3c55a3d2f）
   - `cargo build --release --bin hakorune`（post-5ea8ef625）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-5ea8ef625）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
