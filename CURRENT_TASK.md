@@ -204,6 +204,21 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - gate contract tune:
     - planner tag の移行揺れを OR 許容に更新（`selfhost_seek_array_end_return_if_min` / `selfhost_extract_body_brace_return_min` / `selfhost_phi_injector_nested_loop_count_min`）。
     - `selfhost_parse_program2_loop_if_else_if_return_min` の expected tag を実挙動（`LoopCondReturnInBody`）へ更新。
+- update (2026-03-04, cleanliness follow-up / behavior-preserving):
+  - commit: `fe09e91e9` (`refactor clean compiler flow helpers and profile shim docs`)
+    - `parts/stmt.rs`: join-bearing `if` の non-exit lowering 分岐を helper 抽出（可読性改善、挙動不変）
+    - `recipe_tree/loop_break_builder.rs`: stale comment 修正 + dedupe判定を helper 化
+    - `vm_hako/subset_check.rs`: `indexOf` shape error tag を定数化
+    - `tools/smokes/v2/profiles/lib/README.md`: compatibility shim 契約を明文化
+  - commit: `a5242fbca` (`refactor planner tag generation around semantic rule names`)
+    - `planner/tags.rs`: pattern系 planner-first tag を semantic label 基準で生成し、loop-cond 系のみ pin override に集約（重複SSOT削減）
+    - unit test追加:
+      - `planner_first_tag_uses_semantic_name_for_pattern_rules`
+      - `planner_first_tag_keeps_pinned_rule_name_for_loop_cond_break`
+  - verification:
+    - `cargo check --release --bin hakorune` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only 29bp` => PASS（再実行で安定）
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
