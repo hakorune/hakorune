@@ -114,6 +114,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `single_planner/mod.rs` に `try_build_outcome()` を追加（互換 tuple API は維持）
     - `joinir/patterns/router.rs` は `try_build_outcome()` を使い、`(domain_plan, outcome)` 依存を撤去
     - router 側の DomainPlan payload 依存を1段縮退し、outcome-first 契約へ寄せた
+  - `26c5942ad` refactor D5 use single-planner outcome API in nested-loop plan path
+    - `plan/nested_loop_plan.rs` で `try_build_domain_plan_with_outcome` 依存を撤去
+    - `single_planner::try_build_outcome()` + `outcome.plan.take()` で既存挙動を維持
+    - nested-loop 側も tuple 依存を減らし、DomainPlan payload 参照面積を縮小
   - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
     - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
     - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
@@ -307,6 +311,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-26c5942ad, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-26c5942ad）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-26c5942ad, elapsed=`0:03.69`）
   - `cargo build --release --bin hakorune`（post-8022c367d, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-8022c367d）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
