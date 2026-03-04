@@ -102,9 +102,7 @@ fn emit_pattern2_promotion_hint_tag(promotion_shape: Option<&LoopBodyLocalShape>
     let _ = ring0.io.stderr_write(format!("{}\n", tag).as_bytes());
 }
 
-pub(super) fn try_build_domain_plan_with_outcome(
-    ctx: &LoopPatternContext,
-) -> Result<(Option<DomainPlan>, PlanBuildOutcome), String> {
+pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOutcome, String> {
     use crate::mir::builder::control_flow::joinir::trace;
 
     let gate = PlannerGate::new();
@@ -183,7 +181,8 @@ pub(super) fn try_build_domain_plan_with_outcome(
         if planner_hit && is_recipe_only_rule(rule_id) {
             gate.log_planner_first(rule_id);
             debug_log_recipe_only_entry(rule_id);
-            return Ok((None, outcome));
+            outcome.plan = None;
+            return Ok(outcome);
         }
 
         if gate.planner_required && planner_hit {
@@ -208,14 +207,15 @@ pub(super) fn try_build_domain_plan_with_outcome(
         if let Some(domain_plan) = plan_opt {
             let log_msg = format!("route=plan strategy=extract rule={}", name);
             trace::trace().pattern("route", &log_msg, true);
-            return Ok((Some(domain_plan), outcome));
+            outcome.plan = Some(domain_plan);
+            return Ok(outcome);
         } else if log_none && ctx.debug {
             let debug_msg = format!("{} extraction returned None, trying next rule", name);
             trace::trace().debug("route", &debug_msg);
         }
     }
 
-    Ok((None, outcome))
+    Ok(outcome)
 }
 
 fn planner_hits_rule(plan_kind: Option<DomainPlanKind>, kind: PlanRuleId) -> bool {

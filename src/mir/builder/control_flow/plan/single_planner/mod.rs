@@ -18,13 +18,13 @@ pub(in crate::mir::builder) use rule_order::{
 pub(in crate::mir::builder) fn try_build_domain_plan_with_outcome(
     ctx: &LoopPatternContext,
 ) -> Result<(Option<DomainPlan>, PlanBuildOutcome), String> {
-    rules::try_build_domain_plan_with_outcome(ctx)
+    let mut outcome = rules::try_build_outcome(ctx)?;
+    let plan = outcome.plan.take();
+    Ok((plan, outcome))
 }
 
 pub(in crate::mir::builder) fn try_build_outcome(
     ctx: &LoopPatternContext,
 ) -> Result<PlanBuildOutcome, String> {
-    // Keep legacy tuple API for compatibility; router path consumes outcome only.
-    let (_plan, outcome) = rules::try_build_domain_plan_with_outcome(ctx)?;
-    Ok(outcome)
+    rules::try_build_outcome(ctx)
 }
