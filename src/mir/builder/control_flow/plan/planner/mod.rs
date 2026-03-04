@@ -4,12 +4,10 @@
 //! pattern-name branching behind internal enums.
 
 pub(in crate::mir::builder) mod build;
-pub(in crate::mir::builder) mod candidates;
 pub(in crate::mir::builder) mod context;
 pub(in crate::mir::builder) mod freeze;
 pub(in crate::mir::builder) mod helpers;
 pub(in crate::mir::builder) mod outcome;
-mod pattern_shadow;
 pub(in crate::mir::builder) mod tags;
 pub(in crate::mir::builder) mod validators;
 

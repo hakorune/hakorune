@@ -1,4 +1,4 @@
-//! Planner build_plan_from_facts_ctx entrypoint (CandidateSet boundary SSOT)
+//! Planner build_plan_from_facts_ctx entrypoint (single-plan boundary SSOT)
 
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
@@ -7,7 +7,6 @@ use crate::mir::builder::control_flow::plan::verifier::{
 };
 use crate::mir::builder::control_flow::plan::DomainPlan;
 
-use super::candidates::{CandidateSet, PlanCandidate};
 use super::context::PlannerContext;
 use super::helpers::{infer_exit_usage, infer_skeleton_kind};
 use super::validators::debug_assert_cleanup_kinds_match_exit_kinds;
@@ -17,9 +16,9 @@ pub(in crate::mir::builder) fn build_plan_from_facts_ctx(
     _ctx: &PlannerContext,
     facts: CanonicalLoopFacts,
 ) -> Result<Option<DomainPlan>, Freeze> {
-    // CandidateSet-based boundary (SSOT).
+    // Single-plan boundary (SSOT).
     //
-    // Current behavior: DomainPlan candidates are intentionally minimal
+    // Current behavior: DomainPlan is intentionally minimal
     // (`LoopCondContinueWithReturn` only). Other loop shapes are routed via
     // recipe-only paths outside DomainPlan.
 
@@ -36,31 +35,13 @@ pub(in crate::mir::builder) fn build_plan_from_facts_ctx(
     debug_assert_value_join_invariants(&facts);
     debug_observe_cond_profile(&facts);
 
-    let mut candidates = CandidateSet::new();
-
-    // Phase 29bq P2.x: Try to extract loop_cond_continue_with_return plan
-    push_loop_cond_continue_with_return(&mut candidates, &facts)?;
-
-    candidates.finalize()
-}
-
-fn push_loop_cond_continue_with_return(
-    candidates: &mut CandidateSet,
-    facts: &CanonicalLoopFacts,
-) -> Result<(), Freeze> {
     let Some(facts) = &facts.facts.loop_cond_continue_with_return else {
-        return Ok(());
+        return Ok(None);
     };
 
     let plan = crate::mir::builder::control_flow::plan::LoopCondContinueWithReturnPlan {
         condition: facts.condition.clone(),
         recipe: facts.recipe.clone(),
     };
-
-    candidates.push(PlanCandidate {
-        plan,
-        rule: "loop_cond_continue_with_return",
-    });
-
-    Ok(())
+    Ok(Some(plan))
 }
