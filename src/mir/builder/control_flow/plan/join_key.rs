@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! JoinKey / JoinRegistry - Join block 管理（Phase 29bq+）
 //!
 //! # 目的

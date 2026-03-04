@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! Analysis-only condition entry view (no rewrite).
 
 use crate::ast::{ASTNode, Span};
