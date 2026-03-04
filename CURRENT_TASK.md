@@ -129,6 +129,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `loop_scan_methods_v0/recipe.rs` / `loop_scan_methods_block_v0/recipe.rs` /
       `loop_scan_phi_vars_v0/recipe.rs` / `loop_scan_v0/recipe.rs` / `loop_bundle_resolver_v0/recipe.rs`
       の file-level `dead_code` allow を撤去
+  - `56b32f014` refactor D5 remove dead_code allow from join key and cond view
+    - `join_key.rs` / `canon/cond_block_view.rs` の file-level `dead_code` allow を撤去
+    - `PlanBuildSession` / 条件view 呼び出し経路で参照される最小共有箱の suppression を縮退
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -200,6 +203,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-scan-recipe-allow-drop)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-scan-recipe-allow-drop）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-joinkey-condview-cleanup)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-joinkey-condview-cleanup）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
