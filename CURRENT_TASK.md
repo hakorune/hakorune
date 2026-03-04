@@ -122,6 +122,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `single_planner/rules.rs` の正本 entrypoint を `try_build_outcome()` に変更
     - `single_planner/mod.rs` の `try_build_domain_plan_with_outcome()` は互換 wrapper 化（`outcome.plan.take()`）
     - recipe-only rule で plan suppression（`outcome.plan=None`）契約を維持しつつ outcome-first へ移行
+  - `2f60b34fe` refactor D5 migrate nested_loop_depth1 planner call to outcome API
+    - `plan/features/nested_loop_depth1.rs` の `lower_nested_loop_single_planner` を `try_build_outcome()` へ移行
+    - `outcome.plan.take()` で DomainPlan payload を取得し、既存エラー契約を維持
+    - 残 tuple 呼び出しを `generic_loop_body/helpers.rs` の1箇所に縮小
   - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
     - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
     - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
@@ -315,6 +319,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-2f60b34fe, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-2f60b34fe）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-2f60b34fe, elapsed=`0:03.72`）
   - `cargo build --release --bin hakorune`（post-2c5e56f27, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-2c5e56f27）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
@@ -612,7 +620,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 3. `shadow_adopt` 縮退（step-2）: `recipe_contract.is_some()` 経路で strict/release fallback 禁止は適用済み。次は fallback 本体の撤去条件を固定する。
 4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
    - `single_planner` 内部は outcome-first 化済み（`2c5e56f27`）。外側 tuple 呼び出しを段階撤去する。
-   - 残 tuple 呼び出し（移行待ち）: `plan/features/generic_loop_body/helpers.rs`, `plan/features/nested_loop_depth1.rs`（現在 dirty 同居のため次ラウンドで分離して実施）
+   - 残 tuple 呼び出し（移行待ち）: `plan/features/generic_loop_body/helpers.rs`（dirty 同居差分を分離して次ラウンドで実施）
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
