@@ -1,7 +1,11 @@
+#[cfg(test)]
 use std::collections::BTreeMap;
 
+#[cfg(test)]
 use crate::mir::basic_block::BasicBlockId;
+#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
+#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
 
 /// Phase 281 P3: cleanup() Normal + Return exit wiring implementation
@@ -46,7 +50,7 @@ use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
 ///
 /// Rationale: Pattern6/7 require flexible exit wiring for Normal/Return exits.
 /// cleanup_frag must be "exit-only" to prevent terminator confusion.
-#[allow(dead_code)]
+#[cfg(test)]
 pub(crate) fn cleanup(
     main: Frag,
     cleanup_frag: Frag,

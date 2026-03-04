@@ -1,9 +1,15 @@
+#[cfg(test)]
 use std::collections::BTreeMap;
 
+#[cfg(test)]
 use crate::mir::basic_block::BasicBlockId;
+#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
+#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
+#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
+#[cfg(test)]
 use crate::mir::control_form::LoopId;
 
 /// ループ合成: `loop (cond) { body }`
@@ -43,7 +49,7 @@ use crate::mir::control_form::LoopId;
 /// - `header`: ループヘッダー（Continue の配線先）
 /// - `after`: ループ後のブロック（Break の配線先）
 /// - `body`: ループ本体の断片
-#[allow(dead_code)]
+#[cfg(test)]
 pub(crate) fn loop_(
     loop_id: LoopId,
     header: BasicBlockId,

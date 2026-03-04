@@ -75,13 +75,13 @@ mod if_;
 mod loop_;
 mod seq;
 
-#[allow(unused_imports)]
+#[cfg(test)]
 pub(crate) use cleanup::cleanup;
 #[allow(unused_imports)]
 pub(crate) use if_::if_;
-#[allow(unused_imports)]
+#[cfg(test)]
 pub(crate) use loop_::loop_;
-#[allow(unused_imports)]
+#[cfg(test)]
 pub(crate) use seq::seq;
 
 pub(super) fn merge_block_params(

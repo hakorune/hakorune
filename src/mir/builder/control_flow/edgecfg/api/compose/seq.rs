@@ -1,7 +1,11 @@
+#[cfg(test)]
 use std::collections::BTreeMap;
 
+#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
+#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
+#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
 
 /// 順次合成: `a; b`
@@ -37,7 +41,7 @@ use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
 /// # 引数
 /// - `a`: 前段の断片
 /// - `b`: 後段の断片
-#[allow(dead_code)]
+#[cfg(test)]
 pub(crate) fn seq(a: Frag, b: Frag) -> Frag {
     let mut exits = BTreeMap::new();
     let mut wires = Vec::new();
