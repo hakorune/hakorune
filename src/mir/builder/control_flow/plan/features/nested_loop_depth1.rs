@@ -122,8 +122,8 @@ fn lower_nested_loop_single_planner(
     error_prefix: &str,
 ) -> Result<LoweredRecipe, String> {
     let ctx = LoopPatternContext::new(condition, body, "<nested>", false, false);
-    let (domain_plan, _outcome) = single_planner::try_build_domain_plan_with_outcome(&ctx)?;
-    let Some(domain_plan) = domain_plan else {
+    let mut outcome = single_planner::try_build_outcome(&ctx)?;
+    let Some(domain_plan) = outcome.plan.take() else {
         return Err(format!("{error_prefix}: nested loop has no plan"));
     };
     PlanNormalizer::normalize(builder, domain_plan, &ctx)
@@ -231,9 +231,8 @@ fn nested_loop_body_is_simple(body: &[ASTNode]) -> bool {
                     }
                 }
             }
-            ASTNode::Break { .. } | ASTNode::Continue { .. } => {}
-            ASTNode::Return { .. }
-            | ASTNode::Loop { .. }
+            ASTNode::Break { .. } | ASTNode::Continue { .. } | ASTNode::Return { .. } => {}
+            ASTNode::Loop { .. }
             | ASTNode::While { .. }
             | ASTNode::ForRange { .. } => return false,
             _ => return false,
