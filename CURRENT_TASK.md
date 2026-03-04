@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `b08cefb24` refactor D5 gate joinir loop context module behind cfg(test)
+    - `joinir/mod.rs` の `loop_context` module wire を `#[cfg(test)]` 化
+    - `joinir/loop_context.rs` の module-level suppression (`allow(dead_code)`) を削除し、test専用補助箱として隔離
+    - runtime build から未配線 context を除外して dead-noise を縮退
   - `c7d59f24a` refactor D5 trim joinir router context dead fields and test-only trace helpers
     - `joinir/patterns/router.rs` の未参照互換field（`has_continue` / `has_break` / `features`）と未使用 `with_skeleton` を削除
     - `LoopPatternContext.skeleton` は実使用経路（single_planner）に合わせて attribute なしへ復帰
@@ -220,6 +224,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-b08cefb24, `warning: 0`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-b08cefb24）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-b08cefb24）
   - `cargo build --release --bin hakorune`（post-c7d59f24a, `warning: 0`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-c7d59f24a）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
