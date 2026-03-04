@@ -3,8 +3,6 @@
 //! P0 goal: expose a single planner entrypoint (`build_plan_from_facts_ctx`) and hide
 //! pattern-name branching behind internal enums.
 
-#![allow(unused_imports)]
-
 pub(in crate::mir::builder) mod build;
 pub(in crate::mir::builder) mod candidates;
 pub(in crate::mir::builder) mod context;
