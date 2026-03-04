@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `1bc5aa91f` refactor D5 drop local dead_code allows from clean plan modules
+    - `plan/*` のクリーン13ファイルで局所 `#[allow(dead_code)]` を撤去（dirty file は非対象）
+    - `pattern_pipeline.rs` / `pattern2_break_helpers.rs` / `exit_binding.rs` などの legacy attribute を縮退
+    - `plan/mod.rs` umbrella 抑制を崩す前段として、局所 suppressions を先行削減
   - `495dfd032` refactor D5 remove unused predicate scan emitter and phi wrapper dead helper
     - `emission/loop_predicate_scan.rs` を削除（参照ゼロの未使用モジュール撤去）
     - `emission/phi.rs` の未使用 helper `insert_loop_phi` を削除し、module comment を現行責務に同期
@@ -180,6 +184,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-1bc5aa91f）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-1bc5aa91f）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-1bc5aa91f）
+  - `cargo build --release --bin hakorune`（warning baseline re-check: `warning: 0`, post-1bc5aa91f）
   - `cargo build --release --bin hakorune`（post-495dfd032）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-495dfd032）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
