@@ -24,8 +24,8 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first(
         ctx.debug,
         ctx.in_static_box,
     );
-    let (domain_plan, outcome) = single_planner::try_build_domain_plan_with_outcome(&nested_ctx)?;
-    if let Some(domain_plan) = domain_plan {
+    let mut outcome = single_planner::try_build_outcome(&nested_ctx)?;
+    if let Some(domain_plan) = outcome.plan.take() {
         return PlanNormalizer::normalize(builder, domain_plan, &nested_ctx);
     }
 
