@@ -74,8 +74,6 @@ pub(in crate::mir::builder) mod pattern2;
 pub(in crate::mir::builder) mod pattern2_break_condition_policy_router;
 // Phase 29bq+: Pattern2 input facts box moved to plan side
 pub(in crate::mir::builder) mod pattern2_inputs_facts_box;
-// Phase 29bq+: Pattern2 lowering orchestrator moved to plan side
-pub(in crate::mir::builder) mod pattern2_lowering_orchestrator;
 // Phase 29bq+: Pattern2 policy routers moved to plan side
 pub(in crate::mir::builder) mod pattern2_policy_router;
 // Phase 29bq+: Pattern2 steps moved to plan side
