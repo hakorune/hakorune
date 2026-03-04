@@ -106,6 +106,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `joinir/patterns/router.rs` で `allow_shadow_fallback = outcome.recipe_contract.is_none()` を導入
     - strict/release の shadow/release adopt fallback 両方を `allow_shadow_fallback` で統一ガード
     - recipe contract が確定した経路で legacy fallback を実行しない契約を明示化
+  - `ddd3821d1` refactor D5 align router route diagnostics to loop vocabulary
+    - `joinir/patterns/router.rs` の route exhausted 診断語彙を `pattern_kind` から `loop_kind` に変更
+    - `no pattern matched` 文言を `no route matched` に統一
+    - runtime surface の Pattern主語を縮退（挙動不変）
   - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
     - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
     - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
@@ -299,6 +303,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-ddd3821d1, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-ddd3821d1）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-ddd3821d1, elapsed=`0:03.73`）
   - `cargo build --release --bin hakorune`（post-be2dc84cf, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-be2dc84cf）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
