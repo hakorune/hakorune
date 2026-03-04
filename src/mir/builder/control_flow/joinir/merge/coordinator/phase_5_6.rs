@@ -37,16 +37,17 @@ pub fn execute(
         debug,
     );
 
-    // Phase 131 P1.5: Check if DirectValue mode (skip PHI generation)
-    let is_direct_value_mode = boundary
-        .map(|b| b.exit_reconnect_mode == ExitReconnectMode::DirectValue)
-        .unwrap_or(false);
+    // Phase 131 P1.5: Check effective reconnect mode (config override > boundary mode)
+    let boundary_mode = boundary.map(|b| b.exit_reconnect_mode);
+    let effective_mode = config.exit_reconnect_mode.or(boundary_mode);
+    let is_direct_value_mode = matches!(effective_mode, Some(ExitReconnectMode::DirectValue));
 
     // Phase 131 P1.5: Mode detection (dev-only visibility)
     trace.stderr_if(
         &format!(
-            "[cf_loop/joinir] Phase 131 P1.5: exit_reconnect_mode={:?}, is_direct_value_mode={}",
-            boundary.map(|b| b.exit_reconnect_mode),
+            "[cf_loop/joinir] Phase 131 P1.5: boundary_mode={:?}, effective_mode={:?}, is_direct_value_mode={}",
+            boundary_mode,
+            effective_mode,
             is_direct_value_mode
         ),
         debug || config.dev_log,

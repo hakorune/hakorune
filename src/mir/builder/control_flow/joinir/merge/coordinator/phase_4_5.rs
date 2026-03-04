@@ -73,8 +73,13 @@ pub fn execute(
             // Note: exit_block_id may be allocated but not inserted yet (it becomes the
             // current block after merge, and subsequent AST lowering fills it).
             // We still want to catch truly dangling targets (e.g., jumps to skipped k_exit).
+            let allowed_missing_jump_targets = if config.allow_missing_exit_block {
+                vec![merge_result.exit_block_id]
+            } else {
+                Vec::new()
+            };
             let contracts = MergeContracts {
-                allowed_missing_jump_targets: vec![merge_result.exit_block_id],
+                allowed_missing_jump_targets,
             };
             contract_checks::verify_all_terminator_targets_exist(current_func, &contracts)?;
         }

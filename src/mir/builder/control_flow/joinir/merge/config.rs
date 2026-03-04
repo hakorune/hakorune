@@ -9,10 +9,8 @@ pub struct MergeConfig {
     /// Enable strict contract verification (fail-fast on violations)
     pub strict_mode: bool,
     /// Exit reconnection mode (Phi or DirectValue)
-    #[allow(dead_code)]
     pub exit_reconnect_mode: Option<crate::mir::join_ir::lowering::carrier_info::ExitReconnectMode>,
     /// Allow missing exit block in contract checks (typically exit_block_id before insertion)
-    #[allow(dead_code)]
     pub allow_missing_exit_block: bool,
 }
 
@@ -28,17 +26,9 @@ impl MergeConfig {
     }
 
     /// Strict configuration for development/debugging (all checks enabled)
-    #[allow(dead_code)]
-    pub fn strict() -> Self {
-        Self {
-            dev_log: true,
-            strict_mode: true,
-            exit_reconnect_mode: None,
-            allow_missing_exit_block: true,
-        }
-    }
-
-    /// Configuration for specific debug session
+    ///
+    /// Optional knobs (exit_reconnect_mode / allow_missing_exit_block) stay at SSOT defaults
+    /// unless a caller explicitly mutates them.
     pub fn with_debug(debug: bool) -> Self {
         let mut config = Self::default();
         config.dev_log = debug || config.dev_log;

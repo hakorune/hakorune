@@ -41,36 +41,3 @@ pub struct MergeResult {
     /// Used by DirectValue mode to update variable_map without PHI generation.
     pub remapped_exit_values: BTreeMap<String, ValueId>,
 }
-
-impl MergeResult {
-    /// Create a new MergeResult with empty inputs
-    #[allow(dead_code)]
-    pub fn new(exit_block_id: BasicBlockId) -> Self {
-        Self {
-            exit_block_id,
-            exit_phi_inputs: Vec::new(),
-            carrier_inputs: BTreeMap::new(),
-            remapped_exit_values: BTreeMap::new(), // Phase 131 P1.5
-        }
-    }
-
-    /// Add an exit PHI input
-    #[allow(dead_code)]
-    pub fn add_exit_phi_input(&mut self, from_block: BasicBlockId, value: ValueId) {
-        self.exit_phi_inputs.push((from_block, value));
-    }
-
-    /// Add a carrier input
-    #[allow(dead_code)]
-    pub fn add_carrier_input(
-        &mut self,
-        carrier_name: String,
-        from_block: BasicBlockId,
-        value: ValueId,
-    ) {
-        self.carrier_inputs
-            .entry(carrier_name)
-            .or_insert_with(Vec::new)
-            .push((from_block, value));
-    }
-}

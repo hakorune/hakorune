@@ -140,11 +140,13 @@ pub(super) fn process_block_terminator(
 
                                     // Add expr_result to exit_phi_inputs
                                     if let Some(expr_result_val) = collection_result.expr_result_value {
-                                        result.phi_inputs.push((new_block_id, expr_result_val));
+                                        result
+                                            .phi_inputs
+                                            .push((collection_result.block_id, expr_result_val));
                                         log!(
                                             verbose,
                                             "[plan_rewrites] exit_phi_inputs: ({:?}, {:?})",
-                                            new_block_id, expr_result_val
+                                            collection_result.block_id, expr_result_val
                                         );
                                     }
 

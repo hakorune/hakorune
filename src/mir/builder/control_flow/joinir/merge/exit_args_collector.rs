@@ -28,6 +28,7 @@
 use crate::mir::join_ir::lowering::carrier_info::CarrierRole;
 use crate::mir::join_ir::lowering::inline_boundary::{JumpArgsLayout, LoopExitBinding};
 use crate::mir::{BasicBlockId, ValueId};
+#[cfg(test)]
 use std::collections::BTreeMap;
 
 /// Phase 118: Result of exit args collection
@@ -37,7 +38,6 @@ use std::collections::BTreeMap;
 #[derive(Debug, Clone)]
 pub struct ExitArgsCollectionResult {
     /// The source block for these values
-    #[allow(dead_code)]
     pub block_id: BasicBlockId,
     /// The expression result value (jump_args[0], optional)
     pub expr_result_value: Option<ValueId>,
@@ -242,7 +242,7 @@ impl ExitArgsCollectorBox {
     /// Convenience method: Convert collected carrier values to BTreeMap
     ///
     /// This matches the format expected by instruction_rewriter.rs's carrier_inputs.
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn to_carrier_map(
         carrier_values: Vec<(String, (BasicBlockId, ValueId))>,
     ) -> BTreeMap<String, Vec<(BasicBlockId, ValueId)>> {

@@ -58,7 +58,6 @@ pub struct CarrierPhiEntry {
     pub latch_incoming: Option<(BasicBlockId, ValueId)>,
 
     /// Phase 227: Role of this carrier (LoopState or ConditionOnly)
-    #[allow(dead_code)]
     pub role: CarrierRole,
 }
 
@@ -97,7 +96,7 @@ impl LoopHeaderPhiInfo {
     }
 
     /// Check if all carriers have latch incoming set
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn all_latch_set(&self) -> bool {
         self.carrier_phis
             .values()
@@ -118,6 +117,9 @@ impl LoopHeaderPhiInfo {
 
         // Add all carrier PHI dsts
         for entry in self.carrier_phis.values() {
+            match entry.role {
+                CarrierRole::LoopState | CarrierRole::ConditionOnly => {}
+            }
             reserved.insert(entry.phi_dst);
         }
 
