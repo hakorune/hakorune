@@ -145,6 +145,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `9a30fb6d4` refactor D5 rename planner_required freeze message to plan-label vocabulary
     - `single_planner/rules.rs` の freeze 文言を `DomainPlan kind` から `plan label` 主語へ統一
     - runtime surface の語彙を domain type 名から切り離し（挙動不変）
+  - `0df74eaa5` refactor D5 remove unused planner candidate-set modules under single-plan boundary
+    - `planner/build.rs` を CandidateSet 経由から single-plan 直返しに簡約
+    - 未使用になった `planner/{candidates.rs,pattern_shadow.rs}` を削除し `planner/mod.rs` を同期
+    - `plan/trace.rs` の candidate/pattern_shadow trace helper を削除（`trace_try_take_planner` は維持）
   - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
     - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
     - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
@@ -338,6 +342,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-0df74eaa5, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-0df74eaa5）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-0df74eaa5, elapsed=`0:03.72`）
   - `cargo build --release --bin hakorune`（post-9a30fb6d4, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-9a30fb6d4）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
@@ -660,7 +668,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
-   - 次は planner candidate 経路（`planner/candidates.rs`）の 1-variant 前提縮退可否を gate 付きで判断する。
+   - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）。次は docs/README の語彙同期（CandidateSet 記述の残骸整理）。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
