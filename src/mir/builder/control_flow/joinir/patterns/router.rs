@@ -347,37 +347,18 @@ pub(crate) fn route_loop_pattern(
         }
     }
 
-    if let Some(domain_plan) = domain_plan {
-        if strict_or_dev && expectations::should_expect_shadow_adopt(&domain_plan, &outcome, ctx) {
-            return Err(freeze_expected_plan(
-                strict_or_dev,
-                outcome.facts.as_ref(),
-                "composer_reject",
-                "composer reject for expected plan",
-            ));
-        }
-
-        if strict_or_dev && expectations::should_expect_plan(&outcome, ctx) {
-            return Err(freeze_expected_plan(
-                strict_or_dev,
-                outcome.facts.as_ref(),
-                "composer_reject",
-                "fallback to lower_via_plan for expected plan",
-            ));
-        }
-
+    if domain_plan.is_some() {
         if strict_or_dev {
             return Err(freeze_expected_plan(
                 strict_or_dev,
                 outcome.facts.as_ref(),
-                "legacy_forbidden",
-                "legacy lower_via_plan is release-only",
+                "domain_plan_deprecated",
+                "DomainPlan route is deprecated; recipe-first route is required",
             ));
         }
 
-        // legacy::lower_via_plan was a no-op (always Ok(None)).
-        // Keep the same release routing outcome without the legacy module hop.
-        trace_entry_route("legacy");
+        // Release-side DomainPlan fallback is intentionally deprecated.
+        trace_entry_route("domain_plan_deprecated");
         return Ok(None);
     }
 
