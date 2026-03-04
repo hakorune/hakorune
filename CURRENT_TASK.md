@@ -168,6 +168,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - 未使用モジュール `rewriter/{exit_collection,logging,type_propagation}.rs` を削除
     - `RewrittenBlocks` / `RewriteContext` / terminator helper の未使用要素を縮退
     - `rewriter/README.md` を実体に同期
+  - `2b285ed24` refactor D5 remove unused plan common contract_error module
+    - `plan/common/contract_error.rs` を削除（参照ゼロの未使用モジュール撤去）
+    - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -299,6 +302,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-rewriter-dead-module-prune)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-rewriter-dead-module-prune）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-plan-common-contract-error-removal)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-plan-common-contract-error-removal）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
