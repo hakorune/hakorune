@@ -331,9 +331,9 @@ pub(crate) fn route_loop_pattern(
         }
     }
 
-    if !strict_or_dev {
-        if let Some(core_plan) =
-            composer::try_release_adopt_pre_plan(builder, ctx, &outcome, domain_plan.is_none())?
+    // Release fallback adopt is legacy; keep it scoped to planner-none routes only.
+    if !strict_or_dev && domain_plan.is_none() {
+        if let Some(core_plan) = composer::try_release_adopt_pre_plan(builder, ctx, &outcome, true)?
         {
             trace_entry_route("release_adopt");
             return lower_verified_core_plan(
