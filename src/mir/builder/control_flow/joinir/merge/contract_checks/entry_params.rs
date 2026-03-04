@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 
 /// Phase 256 P1.5-DBG: Contract check - Entry function parameters match boundary join_inputs exactly
