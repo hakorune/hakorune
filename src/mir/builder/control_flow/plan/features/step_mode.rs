@@ -3,5 +3,5 @@
 //! Delegates to plan-wide SSOT (`plan::step_mode`) to keep one definition.
 
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::step_mode::{
-    extract_to_step_bb_explicit_step, inline_in_body_no_explicit_step,
+    inline_in_body_no_explicit_step,
 };

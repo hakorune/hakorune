@@ -101,25 +101,6 @@ pub(in crate::mir::builder) fn scan_direction_from_step_lit(
     }
 }
 
-/// Phase 286 P2: Extracted structure for Pattern4 (Loop with Continue)
-///
-/// This structure contains all the information needed to lower a continue-style loop.
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct Pattern4ContinuePlan {
-    /// Loop variable name (e.g., "i")
-    pub loop_var: String,
-    /// Carrier variable names (e.g., ["sum"])
-    pub carrier_vars: Vec<String>,
-    /// Loop condition AST (e.g., `i < 6`)
-    pub condition: ASTNode,
-    /// Continue condition AST (e.g., `i == 0`)
-    pub continue_condition: ASTNode,
-    /// Carrier update expressions (var -> update AST)
-    pub carrier_updates: std::collections::BTreeMap<String, ASTNode>,
-    /// Loop increment expression (e.g., `i + 1`)
-    pub loop_increment: ASTNode,
-}
-
 /// Phase 286 P3.1: Step placement vocabulary for Pattern2 break-style loops.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum Pattern2StepPlacement {
@@ -136,50 +117,4 @@ pub(in crate::mir::builder) enum Pattern5ExitKind {
     Return,
     /// Break from loop
     Break,
-}
-
-/// Phase 286 P3.2: Extracted structure for Pattern5 (Infinite Loop with Early Exit)
-///
-/// This structure contains all the information needed to lower a loop(true) pattern
-/// with early exit (return or break).
-///
-/// # PoC Subset
-///
-/// - `loop(true)` literal only (not `loop(1)` or truthy)
-/// - Return version: `if (cond) { return <expr> }` + `i = i + 1`
-/// - Break version: `if (cond) { break }` + `sum = sum + 1` + `i = i + 1` (carrier_update required)
-///
-/// # CFG Structure (Return version)
-/// ```text
-/// preheader → header(PHI: i_current) → body(exit_cond)
-///               ↑                           ↓
-///               └───── step ←────────  else path
-///                                           ↓
-///                                then path: CoreExitPlan::Return
-/// ```
-///
-/// # CFG Structure (Break version)
-/// ```text
-/// preheader → header(PHI: i, carrier) → body(exit_cond)
-///               ↑                             ↓
-///               └───── step ←──────────  else path
-///                                             ↓
-///                                  then path → after_bb(PHI: carrier_out)
-/// ```
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct Pattern5InfiniteEarlyExitPlan {
-    /// Loop variable name (e.g., "i")
-    pub loop_var: String,
-    /// Exit kind (Return or Break)
-    pub exit_kind: Pattern5ExitKind,
-    /// Exit condition AST (e.g., `i == 3`)
-    pub exit_condition: ASTNode,
-    /// Return value expression (Some for Return, None for Break)
-    pub exit_value: Option<ASTNode>,
-    /// Carrier variable name (Some for Break with carrier, None for Return)
-    pub carrier_var: Option<String>,
-    /// Carrier update expression (Some for Break, None for Return)
-    pub carrier_update: Option<ASTNode>,
-    /// Loop increment expression AST (e.g., `i + 1`)
-    pub loop_increment: ASTNode,
 }

@@ -44,9 +44,6 @@ pub(in crate::mir::builder) mod loop_cond_co_helpers;
 pub(in crate::mir::builder) mod loop_cond_co_pipeline;
 pub(in crate::mir::builder) mod loop_cond_co_stmt;
 
-pub(in crate::mir::builder) mod pattern5_infinite_early_exit_pipeline;
-pub(in crate::mir::builder) mod pattern5_infinite_early_exit_ops;
-
 // Re-exports for flattened pipeline modules (backwards compatibility)
 pub(in crate::mir::builder) use loop_cond_bc::lower_loop_cond_break_continue;
 pub(in crate::mir::builder) use loop_cond_co_pipeline::lower_loop_cond_continue_only;

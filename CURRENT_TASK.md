@@ -372,6 +372,18 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `cargo test -q --lib coreloop_v0_composes_split_scan_subset` => PASS
       - `cargo build --release --bin hakorune` => PASS
       - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+  - D5 first cut (2026-03-04, pattern4/5 legacy payload path shrink):
+    - dead payload path を削除:
+      - `features/pattern5_infinite_early_exit_{pipeline,ops}.rs` を撤去
+      - `domain.rs` から `Pattern4ContinuePlan` / `Pattern5InfiniteEarlyExitPlan` を撤去
+    - `composer/shadow_adopt.rs` の nested guard diagnostics は struct 依存を外し、直接フォーマットへ移行。
+    - 付随 cleanup:
+      - `features/step_mode.rs` から未使用 re-export を撤去
+    - verification:
+      - `cargo test -q --lib coreloop_v1_composes_pattern5_with_value_join` => PASS
+      - `cargo test -q --lib coreloop_v1_rejects_pattern5_with_cleanup` => PASS
+      - `cargo build --release --bin hakorune` => PASS
+      - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
@@ -395,8 +407,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `src/mir/builder/control_flow/plan/lowerer/effect_emission.rs`
   - `CURRENT_TASK.md`
 - next fixed order（resume point）:
-  1. D5: `Pattern4/Pattern5` 由来の legacy payload/feature 経路を棚卸しし、runtime 必須経路だけを残す
-  2. D5: `facts/planner` 側に残る Pattern語彙のうち dead entry を isolate -> delete で段階撤去する
+  1. D5続き: `facts/planner` 側に残る Pattern語彙の dead entry を棚卸しし、isolate -> delete を段階実施する
+  2. D5続き: extractor/composer の test-only dead file を洗い出し、削除順を固定して縮退する
   3. D系の各段で fixture+fast-gate を更新し、BoxShape と BoxCount を混在させない
 
 ## Compiler Cleanup Order (2026-03-03, SSOT)
