@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
+    - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
+    - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
+    - runtime surface の語彙を Pattern番号依存から段階的に切り離し（挙動不変）
   - `7e422e1e8` refactor D5 drop unused pattern2 api facade reexports
     - `plan/pattern2/api/mod.rs` から未使用の facade 再公開 (`PromoteDecision` / `try_promote`) を削除
     - `1b1e79a45` 後に発生した `unused_imports` warning 2件を解消
@@ -271,6 +275,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-95a12aaef, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-95a12aaef）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-95a12aaef, elapsed=`0:05.00`）
   - `cargo build --release --bin hakorune`（post-7e422e1e8, `PASS`, warning `0`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-7e422e1e8）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
