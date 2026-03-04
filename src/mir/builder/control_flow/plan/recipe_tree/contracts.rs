@@ -5,8 +5,6 @@
 //!
 //! NOTE: Not wired into routing yet. Phase B will connect.
 
-#![allow(dead_code)]
-
 /// Recipe contract kind (structure-only, no pattern names).
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) enum RecipeContractKind {
