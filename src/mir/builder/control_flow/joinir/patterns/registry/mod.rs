@@ -140,48 +140,56 @@ pub(crate) const ENTRIES: &[Entry] = &[
     },
 ];
 
+struct CandidateSuppression {
+    scan_methods_candidate: bool,
+    pattern3_candidate: bool,
+    pattern4_candidate: bool,
+    pattern5_candidate: bool,
+    array_join_candidate: bool,
+}
+
+fn should_skip_candidate(name: &str, suppression: &CandidateSuppression) -> bool {
+    match name {
+        "loop_cond_break_continue" => {
+            suppression.scan_methods_candidate
+                || suppression.pattern3_candidate
+                || suppression.pattern4_candidate
+                || suppression.array_join_candidate
+        }
+        "loop_cond_continue_only" => suppression.pattern4_candidate,
+        "loop_true_break_continue" => suppression.pattern5_candidate,
+        _ => false,
+    }
+}
+
 pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'static str> {
     let Some(facts) = facts else {
         return Vec::new();
     };
     let mut names = Vec::new();
-    let scan_methods_candidate =
-        pred_loop_scan_methods_block_v0(facts) || pred_loop_scan_methods_v0(facts);
-    let pattern3_candidate = pred_if_phi_join(facts);
-    let pattern4_candidate = pred_loop_continue_only_pattern(facts);
-    let pattern5_candidate = pred_loop_true_early_exit(facts);
-    let array_join_candidate = pred_loop_array_join(facts);
+    let suppression = CandidateSuppression {
+        scan_methods_candidate:
+            pred_loop_scan_methods_block_v0(facts) || pred_loop_scan_methods_v0(facts),
+        pattern3_candidate: pred_if_phi_join(facts),
+        pattern4_candidate: pred_loop_continue_only_pattern(facts),
+        pattern5_candidate: pred_loop_true_early_exit(facts),
+        array_join_candidate: pred_loop_array_join(facts),
+    };
     let char_map_candidate = pred_loop_char_map(facts);
+
     for entry in ENTRIES {
-        if entry.name == "loop_cond_break_continue" && scan_methods_candidate {
-            continue;
-        }
-        if entry.name == "loop_cond_break_continue" && pattern3_candidate {
-            continue;
-        }
-        if entry.name == "loop_cond_break_continue" && pattern4_candidate {
-            continue;
-        }
-        if entry.name == "loop_cond_break_continue" && array_join_candidate {
-            continue;
-        }
-        if entry.name == "loop_cond_continue_only" && pattern4_candidate {
-            continue;
-        }
-        if entry.name == "loop_true_break_continue" && pattern5_candidate {
+        if should_skip_candidate(entry.name, &suppression) {
             continue;
         }
         if (entry.predicate)(facts) {
             names.push(entry.name);
         }
     }
-    if char_map_candidate {
-        names.retain(|name| *name != "generic_loop_v1");
-    }
-    if pred_loop_simple_while(facts) {
-        names.retain(|name| *name != "generic_loop_v1");
-    }
-    if pred_loop_bundle_resolver_v0(facts) {
+
+    let block_generic_loop_v1 = char_map_candidate
+        || pred_loop_simple_while(facts)
+        || pred_loop_bundle_resolver_v0(facts);
+    if block_generic_loop_v1 {
         names.retain(|name| *name != "generic_loop_v1");
     }
     names

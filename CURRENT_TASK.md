@@ -95,9 +95,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `09da9205b` refactor D5 make planner legacy labels test-only in rule_order
     - `single_planner/rule_order.rs` の `planner_rule_legacy_name` を test-only 化
     - runtime 経路から Pattern番号ラベル map を分離（互換テストは維持）
-  - `WIP` handlers cleanup (commit pending):
-    - `joinir/registry/handlers.rs` の `ENTRY_BASE + compose` 重複テンプレートを `const ENTRY` に統一
-    - behavior-preserving な記述簡約（route条件/plan_rule/flowbox設定は不変）
+  - `72826cb53` refactor D5 simplify registry handlers standard entry wiring
+    - `handlers.rs` の標準ルート配線で `ENTRY_BASE + compose` 重複を削減（`const ENTRY` へ統一）
+  - `WIP` registry collect cleanup (commit pending):
+    - `registry/mod.rs` の `collect_candidates` で重複していた `entry.name` 判定を `should_skip_candidate` へ集約
+    - `generic_loop_v1` の後段除外判定を単一ブールへ集約（挙動不変）
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -121,6 +123,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh` (`PASS`)
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` (`PASS`)
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-registry-cleanup)
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -133,7 +136,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. 上記 `joinir/registry/handlers.rs` cleanup を commit 確定する。
+1. 上記 `joinir/registry/mod.rs collect_candidates` cleanup を commit 確定する。
 2. D5-E: `facts/planner` 側の dead import / dead comment を掃除して SSOT と同期。
 3. D5-E: `joinir registry` の predicate 重複は、pre-existing dirty diff を分離できる状態にしてから実施する。
 4. 各ステップで `bq` + `phase29x-probe` を回し、`emit_fail=0` / `route_blocker=0` を維持確認。
