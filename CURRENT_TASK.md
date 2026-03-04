@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `e83ecc379` refactor D5 gate edgecfg test-only helpers behind cfg(test)
+    - `edgecfg/api/frag.rs` の test-only helper（`add_exit` / `get_exits` / `exit_kinds`）を `#[cfg(test)]` 化
+    - `edgecfg/api/edge_stub.rs` の `with_target` を `#[cfg(test)]` 化
+    - suppression 依存を減らしつつ release warning `0` を維持
   - `4d73274b1` refactor D5 prune dead emission helpers and split scan module
     - `emission/loop_split_scan.rs` を削除（参照ゼロの未使用モジュール撤去）
     - `emission/compare.rs` の未使用 helper `emit_ne_to` を削除
@@ -189,6 +193,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-e83ecc379）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-e83ecc379）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-e83ecc379）
+  - `cargo build --release --bin hakorune`（warning baseline re-check: `warning: 0`, post-e83ecc379）
   - `cargo build --release --bin hakorune`（post-4d73274b1）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-4d73274b1）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
