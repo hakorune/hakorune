@@ -1,7 +1,5 @@
 //! Tests for LoopFacts
 
-#![allow(dead_code)]
-
 #[cfg(test)]
 mod tests_invariants {
     use super::super::{try_build_loop_facts, LoopFacts};
@@ -18,16 +16,6 @@ mod tests_invariants {
     fn lit_int(value: i64) -> ASTNode {
         ASTNode::Literal {
             value: LiteralValue::Integer(value),
-            span: Span::unknown(),
-        }
-    }
-
-    #[allow(dead_code)]
-    fn len_call(var: &str) -> ASTNode {
-        ASTNode::MethodCall {
-            object: Box::new(v(var)),
-            method: "length".to_string(),
-            arguments: vec![],
             span: Span::unknown(),
         }
     }

@@ -3,8 +3,6 @@
 //! Tag taxonomy SSOT:
 //! - docs/development/current/main/design/planfrag-freeze-taxonomy.md
 
-#![allow(dead_code)]
-
 use std::fmt;
 
 #[derive(Debug, Clone)]
