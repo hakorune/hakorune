@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-04
+Date: 2026-03-05
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -65,7 +65,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - command:
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
-- latest result (2026-03-04):
+- latest result (2026-03-05):
   - `emit_fail=0`
   - `run_nonzero=18`
   - `run_ok=101`
@@ -102,6 +102,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `joinir/patterns/router.rs` の release adopt fallback を `domain_plan=None` 経路のみに限定
     - release fallback の適用面積を縮小し、暫定経路の責務を明示
     - recipe-first / planner 経路に優先順位を寄せる縮退（挙動維持）
+  - `be2dc84cf` refactor D5 gate shadow-adopt fallback to recipe-contract-missing routes
+    - `joinir/patterns/router.rs` で `allow_shadow_fallback = outcome.recipe_contract.is_none()` を導入
+    - strict/release の shadow/release adopt fallback 両方を `allow_shadow_fallback` で統一ガード
+    - recipe contract が確定した経路で legacy fallback を実行しない契約を明示化
   - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
     - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
     - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
@@ -295,6 +299,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-be2dc84cf, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-be2dc84cf）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-be2dc84cf, elapsed=`0:03.66`）
   - `cargo build --release --bin hakorune`（post-734310f41, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-734310f41）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
@@ -569,7 +577,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 1. Pattern語彙の主語外し（step-1）: `single_planner/rule_order` / `joinir/patterns/registry` の runtime 文言を semantic 名へ統一。
 2. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
-3. `shadow_adopt` 縮退（step-2）: release 側 fallback の適用範囲を先に縮小し、recipe-first 非一致時のみに限定。
+3. `shadow_adopt` 縮退（step-2）: `recipe_contract.is_some()` 経路で strict/release fallback 禁止は適用済み。次は fallback 本体の撤去条件を固定する。
 4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
