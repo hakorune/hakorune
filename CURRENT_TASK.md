@@ -117,6 +117,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `9e4a82e03` refactor D5 drop planner mod unused_imports file-level allow
     - `planner/mod.rs` の `#![allow(unused_imports)]` を削除
     - `planner` 再公開口の実使用に合わせ、file-level suppression を撤去
+  - `da2e9aacc` refactor D5 dedupe registry predicate scan-family gating
+    - `registry/predicates.rs` に `ScanFamilyPresence` を追加し、scan-family 除外判定を SSOT 化
+    - `pred_loop_simple_while` / `pred_loop_cond_break_continue` / `pred_loop_cond_return_in_body` / `pred_generic_loop_v1`
+      の重複判定を helper 経由へ統一（挙動維持）
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -172,6 +176,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-planner-mod-allow-drop)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-planner-mod-allow-drop）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` (`PASS`)
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh` (`PASS`)
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-registry-predicate-dedupe)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-registry-predicate-dedupe）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -184,10 +194,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. D5-E: `joinir registry` の predicate 重複は、pre-existing dirty diff（`predicates.rs`）を分離できる状態にしてから実施する。
-2. D5-E: `facts/planner` 側の残り dead-noise（`#![allow(dead_code)]` / no-op comment）は clean file 限定で継続縮退。
-3. 各ステップで `bq` + `phase29x-probe` を回し、`emit_fail=0` / `route_blocker=0` を維持確認。
-4. 進捗ログは archive へ寄せ、`CURRENT_TASK.md` は再起動入口の薄さを維持する。
+1. D5-E: `facts/planner` / `registry` の残り dead-noise を clean file 限定で継続縮退（挙動不変のみ）。
+2. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
+3. compiler cleanliness の次段（Pattern/domain 撤退に向けた isolate-first）へ接続する前に、`CURRENT_TASK.md` を再起動入口の薄さで維持。
+4. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
 
