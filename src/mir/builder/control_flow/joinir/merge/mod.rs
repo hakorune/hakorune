@@ -49,9 +49,5 @@ pub use loop_header_phi_builder::LoopHeaderPhiBuilder;
 pub use loop_header_phi_info::LoopHeaderPhiInfo;
 pub(in crate::mir::builder) use contract_checks::run_all_pipeline_checks;
 // Phase 131 P1 Task 1: Re-export MergeContracts for SSOT visibility
-#[allow(unused_imports)]
 pub use merge_result::MergeContracts;
-// Phase 131 P1 Task 6: MergeConfig is defined in config.rs (re-exported here)
-#[allow(unused_imports)]
-pub use config::MergeConfig;
 pub(in crate::mir::builder) use coordinator::merge_joinir_mir_blocks;

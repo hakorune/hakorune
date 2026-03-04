@@ -92,8 +92,6 @@ mod tests;
 // Re-export for external usage
 pub(in crate::mir::builder) use primitives::debug_assert_value_join_invariants;
 pub(in crate::mir::builder) use core::PlanVerifier;
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use super::normalize::CanonicalLoopFacts;
 
 // Re-export debug helpers for external usage
 pub(in crate::mir::builder) use debug_helpers::*;
