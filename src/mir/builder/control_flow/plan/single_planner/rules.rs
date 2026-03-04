@@ -11,7 +11,7 @@ use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::DomainPlan;
 use crate::mir::builder::control_flow::plan::DomainPlanKind;
 
-use super::rule_order::{rule_name, PlanRuleId, PLAN_RULE_ORDER};
+use super::rule_order::{planner_rule_semantic_label, rule_name, PlanRuleId, PLAN_RULE_ORDER};
 
 struct PlannerGate {
     strict_or_dev: bool,
@@ -20,8 +20,8 @@ struct PlannerGate {
 
 impl PlannerGate {
     fn new() -> Self {
-        let strict_or_dev =
-            crate::config::env::joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
+        let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
+            || crate::config::env::joinir_dev_enabled();
         let planner_required =
             strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
         Self {
@@ -51,12 +51,17 @@ fn freeze_planner_required_none(ctx: &LoopPatternContext) -> String {
         ctx.condition.node_type(),
         ctx.body.len()
     );
-    if let Some(detail) = crate::mir::builder::control_flow::plan::facts::reject_reason::take_last_plan_reject_detail() {
+    if let Some(detail) =
+        crate::mir::builder::control_flow::plan::facts::reject_reason::take_last_plan_reject_detail(
+        )
+    {
         msg.push_str(&format!("\nDetail: [joinir/reject_detail] {detail}"));
     }
     planner::Freeze::contract(&msg)
-    .with_hint("Disable HAKO_JOINIR_PLANNER_REQUIRED, or extend Facts→Planner coverage for this case.")
-    .to_string()
+        .with_hint(
+            "Disable HAKO_JOINIR_PLANNER_REQUIRED, or extend Facts→Planner coverage for this case.",
+        )
+        .to_string()
 }
 
 fn freeze_planner_required_mismatch() -> String {
@@ -65,6 +70,32 @@ fn freeze_planner_required_mismatch() -> String {
     )
     .with_hint("Check DomainPlan variant ↔ PlanRuleId mapping in try_take_planner().")
     .to_string()
+}
+
+fn is_recipe_only_rule(rule_id: PlanRuleId, planner_required: bool) -> bool {
+    if matches!(rule_id, PlanRuleId::LoopCondContinueWithReturn) {
+        return true;
+    }
+    planner_required
+        && matches!(
+            rule_id,
+            PlanRuleId::Pattern2
+                | PlanRuleId::Pattern3
+                | PlanRuleId::Pattern4
+                | PlanRuleId::Pattern5
+        )
+}
+
+fn debug_log_recipe_only_entry(rule_id: PlanRuleId) {
+    if !crate::config::env::joinir_dev::debug_enabled() {
+        return;
+    }
+    let ring0 = crate::runtime::get_global_ring0();
+    let label = planner_rule_semantic_label(rule_id);
+    ring0.log.debug(&format!(
+        "[recipe:entry] {}: recipe-only (domain_plan suppressed)",
+        label
+    ));
 }
 
 pub(super) fn try_build_domain_plan_with_outcome(
@@ -89,14 +120,16 @@ pub(super) fn try_build_domain_plan_with_outcome(
             use crate::mir::builder::control_flow::plan::recipe_tree::contracts::RecipeContractKind;
             use crate::mir::builder::control_flow::plan::recipe_tree::RecipeMatcher;
 
-            let contract = RecipeMatcher::try_match_loop(facts)
-                .map_err(|freeze| freeze.to_string())?;
+            let contract =
+                RecipeMatcher::try_match_loop(facts).map_err(|freeze| freeze.to_string())?;
             if crate::config::env::joinir_dev::debug_enabled() {
                 if let Some(ref c) = contract {
                     let (has_break, has_continue, has_return) = match &c.kind {
-                        RecipeContractKind::LoopWithExit { has_break, has_continue, has_return } => {
-                            (*has_break, *has_continue, *has_return)
-                        }
+                        RecipeContractKind::LoopWithExit {
+                            has_break,
+                            has_continue,
+                            has_return,
+                        } => (*has_break, *has_continue, *has_return),
                         _ => (false, false, false),
                     };
                     let ring0 = crate::runtime::get_global_ring0();
@@ -116,8 +149,8 @@ pub(super) fn try_build_domain_plan_with_outcome(
         {
             use crate::mir::builder::control_flow::plan::recipe_tree::RecipeMatcher;
             if gate.strict_or_dev {
-                let contract = RecipeMatcher::try_match_loop(facts)
-                    .map_err(|freeze| freeze.to_string())?;
+                let contract =
+                    RecipeMatcher::try_match_loop(facts).map_err(|freeze| freeze.to_string())?;
                 outcome.recipe_contract = contract;
             } else if let Ok(contract) = RecipeMatcher::try_match_loop(facts) {
                 outcome.recipe_contract = contract;
@@ -150,74 +183,17 @@ pub(super) fn try_build_domain_plan_with_outcome(
             }
             if crate::config::env::joinir_dev::debug_enabled() && planner_hit.is_some() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug("[recipe:entry] pattern2_break: recipe_contract enforced");
+                ring0
+                    .log
+                    .debug("[recipe:entry] pattern2_break: recipe_contract enforced");
             }
         }
 
-        // Phase C4: Pattern2Break is recipe-only in planner_required mode
-        // Return (None, outcome) so router uses Recipe-first compose path
-        if gate.planner_required && matches!(rule_id, PlanRuleId::Pattern2) {
-            if planner_hit.is_some() {
-                // Phase C5: Emit planner_first tag for gate verification
-                gate.log_planner_first(rule_id);
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug("[recipe:entry] pattern2_break: recipe-only (domain_plan suppressed)");
-                }
-                return Ok((None, outcome));
-            }
-        }
-
-        // Phase C8: Pattern3IfPhi is recipe-only in planner_required mode
-        // Return (None, outcome) so router uses Recipe-first compose path
-        if gate.planner_required && matches!(rule_id, PlanRuleId::Pattern3) {
-            if planner_hit.is_some() {
-                gate.log_planner_first(rule_id);
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug("[recipe:entry] pattern3_ifphi: recipe-only (domain_plan suppressed)");
-                }
-                return Ok((None, outcome));
-            }
-        }
-
-        // Phase C9: Pattern4Continue is recipe-only in planner_required mode
-        // Return (None, outcome) so router uses Recipe-first compose path
-        if gate.planner_required && matches!(rule_id, PlanRuleId::Pattern4) {
-            if planner_hit.is_some() {
-                gate.log_planner_first(rule_id);
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug("[recipe:entry] pattern4_continue: recipe-only (domain_plan suppressed)");
-                }
-                return Ok((None, outcome));
-            }
-        }
-
-        // Phase 29bq P2.x: LoopCondContinueWithReturn is recipe-only in all modes
-        // Return (None, outcome) so router uses Recipe-first compose path
-        if matches!(rule_id, PlanRuleId::LoopCondContinueWithReturn) {
-            if planner_hit.is_some() {
-                gate.log_planner_first(rule_id);
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug("[recipe:entry] loop_cond_continue_with_return: recipe-only (domain_plan suppressed)");
-                }
-                return Ok((None, outcome));
-            }
-        }
-
-        // Phase C10: Pattern5InfiniteEarlyExit is recipe-only in planner_required mode
-        // Return (None, outcome) so router uses Recipe-first compose path
-        if gate.planner_required && matches!(rule_id, PlanRuleId::Pattern5) {
-            if planner_hit.is_some() {
-                gate.log_planner_first(rule_id);
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug("[recipe:entry] pattern5_infinite_early_exit: recipe-only (domain_plan suppressed)");
-                }
-                return Ok((None, outcome));
-            }
+        // Recipe-only rules route through compose path (domain_plan suppressed).
+        if planner_hit.is_some() && is_recipe_only_rule(rule_id, gate.planner_required) {
+            gate.log_planner_first(rule_id);
+            debug_log_recipe_only_entry(rule_id);
+            return Ok((None, outcome));
         }
 
         if gate.planner_required {
@@ -315,5 +291,30 @@ fn fallback_extract(
         PlanRuleId::Pattern7 => Ok(None),
         PlanRuleId::Pattern8 => Ok(None),
         PlanRuleId::Pattern9 => Ok(None),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn recipe_only_rules_require_planner_required_for_pattern_family() {
+        assert!(is_recipe_only_rule(PlanRuleId::Pattern2, true));
+        assert!(is_recipe_only_rule(PlanRuleId::Pattern5, true));
+        assert!(!is_recipe_only_rule(PlanRuleId::Pattern2, false));
+        assert!(!is_recipe_only_rule(PlanRuleId::Pattern5, false));
+    }
+
+    #[test]
+    fn loop_cond_continue_with_return_is_always_recipe_only() {
+        assert!(is_recipe_only_rule(
+            PlanRuleId::LoopCondContinueWithReturn,
+            false
+        ));
+        assert!(is_recipe_only_rule(
+            PlanRuleId::LoopCondContinueWithReturn,
+            true
+        ));
     }
 }
