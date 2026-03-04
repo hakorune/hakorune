@@ -357,7 +357,7 @@ pub(crate) fn route_loop_pattern(
         ));
     }
 
-    // No pattern matched - return None (caller will handle error)
+    // No route matched - return None (caller will handle error)
     let candidate_names = registry::collect_candidates(outcome.facts.as_ref());
     let candidate_text = if candidate_names.is_empty() {
         "none".to_string()
@@ -365,7 +365,7 @@ pub(crate) fn route_loop_pattern(
         candidate_names.join(",")
     };
     reject_reason::set_last_plan_reject_detail_if_absent(format!(
-        "route_exhausted func={} pattern_kind={:?} facts_present={} candidates={}",
+        "route_exhausted func={} loop_kind={:?} facts_present={} candidates={}",
         ctx.func_name,
         ctx.pattern_kind,
         outcome.facts.is_some(),
@@ -376,7 +376,7 @@ pub(crate) fn route_loop_pattern(
         trace::trace().debug(
             "route",
             &format!(
-                "route=none (no pattern matched) func='{}' pattern_kind={:?} (exhausted: plan+joinir)",
+                "route=none (no route matched) func='{}' loop_kind={:?} (exhausted: plan+joinir)",
                 ctx.func_name, ctx.pattern_kind
             ),
         );
