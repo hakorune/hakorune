@@ -270,24 +270,9 @@ fn planner_matches_rule_kind(plan_kind: Option<DomainPlanKind>, kind: PlanRuleId
 
 fn fallback_extract(
     _ctx: &LoopPatternContext,
-    kind: PlanRuleId,
+    _kind: PlanRuleId,
 ) -> Result<Option<DomainPlan>, String> {
-    match kind {
-        PlanRuleId::LoopSimpleWhile => Ok(None),
-        PlanRuleId::LoopBreakRecipe => Ok(None),
-        PlanRuleId::IfPhiJoin => Ok(None),
-        PlanRuleId::LoopContinueRecipe => Ok(None),
-        PlanRuleId::LoopTrueEarlyExit => Ok(None),
-        PlanRuleId::LoopTrueBreak => Ok(None),
-        PlanRuleId::LoopCondBreak => Ok(None),
-        PlanRuleId::LoopCondContinueOnly => Ok(None),
-        PlanRuleId::LoopCondContinueWithReturn => Ok(None),
-        PlanRuleId::LoopCondReturnInBody => Ok(None),
-        PlanRuleId::ScanWithInit => Ok(None),
-        PlanRuleId::SplitScan => Ok(None),
-        PlanRuleId::BoolPredicateScan => Ok(None),
-        PlanRuleId::AccumConstLoop => Ok(None),
-    }
+    Ok(None)
 }
 
 #[cfg(test)]

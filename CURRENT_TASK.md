@@ -1965,3 +1965,13 @@ contract note (fixed):
   2. `phase29bp` を一度再実行して再現性確認（PASS 維持）
   3. Pattern/Domain cleanup（legacy domain 入口の isolate -> delete）へ復帰
   4. SSOT (`joinir-planner-required-gates-ssot.md` / design README) の「Pattern削除順」を同期
+- update (2026-03-04, D5 single_planner order shrink / behavior-preserving):
+  - `single_planner::PlanRuleId` は互換タグ語彙（ScanWithInit / SplitScan を含む）として維持し、`PLAN_RULE_ORDER` は DomainPlan 実体がある `LoopCondContinueWithReturn` のみに縮退。
+  - `single_planner::fallback_extract` の全variant no-op match を削除し、明示 no-op (`Ok(None)`) へ統一。
+  - 目的: planner ルートの dead iteration を止め、router 側 planner-first tag 契約は維持したまま責務境界（single_planner=DomainPlan 選別）を明確化。
+  - verification:
+    - `cargo test -q --lib rule_name_uses_semantic_label`
+    - `cargo test -q --lib planner_rule_order_is_domain_plan_only`
+    - `cargo test -q --lib planner_first_tag_uses_semantic_name_for_pattern_rules`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)

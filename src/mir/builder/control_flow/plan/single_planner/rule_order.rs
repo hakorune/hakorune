@@ -1,7 +1,8 @@
-/// Macro to define PlanRuleId enum, PLAN_RULE_ORDER array, and legacy rule-name map.
+/// Macro to define PlanRuleId enum and legacy rule-name map.
 ///
-/// This provides a single source of truth for rule variants, their order, and display names.
-/// Eliminates manual sync across 3 locations (enum, array, rule_name function).
+/// `PLAN_RULE_ORDER` is intentionally declared separately so single_planner can
+/// list only DomainPlan-carrying rules while still keeping extra IDs for
+/// planner-first tag emission at router level.
 macro_rules! define_plan_rules {
     (
         $(
@@ -17,12 +18,6 @@ macro_rules! define_plan_rules {
             ),*
         }
 
-        pub(in crate::mir::builder) const PLAN_RULE_ORDER: &[PlanRuleId] = &[
-            $(
-                PlanRuleId::$variant
-            ),*
-        ];
-
         pub(in crate::mir::builder) fn planner_rule_legacy_name(id: PlanRuleId) -> &'static str {
             match id {
                 $(PlanRuleId::$variant => $name,)*
@@ -33,7 +28,7 @@ macro_rules! define_plan_rules {
 
 // Define plan rules with unified enum, order array, and name function
 define_plan_rules! {
-    // Phase 273
+    // Phase 273 (tag/label compatibility; planner order excludes these)
     ScanWithInit => "Pattern6_ScanWithInit (Phase 273)";
     SplitScan => "Pattern7_SplitScan (Phase 273)";
 
@@ -65,6 +60,12 @@ define_plan_rules! {
     // Phase 286 P2.1
     LoopSimpleWhile => "Pattern1_SimpleWhile (Phase 286 P2.1)";
 }
+
+/// Rule order used by single_planner DomainPlan selection.
+///
+/// Keep this list limited to rules that can be produced by `DomainPlanKind`.
+pub(in crate::mir::builder) const PLAN_RULE_ORDER: &[PlanRuleId] =
+    &[PlanRuleId::LoopCondContinueWithReturn];
 
 /// Preferred rule label used in planner entry logs.
 ///
@@ -119,5 +120,10 @@ mod tests {
             planner_rule_legacy_name(PlanRuleId::LoopSimpleWhile),
             "Pattern1_SimpleWhile (Phase 286 P2.1)"
         );
+    }
+
+    #[test]
+    fn planner_rule_order_is_domain_plan_only() {
+        assert_eq!(PLAN_RULE_ORDER, &[PlanRuleId::LoopCondContinueWithReturn]);
     }
 }
