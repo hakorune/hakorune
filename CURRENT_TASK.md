@@ -321,6 +321,19 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - verification:
       - `cargo build --release --bin hakorune` => PASS
       - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+  - D4 execution (2026-03-04, domain payload prune first cut):
+    - `domain.rs` から runtime 参照ゼロの legacy payload 型を撤去:
+      - `Pattern1SimpleWhilePlan`
+      - `Pattern1CharMapPlan`
+      - `Pattern1ArrayJoinPlan`
+      - `Pattern9AccumConstLoopPlan`
+      - `Pattern8BoolPredicateScanPlan`
+      - `Pattern3IfPhiPlan`
+    - `extractors/mod.rs` 未配線だった dead file `extractors/pattern8.rs` を撤去。
+    - verification:
+      - `cargo test -q --lib domain_plan_kind_and_label_match` => PASS
+      - `cargo build --release --bin hakorune` => PASS
+      - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
@@ -344,8 +357,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `src/mir/builder/control_flow/plan/lowerer/effect_emission.rs`
   - `CURRENT_TASK.md`
 - next fixed order（resume point）:
-  1. D4: `domain.rs` / planner から dead legacy payload の残存参照を棚卸しし、削除候補を isolate する
-  2. D4続き: 受理形を増やさず（BoxShape only）、domain payload の compile path を縮退する
+  1. D4続き: Pattern4/Pattern5 payload の参照経路（`plan::` re-export 依存）を `domain::` 直参照へ寄せる
+  2. D4続き: `scan_with_init` / `split_scan` の legacy plan payload compile path を棚卸しし、runtime 経路のみ残す
   3. D系の各段で fixture+fast-gate を更新し、BoxShape と BoxCount を混在させない
 
 ## Compiler Cleanup Order (2026-03-03, SSOT)
