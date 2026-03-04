@@ -141,6 +141,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `a4f53764e` refactor D5 remove dead_code allow from recipe contracts
     - `recipe_tree/contracts.rs` の file-level `dead_code` allow を撤去
     - contract 型定義（`RecipeContract*`）を suppression なしで維持
+  - `4f147d760` refactor D5 remove dead_code allow from loop cond bc else patterns
+    - `features/loop_cond_bc_else_patterns.rs` の file-level `dead_code` allow を撤去
+    - else-only-return / else-guard-break recipe handler を suppression なしで維持
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -232,6 +235,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-recipe-contract-allow-drop)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-recipe-contract-allow-drop）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-loop-cond-bc-else-pattern-allow-drop)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-loop-cond-bc-else-pattern-allow-drop）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
