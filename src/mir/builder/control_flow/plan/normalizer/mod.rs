@@ -15,13 +15,13 @@
 //! Lowerer processes CorePlan without any pattern knowledge.
 
 pub(in crate::mir::builder) mod helpers;
-mod pattern1_coreloop_builder;
-mod pattern_is_integer;
-mod pattern_starts_with;
-mod pattern_int_to_str;
-mod pattern_escape_map;
-mod pattern_split_lines;
-mod pattern_skip_ws;
+pub(in crate::mir::builder) mod pattern1_coreloop_builder;
+pub(in crate::mir::builder) mod pattern_is_integer;
+pub(in crate::mir::builder) mod pattern_starts_with;
+pub(in crate::mir::builder) mod pattern_int_to_str;
+pub(in crate::mir::builder) mod pattern_escape_map;
+pub(in crate::mir::builder) mod pattern_split_lines;
+pub(in crate::mir::builder) mod pattern_skip_ws;
 #[cfg(test)]
 mod pattern2_break;
 mod value_join_args;
@@ -47,12 +47,6 @@ use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternCont
 use crate::mir::builder::MirBuilder;
 
 pub(in crate::mir::builder) use pattern1_coreloop_builder::build_pattern1_coreloop;
-pub(in crate::mir::builder) use pattern_is_integer::normalize_is_integer_minimal;
-pub(in crate::mir::builder) use pattern_starts_with::normalize_starts_with_minimal;
-pub(in crate::mir::builder) use pattern_int_to_str::normalize_int_to_str_minimal;
-pub(in crate::mir::builder) use pattern_escape_map::normalize_escape_map_minimal;
-pub(in crate::mir::builder) use pattern_split_lines::normalize_split_lines_minimal;
-pub(in crate::mir::builder) use pattern_skip_ws::normalize_skip_ws_minimal;
 pub(in crate::mir::builder) use super::generic_loop::normalizer::{
     normalize_generic_loop_v0, normalize_generic_loop_v1,
 };
