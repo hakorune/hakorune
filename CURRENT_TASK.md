@@ -104,6 +104,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `planner/build_tests.rs` の dead import (`BTreeMap`) を削除
     - `planner/build.rs` / `candidates.rs` / `validators.rs` の no-op 分岐を縮約
     - `facts/feature_facts.rs` の nested-loop 判定定型を簡約（挙動不変）
+  - `fbcedc2bb` refactor D5 delete unused planner entrypoints and validator stubs
+    - `planner/build.rs` の未参照 entrypoint（`build_plan` / `build_plan_from_facts`）を削除
+    - `planner/validators.rs` の未参照 stub（strict/dev helper と exit-usage debug assert）を削除
+    - `plan/mod.rs` / `planner/mod.rs` の再公開口とコメントを実体に同期
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -135,6 +139,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-dead-noise-trim)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-dead-noise-trim）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo test -q --lib planner_gates_non_loop_skeletons`
+  - `cargo test -q --lib planner_does_not_build_pattern9_accum_const_loop_plan_from_facts`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-unused-entry-delete)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-unused-entry-delete）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -147,8 +158,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. D5-E: `facts/planner` 側の残り dead-noise（`#![allow(dead_code)]` / no-op comment）を clean file 限定で縮退。
-2. D5-E: `joinir registry` の predicate 重複は、pre-existing dirty diff（`predicates.rs`）を分離できる状態にしてから実施する。
+1. D5-E: `joinir registry` の predicate 重複は、pre-existing dirty diff（`predicates.rs`）を分離できる状態にしてから実施する。
+2. D5-E: `facts/planner` 側の残り dead-noise（`#![allow(dead_code)]` / no-op comment）は clean file 限定で継続縮退。
 3. 各ステップで `bq` + `phase29x-probe` を回し、`emit_fail=0` / `route_blocker=0` を維持確認。
 4. 進捗ログは archive へ寄せ、`CURRENT_TASK.md` は再起動入口の薄さを維持する。
 
