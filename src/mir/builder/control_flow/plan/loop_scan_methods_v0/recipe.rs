@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 
