@@ -150,6 +150,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `1fc72c5a2` refactor D5 prune dead call helper utilities
     - `calls/function_lowering.rs` / `calls/special_handlers.rs` の未参照 helper 10件を削除
     - file-level `dead_code` allow を撤去し、call helper 層の dead-noise を縮退
+  - `0f2812fc4` refactor D5 drop dead_code allow from joinir entry params check
+    - `joinir/merge/contract_checks/entry_params.rs` の file-level `dead_code` allow を撤去
+    - boundary entry-params contract check を suppression なしで維持
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -256,6 +259,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-calls-dead-helper-prune)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-calls-dead-helper-prune）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-joinir-entry-params-allow-drop)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-joinir-entry-params-allow-drop）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
