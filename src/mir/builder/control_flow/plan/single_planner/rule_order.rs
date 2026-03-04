@@ -1,4 +1,4 @@
-/// Macro to define PlanRuleId enum and legacy rule-name map.
+/// Macro to define PlanRuleId enum.
 ///
 /// `PLAN_RULE_ORDER` is intentionally declared separately so single_planner can
 /// list only DomainPlan-carrying rules while still keeping extra IDs for
@@ -16,12 +16,6 @@ macro_rules! define_plan_rules {
                 $(#[$variant_meta])*
                 $variant
             ),*
-        }
-
-        pub(in crate::mir::builder) fn planner_rule_legacy_name(id: PlanRuleId) -> &'static str {
-            match id {
-                $(PlanRuleId::$variant => $name,)*
-            }
         }
     };
 }
@@ -70,7 +64,7 @@ pub(in crate::mir::builder) const PLAN_RULE_ORDER: &[PlanRuleId] =
 /// Preferred rule label used in planner entry logs.
 ///
 /// D1 policy: human-facing labels are semantic (Pattern-number free) by default.
-/// Legacy labels remain available via `planner_rule_legacy_name`.
+/// Legacy labels are intentionally kept in test-only compatibility checks.
 pub(in crate::mir::builder) fn rule_name(id: PlanRuleId) -> &'static str {
     planner_rule_semantic_label(id)
 }
@@ -94,6 +88,26 @@ pub(in crate::mir::builder) fn planner_rule_semantic_label(id: PlanRuleId) -> &'
         PlanRuleId::LoopCondContinueOnly => "LoopContinueOnly",
         PlanRuleId::LoopCondContinueWithReturn => "LoopContinueWithReturn",
         PlanRuleId::LoopCondReturnInBody => "LoopReturnInBody",
+    }
+}
+
+#[cfg(test)]
+fn planner_rule_legacy_name(id: PlanRuleId) -> &'static str {
+    match id {
+        PlanRuleId::ScanWithInit => "Pattern6_ScanWithInit (Phase 273)",
+        PlanRuleId::SplitScan => "Pattern7_SplitScan (Phase 273)",
+        PlanRuleId::LoopTrueEarlyExit => "Pattern5_InfiniteEarlyExit (Phase 286 P3.2)",
+        PlanRuleId::LoopTrueBreak => "LoopTrueBreak (Phase 29bq P2)",
+        PlanRuleId::LoopCondBreak => "LoopCondBreak (Phase 29bq P2)",
+        PlanRuleId::LoopCondContinueOnly => "LoopCondContinueOnly (Phase 29bq P2.x)",
+        PlanRuleId::LoopCondContinueWithReturn => "LoopCondContinueWithReturn (Phase 29bq P2.x)",
+        PlanRuleId::LoopCondReturnInBody => "LoopCondReturnInBody (Phase 29bq P2.x)",
+        PlanRuleId::BoolPredicateScan => "Pattern8_BoolPredicateScan (Phase 286 P2.4)",
+        PlanRuleId::IfPhiJoin => "Pattern3_IfPhi (Phase 286 P2.6)",
+        PlanRuleId::LoopContinueRecipe => "Pattern4_Continue (Phase 286 P2)",
+        PlanRuleId::AccumConstLoop => "Pattern9_AccumConstLoop (Phase 286 P2.3)",
+        PlanRuleId::LoopBreakRecipe => "Pattern2_Break (Phase 286 P3.1)",
+        PlanRuleId::LoopSimpleWhile => "Pattern1_SimpleWhile (Phase 286 P2.1)",
     }
 }
 

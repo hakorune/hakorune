@@ -89,9 +89,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `22532f0bf` refactor D5 delete dead pattern8 plan-side module
   - `6d5b1ab7c` refactor D5 align planner shadow with semantic rule keys
   - `32f735d9c` refactor D5 gate facts loop_tests as test-only module
-  - `WIP` planner/build test cleanup (commit pending):
+  - `23d5d2080` refactor D5 dedupe planner build tests with shared LoopFacts fixtures
     - `planner/build_tests.rs` を helper ベースへ再編（`LoopFacts` 重複初期化を共通化）
     - file size: `903 -> 425` lines（挙動不変）
+  - `WIP` rule_order cleanup (commit pending):
+    - `single_planner/rule_order.rs` の `planner_rule_legacy_name` を test-only 化
+    - runtime 経路から Pattern番号ラベル map を分離（互換テストは維持）
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -107,6 +110,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `cargo test -q --lib planner_does_not_build_pattern9_accum_const_loop_plan_from_facts`
   - `cargo build --release --bin hakorune`
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+  - `cargo test -q --lib rule_name_uses_semantic_label`
+  - `cargo test -q --lib legacy_rule_name_alias_is_preserved`
+  - `cargo test -q --lib planner_rule_order_is_domain_plan_only`
+  - `cargo test -q --lib planner_first_tag_keeps_scan_split_compat_labels`
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -119,9 +128,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. 上記 `planner/build_tests.rs` cleanup を commit 確定する。
-2. D5-E: `single_planner/rule_order.rs` の legacy label 互換を最小化（gate互換を維持する範囲）。
-3. D5-E: `facts/planner` 側の dead import / dead comment を掃除して SSOT と同期。
+1. 上記 `single_planner/rule_order.rs` cleanup を commit 確定する。
+2. D5-E: `facts/planner` 側の dead import / dead comment を掃除して SSOT と同期。
+3. D5-E: `joinir registry` の predicate/handler 条件重複を semantic key 基準で縮退。
 4. 各ステップで `bq` + `phase29x-probe` を回し、`emit_fail=0` / `route_blocker=0` を維持確認。
 
 ## Quick Restart (After Reboot)
