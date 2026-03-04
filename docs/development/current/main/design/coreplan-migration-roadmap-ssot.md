@@ -116,7 +116,7 @@ Candidate next (after selfhost canary / Stage-1):
 ### Step C: Planner を「骨格の一意化→特徴付与→Freeze」へ
 
 狙い:
-- CandidateSet は骨格の一意化に集中（0/1/2+ → None/Some/Freeze）
+- planner境界は骨格の一意化に集中（現状は single-plan: 0/1 → None/Some）
 - feature は “別パターン” ではなく合成の材料として付与
 
 ### Step D: Normalizer を “合成だけ” にする

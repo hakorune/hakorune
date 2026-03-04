@@ -238,7 +238,7 @@ Freeze tags must reflect the layer that produced the failure:
 Tests must assert the correct class of tag for the layer they exercise. See
 `docs/development/current/main/design/planfrag-freeze-taxonomy.md`.
 
-## Plan trace (SSOT): candidates → finalize → rule-take
+## Plan trace (SSOT): rule-take
 
 When debugging “planner returned None” across AIs, the core failure is often “we can’t tell where the candidate disappeared”.
 To fix this without adding a large logging framework, we standardize a single-line trace tag:
@@ -248,11 +248,13 @@ To fix this without adding a large logging framework, we standardize a single-li
 - The format is stable and grep-friendly:
   - `stage=<...> rule=<...> result=<...> extra=<...>`
 
-Minimum required trace points (must all use `[plan/trace]`):
+Minimum required trace points (must use `[plan/trace]`):
 
-1. Candidate push (`CandidateSet::push`)
-2. Candidate finalize (`CandidateSet::finalize`)
-3. Planner rule take (`single_planner::try_take_planner`)
+1. Planner rule take (`single_planner::planner_hits_rule` → `trace_try_take_planner`)
+
+Note:
+- CandidateSet / pattern_shadow trace points were retired with single-plan boundary cleanup
+  (commit `0df74eaa5`).
 
 Additional plan trace tags (SSOT):
 
