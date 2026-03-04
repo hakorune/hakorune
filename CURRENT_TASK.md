@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `3bdb42d99` refactor D5 drop unused edgecfg api emit_frag facade reexport
+    - `edgecfg/api/mod.rs` から未参照の `emit_frag` 再公開を削除
+    - `FragEmitSession` を唯一の公開 emission 手順入口として維持（構造不変）
+    - edgecfg facade surface を runtime 実使用に同期
   - `378257aa7` refactor D5 trim composer facade to runtime-used shadow adopt exports
     - `plan/composer/mod.rs` の shadow_adopt facade 再公開を runtime 実使用シンボルのみに縮退
     - 未使用だった release/shadow adopt 個別 helper の再公開群を削除
@@ -246,6 +250,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-3bdb42d99, `warning: 0`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-3bdb42d99）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-3bdb42d99）
   - `cargo build --release --bin hakorune`（post-378257aa7, `warning: 0`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-378257aa7）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
