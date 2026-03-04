@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `809088903` refactor D5 isolate legacy pattern minimal imports behind composer facade
+    - `composer/legacy_pattern_minimals.rs` を新設し、legacy pattern minimal normalizer 参照を composer 側で集約
+    - `composer/shadow_adopt.rs` の `normalizer::pattern_*` 直importを facade import に置換
+    - `composer/mod.rs` に facade module wire を追加（挙動不変）
   - `e90d5074a` refactor D5 narrow normalizer public surface by moving pattern helper imports to module paths
     - `normalizer/mod.rs` から pattern minimal helper の再公開 (`normalize_*_minimal`) を撤去し、public surface を縮小
     - `composer/shadow_adopt.rs` は `normalizer::pattern_*` module 直参照へ移行
@@ -681,6 +685,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-e90d5074a)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-e90d5074a, elapsed=`0:04.75`）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-809088903)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-809088903, elapsed=`0:04.68`）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -707,7 +715,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
    - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
    - `DomainPlan` alias 撤去（`fa1efcb21`）と `src/mir/builder/control_flow/{plan,joinir}` 内の残語彙撤去（`27cbe50d2`, `5af900fe3`）まで完了。
-   - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）。次は file placement（`normalizer/pattern*.rs` を composer 側へ段階移設）を小分けで進める。
+   - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
+   - 次は file placement（`normalizer/pattern*.rs` を composer 側へ段階移設）を小分けで進める。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
