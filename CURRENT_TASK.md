@@ -82,6 +82,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `38338083d` refactor D5 rename planner promotion helper to semantic loop-break vocabulary
+    - `single_planner/rules.rs` の helper 名を `emit_pattern2_promotion_hint_tag` から semantic 主語へ変更
+    - runtime tag 文字列は維持（挙動不変）
   - `96591f62b` refactor D5 migrate skip_ws minimal normalizer from normalizer to composer legacy_minimals
     - `normalizer/pattern_skip_ws.rs` を `composer/legacy_minimals/skip_ws.rs` へ移設（rename）
     - `composer/legacy_pattern_minimals.rs` の `skip_ws` 参照を composer 側実装へ切替
@@ -705,6 +708,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-96591f62b)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-96591f62b, elapsed=`0:04.67`）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-38338083d)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-38338083d, elapsed=`0:04.83`）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
