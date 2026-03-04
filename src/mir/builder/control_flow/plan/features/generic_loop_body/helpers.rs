@@ -58,6 +58,17 @@ pub(super) fn lower_nested_loop_plan(
     body: &[ASTNode],
     ctx: &LoopPatternContext,
 ) -> Result<LoweredRecipe, String> {
+    if let Ok(plan) =
+        crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any(
+            builder,
+            condition,
+            body,
+            GENERIC_LOOP_ERR,
+        )
+    {
+        return Ok(plan);
+    }
+
     use crate::mir::builder::control_flow::plan::composer;
     use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
     use crate::mir::builder::control_flow::plan::single_planner;
@@ -69,9 +80,9 @@ pub(super) fn lower_nested_loop_plan(
     let planner_required =
         strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
 
-    let (domain_plan, outcome) = single_planner::try_build_domain_plan_with_outcome(&nested_ctx)?;
+    let mut outcome = single_planner::try_build_outcome(&nested_ctx)?;
 
-    if let Some(domain_plan) = domain_plan {
+    if let Some(domain_plan) = outcome.plan.take() {
         return PlanNormalizer::normalize(builder, domain_plan, &nested_ctx);
     }
     if let Some(facts) = outcome.facts.as_ref() {
@@ -91,7 +102,27 @@ pub(super) fn lower_nested_loop_plan(
             )
             .map_err(|e| e.to_string());
         }
-        if facts.facts.loop_cond_break_continue.is_some() && outcome.recipe_contract.is_some() {
+        if facts.facts.loop_cond_return_in_body.is_some() {
+            if strict_or_dev {
+                let msg = crate::mir::builder::control_flow::plan::planner::tags::planner_first_tag_with_label(
+                    crate::mir::builder::control_flow::plan::single_planner::PlanRuleId::LoopCondReturnInBody,
+                );
+                if crate::config::env::joinir_dev::strict_planner_required_enabled() {
+                    let ring0 = crate::runtime::get_global_ring0();
+                    let _ = ring0.io.stderr_write(format!("{}\n", msg).as_bytes());
+                } else if crate::config::env::joinir_dev::debug_enabled() {
+                    let ring0 = crate::runtime::get_global_ring0();
+                    ring0.log.debug(&msg);
+                }
+            }
+            return RecipeComposer::compose_loop_cond_return_in_body_recipe(
+                builder,
+                facts,
+                &nested_ctx,
+            )
+            .map_err(|e| e.to_string());
+        }
+        if facts.facts.loop_cond_break_continue.is_some() {
             if strict_or_dev {
                 let msg = crate::mir::builder::control_flow::plan::planner::tags::planner_first_tag_with_label(
                     crate::mir::builder::control_flow::plan::single_planner::PlanRuleId::LoopCondBreak,
@@ -111,15 +142,13 @@ pub(super) fn lower_nested_loop_plan(
             )
             .map_err(|e| e.to_string());
         }
-        if planner_required {
-            if facts.facts.generic_loop_v0.is_some() {
-                return RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, &nested_ctx)
-                    .map_err(|e| e.to_string());
-            }
-            if facts.facts.generic_loop_v1.is_some() {
-                return RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, &nested_ctx)
-                    .map_err(|e| e.to_string());
-            }
+        if facts.facts.generic_loop_v0.is_some() {
+            return RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, &nested_ctx)
+                .map_err(|e| e.to_string());
+        }
+        if facts.facts.generic_loop_v1.is_some() {
+            return RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, &nested_ctx)
+                .map_err(|e| e.to_string());
         }
     }
     if let Some(pre_plan) =
