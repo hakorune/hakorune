@@ -57,7 +57,7 @@ define_plan_rules! {
 
 /// Rule order used by single_planner DomainPlan selection.
 ///
-/// Keep this list limited to rules that can be produced by `DomainPlanKind`.
+/// Keep this list limited to rules that can currently produce a DomainPlan payload.
 pub(in crate::mir::builder) const PLAN_RULE_ORDER: &[PlanRuleId] =
     &[PlanRuleId::LoopCondContinueWithReturn];
 

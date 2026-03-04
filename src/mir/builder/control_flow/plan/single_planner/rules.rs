@@ -8,8 +8,6 @@ use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternCont
 use crate::mir::builder::control_flow::plan::facts::pattern2_loopbodylocal_facts::LoopBodyLocalShape;
 use crate::mir::builder::control_flow::plan::planner::{self, PlanBuildOutcome, PlannerContext};
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
-use crate::mir::builder::control_flow::plan::DomainPlan;
-use crate::mir::builder::control_flow::plan::DomainPlanKind;
 
 use super::rule_order::{planner_rule_semantic_label, rule_name, PlanRuleId, PLAN_RULE_ORDER};
 
@@ -114,7 +112,7 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
     };
     let mut outcome = planner::build_plan_with_facts_ctx(&planner_ctx, ctx.condition, ctx.body)
         .map_err(|freeze| freeze.to_string())?;
-    let planner_kind = outcome.plan.as_ref().map(DomainPlan::kind);
+    let planner_present = outcome.plan.is_some();
 
     // Phase B: Recipe-first parallel path (planner_required only)
     if gate.planner_required {
@@ -160,7 +158,7 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
         }
     }
 
-    if gate.planner_required && planner_kind.is_none() && outcome.facts.is_none() {
+    if gate.planner_required && !planner_present && outcome.facts.is_none() {
         return Err(freeze_planner_required_none(ctx));
     }
 
@@ -175,7 +173,7 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
     for rule_id in PLAN_RULE_ORDER {
         let rule_id = *rule_id;
         let name = rule_name(rule_id);
-        let planner_hit = planner_hits_rule(planner_kind, rule_id);
+        let planner_hit = planner_hits_rule(planner_present, rule_id);
 
         // Recipe-only rules route through compose path (domain_plan suppressed).
         if planner_hit && is_recipe_only_rule(rule_id) {
@@ -186,10 +184,10 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
         }
 
         if gate.planner_required && planner_hit {
-            if let Some(kind) = planner_kind {
+            if let Some(plan) = outcome.plan.as_ref() {
                 return Err(planner::Freeze::contract(&format!(
                     "planner_required forbids DomainPlan kind={}",
-                    kind.label()
+                    plan.kind_label()
                 ))
                 .to_string());
             }
@@ -218,21 +216,14 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
     Ok(outcome)
 }
 
-fn planner_hits_rule(plan_kind: Option<DomainPlanKind>, kind: PlanRuleId) -> bool {
-    let planner_present = plan_kind.is_some();
-    let hit = planner_matches_rule_kind(plan_kind, kind);
+fn planner_hits_rule(planner_present: bool, kind: PlanRuleId) -> bool {
+    let hit = planner_matches_rule_kind(planner_present, kind);
     plan_trace::trace_try_take_planner(kind, planner_present, hit);
     hit
 }
 
-fn planner_matches_rule_kind(plan_kind: Option<DomainPlanKind>, kind: PlanRuleId) -> bool {
-    matches!(
-        (kind, plan_kind),
-        (
-            PlanRuleId::LoopCondContinueWithReturn,
-            Some(DomainPlanKind::LoopCondContinueWithReturn)
-        )
-    )
+fn planner_matches_rule_kind(planner_present: bool, kind: PlanRuleId) -> bool {
+    planner_present && matches!(kind, PlanRuleId::LoopCondContinueWithReturn)
 }
 
 #[cfg(test)]

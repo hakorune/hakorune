@@ -20,33 +20,12 @@ pub(in crate::mir::builder) enum DomainPlan {
     LoopCondContinueWithReturn(LoopCondContinueWithReturnPlan),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum DomainPlanKind {
-    LoopCondContinueWithReturn,
-}
-
-impl DomainPlanKind {
-    /// Stable variant label for diagnostics and planner logs.
-    pub(in crate::mir::builder) fn label(self) -> &'static str {
-        match self {
-            DomainPlanKind::LoopCondContinueWithReturn => "LoopCondContinueWithReturn",
-        }
-    }
-}
-
 impl DomainPlan {
-    /// Payload-free kind for rule routing/selection.
-    pub(in crate::mir::builder) fn kind(&self) -> DomainPlanKind {
-        match self {
-            DomainPlan::LoopCondContinueWithReturn(_) => DomainPlanKind::LoopCondContinueWithReturn,
-        }
-    }
-
     /// Stable variant label for diagnostics and planner logs.
-    ///
-    /// Keep this payload-free so call sites can avoid coupling to variant internals.
     pub(in crate::mir::builder) fn kind_label(&self) -> &'static str {
-        self.kind().label()
+        match self {
+            DomainPlan::LoopCondContinueWithReturn(_) => "LoopCondContinueWithReturn",
+        }
     }
 }
 
@@ -60,7 +39,7 @@ mod tests {
     use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 
     #[test]
-    fn domain_plan_kind_and_label_match() {
+    fn domain_plan_kind_label_is_stable() {
         let recipe = ContinueWithReturnRecipe::new(
             vec![ASTNode::Break {
                 span: Span::unknown(),
@@ -75,7 +54,6 @@ mod tests {
             recipe,
         });
 
-        assert_eq!(plan.kind(), DomainPlanKind::LoopCondContinueWithReturn);
         assert_eq!(plan.kind_label(), "LoopCondContinueWithReturn");
     }
 }
