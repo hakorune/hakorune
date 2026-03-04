@@ -67,7 +67,7 @@ Audit rule (active運用):
 
 Single entry pipeline for loop routing (no bypass):
 
-`route_loop_pattern` → `single_planner::try_build_domain_plan_with_outcome` → (composer pre-plan adopt) → `legacy::lower_via_plan` (release only)
+`route_loop_pattern` → `single_planner::try_build_outcome` → recipe/composer adopt path → plan lowerer
 
 Router: `src/mir/builder/control_flow/joinir/patterns/router.rs`  
 Planner: `src/mir/builder/control_flow/plan/single_planner/`  
