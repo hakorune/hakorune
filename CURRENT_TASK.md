@@ -281,6 +281,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - direct route pin fixture を追加:
       - `apps/tests/phase29bq_generic_loop_v1_if_cond_prelude_loop_min.hako`
       - `tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv` に case_id `generic_loop_v1_if_cond_prelude_loop_min` を追加。
+    - scope note:
+      - loop header 側の `BlockExpr prelude with loop-like stmt` は現時点では out-of-scope（`generic_loop_v1 unsupported_condition` で fail-fast 維持）。
   - verification:
     - `cargo test -q --lib cond_prelude_vocab_accepts_if_and_loop_like_stmt` => PASS
     - `cargo test -q --lib prelude_loop_detection_recurses_into_if_branches` => PASS
