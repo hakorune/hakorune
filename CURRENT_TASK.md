@@ -81,6 +81,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `0aac809b8` refactor D5 gate legacy normalization loop_with_post path to tests
+    - `normalization/plan.rs` の `PlanKind::LoopWithPost` と `NormalizationPlan::loop_with_post()` を `#[cfg(test)]` 化
+    - `normalization/execute_box.rs` の `execute_loop_with_post` を `#[cfg(test)]` 化
+    - `joinir/routing.rs` / `normalized_shadow_suffix_router_box.rs` の legacy fallback arm を `#[cfg(test)]` 同期
+    - release warning baseline を維持したまま `normalization` 側の `allow(dead_code)` を撤去
   - `805ba4731` refactor D5 trim control_flow dead_code allows in debug and loop-var helper path
     - `control_flow/debug.rs` の `trace_varmap` を `#[cfg(test)]` 化
     - `control_flow/utils.rs` の `extract_loop_variable_from_condition` は実使用経路（`plan/common_init.rs`）に合わせて suppression なしへ復帰
@@ -228,6 +233,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-0aac809b8, `warning: 0`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-0aac809b8）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-0aac809b8）
   - `cargo build --release --bin hakorune`（post-805ba4731, `warning: 0`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-805ba4731）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
@@ -436,8 +445,6 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - 残 suppressions（2026-03-04 時点）:
     - `plan/mod.rs`（umbrella / remove時 233 warnings）
     - `plan/extractors/common_helpers.rs`（他差分が同居する dirty file のため未着手）
-    - `normalization/plan.rs`（legacy normalization移行途中）
-    - `normalization/execute_box.rs`（legacy normalization移行途中）
     - `plan/loop_cond_unified_helpers.rs`（他差分が同居する dirty file のため未着手）
 
 ## next fixed order (resume point)
