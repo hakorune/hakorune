@@ -241,6 +241,7 @@ pub(crate) fn route_loop_pattern(
         planner_required,
         has_loopbodylocal,
     };
+    let allow_shadow_fallback = outcome.recipe_contract.is_none();
     let debug_enabled = crate::config::env::joinir_dev::debug_enabled();
     let trace_entry_route = |route: &str| {
         if debug_enabled {
@@ -318,7 +319,7 @@ pub(crate) fn route_loop_pattern(
     // Phase-1: recipe-first paths return above; reaching here means no recipe-first match.
     // Phase-2: do not attempt shadow_adopt if recipe-first matched (entry is locked earlier).
     // Phase-3: release also returns above when recipe-first matched (shadow_adopt fallback skipped).
-    if strict_or_dev {
+    if strict_or_dev && allow_shadow_fallback {
         if let Some(value) = lower_shadow_adopt_pre_plan(
             builder,
             ctx,
@@ -332,7 +333,7 @@ pub(crate) fn route_loop_pattern(
     }
 
     // Release fallback adopt is legacy; keep it scoped to planner-none routes only.
-    if !strict_or_dev {
+    if !strict_or_dev && allow_shadow_fallback {
         if let Some(core_plan) = composer::try_release_adopt_pre_plan(builder, ctx, &outcome, true)?
         {
             trace_entry_route("release_adopt");
