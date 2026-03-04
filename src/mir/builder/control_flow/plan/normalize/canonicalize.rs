@@ -1,7 +1,5 @@
 //! Phase 29ai P0: Canonicalize Facts (pure transform) — skeleton
 
-#![allow(dead_code)]
-
 use crate::mir::builder::control_flow::plan::facts::feature_facts::{
     CleanupKindFacts, ExitKindFacts, ExitUsageFacts,
 };
