@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! Else-only-return and else-guard-break pattern handlers.
 
 use crate::ast::ASTNode;
