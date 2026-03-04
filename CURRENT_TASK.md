@@ -97,9 +97,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - runtime 経路から Pattern番号ラベル map を分離（互換テストは維持）
   - `72826cb53` refactor D5 simplify registry handlers standard entry wiring
     - `handlers.rs` の標準ルート配線で `ENTRY_BASE + compose` 重複を削減（`const ENTRY` へ統一）
-  - `WIP` registry collect cleanup (commit pending):
-    - `registry/mod.rs` の `collect_candidates` で重複していた `entry.name` 判定を `should_skip_candidate` へ集約
-    - `generic_loop_v1` の後段除外判定を単一ブールへ集約（挙動不変）
+  - `150728b8c` refactor D5 dedupe registry candidate suppression logic
+    - `registry/mod.rs` の `collect_candidates` で `entry.name` 判定重複を `should_skip_candidate` へ集約
+    - `generic_loop_v1` 後段除外判定を単一ブールへ集約（挙動不変）
+  - `2a90073f7` refactor D5 trim planner facts dead-noise helpers
+    - `planner/build_tests.rs` の dead import (`BTreeMap`) を削除
+    - `planner/build.rs` / `candidates.rs` / `validators.rs` の no-op 分岐を縮約
+    - `facts/feature_facts.rs` の nested-loop 判定定型を簡約（挙動不変）
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -124,6 +128,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh` (`PASS`)
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` (`PASS`)
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-registry-cleanup)
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo test -q --lib planner_does_not_build_pattern9_accum_const_loop_plan_from_facts`
+  - `cargo test -q --lib nested_loop_detects_if_branch_loop`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-dead-noise-trim)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-dead-noise-trim）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -136,10 +147,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. 上記 `joinir/registry/mod.rs collect_candidates` cleanup を commit 確定する。
-2. D5-E: `facts/planner` 側の dead import / dead comment を掃除して SSOT と同期。
-3. D5-E: `joinir registry` の predicate 重複は、pre-existing dirty diff を分離できる状態にしてから実施する。
-4. 各ステップで `bq` + `phase29x-probe` を回し、`emit_fail=0` / `route_blocker=0` を維持確認。
+1. D5-E: `facts/planner` 側の残り dead-noise（`#![allow(dead_code)]` / no-op comment）を clean file 限定で縮退。
+2. D5-E: `joinir registry` の predicate 重複は、pre-existing dirty diff（`predicates.rs`）を分離できる状態にしてから実施する。
+3. 各ステップで `bq` + `phase29x-probe` を回し、`emit_fail=0` / `route_blocker=0` を維持確認。
+4. 進捗ログは archive へ寄せ、`CURRENT_TASK.md` は再起動入口の薄さを維持する。
 
 ## Quick Restart (After Reboot)
 
