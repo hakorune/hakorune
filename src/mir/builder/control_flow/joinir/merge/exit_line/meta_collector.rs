@@ -5,8 +5,6 @@
 //!
 //! **Responsibility**: Construct exit_bindings from ExitMeta + variable_ctx.variable_map lookup
 
-#![allow(dead_code)]
-
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::carrier_info::ExitMeta;
 use crate::mir::join_ir::lowering::inline_boundary::LoopExitBinding;
