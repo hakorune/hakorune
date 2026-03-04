@@ -241,6 +241,38 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `cargo check --release --bin hakorune` => PASS
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only 29bp` => PASS
+- update (2026-03-04, Phase D D1 semantic enum sweep):
+  - commit: `0c6d4669f` (`refactor use semantic PlanRuleId variants in planner flow`)
+  - fix note:
+    - `PlanRuleId` の Pattern 数値 variant を semantic variant（`LoopBreakRecipe` など）へ置換。
+    - `single_planner/rule_order.rs` に `Pattern1..9` 互換 alias const を保持し、段階移行の互換性を維持。
+    - `joinir/patterns/registry/handlers.rs` / `single_planner/rules.rs` / `planner/tags.rs` の呼び出し側を semantic variant へ統一。
+  - verification:
+    - `cargo test -q rule_name_uses_semantic_label --lib` => PASS
+    - `cargo test -q legacy_rule_name_alias_is_preserved --lib` => PASS
+    - `cargo test -q legacy_pattern_alias_constants_are_preserved --lib` => PASS
+    - `cargo test -q recipe_only_rules_require_planner_required_for_pattern_family --lib` => PASS
+    - `cargo test -q planner_first_tag_uses_semantic_name_for_pattern_rules --lib` => PASS
+    - `cargo check --release --bin hakorune` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only 29bp` => PASS
+- update (2026-03-04, direct generic_loop v1 unblock for nested Program step):
+  - commit: `c495c989b` (`fix generic_loop_v1 step resolution for nested program loops`)
+  - fix note:
+    - `generic_loop/facts/extract/v1.rs` を候補解決ヘルパで分離し、reject reason の集計を構造化。
+    - 条件 canonicalize と var-step extraction を release route でも有効化（`allow_var_step=true`, cond canon extended）。
+    - 条件側 loop var 候補が空のケースで body 由来候補へフォールバックし、nested `Program{ loop }` 形の取りこぼしを解消。
+    - `body_lowering_policy` 変換条件の逆転バグ（`is_some`/`is_none`）を修正し、`ExitAllowed` 契約を維持。
+    - `step/extract/shared.rs` に `contains_var_name` を追加し、var-step 判定を `loop_var` 再帰包含ベースへ補強。
+    - unit test 追加: `generic_loop_nested_program_stmt_preserves_outer_loop_step_expr`。
+  - verification:
+    - `cargo test -q --lib generic_loop_v1_policy_exit_allowed_without_break` => PASS
+    - `cargo test -q --lib generic_loop_nested_program_stmt_preserves_outer_loop_step_expr` => PASS
+    - `cargo test -q --lib generic_loop_v0_allows_loop_var_from_add_expr_in_condition` => PASS
+    - `cargo test -q --lib generic_loop_v1_policy_recipe_only_with_break` => PASS
+    - `cargo check --release --bin hakorune` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+    - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` => `emit_fail=0 / route_blocker=0 / run_nonzero=18 / run_ok=100`
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
@@ -264,7 +296,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `src/mir/builder/control_flow/plan/lowerer/effect_emission.rs`
   - `CURRENT_TASK.md`
 - next fixed order（resume point）:
-  1. D1: `PlanRuleId` / entry 名の Pattern 数値語彙を意味語彙へ置換（互換 alias 先行）
+  1. cond_prelude: `BlockExpr` prelude の `Loop` 受理を追加し、`phase29x-probe` の direct route 契約で固定する。
   2. D2: `DomainPlan` を label-only へ縮退し router 依存を除去
   3. D3: `normalizer/pattern*.rs` の entry-path 依存を 0 にして撤去
   4. D系の各段で fixture+fast-gate を更新し、BoxShape と BoxCount を混在させない
