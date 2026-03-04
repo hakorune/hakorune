@@ -23,7 +23,6 @@ use crate::mir::loop_pattern_detection::{LoopFeatures, LoopPatternKind};
 /// 1. Create with `new()` - AST + Router info only
 /// 2. Call `set_canonicalizer_result()` - Add Canonicalizer output
 /// 3. Call `verify_parity()` - Check consistency (dev-only)
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct LoopProcessingContext<'a> {
     // ========================================================================
@@ -57,7 +56,6 @@ pub struct LoopProcessingContext<'a> {
     pub features: LoopFeatures,
 }
 
-#[allow(dead_code)]
 impl<'a> LoopProcessingContext<'a> {
     /// Create new context (canonicalizer not run yet)
     ///

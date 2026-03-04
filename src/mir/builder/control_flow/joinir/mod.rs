@@ -12,6 +12,7 @@
 pub(in crate::mir::builder) mod control_tree_capability_guard;
 pub(in crate::mir::builder) mod api;
 pub(in crate::mir::builder) mod legacy; // Phase 132-R0 Task 4: Legacy routing isolation
+#[cfg(test)]
 pub(in crate::mir::builder) mod loop_context;
 pub(in crate::mir::builder) mod merge;
 pub(in crate::mir::builder) mod parity_checker;
