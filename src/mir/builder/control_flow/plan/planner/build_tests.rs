@@ -2,8 +2,6 @@
 //!
 //! Extracted from build.rs for better maintainability
 
-#![allow(dead_code)]
-
 #[cfg(test)]
 mod tests {
     use super::super::build::*;
@@ -140,7 +138,7 @@ mod tests {
 
     fn plan_from_facts(facts: LoopFacts) -> Option<DomainPlan> {
         let canonical = canonicalize_loop_facts(facts);
-        build_plan_from_facts(canonical).expect("Ok")
+        build_plan_from_facts_ctx(&PlannerContext::default_for_legacy(), canonical).expect("Ok")
     }
 
     fn scan_with_init(step_lit: i64) -> ScanWithInitFacts {

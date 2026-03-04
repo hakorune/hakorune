@@ -2,8 +2,6 @@
 //!
 //! SSOT: "0 candidates = Ok(None), 1 = Ok(Some), 2+ = Freeze(ambiguous)"
 
-#![allow(dead_code)]
-
 use super::pattern_shadow;
 use super::Freeze;
 use crate::mir::builder::control_flow::plan::DomainPlan;
@@ -23,10 +21,6 @@ pub(in crate::mir::builder) struct CandidateSet {
 impl CandidateSet {
     pub(in crate::mir::builder) fn new() -> Self {
         Self::default()
-    }
-
-    pub(in crate::mir::builder) fn is_empty(&self) -> bool {
-        self.candidates.is_empty()
     }
 
     pub(in crate::mir::builder) fn push(&mut self, candidate: PlanCandidate) {

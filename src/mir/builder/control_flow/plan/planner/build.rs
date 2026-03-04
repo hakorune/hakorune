@@ -1,8 +1,4 @@
-//! Planner build_plan entrypoint (CandidateSet boundary SSOT)
-
-#![allow(dead_code)]
-
-use crate::ast::ASTNode;
+//! Planner build_plan_from_facts_ctx entrypoint (CandidateSet boundary SSOT)
 
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
@@ -14,23 +10,8 @@ use crate::mir::builder::control_flow::plan::DomainPlan;
 use super::candidates::{CandidateSet, PlanCandidate};
 use super::context::PlannerContext;
 use super::helpers::{infer_exit_usage, infer_skeleton_kind};
-use super::outcome::build_plan_with_facts;
 use super::validators::debug_assert_cleanup_kinds_match_exit_kinds;
 use super::Freeze;
-
-/// External-ish SSOT entrypoint used by single_planner.
-pub(in crate::mir::builder) fn build_plan(
-    condition: &ASTNode,
-    body: &[ASTNode],
-) -> Result<Option<DomainPlan>, Freeze> {
-    Ok(build_plan_with_facts(condition, body)?.plan)
-}
-
-pub(in crate::mir::builder) fn build_plan_from_facts(
-    facts: CanonicalLoopFacts,
-) -> Result<Option<DomainPlan>, Freeze> {
-    build_plan_from_facts_ctx(&PlannerContext::default_for_legacy(), facts)
-}
 
 pub(in crate::mir::builder) fn build_plan_from_facts_ctx(
     _ctx: &PlannerContext,

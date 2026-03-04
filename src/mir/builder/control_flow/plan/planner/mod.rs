@@ -1,9 +1,9 @@
 //! Phase 29ai P7: Single Planner (Facts → DomainPlan)
 //!
-//! P0 goal: expose a single external-ish entrypoint (`build_plan`) and hide
+//! P0 goal: expose a single planner entrypoint (`build_plan_from_facts_ctx`) and hide
 //! pattern-name branching behind internal enums.
 
-#![allow(dead_code, unused_imports)]
+#![allow(unused_imports)]
 
 pub(in crate::mir::builder) mod build;
 pub(in crate::mir::builder) mod candidates;
@@ -19,7 +19,7 @@ pub(in crate::mir::builder) mod validators;
 #[cfg(test)]
 mod build_tests;
 
-pub(in crate::mir::builder) use build::{build_plan, build_plan_from_facts_ctx};
+pub(in crate::mir::builder) use build::build_plan_from_facts_ctx;
 pub(in crate::mir::builder) use context::PlannerContext;
 pub(in crate::mir::builder) use freeze::Freeze;
 pub(in crate::mir::builder) use outcome::{

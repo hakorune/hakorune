@@ -190,14 +190,13 @@ pub(in crate::mir::builder) mod plan_build_session;
 // ============================================================================
 //
 // Plan pipeline entrypoints:
-// - planner::build_plan* (Facts → DomainPlan)
+// - planner::build_plan_with_facts* / build_plan_from_facts_ctx (Facts → DomainPlan)
 // - PlanNormalizer::normalize (DomainPlan → CorePlan)
 // - PlanVerifier::verify (CorePlan invariants)
 // - PlanLowerer::lower (CorePlan → MIR)
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use planner::{
-    build_plan, build_plan_from_facts_ctx, build_plan_with_facts, build_plan_with_facts_ctx,
-    PlanBuildOutcome,
+    build_plan_from_facts_ctx, build_plan_with_facts, build_plan_with_facts_ctx, PlanBuildOutcome,
 };
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use normalizer::PlanNormalizer;
