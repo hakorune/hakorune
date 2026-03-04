@@ -69,8 +69,6 @@ pub(in crate::mir::builder) mod skeletons;
 pub(in crate::mir::builder) mod coreloop_body_contract;
 // Phase 29ca P1: Generic loop v0 module (facts/normalizer SSOT)
 pub(in crate::mir::builder) mod generic_loop;
-// Phase 29bq+: Pattern1 minimal lowering moved to plan side
-pub(in crate::mir::builder) mod pattern1_simple_while;
 // Phase 29bq+: Pattern2 module moved to plan side
 pub(in crate::mir::builder) mod pattern2;
 pub(in crate::mir::builder) mod pattern2_break_condition_policy_router;
