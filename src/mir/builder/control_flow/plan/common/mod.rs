@@ -3,7 +3,6 @@
 //! This module provides shared helper functions used across different pattern
 //! lowering implementations, eliminating code duplication and ensuring consistency.
 
-mod ast_helpers;
 mod carrier_binding_policy;
 mod joinir_helpers; // Phase 256.8.5: JoinModule helpers
 
