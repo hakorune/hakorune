@@ -59,4 +59,16 @@ mod tests {
             "[joinir/planner_first rule=LoopCondBreak]"
         );
     }
+
+    #[test]
+    fn planner_first_tag_keeps_scan_split_compat_labels() {
+        assert_eq!(
+            planner_first_tag(PlanRuleId::ScanWithInit),
+            "[joinir/planner_first rule=ScanWithInit]"
+        );
+        assert_eq!(
+            planner_first_tag(PlanRuleId::SplitScan),
+            "[joinir/planner_first rule=SplitScan]"
+        );
+    }
 }

@@ -1986,3 +1986,9 @@ contract note (fixed):
 - update (2026-03-04, probe refresh):
   - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
   - result: `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119）
+- update (2026-03-04, planner-first compat guard for scan/split):
+  - `planner/tags.rs` に `planner_first_tag_keeps_scan_split_compat_labels` test を追加し、`[joinir/planner_first rule=ScanWithInit|SplitScan]` 文字列を固定。
+  - verification:
+    - `cargo test -q --lib planner_first_tag_keeps_scan_split_compat_labels`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
