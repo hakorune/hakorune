@@ -2026,3 +2026,29 @@ contract note (fixed):
   - verification:
     - `cargo check --release --bin hakorune`
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, phase29x-probe run_nonzero classification lock):
+  - latest probe:
+    - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119）
+  - classification (monitor-known; not current blocker):
+    - `run:nonzero-empty` intentional contract exits (6):
+      - `phase29bq_hako_mirbuilder_phase11_local_loop_return_var_min.hako` (rc=3)
+      - `phase29bq_hako_mirbuilder_phase21_loop_if_return_var_min.hako` (rc=3)
+      - `phase29bq_joinir_port03_loop_local_return_var_min.hako` (rc=3)
+      - `phase29bq_strict_nested_loop_guard_min.hako` (rc=1)
+      - `phase29ca_generic_loop_continue_min.hako` (rc=4)
+      - `phase29cb_generic_loop_in_body_step_min.hako` (rc=3)
+    - `run:nonzero` direct runner bridge limitation cluster (9):
+      - v1 unsupported: `newbox` / `keepalive` / `release_strong`
+      - v0 fallback unsupported: `Closure` callee / `&` binop / `unop`
+      - fixtures: `phase29bq_generic_loop_v1_recipe_nested_if_min.hako`,
+        `phase29bq_selfhost_blocker_scan_methods_loop_min.hako`,
+        `phase29bq_selfhost_box_member_local_fini_*_loop_*_min.hako` (7 files)
+    - `run:vm-error` provider-dependent cluster (3):
+      - `phase29bq_selfhost_blocker_parse_loop_min.hako`
+      - `phase29bq_selfhost_blocker_scan_with_quote_loop_min.hako`
+      - `phase29bq_selfhost_blocker_scan_with_quote_loop_full_min.hako`
+      - signal: `No plugin provider for Box type: Main`（direct `--mir-json-file` route）
+  - note:
+    - current compiler blocker remains `none` / lane=`phase-29bq monitor-only`。
+    - failure-driven reopen rule: `emit_fail>0` または `route_blocker>0` に遷移した時のみ direct route を再優先で reopen。
