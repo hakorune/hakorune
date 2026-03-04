@@ -2094,3 +2094,18 @@ contract note (fixed):
     - `cargo test -q --lib planner_rule_order_is_domain_plan_only`
     - `cargo build --release --bin hakorune`
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, probe refresh after D5 cleanup series):
+  - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+  - result: `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119）
+  - class_counts:
+    - `run:nonzero-empty=6`
+    - `run:nonzero=9`
+    - `run:vm-error=3`
+    - `run:ok=101`
+- update (2026-03-04, D5 test-only entry shrink in facts):
+  - `facts/mod.rs` の `loop_tests` module 宣言を `#[cfg(test)]` 化し、runtime build から test-only module wire を除外。
+  - verification:
+    - `cargo test -q --lib loopfacts_ok_some_for_canonical_scan_with_init_minimal`
+    - `cargo test -q --lib loopfacts_ok_some_for_canonical_split_scan_minimal`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)

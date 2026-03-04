@@ -28,6 +28,7 @@ pub(in crate::mir::builder) mod loop_condition_shape;
 pub(in crate::mir::builder) mod loop_scan_with_init;
 pub(in crate::mir::builder) mod loop_split_scan;
 pub(in crate::mir::builder) mod loop_step_shape;
+#[cfg(test)]
 pub(in crate::mir::builder) mod loop_tests;
 pub(in crate::mir::builder) mod loop_types;
 
