@@ -8,25 +8,24 @@ use crate::mir::builder::control_flow::plan::single_planner::{
     planner_rule_semantic_label, PlanRuleId,
 };
 
-pub(in crate::mir::builder) fn planner_first_tag(rule_id: PlanRuleId) -> &'static str {
+fn planner_first_rule_name(rule_id: PlanRuleId) -> &'static str {
     match rule_id {
-        PlanRuleId::Pattern1 => "[joinir/planner_first rule=LoopSimpleWhile]",
-        PlanRuleId::Pattern2 => "[joinir/planner_first rule=LoopBreakRecipe]",
-        PlanRuleId::Pattern3 => "[joinir/planner_first rule=IfPhiJoin]",
-        PlanRuleId::Pattern4 => "[joinir/planner_first rule=LoopContinueOnly]",
-        PlanRuleId::Pattern5 => "[joinir/planner_first rule=LoopTrueEarlyExit]",
-        PlanRuleId::Pattern6 => "[joinir/planner_first rule=ScanWithInit]",
-        PlanRuleId::Pattern7 => "[joinir/planner_first rule=SplitScan]",
-        PlanRuleId::Pattern8 => "[joinir/planner_first rule=BoolPredicateScan]",
-        PlanRuleId::Pattern9 => "[joinir/planner_first rule=AccumConstLoop]",
-        PlanRuleId::LoopTrueBreak => "[joinir/planner_first rule=LoopTrueBreak]",
-        PlanRuleId::LoopCondBreak => "[joinir/planner_first rule=LoopCondBreak]",
-        PlanRuleId::LoopCondContinueOnly => "[joinir/planner_first rule=LoopCondContinueOnly]",
-        PlanRuleId::LoopCondContinueWithReturn => {
-            "[joinir/planner_first rule=LoopCondContinueWithReturn]"
-        }
-        PlanRuleId::LoopCondReturnInBody => "[joinir/planner_first rule=LoopCondReturnInBody]",
+        // Keep these rule ids pinned for now because gate/TSV expectations still use them.
+        PlanRuleId::LoopTrueBreak => "LoopTrueBreak",
+        PlanRuleId::LoopCondBreak => "LoopCondBreak",
+        PlanRuleId::LoopCondContinueOnly => "LoopCondContinueOnly",
+        PlanRuleId::LoopCondContinueWithReturn => "LoopCondContinueWithReturn",
+        PlanRuleId::LoopCondReturnInBody => "LoopCondReturnInBody",
+        // Pattern-derived ids follow semantic labels by default.
+        _ => planner_rule_semantic_label(rule_id),
     }
+}
+
+pub(in crate::mir::builder) fn planner_first_tag(rule_id: PlanRuleId) -> String {
+    format!(
+        "[joinir/planner_first rule={}]",
+        planner_first_rule_name(rule_id)
+    )
 }
 
 pub(in crate::mir::builder) fn planner_first_display_label(rule_id: PlanRuleId) -> &'static str {
@@ -39,4 +38,25 @@ pub(in crate::mir::builder) fn planner_first_tag_with_label(rule_id: PlanRuleId)
         planner_first_tag(rule_id),
         planner_first_display_label(rule_id)
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn planner_first_tag_uses_semantic_name_for_pattern_rules() {
+        assert_eq!(
+            planner_first_tag(PlanRuleId::Pattern2),
+            "[joinir/planner_first rule=LoopBreakRecipe]"
+        );
+    }
+
+    #[test]
+    fn planner_first_tag_keeps_pinned_rule_name_for_loop_cond_break() {
+        assert_eq!(
+            planner_first_tag(PlanRuleId::LoopCondBreak),
+            "[joinir/planner_first rule=LoopCondBreak]"
+        );
+    }
 }
