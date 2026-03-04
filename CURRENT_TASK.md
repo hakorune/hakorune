@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `4c8c8bc05` refactor D5 remove unused pattern1_simple_while legacy entrypoints
+    - `plan/mod.rs` から `pattern1_simple_while` module wire を削除
+    - 未参照の `plan/pattern1_simple_while.rs` を削除（legacy entrypoint 群を撤去）
+    - Pattern domain 撤退の未使用1本を物理削除で前進（挙動不変）
   - `619fbd64b` refactor D5 remove unused pattern3_if_phi legacy entrypoints
     - `plan/mod.rs` から `pattern3_if_phi` module wire を削除
     - 未参照の `plan/pattern3_if_phi.rs` を削除（legacy entrypoint 群を撤去）
@@ -258,6 +262,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-4c8c8bc05, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-4c8c8bc05）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-4c8c8bc05）
   - `cargo build --release --bin hakorune`（post-619fbd64b, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-619fbd64b）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
