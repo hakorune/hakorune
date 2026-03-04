@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `27cbe50d2` refactor D5 replace residual DomainPlan vocabulary with loop-plan payload terms
+    - `joinir/patterns/router.rs` / `planner/mod.rs` / `normalizer/mod.rs` / `nested_loop_plan.rs` の表面語彙を `loop plan payload` に統一
+    - `single_planner/{rule_order.rs,README.md}` と `plan/{ARCHITECTURE.md,normalizer/README.md}` から `DomainPlan` 残語彙を除去
+    - runtime 挙動は不変（コメント/README/識別子語彙の整理）
   - `fa1efcb21` refactor D5 remove DomainPlan alias from planner-normalizer type surface
     - `plan/domain.rs` から `DomainPlan` alias を撤去し、`loop_plan_label()` + `LoopCondContinueWithReturnPlan` 直結に統一
     - `planner/{build,outcome,build_tests}.rs` と `normalizer/mod.rs` の型署名を単一payload型へ同期
@@ -657,6 +661,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-fa1efcb21)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-fa1efcb21, elapsed=`0:04.37`）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-27cbe50d2)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-27cbe50d2, elapsed=`0:04.20`）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -681,7 +689,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
    - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
-   - `DomainPlan` alias は撤去完了（`fa1efcb21`）。次は docs/runtime message の `DomainPlan` 残語彙を `loop plan payload` へ寄せる。
+   - `DomainPlan` alias 撤去（`fa1efcb21`）と `src/mir/builder/control_flow/{plan,joinir}` 内の残語彙撤去（`27cbe50d2`）まで完了。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
