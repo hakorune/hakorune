@@ -108,6 +108,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `planner/build.rs` の未参照 entrypoint（`build_plan` / `build_plan_from_facts`）を削除
     - `planner/validators.rs` の未参照 stub（strict/dev helper と exit-usage debug assert）を削除
     - `plan/mod.rs` / `planner/mod.rs` の再公開口とコメントを実体に同期
+  - `88c9ade9a` refactor D5 drop stale dead_code allows in freeze and loop tests
+    - `planner/freeze.rs` の `#![allow(dead_code)]` を削除
+    - `facts/loop_tests.rs` の `#![allow(dead_code)]` と未使用 helper を削除
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -146,6 +149,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-unused-entry-delete)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-unused-entry-delete）
+  - `cargo test -q --lib loop_facts_require_skeleton_and_features_when_present`
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-dead_code-allow-drop)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-dead_code-allow-drop）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
