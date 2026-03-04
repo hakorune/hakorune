@@ -135,6 +135,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `68ae7bb56` refactor D5 drop stale dead_code allows in recipe core modules
     - `recipes/mod.rs` / `recipe_tree/block.rs` / `recipe_tree/verified.rs` /
       `loop_cond/break_continue_recipe.rs` の file-level `dead_code` allow を撤去
+  - `5b2e3f70f` refactor D5 remove dead_code allow from normalize canonicalize
+    - `normalize/mod.rs` / `normalize/canonicalize.rs` の file-level `dead_code` allow を撤去
+    - canonical facts 変換の SSOT 経路を suppression なしで固定
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -216,6 +219,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-recipe-core-allow-drop)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-recipe-core-allow-drop）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo test -q --lib canonical_projects_skeleton_and_exit_usage`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-normalize-allow-drop)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-normalize-allow-drop）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
