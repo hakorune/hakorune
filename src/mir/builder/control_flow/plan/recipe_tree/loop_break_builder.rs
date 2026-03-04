@@ -17,11 +17,11 @@
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::pattern2_break_types::Pattern2BreakFacts;
-use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features,
-    RecipeBodies, RecipeBlock, RecipeItem,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
+use crate::mir::builder::control_flow::plan::recipe_tree::{
+    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
+    RecipeItem,
+};
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::builder::control_flow::plan::Pattern2StepPlacement;
@@ -38,6 +38,11 @@ fn dummy_var(name: &str) -> ASTNode {
     }
 }
 
+fn should_dedupe_carrier_update(facts: &Pattern2BreakFacts) -> bool {
+    // Keep dedupe conservative: only collapse when both update expressions are exactly the same AST.
+    facts.carrier_var == facts.loop_var && facts.carrier_update_in_body == facts.loop_increment
+}
+
 /// LoopBreak recipe (arena + root block).
 #[derive(Debug)]
 pub(in crate::mir::builder) struct LoopBreakRecipe {
@@ -47,8 +52,7 @@ pub(in crate::mir::builder) struct LoopBreakRecipe {
 
 /// Build a RecipeBlock for Pattern2Break from Facts.
 ///
-/// Returns None if the facts cannot be represented as a valid Recipe
-/// (e.g., carrier_update_in_break is present - not supported in minimal impl).
+/// Returns None if the facts cannot be represented as a valid Recipe shape.
 ///
 /// # Arguments
 /// * `loop_stmt` - The loop AST node
@@ -99,8 +103,7 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
     // When carrier_var and loop_var point to the same variable with the same update expression,
     // applying both statements causes a double-step bug (e.g. i := f(i); i := f(i) again).
     // Keep a single step statement in that case.
-    let dedupe_carrier_update = facts.carrier_var == facts.loop_var
-        && facts.carrier_update_in_body == facts.loop_increment;
+    let dedupe_carrier_update = should_dedupe_carrier_update(facts);
 
     let (combined_body, if_idx, carrier_idx, step_idx) = match facts.step_placement {
         Pattern2StepPlacement::Last => {
@@ -113,7 +116,11 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
                 body.insert(1, carrier_update_stmt);
                 Some(1usize)
             };
-            let step_idx = if dedupe_carrier_update { step_idx } else { 2usize };
+            let step_idx = if dedupe_carrier_update {
+                step_idx
+            } else {
+                2usize
+            };
             (body, if_idx, carrier_idx, step_idx)
         }
         Pattern2StepPlacement::BeforeBreak => {
@@ -154,7 +161,9 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
     let break_if_item = RecipeItem::IfV2 {
         if_stmt: StmtRef::new(if_idx), // break_if_stmt in combined_body
         cond_view: break_cond_view,
-        contract: IfContractKind::ExitOnly { mode: IfMode::ExitIf },
+        contract: IfContractKind::ExitOnly {
+            mode: IfMode::ExitIf,
+        },
         then_block: Box::new(break_then_block),
         else_block: None,
     };
@@ -195,7 +204,6 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
 
     Some(LoopBreakRecipe { arena, root })
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -249,7 +257,10 @@ mod tests {
             &facts,
         );
 
-        assert!(result.is_some(), "Should build recipe for carrier_update_in_break");
+        assert!(
+            result.is_some(),
+            "Should build recipe for carrier_update_in_break"
+        );
     }
 
     #[test]

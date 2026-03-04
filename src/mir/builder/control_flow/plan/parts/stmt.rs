@@ -3,6 +3,8 @@
 //! Scope: behavior-preserving extraction of existing lowering logic.
 //! SSOT for return prelude statement lowering.
 
+use super::super::steps::effects_to_plans;
+use super::if_exit::{lower_if_exit_stmt_view, lower_if_exit_stmt_with_break_phi_args_view};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
@@ -10,16 +12,81 @@ use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_
 use crate::mir::builder::control_flow::plan::facts::return_prelude::{
     try_build_return_prelude_container_recipe, ReturnPreludeContainerRecipe,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, RecipeBlock, RecipeItem};
-use super::if_exit::{lower_if_exit_stmt_view, lower_if_exit_stmt_with_break_phi_args_view};
-use super::super::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
-use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CorePlan, LoweredRecipe,
-};
+use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, RecipeBlock, RecipeItem};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, ConstValue, Effect, EffectMask, ValueId};
 use std::collections::BTreeMap;
+
+fn tail_is_exit(body: &[ASTNode]) -> bool {
+    matches!(
+        body.last(),
+        Some(ASTNode::Return { .. } | ASTNode::Break { .. } | ASTNode::Continue { .. })
+    )
+}
+
+fn lower_if_join_non_exit_shape(
+    builder: &mut MirBuilder,
+    branch_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: Option<&BTreeMap<String, crate::mir::ValueId>>,
+    cond_view: &CondBlockView,
+    then_body: &[ASTNode],
+    else_body: Option<&[ASTNode]>,
+    error_prefix: &str,
+) -> Result<Vec<LoweredRecipe>, String> {
+    let should_update_binding =
+        |name: &str, bindings: &BTreeMap<String, crate::mir::ValueId>| bindings.contains_key(name);
+
+    let lower_stmt_list = |builder: &mut MirBuilder,
+                           bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+                           stmts: &[ASTNode]| {
+        let mut plans = Vec::new();
+        for stmt in stmts {
+            plans.extend(lower_return_prelude_stmt(
+                builder,
+                bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                stmt,
+                error_prefix,
+            )?);
+        }
+        Ok::<_, String>(plans)
+    };
+
+    let mut lower_then =
+        |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
+            lower_stmt_list(builder, bindings, then_body)
+        };
+
+    if let Some(else_body) = else_body {
+        let mut lower_else =
+            |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
+                lower_stmt_list(builder, bindings, else_body)
+            };
+        return super::entry::lower_if_join_with_branch_lowerers(
+            builder,
+            branch_bindings,
+            cond_view,
+            error_prefix,
+            &mut lower_then,
+            Some(&mut lower_else),
+            &should_update_binding,
+        );
+    }
+
+    super::entry::lower_if_join_with_branch_lowerers(
+        builder,
+        branch_bindings,
+        cond_view,
+        error_prefix,
+        &mut lower_then,
+        None,
+        &should_update_binding,
+    )
+}
 
 pub(in crate::mir::builder) fn lower_return_prelude_stmt(
     builder: &mut MirBuilder,
@@ -111,7 +178,11 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                 ));
             };
             Ok(vec![CorePlan::Exit(
-                super::exit::build_break_with_phi_args(break_phi_dsts, branch_bindings, error_prefix)?,
+                super::exit::build_break_with_phi_args(
+                    break_phi_dsts,
+                    branch_bindings,
+                    error_prefix,
+                )?,
             )])
         }
         ASTNode::Continue { .. } => Ok(vec![CorePlan::Exit(
@@ -188,7 +259,10 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                     )?;
                     plans.append(&mut init_plans);
                     branch_bindings.insert(name.clone(), value_id);
-                    builder.variable_ctx.variable_map.insert(name.clone(), value_id);
+                    builder
+                        .variable_ctx
+                        .variable_map
+                        .insert(name.clone(), value_id);
                 }
                 return Ok(plans);
             }
@@ -325,71 +399,21 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                 }
             }
 
-            fn tail_is_exit(body: &[ASTNode]) -> bool {
-                matches!(
-                    body.last(),
-                    Some(ASTNode::Return { .. } | ASTNode::Break { .. } | ASTNode::Continue { .. })
-                )
-            }
-
             // If it is not an exit-if shape, do not fall back to exit-if lowering.
             // That fallback produces long-distance errors like "if body must be single-exit"
             // for general join-bearing `if` forms (e.g., nested-if + assignments).
             let is_exit_if_shape =
                 tail_is_exit(then_body) && else_body.as_ref().map_or(true, |b| tail_is_exit(b));
             if !is_exit_if_shape {
-                let should_update_binding =
-                    |name: &str, bindings: &BTreeMap<String, crate::mir::ValueId>| {
-                        bindings.contains_key(name)
-                    };
-
-                let lower_stmt_list = |builder: &mut MirBuilder,
-                                           bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-                                           stmts: &[ASTNode]| {
-                    let mut plans = Vec::new();
-                    for stmt in stmts {
-                        plans.extend(lower_return_prelude_stmt(
-                            builder,
-                            bindings,
-                            carrier_step_phis,
-                            break_phi_dsts,
-                            stmt,
-                            error_prefix,
-                        )?);
-                    }
-                    Ok::<_, String>(plans)
-                };
-
-                let mut lower_then =
-                    |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
-                        lower_stmt_list(builder, bindings, then_body)
-                    };
-
-                if let Some(else_body) = else_body.as_ref() {
-                    let mut lower_else =
-                        |builder: &mut MirBuilder,
-                         bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
-                            lower_stmt_list(builder, bindings, else_body)
-                        };
-                    return super::entry::lower_if_join_with_branch_lowerers(
-                        builder,
-                        branch_bindings,
-                        &cond_view,
-                        error_prefix,
-                        &mut lower_then,
-                        Some(&mut lower_else),
-                        &should_update_binding,
-                    );
-                }
-
-                return super::entry::lower_if_join_with_branch_lowerers(
+                return lower_if_join_non_exit_shape(
                     builder,
                     branch_bindings,
+                    carrier_step_phis,
+                    break_phi_dsts,
                     &cond_view,
+                    then_body,
+                    else_body.as_deref(),
                     error_prefix,
-                    &mut lower_then,
-                    None,
-                    &should_update_binding,
                 );
             }
 
@@ -441,10 +465,7 @@ fn lower_value_with_blockexpr_loop_prelude_stmt(
         return Ok((value_id, effects_to_plans(effects)));
     };
 
-    if !prelude_stmts
-        .iter()
-        .any(stmt_has_loop_stmt_recursive)
-    {
+    if !prelude_stmts.iter().any(stmt_has_loop_stmt_recursive) {
         let (value_id, effects) = PlanNormalizer::lower_value_ast(value, builder, branch_bindings)?;
         return Ok((value_id, effects_to_plans(effects)));
     }

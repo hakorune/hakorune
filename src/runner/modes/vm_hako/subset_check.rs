@@ -340,15 +340,19 @@ fn validate_boxcall_zero_or_one_reg_shape(
     Ok(())
 }
 
+const BOXCALL_INDEXOF_ARGS_TAG: &str = "boxcall(indexOf:args!=1or2)";
+const BOXCALL_INDEXOF_ARG0_NON_REG_TAG: &str = "boxcall(indexOf:arg0:non-reg)";
+const BOXCALL_INDEXOF_ARG1_NON_REG_TAG: &str = "boxcall(indexOf:arg1:non-reg)";
+
 fn validate_boxcall_indexof_shape(inst: &Value, args: &[Value]) -> Result<(), String> {
     if args.is_empty() || args.len() > 2 {
-        return Err("boxcall(indexOf:args!=1or2)".to_string());
+        return Err(BOXCALL_INDEXOF_ARGS_TAG.to_string());
     }
     if args.first().and_then(|v| v.as_u64()).is_none() {
-        return Err("boxcall(indexOf:arg0:non-reg)".to_string());
+        return Err(BOXCALL_INDEXOF_ARG0_NON_REG_TAG.to_string());
     }
     if args.len() == 2 && args.get(1).and_then(|v| v.as_u64()).is_none() {
-        return Err("boxcall(indexOf:arg1:non-reg)".to_string());
+        return Err(BOXCALL_INDEXOF_ARG1_NON_REG_TAG.to_string());
     }
     ensure_u64_fields(
         inst,
@@ -646,11 +650,7 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                             &handle_by_reg,
                             allow_dynamic_method_arg1,
                         ) {
-                            return Err((
-                                func_name.clone(),
-                                bb,
-                                reason.to_string(),
-                            ));
+                            return Err((func_name.clone(), bb, reason.to_string()));
                         }
                     }
                 }
