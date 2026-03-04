@@ -223,7 +223,7 @@ pub(crate) fn route_loop_pattern(
     use super::super::trace;
 
     // Phase 29ai P5: Single entrypoint for plan extraction (router has no rule table).
-    let (domain_plan, outcome) = single_planner::try_build_domain_plan_with_outcome(ctx)?;
+    let (_domain_plan, outcome) = single_planner::try_build_domain_plan_with_outcome(ctx)?;
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
     let planner_required =
@@ -318,7 +318,7 @@ pub(crate) fn route_loop_pattern(
     // Phase-1: recipe-first paths return above; reaching here means no recipe-first match.
     // Phase-2: do not attempt shadow_adopt if recipe-first matched (entry is locked earlier).
     // Phase-3: release also returns above when recipe-first matched (shadow_adopt fallback skipped).
-    if strict_or_dev && domain_plan.is_none() {
+    if strict_or_dev {
         if let Some(value) = lower_shadow_adopt_pre_plan(
             builder,
             ctx,
@@ -332,7 +332,7 @@ pub(crate) fn route_loop_pattern(
     }
 
     // Release fallback adopt is legacy; keep it scoped to planner-none routes only.
-    if !strict_or_dev && domain_plan.is_none() {
+    if !strict_or_dev {
         if let Some(core_plan) = composer::try_release_adopt_pre_plan(builder, ctx, &outcome, true)?
         {
             trace_entry_route("release_adopt");
@@ -345,21 +345,6 @@ pub(crate) fn route_loop_pattern(
                 FlowboxVia::Release,
             );
         }
-    }
-
-    if domain_plan.is_some() {
-        if strict_or_dev {
-            return Err(freeze_expected_plan(
-                strict_or_dev,
-                outcome.facts.as_ref(),
-                "domain_plan_deprecated",
-                "DomainPlan route is deprecated; recipe-first route is required",
-            ));
-        }
-
-        // Release-side DomainPlan fallback is intentionally deprecated.
-        trace_entry_route("domain_plan_deprecated");
-        return Ok(None);
     }
 
     if strict_or_dev && expectations::should_expect_plan(&outcome, ctx) {
