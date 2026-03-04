@@ -81,6 +81,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `7e422e1e8` refactor D5 drop unused pattern2 api facade reexports
+    - `plan/pattern2/api/mod.rs` から未使用の facade 再公開 (`PromoteDecision` / `try_promote`) を削除
+    - `1b1e79a45` 後に発生した `unused_imports` warning 2件を解消
+    - module API surface を実使用に同期（挙動不変）
+  - `1b1e79a45` refactor D5 remove unused pattern2 lowering orchestrator module
+    - `plan/mod.rs` から `pattern2_lowering_orchestrator` module wire を削除
+    - 未参照の `plan/pattern2_lowering_orchestrator.rs` を削除
+    - Pattern2 の未使用 orchestrator 残骸を除去して domain 縮退を前進
   - `4c8c8bc05` refactor D5 remove unused pattern1_simple_while legacy entrypoints
     - `plan/mod.rs` から `pattern1_simple_while` module wire を削除
     - 未参照の `plan/pattern1_simple_while.rs` を削除（legacy entrypoint 群を撤去）
@@ -262,6 +270,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-7e422e1e8, `PASS`, warning `0`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-7e422e1e8）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-7e422e1e8, elapsed=`0:04.02`）
   - `cargo build --release --bin hakorune`（post-4c8c8bc05, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-4c8c8bc05）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
