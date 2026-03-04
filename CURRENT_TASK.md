@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `e53a7561d` refactor D5 remove no-op legacy domain-plan fallback in joinir router
+    - `joinir/patterns/router.rs` から no-op な `legacy::lower_via_plan` 呼び出しを削除（`Ok(None)` 直返しへ）
+    - `joinir/patterns/mod.rs` から `mod legacy;` を削除
+    - 未使用になった `joinir/patterns/legacy.rs` を削除し、legacy no-op fallback の残骸を整理
   - `3bdb42d99` refactor D5 drop unused edgecfg api emit_frag facade reexport
     - `edgecfg/api/mod.rs` から未参照の `emit_frag` 再公開を削除
     - `FragEmitSession` を唯一の公開 emission 手順入口として維持（構造不変）
@@ -250,6 +254,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-e53a7561d, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-e53a7561d）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-e53a7561d）
   - `cargo build --release --bin hakorune`（post-3bdb42d99, `warning: 0`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-3bdb42d99）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
