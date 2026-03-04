@@ -82,6 +82,7 @@ mod tests {
 
 /// Phase 273 P0: Scan direction for forward/reverse scan
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg(test)]
 pub(in crate::mir::builder) enum ScanDirection {
     /// Forward scan: i < s.length(), i = i + 1
     Forward,
@@ -89,6 +90,7 @@ pub(in crate::mir::builder) enum ScanDirection {
     Reverse,
 }
 
+#[cfg(test)]
 pub(in crate::mir::builder) fn scan_direction_from_step_lit(
     step_lit: i64,
 ) -> Option<ScanDirection> {
@@ -105,6 +107,7 @@ pub(in crate::mir::builder) fn scan_direction_from_step_lit(
 /// Moved from legacy scan-with-init extractor for centralization.
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
+#[cfg(test)]
 pub(in crate::mir::builder) struct ScanWithInitPlan {
     /// Loop variable name (e.g., "i")
     pub loop_var: String,
@@ -128,6 +131,7 @@ pub(in crate::mir::builder) struct ScanWithInitPlan {
 ///
 /// This structure contains all the information needed to lower a split-style loop.
 #[derive(Debug, Clone)]
+#[cfg(test)]
 pub(in crate::mir::builder) struct SplitScanPlan {
     /// Haystack variable name (e.g., "s")
     pub s_var: String,

@@ -46,6 +46,7 @@ use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
 ///
 /// Rationale: Pattern6/7 require flexible exit wiring for Normal/Return exits.
 /// cleanup_frag must be "exit-only" to prevent terminator confusion.
+#[allow(dead_code)]
 pub(crate) fn cleanup(
     main: Frag,
     cleanup_frag: Frag,

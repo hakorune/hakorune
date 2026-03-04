@@ -227,7 +227,8 @@ pub(in crate::mir::builder) use self::exit::CoreExitPlan;
 // Domain types
 pub(in crate::mir::builder) use self::domain::{
     DomainPlan, DomainPlanKind, LoopCondContinueWithReturnPlan, Pattern2StepPlacement,
-    ScanDirection, ScanWithInitPlan, SplitScanPlan,
 };
 #[cfg(test)]
-pub(in crate::mir::builder) use self::domain::scan_direction_from_step_lit;
+pub(in crate::mir::builder) use self::domain::{
+    scan_direction_from_step_lit, ScanDirection, ScanWithInitPlan, SplitScanPlan,
+};

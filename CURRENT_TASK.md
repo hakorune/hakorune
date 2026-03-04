@@ -342,6 +342,18 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - verification:
       - `cargo build --release --bin hakorune` => PASS
       - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+  - D4 follow-up2 (2026-03-04, scan/split legacy plan path test-only isolate):
+    - `scan_with_init` / `split_scan` の legacy plan pipeline を runtime compile path から分離:
+      - `features/mod.rs`: `scan_with_init_*` / `split_scan_*` / `split_emit` module を `#[cfg(test)]` 化
+      - `skeletons/mod.rs`: `scan_with_init` / `split_scan` module を `#[cfg(test)]` 化
+      - `domain.rs` + `plan/mod.rs`: `ScanDirection` / `scan_direction_from_step_lit` / `ScanWithInitPlan` / `SplitScanPlan` を test-only export に縮退
+      - `edgecfg_facade.rs`: `compose` re-export を `#[cfg(test)]` 化（release warning を抑止）
+      - `edgecfg/api/compose/cleanup.rs`: `cleanup` に `#[allow(dead_code)]` を付与（test-only compose 呼び出しの警告抑止）
+    - verification:
+      - `cargo test -q --lib coreloop_v0_composes_scan_with_init_subset` => PASS
+      - `cargo test -q --lib coreloop_v0_composes_split_scan_subset` => PASS
+      - `cargo build --release --bin hakorune` => PASS
+      - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
@@ -365,8 +377,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `src/mir/builder/control_flow/plan/lowerer/effect_emission.rs`
   - `CURRENT_TASK.md`
 - next fixed order（resume point）:
-  1. D4続き: `scan_with_init` / `split_scan` の legacy plan payload compile path を棚卸しし、runtime 経路のみ残す
-  2. D4続き: dead feature module（未参照 pipeline/ops）の isolate 条件を docs 固定し、段階撤去順を定義する
+  1. D4 final: test-only 化した `scan/split` legacy modules の削除順（isolate -> delete）を docs SSOT に固定する
+  2. D4 final: 固定した順序に従い dead module/file を段階削除し、`DomainPlan` 由来の残存語彙を縮退する
   3. D系の各段で fixture+fast-gate を更新し、BoxShape と BoxCount を混在させない
 
 ## Compiler Cleanup Order (2026-03-03, SSOT)

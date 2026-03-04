@@ -5,5 +5,7 @@
 //! - Keep the surface minimal and explicit.
 
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::edgecfg::api::{
-    compose, BlockParams, BranchStub, EdgeStub, ExitKind, Frag, FragEmitSession,
+    BlockParams, BranchStub, EdgeStub, ExitKind, Frag, FragEmitSession,
 };
+#[cfg(test)]
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::edgecfg::api::compose;

@@ -44,10 +44,15 @@ pub(in crate::mir::builder) mod loop_cond_co_helpers;
 pub(in crate::mir::builder) mod loop_cond_co_pipeline;
 pub(in crate::mir::builder) mod loop_cond_co_stmt;
 
+#[cfg(test)]
 pub(in crate::mir::builder) mod scan_with_init_pipeline;
+#[cfg(test)]
 pub(in crate::mir::builder) mod scan_with_init_ops;
+#[cfg(test)]
 pub(in crate::mir::builder) mod split_scan_pipeline;
+#[cfg(test)]
 pub(in crate::mir::builder) mod split_scan_ops;
+#[cfg(test)]
 pub(in crate::mir::builder) mod split_emit;
 pub(in crate::mir::builder) mod pattern5_infinite_early_exit_pipeline;
 pub(in crate::mir::builder) mod pattern5_infinite_early_exit_ops;
