@@ -5,7 +5,6 @@
 
 mod ast_helpers;
 mod carrier_binding_policy;
-mod contract_error;
 mod joinir_helpers; // Phase 256.8.5: JoinModule helpers
 
 pub(crate) use carrier_binding_policy::{decide_carrier_binding_policy, CarrierBindingPolicy};
