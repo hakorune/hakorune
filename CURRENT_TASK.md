@@ -81,6 +81,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `c7d59f24a` refactor D5 trim joinir router context dead fields and test-only trace helpers
+    - `joinir/patterns/router.rs` の未参照互換field（`has_continue` / `has_break` / `features`）と未使用 `with_skeleton` を削除
+    - `LoopPatternContext.skeleton` は実使用経路（single_planner）に合わせて attribute なしへ復帰
+    - `joinir/trace.rs` の未配線 helper（`is_varmap_enabled` / `phi` / `merge` / `exit_phi`）を `#[cfg(test)]` 化して runtime suppressions を撤去
   - `b14958530` refactor D5 reduce joinir merge dead-code surface and wire config knobs
     - `joinir/merge/config.rs` の `exit_reconnect_mode` / `allow_missing_exit_block` を runtime 側で実参照し、field-level `allow(dead_code)` を撤去
     - `coordinator/phase_5_6.rs` で `effective_mode = config override > boundary mode` を明示（既定挙動は不変）
@@ -216,6 +220,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-c7d59f24a, `warning: 0`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-c7d59f24a）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-c7d59f24a）
   - `cargo build --release --bin hakorune`（post-b14958530, `warning: 0`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-b14958530）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
@@ -412,8 +420,6 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - 残 suppressions（2026-03-04 時点）:
     - `plan/mod.rs`（umbrella / remove時 233 warnings）
     - `plan/extractors/common_helpers.rs`（他差分が同居する dirty file のため未着手）
-    - `joinir/patterns/router.rs`（LoopPatternContext 互換fieldの段階的撤去待ち）
-    - `joinir/trace.rs`（未配線 trace helper の整理待ち）
 
 ## next fixed order (resume point)
 
