@@ -111,6 +111,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `88c9ade9a` refactor D5 drop stale dead_code allows in freeze and loop tests
     - `planner/freeze.rs` の `#![allow(dead_code)]` を削除
     - `facts/loop_tests.rs` の `#![allow(dead_code)]` と未使用 helper を削除
+  - `0759144b3` refactor D5 remove stale dead_code allows from facts modules
+    - `facts/mod.rs` と `facts/scan_shapes.rs` の `#![allow(dead_code)]` を削除
+    - 既存 test/build/gate/probe が追加 warning なしで通ることを確認
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -155,6 +158,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-dead_code-allow-drop)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-dead_code-allow-drop）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo test -q --lib loopfacts_ok_some_for_canonical_scan_with_init_minimal`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-facts-allow-drop)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-facts-allow-drop）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
