@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! Conditional update + join feature (Parts SSOT, loop-cond bodies).
 
 use crate::ast::ASTNode;

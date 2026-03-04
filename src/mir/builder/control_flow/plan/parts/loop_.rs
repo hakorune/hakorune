@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! Loop parts (scaffold).
 //!
 //! Purpose (L0):
