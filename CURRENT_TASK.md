@@ -47,10 +47,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - 1 blocker = 1受理形 = fixture+gate = 1 commit
   - BoxCount と BoxShape を同コミットで混在させない
 - compiler fixed order:
-  1. `phase29x-probe` を定点観測し、`emit_fail=0` / `route_blocker=0` を維持確認。
-  2. D5 cleanup 継続: facts/planner 側の dead entry を isolate -> delete。
-  3. D5 cleanup 継続: test-only wire の `#[cfg(test)]` 化と不要 module wire 削除。
-  4. D5 cleanup 継続: planner/build の legacy negative test 群を DomainPlan-only 契約へ整形。
+  1. Pattern1..9 名を `router/planner` の主語（runtime label / message / surface）から段階的に外す。
+  2. `normalizer/pattern*.rs` 依存を主経路から外し、recipe/composer 側へ責務集約する。
+  3. `DomainPlan` は label-only（最終的には撤去）へ縮退する。
+  4. `shadow_adopt` など暫定 fallback 経路を縮退し、strict/release 差分を最小化する。
+  5. 経路を `Facts -> Recipe -> Composer -> Verifier -> Parts` に一本化する（router は recipe-first のみ）。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
 
@@ -518,10 +519,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. D5-E: `facts/planner` / `registry` の残り dead-noise を clean file 限定で継続縮退（挙動不変のみ）。
+1. Pattern語彙の主語外し（step-1）: `single_planner/rule_order` / `joinir/patterns/registry` の runtime 文言を semantic 名へ統一。
 2. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
-3. compiler cleanliness の次段（Pattern/domain 撤退に向けた isolate-first）へ接続する前に、`CURRENT_TASK.md` を再起動入口の薄さで維持。
-4. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
+3. `shadow_adopt` 縮退（step-2）: release 側 fallback の適用範囲を先に縮小し、recipe-first 非一致時のみに限定。
+4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
+5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
 
