@@ -17,7 +17,3 @@
 
 mod promote_decision;
 mod promote_runner;
-
-// Re-export the SSOT types and functions
-pub(in crate::mir::builder) use promote_decision::PromoteDecision;
-pub(in crate::mir::builder) use promote_runner::try_promote;
