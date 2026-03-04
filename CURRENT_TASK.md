@@ -1975,3 +1975,14 @@ contract note (fixed):
     - `cargo test -q --lib planner_first_tag_uses_semantic_name_for_pattern_rules`
     - `cargo build --release --bin hakorune`
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, D5 single_planner dead fallback removal):
+  - `single_planner/rules.rs` から dead no-op `fallback_extract` を撤去し、non-planner_required miss はループ内で直接 `None` 扱いへ簡約。
+  - 併せて header comment を DomainPlan-only order 契約に更新（legacy `PLAN_EXTRACTORS` 同順前提を除去）。
+  - verification:
+    - `cargo test -q --lib recipe_only_rules_require_planner_required_for_pattern_family`
+    - `cargo test -q --lib planner_rule_order_is_domain_plan_only`
+    - `cargo test -q --lib planner_first_tag_uses_semantic_name_for_pattern_rules`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, probe refresh):
+  - command: `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+  - result: `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119）

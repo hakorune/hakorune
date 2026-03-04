@@ -1,7 +1,7 @@
 //! Phase 29ai P5: Rule list (order SSOT) + guards
 //!
-//! IMPORTANT: Keep rule order identical to the legacy `PLAN_EXTRACTORS` table
-//! (observability/behavior must not change).
+//! `PLAN_RULE_ORDER` is intentionally DomainPlan-only.
+//! Router-level recipe entries still emit planner-first tags via `PlanRuleId`.
 
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
 
@@ -213,7 +213,7 @@ pub(super) fn try_build_domain_plan_with_outcome(
         } else if gate.planner_required {
             (None, false)
         } else {
-            (fallback_extract(ctx, rule_id)?, true)
+            (None, true)
         };
 
         let promotion_tag = if matches!(rule_id, PlanRuleId::LoopBreakRecipe)
@@ -266,13 +266,6 @@ fn planner_matches_rule_kind(plan_kind: Option<DomainPlanKind>, kind: PlanRuleId
             Some(DomainPlanKind::LoopCondContinueWithReturn)
         )
     )
-}
-
-fn fallback_extract(
-    _ctx: &LoopPatternContext,
-    _kind: PlanRuleId,
-) -> Result<Option<DomainPlan>, String> {
-    Ok(None)
 }
 
 #[cfg(test)]
