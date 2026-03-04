@@ -138,6 +138,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `5b2e3f70f` refactor D5 remove dead_code allow from normalize canonicalize
     - `normalize/mod.rs` / `normalize/canonicalize.rs` の file-level `dead_code` allow を撤去
     - canonical facts 変換の SSOT 経路を suppression なしで固定
+  - `a4f53764e` refactor D5 remove dead_code allow from recipe contracts
+    - `recipe_tree/contracts.rs` の file-level `dead_code` allow を撤去
+    - contract 型定義（`RecipeContract*`）を suppression なしで維持
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -225,6 +228,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-normalize-allow-drop)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-normalize-allow-drop）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-recipe-contract-allow-drop)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-recipe-contract-allow-drop）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
