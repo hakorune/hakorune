@@ -28,7 +28,6 @@ use super::exit_binding_validator::validate_exit_binding;
 /// Phase 222.5-C: Refactored into orchestrator pattern.
 ///
 /// Eliminates hardcoded variable names and ValueId plumbing scattered across lowerers.
-#[allow(dead_code)]
 pub(crate) struct ExitBindingBuilder<'a> {
     carrier_info: &'a CarrierInfo,
     exit_meta: &'a ExitMeta,
@@ -59,7 +58,6 @@ impl<'a> ExitBindingBuilder<'a> {
     /// # Returns
     ///
     /// ExitBindingBuilder instance, or error if metadata is inconsistent
-    #[allow(dead_code)]
     pub(crate) fn new(
         carrier_info: &'a CarrierInfo,
         exit_meta: &'a ExitMeta,
@@ -85,7 +83,6 @@ impl<'a> ExitBindingBuilder<'a> {
     /// # Returns
     ///
     /// Vec of LoopExitBinding, one per carrier, sorted by carrier name
-    #[allow(dead_code)]
     pub(crate) fn build_loop_exit_bindings(&mut self) -> Result<Vec<LoopExitBinding>, String> {
         // Phase 222.5-C: Delegate to constructor module
         build_loop_exit_bindings(self.carrier_info, self.exit_meta, self.variable_map)
@@ -105,7 +102,6 @@ impl<'a> ExitBindingBuilder<'a> {
     /// # Returns
     ///
     /// Success or error if boundary cannot be updated
-    #[allow(dead_code)]
     pub(crate) fn apply_to_boundary(
         &self,
         boundary: &mut JoinInlineBoundary,
@@ -124,7 +120,6 @@ impl<'a> ExitBindingBuilder<'a> {
     /// Phase 222.5-C: Delegates to applicator module.
     ///
     /// The loop variable is always the first exit (index 0).
-    #[allow(dead_code)]
     pub fn loop_var_exit_binding(&self) -> LoopExitBinding {
         // Phase 222.5-C: Delegate to applicator module
         create_loop_var_exit_binding(self.carrier_info)

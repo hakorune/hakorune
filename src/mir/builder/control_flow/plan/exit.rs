@@ -2,7 +2,6 @@ use crate::mir::ValueId;
 
 /// Phase 273 P1: Exit plan (control flow exit)
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub(in crate::mir::builder) enum CoreExitPlan {
     /// Return with optional value
     Return(Option<ValueId>),

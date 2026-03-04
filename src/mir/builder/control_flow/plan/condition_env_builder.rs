@@ -107,7 +107,6 @@ impl ConditionEnvBuilder {
     /// Phase 201: Build ConditionEnv with loop parameter only using JoinValueSpace
     ///
     /// Uses JoinValueSpace to allocate the loop parameter ValueId.
-    #[allow(dead_code)]
     pub fn build_loop_param_only_v2(
         loop_var_name: &str,
         space: &mut JoinValueSpace,
@@ -167,7 +166,6 @@ impl ConditionEnvBuilder {
     /// // env.captured: "digits" → ValueId(101)
     /// // boundary.condition_bindings: [ConditionBinding { name: "digits", host_value: ValueId(42), join_value: ValueId(101) }]
     /// ```
-    #[allow(dead_code)]
     pub fn build_with_captures(
         loop_var_name: &str,
         captured: &CapturedEnv,

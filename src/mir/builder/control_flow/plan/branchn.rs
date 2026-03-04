@@ -3,7 +3,6 @@ use super::{CoreIfPlan, CorePlan, LoweredRecipe};
 
 /// Phase 29at P1: BranchN plan (scaffold only)
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub(in crate::mir::builder) struct CoreBranchNPlan {
     /// Branch arms (2+)
     pub arms: Vec<CoreBranchArmPlan>,
@@ -14,7 +13,6 @@ pub(in crate::mir::builder) struct CoreBranchNPlan {
 
 /// Phase 29at P1: BranchN arm plan
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub(in crate::mir::builder) struct CoreBranchArmPlan {
     /// Arm condition (ValueId reference)
     pub condition: ValueId,

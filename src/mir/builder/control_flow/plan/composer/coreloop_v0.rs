@@ -12,7 +12,6 @@ use crate::mir::builder::control_flow::plan::normalizer::build_pattern1_coreloop
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 
-#[allow(dead_code)]
 pub(in crate::mir::builder) fn try_compose_core_loop_v0(
     builder: &mut MirBuilder,
     facts: &CanonicalLoopFacts,

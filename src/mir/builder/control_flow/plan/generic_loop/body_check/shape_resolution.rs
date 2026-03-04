@@ -23,7 +23,6 @@ use super::super::facts::stmt_classifier::{
 // Body validation for v0 (more restrictive)
 // ============================================================================
 
-#[allow(dead_code)]
 pub(in crate::mir::builder) fn body_is_generic_v0(
     body: &[ASTNode],
     loop_var: &str,
@@ -87,7 +86,6 @@ pub(in crate::mir::builder) fn check_body_generic_v0(
 // Body validation for v1 (more permissive)
 // ============================================================================
 
-#[allow(dead_code)]
 pub(in crate::mir::builder) fn body_is_generic_v1(
     body: &[ASTNode],
     loop_var: &str,

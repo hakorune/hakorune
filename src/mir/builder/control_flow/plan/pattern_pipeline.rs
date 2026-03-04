@@ -90,45 +90,37 @@ pub(crate) struct PatternPipelineContext {
     // === Pattern 2/4: Break/Continue Condition ===
     /// Condition environment (variable → JoinIR ValueId mapping)
     /// Used by Pattern 2 (break condition) and Pattern 4 (continue condition)
-    #[allow(dead_code)]
     pub condition_env: Option<ConditionEnv>,
 
     /// Condition bindings (HOST↔JoinIR value mappings)
     /// Used by Pattern 2 and Pattern 4
-    #[allow(dead_code)]
     pub condition_bindings: Option<Vec<ConditionBinding>>,
 
     /// Carrier update expressions (variable → UpdateExpr)
     /// Used by Pattern 2 (multi-carrier) and Pattern 4 (Select-based updates)
-    #[allow(dead_code)]
     pub carrier_updates: Option<BTreeMap<String, UpdateExpr>>, // Phase 222.5-D: HashMap → BTreeMap for determinism
 
     // === Pattern 2/4: Trim Pattern Support ===
     /// Trim loop helper (if Trim pattern detected during promotion)
     /// Used by Pattern 2 (string trim) - Pattern 4 support TBD
-    #[allow(dead_code)]
     pub trim_helper: Option<TrimLoopHelper>,
 
     // === Pattern 2: Break Condition ===
     /// Effective break condition (may be modified for Trim pattern)
     /// Used only by Pattern 2
-    #[allow(dead_code)]
     pub break_condition: Option<ASTNode>,
 
     // === Pattern 3: If-Sum Generalization (Phase 213) ===
     /// Loop condition AST node
     /// Used by Pattern 3 for dynamic loop condition lowering
-    #[allow(dead_code)]
     pub loop_condition: Option<ASTNode>,
 
     /// Loop body AST nodes
     /// Used by Pattern 3 to extract if statement for if-sum lowering
-    #[allow(dead_code)]
     pub loop_body: Option<Vec<ASTNode>>,
 
     /// Loop update summary with then/else expressions
     /// Used by Pattern 3 for dynamic carrier update lowering
-    #[allow(dead_code)]
     pub loop_update_summary: Option<LoopUpdateSummary>,
 }
 
@@ -147,25 +139,21 @@ pub(crate) enum PatternVariant {
 
 impl PatternPipelineContext {
     /// Get the number of carriers (excluding loop variable)
-    #[allow(dead_code)]
     pub fn carrier_count(&self) -> usize {
         self.carrier_info.carrier_count()
     }
 
     /// Check if this is a Trim pattern
-    #[allow(dead_code)]
     pub fn is_trim_pattern(&self) -> bool {
         self.trim_helper.is_some()
     }
 
     /// Check if this has condition environment (Pattern 2/4)
-    #[allow(dead_code)]
     pub fn has_condition_env(&self) -> bool {
         self.condition_env.is_some()
     }
 
     /// Check if this has carrier updates (Pattern 2/4)
-    #[allow(dead_code)]
     pub fn has_carrier_updates(&self) -> bool {
         self.carrier_updates.is_some()
     }
@@ -371,7 +359,6 @@ mod tests {
     use crate::ast::{BinaryOperator, LiteralValue, Span};
 
     // Helper: Create a simple condition (i < 10)
-    #[allow(dead_code)]
     fn test_condition(var_name: &str) -> ASTNode {
         ASTNode::BinaryOp {
             operator: BinaryOperator::Less,

@@ -66,7 +66,6 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call(haystack
     }
 }
 
-#[allow(dead_code)]
 pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call_expr(haystack: &str, needle: ASTNode) -> ASTNode {
     ASTNode::MethodCall {
         object: Box::new(var(haystack)),
@@ -139,7 +138,6 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_break_if_parts
     Some((condition.as_ref().clone(), carrier_update_in_break))
 }
 
-#[allow(dead_code)]
 pub(in crate::mir::builder::control_flow::plan::facts) fn find_break_if_parts(body: &[ASTNode]) -> Option<(usize, ASTNode, Option<ASTNode>)> {
     for (idx, stmt) in body.iter().enumerate() {
         if let Some(parts) = extract_break_if_parts(stmt) {
@@ -333,7 +331,6 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_empty_stri
     Some(seg_var)
 }
 
-#[allow(dead_code)]
 pub(in crate::mir::builder::control_flow::plan::facts) fn find_local_init_expr(body: &[ASTNode], name: &str) -> Option<ASTNode> {
     for stmt in body {
         let ASTNode::Local {
@@ -752,7 +749,6 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_var_for_p
     Some(name.clone())
 }
 
-#[allow(dead_code)]
 pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_increment_at_end(body: &[ASTNode], loop_var: &str) -> Option<ASTNode> {
     let last = body.last()?;
     let ASTNode::Assignment { target, value, .. } = last else {
@@ -788,7 +784,6 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_increment
     Some(value.as_ref().clone())
 }
 
-#[allow(dead_code)]
 pub(in crate::mir::builder::control_flow::plan::facts) fn has_assignment_after(body: &[ASTNode], start_idx: usize, var_name: &str) -> bool {
     for stmt in body.iter().skip(start_idx + 1) {
         let ASTNode::Assignment { target, .. } = stmt else {

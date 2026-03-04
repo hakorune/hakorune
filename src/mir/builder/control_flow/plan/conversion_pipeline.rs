@@ -210,7 +210,6 @@ impl JoinIRConversionPipeline {
     ///
     /// This is the SSOT for return detection. Patterns should use this
     /// before constructing JoinModule to know if return handling is needed.
-    #[allow(dead_code)]
     pub fn detect_return(body: &[ASTNode]) -> Result<Option<ReturnInfo>, String> {
         collect_return_from_body(body)
     }

@@ -137,7 +137,6 @@ pub(super) fn try_compose_split_scan_unified(
     Ok(Some(core))
 }
 
-#[allow(dead_code)]
 pub(in crate::mir::builder) fn try_compose_core_loop_from_facts(
     builder: &mut MirBuilder,
     facts: &CanonicalLoopFacts,

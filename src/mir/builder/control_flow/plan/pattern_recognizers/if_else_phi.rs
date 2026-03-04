@@ -62,7 +62,6 @@ pub(crate) fn detect_if_else_phi_in_body(body: &[ASTNode]) -> bool {
 /// # Returns
 ///
 /// `true` if at least one if statement is found (with or without else)
-#[allow(dead_code)]
 fn detect_if_in_body(body: &[ASTNode]) -> bool {
     for node in body {
         if let ASTNode::If { .. } = node {

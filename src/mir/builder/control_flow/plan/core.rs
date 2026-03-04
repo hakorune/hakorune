@@ -9,7 +9,6 @@ use super::edgecfg_facade::Frag;
 /// CorePlan expressions use **ValueId references only** (no String parsing).
 /// This prevents "second language processor" from growing inside Lowerer.
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub(in crate::mir::builder) enum CorePlan {
     /// Sequence: execute plans in order
     Seq(Vec<CorePlan>),
@@ -63,7 +62,6 @@ pub(in crate::mir::builder) enum LoopStepMode {
 /// All fields are now REQUIRED (Option removed for structural SSOT).
 /// Legacy fields (header_effects, step_effects, carriers) have been removed.
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub(in crate::mir::builder) struct CoreLoopPlan {
     // === Block IDs (pre-allocated by Normalizer) ===
 
