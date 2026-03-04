@@ -603,6 +603,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
 3. `shadow_adopt` 縮退（step-2）: `recipe_contract.is_some()` 経路で strict/release fallback 禁止は適用済み。次は fallback 本体の撤去条件を固定する。
 4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
+   - 残 tuple 呼び出し（移行待ち）: `plan/features/generic_loop_body/helpers.rs`, `plan/features/nested_loop_depth1.rs`（現在 dirty 同居のため次ラウンドで分離して実施）
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
