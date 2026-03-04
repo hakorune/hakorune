@@ -48,18 +48,14 @@ fn push_loop_cond_continue_with_return(
     candidates: &mut CandidateSet,
     facts: &CanonicalLoopFacts,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::DomainPlan;
-
     let Some(facts) = &facts.facts.loop_cond_continue_with_return else {
         return Ok(());
     };
 
-    let plan = DomainPlan::LoopCondContinueWithReturn(
-        crate::mir::builder::control_flow::plan::LoopCondContinueWithReturnPlan {
-            condition: facts.condition.clone(),
-            recipe: facts.recipe.clone(),
-        }
-    );
+    let plan = crate::mir::builder::control_flow::plan::LoopCondContinueWithReturnPlan {
+        condition: facts.condition.clone(),
+        recipe: facts.recipe.clone(),
+    };
 
     candidates.push(PlanCandidate {
         plan,

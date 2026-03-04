@@ -6,6 +6,7 @@
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
 
 use crate::mir::builder::control_flow::plan::facts::pattern2_loopbodylocal_facts::LoopBodyLocalShape;
+use crate::mir::builder::control_flow::plan::domain_plan_label;
 use crate::mir::builder::control_flow::plan::planner::{self, PlanBuildOutcome, PlannerContext};
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 
@@ -187,7 +188,7 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
             if let Some(plan) = outcome.plan.as_ref() {
                 return Err(planner::Freeze::contract(&format!(
                     "planner_required forbids DomainPlan kind={}",
-                    plan.kind_label()
+                    domain_plan_label(plan)
                 ))
                 .to_string());
             }

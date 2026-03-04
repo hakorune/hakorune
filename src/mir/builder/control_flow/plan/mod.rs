@@ -216,7 +216,7 @@ pub(in crate::mir::builder) use self::exit::CoreExitPlan;
 
 // Domain types
 pub(in crate::mir::builder) use self::domain::{
-    DomainPlan, LoopCondContinueWithReturnPlan, Pattern2StepPlacement,
+    domain_plan_label, DomainPlan, LoopCondContinueWithReturnPlan, Pattern2StepPlacement,
 };
 #[cfg(test)]
 pub(in crate::mir::builder) use self::domain::{

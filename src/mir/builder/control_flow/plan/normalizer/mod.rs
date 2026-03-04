@@ -72,18 +72,12 @@ impl PlanNormalizer {
         domain: DomainPlan,
         ctx: &LoopPatternContext,
     ) -> Result<LoweredRecipe, String> {
-        use crate::mir::builder::control_flow::plan::DomainPlan;
-        match domain {
-            // Phase 29bq P2.x: LoopCondContinueWithReturn
-            DomainPlan::LoopCondContinueWithReturn(plan) => {
-                use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
-                let facts = LoopCondContinueWithReturnFacts {
-                    condition: plan.condition,
-                    recipe: plan.recipe,
-                };
-                Self::normalize_loop_cond_continue_with_return(builder, facts, ctx)
-            }
-        }
+        // Phase 29bq P2.x: current DomainPlan payload is LoopCondContinueWithReturn.
+        let facts = LoopCondContinueWithReturnFacts {
+            condition: domain.condition,
+            recipe: domain.recipe,
+        };
+        Self::normalize_loop_cond_continue_with_return(builder, facts, ctx)
     }
 
     // Delegators to pipeline lowerers (unified loop_cond_* normalizers)

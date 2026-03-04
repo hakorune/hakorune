@@ -12,21 +12,17 @@ pub(in crate::mir::builder) struct LoopCondContinueWithReturnPlan {
 
 /// Phase 273 P1: DomainPlan - Pattern-specific plan vocabulary
 ///
-/// DomainPlan contains pattern-specific knowledge (e.g., scan semantics).
-/// Normalizer converts DomainPlan → CorePlan with ValueId generation.
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) enum DomainPlan {
-    /// Phase 29bq P2.x: LoopCondContinueWithReturn
-    LoopCondContinueWithReturn(LoopCondContinueWithReturnPlan),
-}
+/// DomainPlan is currently a single-variant payload.
+/// Keep this as a dedicated alias so planner/normalizer signatures stay stable
+/// while route vocabulary has only one active plan label.
+pub(in crate::mir::builder) type DomainPlan = LoopCondContinueWithReturnPlan;
 
-impl DomainPlan {
-    /// Stable variant label for diagnostics and planner logs.
-    pub(in crate::mir::builder) fn kind_label(&self) -> &'static str {
-        match self {
-            DomainPlan::LoopCondContinueWithReturn(_) => "LoopCondContinueWithReturn",
-        }
-    }
+pub(in crate::mir::builder) const DOMAIN_PLAN_LABEL_LOOP_COND_CONTINUE_WITH_RETURN: &str =
+    "LoopCondContinueWithReturn";
+
+/// Stable plan label for diagnostics and planner logs.
+pub(in crate::mir::builder) fn domain_plan_label(_plan: &DomainPlan) -> &'static str {
+    DOMAIN_PLAN_LABEL_LOOP_COND_CONTINUE_WITH_RETURN
 }
 
 #[cfg(test)]
@@ -46,15 +42,15 @@ mod tests {
             }],
             vec![ContinueWithReturnItem::Stmt(StmtRef::new(0))],
         );
-        let plan = DomainPlan::LoopCondContinueWithReturn(LoopCondContinueWithReturnPlan {
+        let plan = LoopCondContinueWithReturnPlan {
             condition: ASTNode::Literal {
                 value: LiteralValue::Bool(true),
                 span: Span::unknown(),
             },
             recipe,
-        });
+        };
 
-        assert_eq!(plan.kind_label(), "LoopCondContinueWithReturn");
+        assert_eq!(domain_plan_label(&plan), "LoopCondContinueWithReturn");
     }
 }
 
