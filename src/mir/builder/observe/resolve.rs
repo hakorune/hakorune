@@ -45,7 +45,6 @@ pub(crate) fn emit_choose(builder: &MirBuilder, meta: serde_json::Value) {
 }
 
 /// Internal: Call from emit_choose wrapper to record KPI if enabled.
-#[allow(dead_code)]
 fn record_kpi(meta: &serde_json::Value) {
     if !kpi_enabled() {
         return;

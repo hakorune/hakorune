@@ -22,7 +22,7 @@ use std::collections::BTreeMap;
 /// # Phase 265 P2
 /// - wires/exits 分離契約の「置き場所」確保
 /// - 警告出力のみ、Err 化は Phase 266 で実施
-#[allow(dead_code)]
+#[cfg(test)]
 pub fn verify_frag_invariants(frag: &Frag) -> Result<(), String> {
     // Phase 265 P2: exits と wires の両方が空の場合は警告
     if frag.exits.is_empty() && frag.wires.is_empty() {

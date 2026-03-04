@@ -16,7 +16,6 @@ use crate::mir::ValueId;
 
 /// ステートメントの効果（変数更新 or 副作用のみ）
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub(crate) enum StatementEffect {
     /// 変数を更新（Assignment/Local）
     VarUpdate { name: String, value_id: ValueId },

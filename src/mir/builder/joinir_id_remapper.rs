@@ -392,14 +392,6 @@ impl JoinIrIdRemapper {
         self.value_map.get(&v).copied().unwrap_or(v)
     }
 
-    /// Block ID をリマップ
-    #[allow(dead_code)]
-    pub fn remap_block(&self, func_name: &str, b: BasicBlockId) -> BasicBlockId {
-        self.block_map
-            .get(&(func_name.to_string(), b))
-            .copied()
-            .unwrap_or(b)
-    }
 }
 
 #[cfg(test)]
