@@ -79,7 +79,7 @@ impl EdgeStub {
     }
 
     /// 既に配線先が確定している EdgeStub を生成（テスト/配線済み用途）
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn with_target(
         from: BasicBlockId,
         kind: ExitKind,

@@ -89,19 +89,19 @@ impl Frag {
     }
 
     /// 特定 ExitKind の未配線 edge を追加
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn add_exit(&mut self, stub: EdgeStub) {
         self.exits.entry(stub.kind).or_insert_with(Vec::new).push(stub);
     }
 
     /// 特定 ExitKind の未配線 edge を取得
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn get_exits(&self, kind: &ExitKind) -> Option<&Vec<EdgeStub>> {
         self.exits.get(kind)
     }
 
     /// すべての ExitKind を列挙
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn exit_kinds(&self) -> impl Iterator<Item = &ExitKind> {
         self.exits.keys()
     }
