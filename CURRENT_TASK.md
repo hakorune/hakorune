@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `f2ad5c305` refactor D5 encapsulate normalizer pattern helpers behind legacy_minimals window
+    - `normalizer/legacy_minimals.rs` を新設し、pattern helper 参照の窓口を1箇所に集約
+    - `normalizer/mod.rs` の `pattern*.rs` module visibility を private に戻し、`legacy_minimals` 経由へ整理
+    - `composer/legacy_pattern_minimals.rs` は `normalizer::legacy_minimals` のみ参照する形へ更新
   - `809088903` refactor D5 isolate legacy pattern minimal imports behind composer facade
     - `composer/legacy_pattern_minimals.rs` を新設し、legacy pattern minimal normalizer 参照を composer 側で集約
     - `composer/shadow_adopt.rs` の `normalizer::pattern_*` 直importを facade import に置換
@@ -689,6 +693,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-809088903)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-809088903, elapsed=`0:04.68`）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-f2ad5c305)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-f2ad5c305, elapsed=`0:04.60`）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -716,6 +724,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
    - `DomainPlan` alias 撤去（`fa1efcb21`）と `src/mir/builder/control_flow/{plan,joinir}` 内の残語彙撤去（`27cbe50d2`, `5af900fe3`）まで完了。
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
+   - `normalizer` 側も `legacy_minimals` 窓口へ統一済み（`f2ad5c305`）。
    - 次は file placement（`normalizer/pattern*.rs` を composer 側へ段階移設）を小分けで進める。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
