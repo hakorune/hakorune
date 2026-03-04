@@ -191,7 +191,7 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn handle_fallback_exit
 
 /// Collect exit values for k_exit tail call lowering
 ///
-/// Phase 131: Handles NormalizeToExitJump decision from TailCallLoweringPolicyBox.
+/// Phase 131: Handles the k_exit tail-call normalization path.
 /// Similar to collect_exit_values_from_edge_args but uses k_exit_edge_args.
 ///
 /// # Arguments

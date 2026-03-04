@@ -6,7 +6,6 @@
 //! Phase 4 Extraction: Separated from merge_joinir_mir_blocks (lines 260-546)
 //! Phase 33-17: Further modularization - extracted TailCallClassifier and MergeResult
 //! Phase 179-A Step 3: Named constants for magic values
-//! Phase 131 Task 2: Extracted TailCallLoweringPolicyBox for k_exit normalization
 //! Phase 284 P1: Use block_remapper SSOT for block ID remapping
 //! Phase 286C-2: Box extraction - InstructionFilterBox, ReturnConverterBox, etc.
 //! Phase 286C-4: 3-stage pipeline (Scan → Plan → Apply)
@@ -15,7 +14,6 @@
  // Phase 284 P1: SSOT
 use super::loop_header_phi_info::LoopHeaderPhiInfo;
 use super::merge_result::MergeResult;
-use super::tail_call_lowering_policy::TailCallLoweringPolicyBox;
 use super::super::trace;
 use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
 use crate::mir::join_ir::lowering::error_tags;
@@ -95,9 +93,6 @@ pub(super) fn merge_and_rewrite(
             }
         })
         .collect();
-
-    // Phase 132 P1: Tail call lowering policy
-    let _tail_call_policy = TailCallLoweringPolicyBox::new(skippable_continuation_func_names.clone());
 
     log!(
         verbose,

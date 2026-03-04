@@ -36,7 +36,6 @@ mod loop_header_phi_info;
 mod merge_result;
 mod phi_block_remapper; // Phase 94: Phi block-id remap box
 mod tail_call_classifier;
-mod tail_call_lowering_policy; // Phase 131 Task 2: k_exit exit edge normalization
 mod value_collector;
 mod value_remapper; // Phase 287 P0.2: ValueId remapping helper
 
