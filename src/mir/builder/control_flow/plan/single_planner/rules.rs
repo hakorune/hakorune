@@ -79,10 +79,10 @@ fn is_recipe_only_rule(rule_id: PlanRuleId, planner_required: bool) -> bool {
     planner_required
         && matches!(
             rule_id,
-            PlanRuleId::Pattern2
-                | PlanRuleId::Pattern3
-                | PlanRuleId::Pattern4
-                | PlanRuleId::Pattern5
+            PlanRuleId::LoopBreakRecipe
+                | PlanRuleId::IfPhiJoin
+                | PlanRuleId::LoopContinueRecipe
+                | PlanRuleId::LoopTrueEarlyExit
         )
 }
 
@@ -174,7 +174,7 @@ pub(super) fn try_build_domain_plan_with_outcome(
         let planner_hit = try_take_planner(&planner_opt, rule_id);
 
         // Phase C: Pattern2Break requires recipe contract (planner_required only)
-        if gate.planner_required && matches!(rule_id, PlanRuleId::Pattern2) {
+        if gate.planner_required && matches!(rule_id, PlanRuleId::LoopBreakRecipe) {
             if planner_hit.is_some() && outcome.recipe_contract.is_none() {
                 return Err(planner::Freeze::contract(
                     "Pattern2Break requires recipe_contract in planner_required mode",
@@ -216,7 +216,7 @@ pub(super) fn try_build_domain_plan_with_outcome(
             (fallback_extract(ctx, rule_id)?, true)
         };
 
-        let promotion_tag = if matches!(rule_id, PlanRuleId::Pattern2)
+        let promotion_tag = if matches!(rule_id, PlanRuleId::LoopBreakRecipe)
             && crate::config::env::joinir_dev::strict_enabled()
         {
             promotion_facts.map(|facts| match facts.shape {
@@ -277,20 +277,20 @@ fn fallback_extract(
     kind: PlanRuleId,
 ) -> Result<Option<DomainPlan>, String> {
     match kind {
-        PlanRuleId::Pattern1 => Ok(None),
-        PlanRuleId::Pattern2 => Ok(None),
-        PlanRuleId::Pattern3 => Ok(None),
-        PlanRuleId::Pattern4 => Ok(None),
-        PlanRuleId::Pattern5 => Ok(None),
+        PlanRuleId::LoopSimpleWhile => Ok(None),
+        PlanRuleId::LoopBreakRecipe => Ok(None),
+        PlanRuleId::IfPhiJoin => Ok(None),
+        PlanRuleId::LoopContinueRecipe => Ok(None),
+        PlanRuleId::LoopTrueEarlyExit => Ok(None),
         PlanRuleId::LoopTrueBreak => Ok(None),
         PlanRuleId::LoopCondBreak => Ok(None),
         PlanRuleId::LoopCondContinueOnly => Ok(None),
         PlanRuleId::LoopCondContinueWithReturn => Ok(None),
         PlanRuleId::LoopCondReturnInBody => Ok(None),
-        PlanRuleId::Pattern6 => Ok(None),
-        PlanRuleId::Pattern7 => Ok(None),
-        PlanRuleId::Pattern8 => Ok(None),
-        PlanRuleId::Pattern9 => Ok(None),
+        PlanRuleId::ScanWithInit => Ok(None),
+        PlanRuleId::SplitScan => Ok(None),
+        PlanRuleId::BoolPredicateScan => Ok(None),
+        PlanRuleId::AccumConstLoop => Ok(None),
     }
 }
 
@@ -300,10 +300,10 @@ mod tests {
 
     #[test]
     fn recipe_only_rules_require_planner_required_for_pattern_family() {
-        assert!(is_recipe_only_rule(PlanRuleId::Pattern2, true));
-        assert!(is_recipe_only_rule(PlanRuleId::Pattern5, true));
-        assert!(!is_recipe_only_rule(PlanRuleId::Pattern2, false));
-        assert!(!is_recipe_only_rule(PlanRuleId::Pattern5, false));
+        assert!(is_recipe_only_rule(PlanRuleId::LoopBreakRecipe, true));
+        assert!(is_recipe_only_rule(PlanRuleId::LoopTrueEarlyExit, true));
+        assert!(!is_recipe_only_rule(PlanRuleId::LoopBreakRecipe, false));
+        assert!(!is_recipe_only_rule(PlanRuleId::LoopTrueEarlyExit, false));
     }
 
     #[test]

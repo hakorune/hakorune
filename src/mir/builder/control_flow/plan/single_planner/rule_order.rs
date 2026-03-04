@@ -34,11 +34,11 @@ macro_rules! define_plan_rules {
 // Define plan rules with unified enum, order array, and name function
 define_plan_rules! {
     // Phase 273
-    Pattern6 => "Pattern6_ScanWithInit (Phase 273)";
-    Pattern7 => "Pattern7_SplitScan (Phase 273)";
+    ScanWithInit => "Pattern6_ScanWithInit (Phase 273)";
+    SplitScan => "Pattern7_SplitScan (Phase 273)";
 
     // Phase 286 P3.2
-    Pattern5 => "Pattern5_InfiniteEarlyExit (Phase 286 P3.2)";
+    LoopTrueEarlyExit => "Pattern5_InfiniteEarlyExit (Phase 286 P3.2)";
 
     // Phase 29bq P2
     LoopTrueBreak => "LoopTrueBreak (Phase 29bq P2)";
@@ -48,22 +48,45 @@ define_plan_rules! {
     LoopCondReturnInBody => "LoopCondReturnInBody (Phase 29bq P2.x)";
 
     // Phase 286 P2.4
-    Pattern8 => "Pattern8_BoolPredicateScan (Phase 286 P2.4)";
+    BoolPredicateScan => "Pattern8_BoolPredicateScan (Phase 286 P2.4)";
 
     // Phase 286 P2.6
-    Pattern3 => "Pattern3_IfPhi (Phase 286 P2.6)";
+    IfPhiJoin => "Pattern3_IfPhi (Phase 286 P2.6)";
 
     // Phase 286 P2
-    Pattern4 => "Pattern4_Continue (Phase 286 P2)";
+    LoopContinueRecipe => "Pattern4_Continue (Phase 286 P2)";
 
     // Phase 286 P2.3
-    Pattern9 => "Pattern9_AccumConstLoop (Phase 286 P2.3)";
+    AccumConstLoop => "Pattern9_AccumConstLoop (Phase 286 P2.3)";
 
     // Phase 286 P3.1
-    Pattern2 => "Pattern2_Break (Phase 286 P3.1)";
+    LoopBreakRecipe => "Pattern2_Break (Phase 286 P3.1)";
 
     // Phase 286 P2.1
-    Pattern1 => "Pattern1_SimpleWhile (Phase 286 P2.1)";
+    LoopSimpleWhile => "Pattern1_SimpleWhile (Phase 286 P2.1)";
+}
+
+impl PlanRuleId {
+    // Compatibility aliases kept during Phase D cleanup.
+    // These will be removed when all callsites/tests stop using PatternN names.
+    #[allow(non_upper_case_globals)]
+    pub(in crate::mir::builder) const Pattern1: Self = Self::LoopSimpleWhile;
+    #[allow(non_upper_case_globals)]
+    pub(in crate::mir::builder) const Pattern2: Self = Self::LoopBreakRecipe;
+    #[allow(non_upper_case_globals)]
+    pub(in crate::mir::builder) const Pattern3: Self = Self::IfPhiJoin;
+    #[allow(non_upper_case_globals)]
+    pub(in crate::mir::builder) const Pattern4: Self = Self::LoopContinueRecipe;
+    #[allow(non_upper_case_globals)]
+    pub(in crate::mir::builder) const Pattern5: Self = Self::LoopTrueEarlyExit;
+    #[allow(non_upper_case_globals)]
+    pub(in crate::mir::builder) const Pattern6: Self = Self::ScanWithInit;
+    #[allow(non_upper_case_globals)]
+    pub(in crate::mir::builder) const Pattern7: Self = Self::SplitScan;
+    #[allow(non_upper_case_globals)]
+    pub(in crate::mir::builder) const Pattern8: Self = Self::BoolPredicateScan;
+    #[allow(non_upper_case_globals)]
+    pub(in crate::mir::builder) const Pattern9: Self = Self::AccumConstLoop;
 }
 
 /// Preferred rule label used in planner entry logs.
@@ -79,15 +102,15 @@ pub(in crate::mir::builder) fn rule_name(id: PlanRuleId) -> &'static str {
 /// This is the preferred vocabulary for UI/debug labels and docs.
 pub(in crate::mir::builder) fn planner_rule_semantic_label(id: PlanRuleId) -> &'static str {
     match id {
-        PlanRuleId::Pattern1 => "LoopSimpleWhile",
-        PlanRuleId::Pattern2 => "LoopBreakRecipe",
-        PlanRuleId::Pattern3 => "IfPhiJoin",
-        PlanRuleId::Pattern4 => "LoopContinueOnly",
-        PlanRuleId::Pattern5 => "LoopTrueEarlyExit",
-        PlanRuleId::Pattern6 => "ScanWithInit",
-        PlanRuleId::Pattern7 => "SplitScan",
-        PlanRuleId::Pattern8 => "BoolPredicateScan",
-        PlanRuleId::Pattern9 => "AccumConstLoop",
+        PlanRuleId::LoopSimpleWhile => "LoopSimpleWhile",
+        PlanRuleId::LoopBreakRecipe => "LoopBreakRecipe",
+        PlanRuleId::IfPhiJoin => "IfPhiJoin",
+        PlanRuleId::LoopContinueRecipe => "LoopContinueOnly",
+        PlanRuleId::LoopTrueEarlyExit => "LoopTrueEarlyExit",
+        PlanRuleId::ScanWithInit => "ScanWithInit",
+        PlanRuleId::SplitScan => "SplitScan",
+        PlanRuleId::BoolPredicateScan => "BoolPredicateScan",
+        PlanRuleId::AccumConstLoop => "AccumConstLoop",
         PlanRuleId::LoopTrueBreak => "LoopTrueBreakContinue",
         PlanRuleId::LoopCondBreak => "LoopExitIfBreakContinue",
         PlanRuleId::LoopCondContinueOnly => "LoopContinueOnly",
@@ -102,7 +125,7 @@ mod tests {
 
     #[test]
     fn rule_name_uses_semantic_label() {
-        assert_eq!(rule_name(PlanRuleId::Pattern2), "LoopBreakRecipe");
+        assert_eq!(rule_name(PlanRuleId::LoopBreakRecipe), "LoopBreakRecipe");
         assert_eq!(
             rule_name(PlanRuleId::LoopCondReturnInBody),
             "LoopReturnInBody"
@@ -112,12 +135,19 @@ mod tests {
     #[test]
     fn legacy_rule_name_alias_is_preserved() {
         assert_eq!(
-            planner_rule_legacy_name(PlanRuleId::Pattern2),
+            planner_rule_legacy_name(PlanRuleId::LoopBreakRecipe),
             "Pattern2_Break (Phase 286 P3.1)"
         );
         assert_eq!(
-            planner_rule_legacy_name(PlanRuleId::Pattern1),
+            planner_rule_legacy_name(PlanRuleId::LoopSimpleWhile),
             "Pattern1_SimpleWhile (Phase 286 P2.1)"
         );
+    }
+
+    #[test]
+    fn legacy_pattern_alias_constants_are_preserved() {
+        assert_eq!(PlanRuleId::Pattern2, PlanRuleId::LoopBreakRecipe);
+        assert_eq!(PlanRuleId::Pattern1, PlanRuleId::LoopSimpleWhile);
+        assert_eq!(PlanRuleId::Pattern8, PlanRuleId::BoolPredicateScan);
     }
 }

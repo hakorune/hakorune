@@ -1,14 +1,14 @@
-use crate::mir::builder::MirBuilder;
-use crate::mir::ValueId;
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
+use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
-use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner::PlanRuleId;
 use crate::mir::builder::control_flow::plan::verifier::PlanVerifier;
+use crate::mir::builder::MirBuilder;
+use crate::mir::ValueId;
 
 use super::super::router::{lower_verified_core_plan, LoopPatternContext};
 use super::types::{PlannerFirstMode, RouterEnv, StandardEntry};
@@ -35,14 +35,24 @@ fn route_standard(
         emit_planner_first(entry.planner_first, env, rule);
     }
 
-    let facts = outcome.facts.as_ref().expect("facts present for route_standard");
+    let facts = outcome
+        .facts
+        .as_ref()
+        .expect("facts present for route_standard");
     let core_plan = (entry.compose)(builder, facts, ctx).map_err(|freeze| freeze.to_string())?;
     let via = if env.strict_or_dev {
         entry.flowbox_via_strict
     } else {
         entry.flowbox_via_release
     };
-    lower_verified_core_plan(builder, ctx, env.strict_or_dev, outcome.facts.as_ref(), core_plan, via)
+    lower_verified_core_plan(
+        builder,
+        ctx,
+        env.strict_or_dev,
+        outcome.facts.as_ref(),
+        core_plan,
+        via,
+    )
 }
 
 fn release_skips_nested_loop(ctx: &LoopPatternContext, env: &RouterEnv) -> bool {
@@ -72,10 +82,7 @@ fn release_allows_loop_cond_break_continue(
     )
 }
 
-fn release_allows_loop_scan_methods_block_v0(
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
-) -> bool {
+fn release_allows_loop_scan_methods_block_v0(outcome: &PlanBuildOutcome, env: &RouterEnv) -> bool {
     if env.planner_required {
         return true;
     }
@@ -106,13 +113,22 @@ pub(crate) fn route_loop_break_recipe(
         )
         .to_string());
     }
-    emit_planner_first(PlannerFirstMode::StrictOrDev, env, PlanRuleId::Pattern2);
+    emit_planner_first(
+        PlannerFirstMode::StrictOrDev,
+        env,
+        PlanRuleId::LoopBreakRecipe,
+    );
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug("[recipe:entry] loop_break_recipe: recipe-first");
+        ring0
+            .log
+            .debug("[recipe:entry] loop_break_recipe: recipe-first");
     }
 
-    let facts = outcome.facts.as_ref().expect("loop_break_recipe facts present");
+    let facts = outcome
+        .facts
+        .as_ref()
+        .expect("loop_break_recipe facts present");
     let core_plan = RecipeComposer::compose_pattern2_break_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
@@ -164,7 +180,7 @@ pub(crate) fn route_if_phi_join(
         )
         .to_string());
     }
-    emit_planner_first(PlannerFirstMode::StrictOrDev, env, PlanRuleId::Pattern3);
+    emit_planner_first(PlannerFirstMode::StrictOrDev, env, PlanRuleId::IfPhiJoin);
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug("[recipe:entry] if_phi_join: recipe-first");
@@ -201,7 +217,11 @@ pub(crate) fn route_loop_continue_only(
         )
         .to_string());
     }
-    emit_planner_first(PlannerFirstMode::StrictOrDev, env, PlanRuleId::Pattern4);
+    emit_planner_first(
+        PlannerFirstMode::StrictOrDev,
+        env,
+        PlanRuleId::LoopContinueRecipe,
+    );
     if env.planner_required {
         if let Some(err) = composer::strict_nested_loop_guard(outcome, ctx) {
             flowbox_tags::emit_flowbox_freeze_tag_from_facts(
@@ -215,7 +235,10 @@ pub(crate) fn route_loop_continue_only(
         }
     }
 
-    let facts = outcome.facts.as_ref().expect("loop_continue_only facts present");
+    let facts = outcome
+        .facts
+        .as_ref()
+        .expect("loop_continue_only facts present");
     let core_plan = RecipeComposer::compose_pattern4_continue_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
     let via = if env.strict_or_dev {
@@ -223,7 +246,14 @@ pub(crate) fn route_loop_continue_only(
     } else {
         FlowboxVia::Release
     };
-    lower_verified_core_plan(builder, ctx, env.strict_or_dev, outcome.facts.as_ref(), core_plan, via)
+    lower_verified_core_plan(
+        builder,
+        ctx,
+        env.strict_or_dev,
+        outcome.facts.as_ref(),
+        core_plan,
+        via,
+    )
 }
 
 pub(crate) fn route_loop_true_early_exit(
@@ -235,16 +265,20 @@ pub(crate) fn route_loop_true_early_exit(
     let compose = RecipeComposer::compose_pattern5_infinite_early_exit_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
-        missing_contract_msg: "Pattern5InfiniteEarlyExit requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "Pattern5InfiniteEarlyExit requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern5_infinite_early_exit_recipe,
         planner_required_only: false,
         skip_without_contract: true,
         planner_first: PlannerFirstMode::StrictOrDevPlannerRequired,
-        plan_rule: Some(PlanRuleId::Pattern5),
+        plan_rule: Some(PlanRuleId::LoopTrueEarlyExit),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -257,16 +291,20 @@ pub(crate) fn route_loop_simple_while(
     let compose = RecipeComposer::compose_pattern1_simple_while_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
-        missing_contract_msg: "Pattern1SimpleWhile requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "Pattern1SimpleWhile requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern1_simple_while_recipe,
         planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
-        plan_rule: Some(PlanRuleId::Pattern1),
+        plan_rule: Some(PlanRuleId::LoopSimpleWhile),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Release,
     };
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -288,7 +326,10 @@ pub(crate) fn route_loop_char_map(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -310,7 +351,10 @@ pub(crate) fn route_loop_array_join(
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -323,16 +367,20 @@ pub(crate) fn route_scan_with_init(
     let compose = RecipeComposer::compose_pattern6_scan_with_init_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
-        missing_contract_msg: "Pattern6ScanWithInit requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "Pattern6ScanWithInit requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern6_scan_with_init_recipe,
         planner_required_only: false,
         skip_without_contract: true,
         planner_first: PlannerFirstMode::StrictOrDevPlannerRequired,
-        plan_rule: Some(PlanRuleId::Pattern6),
+        plan_rule: Some(PlanRuleId::ScanWithInit),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -350,11 +398,14 @@ pub(crate) fn route_split_scan(
         planner_required_only: false,
         skip_without_contract: true,
         planner_first: PlannerFirstMode::StrictOrDevPlannerRequired,
-        plan_rule: Some(PlanRuleId::Pattern7),
+        plan_rule: Some(PlanRuleId::SplitScan),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -367,16 +418,20 @@ pub(crate) fn route_bool_predicate_scan(
     let compose = RecipeComposer::compose_pattern8_bool_predicate_scan_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
-        missing_contract_msg: "Pattern8BoolPredicateScan requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "Pattern8BoolPredicateScan requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_pattern8_bool_predicate_scan_recipe,
         planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
-        plan_rule: Some(PlanRuleId::Pattern8),
+        plan_rule: Some(PlanRuleId::BoolPredicateScan),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -392,13 +447,22 @@ pub(crate) fn route_accum_const_loop(
         )
         .to_string());
     }
-    emit_planner_first(PlannerFirstMode::StrictOrDev, env, PlanRuleId::Pattern9);
+    emit_planner_first(
+        PlannerFirstMode::StrictOrDev,
+        env,
+        PlanRuleId::AccumConstLoop,
+    );
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug("[recipe:entry] accum_const_loop: recipe-first");
+        ring0
+            .log
+            .debug("[recipe:entry] accum_const_loop: recipe-first");
     }
 
-    let facts = outcome.facts.as_ref().expect("accum_const_loop facts present");
+    let facts = outcome
+        .facts
+        .as_ref()
+        .expect("accum_const_loop facts present");
     let core_plan = RecipeComposer::compose_pattern9_accum_const_loop_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
@@ -424,12 +488,13 @@ pub(crate) fn route_loop_scan_methods_v0(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
-        missing_contract_msg: "loop_scan_methods_v0 requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "loop_scan_methods_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_methods_v0,
         planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
-        plan_rule: Some(PlanRuleId::Pattern1),
+        plan_rule: Some(PlanRuleId::LoopSimpleWhile),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
@@ -447,12 +512,13 @@ pub(crate) fn route_loop_scan_methods_block_v0(
     }
 
     const ENTRY: StandardEntry = StandardEntry {
-        missing_contract_msg: "loop_scan_methods_block_v0 requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "loop_scan_methods_block_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_methods_block_v0,
         planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
-        plan_rule: Some(PlanRuleId::Pattern1),
+        plan_rule: Some(PlanRuleId::LoopSimpleWhile),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
@@ -466,7 +532,8 @@ pub(crate) fn route_loop_scan_phi_vars_v0(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
-        missing_contract_msg: "loop_scan_phi_vars_v0 requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "loop_scan_phi_vars_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_phi_vars_v0,
         planner_required_only: false,
         skip_without_contract: false,
@@ -504,12 +571,13 @@ pub(crate) fn route_loop_collect_using_entries_v0(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
-        missing_contract_msg: "loop_collect_using_entries_v0 requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "loop_collect_using_entries_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_collect_using_entries_v0,
         planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
-        plan_rule: Some(PlanRuleId::Pattern1),
+        plan_rule: Some(PlanRuleId::LoopSimpleWhile),
         flowbox_via_strict: FlowboxVia::Shadow,
         flowbox_via_release: FlowboxVia::Shadow,
     };
@@ -523,7 +591,8 @@ pub(crate) fn route_loop_bundle_resolver_v0(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
-        missing_contract_msg: "loop_bundle_resolver_v0 requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "loop_bundle_resolver_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_bundle_resolver_v0,
         planner_required_only: false,
         skip_without_contract: false,
@@ -548,7 +617,8 @@ pub(crate) fn route_loop_true_break_continue(
     let compose = RecipeComposer::compose_loop_true_break_continue_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
-        missing_contract_msg: "loop_true_break_continue requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "loop_true_break_continue requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_true_break_continue_recipe,
         planner_required_only: false,
         skip_without_contract: false,
@@ -558,7 +628,10 @@ pub(crate) fn route_loop_true_break_continue(
         flowbox_via_release: FlowboxVia::Shadow,
     };
 
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -575,7 +648,8 @@ pub(crate) fn route_loop_cond_break_continue(
     let compose = RecipeComposer::compose_loop_cond_break_continue_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
-        missing_contract_msg: "loop_cond_break_continue requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "loop_cond_break_continue requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_break_continue_recipe,
         planner_required_only: false,
         skip_without_contract: false,
@@ -585,7 +659,10 @@ pub(crate) fn route_loop_cond_break_continue(
         flowbox_via_release: FlowboxVia::Shadow,
     };
 
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -602,7 +679,8 @@ pub(crate) fn route_loop_cond_continue_only(
     let compose = RecipeComposer::compose_loop_cond_continue_only_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
-        missing_contract_msg: "loop_cond_continue_only requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "loop_cond_continue_only requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_continue_only_recipe,
         planner_required_only: false,
         skip_without_contract: false,
@@ -612,7 +690,10 @@ pub(crate) fn route_loop_cond_continue_only(
         flowbox_via_release: FlowboxVia::Shadow,
     };
 
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -629,7 +710,8 @@ pub(crate) fn route_loop_cond_continue_with_return(
     let compose = RecipeComposer::compose_loop_cond_continue_with_return_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
-        missing_contract_msg: "loop_cond_continue_with_return requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "loop_cond_continue_with_return requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_continue_with_return_recipe,
         planner_required_only: false,
         skip_without_contract: false,
@@ -639,7 +721,10 @@ pub(crate) fn route_loop_cond_continue_with_return(
         flowbox_via_release: FlowboxVia::Shadow,
     };
 
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 
@@ -652,7 +737,8 @@ pub(crate) fn route_loop_cond_return_in_body(
     let compose = RecipeComposer::compose_loop_cond_return_in_body_recipe;
 
     const ENTRY_BASE: StandardEntry = StandardEntry {
-        missing_contract_msg: "loop_cond_return_in_body requires recipe_contract in planner_required mode",
+        missing_contract_msg:
+            "loop_cond_return_in_body requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_return_in_body_recipe,
         planner_required_only: false,
         skip_without_contract: false,
@@ -662,7 +748,10 @@ pub(crate) fn route_loop_cond_return_in_body(
         flowbox_via_release: FlowboxVia::Shadow,
     };
 
-    let entry = StandardEntry { compose, ..ENTRY_BASE };
+    let entry = StandardEntry {
+        compose,
+        ..ENTRY_BASE
+    };
     route_standard(builder, ctx, outcome, env, &entry)
 }
 

@@ -47,7 +47,7 @@ mod tests {
     #[test]
     fn planner_first_tag_uses_semantic_name_for_pattern_rules() {
         assert_eq!(
-            planner_first_tag(PlanRuleId::Pattern2),
+            planner_first_tag(PlanRuleId::LoopBreakRecipe),
             "[joinir/planner_first rule=LoopBreakRecipe]"
         );
     }
