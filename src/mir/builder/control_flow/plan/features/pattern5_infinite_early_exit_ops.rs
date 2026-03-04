@@ -2,15 +2,15 @@
 
 use crate::mir::builder::control_flow::plan::edgecfg_facade::{BlockParams, Frag};
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::plan::domain::{
+    Pattern5ExitKind, Pattern5InfiniteEarlyExitPlan,
+};
 use crate::mir::builder::control_flow::plan::features::{
     carrier_merge, edgecfg_stubs, loop_carriers, step_mode,
 };
 use crate::mir::builder::control_flow::plan::normalizer::common::empty_args;
 use crate::mir::builder::control_flow::plan::skeletons::loop_true::LoopTrueSkeleton;
-use crate::mir::builder::control_flow::plan::domain::Pattern5ExitKind;
-use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CoreLoopPlan, Pattern5InfiniteEarlyExitPlan,
-};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreLoopPlan};
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;

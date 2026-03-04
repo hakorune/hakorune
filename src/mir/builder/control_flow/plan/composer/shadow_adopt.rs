@@ -8,6 +8,7 @@ use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternCont
 use crate::mir::builder::control_flow::plan::facts::feature_facts::{
     detect_nested_loop, ExitKindFacts,
 };
+use crate::mir::builder::control_flow::plan::domain::Pattern4ContinuePlan;
 use crate::mir::builder::control_flow::plan::canon::generic_loop::{
     classify_step_placement, StepPlacement,
 };
@@ -167,7 +168,7 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
                 let mut carrier_vars: Vec<String> =
                     pattern4.carrier_updates.keys().cloned().collect();
                 carrier_vars.sort();
-                let plan = crate::mir::builder::control_flow::plan::Pattern4ContinuePlan {
+                let plan = Pattern4ContinuePlan {
                     loop_var: pattern4.loop_var.clone(),
                     carrier_vars,
                     condition: pattern4.condition.clone(),
