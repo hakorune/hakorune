@@ -308,6 +308,19 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
       - `pattern1_simple_while.rs`, `pattern1_array_join.rs`, `pattern1_char_map.rs`
       - `pattern3_if_phi.rs`, `pattern4_continue.rs`, `pattern5_infinite_early_exit.rs`
       - `pattern8_bool_predicate_scan.rs`, `pattern9_accum_const_loop.rs`
+  - D3 execution (2026-03-04, dead-file delete):
+    - `normalizer/mod.rs` 未配線（runtime 未参照）を確認後、legacy normalizer file 8件を撤去:
+      - `normalizer/pattern1_simple_while.rs`
+      - `normalizer/pattern1_array_join.rs`
+      - `normalizer/pattern1_char_map.rs`
+      - `normalizer/pattern3_if_phi.rs`
+      - `normalizer/pattern4_continue.rs`
+      - `normalizer/pattern5_infinite_early_exit.rs`
+      - `normalizer/pattern8_bool_predicate_scan.rs`
+      - `normalizer/pattern9_accum_const_loop.rs`
+    - verification:
+      - `cargo build --release --bin hakorune` => PASS
+      - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
@@ -331,8 +344,8 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `src/mir/builder/control_flow/plan/lowerer/effect_emission.rs`
   - `CURRENT_TASK.md`
 - next fixed order（resume point）:
-  1. D2続き: planner/router の payload 参照を `DomainPlanKind` / label へ寄せ切る
-  2. D3: `normalizer/pattern*.rs` の entry-path 依存を 0 にして撤去
+  1. D4: `domain.rs` / planner から dead legacy payload の残存参照を棚卸しし、削除候補を isolate する
+  2. D4続き: 受理形を増やさず（BoxShape only）、domain payload の compile path を縮退する
   3. D系の各段で fixture+fast-gate を更新し、BoxShape と BoxCount を混在させない
 
 ## Compiler Cleanup Order (2026-03-03, SSOT)
