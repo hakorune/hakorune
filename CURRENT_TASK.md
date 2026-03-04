@@ -134,6 +134,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `single_planner/mod.rs` から `try_build_domain_plan_with_outcome()` を削除し、`try_build_outcome()` 一本化
     - `plan/REGISTRY.md` の entry pipeline 文言を outcome-first 現行経路へ更新
     - `src/mir/builder/control_flow` 配下の tuple API 参照はゼロを維持
+  - `1e70bf85e` refactor D5 remove DomainPlanKind and route planner matching by plan presence
+    - `plan/domain.rs` から `DomainPlanKind` を削除し、`DomainPlan::kind_label()` のみ維持
+    - `single_planner/rules.rs` の planner hit 判定を `plan.is_some()` ベースへ簡約
+    - `plan/mod.rs` / `single_planner/rule_order.rs` の語彙を現行設計へ同期
   - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
     - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
     - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
@@ -327,6 +331,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-1e70bf85e, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-1e70bf85e）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-1e70bf85e, elapsed=`0:03.89`）
   - `cargo build --release --bin hakorune`（post-07c72a9e5, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-07c72a9e5）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
@@ -636,7 +644,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 3. `shadow_adopt` 縮退（step-2）: `recipe_contract.is_some()` 経路で strict/release fallback 禁止は適用済み。次は fallback 本体の撤去条件を固定する。
 4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
-   - 次は DomainPlan label-only 実体（`DomainPlanKind` / `DomainPlan`）の縮退可否を gate 付きで判断する。
+   - `DomainPlanKind` は撤去済み（`1e70bf85e`）。次は `DomainPlan` enum 単一variantの物理縮退可否を gate 付きで判断する。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
