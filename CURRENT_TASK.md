@@ -49,7 +49,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - compiler fixed order:
   1. Pattern1..9 名を `router/planner` の主語（runtime label / message / surface）から段階的に外す。
   2. `normalizer/pattern*.rs` 依存を主経路から外し、recipe/composer 側へ責務集約する。
-  3. `DomainPlan` は label-only（最終的には撤去）へ縮退する。
+  3. `DomainPlan` 語彙を段階撤去し、single payload 型（loop plan payload）へ統一する。
   4. `shadow_adopt` など暫定 fallback 経路を縮退し、strict/release 差分を最小化する。
   5. 経路を `Facts -> Recipe -> Composer -> Verifier -> Parts` に一本化する（router は recipe-first のみ）。
 
@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `fa1efcb21` refactor D5 remove DomainPlan alias from planner-normalizer type surface
+    - `plan/domain.rs` から `DomainPlan` alias を撤去し、`loop_plan_label()` + `LoopCondContinueWithReturnPlan` 直結に統一
+    - `planner/{build,outcome,build_tests}.rs` と `normalizer/mod.rs` の型署名を単一payload型へ同期
+    - `single_planner/rules.rs` / `plan/mod.rs` の参照語彙を `loop_plan_*` 系へ更新（挙動不変）
   - `734310f41` refactor D5 remove router domain-plan branch and keep recipe-first fallback lanes
     - `joinir/patterns/router.rs` から DomainPlan 専用分岐を削除し、entry flow を recipe-first + fallback lanes に整理
     - shadow/release adopt 呼び出しは `domain_plan` 依存なしの固定条件へ簡約
@@ -649,6 +653,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-plan-common-ast-helpers-removal)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-plan-common-ast-helpers-removal）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-fa1efcb21)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-fa1efcb21, elapsed=`0:04.37`）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -673,7 +681,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
    - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
-   - 次は `DomainPlan` alias 自体の撤去可否（`PlanBuildOutcome.plan` を facts直結へ寄せるか）を gate 付きで判断する。
+   - `DomainPlan` alias は撤去完了（`fa1efcb21`）。次は docs/runtime message の `DomainPlan` 残語彙を `loop plan payload` へ寄せる。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
