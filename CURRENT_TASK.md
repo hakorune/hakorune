@@ -149,6 +149,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `planner/build.rs` を CandidateSet 経由から single-plan 直返しに簡約
     - 未使用になった `planner/{candidates.rs,pattern_shadow.rs}` を削除し `planner/mod.rs` を同期
     - `plan/trace.rs` の candidate/pattern_shadow trace helper を削除（`trace_try_take_planner` は維持）
+  - `53d59a7f0` docs D5 mark shadow candidate-trace SSOT as retired and sync planner trace contract
+    - `joinir-pattern-selection-shadow-ssot.md` を retired 状態へ更新（削除済み module 参照を解消）
+    - `ai-handoff-and-debug-contract.md` の plan trace 必須点を現行 `trace_try_take_planner` 契約へ同期
+    - `coreplan-migration-roadmap-ssot.md` の CandidateSet 記述を single-plan 現行に同期
   - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
     - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
     - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
@@ -668,7 +672,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
-   - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）。次は docs/README の語彙同期（CandidateSet 記述の残骸整理）。
+   - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
+   - 次は `DomainPlan` alias 自体の撤去可否（`PlanBuildOutcome.plan` を facts直結へ寄せるか）を gate 付きで判断する。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
