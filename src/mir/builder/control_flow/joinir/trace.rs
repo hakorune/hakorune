@@ -105,7 +105,7 @@ impl JoinLoopTrace {
     }
 
     /// Check if varmap tracing is enabled
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn is_varmap_enabled(&self) -> bool {
         self.varmap_enabled
     }
@@ -181,7 +181,7 @@ impl JoinLoopTrace {
     /// # Arguments
     /// - `tag`: Context identifier (e.g., "pattern3", "exit_block")
     /// - `msg`: Human-readable message about the PHI operation
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn phi(&self, tag: &str, msg: &str) {
         if self.phi_enabled {
             let ring0 = crate::runtime::get_global_ring0();
@@ -196,7 +196,7 @@ impl JoinLoopTrace {
     /// # Arguments
     /// - `tag`: Context identifier (e.g., "pattern3", "block_allocation")
     /// - `msg`: Human-readable message about the merge operation
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn merge(&self, tag: &str, msg: &str) {
         if self.joinir_enabled || self.varmap_enabled {
             let ring0 = crate::runtime::get_global_ring0();
@@ -213,7 +213,7 @@ impl JoinLoopTrace {
     /// - `var_name`: Name of the variable being reconnected
     /// - `old_id`: Old ValueId (before exit PHI)
     /// - `new_id`: New ValueId (after exit PHI)
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn exit_phi(&self, tag: &str, var_name: &str, old_id: ValueId, new_id: ValueId) {
         if self.varmap_enabled {
             let ring0 = crate::runtime::get_global_ring0();

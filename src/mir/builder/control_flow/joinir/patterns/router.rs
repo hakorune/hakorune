@@ -19,7 +19,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-use crate::mir::loop_pattern_detection::{LoopFeatures, LoopPatternKind};
+use crate::mir::loop_pattern_detection::LoopPatternKind;
 
 // Phase 273 P1: Import Plan components (DomainPlan → Normalizer → Verifier → Lowerer)
 use super::{legacy, registry};
@@ -35,9 +35,6 @@ use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome}
 use crate::mir::builder::control_flow::plan::single_planner;
 use crate::mir::builder::control_flow::plan::verifier::PlanVerifier;
 use crate::mir::builder::control_flow::plan::CorePlan;
-
-/// AST Feature Extractor (declared in mod.rs as pub module, import from parent)
-use crate::mir::builder::control_flow::plan::ast_feature_extractor as ast_features;
 
 /// Phase 92 P0-2: Import LoopSkeleton for Option A
 use crate::mir::loop_canonicalizer::LoopSkeleton;
@@ -59,18 +56,6 @@ pub(crate) struct LoopPatternContext<'a> {
     /// In static box context? (affects Pattern8 routing)
     pub in_static_box: bool,
 
-    /// Has continue statement(s) in body? (Phase 194+)
-    #[allow(dead_code)]
-    pub has_continue: bool,
-
-    /// Has break statement(s) in body? (Phase 194+)
-    #[allow(dead_code)]
-    pub has_break: bool,
-
-    /// Phase 192: Loop features extracted from AST
-    #[allow(dead_code)]
-    pub features: LoopFeatures,
-
     /// Phase 192: Pattern classification based on features
     pub pattern_kind: LoopPatternKind,
 
@@ -82,7 +67,6 @@ pub(crate) struct LoopPatternContext<'a> {
     /// This provides ConditionalStep information for Pattern2 lowering.
     /// None if canonicalizer hasn't run yet (backward compatibility).
     /// SSOT Principle: Avoid re-detecting ConditionalStep in lowering phase.
-    #[allow(dead_code)]
     pub skeleton: Option<&'a LoopSkeleton>,
 
     /// Phase 188.3: Cached StepTree max_loop_depth for Pattern6
@@ -105,13 +89,6 @@ impl<'a> LoopPatternContext<'a> {
         debug: bool,
         in_static_box: bool,
     ) -> Self {
-        // Use AST Feature Extractor for break/continue detection
-        let has_continue = ast_features::detect_continue_in_body(body);
-        let has_break = ast_features::detect_break_in_body(body);
-
-        // Extract features (includes infinite loop detection)
-        let features = ast_features::extract_features(condition, body, has_continue, has_break);
-
         // Phase 137-6-S1: Use SSOT pattern selection entry point
         use crate::mir::builder::control_flow::joinir::routing::choose_pattern_kind;
         let pattern_kind = choose_pattern_kind(condition, body);
@@ -122,9 +99,6 @@ impl<'a> LoopPatternContext<'a> {
             func_name,
             debug,
             in_static_box,
-            has_continue,
-            has_break,
-            features,
             pattern_kind,
             fn_body: None,                  // Phase 200-C: Default to None
             skeleton: None,                 // Phase 92 P0-2: Default to None
@@ -146,12 +120,6 @@ impl<'a> LoopPatternContext<'a> {
         ctx
     }
 
-    /// Phase 92 P0-2: Set skeleton (for canonicalizer integration)
-    #[allow(dead_code)]
-    pub(crate) fn with_skeleton(mut self, skeleton: &'a LoopSkeleton) -> Self {
-        self.skeleton = Some(skeleton);
-        self
-    }
 }
 
 // Phase 29ai P5: Plan extractor routing moved to `plan::single_planner`.
