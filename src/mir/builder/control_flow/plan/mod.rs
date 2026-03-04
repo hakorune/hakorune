@@ -84,9 +84,6 @@ pub(in crate::mir::builder) mod pattern2_policy_router;
 pub(in crate::mir::builder) mod pattern2_steps;
 // Phase 29bq+: Pattern3 if-phi lowering moved to plan side
 pub(in crate::mir::builder) mod pattern3_if_phi;
-// Phase 29bq+: Pattern8 bool predicate scan lowering moved to plan side
-pub(in crate::mir::builder) mod pattern8_bool_predicate_scan;
-
 // Layer 5: Loop-Specific (ループ固有)
 // 各ループタイプの固有処理
 // Phase 29bq+: body local policy moved to plan side

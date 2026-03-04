@@ -2070,3 +2070,15 @@ contract note (fixed):
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
   - note:
     - `cargo test -q --lib facts_extracts_pattern9_const_accum_success` は現作業ツリーで `Some` 期待 mismatch の既存失敗を確認（本差分では未変更の extractor テスト）。
+- update (2026-03-04, D5 isolate->delete: dead pattern8 plan module removal):
+  - runtime 参照のない legacy module を撤去:
+    - delete: `src/mir/builder/control_flow/plan/pattern8_bool_predicate_scan.rs`
+    - update: `src/mir/builder/control_flow/plan/mod.rs` から `mod pattern8_bool_predicate_scan` wire を削除
+  - 目的:
+    - Pattern8 の正本経路を `facts + recipe_tree + joinir registry handler` に一本化し、未接続 plan-side lowering 残骸を削除
+  - verification:
+    - `cargo test -q --lib facts_extracts_pattern8_success`
+    - `cargo test -q --lib planner_first_tag_keeps_scan_split_compat_labels`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
