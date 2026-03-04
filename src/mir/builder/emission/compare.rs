@@ -23,7 +23,6 @@ pub fn emit_to(
 
 // Convenience wrappers (明示関数名が読みやすい箇所用)
 #[inline]
-#[allow(dead_code)]
 pub fn emit_eq_to(
     b: &mut MirBuilder,
     dst: ValueId,
@@ -31,15 +30,4 @@ pub fn emit_eq_to(
     rhs: ValueId,
 ) -> Result<(), String> {
     emit_to(b, dst, CompareOp::Eq, lhs, rhs)
-}
-
-#[inline]
-#[allow(dead_code)]
-pub fn emit_ne_to(
-    b: &mut MirBuilder,
-    dst: ValueId,
-    lhs: ValueId,
-    rhs: ValueId,
-) -> Result<(), String> {
-    emit_to(b, dst, CompareOp::Ne, lhs, rhs)
 }

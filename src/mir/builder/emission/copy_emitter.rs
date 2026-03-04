@@ -14,14 +14,6 @@ pub enum CopyEmitReason {
     JoinIrBridgeNestedIfMergeThen,
     JoinIrBridgeNestedIfMergeElse,
     JoinIrBridgeJoinirBlockConverterConditionalMethodCall,
-    #[allow(dead_code)]
-    JoinIrBridgeJoinirBlockConverterIfMergeThen,
-    #[allow(dead_code)]
-    JoinIrBridgeJoinirBlockConverterIfMergeElse,
-    #[allow(dead_code)]
-    JoinIrBridgeJoinirBlockConverterNestedIfMergeThen,
-    #[allow(dead_code)]
-    JoinIrBridgeJoinirBlockConverterNestedIfMergeElse,
     JoinIrMergeRewriterTailCallParamsContinuation,
     JoinIrMergeRewriterTailCallParamsTailCall,
     JsonV0BridgeLoopformEmitCopy,
@@ -59,18 +51,6 @@ impl CopyEmitReason {
             CopyEmitReason::JoinIrBridgeNestedIfMergeElse => "joinir_bridge/nested_if_merge/else",
             CopyEmitReason::JoinIrBridgeJoinirBlockConverterConditionalMethodCall => {
                 "joinir_bridge/joinir_block_converter:conditional_method_call"
-            }
-            CopyEmitReason::JoinIrBridgeJoinirBlockConverterIfMergeThen => {
-                "joinir_bridge/joinir_block_converter:if_merge/then"
-            }
-            CopyEmitReason::JoinIrBridgeJoinirBlockConverterIfMergeElse => {
-                "joinir_bridge/joinir_block_converter:if_merge/else"
-            }
-            CopyEmitReason::JoinIrBridgeJoinirBlockConverterNestedIfMergeThen => {
-                "joinir_bridge/joinir_block_converter:nested_if_merge/then"
-            }
-            CopyEmitReason::JoinIrBridgeJoinirBlockConverterNestedIfMergeElse => {
-                "joinir_bridge/joinir_block_converter:nested_if_merge/else"
             }
             CopyEmitReason::JoinIrMergeRewriterTailCallParamsContinuation => {
                 "joinir_merge_rewriter/tail_call_params:continuation"
