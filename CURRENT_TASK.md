@@ -291,6 +291,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
     - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` => `emit_fail=0 / route_blocker=0 / run_nonzero=18 / run_ok=101`（total=119）
 - update (2026-03-04, Phase D D2 payload-free planner match step):
+  - commit: `232432109` (`refactor D2 use DomainPlanKind for planner rule matching`)
   - fix note:
     - `single_planner/rules.rs` の rule match 判定を `DomainPlan` payload clone から `DomainPlanKind` 判定へ移行。
     - planner hit 時のみ `outcome.plan.take()` で plan を取り出す形に変更（rule loop 中の payload 依存を縮退）。
@@ -301,6 +302,12 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `cargo test -q --lib loop_cond_continue_with_return_is_always_recipe_only` => PASS
     - `cargo check --release --bin hakorune` => PASS
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+  - D3 reconnaissance note:
+    - `normalizer/mod.rs` の module tree に未配線な legacy pattern normalizer file が残存（runtime 未参照）。
+    - 候補（次段で isolate/delete 検討）:
+      - `pattern1_simple_while.rs`, `pattern1_array_join.rs`, `pattern1_char_map.rs`
+      - `pattern3_if_phi.rs`, `pattern4_continue.rs`, `pattern5_infinite_early_exit.rs`
+      - `pattern8_bool_predicate_scan.rs`, `pattern9_accum_const_loop.rs`
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
