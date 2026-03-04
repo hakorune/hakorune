@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-04)
 
 - this round commits:
+  - `734310f41` refactor D5 remove router domain-plan branch and keep recipe-first fallback lanes
+    - `joinir/patterns/router.rs` から DomainPlan 専用分岐を削除し、entry flow を recipe-first + fallback lanes に整理
+    - shadow/release adopt 呼び出しは `domain_plan` 依存なしの固定条件へ簡約
+    - router 主経路の DomainPlan 依存を一段縮退（挙動維持）
   - `0e23eef27` refactor D5 deprecate domain-plan fallback branch and drop dead shadow-adopt expectation
     - `joinir/patterns/router.rs` の `DomainPlan` fallback 分岐を deprecated 扱いへ縮退（strictは fail-fast / releaseは明示 no-route）
     - 常に false だった `expectations::should_expect_shadow_adopt` を削除
@@ -291,6 +295,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-734310f41, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-734310f41）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-734310f41, elapsed=`0:04.79`）
   - `cargo build --release --bin hakorune`（post-0e23eef27, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-0e23eef27）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
