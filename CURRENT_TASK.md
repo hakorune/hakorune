@@ -290,6 +290,17 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only generic_loop_v1_if_cond_prelude_loop_min` => PASS
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
     - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` => `emit_fail=0 / route_blocker=0 / run_nonzero=18 / run_ok=101`（total=119）
+- update (2026-03-04, Phase D D2 payload-free planner match step):
+  - fix note:
+    - `single_planner/rules.rs` の rule match 判定を `DomainPlan` payload clone から `DomainPlanKind` 判定へ移行。
+    - planner hit 時のみ `outcome.plan.take()` で plan を取り出す形に変更（rule loop 中の payload 依存を縮退）。
+    - `DomainPlanKind::label()` を追加し、`DomainPlan::kind_label()` は kind-label delegate へ統一。
+  - verification:
+    - `cargo test -q --lib domain_plan_kind_and_label_match` => PASS
+    - `cargo test -q --lib recipe_only_rules_require_planner_required_for_pattern_family` => PASS
+    - `cargo test -q --lib loop_cond_continue_with_return_is_always_recipe_only` => PASS
+    - `cargo check --release --bin hakorune` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
@@ -313,7 +324,7 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
   - `src/mir/builder/control_flow/plan/lowerer/effect_emission.rs`
   - `CURRENT_TASK.md`
 - next fixed order（resume point）:
-  1. D2: `DomainPlan` を label-only へ縮退し router 依存を除去
+  1. D2続き: planner/router の payload 参照を `DomainPlanKind` / label へ寄せ切る
   2. D3: `normalizer/pattern*.rs` の entry-path 依存を 0 にして撤去
   3. D系の各段で fixture+fast-gate を更新し、BoxShape と BoxCount を混在させない
 

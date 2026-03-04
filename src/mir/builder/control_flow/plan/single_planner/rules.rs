@@ -112,7 +112,7 @@ pub(super) fn try_build_domain_plan_with_outcome(
     };
     let mut outcome = planner::build_plan_with_facts_ctx(&planner_ctx, ctx.condition, ctx.body)
         .map_err(|freeze| freeze.to_string())?;
-    let planner_opt = outcome.plan.clone();
+    let planner_kind = outcome.plan.as_ref().map(DomainPlan::kind);
 
     // Phase B: Recipe-first parallel path (planner_required only)
     if gate.planner_required {
@@ -158,7 +158,7 @@ pub(super) fn try_build_domain_plan_with_outcome(
         }
     }
 
-    if gate.planner_required && planner_opt.is_none() && outcome.facts.is_none() {
+    if gate.planner_required && planner_kind.is_none() && outcome.facts.is_none() {
         return Err(freeze_planner_required_none(ctx));
     }
 
@@ -171,17 +171,17 @@ pub(super) fn try_build_domain_plan_with_outcome(
     for rule_id in PLAN_RULE_ORDER {
         let rule_id = *rule_id;
         let name = rule_name(rule_id);
-        let planner_hit = try_take_planner(&planner_opt, rule_id);
+        let planner_hit = planner_hits_rule(planner_kind, rule_id);
 
         // Phase C: Pattern2Break requires recipe contract (planner_required only)
         if gate.planner_required && matches!(rule_id, PlanRuleId::LoopBreakRecipe) {
-            if planner_hit.is_some() && outcome.recipe_contract.is_none() {
+            if planner_hit && outcome.recipe_contract.is_none() {
                 return Err(planner::Freeze::contract(
                     "Pattern2Break requires recipe_contract in planner_required mode",
                 )
                 .to_string());
             }
-            if crate::config::env::joinir_dev::debug_enabled() && planner_hit.is_some() {
+            if crate::config::env::joinir_dev::debug_enabled() && planner_hit {
                 let ring0 = crate::runtime::get_global_ring0();
                 ring0
                     .log
@@ -190,26 +190,26 @@ pub(super) fn try_build_domain_plan_with_outcome(
         }
 
         // Recipe-only rules route through compose path (domain_plan suppressed).
-        if planner_hit.is_some() && is_recipe_only_rule(rule_id, gate.planner_required) {
+        if planner_hit && is_recipe_only_rule(rule_id, gate.planner_required) {
             gate.log_planner_first(rule_id);
             debug_log_recipe_only_entry(rule_id);
             return Ok((None, outcome));
         }
 
-        if gate.planner_required {
-            if let Some(domain) = planner_hit.as_ref() {
+        if gate.planner_required && planner_hit {
+            if let Some(kind) = planner_kind {
                 return Err(planner::Freeze::contract(&format!(
                     "planner_required forbids DomainPlan kind={}",
-                    domain.kind_label()
+                    kind.label()
                 ))
                 .to_string());
             }
         }
 
-        let (plan_opt, log_none) = if planner_hit.is_some() {
+        let (plan_opt, log_none) = if planner_hit {
             planner_matched_any_rule = true;
             gate.log_planner_first(rule_id);
-            (planner_hit, false)
+            (outcome.plan.take(), false)
         } else if gate.planner_required {
             (None, false)
         } else {
@@ -244,30 +244,26 @@ pub(super) fn try_build_domain_plan_with_outcome(
         }
     }
 
-    if gate.planner_required && planner_opt.is_some() && !planner_matched_any_rule {
+    if gate.planner_required && planner_kind.is_some() && !planner_matched_any_rule {
         return Err(freeze_planner_required_mismatch());
     }
 
     Ok((None, outcome))
 }
 
-fn try_take_planner(planner_opt: &Option<DomainPlan>, kind: PlanRuleId) -> Option<DomainPlan> {
-    let planner_present = planner_opt.is_some();
-    let taken = match planner_opt {
-        Some(plan) if planner_matches_rule(plan, kind) => Some(plan.clone()),
-        _ => None,
-    };
-
-    plan_trace::trace_try_take_planner(kind, planner_present, taken.is_some());
-    taken
+fn planner_hits_rule(plan_kind: Option<DomainPlanKind>, kind: PlanRuleId) -> bool {
+    let planner_present = plan_kind.is_some();
+    let hit = planner_matches_rule_kind(plan_kind, kind);
+    plan_trace::trace_try_take_planner(kind, planner_present, hit);
+    hit
 }
 
-fn planner_matches_rule(plan: &DomainPlan, kind: PlanRuleId) -> bool {
+fn planner_matches_rule_kind(plan_kind: Option<DomainPlanKind>, kind: PlanRuleId) -> bool {
     matches!(
-        (kind, plan.kind()),
+        (kind, plan_kind),
         (
             PlanRuleId::LoopCondContinueWithReturn,
-            DomainPlanKind::LoopCondContinueWithReturn
+            Some(DomainPlanKind::LoopCondContinueWithReturn)
         )
     )
 }

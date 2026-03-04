@@ -1,5 +1,5 @@
-use crate::ast::ASTNode;
 use super::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe;
+use crate::ast::ASTNode;
 
 /// Phase 29bq P2.x: Extracted structure for LoopCondContinueWithReturn
 #[derive(Debug, Clone)]
@@ -25,6 +25,15 @@ pub(in crate::mir::builder) enum DomainPlanKind {
     LoopCondContinueWithReturn,
 }
 
+impl DomainPlanKind {
+    /// Stable variant label for diagnostics and planner logs.
+    pub(in crate::mir::builder) fn label(self) -> &'static str {
+        match self {
+            DomainPlanKind::LoopCondContinueWithReturn => "LoopCondContinueWithReturn",
+        }
+    }
+}
+
 impl DomainPlan {
     /// Payload-free kind for rule routing/selection.
     pub(in crate::mir::builder) fn kind(&self) -> DomainPlanKind {
@@ -37,19 +46,17 @@ impl DomainPlan {
     ///
     /// Keep this payload-free so call sites can avoid coupling to variant internals.
     pub(in crate::mir::builder) fn kind_label(&self) -> &'static str {
-        match self.kind() {
-            DomainPlanKind::LoopCondContinueWithReturn => "LoopCondContinueWithReturn",
-        }
+        self.kind().label()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{ASTNode, LiteralValue};
     use crate::ast::Span;
-    use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe;
+    use crate::ast::{ASTNode, LiteralValue};
     use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnItem;
+    use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe;
     use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 
     #[test]
