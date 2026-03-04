@@ -156,6 +156,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `017536db0` refactor D5 drop dead_code allow from joinir exit meta collector
     - `joinir/merge/exit_line/meta_collector.rs` の file-level `dead_code` allow を撤去
     - ExitMetaCollector の exit_bindings 収集箱を suppression なしで維持
+  - `10c3235b0` refactor D5 drop dead_code allow from joinir patterns facade
+    - `joinir/patterns/mod.rs` の file-level `dead_code` allow を撤去
+    - plan layer への thin facade ルータを suppression なしで維持
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -272,6 +275,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-joinir-exit-meta-collector-allow-drop)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-joinir-exit-meta-collector-allow-drop）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-joinir-patterns-facade-allow-drop)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-joinir-patterns-facade-allow-drop）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
