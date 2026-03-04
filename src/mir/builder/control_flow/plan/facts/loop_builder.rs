@@ -59,7 +59,7 @@ pub(in crate::mir::builder) fn try_build_loop_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopFacts>, Freeze> {
-    try_build_loop_facts_inner(condition, body, true, true)
+    try_build_loop_facts_inner(condition, body)
 }
 
 pub(in crate::mir::builder) fn try_build_loop_facts_with_ctx(
@@ -67,16 +67,12 @@ pub(in crate::mir::builder) fn try_build_loop_facts_with_ctx(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopFacts>, Freeze> {
-    let allow_pattern1 = true;
-    let allow_pattern8 = true;
-    try_build_loop_facts_inner(condition, body, allow_pattern1, allow_pattern8)
+    try_build_loop_facts_inner(condition, body)
 }
 
 fn try_build_loop_facts_inner(
     condition: &ASTNode,
     body: &[ASTNode],
-    allow_pattern1: bool,
-    allow_pattern8: bool,
 ) -> Result<Option<LoopFacts>, Freeze> {
     // Phase 29ai P4/P7: keep Facts conservative; only return Some when we can
     // build a concrete pattern fact set (no guesses / no hardcoded names).
@@ -96,21 +92,9 @@ fn try_build_loop_facts_inner(
     let scan_with_init =
         try_extract_scan_with_init_facts(condition, body, &condition_shape, &step_shape)?;
     let split_scan = try_extract_split_scan_facts(condition, body)?;
-    let pattern1_simplewhile = if allow_pattern1 {
-        try_extract_pattern1_simplewhile_facts(condition, body)?
-    } else {
-        None
-    };
-    let pattern1_char_map = if allow_pattern1 {
-        try_extract_pattern1_char_map_facts(condition, body, &observation)?
-    } else {
-        None
-    };
-    let pattern1_array_join = if allow_pattern1 {
-        try_extract_pattern1_array_join_facts(condition, body, &observation)?
-    } else {
-        None
-    };
+    let pattern1_simplewhile = try_extract_pattern1_simplewhile_facts(condition, body)?;
+    let pattern1_char_map = try_extract_pattern1_char_map_facts(condition, body, &observation)?;
+    let pattern1_array_join = try_extract_pattern1_array_join_facts(condition, body, &observation)?;
     let pattern_is_integer = try_extract_pattern_is_integer_facts(condition, body)?;
     let pattern_starts_with = try_extract_pattern_starts_with_facts(condition, body)?;
     let pattern_int_to_str = try_extract_pattern_int_to_str_facts(condition, body)?;
@@ -197,11 +181,8 @@ fn try_build_loop_facts_inner(
         try_extract_loop_true_break_continue_facts(condition, body)?;
     let pattern6_nested_minimal =
         try_extract_pattern6_nested_minimal_facts(condition, body)?;
-    let pattern8_bool_predicate_scan = if allow_pattern8 {
-        try_extract_pattern8_bool_predicate_scan_facts(condition, body, &observation)?
-    } else {
-        None
-    };
+    let pattern8_bool_predicate_scan =
+        try_extract_pattern8_bool_predicate_scan_facts(condition, body, &observation)?;
     let pattern9_accum_const_loop =
         try_extract_pattern9_accum_const_loop_facts(condition, body, &observation)?;
     let pattern2_break = try_extract_pattern2_break_facts(condition, body)?;

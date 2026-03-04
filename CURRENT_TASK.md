@@ -2052,3 +2052,21 @@ contract note (fixed):
   - note:
     - current compiler blocker remains `none` / lane=`phase-29bq monitor-only`。
     - failure-driven reopen rule: `emit_fail>0` または `route_blocker>0` に遷移した時のみ direct route を再優先で reopen。
+- update (2026-03-04, D5 facts/planner dead staging collapse first cut):
+  - `facts/loop_builder.rs` から未使用トグルを撤去し、抽出経路を一本化（挙動不変）:
+    - `try_build_loop_facts_inner` の `allow_pattern1` / `allow_pattern8` 引数を削除
+    - `pattern1_*` / `pattern8_bool_predicate_scan` の extractor 呼び出しを常時経路へ統一
+  - 目的:
+    - `facts/planner` 側に残っていた staging 分岐（常に true の dead branch）を除去し、D5 の isolate->delete 前段を固定
+  - verification:
+    - `cargo test -q --lib planner_rule_order_is_domain_plan_only`
+    - `cargo test -q --lib planner_first_tag_keeps_scan_split_compat_labels`
+    - `cargo test -q --lib loopfacts_ok_some_for_canonical_scan_with_init_minimal`
+    - `cargo test -q --lib loopfacts_ok_some_for_canonical_split_scan_minimal`
+    - `cargo test -q --lib facts_extracts_pattern8_success`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+  - note:
+    - `cargo test -q --lib facts_extracts_pattern9_const_accum_success` は現作業ツリーで `Some` 期待 mismatch の既存失敗を確認（本差分では未変更の extractor テスト）。
