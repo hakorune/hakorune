@@ -245,6 +245,7 @@ fn ensure_inner(
             Some(MirInstruction::BinOp { .. }) => false,
             Some(MirInstruction::Compare { .. }) => false,
             Some(MirInstruction::Copy { .. }) => false,
+            Some(MirInstruction::Select { .. }) => false,
             _ => true,
         };
 
@@ -369,6 +370,22 @@ fn ensure_inner(
                     op,
                     lhs: lhs_local,
                     rhs: rhs_local,
+                })
+            }
+            Some(MirInstruction::Select {
+                cond,
+                then_val,
+                else_val,
+                ..
+            }) => {
+                let cond_local = ensure_inner(builder, cond, LocalKind::Cond, forbid_non_pure)?;
+                let then_local = ensure_inner(builder, then_val, kind, forbid_non_pure)?;
+                let else_local = ensure_inner(builder, else_val, kind, forbid_non_pure)?;
+                builder.emit_instruction(MirInstruction::Select {
+                    dst: loc,
+                    cond: cond_local,
+                    then_val: then_local,
+                    else_val: else_local,
                 })
             }
             Some(MirInstruction::Copy { src, .. }) => {

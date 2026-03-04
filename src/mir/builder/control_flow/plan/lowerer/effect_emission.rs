@@ -57,10 +57,8 @@ fn try_emit_select_as_phi_for_merge(
     } else {
         let dominators = crate::mir::verification::utils::compute_dominators(func);
         (
-            dominators.dominates(then_def_bb, pred_a)
-                && dominators.dominates(else_def_bb, pred_b),
-            dominators.dominates(then_def_bb, pred_b)
-                && dominators.dominates(else_def_bb, pred_a),
+            dominators.dominates(then_def_bb, pred_a) && dominators.dominates(else_def_bb, pred_b),
+            dominators.dominates(then_def_bb, pred_b) && dominators.dominates(else_def_bb, pred_a),
         )
     };
 
@@ -82,7 +80,10 @@ fn try_emit_select_as_phi_for_merge(
 impl super::PlanLowerer {
     /// Emit a single CoreEffectPlan as MirInstruction
     #[track_caller]
-    pub(super) fn emit_effect(builder: &mut MirBuilder, effect: &CoreEffectPlan) -> Result<(), String> {
+    pub(super) fn emit_effect(
+        builder: &mut MirBuilder,
+        effect: &CoreEffectPlan,
+    ) -> Result<(), String> {
         match effect {
             CoreEffectPlan::Const { dst, value } => {
                 if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
@@ -114,13 +115,20 @@ impl super::PlanLowerer {
                     value: value.clone(),
                 })?;
             }
-            CoreEffectPlan::MethodCall { dst, object, method, args, effects } => {
+            CoreEffectPlan::MethodCall {
+                dst,
+                object,
+                method,
+                args,
+                effects,
+            } => {
                 // P2: dst and effects are now specified by Normalizer
                 // LocalSSA: ensure receiver/args are materialized in the current block to avoid
                 // cross-block undefined uses (dominance violations) when values were defined on
                 // a different control-flow path.
                 let box_val = builder.local_recv(*object);
-                let args: Vec<ValueId> = args.iter().copied().map(|a| builder.local_arg(a)).collect();
+                let args: Vec<ValueId> =
+                    args.iter().copied().map(|a| builder.local_arg(a)).collect();
                 builder.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
                     *dst,
                     box_val,
@@ -152,7 +160,11 @@ impl super::PlanLowerer {
                     *effects,
                 )?;
             }
-            CoreEffectPlan::NewBox { dst, box_type, args } => {
+            CoreEffectPlan::NewBox {
+                dst,
+                box_type,
+                args,
+            } => {
                 builder.emit_instruction(MirInstruction::NewBox {
                     dst: *dst,
                     box_type: box_type.clone(),
@@ -226,9 +238,25 @@ impl super::PlanLowerer {
                 return Err("[lowerer] IfEffect requires loop body context".to_string());
             }
             CoreEffectPlan::Copy { dst, src } => {
+                // LocalSSA: copy source must be materialized in the current block.
+                // This avoids predecessor-only definitions leaking into merge blocks
+                // (`copy %x` where `%x` is defined on only one incoming edge).
+                let src_local = if crate::config::env::joinir_dev::strict_enabled()
+                    && crate::config::env::joinir_dev::planner_required_enabled()
+                {
+                    use crate::mir::builder::ssa::local::{try_ensure, LocalKind};
+                    try_ensure(builder, *src, LocalKind::Arg).map_err(|e| {
+                        format!(
+                            "{} use=CoreEffectPlan::Copy dst=%{} src=%{}",
+                            e, dst.0, src.0
+                        )
+                    })?
+                } else {
+                    builder.local_arg(*src)
+                };
                 builder.emit_instruction(MirInstruction::Copy {
                     dst: *dst,
-                    src: *src,
+                    src: src_local,
                 })?;
             }
         }
@@ -258,7 +286,9 @@ impl super::PlanLowerer {
                 builder.ensure_block_exists(return_bb)?;
                 emit_conditional(builder, cond_val, return_bb, fallthrough_target)?;
                 builder.start_new_block(return_bb)?;
-                builder.emit_instruction(MirInstruction::Return { value: Some(*value) })?;
+                builder.emit_instruction(MirInstruction::Return {
+                    value: Some(*value),
+                })?;
             }
             CoreExitPlan::Return(None) => {
                 return Err("[lowerer] ExitIf(Return) requires payload".to_string());
@@ -269,9 +299,9 @@ impl super::PlanLowerer {
                 emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;
             }
             CoreExitPlan::BreakWithPhiArgs { depth, phi_args } => {
-                let pre_bb = builder
-                    .current_block
-                    .ok_or_else(|| "[lowerer] No current block for ExitIf(BreakWithPhiArgs)".to_string())?;
+                let pre_bb = builder.current_block.ok_or_else(|| {
+                    "[lowerer] No current block for ExitIf(BreakWithPhiArgs)".to_string()
+                })?;
                 let frame = Self::resolve_loop_frame_mut(loop_stack, *depth)?;
                 builder.ensure_block_exists(frame.break_target)?;
                 for (dst, src) in phi_args {
@@ -289,9 +319,9 @@ impl super::PlanLowerer {
                 emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;
             }
             CoreExitPlan::ContinueWithPhiArgs { depth, phi_args } => {
-                let pre_bb = builder
-                    .current_block
-                    .ok_or_else(|| "[lowerer] No current block for ExitIf(ContinueWithPhiArgs)".to_string())?;
+                let pre_bb = builder.current_block.ok_or_else(|| {
+                    "[lowerer] No current block for ExitIf(ContinueWithPhiArgs)".to_string()
+                })?;
                 let frame = Self::resolve_loop_frame_mut(loop_stack, *depth)?;
                 builder.ensure_block_exists(frame.continue_target)?;
                 let debug_ctx = debug_ctx::build(builder);
