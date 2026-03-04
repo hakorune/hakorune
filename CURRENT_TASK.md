@@ -229,6 +229,18 @@ Scope: Repo root の互換入口。詳細ログは `docs/development/current/mai
     - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` => `emit_fail=0 / run_nonzero=18 / run_ok=100 / route_blocker=0`
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only 29bp` => PASS（単体再実行）
+- update (2026-03-04, Phase D cleanup follow-up / recipe-only gate unification):
+  - commit: `739885b20` (`refactor single planner recipe-only rule gating`)
+  - fix note:
+    - `single_planner/rules.rs` の recipe-only 分岐（Pattern2/3/4/5 + LoopCondContinueWithReturn）を `is_recipe_only_rule()` へ集約。
+    - debug 表示は `planner_rule_semantic_label` ベースへ統一し、Pattern語彙の散在を抑制。
+    - `is_recipe_only_rule` の unit test を追加（planner_required 依存と always-on rule を固定）。
+  - verification:
+    - `cargo test -q recipe_only_rules_require_planner_required_for_pattern_family --lib` => PASS
+    - `cargo test -q loop_cond_continue_with_return_is_always_recipe_only --lib` => PASS
+    - `cargo check --release --bin hakorune` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` => PASS
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only 29bp` => PASS
 - progress in this round:
   - `Unsupported value AST: MapLiteral`（box_member 7）を解消（7 -> 0）
   - `Unsupported binary operator: Or`（box_member 7）を解消（7 -> 0）
