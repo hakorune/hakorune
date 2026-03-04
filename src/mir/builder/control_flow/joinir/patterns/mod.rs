@@ -51,7 +51,6 @@
 
 pub(in crate::mir::builder) mod router;
 pub(in crate::mir::builder) mod registry;
-pub(in crate::mir::builder) mod legacy;
 
 pub(crate) mod ast_feature_extractor {
     pub(crate) use crate::mir::builder::control_flow::plan::ast_feature_extractor::*;

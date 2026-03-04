@@ -22,7 +22,7 @@ use crate::mir::ValueId;
 use crate::mir::loop_pattern_detection::LoopPatternKind;
 
 // Phase 273 P1: Import Plan components (DomainPlan → Normalizer → Verifier → Lowerer)
-use super::{legacy, registry};
+use super::registry;
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::expectations;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
@@ -317,8 +317,7 @@ pub(crate) fn route_loop_pattern(
 
     // Phase-1: recipe-first paths return above; reaching here means no recipe-first match.
     // Phase-2: do not attempt shadow_adopt if recipe-first matched (entry is locked earlier).
-    // Phase-3: release also returns above when recipe-first matched (shadow_adopt/legacy skipped).
-    // Legacy lower_via_plan is release-only; strict/dev uses shadow_adopt or freezes.
+    // Phase-3: release also returns above when recipe-first matched (shadow_adopt fallback skipped).
     if strict_or_dev {
         if let Some(value) = lower_shadow_adopt_pre_plan(
             builder,
@@ -376,8 +375,10 @@ pub(crate) fn route_loop_pattern(
             ));
         }
 
+        // legacy::lower_via_plan was a no-op (always Ok(None)).
+        // Keep the same release routing outcome without the legacy module hop.
         trace_entry_route("legacy");
-        return legacy::lower_via_plan(builder, domain_plan, ctx);
+        return Ok(None);
     }
 
     if strict_or_dev && expectations::should_expect_plan(&outcome, ctx) {
