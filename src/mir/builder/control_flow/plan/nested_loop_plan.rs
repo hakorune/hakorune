@@ -1,4 +1,4 @@
-//! Shared nested loop plan lowering (DomainPlan → CorePlan, with recipe-first fallback).
+//! Shared nested loop plan lowering (loop plan payload → CorePlan, with recipe-first fallback).
 
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
@@ -25,8 +25,8 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first(
         ctx.in_static_box,
     );
     let mut outcome = single_planner::try_build_outcome(&nested_ctx)?;
-    if let Some(domain_plan) = outcome.plan.take() {
-        return PlanNormalizer::normalize(builder, domain_plan, &nested_ctx);
+    if let Some(loop_plan) = outcome.plan.take() {
+        return PlanNormalizer::normalize(builder, loop_plan, &nested_ctx);
     }
 
     let strict_or_dev = joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();

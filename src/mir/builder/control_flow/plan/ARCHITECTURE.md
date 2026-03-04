@@ -3,7 +3,7 @@
 This folder implements the JoinIR “planner-first” pipeline in layers:
 
 - **Facts**: Conservative shape observation (no AST rewrite). Produces box-local “facts” and/or recipes.
-- **DomainPlan**: A plan in domain vocabulary (loop/if shapes), still not MIR.
+- **Loop plan payload**: A planner payload in loop vocabulary, still not MIR.
 - **CorePlan**: A normalized plan in CorePlan vocabulary, ready for lowering to MIR.
 - **Lowering**: Emits MIR (or freezes in `planner_required` mode when a contract is violated).
 

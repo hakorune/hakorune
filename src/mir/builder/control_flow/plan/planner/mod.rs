@@ -1,4 +1,4 @@
-//! Phase 29ai P7: Single Planner (Facts → DomainPlan)
+//! Phase 29ai P7: Single Planner (Facts → loop plan payload)
 //!
 //! P0 goal: expose a single planner entrypoint (`build_plan_from_facts_ctx`) and hide
 //! pattern-name branching behind internal enums.

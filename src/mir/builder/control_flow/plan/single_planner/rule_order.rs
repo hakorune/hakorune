@@ -1,7 +1,7 @@
 /// Macro to define PlanRuleId enum.
 ///
 /// `PLAN_RULE_ORDER` is intentionally declared separately so single_planner can
-/// list only DomainPlan-carrying rules while still keeping extra IDs for
+/// list only active planner payload rules while still keeping extra IDs for
 /// planner-first tag emission at router level.
 macro_rules! define_plan_rules {
     (
@@ -55,9 +55,9 @@ define_plan_rules! {
     LoopSimpleWhile;
 }
 
-/// Rule order used by single_planner DomainPlan selection.
+/// Rule order used by single_planner payload selection.
 ///
-/// Keep this list limited to rules that can currently produce a DomainPlan payload.
+/// Keep this list limited to rules that can currently produce a planner payload.
 pub(in crate::mir::builder) const PLAN_RULE_ORDER: &[PlanRuleId] =
     &[PlanRuleId::LoopCondContinueWithReturn];
 
@@ -137,7 +137,7 @@ mod tests {
     }
 
     #[test]
-    fn planner_rule_order_is_domain_plan_only() {
+    fn planner_rule_order_is_single_plan_only() {
         assert_eq!(PLAN_RULE_ORDER, &[PlanRuleId::LoopCondContinueWithReturn]);
     }
 }

@@ -21,7 +21,7 @@ use crate::mir::ValueId;
 
 use crate::mir::loop_pattern_detection::LoopPatternKind;
 
-// Phase 273 P1: Import Plan components (DomainPlan → Normalizer → Verifier → Lowerer)
+// Phase 273 P1: Import Plan components (loop plan payload → Normalizer → Verifier → Lowerer)
 use super::registry;
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::expectations;
@@ -136,7 +136,7 @@ impl<'a> LoopPatternContext<'a> {
 /// operational SSOT for loop routing (Phase 273+).
 ///
 /// Plan-based architecture (Phase 273 P1-P3):
-/// - extract_*_plan() → DomainPlan (pure extraction, no builder)
+/// - extract_*_plan() → loop plan payload (pure extraction, no builder)
 /// - PlanVerifier::verify() → fail-fast validation
 /// - PlanLowerer::lower() → MIR emission (pattern-agnostic, emit_frag SSOT)
 ///
