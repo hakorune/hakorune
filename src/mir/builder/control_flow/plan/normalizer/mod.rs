@@ -39,7 +39,7 @@ pub(in crate::mir::builder) mod loop_body_lowering;
 #[cfg(test)]
 mod value_join_demo_if2;
 
-use super::{CoreEffectPlan, CoreLoopPlan, CorePlan, DomainPlan, LoweredRecipe};
+use super::{CoreEffectPlan, CoreLoopPlan, CorePlan, LoopCondContinueWithReturnPlan, LoweredRecipe};
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
@@ -63,16 +63,16 @@ pub(in crate::mir::builder) struct PlanNormalizer;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;
 
 impl PlanNormalizer {
-    /// Normalize DomainPlan to CorePlan
+    /// Normalize loop plan payload to CorePlan
     ///
     /// This is the SSOT for pattern-specific knowledge expansion.
     /// All pattern semantics (scan, split, etc.) are expanded here.
     pub(in crate::mir::builder) fn normalize(
         builder: &mut MirBuilder,
-        domain: DomainPlan,
+        domain: LoopCondContinueWithReturnPlan,
         ctx: &LoopPatternContext,
     ) -> Result<LoweredRecipe, String> {
-        // Phase 29bq P2.x: current DomainPlan payload is LoopCondContinueWithReturn.
+        // Phase 29bq P2.x: current planner payload is LoopCondContinueWithReturn.
         let facts = LoopCondContinueWithReturnFacts {
             condition: domain.condition,
             recipe: domain.recipe,

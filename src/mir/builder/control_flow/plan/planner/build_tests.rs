@@ -30,7 +30,7 @@ mod tests {
         SkeletonFacts, SkeletonKind,
     };
     use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
-    use crate::mir::builder::control_flow::plan::DomainPlan;
+    use crate::mir::builder::control_flow::plan::LoopCondContinueWithReturnPlan;
     use std::collections::BTreeSet;
 
     fn v(name: &str) -> ASTNode {
@@ -136,7 +136,7 @@ mod tests {
         }
     }
 
-    fn plan_from_facts(facts: LoopFacts) -> Option<DomainPlan> {
+    fn plan_from_facts(facts: LoopFacts) -> Option<LoopCondContinueWithReturnPlan> {
         let canonical = canonicalize_loop_facts(facts);
         build_plan_from_facts_ctx(&PlannerContext::default_for_legacy(), canonical).expect("Ok")
     }

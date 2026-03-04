@@ -10,19 +10,14 @@ pub(in crate::mir::builder) struct LoopCondContinueWithReturnPlan {
     pub recipe: ContinueWithReturnRecipe,
 }
 
-/// Phase 273 P1: DomainPlan - Pattern-specific plan vocabulary
-///
-/// DomainPlan is currently a single-variant payload.
-/// Keep this as a dedicated alias so planner/normalizer signatures stay stable
-/// while route vocabulary has only one active plan label.
-pub(in crate::mir::builder) type DomainPlan = LoopCondContinueWithReturnPlan;
-
-pub(in crate::mir::builder) const DOMAIN_PLAN_LABEL_LOOP_COND_CONTINUE_WITH_RETURN: &str =
+pub(in crate::mir::builder) const LOOP_PLAN_LABEL_LOOP_COND_CONTINUE_WITH_RETURN: &str =
     "LoopCondContinueWithReturn";
 
 /// Stable plan label for diagnostics and planner logs.
-pub(in crate::mir::builder) fn domain_plan_label(_plan: &DomainPlan) -> &'static str {
-    DOMAIN_PLAN_LABEL_LOOP_COND_CONTINUE_WITH_RETURN
+pub(in crate::mir::builder) fn loop_plan_label(
+    _plan: &LoopCondContinueWithReturnPlan,
+) -> &'static str {
+    LOOP_PLAN_LABEL_LOOP_COND_CONTINUE_WITH_RETURN
 }
 
 #[cfg(test)]
@@ -35,7 +30,7 @@ mod tests {
     use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 
     #[test]
-    fn domain_plan_kind_label_is_stable() {
+    fn loop_plan_label_is_stable() {
         let recipe = ContinueWithReturnRecipe::new(
             vec![ASTNode::Break {
                 span: Span::unknown(),
@@ -50,7 +45,7 @@ mod tests {
             recipe,
         };
 
-        assert_eq!(domain_plan_label(&plan), "LoopCondContinueWithReturn");
+        assert_eq!(loop_plan_label(&plan), "LoopCondContinueWithReturn");
     }
 }
 

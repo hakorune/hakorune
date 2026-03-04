@@ -8,7 +8,7 @@ use crate::mir::builder::control_flow::plan::normalize::{
     canonicalize_loop_facts, CanonicalLoopFacts,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::contracts::RecipeContract;
-use crate::mir::builder::control_flow::plan::DomainPlan;
+use crate::mir::builder::control_flow::plan::LoopCondContinueWithReturnPlan;
 
 use super::build::build_plan_from_facts_ctx;
 use super::context::PlannerContext;
@@ -17,7 +17,7 @@ use super::Freeze;
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct PlanBuildOutcome {
     pub facts: Option<CanonicalLoopFacts>,
-    pub plan: Option<DomainPlan>,
+    pub plan: Option<LoopCondContinueWithReturnPlan>,
     /// Recipe contract (Phase B: parallel path, planner_required only).
     pub recipe_contract: Option<RecipeContract>,
 }

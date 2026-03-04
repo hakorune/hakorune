@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::verifier::{
     debug_assert_value_join_invariants, debug_observe_cond_profile,
 };
-use crate::mir::builder::control_flow::plan::DomainPlan;
+use crate::mir::builder::control_flow::plan::LoopCondContinueWithReturnPlan;
 
 use super::context::PlannerContext;
 use super::helpers::{infer_exit_usage, infer_skeleton_kind};
@@ -15,12 +15,12 @@ use super::Freeze;
 pub(in crate::mir::builder) fn build_plan_from_facts_ctx(
     _ctx: &PlannerContext,
     facts: CanonicalLoopFacts,
-) -> Result<Option<DomainPlan>, Freeze> {
+) -> Result<Option<LoopCondContinueWithReturnPlan>, Freeze> {
     // Single-plan boundary (SSOT).
     //
-    // Current behavior: DomainPlan is intentionally minimal
+    // Current behavior: planner payload is intentionally minimal
     // (`LoopCondContinueWithReturn` only). Other loop shapes are routed via
-    // recipe-only paths outside DomainPlan.
+    // recipe-only paths outside this typed payload.
 
     if !matches!(facts.skeleton_kind, SkeletonKind::Loop) {
         return Ok(None);
@@ -39,7 +39,7 @@ pub(in crate::mir::builder) fn build_plan_from_facts_ctx(
         return Ok(None);
     };
 
-    let plan = crate::mir::builder::control_flow::plan::LoopCondContinueWithReturnPlan {
+    let plan = LoopCondContinueWithReturnPlan {
         condition: facts.condition.clone(),
         recipe: facts.recipe.clone(),
     };

@@ -1,19 +1,19 @@
-//! Phase 273 P1: DomainPlan/CorePlan 二層構造 + PlanNormalizer + PlanVerifier
+//! Phase 273 P1: LoopPlan/CorePlan 二層構造 + PlanNormalizer + PlanVerifier
 //!
 //! This module provides a two-layer Plan architecture for loop pattern lowering:
 //!
 //! # Architecture
 //!
 //! ```text
-//! DomainPlan (Pattern固有)
+//! LoopPlan payload (ループ専用)
 //!     ↓ PlanNormalizer (SSOT)
 //! CorePlan (固定語彙 - 構造ノードのみ)
 //!     ↓ PlanLowerer
 //! MIR (block/value/phi)
 //! ```
 //!
-//! - **DomainPlan**: Pattern-specific plans (Pattern1 etc.)
-//! - **PlanNormalizer**: DomainPlan → CorePlan conversion (SSOT, scan knowledge here)
+//! - **LoopPlan payload**: planner-produced loop plan payload
+//! - **PlanNormalizer**: LoopPlan payload → CorePlan conversion (SSOT, scan knowledge here)
 //! - **CorePlan**: Fixed vocabulary, expressions as ValueId references (no String parsing)
 //! - **PlanVerifier**: Fail-fast validation for CorePlan invariants
 //! - **PlanLowerer**: Processes CorePlan only (no string interpretation)
@@ -184,8 +184,8 @@ pub(in crate::mir::builder) mod plan_build_session;
 // ============================================================================
 //
 // Plan pipeline entrypoints:
-// - planner::build_plan_with_facts* / build_plan_from_facts_ctx (Facts → DomainPlan)
-// - PlanNormalizer::normalize (DomainPlan → CorePlan)
+// - planner::build_plan_with_facts* / build_plan_from_facts_ctx (Facts → LoopCondContinueWithReturnPlan)
+// - PlanNormalizer::normalize (LoopCondContinueWithReturnPlan → CorePlan)
 // - PlanVerifier::verify (CorePlan invariants)
 // - PlanLowerer::lower (CorePlan → MIR)
 #[allow(unused_imports)]
@@ -216,7 +216,7 @@ pub(in crate::mir::builder) use self::exit::CoreExitPlan;
 
 // Domain types
 pub(in crate::mir::builder) use self::domain::{
-    domain_plan_label, DomainPlan, LoopCondContinueWithReturnPlan, Pattern2StepPlacement,
+    loop_plan_label, LoopCondContinueWithReturnPlan, Pattern2StepPlacement,
 };
 #[cfg(test)]
 pub(in crate::mir::builder) use self::domain::{
