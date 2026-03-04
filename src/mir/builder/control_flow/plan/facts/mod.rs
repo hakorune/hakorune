@@ -7,8 +7,6 @@
 //! SSOT: docs/development/current/main/design/plan-dir-shallowing-ssot.md
 //! shallowing: moved from subdirs (pattern2_break_facts/, loop_facts/, expr/)
 
-#![allow(dead_code)]
-
 // Flattened from pattern2_break_facts/
 pub(in crate::mir::builder) mod pattern2_break_core;
 pub(in crate::mir::builder) mod pattern2_break_helpers;

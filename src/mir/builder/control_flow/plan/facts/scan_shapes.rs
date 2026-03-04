@@ -1,7 +1,5 @@
 //! Phase 29ai P0: Loop scan shape enums — skeleton
 
-#![allow(dead_code)]
-
 use crate::mir::policies::{
     BoundExpr, CmpOp, CondParam, CondProfile, CondSkeleton, StepExpr,
 };
