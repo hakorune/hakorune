@@ -79,7 +79,6 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn plan_rewrites(
 
     let mut result = RewrittenBlocks {
         new_blocks: Vec::new(),
-        block_replacements: BTreeMap::new(),
         phi_inputs: Vec::new(),
         carrier_inputs: BTreeMap::new(),
     };

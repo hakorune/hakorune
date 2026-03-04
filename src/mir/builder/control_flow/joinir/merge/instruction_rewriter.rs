@@ -101,7 +101,7 @@ pub(super) fn merge_and_rewrite(
     );
 
     // Phase 286C-3: Use RewriteContext to consolidate scattered state
-    let mut ctx = RewriteContext::new(exit_block_id, boundary, debug);
+    let mut ctx = RewriteContext::new(exit_block_id);
 
     // Build function_entry_map for Call→Jump conversion
     for (func_name, func) in &mir_module.functions {

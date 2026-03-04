@@ -37,7 +37,6 @@
 
 ### Box Helpers (Single-Responsibility)
 - `carrier_inputs_collector.rs` - Carrier inputs collection (DRY)
-- `exit_collection.rs` - Exit value collection (Return→Jump + ExitArgsCollectorBox)
 - `instruction_filter_box.rs` - Instruction skip judgment
 - `return_converter_box.rs` - Return→Jump conversion
 - `latch_incoming_recorder.rs` - Latch recording SSOT
@@ -47,8 +46,6 @@
 - `helpers.rs` - Pure functions (`is_skippable_continuation`)
 - `plan_helpers.rs` - Helper functions for `plan_rewrites()`
 - `terminator.rs` - Terminator remapping (Branch/Jump/Return conversion)
-- `type_propagation.rs` - Type propagation (JoinIR→HOST value types)
-- `logging.rs` - Debug logging (DEBUG-177 style)
 
 ---
 

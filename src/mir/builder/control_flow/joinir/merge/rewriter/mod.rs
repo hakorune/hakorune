@@ -14,27 +14,19 @@
 //! - `stages/`: Pipeline SSOT (plan_rewrites, apply_rewrites)
 //! - `plan_box`: Data structures (RewrittenBlocks)
 //! - `terminator`: Terminator remapping (Branch/Jump/Return conversion)
-//! - `exit_collection`: Exit value collection (Return→Jump + ExitArgsCollectorBox)
 //! - `helpers`: Small pure functions (is_skippable_continuation)
-//! - `type_propagation`: Type propagation (JoinIR→HOST value types)
-//! - `logging`: Debug logging (DEBUG-177 style, verbose flag control)
 //!
 //! ## Public API (re-exported)
 //!
 //! - `is_skippable_continuation`: Structural check for skippable continuation functions
 //! - `merge_and_rewrite`: Main orchestrator for JoinIR→MIR merge
 
-#![allow(dead_code)]
-
 // Phase 260 P0.1 Step 1: Forward all declarations to parent instruction_rewriter.rs
 // This allows gradual migration without breaking existing code.
 //
 // Modules (extracted):
-// - logging: DEBUG-177 style verbose logs ✅
 // - helpers: Small pure functions (is_skippable_continuation) ✅
-// - type_propagation: Type propagation (propagate_value_type_for_inst) ✅
 // - terminator: Jump/Branch remapping ✅
-// - exit_collection: Return→Jump + exit value collection ✅
 
 // Future modules (pending):
 // - k_exit_handling: k_exit special handling
@@ -43,16 +35,13 @@
 // For now, re-export from parent to maintain compatibility.
 
 pub(super) mod carrier_inputs_collector; // Phase 286C-5 Step 1: DRY carrier_inputs collection ✅
-pub(super) mod exit_collection; // Phase 260 P0.1 Step 6: Exit collection extracted ✅
 pub(super) mod helpers; // Phase 260 P0.1 Step 3: Helpers extracted ✅
 pub(super) mod instruction_filter_box; // Phase 286C-2 Step 2: Skip judgment logic extracted ✅
 pub(super) mod latch_incoming_recorder; // Phase 287 P2: latch recording SSOT ✅
-pub(super) mod logging; // Phase 260 P0.1 Step 2: Logging extracted ✅
 pub(super) mod return_converter_box; // Phase 286C-2 Step 2: Return → Jump conversion helpers ✅
 pub(super) mod rewrite_context; // Phase 286C-3: State consolidation ✅
 pub(super) mod tail_call_policy; // Phase 29ae: Tail call policy SSOT ✅
 pub(super) mod terminator; // Phase 260 P0.1 Step 5: Terminator remapping extracted ✅
-pub(super) mod type_propagation; // Phase 260 P0.1 Step 4: Type propagation extracted ✅
 
 // Phase 287 P7: Removed unused Box scaffolding (apply_box, tail_call_detector_box, parameter_binding_box)
 // - apply_box.rs: Stub for Stage 3 (actual logic in stages/apply.rs)

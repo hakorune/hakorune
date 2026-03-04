@@ -3,12 +3,11 @@
 //! Phase 286C-3: Consolidated state for instruction rewriting.
 //! Reduces scattered variables in merge_and_rewrite() into a single coherent structure.
 
-use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::BTreeMap;
 
 /// Consolidated state for instruction rewriting during JoinIR→MIR merge
-pub(in crate::mir::builder::control_flow::joinir::merge) struct RewriteContext<'a> {
+pub(in crate::mir::builder::control_flow::joinir::merge) struct RewriteContext {
     /// Exit PHI inputs: Vec<(from_block, exit_value)>
     pub exit_phi_inputs: Vec<(BasicBlockId, ValueId)>,
 
@@ -27,27 +26,13 @@ pub(in crate::mir::builder::control_flow::joinir::merge) struct RewriteContext<'
     /// The exit block ID (allocated by block_allocator)
     pub exit_block_id: BasicBlockId,
 
-    /// Optional boundary (for exit value collection, carrier management)
-    pub boundary: Option<&'a JoinInlineBoundary>,
-
-    /// Debug flag
-    pub debug: bool,
-
-    /// Verbose flag (debug || joinir_dev_enabled)
-    pub verbose: bool,
-
     /// Strict exit mode
     pub strict_exit: bool,
 }
 
-impl<'a> RewriteContext<'a> {
+impl RewriteContext {
     /// Create a new RewriteContext
-    pub fn new(
-        exit_block_id: BasicBlockId,
-        boundary: Option<&'a JoinInlineBoundary>,
-        debug: bool,
-    ) -> Self {
-        let verbose = debug || crate::config::env::joinir_dev_enabled();
+    pub fn new(exit_block_id: BasicBlockId) -> Self {
         let strict_exit = crate::config::env::joinir_strict_enabled() || crate::config::env::joinir_dev_enabled();
 
         Self {
@@ -57,9 +42,6 @@ impl<'a> RewriteContext<'a> {
             skipped_entry_redirects: BTreeMap::new(),
             remapped_exit_values: BTreeMap::new(),
             exit_block_id,
-            boundary,
-            debug,
-            verbose,
             strict_exit,
         }
     }
