@@ -51,7 +51,6 @@ pub(in crate::mir::builder) struct ValueJoinFacts {
     pub needed: bool,
 }
 
-
 pub(in crate::mir::builder) fn try_extract_loop_feature_facts(
     body: &[ASTNode],
 ) -> Result<LoopFeatureFacts, Freeze> {
@@ -102,9 +101,7 @@ fn stmt_has_nested_loop(stmt: &ASTNode) -> bool {
             ..
         } => {
             detect_nested_loop(then_body)
-                || else_body
-                    .as_ref()
-                    .map_or(false, |nested| detect_nested_loop(nested))
+                || else_body.as_ref().is_some_and(|nested| detect_nested_loop(nested))
         }
         ASTNode::Program { statements, .. } => detect_nested_loop(statements),
         ASTNode::ScopeBox { body, .. } => detect_nested_loop(body),

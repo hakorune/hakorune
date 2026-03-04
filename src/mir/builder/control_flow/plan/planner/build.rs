@@ -42,9 +42,8 @@ pub(in crate::mir::builder) fn build_plan_from_facts_ctx(
     // (`LoopCondContinueWithReturn` only). Other loop shapes are routed via
     // recipe-only paths outside DomainPlan.
 
-    match facts.skeleton_kind {
-        SkeletonKind::Loop => {}
-        _ => return Ok(None),
+    if !matches!(facts.skeleton_kind, SkeletonKind::Loop) {
+        return Ok(None);
     }
 
     let _skeleton_kind = infer_skeleton_kind(&facts);

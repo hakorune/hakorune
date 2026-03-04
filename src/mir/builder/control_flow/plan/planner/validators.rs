@@ -18,7 +18,7 @@ pub(super) fn is_strict_or_dev_enabled() -> bool {
 
 #[cfg(debug_assertions)]
 pub(super) fn debug_assert_exit_usage_matches_plan(
-    plan: &DomainPlan,
+    _plan: &DomainPlan,
     exit_usage: &ExitUsageFacts,
     exit_kinds_present: &BTreeSet<ExitKindFacts>,
 ) {
@@ -42,9 +42,6 @@ pub(super) fn debug_assert_exit_usage_matches_plan(
         exit_kinds_present.contains(&ExitKindFacts::Unwind),
         "exit usage unwind presence mismatch"
     );
-    match plan {
-        _ => {}
-    }
 }
 
 #[cfg(not(debug_assertions))]

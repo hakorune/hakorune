@@ -22,9 +22,7 @@ pub(in crate::mir::builder) struct CandidateSet {
 
 impl CandidateSet {
     pub(in crate::mir::builder) fn new() -> Self {
-        Self {
-            candidates: Vec::new(),
-        }
+        Self::default()
     }
 
     pub(in crate::mir::builder) fn is_empty(&self) -> bool {

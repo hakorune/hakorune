@@ -33,7 +33,7 @@ mod tests {
     };
     use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::plan::DomainPlan;
-    use std::collections::{BTreeMap, BTreeSet};
+    use std::collections::BTreeSet;
 
     fn v(name: &str) -> ASTNode {
         ASTNode::Variable {
