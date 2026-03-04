@@ -98,6 +98,28 @@ fn debug_log_recipe_only_entry(rule_id: PlanRuleId) {
     ));
 }
 
+fn promotion_hint_tag(shape: &LoopBodyLocalShape) -> &'static str {
+    match shape {
+        LoopBodyLocalShape::TrimSeg { .. } => "[plan/pattern2/promotion_hint:TrimSeg]",
+        LoopBodyLocalShape::DigitPos { .. } => "[plan/pattern2/promotion_hint:DigitPos]",
+    }
+}
+
+fn emit_pattern2_promotion_hint_tag(promotion_shape: Option<&LoopBodyLocalShape>) {
+    let Some(shape) = promotion_shape else {
+        return;
+    };
+    if !crate::config::env::joinir_dev::strict_enabled() {
+        return;
+    }
+
+    let tag = promotion_hint_tag(shape);
+    let ring0 = crate::runtime::get_global_ring0();
+    // Gate sentinel: promotion hints are validated by strict-only smokes.
+    // Emit prefix-free to stderr so it does not depend on `NYASH_RING0_LOG_LEVEL`.
+    let _ = ring0.io.stderr_write(format!("{}\n", tag).as_bytes());
+}
+
 pub(super) fn try_build_domain_plan_with_outcome(
     ctx: &LoopPatternContext,
 ) -> Result<(Option<DomainPlan>, PlanBuildOutcome), String> {
@@ -165,7 +187,10 @@ pub(super) fn try_build_domain_plan_with_outcome(
     let promotion_facts = outcome
         .facts
         .as_ref()
-        .and_then(|facts| facts.facts.pattern2_loopbodylocal.as_ref());
+        .and_then(|facts| facts.facts.pattern2_loopbodylocal.as_ref())
+        .map(|facts| &facts.shape);
+
+    emit_pattern2_promotion_hint_tag(promotion_facts);
 
     let mut planner_matched_any_rule = false;
     for rule_id in PLAN_RULE_ORDER {
@@ -215,24 +240,6 @@ pub(super) fn try_build_domain_plan_with_outcome(
         } else {
             (None, true)
         };
-
-        let promotion_tag = if matches!(rule_id, PlanRuleId::LoopBreakRecipe)
-            && crate::config::env::joinir_dev::strict_enabled()
-        {
-            promotion_facts.map(|facts| match facts.shape {
-                LoopBodyLocalShape::TrimSeg { .. } => "[plan/pattern2/promotion_hint:TrimSeg]",
-                LoopBodyLocalShape::DigitPos { .. } => "[plan/pattern2/promotion_hint:DigitPos]",
-            })
-        } else {
-            None
-        };
-
-        if let Some(tag) = promotion_tag {
-            let ring0 = crate::runtime::get_global_ring0();
-            // Gate sentinel: promotion hints are validated by strict-only smokes.
-            // Emit prefix-free to stderr so it does not depend on `NYASH_RING0_LOG_LEVEL`.
-            let _ = ring0.io.stderr_write(format!("{}\n", tag).as_bytes());
-        }
 
         if let Some(domain_plan) = plan_opt {
             let log_msg = format!("route=plan strategy=extract pattern={}", name);
@@ -290,5 +297,25 @@ mod tests {
             PlanRuleId::LoopCondContinueWithReturn,
             true
         ));
+    }
+
+    #[test]
+    fn promotion_hint_tag_matches_shape() {
+        let trim = LoopBodyLocalShape::TrimSeg {
+            s_var: "s".to_string(),
+            i_var: "i".to_string(),
+        };
+        let digit = LoopBodyLocalShape::DigitPos {
+            digits_var: "digits".to_string(),
+            ch_var: "ch".to_string(),
+        };
+        assert_eq!(
+            promotion_hint_tag(&trim),
+            "[plan/pattern2/promotion_hint:TrimSeg]"
+        );
+        assert_eq!(
+            promotion_hint_tag(&digit),
+            "[plan/pattern2/promotion_hint:DigitPos]"
+        );
     }
 }

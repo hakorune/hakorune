@@ -1992,3 +1992,13 @@ contract note (fixed):
     - `cargo test -q --lib planner_first_tag_keeps_scan_split_compat_labels`
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh` (`PASS`)
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, D5 regression fix / pattern2 promotion hint restore):
+  - regression: `PLAN_RULE_ORDER` を DomainPlan-only に縮退した結果、`[plan/pattern2/promotion_hint:{TrimSeg|DigitPos}]` が非出力化（`phase29ab_pattern2_loopbodylocal_*` FAIL）。
+  - fix: `single_planner/rules.rs` で promotion hint 出力を rule iteration から分離し、`pattern2_loopbodylocal` facts がある strict 実行で 1回だけ stderr 出力する helper へ集約。
+  - add test: `promotion_hint_tag_matches_shape`
+  - verification:
+    - `cargo test -q --lib promotion_hint_tag_matches_shape`
+    - `cargo build --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` (`PASS`)
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
