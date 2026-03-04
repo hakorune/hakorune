@@ -117,8 +117,15 @@ pub fn verify_frag_invariants(frag: &Frag) -> Result<(), String> {
 pub fn verify_frag_invariants_strict(frag: &Frag) -> Result<(), String> {
     use super::exit_kind::ExitKind;
     use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+    use crate::mir::control_form::LoopId;
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use std::collections::BTreeSet;
+
+    debug_assert!(ExitKind::Break(LoopId(0)).is_loop_exit());
+    debug_assert!(ExitKind::Continue(LoopId(0)).is_loop_exit());
+    debug_assert!(ExitKind::Return.is_function_exit());
+    debug_assert!(ExitKind::Unwind.is_function_exit());
+    debug_assert!(!ExitKind::Cancel.is_function_exit());
 
     // 1. exits と wires の両方が空の場合は警告（非致命的）
     if frag.exits.is_empty() && frag.wires.is_empty() {

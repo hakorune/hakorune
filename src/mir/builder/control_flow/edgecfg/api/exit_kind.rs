@@ -30,27 +30,22 @@ pub enum ExitKind {
     Break(LoopId),
 
     /// 指定ループの次回イテレーション
-    #[allow(dead_code)]
     Continue(LoopId),
 
     /// 例外のunwind（Invoke.err → catch）
-    #[allow(dead_code)]
     Unwind,
 
     /// 非同期タスクのキャンセル（予約：将来の async/drop 用）
-    #[allow(dead_code)]
     Cancel,
 }
 
 impl ExitKind {
     /// ループ関連の脱出か判定
-    #[allow(dead_code)]
     pub fn is_loop_exit(&self) -> bool {
         matches!(self, ExitKind::Break(_) | ExitKind::Continue(_))
     }
 
     /// 関数全体からの脱出か判定
-    #[allow(dead_code)]
     pub fn is_function_exit(&self) -> bool {
         matches!(self, ExitKind::Return | ExitKind::Unwind)
     }
