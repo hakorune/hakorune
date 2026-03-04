@@ -125,6 +125,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `features/exit_branch.rs` / `features/exit_map.rs` / `scan_loop_segments.rs` /
       `steps/loop_wiring_standard5.rs` / `plan_build_session.rs` の file-level `dead_code` allow を撤去
     - 未参照 wrapper `build_return_exit_plan_opt` と `build_standard5_loop_frag` を削除
+  - `2daf90430` refactor D5 remove stale dead_code allows from scan recipe leaves
+    - `loop_scan_methods_v0/recipe.rs` / `loop_scan_methods_block_v0/recipe.rs` /
+      `loop_scan_phi_vars_v0/recipe.rs` / `loop_scan_v0/recipe.rs` / `loop_bundle_resolver_v0/recipe.rs`
+      の file-level `dead_code` allow を撤去
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -191,6 +195,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-plan-helper-leaf-cleanup)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-plan-helper-leaf-cleanup）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-scan-recipe-allow-drop)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-scan-recipe-allow-drop）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
