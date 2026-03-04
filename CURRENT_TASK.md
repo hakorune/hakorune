@@ -159,6 +159,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `10c3235b0` refactor D5 drop dead_code allow from joinir patterns facade
     - `joinir/patterns/mod.rs` の file-level `dead_code` allow を撤去
     - plan layer への thin facade ルータを suppression なしで維持
+  - `115cd97bb` refactor D5 remove unused joinir tail call lowering policy box
+    - `joinir/merge/tail_call_lowering_policy.rs` を削除（未使用 policy box 撤去）
+    - `merge/mod.rs` / `instruction_rewriter.rs` から旧 policy 配線を削除
+    - `rewriter/exit_collection.rs` の comment を現行 k_exit 経路に同期
 
 - verification (latest cleanup round):
   - `cargo test -q --lib planner_skips_split_scan_domain_plan`
@@ -280,6 +284,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-joinir-patterns-facade-allow-drop)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-joinir-patterns-facade-allow-drop）
+  - `cargo test -q --lib planner_prefers_none_when_no_candidates`
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-tail-call-policy-box-removal)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-tail-call-policy-box-removal）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -293,7 +302,6 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - 残 suppressions（2026-03-04 時点）:
     - `plan/mod.rs`（umbrella / remove時 233 warnings）
     - `joinir/merge/rewriter/mod.rs`（remove時 rewriter submodules 10+ warnings）
-    - `joinir/merge/tail_call_lowering_policy.rs`（remove時 policy box 全体が未参照 warning）
     - `plan/extractors/common_helpers.rs`（他差分が同居する dirty file のため未着手）
 
 ## next fixed order (resume point)
