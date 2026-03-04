@@ -130,6 +130,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/features/generic_loop_body/helpers.rs` の planner 呼び出しを `try_build_outcome()` へ移行
     - `outcome.plan.take()` で normalize 経路を維持し、外側 tuple 呼び出しをゼロ化
     - 同居していた nested-loop 補助差分（depth1優先/recipe分岐整理）も同コミットで固定
+  - `07c72a9e5` refactor D5 remove single-planner tuple API and align plan registry entry SSOT
+    - `single_planner/mod.rs` から `try_build_domain_plan_with_outcome()` を削除し、`try_build_outcome()` 一本化
+    - `plan/REGISTRY.md` の entry pipeline 文言を outcome-first 現行経路へ更新
+    - `src/mir/builder/control_flow` 配下の tuple API 参照はゼロを維持
   - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
     - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
     - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
@@ -323,6 +327,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-07c72a9e5, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-07c72a9e5）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-07c72a9e5, elapsed=`0:03.62`）
   - `cargo build --release --bin hakorune`（post-f224538cd, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-f224538cd）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
@@ -627,8 +635,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
 3. `shadow_adopt` 縮退（step-2）: `recipe_contract.is_some()` 経路で strict/release fallback 禁止は適用済み。次は fallback 本体の撤去条件を固定する。
 4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
-   - `single_planner` 内部は outcome-first 化済み（`2c5e56f27`）。外側 tuple 呼び出しを段階撤去する。
-   - 外側 tuple 呼び出しは解消済み（`f224538cd`）。残作業は wrapper（`single_planner::try_build_domain_plan_with_outcome`）撤去タイミングの固定。
+   - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
+   - 次は DomainPlan label-only 実体（`DomainPlanKind` / `DomainPlan`）の縮退可否を gate 付きで判断する。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
