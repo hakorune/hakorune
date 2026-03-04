@@ -142,6 +142,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/domain.rs` で `DomainPlan` を `LoopCondContinueWithReturnPlan` の alias に縮退
     - `plan/normalizer/mod.rs` は enum match を廃し、単一payload 直変換へ簡約
     - `planner/build.rs` / `single_planner/rules.rs` の生成・ラベル参照を alias 契約へ同期
+  - `9a30fb6d4` refactor D5 rename planner_required freeze message to plan-label vocabulary
+    - `single_planner/rules.rs` の freeze 文言を `DomainPlan kind` から `plan label` 主語へ統一
+    - runtime surface の語彙を domain type 名から切り離し（挙動不変）
   - `95a12aaef` refactor D5 shift planner-router runtime labels from pattern names to semantic names
     - `single_planner/rule_order.rs` の rule 定義から runtime 不要な Pattern文字列 payload を撤去
     - `joinir/patterns/registry/handlers.rs` の planner_required contract 文言を semantic rule 名へ統一
@@ -335,6 +338,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/common/mod.rs` の module wire を実体に同期
 
 - verification (latest cleanup round):
+  - `cargo build --release --bin hakorune`（post-9a30fb6d4, `PASS`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-9a30fb6d4）
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-9a30fb6d4, elapsed=`0:03.69`）
   - `cargo build --release --bin hakorune`（post-22e5d69cf, `PASS`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`（`PASS`, post-22e5d69cf）
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
