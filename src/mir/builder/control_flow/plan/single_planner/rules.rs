@@ -206,11 +206,11 @@ pub(super) fn try_build_domain_plan_with_outcome(
         };
 
         if let Some(domain_plan) = plan_opt {
-            let log_msg = format!("route=plan strategy=extract pattern={}", name);
+            let log_msg = format!("route=plan strategy=extract rule={}", name);
             trace::trace().pattern("route", &log_msg, true);
             return Ok((Some(domain_plan), outcome));
         } else if log_none && ctx.debug {
-            let debug_msg = format!("{} extraction returned None, trying next pattern", name);
+            let debug_msg = format!("{} extraction returned None, trying next rule", name);
             trace::trace().debug("route", &debug_msg);
         }
     }
