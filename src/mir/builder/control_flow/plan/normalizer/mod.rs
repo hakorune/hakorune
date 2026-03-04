@@ -21,7 +21,6 @@ mod pattern_starts_with;
 mod pattern_int_to_str;
 mod pattern_escape_map;
 mod pattern_split_lines;
-mod pattern_skip_ws;
 pub(in crate::mir::builder) mod legacy_minimals;
 #[cfg(test)]
 mod pattern2_break;

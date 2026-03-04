@@ -1,6 +1,7 @@
-use super::{build_pattern1_coreloop, CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
 use crate::mir::builder::control_flow::plan::facts::pattern_skip_ws_facts::PatternSkipWsFacts;
+use crate::mir::builder::control_flow::plan::normalizer::build_pattern1_coreloop;
+use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 
 pub(in crate::mir::builder) fn normalize_skip_ws_minimal(
