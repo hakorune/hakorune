@@ -1,5 +1,4 @@
 //! LoopCondBreakContinue recipe (shape-only refs).
-#![allow(dead_code)]
 
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;

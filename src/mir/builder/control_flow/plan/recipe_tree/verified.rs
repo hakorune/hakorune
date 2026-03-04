@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! Verified recipe entrypoints (SSOT).
 //!
 //! Goal:

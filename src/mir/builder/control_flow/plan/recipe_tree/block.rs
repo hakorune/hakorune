@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 //! RecipeBlock: body-referencing recipe tree with arena (M5m scaffold).
 //!
 //! Body is NOT embedded in the tree: `BodyId` indexes into `RecipeBodies`.

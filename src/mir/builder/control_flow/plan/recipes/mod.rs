@@ -10,8 +10,6 @@
 //! - docs/development/current/main/design/boxcount-new-box-addition-checklist-ssot.md
 //! - docs/development/current/main/design/feature-helper-cross-pipeline-map.md
 
-#![allow(dead_code)]
-
 pub mod refs;
 
 use crate::ast::ASTNode;
