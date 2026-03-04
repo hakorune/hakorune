@@ -1,14 +1,15 @@
 ## SinglePlanner rule order (SSOT)
 
-The ordering of rules is defined in `rule_order.rs` and is the SSOT for
-"which planner runs first". `rules.rs` must stay aligned with that order.
+`PLAN_RULE_ORDER` in `rule_order.rs` is the SSOT for DomainPlan selection
+inside `single_planner::rules`.
 
-Recent change:
-- `LoopTrueBreak` is inserted immediately after `Pattern5` to keep
-  loop(true) break/continue coverage close to other exit-focused rules.
-- `LoopCondBreak` follows `LoopTrueBreak` to keep loop(cond) exit coverage nearby.
+Current state (Phase 29bq+):
+- DomainPlan has one active variant: `LoopCondContinueWithReturn`.
+- `PLAN_RULE_ORDER` therefore contains only `LoopCondContinueWithReturn`.
+- Other `PlanRuleId` values are kept for router-side planner-first tags and
+  compatibility labels, not for single_planner DomainPlan matching.
 
-When adding a rule:
+When changing DomainPlan selection:
 - update `rule_order.rs`
-- update `rules.rs` (mapping + tag)
+- update `rules.rs` (planner kind mapping / recipe-only routing)
 - add a one-line reason in this file

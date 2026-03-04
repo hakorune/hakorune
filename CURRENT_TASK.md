@@ -2018,3 +2018,11 @@ contract note (fixed):
     - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` (`PASS`)
     - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` (`PASS`)
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)
+- update (2026-03-04, D5 SSOT comment/doc sync for DomainPlan-only planner):
+  - `single_planner/README.md` を現実装へ同期:
+    - `PLAN_RULE_ORDER` は DomainPlan 選別専用（現状 `LoopCondContinueWithReturn` のみ）
+    - `ScanWithInit/SplitScan` などは router 側 planner-first tag の互換語彙として保持
+  - `planner/build.rs` の stale comments（P0 skeleton / unreachable note）を現状挙動へ更新。
+  - verification:
+    - `cargo check --release --bin hakorune`
+    - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`)

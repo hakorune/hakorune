@@ -1,4 +1,4 @@
-//! Phase 29ai P0: build_plan entrypoint skeleton
+//! Planner build_plan entrypoint (CandidateSet boundary SSOT)
 
 #![allow(dead_code)]
 
@@ -18,9 +18,7 @@ use super::outcome::build_plan_with_facts;
 use super::validators::debug_assert_cleanup_kinds_match_exit_kinds;
 use super::Freeze;
 
-/// Phase 29ai P0: External-ish SSOT entrypoint (skeleton)
-///
-/// P0: This intentionally returns `Ok(None)` for all inputs.
+/// External-ish SSOT entrypoint used by single_planner.
 pub(in crate::mir::builder) fn build_plan(
     condition: &ASTNode,
     body: &[ASTNode],
@@ -38,11 +36,11 @@ pub(in crate::mir::builder) fn build_plan_from_facts_ctx(
     _ctx: &PlannerContext,
     facts: CanonicalLoopFacts,
 ) -> Result<Option<DomainPlan>, Freeze> {
-    // Phase 29ai P3: CandidateSet-based boundary (SSOT)
+    // CandidateSet-based boundary (SSOT).
     //
-    // P3 note: Facts are currently `Ok(None)` (P0 skeleton), so this function is
-    // unreachable in normal execution today. We still implement the SSOT
-    // boundary here so that future Facts work cannot drift.
+    // Current behavior: DomainPlan candidates are intentionally minimal
+    // (`LoopCondContinueWithReturn` only). Other loop shapes are routed via
+    // recipe-only paths outside DomainPlan.
 
     match facts.skeleton_kind {
         SkeletonKind::Loop => {}
