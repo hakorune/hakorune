@@ -22,7 +22,6 @@ use crate::ast::{ASTNode, BinaryOperator};
 /// Returns an error if:
 /// - The condition is not a binary comparison
 /// - The left side of the comparison is not a simple variable
-#[allow(dead_code)]
 pub(in crate::mir::builder) fn extract_loop_variable_from_condition(
     condition: &ASTNode,
 ) -> Result<String, String> {

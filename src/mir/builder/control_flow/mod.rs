@@ -210,7 +210,6 @@ impl super::MirBuilder {
     /// For `arr.length() > 0`, extracts `arr`.
     ///
     /// Delegates to utils::extract_loop_variable_from_condition for implementation.
-    #[allow(dead_code)]
     fn extract_loop_variable_from_condition(&self, condition: &ASTNode) -> Result<String, String> {
         utils::extract_loop_variable_from_condition(condition)
     }
