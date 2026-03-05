@@ -1,8 +1,8 @@
-//! Tests for coreloop_v1 pattern composers.
+//! Tests for coreloop_v1 route composers.
 
 use super::coreloop_v1::{
-    try_compose_core_loop_v1_pattern2_break, try_compose_core_loop_v1_pattern3_ifphi,
-    try_compose_core_loop_v1_pattern5_infinite_early_exit,
+    try_compose_core_loop_v1_loop_break, try_compose_core_loop_v1_if_phi_join,
+    try_compose_core_loop_v1_loop_true_early_exit,
 };
 use super::coreloop_single_entry::{
     try_compose_scan_with_init_unified, try_compose_split_scan_unified,
@@ -401,7 +401,7 @@ fn unified_scan_with_init_rejects_value_join() {
 }
 
 #[test]
-fn coreloop_v1_composes_pattern2_with_value_join() {
+fn coreloop_v1_composes_loop_break_with_value_join() {
     let loop_condition = ASTNode::BinaryOp {
         operator: BinaryOperator::Less,
         left: Box::new(v("i")),
@@ -493,7 +493,7 @@ fn coreloop_v1_composes_pattern2_with_value_join() {
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("coreloop_v1_pattern2".to_string());
+    builder.enter_function_for_test("coreloop_v1_loop_break".to_string());
     let i_val = builder.alloc_typed(MirType::Integer);
     let sum_val = builder.alloc_typed(MirType::Integer);
     builder
@@ -505,15 +505,15 @@ fn coreloop_v1_composes_pattern2_with_value_join() {
         .variable_map
         .insert("sum".to_string(), sum_val);
     let ctx =
-        LoopRouteContext::new(&loop_condition, &[], "coreloop_v1_pattern2", false, false);
+        LoopRouteContext::new(&loop_condition, &[], "coreloop_v1_loop_break", false, false);
     let composed =
-        try_compose_core_loop_v1_pattern2_break(&mut builder, &canonical, &ctx)
+        try_compose_core_loop_v1_loop_break(&mut builder, &canonical, &ctx)
             .expect("Ok");
     assert!(matches!(composed, Some(crate::mir::builder::control_flow::plan::CorePlan::Loop(_))));
 }
 
 #[test]
-fn coreloop_v1_rejects_pattern2_with_cleanup() {
+fn coreloop_v1_rejects_loop_break_with_cleanup() {
     let condition = ASTNode::Literal {
         value: LiteralValue::Bool(true),
         span: Span::unknown(),
@@ -587,22 +587,22 @@ fn coreloop_v1_rejects_pattern2_with_cleanup() {
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("coreloop_v1_pattern2_cleanup".to_string());
+    builder.enter_function_for_test("coreloop_v1_loop_break_cleanup".to_string());
     let ctx = LoopRouteContext::new(
         &condition,
         &[],
-        "coreloop_v1_pattern2_cleanup",
+        "coreloop_v1_loop_break_cleanup",
         false,
         false,
     );
     let composed =
-        try_compose_core_loop_v1_pattern2_break(&mut builder, &canonical, &ctx)
+        try_compose_core_loop_v1_loop_break(&mut builder, &canonical, &ctx)
             .expect("Ok");
     assert!(composed.is_none());
 }
 
 #[test]
-fn coreloop_v1_composes_pattern5_with_value_join() {
+fn coreloop_v1_composes_loop_true_early_exit_with_value_join() {
     let condition = ASTNode::Literal {
         value: LiteralValue::Bool(true),
         span: Span::unknown(),
@@ -691,7 +691,7 @@ fn coreloop_v1_composes_pattern5_with_value_join() {
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("coreloop_v1_pattern5".to_string());
+    builder.enter_function_for_test("coreloop_v1_loop_true_early_exit".to_string());
     let i_val = builder.alloc_typed(MirType::Integer);
     let sum_val = builder.alloc_typed(MirType::Integer);
     builder
@@ -703,9 +703,9 @@ fn coreloop_v1_composes_pattern5_with_value_join() {
         .variable_map
         .insert("sum".to_string(), sum_val);
     let ctx =
-        LoopRouteContext::new(&condition, &[], "coreloop_v1_pattern5", false, false);
+        LoopRouteContext::new(&condition, &[], "coreloop_v1_loop_true_early_exit", false, false);
     let composed =
-        try_compose_core_loop_v1_pattern5_infinite_early_exit(
+        try_compose_core_loop_v1_loop_true_early_exit(
             &mut builder, &canonical, &ctx,
         )
         .expect("Ok");
@@ -713,7 +713,7 @@ fn coreloop_v1_composes_pattern5_with_value_join() {
 }
 
 #[test]
-fn coreloop_v1_rejects_pattern5_with_cleanup() {
+fn coreloop_v1_rejects_loop_true_early_exit_with_cleanup() {
     let condition = ASTNode::Literal {
         value: LiteralValue::Bool(true),
         span: Span::unknown(),
@@ -786,16 +786,16 @@ fn coreloop_v1_rejects_pattern5_with_cleanup() {
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("coreloop_v1_pattern5_cleanup".to_string());
+    builder.enter_function_for_test("coreloop_v1_loop_true_early_exit_cleanup".to_string());
     let ctx = LoopRouteContext::new(
         &condition,
         &[],
-        "coreloop_v1_pattern5_cleanup",
+        "coreloop_v1_loop_true_early_exit_cleanup",
         false,
         false,
     );
     let composed =
-        try_compose_core_loop_v1_pattern5_infinite_early_exit(
+        try_compose_core_loop_v1_loop_true_early_exit(
             &mut builder, &canonical, &ctx,
         )
         .expect("Ok");
@@ -803,7 +803,7 @@ fn coreloop_v1_rejects_pattern5_with_cleanup() {
 }
 
 #[test]
-fn coreloop_v1_composes_pattern3_with_value_join() {
+fn coreloop_v1_composes_if_phi_join_with_value_join() {
     let condition = ASTNode::BinaryOp {
         operator: BinaryOperator::Less,
         left: Box::new(v("i")),
@@ -900,7 +900,7 @@ fn coreloop_v1_composes_pattern3_with_value_join() {
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("coreloop_v1_pattern3".to_string());
+    builder.enter_function_for_test("coreloop_v1_if_phi_join".to_string());
     let i_val = builder.alloc_typed(MirType::Integer);
     let sum_val = builder.alloc_typed(MirType::Integer);
     builder
@@ -912,15 +912,15 @@ fn coreloop_v1_composes_pattern3_with_value_join() {
         .variable_map
         .insert("sum".to_string(), sum_val);
     let ctx =
-        LoopRouteContext::new(&condition, &[], "coreloop_v1_pattern3", false, false);
+        LoopRouteContext::new(&condition, &[], "coreloop_v1_if_phi_join", false, false);
     let composed =
-        try_compose_core_loop_v1_pattern3_ifphi(&mut builder, &canonical, &ctx)
+        try_compose_core_loop_v1_if_phi_join(&mut builder, &canonical, &ctx)
             .expect("Ok");
     assert!(matches!(composed, Some(crate::mir::builder::control_flow::plan::CorePlan::Loop(_))));
 }
 
 #[test]
-fn coreloop_v1_rejects_pattern3_with_cleanup() {
+fn coreloop_v1_rejects_if_phi_join_with_cleanup() {
     let condition = ASTNode::Literal {
         value: LiteralValue::Bool(true),
         span: Span::unknown(),
@@ -993,16 +993,16 @@ fn coreloop_v1_rejects_pattern3_with_cleanup() {
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("coreloop_v1_pattern3_cleanup".to_string());
+    builder.enter_function_for_test("coreloop_v1_if_phi_join_cleanup".to_string());
     let ctx = LoopRouteContext::new(
         &condition,
         &[],
-        "coreloop_v1_pattern3_cleanup",
+        "coreloop_v1_if_phi_join_cleanup",
         false,
         false,
     );
     let composed =
-        try_compose_core_loop_v1_pattern3_ifphi(&mut builder, &canonical, &ctx)
+        try_compose_core_loop_v1_if_phi_join(&mut builder, &canonical, &ctx)
             .expect("Ok");
     assert!(composed.is_none());
 }

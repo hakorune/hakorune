@@ -21,14 +21,14 @@ pub(super) fn exit_kinds_empty(facts: &CanonicalLoopFacts) -> bool {
     facts.exit_kinds_present.is_empty()
 }
 
-pub(super) fn pattern2_value_join_gate(facts: &CanonicalLoopFacts) -> bool {
+pub(super) fn loop_break_value_join_gate(facts: &CanonicalLoopFacts) -> bool {
     coreloop_value_join_gate(facts) && exit_kinds_allow_return_only(facts)
 }
 
-pub(super) fn pattern5_value_join_gate(facts: &CanonicalLoopFacts) -> bool {
+pub(super) fn loop_true_early_exit_value_join_gate(facts: &CanonicalLoopFacts) -> bool {
     coreloop_value_join_gate(facts) && exit_kinds_allow_return_only(facts)
 }
 
-pub(super) fn pattern3_value_join_gate(facts: &CanonicalLoopFacts) -> bool {
+pub(super) fn if_phi_join_value_join_gate(facts: &CanonicalLoopFacts) -> bool {
     coreloop_value_join_gate(facts) && exit_kinds_allow_return_only(facts)
 }

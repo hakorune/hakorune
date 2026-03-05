@@ -5,8 +5,8 @@ use super::coreloop_gates::{
 };
 use super::coreloop_v0::try_compose_core_loop_v0;
 use super::coreloop_v1::{
-    try_compose_core_loop_v1_pattern2_break, try_compose_core_loop_v1_pattern3_ifphi,
-    try_compose_core_loop_v1_pattern5_infinite_early_exit,
+    try_compose_core_loop_v1_if_phi_join, try_compose_core_loop_v1_loop_break,
+    try_compose_core_loop_v1_loop_true_early_exit,
 };
 use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
@@ -148,17 +148,17 @@ pub(in crate::mir::builder) fn try_compose_core_loop_from_facts(
 
     if facts.value_join_needed {
         if let Some(core) =
-            try_compose_core_loop_v1_pattern2_break(builder, facts, ctx)?
+            try_compose_core_loop_v1_loop_break(builder, facts, ctx)?
         {
             return Ok(Some(core));
         }
         if let Some(core) =
-            try_compose_core_loop_v1_pattern3_ifphi(builder, facts, ctx)?
+            try_compose_core_loop_v1_if_phi_join(builder, facts, ctx)?
         {
             return Ok(Some(core));
         }
         if let Some(core) =
-            try_compose_core_loop_v1_pattern5_infinite_early_exit(builder, facts, ctx)?
+            try_compose_core_loop_v1_loop_true_early_exit(builder, facts, ctx)?
         {
             return Ok(Some(core));
         }
