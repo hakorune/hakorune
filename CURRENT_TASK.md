@@ -98,6 +98,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `74cc786fc` refactor(plan): rename pattern pipeline context to route prep context
+    - `plan/pattern_pipeline.rs` の `PatternPipelineContext` と `build_pattern_context` を `RoutePrepContext` / `build_route_prep_context` へ改名
+    - `pattern2_inputs_facts_box.rs` / `pattern2_steps/gather_facts_step_box.rs` の参照型と補助ログ文言を同名へ同期
+    - 目的: pattern 主語の分析コンテキスト語彙を route/prep 主語へ段階移行（挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
+  - `897623469` refactor(plan): route-align coreloop v1 gate and composer naming
+    - `coreloop_v1.rs` の v1 composer 関数名を route 主語へ改名（`*_pattern2_break` → `*_loop_break`、`*_pattern3_ifphi` → `*_if_phi_join`、`*_pattern5_*` → `*_loop_true_early_exit`）
+    - `coreloop_gates.rs` の value-join gate 名も route 主語へ同期（`pattern*_value_join_gate` → `loop_break/if_phi_join/loop_true_early_exit_value_join_gate`）
+    - `coreloop_single_entry.rs` と `coreloop_v1_tests.rs` の呼び出し/テスト識別子を同名へ置換
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `6b48d9d6a` docs(plan): sync recipe-entry tag wording with current router logs
     - `ai-handoff-and-debug-contract.md` の recipe-entry ログ契約から stale 文言 `recipe-only (domain_plan suppressed)` を撤去し、現行タグ `recipe-only entry` に同期
     - `recipe-first-entry-contract-ssot.md` の各 route entry debug tag を現行実装へ同期（`planner_required` 時は `recipe_contract enforced`、非 planner_required は `recipe-only entry`）
