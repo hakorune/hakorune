@@ -46,12 +46,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - execution rule:
   - 1 blocker = 1受理形 = fixture+gate = 1 commit
   - BoxCount と BoxShape を同コミットで混在させない
+- latest audit snapshot (2026-03-05):
+  - top-level loop route は recipe-first が主経路（`route_loop -> registry::try_route_recipe_first -> PlanLowerer`）
+  - `normalizer/pattern*.rs` は runtime main route 直下では未使用（test-only / 補助経路）
+  - `DomainPlan` 識別子は `src/**` で 0件。残存 payload は `LoopCondContinueWithReturnPlan` の限定利用のみ
 - compiler fixed order:
-  1. Pattern1..9 名を `router/planner` の主語（runtime label / message / surface）から段階的に外す。
-  2. `normalizer/pattern*.rs` 依存を主経路から外し、recipe/composer 側へ責務集約する。
-  3. `DomainPlan` 語彙を段階撤去し、single payload 型（loop plan payload）へ統一する。
-  4. `shadow_adopt` など暫定 fallback 経路を縮退し、strict/release 差分を最小化する。
-  5. 経路を `Facts -> Recipe -> Composer -> Verifier -> Parts` に一本化する（router は recipe-first のみ）。
+  1. `shadow_adopt/release_adopt` 内部を composer 単一入口へ寄せる（v0/v1/v2 直分岐の縮退、挙動不変）。
+  2. `router/planner` 表層の Pattern語彙漏れを解消する（`routing.rs` の `{:?}` 出力を semantic label 化）。
+  3. `outcome.plan.take()` 依存3箇所（`nested_loop_plan.rs` / `generic_loop_body/helpers.rs` / `nested_loop_depth1.rs`）を観測固定し、recipe/facts へ段階移行する。
+  4. release の nested-safe recipe-first 適用範囲を広げ、`release_adopt` ヒットを段階的に 0 へ縮退する。
+  5. 経路を `Facts -> Recipe -> Composer -> Verifier -> Parts` に一本化する（例外入口 `shadow_adopt/release_adopt` を撤去）。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
 
@@ -82,6 +86,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `089de34f5` refactor(plan): shrink shadow_adopt generic fallback and sync route_kind logs
+    - `composer/shadow_adopt.rs` の generic 採用を候補一意化（`generic_loop_v1` 優先、v1 facts 存在時は v0 へ段階 fallback しない）
+    - nested-loop guard の debug 文言を `pattern={:?}` から `route_kind=<semantic>` へ統一
+    - stale docs 同期: `strict-nested-loop-guard-ssot.md` / `ai-handoff-and-debug-contract.md` / `recipe-first-entry-contract-ssot.md`
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `0738b745b` refactor D5 remove LoopPatternContext alias and enforce zero-usage guard
     - `joinir/patterns/router.rs` の互換 alias `LoopPatternContext` を撤去し、context 名を `LoopRouteContext` に一本化
     - `tools/dev/check_loop_pattern_context_allowlist.sh` は allowlist 方式を廃止し、`src/**/*.rs` に `LoopPatternContext` が残っていたら即 FAIL する零残存ガードへ更新
