@@ -74,9 +74,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - recognizer/normalizer 補助注記（`if_else_phi`, `normalizer/helpers`, `ast_feature_extractor`, `loop_true_read_digits_policy`）を route 主語へ同期（挙動不変）
   - active docs（`condprofile-ssot.md`, `coreloop-composer-v0-v1-boundary-ssot.md`）の Pattern 主語注記を route 主語へ同期（契約キー/識別子は不変）
   - extractor cluster（`extractors/{mod,pattern1,pattern3,common_helpers}` + `pattern_recognizers/if_else_phi`）の補助コメントを route 主語へ同期（legacy label は注記で保持）
+  - `facts/pattern*_facts.rs` 系ヘッダと loop_break facts 補助注記（`pattern2_break_{core,helpers,types,tests,step_before_break}`）を route 主語へ同期（型名・ファイル名は legacy のまま保持）
 - compiler fixed order:
   1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す（進行中: `coreplan-shadow` / `plan-mod-layout` / `compiler-task-map` / `recipe-first-entry` / `condition-observation` / `domainplan-thinning` / `edgecfg-fragments` / `plan-dir-shallowing` / `coreplan-unknown-loop-strategy` / `coreloop-generic-loop-v0` / `joinir-plan-frag` / `coreplan-migration-roadmap` / `condprofile` / `coreloop-composer-v0-v1-boundary` は同期済み）。
-  2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する（進行中: `coreloop_v0/v1` tests + `facts/loop_builder.rs` comment + `facts/loop_tests.rs` 名称 + `plan/mod.rs` / `route_prep_pipeline.rs` / `policies/*` comment + loop_break module cluster comment + extractor cluster comment を同期済み）。
+  2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する（進行中: `coreloop_v0/v1` tests + `facts/loop_builder.rs` comment + `facts/loop_tests.rs` 名称 + `plan/mod.rs` / `route_prep_pipeline.rs` / `policies/*` comment + loop_break module cluster comment + extractor cluster comment + `facts/pattern*_facts.rs` header comment を同期済み）。
   3. planner/normalizer の dead comments・test-only wiring（payload 前提）を段階撤去する。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
@@ -109,6 +110,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `7962548e9` refactor(facts): route-align residual pattern fact headers
+    - `facts/pattern{1,3,4,5,6,8,9}_*` ヘッダを route 主語へ同期し、型名は `legacy type` 注記で保持
+    - `pattern2_break_{core,helpers,types,tests,step_before_break}` の補助コメントを loop_break 主語へ同期（挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `1ee125da7` refactor(plan): route-align extractor comments for simplewhile and if-phi
     - `extractors/{mod,pattern1,pattern3,common_helpers}` と `pattern_recognizers/if_else_phi.rs` の補助コメントを route 主語へ同期（挙動不変）
     - legacy module/type/function 名は据え置き、説明文は `legacy label` 注記で互換導線を保持
