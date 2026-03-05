@@ -40,6 +40,7 @@ use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::Lo
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
 use crate::mir::builder::MirBuilder;
 
+#[cfg(test)]
 pub(in crate::mir::builder) use pattern1_coreloop_builder::build_pattern1_coreloop;
 pub(in crate::mir::builder) use super::generic_loop::normalizer::{
     normalize_generic_loop_v0, normalize_generic_loop_v1,

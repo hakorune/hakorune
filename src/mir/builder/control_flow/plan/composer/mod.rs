@@ -16,8 +16,6 @@ pub(super) mod coreloop_v1;
 mod coreloop_v1_tests;
 pub(super) mod coreloop_v2_nested_minimal;
 mod branchn_return;
-mod legacy_minimals;
-mod legacy_pattern_minimals;
 mod shadow_adopt;
 
 pub(in crate::mir::builder) use shadow_adopt::{

@@ -2,11 +2,6 @@
 
 use super::coreloop_gates::coreloop_base_gate;
 use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
-use super::legacy_pattern_minimals::{
-    normalize_escape_map_minimal, normalize_int_to_str_minimal,
-    normalize_is_integer_minimal, normalize_skip_ws_minimal,
-    normalize_split_lines_minimal, normalize_starts_with_minimal,
-};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
@@ -44,33 +39,9 @@ fn try_adopt_pre_plan_sequence<T>(
     ctx: &LoopPatternContext,
     outcome: &PlanBuildOutcome,
     allow_generic_loop: bool,
-    try_is_integer: TryPrePlanAdoptFn<T>,
-    try_starts_with: TryPrePlanAdoptFn<T>,
-    try_int_to_str: TryPrePlanAdoptFn<T>,
-    try_escape_map: TryPrePlanAdoptFn<T>,
-    try_split_lines: TryPrePlanAdoptFn<T>,
-    try_skip_ws: TryPrePlanAdoptFn<T>,
     try_generic_v1: TryPrePlanAdoptFn<T>,
     try_generic_v0: TryPrePlanAdoptFn<T>,
 ) -> Result<Option<T>, String> {
-    if let Some(adopt) = try_is_integer(builder, ctx, outcome)? {
-        return Ok(Some(adopt));
-    }
-    if let Some(adopt) = try_starts_with(builder, ctx, outcome)? {
-        return Ok(Some(adopt));
-    }
-    if let Some(adopt) = try_int_to_str(builder, ctx, outcome)? {
-        return Ok(Some(adopt));
-    }
-    if let Some(adopt) = try_escape_map(builder, ctx, outcome)? {
-        return Ok(Some(adopt));
-    }
-    if let Some(adopt) = try_split_lines(builder, ctx, outcome)? {
-        return Ok(Some(adopt));
-    }
-    if let Some(adopt) = try_skip_ws(builder, ctx, outcome)? {
-        return Ok(Some(adopt));
-    }
     if allow_generic_loop {
         if let Some(adopt) = try_generic_v1(builder, ctx, outcome)? {
             return Ok(Some(adopt));
@@ -319,12 +290,6 @@ pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(
         ctx,
         outcome,
         allow_generic_loop,
-        try_shadow_adopt_is_integer,
-        try_shadow_adopt_starts_with,
-        try_shadow_adopt_int_to_str,
-        try_shadow_adopt_escape_map,
-        try_shadow_adopt_split_lines,
-        try_shadow_adopt_skip_ws,
         try_shadow_adopt_generic_loop_v1,
         try_shadow_adopt_generic_loop_v0,
     )? {
@@ -349,12 +314,6 @@ pub(in crate::mir::builder) fn try_release_adopt_pre_plan(
         ctx,
         outcome,
         allow_generic_loop,
-        try_release_adopt_is_integer,
-        try_release_adopt_starts_with,
-        try_release_adopt_int_to_str,
-        try_release_adopt_escape_map,
-        try_release_adopt_split_lines,
-        try_release_adopt_skip_ws,
         try_release_adopt_generic_loop_v1,
         try_release_adopt_generic_loop_v0,
     )? {
@@ -384,126 +343,6 @@ pub(in crate::mir::builder) fn try_shadow_adopt_nested_minimal(
     Ok(Some(ShadowAdoptOutcome {
         core_plan,
         emit_flowbox_adopt_tag: facts.nested_loop,
-    }))
-}
-
-pub(in crate::mir::builder) fn try_shadow_adopt_is_integer(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<ShadowAdoptOutcome>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(is_integer) = facts.facts.pattern_is_integer.as_ref() else {
-        return Ok(None);
-    };
-
-    let core_plan = normalize_is_integer_minimal(builder, is_integer, ctx)
-        .map_err(|e| format!("is_integer strict/dev adopt failed: {}", e))?;
-    Ok(Some(ShadowAdoptOutcome {
-        core_plan,
-        emit_flowbox_adopt_tag: facts.exit_usage.has_continue,
-    }))
-}
-
-pub(in crate::mir::builder) fn try_shadow_adopt_starts_with(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<ShadowAdoptOutcome>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(starts_with) = facts.facts.pattern_starts_with.as_ref() else {
-        return Ok(None);
-    };
-
-    let core_plan = normalize_starts_with_minimal(builder, starts_with, ctx)
-        .map_err(|e| format!("starts_with strict/dev adopt failed: {}", e))?;
-    Ok(Some(ShadowAdoptOutcome {
-        core_plan,
-        emit_flowbox_adopt_tag: true,
-    }))
-}
-
-pub(in crate::mir::builder) fn try_shadow_adopt_int_to_str(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<ShadowAdoptOutcome>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(int_to_str) = facts.facts.pattern_int_to_str.as_ref() else {
-        return Ok(None);
-    };
-
-    let core_plan = normalize_int_to_str_minimal(builder, int_to_str, ctx)
-        .map_err(|e| format!("int_to_str strict/dev adopt failed: {}", e))?;
-    Ok(Some(ShadowAdoptOutcome {
-        core_plan,
-        emit_flowbox_adopt_tag: true,
-    }))
-}
-
-pub(in crate::mir::builder) fn try_shadow_adopt_escape_map(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<ShadowAdoptOutcome>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(escape_map) = facts.facts.pattern_escape_map.as_ref() else {
-        return Ok(None);
-    };
-
-    let core_plan = normalize_escape_map_minimal(builder, escape_map, ctx)
-        .map_err(|e| format!("escape_map strict/dev adopt failed: {}", e))?;
-    Ok(Some(ShadowAdoptOutcome {
-        core_plan,
-        emit_flowbox_adopt_tag: true,
-    }))
-}
-
-pub(in crate::mir::builder) fn try_shadow_adopt_split_lines(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<ShadowAdoptOutcome>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(split_lines) = facts.facts.pattern_split_lines.as_ref() else {
-        return Ok(None);
-    };
-
-    let core_plan = normalize_split_lines_minimal(builder, split_lines, ctx)
-        .map_err(|e| format!("split_lines strict/dev adopt failed: {}", e))?;
-    Ok(Some(ShadowAdoptOutcome {
-        core_plan,
-        emit_flowbox_adopt_tag: true,
-    }))
-}
-
-pub(in crate::mir::builder) fn try_shadow_adopt_skip_ws(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<ShadowAdoptOutcome>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(skip_ws) = facts.facts.pattern_skip_ws.as_ref() else {
-        return Ok(None);
-    };
-
-    let core_plan = normalize_skip_ws_minimal(builder, skip_ws, ctx)
-        .map_err(|e| format!("skip_ws strict/dev adopt failed: {}", e))?;
-    Ok(Some(ShadowAdoptOutcome {
-        core_plan,
-        emit_flowbox_adopt_tag: true,
     }))
 }
 
@@ -592,114 +431,6 @@ pub(in crate::mir::builder) fn try_shadow_adopt_generic_loop_v1(
         core_plan,
         emit_flowbox_adopt_tag,
     }))
-}
-
-pub(in crate::mir::builder) fn try_release_adopt_is_integer(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<LoweredRecipe>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(is_integer) = facts.facts.pattern_is_integer.as_ref() else {
-        return Ok(None);
-    };
-
-    match normalize_is_integer_minimal(builder, is_integer, ctx) {
-        Ok(core) => Ok(Some(core)),
-        Err(_) => Ok(None),
-    }
-}
-
-pub(in crate::mir::builder) fn try_release_adopt_int_to_str(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<LoweredRecipe>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(int_to_str) = facts.facts.pattern_int_to_str.as_ref() else {
-        return Ok(None);
-    };
-
-    match normalize_int_to_str_minimal(builder, int_to_str, ctx) {
-        Ok(core) => Ok(Some(core)),
-        Err(_) => Ok(None),
-    }
-}
-
-pub(in crate::mir::builder) fn try_release_adopt_starts_with(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<LoweredRecipe>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(starts_with) = facts.facts.pattern_starts_with.as_ref() else {
-        return Ok(None);
-    };
-
-    match normalize_starts_with_minimal(builder, starts_with, ctx) {
-        Ok(core) => Ok(Some(core)),
-        Err(_) => Ok(None),
-    }
-}
-
-pub(in crate::mir::builder) fn try_release_adopt_escape_map(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<LoweredRecipe>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(escape_map) = facts.facts.pattern_escape_map.as_ref() else {
-        return Ok(None);
-    };
-
-    match normalize_escape_map_minimal(builder, escape_map, ctx) {
-        Ok(core) => Ok(Some(core)),
-        Err(_) => Ok(None),
-    }
-}
-
-pub(in crate::mir::builder) fn try_release_adopt_split_lines(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<LoweredRecipe>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(split_lines) = facts.facts.pattern_split_lines.as_ref() else {
-        return Ok(None);
-    };
-
-    match normalize_split_lines_minimal(builder, split_lines, ctx) {
-        Ok(core) => Ok(Some(core)),
-        Err(_) => Ok(None),
-    }
-}
-
-pub(in crate::mir::builder) fn try_release_adopt_skip_ws(
-    builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<LoweredRecipe>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(skip_ws) = facts.facts.pattern_skip_ws.as_ref() else {
-        return Ok(None);
-    };
-
-    match normalize_skip_ws_minimal(builder, skip_ws, ctx) {
-        Ok(core) => Ok(Some(core)),
-        Err(_) => Ok(None),
-    }
 }
 
 pub(in crate::mir::builder) fn try_release_adopt_generic_loop_v0(
