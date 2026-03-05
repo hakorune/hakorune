@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `43277d3cc` refactor D5 align parity-checker test wording to route semantics
+    - `joinir/parity_checker.rs` の test 変数名/コメント/assert message を `pattern` 主語から `route_kind` 主語へ整理
+    - 判定ロジック・期待値（`LoopPatternKind::*`）は維持し、語彙のみ整備
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `a05f5313b` refactor D5 align registry predicate naming with loop-continue route
     - `joinir/patterns/registry/predicates.rs` の `pred_loop_continue_recipe` を `pred_loop_continue_only_recipe` へ改名し、`loop_cond_continue_only` 判定の主語を route 名へ同期
     - `joinir/patterns/registry/mod.rs` でも Entry 配線と candidate suppression 変数名を同語彙に統一（挙動不変）
