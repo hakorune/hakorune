@@ -82,6 +82,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `10cfaa207` refactor D5 use semantic loop-kind labels in router diagnostics
+    - `LoopPatternKind::semantic_label()` を追加（pattern番号なしの診断語彙）
+    - `joinir/patterns/router.rs` の `route_exhausted` / `route=none` 診断出力を semantic label に切替
+    - runtime 制御フローは不変（診断語彙のみ整理）
+  - `717e62af1` refactor D5 align planner-registry internal labels to semantic rule vocabulary
+    - `single_planner/rule_order.rs` の test-only legacy pattern label alias を削除（semantic label のみ維持）
+    - `joinir/patterns/registry/{mod,predicates}.rs` の `pattern*_candidate` / `*_only_pattern` 名を semantic 名へ改名
+    - route entry名と runtime 挙動は維持（語彙整理のみ）
   - `ea8ffeab3` refactor D5 migrate remaining legacy minimal normalizers to composer window
     - `normalizer/pattern_{escape_map,int_to_str,is_integer,split_lines}.rs` を `composer/legacy_minimals/*` へ移設（rename）
     - `composer/legacy_pattern_minimals.rs` は 6 minimal（`skip_ws / starts_with / is_integer / int_to_str / escape_map / split_lines`）を composer 側実装のみで解決
@@ -721,6 +729,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-ea8ffeab3)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-ea8ffeab3, elapsed=`0:03.71`）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-717e62af1)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-717e62af1, elapsed=`0:04.13`）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-10cfaa207)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-10cfaa207, elapsed=`0:04.21`）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -739,7 +755,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. Pattern語彙の主語外し（step-1）: `single_planner/rule_order` / `joinir/patterns/registry` の runtime 文言を semantic 名へ統一。
+1. Pattern語彙の主語外し（step-1）: `single_planner/rule_order` / `joinir/patterns/registry` の内部語彙と router 診断 loop-kind は semantic 化済み（`717e62af1`, `10cfaa207`）。次は router comment/header と legacy enum名の段階整理。
 2. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
 3. `shadow_adopt` 縮退（step-2）: `recipe_contract.is_some()` 経路で strict/release fallback 禁止は適用済み。次は fallback 本体の撤去条件を固定する。
 4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
