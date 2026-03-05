@@ -365,9 +365,9 @@ pub(crate) fn route_loop_pattern(
         candidate_names.join(",")
     };
     reject_reason::set_last_plan_reject_detail_if_absent(format!(
-        "route_exhausted func={} loop_kind={:?} facts_present={} candidates={}",
+        "route_exhausted func={} loop_kind={} facts_present={} candidates={}",
         ctx.func_name,
-        ctx.pattern_kind,
+        ctx.pattern_kind.semantic_label(),
         outcome.facts.is_some(),
         candidate_text
     ));
@@ -376,8 +376,9 @@ pub(crate) fn route_loop_pattern(
         trace::trace().debug(
             "route",
             &format!(
-                "route=none (no route matched) func='{}' loop_kind={:?} (exhausted: plan+joinir)",
-                ctx.func_name, ctx.pattern_kind
+                "route=none (no route matched) func='{}' loop_kind={} (exhausted: plan+joinir)",
+                ctx.func_name,
+                ctx.pattern_kind.semantic_label()
             ),
         );
     }

@@ -57,6 +57,21 @@ impl LoopPatternKind {
         }
     }
 
+    /// Semantic label without pattern numbering.
+    ///
+    /// Preferred for runtime diagnostics in planner/router paths.
+    pub fn semantic_label(&self) -> &'static str {
+        match self {
+            LoopPatternKind::Pattern1SimpleWhile => "LoopSimpleWhile",
+            LoopPatternKind::Pattern2Break => "LoopBreakRecipe",
+            LoopPatternKind::Pattern3IfPhi => "IfPhiJoin",
+            LoopPatternKind::Pattern4Continue => "LoopContinueRecipe",
+            LoopPatternKind::InfiniteEarlyExit => "LoopTrueEarlyExit",
+            LoopPatternKind::Pattern6NestedLoopMinimal => "NestedLoopMinimal",
+            LoopPatternKind::Unknown => "UnknownLoopShape",
+        }
+    }
+
     /// Phase 193-3: Get numeric pattern ID
     ///
     /// Returns the pattern number (1-5) or 0 for unknown.
