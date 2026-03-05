@@ -447,7 +447,7 @@ impl MirBuilder {
 
                     // Phase 137-4: Router parity verification
                     if let Some(canonical_pattern) = decision.chosen {
-                        // Get actual route kind from router (determined by LoopPatternContext).
+                        // Get actual route kind from router (determined by LoopRouteContext).
                         // We need to defer this check until after ctx is created
                         // Store decision for later parity check
                         trace::trace().debug(
@@ -467,9 +467,9 @@ impl MirBuilder {
         }
 
         // Phase 194: Use table-driven router instead of if/else chain
-        use super::patterns::{route_loop, LoopPatternContext};
+        use super::patterns::{route_loop, LoopRouteContext};
 
-        // Phase 200-C: Pass fn_body_ast to LoopPatternContext if available
+        // Phase 200-C: Pass fn_body_ast to LoopRouteContext if available
         // Clone fn_body_ast to avoid borrow checker issues
         let fn_body_clone = self.comp_ctx.fn_body_ast.clone();
         trace::trace().routing(
@@ -491,7 +491,7 @@ impl MirBuilder {
                 func_name,
                 &format!("Creating ctx with fn_body ({} nodes)", fn_body.len()),
             );
-            LoopPatternContext::with_fn_body(
+            LoopRouteContext::with_fn_body(
                 condition,
                 body,
                 &func_name,
@@ -500,7 +500,7 @@ impl MirBuilder {
                 fn_body,
             )
         } else {
-            LoopPatternContext::new(condition, body, &func_name, debug, in_static_box)
+            LoopRouteContext::new(condition, body, &func_name, debug, in_static_box)
         };
 
         if let Some(msg) = take_step_tree_parity_error() {

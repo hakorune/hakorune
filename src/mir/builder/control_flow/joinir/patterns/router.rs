@@ -40,7 +40,7 @@ use crate::mir::builder::control_flow::plan::CorePlan;
 use crate::mir::loop_canonicalizer::LoopSkeleton;
 
 /// Context passed to loop route detection/lowering functions.
-pub(crate) struct LoopPatternContext<'a> {
+pub(crate) struct LoopRouteContext<'a> {
     /// Loop condition AST node
     pub condition: &'a ASTNode,
 
@@ -75,7 +75,10 @@ pub(crate) struct LoopPatternContext<'a> {
     pub step_tree_max_loop_depth: Option<u32>,
 }
 
-impl<'a> LoopPatternContext<'a> {
+/// Compatibility alias while downstream modules migrate to `LoopRouteContext`.
+pub(crate) type LoopPatternContext<'a> = LoopRouteContext<'a>;
+
+impl<'a> LoopRouteContext<'a> {
     /// Create new context from routing parameters
     ///
     /// Automatically detects continue/break statements in body
@@ -145,7 +148,7 @@ impl<'a> LoopPatternContext<'a> {
 /// - `split_scan`: `src/mir/builder/control_flow/plan/normalizer.rs`
 pub(super) fn lower_verified_core_plan(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     strict_or_dev: bool,
     facts: Option<&CanonicalLoopFacts>,
     core_plan: CorePlan,
@@ -158,7 +161,7 @@ pub(super) fn lower_verified_core_plan(
 
 fn lower_shadow_adopt_pre_plan(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     strict_or_dev: bool,
     outcome: &PlanBuildOutcome,
     allow_generic_loop: bool,
@@ -218,7 +221,7 @@ fn freeze_expected_plan(
 
 pub(crate) fn route_loop(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Option<ValueId>, String> {
     use super::super::trace;
 
