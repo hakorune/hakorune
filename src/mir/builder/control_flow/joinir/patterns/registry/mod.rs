@@ -30,7 +30,7 @@ pub(crate) const ENTRIES: &[Entry] = &[
     },
     Entry {
         name: "loop_continue_only",
-        predicate: pred_loop_continue_recipe,
+        predicate: pred_loop_continue_only_recipe,
         route: Some(route_loop_continue_only),
     },
     Entry {
@@ -148,7 +148,7 @@ pub(crate) const ENTRIES: &[Entry] = &[
 struct CandidateSuppression {
     scan_methods_candidate: bool,
     if_phi_join_candidate: bool,
-    loop_continue_recipe_candidate: bool,
+    loop_continue_only_candidate: bool,
     loop_true_early_exit_candidate: bool,
     array_join_candidate: bool,
 }
@@ -158,10 +158,10 @@ fn should_skip_candidate(name: &str, suppression: &CandidateSuppression) -> bool
         "loop_cond_break_continue" => {
             suppression.scan_methods_candidate
                 || suppression.if_phi_join_candidate
-                || suppression.loop_continue_recipe_candidate
+                || suppression.loop_continue_only_candidate
                 || suppression.array_join_candidate
         }
-        "loop_cond_continue_only" => suppression.loop_continue_recipe_candidate,
+        "loop_cond_continue_only" => suppression.loop_continue_only_candidate,
         "loop_true_break_continue" => suppression.loop_true_early_exit_candidate,
         _ => false,
     }
@@ -176,7 +176,7 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
         scan_methods_candidate:
             pred_loop_scan_methods_block_v0(facts) || pred_loop_scan_methods_v0(facts),
         if_phi_join_candidate: pred_if_phi_join(facts),
-        loop_continue_recipe_candidate: pred_loop_continue_recipe(facts),
+        loop_continue_only_candidate: pred_loop_continue_only_recipe(facts),
         loop_true_early_exit_candidate: pred_loop_true_early_exit(facts),
         array_join_candidate: pred_loop_array_join(facts),
     };
