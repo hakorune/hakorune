@@ -53,7 +53,7 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 - Pattern6 (nested minimal strict shadow, VM): `phase29ap_pattern6_nested_strict_shadow_vm`
 - Pattern7 (strict shadow, VM): `phase29ao_pattern7_strict_shadow_vm`
 - Pattern7 (release adopt, VM): `phase29ao_pattern7_release_adopt_vm`
-- Pattern7: `phase29ab_pattern7_*`
+- Pattern7 supplemental pack (VM): `phase29ae_pattern7_scan_split_pack_vm`
 - この pack が JoinIR 回帰の唯一の integration gate（phase143_* は対象外）
 - JoinIR routing is plan/composer SSOT only (legacy loop table removed in Phase 29ap P12)
 - phase143_* は LoopBuilder 撤去 / plugin disable 固定 / LLVM exe 期待が古いので除外

@@ -63,7 +63,7 @@ run_filter "pattern6_nested_release_adopt_vm" "phase29ap_pattern6_nested_release
 run_filter "pattern6_nested_strict_shadow_vm" "phase29ap_pattern6_nested_strict_shadow_vm" || exit 1
 run_filter "pattern7_strict_shadow_vm" "phase29ao_pattern7_strict_shadow_vm" || exit 1
 run_filter "pattern7_release_adopt_vm" "phase29ao_pattern7_release_adopt_vm" || exit 1
-run_filter "pattern7" "phase29ab_pattern7_" || exit 1
+run_filter "pattern7_scan_split_pack_vm" "phase29ae_pattern7_scan_split_pack_vm" || exit 1
 
 log_success "phase29ae_regression_pack_vm: all JoinIR regression filters passed"
 exit 0
