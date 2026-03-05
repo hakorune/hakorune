@@ -27,7 +27,7 @@ pub(in crate::mir::builder) struct Pattern2BreakPlan {
 }
 
 impl super::PlanNormalizer {
-    /// Pattern2Break → CorePlan 変換
+    /// LoopBreakPlan → CorePlan 変換
     ///
     /// CFG structure (6 blocks):
     /// ```
@@ -60,7 +60,7 @@ impl super::PlanNormalizer {
             trace_logger.debug(
                 "normalizer/loop_break",
                 &format!(
-                    "Phase 286 P3.1: Normalizing Pattern2Break for {} (loop_var={}, carrier_var={})",
+                    "Phase 286 P3.1: Normalizing loop_break for {} (loop_var={}, carrier_var={})",
                     ctx.func_name, parts.loop_var, parts.carrier_var
                 ),
             );
@@ -71,7 +71,7 @@ impl super::PlanNormalizer {
         // Step 1: Block allocation (6 blocks)
         let preheader_bb = builder
             .current_block
-            .ok_or_else(|| "Pattern2Break: no current block".to_string())?;
+            .ok_or_else(|| "loop_break: no current block".to_string())?;
         let header_bb = builder.next_block_id();
         let body_bb = builder.next_block_id();
         let break_then_bb = builder.next_block_id();
@@ -96,7 +96,7 @@ impl super::PlanNormalizer {
             .copied()
             .ok_or_else(|| {
                 format!(
-                    "Pattern2Break: loop_var '{}' not in variable_map",
+                    "loop_break: loop_var '{}' not in variable_map",
                     parts.loop_var
                 )
             })?;
@@ -108,7 +108,7 @@ impl super::PlanNormalizer {
             .copied()
             .ok_or_else(|| {
                 format!(
-                    "Pattern2Break: carrier_var '{}' not in variable_map",
+                    "loop_break: carrier_var '{}' not in variable_map",
                     parts.carrier_var
                 )
             })?;
