@@ -96,6 +96,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `3ce21d576` docs(recipe): refresh entry contract baseline after payload retirement
+    - `recipe-first-entry-contract-ssot.md` の entry priority を現行配線（`recipe_first | shadow_adopt | none`）へ同期
+    - `Current baseline (2026-03-05)` を追加し、`PlanBuildOutcome = facts + recipe_contract` / `DomainPlan runtime撤去` を明記
+    - DomainPlan 記述は historical note として扱う方針へ更新（移行履歴と現行契約を分離）
   - `9a68435a3` refactor(plan): rename pattern step/exit domain vocab to route terms
     - domain enum を `Pattern2StepPlacement` / `Pattern5ExitKind` から `LoopBreakStepPlacement` / `LoopTrueEarlyExitKind` へ改名し、facts/recipe/normalizer/tests 参照を一括同期
     - `single_planner/rules.rs` の `[recipe:entry]` 補助ログから `planner payload suppressed` 文言を撤去し、recipe-entry 主語へ統一
