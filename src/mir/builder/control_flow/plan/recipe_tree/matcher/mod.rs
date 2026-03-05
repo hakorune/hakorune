@@ -62,14 +62,12 @@ macro_rules! verify_cond_profile_route {
 /// - `verify_*_recipe(route_facts)?`
 macro_rules! verify_route {
     (
-        // The facts reference
-        $facts:expr,
-        // The field name in facts.facts.*
-        $field:ident,
+        // The optional route facts expression
+        $route_facts:expr,
         // The verifier function name
         $verifier:ident
     ) => {{
-        if let Some(route_facts) = &$facts.facts.$field {
+        if let Some(route_facts) = $route_facts {
             $verifier(route_facts)?;
         }
     }};
@@ -88,19 +86,19 @@ impl RecipeMatcher {
         let has_return = facts.exit_kinds_present.contains(&ExitKindFacts::Return);
 
         // Phase C2: loop_break verification (planner_required only)
-        verify_route!(facts, pattern2_break, verify_loop_break_recipe);
+        verify_route!(facts.facts.loop_break(), verify_loop_break_recipe);
 
         // Phase C6: if_phi_join verification (planner_required only)
-        verify_route!(facts, pattern3_ifphi, verify_if_phi_join_recipe);
+        verify_route!(facts.facts.if_phi_join(), verify_if_phi_join_recipe);
 
         // Phase C9: loop_continue_only verification (planner_required only)
-        verify_route!(facts, pattern4_continue, verify_loop_continue_only_recipe);
+        verify_route!(facts.facts.loop_continue_recipe(), verify_loop_continue_only_recipe);
 
         // Phase C10: loop_true_early_exit verification (planner_required only)
-        verify_route!(facts, pattern5_infinite_early_exit, verify_loop_true_early_exit_recipe);
+        verify_route!(facts.facts.loop_true_early_exit(), verify_loop_true_early_exit_recipe);
 
         // Phase C11: loop_simple_while verification (planner_required only)
-        verify_route!(facts, pattern1_simplewhile, verify_loop_simple_while_recipe);
+        verify_route!(facts.facts.loop_simple_while(), verify_loop_simple_while_recipe);
 
         // Phase C12: loop_char_map verification (planner_required only)
         if let Some(loop_char_map) = facts.facts.loop_char_map() {
@@ -125,10 +123,10 @@ impl RecipeMatcher {
         }
 
         // Phase C14: scan_with_init verification (planner_required only)
-        verify_route!(facts, scan_with_init, verify_scan_with_init_recipe);
+        verify_route!(facts.facts.scan_with_init(), verify_scan_with_init_recipe);
 
         // Phase C14: split_scan verification (planner_required only)
-        verify_route!(facts, split_scan, verify_split_scan_recipe);
+        verify_route!(facts.facts.split_scan(), verify_split_scan_recipe);
 
         // Phase C14: bool_predicate_scan verification (planner_required only)
         if let Some(bool_predicate_scan) = facts.facts.bool_predicate_scan() {
@@ -153,40 +151,70 @@ impl RecipeMatcher {
         }
 
         // Phase C15: LoopScanMethodsV0 verification (planner_required only)
-        verify_route!(facts, loop_scan_methods_v0, verify_loop_scan_methods_v0_recipe);
+        verify_route!(
+            facts.facts.loop_scan_methods_v0(),
+            verify_loop_scan_methods_v0_recipe
+        );
 
         // Phase C15: LoopScanMethodsBlockV0 verification (planner_required only)
-        verify_route!(facts, loop_scan_methods_block_v0, verify_loop_scan_methods_block_v0_recipe);
+        verify_route!(
+            facts.facts.loop_scan_methods_block_v0(),
+            verify_loop_scan_methods_block_v0_recipe
+        );
 
         // Phase C15: LoopScanPhiVarsV0 verification (planner_required only)
-        verify_route!(facts, loop_scan_phi_vars_v0, verify_loop_scan_phi_vars_v0_recipe);
+        verify_route!(
+            facts.facts.loop_scan_phi_vars_v0(),
+            verify_loop_scan_phi_vars_v0_recipe
+        );
 
         // Phase C15: LoopScanV0 verification (planner_required only)
-        verify_route!(facts, loop_scan_v0, verify_loop_scan_v0_recipe);
+        verify_route!(facts.facts.loop_scan_v0(), verify_loop_scan_v0_recipe);
 
         // Phase C16: LoopCollectUsingEntriesV0 verification (planner_required only)
-        verify_route!(facts, loop_collect_using_entries_v0, verify_loop_collect_using_entries_v0_recipe);
+        verify_route!(
+            facts.facts.loop_collect_using_entries_v0(),
+            verify_loop_collect_using_entries_v0_recipe
+        );
 
         // Phase C16: LoopBundleResolverV0 verification (planner_required only)
-        verify_route!(facts, loop_bundle_resolver_v0, verify_loop_bundle_resolver_v0_recipe);
+        verify_route!(
+            facts.facts.loop_bundle_resolver_v0(),
+            verify_loop_bundle_resolver_v0_recipe
+        );
 
         // Phase C16: LoopTrueBreakContinue verification (planner_required only)
-        verify_route!(facts, loop_true_break_continue, verify_loop_true_break_continue_recipe);
+        verify_route!(
+            facts.facts.loop_true_break_continue(),
+            verify_loop_true_break_continue_recipe
+        );
 
         // Phase C17: loop_cond_break_continue verification (planner_required only)
-        verify_route!(facts, loop_cond_break_continue, verify_loop_cond_break_continue_recipe);
+        verify_route!(
+            facts.facts.loop_cond_break_continue(),
+            verify_loop_cond_break_continue_recipe
+        );
 
         // Phase C17: loop_cond_continue_only verification (planner_required only)
-        verify_route!(facts, loop_cond_continue_only, verify_loop_cond_continue_only_recipe);
+        verify_route!(
+            facts.facts.loop_cond_continue_only(),
+            verify_loop_cond_continue_only_recipe
+        );
 
         // Phase C17: loop_cond_continue_with_return verification (planner_required only)
-        verify_route!(facts, loop_cond_continue_with_return, verify_loop_cond_continue_with_return_recipe);
+        verify_route!(
+            facts.facts.loop_cond_continue_with_return(),
+            verify_loop_cond_continue_with_return_recipe
+        );
 
         // Phase C17: loop_cond_return_in_body verification (planner_required only)
-        verify_route!(facts, loop_cond_return_in_body, verify_loop_cond_return_in_body_recipe);
+        verify_route!(
+            facts.facts.loop_cond_return_in_body(),
+            verify_loop_cond_return_in_body_recipe
+        );
 
         // Phase C18: generic_loop_v1 recipe verification (planner_required only)
-        verify_route!(facts, generic_loop_v1, verify_generic_loop_v1_recipe);
+        verify_route!(facts.facts.generic_loop_v1(), verify_generic_loop_v1_recipe);
 
         Ok(Some(RecipeContract {
             kind: RecipeContractKind::LoopWithExit {

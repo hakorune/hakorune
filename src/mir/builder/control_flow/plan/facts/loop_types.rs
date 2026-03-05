@@ -153,6 +153,10 @@ impl LoopFacts {
         self.loop_cond_return_in_body.as_ref()
     }
 
+    pub fn loop_true_break_continue(&self) -> Option<&LoopTrueBreakContinueFacts> {
+        self.loop_true_break_continue.as_ref()
+    }
+
     pub fn generic_loop_v0(&self) -> Option<&GenericLoopV0Facts> {
         self.generic_loop_v0.as_ref()
     }

@@ -232,7 +232,7 @@ pub(crate) fn route_loop(
     let has_loopbodylocal = outcome
         .facts
         .as_ref()
-        .and_then(|f| f.facts.pattern2_loopbodylocal.as_ref())
+        .and_then(|f| f.facts.loop_break_body_local())
         .is_some();
 
     let env = registry::RouterEnv {
