@@ -729,8 +729,11 @@ pub(crate) fn route_generic_loop_v1(
     if facts.facts.generic_loop_v1.is_none() {
         return Ok(None);
     }
-    let core_plan = RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, ctx)
-        .map_err(|e| e.to_string())?;
+    let core_plan = match RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, ctx) {
+        Ok(core_plan) => core_plan,
+        Err(_err) if !env.strict_or_dev => return Ok(None),
+        Err(err) => return Err(err.to_string()),
+    };
     // In strict/dev, nested loops must emit the FlowBox shadow-adopt tag.
     if env.strict_or_dev && facts.nested_loop {
         return lower_verified_core_plan(
@@ -741,6 +744,15 @@ pub(crate) fn route_generic_loop_v1(
             core_plan,
             FlowboxVia::Shadow,
         );
+    }
+    if !env.strict_or_dev {
+        if PlanVerifier::verify(&core_plan).is_err() {
+            return Ok(None);
+        }
+        return match PlanLowerer::lower(builder, core_plan, ctx) {
+            Ok(value) => Ok(value),
+            Err(_) => Ok(None),
+        };
     }
     // Preserve the pre-plan adopt behavior for non-nested generic loops.
     PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
@@ -759,8 +771,11 @@ pub(crate) fn route_generic_loop_v0(
     if facts.facts.generic_loop_v0.is_none() {
         return Ok(None);
     }
-    let core_plan = RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, ctx)
-        .map_err(|e| e.to_string())?;
+    let core_plan = match RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, ctx) {
+        Ok(core_plan) => core_plan,
+        Err(_err) if !env.strict_or_dev => return Ok(None),
+        Err(err) => return Err(err.to_string()),
+    };
     if env.strict_or_dev && facts.nested_loop {
         return lower_verified_core_plan(
             builder,
@@ -770,6 +785,15 @@ pub(crate) fn route_generic_loop_v0(
             core_plan,
             FlowboxVia::Shadow,
         );
+    }
+    if !env.strict_or_dev {
+        if PlanVerifier::verify(&core_plan).is_err() {
+            return Ok(None);
+        }
+        return match PlanLowerer::lower(builder, core_plan, ctx) {
+            Ok(value) => Ok(value),
+            Err(_) => Ok(None),
+        };
     }
     PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
     PlanLowerer::lower(builder, core_plan, ctx)
