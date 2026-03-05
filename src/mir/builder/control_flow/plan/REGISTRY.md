@@ -67,7 +67,7 @@ Audit rule (active運用):
 
 Single entry pipeline for loop routing (no bypass):
 
-`route_loop_pattern` → `single_planner::try_build_outcome` → recipe/composer adopt path → plan lowerer
+`route_loop` → `single_planner::try_build_outcome` → recipe/composer adopt path → plan lowerer
 
 Router: `src/mir/builder/control_flow/joinir/patterns/router.rs`  
 Planner: `src/mir/builder/control_flow/plan/single_planner/`  
@@ -86,9 +86,9 @@ Lower: `src/mir/builder/control_flow/plan/lowerer/`
 - `loop_cond_continue_with_return`: pipeline=`plan/features/loop_cond_continue_with_return_pipeline.rs` (continue-if + hetero-return-if + CoreIfJoin merge).
 - `loop_cond_return_in_body`: pipeline=`plan/features/loop_cond_return_in_body_pipeline.rs` (return-in-body + CoreIfJoin merge).
 - `coreloop_skeleton`: template=`plan/features/coreloop_skeleton/` (SSOT template for Standard5 loop structure with carrier PHI management; pipelines reuse via `build_coreloop_frame` / `build_header_step_phis` / `build_continue_with_phi_args`).
-- `pattern_scan_with_init`: skeleton=`plan/skeletons/scan_with_init.rs`, pipeline=`plan/features/scan_with_init_pipeline.rs` (ops=`features/scan_with_init_ops.rs`).
-- `pattern_split_scan`: skeleton=`plan/skeletons/split_scan.rs`, pipeline=`plan/features/split_scan_pipeline.rs` (ops=`features/split_scan_ops.rs`, emit/match=`features/split_emit.rs`).
-- `pattern5_infinite_early_exit`: skeleton=`plan/skeletons/loop_true.rs`, pipeline=`plan/features/pattern5_infinite_early_exit_pipeline.rs` (ops=`features/pattern5_infinite_early_exit_ops.rs`).
+- `scan_with_init`: skeleton=`plan/skeletons/scan_with_init.rs`, pipeline=`plan/features/scan_with_init_pipeline.rs` (ops=`features/scan_with_init_ops.rs`).
+- `split_scan`: skeleton=`plan/skeletons/split_scan.rs`, pipeline=`plan/features/split_scan_pipeline.rs` (ops=`features/split_scan_ops.rs`, emit/match=`features/split_emit.rs`).
+- `loop_true_early_exit`: skeleton=`plan/skeletons/loop_true.rs`, pipeline=`plan/features/pattern5_infinite_early_exit_pipeline.rs` (ops=`features/pattern5_infinite_early_exit_ops.rs`).
 - scan/split pipeline order (SSOT): skeleton → ops → (split_emit for split) → if_join (join args/phis) → edgecfg_stubs (branches) → carrier_merge (final_values).
 - loop phis are attached via `features/loop_carriers.rs::with_loop_carriers` (ops must not set `phis` directly).
 - carrier collection is centralized in `features/carriers.rs` (pipelines pass carrier lists to carrier_merge/conditional_update_join).
@@ -121,8 +121,8 @@ Lower: `src/mir/builder/control_flow/plan/lowerer/`
 SSOT: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 
 - `generic_loop_v0/v1`: loop_var/step/exit/carrier/step_mode を Feature に分離（Facts→Canon→Normalize の責務を細くする）
-- `pattern_scan_with_init` / `pattern_split_scan`: アルゴリズム意図（scan/split）と LoopSkeleton を分離
-- `pattern5_infinite_early_exit`: `loop(true)` skeleton + exit_if + carrier update に分離（Phase 29bw: pipeline 化済み）
+- `scan_with_init` / `split_scan`: アルゴリズム意図（scan/split）と LoopSkeleton を分離
+- `loop_true_early_exit`: `loop(true)` skeleton + exit_if + carrier update に分離（Phase 29bw: pipeline 化済み）
 - `pattern3_if_phi`: IfSkeleton + JoinFeature（CoreIfJoin）の pred 収集を1箇所に集約
 - `loop_true_break_continue`: LoopTrueSkeleton + ExitIfMapFeature + NestedLoopFeature(depth<=1) に寄せ、fallback-only 条件は planner 側の slot へ
 - `loop_true_break_continue` の旧正規化ロジックは削除済み（feature 経由の入口のみ）。

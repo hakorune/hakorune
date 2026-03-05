@@ -39,13 +39,13 @@ pub(in crate::mir::builder) fn extract_loop_variable_from_condition(
             match &**left {
                 ASTNode::Variable { name, .. } => Ok(name.clone()),
                 _ => Err(format!(
-                    "[cf_loop/pattern1] Cannot extract loop variable from condition: {:?}",
+                    "[cf_loop/loop_var_extract] Cannot extract loop variable from condition: {:?}",
                     condition
                 )),
             }
         }
         _ => Err(format!(
-            "[cf_loop/pattern1] Unsupported loop condition pattern: {:?}",
+            "[cf_loop/loop_var_extract] Unsupported loop condition shape: {:?}",
             condition
         )),
     }
