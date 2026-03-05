@@ -39,7 +39,7 @@ pub(super) fn try_extract_split_scan_facts(
             .find_map(|stmt| extract_split_scan_then_push(stmt, &s_var, &i_var))
     else {
         return Err(Freeze::contract(
-            "[joinir/phase29ab/pattern7/contract] splitscan contract: missing result push",
+            "[joinir/phase29ab/split_scan/contract] splitscan contract: missing result push",
         ));
     };
 
@@ -48,7 +48,7 @@ pub(super) fn try_extract_split_scan_facts(
         .any(|stmt| is_start_update(stmt, &start_var, &i_var, &sep_var));
     if !has_start_update {
         return Err(Freeze::contract(
-            "[joinir/phase29ab/pattern7/contract] splitscan contract: missing start update",
+            "[joinir/phase29ab/split_scan/contract] splitscan contract: missing start update",
         ));
     }
 
@@ -57,7 +57,7 @@ pub(super) fn try_extract_split_scan_facts(
         .any(|stmt| is_i_set_to_start(stmt, &i_var, &start_var));
     if !has_i_set_to_start {
         return Err(Freeze::contract(
-            "[joinir/phase29ab/pattern7/contract] splitscan contract: missing i = start",
+            "[joinir/phase29ab/split_scan/contract] splitscan contract: missing i = start",
         ));
     }
 
@@ -66,7 +66,7 @@ pub(super) fn try_extract_split_scan_facts(
         .any(|stmt| is_i_increment_by_one(stmt, &i_var));
     if !has_else_increment {
         return Err(Freeze::contract(
-            "[joinir/phase29ab/pattern7/contract] splitscan contract: else i = i + 1 required",
+            "[joinir/phase29ab/split_scan/contract] splitscan contract: else i = i + 1 required",
         ));
     }
 

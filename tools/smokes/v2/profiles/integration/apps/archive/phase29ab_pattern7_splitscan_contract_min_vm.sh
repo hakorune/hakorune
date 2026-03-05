@@ -19,7 +19,7 @@ if [ "$EXIT_CODE" -eq 124 ]; then
     exit 1
 fi
 
-if expect_joinir_contract_freeze "phase29ab_pattern7_splitscan_contract_min_vm" "$OUTPUT" "$EXIT_CODE" "[joinir/phase29ab/pattern7/contract]"; then
+if expect_joinir_contract_freeze "phase29ab_pattern7_splitscan_contract_min_vm" "$OUTPUT" "$EXIT_CODE" "[joinir/phase29ab/split_scan/contract]"; then
     exit 0
 fi
 exit 1

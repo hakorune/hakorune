@@ -56,13 +56,13 @@ pub(super) fn try_extract_scan_with_init_facts(
             match step_shape {
                 StepShape::Unknown => {
                     return Err(Freeze::contract(
-                        "[joinir/phase29ab/pattern6/contract] scan-with-init contract: missing step update",
+                        "[joinir/phase29ab/scan_with_init/contract] scan-with-init contract: missing step update",
                     ));
                 }
                 StepShape::AssignAddConst { var, k } => {
                     if var != idx_var || *k != expected_step {
                         return Err(Freeze::contract(
-                            "[joinir/phase29ab/pattern6/contract] scan-with-init contract: invalid step update",
+                            "[joinir/phase29ab/scan_with_init/contract] scan-with-init contract: invalid step update",
                         ));
                     }
                 }

@@ -9,8 +9,8 @@ It is the SSOT for `NotApplicable` vs `Freeze` decisions.
 - **Freeze**: shape matches but contract is violated (fail-fast)
 
 Tags:
-- Pattern6: `[joinir/phase29ab/pattern6/contract]`
-- Pattern7: `[joinir/phase29ab/pattern7/contract]`
+- Pattern6: `[joinir/phase29ab/scan_with_init/contract]`
+- Pattern7: `[joinir/phase29ab/split_scan/contract]`
 
 ## Pattern6 (ScanWithInit / MatchScan)
 

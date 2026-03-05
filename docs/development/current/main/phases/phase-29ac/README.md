@@ -23,11 +23,11 @@ Goal: Convert freeze-fixed Pattern6/7 near-miss cases into PASS while keeping co
    - Plan/Normalizer: add reverse support (`i >= 0`, step `i = i - 1`).
    - Smoke: `phase29ab_pattern6_reverse_ok_min` now OK PASS (RC=1).
 2. **Pattern6 matchscan missing step**
-   - Freeze reason: `[joinir/phase29ab/pattern6/contract] scan-with-init contract: missing step update`
+   - Freeze reason: `[joinir/phase29ab/scan_with_init/contract] scan-with-init contract: missing step update`
    - Resolution: add explicit `i = i + 1` step in fixture (contract-aligned).
 3. **Pattern7 split-scan near-miss**
    - Resolve then/else update mismatches without relaxing contracts.
-   - Freeze reason: `[joinir/phase29ab/pattern7/contract] split scan contract: else i update must be \`i = i + 1\``
+   - Freeze reason: `[joinir/phase29ab/split_scan/contract] split scan contract: else i update must be \`i = i + 1\``
    - Resolution: keep the contract-violation fixture as FAIL-Fast, and add a contract-aligned fixup fixture for PASS.
 
 ## Commands

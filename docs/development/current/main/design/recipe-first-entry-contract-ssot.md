@@ -102,7 +102,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - 入口整理 Phase-2: recipe-first が成立した場合は shadow_adopt もスキップ（legacy には絶対落とさない）。
 - 入口整理 Phase-3: release でも recipe-first 成立後は shadow_adopt/legacy を通さない。
 - 期待された plan が返らない場合の freeze は router で出す（taxonomy: `planfrag-freeze-taxonomy.md`）。
-- Pattern6/7 の contract は専用タグで freeze（`[joinir/phase29ab/pattern6/contract]` / `[joinir/phase29ab/pattern7/contract]`）。
+- Pattern6/7 の contract は専用タグで freeze（`[joinir/phase29ab/scan_with_init/contract]` / `[joinir/phase29ab/split_scan/contract]`）。
 
 ## FlowBox tag emission (SSOT)
 
@@ -307,7 +307,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Pattern6 ScanWithInit now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [IfV2 { ExitOnly(Return) }, Stmt(step)] }`
 - Contract: `body_contract = ExitAllowed`
-- Contract violation freeze tag (strict/dev): `[joinir/phase29ab/pattern6/contract]`
+- Contract violation freeze tag (strict/dev): `[joinir/phase29ab/scan_with_init/contract]`
 - Debug tag: `[recipe:verify] route=scan_with_init status=ok`
 - Phase C14-2: Pattern6 composed via `RecipeComposer::compose_scan_with_init_recipe()`.
 - Debug tag: `[recipe:compose] route=scan_with_init path=recipe_block`
@@ -323,7 +323,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Pattern7 SplitScan now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [IfV2 { Join(then/else) }] }`
 - Contract: `body_contract = NoExit`
-- Contract violation freeze tag (strict/dev): `[joinir/phase29ab/pattern7/contract]`
+- Contract violation freeze tag (strict/dev): `[joinir/phase29ab/split_scan/contract]`
 - Debug tag: `[recipe:verify] route=split_scan status=ok`
 - Phase C14-2: Pattern7 composed via `RecipeComposer::compose_split_scan_recipe()`.
 - Debug tag: `[recipe:compose] route=split_scan path=recipe_block`
