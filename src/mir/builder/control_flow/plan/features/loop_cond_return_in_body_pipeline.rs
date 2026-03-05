@@ -3,7 +3,7 @@
 //! Minimal implementation for loop(cond) with nested return and no break/continue.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::carrier_merge::{
@@ -38,7 +38,7 @@ const LOOP_COND_RETURN_IN_BODY_ERR: &str = "[normalizer] loop_cond_return_in_bod
 pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
     builder: &mut MirBuilder,
     facts: LoopCondReturnInBodyFacts,
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     let blocks = LoopBlocksStandard5::allocate(builder)?;
     let LoopBlocksStandard5 {

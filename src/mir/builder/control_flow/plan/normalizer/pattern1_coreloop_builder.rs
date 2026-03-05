@@ -6,7 +6,7 @@ use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
 use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::MirType;
@@ -17,7 +17,7 @@ pub(in crate::mir::builder) fn build_pattern1_coreloop(
     loop_var: &str,
     condition: &ASTNode,
     loop_increment: &ASTNode,
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<CoreLoopPlan, String> {
     let loop_var_init = builder
         .variable_ctx
@@ -135,7 +135,7 @@ pub(in crate::mir::builder) fn build_pattern1_coreloop(
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+    use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
     use crate::mir::builder::MirBuilder;
 
     fn make_condition(loop_var: &str, limit: i64) -> ASTNode {
@@ -194,7 +194,7 @@ mod tests {
         let condition = make_condition(loop_var, 3);
         let loop_increment = make_increment(loop_var);
         let body = make_body(loop_var);
-        let ctx = LoopPatternContext::new(&condition, &body, "pattern1_coreloop_test", false, false);
+        let ctx = LoopRouteContext::new(&condition, &body, "pattern1_coreloop_test", false, false);
 
         let loop_plan = build_pattern1_coreloop(
             &mut builder,

@@ -1,6 +1,6 @@
 //! GenericLoop pipeline (ordered feature application).
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::{generic_loop_body, generic_loop_step};
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
@@ -13,7 +13,7 @@ const GENERIC_LOOP_ERR: &str = "[normalizer] generic loop v0";
 pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
     builder: &mut MirBuilder,
     facts: &GenericLoopV0Facts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     skeleton: &mut GenericLoopSkeleton,
 ) -> Result<(), String> {
     let pre_body_map = builder.variable_ctx.variable_map.clone();
@@ -53,7 +53,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
 pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
     builder: &mut MirBuilder,
     facts: &GenericLoopV1Facts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     skeleton: &mut GenericLoopSkeleton,
 ) -> Result<(), String> {
     crate::mir::builder::control_flow::joinir::trace::trace()

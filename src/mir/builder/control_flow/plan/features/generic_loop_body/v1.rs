@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
@@ -27,7 +27,7 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
     builder: &mut MirBuilder,
     facts: &GenericLoopV1Facts,
     phi_bindings: &BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let mut body_plans: Vec<LoweredRecipe> = Vec::new();
     let mut current_bindings = phi_bindings.clone();
@@ -82,7 +82,7 @@ fn lower_body_stmt_v1(
     facts: &GenericLoopV1Facts,
     loop_var: &str,
     loop_increment: &ASTNode,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     match stmt {
         ASTNode::Assignment { target, value, .. } => {
@@ -213,7 +213,7 @@ fn lower_if_stmt_v1(
     facts: &GenericLoopV1Facts,
     loop_var: &str,
     loop_increment: &ASTNode,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     if then_body.is_empty() {
         return Err("[normalizer] generic loop v1: empty then".to_string());
@@ -414,7 +414,7 @@ fn lower_body_block_v1(
     body: &[ASTNode],
     loop_var: &str,
     loop_increment: &ASTNode,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     // One-part lowering path (ExitAllowed RecipeBlock), restricted to blocks that do not contain
     // `break`/`continue` so we don't introduce phi-arg requirements into generic_loop_v1.
