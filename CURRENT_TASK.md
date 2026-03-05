@@ -62,6 +62,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - recipe 補助ログは route 主語へ統一中（`[recipe:verify] route=<...> status=ok`, `[recipe:compose] route=<...> path=<...>`）
   - planner context 表層語彙は `route_kind` へ統一済み（`pattern_kind` は code path から撤去）
   - domain 内部語彙を route 主語へ縮退（`Pattern2StepPlacement` → `LoopBreakStepPlacement`, `Pattern5ExitKind` → `LoopTrueEarlyExitKind`）
+  - loop_break 系の診断タグを route 主語へ同期（`[cf_loop/pattern2]` → `[cf_loop/loop_break]`, `joinir/pattern2` → `joinir/loop_break`）
 - compiler fixed order:
   1. stale docs を同期し、entry 契約を `Facts -> Recipe -> Composer -> Verifier -> Parts` 一本化の現況に合わせる。
   2. `plan/**` 内の pattern1..9 残語彙（内部型名/補助コメント）を route/recipe 主語へ段階移行する（挙動不変）。
@@ -96,6 +97,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `366ff989b` refactor(plan): align loop_break diagnostic vocabulary
+    - Pattern2 入口周辺の診断タグ/ログ主語を route 化（`[cf_loop/pattern2]` / `[pattern2/*]` / `joinir/pattern2` を `loop_break` 主語へ統一）
+    - `body_local_policy` の判定入口を `classify_loop_break_body_local_route` へ改名し、互換 wrapper を残して段階移行可能にした
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29bi_planner_required_pattern2_pack_vm.sh` PASS
+  - `9b9f50aa8` refactor(recipe): rename loop break/early-exit composer entrypoints
+    - `RecipeComposer` の Pattern主語関数名を route 主語へ改名（`compose_pattern2_break_recipe` → `compose_loop_break_recipe`, `compose_pattern5_infinite_early_exit_recipe` → `compose_loop_true_early_exit_recipe`）
+    - registry handler / coreloop_v1 呼び出し側を同期し、Route語彙を維持したまま挙動不変で配線
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `3ce21d576` docs(recipe): refresh entry contract baseline after payload retirement
     - `recipe-first-entry-contract-ssot.md` の entry priority を現行配線（`recipe_first | shadow_adopt | none`）へ同期
     - `Current baseline (2026-03-05)` を追加し、`PlanBuildOutcome = facts + recipe_contract` / `DomainPlan runtime撤去` を明記
