@@ -12,7 +12,7 @@ use crate::mir::ValueId;
 
 use super::super::router::{lower_verified_core_plan, LoopPatternContext};
 use super::types::{PlannerFirstMode, RouterEnv, StandardEntry};
-use super::utils::{emit_planner_first, pattern2_break_needs_flowbox_adopt_tag_in_strict};
+use super::utils::{emit_planner_first, loop_break_recipe_needs_flowbox_adopt_tag_in_strict};
 
 fn route_standard(
     builder: &mut MirBuilder,
@@ -133,13 +133,13 @@ pub(crate) fn route_loop_break_recipe(
         .map_err(|freeze| freeze.to_string())?;
 
     if env.strict_or_dev {
-        let pattern2_break_facts = facts
+        let loop_break_facts = facts
             .facts
             .pattern2_break
             .as_ref()
             .expect("loop_break_recipe is present");
         let needs_flowbox_tag = env.has_loopbodylocal
-            || pattern2_break_needs_flowbox_adopt_tag_in_strict(pattern2_break_facts);
+            || loop_break_recipe_needs_flowbox_adopt_tag_in_strict(loop_break_facts);
 
         if needs_flowbox_tag {
             return lower_verified_core_plan(

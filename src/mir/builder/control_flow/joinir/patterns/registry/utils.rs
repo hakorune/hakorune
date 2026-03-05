@@ -24,7 +24,7 @@ pub(crate) fn emit_planner_first(mode: PlannerFirstMode, env: &RouterEnv, rule: 
     }
 }
 
-pub(crate) fn pattern2_break_needs_flowbox_adopt_tag_in_strict(
+pub(crate) fn loop_break_recipe_needs_flowbox_adopt_tag_in_strict(
     facts: &crate::mir::builder::control_flow::plan::facts::pattern2_break_types::Pattern2BreakFacts,
 ) -> bool {
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
