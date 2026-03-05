@@ -524,7 +524,7 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-28: Phase 29ab P6 完了** ✅
 - 目的: Pattern6 ScanWithInit の near-miss（契約違反）を extractor 段で freeze に固定（SSOT化）
-- 実装: `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`（`[joinir/phase29ab/pattern6/contract]`）
+- 実装: `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`（`[joinir/phase29ab/scan_with_init/contract]`）
 - fixture: `apps/tests/phase29ab_pattern6_scan_with_init_contract_min.hako`
 - smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern6_scan_with_init_contract_min_vm.sh`
 - 検証: `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern6_*"` PASS
