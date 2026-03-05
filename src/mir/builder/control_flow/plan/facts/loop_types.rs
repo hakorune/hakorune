@@ -99,6 +99,10 @@ impl LoopFacts {
         self.pattern1_array_join.as_ref()
     }
 
+    pub fn string_is_integer(&self) -> Option<&PatternIsIntegerFacts> {
+        self.pattern_is_integer.as_ref()
+    }
+
     pub fn if_phi_join(&self) -> Option<&Pattern3IfPhiFacts> {
         self.pattern3_ifphi.as_ref()
     }

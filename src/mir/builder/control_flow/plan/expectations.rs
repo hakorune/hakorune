@@ -10,8 +10,5 @@ pub(in crate::mir::builder) fn should_expect_plan(
     let Some(facts) = outcome.facts.as_ref() else {
         return false;
     };
-    if facts.facts.pattern_is_integer.is_some() {
-        return true;
-    }
-    false
+    facts.facts.string_is_integer().is_some()
 }

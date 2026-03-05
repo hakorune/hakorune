@@ -140,7 +140,7 @@ NOTE:
 - D8: ConditionShape shrink to CFG skeleton only
 - D9: Verifier acceptance pivot to CondProfile
 
-### B. Pattern / Recipe-first
+### B. Route/Rule / Recipe-first
 - DomainPlan label layer removal
 - Normalizer cleanup (recipe-only path)
 - RecipeComposer consolidation
