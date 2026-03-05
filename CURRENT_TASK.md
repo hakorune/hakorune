@@ -82,6 +82,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `30c94f450` refactor D5 migrate clean plan callsites to LoopRouteContext
+    - `plan/**` の clean callsite 45ファイルで context 型参照を `LoopPatternContext` から `LoopRouteContext` へ移行（`router` 側 alias は互換目的で維持）
+    - 対象は composer / recipe_tree / lowerer / scan pipeline / normalizer entry 群の参照統一で、挙動変更なし（型名・主語の統一）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0 / run_ok=101 / run_nonzero=18` 維持）
+    - remaining: dirty 同居ファイル（`features/generic_loop_pipeline.rs`, `features/loop_cond_return_in_body_pipeline.rs`, `features/generic_loop_body/v1.rs`, `normalizer/pattern1_coreloop_builder.rs`）と `router` の互換 alias
   - `43ef81045` docs D5 clarify LoopPatternContext alias as temporary migration shim
     - `joinir/patterns/router.rs` の alias 説明に「新規コードは `LoopRouteContext` を使用」「`plan/**` 移行完了後に alias 撤去」を明記
     - 実装挙動は不変（ドキュメントコメントのみ）
@@ -852,6 +857,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - 次は `generic_loop_v1/v0` fallback を recipe-first 側へ段階移管し、`shadow_adopt` の責務を strict guard + 最小 fallback へ縮退。
 2. Surface/trace の semantic 語彙統一（step-1 継続）:
    - `joinir/routing.rs` / `joinir/trace.rs` / `parity_checker.rs` の主語外しは実施済み（`c76bb7884`, `51234e1b6`）。
+   - `LoopRouteContext` rename sweep は clean 側を完了（`30c94f450`）。残りは dirty 4ファイルと `router` 互換 alias 撤去。
    - 残りは補助ログの route/rule 主語統一（必要最小限）。
    - 既存 gate sentinel は維持しつつ label を route/rule 主語へ段階移行。
 3. SSOT docs の stale 参照掃除:
