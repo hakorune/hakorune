@@ -98,6 +98,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `c4382676a` refactor(plan): retire shadow_adopt generic fallback lanes
+    - `composer/shadow_adopt.rs` から `generic_loop_v1/v0` pre-plan adopt 経路を撤去し、shadow_adopt の責務を `nested_minimal + strict_nested_loop_guard` に縮退
+    - `joinir/patterns/router.rs` と `plan/features/generic_loop_body/helpers.rs` の `try_shadow_adopt_pre_plan` 呼び出しから `allow_generic_loop` 引数を撤去
+    - stale docs 同期: `recipe-first-entry-contract-ssot.md` の BoxShape 条項を「generic は registry recipe-first へ一本化」に更新
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29ca_generic_loop_continue_strict_shadow_vm.sh` PASS、`phase29cb_generic_loop_in_body_step_strict_shadow_vm.sh` PASS
   - `3e00004fb` docs: remove stale todo-fixme-hack investigation snapshot
     - `docs/development/current/main/investigations/todo-fixme-hack-inventory.md` を削除
     - 理由: 2026-02-04時点の固定スナップショットで、現行SSOT/導線から未参照だったため
