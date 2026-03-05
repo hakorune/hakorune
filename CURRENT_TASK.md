@@ -61,6 +61,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - router の release pre-plan fallback（`release_adopt`）は撤去済み。entry は recipe-first / strict-dev shadow_adopt / none に固定
   - recipe 補助ログは route 主語へ統一中（`[recipe:verify] route=<...> status=ok`, `[recipe:compose] route=<...> path=<...>`）
   - planner context 表層語彙は `route_kind` へ統一済み（`pattern_kind` は code path から撤去）
+  - domain 内部語彙を route 主語へ縮退（`Pattern2StepPlacement` → `LoopBreakStepPlacement`, `Pattern5ExitKind` → `LoopTrueEarlyExitKind`）
 - compiler fixed order:
   1. stale docs を同期し、entry 契約を `Facts -> Recipe -> Composer -> Verifier -> Parts` 一本化の現況に合わせる。
   2. `plan/**` 内の pattern1..9 残語彙（内部型名/補助コメント）を route/recipe 主語へ段階移行する（挙動不変）。
@@ -95,6 +96,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `9a68435a3` refactor(plan): rename pattern step/exit domain vocab to route terms
+    - domain enum を `Pattern2StepPlacement` / `Pattern5ExitKind` から `LoopBreakStepPlacement` / `LoopTrueEarlyExitKind` へ改名し、facts/recipe/normalizer/tests 参照を一括同期
+    - `single_planner/rules.rs` の `[recipe:entry]` 補助ログから `planner payload suppressed` 文言を撤去し、recipe-entry 主語へ統一
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `48affa6fb` refactor(plan): remove planner payload lane from outcome/composer paths
     - `PlanBuildOutcome` から `plan` を撤去し、planner outcome を `facts + recipe_contract` に固定
     - `single_planner/rules.rs` / `nested_loop_plan.rs` / `features/{generic_loop_body/helpers,nested_loop_depth1}.rs` / `composer/shadow_adopt.rs` の `outcome.plan` 分岐を削除
