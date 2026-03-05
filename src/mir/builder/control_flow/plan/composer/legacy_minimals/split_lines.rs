@@ -1,10 +1,11 @@
-use super::{build_pattern1_coreloop, CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::basic_block::EdgeArgs;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::{BlockParams, Frag};
-use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::plan::edgecfg_facade::{BlockParams, Frag};
 use crate::mir::builder::control_flow::plan::facts::pattern_split_lines_facts::PatternSplitLinesFacts;
+use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
+use crate::mir::builder::control_flow::plan::normalizer::build_pattern1_coreloop;
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::{BinaryOp, CompareOp, ConstValue, Effect, EffectMask, MirType};
@@ -54,12 +55,7 @@ pub(in crate::mir::builder) fn normalize_split_lines_minimal(
         .variable_map
         .get(&facts.haystack_var)
         .copied()
-        .ok_or_else(|| {
-            format!(
-                "[normalizer] Haystack var {} not found",
-                facts.haystack_var
-            )
-        })?;
+        .ok_or_else(|| format!("[normalizer] Haystack var {} not found", facts.haystack_var))?;
 
     let start_current = builder.alloc_typed(MirType::Integer);
     let start_param = builder.alloc_typed(MirType::Integer);

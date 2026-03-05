@@ -1,7 +1,8 @@
-use super::{build_pattern1_coreloop, CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
 use crate::mir::builder::control_flow::plan::facts::pattern_int_to_str_facts::PatternIntToStrFacts;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
+use crate::mir::builder::control_flow::plan::normalizer::build_pattern1_coreloop;
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, ConstValue, Effect, EffectMask, MirType};
 
@@ -30,9 +31,17 @@ pub(in crate::mir::builder) fn normalize_int_to_str_minimal(
             )
         })?;
 
-    let out_lookup = builder.variable_ctx.variable_map.get(&facts.out_var).copied();
+    let out_lookup = builder
+        .variable_ctx
+        .variable_map
+        .get(&facts.out_var)
+        .copied();
     let out_init = out_lookup.unwrap_or_else(|| builder.alloc_typed(MirType::String));
-    let digits_lookup = builder.variable_ctx.variable_map.get(&facts.digits_var).copied();
+    let digits_lookup = builder
+        .variable_ctx
+        .variable_map
+        .get(&facts.digits_var)
+        .copied();
     let digits = digits_lookup.unwrap_or_else(|| builder.alloc_typed(MirType::String));
 
     let out_current = builder.alloc_typed(MirType::String);

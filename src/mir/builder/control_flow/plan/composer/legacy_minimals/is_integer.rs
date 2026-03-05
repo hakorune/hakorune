@@ -1,9 +1,9 @@
-use super::helpers::create_phi_bindings;
-use super::{build_pattern1_coreloop, CoreEffectPlan, CorePlan, PlanNormalizer, LoweredRecipe};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
 use crate::mir::builder::control_flow::plan::facts::pattern_is_integer_facts::PatternIsIntegerFacts;
-use crate::mir::builder::control_flow::plan::CoreExitPlan;
+use crate::mir::builder::control_flow::plan::normalizer::helpers::create_phi_bindings;
+use crate::mir::builder::control_flow::plan::normalizer::{build_pattern1_coreloop, PlanNormalizer};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, MirType};
 

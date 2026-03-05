@@ -16,12 +16,6 @@
 
 pub(in crate::mir::builder) mod helpers;
 mod pattern1_coreloop_builder;
-mod pattern_is_integer;
-mod pattern_starts_with;
-mod pattern_int_to_str;
-mod pattern_escape_map;
-mod pattern_split_lines;
-pub(in crate::mir::builder) mod legacy_minimals;
 #[cfg(test)]
 mod pattern2_break;
 mod value_join_args;
@@ -39,7 +33,7 @@ pub(in crate::mir::builder) mod loop_body_lowering;
 #[cfg(test)]
 mod value_join_demo_if2;
 
-use super::{CoreEffectPlan, CoreLoopPlan, CorePlan, LoopCondContinueWithReturnPlan, LoweredRecipe};
+use super::{CoreEffectPlan, CoreLoopPlan, LoopCondContinueWithReturnPlan, LoweredRecipe};
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;

@@ -1,15 +1,14 @@
 use super::helpers::create_phi_bindings;
-use super::{CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe};
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::Pattern2StepPlacement;
 use crate::mir::basic_block::EdgeArgs;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::{
-    BlockParams, Frag,
-};
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::plan::edgecfg_facade::{BlockParams, Frag};
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
 use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::plan::{
+    CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe, Pattern2StepPlacement,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::{BinaryOp, ConstValue, MirType, ValueId};
@@ -67,10 +66,7 @@ impl super::PlanNormalizer {
             );
         }
 
-        let step_before_break = matches!(
-            parts.step_placement,
-            Pattern2StepPlacement::BeforeBreak
-        );
+        let step_before_break = matches!(parts.step_placement, Pattern2StepPlacement::BeforeBreak);
 
         // Step 1: Block allocation (6 blocks)
         let preheader_bb = builder
