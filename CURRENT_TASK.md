@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `b116eeea5` refactor D5 align router/planner surface labels to semantic loop vocabulary
+    - `joinir/patterns/{mod.rs,router.rs}` の公開コメント主語を pattern 番号から semantic route 名へ更新（挙動不変）
+    - `single_planner/rules.rs` の strict promotion hint tag を `[plan/loop_break/promotion_hint:*]` へ変更し、テスト期待値を同期
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `66ddbce40` refactor D5 route nested minimal via registry composer path
     - `joinir/patterns/registry` に `nested_loop_minimal` entry/predicate/route を追加し、router の recipe-first 経路で composer 実装を直接利用
     - `route_nested_loop_minimal` は strict/dev で compose reject を fail-fast、release は `None` 返却を維持
