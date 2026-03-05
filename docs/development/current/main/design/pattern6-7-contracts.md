@@ -1,6 +1,6 @@
-# Pattern6/7 Contracts (SSOT)
+# scan_with_init / split_scan Contracts (SSOT)
 
-This document defines the **contract boundary** for Pattern6/7 extractors.
+This document defines the **contract boundary** for `scan_with_init` / `split_scan` extractors.
 It is the SSOT for `NotApplicable` vs `Freeze` decisions.
 
 ## Common Rule
@@ -9,10 +9,10 @@ It is the SSOT for `NotApplicable` vs `Freeze` decisions.
 - **Freeze**: shape matches but contract is violated (fail-fast)
 
 Tags:
-- Pattern6: `[joinir/phase29ab/scan_with_init/contract]`
-- Pattern7: `[joinir/phase29ab/split_scan/contract]`
+- `scan_with_init`: `[joinir/phase29ab/scan_with_init/contract]` (`legacy label: Pattern6`)
+- `split_scan`: `[joinir/phase29ab/split_scan/contract]` (`legacy label: Pattern7`)
 
-## Pattern6 (ScanWithInit / MatchScan)
+## `scan_with_init` Route (`legacy label: Pattern6`)
 
 Accepted shape:
 - `loop(i < s.length())` or `loop(i <= s.length() - needle.length())`
@@ -26,7 +26,7 @@ Freeze conditions:
 Note:
 - plan line supports reverse scan (cond: `i >= 0`, step: `i = i - 1`)
 
-## Pattern7 (SplitScan)
+## `split_scan` Route (`legacy label: Pattern7`)
 
 Accepted shape:
 - `loop(i <= s.length() - separator.length())`
@@ -40,19 +40,19 @@ Freeze conditions:
 
 ## Fixtures (OK vs Contract)
 
-Pattern6 OK:
+`scan_with_init` OK:
 - `apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako`
 - `apps/tests/phase29ab_pattern6_reverse_ok_min.hako`
 - `apps/tests/phase29ab_pattern6_matchscan_ok_min.hako`
 
-Pattern6 contract:
+`scan_with_init` contract:
 - `apps/tests/phase29ab_pattern6_scan_with_init_contract_min.hako`
 - `apps/tests/phase29ab_pattern6_reverse_contract_min.hako`
 - `apps/tests/phase29ab_pattern6_matchscan_contract_min.hako`
 
-Pattern7 OK:
+`split_scan` OK:
 - `apps/tests/phase29ab_pattern7_splitscan_ok_min.hako`
 - `apps/tests/phase29ab_pattern7_splitscan_nearmiss_ok_min.hako`
 
-Pattern7 contract:
+`split_scan` contract:
 - `apps/tests/phase29ab_pattern7_splitscan_contract_min.hako`
