@@ -26,7 +26,7 @@ fn take_step_tree_parity_error() -> Option<String> {
     STEP_TREE_PARITY_ERROR.with(|slot| slot.borrow_mut().take())
 }
 
-/// Pattern 選択の SSOT 入口
+/// Loop route classification の SSOT 入口
 ///
 /// 既存の分散した選択ロジックをここに集約する。
 /// 将来的には Canonicalizer decision に委譲する。
@@ -44,9 +44,9 @@ pub(in crate::mir::builder) fn choose_pattern_kind(
 
     clear_step_tree_parity_error();
 
-    // Phase 107: Route balanced depth-scan (return-in-loop) to Pattern2 via policy.
+    // Phase 107: Route balanced depth-scan (return-in-loop) to loop-break recipe via policy.
     //
-    // This keeps Pattern routing structural: no by-name dispatch, no silent fallback.
+    // This keeps loop routing structural: no by-name dispatch, no silent fallback.
     match BalancedDepthScanPolicyBox::decide(condition, body) {
         PolicyDecision::Use(_) => {
             return loop_pattern_detection::LoopPatternKind::Pattern2Break;
@@ -66,11 +66,11 @@ pub(in crate::mir::builder) fn choose_pattern_kind(
     let has_break = ast_features::detect_break_in_body(body);
     let has_return = ast_features::detect_return_in_body(body);
 
-    // Phase 188.3: Pattern6 selection for 1-level nested loops
-    // SSOT: All Pattern6 detection happens here (no dev dependency)
+    // Phase 188.3: Nested-loop minimal selection for 1-level nested loops.
+    // SSOT: All nested-loop minimal detection happens here (no dev dependency).
     //
     // Strategy: Cheap check → StepTree → Full AST validation
-    // Only select Pattern6 if lowering is guaranteed to work
+    // Only select nested-loop minimal if lowering is guaranteed to work.
 
     // Step 1: Cheap check - does body contain any Loop node?
     let has_inner_loop = body.iter().any(|stmt| matches!(stmt, ASTNode::Loop { .. }));
@@ -90,16 +90,16 @@ pub(in crate::mir::builder) fn choose_pattern_kind(
 
         // Step 3: Check if exactly 1-level nesting (depth == 2)
         if tree.features.max_loop_depth == 2 {
-            // Step 4: Full AST validation (Pattern1-compatible requirements)
+            // Step 4: Full AST validation (simple-loop-compatible requirements)
             if is_pattern6_lowerable(&tree, body) {
-                // Pattern6 selected - lowering MUST succeed
+                // nested_loop_minimal selected - lowering MUST succeed
                 trace::trace().dev(
                     "choose_pattern_kind",
-                    "[routing] Pattern6 selected: 1-level nested loop validated",
+                    "[routing] nested_loop_minimal selected: 1-level nested loop validated",
                 );
                 return loop_pattern_detection::LoopPatternKind::Pattern6NestedLoopMinimal;
             }
-            // Validation failed - not Pattern6, fall through to router_choice
+            // Validation failed - not nested_loop_minimal, fall through to router_choice
         }
     }
 
@@ -266,7 +266,7 @@ impl MirBuilder {
     /// Phase 49: Try JoinIR Frontend for mainline integration
     ///
     /// Returns `Ok(Some(value))` if the loop is successfully lowered via JoinIR,
-    /// `Ok(None)` if no JoinIR pattern matched (unsupported loop structure).
+    /// `Ok(None)` if no JoinIR route matched (unsupported loop structure).
     /// Phase 187-2: Legacy LoopBuilder removed - all loops must use JoinIR.
     ///
     /// # Phase 49-4: Multi-target support
@@ -313,11 +313,11 @@ impl MirBuilder {
             // - JoinIR は常時 ON。legacy LoopBuilder は削除済み。
             // - 代表2本（print_tokens / ArrayExt.filter）も常に JoinIR で試行する。
             // Note: Arity does NOT include implicit `me` receiver
-            // Phase 188: Add "main" routing for loop pattern expansion
+            // Phase 188: Add "main" routing for loop route expansion
             // Phase 170: Add JsonParserBox methods for selfhost validation
             let is_target = match func_name.as_str() {
-                "main" => true, // Phase 188-Impl-1: Enable JoinIR for main function (Pattern 1)
-                "JoinIrMin.main/0" => true, // Phase 188-Impl-2: Enable JoinIR for JoinIrMin.main/0 (Pattern 2)
+                "main" => true, // Phase 188-Impl-1: Enable JoinIR for main function
+                "JoinIrMin.main/0" => true, // Phase 188-Impl-2: Enable JoinIR for JoinIrMin.main/0
                 "JsonTokenizer.print_tokens/0" => true,
                 "ArrayExtBox.filter/2" => true,
                 // Phase 170-A-1: Enable JsonParserBox methods for JoinIR routing
@@ -375,8 +375,7 @@ impl MirBuilder {
     ///
     /// Routes loop compilation through either:
     /// 1. Normalized shadow (Phase 131 P1) - dev-only for loop(true) break-once
-    /// 2. Pattern-based router (Phase 194+) - preferred for new patterns
-    /// 3. Legacy binding path (Phase 49-3) - for whitelisted functions only
+    /// 2. Recipe-first loop router (Phase 194+) - preferred path
     pub(in crate::mir::builder) fn cf_loop_joinir_impl(
         &mut self,
         condition: &ASTNode,
@@ -432,7 +431,7 @@ impl MirBuilder {
                     if let Some(pattern) = decision.chosen {
                         trace::trace().dev(
                             "loop_canonicalizer",
-                            &format!("  Chosen pattern: {:?}", pattern),
+                            &format!("  Chosen route kind: {:?}", pattern),
                         );
                     }
                     trace::trace().dev(
@@ -448,13 +447,13 @@ impl MirBuilder {
 
                     // Phase 137-4: Router parity verification
                     if let Some(canonical_pattern) = decision.chosen {
-                        // Get actual pattern from router (will be determined by LoopPatternContext)
+                        // Get actual route kind from router (determined by LoopPatternContext).
                         // We need to defer this check until after ctx is created
                         // Store decision for later parity check
                         trace::trace().debug(
                             "canonicalizer",
                             &format!(
-                                "Phase 137-4: Canonical pattern chosen: {:?} (parity check pending)",
+                                "Phase 137-4: Canonical route kind chosen: {:?} (parity check pending)",
                                 canonical_pattern
                             ),
                         );
@@ -518,7 +517,7 @@ impl MirBuilder {
         }
 
         if let Some(result) = route_loop_pattern(self, &ctx)? {
-            trace::trace().routing("router", func_name, "Pattern router succeeded");
+            trace::trace().routing("router", func_name, "Loop router succeeded");
             return Ok(Some(result));
         }
 
@@ -526,7 +525,7 @@ impl MirBuilder {
         trace::trace().routing(
             "router",
             func_name,
-            "Pattern router found no match (no legacy fallback)",
+            "Loop router found no match (no legacy fallback)",
         );
         Ok(None)
     }
