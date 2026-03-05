@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `776586182` refactor D5 guard recipe-first routing by release eligibility
+    - `joinir/patterns/router.rs` で `recipe_first_allowed` を先に計算し、非許可 release lane では `registry::try_route_recipe_first()` 自体を実行しない形に整理
+    - release で recipe-first 結果を捨てるだけの実行を防止し、fallback lane との責務境界を明確化（挙動維持）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `b116eeea5` refactor D5 align router/planner surface labels to semantic loop vocabulary
     - `joinir/patterns/{mod.rs,router.rs}` の公開コメント主語を pattern 番号から semantic route 名へ更新（挙動不変）
     - `single_planner/rules.rs` の strict promotion hint tag を `[plan/loop_break/promotion_hint:*]` へ変更し、テスト期待値を同期
