@@ -1,7 +1,7 @@
 //! JoinIR integration for control flow
 //!
 //! This module contains JoinIR-related control flow logic:
-//! - Pattern lowerers (patterns/)
+//! - Route lowerers (patterns/)
 //! - Routing logic (routing.rs) ✅
 //! - Parity verification (parity_checker.rs) ✅ Phase 138
 //! - Loop processing context (loop_context.rs) ✅ Phase 140-P5

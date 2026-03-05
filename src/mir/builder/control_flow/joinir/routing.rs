@@ -53,7 +53,7 @@ pub(in crate::mir::builder) fn choose_route_kind(
         }
         PolicyDecision::Reject(_reason) => {
             // In strict mode, treat "close-but-unsupported" as a fail-fast
-            // Pattern2 route so the policy can surface the precise contract violation.
+            // loop-break route so the policy can surface the precise contract violation.
             if crate::config::env::joinir_dev::strict_enabled() {
                 return loop_pattern_detection::LoopPatternKind::Pattern2Break;
             }

@@ -71,7 +71,7 @@ pub fn check(
         StepCapability::If,
         StepCapability::NestedIf,
         StepCapability::Loop,
-        StepCapability::NestedLoop,  // Phase 188.1: Pattern 6 minimal support
+        StepCapability::NestedLoop,  // Phase 188.1: nested_loop_minimal route support
         StepCapability::Return,
         StepCapability::Break,
         StepCapability::Continue,
