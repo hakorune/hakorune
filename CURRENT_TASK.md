@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `2fcdd2399` refactor D5 retire joinir legacy whitelist fallback lane
+    - `joinir/routing.rs` で router miss 後の legacy whitelist 委譲を削除し、`Pattern router found no match (no legacy fallback)` の `Ok(None)` 契約へ統一
+    - `joinir/mod.rs` の `mod legacy` 配線を撤去し、`joinir/legacy/{README,mod,routing_legacy_binding}.rs` を削除
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `9fb5a0590` docs align promotion hint tag contract to loop_break vocabulary
     - debug/trace SSOT（`ai-handoff-and-debug-contract.md`）の promotion hint tag を `[plan/loop_break/promotion_hint:<TrimSeg|DigitPos>]` に更新
     - phase 運用文書（`phase-29ai/README`, `P15-...`, `phase-29aj/P0`, `phase-29ao/P33`）も同タグへ同期し、契約名の齟齬を解消
@@ -779,20 +783,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. legacy whitelist fallback 撤去（最優先）:
-   - `joinir/routing.rs` の router miss 後 `cf_loop_joinir_legacy_binding` 呼び出しを削除し、`route=none` の fail-fast/no-route 契約へ統一。
-   - `joinir/mod.rs` の `mod legacy` 配線と `joinir/legacy/*` を撤去（runtime 主経路から完全分離）。
-2. `shadow_adopt` 縮退（step-2）:
+1. `shadow_adopt` 縮退（step-2）:
    - minimal cluster は撤去済み（`fd26729ff`）、nested minimal の registry route 化も完了（`66ddbce40`）。
    - 次は `generic_loop_v1/v0` fallback を recipe-first 側へ段階移管し、`shadow_adopt` の責務を strict guard + 最小 fallback へ縮退。
-3. Surface/trace の semantic 語彙統一（step-1 継続）:
+2. Surface/trace の semantic 語彙統一（step-1 継続）:
    - runtime log/comment から Pattern番号主語を除去（`joinir/routing.rs`, `joinir/trace.rs`, `parity_checker.rs`）。
    - 既存 gate sentinel は維持しつつ label を route/rule 主語へ段階移行。
-4. SSOT docs の stale 参照掃除:
+3. SSOT docs の stale 参照掃除:
    - `joinir-design-map.md` など、削除済み `pattern*.rs` へのリンクを現行 `router/registry/composer` 構成へ更新。
    - debug/tag 契約は `ai-handoff-and-debug-contract.md` を正本に固定し、phase 文書との差分を消す。
-5. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
-6. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
+4. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
+5. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
    - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
@@ -800,7 +801,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
    - `normalizer` 側窓口は撤去済み、pattern minimal は composer 側へ集約後に folderごと撤去完了（`96591f62b`, `ea8ffeab3`, `fd26729ff`）。
    - 次は `shadow_adopt` の残 fallback（`nested_minimal / generic_loop_v{1,0}`）を縮退し、recipe-first/router 側へ整理する。
-7. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
+6. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
 
