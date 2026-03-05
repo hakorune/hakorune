@@ -307,8 +307,9 @@ pub(crate) fn route_loop_pattern(
                 )
             })
     };
-    if let Some(value) = registry::try_route_recipe_first(builder, ctx, &outcome, &env)? {
-        if strict_or_dev || release_recipe_first_allowed {
+    let recipe_first_allowed = strict_or_dev || release_recipe_first_allowed;
+    if recipe_first_allowed {
+        if let Some(value) = registry::try_route_recipe_first(builder, ctx, &outcome, &env)? {
             trace_entry_route("recipe_first");
             return Ok(Some(value));
         }
