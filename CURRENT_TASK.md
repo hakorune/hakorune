@@ -50,12 +50,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - top-level loop route は recipe-first が主経路（`route_loop -> registry::try_route_recipe_first -> PlanLowerer`）
   - `normalizer/pattern*.rs` は runtime main route 直下では未使用（test-only / 補助経路）
   - `DomainPlan` 識別子は `src/**` で 0件。残存 payload は `LoopCondContinueWithReturnPlan` の限定利用のみ
+  - `outcome.plan.take()` は `src/mir/builder/control_flow/{plan,joinir}/**` で 0件（nested fallback は `[plan/trace] stage=<...> outcome/path` で観測固定）
 - compiler fixed order:
-  1. `shadow_adopt/release_adopt` 内部を composer 単一入口へ寄せる（v0/v1/v2 直分岐の縮退、挙動不変）。
-  2. `router/planner` 表層の Pattern語彙漏れを解消する（`routing.rs` の `{:?}` 出力を semantic label 化）。
-  3. `outcome.plan.take()` 依存3箇所（`nested_loop_plan.rs` / `generic_loop_body/helpers.rs` / `nested_loop_depth1.rs`）を観測固定し、recipe/facts へ段階移行する。
-  4. release の nested-safe recipe-first 適用範囲を広げ、`release_adopt` ヒットを段階的に 0 へ縮退する。
-  5. 経路を `Facts -> Recipe -> Composer -> Verifier -> Parts` に一本化する（例外入口 `shadow_adopt/release_adopt` を撤去）。
+  1. release の nested-safe recipe-first 適用範囲を広げ、`release_adopt` ヒットを段階的に 0 へ縮退する。
+  2. nested fallback の `LoopCondContinueWithReturnPlan` 正規化依存を recipe composer 側へ段階移行する（planner_required を先行、挙動不変）。
+  3. 経路を `Facts -> Recipe -> Composer -> Verifier -> Parts` に一本化する（例外入口 `shadow_adopt/release_adopt` を撤去）。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
 
@@ -86,6 +85,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `775246f59` refactor(plan): remove nested outcome plan.take and pin outcome trace paths
+    - `nested_loop_plan.rs` / `features/generic_loop_body/helpers.rs` / `features/nested_loop_depth1.rs` の `outcome.plan.take()` 依存を `as_ref().cloned()` へ置換し、`PlanBuildOutcome` を非破壊で観測する形に統一
+    - `plan/trace.rs` に `[plan/trace] stage=<...> outcome=...` / `path=...` helper を追加し、nested fallback（planner payload / recipe / shadow / freeze）を安定タグで記録
+    - `single_planner/rules.rs` も `outcome.plan.take()` を撤去し、planner payload の取り回しを non-consuming に統一
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `089de34f5` refactor(plan): shrink shadow_adopt generic fallback and sync route_kind logs
     - `composer/shadow_adopt.rs` の generic 採用を候補一意化（`generic_loop_v1` 優先、v1 facts 存在時は v0 へ段階 fallback しない）
     - nested-loop guard の debug 文言を `pattern={:?}` から `route_kind=<semantic>` へ統一
