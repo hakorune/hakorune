@@ -99,6 +99,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `5ea18acd6` docs(test): trim payload-era normalizer and wiring wording
+    - `plan/normalizer/README.md` の module inventory を現行ファイル構成へ同期（削除済み `pattern_scan_*` 記述を撤去）
+    - `plan/parts/wiring_tests.rs` の test-only failure message を payload 主語から join entry 主語へ同期
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `adc600d92` docs(plan): sync payload-era comments to facts-recipe contract
     - `joinir/patterns/router.rs`, `plan/mod.rs`, `plan/normalizer/{mod,README}.rs` の `loop plan payload` 表記を現行契約（facts/recipe outcome）へ同期
     - 挙動変更なし（comment/doc wording のみ）
@@ -1155,7 +1159,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
    - `normalizer` 側窓口は撤去済み、pattern minimal は composer 側へ集約後に folderごと撤去完了（`96591f62b`, `ea8ffeab3`, `fd26729ff`）。
    - planner/normalizer 側の payload-era dead comments は同期済み（`adc600d92`）。
-   - 次は test-only wiring（payload 前提コメント/配線）を段階撤去する。
+   - test-only wiring の payload 語彙縮退を開始（`5ea18acd6`）。
+   - 次は test-only wiring（payload 前提コメント/配線）の残りを段階撤去する。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
