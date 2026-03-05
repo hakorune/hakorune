@@ -95,7 +95,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
-  - `(pending)` refactor(plan): remove planner payload lane from outcome/composer paths
+  - `48affa6fb` refactor(plan): remove planner payload lane from outcome/composer paths
     - `PlanBuildOutcome` から `plan` を撤去し、planner outcome を `facts + recipe_contract` に固定
     - `single_planner/rules.rs` / `nested_loop_plan.rs` / `features/{generic_loop_body/helpers,nested_loop_depth1}.rs` / `composer/shadow_adopt.rs` の `outcome.plan` 分岐を削除
     - dead files `planner/build.rs` / `planner/build_tests.rs` を削除し、payload 専用入口を物理撤去
