@@ -197,9 +197,11 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
         if planner_hit {
             gate.log_planner_first(rule_id);
             if outcome.plan.is_some() {
-                let log_msg = format!("route=plan strategy=extract rule={}", name);
-                trace::trace().route("route", &log_msg, true);
-                return Ok(outcome);
+                return Err(planner::Freeze::contract(&format!(
+                    "planner payload route retired: expected recipe-only rule={}",
+                    name
+                ))
+                .to_string());
             }
         } else if !gate.planner_required && ctx.debug {
             let debug_msg = format!("{} extraction returned None, trying next rule", name);
