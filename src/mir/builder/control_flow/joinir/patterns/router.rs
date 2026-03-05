@@ -75,7 +75,10 @@ pub(crate) struct LoopRouteContext<'a> {
     pub step_tree_max_loop_depth: Option<u32>,
 }
 
-/// Compatibility alias while downstream modules migrate to `LoopRouteContext`.
+/// Temporary compatibility alias while downstream modules migrate to `LoopRouteContext`.
+///
+/// New code should use `LoopRouteContext` directly.
+/// Remove this alias after `plan/**` callsites complete the context rename sweep.
 pub(crate) type LoopPatternContext<'a> = LoopRouteContext<'a>;
 
 impl<'a> LoopRouteContext<'a> {
