@@ -1,4 +1,4 @@
-//! CoreLoop v1 pattern composers for Pattern2, Pattern3, and Pattern5.
+//! CoreLoop v1 composers for loop-break / if-phi-join / loop-true-early-exit.
 //!
 //! This module provides functions to compose CorePlan from CanonicalLoopFacts
 //! for specific loop patterns that require value_join support.
@@ -25,7 +25,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v1_pattern2_break(
         return Ok(None);
     };
     let _ = pattern2;
-    let core = RecipeComposer::compose_pattern2_break_recipe(builder, facts, ctx)
+    let core = RecipeComposer::compose_loop_break_recipe(builder, facts, ctx)
         .map_err(|e| e.to_string())?;
     Ok(Some(core))
 }
@@ -43,7 +43,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v1_pattern5_infinite_early_
         return Ok(None);
     };
     let _ = pattern5;
-    let core = RecipeComposer::compose_pattern5_infinite_early_exit_recipe(builder, facts, ctx)
+    let core = RecipeComposer::compose_loop_true_early_exit_recipe(builder, facts, ctx)
         .map_err(|e| e.to_string())?;
     Ok(Some(core))
 }

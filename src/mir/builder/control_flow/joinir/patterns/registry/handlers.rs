@@ -129,7 +129,7 @@ pub(crate) fn route_loop_break_recipe(
         .facts
         .as_ref()
         .expect("loop_break_recipe facts present");
-    let core_plan = RecipeComposer::compose_pattern2_break_recipe(builder, facts, ctx)
+    let core_plan = RecipeComposer::compose_loop_break_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
     if env.strict_or_dev {
@@ -265,7 +265,7 @@ pub(crate) fn route_loop_true_early_exit(
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg:
             "LoopTrueEarlyExit requires recipe_contract in planner_required mode",
-        compose: RecipeComposer::compose_pattern5_infinite_early_exit_recipe,
+        compose: RecipeComposer::compose_loop_true_early_exit_recipe,
         planner_required_only: false,
         skip_without_contract: true,
         planner_first: PlannerFirstMode::StrictOrDevPlannerRequired,

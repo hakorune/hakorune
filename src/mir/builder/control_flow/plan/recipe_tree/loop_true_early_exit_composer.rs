@@ -17,8 +17,8 @@ use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
 
-    /// Compose Pattern5InfiniteEarlyExit facts into LoweredRecipe via RecipeBlock (no normalizer).
-    pub fn compose_pattern5_infinite_early_exit_recipe(
+    /// Compose loop(true) early-exit facts into LoweredRecipe via RecipeBlock (no normalizer).
+    pub fn compose_loop_true_early_exit_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         _ctx: &LoopRouteContext,
@@ -26,7 +26,7 @@ impl RecipeComposer {
         use crate::ast::LiteralValue;
         use crate::config::env::joinir_dev;
 
-        const CTX: &str = "pattern5_infinite_early_exit_recipe";
+        const CTX: &str = "loop_true_early_exit_recipe";
 
         let pattern5_facts = facts
             .facts
@@ -34,7 +34,7 @@ impl RecipeComposer {
             .clone()
             .ok_or_else(|| {
                 Freeze::contract(
-                    "Pattern5InfiniteEarlyExit facts missing in compose_pattern5_infinite_early_exit_recipe",
+                    "LoopTrueEarlyExit facts missing in compose_loop_true_early_exit_recipe",
                 )
             })?;
 
@@ -61,17 +61,17 @@ impl RecipeComposer {
             build_loop_true_early_exit_recipe(&loop_stmt, exit_cond_view, &pattern5_facts)
         else {
             return Err(Freeze::contract(
-                "Pattern5InfiniteEarlyExit recipe build returned None",
+                "LoopTrueEarlyExit recipe build returned None",
             ));
         };
 
         check_block_contract(&arena, &root, BlockContractKind::ExitAllowed, CTX).map_err(|e| {
-            Freeze::contract("Pattern5InfiniteEarlyExit recipe verification failed").with_hint(&e)
+            Freeze::contract("LoopTrueEarlyExit recipe verification failed").with_hint(&e)
         })?;
 
         let Some(loop_item) = root.items.first() else {
             return Err(Freeze::contract(
-                "Pattern5InfiniteEarlyExit recipe root missing LoopV0",
+                "LoopTrueEarlyExit recipe root missing LoopV0",
             ));
         };
 
@@ -83,7 +83,7 @@ impl RecipeComposer {
         } = loop_item
         else {
             return Err(Freeze::contract(
-                "Pattern5InfiniteEarlyExit recipe root is not LoopV0",
+                "LoopTrueEarlyExit recipe root is not LoopV0",
             ));
         };
 
@@ -99,7 +99,7 @@ impl RecipeComposer {
         )
         .map_err(|e| {
             Freeze::contract(&format!(
-                "Pattern5InfiniteEarlyExit recipe lower failed: {e}"
+                "LoopTrueEarlyExit recipe lower failed: {e}"
             ))
         })
     }

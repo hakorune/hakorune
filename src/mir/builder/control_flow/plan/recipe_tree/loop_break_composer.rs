@@ -41,23 +41,23 @@ fn body_has_step_before_break(body: &[ASTNode], loop_var: &str) -> bool {
 
 impl RecipeComposer {
 
-    /// Compose Pattern2Break facts into LoweredRecipe via RecipeBlock (no normalizer).
+    /// Compose loop-break facts into LoweredRecipe via RecipeBlock (no normalizer).
     ///
     /// Used only in strict/dev + planner_required routing.
-    pub fn compose_pattern2_break_recipe(
+    pub fn compose_loop_break_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
-        const CTX: &str = "pattern2_break_recipe";
+        const CTX: &str = "loop_break_recipe";
 
         let mut pattern2_facts = facts
             .facts
             .pattern2_break
             .clone()
-            .ok_or_else(|| Freeze::contract("Pattern2Break facts missing in compose_pattern2_break_recipe"))?;
+            .ok_or_else(|| Freeze::contract("LoopBreak facts missing in compose_loop_break_recipe"))?;
 
         // Planner-required strict mode: recover step-before-break placement from the body shape.
         if body_has_step_before_break(ctx.body, &pattern2_facts.loop_var) {
@@ -89,16 +89,16 @@ impl RecipeComposer {
             &pattern2_facts,
         ) else {
             return Err(Freeze::contract(
-                "Pattern2Break recipe missing (planner_required)",
+                "LoopBreak recipe missing (planner_required)",
             ));
         };
 
         check_block_contract(&arena, &root, BlockContractKind::NoExit, CTX).map_err(|e| {
-            Freeze::contract("Pattern2Break recipe verification failed").with_hint(&e)
+            Freeze::contract("LoopBreak recipe verification failed").with_hint(&e)
         })?;
 
         let Some(loop_item) = root.items.first() else {
-            return Err(Freeze::contract("Pattern2Break recipe root missing LoopV0"));
+            return Err(Freeze::contract("LoopBreak recipe root missing LoopV0"));
         };
 
         let RecipeItem::LoopV0 {
@@ -109,7 +109,7 @@ impl RecipeComposer {
         } = loop_item
         else {
             return Err(Freeze::contract(
-                "Pattern2Break recipe root is not LoopV0",
+                "LoopBreak recipe root is not LoopV0",
             ));
         };
 
@@ -123,7 +123,7 @@ impl RecipeComposer {
             body_block,
             CTX,
         )
-        .map_err(|e| Freeze::contract(&format!("Pattern2Break recipe lower failed: {e}")))
+        .map_err(|e| Freeze::contract(&format!("LoopBreak recipe lower failed: {e}")))
     }
 
 }
