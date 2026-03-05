@@ -98,6 +98,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `6b48d9d6a` docs(plan): sync recipe-entry tag wording with current router logs
+    - `ai-handoff-and-debug-contract.md` の recipe-entry ログ契約から stale 文言 `recipe-only (domain_plan suppressed)` を撤去し、現行タグ `recipe-only entry` に同期
+    - `recipe-first-entry-contract-ssot.md` の各 route entry debug tag を現行実装へ同期（`planner_required` 時は `recipe_contract enforced`、非 planner_required は `recipe-only entry`）
+    - stale docs の主語ズレを修正し、`registry/handlers.rs::debug_log_recipe_entry` 契約に一致させた
+    - verify: docs sync only（code diff なし）
   - `dfdffa051` refactor(plan): unify recipe entry logs and cond-profile route labels
     - `joinir/patterns/registry/handlers.rs` に `debug_log_recipe_entry` を追加し、recipe-first entry 補助ログを route 主語で統一（`[recipe:entry] <route>: recipe_contract enforced|recipe-only entry`）
     - `StandardEntry` に `route_label` を追加し、route_standard 系 entry（loop/scan/cond families）を同一ログ契約で出力するよう同期
