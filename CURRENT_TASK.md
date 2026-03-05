@@ -98,6 +98,20 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `9254d2549` refactor(smokes): share joinir strict-release vm helpers
+    - `tools/smokes/v2/lib/test_runner.sh` に JoinIR VM 実行ヘルパ `run_joinir_vm_strict` / `run_joinir_vm_release` を追加（strict/release の env 切替と timeout 実行を共通化）
+    - `phase29ar_string_is_integer_{min,release_adopt}_vm.sh`, `phase29as_purity_gate_vm.sh`, `phase29aw_flowbox_tag_coverage_gate_vm.sh`, `phase29ae_pattern7_scan_split_pack_vm.sh` の重複した `timeout env ...` を helper 呼び出しへ置換
+    - strict/release 環境切替の重複を縮退し、pack 内スクリプト間の環境汚染リスクを低減
+    - verify: `phase29ar_string_is_integer_min_vm.sh` PASS、`phase29ar_string_is_integer_release_adopt_vm.sh` PASS、`phase29as_purity_gate_vm.sh` PASS、`phase29aw_flowbox_tag_coverage_gate_vm.sh` PASS、`phase29ae_pattern7_scan_split_pack_vm.sh` PASS、`phase29ae_regression_pack_vm.sh` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
+  - `e6d27d1a5` refactor(smokes): route phase29ae pattern7 coverage via joinir pack
+    - `phase29ae_pattern7_scan_split_pack_vm.sh` を新設し、Pattern7 の supplemental coverage（near-miss RC=1 + contract freeze）を joinir profile 内へ集約
+    - `phase29ae_regression_pack_vm.sh` の終端 filter を `phase29ab_pattern7_`（archive 依存）から `phase29ae_pattern7_scan_split_pack_vm` へ切替
+    - `phase-29ae/README.md` の regression pack SSOT も新 joinir pack 名へ同期
+    - verify: `phase29ae_pattern7_scan_split_pack_vm.sh` PASS、`./tools/smokes/v2/run.sh --profile integration --filter phase29ae_pattern7_scan_split_pack_vm` PASS、`phase29ae_regression_pack_vm.sh` PASS
+  - `c59b1b88a` docs(smokes): sync is_integer strict contract to fail-fast reject
+    - stale docs の `is_integer strict shadow adopt` 記述を現行契約（strict fail-fast reject + release adopt）へ同期
+    - 更新対象: `phase-29ar/README.md`, `phase-29ar/P3`, `phase-29ae/README.md`, `flowbox-tag-coverage-map-ssot.md`, `coreplan-shadow-adopt-tag-coverage-ssot.md`, `phase-29aw/P0`, `phase-29aw/P1`
+    - `flowbox-tag-coverage-map-ssot.md` では `phase29ar_string_is_integer_min_vm` を positive tag coverage から negative coverage（FlowBoxタグなし）へ移設
   - `8dc105f1c` fix(smokes): stabilize strict fail-fast and stdlib using-file contracts
     - `run_nyash_vm` の ASI temp-copy を `NYASH_ALLOW_USING_FILE=1 + using "..."` で自動回避し、using(file-path) の相対解決崩れを防止
     - `phase29ap_stringutils_{tolower,join}_vm.sh` を `run_nyash_vm` ベースへ戻しつつ strict/dev 汚染を `*=0` 固定で遮断
