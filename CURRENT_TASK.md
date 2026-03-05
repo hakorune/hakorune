@@ -82,6 +82,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `0738b745b` refactor D5 remove LoopPatternContext alias and enforce zero-usage guard
+    - `joinir/patterns/router.rs` の互換 alias `LoopPatternContext` を撤去し、context 名を `LoopRouteContext` に一本化
+    - `tools/dev/check_loop_pattern_context_allowlist.sh` は allowlist 方式を廃止し、`src/**/*.rs` に `LoopPatternContext` が残っていたら即 FAIL する零残存ガードへ更新
+    - worker parallel で dirty 同居 4ファイル（`generic_loop_pipeline.rs`, `loop_cond_return_in_body_pipeline.rs`, `generic_loop_body/v1.rs`, `pattern1_coreloop_builder.rs`）の型参照を `LoopRouteContext` へ移行後に alias を撤去
+    - verify: `tools/dev/check_loop_pattern_context_allowlist.sh` PASS、`cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0 / run_ok=101 / run_nonzero=18` 維持）
+  - `17feb285e` docs current_task add LoopPatternContext allowlist guard checkpoint
+  - `96224dc90` docs current_task sync return_stmt LoopRouteContext checkpoint
+  - `345cfe62b` docs current_task sync LoopRouteContext clean-sweep checkpoint
   - `32391a366` tools add LoopPatternContext allowlist guard script
     - `tools/dev/check_loop_pattern_context_allowlist.sh` を追加し、`LoopPatternContext` 使用箇所を allowlist（`router` alias + dirty同居4ファイル）に固定
     - allowlist外への再流入を即 FAIL で検出する運用ガードを追加（移行中の accidental regression 抑止）
@@ -94,7 +102,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `plan/**` の clean callsite 45ファイルで context 型参照を `LoopPatternContext` から `LoopRouteContext` へ移行（`router` 側 alias は互換目的で維持）
     - 対象は composer / recipe_tree / lowerer / scan pipeline / normalizer entry 群の参照統一で、挙動変更なし（型名・主語の統一）
     - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0 / run_ok=101 / run_nonzero=18` 維持）
-    - remaining: dirty 同居ファイル（`features/generic_loop_pipeline.rs`, `features/loop_cond_return_in_body_pipeline.rs`, `features/generic_loop_body/v1.rs`, `normalizer/pattern1_coreloop_builder.rs`）と `router` の互換 alias
+    - follow-up: dirty 同居 4ファイル + `router` alias は `0738b745b` で解消済み
   - `43ef81045` docs D5 clarify LoopPatternContext alias as temporary migration shim
     - `joinir/patterns/router.rs` の alias 説明に「新規コードは `LoopRouteContext` を使用」「`plan/**` 移行完了後に alias 撤去」を明記
     - 実装挙動は不変（ドキュメントコメントのみ）
@@ -865,7 +873,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - 次は `generic_loop_v1/v0` fallback を recipe-first 側へ段階移管し、`shadow_adopt` の責務を strict guard + 最小 fallback へ縮退。
 2. Surface/trace の semantic 語彙統一（step-1 継続）:
    - `joinir/routing.rs` / `joinir/trace.rs` / `parity_checker.rs` の主語外しは実施済み（`c76bb7884`, `51234e1b6`）。
-   - `LoopRouteContext` rename sweep は clean 側を完了（`30c94f450`）。残りは dirty 4ファイルと `router` 互換 alias 撤去。
+   - `LoopRouteContext` rename sweep は src 側完了（`30c94f450`, `c5ca36791`, `0738b745b`）。`LoopPatternContext` alias は撤去済み。
    - 残りは補助ログの route/rule 主語統一（必要最小限）。
    - 既存 gate sentinel は維持しつつ label を route/rule 主語へ段階移行。
 3. SSOT docs の stale 参照掃除:
