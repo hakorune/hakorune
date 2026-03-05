@@ -1,6 +1,6 @@
 //! Router Parity Verification (Dev-only)
 //!
-//! Ensures the canonicalizer's pattern choice matches the router's pattern_kind.
+//! Ensures the canonicalizer's route-kind choice matches the router's route kind.
 //! This module provides validation to ensure consistency between the two systems.
 
 use crate::ast::{ASTNode, Span};
@@ -9,13 +9,13 @@ use crate::mir::builder::MirBuilder;
 impl MirBuilder {
     /// Phase 137-4: Verify router parity between canonicalizer and router
     ///
-    /// Dev-only: Ensures the canonicalizer's pattern choice matches the router's
-    /// pattern_kind. On mismatch:
+    /// Dev-only: Ensures the canonicalizer's route-kind choice matches the router's
+    /// route kind. On mismatch:
     /// - Debug mode (HAKO_JOINIR_DEBUG=1): Log warning
     /// - Strict mode (HAKO_JOINIR_STRICT=1 or NYASH_JOINIR_STRICT=1): Return error
     ///
     /// Phase 92 P0-2: Now returns (Result<(), String>, Option<LoopSkeleton>)
-    /// The skeleton can be used by Pattern2 lowerer for ConditionalStep handling.
+    /// The skeleton can be used by loop-break recipe lowering for ConditionalStep handling.
     pub(super) fn verify_router_parity(
         &self,
         condition: &ASTNode,
@@ -41,16 +41,18 @@ impl MirBuilder {
             }
         };
 
-        // Compare patterns only if canonicalizer succeeded
-        let result = if let Some(canonical_pattern) = decision.chosen {
-            let actual_pattern = ctx.pattern_kind;
+        // Compare route kinds only if canonicalizer succeeded
+        let result = if let Some(canonical_route_kind) = decision.chosen {
+            let actual_route_kind = ctx.pattern_kind;
 
-            if canonical_pattern != actual_pattern {
-                // Pattern mismatch detected
+            if canonical_route_kind != actual_route_kind {
+                // Route-kind mismatch detected
                 let msg = format!(
                     "[loop_canonicalizer/PARITY] MISMATCH in function '{}': \
-                     canonical={:?}, actual={:?}",
-                    func_name, canonical_pattern, actual_pattern
+                     canonical={}, actual={}",
+                    func_name,
+                    canonical_route_kind.semantic_label(),
+                    actual_route_kind.semantic_label()
                 );
 
                 // Phase 138-P2-B: Use SSOT for environment variable check
@@ -66,12 +68,13 @@ impl MirBuilder {
                     Ok(())
                 }
             } else {
-                // Patterns match - success!
+                // Route kinds match - success.
                 super::trace::trace().dev(
                     "loop_canonicalizer/parity",
                     &format!(
-                        "[loop_canonicalizer/PARITY] OK in function '{}': canonical and actual agree on {:?}",
-                        func_name, canonical_pattern
+                        "[loop_canonicalizer/PARITY] OK in function '{}': canonical and actual agree on {}",
+                        func_name,
+                        canonical_route_kind.semantic_label()
                     ),
                 );
                 Ok(())
@@ -176,15 +179,15 @@ mod tests {
             .chosen
             .expect("Canonicalizer should succeed");
 
-        // Run router's pattern detection
+        // Run router's route-kind detection
         let has_continue = ast_features::detect_continue_in_body(body);
         let has_break = ast_features::detect_break_in_body(body);
         let features = ast_features::extract_features(condition, body, has_continue, has_break);
         let actual_pattern = crate::mir::loop_pattern_detection::classify(&features);
 
         // Phase 137-5: Verify MATCH (ExitContract policy fix)
-        // Both canonicalizer and router should agree on Pattern2Break
-        // because has_break=true (ExitContract determines pattern choice)
+        // Both canonicalizer and router should agree on loop-break route kind
+        // because has_break=true (ExitContract determines route choice)
         assert_eq!(
             canonical_pattern,
             crate::mir::loop_pattern_detection::LoopPatternKind::Pattern2Break,
@@ -253,24 +256,24 @@ mod tests {
         // Canonicalizer will fail for simple patterns (not yet implemented)
         let canonical_result = canonicalize_loop_expr(&loop_ast);
 
-        // Router's pattern detection
+        // Router's route-kind detection
         let has_continue = ast_features::detect_continue_in_body(body);
         let has_break = ast_features::detect_break_in_body(body);
         let features = ast_features::extract_features(condition, body, has_continue, has_break);
         let actual_pattern = crate::mir::loop_pattern_detection::classify(&features);
 
-        // Router should classify as Pattern1SimpleWhile
+        // Router should classify as simple-while route kind
         assert_eq!(
             actual_pattern,
             crate::mir::loop_pattern_detection::LoopPatternKind::Pattern1SimpleWhile
         );
 
-        // Canonicalizer should fail (not implemented yet for Pattern1)
+        // Canonicalizer should fail (not implemented yet for simple-while)
         assert!(canonical_result.is_ok());
         let (_, decision) = canonical_result.unwrap();
         assert!(
             decision.is_fail_fast(),
-            "Canonicalizer should fail for simple patterns (Phase 3 only supports skip_whitespace)"
+            "Canonicalizer should fail for simple loop shapes (Phase 3 only supports skip_whitespace)"
         );
     }
 }

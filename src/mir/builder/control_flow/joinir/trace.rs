@@ -6,7 +6,7 @@
 //! # Environment Variables
 //!
 //! - `NYASH_TRACE_VARMAP=1`: Enable variable_map tracing (shows variable → ValueId mappings)
-//! - `NYASH_JOINIR_DEBUG=1`: Enable general JoinIR debug output (pattern routing, merge stats)
+//! - `NYASH_JOINIR_DEBUG=1`: Enable general JoinIR debug output (loop routing, merge stats)
 //! - `NYASH_OPTION_C_DEBUG=1`: Enable PHI-related debug (Option C PHI generation)
 //! - `NYASH_JOINIR_MAINLINE_DEBUG=1`: Enable mainline routing debug (function name matching)
 //! - `NYASH_LOOPFORM_DEBUG=1`: Enable LoopForm debug (control flow structure)
@@ -16,12 +16,12 @@
 //! All trace output uses prefixed tags for easy filtering:
 //!
 //! ```text
-//! [trace:pattern] route: Pattern3_WithIfPhi MATCHED
-//! [trace:varmap] pattern3_before_merge: i→r4, sum→r7
+//! [trace:route] route: IfPhiJoin MATCHED
+//! [trace:varmap] if_phi_join_before_merge: i→r4, sum→r7
 //! [trace:joinir] merge_start: 3 functions, 45 blocks
-//! [trace:phi] pattern3: PHI already exists, skipping
-//! [trace:merge] pattern3: starting JoinIR merge
-//! [trace:exit_phi] pattern3: sum r7→r15
+//! [trace:phi] if_phi_join: PHI already exists, skipping
+//! [trace:merge] if_phi_join: starting JoinIR merge
+//! [trace:exit_phi] if_phi_join: sum r7→r15
 //! [trace:debug] router: Current function name: 'main'
 //! ```
 //!
@@ -125,27 +125,32 @@ impl JoinLoopTrace {
         self.loopform_enabled
     }
 
-    /// Trace pattern detection/selection
+    /// Trace route detection/selection.
     ///
     /// # Arguments
-    /// - `tag`: Context identifier (e.g., "route", "pattern3")
-    /// - `pattern_name`: Name of the pattern (e.g., "Pattern3_WithIfPhi")
-    /// - `matched`: Whether the pattern matched (true) or was skipped (false)
-    pub fn pattern(&self, tag: &str, pattern_name: &str, matched: bool) {
+    /// - `tag`: Context identifier (e.g., "route", "if_phi_join")
+    /// - `route_name`: Semantic route name (e.g., "IfPhiJoin")
+    /// - `matched`: Whether the route matched (true) or was skipped (false)
+    pub fn route(&self, tag: &str, route_name: &str, matched: bool) {
         if self.joinir_enabled || self.varmap_enabled {
             let status = if matched { "MATCHED" } else { "skipped" };
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
-                "[trace:pattern] {}: {} {}",
-                tag, pattern_name, status
+                "[trace:route] {}: {} {}",
+                tag, route_name, status
             ));
         }
+    }
+
+    /// Backward-compatible alias for `route`.
+    pub fn pattern(&self, tag: &str, pattern_name: &str, matched: bool) {
+        self.route(tag, pattern_name, matched);
     }
 
     /// Trace variable_map state
     ///
     /// # Arguments
-    /// - `tag`: Context identifier (e.g., "pattern3_before_merge", "after_phi")
+    /// - `tag`: Context identifier (e.g., "if_phi_join_before_merge", "after_phi")
     /// - `vars`: The variable_map to display (variable name → ValueId)
     pub fn varmap(&self, tag: &str, vars: &BTreeMap<String, ValueId>) {
         if self.varmap_enabled {
@@ -179,7 +184,7 @@ impl JoinLoopTrace {
     /// Trace PHI operations
     ///
     /// # Arguments
-    /// - `tag`: Context identifier (e.g., "pattern3", "exit_block")
+    /// - `tag`: Context identifier (e.g., "if_phi_join", "exit_block")
     /// - `msg`: Human-readable message about the PHI operation
     #[cfg(test)]
     pub fn phi(&self, tag: &str, msg: &str) {
@@ -194,7 +199,7 @@ impl JoinLoopTrace {
     /// Trace merge operations
     ///
     /// # Arguments
-    /// - `tag`: Context identifier (e.g., "pattern3", "block_allocation")
+    /// - `tag`: Context identifier (e.g., "if_phi_join", "block_allocation")
     /// - `msg`: Human-readable message about the merge operation
     #[cfg(test)]
     pub fn merge(&self, tag: &str, msg: &str) {
@@ -209,7 +214,7 @@ impl JoinLoopTrace {
     /// Trace exit PHI connection (variable_map update)
     ///
     /// # Arguments
-    /// - `tag`: Context identifier (e.g., "pattern3", "exit_reconnect")
+    /// - `tag`: Context identifier (e.g., "if_phi_join", "exit_reconnect")
     /// - `var_name`: Name of the variable being reconnected
     /// - `old_id`: Old ValueId (before exit PHI)
     /// - `new_id`: New ValueId (after exit PHI)
@@ -227,7 +232,7 @@ impl JoinLoopTrace {
     /// Generic debug message (only if any tracing enabled)
     ///
     /// # Arguments
-    /// - `tag`: Context identifier (e.g., "router", "pattern1")
+    /// - `tag`: Context identifier (e.g., "router", "loop_simple_while")
     /// - `msg`: Human-readable debug message
     pub fn debug(&self, tag: &str, msg: &str) {
         if self.is_enabled() {
@@ -342,7 +347,7 @@ impl Default for JoinLoopTrace {
 ///
 /// ```rust
 /// trace::trace().varmap("my_tag", &variable_map);
-/// trace::trace().pattern("route", "Pattern1_Minimal", true);
+/// trace::trace().route("route", "LoopSimpleWhile", true);
 /// ```
 pub fn trace() -> &'static JoinLoopTrace {
     use std::sync::OnceLock;
