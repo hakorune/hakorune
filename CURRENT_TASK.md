@@ -98,6 +98,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `bfd34861b` refactor(recipe): align recipe tree context wording to route vocabulary
+    - `plan/recipe_tree/*_composer.rs` の CTX 文字列・contract エラーメッセージ・局所変数を route 主語へ整理（`pattern*_...` 文言を `if_phi_join / loop_continue_only / scan_with_init / split_scan / bool_predicate_scan / accum_const_loop` へ統一）
+    - `recipe_tree/matcher/mod.rs` の検証マクロ名を `verify_route!` / `verify_cond_profile_route!` へ改名し、コメント/補助変数の `pattern` 主語を route 主語へ同期（挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
+  - `41269aaf9` refactor(recipe): de-number matcher verification function names
+    - `recipe_tree/matcher/patterns.rs` の verifier 関数名を semantic route 名へ置換（`verify_pattern2_break_recipe` → `verify_loop_break_recipe` など）
+    - `recipe_tree/matcher/mod.rs` の呼び出し側を同名へ同期し、matcher 側の pattern番号依存を縮退
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `891a69e96` test(smoke): sync flowbox tag expectations with route vocabulary
     - archive pattern2 スモークの promotion-hint 期待を route語彙へ同期（`[plan/loop_break/promotion_hint:*]` を許容）
     - NotApplicable ケースは「break-adopt タグが出ないこと」を検証する契約へ更新（全 adopt 不在の旧前提を緩和）
