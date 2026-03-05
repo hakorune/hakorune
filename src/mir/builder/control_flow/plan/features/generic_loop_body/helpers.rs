@@ -187,7 +187,7 @@ pub(super) fn lower_nested_loop_plan(
         }
     }
     if let Some(pre_plan) =
-        composer::try_shadow_adopt_pre_plan(builder, &nested_ctx, &outcome, true)?
+        composer::try_shadow_adopt_pre_plan(builder, &nested_ctx, &outcome)?
     {
         match pre_plan {
             composer::PrePlanShadowOutcome::Adopt(adopt) => {

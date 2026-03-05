@@ -89,7 +89,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - 必要に応じて debug 時のみ `[plan/trace:entry_candidates]` で候補を可視化（任意・SSOTはこのポリシー）
 - 観測: debug 時に `[plan/trace:entry_route]` で entry が recipe_first / shadow_adopt / none のどれに落ちたかを 1 行で確認できる
 - BoxShape: `generic_loop_v1` は strict/dev(+planner_required) で registry 側に寄せ、shadow_adopt の残経路を縮退する（挙動不変）。
-- BoxShape: `shadow_adopt` の generic 採用は候補一意（`generic_loop_v1` 優先、`generic_loop_v0` は v1 facts 不在時のみ）。v1→v0 の段階 fallback は行わない。
+- BoxShape: `shadow_adopt` は generic loop（`generic_loop_v1/v0`）を採用しない。generic route は registry の recipe-first に一本化する。
 
 ## Freeze responsibility (SSOT)
 

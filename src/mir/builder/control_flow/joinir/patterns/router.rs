@@ -161,10 +161,9 @@ fn lower_shadow_adopt_pre_plan(
     ctx: &LoopRouteContext,
     strict_or_dev: bool,
     outcome: &PlanBuildOutcome,
-    allow_generic_loop: bool,
 ) -> Result<Option<ValueId>, String> {
     let Some(pre_plan) =
-        composer::try_shadow_adopt_pre_plan(builder, ctx, outcome, allow_generic_loop)?
+        composer::try_shadow_adopt_pre_plan(builder, ctx, outcome)?
     else {
         return Ok(None);
     };
@@ -335,7 +334,6 @@ pub(crate) fn route_loop(
             ctx,
             strict_or_dev,
             &outcome,
-            true,
         )? {
             trace_entry_route("shadow_adopt");
             return Ok(Some(value));

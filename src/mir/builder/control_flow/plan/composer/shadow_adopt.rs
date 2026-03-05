@@ -1,19 +1,11 @@
 //! Phase 29ao P30: shadow adopt composer entrypoints (Facts -> LoweredRecipe).
 
-use super::coreloop_gates::coreloop_base_gate;
 use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::canon::generic_loop::{
-    classify_step_placement, StepPlacement,
-};
 use crate::mir::builder::control_flow::plan::facts::feature_facts::{
-    detect_nested_loop, ExitKindFacts,
-};
-use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::plan::normalizer::{
-    normalize_generic_loop_v0, normalize_generic_loop_v1,
+    detect_nested_loop,
 };
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
@@ -29,42 +21,6 @@ pub(in crate::mir::builder) struct ShadowAdoptOutcome {
 pub(in crate::mir::builder) enum PrePlanShadowOutcome {
     Adopt(ShadowAdoptOutcome),
     GuardError(String),
-}
-
-enum GenericLoopAdoptCandidate {
-    V0,
-    V1,
-}
-
-fn pick_generic_loop_adopt_candidate(
-    facts: &CanonicalLoopFacts,
-) -> Option<GenericLoopAdoptCandidate> {
-    if facts.facts.generic_loop_v1.is_some() {
-        return Some(GenericLoopAdoptCandidate::V1);
-    }
-    if facts.facts.generic_loop_v0.is_some() {
-        return Some(GenericLoopAdoptCandidate::V0);
-    }
-    None
-}
-
-fn try_adopt_generic_loop_preferred(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    allow_generic_loop: bool,
-) -> Result<Option<ShadowAdoptOutcome>, String> {
-    if !allow_generic_loop {
-        return Ok(None);
-    }
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    match pick_generic_loop_adopt_candidate(facts) {
-        Some(GenericLoopAdoptCandidate::V1) => try_adopt_generic_loop_v1(builder, ctx, outcome),
-        Some(GenericLoopAdoptCandidate::V0) => try_adopt_generic_loop_v0(builder, ctx, outcome),
-        None => Ok(None),
-    }
 }
 
 pub(in crate::mir::builder) fn strict_nested_loop_guard(
@@ -276,7 +232,6 @@ pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
-    allow_generic_loop: bool,
 ) -> Result<Option<PrePlanShadowOutcome>, String> {
     let strict_or_dev = joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
     let planner_required = strict_or_dev && joinir_dev::planner_required_enabled();
@@ -293,15 +248,6 @@ pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(
 
     if let Some(err) = strict_nested_loop_guard(outcome, ctx) {
         return Ok(Some(PrePlanShadowOutcome::GuardError(err)));
-    }
-
-    if let Some(adopt) = try_adopt_generic_loop_preferred(
-        builder,
-        ctx,
-        outcome,
-        allow_generic_loop,
-    )? {
-        return Ok(Some(PrePlanShadowOutcome::Adopt(adopt)));
     }
 
     Ok(None)
@@ -326,91 +272,5 @@ fn try_adopt_nested_minimal(
     Ok(Some(ShadowAdoptOutcome {
         core_plan,
         emit_flowbox_adopt_tag: facts.nested_loop,
-    }))
-}
-
-fn generic_loop_v0_gate(facts: &CanonicalLoopFacts) -> bool {
-    if !coreloop_base_gate(facts) || facts.value_join_needed {
-        return false;
-    }
-    if facts.facts.pattern2_loopbodylocal.is_some() {
-        return false;
-    }
-    facts.exit_kinds_present.iter().all(|kind| {
-        matches!(
-            kind,
-            ExitKindFacts::Return | ExitKindFacts::Break | ExitKindFacts::Continue
-        )
-    })
-}
-
-fn emit_flowbox_adopt_tag_for_generic(
-    facts: &CanonicalLoopFacts,
-    body: &[ASTNode],
-    loop_var: &str,
-    loop_increment: &ASTNode,
-) -> bool {
-    facts.exit_usage.has_continue
-        || matches!(
-            classify_step_placement(body, loop_var, loop_increment).placement,
-            Some(StepPlacement::InBody(_))
-        )
-}
-
-fn try_adopt_generic_loop_v0(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<ShadowAdoptOutcome>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(generic) = facts.facts.generic_loop_v0.as_ref() else {
-        return Ok(None);
-    };
-    if !generic_loop_v0_gate(facts) {
-        return Ok(None);
-    }
-
-    let core_plan = normalize_generic_loop_v0(builder, generic, ctx)
-        .map_err(|e| format!("generic_loop_v0 strict/dev adopt failed: {}", e))?;
-    let emit_flowbox_adopt_tag = emit_flowbox_adopt_tag_for_generic(
-        facts,
-        generic.body.as_ref(),
-        &generic.loop_var,
-        &generic.loop_increment,
-    );
-    Ok(Some(ShadowAdoptOutcome {
-        core_plan,
-        emit_flowbox_adopt_tag,
-    }))
-}
-
-fn try_adopt_generic_loop_v1(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<ShadowAdoptOutcome>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let Some(generic) = facts.facts.generic_loop_v1.as_ref() else {
-        return Ok(None);
-    };
-    if !generic_loop_v0_gate(facts) {
-        return Ok(None);
-    }
-
-    let core_plan = normalize_generic_loop_v1(builder, generic, ctx)
-        .map_err(|e| format!("generic_loop_v1 strict/dev adopt failed: {}", e))?;
-    let emit_flowbox_adopt_tag = emit_flowbox_adopt_tag_for_generic(
-        facts,
-        generic.body.as_ref(),
-        &generic.loop_var,
-        &generic.loop_increment,
-    );
-    Ok(Some(ShadowAdoptOutcome {
-        core_plan,
-        emit_flowbox_adopt_tag,
     }))
 }
