@@ -98,6 +98,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `8d9c6bde3` fix(smokes): invoke planner-required subgates via bash
+    - `phase29bk/bn/bo` の `run_gate` 実行を `"$gate"` 直実行から `bash "$gate"` へ変更し、subgate の実行権限ビット非依存化
+    - `phase29bk_planner_required_dev_gate_vm.sh` 再実行で `phase29bi` / `phase29bj(scan_split)` を通過し、先頭の Permission denied を解消
+    - note: 後段 `phase29ae_regression_pack_vm` は既存失敗 (`phase29ap_stringutils_tolower_vm`: `newbox(StringUtils)` unimplemented) で停止（今回差分起因ではない）
   - `6c9c208ef` refactor(smokes): canonicalize scan_split planner pack naming
     - planner-required Pattern6/7 pack の canonical 入口を `phase29bj_planner_required_scan_split_pack_vm.sh` + `phase29bj_planner_required_scan_split_cases.tsv` へ追加し、旧 `phase29bj_planner_required_pattern6_7_pack_vm.sh` は legacy wrapper 化
     - `phase29bk/bn/bo` gate aggregator の呼び出し先と log 名を `scan_split` 主語へ更新
