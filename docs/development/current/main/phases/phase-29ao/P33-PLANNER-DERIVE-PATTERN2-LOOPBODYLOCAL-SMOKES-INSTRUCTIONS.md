@@ -22,7 +22,7 @@ Goal: `phase29ab_pattern2_loopbodylocal_{min,seg_min}` が strict/dev で **plan
 
 ## 背景
 
-- `phase29ab_pattern2_loopbodylocal_*` は現状、promotion hint タグ（`[plan/pattern2/promotion_hint:*]`）は出るが、
+- `phase29ab_pattern2_loopbodylocal_*` は現状、promotion hint タグ（`[plan/loop_break/promotion_hint:*]`）は出るが、
   `outcome.plan` が `Pattern2Break` ではないため shadow adopt が走らず、CorePlan 経路の差分検知ができない。
 - Phase 29ao の “段階1（strict/dev）完了” は、「回帰パックに含まれる代表ケースが shadow adopt タグで検知できる」状態。
   Pattern2 の realworld（phase263）は P32 で埋めたので、次は phase29ab の LoopBodyLocal を埋めるのが自然。

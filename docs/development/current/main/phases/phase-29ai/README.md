@@ -95,7 +95,7 @@ Goal: pattern 名による分岐を外部APIから消し、Facts（事実）→ 
 
 - 指示書: `docs/development/current/main/phases/phase-29ai/P15-OBSERVE-PATTERN2-PROMOTION_HINT-INSTRUCTIONS.md`
 - ねらい: strict/dev のときだけ promotion hint を安定タグで観測できるようにする（挙動不変）
-- 完了: planner outcome から LoopBodyLocal facts を参照して `[plan/pattern2/promotion_hint:{TrimSeg|DigitPos}]` を出力し、2 本をタグ検証に昇格
+- 完了: planner outcome から LoopBodyLocal facts を参照して `[plan/loop_break/promotion_hint:{TrimSeg|DigitPos}]` を出力し、2 本をタグ検証に昇格
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
 ## Verification (SSOT)

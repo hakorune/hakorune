@@ -221,7 +221,7 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
   - `[joinir/planner_first rule=<RuleId>] label=<Label>` (planner-first routing sentinel)
   - `[joinir/no_plan reason=no_loop] func=<...>` (planner_required + no loops in function body)
   - `[phase132/gate] StepTree root for '<func>'` (StepTree gate sentinel)
-  - `[plan/pattern2/promotion_hint:<TrimSeg|DigitPos>]` (Pattern2 LoopBodyLocal promotion hint)
+  - `[plan/loop_break/promotion_hint:<TrimSeg|DigitPos>]` (loop_break_recipe LoopBodyLocal promotion hint)
   - `[flowbox/adopt box_kind=Loop features=<...> via=<shadow|release>]` (Flowbox adopt routing sentinel)
     - pre_plan の shadow adopt が正規経路のケースは、fast gate の `planner_tag` としてこれを使う
 - Fail-fast logs: one line with function + rule + reason (avoid stack traces).

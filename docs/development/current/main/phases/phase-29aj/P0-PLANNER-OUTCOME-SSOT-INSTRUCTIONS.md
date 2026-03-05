@@ -15,7 +15,7 @@ Goal: facts の直抽出を撤去し、strict/dev 観測が planner outcome の 
 
 - Pattern2 LoopBodyLocal を planner 経路で実際に lowering する（P1 以降）
 - 新しい env var 追加
-- タグ文字列の変更（`[plan/pattern2/promotion_hint:{TrimSeg|DigitPos}]` 維持）
+- タグ文字列の変更（`[plan/loop_break/promotion_hint:{TrimSeg|DigitPos}]` 維持）
 
 ## Target Architecture
 
