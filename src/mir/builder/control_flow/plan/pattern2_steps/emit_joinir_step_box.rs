@@ -1,6 +1,6 @@
 //! EmitJoinIRStepBox (Phase 106)
 //!
-//! Responsibility: call Pattern2 JoinIR lowerer and build inline boundary.
+//! Responsibility: call loop_break route JoinIR lowerer and build inline boundary.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;

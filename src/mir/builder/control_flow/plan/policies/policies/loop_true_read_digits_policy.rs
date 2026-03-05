@@ -1,6 +1,7 @@
 //! loop(true) + break-only digits (read_digits_from family) policy
 //!
-//! Goal: keep Pattern2 core lowering structural by moving shape recognition + routing
+//! Goal: keep loop_break core lowering structural (legacy label: Pattern2)
+//! by moving shape recognition + routing
 //! for loop(true) read-digits family into a dedicated policy box.
 //!
 //! This policy is intentionally narrow:

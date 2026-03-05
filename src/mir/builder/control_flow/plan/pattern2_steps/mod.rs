@@ -1,6 +1,7 @@
-//! Phase 106: Pattern2 Step Boxes (SSOT)
+//! Phase 106: loop_break step boxes (SSOT)
+//! (legacy module label: pattern2_steps)
 //!
-//! Goal: keep the Pattern2 lowering orchestrator thin by splitting the pipeline
+//! Goal: keep the loop_break lowering orchestrator thin by splitting the pipeline
 //! into explicit steps with clear boundaries.
 //!
 //! Each step should have a single responsibility and fail-fast with a clear tag

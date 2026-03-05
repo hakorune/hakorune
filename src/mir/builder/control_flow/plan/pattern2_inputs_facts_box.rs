@@ -1,6 +1,7 @@
-//! Pattern2 input analysis (facts collection only)
+//! loop_break route input analysis (facts collection only)
+//! (legacy label: Pattern2)
 //!
-//! This box collects everything Pattern2 lowering needs *without* emitting JoinIR
+//! This box collects everything loop_break lowering needs *without* emitting JoinIR
 //! and *without* applying policy routing:
 //! - capture/pinned local analysis
 //! - mutable accumulator promotion into carriers
@@ -72,7 +73,7 @@ pub(in crate::mir::builder) struct Pattern2Inputs {
     /// Phase 92 P3: Allow-list of LoopBodyLocal variable names permitted in conditions.
     /// This must stay minimal (1 variable) and is validated by ReadOnlyBodyLocalSlotBox.
     pub allowed_body_locals_for_conditions: Vec<String>,
-    /// Phase 107: For some policy-routed families, Pattern2 must not run promotion/slot heuristics.
+    /// Phase 107: For some policy-routed families, loop_break route must not run promotion/slot heuristics.
     pub body_local_handling: BodyLocalHandlingPolicy,
     /// Phase 92 P3: Diagnostics / debug metadata for the allow-listed variable.
     pub read_only_body_local_slot: Option<crate::mir::join_ir::lowering::common::body_local_slot::ReadOnlyBodyLocalSlot>,

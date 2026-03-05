@@ -1,6 +1,7 @@
 //! GatherFactsStepBox (Phase 106)
 //!
-//! Responsibility: gather Pattern2 analysis-only inputs.
+//! Responsibility: gather loop_break route analysis-only inputs
+//! (legacy type labels: Pattern2Facts / Pattern2InputsFactsBox).
 
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;

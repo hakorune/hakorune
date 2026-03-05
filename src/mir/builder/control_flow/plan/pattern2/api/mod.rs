@@ -1,6 +1,7 @@
-//! Phase 263 P0.2: Pattern2 promotion API (entry point SSOT)
+//! Phase 263 P0.2: loop_break promotion API (entry point SSOT)
+//! (legacy module label: pattern2/api)
 //!
-//! This module is the single entry point for Pattern2 promotion logic.
+//! This module is the single entry point for loop_break promotion logic.
 //! All callers should use this module's exports instead of accessing internals.
 //!
 //! # Usage

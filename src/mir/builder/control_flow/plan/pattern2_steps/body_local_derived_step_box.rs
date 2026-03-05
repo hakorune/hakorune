@@ -1,7 +1,7 @@
 //! BodyLocalDerivedStepBox (Phase 94, extracted in Phase 5)
 //!
 //! Responsibility:
-//! - Apply the Phase 94 P5b escape-derived routing to Pattern2 inputs.
+//! - Apply the Phase 94 P5b escape-derived routing to loop_break route inputs.
 //! - No JoinIR generation. Purely sets `inputs.body_local_derived_recipe` or fails fast.
 
 use crate::ast::ASTNode;

@@ -1,7 +1,7 @@
 //! CarrierUpdatesStepBox (Phase 176+, extracted in Phase 5)
 //!
 //! Responsibility:
-//! - Analyze carrier updates for Pattern2 (or use policy override).
+//! - Analyze carrier updates for loop_break route (or use policy override).
 //! - Filter carriers to only those required by updates / condition-only / loop-local-zero.
 //! - Ensure JoinValue env has join-ids for carriers referenced only from body updates.
 

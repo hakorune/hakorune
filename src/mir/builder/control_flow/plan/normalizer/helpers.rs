@@ -11,7 +11,8 @@ use std::collections::{BTreeMap, HashSet};
 // Phase 286 P2.8: Normalizer Hygiene Helpers
 // ============================================================================
 
-/// Standard 5-block layout for simple loops (Pattern1/4/8/9)
+/// Standard 5-block layout for simple/control/scan loops
+/// (legacy labels: Pattern1/4/8/9)
 ///
 /// CFG: preheader → header → body → step → header (back-edge)
 ///                      ↓
@@ -45,7 +46,8 @@ impl LoopBlocksStandard5 {
     }
 }
 
-/// Extended 8-block layout for if-phi loops (Pattern3)
+/// Extended 8-block layout for if-phi-join loops
+/// (legacy label: Pattern3)
 ///
 /// CFG: preheader → header → body → then/else → merge → step → header
 ///                      ↓

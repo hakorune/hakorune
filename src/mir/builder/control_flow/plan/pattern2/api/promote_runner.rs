@@ -1,6 +1,7 @@
-//! Phase 263 P0.2: Pattern2 promotion runner (SSOT entry point)
+//! Phase 263 P0.2: loop_break promotion runner (SSOT entry point)
+//! (legacy module label: pattern2/api/promote_runner)
 //!
-//! Single entry point for all Pattern2 promotion logic.
+//! Single entry point for all loop_break promotion logic.
 //! All callers should use `try_promote()` instead of accessing internals directly.
 
 use crate::ast::ASTNode;
@@ -14,9 +15,10 @@ use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
 
 use super::promote_decision::{PromoteDecision, PromoteStepResult};
 
-/// Phase 263 P0.2: Try to promote LoopBodyLocal variables for Pattern2
+/// Phase 263 P0.2: Try to promote LoopBodyLocal variables for loop_break route
+/// (legacy label: Pattern2)
 ///
-/// This is the single entry point for Pattern2 promotion logic.
+/// This is the single entry point for loop_break promotion logic.
 /// Returns PromoteDecision to indicate success, applicability, or freeze.
 pub(in crate::mir::builder) fn try_promote(
     builder: &mut MirBuilder,

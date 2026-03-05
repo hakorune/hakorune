@@ -25,22 +25,25 @@ use crate::ast::ASTNode;
 /// This was too broad - it caught simple conditional assignments like:
 ///   `if x then seg = "A" else seg = "B"`
 ///
-/// Pattern3 is designed for if-sum patterns with arithmetic accumulation:
+/// if_phi_join route (legacy label: Pattern3) is designed for if-sum patterns
+/// with arithmetic accumulation:
 ///   `sum = sum + (if x then 1 else 0)`
 ///
 /// Phase 264 P0: Return false to prevent misclassification.
-/// Effect: Loops with conditional assignment fall through to Pattern1.
+/// Effect: Loops with conditional assignment fall through to loop_simple_while
+/// (legacy label: Pattern1).
 ///
 /// Phase 264 P1: TODO - Implement accurate if-sum signature detection.
 pub(crate) fn detect_if_else_phi_in_body(body: &[ASTNode]) -> bool {
     // Phase 282 P5: Proper if-else PHI detection (re-enabled with ExtractionBased safety)
     //
-    // This function provides initial classification for Pattern3IfPhi.
+    // This function provides initial classification for if_phi_join
+    // (legacy label: Pattern3IfPhi).
     // The actual validation is done by extractors::pattern3::extract_loop_with_if_phi_parts()
     // which performs deep checks (PHI assignments, no control flow, etc.)
     //
     // Here we just check: Does the loop body contain an if-else statement?
-    // This allows Pattern3 to be attempted, and extraction will validate.
+    // This allows if_phi_join route to be attempted, and extraction will validate.
 
     for stmt in body {
         if matches!(stmt, ASTNode::If { else_body: Some(_), .. }) {

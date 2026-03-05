@@ -1,8 +1,9 @@
-//! Phase 29ab P4: Derived slot contract for Pattern2
+//! Phase 29ab P4: Derived slot contract for loop_break route
+//! (legacy label: Pattern2)
 //!
 //! Responsibility:
 //! - Extract a minimal derived-slot recipe for a single LoopBodyLocal variable
-//!   used in Pattern2 break conditions.
+//!   used in loop_break conditions.
 //! - No JoinIR emission; detection only.
 
 use crate::ast::ASTNode;

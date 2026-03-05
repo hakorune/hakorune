@@ -1,4 +1,5 @@
-//! Carrier binding policy for Pattern2 inputs
+//! Carrier binding policy for loop_break route inputs
+//! (legacy label: Pattern2)
 //!
 //! Responsibility:
 //! - Decide whether a carrier should bind to a host ValueId
