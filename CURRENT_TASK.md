@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `a05f5313b` refactor D5 align registry predicate naming with loop-continue route
+    - `joinir/patterns/registry/predicates.rs` の `pred_loop_continue_recipe` を `pred_loop_continue_only_recipe` へ改名し、`loop_cond_continue_only` 判定の主語を route 名へ同期
+    - `joinir/patterns/registry/mod.rs` でも Entry 配線と candidate suppression 変数名を同語彙に統一（挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `6bf9685b5` refactor D5 align loop processing context wording to route semantics
     - `joinir/loop_context.rs` の `LoopProcessingContext` 表層語彙を Pattern 主語から Route 主語へ整理（`pattern_kind` -> `route_kind`、parity comment/log 文言の統一）
     - 併せて同ファイル内 test 期待値を `route_kind` へ同期（runtime 挙動不変）
