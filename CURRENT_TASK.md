@@ -55,6 +55,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - 上記 release 例外で compose/verify/lower reject 時は `Ok(None)` を返し、router の no-route 判定へ戻す（互換維持）
   - release scan（`phase29bq_fast_gate_cases.tsv` を release config + `HAKO_JOINIR_DEBUG=1` で実行）で `entry_route` は `recipe_first|shadow_adopt|none` のみ（126 fixture）
   - nested fallback（`nested_loop_plan` / `generic_loop_body/helpers` / `nested_loop_depth1`）は `planner_required` 時に `loop_cond_continue_with_return` を recipe composer 優先で下ろす（plan normalizer 依存を段階縮退）
+  - nested fallback の `loop_cond_continue_with_return` gate は共通 helper (`try_compose_loop_cond_continue_with_return_recipe`) に集約済み（重複3箇所を削除）
   - router の release pre-plan fallback（`release_adopt`）は撤去済み。entry は recipe-first / strict-dev shadow_adopt / none に固定
   - recipe 補助ログは route 主語へ統一中（`[recipe:verify] route=<...> status=ok`, `[recipe:compose] route=<...> path=<...>`）
   - planner context 表層語彙は `route_kind` へ統一済み（`pattern_kind` は code path から撤去）
@@ -92,6 +93,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `(pending)` refactor(plan): dedupe nested continue-with-return recipe gate
+    - `nested_loop_plan.rs` に `try_compose_loop_cond_continue_with_return_recipe` helper を追加し、`planner_required` + `recipe_contract` 必須チェックと compose 経路を SSOT 化
+    - `features/generic_loop_body/helpers.rs` / `features/nested_loop_depth1.rs` の重複ガードを helper 呼び出しへ置換し、legacy 的な分岐重複を削除（挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `28e8f9bb9` docs: sync recipe entry tags to route vocabulary
     - `ai-handoff-and-debug-contract.md` / `recipe-first-entry-contract-ssot.md` の `[recipe:entry] pattern*` 記述を route 主語へ更新（`pattern3_ifphi` → `if_phi_join` など）
     - route vocabulary 統一済みの verify/compose タグと同じ主語体系へ整列し、stale 記述を縮退

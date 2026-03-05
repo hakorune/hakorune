@@ -4,6 +4,7 @@ use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockVi
 use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, lower_cond_value};
+use crate::mir::builder::control_flow::plan::nested_loop_plan::try_compose_loop_cond_continue_with_return_recipe;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
@@ -89,29 +90,14 @@ pub(super) fn lower_nested_loop_plan(
         outcome.recipe_contract.is_some(),
     );
 
-    if planner_required {
-        if let Some(facts) = outcome.facts.as_ref() {
-            if facts.facts.loop_cond_continue_with_return.is_some() {
-                if outcome.recipe_contract.is_none() {
-                    return Err(
-                        crate::mir::builder::control_flow::plan::planner::Freeze::contract(
-                            "loop_cond_continue_with_return requires recipe_contract in planner_required mode",
-                        )
-                        .to_string(),
-                    );
-                }
-                plan_trace::trace_outcome_path(
-                    "generic_loop_body::nested_loop_plan",
-                    "recipe_loop_cond_continue_with_return",
-                );
-                return RecipeComposer::compose_loop_cond_continue_with_return_recipe(
-                    builder,
-                    facts,
-                    &nested_ctx,
-                )
-                .map_err(|e| e.to_string());
-            }
-        }
+    if let Some(recipe) = try_compose_loop_cond_continue_with_return_recipe(
+        builder,
+        &outcome,
+        &nested_ctx,
+        "generic_loop_body::nested_loop_plan",
+        planner_required,
+    )? {
+        return Ok(recipe);
     }
 
     if let Some(loop_plan) = outcome.plan.as_ref().cloned() {
