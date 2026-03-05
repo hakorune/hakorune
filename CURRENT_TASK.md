@@ -49,22 +49,22 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - latest audit snapshot (2026-03-05):
   - top-level loop route は recipe-first が主経路（`route_loop -> registry::try_route_recipe_first -> PlanLowerer`）
   - `normalizer/pattern*.rs` は runtime main route 直下では未使用（test-only / 補助経路）
-  - `DomainPlan` 識別子は `src/**` で 0件。残存 payload は `LoopCondContinueWithReturnPlan` の限定利用のみ
-  - `outcome.plan.take()` は `src/mir/builder/control_flow/{plan,joinir}/**` で 0件（nested fallback は `[plan/trace] stage=<...> outcome/path` で観測固定）
+  - `DomainPlan` 識別子は `src/**` で 0件。planner payload lane（`LoopCondContinueWithReturnPlan`）は runtime 経路から撤去済み
+  - `PlanBuildOutcome` は `facts + recipe_contract` のみ。`outcome.plan` / `outcome.plan.take()` 参照は `src/mir/builder/control_flow/{plan,joinir}/**` で 0件
   - release nested-safe recipe-first は `pattern6_nested_minimal` / `generic_loop_v{1,0}` / exit-driven `loop_cond_break_continue` まで拡張済み
   - 上記 release 例外で compose/verify/lower reject 時は `Ok(None)` を返し、router の no-route 判定へ戻す（互換維持）
   - release scan（`phase29bq_fast_gate_cases.tsv` を release config + `HAKO_JOINIR_DEBUG=1` で実行）で `entry_route` は `recipe_first|shadow_adopt|none` のみ（126 fixture）
-  - nested fallback（`nested_loop_plan` / `generic_loop_body/helpers` / `nested_loop_depth1`）は `planner_required` 時に `loop_cond_continue_with_return` を recipe composer 優先で下ろす（plan normalizer 依存を段階縮退）
+  - nested fallback（`nested_loop_plan` / `generic_loop_body/helpers` / `nested_loop_depth1`）は `planner_required` 時に `loop_cond_continue_with_return` を recipe composer 優先で下ろす（legacy payload 分岐なし）
   - nested fallback の `loop_cond_continue_with_return` gate は共通 helper (`try_compose_loop_cond_continue_with_return_recipe`) に集約済み（重複3箇所を削除）
-  - nested fallback の legacy planner payload（`planner_payload -> PlanNormalizer`）は retire 済み。payload 検出時は `freeze_legacy_planner_payload` で fail-fast
-  - `single_planner/rules.rs` の `route=plan strategy=extract` 経路は retire 中。planner payload 検出時は freeze contract へ移行
+  - nested fallback の legacy planner payload（`planner_payload -> PlanNormalizer`）は撤去済み
+  - `single_planner/rules.rs` は `loop_cond_continue_with_return facts` を recipe-only rule hit 判定のSSOTにし、`route=plan strategy=extract` 経路を撤去済み
   - router の release pre-plan fallback（`release_adopt`）は撤去済み。entry は recipe-first / strict-dev shadow_adopt / none に固定
   - recipe 補助ログは route 主語へ統一中（`[recipe:verify] route=<...> status=ok`, `[recipe:compose] route=<...> path=<...>`）
   - planner context 表層語彙は `route_kind` へ統一済み（`pattern_kind` は code path から撤去）
 - compiler fixed order:
-  1. nested fallback の plan payload 参照を段階的に撤去し、`Facts -> Recipe` 側の観測契約へ集約する（`LoopCondContinueWithReturnPlan` 薄化）。
-  2. stale docs を同期し、entry 契約を `Facts -> Recipe -> Composer -> Verifier -> Parts` 一本化の現況に合わせる。
-  3. `plan/**` 内の pattern1..9 残語彙（内部型名/補助コメント）を route/recipe 主語へ段階移行する（挙動不変）。
+  1. stale docs を同期し、entry 契約を `Facts -> Recipe -> Composer -> Verifier -> Parts` 一本化の現況に合わせる。
+  2. `plan/**` 内の pattern1..9 残語彙（内部型名/補助コメント）を route/recipe 主語へ段階移行する（挙動不変）。
+  3. planner/normalizer の dead comments・test-only wiring（payload 前提）を段階撤去する。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
 
@@ -95,7 +95,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
-  - `(pending)` refactor(plan): retire single-planner payload extract branch
+  - `(pending)` refactor(plan): remove planner payload lane from outcome/composer paths
+    - `PlanBuildOutcome` から `plan` を撤去し、planner outcome を `facts + recipe_contract` に固定
+    - `single_planner/rules.rs` / `nested_loop_plan.rs` / `features/{generic_loop_body/helpers,nested_loop_depth1}.rs` / `composer/shadow_adopt.rs` の `outcome.plan` 分岐を削除
+    - dead files `planner/build.rs` / `planner/build_tests.rs` を削除し、payload 専用入口を物理撤去
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`--only loop_cond_continue_with_return_min` PASS、`--only loop_header_shortcircuit_continue_with_return_min` PASS
+  - `6da61129a` refactor(plan): retire single-planner payload extract branch
     - `single_planner/rules.rs` の `planner_hit + outcome.plan.is_some()` 分岐を legacy `route=plan strategy=extract` から freeze contract へ変更
     - recipe-only ルール（`LoopCondContinueWithReturn`）以外へ planner payload が漏れた場合に fail-fast で止める契約へ統一
     - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS

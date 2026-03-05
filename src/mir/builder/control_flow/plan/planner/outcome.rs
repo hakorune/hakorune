@@ -8,16 +8,12 @@ use crate::mir::builder::control_flow::plan::normalize::{
     canonicalize_loop_facts, CanonicalLoopFacts,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::contracts::RecipeContract;
-use crate::mir::builder::control_flow::plan::LoopCondContinueWithReturnPlan;
-
-use super::build::build_plan_from_facts_ctx;
 use super::context::PlannerContext;
 use super::Freeze;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct PlanBuildOutcome {
     pub facts: Option<CanonicalLoopFacts>,
-    pub plan: Option<LoopCondContinueWithReturnPlan>,
     /// Recipe contract (Phase B: parallel path, planner_required only).
     pub recipe_contract: Option<RecipeContract>,
 }
@@ -47,16 +43,14 @@ fn build_plan_from_facts_opt_with(
     let Some(facts) = facts else {
         return Ok(PlanBuildOutcome {
             facts: None,
-            plan: None,
             recipe_contract: None,
         });
     };
     let canonical = canonicalize_loop_facts(facts);
-    let plan = build_plan_from_facts_ctx(ctx, canonical.clone())?;
+    let _ = ctx;
 
     Ok(PlanBuildOutcome {
         facts: Some(canonical),
-        plan,
         recipe_contract: None,
     })
 }

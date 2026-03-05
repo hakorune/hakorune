@@ -1,4 +1,4 @@
-//! Shared nested loop plan lowering (loop plan payload → CorePlan, with recipe-first fallback).
+//! Shared nested loop plan lowering (facts/recipe-first).
 
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
@@ -58,7 +58,7 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first(
     let outcome = single_planner::try_build_outcome(&nested_ctx)?;
     plan_trace::trace_outcome_snapshot(
         "nested_loop_plan_with_recipe_first",
-        outcome.plan.is_some(),
+        false,
         outcome.facts.is_some(),
         outcome.recipe_contract.is_some(),
     );
@@ -73,19 +73,6 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first(
         planner_required,
     )? {
         return Ok(recipe);
-    }
-
-    if outcome.plan.is_some() {
-        plan_trace::trace_outcome_path(
-            "nested_loop_plan_with_recipe_first",
-            "freeze_legacy_planner_payload",
-        );
-        return Err(
-            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
-                "nested loop planner payload path is retired; expected recipe-only route",
-            )
-            .to_string(),
-        );
     }
 
     if planner_required {

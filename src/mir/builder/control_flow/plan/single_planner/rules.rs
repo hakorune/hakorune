@@ -6,7 +6,6 @@
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 
 use crate::mir::builder::control_flow::plan::facts::pattern2_loopbodylocal_facts::LoopBodyLocalShape;
-use crate::mir::builder::control_flow::plan::loop_plan_label;
 use crate::mir::builder::control_flow::plan::planner::{self, PlanBuildOutcome, PlannerContext};
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 
@@ -101,6 +100,13 @@ fn emit_loop_break_promotion_hint_tag(promotion_shape: Option<&LoopBodyLocalShap
     let _ = ring0.io.stderr_write(format!("{}\n", tag).as_bytes());
 }
 
+fn planner_candidate_present(outcome: &PlanBuildOutcome) -> bool {
+    outcome
+        .facts
+        .as_ref()
+        .is_some_and(|facts| facts.facts.loop_cond_continue_with_return.is_some())
+}
+
 pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutcome, String> {
     use crate::mir::builder::control_flow::joinir::trace;
 
@@ -113,7 +119,7 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
     };
     let mut outcome = planner::build_plan_with_facts_ctx(&planner_ctx, ctx.condition, ctx.body)
         .map_err(|freeze| freeze.to_string())?;
-    let planner_present = outcome.plan.is_some();
+    let planner_present = planner_candidate_present(&outcome);
 
     // Phase B: Recipe-first parallel path (planner_required only)
     if gate.planner_required {
@@ -180,29 +186,11 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
         if planner_hit && is_recipe_only_rule(rule_id) {
             gate.log_planner_first(rule_id);
             debug_log_recipe_only_entry(rule_id);
-            outcome.plan = None;
             return Ok(outcome);
-        }
-
-        if gate.planner_required && planner_hit {
-            if let Some(plan) = outcome.plan.as_ref() {
-                return Err(planner::Freeze::contract(&format!(
-                    "planner_required forbids plan label={}",
-                    loop_plan_label(plan)
-                ))
-                .to_string());
-            }
         }
 
         if planner_hit {
             gate.log_planner_first(rule_id);
-            if outcome.plan.is_some() {
-                return Err(planner::Freeze::contract(&format!(
-                    "planner payload route retired: expected recipe-only rule={}",
-                    name
-                ))
-                .to_string());
-            }
         } else if !gate.planner_required && ctx.debug {
             let debug_msg = format!("{} extraction returned None, trying next rule", name);
             trace::trace().debug("route", &debug_msg);

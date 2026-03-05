@@ -127,7 +127,7 @@ fn lower_nested_loop_single_planner(
     let outcome = single_planner::try_build_outcome(&ctx)?;
     plan_trace::trace_outcome_snapshot(
         "nested_loop_depth1::single_planner",
-        outcome.plan.is_some(),
+        false,
         outcome.facts.is_some(),
         outcome.recipe_contract.is_some(),
     );
@@ -143,18 +143,6 @@ fn lower_nested_loop_single_planner(
         planner_required,
     )? {
         return Ok(recipe);
-    }
-    if outcome.plan.is_some() {
-        plan_trace::trace_outcome_path(
-            "nested_loop_depth1::single_planner",
-            "freeze_legacy_planner_payload",
-        );
-        return Err(
-            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
-                "nested loop planner payload path is retired; expected recipe-only route",
-            )
-            .to_string(),
-        );
     }
     plan_trace::trace_outcome_path("nested_loop_depth1::single_planner", "freeze_no_plan");
     Err(format!("{error_prefix}: nested loop has no plan"))

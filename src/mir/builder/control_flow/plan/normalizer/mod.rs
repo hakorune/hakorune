@@ -33,7 +33,7 @@ pub(in crate::mir::builder) mod loop_body_lowering;
 #[cfg(test)]
 mod value_join_demo_if2;
 
-use super::{CoreEffectPlan, CoreLoopPlan, LoopCondContinueWithReturnPlan, LoweredRecipe};
+use super::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
@@ -52,23 +52,6 @@ pub(in crate::mir::builder) struct PlanNormalizer;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;
 
 impl PlanNormalizer {
-    /// Normalize loop plan payload to CorePlan
-    ///
-    /// This is the SSOT for pattern-specific knowledge expansion.
-    /// All pattern semantics (scan, split, etc.) are expanded here.
-    pub(in crate::mir::builder) fn normalize(
-        builder: &mut MirBuilder,
-        domain: LoopCondContinueWithReturnPlan,
-        ctx: &LoopRouteContext,
-    ) -> Result<LoweredRecipe, String> {
-        // Phase 29bq P2.x: current planner payload is LoopCondContinueWithReturn.
-        let facts = LoopCondContinueWithReturnFacts {
-            condition: domain.condition,
-            recipe: domain.recipe,
-        };
-        Self::normalize_loop_cond_continue_with_return(builder, facts, ctx)
-    }
-
     // Delegators to pipeline lowerers (unified loop_cond_* normalizers)
 
     pub(in crate::mir::builder) fn normalize_loop_cond_break_continue(

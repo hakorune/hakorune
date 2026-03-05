@@ -74,15 +74,15 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
     if joinir_dev::debug_enabled() {
         let features = flowbox_tags::features_from_facts(outcome.facts.as_ref());
         let features_csv = features.join(",");
-        let plan_state = if outcome.plan.is_some() {
+        let recipe_contract_state = if outcome.recipe_contract.is_some() {
             "Some"
         } else {
             "None"
         };
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
-            "[plan/trace:nested_loop_guard_entry] ctx=shadow_adopt features={} plan={}",
-            features_csv, plan_state
+            "[plan/trace:nested_loop_guard_entry] ctx=shadow_adopt features={} recipe_contract={}",
+            features_csv, recipe_contract_state
         ));
     }
     let facts_present = outcome.facts.is_some();
@@ -140,22 +140,21 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
-            "[plan/freeze:nested_loop_guard] func={} span={} plan={:?} route_kind={} depth={:?}",
+            "[plan/freeze:nested_loop_guard] func={} span={} recipe_contract={} route_kind={} depth={:?}",
             ctx.func_name,
             ctx.condition.span(),
-            outcome.plan,
+            outcome.recipe_contract.is_some(),
             ctx.route_kind.semantic_label(),
             ctx.step_tree_max_loop_depth
         ));
     }
 
-    let plan_repr_raw = if outcome.plan.is_some() {
-        format!("{:?}", outcome.plan)
-    } else {
-        outcome.facts.as_ref().and_then(|facts| {
+    let plan_repr_raw = outcome
+        .facts
+        .as_ref()
+        .and_then(|facts| {
             facts.facts.pattern4_continue.as_ref().map(|pattern4| {
-                let mut carrier_vars: Vec<String> =
-                    pattern4.carrier_updates.keys().cloned().collect();
+                let mut carrier_vars: Vec<String> = pattern4.carrier_updates.keys().cloned().collect();
                 carrier_vars.sort();
                 format!(
                     "Some(Pattern4Continue(Pattern4ContinuePlan {{ loop_var: {:?}, carrier_vars: {:?}, condition: {:?}, continue_condition: {:?}, carrier_updates: {:?}, loop_increment: {:?} }}))",
@@ -167,8 +166,8 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
                     pattern4.loop_increment
                 )
             })
-        }).unwrap_or_else(|| format!("{:?}", outcome.plan))
-    };
+        })
+        .unwrap_or_else(|| "None".to_string());
     let plan_repr =
         crate::mir::builder::control_flow::plan::diagnostics::span_format::normalize_span_line_col(
             &plan_repr_raw,
@@ -181,9 +180,6 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
 }
 
 fn allow_strict_nested_pattern4_min1(outcome: &PlanBuildOutcome, ctx: &LoopRouteContext) -> bool {
-    if outcome.plan.is_some() {
-        return false;
-    }
     if ctx.route_kind != LoopPatternKind::Pattern4Continue {
         return false;
     }
@@ -366,9 +362,6 @@ fn try_adopt_generic_loop_v0(
     ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
 ) -> Result<Option<ShadowAdoptOutcome>, String> {
-    if outcome.plan.is_some() {
-        return Ok(None);
-    }
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
     };
@@ -398,9 +391,6 @@ fn try_adopt_generic_loop_v1(
     ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
 ) -> Result<Option<ShadowAdoptOutcome>, String> {
-    if outcome.plan.is_some() {
-        return Ok(None);
-    }
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
     };
