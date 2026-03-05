@@ -114,6 +114,7 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
    - static_methods の解決を橋渡しで保証する
    - Stage‑3 exceptions（try/throw/catch/cleanup）は Bridge の Result‑mode lowering に pin する
      - gate/selfhost では `NYASH_TRY_RESULT_MODE=1` を固定する（legacy MIR Throw/Catch 経路は使わない）
+     - Rust VM `Catch`/`Throw` 命令の実行実装は post-selfhost deferred。現行 lane は throw-free surface + JSON v0 Result-mode canary で契約監視する。
      - SSOT: `docs/guides/exceptions-stage3.md` / `docs/reference/architecture/parser_mvp_stage3.md`
    - `imports` は **Program.body で参照された alias のみ** compile/merge する（未参照は読み込まない）
      - 依存 compile は **強制で strict + planner_required** で実行する（環境揺れ防止）

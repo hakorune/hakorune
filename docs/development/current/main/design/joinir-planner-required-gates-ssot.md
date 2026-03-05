@@ -49,7 +49,7 @@ master list は TSV で固定する。
   - `fixture`（repo root 相対）
   - `expected`（stdout の SSOT。空stdoutは `__EMPTY__`）
   - `allow_rc`（許容 exit code の空白区切り。省略時は `0`）
-  - `planner_tag`（必須。例: `[joinir/planner_first rule=Pattern2]`）
+  - `planner_tag`（必須。例: `[joinir/planner_first rule=LoopBreakRecipe]`）
     - pre_plan の shadow adopt が正規経路の場合は
       `[flowbox/adopt box_kind=Loop features=<...> via=shadow]` を使ってよい
   - `reason`（任意。読みやすさのための 1 行メモ）

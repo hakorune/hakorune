@@ -34,6 +34,7 @@
 - Planner Entry Guards（Facts の reject_reason/handoff 構造化）: `docs/development/current/main/design/planner-entry-guards-ssot.md`
 - Type System Policy（MirType/RuntimeTypeTag/TypeView の責務分離SSOT）: `docs/development/current/main/design/type-system-policy-ssot.md`
 - Campaign: compiler cleanliness（compiler-first / BoxShape-first の運用SSOT）: `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
+- Compiler task map（日々の固定順序 + round pack SSOT）: `docs/development/current/main/design/compiler-task-map-ssot.md`
 - PhiInputStrategy（loop PHI 入力形の設計SSOT）: `docs/development/current/main/design/phi-input-strategy-ssot.md`
 - PHI Lifecycle（PHIの予約→定義→入力確定SSOT）: `docs/development/current/main/design/phi-lifecycle-ssot.md`
 - Feature helper map（cross-pipeline 地図）: `docs/development/current/main/design/feature-helper-cross-pipeline-map.md`

@@ -213,10 +213,15 @@ cat docs/tools/script-index.md
 tools/checks/route_env_probe.sh --route hako-mainline --source apps/tests/minimal.hako
 tools/checks/route_env_probe.sh --route direct --require-no-fallback
 tools/checks/route_no_fallback_guard.sh
+tools/dev/direct_loop_progression_sweep.sh --profile default
+tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe
+tools/dev/phase29ca_direct_verify_dominance_block_canary.sh
 ```
 
 `route_env_probe` は、`emit_mir_route.sh` 実行前の
 `NYASH_MIR_CONCAT3_CANON` や fallback トグルを1回で確認する短絡入口。
+`direct_loop_progression_sweep.sh` は direct route の loop progression 監視入口で、`phase29x-probe` は monitor-only（emit fail 許容）モード。
+`phase29ca_direct_verify_dominance_block_canary.sh` は phase29ca の direct route 回帰（direct-verify/step-budget）を fail-fast で監視する。
 
 ## 推奨デバッグ順
 

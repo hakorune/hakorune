@@ -62,15 +62,15 @@ Related:
     - `apps/tests/phase29bq_selfhost_funcscanner_box_from_min.hako`
     - `apps/tests/phase29bq_selfhost_funcscanner_method_boundary_from_birth_min.hako`
     - `apps/tests/phase29bq_selfhost_funcscanner_lambda_literal_min.hako`
-  - throw 2件（surface 言語契約で parser fail-fast）:
-    - `apps/tests/phase29bq_selfhost_try_throw_catch_cleanup_min.hako`
-    - `apps/tests/phase29bq_selfhost_try_loop_throw_catch_min.hako`
+  - throw reserved 2件（surface 言語契約で parser fail-fast）:
+    - `apps/tests/parser_throw_reserved_min.hako`
+    - `apps/tests/parser_throw_reserved_loop_min.hako`
 - 監視コマンド:
   - `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_funcscanner_box_from_min_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_funcscanner_method_boundary_min_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_lambda_literal_pair_min_vm.sh`
-  - `./target/release/hakorune --backend vm apps/tests/phase29bq_selfhost_try_throw_catch_cleanup_min.hako`（`[freeze:contract][parser/throw_reserved]`）
-  - `./target/release/hakorune --backend vm apps/tests/phase29bq_selfhost_try_loop_throw_catch_min.hako`（`[freeze:contract][parser/throw_reserved]`）
+  - `./target/release/hakorune --backend vm apps/tests/parser_throw_reserved_min.hako`（`[freeze:contract][parser/throw_reserved]`）
+  - `./target/release/hakorune --backend vm apps/tests/parser_throw_reserved_loop_min.hako`（`[freeze:contract][parser/throw_reserved]`）
 
 ## 2) 進め方（PROBE→FIX→PROMOTE）
 

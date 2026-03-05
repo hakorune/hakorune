@@ -4,6 +4,21 @@ This folder contains investigation notes and analysis for debugging sessions.
 
 ## Active Investigations
 
+### Phase29x: Direct Route Probe (2026-03-02)
+
+**Status**: 🟢 monitor active  
+**Problem**: `--emit-mir-json` direct route の `emit:other`（plan freeze系）残件を段階削減中
+
+**Key Document**:
+1. [phase29x-direct-route-probe-2026-03-02.md](phase29x-direct-route-probe-2026-03-02.md)
+
+**Latest Snapshot**:
+- `emit_fail=27`, `run_nonzero=7`, `run_ok=84`
+- class: `emit:direct-verify=0`, `emit:joinir-reject=0`, `emit:other=27`, `emit:freeze-contract=0`
+
+**Current Head Blocker**:
+- `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_min.hako`
+
 ### Phase 131-12: LLVM Wrong Result (Case C)
 
 **Status**: ✅ Root cause identified

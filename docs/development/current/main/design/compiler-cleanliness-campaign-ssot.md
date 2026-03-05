@@ -24,6 +24,14 @@ Related:
 - **BoxShape → BoxCount**: まず共通部品SSOT化/入口集約/テーブル化。箱の追加は最後の手段。
 - **完成品キット禁止（原則）**: skeleton/PHI/walker を複製して増やす箱は作らない（例外は SSOT に撤去計画がある場合のみ）。
 
+## AI mistake-resistant rules (always-on)
+
+- 受理判断の真実を 1箇所に寄せる（Recipe/Verifier SSOT）。`planner_required` 下で文字列判定 fallback を足さない。
+- `variable_map` の退避復元は scope helper を必須化する（`parts::var_map_scope::with_saved_variable_map`）。手動 save/restore は禁止。
+- “受理を増やしたのに観測SSOTを更新しない” 変更を禁止する（StepTree/Extractor/parity を同コミット更新）。
+- 失敗の主語は `freeze:contract` で原因側へ寄せる。panic/silent no-op で距離を伸ばさない。
+- 実行順序は `compiler-task-map-ssot.md` の round pack を優先し、`CURRENT_TASK.md` の blocker 順序と同期する。
+
 ## このキャンペーンの“追加点”の置き方
 
 “どこに何を足すか” が分かりにくいと AI が誤るので、追加点を SSOT で固定する。

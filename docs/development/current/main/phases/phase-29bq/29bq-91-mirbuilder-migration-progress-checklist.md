@@ -177,20 +177,23 @@ Related:
   - Evidence: `apps/tests/phase29bq_blockexpr_basic_min.hako`（fast gate bq）
 - [x] `BlockExpr`（tail が stmt JSON: `If` など）:
   - Evidence: `apps/tests/phase29bq_selfhost_blocker_parse_try_program_block_min.hako`（selfhost subset）
-- [x] `Try` + `Throw`（stmt）+ `catch` + `cleanup`（Result-mode）:
-  - Evidence: `apps/tests/phase29bq_selfhost_try_throw_catch_cleanup_min.hako`（selfhost subset）
+- [x] `Try` + `cleanup`（surface throw-free runtime lane）:
+  - Evidence: `apps/tests/phase29bq_selfhost_try_throw_catch_cleanup_min.hako` / `apps/tests/phase29bq_selfhost_try_loop_throw_catch_min.hako`
+- [x] `Try` + `Throw`（stmt）+ `catch` + `cleanup`（Result-mode JSON canary）:
+  - Evidence: `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_json_v0_try_catch_cleanup_canary_vm.sh`
 
 ## 4) JSON v0 bridge lowering coverage
 
 この節の “✅” は「bridge が該当ノードを MIR に下ろし、VM 実行まで通した」ことを意味する。
 
 - [x] `StmtV0::Try`（Result-mode / no MIR Catch/Throw）:
-  - Evidence: `apps/tests/phase29bq_selfhost_try_throw_catch_cleanup_min.hako`
+  - Evidence: `tests/json_v0_stage3/try_basic.json` + `phase29bq_json_v0_try_catch_cleanup_canary_vm.sh`
 - [x] `StmtV0::Throw`（Result-mode の throw_ctx 経由）:
-  - Evidence: `apps/tests/phase29bq_selfhost_try_throw_catch_cleanup_min.hako`
+  - Evidence: `tests/json_v0_stage3/try_basic.json` + `tests/json_v0_stage3/block_postfix_catch.json`
 
 ### 4.1 Known gap（次のBoxCount候補）
 
-- [x] throw が loop の中で起きたとき、catch 側で周辺変数が throw 時点の値で見えること（var map snapshot）:
-  - Evidence fixture: `apps/tests/phase29bq_selfhost_try_loop_throw_catch_min.hako`（selfhost subset PROMOTE）
+- [ ] throw が loop の中で起きたとき、catch 側で周辺変数が throw 時点の値で見えること（var map snapshot）:
+  - Status: post-selfhost deferred（surface `throw` reserved + runtime lane throw-free）。
+  - Re-entry evidence target: JSON v0 throw-loop canary（`NYASH_TRY_RESULT_MODE=1`）。
   - Fix area: `src/runner/json_v0_bridge/lowering/{throw_ctx.rs,throw_lower.rs,try_catch.rs}`

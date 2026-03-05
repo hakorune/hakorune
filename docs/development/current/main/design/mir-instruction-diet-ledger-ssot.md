@@ -41,6 +41,10 @@ Related:
 | VM only | 9 | `Await, Barrier, Debug, FutureNew, FutureSet, Load, Safepoint, Select, Store` |
 | JSON/VMとも未受理 | 4 | `Catch, NewClosure, RefNew, Throw` |
 
+運用注記（2026-03）:
+- `Catch/Throw` は語彙としては kept だが、selfhost/mainline の日常 lane では `NYASH_TRY_RESULT_MODE=1` に pin して legacy MIR `Catch/Throw` 実行を使わない。
+- Rust VM の `Catch/Throw` 実行実装は post-selfhost deferred。
+
 ## Ledger Decision (accepted)
 
 ### kept (28)
