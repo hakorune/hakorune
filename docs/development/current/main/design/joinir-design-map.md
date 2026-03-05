@@ -149,7 +149,7 @@ flowchart LR
 ```
 
 読み方:
-- 「Loop/If の形が認識されない」: Pattern 検出（Feature/Kind）と shape guard を見る
+- 「Loop/If の形が認識されない」: route 判定（Feature/Kind）と shape guard を見る
 - 「JoinIR は生成できるが統合で壊れる」: Merge（ValueId/PHI/ExitLine/Boundary）と契約検証を見る
 - 「なぜこのエラータグが出たか」: ErrorTags（SSOT）を起点に呼び出し元へ辿る
 
@@ -168,16 +168,16 @@ SSOT（設計目標）:
 
 | 領域 | 役割（何を決めるか） | 主な入口/箱（SSOT寄り） | 主な出力 | Fail-Fast（典型） |
 |---|---|---|---|---|
-| Pattern検出 | ループ形を分類し、どの lowerer に渡すか決める | [`src/mir/builder/control_flow/joinir/patterns/router.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/router.rs), [`src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs), [`src/mir/builder/control_flow/joinir/patterns/pattern2_inputs_facts_box.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/pattern2_inputs_facts_box.rs), [`src/mir/builder/control_flow/joinir/patterns/policies/`](../../../../../src/mir/builder/control_flow/joinir/patterns/policies/), [`src/mir/loop_pattern_detection/mod.rs`](../../../../../src/mir/loop_pattern_detection/mod.rs) | `LoopPatternKind` / Pattern 選択 | 「分類不能」→ 明示的に Err（サイレントな非JoinIR退避は禁止） |
+| Route判定 | ループ形を分類し、どの recipe/composer 経路に渡すか決める | [`src/mir/builder/control_flow/joinir/patterns/router.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/router.rs), [`src/mir/builder/control_flow/joinir/patterns/registry/mod.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/registry/mod.rs), [`src/mir/builder/control_flow/plan/ast_feature_extractor.rs`](../../../../../src/mir/builder/control_flow/plan/ast_feature_extractor.rs), [`src/mir/builder/control_flow/plan/policies/`](../../../../../src/mir/builder/control_flow/plan/policies/), [`src/mir/loop_pattern_detection/mod.rs`](../../../../../src/mir/loop_pattern_detection/mod.rs) | `LoopPatternKind` / route 選択 | 「分類不能」→ 明示的に Err（サイレントな非JoinIR退避は禁止） |
 | shape guard | 「この shape なら lower/merge 契約が成立する」を保証する | [`src/mir/join_ir/normalized/shape_guard.rs`](../../../../../src/mir/join_ir/normalized/shape_guard.rs), `src/mir/builder/control_flow/joinir/patterns/*_validator.rs` | shape OK / 詳細診断 | shape 不一致を握りつぶさず Err |
-| lowering | JoinIR（Structured/Normalized）を生成する | [`src/mir/join_ir/lowering/mod.rs`](../../../../../src/mir/join_ir/lowering/mod.rs), [`src/mir/builder/control_flow/joinir/patterns/pattern2_lowering_orchestrator.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/pattern2_lowering_orchestrator.rs), `src/mir/builder/control_flow/joinir/patterns/pattern*_*.rs` | `JoinModule` | 未対応の構造は `error_tags::freeze(...)` 等で Err |
-| merge | JoinIR→MIR 変換後、ホスト関数に統合する | [`src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs), [`src/mir/builder/control_flow/joinir/merge/mod.rs`](../../../../../src/mir/builder/control_flow/joinir/merge/mod.rs) | ホスト MIR のブロック/ValueId 更新 | ValueId 競合、ExitLine 未接続、PHI 破綻を Err |
+| lowering | JoinIR/MIR へ機械的に落とす | [`src/mir/join_ir/lowering/mod.rs`](../../../../../src/mir/join_ir/lowering/mod.rs), [`src/mir/builder/control_flow/plan/composer/mod.rs`](../../../../../src/mir/builder/control_flow/plan/composer/mod.rs), [`src/mir/builder/control_flow/plan/lowerer/mod.rs`](../../../../../src/mir/builder/control_flow/plan/lowerer/mod.rs) | `JoinModule` / MIR frag | 未対応の構造は `error_tags::freeze(...)` 等で Err |
+| merge | JoinIR→MIR 変換後、ホスト関数に統合する | [`src/mir/builder/control_flow/plan/conversion_pipeline.rs`](../../../../../src/mir/builder/control_flow/plan/conversion_pipeline.rs), [`src/mir/builder/control_flow/joinir/merge/mod.rs`](../../../../../src/mir/builder/control_flow/joinir/merge/mod.rs) | ホスト MIR のブロック/ValueId 更新 | ValueId 競合、ExitLine 未接続、PHI 破綻を Err |
 | ExitMeta | 「出口でどの carrier をどの host slot に戻すか」のメタ | [`src/mir/join_ir/lowering/carrier_info.rs`](../../../../../src/mir/join_ir/lowering/carrier_info.rs), [`src/mir/builder/control_flow/joinir/merge/exit_line/meta_collector.rs`](../../../../../src/mir/builder/control_flow/joinir/merge/exit_line/meta_collector.rs) | `ExitMeta` / `exit_bindings` | carrier 不整合（不足/過剰）を Err |
 | CarrierInit | carrier 初期化の SSOT（FromHost/Const/LoopLocal） | [`src/mir/builder/control_flow/joinir/merge/carrier_init_builder.rs`](../../../../../src/mir/builder/control_flow/joinir/merge/carrier_init_builder.rs), [`src/mir/join_ir/lowering/carrier_info.rs`](../../../../../src/mir/join_ir/lowering/carrier_info.rs) | 初期値 `ValueId` | 初期化経路の分岐が散らばらない（SSOT を使う） |
 | ErrorTags | エラータグ整形の SSOT（検索性・一貫性） | [`src/mir/join_ir/lowering/error_tags.rs`](../../../../../src/mir/join_ir/lowering/error_tags.rs) | 文字列タグ | 文字列ハードコードを避け、タグを一元化 |
 
 注:
-- Pattern 検出は「関数名 by-name 分岐」に依存しない（構造で決める）。必要なら dev/診断限定のガードに閉じ込める。
+- route 判定は「関数名 by-name 分岐」に依存しない（構造で決める）。必要なら dev/診断限定のガードに閉じ込める。
 - shape guard は「OK なら後工程が前提にできる契約」を固定する場所で、曖昧な許容をしない。
 
 ---
@@ -188,19 +188,16 @@ SSOT（設計目標）:
 
 - Router（builder 入口）: [`src/mir/builder/control_flow/joinir/routing.rs`](../../../../../src/mir/builder/control_flow/joinir/routing.rs)
   - `MirBuilder::try_cf_loop_joinir(...)`（JoinIR ルートへ入る最初の関数）
-  - `MirBuilder::cf_loop_joinir_impl(...)`（pattern router → legacy binding の順）
-    - legacy binding は互換/退避専用（新規の呼び出し追加は禁止）。
-    - 撤去条件は `src/mir/builder/control_flow/joinir/legacy/README.md` を SSOT とする。
+  - `MirBuilder::cf_loop_joinir_impl(...)`（normalized shadow → recipe-first router の順）
 - Pattern router（テーブル駆動）: [`src/mir/builder/control_flow/joinir/patterns/router.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/router.rs)
-- Feature extraction: [`src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs)
-- Pattern 実体（代表）:
-  - [`src/mir/builder/control_flow/joinir/patterns/pattern1_minimal.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/pattern1_minimal.rs)
-  - [`src/mir/builder/control_flow/joinir/patterns/pattern2_with_break.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/pattern2_with_break.rs)
-  - [`src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs)
-  - [`src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs)
-  - [`src/mir/builder/control_flow/joinir/patterns/pattern5_infinite_early_exit.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/pattern5_infinite_early_exit.rs)
+- registry（recipe-first entry）: [`src/mir/builder/control_flow/joinir/patterns/registry/mod.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/registry/mod.rs)
+- Feature extraction: [`src/mir/builder/control_flow/plan/ast_feature_extractor.rs`](../../../../../src/mir/builder/control_flow/plan/ast_feature_extractor.rs)
+- Planner/Composer/Lowerer（代表）:
+  - [`src/mir/builder/control_flow/plan/single_planner/mod.rs`](../../../../../src/mir/builder/control_flow/plan/single_planner/mod.rs)
+  - [`src/mir/builder/control_flow/plan/composer/mod.rs`](../../../../../src/mir/builder/control_flow/plan/composer/mod.rs)
+  - [`src/mir/builder/control_flow/plan/lowerer/mod.rs`](../../../../../src/mir/builder/control_flow/plan/lowerer/mod.rs)
 - 変換パイプライン（JoinIR→MIR→Merge の統一導線）:
-  - [`src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`](../../../../../src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs)
+  - [`src/mir/builder/control_flow/plan/conversion_pipeline.rs`](../../../../../src/mir/builder/control_flow/plan/conversion_pipeline.rs)
 - Merge（統合の本体）: [`src/mir/builder/control_flow/joinir/merge/mod.rs`](../../../../../src/mir/builder/control_flow/joinir/merge/mod.rs)
   - ExitLine: [`src/mir/builder/control_flow/joinir/merge/exit_line/mod.rs`](../../../../../src/mir/builder/control_flow/joinir/merge/exit_line/mod.rs)
   - Merge の契約検証（debug）: [`src/mir/builder/control_flow/joinir/merge/contract_checks.rs`](../../../../../src/mir/builder/control_flow/joinir/merge/contract_checks.rs)
@@ -278,8 +275,8 @@ Box を新規実装・変更した際は以下を必ず確認：
 
 1. Fixture を追加（再現可能に固定）
    - `apps/tests/` または `apps/smokes/` に最小の `.hako` を追加（対象形が一目で分かるもの）
-2. Pattern/feature を追加（検出）
-   - `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`（必要なら feature 抽出を拡張）
+2. Route/feature を追加（検出）
+   - `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`（必要なら feature 抽出を拡張）
    - `src/mir/loop_pattern_detection/`（分類/補助解析が必要ならここに追加）
 3. shape guard を追加（契約の固定）
    - 形状・前提条件を validator として分離し、失敗は Err にする
