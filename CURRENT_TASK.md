@@ -54,9 +54,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - release nested loop は `pattern6_nested_minimal` だけ recipe-first 例外許可済み（`release_adopt` より先に `registry::try_route_recipe_first` を試行）
   - release nested-safe recipe-first は `generic_loop_v{1,0}` まで拡張済み（compose/verify/lower reject 時は `Ok(None)` で release fallback 維持）
   - release scan（`phase29bq_fast_gate_cases.tsv` を release config + `HAKO_JOINIR_DEBUG=1` で実行）で `entry_route=release_adopt` hit は 0件（126 fixture）
+  - nested fallback（`nested_loop_plan` / `generic_loop_body/helpers` / `nested_loop_depth1`）は `planner_required` 時に `loop_cond_continue_with_return` を recipe composer 優先で下ろす（plan normalizer 依存を段階縮退）
 - compiler fixed order:
-  1. nested fallback の `LoopCondContinueWithReturnPlan` 正規化依存を recipe composer 側へ段階移行する（planner_required を先行、挙動不変）。
-  2. release で `entry_route=release_adopt` が 0件のケース群から順に fallback 入口を閉じる（まず generic lane の no-op 化）。
+  1. release で `entry_route=release_adopt` が 0件のケース群から順に fallback 入口を閉じる（generic lane の no-op 化を first target）。
+  2. nested fallback の plan payload 参照を段階的に撤去し、`Facts -> Recipe` 側の観測契約へ集約する（`LoopCondContinueWithReturnPlan` 薄化）。
   3. 経路を `Facts -> Recipe -> Composer -> Verifier -> Parts` に一本化する（例外入口 `shadow_adopt/release_adopt` を撤去）。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
@@ -88,6 +89,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `0d367605c` refactor(plan): route nested continue-with-return via recipe in planner-required
+    - `nested_loop_plan.rs` / `features/generic_loop_body/helpers.rs` / `features/nested_loop_depth1.rs` で、`planner_required` 時の `loop_cond_continue_with_return` を `RecipeComposer::compose_loop_cond_continue_with_return_recipe` 優先へ変更
+    - `recipe_contract` 欠落時は freeze contract を即返し、plan payload (`LoopCondContinueWithReturnPlan`) 依存を nested fallback 入口から段階縮退
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`--only loop_cond_continue_with_return_min` PASS、`--only loop_header_shortcircuit_continue_with_return_min` PASS
   - `c3ca3386d` refactor(router): extend release nested-safe recipe-first to generic routes
     - `joinir/patterns/router.rs` の release recipe-first eligibility を拡張し、nested loop でも `generic_loop_v{1,0}` facts を recipe-first 先行対象に追加
     - `registry/handlers.rs` の `route_generic_loop_v{1,0}` は release lane で compose/verify/lower reject を `Ok(None)` へ縮退し、fallback 互換を維持
