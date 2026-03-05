@@ -1,9 +1,9 @@
-//! Loop Processing Context - SSOT for AST + Skeleton + Pattern
+//! Loop Processing Context - SSOT for AST + Skeleton + Route
 //!
 //! Phase 140-P5: Unified context for loop processing that integrates:
 //! - AST information (condition, body, span)
 //! - Canonicalizer output (LoopSkeleton, RoutingDecision)
-//! - Router information (LoopPatternKind, LoopFeatures)
+//! - Router information (route kind + LoopFeatures)
 //!
 //! This eliminates duplicate AST reconstruction and centralizes loop processing state.
 
@@ -11,12 +11,12 @@ use crate::ast::{ASTNode, Span};
 use crate::mir::loop_canonicalizer::{LoopSkeleton, RoutingDecision};
 use crate::mir::loop_pattern_detection::{LoopFeatures, LoopPatternKind};
 
-/// Loop processing context - SSOT for AST + Skeleton + Pattern
+/// Loop processing context - SSOT for AST + Skeleton + Route
 ///
 /// This context integrates all information needed for loop processing:
 /// - AST: The source structure (condition, body, span)
 /// - Canonicalizer: Normalized skeleton and routing decision (optional)
-/// - Router: Pattern classification and features
+/// - Router: Route classification and features
 ///
 /// # Lifecycle
 ///
@@ -49,8 +49,8 @@ pub struct LoopProcessingContext<'a> {
     // ========================================================================
     // Router Information (Always Present)
     // ========================================================================
-    /// Pattern kind determined by router
-    pub pattern_kind: LoopPatternKind,
+    /// Route kind determined by router
+    pub route_kind: LoopPatternKind,
 
     /// Loop features extracted from AST
     pub features: LoopFeatures,
@@ -64,13 +64,13 @@ impl<'a> LoopProcessingContext<'a> {
     /// - `condition`: Loop condition AST node
     /// - `body`: Loop body statements
     /// - `span`: Source location
-    /// - `pattern_kind`: Pattern classification from router
+    /// - `route_kind`: Route classification from router
     /// - `features`: Loop features extracted from AST
     pub fn new(
         condition: &'a ASTNode,
         body: &'a [ASTNode],
         span: Span,
-        pattern_kind: LoopPatternKind,
+        route_kind: LoopPatternKind,
         features: LoopFeatures,
     ) -> Self {
         Self {
@@ -79,7 +79,7 @@ impl<'a> LoopProcessingContext<'a> {
             span,
             skeleton: None,
             decision: None,
-            pattern_kind,
+            route_kind,
             features,
         }
     }
@@ -107,14 +107,14 @@ impl<'a> LoopProcessingContext<'a> {
 
     /// Verify parity between canonicalizer and router (dev-only)
     ///
-    /// Checks that the canonicalizer's pattern choice matches the router's
-    /// pattern_kind. On mismatch:
+    /// Checks that the canonicalizer's route choice matches the router's
+    /// route_kind. On mismatch:
     /// - Strict mode (HAKO_JOINIR_STRICT=1): Returns error
     /// - Debug mode: Logs warning
     ///
     /// Returns Ok(()) if:
     /// - Canonicalizer not run yet (decision is None)
-    /// - Patterns match
+    /// - Route kinds match
     /// - Non-strict mode (mismatch logged only)
     pub fn verify_parity(&self) -> Result<(), String> {
         use crate::config::env::joinir_dev;
@@ -125,19 +125,19 @@ impl<'a> LoopProcessingContext<'a> {
             None => return Ok(()),
         };
 
-        // Canonicalizer failed (Fail-Fast) - no pattern to compare
-        let canonical_pattern = match decision.chosen {
+        // Canonicalizer failed (Fail-Fast) - no route kind to compare
+        let canonical_route = match decision.chosen {
             Some(p) => p,
             None => return Ok(()), // Router might still handle it
         };
 
-        // Compare patterns
-        let actual_pattern = self.pattern_kind;
+        // Compare route kinds
+        let actual_route = self.route_kind;
 
-        if canonical_pattern != actual_pattern {
+        if canonical_route != actual_route {
             let msg = format!(
                 "[loop_canonicalizer/PARITY] MISMATCH: canonical={:?}, actual={:?}",
-                canonical_pattern, actual_pattern
+                canonical_route, actual_route
             );
 
             if joinir_dev::strict_enabled() {
@@ -149,12 +149,12 @@ impl<'a> LoopProcessingContext<'a> {
                     .dev("loop_canonicalizer/parity", &msg);
             }
         } else {
-            // Patterns match - success!
+            // Route kinds match - success!
             crate::mir::builder::control_flow::joinir::trace::trace().dev(
                 "loop_canonicalizer/parity",
                 &format!(
                     "[loop_canonicalizer/PARITY] OK: canonical and actual agree on {:?}",
-                    canonical_pattern
+                    canonical_route
                 ),
             );
         }
@@ -218,7 +218,7 @@ mod tests {
         assert!(ctx.decision.is_none());
 
         // Check router fields
-        assert_eq!(ctx.pattern_kind, LoopPatternKind::Pattern1SimpleWhile);
+        assert_eq!(ctx.route_kind, LoopPatternKind::Pattern1SimpleWhile);
     }
 
     #[test]
@@ -276,7 +276,7 @@ mod tests {
         let body = vec![];
         let mut ctx = make_simple_context(&condition, &body);
 
-        // Set canonicalizer result with matching pattern
+        // Set canonicalizer result with matching route kind
         let decision = RoutingDecision::success(LoopPatternKind::Pattern1SimpleWhile);
         ctx.set_canonicalizer_result(
             LoopSkeleton {
@@ -289,7 +289,7 @@ mod tests {
             decision,
         );
 
-        // Should succeed (patterns match)
+        // Should succeed (route kinds match)
         assert!(ctx.verify_parity().is_ok());
     }
 
@@ -320,7 +320,7 @@ mod tests {
             decision,
         );
 
-        // Should succeed (canonicalizer failed, no pattern to compare)
+        // Should succeed (canonicalizer failed, no route kind to compare)
         assert!(ctx.verify_parity().is_ok());
     }
 }
