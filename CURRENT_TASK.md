@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `51234e1b6` refactor D5 align joinir trace/parity wording to semantic route vocabulary
+    - `joinir/trace.rs` の route trace 主語を `[trace:route]` に更新し、`pattern()` は互換 shim として維持
+    - `joinir/parity_checker.rs` の parity 診断を `semantic_label()` ベースへ変更し、`canonical/actual` の runtime 表示から Pattern番号依存を除去
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `c76bb7884` refactor D5 align joinir routing surface wording to loop-route semantics
     - `joinir/routing.rs` の公開コメント/trace 文言を Pattern 主語から loop-route 主語へ更新（`Pattern router succeeded` -> `Loop router succeeded` など）
     - `choose_pattern_kind` 周辺の説明を `nested_loop_minimal` / `loop-break recipe` 語彙へ同期し、runtime 挙動は不変
@@ -791,8 +795,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - minimal cluster は撤去済み（`fd26729ff`）、nested minimal の registry route 化も完了（`66ddbce40`）。
    - 次は `generic_loop_v1/v0` fallback を recipe-first 側へ段階移管し、`shadow_adopt` の責務を strict guard + 最小 fallback へ縮退。
 2. Surface/trace の semantic 語彙統一（step-1 継続）:
-   - `joinir/routing.rs` の主語外しは実施済み（`c76bb7884`）。
-   - 残りは `joinir/trace.rs` / `parity_checker.rs` の Pattern番号主語を除去。
+   - `joinir/routing.rs` / `joinir/trace.rs` / `parity_checker.rs` の主語外しは実施済み（`c76bb7884`, `51234e1b6`）。
+   - 残りは補助ログの route/rule 主語統一（必要最小限）。
    - 既存 gate sentinel は維持しつつ label を route/rule 主語へ段階移行。
 3. SSOT docs の stale 参照掃除:
    - `joinir-design-map.md` など、削除済み `pattern*.rs` へのリンクを現行 `router/registry/composer` 構成へ更新。
