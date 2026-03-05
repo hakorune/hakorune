@@ -71,11 +71,12 @@ pub(in crate::mir::builder) mod coreloop_body_contract;
 pub(in crate::mir::builder) mod generic_loop;
 // Phase 29bq+: Pattern2 module moved to plan side
 pub(in crate::mir::builder) mod pattern2;
-pub(in crate::mir::builder) mod pattern2_break_condition_policy_router;
+// Phase 29bq+: loop-break condition policy router moved to plan side
+pub(in crate::mir::builder) mod loop_break_condition_policy_router;
 // Phase 29bq+: Pattern2 input facts box moved to plan side
 pub(in crate::mir::builder) mod pattern2_inputs_facts_box;
-// Phase 29bq+: Pattern2 policy routers moved to plan side
-pub(in crate::mir::builder) mod pattern2_policy_router;
+// Phase 29bq+: loop-break policy router moved to plan side
+pub(in crate::mir::builder) mod loop_break_policy_router;
 // Phase 29bq+: Pattern2 steps moved to plan side
 pub(in crate::mir::builder) mod pattern2_steps;
 // Layer 5: Loop-Specific (ループ固有)

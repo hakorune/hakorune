@@ -1,7 +1,7 @@
-//! Pattern2 break-condition routing (policy → break_cond + allow-list + flags)
+//! Loop-break condition routing (policy → break_cond + allow-list + flags)
 //!
-//! This box exists to keep the Pattern2 lowering orchestrator focused on wiring.
-//! It applies Pattern2-specific policies to derive:
+//! This box exists to keep the loop-break lowering orchestrator focused on wiring.
+//! It applies loop-break-specific policies to derive:
 //! - a normalized `break when true` condition node
 //! - an allow-list of body-local variables permitted in conditions (Phase 92 P3)
 //! - flags that affect later lowering (e.g. schedule and promotion heuristics)
@@ -19,15 +19,15 @@ use crate::mir::builder::control_flow::plan::policies::{
 };
 
 #[derive(Debug, Clone)]
-pub(crate) struct Pattern2BreakConditionRouting {
+pub(crate) struct LoopBreakConditionRouting {
     pub break_condition_node: ASTNode,
     pub allowed_body_locals_for_conditions: Vec<String>,
     pub is_loop_true_read_digits: bool,
 }
 
-pub(crate) struct Pattern2BreakConditionPolicyRouterBox;
+pub(crate) struct LoopBreakConditionPolicyRouterBox;
 
-impl Pattern2BreakConditionPolicyRouterBox {
+impl LoopBreakConditionPolicyRouterBox {
     fn negate_condition(condition: &ASTNode) -> ASTNode {
         match condition {
             ASTNode::UnaryOp {
@@ -43,18 +43,18 @@ impl Pattern2BreakConditionPolicyRouterBox {
         }
     }
 
-    pub(crate) fn route(condition: &ASTNode, body: &[ASTNode]) -> Result<Pattern2BreakConditionRouting, String> {
+    pub(crate) fn route(condition: &ASTNode, body: &[ASTNode]) -> Result<LoopBreakConditionRouting, String> {
         // loop(true) read-digits family:
         // - multiple breaks exist; normalize as:
         //   `break_when_true := (ch == "") || !(is_digit(ch))`
         match loop_true_read_digits_policy::classify_loop_true_read_digits(condition, body) {
-            PolicyDecision::Use(result) => Ok(Pattern2BreakConditionRouting {
+            PolicyDecision::Use(result) => Ok(LoopBreakConditionRouting {
                 break_condition_node: result.break_condition_node,
                 allowed_body_locals_for_conditions: vec![result.allowed_ch_var],
                 is_loop_true_read_digits: true,
             }),
             PolicyDecision::Reject(reason) => Err(format!("[cf_loop/loop_break] {}", reason)),
-            PolicyDecision::None => Ok(Pattern2BreakConditionRouting {
+            PolicyDecision::None => Ok(LoopBreakConditionRouting {
                 // Phase 260 P0.1: If the loop has an explicit header condition and the body
                 // does not contain a top-level break-guard pattern, the exit condition is
                 // structurally derived as `!(loop_condition)`.

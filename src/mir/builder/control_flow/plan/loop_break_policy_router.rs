@@ -1,7 +1,7 @@
-//! Pattern2 policy router (Phase 108)
+//! Loop-break policy router (Phase 108)
 //!
 //! Responsibility (SSOT):
-//! - Decide which Pattern2 policy route applies (balanced depth-scan / loop(true) read-digits / default).
+//! - Decide which loop-break policy route applies (balanced depth-scan / loop(true) read-digits / default).
 //! - Normalize the outputs into a single routing struct consumed by ApplyPolicyStepBox.
 //!
 //! NOTE: This box does not emit JoinIR. It only provides "what to do" facts.
@@ -9,13 +9,13 @@
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::common::body_local_slot::ReadOnlyBodyLocalSlotBox;
 
-use super::pattern2_break_condition_policy_router::Pattern2BreakConditionPolicyRouterBox;
+use super::loop_break_condition_policy_router::LoopBreakConditionPolicyRouterBox;
 use super::pattern2_inputs_facts_box::BodyLocalHandlingPolicy;
 use crate::mir::builder::control_flow::plan::policies::balanced_depth_scan_policy_box::BalancedDepthScanPolicyBox;
 use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
 
 #[derive(Debug)]
-pub(crate) struct Pattern2PolicyRouting {
+pub(crate) struct LoopBreakPolicyRouting {
     pub allowed_body_locals_for_conditions: Vec<String>,
     pub body_local_handling: BodyLocalHandlingPolicy,
     pub read_only_body_local_slot: Option<crate::mir::join_ir::lowering::common::body_local_slot::ReadOnlyBodyLocalSlot>,
@@ -31,14 +31,14 @@ pub(crate) struct Pattern2PolicyRouting {
     >,
 }
 
-pub(crate) struct Pattern2PolicyRouterBox;
+pub(crate) struct LoopBreakPolicyRouterBox;
 
-impl Pattern2PolicyRouterBox {
-    pub(crate) fn route(condition: &ASTNode, body: &[ASTNode]) -> Result<Pattern2PolicyRouting, String> {
+impl LoopBreakPolicyRouterBox {
+    pub(crate) fn route(condition: &ASTNode, body: &[ASTNode]) -> Result<LoopBreakPolicyRouting, String> {
         // Route 1 (Phase 107): balanced depth-scan (return-in-loop normalization).
         match BalancedDepthScanPolicyBox::decide(condition, body) {
             PolicyDecision::Use(result) => {
-                return Ok(Pattern2PolicyRouting {
+                return Ok(LoopBreakPolicyRouting {
                     allowed_body_locals_for_conditions: result.allowed_body_locals_for_conditions,
                     body_local_handling: BodyLocalHandlingPolicy::SkipPromotion,
                     read_only_body_local_slot: None,
@@ -54,7 +54,7 @@ impl Pattern2PolicyRouterBox {
         }
 
         // Route 2 (Phase 105): loop(true) read-digits family + default break-cond SSOT.
-        let break_routing = Pattern2BreakConditionPolicyRouterBox::route(condition, body)?;
+        let break_routing = LoopBreakConditionPolicyRouterBox::route(condition, body)?;
 
         let read_only_body_local_slot = if break_routing.allowed_body_locals_for_conditions.is_empty() {
             None
@@ -65,7 +65,7 @@ impl Pattern2PolicyRouterBox {
             )?)
         };
 
-        Ok(Pattern2PolicyRouting {
+        Ok(LoopBreakPolicyRouting {
             allowed_body_locals_for_conditions: break_routing.allowed_body_locals_for_conditions,
             body_local_handling: BodyLocalHandlingPolicy::DefaultPromotion,
             read_only_body_local_slot,

@@ -1,17 +1,17 @@
 //! ApplyPolicyStepBox (Phase 106)
 //!
-//! Responsibility: apply policy routing for Pattern2 break condition + allow-list.
+//! Responsibility: apply policy routing for loop-break condition + allow-list.
 
 use crate::ast::ASTNode;
 
-use super::super::pattern2_policy_router::Pattern2PolicyRouterBox;
+use super::super::loop_break_policy_router::LoopBreakPolicyRouterBox;
 use super::super::pattern2_inputs_facts_box::{Pattern2Facts, Pattern2Inputs};
 
 pub(crate) struct ApplyPolicyStepBox;
 
 impl ApplyPolicyStepBox {
     pub(crate) fn apply(condition: &ASTNode, body: &[ASTNode], facts: Pattern2Facts) -> Result<Pattern2Inputs, String> {
-        let policy = Pattern2PolicyRouterBox::route(condition, body)?;
+        let policy = LoopBreakPolicyRouterBox::route(condition, body)?;
 
         Ok(Pattern2Inputs {
             loop_var_name: facts.loop_var_name,
