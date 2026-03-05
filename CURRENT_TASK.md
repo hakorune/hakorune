@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `6422e5f39` refactor D5 rename loop router entry function to route_loop
+    - `joinir/patterns/router.rs` の entry 関数名を `route_loop_pattern` から `route_loop` へ改名し、コメント主語を route semantic に同期
+    - `joinir/patterns/mod.rs` の re-export と `joinir/routing.rs` 呼び出し側を同名へ更新、`no match` 診断語彙も `no route` へ統一
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `7bf1c85e1` refactor D5 rename route-kind selector vocabulary in joinir routing
     - `joinir/routing.rs` の SSOT entry 名を `choose_pattern_kind` から `choose_route_kind` へ改名し、dev parity tag も `choose_route_kind/*` 語彙へ統一
     - nested-loop 判定 helper も `is_nested_loop_minimal_lowerable` に改名し、Pattern主語コメントを route semantic 主語へ整理
