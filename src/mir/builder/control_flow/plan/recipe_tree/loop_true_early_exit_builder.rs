@@ -10,7 +10,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{
 };
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
-use crate::mir::builder::control_flow::plan::domain::Pattern5ExitKind;
+use crate::mir::builder::control_flow::plan::domain::LoopTrueEarlyExitKind;
 
 fn dummy_span() -> Span {
     Span::new(0, 0, 0, 0)
@@ -34,7 +34,7 @@ pub(in crate::mir::builder) fn build_loop_true_early_exit_recipe(
 
     // Determine exit kind and exit statement
     let (exit_kind, exit_stmt) = match facts.exit_kind {
-        Pattern5ExitKind::Return => {
+        LoopTrueEarlyExitKind::Return => {
             let stmt = if let Some(ref val) = facts.exit_value {
                 ASTNode::Return {
                     value: Some(Box::new(val.clone())),
@@ -48,7 +48,7 @@ pub(in crate::mir::builder) fn build_loop_true_early_exit_recipe(
             };
             (ExitKind::Return, stmt)
         }
-        Pattern5ExitKind::Break => (
+        LoopTrueEarlyExitKind::Break => (
             ExitKind::Break { depth: 1 },
             ASTNode::Break {
                 span: dummy_span(),

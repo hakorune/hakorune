@@ -12,7 +12,7 @@ use super::{
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::{LoweredRecipe, Pattern2StepPlacement};
+use crate::mir::builder::control_flow::plan::{LoweredRecipe, LoopBreakStepPlacement};
 use crate::mir::builder::MirBuilder;
 
 fn then_body_has_top_level_break(then_body: &[ASTNode]) -> bool {
@@ -61,7 +61,7 @@ impl RecipeComposer {
 
         // Planner-required strict mode: recover step-before-break placement from the body shape.
         if body_has_step_before_break(ctx.body, &pattern2_facts.loop_var) {
-            pattern2_facts.step_placement = Pattern2StepPlacement::BeforeBreak;
+            pattern2_facts.step_placement = LoopBreakStepPlacement::BeforeBreak;
         }
 
         if joinir_dev::debug_enabled() {

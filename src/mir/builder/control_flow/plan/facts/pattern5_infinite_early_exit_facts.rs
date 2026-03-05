@@ -5,12 +5,12 @@ use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, extract_loop_increment_plan, is_true_literal, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::domain::Pattern5ExitKind;
+use crate::mir::builder::control_flow::plan::domain::LoopTrueEarlyExitKind;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct Pattern5InfiniteEarlyExitFacts {
     pub loop_var: String,
-    pub exit_kind: Pattern5ExitKind,
+    pub exit_kind: LoopTrueEarlyExitKind,
     pub exit_condition: ASTNode,
     pub exit_value: Option<ASTNode>,
     pub carrier_var: Option<String>,
@@ -38,12 +38,12 @@ pub(in crate::mir::builder) fn try_extract_pattern5_infinite_early_exit_facts(
     }
 
     match exit_kind {
-        Pattern5ExitKind::Return => {
+        LoopTrueEarlyExitKind::Return => {
             if counts.return_count != 1 || counts.break_count != 0 {
                 return Ok(None);
             }
         }
-        Pattern5ExitKind::Break => {
+        LoopTrueEarlyExitKind::Break => {
             if counts.break_count != 1 || counts.return_count != 0 {
                 return Ok(None);
             }
@@ -53,7 +53,7 @@ pub(in crate::mir::builder) fn try_extract_pattern5_infinite_early_exit_facts(
     let remaining = &body[1..];
 
     match exit_kind {
-        Pattern5ExitKind::Return => {
+        LoopTrueEarlyExitKind::Return => {
             if remaining.len() != 1 {
                 return Ok(None);
             }
@@ -78,7 +78,7 @@ pub(in crate::mir::builder) fn try_extract_pattern5_infinite_early_exit_facts(
                 loop_increment,
             }))
         }
-        Pattern5ExitKind::Break => {
+        LoopTrueEarlyExitKind::Break => {
             if remaining.len() != 2 {
                 return Ok(None);
             }
@@ -115,7 +115,7 @@ pub(in crate::mir::builder) fn try_extract_pattern5_infinite_early_exit_facts(
     }
 }
 
-fn extract_exit_if(body: &[ASTNode]) -> Option<(Pattern5ExitKind, ASTNode, Option<ASTNode>)> {
+fn extract_exit_if(body: &[ASTNode]) -> Option<(LoopTrueEarlyExitKind, ASTNode, Option<ASTNode>)> {
     let first = body.first()?;
     let ASTNode::If {
         condition,
@@ -135,13 +135,13 @@ fn extract_exit_if(body: &[ASTNode]) -> Option<(Pattern5ExitKind, ASTNode, Optio
         ASTNode::Return { value, .. } => {
             let exit_value = value.as_ref().map(|boxed| boxed.as_ref().clone());
             Some((
-                Pattern5ExitKind::Return,
+                LoopTrueEarlyExitKind::Return,
                 condition.as_ref().clone(),
                 exit_value,
             ))
         }
         ASTNode::Break { .. } => Some((
-            Pattern5ExitKind::Break,
+            LoopTrueEarlyExitKind::Break,
             condition.as_ref().clone(),
             None,
         )),
@@ -275,7 +275,7 @@ mod tests {
         let facts = facts.expect("Some");
 
         assert_eq!(facts.loop_var, "i");
-        assert_eq!(facts.exit_kind, Pattern5ExitKind::Return);
+        assert_eq!(facts.exit_kind, LoopTrueEarlyExitKind::Return);
         assert!(facts.carrier_var.is_none());
     }
 
@@ -293,7 +293,7 @@ mod tests {
         let facts = facts.expect("Some");
 
         assert_eq!(facts.loop_var, "i");
-        assert_eq!(facts.exit_kind, Pattern5ExitKind::Break);
+        assert_eq!(facts.exit_kind, LoopTrueEarlyExitKind::Break);
         assert_eq!(facts.carrier_var.as_deref(), Some("sum"));
     }
 

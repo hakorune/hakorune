@@ -3,7 +3,7 @@ use super::pattern2_break_helpers::{extract_break_if_parts, lit_str, var};
 use crate::ast::ASTNode;
 use crate::ast::{BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::is_true_literal;
-use crate::mir::builder::control_flow::plan::Pattern2StepPlacement;
+use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
 pub(super) fn try_extract_pattern2_break_read_digits_subset(
     condition: &ASTNode,
@@ -56,7 +56,7 @@ pub(super) fn try_extract_pattern2_break_read_digits_subset(
         carrier_update_in_break: None,
         carrier_update_in_body,
         loop_increment,
-        step_placement: Pattern2StepPlacement::Last,
+        step_placement: LoopBreakStepPlacement::Last,
     })
 }
 

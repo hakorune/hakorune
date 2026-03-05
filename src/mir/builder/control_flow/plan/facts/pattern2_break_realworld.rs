@@ -7,7 +7,7 @@ use crate::ast::{ASTNode, BinaryOperator, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector, is_true_literal,
 };
-use crate::mir::builder::control_flow::plan::Pattern2StepPlacement;
+use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
 pub(super) fn try_extract_pattern2_break_realworld_subset(
     condition: &ASTNode,
@@ -79,6 +79,6 @@ pub(super) fn try_extract_pattern2_break_realworld_subset(
         carrier_update_in_break: None,
         carrier_update_in_body: loop_increment.clone(),
         loop_increment,
-        step_placement: Pattern2StepPlacement::Last,
+        step_placement: LoopBreakStepPlacement::Last,
     })
 }

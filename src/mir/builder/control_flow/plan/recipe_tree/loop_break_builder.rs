@@ -24,7 +24,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{
 };
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
-use crate::mir::builder::control_flow::plan::Pattern2StepPlacement;
+use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
 /// Dummy span for synthetic AST nodes.
 fn dummy_span() -> Span {
@@ -106,7 +106,7 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
     let dedupe_carrier_update = should_dedupe_carrier_update(facts);
 
     let (combined_body, if_idx, carrier_idx, step_idx) = match facts.step_placement {
-        Pattern2StepPlacement::Last => {
+        LoopBreakStepPlacement::Last => {
             let mut body = vec![break_if_stmt, loop_increment_stmt];
             let if_idx = 0usize;
             let step_idx = 1usize;
@@ -123,7 +123,7 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
             };
             (body, if_idx, carrier_idx, step_idx)
         }
-        Pattern2StepPlacement::BeforeBreak => {
+        LoopBreakStepPlacement::BeforeBreak => {
             let mut body = vec![loop_increment_stmt, break_if_stmt];
             let step_idx = 0usize;
             let if_idx = 1usize;
@@ -171,7 +171,7 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
     // Build loop body block. Item order determines evaluation order, so
     // step-before-break must place the step stmt ahead of the break-if.
     let loop_body_items = match facts.step_placement {
-        Pattern2StepPlacement::Last => {
+        LoopBreakStepPlacement::Last => {
             let mut items = vec![break_if_item];
             if let Some(carrier_idx) = carrier_idx {
                 items.push(RecipeItem::Stmt(StmtRef::new(carrier_idx))); // carrier_update_in_body
@@ -179,7 +179,7 @@ pub(in crate::mir::builder) fn build_loop_break_recipe(
             items.push(RecipeItem::Stmt(StmtRef::new(step_idx))); // loop_increment
             items
         }
-        Pattern2StepPlacement::BeforeBreak => {
+        LoopBreakStepPlacement::BeforeBreak => {
             let mut items = vec![RecipeItem::Stmt(StmtRef::new(step_idx)), break_if_item]; // loop_increment, break-if
             if let Some(carrier_idx) = carrier_idx {
                 items.push(RecipeItem::Stmt(StmtRef::new(carrier_idx))); // carrier_update_in_body
@@ -241,7 +241,7 @@ mod tests {
             carrier_update_in_break: Some(carrier_update_in_break),
             carrier_update_in_body,
             loop_increment,
-            step_placement: crate::mir::builder::control_flow::plan::Pattern2StepPlacement::Last,
+            step_placement: crate::mir::builder::control_flow::plan::LoopBreakStepPlacement::Last,
         };
 
         let loop_stmt = ASTNode::Loop {
@@ -294,7 +294,7 @@ mod tests {
             carrier_update_in_break: None,
             carrier_update_in_body: step_expr.clone(),
             loop_increment: step_expr,
-            step_placement: crate::mir::builder::control_flow::plan::Pattern2StepPlacement::Last,
+            step_placement: crate::mir::builder::control_flow::plan::LoopBreakStepPlacement::Last,
         };
         let loop_stmt = ASTNode::Loop {
             condition: Box::new(cond),

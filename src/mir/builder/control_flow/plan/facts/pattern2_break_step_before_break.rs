@@ -4,7 +4,7 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
-use crate::mir::builder::control_flow::plan::Pattern2StepPlacement;
+use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
 /// Phase 29bq: Pattern2Break step-before-break subset (strict/dev + planner-required only)
 ///
@@ -106,6 +106,6 @@ pub(super) fn try_extract_pattern2_break_step_before_break_subset(
         carrier_update_in_break,
         carrier_update_in_body,
         loop_increment,
-        step_placement: Pattern2StepPlacement::BeforeBreak,
+        step_placement: LoopBreakStepPlacement::BeforeBreak,
     })
 }

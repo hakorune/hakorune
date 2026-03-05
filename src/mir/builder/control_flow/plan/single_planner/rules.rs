@@ -73,7 +73,7 @@ fn debug_log_recipe_only_entry(rule_id: PlanRuleId) {
     let ring0 = crate::runtime::get_global_ring0();
     let label = planner_rule_semantic_label(rule_id);
     ring0.log.debug(&format!(
-        "[recipe:entry] {}: recipe-only (planner payload suppressed)",
+        "[recipe:entry] {}: recipe-only entry",
         label
     ));
 }
@@ -182,7 +182,7 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
         let name = rule_name(rule_id);
         let planner_hit = planner_hits_rule(planner_present, rule_id);
 
-        // Recipe-only rules route through compose path (planner payload suppressed).
+        // Recipe-only rules route through compose path.
         if planner_hit && is_recipe_only_rule(rule_id) {
             gate.log_planner_first(rule_id);
             debug_log_recipe_only_entry(rule_id);

@@ -2,7 +2,7 @@ use super::pattern2_break_types::Pattern2BreakFacts;
 use super::pattern2_break_helpers::*;
 use super::pattern2_loopbodylocal_facts::{try_extract_pattern2_loopbodylocal_facts, LoopBodyLocalShape};
 use crate::ast::{ASTNode, BinaryOperator, Span};
-use crate::mir::builder::control_flow::plan::Pattern2StepPlacement;
+use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
@@ -108,6 +108,6 @@ pub(super) fn try_extract_pattern2_break_loopbodylocal_subset(
         carrier_update_in_break: None,
         carrier_update_in_body: loop_increment.clone(),
         loop_increment,
-        step_placement: Pattern2StepPlacement::Last,
+        step_placement: LoopBreakStepPlacement::Last,
     }))
 }

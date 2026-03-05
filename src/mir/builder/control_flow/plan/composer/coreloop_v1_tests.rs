@@ -24,8 +24,8 @@ use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
     SkeletonFacts, SkeletonKind,
 };
-use crate::mir::builder::control_flow::plan::domain::Pattern5ExitKind;
-use crate::mir::builder::control_flow::plan::Pattern2StepPlacement;
+use crate::mir::builder::control_flow::plan::domain::LoopTrueEarlyExitKind;
+use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::MirBuilder;
@@ -486,7 +486,7 @@ fn coreloop_v1_composes_pattern2_with_value_join() {
             carrier_update_in_break: None,
             carrier_update_in_body,
             loop_increment,
-            step_placement: Pattern2StepPlacement::Last,
+            step_placement: LoopBreakStepPlacement::Last,
         }),
         pattern2_loopbodylocal: None,
         pattern6_nested_minimal: None,
@@ -580,7 +580,7 @@ fn coreloop_v1_rejects_pattern2_with_cleanup() {
             carrier_update_in_break: None,
             carrier_update_in_body: lit_int(0),
             loop_increment: lit_int(0),
-            step_placement: Pattern2StepPlacement::Last,
+            step_placement: LoopBreakStepPlacement::Last,
         }),
         pattern2_loopbodylocal: None,
         pattern6_nested_minimal: None,
@@ -665,7 +665,7 @@ fn coreloop_v1_composes_pattern5_with_value_join() {
         pattern4_continue: None,
         pattern5_infinite_early_exit: Some(Pattern5InfiniteEarlyExitFacts {
             loop_var: "i".to_string(),
-            exit_kind: Pattern5ExitKind::Break,
+            exit_kind: LoopTrueEarlyExitKind::Break,
             exit_condition,
             exit_value: None,
             carrier_var: Some("sum".to_string()),
@@ -760,7 +760,7 @@ fn coreloop_v1_rejects_pattern5_with_cleanup() {
         pattern4_continue: None,
         pattern5_infinite_early_exit: Some(Pattern5InfiniteEarlyExitFacts {
             loop_var: "i".to_string(),
-            exit_kind: Pattern5ExitKind::Break,
+            exit_kind: LoopTrueEarlyExitKind::Break,
             exit_condition: condition.clone(),
             exit_value: None,
             carrier_var: Some("sum".to_string()),

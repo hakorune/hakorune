@@ -7,7 +7,7 @@ use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
 use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
 use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe, Pattern2StepPlacement,
+    CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe, LoopBreakStepPlacement,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
@@ -23,7 +23,7 @@ pub(in crate::mir::builder) struct Pattern2BreakPlan {
     carrier_update_in_break: Option<ASTNode>,
     carrier_update_in_body: ASTNode,
     loop_increment: ASTNode,
-    step_placement: Pattern2StepPlacement,
+    step_placement: LoopBreakStepPlacement,
 }
 
 impl super::PlanNormalizer {
@@ -66,7 +66,7 @@ impl super::PlanNormalizer {
             );
         }
 
-        let step_before_break = matches!(parts.step_placement, Pattern2StepPlacement::BeforeBreak);
+        let step_before_break = matches!(parts.step_placement, LoopBreakStepPlacement::BeforeBreak);
 
         // Step 1: Block allocation (6 blocks)
         let preheader_bb = builder
