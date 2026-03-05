@@ -98,6 +98,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `e3ee9a79b` refactor(plan): route-align scan contract freeze tags
+    - `plan/facts/loop_scan_with_init.rs` と `plan/facts/loop_split_scan.rs` の freeze tag を `pattern6/7` 主語から `scan_with_init/split_scan` 主語へ更新
+    - SSOT docs 同期: `pattern6-7-contracts.md`, `ai-handoff-and-debug-contract.md`, `recipe-first-entry-contract-ssot.md`, `phase-29ac/README.md`
+    - archive contract smokes の期待タグも新タグへ同期（`phase29ab_pattern6_*_contract_min_vm.sh`, `phase29ab_pattern7_splitscan_contract_min_vm.sh`）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29ab_pattern6_scan_with_init_contract_min_vm.sh` PASS、`phase29ab_pattern7_splitscan_contract_min_vm.sh` PASS
   - `ede7a53d6` docs: sync current-main references to route_prep_pipeline
     - `docs/development/current/main/*` の stale 参照 `pattern_pipeline` を `route_prep_pipeline` へ更新（`REFACTORING_INDEX`, `compiler-task-map-ssot`, `plan-mod-layout-ssot`, `phase-29cc/29cc-92`）
     - 旧名が必要な箇所のみ `（旧: pattern_pipeline.rs）` を付与して導線を維持
