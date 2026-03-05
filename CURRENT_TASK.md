@@ -98,6 +98,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `dfdffa051` refactor(plan): unify recipe entry logs and cond-profile route labels
+    - `joinir/patterns/registry/handlers.rs` に `debug_log_recipe_entry` を追加し、recipe-first entry 補助ログを route 主語で統一（`[recipe:entry] <route>: recipe_contract enforced|recipe-only entry`）
+    - `StandardEntry` に `route_label` を追加し、route_standard 系 entry（loop/scan/cond families）を同一ログ契約で出力するよう同期
+    - `plan/verifier/cond_profile.rs` の accept helper 名と freeze hint の route 値を pattern 主語から route 主語へ更新（`loop_char_map`, `loop_array_join`, `bool_predicate_scan`, `accum_const_loop`）
+    - `plan/pattern2_steps/merge_step_box.rs` の debug tag を `pattern2` から `loop_break` へ変更
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `c4382676a` refactor(plan): retire shadow_adopt generic fallback lanes
     - `composer/shadow_adopt.rs` から `generic_loop_v1/v0` pre-plan adopt 経路を撤去し、shadow_adopt の責務を `nested_minimal + strict_nested_loop_guard` に縮退
     - `joinir/patterns/router.rs` と `plan/features/generic_loop_body/helpers.rs` の `try_shadow_adopt_pre_plan` 呼び出しから `allow_generic_loop` 引数を撤去
