@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `32391a366` tools add LoopPatternContext allowlist guard script
+    - `tools/dev/check_loop_pattern_context_allowlist.sh` を追加し、`LoopPatternContext` 使用箇所を allowlist（`router` alias + dirty同居4ファイル）に固定
+    - allowlist外への再流入を即 FAIL で検出する運用ガードを追加（移行中の accidental regression 抑止）
+    - verify: `tools/dev/check_loop_pattern_context_allowlist.sh` PASS（allowlist 5 files）
   - `c5ca36791` refactor D5 switch return_stmt context usage to LoopRouteContext
     - `src/mir/builder/stmts/return_stmt.rs` の context 参照を `LoopPatternContext` から `LoopRouteContext` に移行
     - これで `src/**` の `LoopPatternContext` 残存は `router` 互換 alias と dirty 同居の 4ファイルのみ
@@ -910,6 +914,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh`
 - probe:
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+- allowlist guard:
+  - `tools/dev/check_loop_pattern_context_allowlist.sh`
 
 ## Archive
 
