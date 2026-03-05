@@ -98,6 +98,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `ede7a53d6` docs: sync current-main references to route_prep_pipeline
+    - `docs/development/current/main/*` の stale 参照 `pattern_pipeline` を `route_prep_pipeline` へ更新（`REFACTORING_INDEX`, `compiler-task-map-ssot`, `plan-mod-layout-ssot`, `phase-29cc/29cc-92`）
+    - 旧名が必要な箇所のみ `（旧: pattern_pipeline.rs）` を付与して導線を維持
+    - verify: docs sync only（code diff なし）
   - `441862be6` refactor(plan): route-align helper labels in break conversion path
     - `conversion_pipeline.rs` と `common/joinir_helpers.rs` の helper 引数/説明を `pattern_name` から `route_label` へ統一
     - `normalizer/pattern2_break.rs` の debug tag を `normalizer/loop_break` へ更新（補助ログの route 主語化）
