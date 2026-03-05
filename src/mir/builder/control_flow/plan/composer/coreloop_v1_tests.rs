@@ -221,10 +221,10 @@ fn coreloop_v1_rejects_split_scan_without_value_join() {
     // Without value_join, unified helper uses v0 gate (coreloop_base_gate) which rejects
     let composed =
         try_compose_split_scan_unified(&mut builder, &canonical, &ctx).expect("Ok");
-    // v0 path: returns None because coreloop_base_gate fails for Loop without pattern facts
+    // v0 path: returns None because coreloop_base_gate fails for Loop without simple-while route facts
     assert!(
         composed.is_none(),
-        "split_scan without value_join requires coreloop_base_gate"
+        "split_scan without value_join stays on the no-join base route gate"
     );
 }
 

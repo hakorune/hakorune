@@ -122,7 +122,7 @@ fn coreloop_v0_returns_none_when_value_join_needed() {
 }
 
 #[test]
-fn coreloop_v0_composes_pattern1_skeleton() {
+fn coreloop_v0_composes_simple_while_route() {
     let condition = ASTNode::BinaryOp {
         operator: BinaryOperator::Less,
         left: Box::new(v("i")),
@@ -192,13 +192,14 @@ fn coreloop_v0_composes_pattern1_skeleton() {
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("coreloop_v0_pattern1".to_string());
+    builder.enter_function_for_test("coreloop_v0_simple_while".to_string());
     let init = builder.alloc_typed(MirType::Integer);
     builder
         .variable_ctx
         .variable_map
         .insert("i".to_string(), init);
-    let ctx = LoopRouteContext::new(&condition, &[], "coreloop_v0_pattern1", false, false);
+    let ctx =
+        LoopRouteContext::new(&condition, &[], "coreloop_v0_simple_while", false, false);
     let composed =
         try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(matches!(composed, Some(CorePlan::Loop(_))));
