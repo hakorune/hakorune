@@ -285,11 +285,19 @@ run_nyash_vm() {
         local runfile2="$program"
         local workfile2=""
         # 軽量ASIFix（テスト用）: 元ファイルは変更せず一時コピーへ適用
+        # NOTE: using(file-path) を使うケースで /tmp へ退避すると相対解決が崩れるため、
+        # NYASH_ALLOW_USING_FILE=1 かつ using 行を含む場合はコピーを回避する。
         if [ "${SMOKES_ASI_STRIP_SEMI:-1}" = "1" ] && [ -f "$program" ]; then
-            workfile2="$(mktemp /tmp/nyash_test_file.XXXXXX.hako)"
-            cp "$program" "$workfile2"
-            sed -i -E 's/;([[:space:]]*)(\}|$)/\1\2/g' "$workfile2" || true
-            runfile2="$workfile2"
+            local skip_temp_copy=0
+            if [ "${NYASH_ALLOW_USING_FILE:-0}" = "1" ] && grep -q '^using\s\"' "$program" 2>/dev/null; then
+                skip_temp_copy=1
+            fi
+            if [ "$skip_temp_copy" -ne 1 ]; then
+                workfile2="$(mktemp /tmp/nyash_test_file.XXXXXX.hako)"
+                cp "$program" "$workfile2"
+                sed -i -E 's/;([[:space:]]*)(\}|$)/\1\2/g' "$workfile2" || true
+                runfile2="$workfile2"
+            fi
         fi
         # プラグイン初期化メッセージを除外
         # Optional preinclude

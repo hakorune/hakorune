@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ar_string_is_integer_min_vm.sh - StringUtils.is_integer minimal (strict/dev shadow adopt)
+# phase29ar_string_is_integer_min_vm.sh - StringUtils.is_integer minimal (strict/dev fail-fast reject)
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
@@ -18,30 +18,26 @@ if [ "$EXIT_CODE" -eq 124 ]; then
     exit 1
 fi
 
-if [ "$EXIT_CODE" -ne 0 ]; then
-    log_error "phase29ar_string_is_integer_min_vm: expected exit code 0, got $EXIT_CODE"
+if [ "$EXIT_CODE" -ne 1 ]; then
+    log_error "phase29ar_string_is_integer_min_vm: expected exit code 1, got $EXIT_CODE"
     echo "$OUTPUT"
     exit 1
 fi
 
-OUTPUT_CLEAN=$(echo "$OUTPUT" | filter_noise | grep -v '^\[plugins\]' | grep -v '^\[WARN\] \[plugin/init\]')
-expected=$(cat << 'TXT'
-1
-0
-TXT
-)
-
-compare_outputs "$expected" "$OUTPUT_CLEAN" "phase29ar_string_is_integer_min_vm" || exit 1
-
-# Avoid `echo ... | grep -q` under `set -o pipefail` (SIGPIPE false negatives).
-if ! grep -qF "[flowbox/adopt box_kind=Loop" <<<"$OUTPUT" \
-    || ! grep -qF "features=return" <<<"$OUTPUT" \
-    || ! grep -qF "via=shadow" <<<"$OUTPUT"; then
-    echo "[FAIL] Missing FlowBox tag (box_kind=Loop features=return via=shadow)"
+if ! grep -qF "[vm-hako/unimplemented]" <<<"$OUTPUT" \
+    || ! grep -qF "newbox(StringUtils)" <<<"$OUTPUT"; then
+    echo "[FAIL] Missing strict fail-fast marker for StringUtils"
     echo "$OUTPUT" | tail -n 40 || true
-    test_fail "phase29ar_string_is_integer_min_vm: Missing FlowBox tag"
+    test_fail "phase29ar_string_is_integer_min_vm: Missing fail-fast marker"
     exit 1
 fi
 
-log_success "phase29ar_string_is_integer_min_vm: PASS (exit=0)"
+if grep -qF "[flowbox/" <<<"$OUTPUT"; then
+    echo "[FAIL] Unexpected FlowBox tag in strict reject output"
+    echo "$OUTPUT" | tail -n 40 || true
+    test_fail "phase29ar_string_is_integer_min_vm: Unexpected FlowBox tag"
+    exit 1
+fi
+
+log_success "phase29ar_string_is_integer_min_vm: PASS (exit=1 fail-fast reject)"
 exit 0

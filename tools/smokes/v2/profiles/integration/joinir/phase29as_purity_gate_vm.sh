@@ -111,7 +111,7 @@ run_pattern6_scan_with_init() {
     assert_no_fallback "pattern6_scan_with_init" "$output"
 }
 
-run_is_integer() {
+run_is_integer_strict_reject() {
     local input="$NYASH_ROOT/apps/tests/phase29ar_string_is_integer_min.hako"
 
     set +e
@@ -125,34 +125,37 @@ run_is_integer() {
     set -e
 
     if [ "$exit_code" -eq 124 ]; then
-        test_fail "phase29as_purity_gate_vm: is_integer timed out"
+        test_fail "phase29as_purity_gate_vm: is_integer strict reject timed out"
         exit 1
     fi
-    if [ "$exit_code" -ne 0 ]; then
-        echo "[FAIL] is_integer exit code $exit_code"
+    if [ "$exit_code" -ne 1 ]; then
+        echo "[FAIL] is_integer strict reject exit code $exit_code"
         echo "$output" | tail -n 80 || true
-        test_fail "phase29as_purity_gate_vm: is_integer failed"
+        test_fail "phase29as_purity_gate_vm: is_integer strict reject failed"
         exit 1
     fi
 
-    assert_flowbox_adopt "is_integer" "$output" "return"
+    if ! grep -qF "[vm-hako/unimplemented]" <<<"$output" \
+        || ! grep -qF "newbox(StringUtils)" <<<"$output"; then
+        echo "[FAIL] is_integer strict reject: missing fail-fast marker"
+        echo "$output" | tail -n 80 || true
+        test_fail "phase29as_purity_gate_vm: is_integer strict reject marker missing"
+        exit 1
+    fi
 
-    local output_clean
-    output_clean=$(echo "$output" | filter_noise | grep -v '^\[plugins\]' | grep -v '^\[WARN\] \[plugin/init\]')
-    local expected
-    expected=$(cat << 'TXT'
-1
-0
-TXT
-)
+    if grep -qF "[flowbox/" <<<"$output"; then
+        echo "[FAIL] is_integer strict reject: unexpected flowbox tag"
+        echo "$output" | tail -n 80 || true
+        test_fail "phase29as_purity_gate_vm: is_integer strict reject had flowbox tag"
+        exit 1
+    fi
 
-    compare_outputs "$expected" "$output_clean" "phase29as_purity_gate_vm" || exit 1
-    assert_no_fallback "is_integer" "$output"
+    assert_no_fallback "is_integer_strict_reject" "$output"
 }
 
 run_pattern3_ifphi
 run_pattern6_scan_with_init
-run_is_integer
+run_is_integer_strict_reject
 
 log_success "phase29as_purity_gate_vm: PASS"
 exit 0

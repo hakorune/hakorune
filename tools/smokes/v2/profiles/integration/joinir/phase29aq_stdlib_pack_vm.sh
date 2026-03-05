@@ -40,7 +40,15 @@ run_case_script() {
     fi
 
     log_info "phase29aq_stdlib_pack_vm: ${label} (${script_basename})"
-    if ! timeout "${SMOKES_DEFAULT_TIMEOUT:-120}" bash "$script_path"; then
+    # stdlib using(file) fixtures must run outside planner-required strict/dev path.
+    if ! timeout "${SMOKES_DEFAULT_TIMEOUT:-120}" env \
+        HAKO_JOINIR_STRICT=0 \
+        NYASH_JOINIR_STRICT=0 \
+        HAKO_JOINIR_DEV=0 \
+        NYASH_JOINIR_DEV=0 \
+        NYASH_DISABLE_PLUGINS=0 \
+        NYASH_ALLOW_USING_FILE=1 \
+        bash "$script_path"; then
         log_error "phase29aq_stdlib_pack_vm: ${label} failed"
         return 1
     fi

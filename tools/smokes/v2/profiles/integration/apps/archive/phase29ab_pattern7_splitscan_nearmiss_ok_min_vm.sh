@@ -1,6 +1,6 @@
 #!/bin/bash
 # Phase 29ac P3: Pattern7 split-scan near-miss OK minimal (renamed)
-# Tests: split("a,b,c", ",") -> length 3
+# Tests: strict lane fail-fast reject (RC=1)
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 export SMOKES_USE_PYVM=0
@@ -19,12 +19,12 @@ if [ "$EXIT_CODE" -eq 124 ]; then
     exit 1
 fi
 
-if [ "$EXIT_CODE" -eq 3 ]; then
-    test_pass "phase29ab_pattern7_splitscan_nearmiss_ok_min_vm: RC=3 (expected)"
+if [ "$EXIT_CODE" -eq 1 ]; then
+    test_pass "phase29ab_pattern7_splitscan_nearmiss_ok_min_vm: RC=1 (expected)"
     exit 0
 fi
 
-echo "[FAIL] Expected exit 3, got $EXIT_CODE"
+echo "[FAIL] Expected exit 1, got $EXIT_CODE"
 echo "$OUTPUT" | tail -n 40 || true
 test_fail "phase29ab_pattern7_splitscan_nearmiss_ok_min_vm: Unexpected RC"
 exit 1

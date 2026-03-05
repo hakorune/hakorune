@@ -43,7 +43,7 @@ run_filter "pattern1_stringutils_tolower_vm" "phase29ap_stringutils_tolower_vm" 
 run_filter "pattern1_stringutils_join_vm" "phase29ap_stringutils_join_vm" || exit 1
 run_filter "stdlib_string_pack_vm" "phase29aq_stdlib_pack_vm" || exit 1
 run_filter "purity_gate_vm" "phase29as_purity_gate_vm" || exit 1
-run_filter "string_is_integer_strict_shadow_vm" "phase29ar_string_is_integer_min_vm" || exit 1
+run_filter "string_is_integer_strict_reject_vm" "phase29ar_string_is_integer_min_vm" || exit 1
 run_filter "string_is_integer_release_adopt_vm" "phase29ar_string_is_integer_release_adopt_vm" || exit 1
 run_filter "generic_loop_continue_strict_shadow_vm" "phase29ca_generic_loop_continue_strict_shadow_vm" || exit 1
 run_filter "generic_loop_continue_release_adopt_vm" "phase29ca_generic_loop_continue_release_adopt_vm" || exit 1

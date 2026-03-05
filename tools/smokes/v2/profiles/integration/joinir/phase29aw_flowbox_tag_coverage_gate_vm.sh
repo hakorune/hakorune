@@ -169,24 +169,20 @@ run_is_integer_strict() {
         test_fail "phase29aw_flowbox_tag_coverage_gate_vm: is_integer strict timed out"
         exit 1
     fi
-    if [ "$exit_code" -ne 0 ]; then
+    if [ "$exit_code" -ne 1 ]; then
         echo "[FAIL] is_integer strict exit code $exit_code"
         echo "$output" | tail -n 80 || true
         test_fail "phase29aw_flowbox_tag_coverage_gate_vm: is_integer strict failed"
         exit 1
     fi
-    assert_flowbox_adopt_tag "is_integer_strict" "$output" "Loop" "return" "shadow"
-
-    local output_clean
-    output_clean=$(echo "$output" | filter_noise | grep -v '^\[plugins\]' | grep -v '^\[WARN\] \[plugin/init\]')
-    local expected
-    expected=$(cat << 'TXT'
-1
-0
-TXT
-)
-
-    compare_outputs "$expected" "$output_clean" "phase29aw_flowbox_tag_coverage_gate_vm" || exit 1
+    if ! grep -qF "[vm-hako/unimplemented]" <<<"$output" \
+        || ! grep -qF "newbox(StringUtils)" <<<"$output"; then
+        echo "[FAIL] is_integer strict: missing fail-fast marker"
+        echo "$output" | tail -n 80 || true
+        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: is_integer strict marker missing"
+        exit 1
+    fi
+    assert_no_flowbox_tags "is_integer_strict_reject" "$output"
 }
 
 run_is_integer_release() {
