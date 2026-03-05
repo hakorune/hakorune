@@ -159,7 +159,7 @@ mod tests {
             .joins
             .iter()
             .find(|join| join.name == "sum")
-            .expect("expected sum join payload");
+            .expect("expected sum join entry");
 
         let continue_phi_args = loop_plan
             .body
