@@ -779,10 +779,20 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. Pattern語彙の主語外し（step-1）: `single_planner/rule_order` / `joinir/patterns/registry` の内部語彙と router 診断 loop-kind は semantic 化済み（`717e62af1`, `10cfaa207`）。次は router comment/header と legacy enum名の段階整理。
-2. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
-3. `shadow_adopt` 縮退（step-2）: minimal fallback cluster は撤去済み（`fd26729ff`）。次は `nested_minimal / generic_loop_v{1,0}` の fallback 条件固定と router 側への段階移管。
-4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
+1. legacy whitelist fallback 撤去（最優先）:
+   - `joinir/routing.rs` の router miss 後 `cf_loop_joinir_legacy_binding` 呼び出しを削除し、`route=none` の fail-fast/no-route 契約へ統一。
+   - `joinir/mod.rs` の `mod legacy` 配線と `joinir/legacy/*` を撤去（runtime 主経路から完全分離）。
+2. `shadow_adopt` 縮退（step-2）:
+   - minimal cluster は撤去済み（`fd26729ff`）、nested minimal の registry route 化も完了（`66ddbce40`）。
+   - 次は `generic_loop_v1/v0` fallback を recipe-first 側へ段階移管し、`shadow_adopt` の責務を strict guard + 最小 fallback へ縮退。
+3. Surface/trace の semantic 語彙統一（step-1 継続）:
+   - runtime log/comment から Pattern番号主語を除去（`joinir/routing.rs`, `joinir/trace.rs`, `parity_checker.rs`）。
+   - 既存 gate sentinel は維持しつつ label を route/rule 主語へ段階移行。
+4. SSOT docs の stale 参照掃除:
+   - `joinir-design-map.md` など、削除済み `pattern*.rs` へのリンクを現行 `router/registry/composer` 構成へ更新。
+   - debug/tag 契約は `ai-handoff-and-debug-contract.md` を正本に固定し、phase 文書との差分を消す。
+5. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
+6. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
    - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
@@ -790,7 +800,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
    - `normalizer` 側窓口は撤去済み、pattern minimal は composer 側へ集約後に folderごと撤去完了（`96591f62b`, `ea8ffeab3`, `fd26729ff`）。
    - 次は `shadow_adopt` の残 fallback（`nested_minimal / generic_loop_v{1,0}`）を縮退し、recipe-first/router 側へ整理する。
-5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
+7. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
 
