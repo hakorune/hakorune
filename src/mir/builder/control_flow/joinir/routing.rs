@@ -33,7 +33,7 @@ fn take_step_tree_parity_error() -> Option<String> {
 ///
 /// Phase 137-6-S1: 現時点では既存の router ロジック（LoopFeatures ベース）を使用
 /// Phase 137-6-S2: dev-only で canonicalizer decision を提案として受け取る
-pub(in crate::mir::builder) fn choose_pattern_kind(
+pub(in crate::mir::builder) fn choose_route_kind(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> crate::mir::loop_pattern_detection::LoopPatternKind {
@@ -91,10 +91,10 @@ pub(in crate::mir::builder) fn choose_pattern_kind(
         // Step 3: Check if exactly 1-level nesting (depth == 2)
         if tree.features.max_loop_depth == 2 {
             // Step 4: Full AST validation (simple-loop-compatible requirements)
-            if is_pattern6_lowerable(&tree, body) {
+            if is_nested_loop_minimal_lowerable(&tree, body) {
                 // nested_loop_minimal selected - lowering MUST succeed
                 trace::trace().dev(
-                    "choose_pattern_kind",
+                    "choose_route_kind",
                     "[routing] nested_loop_minimal selected: 1-level nested loop validated",
                 );
                 return loop_pattern_detection::LoopPatternKind::Pattern6NestedLoopMinimal;
@@ -126,7 +126,7 @@ pub(in crate::mir::builder) fn choose_pattern_kind(
                 .map(|(idx, kind)| format!("root=loop_body idx={} kind={}", idx, kind))
                 .unwrap_or_else(|| "root=loop_body idx=-1 kind=none".to_string());
             let msg = format!(
-                "[choose_pattern_kind/STEPTREE_PARITY] step_tree(break={}, cont={}, ret={}) != extractor(break={}, cont={}, ret={}) {}",
+                "[choose_route_kind/STEPTREE_PARITY] step_tree(break={}, cont={}, ret={}) != extractor(break={}, cont={}, ret={}) {}",
                 tree.features.has_break,
                 tree.features.has_continue,
                 tree.features.has_return,
@@ -139,14 +139,14 @@ pub(in crate::mir::builder) fn choose_pattern_kind(
             if crate::config::env::joinir_dev::strict_enabled() {
                 set_step_tree_parity_error(msg.clone());
             }
-            trace::trace().dev("choose_pattern_kind/step_tree_parity", &msg);
+            trace::trace().dev("choose_route_kind/step_tree_parity", &msg);
         }
     }
 
     // Phase 193: Extract features using modularized extractor
     let features = ast_features::extract_features(condition, body, has_continue, has_break);
 
-    // Phase 192: Classify pattern based on features (既存の router 結果)
+    // Phase 192: Classify route kind based on features (既存の router 結果)
     let router_choice = loop_pattern_detection::classify(&features);
 
     // Phase 137-6-S2: dev-only で Canonicalizer の提案を取得
@@ -165,7 +165,7 @@ pub(in crate::mir::builder) fn choose_pattern_kind(
                 // parity check
                 if canonical_choice != router_choice {
                     let msg = format!(
-                        "[choose_pattern_kind/PARITY] router={:?}, canonicalizer={:?}",
+                        "[choose_route_kind/PARITY] router={:?}, canonicalizer={:?}",
                         router_choice, canonical_choice
                     );
 
@@ -174,14 +174,14 @@ pub(in crate::mir::builder) fn choose_pattern_kind(
                         panic!("{}", msg);
                     } else {
                         // debug mode: ログのみ
-                        trace::trace().dev("choose_pattern_kind/parity", &msg);
+                        trace::trace().dev("choose_route_kind/parity", &msg);
                     }
                 } else {
-                    // Patterns match - success!
+                    // Route kinds match - success!
                     trace::trace().dev(
-                        "choose_pattern_kind/parity",
+                        "choose_route_kind/parity",
                         &format!(
-                            "[choose_pattern_kind/PARITY] OK: canonical and actual agree on {:?}",
+                            "[choose_route_kind/PARITY] OK: canonical and actual agree on {:?}",
                             canonical_choice
                         ),
                     );
@@ -194,7 +194,7 @@ pub(in crate::mir::builder) fn choose_pattern_kind(
                 // 1. joinir_dev_enabled() && 新フラグ（例: canonicalizer_preferred()）
                 // 2. または joinir_dev_enabled() をそのまま使用
                 //
-                // 注意: 有効化時は全 Pattern の parity が green であること
+                // 注意: 有効化時は全 route kind の parity が green であること
                 //
                 // 有効化後のコード例:
                 // ```rust
@@ -209,22 +209,22 @@ pub(in crate::mir::builder) fn choose_pattern_kind(
     router_choice
 }
 
-/// Phase 188.3: Validate nested loop meets ALL Pattern6 requirements
+/// Phase 188.3: Validate nested loop meets ALL nested-loop-minimal requirements
 ///
-/// Returns true ONLY if Pattern6 lowering is guaranteed to succeed.
-/// False → fall through to other patterns (NOT an error)
-fn is_pattern6_lowerable(
+/// Returns true ONLY if nested-loop-minimal lowering is guaranteed to succeed.
+/// False → fall through to other routes (NOT an error)
+fn is_nested_loop_minimal_lowerable(
     tree: &crate::mir::control_tree::StepTree,
     body: &[crate::ast::ASTNode],
 ) -> bool {
     use crate::ast::ASTNode;
 
-    // Requirement 1: Outer loop has no break (Pattern1 requirement)
+    // Requirement 1: Outer loop has no break (simple-loop-compatible requirement)
     if tree.features.has_break {
         return false;
     }
 
-    // Requirement 2: Outer loop has no continue (Pattern1 requirement)
+    // Requirement 2: Outer loop has no continue (simple-loop-compatible requirement)
     if tree.features.has_continue {
         return false;
     }
@@ -246,19 +246,19 @@ fn is_pattern6_lowerable(
         None => return false, // No inner loop found (shouldn't happen, but defensive)
     };
 
-    // Requirement 4: Inner loop has no break (Pattern1 requirement)
+    // Requirement 4: Inner loop has no break (simple-loop-compatible requirement)
     use crate::mir::control_tree::StepTreeBuilderBox;
     let inner_tree = StepTreeBuilderBox::build_from_ast(inner_loop);
     if inner_tree.features.has_break {
         return false;
     }
 
-    // Requirement 5: Inner loop has no continue (Pattern1 requirement)
+    // Requirement 5: Inner loop has no continue (simple-loop-compatible requirement)
     if inner_tree.features.has_continue {
         return false;
     }
 
-    // All requirements met - Pattern6 lowering will succeed
+    // All requirements met - nested-loop-minimal lowering will succeed
     true
 }
 

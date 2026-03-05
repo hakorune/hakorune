@@ -81,7 +81,7 @@ impl<'a> LoopPatternContext<'a> {
     /// Automatically detects continue/break statements in body
     /// Extracts features and classifies pattern from AST
     /// Detects infinite loop condition
-    /// Uses choose_pattern_kind() SSOT entry point
+    /// Uses choose_route_kind() SSOT entry point
     pub(crate) fn new(
         condition: &'a ASTNode,
         body: &'a [ASTNode],
@@ -90,8 +90,8 @@ impl<'a> LoopPatternContext<'a> {
         in_static_box: bool,
     ) -> Self {
         // Phase 137-6-S1: Use SSOT pattern selection entry point
-        use crate::mir::builder::control_flow::joinir::routing::choose_pattern_kind;
-        let pattern_kind = choose_pattern_kind(condition, body);
+        use crate::mir::builder::control_flow::joinir::routing::choose_route_kind;
+        let pattern_kind = choose_route_kind(condition, body);
 
         Self {
             condition,
