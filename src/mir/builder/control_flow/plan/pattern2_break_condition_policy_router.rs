@@ -53,7 +53,7 @@ impl Pattern2BreakConditionPolicyRouterBox {
                 allowed_body_locals_for_conditions: vec![result.allowed_ch_var],
                 is_loop_true_read_digits: true,
             }),
-            PolicyDecision::Reject(reason) => Err(format!("[cf_loop/pattern2] {}", reason)),
+            PolicyDecision::Reject(reason) => Err(format!("[cf_loop/loop_break] {}", reason)),
             PolicyDecision::None => Ok(Pattern2BreakConditionRouting {
                 // Phase 260 P0.1: If the loop has an explicit header condition and the body
                 // does not contain a top-level break-guard pattern, the exit condition is
@@ -67,14 +67,14 @@ impl Pattern2BreakConditionPolicyRouterBox {
                                 ..
                             }
                         ) {
-                            Err("[cf_loop/pattern2] loop(true) requires a break guard pattern"
+                            Err("[cf_loop/loop_break] loop(true) requires a break guard pattern"
                                 .to_string())
                         } else {
                             Ok(Self::negate_condition(condition))
                         }
                     })
                     .map_err(|_| {
-                        "[cf_loop/pattern2] Failed to extract break condition from loop body".to_string()
+                        "[cf_loop/loop_break] Failed to extract break condition from loop body".to_string()
                     })?,
                 allowed_body_locals_for_conditions: Vec::new(),
                 is_loop_true_read_digits: false,

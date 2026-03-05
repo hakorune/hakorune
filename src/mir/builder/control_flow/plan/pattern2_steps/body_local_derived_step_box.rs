@@ -30,7 +30,7 @@ impl BodyLocalDerivedStepBox {
                 inputs.body_local_derived_recipe = Some(recipe);
                 Ok(())
             }
-            PolicyDecision::Reject(reason) => Err(format!("[cf_loop/pattern2] {}", reason)),
+            PolicyDecision::Reject(reason) => Err(format!("[cf_loop/loop_break] {}", reason)),
             PolicyDecision::None => Ok(()),
         }
     }

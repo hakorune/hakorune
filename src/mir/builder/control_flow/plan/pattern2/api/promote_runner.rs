@@ -6,7 +6,9 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 
-use super::super::super::body_local_policy::{classify_for_pattern2, BodyLocalRoute};
+use super::super::super::body_local_policy::{
+    classify_loop_break_body_local_route, BodyLocalRoute,
+};
 use super::super::super::pattern2_inputs_facts_box::Pattern2Inputs;
 use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
 
@@ -53,7 +55,7 @@ pub(in crate::mir::builder) fn try_promote(
         ) {
             // no-op: lowerers will populate LoopBodyLocalEnv via init/derived emission.
         } else if !inputs.is_loop_true_read_digits {
-            match classify_for_pattern2(
+            match classify_loop_break_body_local_route(
                 builder,
                 &inputs.loop_var_name,
                 &inputs.scope,
@@ -114,7 +116,7 @@ pub(in crate::mir::builder) fn try_promote(
                     // Phase 263 P0.1: Reject を PromoteDecision で二分化（型安全）
                     // 対象だが未対応（freeze級）: 実装バグ or 将来実装予定 → Freeze で Fail-Fast
                     return Ok(PromoteDecision::Freeze(format!(
-                        "[pattern2/api/promote] Pattern2 未対応エラー（LoopBodyLocal {:?}）: {}",
+                        "[loop_break/api/promote] LoopBreak 未対応エラー（LoopBodyLocal {:?}）: {}",
                         cond_body_local_vars, reason
                     )));
                 }

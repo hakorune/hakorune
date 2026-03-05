@@ -32,7 +32,7 @@ pub enum BodyLocalRoute {
     DerivedSlot(BodyLocalDerivedSlotRecipe),
 }
 
-pub fn classify_for_pattern2(
+pub fn classify_loop_break_body_local_route(
     _builder: &MirBuilder,
     loop_var_name: &str,
     scope: &LoopScopeShape,
@@ -71,7 +71,7 @@ pub fn classify_for_pattern2(
                 carrier_name,
             }),
             Err(slot_err) => PolicyDecision::Reject(format!(
-                "[pattern2/body_local_policy] derived-slot check failed: {slot_err}"
+                "[loop_break/body_local_policy] derived-slot check failed: {slot_err}"
             )),
         },
         ConditionPromotionResult::CannotPromote { reason, .. } => {
@@ -90,6 +90,25 @@ pub fn classify_for_pattern2(
             }
         }
     }
+}
+
+#[allow(dead_code)]
+pub fn classify_for_pattern2(
+    builder: &MirBuilder,
+    loop_var_name: &str,
+    scope: &LoopScopeShape,
+    break_condition_node: &ASTNode,
+    cond_scope: &LoopConditionScope,
+    body: &[ASTNode],
+) -> PolicyDecision<BodyLocalRoute> {
+    classify_loop_break_body_local_route(
+        builder,
+        loop_var_name,
+        scope,
+        break_condition_node,
+        cond_scope,
+        body,
+    )
 }
 
 fn extract_body_local_inits_for_conditions(

@@ -30,7 +30,7 @@ impl Pattern2DebugLog {
     pub(crate) fn new(verbose: bool) -> Self {
         Self {
             verbose,
-            debug: DebugOutputBox::new_with_enabled("joinir/pattern2", verbose),
+            debug: DebugOutputBox::new_with_enabled("joinir/loop_break", verbose),
         }
     }
 

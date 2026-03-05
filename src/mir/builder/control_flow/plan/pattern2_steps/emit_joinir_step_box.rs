@@ -60,8 +60,8 @@ impl EmitJoinIRStepBox {
             Ok((module, meta)) => (module, meta),
             Err(e) => {
                 crate::mir::builder::control_flow::joinir::trace::trace()
-                    .debug("pattern2", &format!("Pattern 2 lowerer failed: {}", e));
-                return Err(format!("[cf_loop/pattern2] Lowering failed: {}", e));
+                    .debug("loop_break", &format!("LoopBreak lowerer failed: {}", e));
+                return Err(format!("[cf_loop/loop_break] Lowering failed: {}", e));
             }
         };
 

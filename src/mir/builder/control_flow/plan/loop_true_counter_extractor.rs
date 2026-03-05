@@ -122,7 +122,7 @@ impl LoopTrueCounterExtractorBox {
 
         if candidates.len() > 1 {
             return Err(format!(
-                "[pattern2/loop_true_counter/contract/multiple_candidates] Multiple counter candidates found in loop(true) body: {:?}",
+                "[loop_break/loop_true_counter/contract/multiple_candidates] Multiple counter candidates found in loop(true) body: {:?}",
                 candidates
             ));
         }
@@ -131,14 +131,14 @@ impl LoopTrueCounterExtractorBox {
             let loop_var_name = candidates[0].clone();
             let host_id = variable_map.get(&loop_var_name).copied().ok_or_else(|| {
                 format!(
-                    "[pattern2/loop_true_counter/contract/not_loop_outer] Counter '{}' not found in variable_map (loop-outer var required)",
+                    "[loop_break/loop_true_counter/contract/not_loop_outer] Counter '{}' not found in variable_map (loop-outer var required)",
                     loop_var_name
                 )
             })?;
 
             if !has_substring_read(body, &loop_var_name) {
                 return Err(format!(
-                    "[pattern2/loop_true_counter/contract/missing_substring_guard] Counter '{}' found, but missing substring pattern `s.substring({}, {} + 1)`",
+                    "[loop_break/loop_true_counter/contract/missing_substring_guard] Counter '{}' found, but missing substring pattern `s.substring({}, {} + 1)`",
                     loop_var_name, loop_var_name, loop_var_name
                 ));
             }
@@ -153,7 +153,7 @@ impl LoopTrueCounterExtractorBox {
         }
 
         Err(
-            "[pattern2/loop_true_counter/contract/no_candidate] Cannot find unique counter update `i = i + 1` in loop(true) body"
+            "[loop_break/loop_true_counter/contract/no_candidate] Cannot find unique counter update `i = i + 1` in loop(true) body"
                 .to_string(),
         )
     }
@@ -229,7 +229,7 @@ fn extract_loop_counter_from_indexof_pattern(
 
     if candidates.len() > 1 {
         return Err(format!(
-            "[pattern2/loop_true_counter/contract/multiple_candidates] Multiple counter candidates found in loop(true) body: {:?}",
+            "[loop_break/loop_true_counter/contract/multiple_candidates] Multiple counter candidates found in loop(true) body: {:?}",
             candidates
         ));
     }
@@ -238,14 +238,14 @@ fn extract_loop_counter_from_indexof_pattern(
         let loop_var_name = candidates[0].clone();
         let host_id = variable_map.get(&loop_var_name).copied().ok_or_else(|| {
             format!(
-                "[pattern2/loop_true_counter/contract/not_loop_outer] Counter '{}' not found in variable_map (loop-outer var required)",
+                "[loop_break/loop_true_counter/contract/not_loop_outer] Counter '{}' not found in variable_map (loop-outer var required)",
                 loop_var_name
             )
         })?;
 
         if !has_substring_read_with_start(body, &loop_var_name) {
             return Err(format!(
-                "[pattern2/loop_true_counter/contract/missing_substring_guard] Counter '{}' found, but missing substring pattern `substring({}, ...)`",
+                "[loop_break/loop_true_counter/contract/missing_substring_guard] Counter '{}' found, but missing substring pattern `substring({}, ...)`",
                 loop_var_name, loop_var_name
             ));
         }
