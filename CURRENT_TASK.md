@@ -57,10 +57,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - nested fallback（`nested_loop_plan` / `generic_loop_body/helpers` / `nested_loop_depth1`）は `planner_required` 時に `loop_cond_continue_with_return` を recipe composer 優先で下ろす（plan normalizer 依存を段階縮退）
   - router の release pre-plan fallback（`release_adopt`）は撤去済み。entry は recipe-first / strict-dev shadow_adopt / none に固定
   - recipe 補助ログは route 主語へ統一中（`[recipe:verify] route=<...> status=ok`, `[recipe:compose] route=<...> path=<...>`）
+  - planner context 表層語彙は `route_kind` へ統一済み（`pattern_kind` は code path から撤去）
 - compiler fixed order:
   1. nested fallback の plan payload 参照を段階的に撤去し、`Facts -> Recipe` 側の観測契約へ集約する（`LoopCondContinueWithReturnPlan` 薄化）。
   2. stale docs を同期し、entry 契約を `Facts -> Recipe -> Composer -> Verifier -> Parts` 一本化の現況に合わせる。
-  3. planner context の残語彙（`pattern_kind`）を `route_kind` へ統一する（挙動不変）。
+  3. `plan/**` 内の pattern1..9 残語彙（内部型名/補助コメント）を route/recipe 主語へ段階移行する（挙動不変）。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
 
@@ -91,7 +92,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
-  - `(pending)` docs: sync recipe entry tags to route vocabulary
+  - `28e8f9bb9` docs: sync recipe entry tags to route vocabulary
     - `ai-handoff-and-debug-contract.md` / `recipe-first-entry-contract-ssot.md` の `[recipe:entry] pattern*` 記述を route 主語へ更新（`pattern3_ifphi` → `if_phi_join` など）
     - route vocabulary 統一済みの verify/compose タグと同じ主語体系へ整列し、stale 記述を縮退
     - verify: docs sync only（code diff なし）

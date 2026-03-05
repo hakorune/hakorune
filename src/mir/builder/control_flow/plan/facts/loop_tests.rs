@@ -388,7 +388,7 @@ mod tests {
             span: Span::unknown(),
         };
         let ctx = PlannerContext {
-            pattern_kind: Some(LoopPatternKind::Pattern2Break),
+            route_kind: Some(LoopPatternKind::Pattern2Break),
             in_static_box: false,
             debug: false,
         };
@@ -422,7 +422,7 @@ mod tests {
             span: Span::unknown(),
         };
         let ctx = PlannerContext {
-            pattern_kind: Some(LoopPatternKind::Pattern1SimpleWhile),
+            route_kind: Some(LoopPatternKind::Pattern1SimpleWhile),
             in_static_box: false,
             debug: false,
         };
@@ -499,12 +499,12 @@ mod tests {
         };
         let body = vec![predicate_if, step];
         let allow_ctx = PlannerContext {
-            pattern_kind: None,
+            route_kind: None,
             in_static_box: false,
             debug: false,
         };
         let block_ctx = PlannerContext {
-            pattern_kind: None,
+            route_kind: None,
             in_static_box: true,
             debug: false,
         };
