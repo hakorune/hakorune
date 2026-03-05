@@ -95,16 +95,21 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - note:
   - monitor-known 扱い。compiler blocker は `none` 維持。
 
-## Restart Handoff (2026-03-05)
+## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `c139feb1c` refactor(plan): rename pattern_pipeline module to route_prep_pipeline
+    - `plan/pattern_pipeline.rs` を `plan/route_prep_pipeline.rs` へリネームし、`plan/mod.rs` module 宣言を同名へ同期
+    - `pattern2_inputs_facts_box.rs` / `pattern2_steps/gather_facts_step_box.rs` の `RoutePrepContext` 型パスを新 module 名へ更新
+    - `joinir/patterns/mod.rs` コメントと `plan/policies/policies/README.md` のリンク表記を新ファイル名へ同期
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `abdf9923a` refactor(plan): rename pattern2 policy routers to loop-break routers
     - `pattern2_policy_router.rs` / `pattern2_break_condition_policy_router.rs` を `loop_break_policy_router.rs` / `loop_break_condition_policy_router.rs` へリネーム
     - struct 名も route 主語へ同期（`Pattern2PolicyRouterBox` → `LoopBreakPolicyRouterBox`、`Pattern2BreakConditionPolicyRouterBox` → `LoopBreakConditionPolicyRouterBox`）
     - `plan/mod.rs` / `pattern2_steps/apply_policy_step_box.rs` の module import と呼び出しを同名へ更新
     - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `74cc786fc` refactor(plan): rename pattern pipeline context to route prep context
-    - `plan/pattern_pipeline.rs` の `PatternPipelineContext` と `build_pattern_context` を `RoutePrepContext` / `build_route_prep_context` へ改名
+    - `plan/route_prep_pipeline.rs`（旧: `plan/pattern_pipeline.rs`）の `PatternPipelineContext` と `build_pattern_context` を `RoutePrepContext` / `build_route_prep_context` へ改名
     - `pattern2_inputs_facts_box.rs` / `pattern2_steps/gather_facts_step_box.rs` の参照型と補助ログ文言を同名へ同期
     - 目的: pattern 主語の分析コンテキスト語彙を route/prep 主語へ段階移行（挙動不変）
     - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
@@ -563,7 +568,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `emission/mod.rs` の module wire/comment を実体に同期
   - `1bc5aa91f` refactor D5 drop local dead_code allows from clean plan modules
     - `plan/*` のクリーン13ファイルで局所 `#[allow(dead_code)]` を撤去（dirty file は非対象）
-    - `pattern_pipeline.rs` / `pattern2_break_helpers.rs` / `exit_binding.rs` などの legacy attribute を縮退
+    - `route_prep_pipeline.rs`（旧: `pattern_pipeline.rs`）/ `pattern2_break_helpers.rs` / `exit_binding.rs` などの legacy attribute を縮退
     - `plan/mod.rs` umbrella 抑制を崩す前段として、局所 suppressions を先行削減
   - `495dfd032` refactor D5 remove unused predicate scan emitter and phi wrapper dead helper
     - `emission/loop_predicate_scan.rs` を削除（参照ゼロの未使用モジュール撤去）
