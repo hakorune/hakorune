@@ -102,7 +102,7 @@ impl MirBuilder {
 mod tests {
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 
-    /// Test helper: Create a skip_whitespace pattern loop AST
+    /// Test helper: Create a skip_whitespace route-shape loop AST
     fn build_skip_whitespace_loop() -> ASTNode {
         ASTNode::Loop {
             condition: Box::new(ASTNode::BinaryOp {
@@ -175,7 +175,7 @@ mod tests {
 
         // Run canonicalizer
         let (_, canonical_decision) = canonicalize_loop_expr(&loop_ast).unwrap();
-        let canonical_pattern = canonical_decision
+        let canonical_route_kind = canonical_decision
             .chosen
             .expect("Canonicalizer should succeed");
 
@@ -183,23 +183,23 @@ mod tests {
         let has_continue = ast_features::detect_continue_in_body(body);
         let has_break = ast_features::detect_break_in_body(body);
         let features = ast_features::extract_features(condition, body, has_continue, has_break);
-        let actual_pattern = crate::mir::loop_pattern_detection::classify(&features);
+        let actual_route_kind = crate::mir::loop_pattern_detection::classify(&features);
 
         // Phase 137-5: Verify MATCH (ExitContract policy fix)
         // Both canonicalizer and router should agree on loop-break route kind
         // because has_break=true (ExitContract determines route choice)
         assert_eq!(
-            canonical_pattern,
+            canonical_route_kind,
             crate::mir::loop_pattern_detection::LoopPatternKind::Pattern2Break,
-            "Canonicalizer should choose Pattern2Break for has_break=true"
+            "Canonicalizer should choose loop-break route kind for has_break=true"
         );
         assert_eq!(
-            actual_pattern,
+            actual_route_kind,
             crate::mir::loop_pattern_detection::LoopPatternKind::Pattern2Break,
-            "Router should classify as Pattern2Break for has_break=true"
+            "Router should classify as loop-break route kind for has_break=true"
         );
         assert_eq!(
-            canonical_pattern, actual_pattern,
+            canonical_route_kind, actual_route_kind,
             "Phase 137-5: Canonicalizer and router should agree (SSOT policy)"
         );
     }
@@ -253,18 +253,18 @@ mod tests {
             _ => panic!("Expected loop node"),
         };
 
-        // Canonicalizer will fail for simple patterns (not yet implemented)
+        // Canonicalizer will fail for simple route shapes (not yet implemented)
         let canonical_result = canonicalize_loop_expr(&loop_ast);
 
         // Router's route-kind detection
         let has_continue = ast_features::detect_continue_in_body(body);
         let has_break = ast_features::detect_break_in_body(body);
         let features = ast_features::extract_features(condition, body, has_continue, has_break);
-        let actual_pattern = crate::mir::loop_pattern_detection::classify(&features);
+        let actual_route_kind = crate::mir::loop_pattern_detection::classify(&features);
 
         // Router should classify as simple-while route kind
         assert_eq!(
-            actual_pattern,
+            actual_route_kind,
             crate::mir::loop_pattern_detection::LoopPatternKind::Pattern1SimpleWhile
         );
 
