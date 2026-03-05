@@ -64,9 +64,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - domain 内部語彙を route 主語へ縮退（`Pattern2StepPlacement` → `LoopBreakStepPlacement`, `Pattern5ExitKind` → `LoopTrueEarlyExitKind`）
   - loop_break 系の診断タグを route 主語へ同期（`[cf_loop/pattern2]` → `[cf_loop/loop_break]`, `joinir/pattern2` → `joinir/loop_break`）
   - RecipeComposer の主要 entrypoint 名を de-number 化（`compose_pattern*` → semantic `compose_<route>_recipe`）
+  - `route_prep_pipeline` / `body_local_policy` / `trim_loop_lowering` / `normalization::plan_box` の補助コメントを route 主語へ同期（挙動不変）
+  - strict-nested guard SSOT と flowbox tag coverage map の scenario 注記を route 主語へ同期（legacy label は注記で保持）
 - compiler fixed order:
-  1. stale docs を同期し、entry 契約を `Facts -> Recipe -> Composer -> Verifier -> Parts` 一本化の現況に合わせる。
-  2. `plan/**` 内の pattern1..9 残語彙（内部型名/補助コメント）を route/recipe 主語へ段階移行する（挙動不変）。
+  1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す。
+  2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する。
   3. planner/normalizer の dead comments・test-only wiring（payload 前提）を段階撤去する。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
@@ -99,6 +101,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `bba9d6f72` docs(joinir): sync strict nested and coverage labels to route wording
+    - `strict-nested-loop-guard-ssot.md` の allowlist 記述を continue-only route 主語へ更新し、enum/facts は `legacy` 注記で保持
+    - `flowbox-tag-coverage-map-ssot.md` の scenario notes（pattern1/2/3 系）を route 主語へ同期
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `8059b534f` refactor(plan): route-align residual comment and test wording
+    - `plan/route_prep_pipeline.rs`, `plan/body_local_policy.rs`, `plan/trim_loop_lowering.rs`, `normalization/plan_box.rs`, `edgecfg/api/compose/cleanup.rs` の comment/doc を route 主語へ同期（挙動不変）
+    - `single_planner/rules.rs` の test-only name を payload 主語から contract 主語へ同期
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `5ea18acd6` docs(test): trim payload-era normalizer and wiring wording
     - `plan/normalizer/README.md` の module inventory を現行ファイル構成へ同期（削除済み `pattern_scan_*` 記述を撤去）
     - `plan/parts/wiring_tests.rs` の test-only failure message を payload 主語から join entry 主語へ同期
