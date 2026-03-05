@@ -205,7 +205,7 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
 
         if let Some(loop_plan) = plan_opt {
             let log_msg = format!("route=plan strategy=extract rule={}", name);
-            trace::trace().pattern("route", &log_msg, true);
+            trace::trace().route("route", &log_msg, true);
             outcome.plan = Some(loop_plan);
             return Ok(outcome);
         } else if log_none && ctx.debug {

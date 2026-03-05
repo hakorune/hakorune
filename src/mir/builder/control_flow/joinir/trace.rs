@@ -142,11 +142,6 @@ impl JoinLoopTrace {
         }
     }
 
-    /// Backward-compatible alias for `route`.
-    pub fn pattern(&self, tag: &str, pattern_name: &str, matched: bool) {
-        self.route(tag, pattern_name, matched);
-    }
-
     /// Trace variable_map state
     ///
     /// # Arguments
