@@ -22,10 +22,9 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v1_loop_break(
         return Ok(None);
     }
 
-    let Some(loop_break_facts) = facts.facts.pattern2_break.as_ref() else {
+    if facts.facts.loop_break().is_none() {
         return Ok(None);
-    };
-    let _ = loop_break_facts;
+    }
     let core = RecipeComposer::compose_loop_break_recipe(builder, facts, ctx)
         .map_err(|e| e.to_string())?;
     Ok(Some(core))
@@ -40,10 +39,9 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v1_loop_true_early_exit(
         return Ok(None);
     }
 
-    let Some(loop_true_early_exit_facts) = facts.facts.pattern5_infinite_early_exit.as_ref() else {
+    if facts.facts.loop_true_early_exit().is_none() {
         return Ok(None);
-    };
-    let _ = loop_true_early_exit_facts;
+    }
     let core = RecipeComposer::compose_loop_true_early_exit_recipe(builder, facts, ctx)
         .map_err(|e| e.to_string())?;
     Ok(Some(core))
@@ -58,10 +56,9 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v1_if_phi_join(
         return Ok(None);
     }
 
-    let Some(if_phi_join_facts) = facts.facts.pattern3_ifphi.as_ref() else {
+    if facts.facts.if_phi_join().is_none() {
         return Ok(None);
-    };
-    let _ = if_phi_join_facts;
+    }
     let core = RecipeComposer::compose_if_phi_join_recipe(builder, facts, ctx)
         .map_err(|e| e.to_string())?;
     Ok(Some(core))

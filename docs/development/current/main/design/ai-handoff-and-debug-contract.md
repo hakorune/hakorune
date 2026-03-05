@@ -59,7 +59,7 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - WASM route trace (dev/diagnostic only, `NYASH_WASM_ROUTE_TRACE=1`): `[wasm/route-trace] policy=<default|legacy-wasm-rust> plan=<native-shape-table|bridge-rust-backend|legacy-rust> shape_id=<id|->`
 - WASM route policy freeze (parse boundary, default-only): `[freeze:contract][wasm/route-policy] NYASH_WASM_ROUTE_POLICY='<value>' (allowed: default)`
 - `reject: exit_allowed_recipe_build_failed` means ExitAllowed recipe construction failed; treat as out-of-scope and update the recipe SSOT or accept shape.
-- Contract freeze (Pattern6/7): `[joinir/phase29ab/scan_with_init/contract]`, `[joinir/phase29ab/split_scan/contract]`
+- Contract freeze (ScanWithInit/SplitScan): `[joinir/phase29ab/scan_with_init/contract]`, `[joinir/phase29ab/split_scan/contract]`
 - Generic-loop candidate diagnostics (dev/debug only): `[plan/reject_detail] box=generic_loop_v* reason=no_valid_loop_var_candidates last_fail=<Kind>`
 - Nested-loop guard (dev/debug only): `[plan/freeze:nested_loop_guard] func=<...> span=<...> recipe_contract=<Some|None> route_kind=<...> depth=<...>`
 - Recipe-first verification (dev/debug only, from `matcher.rs`): `[recipe:verify] route=loop_break status=<ok|fail>`
@@ -268,7 +268,7 @@ Additional plan trace tags (SSOT):
   - Purpose: Summarize generic_loop_v1 loop var candidate filtering when no_valid_loop_var_candidates.
   - Output fields (1 line): `ctx=<...> raw=<n> filtered=<n> reasons=...`
 - `[plan/trace:if_phi_normalize]`
-  - Purpose: Inspect Pattern3IfPhi normalizer input when a variable is missing.
+  - Purpose: Inspect IfPhiJoin (route=if_phi_join) normalizer input when a variable is missing.
   - Output fields (1 line): `ctx=<...> var=<name> locals_count=<n> scope=<...>`
 - `[plan/trace:nested_loop_guard]`
   - Purpose: Observe strict_nested_loop_guard nested-loop detection inputs.

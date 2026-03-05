@@ -294,10 +294,12 @@ pub(crate) fn route_loop(
             .facts
             .as_ref()
             .is_some_and(|facts| {
-                if facts.facts.pattern6_nested_minimal.is_some() {
+                if facts.facts.nested_loop_minimal().is_some() {
                     return true;
                 }
-                if facts.facts.generic_loop_v1.is_some() || facts.facts.generic_loop_v0.is_some() {
+                if facts.facts.generic_loop_v1().is_some()
+                    || facts.facts.generic_loop_v0().is_some()
+                {
                     return true;
                 }
                 if !(facts.exit_usage.has_break && facts.exit_usage.has_continue)
@@ -305,7 +307,7 @@ pub(crate) fn route_loop(
                 {
                     return false;
                 }
-                let Some(loop_cond) = facts.facts.loop_cond_break_continue.as_ref() else {
+                let Some(loop_cond) = facts.facts.loop_cond_break_continue() else {
                     return false;
                 };
                 !matches!(

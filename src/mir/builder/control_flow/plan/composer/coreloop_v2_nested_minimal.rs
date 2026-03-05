@@ -37,7 +37,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v2_nested_minimal(
         return Ok(None);
     }
 
-    let Some(nested) = facts.facts.pattern6_nested_minimal.as_ref() else {
+    let Some(nested) = facts.facts.nested_loop_minimal() else {
         return Ok(None);
     };
 

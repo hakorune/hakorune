@@ -33,15 +33,15 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v0(
         return Ok(None);
     }
 
-    let Some(pattern1) = facts.facts.pattern1_simplewhile.as_ref() else {
+    let Some(loop_simple_while) = facts.facts.loop_simple_while() else {
         return Ok(None);
     };
 
     let loop_plan = build_pattern1_coreloop(
         builder,
-        &pattern1.loop_var,
-        &pattern1.condition,
-        &pattern1.loop_increment,
+        &loop_simple_while.loop_var,
+        &loop_simple_while.condition,
+        &loop_simple_while.loop_increment,
         ctx,
     )?;
     Ok(Some(CorePlan::Loop(loop_plan)))

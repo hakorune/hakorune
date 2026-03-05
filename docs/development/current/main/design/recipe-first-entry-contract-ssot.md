@@ -70,9 +70,9 @@ AST
 
 Note: This matrix is a summary; the bullet list below is the authoritative SSOT. Display labels follow `entry-name-map-ssot.md`.
 Note: `pattern*` entries in the Candidate column are legacy internal fact keys; runtime canonical identifiers are `route=<...>` labels.
-- Pattern2Break が成立する場合は LoopCondBreak を候補にしない（entry disjoint）
-- Pattern2Break が成立する場合は LoopTrueBreak を候補にしない（entry disjoint）
-- Pattern2Break が成立する場合は generic_loop_v1 を候補にしない（entry disjoint）
+- LoopBreak（facts: pattern2_break）が成立する場合は loop_cond_break_continue を候補にしない（entry disjoint）
+- LoopBreak（facts: pattern2_break）が成立する場合は loop_true_break_continue を候補にしない（entry disjoint）
+- LoopBreak（facts: pattern2_break）が成立する場合は generic_loop_v1 を候補にしない（entry disjoint）
 - pattern1_char_map が成立する場合、generic_loop_v1 を候補にしない
 - pattern1_simplewhile が成立する場合は generic_loop_v1 を候補にしない
 - loop_scan_methods_block_v0 は non-nested のみ候補（segments に nested がある場合は loop_scan_methods_v0 に寄せる）
@@ -105,7 +105,7 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - 入口整理 Phase-2: recipe-first が成立した場合は shadow_adopt もスキップ（legacy には絶対落とさない）。
 - 入口整理 Phase-3: release でも recipe-first 成立後は shadow_adopt/legacy を通さない。
 - 期待された plan が返らない場合の freeze は router で出す（taxonomy: `planfrag-freeze-taxonomy.md`）。
-- Pattern6/7 の contract は専用タグで freeze（`[joinir/phase29ab/scan_with_init/contract]` / `[joinir/phase29ab/split_scan/contract]`）。
+- ScanWithInit/SplitScan の contract は専用タグで freeze（`[joinir/phase29ab/scan_with_init/contract]` / `[joinir/phase29ab/split_scan/contract]`）。
 
 ## FlowBox tag emission (SSOT)
 
@@ -117,14 +117,14 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 
 - Exception routes (for tracking only): `shadow_adopt`（pre-plan） / `direct lower`.
 - Policy: VerifiedRecipeBlock 以外の entry は strict/dev で freeze する（fallback 禁止）。
-- Non-planner_required + strict/dev: recipe-first 対象（Pattern5/6/7/Pattern1ArrayJoin）では
+- Non-planner_required + strict/dev: recipe-first 対象（LoopTrueEarlyExit / ScanWithInit / SplitScan / LoopArrayJoin）では
   `RecipeMatcher::try_match_loop()` を実行し、契約違反は freeze で止める（release は skip のみ）。
 
 ## Exception entry inventory (SSOT)
 
 | Entry | Purpose | Allowed scope | FlowBox tag |
 | --- | --- | --- | --- |
-| `shadow_adopt` | strict/dev の最小 adopt（pre-plan） | allowlist のみ（Facts による構造が明確なもの） | router の Verified CorePlan lowering 経由のみ |
+| `shadow_adopt` | strict/dev の最小 adopt（pre-plan） | accept-min set のみ（Facts による構造が明確なもの） | router の Verified CorePlan lowering 経由のみ |
 | `direct lower` | 既存の release 互換 | release のみ（strict/dev では禁止） | 出さない |
 
 ## Entry integration scope (SSOT)

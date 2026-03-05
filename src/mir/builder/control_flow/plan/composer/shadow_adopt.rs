@@ -79,17 +79,18 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
         .facts
         .as_ref()
         .and_then(|facts| {
-            facts.facts.pattern4_continue.as_ref().map(|pattern4| {
-                let mut carrier_vars: Vec<String> = pattern4.carrier_updates.keys().cloned().collect();
+            facts.facts.loop_continue_recipe().map(|loop_continue| {
+                let mut carrier_vars: Vec<String> =
+                    loop_continue.carrier_updates.keys().cloned().collect();
                 carrier_vars.sort();
                 format!(
                     "Some(Pattern4Continue(Pattern4ContinuePlan {{ loop_var: {:?}, carrier_vars: {:?}, condition: {:?}, continue_condition: {:?}, carrier_updates: {:?}, loop_increment: {:?} }}))",
-                    pattern4.loop_var,
+                    loop_continue.loop_var,
                     carrier_vars,
-                    pattern4.condition,
-                    pattern4.continue_condition,
-                    pattern4.carrier_updates,
-                    pattern4.loop_increment
+                    loop_continue.condition,
+                    loop_continue.continue_condition,
+                    loop_continue.carrier_updates,
+                    loop_continue.loop_increment
                 )
             })
         })
@@ -119,24 +120,26 @@ fn allow_strict_nested_pattern4_min1(outcome: &PlanBuildOutcome, ctx: &LoopRoute
         return false;
     }
 
-    let Some(pattern4) = facts.facts.pattern4_continue.as_ref() else {
+    let Some(loop_continue) = facts.facts.loop_continue_recipe() else {
         return false;
     };
-    if pattern4.carrier_updates.len() != 1 {
+    if loop_continue.carrier_updates.len() != 1 {
         return false;
     }
 
-    let Some(loop_upper_bound) = extract_lt_var_int(&pattern4.condition, &pattern4.loop_var) else {
+    let Some(loop_upper_bound) =
+        extract_lt_var_int(&loop_continue.condition, &loop_continue.loop_var)
+    else {
         return false;
     };
     let Some(continue_lower_bound) =
-        extract_ge_var_int(&pattern4.continue_condition, &pattern4.loop_var)
+        extract_ge_var_int(&loop_continue.continue_condition, &loop_continue.loop_var)
     else {
         return false;
     };
 
     continue_lower_bound > loop_upper_bound
-        && is_add_one_of_var(&pattern4.loop_increment, &pattern4.loop_var)
+        && is_add_one_of_var(&loop_continue.loop_increment, &loop_continue.loop_var)
 }
 
 fn extract_lt_var_int(node: &ASTNode, var_name: &str) -> Option<i64> {
@@ -231,7 +234,7 @@ fn try_adopt_nested_minimal(
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
     };
-    if facts.facts.pattern6_nested_minimal.is_none() {
+    if facts.facts.nested_loop_minimal().is_none() {
         return Ok(None);
     }
 
