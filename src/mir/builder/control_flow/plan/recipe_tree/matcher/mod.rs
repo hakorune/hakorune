@@ -103,7 +103,7 @@ impl RecipeMatcher {
         verify_route!(facts, pattern1_simplewhile, verify_loop_simple_while_recipe);
 
         // Phase C12: loop_char_map verification (planner_required only)
-        if let Some(loop_char_map) = &facts.facts.pattern1_char_map {
+        if let Some(loop_char_map) = facts.facts.loop_char_map() {
             verify_cond_profile_route!(
                 loop_char_map,
                 facts,
@@ -114,7 +114,7 @@ impl RecipeMatcher {
         }
 
         // Phase C13: loop_array_join verification (planner_required only)
-        if let Some(loop_array_join) = &facts.facts.pattern1_array_join {
+        if let Some(loop_array_join) = facts.facts.loop_array_join() {
             verify_cond_profile_route!(
                 loop_array_join,
                 facts,
@@ -131,7 +131,7 @@ impl RecipeMatcher {
         verify_route!(facts, split_scan, verify_split_scan_recipe);
 
         // Phase C14: bool_predicate_scan verification (planner_required only)
-        if let Some(bool_predicate_scan) = &facts.facts.pattern8_bool_predicate_scan {
+        if let Some(bool_predicate_scan) = facts.facts.bool_predicate_scan() {
             verify_cond_profile_route!(
                 bool_predicate_scan,
                 facts,
@@ -142,7 +142,7 @@ impl RecipeMatcher {
         }
 
         // Phase C14: accum_const_loop verification (planner_required only)
-        if let Some(accum_const_loop) = &facts.facts.pattern9_accum_const_loop {
+        if let Some(accum_const_loop) = facts.facts.accum_const_loop() {
             verify_cond_profile_route!(
                 accum_const_loop,
                 facts,

@@ -29,7 +29,7 @@ impl RecipeComposer {
 
         let bool_scan_facts = facts
             .facts
-            .pattern8_bool_predicate_scan
+            .bool_predicate_scan()
             .clone()
             .ok_or_else(|| {
                 Freeze::contract(

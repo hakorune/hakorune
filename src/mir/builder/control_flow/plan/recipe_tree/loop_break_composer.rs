@@ -55,8 +55,8 @@ impl RecipeComposer {
 
         let mut pattern2_facts = facts
             .facts
-            .pattern2_break
-            .clone()
+            .loop_break()
+            .cloned()
             .ok_or_else(|| Freeze::contract("LoopBreak facts missing in compose_loop_break_recipe"))?;
 
         // Planner-required strict mode: recover step-before-break placement from the body shape.

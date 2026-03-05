@@ -78,6 +78,52 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub pattern2_loopbodylocal: Option<Pattern2LoopBodyLocalFacts>,
 }
 
+impl LoopFacts {
+    pub fn loop_simple_while(&self) -> Option<&Pattern1SimpleWhileFacts> {
+        self.pattern1_simplewhile.as_ref()
+    }
+
+    pub fn loop_char_map(&self) -> Option<&Pattern1CharMapFacts> {
+        self.pattern1_char_map.as_ref()
+    }
+
+    pub fn loop_array_join(&self) -> Option<&Pattern1ArrayJoinFacts> {
+        self.pattern1_array_join.as_ref()
+    }
+
+    pub fn if_phi_join(&self) -> Option<&Pattern3IfPhiFacts> {
+        self.pattern3_ifphi.as_ref()
+    }
+
+    pub fn loop_continue_recipe(&self) -> Option<&Pattern4ContinueFacts> {
+        self.pattern4_continue.as_ref()
+    }
+
+    pub fn loop_true_early_exit(&self) -> Option<&Pattern5InfiniteEarlyExitFacts> {
+        self.pattern5_infinite_early_exit.as_ref()
+    }
+
+    pub fn nested_loop_minimal(&self) -> Option<&Pattern6NestedMinimalFacts> {
+        self.pattern6_nested_minimal.as_ref()
+    }
+
+    pub fn bool_predicate_scan(&self) -> Option<&Pattern8BoolPredicateScanFacts> {
+        self.pattern8_bool_predicate_scan.as_ref()
+    }
+
+    pub fn accum_const_loop(&self) -> Option<&Pattern9AccumConstLoopFacts> {
+        self.pattern9_accum_const_loop.as_ref()
+    }
+
+    pub fn loop_break(&self) -> Option<&Pattern2BreakFacts> {
+        self.pattern2_break.as_ref()
+    }
+
+    pub fn loop_break_body_local(&self) -> Option<&Pattern2LoopBodyLocalFacts> {
+        self.pattern2_loopbodylocal.as_ref()
+    }
+}
+
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct ScanWithInitFacts {
     pub loop_var: String,

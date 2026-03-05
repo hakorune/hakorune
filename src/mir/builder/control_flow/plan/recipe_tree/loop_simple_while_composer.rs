@@ -29,7 +29,7 @@ impl RecipeComposer {
 
         const CTX: &str = "loop_simple_while_recipe";
 
-        let simple_while_facts = facts.facts.pattern1_simplewhile.clone().ok_or_else(|| {
+        let simple_while_facts = facts.facts.loop_simple_while().cloned().ok_or_else(|| {
             Freeze::contract(
                 "LoopSimpleWhile facts missing in compose_loop_simple_while_recipe",
             )
@@ -113,7 +113,7 @@ impl RecipeComposer {
 
         const CTX: &str = "loop_char_map_recipe";
 
-        let char_map_facts = facts.facts.pattern1_char_map.clone().ok_or_else(|| {
+        let char_map_facts = facts.facts.loop_char_map().cloned().ok_or_else(|| {
             Freeze::contract("LoopCharMap facts missing in compose_loop_char_map_recipe")
         })?;
 
@@ -184,7 +184,7 @@ impl RecipeComposer {
 
         const CTX: &str = "loop_array_join_recipe";
 
-        let array_join_facts = facts.facts.pattern1_array_join.clone().ok_or_else(|| {
+        let array_join_facts = facts.facts.loop_array_join().cloned().ok_or_else(|| {
             Freeze::contract(
                 "LoopArrayJoin facts missing in compose_loop_array_join_recipe",
             )

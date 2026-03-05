@@ -31,7 +31,7 @@ impl RecipeComposer {
 
         let if_phi_join_facts = facts
             .facts
-            .pattern3_ifphi
+            .if_phi_join()
             .clone()
             .ok_or_else(|| Freeze::contract("IfPhiJoin facts missing in compose_if_phi_join_recipe"))?;
 

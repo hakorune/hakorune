@@ -30,7 +30,7 @@ impl RecipeComposer {
 
         let early_exit_facts = facts
             .facts
-            .pattern5_infinite_early_exit
+            .loop_true_early_exit()
             .clone()
             .ok_or_else(|| {
                 Freeze::contract(

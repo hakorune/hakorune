@@ -29,7 +29,7 @@ impl RecipeComposer {
 
         const CTX: &str = "loop_continue_only_recipe";
 
-        let continue_only_facts = facts.facts.pattern4_continue.clone().ok_or_else(|| {
+        let continue_only_facts = facts.facts.loop_continue_recipe().cloned().ok_or_else(|| {
             Freeze::contract("LoopContinueOnly facts missing in compose_loop_continue_only_recipe")
         })?;
 

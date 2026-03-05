@@ -29,7 +29,7 @@ impl RecipeComposer {
 
         let accum_facts = facts
             .facts
-            .pattern9_accum_const_loop
+            .accum_const_loop()
             .clone()
             .ok_or_else(|| {
                 Freeze::contract(
