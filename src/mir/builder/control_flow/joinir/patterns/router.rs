@@ -229,7 +229,7 @@ pub(crate) fn route_loop(
     let planner_required =
         strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
     // loopbodylocal flowbox tagging is handled in the recipe-first loop_break_recipe path
-    // and must not depend on planner payload presence.
+    // and must not depend on legacy planner payload state.
     let has_loopbodylocal = outcome
         .facts
         .as_ref()

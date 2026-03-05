@@ -3,7 +3,7 @@
 This folder implements the JoinIR “planner-first” pipeline in layers:
 
 - **Facts**: Conservative shape observation (no AST rewrite). Produces box-local “facts” and/or recipes.
-- **Loop plan payload**: A planner payload in loop vocabulary, still not MIR.
+- **Recipe Contract**: Facts-derived route contract (`RecipeMatcher`) that chooses a single lowering route.
 - **CorePlan**: A normalized plan in CorePlan vocabulary, ready for lowering to MIR.
 - **Lowering**: Emits MIR (or freezes in `planner_required` mode when a contract is violated).
 

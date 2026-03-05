@@ -1,7 +1,7 @@
 /// Macro to define PlanRuleId enum.
 ///
 /// `PLAN_RULE_ORDER` is intentionally declared separately so single_planner can
-/// list only active planner payload rules while still keeping extra IDs for
+/// list only active recipe-entry rules while still keeping extra IDs for
 /// planner-first tag emission at router level.
 macro_rules! define_plan_rules {
     (
@@ -55,9 +55,9 @@ define_plan_rules! {
     LoopSimpleWhile;
 }
 
-/// Rule order used by single_planner payload selection.
+/// Rule order used by single_planner recipe-entry selection.
 ///
-/// Keep this list limited to rules that can currently produce a planner payload.
+/// Keep this list limited to rules that can currently be matched as recipe-entry.
 pub(in crate::mir::builder) const PLAN_RULE_ORDER: &[PlanRuleId] =
     &[PlanRuleId::LoopCondContinueWithReturn];
 

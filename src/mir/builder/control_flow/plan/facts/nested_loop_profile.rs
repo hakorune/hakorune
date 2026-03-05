@@ -3,7 +3,7 @@
 //! ## Cluster count SSOT (Phase 29bq clusterN consolidation)
 //!
 //! cluster3/4/5 等の「数だけで増える」箱の追加点を1箇所に集約する。
-//! planner payload は単一型に維持（挙動不変）。
+//! planner outcome は facts/recipe 契約のみを扱う（挙動不変）。
 
 // ============================================================================
 // Cluster count configuration SSOT

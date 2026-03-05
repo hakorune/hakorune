@@ -1,15 +1,15 @@
 ## SinglePlanner rule order (SSOT)
 
-`PLAN_RULE_ORDER` in `rule_order.rs` is the SSOT for planner payload selection
+`PLAN_RULE_ORDER` in `rule_order.rs` is the SSOT for recipe-entry rule selection
 inside `single_planner::rules`.
 
 Current state (Phase 29bq+):
-- Planner payload has one active shape: `LoopCondContinueWithReturn`.
+- Recipe-entry rule has one active shape: `LoopCondContinueWithReturn`.
 - `PLAN_RULE_ORDER` therefore contains only `LoopCondContinueWithReturn`.
 - Other `PlanRuleId` values are kept for router-side planner-first tags and
-  compatibility labels, not for single_planner payload matching.
+  compatibility labels, not for single_planner entry matching.
 
-When changing planner payload selection:
+When changing recipe-entry selection:
 - update `rule_order.rs`
 - update `rules.rs` (planner kind mapping / recipe-only routing)
 - add a one-line reason in this file
