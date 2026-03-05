@@ -75,8 +75,9 @@ Verifier may check:
 
 ## C20-B: CondProfile in scan facts
 
-- Pattern1CharMapFacts / Pattern1ArrayJoinFacts / Pattern8BoolPredicateScanFacts /
-  Pattern9AccumConstLoopFacts carry `cond_profile`.
+- Char-map / array-join / bool-predicate-scan / accum-const-loop routes carry `cond_profile`
+  via `Pattern1CharMapFacts` / `Pattern1ArrayJoinFacts` / `Pattern8BoolPredicateScanFacts` /
+  `Pattern9AccumConstLoopFacts` (legacy labels: Pattern1 / Pattern8 / Pattern9).
 - Stored via ScanConditionObservation; observation-only.
 
 ## C20-C: Verifier observes scan facts
