@@ -51,8 +51,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `normalizer/pattern*.rs` は runtime main route 直下では未使用（test-only / 補助経路）
   - `DomainPlan` 識別子は `src/**` で 0件。残存 payload は `LoopCondContinueWithReturnPlan` の限定利用のみ
   - `outcome.plan.take()` は `src/mir/builder/control_flow/{plan,joinir}/**` で 0件（nested fallback は `[plan/trace] stage=<...> outcome/path` で観測固定）
+  - release nested loop は `pattern6_nested_minimal` だけ recipe-first 例外許可済み（`release_adopt` より先に `registry::try_route_recipe_first` を試行）
 - compiler fixed order:
-  1. release の nested-safe recipe-first 適用範囲を広げ、`release_adopt` ヒットを段階的に 0 へ縮退する。
+  1. release の nested-safe recipe-first 適用範囲を段階拡張し、`release_adopt` ヒットを 0 へ縮退する（`nested_loop_minimal` は導入済み）。
   2. nested fallback の `LoopCondContinueWithReturnPlan` 正規化依存を recipe composer 側へ段階移行する（planner_required を先行、挙動不変）。
   3. 経路を `Facts -> Recipe -> Composer -> Verifier -> Parts` に一本化する（例外入口 `shadow_adopt/release_adopt` を撤去）。
 
@@ -85,6 +86,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `15032656e` refactor(router): allow release recipe-first for nested_loop_minimal
+    - `joinir/patterns/router.rs` の release recipe-first eligibility を拡張し、nested loop でも `pattern6_nested_minimal` facts が立つ場合は registry recipe-first を先行許可
+    - 既存の loop_cond_break_continue 例外は維持し、release fallback `release_adopt` より先に nested-minimal compose を試す配線へ変更
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `775246f59` refactor(plan): remove nested outcome plan.take and pin outcome trace paths
     - `nested_loop_plan.rs` / `features/generic_loop_body/helpers.rs` / `features/nested_loop_depth1.rs` の `outcome.plan.take()` 依存を `as_ref().cloned()` へ置換し、`PlanBuildOutcome` を非破壊で観測する形に統一
     - `plan/trace.rs` に `[plan/trace] stage=<...> outcome=...` / `path=...` helper を追加し、nested fallback（planner payload / recipe / shadow / freeze）を安定タグで記録
