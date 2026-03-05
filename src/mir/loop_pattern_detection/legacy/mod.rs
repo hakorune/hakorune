@@ -339,9 +339,6 @@ mod tests;
 pub mod condition_var_analyzer;
 pub mod loop_condition_scope;
 
-// Phase 170-ultrathink: Error Message Utilities
-pub mod error_messages;
-
 // Phase 171-C: LoopBodyLocal Carrier Promotion
 pub mod loop_body_carrier_promoter;
 

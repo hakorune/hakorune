@@ -108,6 +108,14 @@ impl Default for LoopConditionScope {
     }
 }
 
+/// Collect loop-body-local variable names from condition scope analysis.
+pub fn extract_loop_body_local_names(vars: &[CondVarInfo]) -> Vec<&String> {
+    vars.iter()
+        .filter(|v| v.scope == CondVarScope::LoopBodyLocal)
+        .map(|v| &v.name)
+        .collect()
+}
+
 /// Phase 170-D: Loop Condition Scope Analysis Box
 ///
 /// This is the main analyzer that determines variable scopes for condition expressions.

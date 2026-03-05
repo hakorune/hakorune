@@ -78,10 +78,9 @@ use crate::mir::join_ir::lowering::step_schedule::{
 };
 use crate::mir::loop_canonicalizer::LoopSkeleton;
 use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinInst, JoinModule, MirLikeInst, UnaryOp};
-use crate::mir::loop_pattern_detection::error_messages::{
-    extract_body_local_names,
+use crate::mir::loop_pattern_detection::loop_condition_scope::{
+    extract_loop_body_local_names, LoopConditionScopeBox,
 };
-use crate::mir::loop_pattern_detection::loop_condition_scope::LoopConditionScopeBox;
 use crate::mir::ValueId;
 use crate::mir::join_ir::lowering::error_tags;
 use crate::mir::join_ir::lowering::debug_output_box::DebugOutputBox;
@@ -210,7 +209,7 @@ pub(crate) fn lower_loop_with_break_minimal(
     if loop_cond_scope.has_loop_body_local() {
         // Phase 224: Filter out promoted variables from body-local check
         // Variables that were promoted to carriers should not trigger the error
-        let body_local_names = extract_body_local_names(&loop_cond_scope.vars);
+        let body_local_names = extract_loop_body_local_names(&loop_cond_scope.vars);
         let unpromoted_locals: Vec<&String> = body_local_names
             .iter()
             .filter(|name| !carrier_info.promoted_loopbodylocals.contains(*name))
