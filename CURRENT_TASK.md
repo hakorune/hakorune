@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `5547cec02` refactor D5 migrate joinir registry and planner entrypoints to LoopRouteContext
+    - `joinir/patterns/registry/{mod,handlers,types}.rs` と `joinir/parity_checker.rs` の context 型参照を `LoopPatternContext` から `LoopRouteContext` に移行
+    - `plan/{single_planner/{mod,rules}.rs,expectations.rs,nested_loop_plan.rs}` も同型へ同期し、`patterns/mod.rs` の旧 alias re-export は撤去（router 内 alias は段階移行用に維持）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `e3b700a38` refactor D5 align joinir routing wording to route-shape vocabulary
     - `joinir/routing.rs` の canonicalizer parity 周辺ローカル変数（`pattern`）を `route_kind` 主語へ統一
     - `try_normalized_shadow` のログ/コメント文言も `normalized pattern` から `normalized route shape` に更新（挙動不変）
