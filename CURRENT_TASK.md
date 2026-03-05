@@ -98,6 +98,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `abdf9923a` refactor(plan): rename pattern2 policy routers to loop-break routers
+    - `pattern2_policy_router.rs` / `pattern2_break_condition_policy_router.rs` を `loop_break_policy_router.rs` / `loop_break_condition_policy_router.rs` へリネーム
+    - struct 名も route 主語へ同期（`Pattern2PolicyRouterBox` → `LoopBreakPolicyRouterBox`、`Pattern2BreakConditionPolicyRouterBox` → `LoopBreakConditionPolicyRouterBox`）
+    - `plan/mod.rs` / `pattern2_steps/apply_policy_step_box.rs` の module import と呼び出しを同名へ更新
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `74cc786fc` refactor(plan): rename pattern pipeline context to route prep context
     - `plan/pattern_pipeline.rs` の `PatternPipelineContext` と `build_pattern_context` を `RoutePrepContext` / `build_route_prep_context` へ改名
     - `pattern2_inputs_facts_box.rs` / `pattern2_steps/gather_facts_step_box.rs` の参照型と補助ログ文言を同名へ同期
