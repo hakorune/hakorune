@@ -20,7 +20,6 @@ mod shadow_adopt;
 
 pub(in crate::mir::builder) use shadow_adopt::{
     strict_nested_loop_guard,
-    try_release_adopt_pre_plan,
     try_shadow_adopt_pre_plan,
     PrePlanShadowOutcome,
     ShadowAdoptOutcome,

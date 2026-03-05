@@ -31,18 +31,6 @@ pub(in crate::mir::builder) enum PrePlanShadowOutcome {
     GuardError(String),
 }
 
-#[derive(Copy, Clone)]
-enum AdoptLane {
-    StrictDev,
-    ReleaseCompat,
-}
-
-impl AdoptLane {
-    fn is_strict(self) -> bool {
-        matches!(self, Self::StrictDev)
-    }
-}
-
 enum GenericLoopAdoptCandidate {
     V0,
     V1,
@@ -65,7 +53,6 @@ fn try_adopt_generic_loop_preferred(
     ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     allow_generic_loop: bool,
-    lane: AdoptLane,
 ) -> Result<Option<ShadowAdoptOutcome>, String> {
     if !allow_generic_loop {
         return Ok(None);
@@ -74,12 +61,8 @@ fn try_adopt_generic_loop_preferred(
         return Ok(None);
     };
     match pick_generic_loop_adopt_candidate(facts) {
-        Some(GenericLoopAdoptCandidate::V1) => {
-            try_adopt_generic_loop_v1(builder, ctx, outcome, lane)
-        }
-        Some(GenericLoopAdoptCandidate::V0) => {
-            try_adopt_generic_loop_v0(builder, ctx, outcome, lane)
-        }
+        Some(GenericLoopAdoptCandidate::V1) => try_adopt_generic_loop_v1(builder, ctx, outcome),
+        Some(GenericLoopAdoptCandidate::V0) => try_adopt_generic_loop_v0(builder, ctx, outcome),
         None => Ok(None),
     }
 }
@@ -308,7 +291,7 @@ pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(
         .to_string();
         return Ok(Some(PrePlanShadowOutcome::GuardError(freeze)));
     }
-    if let Some(adopt) = try_adopt_nested_minimal(builder, ctx, outcome, AdoptLane::StrictDev)? {
+    if let Some(adopt) = try_adopt_nested_minimal(builder, ctx, outcome)? {
         return Ok(Some(PrePlanShadowOutcome::Adopt(adopt)));
     }
 
@@ -321,33 +304,8 @@ pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(
         ctx,
         outcome,
         allow_generic_loop,
-        AdoptLane::StrictDev,
     )? {
         return Ok(Some(PrePlanShadowOutcome::Adopt(adopt)));
-    }
-
-    Ok(None)
-}
-
-pub(in crate::mir::builder) fn try_release_adopt_pre_plan(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    allow_generic_loop: bool,
-) -> Result<Option<LoweredRecipe>, String> {
-    if let Some(adopt) = try_adopt_nested_minimal(builder, ctx, outcome, AdoptLane::ReleaseCompat)?
-    {
-        return Ok(Some(adopt.core_plan));
-    }
-
-    if let Some(adopt) = try_adopt_generic_loop_preferred(
-        builder,
-        ctx,
-        outcome,
-        allow_generic_loop,
-        AdoptLane::ReleaseCompat,
-    )? {
-        return Ok(Some(adopt.core_plan));
     }
 
     Ok(None)
@@ -357,7 +315,6 @@ fn try_adopt_nested_minimal(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
-    lane: AdoptLane,
 ) -> Result<Option<ShadowAdoptOutcome>, String> {
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
@@ -366,27 +323,14 @@ fn try_adopt_nested_minimal(
         return Ok(None);
     }
 
-    match lane {
-        AdoptLane::StrictDev => {
-            let core_plan = try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)?
-                .ok_or_else(|| {
-                    "pattern6 nested minimal strict/dev adopt failed: compose rejected".to_string()
-                })?;
-            Ok(Some(ShadowAdoptOutcome {
-                core_plan,
-                emit_flowbox_adopt_tag: facts.nested_loop,
-            }))
-        }
-        AdoptLane::ReleaseCompat => {
-            match try_compose_core_loop_v2_nested_minimal(builder, facts, ctx) {
-                Ok(Some(core_plan)) => Ok(Some(ShadowAdoptOutcome {
-                    core_plan,
-                    emit_flowbox_adopt_tag: false,
-                })),
-                Ok(None) | Err(_) => Ok(None),
-            }
-        }
-    }
+    let core_plan = try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)?
+        .ok_or_else(|| {
+            "pattern6 nested minimal strict/dev adopt failed: compose rejected".to_string()
+        })?;
+    Ok(Some(ShadowAdoptOutcome {
+        core_plan,
+        emit_flowbox_adopt_tag: facts.nested_loop,
+    }))
 }
 
 fn generic_loop_v0_gate(facts: &CanonicalLoopFacts) -> bool {
@@ -421,7 +365,6 @@ fn try_adopt_generic_loop_v0(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
-    lane: AdoptLane,
 ) -> Result<Option<ShadowAdoptOutcome>, String> {
     if outcome.plan.is_some() {
         return Ok(None);
@@ -436,20 +379,14 @@ fn try_adopt_generic_loop_v0(
         return Ok(None);
     }
 
-    let core_plan = match normalize_generic_loop_v0(builder, generic, ctx) {
-        Ok(core_plan) => core_plan,
-        Err(e) if lane.is_strict() => {
-            return Err(format!("generic_loop_v0 strict/dev adopt failed: {}", e));
-        }
-        Err(_) => return Ok(None),
-    };
-    let emit_flowbox_adopt_tag = lane.is_strict()
-        && emit_flowbox_adopt_tag_for_generic(
-            facts,
-            generic.body.as_ref(),
-            &generic.loop_var,
-            &generic.loop_increment,
-        );
+    let core_plan = normalize_generic_loop_v0(builder, generic, ctx)
+        .map_err(|e| format!("generic_loop_v0 strict/dev adopt failed: {}", e))?;
+    let emit_flowbox_adopt_tag = emit_flowbox_adopt_tag_for_generic(
+        facts,
+        generic.body.as_ref(),
+        &generic.loop_var,
+        &generic.loop_increment,
+    );
     Ok(Some(ShadowAdoptOutcome {
         core_plan,
         emit_flowbox_adopt_tag,
@@ -460,7 +397,6 @@ fn try_adopt_generic_loop_v1(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
-    lane: AdoptLane,
 ) -> Result<Option<ShadowAdoptOutcome>, String> {
     if outcome.plan.is_some() {
         return Ok(None);
@@ -475,20 +411,14 @@ fn try_adopt_generic_loop_v1(
         return Ok(None);
     }
 
-    let core_plan = match normalize_generic_loop_v1(builder, generic, ctx) {
-        Ok(core_plan) => core_plan,
-        Err(e) if lane.is_strict() => {
-            return Err(format!("generic_loop_v1 strict/dev adopt failed: {}", e));
-        }
-        Err(_) => return Ok(None),
-    };
-    let emit_flowbox_adopt_tag = lane.is_strict()
-        && emit_flowbox_adopt_tag_for_generic(
-            facts,
-            generic.body.as_ref(),
-            &generic.loop_var,
-            &generic.loop_increment,
-        );
+    let core_plan = normalize_generic_loop_v1(builder, generic, ctx)
+        .map_err(|e| format!("generic_loop_v1 strict/dev adopt failed: {}", e))?;
+    let emit_flowbox_adopt_tag = emit_flowbox_adopt_tag_for_generic(
+        facts,
+        generic.body.as_ref(),
+        &generic.loop_var,
+        &generic.loop_increment,
+    );
     Ok(Some(ShadowAdoptOutcome {
         core_plan,
         emit_flowbox_adopt_tag,

@@ -342,25 +342,6 @@ pub(crate) fn route_loop(
         }
     }
 
-    // Release fallback adopt is legacy; keep it scoped to planner-none routes only.
-    if !strict_or_dev && allow_shadow_fallback {
-        // Generic lanes are recipe-first in release (best-effort with `Ok(None)` fallback).
-        // Keep release_adopt only for the remaining nested-minimal compatibility lane.
-        if let Some(core_plan) =
-            composer::try_release_adopt_pre_plan(builder, ctx, &outcome, false)?
-        {
-            trace_entry_route("release_adopt");
-            return lower_verified_core_plan(
-                builder,
-                ctx,
-                strict_or_dev,
-                outcome.facts.as_ref(),
-                core_plan,
-                FlowboxVia::Release,
-            );
-        }
-    }
-
     if strict_or_dev && expectations::should_expect_plan(&outcome, ctx) {
         return Err(freeze_expected_plan(
             strict_or_dev,

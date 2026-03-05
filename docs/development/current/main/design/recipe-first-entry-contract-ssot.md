@@ -24,12 +24,10 @@ AST
 
 1) Router の recipe-first 入口（Facts → RecipeComposer）
 2) strict/dev の pre-plan shadow_adopt（最小の構造 adopt のみ）
-3) release の pre-plan adopt
-4) legacy lower_via_plan（release のみ）
+3) legacy lower_via_plan（release のみ）
 - Phase-3: release で recipe-first を優先するのは VerifiedRecipe が成立する場合。
   - nested loop は既定で保守側に置くが、nested-safe 例外（`nested_loop_minimal` / `generic_loop_v{1,0}` / `loop_cond_break_continue` の accept-kind allowlist）では recipe-first を先行許可する。
-  - 上記例外で compose/verify/lower が reject のときは `Ok(None)` で release fallback lane へ戻す（挙動互換）。
-  - release fallback (`release_adopt`) は nested-minimal 互換 lane のみ維持し、generic lane は recipe-first best-effort へ移譲する。
+  - 上記例外で compose/verify/lower が reject のときは `Ok(None)` を返し、router の no-route 判定へ戻す（挙動互換）。
 
 ### Entry coherence（重なりの扱い）
 
@@ -82,8 +80,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - loop_scan_*（v0/phi_vars/collect_using_entries/bundle_resolver）が成立する場合、loop_cond_break_continue は候補にしない
 - scan_with_init / split_scan / pattern8_bool_predicate_scan / pattern9_accum_const_loop が成立する場合、loop_cond_break_continue は候補にしない
 - 必要に応じて debug 時のみ `[plan/trace:entry_candidates]` で候補を可視化（任意・SSOTはこのポリシー）
-- 観測: debug 時に `[plan/trace:entry_route]` で entry が recipe_first / shadow_adopt / release_adopt / legacy / none のどれに落ちたかを 1 行で確認できる
-- 観測: release で recipe-first が成立しない場合のみ `entry_route=release_adopt` が発生する（`*_release_adopt_vm` 回帰群は段階的に recipe-first へ移行中）。
+- 観測: debug 時に `[plan/trace:entry_route]` で entry が recipe_first / shadow_adopt / none のどれに落ちたかを 1 行で確認できる
 - BoxShape: `generic_loop_v1` は strict/dev(+planner_required) で registry 側に寄せ、shadow_adopt の残経路を縮退する（挙動不変）。
 - BoxShape: `shadow_adopt` の generic 採用は候補一意（`generic_loop_v1` 優先、`generic_loop_v0` は v1 facts 不在時のみ）。v1→v0 の段階 fallback は行わない。
 
