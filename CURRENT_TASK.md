@@ -82,6 +82,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `7bf1c85e1` refactor D5 rename route-kind selector vocabulary in joinir routing
+    - `joinir/routing.rs` の SSOT entry 名を `choose_pattern_kind` から `choose_route_kind` へ改名し、dev parity tag も `choose_route_kind/*` 語彙へ統一
+    - nested-loop 判定 helper も `is_nested_loop_minimal_lowerable` に改名し、Pattern主語コメントを route semantic 主語へ整理
+    - `joinir/patterns/router.rs` の import/comment を新 entry 名へ同期（runtime 挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `425eff862` refactor D5 rename flowbox strict helper to loop-break vocabulary
     - `joinir/patterns/registry/utils.rs` の strict flowbox adopt 判定 helper を `pattern2_*` から `loop_break_recipe_*` 語彙へ改名
     - `joinir/patterns/registry/handlers.rs` の loop-break recipe 経路も同語彙へ同期（挙動不変）
