@@ -92,26 +92,6 @@ pub(in crate::mir::builder) fn planner_rule_semantic_label(id: PlanRuleId) -> &'
 }
 
 #[cfg(test)]
-fn planner_rule_legacy_name(id: PlanRuleId) -> &'static str {
-    match id {
-        PlanRuleId::ScanWithInit => "Pattern6_ScanWithInit (Phase 273)",
-        PlanRuleId::SplitScan => "Pattern7_SplitScan (Phase 273)",
-        PlanRuleId::LoopTrueEarlyExit => "Pattern5_InfiniteEarlyExit (Phase 286 P3.2)",
-        PlanRuleId::LoopTrueBreak => "LoopTrueBreak (Phase 29bq P2)",
-        PlanRuleId::LoopCondBreak => "LoopCondBreak (Phase 29bq P2)",
-        PlanRuleId::LoopCondContinueOnly => "LoopCondContinueOnly (Phase 29bq P2.x)",
-        PlanRuleId::LoopCondContinueWithReturn => "LoopCondContinueWithReturn (Phase 29bq P2.x)",
-        PlanRuleId::LoopCondReturnInBody => "LoopCondReturnInBody (Phase 29bq P2.x)",
-        PlanRuleId::BoolPredicateScan => "Pattern8_BoolPredicateScan (Phase 286 P2.4)",
-        PlanRuleId::IfPhiJoin => "Pattern3_IfPhi (Phase 286 P2.6)",
-        PlanRuleId::LoopContinueRecipe => "Pattern4_Continue (Phase 286 P2)",
-        PlanRuleId::AccumConstLoop => "Pattern9_AccumConstLoop (Phase 286 P2.3)",
-        PlanRuleId::LoopBreakRecipe => "Pattern2_Break (Phase 286 P3.1)",
-        PlanRuleId::LoopSimpleWhile => "Pattern1_SimpleWhile (Phase 286 P2.1)",
-    }
-}
-
-#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -121,18 +101,6 @@ mod tests {
         assert_eq!(
             rule_name(PlanRuleId::LoopCondReturnInBody),
             "LoopReturnInBody"
-        );
-    }
-
-    #[test]
-    fn legacy_rule_name_alias_is_preserved() {
-        assert_eq!(
-            planner_rule_legacy_name(PlanRuleId::LoopBreakRecipe),
-            "Pattern2_Break (Phase 286 P3.1)"
-        );
-        assert_eq!(
-            planner_rule_legacy_name(PlanRuleId::LoopSimpleWhile),
-            "Pattern1_SimpleWhile (Phase 286 P2.1)"
         );
     }
 
