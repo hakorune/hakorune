@@ -298,7 +298,7 @@ impl MirBuilder {
         // When NYASH_JOINIR_STRUCTURE_ONLY=1, skip function name whitelist
         // and route purely based on loop structure analysis
         // Phase 196: Default to structure-first routing now that LoopBuilder is removed.
-        // - Default: ON (structure_only = true) to allow JoinIR patterns to run for all loops.
+        // - Default: ON (structure_only = true) to allow JoinIR routes to run for all loops.
         // - To revert to the previous whitelist-only behavior, set NYASH_JOINIR_STRUCTURE_ONLY=0.
         let structure_only = crate::config::env::joinir_structure_only_enabled();
 
@@ -334,7 +334,7 @@ impl MirBuilder {
                 "TrimTest.trim/1" => true,
                 "Main.trim/1" => true, // Phase 171-fix: Main box variant
                 "Main.trim_string_simple/1" => true, // Phase 33-13: Simple trim variant
-                "TrimTest.main/0" => true, // Phase 170: TrimTest.main for loop pattern test
+                "TrimTest.main/0" => true, // Phase 170: TrimTest.main for loop route test
                 // Phase 173: JsonParser P5 expansion test
                 "JsonParserTest._skip_whitespace/3" => true,
                 "JsonParserTest.main/0" => true,
@@ -428,10 +428,10 @@ impl MirBuilder {
                             }
                         ),
                     );
-                    if let Some(pattern) = decision.chosen {
+                    if let Some(route_kind) = decision.chosen {
                         trace::trace().dev(
                             "loop_canonicalizer",
-                            &format!("  Chosen route kind: {:?}", pattern),
+                            &format!("  Chosen route kind: {:?}", route_kind),
                         );
                     }
                     trace::trace().dev(
@@ -446,7 +446,7 @@ impl MirBuilder {
                     }
 
                     // Phase 137-4: Router parity verification
-                    if let Some(canonical_pattern) = decision.chosen {
+                    if let Some(canonical_route_kind) = decision.chosen {
                         // Get actual route kind from router (determined by LoopRouteContext).
                         // We need to defer this check until after ctx is created
                         // Store decision for later parity check
@@ -454,7 +454,7 @@ impl MirBuilder {
                             "canonicalizer",
                             &format!(
                                 "Phase 137-4: Canonical route kind chosen: {:?} (parity check pending)",
-                                canonical_pattern
+                                canonical_route_kind
                             ),
                         );
                     }
@@ -534,7 +534,7 @@ impl MirBuilder {
     ///
     /// Returns:
     /// - Ok(Some(value_id)): Successfully lowered and merged via Normalized
-    /// - Ok(None): Out of scope (not a Normalized pattern)
+    /// - Ok(None): Out of scope (not a Normalized route shape)
     /// - Err(msg): In scope but failed (Fail-Fast in strict mode)
     ///
     /// Phase 134 P0: Unified with NormalizationPlanBox/ExecuteBox
@@ -550,14 +550,14 @@ impl MirBuilder {
             NormalizationExecuteBox, NormalizationPlanBox, PlanKind,
         };
 
-        // Build loop AST for pattern detection
+        // Build loop AST for route-shape detection
         let loop_ast = ASTNode::Loop {
             condition: Box::new(condition.clone()),
             body: body.to_vec(),
             span: Span::unknown(),
         };
 
-        // Phase 134 P0: Delegate pattern detection to NormalizationPlanBox (SSOT)
+        // Phase 134 P0: Delegate route-shape detection to NormalizationPlanBox (SSOT)
         // Convert loop to remaining format (single-element array)
         let remaining = vec![loop_ast];
 
@@ -569,33 +569,33 @@ impl MirBuilder {
                         trace::trace().routing(
                             "router/normalized",
                             func_name,
-                            "NormalizationPlanBox returned None (not a normalized pattern)",
+                            "NormalizationPlanBox returned None (not a normalized route shape)",
                         );
                     }
                     return Ok(None);
                 }
             };
 
-        // Only handle loop-only patterns here
-        // (post-statement patterns are now handled at statement level)
+        // Only handle loop-only route shapes here
+        // (post-statement route shapes are now handled at statement level)
         match &plan.kind {
             PlanKind::LoopOnly => {
                 if debug {
                     trace::trace().routing(
                         "router/normalized",
                         func_name,
-                        "Loop-only pattern detected, proceeding with normalization",
+                        "Loop-only route shape detected, proceeding with normalization",
                     );
                 }
             }
             #[cfg(test)]
             _ => {
-                // Fallback for any other pattern (should not happen in Phase 142+)
+                // Fallback for any other route shape (should not happen in Phase 142+)
                 if debug {
                     trace::trace().routing(
                         "router/normalized",
                         func_name,
-                        "Unexpected pattern in try_normalized_shadow, using legacy",
+                        "Unexpected route shape in try_normalized_shadow, using legacy",
                     );
                 }
                 return Ok(None);
