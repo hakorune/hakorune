@@ -99,6 +99,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `adc600d92` docs(plan): sync payload-era comments to facts-recipe contract
+    - `joinir/patterns/router.rs`, `plan/mod.rs`, `plan/normalizer/{mod,README}.rs` の `loop plan payload` 表記を現行契約（facts/recipe outcome）へ同期
+    - 挙動変更なし（comment/doc wording のみ）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `6a166e62a` refactor(joinir,smokes): route-align parity test wording and gate labels
     - `joinir/parity_checker.rs` の parity メッセージ主語を `actual` から `router` へ統一し、テスト期待を Pattern variant 直参照から semantic label 比較へ移行
     - `phase29bq_fast_gate_cases.tsv` の strict nested guard / ambiguous-break 説明文を route 主語へ同期
@@ -1150,7 +1154,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `DomainPlan` alias 撤去（`fa1efcb21`）と `src/mir/builder/control_flow/{plan,joinir}` 内の残語彙撤去（`27cbe50d2`, `5af900fe3`）まで完了。
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
    - `normalizer` 側窓口は撤去済み、pattern minimal は composer 側へ集約後に folderごと撤去完了（`96591f62b`, `ea8ffeab3`, `fd26729ff`）。
-   - 次は planner/normalizer 側の dead comments・test-only wiring（payload 前提）を段階撤去する。
+   - planner/normalizer 側の payload-era dead comments は同期済み（`adc600d92`）。
+   - 次は test-only wiring（payload 前提コメント/配線）を段階撤去する。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
