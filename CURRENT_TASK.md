@@ -66,9 +66,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - RecipeComposer の主要 entrypoint 名を de-number 化（`compose_pattern*` → semantic `compose_<route>_recipe`）
   - `route_prep_pipeline` / `body_local_policy` / `trim_loop_lowering` / `normalization::plan_box` の補助コメントを route 主語へ同期（挙動不変）
   - strict-nested guard SSOT と flowbox tag coverage map の scenario 注記を route 主語へ同期（legacy label は注記で保持）
+  - active SSOT docs（`recipe-first-entry-contract-ssot.md`, `plan-mod-layout-ssot.md`, `compiler-task-map-ssot.md`, `coreplan-shadow-adopt-tag-coverage-ssot.md`）の Pattern 主語を route 主語へ同期（契約キー/タグは不変）
+  - coreloop test 残語彙を route 主語へ同期（`coreloop_v0/v1_tests` の test name / test labels / assert wording）
 - compiler fixed order:
-  1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す。
-  2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する。
+  1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す（進行中: coreplan-shadow/plan-mod-layout/compiler-task-map/recipe-first-entry は同期済み）。
+  2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する（進行中: coreloop_v0/v1 tests を同期済み）。
   3. planner/normalizer の dead comments・test-only wiring（payload 前提）を段階撤去する。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
@@ -101,6 +103,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `7ef3e6827` docs(plan): route-align active SSOT wording and legacy notes
+    - active docs を route 主語へ同期: `recipe-first-entry-contract-ssot.md`, `plan-mod-layout-ssot.md`, `compiler-task-map-ssot.md`, `coreplan-shadow-adopt-tag-coverage-ssot.md`
+    - facts key / tag / filename などの契約文字列は保持し、説明文だけ `legacy label` 注記付きで更新
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `2668215ff` test(plan): route-align residual coreloop test wording
+    - `coreloop_v0_tests.rs` の test 名/テスト用関数ラベルを `pattern1` 主語から `simple_while` 主語へ同期
+    - `coreloop_v1_tests.rs` の no-join gate comment/assert 文言を route 主語へ同期
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `bba9d6f72` docs(joinir): sync strict nested and coverage labels to route wording
     - `strict-nested-loop-guard-ssot.md` の allowlist 記述を continue-only route 主語へ更新し、enum/facts は `legacy` 注記で保持
     - `flowbox-tag-coverage-map-ssot.md` の scenario notes（pattern1/2/3 系）を route 主語へ同期
