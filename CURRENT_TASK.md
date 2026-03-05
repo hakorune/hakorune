@@ -98,6 +98,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `0b333ae39` docs: sync archived phase29ao contract tag to route label
+    - `phase-29ao/10-Now-archive.md` の Pattern6 contract tag を現行 route 主語 `scan_with_init` へ同期
+    - 現行 docs tree に旧 tag（`pattern6/7`）が残らない状態に整列
+    - verify: docs sync only（code diff なし）
   - `e3ee9a79b` refactor(plan): route-align scan contract freeze tags
     - `plan/facts/loop_scan_with_init.rs` と `plan/facts/loop_split_scan.rs` の freeze tag を `pattern6/7` 主語から `scan_with_init/split_scan` 主語へ更新
     - SSOT docs 同期: `pattern6-7-contracts.md`, `ai-handoff-and-debug-contract.md`, `recipe-first-entry-contract-ssot.md`, `phase-29ac/README.md`
