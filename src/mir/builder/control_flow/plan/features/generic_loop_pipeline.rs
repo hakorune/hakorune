@@ -38,7 +38,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
         &facts.loop_var,
         GENERIC_LOOP_ERR,
     )?;
-    builder.variable_ctx.variable_map = post_body_map;
+    builder.variable_ctx.variable_map = post_body_map.clone();
     generic_loop_step::apply_generic_loop_step(
         builder,
         skeleton,
@@ -71,6 +71,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         builder,
         facts,
         &carrier_state.phi_bindings,
+        &carrier_state.carrier_step_phis,
         ctx,
     )?;
     crate::mir::builder::control_flow::joinir::trace::trace()
@@ -86,7 +87,19 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         &facts.loop_var,
         GENERIC_LOOP_ERR,
     )?;
-    builder.variable_ctx.variable_map = post_body_map;
+    builder.variable_ctx.variable_map = post_body_map.clone();
+    // Step evaluation must read a value that is already materialized on the
+    // body->step path. Using the provisional step-in PHI directly can become
+    // non-dominating depending on block layout, which may collapse to const
+    // fallback (e.g. i=i+1 turning into 0+1).
+    let loop_var_step_src = post_body_map
+        .get(&facts.loop_var)
+        .copied()
+        .unwrap_or(skeleton.loop_var_current);
+    builder
+        .variable_ctx
+        .variable_map
+        .insert(facts.loop_var.clone(), loop_var_step_src);
     generic_loop_step::apply_generic_loop_step(
         builder,
         skeleton,
@@ -103,6 +116,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         carrier_state,
         &facts.loop_var,
         skeleton.loop_var_current,
+        &post_body_map,
     );
 
     Ok(())

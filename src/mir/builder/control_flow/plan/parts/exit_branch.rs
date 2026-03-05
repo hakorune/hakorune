@@ -11,6 +11,7 @@ use std::collections::BTreeMap;
 
 use super::exit as parts_exit;
 use super::stmt as parts_stmt;
+use super::var_map_scope::with_saved_variable_map;
 use super::super::steps::effects_to_plans;
 
 pub(in crate::mir::builder) fn split_exit_branch<'a>(
@@ -105,31 +106,32 @@ fn lower_exit_branch_with_prelude_impl(
     exit_stmt: &ASTNode,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    let mut plans = Vec::new();
     if !prelude.is_empty() {
-        let saved_map = builder.variable_ctx.variable_map.clone();
-        let mut branch_bindings = current_bindings.clone();
-        for stmt in prelude {
-            plans.extend(parts_stmt::lower_return_prelude_stmt(
+        return with_saved_variable_map(builder, |builder| {
+            let mut plans = Vec::new();
+            let mut branch_bindings = current_bindings.clone();
+            for stmt in prelude {
+                plans.extend(parts_stmt::lower_return_prelude_stmt(
+                    builder,
+                    &mut branch_bindings,
+                    carrier_step_phis,
+                    break_phi_dsts,
+                    stmt,
+                    error_prefix,
+                )?);
+            }
+            plans.extend(lower_exit_branch(
                 builder,
-                &mut branch_bindings,
+                &branch_bindings,
                 carrier_step_phis,
                 break_phi_dsts,
-                stmt,
+                exit_stmt,
                 error_prefix,
             )?);
-        }
-        plans.extend(lower_exit_branch(
-            builder,
-            &branch_bindings,
-            carrier_step_phis,
-            break_phi_dsts,
-            exit_stmt,
-            error_prefix,
-        )?);
-        builder.variable_ctx.variable_map = saved_map;
-        return Ok(plans);
+            Ok(plans)
+        });
     }
+    let mut plans = Vec::new();
     plans.extend(lower_exit_branch(
         builder,
         current_bindings,

@@ -19,10 +19,8 @@ pub(in crate::mir::builder) struct LoopScanMethodsV0Facts {
     pub recipe: LoopScanMethodsV0Recipe,
 }
 
-fn planner_required_enabled() -> bool {
-    let strict_or_dev =
-        crate::config::env::joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
-    strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled()
+fn release_enabled() -> bool {
+    true
 }
 
 fn as_var_name(ast: &ASTNode) -> Option<&str> {
@@ -226,7 +224,7 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_v0_facts(
         }
     };
 
-    if !planner_required_enabled() {
+    if !release_enabled() {
         debug_reject("planner_required_off");
         return Ok(None);
     }

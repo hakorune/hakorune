@@ -457,11 +457,10 @@ impl super::MirBuilder {
             } => {
                 // Phase B2-6: BlockExpr in expression position.
                 //
-                // v1 safety contract: disallow non-local exits anywhere in the prelude.
-                // Recursive check catches nested exits (e.g., `if true { return 1 }`).
-                // (This keeps BlockExpr from becoming a mini-CFG in the expression lowerer.)
+                // v1 safety contract: disallow non-local exits that can escape prelude scope.
+                // `break/continue` inside nested loops are allowed.
                 for stmt in &prelude_stmts {
-                    if stmt.contains_non_local_exit() {
+                    if stmt.contains_non_local_exit_outside_loops() {
                         return Err(
                             "[freeze:contract][blockexpr] exit stmt is forbidden in BlockExpr prelude"
                                 .to_string(),

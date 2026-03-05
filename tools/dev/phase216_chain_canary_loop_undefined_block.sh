@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Phase 21.6 blocker canary:
-# hako-mainline selfhost-first emit for simple loop currently fails with
-# LowerLoopSimpleBox undefined ValueId. This canary passes while blocked.
+# Phase 21.6 blocker regression canary:
+# LowerLoopSimpleBox undefined ValueId が再発しないことを確認する。
 set -euo pipefail
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
@@ -29,24 +28,32 @@ NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
 rc=$?
 set -e
 
-if [[ "$rc" -eq 0 ]]; then
-  echo "[FAIL] phase216_loop_undefined_block: blocker resolved unexpectedly (promote to green canary)" >&2
+if [[ "$rc" -ne 0 ]]; then
+  echo "[FAIL] phase216_loop_undefined_block: emit failed unexpectedly" >&2
+  tail -n 80 "$LOG_OUT" >&2 || true
   rm -f "$TMP_JSON" "$LOG_OUT" 2>/dev/null || true
   exit 1
 fi
 
-if ! rg -q "LowerLoopSimpleBox\\.(try_lower|_lower_from_cmp|_emit_or_build_with_limit)/" "$LOG_OUT"; then
-  echo "[FAIL] phase216_loop_undefined_block: fail reason drift (missing LowerLoopSimpleBox tag)" >&2
+if ! [[ -s "$TMP_JSON" ]]; then
+  echo "[FAIL] phase216_loop_undefined_block: MIR output missing" >&2
   rm -f "$TMP_JSON" "$LOG_OUT" 2>/dev/null || true
   exit 1
 fi
 
-if ! rg -q "use of undefined value ValueId|Invalid value" "$LOG_OUT"; then
-  echo "[FAIL] phase216_loop_undefined_block: fail reason drift (missing undefined value marker)" >&2
+if ! rg -q "\"functions\"" "$TMP_JSON"; then
+  echo "[FAIL] phase216_loop_undefined_block: MIR payload invalid (missing functions)" >&2
   rm -f "$TMP_JSON" "$LOG_OUT" 2>/dev/null || true
   exit 1
 fi
 
-echo "[PASS] phase216_loop_undefined_block observed (LowerLoopSimpleBox undefined ValueId)"
+if rg -q "LowerLoopSimpleBox\\.(try_lower|_lower_from_cmp|_emit_or_build_with_limit)/.*(use of undefined value ValueId|Invalid value)" "$LOG_OUT"; then
+  echo "[FAIL] phase216_loop_undefined_block: LowerLoopSimple undefined ValueId regressed" >&2
+  tail -n 80 "$LOG_OUT" >&2 || true
+  rm -f "$TMP_JSON" "$LOG_OUT" 2>/dev/null || true
+  exit 1
+fi
+
+echo "[PASS] phase216_loop_undefined_block regression guard green"
 rm -f "$TMP_JSON" "$LOG_OUT" 2>/dev/null || true
 exit 0

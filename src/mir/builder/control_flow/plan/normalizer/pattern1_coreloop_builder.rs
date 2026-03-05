@@ -2,11 +2,11 @@ use super::helpers::{create_phi_bindings, LoopBlocksStandard5};
 use super::{CoreEffectPlan, CoreLoopPlan};
 use crate::ast::ASTNode;
 use crate::mir::basic_block::EdgeArgs;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
 use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::MirType;
@@ -196,14 +196,9 @@ mod tests {
         let body = make_body(loop_var);
         let ctx = LoopRouteContext::new(&condition, &body, "pattern1_coreloop_test", false, false);
 
-        let loop_plan = build_pattern1_coreloop(
-            &mut builder,
-            loop_var,
-            &condition,
-            &loop_increment,
-            &ctx,
-        )
-        .expect("pattern1 coreloop build should succeed");
+        let loop_plan =
+            build_pattern1_coreloop(&mut builder, loop_var, &condition, &loop_increment, &ctx)
+                .expect("pattern1 coreloop build should succeed");
 
         assert_eq!(loop_plan.phis.len(), 1);
         assert_eq!(loop_plan.frag.branches.len(), 1);

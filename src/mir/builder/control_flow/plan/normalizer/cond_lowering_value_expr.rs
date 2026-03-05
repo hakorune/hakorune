@@ -1,5 +1,6 @@
 //! Value expression lowering for conditions.
 
+use super::cond_lowering_prelude::lower_cond_prelude_stmts;
 use crate::ast::{ASTNode, BinaryOperator, UnaryOperator};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
@@ -7,7 +8,6 @@ use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, MirType, ValueId};
 use std::collections::BTreeMap;
-use super::cond_lowering_prelude::lower_cond_prelude_stmts;
 
 pub(super) fn lower_cond_to_value_impl(
     builder: &mut MirBuilder,
@@ -15,8 +15,10 @@ pub(super) fn lower_cond_to_value_impl(
     cond: &CondBlockView,
     error_prefix: &str,
 ) -> Result<(ValueId, Vec<CoreEffectPlan>), String> {
-    let (bindings, mut prelude_effects) = lower_cond_prelude_stmts(builder, phi_bindings, &cond.prelude_stmts, error_prefix)?;
-    let (value_id, mut cond_effects) = loop_body_lowering::lower_bool_expr(builder, &bindings, &cond.tail_expr, error_prefix)?;
+    let (bindings, mut prelude_effects) =
+        lower_cond_prelude_stmts(builder, phi_bindings, &cond.prelude_stmts, error_prefix)?;
+    let (value_id, mut cond_effects) =
+        loop_body_lowering::lower_bool_expr(builder, &bindings, &cond.tail_expr, error_prefix)?;
     prelude_effects.append(&mut cond_effects);
     Ok((value_id, prelude_effects))
 }
@@ -29,9 +31,17 @@ pub(super) fn lower_cond_value_expr(
 ) -> Result<(ValueId, Vec<CoreEffectPlan>), String> {
     match expr {
         ASTNode::BinaryOp { operator, .. } => match operator {
-            BinaryOperator::And | BinaryOperator::Or => Err(format!("{error_prefix}: short-circuit condition must be lowered via CondBlockView")),
-            BinaryOperator::Less | BinaryOperator::LessEqual | BinaryOperator::Greater | BinaryOperator::GreaterEqual | BinaryOperator::Equal | BinaryOperator::NotEqual => {
-                let (lhs, op, rhs, mut consts) = PlanNormalizer::lower_compare_ast(expr, builder, phi_bindings)?;
+            BinaryOperator::And | BinaryOperator::Or => Err(format!(
+                "{error_prefix}: short-circuit condition must be lowered via CondBlockView"
+            )),
+            BinaryOperator::Less
+            | BinaryOperator::LessEqual
+            | BinaryOperator::Greater
+            | BinaryOperator::GreaterEqual
+            | BinaryOperator::Equal
+            | BinaryOperator::NotEqual => {
+                let (lhs, op, rhs, mut consts) =
+                    PlanNormalizer::lower_compare_ast(expr, builder, phi_bindings)?;
                 let dst = builder.alloc_typed(MirType::Bool);
                 consts.push(CoreEffectPlan::Compare { dst, lhs, op, rhs });
                 Ok((dst, consts))
@@ -43,10 +53,14 @@ pub(super) fn lower_cond_value_expr(
                 Ok((value_id, effects))
             }
         },
-        ASTNode::UnaryOp { operator: UnaryOperator::Not, .. } => Err(format!("{error_prefix}: short-circuit condition must be lowered via CondBlockView")),
+        ASTNode::UnaryOp {
+            operator: UnaryOperator::Not,
+            ..
+        } => Err(format!(
+            "{error_prefix}: short-circuit condition must be lowered via CondBlockView"
+        )),
         _ => {
-            let (value_id, effects) =
-                PlanNormalizer::lower_value_ast(expr, builder, phi_bindings)?;
+            let (value_id, effects) = PlanNormalizer::lower_value_ast(expr, builder, phi_bindings)?;
             debug_log_cond_value_int3(builder, value_id, &effects);
             Ok((value_id, effects))
         }

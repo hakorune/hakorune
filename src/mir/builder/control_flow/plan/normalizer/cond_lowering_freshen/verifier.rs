@@ -1,7 +1,7 @@
+use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,
 };
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
@@ -16,7 +16,13 @@ pub(crate) fn find_unremapped_value_id(
 pub(crate) fn find_remap_mismatch(
     plan: &LoweredRecipe,
     value_map: &BTreeMap<ValueId, ValueId>,
-) -> Option<(ValueId, ValueId, &'static str, ValueId, crate::mir::BinaryOp)> {
+) -> Option<(
+    ValueId,
+    ValueId,
+    &'static str,
+    ValueId,
+    crate::mir::BinaryOp,
+)> {
     match plan {
         CorePlan::Seq(plans) => {
             for p in plans {
@@ -79,7 +85,13 @@ pub(crate) fn find_remap_mismatch(
 fn find_remap_mismatch_effects(
     effects: &[CoreEffectPlan],
     value_map: &BTreeMap<ValueId, ValueId>,
-) -> Option<(ValueId, ValueId, &'static str, ValueId, crate::mir::BinaryOp)> {
+) -> Option<(
+    ValueId,
+    ValueId,
+    &'static str,
+    ValueId,
+    crate::mir::BinaryOp,
+)> {
     for effect in effects {
         if let Some(hit) = find_remap_mismatch_effect(effect, value_map) {
             return Some(hit);
@@ -91,7 +103,13 @@ fn find_remap_mismatch_effects(
 fn find_remap_mismatch_effect(
     effect: &CoreEffectPlan,
     value_map: &BTreeMap<ValueId, ValueId>,
-) -> Option<(ValueId, ValueId, &'static str, ValueId, crate::mir::BinaryOp)> {
+) -> Option<(
+    ValueId,
+    ValueId,
+    &'static str,
+    ValueId,
+    crate::mir::BinaryOp,
+)> {
     match effect {
         CoreEffectPlan::BinOp { dst, lhs, op, rhs } => {
             if let Some(&new) = value_map.get(lhs) {
@@ -186,7 +204,9 @@ fn find_unremapped_value_id_plan(
                 }
             }
             for (_bb, effects) in &loop_plan.block_effects {
-                if let Some(hit) = find_unremapped_value_id_effects(effects, value_map, "Loop.block_effects") {
+                if let Some(hit) =
+                    find_unremapped_value_id_effects(effects, value_map, "Loop.block_effects")
+                {
                     return Some(hit);
                 }
             }
@@ -217,9 +237,16 @@ fn find_unremapped_value_id_plan(
             }
             None
         }
-        CorePlan::Effect(effect) => find_unremapped_value_id_effect(effect, value_map, "Plan.effect"),
+        CorePlan::Effect(effect) => {
+            find_unremapped_value_id_effect(effect, value_map, "Plan.effect")
+        }
         CorePlan::Exit(exit) => match exit {
-            CoreExitPlan::Return(v) => v.and_then(|v| value_map.get(&v).copied().map(|new| (v, new, "Exit.return"))),
+            CoreExitPlan::Return(v) => v.and_then(|v| {
+                value_map
+                    .get(&v)
+                    .copied()
+                    .map(|new| (v, new, "Exit.return"))
+            }),
             CoreExitPlan::Break(_) | CoreExitPlan::Continue(_) => None,
             CoreExitPlan::BreakWithPhiArgs { phi_args, .. }
             | CoreExitPlan::ContinueWithPhiArgs { phi_args, .. } => {
@@ -256,14 +283,18 @@ fn find_unremapped_value_id_effect(
     _site: &'static str,
 ) -> Option<(ValueId, ValueId, &'static str)> {
     match effect {
-        CoreEffectPlan::Const { dst, .. } => {
-            value_map.get(dst).copied().map(|new| (*dst, new, "Effect::Const.dst"))
-        }
+        CoreEffectPlan::Const { dst, .. } => value_map
+            .get(dst)
+            .copied()
+            .map(|new| (*dst, new, "Effect::Const.dst")),
         CoreEffectPlan::Copy { dst, src } => {
             if let Some(&new) = value_map.get(dst) {
                 return Some((*dst, new, "Effect::Copy.dst"));
             }
-            value_map.get(src).copied().map(|new| (*src, new, "Effect::Copy.src"))
+            value_map
+                .get(src)
+                .copied()
+                .map(|new| (*src, new, "Effect::Copy.src"))
         }
         CoreEffectPlan::BinOp { dst, lhs, rhs, .. } => {
             if let Some(&new) = value_map.get(dst) {
@@ -272,7 +303,10 @@ fn find_unremapped_value_id_effect(
             if let Some(&new) = value_map.get(lhs) {
                 return Some((*lhs, new, "Effect::BinOp.lhs"));
             }
-            value_map.get(rhs).copied().map(|new| (*rhs, new, "Effect::BinOp.rhs"))
+            value_map
+                .get(rhs)
+                .copied()
+                .map(|new| (*rhs, new, "Effect::BinOp.rhs"))
         }
         CoreEffectPlan::Compare { dst, lhs, rhs, .. } => {
             if let Some(&new) = value_map.get(dst) {
@@ -281,7 +315,10 @@ fn find_unremapped_value_id_effect(
             if let Some(&new) = value_map.get(lhs) {
                 return Some((*lhs, new, "Effect::Compare.lhs"));
             }
-            value_map.get(rhs).copied().map(|new| (*rhs, new, "Effect::Compare.rhs"))
+            value_map
+                .get(rhs)
+                .copied()
+                .map(|new| (*rhs, new, "Effect::Compare.rhs"))
         }
         CoreEffectPlan::Select {
             dst,
@@ -314,7 +351,9 @@ fn find_unremapped_value_id_effect(
             }
             None
         }
-        CoreEffectPlan::MethodCall { dst, object, args, .. } => {
+        CoreEffectPlan::MethodCall {
+            dst, object, args, ..
+        } => {
             if let Some(d) = dst {
                 if let Some(&new) = value_map.get(d) {
                     return Some((*d, new, "Effect::MethodCall.dst"));
@@ -387,7 +426,9 @@ fn find_unremapped_value_id_effect(
             if let Some(&new) = value_map.get(cond) {
                 return Some((*cond, new, "Effect::IfEffect.cond"));
             }
-            if let Some(hit) = find_unremapped_value_id_effects(then_effects, value_map, "IfEffect.then") {
+            if let Some(hit) =
+                find_unremapped_value_id_effects(then_effects, value_map, "IfEffect.then")
+            {
                 return Some(hit);
             }
             if let Some(else_effects) = else_effects {

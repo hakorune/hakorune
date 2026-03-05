@@ -31,7 +31,7 @@ use crate::mir::builder::control_flow::plan::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask, MirType};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 const LOOP_COND_RETURN_IN_BODY_ERR: &str = "[normalizer] loop_cond_return_in_body";
 
@@ -50,7 +50,13 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
     } = blocks;
 
     let carrier_sets = carriers::collect_from_body(&facts.recipe.body.body);
-    let carrier_vars = carrier_sets.vars;
+    let mut carrier_vars = carrier_sets.vars;
+    if carrier_vars.is_empty() {
+        carrier_vars = collect_carrier_vars_from_condition(builder, &facts.condition);
+    }
+    if carrier_vars.is_empty() {
+        return Err(format!("{LOOP_COND_RETURN_IN_BODY_ERR}: no loop carriers"));
+    }
 
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
@@ -84,10 +90,6 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         carrier_phis.insert(var.clone(), phi_dst);
         carrier_step_phis.insert(var.clone(), step_phi_dst);
     }
-    if carrier_phis.is_empty() {
-        return Err(format!("{LOOP_COND_RETURN_IN_BODY_ERR}: no loop carriers"));
-    }
-
     let mut current_bindings = carrier_phis.clone();
     for (name, value_id) in &current_bindings {
         builder
@@ -213,6 +215,164 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         step_mode,
         has_explicit_step,
     }))
+}
+
+fn collect_carrier_vars_from_condition(builder: &MirBuilder, condition: &ASTNode) -> Vec<String> {
+    let mut vars = BTreeSet::<String>::new();
+    collect_vars_from_expr(condition, &mut vars);
+
+    let mut carriers = BTreeMap::<String, ()>::new();
+    for name in vars {
+        if builder.variable_ctx.variable_map.contains_key(&name) {
+            carriers.insert(name, ());
+        }
+    }
+    carriers.keys().cloned().collect()
+}
+
+fn collect_vars_from_expr(ast: &ASTNode, vars: &mut BTreeSet<String>) {
+    match ast {
+        ASTNode::Variable { name, .. } => {
+            vars.insert(name.clone());
+        }
+        ASTNode::Literal { .. } => {}
+        ASTNode::UnaryOp { operand, .. } => collect_vars_from_expr(operand, vars),
+        ASTNode::BinaryOp { left, right, .. } => {
+            collect_vars_from_expr(left, vars);
+            collect_vars_from_expr(right, vars);
+        }
+        ASTNode::GroupedAssignmentExpr { rhs, .. } => collect_vars_from_expr(rhs, vars),
+        ASTNode::MethodCall {
+            object, arguments, ..
+        } => {
+            collect_vars_from_expr(object, vars);
+            for arg in arguments {
+                collect_vars_from_expr(arg, vars);
+            }
+        }
+        ASTNode::FunctionCall { arguments, .. } => {
+            for arg in arguments {
+                collect_vars_from_expr(arg, vars);
+            }
+        }
+        ASTNode::Call {
+            callee, arguments, ..
+        } => {
+            collect_vars_from_expr(callee, vars);
+            for arg in arguments {
+                collect_vars_from_expr(arg, vars);
+            }
+        }
+        ASTNode::Index { target, index, .. } => {
+            collect_vars_from_expr(target, vars);
+            collect_vars_from_expr(index, vars);
+        }
+        ASTNode::FieldAccess { object, .. } => collect_vars_from_expr(object, vars),
+        ASTNode::ArrayLiteral { elements, .. } => {
+            for el in elements {
+                collect_vars_from_expr(el, vars);
+            }
+        }
+        ASTNode::MapLiteral { entries, .. } => {
+            for (_, value) in entries {
+                collect_vars_from_expr(value, vars);
+            }
+        }
+        ASTNode::BlockExpr {
+            prelude_stmts,
+            tail_expr,
+            ..
+        } => {
+            for stmt in prelude_stmts {
+                collect_vars_from_stmt(stmt, vars);
+            }
+            collect_vars_from_expr(tail_expr, vars);
+        }
+        _ => {}
+    }
+}
+
+fn collect_vars_from_stmt(stmt: &ASTNode, vars: &mut BTreeSet<String>) {
+    match stmt {
+        ASTNode::Assignment { target, value, .. } => {
+            collect_vars_from_expr(target, vars);
+            collect_vars_from_expr(value, vars);
+        }
+        ASTNode::Local { initial_values, .. } => {
+            for init in initial_values.iter().flatten() {
+                collect_vars_from_expr(init, vars);
+            }
+        }
+        ASTNode::If {
+            condition,
+            then_body,
+            else_body,
+            ..
+        } => {
+            collect_vars_from_expr(condition, vars);
+            for child in then_body {
+                collect_vars_from_stmt(child, vars);
+            }
+            if let Some(else_body) = else_body {
+                for child in else_body {
+                    collect_vars_from_stmt(child, vars);
+                }
+            }
+        }
+        ASTNode::Loop {
+            condition, body, ..
+        }
+        | ASTNode::While {
+            condition, body, ..
+        } => {
+            collect_vars_from_expr(condition, vars);
+            for child in body {
+                collect_vars_from_stmt(child, vars);
+            }
+        }
+        ASTNode::ForRange {
+            start, end, body, ..
+        } => {
+            collect_vars_from_expr(start, vars);
+            collect_vars_from_expr(end, vars);
+            for child in body {
+                collect_vars_from_stmt(child, vars);
+            }
+        }
+        ASTNode::MethodCall {
+            object, arguments, ..
+        } => {
+            collect_vars_from_expr(object, vars);
+            for arg in arguments {
+                collect_vars_from_expr(arg, vars);
+            }
+        }
+        ASTNode::FunctionCall { arguments, .. } => {
+            for arg in arguments {
+                collect_vars_from_expr(arg, vars);
+            }
+        }
+        ASTNode::Call {
+            callee, arguments, ..
+        } => {
+            collect_vars_from_expr(callee, vars);
+            for arg in arguments {
+                collect_vars_from_expr(arg, vars);
+            }
+        }
+        ASTNode::Print { expression, .. } => collect_vars_from_expr(expression, vars),
+        ASTNode::Return { value, .. } => {
+            if let Some(value) = value {
+                collect_vars_from_expr(value, vars);
+            }
+        }
+        ASTNode::Program { statements, .. } | ASTNode::ScopeBox { body: statements, .. } => {
+            for child in statements {
+                collect_vars_from_stmt(child, vars);
+            }
+        }
+        _ => {}
+    }
 }
 
 fn get_stmt<'a>(body: &'a RecipeBody, stmt_ref: StmtRef) -> Result<&'a ASTNode, String> {

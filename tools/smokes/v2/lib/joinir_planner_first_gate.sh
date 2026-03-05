@@ -40,89 +40,9 @@ planner_first_tag_matches() {
     if grep -qF "$tag" <<<"$output"; then
       return 0
     fi
-
-    # Legacy compatibility: allow PatternN expectation to match semantic rule tags.
-    # This keeps gate TSV stable while compiler-side tag vocabulary migrates.
-    local compat_tag
-    compat_tag=$(planner_first_compat_tag "$tag")
-    if [ -n "$compat_tag" ] && grep -qF "$compat_tag" <<<"$output"; then
-      return 0
-    fi
   done
 
   return 1
-}
-
-planner_first_pattern_semantic_rule() {
-  local legacy_rule="$1"
-  case "$legacy_rule" in
-    Pattern1) echo "LoopSimpleWhile" ;;
-    Pattern2) echo "LoopBreakRecipe" ;;
-    Pattern3) echo "IfPhiJoin" ;;
-    Pattern4) echo "LoopContinueOnly" ;;
-    Pattern5) echo "LoopTrueEarlyExit" ;;
-    Pattern6) echo "ScanWithInit" ;;
-    Pattern7) echo "SplitScan" ;;
-    Pattern8) echo "BoolPredicateScan" ;;
-    Pattern9) echo "AccumConstLoop" ;;
-    *) echo "" ;;
-  esac
-}
-
-planner_first_semantic_legacy_rule() {
-  local semantic_rule="$1"
-  case "$semantic_rule" in
-    LoopSimpleWhile) echo "Pattern1" ;;
-    LoopBreakRecipe) echo "Pattern2" ;;
-    IfPhiJoin) echo "Pattern3" ;;
-    LoopContinueOnly) echo "Pattern4" ;;
-    LoopTrueEarlyExit) echo "Pattern5" ;;
-    ScanWithInit) echo "Pattern6" ;;
-    SplitScan) echo "Pattern7" ;;
-    BoolPredicateScan) echo "Pattern8" ;;
-    AccumConstLoop) echo "Pattern9" ;;
-    *) echo "" ;;
-  esac
-}
-
-planner_first_compat_tag() {
-  local tag="$1"
-  local rule_token legacy_rule semantic_rule label
-
-  if [[ ! "$tag" =~ rule=([^][:space:]|]+) ]]; then
-    echo ""
-    return 0
-  fi
-  rule_token="${BASH_REMATCH[1]}"
-
-  label=""
-  if [[ "$tag" =~ label=([^[:space:]|]+) ]]; then
-    label="${BASH_REMATCH[1]}"
-  fi
-
-  # legacy -> semantic
-  if [[ "$rule_token" =~ ^Pattern[1-9]$ ]]; then
-    legacy_rule="$rule_token"
-    if [ -n "$label" ]; then
-      semantic_rule="$label"
-    else
-      semantic_rule="$(planner_first_pattern_semantic_rule "$legacy_rule")"
-    fi
-    if [ -z "$semantic_rule" ]; then
-      echo ""
-      return 0
-    fi
-    echo "${tag/rule=$legacy_rule/rule=$semantic_rule}"
-    return 0
-  fi
-
-  # semantic -> legacy
-  legacy_rule="$(planner_first_semantic_legacy_rule "$rule_token")"
-  if [ -z "$legacy_rule" ]; then
-    echo ""
-    return 0
-  fi
-  echo "${tag/rule=$rule_token/rule=$legacy_rule}"
 }
 
 run_planner_first_gate() {

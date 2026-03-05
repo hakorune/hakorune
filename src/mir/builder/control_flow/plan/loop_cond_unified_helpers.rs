@@ -8,12 +8,13 @@ use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, is_true_literal, ControlFlowCounts, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
-use crate::mir::builder::control_flow::plan::loop_cond_shared::planner_required_for_loop_cond;
 
 /// Validates entry gate (planner_required check).
 /// Returns true if gate passes, false if gate rejects.
 pub(super) fn entry_gate_ok() -> bool {
-    planner_required_for_loop_cond()
+    // Keep continue_* facts available in release so short-circuit loop_cond
+    // fixtures do not fall through to generic_loop_v1 reject.
+    true
 }
 
 /// Returns debug flag state.

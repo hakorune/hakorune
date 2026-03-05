@@ -11,14 +11,16 @@ use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{
+    CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::policies::BodyLoweringPolicy;
-use crate::mir::{ConstValue, Effect, EffectMask, MirType};
+use crate::mir::{Effect, EffectMask};
 use std::collections::BTreeMap;
 
 use super::helpers::{
-    apply_loop_final_values_to_bindings, lower_effect_only_stmt, lower_exit_from_stmt,
+    apply_loop_final_values_to_bindings, lower_effect_only_stmt,
     lower_nested_loop_plan, matches_loop_increment,
 };
 use super::GENERIC_LOOP_ERR;
@@ -27,6 +29,7 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
     builder: &mut MirBuilder,
     facts: &GenericLoopV1Facts,
     phi_bindings: &BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let mut body_plans: Vec<LoweredRecipe> = Vec::new();
@@ -40,14 +43,14 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
 
     // M28: Under planner_required, lower via Facts-provided RecipeBlock (NoExit).
     // This avoids re-checking in lower and keeps acceptance Recipe-first.
-    let has_nested_loop_stmt = detect_nested_loop(&facts.body.body);
+    let has_nested_loop_stmt = detect_nested_loop(&facts.body.body)
+        || body_has_blockexpr_prelude_loop(&facts.body.body);
     if crate::config::env::joinir_dev::planner_required_enabled() && !has_nested_loop_stmt {
         if let Some(body_no_exit) = facts.body_no_exit.as_ref() {
-            let empty_carrier_phis = BTreeMap::new();
             return parts::entry::lower_loop_with_body_block(
                 builder,
                 &mut current_bindings,
-                &empty_carrier_phis,
+                carrier_step_phis,
                 &body_no_exit.arena,
                 &body_no_exit.block,
                 parts::LoopBodyContractKind::NoExit,
@@ -67,9 +70,19 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
             facts,
             &facts.loop_var,
             &facts.loop_increment,
+            carrier_step_phis,
             ctx,
         )?;
         body_plans.extend(plans);
+    }
+
+    if !matches!(body_plans.last(), Some(CorePlan::Exit(_))) {
+        body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
+            builder,
+            carrier_step_phis,
+            &current_bindings,
+            GENERIC_LOOP_ERR,
+        )?));
     }
 
     Ok(body_plans)
@@ -82,10 +95,30 @@ fn lower_body_stmt_v1(
     facts: &GenericLoopV1Facts,
     loop_var: &str,
     loop_increment: &ASTNode,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     match stmt {
         ASTNode::Assignment { target, value, .. } => {
+            if matches!(target.as_ref(), ASTNode::Variable { .. }) {
+                if let Some((value_id, plans)) = try_lower_blockexpr_loop_prelude_value(
+                    builder,
+                    phi_bindings,
+                    carrier_step_phis,
+                    facts,
+                    loop_var,
+                    loop_increment,
+                    ctx,
+                    value,
+                )? {
+                    let ASTNode::Variable { name, .. } = target.as_ref() else {
+                        unreachable!();
+                    };
+                    builder.variable_ctx.variable_map.insert(name.clone(), value_id);
+                    phi_bindings.insert(name.clone(), value_id);
+                    return Ok(plans);
+                }
+            }
             let (name, value_id, effects) = loop_body_lowering::lower_assignment_value(
                 builder,
                 phi_bindings,
@@ -104,6 +137,25 @@ fn lower_body_stmt_v1(
             initial_values,
             ..
         } => {
+            if variables.len() == 1 && initial_values.len() == 1 {
+                if let Some(init) = initial_values[0].as_deref() {
+                    if let Some((value_id, plans)) = try_lower_blockexpr_loop_prelude_value(
+                        builder,
+                        phi_bindings,
+                        carrier_step_phis,
+                        facts,
+                        loop_var,
+                        loop_increment,
+                        ctx,
+                        init,
+                    )? {
+                        let name = variables[0].clone();
+                        builder.variable_ctx.variable_map.insert(name.clone(), value_id);
+                        phi_bindings.insert(name, value_id);
+                        return Ok(plans);
+                    }
+                }
+            }
             let (inits, effects) = loop_body_lowering::lower_local_init_values(
                 builder,
                 phi_bindings,
@@ -160,6 +212,7 @@ fn lower_body_stmt_v1(
                     facts,
                     loop_var,
                     loop_increment,
+                    carrier_step_phis,
                     ctx,
                 )?;
                 body_plans.extend(plans);
@@ -181,6 +234,7 @@ fn lower_body_stmt_v1(
             facts,
             loop_var,
             loop_increment,
+            carrier_step_phis,
             ctx,
         ),
         ASTNode::Loop {
@@ -191,7 +245,7 @@ fn lower_body_stmt_v1(
             Ok(vec![nested])
         }
         ASTNode::Break { .. } | ASTNode::Continue { .. } | ASTNode::Return { .. } => {
-            lower_exit_stmt_v1(builder, phi_bindings, stmt)
+            lower_exit_stmt_v1(builder, phi_bindings, carrier_step_phis, stmt)
         }
         _ => {
             if is_effect_only_stmt(stmt) {
@@ -200,6 +254,174 @@ fn lower_body_stmt_v1(
             }
             Err("[normalizer] generic loop v1: unsupported body stmt".to_string())
         }
+    }
+}
+
+fn try_lower_blockexpr_loop_prelude_value(
+    builder: &mut MirBuilder,
+    phi_bindings: &BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    facts: &GenericLoopV1Facts,
+    loop_var: &str,
+    loop_increment: &ASTNode,
+    ctx: &LoopRouteContext,
+    value: &ASTNode,
+) -> Result<Option<(crate::mir::ValueId, Vec<LoweredRecipe>)>, String> {
+    let ASTNode::BlockExpr {
+        prelude_stmts,
+        tail_expr,
+        ..
+    } = value
+    else {
+        return Ok(None);
+    };
+    if !prelude_stmts
+        .iter()
+        .any(|stmt| matches!(stmt, ASTNode::Loop { .. } | ASTNode::While { .. }))
+    {
+        return Ok(None);
+    }
+    for stmt in prelude_stmts {
+        if stmt.contains_non_local_exit_outside_loops() {
+            return Err(
+                "[freeze:contract][blockexpr] exit stmt is forbidden in BlockExpr prelude"
+                    .to_string(),
+            );
+        }
+    }
+
+    let mut bindings = phi_bindings.clone();
+    let mut plans = Vec::new();
+    for stmt in prelude_stmts {
+        let mut stmt_plans = lower_body_stmt_v1(
+            builder,
+            &mut bindings,
+            stmt,
+            facts,
+            loop_var,
+            loop_increment,
+            carrier_step_phis,
+            ctx,
+        )?;
+        plans.append(&mut stmt_plans);
+    }
+
+    let (tail_id, tail_effects) =
+        PlanNormalizer::lower_value_ast(tail_expr.as_ref(), builder, &bindings)?;
+    plans.extend(effects_to_plans(tail_effects));
+    Ok(Some((tail_id, plans)))
+}
+
+fn body_has_blockexpr_prelude_loop(body: &[ASTNode]) -> bool {
+    body.iter().any(stmt_has_blockexpr_prelude_loop)
+}
+
+fn stmt_has_blockexpr_prelude_loop(stmt: &ASTNode) -> bool {
+    match stmt {
+        ASTNode::Assignment { value, .. } => expr_has_blockexpr_prelude_loop(value),
+        ASTNode::Local {
+            initial_values, ..
+        } => initial_values.iter().flatten().any(|v| expr_has_blockexpr_prelude_loop(v)),
+        ASTNode::If {
+            condition,
+            then_body,
+            else_body,
+            ..
+        } => {
+            expr_has_blockexpr_prelude_loop(condition)
+                || body_has_blockexpr_prelude_loop(then_body)
+                || else_body
+                    .as_ref()
+                    .is_some_and(|b| body_has_blockexpr_prelude_loop(b))
+        }
+        ASTNode::Program { statements, .. } => body_has_blockexpr_prelude_loop(statements),
+        ASTNode::Loop {
+            condition, body, ..
+        }
+        | ASTNode::While {
+            condition, body, ..
+        } => {
+            expr_has_blockexpr_prelude_loop(condition) || body_has_blockexpr_prelude_loop(body)
+        }
+        ASTNode::Return { value, .. } => value
+            .as_ref()
+            .is_some_and(|v| expr_has_blockexpr_prelude_loop(v)),
+        ASTNode::Print { expression, .. } => expr_has_blockexpr_prelude_loop(expression),
+        ASTNode::MethodCall {
+            object, arguments, ..
+        } => {
+            expr_has_blockexpr_prelude_loop(object)
+                || arguments.iter().any(expr_has_blockexpr_prelude_loop)
+        }
+        ASTNode::FunctionCall { arguments, .. } => {
+            arguments.iter().any(expr_has_blockexpr_prelude_loop)
+        }
+        ASTNode::Call {
+            callee, arguments, ..
+        } => {
+            expr_has_blockexpr_prelude_loop(callee)
+                || arguments.iter().any(expr_has_blockexpr_prelude_loop)
+        }
+        _ => false,
+    }
+}
+
+fn expr_has_blockexpr_prelude_loop(expr: &ASTNode) -> bool {
+    match expr {
+        ASTNode::BlockExpr {
+            prelude_stmts,
+            tail_expr,
+            ..
+        } => {
+            prelude_stmts
+                .iter()
+                .any(|stmt| matches!(stmt, ASTNode::Loop { .. } | ASTNode::While { .. }))
+                || body_has_blockexpr_prelude_loop(prelude_stmts)
+                || expr_has_blockexpr_prelude_loop(tail_expr)
+        }
+        ASTNode::BinaryOp { left, right, .. } => {
+            expr_has_blockexpr_prelude_loop(left) || expr_has_blockexpr_prelude_loop(right)
+        }
+        ASTNode::UnaryOp { operand, .. } => expr_has_blockexpr_prelude_loop(operand),
+        ASTNode::MethodCall {
+            object, arguments, ..
+        } => {
+            expr_has_blockexpr_prelude_loop(object)
+                || arguments.iter().any(expr_has_blockexpr_prelude_loop)
+        }
+        ASTNode::FunctionCall { arguments, .. } => {
+            arguments.iter().any(expr_has_blockexpr_prelude_loop)
+        }
+        ASTNode::Call {
+            callee, arguments, ..
+        } => {
+            expr_has_blockexpr_prelude_loop(callee)
+                || arguments.iter().any(expr_has_blockexpr_prelude_loop)
+        }
+        ASTNode::Index { target, index, .. } => {
+            expr_has_blockexpr_prelude_loop(target) || expr_has_blockexpr_prelude_loop(index)
+        }
+        ASTNode::FieldAccess { object, .. } => expr_has_blockexpr_prelude_loop(object),
+        ASTNode::ArrayLiteral { elements, .. } => {
+            elements.iter().any(expr_has_blockexpr_prelude_loop)
+        }
+        ASTNode::MapLiteral { entries, .. } => entries
+            .iter()
+            .any(|(_, value)| expr_has_blockexpr_prelude_loop(value)),
+        ASTNode::If {
+            condition,
+            then_body,
+            else_body,
+            ..
+        } => {
+            expr_has_blockexpr_prelude_loop(condition)
+                || body_has_blockexpr_prelude_loop(then_body)
+                || else_body
+                    .as_ref()
+                    .is_some_and(|b| body_has_blockexpr_prelude_loop(b))
+        }
+        ASTNode::Program { statements, .. } => body_has_blockexpr_prelude_loop(statements),
+        _ => false,
     }
 }
 
@@ -213,15 +435,13 @@ fn lower_if_stmt_v1(
     facts: &GenericLoopV1Facts,
     loop_var: &str,
     loop_increment: &ASTNode,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    if then_body.is_empty() {
-        return Err("[normalizer] generic loop v1: empty then".to_string());
-    }
-
     if let Some(if_plans) = try_lower_conditional_update_if(
         builder,
         phi_bindings,
+        carrier_step_phis,
         condition,
         then_body,
         else_body,
@@ -267,6 +487,7 @@ fn lower_if_stmt_v1(
                 then_body,
                 loop_var,
                 loop_increment,
+                carrier_step_phis,
                 ctx,
             )?;
             *bindings = then_bindings;
@@ -287,6 +508,7 @@ fn lower_if_stmt_v1(
                 body,
                 loop_var,
                 loop_increment,
+                carrier_step_phis,
                 ctx,
             )?;
             *bindings = else_bindings;
@@ -315,6 +537,7 @@ fn lower_if_stmt_v1(
 fn try_lower_conditional_update_if(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     condition: &ASTNode,
     then_body: &[ASTNode],
     else_body: Option<&Vec<ASTNode>>,
@@ -333,13 +556,12 @@ fn try_lower_conditional_update_if(
     }
 
     let carrier_phis = BTreeMap::new();
-    let carrier_step_phis = BTreeMap::new();
     let mut carrier_updates = BTreeMap::new();
     conditional_update_join::try_lower_conditional_update_if(
         builder,
         current_bindings,
         &carrier_phis,
-        &carrier_step_phis,
+        carrier_step_phis,
         &mut carrier_updates,
         condition,
         then_body,
@@ -414,6 +636,7 @@ fn lower_body_block_v1(
     body: &[ASTNode],
     loop_var: &str,
     loop_increment: &ASTNode,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     // One-part lowering path (ExitAllowed RecipeBlock), restricted to blocks that do not contain
@@ -427,7 +650,6 @@ fn lower_body_block_v1(
                 "[freeze:contract][generic_loop_v1] body_lowering_policy=ExitAllowed but body_exit_allowed=None: ctx={GENERIC_LOOP_ERR}"
             ));
         };
-        let empty_carrier_step_phis = BTreeMap::new();
         let empty_break_phi_dsts = BTreeMap::new();
         let verified = parts::entry::verify_exit_allowed_block_with_pre(
             &recipe.arena,
@@ -438,7 +660,7 @@ fn lower_body_block_v1(
         return parts::entry::lower_exit_allowed_block_verified(
             builder,
             phi_bindings,
-            &empty_carrier_step_phis,
+            carrier_step_phis,
             &empty_break_phi_dsts,
             verified,
             GENERIC_LOOP_ERR,
@@ -454,6 +676,7 @@ fn lower_body_block_v1(
             facts,
             loop_var,
             loop_increment,
+            carrier_step_phis,
             ctx,
         )?;
         body_plans.extend(plans);
@@ -464,14 +687,25 @@ fn lower_body_block_v1(
 fn lower_exit_stmt_v1(
     builder: &mut MirBuilder,
     phi_bindings: &BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     stmt: &ASTNode,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    let true_cond = builder.alloc_typed(MirType::Bool);
-    let mut plans = vec![CorePlan::Effect(CoreEffectPlan::Const {
-        dst: true_cond,
-        value: ConstValue::Bool(true),
-    })];
-    let exit_effects = lower_exit_from_stmt(builder, phi_bindings, true_cond, stmt)?;
-    plans.extend(effects_to_plans(exit_effects));
-    Ok(plans)
+    match stmt {
+        ASTNode::Break { .. } => Ok(vec![CorePlan::Exit(CoreExitPlan::Break(1))]),
+        ASTNode::Continue { .. } => Ok(vec![CorePlan::Exit(
+            parts::exit::build_continue_with_phi_args(
+                builder,
+                carrier_step_phis,
+                phi_bindings,
+                GENERIC_LOOP_ERR,
+            )?,
+        )]),
+        ASTNode::Return { value, .. } => parts::entry::lower_return_with_effects(
+            builder,
+            value.as_ref().map(|v| v.as_ref()),
+            phi_bindings,
+            GENERIC_LOOP_ERR,
+        ),
+        _ => Err(format!("{GENERIC_LOOP_ERR}: unsupported exit stmt")),
+    }
 }

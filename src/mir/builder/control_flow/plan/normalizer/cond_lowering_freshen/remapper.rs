@@ -1,14 +1,13 @@
+use super::utils::{map_block_id, remap_value_id, remap_value_ids};
 use crate::mir::basic_block::BasicBlockId;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePlan,
-    LoweredRecipe,
+    CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::{EdgeArgs, ValueId};
 use std::collections::BTreeMap;
-use super::utils::{map_block_id, remap_value_id, remap_value_ids};
 
 /// Remap a plan with block ID and ValueId freshening
 pub(crate) fn remap_plan(
@@ -19,7 +18,8 @@ pub(crate) fn remap_plan(
 ) -> LoweredRecipe {
     match plan {
         CorePlan::Seq(plans) => CorePlan::Seq(
-            plans.into_iter()
+            plans
+                .into_iter()
                 .map(|p| remap_plan(builder, block_map, value_map, p))
                 .collect(),
         ),
@@ -42,18 +42,14 @@ pub(crate) fn remap_plan(
                 .map(|join| CoreIfJoin {
                     name: join.name.clone(),
                     dst: remap_value_id(value_map, join.dst),
-                    pre_val: join
-                        .pre_val
-                        .map(|v| remap_value_id(value_map, v)),
+                    pre_val: join.pre_val.map(|v| remap_value_id(value_map, v)),
                     then_val: remap_value_id(value_map, join.then_val),
                     else_val: remap_value_id(value_map, join.else_val),
                 })
                 .collect();
             CorePlan::If(if_plan)
         }
-        CorePlan::Loop(loop_plan) => {
-            remap_loop_plan(builder, block_map, value_map, loop_plan)
-        }
+        CorePlan::Loop(loop_plan) => remap_loop_plan(builder, block_map, value_map, loop_plan),
         CorePlan::BranchN(mut branch_plan) => {
             branch_plan.arms = branch_plan
                 .arms
@@ -69,11 +65,11 @@ pub(crate) fn remap_plan(
                 })
                 .collect();
             branch_plan.else_plans = branch_plan.else_plans.map(|plans| {
-            plans
-                .into_iter()
-                .map(|p| remap_plan(builder, block_map, value_map, p))
-                .collect()
-        });
+                plans
+                    .into_iter()
+                    .map(|p| remap_plan(builder, block_map, value_map, p))
+                    .collect()
+            });
             CorePlan::BranchN(branch_plan)
         }
         CorePlan::Effect(mut effect) => {
@@ -136,13 +132,25 @@ pub(crate) fn freshen_loop_block_ids(
     loop_plan.after_bb = map_block_id(builder, &mut block_map, loop_plan.after_bb);
     loop_plan.found_bb = map_block_id(builder, &mut block_map, loop_plan.found_bb);
 
-    loop_plan.block_effects = loop_plan.block_effects.into_iter().map(|(block_id, effects)| (map_block_id(builder, &mut block_map, block_id), effects)).collect();
+    loop_plan.block_effects = loop_plan
+        .block_effects
+        .into_iter()
+        .map(|(block_id, effects)| (map_block_id(builder, &mut block_map, block_id), effects))
+        .collect();
 
-    loop_plan.phis = loop_plan.phis.into_iter().map(|mut phi| {
-        phi.block = map_block_id(builder, &mut block_map, phi.block);
-        phi.inputs = phi.inputs.into_iter().map(|(pred, value)| (map_block_id(builder, &mut block_map, pred), value)).collect();
-        phi
-    }).collect();
+    loop_plan.phis = loop_plan
+        .phis
+        .into_iter()
+        .map(|mut phi| {
+            phi.block = map_block_id(builder, &mut block_map, phi.block);
+            phi.inputs = phi
+                .inputs
+                .into_iter()
+                .map(|(pred, value)| (map_block_id(builder, &mut block_map, pred), value))
+                .collect();
+            phi
+        })
+        .collect();
 
     loop_plan.frag = remap_frag(builder, &mut block_map, loop_plan.frag);
 
@@ -166,36 +174,61 @@ fn freshen_loop_block_ids_in_place(
     loop_plan.after_bb = map_block_id(builder, block_map, loop_plan.after_bb);
     loop_plan.found_bb = map_block_id(builder, block_map, loop_plan.found_bb);
 
-    loop_plan.block_effects = loop_plan.block_effects.into_iter().map(|(block_id, effects)| (map_block_id(builder, block_map, block_id), effects)).collect();
+    loop_plan.block_effects = loop_plan
+        .block_effects
+        .into_iter()
+        .map(|(block_id, effects)| (map_block_id(builder, block_map, block_id), effects))
+        .collect();
 
-    loop_plan.phis = loop_plan.phis.into_iter().map(|mut phi| {
-        phi.block = map_block_id(builder, block_map, phi.block);
-        phi.inputs = phi.inputs.into_iter().map(|(pred, value)| (map_block_id(builder, block_map, pred), value)).collect();
-        phi
-    }).collect();
+    loop_plan.phis = loop_plan
+        .phis
+        .into_iter()
+        .map(|mut phi| {
+            phi.block = map_block_id(builder, block_map, phi.block);
+            phi.inputs = phi
+                .inputs
+                .into_iter()
+                .map(|(pred, value)| (map_block_id(builder, block_map, pred), value))
+                .collect();
+            phi
+        })
+        .collect();
 
     loop_plan.frag = remap_frag(builder, block_map, loop_plan.frag);
 
     CorePlan::Loop(loop_plan)
 }
 
-fn remap_frag(builder: &mut MirBuilder, block_map: &mut BTreeMap<BasicBlockId, BasicBlockId>, frag: Frag) -> Frag {
+fn remap_frag(
+    builder: &mut MirBuilder,
+    block_map: &mut BTreeMap<BasicBlockId, BasicBlockId>,
+    frag: Frag,
+) -> Frag {
     let entry = map_block_id(builder, block_map, frag.entry);
-    let block_params = frag.block_params.into_iter().map(|(block_id, params)| (map_block_id(builder, block_map, block_id), params)).collect();
-    let exits = frag.exits.into_iter().map(|(kind, stubs)| {
-        let mapped = stubs
-            .into_iter()
-            .map(|stub| {
-                edgecfg_stubs::build_edge_stub(
-                    map_block_id(builder, block_map, stub.from),
-                    stub.kind,
-                    stub.target.map(|target| map_block_id(builder, block_map, target)),
-                    stub.args,
-                )
-            })
-            .collect();
-        (kind, mapped)
-    }).collect();
+    let block_params = frag
+        .block_params
+        .into_iter()
+        .map(|(block_id, params)| (map_block_id(builder, block_map, block_id), params))
+        .collect();
+    let exits = frag
+        .exits
+        .into_iter()
+        .map(|(kind, stubs)| {
+            let mapped = stubs
+                .into_iter()
+                .map(|stub| {
+                    edgecfg_stubs::build_edge_stub(
+                        map_block_id(builder, block_map, stub.from),
+                        stub.kind,
+                        stub.target
+                            .map(|target| map_block_id(builder, block_map, target)),
+                        stub.args,
+                    )
+                })
+                .collect();
+            (kind, mapped)
+        })
+        .collect();
     let wires = frag
         .wires
         .into_iter()
@@ -203,7 +236,8 @@ fn remap_frag(builder: &mut MirBuilder, block_map: &mut BTreeMap<BasicBlockId, B
             edgecfg_stubs::build_edge_stub(
                 map_block_id(builder, block_map, stub.from),
                 stub.kind,
-                stub.target.map(|target| map_block_id(builder, block_map, target)),
+                stub.target
+                    .map(|target| map_block_id(builder, block_map, target)),
                 stub.args,
             )
         })
@@ -222,7 +256,13 @@ fn remap_frag(builder: &mut MirBuilder, block_map: &mut BTreeMap<BasicBlockId, B
             )
         })
         .collect();
-    Frag { entry, block_params, exits, wires, branches }
+    Frag {
+        entry,
+        block_params,
+        exits,
+        wires,
+        branches,
+    }
 }
 
 /// Remap a LoopPlan with both block and ValueId freshening
@@ -264,7 +304,10 @@ fn remap_loop_plan(
                 .inputs
                 .into_iter()
                 .map(|(pred, value)| {
-                    (map_block_id(builder, block_map, pred), remap_value_id(value_map, value))
+                    (
+                        map_block_id(builder, block_map, pred),
+                        remap_value_id(value_map, value),
+                    )
                 })
                 .collect();
             phi
@@ -305,7 +348,11 @@ fn remap_loop_plan(
 fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut CoreEffectPlan) {
     match effect {
         CoreEffectPlan::MethodCall {
-            dst, object, method: _, args, effects: _
+            dst,
+            object,
+            method: _,
+            args,
+            effects: _,
         } => {
             *dst = dst.map(|d| remap_value_id(value_map, d));
             *object = remap_value_id(value_map, *object);
@@ -321,26 +368,49 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
             *args = remap_value_ids(value_map, args);
         }
         CoreEffectPlan::ExternCall {
-            dst, iface_name: _, method_name: _, args, effects: _
+            dst,
+            iface_name: _,
+            method_name: _,
+            args,
+            effects: _,
         } => {
             *dst = dst.map(|d| remap_value_id(value_map, d));
             *args = remap_value_ids(value_map, args);
         }
-        CoreEffectPlan::NewBox { dst, box_type: _, args } => {
+        CoreEffectPlan::NewBox {
+            dst,
+            box_type: _,
+            args,
+        } => {
             *dst = remap_value_id(value_map, *dst);
             *args = remap_value_ids(value_map, args);
         }
-        CoreEffectPlan::BinOp { dst, lhs, op: _, rhs } => {
+        CoreEffectPlan::BinOp {
+            dst,
+            lhs,
+            op: _,
+            rhs,
+        } => {
             *dst = remap_value_id(value_map, *dst);
             *lhs = remap_value_id(value_map, *lhs);
             *rhs = remap_value_id(value_map, *rhs);
         }
-        CoreEffectPlan::Compare { dst, lhs, op: _, rhs } => {
+        CoreEffectPlan::Compare {
+            dst,
+            lhs,
+            op: _,
+            rhs,
+        } => {
             *dst = remap_value_id(value_map, *dst);
             *lhs = remap_value_id(value_map, *lhs);
             *rhs = remap_value_id(value_map, *rhs);
         }
-        CoreEffectPlan::Select { dst, cond, then_val, else_val } => {
+        CoreEffectPlan::Select {
+            dst,
+            cond,
+            then_val,
+            else_val,
+        } => {
             *dst = remap_value_id(value_map, *dst);
             *cond = remap_value_id(value_map, *cond);
             *then_val = remap_value_id(value_map, *then_val);
@@ -378,13 +448,18 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
 /// Remap an exit plan
 fn remap_exit(value_map: &BTreeMap<ValueId, ValueId>, exit: CoreExitPlan) -> CoreExitPlan {
     match exit {
-        CoreExitPlan::Return(value) => CoreExitPlan::Return(value.map(|v| remap_value_id(value_map, v))),
+        CoreExitPlan::Return(value) => {
+            CoreExitPlan::Return(value.map(|v| remap_value_id(value_map, v)))
+        }
         CoreExitPlan::Break(depth) => CoreExitPlan::Break(depth),
         CoreExitPlan::BreakWithPhiArgs { depth, phi_args } => {
             let remapped_args = phi_args
                 .into_iter()
                 .map(|(dst, val)| {
-                    (remap_value_id(value_map, dst), remap_value_id(value_map, val))
+                    (
+                        remap_value_id(value_map, dst),
+                        remap_value_id(value_map, val),
+                    )
                 })
                 .collect();
             CoreExitPlan::BreakWithPhiArgs {
@@ -397,7 +472,10 @@ fn remap_exit(value_map: &BTreeMap<ValueId, ValueId>, exit: CoreExitPlan) -> Cor
             let remapped_args = phi_args
                 .into_iter()
                 .map(|(dst, val)| {
-                    (remap_value_id(value_map, dst), remap_value_id(value_map, val))
+                    (
+                        remap_value_id(value_map, dst),
+                        remap_value_id(value_map, val),
+                    )
                 })
                 .collect();
             CoreExitPlan::ContinueWithPhiArgs {
@@ -421,11 +499,18 @@ fn remap_frag_with_values(
         .into_iter()
         .map(|(block_id, params)| {
             let mapped_block = map_block_id(builder, block_map, block_id);
-            let remapped_params = params.params.iter().map(|v| remap_value_id(value_map, *v)).collect();
-            (mapped_block, crate::mir::builder::control_flow::plan::edgecfg_facade::BlockParams {
-                params: remapped_params,
-                layout: params.layout,
-            })
+            let remapped_params = params
+                .params
+                .iter()
+                .map(|v| remap_value_id(value_map, *v))
+                .collect();
+            (
+                mapped_block,
+                crate::mir::builder::control_flow::plan::edgecfg_facade::BlockParams {
+                    params: remapped_params,
+                    layout: params.layout,
+                },
+            )
         })
         .collect();
 

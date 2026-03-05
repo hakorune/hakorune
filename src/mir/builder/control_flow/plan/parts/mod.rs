@@ -29,6 +29,7 @@ pub(super) mod join_scope;
 pub(super) mod conditional_update;
 pub(super) mod stmt;
 pub(super) mod verify;
+mod var_map_scope;
 mod loop_;
 pub(in crate::mir::builder) mod entry;
 mod dispatch;

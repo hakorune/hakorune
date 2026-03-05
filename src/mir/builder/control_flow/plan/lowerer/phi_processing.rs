@@ -91,6 +91,16 @@ pub fn merge_deferred_phi_inputs(
                     continue;
                 };
 
+                // Generic-loop seeded step PHIs start with a body_bb default input.
+                // If deferred inputs come only from different predecessors, drop the
+                // seeded body input before merging to avoid non-predecessor PHI entries.
+                if phi.tag.starts_with("loop_step_in_")
+                    && !inputs_by_pred.is_empty()
+                    && !inputs_by_pred.contains_key(&loop_plan.body_bb)
+                {
+                    phi.inputs.retain(|(pred, _)| *pred != loop_plan.body_bb);
+                }
+
                 for (pred, val) in inputs_by_pred {
                     if !phi.inputs.iter().any(|(p, _)| p == pred) {
                         if debug_enabled {
@@ -149,6 +159,26 @@ pub fn patch_all_phis(
 ) -> Result<(), String> {
     for phi in &loop_plan.phis {
         let inputs = phi.inputs.clone();
+
+        // Some generic-loop routes can leave a provisional loop_step_in_* PHI
+        // structurally present but unused (no predecessor-driven inputs).
+        // When it is not referenced by any other PHI input, remove it eagerly
+        // instead of leaving an empty provisional PHI to trip strict gate checks.
+        let is_unreferenced_empty_step_phi = inputs.is_empty()
+            && phi.tag.starts_with("loop_step_in_")
+            && !loop_plan.phis.iter().any(|other| {
+                other.inputs.iter().any(|(_, incoming)| *incoming == phi.dst)
+            });
+        if is_unreferenced_empty_step_phi {
+            phi_lifecycle::rollback_provisional_phi(
+                builder,
+                phi.block,
+                phi.dst,
+                &format!("loop_lowerer:step4:drop_unused:{}", phi.tag),
+            )?;
+            continue;
+        }
+
         phi_lifecycle::patch_phi_inputs(
             builder,
             phi.block,

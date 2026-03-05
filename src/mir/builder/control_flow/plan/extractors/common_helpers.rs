@@ -371,6 +371,15 @@ pub(crate) fn extract_loop_increment_plan(
         }
     }
 
+    // Fallback contract:
+    // - Only the last top-level statement may supply this fallback step.
+    // - The statement must be an assignment to the current loop var.
+    // - This is used when canonical +/-/*// literal forms are absent,
+    //   mainly for selfhost release-route loops with computed step values.
+    if let Some(tail_value) = extract_tail_loop_assignment_value(body, loop_var) {
+        return Ok(Some(tail_value));
+    }
+
     let mut found: Option<ASTNode> = None;
     for stmt in body {
         let ASTNode::If {
@@ -399,6 +408,19 @@ pub(crate) fn extract_loop_increment_plan(
         }
     }
     Ok(found)
+}
+
+fn extract_tail_loop_assignment_value(body: &[ASTNode], loop_var: &str) -> Option<ASTNode> {
+    let ASTNode::Assignment { target, value, .. } = body.last()? else {
+        return None;
+    };
+    let ASTNode::Variable { name, .. } = target.as_ref() else {
+        return None;
+    };
+    if name != loop_var {
+        return None;
+    }
+    Some(value.as_ref().clone())
 }
 
 /// ============================================================
@@ -697,5 +719,87 @@ mod tests {
             span: Span::unknown(),
         }];
         assert!(!validate_break_in_simple_if(&body));
+    }
+
+    fn var(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn lit_i(v: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(v),
+            span: Span::unknown(),
+        }
+    }
+
+    fn assign(name: &str, value: ASTNode) -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(var(name)),
+            value: Box::new(value),
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn test_extract_loop_increment_plan_uses_tail_assignment_fallback() {
+        let body = vec![
+            ASTNode::MethodCall {
+                object: Box::new(var("arr")),
+                method: "push".to_string(),
+                arguments: vec![var("i")],
+                span: Span::unknown(),
+            },
+            assign(
+                "i",
+                ASTNode::MethodCall {
+                    object: Box::new(var("arr")),
+                    method: "length".to_string(),
+                    arguments: vec![],
+                    span: Span::unknown(),
+                },
+            ),
+        ];
+
+        let inc = extract_loop_increment_plan(&body, "i")
+            .expect("no error")
+            .expect("must extract fallback step");
+        assert!(matches!(inc, ASTNode::MethodCall { .. }));
+    }
+
+    #[test]
+    fn test_extract_loop_increment_plan_ignores_non_tail_assignment() {
+        let body = vec![
+            assign("i", lit_i(1)),
+            ASTNode::MethodCall {
+                object: Box::new(var("arr")),
+                method: "push".to_string(),
+                arguments: vec![var("i")],
+                span: Span::unknown(),
+            },
+        ];
+
+        let inc = extract_loop_increment_plan(&body, "i")
+            .expect("no error");
+        assert!(inc.is_none());
+    }
+
+    #[test]
+    fn test_extract_loop_increment_plan_ignores_tail_other_var() {
+        let body = vec![
+            ASTNode::MethodCall {
+                object: Box::new(var("arr")),
+                method: "push".to_string(),
+                arguments: vec![var("i")],
+                span: Span::unknown(),
+            },
+            assign("j", lit_i(1)),
+        ];
+
+        let inc = extract_loop_increment_plan(&body, "i")
+            .expect("no error");
+        assert!(inc.is_none());
     }
 }

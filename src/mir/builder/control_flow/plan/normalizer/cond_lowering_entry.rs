@@ -1,5 +1,7 @@
 //! Phase 2a entry points for condition lowering (SSOT).
 
+use super::cond_lowering_if_plan::lower_cond_to_if_plans;
+use super::cond_lowering_value_expr::lower_cond_to_value_impl;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreIfJoin, CorePlan, LoweredRecipe,
@@ -7,8 +9,6 @@ use crate::mir::builder::control_flow::plan::{
 use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, ValueId};
 use std::collections::BTreeMap;
-use super::cond_lowering_if_plan::lower_cond_to_if_plans;
-use super::cond_lowering_value_expr::lower_cond_to_value_impl;
 
 /// Branch context: condition -> then/else paths (no value created).
 ///
@@ -30,8 +30,15 @@ pub fn lower_cond_branch(
     joins: Vec<CoreIfJoin>,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    let plans =
-        lower_cond_to_if_plans(builder, phi_bindings, cond, then_plans, else_plans, joins, error_prefix)?;
+    let plans = lower_cond_to_if_plans(
+        builder,
+        phi_bindings,
+        cond,
+        then_plans,
+        else_plans,
+        joins,
+        error_prefix,
+    )?;
     debug_log_cond_branch_lit3_origin(builder, &plans, std::panic::Location::caller());
     Ok(plans)
 }
@@ -61,7 +68,13 @@ fn debug_log_cond_branch_lit3_origin(
     let mut lit3_dsts = Vec::new();
     let mut lit3_spans = Vec::new();
     let mut origin_missing = 0usize;
-    collect_lit3_from_plans(builder, plans, &mut lit3_dsts, &mut lit3_spans, &mut origin_missing);
+    collect_lit3_from_plans(
+        builder,
+        plans,
+        &mut lit3_dsts,
+        &mut lit3_spans,
+        &mut origin_missing,
+    );
 
     if lit3_dsts.is_empty() {
         return;
@@ -123,9 +136,21 @@ fn collect_lit3_from_plans(
                 }
             }
             CorePlan::Loop(loop_plan) => {
-                collect_lit3_from_plans(builder, &loop_plan.body, lit3_dsts, lit3_spans, origin_missing);
+                collect_lit3_from_plans(
+                    builder,
+                    &loop_plan.body,
+                    lit3_dsts,
+                    lit3_spans,
+                    origin_missing,
+                );
                 for (_, effects) in &loop_plan.block_effects {
-                    collect_lit3_from_effects(builder, effects, lit3_dsts, lit3_spans, origin_missing);
+                    collect_lit3_from_effects(
+                        builder,
+                        effects,
+                        lit3_dsts,
+                        lit3_spans,
+                        origin_missing,
+                    );
                 }
             }
             CorePlan::BranchN(branch_plan) => {

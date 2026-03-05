@@ -2,9 +2,9 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::calls::extern_calls;
-use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::control_flow::plan::normalizer::common::lower_me_this_method_effect;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
+use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, MirType, ValueId};
 use std::borrow::Cow;
@@ -19,7 +19,8 @@ pub(in crate::mir::builder) fn lower_assignment_stmt(
 ) -> Result<(Option<(String, ValueId)>, Vec<CoreEffectPlan>), String> {
     match target {
         ASTNode::Variable { name, .. } => {
-            let (value_id, effects) = PlanNormalizer::lower_value_ast(value, builder, phi_bindings)?;
+            let (value_id, effects) =
+                PlanNormalizer::lower_value_ast(value, builder, phi_bindings)?;
             Ok((Some((name.clone(), value_id)), effects))
         }
         ASTNode::FieldAccess { object, field, .. } => {
@@ -149,7 +150,10 @@ pub(in crate::mir::builder) fn lower_method_call_stmt(
             let Some((iface_name, method_name, effects_mask, _returns_value)) =
                 extern_calls::get_env_method_spec("env", method)
             else {
-                return Err(format!("{error_prefix}: env method not supported: {}", method));
+                return Err(format!(
+                    "{error_prefix}: env method not supported: {}",
+                    method
+                ));
             };
             effects.push(CoreEffectPlan::ExternCall {
                 dst: None,
@@ -280,7 +284,10 @@ pub(in crate::mir::builder) fn lower_function_call_stmt(
     stmt: &ASTNode,
     error_prefix: &str,
 ) -> Result<Vec<CoreEffectPlan>, String> {
-    let ASTNode::FunctionCall { name, arguments, .. } = stmt else {
+    let ASTNode::FunctionCall {
+        name, arguments, ..
+    } = stmt
+    else {
         return Err(format!("{error_prefix}: expected function call"));
     };
 
@@ -323,7 +330,8 @@ pub(in crate::mir::builder) fn lower_bool_expr(
             operand,
             ..
         } => {
-            let (inner, mut effects) = lower_bool_expr(builder, phi_bindings, operand, error_prefix)?;
+            let (inner, mut effects) =
+                lower_bool_expr(builder, phi_bindings, operand, error_prefix)?;
             let false_id = builder.alloc_typed(MirType::Bool);
             effects.push(CoreEffectPlan::Const {
                 dst: false_id,

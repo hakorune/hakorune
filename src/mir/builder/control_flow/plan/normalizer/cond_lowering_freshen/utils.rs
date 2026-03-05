@@ -9,8 +9,14 @@ pub(crate) fn remap_value_id(value_map: &BTreeMap<ValueId, ValueId>, old_id: Val
 }
 
 /// Remap a Vec<ValueId>
-pub(crate) fn remap_value_ids(value_map: &BTreeMap<ValueId, ValueId>, old_ids: &[ValueId]) -> Vec<ValueId> {
-    old_ids.iter().map(|&v| remap_value_id(value_map, v)).collect()
+pub(crate) fn remap_value_ids(
+    value_map: &BTreeMap<ValueId, ValueId>,
+    old_ids: &[ValueId],
+) -> Vec<ValueId> {
+    old_ids
+        .iter()
+        .map(|&v| remap_value_id(value_map, v))
+        .collect()
 }
 
 pub(crate) fn map_block_id(
