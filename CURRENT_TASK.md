@@ -75,8 +75,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - active docs（`condprofile-ssot.md`, `coreloop-composer-v0-v1-boundary-ssot.md`）の Pattern 主語注記を route 主語へ同期（契約キー/識別子は不変）
   - extractor cluster（`extractors/{mod,pattern1,pattern3,common_helpers}` + `pattern_recognizers/if_else_phi`）の補助コメントを route 主語へ同期（legacy label は注記で保持）
   - `facts/pattern*_facts.rs` 系ヘッダと loop_break facts 補助注記（`pattern2_break_{core,helpers,types,tests,step_before_break}`）を route 主語へ同期（型名・ファイル名は legacy のまま保持）
+  - scan/split contract docs（`pattern6-7-contracts.md`, `planfrag-freeze-taxonomy.md`, `planfrag-ssot-registry.md`）を route 主語へ同期し、契約タグは `legacy label` 注記で保持
 - compiler fixed order:
-  1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す（進行中: `coreplan-shadow` / `plan-mod-layout` / `compiler-task-map` / `recipe-first-entry` / `condition-observation` / `domainplan-thinning` / `edgecfg-fragments` / `plan-dir-shallowing` / `coreplan-unknown-loop-strategy` / `coreloop-generic-loop-v0` / `joinir-plan-frag` / `coreplan-migration-roadmap` / `condprofile` / `coreloop-composer-v0-v1-boundary` は同期済み）。
+  1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す（進行中: `coreplan-shadow` / `plan-mod-layout` / `compiler-task-map` / `recipe-first-entry` / `condition-observation` / `domainplan-thinning` / `edgecfg-fragments` / `plan-dir-shallowing` / `coreplan-unknown-loop-strategy` / `coreloop-generic-loop-v0` / `joinir-plan-frag` / `coreplan-migration-roadmap` / `condprofile` / `coreloop-composer-v0-v1-boundary` / `pattern6-7-contracts` / `planfrag-freeze-taxonomy` / `planfrag-ssot-registry` は同期済み）。
   2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する（進行中: `coreloop_v0/v1` tests + `facts/loop_builder.rs` comment + `facts/loop_tests.rs` 名称 + `plan/mod.rs` / `route_prep_pipeline.rs` / `policies/*` comment + loop_break module cluster comment + extractor cluster comment + `facts/pattern*_facts.rs` header comment を同期済み）。
   3. planner/normalizer の dead comments・test-only wiring（payload 前提）を段階撤去する。
 
@@ -110,6 +111,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `27a899137` docs(plan): route-align scan_split contract references
+    - `pattern6-7-contracts.md` の本文/見出しを `scan_with_init` / `split_scan` 主語へ同期し、Pattern番号は `legacy label` 注記で保持
+    - `planfrag-freeze-taxonomy.md` / `planfrag-ssot-registry.md` の `Pattern6/7 contracts` 参照を route 主語へ同期
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `61bcc3ec8` refactor(extractors): mark pattern1-5 helper origin as legacy labels
+    - `extractors/common_helpers.rs` の由来注記を route 主語へ明記し、Pattern1-5 は `legacy labels` として位置づけ
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `7962548e9` refactor(facts): route-align residual pattern fact headers
     - `facts/pattern{1,3,4,5,6,8,9}_*` ヘッダを route 主語へ同期し、型名は `legacy type` 注記で保持
     - `pattern2_break_{core,helpers,types,tests,step_before_break}` の補助コメントを loop_break 主語へ同期（挙動不変）
