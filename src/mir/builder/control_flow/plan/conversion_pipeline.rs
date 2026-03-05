@@ -16,17 +16,17 @@
 //!     builder,
 //!     join_module,
 //!     Some(&boundary),
-//!     "pattern1",
+//!     "loop_simple",
 //!     debug,
 //! )?;
 //! ```
 //!
 //! ## Benefits
 //!
-//! - **Single conversion path**: All patterns use same JoinIR→MIR→Merge flow
+//! - **Single conversion path**: All routes use same JoinIR→MIR→Merge flow
 //! - **Consistent error handling**: Unified error messages
 //! - **Testability**: Can test conversion independently
-//! - **Reduces duplication**: Eliminates 120 lines across Pattern 1-4
+//! - **Reduces duplication**: Eliminates 120 lines across loop route families
 //! - **Phase 284 P1**: SSOT for return statement handling (not scattered in patterns)
 
 use crate::ast::ASTNode;
@@ -49,7 +49,7 @@ impl JoinIRConversionPipeline {
     /// - `builder`: MirBuilder instance for merging blocks
     /// - `join_module`: JoinIR module to convert
     /// - `boundary`: Optional boundary mapping for input/output values
-    /// - `pattern_name`: Name for debug messages (e.g., "pattern1", "pattern2")
+    /// - `route_label`: Label for debug messages (e.g., "loop_simple", "loop_break")
     /// - `debug`: Enable debug output
     ///
     /// # Returns
@@ -66,7 +66,7 @@ impl JoinIRConversionPipeline {
     ///     builder,
     ///     join_module,
     ///     Some(&boundary),
-    ///     "pattern1",
+    ///     "loop_simple",
     ///     false,
     /// )?;
     ///
@@ -75,7 +75,7 @@ impl JoinIRConversionPipeline {
     ///     builder,
     ///     join_module,
     ///     Some(&boundary),
-    ///     "pattern3",
+    ///     "if_phi_join",
     ///     true,
     /// )?;
     /// ```
@@ -83,11 +83,11 @@ impl JoinIRConversionPipeline {
         builder: &mut MirBuilder,
         join_module: JoinModule,
         boundary: Option<&JoinInlineBoundary>,
-        pattern_name: &str,
+        route_label: &str,
         debug: bool,
     ) -> Result<Option<ValueId>, String> {
         // Phase 284 P1: Delegate to execute_with_body with None (backward compatibility)
-        Self::execute_with_body(builder, join_module, boundary, pattern_name, debug, None)
+        Self::execute_with_body(builder, join_module, boundary, route_label, debug, None)
     }
 
     /// Execute unified conversion pipeline with optional body for return detection
@@ -100,7 +100,7 @@ impl JoinIRConversionPipeline {
     /// - `builder`: MirBuilder instance for merging blocks
     /// - `join_module`: JoinIR module to convert
     /// - `boundary`: Optional boundary mapping for input/output values
-    /// - `pattern_name`: Name for debug messages (e.g., "pattern1", "pattern4")
+    /// - `route_label`: Label for debug messages (e.g., "loop_simple", "loop_continue")
     /// - `debug`: Enable debug output
     /// - `body`: Optional loop body for return detection (Phase 284 P1)
     ///
@@ -113,7 +113,7 @@ impl JoinIRConversionPipeline {
         builder: &mut MirBuilder,
         join_module: JoinModule,
         boundary: Option<&JoinInlineBoundary>,
-        pattern_name: &str,
+        route_label: &str,
         debug: bool,
         body: Option<&[ASTNode]>,
     ) -> Result<Option<ValueId>, String> {
@@ -124,7 +124,7 @@ impl JoinIRConversionPipeline {
                 Err(e) => {
                     return Err(format!(
                         "[{}/pipeline] Return detection failed: {}",
-                        pattern_name, e
+                        route_label, e
                     ))
                 }
             }
@@ -140,7 +140,7 @@ impl JoinIRConversionPipeline {
                 let ring0 = crate::runtime::get_global_ring0();
                 ring0.log.debug(&format!(
                     "[{}/pipeline] Phase 284 P1: Return detected with value {}",
-                    pattern_name, ret_info.value
+                    route_label, ret_info.value
                 ));
             }
         }
@@ -150,7 +150,7 @@ impl JoinIRConversionPipeline {
 
         // Step 1: Log JoinIR stats (functions and blocks)
         trace::trace().joinir_stats(
-            pattern_name,
+            route_label,
             join_module.functions.len(),
             join_module.functions.values().map(|f| f.body.len()).sum(),
         );
@@ -165,7 +165,7 @@ impl JoinIRConversionPipeline {
         // Phase 256 P1.5: Pass boundary to bridge for ValueId remapping
         let empty_meta: JoinFuncMetaMap = BTreeMap::new();
         let mir_module = bridge_joinir_to_mir_with_meta(&join_module, &empty_meta, boundary)
-            .map_err(|e| format!("[{}/pipeline] MIR conversion failed: {:?}", pattern_name, e))?;
+            .map_err(|e| format!("[{}/pipeline] MIR conversion failed: {:?}", route_label, e))?;
 
         // Task 3.1-2: Dump bridge output for diagnosis (dev-only)
         if crate::config::env::is_joinir_debug() {
@@ -174,7 +174,7 @@ impl JoinIRConversionPipeline {
 
             let mir_text = MirPrinter::new().print_module(&mir_module);
             if let Ok(mut file) = std::fs::File::create("/tmp/joinir_bridge_split.mir") {
-                let _ = writeln!(file, "; Bridge output for {}", pattern_name);
+                let _ = writeln!(file, "; Bridge output for {}", route_label);
                 let _ = writeln!(file, "; JoinIR → MIR conversion (before merge)\n");
                 let _ = write!(file, "{}", mir_text);
                 let ring0 = crate::runtime::get_global_ring0();
@@ -184,7 +184,7 @@ impl JoinIRConversionPipeline {
 
         // Step 3: Log MIR stats (functions and blocks)
         trace::trace().joinir_stats(
-            pattern_name,
+            route_label,
             mir_module.functions.len(),
             mir_module.functions.values().map(|f| f.blocks.len()).sum(),
         );
@@ -199,7 +199,7 @@ impl JoinIRConversionPipeline {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
                 "[{}/pipeline] Phase 284 P1: Return was detected in body (processed by JoinIR lowerer)",
-                pattern_name
+                route_label
             ));
         }
 

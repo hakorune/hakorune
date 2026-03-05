@@ -1,4 +1,4 @@
-//! Phase 256.8.5: Common JoinIR helpers for pattern lowering
+//! Phase 256.8.5: Common JoinIR helpers for route lowering
 
 use crate::mir::join_ir::{JoinFunction, JoinModule};
 
@@ -9,7 +9,7 @@ use crate::mir::join_ir::{JoinFunction, JoinModule};
 /// # Arguments
 ///
 /// * `join_module` - The JoinModule to extract entry function from
-/// * `pattern_name` - Pattern name for error messages (e.g., "pattern2", "pattern6")
+/// * `route_label` - Route label for error messages (e.g., "loop_break", "nested_minimal")
 ///
 /// # Returns
 ///
@@ -24,18 +24,18 @@ use crate::mir::join_ir::{JoinFunction, JoinModule};
 /// ```ignore
 /// use super::common::get_entry_function;
 ///
-/// let main_func = get_entry_function(&join_module, "pattern4")?;
+/// let main_func = get_entry_function(&join_module, "loop_continue")?;
 /// let join_input_slots = main_func.params.clone();
 /// ```
 pub(crate) fn get_entry_function<'a>(
     join_module: &'a JoinModule,
-    pattern_name: &str,
+    route_label: &str,
 ) -> Result<&'a JoinFunction, String> {
     if let Some(entry_id) = join_module.entry {
         join_module.functions.get(&entry_id)
-            .ok_or_else(|| format!("[{}] Entry function {:?} not found", pattern_name, entry_id))
+            .ok_or_else(|| format!("[{}] Entry function {:?} not found", route_label, entry_id))
     } else {
         join_module.get_function_by_name("main")
-            .ok_or_else(|| format!("[{}] JoinModule has no 'main' function", pattern_name))
+            .ok_or_else(|| format!("[{}] JoinModule has no 'main' function", route_label))
     }
 }

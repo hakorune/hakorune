@@ -58,7 +58,7 @@ impl super::PlanNormalizer {
 
         if debug {
             trace_logger.debug(
-                "normalizer/pattern2_break",
+                "normalizer/loop_break",
                 &format!(
                     "Phase 286 P3.1: Normalizing Pattern2Break for {} (loop_var={}, carrier_var={})",
                     ctx.func_name, parts.loop_var, parts.carrier_var
@@ -80,7 +80,7 @@ impl super::PlanNormalizer {
 
         if debug {
             trace_logger.debug(
-                "normalizer/pattern2_break",
+                "normalizer/loop_break",
                 &format!(
                     "Block allocation: preheader={:?}, header={:?}, body={:?}, break_then={:?}, step={:?}, after={:?}",
                     preheader_bb, header_bb, body_bb, break_then_bb, step_bb, after_bb
@@ -361,7 +361,7 @@ impl super::PlanNormalizer {
 
         if debug {
             trace_logger.debug(
-                "normalizer/pattern2_break",
+                "normalizer/loop_break",
                 "CorePlan construction complete (6 blocks, 2 PHIs, after_bb uses block_params)",
             );
         }

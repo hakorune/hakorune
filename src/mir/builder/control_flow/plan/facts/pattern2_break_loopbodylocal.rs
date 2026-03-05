@@ -45,7 +45,7 @@ pub(super) fn try_extract_pattern2_break_loopbodylocal_subset(
     if has_assignment_after(body, break_idx, &loopbodylocal.loopbodylocal_var) {
         if strict_or_dev {
             return Err(Freeze::contract(
-                "pattern2 loopbodylocal: read-only variable is reassigned in loop body",
+                "loop_break loopbodylocal: read-only variable is reassigned in loop body",
             ));
         }
         return Ok(None);
