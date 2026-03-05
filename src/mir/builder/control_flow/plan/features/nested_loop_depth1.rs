@@ -144,12 +144,20 @@ fn lower_nested_loop_single_planner(
     )? {
         return Ok(recipe);
     }
-    let Some(loop_plan) = outcome.plan.as_ref().cloned() else {
-        plan_trace::trace_outcome_path("nested_loop_depth1::single_planner", "freeze_no_plan");
-        return Err(format!("{error_prefix}: nested loop has no plan"));
-    };
-    plan_trace::trace_outcome_path("nested_loop_depth1::single_planner", "planner_payload");
-    PlanNormalizer::normalize(builder, loop_plan, &ctx)
+    if outcome.plan.is_some() {
+        plan_trace::trace_outcome_path(
+            "nested_loop_depth1::single_planner",
+            "freeze_legacy_planner_payload",
+        );
+        return Err(
+            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+                "nested loop planner payload path is retired; expected recipe-only route",
+            )
+            .to_string(),
+        );
+    }
+    plan_trace::trace_outcome_path("nested_loop_depth1::single_planner", "freeze_no_plan");
+    Err(format!("{error_prefix}: nested loop has no plan"))
 }
 
 pub(in crate::mir::builder) fn mark_nested_loop_preheader_fresh(

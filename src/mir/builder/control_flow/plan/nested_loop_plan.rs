@@ -3,7 +3,6 @@
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner;
@@ -76,9 +75,17 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first(
         return Ok(recipe);
     }
 
-    if let Some(loop_plan) = outcome.plan.as_ref().cloned() {
-        plan_trace::trace_outcome_path("nested_loop_plan_with_recipe_first", "planner_payload");
-        return PlanNormalizer::normalize(builder, loop_plan, &nested_ctx);
+    if outcome.plan.is_some() {
+        plan_trace::trace_outcome_path(
+            "nested_loop_plan_with_recipe_first",
+            "freeze_legacy_planner_payload",
+        );
+        return Err(
+            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+                "nested loop planner payload path is retired; expected recipe-only route",
+            )
+            .to_string(),
+        );
     }
 
     if planner_required {

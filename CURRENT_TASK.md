@@ -56,6 +56,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - release scan（`phase29bq_fast_gate_cases.tsv` を release config + `HAKO_JOINIR_DEBUG=1` で実行）で `entry_route` は `recipe_first|shadow_adopt|none` のみ（126 fixture）
   - nested fallback（`nested_loop_plan` / `generic_loop_body/helpers` / `nested_loop_depth1`）は `planner_required` 時に `loop_cond_continue_with_return` を recipe composer 優先で下ろす（plan normalizer 依存を段階縮退）
   - nested fallback の `loop_cond_continue_with_return` gate は共通 helper (`try_compose_loop_cond_continue_with_return_recipe`) に集約済み（重複3箇所を削除）
+  - nested fallback の legacy planner payload（`planner_payload -> PlanNormalizer`）は retire 済み。payload 検出時は `freeze_legacy_planner_payload` で fail-fast
   - router の release pre-plan fallback（`release_adopt`）は撤去済み。entry は recipe-first / strict-dev shadow_adopt / none に固定
   - recipe 補助ログは route 主語へ統一中（`[recipe:verify] route=<...> status=ok`, `[recipe:compose] route=<...> path=<...>`）
   - planner context 表層語彙は `route_kind` へ統一済み（`pattern_kind` は code path から撤去）
@@ -93,7 +94,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
-  - `(pending)` refactor(plan): dedupe nested continue-with-return recipe gate
+  - `(pending)` refactor(plan): retire nested planner payload fallback path
+    - `nested_loop_plan.rs` / `features/generic_loop_body/helpers.rs` / `features/nested_loop_depth1.rs` で `outcome.plan` 依存の legacy normalizer 経路を削除し、payload 検出時は `freeze_legacy_planner_payload` へ統一
+    - `loop_cond_continue_with_return` の recipe gate は helper SSOT を継続利用し、nested fallback を recipe-first/fail-fast に固定
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`--only loop_cond_continue_with_return_min` PASS、`--only loop_header_shortcircuit_continue_with_return_min` PASS
+  - `60ae7bef4` refactor(plan): dedupe nested continue-with-return recipe gate
     - `nested_loop_plan.rs` に `try_compose_loop_cond_continue_with_return_recipe` helper を追加し、`planner_required` + `recipe_contract` 必須チェックと compose 経路を SSOT 化
     - `features/generic_loop_body/helpers.rs` / `features/nested_loop_depth1.rs` の重複ガードを helper 呼び出しへ置換し、legacy 的な分岐重複を削除（挙動不変）
     - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS

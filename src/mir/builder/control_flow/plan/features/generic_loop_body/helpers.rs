@@ -100,9 +100,17 @@ pub(super) fn lower_nested_loop_plan(
         return Ok(recipe);
     }
 
-    if let Some(loop_plan) = outcome.plan.as_ref().cloned() {
-        plan_trace::trace_outcome_path("generic_loop_body::nested_loop_plan", "planner_payload");
-        return PlanNormalizer::normalize(builder, loop_plan, &nested_ctx);
+    if outcome.plan.is_some() {
+        plan_trace::trace_outcome_path(
+            "generic_loop_body::nested_loop_plan",
+            "freeze_legacy_planner_payload",
+        );
+        return Err(
+            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+                "nested loop planner payload path is retired; expected recipe-only route",
+            )
+            .to_string(),
+        );
     }
     if let Some(facts) = outcome.facts.as_ref() {
         if planner_required && facts.facts.loop_true_break_continue.is_some() {
