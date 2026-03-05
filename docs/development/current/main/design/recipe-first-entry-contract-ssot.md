@@ -24,10 +24,17 @@ AST
 
 1) Router の recipe-first 入口（Facts → RecipeComposer）
 2) strict/dev の pre-plan shadow_adopt（最小の構造 adopt のみ）
-3) legacy lower_via_plan（release のみ）
+3) `none`（router は no-route を返し、外側の既存 caller fallback 判定へ戻す）
 - Phase-3: release で recipe-first を優先するのは VerifiedRecipe が成立する場合。
   - nested loop は既定で保守側に置くが、nested-safe 例外（`nested_loop_minimal` / `generic_loop_v{1,0}` / `loop_cond_break_continue` の accept-kind allowlist）では recipe-first を先行許可する。
   - 上記例外で compose/verify/lower が reject のときは `Ok(None)` を返し、router の no-route 判定へ戻す（挙動互換）。
+
+### Current baseline (2026-03-05)
+
+- `PlanBuildOutcome` は `facts + recipe_contract` のみ（`outcome.plan` は撤去済み）。
+- runtime router entry は `recipe_first | shadow_adopt | none` の3種に固定（`[plan/trace:entry_route]`）。
+- `DomainPlan` / planner payload は runtime 経路から撤去済み。
+- 本文中の Phase C* 章にある `DomainPlan` 記述は移行履歴として残る場合がある。現在契約は本節と上位 SSOT を優先する。
 
 ### Entry coherence（重なりの扱い）
 
@@ -132,14 +139,11 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - `./tools/smokes/v2/profiles/integration/joinir/phase29bp_planner_required_dev_gate_v4_vm.sh`
 - FlowBox tags: `docs/development/current/main/design/flowbox-tag-coverage-map-ssot.md` の gate set
 
-## DomainPlan role (translation only)
+## Historical note: DomainPlan wording
 
-- DomainPlan is a **label** used to select a Recipe entrypoint.
-- DomainPlan must not encode semantic rules.
-- Any new behavior must be expressed in Recipe/Verifier, not in DomainPlan matching.
-- DomainPlan の有無（`Some/None`）で strict/dev の observability（`planner_first` / FlowBox tags）をガードしない。
-  - DomainPlan は薄化/撤去の過程で `None` が増える（将来 empty enum でも成立する）ため。
-  - strict/dev の “期待されるタグ” は Facts/Recipe/Verifier から機械的に出るようにする（入口分散で欠落させない）。
+- `DomainPlan` は移行期の語彙で、現在の runtime 経路では使用しない。
+- 現在の entry 判定は Facts/Recipe/Verifier 契約のみで定義する。
+- strict/dev の observability（`planner_first` / FlowBox tags）は Facts/Recipe/Verifier から機械的に出るようにする。
 
 ## Pilot: Pattern2Break (planner_required only)
 
@@ -165,7 +169,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 ## Phase C3: Pattern2Break composed via RecipeComposer (planner_required only)
 
 - Pattern2Break is now composed directly into CorePlan in planner_required mode.
-- Route: `route_loop_pattern` → `RecipeComposer::compose_pattern2_break` → `PlanNormalizer::normalize_pattern2_break`
+- Route: `route_loop` → `RecipeComposer::compose_pattern2_break` → `PlanNormalizer::normalize_pattern2_break`
 - Debug tag: `[recipe:compose] route=loop_break path=recipe_block`
 - Lowering behavior unchanged (same normalizer, different entry path).
 - DomainPlan still exists (for non-planner_required mode).
@@ -177,7 +181,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Router detects Pattern2Break via `facts.pattern2_break` instead of `domain_plan`.
 - Recipe compose runs **before** pre_plan to prevent generic/shadow absorption.
 - Debug tag: `[recipe:entry] loop_break: recipe-only`
-- DomainPlan path still exists for non-planner_required (release) mode.
+- (historical) DomainPlan path statement from migration phase.
 
 ## Phase C4b: Pattern2Break strict/dev observability shim (non-planner_required)
 
@@ -209,7 +213,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 ## Phase C7: Pattern3IfPhi composed via RecipeComposer (planner_required only)
 
 - Pattern3IfPhi now composes CorePlan via `RecipeComposer::compose_pattern3_ifphi()`.
-- Route: `route_loop_pattern` → `RecipeComposer::compose_pattern3_ifphi` → `PlanNormalizer::normalize_pattern3_if_phi`
+- Route: `route_loop` → `RecipeComposer::compose_pattern3_ifphi` → `PlanNormalizer::normalize_pattern3_if_phi`
 - Debug tag: `[recipe:compose] route=if_phi_join path=recipe_block`
 - Lowering behavior unchanged (same normalizer, different entry path).
 - DomainPlan still exists (for non-planner_required mode).
@@ -219,8 +223,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Pattern3IfPhi no longer returns DomainPlan in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern3 when planner_required.
 - Router detects Pattern3 via `facts.pattern3_ifphi` instead of `domain_plan`.
-- Debug tag: `[recipe:entry] if_phi_join: recipe-only (domain_plan suppressed)`
-- DomainPlan path still exists for non-planner_required (release) mode.
+- Debug tag: `[recipe:entry] if_phi_join: recipe-only entry`
+- (historical) DomainPlan path statement from migration phase.
 
 ## Phase C9: Pattern4Continue Recipe-first migration (planner_required only)
 
@@ -233,8 +237,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Phase C9-3: Pattern4Continue is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern4 when planner_required.
 - Router detects Pattern4 via `facts.pattern4_continue` instead of `domain_plan`.
-- Debug tag: `[recipe:entry] loop_continue_only: recipe-only (domain_plan suppressed)`
-- DomainPlan path still exists for non-planner_required (release) mode.
+- Debug tag: `[recipe:entry] loop_continue_only: recipe-only entry`
+- (historical) DomainPlan path statement from migration phase.
 
 ## Phase C10: Pattern5InfiniteEarlyExit Recipe-first migration (planner_required only)
 
@@ -248,8 +252,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - `rules.rs` returns `(None, outcome)` for Pattern5 when planner_required.
 - Router detects Pattern5 via `facts.pattern5_infinite_early_exit` instead of `domain_plan`.
 - Non-planner_required: if `recipe_contract` is available, router may enter recipe-first to avoid legacy LoopBuilder.
-- Debug tag: `[recipe:entry] loop_true_early_exit: recipe-only (domain_plan suppressed)`
-- DomainPlan path still exists for non-planner_required (release) mode.
+- Debug tag: `[recipe:entry] loop_true_early_exit: recipe-only entry`
+- (historical) DomainPlan path statement from migration phase.
 
 ## Phase C11: Pattern1SimpleWhile Recipe-first migration (planner_required only)
 
@@ -262,8 +266,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Phase C11-3: Pattern1SimpleWhile is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern1SimpleWhile when planner_required.
 - Router detects Pattern1SimpleWhile via `facts.pattern1_simplewhile` instead of `domain_plan`.
-- Debug tag: `[recipe:entry] loop_simple_while: recipe-only (domain_plan suppressed)`
-- DomainPlan path still exists for non-planner_required (release) mode.
+- Debug tag: `[recipe:entry] loop_simple_while: recipe-only entry`
+- (historical) DomainPlan path statement from migration phase.
 
 ## Phase C12: Pattern1CharMap Recipe-first migration (planner_required only)
 
@@ -277,8 +281,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Phase C12-3: Pattern1CharMap is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern1CharMap when planner_required.
 - Router detects Pattern1CharMap via `facts.pattern1_char_map` instead of `domain_plan`.
-- Debug tag: `[recipe:entry] loop_char_map: recipe-only (domain_plan suppressed)`
-- DomainPlan path still exists for non-planner_required (release) mode.
+- Debug tag: `[recipe:entry] loop_char_map: recipe-only entry`
+- (historical) DomainPlan path statement from migration phase.
 
 ## Phase C13: Pattern1ArrayJoin Recipe-first migration (planner_required only)
 
@@ -292,9 +296,9 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Phase C13-3: Pattern1ArrayJoin is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern1ArrayJoin when planner_required.
 - Router detects Pattern1ArrayJoin via `facts.pattern1_array_join` instead of `domain_plan`.
-- Debug tag: `[recipe:entry] loop_array_join: recipe-only (domain_plan suppressed)`
+- Debug tag: `[recipe:entry] loop_array_join: recipe-only entry`
 - Non-planner_required: if `recipe_contract` is available, router may enter recipe-first to avoid legacy LoopBuilder.
-- DomainPlan path still exists for non-planner_required (release) mode.
+- (historical) DomainPlan path statement from migration phase.
 
 ## Phase C14: Pattern6–9 Recipe-first migration (planner_required only)
 
@@ -310,7 +314,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Phase C14-3: Pattern6 is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern6 when planner_required.
 - Router detects Pattern6 via `facts.scan_with_init` instead of `domain_plan`.
-- Debug tag: `[recipe:entry] scan_with_init: recipe-only (domain_plan suppressed)`
+- Debug tag: `[recipe:entry] scan_with_init: recipe-only entry`
 - Non-planner_required: if `recipe_contract` is available, router may enter recipe-first to avoid legacy LoopBuilder.
 - Gate fixtures: `apps/tests/phase29aq_string_index_of_min.hako`, `apps/tests/phase29aq_string_last_index_of_min.hako`
 
@@ -326,7 +330,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Phase C14-3: Pattern7 is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern7 when planner_required.
 - Router detects Pattern7 via `facts.split_scan` instead of `domain_plan`.
-- Debug tag: `[recipe:entry] split_scan: recipe-only (domain_plan suppressed)`
+- Debug tag: `[recipe:entry] split_scan: recipe-only entry`
 - Non-planner_required: if `recipe_contract` is available, router may enter recipe-first to avoid legacy LoopBuilder.
 - Gate fixture: `apps/tests/phase29aq_string_split_min.hako`
 
@@ -341,7 +345,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Phase C14-3: Pattern8 is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern8 when planner_required.
 - Router detects Pattern8 via `facts.pattern8_bool_predicate_scan` instead of `domain_plan`.
-- Debug tag: `[recipe:entry] bool_predicate_scan: recipe-only (domain_plan suppressed)`
+- Debug tag: `[recipe:entry] bool_predicate_scan: recipe-only entry`
 - Gate fixture: `apps/tests/phase269_p0_pattern8_frag_min.hako`
 
 ### Pattern9 AccumConstLoop
@@ -355,7 +359,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Phase C14-3: Pattern9 is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern9 when planner_required.
 - Router detects Pattern9 via `facts.pattern9_accum_const_loop` instead of `domain_plan`.
-- Debug tag: `[recipe:entry] accum_const_loop: recipe-only (domain_plan suppressed)`
+- Debug tag: `[recipe:entry] accum_const_loop: recipe-only entry`
 - Gate fixture: `apps/tests/phase286_pattern9_frag_poc.hako`
 
 ## Phase C15: Scan loop v0 family recipe-first migration (planner_required only)
@@ -369,8 +373,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:scan_methods] verified OK`
 - Compose via `RecipeComposer::compose_loop_scan_methods_v0()`
 - Debug tag: `[recipe:compose] route=scan_methods_v0 path=recipe_first`
-- Recipe-only in planner_required mode (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] scan_methods_v0: recipe-only (domain_plan suppressed)`
+- Recipe-only in planner_required mode (legacy plan lane retired)
+- Debug tag: `[recipe:entry] scan_methods_v0: recipe-only entry`
 - Gate fixture: `apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_min.hako`
 
 ### loop_scan_methods_block_v0
@@ -382,8 +386,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:scan_methods_block] verified OK`
 - Compose via `RecipeComposer::compose_loop_scan_methods_block_v0()`
 - Debug tag: `[recipe:compose] route=scan_methods_block_v0 path=recipe_first`
-- Recipe-only in planner_required mode (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] scan_methods_block_v0: recipe-only (domain_plan suppressed)`
+- Recipe-only in planner_required mode (legacy plan lane retired)
+- Debug tag: `[recipe:entry] scan_methods_block_v0: recipe-only entry`
 - Gate fixture: `apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_block_min.hako`
 
 ### loop_scan_phi_vars_v0
@@ -395,8 +399,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:scan_phi_vars] verified OK`
 - Compose via `RecipeComposer::compose_loop_scan_phi_vars_v0()`
 - Debug tag: `[recipe:compose] route=scan_phi_vars_v0 path=recipe_first`
-- Recipe-only in planner_required mode (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] scan_phi_vars_v0: recipe-only (domain_plan suppressed)`
+- Recipe-only in planner_required mode (legacy plan lane retired)
+- Debug tag: `[recipe:entry] scan_phi_vars_v0: recipe-only entry`
 
 ### loop_scan_v0
 
@@ -407,8 +411,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:scan_v0] verified OK`
 - Compose via `RecipeComposer::compose_loop_scan_v0()`
 - Debug tag: `[recipe:compose] route=scan_v0 path=recipe_first`
-- Recipe-only in planner_required mode (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] scan_v0: recipe-only (domain_plan suppressed)`
+- Recipe-only in planner_required mode (legacy plan lane retired)
+- Debug tag: `[recipe:entry] scan_v0: recipe-only entry`
 
 ## Phase C16: Collection loops recipe-first migration (planner_required only)
 
@@ -418,8 +422,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:collect_using_entries] verified OK`
 - Compose via `RecipeComposer::compose_loop_collect_using_entries_v0()`
 - Debug tag: `[recipe:compose] route=collect_using_entries_v0 path=recipe_first`
-- Recipe-only in planner_required mode (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] collect_using_entries_v0: recipe-only (domain_plan suppressed)`
+- Recipe-only in planner_required mode (legacy plan lane retired)
+- Debug tag: `[recipe:entry] collect_using_entries_v0: recipe-only entry`
 - Gate fixture: `apps/tests/phase29bq_selfhost_blocker_collect_using_entries_loop_min.hako`
 
 ### loop_bundle_resolver_v0
@@ -428,8 +432,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:bundle_resolver] verified OK`
 - Compose via `RecipeComposer::compose_loop_bundle_resolver_v0()`
 - Debug tag: `[recipe:compose] route=bundle_resolver_v0 path=recipe_first`
-- Recipe-only in planner_required mode (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] bundle_resolver_v0: recipe-only (domain_plan suppressed)`
+- Recipe-only in planner_required mode (legacy plan lane retired)
+- Debug tag: `[recipe:entry] bundle_resolver_v0: recipe-only entry`
 - Gate fixture: `apps/tests/phase29bq_selfhost_blocker_bundle_resolver_min.hako`
 
 ### loop_true_break_continue
@@ -438,8 +442,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:loop_true] verified OK`
 - Compose via `RecipeComposer::compose_loop_true_break_continue()`
 - Debug tag: `[recipe:compose] route=loop_true_break_continue path=direct_pipeline`
-- Recipe-only in planner_required mode (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] loop_true_break_continue: recipe-only (domain_plan suppressed)`
+- Recipe-only in planner_required mode (legacy plan lane retired)
+- Debug tag: `[recipe:entry] loop_true_break_continue: recipe-only entry`
 
 ## Phase C17: LoopCond* recipe-first migration (planner_required only)
 
@@ -449,8 +453,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:loop_cond_break_continue] verified OK`
 - Compose via `RecipeComposer::compose_loop_cond_break_continue()`
 - Debug tag: `[recipe:compose] route=loop_cond_break_continue path=direct_pipeline`
-- Recipe-only in planner_required mode (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] loop_cond_break_continue: recipe-only (domain_plan suppressed)`
+- Recipe-only in planner_required mode (legacy plan lane retired)
+- Debug tag: `[recipe:entry] loop_cond_break_continue: recipe-only entry`
 
 ### loop_cond_continue_only
 
@@ -458,8 +462,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:loop_cond_continue_only] verified OK`
 - Compose via `RecipeComposer::compose_loop_cond_continue_only()`
 - Debug tag: `[recipe:compose] route=loop_cond_continue_only path=direct_pipeline`
-- Recipe-only in planner_required mode (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] loop_cond_continue_only: recipe-only (domain_plan suppressed)`
+- Recipe-only in planner_required mode (legacy plan lane retired)
+- Debug tag: `[recipe:entry] loop_cond_continue_only: recipe-only entry`
 - Gate fixture: `apps/tests/phase29bq_loop_cond_continue_only_no_else_min.hako`
 
 ### loop_cond_continue_with_return
@@ -468,8 +472,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:loop_cond_continue_with_return] verified OK`
 - Compose via `RecipeComposer::compose_loop_cond_continue_with_return()`
 - Debug tag: `[recipe:compose] route=loop_cond_continue_with_return path=direct_pipeline`
-- Recipe-only in all modes (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] loop_cond_continue_with_return: recipe-only (domain_plan suppressed)`
+- Recipe-only in all modes (legacy plan lane retired)
+- Debug tag: `[recipe:entry] loop_cond_continue_with_return: recipe-only entry`
 - Gate fixture: `apps/tests/phase29bq_shortcircuit_loop_cond_continue_with_return_min.hako`
 
 ### loop_cond_return_in_body
@@ -478,8 +482,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Debug tag: `[recipe:loop_cond_return_in_body] verified OK`
 - Compose via `RecipeComposer::compose_loop_cond_return_in_body()`
 - Debug tag: `[recipe:compose] route=loop_cond_return_in_body path=direct_pipeline`
-- Recipe-only in planner_required mode (DomainPlan suppressed)
-- Debug tag: `[recipe:entry] loop_cond_return_in_body: recipe-only (domain_plan suppressed)`
+- Recipe-only in planner_required mode (legacy plan lane retired)
+- Debug tag: `[recipe:entry] loop_cond_return_in_body: recipe-only entry`
 
 ## Rules for new shapes
 
