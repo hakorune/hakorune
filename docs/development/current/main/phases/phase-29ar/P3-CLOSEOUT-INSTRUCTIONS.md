@@ -12,7 +12,7 @@ Related:
 
 # Phase 29ar P3: Closeout (docs-only)
 
-Goal: close Phase 29ar after `is_integer` strict/dev shadow adopt and release adopt
+Goal: close Phase 29ar after `is_integer` strict/dev fail-fast reject and release adopt
 are both green in the JoinIR regression gate.
 
 ## Checklist
@@ -21,7 +21,7 @@ are both green in the JoinIR regression gate.
 2. Ensure Phase README includes:
    - Gate commands (quick + phase29ae pack)
    - Fixture/smoke paths (strict + release)
-   - Summary of what was added (`ExitIfReturn`, strict shadow, release adopt)
+   - Summary of what was added (`ExitIfReturn`, strict fail-fast reject, release adopt)
 3. Update pointers:
    - `docs/development/current/main/10-Now.md` and `docs/development/current/main/30-Backlog.md`
      move next focus off Phase 29ar.
@@ -34,4 +34,3 @@ are both green in the JoinIR regression gate.
 
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-

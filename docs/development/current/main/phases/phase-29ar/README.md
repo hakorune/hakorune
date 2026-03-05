@@ -11,8 +11,8 @@ Related:
 
 # Phase 29ar: return-in-loop minimal (stdlib is_integer)
 
-Goal: accept a single return-in-loop shape (StringUtils.is_integer) using a
-minimal CorePlan vocabulary, without widening general loop semantics.
+Goal: handle `StringUtils.is_integer` return-in-loop minimal with explicit
+strict fail-fast reject + release adopt coverage, without widening general loop semantics.
 
 ## Scope
 
@@ -38,7 +38,7 @@ minimal CorePlan vocabulary, without widening general loop semantics.
 
 - P0: docs-first (phase README + return-in-loop minimal SSOT). ✅
 - P1: implement `ExitIfReturn` minimal vocabulary + verify/lower + strict/dev
-  shadow adopt + fixture/smoke gate. ✅
+  fail-fast reject contract + fixture/smoke gate. ✅
 - P2: switch to release adopt when stable (keep logs unchanged; add a non-strict
   smoke that asserts tag absence in raw output). ✅
 - P3: closeout (docs-only): mark complete, fix pointers, and keep gate SSOT green. ✅
@@ -46,7 +46,7 @@ minimal CorePlan vocabulary, without widening general loop semantics.
 ## Summary (P0–P2)
 
 - Added `CoreEffectPlan::ExitIfReturn` for loop-body early return.
-- Strict/dev shadow adopt for `is_integer` with tag-gated smoke.
+- Strict/dev fail-fast reject for `is_integer` (`[vm-hako/unimplemented] ... newbox(StringUtils)`).
 - Release adopt for `is_integer` with non-strict smoke guarding tag absence.
 
 ## Unsupported / Deferred

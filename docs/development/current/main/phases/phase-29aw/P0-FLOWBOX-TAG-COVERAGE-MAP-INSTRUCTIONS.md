@@ -25,7 +25,7 @@ pattern-name coupling.
 2. Decide the minimal set of scenarios to gate (keep fast):
    - `pattern6_scan_with_init` (Loop, `via=shadow`)
    - `pattern7_split_scan` (Loop, possibly `value_join`)
-   - `is_integer` (Loop + `return`)
+   - `is_integer` strict reject (negative coverage: no FlowBox tag, fail-fast marker required)
    - `match_return` (BranchN, features empty or `return`)
 3. Wire a new gate smoke (Phase 29aw P1) into:
    - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
@@ -35,4 +35,3 @@ pattern-name coupling.
 
 - docs-only (no tests required), or optionally:
   - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-

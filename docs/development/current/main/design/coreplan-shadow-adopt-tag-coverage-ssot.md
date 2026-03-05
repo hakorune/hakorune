@@ -30,7 +30,7 @@ Related:
 - Pattern5: `[coreplan/shadow_adopt:pattern5_infinite_early_exit]`
 - Pattern6: `[coreplan/shadow_adopt:pattern6_scan_with_init]`
 - Pattern7: `[coreplan/shadow_adopt:pattern7_split_scan]`
-- Return-in-loop: `[coreplan/shadow_adopt:is_integer]`
+- Return-in-loop: retired from shadow-adopt coverage (strict path is fail-fast reject as of 2026-03-06)
 
 ## Required tags (positive gates)
 
@@ -45,7 +45,6 @@ Related:
 | Pattern5 strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern5_strict_shadow_vm.sh` | `pattern5_infinite_early_exit` |
 | Pattern6 strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern6_strict_shadow_vm.sh` | `pattern6_scan_with_init` |
 | Pattern7 strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern7_strict_shadow_vm.sh` | `pattern7_split_scan` |
-| Return-in-loop is_integer (strict shadow) | `tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_min_vm.sh` | `is_integer` |
 
 ## Forbidden tags (negative gates)
 

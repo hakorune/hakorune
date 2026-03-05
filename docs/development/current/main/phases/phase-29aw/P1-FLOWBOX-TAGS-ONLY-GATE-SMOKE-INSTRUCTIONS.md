@@ -12,7 +12,8 @@ Related:
 ## Goal
 
 - Add a dedicated gate that checks FlowBox tags per the coverage map.
-- Strict/dev must emit FlowBox tags; non-strict must remain silent.
+- Strict/dev positive scenarios must emit FlowBox tags; negative scenarios must keep tags absent.
+- Non-strict must remain silent.
 - Keep release output/logs unchanged.
 
 ## Steps

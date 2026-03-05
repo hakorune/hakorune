@@ -33,7 +33,7 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 - Derived (stdlib trim, VM): `phase29aq_string_trim_min_vm`
 - Pattern1 (stdlib to_upper, VM): `phase29aq_string_to_upper_min_vm`
 - Purity gate (strict fallback visibility, VM): `phase29as_purity_gate_vm`
-- Return-in-loop (stdlib is_integer, strict shadow, VM): `phase29ar_string_is_integer_min_vm`
+- Return-in-loop (stdlib is_integer, strict fail-fast reject, VM): `phase29ar_string_is_integer_min_vm`
 - Return-in-loop (stdlib is_integer, release adopt, VM): `phase29ar_string_is_integer_release_adopt_vm`
 - Generic loop (continue, strict shadow, VM): `phase29ca_generic_loop_continue_strict_shadow_vm`
 - Generic loop (continue, release adopt, VM): `phase29ca_generic_loop_continue_release_adopt_vm`
