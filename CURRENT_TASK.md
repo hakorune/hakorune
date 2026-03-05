@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `a70900579` refactor D5 rename loop context field to route_kind
+    - `joinir/patterns/router.rs` の `LoopPatternContext` 公開フィールドを `pattern_kind` から `route_kind` へ改名
+    - 参照側（`joinir/parity_checker.rs`, `plan/composer/shadow_adopt.rs`, `plan/single_planner/rules.rs`）を同期し、router/parity/planner の主語を route semantic に統一
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `6422e5f39` refactor D5 rename loop router entry function to route_loop
     - `joinir/patterns/router.rs` の entry 関数名を `route_loop_pattern` から `route_loop` へ改名し、コメント主語を route semantic に同期
     - `joinir/patterns/mod.rs` の re-export と `joinir/routing.rs` 呼び出し側を同名へ更新、`no match` 診断語彙も `no route` へ統一
