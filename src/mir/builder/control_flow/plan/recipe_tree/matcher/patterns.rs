@@ -16,7 +16,7 @@ use super::super::{
 use super::utils::*;
 
 /// Recipe-first verification for Pattern2Break.
-pub fn verify_pattern2_break_recipe(
+pub fn verify_loop_break_recipe(
     pattern2: &crate::mir::builder::control_flow::plan::facts::pattern2_break_types::Pattern2BreakFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -96,7 +96,7 @@ pub fn verify_generic_loop_v1_recipe(
 }
 
 /// Recipe-first verification for Pattern3IfPhi.
-pub fn verify_pattern3_ifphi_recipe(
+pub fn verify_if_phi_join_recipe(
     pattern3: &crate::mir::builder::control_flow::plan::facts::pattern3_ifphi_facts::Pattern3IfPhiFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -148,7 +148,7 @@ pub fn verify_pattern3_ifphi_recipe(
 }
 
 /// Recipe-first verification for Pattern4Continue.
-pub fn verify_pattern4_continue_recipe(
+pub fn verify_loop_continue_only_recipe(
     pattern4: &crate::mir::builder::control_flow::plan::facts::pattern4_continue_facts::Pattern4ContinueFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -197,7 +197,7 @@ pub fn verify_pattern4_continue_recipe(
 }
 
 /// Recipe-first verification for Pattern5InfiniteEarlyExit.
-pub fn verify_pattern5_infinite_early_exit_recipe(
+pub fn verify_loop_true_early_exit_recipe(
     pattern5: &crate::mir::builder::control_flow::plan::facts::pattern5_infinite_early_exit_facts::Pattern5InfiniteEarlyExitFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, LiteralValue, Span};
@@ -246,7 +246,7 @@ pub fn verify_pattern5_infinite_early_exit_recipe(
 }
 
 /// Recipe-first verification for Pattern1SimpleWhile.
-pub fn verify_pattern1_simple_while_recipe(
+pub fn verify_loop_simple_while_recipe(
     pattern1: &crate::mir::builder::control_flow::plan::facts::pattern1_simplewhile_facts::Pattern1SimpleWhileFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -297,7 +297,7 @@ pub fn verify_pattern1_simple_while_recipe(
 }
 
 /// Recipe-first verification for Pattern1CharMap.
-pub fn verify_pattern1_char_map_recipe(
+pub fn verify_loop_char_map_recipe(
     pattern1_cm: &crate::mir::builder::control_flow::plan::facts::pattern1_char_map_facts::Pattern1CharMapFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -348,7 +348,7 @@ pub fn verify_pattern1_char_map_recipe(
 }
 
 /// Recipe-first verification for Pattern1ArrayJoin.
-pub fn verify_pattern1_array_join_recipe(
+pub fn verify_loop_array_join_recipe(
     pattern1_aj: &crate::mir::builder::control_flow::plan::facts::pattern1_array_join_facts::Pattern1ArrayJoinFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -403,7 +403,7 @@ pub fn verify_pattern1_array_join_recipe(
 }
 
 /// Recipe-first verification for Pattern6 ScanWithInit.
-pub fn verify_pattern6_scan_with_init_recipe(
+pub fn verify_scan_with_init_recipe(
     pattern6: &crate::mir::builder::control_flow::plan::facts::loop_types::ScanWithInitFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -449,7 +449,7 @@ pub fn verify_pattern6_scan_with_init_recipe(
 }
 
 /// Recipe-first verification for Pattern7 SplitScan.
-pub fn verify_pattern7_split_scan_recipe(
+pub fn verify_split_scan_recipe(
     pattern7: &crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -495,7 +495,7 @@ pub fn verify_pattern7_split_scan_recipe(
 }
 
 /// Recipe-first verification for Pattern8 BoolPredicateScan.
-pub fn verify_pattern8_bool_predicate_scan_recipe(
+pub fn verify_bool_predicate_scan_recipe(
     pattern8: &crate::mir::builder::control_flow::plan::facts::pattern8_bool_predicate_scan_facts::Pattern8BoolPredicateScanFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
@@ -544,7 +544,7 @@ pub fn verify_pattern8_bool_predicate_scan_recipe(
 }
 
 /// Recipe-first verification for Pattern9 AccumConstLoop.
-pub fn verify_pattern9_accum_const_loop_recipe(
+pub fn verify_accum_const_loop_recipe(
     pattern9: &crate::mir::builder::control_flow::plan::facts::pattern9_accum_const_loop_facts::Pattern9AccumConstLoopFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};

@@ -88,19 +88,19 @@ impl RecipeMatcher {
         let has_return = facts.exit_kinds_present.contains(&ExitKindFacts::Return);
 
         // Phase C2: Pattern2Break verification (planner_required only)
-        verify_pattern!(facts, pattern2_break, verify_pattern2_break_recipe);
+        verify_pattern!(facts, pattern2_break, verify_loop_break_recipe);
 
         // Phase C6: Pattern3IfPhi verification (planner_required only)
-        verify_pattern!(facts, pattern3_ifphi, verify_pattern3_ifphi_recipe);
+        verify_pattern!(facts, pattern3_ifphi, verify_if_phi_join_recipe);
 
         // Phase C9: Pattern4Continue verification (planner_required only)
-        verify_pattern!(facts, pattern4_continue, verify_pattern4_continue_recipe);
+        verify_pattern!(facts, pattern4_continue, verify_loop_continue_only_recipe);
 
         // Phase C10: Pattern5InfiniteEarlyExit verification (planner_required only)
-        verify_pattern!(facts, pattern5_infinite_early_exit, verify_pattern5_infinite_early_exit_recipe);
+        verify_pattern!(facts, pattern5_infinite_early_exit, verify_loop_true_early_exit_recipe);
 
         // Phase C11: Pattern1SimpleWhile verification (planner_required only)
-        verify_pattern!(facts, pattern1_simplewhile, verify_pattern1_simple_while_recipe);
+        verify_pattern!(facts, pattern1_simplewhile, verify_loop_simple_while_recipe);
 
         // Phase C12: Pattern1CharMap verification (planner_required only)
         if let Some(pattern1_cm) = &facts.facts.pattern1_char_map {
@@ -108,7 +108,7 @@ impl RecipeMatcher {
                 pattern1_cm,
                 facts,
                 Pattern1CharMap,
-                verify_pattern1_char_map_recipe,
+                verify_loop_char_map_recipe,
                 accept_via_cond_profile_pattern1_char_map
             );
         }
@@ -119,16 +119,16 @@ impl RecipeMatcher {
                 pattern1_aj,
                 facts,
                 Pattern1ArrayJoin,
-                verify_pattern1_array_join_recipe,
+                verify_loop_array_join_recipe,
                 accept_via_cond_profile_pattern1_array_join
             );
         }
 
         // Phase C14: Pattern6 ScanWithInit verification (planner_required only)
-        verify_pattern!(facts, scan_with_init, verify_pattern6_scan_with_init_recipe);
+        verify_pattern!(facts, scan_with_init, verify_scan_with_init_recipe);
 
         // Phase C14: Pattern7 SplitScan verification (planner_required only)
-        verify_pattern!(facts, split_scan, verify_pattern7_split_scan_recipe);
+        verify_pattern!(facts, split_scan, verify_split_scan_recipe);
 
         // Phase C14: Pattern8 BoolPredicateScan verification (planner_required only)
         if let Some(pattern8) = &facts.facts.pattern8_bool_predicate_scan {
@@ -136,7 +136,7 @@ impl RecipeMatcher {
                 pattern8,
                 facts,
                 Pattern8BoolPredicateScan,
-                verify_pattern8_bool_predicate_scan_recipe,
+                verify_bool_predicate_scan_recipe,
                 accept_via_cond_profile_pattern8_bool_predicate_scan
             );
         }
@@ -147,7 +147,7 @@ impl RecipeMatcher {
                 pattern9,
                 facts,
                 Pattern9AccumConstLoop,
-                verify_pattern9_accum_const_loop_recipe,
+                verify_accum_const_loop_recipe,
                 accept_via_cond_profile_pattern9_accum_const_loop
             );
         }
