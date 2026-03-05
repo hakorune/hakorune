@@ -13,6 +13,7 @@ use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::try
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
+use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner;
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
@@ -130,6 +131,34 @@ fn lower_nested_loop_single_planner(
         outcome.facts.is_some(),
         outcome.recipe_contract.is_some(),
     );
+    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
+        || crate::config::env::joinir_dev_enabled();
+    let planner_required =
+        strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
+    if planner_required {
+        if let Some(facts) = outcome.facts.as_ref() {
+            if facts.facts.loop_cond_continue_with_return.is_some() {
+                if outcome.recipe_contract.is_none() {
+                    return Err(
+                        crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+                            "loop_cond_continue_with_return requires recipe_contract in planner_required mode",
+                        )
+                        .to_string(),
+                    );
+                }
+                plan_trace::trace_outcome_path(
+                    "nested_loop_depth1::single_planner",
+                    "recipe_loop_cond_continue_with_return",
+                );
+                return RecipeComposer::compose_loop_cond_continue_with_return_recipe(
+                    builder,
+                    facts,
+                    &ctx,
+                )
+                .map_err(|e| e.to_string());
+            }
+        }
+    }
     let Some(loop_plan) = outcome.plan.as_ref().cloned() else {
         plan_trace::trace_outcome_path("nested_loop_depth1::single_planner", "freeze_no_plan");
         return Err(format!("{error_prefix}: nested loop has no plan"));
