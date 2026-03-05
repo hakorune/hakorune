@@ -98,6 +98,21 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `c6a81b096` refactor(recipe): route-align facts type aliases in recipe builders
+    - `plan/facts/mod.rs` に route 主語の facts type alias を追加（`LoopBreakFacts`, `IfPhiJoinFacts`, `LoopTrueEarlyExitFacts` など）
+    - `plan/recipe_tree/{*_builder.rs,matcher/patterns.rs}` の型参照を alias 経由へ切り替え、Pattern番号由来の型名露出を縮退
+    - `matcher/patterns.rs` は verifier 引数ローカル名も route 主語へ統一（`patternN` → `*_facts`）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
+  - `415a5b7ed` refactor(legacy): drop unused error_messages module and inline scope helper
+    - `loop_pattern_detection/legacy/error_messages.rs` を削除（実使用は body-local 名抽出 helper のみだったため）
+    - helper を `legacy/loop_condition_scope.rs::extract_loop_body_local_names` へ移し、`loop_with_break_minimal.rs` の参照先を移行
+    - `legacy/mod.rs` から `pub mod error_messages;` を撤去し、未使用レガシー箱を物理縮退
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
+  - `3755e060d` refactor(docs,plan): sync route vocabulary in registry and entry contract
+    - `plan/REGISTRY.md` の stale route 名を現行語彙へ同期（`route_loop_pattern` → `route_loop`、`pattern_scan_with_init` → `scan_with_init` など）
+    - `recipe-first-entry-contract-ssot.md` の stale composer 関数名（`compose_pattern*`）を現行 semantic 名へ更新
+    - `control_flow/utils.rs` の診断タグを `[cf_loop/pattern1]` から `[cf_loop/loop_var_extract]` へ統一
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `56b836ab1` refactor(recipe): align matcher verify wording to route vocabulary
     - `recipe_tree/matcher/patterns.rs` の `Pattern*` 主語コメント/contract文言/CTXタグ（`pattern*_recipe`）を route 主語へ統一（`loop_break_recipe`, `if_phi_join_recipe`, `scan_with_init_recipe` など）
     - facts 型名/facts field 名は互換維持のため据え置き、検証表層語彙だけを整理（挙動不変）
