@@ -10,7 +10,7 @@ run_gate() {
   local gate="$1"
   local log_path="$2"
 
-  if ! "$gate" 2>&1 | tee "$log_path"; then
+  if ! bash "$gate" 2>&1 | tee "$log_path"; then
     echo "[FAIL] gate failed: $gate"
     echo "LOG: $log_path"
     return 1
