@@ -43,7 +43,7 @@
 //! - Match-return composer: `control_flow/plan/composer/match_return_branchn.rs`
 
 use crate::ast::{ASTNode, LiteralValue, Span};
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::{
     compose_match_return_branchn, MatchReturnPlan,
 };
@@ -104,7 +104,7 @@ fn adopt_match_return_coreplan(
         .as_ref()
         .map(|func| func.signature.name.clone())
         .unwrap_or_else(|| "<unknown>".to_string());
-    let ctx = LoopPatternContext::new(&cond, &body, &func_name, false, false);
+    let ctx = LoopRouteContext::new(&cond, &body, &func_name, false, false);
 
     PlanLowerer::lower(builder, core_plan, &ctx)?;
     Ok(Some(return_value))
