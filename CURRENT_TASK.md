@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `6bf9685b5` refactor D5 align loop processing context wording to route semantics
+    - `joinir/loop_context.rs` の `LoopProcessingContext` 表層語彙を Pattern 主語から Route 主語へ整理（`pattern_kind` -> `route_kind`、parity comment/log 文言の統一）
+    - 併せて同ファイル内 test 期待値を `route_kind` へ同期（runtime 挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `a70900579` refactor D5 rename loop context field to route_kind
     - `joinir/patterns/router.rs` の `LoopPatternContext` 公開フィールドを `pattern_kind` から `route_kind` へ改名
     - 参照側（`joinir/parity_checker.rs`, `plan/composer/shadow_adopt.rs`, `plan/single_planner/rules.rs`）を同期し、router/parity/planner の主語を route semantic に統一
