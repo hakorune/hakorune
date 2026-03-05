@@ -18,7 +18,7 @@ use crate::mir::builder::MirBuilder;
 impl RecipeComposer {
 
     /// Compose Pattern9 AccumConstLoop facts into LoweredRecipe via RecipeBlock (no normalizer).
-    pub fn compose_pattern9_accum_const_loop_recipe(
+    pub fn compose_accum_const_loop_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         _ctx: &LoopRouteContext,
@@ -33,7 +33,7 @@ impl RecipeComposer {
             .clone()
             .ok_or_else(|| {
                 Freeze::contract(
-                    "Pattern9AccumConstLoop facts missing in compose_pattern9_accum_const_loop_recipe",
+                    "Pattern9AccumConstLoop facts missing in compose_accum_const_loop_recipe",
                 )
             })?;
 

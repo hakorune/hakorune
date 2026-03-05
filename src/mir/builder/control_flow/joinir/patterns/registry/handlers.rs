@@ -187,7 +187,7 @@ pub(crate) fn route_if_phi_join(
     }
 
     let facts = outcome.facts.as_ref().expect("if_phi_join facts present");
-    let core_plan = RecipeComposer::compose_pattern3_ifphi_recipe(builder, facts, ctx)
+    let core_plan = RecipeComposer::compose_if_phi_join_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
     let via = if env.strict_or_dev {
@@ -239,7 +239,7 @@ pub(crate) fn route_loop_continue_only(
         .facts
         .as_ref()
         .expect("loop_continue_only facts present");
-    let core_plan = RecipeComposer::compose_pattern4_continue_recipe(builder, facts, ctx)
+    let core_plan = RecipeComposer::compose_loop_continue_only_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
     let via = if env.strict_or_dev {
         FlowboxVia::Shadow
@@ -285,7 +285,7 @@ pub(crate) fn route_loop_simple_while(
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg:
             "LoopSimpleWhile requires recipe_contract in planner_required mode",
-        compose: RecipeComposer::compose_pattern1_simple_while_recipe,
+        compose: RecipeComposer::compose_loop_simple_while_recipe,
         planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
@@ -304,7 +304,7 @@ pub(crate) fn route_loop_char_map(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg: "LoopCharMap requires recipe_contract in planner_required mode",
-        compose: RecipeComposer::compose_pattern1_char_map_recipe,
+        compose: RecipeComposer::compose_loop_char_map_recipe,
         planner_required_only: true,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::Never,
@@ -323,7 +323,7 @@ pub(crate) fn route_loop_array_join(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg: "LoopArrayJoin requires recipe_contract in planner_required mode",
-        compose: RecipeComposer::compose_pattern1_array_join_recipe,
+        compose: RecipeComposer::compose_loop_array_join_recipe,
         planner_required_only: false,
         skip_without_contract: true,
         planner_first: PlannerFirstMode::Never,
@@ -343,7 +343,7 @@ pub(crate) fn route_scan_with_init(
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg:
             "ScanWithInit requires recipe_contract in planner_required mode",
-        compose: RecipeComposer::compose_pattern6_scan_with_init_recipe,
+        compose: RecipeComposer::compose_scan_with_init_recipe,
         planner_required_only: false,
         skip_without_contract: true,
         planner_first: PlannerFirstMode::StrictOrDevPlannerRequired,
@@ -362,7 +362,7 @@ pub(crate) fn route_split_scan(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg: "SplitScan requires recipe_contract in planner_required mode",
-        compose: RecipeComposer::compose_pattern7_split_scan_recipe,
+        compose: RecipeComposer::compose_split_scan_recipe,
         planner_required_only: false,
         skip_without_contract: true,
         planner_first: PlannerFirstMode::StrictOrDevPlannerRequired,
@@ -382,7 +382,7 @@ pub(crate) fn route_bool_predicate_scan(
     const ENTRY: StandardEntry = StandardEntry {
         missing_contract_msg:
             "BoolPredicateScan requires recipe_contract in planner_required mode",
-        compose: RecipeComposer::compose_pattern8_bool_predicate_scan_recipe,
+        compose: RecipeComposer::compose_bool_predicate_scan_recipe,
         planner_required_only: false,
         skip_without_contract: false,
         planner_first: PlannerFirstMode::StrictOrDev,
@@ -421,7 +421,7 @@ pub(crate) fn route_accum_const_loop(
         .facts
         .as_ref()
         .expect("accum_const_loop facts present");
-    let core_plan = RecipeComposer::compose_pattern9_accum_const_loop_recipe(builder, facts, ctx)
+    let core_plan = RecipeComposer::compose_accum_const_loop_recipe(builder, facts, ctx)
         .map_err(|freeze| freeze.to_string())?;
 
     if env.strict_or_dev {

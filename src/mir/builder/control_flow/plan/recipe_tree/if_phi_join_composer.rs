@@ -20,7 +20,7 @@ impl RecipeComposer {
     /// Compose Pattern3IfPhi facts into LoweredRecipe via RecipeBlock (no normalizer).
     ///
     /// Used only in strict/dev + planner_required routing.
-    pub fn compose_pattern3_ifphi_recipe(
+    pub fn compose_if_phi_join_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         _ctx: &LoopRouteContext,
@@ -33,7 +33,7 @@ impl RecipeComposer {
             .facts
             .pattern3_ifphi
             .clone()
-            .ok_or_else(|| Freeze::contract("Pattern3IfPhi facts missing in compose_pattern3_ifphi_recipe"))?;
+            .ok_or_else(|| Freeze::contract("Pattern3IfPhi facts missing in compose_if_phi_join_recipe"))?;
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();

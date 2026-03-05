@@ -89,7 +89,7 @@ pub(super) fn try_compose_scan_with_init_unified(
     }
 
     // gate 通過 → PlanNormalizer
-    let core = RecipeComposer::compose_pattern6_scan_with_init_recipe(builder, facts, ctx)
+    let core = RecipeComposer::compose_scan_with_init_recipe(builder, facts, ctx)
         .map_err(|e| e.to_string())?;
     Ok(Some(core))
 }
@@ -132,7 +132,7 @@ pub(super) fn try_compose_split_scan_unified(
 
     // gate 通過 → PlanNormalizer
     let _ = split_scan;
-    let core = RecipeComposer::compose_pattern7_split_scan_recipe(builder, facts, ctx)
+    let core = RecipeComposer::compose_split_scan_recipe(builder, facts, ctx)
         .map_err(|e| e.to_string())?;
     Ok(Some(core))
 }

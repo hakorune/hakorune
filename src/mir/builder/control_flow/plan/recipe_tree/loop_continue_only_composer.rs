@@ -20,7 +20,7 @@ impl RecipeComposer {
     /// Compose Pattern4Continue facts into LoweredRecipe via RecipeBlock (no normalizer).
     ///
     /// Used only in strict/dev + planner_required routing.
-    pub fn compose_pattern4_continue_recipe(
+    pub fn compose_loop_continue_only_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         _ctx: &LoopRouteContext,
@@ -30,7 +30,7 @@ impl RecipeComposer {
         const CTX: &str = "pattern4_continue_recipe";
 
         let pattern4_facts = facts.facts.pattern4_continue.clone().ok_or_else(|| {
-            Freeze::contract("Pattern4Continue facts missing in compose_pattern4_continue_recipe")
+            Freeze::contract("Pattern4Continue facts missing in compose_loop_continue_only_recipe")
         })?;
 
         if joinir_dev::debug_enabled() {

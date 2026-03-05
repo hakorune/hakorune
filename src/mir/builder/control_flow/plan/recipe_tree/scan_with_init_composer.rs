@@ -89,7 +89,7 @@ fn build_scan_with_init_loop_condition(
 impl RecipeComposer {
 
     /// Compose Pattern6 ScanWithInit facts into LoweredRecipe via RecipeBlock (no normalizer).
-    pub fn compose_pattern6_scan_with_init_recipe(
+    pub fn compose_scan_with_init_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         _ctx: &LoopRouteContext,
@@ -100,7 +100,7 @@ impl RecipeComposer {
 
         let scan_facts = facts.facts.scan_with_init.clone().ok_or_else(|| {
             Freeze::contract(
-                "Pattern6ScanWithInit facts missing in compose_pattern6_scan_with_init_recipe",
+                "Pattern6ScanWithInit facts missing in compose_scan_with_init_recipe",
             )
         })?;
 

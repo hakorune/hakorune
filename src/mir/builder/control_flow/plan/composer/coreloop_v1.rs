@@ -61,7 +61,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v1_pattern3_ifphi(
         return Ok(None);
     };
     let _ = pattern3;
-    let core = RecipeComposer::compose_pattern3_ifphi_recipe(builder, facts, ctx)
+    let core = RecipeComposer::compose_if_phi_join_recipe(builder, facts, ctx)
         .map_err(|e| e.to_string())?;
     Ok(Some(core))
 }

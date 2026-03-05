@@ -18,7 +18,7 @@ use crate::mir::builder::MirBuilder;
 impl RecipeComposer {
 
     /// Compose Pattern8 BoolPredicateScan facts into LoweredRecipe via RecipeBlock (no normalizer).
-    pub fn compose_pattern8_bool_predicate_scan_recipe(
+    pub fn compose_bool_predicate_scan_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         _ctx: &LoopRouteContext,
@@ -33,7 +33,7 @@ impl RecipeComposer {
             .clone()
             .ok_or_else(|| {
                 Freeze::contract(
-                    "Pattern8BoolPredicateScan facts missing in compose_pattern8_bool_predicate_scan_recipe",
+                    "Pattern8BoolPredicateScan facts missing in compose_bool_predicate_scan_recipe",
                 )
             })?;
 

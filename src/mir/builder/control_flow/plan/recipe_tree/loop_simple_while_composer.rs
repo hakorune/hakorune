@@ -20,7 +20,7 @@ use crate::mir::builder::MirBuilder;
 impl RecipeComposer {
 
     /// Compose Pattern1SimpleWhile facts into LoweredRecipe via RecipeBlock (no normalizer).
-    pub fn compose_pattern1_simple_while_recipe(
+    pub fn compose_loop_simple_while_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         _ctx: &LoopRouteContext,
@@ -31,7 +31,7 @@ impl RecipeComposer {
 
         let pattern1_facts = facts.facts.pattern1_simplewhile.clone().ok_or_else(|| {
             Freeze::contract(
-                "Pattern1SimpleWhile facts missing in compose_pattern1_simple_while_recipe",
+                "Pattern1SimpleWhile facts missing in compose_loop_simple_while_recipe",
             )
         })?;
 
@@ -104,7 +104,7 @@ impl RecipeComposer {
     }
 
     /// Compose Pattern1CharMap facts into LoweredRecipe via RecipeBlock (no normalizer).
-    pub fn compose_pattern1_char_map_recipe(
+    pub fn compose_loop_char_map_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         _ctx: &LoopRouteContext,
@@ -114,7 +114,7 @@ impl RecipeComposer {
         const CTX: &str = "pattern1_char_map_recipe";
 
         let pattern1_facts = facts.facts.pattern1_char_map.clone().ok_or_else(|| {
-            Freeze::contract("Pattern1CharMap facts missing in compose_pattern1_char_map_recipe")
+            Freeze::contract("Pattern1CharMap facts missing in compose_loop_char_map_recipe")
         })?;
 
         if joinir_dev::debug_enabled() {
@@ -175,7 +175,7 @@ impl RecipeComposer {
     }
 
     /// Compose Pattern1ArrayJoin facts into LoweredRecipe via RecipeBlock (no normalizer).
-    pub fn compose_pattern1_array_join_recipe(
+    pub fn compose_loop_array_join_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         _ctx: &LoopRouteContext,
@@ -186,7 +186,7 @@ impl RecipeComposer {
 
         let pattern1_facts = facts.facts.pattern1_array_join.clone().ok_or_else(|| {
             Freeze::contract(
-                "Pattern1ArrayJoin facts missing in compose_pattern1_array_join_recipe",
+                "Pattern1ArrayJoin facts missing in compose_loop_array_join_recipe",
             )
         })?;
 

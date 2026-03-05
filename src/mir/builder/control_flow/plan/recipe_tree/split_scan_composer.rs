@@ -59,7 +59,7 @@ fn build_split_scan_loop_condition(
 impl RecipeComposer {
 
     /// Compose Pattern7 SplitScan facts into LoweredRecipe via RecipeBlock (no normalizer).
-    pub fn compose_pattern7_split_scan_recipe(
+    pub fn compose_split_scan_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         _ctx: &LoopRouteContext,
@@ -70,7 +70,7 @@ impl RecipeComposer {
 
         let split_facts = facts.facts.split_scan.clone().ok_or_else(|| {
             Freeze::contract(
-                "Pattern7SplitScan facts missing in compose_pattern7_split_scan_recipe",
+                "Pattern7SplitScan facts missing in compose_split_scan_recipe",
             )
         })?;
 
