@@ -55,9 +55,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - release nested-safe recipe-first は `generic_loop_v{1,0}` まで拡張済み（compose/verify/lower reject 時は `Ok(None)` で release fallback 維持）
   - release scan（`phase29bq_fast_gate_cases.tsv` を release config + `HAKO_JOINIR_DEBUG=1` で実行）で `entry_route=release_adopt` hit は 0件（126 fixture）
   - nested fallback（`nested_loop_plan` / `generic_loop_body/helpers` / `nested_loop_depth1`）は `planner_required` 時に `loop_cond_continue_with_return` を recipe composer 優先で下ろす（plan normalizer 依存を段階縮退）
+  - router の release fallback は generic lane を no-op 化し、`release_adopt` は nested-minimal 互換 lane のみに縮退
 - compiler fixed order:
-  1. release で `entry_route=release_adopt` が 0件のケース群から順に fallback 入口を閉じる（generic lane の no-op 化を first target）。
-  2. nested fallback の plan payload 参照を段階的に撤去し、`Facts -> Recipe` 側の観測契約へ集約する（`LoopCondContinueWithReturnPlan` 薄化）。
+  1. nested fallback の plan payload 参照を段階的に撤去し、`Facts -> Recipe` 側の観測契約へ集約する（`LoopCondContinueWithReturnPlan` 薄化）。
+  2. `release_adopt` の nested-minimal 互換 lane を recipe-first に統合し、fallback 入口を撤去する。
   3. 経路を `Facts -> Recipe -> Composer -> Verifier -> Parts` に一本化する（例外入口 `shadow_adopt/release_adopt` を撤去）。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
@@ -89,6 +90,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `3b8a6a436` refactor(router): disable release_adopt generic fallback lane
+    - `joinir/patterns/router.rs` の release fallback 呼び出しを `allow_generic_loop=false` に変更し、generic fallback を停止（nested-minimal 互換のみ維持）
+    - stale docs 同期: `recipe-first-entry-contract-ssot.md` に「release fallback は nested-minimal lane のみ」追記
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29ca_generic_loop_continue_release_adopt_vm.sh` PASS、`phase29cb_generic_loop_in_body_step_release_adopt_vm.sh` PASS、`phase29ap_pattern6_nested_release_adopt_vm.sh` PASS
   - `0d367605c` refactor(plan): route nested continue-with-return via recipe in planner-required
     - `nested_loop_plan.rs` / `features/generic_loop_body/helpers.rs` / `features/nested_loop_depth1.rs` で、`planner_required` 時の `loop_cond_continue_with_return` を `RecipeComposer::compose_loop_cond_continue_with_return_recipe` 優先へ変更
     - `recipe_contract` 欠落時は freeze contract を即返し、plan payload (`LoopCondContinueWithReturnPlan`) 依存を nested fallback 入口から段階縮退
