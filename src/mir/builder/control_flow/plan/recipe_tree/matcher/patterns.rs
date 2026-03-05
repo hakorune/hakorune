@@ -15,7 +15,7 @@ use super::super::{
 };
 use super::utils::*;
 
-/// Recipe-first verification for Pattern2Break.
+/// Recipe-first verification for loop-break.
 pub fn verify_loop_break_recipe(
     pattern2: &crate::mir::builder::control_flow::plan::facts::pattern2_break_types::Pattern2BreakFacts,
 ) -> Result<(), Freeze> {
@@ -47,7 +47,7 @@ pub fn verify_loop_break_recipe(
     let Some(LoopBreakRecipe { arena, root }) = recipe else {
         // Recipe not buildable = contract violation in planner_required
         return Err(Freeze::contract(
-            "Pattern2Break recipe missing (planner_required)",
+            "LoopBreak recipe missing (planner_required)",
         ));
     };
 
@@ -56,9 +56,9 @@ pub fn verify_loop_break_recipe(
         &arena,
         &root,
         BlockContractKind::ExitAllowed,
-        "pattern2_break_recipe",
+        "loop_break_recipe",
     ).map_err(|e| {
-        Freeze::contract("Pattern2Break recipe verification failed")
+        Freeze::contract("LoopBreak recipe verification failed")
             .with_hint(&e)
     })?;
 
@@ -95,7 +95,7 @@ pub fn verify_generic_loop_v1_recipe(
     })
 }
 
-/// Recipe-first verification for Pattern3IfPhi.
+/// Recipe-first verification for if-phi-join.
 pub fn verify_if_phi_join_recipe(
     pattern3: &crate::mir::builder::control_flow::plan::facts::pattern3_ifphi_facts::Pattern3IfPhiFacts,
 ) -> Result<(), Freeze> {
@@ -123,7 +123,7 @@ pub fn verify_if_phi_join_recipe(
 
     let Some(IfPhiJoinRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
-            "Pattern3IfPhi recipe missing (planner_required)",
+            "IfPhiJoin recipe missing (planner_required)",
         ));
     };
 
@@ -131,10 +131,10 @@ pub fn verify_if_phi_join_recipe(
         &arena,
         &root,
         BlockContractKind::NoExit,
-        "pattern3_ifphi_recipe",
+        "if_phi_join_recipe",
     )
     .map_err(|e| {
-        Freeze::contract("Pattern3IfPhi recipe verification failed")
+        Freeze::contract("IfPhiJoin recipe verification failed")
             .with_hint(&e)
     })?;
 
@@ -147,7 +147,7 @@ pub fn verify_if_phi_join_recipe(
     Ok(())
 }
 
-/// Recipe-first verification for Pattern4Continue.
+/// Recipe-first verification for loop-continue-only.
 pub fn verify_loop_continue_only_recipe(
     pattern4: &crate::mir::builder::control_flow::plan::facts::pattern4_continue_facts::Pattern4ContinueFacts,
 ) -> Result<(), Freeze> {
@@ -175,7 +175,7 @@ pub fn verify_loop_continue_only_recipe(
 
     let Some(LoopContinueOnlyRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
-            "Pattern4Continue recipe missing (planner_required)",
+            "LoopContinueOnly recipe missing (planner_required)",
         ));
     };
 
@@ -183,9 +183,9 @@ pub fn verify_loop_continue_only_recipe(
         &arena,
         &root,
         BlockContractKind::ExitAllowed,
-        "pattern4_continue_recipe",
+        "loop_continue_only_recipe",
     )
-    .map_err(|e| Freeze::contract("Pattern4Continue recipe verification failed").with_hint(&e))?;
+    .map_err(|e| Freeze::contract("LoopContinueOnly recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -196,7 +196,7 @@ pub fn verify_loop_continue_only_recipe(
     Ok(())
 }
 
-/// Recipe-first verification for Pattern5InfiniteEarlyExit.
+/// Recipe-first verification for loop-true-early-exit.
 pub fn verify_loop_true_early_exit_recipe(
     pattern5: &crate::mir::builder::control_flow::plan::facts::pattern5_infinite_early_exit_facts::Pattern5InfiniteEarlyExitFacts,
 ) -> Result<(), Freeze> {
@@ -206,7 +206,7 @@ pub fn verify_loop_true_early_exit_recipe(
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
-    // Pattern5 is loop(true), so condition is always true
+    // LoopTrueEarlyExit is loop(true), so condition is always true
     let loop_stmt = ASTNode::Loop {
         condition: Box::new(ASTNode::Literal {
             value: LiteralValue::Bool(true),
@@ -222,7 +222,7 @@ pub fn verify_loop_true_early_exit_recipe(
 
     let Some(LoopTrueEarlyExitRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
-            "Pattern5InfiniteEarlyExit recipe missing (planner_required)",
+            "LoopTrueEarlyExit recipe missing (planner_required)",
         ));
     };
 
@@ -230,10 +230,10 @@ pub fn verify_loop_true_early_exit_recipe(
         &arena,
         &root,
         BlockContractKind::ExitAllowed,
-        "pattern5_infinite_early_exit_recipe",
+        "loop_true_early_exit_recipe",
     )
     .map_err(|e| {
-        Freeze::contract("Pattern5InfiniteEarlyExit recipe verification failed").with_hint(&e)
+        Freeze::contract("LoopTrueEarlyExit recipe verification failed").with_hint(&e)
     })?;
 
     if joinir_dev::debug_enabled() {
@@ -245,7 +245,7 @@ pub fn verify_loop_true_early_exit_recipe(
     Ok(())
 }
 
-/// Recipe-first verification for Pattern1SimpleWhile.
+/// Recipe-first verification for loop-simple-while.
 pub fn verify_loop_simple_while_recipe(
     pattern1: &crate::mir::builder::control_flow::plan::facts::pattern1_simplewhile_facts::Pattern1SimpleWhileFacts,
 ) -> Result<(), Freeze> {
@@ -270,7 +270,7 @@ pub fn verify_loop_simple_while_recipe(
 
     let Some(LoopSimpleWhileRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
-            "Pattern1SimpleWhile recipe missing (planner_required)",
+            "LoopSimpleWhile recipe missing (planner_required)",
         ));
     };
 
@@ -280,10 +280,10 @@ pub fn verify_loop_simple_while_recipe(
         &arena,
         &root,
         BlockContractKind::NoExit,
-        "pattern1_simple_while_recipe",
+        "loop_simple_while_recipe",
     )
     .map_err(|e| {
-        Freeze::contract("Pattern1SimpleWhile recipe verification failed")
+        Freeze::contract("LoopSimpleWhile recipe verification failed")
             .with_hint(&e)
     })?;
 
@@ -296,7 +296,7 @@ pub fn verify_loop_simple_while_recipe(
     Ok(())
 }
 
-/// Recipe-first verification for Pattern1CharMap.
+/// Recipe-first verification for loop-char-map.
 pub fn verify_loop_char_map_recipe(
     pattern1_cm: &crate::mir::builder::control_flow::plan::facts::pattern1_char_map_facts::Pattern1CharMapFacts,
 ) -> Result<(), Freeze> {
@@ -321,7 +321,7 @@ pub fn verify_loop_char_map_recipe(
 
     let Some(CharMapRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
-            "Pattern1CharMap recipe missing (planner_required)",
+            "LoopCharMap recipe missing (planner_required)",
         ));
     };
 
@@ -331,10 +331,10 @@ pub fn verify_loop_char_map_recipe(
         &arena,
         &root,
         BlockContractKind::NoExit,
-        "pattern1_char_map_recipe",
+        "loop_char_map_recipe",
     )
     .map_err(|e| {
-        Freeze::contract("Pattern1CharMap recipe verification failed")
+        Freeze::contract("LoopCharMap recipe verification failed")
             .with_hint(&e)
     })?;
 
@@ -347,7 +347,7 @@ pub fn verify_loop_char_map_recipe(
     Ok(())
 }
 
-/// Recipe-first verification for Pattern1ArrayJoin.
+/// Recipe-first verification for loop-array-join.
 pub fn verify_loop_array_join_recipe(
     pattern1_aj: &crate::mir::builder::control_flow::plan::facts::pattern1_array_join_facts::Pattern1ArrayJoinFacts,
 ) -> Result<(), Freeze> {
@@ -377,7 +377,7 @@ pub fn verify_loop_array_join_recipe(
 
     let Some(ArrayJoinRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
-            "Pattern1ArrayJoin recipe missing (planner_required)",
+            "LoopArrayJoin recipe missing (planner_required)",
         ));
     };
 
@@ -386,10 +386,10 @@ pub fn verify_loop_array_join_recipe(
         &arena,
         &root,
         BlockContractKind::NoExit,
-        "pattern1_array_join_recipe",
+        "loop_array_join_recipe",
     )
     .map_err(|e| {
-        Freeze::contract("Pattern1ArrayJoin recipe verification failed")
+        Freeze::contract("LoopArrayJoin recipe verification failed")
             .with_hint(&e)
     })?;
 
@@ -402,7 +402,7 @@ pub fn verify_loop_array_join_recipe(
     Ok(())
 }
 
-/// Recipe-first verification for Pattern6 ScanWithInit.
+/// Recipe-first verification for scan-with-init.
 pub fn verify_scan_with_init_recipe(
     pattern6: &crate::mir::builder::control_flow::plan::facts::loop_types::ScanWithInitFacts,
 ) -> Result<(), Freeze> {
@@ -424,7 +424,7 @@ pub fn verify_scan_with_init_recipe(
 
     let Some(ScanWithInitRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
-            "Pattern6ScanWithInit recipe missing (planner_required)",
+            "ScanWithInit recipe missing (planner_required)",
         ));
     };
 
@@ -432,10 +432,10 @@ pub fn verify_scan_with_init_recipe(
         &arena,
         &root,
         BlockContractKind::ExitAllowed,
-        "pattern6_scan_with_init_recipe",
+        "scan_with_init_recipe",
     )
     .map_err(|e| {
-        Freeze::contract("Pattern6ScanWithInit recipe verification failed")
+        Freeze::contract("ScanWithInit recipe verification failed")
             .with_hint(&e)
     })?;
 
@@ -448,7 +448,7 @@ pub fn verify_scan_with_init_recipe(
     Ok(())
 }
 
-/// Recipe-first verification for Pattern7 SplitScan.
+/// Recipe-first verification for split-scan.
 pub fn verify_split_scan_recipe(
     pattern7: &crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts,
 ) -> Result<(), Freeze> {
@@ -470,7 +470,7 @@ pub fn verify_split_scan_recipe(
 
     let Some(SplitScanRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
-            "Pattern7SplitScan recipe missing (planner_required)",
+            "SplitScan recipe missing (planner_required)",
         ));
     };
 
@@ -478,10 +478,10 @@ pub fn verify_split_scan_recipe(
         &arena,
         &root,
         BlockContractKind::NoExit,
-        "pattern7_split_scan_recipe",
+        "split_scan_recipe",
     )
     .map_err(|e| {
-        Freeze::contract("Pattern7SplitScan recipe verification failed")
+        Freeze::contract("SplitScan recipe verification failed")
             .with_hint(&e)
     })?;
 
@@ -494,7 +494,7 @@ pub fn verify_split_scan_recipe(
     Ok(())
 }
 
-/// Recipe-first verification for Pattern8 BoolPredicateScan.
+/// Recipe-first verification for bool-predicate-scan.
 pub fn verify_bool_predicate_scan_recipe(
     pattern8: &crate::mir::builder::control_flow::plan::facts::pattern8_bool_predicate_scan_facts::Pattern8BoolPredicateScanFacts,
 ) -> Result<(), Freeze> {
@@ -519,7 +519,7 @@ pub fn verify_bool_predicate_scan_recipe(
 
     let Some(BoolPredicateScanRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
-            "Pattern8BoolPredicateScan recipe missing (planner_required)",
+            "BoolPredicateScan recipe missing (planner_required)",
         ));
     };
 
@@ -527,10 +527,10 @@ pub fn verify_bool_predicate_scan_recipe(
         &arena,
         &root,
         BlockContractKind::ExitAllowed,
-        "pattern8_bool_predicate_scan_recipe",
+        "bool_predicate_scan_recipe",
     )
     .map_err(|e| {
-        Freeze::contract("Pattern8BoolPredicateScan recipe verification failed")
+        Freeze::contract("BoolPredicateScan recipe verification failed")
             .with_hint(&e)
     })?;
 
@@ -543,7 +543,7 @@ pub fn verify_bool_predicate_scan_recipe(
     Ok(())
 }
 
-/// Recipe-first verification for Pattern9 AccumConstLoop.
+/// Recipe-first verification for accum-const-loop.
 pub fn verify_accum_const_loop_recipe(
     pattern9: &crate::mir::builder::control_flow::plan::facts::pattern9_accum_const_loop_facts::Pattern9AccumConstLoopFacts,
 ) -> Result<(), Freeze> {
@@ -567,7 +567,7 @@ pub fn verify_accum_const_loop_recipe(
 
     let Some(AccumConstLoopRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
-            "Pattern9AccumConstLoop recipe missing (planner_required)",
+            "AccumConstLoop recipe missing (planner_required)",
         ));
     };
 
@@ -575,10 +575,10 @@ pub fn verify_accum_const_loop_recipe(
         &arena,
         &root,
         BlockContractKind::NoExit,
-        "pattern9_accum_const_loop_recipe",
+        "accum_const_loop_recipe",
     )
     .map_err(|e| {
-        Freeze::contract("Pattern9AccumConstLoop recipe verification failed")
+        Freeze::contract("AccumConstLoop recipe verification failed")
             .with_hint(&e)
     })?;
 
