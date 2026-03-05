@@ -56,7 +56,8 @@ pub(crate) fn detect_if_else_phi_in_body(body: &[ASTNode]) -> bool {
 /// Phase 212.5: Detect ANY if statement in loop body (structural detection)
 ///
 /// This function detects any if statement, regardless of whether it has an else branch.
-/// Used for routing single-carrier if-update patterns to Pattern 3.
+/// Used for routing single-carrier if-update patterns to if_phi_join
+/// (legacy label: Pattern3).
 ///
 /// # Arguments
 ///

@@ -1,4 +1,5 @@
-//! Phase 282 P3: Pattern1 (Simple While Loop) Extraction
+//! Phase 282 P3: loop_simple_while extraction
+//! (legacy label: Pattern1)
 //! Phase 282 P9a: Integrated with common_helpers
 
 use crate::ast::{ASTNode, BinaryOperator};
@@ -12,7 +13,7 @@ pub(crate) struct Pattern1Parts {
     // Note: condition/body は ctx から再利用（AST 丸コピー不要）
 }
 
-/// Extract Pattern1 (Simple While Loop) parts
+/// Extract loop_simple_while parts (legacy label: Pattern1)
 ///
 /// # Detection Criteria (誤マッチ防止強化版)
 ///
@@ -29,8 +30,8 @@ pub(crate) struct Pattern1Parts {
 ///
 /// # Fail-Fast Rules
 ///
-/// - `Ok(Some(parts))`: Pattern1 match confirmed
-/// - `Ok(None)`: Not Pattern1 (構造不一致 or control flow)
+/// - `Ok(Some(parts))`: loop_simple_while match confirmed
+/// - `Ok(None)`: Not loop_simple_while (構造不一致 or control flow)
 /// - `Err(msg)`: Logic bug (malformed AST)
 pub(crate) fn extract_simple_while_parts(
     condition: &ASTNode,
@@ -39,18 +40,19 @@ pub(crate) fn extract_simple_while_parts(
     // Phase 1: Validate condition structure (比較 + 左が変数)
     let loop_var = match validate_condition_structure(condition) {
         Some(var) => var,
-        None => return Ok(None), // 条件が Pattern1 形式でない
+        None => return Ok(None), // 条件が loop_simple_while 形式でない
     };
 
     // Phase 2: Validate body (reject control flow)
     if has_control_flow_statement(body) {
-        // Has break/continue/return → Not Pattern1
+        // Has break/continue/return → Not loop_simple_while
         return Ok(None);
     }
 
     // Phase 29ak: Reject nested loops.
     //
-    // Nested loops are Pattern6NestedLoopMinimal territory; letting Pattern1 match them
+    // Nested loops are nested-minimal territory (legacy label: Pattern6NestedLoopMinimal);
+    // letting loop_simple_while match them
     // causes routing to short-circuit before JoinIR can select the nested-loop lowerer.
     let counts = super::common_helpers::count_control_flow(
         body,
@@ -60,16 +62,17 @@ pub(crate) fn extract_simple_while_parts(
         return Ok(None);
     }
 
-    // Phase 286 P2.6: Reject if-else statements (Pattern3 territory)
-    // Pattern1 allows simple if without else, but not if-else (which is Pattern3)
+    // Phase 286 P2.6: Reject if-else statements (if_phi_join territory).
+    // loop_simple_while allows simple if without else, but not if-else
+    // (legacy label: Pattern3).
     if super::common_helpers::has_if_else_statement(body) {
-        // Has if-else statement → Pattern3 (if-phi merge)
+        // Has if-else statement → if_phi_join (legacy label: Pattern3, if-phi merge)
         return Ok(None);
     }
 
     // Phase 3: Validate step pattern (単純増減のみ)
     if !has_simple_step_pattern(body, &loop_var) {
-        // Step が複雑 or 存在しない → Not Pattern1
+        // Step が複雑 or 存在しない → Not loop_simple_while
         return Ok(None);
     }
 
@@ -79,7 +82,7 @@ pub(crate) fn extract_simple_while_parts(
 
 /// Validate condition: 比較演算 (左辺が変数)
 ///
-/// Exported for reuse by Pattern3 (Phase 282 P5)
+/// Exported for reuse by if_phi_join extractor (legacy label: Pattern3, Phase 282 P5)
 pub(crate) fn validate_condition_structure(condition: &ASTNode) -> Option<String> {
     match condition {
         ASTNode::BinaryOp { operator, left, .. } => {

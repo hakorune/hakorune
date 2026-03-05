@@ -1,4 +1,5 @@
-//! Common Extraction Helpers for Pattern1-5
+//! Common extraction helpers for core loop routes
+//! (legacy labels: Pattern1-5)
 //!
 //! Phase 282 P9a: Extracted from Pattern1-5 extractors to eliminate common duplication.
 //! Phase 29ai P10: Moved to plan-layer SSOT (JoinIR keeps a wrapper path).
@@ -7,8 +8,8 @@
 //!
 //! - **Pure Functions**: No side effects, no builder mutations
 //! - **Fail-Fast**: Err for logic bugs, Ok(None) for non-matches
-//! - **Configurability**: ControlFlowDetector for pattern-specific behavior
-//! - **Scope-Limited**: Common detection only, pattern-specific logic excluded
+//! - **Configurability**: ControlFlowDetector for route-specific behavior
+//! - **Scope-Limited**: Common detection only, route-specific logic excluded
 //!
 //! # Groups (P9a Scope-Limited)
 //!
@@ -16,10 +17,12 @@
 //! 2. Control Flow Detection (has_break_statement, has_continue_statement, etc.) - Common detection
 //! 3. Condition Validation (extract_loop_variable, is_true_literal) - Condition helpers
 //! 4. Loop Increment Extraction (extract_loop_increment_plan) - Common plan helper
-//! 5. Pattern5-Specific Helpers (validate_continue_at_end, validate_break_in_simple_if) - NOT generalized
+//! 5. loop_true_early_exit-specific helpers (legacy label: Pattern5;
+//!    validate_continue_at_end, validate_break_in_simple_if) - NOT generalized
 //!
-//! **IMPORTANT**: Pattern-specific interpretation logic (e.g., Pattern3's nested_if) is EXCLUDED.
-//! Such logic remains in individual pattern files to maintain clear SSOT boundaries.
+//! **IMPORTANT**: route-specific interpretation logic (e.g., if_phi_join nested_if;
+//! legacy label: Pattern3) is EXCLUDED.
+//! Such logic remains in individual extractor files to maintain clear SSOT boundaries.
 
 #![allow(dead_code)]
 
@@ -101,7 +104,8 @@ pub(crate) struct ControlFlowCounts {
 /// Control flow detection options
 ///
 /// # P9a Scope-Limited
-/// - `detect_nested_if` removed (Pattern3-specific, deferred to P9b)
+/// - `detect_nested_if` removed (if_phi_join-specific;
+///   legacy label: Pattern3, deferred to P9b)
 /// - Only common detection options included
 #[derive(Debug, Clone)]
 pub(crate) struct ControlFlowDetector {
@@ -123,10 +127,11 @@ impl Default for ControlFlowDetector {
 /// Universal control flow counter
 ///
 /// # Examples (P9a Scope-Limited)
-/// - Pattern1: default (skip_nested=true, count_returns=false)
-/// - Pattern2: default (skip_nested=true, count_returns=false)
-/// - Pattern4: default (skip_nested=true, count_returns=false)
-/// - Pattern5: count_returns=true (returns Err if return found)
+/// - loop_simple_while: default (legacy label: Pattern1, skip_nested=true, count_returns=false)
+/// - loop_break: default (legacy label: Pattern2, skip_nested=true, count_returns=false)
+/// - loop_continue_only: default (legacy label: Pattern4, skip_nested=true, count_returns=false)
+/// - loop_true_early_exit: count_returns=true
+///   (legacy label: Pattern5, returns Err if return found)
 pub(crate) fn count_control_flow(
     body: &[ASTNode],
     detector: ControlFlowDetector,
@@ -220,8 +225,9 @@ pub(crate) fn has_control_flow_statement(body: &[ASTNode]) -> bool {
 
 /// Phase 286 P2.6: Check if body has ANY if statement (recursive)
 ///
-/// This is a supplementary helper for Pattern1 extraction to prevent
-/// Pattern1 from incorrectly matching Pattern3 fixtures (if-else-phi).
+/// This is a supplementary helper for loop_simple_while extraction to prevent
+/// loop_simple_while from incorrectly matching if_phi_join fixtures
+/// (legacy labels: Pattern1 / Pattern3, if-else-phi).
 pub(crate) fn has_if_statement(body: &[ASTNode]) -> bool {
     walk_stmt_list(body, |node| match node {
         ASTNode::If { .. } => true,
@@ -233,7 +239,8 @@ pub(crate) fn has_if_statement(body: &[ASTNode]) -> bool {
 /// Phase 286 P2.6: Check if body has ANY if-else statement (recursive)
 ///
 /// This is more specific than has_if_statement - it only detects if statements
-/// with else branches, which are Pattern3 territory (if-phi merge).
+/// with else branches, which are if_phi_join territory
+/// (legacy label: Pattern3, if-phi merge).
 pub(crate) fn has_if_else_statement(body: &[ASTNode]) -> bool {
     walk_stmt_list(body, |node| match node {
         ASTNode::If {
@@ -424,17 +431,17 @@ fn extract_tail_loop_assignment_value(body: &[ASTNode], loop_var: &str) -> Optio
 }
 
 /// ============================================================
-/// Group 5: Pattern5-Specific Helpers (NOT generalized)
+/// Group 5: loop_true_early_exit-specific helpers (NOT generalized; legacy label: Pattern5)
 /// ============================================================
 ///
-/// **IMPORTANT**: These helpers are Pattern5-specific and intentionally NOT generalized.
+/// **IMPORTANT**: These helpers are loop_true_early_exit-specific and intentionally NOT generalized.
 
-/// Validate continue is at body end (Pattern5 specific)
+/// Validate continue is at body end (loop_true_early_exit specific; legacy label: Pattern5)
 pub(crate) fn validate_continue_at_end(body: &[ASTNode]) -> bool {
     matches!(body.last(), Some(ASTNode::Continue { .. }))
 }
 
-/// Validate break is in simple if pattern (Pattern5 specific)
+/// Validate break is in simple if pattern (loop_true_early_exit specific; legacy label: Pattern5)
 pub(crate) fn validate_break_in_simple_if(body: &[ASTNode]) -> bool {
     for stmt in body {
         if let ASTNode::If {

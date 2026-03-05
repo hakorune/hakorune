@@ -1,4 +1,5 @@
-//! Phase 282 P5: Pattern3 (Loop with If-Else PHI) Extraction
+//! Phase 282 P5: if_phi_join extraction
+//! (legacy label: Pattern3)
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::generic_loop::canon_update_for_loop_var;
@@ -12,7 +13,7 @@ pub(crate) struct Pattern3Parts {
     // AST reused from ctx - no duplication
 }
 
-/// Extract Pattern3 (Loop with If-Else PHI) parts
+/// Extract if_phi_join parts (legacy label: Pattern3)
 ///
 /// # Detection Criteria
 ///
@@ -23,21 +24,22 @@ pub(crate) struct Pattern3Parts {
 ///
 /// # Four-Phase Validation
 ///
-/// **Phase 1**: Validate condition structure (reuse Pattern1)
+/// **Phase 1**: Validate condition structure (reuse loop_simple_while extractor,
+/// legacy label: Pattern1)
 /// **Phase 2**: Find if-else statement (else branch REQUIRED)
 /// **Phase 3**: Validate PHI assignments (intersection of then/else)
 /// **Phase 4**: Validate NO control flow
 ///
 /// # Fail-Fast Rules
 ///
-/// - `Ok(Some(parts))`: Pattern3 confirmed
-/// - `Ok(None)`: Not Pattern3 (structural mismatch)
+/// - `Ok(Some(parts))`: if_phi_join confirmed
+/// - `Ok(None)`: Not if_phi_join (structural mismatch)
 /// - `Err(msg)`: Logic bug (malformed AST)
 pub(crate) fn extract_loop_with_if_phi_parts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<Pattern3Parts>, String> {
-    // Phase 1: Validate condition (reuse Pattern1)
+    // Phase 1: Validate condition (reuse loop_simple_while extractor, legacy label: Pattern1)
     use super::pattern1::validate_condition_structure;
     let loop_var = match validate_condition_structure(condition) {
         Some(var) => var,
@@ -47,13 +49,13 @@ pub(crate) fn extract_loop_with_if_phi_parts(
     // Phase 2: Find if-else statement
     let if_stmt = match super::common_helpers::find_if_else_statement(body) {
         Some(stmt) => stmt,
-        None => return Ok(None), // No if-else → Not Pattern3
+        None => return Ok(None), // No if-else → Not if_phi_join
     };
 
     // Phase 3: Validate PHI assignments
     let merged_vars = match extract_phi_assignments(if_stmt) {
         Some(vars) if !vars.is_empty() => vars,
-        _ => return Ok(None), // No matching assignments → Not Pattern3
+        _ => return Ok(None), // No matching assignments → Not if_phi_join
     };
 
     // Phase 4a: Check for return (early Ok(None) - let other patterns try)
@@ -78,9 +80,9 @@ pub(crate) fn extract_loop_with_if_phi_parts(
     }
 
     // Phase 4c: Validate NO forbidden control flow (break/continue/nested-if only)
-    // Pattern3 allows ONE if-else (the PHI pattern) but rejects nested if
+    // if_phi_join allows ONE if-else (the PHI pattern) but rejects nested if
     if has_forbidden_control_flow_for_pattern3(body) {
-        return Ok(None); // Has break/continue/nested-if → Not Pattern3
+        return Ok(None); // Has break/continue/nested-if → Not if_phi_join
     }
 
     // Extract primary carrier (first merged var)
@@ -137,13 +139,13 @@ fn extract_assignment_targets(body: &[ASTNode]) -> Vec<String> {
     targets
 }
 
-/// Check for forbidden control flow (Pattern3-specific)
+/// Check for forbidden control flow (if_phi_join-specific, legacy label: Pattern3)
 ///
-/// Pattern3 allows ONE if-else (that's the PHI pattern) but rejects:
+/// if_phi_join allows ONE if-else (that's the PHI pattern) but rejects:
 /// - break/continue statements
 /// - NESTED if statements (if inside then/else branches)
 ///
-/// Return is checked separately (not forbidden, just delegated to other patterns).
+/// Return is checked separately (not forbidden, just delegated to other routes).
 fn has_forbidden_control_flow_for_pattern3(body: &[ASTNode]) -> bool {
     for stmt in body {
         if has_forbidden_control_flow_recursive_p3(stmt) {
