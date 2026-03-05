@@ -68,9 +68,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - strict-nested guard SSOT と flowbox tag coverage map の scenario 注記を route 主語へ同期（legacy label は注記で保持）
   - active SSOT docs（`recipe-first-entry-contract-ssot.md`, `plan-mod-layout-ssot.md`, `compiler-task-map-ssot.md`, `coreplan-shadow-adopt-tag-coverage-ssot.md`）の Pattern 主語を route 主語へ同期（契約キー/タグは不変）
   - coreloop test 残語彙を route 主語へ同期（`coreloop_v0/v1_tests` の test name / test labels / assert wording）
+  - `plan/mod.rs` / `route_prep_pipeline.rs` / `policies/*` / `condition_env_builder.rs` / `joinir/merge/*` の補助コメントを route 主語へ同期（型名・module名・facts key は不変）
+  - active design docs（`coreplan-unknown-loop-strategy-ssot.md`, `coreloop-generic-loop-v0-ssot.md`, `joinir-plan-frag-ssot.md`, `coreplan-migration-roadmap-ssot.md`）の Pattern 主語注記を route 主語へ同期（`legacy label` 注記保持）
 - compiler fixed order:
-  1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す（進行中: `coreplan-shadow` / `plan-mod-layout` / `compiler-task-map` / `recipe-first-entry` / `condition-observation` / `domainplan-thinning` / `edgecfg-fragments` / `plan-dir-shallowing` は同期済み）。
-  2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する（進行中: `coreloop_v0/v1` tests + `facts/loop_builder.rs` comment + `facts/loop_tests.rs` 名称を同期済み）。
+  1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す（進行中: `coreplan-shadow` / `plan-mod-layout` / `compiler-task-map` / `recipe-first-entry` / `condition-observation` / `domainplan-thinning` / `edgecfg-fragments` / `plan-dir-shallowing` / `coreplan-unknown-loop-strategy` / `coreloop-generic-loop-v0` / `joinir-plan-frag` / `coreplan-migration-roadmap` は同期済み）。
+  2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する（進行中: `coreloop_v0/v1` tests + `facts/loop_builder.rs` comment + `facts/loop_tests.rs` 名称 + `plan/mod.rs` / `route_prep_pipeline.rs` / `policies/*` comment を同期済み）。
   3. planner/normalizer の dead comments・test-only wiring（payload 前提）を段階撤去する。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
@@ -103,6 +105,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `dbd29f159` docs(plan): route-align remaining coreplan and plan-frag wording
+    - active design docs の残語彙を route 主語へ同期: `coreplan-unknown-loop-strategy-ssot.md`, `coreloop-generic-loop-v0-ssot.md`, `joinir-plan-frag-ssot.md`, `coreplan-migration-roadmap-ssot.md`
+    - Pattern 番号語彙は履歴導線が必要な箇所のみ `legacy label` 注記で保持
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `9f1c13c69` refactor(plan): route-align residual policy and helper comments
+    - `plan/mod.rs` / `route_prep_pipeline.rs` / `policies/*` / `loop_true_counter_extractor.rs` / `condition_env_builder.rs` / `joinir/merge/{entry_params,exit_args_collector}.rs` の comment/doc を route 主語へ同期（挙動不変）
+    - legacy enum/module/function 名は据え置き、注釈のみ `legacy label` を追加
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `fb206996a` docs(plan): route-align remaining design notes with legacy labels
     - active design docs の残語彙を route 主語へ同期: `condition-observation-ssot.md`, `domainplan-thinning-ssot.md`, `edgecfg-fragments.md`, `plan-dir-shallowing-ssot.md`
     - historical な `PatternX` 表記は `legacy label` 注記として保持し、SSOT本文は route/semantic 主語へ統一
