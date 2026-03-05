@@ -1,7 +1,8 @@
 //! Common extraction helpers for core loop routes
 //! (legacy labels: Pattern1-5)
 //!
-//! Phase 282 P9a: Extracted from Pattern1-5 extractors to eliminate common duplication.
+//! Phase 282 P9a: Extracted from loop route extractors
+//! (legacy labels: Pattern1-5) to eliminate common duplication.
 //! Phase 29ai P10: Moved to plan-layer SSOT (JoinIR keeps a wrapper path).
 //!
 //! # Design Principles
