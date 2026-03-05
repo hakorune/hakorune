@@ -36,7 +36,7 @@
 //! - trim_pattern_lowerer.rs: Trim-specific JoinIR lowering (moved to plan/)
 //!
 //! Phase 179-B: Generic Loop Framework
-//! - pattern_pipeline.rs: Unified preprocessing pipeline for simple loop families (moved to plan/)
+//! - route_prep_pipeline.rs: Unified preprocessing pipeline for simple loop families (moved to plan/)
 //!
 //! Phase 91 P5b: Escape Recognizer
 //! - escape_pattern_recognizer.rs: P5b (escape sequence handling) detection (thin wrapper)

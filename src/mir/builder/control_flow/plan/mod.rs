@@ -176,8 +176,8 @@ pub(in crate::mir::builder) mod escape_pattern_recognizer;
 // Phase 29bq+: Structural lock (join_key/session)
 // sealing は edgecfg/api/frag_emit_session.rs に統合（Phase 29bq+ 骨格拡大）
 pub(in crate::mir::builder) mod join_key;
-// Phase 29bq+: Pattern pipeline moved to plan side (patterns layer thin)
-pub(in crate::mir::builder) mod pattern_pipeline;
+// Phase 29bq+: Route prep pipeline moved to plan side (patterns layer thin)
+pub(in crate::mir::builder) mod route_prep_pipeline;
 pub(in crate::mir::builder) mod plan_build_session;
 
 // ============================================================================
