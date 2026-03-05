@@ -7,7 +7,7 @@ Related:
 
 # Recipe-first Entry Contract (SSOT)
 
-This document fixes the entry flow so that “pattern selection” does not define semantics.
+This document fixes the entry flow so that entry-route selection does not define semantics; semantics come from Facts → Recipe → Verifier.
 
 ## Pipeline (SSOT)
 
@@ -46,7 +46,7 @@ AST
 
 #### Entry guard matrix (summary)
 
-| Candidate | Display label | Required facts (summary) | Excludes (summary) |
+| Candidate (internal fact key) | Route/display label | Required facts (summary) | Excludes (summary) |
 | --- | --- | --- | --- |
 | `pattern2_break` | `LoopBreakRecipe` | facts present | excludes `loop_cond_break_continue`, `loop_true_break_continue`, `generic_loop_v1` |
 | `pattern1_array_join` | `LoopArrayJoin` | facts present | excludes `loop_cond_break_continue` |
@@ -69,6 +69,7 @@ AST
 | `generic_loop_v1` | `LoopGenericRecipeV1` | general loop facts | excluded by pattern2_break / char_map / simplewhile / loop_cond_break_continue / loop_bundle_resolver |
 
 Note: This matrix is a summary; the bullet list below is the authoritative SSOT. Display labels follow `entry-name-map-ssot.md`.
+Note: `pattern*` entries in the Candidate column are legacy internal fact keys; runtime canonical identifiers are `route=<...>` labels.
 - Pattern2Break が成立する場合は LoopCondBreak を候補にしない（entry disjoint）
 - Pattern2Break が成立する場合は LoopTrueBreak を候補にしない（entry disjoint）
 - Pattern2Break が成立する場合は generic_loop_v1 を候補にしない（entry disjoint）
@@ -92,6 +93,8 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - BoxShape: `shadow_adopt` は generic loop（`generic_loop_v1/v0`）を採用しない。generic route は registry の recipe-first に一本化する。
 
 ## Freeze responsibility (SSOT)
+
+Note: Phase C* section titles below keep migration-era `Pattern*` names for traceability. Canonical runtime identifiers are route IDs in `[recipe:*]` tags.
 
 どこで freeze するかを固定する（入口の責務分担）。
 

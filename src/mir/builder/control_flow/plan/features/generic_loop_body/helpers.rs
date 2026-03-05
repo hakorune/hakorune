@@ -207,7 +207,7 @@ pub(super) fn lower_nested_loop_plan(
         }
     }
     plan_trace::trace_outcome_path("generic_loop_body::nested_loop_plan", "freeze_no_plan");
-    Err("[normalizer] generic loop v0: nested loop has no plan".to_string())
+    Err("[normalizer] generic nested loop: nested loop has no plan".to_string())
 }
 
 pub(super) fn apply_loop_final_values_to_bindings(

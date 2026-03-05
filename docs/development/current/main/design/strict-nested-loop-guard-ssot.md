@@ -25,7 +25,6 @@ its logic or maintain a separate allowlist.
 
 ## Allowlist (actual contract)
 
-- `generic_loop_v0` または `generic_loop_v1` facts が存在する形
 - `Pattern4Continue accept-min1` 形（strict-nested 最小受理）
   - `route_kind == Pattern4Continue`
   - `exit_usage`: continueあり / breakなし / returnなし
@@ -36,12 +35,17 @@ its logic or maintain a separate allowlist.
   - `continue_condition` の下限値 `> condition` の上限値（continue が到達不能）
   - `loop_increment`: `<loop_var> + 1`
 
+Note:
+- `generic_loop_v0/v1` は shadow_adopt allowlist では扱わない。
+- generic route は registry recipe-first で扱い、そこで成立しない形は freeze で fail-fast とする。
+- generic-loop allowlist flags は廃止済みで、この guard は参照しない。
+
 ## Log contract (dev/debug only)
 
 - Tag: `[plan/freeze:nested_loop_guard]`
 - Emitted only when `joinir_dev::debug_enabled()` is true.
 - Format (single line, stable fields):
-  - `func=<...> span=<...> plan=<...> route_kind=<...> depth=<...>`
+  - `func=<...> span=<...> recipe_contract=<...> route_kind=<...> depth=<...>`
 
 ## Failure contract
 

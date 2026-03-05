@@ -42,29 +42,6 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
         ));
     }
     let facts_present = outcome.facts.is_some();
-    let (v0_present, v1_shape, v1_exit_allowed) =
-        outcome
-            .facts
-            .as_ref()
-            .map_or((false, false, false), |facts| {
-                let v0 = facts.facts.generic_loop_v0.is_some();
-                let v1_shape = facts
-                    .facts
-                    .generic_loop_v1
-                    .as_ref()
-                    .and_then(|f| f.shape_id.as_ref())
-                    .is_some();
-                let v1_exit_allowed = facts
-                    .facts
-                    .generic_loop_v1
-                    .as_ref()
-                    .and_then(|f| f.body_exit_allowed.as_ref())
-                    .is_some();
-                (v0, v1_shape, v1_exit_allowed)
-            });
-    let allow_generic_loop = outcome.facts.as_ref().map_or(false, |facts| {
-        facts.facts.generic_loop_v0.is_some() || facts.facts.generic_loop_v1.is_some()
-    });
     let nested_loop = outcome
         .facts
         .as_ref()
@@ -73,20 +50,13 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
-            "[plan/trace:nested_loop_guard] func={} nested_loop={} facts_present={} allow_generic_loop={} v0={} v1_shape={} v1_exit_allowed={}",
+            "[plan/trace:nested_loop_guard] func={} nested_loop={} facts_present={}",
             ctx.func_name,
             nested_loop,
             facts_present,
-            allow_generic_loop,
-            v0_present,
-            v1_shape,
-            v1_exit_allowed
         ));
     }
     if !nested_loop {
-        return None;
-    }
-    if allow_generic_loop {
         return None;
     }
     if allow_strict_nested_pattern4_min1(outcome, ctx) {

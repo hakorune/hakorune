@@ -285,7 +285,7 @@ pub(crate) fn route_loop(
     // In release, keep nested-loop recipe-first blocked by default.
     // Exceptions:
     // - nested_loop_minimal facts (same compose contract as release_adopt nested-minimal lane)
-    // - generic_loop_v{1,0} facts (recipe-first best-effort; on compose/lower reject, router falls back)
+    // - generic_loop_v{1,0} facts (recipe-first best-effort; only no-match `Ok(None)` continues routing, `Err` propagates)
     // - loop_cond_break_continue with explicit exit-driven accept kinds.
     let release_recipe_first_allowed = if !detect_nested_loop(ctx.body) {
         true

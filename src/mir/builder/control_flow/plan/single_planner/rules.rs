@@ -151,8 +151,8 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
     } else if let Some(ref facts) = outcome.facts {
         if facts.facts.scan_with_init.is_some()
             || facts.facts.split_scan.is_some()
-            || facts.facts.pattern1_array_join.is_some()
-            || facts.facts.pattern5_infinite_early_exit.is_some()
+            || facts.facts.loop_array_join().is_some()
+            || facts.facts.loop_true_early_exit().is_some()
         {
             use crate::mir::builder::control_flow::plan::recipe_tree::RecipeMatcher;
             if gate.strict_or_dev {
@@ -172,7 +172,7 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
     let promotion_facts = outcome
         .facts
         .as_ref()
-        .and_then(|facts| facts.facts.pattern2_loopbodylocal.as_ref())
+        .and_then(|facts| facts.facts.loop_break_body_local())
         .map(|facts| &facts.shape);
 
     emit_loop_break_promotion_hint_tag(promotion_facts);

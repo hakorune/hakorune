@@ -61,7 +61,7 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - `reject: exit_allowed_recipe_build_failed` means ExitAllowed recipe construction failed; treat as out-of-scope and update the recipe SSOT or accept shape.
 - Contract freeze (Pattern6/7): `[joinir/phase29ab/scan_with_init/contract]`, `[joinir/phase29ab/split_scan/contract]`
 - Generic-loop candidate diagnostics (dev/debug only): `[plan/reject_detail] box=generic_loop_v* reason=no_valid_loop_var_candidates last_fail=<Kind>`
-- Nested-loop guard (dev/debug only): `[plan/freeze:nested_loop_guard] func=<...> span=<...> plan=<...> route_kind=<...> depth=<...>`
+- Nested-loop guard (dev/debug only): `[plan/freeze:nested_loop_guard] func=<...> span=<...> recipe_contract=<Some|None> route_kind=<...> depth=<...>`
 - Recipe-first verification (dev/debug only, from `matcher.rs`): `[recipe:verify] route=loop_break status=<ok|fail>`
 - Recipe-first verification (dev/debug only, from `matcher.rs`): `[recipe:verify] route=if_phi_join status=<ok|fail>`
 - Recipe-first match (dev/debug only): `[recipe:match] kind=<...> break=<...> continue=<...> return=<...>`
@@ -271,11 +271,11 @@ Additional plan trace tags (SSOT):
   - Purpose: Inspect Pattern3IfPhi normalizer input when a variable is missing.
   - Output fields (1 line): `ctx=<...> var=<name> locals_count=<n> scope=<...>`
 - `[plan/trace:nested_loop_guard]`
-  - Purpose: Observe strict_nested_loop_guard inputs (nested_loop + allowlist checks).
-  - Output fields (1 line): `func=<...> nested_loop=<bool> facts_present=<bool> allow_generic_loop=<bool> v0=<bool> v1_shape=<bool> v1_exit_allowed=<bool>`
+  - Purpose: Observe strict_nested_loop_guard nested-loop detection inputs.
+  - Output fields (1 line): `func=<...> nested_loop=<bool> facts_present=<bool>`
 - `[plan/trace:nested_loop_guard_entry]`
   - Purpose: Identify strict_nested_loop_guard entrypoint.
-  - Output fields (1 line): `ctx=<entry> features=<features> plan=<plan>`
+  - Output fields (1 line): `ctx=<entry> features=<features> recipe_contract=<Some|None>`
 - `[plan/trace:return_obligation]`
   - Purpose: Observe Return port obligations when Return is observation-only.
   - Output fields (1 line): `port=Return var=<name|none> state=<state|Empty> ctx=<context>`

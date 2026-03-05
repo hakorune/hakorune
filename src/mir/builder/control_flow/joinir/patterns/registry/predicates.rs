@@ -8,12 +8,20 @@ macro_rules! pred {
     };
 }
 
-pred!(pred_loop_break_recipe, pattern2_break);
-pred!(pred_if_phi_join, pattern3_ifphi);
-pred!(pred_loop_continue_only_recipe, pattern4_continue);
-pred!(pred_loop_true_early_exit, pattern5_infinite_early_exit);
+macro_rules! pred_accessor {
+    ($name:ident, $accessor:ident) => {
+        pub(crate) fn $name(facts: &CanonicalLoopFacts) -> bool {
+            facts.facts.$accessor().is_some()
+        }
+    };
+}
+
+pred_accessor!(pred_loop_break_recipe, loop_break);
+pred_accessor!(pred_if_phi_join, if_phi_join);
+pred_accessor!(pred_loop_continue_only_recipe, loop_continue_recipe);
+pred_accessor!(pred_loop_true_early_exit, loop_true_early_exit);
 pub(crate) fn pred_loop_simple_while(facts: &CanonicalLoopFacts) -> bool {
-    if facts.facts.pattern1_simplewhile.is_none() {
+    if facts.facts.loop_simple_while().is_none() {
         return false;
     }
     // Keep scan-methods families on their dedicated routes.
@@ -22,12 +30,12 @@ pub(crate) fn pred_loop_simple_while(facts: &CanonicalLoopFacts) -> bool {
     let scan = ScanFamilyPresence::from_facts(facts);
     !scan.blocks_simple_while()
 }
-pred!(pred_loop_char_map, pattern1_char_map);
-pred!(pred_loop_array_join, pattern1_array_join);
+pred_accessor!(pred_loop_char_map, loop_char_map);
+pred_accessor!(pred_loop_array_join, loop_array_join);
 pred!(pred_scan_with_init, scan_with_init);
 pred!(pred_split_scan, split_scan);
-pred!(pred_bool_predicate_scan, pattern8_bool_predicate_scan);
-pred!(pred_accum_const_loop, pattern9_accum_const_loop);
+pred_accessor!(pred_bool_predicate_scan, bool_predicate_scan);
+pred_accessor!(pred_accum_const_loop, accum_const_loop);
 
 #[derive(Debug, Clone, Copy)]
 struct ScanFamilyPresence {
@@ -79,7 +87,7 @@ pub(crate) fn pred_loop_scan_methods_block_v0(facts: &CanonicalLoopFacts) -> boo
 pred!(pred_loop_scan_phi_vars_v0, loop_scan_phi_vars_v0);
 pred!(pred_loop_scan_v0, loop_scan_v0);
 pred!(pred_loop_collect_using_entries_v0, loop_collect_using_entries_v0);
-pred!(pred_nested_loop_minimal, pattern6_nested_minimal);
+pred_accessor!(pred_nested_loop_minimal, nested_loop_minimal);
 pub(crate) fn pred_loop_bundle_resolver_v0(facts: &CanonicalLoopFacts) -> bool {
     facts.facts.loop_bundle_resolver_v0.is_some()
 }
