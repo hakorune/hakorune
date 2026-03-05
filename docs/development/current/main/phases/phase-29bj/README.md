@@ -9,11 +9,11 @@ Related:
 - docs/development/current/main/phases/phase-29ae/README.md
 ---
 
-# Phase 29bj: planner-required Pattern6/7 (ScanWithInit / SplitScan)
+# Phase 29bj: planner-required Scan/Split (ScanWithInit / SplitScan)
 
 ## Goal
 
-Pattern6/7（ScanWithInit / SplitScan）で、strict/dev gate において
+Scan/Split（ScanWithInit / SplitScan）で、strict/dev gate において
 HAKO_JOINIR_PLANNER_REQUIRED=1 を有効にしても planner-first が通る状態にする。
 release 既定は不変、JoinIR regression gate は常に緑維持。
 
@@ -39,13 +39,13 @@ release 既定は不変、JoinIR regression gate は常に緑維持。
 
 - `./tools/hako_check_loopless_gate.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh`
 
 ## Acceptance criteria (RC)
 
 - `./tools/hako_check_loopless_gate.sh` -> RC=0
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` -> RC=0
-- `./tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh` -> RC=0
+- `./tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh` -> RC=0
 
 ## Policy
 
@@ -54,4 +54,4 @@ release 既定は不変、JoinIR regression gate は常に緑維持。
 - stdout が SSOT。exit code が 0-255 に丸められる場合は allow_rc を使う
 
 P2 note: index_of_min は stdout=2、RC=2（exit code 丸めのため allow_rc を使用）。
-Status note: phase29bj_planner_required_pattern6_7_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
+Status note: phase29bj_planner_required_scan_split_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。

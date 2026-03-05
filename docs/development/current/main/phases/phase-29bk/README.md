@@ -14,7 +14,7 @@ Related:
 
 ## Goal
 
-Pattern2/6/7 の planner-required pack を 1 コマンドで回せる dev gate に統合する。
+Pattern2 + Scan/Split の planner-required pack を 1 コマンドで回せる dev gate に統合する。
 release 既定は不変、JoinIR regression gate は常に緑維持。
 
 ## Non-goals
@@ -32,7 +32,7 @@ release 既定は不変、JoinIR regression gate は常に緑維持。
 ## Target gates
 
 - `./tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
 ## Gate (SSOT)

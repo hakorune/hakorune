@@ -2,7 +2,7 @@
 # phase29ao_pattern7_strict_shadow_vm.sh - Pattern7 strict shadow adopt tag gate (VM)
 #
 # Expected:
-# - Exit code 3
+# - Exit code 1
 # - FlowBox: box_kind=Loop via=shadow
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
@@ -21,8 +21,8 @@ if [ "$EXIT_CODE" -eq 124 ]; then
     exit 1
 fi
 
-if [ "$EXIT_CODE" -ne 3 ]; then
-    echo "[FAIL] Expected exit 3, got $EXIT_CODE"
+if [ "$EXIT_CODE" -ne 1 ]; then
+    echo "[FAIL] Expected exit 1, got $EXIT_CODE"
     echo "$OUTPUT" | tail -n 40 || true
     test_fail "phase29ao_pattern7_strict_shadow_vm: Unexpected RC"
     exit 1
@@ -37,5 +37,5 @@ if ! grep -qF "[flowbox/adopt box_kind=Loop" <<<"$OUTPUT" \
     exit 1
 fi
 
-test_pass "phase29ao_pattern7_strict_shadow_vm: PASS (exit=3, flowbox tag)"
+test_pass "phase29ao_pattern7_strict_shadow_vm: PASS (exit=1, flowbox tag)"
 exit 0

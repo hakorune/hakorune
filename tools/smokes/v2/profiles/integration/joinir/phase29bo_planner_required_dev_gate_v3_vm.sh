@@ -22,8 +22,8 @@ run_gate() {
 run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh" \
   "$LOG_DIR/phase29bo_v3_pattern2_pack.log"
 
-run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh" \
-  "$LOG_DIR/phase29bo_v3_pattern6_7_pack.log"
+run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh" \
+  "$LOG_DIR/phase29bo_v3_scan_split_pack.log"
 
 run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bl_planner_required_pattern1_4_5_pack_vm.sh" \
   "$LOG_DIR/phase29bo_v3_pattern1_4_5_pack.log"
@@ -38,4 +38,3 @@ run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29ae_regression_p
   "$LOG_DIR/phase29bo_v3_regression_pack.log"
 
 echo "[PASS] phase29bo_planner_required_dev_gate_v3_vm: all gates passed"
-

@@ -1,0 +1,4 @@
+# fixture	expected	allow_rc	planner_tag
+apps/tests/phase29aq_string_index_of_min.hako	2	0 2	[joinir/planner_first rule=ScanWithInit] label=ScanWithInit
+apps/tests/phase29aq_string_last_index_of_min.hako	3	0 3	[joinir/planner_first rule=ScanWithInit] label=ScanWithInit
+apps/tests/phase29aq_string_split_min.hako	3	0	[joinir/planner_first rule=SplitScan] label=SplitScan

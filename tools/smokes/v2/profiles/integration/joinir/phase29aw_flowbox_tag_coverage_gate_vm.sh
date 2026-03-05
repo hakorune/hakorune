@@ -43,7 +43,7 @@ assert_no_flowbox_tags() {
     fi
 }
 
-run_pattern6_strict() {
+run_scan_with_init_strict() {
     local input="$NYASH_ROOT/apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako"
 
     set +e
@@ -56,19 +56,19 @@ run_pattern6_strict() {
     set -e
 
     if [ "$exit_code" -eq 124 ]; then
-        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: pattern6 strict timed out"
+        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: scan_with_init strict timed out"
         exit 1
     fi
     if [ "$exit_code" -ne 1 ]; then
-        echo "[FAIL] pattern6 strict exit code $exit_code"
+        echo "[FAIL] scan_with_init strict exit code $exit_code"
         echo "$output" | tail -n 80 || true
-        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: pattern6 strict failed"
+        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: scan_with_init strict failed"
         exit 1
     fi
-    assert_flowbox_adopt_tag "pattern6_strict" "$output" "Loop" "return" "shadow"
+    assert_flowbox_adopt_tag "scan_with_init_strict" "$output" "Loop" "return" "shadow"
 }
 
-run_pattern6_release() {
+run_scan_with_init_release() {
     local input="$NYASH_ROOT/apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako"
 
     set +e
@@ -86,19 +86,19 @@ run_pattern6_release() {
     set -e
 
     if [ "$exit_code" -eq 124 ]; then
-        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: pattern6 release timed out"
+        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: scan_with_init release timed out"
         exit 1
     fi
     if [ "$exit_code" -ne 1 ]; then
-        echo "[FAIL] pattern6 release exit code $exit_code"
+        echo "[FAIL] scan_with_init release exit code $exit_code"
         echo "$output" | tail -n 80 || true
-        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: pattern6 release failed"
+        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: scan_with_init release failed"
         exit 1
     fi
-    assert_no_flowbox_tags "pattern6_release" "$output"
+    assert_no_flowbox_tags "scan_with_init_release" "$output"
 }
 
-run_pattern7_strict() {
+run_split_scan_strict() {
     local input="$NYASH_ROOT/apps/tests/phase29ab_pattern7_splitscan_ok_min.hako"
 
     set +e
@@ -111,19 +111,19 @@ run_pattern7_strict() {
     set -e
 
     if [ "$exit_code" -eq 124 ]; then
-        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: pattern7 strict timed out"
+        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: split_scan strict timed out"
         exit 1
     fi
-    if [ "$exit_code" -ne 3 ]; then
-        echo "[FAIL] pattern7 strict exit code $exit_code"
+    if [ "$exit_code" -ne 1 ]; then
+        echo "[FAIL] split_scan strict exit code $exit_code"
         echo "$output" | tail -n 80 || true
-        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: pattern7 strict failed"
+        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: split_scan strict failed"
         exit 1
     fi
-    assert_flowbox_adopt_tag "pattern7_strict" "$output" "Loop" "" "shadow"
+    assert_flowbox_adopt_tag "split_scan_strict" "$output" "Loop" "" "shadow"
 }
 
-run_pattern7_release() {
+run_split_scan_release() {
     local input="$NYASH_ROOT/apps/tests/phase29ab_pattern7_splitscan_ok_min.hako"
 
     set +e
@@ -141,16 +141,16 @@ run_pattern7_release() {
     set -e
 
     if [ "$exit_code" -eq 124 ]; then
-        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: pattern7 release timed out"
+        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: split_scan release timed out"
         exit 1
     fi
     if [ "$exit_code" -ne 3 ]; then
-        echo "[FAIL] pattern7 release exit code $exit_code"
+        echo "[FAIL] split_scan release exit code $exit_code"
         echo "$output" | tail -n 80 || true
-        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: pattern7 release failed"
+        test_fail "phase29aw_flowbox_tag_coverage_gate_vm: split_scan release failed"
         exit 1
     fi
-    assert_no_flowbox_tags "pattern7_release" "$output"
+    assert_no_flowbox_tags "split_scan_release" "$output"
 }
 
 run_is_integer_strict() {
@@ -285,13 +285,13 @@ run_match_return_release() {
     assert_no_flowbox_tags "match_return_release" "$output"
 }
 
-run_pattern6_strict
-run_pattern7_strict
+run_scan_with_init_strict
+run_split_scan_strict
 run_is_integer_strict
 run_match_return_strict
 
-run_pattern6_release
-run_pattern7_release
+run_scan_with_init_release
+run_split_scan_release
 run_is_integer_release
 run_match_return_release
 

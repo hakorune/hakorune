@@ -98,13 +98,13 @@ impl VariableContext {
     /// Returns the ValueId if the variable exists, otherwise returns Err.
     ///
     /// ## Use cases:
-    /// - Pattern6/7/8: Variable extraction with clear error messages
+    /// - Scan/Split/Predicate routes: Variable extraction with clear error messages
     /// - JoinIR lowering: Carrier/invariant resolution
     ///
     /// ## Example:
     /// ```ignore
-    /// let i_init = builder.variable_ctx.require(&parts.i_var, "pattern7")?;
-    /// let s_host = builder.variable_ctx.require(&parts.s_var, "pattern7")?;
+    /// let i_init = builder.variable_ctx.require(&parts.i_var, "split_scan")?;
+    /// let s_host = builder.variable_ctx.require(&parts.s_var, "split_scan")?;
     /// ```
     ///
     /// Phase 272 P0.2 Refactoring: Eliminate variable_map.get().ok_or() boilerplate

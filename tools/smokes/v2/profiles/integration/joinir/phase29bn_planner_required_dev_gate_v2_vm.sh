@@ -22,8 +22,8 @@ run_gate() {
 run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh" \
   "$LOG_DIR/phase29bn_v2_pattern2_pack.log"
 
-run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh" \
-  "$LOG_DIR/phase29bn_v2_pattern6_7_pack.log"
+run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh" \
+  "$LOG_DIR/phase29bn_v2_scan_split_pack.log"
 
 run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bl_planner_required_pattern1_4_5_pack_vm.sh" \
   "$LOG_DIR/phase29bn_v2_pattern1_4_5_pack.log"

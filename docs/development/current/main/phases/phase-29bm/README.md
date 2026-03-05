@@ -36,7 +36,7 @@ planner miss の Freeze を減らす（Facts/Planner が plan を返せる範囲
 
 ## Status note
 
-- `phase29bj_planner_required_pattern6_7_pack_vm.sh` / `phase29bk_planner_required_dev_gate_vm.sh` / `phase29ae_regression_pack_vm.sh` are green post-change.
+- `phase29bj_planner_required_scan_split_pack_vm.sh` / `phase29bk_planner_required_dev_gate_vm.sh` / `phase29ae_regression_pack_vm.sh` are green post-change.
 
 ## Acceptance criteria (RC)
 
