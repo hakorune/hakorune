@@ -98,6 +98,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `49d23483a` docs(current_task): sync latest cleanup commits and ordered residue queue
+    - root pointer の fixed order を `runtime pattern-key cleanup -> shadow_adopt diagnostics -> docs stale sync` 順へ更新
+  - `26c2dd3d3` refactor(plan): remove runtime pattern-key deref from router and matcher
+    - `router` の `has_loopbodylocal` 判定を `loop_break_body_local()` accessor へ移行
+    - `recipe_tree/matcher` の `verify_route!(facts, pattern*)` を option-expression + accessor ベースへ置換
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `02f4cc7d5` refactor(plan): route-align strict nested loop guard diagnostics
+    - `shadow_adopt` の nested guard helper 名と freeze payload を route/rule 主語へ同期（`Pattern4...` 文言を撤去）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `b37d1208e` docs(plan): align generic-loop and acceptance map wording to route labels
+    - `generic-loop-v1-acceptance-by-recipe-ssot.md` の planner_first 表記を semantic label へ同期
+    - `phase-29bq/README.md` の acceptance map / gate label を route 主語＋legacy 注記へ同期
   - `250e95849` refactor(plan,docs): route-align accessor usage and recipe-first vocabulary
     - `router` / `coreloop_v0,v1,v2` / `shadow_adopt` の facts 参照を accessor 経由へ移行（挙動不変）
     - recipe builder header と active SSOT docs（`ai-handoff` / `recipe-first-entry` / `phase-29bq/README`）の route/rule 語彙を同期
@@ -1104,24 +1116,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. Runtime path の pattern-key 直参照を撤去（step-1a）:
-   - `joinir/patterns/router.rs` の `has_loopbodylocal` 判定を route accessor 化（`loop_break_body_local()`）。
-   - `recipe_tree/matcher/mod.rs` の `verify_route!(facts, pattern*)` 依存を accessor ベースへ置換し、runtime の raw field coupling を解消。
-2. Diagnostic 語彙の最終同期（step-1b）:
-   - `composer/shadow_adopt.rs` の `Pattern4...` freeze payload と helper 名（`allow_strict_nested_pattern4_min1`）を route/rule 主語へ移行（挙動不変）。
-3. SSOT docs の stale 参照掃除（step-1c）:
-   - `generic-loop-v1-acceptance-by-recipe-ssot.md` / `phase-29bq/README.md` の Pattern番号中心記述を route/rule 主語へ段階同期。
-   - debug/tag 契約は `ai-handoff-and-debug-contract.md` を正本に固定し、phase 文書との差分を消す。
-4. `shadow_adopt` 縮退（step-2）:
+1. `shadow_adopt` 縮退（step-2）:
    - minimal cluster は撤去済み（`fd26729ff`）、nested minimal の registry route 化も完了（`66ddbce40`）。
    - 次は `generic_loop_v1/v0` fallback を recipe-first 側へ段階移管し、`shadow_adopt` の責務を strict guard + 最小 fallback へ縮退。
-5. Surface/trace の semantic 語彙統一（step-1 継続）:
+2. Surface/trace の semantic 語彙統一（step-1 継続）:
    - `joinir/routing.rs` / `joinir/trace.rs` / `parity_checker.rs` の主語外しは実施済み（`c76bb7884`, `51234e1b6`）。
    - `LoopRouteContext` rename sweep は src 側完了（`30c94f450`, `c5ca36791`, `0738b745b`）。`LoopPatternContext` alias は撤去済み。
    - 残りは補助ログの route/rule 主語統一（必要最小限）。
    - 既存 gate sentinel は維持しつつ label を route/rule 主語へ段階移行。
-6. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
-7. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
+3. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
+4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
    - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
@@ -1129,7 +1133,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
    - `normalizer` 側窓口は撤去済み、pattern minimal は composer 側へ集約後に folderごと撤去完了（`96591f62b`, `ea8ffeab3`, `fd26729ff`）。
    - 次は `shadow_adopt` の残 fallback（`nested_minimal / generic_loop_v{1,0}`）を縮退し、recipe-first/router 側へ整理する。
-8. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
+5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
 
