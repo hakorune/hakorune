@@ -82,6 +82,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `9fb5a0590` docs align promotion hint tag contract to loop_break vocabulary
+    - debug/trace SSOT（`ai-handoff-and-debug-contract.md`）の promotion hint tag を `[plan/loop_break/promotion_hint:<TrimSeg|DigitPos>]` に更新
+    - phase 運用文書（`phase-29ai/README`, `P15-...`, `phase-29aj/P0`, `phase-29ao/P33`）も同タグへ同期し、契約名の齟齬を解消
   - `776586182` refactor D5 guard recipe-first routing by release eligibility
     - `joinir/patterns/router.rs` で `recipe_first_allowed` を先に計算し、非許可 release lane では `registry::try_route_recipe_first()` 自体を実行しない形に整理
     - release で recipe-first 結果を捨てるだけの実行を防止し、fallback lane との責務境界を明確化（挙動維持）
