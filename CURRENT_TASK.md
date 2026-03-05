@@ -82,6 +82,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `7ce300120` docs joinir-design-map refresh stale pattern-path references to recipe-first topology
+    - `joinir-design-map.md` の削除済み `joinir/patterns/pattern*.rs` / `joinir/legacy/*` / `joinir/patterns/conversion_pipeline.rs` 参照を現行 `router/registry/plan` 構成へ更新
+    - 「Pattern検出」主語を route 主語へ揃え、entry/checklist も `plan/ast_feature_extractor.rs` ベースへ同期
   - `51234e1b6` refactor D5 align joinir trace/parity wording to semantic route vocabulary
     - `joinir/trace.rs` の route trace 主語を `[trace:route]` に更新し、`pattern()` は互換 shim として維持
     - `joinir/parity_checker.rs` の parity 診断を `semantic_label()` ベースへ変更し、`canonical/actual` の runtime 表示から Pattern番号依存を除去
@@ -799,7 +802,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - 残りは補助ログの route/rule 主語統一（必要最小限）。
    - 既存 gate sentinel は維持しつつ label を route/rule 主語へ段階移行。
 3. SSOT docs の stale 参照掃除:
-   - `joinir-design-map.md` など、削除済み `pattern*.rs` へのリンクを現行 `router/registry/composer` 構成へ更新。
+   - `joinir-design-map.md` は更新済み（`7ce300120`）。
+   - 次は `phase-29bq/README.md` と design 配下の Pattern番号中心記述を、現行 route/rule 主語へ段階同期。
    - debug/tag 契約は `ai-handoff-and-debug-contract.md` を正本に固定し、phase 文書との差分を消す。
 4. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
 5. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
