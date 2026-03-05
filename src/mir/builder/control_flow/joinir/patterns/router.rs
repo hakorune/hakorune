@@ -79,7 +79,7 @@ impl<'a> LoopPatternContext<'a> {
     /// Create new context from routing parameters
     ///
     /// Automatically detects continue/break statements in body
-    /// Extracts features and classifies pattern from AST
+    /// Extracts features and classifies route kind from AST
     /// Detects infinite loop condition
     /// Uses choose_route_kind() SSOT entry point
     pub(crate) fn new(
@@ -89,7 +89,7 @@ impl<'a> LoopPatternContext<'a> {
         debug: bool,
         in_static_box: bool,
     ) -> Self {
-        // Phase 137-6-S1: Use SSOT pattern selection entry point
+        // Phase 137-6-S1: Use SSOT route selection entry point
         use crate::mir::builder::control_flow::joinir::routing::choose_route_kind;
         let pattern_kind = choose_route_kind(condition, body);
 
@@ -216,7 +216,7 @@ fn freeze_expected_plan(
     flowbox_tags::emit_flowbox_freeze_contract(strict_or_dev, tag, facts, message)
 }
 
-pub(crate) fn route_loop_pattern(
+pub(crate) fn route_loop(
     builder: &mut MirBuilder,
     ctx: &LoopPatternContext,
 ) -> Result<Option<ValueId>, String> {

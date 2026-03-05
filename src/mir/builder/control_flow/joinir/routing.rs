@@ -467,7 +467,7 @@ impl MirBuilder {
         }
 
         // Phase 194: Use table-driven router instead of if/else chain
-        use super::patterns::{route_loop_pattern, LoopPatternContext};
+        use super::patterns::{route_loop, LoopPatternContext};
 
         // Phase 200-C: Pass fn_body_ast to LoopPatternContext if available
         // Clone fn_body_ast to avoid borrow checker issues
@@ -516,7 +516,7 @@ impl MirBuilder {
             result?;
         }
 
-        if let Some(result) = route_loop_pattern(self, &ctx)? {
+        if let Some(result) = route_loop(self, &ctx)? {
             trace::trace().routing("router", func_name, "Loop router succeeded");
             return Ok(Some(result));
         }
@@ -525,7 +525,7 @@ impl MirBuilder {
         trace::trace().routing(
             "router",
             func_name,
-            "Loop router found no match (no legacy fallback)",
+            "Loop router found no route (no legacy fallback)",
         );
         Ok(None)
     }
