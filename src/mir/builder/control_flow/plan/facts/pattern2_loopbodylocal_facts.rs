@@ -1,4 +1,4 @@
-//! Phase 29ai P12: Pattern2 LoopBodyLocal facts (Facts SSOT)
+//! Phase 29ai P12: loop_break loopbodylocal facts (legacy label: Pattern2, SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::planner::Freeze;

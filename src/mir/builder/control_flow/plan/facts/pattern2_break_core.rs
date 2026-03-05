@@ -1,4 +1,5 @@
-//! Phase 29ai P11: Core Pattern2Break extraction logic
+//! Phase 29ai P11: Core loop_break extraction logic
+//! (legacy type: Pattern2BreakFacts)
 //!
 //! This module contains the main entry function and fallback extraction logic.
 
@@ -23,7 +24,8 @@ use super::pattern2_break_realworld::try_extract_pattern2_break_realworld_subset
 use super::pattern2_break_loopbodylocal::try_extract_pattern2_break_loopbodylocal_subset;
 use super::pattern2_break_step_before_break::try_extract_pattern2_break_step_before_break_subset;
 
-/// Main entry point for Pattern2Break facts extraction.
+/// Main entry point for loop_break facts extraction
+/// (legacy type: Pattern2BreakFacts).
 ///
 /// Tries each subset extractor in order, then falls back to generic extraction.
 pub(in crate::mir::builder) fn try_extract_pattern2_break_facts(

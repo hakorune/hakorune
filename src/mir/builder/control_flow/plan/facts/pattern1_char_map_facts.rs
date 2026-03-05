@@ -1,4 +1,4 @@
-//! Phase 29ap P2: Pattern1CharMapFacts (stdlib to_lower subset)
+//! Phase 29ap P2: loop_char_map facts (legacy type: Pattern1CharMapFacts, stdlib to_lower subset)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{

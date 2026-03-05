@@ -1,4 +1,4 @@
-//! Phase 29aj P4: Pattern4ContinueFacts (Facts SSOT)
+//! Phase 29aj P4: loop_continue_only facts (legacy type: Pattern4ContinueFacts, SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{

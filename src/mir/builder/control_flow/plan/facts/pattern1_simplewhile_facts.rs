@@ -1,4 +1,4 @@
-//! Phase 29aj P2: Pattern1SimpleWhileFacts (Facts SSOT)
+//! Phase 29aj P2: loop_simple_while facts (legacy type: Pattern1SimpleWhileFacts, SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::planner::Freeze;

@@ -1,4 +1,4 @@
-//! Phase 29ai P11: Pattern2BreakFacts type definitions
+//! Phase 29ai P11: loop_break facts type definitions (legacy type: Pattern2BreakFacts)
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;

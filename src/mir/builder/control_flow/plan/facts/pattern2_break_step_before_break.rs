@@ -6,7 +6,8 @@ use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
 };
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
-/// Phase 29bq: Pattern2Break step-before-break subset (strict/dev + planner-required only)
+/// Phase 29bq: loop_break step-before-break subset
+/// (legacy type: Pattern2BreakFacts; strict/dev + planner-required only)
 ///
 /// Shape:
 /// ```text

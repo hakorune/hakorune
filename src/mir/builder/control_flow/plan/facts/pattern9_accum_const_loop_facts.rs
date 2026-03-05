@@ -1,4 +1,4 @@
-//! Phase 29aj P8: Pattern9AccumConstLoopFacts (Facts SSOT)
+//! Phase 29aj P8: accum_const_loop facts (legacy type: Pattern9AccumConstLoopFacts, SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{

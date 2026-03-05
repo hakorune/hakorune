@@ -1,4 +1,4 @@
-//! Phase 29ai P11: Tests for Pattern2Break facts extraction
+//! Phase 29ai P11: Tests for loop_break facts extraction (legacy type: Pattern2BreakFacts)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 

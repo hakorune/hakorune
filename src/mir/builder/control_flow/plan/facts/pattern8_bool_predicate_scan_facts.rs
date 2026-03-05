@@ -1,4 +1,4 @@
-//! Phase 29aj P7: Pattern8BoolPredicateScanFacts (Facts SSOT)
+//! Phase 29aj P7: bool_predicate_scan facts (legacy type: Pattern8BoolPredicateScanFacts, SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{

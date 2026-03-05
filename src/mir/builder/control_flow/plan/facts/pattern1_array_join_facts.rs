@@ -1,4 +1,4 @@
-//! Phase 29ap P3: Pattern1ArrayJoinFacts (stdlib StringUtils.join subset)
+//! Phase 29ap P3: loop_array_join facts (legacy type: Pattern1ArrayJoinFacts, stdlib StringUtils.join subset)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{

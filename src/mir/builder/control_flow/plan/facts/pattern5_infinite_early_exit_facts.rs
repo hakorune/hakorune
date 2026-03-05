@@ -1,4 +1,4 @@
-//! Phase 29aj P5: Pattern5InfiniteEarlyExitFacts (Facts SSOT)
+//! Phase 29aj P5: loop_true_early_exit facts (legacy type: Pattern5InfiniteEarlyExitFacts, SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{

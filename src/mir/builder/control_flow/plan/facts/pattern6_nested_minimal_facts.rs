@@ -1,4 +1,4 @@
-//! Phase 29ap P10: Pattern6NestedMinimalFacts (Facts SSOT)
+//! Phase 29ap P10: nested_minimal facts (legacy type: Pattern6NestedMinimalFacts, SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::facts::pattern9_accum_const_loop_facts::try_extract_pattern9_accum_const_loop_facts;

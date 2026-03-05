@@ -1,4 +1,5 @@
-//! Phase 29ai P11: Shared helper functions for Pattern2Break extraction
+//! Phase 29ai P11: Shared helper functions for loop_break extraction
+//! (legacy type: Pattern2BreakFacts)
 //!
 //! These helpers are used by multiple subset detectors.
 //!

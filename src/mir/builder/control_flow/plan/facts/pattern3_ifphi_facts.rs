@@ -1,4 +1,4 @@
-//! Phase 29aj P3: Pattern3IfPhiFacts (Facts SSOT)
+//! Phase 29aj P3: if_phi_join facts (legacy type: Pattern3IfPhiFacts, SSOT)
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
