@@ -1,17 +1,17 @@
-//! Pattern lowerers for different loop constructs
+//! Loop route entrypoints for JoinIR lowering.
 //!
 //! Phase 2: Extracted from control_flow.rs
-//! - Pattern 1: Simple While Loop (pattern1_minimal.rs)
-//! - Pattern 3: Loop with If-Else PHI (pattern3_with_if_phi.rs)
-//! - Pattern 4: Loop with Continue (migrated to plan routing in Phase 29ap P8)
+//! - loop_simple_while
+//! - if_phi_join
+//! - loop_continue_recipe (migrated to plan routing in Phase 29ap P8)
 //!
 //! Phase 29ap P12: Router delegates to plan/composer SSOT (legacy table removed)
 //! - Router only coordinates planner/composer adoption
-//! - Pattern-specific logic lives in plan layer
+//! - rule-specific logic lives in plan layer
 //!
 //! Phase 193: AST Feature Extraction Modularization
 //! - ast_feature_extractor.rs: Pure function module for analyzing loop AST (thin wrapper)
-//! - High reusability for Pattern 5-6 and pattern analysis tools
+//! - High reusability for loop analysis tools
 //!
 //! Phase 193-4 / Phase 222.5-C: Exit Binding Builder
 //! - exit_binding.rs: Fully boxified exit binding generation (orchestrator, thin wrapper)
@@ -19,9 +19,9 @@
 //! - exit_binding_constructor.rs: Exit binding construction and ValueId allocation (thin wrapper)
 //! - exit_binding_applicator.rs: Boundary application logic (thin wrapper)
 //! - Eliminates hardcoded variable names and ValueId assumptions
-//! - Supports both single and multi-carrier loop patterns
+//! - Supports both single and multi-carrier loop routes
 //!
-//! Phase 33-22: Common Pattern Infrastructure
+//! Phase 33-22: Common Loop Infrastructure
 //! - common_init.rs: CommonPatternInitializer for unified initialization (thin wrapper)
 //! - conversion_pipeline.rs: JoinIRConversionPipeline for unified conversion flow (moved to plan/)
 //!
@@ -31,19 +31,19 @@
 //!
 //! Phase 33-23: Pattern-Specific Analyzers (Stage 2)
 //!
-//! Stage 3 + Issue 1: Trim Pattern Extraction
+//! Stage 3 + Issue 1: Trim Route Extraction
 //! - trim_pattern_validator.rs: Trim pattern validation and whitespace check generation (moved to plan/)
 //! - trim_pattern_lowerer.rs: Trim-specific JoinIR lowering (moved to plan/)
 //!
-//! Phase 179-B: Generic Pattern Framework
-//! - pattern_pipeline.rs: Unified preprocessing pipeline for Patterns 1-3 (moved to plan/)
+//! Phase 179-B: Generic Loop Framework
+//! - pattern_pipeline.rs: Unified preprocessing pipeline for simple loop families (moved to plan/)
 //!
-//! Phase 91 P5b: Escape Pattern Recognizer
-//! - escape_pattern_recognizer.rs: P5b (escape sequence handling) pattern detection (thin wrapper)
+//! Phase 91 P5b: Escape Recognizer
+//! - escape_pattern_recognizer.rs: P5b (escape sequence handling) detection (thin wrapper)
 //! - Extracted from ast_feature_extractor for improved modularity
 //!
-//! Phase 93/94: Pattern Policies
-//! - policies/: Pattern recognition and routing decision (thin wrapper)
+//! Phase 93/94: Route Policies
+//! - policies/: route recognition and routing decision (thin wrapper)
 //! - Implementations moved to plan/
 //!
 //! Phase 255 P2: Common Utilities

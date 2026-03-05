@@ -1,4 +1,4 @@
-//! Pattern Router - Plan/Composer routing for loop patterns
+//! Loop Route Router - plan/composer entry routing for loop lowering.
 //!
 //! Phase 29ap P12: Legacy loop table removed (plan/composer SSOT only)
 //!
@@ -8,7 +8,7 @@
 //! - composer adopts CorePlan (strict/dev shadow or release adopt)
 //! - PlanLowerer emits MIR from CorePlan (emit_frag SSOT)
 //!
-//! # Adding New Patterns
+//! # Adding New Loop Routes
 //!
 //! 1. Add Facts/Planner extraction in plan layer
 //! 2. Normalize/verify in plan normalizer/verifier
@@ -39,7 +39,7 @@ use crate::mir::builder::control_flow::plan::CorePlan;
 /// Phase 92 P0-2: Import LoopSkeleton for Option A
 use crate::mir::loop_canonicalizer::LoopSkeleton;
 
-/// Context passed to pattern detect/lower functions
+/// Context passed to loop route detection/lowering functions.
 pub(crate) struct LoopPatternContext<'a> {
     /// Loop condition AST node
     pub condition: &'a ASTNode,
@@ -53,10 +53,10 @@ pub(crate) struct LoopPatternContext<'a> {
     /// Debug logging enabled
     pub debug: bool,
 
-    /// In static box context? (affects Pattern8 routing)
+    /// In static box context? (affects scan-predicate route behavior)
     pub in_static_box: bool,
 
-    /// Phase 192: Pattern classification based on features
+    /// Phase 192: Loop classification based on features.
     pub pattern_kind: LoopPatternKind,
 
     /// Phase 200-C: Optional function body AST for capture analysis
@@ -64,13 +64,13 @@ pub(crate) struct LoopPatternContext<'a> {
     pub fn_body: Option<&'a [ASTNode]>,
 
     /// Phase 92 P0-2: Optional LoopSkeleton from canonicalizer
-    /// This provides ConditionalStep information for Pattern2 lowering.
+    /// This provides ConditionalStep information for loop-break recipe lowering.
     /// None if canonicalizer hasn't run yet (backward compatibility).
     /// SSOT Principle: Avoid re-detecting ConditionalStep in lowering phase.
     pub skeleton: Option<&'a LoopSkeleton>,
 
-    /// Phase 188.3: Cached StepTree max_loop_depth for Pattern6
-    /// None if not computed, Some(depth) if Pattern6 candidate
+    /// Phase 188.3: Cached StepTree max_loop_depth for nested-loop minimal routes.
+    /// None if not computed, Some(depth) when nested-loop candidate is present.
     /// Avoids re-building StepTree in lowering phase
     pub step_tree_max_loop_depth: Option<u32>,
 }
@@ -124,7 +124,7 @@ impl<'a> LoopPatternContext<'a> {
 
 // Phase 29ai P5: Plan extractor routing moved to `plan::single_planner`.
 
-/// Route loop patterns via plan/composer SSOT.
+/// Route loops via plan/composer SSOT.
 ///
 /// Returns Ok(Some(value_id)) if a plan matched and lowered successfully.
 /// Returns Ok(None) if no plan matched.
@@ -140,9 +140,9 @@ impl<'a> LoopPatternContext<'a> {
 /// - PlanVerifier::verify() → fail-fast validation
 /// - PlanLowerer::lower() → MIR emission (pattern-agnostic, emit_frag SSOT)
 ///
-/// SSOT Entry Points:
-/// - Pattern6: src/mir/builder/control_flow/plan/normalizer.rs (ScanWithInit normalization)
-/// - Pattern7: src/mir/builder/control_flow/plan/normalizer.rs (SplitScan normalization)
+/// SSOT entry points:
+/// - `scan_with_init`: `src/mir/builder/control_flow/plan/normalizer.rs`
+/// - `split_scan`: `src/mir/builder/control_flow/plan/normalizer.rs`
 pub(super) fn lower_verified_core_plan(
     builder: &mut MirBuilder,
     ctx: &LoopPatternContext,
@@ -228,7 +228,7 @@ pub(crate) fn route_loop_pattern(
         || crate::config::env::joinir_dev_enabled();
     let planner_required =
         strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
-    // loopbodylocal flowbox tagging is handled in the recipe-first Pattern2Break path
+    // loopbodylocal flowbox tagging is handled in the recipe-first loop_break_recipe path
     // and must not depend on planner payload presence.
     let has_loopbodylocal = outcome
         .facts

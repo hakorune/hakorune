@@ -81,8 +81,8 @@ fn debug_log_recipe_only_entry(rule_id: PlanRuleId) {
 
 fn promotion_hint_tag(shape: &LoopBodyLocalShape) -> &'static str {
     match shape {
-        LoopBodyLocalShape::TrimSeg { .. } => "[plan/pattern2/promotion_hint:TrimSeg]",
-        LoopBodyLocalShape::DigitPos { .. } => "[plan/pattern2/promotion_hint:DigitPos]",
+        LoopBodyLocalShape::TrimSeg { .. } => "[plan/loop_break/promotion_hint:TrimSeg]",
+        LoopBodyLocalShape::DigitPos { .. } => "[plan/loop_break/promotion_hint:DigitPos]",
     }
 }
 
@@ -255,11 +255,11 @@ mod tests {
         };
         assert_eq!(
             promotion_hint_tag(&trim),
-            "[plan/pattern2/promotion_hint:TrimSeg]"
+            "[plan/loop_break/promotion_hint:TrimSeg]"
         );
         assert_eq!(
             promotion_hint_tag(&digit),
-            "[plan/pattern2/promotion_hint:DigitPos]"
+            "[plan/loop_break/promotion_hint:DigitPos]"
         );
     }
 }
