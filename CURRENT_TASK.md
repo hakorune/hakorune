@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `43ef81045` docs D5 clarify LoopPatternContext alias as temporary migration shim
+    - `joinir/patterns/router.rs` の alias 説明に「新規コードは `LoopRouteContext` を使用」「`plan/**` 移行完了後に alias 撤去」を明記
+    - 実装挙動は不変（ドキュメントコメントのみ）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `31810beab` refactor D5 align joinir module comments to route vocabulary
     - `joinir/{mod.rs,control_tree_capability_guard.rs,routing.rs}` の残存コメントを `Pattern` 主語から `route/route-shape` 主語へ調整（例: `Pattern lowerers` -> `Route lowerers`）
     - runtime 制御フロー・判定ロジックは不変（コメント語彙のみ）
