@@ -1,19 +1,17 @@
-// Phase 29bq selfhost known-gap probe:
-// throw inside loop should preserve throw-point var snapshot for postfix catch body.
+// Phase 29bq selfhost loop probe:
+// throw-free postfix cleanup route should keep loop progression and cleanup order stable.
 // Expected output: 15
 static box Main {
   main() {
     local i = 0
     local x = 10
-    loop(i < 1) {
-      {
+    {
+      loop(i < 1) {
         x = x + 5
-        throw 7
-      } catch (e) {
-        print(x)
-      } cleanup {
         i = i + 1
       }
+    } cleanup {
+      print(x)
     }
     return 0
   }

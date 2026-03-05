@@ -55,14 +55,14 @@ static box LowerLoopMultiCarrierBox {
 
     // 5) Build opts for multi_count mode with detected carriers
     local opts = LoopOptsBox.new_map()
-    opts = LoopOptsBox.put(opts, "mode", "multi_count")
-    opts = LoopOptsBox.put(opts, "limit_kind", limit_kind)
+    LoopOptsBox.put(opts, "mode", "multi_count")
+    LoopOptsBox.put(opts, "limit_kind", limit_kind)
     if limit_kind == "const" {
-      opts = LoopOptsBox.put(opts, "limit", limit_value)
+      LoopOptsBox.put(opts, "limit", limit_value)
     } else {
-      opts = LoopOptsBox.put(opts, "limit_param_reg", limit_param_reg)
+      LoopOptsBox.put(opts, "limit_param_reg", limit_param_reg)
     }
-    opts = LoopOptsBox.put(opts, "carriers", carrier_vals)
+    LoopOptsBox.put(opts, "carriers", carrier_vals)
 
     local tag = "[mirbuilder/internal/loop:multi_carrier:detected:limit_kind=" + limit_kind
     if limit_kind == "const" {

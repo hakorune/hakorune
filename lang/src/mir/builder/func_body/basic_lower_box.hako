@@ -15,6 +15,7 @@ using "hako.mir.builder.internal.lower_if_compare_fold_varint" as LowerIfCompare
 using "hako.mir.builder.internal.lower_if_compare_varint" as LowerIfCompareVarIntBox
 using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVarBox
 using "hako.mir.builder.internal.lower_loop_simple_box" as LowerLoopSimpleBox
+using "hako.mir.builder.internal.lower_loop_count_param_box" as LowerLoopCountParamBox
 using "hako.mir.builder.internal.lower_loop_sum_bc_box" as LowerLoopSumBcBox
 using "hako.mir.builder.internal.lower_loop_multi_carrier_box" as LowerLoopMultiCarrierBox
 
@@ -573,11 +574,15 @@ static box FuncBodyBasicLowerBox {
     { local out_mc = LowerLoopMultiCarrierBox.try_lower(body_json, params_arr)
       if out_mc != null { return me._rebind(out_mc, func_name, box_name, params_arr, "[funcs/basic:loop.multi_carrier]") } }
 
-    // 4) 最後に simple loop 用 lower を試す（単純カウンタ）
+    // 4) まず count_param loop 用 lower を試す（limit/step/cmp 付き）
+    { local out_cp = LowerLoopCountParamBox.try_lower(body_json)
+      if out_cp != null { return me._rebind(out_cp, func_name, box_name, params_arr, "[funcs/basic:loop.count_param]") } }
+
+    // 5) 次に simple loop 用 lower を試す（単純カウンタ）
     { local out2 = LowerLoopSimpleBox.try_lower(body_json)
       if out2 != null { return me._rebind(out2, func_name, box_name, params_arr, "[funcs/basic:loop.simple]") } }
 
-    // 5) ここまででダメなら selfhost 側では未対応
+    // 6) ここまででダメなら selfhost 側では未対応
     return null
   }
 }

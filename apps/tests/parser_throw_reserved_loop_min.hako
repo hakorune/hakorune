@@ -1,0 +1,10 @@
+// Surface throw is reserved even inside loops.
+static box Main {
+  main() {
+    local i = 0
+    loop(i < 1) {
+      throw 7
+    }
+    return 0
+  }
+}

@@ -18,25 +18,31 @@ static box LowerLoopSimpleBox {
     if varname == null { return null }
 
     // Stable contract: only lhs=Var(varname), rhs=Int, op="<"
-    local has_lhs_i = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
-    local has_rhs_i = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}", k_cmp) >= 0
-    if !has_lhs_i { return null }
-    if has_rhs_i { return null }
+    local lhs_pat = "\"lhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}"
+    local rhs_pat = "\"rhs\":{\"type\":\"Var\",\"name\":\"" + varname + "\"}"
+    local lhs_idx = JsonFragBox.index_of_from(s, lhs_pat, k_cmp)
+    if lhs_idx < 0 { return null }
+    local rhs_idx = JsonFragBox.index_of_from(s, rhs_pat, k_cmp)
+    if rhs_idx >= 0 { return null }
 
-    local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_cmp); if k_op < 0 { return null }
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_cmp)
+    if k_op < 0 { return null }
     local op = JsonFragBox.read_string_after(s, k_op + 5)
     if op == null { return null }
     if op != "<" { return null }
 
-    local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp); if k_rhs < 0 { return null }
-    local k_ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs); if k_ti < 0 { return null }
-    local k_v = JsonFragBox.index_of_from(s, "\"value\":", k_ti); if k_v < 0 { return null }
+    local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp)
+    if k_rhs < 0 { return null }
+    local k_ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs)
+    if k_ti < 0 { return null }
+    local k_v = JsonFragBox.index_of_from(s, "\"value\":", k_ti)
+    if k_v < 0 { return null }
     local limit = JsonFragBox.read_int_after(s, k_v + 8)
     if limit == null { return null }
 
     local opts = LoopOptsBox.new_map()
-    opts = LoopOptsBox.put(opts, "mode", "count")
-    opts = LoopOptsBox.put(opts, "limit", limit)
+    LoopOptsBox.put(opts, "mode", "count")
+    LoopOptsBox.put(opts, "limit", limit)
     return LoopOptsBox.build2(opts)
   }
 }

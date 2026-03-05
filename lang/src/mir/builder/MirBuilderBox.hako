@@ -247,8 +247,8 @@ static box MirBuilderBox {
           if skip_loops2 == null || ("" + skip_loops2) != "1" { do_loops2 = 1 }
           if do_loops2 == 1 {
             { local out_loop_min = LowerLoopLocalReturnVarBox.try_lower(s); if out_loop_min != null { return me._norm_if_apply(out_loop_min, func_defs_mir) } }
-            { local out_loop = LowerLoopSimpleBox.try_lower(s); if out_loop != null { return me._norm_if_apply(out_loop, func_defs_mir) } }
             { local out_loopp = LowerLoopCountParamBox.try_lower(s); if out_loopp != null { return me._norm_if_apply(out_loopp, func_defs_mir) } }
+            { local out_loop = LowerLoopSimpleBox.try_lower(s); if out_loop != null { return me._norm_if_apply(out_loop, func_defs_mir) } }
           }
         }
         { local out_toc = LowerTypeOpCheckBox.try_lower(s); if out_toc != null { return me._norm_if_apply(out_toc, func_defs_mir) } }

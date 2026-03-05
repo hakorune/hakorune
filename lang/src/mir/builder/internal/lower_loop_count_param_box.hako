@@ -20,25 +20,8 @@ static box LowerLoopCountParamBox {
     local varname = LoopScanBox.find_loop_var_name(s, k_cmp)
     if varname == null { return null }
 
-    // Local <varname> = (Int start_value | Var startName)
-    local k_local_i = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", 0)
-    if k_local_i < 0 { return null }
-    if JsonFragBox.index_of_from(s, "\"name\":\"" + varname + "\"", k_local_i) < 0 { return null }
-    local start_value = null
-    {
-      local k_init_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_local_i)
-      local k_loop_next = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", k_local_i)
-      if k_init_int >= 0 && (k_loop_next < 0 || k_init_int < k_loop_next) {
-        local kv_i = JsonFragBox.index_of_from(s, "\"value\":", k_init_int); if kv_i >= 0 { start_value = JsonFragBox.read_int_after(s, kv_i + 8) }
-      } else {
-        local k_init_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_local_i)
-        if k_init_var >= 0 && (k_loop_next < 0 || k_init_var < k_loop_next) {
-          local kn_i = JsonFragBox.index_of_from(s, "\"name\":\"", k_init_var); if kn_i < 0 { return null }
-          local vname = JsonFragBox.read_string_after(s, kn_i)
-          if vname != null { start_value = PatternUtilBox.find_local_int_before(s, vname, k_local_i) }
-        }
-      }
-    }
+    // Resolve loop init from the last Local(varname=...) before this Loop.
+    local start_value = PatternUtilBox.find_local_int_before(s, varname, k_loop)
     if start_value == null { return null }
     // Loop Compare normalize: accept < / <= / > / >= with Var(varname) on either side
     // op: accept '<'/'<=' with i on lhs; '>'/'>=' with i on lhs (descending); swapped '>'/'>=' with i on rhs (ascending)
@@ -50,15 +33,20 @@ static box LowerLoopCountParamBox {
     if !has_lhs_i && !has_rhs_i { return null }
     local cmp = null
     local limit = null
+    // Keep lookups inside this Compare object to avoid matching body Binary rhs.
+    local k_cmp_obj = JsonFragBox.last_index_of_from(s, "{", k_cmp); if k_cmp_obj < 0 { return null }
+    local k_cmp_end = me._seek_object_end(s, k_cmp_obj); if k_cmp_end < 0 { return null }
     if has_lhs_i {
       // rhs Int/Var → resolve limit
-      local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp); if k_rhs < 0 { return null }
-      local k_lim_t = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs)
-      if k_lim_t >= 0 { local kv = JsonFragBox.index_of_from(s, "\"value\":", k_lim_t); if kv >= 0 { limit = JsonFragBox.read_int_after(s, kv + 8) } }
+      local k_rhs_int = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", k_cmp)
+      if k_rhs_int >= 0 && k_rhs_int < k_cmp_end {
+        local kv = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int)
+        if kv >= 0 && kv < k_cmp_end { limit = JsonFragBox.read_int_after(s, kv + 8) }
+      }
       else {
-        local k_rv = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_rhs); if k_rv < 0 { return null }
-        local kn = JsonFragBox.index_of_from(s, "\"name\":\"", k_rhs); if kn < 0 { return null }
-        local lname = JsonFragBox.read_string_after(s, kn); if lname == null { return null }
+        local k_rhs_var = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\"", k_cmp); if k_rhs_var < 0 || k_rhs_var >= k_cmp_end { return null }
+        local kn = JsonFragBox.index_of_from(s, "\"name\":\"", k_rhs_var); if kn < 0 || kn >= k_cmp_end { return null }
+        local lname = JsonFragBox.read_string_after(s, kn + 7); if lname == null { return null }
         limit = PatternUtilBox.find_local_int_before(s, lname, k_cmp)
       }
       if limit == null { return null }
@@ -70,13 +58,15 @@ static box LowerLoopCountParamBox {
       limit = norm.substring(cpos+1, norm.length())
     } else {
       if op != ">" && op != ">=" && op != "<" && op != "<=" && op != "!=" { return null }
-      local k_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp); if k_lhs < 0 { return null }
-      local k_lim_t2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_lhs)
-      if k_lim_t2 >= 0 { local kv2 = JsonFragBox.index_of_from(s, "\"value\":", k_lim_t2); if kv2 >= 0 { limit = JsonFragBox.read_int_after(s, kv2 + 8) } }
+      local k_lhs_int = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Int\"", k_cmp)
+      if k_lhs_int >= 0 && k_lhs_int < k_cmp_end {
+        local kv2 = JsonFragBox.index_of_from(s, "\"value\":", k_lhs_int)
+        if kv2 >= 0 && kv2 < k_cmp_end { limit = JsonFragBox.read_int_after(s, kv2 + 8) }
+      }
       else {
-        local k_lv = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_lhs); if k_lv < 0 { return null }
-        local kn3 = JsonFragBox.index_of_from(s, "\"name\":\"", k_lhs); if kn3 < 0 { return null }
-        local lname3 = JsonFragBox.read_string_after(s, kn3); if lname3 == null { return null }
+        local k_lhs_var = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\"", k_cmp); if k_lhs_var < 0 || k_lhs_var >= k_cmp_end { return null }
+        local kn3 = JsonFragBox.index_of_from(s, "\"name\":\"", k_lhs_var); if kn3 < 0 || kn3 >= k_cmp_end { return null }
+        local lname3 = JsonFragBox.read_string_after(s, kn3 + 7); if lname3 == null { return null }
         limit = PatternUtilBox.find_local_int_before(s, lname3, k_cmp)
       }
       if limit == null { return null }
@@ -100,15 +90,17 @@ static box LowerLoopCountParamBox {
     local step = null
     // Prefer rhs Int if present; otherwise try rhs Var and reverse-lookup its Local Int
     {
-      local k_rhsb = JsonFragBox.index_of_from(s, "\"rhs\":{", k_bop); if k_rhsb < 0 { return null }
-      local k_t_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhsb)
-      if k_t_int >= 0 {
-        local kvs = JsonFragBox.index_of_from(s, "\"value\":", k_t_int); if kvs >= 0 { step = JsonFragBox.read_int_after(s, kvs + 8) }
+      local k_bop_obj = JsonFragBox.last_index_of_from(s, "{", k_bop); if k_bop_obj < 0 { return null }
+      local k_bop_end = me._seek_object_end(s, k_bop_obj); if k_bop_end < 0 { return null }
+      local k_rhs_int_b = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", k_bop)
+      if k_rhs_int_b >= 0 && k_rhs_int_b < k_bop_end {
+        local kvs = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int_b)
+        if kvs >= 0 && kvs < k_bop_end { step = JsonFragBox.read_int_after(s, kvs + 8) }
       } else {
-        local k_t_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_rhsb)
-        if k_t_var < 0 { return null }
-        local kns = JsonFragBox.index_of_from(s, "\"name\":\"", k_rhsb); if kns < 0 { return null }
-        local vname = JsonFragBox.read_string_after(s, kns); if vname == null { return null }
+        local k_rhs_var_b = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\"", k_bop)
+        if k_rhs_var_b < 0 || k_rhs_var_b >= k_bop_end { return null }
+        local kns = JsonFragBox.index_of_from(s, "\"name\":\"", k_rhs_var_b); if kns < 0 || kns >= k_bop_end { return null }
+        local vname = JsonFragBox.read_string_after(s, kns + 7); if vname == null { return null }
         step = PatternUtilBox.find_local_int_before(s, vname, k_bop)
       }
     }
@@ -139,11 +131,37 @@ static box LowerLoopCountParamBox {
     // Build via LoopFormBox.build2 ({ mode:"count", init, limit, step, cmp })
     // Adapter集中（JsonFrag化の踏み台）
     local opts = LoopOptsBox.new_map()
-    opts = LoopOptsBox.put(opts, "mode", "count")
-    opts = LoopOptsBox.put(opts, "init", start_value)
-    opts = LoopOptsBox.put(opts, "limit", limit)
-    opts = LoopOptsBox.put(opts, "step", step)
-    opts = LoopOptsBox.put(opts, "cmp", cmp)
+    LoopOptsBox.put(opts, "mode", "count")
+    LoopOptsBox.put(opts, "init", start_value)
+    LoopOptsBox.put(opts, "limit", limit)
+    LoopOptsBox.put(opts, "step", step)
+    LoopOptsBox.put(opts, "cmp", cmp)
     return LoopOptsBox.build2(opts)
+  }
+
+  // Seek matching object end index '}' for object starting at lbrace_pos.
+  _seek_object_end(text, lbrace_pos) {
+    if text == null { return -1 }
+    local s = "" + text
+    local n = s.length()
+    local depth = 0
+    local i = lbrace_pos
+    local in_str = 0
+    loop(i < n) {
+      local ch = s.substring(i, i+1)
+      if in_str == 1 {
+        if ch == "\"" { in_str = 0 }
+        if ch == "\\" { i = i + 1 }
+      } else {
+        if ch == "\"" { in_str = 1 }
+        if ch == "{" { depth = depth + 1 }
+        if ch == "}" {
+          depth = depth - 1
+          if depth == 0 { return i }
+        }
+      }
+      i = i + 1
+    }
+    return -1
   }
 }

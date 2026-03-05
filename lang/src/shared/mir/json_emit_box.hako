@@ -5,6 +5,30 @@ using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
 
 static box JsonEmitBox {
+  _is_map_missing_sentinel(val) {
+    if val == null { return 0 }
+    local s = "" + val
+    if s.indexOf("[map/missing]") == 0 { return 1 }
+    return 0
+  }
+  _map_get_soft(obj, key) {
+    if obj == null { return null }
+    local direct = obj.get(key)
+    if me._is_map_missing_sentinel(direct) == 0 { return direct }
+    local keys = obj.keys()
+    if keys == null || !BoxHelpers.is_array(keys) { return direct }
+    local n = BoxHelpers.array_len(keys)
+    return me._map_get_soft_rec(obj, keys, key, 0, n, direct)
+  }
+  _map_get_soft_rec(obj, keys, key, idx, len, fallback) {
+    if idx >= len { return fallback }
+    local k = keys.get(idx)
+    if k != null && ("" + k) == key {
+      return obj.get(k)
+    }
+    return me._map_get_soft_rec(obj, keys, key, idx + 1, len, fallback)
+  }
+
   _expect_map(val, context) {
     if BoxHelpers.is_map(val) { return val }
     print("[JsonEmitBox] dev assert failed: expected MapBox for " + context)
@@ -67,7 +91,7 @@ static box JsonEmitBox {
 
   _emit_callee(callee) {
     if callee == null { return "{\"type\":\"Extern\",\"name\":\"\"}" }
-    callee = me._expect_map(callee, "mir_call.callee")
+    me._expect_map(callee, "mir_call.callee")
     local ty_box = callee.get("type")
     local ty = ""
     if ty_box != null { ty = "" + ty_box }
@@ -121,6 +145,32 @@ static box JsonEmitBox {
     local n = BoxHelpers.array_len(values)
     return "[" + me._emit_phi_rec(values, 0, n) + "]"
   }
+  _emit_phi_incoming(values) {
+    if values == null { return "[]" }
+    if me._is_map_missing_sentinel(values) == 1 { return "[]" }
+    if !BoxHelpers.is_array(values) { return "[]" }
+    local n = BoxHelpers.array_len(values)
+    return "[" + me._emit_phi_incoming_rec(values, 0, n) + "]"
+  }
+  _emit_phi_incoming_rec(values, idx, len) {
+    if idx >= len { return "" }
+    local item = values.get(idx)
+    local block_id = null
+    local value_id = null
+    if item != null {
+      if BoxHelpers.is_array(item) {
+        value_id = item.get(0)
+        block_id = item.get(1)
+      } else {
+        block_id = item.get("block")
+        value_id = item.get("value")
+      }
+    }
+    local head = "[" + me._int_str(value_id) + "," + me._int_str(block_id) + "]"
+    local tail = me._emit_phi_incoming_rec(values, idx + 1, len)
+    if tail == "" { return head }
+    return head + "," + tail
+  }
   _emit_phi_rec(values, idx, len) {
     if idx >= len { return "" }
     local item = values.get(idx)
@@ -138,8 +188,8 @@ static box JsonEmitBox {
 
   _emit_inst(inst) {
     if inst == null { return "{}" }
-    inst = me._expect_map(inst, "instruction")
-    local op = inst.get("op")
+    me._expect_map(inst, "instruction")
+    local op = me._map_get_soft(inst, "op")
     if op == null { op = "" }
     if op == "const" {
       return "{\"op\":\"const\",\"dst\":" + me._int_str(inst.get("dst")) +
@@ -149,16 +199,26 @@ static box JsonEmitBox {
       return "{\"op\":\"ret\",\"value\":" + me._int_str(inst.get("value")) + "}"
     }
     if op == "binop" {
-      local kind = inst.get("op_kind")
+      local kind = me._map_get_soft(inst, "operation")
+      if me._is_map_missing_sentinel(kind) == 1 || kind == null {
+        kind = me._map_get_soft(inst, "op_kind")
+      }
       if kind == null { kind = "" }
-      return "{\"op\":\"binop\",\"op_kind\":" + me._quote(kind) + ",\"lhs\":" +
+      if me._is_map_missing_sentinel(kind) == 1 { kind = "" }
+      return "{\"op\":\"binop\",\"operation\":" + me._quote(kind) + ",\"lhs\":" +
              me._int_str(inst.get("lhs")) + ",\"rhs\":" + me._int_str(inst.get("rhs")) +
              ",\"dst\":" + me._int_str(inst.get("dst")) + "}"
     }
     if op == "compare" {
-      local cmp = inst.get("cmp")
-      if cmp == null { cmp = "" }
-      return "{\"op\":\"compare\",\"cmp\":" + me._quote(cmp) + ",\"lhs\":" +
+      local cmp = me._map_get_soft(inst, "cmp")
+      if me._is_map_missing_sentinel(cmp) == 1 || cmp == null {
+        cmp = me._map_get_soft(inst, "operation")
+      }
+      if me._is_map_missing_sentinel(cmp) == 1 || cmp == null {
+        cmp = me._map_get_soft(inst, "op_kind")
+      }
+      if cmp == null || me._is_map_missing_sentinel(cmp) == 1 { cmp = "" }
+      return "{\"op\":\"compare\",\"operation\":" + me._quote(cmp) + ",\"lhs\":" +
              me._int_str(inst.get("lhs")) + ",\"rhs\":" + me._int_str(inst.get("rhs")) +
              ",\"dst\":" + me._int_str(inst.get("dst")) + "}"
     }
@@ -171,14 +231,18 @@ static box JsonEmitBox {
       return "{\"op\":\"jump\",\"target\":" + me._int_str(inst.get("target")) + "}"
     }
     if op == "phi" {
+      local incoming = me._map_get_soft(inst, "incoming")
+      if me._is_map_missing_sentinel(incoming) == 1 || incoming == null {
+        incoming = me._map_get_soft(inst, "values")
+      }
       return "{\"op\":\"phi\",\"dst\":" + me._int_str(inst.get("dst")) +
-             ",\"values\":" + me._emit_phi_values(inst.get("values")) + "}"
+             ",\"incoming\":" + me._emit_phi_incoming(incoming) + "}"
     }
     if op == "mir_call" {
       // SSOT: payload("mir_call") のみを受理。トップレベルの互換フィールドは読まない。
       local payload = inst.get("mir_call")
       if payload == null { return "{\"op\":\"mir_call\"}" }
-      payload = me._expect_map(payload, "mir_call payload")
+      me._expect_map(payload, "mir_call payload")
       local dst_json = me._emit_vid_or_null(inst.get("dst"))
       local callee_json = me._emit_callee(payload.get("callee"))
       local args_box = payload.get("args")
@@ -224,6 +288,9 @@ static box JsonEmitBox {
     local params = func.get("params")
     local flags  = func.get("flags")
     local blocks = func.get("blocks")
+    if me._is_map_missing_sentinel(params) == 1 { params = null }
+    if me._is_map_missing_sentinel(flags) == 1 { flags = null }
+    if me._is_map_missing_sentinel(blocks) == 1 { blocks = null }
     if blocks == null {
       if params != null || flags != null {
         local head = "{\"name\":" + me._quote(name)
@@ -250,6 +317,7 @@ static box JsonEmitBox {
 
   _emit_params(params) {
     if params == null { return "[]" }
+    if me._is_map_missing_sentinel(params) == 1 { return "[]" }
     if !BoxHelpers.is_array(params) { return "[]" }
     local n = BoxHelpers.array_len(params)
     if n == 0 { return "[]" }
@@ -257,6 +325,8 @@ static box JsonEmitBox {
   }
   _emit_params_rec(params, idx, len) {
     if idx >= len { return "" }
+    if me._is_map_missing_sentinel(params) == 1 { return "" }
+    if !BoxHelpers.is_array(params) { return "" }
     local head = me._int_str(params.get(idx))
     local tail = me._emit_params_rec(params, idx + 1, len)
     if tail == "" { return head }

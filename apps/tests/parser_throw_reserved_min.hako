@@ -1,0 +1,7 @@
+// Surface throw is reserved: parser must fail-fast with [parser/throw_reserved].
+static box Main {
+  main() {
+    throw 1
+    return 0
+  }
+}

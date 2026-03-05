@@ -104,10 +104,10 @@ static box LowerLoopSumBcBox {
     }
     // Use build2 map form (adapter; future JsonFrag化対象)
     local opts = LoopOptsBox.new_map()
-    opts = LoopOptsBox.put(opts, "mode", "sum_bc")
-    opts = LoopOptsBox.put(opts, "limit", limit)
-    opts = LoopOptsBox.put(opts, "skip", skip_value)
-    opts = LoopOptsBox.put(opts, "break", break_value)
+    LoopOptsBox.put(opts, "mode", "sum_bc")
+    LoopOptsBox.put(opts, "limit", limit)
+    LoopOptsBox.put(opts, "skip", skip_value)
+    LoopOptsBox.put(opts, "break", break_value)
     if trace != null && ("" + trace) == "1" {
       print("[sum_bc] building MIR with LoopFormBox")
     }
