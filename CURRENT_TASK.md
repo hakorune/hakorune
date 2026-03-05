@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `e3b700a38` refactor D5 align joinir routing wording to route-shape vocabulary
+    - `joinir/routing.rs` の canonicalizer parity 周辺ローカル変数（`pattern`）を `route_kind` 主語へ統一
+    - `try_normalized_shadow` のログ/コメント文言も `normalized pattern` から `normalized route shape` に更新（挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `6f07c15c6` refactor D5 introduce LoopRouteContext as primary router context name
     - `joinir/patterns/router.rs` の主型名を `LoopRouteContext` に変更し、互換維持のため `LoopPatternContext` alias を残置（段階移行用）
     - `joinir/patterns/mod.rs` と `joinir/routing.rs` は新主型名を優先参照するよう同期（runtime 挙動不変）
