@@ -82,6 +82,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `425eff862` refactor D5 rename flowbox strict helper to loop-break vocabulary
+    - `joinir/patterns/registry/utils.rs` の strict flowbox adopt 判定 helper を `pattern2_*` から `loop_break_recipe_*` 語彙へ改名
+    - `joinir/patterns/registry/handlers.rs` の loop-break recipe 経路も同語彙へ同期（挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
+  - `4ba1a66a3` refactor D5 switch planner trace callsite to route API
+    - `single_planner/rules.rs` の trace 呼び出しを `trace().pattern(...)` から `trace().route(...)` へ統一
+    - `joinir/trace.rs` の `pattern()` 互換 alias を削除し、route API 1本化（語彙整理のみ）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0` 維持）
   - `7ce300120` docs joinir-design-map refresh stale pattern-path references to recipe-first topology
     - `joinir-design-map.md` の削除済み `joinir/patterns/pattern*.rs` / `joinir/legacy/*` / `joinir/patterns/conversion_pipeline.rs` 参照を現行 `router/registry/plan` 構成へ更新
     - 「Pattern検出」主語を route 主語へ揃え、entry/checklist も `plan/ast_feature_extractor.rs` ベースへ同期
