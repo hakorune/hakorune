@@ -17,7 +17,7 @@ use super::PolicyDecision;
 
 pub type P5bEscapeDerivedDecision = PolicyDecision<BodyLocalDerivedRecipe>;
 
-/// Detect a P5b derived body-local (`ch`) recipe from a Pattern2 loop body.
+/// Detect a P5b derived body-local (`ch`) recipe from a loop_break route body.
 ///
 /// Minimal supported shape (SSOT):
 /// - `local ch = <expr>` exists at top level
@@ -46,7 +46,7 @@ pub fn classify_p5b_escape_derived(
         // Not the loop counter we lower as the JoinIR loop var; ignore to avoid misrouting.
         if strict && has_ch_init && has_ch_reassign {
             return P5bEscapeDerivedDecision::Reject(error_tags::freeze(
-                "[phase94/body_local_derived/contract/loop_counter_mismatch] Body-local reassignment to 'ch' detected but loop counter does not match Pattern2 loop var",
+                "[phase94/body_local_derived/contract/loop_counter_mismatch] Body-local reassignment to 'ch' detected but loop counter does not match loop_break route loop var",
             ));
         }
         return P5bEscapeDerivedDecision::None;
