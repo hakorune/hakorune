@@ -14,6 +14,21 @@ use super::super::router::{lower_verified_core_plan, LoopRouteContext};
 use super::types::{PlannerFirstMode, RouterEnv, StandardEntry};
 use super::utils::{emit_planner_first, loop_break_recipe_needs_flowbox_adopt_tag_in_strict};
 
+fn debug_log_recipe_entry(route_label: &str, env: &RouterEnv) {
+    if !crate::config::env::joinir_dev::debug_enabled() {
+        return;
+    }
+    let entry_state = if env.planner_required {
+        "recipe_contract enforced"
+    } else {
+        "recipe-only entry"
+    };
+    let ring0 = crate::runtime::get_global_ring0();
+    ring0
+        .log
+        .debug(&format!("[recipe:entry] {}: {}", route_label, entry_state));
+}
+
 fn route_standard(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
@@ -34,6 +49,7 @@ fn route_standard(
     if let Some(rule) = entry.plan_rule {
         emit_planner_first(entry.planner_first, env, rule);
     }
+    debug_log_recipe_entry(entry.route_label, env);
 
     let facts = outcome
         .facts
@@ -118,12 +134,7 @@ pub(crate) fn route_loop_break_recipe(
         env,
         PlanRuleId::LoopBreakRecipe,
     );
-    if crate::config::env::joinir_dev::debug_enabled() {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0
-            .log
-            .debug("[recipe:entry] loop_break_recipe: recipe-first");
-    }
+    debug_log_recipe_entry("loop_break", env);
 
     let facts = outcome
         .facts
@@ -172,8 +183,6 @@ pub(crate) fn route_if_phi_join(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
-    use crate::config::env::joinir_dev;
-
     if env.planner_required && outcome.recipe_contract.is_none() {
         return Err(Freeze::contract(
             "IfPhiJoin requires recipe_contract in planner_required mode",
@@ -181,10 +190,7 @@ pub(crate) fn route_if_phi_join(
         .to_string());
     }
     emit_planner_first(PlannerFirstMode::StrictOrDev, env, PlanRuleId::IfPhiJoin);
-    if joinir_dev::debug_enabled() {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug("[recipe:entry] if_phi_join: recipe-first");
-    }
+    debug_log_recipe_entry("if_phi_join", env);
 
     let facts = outcome.facts.as_ref().expect("if_phi_join facts present");
     let core_plan = RecipeComposer::compose_if_phi_join_recipe(builder, facts, ctx)
@@ -222,6 +228,7 @@ pub(crate) fn route_loop_continue_only(
         env,
         PlanRuleId::LoopContinueRecipe,
     );
+    debug_log_recipe_entry("loop_continue_only", env);
     if env.planner_required {
         if let Some(err) = composer::strict_nested_loop_guard(outcome, ctx) {
             flowbox_tags::emit_flowbox_freeze_tag_from_facts(
@@ -263,6 +270,7 @@ pub(crate) fn route_loop_true_early_exit(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "loop_true_early_exit",
         missing_contract_msg:
             "LoopTrueEarlyExit requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_true_early_exit_recipe,
@@ -283,6 +291,7 @@ pub(crate) fn route_loop_simple_while(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "loop_simple_while",
         missing_contract_msg:
             "LoopSimpleWhile requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_simple_while_recipe,
@@ -303,6 +312,7 @@ pub(crate) fn route_loop_char_map(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "loop_char_map",
         missing_contract_msg: "LoopCharMap requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_char_map_recipe,
         planner_required_only: true,
@@ -322,6 +332,7 @@ pub(crate) fn route_loop_array_join(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "loop_array_join",
         missing_contract_msg: "LoopArrayJoin requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_array_join_recipe,
         planner_required_only: false,
@@ -341,6 +352,7 @@ pub(crate) fn route_scan_with_init(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "scan_with_init",
         missing_contract_msg:
             "ScanWithInit requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_scan_with_init_recipe,
@@ -361,6 +373,7 @@ pub(crate) fn route_split_scan(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "split_scan",
         missing_contract_msg: "SplitScan requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_split_scan_recipe,
         planner_required_only: false,
@@ -380,6 +393,7 @@ pub(crate) fn route_bool_predicate_scan(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "bool_predicate_scan",
         missing_contract_msg:
             "BoolPredicateScan requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_bool_predicate_scan_recipe,
@@ -410,12 +424,7 @@ pub(crate) fn route_accum_const_loop(
         env,
         PlanRuleId::AccumConstLoop,
     );
-    if crate::config::env::joinir_dev::debug_enabled() {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0
-            .log
-            .debug("[recipe:entry] accum_const_loop: recipe-first");
-    }
+    debug_log_recipe_entry("accum_const_loop", env);
 
     let facts = outcome
         .facts
@@ -446,6 +455,7 @@ pub(crate) fn route_loop_scan_methods_v0(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "scan_methods_v0",
         missing_contract_msg:
             "loop_scan_methods_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_methods_v0,
@@ -470,6 +480,7 @@ pub(crate) fn route_loop_scan_methods_block_v0(
     }
 
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "scan_methods_block_v0",
         missing_contract_msg:
             "loop_scan_methods_block_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_methods_block_v0,
@@ -490,6 +501,7 @@ pub(crate) fn route_loop_scan_phi_vars_v0(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "scan_phi_vars_v0",
         missing_contract_msg:
             "loop_scan_phi_vars_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_phi_vars_v0,
@@ -510,6 +522,7 @@ pub(crate) fn route_loop_scan_v0(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "scan_v0",
         missing_contract_msg: "loop_scan_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_scan_v0,
         planner_required_only: false,
@@ -529,6 +542,7 @@ pub(crate) fn route_loop_collect_using_entries_v0(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "collect_using_entries_v0",
         missing_contract_msg:
             "loop_collect_using_entries_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_collect_using_entries_v0,
@@ -548,6 +562,7 @@ pub(crate) fn route_nested_loop_minimal(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
+    debug_log_recipe_entry("nested_loop_minimal", env);
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
     };
@@ -588,6 +603,7 @@ pub(crate) fn route_loop_bundle_resolver_v0(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "bundle_resolver_v0",
         missing_contract_msg:
             "loop_bundle_resolver_v0 requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_bundle_resolver_v0,
@@ -612,6 +628,7 @@ pub(crate) fn route_loop_true_break_continue(
     }
 
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "loop_true_break_continue",
         missing_contract_msg:
             "loop_true_break_continue requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_true_break_continue_recipe,
@@ -636,6 +653,7 @@ pub(crate) fn route_loop_cond_break_continue(
     }
 
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "loop_cond_break_continue",
         missing_contract_msg:
             "loop_cond_break_continue requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_break_continue_recipe,
@@ -660,6 +678,7 @@ pub(crate) fn route_loop_cond_continue_only(
     }
 
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "loop_cond_continue_only",
         missing_contract_msg:
             "loop_cond_continue_only requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_continue_only_recipe,
@@ -684,6 +703,7 @@ pub(crate) fn route_loop_cond_continue_with_return(
     }
 
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "loop_cond_continue_with_return",
         missing_contract_msg:
             "loop_cond_continue_with_return requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_continue_with_return_recipe,
@@ -704,6 +724,7 @@ pub(crate) fn route_loop_cond_return_in_body(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
+        route_label: "loop_cond_return_in_body",
         missing_contract_msg:
             "loop_cond_return_in_body requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_cond_return_in_body_recipe,
@@ -723,6 +744,7 @@ pub(crate) fn route_generic_loop_v1(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
+    debug_log_recipe_entry("generic_loop_v1", env);
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
     };
@@ -765,6 +787,7 @@ pub(crate) fn route_generic_loop_v0(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
+    debug_log_recipe_entry("generic_loop_v0", env);
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
     };

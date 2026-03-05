@@ -18,11 +18,11 @@ impl MergeStepBox {
         use crate::mir::builder::emission::constant::emit_void;
         use crate::mir::builder::control_flow::plan::conversion_pipeline::JoinIRConversionPipeline;
 
-        let _ = JoinIRConversionPipeline::execute(builder, join_module, Some(&boundary), "pattern2", debug)?;
+        let _ = JoinIRConversionPipeline::execute(builder, join_module, Some(&boundary), "loop_break", debug)?;
 
         let void_val = emit_void(builder)?;
         crate::mir::builder::control_flow::joinir::trace::trace()
-            .debug("pattern2", &format!("Loop complete, returning Void {:?}", void_val));
+            .debug("loop_break", &format!("Loop complete, returning Void {:?}", void_val));
         Ok(Some(void_val))
     }
 }

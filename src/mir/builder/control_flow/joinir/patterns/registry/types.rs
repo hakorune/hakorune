@@ -41,6 +41,7 @@ pub(crate) type ComposeFn = fn(
 ) -> Result<CorePlan, Freeze>;
 
 pub(crate) struct StandardEntry {
+    pub route_label: &'static str,
     pub missing_contract_msg: &'static str,
     pub compose: ComposeFn,
     pub planner_required_only: bool,

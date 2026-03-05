@@ -109,7 +109,7 @@ impl RecipeMatcher {
                 facts,
                 LoopCharMap,
                 verify_loop_char_map_recipe,
-                accept_via_cond_profile_pattern1_char_map
+                accept_via_cond_profile_loop_char_map
             );
         }
 
@@ -120,7 +120,7 @@ impl RecipeMatcher {
                 facts,
                 LoopArrayJoin,
                 verify_loop_array_join_recipe,
-                accept_via_cond_profile_pattern1_array_join
+                accept_via_cond_profile_loop_array_join
             );
         }
 
@@ -137,7 +137,7 @@ impl RecipeMatcher {
                 facts,
                 BoolPredicateScan,
                 verify_bool_predicate_scan_recipe,
-                accept_via_cond_profile_pattern8_bool_predicate_scan
+                accept_via_cond_profile_bool_predicate_scan
             );
         }
 
@@ -148,7 +148,7 @@ impl RecipeMatcher {
                 facts,
                 AccumConstLoop,
                 verify_accum_const_loop_recipe,
-                accept_via_cond_profile_pattern9_accum_const_loop
+                accept_via_cond_profile_accum_const_loop
             );
         }
 
