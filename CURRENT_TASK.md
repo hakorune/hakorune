@@ -98,6 +98,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `3e00004fb` docs: remove stale todo-fixme-hack investigation snapshot
+    - `docs/development/current/main/investigations/todo-fixme-hack-inventory.md` を削除
+    - 理由: 2026-02-04時点の固定スナップショットで、現行SSOT/導線から未参照だったため
   - `9366a7410` refactor(facts): add route accessors and migrate recipe composers
     - `plan/facts/loop_types.rs` に route 主語 accessor を追加（`loop_break()`, `if_phi_join()`, `loop_true_early_exit()` など）
     - `recipe_tree/*_composer.rs` と `recipe_tree/matcher/mod.rs` の `facts.facts.pattern*` 直接参照を accessor 経由へ移行
