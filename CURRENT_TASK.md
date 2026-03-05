@@ -63,6 +63,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - planner context 表層語彙は `route_kind` へ統一済み（`pattern_kind` は code path から撤去）
   - domain 内部語彙を route 主語へ縮退（`Pattern2StepPlacement` → `LoopBreakStepPlacement`, `Pattern5ExitKind` → `LoopTrueEarlyExitKind`）
   - loop_break 系の診断タグを route 主語へ同期（`[cf_loop/pattern2]` → `[cf_loop/loop_break]`, `joinir/pattern2` → `joinir/loop_break`）
+  - RecipeComposer の主要 entrypoint 名を de-number 化（`compose_pattern*` → semantic `compose_<route>_recipe`）
 - compiler fixed order:
   1. stale docs を同期し、entry 契約を `Facts -> Recipe -> Composer -> Verifier -> Parts` 一本化の現況に合わせる。
   2. `plan/**` 内の pattern1..9 残語彙（内部型名/補助コメント）を route/recipe 主語へ段階移行する（挙動不変）。
@@ -97,6 +98,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `891a69e96` test(smoke): sync flowbox tag expectations with route vocabulary
+    - archive pattern2 スモークの promotion-hint 期待を route語彙へ同期（`[plan/loop_break/promotion_hint:*]` を許容）
+    - NotApplicable ケースは「break-adopt タグが出ないこと」を検証する契約へ更新（全 adopt 不在の旧前提を緩和）
+    - `phase29ao_pattern1_subset_reject_extra_stmt_vm.sh` の adopt 判定も break/continue 特化へ同期
+    - verify: `phase29bp_planner_required_dev_gate_v4_vm.sh` 実行で phase29ae の pattern2 / pattern1_subset_reject_extra_stmt まで通過（最終は `phase29ap_stringutils_tolower_vm` の VM subset 未実装で FAIL）
+  - `4d6a097fa` refactor(recipe): de-number remaining composer entrypoint names
+    - `compose_pattern{1,3,4,6,7,8,9}_*` を semantic 名へ置換（`compose_if_phi_join_recipe`, `compose_loop_continue_only_recipe`, `compose_scan_with_init_recipe` など）
+    - registry handlers / coreloop entries も同名へ同期し、Pattern主語の関数名依存を縮退
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29bs_loopframe_v1_nested_loop_strict_gate_vm.sh` PASS
   - `366ff989b` refactor(plan): align loop_break diagnostic vocabulary
     - Pattern2 入口周辺の診断タグ/ログ主語を route 化（`[cf_loop/pattern2]` / `[pattern2/*]` / `joinir/pattern2` を `loop_break` 主語へ統一）
     - `body_local_policy` の判定入口を `classify_loop_break_body_local_route` へ改名し、互換 wrapper を残して段階移行可能にした
