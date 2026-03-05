@@ -165,8 +165,9 @@ pub(in crate::mir::builder) fn choose_route_kind(
                 // parity check
                 if canonical_choice != router_choice {
                     let msg = format!(
-                        "[choose_route_kind/PARITY] router={:?}, canonicalizer={:?}",
-                        router_choice, canonical_choice
+                        "[choose_route_kind/PARITY] router={}, canonicalizer={}",
+                        router_choice.semantic_label(),
+                        canonical_choice.semantic_label()
                     );
 
                     if crate::config::env::joinir_dev::strict_enabled() {
@@ -181,8 +182,8 @@ pub(in crate::mir::builder) fn choose_route_kind(
                     trace::trace().dev(
                         "choose_route_kind/parity",
                         &format!(
-                            "[choose_route_kind/PARITY] OK: canonical and actual agree on {:?}",
-                            canonical_choice
+                            "[choose_route_kind/PARITY] OK: canonical and actual agree on {}",
+                            canonical_choice.semantic_label()
                         ),
                     );
                 }
@@ -316,7 +317,7 @@ impl MirBuilder {
             // Phase 188: Add "main" routing for loop route expansion
             // Phase 170: Add JsonParserBox methods for selfhost validation
             let is_target = match func_name.as_str() {
-                "main" => true, // Phase 188-Impl-1: Enable JoinIR for main function
+                "main" => true,             // Phase 188-Impl-1: Enable JoinIR for main function
                 "JoinIrMin.main/0" => true, // Phase 188-Impl-2: Enable JoinIR for JoinIrMin.main/0
                 "JsonTokenizer.print_tokens/0" => true,
                 "ArrayExtBox.filter/2" => true,
@@ -431,7 +432,7 @@ impl MirBuilder {
                     if let Some(route_kind) = decision.chosen {
                         trace::trace().dev(
                             "loop_canonicalizer",
-                            &format!("  Chosen route kind: {:?}", route_kind),
+                            &format!("  Chosen route kind: {}", route_kind.semantic_label()),
                         );
                     }
                     trace::trace().dev(
@@ -453,8 +454,8 @@ impl MirBuilder {
                         trace::trace().debug(
                             "canonicalizer",
                             &format!(
-                                "Phase 137-4: Canonical route kind chosen: {:?} (parity check pending)",
-                                canonical_route_kind
+                                "Phase 137-4: Canonical route kind chosen: {} (parity check pending)",
+                                canonical_route_kind.semantic_label()
                             ),
                         );
                     }
