@@ -1,11 +1,11 @@
-//! Phase 273 P1: PlanNormalizer - loop plan payload → CorePlan 変換 (SSOT)
+//! Phase 273 P1: PlanNormalizer - facts/recipe contract → CorePlan 変換 (SSOT)
 //!
 //! SSOT: docs/development/current/main/design/plan-dir-shallowing-ssot.md
 //! Flattened: cond_lowering/ moved to normalizer/ root
 //!
 //! # Responsibilities
 //!
-//! - Convert loop plan payload to CorePlan (SSOT for pattern-specific knowledge)
+//! - Convert accepted facts/recipe contracts to CorePlan (SSOT for route-specific knowledge)
 //! - Generate ValueIds for CorePlan expressions
 //! - Expand pattern-specific operations into generic CoreEffectPlan
 //!
@@ -46,7 +46,7 @@ pub(in crate::mir::builder) use super::generic_loop::normalizer::{
     normalize_generic_loop_v0, normalize_generic_loop_v1,
 };
 
-/// Phase 273 P1: PlanNormalizer - loop plan payload → CorePlan 変換 (SSOT)
+/// Phase 273 P1: PlanNormalizer - facts/recipe contract → CorePlan 変換 (SSOT)
 pub(in crate::mir::builder) struct PlanNormalizer;
 
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;

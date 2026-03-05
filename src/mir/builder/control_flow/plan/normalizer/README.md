@@ -1,6 +1,6 @@
 # Plan Normalizer Modules (Legacy/Analysis Scope)
 
-This directory splits the loop plan payload -> CorePlan normalization into small modules.
+This directory splits facts/recipe contract -> CorePlan normalization into small modules.
 
 Responsibilities:
 - Keep pattern-specific knowledge localized per module.

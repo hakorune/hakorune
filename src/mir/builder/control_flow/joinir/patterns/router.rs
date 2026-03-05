@@ -4,8 +4,8 @@
 //!
 //! # Architecture
 //!
-//! - single_planner derives planner/facts outcome (SSOT)
-//! - composer adopts CorePlan (strict/dev shadow or release adopt)
+//! - single_planner derives facts/recipe outcome (SSOT)
+//! - composer provides strict/dev pre-plan guards + explicit compose helpers
 //! - PlanLowerer emits MIR from CorePlan (emit_frag SSOT)
 //!
 //! # Adding New Loop Routes
@@ -21,7 +21,7 @@ use crate::mir::ValueId;
 
 use crate::mir::loop_pattern_detection::LoopPatternKind;
 
-// Phase 273 P1: Import Plan components (loop plan payload → Normalizer → Verifier → Lowerer)
+// Phase 273 P1: Import Plan components (facts/recipe outcome -> verifier -> lowerer)
 use super::registry;
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::expectations;
@@ -136,7 +136,7 @@ impl<'a> LoopRouteContext<'a> {
 /// operational SSOT for loop routing (Phase 273+).
 ///
 /// Plan-based architecture (Phase 273 P1-P3):
-/// - extract_*_plan() → loop plan payload (pure extraction, no builder)
+/// - single_planner::try_build_outcome() → facts/recipe outcome (pure extraction, no builder)
 /// - PlanVerifier::verify() → fail-fast validation
 /// - PlanLowerer::lower() → MIR emission (pattern-agnostic, emit_frag SSOT)
 ///

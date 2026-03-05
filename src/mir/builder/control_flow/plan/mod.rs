@@ -1,19 +1,19 @@
-//! Phase 273 P1: LoopPlan/CorePlan 二層構造 + PlanNormalizer + PlanVerifier
+//! Phase 273 P1: Facts/Recipe + CorePlan 二層構造 + PlanNormalizer + PlanVerifier
 //!
-//! This module provides a two-layer Plan architecture for loop pattern lowering:
+//! This module provides a two-layer Plan architecture for loop lowering:
 //!
 //! # Architecture
 //!
 //! ```text
-//! LoopPlan payload (ループ専用)
+//! Facts/Recipe contract (ループ受理契約)
 //!     ↓ PlanNormalizer (SSOT)
 //! CorePlan (固定語彙 - 構造ノードのみ)
 //!     ↓ PlanLowerer
 //! MIR (block/value/phi)
 //! ```
 //!
-//! - **LoopPlan payload**: planner-produced loop plan payload
-//! - **PlanNormalizer**: LoopPlan payload → CorePlan conversion (SSOT, scan knowledge here)
+//! - **Facts/Recipe contract**: planner-produced loop acceptance contract
+//! - **PlanNormalizer**: Facts/Recipe contract → CorePlan conversion (SSOT, scan knowledge here)
 //! - **CorePlan**: Fixed vocabulary, expressions as ValueId references (no String parsing)
 //! - **PlanVerifier**: Fail-fast validation for CorePlan invariants
 //! - **PlanLowerer**: Processes CorePlan only (no string interpretation)
