@@ -98,6 +98,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `56b836ab1` refactor(recipe): align matcher verify wording to route vocabulary
+    - `recipe_tree/matcher/patterns.rs` の `Pattern*` 主語コメント/contract文言/CTXタグ（`pattern*_recipe`）を route 主語へ統一（`loop_break_recipe`, `if_phi_join_recipe`, `scan_with_init_recipe` など）
+    - facts 型名/facts field 名は互換維持のため据え置き、検証表層語彙だけを整理（挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `bfd34861b` refactor(recipe): align recipe tree context wording to route vocabulary
     - `plan/recipe_tree/*_composer.rs` の CTX 文字列・contract エラーメッセージ・局所変数を route 主語へ整理（`pattern*_...` 文言を `if_phi_join / loop_continue_only / scan_with_init / split_scan / bool_predicate_scan / accum_const_loop` へ統一）
     - `recipe_tree/matcher/mod.rs` の検証マクロ名を `verify_route!` / `verify_cond_profile_route!` へ改名し、コメント/補助変数の `pattern` 主語を route 主語へ同期（挙動不変）
