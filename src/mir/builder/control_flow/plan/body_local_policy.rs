@@ -1,7 +1,7 @@
 //! Phase 92 P3: BodyLocal policy routing (Box)
 //!
 //! Purpose: make the "promotion vs read-only slot vs reject" decision explicit,
-//! so Pattern2 code does not look like it "falls back" after failure.
+//! so loop-break routing code does not look like it "falls back" after failure.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
@@ -18,7 +18,7 @@ use crate::mir::loop_pattern_detection::loop_body_cond_promoter::{
 };
 use crate::mir::loop_pattern_detection::loop_condition_scope::{CondVarScope, LoopConditionScope};
 
-/// Explicit routing policy for LoopBodyLocal variables used in Pattern2 conditions.
+/// Explicit routing policy for LoopBodyLocal variables used in loop-break conditions.
 ///
 /// This is a "route" decision (not a fallback): we choose exactly one of the supported
 /// strategies and reject otherwise.

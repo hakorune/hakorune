@@ -215,7 +215,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn recipe_only_rule_is_single_plan_payload_only() {
+    fn recipe_only_rule_is_single_plan_contract_only() {
         assert!(is_recipe_only_rule(PlanRuleId::LoopCondContinueWithReturn));
         assert!(!is_recipe_only_rule(PlanRuleId::LoopBreakRecipe));
         assert!(!is_recipe_only_rule(PlanRuleId::IfPhiJoin));

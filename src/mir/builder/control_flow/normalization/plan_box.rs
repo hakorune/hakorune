@@ -74,12 +74,12 @@ impl NormalizationPlanBox {
             return Ok(None);
         }
 
-        // Phase 286 P3.2: Reject Pattern5-style loops (if with early return/break)
-        // These are handled by the Plan line (Pattern5InfiniteEarlyExit), not StepTree
+        // Phase 286 P3.2: Reject loop_true_early_exit-style loops (if with early return/break)
+        // These are handled by the Plan line (loop_true_early_exit), not StepTree
         if let Some(body) = loop_body {
             if !body.is_empty() {
                 if let ASTNode::If { then_body, else_body, .. } = &body[0] {
-                    // Check if it's a Pattern5-style if (no else, then contains return or break)
+                    // Check if it's a loop_true_early_exit-style if (no else, then contains return or break)
                     if else_body.is_none() {
                         let has_early_exit = then_body.iter().any(|stmt| {
                             matches!(stmt, ASTNode::Return { .. } | ASTNode::Break { .. })
@@ -89,7 +89,7 @@ impl NormalizationPlanBox {
                                 trace.routing(
                                     "normalization/plan",
                                     func_name,
-                                    "Loop body has if with early return/break - Pattern5 (Plan line), returning None",
+                                    "Loop body has if with early return/break - loop_true_early_exit (Plan line), returning None",
                                 );
                             }
                             return Ok(None);

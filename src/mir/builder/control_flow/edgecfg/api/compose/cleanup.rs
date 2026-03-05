@@ -48,7 +48,7 @@ use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
 /// Phase 281 P2: `cleanup(main: Frag, cleanup_frag: Frag, ret_target: Option<BasicBlockId>) -> Result<Frag, String>`
 /// Phase 281 P3: `cleanup(main: Frag, cleanup_frag: Frag, normal_target: Option<BasicBlockId>, ret_target: Option<BasicBlockId>) -> Result<Frag, String>`
 ///
-/// Rationale: Pattern6/7 require flexible exit wiring for Normal/Return exits.
+/// Rationale: scan_with_init / split_scan routes require flexible exit wiring for Normal/Return exits.
 /// cleanup_frag must be "exit-only" to prevent terminator confusion.
 #[cfg(test)]
 pub(crate) fn cleanup(

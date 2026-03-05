@@ -1,13 +1,13 @@
-//! Phase 179-B: Generic Pattern Pipeline Context
+//! Phase 179-B: Generic Route Prep Pipeline Context
 //!
-//! Unified preprocessing pipeline for Patterns 1-4.
+//! Unified preprocessing pipeline for loop route variants.
 //!
 //! ## Design Philosophy
 //!
 //! **Pure Analysis Container**: RoutePrepContext is a "解析済みコンテキスト箱" that:
 //! - Only holds preprocessing results (no JoinIR emission)
 //! - Only depends on analyzer boxes (never lowering logic)
-//! - Uses Option<T> for pattern-specific data
+//! - Uses Option<T> for variant-specific data
 //!
 //! ## Responsibility Separation
 //!
@@ -16,9 +16,9 @@
 //! ├─ Loop variable extraction        → CommonPatternInitializer
 //! ├─ Carrier analysis               → CarrierInfo
 //! ├─ Loop scope construction        → LoopScopeShapeBuilder
-//! └─ Pattern-specific preprocessing → ConditionEnvBuilder, etc.
+//! └─ Variant-specific preprocessing → ConditionEnvBuilder, etc.
 //!
-//! Pattern Lowerers (pattern1-4.rs)
+//! Variant Lowerers (dedicated route modules)
 //! ├─ JoinIR generation              → lower_*_minimal()
 //! ├─ Boundary construction          → JoinInlineBoundaryBuilder
 //! └─ MIR merge                      → JoinIRConversionPipeline
@@ -27,7 +27,7 @@
 //! ## Benefits
 //!
 //! - **Code reduction**: 1012 lines → ~195 lines (81% reduction)
-//! - **Single source of truth**: All patterns use same preprocessing logic
+//! - **Single source of truth**: All route variants use same preprocessing logic
 //! - **Testability**: Can test preprocessing independently
 //! - **Consistency**: Uniform error messages and trace output
 
@@ -48,7 +48,7 @@ use crate::mir::builder::control_flow::plan::common_init::CommonPatternInitializ
 use crate::mir::builder::control_flow::plan::loop_true_counter_extractor::LoopTrueCounterExtractorBox;
 use crate::mir::builder::control_flow::plan::loop_scope_shape_builder::LoopScopeShapeBuilder;
 
-/// Phase 179-B: Unified Pattern Pipeline Context
+/// Phase 179-B: Unified route preprocessing context
 ///
 /// Pure "解析済みコンテキスト箱" - holds only preprocessing results.
 /// JoinIR emission and PHI assembly remain in existing lowerers.
@@ -57,7 +57,7 @@ use crate::mir::builder::control_flow::plan::loop_scope_shape_builder::LoopScope
 ///
 /// - **Analyzer-only dependencies**: Never depends on lowering logic
 /// - **No emission**: No JoinIR/MIR generation in this context
-/// - **Pattern variants**: Pattern-specific data stored in Option<T>
+/// - **Variant data**: Route-specific data stored in Option<T>
 ///
 /// # Usage
 ///
@@ -74,7 +74,7 @@ use crate::mir::builder::control_flow::plan::loop_scope_shape_builder::LoopScope
 /// ```
 #[derive(Debug, Clone)]
 pub(crate) struct RoutePrepContext {
-    // === Common Data (All Patterns) ===
+    // === Common Data (All Route Variants) ===
     /// Loop variable name (e.g., "i")
     pub loop_var_name: String,
 
@@ -87,53 +87,53 @@ pub(crate) struct RoutePrepContext {
     /// Loop scope shape (header/body/latch/exit structure)
     pub loop_scope: LoopScopeShape,
 
-    // === Pattern 2/4: Break/Continue Condition ===
+    // === Break/Continue Variant: Condition Data ===
     /// Condition environment (variable → JoinIR ValueId mapping)
-    /// Used by Pattern 2 (break condition) and Pattern 4 (continue condition)
+    /// Used by break and continue variants
     pub condition_env: Option<ConditionEnv>,
 
     /// Condition bindings (HOST↔JoinIR value mappings)
-    /// Used by Pattern 2 and Pattern 4
+    /// Used by break and continue variants
     pub condition_bindings: Option<Vec<ConditionBinding>>,
 
     /// Carrier update expressions (variable → UpdateExpr)
-    /// Used by Pattern 2 (multi-carrier) and Pattern 4 (Select-based updates)
+    /// Used by break (multi-carrier) and continue (Select-based updates) variants
     pub carrier_updates: Option<BTreeMap<String, UpdateExpr>>, // Phase 222.5-D: HashMap → BTreeMap for determinism
 
-    // === Pattern 2/4: Trim Pattern Support ===
+    // === Break/Continue Variant: Trim Support ===
     /// Trim loop helper (if Trim pattern detected during promotion)
-    /// Used by Pattern 2 (string trim) - Pattern 4 support TBD
+    /// Used by break-route string trim path; continue-route support TBD
     pub trim_helper: Option<TrimLoopHelper>,
 
-    // === Pattern 2: Break Condition ===
+    // === Break Variant: Exit Condition ===
     /// Effective break condition (may be modified for Trim pattern)
-    /// Used only by Pattern 2
+    /// Used only by the break variant
     pub break_condition: Option<ASTNode>,
 
-    // === Pattern 3: If-Sum Generalization (Phase 213) ===
+    // === If-Sum Variant: Generalization (Phase 213) ===
     /// Loop condition AST node
-    /// Used by Pattern 3 for dynamic loop condition lowering
+    /// Used by if-sum variant for dynamic loop condition lowering
     pub loop_condition: Option<ASTNode>,
 
     /// Loop body AST nodes
-    /// Used by Pattern 3 to extract if statement for if-sum lowering
+    /// Used by if-sum variant to extract if statement for if-sum lowering
     pub loop_body: Option<Vec<ASTNode>>,
 
     /// Loop update summary with then/else expressions
-    /// Used by Pattern 3 for dynamic carrier update lowering
+    /// Used by if-sum variant for dynamic carrier update lowering
     pub loop_update_summary: Option<LoopUpdateSummary>,
 }
 
-/// Pattern variant selector
+/// Route variant selector
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PatternVariant {
-    /// Pattern 1: Simple while loop (no break, no continue, no if-else PHI)
+    /// Simple while variant (no break, no continue, no if-else PHI)
     Pattern1,
-    /// Pattern 2: Loop with break statement
+    /// Loop-with-break variant
     Pattern2,
-    /// Pattern 3: Loop with if-else PHI (no break/continue)
+    /// Loop-with-if-else-PHI variant (no break/continue)
     Pattern3,
-    /// Pattern 4: Loop with continue statement
+    /// Loop-with-continue variant
     Pattern4,
 }
 
@@ -148,12 +148,12 @@ impl RoutePrepContext {
         self.trim_helper.is_some()
     }
 
-    /// Check if this has condition environment (Pattern 2/4)
+    /// Check if this has condition environment (break/continue variants)
     pub fn has_condition_env(&self) -> bool {
         self.condition_env.is_some()
     }
 
-    /// Check if this has carrier updates (Pattern 2/4)
+    /// Check if this has carrier updates (break/continue variants)
     pub fn has_carrier_updates(&self) -> bool {
         self.carrier_updates.is_some()
     }
@@ -165,7 +165,7 @@ impl RoutePrepContext {
     /// 2. if condition is a simple comparison (var CmpOp literal) - Phase 219-fix
     /// 3. carrier composition matches if-sum pattern (1 counter + 1-2 accumulators)
     ///
-    /// This determines whether to use AST-based lowering or legacy PoC lowering.
+    /// This determines whether to use AST-based if-sum lowering or the general lowering path.
     pub fn is_if_sum_pattern(&self) -> bool {
         // Check if loop_body has if statement
         let if_stmt = self.extract_if_statement();
@@ -174,7 +174,7 @@ impl RoutePrepContext {
         }
 
         // Phase 222: Check if if condition is a simple comparison and normalizable
-        // Complex conditions (e.g., i % 2 == 1) → fallback to legacy mode
+        // Complex conditions (e.g., i % 2 == 1) use the conservative non-if-sum path.
         if let Some(ASTNode::If { condition, .. }) = if_stmt {
             use crate::mir::join_ir::lowering::condition_pattern::{
                 analyze_condition_capability, ConditionCapability,
@@ -217,12 +217,12 @@ impl RoutePrepContext {
     }
 }
 
-/// Build pattern preprocessing context
+/// Build route preprocessing context
 ///
-/// This consolidates all preprocessing steps shared by Patterns 1-4:
+/// This consolidates all preprocessing steps shared by route variants:
 /// 1. Loop variable extraction (CommonPatternInitializer)
 /// 2. LoopScopeShape construction (LoopScopeShapeBuilder)
-/// 3. Pattern-specific analysis (ConditionEnv, carrier updates, etc.)
+/// 3. Variant-specific analysis (ConditionEnv, carrier updates, etc.)
 /// 4. Trim pattern promotion (if applicable)
 ///
 /// # Arguments
@@ -240,17 +240,17 @@ impl RoutePrepContext {
 ///
 /// Returns error if:
 /// - Loop variable not found in variable_map
-/// - Condition variable not found (Pattern 2/4)
-/// - Trim pattern promotion fails (Pattern 2/4)
+/// - Condition variable not found (break/continue variants)
+/// - Trim pattern promotion fails (break/continue variants)
 pub(crate) fn build_route_prep_context(
     builder: &mut MirBuilder,
     condition: &ASTNode,
     body: &[ASTNode],
     variant: PatternVariant,
 ) -> Result<RoutePrepContext, String> {
-    // Step 1: Common initialization (all patterns)
+    // Step 1: Common initialization (all route variants)
     //
-    // Phase 104: Pattern2 now supports `loop(true)` by extracting the counter from the body.
+    // Phase 104: Break variant supports `loop(true)` by extracting the counter from the body.
     // This path must be strict and conservative to avoid "accidental" routing.
     let (loop_var_name, loop_var_id, carrier_info) = if variant == PatternVariant::Pattern2
         && LoopTrueCounterExtractorBox::is_loop_true(condition)
@@ -266,14 +266,14 @@ pub(crate) fn build_route_prep_context(
             builder,
             condition,
             &builder.variable_ctx.variable_map,
-            None, // No exclusions for now (Pattern 2/4 will filter carriers later)
+            None, // No exclusions for now (break/continue variants filter carriers later)
         )?
     };
 
     // Step 2: Build LoopScopeShape
     let loop_scope = match variant {
         PatternVariant::Pattern1 | PatternVariant::Pattern3 => {
-            // Pattern 1, 3: No body_locals needed (condition-only analysis)
+            // Simple/if-sum variants: no body_locals needed (condition-only analysis)
             LoopScopeShapeBuilder::empty_body_locals(
                 BasicBlockId(0),
                 BasicBlockId(0),
@@ -283,7 +283,7 @@ pub(crate) fn build_route_prep_context(
             )
         }
         PatternVariant::Pattern2 | PatternVariant::Pattern4 => {
-            // Pattern 2, 4: Extract body_locals for Trim support and carrier promotion
+            // Break/continue variants: extract body_locals for trim support and promotion
             LoopScopeShapeBuilder::with_body_locals(
                 BasicBlockId(0),
                 BasicBlockId(0),
@@ -295,7 +295,7 @@ pub(crate) fn build_route_prep_context(
         }
     };
 
-    // Step 3: Pattern-specific preprocessing
+    // Step 3: Variant-specific preprocessing
     let (
         condition_env,
         condition_bindings,
@@ -307,11 +307,11 @@ pub(crate) fn build_route_prep_context(
         loop_update_summary,
     ) = match variant {
         PatternVariant::Pattern1 => {
-            // Pattern 1: No additional preprocessing needed
+            // Simple while variant: no additional preprocessing needed
             (None, None, None, None, None, None, None, None)
         }
         PatternVariant::Pattern3 => {
-            // Pattern 3: Phase 213 - Store loop condition and body for AST-based lowering
+            // If-sum variant: Phase 213 stores loop condition/body for AST-based lowering.
             (
                 None,                    // No condition_env
                 None,                    // No condition_bindings
@@ -324,14 +324,14 @@ pub(crate) fn build_route_prep_context(
             )
         }
         PatternVariant::Pattern2 | PatternVariant::Pattern4 => {
-            // Pattern 2/4: Full preprocessing will be handled by existing code
-            // For now, return empty values (will be populated by pattern-specific logic)
+            // Break/continue variants: full preprocessing is handled in dedicated lowerers.
+            // For now, return empty values (populated by route-specific logic).
             //
-            // Note: Pattern 2/4 have complex preprocessing that includes:
+            // Note: these variants have complex preprocessing that includes:
             // - Break/continue condition analysis
             // - Carrier update analysis
             // - Trim pattern promotion
-            // These will remain in pattern2/pattern4.rs for now and will be
+            // This remains in dedicated break/continue paths for now and will be
             // gradually migrated into this pipeline in future phases.
             (None, None, None, None, None, None, None, None)
         }
@@ -375,7 +375,7 @@ mod tests {
     }
 
     #[test]
-    fn test_pattern_variant_equality() {
+    fn test_route_variant_equality() {
         assert_eq!(PatternVariant::Pattern1, PatternVariant::Pattern1);
         assert_ne!(PatternVariant::Pattern1, PatternVariant::Pattern2);
     }

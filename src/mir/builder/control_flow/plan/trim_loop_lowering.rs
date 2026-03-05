@@ -1,8 +1,8 @@
 //! Phase 180: Trim/P5 Dedicated Lowering Module
 //!
-//! Consolidates all Trim pattern lowering logic from Pattern2/Pattern4.
-//! Pattern2/Pattern4 handle generic loop structures, while this module
-//! handles Trim/CharComparison (Pattern 5) specific knowledge.
+//! Consolidates Trim preprocessing shared by loop_break / loop_continue_only routes.
+//! Route-specific loop skeleton lowering stays in those routes, while this module
+//! handles Trim/CharComparison-specific knowledge.
 //!
 //! ## Responsibilities
 //!
@@ -16,13 +16,13 @@
 //!
 //! Follows Box Theory principles:
 //! - **Single Responsibility**: Only handles Trim/P5 lowering logic
-//! - **Reusability**: Used by Pattern2, Pattern4, and future patterns
+//! - **Reusability**: Used by loop_break, loop_continue_only, and future routes
 //! - **Testability**: Pure data transformations, easy to unit test
 //! - **Fail-Fast**: Returns errors early, no silent fallbacks
 //!
 //! ## Example Use Case
 //!
-//! **Original pattern** (Pattern 2 with Trim):
+//! **Original pattern** (loop_break recipe with Trim):
 //! ```nyash
 //! loop(start < end) {
 //!     local ch = s.substring(start, start+1)
@@ -56,7 +56,7 @@ pub(crate) struct TrimLoopLowerer;
 
 /// Result of successful Trim lowering preprocessing
 ///
-/// Contains all data needed by Pattern2/4 to complete lowering:
+/// Contains all data needed by loop_break / loop_continue_only routes:
 /// - Replaced break condition
 /// - Updated carrier info with promoted carrier
 /// - Condition environment bindings
@@ -64,22 +64,22 @@ pub(crate) struct TrimLoopLowerer;
 pub(crate) struct TrimLoweringResult {
     /// Replaced break condition (e.g., `!is_carrier`)
     ///
-    /// Pattern2/4 will use this instead of the original break condition
+    /// loop_break / loop_continue_only routes use this instead of the original break condition
     pub condition: ASTNode,
 
     /// Updated carrier info with promoted Trim carrier
     ///
-    /// Pattern2/4 will use this for JoinIR lowering
+    /// loop_break / loop_continue_only routes use this for JoinIR lowering
     pub carrier_info: CarrierInfo,
 
     /// Condition environment bindings for the carrier
     ///
-    /// Pattern2/4 will extend their condition_bindings with these
+    /// loop_break / loop_continue_only routes extend their condition_bindings with these
     pub condition_bindings: Vec<ConditionBinding>,
 
     /// Phase 93 P0: ConditionOnly recipe for derived slot recalculation
     ///
-    /// Pattern2/4 will use this to emit recalculation after body-local init
+    /// loop_break / loop_continue_only routes use this to emit recalculation after body-local init
     pub condition_only_recipe: Option<crate::mir::join_ir::lowering::common::condition_only_emitter::ConditionOnlyRecipe>,
 }
 
@@ -315,7 +315,7 @@ impl TrimLoopLowerer {
                 // Step 6: Setup ConditionEnv bindings FIRST to determine break semantics.
                 //
                 // IMPORTANT: derive semantics from the already-normalized `break_cond`
-                // (Pattern2 extracts "break when <cond> is true"), not from the raw body
+                // (loop_break route extracts "break when <cond> is true"), not from the raw body
                 // `if/else` structure which may be rewritten during earlier analyses.
                 let break_semantics = Self::infer_break_semantics_from_break_cond(break_cond);
                 let (condition_bindings, condition_only_recipe) =
@@ -395,7 +395,7 @@ impl TrimLoopLowerer {
 
     /// Generate carrier initialization code
     ///
-    /// Phase 180-3: Extracted from Pattern2 (lines 256-313)
+    /// Phase 180-3: Extracted from legacy loop_break lowering (lines 256-313)
     ///
     /// Generates:
     /// 1. ch0 = s.substring(start, start+1)
@@ -497,7 +497,7 @@ impl TrimLoopLowerer {
 
     /// Generate Trim break condition (normal Trim pattern)
     ///
-    /// Phase 180-3: Extracted from Pattern2 (lines 343-377)
+    /// Phase 180-3: Extracted from legacy loop_break lowering (lines 343-377)
     ///
     /// Returns: !is_carrier (negated carrier check)
     /// Used for "break when NOT match" semantics (e.g., str.trim())
@@ -511,7 +511,7 @@ impl TrimLoopLowerer {
 
     /// Setup ConditionEnv bindings for Trim carrier
     ///
-    /// Phase 180-3: Extracted from Pattern2 (lines 345-377)
+    /// Phase 180-3: Extracted from legacy loop_break lowering (lines 345-377)
     /// Phase 93 Refactoring: Use explicit factory methods for recipe creation
     ///
     /// Creates bindings for:
@@ -551,7 +551,7 @@ impl TrimLoopLowerer {
     }
 
     fn infer_break_semantics_from_break_cond(break_cond: &ASTNode) -> BreakSemantics {
-        // Pattern2 passes `break_cond` as "break when <cond> is true".
+        // loop_break route passes `break_cond` as "break when <cond> is true".
         //
         // - find-first (ConditionOnly): break when match is true      -> `is_match`
         // - trim/skip-whitespace: break when match is false           -> `!is_ws`
