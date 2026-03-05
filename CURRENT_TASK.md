@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-05
+Date: 2026-03-06
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -98,6 +98,20 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `250e95849` refactor(plan,docs): route-align accessor usage and recipe-first vocabulary
+    - `router` / `coreloop_v0,v1,v2` / `shadow_adopt` の facts 参照を accessor 経由へ移行（挙動不変）
+    - recipe builder header と active SSOT docs（`ai-handoff` / `recipe-first-entry` / `phase-29bq/README`）の route/rule 語彙を同期
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `d9747bf3d` refactor(plan,docs): trim remaining pattern residue in expectations and SSOT wording
+    - `LoopFacts::string_is_integer()` を追加し `expectations.rs` を accessor 化（runtime の pattern field 直参照を縮退）
+    - `compiler-cleanliness-campaign-ssot.md` / `compiler-task-map-ssot.md` の Pattern 主語を route/rule 主語へ同期
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `027362931` docs(plan): route-align p5b escape-derived policy wording
+    - `p5b_escape_derived_policy.rs` のコメント/freeze 文言を loop_break route 主語へ同期（挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `468dea967` refactor(plan): route-align loop_break normalizer diagnostics
+    - `normalizer/pattern2_break.rs` の診断文言を `Pattern2Break` から `loop_break` 主語へ同期（挙動不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `9254d2549` refactor(smokes): share joinir strict-release vm helpers
     - `tools/smokes/v2/lib/test_runner.sh` に JoinIR VM 実行ヘルパ `run_joinir_vm_strict` / `run_joinir_vm_release` を追加（strict/release の env 切替と timeout 実行を共通化）
     - `phase29ar_string_is_integer_{min,release_adopt}_vm.sh`, `phase29as_purity_gate_vm.sh`, `phase29aw_flowbox_tag_coverage_gate_vm.sh`, `phase29ae_pattern7_scan_split_pack_vm.sh` の重複した `timeout env ...` を helper 呼び出しへ置換
@@ -1090,20 +1104,24 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## next fixed order (resume point)
 
-1. `shadow_adopt` 縮退（step-2）:
+1. Runtime path の pattern-key 直参照を撤去（step-1a）:
+   - `joinir/patterns/router.rs` の `has_loopbodylocal` 判定を route accessor 化（`loop_break_body_local()`）。
+   - `recipe_tree/matcher/mod.rs` の `verify_route!(facts, pattern*)` 依存を accessor ベースへ置換し、runtime の raw field coupling を解消。
+2. Diagnostic 語彙の最終同期（step-1b）:
+   - `composer/shadow_adopt.rs` の `Pattern4...` freeze payload と helper 名（`allow_strict_nested_pattern4_min1`）を route/rule 主語へ移行（挙動不変）。
+3. SSOT docs の stale 参照掃除（step-1c）:
+   - `generic-loop-v1-acceptance-by-recipe-ssot.md` / `phase-29bq/README.md` の Pattern番号中心記述を route/rule 主語へ段階同期。
+   - debug/tag 契約は `ai-handoff-and-debug-contract.md` を正本に固定し、phase 文書との差分を消す。
+4. `shadow_adopt` 縮退（step-2）:
    - minimal cluster は撤去済み（`fd26729ff`）、nested minimal の registry route 化も完了（`66ddbce40`）。
    - 次は `generic_loop_v1/v0` fallback を recipe-first 側へ段階移管し、`shadow_adopt` の責務を strict guard + 最小 fallback へ縮退。
-2. Surface/trace の semantic 語彙統一（step-1 継続）:
+5. Surface/trace の semantic 語彙統一（step-1 継続）:
    - `joinir/routing.rs` / `joinir/trace.rs` / `parity_checker.rs` の主語外しは実施済み（`c76bb7884`, `51234e1b6`）。
    - `LoopRouteContext` rename sweep は src 側完了（`30c94f450`, `c5ca36791`, `0738b745b`）。`LoopPatternContext` alias は撤去済み。
    - 残りは補助ログの route/rule 主語統一（必要最小限）。
    - 既存 gate sentinel は維持しつつ label を route/rule 主語へ段階移行。
-3. SSOT docs の stale 参照掃除:
-   - `joinir-design-map.md` は更新済み（`7ce300120`）。
-   - 次は `phase-29bq/README.md` と design 配下の Pattern番号中心記述を、現行 route/rule 主語へ段階同期。
-   - debug/tag 契約は `ai-handoff-and-debug-contract.md` を正本に固定し、phase 文書との差分を消す。
-4. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
-5. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
+6. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
+7. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
    - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
@@ -1111,7 +1129,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
    - `normalizer` 側窓口は撤去済み、pattern minimal は composer 側へ集約後に folderごと撤去完了（`96591f62b`, `ea8ffeab3`, `fd26729ff`）。
    - 次は `shadow_adopt` の残 fallback（`nested_minimal / generic_loop_v{1,0}`）を縮退し、recipe-first/router 側へ整理する。
-6. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
+8. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
 
