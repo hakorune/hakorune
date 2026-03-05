@@ -25,10 +25,10 @@ its logic or maintain a separate allowlist.
 
 ## Allowlist (actual contract)
 
-- `Pattern4Continue accept-min1` 形（strict-nested 最小受理）
-  - `route_kind == Pattern4Continue`
+- `continue-only strict-nested route accept-min1` 形（legacy label: `Pattern4Continue`）
+  - `route_kind` は continue-only strict-nested route（legacy enum: `Pattern4Continue`）
   - `exit_usage`: continueあり / breakなし / returnなし
-  - `pattern4_continue` factsあり
+  - `continue-only` factsあり（legacy facts key: `pattern4_continue`）
   - `carrier_updates.len() == 1`
   - `condition`: `<loop_var> < <int>`
   - `continue_condition`: `<loop_var> >= <int>`

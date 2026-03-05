@@ -13,7 +13,7 @@ Related:
 ## Goal
 
 Fix a minimal, stable mapping from regression scenarios to FlowBox schema tags,
-so observability does not drift back to pattern-name coupling.
+so observability stays aligned to route/semantic coverage instead of pattern-number labels.
 
 This map targets **strict/dev** only (release remains silent).
 
@@ -28,17 +28,17 @@ This map targets **strict/dev** only (release remains silent).
 
 | Scenario (smoke) | box_kind | features (required subset) | via | Notes |
 | --- | --- | --- | --- | --- |
-| `phase29ao_pattern1_strict_shadow_vm` | Loop | (empty) | shadow | Pattern1 subset |
+| `phase29ao_pattern1_strict_shadow_vm` | Loop | (empty) | shadow | simple-while subset (legacy label: Pattern1) |
 | `phase29ao_pattern6_strict_shadow_vm` | Loop | return | shadow | ScanWithInit subset |
 | `phase29ao_pattern7_strict_shadow_vm` | Loop | (empty) | shadow | SplitScan subset |
 | `phase29ao_pattern5_strict_shadow_vm` | Loop | break | shadow | Infinite early-exit (break) |
-| `phase29ai_pattern2_break_plan_subset_ok_min_vm` | Loop | break | shadow | Pattern2 plan subset (generic) |
-| `phase29ab_pattern2_loopbodylocal_min_vm` | Loop | break | shadow | Pattern2 promotion (loopbodylocal) |
-| `phase29ab_pattern2_loopbodylocal_seg_min_vm` | Loop | break | shadow | Pattern2 promotion (loopbodylocal + seg) |
-| `phase263_pattern2_seg_realworld_min_vm` | Loop | break | shadow | Pattern2 derived-slot (realworld subset) |
+| `phase29ai_pattern2_break_plan_subset_ok_min_vm` | Loop | break | shadow | break-plan subset (generic; legacy label: Pattern2) |
+| `phase29ab_pattern2_loopbodylocal_min_vm` | Loop | break | shadow | break-plan promotion (loopbodylocal; legacy label: Pattern2) |
+| `phase29ab_pattern2_loopbodylocal_seg_min_vm` | Loop | break | shadow | break-plan promotion (loopbodylocal + seg; legacy label: Pattern2) |
+| `phase263_pattern2_seg_realworld_min_vm` | Loop | break | shadow | break-plan derived-slot (realworld subset; legacy label: Pattern2) |
 | `phase29at_match_return_strict_shadow_vm` | Seq | return | shadow | match_return uses Seq(Effects + BranchN) |
 | `phase29ap_pattern6_nested_strict_shadow_vm` | Loop | nested_loop | shadow | nested minimal |
-| `phase29as_purity_gate_vm` (pattern3_ifphi) | Loop | (empty) | shadow | if-phi subset (purity gate only) |
+| `phase29as_purity_gate_vm` (pattern3_ifphi) | Loop | (empty) | shadow | if-phi subset (purity gate only; legacy label: Pattern3) |
 | `phase29ca_generic_loop_continue_strict_shadow_vm` | Loop | continue | shadow | generic loop continue (strict/dev) |
 | `phase29cb_generic_loop_in_body_step_strict_shadow_vm` | Loop | (empty) | shadow | generic loop in-body step (strict/dev) |
 
@@ -46,7 +46,7 @@ This map targets **strict/dev** only (release remains silent).
 
 These smokes are part of regression coverage and must **not** emit FlowBox adopt tags:
 
-- `phase29ab_pattern2_seg_notapplicable_min_vm` (Pattern2 not applicable; output-only check)
+- `phase29ab_pattern2_seg_notapplicable_min_vm` (break-plan not applicable; legacy label: Pattern2; output-only check)
 - `phase29ar_string_is_integer_min_vm` (strict fail-fast reject; expects `[vm-hako/unimplemented] ... newbox(StringUtils)`)
 
 ## Gate set (minimal)
