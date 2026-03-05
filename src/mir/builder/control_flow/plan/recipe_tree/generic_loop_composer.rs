@@ -31,9 +31,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] generic_loop_v0: composing via direct pipeline path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=generic_loop_v0 path=direct_pipeline");
         }
 
         let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &generic_loop_v0.loop_var)
@@ -65,9 +65,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] generic_loop_v1: composing via direct pipeline path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=generic_loop_v1 path=direct_pipeline");
         }
 
         // Planner-required contracts expect a recipe to exist before lowering.

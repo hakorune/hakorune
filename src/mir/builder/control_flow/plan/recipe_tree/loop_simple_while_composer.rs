@@ -37,7 +37,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[recipe:compose] pattern1_simple_while: composing via RecipeBlock path"));
+            ring0
+                .log
+                .debug("[recipe:compose] route=loop_simple_while path=recipe_block");
         }
 
         let dummy_span = Span::new(0, 0, 0, 0);
@@ -117,7 +119,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[recipe:compose] pattern1_char_map: composing via RecipeBlock path"));
+            ring0
+                .log
+                .debug("[recipe:compose] route=loop_char_map path=recipe_block");
         }
 
         let dummy_span = Span::new(0, 0, 0, 0);
@@ -188,7 +192,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[recipe:compose] pattern1_array_join: composing via RecipeBlock path"));
+            ring0
+                .log
+                .debug("[recipe:compose] route=loop_array_join path=recipe_block");
         }
 
         let dummy_span = Span::new(0, 0, 0, 0);

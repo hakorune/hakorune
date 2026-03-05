@@ -25,9 +25,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] scan_methods_v0: composing via Recipe-first path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=scan_methods_v0 path=recipe_first");
         }
 
         crate::mir::builder::control_flow::plan::loop_scan_methods_v0::pipeline::lower_loop_scan_methods_v0(
@@ -54,9 +54,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] scan_methods_block_v0: composing via Recipe-first path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=scan_methods_block_v0 path=recipe_first");
         }
 
         crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::lower_loop_scan_methods_block_v0(
@@ -86,9 +86,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] scan_phi_vars_v0: composing via Recipe-first path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=scan_phi_vars_v0 path=recipe_first");
         }
 
         crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::lower_loop_scan_phi_vars_v0(
@@ -113,9 +113,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] scan_v0: composing via Recipe-first path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=scan_v0 path=recipe_first");
         }
 
         crate::mir::builder::control_flow::plan::loop_scan_v0::pipeline::lower_loop_scan_v0(
@@ -146,9 +146,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] collect_using_entries_v0: composing via Recipe-first path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=collect_using_entries_v0 path=recipe_first");
         }
 
         crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::lower_loop_collect_using_entries_v0(
@@ -184,9 +184,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] bundle_resolver_v0: composing via Recipe-first path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=bundle_resolver_v0 path=recipe_first");
         }
 
         crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::lower_loop_bundle_resolver_v0(
@@ -222,9 +222,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] loop_cond_break_continue: composing via direct pipeline path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=loop_cond_break_continue path=direct_pipeline");
         }
 
         crate::mir::builder::control_flow::plan::features::lower_loop_cond_break_continue(
@@ -262,9 +262,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] loop_cond_continue_only: composing via direct pipeline path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=loop_cond_continue_only path=direct_pipeline");
         }
 
         crate::mir::builder::control_flow::plan::features::lower_loop_cond_continue_only(
@@ -302,9 +302,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] loop_cond_continue_with_return: composing via direct pipeline path"
-            ));
+            ring0.log.debug(
+                "[recipe:compose] route=loop_cond_continue_with_return path=direct_pipeline",
+            );
         }
 
         crate::mir::builder::control_flow::plan::features::loop_cond_continue_with_return_pipeline::lower_loop_cond_continue_with_return(
@@ -342,9 +342,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] loop_cond_return_in_body: composing via direct pipeline path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=loop_cond_return_in_body path=direct_pipeline");
         }
 
         crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_pipeline::lower_loop_cond_return_in_body(

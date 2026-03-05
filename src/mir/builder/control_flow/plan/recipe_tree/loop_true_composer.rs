@@ -31,9 +31,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[recipe:compose] loop_true_break_continue: composing via direct pipeline path"
-            ));
+            ring0
+                .log
+                .debug("[recipe:compose] route=loop_true_break_continue path=direct_pipeline");
         }
 
         crate::mir::builder::control_flow::plan::features::loop_true_break_continue_pipeline::lower_loop_true_break_continue(

@@ -64,7 +64,9 @@ pub fn verify_pattern2_break_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern2] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=loop_break status=ok");
     }
     Ok(())
 }
@@ -138,7 +140,9 @@ pub fn verify_pattern3_ifphi_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern3] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=if_phi_join status=ok");
     }
     Ok(())
 }
@@ -185,7 +189,9 @@ pub fn verify_pattern4_continue_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern4] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=loop_continue_only status=ok");
     }
     Ok(())
 }
@@ -232,7 +238,9 @@ pub fn verify_pattern5_infinite_early_exit_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern5] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=loop_true_early_exit status=ok");
     }
     Ok(())
 }
@@ -281,7 +289,9 @@ pub fn verify_pattern1_simple_while_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern1] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=loop_simple_while status=ok");
     }
     Ok(())
 }
@@ -330,7 +340,9 @@ pub fn verify_pattern1_char_map_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern1_char_map] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=loop_char_map status=ok");
     }
     Ok(())
 }
@@ -383,7 +395,9 @@ pub fn verify_pattern1_array_join_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern1_array_join] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=loop_array_join status=ok");
     }
     Ok(())
 }
@@ -427,7 +441,9 @@ pub fn verify_pattern6_scan_with_init_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern6] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=scan_with_init status=ok");
     }
     Ok(())
 }
@@ -471,7 +487,9 @@ pub fn verify_pattern7_split_scan_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern7] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=split_scan status=ok");
     }
     Ok(())
 }
@@ -518,7 +536,9 @@ pub fn verify_pattern8_bool_predicate_scan_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern8] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=bool_predicate_scan status=ok");
     }
     Ok(())
 }
@@ -564,7 +584,9 @@ pub fn verify_pattern9_accum_const_loop_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:pattern9] verified OK"));
+        ring0
+            .log
+            .debug("[recipe:verify] route=accum_const_loop status=ok");
     }
     Ok(())
 }

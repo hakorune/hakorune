@@ -325,7 +325,7 @@ fn try_adopt_nested_minimal(
 
     let core_plan = try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)?
         .ok_or_else(|| {
-            "pattern6 nested minimal strict/dev adopt failed: compose rejected".to_string()
+            "nested_loop_minimal strict/dev adopt failed: compose rejected".to_string()
         })?;
     Ok(Some(ShadowAdoptOutcome {
         core_plan,

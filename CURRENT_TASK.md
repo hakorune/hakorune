@@ -56,10 +56,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - release scan（`phase29bq_fast_gate_cases.tsv` を release config + `HAKO_JOINIR_DEBUG=1` で実行）で `entry_route` は `recipe_first|shadow_adopt|none` のみ（126 fixture）
   - nested fallback（`nested_loop_plan` / `generic_loop_body/helpers` / `nested_loop_depth1`）は `planner_required` 時に `loop_cond_continue_with_return` を recipe composer 優先で下ろす（plan normalizer 依存を段階縮退）
   - router の release pre-plan fallback（`release_adopt`）は撤去済み。entry は recipe-first / strict-dev shadow_adopt / none に固定
+  - recipe 補助ログは route 主語へ統一中（`[recipe:verify] route=<...> status=ok`, `[recipe:compose] route=<...> path=<...>`）
 - compiler fixed order:
   1. nested fallback の plan payload 参照を段階的に撤去し、`Facts -> Recipe` 側の観測契約へ集約する（`LoopCondContinueWithReturnPlan` 薄化）。
-  2. route/rule 語彙の残補助ログを統一し、`pattern` 主語を補助観測から撤去する（挙動不変）。
-  3. stale docs を同期し、entry 契約を `Facts -> Recipe -> Composer -> Verifier -> Parts` 一本化の現況に合わせる。
+  2. stale docs を同期し、entry 契約を `Facts -> Recipe -> Composer -> Verifier -> Parts` 一本化の現況に合わせる。
+  3. planner context の残語彙（`pattern_kind`）を `route_kind` へ統一する（挙動不変）。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
 
@@ -90,7 +91,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
-  - `(pending)` refactor(router): remove release_adopt pre-plan fallback lane
+  - `(pending)` refactor(plan): unify recipe verify/compose logs to route vocabulary
+    - `recipe_tree/matcher/patterns.rs` の `[recipe:pattern*]` 補助ログを `[recipe:verify] route=<...> status=ok` に統一
+    - `recipe_tree/*composer.rs` の `[recipe:compose] pattern*` を `[recipe:compose] route=<...> path=<...>` に統一し、`pattern` 主語を撤去
+    - stale docs 同期: `ai-handoff-and-debug-contract.md` / `recipe-first-entry-contract-ssot.md` のログ契約を route 主語へ更新
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
+  - `6f3a0cccc` refactor(router): remove release_adopt pre-plan fallback lane
     - `composer/shadow_adopt.rs` から release 互換 lane（`try_release_adopt_pre_plan` / strict-vs-release 分岐）を撤去し、strict/dev の shadow_adopt だけに責務を縮小
     - `joinir/patterns/router.rs` の release fallback 呼び出しを削除し、entry route を `recipe_first / shadow_adopt / none` に固定
     - stale docs 同期: `recipe-first-entry-contract-ssot.md` / `ai-handoff-and-debug-contract.md` の entry_route 契約を現行配線へ更新

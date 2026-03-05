@@ -145,7 +145,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 
 - Pattern2Break now builds and verifies a RecipeBlock in planner_required mode.
 - Lowering behavior is unchanged (DomainPlan → Normalizer path), so this is a proof-only step.
-- Debug tag: `[recipe:pattern2] <status>` (guarded by `joinir_dev::debug_enabled()`).
+- Debug tag: `[recipe:verify] route=loop_break status=<ok|fail>` (guarded by `joinir_dev::debug_enabled()`).
 
 ## Phase C: Pattern2Break entry enforced (planner_required only)
 
@@ -166,7 +166,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 
 - Pattern2Break is now composed directly into CorePlan in planner_required mode.
 - Route: `route_loop_pattern` → `RecipeComposer::compose_pattern2_break` → `PlanNormalizer::normalize_pattern2_break`
-- Debug tag: `[recipe:compose] pattern2_break: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=loop_break path=recipe_block`
 - Lowering behavior unchanged (same normalizer, different entry path).
 - DomainPlan still exists (for non-planner_required mode).
 
@@ -203,14 +203,14 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Pattern3IfPhi now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [IfV2 { Join }, Stmt(increment)] }`
 - Contract: `body_contract = NoExit` (no break/continue/return in body)
-- Debug tag: `[recipe:pattern3] verified OK`
+- Debug tag: `[recipe:verify] route=if_phi_join status=ok`
 - Lowering behavior unchanged (DomainPlan → Normalizer path).
 
 ## Phase C7: Pattern3IfPhi composed via RecipeComposer (planner_required only)
 
 - Pattern3IfPhi now composes CorePlan via `RecipeComposer::compose_pattern3_ifphi()`.
 - Route: `route_loop_pattern` → `RecipeComposer::compose_pattern3_ifphi` → `PlanNormalizer::normalize_pattern3_if_phi`
-- Debug tag: `[recipe:compose] pattern3_ifphi`
+- Debug tag: `[recipe:compose] route=if_phi_join path=recipe_block`
 - Lowering behavior unchanged (same normalizer, different entry path).
 - DomainPlan still exists (for non-planner_required mode).
 
@@ -227,9 +227,9 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Pattern4Continue now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [IfV2 { ExitOnly(Continue) }, Stmt(carrier_updates), Stmt(increment)] }`
 - Contract: `body_contract = ExitAllowed` (continue exits the iteration)
-- Debug tag: `[recipe:pattern4] verified OK`
+- Debug tag: `[recipe:verify] route=loop_continue_only status=ok`
 - Phase C9-2: Pattern4Continue composed via `RecipeComposer::compose_pattern4_continue()`.
-- Debug tag: `[recipe:compose] pattern4_continue`
+- Debug tag: `[recipe:compose] route=loop_continue_only path=recipe_block`
 - Phase C9-3: Pattern4Continue is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern4 when planner_required.
 - Router detects Pattern4 via `facts.pattern4_continue` instead of `domain_plan`.
@@ -241,9 +241,9 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Pattern5InfiniteEarlyExit now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { kind: Infinite, body: [IfV2 { ExitOnly }, Stmt?, Stmt(increment)] }`
 - Contract: `body_contract = ExitAllowed` (return/break exits)
-- Debug tag: `[recipe:pattern5] verified OK`
+- Debug tag: `[recipe:verify] route=loop_true_early_exit status=ok`
 - Phase C10-2: Pattern5 composed via `RecipeComposer::compose_pattern5_infinite_early_exit()`.
-- Debug tag: `[recipe:compose] pattern5_infinite_early_exit`
+- Debug tag: `[recipe:compose] route=loop_true_early_exit path=recipe_block`
 - Phase C10-3: Pattern5 is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern5 when planner_required.
 - Router detects Pattern5 via `facts.pattern5_infinite_early_exit` instead of `domain_plan`.
@@ -256,9 +256,9 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Pattern1SimpleWhile now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { kind: WhileLike, body: [Stmt(increment)] }`
 - Contract: `body_contract = StmtOnly`, root verified with `NoExit`
-- Debug tag: `[recipe:pattern1] verified OK`
+- Debug tag: `[recipe:verify] route=loop_simple_while status=ok`
 - Phase C11-2: Pattern1SimpleWhile composed via `RecipeComposer::compose_pattern1_simple_while()`.
-- Debug tag: `[recipe:compose] pattern1_simple_while: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=loop_simple_while path=recipe_block`
 - Phase C11-3: Pattern1SimpleWhile is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern1SimpleWhile when planner_required.
 - Router detects Pattern1SimpleWhile via `facts.pattern1_simplewhile` instead of `domain_plan`.
@@ -271,9 +271,9 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Recipe structure: `LoopV0 { kind: WhileLike, body: [Stmt(substring), Stmt(result_update), Stmt(increment)] }`
 - Contract: `body_contract = StmtOnly`, root verified with `NoExit`
 - NOTE: Body AST is reconstructed from Facts fields (Pattern1CharMapFacts does not store original body).
-- Debug tag: `[recipe:pattern1_char_map] verified OK`
+- Debug tag: `[recipe:verify] route=loop_char_map status=ok`
 - Phase C12-2: Pattern1CharMap composed via `RecipeComposer::compose_pattern1_char_map()`.
-- Debug tag: `[recipe:compose] pattern1_char_map: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=loop_char_map path=recipe_block`
 - Phase C12-3: Pattern1CharMap is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern1CharMap when planner_required.
 - Router detects Pattern1CharMap via `facts.pattern1_char_map` instead of `domain_plan`.
@@ -286,9 +286,9 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Recipe structure: `LoopV0 { kind: WhileLike, body: [IfV2 { Join }, Stmt(element_append), Stmt(increment)] }`
 - Contract: `body_contract = NoExit` (body contains IfV2, not StmtOnly)
 - NOTE: Body AST is reconstructed from Facts fields (Pattern1ArrayJoinFacts does not store original body).
-- Debug tag: `[recipe:pattern1_array_join] verified OK`
+- Debug tag: `[recipe:verify] route=loop_array_join status=ok`
 - Phase C13-2: Pattern1ArrayJoin composed via `RecipeComposer::compose_pattern1_array_join()`.
-- Debug tag: `[recipe:compose] pattern1_array_join: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=loop_array_join path=recipe_block`
 - Phase C13-3: Pattern1ArrayJoin is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern1ArrayJoin when planner_required.
 - Router detects Pattern1ArrayJoin via `facts.pattern1_array_join` instead of `domain_plan`.
@@ -304,9 +304,9 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Recipe structure: `LoopV0 { body: [IfV2 { ExitOnly(Return) }, Stmt(step)] }`
 - Contract: `body_contract = ExitAllowed`
 - Contract violation freeze tag (strict/dev): `[joinir/phase29ab/pattern6/contract]`
-- Debug tag: `[recipe:pattern6] verified OK`
+- Debug tag: `[recipe:verify] route=scan_with_init status=ok`
 - Phase C14-2: Pattern6 composed via `RecipeComposer::compose_pattern6_scan_with_init()`.
-- Debug tag: `[recipe:compose] pattern6_scan_with_init: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=scan_with_init path=recipe_block`
 - Phase C14-3: Pattern6 is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern6 when planner_required.
 - Router detects Pattern6 via `facts.scan_with_init` instead of `domain_plan`.
@@ -320,9 +320,9 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Recipe structure: `LoopV0 { body: [IfV2 { Join(then/else) }] }`
 - Contract: `body_contract = NoExit`
 - Contract violation freeze tag (strict/dev): `[joinir/phase29ab/pattern7/contract]`
-- Debug tag: `[recipe:pattern7] verified OK`
+- Debug tag: `[recipe:verify] route=split_scan status=ok`
 - Phase C14-2: Pattern7 composed via `RecipeComposer::compose_pattern7_split_scan()`.
-- Debug tag: `[recipe:compose] pattern7_split_scan: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=split_scan path=recipe_block`
 - Phase C14-3: Pattern7 is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern7 when planner_required.
 - Router detects Pattern7 via `facts.split_scan` instead of `domain_plan`.
@@ -335,9 +335,9 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Pattern8 now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [IfV2 { ExitOnly(Return false) }, Stmt(step)] }`
 - Contract: `body_contract = ExitAllowed`
-- Debug tag: `[recipe:pattern8] verified OK`
+- Debug tag: `[recipe:verify] route=bool_predicate_scan status=ok`
 - Phase C14-2: Pattern8 composed via `RecipeComposer::compose_pattern8_bool_predicate_scan()`.
-- Debug tag: `[recipe:compose] pattern8_bool_predicate_scan: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=bool_predicate_scan path=recipe_block`
 - Phase C14-3: Pattern8 is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern8 when planner_required.
 - Router detects Pattern8 via `facts.pattern8_bool_predicate_scan` instead of `domain_plan`.
@@ -349,9 +349,9 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Pattern9 now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [Stmt(acc_update), Stmt(step)] }`
 - Contract: `body_contract = StmtOnly`, root verified with `NoExit`
-- Debug tag: `[recipe:pattern9] verified OK`
+- Debug tag: `[recipe:verify] route=accum_const_loop status=ok`
 - Phase C14-2: Pattern9 composed via `RecipeComposer::compose_pattern9_accum_const_loop()`.
-- Debug tag: `[recipe:compose] pattern9_accum_const_loop: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=accum_const_loop path=recipe_block`
 - Phase C14-3: Pattern9 is recipe-only in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern9 when planner_required.
 - Router detects Pattern9 via `facts.pattern9_accum_const_loop` instead of `domain_plan`.
@@ -368,7 +368,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
   - Nested segments: `NestedLoopRecipe` → verify `body_stmt_only` if present
 - Debug tag: `[recipe:scan_methods] verified OK`
 - Compose via `RecipeComposer::compose_loop_scan_methods_v0()`
-- Debug tag: `[recipe:compose] scan_methods_v0: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=scan_methods_v0 path=recipe_first`
 - Recipe-only in planner_required mode (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] scan_methods_v0: recipe-only (domain_plan suppressed)`
 - Gate fixture: `apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_min.hako`
@@ -381,7 +381,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
   - Nested segments: `NestedLoopRecipe` → verify `body_stmt_only` if present
 - Debug tag: `[recipe:scan_methods_block] verified OK`
 - Compose via `RecipeComposer::compose_loop_scan_methods_block_v0()`
-- Debug tag: `[recipe:compose] scan_methods_block_v0: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=scan_methods_block_v0 path=recipe_first`
 - Recipe-only in planner_required mode (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] scan_methods_block_v0: recipe-only (domain_plan suppressed)`
 - Gate fixture: `apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_block_min.hako`
@@ -394,7 +394,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
   - Nested segments: `NestedLoopRecipe` → verify `body_stmt_only` if present
 - Debug tag: `[recipe:scan_phi_vars] verified OK`
 - Compose via `RecipeComposer::compose_loop_scan_phi_vars_v0()`
-- Debug tag: `[recipe:compose] scan_phi_vars_v0: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=scan_phi_vars_v0 path=recipe_first`
 - Recipe-only in planner_required mode (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] scan_phi_vars_v0: recipe-only (domain_plan suppressed)`
 
@@ -406,7 +406,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
   - Nested segments: `NestedLoopRecipe` → verify `body_stmt_only` if present
 - Debug tag: `[recipe:scan_v0] verified OK`
 - Compose via `RecipeComposer::compose_loop_scan_v0()`
-- Debug tag: `[recipe:compose] scan_v0: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=scan_v0 path=recipe_first`
 - Recipe-only in planner_required mode (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] scan_v0: recipe-only (domain_plan suppressed)`
 
@@ -417,7 +417,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Verifies `NoExitBlockRecipe` payload in `RecipeMatcher::try_match_loop()`.
 - Debug tag: `[recipe:collect_using_entries] verified OK`
 - Compose via `RecipeComposer::compose_loop_collect_using_entries_v0()`
-- Debug tag: `[recipe:compose] collect_using_entries_v0: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=collect_using_entries_v0 path=recipe_first`
 - Recipe-only in planner_required mode (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] collect_using_entries_v0: recipe-only (domain_plan suppressed)`
 - Gate fixture: `apps/tests/phase29bq_selfhost_blocker_collect_using_entries_loop_min.hako`
@@ -427,7 +427,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Verifies `ExitAllowedBlockRecipe` payload in `RecipeMatcher::try_match_loop()`.
 - Debug tag: `[recipe:bundle_resolver] verified OK`
 - Compose via `RecipeComposer::compose_loop_bundle_resolver_v0()`
-- Debug tag: `[recipe:compose] bundle_resolver_v0: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=bundle_resolver_v0 path=recipe_first`
 - Recipe-only in planner_required mode (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] bundle_resolver_v0: recipe-only (domain_plan suppressed)`
 - Gate fixture: `apps/tests/phase29bq_selfhost_blocker_bundle_resolver_min.hako`
@@ -437,7 +437,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Verifies `body_exit_allowed` when present; otherwise validates recipe indices in `LoopCondRecipe`.
 - Debug tag: `[recipe:loop_true] verified OK`
 - Compose via `RecipeComposer::compose_loop_true_break_continue()`
-- Debug tag: `[recipe:compose] loop_true_break_continue: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=loop_true_break_continue path=direct_pipeline`
 - Recipe-only in planner_required mode (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] loop_true_break_continue: recipe-only (domain_plan suppressed)`
 
@@ -448,7 +448,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Verifies `body_exit_allowed` when policy is `ExitAllowed`; always validates recipe indices.
 - Debug tag: `[recipe:loop_cond_break_continue] verified OK`
 - Compose via `RecipeComposer::compose_loop_cond_break_continue()`
-- Debug tag: `[recipe:compose] loop_cond_break_continue: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=loop_cond_break_continue path=direct_pipeline`
 - Recipe-only in planner_required mode (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] loop_cond_break_continue: recipe-only (domain_plan suppressed)`
 
@@ -457,7 +457,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Verifies `ContinueOnlyRecipe` indices + span bounds.
 - Debug tag: `[recipe:loop_cond_continue_only] verified OK`
 - Compose via `RecipeComposer::compose_loop_cond_continue_only()`
-- Debug tag: `[recipe:compose] loop_cond_continue_only: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=loop_cond_continue_only path=direct_pipeline`
 - Recipe-only in planner_required mode (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] loop_cond_continue_only: recipe-only (domain_plan suppressed)`
 - Gate fixture: `apps/tests/phase29bq_loop_cond_continue_only_no_else_min.hako`
@@ -467,7 +467,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Verifies `ContinueWithReturnRecipe` indices + span bounds.
 - Debug tag: `[recipe:loop_cond_continue_with_return] verified OK`
 - Compose via `RecipeComposer::compose_loop_cond_continue_with_return()`
-- Debug tag: `[recipe:compose] loop_cond_continue_with_return: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=loop_cond_continue_with_return path=direct_pipeline`
 - Recipe-only in all modes (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] loop_cond_continue_with_return: recipe-only (domain_plan suppressed)`
 - Gate fixture: `apps/tests/phase29bq_shortcircuit_loop_cond_continue_with_return_min.hako`
@@ -477,7 +477,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - Verifies `LoopCondReturnInBodyRecipe` indices.
 - Debug tag: `[recipe:loop_cond_return_in_body] verified OK`
 - Compose via `RecipeComposer::compose_loop_cond_return_in_body()`
-- Debug tag: `[recipe:compose] loop_cond_return_in_body: composing via Recipe-first path`
+- Debug tag: `[recipe:compose] route=loop_cond_return_in_body path=direct_pipeline`
 - Recipe-only in planner_required mode (DomainPlan suppressed)
 - Debug tag: `[recipe:entry] loop_cond_return_in_body: recipe-only (domain_plan suppressed)`
 

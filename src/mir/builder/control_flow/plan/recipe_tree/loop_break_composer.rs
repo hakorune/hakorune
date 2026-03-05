@@ -66,7 +66,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[recipe:compose] pattern2_break: composing via RecipeBlock path"));
+            ring0
+                .log
+                .debug("[recipe:compose] route=loop_break path=recipe_block");
         }
 
         // Structure-only loop stmt used to build the recipe tree.

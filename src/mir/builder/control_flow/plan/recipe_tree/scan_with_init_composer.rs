@@ -106,7 +106,9 @@ impl RecipeComposer {
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[recipe:compose] pattern6_scan_with_init: composing via RecipeBlock path"));
+            ring0
+                .log
+                .debug("[recipe:compose] route=scan_with_init path=recipe_block");
         }
 
         let dummy_span = Span::new(0, 0, 0, 0);
