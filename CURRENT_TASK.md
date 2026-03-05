@@ -46,19 +46,19 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - execution rule:
   - 1 blocker = 1受理形 = fixture+gate = 1 commit
   - BoxCount と BoxShape を同コミットで混在させない
-- latest audit snapshot (2026-03-05):
+- latest audit snapshot (2026-03-06):
   - top-level loop route は recipe-first が主経路（`route_loop -> registry::try_route_recipe_first -> PlanLowerer`）
   - `normalizer/pattern*.rs` は runtime main route 直下では未使用（test-only / 補助経路）
   - `DomainPlan` 識別子は `src/**` で 0件。planner payload lane（`LoopCondContinueWithReturnPlan`）は runtime 経路から撤去済み
   - `PlanBuildOutcome` は `facts + recipe_contract` のみ。`outcome.plan` / `outcome.plan.take()` 参照は `src/mir/builder/control_flow/{plan,joinir}/**` で 0件
   - release nested-safe recipe-first は `pattern6_nested_minimal` / `generic_loop_v{1,0}` / exit-driven `loop_cond_break_continue` まで拡張済み
   - 上記 release 例外で compose/verify/lower reject 時は `Ok(None)` を返し、router の no-route 判定へ戻す（互換維持）
-  - release scan（`phase29bq_fast_gate_cases.tsv` を release config + `HAKO_JOINIR_DEBUG=1` で実行）で `entry_route` は `recipe_first|shadow_adopt|none` のみ（126 fixture）
+  - release scan（`phase29bq_fast_gate_cases.tsv` を release config + `HAKO_JOINIR_DEBUG=1` で実行）で `entry_route` は `recipe_first|none` のみ（126 fixture）
   - nested fallback（`nested_loop_plan` / `generic_loop_body/helpers` / `nested_loop_depth1`）は `planner_required` 時に `loop_cond_continue_with_return` を recipe composer 優先で下ろす（legacy payload 分岐なし）
   - nested fallback の `loop_cond_continue_with_return` gate は共通 helper (`try_compose_loop_cond_continue_with_return_recipe`) に集約済み（重複3箇所を削除）
   - nested fallback の legacy planner payload（`planner_payload -> PlanNormalizer`）は撤去済み
   - `single_planner/rules.rs` は `loop_cond_continue_with_return facts` を recipe-only rule hit 判定のSSOTにし、`route=plan strategy=extract` 経路を撤去済み
-  - router の release pre-plan fallback（`release_adopt`）は撤去済み。entry は recipe-first / strict-dev shadow_adopt / none に固定
+  - router の release pre-plan fallback（`release_adopt`）は撤去済み。strict/dev pre-plan は guard-only（`shadow_pre_plan_guard_error`）で adopt しない
   - recipe 補助ログは route 主語へ統一中（`[recipe:verify] route=<...> status=ok`, `[recipe:compose] route=<...> path=<...>`）
   - planner context 表層語彙は `route_kind` へ統一済み（`pattern_kind` は code path から撤去）
   - domain 内部語彙を route 主語へ縮退（`Pattern2StepPlacement` → `LoopBreakStepPlacement`, `Pattern5ExitKind` → `LoopTrueEarlyExitKind`）
@@ -99,6 +99,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `ba7f17b6b` refactor(plan,docs): shrink shadow pre-plan lane to guard-only
+    - `router` の pre-plan `shadow_adopt` 採用 lane を撤去し、`shadow_pre_plan_guard_error`（guard-only）へ縮退
+    - `composer/shadow_adopt.rs` から adopt outcome/export を削除し、pre-plan は strict guard + planner_required contract freeze 専用へ集約
+    - active SSOT/docs 同期: `recipe-first-entry-contract-ssot.md`, `ai-handoff-and-debug-contract.md`, `phase-29bq/README.md`, `CURRENT_TASK.md`
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `8a670d4ef` refactor(plan,smokes,docs): route nested helper fallback via nested_minimal guard
+    - `generic_loop_body/helpers.rs` の nested fallback を `shadow_adopt` 依存から切り離し、`nested_loop_minimal` 明示 compose + `strict_nested_loop_guard` 直評価へ移行
+    - `phase29bq_fast_gate_cases.tsv` の strict nested guard 期待文字列を route 語彙（`loop_continue_only`）へ同期
+    - `CURRENT_TASK.md` の probe snapshot / step-2 進捗を更新
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `49d23483a` docs(current_task): sync latest cleanup commits and ordered residue queue
     - root pointer の fixed order を `runtime pattern-key cleanup -> shadow_adopt diagnostics -> docs stale sync` 順へ更新
   - `26c2dd3d3` refactor(plan): remove runtime pattern-key deref from router and matcher
