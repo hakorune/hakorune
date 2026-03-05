@@ -6,6 +6,8 @@
 
 **実装は別フェーズ** - このドキュメントは設計のみ。
 
+注記: 本文で出る `PatternX` は historical/filename 用の legacy label。説明文は route/semantic 名を優先する。
+
 ---
 
 ## Goal
@@ -26,7 +28,7 @@
 
 ## Current Layout (深い階層の代表例)
 
-### 深さ4の例: facts/pattern2_break_facts/
+### 深さ4の例: break-on-condition facts ルート（legacy label: Pattern2）
 
 ```
 facts/pattern2_break_facts/
@@ -43,7 +45,7 @@ facts/pattern2_break_facts/
   └── types.rs
 ```
 
-**→ 提案**: `facts/pattern2_break_*.rs` (12ファイルをフラット化)
+**→ 提案**: break-on-condition facts を `facts/pattern2_break_*.rs` へ集約 (12ファイルをフラット化、legacy label: Pattern2)
 
 ### 深さ4の例: features/loop_cond_break_continue_pipeline/item_lowering/
 
@@ -110,7 +112,7 @@ normalizer/cond_lowering/
 
 **→ 提案**: `normalizer/cond_lowering_*.rs` (8ファイルをフラット化)
 
-### 深さ3の例: recipe_tree/builders/ と composer/
+### 深さ3の例: recipe_tree/builders/ と composer/（route別 builder/composer、legacy labels: Pattern1-9）
 
 ```
 recipe_tree/builders/
@@ -143,7 +145,7 @@ recipe_tree/composer/
   └── split_scan.rs
 ```
 
-**→ 提案**: `recipe_tree/pattern*_builder.rs` と `recipe_tree/pattern*_composer.rs` (23ファイルをフラット化)
+**→ 提案**: route別 builder/composer を `recipe_tree/pattern*_builder.rs` と `recipe_tree/pattern*_composer.rs` へ集約 (23ファイルをフラット化、legacy labels: Pattern1-9)
 
 ### 深さ3の例: composer/coreloop_v0/ と coreloop_v1/
 
@@ -264,7 +266,7 @@ composer/*.rs (既存維持)
 
 **命名規則**: `composer/<version>_<component>.rs`
 
-#### 6. recipe_tree/ (28ファイル → 1階層)
+#### 6. recipe_tree/ (28ファイル → 1階層; route別 builder/composer)
 
 **現在**:
 ```
@@ -280,7 +282,7 @@ recipe_tree/pattern*_composer.rs (12ファイル)
 recipe_tree/*.rs (既存維持)
 ```
 
-**命名規則**: `recipe_tree/<pattern>_<role>.rs`
+**命名規則**: `recipe_tree/<pattern>_<role>.rs`（`<pattern>` は legacy label。意味は route名で管理）
 
 #### 7. normalizer/ (24ファイル → 1階層)
 
@@ -370,7 +372,7 @@ loop_*_v0_recipe.rs
 **リスク**: ディレクトリ構造から意図が読めなくなる
 
 **対策**:
-- ファイル名でパターンを明示
+- ファイル名で route 意味を明示（必要時は legacy label: PatternX を併記）
 - 各カテゴリの `mod.rs` にコメントを追加
 
 ---
