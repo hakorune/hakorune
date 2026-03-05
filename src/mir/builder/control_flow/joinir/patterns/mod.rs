@@ -60,7 +60,7 @@ pub(in crate::mir::builder) mod policies {
 }
 
 // Re-export router for convenience
-pub(in crate::mir::builder) use router::{route_loop, LoopPatternContext, LoopRouteContext};
+pub(in crate::mir::builder) use router::{route_loop, LoopRouteContext};
 
 // Phase 140-P4-A: Re-export for loop_canonicalizer SSOT (crate-wide visibility)
 pub(crate) use ast_feature_extractor::detect_skip_whitespace_pattern;

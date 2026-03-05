@@ -2,7 +2,7 @@
 
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner;
@@ -13,11 +13,11 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first(
     builder: &mut MirBuilder,
     condition: &ASTNode,
     body: &[ASTNode],
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     error_prefix: &str,
     tag: &str,
 ) -> Result<LoweredRecipe, String> {
-    let nested_ctx = LoopPatternContext::new(
+    let nested_ctx = LoopRouteContext::new(
         condition,
         body,
         ctx.func_name,

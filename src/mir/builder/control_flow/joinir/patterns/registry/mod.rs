@@ -6,7 +6,7 @@ use crate::mir::ValueId;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 
-use super::router::LoopPatternContext;
+use super::router::LoopRouteContext;
 
 mod types;
 mod predicates;
@@ -203,7 +203,7 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
 
 pub(crate) fn try_route_recipe_first(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {

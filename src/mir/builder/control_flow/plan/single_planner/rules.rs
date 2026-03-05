@@ -3,7 +3,7 @@
 //! `PLAN_RULE_ORDER` is intentionally single-plan-only.
 //! Router-level recipe entries still emit planner-first tags via `PlanRuleId`.
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 
 use crate::mir::builder::control_flow::plan::facts::pattern2_loopbodylocal_facts::LoopBodyLocalShape;
 use crate::mir::builder::control_flow::plan::loop_plan_label;
@@ -43,7 +43,7 @@ impl PlannerGate {
     }
 }
 
-fn freeze_planner_required_none(ctx: &LoopPatternContext) -> String {
+fn freeze_planner_required_none(ctx: &LoopRouteContext) -> String {
     let mut msg = format!(
         "planner required, but planner returned None (legacy fallback forbidden): func={} cond={} body_len={}",
         ctx.func_name,
@@ -101,7 +101,7 @@ fn emit_loop_break_promotion_hint_tag(promotion_shape: Option<&LoopBodyLocalShap
     let _ = ring0.io.stderr_write(format!("{}\n", tag).as_bytes());
 }
 
-pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOutcome, String> {
+pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutcome, String> {
     use crate::mir::builder::control_flow::joinir::trace;
 
     let gate = PlannerGate::new();

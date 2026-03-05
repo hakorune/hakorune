@@ -21,7 +21,7 @@ impl MirBuilder {
         condition: &ASTNode,
         body: &[ASTNode],
         func_name: &str,
-        ctx: &super::patterns::LoopPatternContext,
+        ctx: &super::patterns::LoopRouteContext,
     ) -> (Result<(), String>, Option<crate::mir::loop_canonicalizer::LoopSkeleton>) {
         use crate::mir::loop_canonicalizer::canonicalize_loop_expr;
 

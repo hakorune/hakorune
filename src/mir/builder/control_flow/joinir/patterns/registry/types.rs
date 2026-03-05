@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::plan::observability::flowbox_tags::Flowbo
 use crate::mir::builder::control_flow::plan::CorePlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
-use super::super::router::LoopPatternContext;
+use super::super::router::LoopRouteContext;
 
 pub(crate) struct RouterEnv {
     pub strict_or_dev: bool,
@@ -16,7 +16,7 @@ pub(crate) struct RouterEnv {
 pub(crate) type PredicateFn = fn(&CanonicalLoopFacts) -> bool;
 pub(crate) type RouteFn = fn(
     &mut MirBuilder,
-    &LoopPatternContext,
+    &LoopRouteContext,
     &PlanBuildOutcome,
     &RouterEnv,
 ) -> Result<Option<ValueId>, String>;
@@ -37,7 +37,7 @@ pub(crate) enum PlannerFirstMode {
 pub(crate) type ComposeFn = fn(
     &mut MirBuilder,
     &CanonicalLoopFacts,
-    &LoopPatternContext,
+    &LoopRouteContext,
 ) -> Result<CorePlan, Freeze>;
 
 pub(crate) struct StandardEntry {

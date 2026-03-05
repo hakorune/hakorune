@@ -10,13 +10,13 @@ use crate::mir::builder::control_flow::plan::verifier::PlanVerifier;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-use super::super::router::{lower_verified_core_plan, LoopPatternContext};
+use super::super::router::{lower_verified_core_plan, LoopRouteContext};
 use super::types::{PlannerFirstMode, RouterEnv, StandardEntry};
 use super::utils::{emit_planner_first, loop_break_recipe_needs_flowbox_adopt_tag_in_strict};
 
 fn route_standard(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
     entry: &StandardEntry,
@@ -55,12 +55,12 @@ fn route_standard(
     )
 }
 
-fn release_skips_nested_loop(ctx: &LoopPatternContext, env: &RouterEnv) -> bool {
+fn release_skips_nested_loop(ctx: &LoopRouteContext, env: &RouterEnv) -> bool {
     !env.planner_required && detect_nested_loop(ctx.body)
 }
 
 fn release_allows_loop_cond_break_continue(
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> bool {
@@ -103,7 +103,7 @@ fn release_allows_loop_scan_methods_block_v0(outcome: &PlanBuildOutcome, env: &R
 
 pub(crate) fn route_loop_break_recipe(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -168,7 +168,7 @@ pub(crate) fn route_loop_break_recipe(
 
 pub(crate) fn route_if_phi_join(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -207,7 +207,7 @@ pub(crate) fn route_if_phi_join(
 
 pub(crate) fn route_loop_continue_only(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -258,7 +258,7 @@ pub(crate) fn route_loop_continue_only(
 
 pub(crate) fn route_loop_true_early_exit(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -278,7 +278,7 @@ pub(crate) fn route_loop_true_early_exit(
 
 pub(crate) fn route_loop_simple_while(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -298,7 +298,7 @@ pub(crate) fn route_loop_simple_while(
 
 pub(crate) fn route_loop_char_map(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -317,7 +317,7 @@ pub(crate) fn route_loop_char_map(
 
 pub(crate) fn route_loop_array_join(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -336,7 +336,7 @@ pub(crate) fn route_loop_array_join(
 
 pub(crate) fn route_scan_with_init(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -356,7 +356,7 @@ pub(crate) fn route_scan_with_init(
 
 pub(crate) fn route_split_scan(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -375,7 +375,7 @@ pub(crate) fn route_split_scan(
 
 pub(crate) fn route_bool_predicate_scan(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -395,7 +395,7 @@ pub(crate) fn route_bool_predicate_scan(
 
 pub(crate) fn route_accum_const_loop(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -441,7 +441,7 @@ pub(crate) fn route_accum_const_loop(
 
 pub(crate) fn route_loop_scan_methods_v0(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -461,7 +461,7 @@ pub(crate) fn route_loop_scan_methods_v0(
 
 pub(crate) fn route_loop_scan_methods_block_v0(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -485,7 +485,7 @@ pub(crate) fn route_loop_scan_methods_block_v0(
 
 pub(crate) fn route_loop_scan_phi_vars_v0(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -505,7 +505,7 @@ pub(crate) fn route_loop_scan_phi_vars_v0(
 
 pub(crate) fn route_loop_scan_v0(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -524,7 +524,7 @@ pub(crate) fn route_loop_scan_v0(
 
 pub(crate) fn route_loop_collect_using_entries_v0(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -544,7 +544,7 @@ pub(crate) fn route_loop_collect_using_entries_v0(
 
 pub(crate) fn route_nested_loop_minimal(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -583,7 +583,7 @@ pub(crate) fn route_nested_loop_minimal(
 
 pub(crate) fn route_loop_bundle_resolver_v0(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -603,7 +603,7 @@ pub(crate) fn route_loop_bundle_resolver_v0(
 
 pub(crate) fn route_loop_true_break_continue(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -627,7 +627,7 @@ pub(crate) fn route_loop_true_break_continue(
 
 pub(crate) fn route_loop_cond_break_continue(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -651,7 +651,7 @@ pub(crate) fn route_loop_cond_break_continue(
 
 pub(crate) fn route_loop_cond_continue_only(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -675,7 +675,7 @@ pub(crate) fn route_loop_cond_continue_only(
 
 pub(crate) fn route_loop_cond_continue_with_return(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -699,7 +699,7 @@ pub(crate) fn route_loop_cond_continue_with_return(
 
 pub(crate) fn route_loop_cond_return_in_body(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -719,7 +719,7 @@ pub(crate) fn route_loop_cond_return_in_body(
 
 pub(crate) fn route_generic_loop_v1(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
@@ -749,7 +749,7 @@ pub(crate) fn route_generic_loop_v1(
 
 pub(crate) fn route_generic_loop_v0(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
