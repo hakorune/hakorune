@@ -67,7 +67,7 @@ pub(in crate::mir::builder) struct PlanLowerer;
 mod tests {
     use super::*;
     use crate::mir::builder::MirBuilder;
-    use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+    use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
     use crate::mir::builder::control_flow::plan::{
         CorePlan, CoreExitPlan, CoreIfPlan, CoreEffectPlan, CoreLoopPlan,
     };
@@ -77,8 +77,8 @@ mod tests {
     use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
     use crate::mir::{ConstValue, MirInstruction};
 
-    fn make_ctx<'a>(condition: &'a ASTNode, body: &'a [ASTNode]) -> LoopPatternContext<'a> {
-        LoopPatternContext::new(condition, body, "test_coreplan", false, false)
+    fn make_ctx<'a>(condition: &'a ASTNode, body: &'a [ASTNode]) -> LoopRouteContext<'a> {
+        LoopRouteContext::new(condition, body, "test_coreplan", false, false)
     }
 
     #[test]

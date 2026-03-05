@@ -9,7 +9,7 @@
 //! - Step 7: Setup after_bb for subsequent AST lowering
 //! - Step 8: Return Void (pattern applied successfully)
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::CoreLoopPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
@@ -26,7 +26,7 @@ pub fn emit_loop_frag(
     session: &mut PlanBuildSession,
     frag: &Frag,
     loop_plan: &CoreLoopPlan,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<(), String> {
     use crate::mir::builder::control_flow::joinir::trace;
 
@@ -91,7 +91,7 @@ pub fn finalize_loop_variables(
     builder: &mut MirBuilder,
     final_values: &[(String, ValueId)],
     after_bb: BasicBlockId,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Option<ValueId>, String> {
     use crate::mir::builder::control_flow::joinir::trace;
     use crate::mir::builder::emission::constant::emit_void;

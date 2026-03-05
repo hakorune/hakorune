@@ -14,7 +14,7 @@
 //! - Control flow detection for optimization decisions
 
 use super::LoopFrame;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CorePlan, LoweredRecipe,
 };
@@ -519,7 +519,7 @@ impl super::PlanLowerer {
     pub(super) fn lower_loop_body_plans(
         builder: &mut MirBuilder,
         plans: &[LoweredRecipe],
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
         fallthrough_target: BasicBlockId,
     ) -> Result<(), String> {

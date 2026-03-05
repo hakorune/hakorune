@@ -4,7 +4,7 @@ use super::coreloop_gates::coreloop_base_gate;
 use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::config::env::joinir_dev;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::{
     detect_nested_loop, ExitKindFacts,
 };
@@ -32,11 +32,11 @@ pub(in crate::mir::builder) enum PrePlanShadowOutcome {
 }
 
 type TryPrePlanAdoptFn<T> =
-    fn(&mut MirBuilder, &LoopPatternContext, &PlanBuildOutcome) -> Result<Option<T>, String>;
+    fn(&mut MirBuilder, &LoopRouteContext, &PlanBuildOutcome) -> Result<Option<T>, String>;
 
 fn try_adopt_pre_plan_sequence<T>(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     allow_generic_loop: bool,
     try_generic_v1: TryPrePlanAdoptFn<T>,
@@ -56,7 +56,7 @@ fn try_adopt_pre_plan_sequence<T>(
 
 pub(in crate::mir::builder) fn strict_nested_loop_guard(
     outcome: &PlanBuildOutcome,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Option<String> {
     if joinir_dev::debug_enabled() {
         let features = flowbox_tags::features_from_facts(outcome.facts.as_ref());
@@ -164,7 +164,7 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
 
 fn allow_strict_nested_pattern4_min1(
     outcome: &PlanBuildOutcome,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> bool {
     if outcome.plan.is_some() {
         return false;
@@ -263,7 +263,7 @@ fn is_add_one_of_var(node: &ASTNode, var_name: &str) -> bool {
 
 pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     allow_generic_loop: bool,
 ) -> Result<Option<PrePlanShadowOutcome>, String> {
@@ -301,7 +301,7 @@ pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(
 
 pub(in crate::mir::builder) fn try_release_adopt_pre_plan(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     allow_generic_loop: bool,
 ) -> Result<Option<LoweredRecipe>, String> {
@@ -325,7 +325,7 @@ pub(in crate::mir::builder) fn try_release_adopt_pre_plan(
 
 pub(in crate::mir::builder) fn try_shadow_adopt_nested_minimal(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
 ) -> Result<Option<ShadowAdoptOutcome>, String> {
     let Some(facts) = outcome.facts.as_ref() else {
@@ -363,7 +363,7 @@ fn generic_loop_v0_gate(facts: &CanonicalLoopFacts) -> bool {
 
 pub(in crate::mir::builder) fn try_shadow_adopt_generic_loop_v0(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
 ) -> Result<Option<ShadowAdoptOutcome>, String> {
     if outcome.plan.is_some() {
@@ -399,7 +399,7 @@ pub(in crate::mir::builder) fn try_shadow_adopt_generic_loop_v0(
 
 pub(in crate::mir::builder) fn try_shadow_adopt_generic_loop_v1(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
 ) -> Result<Option<ShadowAdoptOutcome>, String> {
     if outcome.plan.is_some() {
@@ -435,7 +435,7 @@ pub(in crate::mir::builder) fn try_shadow_adopt_generic_loop_v1(
 
 pub(in crate::mir::builder) fn try_release_adopt_generic_loop_v0(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
 ) -> Result<Option<LoweredRecipe>, String> {
     if outcome.plan.is_some() {
@@ -459,7 +459,7 @@ pub(in crate::mir::builder) fn try_release_adopt_generic_loop_v0(
 
 pub(in crate::mir::builder) fn try_release_adopt_generic_loop_v1(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
 ) -> Result<Option<LoweredRecipe>, String> {
     if outcome.plan.is_some() {
@@ -483,7 +483,7 @@ pub(in crate::mir::builder) fn try_release_adopt_generic_loop_v1(
 
 pub(in crate::mir::builder) fn try_release_adopt_nested_minimal(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
 ) -> Result<Option<LoweredRecipe>, String> {
     let Some(facts) = outcome.facts.as_ref() else {

@@ -1,4 +1,4 @@
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
@@ -12,7 +12,7 @@ const LOOP_BUNDLE_RESOLVER_ERR: &str = "[loop_bundle_resolver_v0]";
 pub(in crate::mir::builder) fn lower_loop_bundle_resolver_v0(
     builder: &mut MirBuilder,
     facts: LoopBundleResolverV0Facts,
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     if !builder
         .variable_ctx

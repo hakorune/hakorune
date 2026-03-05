@@ -37,7 +37,7 @@ use super::{CoreEffectPlan, CoreLoopPlan, LoopCondContinueWithReturnPlan, Lowere
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::MirBuilder;
 
 #[cfg(test)]
@@ -59,7 +59,7 @@ impl PlanNormalizer {
     pub(in crate::mir::builder) fn normalize(
         builder: &mut MirBuilder,
         domain: LoopCondContinueWithReturnPlan,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, String> {
         // Phase 29bq P2.x: current planner payload is LoopCondContinueWithReturn.
         let facts = LoopCondContinueWithReturnFacts {
@@ -74,7 +74,7 @@ impl PlanNormalizer {
     pub(in crate::mir::builder) fn normalize_loop_cond_break_continue(
         builder: &mut MirBuilder,
         facts: LoopCondBreakContinueFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, String> {
         crate::mir::builder::control_flow::plan::features::lower_loop_cond_break_continue(builder, facts, ctx)
     }
@@ -82,7 +82,7 @@ impl PlanNormalizer {
     pub(in crate::mir::builder) fn normalize_loop_cond_continue_only(
         builder: &mut MirBuilder,
         facts: LoopCondContinueOnlyFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, String> {
         crate::mir::builder::control_flow::plan::features::lower_loop_cond_continue_only(builder, facts, ctx)
     }
@@ -90,7 +90,7 @@ impl PlanNormalizer {
     pub(in crate::mir::builder) fn normalize_loop_cond_continue_with_return(
         builder: &mut MirBuilder,
         facts: LoopCondContinueWithReturnFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, String> {
         crate::mir::builder::control_flow::plan::features::loop_cond_continue_with_return_pipeline::lower_loop_cond_continue_with_return(builder, facts, ctx)
     }
@@ -98,7 +98,7 @@ impl PlanNormalizer {
     pub(in crate::mir::builder) fn normalize_loop_cond_return_in_body(
         builder: &mut MirBuilder,
         facts: LoopCondReturnInBodyFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, String> {
         crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_pipeline::lower_loop_cond_return_in_body(builder, facts, ctx)
     }

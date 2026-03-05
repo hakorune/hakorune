@@ -4,7 +4,7 @@
 //! patterns, replacing 4 separate normalizer modules.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::mark_nested_loop_preheader_fresh;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts::{
     try_extract_nested_loop_depth1_facts, NestedLoopDepth1Facts, NestedLoopDepth1Kind,
@@ -82,7 +82,7 @@ fn lower_nested_loop_depth1_from_facts(
     facts: NestedLoopDepth1Facts,
     error_prefix: &str,
 ) -> Result<LoweredRecipe, String> {
-    let ctx = LoopPatternContext::new(
+    let ctx = LoopRouteContext::new(
         &facts.condition,
         &facts.body,
         facts.kind.context_name(),

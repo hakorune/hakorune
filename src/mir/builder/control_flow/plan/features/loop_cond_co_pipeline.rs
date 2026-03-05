@@ -1,6 +1,6 @@
 //! Main pipeline functions for loop_cond_continue_only pattern.
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
@@ -28,7 +28,7 @@ const LOOP_COND_CONTINUE_ONLY_ERR: &str = "[normalizer] loop_cond_continue_only"
 pub(in crate::mir::builder) fn lower_loop_cond_continue_only(
     builder: &mut MirBuilder,
     facts: LoopCondContinueOnlyFacts,
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     // Pass 1: Collect carrier variables (recipe-specific, SSOT entry)
     let carrier_vars_vec = carriers::collect_from_recipe_continue_only(&facts.recipe).vars;

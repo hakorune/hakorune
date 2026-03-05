@@ -1,7 +1,7 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::generic_loop_pipeline;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
@@ -17,7 +17,7 @@ impl RecipeComposer {
     pub fn compose_generic_loop_v0_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
@@ -51,7 +51,7 @@ impl RecipeComposer {
     pub fn compose_generic_loop_v1_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 

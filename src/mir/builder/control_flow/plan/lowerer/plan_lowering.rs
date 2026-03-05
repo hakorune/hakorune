@@ -13,7 +13,7 @@
 //! - BranchN is rewritten to nested If chain
 
 use super::LoopFrame;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{
     CoreBranchNPlan, CoreEffectPlan, CoreIfPlan, CorePlan, LoweredRecipe,
 };
@@ -24,7 +24,7 @@ impl super::PlanLowerer {
     fn lower_plan_list(
         builder: &mut MirBuilder,
         plans: &[LoweredRecipe],
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
         list_ctx: &'static str,
     ) -> Result<Option<ValueId>, String> {
@@ -153,7 +153,7 @@ impl super::PlanLowerer {
     pub(super) fn lower_seq(
         builder: &mut MirBuilder,
         plans: Vec<LoweredRecipe>,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
     ) -> Result<Option<ValueId>, String> {
         Self::lower_plan_list(builder, &plans, ctx, loop_stack, "seq")
@@ -163,7 +163,7 @@ impl super::PlanLowerer {
     pub(super) fn lower_if(
         builder: &mut MirBuilder,
         if_plan: CoreIfPlan,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
     ) -> Result<Option<ValueId>, String> {
         use crate::mir::builder::emission::branch::{emit_conditional, emit_jump};
@@ -228,7 +228,7 @@ impl super::PlanLowerer {
     pub(super) fn lower_branchn(
         builder: &mut MirBuilder,
         branch_plan: CoreBranchNPlan,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
     ) -> Result<Option<ValueId>, String> {
         let if_chain = super::super::branchn::branchn_to_if_chain(branch_plan)?;

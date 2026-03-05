@@ -27,7 +27,7 @@ use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
 use crate::mir::builder::control_flow::plan::domain::Pattern5ExitKind;
 use crate::mir::builder::control_flow::plan::Pattern2StepPlacement;
 use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
 use std::collections::BTreeSet;
@@ -143,7 +143,7 @@ fn coreloop_v1_composes_split_scan_with_value_join() {
         .variable_map
         .insert("start".to_string(), start_val);
     let ctx =
-        LoopPatternContext::new(&condition, &[], "coreloop_v1_split_scan", false, false);
+        LoopRouteContext::new(&condition, &[], "coreloop_v1_split_scan", false, false);
     let composed =
         try_compose_split_scan_unified(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(matches!(composed, Some(crate::mir::builder::control_flow::plan::CorePlan::Loop(_))));
@@ -217,7 +217,7 @@ fn coreloop_v1_rejects_split_scan_without_value_join() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("coreloop_v1_split_scan_no_join".to_string());
     let ctx =
-        LoopPatternContext::new(&condition, &[], "coreloop_v1_split_scan_no_join", false, false);
+        LoopRouteContext::new(&condition, &[], "coreloop_v1_split_scan_no_join", false, false);
     // Without value_join, unified helper uses v0 gate (coreloop_base_gate) which rejects
     let composed =
         try_compose_split_scan_unified(&mut builder, &canonical, &ctx).expect("Ok");
@@ -302,7 +302,7 @@ fn coreloop_v1_rejects_split_scan_with_disallowed_exitmap() {
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("coreloop_v1_split_scan_exit".to_string());
-    let ctx = LoopPatternContext::new(
+    let ctx = LoopRouteContext::new(
         &condition,
         &[],
         "coreloop_v1_split_scan_exit",
@@ -384,7 +384,7 @@ fn unified_scan_with_init_rejects_value_join() {
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("coreloop_v1_scan_with_init_join".to_string());
-    let ctx = LoopPatternContext::new(
+    let ctx = LoopRouteContext::new(
         &condition,
         &[],
         "coreloop_v1_scan_with_init_join",
@@ -505,7 +505,7 @@ fn coreloop_v1_composes_pattern2_with_value_join() {
         .variable_map
         .insert("sum".to_string(), sum_val);
     let ctx =
-        LoopPatternContext::new(&loop_condition, &[], "coreloop_v1_pattern2", false, false);
+        LoopRouteContext::new(&loop_condition, &[], "coreloop_v1_pattern2", false, false);
     let composed =
         try_compose_core_loop_v1_pattern2_break(&mut builder, &canonical, &ctx)
             .expect("Ok");
@@ -588,7 +588,7 @@ fn coreloop_v1_rejects_pattern2_with_cleanup() {
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("coreloop_v1_pattern2_cleanup".to_string());
-    let ctx = LoopPatternContext::new(
+    let ctx = LoopRouteContext::new(
         &condition,
         &[],
         "coreloop_v1_pattern2_cleanup",
@@ -703,7 +703,7 @@ fn coreloop_v1_composes_pattern5_with_value_join() {
         .variable_map
         .insert("sum".to_string(), sum_val);
     let ctx =
-        LoopPatternContext::new(&condition, &[], "coreloop_v1_pattern5", false, false);
+        LoopRouteContext::new(&condition, &[], "coreloop_v1_pattern5", false, false);
     let composed =
         try_compose_core_loop_v1_pattern5_infinite_early_exit(
             &mut builder, &canonical, &ctx,
@@ -787,7 +787,7 @@ fn coreloop_v1_rejects_pattern5_with_cleanup() {
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("coreloop_v1_pattern5_cleanup".to_string());
-    let ctx = LoopPatternContext::new(
+    let ctx = LoopRouteContext::new(
         &condition,
         &[],
         "coreloop_v1_pattern5_cleanup",
@@ -912,7 +912,7 @@ fn coreloop_v1_composes_pattern3_with_value_join() {
         .variable_map
         .insert("sum".to_string(), sum_val);
     let ctx =
-        LoopPatternContext::new(&condition, &[], "coreloop_v1_pattern3", false, false);
+        LoopRouteContext::new(&condition, &[], "coreloop_v1_pattern3", false, false);
     let composed =
         try_compose_core_loop_v1_pattern3_ifphi(&mut builder, &canonical, &ctx)
             .expect("Ok");
@@ -994,7 +994,7 @@ fn coreloop_v1_rejects_pattern3_with_cleanup() {
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("coreloop_v1_pattern3_cleanup".to_string());
-    let ctx = LoopPatternContext::new(
+    let ctx = LoopRouteContext::new(
         &condition,
         &[],
         "coreloop_v1_pattern3_cleanup",

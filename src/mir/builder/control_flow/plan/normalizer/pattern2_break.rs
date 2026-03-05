@@ -1,7 +1,7 @@
 use super::helpers::create_phi_bindings;
 use crate::ast::ASTNode;
 use crate::mir::basic_block::EdgeArgs;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::{BlockParams, Frag};
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
@@ -49,7 +49,7 @@ impl super::PlanNormalizer {
     pub(in crate::mir::builder) fn normalize_pattern2_break(
         builder: &mut MirBuilder,
         parts: Pattern2BreakPlan,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, String> {
         use crate::mir::builder::control_flow::joinir::trace;
 

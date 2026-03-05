@@ -3,7 +3,7 @@
 //! This module provides functions to compose CorePlan from CanonicalLoopFacts
 //! for specific loop patterns that require value_join support.
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
     pattern2_value_join_gate, pattern3_value_join_gate, pattern5_value_join_gate,
 };
@@ -15,7 +15,7 @@ use crate::mir::builder::MirBuilder;
 pub(in crate::mir::builder) fn try_compose_core_loop_v1_pattern2_break(
     builder: &mut MirBuilder,
     facts: &CanonicalLoopFacts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Option<LoweredRecipe>, String> {
     if !pattern2_value_join_gate(facts) {
         return Ok(None);
@@ -33,7 +33,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v1_pattern2_break(
 pub(in crate::mir::builder) fn try_compose_core_loop_v1_pattern5_infinite_early_exit(
     builder: &mut MirBuilder,
     facts: &CanonicalLoopFacts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Option<LoweredRecipe>, String> {
     if !pattern5_value_join_gate(facts) {
         return Ok(None);
@@ -51,7 +51,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v1_pattern5_infinite_early_
 pub(in crate::mir::builder) fn try_compose_core_loop_v1_pattern3_ifphi(
     builder: &mut MirBuilder,
     facts: &CanonicalLoopFacts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Option<LoweredRecipe>, String> {
     if !pattern3_value_join_gate(facts) {
         return Ok(None);

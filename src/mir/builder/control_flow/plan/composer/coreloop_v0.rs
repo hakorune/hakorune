@@ -3,7 +3,7 @@
 use super::coreloop_single_entry::{
     try_compose_scan_with_init_unified, try_compose_split_scan_unified,
 };
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
     coreloop_base_gate, exit_kinds_empty,
 };
@@ -15,7 +15,7 @@ use crate::mir::builder::MirBuilder;
 pub(in crate::mir::builder) fn try_compose_core_loop_v0(
     builder: &mut MirBuilder,
     facts: &CanonicalLoopFacts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Option<LoweredRecipe>, String> {
     if let Some(core) = try_compose_scan_with_init_unified(builder, facts, ctx)? {
         return Ok(Some(core));

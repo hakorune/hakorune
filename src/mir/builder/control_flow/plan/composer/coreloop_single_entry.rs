@@ -9,7 +9,7 @@ use super::coreloop_v1::{
     try_compose_core_loop_v1_pattern5_infinite_early_exit,
 };
 use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     cond_profile_from_scan_shapes, match_scan_with_init_shape, ConditionShape, SplitScanShape,
 };
@@ -26,7 +26,7 @@ use crate::mir::builder::MirBuilder;
 pub(super) fn try_compose_scan_with_init_unified(
     builder: &mut MirBuilder,
     facts: &CanonicalLoopFacts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Option<LoweredRecipe>, String> {
     // v1 は常に None → value_join_needed は拒否
     if facts.value_join_needed {
@@ -100,7 +100,7 @@ pub(super) fn try_compose_scan_with_init_unified(
 pub(super) fn try_compose_split_scan_unified(
     builder: &mut MirBuilder,
     facts: &CanonicalLoopFacts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Option<LoweredRecipe>, String> {
     // v0/v1 分岐
     if facts.value_join_needed {
@@ -140,7 +140,7 @@ pub(super) fn try_compose_split_scan_unified(
 pub(in crate::mir::builder) fn try_compose_core_loop_from_facts(
     builder: &mut MirBuilder,
     facts: &CanonicalLoopFacts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Option<LoweredRecipe>, String> {
     if facts.nested_loop {
         return try_compose_core_loop_v2_nested_minimal(builder, facts, ctx);
@@ -178,7 +178,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_from_facts(
 mod tests {
     use super::try_compose_core_loop_from_facts;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+    use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         LoopFeatureFacts, ValueJoinFacts,
     };
@@ -290,7 +290,7 @@ mod tests {
             .variable_map
             .insert("i".to_string(), init);
         let ctx =
-            LoopPatternContext::new(&condition, &[], "single_entry_nested", false, false);
+            LoopRouteContext::new(&condition, &[], "single_entry_nested", false, false);
         let composed =
             try_compose_core_loop_from_facts(&mut builder, &canonical, &ctx)
                 .expect("Ok");
@@ -398,7 +398,7 @@ mod tests {
             .variable_ctx
             .variable_map
             .insert("start".to_string(), start_val);
-        let ctx = LoopPatternContext::new(
+        let ctx = LoopRouteContext::new(
             &condition,
             &[],
             "single_entry_value_join",
@@ -489,7 +489,7 @@ mod tests {
             .variable_map
             .insert("i".to_string(), init);
         let ctx =
-            LoopPatternContext::new(&condition, &[], "single_entry_no_join", false, false);
+            LoopRouteContext::new(&condition, &[], "single_entry_no_join", false, false);
         let composed =
             try_compose_core_loop_from_facts(&mut builder, &canonical, &ctx)
                 .expect("Ok");

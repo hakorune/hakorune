@@ -20,7 +20,7 @@
 //! - Phase 29bq+: PlanBuildSession structural lock
 
 use super::LoopFrame;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreLoopPlan};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
@@ -43,7 +43,7 @@ impl super::PlanLowerer {
     pub(super) fn lower_loop(
         builder: &mut MirBuilder,
         loop_plan: CoreLoopPlan,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
     ) -> Result<Option<ValueId>, String> {
         use crate::mir::builder::control_flow::joinir::trace;
@@ -88,7 +88,7 @@ impl super::PlanLowerer {
     fn lower_loop_generalized(
         builder: &mut MirBuilder,
         loop_plan: CoreLoopPlan,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
     ) -> Result<Option<ValueId>, String> {
         use crate::mir::builder::control_flow::joinir::trace;

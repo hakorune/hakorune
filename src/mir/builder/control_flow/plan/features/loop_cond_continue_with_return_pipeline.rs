@@ -4,7 +4,7 @@
 //! Reuses exit_if_map (return PHI) + continue-if handling (continue PHI).
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
@@ -52,7 +52,7 @@ fn trace_collection_len(tag: &str, len: usize) {
 pub(in crate::mir::builder) fn lower_loop_cond_continue_with_return(
     builder: &mut MirBuilder,
     facts: LoopCondContinueWithReturnFacts,
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     // Pass 1: Collect carrier variables (recipe-specific, SSOT entry)
     let carrier_sets = carriers::collect_from_recipe_continue_with_return(&facts.recipe);

@@ -4,7 +4,7 @@
 //! was previously defined in the loop_cond_break_continue_pipeline/mod.rs.
 //! The function delegates to the specialized helper modules.
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
@@ -32,7 +32,7 @@ pub(super) const LOOP_COND_ERR: &str = "[normalizer] loop_cond_break_continue";
 pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
     builder: &mut MirBuilder,
     facts: LoopCondBreakContinueFacts,
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     // Facts->Lower contract: keep this match exhaustive.
     match facts.accept_kind {

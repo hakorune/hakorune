@@ -1,4 +1,4 @@
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
@@ -12,7 +12,7 @@ const LOOP_COLLECT_USING_ENTRIES_ERR: &str = "[loop_collect_using_entries_v0]";
 pub(in crate::mir::builder) fn lower_loop_collect_using_entries_v0(
     builder: &mut MirBuilder,
     facts: LoopCollectUsingEntriesV0Facts,
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     if !builder
         .variable_ctx

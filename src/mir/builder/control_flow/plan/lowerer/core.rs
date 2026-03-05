@@ -13,7 +13,7 @@
 //! - lower_with_stack() is the internal dispatcher
 //! - LoopFrame tracks break/continue targets and PHI inputs
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
@@ -39,7 +39,7 @@ impl super::PlanLowerer {
     pub(in crate::mir::builder) fn lower(
         builder: &mut MirBuilder,
         plan: LoweredRecipe,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<Option<ValueId>, String> {
         let mut loop_stack = Vec::new();
         Self::lower_with_stack(builder, plan, ctx, &mut loop_stack)
@@ -49,7 +49,7 @@ impl super::PlanLowerer {
     pub(super) fn lower_with_stack(
         builder: &mut MirBuilder,
         plan: LoweredRecipe,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
     ) -> Result<Option<ValueId>, String> {
         match plan {

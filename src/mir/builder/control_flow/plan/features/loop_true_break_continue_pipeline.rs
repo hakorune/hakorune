@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
@@ -33,7 +33,7 @@ const LOOP_TRUE_ERR: &str = "[normalizer] loop_true_break_continue";
 pub(in crate::mir::builder) fn lower_loop_true_break_continue(
     builder: &mut MirBuilder,
     facts: LoopTrueBreakContinueFacts,
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     lower_loop_true_break_continue_inner(builder, facts)
 }

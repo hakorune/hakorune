@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
@@ -56,7 +56,7 @@ pub(super) fn lower_nested_loop_plan(
     builder: &mut MirBuilder,
     condition: &ASTNode,
     body: &[ASTNode],
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     if let Ok(plan) =
         crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any(
@@ -74,7 +74,7 @@ pub(super) fn lower_nested_loop_plan(
     use crate::mir::builder::control_flow::plan::single_planner;
 
     let nested_ctx =
-        LoopPatternContext::new(condition, body, ctx.func_name, ctx.debug, ctx.in_static_box);
+        LoopRouteContext::new(condition, body, ctx.func_name, ctx.debug, ctx.in_static_box);
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
     let planner_required =

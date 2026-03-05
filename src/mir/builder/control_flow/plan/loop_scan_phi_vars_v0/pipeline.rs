@@ -2,7 +2,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
@@ -91,7 +91,7 @@ fn lower_nested_loop_plan(
     builder: &mut MirBuilder,
     condition: &ASTNode,
     body: &[ASTNode],
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     lower_nested_loop_depth1_any(builder, condition, body, LOOP_SCAN_PHI_VARS_ERR)
 }
@@ -99,7 +99,7 @@ fn lower_nested_loop_plan(
 fn lower_nested_loop_recipe(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     nested: &NestedLoopRecipe,
@@ -127,7 +127,7 @@ fn lower_nested_loop_recipe(
 fn lower_segment(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     segment: &LoopScanPhiSegment,
@@ -166,7 +166,7 @@ fn lower_found_if_stmt(
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     if_stmt: &ASTNode,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let ASTNode::If {
         condition,
@@ -233,7 +233,7 @@ fn lower_found_if_branch_body(
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     stmts: &[ASTNode],
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     const ALLOW_EXTENDED: bool = true;
     let mut plans = Vec::new();
@@ -302,7 +302,7 @@ fn lower_found_if_branch_body(
 pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(
     builder: &mut MirBuilder,
     facts: LoopScanPhiVarsV0Facts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     let blocks = LoopBlocksStandard5::allocate(builder)?;
     let LoopBlocksStandard5 {

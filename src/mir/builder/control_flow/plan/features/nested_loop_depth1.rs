@@ -1,7 +1,7 @@
 //! NestedLoopFeature (depth<=1) for loop(true) normalization.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
@@ -31,7 +31,7 @@ pub(in crate::mir::builder) fn lower_nested_loop_depth1_any(
     let no_break_or_continue = counts.break_count == 0 && counts.continue_count == 0;
     if no_break_or_continue {
         if let Ok(Some(facts)) = try_extract_generic_loop_v1_facts(condition, body) {
-            let ctx = LoopPatternContext::new(condition, body, "<nested>", false, false);
+            let ctx = LoopRouteContext::new(condition, body, "<nested>", false, false);
             let plan = normalize_generic_loop_v1(builder, &facts, &ctx)?;
             return Ok(mark_nested_loop_preheader_fresh(builder, plan));
         }
@@ -41,7 +41,7 @@ pub(in crate::mir::builder) fn lower_nested_loop_depth1_any(
     let continue_only_candidate = continue_only_ctx_no_break_return && counts.continue_count > 0;
     if continue_only_candidate {
         if let Ok(Some(facts)) = try_extract_loop_cond_continue_only_facts(condition, body) {
-            let ctx = LoopPatternContext::new(condition, body, "<nested>", false, false);
+            let ctx = LoopRouteContext::new(condition, body, "<nested>", false, false);
             let plan = PlanNormalizer::normalize_loop_cond_continue_only(builder, facts, &ctx)?;
             return Ok(mark_nested_loop_preheader_fresh(builder, plan));
         }
@@ -68,7 +68,7 @@ pub(in crate::mir::builder) fn lower_nested_loop_depth1_any(
         Ok(Some(facts)) => facts,
         Ok(None) => {
             if let Ok(Some(facts)) = try_extract_generic_loop_v1_facts(condition, body) {
-                let ctx = LoopPatternContext::new(condition, body, "<nested>", false, false);
+                let ctx = LoopRouteContext::new(condition, body, "<nested>", false, false);
                 let plan = normalize_generic_loop_v1(builder, &facts, &ctx)?;
                 return Ok(mark_nested_loop_preheader_fresh(builder, plan));
             }
@@ -103,7 +103,7 @@ pub(in crate::mir::builder) fn lower_nested_loop_depth1_any(
             return Err(format!("{error_prefix}: nested loop facts error: {err}"));
         }
     };
-    let ctx = LoopPatternContext::new(condition, body, "<nested>", false, false);
+    let ctx = LoopRouteContext::new(condition, body, "<nested>", false, false);
     if debug_enabled {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
@@ -121,7 +121,7 @@ fn lower_nested_loop_single_planner(
     body: &[ASTNode],
     error_prefix: &str,
 ) -> Result<LoweredRecipe, String> {
-    let ctx = LoopPatternContext::new(condition, body, "<nested>", false, false);
+    let ctx = LoopRouteContext::new(condition, body, "<nested>", false, false);
     let mut outcome = single_planner::try_build_outcome(&ctx)?;
     let Some(loop_plan) = outcome.plan.take() else {
         return Err(format!("{error_prefix}: nested loop has no plan"));

@@ -1,7 +1,7 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
@@ -15,7 +15,7 @@ impl RecipeComposer {
     pub fn compose_loop_scan_methods_v0(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
@@ -42,7 +42,7 @@ impl RecipeComposer {
     pub fn compose_loop_scan_methods_block_v0(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
@@ -76,7 +76,7 @@ impl RecipeComposer {
     pub fn compose_loop_scan_phi_vars_v0(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
@@ -103,7 +103,7 @@ impl RecipeComposer {
     pub fn compose_loop_scan_v0(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
@@ -130,7 +130,7 @@ impl RecipeComposer {
     pub fn compose_loop_collect_using_entries_v0(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
@@ -168,7 +168,7 @@ impl RecipeComposer {
     pub fn compose_loop_bundle_resolver_v0(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
@@ -206,7 +206,7 @@ impl RecipeComposer {
     pub fn compose_loop_cond_break_continue_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
@@ -246,7 +246,7 @@ impl RecipeComposer {
     pub fn compose_loop_cond_continue_only_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
@@ -286,7 +286,7 @@ impl RecipeComposer {
     pub fn compose_loop_cond_continue_with_return_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
@@ -326,7 +326,7 @@ impl RecipeComposer {
     pub fn compose_loop_cond_return_in_body_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
-        ctx: &LoopPatternContext,
+        ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 

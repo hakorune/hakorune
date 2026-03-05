@@ -9,7 +9,7 @@
 //! - Jump to loop entry
 //! - Provisional PHI insertion (Step 1.5)
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, LoweredRecipe,
 };
@@ -28,7 +28,7 @@ use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 pub fn prepare_loop_entry(
     builder: &mut MirBuilder,
     mut loop_plan: CoreLoopPlan,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<(Frag, Option<Vec<CoreEffectPlan>>, CoreLoopPlan), String> {
     use crate::mir::builder::control_flow::joinir::trace;
 

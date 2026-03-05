@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, lower_cond_value};
@@ -19,7 +19,7 @@ pub(in crate::mir::builder) fn lower_generic_loop_v0_body(
     builder: &mut MirBuilder,
     facts: &GenericLoopV0Facts,
     phi_bindings: &std::collections::BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let mut body_plans: Vec<LoweredRecipe> = Vec::new();
 

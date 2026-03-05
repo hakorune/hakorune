@@ -2,7 +2,7 @@
 
 use crate::mir::basic_block::EdgeArgs;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
     coreloop_base_gate, exit_kinds_empty,
 };
@@ -22,7 +22,7 @@ use std::collections::BTreeMap;
 pub(in crate::mir::builder) fn try_compose_core_loop_v2_nested_minimal(
     builder: &mut MirBuilder,
     facts: &CanonicalLoopFacts,
-    _ctx: &LoopPatternContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<Option<LoweredRecipe>, String> {
     if !coreloop_base_gate(facts) {
         return Ok(None);
@@ -281,7 +281,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v2_nested_minimal(
 mod tests {
     use super::try_compose_core_loop_v2_nested_minimal;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+    use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         LoopFeatureFacts, ValueJoinFacts,
     };
@@ -463,7 +463,7 @@ mod tests {
             pattern2_loopbodylocal: None,
         };
         let canonical = canonicalize_loop_facts(facts);
-        let ctx = LoopPatternContext::new(&condition, &body, "coreloop_v2_nested", false, false);
+        let ctx = LoopRouteContext::new(&condition, &body, "coreloop_v2_nested", false, false);
 
         let composed = try_compose_core_loop_v2_nested_minimal(&mut builder, &canonical, &ctx)
             .expect("Ok");
@@ -543,7 +543,7 @@ mod tests {
             pattern2_loopbodylocal: None,
         };
         let canonical = canonicalize_loop_facts(facts);
-        let ctx = LoopPatternContext::new(&condition, &body, "coreloop_v2_nested_join", false, false);
+        let ctx = LoopRouteContext::new(&condition, &body, "coreloop_v2_nested_join", false, false);
 
         let composed = try_compose_core_loop_v2_nested_minimal(&mut builder, &canonical, &ctx)
             .expect("Ok");

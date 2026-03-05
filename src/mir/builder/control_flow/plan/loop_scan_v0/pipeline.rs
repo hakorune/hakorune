@@ -1,5 +1,5 @@
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
@@ -47,7 +47,7 @@ fn lower_nested_loop_plan(
     builder: &mut MirBuilder,
     condition: &crate::ast::ASTNode,
     body: &[crate::ast::ASTNode],
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     nested_loop_plan::lower_nested_loop_plan_with_recipe_first(
         builder,
@@ -62,7 +62,7 @@ fn lower_nested_loop_plan(
 pub(in crate::mir::builder) fn lower_loop_scan_v0(
     builder: &mut MirBuilder,
     facts: LoopScanV0Facts,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     let blocks = LoopBlocksStandard5::allocate(builder)?;
     let LoopBlocksStandard5 {

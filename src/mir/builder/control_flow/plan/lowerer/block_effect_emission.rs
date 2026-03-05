@@ -8,7 +8,7 @@
 //! - Strict planner validation for undefined operands and forward references
 //! - Body block vs normal block handling
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopPatternContext;
+use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, LoweredRecipe,
 };
@@ -32,7 +32,7 @@ pub fn emit_all_block_effects(
     loop_plan: &CoreLoopPlan,
     block_effects: &[(BasicBlockId, Vec<CoreEffectPlan>)],
     body_effects: Option<Vec<CoreEffectPlan>>,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     loop_stack: &mut Vec<LoopFrame>,
 ) -> Result<(), String> {
     let trace_logger = trace::trace();
@@ -129,7 +129,7 @@ fn emit_block_effects_strict(
     builder: &mut MirBuilder,
     block_id: BasicBlockId,
     effects: &[CoreEffectPlan],
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     planned_defs: &Option<HashMap<ValueId, (BasicBlockId, usize, &'static str)>>,
     strict_planner_required: bool,
 ) -> Result<(), String> {
@@ -244,7 +244,7 @@ fn validate_binop_operands(
 fn emit_loop_body_plans(
     builder: &mut MirBuilder,
     body: &[LoweredRecipe],
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     loop_stack: &mut Vec<LoopFrame>,
     step_bb: BasicBlockId,
 ) -> Result<(), String> {
