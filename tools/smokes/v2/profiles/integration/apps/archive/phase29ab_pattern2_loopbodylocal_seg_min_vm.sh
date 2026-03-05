@@ -20,7 +20,8 @@ if [ "$EXIT_CODE" -eq 124 ]; then
 fi
 
 OUTPUT_CLEAN=$(echo "$OUTPUT" | filter_noise)
-EXPECTED_TAG="[plan/pattern2/promotion_hint:TrimSeg]"
+EXPECTED_TAG_OLD="[plan/pattern2/promotion_hint:TrimSeg]"
+EXPECTED_TAG_NEW="[plan/loop_break/promotion_hint:TrimSeg]"
 
 if ! echo "$OUTPUT" | grep -qF "[flowbox/adopt box_kind=Loop" \
     || ! echo "$OUTPUT" | grep -qF "features=break" \
@@ -30,11 +31,11 @@ if ! echo "$OUTPUT" | grep -qF "[flowbox/adopt box_kind=Loop" \
 fi
 
 if echo "$OUTPUT_CLEAN" | grep -q "^2$" || echo "$OUTPUT" | grep -q "^RC: 2$"; then
-    if echo "$OUTPUT_CLEAN" | grep -qF "$EXPECTED_TAG"; then
+    if echo "$OUTPUT_CLEAN" | grep -qF "$EXPECTED_TAG_NEW" || echo "$OUTPUT_CLEAN" | grep -qF "$EXPECTED_TAG_OLD"; then
         test_pass "phase29ab_pattern2_loopbodylocal_seg_min_vm: Pattern2 Trim promotion succeeded (output: 2)"
         exit 0
     fi
-    echo "[FAIL] Missing promotion hint tag (expected: $EXPECTED_TAG)"
+    echo "[FAIL] Missing promotion hint tag (expected: $EXPECTED_TAG_NEW or $EXPECTED_TAG_OLD)"
     echo "[INFO] Output (clean):"
     echo "$OUTPUT_CLEAN" | tail -n 20 || true
     test_fail "phase29ab_pattern2_loopbodylocal_seg_min_vm: Missing promotion hint tag"

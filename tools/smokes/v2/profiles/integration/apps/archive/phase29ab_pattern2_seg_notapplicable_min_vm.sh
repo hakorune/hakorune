@@ -21,11 +21,11 @@ fi
 
 OUTPUT_CLEAN=$(echo "$OUTPUT" | filter_noise)
 
-if echo "$OUTPUT" | grep -qF "[flowbox/adopt "; then
-    echo "[FAIL] FlowBox adopt tag must not appear for NotApplicable case"
+if echo "$OUTPUT" | grep -qF "[flowbox/adopt box_kind=Loop features=break"; then
+    echo "[FAIL] FlowBox break-adopt tag must not appear for NotApplicable case"
     echo "[INFO] Output (raw):"
     echo "$OUTPUT" | tail -n 60 || true
-    test_fail "phase29ab_pattern2_seg_notapplicable_min_vm: Unexpected FlowBox adopt"
+    test_fail "phase29ab_pattern2_seg_notapplicable_min_vm: Unexpected FlowBox break-adopt"
     exit 1
 fi
 

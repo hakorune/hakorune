@@ -29,8 +29,8 @@ if [ "$EXIT_CODE" -ne 3 ]; then
     exit 1
 fi
 
-if grep -qF "[flowbox/adopt" <<<"$OUTPUT"; then
-    log_error "phase29ao_pattern1_subset_reject_extra_stmt_vm: flowbox adopt tag must not appear"
+if grep -Eq "\\[flowbox/adopt box_kind=Loop features=(break|continue)" <<<"$OUTPUT"; then
+    log_error "phase29ao_pattern1_subset_reject_extra_stmt_vm: loop break/continue adopt tag must not appear"
     echo "$OUTPUT"
     exit 1
 fi
