@@ -5,6 +5,7 @@ use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_o
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, lower_cond_value};
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
+use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{CompareOp, ConstValue, MirType};
@@ -80,9 +81,16 @@ pub(super) fn lower_nested_loop_plan(
     let planner_required =
         strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
 
-    let mut outcome = single_planner::try_build_outcome(&nested_ctx)?;
+    let outcome = single_planner::try_build_outcome(&nested_ctx)?;
+    plan_trace::trace_outcome_snapshot(
+        "generic_loop_body::nested_loop_plan",
+        outcome.plan.is_some(),
+        outcome.facts.is_some(),
+        outcome.recipe_contract.is_some(),
+    );
 
-    if let Some(loop_plan) = outcome.plan.take() {
+    if let Some(loop_plan) = outcome.plan.as_ref().cloned() {
+        plan_trace::trace_outcome_path("generic_loop_body::nested_loop_plan", "planner_payload");
         return PlanNormalizer::normalize(builder, loop_plan, &nested_ctx);
     }
     if let Some(facts) = outcome.facts.as_ref() {
@@ -95,6 +103,10 @@ pub(super) fn lower_nested_loop_plan(
                     .to_string(),
                 );
             }
+            plan_trace::trace_outcome_path(
+                "generic_loop_body::nested_loop_plan",
+                "recipe_loop_true_break_continue",
+            );
             return RecipeComposer::compose_loop_true_break_continue_recipe(
                 builder,
                 facts,
@@ -103,6 +115,10 @@ pub(super) fn lower_nested_loop_plan(
             .map_err(|e| e.to_string());
         }
         if facts.facts.loop_cond_return_in_body.is_some() {
+            plan_trace::trace_outcome_path(
+                "generic_loop_body::nested_loop_plan",
+                "recipe_loop_cond_return_in_body",
+            );
             if strict_or_dev {
                 let msg = crate::mir::builder::control_flow::plan::planner::tags::planner_first_tag_with_label(
                     crate::mir::builder::control_flow::plan::single_planner::PlanRuleId::LoopCondReturnInBody,
@@ -123,6 +139,10 @@ pub(super) fn lower_nested_loop_plan(
             .map_err(|e| e.to_string());
         }
         if facts.facts.loop_cond_break_continue.is_some() {
+            plan_trace::trace_outcome_path(
+                "generic_loop_body::nested_loop_plan",
+                "recipe_loop_cond_break_continue",
+            );
             if strict_or_dev {
                 let msg = crate::mir::builder::control_flow::plan::planner::tags::planner_first_tag_with_label(
                     crate::mir::builder::control_flow::plan::single_planner::PlanRuleId::LoopCondBreak,
@@ -143,10 +163,18 @@ pub(super) fn lower_nested_loop_plan(
             .map_err(|e| e.to_string());
         }
         if facts.facts.generic_loop_v0.is_some() {
+            plan_trace::trace_outcome_path(
+                "generic_loop_body::nested_loop_plan",
+                "recipe_generic_loop_v0",
+            );
             return RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, &nested_ctx)
                 .map_err(|e| e.to_string());
         }
         if facts.facts.generic_loop_v1.is_some() {
+            plan_trace::trace_outcome_path(
+                "generic_loop_body::nested_loop_plan",
+                "recipe_generic_loop_v1",
+            );
             return RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, &nested_ctx)
                 .map_err(|e| e.to_string());
         }
@@ -156,13 +184,22 @@ pub(super) fn lower_nested_loop_plan(
     {
         match pre_plan {
             composer::PrePlanShadowOutcome::Adopt(adopt) => {
+                plan_trace::trace_outcome_path(
+                    "generic_loop_body::nested_loop_plan",
+                    "shadow_adopt",
+                );
                 return Ok(adopt.core_plan);
             }
             composer::PrePlanShadowOutcome::GuardError(err) => {
+                plan_trace::trace_outcome_path(
+                    "generic_loop_body::nested_loop_plan",
+                    "shadow_guard_error",
+                );
                 return Err(err);
             }
         }
     }
+    plan_trace::trace_outcome_path("generic_loop_body::nested_loop_plan", "freeze_no_plan");
     Err("[normalizer] generic loop v0: nested loop has no plan".to_string())
 }
 

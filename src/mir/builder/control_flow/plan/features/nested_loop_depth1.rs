@@ -14,6 +14,7 @@ use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::tr
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::single_planner;
+use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 
@@ -122,10 +123,18 @@ fn lower_nested_loop_single_planner(
     error_prefix: &str,
 ) -> Result<LoweredRecipe, String> {
     let ctx = LoopRouteContext::new(condition, body, "<nested>", false, false);
-    let mut outcome = single_planner::try_build_outcome(&ctx)?;
-    let Some(loop_plan) = outcome.plan.take() else {
+    let outcome = single_planner::try_build_outcome(&ctx)?;
+    plan_trace::trace_outcome_snapshot(
+        "nested_loop_depth1::single_planner",
+        outcome.plan.is_some(),
+        outcome.facts.is_some(),
+        outcome.recipe_contract.is_some(),
+    );
+    let Some(loop_plan) = outcome.plan.as_ref().cloned() else {
+        plan_trace::trace_outcome_path("nested_loop_depth1::single_planner", "freeze_no_plan");
         return Err(format!("{error_prefix}: nested loop has no plan"));
     };
+    plan_trace::trace_outcome_path("nested_loop_depth1::single_planner", "planner_payload");
     PlanNormalizer::normalize(builder, loop_plan, &ctx)
 }
 

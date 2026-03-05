@@ -194,21 +194,14 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
             }
         }
 
-        let (plan_opt, log_none) = if planner_hit {
+        if planner_hit {
             gate.log_planner_first(rule_id);
-            (outcome.plan.take(), false)
-        } else if gate.planner_required {
-            (None, false)
-        } else {
-            (None, true)
-        };
-
-        if let Some(loop_plan) = plan_opt {
-            let log_msg = format!("route=plan strategy=extract rule={}", name);
-            trace::trace().route("route", &log_msg, true);
-            outcome.plan = Some(loop_plan);
-            return Ok(outcome);
-        } else if log_none && ctx.debug {
+            if outcome.plan.is_some() {
+                let log_msg = format!("route=plan strategy=extract rule={}", name);
+                trace::trace().route("route", &log_msg, true);
+                return Ok(outcome);
+            }
+        } else if !gate.planner_required && ctx.debug {
             let debug_msg = format!("{} extraction returned None, trying next rule", name);
             trace::trace().debug("route", &debug_msg);
         }
