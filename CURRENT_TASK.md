@@ -98,6 +98,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `9366a7410` refactor(facts): add route accessors and migrate recipe composers
+    - `plan/facts/loop_types.rs` に route 主語 accessor を追加（`loop_break()`, `if_phi_join()`, `loop_true_early_exit()` など）
+    - `recipe_tree/*_composer.rs` と `recipe_tree/matcher/mod.rs` の `facts.facts.pattern*` 直接参照を accessor 経由へ移行
+    - facts フィールド名は互換維持のため据え置きつつ、利用側の表層語彙を route 主語へ段階移行
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `c6a81b096` refactor(recipe): route-align facts type aliases in recipe builders
     - `plan/facts/mod.rs` に route 主語の facts type alias を追加（`LoopBreakFacts`, `IfPhiJoinFacts`, `LoopTrueEarlyExitFacts` など）
     - `plan/recipe_tree/{*_builder.rs,matcher/patterns.rs}` の型参照を alias 経由へ切り替え、Pattern番号由来の型名露出を縮退
