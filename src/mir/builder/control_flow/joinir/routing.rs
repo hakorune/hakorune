@@ -522,15 +522,13 @@ impl MirBuilder {
             return Ok(Some(result));
         }
 
-        // Phase 187-2: Pattern router failed, try legacy whitelist
+        // Recipe-first/router path produced no route for this loop.
         trace::trace().routing(
             "router",
             func_name,
-            "Pattern router found no match, trying legacy whitelist",
+            "Pattern router found no match (no legacy fallback)",
         );
-
-        // Phase 132-R0 Task 4: Delegate to legacy binding path (legacy/routing_legacy_binding.rs)
-        self.cf_loop_joinir_legacy_binding(condition, body, func_name, debug)
+        Ok(None)
     }
 
     /// Phase 131 P1: Try Normalized shadow lowering (dev-only)
