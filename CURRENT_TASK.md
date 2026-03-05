@@ -81,17 +81,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - command:
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
-- latest result (2026-03-05):
-  - `emit_fail=0`
-  - `run_nonzero=18`
-  - `run_ok=101`
-  - `route_blocker=0`
+- latest result (2026-03-06):
+  - `emit_fail_count=2`
+  - `unexpected_emit_fail_count=0`
+  - `run_nonzero_count=17`
+  - `route_blocker_count=0`
   - total=`119`
 - class_counts:
   - `run:nonzero-empty=6`（intentional contract exit）
-  - `run:nonzero=9`（direct runner bridge limitation cluster）
+  - `run:nonzero=8`（direct runner bridge limitation cluster）
   - `run:vm-error=3`（provider-dependent cluster）
-  - `run:ok=101`
+  - `run:ok=100`
+  - `emit:joinir-reject=2`（known / allow-emit-fail）
 - note:
   - monitor-known 扱い。compiler blocker は `none` 維持。
 
@@ -1118,7 +1119,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 1. `shadow_adopt` 縮退（step-2）:
    - minimal cluster は撤去済み（`fd26729ff`）、nested minimal の registry route 化も完了（`66ddbce40`）。
-   - 次は `generic_loop_v1/v0` fallback を recipe-first 側へ段階移管し、`shadow_adopt` の責務を strict guard + 最小 fallback へ縮退。
+   - `generic_loop_body/helpers.rs` の nested fallback は `shadow_adopt` 呼び出しを外し、`nested_loop_minimal` 明示 compose + `strict_nested_loop_guard` 直評価へ移行済み（trace path: `recipe_nested_loop_minimal` / `nested_loop_guard_error`）。
+   - 次は router 側の pre-plan `shadow_adopt` 採用 lane を guard 専用へさらに縮退し、entry 例外導線を最小化する。
 2. Surface/trace の semantic 語彙統一（step-1 継続）:
    - `joinir/routing.rs` / `joinir/trace.rs` / `parity_checker.rs` の主語外しは実施済み（`c76bb7884`, `51234e1b6`）。
    - `LoopRouteContext` rename sweep は src 側完了（`30c94f450`, `c5ca36791`, `0738b745b`）。`LoopPatternContext` alias は撤去済み。
@@ -1132,7 +1134,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `DomainPlan` alias 撤去（`fa1efcb21`）と `src/mir/builder/control_flow/{plan,joinir}` 内の残語彙撤去（`27cbe50d2`, `5af900fe3`）まで完了。
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
    - `normalizer` 側窓口は撤去済み、pattern minimal は composer 側へ集約後に folderごと撤去完了（`96591f62b`, `ea8ffeab3`, `fd26729ff`）。
-   - 次は `shadow_adopt` の残 fallback（`nested_minimal / generic_loop_v{1,0}`）を縮退し、recipe-first/router 側へ整理する。
+   - 次は `shadow_adopt` の残 fallback（router pre-plan lane）を guard-first へ縮退し、recipe-first/router 側へ整理する。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)

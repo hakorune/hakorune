@@ -186,25 +186,29 @@ pub(super) fn lower_nested_loop_plan(
                 .map_err(|e| e.to_string());
         }
     }
-    if let Some(pre_plan) =
-        composer::try_shadow_adopt_pre_plan(builder, &nested_ctx, &outcome)?
-    {
-        match pre_plan {
-            composer::PrePlanShadowOutcome::Adopt(adopt) => {
-                plan_trace::trace_outcome_path(
-                    "generic_loop_body::nested_loop_plan",
-                    "shadow_adopt",
-                );
-                return Ok(adopt.core_plan);
-            }
-            composer::PrePlanShadowOutcome::GuardError(err) => {
-                plan_trace::trace_outcome_path(
-                    "generic_loop_body::nested_loop_plan",
-                    "shadow_guard_error",
-                );
-                return Err(err);
-            }
+    if let Some(facts) = outcome.facts.as_ref() {
+        if facts.facts.nested_loop_minimal().is_some() {
+            plan_trace::trace_outcome_path(
+                "generic_loop_body::nested_loop_plan",
+                "recipe_nested_loop_minimal",
+            );
+            let core_plan = composer::try_compose_core_loop_v2_nested_minimal(
+                builder,
+                facts,
+                &nested_ctx,
+            )?
+            .ok_or_else(|| {
+                "nested_loop_minimal strict/dev adopt failed: compose rejected".to_string()
+            })?;
+            return Ok(core_plan);
         }
+    }
+    if let Some(err) = composer::strict_nested_loop_guard(&outcome, &nested_ctx) {
+        plan_trace::trace_outcome_path(
+            "generic_loop_body::nested_loop_plan",
+            "nested_loop_guard_error",
+        );
+        return Err(err);
     }
     plan_trace::trace_outcome_path("generic_loop_body::nested_loop_plan", "freeze_no_plan");
     Err("[normalizer] generic nested loop: nested loop has no plan".to_string())
