@@ -364,7 +364,7 @@ mod tests {
     }
 
     #[test]
-    fn loopfacts_ctx_skips_pattern1_when_kind_mismatch() {
+    fn loopfacts_ctx_skips_simple_while_route_when_kind_mismatch() {
         let condition = ASTNode::BinaryOp {
             operator: BinaryOperator::Less,
             left: Box::new(v("i")),
@@ -398,7 +398,7 @@ mod tests {
     }
 
     #[test]
-    fn loopfacts_ctx_allows_pattern1_when_kind_matches() {
+    fn loopfacts_ctx_allows_simple_while_route_when_kind_matches() {
         let condition = ASTNode::BinaryOp {
             operator: BinaryOperator::Less,
             left: Box::new(v("i")),
@@ -433,7 +433,7 @@ mod tests {
     }
 
     #[test]
-    fn loopfacts_ctx_allows_pattern8_in_static_box() {
+    fn loopfacts_ctx_allows_bool_predicate_scan_route_in_static_box() {
         let condition = ASTNode::BinaryOp {
             operator: BinaryOperator::Less,
             left: Box::new(v("i")),

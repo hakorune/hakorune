@@ -75,9 +75,9 @@ fn try_build_loop_facts_inner(
     body: &[ASTNode],
 ) -> Result<Option<LoopFacts>, Freeze> {
     // Phase 29ai P4/P7: keep Facts conservative; only return Some when we can
-    // build a concrete pattern fact set (no guesses / no hardcoded names).
+    // build a concrete route fact set (no guesses / no hardcoded names).
     //
-    // NOTE: Some BoxCount patterns intentionally match on `ScopeBox`/block wrapper
+    // NOTE: Some BoxCount routes intentionally match on `ScopeBox`/block wrapper
     // boundaries (analysis-only observation). Those must run on the original body,
     // before `flatten_scope_boxes()` strips wrapper nodes.
     let loop_scan_methods_block_v0 =
@@ -108,9 +108,9 @@ fn try_build_loop_facts_inner(
         try_extract_loop_collect_using_entries_v0_facts(condition, body)?;
     let loop_bundle_resolver_v0 = try_extract_loop_bundle_resolver_v0_facts(condition, body)?;
     // Phase 29bq: Extract loop_cond_break_continue BEFORE generic_loop_v0
-    // Reason: loop_cond_break_continue handles patterns (like ExitIfTree) that generic_loop_v0
+    // Reason: loop_cond_break_continue handles shapes (like ExitIfTree) that generic_loop_v0
     // would reject with a Freeze in strict mode. By trying loop_cond_break_continue first,
-    // we give it a chance to match before generic_loop_v0 sees the pattern and freezes.
+    // we give it a chance to match before generic_loop_v0 sees the shape and freezes.
     // Table-driven cluster extraction (SSOT: nested_loop_profile::CLUSTER_PROFILES)
     // Priority order: cluster5 > cluster4 > cluster3 > base
     let loop_cond_break_continue = {
@@ -132,8 +132,8 @@ fn try_build_loop_facts_inner(
         try_extract_loop_cond_continue_with_return_facts(condition, body)?;
     let loop_cond_return_in_body =
         try_extract_loop_cond_return_in_body_facts(condition, body)?;
-    // Phase 29bq: Skip generic_loop_v0/v1 extraction when loop_cond_* patterns matched.
-    // generic_loop_v0 would freeze on patterns like ExitIfTree that loop_cond_break_continue
+    // Phase 29bq: Skip generic_loop_v0/v1 extraction when loop_cond_* routes matched.
+    // generic_loop_v0 would freeze on shapes like ExitIfTree that loop_cond_break_continue
     // can handle. By skipping when we have a specific match, we avoid the freeze.
     let has_generic_v1_recipe_hint = loop_cond_break_continue
         .as_ref()
