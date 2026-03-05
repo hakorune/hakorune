@@ -104,7 +104,7 @@ fn planner_candidate_present(outcome: &PlanBuildOutcome) -> bool {
     outcome
         .facts
         .as_ref()
-        .is_some_and(|facts| facts.facts.loop_cond_continue_with_return.is_some())
+        .is_some_and(|facts| facts.facts.loop_cond_continue_with_return().is_some())
 }
 
 pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutcome, String> {
@@ -149,8 +149,8 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
             outcome.recipe_contract = contract;
         }
     } else if let Some(ref facts) = outcome.facts {
-        if facts.facts.scan_with_init.is_some()
-            || facts.facts.split_scan.is_some()
+        if facts.facts.scan_with_init().is_some()
+            || facts.facts.split_scan().is_some()
             || facts.facts.loop_array_join().is_some()
             || facts.facts.loop_true_early_exit().is_some()
         {

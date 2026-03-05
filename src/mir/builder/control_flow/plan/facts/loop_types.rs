@@ -79,6 +79,14 @@ pub(in crate::mir::builder) struct LoopFacts {
 }
 
 impl LoopFacts {
+    pub fn scan_with_init(&self) -> Option<&ScanWithInitFacts> {
+        self.scan_with_init.as_ref()
+    }
+
+    pub fn split_scan(&self) -> Option<&SplitScanFacts> {
+        self.split_scan.as_ref()
+    }
+
     pub fn loop_simple_while(&self) -> Option<&Pattern1SimpleWhileFacts> {
         self.pattern1_simplewhile.as_ref()
     }
@@ -121,6 +129,58 @@ impl LoopFacts {
 
     pub fn loop_break_body_local(&self) -> Option<&Pattern2LoopBodyLocalFacts> {
         self.pattern2_loopbodylocal.as_ref()
+    }
+
+    pub fn loop_cond_break_continue(&self) -> Option<&LoopCondBreakContinueFacts> {
+        self.loop_cond_break_continue.as_ref()
+    }
+
+    pub fn loop_cond_continue_only(&self) -> Option<&LoopCondContinueOnlyFacts> {
+        self.loop_cond_continue_only.as_ref()
+    }
+
+    pub fn loop_cond_continue_with_return(
+        &self,
+    ) -> Option<&LoopCondContinueWithReturnFacts> {
+        self.loop_cond_continue_with_return.as_ref()
+    }
+
+    pub fn loop_cond_return_in_body(&self) -> Option<&LoopCondReturnInBodyFacts> {
+        self.loop_cond_return_in_body.as_ref()
+    }
+
+    pub fn generic_loop_v0(&self) -> Option<&GenericLoopV0Facts> {
+        self.generic_loop_v0.as_ref()
+    }
+
+    pub fn generic_loop_v1(&self) -> Option<&GenericLoopV1Facts> {
+        self.generic_loop_v1.as_ref()
+    }
+
+    pub fn loop_scan_methods_v0(&self) -> Option<&LoopScanMethodsV0Facts> {
+        self.loop_scan_methods_v0.as_ref()
+    }
+
+    pub fn loop_scan_methods_block_v0(&self) -> Option<&LoopScanMethodsBlockV0Facts> {
+        self.loop_scan_methods_block_v0.as_ref()
+    }
+
+    pub fn loop_scan_phi_vars_v0(&self) -> Option<&LoopScanPhiVarsV0Facts> {
+        self.loop_scan_phi_vars_v0.as_ref()
+    }
+
+    pub fn loop_scan_v0(&self) -> Option<&LoopScanV0Facts> {
+        self.loop_scan_v0.as_ref()
+    }
+
+    pub fn loop_collect_using_entries_v0(
+        &self,
+    ) -> Option<&LoopCollectUsingEntriesV0Facts> {
+        self.loop_collect_using_entries_v0.as_ref()
+    }
+
+    pub fn loop_bundle_resolver_v0(&self) -> Option<&LoopBundleResolverV0Facts> {
+        self.loop_bundle_resolver_v0.as_ref()
     }
 }
 

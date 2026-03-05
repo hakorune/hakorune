@@ -1,13 +1,5 @@
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 
-macro_rules! pred {
-    ($name:ident, $field:ident) => {
-        pub(crate) fn $name(facts: &CanonicalLoopFacts) -> bool {
-            facts.facts.$field.is_some()
-        }
-    };
-}
-
 macro_rules! pred_accessor {
     ($name:ident, $accessor:ident) => {
         pub(crate) fn $name(facts: &CanonicalLoopFacts) -> bool {
@@ -32,8 +24,8 @@ pub(crate) fn pred_loop_simple_while(facts: &CanonicalLoopFacts) -> bool {
 }
 pred_accessor!(pred_loop_char_map, loop_char_map);
 pred_accessor!(pred_loop_array_join, loop_array_join);
-pred!(pred_scan_with_init, scan_with_init);
-pred!(pred_split_scan, split_scan);
+pred_accessor!(pred_scan_with_init, scan_with_init);
+pred_accessor!(pred_split_scan, split_scan);
 pred_accessor!(pred_bool_predicate_scan, bool_predicate_scan);
 pred_accessor!(pred_accum_const_loop, accum_const_loop);
 
@@ -53,7 +45,7 @@ impl ScanFamilyPresence {
             || pred_loop_scan_phi_vars_v0(facts)
             || pred_loop_collect_using_entries_v0(facts)
             || pred_loop_bundle_resolver_v0(facts);
-        let init = facts.facts.scan_with_init.is_some() || facts.facts.split_scan.is_some();
+        let init = facts.facts.scan_with_init().is_some() || facts.facts.split_scan().is_some();
         let predicate = pred_bool_predicate_scan(facts) || pred_accum_const_loop(facts);
         Self {
             methods,
@@ -77,48 +69,48 @@ impl ScanFamilyPresence {
 }
 
 pub(crate) fn pred_loop_scan_methods_v0(facts: &CanonicalLoopFacts) -> bool {
-    facts.facts.loop_scan_methods_v0.is_some()
-        && facts.facts.loop_scan_methods_block_v0.is_none()
+    facts.facts.loop_scan_methods_v0().is_some()
+        && facts.facts.loop_scan_methods_block_v0().is_none()
 }
 pub(crate) fn pred_loop_scan_methods_block_v0(facts: &CanonicalLoopFacts) -> bool {
-    facts.facts.loop_scan_methods_block_v0.is_some()
+    facts.facts.loop_scan_methods_block_v0().is_some()
 }
 
-pred!(pred_loop_scan_phi_vars_v0, loop_scan_phi_vars_v0);
-pred!(pred_loop_scan_v0, loop_scan_v0);
-pred!(pred_loop_collect_using_entries_v0, loop_collect_using_entries_v0);
+pred_accessor!(pred_loop_scan_phi_vars_v0, loop_scan_phi_vars_v0);
+pred_accessor!(pred_loop_scan_v0, loop_scan_v0);
+pred_accessor!(pred_loop_collect_using_entries_v0, loop_collect_using_entries_v0);
 pred_accessor!(pred_nested_loop_minimal, nested_loop_minimal);
 pub(crate) fn pred_loop_bundle_resolver_v0(facts: &CanonicalLoopFacts) -> bool {
-    facts.facts.loop_bundle_resolver_v0.is_some()
+    facts.facts.loop_bundle_resolver_v0().is_some()
 }
 pub(crate) fn pred_loop_true_break_continue(facts: &CanonicalLoopFacts) -> bool {
     facts.facts.loop_true_break_continue.is_some() && !pred_loop_break_recipe(facts)
 }
 pub(crate) fn pred_loop_cond_break_continue(facts: &CanonicalLoopFacts) -> bool {
     let scan = ScanFamilyPresence::from_facts(facts);
-    facts.facts.loop_cond_break_continue.is_some()
+    facts.facts.loop_cond_break_continue().is_some()
         && !pred_loop_break_recipe(facts)
         && !scan.blocks_loop_cond_break()
 }
 pub(crate) fn pred_loop_cond_continue_only(facts: &CanonicalLoopFacts) -> bool {
-    facts.facts.loop_cond_continue_only.is_some() && !pred_loop_continue_only_recipe(facts)
+    facts.facts.loop_cond_continue_only().is_some() && !pred_loop_continue_only_recipe(facts)
 }
-pred!(pred_loop_cond_continue_with_return, loop_cond_continue_with_return);
+pred_accessor!(pred_loop_cond_continue_with_return, loop_cond_continue_with_return);
 pub(crate) fn pred_loop_cond_return_in_body(facts: &CanonicalLoopFacts) -> bool {
-    if facts.facts.loop_cond_return_in_body.is_none() {
+    if facts.facts.loop_cond_return_in_body().is_none() {
         return false;
     }
     // Keep planner-first contract stable: when break/continue shape is available,
     // route through LoopCondBreak and treat return_in_body as observational only.
-    if facts.facts.loop_cond_break_continue.is_some() {
+    if facts.facts.loop_cond_break_continue().is_some() {
         return false;
     }
     let scan = ScanFamilyPresence::from_facts(facts);
     !scan.blocks_return_or_generic()
 }
-pred!(pred_generic_loop_v0, generic_loop_v0);
+pred_accessor!(pred_generic_loop_v0, generic_loop_v0);
 pub(crate) fn pred_generic_loop_v1(facts: &CanonicalLoopFacts) -> bool {
-    if facts.facts.generic_loop_v1.is_none() {
+    if facts.facts.generic_loop_v1().is_none() {
         return false;
     }
     if pred_loop_break_recipe(facts) {
@@ -127,7 +119,7 @@ pub(crate) fn pred_generic_loop_v1(facts: &CanonicalLoopFacts) -> bool {
     if pred_loop_simple_while(facts) {
         return false;
     }
-    if facts.facts.loop_cond_break_continue.is_some() {
+    if facts.facts.loop_cond_break_continue().is_some() {
         return false;
     }
     let scan = ScanFamilyPresence::from_facts(facts);

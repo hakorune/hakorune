@@ -88,7 +88,7 @@ fn release_allows_loop_cond_break_continue(
     let Some(facts) = outcome
         .facts
         .as_ref()
-        .and_then(|facts| facts.facts.loop_cond_break_continue.as_ref())
+        .and_then(|facts| facts.facts.loop_cond_break_continue())
     else {
         return false;
     };
@@ -107,7 +107,7 @@ fn release_allows_loop_scan_methods_block_v0(outcome: &PlanBuildOutcome, env: &R
     let Some(facts) = outcome
         .facts
         .as_ref()
-        .and_then(|facts| facts.facts.loop_scan_methods_block_v0.as_ref())
+        .and_then(|facts| facts.facts.loop_scan_methods_block_v0())
     else {
         return false;
     };
@@ -148,8 +148,7 @@ pub(crate) fn route_loop_break_recipe(
     if env.strict_or_dev {
         let loop_break_facts = facts
             .facts
-            .pattern2_break
-            .as_ref()
+            .loop_break()
             .expect("loop_break_recipe is present");
         let needs_flowbox_tag = env.has_loopbodylocal
             || loop_break_recipe_needs_flowbox_adopt_tag_in_strict(loop_break_facts);
@@ -571,7 +570,7 @@ pub(crate) fn route_nested_loop_minimal(
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
     };
-    if facts.facts.pattern6_nested_minimal.is_none() {
+    if facts.facts.nested_loop_minimal().is_none() {
         return Ok(None);
     }
 
@@ -753,7 +752,7 @@ pub(crate) fn route_generic_loop_v1(
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
     };
-    if facts.facts.generic_loop_v1.is_none() {
+    if facts.facts.generic_loop_v1().is_none() {
         return Ok(None);
     }
     let core_plan = match RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, ctx) {
@@ -796,7 +795,7 @@ pub(crate) fn route_generic_loop_v0(
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
     };
-    if facts.facts.generic_loop_v0.is_none() {
+    if facts.facts.generic_loop_v0().is_none() {
         return Ok(None);
     }
     let core_plan = match RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, ctx) {
