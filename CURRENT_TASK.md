@@ -69,8 +69,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - active SSOT docs（`recipe-first-entry-contract-ssot.md`, `plan-mod-layout-ssot.md`, `compiler-task-map-ssot.md`, `coreplan-shadow-adopt-tag-coverage-ssot.md`）の Pattern 主語を route 主語へ同期（契約キー/タグは不変）
   - coreloop test 残語彙を route 主語へ同期（`coreloop_v0/v1_tests` の test name / test labels / assert wording）
 - compiler fixed order:
-  1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す（進行中: coreplan-shadow/plan-mod-layout/compiler-task-map/recipe-first-entry は同期済み）。
-  2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する（進行中: coreloop_v0/v1 tests を同期済み）。
+  1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す（進行中: `coreplan-shadow` / `plan-mod-layout` / `compiler-task-map` / `recipe-first-entry` / `condition-observation` / `domainplan-thinning` / `edgecfg-fragments` / `plan-dir-shallowing` は同期済み）。
+  2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する（進行中: `coreloop_v0/v1` tests + `facts/loop_builder.rs` comment + `facts/loop_tests.rs` 名称を同期済み）。
   3. planner/normalizer の dead comments・test-only wiring（payload 前提）を段階撤去する。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
@@ -103,6 +103,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `fb206996a` docs(plan): route-align remaining design notes with legacy labels
+    - active design docs の残語彙を route 主語へ同期: `condition-observation-ssot.md`, `domainplan-thinning-ssot.md`, `edgecfg-fragments.md`, `plan-dir-shallowing-ssot.md`
+    - historical な `PatternX` 表記は `legacy label` 注記として保持し、SSOT本文は route/semantic 主語へ統一
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `56af49d53` refactor(plan): route-align loop facts comments and test names
+    - `facts/loop_builder.rs` の comment を route/shape 主語へ同期（挙動不変）
+    - `facts/loop_tests.rs` の test 名を semantic route 名へ同期（legacy pattern 番号を脱却）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `7ef3e6827` docs(plan): route-align active SSOT wording and legacy notes
     - active docs を route 主語へ同期: `recipe-first-entry-contract-ssot.md`, `plan-mod-layout-ssot.md`, `compiler-task-map-ssot.md`, `coreplan-shadow-adopt-tag-coverage-ssot.md`
     - facts key / tag / filename などの契約文字列は保持し、説明文だけ `legacy label` 注記付きで更新
