@@ -58,7 +58,7 @@ run_filter "pattern5_strict_shadow_vm" "phase29ao_pattern5_strict_shadow_vm" || 
 run_filter "pattern5_release_adopt_vm" "phase29ao_pattern5_release_adopt_vm" || exit 1
 run_filter "pattern6_strict_shadow_vm" "phase29ao_pattern6_strict_shadow_vm" || exit 1
 run_filter "pattern6_release_adopt_vm" "phase29ao_pattern6_release_adopt_vm" || exit 1
-run_filter "pattern6" "phase29ab_pattern6_" || exit 1
+run_filter "pattern6_scan_with_init_pack_vm" "phase29ae_pattern6_scan_with_init_pack_vm" || exit 1
 run_filter "pattern6_nested_release_adopt_vm" "phase29ap_pattern6_nested_release_adopt_vm" || exit 1
 run_filter "pattern6_nested_strict_shadow_vm" "phase29ap_pattern6_nested_strict_shadow_vm" || exit 1
 run_filter "pattern7_strict_shadow_vm" "phase29ao_pattern7_strict_shadow_vm" || exit 1

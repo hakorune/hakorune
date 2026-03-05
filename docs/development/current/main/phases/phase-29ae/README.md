@@ -48,7 +48,7 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 - Pattern5 (release adopt, VM): `phase29ao_pattern5_release_adopt_vm`
 - Pattern6 (strict shadow, VM): `phase29ao_pattern6_strict_shadow_vm`
 - Pattern6 (release adopt, VM): `phase29ao_pattern6_release_adopt_vm`
-- Pattern6: `phase29ab_pattern6_*`
+- Pattern6 supplemental pack (VM): `phase29ae_pattern6_scan_with_init_pack_vm`
 - Pattern6 (nested minimal release adopt, VM): `phase29ap_pattern6_nested_release_adopt_vm`
 - Pattern6 (nested minimal strict shadow, VM): `phase29ap_pattern6_nested_strict_shadow_vm`
 - Pattern7 (strict shadow, VM): `phase29ao_pattern7_strict_shadow_vm`
