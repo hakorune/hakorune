@@ -59,7 +59,7 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
     if !nested_loop {
         return None;
     }
-    if allow_strict_nested_pattern4_min1(outcome, ctx) {
+    if allow_strict_nested_loop_continue_min1(outcome, ctx) {
         return None;
     }
 
@@ -84,7 +84,7 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
                     loop_continue.carrier_updates.keys().cloned().collect();
                 carrier_vars.sort();
                 format!(
-                    "Some(Pattern4Continue(Pattern4ContinuePlan {{ loop_var: {:?}, carrier_vars: {:?}, condition: {:?}, continue_condition: {:?}, carrier_updates: {:?}, loop_increment: {:?} }}))",
+                    "Some(loop_continue_only(loop_var={:?}, carrier_vars={:?}, condition={:?}, continue_condition={:?}, carrier_updates={:?}, loop_increment={:?}))",
                     loop_continue.loop_var,
                     carrier_vars,
                     loop_continue.condition,
@@ -106,7 +106,10 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
     Some(freeze.to_string())
 }
 
-fn allow_strict_nested_pattern4_min1(outcome: &PlanBuildOutcome, ctx: &LoopRouteContext) -> bool {
+fn allow_strict_nested_loop_continue_min1(
+    outcome: &PlanBuildOutcome,
+    ctx: &LoopRouteContext,
+) -> bool {
     if ctx.route_kind != LoopPatternKind::Pattern4Continue {
         return false;
     }
