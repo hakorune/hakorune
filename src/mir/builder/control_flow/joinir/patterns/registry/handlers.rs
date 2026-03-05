@@ -542,6 +542,45 @@ pub(crate) fn route_loop_collect_using_entries_v0(
     route_standard(builder, ctx, outcome, env, &ENTRY)
 }
 
+pub(crate) fn route_nested_loop_minimal(
+    builder: &mut MirBuilder,
+    ctx: &LoopPatternContext,
+    outcome: &PlanBuildOutcome,
+    env: &RouterEnv,
+) -> Result<Option<ValueId>, String> {
+    let Some(facts) = outcome.facts.as_ref() else {
+        return Ok(None);
+    };
+    if facts.facts.pattern6_nested_minimal.is_none() {
+        return Ok(None);
+    }
+
+    let Some(core_plan) =
+        composer::try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)?
+    else {
+        if env.strict_or_dev {
+            return Err(
+                "nested_loop_minimal strict/dev route failed: compose rejected".to_string(),
+            );
+        }
+        return Ok(None);
+    };
+
+    let via = if env.strict_or_dev {
+        FlowboxVia::Shadow
+    } else {
+        FlowboxVia::Release
+    };
+    lower_verified_core_plan(
+        builder,
+        ctx,
+        env.strict_or_dev,
+        outcome.facts.as_ref(),
+        core_plan,
+        via,
+    )
+}
+
 pub(crate) fn route_loop_bundle_resolver_v0(
     builder: &mut MirBuilder,
     ctx: &LoopPatternContext,

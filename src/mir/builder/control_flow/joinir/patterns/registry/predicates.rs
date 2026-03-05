@@ -79,6 +79,7 @@ pub(crate) fn pred_loop_scan_methods_block_v0(facts: &CanonicalLoopFacts) -> boo
 pred!(pred_loop_scan_phi_vars_v0, loop_scan_phi_vars_v0);
 pred!(pred_loop_scan_v0, loop_scan_v0);
 pred!(pred_loop_collect_using_entries_v0, loop_collect_using_entries_v0);
+pred!(pred_nested_loop_minimal, pattern6_nested_minimal);
 pub(crate) fn pred_loop_bundle_resolver_v0(facts: &CanonicalLoopFacts) -> bool {
     facts.facts.loop_bundle_resolver_v0.is_some()
 }

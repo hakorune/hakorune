@@ -99,6 +99,11 @@ pub(crate) const ENTRIES: &[Entry] = &[
         route: Some(route_loop_collect_using_entries_v0),
     },
     Entry {
+        name: "nested_loop_minimal",
+        predicate: pred_nested_loop_minimal,
+        route: Some(route_nested_loop_minimal),
+    },
+    Entry {
         name: "loop_bundle_resolver_v0",
         predicate: pred_loop_bundle_resolver_v0,
         route: Some(route_loop_bundle_resolver_v0),
@@ -188,7 +193,8 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
 
     let block_generic_loop_v1 = char_map_candidate
         || pred_loop_simple_while(facts)
-        || pred_loop_bundle_resolver_v0(facts);
+        || pred_loop_bundle_resolver_v0(facts)
+        || pred_nested_loop_minimal(facts);
     if block_generic_loop_v1 {
         names.retain(|name| *name != "generic_loop_v1");
     }
