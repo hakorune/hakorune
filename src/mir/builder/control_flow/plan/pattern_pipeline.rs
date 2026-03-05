@@ -4,7 +4,7 @@
 //!
 //! ## Design Philosophy
 //!
-//! **Pure Analysis Container**: PatternPipelineContext is a "解析済みコンテキスト箱" that:
+//! **Pure Analysis Container**: RoutePrepContext is a "解析済みコンテキスト箱" that:
 //! - Only holds preprocessing results (no JoinIR emission)
 //! - Only depends on analyzer boxes (never lowering logic)
 //! - Uses Option<T> for pattern-specific data
@@ -12,7 +12,7 @@
 //! ## Responsibility Separation
 //!
 //! ```
-//! PatternPipelineContext (this file)
+//! RoutePrepContext (this file)
 //! ├─ Loop variable extraction        → CommonPatternInitializer
 //! ├─ Carrier analysis               → CarrierInfo
 //! ├─ Loop scope construction        → LoopScopeShapeBuilder
@@ -62,7 +62,7 @@ use crate::mir::builder::control_flow::plan::loop_scope_shape_builder::LoopScope
 /// # Usage
 ///
 /// ```rust
-/// let ctx = build_pattern_context(
+/// let ctx = build_route_prep_context(
 ///     builder,
 ///     condition,
 ///     body,
@@ -73,7 +73,7 @@ use crate::mir::builder::control_flow::plan::loop_scope_shape_builder::LoopScope
 /// let join_module = lower_simple_while_minimal(ctx.loop_scope)?;
 /// ```
 #[derive(Debug, Clone)]
-pub(crate) struct PatternPipelineContext {
+pub(crate) struct RoutePrepContext {
     // === Common Data (All Patterns) ===
     /// Loop variable name (e.g., "i")
     pub loop_var_name: String,
@@ -137,7 +137,7 @@ pub(crate) enum PatternVariant {
     Pattern4,
 }
 
-impl PatternPipelineContext {
+impl RoutePrepContext {
     /// Get the number of carriers (excluding loop variable)
     pub fn carrier_count(&self) -> usize {
         self.carrier_info.carrier_count()
@@ -234,7 +234,7 @@ impl PatternPipelineContext {
 ///
 /// # Returns
 ///
-/// PatternPipelineContext with all preprocessing results
+/// RoutePrepContext with all preprocessing results
 ///
 /// # Errors
 ///
@@ -242,12 +242,12 @@ impl PatternPipelineContext {
 /// - Loop variable not found in variable_map
 /// - Condition variable not found (Pattern 2/4)
 /// - Trim pattern promotion fails (Pattern 2/4)
-pub(crate) fn build_pattern_context(
+pub(crate) fn build_route_prep_context(
     builder: &mut MirBuilder,
     condition: &ASTNode,
     body: &[ASTNode],
     variant: PatternVariant,
-) -> Result<PatternPipelineContext, String> {
+) -> Result<RoutePrepContext, String> {
     // Step 1: Common initialization (all patterns)
     //
     // Phase 104: Pattern2 now supports `loop(true)` by extracting the counter from the body.
@@ -337,7 +337,7 @@ pub(crate) fn build_pattern_context(
         }
     };
 
-    Ok(PatternPipelineContext {
+    Ok(RoutePrepContext {
         loop_var_name,
         loop_var_id,
         carrier_info,
@@ -384,7 +384,7 @@ mod tests {
     fn test_context_carrier_count() {
         use crate::mir::join_ir::lowering::carrier_info::CarrierVar;
 
-        let ctx = PatternPipelineContext {
+        let ctx = RoutePrepContext {
             loop_var_name: "i".to_string(),
             loop_var_id: ValueId(5),
             carrier_info: CarrierInfo {
@@ -440,7 +440,7 @@ mod tests {
 
     #[test]
     fn test_context_with_trim() {
-        let ctx = PatternPipelineContext {
+        let ctx = RoutePrepContext {
             loop_var_name: "pos".to_string(),
             loop_var_id: ValueId(5),
             carrier_info: CarrierInfo {

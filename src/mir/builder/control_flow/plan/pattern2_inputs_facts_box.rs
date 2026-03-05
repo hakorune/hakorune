@@ -112,7 +112,7 @@ impl Pattern2InputsFactsBox {
         condition: &ASTNode,
         body: &[ASTNode],
         fn_body: Option<&[ASTNode]>,
-        ctx: &crate::mir::builder::control_flow::plan::pattern_pipeline::PatternPipelineContext,
+        ctx: &crate::mir::builder::control_flow::plan::pattern_pipeline::RoutePrepContext,
         verbose: bool,
     ) -> Result<Pattern2Facts, String> {
         let log = Pattern2DebugLog::new(verbose);
@@ -128,7 +128,7 @@ impl Pattern2InputsFactsBox {
         log.log(
             "init",
             format!(
-                "PatternPipelineContext: loop_var='{}', loop_var_id={:?}, carriers={}",
+                "RoutePrepContext: loop_var='{}', loop_var_id={:?}, carriers={}",
                 loop_var_name,
                 loop_var_id,
                 carrier_info.carriers.len()

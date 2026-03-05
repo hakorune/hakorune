@@ -15,7 +15,7 @@ impl GatherFactsStepBox {
         condition: &ASTNode,
         body: &[ASTNode],
         fn_body: Option<&[ASTNode]>,
-        ctx: &crate::mir::builder::control_flow::plan::pattern_pipeline::PatternPipelineContext,
+        ctx: &crate::mir::builder::control_flow::plan::pattern_pipeline::RoutePrepContext,
         verbose: bool,
     ) -> Result<Pattern2Facts, String> {
         Pattern2InputsFactsBox::analyze(builder, condition, body, fn_body, ctx, verbose)
