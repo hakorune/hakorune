@@ -17,7 +17,7 @@ use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
 
-    /// Compose Pattern9 AccumConstLoop facts into LoweredRecipe via RecipeBlock (no normalizer).
+    /// Compose accum-const-loop facts into LoweredRecipe via RecipeBlock (no normalizer).
     pub fn compose_accum_const_loop_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
@@ -25,15 +25,15 @@ impl RecipeComposer {
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
-        const CTX: &str = "pattern9_accum_const_loop_recipe";
+        const CTX: &str = "accum_const_loop_recipe";
 
-        let pattern9_facts = facts
+        let accum_facts = facts
             .facts
             .pattern9_accum_const_loop
             .clone()
             .ok_or_else(|| {
                 Freeze::contract(
-                    "Pattern9AccumConstLoop facts missing in compose_accum_const_loop_recipe",
+                    "AccumConstLoop facts missing in compose_accum_const_loop_recipe",
                 )
             })?;
 
@@ -46,30 +46,30 @@ impl RecipeComposer {
 
         let dummy_span = Span::new(0, 0, 0, 0);
         let loop_stmt = ASTNode::Loop {
-            condition: Box::new(pattern9_facts.condition.clone()),
+            condition: Box::new(accum_facts.condition.clone()),
             body: vec![],
             span: dummy_span,
         };
-        let loop_cond_view = CondBlockView::from_expr(&pattern9_facts.condition);
+        let loop_cond_view = CondBlockView::from_expr(&accum_facts.condition);
         crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
-            &pattern9_facts.cond_profile,
+            &accum_facts.cond_profile,
         );
 
         let Some(AccumConstLoopRecipe { arena, root }) =
-            build_accum_const_loop_recipe(&loop_stmt, loop_cond_view, &pattern9_facts)
+            build_accum_const_loop_recipe(&loop_stmt, loop_cond_view, &accum_facts)
         else {
             return Err(Freeze::contract(
-                "Pattern9AccumConstLoop recipe build returned None",
+                "AccumConstLoop recipe build returned None",
             ));
         };
 
         check_block_contract(&arena, &root, BlockContractKind::NoExit, CTX).map_err(|e| {
-            Freeze::contract("Pattern9AccumConstLoop recipe verification failed").with_hint(&e)
+            Freeze::contract("AccumConstLoop recipe verification failed").with_hint(&e)
         })?;
 
         let Some(loop_item) = root.items.first() else {
             return Err(Freeze::contract(
-                "Pattern9AccumConstLoop recipe root missing LoopV0",
+                "AccumConstLoop recipe root missing LoopV0",
             ));
         };
 
@@ -81,7 +81,7 @@ impl RecipeComposer {
         } = loop_item
         else {
             return Err(Freeze::contract(
-                "Pattern9AccumConstLoop recipe root is not LoopV0",
+                "AccumConstLoop recipe root is not LoopV0",
             ));
         };
 
@@ -97,7 +97,7 @@ impl RecipeComposer {
         )
         .map_err(|e| {
             Freeze::contract(&format!(
-                "Pattern9AccumConstLoop recipe lower failed: {e}"
+                "AccumConstLoop recipe lower failed: {e}"
             ))
         })
     }

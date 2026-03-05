@@ -17,7 +17,7 @@ use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
 
-    /// Compose Pattern4Continue facts into LoweredRecipe via RecipeBlock (no normalizer).
+    /// Compose loop-continue-only facts into LoweredRecipe via RecipeBlock (no normalizer).
     ///
     /// Used only in strict/dev + planner_required routing.
     pub fn compose_loop_continue_only_recipe(
@@ -27,10 +27,10 @@ impl RecipeComposer {
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
-        const CTX: &str = "pattern4_continue_recipe";
+        const CTX: &str = "loop_continue_only_recipe";
 
-        let pattern4_facts = facts.facts.pattern4_continue.clone().ok_or_else(|| {
-            Freeze::contract("Pattern4Continue facts missing in compose_loop_continue_only_recipe")
+        let continue_only_facts = facts.facts.pattern4_continue.clone().ok_or_else(|| {
+            Freeze::contract("LoopContinueOnly facts missing in compose_loop_continue_only_recipe")
         })?;
 
         if joinir_dev::debug_enabled() {
@@ -42,31 +42,31 @@ impl RecipeComposer {
 
         let dummy_span = Span::new(0, 0, 0, 0);
         let loop_stmt = ASTNode::Loop {
-            condition: Box::new(pattern4_facts.condition.clone()),
+            condition: Box::new(continue_only_facts.condition.clone()),
             body: vec![],
             span: dummy_span,
         };
 
-        let loop_cond_view = CondBlockView::from_expr(&pattern4_facts.condition);
-        let continue_cond_view = CondBlockView::from_expr(&pattern4_facts.continue_condition);
+        let loop_cond_view = CondBlockView::from_expr(&continue_only_facts.condition);
+        let continue_cond_view = CondBlockView::from_expr(&continue_only_facts.continue_condition);
 
         let Some(LoopContinueOnlyRecipe { arena, root }) = build_loop_continue_only_recipe(
             &loop_stmt,
             loop_cond_view,
             continue_cond_view,
-            &pattern4_facts,
+            &continue_only_facts,
         ) else {
             return Err(Freeze::contract(
-                "Pattern4Continue recipe missing (planner_required)",
+                "LoopContinueOnly recipe missing (planner_required)",
             ));
         };
 
         check_block_contract(&arena, &root, BlockContractKind::ExitAllowed, CTX).map_err(|e| {
-            Freeze::contract("Pattern4Continue recipe verification failed").with_hint(&e)
+            Freeze::contract("LoopContinueOnly recipe verification failed").with_hint(&e)
         })?;
 
         let Some(loop_item) = root.items.first() else {
-            return Err(Freeze::contract("Pattern4Continue recipe root missing LoopV0"));
+            return Err(Freeze::contract("LoopContinueOnly recipe root missing LoopV0"));
         };
 
         let RecipeItem::LoopV0 {
@@ -77,7 +77,7 @@ impl RecipeComposer {
         } = loop_item
         else {
             return Err(Freeze::contract(
-                "Pattern4Continue recipe root is not LoopV0",
+                "LoopContinueOnly recipe root is not LoopV0",
             ));
         };
 
@@ -91,7 +91,7 @@ impl RecipeComposer {
             body_block,
             CTX,
         )
-        .map_err(|e| Freeze::contract(&format!("Pattern4Continue recipe lower failed: {e}")))
+        .map_err(|e| Freeze::contract(&format!("LoopContinueOnly recipe lower failed: {e}")))
     }
 
 }

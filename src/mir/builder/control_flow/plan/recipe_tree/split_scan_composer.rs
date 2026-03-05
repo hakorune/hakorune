@@ -58,7 +58,7 @@ fn build_split_scan_loop_condition(
 
 impl RecipeComposer {
 
-    /// Compose Pattern7 SplitScan facts into LoweredRecipe via RecipeBlock (no normalizer).
+    /// Compose split-scan facts into LoweredRecipe via RecipeBlock (no normalizer).
     pub fn compose_split_scan_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
@@ -66,11 +66,11 @@ impl RecipeComposer {
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
-        const CTX: &str = "pattern7_split_scan_recipe";
+        const CTX: &str = "split_scan_recipe";
 
         let split_facts = facts.facts.split_scan.clone().ok_or_else(|| {
             Freeze::contract(
-                "Pattern7SplitScan facts missing in compose_split_scan_recipe",
+                "SplitScan facts missing in compose_split_scan_recipe",
             )
         })?;
 
@@ -94,17 +94,17 @@ impl RecipeComposer {
             build_split_scan_recipe(&loop_stmt, loop_cond_view, &split_facts)
         else {
             return Err(Freeze::contract(
-                "Pattern7SplitScan recipe build returned None",
+                "SplitScan recipe build returned None",
             ));
         };
 
         check_block_contract(&arena, &root, BlockContractKind::NoExit, CTX).map_err(|e| {
-            Freeze::contract("Pattern7SplitScan recipe verification failed").with_hint(&e)
+            Freeze::contract("SplitScan recipe verification failed").with_hint(&e)
         })?;
 
         let Some(loop_item) = root.items.first() else {
             return Err(Freeze::contract(
-                "Pattern7SplitScan recipe root missing LoopV0",
+                "SplitScan recipe root missing LoopV0",
             ));
         };
 
@@ -116,7 +116,7 @@ impl RecipeComposer {
         } = loop_item
         else {
             return Err(Freeze::contract(
-                "Pattern7SplitScan recipe root is not LoopV0",
+                "SplitScan recipe root is not LoopV0",
             ));
         };
 
@@ -132,7 +132,7 @@ impl RecipeComposer {
         )
         .map_err(|e| {
             Freeze::contract(&format!(
-                "Pattern7SplitScan recipe lower failed: {e}"
+                "SplitScan recipe lower failed: {e}"
             ))
         })
     }

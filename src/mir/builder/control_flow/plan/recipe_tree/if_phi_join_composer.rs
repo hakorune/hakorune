@@ -17,7 +17,7 @@ use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
 
-    /// Compose Pattern3IfPhi facts into LoweredRecipe via RecipeBlock (no normalizer).
+    /// Compose if-phi-join facts into LoweredRecipe via RecipeBlock (no normalizer).
     ///
     /// Used only in strict/dev + planner_required routing.
     pub fn compose_if_phi_join_recipe(
@@ -27,13 +27,13 @@ impl RecipeComposer {
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
-        const CTX: &str = "pattern3_ifphi_recipe";
+        const CTX: &str = "if_phi_join_recipe";
 
-        let pattern3_facts = facts
+        let if_phi_join_facts = facts
             .facts
             .pattern3_ifphi
             .clone()
-            .ok_or_else(|| Freeze::contract("Pattern3IfPhi facts missing in compose_if_phi_join_recipe"))?;
+            .ok_or_else(|| Freeze::contract("IfPhiJoin facts missing in compose_if_phi_join_recipe"))?;
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -44,31 +44,31 @@ impl RecipeComposer {
 
         let dummy_span = Span::new(0, 0, 0, 0);
         let loop_stmt = ASTNode::Loop {
-            condition: Box::new(pattern3_facts.condition.clone()),
+            condition: Box::new(if_phi_join_facts.condition.clone()),
             body: vec![],
             span: dummy_span,
         };
 
-        let loop_cond_view = CondBlockView::from_expr(&pattern3_facts.condition);
-        let if_cond_view = CondBlockView::from_expr(&pattern3_facts.if_condition);
+        let loop_cond_view = CondBlockView::from_expr(&if_phi_join_facts.condition);
+        let if_cond_view = CondBlockView::from_expr(&if_phi_join_facts.if_condition);
 
         let Some(IfPhiJoinRecipe { arena, root }) = build_if_phi_join_recipe(
             &loop_stmt,
             loop_cond_view,
             if_cond_view,
-            &pattern3_facts,
+            &if_phi_join_facts,
         ) else {
             return Err(Freeze::contract(
-                "Pattern3IfPhi recipe missing (planner_required)",
+                "IfPhiJoin recipe missing (planner_required)",
             ));
         };
 
         check_block_contract(&arena, &root, BlockContractKind::NoExit, CTX).map_err(|e| {
-            Freeze::contract("Pattern3IfPhi recipe verification failed").with_hint(&e)
+            Freeze::contract("IfPhiJoin recipe verification failed").with_hint(&e)
         })?;
 
         let Some(loop_item) = root.items.first() else {
-            return Err(Freeze::contract("Pattern3IfPhi recipe root missing LoopV0"));
+            return Err(Freeze::contract("IfPhiJoin recipe root missing LoopV0"));
         };
 
         let RecipeItem::LoopV0 {
@@ -79,7 +79,7 @@ impl RecipeComposer {
         } = loop_item
         else {
             return Err(Freeze::contract(
-                "Pattern3IfPhi recipe root is not LoopV0",
+                "IfPhiJoin recipe root is not LoopV0",
             ));
         };
 
@@ -93,7 +93,7 @@ impl RecipeComposer {
             body_block,
             CTX,
         )
-        .map_err(|e| Freeze::contract(&format!("Pattern3IfPhi recipe lower failed: {e}")))
+        .map_err(|e| Freeze::contract(&format!("IfPhiJoin recipe lower failed: {e}")))
     }
 
 }

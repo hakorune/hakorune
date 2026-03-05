@@ -28,7 +28,7 @@ impl RecipeComposer {
 
         const CTX: &str = "loop_true_early_exit_recipe";
 
-        let pattern5_facts = facts
+        let early_exit_facts = facts
             .facts
             .pattern5_infinite_early_exit
             .clone()
@@ -55,10 +55,10 @@ impl RecipeComposer {
             body: vec![],
             span: dummy_span,
         };
-        let exit_cond_view = CondBlockView::from_expr(&pattern5_facts.exit_condition);
+        let exit_cond_view = CondBlockView::from_expr(&early_exit_facts.exit_condition);
 
         let Some(LoopTrueEarlyExitRecipe { arena, root }) =
-            build_loop_true_early_exit_recipe(&loop_stmt, exit_cond_view, &pattern5_facts)
+            build_loop_true_early_exit_recipe(&loop_stmt, exit_cond_view, &early_exit_facts)
         else {
             return Err(Freeze::contract(
                 "LoopTrueEarlyExit recipe build returned None",

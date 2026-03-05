@@ -17,7 +17,7 @@ use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
 
-    /// Compose Pattern8 BoolPredicateScan facts into LoweredRecipe via RecipeBlock (no normalizer).
+    /// Compose bool-predicate-scan facts into LoweredRecipe via RecipeBlock (no normalizer).
     pub fn compose_bool_predicate_scan_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
@@ -25,15 +25,15 @@ impl RecipeComposer {
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
-        const CTX: &str = "pattern8_bool_predicate_scan_recipe";
+        const CTX: &str = "bool_predicate_scan_recipe";
 
-        let pattern8_facts = facts
+        let bool_scan_facts = facts
             .facts
             .pattern8_bool_predicate_scan
             .clone()
             .ok_or_else(|| {
                 Freeze::contract(
-                    "Pattern8BoolPredicateScan facts missing in compose_bool_predicate_scan_recipe",
+                    "BoolPredicateScan facts missing in compose_bool_predicate_scan_recipe",
                 )
             })?;
 
@@ -46,30 +46,30 @@ impl RecipeComposer {
 
         let dummy_span = Span::new(0, 0, 0, 0);
         let loop_stmt = ASTNode::Loop {
-            condition: Box::new(pattern8_facts.condition.clone()),
+            condition: Box::new(bool_scan_facts.condition.clone()),
             body: vec![],
             span: dummy_span,
         };
-        let loop_cond_view = CondBlockView::from_expr(&pattern8_facts.condition);
+        let loop_cond_view = CondBlockView::from_expr(&bool_scan_facts.condition);
         crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
-            &pattern8_facts.cond_profile,
+            &bool_scan_facts.cond_profile,
         );
 
         let Some(BoolPredicateScanRecipe { arena, root }) =
-            build_bool_predicate_scan_recipe(&loop_stmt, loop_cond_view, &pattern8_facts)
+            build_bool_predicate_scan_recipe(&loop_stmt, loop_cond_view, &bool_scan_facts)
         else {
             return Err(Freeze::contract(
-                "Pattern8BoolPredicateScan recipe build returned None",
+                "BoolPredicateScan recipe build returned None",
             ));
         };
 
         check_block_contract(&arena, &root, BlockContractKind::ExitAllowed, CTX).map_err(|e| {
-            Freeze::contract("Pattern8BoolPredicateScan recipe verification failed").with_hint(&e)
+            Freeze::contract("BoolPredicateScan recipe verification failed").with_hint(&e)
         })?;
 
         let Some(loop_item) = root.items.first() else {
             return Err(Freeze::contract(
-                "Pattern8BoolPredicateScan recipe root missing LoopV0",
+                "BoolPredicateScan recipe root missing LoopV0",
             ));
         };
 
@@ -81,7 +81,7 @@ impl RecipeComposer {
         } = loop_item
         else {
             return Err(Freeze::contract(
-                "Pattern8BoolPredicateScan recipe root is not LoopV0",
+                "BoolPredicateScan recipe root is not LoopV0",
             ));
         };
 
@@ -97,7 +97,7 @@ impl RecipeComposer {
         )
         .map_err(|e| {
             Freeze::contract(&format!(
-                "Pattern8BoolPredicateScan recipe lower failed: {e}"
+                "BoolPredicateScan recipe lower failed: {e}"
             ))
         })
     }

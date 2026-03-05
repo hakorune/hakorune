@@ -88,7 +88,7 @@ fn build_scan_with_init_loop_condition(
 
 impl RecipeComposer {
 
-    /// Compose Pattern6 ScanWithInit facts into LoweredRecipe via RecipeBlock (no normalizer).
+    /// Compose scan-with-init facts into LoweredRecipe via RecipeBlock (no normalizer).
     pub fn compose_scan_with_init_recipe(
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
@@ -96,11 +96,11 @@ impl RecipeComposer {
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
-        const CTX: &str = "pattern6_scan_with_init_recipe";
+        const CTX: &str = "scan_with_init_recipe";
 
         let scan_facts = facts.facts.scan_with_init.clone().ok_or_else(|| {
             Freeze::contract(
-                "Pattern6ScanWithInit facts missing in compose_scan_with_init_recipe",
+                "ScanWithInit facts missing in compose_scan_with_init_recipe",
             )
         })?;
 
@@ -124,17 +124,17 @@ impl RecipeComposer {
             build_scan_with_init_recipe(&loop_stmt, loop_cond_view, &scan_facts)
         else {
             return Err(Freeze::contract(
-                "Pattern6ScanWithInit recipe build returned None",
+                "ScanWithInit recipe build returned None",
             ));
         };
 
         check_block_contract(&arena, &root, BlockContractKind::ExitAllowed, CTX).map_err(|e| {
-            Freeze::contract("Pattern6ScanWithInit recipe verification failed").with_hint(&e)
+            Freeze::contract("ScanWithInit recipe verification failed").with_hint(&e)
         })?;
 
         let Some(loop_item) = root.items.first() else {
             return Err(Freeze::contract(
-                "Pattern6ScanWithInit recipe root missing LoopV0",
+                "ScanWithInit recipe root missing LoopV0",
             ));
         };
 
@@ -146,7 +146,7 @@ impl RecipeComposer {
         } = loop_item
         else {
             return Err(Freeze::contract(
-                "Pattern6ScanWithInit recipe root is not LoopV0",
+                "ScanWithInit recipe root is not LoopV0",
             ));
         };
 
@@ -162,7 +162,7 @@ impl RecipeComposer {
         )
         .map_err(|e| {
             Freeze::contract(&format!(
-                "Pattern6ScanWithInit recipe lower failed: {e}"
+                "ScanWithInit recipe lower failed: {e}"
             ))
         })
     }
