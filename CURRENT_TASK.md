@@ -98,6 +98,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `6c9c208ef` refactor(smokes): canonicalize scan_split planner pack naming
+    - planner-required Pattern6/7 pack の canonical 入口を `phase29bj_planner_required_scan_split_pack_vm.sh` + `phase29bj_planner_required_scan_split_cases.tsv` へ追加し、旧 `phase29bj_planner_required_pattern6_7_pack_vm.sh` は legacy wrapper 化
+    - `phase29bk/bn/bo` gate aggregator の呼び出し先と log 名を `scan_split` 主語へ更新
+    - `phase29aw_flowbox_tag_coverage_gate_vm.sh` の内部関数/ラベルを `scan_with_init` / `split_scan` へ統一
+    - `phase29ao_pattern7_strict_shadow_vm.sh` と `phase29aw` の split_scan strict RC 期待値を現行実態（exit=1）へ同期
+    - docs 同期: `phase-29bj/README.md`, `phase-29bk/README.md`, `phase-29bm/README.md` を canonical 名へ更新
+    - rust doc 補助語彙同期: `src/mir/builder/variable_context.rs` の `require()` 利用例を `split_scan` 主語へ更新
+    - verify: `phase29bj_planner_required_scan_split_pack_vm.sh` PASS、`phase29bj_planner_required_pattern6_7_pack_vm.sh`(wrapper) PASS、`phase29ao_pattern7_strict_shadow_vm.sh` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
+    - note: `phase29bk_planner_required_dev_gate_vm.sh` は既存の `phase29bi_planner_required_pattern2_pack_vm.sh` 実行権限不足（Permission denied）で停止（今回差分起因ではない）
   - `0b333ae39` docs: sync archived phase29ao contract tag to route label
     - `phase-29ao/10-Now-archive.md` の Pattern6 contract tag を現行 route 主語 `scan_with_init` へ同期
     - 現行 docs tree に旧 tag（`pattern6/7`）が残らない状態に整列
