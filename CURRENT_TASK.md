@@ -1120,13 +1120,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 1. `shadow_adopt` 縮退（step-2）:
    - minimal cluster は撤去済み（`fd26729ff`）、nested minimal の registry route 化も完了（`66ddbce40`）。
    - `generic_loop_body/helpers.rs` の nested fallback は `shadow_adopt` 呼び出しを外し、`nested_loop_minimal` 明示 compose + `strict_nested_loop_guard` 直評価へ移行済み（trace path: `recipe_nested_loop_minimal` / `nested_loop_guard_error`）。
-   - 次は router 側の pre-plan `shadow_adopt` 採用 lane を guard 専用へさらに縮退し、entry 例外導線を最小化する。
+   - router 側の pre-plan `shadow_adopt` 採用 lane は撤去済み。`shadow_pre_plan_guard_error`（guard-only）へ縮退し、entry 例外導線を最小化した。
+   - 次は active SSOT/docs（entry_route / exception inventory）を guard-only 契約へ同期する。
 2. Surface/trace の semantic 語彙統一（step-1 継続）:
    - `joinir/routing.rs` / `joinir/trace.rs` / `parity_checker.rs` の主語外しは実施済み（`c76bb7884`, `51234e1b6`）。
    - `LoopRouteContext` rename sweep は src 側完了（`30c94f450`, `c5ca36791`, `0738b745b`）。`LoopPatternContext` alias は撤去済み。
    - 残りは補助ログの route/rule 主語統一（必要最小限）。
    - 既存 gate sentinel は維持しつつ label を route/rule 主語へ段階移行。
-3. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
+3. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持。
 4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。

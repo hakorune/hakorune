@@ -156,54 +156,24 @@ pub(super) fn lower_verified_core_plan(
     PlanLowerer::lower(builder, core_plan, ctx)
 }
 
-fn lower_shadow_adopt_pre_plan(
-    builder: &mut MirBuilder,
+fn enforce_shadow_adopt_pre_plan_guard(
     ctx: &LoopRouteContext,
     strict_or_dev: bool,
     outcome: &PlanBuildOutcome,
-) -> Result<Option<ValueId>, String> {
-    let Some(pre_plan) =
-        composer::try_shadow_adopt_pre_plan(builder, ctx, outcome)?
-    else {
-        return Ok(None);
+) -> Result<(), String> {
+    let Some(err) = composer::shadow_pre_plan_guard_error(ctx, outcome) else {
+        return Ok(());
     };
-
-    match pre_plan {
-        composer::PrePlanShadowOutcome::Adopt(adopt) => {
-            let composer::ShadowAdoptOutcome {
-                core_plan,
-                emit_flowbox_adopt_tag,
-            } = adopt;
-            // Gate sentinel: in strict+planner_required mode, always emit FlowBox adopt tags
-            // so planner-first gates can validate routing without enabling global debug logs.
-            if emit_flowbox_adopt_tag
-                || crate::config::env::joinir_dev::strict_planner_required_enabled()
-            {
-                return lower_verified_core_plan(
-                    builder,
-                    ctx,
-                    strict_or_dev,
-                    outcome.facts.as_ref(),
-                    core_plan,
-                    FlowboxVia::Shadow,
-                );
-            }
-            PlanVerifier::verify(&core_plan)?;
-            PlanLowerer::lower(builder, core_plan, ctx)
-        }
-        composer::PrePlanShadowOutcome::GuardError(err) => {
-            flowbox_tags::emit_flowbox_freeze_tag_from_facts(
-                strict_or_dev,
-                "unstructured",
-                outcome.facts.as_ref(),
-            );
-            if crate::config::env::joinir_dev::debug_enabled() {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("{}", err));
-            }
-            Err(err)
-        }
+    flowbox_tags::emit_flowbox_freeze_tag_from_facts(
+        strict_or_dev,
+        "unstructured",
+        outcome.facts.as_ref(),
+    );
+    if crate::config::env::joinir_dev::debug_enabled() {
+        let ring0 = crate::runtime::get_global_ring0();
+        ring0.log.debug(&format!("{}", err));
     }
+    Err(err)
 }
 
 fn freeze_expected_plan(
@@ -328,18 +298,10 @@ pub(crate) fn route_loop(
     // recipe-first paths are handled by registry above.
 
     // Phase-1: recipe-first paths return above; reaching here means no recipe-first match.
-    // Phase-2: do not attempt shadow_adopt if recipe-first matched (entry is locked earlier).
-    // Phase-3: release also returns above when recipe-first matched (shadow_adopt fallback skipped).
+    // Phase-2: shadow pre-plan is guard-only (no adopt path in router).
+    // Phase-3: release also returns above when recipe-first matched (shadow guard skipped).
     if strict_or_dev && allow_shadow_fallback {
-        if let Some(value) = lower_shadow_adopt_pre_plan(
-            builder,
-            ctx,
-            strict_or_dev,
-            &outcome,
-        )? {
-            trace_entry_route("shadow_adopt");
-            return Ok(Some(value));
-        }
+        enforce_shadow_adopt_pre_plan_guard(ctx, strict_or_dev, &outcome)?;
     }
 
     if strict_or_dev && expectations::should_expect_plan(&outcome, ctx) {

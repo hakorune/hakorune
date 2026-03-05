@@ -20,9 +20,7 @@ mod shadow_adopt;
 
 pub(in crate::mir::builder) use shadow_adopt::{
     strict_nested_loop_guard,
-    try_shadow_adopt_pre_plan,
-    PrePlanShadowOutcome,
-    ShadowAdoptOutcome,
+    shadow_pre_plan_guard_error,
 };
 pub(in crate::mir::builder) use coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
 pub(in crate::mir::builder) use branchn_return::{

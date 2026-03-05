@@ -289,7 +289,7 @@ Additional plan trace tags (SSOT):
   - Purpose: Record which loop facts candidates are Some/None before routing.
   - Output fields (1 line): `ctx=<...> scan_methods=<0|1> scan_methods_block=<0|1> loop_scan=<0|1> loop_scan_phi_vars=<0|1> collect_using_entries=<0|1> bundle_resolver=<0|1>`
 - `[plan/trace:entry_route]`
-  - Purpose: Observe which loop entry route was taken (recipe_first / shadow_adopt / none).
+  - Purpose: Observe which loop entry route was taken (recipe_first / none).
   - Output fields (1 line): `ctx=<...> route=<...>`
 - `[plan/trace:loopcond_flags]`
   - Purpose: Summarize LoopCondBreak facts flags before accept/reject.

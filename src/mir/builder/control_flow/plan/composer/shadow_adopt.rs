@@ -1,6 +1,5 @@
-//! Phase 29ao P30: shadow adopt composer entrypoints (Facts -> LoweredRecipe).
+//! Phase 29ao P30: shadow adopt pre-plan guard entrypoints.
 
-use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
@@ -9,19 +8,7 @@ use crate::mir::builder::control_flow::plan::facts::feature_facts::{
 };
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
-use crate::mir::builder::control_flow::plan::LoweredRecipe;
-use crate::mir::builder::MirBuilder;
 use crate::mir::loop_pattern_detection::LoopPatternKind;
-
-pub(in crate::mir::builder) struct ShadowAdoptOutcome {
-    pub core_plan: LoweredRecipe,
-    pub emit_flowbox_adopt_tag: bool,
-}
-
-pub(in crate::mir::builder) enum PrePlanShadowOutcome {
-    Adopt(ShadowAdoptOutcome),
-    GuardError(String),
-}
 
 pub(in crate::mir::builder) fn strict_nested_loop_guard(
     outcome: &PlanBuildOutcome,
@@ -204,11 +191,10 @@ fn is_add_one_of_var(node: &ASTNode, var_name: &str) -> bool {
     )
 }
 
-pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(
-    builder: &mut MirBuilder,
+pub(in crate::mir::builder) fn shadow_pre_plan_guard_error(
     ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
-) -> Result<Option<PrePlanShadowOutcome>, String> {
+) -> Option<String> {
     let strict_or_dev = joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
     let planner_required = strict_or_dev && joinir_dev::planner_required_enabled();
     if planner_required {
@@ -216,37 +202,8 @@ pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(
             "shadow_adopt pre-plan is disallowed in planner_required (verified recipe boundary)",
         )
         .to_string();
-        return Ok(Some(PrePlanShadowOutcome::GuardError(freeze)));
-    }
-    if let Some(adopt) = try_adopt_nested_minimal(builder, ctx, outcome)? {
-        return Ok(Some(PrePlanShadowOutcome::Adopt(adopt)));
+        return Some(freeze);
     }
 
-    if let Some(err) = strict_nested_loop_guard(outcome, ctx) {
-        return Ok(Some(PrePlanShadowOutcome::GuardError(err)));
-    }
-
-    Ok(None)
-}
-
-fn try_adopt_nested_minimal(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-) -> Result<Option<ShadowAdoptOutcome>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    if facts.facts.nested_loop_minimal().is_none() {
-        return Ok(None);
-    }
-
-    let core_plan = try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)?
-        .ok_or_else(|| {
-            "nested_loop_minimal strict/dev adopt failed: compose rejected".to_string()
-        })?;
-    Ok(Some(ShadowAdoptOutcome {
-        core_plan,
-        emit_flowbox_adopt_tag: facts.nested_loop,
-    }))
+    strict_nested_loop_guard(outcome, ctx)
 }

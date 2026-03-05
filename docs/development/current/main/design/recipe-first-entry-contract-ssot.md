@@ -23,16 +23,16 @@ AST
 入口の優先順位を固定し、統合後に揺れないようにする。
 
 1) Router の recipe-first 入口（Facts → RecipeComposer）
-2) strict/dev の pre-plan shadow_adopt（最小の構造 adopt のみ）
+2) strict/dev の pre-plan guard（`shadow_pre_plan_guard_error`。adopt しない）
 3) `none`（router は no-route を返し、外側の既存 caller fallback 判定へ戻す）
 - Phase-3: release で recipe-first を優先するのは VerifiedRecipe が成立する場合。
   - nested loop は既定で保守側に置くが、nested-safe 例外（`nested_loop_minimal` / `generic_loop_v{1,0}` / `loop_cond_break_continue` の accept-kind allowlist）では recipe-first を先行許可する。
   - 上記例外で compose/verify/lower が reject のときは `Ok(None)` を返し、router の no-route 判定へ戻す（挙動互換）。
 
-### Current baseline (2026-03-05)
+### Current baseline (2026-03-06)
 
 - `PlanBuildOutcome` は `facts + recipe_contract` のみ（`outcome.plan` は撤去済み）。
-- runtime router entry は `recipe_first | shadow_adopt | none` の3種に固定（`[plan/trace:entry_route]`）。
+- runtime router entry は `recipe_first | none` の2種（`[plan/trace:entry_route]`）。shadow pre-plan は guard-only で adopt しない。
 - `DomainPlan` / planner payload は runtime 経路から撤去済み。
 - 本文中の Phase C* 章にある `DomainPlan` 記述は移行履歴として残る場合がある。現在契約は本節と上位 SSOT を優先する。
 
@@ -88,7 +88,7 @@ Note: `pattern*` entries in the Candidate column are legacy internal fact keys; 
 - loop_scan_*（v0/phi_vars/collect_using_entries/bundle_resolver）が成立する場合、loop_cond_break_continue は候補にしない
 - scan_with_init / split_scan / pattern8_bool_predicate_scan / pattern9_accum_const_loop が成立する場合、loop_cond_break_continue は候補にしない
 - 必要に応じて debug 時のみ `[plan/trace:entry_candidates]` で候補を可視化（任意・SSOTはこのポリシー）
-- 観測: debug 時に `[plan/trace:entry_route]` で entry が recipe_first / shadow_adopt / none のどれに落ちたかを 1 行で確認できる
+- 観測: debug 時に `[plan/trace:entry_route]` で entry が recipe_first / none のどれに落ちたかを 1 行で確認できる
 - BoxShape: `generic_loop_v1` は strict/dev(+planner_required) で registry 側に寄せ、shadow_adopt の残経路を縮退する（挙動不変）。
 - BoxShape: `shadow_adopt` は generic loop（`generic_loop_v1/v0`）を採用しない。generic route は registry の recipe-first に一本化する。
 
@@ -99,11 +99,10 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 どこで freeze するかを固定する（入口の責務分担）。
 
 - planner_required + recipe-first 対象: `recipe_contract` が無い場合は `[freeze:contract]`（fail-fast）。
-- 例外入口（shadow_adopt / pre-plan / direct lower）は strict/dev **+ planner_required** で契約違反があれば freeze する（silent fallback 禁止）。
-- 入口整理 Phase-1: shadow_adopt は recipe_contract がある場合のみ通す（strict/dev+planner_required では欠落を freeze、release は従来通り）。
-- 入口整理 Phase-1: router で recipe-first が成立した場合は legacy へ落とさない（shadow_adopt のみ許容）。
-- 入口整理 Phase-2: recipe-first が成立した場合は shadow_adopt もスキップ（legacy には絶対落とさない）。
-- 入口整理 Phase-3: release でも recipe-first 成立後は shadow_adopt/legacy を通さない。
+- 例外入口（shadow pre-plan guard / direct lower）は strict/dev **+ planner_required** で契約違反があれば freeze する（silent fallback 禁止）。
+- 入口整理 Phase-1: shadow pre-plan は guard-only（adopt禁止）。strict/dev+planner_required では contract freeze を返す。
+- 入口整理 Phase-2: router で recipe-first が成立した場合は legacy へ落とさない。
+- 入口整理 Phase-3: release でも recipe-first 成立後は shadow pre-plan/legacy を通さない。
 - 期待された plan が返らない場合の freeze は router で出す（taxonomy: `planfrag-freeze-taxonomy.md`）。
 - ScanWithInit/SplitScan の contract は専用タグで freeze（`[joinir/phase29ab/scan_with_init/contract]` / `[joinir/phase29ab/split_scan/contract]`）。
 
@@ -115,7 +114,7 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 
 ## Exceptions (entry bypass) — strict/dev
 
-- Exception routes (for tracking only): `shadow_adopt`（pre-plan） / `direct lower`.
+- Exception routes (for tracking only): `shadow_pre_plan_guard` / `direct lower`.
 - Policy: VerifiedRecipeBlock 以外の entry は strict/dev で freeze する（fallback 禁止）。
 - Non-planner_required + strict/dev: recipe-first 対象（LoopTrueEarlyExit / ScanWithInit / SplitScan / LoopArrayJoin）では
   `RecipeMatcher::try_match_loop()` を実行し、契約違反は freeze で止める（release は skip のみ）。
@@ -124,12 +123,12 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 
 | Entry | Purpose | Allowed scope | FlowBox tag |
 | --- | --- | --- | --- |
-| `shadow_adopt` | strict/dev の最小 adopt（pre-plan） | accept-min set のみ（Facts による構造が明確なもの） | router の Verified CorePlan lowering 経由のみ |
+| `shadow_pre_plan_guard` | strict/dev の pre-plan guard（freeze gate） | planner_required contract / strict nested loop guard | adopt tag を出さない |
 | `direct lower` | 既存の release 互換 | release のみ（strict/dev では禁止） | 出さない |
 
 ## Entry integration scope (SSOT)
 
-- 統合対象の入口: `router` / `shadow_adopt` / `legacy`
+- 統合対象の入口: `router` / `shadow_pre_plan_guard` / `legacy`
 - 統合後の責務: FlowBox emit は Verified CorePlan の lowering のみ、freeze は router と例外入口で fail-fast
 - 非目標: BoxCount 追加なし、AST rewrite なし
 - DomainPlan core_plan adopt は現在無効（入口分散を避けるため）

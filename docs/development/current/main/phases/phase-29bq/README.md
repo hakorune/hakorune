@@ -222,8 +222,8 @@ Body lowering policy: `body_exit_allowed` is used only when `BodyLoweringPolicy:
 | `apps/tests/phase29bq_selfhost_blocker_rewriteknown_try_apply_loop_true_else_exit_min.hako` | `loop_true_break_continue/facts.rs` | `loop_true_break_continue/recipe.rs` | `loop_true_break_continue_pipeline/` | `selfhost_rewriteknown_try_apply_loop_true_else_exit_min` |
 | `apps/tests/phase29bq_selfhost_subset_scan_funcs_import_min.hako` | `break_continue/facts.rs` | `break_continue/recipe.rs` | `loop_cond_break_continue_pipeline/` | `selfhost-only` |
 | `apps/tests/phase29bq_map_literal_percent_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `map_literal_percent_min` |
-| `apps/tests/phase29bq_strict_nested_loop_guard_min.hako` | `composer/shadow_adopt.rs (strict_nested_loop_guard)` | `(freeze)` | `(freeze)` | `strict_nested_loop_guard_min` |
-| `apps/tests/phase29bq_strict_nested_loop_guard_accept_min.hako` | `composer/shadow_adopt.rs (strict_nested_loop_guard, accept-min1)` | `(n/a)` | `shadow_adopt accept-min1` | `strict_nested_loop_guard_accept_min` |
+| `apps/tests/phase29bq_strict_nested_loop_guard_min.hako` | `composer/shadow_adopt.rs (strict_nested_loop_guard)` | `(freeze)` | `shadow_pre_plan_guard` | `strict_nested_loop_guard_min` |
+| `apps/tests/phase29bq_strict_nested_loop_guard_accept_min.hako` | `composer/shadow_adopt.rs (strict_nested_loop_guard, accept-min1)` | `(n/a)` | `recipe_first loop_continue_only accept-min1` | `strict_nested_loop_guard_accept_min` |
 | `apps/tests/phase29bq_selfhost_blocker_trim_generic_loop_min.hako` | `generic_loop/facts/` | `generic_loop/recipe.rs` | `generic_loop_pipeline.rs` | `selfhost_trim_generic_loop_min` |
 | `apps/tests/phase29bq_selfhost_blocker_rewriteknown_trim_loop_cond_and_methodcall_min.hako` | `generic_loop/facts/` | `generic_loop/recipe.rs` | `generic_loop_pipeline.rs` | `selfhost_rewriteknown_trim_loop_cond_and_methodcall_min` |
 | `apps/tests/phase29bq_selfhost_blocker_parse_if_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `selfhost_parse_if_min` |
