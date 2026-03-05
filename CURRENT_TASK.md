@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `c5ca36791` refactor D5 switch return_stmt context usage to LoopRouteContext
+    - `src/mir/builder/stmts/return_stmt.rs` の context 参照を `LoopPatternContext` から `LoopRouteContext` に移行
+    - これで `src/**` の `LoopPatternContext` 残存は `router` 互換 alias と dirty 同居の 4ファイルのみ
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`direct_loop_progression_sweep --profile phase29x-probe --allow-emit-fail` PASS（`emit_fail=0 / route_blocker=0 / run_ok=101 / run_nonzero=18` 維持）
   - `30c94f450` refactor D5 migrate clean plan callsites to LoopRouteContext
     - `plan/**` の clean callsite 45ファイルで context 型参照を `LoopPatternContext` から `LoopRouteContext` へ移行（`router` 側 alias は互換目的で維持）
     - 対象は composer / recipe_tree / lowerer / scan pipeline / normalizer entry 群の参照統一で、挙動変更なし（型名・主語の統一）
