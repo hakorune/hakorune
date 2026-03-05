@@ -27,7 +27,7 @@ its logic or maintain a separate allowlist.
 
 - `generic_loop_v0` または `generic_loop_v1` facts が存在する形
 - `Pattern4Continue accept-min1` 形（strict-nested 最小受理）
-  - `pattern_kind == Pattern4Continue`
+  - `route_kind == Pattern4Continue`
   - `exit_usage`: continueあり / breakなし / returnなし
   - `pattern4_continue` factsあり
   - `carrier_updates.len() == 1`
@@ -41,7 +41,7 @@ its logic or maintain a separate allowlist.
 - Tag: `[plan/freeze:nested_loop_guard]`
 - Emitted only when `joinir_dev::debug_enabled()` is true.
 - Format (single line, stable fields):
-  - `func=<...> span=<...> plan=<...> pattern=<...> depth=<...>`
+  - `func=<...> span=<...> plan=<...> route_kind=<...> depth=<...>`
 
 ## Failure contract
 

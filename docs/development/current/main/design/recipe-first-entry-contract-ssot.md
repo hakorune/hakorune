@@ -83,6 +83,7 @@ Note: This matrix is a summary; the bullet list below is the authoritative SSOT.
 - 観測: debug 時に `[plan/trace:entry_route]` で entry が recipe_first / shadow_adopt / release_adopt / legacy / none のどれに落ちたかを 1 行で確認できる
 - 観測: release で recipe-first が成立しない場合、entry_route=release_adopt は引き続き発生する（例: phase29bq_generic_loop_v1_recipe_nested_if_min.hako）
 - BoxShape: `generic_loop_v1` は strict/dev(+planner_required) で registry 側に寄せ、shadow_adopt の残経路を縮退する（挙動不変）。
+- BoxShape: `shadow_adopt` の generic 採用は候補一意（`generic_loop_v1` 優先、`generic_loop_v0` は v1 facts 不在時のみ）。v1→v0 の段階 fallback は行わない。
 
 ## Freeze responsibility (SSOT)
 

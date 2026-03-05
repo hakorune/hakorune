@@ -61,7 +61,7 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - `reject: exit_allowed_recipe_build_failed` means ExitAllowed recipe construction failed; treat as out-of-scope and update the recipe SSOT or accept shape.
 - Contract freeze (Pattern6/7): `[joinir/phase29ab/pattern6/contract]`, `[joinir/phase29ab/pattern7/contract]`
 - Generic-loop candidate diagnostics (dev/debug only): `[plan/reject_detail] box=generic_loop_v* reason=no_valid_loop_var_candidates last_fail=<Kind>`
-- Nested-loop guard (dev/debug only): `[plan/freeze:nested_loop_guard] func=<...> span=<...> plan=<...> pattern=<...> depth=<...>`
+- Nested-loop guard (dev/debug only): `[plan/freeze:nested_loop_guard] func=<...> span=<...> plan=<...> route_kind=<...> depth=<...>`
 - Recipe-first verification (dev/debug only, from `matcher.rs`): `[recipe:pattern2] <status>`
 - Recipe-first verification (dev/debug only, from `matcher.rs`): `[recipe:pattern3] <status>`
 - Recipe-first match (dev/debug only): `[recipe:match] kind=<...> break=<...> continue=<...> return=<...>`

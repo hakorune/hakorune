@@ -31,27 +31,67 @@ pub(in crate::mir::builder) enum PrePlanShadowOutcome {
     GuardError(String),
 }
 
-type TryPrePlanAdoptFn<T> =
-    fn(&mut MirBuilder, &LoopRouteContext, &PlanBuildOutcome) -> Result<Option<T>, String>;
+enum GenericLoopAdoptCandidate {
+    V0,
+    V1,
+}
 
-fn try_adopt_pre_plan_sequence<T>(
+fn pick_generic_loop_adopt_candidate(
+    facts: &CanonicalLoopFacts,
+) -> Option<GenericLoopAdoptCandidate> {
+    if facts.facts.generic_loop_v1.is_some() {
+        return Some(GenericLoopAdoptCandidate::V1);
+    }
+    if facts.facts.generic_loop_v0.is_some() {
+        return Some(GenericLoopAdoptCandidate::V0);
+    }
+    None
+}
+
+fn try_shadow_adopt_generic_loop_preferred(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
     allow_generic_loop: bool,
-    try_generic_v1: TryPrePlanAdoptFn<T>,
-    try_generic_v0: TryPrePlanAdoptFn<T>,
-) -> Result<Option<T>, String> {
-    if allow_generic_loop {
-        if let Some(adopt) = try_generic_v1(builder, ctx, outcome)? {
-            return Ok(Some(adopt));
-        }
-        if let Some(adopt) = try_generic_v0(builder, ctx, outcome)? {
-            return Ok(Some(adopt));
-        }
+) -> Result<Option<ShadowAdoptOutcome>, String> {
+    if !allow_generic_loop {
+        return Ok(None);
     }
+    let Some(facts) = outcome.facts.as_ref() else {
+        return Ok(None);
+    };
+    match pick_generic_loop_adopt_candidate(facts) {
+        Some(GenericLoopAdoptCandidate::V1) => {
+            try_shadow_adopt_generic_loop_v1(builder, ctx, outcome)
+        }
+        Some(GenericLoopAdoptCandidate::V0) => {
+            try_shadow_adopt_generic_loop_v0(builder, ctx, outcome)
+        }
+        None => Ok(None),
+    }
+}
 
-    Ok(None)
+fn try_release_adopt_generic_loop_preferred(
+    builder: &mut MirBuilder,
+    ctx: &LoopRouteContext,
+    outcome: &PlanBuildOutcome,
+    allow_generic_loop: bool,
+) -> Result<Option<LoweredRecipe>, String> {
+    if !allow_generic_loop {
+        return Ok(None);
+    }
+    let Some(facts) = outcome.facts.as_ref() else {
+        return Ok(None);
+    };
+    match pick_generic_loop_adopt_candidate(facts) {
+        Some(GenericLoopAdoptCandidate::V1) => {
+            try_release_adopt_generic_loop_v1(builder, ctx, outcome)
+        }
+        Some(GenericLoopAdoptCandidate::V0) => {
+            try_release_adopt_generic_loop_v0(builder, ctx, outcome)
+        }
+        None => Ok(None),
+    }
 }
 
 pub(in crate::mir::builder) fn strict_nested_loop_guard(
@@ -123,11 +163,11 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
-            "[plan/freeze:nested_loop_guard] func={} span={} plan={:?} pattern={:?} depth={:?}",
+            "[plan/freeze:nested_loop_guard] func={} span={} plan={:?} route_kind={} depth={:?}",
             ctx.func_name,
             ctx.condition.span(),
             outcome.plan,
-            ctx.route_kind,
+            ctx.route_kind.semantic_label(),
             ctx.step_tree_max_loop_depth
         ));
     }
@@ -285,13 +325,11 @@ pub(in crate::mir::builder) fn try_shadow_adopt_pre_plan(
         return Ok(Some(PrePlanShadowOutcome::GuardError(err)));
     }
 
-    if let Some(adopt) = try_adopt_pre_plan_sequence(
+    if let Some(adopt) = try_shadow_adopt_generic_loop_preferred(
         builder,
         ctx,
         outcome,
         allow_generic_loop,
-        try_shadow_adopt_generic_loop_v1,
-        try_shadow_adopt_generic_loop_v0,
     )? {
         return Ok(Some(PrePlanShadowOutcome::Adopt(adopt)));
     }
@@ -309,13 +347,11 @@ pub(in crate::mir::builder) fn try_release_adopt_pre_plan(
         return Ok(Some(core_plan));
     }
 
-    if let Some(core_plan) = try_adopt_pre_plan_sequence(
+    if let Some(core_plan) = try_release_adopt_generic_loop_preferred(
         builder,
         ctx,
         outcome,
         allow_generic_loop,
-        try_release_adopt_generic_loop_v1,
-        try_release_adopt_generic_loop_v0,
     )? {
         return Ok(Some(core_plan));
     }
