@@ -35,7 +35,7 @@ Related:
 | runtime dispatch | `src/runner/route_orchestrator.rs` | 484 |
 | runtime dispatch | `src/runner/dispatch.rs` | 402 |
 | runtime core | `src/runtime/nyash_runtime.rs` | 153 |
-| compiler plan | `src/mir/builder/control_flow/plan/pattern_pipeline.rs` | 496 |
+| compiler plan | `src/mir/builder/control_flow/plan/route_prep_pipeline.rs` | 496 |
 | compiler plan | `src/mir/builder/control_flow/plan/loop_scan_v0/pipeline.rs` | 391 |
 | compiler parser | `src/parser/expressions.rs` | 410 |
 | compiler parser | `src/parser/statements/control_flow.rs` | 236 |
@@ -86,7 +86,7 @@ RNR-04 progress:
 
 RNR-05 planned mins (docs-first):
 - min1 done（2026-02-25）: parser 側の受理形を 1 つ固定（target shape + fixture + expected parse）し、Rust/.hako の同形観測契約を明記。
-- min2 done（2026-02-25）: plan pipeline 側の対応点（`pattern_pipeline` / `loop_scan_v0` のどちらか）を 1 箇所だけ拡張し、rejected/accepted 条件を fail-fast で固定。
+- min2 done（2026-02-25）: plan pipeline 側の対応点（`route_prep_pipeline` / `loop_scan_v0` のどちらか）を 1 箇所だけ拡張し、rejected/accepted 条件を fail-fast で固定。
 - min3 done（2026-02-25）: fast gate fixture を追加して shape pin を固定（`scan_loop_v0_lte_n_minus1_min`）。
 - target shape SSOT:
   - `docs/development/current/main/phases/phase-29cc/29cc-93-rnr05-loop-scan-range-shape-ssot.md`

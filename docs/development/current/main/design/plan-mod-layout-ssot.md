@@ -107,7 +107,7 @@ ast_feature_extractor - AST feature 抽出
 escape_pattern_recognizer - エスケープパターン認識
 join_key      - 構造ロック (edgecfg 側在)
 plan_build_session - セ�設計セッション
-pattern_pipeline - パターンパイプライン
+route_prep_pipeline - ルート前処理パイプライン
 ```
 
 ---

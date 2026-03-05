@@ -219,7 +219,7 @@ Phase 229 実装時：
 - [ ] loop_body_digitpos_promoter.rs 修正
 - [ ] ConditionAlias 型削除
 - [ ] pattern4_carrier_analyzer.rs 修正
-- [ ] pattern_pipeline.rs 修正
+- [ ] route_prep_pipeline.rs 修正
 - [ ] ビルド確認
 - [ ] 単体テスト
 - [ ] パターンテスト

@@ -174,7 +174,7 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
    - Phase‑2/Step1: `pattern1_minimal.rs` の実装本体を plan 側へ移設。
    - Phase‑2/Step2: `pattern3_with_if_phi.rs` の実装本体を plan 側へ移設。
    - Phase‑2/Step3: `pattern8_scan_bool_predicate.rs` の実装本体を plan 側へ移設。
-   - Phase‑2/Step4: `pattern_pipeline.rs` を plan 側へ移設。
+   - Phase‑2/Step4: `route_prep_pipeline.rs`（旧: `pattern_pipeline.rs`）を plan 側へ移設。
    - Phase‑2/Step5: `pattern2_lowering_orchestrator.rs` を plan 側へ移設。
    - Phase‑2/Step6: `pattern2_inputs_facts_box.rs` を plan 側へ移設。
    - Phase‑2/Step7: `pattern2_policy_router.rs` / `pattern2_break_condition_policy_router.rs` を plan 側へ移設。
