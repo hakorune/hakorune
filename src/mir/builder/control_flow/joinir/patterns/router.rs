@@ -56,8 +56,8 @@ pub(crate) struct LoopPatternContext<'a> {
     /// In static box context? (affects scan-predicate route behavior)
     pub in_static_box: bool,
 
-    /// Phase 192: Loop classification based on features.
-    pub pattern_kind: LoopPatternKind,
+    /// Phase 192: Loop route classification based on features.
+    pub route_kind: LoopPatternKind,
 
     /// Phase 200-C: Optional function body AST for capture analysis
     /// None if not available, Some(&[ASTNode]) if function body is accessible
@@ -91,7 +91,7 @@ impl<'a> LoopPatternContext<'a> {
     ) -> Self {
         // Phase 137-6-S1: Use SSOT route selection entry point
         use crate::mir::builder::control_flow::joinir::routing::choose_route_kind;
-        let pattern_kind = choose_route_kind(condition, body);
+        let route_kind = choose_route_kind(condition, body);
 
         Self {
             condition,
@@ -99,7 +99,7 @@ impl<'a> LoopPatternContext<'a> {
             func_name,
             debug,
             in_static_box,
-            pattern_kind,
+            route_kind,
             fn_body: None,                  // Phase 200-C: Default to None
             skeleton: None,                 // Phase 92 P0-2: Default to None
             step_tree_max_loop_depth: None, // Phase 188.3: Default to None
@@ -368,7 +368,7 @@ pub(crate) fn route_loop(
     reject_reason::set_last_plan_reject_detail_if_absent(format!(
         "route_exhausted func={} loop_kind={} facts_present={} candidates={}",
         ctx.func_name,
-        ctx.pattern_kind.semantic_label(),
+        ctx.route_kind.semantic_label(),
         outcome.facts.is_some(),
         candidate_text
     ));
@@ -379,7 +379,7 @@ pub(crate) fn route_loop(
             &format!(
                 "route=none (no route matched) func='{}' loop_kind={} (exhausted: plan+joinir)",
                 ctx.func_name,
-                ctx.pattern_kind.semantic_label()
+                ctx.route_kind.semantic_label()
             ),
         );
     }

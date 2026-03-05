@@ -127,7 +127,7 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
             ctx.func_name,
             ctx.condition.span(),
             outcome.plan,
-            ctx.pattern_kind,
+            ctx.route_kind,
             ctx.step_tree_max_loop_depth
         ));
     }
@@ -169,7 +169,7 @@ fn allow_strict_nested_pattern4_min1(
     if outcome.plan.is_some() {
         return false;
     }
-    if ctx.pattern_kind != LoopPatternKind::Pattern4Continue {
+    if ctx.route_kind != LoopPatternKind::Pattern4Continue {
         return false;
     }
     let Some(facts) = outcome.facts.as_ref() else {

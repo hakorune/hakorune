@@ -43,7 +43,7 @@ impl MirBuilder {
 
         // Compare route kinds only if canonicalizer succeeded
         let result = if let Some(canonical_route_kind) = decision.chosen {
-            let actual_route_kind = ctx.pattern_kind;
+            let actual_route_kind = ctx.route_kind;
 
             if canonical_route_kind != actual_route_kind {
                 // Route-kind mismatch detected

@@ -107,7 +107,7 @@ pub(super) fn try_build_outcome(ctx: &LoopPatternContext) -> Result<PlanBuildOut
     let gate = PlannerGate::new();
 
     let planner_ctx = PlannerContext {
-        pattern_kind: ctx.skeleton.map(|_| ctx.pattern_kind),
+        pattern_kind: ctx.skeleton.map(|_| ctx.route_kind),
         in_static_box: ctx.in_static_box,
         debug: ctx.debug,
     };
