@@ -82,6 +82,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `fd26729ff` refactor D5 retire composer legacy_minimals shadow fallback cluster
+    - `composer/shadow_adopt.rs` から minimal fallback 6枝（`is_integer / starts_with / int_to_str / escape_map / split_lines / skip_ws`）を撤去
+    - `composer/{legacy_pattern_minimals.rs,legacy_minimals/*}` を削除（folderごと撤去）
+    - shadow fallback は `nested_minimal + generic_loop_v{1,0}` のみ維持
   - `10cfaa207` refactor D5 use semantic loop-kind labels in router diagnostics
     - `LoopPatternKind::semantic_label()` を追加（pattern番号なしの診断語彙）
     - `joinir/patterns/router.rs` の `route_exhausted` / `route=none` 診断出力を semantic label に切替
@@ -737,6 +741,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-10cfaa207)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-10cfaa207, elapsed=`0:04.21`）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-fd26729ff)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-fd26729ff, elapsed=`0:04.30`）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -757,16 +765,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 1. Pattern語彙の主語外し（step-1）: `single_planner/rule_order` / `joinir/patterns/registry` の内部語彙と router 診断 loop-kind は semantic 化済み（`717e62af1`, `10cfaa207`）。次は router comment/header と legacy enum名の段階整理。
 2. `phase29bq_fast_gate_vm --only bq` と `phase29x-probe` を各 cleanup で継続し、`emit_fail=0` / `route_blocker=0` を維持。
-3. `shadow_adopt` 縮退（step-2）: `recipe_contract.is_some()` 経路で strict/release fallback 禁止は適用済み。次は fallback 本体の撤去条件を固定する。
+3. `shadow_adopt` 縮退（step-2）: minimal fallback cluster は撤去済み（`fd26729ff`）。次は `nested_minimal / generic_loop_v{1,0}` の fallback 条件固定と router 側への段階移管。
 4. `DomainPlan` 縮退（step-3）: 1-variant 現状を label-only 化し、normalizer 直通依存を段階撤去。
    - `single_planner` / router / nested-loop helper の tuple API は撤去完了（`07c72a9e5`）。
    - `DomainPlanKind` 撤去（`1e70bf85e`）と `DomainPlan` 単一payload alias 化（`22e5d69cf`）まで完了。
    - planner candidate 経路の 1-variant 縮退も完了（`0df74eaa5`）、関連SSOT語彙同期も完了（`53d59a7f0`）。
    - `DomainPlan` alias 撤去（`fa1efcb21`）と `src/mir/builder/control_flow/{plan,joinir}` 内の残語彙撤去（`27cbe50d2`, `5af900fe3`）まで完了。
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
-   - `normalizer` 側も `legacy_minimals` 窓口へ統一済み（`f2ad5c305`）。
-   - pattern minimal の file placement は全6件 composer 側へ移設完了（`96591f62b`, `ea8ffeab3`）、normalizer 側窓口も撤去完了。
-   - 次は `shadow_adopt` fallback 本体の撤去条件固定と、rule/router runtime 文言の semantic 統一を優先する。
+   - `normalizer` 側窓口は撤去済み、pattern minimal は composer 側へ集約後に folderごと撤去完了（`96591f62b`, `ea8ffeab3`, `fd26729ff`）。
+   - 次は `shadow_adopt` の残 fallback（`nested_minimal / generic_loop_v{1,0}`）を縮退し、recipe-first/router 側へ整理する。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
