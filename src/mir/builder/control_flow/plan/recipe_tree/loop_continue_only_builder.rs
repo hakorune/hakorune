@@ -1,8 +1,8 @@
-//! Pattern4Continue recipe builder for Recipe-first verification
+//! LoopContinueOnly recipe builder for Recipe-first verification
 
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::pattern4_continue_facts::Pattern4ContinueFacts;
+use crate::mir::builder::control_flow::plan::facts::LoopContinueRecipeFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
@@ -32,7 +32,7 @@ pub(in crate::mir::builder) fn build_loop_continue_only_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     continue_cond_view: CondBlockView,
-    facts: &Pattern4ContinueFacts,
+    facts: &LoopContinueRecipeFacts,
 ) -> Option<LoopContinueOnlyRecipe> {
     let mut arena = RecipeBodies::new();
 
@@ -123,4 +123,3 @@ pub(in crate::mir::builder) fn build_loop_continue_only_recipe(
 
     Some(LoopContinueOnlyRecipe { arena, root })
 }
-

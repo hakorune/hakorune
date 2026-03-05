@@ -1,6 +1,6 @@
-//! Pattern2Break Recipe Builder (Recipe-first SSOT).
+//! LoopBreak recipe builder (Recipe-first SSOT).
 //!
-//! Converts Pattern2BreakFacts into a RecipeBlock structure
+//! Converts LoopBreakFacts into a RecipeBlock structure
 //! for verification and lowering via parts::entry.
 //!
 //! Structure:
@@ -16,7 +16,7 @@
 
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::pattern2_break_types::Pattern2BreakFacts;
+use crate::mir::builder::control_flow::plan::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
@@ -38,7 +38,7 @@ fn dummy_var(name: &str) -> ASTNode {
     }
 }
 
-fn should_dedupe_carrier_update(facts: &Pattern2BreakFacts) -> bool {
+fn should_dedupe_carrier_update(facts: &LoopBreakFacts) -> bool {
     // Keep dedupe conservative: only collapse when both update expressions are exactly the same AST.
     facts.carrier_var == facts.loop_var && facts.carrier_update_in_body == facts.loop_increment
 }
@@ -50,7 +50,7 @@ pub(in crate::mir::builder) struct LoopBreakRecipe {
     pub root: RecipeBlock,
 }
 
-/// Build a RecipeBlock for Pattern2Break from Facts.
+/// Build a RecipeBlock for LoopBreak from Facts.
 ///
 /// Returns None if the facts cannot be represented as a valid Recipe shape.
 ///
@@ -58,12 +58,12 @@ pub(in crate::mir::builder) struct LoopBreakRecipe {
 /// * `loop_stmt` - The loop AST node
 /// * `loop_cond_view` - CondBlockView for the loop condition
 /// * `break_cond_view` - CondBlockView for the break condition
-/// * `facts` - Pattern2BreakFacts extracted from AST
+/// * `facts` - LoopBreakFacts extracted from AST
 pub(in crate::mir::builder) fn build_loop_break_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     break_cond_view: CondBlockView,
-    facts: &Pattern2BreakFacts,
+    facts: &LoopBreakFacts,
 ) -> Option<LoopBreakRecipe> {
     let mut arena = RecipeBodies::new();
 
@@ -233,7 +233,7 @@ mod tests {
             value: LiteralValue::Integer(3),
             span,
         };
-        let facts = Pattern2BreakFacts {
+        let facts = LoopBreakFacts {
             loop_var: "i".to_string(),
             carrier_var: "sum".to_string(),
             loop_condition: cond.clone(),
@@ -286,7 +286,7 @@ mod tests {
             }),
             span,
         };
-        let facts = Pattern2BreakFacts {
+        let facts = LoopBreakFacts {
             loop_var: "i".to_string(),
             carrier_var: "i".to_string(),
             loop_condition: cond.clone(),

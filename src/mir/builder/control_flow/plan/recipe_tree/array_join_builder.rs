@@ -1,4 +1,4 @@
-//! Pattern1ArrayJoin Recipe Builder (Recipe-first migration Phase C13).
+//! LoopArrayJoin recipe builder (Recipe-first migration Phase C13).
 //!
 //! Structure:
 //! LoopV0 {
@@ -14,7 +14,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::pattern1_array_join_facts::Pattern1ArrayJoinFacts;
+use crate::mir::builder::control_flow::plan::facts::LoopArrayJoinFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
     RecipeItem,
@@ -32,7 +32,7 @@ pub(in crate::mir::builder) fn build_array_join_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     if_cond_view: CondBlockView,
-    facts: &Pattern1ArrayJoinFacts,
+    facts: &LoopArrayJoinFacts,
 ) -> Option<ArrayJoinRecipe> {
     let body = build_body_from_facts(facts);
     if body.len() != 3 {
@@ -90,7 +90,7 @@ pub(in crate::mir::builder) fn build_array_join_recipe(
 
 
 /// Build separator append statement: result = result + separator
-fn build_separator_append(facts: &Pattern1ArrayJoinFacts) -> ASTNode {
+fn build_separator_append(facts: &LoopArrayJoinFacts) -> ASTNode {
     use crate::ast::{BinaryOperator, Span};
     let span = Span::new(0, 0, 0, 0);
 
@@ -115,7 +115,7 @@ fn build_separator_append(facts: &Pattern1ArrayJoinFacts) -> ASTNode {
     }
 }
 
-fn build_body_from_facts(facts: &Pattern1ArrayJoinFacts) -> Vec<ASTNode> {
+fn build_body_from_facts(facts: &LoopArrayJoinFacts) -> Vec<ASTNode> {
     use crate::ast::{BinaryOperator, Span};
     let span = Span::new(0, 0, 0, 0);
 

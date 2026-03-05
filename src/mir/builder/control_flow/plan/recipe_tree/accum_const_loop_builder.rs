@@ -1,8 +1,8 @@
-//! Pattern9 AccumConstLoop recipe builder for Recipe-first verification
+//! AccumConstLoop recipe builder for Recipe-first verification
 
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::pattern9_accum_const_loop_facts::Pattern9AccumConstLoopFacts;
+use crate::mir::builder::control_flow::plan::facts::AccumConstLoopFacts;
 use super::build_stmt_only_block;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock, RecipeItem,
@@ -23,7 +23,7 @@ pub struct AccumConstLoopRecipe {
 pub(in crate::mir::builder) fn build_accum_const_loop_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
-    facts: &Pattern9AccumConstLoopFacts,
+    facts: &AccumConstLoopFacts,
 ) -> Option<AccumConstLoopRecipe> {
     let mut arena = RecipeBodies::new();
 
@@ -65,4 +65,3 @@ pub(in crate::mir::builder) fn build_accum_const_loop_recipe(
 
     Some(AccumConstLoopRecipe { arena, root })
 }
-

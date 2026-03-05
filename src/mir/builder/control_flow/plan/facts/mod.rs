@@ -68,6 +68,26 @@ pub(in crate::mir::builder) use loop_builder::{
     try_build_loop_facts, try_build_loop_facts_with_ctx,
 };
 pub(in crate::mir::builder) use loop_types::LoopFacts;
+pub(in crate::mir::builder) type LoopBreakFacts =
+    pattern2_break_types::Pattern2BreakFacts;
+pub(in crate::mir::builder) type LoopSimpleWhileFacts =
+    pattern1_simplewhile_facts::Pattern1SimpleWhileFacts;
+pub(in crate::mir::builder) type LoopCharMapFacts =
+    pattern1_char_map_facts::Pattern1CharMapFacts;
+pub(in crate::mir::builder) type LoopArrayJoinFacts =
+    pattern1_array_join_facts::Pattern1ArrayJoinFacts;
+pub(in crate::mir::builder) type IfPhiJoinFacts =
+    pattern3_ifphi_facts::Pattern3IfPhiFacts;
+pub(in crate::mir::builder) type LoopContinueRecipeFacts =
+    pattern4_continue_facts::Pattern4ContinueFacts;
+pub(in crate::mir::builder) type LoopTrueEarlyExitFacts =
+    pattern5_infinite_early_exit_facts::Pattern5InfiniteEarlyExitFacts;
+pub(in crate::mir::builder) type NestedLoopMinimalFacts =
+    pattern6_nested_minimal_facts::Pattern6NestedMinimalFacts;
+pub(in crate::mir::builder) type BoolPredicateScanFacts =
+    pattern8_bool_predicate_scan_facts::Pattern8BoolPredicateScanFacts;
+pub(in crate::mir::builder) type AccumConstLoopFacts =
+    pattern9_accum_const_loop_facts::Pattern9AccumConstLoopFacts;
 pub(in crate::mir::builder) use pattern_match_return_facts::{
     MatchReturnFacts, MatchReturnScrutinee, try_extract_match_return_facts,
 };

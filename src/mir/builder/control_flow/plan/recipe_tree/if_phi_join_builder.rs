@@ -1,8 +1,8 @@
-//! Pattern3IfPhi recipe builder for Recipe-first verification
+//! IfPhiJoin recipe builder for Recipe-first verification
 
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::pattern3_ifphi_facts::Pattern3IfPhiFacts;
+use crate::mir::builder::control_flow::plan::facts::IfPhiJoinFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
     RecipeItem,
@@ -31,7 +31,7 @@ pub(in crate::mir::builder) fn build_if_phi_join_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     if_cond_view: CondBlockView,
-    facts: &Pattern3IfPhiFacts,
+    facts: &IfPhiJoinFacts,
 ) -> Option<IfPhiJoinRecipe> {
     let mut arena = RecipeBodies::new();
 
@@ -97,4 +97,3 @@ pub(in crate::mir::builder) fn build_if_phi_join_recipe(
 
     Some(IfPhiJoinRecipe { arena, root })
 }
-

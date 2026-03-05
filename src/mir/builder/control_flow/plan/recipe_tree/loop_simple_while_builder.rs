@@ -1,6 +1,6 @@
-//! Pattern1SimpleWhile Recipe Builder (Recipe-first migration Phase C11).
+//! LoopSimpleWhile recipe builder (Recipe-first migration Phase C11).
 //!
-//! Converts Pattern1SimpleWhileFacts into a RecipeBlock structure.
+//! Converts loop-simple-while facts into a RecipeBlock structure.
 //!
 //! Structure:
 //! ```text

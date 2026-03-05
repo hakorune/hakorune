@@ -1,6 +1,6 @@
-//! Pattern1CharMap Recipe Builder (Recipe-first migration Phase C12).
+//! LoopCharMap recipe builder (Recipe-first migration Phase C12).
 //!
-//! Converts Pattern1CharMapFacts into a RecipeBlock structure.
+//! Converts LoopCharMapFacts into a RecipeBlock structure.
 //!
 //! Structure:
 //! ```text
@@ -18,7 +18,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::pattern1_char_map_facts::Pattern1CharMapFacts;
+use crate::mir::builder::control_flow::plan::facts::LoopCharMapFacts;
 use super::build_stmt_only_block;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock, RecipeItem,
@@ -41,17 +41,17 @@ pub(in crate::mir::builder) struct CharMapRecipe {
 /// - 3-statement body: substring extraction, result update, increment
 /// - Step must be +1
 ///
-/// NOTE: Body AST is reconstructed from Facts fields since Pattern1CharMapFacts
+/// NOTE: Body AST is reconstructed from Facts fields since LoopCharMapFacts
 /// does not store the original body AST nodes.
 ///
 /// # Arguments
 /// * `loop_stmt` - The loop AST node
 /// * `cond_view` - CondBlockView for the loop condition
-/// * `facts` - Pattern1CharMapFacts containing loop parameters
+/// * `facts` - LoopCharMapFacts containing loop parameters
 pub(in crate::mir::builder) fn build_char_map_recipe(
     loop_stmt: &ASTNode,
     cond_view: CondBlockView,
-    facts: &Pattern1CharMapFacts,
+    facts: &LoopCharMapFacts,
 ) -> Option<CharMapRecipe> {
     // Build body 3 statements from Facts
     let body = build_body_from_facts(facts);
@@ -88,7 +88,7 @@ pub(in crate::mir::builder) fn build_char_map_recipe(
 
 /// Build body AST from Facts fields.
 /// Returns 3 statements: substring extraction, result update, increment.
-fn build_body_from_facts(facts: &Pattern1CharMapFacts) -> Vec<ASTNode> {
+fn build_body_from_facts(facts: &LoopCharMapFacts) -> Vec<ASTNode> {
     use crate::ast::{BinaryOperator, LiteralValue, Span};
 
     let span = Span::unknown();

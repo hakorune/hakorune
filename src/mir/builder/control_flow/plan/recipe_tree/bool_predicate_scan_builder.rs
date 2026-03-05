@@ -1,8 +1,8 @@
-//! Pattern8 BoolPredicateScan recipe builder for Recipe-first verification
+//! BoolPredicateScan recipe builder for Recipe-first verification
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::pattern8_bool_predicate_scan_facts::Pattern8BoolPredicateScanFacts;
+use crate::mir::builder::control_flow::plan::facts::BoolPredicateScanFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
@@ -24,7 +24,7 @@ pub struct BoolPredicateScanRecipe {
 pub(in crate::mir::builder) fn build_bool_predicate_scan_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
-    facts: &Pattern8BoolPredicateScanFacts,
+    facts: &BoolPredicateScanFacts,
 ) -> Option<BoolPredicateScanRecipe> {
     let mut arena = RecipeBodies::new();
 
@@ -93,7 +93,7 @@ pub(in crate::mir::builder) fn build_bool_predicate_scan_recipe(
 }
 
 
-fn build_not_predicate_condition(facts: &Pattern8BoolPredicateScanFacts) -> ASTNode {
+fn build_not_predicate_condition(facts: &BoolPredicateScanFacts) -> ASTNode {
     let span = Span::unknown();
     let loop_var = ASTNode::Variable {
         name: facts.loop_var.clone(),
@@ -141,7 +141,7 @@ fn build_not_predicate_condition(facts: &Pattern8BoolPredicateScanFacts) -> ASTN
     }
 }
 
-fn build_step_stmt(facts: &Pattern8BoolPredicateScanFacts) -> ASTNode {
+fn build_step_stmt(facts: &BoolPredicateScanFacts) -> ASTNode {
     let span = Span::unknown();
     let loop_var = ASTNode::Variable {
         name: facts.loop_var.clone(),

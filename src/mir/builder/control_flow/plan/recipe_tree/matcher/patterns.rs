@@ -17,7 +17,7 @@ use super::utils::*;
 
 /// Recipe-first verification for loop-break.
 pub fn verify_loop_break_recipe(
-    pattern2: &crate::mir::builder::control_flow::plan::facts::pattern2_break_types::Pattern2BreakFacts,
+    loop_break_facts: &crate::mir::builder::control_flow::plan::facts::LoopBreakFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -27,21 +27,21 @@ pub fn verify_loop_break_recipe(
     // Create dummy loop_stmt (structure verification only)
     let dummy_span = Span::new(0, 0, 0, 0);
     let loop_stmt = ASTNode::Loop {
-        condition: Box::new(pattern2.loop_condition.clone()),
+        condition: Box::new(loop_break_facts.loop_condition.clone()),
         body: vec![],
         span: dummy_span,
     };
 
     // Create CondBlockView from actual conditions
-    let loop_cond_view = CondBlockView::from_expr(&pattern2.loop_condition);
-    let break_cond_view = CondBlockView::from_expr(&pattern2.break_condition);
+    let loop_cond_view = CondBlockView::from_expr(&loop_break_facts.loop_condition);
+    let break_cond_view = CondBlockView::from_expr(&loop_break_facts.break_condition);
 
     // Build Recipe
     let recipe = build_loop_break_recipe(
         &loop_stmt,
         loop_cond_view,
         break_cond_view,
-        pattern2,
+        loop_break_facts,
     );
 
     let Some(LoopBreakRecipe { arena, root }) = recipe else {
@@ -97,7 +97,7 @@ pub fn verify_generic_loop_v1_recipe(
 
 /// Recipe-first verification for if-phi-join.
 pub fn verify_if_phi_join_recipe(
-    pattern3: &crate::mir::builder::control_flow::plan::facts::pattern3_ifphi_facts::Pattern3IfPhiFacts,
+    if_phi_join_facts: &crate::mir::builder::control_flow::plan::facts::IfPhiJoinFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -106,19 +106,19 @@ pub fn verify_if_phi_join_recipe(
 
     let dummy_span = Span::new(0, 0, 0, 0);
     let loop_stmt = ASTNode::Loop {
-        condition: Box::new(pattern3.condition.clone()),
+        condition: Box::new(if_phi_join_facts.condition.clone()),
         body: vec![],
         span: dummy_span,
     };
 
-    let loop_cond_view = CondBlockView::from_expr(&pattern3.condition);
-    let if_cond_view = CondBlockView::from_expr(&pattern3.if_condition);
+    let loop_cond_view = CondBlockView::from_expr(&if_phi_join_facts.condition);
+    let if_cond_view = CondBlockView::from_expr(&if_phi_join_facts.if_condition);
 
     let recipe = build_if_phi_join_recipe(
         &loop_stmt,
         loop_cond_view,
         if_cond_view,
-        pattern3,
+        if_phi_join_facts,
     );
 
     let Some(IfPhiJoinRecipe { arena, root }) = recipe else {
@@ -149,7 +149,7 @@ pub fn verify_if_phi_join_recipe(
 
 /// Recipe-first verification for loop-continue-only.
 pub fn verify_loop_continue_only_recipe(
-    pattern4: &crate::mir::builder::control_flow::plan::facts::pattern4_continue_facts::Pattern4ContinueFacts,
+    continue_only_facts: &crate::mir::builder::control_flow::plan::facts::LoopContinueRecipeFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -158,19 +158,19 @@ pub fn verify_loop_continue_only_recipe(
 
     let dummy_span = Span::new(0, 0, 0, 0);
     let loop_stmt = ASTNode::Loop {
-        condition: Box::new(pattern4.condition.clone()),
+        condition: Box::new(continue_only_facts.condition.clone()),
         body: vec![],
         span: dummy_span,
     };
 
-    let loop_cond_view = CondBlockView::from_expr(&pattern4.condition);
-    let continue_cond_view = CondBlockView::from_expr(&pattern4.continue_condition);
+    let loop_cond_view = CondBlockView::from_expr(&continue_only_facts.condition);
+    let continue_cond_view = CondBlockView::from_expr(&continue_only_facts.continue_condition);
 
     let recipe = build_loop_continue_only_recipe(
         &loop_stmt,
         loop_cond_view,
         continue_cond_view,
-        pattern4,
+        continue_only_facts,
     );
 
     let Some(LoopContinueOnlyRecipe { arena, root }) = recipe else {
@@ -198,7 +198,7 @@ pub fn verify_loop_continue_only_recipe(
 
 /// Recipe-first verification for loop-true-early-exit.
 pub fn verify_loop_true_early_exit_recipe(
-    pattern5: &crate::mir::builder::control_flow::plan::facts::pattern5_infinite_early_exit_facts::Pattern5InfiniteEarlyExitFacts,
+    early_exit_facts: &crate::mir::builder::control_flow::plan::facts::LoopTrueEarlyExitFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -216,9 +216,9 @@ pub fn verify_loop_true_early_exit_recipe(
         span: dummy_span,
     };
 
-    let exit_cond_view = CondBlockView::from_expr(&pattern5.exit_condition);
+    let exit_cond_view = CondBlockView::from_expr(&early_exit_facts.exit_condition);
 
-    let recipe = build_loop_true_early_exit_recipe(&loop_stmt, exit_cond_view, pattern5);
+    let recipe = build_loop_true_early_exit_recipe(&loop_stmt, exit_cond_view, early_exit_facts);
 
     let Some(LoopTrueEarlyExitRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
@@ -247,7 +247,7 @@ pub fn verify_loop_true_early_exit_recipe(
 
 /// Recipe-first verification for loop-simple-while.
 pub fn verify_loop_simple_while_recipe(
-    pattern1: &crate::mir::builder::control_flow::plan::facts::pattern1_simplewhile_facts::Pattern1SimpleWhileFacts,
+    simple_while_facts: &crate::mir::builder::control_flow::plan::facts::LoopSimpleWhileFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -256,15 +256,15 @@ pub fn verify_loop_simple_while_recipe(
 
     let dummy_span = Span::new(0, 0, 0, 0);
     let loop_stmt = ASTNode::Loop {
-        condition: Box::new(pattern1.condition.clone()),
-        body: vec![pattern1.loop_increment.clone()],
+        condition: Box::new(simple_while_facts.condition.clone()),
+        body: vec![simple_while_facts.loop_increment.clone()],
         span: dummy_span,
     };
 
-    let cond_view = CondBlockView::from_expr(&pattern1.condition);
+    let cond_view = CondBlockView::from_expr(&simple_while_facts.condition);
 
     // Get body from facts (loop body context)
-    let body = &[pattern1.loop_increment.clone()];
+    let body = &[simple_while_facts.loop_increment.clone()];
 
     let recipe = build_loop_simple_while_recipe(&loop_stmt, cond_view, body);
 
@@ -298,7 +298,7 @@ pub fn verify_loop_simple_while_recipe(
 
 /// Recipe-first verification for loop-char-map.
 pub fn verify_loop_char_map_recipe(
-    pattern1_cm: &crate::mir::builder::control_flow::plan::facts::pattern1_char_map_facts::Pattern1CharMapFacts,
+    char_map_facts: &crate::mir::builder::control_flow::plan::facts::LoopCharMapFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -307,17 +307,17 @@ pub fn verify_loop_char_map_recipe(
 
     let dummy_span = Span::new(0, 0, 0, 0);
     let loop_stmt = ASTNode::Loop {
-        condition: Box::new(pattern1_cm.condition.clone()),
+        condition: Box::new(char_map_facts.condition.clone()),
         body: vec![],
         span: dummy_span,
     };
 
-    let cond_view = CondBlockView::from_expr(&pattern1_cm.condition);
+    let cond_view = CondBlockView::from_expr(&char_map_facts.condition);
     crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
-        &pattern1_cm.cond_profile,
+        &char_map_facts.cond_profile,
     );
 
-    let recipe = build_char_map_recipe(&loop_stmt, cond_view, pattern1_cm);
+    let recipe = build_char_map_recipe(&loop_stmt, cond_view, char_map_facts);
 
     let Some(CharMapRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
@@ -349,7 +349,7 @@ pub fn verify_loop_char_map_recipe(
 
 /// Recipe-first verification for loop-array-join.
 pub fn verify_loop_array_join_recipe(
-    pattern1_aj: &crate::mir::builder::control_flow::plan::facts::pattern1_array_join_facts::Pattern1ArrayJoinFacts,
+    array_join_facts: &crate::mir::builder::control_flow::plan::facts::LoopArrayJoinFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -358,21 +358,21 @@ pub fn verify_loop_array_join_recipe(
 
     let dummy_span = Span::new(0, 0, 0, 0);
     let loop_stmt = ASTNode::Loop {
-        condition: Box::new(pattern1_aj.condition.clone()),
+        condition: Box::new(array_join_facts.condition.clone()),
         body: vec![],
         span: dummy_span,
     };
 
-    let loop_cond_view = CondBlockView::from_expr(&pattern1_aj.condition);
+    let loop_cond_view = CondBlockView::from_expr(&array_join_facts.condition);
     crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
-        &pattern1_aj.cond_profile,
+        &array_join_facts.cond_profile,
     );
-    let if_cond_view = CondBlockView::from_expr(&pattern1_aj.if_condition);
+    let if_cond_view = CondBlockView::from_expr(&array_join_facts.if_condition);
     let recipe = build_array_join_recipe(
         &loop_stmt,
         loop_cond_view,
         if_cond_view,
-        pattern1_aj,
+        array_join_facts,
     );
 
     let Some(ArrayJoinRecipe { arena, root }) = recipe else {
@@ -404,7 +404,7 @@ pub fn verify_loop_array_join_recipe(
 
 /// Recipe-first verification for scan-with-init.
 pub fn verify_scan_with_init_recipe(
-    pattern6: &crate::mir::builder::control_flow::plan::facts::loop_types::ScanWithInitFacts,
+    scan_with_init_facts: &crate::mir::builder::control_flow::plan::facts::loop_types::ScanWithInitFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -412,7 +412,7 @@ pub fn verify_scan_with_init_recipe(
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
-    let loop_condition = build_scan_with_init_loop_condition(pattern6);
+    let loop_condition = build_scan_with_init_loop_condition(scan_with_init_facts);
     let loop_stmt = ASTNode::Loop {
         condition: Box::new(loop_condition.clone()),
         body: vec![],
@@ -420,7 +420,7 @@ pub fn verify_scan_with_init_recipe(
     };
 
     let loop_cond_view = CondBlockView::from_expr(&loop_condition);
-    let recipe = build_scan_with_init_recipe(&loop_stmt, loop_cond_view, pattern6);
+    let recipe = build_scan_with_init_recipe(&loop_stmt, loop_cond_view, scan_with_init_facts);
 
     let Some(ScanWithInitRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
@@ -450,7 +450,7 @@ pub fn verify_scan_with_init_recipe(
 
 /// Recipe-first verification for split-scan.
 pub fn verify_split_scan_recipe(
-    pattern7: &crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts,
+    split_scan_facts: &crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -458,7 +458,7 @@ pub fn verify_split_scan_recipe(
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let dummy_span = Span::new(0, 0, 0, 0);
-    let loop_condition = build_split_scan_loop_condition(pattern7);
+    let loop_condition = build_split_scan_loop_condition(split_scan_facts);
     let loop_stmt = ASTNode::Loop {
         condition: Box::new(loop_condition.clone()),
         body: vec![],
@@ -466,7 +466,7 @@ pub fn verify_split_scan_recipe(
     };
 
     let loop_cond_view = CondBlockView::from_expr(&loop_condition);
-    let recipe = build_split_scan_recipe(&loop_stmt, loop_cond_view, pattern7);
+    let recipe = build_split_scan_recipe(&loop_stmt, loop_cond_view, split_scan_facts);
 
     let Some(SplitScanRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
@@ -496,7 +496,7 @@ pub fn verify_split_scan_recipe(
 
 /// Recipe-first verification for bool-predicate-scan.
 pub fn verify_bool_predicate_scan_recipe(
-    pattern8: &crate::mir::builder::control_flow::plan::facts::pattern8_bool_predicate_scan_facts::Pattern8BoolPredicateScanFacts,
+    bool_scan_facts: &crate::mir::builder::control_flow::plan::facts::BoolPredicateScanFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -505,17 +505,17 @@ pub fn verify_bool_predicate_scan_recipe(
 
     let dummy_span = Span::new(0, 0, 0, 0);
     let loop_stmt = ASTNode::Loop {
-        condition: Box::new(pattern8.condition.clone()),
+        condition: Box::new(bool_scan_facts.condition.clone()),
         body: vec![],
         span: dummy_span,
     };
 
-    let loop_cond_view = CondBlockView::from_expr(&pattern8.condition);
+    let loop_cond_view = CondBlockView::from_expr(&bool_scan_facts.condition);
     crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
-        &pattern8.cond_profile,
+        &bool_scan_facts.cond_profile,
     );
     let recipe =
-        build_bool_predicate_scan_recipe(&loop_stmt, loop_cond_view, pattern8);
+        build_bool_predicate_scan_recipe(&loop_stmt, loop_cond_view, bool_scan_facts);
 
     let Some(BoolPredicateScanRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
@@ -545,7 +545,7 @@ pub fn verify_bool_predicate_scan_recipe(
 
 /// Recipe-first verification for accum-const-loop.
 pub fn verify_accum_const_loop_recipe(
-    pattern9: &crate::mir::builder::control_flow::plan::facts::pattern9_accum_const_loop_facts::Pattern9AccumConstLoopFacts,
+    accum_const_facts: &crate::mir::builder::control_flow::plan::facts::AccumConstLoopFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
@@ -554,16 +554,16 @@ pub fn verify_accum_const_loop_recipe(
 
     let dummy_span = Span::new(0, 0, 0, 0);
     let loop_stmt = ASTNode::Loop {
-        condition: Box::new(pattern9.condition.clone()),
+        condition: Box::new(accum_const_facts.condition.clone()),
         body: vec![],
         span: dummy_span,
     };
 
-    let loop_cond_view = CondBlockView::from_expr(&pattern9.condition);
+    let loop_cond_view = CondBlockView::from_expr(&accum_const_facts.condition);
     crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
-        &pattern9.cond_profile,
+        &accum_const_facts.cond_profile,
     );
-    let recipe = build_accum_const_loop_recipe(&loop_stmt, loop_cond_view, pattern9);
+    let recipe = build_accum_const_loop_recipe(&loop_stmt, loop_cond_view, accum_const_facts);
 
     let Some(AccumConstLoopRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(

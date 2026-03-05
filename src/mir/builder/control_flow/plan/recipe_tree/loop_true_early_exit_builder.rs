@@ -1,8 +1,8 @@
-//! Pattern5InfiniteEarlyExit recipe builder for Recipe-first verification
+//! LoopTrueEarlyExit recipe builder for Recipe-first verification
 
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::pattern5_infinite_early_exit_facts::Pattern5InfiniteEarlyExitFacts;
+use crate::mir::builder::control_flow::plan::facts::LoopTrueEarlyExitFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
@@ -25,7 +25,7 @@ pub struct LoopTrueEarlyExitRecipe {
 pub(in crate::mir::builder) fn build_loop_true_early_exit_recipe(
     loop_stmt: &ASTNode,
     exit_cond_view: CondBlockView,
-    facts: &Pattern5InfiniteEarlyExitFacts,
+    facts: &LoopTrueEarlyExitFacts,
 ) -> Option<LoopTrueEarlyExitRecipe> {
     let mut arena = RecipeBodies::new();
 
@@ -134,4 +134,3 @@ pub(in crate::mir::builder) fn build_loop_true_early_exit_recipe(
 
     Some(LoopTrueEarlyExitRecipe { arena, root })
 }
-
