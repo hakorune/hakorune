@@ -1,4 +1,5 @@
-//! Phase 29ao P21: Pattern1 subset policy (step-only body)
+//! Phase 29ao P21: loop_simple_while subset policy (step-only body)
+//! (legacy module/function label: pattern1_subset_policy / is_pattern1_step_only_body)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 

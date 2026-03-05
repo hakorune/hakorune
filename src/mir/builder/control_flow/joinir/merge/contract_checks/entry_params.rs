@@ -5,10 +5,10 @@ use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 /// # Purpose
 ///
 /// Validates that `boundary.join_inputs` and `JoinModule.entry.params` have the same order,
-/// count, and ValueId mapping. This prevents ordering bugs like the Pattern6 loop_invariants
+/// count, and ValueId mapping. This prevents ordering bugs like the scan_with_init loop_invariants
 /// issue where `[s, ch]` → `[ch, s]` required manual debugging.
 ///
-/// # Example Valid (Pattern6):
+/// # Example Valid (scan_with_init, legacy label: Pattern6):
 /// ```text
 /// JoinModule.main.params:     [ValueId(100), ValueId(101), ValueId(102)]  (i, ch, s)
 /// boundary.join_inputs:       [ValueId(100), ValueId(101), ValueId(102)]

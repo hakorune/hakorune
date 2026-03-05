@@ -1,10 +1,10 @@
-//! LoopTrueCounterExtractorBox - loop(true) からの loop counter 抽出（Pattern2）
+//! LoopTrueCounterExtractorBox - loop(true) からの loop counter 抽出
 //!
 //! 目的: `loop(true)` のように header condition から loop counter を抽出できないケースで、
 //! body から loop counter（例: `i`）を一意に確定する。
 //!
 //! ## 責務（SSOT）
-//! - Pattern2 の「loop(true) を扱う入口」を1箇所に集約する
+//! - loop_break route（legacy label: Pattern2）の「loop(true) を扱う入口」を1箇所に集約する
 //! - 曖昧な loop(true) を **通さない**（Fail-Fast で理由を返す）
 //!
 //! ## Contract（Fail-Fast）

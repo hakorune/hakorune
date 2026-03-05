@@ -58,26 +58,26 @@ pub(in crate::mir::builder) mod verifier;
 pub(in crate::mir::builder) mod canon;
 
 // Layer 3: Skeleton/Feature Layer (分解スロット)
-// パターン認識の分解スロット
+// route 形状認識の分解スロット（legacy label: pattern）
 // Phase 29bt P0: Skeletons + Features (decomposition slots)
 pub(in crate::mir::builder) mod features;
 pub(in crate::mir::builder) mod skeletons;
 
-// Layer 4: Pattern-Specific (パターン固有)
-// 各パターンの固有処理
+// Layer 4: Route-Specific (形状固有)
+// 各 route の固有処理（legacy module names may keep patternX）
 // Phase 29ca P1: Core loop body effect contract (SSOT)
 pub(in crate::mir::builder) mod coreloop_body_contract;
 // Phase 29ca P1: Generic loop v0 module (facts/normalizer SSOT)
 pub(in crate::mir::builder) mod generic_loop;
-// Phase 29bq+: Pattern2 module moved to plan side
+// Phase 29bq+: loop_break module (legacy name: pattern2) moved to plan side
 pub(in crate::mir::builder) mod pattern2;
 // Phase 29bq+: loop-break condition policy router moved to plan side
 pub(in crate::mir::builder) mod loop_break_condition_policy_router;
-// Phase 29bq+: Pattern2 input facts box moved to plan side
+// Phase 29bq+: loop_break input facts box (legacy name: pattern2_inputs_*) moved to plan side
 pub(in crate::mir::builder) mod pattern2_inputs_facts_box;
 // Phase 29bq+: loop-break policy router moved to plan side
 pub(in crate::mir::builder) mod loop_break_policy_router;
-// Phase 29bq+: Pattern2 steps moved to plan side
+// Phase 29bq+: loop_break steps (legacy name: pattern2_steps) moved to plan side
 pub(in crate::mir::builder) mod pattern2_steps;
 // Layer 5: Loop-Specific (ループ固有)
 // 各ループタイプの固有処理
@@ -149,18 +149,18 @@ pub(in crate::mir::builder) mod single_planner;
 
 // Layer 8: Utilities (ユーティリティ)
 // 共通機能・ポリシー
-// Phase 29bq+: Common pattern helpers moved to plan side
+// Phase 29bq+: Common route helpers moved to plan side
 pub(in crate::mir::builder) mod common;
-// Phase 29bq+: Common pattern initializer moved to plan side
+// Phase 29bq+: Common route initializer moved to plan side
 pub(in crate::mir::builder) mod common_init;
 // Phase 29ai P6: Extractors moved into plan layer
 pub(in crate::mir::builder) mod extractors;
 // Phase 29av P1: FlowBox observability tags (strict/dev only)
 pub(in crate::mir::builder) mod observability;
-// Phase 29bq+: Pattern recognizers moved to plan side
+// Phase 29bq+: Route recognizers (legacy label: pattern recognizers) moved to plan side
 pub(in crate::mir::builder) mod pattern_recognizers;
-// Phase 29ao P21: Pattern1 subset policy (SSOT gate)
-// Phase 29bq+: Pattern policies moved to plan side
+// Phase 29ao P21: loop_simple_while subset policy (legacy label: Pattern1, SSOT gate)
+// Phase 29bq+: Route policies (legacy label: Pattern policies) moved to plan side
 pub(in crate::mir::builder) mod policies;
 
 // Layer 9: Legacy/Scaffolding (残骸・足場)
@@ -171,7 +171,7 @@ pub(in crate::mir::builder) mod ast_feature_extractor;
 pub(in crate::mir::builder) mod condition_env_builder;
 // Phase 29bq+: Conversion pipeline moved to plan side
 pub(in crate::mir::builder) mod conversion_pipeline;
-// Phase 29bq+: Escape pattern recognizer moved to plan side
+// Phase 29bq+: Escape route recognizer (legacy module name: escape_pattern_recognizer) moved to plan side
 pub(in crate::mir::builder) mod escape_pattern_recognizer;
 // Phase 29bq+: Structural lock (join_key/session)
 // sealing は edgecfg/api/frag_emit_session.rs に統合（Phase 29bq+ 骨格拡大）

@@ -3,7 +3,7 @@
 //! Phase 171-172: Issue 5
 //!
 //! Provides unified construction methods for ConditionEnv and ConditionBindings
-//! used in Pattern 2 (break condition analysis).
+//! used in loop_break route condition analysis (legacy label: Pattern2).
 //!
 //! # Responsibility
 //!
@@ -77,7 +77,8 @@ impl ConditionEnvBuilder {
 
         // Phase 79-2: Register loop variable BindingId (dev-only)
         // NOTE: We don't have access to builder.binding_map here, so this registration
-        // needs to happen at the call site (pattern2 lowerer/orchestrator, pattern3_with_if_phi.rs, etc.)
+        // needs to happen at the call site (loop_break lowerer/orchestrator,
+        // if_phi_join lowering path, etc.)
         // This comment serves as a reminder for future developers.
 
         // For each condition variable, allocate JoinIR-local ValueId and build binding

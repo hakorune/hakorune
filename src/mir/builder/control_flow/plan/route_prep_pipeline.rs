@@ -61,6 +61,9 @@ use crate::mir::builder::control_flow::plan::loop_scope_shape_builder::LoopScope
 ///
 /// # Usage
 ///
+/// Note: `PatternVariant` is a legacy numbered enum; semantic route names are
+/// documented in each variant comment below.
+///
 /// ```rust
 /// let ctx = build_route_prep_context(
 ///     builder,
@@ -127,13 +130,13 @@ pub(crate) struct RoutePrepContext {
 /// Route variant selector
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PatternVariant {
-    /// Simple while variant (no break, no continue, no if-else PHI)
+    /// loop_simple_while route (legacy enum label: Pattern1)
     Pattern1,
-    /// Loop-with-break variant
+    /// loop_break route (legacy enum label: Pattern2)
     Pattern2,
-    /// Loop-with-if-else-PHI variant (no break/continue)
+    /// if_phi_join route (legacy enum label: Pattern3)
     Pattern3,
-    /// Loop-with-continue variant
+    /// loop_continue_only route (legacy enum label: Pattern4)
     Pattern4,
 }
 
@@ -230,7 +233,7 @@ impl RoutePrepContext {
 /// * `builder` - MirBuilder instance
 /// * `condition` - Loop condition AST node
 /// * `body` - Loop body AST nodes
-/// * `variant` - Pattern variant selector
+/// * `variant` - Route variant selector (legacy enum: `PatternVariant`)
 ///
 /// # Returns
 ///
