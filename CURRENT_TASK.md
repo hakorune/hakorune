@@ -99,6 +99,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `6a166e62a` refactor(joinir,smokes): route-align parity test wording and gate labels
+    - `joinir/parity_checker.rs` の parity メッセージ主語を `actual` から `router` へ統一し、テスト期待を Pattern variant 直参照から semantic label 比較へ移行
+    - `phase29bq_fast_gate_cases.tsv` の strict nested guard / ambiguous-break 説明文を route 主語へ同期
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `ba7f17b6b` refactor(plan,docs): shrink shadow pre-plan lane to guard-only
     - `router` の pre-plan `shadow_adopt` 採用 lane を撤去し、`shadow_pre_plan_guard_error`（guard-only）へ縮退
     - `composer/shadow_adopt.rs` から adopt outcome/export を削除し、pre-plan は strict guard + planner_required contract freeze 専用へ集約
@@ -1131,9 +1135,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - minimal cluster は撤去済み（`fd26729ff`）、nested minimal の registry route 化も完了（`66ddbce40`）。
    - `generic_loop_body/helpers.rs` の nested fallback は `shadow_adopt` 呼び出しを外し、`nested_loop_minimal` 明示 compose + `strict_nested_loop_guard` 直評価へ移行済み（trace path: `recipe_nested_loop_minimal` / `nested_loop_guard_error`）。
    - router 側の pre-plan `shadow_adopt` 採用 lane は撤去済み。`shadow_pre_plan_guard_error`（guard-only）へ縮退し、entry 例外導線を最小化した。
-   - 次は active SSOT/docs（entry_route / exception inventory）を guard-only 契約へ同期する。
+   - active SSOT/docs（entry_route / exception inventory）は guard-only 契約へ同期済み。
 2. Surface/trace の semantic 語彙統一（step-1 継続）:
    - `joinir/routing.rs` / `joinir/trace.rs` / `parity_checker.rs` の主語外しは実施済み（`c76bb7884`, `51234e1b6`）。
+   - `parity_checker` の parity mismatch 文言と unit test 期待は route semantic label 主語へ同期済み（`6a166e62a`）。
    - `LoopRouteContext` rename sweep は src 側完了（`30c94f450`, `c5ca36791`, `0738b745b`）。`LoopPatternContext` alias は撤去済み。
    - 残りは補助ログの route/rule 主語統一（必要最小限）。
    - 既存 gate sentinel は維持しつつ label を route/rule 主語へ段階移行。
@@ -1145,7 +1150,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `DomainPlan` alias 撤去（`fa1efcb21`）と `src/mir/builder/control_flow/{plan,joinir}` 内の残語彙撤去（`27cbe50d2`, `5af900fe3`）まで完了。
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
    - `normalizer` 側窓口は撤去済み、pattern minimal は composer 側へ集約後に folderごと撤去完了（`96591f62b`, `ea8ffeab3`, `fd26729ff`）。
-   - 次は `shadow_adopt` の残 fallback（router pre-plan lane）を guard-first へ縮退し、recipe-first/router 側へ整理する。
+   - 次は planner/normalizer 側の dead comments・test-only wiring（payload 前提）を段階撤去する。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
