@@ -98,6 +98,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `8dc105f1c` fix(smokes): stabilize strict fail-fast and stdlib using-file contracts
+    - `run_nyash_vm` の ASI temp-copy を `NYASH_ALLOW_USING_FILE=1 + using "..."` で自動回避し、using(file-path) の相対解決崩れを防止
+    - `phase29ap_stringutils_{tolower,join}_vm.sh` を `run_nyash_vm` ベースへ戻しつつ strict/dev 汚染を `*=0` 固定で遮断
+    - `phase29aq_stdlib_pack_vm.sh` は subcase 実行時に `HAKO/NYASH_JOINIR_{STRICT,DEV}=0` を固定し、stdlib using(file) スモークを pack 入口で安定化
+    - `phase29ar_string_is_integer_min_vm.sh` と `phase29as/aw` を strict shadow adopt 前提から strict fail-fast reject 契約へ更新（`[vm-hako/unimplemented] ... newbox(StringUtils)` を期待）
+    - `phase29ae_regression_pack_vm.sh` ラベルを `string_is_integer_strict_reject_vm` へ同期、`phase29ab_pattern7_*_ok_min_vm.sh` の strict 期待RCを現行 `1` へ同期
+    - verify: `phase29ap_stringutils_tolower_vm.sh` PASS、`phase29ap_stringutils_join_vm.sh` PASS、`phase29aq_stdlib_pack_vm.sh` PASS、`phase29ar_string_is_integer_min_vm.sh` PASS、`phase29as_purity_gate_vm.sh` PASS、`phase29aw_flowbox_tag_coverage_gate_vm.sh` PASS、`phase29ab_pattern7_` filter PASS、`phase29ae_regression_pack_vm.sh` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `8d9c6bde3` fix(smokes): invoke planner-required subgates via bash
     - `phase29bk/bn/bo` の `run_gate` 実行を `"$gate"` 直実行から `bash "$gate"` へ変更し、subgate の実行権限ビット非依存化
     - `phase29bk_planner_required_dev_gate_vm.sh` 再実行で `phase29bi` / `phase29bj(scan_split)` を通過し、先頭の Permission denied を解消
