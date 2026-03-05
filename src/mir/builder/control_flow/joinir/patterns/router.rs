@@ -284,7 +284,9 @@ pub(crate) fn route_loop(
     }
 
     // In release, keep nested-loop recipe-first blocked by default.
-    // Exception: loop_cond_break_continue with explicit exit-driven accept kinds.
+    // Exceptions:
+    // - nested_loop_minimal facts (same compose contract as release_adopt nested-minimal lane)
+    // - loop_cond_break_continue with explicit exit-driven accept kinds.
     let release_recipe_first_allowed = if !detect_nested_loop(ctx.body) {
         true
     } else {
@@ -292,6 +294,9 @@ pub(crate) fn route_loop(
             .facts
             .as_ref()
             .is_some_and(|facts| {
+                if facts.facts.pattern6_nested_minimal.is_some() {
+                    return true;
+                }
                 if !(facts.exit_usage.has_break && facts.exit_usage.has_continue)
                     || facts.exit_usage.has_return
                 {
