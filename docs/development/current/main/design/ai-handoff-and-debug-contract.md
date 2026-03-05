@@ -67,36 +67,36 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - Recipe-first match (dev/debug only): `[recipe:match] kind=<...> break=<...> continue=<...> return=<...>`
 - Recipe-first entry (dev/debug only): `[recipe:entry] <route>: recipe_contract enforced`
 - Recipe-first entry (dev/debug only, Phase C4): `[recipe:entry] <route>: recipe-only`
-- Recipe-first entry (dev/debug only, Phase C8): `[recipe:entry] pattern3_ifphi: recipe-only (domain_plan suppressed)`
+- Recipe-first entry (dev/debug only, Phase C8): `[recipe:entry] if_phi_join: recipe-only (domain_plan suppressed)`
 - Recipe-first verification (dev/debug only, Phase C9): `[recipe:verify] route=loop_continue_only status=ok`
 - Recipe-first compose (dev/debug only, Phase C9): `[recipe:compose] route=loop_continue_only path=recipe_block`
-- Recipe-first entry (dev/debug only, Phase C9): `[recipe:entry] pattern4_continue: recipe-only (domain_plan suppressed)`
+- Recipe-first entry (dev/debug only, Phase C9): `[recipe:entry] loop_continue_only: recipe-only (domain_plan suppressed)`
 - Recipe-first verification (dev/debug only, Phase C10): `[recipe:verify] route=loop_true_early_exit status=ok`
 - Recipe-first compose (dev/debug only, Phase C10): `[recipe:compose] route=loop_true_early_exit path=recipe_block`
-- Recipe-first entry (dev/debug only, Phase C10): `[recipe:entry] pattern5_infinite_early_exit: recipe-only (domain_plan suppressed)`
+- Recipe-first entry (dev/debug only, Phase C10): `[recipe:entry] loop_true_early_exit: recipe-only (domain_plan suppressed)`
 - Recipe-first compose (dev/debug only): `[recipe:compose] route=<route> path=<recipe_block|recipe_first|direct_pipeline>`
 - Recipe-first compose (dev/debug only): `[recipe:compose] route=if_phi_join path=recipe_block`
 - Recipe-first verification (dev/debug only, Phase C11): `[recipe:verify] route=loop_simple_while status=ok`
 - Recipe-first compose (dev/debug only, Phase C11): `[recipe:compose] route=loop_simple_while path=recipe_block`
-- Recipe-first entry (dev/debug only, Phase C11): `[recipe:entry] pattern1_simple_while: recipe-only (domain_plan suppressed)`
+- Recipe-first entry (dev/debug only, Phase C11): `[recipe:entry] loop_simple_while: recipe-only (domain_plan suppressed)`
 - Recipe-first verification (dev/debug only, Phase C12): `[recipe:verify] route=loop_char_map status=ok`
 - Recipe-first compose (dev/debug only, Phase C12): `[recipe:compose] route=loop_char_map path=recipe_block`
-- Recipe-first entry (dev/debug only, Phase C12): `[recipe:entry] pattern1_char_map: recipe-only (domain_plan suppressed)`
+- Recipe-first entry (dev/debug only, Phase C12): `[recipe:entry] loop_char_map: recipe-only (domain_plan suppressed)`
 - Recipe-first verification (dev/debug only, Phase C13): `[recipe:verify] route=loop_array_join status=ok`
 - Recipe-first compose (dev/debug only, Phase C13): `[recipe:compose] route=loop_array_join path=recipe_block`
-- Recipe-first entry (dev/debug only, Phase C13): `[recipe:entry] pattern1_array_join: recipe-only (domain_plan suppressed)`
+- Recipe-first entry (dev/debug only, Phase C13): `[recipe:entry] loop_array_join: recipe-only (domain_plan suppressed)`
 - Recipe-first verification (dev/debug only, Phase C14): `[recipe:verify] route=scan_with_init status=ok`
 - Recipe-first compose (dev/debug only, Phase C14): `[recipe:compose] route=scan_with_init path=recipe_block`
-- Recipe-first entry (dev/debug only, Phase C14): `[recipe:entry] pattern6_scan_with_init: recipe-only (domain_plan suppressed)`
+- Recipe-first entry (dev/debug only, Phase C14): `[recipe:entry] scan_with_init: recipe-only (domain_plan suppressed)`
 - Recipe-first verification (dev/debug only, Phase C14): `[recipe:verify] route=split_scan status=ok`
 - Recipe-first compose (dev/debug only, Phase C14): `[recipe:compose] route=split_scan path=recipe_block`
-- Recipe-first entry (dev/debug only, Phase C14): `[recipe:entry] pattern7_split_scan: recipe-only (domain_plan suppressed)`
+- Recipe-first entry (dev/debug only, Phase C14): `[recipe:entry] split_scan: recipe-only (domain_plan suppressed)`
 - Recipe-first verification (dev/debug only, Phase C14): `[recipe:verify] route=bool_predicate_scan status=ok`
 - Recipe-first compose (dev/debug only, Phase C14): `[recipe:compose] route=bool_predicate_scan path=recipe_block`
-- Recipe-first entry (dev/debug only, Phase C14): `[recipe:entry] pattern8_bool_predicate_scan: recipe-only (domain_plan suppressed)`
+- Recipe-first entry (dev/debug only, Phase C14): `[recipe:entry] bool_predicate_scan: recipe-only (domain_plan suppressed)`
 - Recipe-first verification (dev/debug only, Phase C14): `[recipe:verify] route=accum_const_loop status=ok`
 - Recipe-first compose (dev/debug only, Phase C14): `[recipe:compose] route=accum_const_loop path=recipe_block`
-- Recipe-first entry (dev/debug only, Phase C14): `[recipe:entry] pattern9_accum_const_loop: recipe-only (domain_plan suppressed)`
+- Recipe-first entry (dev/debug only, Phase C14): `[recipe:entry] accum_const_loop: recipe-only (domain_plan suppressed)`
 - Recipe-first verification (dev/debug only, Phase C15): `[recipe:scan_methods] verified OK`
 - Recipe-first compose (dev/debug only, Phase C15): `[recipe:compose] route=scan_methods_v0 path=recipe_first`
 - Recipe-first entry (dev/debug only, Phase C15): `[recipe:entry] scan_methods_v0: recipe-only (domain_plan suppressed)`

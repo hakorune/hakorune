@@ -91,7 +91,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
-  - `(pending)` refactor(plan): unify recipe verify/compose logs to route vocabulary
+  - `(pending)` docs: sync recipe entry tags to route vocabulary
+    - `ai-handoff-and-debug-contract.md` / `recipe-first-entry-contract-ssot.md` の `[recipe:entry] pattern*` 記述を route 主語へ更新（`pattern3_ifphi` → `if_phi_join` など）
+    - route vocabulary 統一済みの verify/compose タグと同じ主語体系へ整列し、stale 記述を縮退
+    - verify: docs sync only（code diff なし）
+  - `c033b4477` refactor(plan): unify recipe debug tags to route vocabulary
     - `recipe_tree/matcher/patterns.rs` の `[recipe:pattern*]` 補助ログを `[recipe:verify] route=<...> status=ok` に統一
     - `recipe_tree/*composer.rs` の `[recipe:compose] pattern*` を `[recipe:compose] route=<...> path=<...>` に統一し、`pattern` 主語を撤去
     - stale docs 同期: `ai-handoff-and-debug-contract.md` / `recipe-first-entry-contract-ssot.md` のログ契約を route 主語へ更新
