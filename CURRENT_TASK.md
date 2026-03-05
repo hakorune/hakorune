@@ -52,9 +52,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `DomainPlan` 識別子は `src/**` で 0件。残存 payload は `LoopCondContinueWithReturnPlan` の限定利用のみ
   - `outcome.plan.take()` は `src/mir/builder/control_flow/{plan,joinir}/**` で 0件（nested fallback は `[plan/trace] stage=<...> outcome/path` で観測固定）
   - release nested loop は `pattern6_nested_minimal` だけ recipe-first 例外許可済み（`release_adopt` より先に `registry::try_route_recipe_first` を試行）
+  - release nested-safe recipe-first は `generic_loop_v{1,0}` まで拡張済み（compose/verify/lower reject 時は `Ok(None)` で release fallback 維持）
+  - release scan（`phase29bq_fast_gate_cases.tsv` を release config + `HAKO_JOINIR_DEBUG=1` で実行）で `entry_route=release_adopt` hit は 0件（126 fixture）
 - compiler fixed order:
-  1. release の nested-safe recipe-first 適用範囲を段階拡張し、`release_adopt` ヒットを 0 へ縮退する（`nested_loop_minimal` は導入済み）。
-  2. nested fallback の `LoopCondContinueWithReturnPlan` 正規化依存を recipe composer 側へ段階移行する（planner_required を先行、挙動不変）。
+  1. nested fallback の `LoopCondContinueWithReturnPlan` 正規化依存を recipe composer 側へ段階移行する（planner_required を先行、挙動不変）。
+  2. release で `entry_route=release_adopt` が 0件のケース群から順に fallback 入口を閉じる（まず generic lane の no-op 化）。
   3. 経路を `Facts -> Recipe -> Composer -> Verifier -> Parts` に一本化する（例外入口 `shadow_adopt/release_adopt` を撤去）。
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
@@ -86,6 +88,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `c3ca3386d` refactor(router): extend release nested-safe recipe-first to generic routes
+    - `joinir/patterns/router.rs` の release recipe-first eligibility を拡張し、nested loop でも `generic_loop_v{1,0}` facts を recipe-first 先行対象に追加
+    - `registry/handlers.rs` の `route_generic_loop_v{1,0}` は release lane で compose/verify/lower reject を `Ok(None)` へ縮退し、fallback 互換を維持
+    - stale docs 同期: `recipe-first-entry-contract-ssot.md` の release nested 例外と観測文言を現行配線へ更新
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29ap_pattern6_nested_release_adopt_vm.sh` PASS、`phase29ca_generic_loop_continue_release_adopt_vm.sh` PASS
   - `15032656e` refactor(router): allow release recipe-first for nested_loop_minimal
     - `joinir/patterns/router.rs` の release recipe-first eligibility を拡張し、nested loop でも `pattern6_nested_minimal` facts が立つ場合は registry recipe-first を先行許可
     - 既存の loop_cond_break_continue 例外は維持し、release fallback `release_adopt` より先に nested-minimal compose を試す配線へ変更
