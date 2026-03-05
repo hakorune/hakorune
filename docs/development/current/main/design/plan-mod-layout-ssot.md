@@ -21,7 +21,7 @@ normalizer    - DomainPlan → CorePlan 変換 (SSOT)
 verifier      - CorePlan 不変条件検証
 trace         - 実行トレース (debug/dev)
 branchn       - BranchN 分岐処理
-facts         - Facts 抽出 SSOT (パターン認識)
+facts         - Facts 抽出 SSOT (route/semantic 認識)
 recipes       - Recipe-first 基底型
 ```
 
@@ -33,32 +33,32 @@ canon         - CondBlockView など (analysis-only view)
 ```
 
 ### Layer 3: Skeleton/Feature Layer (分解スロット)
-**責務**: パターン認識の分解スロット
+**責務**: route/semantic 認識の分解スロット
 
 ```
 skeletons     - 分解スロット定義
 features      - Feature modules (carrier/phi/etc.)
 ```
 
-### Layer 4: Pattern-Specific (パターン固有)
-**責務**: 各パターンの固有処理
+### Layer 4: Route/Semantic-Specific (旧 Pattern bucket)
+**責務**: 各 route/semantic の固有処理（Pattern番号は履歴ラベルとして保持）
 
 ```
 generic_loop  - Generic loop v0/v1 処理
-pattern1_*    - Pattern1 (simple_while/char_map/array_join)
-pattern2_*    - Pattern2 (break/orchestration/steps)
-pattern3_*    - Pattern3 (if-phi)
-pattern4_*    - Pattern4 (continue)
-pattern5_*    - Pattern5 (infinite_early_exit)※移管済み
-pattern8_*    - Pattern8 (bool_predicate_scan)
-pattern9_*    - Pattern9 (accum_const_loop)
+pattern1_*    - simple_while/char_map/array_join route (legacy label: Pattern1)
+pattern2_*    - break/orchestration/steps route (legacy label: Pattern2)
+pattern3_*    - if-phi join route (legacy label: Pattern3)
+pattern4_*    - continue-focused route (legacy label: Pattern4)
+pattern5_*    - infinite_early_exit route (legacy label: Pattern5)※移管済み
+pattern8_*    - bool_predicate_scan route (legacy label: Pattern8)
+pattern9_*    - accum_const_loop route (legacy label: Pattern9)
 ```
 
 ### Layer 5: Loop-Specific (ループ固有)
 **責務**: 各ループタイプの固有処理
 
 ```
-loop_cond_*    - LoopCond* variants 統一
+loop_cond_*    - loop condition route variants 統一 (legacy label family: LoopCond*)
 loop_*_*       - Scan/Collect/Bundle/True/Count etc.
 nested_loop_*  - ネストループ処理
 trim_*_*       - Trim 関連
@@ -94,7 +94,7 @@ extractors    - AST 抽出
 observability  - FlowBox タグ (debug/dev)
 common_init    - 共通初期化
 common         - 共通ヘルパー
-pattern_*      - パターン認識器
+pattern_*      - route recognizers (legacy module prefix: pattern_*)
 ```
 
 ### Layer 9: Legacy/Scaffolding (残骸・足場)

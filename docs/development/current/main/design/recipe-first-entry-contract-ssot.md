@@ -66,27 +66,27 @@ AST
 | `loop_cond_break_continue` | `LoopExitIfBreakContinue` | exit-signal / conditional_update / nested-only | excluded by scan_methods candidates and pattern-specific disjoints |
 | `scan_with_init` / `split_scan` / `pattern8_bool_predicate_scan` / `pattern9_accum_const_loop` | `ScanWithInit` / `SplitScan` / `BoolPredicateScan` / `AccumConstLoop` | facts present | excludes `loop_cond_break_continue` |
 | `generic_loop_v0` | `LoopGenericFallbackV0` | fallback facts | release-only routing |
-| `generic_loop_v1` | `LoopGenericRecipeV1` | general loop facts | excluded by pattern2_break / char_map / simplewhile / loop_cond_break_continue / loop_bundle_resolver |
+| `generic_loop_v1` | `LoopGenericRecipeV1` | general loop facts | excluded by loop_break (`pattern2_break`) / loop_char_map (`pattern1_char_map`) / loop_simple_while (`pattern1_simplewhile`) / `loop_cond_break_continue` / `loop_bundle_resolver_v0` |
 
 Note: This matrix is a summary; the bullet list below is the authoritative SSOT. Display labels follow `entry-name-map-ssot.md`.
 Note: `pattern*` entries in the Candidate column are legacy internal fact keys; runtime canonical identifiers are `route=<...>` labels.
 - LoopBreak（facts: pattern2_break）が成立する場合は loop_cond_break_continue を候補にしない（entry disjoint）
 - LoopBreak（facts: pattern2_break）が成立する場合は loop_true_break_continue を候補にしない（entry disjoint）
 - LoopBreak（facts: pattern2_break）が成立する場合は generic_loop_v1 を候補にしない（entry disjoint）
-- pattern1_char_map が成立する場合、generic_loop_v1 を候補にしない
-- pattern1_simplewhile が成立する場合は generic_loop_v1 を候補にしない
+- LoopCharMap（facts: `pattern1_char_map`）が成立する場合、generic_loop_v1 を候補にしない
+- LoopSimpleWhile（facts: `pattern1_simplewhile`）が成立する場合は generic_loop_v1 を候補にしない
 - loop_scan_methods_block_v0 は non-nested のみ候補（segments に nested がある場合は loop_scan_methods_v0 に寄せる）
 - loop_cond_break_continue が成立する場合、generic_loop_v1 は候補にしない（conditional_update を含む）
 - loop_bundle_resolver_v0 が成立する場合、generic_loop_v1 は候補にしない
-- pattern3_ifphi が成立する場合、loop_cond_break_continue は候補にしない
-- pattern4_continue が成立する場合、loop_cond_break_continue は候補にしない
-- pattern4_continue が成立する場合、loop_cond_continue_only は候補にしない
-- pattern5_infinite_early_exit が成立する場合、loop_true_break_continue は候補にしない
-- pattern1_array_join が成立する場合、loop_cond_break_continue は候補にしない
+- IfPhiJoin（facts: `pattern3_ifphi`）が成立する場合、loop_cond_break_continue は候補にしない
+- LoopContinueOnly（facts: `pattern4_continue`）が成立する場合、loop_cond_break_continue は候補にしない
+- LoopContinueOnly（facts: `pattern4_continue`）が成立する場合、loop_cond_continue_only は候補にしない
+- LoopTrueEarlyExit（facts: `pattern5_infinite_early_exit`）が成立する場合、loop_true_break_continue は候補にしない
+- LoopArrayJoin（facts: `pattern1_array_join`）が成立する場合、loop_cond_break_continue は候補にしない
 - scan_methods_* が候補に入った場合のみ、loop_cond_break_continue を候補にしない
 - loop_cond_return_in_body が成立する場合、loop_cond_break_continue は候補にしない
 - loop_scan_*（v0/phi_vars/collect_using_entries/bundle_resolver）が成立する場合、loop_cond_break_continue は候補にしない
-- scan_with_init / split_scan / pattern8_bool_predicate_scan / pattern9_accum_const_loop が成立する場合、loop_cond_break_continue は候補にしない
+- ScanWithInit / SplitScan / BoolPredicateScan（`pattern8_bool_predicate_scan`）/ AccumConstLoop（`pattern9_accum_const_loop`）が成立する場合、loop_cond_break_continue は候補にしない
 - 必要に応じて debug 時のみ `[plan/trace:entry_candidates]` で候補を可視化（任意・SSOTはこのポリシー）
 - 観測: debug 時に `[plan/trace:entry_route]` で entry が recipe_first / none のどれに落ちたかを 1 行で確認できる
 - BoxShape: `generic_loop_v1` は strict/dev(+planner_required) で registry 側に寄せ、shadow_adopt の残経路を縮退する（挙動不変）。
@@ -94,7 +94,7 @@ Note: `pattern*` entries in the Candidate column are legacy internal fact keys; 
 
 ## Freeze responsibility (SSOT)
 
-Note: Phase C* section titles below keep migration-era `Pattern*` names for traceability. Canonical runtime identifiers are route IDs in `[recipe:*]` tags.
+Note: Phase C* sections below use route names as canonical labels, and keep migration-era `Pattern*` labels only as legacy notes for traceability.
 
 どこで freeze するかを固定する（入口の責務分担）。
 
@@ -147,45 +147,45 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - 現在の entry 判定は Facts/Recipe/Verifier 契約のみで定義する。
 - strict/dev の observability（`planner_first` / FlowBox tags）は Facts/Recipe/Verifier から機械的に出るようにする。
 
-## Pilot: Pattern2Break (planner_required only)
+## Pilot: LoopBreak Route (legacy label: Pattern2Break, planner_required only)
 
-- Pattern2Break now builds and verifies a RecipeBlock in planner_required mode.
+- LoopBreak route (legacy label: Pattern2Break) now builds and verifies a RecipeBlock in planner_required mode.
 - Lowering behavior is unchanged (DomainPlan → Normalizer path), so this is a proof-only step.
 - Debug tag: `[recipe:verify] route=loop_break status=<ok|fail>` (guarded by `joinir_dev::debug_enabled()`).
 
-## Phase C: Pattern2Break entry enforced (planner_required only)
+## Phase C: LoopBreak Route entry enforced (legacy label: Pattern2Break, planner_required only)
 
-- Pattern2Break now **requires** `recipe_contract` when `planner_required` is enabled.
+- LoopBreak route (legacy label: Pattern2Break) now **requires** `recipe_contract` when `planner_required` is enabled.
 - If planner hits Pattern2Break but `outcome.recipe_contract` is None, it's a `[freeze:contract]`.
 - Debug tag: `[recipe:entry] loop_break: recipe_contract enforced`.
 - Lowering behavior unchanged (DomainPlan → Normalizer path).
 
-## Phase C2: Pattern2Break verification centralized (planner_required only)
+## Phase C2: LoopBreak Route verification centralized (legacy label: Pattern2Break, planner_required only)
 
-- Pattern2Break recipe verification moved from `classic.rs` to `matcher.rs`.
+- LoopBreak route recipe verification (legacy label: Pattern2Break) moved from `classic.rs` to `matcher.rs`.
 - `try_match_loop` now returns `Result<Option<RecipeContract>, Freeze>`.
 - Verification runs inside matcher (SSOT for entry verification).
 - **planner_required mode**: verify/build failure = Freeze (fail-fast).
 - Lowering behavior unchanged (DomainPlan → Normalizer path).
 
-## Phase C3: Pattern2Break composed via RecipeComposer (planner_required only)
+## Phase C3: LoopBreak Route composed via RecipeComposer (legacy label: Pattern2Break, planner_required only)
 
-- Pattern2Break is now composed directly into CorePlan in planner_required mode.
+- LoopBreak route (legacy label: Pattern2Break) is now composed directly into CorePlan in planner_required mode.
 - Route: `route_loop` → `RecipeComposer::compose_loop_break_recipe` → `PlanNormalizer::normalize_pattern2_break`
 - Debug tag: `[recipe:compose] route=loop_break path=recipe_block`
 - Lowering behavior unchanged (same normalizer, different entry path).
 - DomainPlan still exists (for non-planner_required mode).
 
-## Phase C4: Pattern2Break is recipe-only (planner_required only)
+## Phase C4: LoopBreak Route is recipe-only (legacy label: Pattern2Break, planner_required only)
 
-- Pattern2Break no longer returns DomainPlan in planner_required mode.
+- LoopBreak route (legacy label: Pattern2Break) no longer returns DomainPlan in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern2Break when planner_required.
 - Router detects Pattern2Break via `facts.pattern2_break` instead of `domain_plan`.
 - Recipe compose runs **before** pre_plan to prevent generic/shadow absorption.
 - Debug tag: `[recipe:entry] loop_break: recipe_contract enforced` (planner_required), `[recipe:entry] loop_break: recipe-only entry` (non-planner_required).
 - (historical) DomainPlan path statement from migration phase.
 
-## Phase C4b: Pattern2Break strict/dev observability shim (non-planner_required)
+## Phase C4b: LoopBreak Route strict/dev observability shim (legacy label: Pattern2Break, non-planner_required)
 
 - strict/dev かつ **planner_required ではない**場合でも、回帰スモークが FlowBox adopt tag を要求するケースがある。
 - そのため Router は DomainPlan ではなく Facts を見て分岐し、観測だけを安定化する（意味論は normalizer に委譲）。
@@ -204,33 +204,33 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - recipe_contract が無い場合は Freeze
 - Gate fixture: `apps/tests/phase29bq_pattern2_break_recipe_only_min.hako`
 
-## Phase C6: Pattern3IfPhi recipe verification (planner_required only)
+## Phase C6: IfPhiJoin Route recipe verification (legacy label: Pattern3IfPhi, planner_required only)
 
-- Pattern3IfPhi now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
+- IfPhiJoin route (legacy label: Pattern3IfPhi) now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [IfV2 { Join }, Stmt(increment)] }`
 - Contract: `body_contract = NoExit` (no break/continue/return in body)
 - Debug tag: `[recipe:verify] route=if_phi_join status=ok`
 - Lowering behavior unchanged (DomainPlan → Normalizer path).
 
-## Phase C7: Pattern3IfPhi composed via RecipeComposer (planner_required only)
+## Phase C7: IfPhiJoin Route composed via RecipeComposer (legacy label: Pattern3IfPhi, planner_required only)
 
-- Pattern3IfPhi now composes CorePlan via `RecipeComposer::compose_if_phi_join_recipe()`.
+- IfPhiJoin route (legacy label: Pattern3IfPhi) now composes CorePlan via `RecipeComposer::compose_if_phi_join_recipe()`.
 - Route: `route_loop` → `RecipeComposer::compose_if_phi_join_recipe` → `PlanNormalizer::normalize_pattern3_if_phi`
 - Debug tag: `[recipe:compose] route=if_phi_join path=recipe_block`
 - Lowering behavior unchanged (same normalizer, different entry path).
 - DomainPlan still exists (for non-planner_required mode).
 
-## Phase C8: Pattern3IfPhi is recipe-only (planner_required only)
+## Phase C8: IfPhiJoin Route is recipe-only (legacy label: Pattern3IfPhi, planner_required only)
 
-- Pattern3IfPhi no longer returns DomainPlan in planner_required mode.
+- IfPhiJoin route (legacy label: Pattern3IfPhi) no longer returns DomainPlan in planner_required mode.
 - `rules.rs` returns `(None, outcome)` for Pattern3 when planner_required.
 - Router detects Pattern3 via `facts.pattern3_ifphi` instead of `domain_plan`.
 - Debug tag: `[recipe:entry] if_phi_join: recipe_contract enforced` (planner_required), `[recipe:entry] if_phi_join: recipe-only entry` (non-planner_required).
 - (historical) DomainPlan path statement from migration phase.
 
-## Phase C9: Pattern4Continue Recipe-first migration (planner_required only)
+## Phase C9: LoopContinueOnly Route Recipe-first migration (legacy label: Pattern4Continue, planner_required only)
 
-- Pattern4Continue now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
+- LoopContinueOnly route (legacy label: Pattern4Continue) now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [IfV2 { ExitOnly(Continue) }, Stmt(carrier_updates), Stmt(increment)] }`
 - Contract: `body_contract = ExitAllowed` (continue exits the iteration)
 - Debug tag: `[recipe:verify] route=loop_continue_only status=ok`
@@ -242,9 +242,9 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - Debug tag: `[recipe:entry] loop_continue_only: recipe_contract enforced` (planner_required), `[recipe:entry] loop_continue_only: recipe-only entry` (non-planner_required).
 - (historical) DomainPlan path statement from migration phase.
 
-## Phase C10: Pattern5InfiniteEarlyExit Recipe-first migration (planner_required only)
+## Phase C10: LoopTrueEarlyExit Route Recipe-first migration (legacy label: Pattern5InfiniteEarlyExit, planner_required only)
 
-- Pattern5InfiniteEarlyExit now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
+- LoopTrueEarlyExit route (legacy label: Pattern5InfiniteEarlyExit) now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { kind: Infinite, body: [IfV2 { ExitOnly }, Stmt?, Stmt(increment)] }`
 - Contract: `body_contract = ExitAllowed` (return/break exits)
 - Debug tag: `[recipe:verify] route=loop_true_early_exit status=ok`
@@ -257,9 +257,9 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - Debug tag: `[recipe:entry] loop_true_early_exit: recipe_contract enforced` (planner_required), `[recipe:entry] loop_true_early_exit: recipe-only entry` (non-planner_required).
 - (historical) DomainPlan path statement from migration phase.
 
-## Phase C11: Pattern1SimpleWhile Recipe-first migration (planner_required only)
+## Phase C11: LoopSimpleWhile Route Recipe-first migration (legacy label: Pattern1SimpleWhile, planner_required only)
 
-- Pattern1SimpleWhile now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
+- LoopSimpleWhile route (legacy label: Pattern1SimpleWhile) now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { kind: WhileLike, body: [Stmt(increment)] }`
 - Contract: `body_contract = StmtOnly`, root verified with `NoExit`
 - Debug tag: `[recipe:verify] route=loop_simple_while status=ok`
@@ -271,9 +271,9 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - Debug tag: `[recipe:entry] loop_simple_while: recipe_contract enforced` (planner_required), `[recipe:entry] loop_simple_while: recipe-only entry` (non-planner_required).
 - (historical) DomainPlan path statement from migration phase.
 
-## Phase C12: Pattern1CharMap Recipe-first migration (planner_required only)
+## Phase C12: LoopCharMap Route Recipe-first migration (legacy label: Pattern1CharMap, planner_required only)
 
-- Pattern1CharMap now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
+- LoopCharMap route (legacy label: Pattern1CharMap) now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { kind: WhileLike, body: [Stmt(substring), Stmt(result_update), Stmt(increment)] }`
 - Contract: `body_contract = StmtOnly`, root verified with `NoExit`
 - NOTE: Body AST is reconstructed from Facts fields (Pattern1CharMapFacts does not store original body).
@@ -286,9 +286,9 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - Debug tag: `[recipe:entry] loop_char_map: recipe_contract enforced` (planner_required), `[recipe:entry] loop_char_map: recipe-only entry` (non-planner_required).
 - (historical) DomainPlan path statement from migration phase.
 
-## Phase C13: Pattern1ArrayJoin Recipe-first migration (planner_required only)
+## Phase C13: LoopArrayJoin Route Recipe-first migration (legacy label: Pattern1ArrayJoin, planner_required only)
 
-- Pattern1ArrayJoin now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
+- LoopArrayJoin route (legacy label: Pattern1ArrayJoin) now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { kind: WhileLike, body: [IfV2 { Join }, Stmt(element_append), Stmt(increment)] }`
 - Contract: `body_contract = NoExit` (body contains IfV2, not StmtOnly)
 - NOTE: Body AST is reconstructed from Facts fields (Pattern1ArrayJoinFacts does not store original body).
@@ -302,11 +302,11 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - Non-planner_required: if `recipe_contract` is available, router may enter recipe-first to avoid legacy LoopBuilder.
 - (historical) DomainPlan path statement from migration phase.
 
-## Phase C14: Pattern6–9 Recipe-first migration (planner_required only)
+## Phase C14: Scan/Predicate/Accum Routes Recipe-first migration (legacy labels: Pattern6–9, planner_required only)
 
-### Pattern6 ScanWithInit
+### ScanWithInit Route (legacy label: Pattern6)
 
-- Pattern6 ScanWithInit now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
+- ScanWithInit route (legacy label: Pattern6) now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [IfV2 { ExitOnly(Return) }, Stmt(step)] }`
 - Contract: `body_contract = ExitAllowed`
 - Contract violation freeze tag (strict/dev): `[joinir/phase29ab/scan_with_init/contract]`
@@ -320,9 +320,9 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - Non-planner_required: if `recipe_contract` is available, router may enter recipe-first to avoid legacy LoopBuilder.
 - Gate fixtures: `apps/tests/phase29aq_string_index_of_min.hako`, `apps/tests/phase29aq_string_last_index_of_min.hako`
 
-### Pattern7 SplitScan
+### SplitScan Route (legacy label: Pattern7)
 
-- Pattern7 SplitScan now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
+- SplitScan route (legacy label: Pattern7) now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [IfV2 { Join(then/else) }] }`
 - Contract: `body_contract = NoExit`
 - Contract violation freeze tag (strict/dev): `[joinir/phase29ab/split_scan/contract]`
@@ -336,9 +336,9 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - Non-planner_required: if `recipe_contract` is available, router may enter recipe-first to avoid legacy LoopBuilder.
 - Gate fixture: `apps/tests/phase29aq_string_split_min.hako`
 
-### Pattern8 BoolPredicateScan
+### BoolPredicateScan Route (legacy label: Pattern8)
 
-- Pattern8 now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
+- BoolPredicateScan route (legacy label: Pattern8) now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [IfV2 { ExitOnly(Return false) }, Stmt(step)] }`
 - Contract: `body_contract = ExitAllowed`
 - Debug tag: `[recipe:verify] route=bool_predicate_scan status=ok`
@@ -350,9 +350,9 @@ Note: Phase C* section titles below keep migration-era `Pattern*` names for trac
 - Debug tag: `[recipe:entry] bool_predicate_scan: recipe_contract enforced` (planner_required), `[recipe:entry] bool_predicate_scan: recipe-only entry` (non-planner_required).
 - Gate fixture: `apps/tests/phase269_p0_pattern8_frag_min.hako`
 
-### Pattern9 AccumConstLoop
+### AccumConstLoop Route (legacy label: Pattern9)
 
-- Pattern9 now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
+- AccumConstLoop route (legacy label: Pattern9) now verifies recipe structure in `RecipeMatcher::try_match_loop()`.
 - Recipe structure: `LoopV0 { body: [Stmt(acc_update), Stmt(step)] }`
 - Contract: `body_contract = StmtOnly`, root verified with `NoExit`
 - Debug tag: `[recipe:verify] route=accum_const_loop status=ok`

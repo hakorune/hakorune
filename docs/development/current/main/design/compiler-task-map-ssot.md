@@ -151,10 +151,10 @@ NOTE:
 RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recipe-first の最終形）。
 
 順序（1ブロッカー=1コミット）:
-1) ✅ LoopBreakRecipe: `normalize_pattern2_break` 依存を外して RecipeBlock 構築へ置換
+1) ✅ LoopBreakRecipe: break-subset route（legacy label: Pattern2, `normalize_pattern2_break`）依存を外して RecipeBlock 構築へ置換
 2) ✅ IfPhiJoin: IfV2 + join_payload 直構築へ置換
 3) ✅ LoopContinueOnly: LoopV0 + Continue port 直構築へ置換
-4) ✅ LoopCond* / LoopTrue*: normalize 依存を段階的に置換
+4) ✅ condition-driven loop routes（legacy label family: LoopCond*）/ loop-true routes（legacy label family: LoopTrue*）の normalize 依存を段階的に置換
 5) ✅ GenericLoopV0/ V1: recipe_path を完全化（Normalizer 経由を撤去）
 
 ### C. VerifiedRecipe / Parts
@@ -168,17 +168,17 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
 
 1) Router registryization（挙動不変）
    - `router.rs` の “候補列挙 + compose 呼び出し” をテーブル化し、見通しを改善する（分岐爆発の抑止）。
-2) Pattern implementation relocation（挙動不変）
-   - `pattern*_minimal.rs` / `pattern3_with_if_phi.rs` 等の “直接MIR構築” を plan/recipe-first（Composer/Normalizer/Parts）側へ移す。
+2) Route implementation relocation（挙動不変, legacy module prefix: `pattern*`）
+   - `pattern*_minimal.rs` / `pattern3_with_if_phi.rs` 等（legacy file naming）の “直接MIR構築” を plan/recipe-first（Composer/Normalizer/Parts）側へ移す。
    - patterns 層は “入口選択と呼び出し” のみ（Verify/Lower の真実は持たない）。
-   - Phase‑2/Step1: `pattern1_minimal.rs` の実装本体を plan 側へ移設。
-   - Phase‑2/Step2: `pattern3_with_if_phi.rs` の実装本体を plan 側へ移設。
-   - Phase‑2/Step3: `pattern8_scan_bool_predicate.rs` の実装本体を plan 側へ移設。
+   - Phase‑2/Step1: simple-while route（legacy label: Pattern1, `pattern1_minimal.rs`）の実装本体を plan 側へ移設。
+   - Phase‑2/Step2: if-phi join route（legacy label: Pattern3, `pattern3_with_if_phi.rs`）の実装本体を plan 側へ移設。
+   - Phase‑2/Step3: bool-predicate scan route（legacy label: Pattern8, `pattern8_scan_bool_predicate.rs`）の実装本体を plan 側へ移設。
    - Phase‑2/Step4: `route_prep_pipeline.rs`（旧: `pattern_pipeline.rs`）を plan 側へ移設。
-   - Phase‑2/Step5: `pattern2_lowering_orchestrator.rs` を plan 側へ移設。
-   - Phase‑2/Step6: `pattern2_inputs_facts_box.rs` を plan 側へ移設。
-   - Phase‑2/Step7: `pattern2_policy_router.rs` / `pattern2_break_condition_policy_router.rs` を plan 側へ移設。
-   - Phase‑2/Step8: `pattern2_steps/` を plan 側へ移設。
+   - Phase‑2/Step5: break-subset orchestration route（legacy label: Pattern2, `pattern2_lowering_orchestrator.rs`）を plan 側へ移設。
+   - Phase‑2/Step6: break-subset input facts route（legacy label: Pattern2, `pattern2_inputs_facts_box.rs`）を plan 側へ移設。
+   - Phase‑2/Step7: break-subset policy routing（legacy label: Pattern2, `pattern2_policy_router.rs` / `pattern2_break_condition_policy_router.rs`）を plan 側へ移設。
+   - Phase‑2/Step8: break-subset steps route（legacy label: Pattern2, `pattern2_steps/`）を plan 側へ移設。
    - Phase‑2/Step9: `conversion_pipeline.rs` を plan 側へ移設。
   - Phase‑2/Step10: trim 系（`trim_loop_lowering.rs` / `trim_pattern_lowerer.rs` / `trim_pattern_validator.rs`）を plan 側へ移設。
   - Phase‑2/Step11: loop_true_counter_extractor を plan 側へ移設。
@@ -192,13 +192,13 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
   - Phase‑2/Step19: read_digits_break_condition_box を plan 側へ移設。
   - Phase‑2/Step20: body_local_policy を plan 側へ移設。
   - Phase‑2/Step21: expectations を plan 側へ移設。
-  - Phase‑2/Step22: pattern1/pattern3 extractors を plan 側へ移設。
+  - Phase‑2/Step22: simple-while/if-phi extractors（legacy labels: Pattern1/Pattern3）を plan 側へ移設。
   - Phase‑2/Step23: legacy は patterns で保持（入口互換のみ）。
-  - Phase‑2/Step24: pattern2 module を plan 側へ移設。
+  - Phase‑2/Step24: break-subset module（legacy label: Pattern2）を plan 側へ移設。
   - Phase‑2/Step25: wrapper 実態監査と残存実体の移設完了。
   - Phase‑2/Step26: patterns wrapper を mod.rs に集約。
 3) Label rename（意味名へ置換）
-   - `PatternN` / `LoopCond*` のログ/TSV ラベルを意味名へ置換（入口の重なり解消後に一括）。
+   - route/semantic のログ/TSV ラベルを意味名へ置換（legacy labels: `PatternN` / `LoopCond*`; 入口の重なり解消後に一括）。
    - 置換は docs/SSOT/TSV/ログを同コミットで揃える（観測が揺れないようにする）。
 
 ### F. planner_first 表示名 rollout（Phase split）
@@ -212,7 +212,7 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
 
 ### G. Loop vocabulary convergence（Loopを“1語彙”へ収束）
 
-最終形の目標: `loop(cond){...}` は **Loop 1語彙**へ収束し、`LoopCond*` / `Pattern*` は “入口ラベル/診断” に縮退する。
+最終形の目標: `loop(cond){...}` は **Loop 1語彙**へ収束し、legacy entry labels（`LoopCond*` / `Pattern*`）は “入口ラベル/診断” に縮退する。
 
 1) SSOTの明文化（docs-only）
    - RecipeTreeの最小語彙（`Seq/Stmt/If/Loop/Exit`）と、Verifier/Parts/Entry の責務境界を1枚で参照できるようにする。
@@ -221,7 +221,7 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
    - `LoopExitIfBreakContinue` を Single/Multi に箱分割する前に、`break_kind`（Single/Multi）を facts/trace に落として観測固定する。
    - 「lowerが別経路になる」ことが証明できた場合のみ BoxCount として箱分割する（1形=1fixture=1commit）。
 3) specialized entry の縮退（BoxShape→BoxCountの順）
-   - `LoopCond*` は canonical `Loop`（generic_loop_v1）へ写像する方針を SSOT 化し、重なりは coherence/freezes で先に潰す。
+   - legacy `LoopCond*` entries は canonical `Loop`（generic_loop_v1）へ写像する方針を SSOT 化し、重なりは coherence/freezes で先に潰す。
 4) fixture pin（BoxCount）
    - canonical Loop で `loop→if→loop` 等の合成ケースを 1件ずつ pin（実測タグは label 併記で可読化、ruleは安定ID）。
 
