@@ -82,6 +82,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-05)
 
 - this round commits:
+  - `ea8ffeab3` refactor D5 migrate remaining legacy minimal normalizers to composer window
+    - `normalizer/pattern_{escape_map,int_to_str,is_integer,split_lines}.rs` を `composer/legacy_minimals/*` へ移設（rename）
+    - `composer/legacy_pattern_minimals.rs` は 6 minimal（`skip_ws / starts_with / is_integer / int_to_str / escape_map / split_lines`）を composer 側実装のみで解決
+    - `normalizer/legacy_minimals.rs` と `normalizer/pattern_starts_with.rs` を撤去し、normalizer 側の pattern minimal 窓口を閉鎖
+    - `normalizer/pattern2_break.rs` の `super::CorePlan` 依存を plan 直参照へ変更（module lexical coupling 解消）
   - `38338083d` refactor D5 rename planner promotion helper to semantic loop-break vocabulary
     - `single_planner/rules.rs` の helper 名を `emit_pattern2_promotion_hint_tag` から semantic 主語へ変更
     - runtime tag 文字列は維持（挙動不変）
@@ -712,6 +717,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-38338083d)
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
     - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-38338083d, elapsed=`0:04.83`）
+  - `cargo build --release --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` (`PASS`, post-ea8ffeab3)
+  - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
+    - `emit_fail=0`, `run_nonzero=18`, `run_ok=101`, `route_blocker=0`（total=119, post-ea8ffeab3, elapsed=`0:03.71`）
 
 - key behavior lock (kept green):
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
@@ -740,8 +749,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - `DomainPlan` alias 撤去（`fa1efcb21`）と `src/mir/builder/control_flow/{plan,joinir}` 内の残語彙撤去（`27cbe50d2`, `5af900fe3`）まで完了。
    - `normalizer` の pattern minimal helper 再公開は撤去済み（`e90d5074a`）、composer facade 隔離（`809088903`）まで完了。
    - `normalizer` 側も `legacy_minimals` 窓口へ統一済み（`f2ad5c305`）。
-   - file placement は `skip_ws` 1件を composer 側へ移設済み（`96591f62b`）。
-   - 次は `is_integer / starts_with / int_to_str / escape_map / split_lines` を1件ずつ同手順で移設する。
+   - pattern minimal の file placement は全6件 composer 側へ移設完了（`96591f62b`, `ea8ffeab3`）、normalizer 側窓口も撤去完了。
+   - 次は `shadow_adopt` fallback 本体の撤去条件固定と、rule/router runtime 文言の semantic 統一を優先する。
 5. 進捗ログの時系列は archive 側へ寄せ、root pointer は fixed order と blocker だけを更新。
 
 ## Quick Restart (After Reboot)
