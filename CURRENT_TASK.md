@@ -98,6 +98,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `441862be6` refactor(plan): route-align helper labels in break conversion path
+    - `conversion_pipeline.rs` と `common/joinir_helpers.rs` の helper 引数/説明を `pattern_name` から `route_label` へ統一
+    - `normalizer/pattern2_break.rs` の debug tag を `normalizer/loop_break` へ更新（補助ログの route 主語化）
+    - `facts/pattern2_break_loopbodylocal.rs` の strict freeze 文言を `pattern2` 主語から `loop_break` 主語へ更新
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS
   - `c139feb1c` refactor(plan): rename pattern_pipeline module to route_prep_pipeline
     - `plan/pattern_pipeline.rs` を `plan/route_prep_pipeline.rs` へリネームし、`plan/mod.rs` module 宣言を同名へ同期
     - `pattern2_inputs_facts_box.rs` / `pattern2_steps/gather_facts_step_box.rs` の `RoutePrepContext` 型パスを新 module 名へ更新
