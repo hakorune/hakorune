@@ -48,10 +48,7 @@ run_scan_with_init_strict() {
 
     set +e
     local output
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      NYASH_DISABLE_PLUGINS=1 \
-      HAKO_JOINIR_STRICT=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_strict "$input")
     local exit_code=$?
     set -e
 
@@ -73,15 +70,7 @@ run_scan_with_init_release() {
 
     set +e
     local output
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      -u HAKO_JOINIR_STRICT \
-      -u NYASH_JOINIR_STRICT \
-      -u HAKO_JOINIR_DEBUG \
-      -u NYASH_JOINIR_DEBUG \
-      -u HAKO_JOINIR_DEV \
-      -u NYASH_JOINIR_DEV \
-      NYASH_DISABLE_PLUGINS=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_release "$input")
     local exit_code=$?
     set -e
 
@@ -103,10 +92,7 @@ run_split_scan_strict() {
 
     set +e
     local output
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      NYASH_DISABLE_PLUGINS=1 \
-      HAKO_JOINIR_STRICT=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_strict "$input")
     local exit_code=$?
     set -e
 
@@ -128,15 +114,7 @@ run_split_scan_release() {
 
     set +e
     local output
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      -u HAKO_JOINIR_STRICT \
-      -u NYASH_JOINIR_STRICT \
-      -u HAKO_JOINIR_DEBUG \
-      -u NYASH_JOINIR_DEBUG \
-      -u HAKO_JOINIR_DEV \
-      -u NYASH_JOINIR_DEV \
-      NYASH_DISABLE_PLUGINS=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_release "$input")
     local exit_code=$?
     set -e
 
@@ -158,10 +136,7 @@ run_is_integer_strict() {
 
     set +e
     local output
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      NYASH_DISABLE_PLUGINS=1 \
-      HAKO_JOINIR_STRICT=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_strict "$input")
     local exit_code=$?
     set -e
 
@@ -190,15 +165,7 @@ run_is_integer_release() {
 
     set +e
     local output
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      -u HAKO_JOINIR_STRICT \
-      -u NYASH_JOINIR_STRICT \
-      -u HAKO_JOINIR_DEBUG \
-      -u NYASH_JOINIR_DEBUG \
-      -u HAKO_JOINIR_DEV \
-      -u NYASH_JOINIR_DEV \
-      NYASH_DISABLE_PLUGINS=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_release "$input")
     local exit_code=$?
     set -e
 
@@ -231,10 +198,7 @@ run_match_return_strict() {
 
     set +e
     local output
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      NYASH_DISABLE_PLUGINS=1 \
-      HAKO_JOINIR_STRICT=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_strict "$input")
     local exit_code=$?
     set -e
 
@@ -256,15 +220,7 @@ run_match_return_release() {
 
     set +e
     local output
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      -u HAKO_JOINIR_STRICT \
-      -u NYASH_JOINIR_STRICT \
-      -u HAKO_JOINIR_DEBUG \
-      -u NYASH_JOINIR_DEBUG \
-      -u HAKO_JOINIR_DEV \
-      -u NYASH_JOINIR_DEV \
-      NYASH_DISABLE_PLUGINS=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_release "$input")
     local exit_code=$?
     set -e
 

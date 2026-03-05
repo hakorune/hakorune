@@ -181,6 +181,44 @@ require_env() {
     return 0
 }
 
+# JoinIR strict lane helper (VM)
+# - strict=1
+# - clear debug/dev flags to avoid env contamination between smoke scripts
+# - default plugins=1 (can override via NYASH_DISABLE_PLUGINS)
+run_joinir_vm_strict() {
+    local fixture="$1"
+    shift || true
+    local timeout_secs="${RUN_TIMEOUT_SECS:-10}"
+
+    timeout "$timeout_secs" env \
+        -u HAKO_JOINIR_DEBUG \
+        -u NYASH_JOINIR_DEBUG \
+        -u HAKO_JOINIR_DEV \
+        -u NYASH_JOINIR_DEV \
+        NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
+        HAKO_JOINIR_STRICT=1 \
+        "$NYASH_BIN" --backend vm "$fixture" "$@" 2>&1
+}
+
+# JoinIR release lane helper (VM)
+# - strict/dev/debug flags are fully unset
+# - default plugins=1 (can override via NYASH_DISABLE_PLUGINS)
+run_joinir_vm_release() {
+    local fixture="$1"
+    shift || true
+    local timeout_secs="${RUN_TIMEOUT_SECS:-10}"
+
+    timeout "$timeout_secs" env \
+        -u HAKO_JOINIR_STRICT \
+        -u NYASH_JOINIR_STRICT \
+        -u HAKO_JOINIR_DEBUG \
+        -u NYASH_JOINIR_DEBUG \
+        -u HAKO_JOINIR_DEV \
+        -u NYASH_JOINIR_DEV \
+        NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
+        "$NYASH_BIN" --backend vm "$fixture" "$@" 2>&1
+}
+
 # プラグイン整合性チェック（必須）
 preflight_plugins() {
     # プラグインマネージャーが存在する場合は実行

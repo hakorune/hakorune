@@ -22,10 +22,7 @@ run_expect_rc1() {
 
     set +e
     local output
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      NYASH_DISABLE_PLUGINS=1 \
-      HAKO_JOINIR_STRICT=1 \
-      "$NYASH_BIN" --backend vm "$fixture" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_strict "$fixture")
     local exit_code=$?
     set -e
 
@@ -50,10 +47,7 @@ run_contract_freeze_case() {
 
     set +e
     local output
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      NYASH_DISABLE_PLUGINS=1 \
-      HAKO_JOINIR_STRICT=1 \
-      "$NYASH_BIN" --backend vm "$fixture" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_strict "$fixture")
     local exit_code=$?
     set -e
 

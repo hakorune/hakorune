@@ -44,24 +44,13 @@ assert_flowbox_adopt() {
     fi
 }
 
-clear_joinir_debug_env() {
-    unset HAKO_JOINIR_DEBUG
-    unset NYASH_JOINIR_DEBUG
-    unset HAKO_JOINIR_DEV
-    unset NYASH_JOINIR_DEV
-}
-
 run_pattern3_ifphi() {
     local input="$NYASH_ROOT/apps/tests/phase118_pattern3_if_sum_min.hako"
     local expected="12"
 
     set +e
     local output
-    clear_joinir_debug_env
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      NYASH_DISABLE_PLUGINS=1 \
-      HAKO_JOINIR_STRICT=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_strict "$input")
     local exit_code=$?
     set -e
 
@@ -89,11 +78,7 @@ run_pattern6_scan_with_init() {
 
     set +e
     local output
-    clear_joinir_debug_env
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      NYASH_DISABLE_PLUGINS=1 \
-      HAKO_JOINIR_STRICT=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_strict "$input")
     local exit_code=$?
     set -e
 
@@ -116,11 +101,7 @@ run_is_integer_strict_reject() {
 
     set +e
     local output
-    clear_joinir_debug_env
-    output=$(timeout "$RUN_TIMEOUT_SECS" env \
-      NYASH_DISABLE_PLUGINS=1 \
-      HAKO_JOINIR_STRICT=1 \
-      "$NYASH_BIN" --backend vm "$input" 2>&1)
+    output=$(NYASH_DISABLE_PLUGINS=1 run_joinir_vm_strict "$input")
     local exit_code=$?
     set -e
 
