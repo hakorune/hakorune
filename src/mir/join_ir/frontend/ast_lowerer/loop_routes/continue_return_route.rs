@@ -1,9 +1,9 @@
-//! Phase 89 P1: ContinueReturn パターン lowering
+//! Phase 89 P1: ContinueReturn route lowering
 //!
 //! ## 責務（1行で表現）
 //! **continue + early return 両方を持つループを複合処理で JoinIR に落とす**
 //!
-//! ## パターン例
+//! ## route 例
 //! ```nyash
 //! loop(i < n) {
 //!     if i == 5 { return acc }  // Early return
@@ -30,7 +30,7 @@
 //! ## 設計原則
 //! - **StepCalculator 再利用**: Phase 89-2 の成果活用
 //! - **Fail-Fast**: 複数 Return/Continue、Return が then 以外などは明示エラー
-//! - **境界明確**: continue_pattern.rs の設計を継承
+//! - **境界明確**: continue_route.rs の設計を継承
 
 use super::common::{
     build_join_module, create_k_exit_function, create_loop_context, parse_program_json,
@@ -46,7 +46,7 @@ fn json_values_equal(a: &serde_json::Value, b: &serde_json::Value) -> bool {
     a == b
 }
 
-/// ContinueReturn パターンを JoinModule に変換
+/// ContinueReturn routeを JoinModule に変換
 ///
 /// # Arguments
 /// * `lowerer` - AstToJoinIrLowerer インスタンス
@@ -88,7 +88,7 @@ pub fn lower(
 
     if return_if_stmts.is_empty() {
         return Err(LoweringError::InvalidLoopBody {
-            message: "ContinueReturn pattern must have If + Return".to_string(),
+            message: "ContinueReturn route must have If + Return".to_string(),
         });
     }
 
@@ -113,7 +113,7 @@ pub fn lower(
             if !json_values_equal(first_value, value) {
                 return Err(LoweringError::InvalidLoopBody {
                     message: format!(
-                        "ContinueReturn pattern validation failed: multiple return-if statements with different values.\n\
+                        "ContinueReturn route validation failed: multiple return-if statements with different values.\n\
                          Expected: All early returns must have identical values.\n\
                          First return: {:?}\n\
                          Return #{}: {:?}\n\
@@ -149,7 +149,7 @@ pub fn lower(
             .any(|s| s["type"].as_str() == Some("Return"))
         {
             return Err(LoweringError::InvalidLoopBody {
-                message: "ContinueReturn pattern validation failed: Return in 'else' branch.\n\
+                message: "ContinueReturn route validation failed: Return in 'else' branch.\n\
                      Expected: Return statement only in 'then' branch.\n\
                      Found: Return in 'else' branch.\n\
                      Hint: Move Return statement to 'then' branch or invert condition."
@@ -174,14 +174,14 @@ pub fn lower(
 
     if continue_if_stmts.is_empty() {
         return Err(LoweringError::InvalidLoopBody {
-            message: "ContinueReturn pattern must have If + Continue".to_string(),
+            message: "ContinueReturn route must have If + Continue".to_string(),
         });
     }
 
     if continue_if_stmts.len() > 1 {
         return Err(LoweringError::InvalidLoopBody {
             message: format!(
-                "ContinueReturn pattern validation failed: multiple Continue statements found.\n\
+                "ContinueReturn route validation failed: multiple Continue statements found.\n\
                  Expected: Exactly one 'if {{ continue }}' statement in loop body.\n\
                  Found: {} Continue statements.\n\
                  Hint: Combine multiple continue conditions into a single if statement.",
@@ -217,7 +217,7 @@ pub fn lower(
     Ok(build_join_module(entry_func, loop_step_func, k_exit_func))
 }
 
-/// ContinueReturn パターン用 entry 関数を生成
+/// ContinueReturn route用 entry 関数を生成
 fn create_entry_function_continue_return(
     ctx: &super::common::LoopContext,
     parsed: &super::common::ParsedProgram,
@@ -253,7 +253,7 @@ fn create_entry_function_continue_return(
     }
 }
 
-/// ContinueReturn パターン用 loop_step 関数を生成
+/// ContinueReturn route用 loop_step 関数を生成
 #[allow(clippy::too_many_arguments)]
 fn create_loop_step_function_continue_return(
     lowerer: &mut AstToJoinIrLowerer,
@@ -317,7 +317,7 @@ fn create_loop_step_function_continue_return(
         cond: Some(return_cond_var),
     });
 
-    // 3. Continue pattern: i のインクリメント処理
+    // 3. Continue route: i のインクリメント処理
     // Continue If の then 内に i の更新がある場合、それを使う（例: i = i + 1）
     let continue_then =
         continue_if_stmt["then"]
@@ -331,7 +331,7 @@ fn create_loop_step_function_continue_return(
         .find(|stmt| stmt["type"].as_str() == Some("Local") && stmt["name"].as_str() == Some("i"))
         .ok_or_else(|| LoweringError::InvalidLoopBody {
             message: format!(
-                "ContinueReturn pattern validation failed: missing 'i' increment in continue block.\n\
+                "ContinueReturn route validation failed: missing 'i' increment in continue block.\n\
                  Expected: Continue block must contain 'local i = i + K' where K is a constant.\n\
                  Found: Continue block does not contain 'i' update.\n\
                  Hint: Add 'i = i + 1' inside the 'if {{ continue }}' block."
@@ -350,7 +350,7 @@ fn create_loop_step_function_continue_return(
         .last() // Continue の後にある最後の i 更新を使う
         .ok_or_else(|| LoweringError::InvalidLoopBody {
             message: format!(
-                "ContinueReturn pattern validation failed: missing normal 'i' increment.\n\
+                "ContinueReturn route validation failed: missing normal 'i' increment.\n\
                  Expected: Loop body must contain 'local i = i + K' outside continue block.\n\
                  Found: No 'i' update found in loop body.\n\
                  Hint: Add 'i = i + 1' at the end of the loop body."
@@ -365,7 +365,7 @@ fn create_loop_step_function_continue_return(
                 .unwrap_or_else(|_| "<invalid JSON>".to_string());
             LoweringError::InvalidLoopBody {
                 message: format!(
-                    "ContinueReturn pattern validation failed: invalid step increment form.\n\
+                    "ContinueReturn route validation failed: invalid step increment form.\n\
                      Expected: i = i + const (e.g., 'i = i + 1', 'i = i + 2').\n\
                      Found: {}\n\
                      Hint: Change the 'i' update to addition form 'i = i + K' where K is a constant integer.",
@@ -379,7 +379,7 @@ fn create_loop_step_function_continue_return(
             serde_json::to_string(i_expr).unwrap_or_else(|_| "<invalid JSON>".to_string());
         LoweringError::InvalidLoopBody {
             message: format!(
-                "ContinueReturn pattern validation failed: invalid continue branch step increment.\n\
+                "ContinueReturn route validation failed: invalid continue branch step increment.\n\
                  Expected: In continue block, 'i = i + const' (e.g., 'i = i + 2').\n\
                  Found: {}\n\
                  Hint: Ensure the continue block updates 'i' using addition form 'i = i + K'.",
@@ -416,7 +416,7 @@ fn create_loop_step_function_continue_return(
         .find(|stmt| stmt["type"].as_str() == Some("Local") && stmt["name"].as_str() == Some("acc"))
         .ok_or_else(|| LoweringError::InvalidLoopBody {
             message: format!(
-                "ContinueReturn pattern validation failed: missing accumulator update.\n\
+                "ContinueReturn route validation failed: missing accumulator update.\n\
                  Expected: Loop body must contain 'local acc = ...' statement.\n\
                  Found: No 'acc' update found in loop body.\n\
                  Hint: Add 'acc = acc + <value>' or similar accumulator update."

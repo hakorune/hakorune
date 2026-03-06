@@ -1,7 +1,7 @@
 //! Phase P2: Loop Patterns 共通処理
 //!
 //! ## 責務
-//! 各 LoopPattern lowering で共通する処理を提供する。
+//! 各 LoopRoute lowering で共通する処理を提供する。
 //!
 //! ## 提供する機能
 //! - `ParsedProgram`: Program(JSON) のパース結果を保持

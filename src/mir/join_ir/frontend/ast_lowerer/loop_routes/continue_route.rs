@@ -1,9 +1,9 @@
-//! Phase P4: Continue パターン lowering
+//! Phase P4: Continue route lowering
 //!
 //! ## 責務（1行で表現）
 //! **if continue 条件で処理をスキップするループを Select に落とす**
 //!
-//! ## パターン例
+//! ## route 例
 //! ```nyash
 //! loop(i < n) {
 //!     i = i + 1
@@ -31,7 +31,7 @@ use super::{AstToJoinIrLowerer, JoinModule, LoweringError};
 use crate::mir::join_ir::{CompareOp, ConstValue, JoinFunction, JoinInst, MirLikeInst};
 use crate::mir::ValueId;
 
-/// Continue パターンを JoinModule に変換
+/// Continue routeを JoinModule に変換
 ///
 /// # Arguments
 /// * `lowerer` - AstToJoinIrLowerer インスタンス
@@ -69,7 +69,7 @@ pub fn lower(
                 })
         })
         .ok_or_else(|| LoweringError::InvalidLoopBody {
-            message: "Continue pattern must have If + Continue".to_string(),
+            message: "Continue route must have If + Continue".to_string(),
         })?;
 
     let continue_cond_expr = &continue_if_stmt["cond"];
@@ -95,7 +95,7 @@ pub fn lower(
     Ok(build_join_module(entry_func, loop_step_func, k_exit_func))
 }
 
-/// Continue パターン用 entry 関数を生成
+/// Continue route用 entry 関数を生成
 fn create_entry_function_continue(
     ctx: &super::common::LoopContext,
     parsed: &super::common::ParsedProgram,
@@ -131,7 +131,7 @@ fn create_entry_function_continue(
     }
 }
 
-/// Continue パターン用 loop_step 関数を生成
+/// Continue route用 loop_step 関数を生成
 fn create_loop_step_function_continue(
     lowerer: &mut AstToJoinIrLowerer,
     ctx: &super::common::LoopContext,
@@ -178,13 +178,13 @@ fn create_loop_step_function_continue(
         cond: Some(exit_cond),
     });
 
-    // 2. Continue pattern 特有: i のインクリメントが先
+    // 2. Continue route 特有: i のインクリメントが先
     let first_local = loop_body
         .iter()
         .find(|stmt| stmt["type"].as_str() == Some("Local") && stmt["name"].as_str() == Some("i"))
         .ok_or_else(|| LoweringError::InvalidLoopBody {
             message: format!(
-                "Continue pattern validation failed: missing 'i' increment.\n\
+                "Continue route validation failed: missing 'i' increment.\n\
                  Expected: First statement in loop body must be 'local i = i + K' where K is a constant.\n\
                  Found: Loop body does not contain 'local i = ...' statement.\n\
                  Hint: Add 'i = i + 1' as the first statement inside the loop body."
@@ -209,7 +209,7 @@ fn create_loop_step_function_continue(
         continue_if_stmt["then"]
             .as_array()
             .ok_or_else(|| LoweringError::InvalidLoopBody {
-                message: "Continue pattern If must have 'then' array".to_string(),
+                message: "Continue route If must have 'then' array".to_string(),
             })?;
     if let Some(then_i_local) = continue_then
         .iter()
@@ -220,7 +220,7 @@ fn create_loop_step_function_continue(
                 .unwrap_or_else(|_| "<invalid JSON>".to_string());
             LoweringError::InvalidLoopBody {
                 message: format!(
-                    "Continue pattern validation failed: invalid step increment form.\n\
+                    "Continue route validation failed: invalid step increment form.\n\
                      Expected: i = i + const (e.g., 'i = i + 1', 'i = i + 2').\n\
                      Found: {}\n\
                      Hint: Change the 'i' update to addition form 'i = i + K' where K is a constant integer.",
@@ -234,7 +234,7 @@ fn create_loop_step_function_continue(
                     .unwrap_or_else(|_| "<invalid JSON>".to_string());
                 LoweringError::InvalidLoopBody {
                     message: format!(
-                        "Continue pattern validation failed: invalid 'then' branch step increment.\n\
+                        "Continue route validation failed: invalid 'then' branch step increment.\n\
                          Expected: In 'if ... {{ continue }}' block, 'i = i + const' (e.g., 'i = i + 2').\n\
                          Found: {}\n\
                          Hint: Ensure the continue block updates 'i' using addition form 'i = i + K'.",
@@ -271,7 +271,7 @@ fn create_loop_step_function_continue(
         .find(|stmt| stmt["type"].as_str() == Some("Local") && stmt["name"].as_str() == Some("acc"))
         .ok_or_else(|| LoweringError::InvalidLoopBody {
             message: format!(
-                "Continue pattern validation failed: missing accumulator update.\n\
+                "Continue route validation failed: missing accumulator update.\n\
                  Expected: Loop body must contain 'local acc = ...' statement.\n\
                  Found: No 'acc' update found in loop body.\n\
                  Hint: Add 'acc = acc + <value>' or similar accumulator update."

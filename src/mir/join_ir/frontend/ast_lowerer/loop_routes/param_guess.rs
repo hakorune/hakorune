@@ -10,7 +10,7 @@ pub(crate) struct ParamGuess {
     pub len: Option<(String, ValueId)>,
 }
 
-/// Break パターン向けのパラメータ推定テーブル。
+/// Break route向けのパラメータ推定テーブル。
 /// - ループ変数優先順: p → i → 先頭の var
 /// - アキュムレータ優先順: num_str → acc → result → ループ変数
 pub(crate) fn compute_param_guess(ctx: &super::super::context::ExtractCtx) -> ParamGuess {
@@ -24,7 +24,7 @@ pub(crate) fn compute_param_guess(ctx: &super::super::context::ExtractCtx) -> Pa
                 .find(|(name, _)| name.as_str() != "me")
                 .map(|(name, v)| (name.clone(), *v))
         })
-        .unwrap_or_else(|| panic!("[joinir/frontend] break_pattern: loop variable missing"));
+        .unwrap_or_else(|| panic!("[joinir/frontend] break_route: loop variable missing"));
 
     let acc = if let Some(v) = ctx.get_var("num_str") {
         ("num_str".to_string(), v)

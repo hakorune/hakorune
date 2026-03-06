@@ -5,7 +5,7 @@
 //!
 //! ## 使用例
 //! ```rust
-//! // Continue パターンで通常/continue パスの step 差分を計算
+//! // Continue routeで通常/continue パスの step 差分を計算
 //! let base_k = StepCalculator::extract_linear_increment(i_expr, "i")?;
 //! let then_k = StepCalculator::extract_linear_increment(&then_i_expr, "i")?;
 //! let delta = StepCalculator::calculate_step_difference(then_k, base_k);
@@ -25,7 +25,7 @@ impl StepCalculator {
     ///
     /// # Returns
     /// * `Some(K)`: 線形インクリメント定数
-    /// * `None`: パターン不一致
+    /// * `None`: route 不一致
     ///
     /// # 対応形式
     /// - `i + 1`, `i + 2`, `i + K`
@@ -44,12 +44,12 @@ impl StepCalculator {
         let lhs = &expr["lhs"];
         let rhs = &expr["rhs"];
 
-        // パターン1: var + const
+        // shape 1: var + const
         if Self::is_var_with_name(lhs, var_name) {
             return Self::extract_int_const(rhs);
         }
 
-        // パターン2: const + var
+        // shape 2: const + var
         if Self::is_var_with_name(rhs, var_name) {
             return Self::extract_int_const(lhs);
         }

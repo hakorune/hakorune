@@ -1,9 +1,9 @@
-//! Phase P4: Break パターン lowering
+//! Phase P4: Break route lowering
 //!
 //! ## 責務（1行で表現）
 //! **if break 条件で早期 return するループを Jump(k_exit, cond) に落とす**
 //!
-//! ## パターン例
+//! ## route 例
 //! ```nyash
 //! loop {
 //!     if i >= n { break }
@@ -29,7 +29,7 @@ use super::{AstToJoinIrLowerer, JoinModule, LoweringError};
 use crate::mir::join_ir::{JoinFunction, JoinInst};
 use crate::mir::ValueId;
 
-/// Break パターンを JoinModule に変換
+/// Break routeを JoinModule に変換
 ///
 /// # Arguments
 /// * `lowerer` - AstToJoinIrLowerer インスタンス
@@ -75,7 +75,7 @@ fn lower_legacy_param_guess(
                 })
         })
         .ok_or_else(|| LoweringError::InvalidLoopBody {
-            message: "Break pattern must have If + Break".to_string(),
+            message: "Break route must have If + Break".to_string(),
         })?;
 
     let break_cond_expr = &break_if_stmt["cond"];
@@ -111,7 +111,7 @@ fn lower_legacy_param_guess(
     Ok(build_join_module(entry_func, loop_step_func, k_exit_func))
 }
 
-/// Break パターン用 entry 関数を生成
+/// Break route用 entry 関数を生成
 fn create_entry_function_break(
     ctx: &super::common::LoopContext,
     parsed: &super::common::ParsedProgram,
@@ -145,7 +145,7 @@ fn create_entry_function_break(
     }
 }
 
-/// Break パターン用 loop_step 関数を生成
+/// Break route用 loop_step 関数を生成
 fn create_loop_step_function_break(
     lowerer: &mut AstToJoinIrLowerer,
     ctx: &super::common::LoopContext,

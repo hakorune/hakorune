@@ -1,9 +1,9 @@
-//! Phase P2: Simple パターン lowering
+//! Phase P2: Simple route lowering
 //!
 //! ## 責務（1行で表現）
 //! **汎用的なループ処理を Jump/Call/Select に落とす**
 //!
-//! ## パターン例
+//! ## route 例
 //! ```nyash
 //! // Filter/Map/Reduce/PrintTokens 以外の汎用ループ
 //! local sum = 0
@@ -31,7 +31,7 @@ use super::{AstToJoinIrLowerer, JoinModule, LoweringError};
 use crate::mir::join_ir::CompareOp;
 use crate::mir::join_ir::{ConstValue, JoinFunction, JoinInst, MirLikeInst};
 
-/// Simple パターンを JoinModule に変換
+/// Simple routeを JoinModule に変換
 ///
 /// 汎用的なループ処理を JoinIR に変換する。
 /// Filter/Map/Reduce/PrintTokens 以外のすべてのループがこれに該当する。

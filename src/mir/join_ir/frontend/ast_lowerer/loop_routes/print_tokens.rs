@@ -1,9 +1,9 @@
-//! Phase P2/55: PrintTokens パターン lowering
+//! Phase P2/55: PrintTokens route lowering
 //!
 //! ## 責務（1行で表現）
 //! **token を順番に取り出して print するループを Jump/Call/MethodCall に落とす**
 //!
-//! ## パターン例
+//! ## route 例
 //! ```nyash
 //! box JsonTokenizer {
 //!     print_tokens() {
@@ -26,14 +26,14 @@
 //! - k_exit 関数: Return(void)
 //!
 //! ## 現在の実装
-//! Simple パターンに委譲（stmt_handlers が MethodCall を適切に処理）
+//! Simple routeに委譲（stmt_handlers が MethodCall を適切に処理）
 
 use super::{AstToJoinIrLowerer, JoinModule, LoweringError};
 
-/// PrintTokens パターンを JoinModule に変換
+/// PrintTokens routeを JoinModule に変換
 ///
 /// Phase 55 で実装済みの print_tokens ループを JoinIR に変換する。
-/// 現在は Simple パターンに委譲し、stmt_handlers が MethodCall を適切に処理。
+/// 現在は Simple routeに委譲し、stmt_handlers が MethodCall を適切に処理。
 ///
 /// # Arguments
 /// * `lowerer` - AstToJoinIrLowerer インスタンス
@@ -42,7 +42,7 @@ pub fn lower(
     lowerer: &mut AstToJoinIrLowerer,
     program_json: &serde_json::Value,
 ) -> Result<JoinModule, LoweringError> {
-    // Phase 55: PrintTokens パターンは Simple パターンと同じ構造
+    // Phase 55: PrintTokens routeは Simple routeと同じ構造
     // 差分は stmt_handlers での MethodCall 処理のみ
     // → Simple に委譲
     super::simple::lower(lowerer, program_json)

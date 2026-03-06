@@ -1,9 +1,9 @@
-//! Phase P2/56: Filter パターン lowering
+//! Phase P2/56: Filter route lowering
 //!
 //! ## 責務（1行で表現）
 //! **pred が true のときだけ push するループを ConditionalMethodCall に落とす**
 //!
-//! ## パターン例
+//! ## route 例
 //! ```nyash
 //! box ArrayExtBox {
 //!     filter(pred) {
@@ -30,14 +30,14 @@
 //! - k_exit 関数: Return(out)
 //!
 //! ## 現在の実装
-//! Simple パターンに委譲（stmt_handlers が if 内 MethodCall を適切に処理）
+//! Simple routeに委譲（stmt_handlers が if 内 MethodCall を適切に処理）
 
 use super::{AstToJoinIrLowerer, JoinModule, LoweringError};
 
-/// Filter パターンを JoinModule に変換
+/// Filter routeを JoinModule に変換
 ///
 /// Phase 56 で実装済みの filter ループを JoinIR に変換する。
-/// 現在は Simple パターンに委譲し、stmt_handlers が if 内の処理を適切に行う。
+/// 現在は Simple routeに委譲し、stmt_handlers が if 内の処理を適切に行う。
 ///
 /// # Arguments
 /// * `lowerer` - AstToJoinIrLowerer インスタンス
@@ -46,7 +46,7 @@ pub fn lower(
     lowerer: &mut AstToJoinIrLowerer,
     program_json: &serde_json::Value,
 ) -> Result<JoinModule, LoweringError> {
-    // Phase 56: Filter パターンは Simple パターンと同じ構造
+    // Phase 56: Filter routeは Simple routeと同じ構造
     // 差分は stmt_handlers での if 内 MethodCall 処理のみ
     // → Simple に委譲
     super::simple::lower(lowerer, program_json)

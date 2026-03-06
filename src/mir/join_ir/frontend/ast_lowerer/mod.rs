@@ -11,7 +11,7 @@
 //! ## Phase 34-2 での実装スコープ
 //!
 //! 最初は `IfSelectTest.*` 相当の tiny ケースのみ対応：
-//! - Simple pattern: `if cond { return 1 } else { return 2 }`
+//! - simple if-return shape: `if cond { return 1 } else { return 2 }`
 //!
 //! ## 設計原則
 //!
@@ -31,8 +31,8 @@ mod expr;
 mod if_in_loop;
 mod if_return;
 mod loop_frontend_binding;
-mod loop_patterns;
-// Removed: loop_patterns_old (obsolete legacy dispatcher, all patterns now in loop_patterns/)
+mod loop_routes;
+// Obsolete legacy dispatcher removed; active loop lowering now lives in loop_routes/.
 mod nested_if;
 mod read_quoted;
 pub(crate) mod route;
@@ -70,7 +70,7 @@ impl AstToJoinIrLowerer {
     ///
     /// # Panics
     ///
-    /// - パターンに合わない Program(JSON) が来た場合（Phase 34 は tiny テスト専用）
+    /// - 想定 route/shape に合わない Program(JSON) が来た場合（Phase 34 は tiny テスト専用）
     /// - ループ・複数変数・副作用付き if（Phase 34-6 以降で対応予定）
     pub fn lower_program_json(&mut self, program_json: &serde_json::Value) -> JoinModule {
         // 1. Program(JSON) から defs を取得

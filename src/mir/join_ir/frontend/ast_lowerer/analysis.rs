@@ -1,4 +1,4 @@
-use super::{AstToJoinIrLowerer, HashSet, JoinModule};
+use super::{loop_routes, AstToJoinIrLowerer, HashSet, JoinModule};
 use crate::mir::join_ir::frontend::func_meta::{JoinFuncMeta, JoinFuncMetaMap};
 
 impl AstToJoinIrLowerer {
@@ -249,9 +249,9 @@ impl AstToJoinIrLowerer {
         }
     }
 
-    /// Phase 40-1実験用: array_ext.filter パターン専用lowering
+    /// Phase 40-1実験用: array_ext.filter route 専用 lowering
     ///
-    /// 通常の Simple パターンループ lowering に加えて、
+    /// 通常の Simple route ループ lowering に加えて、
     /// if-in-loop modified varsをJoinFuncMetaMapとして返す。
     ///
     /// # Returns
@@ -260,19 +260,18 @@ impl AstToJoinIrLowerer {
     ///
     /// # Phase 40-1専用
     /// この関数はPhase 40-1 A/Bテスト専用。
-    /// 本番パスでは使わない（新しいloop_patterns::simple::lower()を使う）。
+    /// 本番パスでは使わない（`loop_routes::simple::lower()` を使う）。
     ///
     /// # Phase 85 Note
-    /// loop_patterns_old.rs削除に伴い、loop_patterns::simple::lower()に委譲
+    /// 旧 dispatcher 削除に伴い、`loop_routes::simple::lower()` に委譲
     #[allow(dead_code)]
     pub fn lower_loop_with_if_meta(
         &mut self,
         program_json: &serde_json::Value,
     ) -> (JoinModule, JoinFuncMetaMap) {
-        // 1. 通常のJoinModule生成（新パターンシステムに委譲）
-        use super::loop_patterns;
-        let module = loop_patterns::simple::lower(self, program_json)
-            .expect("Simple pattern lowering failed in lower_loop_with_if_meta");
+        // 1. 通常の JoinModule 生成（loop route lowering に委譲）
+        let module = loop_routes::simple::lower(self, program_json)
+            .expect("Simple route lowering failed in lower_loop_with_if_meta");
 
         // 2. loop body ASTからif-in-loop modified varsを抽出
         let loop_body = self.extract_loop_body_from_program(program_json);
@@ -347,7 +346,7 @@ impl AstToJoinIrLowerer {
 
     /// Phase 85: Loop body に Break があるかチェック（再帰的探索）
     ///
-    /// ループパターン検出（loop_frontend_binding）で使用される。
+    /// ループ route 検出（loop_frontend_binding）で使用される。
     /// ネストした If/Block 内の Break ステートメントも検出する。
     ///
     /// # Arguments
@@ -394,7 +393,7 @@ impl AstToJoinIrLowerer {
 
     /// Phase 85: Loop body に Continue があるかチェック（再帰的探索）
     ///
-    /// ループパターン検出（loop_frontend_binding）で使用される。
+    /// ループ route 検出（loop_frontend_binding）で使用される。
     /// ネストした If/Block 内の Continue ステートメントも検出する。
     ///
     /// # Arguments
@@ -441,7 +440,7 @@ impl AstToJoinIrLowerer {
 
     /// Phase 89: Loop body に Return があるかチェック（再帰的探索）
     ///
-    /// ループパターン検出（loop_frontend_binding）で使用される。
+    /// ループ route 検出（loop_frontend_binding）で使用される。
     /// ネストした If/Block 内の Return ステートメントも検出する（loop-internal early return）。
     ///
     /// # Arguments
