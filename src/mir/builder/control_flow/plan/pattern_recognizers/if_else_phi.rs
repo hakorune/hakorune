@@ -1,12 +1,12 @@
-//! If-Else PHI Pattern Detection
+//! If-Else PHI Route-Shape Detection
 //!
 //! Phase 287 P1: Extracted from ast_feature_extractor.rs
 //!
-//! This module detects if-else statements with potential PHI patterns.
+//! This module detects if-else statements with potential PHI route shapes.
 
 use crate::ast::ASTNode;
 
-/// Detect if-else statements with potential PHI pattern
+/// Detect if-else statements with a potential PHI route shape
 ///
 /// Looks for if-else statements where both branches contain assignments.
 /// This is a heuristic indicating a potential PHI merge point.
@@ -25,14 +25,14 @@ use crate::ast::ASTNode;
 /// This was too broad - it caught simple conditional assignments like:
 ///   `if x then seg = "A" else seg = "B"`
 ///
-/// if_phi_join route is designed for if-sum patterns
+/// if_phi_join route is designed for if_phi_join-style route shapes
 /// with arithmetic accumulation:
 ///   `sum = sum + (if x then 1 else 0)`
 ///
 /// Phase 264 P0: Return false to prevent misclassification.
 /// Effect: Loops with conditional assignment fall through to simple-while handling.
 ///
-/// Phase 264 P1: TODO - Implement accurate if-sum signature detection.
+/// Phase 264 P1: TODO - Implement accurate if_phi_join signature detection.
 pub(crate) fn detect_if_else_phi_in_body(body: &[ASTNode]) -> bool {
     // Phase 282 P5: Proper if-else PHI detection (re-enabled with ExtractionBased safety)
     //

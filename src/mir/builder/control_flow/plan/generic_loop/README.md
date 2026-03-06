@@ -7,7 +7,7 @@ Responsibility:
 Non-goals:
 - No carriers/value-join
 - No nested control-flow or else-branches
-- No pattern-specific semantics beyond the subset
+- No route-specific semantics beyond the subset
 
 SSOT:
 - Condition canon (analysis-only view): `plan/canon/generic_loop/condition.rs`
@@ -32,7 +32,7 @@ Condition split (SSOT, no behavior change):
 - `condition/bound.rs`: BoundExpr 観測だけ担当
 
 Update split (SSOT, no behavior change):
-- `update/pattern_match.rs`: update 式の形マッチだけ担当
+- `update/pattern_match.rs`: update 式の shape match だけ担当（legacy file name）
 - `update/literal_step.rs`: `UpdateCanon` の literal step 生成だけ担当
 
 Type split (SSOT, no behavior change):

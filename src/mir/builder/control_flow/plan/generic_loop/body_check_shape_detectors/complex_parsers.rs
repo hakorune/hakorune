@@ -76,9 +76,9 @@ pub fn matches_peek_parse_shape(
     true
 }
 
-/// Matches the decode escapes loop pattern.
+/// Matches the decode escapes loop shape.
 ///
-/// Pattern: 6 statements - two locals, two ifs, non-loop-var assignment, loop increment
+/// Shape: 6 statements - two locals, two ifs, non-loop-var assignment, loop increment
 pub fn matches_decode_escapes_loop_shape(
     body: &[ASTNode],
     loop_var: &str,

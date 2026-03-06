@@ -1,18 +1,18 @@
-//! Parse String/Array Pattern Detection
+//! Parse String/Array Route-Shape Detection
 //!
 //! Phase 287 P1: Extracted from ast_feature_extractor.rs
 //!
-//! This module detects parse_string and parse_array patterns with continue + return exits.
+//! This module detects parse_string and parse_array route shapes with continue + return exits.
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
 // Re-export has_continue_node from continue_break module
 use super::continue_break::has_continue_node;
 
-/// Parse string/array pattern information
+/// Parse string/array route-shape information
 ///
-/// This struct holds the extracted information from a recognized parse_string or parse_array pattern.
-/// Both patterns share the same structure: continue + return exits with carrier updates.
+/// This struct holds the extracted information from a recognized parse_string or parse_array route shape.
+/// Both route shapes share the same structure: continue + return exits with carrier updates.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ParseStringInfo {
     /// Carrier variable name (e.g., "p")
@@ -23,11 +23,11 @@ pub struct ParseStringInfo {
     pub body_stmts: Vec<ASTNode>,
 }
 
-/// Detect parse_string or parse_array pattern in loop body
+/// Detect a parse_string or parse_array route shape in the loop body
 ///
-/// Phase 143-P1/P2: Pattern with both continue (escape/separator handling) AND return (stop condition)
+/// Phase 143-P1/P2: Route shape with both continue (escape/separator handling) AND return (stop condition)
 ///
-/// Pattern structure (parse_string example):
+/// Shape structure (parse_string example):
 /// ```
 /// loop(p < len) {
 ///     local ch = s.substring(p, p + 1)
@@ -54,7 +54,7 @@ pub struct ParseStringInfo {
 /// }
 /// ```
 ///
-/// Pattern structure (parse_array example):
+/// Shape structure (parse_array example):
 /// ```
 /// loop(p < len) {
 ///     local ch = s.substring(p, p + 1)
@@ -89,11 +89,11 @@ pub struct ParseStringInfo {
 ///
 /// # Returns
 ///
-/// `Some(ParseStringInfo)` if the pattern matches, `None` otherwise
+/// `Some(ParseStringInfo)` if the shape matches, `None` otherwise
 ///
 /// # Notes
 ///
-/// This detector handles both parse_string and parse_array patterns as they share
+/// This detector handles both parse_string and parse_array route shapes as they share
 /// the same structural characteristics:
 /// - Multiple exit types (return AND continue)
 /// - Variable step increment (conditional on separator/escape)

@@ -1,14 +1,14 @@
-//! Parse Number/Digit Pattern Detection
+//! Parse Number/Digit Route-Shape Detection
 //!
 //! Phase 287 P1: Extracted from ast_feature_extractor.rs
 //!
-//! This module detects parse_number and digit collection patterns.
+//! This module detects parse_number and digit collection route shapes.
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
-/// Parse number pattern information
+/// Parse number route-shape information
 ///
-/// This struct holds the extracted information from a recognized parse_number pattern.
+/// This struct holds the extracted information from a recognized parse_number route shape.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ParseNumberInfo {
     /// Carrier variable name (e.g., "i")
@@ -21,11 +21,11 @@ pub struct ParseNumberInfo {
     pub rest_stmts: Vec<ASTNode>,
 }
 
-/// Detect parse_number / digit collection pattern in loop body
+/// Detect the parse_number / digit collection route shape in the loop body
 ///
-/// Phase 143-P0: Pattern with break in THEN clause (opposite of skip_whitespace)
+/// Phase 143-P0: Route shape with break in THEN clause (opposite of skip_whitespace)
 ///
-/// Pattern structure:
+/// Shape structure:
 /// ```
 /// loop(cond) {
 ///     // ... optional body statements (ch, digit_pos computation)
@@ -37,7 +37,7 @@ pub struct ParseNumberInfo {
 /// }
 /// ```
 ///
-/// Recognized pattern:
+/// Recognized route shape:
 /// - parse_number: `i < len`, `if digit_pos < 0 { break }`, `i = i + 1`
 ///
 /// # Arguments
@@ -46,12 +46,12 @@ pub struct ParseNumberInfo {
 ///
 /// # Returns
 ///
-/// `Some(ParseNumberInfo)` if the pattern matches, `None` otherwise
+/// `Some(ParseNumberInfo)` if the shape matches, `None` otherwise
 ///
 /// # Notes
 ///
-/// This is complementary to skip_whitespace pattern (which has break in ELSE clause).
-/// Used by loop_canonicalizer (Phase 143) for digit collection patterns.
+/// This is complementary to the skip_whitespace route shape (which has break in ELSE clause).
+/// Used by loop_canonicalizer (Phase 143) for digit collection route shapes.
 pub fn detect_parse_number_pattern(body: &[ASTNode]) -> Option<ParseNumberInfo> {
     if body.is_empty() {
         return None;

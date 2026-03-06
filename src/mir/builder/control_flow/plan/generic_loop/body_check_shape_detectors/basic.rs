@@ -10,7 +10,7 @@ use super::utils::*;
 
 /// Matches the UsingCollector line scan pattern.
 ///
-/// Pattern: 3 statements - local decl, if (with no exits), loop increment
+/// Shape: 3 statements - local decl, if (with no exits), loop increment
 pub fn matches_usingcollector_line_scan_shape(
     body: &[ASTNode],
     loop_var: &str,
@@ -55,7 +55,7 @@ pub fn matches_usingcollector_line_scan_shape(
 
 /// Matches the scan all boxes next_i pattern.
 ///
-/// Pattern: 4-5 statements - next_i extraction, local decl, if, optional debug guard, step
+/// Shape: 4-5 statements - next_i extraction, local decl, if, optional debug guard, step
 pub fn matches_scan_all_boxes_next_i_shape(
     body: &[ASTNode],
     loop_var: &str,
@@ -106,7 +106,7 @@ pub fn matches_scan_all_boxes_next_i_shape(
 
 /// Matches the itoa complex step pattern.
 ///
-/// Pattern: 3 statements - itoa digit local, itoa digit append, loop increment
+/// Shape: 3 statements - itoa digit local, itoa digit append, loop increment
 pub fn matches_rewriteknown_itoa_complex_step_shape(
     body: &[ASTNode],
     loop_var: &str,
@@ -144,7 +144,7 @@ pub fn matches_rewriteknown_trim_and_methodcall_shape(
 
 /// Matches the itoa digit local pattern.
 ///
-/// Pattern: `local d = loop_var % 10`
+/// Shape: `local d = loop_var % 10`
 pub fn matches_itoa_digit_local(stmt: &ASTNode, loop_var: &str) -> bool {
     if !is_local_init(stmt, loop_var) {
         return false;
@@ -166,7 +166,7 @@ pub fn matches_itoa_digit_local(stmt: &ASTNode, loop_var: &str) -> bool {
 
 /// Matches the itoa digit append assignment pattern.
 ///
-/// Pattern: `target = target + if_expr` where if_expr is a pure value expression
+/// Shape: `target = target + if_expr` where if_expr is a pure value expression
 pub fn matches_itoa_digit_append_assignment(stmt: &ASTNode, loop_var: &str) -> bool {
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return false;
@@ -200,7 +200,7 @@ pub fn matches_itoa_digit_append_assignment(stmt: &ASTNode, loop_var: &str) -> b
 
 /// Matches the scan-while-predicate pattern.
 ///
-/// Pattern: 4 statements - local decl, two method calls, loop increment
+/// Shape: 4 statements - local decl, two method calls, loop increment
 pub fn matches_scan_while_predicate_shape(
     body: &[ASTNode],
     loop_var: &str,
@@ -227,7 +227,7 @@ pub fn matches_scan_while_predicate_shape(
 
 /// Matches the effect-step-only pattern.
 ///
-/// Pattern: 2 statements - effect call, loop increment
+/// Shape: 2 statements - effect call, loop increment
 pub fn matches_effect_step_only_shape(
     body: &[ASTNode],
     loop_var: &str,

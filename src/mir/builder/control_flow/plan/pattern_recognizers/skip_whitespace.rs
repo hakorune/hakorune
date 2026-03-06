@@ -1,14 +1,14 @@
-//! Skip Whitespace Pattern Detection
+//! Skip Whitespace Route-Shape Detection
 //!
 //! Phase 287 P1: Extracted from ast_feature_extractor.rs
 //!
-//! This module detects skip_whitespace and trim patterns.
+//! This module detects skip_whitespace and trim route shapes.
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
-/// Skip whitespace pattern information
+/// Skip whitespace route-shape information
 ///
-/// This struct holds the extracted information from a recognized skip_whitespace pattern.
+/// This struct holds the extracted information from a recognized skip_whitespace route shape.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SkipWhitespaceInfo {
     /// Carrier variable name (e.g., "p")
@@ -19,11 +19,11 @@ pub struct SkipWhitespaceInfo {
     pub body_stmts: Vec<ASTNode>,
 }
 
-/// Detect skip_whitespace / trim leading/trailing pattern in loop body
+/// Detect a skip_whitespace / trim leading/trailing route shape in the loop body
 ///
-/// Phase 142 P0: Generalized to handle both +1 and -1 patterns
+/// Phase 142 P0: Generalized to handle both +1 and -1 route shapes
 ///
-/// Pattern structure:
+/// Shape structure:
 /// ```
 /// loop(cond) {
 ///     // ... optional body statements (Body)
@@ -35,7 +35,7 @@ pub struct SkipWhitespaceInfo {
 /// }
 /// ```
 ///
-/// Recognized patterns:
+/// Recognized route shapes:
 /// - skip_whitespace: `p < len`, `p = p + 1`
 /// - trim_leading: `start < end`, `start = start + 1`
 /// - trim_trailing: `end > start`, `end = end - 1`
@@ -46,12 +46,12 @@ pub struct SkipWhitespaceInfo {
 ///
 /// # Returns
 ///
-/// `Some(SkipWhitespaceInfo)` if the pattern matches, `None` otherwise
+/// `Some(SkipWhitespaceInfo)` if the shape matches, `None` otherwise
 ///
 /// # Notes
 ///
-/// This is the SSOT for skip_whitespace/trim pattern detection.
-/// Used by both loop_canonicalizer (Phase 137) and future pattern analyzers.
+/// This is the SSOT for skip_whitespace/trim route-shape detection.
+/// Used by both loop_canonicalizer (Phase 137) and future route-shape analyzers.
 pub fn detect_skip_whitespace_pattern(body: &[ASTNode]) -> Option<SkipWhitespaceInfo> {
     if body.is_empty() {
         return None;

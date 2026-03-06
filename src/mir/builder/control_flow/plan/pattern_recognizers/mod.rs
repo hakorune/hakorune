@@ -1,13 +1,13 @@
-//! Pattern Recognizers Module
+//! Route-Shape Recognizers Module
 //!
-//! Phase 287 P1: Modularization of AST pattern detection functions.
+//! Phase 287 P1: Modularization of AST route-shape detection functions.
 //!
-//! This module contains specialized recognizers for different loop patterns:
+//! This module contains specialized recognizers for different loop route shapes:
 //! - continue/break/return detection
 //! - infinite loop detection
 //! - if-else phi detection
 //! - carrier count estimation
-//! - parse_number/string/whitespace patterns
+//! - parse_number/string/whitespace route shapes
 //!
 //! Each recognizer is responsible for a single "question" about the AST structure.
 

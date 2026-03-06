@@ -6,7 +6,7 @@ use super::utils::*;
 
 /// Matches the while cap accum sum pattern.
 ///
-/// Pattern: 2-4 statements - accum add, optional effect statements, loop increment
+/// Shape: 2-4 statements - accum add, optional effect statements, loop increment
 pub fn matches_while_cap_accum_sum_shape(
     body: &[ASTNode],
     loop_var: &str,
@@ -55,7 +55,7 @@ pub fn matches_accum_add_loop_var(stmt: &ASTNode, loop_var: &str) -> Option<Stri
 
 /// Matches accum add var pattern.
 ///
-/// Pattern: `target = target + var` or `target = var + target`
+/// Shape: `target = target + var` or `target = var + target`
 pub fn matches_accum_add_var(stmt: &ASTNode, rhs_var: &str) -> Option<String> {
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return None;
@@ -90,9 +90,9 @@ pub fn matches_accum_add_var(stmt: &ASTNode, rhs_var: &str) -> Option<String> {
     None
 }
 
-/// Matches the int_to_str loop pattern.
+/// Matches the int_to_str loop shape.
 ///
-/// Pattern: 4 statements - modulo by 10, effect local, effect assignment, division by 10
+/// Shape: 4 statements - modulo by 10, effect local, effect assignment, division by 10
 pub fn matches_div_countdown_by10_shape(
     body: &[ASTNode],
     loop_var: &str,
