@@ -9,7 +9,7 @@ use std::collections::BTreeSet;
 /// and the host variable it should update. This eliminates implicit assumptions
 /// about which variable a ValueId represents.
 ///
-/// # Pattern 3 Example
+/// # IfPhiJoin Example
 ///
 /// For `loop(i < 3) { sum = sum + i; i = i + 1 }`:
 ///
@@ -21,7 +21,7 @@ use std::collections::BTreeSet;
 /// }
 /// ```
 ///
-/// # Multi-Carrier Support (Pattern 4+)
+/// # Multi-Carrier Support (`loop_continue_only` and friends)
 ///
 /// Multiple carriers can be represented as a vector:
 ///

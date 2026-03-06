@@ -1,11 +1,11 @@
 //! Phase 33-19: Continue Branch Normalizer
 //!
-//! Normalize if/else patterns with continue to simplify Pattern 4 lowering
+//! Normalize if/else continue branches to simplify `loop_continue_only` lowering
 //!
-//! Pattern: if (cond) { body } else { continue }
+//! Route shape: if (cond) { body } else { continue }
 //! Transforms to: if (!cond) { continue } else { body }
 //!
-//! This allows Pattern 4 to handle all continue patterns uniformly by
+//! This allows `loop_continue_only` lowering to handle continue branches uniformly by
 //! ensuring continue is always in the then branch.
 
 use crate::ast::{ASTNode, UnaryOperator};
@@ -18,7 +18,7 @@ impl ContinueBranchNormalizer {
     ///
     /// Returns transformed AST node if pattern matches, otherwise returns clone of input.
     ///
-    /// # Pattern Detection
+    /// # Route Detection
     ///
     /// Matches: `if (cond) { body } else { continue }`
     /// Where else_body is a single Continue statement (or block containing only Continue).
@@ -47,7 +47,7 @@ impl ContinueBranchNormalizer {
                 // Check if else_body is a single continue statement
                 if let Some(else_stmts) = else_body {
                     if Self::is_continue_only(else_stmts) {
-                        // Pattern matched: if (cond) { ... } else { continue }
+                        // Route shape matched: if (cond) { ... } else { continue }
                         // Transform to: if (!cond) { continue } else { ... }
 
                         if crate::config::env::joinir_dev::debug_enabled() {
@@ -91,7 +91,7 @@ impl ContinueBranchNormalizer {
                     }
                 }
 
-                // Pattern not matched: return original if unchanged
+                // Route shape not matched: return original if unchanged
                 if_node.clone()
             }
             _ => {

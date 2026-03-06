@@ -1,8 +1,9 @@
-//! Pattern 1: Simple While Loop → JoinIR Lowering
+//! LoopSimpleWhile route → JoinIR lowering
 //!
-//! Phase 188 Task 188-4: Implementation of simple while loop pattern.
+//! Phase 188 Task 188-4: Implementation of LoopSimpleWhile route
+//! (legacy Pattern 1, traceability-only).
 //!
-//! ## Pattern Characteristics
+//! ## Route Characteristics
 //!
 //! - Single loop variable (carrier)
 //! - Simple condition
@@ -44,7 +45,7 @@ use crate::mir::join_ir::{
 };
 use crate::mir::ValueId;
 
-/// Pattern detection: Simple While Loop
+/// Route-shape detection: LoopSimpleWhile
 ///
 /// Criteria:
 /// - No break statements (break_targets.is_empty())
@@ -53,10 +54,10 @@ use crate::mir::ValueId;
 ///
 /// # Returns
 ///
-/// - `true`: Pattern matches (safe to call lower_simple_while_pattern)
-/// - `false`: Pattern does not match (try other patterns)
+/// - `true`: LoopSimpleWhile route shape matches (safe to call `lower_simple_while_pattern`)
+/// - `false`: Route shape does not match (try other route lowerers)
 pub fn is_simple_while_pattern(_scope: &LoopScopeShape) -> bool {
-    // Phase 188: Pattern detection logic will be implemented after understanding
+    // Phase 188: Route-shape detection logic will be implemented after understanding
     // LoopScopeShape structure better. For now, return false to avoid breaking existing code.
     // TODO: Implement proper detection based on break_targets, continue_targets, and carriers.
     false
@@ -64,7 +65,8 @@ pub fn is_simple_while_pattern(_scope: &LoopScopeShape) -> bool {
 
 /// Lower simple while loop to JoinIR
 ///
-/// Transforms a simple while loop (Pattern 1) into JoinIR representation:
+/// Transforms a simple while loop
+/// (LoopSimpleWhile route; legacy Pattern 1, traceability-only) into JoinIR representation:
 /// - Loop → tail-recursive function (loop_step)
 /// - Exit condition → conditional Jump to k_exit
 /// - Loop body → sequential Compute instructions
@@ -77,7 +79,7 @@ pub fn is_simple_while_pattern(_scope: &LoopScopeShape) -> bool {
 /// # Returns
 ///
 /// - `Some(JoinModule)`: Successfully lowered to JoinIR
-/// - `None`: Lowering failed (try other patterns or fallback)
+/// - `None`: Lowering failed (try other routes or fallback)
 pub fn lower_simple_while_pattern(_scope: LoopScopeShape) -> Option<JoinModule> {
     // Phase 188: Lowering implementation
     // This is a skeleton that will be filled in after examining LoopScopeShape structure

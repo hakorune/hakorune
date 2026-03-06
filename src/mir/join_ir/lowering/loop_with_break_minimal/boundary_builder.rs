@@ -3,7 +3,7 @@ use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, ExitMeta, JoinFra
 use crate::mir::ValueId;
 use crate::runtime::get_global_ring0;
 
-/// Build ExitMeta and JoinFragmentMeta for Pattern2.
+/// Build ExitMeta and JoinFragmentMeta for `loop_break`.
 pub(crate) fn build_fragment_meta(
     carrier_info: &CarrierInfo,
     loop_var_name: &str,

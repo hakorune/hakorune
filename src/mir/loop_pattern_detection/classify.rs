@@ -3,7 +3,7 @@ use super::kind::LoopPatternKind;
 
 /// Classify loop route family based on feature vector.
 ///
-/// This function implements the pattern classification logic using
+/// This function implements the route classification logic using
 /// structure-based rules. It does NOT depend on function names or
 /// variable names like "sum".
 ///
@@ -36,7 +36,7 @@ use super::kind::LoopPatternKind;
 ///
 /// # Phase 183: Unified Detection
 ///
-/// This is the single source of truth for pattern classification.
+/// This is the single source of truth for route classification.
 /// Both routers (`router.rs` and `loop_pattern_router.rs`) use this
 /// function to avoid duplicate detection logic.
 pub fn classify(features: &LoopFeatures) -> LoopPatternKind {

@@ -77,7 +77,7 @@ pub enum CaseALoweringShape {
     /// - Multiple exit groups, OR
     /// - No progress carrier
     ///
-    /// Should use Pattern 1-4 routing instead.
+    /// Should use route-based lowering instead.
     NotCaseA,
 }
 

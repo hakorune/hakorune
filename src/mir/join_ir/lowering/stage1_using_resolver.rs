@@ -343,14 +343,14 @@ fn lower_from_mir(module: &crate::mir::MirModule) -> Option<JoinModule> {
         return lower_handwritten(module);
     }
 
-    // CFG Check 2: Entry block contains expected patterns
-    // Pattern 1: i = 0 (初期化)
+    // CFG Check 2: Entry block contains expected route-shape signals
+    // Signal A: i = 0 (初期化)
     if !has_const_int(&query, entry, 0) {
         log_fallback("stage1_using_resolver", "Const(0) not found in entry block");
         return lower_handwritten(module);
     }
 
-    // Pattern 2: entries.length() の検出
+    // Signal B: entries.length() の検出
     // Phase 27.13: 簡略化のため、複雑な BoxCall 検出は省略
     // 将来的には has_array_method(&query, entry, "length") を実装可能
     // 現時点では Const(0) の存在で最小限の sanity check とする

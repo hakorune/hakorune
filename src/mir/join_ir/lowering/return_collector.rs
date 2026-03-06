@@ -1,7 +1,7 @@
 //! Phase 284 P1: Return Collector for JoinIR Lowering
 //!
 //! SSOT for detecting return statements in loop bodies.
-//! All JoinIR patterns (Pattern4/5/etc.) use this common helper.
+//! Shared by JoinIR route lowerers that need loop-body return detection.
 //!
 //! # P1 Scope
 //!

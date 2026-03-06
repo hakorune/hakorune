@@ -5,7 +5,7 @@
 //!
 //! ## Problem Solved
 //!
-//! Before Phase 201, Pattern 2 frontend used `alloc_join_value()` for env variables,
+//! Before Phase 201, `loop_break` frontend used `alloc_join_value()` for env variables,
 //! while JoinIR lowering used a separate `alloc_value()` starting from 0. Both could
 //! produce the same ValueId for different purposes, causing PHI corruption after remapping.
 //!
@@ -21,14 +21,14 @@
 //!
 //! - **PHI Reserved (0-99)**: Pre-reserved for LoopHeader PHI dst
 //! - **Param Region (100-999)**: For ConditionEnv, CarrierInfo.join_id, CapturedEnv
-//! - **Local Region (1000+)**: For Const, BinOp, etc. in pattern lowerers
+//! - **Local Region (1000+)**: For Const, BinOp, etc. in route lowerers
 //!
 //! ## Usage
 //!
 //! ```ignore
 //! let mut space = JoinValueSpace::new();
 //!
-//! // Pattern frontend allocates param IDs
+//! // Route frontend allocates param IDs
 //! let i_param = space.alloc_param(); // ValueId(100)
 //! let v_param = space.alloc_param(); // ValueId(101)
 //!
@@ -461,7 +461,7 @@ mod tests {
     fn test_phase201a_scenario_no_collision() {
         let mut space = JoinValueSpace::new();
 
-        // Pattern 2 frontend allocates param for carrier 'v'
+        // loop_break frontend allocates param for carrier 'v'
         let v_param = space.alloc_param(); // ValueId(100)
 
         // JoinIR lowering allocates local for const 100

@@ -6,7 +6,7 @@ use crate::mir::ValueId;
 
 /// Emit JoinIR instructions for a single carrier update (backward compatibility version)
 ///
-/// This function is kept for backward compatibility with existing Pattern2/4 code
+/// This function is kept for backward compatibility with existing break/continue route code
 /// that only needs ConditionEnv. New code should prefer `emit_carrier_update_with_env`.
 ///
 /// # Arguments

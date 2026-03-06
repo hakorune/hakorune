@@ -1,19 +1,19 @@
 //! Phase 168: BoolExprLowerer - Boolean Expression Lowering to SSA
 //!
 //! This module provides lowering of complex boolean expressions (AST → SSA)
-//! for use within JoinIR loop patterns. It handles:
+//! for use within JoinIR loop routes. It handles:
 //! - Comparisons: `<`, `==`, `!=`, `<=`, `>=`, `>`
 //! - Logical operators: `&&`, `||`, `!`
 //! - Mixed conditions: `ch == " " || ch == "\t" || ch == "\n"`
 //!
 //! ## Design Philosophy
 //!
-//! BoolExprLowerer is a SEPARATE module from loop patterns (Pattern1-4).
-//! It focuses purely on expression lowering, while loop patterns handle
+//! BoolExprLowerer is a SEPARATE module from loop routes.
+//! It focuses purely on expression lowering, while loop routes handle
 //! control flow structure.
 //!
 //! **Separation of Concerns**:
-//! - Loop patterns (Pattern1-4): Loop structure (header, body, exit)
+//! - Loop routes: Loop structure (header, body, exit)
 //! - BoolExprLowerer: Expression evaluation (AST → SSA ValueId)
 //!
 //! ## Target Use Case
@@ -50,7 +50,7 @@ use crate::mir::ValueId;
 /// BoolExprLowerer - Converts boolean expression AST to SSA form
 ///
 /// This box handles lowering of complex boolean expressions within loop conditions.
-/// It produces ValueIds that can be used by loop patterns for control flow decisions.
+/// It produces ValueIds that can be used by loop routes for control flow decisions.
 #[allow(dead_code)]
 pub struct BoolExprLowerer<'a> {
     builder: &'a mut MirBuilder,

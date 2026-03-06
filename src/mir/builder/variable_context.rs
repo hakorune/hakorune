@@ -20,7 +20,7 @@
 //! ## JoinIR Integration:
 //! - CarrierInfo::from_variable_map(): Extracts loop carriers from variable_map
 //! - ExitLine contract: Ensures carriers are present in variable_map
-//! - Pattern 2/3/4: Track carrier variables across loop iterations
+//! - LoopBreak / IfPhiJoin / LoopContinueOnly: Track carrier variables across loop iterations
 //!
 //! Phase 25.1: HashMap → BTreeMap for deterministic PHI generation
 //! Phase 136 Step 5/7: Extraction into dedicated context
@@ -62,7 +62,7 @@ pub struct VariableContext {
     /// // After PHI merge in if-statement:
     /// variable_map["result"] = ValueId(42)  // PHI(%then_val, %else_val)
     ///
-    /// // Loop carrier tracking (Pattern 2/3/4):
+    /// // Loop carrier tracking (LoopBreak / IfPhiJoin / LoopContinueOnly):
     /// variable_map["i"] = ValueId(7)       // Loop variable
     /// variable_map["acc"] = ValueId(11)    // Accumulator (carrier)
     /// ```

@@ -306,8 +306,8 @@ fn lower_from_mir(module: &crate::mir::MirModule) -> Option<JoinModule> {
         return lower_handwritten(module);
     }
 
-    // CFG Check 2: Entry block contains expected patterns
-    // Pattern 1: i = 0 (初期化)
+    // CFG Check 2: Entry block contains expected route-shape signals
+    // Signal A: i = 0 (初期化)
     if !has_const_int(&query, entry, 0) {
         log_fallback(
             "funcscanner_append_defs",
@@ -316,7 +316,7 @@ fn lower_from_mir(module: &crate::mir::MirModule) -> Option<JoinModule> {
         return lower_handwritten(module);
     }
 
-    // Pattern 2: defs_box.length() の検出
+    // Signal B: defs_box.length() の検出
     // Check entry block and its immediate successors for length() call
     let has_length_call = has_array_method(&query, entry, "length")
         || query
@@ -332,7 +332,7 @@ fn lower_from_mir(module: &crate::mir::MirModule) -> Option<JoinModule> {
         return lower_handwritten(module);
     }
 
-    // Pattern 3: ループ本体での配列操作検出
+    // Signal C: ループ本体での配列操作検出
     // Check all blocks for array operations (get/push) and loop increment
     let all_blocks: Vec<_> = target_func.blocks.keys().copied().collect();
 

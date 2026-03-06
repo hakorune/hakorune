@@ -48,7 +48,7 @@ impl JoinInlineBoundary {
 
     /// Create a new boundary with input mappings only
     ///
-    /// This is the common case for loops like Pattern 1 where:
+    /// This is the common case for loops like `LoopSimpleWhile` where:
     /// - Inputs: loop variables (e.g., `i` in `loop(i < 3)`)
     /// - Outputs: none (loop returns void/0)
     pub fn new_inputs_only(join_inputs: Vec<ValueId>, host_inputs: Vec<ValueId>) -> Self {

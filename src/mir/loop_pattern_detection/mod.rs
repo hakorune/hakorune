@@ -1,15 +1,15 @@
 //! Loop Pattern Detection Module
 //!
-//! Phase 188 Task 188-4: Pattern detection helpers for JoinIR loop lowering.
+//! Phase 188 Task 188-4: Route-shape detection helpers for JoinIR loop lowering.
 //!
-//! This module provides detection functions for 4 loop patterns:
-//! - Pattern 1: Simple While Loop (foundational)
-//! - Pattern 2: Loop with Conditional Break (early exit)
-//! - Pattern 3: Loop with If-Else PHI (variable mutation)
-//! - Pattern 4: Loop with Continue (skip iteration)
+//! This module provides detection functions for 4 loop route shapes:
+//! - `LoopSimpleWhile` (foundational; legacy Pattern 1, traceability-only)
+//! - `LoopBreak` (early exit; legacy Pattern 2, traceability-only)
+//! - `IfPhiJoin` (variable mutation; legacy Pattern 3, traceability-only)
+//! - `LoopContinueOnly` (skip iteration; legacy Pattern 4, traceability-only)
 //!
 //! Phase 194+: Structure-based detection using LoopFeatures.
-//! Patterns are classified based on CFG structure, not function names.
+//! Route shapes are classified based on CFG structure, not function names.
 //!
 //! # Architecture
 //!

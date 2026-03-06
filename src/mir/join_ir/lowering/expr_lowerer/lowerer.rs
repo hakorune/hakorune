@@ -159,7 +159,7 @@ impl<'env, 'builder, S: ScopeManager> ExprLowerer<'env, 'builder, S> {
         Ok(result_value)
     }
 
-    /// Public helper used by Pattern2/3 callers to gate ExprLowerer usage.
+    /// Public helper used by `loop_break` / `if_phi_join` callers to gate ExprLowerer usage.
     pub fn is_supported_condition(ast: &ASTNode) -> bool {
         ast_support::is_supported_condition(ast)
     }
@@ -180,7 +180,7 @@ impl<'env, 'builder, S: ScopeManager> ConditionLoweringBox<S> for ExprLowerer<'e
     /// # Example
     ///
     /// ```ignore
-    /// // Pattern 2: Use ExprLowerer via ConditionLoweringBox trait
+    /// // LoopBreak: use ExprLowerer via ConditionLoweringBox trait
     /// let mut lowerer = ExprLowerer::new(&scope, ExprContext::Condition, &mut builder);
     ///
     /// let context = ConditionContext {

@@ -30,7 +30,7 @@
 /// Canonical name for loop exit/continuation function
 ///
 /// Used in:
-/// - Pattern 2, 3, 4, 5, 6, 7 (loop patterns with exit continuations)
+/// - Loop routes with exit continuations (`LoopBreak`, `IfPhiJoin`, `LoopContinueOnly`, etc.)
 /// - JoinInlineBoundary.continuation_funcs
 /// - ExitLine/ExitMeta handling
 ///
@@ -50,7 +50,7 @@ pub const K_EXIT_LEGACY: &str = "join_func_2";
 /// Canonical name for loop step/body function
 ///
 /// Used in:
-/// - Pattern 1, 2, 3, 4, 5, 6, 7 (all loop patterns)
+/// - All current loop routes
 /// - LoopScopeShape inspection
 /// - Normalized JoinIR validation
 pub const LOOP_STEP: &str = "loop_step";
@@ -66,14 +66,14 @@ pub const MAIN: &str = "main";
 /// Canonical name for post-continuation function (if variant)
 ///
 /// Used in:
-/// - Pattern 3 with post-if computation (Phase 132-P4/133-P0)
+/// - IfPhiJoin with post-if computation (Phase 132-P4/133-P0)
 /// - Normalized shadow exit routing
 pub const POST_K: &str = "post_k";
 
 /// Phase 284 P1: Canonical name for early return exit function
 ///
 /// Used in:
-/// - Pattern 4, 5 (loop patterns with early return)
+/// - Loop routes with early return
 /// - JoinInlineBoundary.continuation_funcs
 /// - ExitLine/ExitMeta handling for return statements
 pub const K_RETURN: &str = "k_return";

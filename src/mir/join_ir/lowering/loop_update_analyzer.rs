@@ -5,7 +5,7 @@
 //!
 //! # Purpose
 //!
-//! The Pattern 4 lowerer needs to know how each carrier variable is updated
+//! The `loop_continue_only` lowerer needs to know how each carrier variable is updated
 //! in the loop body. Instead of hardcoding "count uses +1, sum uses +i",
 //! we extract the actual update expressions from the AST.
 //!
@@ -97,7 +97,7 @@ impl LoopUpdateAnalyzer {
     /// Recursively scan AST nodes for carrier updates
     ///
     /// Phase 33-19: Extended to scan into if-else branches to handle
-    /// Pattern B (else-continue) after normalization.
+    /// else-continue route shape after normalization.
     fn scan_nodes(
         nodes: &[ASTNode],
         carrier_names: &[&str],
