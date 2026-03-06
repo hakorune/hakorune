@@ -4,34 +4,34 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 
 ## Regression pack (SSOT)
 
-- Pattern2: `phase29ab_pattern2_*`
-- Pattern2 (real-world): `phase263_pattern2_*`
-- Pattern2 (subset, strict shadow, VM): `phase29ai_pattern2_break_plan_subset_ok_min_vm`
-- Pattern2 (release adopt, VM): `phase29ao_pattern2_release_adopt_vm`
-- Pattern3 (If‑Phi, VM): `phase118_pattern3_if_sum_vm`
-- Pattern3 (release adopt, VM): `phase29ao_pattern3_release_adopt_vm`
-- Pattern4 (continue min, VM): `phase29ap_pattern4_continue_min_vm`
-- Pattern1 (strict shadow, VM): `phase29ao_pattern1_strict_shadow_vm`
-- Pattern1 (subset reject, VM): `phase29ao_pattern1_subset_reject_extra_stmt_vm`
-- Pattern1 (stdlib to_lower, VM): `phase29ap_stringutils_tolower_vm`
-- Pattern1 (stdlib join, VM): `phase29ap_stringutils_join_vm`
-- ScanWithInit (stdlib index_of, VM): `phase29aq_string_index_of_min_vm`
-- ScanWithInit (stdlib last_index_of, VM): `phase29aq_string_last_index_of_min_vm`
-- ScanWithInit (stdlib index_of_string, VM): `phase29aq_string_index_of_string_min_vm`
-- Pattern2 (stdlib parse_integer, VM): `phase29aq_string_parse_integer_min_vm`
-- Pattern2 (stdlib parse_integer sign, VM): `phase29aq_string_parse_integer_sign_min_vm`
-- Pattern2 (stdlib parse_integer leading whitespace, VM): `phase29aq_string_parse_integer_ws_min_vm`
-- Pattern2 (stdlib parse_integer leading zero, VM): `phase29aq_string_parse_integer_leading_zero_min_vm`
-- SplitScan (stdlib split, VM): `phase29aq_string_split_min_vm`
-- SplitScan (stdlib split char, VM): `phase29aq_string_split_char_min_vm`
-- SplitScan (stdlib split string, VM): `phase29aq_string_split_string_min_vm`
-- Pattern2 (stdlib trim_start, VM): `phase29aq_string_trim_start_min_vm`
-- Pattern2 (stdlib trim_end, VM): `phase29aq_string_trim_end_min_vm`
+- loop_break (legacy label: Pattern2): `phase29ab_pattern2_*`
+- loop_break (real-world, legacy label: Pattern2): `phase263_pattern2_*`
+- loop_break (subset, strict shadow, VM; legacy label: Pattern2): `phase29ai_pattern2_break_plan_subset_ok_min_vm`
+- loop_break (release adopt, VM; legacy label: Pattern2): `phase29ao_pattern2_release_adopt_vm`
+- if_phi_join (VM; legacy label: Pattern3): `phase118_pattern3_if_sum_vm`
+- if_phi_join (release adopt, VM; legacy label: Pattern3): `phase29ao_pattern3_release_adopt_vm`
+- loop_continue_only (continue min, VM; legacy label: Pattern4): `phase29ap_pattern4_continue_min_vm`
+- loop_simple_while (strict shadow, VM; legacy label: Pattern1): `phase29ao_pattern1_strict_shadow_vm`
+- loop_simple_while (subset reject, VM; legacy label: Pattern1): `phase29ao_pattern1_subset_reject_extra_stmt_vm`
+- loop_simple_while (stdlib to_lower, VM; legacy label: Pattern1): `phase29ap_stringutils_tolower_vm`
+- loop_simple_while (stdlib join, VM; legacy label: Pattern1): `phase29ap_stringutils_join_vm`
+- scan_with_init (stdlib index_of, VM): `phase29aq_string_index_of_min_vm`
+- scan_with_init (stdlib last_index_of, VM): `phase29aq_string_last_index_of_min_vm`
+- scan_with_init (stdlib index_of_string, VM): `phase29aq_string_index_of_string_min_vm`
+- loop_break (stdlib parse_integer, VM; legacy label: Pattern2): `phase29aq_string_parse_integer_min_vm`
+- loop_break (stdlib parse_integer sign, VM; legacy label: Pattern2): `phase29aq_string_parse_integer_sign_min_vm`
+- loop_break (stdlib parse_integer leading whitespace, VM; legacy label: Pattern2): `phase29aq_string_parse_integer_ws_min_vm`
+- loop_break (stdlib parse_integer leading zero, VM; legacy label: Pattern2): `phase29aq_string_parse_integer_leading_zero_min_vm`
+- split_scan (stdlib split, VM): `phase29aq_string_split_min_vm`
+- split_scan (stdlib split char, VM): `phase29aq_string_split_char_min_vm`
+- split_scan (stdlib split string, VM): `phase29aq_string_split_string_min_vm`
+- loop_break (stdlib trim_start, VM; legacy label: Pattern2): `phase29aq_string_trim_start_min_vm`
+- loop_break (stdlib trim_end, VM; legacy label: Pattern2): `phase29aq_string_trim_end_min_vm`
 - Derived (stdlib contains, VM): `phase29aq_string_contains_min_vm`
 - Derived (stdlib starts_with, VM): `phase29aq_string_starts_with_min_vm`
 - Derived (stdlib ends_with, VM): `phase29aq_string_ends_with_min_vm`
 - Derived (stdlib trim, VM): `phase29aq_string_trim_min_vm`
-- Pattern1 (stdlib to_upper, VM): `phase29aq_string_to_upper_min_vm`
+- loop_simple_while (stdlib to_upper, VM; legacy label: Pattern1): `phase29aq_string_to_upper_min_vm`
 - Purity gate (strict fallback visibility, VM): `phase29as_purity_gate_vm`
 - Return-in-loop (stdlib is_integer, strict fail-fast reject, VM): `phase29ar_string_is_integer_min_vm`
 - Return-in-loop (stdlib is_integer, release adopt, VM): `phase29ar_string_is_integer_release_adopt_vm`
@@ -43,17 +43,17 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 - BranchN (match return-only, release adopt, VM): `phase29at_match_return_release_adopt_vm`
 - FlowBox tags gate (strict/non-strict, VM): `phase29av_flowbox_tags_gate_vm`
 - FlowBox tag coverage gate (strict/non-strict, VM): `phase29aw_flowbox_tag_coverage_gate_vm`
-- Pattern5 (Break, VM): `phase286_pattern5_break_vm`
-- Pattern5 (strict shadow, VM): `phase29ao_pattern5_strict_shadow_vm`
-- Pattern5 (release adopt, VM): `phase29ao_pattern5_release_adopt_vm`
-- Pattern6 (strict shadow, VM): `phase29ao_pattern6_strict_shadow_vm`
-- Pattern6 (release adopt, VM): `phase29ao_pattern6_release_adopt_vm`
-- Pattern6 supplemental pack (VM): `phase29ae_pattern6_scan_with_init_pack_vm`
-- Pattern6 (nested minimal release adopt, VM): `phase29ap_pattern6_nested_release_adopt_vm`
-- Pattern6 (nested minimal strict shadow, VM): `phase29ap_pattern6_nested_strict_shadow_vm`
-- Pattern7 (strict shadow, VM): `phase29ao_pattern7_strict_shadow_vm`
-- Pattern7 (release adopt, VM): `phase29ao_pattern7_release_adopt_vm`
-- Pattern7 supplemental pack (VM): `phase29ae_pattern7_scan_split_pack_vm`
+- loop_true_early_exit (VM; legacy labels: Pattern5/Break): `phase286_pattern5_break_vm`
+- loop_true_early_exit (strict shadow, VM; legacy label: Pattern5): `phase29ao_pattern5_strict_shadow_vm`
+- loop_true_early_exit (release adopt, VM; legacy label: Pattern5): `phase29ao_pattern5_release_adopt_vm`
+- scan_with_init (strict shadow, VM; legacy label: Pattern6): `phase29ao_pattern6_strict_shadow_vm`
+- scan_with_init (release adopt, VM; legacy label: Pattern6): `phase29ao_pattern6_release_adopt_vm`
+- scan_with_init supplemental pack (VM; legacy label: Pattern6): `phase29ae_pattern6_scan_with_init_pack_vm`
+- scan_with_init (nested minimal release adopt, VM; legacy label: Pattern6): `phase29ap_pattern6_nested_release_adopt_vm`
+- scan_with_init (nested minimal strict shadow, VM; legacy label: Pattern6): `phase29ap_pattern6_nested_strict_shadow_vm`
+- split_scan (strict shadow, VM; legacy label: Pattern7): `phase29ao_pattern7_strict_shadow_vm`
+- split_scan (release adopt, VM; legacy label: Pattern7): `phase29ao_pattern7_release_adopt_vm`
+- split_scan supplemental pack (VM; legacy label: Pattern7): `phase29ae_pattern7_scan_split_pack_vm`
 - この pack が JoinIR 回帰の唯一の integration gate（phase143_* は対象外）
 - JoinIR routing is plan/composer SSOT only (legacy loop table removed in Phase 29ap P12)
 - phase143_* は LoopBuilder 撤去 / plugin disable 固定 / LLVM exe 期待が古いので除外
@@ -77,4 +77,4 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 ## Status
 
 - phase1883: PASS（RC=9 を成功扱い）
-- pattern2: PASS（JoinIR main param remap を carrier_order に揃える） `cf95afbd8`
+- loop_break: PASS（JoinIR main param remap を carrier_order に揃える, legacy label: pattern2） `cf95afbd8`
