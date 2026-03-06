@@ -422,7 +422,7 @@ mod tests {
             span: Span::unknown(),
         };
         let ctx = PlannerContext {
-            route_kind: Some(LoopPatternKind::Pattern1SimpleWhile),
+            route_kind: Some(LoopPatternKind::LoopSimpleWhile),
             in_static_box: false,
             debug: false,
         };

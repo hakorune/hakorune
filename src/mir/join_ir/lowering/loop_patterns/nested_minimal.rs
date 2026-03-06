@@ -125,7 +125,7 @@ use crate::mir::loop_form::LoopForm;
 /// ```rust,ignore
 /// use crate::mir::loop_pattern_detection::LoopPatternKind;
 ///
-/// if pattern == LoopPatternKind::Pattern6NestedLoopMinimal {
+/// if pattern == LoopPatternKind::NestedLoopMinimal {
 ///     lower_nested_loop_minimal_to_joinir(&loop_form, &mut lowerer)?;
 /// }
 /// ```

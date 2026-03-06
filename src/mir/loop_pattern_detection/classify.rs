@@ -24,7 +24,7 @@ use super::kind::LoopPatternKind;
 /// 4. **LoopBreak**: `has_break && !has_continue`
 ///    - Historical numbered label: Pattern 2
 ///
-/// 5. **Pattern 1 (Simple While)**: `!has_break && !has_continue && !has_if`
+/// 5. **LoopSimpleWhile**: `!has_break && !has_continue && !has_if`
 ///    - Phase 212.5: Exclude loops with if statements
 ///    - No control flow alterations
 ///
@@ -40,20 +40,20 @@ use super::kind::LoopPatternKind;
 /// Both routers (`router.rs` and `loop_pattern_router.rs`) use this
 /// function to avoid duplicate detection logic.
 pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
-    // Phase 188.1: Pattern 6: NestedLoop (1-level only, check first after depth validation)
+    // Phase 188.1: NestedLoopMinimal (1-level only, check first after depth validation)
     // Reject 2+ level nesting (explicit error) BEFORE any pattern matching
     if features.max_loop_depth > 2 {
         // Return Unknown to trigger explicit error in router
         return LoopPatternKind::Unknown;
     }
 
-    // Pattern 6: NestedLoop Minimal (1-level nested, simple while inside simple while)
+    // NestedLoopMinimal: 1-level nested, simple-while-compatible inner/outer loops
     if features.max_loop_depth == 2
         && features.has_inner_loops
         && !features.has_break
         && !features.has_continue
     {
-        return LoopPatternKind::Pattern6NestedLoopMinimal;
+        return LoopPatternKind::NestedLoopMinimal;
     }
 
     // Phase 131-11: Pattern 5: InfiniteEarlyExit (highest priority - most specific)
@@ -83,10 +83,10 @@ pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
         return LoopPatternKind::LoopBreak;
     }
 
-    // Pattern 1: Simple While
+    // LoopSimpleWhile
     // Phase 212.5: Exclude loops with if statements (they go to P3)
     if !features.has_break && !features.has_continue && !features.has_if {
-        return LoopPatternKind::Pattern1SimpleWhile;
+        return LoopPatternKind::LoopSimpleWhile;
     }
 
     // Unknown pattern
@@ -121,10 +121,10 @@ pub fn classify_with_diagnosis(features: &LoopFeatures) -> (LoopPatternKind, Str
                 features.break_count
             )
         }
-        LoopPatternKind::Pattern1SimpleWhile => {
+        LoopPatternKind::LoopSimpleWhile => {
             "Simple while loop with no special control flow".to_string()
         }
-        LoopPatternKind::Pattern6NestedLoopMinimal => {
+        LoopPatternKind::NestedLoopMinimal => {
             format!(
                 "Nested loop (1-level, max_loop_depth={}) with no break/continue",
                 features.max_loop_depth

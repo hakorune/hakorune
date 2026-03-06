@@ -97,7 +97,7 @@ pub(in crate::mir::builder) fn choose_route_kind(
                     "choose_route_kind",
                     "[routing] nested_loop_minimal selected: 1-level nested loop validated",
                 );
-                return loop_pattern_detection::LoopPatternKind::Pattern6NestedLoopMinimal;
+                return loop_pattern_detection::LoopPatternKind::NestedLoopMinimal;
             }
             // Validation failed - not nested_loop_minimal, fall through to router_choice
         }

@@ -50,7 +50,7 @@ pub(crate) fn extract_loop_simple_while_parts(
 
     // Phase 29ak: Reject nested loops.
     //
-    // Nested loops are nested-minimal territory (legacy label: Pattern6NestedLoopMinimal);
+    // Nested loops are nested-minimal territory (legacy label: NestedLoopMinimal);
     // letting loop_simple_while match them
     // causes routing to short-circuit before JoinIR can select the nested-loop lowerer.
     let counts = super::common_helpers::count_control_flow(

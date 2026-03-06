@@ -133,13 +133,13 @@ pub fn try_lower_loop_pattern_to_joinir(
 
     // Step 3: Route to appropriate lowerer based on pattern
     match pattern {
-        LoopPatternKind::Pattern6NestedLoopMinimal => {
-            // Phase 188.2: Pattern 6 lowering stub (infrastructure only)
-            // Currently unreachable: LoopForm has no nesting info, so classify() never returns Pattern6
+        LoopPatternKind::NestedLoopMinimal => {
+            // Phase 188.2: NestedLoopMinimal lowering stub (infrastructure only)
+            // Currently unreachable: LoopForm has no nesting info, so classify() never returns NestedLoopMinimal
             #[cfg(debug_assertions)]
             if crate::config::env::joinir_dev::debug_enabled() {
                 get_global_ring0().log.debug(
-                    "[try_lower_loop_pattern] ℹ️ Pattern 6 (NestedLoop) reached (should be unreachable until Phase 188.3)",
+                    "[try_lower_loop_pattern] ℹ️ NestedLoopMinimal reached (should be unreachable until Phase 188.3)",
                 );
             }
 
@@ -186,14 +186,14 @@ pub fn try_lower_loop_pattern_to_joinir(
                 return Some(inst);
             }
         }
-        LoopPatternKind::Pattern1SimpleWhile => {
+        LoopPatternKind::LoopSimpleWhile => {
             if let Some(inst) =
                 super::loop_patterns::lower_simple_while_to_joinir(loop_form, lowerer)
             {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
                         .log
-                        .debug("[try_lower_loop_pattern] ✅ Pattern1SimpleWhile matched");
+                        .debug("[try_lower_loop_pattern] ✅ LoopSimpleWhile matched");
                 }
                 return Some(inst);
             }

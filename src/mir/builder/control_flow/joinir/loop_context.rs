@@ -177,7 +177,7 @@ mod tests {
             condition,
             body,
             Span::unknown(),
-            LoopPatternKind::Pattern1SimpleWhile,
+            LoopPatternKind::LoopSimpleWhile,
             LoopFeatures {
                 has_if: false,
                 has_break: false,
@@ -218,7 +218,7 @@ mod tests {
         assert!(ctx.decision.is_none());
 
         // Check router fields
-        assert_eq!(ctx.route_kind, LoopPatternKind::Pattern1SimpleWhile);
+        assert_eq!(ctx.route_kind, LoopPatternKind::LoopSimpleWhile);
     }
 
     #[test]
@@ -277,7 +277,7 @@ mod tests {
         let mut ctx = make_simple_context(&condition, &body);
 
         // Set canonicalizer result with matching route kind
-        let decision = RoutingDecision::success(LoopPatternKind::Pattern1SimpleWhile);
+        let decision = RoutingDecision::success(LoopPatternKind::LoopSimpleWhile);
         ctx.set_canonicalizer_result(
             LoopSkeleton {
                 steps: vec![],

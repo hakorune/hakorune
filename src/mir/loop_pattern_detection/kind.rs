@@ -4,10 +4,10 @@
 /// runtime-facing enum names should use semantic route labels.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LoopPatternKind {
-    /// Pattern 1: Simple While Loop
+    /// LoopSimpleWhile route family (historical Pattern 1)
     /// - No break, no continue
     /// - Single backedge
-    Pattern1SimpleWhile,
+    LoopSimpleWhile,
 
     /// LoopBreak route family (historical Pattern 2)
     /// - Has break statement(s)
@@ -31,12 +31,12 @@ pub enum LoopPatternKind {
     /// - Minimal carrier (1 counter-like variable)
     InfiniteEarlyExit,
 
-    /// Pattern 6: Nested Loop (1-level, minimal) - Phase 188.1
-    /// - Outer loop: Pattern 1 (simple while)
-    /// - Inner loop: Pattern 1 (simple while)
+    /// NestedLoopMinimal route family (historical Pattern 6) - Phase 188.1
+    /// - Outer loop: loop_simple_while-compatible
+    /// - Inner loop: loop_simple_while-compatible
     /// - max_loop_depth == 2 exactly
     /// - No break/continue in either loop
-    Pattern6NestedLoopMinimal,
+    NestedLoopMinimal,
 
     /// Pattern not recognized
     Unknown,
@@ -46,12 +46,12 @@ impl LoopPatternKind {
     /// Phase 193-3: Get human-readable route name.
     pub fn name(&self) -> &'static str {
         match self {
-            LoopPatternKind::Pattern1SimpleWhile => "Pattern 1: Simple While Loop",
+            LoopPatternKind::LoopSimpleWhile => "Pattern 1: Simple While Loop",
             LoopPatternKind::LoopBreak => "LoopBreak",
             LoopPatternKind::IfPhiJoin => "Pattern 3: Loop with If-Else PHI",
             LoopPatternKind::LoopContinueOnly => "Pattern 4: Loop with Continue",
             LoopPatternKind::InfiniteEarlyExit => "Pattern 5: Infinite Loop with Early Exit",
-            LoopPatternKind::Pattern6NestedLoopMinimal => "Pattern 6: Nested Loop (1-level minimal)",
+            LoopPatternKind::NestedLoopMinimal => "Pattern 6: Nested Loop (1-level minimal)",
             LoopPatternKind::Unknown => "Unknown Loop Shape",
         }
     }
@@ -61,12 +61,12 @@ impl LoopPatternKind {
     /// Preferred for runtime diagnostics in planner/router paths.
     pub fn semantic_label(&self) -> &'static str {
         match self {
-            LoopPatternKind::Pattern1SimpleWhile => "LoopSimpleWhile",
+            LoopPatternKind::LoopSimpleWhile => "LoopSimpleWhile",
             LoopPatternKind::LoopBreak => "LoopBreakRecipe",
             LoopPatternKind::IfPhiJoin => "IfPhiJoin",
             LoopPatternKind::LoopContinueOnly => "LoopContinueOnly",
             LoopPatternKind::InfiniteEarlyExit => "LoopTrueEarlyExit",
-            LoopPatternKind::Pattern6NestedLoopMinimal => "NestedLoopMinimal",
+            LoopPatternKind::NestedLoopMinimal => "NestedLoopMinimal",
             LoopPatternKind::Unknown => "UnknownLoopShape",
         }
     }
@@ -77,12 +77,12 @@ impl LoopPatternKind {
     /// Useful for priority sorting.
     pub fn pattern_id(&self) -> u8 {
         match self {
-            LoopPatternKind::Pattern1SimpleWhile => 1,
+            LoopPatternKind::LoopSimpleWhile => 1,
             LoopPatternKind::LoopBreak => 2,
             LoopPatternKind::IfPhiJoin => 3,
             LoopPatternKind::LoopContinueOnly => 4,
             LoopPatternKind::InfiniteEarlyExit => 5,
-            LoopPatternKind::Pattern6NestedLoopMinimal => 6,
+            LoopPatternKind::NestedLoopMinimal => 6,
             LoopPatternKind::Unknown => 0,
         }
     }

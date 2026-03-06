@@ -19,7 +19,7 @@
 
 ## Done (historical migration notes)
 
-- LoopSimpleWhile（legacy label: Pattern1SimpleWhile）: planner_required で recipe-only 化済み
+- LoopSimpleWhile（legacy label: LoopSimpleWhile）: planner_required で recipe-only 化済み
 - LoopCharMap（legacy label: Pattern1CharMap）: planner_required で recipe-only 化済み
 - LoopArrayJoin（legacy label: Pattern1ArrayJoin）: planner_required で recipe-only 化済み
 - BoolPredicateScan（legacy label: Pattern8BoolPredicateScan）: planner_required で recipe-only 化済み

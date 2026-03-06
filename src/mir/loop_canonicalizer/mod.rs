@@ -87,7 +87,7 @@ mod tests {
     fn test_routing_decision() {
         use crate::mir::loop_pattern_detection::LoopPatternKind;
 
-        let success = RoutingDecision::success(LoopPatternKind::Pattern1SimpleWhile);
+        let success = RoutingDecision::success(LoopPatternKind::LoopSimpleWhile);
         assert!(success.is_success());
         assert!(!success.is_fail_fast());
 

@@ -124,18 +124,18 @@ fn classify_body(body: &[ASTNode]) -> LoopPatternKind {
 }
 
 #[test]
-fn pattern1_simple_while_is_detected() {
+fn loop_simple_while_is_detected() {
     // loop(i < len) { i = i + 1 }
     let body = vec![assignment(
         var("i"),
         bin(BinaryOperator::Add, var("i"), lit_i(1)),
     )];
     let kind = classify_body(&body);
-    assert_eq!(kind, LoopPatternKind::Pattern1SimpleWhile);
+    assert_eq!(kind, LoopPatternKind::LoopSimpleWhile);
 }
 
 #[test]
-fn pattern2_break_loop_is_detected() {
+fn loop_break_is_detected() {
     // loop(i < len) { if i > 0 { break } i = i + 1 }
     let cond = bin(BinaryOperator::Greater, var("i"), lit_i(0));
     let body = vec![
@@ -152,7 +152,7 @@ fn pattern2_break_loop_is_detected() {
 }
 
 #[test]
-fn parse_number_like_loop_is_classified_as_pattern2() {
+fn parse_number_like_loop_is_classified_as_loop_break() {
     // loop(p < len) {
     //   if digit_pos < 0 { break }
     //   p = p + 1
@@ -221,7 +221,7 @@ fn loop_continue_only_shape_is_detected() {
 }
 
 #[test]
-fn test_atoi_loop_classified_as_pattern2() {
+fn atoi_loop_is_classified_as_loop_break() {
     // Phase 246-EX Step 1: _atoi loop pattern classification
     // loop(i < len) {
     //     local ch = s.substring(i, i+1)
