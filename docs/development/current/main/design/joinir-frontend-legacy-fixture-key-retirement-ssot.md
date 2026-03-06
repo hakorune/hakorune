@@ -1,6 +1,6 @@
 # JoinIR Frontend Legacy Fixture Key Retirement SSOT
 
-Status: Phase A accepted
+Status: Phase B accepted
 Date: 2026-03-07
 Scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の legacy by-name fixture key 互換契約
 
@@ -68,6 +68,12 @@ Pinned assets:
 目的:
 - semantic key を追加し、旧 key と新 key の両方を受理できるようにする
 
+Alias map:
+- `pattern3_if_sum_multi_min` -> `if_phi_join_multi_min`
+- `jsonparser_if_sum_min` -> `jsonparser_if_phi_join_min`
+- `selfhost_if_sum_p3` -> `selfhost_if_phi_join`
+- `selfhost_if_sum_p3_ext` -> `selfhost_if_phi_join_ext`
+
 変更対象:
 - `src/mir/join_ir/frontend/ast_lowerer/route.rs`
 - 必要なら frontend unit test
@@ -132,9 +138,9 @@ rg -n "resolve_function_route|lower_program_json" \
 
 ## Recommended Next Step
 
-次の実装 slice は **Phase B: alias追加のみ**。
+次の実装 slice は **Phase C: fixture / doc migration**。
 
 理由:
-- 旧 key を壊さない
-- semantic naming を先に通せる
-- fixture/doc migration を後段へ分離できる
+- alias の受け皿は既にできた
+- 旧 key を壊さずに managed assets を順番に移せる
+- retire 判定を `rg` で測れる状態になった

@@ -28,12 +28,16 @@ pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, S
         ("jsonparser_atoi_mini", FunctionRoute::LoopFrontend),
         ("jsonparser_atoi_real", FunctionRoute::LoopFrontend),
         ("jsonparser_parse_number_real", FunctionRoute::LoopFrontend),
+        ("if_phi_join_multi_min", FunctionRoute::LoopFrontend),
         ("pattern3_if_sum_multi_min", FunctionRoute::LoopFrontend),
+        ("jsonparser_if_phi_join_min", FunctionRoute::LoopFrontend),
         ("jsonparser_if_sum_min", FunctionRoute::LoopFrontend),
         ("selfhost_token_scan_p2", FunctionRoute::LoopFrontend),
         ("selfhost_token_scan_p2_accum", FunctionRoute::LoopFrontend),
         ("selfhost_args_parse_p2", FunctionRoute::LoopFrontend),
+        ("selfhost_if_phi_join", FunctionRoute::LoopFrontend),
         ("selfhost_if_sum_p3", FunctionRoute::LoopFrontend),
+        ("selfhost_if_phi_join_ext", FunctionRoute::LoopFrontend),
         ("selfhost_if_sum_p3_ext", FunctionRoute::LoopFrontend),
         ("selfhost_stmt_count_p3", FunctionRoute::LoopFrontend),
         // Phase 54: selfhost P2/P3 shape growth
@@ -78,4 +82,29 @@ pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, S
         "[joinir/frontend] unsupported function '{}' (dev fixture not registered)",
         func_name
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{resolve_function_route, FunctionRoute};
+
+    #[test]
+    fn legacy_and_semantic_if_phi_join_fixture_keys_resolve_to_loop_frontend() {
+        for name in [
+            "if_phi_join_multi_min",
+            "pattern3_if_sum_multi_min",
+            "jsonparser_if_phi_join_min",
+            "jsonparser_if_sum_min",
+            "selfhost_if_phi_join",
+            "selfhost_if_sum_p3",
+            "selfhost_if_phi_join_ext",
+            "selfhost_if_sum_p3_ext",
+        ] {
+            assert_eq!(
+                resolve_function_route(name),
+                Ok(FunctionRoute::LoopFrontend),
+                "fixture key should resolve to LoopFrontend: {name}"
+            );
+        }
+    }
 }

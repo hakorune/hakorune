@@ -289,6 +289,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の `pattern3_if_sum_multi_min` / `jsonparser_if_sum_min` / `selfhost_if_sum_p3` / `selfhost_if_sum_p3_ext`
     - rule: A=inventory/decision, B=alias追加, C=fixture/doc移行, D=旧key retire。いきなり rename/delete はしない
     - rationale: active tests は薄いが private/historical JSON fixtures が `name` を pin しているため、互換契約を段階的に畳む必要がある
+  - compat retirement (2026-03-07, phase B): semantic alias を追加し、old/new 両 key を同じ route へ固定した
+    - synced files: `src/mir/join_ir/frontend/ast_lowerer/route.rs` / `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
+    - alias map:
+      - `pattern3_if_sum_multi_min` -> `if_phi_join_multi_min`
+      - `jsonparser_if_sum_min` -> `jsonparser_if_phi_join_min`
+      - `selfhost_if_sum_p3` -> `selfhost_if_phi_join`
+      - `selfhost_if_sum_p3_ext` -> `selfhost_if_phi_join_ext`
+    - intent: old key を壊さずに semantic key を先行導入し、fixture/doc migration の受け皿を作る
+    - verification: `cargo test --lib legacy_and_semantic_if_phi_join_fixture_keys_resolve_to_loop_frontend` PASS / `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
   - truth cleanup (2026-03-07, slice 23): low-risk active docs の stale path / Pattern wording を route-first に寄せた
     - synced files: `docs/development/current/main/design/{coreloop-stepmode-inline-in-body-ssot,pattern-p5b-escape-design,coreplan-skeleton-feature-model,joinir-pattern-selection-shadow-ssot}.md`
     - intent: 現在参照される設計文では semantic route / family を主語にし、stale source path も今の file 名へ合わせる
