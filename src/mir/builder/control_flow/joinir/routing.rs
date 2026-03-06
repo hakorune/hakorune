@@ -589,18 +589,6 @@ impl MirBuilder {
                     );
                 }
             }
-            #[cfg(test)]
-            _ => {
-                // Fallback for any other route shape (should not happen in Phase 142+)
-                if debug {
-                    trace::trace().routing(
-                        "router/normalized",
-                        func_name,
-                        "Unexpected route shape in try_normalized_shadow, using legacy",
-                    );
-                }
-                return Ok(None);
-            }
         }
 
         // Phase 134 P0: Delegate execution to NormalizationExecuteBox (SSOT)

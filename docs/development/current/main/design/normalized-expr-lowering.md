@@ -151,7 +151,7 @@ NormalizationExecuteBox::execute(
     prefix_variables,  // Pass through
 )?;
 
-// Inside execute_loop_only/execute_loop_with_post
+// Inside execute_loop_only
 let available_inputs = AvailableInputsCollectorBox::collect(
     builder,
     None,
@@ -169,7 +169,7 @@ let available_inputs = AvailableInputsCollectorBox::collect(
 
 - **Implementation**: `src/mir/control_tree/normalized_shadow/available_inputs_collector.rs`
 - **Call sites**:
-  - `src/mir/builder/control_flow/normalization/execute_box.rs` (execute_loop_only, execute_loop_with_post)
+  - `src/mir/builder/control_flow/normalization/execute_box.rs` (`execute_loop_only`)
   - `src/mir/builder/control_flow/joinir/patterns/policies/normalized_shadow_suffix_router_box.rs`
   - `src/mir/builder/stmts.rs` (build_block suffix router call)
 

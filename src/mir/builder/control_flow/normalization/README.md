@@ -11,8 +11,8 @@
 Consolidate the two separate entry points for Normalized shadow processing into a single, well-defined system:
 
 1. **Before**: Dual entry points with scattered responsibility
-   - `try_normalized_shadow()` in routing.rs (loop-only)
-   - `suffix_router_box` in patterns/policies/ (loop + post statements)
+   - `try_normalized_shadow()` in routing.rs
+   - `suffix_router_box` in patterns/policies/
    - Decision logic ("what to lower") is duplicated and inconsistent
 
 2. **After**: Single decision point using Box-First architecture
@@ -27,11 +27,10 @@ Consolidate the two separate entry points for Normalized shadow processing into 
 ### Entry Points
 
 **Two callers, one SSOT decision**:
-- `routing.rs::try_normalized_shadow()`: Loop-only patterns (Phase 131)
-- `suffix_router_box::try_lower_loop_suffix()`: Loop patterns at block suffix (Phase 131+)
-  - **Phase 142 P0**: Now accepts both LoopOnly and LoopWithPost (deprecated)
+- `routing.rs::try_normalized_shadow()`: loop statement normalization
+- `suffix_router_box::try_lower_loop_suffix()`: block-suffix entry that delegates to the same loop-only plan
   - Statement-level normalization: only the loop is normalized (consumed=1)
-  - Subsequent statements (return, assignments) handled by normal MIR lowering
+  - Subsequent statements (return, assignments) are handled by normal MIR lowering
 - Both call `NormalizationPlanBox::plan_block_suffix()` for detection
 
 ### Box Responsibilities
@@ -53,15 +52,11 @@ Consolidate the two separate entry points for Normalized shadow processing into 
 pub struct NormalizationPlan {
     pub consumed: usize,          // Number of statements to consume from remaining
     pub kind: PlanKind,           // What to lower
-    pub requires_return: bool,    // Whether pattern includes return (unreachable detection)
+    pub requires_return: bool,    // Reserved for unreachable detection bookkeeping
 }
 
 pub enum PlanKind {
-    LoopOnly,                     // Phase 131+142 P0: loop(true) { ... break } alone
-    #[deprecated]                 // Phase 142 P0: DEPRECATED - statement-level normalization
-    LoopWithPost {                // Phase 132-133 (legacy): loop + post assigns + return
-        post_assign_count: usize,
-    },
+    LoopOnly,                     // Current contract: statement-level loop normalization
 }
 ```
 
@@ -96,37 +91,15 @@ pub enum PlanKind {
 
 ---
 
-## Pattern Detection (Phase 131-135, updated Phase 142 P0)
+## Pattern Detection
 
-### Phase 131: Loop-Only
+### Current Contract
 - Pattern: `loop(true) { ... break }` (single statement, no return)
 - Consumed: 1 statement
 - Kind: `PlanKind::LoopOnly`
 - Example: `loop(true) { x = 1; break }`
-
-### Phase 132: Loop + Single Post
-- Pattern: `loop(true) { ... break }; <assign>; return <expr>`
-- Consumed: 3 statements (loop, assign, return)
-- Kind: `PlanKind::LoopWithPost { post_assign_count: 1 }`
-- Example: `loop(true) { x = 1; break }; x = x + 2; return x`
-
-### Phase 133: Loop + Multiple Post
-- Pattern: `loop(true) { ... break }; <assign>+; return <expr>`
-- Consumed: 2 + N statements (loop, N assigns, return)
-- Kind: `PlanKind::LoopWithPost { post_assign_count: N }`
-- Example: `loop(true) { x = 1; break }; x = x + 2; x = x + 3; return x`
-
-### Phase 135: Loop + Return (Zero Post Assigns) **LEGACY**
-- Pattern: `loop(true) { ... break }; return <expr>` (0 post-loop assignments)
-- Consumed: 2 statements (loop, return)
-- Kind: `PlanKind::LoopWithPost { post_assign_count: 0 }`
-- Example: `loop(true) { x = 1; break }; return x`
-- **Improvement**: Unifies Phase 131 and Phase 132-133 patterns under `LoopWithPost` enum
-- **Compatibility**: Phase 131 (loop-only, no return) remains as `PlanKind::LoopOnly`
-- **Status**: Deprecated in Phase 142 P0 (see below)
-
-### Phase 142 P0: Statement-Level Normalization **CURRENT**
-- **Change**: Normalization unit changed from "block suffix" to "statement (loop only)"
+### Statement-Level Normalization
+- **Change**: Normalization unit is "statement (loop only)"
 - **Pattern**: `loop(true)` with **Normalized-supported body shapes** only
   - Body ends with `break` and prior statements are `assignment`/`local` only
   - Body is a single `if` with `break`/`continue` branches (optional else)
@@ -135,7 +108,11 @@ pub enum PlanKind {
 - **Subsequent statements**: Handled by normal MIR lowering (not normalized)
 - **Example**: `loop(true) { break }; return s.length()` → loop normalized (consumed=1), return handled normally
 - **Impact**: Prevents pattern explosion by separating loop normalization from post-loop statements
-- **Deprecated**: `LoopWithPost` variant no longer created, kept for backward compatibility only
+
+### Historical Note
+- Older phases grouped post-loop assignments and return into a larger suffix unit.
+- Current code no longer models that suffix as a separate plan kind.
+- Historical discussion lives in phase docs and investigation notes, not in current code paths.
 
 ---
 
@@ -156,8 +133,7 @@ pub enum PlanKind {
 
 **Invariants**:
 - `consumed <= remaining.len()` (never consume more than available)
-- If `requires_return` is true, `remaining[consumed-1]` must be Return
-- Post-assign patterns require `consumed >= 2` (loop + return minimum, Phase 135+)
+- Current statement-level plans always consume exactly one loop statement
 
 ### NormalizationExecuteBox::execute()
 
@@ -174,7 +150,6 @@ pub enum PlanKind {
 
 **Side Effects**:
 - Modifies `builder` state (adds blocks, instructions, PHI)
-- May emit return statement (for suffix patterns)
 - Updates variable_map with exit values (DirectValue mode)
 
 ---
@@ -186,7 +161,7 @@ pub enum PlanKind {
 - Legacy path: If PlanBox returns None, continue with existing fallback
 
 ### suffix_router_box.rs
-- `try_lower_loop_suffix()`: Call PlanBox, if LoopWithPost → ExecuteBox, return consumed
+- `try_lower_loop_suffix()`: Call PlanBox, if LoopOnly → ExecuteBox, return consumed
 - Legacy path: If PlanBox returns None, return None (existing behavior)
 
 ### build_block() (stmts.rs)
@@ -200,11 +175,7 @@ pub enum PlanKind {
 
 ### Unit Tests (plan_box.rs)
 - Phase 131 pattern detection (loop-only)
-- Phase 132 pattern detection (loop + single post)
-- Phase 133 pattern detection (loop + multiple post)
-- **Phase 135 pattern detection (loop + zero post)** **NEW**
 - Return boundary detection (consumed stops at return)
-- **Return boundary with trailing statements** **NEW**
 - Non-matching patterns (returns None)
 
 ### Regression Smokes
@@ -221,8 +192,7 @@ pub enum PlanKind {
 - Entry SSOT: This README documents the normative contract
 - By-name avoidance: Uses boundary contract SSOT (no variable name guessing)
 - cargo test --lib: All unit tests PASS
-- Phase 133 smokes: 2/2 PASS (VM + LLVM EXE)
-- Phase 131/132 regression: PASS
+- Phase 131 regression: PASS
 - Phase 97 regression: PASS
 - Default behavior unchanged (dev-only guard)
 

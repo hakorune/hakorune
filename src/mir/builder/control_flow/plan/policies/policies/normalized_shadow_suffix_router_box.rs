@@ -17,7 +17,7 @@
 //!
 //! - Uses NormalizationPlanBox for detection (no duplication)
 //! - Uses NormalizationExecuteBox for execution (shared logic)
-//! - Phase 142 P0: Accepts both LoopOnly (consumed=1) and LoopWithPost patterns
+//! - Phase 142 P0+: Statement-level normalization accepts LoopOnly only
 
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
@@ -31,7 +31,7 @@ impl NormalizedShadowSuffixRouterBox {
     ///
     /// Phase 134 P0: Unified with NormalizationPlanBox for pattern detection
     /// Phase 141 P1.5: Added prefix_variables parameter for external env inputs
-    /// Phase 142 P0: Accepts both LoopOnly and LoopWithPost patterns
+    /// Phase 142 P0+: Statement-level normalization accepts LoopOnly only
     ///
     /// Returns:
     /// - Ok(Some(consumed)): Successfully processed remaining[..consumed]
@@ -72,8 +72,6 @@ impl NormalizedShadowSuffixRouterBox {
         if debug {
             let description = match &plan.kind {
                 PlanKind::LoopOnly => "Loop-only pattern".to_string(),
-                #[cfg(test)]
-                _ => "Unknown pattern (should not happen)".to_string(),
             };
             trace.routing("suffix_router", func_name, &description);
         }

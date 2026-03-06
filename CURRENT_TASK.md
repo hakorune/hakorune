@@ -267,6 +267,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - deleted: `src/mir/builder/loop_frontend_binding.rs`
     - intent: current runtime で未接続の helper と未使用 re-export を消し、warning を挙動不変で減らす
     - verification: `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - dust cleanup (2026-03-07, slice 20): test-only loop context と deprecated normalization residue を current contract に揃えた
+    - synced files: `src/mir/builder/control_flow/joinir/{loop_context,routing}.rs` / `src/mir/builder/control_flow/normalization/{plan,execute_box}.rs` / `src/mir/builder/control_flow/normalization/README.md` / `src/mir/builder/control_flow/plan/policies/policies/normalized_shadow_suffix_router_box.rs` / `docs/development/current/main/design/normalized-expr-lowering.md`
+    - intent: `LoopProcessingContext` を実際に読まれる field だけへ細くし、statement-level normalization 後も残っていた `LoopWithPost` current code を撤去する
+    - verification: `cargo check --tests` PASS（warning 0） / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 

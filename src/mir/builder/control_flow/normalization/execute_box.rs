@@ -63,11 +63,6 @@ impl NormalizationExecuteBox {
             PlanKind::LoopOnly => {
                 Self::execute_loop_only(builder, remaining, func_name, debug, prefix_variables)
             }
-            #[cfg(test)]
-            _ => {
-                // Fallback for any other pattern (should not happen in Phase 142+)
-                Err("[normalization/execute] Unexpected pattern kind (Phase 142+ should only have LoopOnly)".to_string())
-            }
         }
     }
 
@@ -159,100 +154,6 @@ impl NormalizationExecuteBox {
 
         Ok(void_id)
     }
-
-    /// Execute Phase 132-133: Loop + post assignments + return
-    ///
-    /// ## Phase 141 P1.5: Added prefix_variables parameter
-    #[cfg(test)]
-    fn execute_loop_with_post(
-        builder: &mut MirBuilder,
-        plan: &NormalizationPlan,
-        remaining: &[ASTNode],
-        func_name: &str,
-        debug: bool,
-        prefix_variables: Option<&BTreeMap<String, ValueId>>,
-    ) -> Result<ValueId, String> {
-        use crate::mir::control_tree::normalized_shadow::env_layout::EnvLayout;
-        use crate::mir::control_tree::normalized_shadow::available_inputs_collector::AvailableInputsCollectorBox;
-        use crate::mir::control_tree::normalized_shadow::StepTreeNormalizedShadowLowererBox;
-        use crate::mir::control_tree::StepTreeBuilderBox;
-
-        let trace = crate::mir::builder::control_flow::joinir::trace::trace();
-
-        // Build StepTree from the suffix (loop + assigns + return)
-        let suffix = &remaining[..plan.consumed];
-        let step_tree = StepTreeBuilderBox::build_from_block(suffix);
-
-        // Collect available inputs (Phase 141 P1.5: with prefix variables)
-        let available_inputs = AvailableInputsCollectorBox::collect(builder, None, prefix_variables);
-        let env_layout = EnvLayout::from_contract(&step_tree.contract, &available_inputs);
-        let env_fields = env_layout.env_fields();
-
-        if debug {
-            trace.routing(
-                "normalization/execute/loop_with_post",
-                func_name,
-                &format!(
-                    "Suffix: {} statements, available inputs: {}",
-                    suffix.len(),
-                    available_inputs.len()
-                ),
-            );
-        }
-
-        // Try Normalized lowering
-        let (join_module, join_meta) =
-            match StepTreeNormalizedShadowLowererBox::try_lower_if_only(&step_tree, &available_inputs) {
-                Ok(Some(result)) => result,
-                Ok(None) => {
-                    return Err(
-                        "[normalization/execute] StepTree lowering returned None (out of scope)"
-                            .to_string(),
-                    );
-                }
-                Err(e) => {
-                    if crate::config::env::joinir_dev::strict_enabled() {
-                        use crate::mir::join_ir::lowering::error_tags;
-                        return Err(error_tags::freeze_with_hint(
-                            "phase134/normalization/loop_with_post",
-                            &e,
-                            "Loop+post should be supported by Normalized but lowering failed",
-                        ));
-                    }
-                    return Err(format!("[normalization/execute] Lowering failed: {}", e));
-                }
-            };
-
-        // Merge JoinIR into MIR (wire env inputs explicitly)
-        Self::merge_normalized_joinir(
-            builder,
-            join_module,
-            join_meta,
-            &available_inputs,
-            &env_fields,
-            func_name,
-            debug,
-        )?;
-
-        // For suffix patterns, emit the return statement
-        // (JoinIR merge converts fragment Returns to Jump, so we need host-level return)
-        if plan.requires_return {
-            if let Some(ASTNode::Return { value, .. }) = suffix.last() {
-                let _ = crate::mir::builder::stmts::return_stmt::build_return_statement(builder, value.clone())?;
-            }
-        }
-
-        // Return void constant
-        use crate::mir::{ConstValue, MirInstruction};
-        let void_id = builder.next_value_id();
-        builder.emit_instruction(MirInstruction::Const {
-            dst: void_id,
-            value: ConstValue::Void,
-        })?;
-
-        Ok(void_id)
-    }
-
     /// Merge Normalized JoinModule into MIR builder
     ///
     /// Extracted from routing.rs and suffix_router_box.rs

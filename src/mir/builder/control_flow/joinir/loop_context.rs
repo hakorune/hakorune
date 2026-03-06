@@ -3,20 +3,20 @@
 //! Phase 140-P5: Unified context for loop processing that integrates:
 //! - AST information (condition, body, span)
 //! - Canonicalizer output (LoopSkeleton, RoutingDecision)
-//! - Router information (route kind + LoopFeatures)
+//! - Router information (route kind)
 //!
 //! This eliminates duplicate AST reconstruction and centralizes loop processing state.
 
 use crate::ast::{ASTNode, Span};
 use crate::mir::loop_canonicalizer::{LoopSkeleton, RoutingDecision};
-use crate::mir::loop_pattern_detection::{LoopFeatures, LoopPatternKind};
+use crate::mir::loop_pattern_detection::LoopPatternKind;
 
 /// Loop processing context - SSOT for AST + Skeleton + Route
 ///
 /// This context integrates all information needed for loop processing:
 /// - AST: The source structure (condition, body, span)
 /// - Canonicalizer: Normalized skeleton and routing decision (optional)
-/// - Router: Route classification and features
+/// - Router: Route classification
 ///
 /// # Lifecycle
 ///
@@ -52,8 +52,6 @@ pub struct LoopProcessingContext<'a> {
     /// Route kind determined by router
     pub route_kind: LoopPatternKind,
 
-    /// Loop features extracted from AST
-    pub features: LoopFeatures,
 }
 
 impl<'a> LoopProcessingContext<'a> {
@@ -65,13 +63,11 @@ impl<'a> LoopProcessingContext<'a> {
     /// - `body`: Loop body statements
     /// - `span`: Source location
     /// - `route_kind`: Route classification from router
-    /// - `features`: Loop features extracted from AST
     pub fn new(
         condition: &'a ASTNode,
         body: &'a [ASTNode],
         span: Span,
         route_kind: LoopPatternKind,
-        features: LoopFeatures,
     ) -> Self {
         Self {
             condition,
@@ -80,7 +76,6 @@ impl<'a> LoopProcessingContext<'a> {
             skeleton: None,
             decision: None,
             route_kind,
-            features,
         }
     }
 
@@ -178,18 +173,6 @@ mod tests {
             body,
             Span::unknown(),
             LoopPatternKind::LoopSimpleWhile,
-            LoopFeatures {
-                has_if: false,
-                has_break: false,
-                has_continue: false,
-                has_if_else_phi: false,
-                carrier_count: 0,
-                break_count: 0,
-                continue_count: 0,
-                is_infinite_loop: false,
-                update_summary: None,
-                ..Default::default()  // Phase 188.1: Use default for new fields
-            },
         )
     }
 
