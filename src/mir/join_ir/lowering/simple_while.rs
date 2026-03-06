@@ -1,7 +1,6 @@
 //! LoopSimpleWhile route → JoinIR lowering
 //!
 //! Phase 188 Task 188-4: Implementation of LoopSimpleWhile route
-//! (legacy Pattern 1, traceability-only).
 //!
 //! ## Route Characteristics
 //!
@@ -54,9 +53,9 @@ use crate::mir::ValueId;
 ///
 /// # Returns
 ///
-/// - `true`: LoopSimpleWhile route shape matches (safe to call `lower_simple_while_pattern`)
+/// - `true`: LoopSimpleWhile route shape matches (safe to call `lower_loop_simple_while_route`)
 /// - `false`: Route shape does not match (try other route lowerers)
-pub fn is_simple_while_pattern(_scope: &LoopScopeShape) -> bool {
+pub fn is_loop_simple_while_route(_scope: &LoopScopeShape) -> bool {
     // Phase 188: Route-shape detection logic will be implemented after understanding
     // LoopScopeShape structure better. For now, return false to avoid breaking existing code.
     // TODO: Implement proper detection based on break_targets, continue_targets, and carriers.
@@ -65,8 +64,7 @@ pub fn is_simple_while_pattern(_scope: &LoopScopeShape) -> bool {
 
 /// Lower simple while loop to JoinIR
 ///
-/// Transforms a simple while loop
-/// (LoopSimpleWhile route; legacy Pattern 1, traceability-only) into JoinIR representation:
+/// Transforms a simple while loop (LoopSimpleWhile route) into JoinIR representation:
 /// - Loop → tail-recursive function (loop_step)
 /// - Exit condition → conditional Jump to k_exit
 /// - Loop body → sequential Compute instructions
@@ -80,7 +78,7 @@ pub fn is_simple_while_pattern(_scope: &LoopScopeShape) -> bool {
 ///
 /// - `Some(JoinModule)`: Successfully lowered to JoinIR
 /// - `None`: Lowering failed (try other routes or fallback)
-pub fn lower_simple_while_pattern(_scope: LoopScopeShape) -> Option<JoinModule> {
+pub fn lower_loop_simple_while_route(_scope: LoopScopeShape) -> Option<JoinModule> {
     // Phase 188: Lowering implementation
     // This is a skeleton that will be filled in after examining LoopScopeShape structure
     // and understanding how to extract loop header, body, latch, and exit information.

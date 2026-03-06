@@ -11,7 +11,7 @@
 //! ## 決定型のSSOT
 //! - `PolicyDecision<T>` に統一（Use / Reject / None）
 //! - BodyLocal, Trim, P5b escape などすべてここ経由で route することで
-//!   loop_break 側（legacy label: Pattern2）の分岐を簡潔に保つ
+//!   loop_break 側の分岐を簡潔に保つ
 //!
 //! ## 設計原則
 //! - **単一判断の原則**: 各policy箱は1つの route 判断のみ

@@ -14,8 +14,7 @@ use std::collections::BTreeMap;
 
 /// Build the canonical simple-while coreloop scaffold.
 ///
-/// Legacy note: this lives in `pattern1_coreloop_builder.rs` for compatibility with
-/// older phase docs, but runtime callers should use the semantic helper name.
+/// Runtime callers should use the semantic helper name from `normalizer::build_simple_while_coreloop`.
 pub(in crate::mir::builder) fn build_simple_while_coreloop(
     builder: &mut MirBuilder,
     loop_var: &str,

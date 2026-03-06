@@ -73,8 +73,7 @@ impl JoinIrBlockConverter {
             match join_inst {
                 JoinInst::Compute(mir_like) => {
                     // Phase 189: Special handling for MirLikeInst::Select
-                    // IfPhiJoin route (legacy Pattern 3, traceability-only)
-                    // uses JoinInst::Compute(MirLikeInst::Select {...})
+                    // IfPhiJoin route uses JoinInst::Compute(MirLikeInst::Select {...})
                     // but Select needs control flow expansion (Branch + Phi), not single instruction
                     if let MirLikeInst::Select {
                         dst,

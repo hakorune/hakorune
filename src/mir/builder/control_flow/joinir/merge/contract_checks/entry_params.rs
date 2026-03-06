@@ -8,7 +8,7 @@ use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 /// count, and ValueId mapping. This prevents ordering bugs like the scan_with_init loop_invariants
 /// issue where `[s, ch]` → `[ch, s]` required manual debugging.
 ///
-/// # Example Valid (`scan_with_init` route, legacy Pattern 6, traceability-only):
+/// # Example Valid (`scan_with_init` route):
 /// ```text
 /// JoinModule.main.params:     [ValueId(100), ValueId(101), ValueId(102)]  (i, ch, s)
 /// boundary.join_inputs:       [ValueId(100), ValueId(101), ValueId(102)]

@@ -18,5 +18,5 @@ Modules:
 - cond_lowering_*.rs: header/body/value condition lowering entry points.
 - loop_body_lowering.rs: statement/effect lowering helpers used by loop pipelines.
 - value_join_args.rs: value-join argument normalization helpers.
-- pattern1_coreloop_builder.rs: simple-while coreloop scaffold helper (legacy file name kept for compatibility).
+- simple_while_coreloop_builder.rs: simple-while coreloop scaffold helper.
 - loop_break.rs: test-only loop-break normalization harness.

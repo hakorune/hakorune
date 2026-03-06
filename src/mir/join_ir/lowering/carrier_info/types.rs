@@ -210,7 +210,7 @@ pub struct ExitMeta {
 /// - `expr_result`: Only goes to exit_phi_inputs (generates PHI for expr value)
 /// - `exit_meta`: Only goes to carrier_inputs (updates variable_map via carrier PHIs)
 ///
-/// ## Example: LoopBreak-style expr loop (legacy Pattern2, traceability-only)
+/// ## Example: LoopBreak expr loop
 ///
 /// ```rust
 /// JoinFragmentMeta {
@@ -219,7 +219,7 @@ pub struct ExitMeta {
 /// }
 /// ```
 ///
-/// ## Example: Multi-carrier side-effect loop (legacy Pattern3 docs, traceability-only)
+/// ## Example: Multi-carrier side-effect loop
 ///
 /// ```rust
 /// JoinFragmentMeta {

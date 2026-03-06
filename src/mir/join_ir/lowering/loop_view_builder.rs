@@ -48,7 +48,7 @@ impl LoopViewBuilder {
     ///
     /// # 選択戦略（Phase 170-A-2: Structure-based + Name fallback）
     ///
-    /// 1. LoopSimpleWhile route検出（legacy Pattern 1; traceability-only）
+    /// 1. LoopSimpleWhile route検出
     /// 2. Shape検出（CaseALoweringShape）
     /// 3. Shape別ディスパッチ
     /// 4. 名前ベースフォールバック（Generic/NotCaseAの場合）

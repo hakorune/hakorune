@@ -58,13 +58,13 @@ pub(in crate::mir::builder) mod verifier;
 pub(in crate::mir::builder) mod canon;
 
 // Layer 3: Skeleton/Feature Layer (分解スロット)
-// route 形状認識の分解スロット（legacy label: pattern）
+// route 形状認識の分解スロット
 // Phase 29bt P0: Skeletons + Features (decomposition slots)
 pub(in crate::mir::builder) mod features;
 pub(in crate::mir::builder) mod skeletons;
 
 // Layer 4: Route-Specific (形状固有)
-// 各 route の固有処理（legacy module names may keep patternX）
+// 各 route の固有処理（一部 helper には historical file 名が残る）
 // Phase 29ca P1: Core loop body effect contract (SSOT)
 pub(in crate::mir::builder) mod coreloop_body_contract;
 // Phase 29ca P1: Generic loop v0 module (facts/normalizer SSOT)
@@ -157,10 +157,10 @@ pub(in crate::mir::builder) mod common_init;
 pub(in crate::mir::builder) mod extractors;
 // Phase 29av P1: FlowBox observability tags (strict/dev only)
 pub(in crate::mir::builder) mod observability;
-// Phase 29bq+: Route recognizers (legacy label: pattern recognizers) moved to plan side
+// Phase 29bq+: Route recognizers moved to plan side
 pub(in crate::mir::builder) mod pattern_recognizers;
-// Phase 29ao P21: loop_simple_while subset policy (legacy label: Pattern1, SSOT gate)
-// Phase 29bq+: Route policies (legacy label: Pattern policies) moved to plan side
+// Phase 29ao P21: loop_simple_while subset policy (SSOT gate)
+// Phase 29bq+: Route policies moved to plan side
 pub(in crate::mir::builder) mod policies;
 
 // Layer 9: Legacy/Scaffolding (残骸・足場)

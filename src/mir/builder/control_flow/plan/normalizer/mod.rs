@@ -16,7 +16,6 @@
 //! and Lowerer processes CorePlan without route-specific knowledge.
 
 pub(in crate::mir::builder) mod helpers;
-#[path = "pattern1_coreloop_builder.rs"]
 mod simple_while_coreloop_builder;
 #[cfg(test)]
 mod loop_break;

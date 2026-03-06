@@ -38,8 +38,7 @@ use crate::mir::{MirModule, ValueId};
 /// 5. Converting Return → Jump to exit block for all functions
 ///
 /// **Multi-Function Support** (Phase 189):
-/// - LoopSimpleWhile route (legacy Pattern 1, traceability-only) generates
-///   3 functions: entry + loop_step + k_exit
+/// - LoopSimpleWhile route generates 3 functions: entry + loop_step + k_exit
 /// - All functions are flattened into current_function with global ID remapping
 /// - Single exit block receives all Return instructions from all functions
 ///

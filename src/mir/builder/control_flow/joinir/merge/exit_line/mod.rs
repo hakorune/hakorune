@@ -40,7 +40,7 @@
 //! This ensures variable_map points to PHI-defined values (SSA-correct).
 //!
 //! ## Future Extensions
-//! When implementing LoopContinueOnly route (legacy Pattern 4, traceability-only),
+//! When implementing LoopContinueOnly route,
 //! new route lowerers can:
 //! ```rust
 //! let exit_bindings = ExitMetaCollector::collect(self, &exit_meta, debug);

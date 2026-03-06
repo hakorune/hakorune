@@ -28,10 +28,10 @@ use crate::mir::join_ir::lowering::inline_boundary::LoopExitBinding;
 ///
 /// ## Reusability Across Routes
 /// This collector is route-agnostic:
-/// - LoopSimpleWhile: Often no exit_bindings needed (simple while shape; legacy Pattern 1, traceability-only)
-/// - LoopBreak: Single exit binding (loop variable; legacy Pattern 2, traceability-only)
-/// - IfPhiJoin: Multiple bindings (loop vars + if merges; legacy Pattern 3, traceability-only)
-/// - LoopContinueOnly: Single/multiple bindings (with continue; legacy Pattern 4, traceability-only)
+/// - LoopSimpleWhile: Often no exit_bindings needed (simple while shape)
+/// - LoopBreak: Single exit binding (loop variable)
+/// - IfPhiJoin: Multiple bindings (loop vars + if merges)
+/// - LoopContinueOnly: Single/multiple bindings (with continue)
 ///
 /// All routes use the same `collect()` method!
 ///

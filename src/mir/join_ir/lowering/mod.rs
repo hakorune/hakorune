@@ -70,7 +70,7 @@ pub mod method_call_lowerer; // Phase 224-B: MethodCall lowering (metadata-drive
 pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists)
 pub mod method_return_hint; // Phase 83: P3-D 既知メソッド戻り値型推論箱
 pub mod scope_manager; // Phase 231: Unified variable scope management // Phase 195: loop_continue_only minimal lowerer support
-pub(crate) mod step_schedule; // Phase 47-A: Generic step scheduler for loop_break/if_phi_join (renamed from pattern2_step_schedule) // Phase 73: BindingId-based scope PoC (dev-only)
+pub(crate) mod step_schedule; // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
                               // Phase 242-EX-A: loop_with_if_phi_minimal removed - replaced by loop_with_if_phi_if_sum
 pub mod loop_with_if_phi_if_sum; // Phase 213: if_phi_join AST-based if-sum lowerer (Phase 242-EX-A: supports complex conditions)
 pub mod min_loop;

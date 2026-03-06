@@ -4,7 +4,7 @@
 //! body から loop counter（例: `i`）を一意に確定する。
 //!
 //! ## 責務（SSOT）
-//! - loop_break route（legacy label: Pattern2）の「loop(true) を扱う入口」を1箇所に集約する
+//! - loop_break route の「loop(true) を扱う入口」を1箇所に集約する
 //! - 曖昧な loop(true) を **通さない**（Fail-Fast で理由を返す）
 //!
 //! ## Contract（Fail-Fast）

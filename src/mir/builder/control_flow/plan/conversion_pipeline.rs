@@ -61,7 +61,7 @@ impl JoinIRConversionPipeline {
     /// # Example
     ///
     /// ```rust
-    /// // loop_simple_while (legacy Pattern1): simple loop (no exit PHI)
+    /// // loop_simple_while: simple loop (no exit PHI)
     /// let _ = JoinIRConversionPipeline::execute(
     ///     builder,
     ///     join_module,
@@ -70,7 +70,7 @@ impl JoinIRConversionPipeline {
     ///     false,
     /// )?;
     ///
-    /// // if_phi_join (legacy Pattern3): loop with carriers (exit PHI generated)
+    /// // if_phi_join: loop with carriers (exit PHI generated)
     /// let exit_phi = JoinIRConversionPipeline::execute(
     ///     builder,
     ///     join_module,

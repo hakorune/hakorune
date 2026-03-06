@@ -12,7 +12,7 @@
 //!
 //! - **Pure functions**: No side effects, only AST analysis
 //! - **High reusability**: Used by router, future loop_true_early_exit / scan_with_init
-//!   route expansions (legacy Pattern5/6), and route-shape analysis tools
+//!   route expansions, and route-shape analysis tools
 //! - **Independent testability**: Can be unit tested without MirBuilder context
 //! - **Extension-friendly**: Easy to add new feature detection methods
 //! - **Facade pattern**: Re-exports from pattern_recognizers/ for backward compatibility

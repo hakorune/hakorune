@@ -50,7 +50,7 @@ pub(super) fn select_loop_step_func_name<'a>(
 /// - If MAIN exists with matching params and condition_bindings: use MAIN
 /// - Otherwise: use loop_step (header function)
 ///
-/// This handles IfPhiJoin route's if-sum shape (legacy Pattern 3, traceability-only), where condition evaluation
+/// This handles IfPhiJoin route's if-sum shape, where condition evaluation
 /// happens in MAIN before entering the loop_step header.
 pub(super) fn select_merge_entry_func<'a>(
     mir_module: &'a MirModule,
