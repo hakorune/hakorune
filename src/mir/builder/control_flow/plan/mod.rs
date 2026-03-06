@@ -158,8 +158,6 @@ pub(in crate::mir::builder) mod extractors;
 // Phase 29av P1: FlowBox observability tags (strict/dev only)
 pub(in crate::mir::builder) mod observability;
 // Phase 29bq+: Route recognizers moved to plan side
-// Legacy on-disk directory name remains `pattern_recognizers/`.
-#[path = "pattern_recognizers/mod.rs"]
 pub(in crate::mir::builder) mod route_shape_recognizers;
 // Phase 29ao P21: loop_simple_while subset policy (SSOT gate)
 // Phase 29bq+: Route policies moved to plan side

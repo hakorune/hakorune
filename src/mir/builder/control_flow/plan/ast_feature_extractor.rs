@@ -25,7 +25,7 @@
 //!
 //! # Phase 287 P1: Modularization
 //!
-//! - Individual recognizers extracted to `route_shape_recognizers` (legacy on-disk dir: `pattern_recognizers/`)
+//! - Individual recognizers extracted to `route_shape_recognizers`
 //! - This file now acts as a facade, re-exporting public APIs
 //! - Internal implementation moved to specialized modules
 //!

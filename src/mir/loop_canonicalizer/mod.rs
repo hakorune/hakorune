@@ -21,7 +21,7 @@
 //!
 //! - `skeleton_types` - Core data structures (LoopSkeleton, SkeletonStep, etc.)
 //! - `capability_guard` - Routing decisions and capability tags
-//! - `pattern_recognizer` - Route-shape detection logic (skip_whitespace, etc.)
+//! - `route_shape_recognizer` - Route-shape detection logic (skip_whitespace, etc.)
 //! - `canonicalizer` - Main canonicalization entry point
 //!
 //! ## References
@@ -36,7 +36,7 @@
 
 mod canonicalizer;
 mod capability_guard;
-mod pattern_recognizer;
+mod route_shape_recognizer;
 mod skeleton_types;
 
 #[cfg(test)]

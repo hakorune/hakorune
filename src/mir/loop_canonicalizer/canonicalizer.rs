@@ -9,7 +9,7 @@ use crate::mir::policies::balanced_depth_scan;
 use crate::mir::policies::PolicyDecision;
 
 use super::capability_guard::{CapabilityTag, RoutingDecision};
-use super::pattern_recognizer::{
+use super::route_shape_recognizer::{
     try_extract_continue_shape, try_extract_escape_skip_shape, try_extract_parse_number_shape,
     try_extract_parse_string_shape, try_extract_read_digits_loop_true_shape,
     try_extract_skip_whitespace_shape,

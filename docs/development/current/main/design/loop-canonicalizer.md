@@ -37,7 +37,7 @@ loop_canonicalizer/
 │   ├── RoutingDecision
 │   ├── CapabilityTag (enum)
 │   └── Decision constructors
-├── pattern_recognizer.rs  [Route Candidate Detection]
+├── route_shape_recognizer.rs  [Route Candidate Detection]
 │   └── detect route candidates (ast_feature_extractor 呼び出し)
 └── canonicalizer.rs       [Main Logic]
     └── canonicalize_loop_expr()

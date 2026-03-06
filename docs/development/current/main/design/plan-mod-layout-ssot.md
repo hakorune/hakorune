@@ -94,7 +94,7 @@ extractors    - AST 抽出
 observability  - FlowBox タグ (debug/dev)
 common_init    - 共通初期化
 common         - 共通ヘルパー
-route_shape_recognizers - route recognizers (legacy directory name: `pattern_recognizers/`)
+route_shape_recognizers - route recognizers
 ```
 
 ### Layer 9: Legacy/Scaffolding (残骸・足場)
