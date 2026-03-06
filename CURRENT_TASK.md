@@ -44,6 +44,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
   - `docs/development/current/main/design/normalized-dev-removal-ssot.md`
+  - `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
 - execution rule:
   - 1 blocker = 1受理形 = fixture+gate = 1 commit
   - BoxCount と BoxShape を同コミットで混在させない
@@ -283,6 +284,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - keep-as-is: `pattern3_if_sum_multi_min` / `jsonparser_if_sum_min` / `selfhost_if_sum_p3` / `selfhost_if_sum_p3_ext`
     - rule: rename は避ける。必要なら alias 追加に留め、旧キーは維持する
     - rationale: `lower_program_json()` が `defs[0].name` を `resolve_function_route()` へ直結しており、private/historical JSON fixtures の `name` と結びついている
+  - compat retirement setup (2026-03-07, phase A): legacy by-name fixture key を独立フェーズとして固定した
+    - SSOT: `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
+    - scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の `pattern3_if_sum_multi_min` / `jsonparser_if_sum_min` / `selfhost_if_sum_p3` / `selfhost_if_sum_p3_ext`
+    - rule: A=inventory/decision, B=alias追加, C=fixture/doc移行, D=旧key retire。いきなり rename/delete はしない
+    - rationale: active tests は薄いが private/historical JSON fixtures が `name` を pin しているため、互換契約を段階的に畳む必要がある
   - truth cleanup (2026-03-07, slice 23): low-risk active docs の stale path / Pattern wording を route-first に寄せた
     - synced files: `docs/development/current/main/design/{coreloop-stepmode-inline-in-body-ssot,pattern-p5b-escape-design,coreplan-skeleton-feature-model,joinir-pattern-selection-shadow-ssot}.md`
     - intent: 現在参照される設計文では semantic route / family を主語にし、stale source path も今の file 名へ合わせる
@@ -295,10 +301,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## next fixed order (resume point)
 
 1. `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. `truth` cleanup を継続し、active docs / runtime comments の旧主語を appendix / archive / README へさらに寄せる。
-3. `naming` cleanup: legacy file/test/comment 名を semantic 名へ同期し、test-only wording と historical docs の境界をさらに薄くする。
-4. `dust` cleanup: warnings / orphan helper / dead code を刈る。
-5. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
+2. legacy fixture key retirement を A→D の順で進める（A=SSOT/在庫, B=alias追加, C=fixture/doc移行, D=旧key retire）。
+3. `truth` cleanup を継続し、active docs / runtime comments の旧主語を appendix / archive / README へさらに寄せる。
+4. `naming` cleanup: legacy file/test/comment 名を semantic 名へ同期し、test-only wording と historical docs の境界をさらに薄くする。
+5. `dust` cleanup: warnings / orphan helper / dead code を刈る。
+6. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
 
 ## Quick Restart (After Reboot)
 
