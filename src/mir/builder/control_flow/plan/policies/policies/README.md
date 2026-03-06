@@ -1,17 +1,17 @@
-# JoinIR Pattern Policies - ルーティング箱の責務
+# JoinIR Route Policies - ルーティング箱の責務
 
 ## 概要
-このディレクトリには、Pattern認識とルーティング（policy決定）を行う「箱」が格納されています。
+このディレクトリには、route 認識とルーティング（policy決定）を行う「箱」が格納されています。
 
 ## Policy箱の責務
 
 ### ルーティング決定
 - 入力: LoopSkeleton、break条件、carrier情報
-- 出力: 適用可能なPattern（Pattern2, Pattern3, etc.）とLoweringResult
-- 判断基準: パターンマッチング条件（Trim, ConditionalStep, Escape, etc.）
+- 出力: 適用可能な route / policy decision と LoweringResult
+- 判断基準: route マッチング条件（Trim, ConditionalStep, Escape, etc.）
 
 ### Lowering Result生成
-- Pattern固有の情報（ConditionOnlyRecipe, ConditionalStepInfo, etc.）を生成
+- route 固有の情報（ConditionOnlyRecipe, ConditionalStepInfo, etc.）を生成
 - CarrierInfo拡張（promoted variables, trim_helper, etc.）
 - ConditionBinding設定
 
@@ -89,15 +89,15 @@
 ## 設計原則
 
 ### 単一判断の原則
-- 各policy箱は1つのパターン判断のみ
-- 複数パターンの判断は別のpolicy箱に委譲
+- 各policy箱は1つの route 判断のみ
+- 複数 route の判断は別のpolicy箱に委譲
 
 ### 非破壊的判断
 - 入力を変更しない
 - 判断結果をResultで返す（`Ok(Some(result))` / `Ok(None)` / `Err(msg)`）
 
 ### Fail-Fast
-- パターンマッチング失敗は即座に`Ok(None)`を返す
+- route マッチング失敗は即座に`Ok(None)`を返す
 - エラーは明示的に`Err(msg)`
 - Reject理由は`error_tags::freeze()`でタグ付与
 
@@ -105,11 +105,11 @@
 - `PolicyDecision<T>`（Use / Reject / None）をSSOTにする
 - 例: `P5bEscapeDerivedDecision = PolicyDecision<BodyLocalDerivedRecipe>`, `TrimPolicyResult`
 
-## 使用パターン
+## 使用例
 
-### Pattern2ルーティング（現在のパターン）
+### LoopBreakルーティング（現在の route family）
 ```rust
-// Step 1: P5b escapeパターン判断
+// Step 1: P5b escape route判断
 match classify_p5b_escape_derived(body, loop_var_name) {
     P5bEscapeDerivedDecision::UseDerived(recipe) => {
         // P5b escape適用
@@ -119,28 +119,28 @@ match classify_p5b_escape_derived(body, loop_var_name) {
         return Err(reason);
     }
     P5bEscapeDerivedDecision::None => {
-        // 次のパターンへ
+        // 次の policy へ
     }
 }
 
-// Step 2: Trimパターン判断
+// Step 2: Trim route判断
 if let Some(trim_result) = TrimLoopLowerer::try_lower_trim_pattern(...)? {
-    // Trimパターン適用
+    // Trim適用
     return Ok(trim_result);
 }
 
-// Step 3: デフォルトパターン
-Ok(default_pattern2_lowering(...))
+// Step 3: デフォルト lowering
+Ok(default_loop_break_lowering(...))
 ```
 
-### 将来の統一パターン（policies/移動後）
+### 将来の統一ルーティング（policies/移動後）
 ```rust
 use plan::policies::{P5bEscapePolicy, TrimPolicy, ConditionalStepPolicy};
 
 // Policy boxの統一インターフェース
-trait PatternPolicy {
+trait RoutePolicy {
     type Decision;
-    fn classify(&self, context: &PatternContext) -> Self::Decision;
+    fn classify(&self, context: &RouteContext) -> Self::Decision;
 }
 
 // ルーティングパイプライン
@@ -171,12 +171,12 @@ if joinir_dev_enabled() {
 ## 命名規則
 
 ### ファイル命名
-- `<パターン名>_policy.rs` - パターン判断policy箱
+- `<role>_policy.rs` - route 判断policy箱
 - 例: `trim_policy.rs`, `escape_policy.rs`, `conditional_step_policy.rs`
 
 ### 型命名
-- `<パターン名>Decision` - 判断結果型
-- `<パターン名>Policy` - policy箱の構造体（将来）
+- `<role>Decision` - 判断結果型
+- `<role>Policy` - policy箱の構造体（将来）
 
 ### 列挙型パターン
 ```rust

@@ -248,6 +248,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - intent: non-legacy current code から `pattern1_coreloop_builder.rs` / `pattern2_step_schedule` の traceability string を外し、helper layout comment も route semantics だけに戻す
     - verification: `rg -n "Pattern [1-9]|Pattern[1-9]\\b|pattern[1-9]\\b|pattern[1-9]_" src/mir/join_ir/lowering/mod.rs src/mir/builder/control_flow/plan/normalizer src/mir/builder/control_flow/plan/REGISTRY.md docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md -g '!**/REGISTRY.md'` = legacy-only hits or 0 hit on touched current files
     - verification: `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - naming cleanup (2026-03-06, slice 16): current-facing README の route prose を整理し、`Pattern` 主語を active guidance からさらに後退させた
+    - synced files: `src/mir/builder/control_flow/plan/policies/policies/README.md` / `src/mir/builder/control_flow/plan/features/README.md`
+    - intent: current README では route/policy decision を主語にし、historical file 名は physical path 注記に限定する
+    - verification: `rg -n "Pattern [1-9]|Pattern[1-9]\\b|pattern[1-9]\\b|pattern[1-9]_" src/mir/builder/control_flow/plan/policies/policies/README.md src/mir/builder/control_flow/plan/features/README.md` = physical path note only
 
 ## next fixed order (resume point)
 

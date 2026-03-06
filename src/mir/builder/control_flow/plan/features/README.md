@@ -30,8 +30,8 @@ Pipeline:
   - scan_with_init: `features/scan_with_init_pipeline.rs` + `features/scan_with_init_ops.rs`
   - split_scan: `features/split_scan_pipeline.rs` + `features/split_scan_ops.rs`
   - split-specific emit/match: `features/split_emit.rs`
-- pattern5 pipeline:
-  - pattern5_infinite_early_exit: `features/pattern5_infinite_early_exit_pipeline.rs` + `features/pattern5_infinite_early_exit_ops.rs`
+- loop_true_early_exit pipeline:
+  - physical files: `features/pattern5_infinite_early_exit_pipeline.rs` + `features/pattern5_infinite_early_exit_ops.rs`
 
 Exit-branch helper:
 - `features/exit_branch.rs`: shared “exit branch” extractor/lowerer (prelude + ExitKind) used by `exit_if_map` and BranchN/match (SSOT: `docs/development/current/main/design/exit-branch-feature-ssot.md`).
