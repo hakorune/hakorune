@@ -1,4 +1,4 @@
-//! Pattern 1: Simple While Loop Lowering
+//! LoopSimpleWhile route lowering
 //!
 //! Target: Simple while loops with no break/continue
 //! Example: `while(i < 10) { i = i + 1 }`
@@ -18,7 +18,7 @@ use crate::mir::join_ir::lowering::loop_to_join::LoopToJoinLowerer;
 use crate::mir::join_ir::JoinInst;
 use crate::mir::loop_form::LoopForm;
 
-/// Lowering for Pattern 1: Simple While Loop
+/// Lowering for LoopSimpleWhile route
 ///
 /// # Transformation (Pseudocode from design.md)
 ///
@@ -31,7 +31,7 @@ use crate::mir::loop_form::LoopForm;
 ///   Call(loop_step, [i_next])
 /// ```
 ///
-/// # Steps (from design.md § Pattern 1 § Step-by-Step Transformation)
+/// # Steps (from design.md § LoopSimpleWhile / legacy Pattern 1, traceability-only)
 ///
 /// 1. **Extract Loop Variables (Carriers)**
 ///    - Analyze header PHI nodes
@@ -67,7 +67,7 @@ use crate::mir::loop_form::LoopForm;
 /// # Returns
 ///
 /// * `Some(JoinInst)` - Lowering succeeded, returns generated JoinIR instruction
-/// * `None` - Lowering failed (pattern not matched or unsupported)
+/// * `None` - Lowering failed (route shape not matched or unsupported)
 ///
 /// # Errors
 ///
@@ -78,7 +78,7 @@ use crate::mir::loop_form::LoopForm;
 ///
 /// # Reference
 ///
-/// See design.md § Pattern 1 for complete transformation details and pseudocode.
+/// See design.md § Pattern 1 (legacy numbering, traceability-only) for full pseudocode.
 ///
 /// # Example Usage
 ///
@@ -93,7 +93,7 @@ pub fn lower_simple_while_to_joinir(
     _loop_form: &LoopForm,
     _lowerer: &mut LoopToJoinLowerer,
 ) -> Option<JoinInst> {
-    // TODO: Implement Pattern 1 lowering
+    // TODO: Implement LoopSimpleWhile route lowering (legacy Pattern 1; traceability-only)
     //
     // Step 1: Extract Loop Variables (Carriers)
     // ==========================================
@@ -126,7 +126,7 @@ pub fn lower_simple_while_to_joinir(
     // let k_exit_func = JoinFunction {
     //     id: k_exit_id,
     //     name: "k_exit".to_string(),
-    //     params: vec![],  // No exit values in Pattern 1
+    //     params: vec![],  // No exit values in LoopSimpleWhile route
     //     body: vec![
     //         JoinInst::Compute(MirLikeInst::Const {
     //             dst: lowerer.fresh_valueid(),

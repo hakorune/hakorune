@@ -1,4 +1,4 @@
-//! Pattern 6: Nested Loop Minimal Lowering (Phase 188.1)
+//! NestedLoopMinimal route lowering (Phase 188.1)
 //!
 //! Target: 1-level nested simple while loops
 //! Example: `loop(i < 3) { loop(j < 2) { ... } }`
@@ -40,12 +40,12 @@
 //! - Outer step function contains inner step function (nested structure)
 //! - `k_inner_exit` resumes outer loop body after inner completes
 //! - Outer/inner carriers are isolated (no shared carriers)
-//! - Both loops use same tail-recursive pattern as Pattern 1
+//! - Both loops use the same tail-recursive form as LoopSimpleWhile route
 //!
 //! # Supported Forms (Phase 188.1 Scope)
 //!
-//! - **Outer loop**: Pattern 1 (simple while, no break/continue)
-//! - **Inner loop**: Pattern 1 (simple while, no break/continue)
+//! - **Outer loop**: LoopSimpleWhile route shape (no break/continue)
+//! - **Inner loop**: LoopSimpleWhile route shape (no break/continue)
 //! - **Nesting depth**: EXACTLY 1 level (`max_loop_depth == 2`)
 //! - **No control flow**: No break/continue in either loop
 //! - **Sequential execution**: Inner loop completes before outer continues
@@ -67,12 +67,12 @@ use crate::mir::loop_form::LoopForm;
 
 /// Lower 1-level nested simple while loops to JoinIR
 ///
-/// # Pattern 6 Transformation Steps
+/// # NestedLoopMinimal route transformation steps
 ///
 /// 1. **Detect Outer + Inner Loops**
 ///    - Validate outer loop is LoopForm
 ///    - Find inner loop within outer body
-///    - Validate both are Pattern 1 (no break/continue)
+///    - Validate both match LoopSimpleWhile route shape (no break/continue)
 ///
 /// 2. **Extract Outer Loop Variables**
 ///    - Analyze outer header PHI nodes
@@ -109,13 +109,13 @@ use crate::mir::loop_form::LoopForm;
 /// # Returns
 ///
 /// * `Some(JoinInst)` - Lowering succeeded, returns generated JoinIR instruction
-/// * `None` - Lowering failed (pattern not matched or unsupported)
+/// * `None` - Lowering failed (route shape not matched or unsupported)
 ///
 /// # Errors
 ///
 /// Returns `None` if:
-/// - Outer loop has break/continue (not Pattern 1)
-/// - Inner loop has break/continue (not Pattern 1)
+/// - Outer loop has break/continue (not LoopSimpleWhile route shape)
+/// - Inner loop has break/continue (not LoopSimpleWhile route shape)
 /// - Nesting depth > 2 (more than 1 level)
 /// - Multiple inner loops detected (siblings)
 /// - Inner loop not found in outer body
@@ -125,7 +125,7 @@ use crate::mir::loop_form::LoopForm;
 /// ```rust,ignore
 /// use crate::mir::loop_pattern_detection::LoopPatternKind;
 ///
-/// if pattern == LoopPatternKind::NestedLoopMinimal {
+/// if route_kind == LoopPatternKind::NestedLoopMinimal {
 ///     lower_nested_loop_minimal_to_joinir(&loop_form, &mut lowerer)?;
 /// }
 /// ```
@@ -133,7 +133,7 @@ pub fn lower_nested_loop_minimal_to_joinir(
     _loop_form: &LoopForm,
     _lowerer: &mut LoopToJoinLowerer,
 ) -> Option<JoinInst> {
-    // TODO: Implement Pattern 6 lowering (Phase 188.1 Task 4)
+    // TODO: Implement NestedLoopMinimal route lowering (legacy Pattern 6; traceability-only)
     //
     // Step 1: Detect Outer + Inner Loops
     // ===================================
@@ -223,16 +223,16 @@ pub fn lower_nested_loop_minimal_to_joinir(
     None
 }
 
-/// Validate nested loop structure meets Pattern 6 requirements
+/// Validate nested loop structure meets NestedLoopMinimal route requirements
 ///
 /// # Validation Rules (Phase 188.1)
 ///
-/// 1. **Outer loop must be Pattern 1**
+/// 1. **Outer loop must match LoopSimpleWhile route shape**
 ///    - No break statements
 ///    - No continue statements
 ///    - Simple while condition
 ///
-/// 2. **Inner loop must be Pattern 1**
+/// 2. **Inner loop must match LoopSimpleWhile route shape**
 ///    - No break statements
 ///    - No continue statements
 ///    - Simple while condition
@@ -269,23 +269,23 @@ fn validate_nested_structure(
 ) -> Result<(), String> {
     // TODO: Implement validation (Phase 188.1 Task 4)
     //
-    // Check 1: Outer loop must be Pattern 1
+    // Check 1: Outer loop must match LoopSimpleWhile route shape
     // ======================================
     // if has_break_or_continue(outer_loop) {
     //     return Err(error_tags::freeze_with_hint(
     //         "nested_loop/outer_control_flow",
-    //         "Outer loop has break/continue (not supported in Pattern 6)",
-    //         "Only simple while loops supported as outer loops (Pattern 1 only)",
+    //         "Outer loop has break/continue (not supported in NestedLoopMinimal route)",
+    //         "Only LoopSimpleWhile route shape is supported as outer loop",
     //     ));
     // }
     //
-    // Check 2: Inner loop must be Pattern 1
+    // Check 2: Inner loop must match LoopSimpleWhile route shape
     // ======================================
     // if has_break_or_continue(inner_loop) {
     //     return Err(error_tags::freeze_with_hint(
     //         "nested_loop/inner_control_flow",
-    //         "Inner loop has break/continue (not supported in Pattern 6)",
-    //         "Only simple while loops supported as inner loops (Pattern 1 only)",
+    //         "Inner loop has break/continue (not supported in NestedLoopMinimal route)",
+    //         "Only LoopSimpleWhile route shape is supported as inner loop",
     //     ));
     // }
     //
@@ -300,7 +300,7 @@ fn validate_nested_structure(
     //     return Err(error_tags::freeze_with_hint(
     //         "nested_loop/multiple_inner",
     //         &format!("Multiple inner loops detected ({} loops)", inner_loop_count),
-    //         "Only one inner loop supported in Pattern 6 (Phase 188.1 scope)",
+    //         "Only one inner loop supported in NestedLoopMinimal route (Phase 188.1 scope)",
     //     ));
     // }
 
@@ -317,7 +317,7 @@ fn validate_nested_structure(
 /// # Returns
 ///
 /// * `true` - Loop has break or continue
-/// * `false` - Loop is Pattern 1 (no break/continue)
+/// * `false` - Loop matches LoopSimpleWhile route shape (no break/continue)
 #[allow(dead_code)]
 fn has_break_or_continue(_loop_form: &LoopForm) -> bool {
     // TODO: Check loop_form.break_targets, loop_form.continue_targets
@@ -329,9 +329,9 @@ fn has_break_or_continue(_loop_form: &LoopForm) -> bool {
 mod tests {
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern6_lowering_success() {
-        // TODO: Add integration test for nested loop pattern lowering
-        // Step 1: Create mock LoopForm for nested loop pattern
+    fn test_nested_loop_minimal_lowering_success() {
+        // TODO: Add integration test for NestedLoopMinimal route lowering
+        // Step 1: Create mock LoopForm for NestedLoopMinimal route
         // Step 2: Create mock LoopToJoinLowerer
         // Step 3: Call lower_nested_loop_minimal_to_joinir()
         // Step 4: Assert returns Some(JoinInst)
@@ -340,25 +340,25 @@ mod tests {
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern6_rejects_outer_break() {
+    fn test_nested_loop_minimal_rejects_outer_break() {
         // TODO: Add test that rejects outer loop with break
         // Step 1: Create mock LoopForm with break in outer loop
         // Step 2: Call lower_nested_loop_minimal_to_joinir()
-        // Step 3: Assert returns None (unsupported pattern)
+        // Step 3: Assert returns None (unsupported route shape)
     }
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern6_rejects_inner_continue() {
+    fn test_nested_loop_minimal_rejects_inner_continue() {
         // TODO: Add test that rejects inner loop with continue
         // Step 1: Create mock LoopForm with continue in inner loop
         // Step 2: Call lower_nested_loop_minimal_to_joinir()
-        // Step 3: Assert returns None (unsupported pattern)
+        // Step 3: Assert returns None (unsupported route shape)
     }
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern6_rejects_2level_nesting() {
+    fn test_nested_loop_minimal_rejects_2level_nesting() {
         // TODO: Add test that rejects 2+ level nesting
         // Step 1: Create mock LoopForm with loop { loop { loop {} } }
         // Step 2: Call lower_nested_loop_minimal_to_joinir()

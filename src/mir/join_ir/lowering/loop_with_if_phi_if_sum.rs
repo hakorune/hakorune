@@ -86,7 +86,7 @@ pub fn lower_if_sum_pattern(
     if let ASTNode::If { condition, .. } = if_stmt {
         let capability = analyze_condition_capability(condition);
         debug_assert!(
-            matches!(capability, ConditionCapability::IfSumComparable),
+            matches!(capability, ConditionCapability::IfPhiJoinComparable),
             "[if-sum] Unsupported condition passed to AST-based lowerer: {:?}",
             capability
         );

@@ -1,4 +1,4 @@
-//! Pattern 2: Loop with Break Lowering
+//! LoopBreak route lowering
 //!
 //! Target: Loops with conditional break statements
 //! Example: `while(i < 10) { if i >= 5 { break } i = i + 1 }`
@@ -20,7 +20,7 @@ use crate::mir::join_ir::JoinInst;
 use crate::runtime::get_global_ring0;
 use crate::mir::loop_form::LoopForm;
 
-/// Lowering for Pattern 2: Loop with Conditional Break
+/// Lowering for LoopBreak route (conditional break)
 ///
 /// # Transformation (Pseudocode from design.md)
 ///
@@ -34,20 +34,20 @@ use crate::mir::loop_form::LoopForm;
 ///   Call(loop_step, [i_next])
 /// ```
 ///
-/// # Steps (from design.md § Pattern 2 § Step-by-Step Transformation)
+/// # Steps (from design.md § LoopBreak / legacy Pattern 2, traceability-only)
 ///
-/// 1. **Extract Loop Variables** (same as Pattern 1)
-/// 2. **Create loop_step Function** (same as Pattern 1)
+/// 1. **Extract Loop Variables** (same as LoopSimpleWhile route)
+/// 2. **Create loop_step Function** (same as LoopSimpleWhile route)
 /// 3. **Create k_exit with Exit PHI**
 ///    - k_exit(i_exit) - receives exit value from both exit paths
-/// 4. **Generate Natural Exit Check** (same as Pattern 1)
+/// 4. **Generate Natural Exit Check** (same as LoopSimpleWhile route)
 /// 5. **Generate Break Check**
 ///    - Extract break condition: `break_cond = (i >= 2)`
 ///    - Add conditional Jump to k_exit: `Jump(k_exit, [i], cond=break_cond)`
-/// 6. **Translate Loop Body** (same as Pattern 1)
-/// 7. **Generate Tail Recursion** (same as Pattern 1)
+/// 6. **Translate Loop Body** (same as LoopSimpleWhile route)
+/// 7. **Generate Tail Recursion** (same as LoopSimpleWhile route)
 ///
-/// # Key Difference from Pattern 1
+/// # Key Difference from LoopSimpleWhile route
 ///
 /// - **Multiple Exit Paths**: Natural exit + break exit
 /// - **Exit PHI**: k_exit receives exit value from both paths
@@ -61,18 +61,18 @@ use crate::mir::loop_form::LoopForm;
 /// # Returns
 ///
 /// * `Some(JoinInst)` - Lowering succeeded, returns generated JoinIR instruction
-/// * `None` - Lowering failed (pattern not matched or unsupported)
+/// * `None` - Lowering failed (route shape not matched or unsupported)
 ///
 /// # Errors
 ///
 /// Returns `None` if:
-/// - Loop has no breaks (use Pattern 1 instead)
+/// - Loop has no breaks (use LoopSimpleWhile route instead)
 /// - Loop has multiple break targets (not yet supported)
 /// - Break is not in an if statement
 ///
 /// # Reference
 ///
-/// See design.md § Pattern 2 for complete transformation details and pseudocode.
+/// See design.md § Pattern 2 (legacy numbering, traceability-only) for full pseudocode.
 ///
 /// # Example Usage
 ///
@@ -90,17 +90,17 @@ pub fn lower_loop_with_break_to_joinir(
     // Phase 203-A: STUB FUNCTION - Called by router but always returns None
     //
     // Status: This function is called by loop_pattern_router.rs:148 but is a NO-OP stub.
-    // The actual Pattern 2 lowering happens via control_flow.rs.
+    // The actual LoopBreak route lowering happens via control_flow.rs.
     //
     // Why this stub exists:
     // - Router expects unified interface: lower_*_to_joinir(loop_form, lowerer)
-    // - Pattern 2 is tightly integrated with control_flow.rs
+    // - LoopBreak route is tightly integrated with control_flow.rs
     // - Removing it would require updating router dispatch logic
     //
     // Current behavior:
     // 1. Router calls this function (line 148 in loop_pattern_router.rs)
     // 2. Function logs a message and returns None
-    // 3. Router falls back to control_flow.rs hardcoded Pattern 2 route
+    // 3. Router falls back to control_flow.rs hardcoded LoopBreak route
     //
     // Migration options (future):
     // - Option 1: Remove stub and update router to call control_flow.rs directly
@@ -114,7 +114,7 @@ pub fn lower_loop_with_break_to_joinir(
     if crate::config::env::joinir_dev::debug_enabled() {
         get_global_ring0()
             .log
-            .debug("[loop_patterns] Pattern 2: Lowering delegated to control_flow.rs (stub)");
+            .debug("[loop_patterns] LoopBreak route: lowering delegated to control_flow.rs (stub)");
     }
     None
 }

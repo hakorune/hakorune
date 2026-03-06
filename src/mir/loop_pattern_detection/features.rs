@@ -108,9 +108,9 @@ impl LoopFeatures {
     }
 }
 
-/// Phase 264 P0: Detect if-sum pattern signature
+/// Phase 264 P0: Detect IfPhiJoin route signature
 ///
-/// Returns true if loop has if-else with arithmetic accumulation pattern:
+/// Returns true if loop has if-else with arithmetic accumulation shape:
 /// - Same variable updated in both if and else branches
 /// - Update involves arithmetic operations (BinOp: Add, Sub, etc.)
 ///
@@ -121,19 +121,21 @@ impl LoopFeatures {
 /// # Phase 264 P0: Conservative Implementation
 ///
 /// For now, this function returns false to allow carrier_count > 1 loops
-/// to fall through to Pattern1 instead of being misclassified as IfPhiJoin.
+/// to continue through baseline route checks instead of being misclassified
+/// as IfPhiJoin.
 ///
 /// # Phase 264 P1: TODO
 ///
-/// Implement accurate if-sum signature detection via AST/CFG analysis.
-fn has_if_sum_signature(_scope: Option<&LoopScopeShape>) -> bool {
+/// Implement accurate IfPhiJoin signature detection via AST/CFG analysis.
+/// (legacy "if-sum" terminology is traceability-only)
+fn has_if_phi_join_signature(_scope: Option<&LoopScopeShape>) -> bool {
     // Phase 264 P0: Conservative - always return false
-    // This makes carrier_count > 1 loops with simple conditional assignment
-    // fall through to Pattern1 instead of being classified as IfPhiJoin
+    // This keeps multi-carrier loops with simple conditional assignment
+    // from being eagerly classified as IfPhiJoin.
     false
 }
 
-/// Extract features from LoopForm for pattern classification.
+/// Extract features from LoopForm for route classification.
 ///
 /// This function is the entry point for structure-based pattern detection.
 /// It analyzes the CFG structure without relying on variable names.
@@ -143,7 +145,7 @@ fn has_if_sum_signature(_scope: Option<&LoopScopeShape>) -> bool {
 /// * `scope` - Optional LoopScopeShape for carrier analysis
 ///
 /// # Returns
-/// * `LoopFeatures` - Feature vector for pattern classification
+/// * `LoopFeatures` - Feature vector for route classification
 pub(crate) fn extract_features(
     loop_form: &LoopForm,
     scope: Option<&LoopScopeShape>,
@@ -158,16 +160,17 @@ pub(crate) fn extract_features(
     let carrier_count = scope.map(|s| s.carriers.len()).unwrap_or(0);
 
     // Phase 264 P0: Improved if-else PHI detection
-    // Pattern3 heuristic: has_if_else_phi if there's an if-sum pattern signature
+    // IfPhiJoin route heuristic: has_if_else_phi only when IfPhiJoin
+    // signature is observed
     // - Multiple carriers (carrier_count > 1)
     // - AND at least one carrier updated in both if/else branches with arithmetic
     //
     // Simple conditional assignment (seg = if x then "A" else "B") should NOT
-    // be classified as IfPhiJoin - it should fall through to Pattern1.
-    let has_if_else_phi = carrier_count > 1 && has_if_sum_signature(scope);
+    // be classified as IfPhiJoin.
+    let has_if_else_phi = carrier_count > 1 && has_if_phi_join_signature(scope);
 
     // TODO: Implement has_if detection via CFG analysis
-    // For now, we infer it from carrier_count > 1 (Pattern 3 heuristic)
+    // For now, infer from has_if_else_phi (IfPhiJoin signature heuristic)
     let has_if = has_if_else_phi;
 
     // Phase 170-C-2b: Build update_summary from carrier names

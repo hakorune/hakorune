@@ -1,4 +1,4 @@
-//! Pattern 3: Loop with If-Else PHI Lowering
+//! IfPhiJoin route lowering (if-else carrier merge)
 //!
 //! Target: Loops with if expressions inside that merge values
 //! Example: `while(i < 10) { if x { y = 1 } else { y = 2 } }`
@@ -19,7 +19,7 @@ use crate::mir::join_ir::JoinInst;
 use crate::mir::loop_form::LoopForm;
 use crate::runtime::get_global_ring0;
 
-/// Lowering for Pattern 3: Loop with If-Else PHI
+/// Lowering for IfPhiJoin route
 ///
 /// # Transformation (Pseudocode from design.md)
 ///
@@ -32,19 +32,19 @@ use crate::runtime::get_global_ring0;
 ///   Call(loop_step, [i_next, sum_new])
 /// ```
 ///
-/// # Steps (from design.md § Pattern 3 § Step-by-Step Transformation)
+/// # Steps (from design.md § IfPhiJoin / legacy Pattern 3, traceability-only)
 ///
 /// 1. **Extract Loop Variables** (multiple carriers: i + sum)
 /// 2. **Create loop_step Function** (params: i, sum, k_exit)
 /// 3. **Create k_exit with Exit PHI** (receives sum exit value)
-/// 4. **Generate Exit Condition Check** (same as Pattern 1)
+/// 4. **Generate Exit Condition Check** (same as LoopSimpleWhile route)
 /// 5. **Translate If-Else to Select**
 ///    - Use existing If lowering (Phase 33: Select/IfMerge)
 ///    - Generate: `sum_new = Select(cond, then_val, else_val)`
 /// 6. **Translate Loop Body** (remaining instructions)
 /// 7. **Generate Tail Recursion** (with multiple carriers: i_next, sum_new)
 ///
-/// # Key Difference from Pattern 1
+/// # Key Difference from LoopSimpleWhile route
 ///
 /// - **Multiple Carrier Variables**: Loop updates i + sum
 /// - **In-Loop If Lowering**: Reuses existing Select/IfMerge lowering
@@ -58,7 +58,7 @@ use crate::runtime::get_global_ring0;
 /// # Returns
 ///
 /// * `Some(JoinInst)` - Lowering succeeded, returns generated JoinIR instruction
-/// * `None` - Lowering failed (pattern not matched or unsupported)
+/// * `None` - Lowering failed (route shape not matched or unsupported)
 ///
 /// # Errors
 ///
@@ -69,7 +69,7 @@ use crate::runtime::get_global_ring0;
 ///
 /// # Reference
 ///
-/// See design.md § Pattern 3 for complete transformation details and pseudocode.
+/// See design.md § Pattern 3 (legacy numbering, traceability-only) for full pseudocode.
 ///
 /// # Example Usage
 ///
@@ -85,12 +85,15 @@ pub fn lower_loop_with_conditional_phi_to_joinir(
     _lowerer: &mut LoopToJoinLowerer,
 ) -> Option<JoinInst> {
     // Phase 242-EX-A: Legacy stub removed
-    // Pattern 3 is now fully handled via router → pattern3_with_if_phi.rs → loop_with_if_phi_if_sum.rs
+    // IfPhiJoin route is now fully handled via router → pattern3_with_if_phi.rs
+    // (legacy file name, traceability-only) → loop_with_if_phi_if_sum.rs.
     // This stub function is unused and kept only for API compatibility
     if crate::config::env::joinir_dev::debug_enabled() {
         get_global_ring0()
             .log
-            .debug("[loop_patterns] Pattern 3: Stub - routing via pattern3_with_if_phi.rs");
+            .debug(
+                "[loop_patterns] IfPhiJoin route: stub (routing via legacy pattern3_with_if_phi.rs)",
+            );
     }
     None
 }

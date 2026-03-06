@@ -4,7 +4,7 @@
 //!
 //! ## 責務
 //!
-//! - **Pattern検出**: Pattern 1 (Simple While)検出
+//! - **Route検出**: LoopSimpleWhile route 検出
 //! - **Shape検出**: CaseALoweringShape検出
 //! - **Lowerer選択**: Shape/名前ベースでlowerer選択
 //! - **Lowerer呼び出し**: 適切なlowererに委譲
@@ -12,7 +12,7 @@
 //! ## 設計思想
 //!
 //! - **単一責任**: Lowering選択ロジックのみを集約
-//! - **拡張性**: 新しいパターン追加が容易
+//! - **拡張性**: 新しいroute追加が容易
 //! - **テスト容易性**: 独立したBoxで単体テスト可能
 
 use crate::mir::join_ir::lowering::generic_case_a;
@@ -23,7 +23,7 @@ use crate::runtime::get_global_ring0;
 
 /// Loop lowering ディスパッチ箱
 ///
-/// LoopScopeShapeからパターンを検出し、適切なlowererを選択する。
+/// LoopScopeShapeからrouteを検出し、適切なlowererを選択する。
 pub struct LoopViewBuilder {
     /// デバッグモード（詳細ログ出力）
     debug: bool,
@@ -48,7 +48,7 @@ impl LoopViewBuilder {
     ///
     /// # 選択戦略（Phase 170-A-2: Structure-based + Name fallback）
     ///
-    /// 1. Pattern 1検出（Simple While Loop）
+    /// 1. LoopSimpleWhile route検出（legacy Pattern 1; traceability-only）
     /// 2. Shape検出（CaseALoweringShape）
     /// 3. Shape別ディスパッチ
     /// 4. 名前ベースフォールバック（Generic/NotCaseAの場合）
@@ -61,13 +61,13 @@ impl LoopViewBuilder {
     /// # Returns
     ///
     /// - `Some(JoinModule)`: Lowering成功
-    /// - `None`: 未サポートパターン（フォールバック経路へ）
+    /// - `None`: 未サポート形（フォールバック経路へ）
     pub fn build(&self, scope: LoopScopeShape, func_name: Option<&str>) -> Option<JoinModule> {
         let name = func_name.unwrap_or("");
 
-        // Phase 188-Impl-1: Pattern 1 (Simple While Loop) detection
-        // Try Pattern 1 FIRST for main function (loop_min_while.hako target)
-        if let Some(result) = self.try_pattern1(&scope, name) {
+        // Phase 188-Impl-1: LoopSimpleWhile route detection
+        // Try LoopSimpleWhile route FIRST for main function (loop_min_while.hako target)
+        if let Some(result) = self.try_loop_simple_while(&scope, name) {
             return Some(result);
         }
 
@@ -103,7 +103,7 @@ impl LoopViewBuilder {
         self.dispatch_by_shape(shape, scope, name)
     }
 
-    /// Pattern 1 (Simple While Loop) 検出・lowering試行
+    /// LoopSimpleWhile route 検出・lowering試行
     ///
     /// # 検出条件
     ///
@@ -112,7 +112,7 @@ impl LoopViewBuilder {
     /// - Carriers が1つ以上
     ///
     /// # Phase 202-A: JoinValueSpace Integration
-    fn try_pattern1(&self, scope: &LoopScopeShape, name: &str) -> Option<JoinModule> {
+    fn try_loop_simple_while(&self, scope: &LoopScopeShape, name: &str) -> Option<JoinModule> {
         if !name.contains("main") {
             return None;
         }
@@ -121,10 +121,13 @@ impl LoopViewBuilder {
             if self.debug {
                 get_global_ring0()
                     .log
-                    .debug(&format!("[LoopViewBuilder] Trying Pattern 1 lowering for {:?}", name));
+                    .debug(&format!(
+                        "[LoopViewBuilder] Trying LoopSimpleWhile route lowering for {:?}",
+                        name
+                    ));
             }
 
-            // Phase 202-A: Create JoinValueSpace for Pattern 1
+            // Phase 202-A: Create JoinValueSpace for LoopSimpleWhile route
             use super::join_value_space::JoinValueSpace;
             let mut join_value_space = JoinValueSpace::new();
 
@@ -134,7 +137,7 @@ impl LoopViewBuilder {
             ) {
                 if self.debug {
                     get_global_ring0().log.debug(&format!(
-                        "[LoopViewBuilder] Pattern 1 lowering succeeded for {:?}",
+                        "[LoopViewBuilder] LoopSimpleWhile route lowering succeeded for {:?}",
                         name
                     ));
                 }
@@ -144,7 +147,9 @@ impl LoopViewBuilder {
             if self.debug {
                 get_global_ring0()
                     .log
-                    .debug("[LoopViewBuilder] Pattern 1 lowering failed, trying other lowerers");
+                    .debug(
+                        "[LoopViewBuilder] LoopSimpleWhile route lowering failed, trying other lowerers",
+                    );
             }
         }
 

@@ -1,13 +1,14 @@
-//! ConditionPatternBox: if条件パターン判定と正規化
+//! ConditionPatternBox: ルート判定用の if 条件正規化
 //!
 //! Phase 219 regression fix: if条件が「単純比較」かどうかを判定
 //! Phase 222: 左辺変数・右辺変数の両方をサポートする正規化を追加
 //!
 //! ## 問題
 //!
-//! Phase 219で `is_if_sum_pattern()` をAST-basedに変更した結果、
+//! Phase 219で `is_if_sum_pattern()`（legacy 呼称, traceability-only）を
+//! AST-basedに変更した結果、
 //! `loop_if_phi.hako` のような複雑条件 (`i % 2 == 1`) を
-//! if-sumパターンと誤判定してしまう問題が発生。
+//! IfPhiJoin 経路として誤判定してしまう問題が発生。
 //!
 //! Phase 221で発見した制約：if条件が `0 < i` や `i > j` のような形式を拒否。
 //!
@@ -21,12 +22,12 @@
 //!
 //! ## 単純比較の定義（Phase 222拡張版）
 //!
-//! 以下のパターンを if-sum lowerer で処理可能：
+//! 以下の形は IfPhiJoin 経路の lowerer で処理可能：
 //! - **Phase 219**: `var > literal` (e.g., `i > 0`)
 //! - **Phase 222**: `literal < var` → `var > literal` に正規化
 //! - **Phase 222**: `var > var` (e.g., `i > j`) - 変数同士の比較
 //!
-//! ## 複雑条件（legacy mode へフォールバック）
+//! ## 複雑条件（別経路へフォールバック）
 //!
 //! - `i % 2 == 1` (BinaryOp in LHS)
 //! - `a && b` (複合条件)
@@ -39,13 +40,13 @@ use crate::mir::CompareOp;
 /// ConditionCapability: 条件式をどの戦略で扱えるか（routing 用）
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConditionCapability {
-    /// Pattern3 if-sum AST-based lowerer で比較として扱える
-    IfSumComparable,
+    /// IfPhiJoin 経路の AST-based lowerer で比較として扱える
+    IfPhiJoinComparable,
     /// 上記以外（caller が別経路を選ぶ）
     Unsupported,
 }
 
-fn is_if_sum_value_expr(expr: &ASTNode) -> bool {
+fn is_if_phi_join_value_expr(expr: &ASTNode) -> bool {
     match expr {
         ASTNode::Variable { .. } | ASTNode::Literal { .. } => true,
         ASTNode::BinaryOp {
@@ -61,8 +62,8 @@ fn is_if_sum_value_expr(expr: &ASTNode) -> bool {
                     | BinaryOperator::Multiply
                     | BinaryOperator::Divide
                     | BinaryOperator::Modulo
-            ) && is_if_sum_value_expr(left.as_ref())
-                && is_if_sum_value_expr(right.as_ref())
+            ) && is_if_phi_join_value_expr(left.as_ref())
+                && is_if_phi_join_value_expr(right.as_ref())
         }
         _ => false,
     }
@@ -89,8 +90,10 @@ pub fn analyze_condition_capability(cond: &ASTNode) -> ConditionCapability {
             if !is_comparison {
                 return ConditionCapability::Unsupported;
             }
-            if is_if_sum_value_expr(left.as_ref()) && is_if_sum_value_expr(right.as_ref()) {
-                ConditionCapability::IfSumComparable
+            if is_if_phi_join_value_expr(left.as_ref())
+                && is_if_phi_join_value_expr(right.as_ref())
+            {
+                ConditionCapability::IfPhiJoinComparable
             } else {
                 ConditionCapability::Unsupported
             }
@@ -117,7 +120,7 @@ pub enum ConditionPattern {
 /// # Returns
 ///
 /// - `ConditionPattern::SimpleComparison` - 単純比較（AST-based lowerer で処理可能）
-/// - `ConditionPattern::Complex` - 複雑条件（legacy mode へフォールバック）
+/// - `ConditionPattern::Complex` - 複雑条件（別経路へフォールバック）
 ///
 /// # Examples
 ///
@@ -165,8 +168,9 @@ pub fn analyze_condition_pattern(cond: &ASTNode) -> ConditionPattern {
                 return ConditionPattern::Complex;
             }
 
-            // Phase 242-EX-A: Accept any expr CmpOp expr pattern
-            // The lowerer (loop_with_if_phi_if_sum.rs) will handle BinaryOp via lower_value_expression
+            // Phase 242-EX-A: Accept any expr CmpOp expr pattern.
+            // The IfPhiJoin-route lowerer (legacy file name contains if_sum,
+            // traceability-only) handles BinaryOp via lower_value_expression.
 
             // Check LHS/RHS patterns
             let left_is_var = matches!(left.as_ref(), ASTNode::Variable { .. });
@@ -512,8 +516,8 @@ mod tests {
     }
 
     #[test]
-    fn pattern3_cond_i_mod_2_eq_1_is_recognized() {
-        // Pattern3/4 で使う典型的なフィルタ条件: i % 2 == 1
+    fn if_phi_join_and_loop_continue_only_cond_i_mod_2_eq_1_is_recognized() {
+        // IfPhiJoin / LoopContinueOnly で使う典型的なフィルタ条件: i % 2 == 1
         let lhs = binop(BinaryOperator::Modulo, var("i"), int_lit(2));
         let cond = binop(BinaryOperator::Equal, lhs, int_lit(1));
         assert_eq!(
@@ -642,14 +646,14 @@ mod tests {
     fn test_normalize_fails_on_binop() {
         // Phase 242-EX-A: i % 2 == 1 → 正規化失敗（BinaryOp in LHS）
         // Note: This is OK - normalization is only for simple cases.
-        // The if-sum lowerer will use lower_value_expression() instead.
+        // The IfPhiJoin-route lowerer will use lower_value_expression() instead.
         let lhs = binop(BinaryOperator::Modulo, var("i"), int_lit(2));
         let cond = binop(BinaryOperator::Equal, lhs, int_lit(1));
         assert_eq!(normalize_comparison(&cond), None);
     }
 
     #[test]
-    fn test_analyze_pattern_literal_cmp_var() {
+    fn test_analyze_route_literal_cmp_var() {
         // Phase 222: 0 < i → SimpleComparison
         let cond = binop(BinaryOperator::Less, int_lit(0), var("i"));
         assert_eq!(
@@ -660,7 +664,7 @@ mod tests {
     }
 
     #[test]
-    fn test_analyze_pattern_var_cmp_var() {
+    fn test_analyze_route_var_cmp_var() {
         // Phase 222: i > j → SimpleComparison
         let cond = binop(BinaryOperator::Greater, var("i"), var("j"));
         assert_eq!(
@@ -675,21 +679,21 @@ mod tests {
     // ========================================================================
 
     #[test]
-    fn test_capability_if_sum_comparable_simple() {
+    fn test_capability_if_phi_join_comparable_simple() {
         let cond = binop(BinaryOperator::Greater, var("i"), int_lit(0));
         assert_eq!(
             analyze_condition_capability(&cond),
-            ConditionCapability::IfSumComparable
+            ConditionCapability::IfPhiJoinComparable
         );
     }
 
     #[test]
-    fn test_capability_if_sum_comparable_binop_operand() {
+    fn test_capability_if_phi_join_comparable_binop_operand() {
         let lhs = binop(BinaryOperator::Modulo, var("i"), int_lit(2));
         let cond = binop(BinaryOperator::Equal, lhs, int_lit(1));
         assert_eq!(
             analyze_condition_capability(&cond),
-            ConditionCapability::IfSumComparable
+            ConditionCapability::IfPhiJoinComparable
         );
     }
 

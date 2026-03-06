@@ -14,7 +14,7 @@
 //! ```ignore
 //! let summary = analyze_loop_updates_by_name(&carrier_names);
 //! if summary.has_single_counter() {
-//!     // StringExamination パターン
+//!     // StringExamination 系ルート候補
 //! }
 //! ```
 
@@ -59,12 +59,14 @@ pub struct CarrierUpdateInfo {
     /// 更新パターン
     pub kind: UpdateKind,
 
-    /// Phase 213: Then branch update expression (for Pattern 3 if-sum)
+    /// Phase 213: Then branch update expression (for IfPhiJoin route)
+    /// (legacy "if-sum" wording is traceability-only)
     /// e.g., for "if (cond) { sum = sum + 1 }", then_expr is "sum + 1"
     #[allow(dead_code)]
     pub then_expr: Option<crate::ast::ASTNode>,
 
-    /// Phase 213: Else branch update expression (for Pattern 3 if-sum)
+    /// Phase 213: Else branch update expression (for IfPhiJoin route)
+    /// (legacy "if-sum" wording is traceability-only)
     /// e.g., for "else { sum = sum + 0 }", else_expr is "sum + 0"
     /// If no else branch, this can be the identity update (e.g., "sum")
     #[allow(dead_code)]
@@ -118,9 +120,10 @@ impl LoopUpdateSummary {
             .count()
     }
 
-    /// Phase 213: Check if this is a simple if-sum pattern
+    /// Phase 213: Check if this matches the minimal IfPhiJoin signature
+    /// (API name keeps legacy "if_sum" for compatibility)
     ///
-    /// Simple if-sum pattern:
+    /// Minimal IfPhiJoin signature:
     /// - Has exactly 1 CounterLike carrier (loop index, e.g., "i")
     /// - Has exactly 1 AccumulationLike carrier (accumulator, e.g., "sum")
     /// - Optionally has additional accumulators (e.g., "count")
@@ -142,7 +145,7 @@ impl LoopUpdateSummary {
             return false;
         }
         // For now, only support up to 2 accumulators (sum, count)
-        // This matches the Phase 212 if-sum minimal test case
+        // This matches the Phase 212 IfPhiJoin-minimal fixture shape
         if accumulation_count > 2 {
             return false;
         }
@@ -484,7 +487,7 @@ mod tests {
     }
 
     #[test]
-    fn test_is_simple_if_sum_pattern_basic_ast() {
+    fn test_is_if_phi_join_signature_basic_ast() {
         let names = vec!["i".to_string(), "sum".to_string()];
         let loop_body = vec![
             if_with_updates(
@@ -503,7 +506,7 @@ mod tests {
     }
 
     #[test]
-    fn test_is_simple_if_sum_pattern_with_count_ast() {
+    fn test_is_if_phi_join_signature_with_count_ast() {
         let names = vec!["i".to_string(), "sum".to_string(), "count".to_string()];
         let loop_body = vec![
             if_with_updates(
@@ -525,7 +528,7 @@ mod tests {
     }
 
     #[test]
-    fn test_is_simple_if_sum_pattern_no_accumulator_ast() {
+    fn test_is_if_phi_join_signature_no_accumulator_ast() {
         let names = vec!["i".to_string()];
         let loop_body = vec![assign("i", add(var("i"), lit_i(1)))];
 
@@ -537,7 +540,7 @@ mod tests {
     }
 
     #[test]
-    fn test_is_simple_if_sum_pattern_no_counter_ast() {
+    fn test_is_if_phi_join_signature_no_counter_ast() {
         let names = vec!["sum".to_string()];
         let loop_body = vec![assign("sum", add(var("sum"), lit_i(1)))];
 
@@ -549,7 +552,7 @@ mod tests {
     }
 
     #[test]
-    fn test_is_simple_if_sum_pattern_multiple_counters_ast() {
+    fn test_is_if_phi_join_signature_multiple_counters_ast() {
         let names = vec!["i".to_string(), "j".to_string(), "sum".to_string()];
         let loop_body = vec![
             assign("i", add(var("i"), lit_i(1))),

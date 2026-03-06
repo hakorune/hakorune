@@ -168,8 +168,8 @@ impl RoutePrepContext {
     /// 2. if condition is a simple comparison (var CmpOp literal) - Phase 219-fix
     /// 3. carrier composition matches if-sum pattern (1 counter + 1-2 accumulators)
     ///
-    /// This determines whether to use AST-based if-sum lowering or the general lowering path.
-    pub fn is_if_sum_pattern(&self) -> bool {
+    /// This determines whether to use AST-based if_phi_join lowering or the general lowering path.
+    pub fn is_if_phi_join_pattern(&self) -> bool {
         // Check if loop_body has if statement
         let if_stmt = self.extract_if_statement();
         if if_stmt.is_none() {
@@ -183,8 +183,8 @@ impl RoutePrepContext {
                 analyze_condition_capability, ConditionCapability,
             };
 
-            // Capability check: if-sum lowerer が扱える比較か
-            if analyze_condition_capability(condition) != ConditionCapability::IfSumComparable {
+            // Capability check: if_phi_join lowerer が扱える比較か
+            if analyze_condition_capability(condition) != ConditionCapability::IfPhiJoinComparable {
                 return false;
             }
         }

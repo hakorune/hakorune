@@ -68,7 +68,7 @@ pub enum CarrierInit {
 /// Phase 131 P1.5: Exit reconnection mode for JoinInlineBoundary
 ///
 /// Controls whether exit values are reconnected via PHI generation or direct assignment.
-/// This separates Normalized shadow (DirectValue) from existing loop patterns (Phi).
+/// This separates Normalized shadow (DirectValue) from route-based loop lowering (Phi).
 ///
 /// # Design Principle (SSOT)
 ///
@@ -87,9 +87,10 @@ pub enum CarrierInit {
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExitReconnectMode {
-    /// Existing loop patterns: PHI generation for exit value merging
+    /// Route-based loop lowering: PHI generation for exit value merging
     ///
-    /// Used by Pattern 1-4 loops with multiple exit paths.
+    /// Used by loops lowered through core routes such as LoopSimpleWhile,
+    /// LoopBreak, IfPhiJoin, and LoopContinueOnly.
     /// Exit values are collected into exit PHIs.
     Phi,
 
@@ -171,7 +172,7 @@ pub struct CarrierInfo {
 pub struct ExitMeta {
     /// Exit value bindings: (carrier_name, join_exit_value_id)
     ///
-    /// Example for Pattern 4:
+    /// Example for LoopContinueOnly route:
     /// ```
     /// vec![("sum".to_string(), ValueId(15))]
     /// ```
@@ -209,7 +210,7 @@ pub struct ExitMeta {
 /// - `expr_result`: Only goes to exit_phi_inputs (generates PHI for expr value)
 /// - `exit_meta`: Only goes to carrier_inputs (updates variable_map via carrier PHIs)
 ///
-/// ## Example: Pattern 2 (joinir_min_loop.hako)
+/// ## Example: LoopBreak-style expr loop (legacy Pattern2, traceability-only)
 ///
 /// ```rust
 /// JoinFragmentMeta {
@@ -218,7 +219,7 @@ pub struct ExitMeta {
 /// }
 /// ```
 ///
-/// ## Example: Pattern 3 (trim pattern)
+/// ## Example: Multi-carrier side-effect loop (legacy Pattern3 docs, traceability-only)
 ///
 /// ```rust
 /// JoinFragmentMeta {

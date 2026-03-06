@@ -1,43 +1,43 @@
-//! # Loop Pattern Lowering Module
+//! # Loop Route Lowering Module
 //!
 //! **Phase 33-12 Modularization**: Split from single 735-line `loop_patterns.rs`
 //!
 //! ## Structure
-//! Each pattern is a separate sub-module for single responsibility:
+//! Each route-focused lowering is a separate sub-module for single responsibility:
 //!
-//! ### Pattern 1: Simple While (`simple_while.rs`)
+//! ### LoopSimpleWhile route (`simple_while.rs`)
 //! No break/continue, straightforward loop transformation
 //!
-//! ### Pattern 2: With Break (`with_break.rs`)
+//! ### LoopBreak route (`with_break.rs`)
 //! Conditional break → two exit paths (natural + break)
 //!
-//! ### Pattern 3: With If + PHI (`with_if_phi.rs`)
+//! ### IfPhiJoin route (`with_if_phi.rs`)
 //! If-expressions inside loops → PHI merging at exit
 //!
-//! ### Pattern 4: With Continue (`with_continue.rs`) [STUB]
+//! ### LoopContinueOnly route (`with_continue.rs`) [STUB]
 //! Not yet implemented, deferred to Phase 195+
 //!
-//! ## Design Philosophy: Per-Pattern Modules
+//! ## Design Philosophy: Per-Route Modules
 //! Benefits of this structure:
-//! - **Testability**: Each pattern independently testable
-//! - **Clarity**: Code for Pattern 2 is in `with_break.rs`, not buried in 735 lines
-//! - **Scalability**: Adding Pattern 5+ is just creating new file
-//! - **Maintainability**: Changes to Pattern 1 don't touch Pattern 3
+//! - **Testability**: Each route independently testable
+//! - **Clarity**: Code for LoopBreak route is in `with_break.rs`, not buried in 735 lines
+//! - **Scalability**: Adding a new route is just creating a new file
+//! - **Maintainability**: Changes to LoopSimpleWhile don't touch IfPhiJoin
 //!
 //! ## Shared Utilities
-//! Common helper functions are in `mod.rs` for all patterns to use.
+//! Common helper functions are in `mod.rs` for all route modules to use.
 //! Examples: constant folding, variable extraction, etc.
 //!
-//! ## Future: Pattern 4 Completion
-//! When Pattern 4 (continue) is implemented:
+//! ## Future: LoopContinueOnly Completion
+//! When LoopContinueOnly is implemented (legacy Pattern 4; traceability-only):
 //! 1. Modify `with_continue.rs` from stub to full implementation
 //! 2. Update dispatch logic if needed
 //! 3. Add tests to `loop_patterns/tests/`
-//! 4. No changes to other patterns needed!
+//! 4. No changes to other routes needed!
 //!
 //! # Design Philosophy (Implementation)
 //!
-//! Pattern lowering functions are "thin boxes":
+//! Route lowering functions are "thin boxes":
 //! - Takes input (LoopForm, builder)
 //! - Returns Result (success/error)
 //! - No side effects outside the builder
@@ -63,7 +63,7 @@ pub use nested_minimal::lower_nested_loop_minimal_to_joinir;  // Phase 188.1
 // ============================================================================
 
 // TODO: Implement helper functions for extraction and translation
-// These will be shared across all 4 patterns:
+// These will be shared across all 4 route modules:
 //
 // 1. extract_carriers_from_header_phi(loop_form) -> Vec<CarrierVar>
 // 2. extract_loop_condition_from_header(loop_form) -> ValueId
@@ -80,14 +80,14 @@ pub use nested_minimal::lower_nested_loop_minimal_to_joinir;  // Phase 188.1
 mod tests {
 
     // ========================================================================
-    // Pattern 1: Simple While Loop Tests
+    // LoopSimpleWhile route tests
     // ========================================================================
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern1_lowering_success() {
-        // TODO: Add integration test for simple while pattern lowering
-        // Step 1: Create mock LoopForm for simple while pattern
+    fn test_loop_simple_while_lowering_success() {
+        // TODO: Add integration test for LoopSimpleWhile route lowering
+        // Step 1: Create mock LoopForm for LoopSimpleWhile route
         // Step 2: Create mock LoopToJoinLowerer
         // Step 3: Call lower_simple_while_to_joinir()
         // Step 4: Assert returns Some(JoinInst)
@@ -96,22 +96,22 @@ mod tests {
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern1_rejects_break() {
+    fn test_loop_simple_while_rejects_break() {
         // TODO: Add test that rejects loop with break
         // Step 1: Create mock LoopForm with break
         // Step 2: Call lower_simple_while_to_joinir()
-        // Step 3: Assert returns None (unsupported pattern)
+        // Step 3: Assert returns None (unsupported route shape)
     }
 
     // ========================================================================
-    // Pattern 2: Loop with Break Tests
+    // LoopBreak route tests
     // ========================================================================
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern2_lowering_success() {
-        // TODO: Add integration test for break pattern lowering
-        // Step 1: Create mock LoopForm for break pattern
+    fn test_loop_break_lowering_success() {
+        // TODO: Add integration test for LoopBreak route lowering
+        // Step 1: Create mock LoopForm for LoopBreak route
         // Step 2: Create mock LoopToJoinLowerer
         // Step 3: Call lower_loop_with_break_to_joinir()
         // Step 4: Assert returns Some(JoinInst)
@@ -120,9 +120,9 @@ mod tests {
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern2_exit_phi_correct() {
+    fn test_loop_break_exit_phi_correct() {
         // TODO: Add test that verifies k_exit receives correct exit values
-        // Step 1: Create mock LoopForm for break pattern
+        // Step 1: Create mock LoopForm for LoopBreak route
         // Step 2: Call lower_loop_with_break_to_joinir()
         // Step 3: Verify k_exit params = [i_exit]
         // Step 4: Verify both Jumps pass current i as argument
@@ -135,8 +135,8 @@ mod tests {
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
     fn test_if_phi_join_lowering_success() {
-        // TODO: Add integration test for if-else phi pattern lowering
-        // Step 1: Create mock LoopForm for if-else phi pattern
+        // TODO: Add integration test for IfPhiJoin route lowering
+        // Step 1: Create mock LoopForm for IfPhiJoin route
         // Step 2: Create mock LoopToJoinLowerer
         // Step 3: Call lower_loop_with_conditional_phi_to_joinir()
         // Step 4: Assert returns Some(JoinInst)
@@ -170,8 +170,8 @@ mod tests {
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
     fn test_loop_continue_only_lowering_success() {
-        // TODO: Add integration test for continue pattern lowering
-        // Step 1: Create mock LoopForm for continue pattern
+        // TODO: Add integration test for LoopContinueOnly route lowering
+        // Step 1: Create mock LoopForm for LoopContinueOnly route
         // Step 2: Create mock LoopToJoinLowerer
         // Step 3: Call lower_loop_with_continue_to_joinir()
         // Step 4: Assert returns Some(JoinInst)
@@ -182,7 +182,7 @@ mod tests {
     #[ignore] // TODO: Implement test after lowering logic is complete
     fn test_loop_continue_only_jump_correct() {
         // TODO: Add test that verifies continue jumps to loop_step
-        // Step 1: Create mock LoopForm for continue pattern
+        // Step 1: Create mock LoopForm for LoopContinueOnly route
         // Step 2: Call lower_loop_with_continue_to_joinir()
         // Step 3: Verify conditional Jump targets loop_step
         // Step 4: Verify Jump passes current carrier values as arguments

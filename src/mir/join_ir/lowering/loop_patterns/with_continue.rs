@@ -1,4 +1,4 @@
-//! Pattern 4: Loop with Continue - STUB
+//! LoopContinueOnly route lowering - STUB
 //!
 //! Target: Loops with continue statements
 //! Status: Deferred to Phase 195+
@@ -21,7 +21,7 @@ use crate::mir::join_ir::JoinInst;
 use crate::runtime::get_global_ring0;
 use crate::mir::loop_form::LoopForm;
 
-/// Lowering for Pattern 4: Loop with Continue
+/// Lowering for LoopContinueOnly route
 ///
 /// # Transformation (Pseudocode)
 ///
@@ -36,19 +36,19 @@ use crate::mir::loop_form::LoopForm;
 ///   Call(loop_step, [i_next, sum_next])      // Normal iteration
 /// ```
 ///
-/// # Steps (Pattern 4 Transformation)
+/// # Steps (LoopContinueOnly / legacy Pattern 4, traceability-only)
 ///
 /// 1. **Extract Loop Variables** (multiple carriers: i + sum)
 /// 2. **Create loop_step Function** (params: i, sum, k_exit)
 /// 3. **Create k_exit with Exit PHI** (receives sum exit value)
-/// 4. **Generate Exit Condition Check** (same as Pattern 1)
+/// 4. **Generate Exit Condition Check** (same as LoopSimpleWhile route)
 /// 5. **Generate Continue Check**
 ///    - Extract continue condition (if exists)
 ///    - Add conditional Jump back to loop_step: `Jump(loop_step, [i_next, sum], cond=continue_cond)`
 /// 6. **Translate Loop Body** (remaining instructions after continue)
 /// 7. **Generate Tail Recursion** (with multiple carriers: i_next, sum_next)
 ///
-/// # Key Difference from Pattern 1/2/3
+/// # Key Difference from LoopSimpleWhile / LoopBreak / IfPhiJoin routes
 ///
 /// - **Continue Jump**: Continue jumps back to loop_step with current carrier values
 /// - **Dual Path**: Continue path + normal path (both recursive)
@@ -62,18 +62,18 @@ use crate::mir::loop_form::LoopForm;
 /// # Returns
 ///
 /// * `Some(JoinInst)` - Lowering succeeded, returns generated JoinIR instruction
-/// * `None` - Lowering failed (pattern not matched or unsupported)
+/// * `None` - Lowering failed (route shape not matched or unsupported)
 ///
 /// # Errors
 ///
 /// Returns `None` if:
-/// - Loop has no continues (use Pattern 1 instead)
+/// - Loop has no continues (use LoopSimpleWhile route instead)
 /// - Loop has break statements (not yet supported)
 /// - Continue is not in an if statement
 ///
 /// # Reference
 ///
-/// See design.md § Pattern 4 for complete transformation details and pseudocode.
+/// See design.md § Pattern 4 (legacy numbering, traceability-only) for full pseudocode.
 ///
 /// # Example Usage
 ///
@@ -88,8 +88,8 @@ pub fn lower_loop_with_continue_to_joinir(
     _loop_form: &LoopForm,
     _lowerer: &mut LoopToJoinLowerer,
 ) -> Option<JoinInst> {
-    // Phase 188-Impl-4: Pattern 4 implementation placeholder
-    // TODO: Implement Pattern 4 lowering
+    // Phase 188-Impl-4: LoopContinueOnly route implementation placeholder
+    // TODO: Implement LoopContinueOnly route lowering (legacy Pattern 4; traceability-only)
     //
     // Step 1: Extract Loop Variables (Carriers)
     // ==========================================
@@ -127,7 +127,7 @@ pub fn lower_loop_with_continue_to_joinir(
 
     if crate::config::env::joinir_dev::debug_enabled() {
         get_global_ring0().log.debug(
-            "[loop_patterns] Pattern 4: Continue lowering not yet implemented",
+            "[loop_patterns] LoopContinueOnly route: continue lowering not yet implemented",
         );
     }
     None
