@@ -1,10 +1,10 @@
-//! Phase 29ar P1: PatternIsIntegerFacts (Facts SSOT)
+//! Phase 29ar P1: StringIsIntegerFacts (Facts SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 #[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct PatternIsIntegerFacts {
+pub(in crate::mir::builder) struct StringIsIntegerFacts {
     pub loop_var: String,
     pub s_var: String,
     pub loop_condition: ASTNode,
@@ -13,10 +13,10 @@ pub(in crate::mir::builder) struct PatternIsIntegerFacts {
     pub return_zero_on_fail: bool,
 }
 
-pub(in crate::mir::builder) fn try_extract_pattern_is_integer_facts(
+pub(in crate::mir::builder) fn try_extract_string_is_integer_facts(
     condition: &ASTNode,
     body: &[ASTNode],
-) -> Result<Option<PatternIsIntegerFacts>, Freeze> {
+) -> Result<Option<StringIsIntegerFacts>, Freeze> {
     let Some((loop_var, bound)) = match_loop_condition(condition) else {
         return Ok(None);
     };
@@ -33,7 +33,7 @@ pub(in crate::mir::builder) fn try_extract_pattern_is_integer_facts(
         }
     }
 
-    Ok(Some(PatternIsIntegerFacts {
+    Ok(Some(StringIsIntegerFacts {
         loop_var,
         s_var,
         loop_condition: condition.clone(),

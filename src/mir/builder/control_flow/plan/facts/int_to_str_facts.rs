@@ -1,10 +1,10 @@
-//! Phase 29bg P1: PatternIntToStrFacts (Facts SSOT)
+//! Phase 29bg P1: IntToStrFacts (Facts SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 #[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct PatternIntToStrFacts {
+pub(in crate::mir::builder) struct IntToStrFacts {
     pub loop_var: String,
     pub loop_condition: ASTNode,
     pub loop_increment: ASTNode,
@@ -12,10 +12,10 @@ pub(in crate::mir::builder) struct PatternIntToStrFacts {
     pub digits_var: String,
 }
 
-pub(in crate::mir::builder) fn try_extract_pattern_int_to_str_facts(
+pub(in crate::mir::builder) fn try_extract_int_to_str_facts(
     condition: &ASTNode,
     body: &[ASTNode],
-) -> Result<Option<PatternIntToStrFacts>, Freeze> {
+) -> Result<Option<IntToStrFacts>, Freeze> {
     let Some(loop_var) = match_loop_condition(condition) else {
         return Ok(None);
     };
@@ -41,7 +41,7 @@ pub(in crate::mir::builder) fn try_extract_pattern_int_to_str_facts(
         return Ok(None);
     };
 
-    Ok(Some(PatternIntToStrFacts {
+    Ok(Some(IntToStrFacts {
         loop_var,
         loop_condition: condition.clone(),
         loop_increment,
@@ -335,7 +335,7 @@ mod tests {
             span: Span::unknown(),
         };
 
-        let facts = try_extract_pattern_int_to_str_facts(&condition, &[digit, ch, out_update, step])
+        let facts = try_extract_int_to_str_facts(&condition, &[digit, ch, out_update, step])
             .expect("Ok")
             .expect("Some");
         assert_eq!(facts.loop_var, "v");

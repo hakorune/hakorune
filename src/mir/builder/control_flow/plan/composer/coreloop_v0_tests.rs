@@ -55,12 +55,12 @@ fn base_facts(
         loop_simple_while: None,
         loop_char_map: None,
         loop_array_join: None,
-        pattern_is_integer: None,
-        pattern_starts_with: None,
-        pattern_int_to_str: None,
-        pattern_escape_map: None,
-        pattern_split_lines: None,
-        pattern_skip_ws: None,
+        string_is_integer: None,
+        starts_with: None,
+        int_to_str: None,
+        escape_map: None,
+        split_lines: None,
+        skip_whitespace: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
         if_phi_join: None,
@@ -152,22 +152,22 @@ fn coreloop_v0_composes_simple_while_route() {
         }),
         loop_char_map: None,
         loop_array_join: None,
-        pattern_is_integer: None,
+        string_is_integer: None,
 
-        pattern_starts_with: None,
-
-
-        pattern_int_to_str: None,
+        starts_with: None,
 
 
-        pattern_escape_map: None,
+        int_to_str: None,
 
 
-        pattern_split_lines: None,
+        escape_map: None,
+
+
+        split_lines: None,
 
 
 
-        pattern_skip_ws: None,
+        skip_whitespace: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
         if_phi_join: None,
@@ -250,22 +250,22 @@ fn coreloop_v0_returns_none_when_exitmap_present() {
         }),
         loop_char_map: None,
         loop_array_join: None,
-        pattern_is_integer: None,
+        string_is_integer: None,
 
-        pattern_starts_with: None,
-
-
-        pattern_int_to_str: None,
+        starts_with: None,
 
 
-        pattern_escape_map: None,
+        int_to_str: None,
 
 
-        pattern_split_lines: None,
+        escape_map: None,
+
+
+        split_lines: None,
 
 
 
-        pattern_skip_ws: None,
+        skip_whitespace: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
         if_phi_join: None,
@@ -355,22 +355,22 @@ fn coreloop_v0_composes_scan_with_init_subset() {
         loop_simple_while: None,
         loop_char_map: None,
         loop_array_join: None,
-        pattern_is_integer: None,
+        string_is_integer: None,
 
-        pattern_starts_with: None,
-
-
-        pattern_int_to_str: None,
+        starts_with: None,
 
 
-        pattern_escape_map: None,
+        int_to_str: None,
 
 
-        pattern_split_lines: None,
+        escape_map: None,
+
+
+        split_lines: None,
 
 
 
-        pattern_skip_ws: None,
+        skip_whitespace: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
         if_phi_join: None,
@@ -456,22 +456,22 @@ fn coreloop_v0_rejects_scan_with_init_when_shapes_mismatch() {
         loop_simple_while: None,
         loop_char_map: None,
         loop_array_join: None,
-        pattern_is_integer: None,
+        string_is_integer: None,
 
-        pattern_starts_with: None,
-
-
-        pattern_int_to_str: None,
+        starts_with: None,
 
 
-        pattern_escape_map: None,
+        int_to_str: None,
 
 
-        pattern_split_lines: None,
+        escape_map: None,
+
+
+        split_lines: None,
 
 
 
-        pattern_skip_ws: None,
+        skip_whitespace: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
         if_phi_join: None,
@@ -556,22 +556,22 @@ fn coreloop_v0_rejects_scan_with_init_value_join_direct() {
         loop_simple_while: None,
         loop_char_map: None,
         loop_array_join: None,
-        pattern_is_integer: None,
+        string_is_integer: None,
 
-        pattern_starts_with: None,
-
-
-        pattern_int_to_str: None,
+        starts_with: None,
 
 
-        pattern_escape_map: None,
+        int_to_str: None,
 
 
-        pattern_split_lines: None,
+        escape_map: None,
+
+
+        split_lines: None,
 
 
 
-        pattern_skip_ws: None,
+        skip_whitespace: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
         if_phi_join: None,
@@ -639,22 +639,22 @@ fn coreloop_v0_composes_split_scan_subset() {
         loop_simple_while: None,
         loop_char_map: None,
         loop_array_join: None,
-        pattern_is_integer: None,
+        string_is_integer: None,
 
-        pattern_starts_with: None,
-
-
-        pattern_int_to_str: None,
+        starts_with: None,
 
 
-        pattern_escape_map: None,
+        int_to_str: None,
 
 
-        pattern_split_lines: None,
+        escape_map: None,
+
+
+        split_lines: None,
 
 
 
-        pattern_skip_ws: None,
+        skip_whitespace: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
         if_phi_join: None,
@@ -742,22 +742,22 @@ fn coreloop_v0_rejects_split_scan_value_join_entrypoint() {
         loop_simple_while: None,
         loop_char_map: None,
         loop_array_join: None,
-        pattern_is_integer: None,
+        string_is_integer: None,
 
-        pattern_starts_with: None,
-
-
-        pattern_int_to_str: None,
+        starts_with: None,
 
 
-        pattern_escape_map: None,
+        int_to_str: None,
 
 
-        pattern_split_lines: None,
+        escape_map: None,
+
+
+        split_lines: None,
 
 
 
-        pattern_skip_ws: None,
+        skip_whitespace: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
         if_phi_join: None,
@@ -828,22 +828,22 @@ fn coreloop_v0_rejects_split_scan_value_join_direct() {
         loop_simple_while: None,
         loop_char_map: None,
         loop_array_join: None,
-        pattern_is_integer: None,
+        string_is_integer: None,
 
-        pattern_starts_with: None,
-
-
-        pattern_int_to_str: None,
+        starts_with: None,
 
 
-        pattern_escape_map: None,
+        int_to_str: None,
 
 
-        pattern_split_lines: None,
+        escape_map: None,
+
+
+        split_lines: None,
 
 
 
-        pattern_skip_ws: None,
+        skip_whitespace: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
         if_phi_join: None,

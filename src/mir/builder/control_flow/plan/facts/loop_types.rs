@@ -8,12 +8,12 @@ use super::feature_facts::LoopFeatureFacts;
 use super::loop_simple_while_facts::LoopSimpleWhileFacts;
 use super::loop_char_map_facts::LoopCharMapFacts;
 use super::loop_array_join_facts::LoopArrayJoinFacts;
-use super::pattern_is_integer_facts::PatternIsIntegerFacts;
-use super::pattern_starts_with_facts::PatternStartsWithFacts;
-use super::pattern_int_to_str_facts::PatternIntToStrFacts;
-use super::pattern_escape_map_facts::PatternEscapeMapFacts;
-use super::pattern_split_lines_facts::PatternSplitLinesFacts;
-use super::pattern_skip_ws_facts::PatternSkipWsFacts;
+use super::string_is_integer_facts::StringIsIntegerFacts;
+use super::starts_with_facts::StartsWithFacts;
+use super::int_to_str_facts::IntToStrFacts;
+use super::escape_map_facts::EscapeMapFacts;
+use super::split_lines_facts::SplitLinesFacts;
+use super::skip_whitespace_facts::SkipWhitespaceFacts;
 use super::{IfPhiJoinFacts, LoopContinueOnlyFacts};
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
@@ -47,12 +47,12 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub loop_simple_while: Option<LoopSimpleWhileFacts>,
     pub loop_char_map: Option<LoopCharMapFacts>,
     pub loop_array_join: Option<LoopArrayJoinFacts>,
-    pub pattern_is_integer: Option<PatternIsIntegerFacts>,
-    pub pattern_starts_with: Option<PatternStartsWithFacts>,
-    pub pattern_int_to_str: Option<PatternIntToStrFacts>,
-    pub pattern_escape_map: Option<PatternEscapeMapFacts>,
-    pub pattern_split_lines: Option<PatternSplitLinesFacts>,
-    pub pattern_skip_ws: Option<PatternSkipWsFacts>,
+    pub string_is_integer: Option<StringIsIntegerFacts>,
+    pub starts_with: Option<StartsWithFacts>,
+    pub int_to_str: Option<IntToStrFacts>,
+    pub escape_map: Option<EscapeMapFacts>,
+    pub split_lines: Option<SplitLinesFacts>,
+    pub skip_whitespace: Option<SkipWhitespaceFacts>,
     pub generic_loop_v0: Option<GenericLoopV0Facts>,
     pub generic_loop_v1: Option<GenericLoopV1Facts>,
     pub if_phi_join: Option<IfPhiJoinFacts>,
@@ -98,8 +98,28 @@ impl LoopFacts {
         self.loop_array_join.as_ref()
     }
 
-    pub fn string_is_integer(&self) -> Option<&PatternIsIntegerFacts> {
-        self.pattern_is_integer.as_ref()
+    pub fn string_is_integer(&self) -> Option<&StringIsIntegerFacts> {
+        self.string_is_integer.as_ref()
+    }
+
+    pub fn starts_with(&self) -> Option<&StartsWithFacts> {
+        self.starts_with.as_ref()
+    }
+
+    pub fn int_to_str(&self) -> Option<&IntToStrFacts> {
+        self.int_to_str.as_ref()
+    }
+
+    pub fn escape_map(&self) -> Option<&EscapeMapFacts> {
+        self.escape_map.as_ref()
+    }
+
+    pub fn split_lines(&self) -> Option<&SplitLinesFacts> {
+        self.split_lines.as_ref()
+    }
+
+    pub fn skip_whitespace(&self) -> Option<&SkipWhitespaceFacts> {
+        self.skip_whitespace.as_ref()
     }
 
     pub fn if_phi_join(&self) -> Option<&IfPhiJoinFacts> {

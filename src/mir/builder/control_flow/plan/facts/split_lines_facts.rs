@@ -1,4 +1,4 @@
-//! Phase 29bg P1: PatternSplitLinesFacts (Facts SSOT)
+//! Phase 29bg P1: SplitLinesFacts (Facts SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
@@ -7,7 +7,7 @@ use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 #[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct PatternSplitLinesFacts {
+pub(in crate::mir::builder) struct SplitLinesFacts {
     pub loop_var: String,
     pub loop_condition: ASTNode,
     pub loop_increment: ASTNode,
@@ -17,10 +17,10 @@ pub(in crate::mir::builder) struct PatternSplitLinesFacts {
     pub delimiter_lit: String,
 }
 
-pub(in crate::mir::builder) fn try_extract_pattern_split_lines_facts(
+pub(in crate::mir::builder) fn try_extract_split_lines_facts(
     condition: &ASTNode,
     body: &[ASTNode],
-) -> Result<Option<PatternSplitLinesFacts>, Freeze> {
+) -> Result<Option<SplitLinesFacts>, Freeze> {
     let Some(loop_var) = match_loop_condition(condition) else {
         return Ok(None);
     };
@@ -73,7 +73,7 @@ pub(in crate::mir::builder) fn try_extract_pattern_split_lines_facts(
         return Ok(None);
     };
 
-    Ok(Some(PatternSplitLinesFacts {
+    Ok(Some(SplitLinesFacts {
         loop_var,
         loop_condition: condition.clone(),
         loop_increment,

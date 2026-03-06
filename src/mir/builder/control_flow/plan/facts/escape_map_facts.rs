@@ -1,4 +1,4 @@
-//! Phase 29bg P1: PatternEscapeMapFacts (Facts SSOT)
+//! Phase 29bg P1: EscapeMapFacts (Facts SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
@@ -19,7 +19,7 @@ pub(in crate::mir::builder) enum EscapeDefaultFacts {
 }
 
 #[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct PatternEscapeMapFacts {
+pub(in crate::mir::builder) struct EscapeMapFacts {
     pub loop_var: String,
     pub loop_condition: ASTNode,
     pub loop_increment: ASTNode,
@@ -29,10 +29,10 @@ pub(in crate::mir::builder) struct PatternEscapeMapFacts {
     pub default_case: EscapeDefaultFacts,
 }
 
-pub(in crate::mir::builder) fn try_extract_pattern_escape_map_facts(
+pub(in crate::mir::builder) fn try_extract_escape_map_facts(
     condition: &ASTNode,
     body: &[ASTNode],
-) -> Result<Option<PatternEscapeMapFacts>, Freeze> {
+) -> Result<Option<EscapeMapFacts>, Freeze> {
     let Some(loop_var) = match_loop_condition(condition) else {
         return Ok(None);
     };
@@ -71,7 +71,7 @@ pub(in crate::mir::builder) fn try_extract_pattern_escape_map_facts(
         return Ok(None);
     };
 
-    Ok(Some(PatternEscapeMapFacts {
+    Ok(Some(EscapeMapFacts {
         loop_var,
         loop_condition: condition.clone(),
         loop_increment,
@@ -458,7 +458,7 @@ mod tests {
             span: Span::unknown(),
         };
 
-        let facts = try_extract_pattern_escape_map_facts(&condition, &[ch_stmt, if_chain, step])
+        let facts = try_extract_escape_map_facts(&condition, &[ch_stmt, if_chain, step])
             .expect("Ok")
             .expect("Some");
         assert_eq!(facts.loop_var, "i");
@@ -518,7 +518,7 @@ static box StringHelpers {
 
         let condition = loop_condition.expect("loop condition");
         let body = loop_body.expect("loop body");
-        let facts = try_extract_pattern_escape_map_facts(&condition, &body)
+        let facts = try_extract_escape_map_facts(&condition, &body)
             .expect("extract ok");
         assert!(
             facts.is_some(),

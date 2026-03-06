@@ -9,12 +9,12 @@ use super::feature_facts::try_extract_loop_feature_facts;
 use super::loop_simple_while_facts::try_extract_loop_simple_while_facts;
 use super::loop_char_map_facts::try_extract_loop_char_map_facts;
 use super::loop_array_join_facts::try_extract_loop_array_join_facts;
-use super::pattern_is_integer_facts::try_extract_pattern_is_integer_facts;
-use super::pattern_starts_with_facts::try_extract_pattern_starts_with_facts;
-use super::pattern_int_to_str_facts::try_extract_pattern_int_to_str_facts;
-use super::pattern_escape_map_facts::try_extract_pattern_escape_map_facts;
-use super::pattern_split_lines_facts::try_extract_pattern_split_lines_facts;
-use super::pattern_skip_ws_facts::try_extract_pattern_skip_ws_facts;
+use super::string_is_integer_facts::try_extract_string_is_integer_facts;
+use super::starts_with_facts::try_extract_starts_with_facts;
+use super::int_to_str_facts::try_extract_int_to_str_facts;
+use super::escape_map_facts::try_extract_escape_map_facts;
+use super::split_lines_facts::try_extract_split_lines_facts;
+use super::skip_whitespace_facts::try_extract_skip_whitespace_facts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
     has_generic_loop_v1_recipe_hint, try_extract_generic_loop_v0_facts,
     try_extract_generic_loop_v1_facts,
@@ -94,12 +94,12 @@ fn try_build_loop_facts_inner(
     let loop_simple_while = try_extract_loop_simple_while_facts(condition, body)?;
     let loop_char_map = try_extract_loop_char_map_facts(condition, body, &observation)?;
     let loop_array_join = try_extract_loop_array_join_facts(condition, body, &observation)?;
-    let pattern_is_integer = try_extract_pattern_is_integer_facts(condition, body)?;
-    let pattern_starts_with = try_extract_pattern_starts_with_facts(condition, body)?;
-    let pattern_int_to_str = try_extract_pattern_int_to_str_facts(condition, body)?;
-    let pattern_escape_map = try_extract_pattern_escape_map_facts(condition, body)?;
-    let pattern_split_lines = try_extract_pattern_split_lines_facts(condition, body)?;
-    let pattern_skip_ws = try_extract_pattern_skip_ws_facts(condition, body)?;
+    let string_is_integer = try_extract_string_is_integer_facts(condition, body)?;
+    let starts_with = try_extract_starts_with_facts(condition, body)?;
+    let int_to_str = try_extract_int_to_str_facts(condition, body)?;
+    let escape_map = try_extract_escape_map_facts(condition, body)?;
+    let split_lines = try_extract_split_lines_facts(condition, body)?;
+    let skip_whitespace = try_extract_skip_whitespace_facts(condition, body)?;
     let loop_scan_methods_v0 = try_extract_loop_scan_methods_v0_facts(condition, body)?;
     let loop_scan_v0 = try_extract_loop_scan_v0_facts(condition, body)?;
     let loop_scan_phi_vars_v0 = try_extract_loop_scan_phi_vars_v0_facts(condition, body)?;
@@ -192,12 +192,12 @@ fn try_build_loop_facts_inner(
         || loop_simple_while.is_some()
         || loop_char_map.is_some()
         || loop_array_join.is_some()
-        || pattern_is_integer.is_some()
-        || pattern_starts_with.is_some()
-        || pattern_int_to_str.is_some()
-        || pattern_escape_map.is_some()
-        || pattern_split_lines.is_some()
-        || pattern_skip_ws.is_some()
+        || string_is_integer.is_some()
+        || starts_with.is_some()
+        || int_to_str.is_some()
+        || escape_map.is_some()
+        || split_lines.is_some()
+        || skip_whitespace.is_some()
         || loop_scan_methods_block_v0.is_some()
         || loop_scan_methods_v0.is_some()
         || loop_scan_v0.is_some()
@@ -243,12 +243,12 @@ fn try_build_loop_facts_inner(
         loop_simple_while,
         loop_char_map,
         loop_array_join,
-        pattern_is_integer,
-        pattern_starts_with,
-        pattern_int_to_str,
-        pattern_escape_map,
-        pattern_split_lines,
-        pattern_skip_ws,
+        string_is_integer,
+        starts_with,
+        int_to_str,
+        escape_map,
+        split_lines,
+        skip_whitespace,
         generic_loop_v0,
         generic_loop_v1,
         if_phi_join: if_phi_join,

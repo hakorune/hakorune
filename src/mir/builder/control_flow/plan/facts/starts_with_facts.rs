@@ -1,20 +1,20 @@
-//! Phase 29bg P1: PatternStartsWithFacts (Facts SSOT)
+//! Phase 29bg P1: StartsWithFacts (Facts SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 #[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct PatternStartsWithFacts {
+pub(in crate::mir::builder) struct StartsWithFacts {
     pub loop_var: String,
     pub loop_condition: ASTNode,
     pub loop_increment: ASTNode,
     pub mismatch_condition: ASTNode,
 }
 
-pub(in crate::mir::builder) fn try_extract_pattern_starts_with_facts(
+pub(in crate::mir::builder) fn try_extract_starts_with_facts(
     condition: &ASTNode,
     body: &[ASTNode],
-) -> Result<Option<PatternStartsWithFacts>, Freeze> {
+) -> Result<Option<StartsWithFacts>, Freeze> {
     let Some(loop_var) = match_loop_condition(condition) else {
         return Ok(None);
     };
@@ -44,7 +44,7 @@ pub(in crate::mir::builder) fn try_extract_pattern_starts_with_facts(
         return Ok(None);
     };
 
-    Ok(Some(PatternStartsWithFacts {
+    Ok(Some(StartsWithFacts {
         loop_var,
         loop_condition: condition.clone(),
         loop_increment,
@@ -396,7 +396,7 @@ mod tests {
             span: Span::unknown(),
         };
 
-        let facts = try_extract_pattern_starts_with_facts(&condition, &[if_stmt, step])
+        let facts = try_extract_starts_with_facts(&condition, &[if_stmt, step])
             .expect("Ok")
             .expect("Some");
         assert_eq!(facts.loop_var, "k");
