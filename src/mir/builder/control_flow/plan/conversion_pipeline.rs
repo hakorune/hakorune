@@ -27,7 +27,7 @@
 //! - **Consistent error handling**: Unified error messages
 //! - **Testability**: Can test conversion independently
 //! - **Reduces duplication**: Eliminates 120 lines across loop route families
-//! - **Phase 284 P1**: SSOT for return statement handling (not scattered in patterns)
+//! - **Phase 284 P1**: SSOT for return statement handling (not scattered in route lowerers)
 
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
@@ -61,7 +61,7 @@ impl JoinIRConversionPipeline {
     /// # Example
     ///
     /// ```rust
-    /// // Pattern 1: Simple loop (no exit PHI)
+    /// // loop_simple_while (legacy Pattern1): simple loop (no exit PHI)
     /// let _ = JoinIRConversionPipeline::execute(
     ///     builder,
     ///     join_module,
@@ -70,7 +70,7 @@ impl JoinIRConversionPipeline {
     ///     false,
     /// )?;
     ///
-    /// // Pattern 3: Loop with carriers (exit PHI generated)
+    /// // if_phi_join (legacy Pattern3): loop with carriers (exit PHI generated)
     /// let exit_phi = JoinIRConversionPipeline::execute(
     ///     builder,
     ///     join_module,
@@ -93,7 +93,7 @@ impl JoinIRConversionPipeline {
     /// Execute unified conversion pipeline with optional body for return detection
     ///
     /// Phase 284 P1: This is the SSOT for return statement handling.
-    /// Patterns should call this with body to enable return detection.
+    /// Route lowerers should call this with body to enable return detection.
     ///
     /// # Arguments
     ///
@@ -108,7 +108,7 @@ impl JoinIRConversionPipeline {
     ///
     /// - `Ok(Some(ValueId))`: Exit PHI result or return value
     /// - `Ok(None)`: No exit PHI generated (simple loops without return)
-    /// - `Err(String)`: Conversion or merge failure, or unsupported return pattern
+    /// - `Err(String)`: Conversion or merge failure, or unsupported return route shape
     pub fn execute_with_body(
         builder: &mut MirBuilder,
         join_module: JoinModule,
@@ -208,7 +208,7 @@ impl JoinIRConversionPipeline {
 
     /// Get return info from loop body (Phase 284 P1 SSOT)
     ///
-    /// This is the SSOT for return detection. Patterns should use this
+    /// This is the SSOT for return detection. Route lowerers should use this
     /// before constructing JoinModule to know if return handling is needed.
     pub fn detect_return(body: &[ASTNode]) -> Result<Option<ReturnInfo>, String> {
         collect_return_from_body(body)

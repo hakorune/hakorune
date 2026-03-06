@@ -2,14 +2,15 @@
 //!
 //! Phase 171-172: Issue 4
 //!
-//! Provides unified construction methods for LoopScopeShape across all 4 patterns.
-//! This eliminates the 50-60 lines of duplicated initialization code in each pattern.
+//! Provides unified construction methods for LoopScopeShape across the 4 primary routes
+//! (legacy labels: Pattern1-4).
+//! This eliminates the 50-60 lines of duplicated initialization code in each route branch.
 //!
 //! # Responsibility
 //!
 //! - Provide factory methods for creating LoopScopeShape with common configurations
 //! - Extract body_locals from loop body AST when needed
-//! - Maintain consistent initialization defaults across patterns
+//! - Maintain consistent initialization defaults across routes
 //!
 //! # Phase 183-3: AST-Based Construction Context
 //!
@@ -22,12 +23,12 @@
 //! # Usage
 //!
 //! ```rust
-//! // Pattern 1, 3: Empty body_locals (condition-only analysis)
+//! // loop_simple_while / if_phi_join (legacy Pattern1/3): empty body_locals
 //! let scope = LoopScopeShapeBuilder::empty_body_locals(
 //!     header, body, latch, exit, pinned
 //! );
 //!
-//! // Pattern 2, 4: Extract body_locals from AST
+//! // loop_break / loop_continue_only (legacy Pattern2/4): extract body_locals from AST
 //! let scope = LoopScopeShapeBuilder::with_body_locals(
 //!     header, body, latch, exit, pinned, loop_body
 //! );
@@ -43,7 +44,8 @@ pub(crate) struct LoopScopeShapeBuilder;
 impl LoopScopeShapeBuilder {
     /// Create LoopScopeShape with empty body_locals
     ///
-    /// Used by Pattern 1 and Pattern 3 which don't require body-local variable analysis.
+    /// Used by loop_simple_while and if_phi_join (legacy Pattern1/3),
+    /// which don't require body-local variable analysis.
     ///
     /// # Arguments
     ///
@@ -51,7 +53,7 @@ impl LoopScopeShapeBuilder {
     /// * `body` - Body block ID
     /// * `latch` - Latch block ID
     /// * `exit` - Exit block ID
-    /// * `pinned` - Pinned variables (typically empty for current patterns)
+    /// * `pinned` - Pinned variables (typically empty for current routes)
     pub fn empty_body_locals(
         header: BasicBlockId,
         body: BasicBlockId,
@@ -75,8 +77,9 @@ impl LoopScopeShapeBuilder {
 
     /// Create LoopScopeShape with body_locals extracted from AST
     ///
-    /// Used by Pattern 2 and Pattern 4 which require body-local variable classification.
-    /// This is critical for Trim pattern support and carrier promotion analysis.
+    /// Used by loop_break and loop_continue_only (legacy Pattern2/4),
+    /// which require body-local variable classification.
+    /// This is critical for trim-route support and carrier promotion analysis.
     ///
     /// # Arguments
     ///
@@ -84,7 +87,7 @@ impl LoopScopeShapeBuilder {
     /// * `body` - Body block ID
     /// * `latch` - Latch block ID
     /// * `exit` - Exit block ID
-    /// * `pinned` - Pinned variables (typically empty for current patterns)
+    /// * `pinned` - Pinned variables (typically empty for current routes)
     /// * `loop_body` - AST nodes of the loop body for local variable extraction
     pub fn with_body_locals(
         header: BasicBlockId,

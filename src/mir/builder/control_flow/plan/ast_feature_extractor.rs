@@ -11,7 +11,8 @@
 //! # Design Philosophy
 //!
 //! - **Pure functions**: No side effects, only AST analysis
-//! - **High reusability**: Used by router, future Pattern 5/6, and pattern analysis tools
+//! - **High reusability**: Used by router, future loop_true_early_exit / scan_with_init
+//!   route expansions (legacy Pattern5/6), and route-shape analysis tools
 //! - **Independent testability**: Can be unit tested without MirBuilder context
 //! - **Extension-friendly**: Easy to add new feature detection methods
 //! - **Facade pattern**: Re-exports from pattern_recognizers/ for backward compatibility
@@ -30,7 +31,7 @@
 //!
 //! # Boundary (Phase 110)
 //!
-//! - **Routing SSOT**: Pattern routing and feature classification use this module (and
+//! - **Routing SSOT**: Route routing and feature classification use this module (and
 //!   `BreakConditionAnalyzer`) as the SSOT in production code paths.
 //! - **Structure SSOT**: `crate::mir::control_tree` (StepTree) describes *control structure only*
 //!   and must not drive routing decisions yet; it is used for dev-only observation and parity checks.
@@ -75,7 +76,7 @@ pub use super::escape_pattern_recognizer::detect_escape_skip_pattern;
 /// Extract full feature set from loop body AST
 ///
 /// This is the main entry point for feature extraction. It analyzes the loop body
-/// to determine all relevant characteristics for pattern classification.
+/// to determine all relevant characteristics for route-shape classification.
 ///
 /// # Arguments
 ///

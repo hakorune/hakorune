@@ -1,12 +1,14 @@
-//! Phase 33-22: Common Pattern Initializer
+//! Phase 33-22: Common Route Initializer
 //!
-//! Consolidates initialization logic shared by all 4 loop patterns.
+//! Consolidates initialization logic shared by the 4 primary loop routes
+//! (legacy enum labels: Pattern1-4).
 //!
 //! ## Responsibility
 //!
 //! - Extract loop variable from condition AST
 //! - Build CarrierInfo from variable_map (delegates to `CarrierInfo::from_variable_map`)
-//! - Support pattern-specific carrier exclusions (e.g., Pattern 2 excludes break-triggered vars)
+//! - Support route-specific carrier exclusions (e.g., loop_break / legacy Pattern2 excludes
+//!   break-triggered vars)
 //!
 //! ## Usage
 //!
@@ -22,10 +24,10 @@
 //!
 //! ## Benefits
 //!
-//! - **Single source of truth**: All patterns use same initialization logic
+//! - **Single source of truth**: All routes use same initialization logic
 //! - **Testability**: Can be tested independently
 //! - **Maintainability**: Changes to initialization only need to happen once
-//! - **Reduces duplication**: Eliminates 80 lines across Pattern 1-4
+//! - **Reduces duplication**: Eliminates 80 lines across legacy Pattern1-4 branches
 //!
 //! # Phase 183-2: Delegation to CarrierInfo
 //!
@@ -41,12 +43,12 @@ use std::collections::BTreeMap;
 pub(crate) struct CommonPatternInitializer;
 
 impl CommonPatternInitializer {
-    /// Initialize pattern context: extract loop var, build CarrierInfo
+    /// Initialize route context: extract loop var, build CarrierInfo
     ///
     /// Returns: (loop_var_name, loop_var_id, carrier_info)
     ///
-    /// This consolidates the Pattern 1-4 initialization that was previously
-    /// duplicated in each pattern's lowerer function.
+    /// This consolidates the initialization that was previously duplicated
+    /// across legacy Pattern1-4 route lowerers.
     ///
     /// # Arguments
     ///
@@ -58,7 +60,7 @@ impl CommonPatternInitializer {
     /// # Example
     ///
     /// ```rust
-    /// // Pattern 1-3: No exclusions
+    /// // loop_simple_while / if_phi_join / loop_continue_only (legacy Pattern1/3/4): no exclusions
     /// let (loop_var_name, loop_var_id, carrier_info) =
     ///     CommonPatternInitializer::initialize_pattern(
     ///         builder,
@@ -67,7 +69,7 @@ impl CommonPatternInitializer {
     ///         None,
     ///     )?;
     ///
-    /// // Pattern 2: Exclude break-triggered variables
+    /// // loop_break (legacy Pattern2): exclude break-triggered variables
     /// let (loop_var_name, loop_var_id, carrier_info) =
     ///     CommonPatternInitializer::initialize_pattern(
     ///         builder,
@@ -97,7 +99,7 @@ impl CommonPatternInitializer {
         // Step 2: Use CarrierInfo::from_variable_map as primary initialization method
         let mut carrier_info = CarrierInfo::from_variable_map(loop_var_name.clone(), variable_map)?;
 
-        // Step 3: Apply exclusions if provided (Pattern 2 specific)
+        // Step 3: Apply exclusions if provided (loop_break / legacy Pattern2 specific)
         if let Some(excluded) = exclude_carriers {
             carrier_info
                 .carriers
@@ -107,7 +109,7 @@ impl CommonPatternInitializer {
         Ok((loop_var_name, loop_var_id, carrier_info))
     }
 
-    /// Check if carrier updates are allowed in current pattern
+    /// Check if carrier updates are allowed in current route shape
     ///
     /// Phase 188: Validates that all carrier updates use simple expressions.
     ///
@@ -138,7 +140,7 @@ impl CommonPatternInitializer {
     ///     &loop_var_name,
     ///     &builder.variable_map,
     /// ) {
-    ///     return false; // Pattern cannot lower - reject
+    ///     return false; // Route cannot lower - reject
     /// }
     /// ```
     pub fn check_carrier_updates_allowed(
