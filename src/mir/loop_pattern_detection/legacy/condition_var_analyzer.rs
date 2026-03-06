@@ -11,7 +11,7 @@
 //!
 //! - **Pure functions**: No side effects, only analysis
 //! - **Composable**: Can be used independently or as part of LoopConditionScopeBox
-//! - **Fail-Fast**: Defaults to conservative classification (LoopBodyLocal)
+//! - **Fail-Fast**: Defaults to conservative classification (body-local)
 
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
@@ -368,7 +368,7 @@ mod tests {
         // variable_definitions entry represent things like function parameters
         // or outer locals. These must be treated as OuterLocal so that valid
         // conditions such as `p < s.length()` (with `s` a parameter) are
-        // accepted by Pattern 2/4.
+        // accepted by break/continue routes.
         use std::collections::{BTreeMap, BTreeSet};
 
         let scope = LoopScopeShape {
@@ -470,7 +470,7 @@ mod tests {
 
         let mut scope = LoopConditionScope::new();
 
-        // Add variable as LoopBodyLocal first
+        // Add variable as body-local first
         scope.add_var("x".to_string(), CondVarScope::LoopBodyLocal);
         assert_eq!(scope.vars.len(), 1);
         assert_eq!(scope.vars[0].scope, CondVarScope::LoopBodyLocal);
@@ -484,13 +484,13 @@ mod tests {
             "Should upgrade to more restrictive OuterLocal"
         );
 
-        // Try to downgrade to LoopBodyLocal (should be rejected)
+        // Try to downgrade to body-local (should be rejected)
         scope.add_var("x".to_string(), CondVarScope::LoopBodyLocal);
         assert_eq!(scope.vars.len(), 1);
         assert_eq!(
             scope.vars[0].scope,
             CondVarScope::OuterLocal,
-            "Should NOT downgrade from OuterLocal to LoopBodyLocal"
+            "Should NOT downgrade from OuterLocal to body-local"
         );
 
         // Add same variable as LoopParam (most restrictive)

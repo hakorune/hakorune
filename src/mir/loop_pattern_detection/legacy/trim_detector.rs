@@ -39,7 +39,7 @@ pub struct TrimDetectionResult {
     pub comparison_literals: Vec<String>,
 }
 
-/// Pure detection logic for A-3 Trim pattern
+/// Pure detection logic for trim-route shape
 pub struct TrimDetector;
 
 impl TrimDetector {
@@ -57,7 +57,7 @@ impl TrimDetector {
     ///
     /// * `condition` - Break or continue condition AST node
     /// * `body` - Loop body statements
-    /// * `var_name` - Variable name to check (from LoopBodyLocal analysis)
+    /// * `var_name` - Variable name to check (from body-local analysis)
     ///
     /// # Returns
     ///
@@ -220,7 +220,7 @@ impl TrimDetector {
         right: &ASTNode,
         var_name: &str,
     ) -> Option<String> {
-        // Pattern 1: var == literal
+        // Case A: var == literal
         if let ASTNode::Variable { name, .. } = left {
             if name == var_name {
                 if let ASTNode::Literal {
@@ -233,7 +233,7 @@ impl TrimDetector {
             }
         }
 
-        // Pattern 2: literal == var
+        // Case B: literal == var
         if let ASTNode::Literal {
             value: LiteralValue::String(s),
             ..

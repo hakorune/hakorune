@@ -52,7 +52,7 @@ pub struct MutableAccumulatorSpec {
 /// - Whether target is loop-outer or loop-local
 /// - Whether RHS is read-only
 ///
-/// These checks are delegated to Pattern2 (ScopeManager).
+/// These checks are delegated to loop-route ScopeManager wiring.
 pub struct MutableAccumulatorAnalyzer;
 
 impl MutableAccumulatorAnalyzer {
@@ -127,7 +127,7 @@ impl MutableAccumulatorAnalyzer {
                         match right.as_ref() {
                             ASTNode::Variable { name: rhs_name, .. } => {
                                 // Phase 100 P3-1: Variable RHS - default to Int for backward compat
-                                // Actual type validation happens in Pattern2 wiring (P3-3)
+                                // Actual type validation happens in loop-route wiring (P3-3)
                                 return Ok(Some(MutableAccumulatorSpec {
                                     target_name,
                                     rhs_expr_kind: RhsExprKind::Var,
@@ -433,7 +433,7 @@ mod tests {
         // Phase 100 P3-1: String accumulator with Variable RHS
         // Build AST for: out = out + ch (ch is string-typed variable)
         // Note: At AST-only stage, Variable defaults to Int
-        // Type refinement happens in Pattern2 wiring (P3-3)
+        // Type refinement happens in loop-route wiring (P3-3)
         let loop_body = vec![ASTNode::Assignment {
             target: Box::new(ASTNode::Variable {
                 name: "out".to_string(),

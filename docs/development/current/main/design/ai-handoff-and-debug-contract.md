@@ -64,6 +64,7 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - Nested-loop guard (dev/debug only): `[plan/freeze:nested_loop_guard] func=<...> span=<...> recipe_contract=<Some|None> route_kind=<...> depth=<...>`
 - Recipe-first verification (dev/debug only, from `matcher.rs`): `[recipe:verify] route=loop_break status=<ok|fail>`
 - Recipe-first verification (dev/debug only, from `matcher.rs`): `[recipe:verify] route=if_phi_join status=<ok|fail>`
+- Body-local promotion diagnostics (dev/debug only): `[promoter/trim] ...`, `[cond_promoter] ...`, `[digitpos_promoter] ...`
 - Recipe-first match (dev/debug only): `[recipe:match] kind=<...> break=<...> continue=<...> return=<...>`
 - Recipe-first entry (dev/debug only): `[recipe:entry] <route>: recipe_contract enforced`
 - Recipe-first entry (dev/debug only, Phase C4): `[recipe:entry] <route>: recipe-only entry`

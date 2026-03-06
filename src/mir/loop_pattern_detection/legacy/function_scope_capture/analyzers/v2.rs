@@ -9,7 +9,7 @@ use super::super::types::{CapturedEnv, CapturedKind, CapturedVar};
 /// Phase 200-C: Analyze captured vars with condition/body instead of loop_ast
 ///
 /// This variant solves the pointer comparison problem when the loop AST is constructed
-/// dynamically (e.g., in Pattern 2). Instead of passing a loop_ast reference,
+/// dynamically (e.g., in break-route lowering). Instead of passing a loop_ast reference,
 /// we pass the condition and body directly and perform structural matching.
 ///
 /// # Arguments

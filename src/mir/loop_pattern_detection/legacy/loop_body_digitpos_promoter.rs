@@ -1,13 +1,13 @@
 //! Phase 224: DigitPosPromoter Box
 //!
-//! Handles promotion of A-4 pattern: Cascading LoopBodyLocal with indexOf()
+//! Handles promotion of A-4 route shape: cascading body-local variables with indexOf()
 //!
 //! ## Pattern Example
 //!
 //! ```nyash
 //! loop(p < s.length()) {
-//!     local ch = s.substring(p, p+1)           // First LoopBodyLocal
-//!     local digit_pos = digits.indexOf(ch)     // Second LoopBodyLocal (depends on ch)
+//!     local ch = s.substring(p, p+1)           // First body-local
+//!     local digit_pos = digits.indexOf(ch)     // Second body-local (depends on ch)
 //!
 //!     if digit_pos < 0 {                       // Comparison condition
 //!         break
@@ -52,10 +52,10 @@ pub struct DigitPosPromotionRequest<'a> {
     #[allow(dead_code)]
     pub(crate) scope_shape: Option<&'a LoopScopeShape>,
 
-    /// Break condition AST (Pattern2: Some, Pattern4: None)
+    /// Break condition AST (`loop_break`: Some, `loop_continue_only`: None)
     pub break_cond: Option<&'a ASTNode>,
 
-    /// Continue condition AST (Pattern4: Some, Pattern2: None)
+    /// Continue condition AST (`loop_continue_only`: Some, `loop_break`: None)
     pub continue_cond: Option<&'a ASTNode>,
 
     /// Loop body statements
@@ -81,7 +81,7 @@ pub enum DigitPosPromotionResult {
         /// Human-readable reason
         reason: String,
 
-        /// List of problematic LoopBodyLocal variables
+        /// List of problematic body-local variables
         vars: Vec<String>,
     },
 }
@@ -94,7 +94,7 @@ impl DigitPosPromoter {
     ///
     /// ## Algorithm (Phase 79: Simplified using DigitPosDetector)
     ///
-    /// 1. Extract LoopBodyLocal variables from cond_scope
+    /// 1. Extract body-local variables from cond_scope
     /// 2. Use DigitPosDetector for pure detection logic
     /// 3. Build CarrierInfo with bool + int carriers
     /// 4. Record BindingId promotion (dev-only)
@@ -102,7 +102,7 @@ impl DigitPosPromoter {
         use crate::mir::loop_pattern_detection::digitpos_detector::DigitPosDetector;
         use crate::mir::loop_pattern_detection::loop_condition_scope::CondVarScope;
 
-        // Step 1: Extract LoopBodyLocal variables
+        // Step 1: Extract body-local variables
         let body_locals: Vec<&String> = req
             .cond_scope
             .vars
@@ -122,7 +122,7 @@ impl DigitPosPromoter {
         if is_joinir_debug() || std::env::var("JOINIR_TEST_DEBUG").is_ok() {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
-                "[digitpos_promoter] Phase 224: Found {} LoopBodyLocal variables: {:?}",
+                "[digitpos_promoter] Phase 224: Found {} body-local variables: {:?}",
                 body_locals.len(),
                 body_locals
             ));
@@ -210,7 +210,7 @@ impl DigitPosPromoter {
         }
     }
 
-    // Phase 79: Helper methods removed - now in DigitPosDetector
+        // Phase 79: Helper methods removed - now in DigitPosDetector
     // - find_index_of_definition
     // - is_index_of_method_call
     // - extract_comparison_var
@@ -373,8 +373,8 @@ mod tests {
 
     #[test]
     fn test_digitpos_no_body_local_dependency() {
-        // digit_pos = fixed_string.indexOf("x")  // No LoopBodyLocal dependency
-        // Should fail: indexOf doesn't depend on LoopBodyLocal
+        // digit_pos = fixed_string.indexOf("x")  // No body-local dependency
+        // Should fail: indexOf doesn't depend on a body-local variable
 
         let cond_scope = cond_scope_with_body_locals(&["digit_pos"]);
 
@@ -403,7 +403,7 @@ mod tests {
 
         match DigitPosPromoter::try_promote(req) {
             DigitPosPromotionResult::CannotPromote { reason, .. } => {
-                // Phase 79: Detector returns None when no LoopBodyLocal dependency
+                // Phase 79: Detector returns None when there is no body-local dependency
                 assert!(reason.contains("DigitPos pattern"));
             }
             _ => panic!("Expected CannotPromote when no LoopBodyLocal dependency"),

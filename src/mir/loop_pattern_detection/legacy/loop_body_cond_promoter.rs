@@ -1,14 +1,14 @@
 //! Phase 223-3: LoopBodyCondPromoter Box
 //!
-//! Handles promotion of LoopBodyLocal variables used in loop conditions
-//! to bool carriers. Supports Pattern2 (break), Pattern4 (continue),
-//! and future patterns.
+//! Handles promotion of body-local variables used in loop conditions
+//! to bool carriers. Supports `loop_break`, `loop_continue_only`,
+//! and future routes.
 //!
 //! ## Responsibilities
 //!
 //! - Detect safe promotion patterns (Category A-3 from phase223-loopbodylocal-condition-inventory.md)
 //! - Coordinate with LoopBodyCarrierPromoter for actual promotion logic
-//! - Provide uniform API for Pattern2/Pattern4 integration
+//! - Provide uniform API for break/continue route integration
 //!
 //! ## Design Principle
 //!
@@ -19,10 +19,10 @@
 //!
 //! ## P0 Requirements (Category A-3)
 //!
-//! - Single LoopBodyLocal variable (e.g., `ch`)
+//! - Single body-local variable (e.g., `ch`)
 //! - Definition: `local ch = s.substring(...)` or similar
 //! - Condition: Simple equality chain (e.g., `ch == " " || ch == "\t"`)
-//! - Pattern: Identical to existing Trim pattern
+//! - Route shape: identical to existing trim route
 
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
@@ -34,7 +34,7 @@ use crate::mir::loop_pattern_detection::loop_condition_scope::LoopConditionScope
 
 /// Promotion request for condition variables
 ///
-/// Unified API for Pattern2 (break) and Pattern4 (continue)
+/// Unified API for `loop_break` (break) and `loop_continue_only` (continue)
 pub struct ConditionPromotionRequest<'a> {
     /// Loop parameter name (e.g., "i")
     pub loop_param_name: &'a str,
@@ -45,10 +45,10 @@ pub struct ConditionPromotionRequest<'a> {
     /// Loop structure metadata (crate-internal)
     pub(crate) scope_shape: Option<&'a LoopScopeShape>,
 
-    /// Break condition AST (Pattern2: Some, Pattern4: None)
+    /// Break condition AST (`loop_break`: Some, `loop_continue_only`: None)
     pub break_cond: Option<&'a ASTNode>,
 
-    /// Continue condition AST (Pattern4: Some, Pattern2: None)
+    /// Continue condition AST (`loop_continue_only`: Some, `loop_break`: None)
     pub continue_cond: Option<&'a ASTNode>,
 
     /// Loop body statements
@@ -74,14 +74,14 @@ pub enum ConditionPromotionResult {
         /// Human-readable reason
         reason: String,
 
-        /// List of problematic LoopBodyLocal variables
+        /// List of problematic body-local variables
         vars: Vec<String>,
     },
 }
 
 /// Phase 223-3: LoopBodyCondPromoter Box
 ///
-/// Coordinates LoopBodyLocal condition promotion for Pattern2/Pattern4.
+/// Coordinates body-local condition promotion for break/continue routes.
 pub struct LoopBodyCondPromoter;
 
 impl LoopBodyCondPromoter {
@@ -92,7 +92,7 @@ impl LoopBodyCondPromoter {
     /// Extract continue condition from loop body
     ///
     /// Finds the first if statement with continue in then-branch and returns its condition.
-    /// This is used for Pattern4 skip_whitespace pattern detection.
+    /// This is used for `loop_continue_only` skip_whitespace detection.
     ///
     /// # Pattern
     ///
@@ -127,18 +127,18 @@ impl LoopBodyCondPromoter {
         None
     }
 
-    /// Try to promote LoopBodyLocal variables in conditions
+    /// Try to promote body-local variables in conditions
     ///
     /// ## P0 Requirements (Category A-3)
     ///
-    /// - Single LoopBodyLocal variable (e.g., `ch`)
+    /// - Single body-local variable (e.g., `ch`)
     /// - Definition: `local ch = s.substring(...)` or similar
     /// - Condition: Simple equality chain (e.g., `ch == " " || ch == "\t"`)
-    /// - Pattern: Identical to existing Trim pattern
+    /// - Route shape: identical to existing trim route
     ///
     /// ## Algorithm (Phase 224: Two-Tier Promotion Strategy)
     ///
-    /// 1. Extract LoopBodyLocal names from cond_scope
+    /// 1. Extract body-local names from cond_scope
     /// 2. Try A-3 Trim promotion (LoopBodyCarrierPromoter)
     /// 3. If A-3 fails, try A-4 DigitPos promotion (DigitPosPromoter)
     /// 4. If both fail, return CannotPromote
@@ -164,9 +164,9 @@ impl LoopBodyCondPromoter {
             }
         };
 
-        // Determine which condition to use for break_cond in LoopBodyCarrierPromoter
-        // Pattern2: break_cond
-        // Pattern4: continue_cond (use as break_cond for Trim pattern detection)
+        // Determine which condition to use for break_cond in LoopBodyCarrierPromoter.
+        // loop_break: break_cond
+        // loop_continue_only: continue_cond (reused as break_cond for trim detection)
         let condition_for_promotion = req.break_cond.or(req.continue_cond);
 
         // Step 1: Try A-3 Trim promotion
@@ -242,7 +242,7 @@ impl LoopBodyCondPromoter {
             }
         }
 
-        // Step 3: Fail-Fast (no pattern matched)
+        // Step 3: Fail-Fast (no promotable route shape matched)
         let body_local_names: Vec<String> = req
             .cond_scope
             .vars
@@ -397,7 +397,7 @@ mod tests {
     #[test]
     fn test_cond_promoter_no_body_locals() {
         let scope_shape = minimal_scope();
-        let cond_scope = LoopConditionScope::new(); // Empty, no LoopBodyLocal
+        let cond_scope = LoopConditionScope::new(); // Empty, no body-local variables
 
         let req = ConditionPromotionRequest {
             loop_param_name: "i",
@@ -412,14 +412,14 @@ mod tests {
             ConditionPromotionResult::CannotPromote { vars, .. } => {
                 assert!(vars.is_empty());
             }
-            _ => panic!("Expected CannotPromote when no LoopBodyLocal variables"),
+            _ => panic!("Expected CannotPromote when no body-local variables"),
         }
     }
 
     #[test]
     fn test_cond_promoter_skip_whitespace_pattern() {
-        // Full Trim/skip_whitespace pattern test (Category A-3):
-        // - LoopBodyLocal: ch
+        // Full Trim/skip_whitespace route test (Category A-3):
+        // - body-local: ch
         // - Definition: ch = s.substring(...)
         // - Continue condition: ch == " " || ch == "\t"
 
@@ -458,7 +458,7 @@ mod tests {
 
     #[test]
     fn test_cond_promoter_break_condition() {
-        // Pattern2 style: break_cond instead of continue_cond
+        // loop_break style: break_cond instead of continue_cond
 
         let scope_shape = minimal_scope();
         let cond_scope = cond_scope_with_body_local("ch");

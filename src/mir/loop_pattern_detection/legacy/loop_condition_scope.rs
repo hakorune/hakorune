@@ -4,9 +4,9 @@
 //! and classifies them by their scope:
 //! - LoopParam: The loop parameter itself (e.g., 'i' in loop(i < 10))
 //! - OuterLocal: Variables from outer scope (pre-existing before loop)
-//! - LoopBodyLocal: Variables defined inside the loop body
+//! - `LoopBodyLocal`: body-local variables defined inside the loop body
 //!
-//! This Box enables Pattern2/4 to determine if they can handle a given loop's
+//! This Box enables `loop_break` / `loop_continue_only` routes to determine if they can handle a given loop's
 //! condition expressions, providing clear Fail-Fast when conditions reference
 //! unsupported loop-body variables.
 
@@ -21,7 +21,7 @@ pub enum CondVarScope {
     LoopParam,
     /// A variable from outer scope, defined before the loop
     OuterLocal,
-    /// A variable defined inside the loop body
+    /// A body-local variable defined inside the loop body
     LoopBodyLocal,
 }
 
@@ -44,7 +44,7 @@ impl LoopConditionScope {
         LoopConditionScope { vars: Vec::new() }
     }
 
-    /// Check if this scope contains any loop-body-local variables
+    /// Check if this scope contains any body-local variables
     pub fn has_loop_body_local(&self) -> bool {
         self.vars
             .iter()
@@ -66,7 +66,7 @@ impl LoopConditionScope {
     /// # Phase 170-ultrathink: Scope Priority
     ///
     /// If a variable already exists with a different scope, keep the more restrictive one:
-    /// - LoopParam > OuterLocal > LoopBodyLocal (in terms of priority)
+    /// - LoopParam > OuterLocal > `LoopBodyLocal` (in terms of priority)
     ///
     /// This ensures that if a variable is classified in multiple ways due to
     /// different analysis passes or ambiguous AST structures, we prefer the
@@ -78,7 +78,7 @@ impl LoopConditionScope {
         // Check if variable already exists
         if let Some(existing) = self.vars.iter_mut().find(|v| v.name == name) {
             // Phase 170-ultrathink: Keep more restrictive scope
-            // Priority: LoopParam (highest) > OuterLocal > LoopBodyLocal (lowest)
+            // Priority: LoopParam (highest) > OuterLocal > `LoopBodyLocal` (lowest)
             let new_is_more_restrictive = match (existing.scope, scope) {
                 // Same scope → no change
                 (CondVarScope::LoopParam, CondVarScope::LoopParam) => false,
@@ -108,7 +108,7 @@ impl Default for LoopConditionScope {
     }
 }
 
-/// Collect loop-body-local variable names from condition scope analysis.
+/// Collect body-local variable names from condition scope analysis.
 pub fn extract_loop_body_local_names(vars: &[CondVarInfo]) -> Vec<&String> {
     vars.iter()
         .filter(|v| v.scope == CondVarScope::LoopBodyLocal)
@@ -140,7 +140,7 @@ impl LoopConditionScopeBox {
     /// 2. Classify each variable:
     ///    - If matches loop_param_name → LoopParam
     ///    - Else if in outer scope (via condition_var_analyzer) → OuterLocal
-    ///    - Else → LoopBodyLocal (conservative default)
+    ///    - Else → `LoopBodyLocal` (conservative body-local default)
     #[allow(dead_code)]
     pub(crate) fn analyze(
         loop_param_name: &str,
@@ -163,7 +163,7 @@ impl LoopConditionScopeBox {
             } else if super::condition_var_analyzer::is_outer_scope_variable(&var_name, scope) {
                 CondVarScope::OuterLocal
             } else {
-                // Default: assume it's loop-body-local if not identified as outer
+                // Default: assume it is body-local if not identified as outer
                 CondVarScope::LoopBodyLocal
             };
 

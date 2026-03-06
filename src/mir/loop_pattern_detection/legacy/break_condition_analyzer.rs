@@ -9,9 +9,9 @@
 //! # Design Philosophy
 //!
 //! - **Pure functions**: No side effects, only AST analysis
-//! - **Reusability**: Can be used by Pattern 2 and future break-based patterns
+//! - **Reusability**: Can be used by current break routes and future break-based routes
 //! - **Testability**: Independent unit tests without MirBuilder context
-//! - **Pattern detection**: Focus on structural analysis of break patterns
+//! - **Route detection**: Focus on structural analysis of break routes
 
 use crate::ast::{ASTNode, UnaryOperator};
 use std::collections::HashSet;
@@ -24,10 +24,10 @@ impl BreakConditionAnalyzer {
     /// Finds the condition used in the if statement that guards
     /// the break statement in the else clause.
     ///
-    /// # Pattern Detection
+    /// # Route Semantics
     ///
-    /// - Pattern 1: `if (cond) { break }` → returns `cond`
-    /// - Pattern 2: `if (cond) { ... } else { break }` → returns `!cond` (negated)
+    /// - then-break route: `if (cond) { break }` → returns `cond`
+    /// - else-break route: `if (cond) { ... } else { break }` → returns `!cond` (negated)
     ///
     /// # Arguments
     ///
@@ -41,13 +41,13 @@ impl BreakConditionAnalyzer {
     /// # Examples
     ///
     /// ```nyash
-    /// // Pattern 1: if condition { break }
+    /// // then-break route: if condition { break }
     /// loop(i < 3) {
     ///   if i >= 2 { break }  // Returns "i >= 2"
     ///   i = i + 1
     /// }
     ///
-    /// // Pattern 2: if condition { ... } else { break }
+    /// // else-break route: if condition { ... } else { break }
     /// loop(start < end) {
     ///   if ch == " " { start = start + 1 } else { break }
     ///   // Returns "!(ch == " ")" (negated condition)
@@ -62,12 +62,12 @@ impl BreakConditionAnalyzer {
                 ..
             } = stmt
             {
-                // Pattern 1: Check if the then_body contains a break statement
+                // then-break route: check if the then_body contains a break statement
                 if Self::has_break_in_stmts(then_body) {
                     return Ok(condition.as_ref());
                 }
 
-                // Pattern 2: Check if the else_body contains a break statement
+                // else-break route: check if the else_body contains a break statement
                 if let Some(else_stmts) = else_body {
                     if Self::has_break_in_stmts(else_stmts) {
                         // For else-break pattern, return the condition

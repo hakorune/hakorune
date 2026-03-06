@@ -1,18 +1,18 @@
 //! Phase 171-C: LoopBodyCarrierPromoter Box
 //!
-//! LoopBodyLocal 変数を carrier に昇格させることで、
-//! Pattern 2/4 の範囲で処理可能にするための箱。
+//! body-local 変数を carrier に昇格させることで、
+//! `loop_break` / `loop_continue_only` route で処理可能にするための箱。
 //!
 //! ## Design Philosophy
 //!
 //! - 入力: LoopScopeShape + LoopConditionScope + break 条件 AST
 //! - 出力: 昇格成功なら CarrierInfo、失敗なら理由
-//! - 役割: LoopBodyLocal を「評価済み bool carrier」に変換
+//! - 役割: body-local を「評価済み bool carrier」に変換
 //!
 //! ## Implementation Scope
 //!
 //! ### Phase 171-C-1: スケルトン実装 ✅
-//! - LoopBodyLocal の検出
+//! - body-local の検出
 //! - 定義の探索
 //!
 //! ### Phase 171-C-2: Trim パターン昇格 ✅
@@ -31,7 +31,7 @@ pub struct PromotionRequest<'a> {
     pub(crate) scope: &'a LoopScopeShape,
     /// 条件変数のスコープ分類
     pub cond_scope: &'a LoopConditionScope,
-    /// break 条件の AST（Pattern 2 の場合）
+    /// break 条件の AST（`loop_break` route の場合）
     pub break_cond: Option<&'a ASTNode>,
     /// ループ本体の AST
     pub loop_body: &'a [ASTNode],
@@ -40,7 +40,7 @@ pub struct PromotionRequest<'a> {
 /// Phase 171-C-2: 検出された Trim パターン情報
 #[derive(Debug, Clone)]
 pub struct TrimPatternInfo {
-    /// LoopBodyLocal 変数名（例: "ch"）
+    /// body-local 変数名（例: "ch"）
     pub var_name: String,
     /// 比較対象の文字列リテラル（例: [" ", "\t", "\n", "\r"]）
     pub comparison_literals: Vec<String>,
@@ -84,7 +84,7 @@ impl TrimPatternInfo {
             vec![],                    // No additional carriers
         );
 
-        // Phase 171-C-5: Attach TrimLoopHelper for pattern-specific lowering logic
+        // Phase 171-C-5: Attach TrimLoopHelper for trim-route lowering logic
         carrier_info.trim_helper = Some(TrimLoopHelper::from_pattern_info(self));
 
         // Phase 229: Record promoted variable (no need for condition_aliases)
@@ -110,7 +110,7 @@ pub enum PromotionResult {
     /// 昇格不可: 理由を説明
     CannotPromote {
         reason: String,
-        vars: Vec<String>, // 問題の LoopBodyLocal
+        vars: Vec<String>, // 問題の body-local 変数
     },
 }
 
@@ -118,20 +118,20 @@ pub enum PromotionResult {
 pub struct LoopBodyCarrierPromoter;
 
 impl LoopBodyCarrierPromoter {
-    /// LoopBodyLocal を carrier に昇格できるか試行
+    /// body-local 変数を carrier に昇格できるか試行
     ///
     /// # Phase 171-C-2: Trim パターン実装
     /// # Phase 79: Simplified using TrimDetector
     ///
     /// 現在の実装では:
-    /// 1. LoopBodyLocal を抽出
+    /// 1. body-local 変数を抽出
     /// 2. TrimDetector で純粋な検出ロジックを実行
     /// 3. 昇格可能なら TrimPatternInfo を返す
     pub fn try_promote(request: &PromotionRequest) -> PromotionResult {
         use crate::mir::loop_pattern_detection::loop_condition_scope::CondVarScope;
         use crate::mir::loop_pattern_detection::trim_detector::TrimDetector;
 
-        // 1. LoopBodyLocal を抽出
+        // 1. body-local 変数を抽出
         let body_locals: Vec<&String> = request
             .cond_scope
             .vars
@@ -141,7 +141,7 @@ impl LoopBodyCarrierPromoter {
             .collect();
 
         if body_locals.is_empty() {
-            // LoopBodyLocal がなければ昇格不要
+            // body-local 変数がなければ昇格不要
             return PromotionResult::CannotPromote {
                 reason: "No LoopBodyLocal variables to promote".to_string(),
                 vars: vec![],
@@ -152,7 +152,7 @@ impl LoopBodyCarrierPromoter {
         if is_joinir_debug() || std::env::var("JOINIR_TEST_DEBUG").is_ok() {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
-                "[promoter/pattern5] Phase 171-C: Found {} LoopBodyLocal variables: {:?}",
+                "[promoter/trim] Phase 171-C: Found {} body-local variables: {:?}",
                 body_locals.len(),
                 body_locals
             ));
@@ -168,14 +168,14 @@ impl LoopBodyCarrierPromoter {
 
         let break_cond = request.break_cond.unwrap();
 
-        // 3. 各 LoopBodyLocal に対して TrimDetector で検出を試行
+        // 3. 各 body-local 変数に対して TrimDetector で検出を試行
         for var_name in &body_locals {
             // Phase 79: Use TrimDetector for pure detection logic
             if let Some(detection) = TrimDetector::detect(break_cond, request.loop_body, var_name) {
                 if is_joinir_debug() || std::env::var("JOINIR_TEST_DEBUG").is_ok() {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
-                        "[promoter/pattern5] Trim pattern detected! var='{}', literals={:?}",
+                        "[promoter/trim] trim route detected: var='{}', literals={:?}",
                         detection.match_var, detection.comparison_literals
                     ));
                 }
@@ -316,7 +316,7 @@ mod tests {
 
     #[test]
     fn test_promoter_body_local_no_definition() {
-        // LoopBodyLocal があるが、定義が見つからない場合
+        // body-local 変数があるが、定義が見つからない場合
         // Phase 79: Now checks for break_cond first, so we provide a break_cond
         // but empty body so detection fails
         let scope = minimal_scope();
@@ -359,7 +359,7 @@ mod tests {
     #[test]
     fn test_trim_pattern_full_detection() {
         // Full Trim pattern test:
-        // - LoopBodyLocal: ch
+        // - body-local: ch
         // - Definition: ch = s.substring(...)
         // - Break condition: ch == " " || ch == "\t"
 

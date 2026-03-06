@@ -1,13 +1,13 @@
 //! Phase 171-C-5: TrimLoopHelper - trim route lowering helper
 //!
 //! This module provides a helper struct for trim-route lowering.
-//! It encapsulates route-specific logic for converting LoopBodyLocal-based
+//! It encapsulates route-specific logic for converting body-local
 //! conditions to carrier-based conditions.
 //!
 //! ## Purpose
 //!
 //! When a trim route shape is detected (e.g., trim leading/trailing whitespace),
-//! the LoopBodyCarrierPromoter promotes the LoopBodyLocal variable (like `ch`)
+//! the LoopBodyCarrierPromoter promotes the body-local variable (like `ch`)
 //! to a bool carrier (like `is_whitespace`).
 //!
 //! TrimLoopHelper stores the pattern information needed to:
@@ -47,22 +47,22 @@
 
 use super::loop_body_carrier_promoter::TrimPatternInfo;
 
-/// Helper for Trim pattern lowering
+/// Helper for trim-route lowering
 ///
-/// Encapsulates the pattern-specific logic for converting
-/// LoopBodyLocal-based conditions to carrier-based conditions.
+/// Encapsulates route-specific logic for converting
+/// body-local conditions to carrier-based conditions.
 ///
 /// # Fields
 ///
-/// * `original_var` - The original LoopBodyLocal variable name (e.g., "ch")
+/// * `original_var` - The original body-local variable name (e.g., "ch")
 /// * `carrier_name` - The promoted carrier name (e.g., "is_whitespace")
 /// * `whitespace_chars` - The whitespace characters to compare against (e.g., [" ", "\t", "\n", "\r"])
 ///
 /// # Design Philosophy
 ///
 /// This struct follows Box Theory principles:
-/// - **Single Responsibility**: Only handles Trim pattern lowering logic
-/// - **Reusability**: Can be used by both Pattern2 and Pattern4 lowerers
+/// - **Single Responsibility**: Only handles trim-route lowering logic
+/// - **Reusability**: Can be used by both break-route and continue-route lowerers
 /// - **Testability**: Pure data structure with simple accessors
 #[derive(Debug, Clone)]
 pub struct TrimLoopHelper {
@@ -170,7 +170,7 @@ impl TrimLoopHelper {
         self.whitespace_chars.iter().any(|wc| wc == ch)
     }
 
-    /// Check if this is a safe Trim pattern that can bypass LoopBodyLocal restrictions
+    /// Check if this is a safe trim route shape that can bypass body-local restrictions
     ///
     /// A safe Trim pattern must:
     /// 1. Have a valid carrier name
