@@ -90,25 +90,6 @@ pub fn classify_loop_break_body_local_route(
     }
 }
 
-#[allow(dead_code)]
-pub fn classify_for_pattern2(
-    builder: &MirBuilder,
-    loop_var_name: &str,
-    scope: &LoopScopeShape,
-    break_condition_node: &ASTNode,
-    cond_scope: &LoopConditionScope,
-    body: &[ASTNode],
-) -> PolicyDecision<BodyLocalRoute> {
-    classify_loop_break_body_local_route(
-        builder,
-        loop_var_name,
-        scope,
-        break_condition_node,
-        cond_scope,
-        body,
-    )
-}
-
 fn extract_body_local_inits_for_conditions(
     body_local_names_in_conditions: &[String],
     body: &[ASTNode],

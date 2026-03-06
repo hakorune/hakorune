@@ -53,15 +53,15 @@ impl RecipeComposer {
 
         const CTX: &str = "loop_break_recipe";
 
-        let mut pattern2_facts = facts
+        let mut loop_break_facts = facts
             .facts
             .loop_break()
             .cloned()
             .ok_or_else(|| Freeze::contract("LoopBreak facts missing in compose_loop_break_recipe"))?;
 
         // Planner-required strict mode: recover step-before-break placement from the body shape.
-        if body_has_step_before_break(ctx.body, &pattern2_facts.loop_var) {
-            pattern2_facts.step_placement = LoopBreakStepPlacement::BeforeBreak;
+        if body_has_step_before_break(ctx.body, &loop_break_facts.loop_var) {
+            loop_break_facts.step_placement = LoopBreakStepPlacement::BeforeBreak;
         }
 
         if joinir_dev::debug_enabled() {
@@ -74,19 +74,19 @@ impl RecipeComposer {
         // Structure-only loop stmt used to build the recipe tree.
         let dummy_span = Span::new(0, 0, 0, 0);
         let loop_stmt = ASTNode::Loop {
-            condition: Box::new(pattern2_facts.loop_condition.clone()),
+            condition: Box::new(loop_break_facts.loop_condition.clone()),
             body: vec![],
             span: dummy_span,
         };
 
-        let loop_cond_view = CondBlockView::from_expr(&pattern2_facts.loop_condition);
-        let break_cond_view = CondBlockView::from_expr(&pattern2_facts.break_condition);
+        let loop_cond_view = CondBlockView::from_expr(&loop_break_facts.loop_condition);
+        let break_cond_view = CondBlockView::from_expr(&loop_break_facts.break_condition);
 
         let Some(LoopBreakRecipe { arena, root }) = build_loop_break_recipe(
             &loop_stmt,
             loop_cond_view,
             break_cond_view,
-            &pattern2_facts,
+            &loop_break_facts,
         ) else {
             return Err(Freeze::contract(
                 "LoopBreak recipe missing (planner_required)",
