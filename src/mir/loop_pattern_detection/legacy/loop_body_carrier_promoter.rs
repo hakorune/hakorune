@@ -15,8 +15,8 @@
 //! - body-local の検出
 //! - 定義の探索
 //!
-//! ### Phase 171-C-2: Trim パターン昇格 ✅
-//! - `local ch = s.substring(...)` パターン検出
+//! ### Phase 171-C-2: Trim route 昇格 ✅
+//! - `local ch = s.substring(...)` route shape 検出
 //! - `ch == " " || ch == "\t" ...` の等価比較検出
 //! - `is_whitespace` bool carrier への変換情報生成
 
@@ -37,9 +37,9 @@ pub struct PromotionRequest<'a> {
     pub loop_body: &'a [ASTNode],
 }
 
-/// Phase 171-C-2: 検出された Trim パターン情報
+/// Phase 171-C-2: 検出された Trim route 情報
 #[derive(Debug, Clone)]
-pub struct TrimPatternInfo {
+pub struct TrimRouteInfo {
     /// body-local 変数名（例: "ch"）
     pub var_name: String,
     /// 比較対象の文字列リテラル（例: [" ", "\t", "\n", "\r"]）
@@ -48,11 +48,11 @@ pub struct TrimPatternInfo {
     pub carrier_name: String,
 }
 
-impl TrimPatternInfo {
-    /// Phase 171-C-4: Convert to CarrierInfo with a bool carrier for the pattern
+impl TrimRouteInfo {
+    /// Phase 171-C-4: Convert to CarrierInfo with a bool carrier for the route
     ///
     /// Creates a CarrierInfo containing a single bool carrier representing
-    /// the Trim pattern match condition (e.g., "is_whitespace").
+    /// the Trim route match condition (e.g., "is_whitespace").
     ///
     /// # Arguments
     ///
@@ -85,7 +85,7 @@ impl TrimPatternInfo {
         );
 
         // Phase 171-C-5: Attach TrimLoopHelper for trim-route lowering logic
-        carrier_info.trim_helper = Some(TrimLoopHelper::from_pattern_info(self));
+        carrier_info.trim_helper = Some(TrimLoopHelper::from_route_info(self));
 
         // Phase 229: Record promoted variable (no need for condition_aliases)
         // Dynamic resolution uses promoted_body_locals + naming convention
@@ -99,12 +99,12 @@ impl TrimPatternInfo {
 
 /// 昇格結果
 pub enum PromotionResult {
-    /// 昇格成功: Trim パターン情報を返す
+    /// 昇格成功: Trim route 情報を返す
     ///
     /// Phase 171-C-2: CarrierInfo の実際の更新は Phase 171-C-3 で実装
     Promoted {
-        /// Phase 171-C-2: 検出された Trim パターン情報
-        trim_info: TrimPatternInfo,
+        /// Phase 171-C-2: 検出された Trim route 情報
+        trim_info: TrimRouteInfo,
     },
 
     /// 昇格不可: 理由を説明
@@ -120,13 +120,13 @@ pub struct LoopBodyCarrierPromoter;
 impl LoopBodyCarrierPromoter {
     /// body-local 変数を carrier に昇格できるか試行
     ///
-    /// # Phase 171-C-2: Trim パターン実装
+    /// # Phase 171-C-2: Trim route 実装
     /// # Phase 79: Simplified using TrimDetector
     ///
     /// 現在の実装では:
     /// 1. body-local 変数を抽出
     /// 2. TrimDetector で純粋な検出ロジックを実行
-    /// 3. 昇格可能なら TrimPatternInfo を返す
+    /// 3. 昇格可能なら TrimRouteInfo を返す
     pub fn try_promote(request: &PromotionRequest) -> PromotionResult {
         use crate::mir::loop_pattern_detection::loop_condition_scope::CondVarScope;
         use crate::mir::loop_pattern_detection::trim_detector::TrimDetector;
@@ -181,20 +181,20 @@ impl LoopBodyCarrierPromoter {
                 }
 
                 // 昇格成功！
-                let trim_info = TrimPatternInfo {
+                let trim_info = TrimRouteInfo {
                     var_name: detection.match_var,
                     comparison_literals: detection.comparison_literals,
                     carrier_name: detection.carrier_name,
                 };
 
-                // Phase 171-C-2: TrimPatternInfo を返す
+                // Phase 171-C-2: TrimRouteInfo を返す
                 return PromotionResult::Promoted { trim_info };
             }
         }
 
-        // 昇格パターンに一致しない
+        // 昇格 route に一致しない
         PromotionResult::CannotPromote {
-            reason: "No promotable Trim pattern detected".to_string(),
+            reason: "No promotable Trim route detected".to_string(),
             vars: body_locals.iter().map(|s| s.to_string()).collect(),
         }
     }
@@ -336,14 +336,14 @@ mod tests {
         match result {
             PromotionResult::CannotPromote { reason, vars } => {
                 assert!(vars.contains(&"ch".to_string()));
-                assert!(reason.contains("No promotable Trim pattern"));
+                assert!(reason.contains("No promotable Trim route"));
             }
             _ => panic!("Expected CannotPromote when definition not found"),
         }
     }
 
     // ========================================================================
-    // Phase 171-C-2: Trim Pattern Detection Tests
+    // Phase 171-C-2: Trim route detection tests
     // ========================================================================
 
     // Phase 79: Tests removed - these methods are now in TrimDetector
@@ -358,7 +358,7 @@ mod tests {
 
     #[test]
     fn test_trim_pattern_full_detection() {
-        // Full Trim pattern test:
+        // Full Trim route test:
         // - body-local: ch
         // - Definition: ch = s.substring(...)
         // - Break condition: ch == " " || ch == "\t"

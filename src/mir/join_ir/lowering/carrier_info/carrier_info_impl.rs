@@ -58,7 +58,7 @@ impl CarrierInfo {
             loop_var_name,
             loop_var_id,
             carriers,
-            trim_helper: None, // Phase 171-C-5: No Trim pattern by default
+            trim_helper: None, // Phase 171-C-5: No Trim route by default
             promoted_body_locals: Vec::new(), // Phase 224: No promoted variables by default
         })
     }
@@ -119,7 +119,7 @@ impl CarrierInfo {
             loop_var_name,
             loop_var_id,
             carriers,
-            trim_helper: None, // Phase 171-C-5: No Trim pattern by default
+            trim_helper: None, // Phase 171-C-5: No Trim route by default
             promoted_body_locals: Vec::new(), // Phase 224: No promoted variables by default
         })
     }
@@ -146,7 +146,7 @@ impl CarrierInfo {
             loop_var_name,
             loop_var_id,
             carriers,
-            trim_helper: None, // Phase 171-C-5: No Trim pattern by default
+            trim_helper: None, // Phase 171-C-5: No Trim route by default
             promoted_body_locals: Vec::new(), // Phase 224: No promoted variables by default
         }
     }
@@ -185,7 +185,7 @@ impl CarrierInfo {
     ///
     /// ```ignore
     /// let mut carrier_info = CarrierInfo::from_variable_map("i", &variable_map)?;
-    /// let promoted_carrier = TrimPatternInfo::to_carrier_info();
+    /// let promoted_carrier = TrimRouteInfo::to_carrier_info();
     /// carrier_info.merge_from(&promoted_carrier);
     /// ```
     pub fn merge_from(&mut self, other: &CarrierInfo) {
@@ -211,20 +211,20 @@ impl CarrierInfo {
 
     }
 
-    /// Phase 171-C-5: Get Trim pattern helper
+    /// Phase 171-C-5: Get Trim route helper
     ///
     /// Returns the TrimLoopHelper if this CarrierInfo was created from Trim promotion.
     ///
     /// # Returns
     ///
-    /// * `Some(&TrimLoopHelper)` - If this CarrierInfo contains Trim pattern information
+    /// * `Some(&TrimLoopHelper)` - If this CarrierInfo contains Trim route information
     /// * `None` - If this is a regular CarrierInfo (not from Trim promotion)
     ///
     /// # Example
     ///
     /// ```ignore
     /// if let Some(helper) = carrier_info.trim_helper() {
-    ///     eprintln!("Trim pattern detected: {}", helper.carrier_name);
+    ///     eprintln!("Trim route detected: {}", helper.carrier_name);
     ///     eprintln!("Whitespace chars: {:?}", helper.whitespace_chars);
     /// }
     /// ```

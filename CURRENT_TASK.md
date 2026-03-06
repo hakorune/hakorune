@@ -440,6 +440,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - intent: `if_in_loop/pattern.rs` を `shape.rs` に rename し、`IfInLoopPattern` と local `pattern` binding を `IfInLoopShape` / `shape` に揃える。current frontend path では `pattern` を route/shape 判定の主語にしない
     - verification: `rg -n "IfInLoopPattern|if_in_loop/pattern|pub mod pattern;|use pattern::" src/mir/join_ir/frontend/ast_lowerer docs/development/current/main/design CURRENT_TASK.md -g '!**/*history*' -g '!**/*archive*'` = 0 hit
     - verification: `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+  - naming cleanup (2026-03-07, slice 52): trim promotion helper の live type 名を `route` 主語へ同期した
+    - synced files: `src/mir/loop_pattern_detection/legacy/{loop_body_carrier_promoter.rs,trim_loop_helper.rs}` / `src/mir/join_ir/lowering/carrier_info/carrier_info_impl.rs` / `src/mir/builder/control_flow/plan/trim_loop_lowering.rs` / `CURRENT_TASK.md`
+    - intent: `TrimPatternInfo` / `from_pattern_info` を `TrimRouteInfo` / `from_route_info` に rename し、trim promotion / helper / carrier-info / trim lowerer の current comment でも `Trim pattern` を route 主語へ後退させる
+    - verification: `rg -n "TrimPatternInfo|from_pattern_info" src/mir CURRENT_TASK.md docs/development/current/main/design -g '!**/*history*' -g '!**/*archive*'` = 0 hit
+    - verification: `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 
 ## next fixed order (resume point)
 

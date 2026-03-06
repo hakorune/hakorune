@@ -49,7 +49,7 @@ use crate::mir::ValueId;
 use super::policies::trim_policy::{classify_trim_like_loop, TrimPolicyResult};
 use super::policies::PolicyDecision;
 
-/// Trim pattern lowering orchestrator
+/// Trim route lowering orchestrator
 ///
 /// Phase 180: Single entry point for all Trim/P5 lowering operations.
 pub(crate) struct TrimLoopLowerer;
@@ -60,7 +60,7 @@ pub(crate) struct TrimLoopLowerer;
 /// - Replaced break condition
 /// - Updated carrier info with promoted carrier
 /// - Condition environment bindings
-/// - Trim helper for pattern-specific operations
+/// - Trim helper for route-specific operations
 pub(crate) struct TrimLoweringResult {
     /// Replaced break condition (e.g., `!is_carrier`)
     ///
@@ -124,7 +124,7 @@ impl TrimLoopLowerer {
 
     /// Try to lower a Trim-like loop pattern
     ///
-    /// Phase 180: Main entry point for Trim pattern detection and lowering.
+    /// Phase 180: Main entry point for Trim route detection and lowering.
     /// Phase 183-2: Updated to filter condition LoopBodyLocal only
     ///
     /// # Algorithm
@@ -132,7 +132,7 @@ impl TrimLoopLowerer {
     /// 1. Check if condition references LoopBodyLocal variables
     /// 2. **Phase 183**: Filter to only condition LoopBodyLocal (skip body-only)
     /// 3. Try to promote LoopBodyLocal to carrier (via LoopBodyCarrierPromoter)
-    /// 4. If promoted as Trim pattern:
+    /// 4. If promoted as Trim route:
     ///    - Generate carrier initialization code
     ///    - Replace break condition with carrier check
     ///    - Setup ConditionEnv bindings
@@ -146,14 +146,14 @@ impl TrimLoopLowerer {
     /// * `break_cond` - Break condition from loop body
     /// * `body` - Loop body AST nodes
     /// * `loop_var_name` - Loop variable name (e.g., "start")
-    /// * `carrier_info` - Current carrier info (will be updated if Trim pattern)
+    /// * `carrier_info` - Current carrier info (will be updated if Trim route)
     /// * `alloc_join_value` - JoinIR ValueId allocator closure
     ///
     /// # Returns
     ///
-    /// - `Ok(Some(TrimLoweringResult))` - Trim pattern detected and lowered
-    /// - `Ok(None)` - Not a Trim pattern (normal loop, no action taken)
-    /// - `Err(String)` - Trim pattern detected but lowering failed
+    /// - `Ok(Some(TrimLoweringResult))` - Trim route detected and lowered
+    /// - `Ok(None)` - Not a Trim route (normal loop, no action taken)
+    /// - `Err(String)` - Trim route detected but lowering failed
     ///
     /// # Example
     ///
@@ -234,9 +234,9 @@ impl TrimLoopLowerer {
                     .promoted_body_locals
                     .push(trim_info.var_name.clone());
 
-                // Step 3.5: Attach TrimLoopHelper for pattern-specific lowering logic
+                // Step 3.5: Attach TrimLoopHelper for route-specific lowering logic
                 use crate::mir::loop_pattern_detection::trim_loop_helper::TrimLoopHelper;
-                carrier_info.trim_helper = Some(TrimLoopHelper::from_pattern_info(&trim_info));
+                carrier_info.trim_helper = Some(TrimLoopHelper::from_route_info(&trim_info));
 
                 trace.emit_if(
                     "trim",
@@ -259,7 +259,7 @@ impl TrimLoopLowerer {
 
                 if !trim_helper.is_safe_trim() {
                     return Err(format!(
-                        "[TrimLoopLowerer] Trim pattern detected but not safe: carrier='{}', whitespace_count={}",
+                        "[TrimLoopLowerer] Trim route detected but not safe: carrier='{}', whitespace_count={}",
                         trim_helper.carrier_name,
                         trim_helper.whitespace_chars.len()
                     ));
@@ -268,7 +268,7 @@ impl TrimLoopLowerer {
                 trace.emit_if(
                     "trim",
                     "safe",
-                    "Safe Trim pattern detected, implementing lowering",
+                    "Safe Trim route detected, implementing lowering",
                     verbose,
                 );
                 trace.emit_if(

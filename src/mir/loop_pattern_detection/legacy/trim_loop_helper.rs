@@ -10,7 +10,7 @@
 //! the LoopBodyCarrierPromoter promotes the body-local variable (like `ch`)
 //! to a bool carrier (like `is_whitespace`).
 //!
-//! TrimLoopHelper stores the pattern information needed to:
+//! TrimLoopHelper stores the route information needed to:
 //! 1. Generate carrier initialization code
 //! 2. Generate carrier update code
 //! 3. Map the promoted carrier back to the original variable semantics
@@ -45,7 +45,7 @@
 //! let carrier_type = helper.carrier_type(); // "Bool"
 //! ```
 
-use super::loop_body_carrier_promoter::TrimPatternInfo;
+use super::loop_body_carrier_promoter::TrimRouteInfo;
 
 /// Helper for trim-route lowering
 ///
@@ -77,11 +77,11 @@ pub struct TrimLoopHelper {
 }
 
 impl TrimLoopHelper {
-    /// Create TrimLoopHelper from TrimPatternInfo
+    /// Create TrimLoopHelper from TrimRouteInfo
     ///
     /// # Arguments
     ///
-    /// * `info` - The TrimPatternInfo from LoopBodyCarrierPromoter
+    /// * `info` - The TrimRouteInfo from LoopBodyCarrierPromoter
     ///
     /// # Returns
     ///
@@ -90,17 +90,17 @@ impl TrimLoopHelper {
     /// # Example
     ///
     /// ```ignore
-    /// let trim_info = TrimPatternInfo {
+    /// let trim_info = TrimRouteInfo {
     ///     var_name: "ch".to_string(),
     ///     comparison_literals: vec![" ".to_string(), "\t".to_string()],
     ///     carrier_name: "is_whitespace".to_string(),
     /// };
     ///
-    /// let helper = TrimLoopHelper::from_pattern_info(&trim_info);
+    /// let helper = TrimLoopHelper::from_route_info(&trim_info);
     /// assert_eq!(helper.original_var, "ch");
     /// assert_eq!(helper.carrier_name, "is_whitespace");
     /// ```
-    pub fn from_pattern_info(info: &TrimPatternInfo) -> Self {
+    pub fn from_route_info(info: &TrimRouteInfo) -> Self {
         TrimLoopHelper {
             original_var: info.var_name.clone(),
             carrier_name: info.carrier_name.clone(),
@@ -108,9 +108,9 @@ impl TrimLoopHelper {
         }
     }
 
-    /// Get the carrier type (always Bool for Trim pattern)
+    /// Get the carrier type (always Bool for Trim route)
     ///
-    /// Trim patterns always use bool carriers to represent
+    /// Trim routes always use bool carriers to represent
     /// "does the character match the whitespace set?"
     ///
     /// # Returns
@@ -172,14 +172,14 @@ impl TrimLoopHelper {
 
     /// Check if this is a safe trim route shape that can bypass body-local restrictions
     ///
-    /// A safe Trim pattern must:
+    /// A safe Trim route must:
     /// 1. Have a valid carrier name
     /// 2. Have at least one whitespace character to compare
     /// 3. Have the expected structure (substring + OR chain + break)
     ///
     /// # Returns
     ///
-    /// `true` if this is a safe Trim pattern, `false` otherwise
+    /// `true` if this is a safe Trim route, `false` otherwise
     ///
     /// # Example
     ///
@@ -232,14 +232,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_from_pattern_info() {
-        let trim_info = TrimPatternInfo {
+    fn test_from_route_info() {
+        let trim_info = TrimRouteInfo {
             var_name: "ch".to_string(),
             comparison_literals: vec![" ".to_string(), "\t".to_string()],
             carrier_name: "is_ch_match".to_string(),
         };
 
-        let helper = TrimLoopHelper::from_pattern_info(&trim_info);
+        let helper = TrimLoopHelper::from_route_info(&trim_info);
 
         assert_eq!(helper.original_var, "ch");
         assert_eq!(helper.carrier_name, "is_ch_match");
