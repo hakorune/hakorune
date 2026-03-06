@@ -12,10 +12,10 @@ Scope: Planner-first rule labels (human-readable)
 | IfPhiJoin | IfPhiJoin |
 | LoopContinueOnly | LoopContinueOnly |
 | LoopTrueEarlyExit | LoopTrueEarlyExit |
-| Pattern6ScanWithInit | ScanWithInit |
-| Pattern7SplitScan | SplitScan |
-| Pattern8BoolPredicateScan | BoolPredicateScan |
-| Pattern9AccumConstLoop | AccumConstLoop |
+| ScanWithInit | ScanWithInit |
+| SplitScan | SplitScan |
+| BoolPredicateScan | BoolPredicateScan |
+| AccumConstLoop | AccumConstLoop |
 | LoopCondBreak | LoopExitIfBreakContinue |
 | LoopCondContinueOnly | LoopContinueOnly |
 | LoopCondContinueWithReturn | LoopContinueWithReturn |

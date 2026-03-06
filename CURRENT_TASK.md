@@ -334,6 +334,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `src/mir/builder/control_flow/plan/{REGISTRY.md,features/README.md}` / `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
     - intent: 既に撤去済みの `features/pattern5_infinite_early_exit_{pipeline,ops}.rs` と `normalizer/pattern8_bool_predicate_scan.rs` / `normalizer/pattern9_accum_const_loop.rs` を active inventory から外し、`loop_true_early_exit` の current implementation を recipe-tree 側へ合わせる
     - verification: `rg -n "pattern5_infinite_early_exit_pipeline|pattern5_infinite_early_exit_ops|normalizer/pattern8_bool_predicate_scan|normalizer/pattern9_accum_const_loop" src/mir/builder/control_flow/plan docs/development/current/main/design/recipe-tree-and-parts-ssot.md` = archive / history を除いて 0 hit
+  - truth cleanup (2026-03-07, slice 26): active design の stale heading / stale file path を current route tree に同期した
+    - synced files: `docs/development/current/main/design/{entry-name-map-ssot,plan-dir-shallowing-ssot,condprofile-migration-plan-ssot,compiler-task-map-ssot}.md`
+    - intent: stale `Pattern6/7/8/9*` RuleId 名、`recipe_tree/pattern*_builder.rs`、`pattern1_minimal.rs` / `pattern8_scan_bool_predicate.rs` / `pattern2_policy_router.rs` などの旧 path を current semantic name / current file path に寄せる
+    - verification: `rg -n "Pattern6ScanWithInit|Pattern7SplitScan|Pattern8BoolPredicateScan|Pattern9AccumConstLoop|recipe_tree/pattern\\*_builder|pattern1_minimal\\.rs|pattern8_scan_bool_predicate\\.rs|pattern2_policy_router\\.rs|pattern2_break_condition_policy_router\\.rs" docs/development/current/main/design/{entry-name-map-ssot,plan-dir-shallowing-ssot,condprofile-migration-plan-ssot,compiler-task-map-ssot}.md` = 0 hit
 
 ## next fixed order (resume point)
 

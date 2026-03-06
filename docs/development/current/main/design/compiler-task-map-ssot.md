@@ -169,15 +169,15 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
 1) Router registryization（挙動不変）
    - `router.rs` の “候補列挙 + compose 呼び出し” をテーブル化し、見通しを改善する（分岐爆発の抑止）。
 2) Route implementation relocation（挙動不変, legacy module prefix: `pattern*`）
-   - `pattern*_minimal.rs` / `pattern3_with_if_phi.rs` 等（legacy file naming）の “直接MIR構築” を plan/recipe-first（Composer/Normalizer/Parts）側へ移す。
+   - `simple_while_minimal.rs` / `loop_with_if_phi_if_sum.rs` / `scan_bool_predicate_minimal.rs` 等の “直接MIR構築” を plan/recipe-first（Composer/Normalizer/Parts）側へ移す。
    - patterns 層は “入口選択と呼び出し” のみ（Verify/Lower の真実は持たない）。
-   - Phase‑2/Step1: simple-while route（legacy label: Pattern1, `pattern1_minimal.rs`）の実装本体を plan 側へ移設。
-   - Phase‑2/Step2: if-phi join route（legacy file name: `pattern3_with_if_phi.rs`）の実装本体を plan 側へ移設。
-   - Phase‑2/Step3: bool-predicate scan route（legacy label: Pattern8, `pattern8_scan_bool_predicate.rs`）の実装本体を plan 側へ移設。
+   - Phase‑2/Step1: simple-while route（legacy label: Pattern1, `simple_while_minimal.rs`）の実装本体を plan 側へ移設。
+   - Phase‑2/Step2: if-phi join route（legacy file label only, `loop_with_if_phi_if_sum.rs`）の実装本体を plan 側へ移設。
+   - Phase‑2/Step3: bool-predicate scan route（legacy label: Pattern8, `scan_bool_predicate_minimal.rs`）の実装本体を plan 側へ移設。
    - Phase‑2/Step4: `route_prep_pipeline.rs`（旧: `pattern_pipeline.rs`）を plan 側へ移設。
-   - Phase‑2/Step5: break-subset orchestration route（legacy label: Pattern2, `pattern2_lowering_orchestrator.rs`）を plan 側へ移設。
+   - Phase‑2/Step5: break-subset orchestration route（legacy label: Pattern2, old lowering orchestrator wrapper）を plan 側へ移設。
    - Phase‑2/Step6: break-subset input facts route（legacy label: Pattern2, `loop_break_prep_box.rs`）を plan 側へ移設。
-   - Phase‑2/Step7: break-subset policy routing（legacy label: Pattern2, `pattern2_policy_router.rs` / `pattern2_break_condition_policy_router.rs`）を plan 側へ移設。
+   - Phase‑2/Step7: break-subset policy routing（legacy label: Pattern2, current path `loop_break_policy_router.rs`）を plan 側へ移設。
    - Phase‑2/Step8: break-subset steps route（legacy label: Pattern2, `loop_break_steps/`）を plan 側へ移設。
    - Phase‑2/Step9: `conversion_pipeline.rs` を plan 側へ移設。
   - Phase‑2/Step10: trim 系（`trim_loop_lowering.rs` / `trim_pattern_lowerer.rs` / `trim_pattern_validator.rs`）を plan 側へ移設。

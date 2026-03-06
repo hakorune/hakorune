@@ -138,7 +138,7 @@ recipe_tree/
   └── loop_true_composer.rs
 ```
 
-**→ 提案**: route別 builder/composer を `recipe_tree/pattern*_builder.rs` と `recipe_tree/pattern*_composer.rs` へ集約 (23ファイルをフラット化、legacy labels: Pattern1-9)
+**→ 提案**: route別 builder/composer を `recipe_tree/<route>_builder.rs` と `recipe_tree/<route>_composer.rs` へ集約 (23ファイルをフラット化、legacy labels: Pattern1-9 は traceability-only)
 
 ### 深さ3の例: composer/coreloop_v0/ と coreloop_v1/
 
@@ -270,7 +270,7 @@ recipe_tree/*.rs (5ファイル)
 
 **提案**:
 ```
-recipe_tree/pattern*_builder.rs (11ファイル)
+recipe_tree/<route>_builder.rs (11ファイル)
 recipe_tree/pattern*_composer.rs (12ファイル)
 recipe_tree/*.rs (既存維持)
 ```

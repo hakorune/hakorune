@@ -115,21 +115,21 @@ Failure handling (design-only):
 
 ## C20-D17 (plan only): Expansion targets for incomplete-freeze
 
-- Candidates (next): Pattern1*, Pattern8/9, LoopScan*, GenericLoopV1.
-- Expansion order: scan facts → pattern1 → loop_scan → generic_loop.
+- Candidates (next): loop_char_map / loop_array_join / bool_predicate_scan / accum_const_loop, LoopScan*, GenericLoopV1.
+- Expansion order: scan facts → loop_char_map / loop_array_join → loop_scan → generic_loop.
 
-## C20-D18: Apply incomplete-freeze to Pattern1CharMap only
+## C20-D18: Apply incomplete-freeze to LoopCharMap only
 
-- Scope: Pattern1CharMap only (planner_required/dev).
+- Scope: LoopCharMap only (planner_required/dev, legacy label `Pattern1CharMap` is traceability-only).
 - Other scan facts keep legacy fallback for now (D19+).
 
-## C20-D19: Apply incomplete-freeze to Pattern1ArrayJoin
+## C20-D19: Apply incomplete-freeze to LoopArrayJoin
 
-- Scope: Pattern1ArrayJoin only (planner_required/dev).
+- Scope: LoopArrayJoin only (planner_required/dev, legacy label `Pattern1ArrayJoin` is traceability-only).
 
-## C20-D20: Apply incomplete-freeze to Pattern8/9
+## C20-D20: Apply incomplete-freeze to BoolPredicateScan / AccumConstLoop
 
-- Scope: Pattern8BoolPredicateScan / Pattern9AccumConstLoop (planner_required/dev).
+- Scope: BoolPredicateScan / AccumConstLoop (planner_required/dev; legacy labels `Pattern8/9` are traceability-only).
 
 ## Target Order (SSOT)
 
