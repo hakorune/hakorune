@@ -39,7 +39,7 @@
 //! - route_prep_pipeline.rs: Unified preprocessing pipeline for simple loop families (moved to plan/)
 //!
 //! Phase 91 P5b: Escape Route-Shape Recognizer
-//! - escape_pattern_recognizer.rs: P5b (escape sequence handling) route-shape detection (thin wrapper, legacy file name)
+//! - escape_shape_recognizer.rs: P5b (escape sequence handling) route-shape detection (thin wrapper)
 //! - Extracted from ast_feature_extractor for improved modularity
 //!
 //! Phase 93/94: Route Policies

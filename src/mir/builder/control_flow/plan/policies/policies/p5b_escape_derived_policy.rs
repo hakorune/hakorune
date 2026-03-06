@@ -10,7 +10,7 @@
 
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
-use crate::mir::builder::control_flow::plan::escape_pattern_recognizer::EscapeSkipShapeInfo;
+use crate::mir::builder::control_flow::plan::escape_shape_recognizer::EscapeSkipShapeInfo;
 use crate::mir::join_ir::lowering::common::body_local_derived_emitter::BodyLocalDerivedRecipe;
 use crate::mir::join_ir::lowering::error_tags;
 use super::PolicyDecision;

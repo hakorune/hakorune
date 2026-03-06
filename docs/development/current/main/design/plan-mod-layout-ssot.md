@@ -104,7 +104,7 @@ route_shape_recognizers - route recognizers (legacy directory name: `pattern_rec
 conversion_pipeline - 変換パイプライン
 condition_env_builder - 条件環境ビルダー
 ast_feature_extractor - AST feature 抽出
-escape_pattern_recognizer - エスケープパターン認識
+escape_shape_recognizer - エスケープパターン認識
 join_key      - 構造ロック (edgecfg 側在)
 plan_build_session - セ�設計セッション
 route_prep_pipeline - ルート前処理パイプライン

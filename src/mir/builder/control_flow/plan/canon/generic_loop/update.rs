@@ -3,7 +3,7 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use super::UpdateCanon;
 
 mod literal_step;
-mod pattern_match;
+mod literal_match;
 
 #[derive(Debug, Clone, PartialEq)]
 pub(super) struct UpdateLiteralMatch {
@@ -16,6 +16,6 @@ pub(crate) fn canon_update_for_loop_var(
     stmt: &ASTNode,
     loop_var: &str,
 ) -> Option<UpdateCanon> {
-    let matched = pattern_match::match_update_literal(stmt, loop_var)?;
+    let matched = literal_match::match_update_literal(stmt, loop_var)?;
     literal_step::build_update_canon(matched)
 }

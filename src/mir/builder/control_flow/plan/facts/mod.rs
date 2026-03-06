@@ -47,7 +47,7 @@ pub(in crate::mir::builder) mod int_to_str_facts;
 pub(in crate::mir::builder) mod escape_map_facts;
 pub(in crate::mir::builder) mod split_lines_facts;
 pub(in crate::mir::builder) mod skip_whitespace_facts;
-pub(in crate::mir::builder) mod pattern_match_return_facts;
+pub(in crate::mir::builder) mod match_return_facts;
 pub(in crate::mir::builder) mod if_phi_join_facts;
 pub(in crate::mir::builder) mod loop_continue_only_facts;
 pub(in crate::mir::builder) mod loop_true_early_exit_facts;
@@ -89,6 +89,6 @@ pub(in crate::mir::builder) type BoolPredicateScanFacts =
     bool_predicate_scan_facts::BoolPredicateScanFacts;
 pub(in crate::mir::builder) type AccumConstLoopFacts =
     accum_const_loop_facts::AccumConstLoopFacts;
-pub(in crate::mir::builder) use pattern_match_return_facts::{
+pub(in crate::mir::builder) use match_return_facts::{
     MatchReturnFacts, MatchReturnScrutinee, try_extract_match_return_facts,
 };
