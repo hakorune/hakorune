@@ -20,5 +20,5 @@ This document fixes the responsibility boundary between CoreLoopComposer v0 and 
 
 ## Notes
 
-- ScanWithInit route currently has no v1 composition yet; v1 must return `None` (legacy label: Pattern6).
-- Value-join routes are intended to live in v1 (legacy labels: Pattern2/3/5/7).
+- ScanWithInit route currently has no v1 composition yet; v1 must return `None`.
+- Value-join routes are intended to live in v1 (`loop_break` / `if_phi_join` / `loop_true_early_exit` / `split_scan`; old numbered labels are traceability-only).

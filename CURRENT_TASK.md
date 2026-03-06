@@ -338,6 +338,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{entry-name-map-ssot,plan-dir-shallowing-ssot,condprofile-migration-plan-ssot,compiler-task-map-ssot}.md`
     - intent: stale `Pattern6/7/8/9*` RuleId 名、`recipe_tree/pattern*_builder.rs`、`pattern1_minimal.rs` / `pattern8_scan_bool_predicate.rs` / `pattern2_policy_router.rs` などの旧 path を current semantic name / current file path に寄せる
     - verification: `rg -n "Pattern6ScanWithInit|Pattern7SplitScan|Pattern8BoolPredicateScan|Pattern9AccumConstLoop|recipe_tree/pattern\\*_builder|pattern1_minimal\\.rs|pattern8_scan_bool_predicate\\.rs|pattern2_policy_router\\.rs|pattern2_break_condition_policy_router\\.rs" docs/development/current/main/design/{entry-name-map-ssot,plan-dir-shallowing-ssot,condprofile-migration-plan-ssot,compiler-task-map-ssot}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 27): active design の route-first wording を追加で同期した
+    - synced files: `docs/development/current/main/design/{domainplan-thinning-ssot,condition-observation-ssot,coreloop-composer-v0-v1-boundary-ssot,coreplan-unknown-loop-strategy-ssot,joinir-plan-frag-ssot,loop-canonicalizer,plan-mod-layout-ssot}.md`
+    - intent: current guidance から `PatternX` 主語を外し、route/capability/skeleton を本文の主語に寄せる。番号付き label は traceability-only note へ後退させる
+    - verification: `rg -n "legacy label: PatternX|対応Pattern|選択された Pattern|Pattern 検出|Pattern1–N|Pattern1-9 は traceability-only legacy labels|Pattern6\\)|Pattern2/3/5/7" docs/development/current/main/design/{domainplan-thinning-ssot,condition-observation-ssot,coreloop-composer-v0-v1-boundary-ssot,coreplan-unknown-loop-strategy-ssot,joinir-plan-frag-ssot,loop-canonicalizer,plan-mod-layout-ssot}.md` = 0 hit
 
 ## next fixed order (resume point)
 

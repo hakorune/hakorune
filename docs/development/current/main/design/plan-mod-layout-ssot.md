@@ -41,17 +41,17 @@ features      - Feature modules (carrier/phi/etc.)
 ```
 
 ### Layer 4: Route/Semantic-Specific (route buckets)
-**責務**: 各 route/semantic の固有処理（Pattern番号は traceability-only の履歴ラベル）
+**責務**: 各 route/semantic の固有処理（numbered labels は traceability-only の履歴ラベル）
 
 ```
 generic_loop  - Generic loop v0/v1 処理
-pattern1_*    - simple_while/char_map/array_join route (legacy file prefix; runtime semantic names are route-first)
-pattern2_*    - break/orchestration/steps route (legacy file prefix; runtime semantic name is loop_break)
-pattern3_*    - if-phi join route (legacy file prefix; runtime semantic name is if_phi_join)
-pattern4_*    - continue-focused route (legacy file prefix; runtime semantic name is loop_continue_only)
-pattern5_*    - infinite_early_exit route (legacy file prefix; runtime semantic name is loop_true_early_exit)※移管済み
-pattern8_*    - bool_predicate_scan route (legacy file prefix; runtime semantic name is bool_predicate_scan)
-pattern9_*    - accum_const_loop route (legacy file prefix; runtime semantic name is accum_const_loop)
+loop_simple_while / loop_char_map / loop_array_join - simple-while family
+loop_break*   - break/orchestration/steps route
+if_phi_join*  - if-phi join route
+loop_continue_only* - continue-focused route
+loop_true_early_exit* / loop_true_* - loop(true) + early-exit family
+bool_predicate_scan* - bool-predicate scan route
+accum_const_loop* - accum-const-loop route
 ```
 
 ### Layer 5: Loop-Specific (ループ固有)
@@ -94,7 +94,7 @@ extractors    - AST 抽出
 observability  - FlowBox タグ (debug/dev)
 common_init    - 共通初期化
 common         - 共通ヘルパー
-pattern_*      - route recognizers (legacy module prefix: pattern_*)
+pattern_recognizers - route recognizers (legacy directory name)
 ```
 
 ### Layer 9: Legacy/Scaffolding (残骸・足場)

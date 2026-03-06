@@ -15,7 +15,7 @@ Related:
 
 ## Goal
 
-「既知の意味ルート（legacy label: Pattern1–N）に一致しない一般ループ」が `[joinir/freeze]` で止まる状況を、
+「既知の意味ルートに一致しない一般ループ」が `[joinir/freeze]` で止まる状況を、
 CorePlan を “第二のCFG言語” に肥大化させずに解消する。
 
 結論: **“General Loop ノード追加” ではなく、FlowBox プリミティブ（Skeleton + Feature + 最小制御effect）への分解と合成で吸う**。
@@ -25,7 +25,7 @@ CorePlan を “第二のCFG言語” に肥大化させずに解消する。
 ### A. Prefer decomposition & composition (hybrid C)
 
 - CorePlan は **FlowBox 合成系**として小さい語彙を維持する
-- 入口の識別は legacy label: PatternX ではなく **(Skeleton, FeatureSet)** の合成へ縮退させる
+- 入口の識別は numbered route labels ではなく **(Skeleton, FeatureSet)** の合成へ縮退させる
 - unknown loop は “未対応だからFreeze” ではなく、**定義域内なら標準のCorePlan合成で受理**する
 
 ### B. Avoid: “GeneralLoop = second CFG language”
@@ -68,7 +68,7 @@ LeafEffects 内で許可する制御は **ガード付き脱出のみ**（CFG言
 
 ## What becomes “unknown loop”
 
-旧来の “ルート表（legacy label: PatternX）” で表現しづらいが、構造としては普通に起きるループ群:
+旧来の “番号付き route table” では表現しづらいが、構造としては普通に起きるループ群:
 
 - 文字列走査などの一般スキャン（条件や更新が subset の shape enum から外れる）
 - break/continue/return が混ざる（ただし構造化できる範囲）
@@ -106,4 +106,3 @@ Freeze に落とす主因は “未実装” ではなく **定義域外**へ寄
 - 本SSOTの unknown loop strategy が実装された後は、tooling 側も
   - “restricted loop（Loop + LeafEffects + ExitIf）” の範囲で自然なループ表現に戻すことを許可する
   - ただし “構造化できない” 形は strict/dev で `flowbox/freeze` に収束させる
-

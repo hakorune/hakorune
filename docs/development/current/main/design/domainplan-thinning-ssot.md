@@ -13,17 +13,17 @@
 
 ## Order (SSOT)
 
-1) break/if-phi/continue/infinite-early-exit routes は維持（legacy labels: Pattern2/3/4/5、既に recipe-only）
-2) simple-while/bool-predicate-scan/accum-const-loop routes を削減対象として先に整理（legacy labels: Pattern1/8/9）
+1) loop_break / if_phi_join / loop_continue_only / loop_true_early_exit routes は維持（既に recipe-only）
+2) loop_simple_while / bool_predicate_scan / accum_const_loop routes を削減対象として先に整理（旧 numbered labels は traceability-only）
 3) LoopScan/GenericLoop を最後に（影響範囲が大きい）
 
 ## Done (historical migration notes)
 
 - LoopSimpleWhile（legacy label: LoopSimpleWhile）: planner_required で recipe-only 化済み
-- LoopCharMap（legacy label: Pattern1CharMap）: planner_required で recipe-only 化済み
-- LoopArrayJoin（legacy label: Pattern1ArrayJoin）: planner_required で recipe-only 化済み
-- BoolPredicateScan（legacy label: Pattern8BoolPredicateScan）: planner_required で recipe-only 化済み
-- AccumConstLoop（legacy label: Pattern9AccumConstLoop）: planner_required で recipe-only 化済み
+- LoopCharMap（legacy label `Pattern1CharMap` は traceability-only）: planner_required で recipe-only 化済み
+- LoopArrayJoin（legacy label `Pattern1ArrayJoin` は traceability-only）: planner_required で recipe-only 化済み
+- BoolPredicateScan（legacy label `Pattern8BoolPredicateScan` は traceability-only）: planner_required で recipe-only 化済み
+- AccumConstLoop（legacy label `Pattern9AccumConstLoop` は traceability-only）: planner_required で recipe-only 化済み
 - LoopScanMethodsV0: planner_required で recipe-only 化済み
 - LoopScanMethodsBlockV0: planner_required で recipe-only 化済み
 - LoopScanPhiVarsV0: planner_required で recipe-only 化済み
