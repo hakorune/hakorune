@@ -358,12 +358,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{condition-observation-ssot,domainplan-thinning-ssot,planfrag-freeze-taxonomy,join-explicit-cfg-construction}.md`
     - intent: specific `Pattern1CharMap/Pattern8` などの traceability note を “legacy numbered label” へ一般化し、`Normalized SSOT` を current route-first / contract-checked wording に寄せる
     - verification: `rg -n "Pattern1CharMap|Pattern1ArrayJoin|Pattern8BoolPredicateScan|Pattern9AccumConstLoop|Pattern6/7|Normalized SSOT|Structured → Normalized" docs/development/current/main/design/{condition-observation-ssot,domainplan-thinning-ssot,planfrag-freeze-taxonomy,join-explicit-cfg-construction}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 32): active design の general guidance から `Pattern*` 一般論を外した
+    - synced files: `docs/development/current/main/design/{recipe-first-entry-contract-ssot,coreplan-skeleton-feature-model,compiler-cleanliness-campaign-ssot,strict-nested-loop-guard-ssot}.md`
+    - intent: architecture 説明で `Pattern*` を一般概念として使わず、legacy numbered label / legacy facts key へ縮退させる
+    - verification: `rg -n "Historical labels \\(Pattern\\*|“Pattern” は入口の分岐名|LoopCond\\*.*Pattern\\*|pattern4_continue" docs/development/current/main/design/{recipe-first-entry-contract-ssot,coreplan-skeleton-feature-model,compiler-cleanliness-campaign-ssot,strict-nested-loop-guard-ssot}.md` = 0 hit
 
 ## next fixed order (resume point)
 
 1. `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
-3. `truth` cleanup を継続し、active docs の traceability-only note を `strict-nested-loop-guard-ssot.md` / `recipe-first-entry-contract-ssot.md` / `join-explicit-cfg-construction.md` などからさらに薄くする。
+3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 5. `naming` cleanup: legacy file/test/comment 名を semantic 名へ同期し、test-only wording と historical docs の境界をさらに薄くする。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。

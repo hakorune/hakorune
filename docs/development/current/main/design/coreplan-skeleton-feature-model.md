@@ -16,7 +16,7 @@ Related:
 結論:
 - **CorePlan は構造SSOT**（emit/merge は CorePlan/Frag 以外を再解析しない）
 - **Recipe / VerifiedRecipe は意味の入口**（受理契約はここで閉じる）
-- “Pattern” は入口の分岐名ではなく、**(Skeleton, FeatureSet)** の合成へ落とす
+- numbered route labels は入口の分岐名ではなく、**(Skeleton, FeatureSet)** の合成へ落とす
 
 ## 1. Skeleton（骨格）= まず一意に決める
 

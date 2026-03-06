@@ -156,7 +156,7 @@ Verification
 
 3) Loop vocabulary convergence（BoxShape）
    - 最終形: `loop(cond){...}` は **Loop 1語彙**（Recipe: `Seq/Stmt/If/Loop/Exit`）へ収束。
-   - `LoopCond*` / `Pattern*` は “入口ラベル/診断” に縮退し、実体は canonical Loop（generic_loop_v1）へ写像する。
+   - `LoopCond*` / numbered route labels は “入口ラベル/診断” に縮退し、実体は canonical Loop（generic_loop_v1）へ写像する。
 
 4) Break/Continue/Return（Exit port）を最小語彙で閉じる（BoxShape）
    - Multi-break は “複数の出口エッジ” の一般形として扱い、single break は退化ケース（箱を増やさない）。

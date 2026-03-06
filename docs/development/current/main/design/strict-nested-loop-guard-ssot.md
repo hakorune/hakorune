@@ -28,7 +28,7 @@ its logic or maintain a separate allowlist.
 - `continue-only strict-nested route accept-min1` 形
   - `route_kind` は `LoopContinueOnly`
   - `exit_usage`: continueあり / breakなし / returnなし
-  - `continue-only` factsあり（legacy facts key `pattern4_continue` は traceability-only）
+  - `continue-only` factsあり（legacy facts key is traceability-only）
   - `carrier_updates.len() == 1`
   - `condition`: `<loop_var> < <int>`
   - `continue_condition`: `<loop_var> >= <int>`

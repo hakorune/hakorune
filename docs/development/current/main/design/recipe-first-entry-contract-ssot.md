@@ -148,7 +148,7 @@ Note: Phase C* sections below use route names as canonical labels, and keep migr
 - Current runtime contract is defined by the sections above plus:
   - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
   - `CURRENT_TASK.md`
-- Historical labels (`Pattern*`, pilot phase notes, migration checkpoints) are traceability-only and must not be read as current entry semantics.
+- Historical labels (numbered route labels, pilot phase notes, migration checkpoints) are traceability-only and must not be read as current entry semantics.
 
 ## Rules for new shapes
 
