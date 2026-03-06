@@ -1,4 +1,4 @@
-# JoinIR Pattern Selection Shadow SSOT
+# JoinIR Route Selection Shadow SSOT
 
 > Status: retired (2026-03-05, commit `0df74eaa5`)
 >

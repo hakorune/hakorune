@@ -37,7 +37,7 @@ This SSOT defines the responsibility map, split completion state, and post-split
 - Contents:
   - `lower_stmt_with_vars`
   - `lower_stmt_list_with_vars`
-  - legacy pattern windows (`if_legacy`, `while_legacy`, `lambda_legacy`)
+  - legacy shape windows (`if_legacy`, `while_legacy`, `lambda_legacy`)
 - Contract:
   - window matching order remains fixed: `if_legacy` -> `while_legacy` -> `lambda_legacy` -> default stmt.
 

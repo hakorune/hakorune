@@ -370,6 +370,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{joinir-plan-frag-ssot,planfrag-ssot-registry,recipe-first-entry-contract-ssot,loop-canonicalizer}.md`
     - intent: route-first な現役 guidance では `Pattern*` を general term にせず、必要な traceability note だけ numbered route label として残す
     - verification: `rg -n "legacy pattern labels|Pattern\\* labels|legacy pattern space|legacy labels Pattern6/7" docs/development/current/main/design/{joinir-plan-frag-ssot,planfrag-ssot-registry,recipe-first-entry-contract-ssot,loop-canonicalizer}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 35): retired/contract docs の `Pattern` 名詞を route/shape 主語へ薄くした
+    - synced files: `docs/development/current/main/design/{pattern6-7-contracts,joinir-pattern-selection-shadow-ssot,json-v0-bridge-lowering-split-ssot}.md`
+    - intent: current guidance では `Pattern` を retired title や legacy window の名詞にし続けず、必要な traceability は numbered route label / legacy shape window に寄せる
+    - verification: `rg -n "Pattern Selection Shadow|legacy pattern windows|legacy label Pattern6|legacy label Pattern7" docs/development/current/main/design/{pattern6-7-contracts,joinir-pattern-selection-shadow-ssot,json-v0-bridge-lowering-split-ssot}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 36): `pattern-p5b-escape-design` の現役本文を escape-route 主語へ寄せた
+    - synced files: `docs/development/current/main/design/pattern-p5b-escape-design.md`
+    - intent: P5b の traceability は残しつつ、active design 本文では `Pattern P5b` を architecture の主語にせず `escape route P5b` / route contract / route detection へ寄せる
+    - verification: `rg -n "Pattern P5b|Pattern Definition|P5b Pattern|Pattern5b|Pattern P5c|Pattern P5d|No pattern matched" docs/development/current/main/design/pattern-p5b-escape-design.md` = 0 hit
 
 ## next fixed order (resume point)
 

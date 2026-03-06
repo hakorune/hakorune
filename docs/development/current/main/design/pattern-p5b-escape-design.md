@@ -1,10 +1,10 @@
-# Pattern P5b: Escape Sequence Handling
+# Escape Route P5b: Escape Sequence Handling
 
 ## Overview
 
-**Pattern P5b** extends JoinIR loop recognition to handle **variable-step carriers** in escape sequence parsing.
+**Escape route P5b** extends JoinIR loop recognition to handle **variable-step carriers** in escape sequence parsing.
 
-This pattern is essential for:
+This route family is essential for:
 - JSON string parsers
 - CSV readers
 - Template engine string processing
@@ -28,7 +28,7 @@ else { i = i + 1 }            // Normal increment
 **Why this matters**:
 - Common in string parsing (JSON, CSV, config files)
 - Appears in ~3 selfhost loops
-- Currently forces Fail-Fast (pattern not supported)
+- Currently forces Fail-Fast (route not supported)
 - Could benefit from JoinIR exit-line optimization
 
 ### Real-World Example: JSON String Reader
@@ -53,7 +53,7 @@ Loop progression:
 - Normal case: `i` advances by 1
 - Escape case: `i` advances by 2 (skip inside if + final increment)
 
-## Pattern Definition
+## Route Definition
 
 ### Canonical Form
 
@@ -73,10 +73,10 @@ LoopSkeleton {
 **Requirement**: Bounded loop on single integer carrier
 
 ```
-loop(i < n)    ✅ Valid P5b header
-loop(i < 100)  ✅ Valid P5b header
-loop(i <= n)   ✅ Valid P5b header (edge case)
-loop(true)     ❌ Not P5b (unbounded)
+loop(i < n)    ✅ Valid P5b route header
+loop(i < 100)  ✅ Valid P5b route header
+loop(i <= n)   ✅ Valid P5b route header (edge case)
+loop(true)     ❌ Not P5b route (unbounded)
 loop(i < n && j < m)  ❌ Not P5b (multi-carrier condition)
 ```
 
@@ -142,7 +142,7 @@ carrier = carrier + normal_delta
 #### Detection Algorithm
 
 1. **Find assignment after escape if block**
-2. **Pattern**: `carrier = carrier + <const>`
+2. **Route contract**: `carrier = carrier + <const>`
 3. **Must be unconditional** (outside any if block)
 4. **Extract normal_delta**: The constant
 
@@ -187,7 +187,7 @@ ExitContract {
 
 ### Required Capabilities (CapabilityTag)
 
-For Pattern P5b to be JoinIR-compatible, these must be present:
+For escape route P5b to be JoinIR-compatible, these must be present:
 
 | Capability | Meaning | P5b Requirement | Status |
 |------------|---------|-----------------|--------|
@@ -199,7 +199,7 @@ For Pattern P5b to be JoinIR-compatible, these must be present:
 
 ### Missing Capabilities (Fail-Fast Reasons)
 
-If any of these are detected, Pattern P5b is rejected:
+If any of these are detected, escape route P5b is rejected:
 
 | Capability | Why It Blocks P5b | Example |
 |------------|-------------------|---------|
@@ -328,7 +328,7 @@ LoopSkeleton {
 
 ## RoutingDecision Output
 
-### For Valid P5b Pattern
+### For Valid P5b Route
 
 ```rust
 RoutingDecision {
@@ -372,10 +372,10 @@ RoutingDecision {
 In `src/mir/builder/control_flow/joinir/routing.rs`:
 
 1. **Router makes decision** using existing route-family logic
-2. **Canonicalizer analyzes** and detects Pattern P5b
+2. **Canonicalizer analyzes** and detects escape route P5b
 3. **Parity checker compares**:
    - Router decision (existing route family)
-   - Canonicalizer decision (Pattern P5b)
+   - Canonicalizer decision (escape route P5b)
 4. **If mismatch**:
    - Dev mode: Log with reason
    - Strict mode: Fail-Fast with error
@@ -384,17 +384,17 @@ In `src/mir/builder/control_flow/joinir/routing.rs`:
 
 **Case A: Router picks loop_simple_while, Canonicalizer picks P5b**
 - Router: "Simple bounded loop"
-- Canonicalizer: "Escape sequence pattern detected"
+- Canonicalizer: "Escape route detected"
 - **Resolution**: Canonicalizer is more specific → router will eventually delegate
 
 **Case B: Router fails, Canonicalizer succeeds**
-- Router: "No pattern matched" (Fail-Fast)
-- Canonicalizer: "Pattern P5b matched"
+- Router: "No route matched" (Fail-Fast)
+- Canonicalizer: "escape route P5b matched"
 - **Resolution**: P5b is new capability → expected until router updated
 
 **Case C: Both agree P5b**
-- Router: Pattern P5b
-- Canonicalizer: Pattern P5b
+- Router: escape route P5b
+- Canonicalizer: escape route P5b
 - **Result**: ✅ Parity green
 
 ## Test Cases
@@ -418,12 +418,12 @@ In `src/mir/builder/control_flow/joinir/routing.rs`:
 
 ### Philosophy: Keep Return Simple
 
-Pattern P5b lowering should:
+Escape route P5b lowering should:
 1. **Reuse existing route-family lowering** for normal case
 2. **Extend for conditional increment**:
    - PHI for carrier value after escape check
    - Separate paths for escape vs normal
-3. **Close within Pattern5b** (no cross-boundary complexity)
+3. **Close within escape-route P5b** (no cross-boundary complexity)
 
 ### Rough Outline
 
@@ -452,7 +452,7 @@ Condition check...
 
 ## Future Extensions
 
-### Pattern P5c: Multi-Character Escapes
+### Escape Route P5c: Multi-Character Escapes
 
 ```
 if ch == "\\" {
@@ -466,7 +466,7 @@ if ch == "\\" {
 
 **Complexity**: Requires escape sequence table (not generic)
 
-### Pattern P5d: Nested Escape Contexts
+### Escape Route P5d: Nested Escape Contexts
 
 ```
 // Regex with escaped /, inside JSON string with escaped "
@@ -496,11 +496,11 @@ loop(i < n) {
 
 ## Summary
 
-**Pattern P5b** enables JoinIR recognition of escape-sequence-aware string parsing loops by:
+**Escape route P5b** enables JoinIR recognition of escape-sequence-aware string parsing loops by:
 
 1. **Extending Canonicalizer** to detect conditional increments
 2. **Adding exit-line optimization** for escape branching
-3. **Preserving ExitContract** consistency with P1-P4 patterns
+3. **Preserving ExitContract** consistency with existing route families
 4. **Enabling parity verification** in strict mode
 
 **Status**: Design complete, implementation ready for Phase 91 Step 2

@@ -9,8 +9,8 @@ It is the SSOT for `NotApplicable` vs `Freeze` decisions.
 - **Freeze**: shape matches but contract is violated (fail-fast)
 
 Tags:
-- `scan_with_init`: `[joinir/phase29ab/scan_with_init/contract]` (legacy label `Pattern6` is traceability-only)
-- `split_scan`: `[joinir/phase29ab/split_scan/contract]` (legacy label `Pattern7` is traceability-only)
+- `scan_with_init`: `[joinir/phase29ab/scan_with_init/contract]` (legacy numbered route label is traceability-only)
+- `split_scan`: `[joinir/phase29ab/split_scan/contract]` (legacy numbered route label is traceability-only)
 
 ## `scan_with_init` Route
 
