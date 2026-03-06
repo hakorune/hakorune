@@ -6,7 +6,7 @@
 
 **実装は別フェーズ** - このドキュメントは設計のみ。
 
-注記: 本文で出る `PatternX` は historical/filename 用の legacy label。説明文は route/semantic 名を優先する。
+注記: 本文で出る numbered label は historical/filename 用の legacy label。説明文は route/semantic 名を優先する。
 
 ---
 
@@ -138,7 +138,7 @@ recipe_tree/
   └── loop_true_composer.rs
 ```
 
-**→ 提案**: route別 builder/composer を `recipe_tree/<route>_builder.rs` と `recipe_tree/<route>_composer.rs` へ集約 (23ファイルをフラット化、legacy labels: Pattern1-9 は traceability-only)
+**→ 提案**: route別 builder/composer を `recipe_tree/<route>_builder.rs` と `recipe_tree/<route>_composer.rs` へ集約 (23ファイルをフラット化、legacy numbered labels は traceability-only)
 
 ### 深さ3の例: composer/coreloop_v0/ と coreloop_v1/
 

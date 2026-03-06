@@ -96,7 +96,7 @@ Candidate next (after selfhost canary / Stage-1):
 ### Step B: Facts / Recipe を Skeleton+Feature の SSOTへ寄せる
 
 狙い:
-- traceability-only legacy numbered label（Pattern1/2/4/5 など）を current route semantics の主語に戻さない
+- traceability-only legacy numbered label を current route semantics の主語に戻さない
 - `LoopSkeleton + ExitMap + ValueJoin + ...` の合成で表現できる状態に寄せる
 
 やらない:

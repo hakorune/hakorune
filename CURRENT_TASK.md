@@ -346,6 +346,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{coreplan-migration-roadmap-ssot,joinir-design-map,condprofile-migration-plan-ssot,plan-dir-shallowing-ssot,generic-loop-v1-acceptance-by-recipe-ssot}.md`
     - intent: `pattern5` などの stale route 名、removed `join_ir/normalized` lane、`pattern1/8/9 facts` の旧語彙を current route tree / recipe-first runtime に合わせる
     - verification: `rg -n "pattern5|JoinIR \\(Normalized\\)|join_ir/normalized/shape_guard|Pattern router|pattern1 / pattern8 / pattern9 facts|legacy label: Pattern1|legacy label: PatternX" docs/development/current/main/design/{coreplan-migration-roadmap-ssot,joinir-design-map,condprofile-migration-plan-ssot,plan-dir-shallowing-ssot,generic-loop-v1-acceptance-by-recipe-ssot}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 29): active design の numbered-label note をさらに薄くした
+    - synced files: `docs/development/current/main/design/{loop-canonicalizer,plan-dir-shallowing-ssot,coreplan-migration-roadmap-ssot}.md`
+    - intent: current heading / section title から `Pattern1/2/3/4/5` の直接言及を外し、残る legacy note を “numbered label” へ一般化する
+    - verification: `rg -n "LoopSimpleWhile family \\(legacy label: Pattern1\\)|LoopBreak family \\(legacy label: Pattern2\\)|IfPhiJoin route \\(legacy label: Pattern3\\)|LoopContinueOnly route \\(legacy label: Pattern4\\)|LoopTrueEarlyExit family \\(legacy label: Pattern5|Pattern1-9 は traceability-only|Pattern1/2/4/5" docs/development/current/main/design/{loop-canonicalizer,plan-dir-shallowing-ssot,coreplan-migration-roadmap-ssot}.md` = 0 hit
 
 ## next fixed order (resume point)
 

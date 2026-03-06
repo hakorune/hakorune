@@ -141,20 +141,20 @@ Canonicalizer は "できない理由" を機械的に返す。
 
 ### 各 route family の必須 Capability（Phase 140 時点）
 
-#### LoopSimpleWhile family (legacy label: Pattern1)
+#### LoopSimpleWhile family
 - ✅ `ConstStep` - 定数ステップ増分
 - ✅ `PureHeader` - 副作用なし条件
 - ✅ `SingleContinue` - continue 単一箇所
 
-#### LoopBreak family (legacy label: Pattern2)
+#### LoopBreak family
 - ✅ `ConstStep` - 定数ステップ増分
 - ✅ `PureHeader` - 副作用なし条件
 - ✅ `SingleBreak` - break 単一箇所
 - ✅ `ExitBindings` - 出口値の完全性
 
-**例**: `skip_whitespace` は `has_break=true` なので LoopBreak family へルーティング（legacy label: Pattern2, Phase 137-5）
+**例**: `skip_whitespace` は `has_break=true` なので LoopBreak family へルーティング（Phase 137-5）
 
-#### IfPhiJoin route (legacy label: Pattern3)
+#### IfPhiJoin route
 - ✅ `ConstStep` - 定数ステップ増分
 - ✅ `PureHeader` - 副作用なし条件
 - ✅ `OuterLocalCond` - 外側スコープ条件変数
@@ -162,12 +162,12 @@ Canonicalizer は "できない理由" を機械的に返す。
 
 **例**: Trim パターン（Phase 133）
 
-#### LoopContinueOnly route (legacy label: Pattern4)
+#### LoopContinueOnly route
 - ✅ `PureHeader` - 副作用なし条件
 - ✅ `CarrierPromotion` - LoopBodyLocal 昇格
 - ✅ `ExitBindings` - 出口値の完全性
 
-#### LoopTrueEarlyExit family (legacy label: Pattern5, future)
+#### LoopTrueEarlyExit family (future)
 - 🚧 TBD - 将来定義
 
 ### Capability 追加時のチェックリスト
@@ -373,7 +373,7 @@ pub struct RoutingDecision {
 - **一致保証**: Router と Canonicalizer の pattern 選択が一致することを parity check で検証
 
 **例**: `skip_whitespace` パターン
-- 構造: if-else 形式（legacy numbered labels では Pattern3 系として追っていた if-phi shape）
+- 構造: if-else 形式（historically tracked as the if-phi join family）
 - ExitContract: `has_break=true`
 - **chosen**: `LoopBreak`（ExitContract が決定）
 - **notes**: "if-else structure with break in else branch"（構造特徴を記録）
