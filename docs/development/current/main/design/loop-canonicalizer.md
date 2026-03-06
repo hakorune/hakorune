@@ -19,7 +19,7 @@ graph LR
     C --> E[Capability Guard]
     D --> E
     E --> F{Pass?}
-    F -->|Yes| G[Pattern Router]
+    F -->|Yes| G[Route Router]
     F -->|No| H[Fail-Fast Error]
     G --> I[JoinIR Lowerer]
 ```
@@ -44,9 +44,9 @@ loop_canonicalizer/
          ↓
     LoopSkeleton + RoutingDecision
          ↓
-    Pattern Router (patterns/router.rs)
+    Route Router (patterns/router.rs)
          ↓
-    Pattern Lowerer (pattern1-5_*.rs)
+    Route Lowerer (semantic route modules)
 ```
 
 ### 処理フロー（Phase 140 完了後）
@@ -56,15 +56,15 @@ sequenceDiagram
     participant AST as AST Loop
     participant Canon as Canonicalizer
     participant Guard as Capability Guard
-    participant Router as Pattern Router
+    participant Router as Route Router
     participant Lower as JoinIR Lowerer
 
     AST->>Canon: canonicalize_loop_expr()
-    Canon->>Canon: extract pattern (ast_feature_extractor)
+    Canon->>Canon: extract route shape (ast_feature_extractor)
     Canon->>Canon: build LoopSkeleton
     Canon->>Guard: validate capabilities
     alt All capabilities satisfied
-        Guard->>Router: RoutingDecision(Pattern2)
+        Guard->>Router: RoutingDecision(LoopBreak)
         Router->>Lower: lower to JoinIR
         Lower-->>AST: MIR blocks
     else Missing capabilities

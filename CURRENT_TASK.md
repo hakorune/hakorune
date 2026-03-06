@@ -271,6 +271,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `src/mir/builder/control_flow/joinir/{loop_context,routing}.rs` / `src/mir/builder/control_flow/normalization/{plan,execute_box}.rs` / `src/mir/builder/control_flow/normalization/README.md` / `src/mir/builder/control_flow/plan/policies/policies/normalized_shadow_suffix_router_box.rs` / `docs/development/current/main/design/normalized-expr-lowering.md`
     - intent: `LoopProcessingContext` を実際に読まれる field だけへ細くし、statement-level normalization 後も残っていた `LoopWithPost` current code を撤去する
     - verification: `cargo check --tests` PASS（warning 0） / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - truth cleanup (2026-03-07, slice 21): current-facing README / SSOT の `Pattern` wording を route-first に寄せた
+    - synced files: `src/mir/control_tree/normalized_shadow/anf/README.md` / `src/mir/builder/control_flow/plan/REGISTRY.md` / `src/mir/builder/control_flow/plan/features/README.md` / `docs/development/current/main/design/{loop-canonicalizer,joinir-design-map,coreplan-skeleton-feature-model}.md`
+    - intent: fixture key と physical file 名は残したまま、今読む guidance では `Pattern` ではなく route / shape / feature を主語にする
+    - verification: `rg -n "Pattern Router|Pattern Lowerer|RoutingDecision\\(Pattern2\\)|Pattern 1:|Pattern 2:|Pattern2 の policy" src/mir/control_tree/normalized_shadow/anf/README.md src/mir/builder/control_flow/plan/REGISTRY.md src/mir/builder/control_flow/plan/features/README.md docs/development/current/main/design/{loop-canonicalizer,joinir-design-map,coreplan-skeleton-feature-model}.md` = 0 hit
 
 ## next fixed order (resume point)
 

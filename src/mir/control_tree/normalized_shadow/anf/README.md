@@ -144,12 +144,12 @@ result = x + t
 
 **Goal**: Implement recursive ANF for compound expressions (multiple MethodCalls).
 
-**Patterns**:
+**Examples**:
 ```hako
-// Pattern 1: x + s.length() + z
+// Example A: x + s.length() + z
 //   → t1 = s.length(); t2 = x + t1; result = t2 + z
 
-// Pattern 2: s1.length() + s2.length()
+// Example B: s1.length() + s2.length()
 //   → t1 = s1.length(); t2 = s2.length(); result = t1 + t2
 ```
 

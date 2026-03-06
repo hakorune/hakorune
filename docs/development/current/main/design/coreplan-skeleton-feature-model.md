@@ -33,7 +33,7 @@ Skeleton は “構造カテゴリ” のみ。ここが一意に決まらない
 Features は “別パターン” を増やさずに足す（重なりの根治）。
 
 例（代表）:
-- `ExitMap`（Return/Break/Continue の出口集合。Pattern2/4/5 を “別pattern” にしない）
+- `ExitMap`（Return/Break/Continue の出口集合。loop_break / loop_continue_only / loop_true_early_exit を “別pattern” にしない）
 - `ExitBranch`（If/BranchN/Loop 内の “exit 付きブランチ” を共通化: prelude + ExitKind を 1 箱で抽出/正規化する。SSOT: `docs/development/current/main/design/exit-branch-feature-ssot.md`）
 - `ValueJoin`（join 値が必要 = post-phi 表現）
 - `ContinueEdges`（continue が複数箇所から飛ぶ等。latch 一意に拘らない表現）
