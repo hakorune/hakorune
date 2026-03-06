@@ -378,6 +378,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/pattern-p5b-escape-design.md`
     - intent: P5b の traceability は残しつつ、active design 本文では `Pattern P5b` を architecture の主語にせず `escape route P5b` / route contract / route detection へ寄せる
     - verification: `rg -n "Pattern P5b|Pattern Definition|P5b Pattern|Pattern5b|Pattern P5c|Pattern P5d|No pattern matched" docs/development/current/main/design/pattern-p5b-escape-design.md` = 0 hit
+  - naming cleanup (2026-03-07, slice 37): normalization 層の current-facing `Pattern detection` wording を `shape detection` へ寄せた
+    - synced files: `src/mir/builder/control_flow/normalization/{plan_box.rs,plan.rs,README.md}` / `src/mir/builder/control_flow/plan/policies/policies/normalized_shadow_suffix_router_box.rs`
+    - intent: Normalized shadow の現役 guide/comment では `Pattern` を detection の主語にせず、shape/contract を前面に出す
+    - verification: `rg -n "Pattern detection|Pattern detected|Pattern not matched|Pattern: Single loop statement|## Pattern Detection|pattern explosion" src/mir/builder/control_flow/normalization src/mir/builder/control_flow/plan/policies/policies/normalized_shadow_suffix_router_box.rs` = 0 hit
 
 ## next fixed order (resume point)
 

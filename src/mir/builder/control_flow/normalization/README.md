@@ -36,7 +36,7 @@ Consolidate the two separate entry points for Normalized shadow processing into 
 ### Box Responsibilities
 
 1. **NormalizationPlanBox** (`plan_box.rs`)
-   - Responsibility: Pattern detection and planning
+   - Responsibility: Shape detection and planning
    - API: `plan_block_suffix(builder, remaining, func_name, debug) -> Result<Option<NormalizationPlan>>`
    - Returns: Plan with consumed count and kind, or None if not applicable
 
@@ -91,23 +91,23 @@ pub enum PlanKind {
 
 ---
 
-## Pattern Detection
+## Shape Detection
 
 ### Current Contract
-- Pattern: `loop(true) { ... break }` (single statement, no return)
+- Shape: `loop(true) { ... break }` (single statement, no return)
 - Consumed: 1 statement
 - Kind: `PlanKind::LoopOnly`
 - Example: `loop(true) { x = 1; break }`
 ### Statement-Level Normalization
 - **Change**: Normalization unit is "statement (loop only)"
-- **Pattern**: `loop(true)` with **Normalized-supported body shapes** only
+- **Shape**: `loop(true)` with **Normalized-supported body shapes** only
   - Body ends with `break` and prior statements are `assignment`/`local` only
   - Body is a single `if` with `break`/`continue` branches (optional else)
 - **Consumed**: Always 1 statement (the loop itself)
 - **Kind**: `PlanKind::LoopOnly`
 - **Subsequent statements**: Handled by normal MIR lowering (not normalized)
 - **Example**: `loop(true) { break }; return s.length()` → loop normalized (consumed=1), return handled normally
-- **Impact**: Prevents pattern explosion by separating loop normalization from post-loop statements
+- **Impact**: Prevents route/shape branching from re-expanding around post-loop statements
 
 ### Historical Note
 - Older phases grouped post-loop assignments and return into a larger suffix unit.
@@ -127,7 +127,7 @@ pub enum PlanKind {
 - `debug`: Enable debug logging
 
 **Returns**:
-- `Ok(Some(plan))`: Pattern detected, plan specifies what to do
+- `Ok(Some(plan))`: Shape detected, plan specifies what to do
 - `Ok(None)`: Not a normalized pattern, use legacy fallback
 - `Err(msg)`: Internal error (should not happen in well-formed AST)
 

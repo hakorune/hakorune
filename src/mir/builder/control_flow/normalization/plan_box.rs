@@ -1,4 +1,4 @@
-//! NormalizationPlanBox: Pattern detection for Normalized shadow (Phase 134 P0)
+//! NormalizationPlanBox: Shape detection for Normalized shadow (Phase 134 P0)
 //!
 //! ## Responsibility
 //!
@@ -8,7 +8,7 @@
 //!
 //! ## Contract
 //!
-//! - Returns Ok(Some(plan)): Pattern detected, proceed with normalization
+//! - Returns Ok(Some(plan)): Shape detected, proceed with normalization
 //! - Returns Ok(None): Not a normalized pattern, use legacy fallback
 //! - Returns Err(_): Internal error (malformed AST)
 
@@ -19,7 +19,7 @@ use super::plan::NormalizationPlan;
 #[cfg(test)]
 use super::plan::PlanKind;
 
-/// Box-First: Pattern detection for Normalized shadow
+/// Box-First: Shape detection for Normalized shadow
 pub struct NormalizationPlanBox;
 
 impl NormalizationPlanBox {

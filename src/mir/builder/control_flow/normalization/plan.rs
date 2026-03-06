@@ -20,7 +20,7 @@ pub struct NormalizationPlan {
 pub enum PlanKind {
     /// Phase 131: loop(true) { ... break } alone
     ///
-    /// Pattern: Single loop statement
+    /// Shape: Single loop statement
     /// Example: `loop(true) { x = 1; break }`
     LoopOnly,
 }
