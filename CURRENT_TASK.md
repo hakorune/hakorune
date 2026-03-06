@@ -283,6 +283,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - keep-as-is: `pattern3_if_sum_multi_min` / `jsonparser_if_sum_min` / `selfhost_if_sum_p3` / `selfhost_if_sum_p3_ext`
     - rule: rename は避ける。必要なら alias 追加に留め、旧キーは維持する
     - rationale: `lower_program_json()` が `defs[0].name` を `resolve_function_route()` へ直結しており、private/historical JSON fixtures の `name` と結びついている
+  - truth cleanup (2026-03-07, slice 23): low-risk active docs の stale path / Pattern wording を route-first に寄せた
+    - synced files: `docs/development/current/main/design/{coreloop-stepmode-inline-in-body-ssot,pattern-p5b-escape-design,coreplan-skeleton-feature-model,joinir-pattern-selection-shadow-ssot}.md`
+    - intent: 現在参照される設計文では semantic route / family を主語にし、stale source path も今の file 名へ合わせる
+    - verification: `rg -n "normalizer/pattern1_simple_while\\.rs|Pattern 1-4|Pattern 1, Canonicalizer picks P5b|Reuse Pattern 1-2 lowering|plan 側の Pattern1|pattern1_\\* variants" docs/development/current/main/design/{coreloop-stepmode-inline-in-body-ssot,pattern-p5b-escape-design,coreplan-skeleton-feature-model,joinir-pattern-selection-shadow-ssot}.md` = 0 hit
 
 ## next fixed order (resume point)
 

@@ -14,7 +14,7 @@ This pattern is essential for:
 
 ### Current Limitation
 
-Standard Pattern 1-4 carriers always update by constant deltas:
+Standard route-family carriers always update by constant deltas:
 ```
 Carrier i: i = i + 1 (always +1)
 ```
@@ -371,10 +371,10 @@ RoutingDecision {
 
 In `src/mir/builder/control_flow/joinir/routing.rs`:
 
-1. **Router makes decision** using existing Pattern 1-4 logic
+1. **Router makes decision** using existing route-family logic
 2. **Canonicalizer analyzes** and detects Pattern P5b
 3. **Parity checker compares**:
-   - Router decision (Pattern 1-4)
+   - Router decision (existing route family)
    - Canonicalizer decision (Pattern P5b)
 4. **If mismatch**:
    - Dev mode: Log with reason
@@ -382,7 +382,7 @@ In `src/mir/builder/control_flow/joinir/routing.rs`:
 
 ### Expected Outcomes
 
-**Case A: Router picks Pattern 1, Canonicalizer picks P5b**
+**Case A: Router picks loop_simple_while, Canonicalizer picks P5b**
 - Router: "Simple bounded loop"
 - Canonicalizer: "Escape sequence pattern detected"
 - **Resolution**: Canonicalizer is more specific → router will eventually delegate
@@ -419,7 +419,7 @@ In `src/mir/builder/control_flow/joinir/routing.rs`:
 ### Philosophy: Keep Return Simple
 
 Pattern P5b lowering should:
-1. **Reuse Pattern 1-2 lowering** for normal case
+1. **Reuse existing route-family lowering** for normal case
 2. **Extend for conditional increment**:
    - PHI for carrier value after escape check
    - Separate paths for escape vs normal

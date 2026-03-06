@@ -119,10 +119,10 @@ FlowBox の最小インターフェースは次を SSOT とする:
 ### E. “plan が JoinIR 専用パターンを飲み込む” 事故
 
 実例:
-- nested loop（phase1883）が plan 側の Pattern1 に誤マッチして JoinIR の `NestedLoopMinimal` が選ばれない
+- nested loop（phase1883）が plan 側の `loop_simple_while` family に誤マッチして JoinIR の `NestedLoopMinimal` が選ばれない
 
 扱い:
-- “より一般的な pattern” は **上位形（nested loop 等）を `Ok(None)` へ倒す**（pattern 側の責務）
+- “より一般的な route family” は **上位形（nested loop 等）を `Ok(None)` へ倒す**（route 側の責務）
 - 入口での by-name 分岐ではなく、Facts/Extractor の **構造条件**で遮断する
 
 ### F. return-heavy（loop 内 early return）
