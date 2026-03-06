@@ -52,7 +52,7 @@ pub struct ParseNumberInfo {
 ///
 /// This is complementary to the skip_whitespace route shape (which has break in ELSE clause).
 /// Used by loop_canonicalizer (Phase 143) for digit collection route shapes.
-pub fn detect_parse_number_pattern(body: &[ASTNode]) -> Option<ParseNumberInfo> {
+pub fn detect_parse_number_shape(body: &[ASTNode]) -> Option<ParseNumberInfo> {
     if body.is_empty() {
         return None;
     }
@@ -179,7 +179,7 @@ pub struct ReadDigitsLoopTrueInfo {
 /// - Last statement is `if ... { ... } else { break }`
 /// - Then branch contains an update `i = i + 1`
 /// - Then branch may contain other updates (e.g., `out = out + ch`)
-pub fn detect_read_digits_loop_true_pattern(body: &[ASTNode]) -> Option<ReadDigitsLoopTrueInfo> {
+pub fn detect_read_digits_loop_true_shape(body: &[ASTNode]) -> Option<ReadDigitsLoopTrueInfo> {
     if body.is_empty() {
         return None;
     }

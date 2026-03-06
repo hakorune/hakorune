@@ -10,9 +10,9 @@ use crate::mir::policies::PolicyDecision;
 
 use super::capability_guard::{CapabilityTag, RoutingDecision};
 use super::pattern_recognizer::{
-    try_extract_continue_pattern, try_extract_escape_skip_pattern, try_extract_parse_number_pattern,
-    try_extract_parse_string_pattern, try_extract_read_digits_loop_true_pattern,
-    try_extract_skip_whitespace_pattern,
+    try_extract_continue_shape, try_extract_escape_skip_pattern, try_extract_parse_number_shape,
+    try_extract_parse_string_shape, try_extract_read_digits_loop_true_shape,
+    try_extract_skip_whitespace_shape,
 };
 use super::skeleton_types::{
     CarrierRole, CarrierSlot, ExitContract, LoopSkeleton, SkeletonStep, UpdateKind,
@@ -121,7 +121,7 @@ pub fn canonicalize_loop_expr(
 
     // Phase 143-P1/P2: Try to extract parse_string/parse_array route shape first (most specific)
     // Note: Both parse_string and parse_array share the same structure (continue + return)
-    if let Some((carrier_name, delta, body_stmts)) = try_extract_parse_string_pattern(body) {
+    if let Some((carrier_name, delta, body_stmts)) = try_extract_parse_string_shape(body) {
         // Build skeleton for parse_string/parse_array route shape
         let mut skeleton = LoopSkeleton::new(span);
 
@@ -164,7 +164,7 @@ pub fn canonicalize_loop_expr(
     }
 
     // Phase 142-P1: Try to extract continue route shape
-    if let Some((carrier_name, delta, body_stmts, rest_stmts)) = try_extract_continue_pattern(body)
+    if let Some((carrier_name, delta, body_stmts, rest_stmts)) = try_extract_continue_shape(body)
     {
         // Build skeleton for continue route shape
         let mut skeleton = LoopSkeleton::new(span);
@@ -208,7 +208,7 @@ pub fn canonicalize_loop_expr(
             update_kind: UpdateKind::ConstStep { delta },
         });
 
-        // Set exit contract for continue pattern
+        // Set exit contract for continue route shape
         skeleton.exits = ExitContract {
             has_break: false,
             has_continue: true,
@@ -234,7 +234,7 @@ pub fn canonicalize_loop_expr(
             ..
         }
     ) {
-        if let Some((carrier_name, delta, body_stmts)) = try_extract_read_digits_loop_true_pattern(body) {
+        if let Some((carrier_name, delta, body_stmts)) = try_extract_read_digits_loop_true_shape(body) {
             let mut skeleton = LoopSkeleton::new(span);
 
             skeleton.steps.push(SkeletonStep::HeaderCond {
@@ -270,7 +270,7 @@ pub fn canonicalize_loop_expr(
 
     // Phase 143-P0: Try to extract parse_number route shape (break in THEN clause)
     if let Some((carrier_name, delta, body_stmts, rest_stmts)) =
-        try_extract_parse_number_pattern(body)
+        try_extract_parse_number_shape(body)
     {
         // Build skeleton for parse_number route shape
         let mut skeleton = LoopSkeleton::new(span);
@@ -327,7 +327,7 @@ pub fn canonicalize_loop_expr(
     }
 
     // Phase 3: Try to extract skip_whitespace route shape
-    if let Some((carrier_name, delta, body_stmts)) = try_extract_skip_whitespace_pattern(body) {
+    if let Some((carrier_name, delta, body_stmts)) = try_extract_skip_whitespace_shape(body) {
         // Build skeleton for skip_whitespace route shape
         let mut skeleton = LoopSkeleton::new(span);
 

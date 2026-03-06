@@ -62,20 +62,20 @@ pub(in crate::mir::builder) mod policies {
 // Re-export router for convenience
 pub(in crate::mir::builder) use router::{route_loop, LoopRouteContext};
 
-// Phase 140-P4-A: Re-export for loop_canonicalizer SSOT (crate-wide visibility)
-pub(crate) use ast_feature_extractor::detect_skip_whitespace_pattern;
+// Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
+pub(crate) use ast_feature_extractor::detect_skip_whitespace_shape;
 
-// Phase 104: Re-export read_digits(loop(true)) detection for loop_canonicalizer
-pub(crate) use ast_feature_extractor::detect_read_digits_loop_true_pattern;
+// Phase 104: Re-export read_digits(loop(true)) shape detection for loop_canonicalizer
+pub(crate) use ast_feature_extractor::detect_read_digits_loop_true_shape;
 
-// Phase 142-P1: Re-export continue pattern detection for loop_canonicalizer
-pub(crate) use ast_feature_extractor::detect_continue_pattern;
+// Phase 142-P1: Re-export continue shape detection for loop_canonicalizer
+pub(crate) use ast_feature_extractor::detect_continue_shape;
 
-// Phase 143-P0: Re-export parse_number pattern detection for loop_canonicalizer
-pub(crate) use ast_feature_extractor::detect_parse_number_pattern;
+// Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
+pub(crate) use ast_feature_extractor::detect_parse_number_shape;
 
-// Phase 143-P1: Re-export parse_string pattern detection for loop_canonicalizer
-pub(crate) use ast_feature_extractor::detect_parse_string_pattern;
+// Phase 143-P1: 
+pub(crate) use ast_feature_extractor::detect_parse_string_shape;
 
 // Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
 pub(crate) use ast_feature_extractor::detect_escape_skip_pattern;

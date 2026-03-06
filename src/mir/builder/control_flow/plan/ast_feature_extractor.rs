@@ -57,18 +57,18 @@ use route_shape_recognizers::if_else_phi::detect_if_else_phi_in_body;
 // Re-export carrier count estimation
 use route_shape_recognizers::carrier_count::count_carriers_in_body;
 
-// Re-export parse_number pattern detection
+// Re-export parse_number shape detection
 pub use route_shape_recognizers::parse_number::{
-    detect_parse_number_pattern, detect_read_digits_loop_true_pattern,
+    detect_parse_number_shape, detect_read_digits_loop_true_shape,
 };
 
-// Re-export parse_string pattern detection
+// Re-export parse_string shape detection
 pub use route_shape_recognizers::parse_string::{
-    detect_continue_pattern, detect_parse_string_pattern,
+    detect_continue_shape, detect_parse_string_shape,
 };
 
-// Re-export skip_whitespace pattern detection
-pub use route_shape_recognizers::skip_whitespace::detect_skip_whitespace_pattern;
+// Re-export skip_whitespace shape detection
+pub use route_shape_recognizers::skip_whitespace::detect_skip_whitespace_shape;
 
 // Re-export escape pattern recognizer (existing module, not moved in P1)
 pub use super::escape_pattern_recognizer::detect_escape_skip_pattern;

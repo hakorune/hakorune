@@ -1,14 +1,14 @@
 //! Route-Shape Recognition Helpers
 //!
 //! Phase 140-P4-B: This module now delegates to SSOT implementations in ast_feature_extractor.
-//! Provides backward-compatible wrappers for existing callsites.
+//! Provides route-shape wrappers for canonicalizer callsites.
 
 use crate::ast::ASTNode;
-use crate::mir::detect_continue_pattern;
-use crate::mir::detect_parse_number_pattern as ast_detect_parse_number;
-use crate::mir::detect_parse_string_pattern as ast_detect_parse_string;
-use crate::mir::detect_skip_whitespace_pattern as ast_detect;
-use crate::mir::detect_read_digits_loop_true_pattern as ast_detect_read_digits;
+use crate::mir::detect_continue_shape;
+use crate::mir::detect_parse_number_shape as ast_detect_parse_number;
+use crate::mir::detect_parse_string_shape as ast_detect_parse_string;
+use crate::mir::detect_skip_whitespace_shape as ast_detect;
+use crate::mir::detect_read_digits_loop_true_shape as ast_detect_read_digits;
 use crate::mir::detect_escape_skip_pattern as ast_detect_escape;
 
 // ============================================================================
@@ -33,9 +33,9 @@ use crate::mir::detect_escape_skip_pattern as ast_detect_escape;
 ///
 /// # Phase 140-P4-B: SSOT Migration
 ///
-/// This function now delegates to `ast_feature_extractor::detect_skip_whitespace_pattern`
+/// This function now delegates to `ast_feature_extractor::detect_skip_whitespace_shape`
 /// for SSOT implementation. This wrapper maintains backward compatibility for existing callsites.
-pub fn try_extract_skip_whitespace_pattern(
+pub fn try_extract_skip_whitespace_shape(
     body: &[ASTNode],
 ) -> Option<(String, i64, Vec<ASTNode>)> {
     ast_detect(body).map(|info| (info.carrier_name, info.delta, info.body_stmts))
@@ -48,7 +48,7 @@ pub fn try_extract_skip_whitespace_pattern(
 /// Try to extract read_digits_from-like route shape from loop(true) body.
 ///
 /// Returns (carrier_name, delta, body_stmts) if the route shape matches.
-pub fn try_extract_read_digits_loop_true_pattern(
+pub fn try_extract_read_digits_loop_true_shape(
     body: &[ASTNode],
 ) -> Option<(String, i64, Vec<ASTNode>)> {
     ast_detect_read_digits(body).map(|info| (info.carrier_name, info.delta, info.body_stmts))
@@ -76,9 +76,9 @@ pub fn try_extract_read_digits_loop_true_pattern(
 ///
 /// # Phase 143-P0: Parse Number Route Detection
 ///
-/// This function delegates to `ast_feature_extractor::detect_parse_number_pattern`
+/// This function delegates to `ast_feature_extractor::detect_parse_number_shape`
 /// for SSOT implementation.
-pub fn try_extract_parse_number_pattern(
+pub fn try_extract_parse_number_shape(
     body: &[ASTNode],
 ) -> Option<(String, i64, Vec<ASTNode>, Vec<ASTNode>)> {
     ast_detect_parse_number(body).map(|info| {
@@ -118,10 +118,10 @@ pub fn try_extract_parse_number_pattern(
 ///
 /// # Phase 143-P1/P2: Parse String/Array Route Detection
 ///
-/// This function delegates to `ast_feature_extractor::detect_parse_string_pattern`
+/// This function delegates to `ast_feature_extractor::detect_parse_string_shape`
 /// for SSOT implementation. The same detector handles both parse_string and
 /// parse_array route shapes as they share the same structural characteristics.
-pub fn try_extract_parse_string_pattern(body: &[ASTNode]) -> Option<(String, i64, Vec<ASTNode>)> {
+pub fn try_extract_parse_string_shape(body: &[ASTNode]) -> Option<(String, i64, Vec<ASTNode>)> {
     ast_detect_parse_string(body).map(|info| (info.carrier_name, info.delta, info.body_stmts))
 }
 
@@ -148,12 +148,12 @@ pub fn try_extract_parse_string_pattern(body: &[ASTNode]) -> Option<(String, i64
 ///
 /// # Phase 142-P1: Continue Route Detection
 ///
-/// This function delegates to `ast_feature_extractor::detect_continue_pattern`
+/// This function delegates to `ast_feature_extractor::detect_continue_shape`
 /// for SSOT implementation.
-pub fn try_extract_continue_pattern(
+pub fn try_extract_continue_shape(
     body: &[ASTNode],
 ) -> Option<(String, i64, Vec<ASTNode>, Vec<ASTNode>)> {
-    detect_continue_pattern(body).map(|info| {
+    detect_continue_shape(body).map(|info| {
         (
             info.carrier_name,
             info.delta,
@@ -169,7 +169,7 @@ mod tests {
     use crate::ast::{BinaryOperator, LiteralValue, Span};
 
     #[test]
-    fn test_skip_whitespace_basic_pattern() {
+    fn test_skip_whitespace_basic_shape() {
         // Build: if is_ws { p = p + 1 } else { break }
         let body = vec![ASTNode::If {
             condition: Box::new(ASTNode::Variable {
@@ -201,7 +201,7 @@ mod tests {
             span: Span::unknown(),
         }];
 
-        let result = try_extract_skip_whitespace_pattern(&body);
+        let result = try_extract_skip_whitespace_shape(&body);
         assert!(result.is_some());
 
         let (carrier_name, delta, body_stmts) = result.unwrap();
@@ -260,7 +260,7 @@ mod tests {
             },
         ];
 
-        let result = try_extract_skip_whitespace_pattern(&body);
+        let result = try_extract_skip_whitespace_shape(&body);
         assert!(result.is_some());
 
         let (carrier_name, delta, body_stmts) = result.unwrap();
@@ -300,7 +300,7 @@ mod tests {
             span: Span::unknown(),
         }];
 
-        let result = try_extract_skip_whitespace_pattern(&body);
+        let result = try_extract_skip_whitespace_shape(&body);
         assert!(result.is_none());
     }
 }

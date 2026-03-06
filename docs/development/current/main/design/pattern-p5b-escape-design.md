@@ -265,7 +265,7 @@ fn detect_escape_pattern(loop_expr: &Expr) -> Option<EscapePatternInfo> {
 
 **Integration point**: `canonicalize_loop_expr()` main dispatch
 
-**Priority**: Call before `detect_skip_whitespace_pattern()` (more specific)
+**Priority**: Call before `detect_skip_whitespace_shape()` (more specific)
 
 ## Skeleton Representation
 

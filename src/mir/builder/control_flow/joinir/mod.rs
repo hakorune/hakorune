@@ -19,18 +19,18 @@ pub(in crate::mir::builder) mod patterns;
 pub(in crate::mir::builder) mod routing;
 pub(in crate::mir::builder) mod trace;
 
-// Phase 140-P4-A: Re-export for loop_canonicalizer SSOT (crate-wide visibility)
-pub(crate) use patterns::detect_skip_whitespace_pattern;
+// Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
+pub(crate) use patterns::detect_skip_whitespace_shape;
 
-// Phase 104: Re-export read_digits(loop(true)) detection for loop_canonicalizer
-pub(crate) use patterns::detect_read_digits_loop_true_pattern;
+// Phase 104: Re-export read_digits(loop(true)) shape detection for loop_canonicalizer
+pub(crate) use patterns::detect_read_digits_loop_true_shape;
 
-// Phase 142-P1: Re-export continue pattern detection for loop_canonicalizer
-pub(crate) use patterns::detect_continue_pattern;
+// Phase 142-P1: Re-export continue shape detection for loop_canonicalizer
+pub(crate) use patterns::detect_continue_shape;
 
-// Phase 143-P0: Re-export parse_number pattern detection for loop_canonicalizer
-pub(crate) use patterns::detect_parse_number_pattern;
-pub(crate) use patterns::detect_parse_string_pattern;
+// Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
+pub(crate) use patterns::detect_parse_number_shape;
+pub(crate) use patterns::detect_parse_string_shape;
 
 // Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
 pub(crate) use patterns::detect_escape_skip_pattern;

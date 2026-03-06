@@ -52,7 +52,7 @@ pub struct SkipWhitespaceInfo {
 ///
 /// This is the SSOT for skip_whitespace/trim route-shape detection.
 /// Used by both loop_canonicalizer (Phase 137) and future route-shape analyzers.
-pub fn detect_skip_whitespace_pattern(body: &[ASTNode]) -> Option<SkipWhitespaceInfo> {
+pub fn detect_skip_whitespace_shape(body: &[ASTNode]) -> Option<SkipWhitespaceInfo> {
     if body.is_empty() {
         return None;
     }

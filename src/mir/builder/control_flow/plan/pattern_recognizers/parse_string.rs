@@ -98,7 +98,7 @@ pub struct ParseStringInfo {
 /// - Multiple exit types (return AND continue)
 /// - Variable step increment (conditional on separator/escape)
 /// - Nested control flow (separator/escape has nested if inside)
-pub fn detect_parse_string_pattern(body: &[ASTNode]) -> Option<ParseStringInfo> {
+pub fn detect_parse_string_shape(body: &[ASTNode]) -> Option<ParseStringInfo> {
     if body.is_empty() {
         return None;
     }
@@ -223,11 +223,11 @@ pub fn detect_parse_string_pattern(body: &[ASTNode]) -> Option<ParseStringInfo> 
     })
 }
 
-/// Continue pattern information
+/// Continue route-shape information
 ///
-/// This struct holds the extracted information from a recognized continue pattern.
+/// This struct holds the extracted information from a recognized continue route shape.
 #[derive(Debug, Clone, PartialEq)]
-pub struct ContinuePatternInfo {
+pub struct ContinueShapeInfo {
     /// Carrier variable name (e.g., "i")
     pub carrier_name: String,
     /// Constant step increment (e.g., 1 for `i = i + 1`)
@@ -238,9 +238,9 @@ pub struct ContinuePatternInfo {
     pub rest_stmts: Vec<ASTNode>,
 }
 
-/// Detect continue pattern in loop body
+/// Detect the continue route shape in the loop body
 ///
-/// Pattern structure:
+/// Shape structure:
 /// ```
 /// loop(cond) {
 ///     // ... optional body statements (Body)
@@ -259,8 +259,8 @@ pub struct ContinuePatternInfo {
 ///
 /// # Returns
 ///
-/// `Some(ContinuePatternInfo)` if the pattern matches, `None` otherwise
-pub fn detect_continue_pattern(body: &[ASTNode]) -> Option<ContinuePatternInfo> {
+/// `Some(ContinueShapeInfo)` if the shape matches, `None` otherwise
+pub fn detect_continue_shape(body: &[ASTNode]) -> Option<ContinueShapeInfo> {
     if body.is_empty() {
         return None;
     }
@@ -295,7 +295,7 @@ pub fn detect_continue_pattern(body: &[ASTNode]) -> Option<ContinuePatternInfo> 
             else_body,
             ..
         } => {
-            // For simple continue pattern, else_body should be None
+            // For simple continue route shape, else_body should be None
             if else_body.is_some() {
                 return None;
             }
@@ -384,7 +384,7 @@ pub fn detect_continue_pattern(body: &[ASTNode]) -> Option<ContinuePatternInfo> 
         }
     }
 
-    Some(ContinuePatternInfo {
+    Some(ContinueShapeInfo {
         carrier_name,
         delta,
         body_stmts,
