@@ -1,19 +1,19 @@
 //! Phase P1: If in Loop Handler - 箱化モジュール
 //!
 //! ループ内の If ステートメントを JoinIR に変換する。
-//! 5 つのパターンに分類し、それぞれに適した lowering 戦略を適用する。
+//! 5 つの shape に分類し、それぞれに適した lowering 戦略を適用する。
 
 pub mod lowering;
-pub mod pattern;
+pub mod shape;
 
 use super::{AstToJoinIrLowerer, ExtractCtx, JoinInst, StatementEffect};
-use pattern::IfInLoopPattern;
+use shape::IfInLoopShape;
 
 impl AstToJoinIrLowerer {
     /// Phase P1: If ステートメント（ループ内）を JoinIR に変換
     ///
     /// 元の lower_if_stmt_in_loop() を箱化モジュール化したエントリーポイント。
-    /// パターン検出 → 適切な lowering 関数に委譲する。
+    /// shape 検出 → 適切な lowering 関数に委譲する。
     pub(crate) fn lower_if_stmt_in_loop_boxified(
         &mut self,
         stmt: &serde_json::Value,
@@ -30,19 +30,19 @@ impl AstToJoinIrLowerer {
         let then_stmts = then_body.map(|v| v.as_slice()).unwrap_or(&[]);
         let else_stmts = else_body.map(|v| v.as_slice()).unwrap_or(&[]);
 
-        // パターンを検出
-        let pattern = IfInLoopPattern::detect(then_stmts, else_stmts);
+        // shape を検出
+        let shape = IfInLoopShape::detect(then_stmts, else_stmts);
 
-        // パターンごとに lowering
-        match pattern {
-            IfInLoopPattern::Empty => lowering::empty::lower(insts),
-            IfInLoopPattern::SingleVarThen { var_name } => {
+        // shape ごとに lowering
+        match shape {
+            IfInLoopShape::Empty => lowering::empty::lower(insts),
+            IfInLoopShape::SingleVarThen { var_name } => {
                 lowering::single_var_then::lower(self, ctx, insts, cond_id, &var_name, then_stmts)
             }
-            IfInLoopPattern::SingleVarBoth { var_name } => lowering::single_var_both::lower(
+            IfInLoopShape::SingleVarBoth { var_name } => lowering::single_var_both::lower(
                 self, ctx, insts, cond_id, &var_name, then_stmts, else_stmts,
             ),
-            IfInLoopPattern::ConditionalEffect {
+            IfInLoopShape::ConditionalEffect {
                 receiver_name,
                 method_name,
             } => lowering::conditional_effect::lower(
@@ -54,7 +54,7 @@ impl AstToJoinIrLowerer {
                 &receiver_name,
                 &method_name,
             ),
-            IfInLoopPattern::Unsupported {
+            IfInLoopShape::Unsupported {
                 then_count,
                 else_count,
             } => lowering::unsupported::panic_unsupported(then_count, else_count),

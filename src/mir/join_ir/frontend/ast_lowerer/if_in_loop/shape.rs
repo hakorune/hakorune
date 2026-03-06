@@ -1,13 +1,13 @@
-//! Phase P1: If in Loop パターン分類
+//! Phase P1: If in Loop shape classifier
 //!
-//! ループ内の If ステートメントを 5 つのパターンに分類し、
+//! ループ内の If ステートメントを 5 つの shape に分類し、
 //! 適切な lowering 戦略を選択する。
 
 use serde_json::Value;
 
-/// ループ内 If ステートメントのパターン
+/// ループ内 If ステートメントの shape
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum IfInLoopPattern {
+pub enum IfInLoopShape {
     /// ケース 1: 空の If（条件チェックのみ）
     /// then/else 両方が空
     Empty,
@@ -20,14 +20,14 @@ pub enum IfInLoopPattern {
     /// `if cond { x = a } else { x = b }` → `x = cond ? a : b`
     SingleVarBoth { var_name: String },
 
-    /// ケース 4: 条件付き側効果（filter パターン）
+    /// ケース 4: 条件付き側効果（filter route）
     /// `if pred(v) { acc.push(v) }` → ConditionalMethodCall
     ConditionalEffect {
         receiver_name: String,
         method_name: String,
     },
 
-    /// ケース 5: 複雑なケース（未対応）
+    /// ケース 5: 複雑な shape（未対応）
     /// 複数ステートメント、異なる変数更新など
     Unsupported {
         then_count: usize,
@@ -35,8 +35,8 @@ pub enum IfInLoopPattern {
     },
 }
 
-impl IfInLoopPattern {
-    /// If ステートメントから適切なパターンを検出
+impl IfInLoopShape {
+    /// If ステートメントから適切な shape を検出
     ///
     /// # Arguments
     /// * `then_stmts` - then 分岐のステートメント配列
@@ -69,7 +69,7 @@ impl IfInLoopPattern {
             }
         }
 
-        // ケース 4: 条件付き側効果パターン
+        // ケース 4: 条件付き側効果 shape
         if then_stmts.len() == 1 && else_stmts.is_empty() {
             let stmt = &then_stmts[0];
             let stmt_type = stmt["type"].as_str();
@@ -89,7 +89,7 @@ impl IfInLoopPattern {
             }
         }
 
-        // ケース 5: 複雑なケース（未対応）
+        // ケース 5: 複雑な shape（未対応）
         Self::Unsupported {
             then_count: then_stmts.len(),
             else_count: else_stmts.len(),
@@ -130,8 +130,8 @@ mod tests {
 
     #[test]
     fn test_detect_empty() {
-        let pattern = IfInLoopPattern::detect(&[], &[]);
-        assert_eq!(pattern, IfInLoopPattern::Empty);
+        let shape = IfInLoopShape::detect(&[], &[]);
+        assert_eq!(shape, IfInLoopShape::Empty);
     }
 
     #[test]
@@ -141,10 +141,10 @@ mod tests {
             "target": "x",
             "expr": json!({"type": "Int", "value": 42})
         })];
-        let pattern = IfInLoopPattern::detect(&then_stmts, &[]);
+        let shape = IfInLoopShape::detect(&then_stmts, &[]);
         assert_eq!(
-            pattern,
-            IfInLoopPattern::SingleVarThen {
+            shape,
+            IfInLoopShape::SingleVarThen {
                 var_name: "x".to_string()
             }
         );
@@ -162,10 +162,10 @@ mod tests {
             "target": "x",
             "expr": json!({"type": "Int", "value": 2})
         })];
-        let pattern = IfInLoopPattern::detect(&then_stmts, &else_stmts);
+        let shape = IfInLoopShape::detect(&then_stmts, &else_stmts);
         assert_eq!(
-            pattern,
-            IfInLoopPattern::SingleVarBoth {
+            shape,
+            IfInLoopShape::SingleVarBoth {
                 var_name: "x".to_string()
             }
         );
@@ -179,10 +179,10 @@ mod tests {
             "method": "push",
             "args": [json!({"type": "Var", "name": "v"})]
         })];
-        let pattern = IfInLoopPattern::detect(&then_stmts, &[]);
+        let shape = IfInLoopShape::detect(&then_stmts, &[]);
         assert_eq!(
-            pattern,
-            IfInLoopPattern::ConditionalEffect {
+            shape,
+            IfInLoopShape::ConditionalEffect {
                 receiver_name: "acc".to_string(),
                 method_name: "push".to_string()
             }
@@ -195,10 +195,10 @@ mod tests {
             json!({"type": "Assignment", "target": "x", "expr": json!(1)}),
             json!({"type": "Assignment", "target": "y", "expr": json!(2)}),
         ];
-        let pattern = IfInLoopPattern::detect(&then_stmts, &[]);
+        let shape = IfInLoopShape::detect(&then_stmts, &[]);
         assert_eq!(
-            pattern,
-            IfInLoopPattern::Unsupported {
+            shape,
+            IfInLoopShape::Unsupported {
                 then_count: 2,
                 else_count: 0
             }

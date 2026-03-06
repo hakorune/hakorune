@@ -435,6 +435,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - intent: `frontend/ast_lowerer/loop_patterns/` を `loop_routes/` に rename し、`LoopPattern` / `LoopPatternLowerer` / `detect_loop_pattern` / `lower_loop_with_pattern` / `UnimplementedPattern` を `LoopRoute` / `LoopRouteLowerer` / `detect_loop_route` / `lower_loop_with_route` / `UnimplementedRoute` に揃える。current-facing README / comment / error text でも `pattern` を architecture の主語にしない
     - verification: `rg -n "loop_patterns/|loop_patterns::|mod loop_patterns;|LoopPattern\\b|LoopPatternLowerer|UnimplementedPattern|detect_loop_pattern|lower_loop_with_pattern|break_pattern|continue_pattern|continue_return_pattern|UnimplementedRoute \\{\\s*pattern:" src/mir/join_ir/frontend/ast_lowerer -g '!src/mir/join_ir/frontend/ast_lowerer/if_in_loop/**'` = 0 hit
     - verification: `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+  - naming cleanup (2026-03-07, slice 51): frontend `if_in_loop` の current path/type 名を `shape` 主語へ同期した
+    - synced files: `src/mir/join_ir/frontend/ast_lowerer/if_in_loop/{mod.rs,shape.rs}` / `CURRENT_TASK.md`
+    - intent: `if_in_loop/pattern.rs` を `shape.rs` に rename し、`IfInLoopPattern` と local `pattern` binding を `IfInLoopShape` / `shape` に揃える。current frontend path では `pattern` を route/shape 判定の主語にしない
+    - verification: `rg -n "IfInLoopPattern|if_in_loop/pattern|pub mod pattern;|use pattern::" src/mir/join_ir/frontend/ast_lowerer docs/development/current/main/design CURRENT_TASK.md -g '!**/*history*' -g '!**/*archive*'` = 0 hit
+    - verification: `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 
 ## next fixed order (resume point)
 
