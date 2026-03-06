@@ -3,7 +3,7 @@
 //! Phase 171-172: Issue 5
 //!
 //! Provides unified construction methods for ConditionEnv and ConditionBindings
-//! used in loop_break route condition analysis (legacy label: Pattern2).
+//! used in loop_break route condition analysis.
 //!
 //! # Responsibility
 //!

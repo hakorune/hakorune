@@ -32,7 +32,7 @@ use crate::runtime::get_global_ring0;
 ///   Call(loop_step, [i_next, sum_new])
 /// ```
 ///
-/// # Steps (from design.md § IfPhiJoin / legacy Pattern 3, traceability-only)
+/// # Steps (from design.md § IfPhiJoin)
 ///
 /// 1. **Extract Loop Variables** (multiple carriers: i + sum)
 /// 2. **Create loop_step Function** (params: i, sum, k_exit)
@@ -69,7 +69,7 @@ use crate::runtime::get_global_ring0;
 ///
 /// # Reference
 ///
-/// See design.md § Pattern 3 (legacy numbering, traceability-only) for full pseudocode.
+/// See design.md § IfPhiJoin for full pseudocode.
 ///
 /// # Example Usage
 ///
@@ -85,14 +85,14 @@ pub fn lower_loop_with_conditional_phi_to_joinir(
     _lowerer: &mut LoopToJoinLowerer,
 ) -> Option<JoinInst> {
     // Phase 242-EX-A: Legacy stub removed
-    // IfPhiJoin route is now fully handled via router → pattern3_with_if_phi.rs
-    // (legacy file name, traceability-only) → loop_with_if_phi_if_sum.rs.
+    // IfPhiJoin route is now fully handled via router → legacy if-phi lowerer
+    // → `loop_with_if_phi_if_sum.rs`.
     // This stub function is unused and kept only for API compatibility
     if crate::config::env::joinir_dev::debug_enabled() {
         get_global_ring0()
             .log
             .debug(
-                "[loop_patterns] IfPhiJoin route: stub (routing via legacy pattern3_with_if_phi.rs)",
+                "[loop_patterns] IfPhiJoin route: stub (routing via legacy if-phi lowerer)",
             );
     }
     None

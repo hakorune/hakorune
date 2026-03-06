@@ -29,7 +29,7 @@
 //! Examples: constant folding, variable extraction, etc.
 //!
 //! ## Future: LoopContinueOnly Completion
-//! When LoopContinueOnly is implemented (legacy Pattern 4; traceability-only):
+//! When LoopContinueOnly is implemented:
 //! 1. Modify `with_continue.rs` from stub to full implementation
 //! 2. Update dispatch logic if needed
 //! 3. Add tests to `loop_patterns/tests/`

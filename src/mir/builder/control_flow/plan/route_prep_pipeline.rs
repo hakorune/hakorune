@@ -130,13 +130,13 @@ pub(crate) struct RoutePrepContext {
 /// Route variant selector
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum RouteVariant {
-    /// loop_simple_while route (historical numbered label: Pattern1)
+    /// loop_simple_while route
     LoopSimpleWhile,
-    /// loop_break route (historical numbered label: Pattern2)
+    /// loop_break route
     LoopBreak,
-    /// if_phi_join route (semantic name; legacy enum label: Pattern3)
+    /// if_phi_join route
     IfPhiJoin,
-    /// loop_continue_only route (semantic name; legacy enum label: Pattern4)
+    /// loop_continue_only route
     LoopContinueOnly,
 }
 

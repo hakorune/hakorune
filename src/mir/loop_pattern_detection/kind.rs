@@ -1,37 +1,37 @@
 /// Loop route-family classification based on structure.
 ///
-/// Historical pattern numbering remains available via `pattern_id()`, but the
-/// runtime-facing enum names should use semantic route labels.
+/// Historical numbering remains available via `pattern_id()`, but runtime-facing
+/// code should use the semantic route labels below.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LoopPatternKind {
-    /// LoopSimpleWhile route family (historical Pattern 1)
+    /// LoopSimpleWhile route family
     /// - No break, no continue
     /// - Single backedge
     LoopSimpleWhile,
 
-    /// LoopBreak route family (historical Pattern 2)
+    /// LoopBreak route family
     /// - Has break statement(s)
     /// - No continue statements
     LoopBreak,
 
-    /// IfPhiJoin route family (historical Pattern 3)
+    /// IfPhiJoin route family
     /// - Has if-else statement with PHI
     /// - No break, no continue
     /// - Multiple carrier variables
     IfPhiJoin,
 
-    /// LoopContinueOnly route family (historical Pattern 4)
+    /// LoopContinueOnly route family
     /// - Has continue statement(s)
     /// - No break statements (for simplicity)
     LoopContinueOnly,
 
-    /// LoopTrueEarlyExit route family (historical Pattern 5, Phase 131-11)
+    /// LoopTrueEarlyExit route family
     /// - Infinite loop: condition is `loop(true)`
     /// - Has both break AND continue
     /// - Minimal carrier (1 counter-like variable)
     LoopTrueEarlyExit,
 
-    /// NestedLoopMinimal route family (historical Pattern 6) - Phase 188.1
+    /// NestedLoopMinimal route family
     /// - Outer loop: loop_simple_while-compatible
     /// - Inner loop: loop_simple_while-compatible
     /// - max_loop_depth == 2 exactly
@@ -73,7 +73,7 @@ impl LoopPatternKind {
 
     /// Phase 193-3: Get historical numeric route ID
     ///
-    /// Returns the pattern number (1-5) or 0 for unknown.
+    /// Returns the historical route number (1-6) or 0 for unknown.
     /// Useful for priority sorting.
     pub fn pattern_id(&self) -> u8 {
         match self {

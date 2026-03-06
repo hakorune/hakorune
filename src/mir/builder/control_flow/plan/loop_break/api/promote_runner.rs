@@ -15,7 +15,6 @@ use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
 use super::promote_decision::{PromoteDecision, PromoteStepResult};
 
 /// Phase 263 P0.2: Try to promote LoopBodyLocal variables for loop_break route
-/// (legacy label: Pattern2)
 ///
 /// This is the single entry point for loop_break promotion logic.
 /// Returns PromoteDecision to indicate success, applicability, or freeze.

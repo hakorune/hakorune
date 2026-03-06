@@ -1,5 +1,4 @@
 //! loop_break route input analysis (facts collection only)
-//! (legacy label: Pattern2)
 //!
 //! This box collects everything loop_break lowering needs *without* emitting JoinIR
 //! and *without* applying policy routing:

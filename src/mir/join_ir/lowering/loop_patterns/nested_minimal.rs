@@ -133,7 +133,7 @@ pub fn lower_nested_loop_minimal_to_joinir(
     _loop_form: &LoopForm,
     _lowerer: &mut LoopToJoinLowerer,
 ) -> Option<JoinInst> {
-    // TODO: Implement NestedLoopMinimal route lowering (legacy Pattern 6; traceability-only)
+    // TODO: Implement NestedLoopMinimal route lowering
     //
     // Step 1: Detect Outer + Inner Loops
     // ===================================

@@ -3,10 +3,10 @@
 //! Phase 188 Task 188-4: Route-shape detection helpers for JoinIR loop lowering.
 //!
 //! This module provides detection functions for 4 loop route shapes:
-//! - `LoopSimpleWhile` (foundational; legacy Pattern 1, traceability-only)
-//! - `LoopBreak` (early exit; legacy Pattern 2, traceability-only)
-//! - `IfPhiJoin` (variable mutation; legacy Pattern 3, traceability-only)
-//! - `LoopContinueOnly` (skip iteration; legacy Pattern 4, traceability-only)
+//! - `LoopSimpleWhile` (foundational)
+//! - `LoopBreak` (early exit)
+//! - `IfPhiJoin` (variable mutation)
+//! - `LoopContinueOnly` (skip iteration)
 //!
 //! Phase 194+: Structure-based detection using LoopFeatures.
 //! Route shapes are classified based on CFG structure, not function names.

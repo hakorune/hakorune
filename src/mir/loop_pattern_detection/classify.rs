@@ -22,7 +22,6 @@ use super::kind::LoopPatternKind;
 ///    - Includes single-carrier if-update patterns (e.g., if-sum with 1 carrier)
 ///
 /// 4. **LoopBreak**: `has_break && !has_continue`
-///    - Historical numbered label: Pattern 2
 ///
 /// 5. **LoopSimpleWhile**: `!has_break && !has_continue && !has_if`
 ///    - Phase 212.5: Exclude loops with if statements

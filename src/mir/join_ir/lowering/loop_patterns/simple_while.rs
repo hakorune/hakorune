@@ -31,7 +31,7 @@ use crate::mir::loop_form::LoopForm;
 ///   Call(loop_step, [i_next])
 /// ```
 ///
-/// # Steps (from design.md § LoopSimpleWhile / legacy Pattern 1, traceability-only)
+/// # Steps (from design.md § LoopSimpleWhile)
 ///
 /// 1. **Extract Loop Variables (Carriers)**
 ///    - Analyze header PHI nodes
@@ -78,7 +78,7 @@ use crate::mir::loop_form::LoopForm;
 ///
 /// # Reference
 ///
-/// See design.md § Pattern 1 (legacy numbering, traceability-only) for full pseudocode.
+/// See design.md § LoopSimpleWhile for full pseudocode.
 ///
 /// # Example Usage
 ///
@@ -93,7 +93,7 @@ pub fn lower_simple_while_to_joinir(
     _loop_form: &LoopForm,
     _lowerer: &mut LoopToJoinLowerer,
 ) -> Option<JoinInst> {
-    // TODO: Implement LoopSimpleWhile route lowering (legacy Pattern 1; traceability-only)
+    // TODO: Implement LoopSimpleWhile route lowering
     //
     // Step 1: Extract Loop Variables (Carriers)
     // ==========================================

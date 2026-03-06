@@ -1,5 +1,4 @@
 //! Phase 29ab P4: Derived slot contract for loop_break route
-//! (legacy label: Pattern2)
 //!
 //! Responsibility:
 //! - Extract a minimal derived-slot recipe for a single LoopBodyLocal variable

@@ -36,7 +36,7 @@ use crate::mir::loop_form::LoopForm;
 ///   Call(loop_step, [i_next, sum_next])      // Normal iteration
 /// ```
 ///
-/// # Steps (LoopContinueOnly / legacy Pattern 4, traceability-only)
+/// # Steps (LoopContinueOnly)
 ///
 /// 1. **Extract Loop Variables** (multiple carriers: i + sum)
 /// 2. **Create loop_step Function** (params: i, sum, k_exit)
@@ -73,7 +73,7 @@ use crate::mir::loop_form::LoopForm;
 ///
 /// # Reference
 ///
-/// See design.md § Pattern 4 (legacy numbering, traceability-only) for full pseudocode.
+/// See design.md § LoopContinueOnly for full pseudocode.
 ///
 /// # Example Usage
 ///
@@ -89,7 +89,7 @@ pub fn lower_loop_with_continue_to_joinir(
     _lowerer: &mut LoopToJoinLowerer,
 ) -> Option<JoinInst> {
     // Phase 188-Impl-4: LoopContinueOnly route implementation placeholder
-    // TODO: Implement LoopContinueOnly route lowering (legacy Pattern 4; traceability-only)
+    // TODO: Implement LoopContinueOnly route lowering
     //
     // Step 1: Extract Loop Variables (Carriers)
     // ==========================================

@@ -34,7 +34,7 @@ use crate::mir::loop_form::LoopForm;
 ///   Call(loop_step, [i_next])
 /// ```
 ///
-/// # Steps (from design.md § LoopBreak / legacy Pattern 2, traceability-only)
+/// # Steps (from design.md § LoopBreak)
 ///
 /// 1. **Extract Loop Variables** (same as LoopSimpleWhile route)
 /// 2. **Create loop_step Function** (same as LoopSimpleWhile route)
@@ -72,7 +72,7 @@ use crate::mir::loop_form::LoopForm;
 ///
 /// # Reference
 ///
-/// See design.md § Pattern 2 (legacy numbering, traceability-only) for full pseudocode.
+/// See design.md § LoopBreak for full pseudocode.
 ///
 /// # Example Usage
 ///

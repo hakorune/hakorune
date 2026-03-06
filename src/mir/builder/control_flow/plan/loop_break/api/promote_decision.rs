@@ -1,8 +1,7 @@
 //! Phase 263 P0.2: Promotion decision types (SSOT)
 //!
 //! PromoteDecision enum eliminates Option<_> wrapping ambiguity by making
-//! the decision explicit. All loop_break promotion logic flows through this type
-//! (legacy label: Pattern2).
+//! the decision explicit. All loop_break promotion logic flows through this type.
 
 use super::super::super::loop_break_prep_box::LoopBreakPrepInputs;
 
@@ -11,7 +10,6 @@ pub(crate) struct PromoteStepResult {
 }
 
 /// Phase 263 P0.1: Promotion decision for loop_break LoopBodyLocal handling
-/// (legacy label: Pattern2)
 ///
 /// Eliminates Option<_> wrapping ambiguity by making decision explicit.
 pub(crate) enum PromoteDecision {
