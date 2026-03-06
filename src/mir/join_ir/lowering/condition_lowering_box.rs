@@ -183,7 +183,7 @@ mod tests {
     use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
     use crate::mir::join_ir::lowering::condition_env::ConditionEnv;
     use crate::mir::join_ir::lowering::expr_lowerer::{ExprContext, ExprLowerer};
-    use crate::mir::join_ir::lowering::scope_manager::Pattern2ScopeManager;
+    use crate::mir::join_ir::lowering::scope_manager::LoopBreakScopeManager;
 
     fn span() -> Span {
         Span::unknown()
@@ -225,12 +225,10 @@ mod tests {
             loop_var_id: ValueId(1),
             carriers: vec![],
             trim_helper: None,
-            promoted_loopbodylocals: vec![],
-            #[cfg(feature = "normalized_dev")]
-            promoted_bindings: std::collections::BTreeMap::new(),
+            promoted_body_locals: vec![],
         };
 
-        let scope = Pattern2ScopeManager {
+        let scope = LoopBreakScopeManager {
             condition_env: &condition_env,
             loop_body_local_env: None,
             captured_env: None,
@@ -282,12 +280,10 @@ mod tests {
             loop_var_id: ValueId(1),
             carriers: vec![],
             trim_helper: None,
-            promoted_loopbodylocals: vec![],
-            #[cfg(feature = "normalized_dev")]
-            promoted_bindings: std::collections::BTreeMap::new(),
+            promoted_body_locals: vec![],
         };
 
-        let scope = Pattern2ScopeManager {
+        let scope = LoopBreakScopeManager {
             condition_env: &condition_env,
             loop_body_local_env: None,
             captured_env: None,

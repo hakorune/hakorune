@@ -12,7 +12,11 @@ use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::MirType;
 use std::collections::BTreeMap;
 
-pub(in crate::mir::builder) fn build_pattern1_coreloop(
+/// Build the canonical simple-while coreloop scaffold.
+///
+/// Legacy note: this lives in `pattern1_coreloop_builder.rs` for compatibility with
+/// older phase docs, but runtime callers should use the semantic helper name.
+pub(in crate::mir::builder) fn build_simple_while_coreloop(
     builder: &mut MirBuilder,
     loop_var: &str,
     condition: &ASTNode,
@@ -180,9 +184,9 @@ mod tests {
     }
 
     #[test]
-    fn build_pattern1_coreloop_has_expected_frag_shape() {
+    fn build_simple_while_coreloop_has_expected_frag_shape() {
         let mut builder = MirBuilder::new();
-        builder.enter_function_for_test("pattern1_coreloop_test".to_string());
+        builder.enter_function_for_test("simple_while_coreloop_test".to_string());
 
         let loop_var = "i";
         let loop_var_init = builder.alloc_typed(MirType::Integer);
@@ -194,11 +198,22 @@ mod tests {
         let condition = make_condition(loop_var, 3);
         let loop_increment = make_increment(loop_var);
         let body = make_body(loop_var);
-        let ctx = LoopRouteContext::new(&condition, &body, "pattern1_coreloop_test", false, false);
+        let ctx = LoopRouteContext::new(
+            &condition,
+            &body,
+            "simple_while_coreloop_test",
+            false,
+            false,
+        );
 
-        let loop_plan =
-            build_pattern1_coreloop(&mut builder, loop_var, &condition, &loop_increment, &ctx)
-                .expect("pattern1 coreloop build should succeed");
+        let loop_plan = build_simple_while_coreloop(
+            &mut builder,
+            loop_var,
+            &condition,
+            &loop_increment,
+            &ctx,
+        )
+        .expect("simple_while coreloop build should succeed");
 
         assert_eq!(loop_plan.phis.len(), 1);
         assert_eq!(loop_plan.frag.branches.len(), 1);

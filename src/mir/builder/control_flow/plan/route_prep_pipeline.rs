@@ -61,15 +61,15 @@ use crate::mir::builder::control_flow::plan::loop_scope_shape_builder::LoopScope
 ///
 /// # Usage
 ///
-/// Note: `PatternVariant` is a legacy numbered enum; semantic route names are
-/// documented in each variant comment below.
+/// `RouteVariant` is the semantic route selector for shared preprocessing.
+/// Historical numbered labels remain traceability-only in comments/docs.
 ///
 /// ```rust
 /// let ctx = build_route_prep_context(
 ///     builder,
 ///     condition,
 ///     body,
-///     PatternVariant::Pattern1,
+///     RouteVariant::LoopSimpleWhile,
 /// )?;
 ///
 /// // Use preprocessed data for lowering
@@ -129,15 +129,15 @@ pub(crate) struct RoutePrepContext {
 
 /// Route variant selector
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum PatternVariant {
-    /// loop_simple_while route (legacy enum label: Pattern1)
-    Pattern1,
-    /// loop_break route (legacy enum label: Pattern2)
-    Pattern2,
-    /// if_phi_join route (legacy enum label: Pattern3)
-    Pattern3,
-    /// loop_continue_only route (legacy enum label: Pattern4)
-    Pattern4,
+pub(crate) enum RouteVariant {
+    /// loop_simple_while route (historical numbered label: Pattern1)
+    LoopSimpleWhile,
+    /// loop_break route (historical numbered label: Pattern2)
+    LoopBreak,
+    /// if_phi_join route (semantic name; legacy enum label: Pattern3)
+    IfPhiJoin,
+    /// loop_continue_only route (semantic name; legacy enum label: Pattern4)
+    LoopContinueOnly,
 }
 
 impl RoutePrepContext {
@@ -233,7 +233,7 @@ impl RoutePrepContext {
 /// * `builder` - MirBuilder instance
 /// * `condition` - Loop condition AST node
 /// * `body` - Loop body AST nodes
-/// * `variant` - Route variant selector (legacy enum: `PatternVariant`)
+/// * `variant` - Route variant selector (`RouteVariant`)
 ///
 /// # Returns
 ///
@@ -249,13 +249,13 @@ pub(crate) fn build_route_prep_context(
     builder: &mut MirBuilder,
     condition: &ASTNode,
     body: &[ASTNode],
-    variant: PatternVariant,
+    variant: RouteVariant,
 ) -> Result<RoutePrepContext, String> {
     // Step 1: Common initialization (all route variants)
     //
     // Phase 104: Break variant supports `loop(true)` by extracting the counter from the body.
     // This path must be strict and conservative to avoid "accidental" routing.
-    let (loop_var_name, loop_var_id, carrier_info) = if variant == PatternVariant::Pattern2
+    let (loop_var_name, loop_var_id, carrier_info) = if variant == RouteVariant::LoopBreak
         && LoopTrueCounterExtractorBox::is_loop_true(condition)
     {
         let (name, host_id) = LoopTrueCounterExtractorBox::extract_loop_counter_from_body(
@@ -275,7 +275,7 @@ pub(crate) fn build_route_prep_context(
 
     // Step 2: Build LoopScopeShape
     let loop_scope = match variant {
-        PatternVariant::Pattern1 | PatternVariant::Pattern3 => {
+        RouteVariant::LoopSimpleWhile | RouteVariant::IfPhiJoin => {
             // Simple/if-sum variants: no body_locals needed (condition-only analysis)
             LoopScopeShapeBuilder::empty_body_locals(
                 BasicBlockId(0),
@@ -285,7 +285,7 @@ pub(crate) fn build_route_prep_context(
                 BTreeSet::new(),
             )
         }
-        PatternVariant::Pattern2 | PatternVariant::Pattern4 => {
+        RouteVariant::LoopBreak | RouteVariant::LoopContinueOnly => {
             // Break/continue variants: extract body_locals for trim support and promotion
             LoopScopeShapeBuilder::with_body_locals(
                 BasicBlockId(0),
@@ -309,11 +309,11 @@ pub(crate) fn build_route_prep_context(
         loop_body,
         loop_update_summary,
     ) = match variant {
-        PatternVariant::Pattern1 => {
+        RouteVariant::LoopSimpleWhile => {
             // Simple while variant: no additional preprocessing needed
             (None, None, None, None, None, None, None, None)
         }
-        PatternVariant::Pattern3 => {
+        RouteVariant::IfPhiJoin => {
             // If-sum variant: Phase 213 stores loop condition/body for AST-based lowering.
             (
                 None,                    // No condition_env
@@ -326,7 +326,7 @@ pub(crate) fn build_route_prep_context(
                 None,                    // loop_update_summary (reserved for future use)
             )
         }
-        PatternVariant::Pattern2 | PatternVariant::Pattern4 => {
+        RouteVariant::LoopBreak | RouteVariant::LoopContinueOnly => {
             // Break/continue variants: full preprocessing is handled in dedicated lowerers.
             // For now, return empty values (populated by route-specific logic).
             //
@@ -379,8 +379,8 @@ mod tests {
 
     #[test]
     fn test_route_variant_equality() {
-        assert_eq!(PatternVariant::Pattern1, PatternVariant::Pattern1);
-        assert_ne!(PatternVariant::Pattern1, PatternVariant::Pattern2);
+        assert_eq!(RouteVariant::LoopSimpleWhile, RouteVariant::LoopSimpleWhile);
+        assert_ne!(RouteVariant::LoopSimpleWhile, RouteVariant::LoopBreak);
     }
 
     #[test]
@@ -400,8 +400,6 @@ mod tests {
                         join_id: None,
                         role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                         init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-                        #[cfg(feature = "normalized_dev")]
-                        binding_id: None,
                     },
                     CarrierVar {
                         name: "count".to_string(),
@@ -409,14 +407,10 @@ mod tests {
                         join_id: None,
                         role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                         init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-                        #[cfg(feature = "normalized_dev")]
-                        binding_id: None,
                     },
                 ],
                 trim_helper: None,
-                promoted_loopbodylocals: Vec::new(), // Phase 224
-                #[cfg(feature = "normalized_dev")]
-                promoted_bindings: std::collections::BTreeMap::new(), // Phase 76
+                promoted_body_locals: Vec::new(), // Phase 224
             },
             loop_scope: LoopScopeShapeBuilder::empty_body_locals(
                 BasicBlockId(0),
@@ -455,9 +449,7 @@ mod tests {
                     carrier_name: "is_whitespace".to_string(),
                     whitespace_chars: vec![" ".to_string(), "\t".to_string()],
                 }),
-                promoted_loopbodylocals: Vec::new(), // Phase 224
-                #[cfg(feature = "normalized_dev")]
-                promoted_bindings: std::collections::BTreeMap::new(), // Phase 76
+                promoted_body_locals: Vec::new(), // Phase 224
             },
             loop_scope: LoopScopeShapeBuilder::empty_body_locals(
                 BasicBlockId(0),

@@ -5,20 +5,20 @@
 //! - No emission (no MIR/Frag generation)
 //!
 //! SSOT: docs/development/current/main/design/plan-dir-shallowing-ssot.md
-//! shallowing: moved from subdirs (pattern2_break_facts/, loop_facts/, expr/)
+//! shallowing: moved from legacy break-on-condition subdirs plus loop_facts/expr/.
 
-// Flattened from pattern2_break_facts/
-pub(in crate::mir::builder) mod pattern2_break_core;
-pub(in crate::mir::builder) mod pattern2_break_helpers;
-pub(in crate::mir::builder) mod pattern2_break_loopbodylocal;
-pub(in crate::mir::builder) mod pattern2_break_parse_integer;
-pub(in crate::mir::builder) mod pattern2_break_read_digits;
-pub(in crate::mir::builder) mod pattern2_break_realworld;
-pub(in crate::mir::builder) mod pattern2_break_step_before_break;
+// Flattened from the legacy break-on-condition facts cluster.
+pub(in crate::mir::builder) mod loop_break_core;
+pub(in crate::mir::builder) mod loop_break_helpers;
+pub(in crate::mir::builder) mod loop_break_body_local_subset;
+pub(in crate::mir::builder) mod loop_break_parse_integer;
+pub(in crate::mir::builder) mod loop_break_read_digits;
+pub(in crate::mir::builder) mod loop_break_realworld;
+pub(in crate::mir::builder) mod loop_break_step_before_break;
 #[cfg(test)]
-pub(in crate::mir::builder) mod pattern2_break_tests;
-pub(in crate::mir::builder) mod pattern2_break_trim_whitespace;
-pub(in crate::mir::builder) mod pattern2_break_types;
+pub(in crate::mir::builder) mod loop_break_tests;
+pub(in crate::mir::builder) mod loop_break_trim_whitespace;
+pub(in crate::mir::builder) mod loop_break_types;
 
 // Flattened from loop_facts/
 pub(in crate::mir::builder) mod loop_builder;
@@ -38,9 +38,9 @@ pub(in crate::mir::builder) mod expr_value;
 // Existing modules
 pub(in crate::mir::builder) mod feature_facts;
 pub(in crate::mir::builder) mod block_policies;
-pub(in crate::mir::builder) mod pattern1_simplewhile_facts;
-pub(in crate::mir::builder) mod pattern1_char_map_facts;
-pub(in crate::mir::builder) mod pattern1_array_join_facts;
+pub(in crate::mir::builder) mod loop_simple_while_facts;
+pub(in crate::mir::builder) mod loop_char_map_facts;
+pub(in crate::mir::builder) mod loop_array_join_facts;
 pub(in crate::mir::builder) mod pattern_is_integer_facts;
 pub(in crate::mir::builder) mod pattern_starts_with_facts;
 pub(in crate::mir::builder) mod pattern_int_to_str_facts;
@@ -48,13 +48,13 @@ pub(in crate::mir::builder) mod pattern_escape_map_facts;
 pub(in crate::mir::builder) mod pattern_split_lines_facts;
 pub(in crate::mir::builder) mod pattern_skip_ws_facts;
 pub(in crate::mir::builder) mod pattern_match_return_facts;
-pub(in crate::mir::builder) mod pattern3_ifphi_facts;
-pub(in crate::mir::builder) mod pattern4_continue_facts;
-pub(in crate::mir::builder) mod pattern5_infinite_early_exit_facts;
-pub(in crate::mir::builder) mod pattern6_nested_minimal_facts;
-pub(in crate::mir::builder) mod pattern8_bool_predicate_scan_facts;
-pub(in crate::mir::builder) mod pattern9_accum_const_loop_facts;
-pub(in crate::mir::builder) mod pattern2_loopbodylocal_facts;
+pub(in crate::mir::builder) mod if_phi_join_facts;
+pub(in crate::mir::builder) mod loop_continue_only_facts;
+pub(in crate::mir::builder) mod loop_true_early_exit_facts;
+pub(in crate::mir::builder) mod nested_loop_minimal_facts;
+pub(in crate::mir::builder) mod bool_predicate_scan_facts;
+pub(in crate::mir::builder) mod accum_const_loop_facts;
+pub(in crate::mir::builder) mod loop_break_body_local_facts;
 pub(in crate::mir::builder) mod scan_shapes;
 pub(in crate::mir::builder) mod skeleton_facts;
 pub(in crate::mir::builder) mod stmt_view;
@@ -68,26 +68,27 @@ pub(in crate::mir::builder) use loop_builder::{
     try_build_loop_facts, try_build_loop_facts_with_ctx,
 };
 pub(in crate::mir::builder) use loop_types::LoopFacts;
-pub(in crate::mir::builder) type LoopBreakFacts =
-    pattern2_break_types::Pattern2BreakFacts;
+pub(in crate::mir::builder) use if_phi_join_facts::try_extract_if_phi_join_facts;
+pub(in crate::mir::builder) use loop_continue_only_facts::try_extract_loop_continue_only_facts;
+pub(in crate::mir::builder) use loop_break_types::LoopBreakFacts;
 pub(in crate::mir::builder) type LoopSimpleWhileFacts =
-    pattern1_simplewhile_facts::Pattern1SimpleWhileFacts;
+    loop_simple_while_facts::LoopSimpleWhileFacts;
 pub(in crate::mir::builder) type LoopCharMapFacts =
-    pattern1_char_map_facts::Pattern1CharMapFacts;
+    loop_char_map_facts::LoopCharMapFacts;
 pub(in crate::mir::builder) type LoopArrayJoinFacts =
-    pattern1_array_join_facts::Pattern1ArrayJoinFacts;
+    loop_array_join_facts::LoopArrayJoinFacts;
 pub(in crate::mir::builder) type IfPhiJoinFacts =
-    pattern3_ifphi_facts::Pattern3IfPhiFacts;
-pub(in crate::mir::builder) type LoopContinueRecipeFacts =
-    pattern4_continue_facts::Pattern4ContinueFacts;
+    if_phi_join_facts::IfPhiJoinFacts;
+pub(in crate::mir::builder) type LoopContinueOnlyFacts =
+    loop_continue_only_facts::LoopContinueOnlyFacts;
 pub(in crate::mir::builder) type LoopTrueEarlyExitFacts =
-    pattern5_infinite_early_exit_facts::Pattern5InfiniteEarlyExitFacts;
+    loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
 pub(in crate::mir::builder) type NestedLoopMinimalFacts =
-    pattern6_nested_minimal_facts::Pattern6NestedMinimalFacts;
+    nested_loop_minimal_facts::NestedLoopMinimalFacts;
 pub(in crate::mir::builder) type BoolPredicateScanFacts =
-    pattern8_bool_predicate_scan_facts::Pattern8BoolPredicateScanFacts;
+    bool_predicate_scan_facts::BoolPredicateScanFacts;
 pub(in crate::mir::builder) type AccumConstLoopFacts =
-    pattern9_accum_const_loop_facts::Pattern9AccumConstLoopFacts;
+    accum_const_loop_facts::AccumConstLoopFacts;
 pub(in crate::mir::builder) use pattern_match_return_facts::{
     MatchReturnFacts, MatchReturnScrutinee, try_extract_match_return_facts,
 };

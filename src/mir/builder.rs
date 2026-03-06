@@ -248,27 +248,6 @@ impl Default for MirBuilder {
     }
 }
 
-// Phase 79: BindingMapProvider implementation
-// Centralizes feature-gated binding_map access for promoters
-use crate::mir::loop_pattern_detection::BindingMapProvider;
-
-impl BindingMapProvider for MirBuilder {
-    #[cfg(feature = "normalized_dev")]
-    fn get_binding_map(
-        &self,
-    ) -> Option<&std::collections::BTreeMap<String, crate::mir::BindingId>> {
-        // Phase 136 Step 4/7: Use binding_ctx (SSOT)
-        Some(self.binding_ctx.binding_map())
-    }
-
-    #[cfg(not(feature = "normalized_dev"))]
-    fn get_binding_map(
-        &self,
-    ) -> Option<&std::collections::BTreeMap<String, crate::mir::BindingId>> {
-        None
-    }
-}
-
 #[cfg(test)]
 mod binding_id_tests {
     use super::*;

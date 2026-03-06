@@ -11,7 +11,7 @@
 
 ### 対象 (In Scope)
 
-- **コード内の型名**: `Pattern1SimpleWhilePlan`, `Pattern2BreakPlan` などの型名
+- **コード内の型名**: `Pattern1SimpleWhilePlan`, `LoopBreakPlan` などの型名
 - **関数名**: `try_extract_pattern1_simplewhile` などの関数名
 - **モジュール名**: `pattern1_simple_while.rs` などのモジュール名
 - **構造体フィールド**: Pattern 構造体のフィールド名
@@ -117,7 +117,11 @@
 | `Pattern8BoolPredicateScan` | `BoolPredicateScanRecipe` | Scan | 述語関数を使うスキャン |
 | `Pattern9AccumConstLoop` | `AccumConstLoopRecipe` | Accumulator | 定数累積ループ |
 
-### DomainPlan 型対応表
+### Historical planner-payload 型対応表
+
+Note:
+- runtime 主経路では legacy planner payload を使わない。
+- この表は移行履歴の対応づけとして残す。
 
 | 現在 | 新名 | 用途 |
 |------|------|------|
@@ -131,18 +135,21 @@
 
 | 現在 | 新名 | ファイル位置 |
 |------|------|-------------|
-| `Pattern1SimpleWhileFacts` | `LoopSimpleWhileFacts` | `facts/pattern1_simplewhile_facts.rs` |
-| `Pattern2BreakFacts` | `LoopBreakFacts` | `facts/pattern2_break_facts.rs` |
-| `Pattern3IfPhiFacts` | `IfPhiJoinFacts` | `facts/pattern3_ifphi_facts.rs` |
-| `Pattern4ContinueFacts` | `LoopContinueOnlyFacts` | `facts/pattern4_continue_facts.rs` |
-| `Pattern5InfiniteEarlyExitFacts` | `LoopTrueEarlyExitFacts` | `facts/pattern5_infinite_early_exit_facts.rs` |
+| `Pattern1SimpleWhileFacts` | `LoopSimpleWhileFacts` | `facts/loop_simple_while_facts.rs` |
+| `Pattern2BreakFacts` | `LoopBreakFacts` | `facts/loop_break_{core,types,...}.rs` |
+| `Pattern3IfPhiFacts` | `IfPhiJoinFacts` | `facts/if_phi_join_facts.rs` |
+| `Pattern4ContinueFacts` | `LoopContinueOnlyFacts` | `facts/loop_continue_only_facts.rs` |
+| `Pattern5InfiniteEarlyExitFacts` | `LoopTrueEarlyExitFacts` | `facts/loop_true_early_exit_facts.rs` |
+| `Pattern6NestedMinimalFacts` | `NestedLoopMinimalFacts` | `facts/nested_loop_minimal_facts.rs` |
+| `Pattern8BoolPredicateScanFacts` | `BoolPredicateScanFacts` | `facts/bool_predicate_scan_facts.rs` |
+| `Pattern9AccumConstLoopFacts` | `AccumConstLoopFacts` | `facts/accum_const_loop_facts.rs` |
 
 ### Recipe 型対応表
 
 | 現在 | 新名 | ファイル位置 |
 |------|------|-------------|
 | `Pattern1SimpleWhileRecipe` | `LoopSimpleWhileRecipe` | `recipe_tree/pattern1_simple_while_builder.rs` |
-| `Pattern2BreakRecipe` | `LoopBreakRecipe` | `recipe_tree/pattern2_break_builder.rs` |
+| `Pattern2BreakRecipe` | `LoopBreakRecipe` | `recipe_tree/loop_break_builder.rs` |
 | `Pattern3IfPhiRecipe` | `IfPhiJoinRecipe` | `recipe_tree/pattern3_ifphi_builder.rs` |
 | `Pattern4ContinueRecipe` | `LoopContinueOnlyRecipe` | `recipe_tree/pattern4_continue_builder.rs` |
 | `Pattern5InfiniteEarlyExitRecipe` | `LoopTrueEarlyExitRecipe` | `recipe_tree/pattern5_infinite_early_exit_builder.rs` |
@@ -227,10 +234,10 @@
 ```rust
 // Phase A-B の例
 pub type Pattern1SimpleWhileFacts = SimpleWhileFacts;
-pub type Pattern2BreakFacts = ConditionalBreakFacts;
+pub type Pattern2BreakFacts = LoopBreakFacts;
 
-pub use pattern1_simple_while as simple_while;
-pub use pattern2_break as conditional_break;
+pub use pattern1_simple_while as loop_simple_while;
+pub use pattern2_break as loop_break;
 ```
 
 ### ログタグの扱い

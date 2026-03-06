@@ -11,9 +11,9 @@ Scope: JoinIR plan/frag 導線（仕様不変）
 |---|---|---|---|
 | Facts | CFG/Terminator/境界情報から抽出した “観測” と “導出” を分離した Facts | planner が CFG を再走査する前提の不足した Facts を作る / emit が CFG を覗いて “穴埋め” | Facts 収集時: 契約違反は `Freeze(contract)`（strict/dev は即Fail） |
 | Normalize | Facts の表現ゆれ除去（純変換） | 追加の解析（CFG/AST を見に行く） / 値の意味を変える変形 | normalize 後の不変条件を `verify_*` で検証（strict/dev） |
-| Planner | Canonical Facts → Plan（候補集合→一意化） | pattern 名で入口分岐を公開APIに漏らす / emit の都合で再解析 | 0候補=Ok(None), 1候補=Ok(Some), 2+=Freeze(ambiguous) |
-| Plan | DomainPlan（pattern固有のSSOT語彙） | CFG 再解析が必要な “情報欠落” Plan / 二重Plan語彙 | emit 前に Plan の構造不変条件を検証（strict/dev） |
-| Emit | Plan → Frag（生成のみ） | Facts/CFG に戻って再推論 / silent fallback | emit は入力不足を Freeze(bug/contract) で落とす（strict/dev） |
+| Planner | Canonical Facts → Recipe（候補集合→一意化） | pattern 名で入口分岐を公開APIに漏らす / emit の都合で再解析 | 0候補=Ok(None), 1候補=Ok(Some), 2+=Freeze(ambiguous) |
+| Plan | Recipe / VerifiedRecipe（current runtime の意味境界） | historical planner-payload wording を current contract に戻す / CFG 再解析が必要な “情報欠落” Plan / 二重Plan語彙 | verifier + emit 前に構造不変条件を検証（strict/dev） |
+| Emit | VerifiedRecipe / CorePlan → Frag（生成のみ） | Facts/CFG に戻って再推論 / silent fallback | emit は入力不足を Freeze(bug/contract) で落とす（strict/dev） |
 | Frag | 生成結果（EdgeCFG/JoinIR lowering の出力） | Frag が “真実” として再利用されること（派生物） | 既存の frag verifier / contract_checks を入口で実行 |
 
 ## Notes
@@ -25,7 +25,7 @@ Scope: JoinIR plan/frag 導線（仕様不変）
 
 - Entry: `docs/development/current/main/phases/phase-29ai/README.md`
 - Plan/Frag overview: `docs/development/current/main/design/edgecfg-fragments.md`
-- scan_with_init/split_scan route contracts (`legacy label: Pattern6/7`): `docs/development/current/main/design/pattern6-7-contracts.md`
+- scan_with_init/split_scan route contracts (legacy labels `Pattern6/7` are traceability-only): `docs/development/current/main/design/pattern6-7-contracts.md`
 - CorePlan Skeleton/Feature model: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 - Shadow-adopt tag coverage SSOT: `docs/development/current/main/design/coreplan-shadow-adopt-tag-coverage-ssot.md`
 - CorePlan FlowBox interface SSOT: `docs/development/current/main/design/coreplan-flowbox-interface-ssot.md`

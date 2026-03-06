@@ -139,22 +139,22 @@ Canonicalizer は "できない理由" を機械的に返す。
 | `CarrierPromotion` | LoopBodyLocal を昇格可能 | P3, P4 | Binding 解析（promoted carriers 検出） |
 | `BreakValueType` | break 値の型が一貫 | P2 | 型推論（TypeContext 参照） |
 
-### 各 Pattern の必須 Capability（Phase 140 時点）
+### 各 route family の必須 Capability（Phase 140 時点）
 
-#### Pattern1 (Minimal)
+#### LoopSimpleWhile family (legacy label: Pattern1)
 - ✅ `ConstStep` - 定数ステップ増分
 - ✅ `PureHeader` - 副作用なし条件
 - ✅ `SingleContinue` - continue 単一箇所
 
-#### Pattern2 (Break)
+#### LoopBreak family (legacy label: Pattern2)
 - ✅ `ConstStep` - 定数ステップ増分
 - ✅ `PureHeader` - 副作用なし条件
 - ✅ `SingleBreak` - break 単一箇所
 - ✅ `ExitBindings` - 出口値の完全性
 
-**例**: `skip_whitespace` は `has_break=true` なので Pattern2 へルーティング（Phase 137-5）
+**例**: `skip_whitespace` は `has_break=true` なので LoopBreak family へルーティング（legacy label: Pattern2, Phase 137-5）
 
-#### Pattern3 (IfPhi)
+#### IfPhiJoin route (legacy label: Pattern3)
 - ✅ `ConstStep` - 定数ステップ増分
 - ✅ `PureHeader` - 副作用なし条件
 - ✅ `OuterLocalCond` - 外側スコープ条件変数
@@ -162,12 +162,12 @@ Canonicalizer は "できない理由" を機械的に返す。
 
 **例**: Trim パターン（Phase 133）
 
-#### Pattern4 (Composite)
+#### LoopContinueOnly route (legacy label: Pattern4)
 - ✅ `PureHeader` - 副作用なし条件
 - ✅ `CarrierPromotion` - LoopBodyLocal 昇格
 - ✅ `ExitBindings` - 出口値の完全性
 
-#### Pattern5 (Future)
+#### LoopTrueEarlyExit family (legacy label: Pattern5, future)
 - 🚧 TBD - 将来定義
 
 ### Capability 追加時のチェックリスト
@@ -179,7 +179,7 @@ Canonicalizer は "できない理由" を機械的に返す。
 3. **説明文**: `description()` メソッドに説明を追加
 4. **検出ロジック**: `canonicalizer.rs` に検出ロジックを実装
 5. **対応表更新**: このドキュメントの対応表を更新
-6. **Pattern 更新**: 必要に応じて各 Pattern の必須 Capability リストを更新
+6. **Route 更新**: 必要に応じて各 route の必須 Capability リストを更新
 7. **テスト追加**: 新 Capability の検出テストを追加
 
 ## Corpus / Signature（拡張のための仕組み）
@@ -308,7 +308,7 @@ pub enum CarrierRole {
 注意:
 - Phase 2 で `canonicalize_loop_expr(...) -> Result<(LoopSkeleton, RoutingDecision), String>` を導入し、JoinIR ループ入口で dev-only 観測できるようにした（既定挙動は不変）。
 - 観測ポイント（JoinIR ループ入口）: `src/mir/builder/control_flow/joinir/routing.rs`（`joinir_dev_enabled()` 配下）
- - Phase 3 で `skip_whitespace` の最小形を `Pattern3IfPhi` として安定に識別できるようにした（dev-only 観測）。
+- Phase 3 で `skip_whitespace` の if-phi-like body shape を dev-only で安定観測できるようにした。runtime の最終選択は ExitContract 優先で `LoopBreak`のまま。
 
 ## Capability の語彙（Fail-Fast reason タグ）
 
@@ -368,14 +368,14 @@ pub struct RoutingDecision {
 
 **原則**: `RoutingDecision.chosen` は「lowerer 選択の最終結果」を返す（構造クラス名ではなく）。
 
-- **ExitContract が優先**: `has_break=true` なら `Pattern2Break`、`has_continue=true` なら `Pattern4Continue`
+- **ExitContract が優先**: `has_break=true` なら `LoopBreak`、`has_continue=true` なら `LoopContinueOnly`
 - **構造的特徴は notes へ**: 「if-else 構造がある」等の情報は `notes` フィールドに記録
 - **一致保証**: Router と Canonicalizer の pattern 選択が一致することを parity check で検証
 
 **例**: `skip_whitespace` パターン
-- 構造: if-else 形式（Pattern3IfPhi に似ている）
+- 構造: if-else 形式（legacy Pattern3 系に近い if-phi shape）
 - ExitContract: `has_break=true`
-- **chosen**: `Pattern2Break`（ExitContract が決定）
+- **chosen**: `LoopBreak`（ExitContract が決定）
 - **notes**: "if-else structure with break in else branch"（構造特徴を記録）
 
 ### 出力先マッピング
@@ -433,7 +433,7 @@ loop(p < len) {
 ### 受け入れ基準
 
 1. `LoopCanonicalizer::canonicalize(ast)` が上記 Skeleton を返す
-2. `RoutingDecision.chosen == Some(Pattern3)`
+2. `RoutingDecision.chosen == Some(LoopBreak)`
 3. `RoutingDecision.missing_caps == []`
 4. 既存 smoke `phase135_trim_mir_verify.sh` が退行しない
 
@@ -446,7 +446,7 @@ loop(p < len) {
 エスケープ処理を含む文字列走査ループ（例: JSON/CSV の `\\`）を、**パターン増殖なし**で段階的に JoinIR に取り込む。
 
 この系は「常に `+1` の通常進行」と「条件が真のときだけ追加で `+1`（合計 `+2` 相当）」が混ざるため、Canonicalizer 側では
-`UpdateKind::ConditionalStep { cond, then_delta, else_delta }` として表現し、下流の lowerer 選択は **`Pattern2Break`（exit contract 優先）**に寄せる。
+`UpdateKind::ConditionalStep { cond, then_delta, else_delta }` として表現し、下流の lowerer 選択は **`LoopBreak`（exit contract 優先）**に寄せる。
 
 ### SSOT（詳細はここへ集約）
 

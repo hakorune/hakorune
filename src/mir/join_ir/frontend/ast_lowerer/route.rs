@@ -2,7 +2,6 @@
 //!
 //! Phase 89 リファクタリング:
 //! - FunctionRoute の定義とルーティングロジックを集約
-//! - normalized_dev fixture は SSOT (dev_fixtures.rs) から自動登録
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FunctionRoute {
@@ -13,17 +12,6 @@ pub(crate) enum FunctionRoute {
 }
 
 pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, String> {
-    // Dev fixtures を SSOT から自動登録
-    #[cfg(feature = "normalized_dev")]
-    {
-        use crate::mir::join_ir::normalized::dev_fixtures::ALL_DEV_FIXTURES;
-        for fixture in ALL_DEV_FIXTURES {
-            if func_name == fixture.function_name() {
-                return Ok(fixture.route());
-            }
-        }
-    }
-
     // 通常のルーティングテーブル
     const TABLE: &[(&str, FunctionRoute)] = &[
         ("test", FunctionRoute::IfReturn),
@@ -56,7 +44,6 @@ pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, S
             "jsonparser_unescape_string_step2_min",
             FunctionRoute::LoopFrontend,
         ),
-        // Note: Phase 48-A/48-B/89-P1 fixtures are auto-registered from dev_fixtures.rs
     ];
 
     if let Some((_, route)) = TABLE.iter().find(|(name, _)| *name == func_name) {

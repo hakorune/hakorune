@@ -4,7 +4,7 @@ use crate::mir::join_ir::ownership::ScopeKind;
 use super::AstOwnershipAnalyzer;
 
 impl AstOwnershipAnalyzer {
-    fn analyze_node(
+    pub(super) fn analyze_node(
         &mut self,
         node: &ASTNode,
         current_scope: crate::mir::join_ir::ownership::ScopeId,
@@ -17,6 +17,25 @@ impl AstOwnershipAnalyzer {
                 let result: Result<(), String> = statements
                     .iter()
                     .try_for_each(|s| self.analyze_node(s, block_scope, false));
+                self.pop_env();
+                result?;
+                self.propagate_to_parent(block_scope);
+            }
+
+            ASTNode::BlockExpr {
+                prelude_stmts,
+                tail_expr,
+                ..
+            } => {
+                let block_scope = self.alloc_scope(ScopeKind::Block, Some(current_scope));
+                self.push_env();
+                let result: Result<(), String> = (|| {
+                    for stmt in prelude_stmts {
+                        self.analyze_node(stmt, block_scope, false)?;
+                    }
+                    self.analyze_node(tail_expr, block_scope, is_condition)?;
+                    Ok(())
+                })();
                 self.pop_env();
                 result?;
                 self.propagate_to_parent(block_scope);

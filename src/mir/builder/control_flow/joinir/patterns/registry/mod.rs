@@ -31,7 +31,7 @@ pub(crate) const ENTRIES: &[Entry] = &[
     },
     Entry {
         name: entry_keys::LOOP_CONTINUE_ONLY,
-        predicate: pred_loop_continue_only_recipe,
+        predicate: pred_loop_continue_only,
         route: Some(route_loop_continue_only),
     },
     Entry {
@@ -177,7 +177,7 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
         scan_methods_candidate:
             pred_loop_scan_methods_block_v0(facts) || pred_loop_scan_methods_v0(facts),
         if_phi_join_candidate: pred_if_phi_join(facts),
-        loop_continue_only_candidate: pred_loop_continue_only_recipe(facts),
+        loop_continue_only_candidate: pred_loop_continue_only(facts),
         loop_true_early_exit_candidate: pred_loop_true_early_exit(facts),
         array_join_candidate: pred_loop_array_join(facts),
     };

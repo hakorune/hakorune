@@ -32,8 +32,8 @@ Related:
 ここでの完了は「legacy label: PatternX の列挙が消えた」ではなく、以下が成立していること。
 
 - 構造SSOTは `CorePlan`（emit/merge は CorePlan/Frag 以外を再解析しない）
-- `Facts → Planner → (DomainPlan) → CorePlan → lowerer/emit → merge` が主経路
-- `DomainPlan` は意図/recipe として残ってもよいが、最終の verify/emit 契約は CorePlan 側で固定されている
+- `Facts → Recipe → Verifier → Parts/Lower → emit → merge` が主経路
+- historical planner-payload wording は移行履歴としてのみ残し、現行 contract は Recipe/Verifier 境界で固定する
 
 ## 1.1 Current (active)
 
@@ -48,7 +48,7 @@ Recent (done):
 - Plan decomposition: `generic_loop` / `scan_with_init` / `split_scan` / `pattern5` / `loop_true` / `loop_cond` は skeleton+pipeline+feature helper へ移行済み（legacy label: PatternX 依存を増やさず、release 既定不変、gate green 維持）。
 
 Candidate next (after selfhost canary / Stage-1):
-- Remaining legacy normalizers の lego-ization（pipeline/skeleton/feature 化）: `src/mir/builder/control_flow/plan/REGISTRY.md` の “Remaining legacy normalizers” table を SSOT として進める
+- Remaining compatibility-lane normalizers の lego-ization（pipeline/skeleton/feature 化）: `src/mir/builder/control_flow/plan/REGISTRY.md` の “Remaining legacy normalizers” table を SSOT として進める
 - Cleanup foundation: `CleanupWrap` + cleanup region boundary / `Seq(Block)` の SSOT 固定（selfhost 移植時の負債化を防ぐ）
   - SSOT: `docs/development/current/main/design/cleanupwrap-cleanup-region-boundary-ssot.md`
 - `StepPlacement/StepMode::InlineInBody` の一般化（strict/dev only, no rewrite）
@@ -72,11 +72,11 @@ Candidate next (after selfhost canary / Stage-1):
 
 - [x] A0. JoinIR regression pack green (`phase29ae_regression_pack_vm.sh`) — evidence: `10-Now.md` L68 — role: baseline establishment
 - [x] A1. CorePlan 語彙の lower/verify 最小セットが green（Phase 29am 完了条件） — evidence: `phases/phase-29am/README.md` (Status: Complete)
-- [ ] B1. Remaining legacy normalizers を skeleton+feature へ移行 — evidence: `src/mir/builder/control_flow/plan/REGISTRY.md` L106-127 ("Remaining legacy normalizers" table)
-- [x] B2. Facts→CorePlan 合成入口を 1 箇所に固定（Phase 29ao） — evidence: `phases/phase-29ao/README.md` (Status: Closeout)
+- [ ] B1. Remaining compatibility-lane normalizers を skeleton+feature へ移行 — evidence: `src/mir/builder/control_flow/plan/REGISTRY.md` L106-127 ("Remaining legacy normalizers" table)
+- [x] B2. Facts/Recipe→CorePlan 合成入口を 1 箇所に固定（Phase 29ao） — evidence: `phases/phase-29ao/README.md` (Status: Closeout)
 - [ ] C1. Planner の骨格一意化が strict/dev で fail-fast する（曖昧形は Freeze） — evidence: `single_planner/` — done: `Ok(None)` silent fallback = 0 in strict mode
 - [ ] D1. Normalizer が「合成だけ」に縮退（再解析なし） — evidence: `plan/lowerer/` — done: `rg "ASTNode::" plan/normalizer/` = 0
-- [ ] E1. legacy fallback を 0 にする（planner-first only） — evidence: `REGISTRY.md` L106-127 — done: "Remaining legacy normalizers" table が空
+- [ ] E1. compatibility fallback を 0 にする（planner-first only） — evidence: `REGISTRY.md` L106-127 — done: "Remaining legacy normalizers" table が空
 - [x] F1. JoinIR integration gate green（回帰SSOT維持） — evidence: `phase-29ae/README.md` L75 + `10-Now.md` L82 — role: continuous maintenance
 - [x] G1. Stage0→Stage1→Stage2 identity tests green — evidence: `selfhost-bootstrap-route-ssot.md` L122-136 — gate: `tools/selfhost_identity_check.sh --mode full` (smoke は参考) — latest: `--skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` PASS（2026-02-11）
 - [x] G2. selfhost canary / E2E 実行の基準リスト更新 + green — evidence: `planner_required_selfhost_subset.tsv` + `CURRENT_TASK.md`（2026-02-08 `182/182`, `total_secs=682`） — gate: `SMOKES_ENABLE_SELFHOST=1 phase29bq_selfhost_planner_required_dev_gate_vm.sh`
@@ -93,10 +93,10 @@ Candidate next (after selfhost canary / Stage-1):
 現状:
 - ✅ Phase 29am（P0–P3）で “最低限 lower/verify できる語彙” を前倒しで固定済み
 
-### Step B: Facts を Skeleton+Feature の SSOTへ寄せる
+### Step B: Facts / Recipe を Skeleton+Feature の SSOTへ寄せる
 
 狙い:
-- legacy label: Pattern1/2/4/5 のような “complete route” の増殖を止める
+- traceability-only legacy label（Pattern1/2/4/5 など）を current route semantics の主語に戻さない
 - `LoopSkeleton + ExitMap + ValueJoin + ...` の合成で表現できる状態に寄せる
 
 やらない:
@@ -105,10 +105,10 @@ Candidate next (after selfhost canary / Stage-1):
 直近の入口（SSOT）:
 - Phase 29an: `docs/development/current/main/phases/phase-29an/README.md`
 
-### Step B.5: 合成入口（composer）を 1 箇所に固定（未接続）
+### Step B.5: 合成入口（Facts/Recipe→CorePlan）を 1 箇所に固定（未接続）
 
 狙い:
-- Facts→CorePlan 合成の入口を “1ファイル” に集約し、以後の実装を合成側へ閉じ込める
+- Facts/Recipe→CorePlan 合成の入口を “1ファイル” に集約し、以後の実装を合成側へ閉じ込める
 
 入口:
 - Phase 29ao: `docs/development/current/main/phases/phase-29ao/README.md`
@@ -122,7 +122,7 @@ Candidate next (after selfhost canary / Stage-1):
 ### Step D: Normalizer を “合成だけ” にする
 
 狙い:
-- `(Skeleton, FeatureSet, DomainIntent)` → `CorePlan` の純変換に収束
+- `Recipe / VerifiedRecipe` → `CorePlan` の純変換に収束
 - join 入力（post-phi）と effect/cleanup 契約を壊さない
 
 ### Step E: 入口から legacy fallback を段階的に 0 へ
@@ -142,7 +142,7 @@ Candidate next (after selfhost canary / Stage-1):
 
 強い Done（段階2）:
 - Facts が complete route（legacy label: PatternX）を増やさず Skeleton+Feature に寄っている
-- DomainPlan は scan/split/predicate 等の “意図” 以外は CorePlan 合成へ吸収されている
+- scan/split/predicate 等の algorithm intent は Recipe/feature として表現され、historical planner-payload wording は移行履歴に限定される
 - Freeze taxonomy が運用でぶれず、strict/dev の診断が安定タグで追える
 
 ## 5. 次の実装順（SSOTの "安全順"）

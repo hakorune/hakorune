@@ -15,7 +15,7 @@ Related:
 目的: “箱理論（制御の箱）” を CorePlan に当てるとき、CorePlan node を **FlowBox（ports を持つ部品）**として定義し、
 post-phi / Exit / cleanup を **ports と合成規則**だけで完結させる。
 
-この文書は「箱の最小インターフェース」を SSOT として固定し、DomainPlan/Facts/Planner が SSOT 化してしまう事故を防ぐ。
+この文書は「箱の最小インターフェース」を SSOT として固定し、Facts/Recipe/Planner が FlowBox の責務を奪ってしまう事故を防ぐ。historical planner-payload wording はここでは扱わない。
 
 ## 1. 用語
 

@@ -53,10 +53,6 @@ pub fn detect_loop_pattern(
         // Phase 58+: Reduce パターン（未実装）
         "reduce" | "fold" => LoopPattern::Reduce,
 
-        // Phase 90: ParseStringComposite パターン（dev-only by name）
-        #[cfg(feature = "normalized_dev")]
-        "parse_string_composite_minimal" => LoopPattern::ParseStringComposite,
-
         // デフォルト: Simple パターン
         // ただし Break/Continue/Return があれば別パターン
         _ => {

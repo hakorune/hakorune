@@ -150,7 +150,7 @@ pub(crate) fn route_loop_break_recipe(
             .facts
             .loop_break()
             .expect("loop_break_recipe is present");
-        let needs_flowbox_tag = env.has_loopbodylocal
+        let needs_flowbox_tag = env.has_body_local
             || loop_break_recipe_needs_flowbox_adopt_tag_in_strict(loop_break_facts);
 
         if needs_flowbox_tag {
@@ -227,10 +227,10 @@ pub(crate) fn route_loop_continue_only(
     emit_planner_first(
         PlannerFirstMode::StrictOrDev,
         env,
-        PlanRuleId::LoopContinueRecipe,
+        PlanRuleId::LoopContinueOnly,
     );
     debug_log_recipe_entry(
-        planner_rule_route_label(PlanRuleId::LoopContinueRecipe),
+        planner_rule_route_label(PlanRuleId::LoopContinueOnly),
         env,
     );
     if env.planner_required {

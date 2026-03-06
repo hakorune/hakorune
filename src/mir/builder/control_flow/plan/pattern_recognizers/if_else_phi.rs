@@ -25,22 +25,20 @@ use crate::ast::ASTNode;
 /// This was too broad - it caught simple conditional assignments like:
 ///   `if x then seg = "A" else seg = "B"`
 ///
-/// if_phi_join route (legacy label: Pattern3) is designed for if-sum patterns
+/// if_phi_join route is designed for if-sum patterns
 /// with arithmetic accumulation:
 ///   `sum = sum + (if x then 1 else 0)`
 ///
 /// Phase 264 P0: Return false to prevent misclassification.
-/// Effect: Loops with conditional assignment fall through to loop_simple_while
-/// (legacy label: Pattern1).
+/// Effect: Loops with conditional assignment fall through to simple-while handling.
 ///
 /// Phase 264 P1: TODO - Implement accurate if-sum signature detection.
 pub(crate) fn detect_if_else_phi_in_body(body: &[ASTNode]) -> bool {
     // Phase 282 P5: Proper if-else PHI detection (re-enabled with ExtractionBased safety)
     //
-    // This function provides initial classification for if_phi_join
-    // (legacy label: Pattern3IfPhi).
-    // The actual validation is done by extractors::pattern3::extract_loop_with_if_phi_parts()
-    // which performs deep checks (PHI assignments, no control flow, etc.)
+    // This function provides initial classification for if_phi_join.
+    // The actual validation is done by the deeper loop-with-if-phi extractor,
+    // which performs PHI assignment and control-flow checks.
     //
     // Here we just check: Does the loop body contain an if-else statement?
     // This allows if_phi_join route to be attempted, and extraction will validate.
@@ -56,8 +54,7 @@ pub(crate) fn detect_if_else_phi_in_body(body: &[ASTNode]) -> bool {
 /// Phase 212.5: Detect ANY if statement in loop body (structural detection)
 ///
 /// This function detects any if statement, regardless of whether it has an else branch.
-/// Used for routing single-carrier if-update patterns to if_phi_join
-/// (legacy label: Pattern3).
+/// Used for routing single-carrier if-update patterns to if_phi_join.
 ///
 /// # Arguments
 ///

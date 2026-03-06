@@ -43,7 +43,6 @@ tools/checks/env_dead_accessors_report.sh
 | `NYASH_SYNTAX_SUGAR_LEVEL` | 使用箇所不明 | 削除検討 | 高 |
 | `NYASH_LEGACY_LOOPBUILDER` | 開発用のみ | ドキュ化 or 削除 | 中 |
 | `NYASH_PHI_METRICS` | 統計用 | ドキュ化 | 低 |
-| `NYASH_JOINIR_NORMALIZED_DEV_RUN` | 実験的 | ドキュ化 or 削除 | 中 |
 | `NYASH_TEST_*` (6個) | テスト用のみ | スコープ限定 | 低 |
 
 ---
@@ -99,7 +98,7 @@ tools/checks/env_dead_accessors_report.sh
 | `NYASH_STR_CP` | bool | false | String copy semantics | 低 |
 | `NYASH_BLOCK_CATCH` | bool | false | Block catch support | 低 |
 
-### C. JoinIR系 (18個)
+### C. JoinIR系 (17個)
 
 | 変数名 | 型 | デフォルト | 目的 | 使用頻度 |
 |--------|------|----------|------|----------|
@@ -113,14 +112,13 @@ tools/checks/env_dead_accessors_report.sh
 | `HAKO_JOINIR_PLANNER_REQUIRED` | bool | false | Planner required mode | 低 |
 | `HAKO_JOINIR_CANON_STRICT` | bool | false | Canon strict mode | 低 |
 | `HAKO_JOINIR_FACTS_ONLY` | bool | false | Facts only mode | 低 |
-| `NYASH_JOINIR_NORMALIZED_DEV_RUN` | bool | false | Normalized dev run (実験的) | 低 |
-| `HAKO_JOINIR_PATTERN1` | bool | false | Pattern1 explicit | 低 |
-| `HAKO_JOINIR_PATTERN2` | bool | false | Pattern2 explicit | 低 |
-| `HAKO_JOINIR_PATTERN3` | bool | false | Pattern3 explicit | 低 |
-| `HAKO_JOINIR_PATTERN4` | bool | false | Pattern4 explicit | 低 |
-| `HAKO_JOINIR_PATTERN5` | bool | false | Pattern5 explicit | 低 |
-| `HAKO_JOINIR_PATTERN8` | bool | false | Pattern8 explicit | 低 |
-| `HAKO_JOINIR_PATTERN9` | bool | false | Pattern9 explicit | 低 |
+| `HAKO_JOINIR_PATTERN1` | bool | false | loop_simple_while family selector (legacy env name retained) | 低 |
+| `HAKO_JOINIR_PATTERN2` | bool | false | loop_break family selector (legacy env name retained) | 低 |
+| `HAKO_JOINIR_PATTERN3` | bool | false | Historical selector name only; no current code hits | 低 |
+| `HAKO_JOINIR_PATTERN4` | bool | false | Historical selector name only; no current code hits | 低 |
+| `HAKO_JOINIR_PATTERN5` | bool | false | loop_true_early_exit family selector (legacy env name retained) | 低 |
+| `HAKO_JOINIR_PATTERN8` | bool | false | bool_predicate_scan family selector (legacy env name retained) | 低 |
+| `HAKO_JOINIR_PATTERN9` | bool | false | accum_const_loop family selector (legacy env name retained) | 低 |
 
 ### D. Macro系 (21個)
 

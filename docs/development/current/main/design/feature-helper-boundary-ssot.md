@@ -19,7 +19,7 @@ Related:
 
 `features/*_ops.rs` / `features/*_pipeline.rs` は次だけを担当する:
 - skeleton が用意した slot に feature helper を適用する
-- DomainPlan/CorePlan の “材料” を組み立てる（ただし AST 再解析は禁止）
+- Recipe/CorePlan の “材料” を組み立てる（ただし AST 再解析は禁止）
 
 禁止（ops に置かない）:
 - PHI（join）の直接挿入

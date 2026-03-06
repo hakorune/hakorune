@@ -10,12 +10,13 @@ Related:
 
 # BoxCount: “新しい箱を一発で追加する”チェックリスト（SSOT）
 
-目的: 1 blocker を **1つの受理形**として、迷わず `Facts→Planner→Lower` を通し、fixture+fast gate で契約固定する。
+目的: 1 blocker を **1つの受理形**として、迷わず `Facts→Recipe→Verifier→Lower` を通し、fixture+fast gate で契約固定する。
 
 ## 0. 前提（必須）
 
 - `.hako` workaround で通さない（Rust側の小箱で受理形を増やす）。
 - no AST rewrite（analysis-only view）。
+- current runtime boundary は `Facts → Recipe → Verifier → Lower`。historical planner-payload wording は新規追加点の主語にしない。
 - **fast gate FAIL の状態で `phase29bq_fast_gate_cases.tsv` に追加/更新してコミットしない**（WIPはstash）。
 - “完成品キット”（骨格/PHI/walker の複製）を増やさない。まず BoxShape（共通部品SSOT/入口統一/テーブル化）を検討する（SSOT: `docs/development/current/main/design/lego-composability-policy.md`）。
 
@@ -61,14 +62,16 @@ Reject→handoffの表現は `docs/development/current/main/design/plan-reject-h
    - 抽出呼び出し: `src/mir/builder/control_flow/plan/facts/loop_facts.rs`
 2. Planner candidate push（planner_requiredのときだけ）
    - `src/mir/builder/control_flow/plan/planner/build.rs`
-3. DomainPlan variant + module export
+3. Recipe payload / route module export
    - `src/mir/builder/control_flow/plan/mod.rs`
-4. Normalizer entry（DomainPlan→CorePlan）
-   - `src/mir/builder/control_flow/plan/normalizer/mod.rs`（必要な場合）
+   - route module の README / entry wrapper（必要な場合）
+4. Verifier / compatibility-lane lower wrapper
+   - `src/mir/builder/control_flow/plan/recipe_tree/verified.rs`
+   - `src/mir/builder/control_flow/plan/normalizer/mod.rs`（legacy wrapper が必要な場合のみ）
 5. Pipeline（lower本体）
    - `src/mir/builder/control_flow/plan/features/<new_box>_pipeline.rs`
    - `src/mir/builder/control_flow/plan/features/mod.rs` に `mod` 追加
-6. Single-planner rule mapping（DomainPlanを取れるように）
+6. Single-planner rule mapping（planner_tag / accept route を取れるように）
    - `src/mir/builder/control_flow/plan/single_planner/rule_order.rs`
    - `src/mir/builder/control_flow/plan/single_planner/rules.rs`
 7. Registry / README（人間の導線）

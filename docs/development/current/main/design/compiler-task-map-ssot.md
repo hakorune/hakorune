@@ -41,8 +41,8 @@ This is the ordered task map for compiler cleanliness. Use this order unless a n
 5) Gate/tag pinning
    - 変更ごとに freeze/reject タグを taxonomy に合わせて固定し、揺れを局所で止める。
 
-6) Residue cleanup (DomainPlan / legacy extractors)
-   - DomainPlan/Normalizer 残骸・未参照抽出器などを “掃除” として最後にまとめて削る。
+6) Residue cleanup (historical domain wording / legacy extractors)
+   - historical planner-payload wording / Normalizer 残骸・未参照抽出器などを “掃除” として最後にまとめて削る。
    - ここで新しい受理形を増やさない（BoxCount を混ぜない）。
    - `joinir/patterns/` は最終的に「薄い入口/ルーティング層」に縮退させる（巨大 router / pattern*_minimal などの残骸を整理）。
      - ルーティングの SSOT は Facts/Recipe/Verifier に寄せ、patterns 層は “どの入口を呼ぶか” だけにする。
@@ -109,8 +109,8 @@ NOTE:
    - Keep planner_first / flowbox/adopt / freeze tags consistent with recipe-only paths.
    - Update TSV expectations only for the changed acceptance path (no broad re-baselining).
 
-5) DomainPlan residue cleanup (last, behavior-preserving)
-   - Remove remaining DomainPlan variants only after acceptance + tags are stable.
+5) Historical domain wording cleanup (last, behavior-preserving)
+   - Remove remaining planner-payload-era wording only after acceptance + tags are stable.
    - Do not mix BoxCount with this sweep.
 
 6) Verifier idx_var contract enforcement
@@ -141,7 +141,7 @@ NOTE:
 - D9: Verifier acceptance pivot to CondProfile
 
 ### B. Route/Rule / Recipe-first
-- DomainPlan label layer removal
+- historical planner-payload wording removal
 - Normalizer cleanup (recipe-only path)
 - RecipeComposer consolidation
 
@@ -151,7 +151,7 @@ NOTE:
 RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recipe-first の最終形）。
 
 順序（1ブロッカー=1コミット）:
-1) ✅ LoopBreakRecipe: break-subset route（legacy label: Pattern2, `normalize_pattern2_break`）依存を外して RecipeBlock 構築へ置換
+1) ✅ LoopBreakRecipe: break-subset route（legacy label: Pattern2, semantic helper: `normalize_loop_break`, current test harness: `loop_break.rs`）依存を外して RecipeBlock 構築へ置換
 2) ✅ IfPhiJoin: IfV2 + join_payload 直構築へ置換
 3) ✅ LoopContinueOnly: LoopV0 + Continue port 直構築へ置換
 4) ✅ condition-driven loop routes（legacy label family: LoopCond*）/ loop-true routes（legacy label family: LoopTrue*）の normalize 依存を段階的に置換
@@ -172,13 +172,13 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
    - `pattern*_minimal.rs` / `pattern3_with_if_phi.rs` 等（legacy file naming）の “直接MIR構築” を plan/recipe-first（Composer/Normalizer/Parts）側へ移す。
    - patterns 層は “入口選択と呼び出し” のみ（Verify/Lower の真実は持たない）。
    - Phase‑2/Step1: simple-while route（legacy label: Pattern1, `pattern1_minimal.rs`）の実装本体を plan 側へ移設。
-   - Phase‑2/Step2: if-phi join route（legacy label: Pattern3, `pattern3_with_if_phi.rs`）の実装本体を plan 側へ移設。
+   - Phase‑2/Step2: if-phi join route（legacy file name: `pattern3_with_if_phi.rs`）の実装本体を plan 側へ移設。
    - Phase‑2/Step3: bool-predicate scan route（legacy label: Pattern8, `pattern8_scan_bool_predicate.rs`）の実装本体を plan 側へ移設。
    - Phase‑2/Step4: `route_prep_pipeline.rs`（旧: `pattern_pipeline.rs`）を plan 側へ移設。
    - Phase‑2/Step5: break-subset orchestration route（legacy label: Pattern2, `pattern2_lowering_orchestrator.rs`）を plan 側へ移設。
-   - Phase‑2/Step6: break-subset input facts route（legacy label: Pattern2, `pattern2_inputs_facts_box.rs`）を plan 側へ移設。
+   - Phase‑2/Step6: break-subset input facts route（legacy label: Pattern2, `loop_break_prep_box.rs`）を plan 側へ移設。
    - Phase‑2/Step7: break-subset policy routing（legacy label: Pattern2, `pattern2_policy_router.rs` / `pattern2_break_condition_policy_router.rs`）を plan 側へ移設。
-   - Phase‑2/Step8: break-subset steps route（legacy label: Pattern2, `pattern2_steps/`）を plan 側へ移設。
+   - Phase‑2/Step8: break-subset steps route（legacy label: Pattern2, `loop_break_steps/`）を plan 側へ移設。
    - Phase‑2/Step9: `conversion_pipeline.rs` を plan 側へ移設。
   - Phase‑2/Step10: trim 系（`trim_loop_lowering.rs` / `trim_pattern_lowerer.rs` / `trim_pattern_validator.rs`）を plan 側へ移設。
   - Phase‑2/Step11: loop_true_counter_extractor を plan 側へ移設。
@@ -192,7 +192,7 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
   - Phase‑2/Step19: read_digits_break_condition_box を plan 側へ移設。
   - Phase‑2/Step20: body_local_policy を plan 側へ移設。
   - Phase‑2/Step21: expectations を plan 側へ移設。
-  - Phase‑2/Step22: simple-while/if-phi extractors（legacy labels: Pattern1/Pattern3）を plan 側へ移設。
+  - Phase‑2/Step22: simple-while/if-phi extractors（legacy file labels only）を plan 側へ移設。
   - Phase‑2/Step23: legacy は patterns で保持（入口互換のみ）。
   - Phase‑2/Step24: break-subset module（legacy label: Pattern2）を plan 側へ移設。
   - Phase‑2/Step25: wrapper 実態監査と残存実体の移設完了。

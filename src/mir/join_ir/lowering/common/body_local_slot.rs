@@ -27,7 +27,7 @@ pub struct ReadOnlyBodyLocalSlot {
 }
 
 /// A tiny "box" API: analyze loop body and decide whether we can allow a single
-/// loop-body-local variable to be referenced from Pattern2 break conditions.
+/// loop-body-local variable to be referenced from loop_break conditions.
 pub struct ReadOnlyBodyLocalSlotBox;
 
 impl ReadOnlyBodyLocalSlotBox {
@@ -44,12 +44,12 @@ impl ReadOnlyBodyLocalSlotBox {
     ) -> Result<ReadOnlyBodyLocalSlot, String> {
         if names_in_conditions.is_empty() {
             return Err(error_tags::freeze(
-                "[pattern2/body_local_slot/internal/empty_names] extract_single called with empty names_in_conditions",
+                "[loop_break/body_local_slot/internal/empty_names] extract_single called with empty names_in_conditions",
             ));
         }
         if names_in_conditions.len() != 1 {
             return Err(error_tags::freeze(&format!(
-                "[pattern2/body_local_slot/contract/multiple_vars] Unsupported: multiple LoopBodyLocal variables in condition: {:?}",
+                "[loop_break/body_local_slot/contract/multiple_vars] Unsupported: multiple LoopBodyLocal variables in condition: {:?}",
                 names_in_conditions
             )));
         }
@@ -58,28 +58,28 @@ impl ReadOnlyBodyLocalSlotBox {
 
         let break_guard_stmt_index = find_first_top_level_break_guard_if(body).ok_or_else(|| {
             error_tags::freeze(
-                "[pattern2/body_local_slot/contract/missing_break_guard] Missing top-level `if (...) { break }` (Pattern2 break guard)",
+                "[loop_break/body_local_slot/contract/missing_break_guard] Missing top-level `if (...) { break }` (loop_break guard)",
             )
         })?;
 
         let (decl_stmt_index, init_expr) =
             find_top_level_local_init(body, &name).ok_or_else(|| {
                 error_tags::freeze(&format!(
-                    "[pattern2/body_local_slot/contract/missing_local_init] Missing top-level `local {} = <expr>` for LoopBodyLocal used in condition",
+                    "[loop_break/body_local_slot/contract/missing_local_init] Missing top-level `local {} = <expr>` for LoopBodyLocal used in condition",
                     name
                 ))
             })?;
 
         if decl_stmt_index >= break_guard_stmt_index {
             return Err(error_tags::freeze(&format!(
-                "[pattern2/body_local_slot/contract/decl_after_break_guard] `local {}` must appear before the break guard if-statement (decl_index={}, break_if_index={})",
+                "[loop_break/body_local_slot/contract/decl_after_break_guard] `local {}` must appear before the break guard if-statement (decl_index={}, break_if_index={})",
                 name, decl_stmt_index, break_guard_stmt_index
             )));
         }
 
         if contains_assignment_to_name(body, &name) {
             return Err(error_tags::freeze(&format!(
-                "[pattern2/body_local_slot/contract/not_readonly] `{}` must be read-only (assignment detected in loop body)",
+                "[loop_break/body_local_slot/contract/not_readonly] `{}` must be read-only (assignment detected in loop body)",
                 name
             )));
         }

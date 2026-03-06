@@ -7,7 +7,7 @@ use super::kind::LoopPatternKind;
 /// structure-based rules. It does NOT depend on function names or
 /// variable names like "sum".
 ///
-/// # Pattern Classification Rules (Phase 131-11: InfiniteEarlyExit added)
+/// # Route Classification Rules (Phase 131-11: InfiniteEarlyExit added)
 ///
 /// 1. **Pattern 5 (InfiniteEarlyExit)**: `is_infinite_loop && has_break && has_continue`
 ///    - Priority: Check first (most specific - infinite loop with both break and continue)
@@ -21,8 +21,8 @@ use super::kind::LoopPatternKind;
 ///    - Phase 212.5: Changed from carrier_count > 1 to structural if detection
 ///    - Includes single-carrier if-update patterns (e.g., if-sum with 1 carrier)
 ///
-/// 4. **Pattern 2 (Break)**: `has_break && !has_continue`
-///    - Has break but no continue
+/// 4. **LoopBreak**: `has_break && !has_continue`
+///    - Historical numbered label: Pattern 2
 ///
 /// 5. **Pattern 1 (Simple While)**: `!has_break && !has_continue && !has_if`
 ///    - Phase 212.5: Exclude loops with if statements
@@ -65,7 +65,7 @@ pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
     // Pattern 4: Continue
     // Phase 131-11: Break+continue stays Pattern5 only for infinite loops
     if features.has_continue {
-        return LoopPatternKind::Pattern4Continue;
+        return LoopPatternKind::LoopContinueOnly;
     }
 
     // Pattern 3: If-PHI (check before Pattern 1)
@@ -75,12 +75,12 @@ pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
         && !features.has_break
         && !features.has_continue
     {
-        return LoopPatternKind::Pattern3IfPhi;
+        return LoopPatternKind::IfPhiJoin;
     }
 
-    // Pattern 2: Break
+    // LoopBreak
     if features.has_break && !features.has_continue {
-        return LoopPatternKind::Pattern2Break;
+        return LoopPatternKind::LoopBreak;
     }
 
     // Pattern 1: Simple While
@@ -103,19 +103,19 @@ pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
 pub fn classify_with_diagnosis(features: &LoopFeatures) -> (LoopPatternKind, String) {
     let pattern = classify(features);
     let reason = match pattern {
-        LoopPatternKind::Pattern4Continue => {
+        LoopPatternKind::LoopContinueOnly => {
             format!(
                 "Has continue statement (continue_count={})",
                 features.continue_count
             )
         }
-        LoopPatternKind::Pattern3IfPhi => {
+        LoopPatternKind::IfPhiJoin => {
             format!(
                 "Has if-else PHI with {} carriers, no break/continue",
                 features.carrier_count
             )
         }
-        LoopPatternKind::Pattern2Break => {
+        LoopPatternKind::LoopBreak => {
             format!(
                 "Has break statement (break_count={}), no continue",
                 features.break_count

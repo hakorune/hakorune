@@ -107,18 +107,6 @@ impl AstToJoinIrLowerer {
     }
 }
 
-/// Phase 60 dev-only helper: legacy Break(P2) lowering for comparison tests.
-///
-/// `loop_patterns` is private, so this wrapper is exposed at the ast_lowerer boundary.
-#[cfg(feature = "normalized_dev")]
-pub fn lower_break_legacy_for_comparison(
-    lowerer: &mut AstToJoinIrLowerer,
-    program_json: &serde_json::Value,
-) -> JoinModule {
-    loop_patterns::break_pattern::lower_break_legacy_for_comparison(lowerer, program_json)
-        .unwrap_or_else(|e| panic!("legacy break lowering failed: {:?}", e))
-}
-
 impl Default for AstToJoinIrLowerer {
     fn default() -> Self {
         Self::new()

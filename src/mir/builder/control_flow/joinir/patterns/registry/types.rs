@@ -52,7 +52,7 @@ pub(crate) mod route_labels {
 pub(crate) struct RouterEnv {
     pub strict_or_dev: bool,
     pub planner_required: bool,
-    pub has_loopbodylocal: bool,
+    pub has_body_local: bool,
 }
 
 pub(crate) type PredicateFn = fn(&CanonicalLoopFacts) -> bool;

@@ -219,7 +219,7 @@ If any of these are detected, Pattern P5b is rejected:
 5. **Find normal increment**: `i = i + 1` after if
 6. **Find break condition**: `if ch == "\"" { break }`
 7. **Build LoopSkeleton**: `UpdateKind::ConditionalStep { cond, then_delta, else_delta }` を構築
-8. **Build RoutingDecision**: `chosen = Pattern2Break`（exit contract 優先）。P5b 固有の構造情報は `notes` に載せる
+8. **Build RoutingDecision**: `chosen = LoopBreak`（exit contract 優先）。P5b 固有の構造情報は `notes` に載せる
 
 ### Pseudo-Code
 
@@ -332,7 +332,7 @@ LoopSkeleton {
 
 ```rust
 RoutingDecision {
-    chosen: Pattern2Break,
+    chosen: LoopBreak,
     missing_caps: vec![],
     notes: vec![
         "escape_char: \\",

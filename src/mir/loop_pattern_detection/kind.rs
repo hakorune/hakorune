@@ -1,6 +1,7 @@
-/// Loop pattern classification based on structure.
+/// Loop route-family classification based on structure.
 ///
-/// This enum represents the 6 main loop patterns we support.
+/// Historical pattern numbering remains available via `pattern_id()`, but the
+/// runtime-facing enum names should use semantic route labels.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LoopPatternKind {
     /// Pattern 1: Simple While Loop
@@ -8,21 +9,21 @@ pub enum LoopPatternKind {
     /// - Single backedge
     Pattern1SimpleWhile,
 
-    /// Pattern 2: Loop with Conditional Break
+    /// LoopBreak route family (historical Pattern 2)
     /// - Has break statement(s)
     /// - No continue statements
-    Pattern2Break,
+    LoopBreak,
 
     /// Pattern 3: Loop with If-Else PHI
     /// - Has if-else statement with PHI
     /// - No break, no continue
     /// - Multiple carrier variables
-    Pattern3IfPhi,
+    IfPhiJoin,
 
     /// Pattern 4: Loop with Continue
     /// - Has continue statement(s)
     /// - No break statements (for simplicity)
-    Pattern4Continue,
+    LoopContinueOnly,
 
     /// Pattern 5: Infinite Loop with Early Exit (Phase 131-11)
     /// - Infinite loop: condition is `loop(true)`
@@ -42,18 +43,16 @@ pub enum LoopPatternKind {
 }
 
 impl LoopPatternKind {
-    /// Phase 193-3: Get human-readable pattern name
-    ///
-    /// Returns the friendly name for this pattern (e.g., "Pattern 1: Simple While")
+    /// Phase 193-3: Get human-readable route name.
     pub fn name(&self) -> &'static str {
         match self {
             LoopPatternKind::Pattern1SimpleWhile => "Pattern 1: Simple While Loop",
-            LoopPatternKind::Pattern2Break => "Pattern 2: Loop with Conditional Break",
-            LoopPatternKind::Pattern3IfPhi => "Pattern 3: Loop with If-Else PHI",
-            LoopPatternKind::Pattern4Continue => "Pattern 4: Loop with Continue",
+            LoopPatternKind::LoopBreak => "LoopBreak",
+            LoopPatternKind::IfPhiJoin => "Pattern 3: Loop with If-Else PHI",
+            LoopPatternKind::LoopContinueOnly => "Pattern 4: Loop with Continue",
             LoopPatternKind::InfiniteEarlyExit => "Pattern 5: Infinite Loop with Early Exit",
             LoopPatternKind::Pattern6NestedLoopMinimal => "Pattern 6: Nested Loop (1-level minimal)",
-            LoopPatternKind::Unknown => "Unknown Pattern",
+            LoopPatternKind::Unknown => "Unknown Loop Shape",
         }
     }
 
@@ -63,9 +62,9 @@ impl LoopPatternKind {
     pub fn semantic_label(&self) -> &'static str {
         match self {
             LoopPatternKind::Pattern1SimpleWhile => "LoopSimpleWhile",
-            LoopPatternKind::Pattern2Break => "LoopBreakRecipe",
-            LoopPatternKind::Pattern3IfPhi => "IfPhiJoin",
-            LoopPatternKind::Pattern4Continue => "LoopContinueRecipe",
+            LoopPatternKind::LoopBreak => "LoopBreakRecipe",
+            LoopPatternKind::IfPhiJoin => "IfPhiJoin",
+            LoopPatternKind::LoopContinueOnly => "LoopContinueOnly",
             LoopPatternKind::InfiniteEarlyExit => "LoopTrueEarlyExit",
             LoopPatternKind::Pattern6NestedLoopMinimal => "NestedLoopMinimal",
             LoopPatternKind::Unknown => "UnknownLoopShape",
@@ -79,9 +78,9 @@ impl LoopPatternKind {
     pub fn pattern_id(&self) -> u8 {
         match self {
             LoopPatternKind::Pattern1SimpleWhile => 1,
-            LoopPatternKind::Pattern2Break => 2,
-            LoopPatternKind::Pattern3IfPhi => 3,
-            LoopPatternKind::Pattern4Continue => 4,
+            LoopPatternKind::LoopBreak => 2,
+            LoopPatternKind::IfPhiJoin => 3,
+            LoopPatternKind::LoopContinueOnly => 4,
             LoopPatternKind::InfiniteEarlyExit => 5,
             LoopPatternKind::Pattern6NestedLoopMinimal => 6,
             LoopPatternKind::Unknown => 0,
@@ -95,22 +94,22 @@ impl LoopPatternKind {
         !matches!(self, LoopPatternKind::Unknown)
     }
 
-    /// Phase 193-3: Check if pattern has special control flow
+    /// Phase 193-3: Check if route family has special control flow
     ///
     /// Returns true if pattern involves break or continue.
     pub fn has_special_control_flow(&self) -> bool {
         matches!(
             self,
-            LoopPatternKind::Pattern2Break
-                | LoopPatternKind::Pattern4Continue
+            LoopPatternKind::LoopBreak
+                | LoopPatternKind::LoopContinueOnly
                 | LoopPatternKind::InfiniteEarlyExit
         )
     }
 
-    /// Phase 193-3: Check if pattern involves PHI merging
+    /// Phase 193-3: Check if route family involves PHI merging
     ///
     /// Returns true if pattern has if-else PHI merge.
     pub fn has_phi_merge(&self) -> bool {
-        matches!(self, LoopPatternKind::Pattern3IfPhi)
+        matches!(self, LoopPatternKind::IfPhiJoin)
     }
 }

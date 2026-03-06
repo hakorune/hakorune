@@ -1,12 +1,6 @@
 use crate::mir::ValueId;
 use std::collections::BTreeSet;
 
-#[cfg(feature = "normalized_dev")]
-use std::collections::BTreeMap; // Phase 222.5-D: HashMap → BTreeMap for determinism
-
-#[cfg(feature = "normalized_dev")]
-use crate::mir::BindingId; // Phase 76+78: BindingId for promoted carriers
-
 /// Phase 227: CarrierRole - Distinguishes loop state carriers from condition-only carriers
 ///
 /// When LoopBodyLocal variables are promoted to carriers, we need to know whether
@@ -113,7 +107,7 @@ impl Default for ExitReconnectMode {
     }
 }
 
-// Phase 229: ConditionAlias removed - redundant with promoted_loopbodylocals
+// Phase 229: ConditionAlias removed - redundant with promoted_body_locals
 // The naming convention (old_name → "is_<old_name>" or "is_<old_name>_match")
 // is sufficient to resolve promoted variables dynamically.
 
@@ -142,33 +136,6 @@ pub struct CarrierVar {
     /// - `FromHost`: Use host_id value (regular carriers)
     /// - `BoolConst(false)`: Initialize with false (promoted LoopBodyLocal carriers)
     pub init: CarrierInit,
-    /// Phase 78: BindingId for this carrier (dev-only)
-    ///
-    /// For promoted carriers (e.g., is_digit_pos), this is allocated separately
-    /// by CarrierBindingAssigner. For source-derived carriers, this comes from
-    /// builder.binding_map.
-    ///
-    /// Enables type-safe lookup: BindingId → ValueId (join_id) in ConditionEnv.
-    ///
-    /// # Example
-    ///
-    /// ```ignore
-    /// // Source-derived carrier
-    /// CarrierVar {
-    ///     name: "sum",
-    ///     binding_id: Some(BindingId(5)), // from builder.binding_map["sum"]
-    ///     ..
-    /// }
-    ///
-    /// // Promoted carrier
-    /// CarrierVar {
-    ///     name: "is_digit_pos",
-    ///     binding_id: Some(BindingId(10)), // allocated by CarrierBindingAssigner
-    ///     ..
-    /// }
-    /// ```
-    #[cfg(feature = "normalized_dev")]
-    pub binding_id: Option<BindingId>,
 }
 
 /// Complete carrier information for a loop
@@ -193,46 +160,7 @@ pub struct CarrierInfo {
     /// - Trim pattern: "var" → "is_var_match" (e.g., "ch" → "is_ch_match")
     ///
     /// Condition variable resolution dynamically infers the carrier name from this list.
-    pub promoted_loopbodylocals: Vec<String>,
-
-    /// Phase 76: Type-safe promotion tracking (dev-only)
-    ///
-    /// Maps original BindingId to promoted BindingId, eliminating name-based hacks.
-    ///
-    /// # Example
-    ///
-    /// DigitPos promotion:
-    /// - Original: BindingId(5) for `"digit_pos"`
-    /// - Promoted: BindingId(10) for `"is_digit_pos"`
-    /// - Map entry: `promoted_bindings[BindingId(5)] = BindingId(10)`
-    ///
-    /// This enables type-safe resolution:
-    /// ```ignore
-    /// if let Some(promoted_bid) = carrier_info.promoted_bindings.get(&original_bid) {
-    ///     // Lookup promoted carrier by BindingId (no string matching!)
-    /// }
-    /// ```
-    ///
-    /// # Migration Strategy (Phase 76)
-    ///
-    /// - **Dual Path**: BindingId lookup (NEW) OR name-based fallback (LEGACY)
-    /// - **Populated by**: DigitPosPromoter, TrimLoopHelper (Phase 76)
-    /// - **Used by**: ConditionEnv::resolve_var_with_binding (Phase 75+)
-    /// - **Phase 77**: Remove name-based fallback after full migration
-    ///
-    /// # Design Notes
-    ///
-    /// **Q: Why BindingId map instead of name map?**
-    /// - **Type Safety**: Compiler-checked binding identity (no typos)
-    /// - **Shadowing-Aware**: BindingId distinguishes inner/outer scope vars
-    /// - **No Name Collisions**: BindingId is unique even if names shadow
-    ///
-    /// **Q: Why not remove `promoted_loopbodylocals` immediately?**
-    /// - **Legacy Compatibility**: Existing code uses name-based lookup
-    /// - **Gradual Migration**: Phase 76 adds BindingId, Phase 77 removes name-based
-    /// - **Fail-Safe**: Dual path ensures no regressions during transition
-    #[cfg(feature = "normalized_dev")]
-    pub promoted_bindings: BTreeMap<BindingId, BindingId>,
+    pub promoted_body_locals: Vec<String>,
 }
 
 /// Exit metadata returned by lowerers

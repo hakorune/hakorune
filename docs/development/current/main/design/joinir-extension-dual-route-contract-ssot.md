@@ -55,7 +55,7 @@ Related:
   - rust reference route: `18` and `RC: 0`
   - hako mainline route: `18` and `RC: 0`（lane tag=`vm-hako`）
 - scope:
-  - Planner-required で `Pattern1` を通過した後、`main` の loop-cond lowering で `None -> freeze` になる shape を受理対象にする。
+  - Planner-required で `loop_simple_while` family を通過した後、`main` の loop-cond lowering で `None -> freeze` になる shape を受理対象にする。
 - non-goal:
   - fallback 追加で通さない（`NYASH_VM_USE_FALLBACK=0` 固定）。
 

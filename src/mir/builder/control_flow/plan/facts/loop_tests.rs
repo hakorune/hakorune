@@ -388,7 +388,7 @@ mod tests {
             span: Span::unknown(),
         };
         let ctx = PlannerContext {
-            route_kind: Some(LoopPatternKind::Pattern2Break),
+            route_kind: Some(LoopPatternKind::LoopBreak),
             in_static_box: false,
             debug: false,
         };
@@ -429,7 +429,7 @@ mod tests {
 
         let facts = try_build_loop_facts_with_ctx(&ctx, &condition, &[step]).expect("Ok");
         let facts = facts.expect("Some");
-        assert!(facts.pattern1_simplewhile.is_some());
+        assert!(facts.loop_simple_while.is_some());
     }
 
     #[test]
@@ -512,13 +512,13 @@ mod tests {
         let allow = try_build_loop_facts_with_ctx(&allow_ctx, &condition, &body).expect("Ok");
         assert!(allow
             .as_ref()
-            .and_then(|facts| facts.pattern8_bool_predicate_scan.as_ref())
+            .and_then(|facts| facts.bool_predicate_scan.as_ref())
             .is_some());
 
         let allow_static = try_build_loop_facts_with_ctx(&block_ctx, &condition, &body).expect("Ok");
         assert!(allow_static
             .as_ref()
-            .and_then(|facts| facts.pattern8_bool_predicate_scan.as_ref())
+            .and_then(|facts| facts.bool_predicate_scan.as_ref())
             .is_some());
     }
 

@@ -12,7 +12,7 @@ Related:
 
 ## Goal
 
-既知ルート（legacy label: ScanWithInit / SplitScan / Pattern2Break 等）に一致しない “普通の while/loop” を、
+既知ルート（`scan_with_init` / `split_scan` / `loop_break` など。legacy labels are traceability-only）に一致しない “普通の while/loop” を、
 CorePlan を汎用CFG命令セットへ肥大化させずに受理できる最小表現を固定する。
 
 この文書は「未知ループは freeze」から「定義域内なら標準の CorePlan 合成で受理」へ移行するための SSOT。

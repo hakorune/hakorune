@@ -197,9 +197,9 @@ pub(crate) fn route_loop(
         || crate::config::env::joinir_dev_enabled();
     let planner_required =
         strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
-    // loopbodylocal flowbox tagging is handled in the recipe-first loop_break_recipe path
+    // body-local flowbox tagging is handled in the recipe-first loop_break_recipe path
     // and must not depend on legacy planner-only state.
-    let has_loopbodylocal = outcome
+    let has_body_local = outcome
         .facts
         .as_ref()
         .and_then(|f| f.facts.loop_break_body_local())
@@ -208,7 +208,7 @@ pub(crate) fn route_loop(
     let env = registry::RouterEnv {
         strict_or_dev,
         planner_required,
-        has_loopbodylocal,
+        has_body_local,
     };
     let allow_shadow_fallback = outcome.recipe_contract.is_none();
     let debug_enabled = crate::config::env::joinir_dev::debug_enabled();

@@ -9,10 +9,10 @@ It is the SSOT for `NotApplicable` vs `Freeze` decisions.
 - **Freeze**: shape matches but contract is violated (fail-fast)
 
 Tags:
-- `scan_with_init`: `[joinir/phase29ab/scan_with_init/contract]` (`legacy label: Pattern6`)
-- `split_scan`: `[joinir/phase29ab/split_scan/contract]` (`legacy label: Pattern7`)
+- `scan_with_init`: `[joinir/phase29ab/scan_with_init/contract]` (legacy label `Pattern6` is traceability-only)
+- `split_scan`: `[joinir/phase29ab/split_scan/contract]` (legacy label `Pattern7` is traceability-only)
 
-## `scan_with_init` Route (`legacy label: Pattern6`)
+## `scan_with_init` Route
 
 Accepted shape:
 - `loop(i < s.length())` or `loop(i <= s.length() - needle.length())`
@@ -26,7 +26,7 @@ Freeze conditions:
 Note:
 - plan line supports reverse scan (cond: `i >= 0`, step: `i = i - 1`)
 
-## `split_scan` Route (`legacy label: Pattern7`)
+## `split_scan` Route
 
 Accepted shape:
 - `loop(i <= s.length() - separator.length())`

@@ -63,8 +63,8 @@ fn test_skip_whitespace_pattern_recognition() {
 
     // Verify success
     assert!(decision.is_success());
-    // Phase 137-5: Pattern choice reflects ExitContract (has_break=true → Pattern2Break)
-    assert_eq!(decision.chosen, Some(LoopPatternKind::Pattern2Break));
+    // Phase 137-5: Pattern choice reflects ExitContract (has_break=true → LoopBreak)
+    assert_eq!(decision.chosen, Some(LoopPatternKind::LoopBreak));
     assert_eq!(decision.missing_caps.len(), 0);
 
     // Verify skeleton structure
@@ -172,7 +172,7 @@ fn test_skip_whitespace_with_body_statements() {
 
     // Verify success
     assert!(decision.is_success());
-    assert_eq!(decision.chosen, Some(LoopPatternKind::Pattern2Break));
+    assert_eq!(decision.chosen, Some(LoopPatternKind::LoopBreak));
     assert!(decision.missing_caps.is_empty());
 
     // Verify skeleton structure

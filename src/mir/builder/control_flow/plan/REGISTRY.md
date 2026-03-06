@@ -123,7 +123,7 @@ SSOT: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 - `generic_loop_v0/v1`: loop_var/step/exit/carrier/step_mode を Feature に分離（Facts→Canon→Normalize の責務を細くする）
 - `scan_with_init` / `split_scan`: アルゴリズム意図（scan/split）と LoopSkeleton を分離
 - `loop_true_early_exit`: `loop(true)` skeleton + exit_if + carrier update に分離（Phase 29bw: pipeline 化済み）
-- `pattern3_if_phi`: IfSkeleton + JoinFeature（CoreIfJoin）の pred 収集を1箇所に集約
+- `if_phi_join`: IfSkeleton + JoinFeature（CoreIfJoin）の pred 収集を1箇所に集約
 - `loop_true_break_continue`: LoopTrueSkeleton + ExitIfMapFeature + NestedLoopFeature(depth<=1) に寄せ、fallback-only 条件は planner 側の slot へ
 - `loop_true_break_continue` の旧正規化ロジックは削除済み（feature 経由の入口のみ）。
 - `loop_cond_break_continue`: LoopCondSkeleton + (ExitIfMap/ConditionalUpdate/CarrierMerge/GuardBreak) を Feature 化して肥大化を防ぐ
@@ -132,7 +132,7 @@ SSOT: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 - helper boundary SSOT（join/exit/phi/carrier の“一箇所化”ルール）:
   - `docs/development/current/main/design/feature-helper-boundary-ssot.md`
 
-## Remaining legacy normalizers (planned lego-ization)
+## Remaining legacy normalizers / vocabulary hotspots (planned lego-ization)
 
 目的: selfhost canary の “1箱ずつ拡張” が例外パターンの堆積（負債）にならないよう、未レゴ化（未pipeline化）の残りを SSOT として可視化する。
 
@@ -143,10 +143,8 @@ SSOT: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 
 | Legacy normalizer | Current state | Planned direction | Promotion trigger |
 |---|---|---|---|
-| `normalizer/pattern3_if_phi.rs` | if-join feature 抽出済みだが箱自体は legacy | `If2Skeleton + pipeline` へ（join は `features/if_join.rs` のみ） | selfhost blocker で再度触る / 追加 gate が増える |
 | `normalizer/pattern1_*` | legacy（複数） | `generic_loop_v0/v1` へ寄せるか、`LoopSkeleton + ExitMap/ValueJoin` 合成へ分解 | “pattern1_* に新分岐” を入れたくなった時点 |
-| `normalizer/pattern2_break.rs` | legacy | `ExitMap` feature へ（“別pattern” を増やさない） | break/return 形の拡張が必要になった時点 |
-| `normalizer/pattern4_continue.rs` | legacy | `ContinueEdges + ContinueTarget` に寄せる（per-edge join は CorePlan primitive） | multi-continue の追加受理が必要になった時点 |
+| `normalizer/loop_break.rs` | test-only loop_break harness | `ExitMap` feature へ（“別pattern” を増やさない） | break/return 形の拡張が必要になった時点 |
 | `normalizer/pattern8_bool_predicate_scan.rs` | legacy | scan/split の skeleton/pipeline と feature helper に寄せる（アルゴリズム意図のみ残す） | scan 系で合流/phi の重複が再発した時点 |
 | `normalizer/pattern9_accum_const_loop.rs` | legacy | scan/split/generic_loop の合成へ寄せ、pattern9 固有は “intent” に縮める | accumulator 形の追加受理が必要になった時点 |
 | `normalizer/pattern_*`（string/helpers: skip_ws/split_lines/escape_map/is_integer/int_to_str/starts_with 等） | legacy（小粒） | 直近は現状維持（小粒）。将来は `generic_loop_v1`/FlowBox へ吸収候補 | 2 箇所以上で同型の手書き合流が増えた時点 |

@@ -102,8 +102,8 @@ fn test_simple_continue_pattern_recognized() {
 
     // Verify success
     assert!(decision.is_success());
-    // chosen == Pattern4Continue
-    assert_eq!(decision.chosen, Some(LoopPatternKind::Pattern4Continue));
+    // chosen == LoopContinueOnly
+    assert_eq!(decision.chosen, Some(LoopPatternKind::LoopContinueOnly));
     // missing_caps == []
     assert!(decision.missing_caps.is_empty());
 

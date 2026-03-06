@@ -9,8 +9,6 @@ fn test_carrier(name: &str, id: u32) -> CarrierVar {
         join_id: None,                // Phase 177-STRUCT-1
         role: CarrierRole::LoopState, // Phase 227: Default to LoopState
         init: CarrierInit::FromHost,  // Phase 228: Default to FromHost
-        #[cfg(feature = "normalized_dev")]
-        binding_id: None, // Phase 78: No BindingId by default
     }
 }
 

@@ -1,4 +1,4 @@
-//! Phase 188-Impl-2: Pattern 2 (Loop with Conditional Break) Minimal Lowerer
+//! Phase 188-Impl-2: LoopBreak (loop with conditional break) Minimal Lowerer
 //!
 //! Target: apps/tests/joinir_min_loop.hako
 //!
@@ -46,7 +46,7 @@
 //! ## Design Notes
 //!
 //! This is a MINIMAL implementation targeting joinir_min_loop.hako specifically.
-//! It establishes the infrastructure for Pattern 2 lowering, building on Pattern 1.
+//! It establishes the infrastructure for loop_break lowering, building on simple-while lowering.
 //!
 //! Key differences from Pattern 1:
 //! - **Multiple Exit Paths**: Natural exit + break exit
@@ -73,8 +73,8 @@ use crate::mir::join_ir::lowering::loop_body_local_env::LoopBodyLocalEnv;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr;
 use crate::mir::join_ir::lowering::step_schedule::{
-    build_pattern2_schedule_from_decision, decide_pattern2_schedule, Pattern2ScheduleFactsBox,
-    Pattern2StepKind,
+    build_loop_break_schedule_from_decision, decide_loop_break_schedule, LoopBreakScheduleFactsBox,
+    LoopBreakStepKind,
 };
 use crate::mir::loop_canonicalizer::LoopSkeleton;
 use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinInst, JoinModule, MirLikeInst, UnaryOp};
@@ -117,7 +117,7 @@ pub(crate) struct LoopWithBreakLoweringInputs<'a> {
     pub current_static_box_name: Option<String>,
 }
 
-/// Lower Pattern 2 (Loop with Conditional Break) to JoinIR
+/// Lower LoopBreak (loop with conditional break) to JoinIR
 ///
 /// # Phase 188-Impl-2: Pure JoinIR Fragment Generation
 ///
@@ -199,7 +199,7 @@ pub(crate) fn lower_loop_with_break_minimal(
     } = inputs;
 
     let mut body_local_env = body_local_env;
-    let dev_log = DebugOutputBox::new_dev("joinir/pattern2");
+    let dev_log = DebugOutputBox::new_dev("joinir/loop_break");
     // Phase 170-D-impl-3: Validate that conditions only use supported variable scopes
     // LoopConditionScopeBox checks that loop conditions don't reference loop-body-local variables
     let loop_var_name = &carrier_info.loop_var_name; // Phase 176-3: Extract from CarrierInfo
@@ -212,7 +212,7 @@ pub(crate) fn lower_loop_with_break_minimal(
         let body_local_names = extract_loop_body_local_names(&loop_cond_scope.vars);
         let unpromoted_locals: Vec<&String> = body_local_names
             .iter()
-            .filter(|name| !carrier_info.promoted_loopbodylocals.contains(*name))
+            .filter(|name| !carrier_info.promoted_body_locals.contains(*name))
             .filter(|name| {
                 allowed_body_locals_for_conditions
                     .map(|allow| !allow.iter().any(|s| s.as_str() == (*name).as_str()))
@@ -223,9 +223,9 @@ pub(crate) fn lower_loop_with_break_minimal(
 
         if !unpromoted_locals.is_empty() {
             return Err(error_tags::freeze(&format!(
-                "[pattern2/body_local_slot/contract/unhandled_vars] Unsupported LoopBodyLocal variables in condition: {:?} (promoted={:?}, allowed={:?})",
+                "[loop_break/body_local_slot/contract/unhandled_vars] Unsupported LoopBodyLocal variables in condition: {:?} (promoted={:?}, allowed={:?})",
                 unpromoted_locals,
-                carrier_info.promoted_loopbodylocals,
+                carrier_info.promoted_body_locals,
                 allowed_body_locals_for_conditions.unwrap_or(&[])
             )));
         }
@@ -378,7 +378,7 @@ pub(crate) fn lower_loop_with_break_minimal(
         dst: Some(loop_result),
     });
 
-    // return result (Pattern 2 returns the final loop variable value)
+    // return result (LoopBreak returns the final loop variable value)
     main_func.body.push(JoinInst::Ret {
         value: Some(loop_result),
     });
@@ -400,15 +400,15 @@ pub(crate) fn lower_loop_with_break_minimal(
         && allowed_body_locals_for_conditions
             .map(|allow| !allow.is_empty())
             .unwrap_or(false);
-    let schedule_facts = Pattern2ScheduleFactsBox::gather(
+    let schedule_facts = LoopBreakScheduleFactsBox::gather(
         body_local_env.as_ref().map(|env| &**env),
         carrier_info,
         condition_only_recipe.is_some(),
         body_local_derived_recipe.is_some(),
         has_allowed_body_locals_in_conditions,
     );
-    let schedule_decision = decide_pattern2_schedule(&schedule_facts);
-    let schedule = build_pattern2_schedule_from_decision(&schedule_decision);
+    let schedule_decision = decide_loop_break_schedule(&schedule_facts);
+    let schedule = build_loop_break_schedule_from_decision(&schedule_decision);
 
     // Collect fragments per step; append them according to the schedule below.
     let mut header_block: Vec<JoinInst> = Vec::new();
@@ -560,20 +560,20 @@ pub(crate) fn lower_loop_with_break_minimal(
     // Apply scheduled order to assemble the loop_step body.
     for step in schedule.iter() {
         match step {
-            Pattern2StepKind::HeaderCond => loop_step_func.body.append(&mut header_block),
-            Pattern2StepKind::BodyInit => loop_step_func.body.append(&mut body_init_block),
-            Pattern2StepKind::BreakCheck => loop_step_func.body.append(&mut break_block),
-            Pattern2StepKind::Updates => loop_step_func.body.append(&mut carrier_update_block),
-            Pattern2StepKind::Tail => loop_step_func.body.append(&mut tail_block),
+            LoopBreakStepKind::HeaderCond => loop_step_func.body.append(&mut header_block),
+            LoopBreakStepKind::BodyInit => loop_step_func.body.append(&mut body_init_block),
+            LoopBreakStepKind::BreakCheck => loop_step_func.body.append(&mut break_block),
+            LoopBreakStepKind::Updates => loop_step_func.body.append(&mut carrier_update_block),
+            LoopBreakStepKind::Tail => loop_step_func.body.append(&mut tail_block),
             // Phase 47-A: P3 steps not used in P2 lowering (handled in Pattern3 lowerer)
-            Pattern2StepKind::IfCond
-            | Pattern2StepKind::ThenUpdates
-            | Pattern2StepKind::ElseUpdates => {
-                panic!("Pattern3 step kinds should not appear in Pattern2 lowering");
+            LoopBreakStepKind::IfCond
+            | LoopBreakStepKind::ThenUpdates
+            | LoopBreakStepKind::ElseUpdates => {
+                panic!("IfPhiJoin step kinds should not appear in loop_break lowering");
             }
             // Phase 48-A: P4 steps not used in P2 lowering (handled in Pattern4 lowerer)
-            Pattern2StepKind::ContinueCheck => {
-                panic!("Pattern4 step kinds should not appear in Pattern2 lowering");
+            LoopBreakStepKind::ContinueCheck => {
+                panic!("LoopContinueOnly step kinds should not appear in loop_break lowering");
             }
         }
     }
@@ -584,12 +584,12 @@ pub(crate) fn lower_loop_with_break_minimal(
     // k_exit(i_exit, carrier1_exit, carrier2_exit, ...) function - Exit PHI
     // ==================================================================
     // Phase 176-3: Multi-carrier support - k_exit receives all carrier exit values
-    // Pattern 2 key difference: k_exit receives exit values from both paths (natural + break)
+    // LoopBreak key difference: k_exit receives exit values from both paths (natural + break)
     // Note: carrier_exit_ids were already allocated above (before closure)
 
     let debug_dump = crate::config::env::joinir_debug_level() > 0;
     if debug_dump {
-        let strict_debug = DebugOutputBox::new("joinir/pattern2");
+        let strict_debug = DebugOutputBox::new("joinir/loop_break");
         strict_debug.log_if_enabled(|| {
             format!(
                 "k_exit param layout: i_exit={:?}, carrier_exit_ids={:?}",

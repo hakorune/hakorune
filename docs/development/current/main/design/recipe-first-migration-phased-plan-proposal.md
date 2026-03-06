@@ -1,5 +1,5 @@
-Status: Active (Structural, Decision: accepted)
-Scope: DomainPlan → Recipe-first migration (phased plan, behavior-preserving)
+Status: Historical proposal (Structural, Decision: accepted)
+Scope: legacy planner payload → Recipe-first migration (phased plan, behavior-preserving)
 Related:
 - `docs/development/current/main/design/recipe-first-entry-contract-ssot.md`
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
@@ -10,7 +10,7 @@ Related:
 
 ## Intent
 
-Move entry semantics from pattern-based DomainPlan selection to Recipe-first contracts,
+Move entry semantics from pattern-based legacy planner-payload selection to Recipe-first contracts,
 without changing CorePlan semantics. This is a **structural refactor** (not a feature
 addition) and must keep default behavior unchanged.
 
@@ -42,17 +42,17 @@ addition) and must keep default behavior unchanged.
 **✅ Phase C (partial) 完了 (2026-01-23)**
 
 Completed patterns (planner_required/dev only):
-- Pattern2Break (C4/C5)
-- Pattern3IfPhi (C6–C8)
-- Pattern4Continue (C9)
-- Pattern5InfiniteEarlyExit (C10)
-- Pattern1SimpleWhile (C11)
-- Pattern1CharMap (C12)
-- Pattern1ArrayJoin (C13)
-- Pattern6 ScanWithInit (C14)
-- Pattern7 SplitScan (C14)
-- Pattern8 BoolPredicateScan (C14)
-- Pattern9 AccumConstLoop (C14)
+- LoopBreakRecipe (legacy phase C4/C5)
+- IfPhiJoin (legacy phase C6–C8)
+- LoopContinueOnly (legacy phase C9)
+- LoopTrueEarlyExit (legacy phase C10)
+- LoopSimpleWhile (legacy phase C11)
+- LoopCharMap (legacy phase C12)
+- LoopArrayJoin (legacy phase C13)
+- ScanWithInit (legacy phase C14)
+- SplitScan (legacy phase C14)
+- BoolPredicateScan (legacy phase C14)
+- AccumConstLoop (legacy phase C14)
 - C15 Scan loops: loop_scan_methods_v0 / loop_scan_methods_block_v0 / loop_scan_phi_vars_v0 / loop_scan_v0
 - C16 Collection loops: loop_collect_using_entries_v0 / loop_bundle_resolver_v0 / loop_true_break_continue
 - C17 Condition loops: LoopCondBreakContinue / LoopCondContinueOnly / LoopCondContinueWithReturn / LoopCondReturnInBody
@@ -62,21 +62,21 @@ Remaining (next focus, ordered by selfhost canary hits):
 
 ### Phase D — Cleanup (remove pattern names, no semantic change)
 - D1: PlanRuleId enum
-- D2: DomainPlan variants
+- D2: legacy planner-payload variants
 - D3: normalizer/pattern*.rs
 
 ## Completion Criteria (Phase D)
 
 Recipe-first migration is considered complete when all of the following are true:
 
-- No pattern-specific DomainPlan variants remain (DomainPlan is label-only or removed).
+- No pattern-specific legacy planner-payload variants remain (label-only or removed).
 - `normalizer/pattern*.rs` removed; routing uses Recipe contracts + composer.
 - Planner rules no longer select by `Pattern*` names (grepable checks below).
 - All existing gates pass with default settings (behavior unchanged).
 
 Suggested checks:
 
-- `rg -n "DomainPlan::Pattern" src/mir/builder/control_flow/plan`
+- `rg -n "Pattern\\d.*Plan|legacy planner payload" src/mir/builder/control_flow/plan`
 - `rg -n "Pattern\\d" src/mir/builder/control_flow/plan`
 - `rg --files -g 'src/mir/builder/control_flow/plan/normalize/pattern*.rs'`
 

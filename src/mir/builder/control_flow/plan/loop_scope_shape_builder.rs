@@ -2,8 +2,7 @@
 //!
 //! Phase 171-172: Issue 4
 //!
-//! Provides unified construction methods for LoopScopeShape across the 4 primary routes
-//! (legacy labels: Pattern1-4).
+//! Provides unified construction methods for LoopScopeShape across the 4 primary routes.
 //! This eliminates the 50-60 lines of duplicated initialization code in each route branch.
 //!
 //! # Responsibility
@@ -23,12 +22,12 @@
 //! # Usage
 //!
 //! ```rust
-//! // loop_simple_while / if_phi_join (legacy Pattern1/3): empty body_locals
+//! // loop_simple_while / if_phi_join: empty body_locals
 //! let scope = LoopScopeShapeBuilder::empty_body_locals(
 //!     header, body, latch, exit, pinned
 //! );
 //!
-//! // loop_break / loop_continue_only (legacy Pattern2/4): extract body_locals from AST
+//! // loop_break / loop_continue_only: extract body_locals from AST
 //! let scope = LoopScopeShapeBuilder::with_body_locals(
 //!     header, body, latch, exit, pinned, loop_body
 //! );
@@ -44,7 +43,7 @@ pub(crate) struct LoopScopeShapeBuilder;
 impl LoopScopeShapeBuilder {
     /// Create LoopScopeShape with empty body_locals
     ///
-    /// Used by loop_simple_while and if_phi_join (legacy Pattern1/3),
+    /// Used by loop_simple_while and if_phi_join,
     /// which don't require body-local variable analysis.
     ///
     /// # Arguments
@@ -77,7 +76,7 @@ impl LoopScopeShapeBuilder {
 
     /// Create LoopScopeShape with body_locals extracted from AST
     ///
-    /// Used by loop_break and loop_continue_only (legacy Pattern2/4),
+    /// Used by loop_break and loop_continue_only,
     /// which require body-local variable classification.
     /// This is critical for trim-route support and carrier promotion analysis.
     ///

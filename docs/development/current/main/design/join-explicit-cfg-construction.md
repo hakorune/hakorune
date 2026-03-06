@@ -42,19 +42,19 @@ Related:
 
 これにより、パターン追加が「意味SSOTに従う局所変更」になり、merge/optimizer 側の推測や補正が増殖しにくくなる。
 
-### 具体例: Pattern8 契約（Phase 259 P0）
+### 具体例: BoolPredicateScan 契約（Phase 259 P0）
 
-Pattern8（BoolPredicateScan）の実装で明示した契約要素（"pattern増でも推測増にしない"の実例）:
+BoolPredicateScan（legacy label: `Pattern8`）の実装で明示した契約要素（"route増でも推測増にしない" の実例）:
 
 - **`loop_var_name`**: merge_entry_block 選択に使用（`Some(parts.loop_var.clone())`）
   - 未設定だと誤った entry block が選ばれる
 - **`loop_invariants`**: PHI-free 不変量パラメータ（`[(me, me_host), (s, s_host)]`）
   - `loop_var_name` 設定時、BoundaryInjector が ALL join_inputs Copy をスキップするため必要
-  - 不変量は header PHI で持つ（Pattern6 と同じ設計）
+  - 不変量は header PHI で持つ（scan_with_init と同じ設計）
 - **`expr_result`**: k_exit からの返り値を明示（`Some(join_exit_value)`）
-  - Pattern7 style（推測ではなく明示設定）
+  - split_scan と同じく、推測ではなく明示設定
 - **`jump_args_layout`**: ExprResultPlusCarriers（carriers=0）
-  - Pattern8 は carriers なし、expr_result のみ
+  - BoolPredicateScan は carriers なし、expr_result のみ
 - **`exit_bindings`**: Empty
   - carriers なしなので binding も不要
 

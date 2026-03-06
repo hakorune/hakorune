@@ -3,8 +3,8 @@
 //! # Responsibility
 //!
 //! - Describe a post-loop guard that emulates an in-loop `return` without making
-//!   Pattern2 lowering itself return-in-loop aware.
-//! - Keep the plan policy-agnostic so multiple Pattern2 families can reuse it.
+//!   loop-break lowering itself return-in-loop aware.
+//! - Keep the plan policy-agnostic so multiple loop-break families can reuse it.
 //!
 //! # Architecture
 //!
@@ -14,7 +14,7 @@
 //!
 //! # Usage Patterns
 //!
-//! ## Pattern 2: Less Than (balanced_depth_scan)
+//! ## Loop-break route: Less Than (balanced_depth_scan)
 //!
 //! Used in `json_cur.find_balanced_*` family functions.
 //!

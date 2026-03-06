@@ -1,25 +1,7 @@
 //! JoinIR development / experimental flags (SSOT).
 //! Phase 72-C: Consolidate all NYASH_JOINIR_* dev flags through centralized helpers.
-//! Phase 45: JoinIR mode unification (StructuredOnly / NormalizedDev / NormalizedCanonical)
 
 use crate::config::env::env_bool;
-
-/// Phase 45: JoinIR execution mode enum
-///
-/// Centralizes all JoinIR routing decisions (Structured vs Normalized paths).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum JoinIrMode {
-    /// Default mode: Structured→MIR direct (no Normalized layer)
-    StructuredOnly,
-
-    /// Development mode: Structured→Normalized→MIR(direct) for supported shapes
-    /// Requires `--features normalized_dev` + env var
-    NormalizedDev,
-
-    /// Future mode: All canonical shapes use Normalized→MIR(direct)
-    /// Currently unused, reserved for Phase 46+ canonical migration
-    NormalizedCanonical,
-}
 
 /// NYASH_JOINIR_LOWER_GENERIC=1 - Enable generic lowering path for JoinIR
 /// (CRITICAL: 15 occurrences in codebase)
@@ -139,50 +121,6 @@ pub fn read_quoted_enabled() -> bool {
 /// HAKO_JOINIR_READ_QUOTED_IFMERGE=1 - Read quoted with if-merge
 pub fn read_quoted_ifmerge_enabled() -> bool {
     env_bool("HAKO_JOINIR_READ_QUOTED_IFMERGE")
-}
-
-/// NYASH_JOINIR_NORMALIZED_DEV_RUN=1 - Run JoinIR runner through Normalized roundtrip (dev only)
-pub fn joinir_normalized_dev_run_enabled() -> bool {
-    // Feature gate at call sites still applies; this helper just centralizes the env read.
-    env_bool("NYASH_JOINIR_NORMALIZED_DEV_RUN")
-}
-
-/// Raw env value for NYASH_JOINIR_NORMALIZED_DEV_RUN (for test toggles).
-pub fn joinir_normalized_dev_run_raw() -> Option<String> {
-    std::env::var("NYASH_JOINIR_NORMALIZED_DEV_RUN").ok()
-}
-
-/// Phase 45: Get current JoinIR execution mode
-///
-/// Determines routing based on feature flags and environment variables:
-/// - `--features normalized_dev` + `NYASH_JOINIR_NORMALIZED_DEV_RUN=1` → NormalizedDev
-/// - Otherwise → StructuredOnly
-///
-/// Note: NormalizedCanonical is reserved for future canonical migration (Phase 46+)
-pub fn current_joinir_mode() -> JoinIrMode {
-    #[cfg(feature = "normalized_dev")]
-    {
-        if joinir_normalized_dev_run_enabled() {
-            JoinIrMode::NormalizedDev
-        } else {
-            JoinIrMode::StructuredOnly
-        }
-    }
-
-    #[cfg(not(feature = "normalized_dev"))]
-    {
-        JoinIrMode::StructuredOnly
-    }
-}
-
-/// Unified switch for Normalized dev experiments (feature + env).
-///
-/// - Requires `--features normalized_dev`
-/// - Requires `NYASH_JOINIR_NORMALIZED_DEV_RUN=1`
-///
-/// Phase 45: Now implemented as a thin wrapper over current_joinir_mode()
-pub fn normalized_dev_enabled() -> bool {
-    matches!(current_joinir_mode(), JoinIrMode::NormalizedDev)
 }
 
 /// JOINIR_TEST_DEBUG=1 (or NYASH_JOINIR_TEST_DEBUG=1) - Verbose logging for normalized dev tests

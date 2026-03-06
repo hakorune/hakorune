@@ -301,8 +301,6 @@ mod tests {
             join_id: None, // Phase 177-STRUCT-1
             role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
             init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None,
         }];
 
         let updates = LoopUpdateAnalyzer::analyze_carrier_updates(&body, &carriers);
@@ -362,8 +360,6 @@ mod tests {
             join_id: None,
             role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
             init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None,
         }];
 
         let updates = LoopUpdateAnalyzer::analyze_carrier_updates(&body, &carriers);
@@ -424,8 +420,6 @@ mod tests {
             join_id: None,
             role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
             init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None,
         }];
 
         let updates = LoopUpdateAnalyzer::analyze_carrier_updates(&body, &carriers);
@@ -486,8 +480,6 @@ mod tests {
             join_id: None,
             role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
             init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None,
         }];
 
         let updates = LoopUpdateAnalyzer::analyze_carrier_updates(&body, &carriers);
@@ -527,8 +519,6 @@ mod tests {
             join_id: None,
             role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
             init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost,
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None,
         }];
 
         let updates = LoopUpdateAnalyzer::analyze_carrier_updates(&body, &carriers);
@@ -615,8 +605,6 @@ mod tests {
                 join_id: None,
                 role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                 init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost,
-                #[cfg(feature = "normalized_dev")]
-                binding_id: None,
             },
             CarrierVar {
                 name: "i".to_string(),
@@ -624,8 +612,6 @@ mod tests {
                 join_id: None,
                 role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                 init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost,
-                #[cfg(feature = "normalized_dev")]
-                binding_id: None,
             },
         ];
 

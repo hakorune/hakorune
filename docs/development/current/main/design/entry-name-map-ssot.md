@@ -5,13 +5,13 @@ Scope: Planner-first rule labels (human-readable)
 
 | RuleId (internal) | Display label |
 | --- | --- |
-| Pattern1SimpleWhile | LoopSimpleWhile |
-| Pattern1CharMap | LoopCharMap |
-| Pattern1ArrayJoin | LoopArrayJoin |
-| Pattern2Break | LoopBreakRecipe |
-| Pattern3IfPhi | IfPhiJoin |
-| Pattern4Continue | LoopContinueOnly |
-| Pattern5InfiniteEarlyExit | LoopTrueEarlyExit |
+| LoopSimpleWhile | LoopSimpleWhile |
+| LoopCharMap | LoopCharMap |
+| LoopArrayJoin | LoopArrayJoin |
+| LoopBreakRecipe | LoopBreakRecipe |
+| IfPhiJoin | IfPhiJoin |
+| LoopContinueOnly | LoopContinueOnly |
+| LoopTrueEarlyExit | LoopTrueEarlyExit |
 | Pattern6ScanWithInit | ScanWithInit |
 | Pattern7SplitScan | SplitScan |
 | Pattern8BoolPredicateScan | BoolPredicateScan |

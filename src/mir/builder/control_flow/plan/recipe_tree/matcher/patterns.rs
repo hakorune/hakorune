@@ -149,7 +149,7 @@ pub fn verify_if_phi_join_recipe(
 
 /// Recipe-first verification for loop-continue-only.
 pub fn verify_loop_continue_only_recipe(
-    continue_only_facts: &crate::mir::builder::control_flow::plan::facts::LoopContinueRecipeFacts,
+    continue_only_facts: &crate::mir::builder::control_flow::plan::facts::LoopContinueOnlyFacts,
 ) -> Result<(), Freeze> {
     use crate::ast::{ASTNode, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;

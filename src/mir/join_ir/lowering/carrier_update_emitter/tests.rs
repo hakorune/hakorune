@@ -39,8 +39,6 @@ fn test_carrier(name: &str, host_id: u32) -> CarrierVar {
         join_id: None, // Phase 177-STRUCT-1
         role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
         init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-        #[cfg(feature = "normalized_dev")]
-        binding_id: None,
     }
 }
 

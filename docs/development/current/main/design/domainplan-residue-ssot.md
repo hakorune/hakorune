@@ -1,30 +1,30 @@
-# DomainPlan Residue SSOT
+# Historical planner-payload residue SSOT
 
 ## Purpose
 
-- DomainPlan 残骸の整理計画
+- historical planner-payload residue の整理計画
 
 ## Rules
 
-- planner_required では DomainPlan 経路は使わない（Recipe-first の一本道）
-- planner_required では DomainPlan は一律禁止（例外なし）
-- DomainPlan が “routing 結果” として残っている場合は freeze:contract（silent fallback 禁止）
-- Planner 内部で一時的に DomainPlan を構築してもよいが、planner_required では **必ず抑制（recipe-only）**する
+- current runtime path は `Facts → Recipe → Verifier → Lower`
+- planner_required では historical planner-payload lane を使わない（Recipe-first の一本道）
+- planner-payload-shaped な routing 結果が再流入した場合は freeze:contract（silent fallback 禁止）
+- この文書は historical cleanup ledger であり、新しい runtime 入口を定義しない
 
 ## Inventory
 
-- DomainPlan の残存 variant を列挙し、削除候補 / 互換維持 / 後回し に分類する
+- runtime source から消えた historical planner-payload residue を監査し、再流入を防ぐ
 
 Inventory command:
 
-- rg -n "DomainPlan::" src/mir/builder/control_flow/plan
+- rg -n "DomainPlan|DomainRecipe|domain_plan" src/mir/builder/control_flow/{plan,joinir} --glob '!*.md'
 
-| Variant | Status | Reason | Next |
+| Inventory | Status | Reason | Next |
 |---|---|---|---|
-| LoopCondContinueWithReturn | keep | planner skeleton / recipe-only sentinel | suppress in planner_required (already) / consider removing by moving outcome to recipe-only plan-only |
+| runtime source identifiers | done | `src/mir/builder/control_flow/{plan,joinir}/**` で 0 hit を維持 | active docs では historical note のみに限定 |
 
-## Entry Order
+## Historical cleanup order
 
-1) Pattern 系（完了済み/薄化済み）
-2) LoopScan / GenericLoop（完了済み）
-3) それ以外（残存分）
+1) Pattern 系 wording cleanup（完了済み）
+2) LoopScan / GenericLoop wording cleanup（完了済み）
+3) active docs からの current-runtime 主語撤去（継続監査）

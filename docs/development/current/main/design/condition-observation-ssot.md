@@ -27,7 +27,7 @@ This is **analysis-only** (no rewrite, no semantic change).
 - Note: Length/Size differences are stored in CondProfile (ConditionShape matching ignores `LengthMethod`).
 - Note: Length minus needle details are stored in CondProfile (ConditionShape matching ignores needle var).
 - Note: Comparison operator is stored in CondProfile (`CondParam::Cmp`), not in shape variants.
-- Note: VarLessLiteral is used for accum-const-loop observation (legacy label: Pattern9, Var < integer literal).
+- Note: VarLessLiteral is used for accum-const-loop observation (`Var < integer literal`; legacy label: Pattern9).
 - Note: Reverse scan (VarGreaterEqualZero) is recognized via CondProfile (shape is legacy-only).
 - Note: idx_var matching for scan_with_init uses CondProfile::LoopVar (shape idx_var is legacy-only).
 - Note: StepShape vs CondProfile::StepExpr mismatch is observed (debug-only) for scan facts.
@@ -43,9 +43,9 @@ This is **analysis-only** (no rewrite, no semantic change).
 - Note: D14 keeps legacy fallback on incomplete (fail-fast is deferred).
 - Note: D16 freezes on incomplete for scan facts (no legacy fallback).
 - Note: D17 plans expansion order for incomplete-freeze beyond scan facts.
-- Note: D18 applies incomplete-freeze to loop-char-map only (legacy label: Pattern1CharMap; others keep fallback).
-- Note: D19 applies incomplete-freeze to loop-array-join (legacy label: Pattern1ArrayJoin).
-- Note: D20 applies incomplete-freeze to bool-predicate-scan / accum-const-loop (legacy labels: Pattern8/9).
+- Note: D18 applies incomplete-freeze to loop-char-map only (`Pattern1CharMap` is traceability-only; others keep fallback).
+- Note: D19 applies incomplete-freeze to loop-array-join (`Pattern1ArrayJoin` is traceability-only).
+- Note: D20 applies incomplete-freeze to bool-predicate-scan / accum-const-loop (`Pattern8/9` are traceability-only).
 
 ### C. CondBlockView (lowering view)
 - Location: `src/mir/builder/control_flow/plan/canon/cond_block_view.rs`
@@ -67,7 +67,7 @@ Drift checks:
  - Storage: GenericLoopV0Facts / GenericLoopV1Facts carry `cond_profile` (C19-C).
  - Adapter: ConditionShape → CondProfile mapping added in `scan_shapes.rs` (C19-D, observation-only).
  - Verifier: CondProfile is observed in verifier (C19-E, observation-only).
- - Storage: scan facts carry `cond_profile` for loop-char-map/loop-array-join/bool-predicate-scan/accum-const-loop (legacy labels: Pattern1CharMap/ArrayJoin/Pattern8/Pattern9, C20-B).
+ - Storage: scan facts carry `cond_profile` for loop-char-map/loop-array-join/bool-predicate-scan/accum-const-loop (`Pattern1CharMap/ArrayJoin/Pattern8/Pattern9` are traceability-only, C20-B).
  - Verifier: scan facts `cond_profile` observed (C20-C, observation-only).
  - Contract: idx_var (Facts.loop_var) must match CondProfile::LoopVar (C20-D5 prereq).
    Verifier enforces the contract (freeze on mismatch in planner_required).

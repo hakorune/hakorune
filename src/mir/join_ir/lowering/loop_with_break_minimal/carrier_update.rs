@@ -126,7 +126,7 @@ pub(crate) fn emit_carrier_updates(
 
                     let carrier_param = carrier.join_id.ok_or_else(|| {
                         format!(
-                            "[pattern2/conditional_step] Carrier '{}' join_id not set (header PHI not generated?)",
+                            "[loop_break/conditional_step] Carrier '{}' join_id not set (header PHI not generated?)",
                             carrier_name
                         )
                     })?;
@@ -142,7 +142,7 @@ pub(crate) fn emit_carrier_updates(
                         body_env_ref,
                         carrier_update_block,
                     )
-                    .map_err(|e| format!("[pattern2/conditional_step] {}", e))?;
+                    .map_err(|e| format!("[loop_break/conditional_step] {}", e))?;
                     updated_carrier_values.push(updated_value);
                     dev_log.log_if_enabled(|| {
                         format!(
@@ -163,7 +163,7 @@ pub(crate) fn emit_carrier_updates(
         })?;
 
         let updated_value = if let Some(body_env) = body_env_ref {
-            let update_env = UpdateEnv::new(env, body_env, &carrier_info.promoted_loopbodylocals);
+            let update_env = UpdateEnv::new(env, body_env, &carrier_info.promoted_body_locals);
             carrier_update_emitter::emit_carrier_update_with_env(
                 carrier,
                 update_expr,

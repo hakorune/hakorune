@@ -286,8 +286,8 @@ mod tests {
         LoopFeatureFacts, ValueJoinFacts,
     };
     use crate::mir::builder::control_flow::plan::facts::LoopFacts;
-    use crate::mir::builder::control_flow::plan::facts::pattern6_nested_minimal_facts::
-        Pattern6NestedMinimalFacts;
+    use crate::mir::builder::control_flow::plan::facts::nested_loop_minimal_facts::
+        NestedLoopMinimalFacts;
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
         ConditionShape, StepShape,
     };
@@ -331,7 +331,7 @@ mod tests {
         }
     }
 
-    fn nested_facts() -> (Pattern6NestedMinimalFacts, ASTNode, Vec<ASTNode>) {
+    fn nested_facts() -> (NestedLoopMinimalFacts, ASTNode, Vec<ASTNode>) {
         let outer_condition = condition_lt("i", 3);
         let inner_condition = condition_lt("j", 3);
         let acc_update = increment_value("sum", 1);
@@ -375,7 +375,7 @@ mod tests {
         ];
 
         (
-            Pattern6NestedMinimalFacts {
+            NestedLoopMinimalFacts {
                 outer_loop_var: "i".to_string(),
                 outer_condition: outer_condition.clone(),
                 outer_increment: outer_increment.clone(),
@@ -421,9 +421,9 @@ mod tests {
             },
             scan_with_init: None,
             split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
+            loop_simple_while: None,
+            loop_char_map: None,
+            loop_array_join: None,
             pattern_is_integer: None,
 
             pattern_starts_with: None,
@@ -442,9 +442,9 @@ mod tests {
             pattern_skip_ws: None,
             generic_loop_v0: None,
             generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
+            if_phi_join: None,
+            loop_continue_only: None,
+            loop_true_early_exit: None,
             loop_true_break_continue: None,
             loop_cond_break_continue: None,
             loop_cond_continue_only: None,
@@ -456,11 +456,11 @@ mod tests {
             loop_scan_phi_vars_v0: None,
             loop_bundle_resolver_v0: None,
             loop_collect_using_entries_v0: None,
-            pattern6_nested_minimal: Some(nested),
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
+            nested_loop_minimal: Some(nested),
+            bool_predicate_scan: None,
+            accum_const_loop: None,
+            loop_break: None,
+            loop_break_body_local: None,
         };
         let canonical = canonicalize_loop_facts(facts);
         let ctx = LoopRouteContext::new(&condition, &body, "coreloop_v2_nested", false, false);
@@ -501,9 +501,9 @@ mod tests {
             },
             scan_with_init: None,
             split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
+            loop_simple_while: None,
+            loop_char_map: None,
+            loop_array_join: None,
             pattern_is_integer: None,
 
             pattern_starts_with: None,
@@ -522,9 +522,9 @@ mod tests {
             pattern_skip_ws: None,
             generic_loop_v0: None,
             generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
+            if_phi_join: None,
+            loop_continue_only: None,
+            loop_true_early_exit: None,
             loop_true_break_continue: None,
             loop_cond_break_continue: None,
             loop_cond_continue_only: None,
@@ -536,11 +536,11 @@ mod tests {
             loop_scan_phi_vars_v0: None,
             loop_bundle_resolver_v0: None,
             loop_collect_using_entries_v0: None,
-            pattern6_nested_minimal: Some(nested),
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
+            nested_loop_minimal: Some(nested),
+            bool_predicate_scan: None,
+            accum_const_loop: None,
+            loop_break: None,
+            loop_break_body_local: None,
         };
         let canonical = canonicalize_loop_facts(facts);
         let ctx = LoopRouteContext::new(&condition, &body, "coreloop_v2_nested_join", false, false);

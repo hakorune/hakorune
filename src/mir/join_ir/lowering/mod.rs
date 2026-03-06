@@ -23,7 +23,6 @@
 
 pub(crate) mod bool_expr_lowerer; // Phase 168: Boolean expression lowering (unused - candidate for removal)
 pub mod canonical_names; // Phase 256 P1.7: SSOT for JoinIR function names (k_exit, loop_step, main)
-pub mod carrier_binding_assigner; // Phase 78: BindingId assignment for promoted carriers (dev-only)
 pub mod carrier_info; // Phase 196: Carrier metadata for loop lowering
 pub(crate) mod carrier_update_emitter; // Phase 179: Carrier update instruction emission
 pub(crate) mod common; // Internal lowering utilities
@@ -71,8 +70,6 @@ pub mod method_call_lowerer; // Phase 224-B: MethodCall lowering (metadata-drive
 pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists)
 pub mod method_return_hint; // Phase 83: P3-D 既知メソッド戻り値型推論箱
 pub mod scope_manager; // Phase 231: Unified variable scope management // Phase 195: Pattern 4 minimal lowerer
-#[cfg(feature = "normalized_dev")]
-pub mod scope_manager_bindingid_poc;
 pub(crate) mod step_schedule; // Phase 47-A: Generic step scheduler for P2/P3 (renamed from pattern2_step_schedule) // Phase 73: BindingId-based scope PoC (dev-only)
                               // Phase 242-EX-A: loop_with_if_phi_minimal removed - replaced by loop_with_if_phi_if_sum
 pub mod loop_with_if_phi_if_sum; // Phase 213: Pattern 3 AST-based if-sum lowerer (Phase 242-EX-A: supports complex conditions)

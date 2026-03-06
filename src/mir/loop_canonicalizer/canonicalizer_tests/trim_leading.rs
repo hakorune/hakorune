@@ -64,8 +64,8 @@ fn test_trim_leading_pattern_recognized() {
 
     // Verify success
     assert!(decision.is_success());
-    // chosen == Pattern2Break (ExitContract priority)
-    assert_eq!(decision.chosen, Some(LoopPatternKind::Pattern2Break));
+    // chosen == LoopBreak (ExitContract priority)
+    assert_eq!(decision.chosen, Some(LoopPatternKind::LoopBreak));
     // missing_caps == []
     assert!(decision.missing_caps.is_empty());
 

@@ -17,7 +17,7 @@
 
 ```
 lowerer       - CorePlan → MIR 変換
-normalizer    - DomainPlan → CorePlan 変換 (SSOT)
+normalizer    - Recipe→CorePlan compatibility lane（transition-only residue, SSOT）
 verifier      - CorePlan 不変条件検証
 trace         - 実行トレース (debug/dev)
 branchn       - BranchN 分岐処理
@@ -40,18 +40,18 @@ skeletons     - 分解スロット定義
 features      - Feature modules (carrier/phi/etc.)
 ```
 
-### Layer 4: Route/Semantic-Specific (旧 Pattern bucket)
-**責務**: 各 route/semantic の固有処理（Pattern番号は履歴ラベルとして保持）
+### Layer 4: Route/Semantic-Specific (route buckets)
+**責務**: 各 route/semantic の固有処理（Pattern番号は traceability-only の履歴ラベル）
 
 ```
 generic_loop  - Generic loop v0/v1 処理
-pattern1_*    - simple_while/char_map/array_join route (legacy label: Pattern1)
-pattern2_*    - break/orchestration/steps route (legacy label: Pattern2)
-pattern3_*    - if-phi join route (legacy label: Pattern3)
-pattern4_*    - continue-focused route (legacy label: Pattern4)
-pattern5_*    - infinite_early_exit route (legacy label: Pattern5)※移管済み
-pattern8_*    - bool_predicate_scan route (legacy label: Pattern8)
-pattern9_*    - accum_const_loop route (legacy label: Pattern9)
+pattern1_*    - simple_while/char_map/array_join route (legacy file prefix; runtime semantic names are route-first)
+pattern2_*    - break/orchestration/steps route (legacy file prefix; runtime semantic name is loop_break)
+pattern3_*    - if-phi join route (legacy file prefix; runtime semantic name is if_phi_join)
+pattern4_*    - continue-focused route (legacy file prefix; runtime semantic name is loop_continue_only)
+pattern5_*    - infinite_early_exit route (legacy file prefix; runtime semantic name is loop_true_early_exit)※移管済み
+pattern8_*    - bool_predicate_scan route (legacy file prefix; runtime semantic name is bool_predicate_scan)
+pattern9_*    - accum_const_loop route (legacy file prefix; runtime semantic name is accum_const_loop)
 ```
 
 ### Layer 5: Loop-Specific (ループ固有)
@@ -81,7 +81,7 @@ recipe_tree   - Recipe-first 型システム
 planner       - Single planner エントリーポイント
 composer      - CorePlan 構成
 emit          - MIR emit
-normalize      - 正規化 (DomainPlan → CorePlan)
+normalize      - 正規化 (compatibility lane / Recipe→CorePlan)
 single_planner - Plan order 管理
 ```
 

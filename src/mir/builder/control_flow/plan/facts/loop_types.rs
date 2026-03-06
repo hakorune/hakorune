@@ -5,21 +5,20 @@
 use super::scan_shapes::{ConditionShape, SplitScanShape, StepShape};
 use super::skeleton_facts::SkeletonFacts;
 use super::feature_facts::LoopFeatureFacts;
-use super::pattern1_simplewhile_facts::Pattern1SimpleWhileFacts;
-use super::pattern1_char_map_facts::Pattern1CharMapFacts;
-use super::pattern1_array_join_facts::Pattern1ArrayJoinFacts;
+use super::loop_simple_while_facts::LoopSimpleWhileFacts;
+use super::loop_char_map_facts::LoopCharMapFacts;
+use super::loop_array_join_facts::LoopArrayJoinFacts;
 use super::pattern_is_integer_facts::PatternIsIntegerFacts;
 use super::pattern_starts_with_facts::PatternStartsWithFacts;
 use super::pattern_int_to_str_facts::PatternIntToStrFacts;
 use super::pattern_escape_map_facts::PatternEscapeMapFacts;
 use super::pattern_split_lines_facts::PatternSplitLinesFacts;
 use super::pattern_skip_ws_facts::PatternSkipWsFacts;
+use super::{IfPhiJoinFacts, LoopContinueOnlyFacts};
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
 };
-use super::pattern3_ifphi_facts::Pattern3IfPhiFacts;
-use super::pattern4_continue_facts::Pattern4ContinueFacts;
-use super::pattern5_infinite_early_exit_facts::Pattern5InfiniteEarlyExitFacts;
+use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::LoopTrueBreakContinueFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
@@ -31,11 +30,11 @@ use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::LoopSca
 use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts;
 use crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts;
 use crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::LoopBundleResolverV0Facts;
-use super::pattern6_nested_minimal_facts::Pattern6NestedMinimalFacts;
-use super::pattern8_bool_predicate_scan_facts::Pattern8BoolPredicateScanFacts;
-use super::pattern9_accum_const_loop_facts::Pattern9AccumConstLoopFacts;
-use super::pattern2_break_types::Pattern2BreakFacts;
-use super::pattern2_loopbodylocal_facts::Pattern2LoopBodyLocalFacts;
+use super::nested_loop_minimal_facts::NestedLoopMinimalFacts;
+use super::bool_predicate_scan_facts::BoolPredicateScanFacts;
+use super::accum_const_loop_facts::AccumConstLoopFacts;
+use super::loop_break_types::LoopBreakFacts;
+use super::loop_break_body_local_facts::LoopBreakBodyLocalFacts;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopFacts {
@@ -45,9 +44,9 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub features: LoopFeatureFacts,
     pub scan_with_init: Option<ScanWithInitFacts>,
     pub split_scan: Option<SplitScanFacts>,
-    pub pattern1_simplewhile: Option<Pattern1SimpleWhileFacts>,
-    pub pattern1_char_map: Option<Pattern1CharMapFacts>,
-    pub pattern1_array_join: Option<Pattern1ArrayJoinFacts>,
+    pub loop_simple_while: Option<LoopSimpleWhileFacts>,
+    pub loop_char_map: Option<LoopCharMapFacts>,
+    pub loop_array_join: Option<LoopArrayJoinFacts>,
     pub pattern_is_integer: Option<PatternIsIntegerFacts>,
     pub pattern_starts_with: Option<PatternStartsWithFacts>,
     pub pattern_int_to_str: Option<PatternIntToStrFacts>,
@@ -56,9 +55,9 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub pattern_skip_ws: Option<PatternSkipWsFacts>,
     pub generic_loop_v0: Option<GenericLoopV0Facts>,
     pub generic_loop_v1: Option<GenericLoopV1Facts>,
-    pub pattern3_ifphi: Option<Pattern3IfPhiFacts>,
-    pub pattern4_continue: Option<Pattern4ContinueFacts>,
-    pub pattern5_infinite_early_exit: Option<Pattern5InfiniteEarlyExitFacts>,
+    pub if_phi_join: Option<IfPhiJoinFacts>,
+    pub loop_continue_only: Option<LoopContinueOnlyFacts>,
+    pub loop_true_early_exit: Option<LoopTrueEarlyExitFacts>,
     pub loop_true_break_continue: Option<LoopTrueBreakContinueFacts>,
     /// Note: cluster3/4/5 are selected via nested_loop_profile table
     pub loop_cond_break_continue: Option<LoopCondBreakContinueFacts>,
@@ -71,11 +70,11 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub loop_scan_phi_vars_v0: Option<LoopScanPhiVarsV0Facts>,
     pub loop_collect_using_entries_v0: Option<LoopCollectUsingEntriesV0Facts>,
     pub loop_bundle_resolver_v0: Option<LoopBundleResolverV0Facts>,
-    pub pattern6_nested_minimal: Option<Pattern6NestedMinimalFacts>,
-    pub pattern8_bool_predicate_scan: Option<Pattern8BoolPredicateScanFacts>,
-    pub pattern9_accum_const_loop: Option<Pattern9AccumConstLoopFacts>,
-    pub pattern2_break: Option<Pattern2BreakFacts>,
-    pub pattern2_loopbodylocal: Option<Pattern2LoopBodyLocalFacts>,
+    pub nested_loop_minimal: Option<NestedLoopMinimalFacts>,
+    pub bool_predicate_scan: Option<BoolPredicateScanFacts>,
+    pub accum_const_loop: Option<AccumConstLoopFacts>,
+    pub loop_break: Option<LoopBreakFacts>,
+    pub loop_break_body_local: Option<LoopBreakBodyLocalFacts>,
 }
 
 impl LoopFacts {
@@ -87,52 +86,52 @@ impl LoopFacts {
         self.split_scan.as_ref()
     }
 
-    pub fn loop_simple_while(&self) -> Option<&Pattern1SimpleWhileFacts> {
-        self.pattern1_simplewhile.as_ref()
+    pub fn loop_simple_while(&self) -> Option<&LoopSimpleWhileFacts> {
+        self.loop_simple_while.as_ref()
     }
 
-    pub fn loop_char_map(&self) -> Option<&Pattern1CharMapFacts> {
-        self.pattern1_char_map.as_ref()
+    pub fn loop_char_map(&self) -> Option<&LoopCharMapFacts> {
+        self.loop_char_map.as_ref()
     }
 
-    pub fn loop_array_join(&self) -> Option<&Pattern1ArrayJoinFacts> {
-        self.pattern1_array_join.as_ref()
+    pub fn loop_array_join(&self) -> Option<&LoopArrayJoinFacts> {
+        self.loop_array_join.as_ref()
     }
 
     pub fn string_is_integer(&self) -> Option<&PatternIsIntegerFacts> {
         self.pattern_is_integer.as_ref()
     }
 
-    pub fn if_phi_join(&self) -> Option<&Pattern3IfPhiFacts> {
-        self.pattern3_ifphi.as_ref()
+    pub fn if_phi_join(&self) -> Option<&IfPhiJoinFacts> {
+        self.if_phi_join.as_ref()
     }
 
-    pub fn loop_continue_recipe(&self) -> Option<&Pattern4ContinueFacts> {
-        self.pattern4_continue.as_ref()
+    pub fn loop_continue_only(&self) -> Option<&LoopContinueOnlyFacts> {
+        self.loop_continue_only.as_ref()
     }
 
-    pub fn loop_true_early_exit(&self) -> Option<&Pattern5InfiniteEarlyExitFacts> {
-        self.pattern5_infinite_early_exit.as_ref()
+    pub fn loop_true_early_exit(&self) -> Option<&LoopTrueEarlyExitFacts> {
+        self.loop_true_early_exit.as_ref()
     }
 
-    pub fn nested_loop_minimal(&self) -> Option<&Pattern6NestedMinimalFacts> {
-        self.pattern6_nested_minimal.as_ref()
+    pub fn nested_loop_minimal(&self) -> Option<&NestedLoopMinimalFacts> {
+        self.nested_loop_minimal.as_ref()
     }
 
-    pub fn bool_predicate_scan(&self) -> Option<&Pattern8BoolPredicateScanFacts> {
-        self.pattern8_bool_predicate_scan.as_ref()
+    pub fn bool_predicate_scan(&self) -> Option<&BoolPredicateScanFacts> {
+        self.bool_predicate_scan.as_ref()
     }
 
-    pub fn accum_const_loop(&self) -> Option<&Pattern9AccumConstLoopFacts> {
-        self.pattern9_accum_const_loop.as_ref()
+    pub fn accum_const_loop(&self) -> Option<&AccumConstLoopFacts> {
+        self.accum_const_loop.as_ref()
     }
 
-    pub fn loop_break(&self) -> Option<&Pattern2BreakFacts> {
-        self.pattern2_break.as_ref()
+    pub fn loop_break(&self) -> Option<&LoopBreakFacts> {
+        self.loop_break.as_ref()
     }
 
-    pub fn loop_break_body_local(&self) -> Option<&Pattern2LoopBodyLocalFacts> {
-        self.pattern2_loopbodylocal.as_ref()
+    pub fn loop_break_body_local(&self) -> Option<&LoopBreakBodyLocalFacts> {
+        self.loop_break_body_local.as_ref()
     }
 
     pub fn loop_cond_break_continue(&self) -> Option<&LoopCondBreakContinueFacts> {

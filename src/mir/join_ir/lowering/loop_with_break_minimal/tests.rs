@@ -59,7 +59,7 @@ fn scope_with_body_local_var(var_name: &str) -> LoopScopeShape {
 }
 
 #[test]
-fn test_pattern2_accepts_loop_param_only() {
+fn test_loop_break_accepts_loop_param_only() {
     let loop_cond = binop_node(var_node("i"), int_literal_node(10));
     let break_cond = binop_node(var_node("i"), int_literal_node(5));
 
@@ -72,7 +72,7 @@ fn test_pattern2_accepts_loop_param_only() {
 }
 
 #[test]
-fn test_pattern2_accepts_outer_scope_variables() {
+fn test_loop_break_accepts_outer_scope_variables() {
     let loop_cond = binop_node(var_node("i"), var_node("end"));
     let break_cond = binop_node(var_node("i"), var_node("threshold"));
 
@@ -90,7 +90,7 @@ fn test_pattern2_accepts_outer_scope_variables() {
 }
 
 #[test]
-fn test_pattern2_rejects_loop_body_local_variables() {
+fn test_loop_break_rejects_loop_body_local_variables() {
     let loop_cond = binop_node(var_node("i"), var_node("10"));
     let break_cond = binop_node(var_node("ch"), var_node("' '"));
 
@@ -109,7 +109,7 @@ fn test_pattern2_rejects_loop_body_local_variables() {
 }
 
 #[test]
-fn test_pattern2_header_condition_via_exprlowerer() {
+fn test_loop_break_header_condition_via_exprlowerer() {
     use crate::mir::join_ir::lowering::condition_env::ConditionEnv;
     use crate::mir::join_ir::lowering::join_value_space::JoinValueSpace;
 
@@ -126,9 +126,7 @@ fn test_pattern2_header_condition_via_exprlowerer() {
         loop_var_id: ValueId(1),
         carriers: vec![],
         trim_helper: None,
-        promoted_loopbodylocals: vec![],
-        #[cfg(feature = "normalized_dev")]
-        promoted_bindings: std::collections::BTreeMap::new(),
+        promoted_body_locals: vec![],
     };
 
     let carrier_updates = BTreeMap::new();

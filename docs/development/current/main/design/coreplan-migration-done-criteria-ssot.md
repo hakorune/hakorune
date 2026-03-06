@@ -27,6 +27,6 @@ This document defines when the CorePlan migration can be considered done.
 
 ## Still allowed to remain
 
-- `DomainPlan` can remain as an intent layer for normalization/compatibility.
+- Historical planner-payload wording may remain in docs or compat shims only; the runtime lane stays recipe-first.
 - Legacy extractors may remain in the plan layer as long as they do not reintroduce
   JoinIR-side routing tables.

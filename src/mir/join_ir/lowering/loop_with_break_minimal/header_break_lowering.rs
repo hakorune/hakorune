@@ -7,19 +7,19 @@ use crate::mir::join_ir::lowering::debug_output_box::DebugOutputBox;
 use crate::mir::join_ir::lowering::error_tags;
 use crate::mir::join_ir::lowering::expr_lowerer::{ExprContext, ExprLowerer};
 use crate::mir::join_ir::lowering::loop_body_local_env::LoopBodyLocalEnv;
-use crate::mir::join_ir::lowering::scope_manager::Pattern2ScopeManager;
+use crate::mir::join_ir::lowering::scope_manager::LoopBreakScopeManager;
 use crate::mir::join_ir::JoinInst;
 use crate::mir::loop_pattern_detection::function_scope_capture::CapturedEnv;
 use crate::mir::ValueId;
 
-/// Build a Pattern2ScopeManager for ExprLowerer paths.
+/// Build a LoopBreakScopeManager for ExprLowerer paths.
 fn make_scope_manager<'a>(
     condition_env: &'a ConditionEnv,
     body_local_env: Option<&'a LoopBodyLocalEnv>,
     captured_env: Option<&'a CapturedEnv>,
     carrier_info: &'a CarrierInfo,
-) -> Pattern2ScopeManager<'a> {
-    Pattern2ScopeManager {
+) -> LoopBreakScopeManager<'a> {
+    LoopBreakScopeManager {
         condition_env,
         loop_body_local_env: body_local_env,
         captured_env,
@@ -43,7 +43,7 @@ pub(crate) fn lower_header_condition(
 ) -> Result<(ValueId, Vec<JoinInst>), String> {
     use crate::mir::join_ir::lowering::condition_lowering_box::ConditionLoweringBox;
 
-    let debug = DebugOutputBox::new_dev("joinir/pattern2");
+    let debug = DebugOutputBox::new_dev("joinir/loop_break");
 
     let empty_body_env = LoopBodyLocalEnv::new();
     let empty_captured_env = CapturedEnv::new();
@@ -54,9 +54,9 @@ pub(crate) fn lower_header_condition(
         carrier_info,
     );
 
-    if !ExprLowerer::<Pattern2ScopeManager>::is_supported_condition(condition) {
+    if !ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(condition) {
         return Err(error_tags::lowering_error(
-            "pattern2/header_condition",
+            "loop_break/header_condition",
             "ConditionLoweringBox does not support this condition (legacy path removed)",
         ));
     }
@@ -75,7 +75,7 @@ pub(crate) fn lower_header_condition(
 
     let value_id = expr_lowerer.lower_condition(condition, &mut context).map_err(|e| {
         format!(
-            "[joinir/pattern2/phase244] ConditionLoweringBox failed on supported condition: {:?}",
+            "[joinir/loop_break/phase244] ConditionLoweringBox failed on supported condition: {:?}",
             e
         )
     })?;
@@ -141,7 +141,7 @@ pub(crate) fn lower_break_condition(
         .lower_condition(break_condition, &mut context)
         .map_err(|e| {
             format!(
-                "[joinir/pattern2/phase244] ConditionLoweringBox failed to lower break condition: {}",
+                "[joinir/loop_break/phase244] ConditionLoweringBox failed to lower break condition: {}",
                 e
             )
         })?;

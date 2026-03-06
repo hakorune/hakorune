@@ -6,9 +6,9 @@ use std::collections::BTreeMap;
 use super::scan_shapes::{scan_condition_observation, ConditionShape, StepShape};
 use super::skeleton_facts::try_extract_loop_skeleton_facts;
 use super::feature_facts::try_extract_loop_feature_facts;
-use super::pattern1_simplewhile_facts::try_extract_pattern1_simplewhile_facts;
-use super::pattern1_char_map_facts::try_extract_pattern1_char_map_facts;
-use super::pattern1_array_join_facts::try_extract_pattern1_array_join_facts;
+use super::loop_simple_while_facts::try_extract_loop_simple_while_facts;
+use super::loop_char_map_facts::try_extract_loop_char_map_facts;
+use super::loop_array_join_facts::try_extract_loop_array_join_facts;
 use super::pattern_is_integer_facts::try_extract_pattern_is_integer_facts;
 use super::pattern_starts_with_facts::try_extract_pattern_starts_with_facts;
 use super::pattern_int_to_str_facts::try_extract_pattern_int_to_str_facts;
@@ -19,9 +19,8 @@ use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
     has_generic_loop_v1_recipe_hint, try_extract_generic_loop_v0_facts,
     try_extract_generic_loop_v1_facts,
 };
-use super::pattern3_ifphi_facts::try_extract_pattern3_ifphi_facts;
-use super::pattern4_continue_facts::try_extract_pattern4_continue_facts;
-use super::pattern5_infinite_early_exit_facts::try_extract_pattern5_infinite_early_exit_facts;
+use super::loop_true_early_exit_facts::try_extract_loop_true_early_exit_facts;
+use super::{try_extract_if_phi_join_facts, try_extract_loop_continue_only_facts};
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::{
     LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
@@ -41,11 +40,11 @@ use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_ext
 use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::try_extract_loop_scan_phi_vars_v0_facts;
 use crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::try_extract_loop_collect_using_entries_v0_facts;
 use crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::try_extract_loop_bundle_resolver_v0_facts;
-use super::pattern6_nested_minimal_facts::try_extract_pattern6_nested_minimal_facts;
-use super::pattern8_bool_predicate_scan_facts::try_extract_pattern8_bool_predicate_scan_facts;
-use super::pattern9_accum_const_loop_facts::try_extract_pattern9_accum_const_loop_facts;
-use super::pattern2_break_core::try_extract_pattern2_break_facts;
-use super::pattern2_loopbodylocal_facts::try_extract_pattern2_loopbodylocal_facts;
+use super::nested_loop_minimal_facts::try_extract_nested_loop_minimal_facts;
+use super::bool_predicate_scan_facts::try_extract_bool_predicate_scan_facts;
+use super::accum_const_loop_facts::try_extract_accum_const_loop_facts;
+use super::loop_break_core::try_extract_loop_break_facts;
+use super::loop_break_body_local_facts::try_extract_loop_break_body_local_facts;
 use super::stmt_view::flatten_scope_boxes;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};
 
@@ -92,9 +91,9 @@ fn try_build_loop_facts_inner(
     let scan_with_init =
         try_extract_scan_with_init_facts(condition, body, &condition_shape, &step_shape)?;
     let split_scan = try_extract_split_scan_facts(condition, body)?;
-    let pattern1_simplewhile = try_extract_pattern1_simplewhile_facts(condition, body)?;
-    let pattern1_char_map = try_extract_pattern1_char_map_facts(condition, body, &observation)?;
-    let pattern1_array_join = try_extract_pattern1_array_join_facts(condition, body, &observation)?;
+    let loop_simple_while = try_extract_loop_simple_while_facts(condition, body)?;
+    let loop_char_map = try_extract_loop_char_map_facts(condition, body, &observation)?;
+    let loop_array_join = try_extract_loop_array_join_facts(condition, body, &observation)?;
     let pattern_is_integer = try_extract_pattern_is_integer_facts(condition, body)?;
     let pattern_starts_with = try_extract_pattern_starts_with_facts(condition, body)?;
     let pattern_int_to_str = try_extract_pattern_int_to_str_facts(condition, body)?;
@@ -173,26 +172,26 @@ fn try_build_loop_facts_inner(
     } else {
         try_extract_generic_loop_v1_facts(condition, body)?
     };
-    let pattern3_ifphi = try_extract_pattern3_ifphi_facts(condition, body)?;
-    let pattern4_continue = try_extract_pattern4_continue_facts(condition, body)?;
-    let pattern5_infinite_early_exit =
-        try_extract_pattern5_infinite_early_exit_facts(condition, body)?;
+    let if_phi_join = try_extract_if_phi_join_facts(condition, body)?;
+    let loop_continue_only = try_extract_loop_continue_only_facts(condition, body)?;
+    let loop_true_early_exit =
+        try_extract_loop_true_early_exit_facts(condition, body)?;
     let loop_true_break_continue =
         try_extract_loop_true_break_continue_facts(condition, body)?;
-    let pattern6_nested_minimal =
-        try_extract_pattern6_nested_minimal_facts(condition, body)?;
-    let pattern8_bool_predicate_scan =
-        try_extract_pattern8_bool_predicate_scan_facts(condition, body, &observation)?;
-    let pattern9_accum_const_loop =
-        try_extract_pattern9_accum_const_loop_facts(condition, body, &observation)?;
-    let pattern2_break = try_extract_pattern2_break_facts(condition, body)?;
-    let pattern2_loopbodylocal = try_extract_pattern2_loopbodylocal_facts(condition, body)?;
+    let nested_loop_minimal =
+        try_extract_nested_loop_minimal_facts(condition, body)?;
+    let bool_predicate_scan =
+        try_extract_bool_predicate_scan_facts(condition, body, &observation)?;
+    let accum_const_loop =
+        try_extract_accum_const_loop_facts(condition, body, &observation)?;
+    let loop_break = try_extract_loop_break_facts(condition, body)?;
+    let loop_break_body_local = try_extract_loop_break_body_local_facts(condition, body)?;
 
     let has_any = scan_with_init.is_some()
         || split_scan.is_some()
-        || pattern1_simplewhile.is_some()
-        || pattern1_char_map.is_some()
-        || pattern1_array_join.is_some()
+        || loop_simple_while.is_some()
+        || loop_char_map.is_some()
+        || loop_array_join.is_some()
         || pattern_is_integer.is_some()
         || pattern_starts_with.is_some()
         || pattern_int_to_str.is_some()
@@ -207,19 +206,19 @@ fn try_build_loop_facts_inner(
         || loop_bundle_resolver_v0.is_some()
         || generic_loop_v0.is_some()
         || generic_loop_v1.is_some()
-        || pattern3_ifphi.is_some()
-        || pattern4_continue.is_some()
-        || pattern5_infinite_early_exit.is_some()
+        || if_phi_join.is_some()
+        || loop_continue_only.is_some()
+        || loop_true_early_exit.is_some()
         || loop_true_break_continue.is_some()
         || loop_cond_break_continue.is_some()
         || loop_cond_continue_only.is_some()
         || loop_cond_continue_with_return.is_some()
         || loop_cond_return_in_body.is_some()
-        || pattern6_nested_minimal.is_some()
-        || pattern8_bool_predicate_scan.is_some()
-        || pattern9_accum_const_loop.is_some()
-        || pattern2_break.is_some()
-        || pattern2_loopbodylocal.is_some();
+        || nested_loop_minimal.is_some()
+        || bool_predicate_scan.is_some()
+        || accum_const_loop.is_some()
+        || loop_break.is_some()
+        || loop_break_body_local.is_some();
     if !has_any {
         return Ok(None);
     }
@@ -241,9 +240,9 @@ fn try_build_loop_facts_inner(
         features,
         scan_with_init,
         split_scan,
-        pattern1_simplewhile,
-        pattern1_char_map,
-        pattern1_array_join,
+        loop_simple_while,
+        loop_char_map,
+        loop_array_join,
         pattern_is_integer,
         pattern_starts_with,
         pattern_int_to_str,
@@ -252,9 +251,9 @@ fn try_build_loop_facts_inner(
         pattern_skip_ws,
         generic_loop_v0,
         generic_loop_v1,
-        pattern3_ifphi,
-        pattern4_continue,
-        pattern5_infinite_early_exit,
+        if_phi_join: if_phi_join,
+        loop_continue_only: loop_continue_only,
+        loop_true_early_exit,
         loop_true_break_continue,
         loop_cond_break_continue,
         loop_cond_continue_only,
@@ -266,11 +265,11 @@ fn try_build_loop_facts_inner(
         loop_scan_phi_vars_v0,
         loop_collect_using_entries_v0,
         loop_bundle_resolver_v0,
-        pattern6_nested_minimal,
-        pattern8_bool_predicate_scan,
-        pattern9_accum_const_loop,
-        pattern2_break,
-        pattern2_loopbodylocal,
+        nested_loop_minimal,
+        bool_predicate_scan,
+        accum_const_loop,
+        loop_break,
+        loop_break_body_local,
     };
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();

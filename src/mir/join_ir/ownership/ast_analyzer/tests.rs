@@ -1,5 +1,5 @@
 use super::*;
-use crate::ast::{BinaryOperator, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 
 fn lit_i(i: i64) -> ASTNode {
     ASTNode::Literal {

@@ -5,19 +5,21 @@
 //!
 //! # Responsibilities
 //!
-//! - Convert accepted facts/recipe contracts to CorePlan (SSOT for route-specific knowledge)
+//! - Convert accepted facts/recipe contracts to CorePlan in legacy/analysis-only lanes
 //! - Generate ValueIds for CorePlan expressions
 //! - Expand pattern-specific operations into generic CoreEffectPlan
 //!
 //! # Key Design Decision
 //!
-//! Normalizer is the ONLY place that knows pattern-specific semantics.
-//! Lowerer processes CorePlan without any pattern knowledge.
+//! Legacy route labels stay boxed inside this module.
+//! Composer/entry runtime paths should prefer semantic helpers or feature lowerers,
+//! and Lowerer processes CorePlan without route-specific knowledge.
 
 pub(in crate::mir::builder) mod helpers;
-mod pattern1_coreloop_builder;
+#[path = "pattern1_coreloop_builder.rs"]
+mod simple_while_coreloop_builder;
 #[cfg(test)]
-mod pattern2_break;
+mod loop_break;
 mod value_join_args;
 pub(in crate::mir::builder) mod common;
 
@@ -34,17 +36,32 @@ pub(in crate::mir::builder) mod loop_body_lowering;
 mod value_join_demo_if2;
 
 use super::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
+use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 use crate::mir::builder::MirBuilder;
 
-#[cfg(test)]
-pub(in crate::mir::builder) use pattern1_coreloop_builder::build_pattern1_coreloop;
 pub(in crate::mir::builder) use super::generic_loop::normalizer::{
     normalize_generic_loop_v0, normalize_generic_loop_v1,
 };
+
+pub(in crate::mir::builder) fn build_simple_while_coreloop(
+    builder: &mut MirBuilder,
+    loop_var: &str,
+    condition: &ASTNode,
+    loop_increment: &ASTNode,
+    ctx: &LoopRouteContext,
+) -> Result<CoreLoopPlan, String> {
+    simple_while_coreloop_builder::build_simple_while_coreloop(
+        builder,
+        loop_var,
+        condition,
+        loop_increment,
+        ctx,
+    )
+}
 
 /// Phase 273 P1: PlanNormalizer - facts/recipe contract → CorePlan 変換 (SSOT)
 pub(in crate::mir::builder) struct PlanNormalizer;

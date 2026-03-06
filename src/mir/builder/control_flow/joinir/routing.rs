@@ -49,13 +49,13 @@ pub(in crate::mir::builder) fn choose_route_kind(
     // This keeps loop routing structural: no by-name dispatch, no silent fallback.
     match BalancedDepthScanPolicyBox::decide(condition, body) {
         PolicyDecision::Use(_) => {
-            return loop_pattern_detection::LoopPatternKind::Pattern2Break;
+            return loop_pattern_detection::LoopPatternKind::LoopBreak;
         }
         PolicyDecision::Reject(_reason) => {
             // In strict mode, treat "close-but-unsupported" as a fail-fast
             // loop-break route so the policy can surface the precise contract violation.
             if crate::config::env::joinir_dev::strict_enabled() {
-                return loop_pattern_detection::LoopPatternKind::Pattern2Break;
+                return loop_pattern_detection::LoopPatternKind::LoopBreak;
             }
         }
         PolicyDecision::None => {}

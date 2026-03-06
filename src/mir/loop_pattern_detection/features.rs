@@ -121,7 +121,7 @@ impl LoopFeatures {
 /// # Phase 264 P0: Conservative Implementation
 ///
 /// For now, this function returns false to allow carrier_count > 1 loops
-/// to fall through to Pattern1 instead of being misclassified as Pattern3IfPhi.
+/// to fall through to Pattern1 instead of being misclassified as IfPhiJoin.
 ///
 /// # Phase 264 P1: TODO
 ///
@@ -129,7 +129,7 @@ impl LoopFeatures {
 fn has_if_sum_signature(_scope: Option<&LoopScopeShape>) -> bool {
     // Phase 264 P0: Conservative - always return false
     // This makes carrier_count > 1 loops with simple conditional assignment
-    // fall through to Pattern1 instead of being classified as Pattern3IfPhi
+    // fall through to Pattern1 instead of being classified as IfPhiJoin
     false
 }
 
@@ -163,7 +163,7 @@ pub(crate) fn extract_features(
     // - AND at least one carrier updated in both if/else branches with arithmetic
     //
     // Simple conditional assignment (seg = if x then "A" else "B") should NOT
-    // be classified as Pattern3IfPhi - it should fall through to Pattern1.
+    // be classified as IfPhiJoin - it should fall through to Pattern1.
     let has_if_else_phi = carrier_count > 1 && has_if_sum_signature(scope);
 
     // TODO: Implement has_if detection via CFG analysis

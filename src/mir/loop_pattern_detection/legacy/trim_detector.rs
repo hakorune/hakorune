@@ -7,10 +7,9 @@
 //!
 //! # Design Philosophy
 //!
-//! This detector follows the **Detector/Recorder separation** principle:
+//! This detector follows the **Detector/Promoter separation** principle:
 //! - **Detector**: Pure detection logic (this module)
-//! - **Recorder**: PromotedBindingRecorder (records BindingId mappings)
-//! - **Promoter**: Orchestrates detection + recording + carrier building
+//! - **Promoter**: Orchestrates carrier building from the detected shape
 //!
 //! # Pattern: A-3 Trim (Substring + Equality OR Chain)
 //!

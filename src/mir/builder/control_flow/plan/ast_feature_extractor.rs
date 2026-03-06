@@ -97,11 +97,10 @@ pub(crate) fn extract_features(
     // Detect if-else statements with PHI pattern
     let has_if_else_phi = detect_if_else_phi_in_body(body);
 
-    // Phase 264 P0: Use has_if_else_phi to prevent misclassification
+    // Phase 264 P0: Use has_if_else_phi to prevent misclassification.
     // Previously used detect_if_in_body() which returned true for ANY if statement.
-    // This caused simple conditional assignments to be classified as if_phi_join
-    // (legacy label: Pattern3IfPhi). Now we use has_if_else_phi which only returns
-    // true for actual if-sum patterns.
+    // This caused simple conditional assignments to be classified as if_phi_join.
+    // Now we use has_if_else_phi which only returns true for actual if-sum patterns.
     let has_if = has_if_else_phi;
 
     // Count carrier variables (approximation based on assignments)

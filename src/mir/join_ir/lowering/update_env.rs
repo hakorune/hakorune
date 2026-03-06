@@ -91,7 +91,7 @@ pub struct UpdateEnv<'a> {
 
     /// Phase 247-EX: List of promoted LoopBodyLocal variable names
     /// For these variables, resolve to <var>_value carrier instead of is_<var>
-    promoted_loopbodylocals: &'a [String],
+    promoted_body_locals: &'a [String],
 }
 
 impl<'a> UpdateEnv<'a> {
@@ -101,23 +101,23 @@ impl<'a> UpdateEnv<'a> {
     ///
     /// * `condition_env` - Condition variable environment (highest priority)
     /// * `body_local_env` - Body-local variable environment (fallback)
-    /// * `promoted_loopbodylocals` - Phase 247-EX: List of promoted variable names
+    /// * `promoted_body_locals` - Phase 247-EX: List of promoted variable names
     pub fn new(
         condition_env: &'a ConditionEnv,
         body_local_env: &'a LoopBodyLocalEnv,
-        promoted_loopbodylocals: &'a [String],
+        promoted_body_locals: &'a [String],
     ) -> Self {
         Self {
             condition_env,
             body_local_env,
-            promoted_loopbodylocals,
+            promoted_body_locals,
         }
     }
 
     /// Resolve a variable name to JoinIR ValueId
     ///
     /// Resolution order (Phase 247-EX extended):
-    /// 1. If name is in promoted_loopbodylocals:
+    /// 1. If name is in promoted_body_locals:
     ///    a. Try condition_env.get("<name>_value")  // Integer carrier for accumulation
     ///    b. If not found, try condition_env.get("is_<name>")  // Boolean carrier (rare in updates)
     /// 2. Try condition_env.get(name)
@@ -142,11 +142,11 @@ impl<'a> UpdateEnv<'a> {
     /// ```
     pub fn resolve(&self, name: &str) -> Option<ValueId> {
         // Phase 247-EX: Check if this is a promoted variable (digit_pos) or its derived carrier name (digit_value)
-        let promoted_key = if self.promoted_loopbodylocals.iter().any(|v| v == name) {
+        let promoted_key = if self.promoted_body_locals.iter().any(|v| v == name) {
             Some(name.to_string())
         } else if let Some(base) = name.strip_suffix("_value") {
             let candidate = format!("{}_pos", base);
-            if self.promoted_loopbodylocals.iter().any(|v| v == &candidate) {
+            if self.promoted_body_locals.iter().any(|v| v == &candidate) {
                 Some(candidate)
             } else {
                 None

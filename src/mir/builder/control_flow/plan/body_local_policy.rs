@@ -6,7 +6,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
-use crate::mir::builder::control_flow::plan::pattern2::contracts::derived_slot::extract_derived_slot_for_conditions;
+use crate::mir::builder::control_flow::plan::loop_break::contracts::derived_slot::extract_derived_slot_for_conditions;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::common::body_local_derived_slot_emitter::BodyLocalDerivedSlotRecipe;
 use crate::mir::join_ir::lowering::common::body_local_slot::{
@@ -54,8 +54,6 @@ pub fn classify_loop_break_body_local_route(
         break_cond: Some(break_condition_node),
         continue_cond: None,
         loop_body: body,
-        #[cfg(feature = "normalized_dev")]
-        binding_map: Some(&_builder.binding_map),
     };
 
     match LoopBodyCondPromoter::try_promote_for_condition(promotion_req) {

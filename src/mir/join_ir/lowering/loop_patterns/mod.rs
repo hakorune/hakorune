@@ -129,12 +129,12 @@ mod tests {
     }
 
     // ========================================================================
-    // Pattern 3: Loop with If-Else PHI Tests
+    // IfPhiJoin: Loop with If-Else PHI Tests
     // ========================================================================
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern3_lowering_success() {
+    fn test_if_phi_join_lowering_success() {
         // TODO: Add integration test for if-else phi pattern lowering
         // Step 1: Create mock LoopForm for if-else phi pattern
         // Step 2: Create mock LoopToJoinLowerer
@@ -145,7 +145,7 @@ mod tests {
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern3_multiple_carriers() {
+    fn test_if_phi_join_multiple_carriers() {
         // TODO: Add test that verifies multiple carrier variables
         // Step 1: Create mock LoopForm with i + sum carriers
         // Step 2: Call lower_loop_with_conditional_phi_to_joinir()
@@ -155,7 +155,7 @@ mod tests {
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern3_if_lowering_integration() {
+    fn test_if_phi_join_lowering_integration() {
         // TODO: Add test that verifies If lowering integration
         // Step 1: Create mock LoopForm with if-else
         // Step 2: Call lower_loop_with_conditional_phi_to_joinir()
@@ -164,12 +164,12 @@ mod tests {
     }
 
     // ========================================================================
-    // Pattern 4: Loop with Continue Tests
+    // LoopContinueOnly: Loop with Continue Tests
     // ========================================================================
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern4_lowering_success() {
+    fn test_loop_continue_only_lowering_success() {
         // TODO: Add integration test for continue pattern lowering
         // Step 1: Create mock LoopForm for continue pattern
         // Step 2: Create mock LoopToJoinLowerer
@@ -180,7 +180,7 @@ mod tests {
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern4_continue_jump_correct() {
+    fn test_loop_continue_only_jump_correct() {
         // TODO: Add test that verifies continue jumps to loop_step
         // Step 1: Create mock LoopForm for continue pattern
         // Step 2: Call lower_loop_with_continue_to_joinir()
@@ -190,7 +190,7 @@ mod tests {
 
     #[test]
     #[ignore] // TODO: Implement test after lowering logic is complete
-    fn test_pattern4_multiple_carriers() {
+    fn test_loop_continue_only_multiple_carriers() {
         // TODO: Add test that verifies multiple carrier variables
         // Step 1: Create mock LoopForm with i + sum carriers
         // Step 2: Call lower_loop_with_continue_to_joinir()

@@ -3,23 +3,23 @@ use crate::mir::join_ir::ownership::{OwnershipPlan, ScopeId, ScopeKind};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct BindingId(u32);
+pub(super) struct BindingId(u32);
 
 #[derive(Debug, Clone)]
-struct BindingInfo {
-    name: String,
-    owner_scope: ScopeId,
+pub(super) struct BindingInfo {
+    pub(super) name: String,
+    pub(super) owner_scope: ScopeId,
 }
 
 #[derive(Debug)]
-struct ScopeInfo {
-    id: ScopeId,
-    kind: ScopeKind,
-    parent: Option<ScopeId>,
-    declared: BTreeMap<String, BindingId>,
-    reads: BTreeSet<BindingId>,
-    writes: BTreeSet<BindingId>,
-    condition_reads: BTreeSet<BindingId>,
+pub(super) struct ScopeInfo {
+    pub(super) id: ScopeId,
+    pub(super) kind: ScopeKind,
+    pub(super) parent: Option<ScopeId>,
+    pub(super) declared: BTreeMap<String, BindingId>,
+    pub(super) reads: BTreeSet<BindingId>,
+    pub(super) writes: BTreeSet<BindingId>,
+    pub(super) condition_reads: BTreeSet<BindingId>,
 }
 
 /// Analyzes real AST and produces `OwnershipPlan`.
@@ -29,11 +29,11 @@ struct ScopeInfo {
 /// - Records writes via `ASTNode::Assignment` / `ASTNode::GroupedAssignmentExpr`
 /// - Treats `Loop/While/ForRange` and `If` conditions as `condition_reads`
 pub struct AstOwnershipAnalyzer {
-    scopes: BTreeMap<ScopeId, ScopeInfo>,
-    bindings: BTreeMap<BindingId, BindingInfo>,
+    pub(super) scopes: BTreeMap<ScopeId, ScopeInfo>,
+    pub(super) bindings: BTreeMap<BindingId, BindingInfo>,
     next_scope_id: u32,
     next_binding_id: u32,
-    env_stack: Vec<BTreeMap<String, BindingId>>,
+    pub(super) env_stack: Vec<BTreeMap<String, BindingId>>,
 }
 
 impl AstOwnershipAnalyzer {
@@ -95,7 +95,7 @@ impl AstOwnershipAnalyzer {
         Ok(())
     }
 
-    fn alloc_scope(&mut self, kind: ScopeKind, parent: Option<ScopeId>) -> ScopeId {
+    pub(super) fn alloc_scope(&mut self, kind: ScopeKind, parent: Option<ScopeId>) -> ScopeId {
         let id = ScopeId(self.next_scope_id);
         self.next_scope_id += 1;
         self.scopes.insert(
@@ -113,7 +113,7 @@ impl AstOwnershipAnalyzer {
         id
     }
 
-    fn analyze_function_decl(
+    pub(super) fn analyze_function_decl(
         &mut self,
         node: &ASTNode,
         parent: Option<ScopeId>,
@@ -138,7 +138,7 @@ impl AstOwnershipAnalyzer {
         Ok(scope_id)
     }
 
-    fn propagate_to_parent(&mut self, child_id: ScopeId) {
+    pub(super) fn propagate_to_parent(&mut self, child_id: ScopeId) {
         let (parent_id, reads, writes, cond_reads) = {
             let child = &self.scopes[&child_id];
             (
@@ -191,7 +191,7 @@ impl AstOwnershipAnalyzer {
         Ok(plans)
     }
 
-    fn relay_path_to_owner(
+    pub(super) fn relay_path_to_owner(
         &self,
         from_scope: ScopeId,
         owner_scope: ScopeId,
@@ -218,22 +218,26 @@ impl AstOwnershipAnalyzer {
         Ok(path)
     }
 
-    fn resolve_binding(&self, name: &str) -> Option<BindingId> {
+    pub(super) fn resolve_binding(&self, name: &str) -> Option<BindingId> {
         self.env_stack
             .iter()
             .rev()
             .find_map(|frame| frame.get(name).copied())
     }
 
-    fn push_env(&mut self) {
+    pub(super) fn push_env(&mut self) {
         self.env_stack.push(BTreeMap::new());
     }
 
-    fn pop_env(&mut self) {
+    pub(super) fn pop_env(&mut self) {
         self.env_stack.pop();
     }
 
-    fn declare_binding(&mut self, scope_id: ScopeId, name: &str) -> Result<BindingId, String> {
+    pub(super) fn declare_binding(
+        &mut self,
+        scope_id: ScopeId,
+        name: &str,
+    ) -> Result<BindingId, String> {
         let Some(frame) = self.env_stack.last_mut() else {
             return Err(
                 "AstOwnershipAnalyzer: internal error: declare_binding with empty env_stack"
@@ -271,7 +275,12 @@ impl AstOwnershipAnalyzer {
         Ok(binding)
     }
 
-    fn record_read(&mut self, binding: BindingId, scope_id: ScopeId, is_condition: bool) {
+    pub(super) fn record_read(
+        &mut self,
+        binding: BindingId,
+        scope_id: ScopeId,
+        is_condition: bool,
+    ) {
         let scope = self.scopes.get_mut(&scope_id).expect("scope must exist");
         scope.reads.insert(binding);
         if is_condition {
@@ -279,7 +288,7 @@ impl AstOwnershipAnalyzer {
         }
     }
 
-    fn record_write(&mut self, binding: BindingId, scope_id: ScopeId) {
+    pub(super) fn record_write(&mut self, binding: BindingId, scope_id: ScopeId) {
         let scope = self.scopes.get_mut(&scope_id).expect("scope must exist");
         scope.writes.insert(binding);
     }

@@ -43,7 +43,7 @@ define_plan_rules! {
     IfPhiJoin;
 
     // Phase 286 P2
-    LoopContinueRecipe;
+    LoopContinueOnly;
 
     // Phase 286 P2.3
     AccumConstLoop;
@@ -91,7 +91,7 @@ pub(in crate::mir::builder) const fn planner_rule_labels(
             display_label: "IfPhiJoin",
             route_label: "if_phi_join",
         },
-        PlanRuleId::LoopContinueRecipe => PlannerRuleLabels {
+        PlanRuleId::LoopContinueOnly => PlannerRuleLabels {
             tag_rule: "LoopContinueOnly",
             display_label: "LoopContinueOnly",
             route_label: "loop_continue_only",
@@ -193,8 +193,8 @@ mod tests {
     }
 
     #[test]
-    fn planner_rule_labels_keep_tag_display_route_for_loop_continue_recipe() {
-        let labels = planner_rule_labels(PlanRuleId::LoopContinueRecipe);
+    fn planner_rule_labels_keep_tag_display_route_for_loop_continue_only() {
+        let labels = planner_rule_labels(PlanRuleId::LoopContinueOnly);
         assert_eq!(labels.tag_rule, "LoopContinueOnly");
         assert_eq!(labels.display_label, "LoopContinueOnly");
         assert_eq!(labels.route_label, "loop_continue_only");

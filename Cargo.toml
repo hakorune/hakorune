@@ -30,8 +30,6 @@ gui-examples = ["gui"]
 all-examples = ["gui-examples"]
 dynamic-file = []
 wasm-backend = ["dep:wasmtime", "dep:wabt"]
-# Dev-only normalized JoinIR experiment (Pattern1)
-normalized_dev = []
 # TLV C shim wiring (default OFF): enables optional dependency `nyash-tlv`
 tlv-shim = ["dep:nyash-tlv"]
 # Core C shims (design-stage; default OFF)

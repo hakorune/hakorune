@@ -3,7 +3,7 @@
 //! Phase 2: Extracted from control_flow.rs
 //! - loop_simple_while
 //! - if_phi_join
-//! - loop_continue_recipe (migrated to plan routing in Phase 29ap P8)
+//! - loop_continue_only (migrated to plan routing in Phase 29ap P8)
 //!
 //! Phase 29ap P12: Router delegates to plan/composer SSOT (legacy table removed)
 //! - Router only coordinates planner/composer adoption

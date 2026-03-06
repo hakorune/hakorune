@@ -95,7 +95,7 @@ pub enum UpdateKind {
     ///
     /// # Phase 92 P0: Lowering Strategy
     ///
-    /// Pattern2Break handles ConditionalStep by generating:
+    /// LoopBreak handles ConditionalStep by generating:
     /// ```text
     /// if escape_cond {
     ///     carrier_new = carrier + then_delta

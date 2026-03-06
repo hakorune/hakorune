@@ -75,14 +75,6 @@ impl BindingContext {
     pub(super) fn clear_for_function_entry(&mut self) {
         self.binding_map.clear();
     }
-
-    /// Get immutable reference to the binding map (for BindingMapProvider)
-    /// Phase 136: Used only with normalized_dev feature
-    #[cfg(feature = "normalized_dev")]
-    pub(super) fn binding_map(&self) -> &BTreeMap<String, BindingId> {
-        &self.binding_map
-    }
-
 }
 
 #[cfg(test)]

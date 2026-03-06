@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Scope: Facts→Planner→(DomainPlan→CorePlan) の「非重複」設計（JoinIR/Plan/Frag）
+Scope: Facts→Recipe→CorePlan の「非重複」設計（JoinIR/Plan/Frag）
 Related:
 - docs/development/current/main/design/planfrag-ssot-registry.md
 - docs/development/current/main/design/planfrag-freeze-taxonomy.md
@@ -11,11 +11,11 @@ Related:
 
 # CorePlan Skeleton/Feature Model (SSOT)
 
-目的: “pattern 列挙の重なり” を増やさずに、Facts→Planner→CorePlan を **一意・合成可能**な形に収束させる。
+目的: “pattern 列挙の重なり” を増やさずに、Facts→Recipe→Verifier→CorePlan を **一意・合成可能**な形に収束させる。
 
 結論:
 - **CorePlan は構造SSOT**（emit/merge は CorePlan/Frag 以外を再解析しない）
-- **DomainPlan は意図（recipe）**（長期的に縮む。SSOTは CorePlan 側に寄せる）
+- **Recipe / VerifiedRecipe は意味の入口**（受理契約はここで閉じる）
 - “Pattern” は入口の分岐名ではなく、**(Skeleton, FeatureSet)** の合成へ落とす
 
 ## 1. Skeleton（骨格）= まず一意に決める
@@ -40,7 +40,7 @@ Features は “別パターン” を増やさずに足す（重なりの根治
   - 例: per-edge carrier merge（`ContinueWithPhiArgs` + step join PHI）で “continue による未定義 ValueId” を構造で解消
 - `Cleanup`（return/break/continue で走る cleanup。将来 `Unwind` も同語彙へ）
 - `CondShape` / `StepShape`（normalize 済みの “形”）
-- `AlgorithmIntent`（scan/split/predicate 等のアルゴリズム意図: DomainPlan に残して良い）
+- `AlgorithmIntent`（scan/split/predicate 等のアルゴリズム意図: Recipe/feature slot に置く）
 
 補足:
 - `ExitIf` / `match` / “loop 内の if-exit” で exit 判定/前処理/phi 引数などのロジックが重複しがちなので、
@@ -131,7 +131,7 @@ FlowBox の最小インターフェースは次を SSOT とする:
 - loop 内で `return false` 等の early return を多用する（`is_integer` 等）
 
 扱い:
-- ScanWithInit/Pattern2Break/SplitScan に無理に押し込まず、FlowBox の **出口（Return port）**として表現する。
+- ScanWithInit/LoopBreak/SplitScan に無理に押し込まず、FlowBox の **出口（Return port）**として表現する。
 - 最小語彙追加は “ガード付き脱出（ExitIf）” のみに限定し、汎用 goto 化を禁止する。
 - 詳細は `docs/development/current/main/design/coreplan-flowbox-interface-ssot.md` を SSOT とする。
 

@@ -10,7 +10,7 @@ macro_rules! pred_accessor {
 
 pred_accessor!(pred_loop_break_recipe, loop_break);
 pred_accessor!(pred_if_phi_join, if_phi_join);
-pred_accessor!(pred_loop_continue_only_recipe, loop_continue_recipe);
+pred_accessor!(pred_loop_continue_only, loop_continue_only);
 pred_accessor!(pred_loop_true_early_exit, loop_true_early_exit);
 pub(crate) fn pred_loop_simple_while(facts: &CanonicalLoopFacts) -> bool {
     if facts.facts.loop_simple_while().is_none() {
@@ -93,7 +93,7 @@ pub(crate) fn pred_loop_cond_break_continue(facts: &CanonicalLoopFacts) -> bool 
         && !scan.blocks_loop_cond_break()
 }
 pub(crate) fn pred_loop_cond_continue_only(facts: &CanonicalLoopFacts) -> bool {
-    facts.facts.loop_cond_continue_only().is_some() && !pred_loop_continue_only_recipe(facts)
+    facts.facts.loop_cond_continue_only().is_some() && !pred_loop_continue_only(facts)
 }
 pred_accessor!(pred_loop_cond_continue_with_return, loop_cond_continue_with_return);
 pub(crate) fn pred_loop_cond_return_in_body(facts: &CanonicalLoopFacts) -> bool {

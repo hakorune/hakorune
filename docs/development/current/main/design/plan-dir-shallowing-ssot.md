@@ -31,21 +31,21 @@
 ### 深さ4の例: break-on-condition facts ルート（legacy label: Pattern2）
 
 ```
-facts/pattern2_break_facts/
+facts/loop_break_facts/
   ├── core.rs
   ├── helpers.rs
   ├── mod.rs
-  ├── pattern2_break_loopbodylocal.rs
-  ├── pattern2_break_parse_integer.rs
-  ├── pattern2_break_read_digits.rs
-  ├── pattern2_break_realworld.rs
-  ├── pattern2_break_step_before_break.rs
-  ├── pattern2_break_trim_whitespace.rs
+  ├── loop_break_body_local_subset.rs
+  ├── loop_break_parse_integer.rs
+  ├── loop_break_read_digits.rs
+  ├── loop_break_realworld.rs
+  ├── loop_break_step_before_break.rs
+  ├── loop_break_trim_whitespace.rs
   ├── tests.rs
   └── types.rs
 ```
 
-**→ 提案**: break-on-condition facts を `facts/pattern2_break_*.rs` へ集約 (12ファイルをフラット化、legacy label: Pattern2)
+**→ 提案**: break-on-condition facts を `facts/loop_break_*.rs` へ集約 (12ファイルをフラット化、legacy label: Pattern2)
 
 ### 深さ4の例: features/loop_cond_break_continue_pipeline/item_lowering/
 
@@ -112,37 +112,30 @@ normalizer/cond_lowering/
 
 **→ 提案**: `normalizer/cond_lowering_*.rs` (8ファイルをフラット化)
 
-### 深さ3の例: recipe_tree/builders/ と composer/（route別 builder/composer、legacy labels: Pattern1-9）
+### 深さ3の例: recipe_tree/（route別 builder/composer を root へフラット化した現行形）
 
 ```
-recipe_tree/builders/
+recipe_tree/
   ├── mod.rs
-  ├── pattern1_array_join.rs
-  ├── pattern1_char_map.rs
-  ├── pattern1_simple_while.rs
-  ├── pattern2_break.rs
-  ├── pattern3_ifphi.rs
-  ├── pattern4_continue.rs
-  ├── pattern5_infinite_early_exit.rs
-  ├── pattern6_scan_with_init.rs
-  ├── pattern7_split_scan.rs
-  ├── pattern8_bool_predicate_scan.rs
-  └── pattern9_accum_const_loop.rs
-
-recipe_tree/composer/
-  ├── accum_const_loop.rs
-  ├── bool_predicate_scan.rs
-  ├── generic_loop.rs
-  ├── if_phi_join.rs
-  ├── loop_break_recipe.rs
-  ├── loop_cond.rs
-  ├── loop_continue_only.rs
-  ├── loop_simple_while.rs
-  ├── loop_true.rs
-  ├── loop_true_early_exit.rs
-  ├── mod.rs
-  ├── scan_with_init.rs
-  └── split_scan.rs
+  ├── array_join_builder.rs
+  ├── char_map_builder.rs
+  ├── loop_simple_while_builder.rs
+  ├── loop_break_builder.rs
+  ├── if_phi_join_builder.rs
+  ├── loop_continue_only_builder.rs
+  ├── loop_true_early_exit_builder.rs
+  ├── scan_with_init_builder.rs
+  ├── split_scan_builder.rs
+  ├── bool_predicate_scan_builder.rs
+  ├── accum_const_loop_builder.rs
+  ├── loop_break_composer.rs
+  ├── if_phi_join_composer.rs
+  ├── loop_continue_only_composer.rs
+  ├── loop_simple_while_composer.rs
+  ├── loop_true_early_exit_composer.rs
+  ├── generic_loop_composer.rs
+  ├── loop_cond_composer.rs
+  └── loop_true_composer.rs
 ```
 
 **→ 提案**: route別 builder/composer を `recipe_tree/pattern*_builder.rs` と `recipe_tree/pattern*_composer.rs` へ集約 (23ファイルをフラット化、legacy labels: Pattern1-9)
@@ -171,7 +164,7 @@ composer/coreloop_v1/
 
 **現在**:
 ```
-facts/pattern2_break_facts/*.rs (12ファイル)
+facts/loop_break_facts/*.rs (12ファイル)
 facts/loop_facts/*.rs (9ファイル)
 facts/expr/*.rs (5ファイル)
 facts/pattern*_facts.rs (20+ファイル)
@@ -179,7 +172,7 @@ facts/pattern*_facts.rs (20+ファイル)
 
 **提案**:
 ```
-facts/pattern2_break_*.rs (12ファイル)
+facts/loop_break_*.rs (12ファイル)
 facts/loop_*.rs (9ファイル)
 facts/expr_*.rs (5ファイル)
 facts/pattern*_facts.rs (既存維持)

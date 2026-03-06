@@ -2,11 +2,6 @@ use super::types::{CarrierInfo, CarrierInit, CarrierRole, CarrierVar};
 use crate::mir::ValueId;
 use std::collections::BTreeMap; // Phase 222.5-D: HashMap → BTreeMap for determinism
 
-#[cfg(feature = "normalized_dev")]
-use crate::mir::BindingId; // Phase 76+78: BindingId for promoted carriers
-#[cfg(feature = "normalized_dev")]
-use crate::runtime::get_global_ring0;
-
 impl CarrierInfo {
     /// Phase 193-2: Create CarrierInfo from a variable_map
     ///
@@ -53,8 +48,6 @@ impl CarrierInfo {
                 join_id: None, // Phase 177-STRUCT-1: Set by header PHI generation
                 role: CarrierRole::LoopState, // Phase 227: Default to LoopState
                 init: CarrierInit::FromHost, // Phase 228: Default to FromHost
-                #[cfg(feature = "normalized_dev")]
-                binding_id: None, // Phase 78: Set by CarrierBindingAssigner
             })
             .collect();
 
@@ -66,9 +59,7 @@ impl CarrierInfo {
             loop_var_id,
             carriers,
             trim_helper: None, // Phase 171-C-5: No Trim pattern by default
-            promoted_loopbodylocals: Vec::new(), // Phase 224: No promoted variables by default
-            #[cfg(feature = "normalized_dev")]
-            promoted_bindings: BTreeMap::new(), // Phase 76: No promoted bindings by default
+            promoted_body_locals: Vec::new(), // Phase 224: No promoted variables by default
         })
     }
 
@@ -118,8 +109,6 @@ impl CarrierInfo {
                 join_id: None, // Phase 177-STRUCT-1: Set by header PHI generation
                 role: CarrierRole::LoopState, // Phase 227: Default to LoopState
                 init: CarrierInit::FromHost, // Phase 228: Default to FromHost
-                #[cfg(feature = "normalized_dev")]
-                binding_id: None, // Phase 78: Set by CarrierBindingAssigner
             });
         }
 
@@ -131,9 +120,7 @@ impl CarrierInfo {
             loop_var_id,
             carriers,
             trim_helper: None, // Phase 171-C-5: No Trim pattern by default
-            promoted_loopbodylocals: Vec::new(), // Phase 224: No promoted variables by default
-            #[cfg(feature = "normalized_dev")]
-            promoted_bindings: BTreeMap::new(), // Phase 76: No promoted bindings by default
+            promoted_body_locals: Vec::new(), // Phase 224: No promoted variables by default
         })
     }
 
@@ -160,9 +147,7 @@ impl CarrierInfo {
             loop_var_id,
             carriers,
             trim_helper: None, // Phase 171-C-5: No Trim pattern by default
-            promoted_loopbodylocals: Vec::new(), // Phase 224: No promoted variables by default
-            #[cfg(feature = "normalized_dev")]
-            promoted_bindings: BTreeMap::new(), // Phase 76: No promoted bindings by default
+            promoted_body_locals: Vec::new(), // Phase 224: No promoted variables by default
         }
     }
 
@@ -217,20 +202,13 @@ impl CarrierInfo {
             self.trim_helper = other.trim_helper.clone();
         }
 
-        // Phase 224: Merge promoted_loopbodylocals (deduplicate)
-        for promoted_var in &other.promoted_loopbodylocals {
-            if !self.promoted_loopbodylocals.contains(promoted_var) {
-                self.promoted_loopbodylocals.push(promoted_var.clone());
+        // Phase 224: Merge promoted_body_locals (deduplicate)
+        for promoted_var in &other.promoted_body_locals {
+            if !self.promoted_body_locals.contains(promoted_var) {
+                self.promoted_body_locals.push(promoted_var.clone());
             }
         }
 
-        // Phase 76: Merge promoted_bindings (dev-only)
-        #[cfg(feature = "normalized_dev")]
-        {
-            for (original, promoted) in &other.promoted_bindings {
-                self.promoted_bindings.insert(*original, *promoted);
-            }
-        }
     }
 
     /// Phase 171-C-5: Get Trim pattern helper
@@ -272,25 +250,14 @@ impl CarrierInfo {
     /// # Returns
     ///
     /// * `Some(ValueId)` - 対応する carrier の join_id が見つかった場合
-    /// * `None` - promoted_loopbodylocals に含まれない、または join_id 未設定の場合
+    /// * `None` - promoted_body_locals に含まれない、または join_id 未設定の場合
     ///
-    /// # Phase 77: DEPRECATED
-    ///
-    /// This method uses fragile naming conventions ("is_*", "is_*_match") and will
-    /// be removed in Phase 78+ when all call sites migrate to BindingId-based lookup.
-    /// Use `resolve_promoted_with_binding()` for type-safe BindingId lookup.
-    #[deprecated(
-        since = "phase77",
-        note = "Use resolve_promoted_with_binding() for type-safe BindingId lookup"
-    )]
+    /// Historical note:
+    /// this still uses naming conventions (`is_*`, `is_*_match`) because the
+    /// retired BindingId pilot was removed in the R4 cleanup.
     pub fn resolve_promoted_join_id(&self, original_name: &str) -> Option<ValueId> {
-        #[cfg(feature = "normalized_dev")]
-        get_global_ring0().log.debug(&format!(
-            "[phase77/legacy/carrier_info] WARNING: Using deprecated name-based promoted lookup for '{}'",
-            original_name
-        ));
         if !self
-            .promoted_loopbodylocals
+            .promoted_body_locals
             .contains(&original_name.to_string())
         {
             return None;
@@ -320,99 +287,5 @@ impl CarrierInfo {
         }
 
         None
-    }
-
-    /// Phase 76: Type-safe promoted binding resolution (dev-only)
-    ///
-    /// Resolves a promoted LoopBodyLocal binding via BindingId map, eliminating
-    /// name-based hacks (`format!("is_{}", name)`). Falls back to legacy name-based
-    /// lookup for backward compatibility during Phase 76-77 migration.
-    ///
-    /// # Arguments
-    ///
-    /// * `original_binding` - Original LoopBodyLocal's BindingId (e.g., BindingId(5) for "digit_pos")
-    ///
-    /// # Returns
-    ///
-    /// * `Some(BindingId)` - Promoted carrier's BindingId (e.g., BindingId(10) for "is_digit_pos")
-    /// * `None` - No promotion mapping found
-    ///
-    /// # Example
-    ///
-    /// ```ignore
-    /// // DigitPos promotion: BindingId(5) "digit_pos" → BindingId(10) "is_digit_pos"
-    /// let original_bid = BindingId(5);
-    /// if let Some(promoted_bid) = carrier_info.resolve_promoted_with_binding(original_bid) {
-    ///     // Lookup carrier by promoted BindingId (type-safe!)
-    ///     let promoted_value = condition_env.get_by_binding(promoted_bid);
-    /// }
-    /// ```
-    ///
-    /// # Migration Path (Phase 76-77)
-    ///
-    /// - **Phase 76**: BindingId map populated by promoters, dual path (BindingId OR name)
-    /// - **Phase 77**: Remove name-based fallback, BindingId-only lookup
-    ///
-    /// # Design Notes
-    ///
-    /// **Why not merge with `resolve_promoted_join_id()`?**
-    /// - Different input type: BindingId vs String
-    /// - Different output: BindingId vs ValueId
-    /// - Different usage: ScopeManager (BindingId) vs legacy lowerers (name)
-    ///
-    /// **Why BTreeMap instead of HashMap?**
-    /// - Deterministic iteration (Phase 222.5-D consistency)
-    /// - Debug-friendly sorted output
-    #[cfg(feature = "normalized_dev")]
-    pub fn resolve_promoted_with_binding(&self, original_binding: BindingId) -> Option<BindingId> {
-        self.promoted_bindings.get(&original_binding).copied()
-    }
-
-    /// Phase 76: Record a promoted binding (dev-only)
-    ///
-    /// Helper method to populate the promoted_bindings map during promotion.
-    /// Called by wrapper functions that have access to both CarrierInfo and binding_map.
-    ///
-    /// # Arguments
-    ///
-    /// * `original_binding` - Original LoopBodyLocal's BindingId
-    /// * `promoted_binding` - Promoted carrier's BindingId
-    ///
-    /// # Example
-    ///
-    /// ```ignore
-    /// // After DigitPosPromoter creates CarrierInfo, record the binding mapping:
-    /// carrier_info.record_promoted_binding(
-    ///     binding_map.get("digit_pos").copied().unwrap(),  // BindingId(5)
-    ///     binding_map.get("is_digit_pos").copied().unwrap() // BindingId(10)
-    /// );
-    /// ```
-    ///
-    /// # Phase 76 Note
-    ///
-    /// This method is currently UNUSED because promoters (DigitPosPromoter, TrimLoopHelper)
-    /// don't have access to binding_map. Actual population happens in a future phase when
-    /// we integrate BindingId tracking into the promotion pipeline.
-    #[cfg(feature = "normalized_dev")]
-    pub fn record_promoted_binding(
-        &mut self,
-        original_binding: BindingId,
-        promoted_binding: BindingId,
-    ) {
-        use super::debug_output_box::DebugOutputBox;
-
-        // Phase 86: Use DebugOutputBox for consistent debug output
-        // Allow JOINIR_TEST_DEBUG override for test-specific diagnostics
-        let test_debug = std::env::var("JOINIR_TEST_DEBUG").is_ok();
-        let debug = DebugOutputBox::new("binding_pilot/promoted_bindings");
-
-        if debug.is_enabled() || test_debug {
-            get_global_ring0().log.debug(&format!(
-                "[binding_pilot/promoted_bindings] {} → {}",
-                original_binding, promoted_binding
-            ));
-        }
-        self.promoted_bindings
-            .insert(original_binding, promoted_binding);
     }
 }

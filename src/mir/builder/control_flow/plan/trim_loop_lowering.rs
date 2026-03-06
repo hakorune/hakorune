@@ -213,9 +213,6 @@ impl TrimLoopLowerer {
             cond_scope: &cond_scope,
             break_cond: Some(break_cond),
             loop_body: body,
-            #[cfg(feature = "normalized_dev")]
-            // Phase 136 Step 4/7: Use binding_ctx for binding_map reference
-            binding_map: Some(builder.binding_ctx.binding_map()),
         };
 
         match LoopBodyCarrierPromoter::try_promote(&request) {
@@ -234,25 +231,12 @@ impl TrimLoopLowerer {
                 // Note: is_ch_match is NOT a LoopState carrier (no header PHI).
                 // It's a condition-only variable recalculated each loop iteration.
                 carrier_info
-                    .promoted_loopbodylocals
+                    .promoted_body_locals
                     .push(trim_info.var_name.clone());
 
                 // Step 3.5: Attach TrimLoopHelper for pattern-specific lowering logic
                 use crate::mir::loop_pattern_detection::trim_loop_helper::TrimLoopHelper;
                 carrier_info.trim_helper = Some(TrimLoopHelper::from_pattern_info(&trim_info));
-
-                // Phase 78: Type-safe BindingId promotion tracking (using PromotedBindingRecorder)
-                #[cfg(feature = "normalized_dev")]
-                {
-                    use crate::mir::loop_pattern_detection::loop_body_carrier_promoter::PromotedBindingRecorder;
-                    let recorder = PromotedBindingRecorder::new(Some(builder.binding_ctx.binding_map()));
-                    if let Err(e) = recorder.record_promotion(&mut carrier_info, &trim_info.var_name, &trim_info.carrier_name) {
-                        if crate::config::env::joinir_dev::debug_enabled() {
-                            let ring0 = crate::runtime::get_global_ring0();
-                            ring0.log.debug(&format!("[TrimLoopLowerer] Failed to record promoted binding: {}", e));
-                        }
-                    }
-                }
 
                 trace.emit_if(
                     "trim",

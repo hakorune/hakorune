@@ -45,7 +45,7 @@ When a canary/log shows `planner returned None` or repeated `reject:<reason>`, c
 
 - **Gap B: Candidate present but not taken**
   - Symptom: `candidate_finalize result=some ...` but `try_take_planner ... result=skip`
-  - Action: BoxShape: fix DomainPlan↔PlanRuleId mapping (no new acceptance shapes).
+  - Action: BoxShape: fix Recipe/PlanRuleId handoff mapping (no new acceptance shapes).
 
 - **Gap C: Candidate ambiguous**
   - Symptom: `candidate_finalize result=ambiguous`

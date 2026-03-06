@@ -37,9 +37,6 @@ use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::loop_pattern_detection::loop_condition_scope::LoopConditionScope;
-use crate::mir::loop_pattern_detection::promoted_binding_recorder::{
-    BindingRecordError, PromotedBindingRecorder,
-};
 use crate::mir::ValueId;
 
 /// Promotion request for A-4 digit position pattern
@@ -63,14 +60,6 @@ pub struct DigitPosPromotionRequest<'a> {
 
     /// Loop body statements
     pub loop_body: &'a [ASTNode],
-
-    /// Phase 77: Optional BindingId map for type-safe promotion tracking (dev-only)
-    ///
-    /// When provided, the promoter will record promoted bindings
-    /// (e.g., BindingId(5) for "digit_pos" → BindingId(10) for "is_digit_pos")
-    /// in CarrierInfo.promoted_bindings.
-    #[cfg(feature = "normalized_dev")]
-    pub binding_map: Option<&'a std::collections::BTreeMap<String, crate::mir::BindingId>>,
 }
 
 /// Promotion result
@@ -179,8 +168,6 @@ impl DigitPosPromoter {
             join_id: None,                       // Will be allocated later
             role: CarrierRole::ConditionOnly,    // Phase 227: DigitPos is condition-only
             init: CarrierInit::BoolConst(false), // Phase 228: Initialize with false
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None, // Phase 78: Set by CarrierBindingAssigner
         };
 
         // Integer carrier (loop-state, for NumberAccumulation)
@@ -190,8 +177,6 @@ impl DigitPosPromoter {
             join_id: None,       // Will be allocated later
             role: CarrierRole::LoopState, // Phase 247-EX: LoopState for accumulation
             init: CarrierInit::LoopLocalZero, // Derived in-loop carrier (no host binding)
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None, // Phase 78: Set by CarrierBindingAssigner
         };
 
         // Create CarrierInfo with a dummy loop_var_name (will be ignored during merge)
@@ -203,22 +188,8 @@ impl DigitPosPromoter {
 
         // Phase 229: Record promoted variable (no need for condition_aliases)
         carrier_info
-            .promoted_loopbodylocals
+            .promoted_body_locals
             .push(detection.var_name.clone());
-
-        // Step 5: Record BindingId promotion (dev-only, using PromotedBindingRecorder)
-        #[cfg(feature = "normalized_dev")]
-        let recorder = PromotedBindingRecorder::new(req.binding_map);
-        #[cfg(not(feature = "normalized_dev"))]
-        let recorder = PromotedBindingRecorder::new();
-
-        if let Err(e) = recorder.record_promotion(
-            &mut carrier_info,
-            &detection.var_name,
-            &detection.bool_carrier_name,
-        ) {
-            log_promotion_error(&e);
-        }
 
         if is_joinir_debug() || std::env::var("JOINIR_TEST_DEBUG").is_ok() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -243,37 +214,10 @@ impl DigitPosPromoter {
     // - find_index_of_definition
     // - is_index_of_method_call
     // - extract_comparison_var
-    // - find_first_loopbodylocal_dependency
+    // - find_first_body_local_dependency
     // - find_definition_in_body
     // - is_substring_method_call
 }
-
-/// Phase 78: Log promotion errors with clear messages (gated)
-#[cfg(feature = "normalized_dev")]
-fn log_promotion_error(error: &BindingRecordError) {
-    use crate::config::env::is_joinir_debug;
-    if is_joinir_debug() || std::env::var("JOINIR_TEST_DEBUG").is_ok() {
-        let ring0 = crate::runtime::get_global_ring0();
-        match error {
-            BindingRecordError::OriginalNotFound(name) => {
-                ring0.log.debug(&format!(
-                    "[binding_pilot/digitpos] Original variable '{}' not found in binding_map",
-                    name
-                ));
-            }
-            BindingRecordError::PromotedNotFound(name) => {
-                ring0.log.debug(&format!(
-                    "[binding_pilot/digitpos] Promoted variable '{}' not found in binding_map",
-                    name
-                ));
-            }
-        }
-    }
-}
-
-/// Phase 78: No-op version for non-dev builds
-#[cfg(not(feature = "normalized_dev"))]
-fn log_promotion_error(_error: &BindingRecordError) {}
 
 #[cfg(test)]
 mod tests {
@@ -342,8 +286,6 @@ mod tests {
             break_cond: None,
             continue_cond: None,
             loop_body: &[],
-            #[cfg(feature = "normalized_dev")]
-            binding_map: None,
         };
 
         match DigitPosPromoter::try_promote(req) {
@@ -381,8 +323,6 @@ mod tests {
             break_cond: Some(&break_cond),
             continue_cond: None,
             loop_body: &loop_body,
-            #[cfg(feature = "normalized_dev")]
-            binding_map: None,
         };
 
         match DigitPosPromoter::try_promote(req) {
@@ -421,8 +361,6 @@ mod tests {
             break_cond: Some(&break_cond),
             continue_cond: None,
             loop_body: &loop_body,
-            #[cfg(feature = "normalized_dev")]
-            binding_map: None,
         };
 
         match DigitPosPromoter::try_promote(req) {
@@ -434,7 +372,7 @@ mod tests {
     }
 
     #[test]
-    fn test_digitpos_no_loopbodylocal_dependency() {
+    fn test_digitpos_no_body_local_dependency() {
         // digit_pos = fixed_string.indexOf("x")  // No LoopBodyLocal dependency
         // Should fail: indexOf doesn't depend on LoopBodyLocal
 
@@ -461,8 +399,6 @@ mod tests {
             break_cond: Some(&break_cond),
             continue_cond: None,
             loop_body: &loop_body,
-            #[cfg(feature = "normalized_dev")]
-            binding_map: None,
         };
 
         match DigitPosPromoter::try_promote(req) {
@@ -505,8 +441,6 @@ mod tests {
                 break_cond: Some(&break_cond),
                 continue_cond: None,
                 loop_body: &loop_body,
-                #[cfg(feature = "normalized_dev")]
-                binding_map: None,
             };
 
             match DigitPosPromoter::try_promote(req) {
@@ -549,8 +483,6 @@ mod tests {
             break_cond: Some(&break_cond),
             continue_cond: None,
             loop_body: &loop_body,
-            #[cfg(feature = "normalized_dev")]
-            binding_map: None,
         };
 
         match DigitPosPromoter::try_promote(req) {

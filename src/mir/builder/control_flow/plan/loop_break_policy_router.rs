@@ -10,7 +10,7 @@ use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::common::body_local_slot::ReadOnlyBodyLocalSlotBox;
 
 use super::loop_break_condition_policy_router::LoopBreakConditionPolicyRouterBox;
-use super::pattern2_inputs_facts_box::BodyLocalHandlingPolicy;
+use super::loop_break_prep_box::BodyLocalHandlingPolicy;
 use crate::mir::builder::control_flow::plan::policies::balanced_depth_scan_policy_box::BalancedDepthScanPolicyBox;
 use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
 

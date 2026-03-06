@@ -27,7 +27,7 @@ use super::super::scope_manager::ScopeManager;
 /// ## Usage Pattern
 ///
 /// ```ignore
-/// let scope = Pattern2ScopeManager { ... };
+/// let scope = LoopBreakScopeManager { ... };
 /// let mut expr_lowerer = ExprLowerer::new(&scope, ExprContext::Condition, builder);
 ///
 /// match expr_lowerer.lower(&break_condition_ast) {
@@ -131,16 +131,6 @@ impl<'env, 'builder, S: ScopeManager> ExprLowerer<'env, 'builder, S> {
             )));
         }
 
-        // 2. Build ConditionEnv from ScopeManager
-        // Phase 79-1: Use BindingId-aware version when available
-        #[cfg(feature = "normalized_dev")]
-        let condition_env = scope_resolution::build_condition_env_from_scope_with_binding(
-            self.scope,
-            ast,
-            self.builder,
-        )?;
-
-        #[cfg(not(feature = "normalized_dev"))]
         let condition_env = scope_resolution::build_condition_env_from_scope(self.scope, ast)?;
 
         // 3. Delegate to existing condition_lowerer
@@ -217,16 +207,6 @@ impl<'env, 'builder, S: ScopeManager> ConditionLoweringBox<S> for ExprLowerer<'e
             return Err(format!("Unsupported condition node: {:?}", condition));
         }
 
-        // Build ConditionEnv from the provided scope (the caller controls the scope + allocator).
-        #[cfg(feature = "normalized_dev")]
-        let condition_env = scope_resolution::build_condition_env_from_scope_with_binding(
-            context.scope,
-            condition,
-            self.builder,
-        )
-        .map_err(|e| e.to_string())?;
-
-        #[cfg(not(feature = "normalized_dev"))]
         let condition_env =
             scope_resolution::build_condition_env_from_scope(context.scope, condition)
                 .map_err(|e| e.to_string())?;

@@ -142,8 +142,6 @@ mod tests {
                 join_id: None,
                 role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                 init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-                #[cfg(feature = "normalized_dev")]
-                binding_id: None,
             }],
         );
 
@@ -187,8 +185,6 @@ mod tests {
                     join_id: None,
                     role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                     init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-                    #[cfg(feature = "normalized_dev")]
-                    binding_id: None,
                 },
                 CarrierVar {
                     name: "sum".to_string(),
@@ -196,8 +192,6 @@ mod tests {
                     join_id: None,
                     role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                     init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-                    #[cfg(feature = "normalized_dev")]
-                    binding_id: None,
                 },
             ],
         );
@@ -244,8 +238,6 @@ mod tests {
                 join_id: None,
                 role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                 init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-                #[cfg(feature = "normalized_dev")]
-                binding_id: None,
             }],
         );
 
@@ -276,8 +268,6 @@ mod tests {
                 join_id: None,
                 role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                 init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-                #[cfg(feature = "normalized_dev")]
-                binding_id: None,
             }],
         );
 
@@ -308,8 +298,6 @@ mod tests {
                 join_id: None,
                 role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                 init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-                #[cfg(feature = "normalized_dev")]
-                binding_id: None,
             }],
         );
 
@@ -343,8 +331,6 @@ mod tests {
                 join_id: None,
                 role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState,
                 init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228
-                #[cfg(feature = "normalized_dev")]
-                binding_id: None,
             }],
         );
 

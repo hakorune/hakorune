@@ -1,14 +1,13 @@
 //! Phase 33-22: Common Route Initializer
 //!
 //! Consolidates initialization logic shared by the 4 primary loop routes
-//! (legacy enum labels: Pattern1-4).
+//! (`loop_simple_while`, `loop_break`, `if_phi_join`, `loop_continue_only`).
 //!
 //! ## Responsibility
 //!
 //! - Extract loop variable from condition AST
 //! - Build CarrierInfo from variable_map (delegates to `CarrierInfo::from_variable_map`)
-//! - Support route-specific carrier exclusions (e.g., loop_break / legacy Pattern2 excludes
-//!   break-triggered vars)
+//! - Support route-specific carrier exclusions (e.g., loop_break excludes break-triggered vars)
 //!
 //! ## Usage
 //!
@@ -27,7 +26,7 @@
 //! - **Single source of truth**: All routes use same initialization logic
 //! - **Testability**: Can be tested independently
 //! - **Maintainability**: Changes to initialization only need to happen once
-//! - **Reduces duplication**: Eliminates 80 lines across legacy Pattern1-4 branches
+//! - **Reduces duplication**: Eliminates 80 lines across the primary loop-route branches
 //!
 //! # Phase 183-2: Delegation to CarrierInfo
 //!
@@ -48,7 +47,7 @@ impl CommonPatternInitializer {
     /// Returns: (loop_var_name, loop_var_id, carrier_info)
     ///
     /// This consolidates the initialization that was previously duplicated
-    /// across legacy Pattern1-4 route lowerers.
+    /// across the primary loop-route lowerers.
     ///
     /// # Arguments
     ///
@@ -60,7 +59,7 @@ impl CommonPatternInitializer {
     /// # Example
     ///
     /// ```rust
-    /// // loop_simple_while / if_phi_join / loop_continue_only (legacy Pattern1/3/4): no exclusions
+    /// // loop_simple_while / if_phi_join / loop_continue_only: no exclusions
     /// let (loop_var_name, loop_var_id, carrier_info) =
     ///     CommonPatternInitializer::initialize_pattern(
     ///         builder,
@@ -69,7 +68,7 @@ impl CommonPatternInitializer {
     ///         None,
     ///     )?;
     ///
-    /// // loop_break (legacy Pattern2): exclude break-triggered variables
+    /// // loop_break: exclude break-triggered variables
     /// let (loop_var_name, loop_var_id, carrier_info) =
     ///     CommonPatternInitializer::initialize_pattern(
     ///         builder,
@@ -99,7 +98,7 @@ impl CommonPatternInitializer {
         // Step 2: Use CarrierInfo::from_variable_map as primary initialization method
         let mut carrier_info = CarrierInfo::from_variable_map(loop_var_name.clone(), variable_map)?;
 
-        // Step 3: Apply exclusions if provided (loop_break / legacy Pattern2 specific)
+        // Step 3: Apply exclusions if provided (loop_break-specific)
         if let Some(excluded) = exclude_carriers {
             carrier_info
                 .carriers
@@ -166,8 +165,6 @@ impl CommonPatternInitializer {
                             join_id: None,
                             role: crate::mir::join_ir::lowering::carrier_info::CarrierRole::LoopState, // Phase 227: Default
                             init: crate::mir::join_ir::lowering::carrier_info::CarrierInit::FromHost, // Phase 228: Default
-                            #[cfg(feature = "normalized_dev")]
-                            binding_id: None,
                         })
                         } else {
                             None

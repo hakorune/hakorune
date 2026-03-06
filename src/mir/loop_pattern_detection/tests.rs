@@ -148,7 +148,7 @@ fn pattern2_break_loop_is_detected() {
         assignment(var("i"), bin(BinaryOperator::Add, var("i"), lit_i(1))),
     ];
     let kind = classify_body(&body);
-    assert_eq!(kind, LoopPatternKind::Pattern2Break);
+    assert_eq!(kind, LoopPatternKind::LoopBreak);
 }
 
 #[test]
@@ -169,11 +169,11 @@ fn parse_number_like_loop_is_classified_as_pattern2() {
     ];
 
     let kind = classify_body(&body);
-    assert_eq!(kind, LoopPatternKind::Pattern2Break);
+    assert_eq!(kind, LoopPatternKind::LoopBreak);
 }
 
 #[test]
-fn pattern3_if_sum_shape_is_detected() {
+fn if_phi_join_shape_is_detected() {
     // loop(i < len) { if i % 2 == 1 { sum = sum + 1 } i = i + 1 }
     let cond = bin(
         BinaryOperator::Equal,
@@ -193,11 +193,11 @@ fn pattern3_if_sum_shape_is_detected() {
         assignment(var("i"), bin(BinaryOperator::Add, var("i"), lit_i(1))),
     ];
     let kind = classify_body(&body);
-    assert_eq!(kind, LoopPatternKind::Pattern3IfPhi);
+    assert_eq!(kind, LoopPatternKind::IfPhiJoin);
 }
 
 #[test]
-fn pattern4_continue_loop_is_detected() {
+fn loop_continue_only_shape_is_detected() {
     // loop(i < len) { if (i % 2 == 0) { continue } sum = sum + i; i = i + 1 }
     let cond = bin(
         BinaryOperator::Equal,
@@ -217,7 +217,7 @@ fn pattern4_continue_loop_is_detected() {
         assignment(var("i"), bin(BinaryOperator::Add, var("i"), lit_i(1))),
     ];
     let kind = classify_body(&body);
-    assert_eq!(kind, LoopPatternKind::Pattern4Continue);
+    assert_eq!(kind, LoopPatternKind::LoopContinueOnly);
 }
 
 #[test]
@@ -258,7 +258,7 @@ fn test_atoi_loop_classified_as_pattern2() {
     let kind = classify_body(&body);
     assert_eq!(
         kind,
-        LoopPatternKind::Pattern2Break,
-        "_atoi loop should be classified as Pattern2 (Break) due to if-break structure"
+        LoopPatternKind::LoopBreak,
+        "_atoi loop should be classified as LoopBreak due to if-break structure"
     );
 }

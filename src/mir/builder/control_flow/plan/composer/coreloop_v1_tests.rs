@@ -15,9 +15,9 @@ use crate::mir::builder::control_flow::plan::facts::feature_facts::{
 use crate::mir::builder::control_flow::plan::facts::loop_types::{
     LoopFacts, ScanWithInitFacts,
 };
-use crate::mir::builder::control_flow::plan::facts::pattern3_ifphi_facts::Pattern3IfPhiFacts;
-use crate::mir::builder::control_flow::plan::facts::pattern5_infinite_early_exit_facts::Pattern5InfiniteEarlyExitFacts;
-use crate::mir::builder::control_flow::plan::facts::pattern2_break_types::Pattern2BreakFacts;
+use crate::mir::builder::control_flow::plan::facts::IfPhiJoinFacts;
+use crate::mir::builder::control_flow::plan::facts::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
+use crate::mir::builder::control_flow::plan::facts::loop_break_types::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     ConditionShape, SplitScanShape, StepShape,
 };
@@ -73,9 +73,9 @@ fn coreloop_v1_composes_split_scan_with_value_join() {
             start_var: "start".to_string(),
             shape: SplitScanShape::Minimal,
         }),
-        pattern1_simplewhile: None,
-        pattern1_char_map: None,
-        pattern1_array_join: None,
+        loop_simple_while: None,
+        loop_char_map: None,
+        loop_array_join: None,
         pattern_is_integer: None,
 
         pattern_starts_with: None,
@@ -94,9 +94,9 @@ fn coreloop_v1_composes_split_scan_with_value_join() {
         pattern_skip_ws: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
-        pattern3_ifphi: None,
-        pattern4_continue: None,
-        pattern5_infinite_early_exit: None,
+        if_phi_join: None,
+        loop_continue_only: None,
+        loop_true_early_exit: None,
         loop_true_break_continue: None,
         loop_cond_break_continue: None,
         loop_cond_continue_only: None,
@@ -108,11 +108,11 @@ fn coreloop_v1_composes_split_scan_with_value_join() {
         loop_scan_phi_vars_v0: None,
         loop_bundle_resolver_v0: None,
         loop_collect_using_entries_v0: None,
-        pattern8_bool_predicate_scan: None,
-        pattern9_accum_const_loop: None,
-        pattern2_break: None,
-        pattern2_loopbodylocal: None,
-        pattern6_nested_minimal: None,
+        bool_predicate_scan: None,
+        accum_const_loop: None,
+        loop_break: None,
+        loop_break_body_local: None,
+        nested_loop_minimal: None,
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
@@ -172,9 +172,9 @@ fn coreloop_v1_rejects_split_scan_without_value_join() {
             start_var: "start".to_string(),
             shape: SplitScanShape::Minimal,
         }),
-        pattern1_simplewhile: None,
-        pattern1_char_map: None,
-        pattern1_array_join: None,
+        loop_simple_while: None,
+        loop_char_map: None,
+        loop_array_join: None,
         pattern_is_integer: None,
 
         pattern_starts_with: None,
@@ -193,9 +193,9 @@ fn coreloop_v1_rejects_split_scan_without_value_join() {
         pattern_skip_ws: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
-        pattern3_ifphi: None,
-        pattern4_continue: None,
-        pattern5_infinite_early_exit: None,
+        if_phi_join: None,
+        loop_continue_only: None,
+        loop_true_early_exit: None,
         loop_true_break_continue: None,
         loop_cond_break_continue: None,
         loop_cond_continue_only: None,
@@ -207,11 +207,11 @@ fn coreloop_v1_rejects_split_scan_without_value_join() {
         loop_scan_phi_vars_v0: None,
         loop_bundle_resolver_v0: None,
         loop_collect_using_entries_v0: None,
-        pattern8_bool_predicate_scan: None,
-        pattern9_accum_const_loop: None,
-        pattern2_break: None,
-        pattern2_loopbodylocal: None,
-        pattern6_nested_minimal: None,
+        bool_predicate_scan: None,
+        accum_const_loop: None,
+        loop_break: None,
+        loop_break_body_local: None,
+        nested_loop_minimal: None,
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
@@ -258,9 +258,9 @@ fn coreloop_v1_rejects_split_scan_with_disallowed_exitmap() {
             start_var: "start".to_string(),
             shape: SplitScanShape::Minimal,
         }),
-        pattern1_simplewhile: None,
-        pattern1_char_map: None,
-        pattern1_array_join: None,
+        loop_simple_while: None,
+        loop_char_map: None,
+        loop_array_join: None,
         pattern_is_integer: None,
 
         pattern_starts_with: None,
@@ -279,9 +279,9 @@ fn coreloop_v1_rejects_split_scan_with_disallowed_exitmap() {
         pattern_skip_ws: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
-        pattern3_ifphi: None,
-        pattern4_continue: None,
-        pattern5_infinite_early_exit: None,
+        if_phi_join: None,
+        loop_continue_only: None,
+        loop_true_early_exit: None,
         loop_true_break_continue: None,
         loop_cond_break_continue: None,
         loop_cond_continue_only: None,
@@ -293,11 +293,11 @@ fn coreloop_v1_rejects_split_scan_with_disallowed_exitmap() {
         loop_scan_phi_vars_v0: None,
         loop_bundle_resolver_v0: None,
         loop_collect_using_entries_v0: None,
-        pattern8_bool_predicate_scan: None,
-        pattern9_accum_const_loop: None,
-        pattern2_break: None,
-        pattern2_loopbodylocal: None,
-        pattern6_nested_minimal: None,
+        bool_predicate_scan: None,
+        accum_const_loop: None,
+        loop_break: None,
+        loop_break_body_local: None,
+        nested_loop_minimal: None,
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
@@ -340,9 +340,9 @@ fn unified_scan_with_init_rejects_value_join() {
             dynamic_needle: false,
         }),
         split_scan: None,
-        pattern1_simplewhile: None,
-        pattern1_char_map: None,
-        pattern1_array_join: None,
+        loop_simple_while: None,
+        loop_char_map: None,
+        loop_array_join: None,
         pattern_is_integer: None,
 
         pattern_starts_with: None,
@@ -361,9 +361,9 @@ fn unified_scan_with_init_rejects_value_join() {
         pattern_skip_ws: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
-        pattern3_ifphi: None,
-        pattern4_continue: None,
-        pattern5_infinite_early_exit: None,
+        if_phi_join: None,
+        loop_continue_only: None,
+        loop_true_early_exit: None,
         loop_true_break_continue: None,
         loop_cond_break_continue: None,
         loop_cond_continue_only: None,
@@ -375,11 +375,11 @@ fn unified_scan_with_init_rejects_value_join() {
         loop_scan_phi_vars_v0: None,
         loop_bundle_resolver_v0: None,
         loop_collect_using_entries_v0: None,
-        pattern8_bool_predicate_scan: None,
-        pattern9_accum_const_loop: None,
-        pattern2_break: None,
-        pattern2_loopbodylocal: None,
-        pattern6_nested_minimal: None,
+        bool_predicate_scan: None,
+        accum_const_loop: None,
+        loop_break: None,
+        loop_break_body_local: None,
+        nested_loop_minimal: None,
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
@@ -441,9 +441,9 @@ fn coreloop_v1_composes_loop_break_with_value_join() {
         features,
         scan_with_init: None,
         split_scan: None,
-        pattern1_simplewhile: None,
-        pattern1_char_map: None,
-        pattern1_array_join: None,
+        loop_simple_while: None,
+        loop_char_map: None,
+        loop_array_join: None,
         pattern_is_integer: None,
 
         pattern_starts_with: None,
@@ -462,9 +462,9 @@ fn coreloop_v1_composes_loop_break_with_value_join() {
         pattern_skip_ws: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
-        pattern3_ifphi: None,
-        pattern4_continue: None,
-        pattern5_infinite_early_exit: None,
+        if_phi_join: None,
+        loop_continue_only: None,
+        loop_true_early_exit: None,
         loop_true_break_continue: None,
         loop_cond_break_continue: None,
         loop_cond_continue_only: None,
@@ -476,9 +476,9 @@ fn coreloop_v1_composes_loop_break_with_value_join() {
         loop_scan_phi_vars_v0: None,
         loop_bundle_resolver_v0: None,
         loop_collect_using_entries_v0: None,
-        pattern8_bool_predicate_scan: None,
-        pattern9_accum_const_loop: None,
-        pattern2_break: Some(Pattern2BreakFacts {
+        bool_predicate_scan: None,
+        accum_const_loop: None,
+        loop_break: Some(LoopBreakFacts {
             loop_var: "i".to_string(),
             carrier_var: "sum".to_string(),
             loop_condition: loop_condition.clone(),
@@ -488,8 +488,8 @@ fn coreloop_v1_composes_loop_break_with_value_join() {
             loop_increment,
             step_placement: LoopBreakStepPlacement::Last,
         }),
-        pattern2_loopbodylocal: None,
-        pattern6_nested_minimal: None,
+        loop_break_body_local: None,
+        nested_loop_minimal: None,
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
@@ -535,9 +535,9 @@ fn coreloop_v1_rejects_loop_break_with_cleanup() {
         features,
         scan_with_init: None,
         split_scan: None,
-        pattern1_simplewhile: None,
-        pattern1_char_map: None,
-        pattern1_array_join: None,
+        loop_simple_while: None,
+        loop_char_map: None,
+        loop_array_join: None,
         pattern_is_integer: None,
 
         pattern_starts_with: None,
@@ -556,9 +556,9 @@ fn coreloop_v1_rejects_loop_break_with_cleanup() {
         pattern_skip_ws: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
-        pattern3_ifphi: None,
-        pattern4_continue: None,
-        pattern5_infinite_early_exit: None,
+        if_phi_join: None,
+        loop_continue_only: None,
+        loop_true_early_exit: None,
         loop_true_break_continue: None,
         loop_cond_break_continue: None,
         loop_cond_continue_only: None,
@@ -570,9 +570,9 @@ fn coreloop_v1_rejects_loop_break_with_cleanup() {
         loop_scan_phi_vars_v0: None,
         loop_bundle_resolver_v0: None,
         loop_collect_using_entries_v0: None,
-        pattern8_bool_predicate_scan: None,
-        pattern9_accum_const_loop: None,
-        pattern2_break: Some(Pattern2BreakFacts {
+        bool_predicate_scan: None,
+        accum_const_loop: None,
+        loop_break: Some(LoopBreakFacts {
             loop_var: "i".to_string(),
             carrier_var: "sum".to_string(),
             loop_condition: condition.clone(),
@@ -582,8 +582,8 @@ fn coreloop_v1_rejects_loop_break_with_cleanup() {
             loop_increment: lit_int(0),
             step_placement: LoopBreakStepPlacement::Last,
         }),
-        pattern2_loopbodylocal: None,
-        pattern6_nested_minimal: None,
+        loop_break_body_local: None,
+        nested_loop_minimal: None,
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
@@ -640,9 +640,9 @@ fn coreloop_v1_composes_loop_true_early_exit_with_value_join() {
         features,
         scan_with_init: None,
         split_scan: None,
-        pattern1_simplewhile: None,
-        pattern1_char_map: None,
-        pattern1_array_join: None,
+        loop_simple_while: None,
+        loop_char_map: None,
+        loop_array_join: None,
         pattern_is_integer: None,
 
         pattern_starts_with: None,
@@ -661,9 +661,9 @@ fn coreloop_v1_composes_loop_true_early_exit_with_value_join() {
         pattern_skip_ws: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
-        pattern3_ifphi: None,
-        pattern4_continue: None,
-        pattern5_infinite_early_exit: Some(Pattern5InfiniteEarlyExitFacts {
+        if_phi_join: None,
+        loop_continue_only: None,
+        loop_true_early_exit: Some(LoopTrueEarlyExitFacts {
             loop_var: "i".to_string(),
             exit_kind: LoopTrueEarlyExitKind::Break,
             exit_condition,
@@ -683,11 +683,11 @@ fn coreloop_v1_composes_loop_true_early_exit_with_value_join() {
         loop_scan_phi_vars_v0: None,
         loop_bundle_resolver_v0: None,
         loop_collect_using_entries_v0: None,
-        pattern6_nested_minimal: None,
-        pattern8_bool_predicate_scan: None,
-        pattern9_accum_const_loop: None,
-        pattern2_break: None,
-        pattern2_loopbodylocal: None,
+        nested_loop_minimal: None,
+        bool_predicate_scan: None,
+        accum_const_loop: None,
+        loop_break: None,
+        loop_break_body_local: None,
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
@@ -735,9 +735,9 @@ fn coreloop_v1_rejects_loop_true_early_exit_with_cleanup() {
         features,
         scan_with_init: None,
         split_scan: None,
-        pattern1_simplewhile: None,
-        pattern1_char_map: None,
-        pattern1_array_join: None,
+        loop_simple_while: None,
+        loop_char_map: None,
+        loop_array_join: None,
         pattern_is_integer: None,
 
         pattern_starts_with: None,
@@ -756,9 +756,9 @@ fn coreloop_v1_rejects_loop_true_early_exit_with_cleanup() {
         pattern_skip_ws: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
-        pattern3_ifphi: None,
-        pattern4_continue: None,
-        pattern5_infinite_early_exit: Some(Pattern5InfiniteEarlyExitFacts {
+        if_phi_join: None,
+        loop_continue_only: None,
+        loop_true_early_exit: Some(LoopTrueEarlyExitFacts {
             loop_var: "i".to_string(),
             exit_kind: LoopTrueEarlyExitKind::Break,
             exit_condition: condition.clone(),
@@ -778,11 +778,11 @@ fn coreloop_v1_rejects_loop_true_early_exit_with_cleanup() {
         loop_scan_phi_vars_v0: None,
         loop_bundle_resolver_v0: None,
         loop_collect_using_entries_v0: None,
-        pattern6_nested_minimal: None,
-        pattern8_bool_predicate_scan: None,
-        pattern9_accum_const_loop: None,
-        pattern2_break: None,
-        pattern2_loopbodylocal: None,
+        nested_loop_minimal: None,
+        bool_predicate_scan: None,
+        accum_const_loop: None,
+        loop_break: None,
+        loop_break_body_local: None,
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
@@ -849,9 +849,9 @@ fn coreloop_v1_composes_if_phi_join_with_value_join() {
         features,
         scan_with_init: None,
         split_scan: None,
-        pattern1_simplewhile: None,
-        pattern1_char_map: None,
-        pattern1_array_join: None,
+        loop_simple_while: None,
+        loop_char_map: None,
+        loop_array_join: None,
         pattern_is_integer: None,
 
         pattern_starts_with: None,
@@ -870,7 +870,7 @@ fn coreloop_v1_composes_if_phi_join_with_value_join() {
         pattern_skip_ws: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
-        pattern3_ifphi: Some(Pattern3IfPhiFacts {
+        if_phi_join: Some(IfPhiJoinFacts {
             loop_var: "i".to_string(),
             carrier_var: "sum".to_string(),
             condition: condition.clone(),
@@ -879,8 +879,8 @@ fn coreloop_v1_composes_if_phi_join_with_value_join() {
             else_update,
             loop_increment,
         }),
-        pattern4_continue: None,
-        pattern5_infinite_early_exit: None,
+        loop_continue_only: None,
+        loop_true_early_exit: None,
         loop_true_break_continue: None,
         loop_cond_break_continue: None,
         loop_cond_continue_only: None,
@@ -892,11 +892,11 @@ fn coreloop_v1_composes_if_phi_join_with_value_join() {
         loop_scan_phi_vars_v0: None,
         loop_bundle_resolver_v0: None,
         loop_collect_using_entries_v0: None,
-        pattern8_bool_predicate_scan: None,
-        pattern9_accum_const_loop: None,
-        pattern2_break: None,
-        pattern2_loopbodylocal: None,
-        pattern6_nested_minimal: None,
+        bool_predicate_scan: None,
+        accum_const_loop: None,
+        loop_break: None,
+        loop_break_body_local: None,
+        nested_loop_minimal: None,
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
@@ -942,9 +942,9 @@ fn coreloop_v1_rejects_if_phi_join_with_cleanup() {
         features,
         scan_with_init: None,
         split_scan: None,
-        pattern1_simplewhile: None,
-        pattern1_char_map: None,
-        pattern1_array_join: None,
+        loop_simple_while: None,
+        loop_char_map: None,
+        loop_array_join: None,
         pattern_is_integer: None,
 
         pattern_starts_with: None,
@@ -963,7 +963,7 @@ fn coreloop_v1_rejects_if_phi_join_with_cleanup() {
         pattern_skip_ws: None,
         generic_loop_v0: None,
         generic_loop_v1: None,
-        pattern3_ifphi: Some(Pattern3IfPhiFacts {
+        if_phi_join: Some(IfPhiJoinFacts {
             loop_var: "i".to_string(),
             carrier_var: "sum".to_string(),
             condition: condition.clone(),
@@ -972,8 +972,8 @@ fn coreloop_v1_rejects_if_phi_join_with_cleanup() {
             else_update: lit_int(0),
             loop_increment: lit_int(0),
         }),
-        pattern4_continue: None,
-        pattern5_infinite_early_exit: None,
+        loop_continue_only: None,
+        loop_true_early_exit: None,
         loop_true_break_continue: None,
         loop_cond_break_continue: None,
         loop_cond_continue_only: None,
@@ -985,11 +985,11 @@ fn coreloop_v1_rejects_if_phi_join_with_cleanup() {
         loop_scan_phi_vars_v0: None,
         loop_bundle_resolver_v0: None,
         loop_collect_using_entries_v0: None,
-        pattern8_bool_predicate_scan: None,
-        pattern9_accum_const_loop: None,
-        pattern2_break: None,
-        pattern2_loopbodylocal: None,
-        pattern6_nested_minimal: None,
+        bool_predicate_scan: None,
+        accum_const_loop: None,
+        loop_break: None,
+        loop_break_body_local: None,
+        nested_loop_minimal: None,
     };
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();

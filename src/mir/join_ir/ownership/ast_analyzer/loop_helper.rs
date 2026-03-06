@@ -30,7 +30,6 @@ use super::AstOwnershipAnalyzer;
 /// let plan = analyze_loop(&condition, &body, &parent_defined)?;
 /// // plan.owned_vars contains: sum (is_written=true), i (is_written=true)
 /// ```
-#[cfg(feature = "normalized_dev")]
 pub fn analyze_loop(
     condition: &ASTNode,
     body: &[ASTNode],
@@ -72,8 +71,7 @@ impl AstOwnershipAnalyzer {
     ///
     /// This is a private helper used by `analyze_loop()` to extract a single
     /// scope's OwnershipPlan without building plans for all scopes.
-    #[cfg(feature = "normalized_dev")]
-    fn build_plan_for_scope(&self, scope_id: ScopeId) -> Result<OwnershipPlan, String> {
+    pub(super) fn build_plan_for_scope(&self, scope_id: ScopeId) -> Result<OwnershipPlan, String> {
         let scope = self
             .scopes
             .get(&scope_id)

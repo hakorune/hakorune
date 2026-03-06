@@ -35,9 +35,6 @@ pub mod verify;
 // Phase 30.x: JSON serialization (jsonir v0)
 pub mod json;
 
-// Phase 26-H.B: Normalized JoinIR (テスト専用ミニ)
-pub mod normalized;
-
 // Phase 34-1: Frontend (AST→JoinIR) — skeleton only
 pub mod frontend;
 
@@ -53,11 +50,6 @@ pub use lowering::{
     lower_funcscanner_trim_to_joinir, lower_min_loop_to_joinir, lower_skip_ws_to_joinir,
 };
 
-// Re-export verification functions
-pub use normalized::{
-    normalize_pattern1_minimal, normalize_pattern2_minimal, normalized_pattern1_to_structured,
-    normalized_pattern2_to_structured, NormalizedModule,
-};
 pub use verify::verify_progress_for_skip_ws;
 
 // Phase 200-3: Contract verification functions are in merge/mod.rs (private module access)
@@ -211,7 +203,7 @@ impl LoopExitShape {
 /// JoinIR フェーズメタデータ。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum JoinIrPhase {
-    /// Lowering 直後の構造化 JoinIR（Pattern1–5 / CarrierInfo / Boundary/ExitLine）
+    /// Lowering 直後の構造化 JoinIR（semantic loop routes / CarrierInfo / Boundary / ExitLine）
     Structured,
     /// 将来導入予定の正規化済み JoinIR（関数＋継続＋Env、TailCall-only）
     Normalized,

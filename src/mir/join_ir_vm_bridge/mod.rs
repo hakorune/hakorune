@@ -1,18 +1,18 @@
 //! Phase 27-shortterm S-4: JoinIR → Rust VM Bridge
 //!
-//! 目的: JoinIR（正規化された IR）を Rust VM で実行するブリッジ層
+//! 目的: Structured JoinIR を Rust VM / MIR 側へ渡すブリッジ層
 //!
 //! ## Architecture
 //! ```text
-//! JoinIR (normalized) → MirModule → Rust VM → Result
-//!       ↑                 ↑          ↑
-//!   PHI bugs         VM input    Execution
-//!   eliminated         format    (GC, plugins)
+//! Structured JoinIR → MirModule → Rust VM → Result
+//!         ↑                ↑          ↑
+//!     recipe/lower      VM input    Execution
+//!       output           format    (GC, plugins)
 //! ```
 //!
 //! ## Design Principles
-//! - JoinIR の正規化構造を保持したまま VM に渡す
-//! - マッピングだけで済ませる（JoinIR でやった正規化は消えない）
+//! - Structured JoinIR の mainline lower/bridge を単一入口に保つ
+//! - Recipe-first runtime lane と喧嘩する別入口を増やさない
 //! - VM の機能（GC、プラグイン、エラーハンドリング）を活用
 //!
 //! ## Minimal Instruction Set (S-4.3)
@@ -50,8 +50,6 @@ mod joinir_function_converter;
 mod merge_variable_handler; // Phase 260 P0.2: Merge copy emission utility
 mod meta;
 mod terminator_builder; // Phase 260 P0.3: Terminator creation utility
-#[cfg(feature = "normalized_dev")]
-mod normalized_bridge;
 mod runner;
 
 #[cfg(test)]
@@ -64,8 +62,6 @@ pub(crate) use convert::convert_joinir_to_mir;
 pub(crate) use convert::convert_mir_like_inst; // helper for sub-modules
 pub(crate) use joinir_function_converter::JoinIrFunctionConverter;
 pub use meta::convert_join_module_to_mir_with_meta;
-#[cfg(feature = "normalized_dev")]
-pub(crate) use normalized_bridge::lower_normalized_to_mir_minimal;
 pub use runner::run_joinir_via_vm;
 
 /// Phase 27-shortterm S-4 エラー型

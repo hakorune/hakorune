@@ -5,7 +5,7 @@
 
 use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
 
-use crate::mir::builder::control_flow::plan::facts::pattern2_loopbodylocal_facts::LoopBodyLocalShape;
+use crate::mir::builder::control_flow::plan::facts::loop_break_body_local_facts::LoopBodyLocalShape;
 use crate::mir::builder::control_flow::plan::planner::{self, PlanBuildOutcome, PlannerContext};
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 

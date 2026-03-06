@@ -20,11 +20,7 @@ pub mod common;
 pub mod continue_pattern;
 pub mod continue_return_pattern;
 pub mod filter;
-#[cfg(feature = "normalized_dev")]
-pub mod if_sum_break_pattern;
 pub mod param_guess;
-#[cfg(feature = "normalized_dev")]
-pub mod parse_string_composite_pattern;
 pub mod print_tokens;
 pub mod simple;
 pub mod step_calculator;
@@ -68,12 +64,6 @@ pub enum LoopPattern {
     /// - early return: 条件付き Jump で k_exit へ早期脱出
     ContinueReturn,
 
-    /// ParseStringComposite パターン（Phase 90 P0, dev-only）
-    /// 責務: continue(escape) + early return(close quote) + 可変ステップループを処理
-    /// - 構造的には ContinueReturn と同じ
-    /// - StepCalculator が i+=2 を自動検出
-    #[cfg(feature = "normalized_dev")]
-    ParseStringComposite,
 }
 
 /// ループパターン lowering エラー
@@ -139,9 +129,5 @@ pub fn lower_loop_with_pattern(
         LoopPattern::Break => break_pattern::lower(lowerer, program_json),
         LoopPattern::Continue => continue_pattern::lower(lowerer, program_json),
         LoopPattern::ContinueReturn => continue_return_pattern::lower(lowerer, program_json),
-        #[cfg(feature = "normalized_dev")]
-        LoopPattern::ParseStringComposite => {
-            parse_string_composite_pattern::lower(lowerer, program_json)
-        }
     }
 }

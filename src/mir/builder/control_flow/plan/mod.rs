@@ -69,16 +69,16 @@ pub(in crate::mir::builder) mod skeletons;
 pub(in crate::mir::builder) mod coreloop_body_contract;
 // Phase 29ca P1: Generic loop v0 module (facts/normalizer SSOT)
 pub(in crate::mir::builder) mod generic_loop;
-// Phase 29bq+: loop_break module (legacy name: pattern2) moved to plan side
-pub(in crate::mir::builder) mod pattern2;
+// Phase 29bq+: loop_break module moved to plan side
+pub(in crate::mir::builder) mod loop_break;
 // Phase 29bq+: loop-break condition policy router moved to plan side
 pub(in crate::mir::builder) mod loop_break_condition_policy_router;
-// Phase 29bq+: loop_break input facts box (legacy name: pattern2_inputs_*) moved to plan side
-pub(in crate::mir::builder) mod pattern2_inputs_facts_box;
+// Phase 29bq+: loop_break input facts box moved to plan side
+pub(in crate::mir::builder) mod loop_break_prep_box;
 // Phase 29bq+: loop-break policy router moved to plan side
 pub(in crate::mir::builder) mod loop_break_policy_router;
-// Phase 29bq+: loop_break steps (legacy name: pattern2_steps) moved to plan side
-pub(in crate::mir::builder) mod pattern2_steps;
+// Phase 29bq+: loop_break steps moved to plan side
+pub(in crate::mir::builder) mod loop_break_steps;
 // Layer 5: Loop-Specific (ループ固有)
 // 各ループタイプの固有処理
 // Phase 29bq+: body local policy moved to plan side

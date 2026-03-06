@@ -92,7 +92,7 @@ impl RecipeMatcher {
         verify_route!(facts.facts.if_phi_join(), verify_if_phi_join_recipe);
 
         // Phase C9: loop_continue_only verification (planner_required only)
-        verify_route!(facts.facts.loop_continue_recipe(), verify_loop_continue_only_recipe);
+        verify_route!(facts.facts.loop_continue_only(), verify_loop_continue_only_recipe);
 
         // Phase C10: loop_true_early_exit verification (planner_required only)
         verify_route!(facts.facts.loop_true_early_exit(), verify_loop_true_early_exit_recipe);

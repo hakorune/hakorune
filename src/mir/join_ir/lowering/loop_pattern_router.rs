@@ -6,12 +6,12 @@
 //! Routes loop patterns to appropriate JoinIR lowering strategies.
 //! This is the **main entry point** for loop → JoinIR lowering.
 //!
-//! ## Pattern Dispatch
+//! ## Route Dispatch
 //! Routes to:
-//! - Pattern 1: `loop_patterns::simple_while` (no break/continue)
-//! - Pattern 2: `loop_patterns::with_break` (conditional break)
-//! - Pattern 3: `loop_patterns::with_if_phi` (if + PHI merging)
-//! - Pattern 4: `loop_patterns::with_continue` (deferred to Phase 195)
+//! - Pattern 1 / `LoopSimpleWhile`: `loop_patterns::simple_while` (no break/continue)
+//! - `LoopBreak`: `loop_patterns::with_break` (conditional break)
+//! - `IfPhiJoin`: `loop_patterns::with_if_phi` (if + PHI merging)
+//! - `LoopContinueOnly`: `loop_patterns::with_continue` (deferred to Phase 195)
 //!
 //! ## Why Separate Router?
 //! See `if_lowering_router.rs` for rationale.
@@ -29,13 +29,13 @@
 //! This router shares pattern detection logic with `patterns/router.rs`.
 //! Both use `loop_pattern_detection::classify()` for consistent classification.
 //!
-//! # Pattern Priority (Phase 188)
+//! # Route Priority (Phase 188)
 //!
-//! Patterns are tried in complexity order:
-//! - **Pattern 4: Continue** (highest complexity)
-//! - **Pattern 3: If-Else PHI** (leverages If lowering)
-//! - **Pattern 2: Break** (medium complexity)
-//! - **Pattern 1: Simple While** (foundational, easiest)
+//! Route families are tried in complexity order:
+//! - **LoopContinueOnly** (highest complexity)
+//! - **IfPhiJoin** (leverages If lowering)
+//! - **LoopBreak** (medium complexity)
+//! - **Pattern 1 / LoopSimpleWhile** (foundational, easiest)
 //!
 //! # Integration Points
 //!
@@ -47,15 +47,15 @@ use crate::mir::join_ir::JoinInst;
 use crate::mir::loop_form::LoopForm;
 use crate::runtime::get_global_ring0;
 
-/// Phase 188: Try to lower loop to JoinIR using pattern-based approach
+/// Phase 188: Try to lower loop to JoinIR using route-family-based dispatch
 ///
 /// This function routes loop lowering to specific pattern handlers based on
-/// loop structure characteristics. It tries patterns in order of complexity:
+/// loop structure characteristics. It tries route families in order of complexity:
 ///
-/// 1. **Pattern 1: Simple While** (foundational, easiest)
-/// 2. **Pattern 2: Break** (medium complexity)
-/// 3. **Pattern 3: If-Else PHI** (leverages existing If lowering)
-/// 4. **Pattern 4: Continue** (highest complexity)
+/// 1. **Pattern 1 / LoopSimpleWhile** (foundational, easiest)
+/// 2. **LoopBreak** (medium complexity)
+/// 3. **IfPhiJoin** (leverages existing If lowering)
+/// 4. **LoopContinueOnly** (highest complexity)
 ///
 /// # Arguments
 ///
@@ -67,17 +67,17 @@ use crate::runtime::get_global_ring0;
 /// * `Some(JoinInst)` - Successfully lowered to JoinIR
 /// * `None` - No pattern matched (fallback to existing lowering)
 ///
-/// # Pattern Selection Strategy
+/// # Route Selection Strategy
 ///
-/// Patterns are tried sequentially. First matching pattern wins.
-/// If no pattern matches, returns `None` to trigger fallback.
+/// Route families are tried sequentially. First matching route wins.
+/// If no route matches, returns `None` to trigger fallback.
 ///
 /// ## Pattern 1: Simple While Loop
 /// - **Condition**: Empty break/continue targets, single latch
 /// - **Handler**: `loop_patterns::lower_simple_while_to_joinir()`
 /// - **Priority**: First (most common, simplest)
 ///
-/// ## Pattern 2: Loop with Conditional Break
+/// ## LoopBreak
 /// - **Condition**: Non-empty break_targets, exactly 1 break
 /// - **Handler**: `loop_patterns::lower_loop_with_break_to_joinir()`
 /// - **Priority**: Second (common, medium complexity)
@@ -150,38 +150,38 @@ pub fn try_lower_loop_pattern_to_joinir(
             }
             // Stub returns None - fallback to existing lowering
         }
-        LoopPatternKind::Pattern4Continue => {
+        LoopPatternKind::LoopContinueOnly => {
             if let Some(inst) =
                 super::loop_patterns::lower_loop_with_continue_to_joinir(loop_form, lowerer)
             {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
                         .log
-                        .debug("[try_lower_loop_pattern] ✅ Pattern 4 (Continue) matched");
+                        .debug("[try_lower_loop_pattern] ✅ LoopContinueOnly matched");
                 }
                 return Some(inst);
             }
         }
-        LoopPatternKind::Pattern3IfPhi => {
+        LoopPatternKind::IfPhiJoin => {
             if let Some(inst) =
                 super::loop_patterns::lower_loop_with_conditional_phi_to_joinir(loop_form, lowerer)
             {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
                         .log
-                        .debug("[try_lower_loop_pattern] ✅ Pattern 3 (If-Else PHI) matched");
+                        .debug("[try_lower_loop_pattern] ✅ IfPhiJoin matched");
                 }
                 return Some(inst);
             }
         }
-        LoopPatternKind::Pattern2Break => {
+        LoopPatternKind::LoopBreak => {
             if let Some(inst) =
                 super::loop_patterns::lower_loop_with_break_to_joinir(loop_form, lowerer)
             {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
                         .log
-                        .debug("[try_lower_loop_pattern] ✅ Pattern 2 (Break) matched");
+                        .debug("[try_lower_loop_pattern] ✅ LoopBreak matched");
                 }
                 return Some(inst);
             }
@@ -193,7 +193,7 @@ pub fn try_lower_loop_pattern_to_joinir(
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
                         .log
-                        .debug("[try_lower_loop_pattern] ✅ Pattern 1 (Simple While) matched");
+                        .debug("[try_lower_loop_pattern] ✅ Pattern1SimpleWhile matched");
                 }
                 return Some(inst);
             }

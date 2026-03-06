@@ -8,7 +8,7 @@ use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
     coreloop_base_gate, exit_kinds_empty,
 };
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::plan::normalizer::build_pattern1_coreloop;
+use crate::mir::builder::control_flow::plan::normalizer::build_simple_while_coreloop;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 
@@ -37,7 +37,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v0(
         return Ok(None);
     };
 
-    let loop_plan = build_pattern1_coreloop(
+    let loop_plan = build_simple_while_coreloop(
         builder,
         &loop_simple_while.loop_var,
         &loop_simple_while.condition,

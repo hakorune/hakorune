@@ -19,7 +19,6 @@ pub struct P2LoweringInputs {
 
 /// Result of converting OwnershipPlan for P3 (if-sum) lowering
 #[derive(Debug)]
-#[cfg(feature = "normalized_dev")]
 pub struct P3LoweringInputs {
     /// Carriers derived from owned_vars (is_written=true)
     pub carriers: Vec<CarrierVar>,
@@ -33,7 +32,6 @@ pub struct P3LoweringInputs {
 ///
 /// # Errors
 /// Returns Err if relay_writes is non-empty (Phase 58 scope limitation).
-#[cfg(feature = "normalized_dev")]
 pub fn plan_to_p2_inputs(plan: &OwnershipPlan, loop_var: &str) -> Result<P2LoweringInputs, String> {
     // Fail-Fast: relay_writes not supported in Phase 58
     if !plan.relay_writes.is_empty() {
@@ -71,8 +69,6 @@ pub fn plan_to_p2_inputs(plan: &OwnershipPlan, loop_var: &str) -> Result<P2Lower
             init: CarrierInit::FromHost,     // Default (Phase 228)
             host_id: crate::mir::ValueId(0), // Placeholder - not used in dev analysis
             join_id: None,
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None,
         });
     }
 
@@ -102,7 +98,6 @@ pub fn plan_to_p2_inputs(plan: &OwnershipPlan, loop_var: &str) -> Result<P2Lower
 /// - relay_path[0] == plan.scope_id (this scope is the first hop)
 /// - relay.owner_scope != plan.scope_id (relay is exclusive with owned)
 /// - owned_vars and relay_writes cannot share names (invariant)
-#[cfg(feature = "normalized_dev")]
 pub fn plan_to_p2_inputs_with_relay(
     plan: &OwnershipPlan,
     loop_var: &str,
@@ -130,8 +125,6 @@ pub fn plan_to_p2_inputs_with_relay(
             init: CarrierInit::FromHost,
             host_id: crate::mir::ValueId(0),
             join_id: None,
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None,
         });
     }
 
@@ -179,8 +172,6 @@ pub fn plan_to_p2_inputs_with_relay(
             init: CarrierInit::FromHost,
             host_id: crate::mir::ValueId(0),
             join_id: None,
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None,
         });
     }
 
@@ -205,7 +196,6 @@ pub fn plan_to_p2_inputs_with_relay(
 ///
 /// # Errors
 /// Returns Err if relay_writes is non-empty (Phase 59 scope limitation).
-#[cfg(feature = "normalized_dev")]
 pub fn plan_to_p3_inputs(plan: &OwnershipPlan, loop_var: &str) -> Result<P3LoweringInputs, String> {
     // Fail-Fast: relay_writes not supported in Phase 59
     if !plan.relay_writes.is_empty() {
@@ -243,8 +233,6 @@ pub fn plan_to_p3_inputs(plan: &OwnershipPlan, loop_var: &str) -> Result<P3Lower
             init: CarrierInit::FromHost,     // Default (Phase 228)
             host_id: crate::mir::ValueId(0), // Placeholder - not used in dev analysis
             join_id: None,
-            #[cfg(feature = "normalized_dev")]
-            binding_id: None,
         });
     }
 
@@ -266,7 +254,6 @@ pub fn plan_to_p3_inputs(plan: &OwnershipPlan, loop_var: &str) -> Result<P3Lower
 /// Convert OwnershipPlan to P3 lowering inputs, allowing relay_writes (dev-only Phase 60).
 ///
 /// Rules are identical to `plan_to_p2_inputs_with_relay`, but output type is P3LoweringInputs.
-#[cfg(feature = "normalized_dev")]
 pub fn plan_to_p3_inputs_with_relay(
     plan: &OwnershipPlan,
     loop_var: &str,
@@ -285,7 +272,6 @@ mod tests {
     use crate::mir::join_ir::ownership::{RelayVar, ScopeId, ScopeOwnedVar};
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_simple_p2_conversion() {
         let mut plan = OwnershipPlan::new(ScopeId(1));
         plan.owned_vars.push(ScopeOwnedVar {
@@ -308,7 +294,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_condition_only_carrier() {
         let mut plan = OwnershipPlan::new(ScopeId(1));
         plan.owned_vars.push(ScopeOwnedVar {
@@ -331,7 +316,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_relay_rejected() {
         let mut plan = OwnershipPlan::new(ScopeId(1));
         plan.relay_writes.push(RelayVar {
@@ -348,7 +332,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_relay_single_hop_accepted_in_with_relay() {
         // Phase 66: relay_path[0] must be plan.scope_id
         let mut plan = OwnershipPlan::new(ScopeId(1));
@@ -370,7 +353,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_relay_multi_hop_accepted_in_with_relay() {
         // Phase 66: Multihop is now accepted!
         // plan.scope_id = ScopeId(1), relay_path = [ScopeId(1), ScopeId(2)]
@@ -390,7 +372,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_relay_path_empty_rejected_in_with_relay() {
         // Phase 66: empty relay_path is invalid (loop relay requires at least 1 hop)
         let mut plan = OwnershipPlan::new(ScopeId(1));
@@ -406,7 +387,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_relay_path_not_starting_at_plan_scope_rejected() {
         // Phase 66: relay_path[0] must be plan.scope_id
         let mut plan = OwnershipPlan::new(ScopeId(1));
@@ -422,7 +402,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_relay_owner_same_as_plan_scope_rejected() {
         // Phase 66: relay.owner_scope != plan.scope_id
         let mut plan = OwnershipPlan::new(ScopeId(1));
@@ -440,7 +419,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_owned_and_relay_same_name_rejected() {
         // Phase 66: owned_vars and relay_writes cannot share names
         let mut plan = OwnershipPlan::new(ScopeId(1));
@@ -463,7 +441,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_read_only_vars_not_carriers() {
         let mut plan = OwnershipPlan::new(ScopeId(1));
         plan.owned_vars.push(ScopeOwnedVar {
@@ -484,7 +461,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_captures_and_condition_captures() {
         use crate::mir::join_ir::ownership::CapturedVar;
 
@@ -518,7 +494,6 @@ mod tests {
     // Phase 59: P3 conversion tests
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_p3_multi_carrier_conversion() {
         // P3 if-sum pattern: sum, count, i all loop-local
         let mut plan = OwnershipPlan::new(ScopeId(1));
@@ -547,7 +522,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_p3_five_plus_carriers() {
         // Selfhost P3 pattern: 5+ carriers
         let mut plan = OwnershipPlan::new(ScopeId(1));
@@ -589,7 +563,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_p3_condition_only_role() {
         let mut plan = OwnershipPlan::new(ScopeId(1));
         plan.owned_vars.push(ScopeOwnedVar {
@@ -622,7 +595,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_p3_relay_rejected() {
         let mut plan = OwnershipPlan::new(ScopeId(1));
         plan.owned_vars.push(ScopeOwnedVar {
@@ -645,7 +617,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "normalized_dev")]
     fn test_p3_with_relay_accepts_single_hop() {
         // Phase 66: relay_path must start with plan.scope_id and be non-empty
         let mut plan = OwnershipPlan::new(ScopeId(1));

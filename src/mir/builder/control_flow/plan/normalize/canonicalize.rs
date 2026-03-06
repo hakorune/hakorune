@@ -100,9 +100,9 @@ mod tests {
             },
             scan_with_init: None,
             split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
+            loop_simple_while: None,
+            loop_char_map: None,
+            loop_array_join: None,
             pattern_is_integer: None,
 
             pattern_starts_with: None,
@@ -121,9 +121,9 @@ mod tests {
             pattern_skip_ws: None,
             generic_loop_v0: None,
             generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
+            if_phi_join: None,
+            loop_continue_only: None,
+            loop_true_early_exit: None,
             loop_true_break_continue: None,
             loop_cond_break_continue: None,
             loop_cond_continue_only: None,
@@ -135,11 +135,11 @@ mod tests {
             loop_scan_phi_vars_v0: None,
             loop_bundle_resolver_v0: None,
             loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            bool_predicate_scan: None,
+            accum_const_loop: None,
+            loop_break: None,
+            loop_break_body_local: None,
+            nested_loop_minimal: None,
         };
         let canonical = canonicalize_loop_facts(facts);
         assert_eq!(canonical.skeleton_kind, SkeletonKind::Loop);
@@ -170,9 +170,9 @@ mod tests {
             features: LoopFeatureFacts::default(),
             scan_with_init: None,
             split_scan: None,
-            pattern1_simplewhile: None,
-            pattern1_char_map: None,
-            pattern1_array_join: None,
+            loop_simple_while: None,
+            loop_char_map: None,
+            loop_array_join: None,
             pattern_is_integer: None,
 
             pattern_starts_with: None,
@@ -191,9 +191,9 @@ mod tests {
             pattern_skip_ws: None,
             generic_loop_v0: None,
             generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
+            if_phi_join: None,
+            loop_continue_only: None,
+            loop_true_early_exit: None,
             loop_true_break_continue: None,
             loop_cond_break_continue: None,
             loop_cond_continue_only: None,
@@ -205,11 +205,11 @@ mod tests {
             loop_scan_phi_vars_v0: None,
             loop_bundle_resolver_v0: None,
             loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            bool_predicate_scan: None,
+            accum_const_loop: None,
+            loop_break: None,
+            loop_break_body_local: None,
+            nested_loop_minimal: None,
         };
         let canonical = canonicalize_loop_facts(facts);
         assert!(canonical.exit_kinds_present.is_empty());
@@ -229,8 +229,8 @@ mod tests {
             features: LoopFeatureFacts::default(),
             scan_with_init: None,
             split_scan: None,
-            pattern1_simplewhile: Some(
-                crate::mir::builder::control_flow::plan::facts::pattern1_simplewhile_facts::Pattern1SimpleWhileFacts {
+            loop_simple_while: Some(
+                crate::mir::builder::control_flow::plan::facts::loop_simple_while_facts::LoopSimpleWhileFacts {
                     loop_var: "i".to_string(),
                     condition: ASTNode::BinaryOp {
                         operator: BinaryOperator::Less,
@@ -246,8 +246,8 @@ mod tests {
                     },
                 },
             ),
-            pattern1_char_map: None,
-            pattern1_array_join: None,
+            loop_char_map: None,
+            loop_array_join: None,
             pattern_is_integer: None,
 
             pattern_starts_with: None,
@@ -266,9 +266,9 @@ mod tests {
             pattern_skip_ws: None,
             generic_loop_v0: None,
             generic_loop_v1: None,
-            pattern3_ifphi: None,
-            pattern4_continue: None,
-            pattern5_infinite_early_exit: None,
+            if_phi_join: None,
+            loop_continue_only: None,
+            loop_true_early_exit: None,
             loop_true_break_continue: None,
             loop_cond_break_continue: None,
             loop_cond_continue_only: None,
@@ -280,13 +280,13 @@ mod tests {
             loop_scan_phi_vars_v0: None,
             loop_bundle_resolver_v0: None,
             loop_collect_using_entries_v0: None,
-            pattern8_bool_predicate_scan: None,
-            pattern9_accum_const_loop: None,
-            pattern2_break: None,
-            pattern2_loopbodylocal: None,
-            pattern6_nested_minimal: None,
+            bool_predicate_scan: None,
+            accum_const_loop: None,
+            loop_break: None,
+            loop_break_body_local: None,
+            nested_loop_minimal: None,
         };
         let canonical = canonicalize_loop_facts(facts);
-        assert!(canonical.facts.pattern1_simplewhile.is_some());
+        assert!(canonical.facts.loop_simple_while.is_some());
     }
 }

@@ -18,7 +18,7 @@
 
 - ログ/TSV/エラーメッセージの文言
 - Facts/Features/Normalizer など recipe_tree 外のファイル名
-- DomainPlan の型名・ファイル名
+- historical planner-payload-era 型名・ファイル名
 
 ---
 
@@ -40,7 +40,7 @@
 
 ### Builder files
 
-| Current | New |
+| Historical | Current |
 |---------|-----|
 | `pattern1_simple_while_builder.rs` | `loop_simple_while_builder.rs` |
 | `pattern1_char_map_builder.rs` | `char_map_builder.rs` |
@@ -56,7 +56,7 @@
 
 ### Composer files
 
-| Current | New |
+| Historical | Current |
 |---------|-----|
 | `loop_break_recipe_composer.rs` | `loop_break_composer.rs` |
 

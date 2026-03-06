@@ -358,23 +358,14 @@ pub mod break_condition_analyzer;
 // Phase 200-A: Function Scope Capture Infrastructure
 pub mod function_scope_capture;
 
-// Phase 78: PromotedBindingRecorder - Type-safe BindingId recording
-pub mod promoted_binding_recorder;
-pub use promoted_binding_recorder::{BindingRecordError, PromotedBindingRecorder};
-
-// Phase 79: Pure Detection Logic (Detector/Recorder separation)
+// Phase 79: Pure Detection Logic (Detector/Promoter separation)
 pub mod digitpos_detector;
 pub mod trim_detector;
 pub use digitpos_detector::{DigitPosDetectionResult, DigitPosDetector};
 pub use trim_detector::{TrimDetectionResult, TrimDetector};
-
-// Phase 79: BindingMapProvider trait (centralize feature gate)
-pub mod binding_map_provider;
 
 // Phase 100 P1-2: Pinned Local Analyzer
 pub mod pinned_local_analyzer;
 
 // Phase 100 P2-1: Mutable Accumulator Analyzer
 pub mod mutable_accumulator_analyzer;
-
-pub use binding_map_provider::BindingMapProvider;

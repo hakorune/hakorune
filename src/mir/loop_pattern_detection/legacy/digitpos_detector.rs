@@ -7,10 +7,9 @@
 //!
 //! # Design Philosophy
 //!
-//! This detector follows the **Detector/Recorder separation** principle:
+//! This detector follows the **Detector/Promoter separation** principle:
 //! - **Detector**: Pure detection logic (this module)
-//! - **Recorder**: PromotedBindingRecorder (records BindingId mappings)
-//! - **Promoter**: Orchestrates detection + recording + carrier building
+//! - **Promoter**: Orchestrates carrier building from the detected shape
 //!
 //! # Pattern: A-4 DigitPos (Cascading indexOf)
 //!
@@ -85,7 +84,7 @@ impl DigitPosDetector {
         }
 
         // Step 4: Verify cascading dependency (indexOf depends on LoopBodyLocal)
-        let _dependency = Self::find_first_loopbodylocal_dependency(body, definition)?;
+        let _dependency = Self::find_first_body_local_dependency(body, definition)?;
 
         // Step 5: Generate carrier names
         // Phase 247-EX: DigitPos generates TWO carriers (dual-value model)
@@ -216,7 +215,7 @@ impl DigitPosDetector {
     /// Find first LoopBodyLocal dependency in indexOf() call
     ///
     /// Example: `digits.indexOf(ch)` → returns "ch" if it's a LoopBodyLocal
-    fn find_first_loopbodylocal_dependency<'a>(
+    fn find_first_body_local_dependency<'a>(
         body: &'a [ASTNode],
         index_of_call: &'a ASTNode,
     ) -> Option<&'a str> {
@@ -394,7 +393,7 @@ mod tests {
     }
 
     #[test]
-    fn test_detect_no_match_no_loopbodylocal_dependency() {
+    fn test_detect_no_match_no_body_local_dependency() {
         // digit_pos = fixed_string.indexOf("x")  // No LoopBodyLocal dependency
         // Should fail: indexOf doesn't depend on substring LoopBodyLocal
 

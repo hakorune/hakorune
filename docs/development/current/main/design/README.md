@@ -18,7 +18,7 @@
 - Normalized ExprLowerer（式の一般化 SSOT）: `docs/development/current/main/design/normalized-expr-lowering.md`
 - CorePlan Skeleton/Feature（箱増殖を止めるSSOT）: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 - RecipeTree + Parts（Recipe-first / Verified-only boundary SSOT）: `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
-- Recipe-first entry contract（DomainPlan は label-only SSOT）: `docs/development/current/main/design/recipe-first-entry-contract-ssot.md`
+- Recipe-first entry contract（runtime は Facts→Recipe→Verifier→Lower、historical planner-payload wording は note-only）: `docs/development/current/main/design/recipe-first-entry-contract-ssot.md`
 - Condition observation（no rewrite SSOT）: `docs/development/current/main/design/condition-observation-ssot.md`
 - generic_loop_v1 acceptance by Recipe（ShapeId hint-only SSOT）: `docs/development/current/main/design/generic-loop-v1-acceptance-by-recipe-ssot.md`
 - Policy: compiler expressivity first（selfhost workaround を止める）: `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -41,6 +41,13 @@
 - CoreLoop ContinueTarget slot（continue の飛び先を slot 化）: `docs/development/current/main/design/coreloop-continue-target-slot-ssot.md`
 - Code-side registry（実装とSSOTの対応表）: `src/mir/builder/control_flow/plan/REGISTRY.md`
 
+## Historical Migration Ledgers
+
+- Historical payload-lane cleanup tracker: `docs/development/current/main/design/domainplan-thinning-ssot.md`
+- Historical payload-lane residue ledger: `docs/development/current/main/design/domainplan-residue-ssot.md`
+- Historical recipe-first entry migration notes: `docs/development/current/main/design/recipe-first-entry-contract-history.md`
+- Historical recipe-first phased proposal: `docs/development/current/main/design/recipe-first-migration-phased-plan-proposal.md`
+
 ## Diagnostics / Contracts（入口）
 
 - Freeze / debug tag SSOT: `docs/development/current/main/design/ai-handoff-and-debug-contract.md`
@@ -53,6 +60,7 @@
 - Optimization portability classification SSOT（最適化の移植可能性分類）: `docs/development/current/main/design/optimization-portability-classification-ssot.md`
 - AutoSpecializeBox SSOT（MIRCall 自動分岐 v0 契約）: `docs/development/current/main/design/auto-specialize-box-ssot.md`
 - Code retirement/history policy SSOT（退役コード保存方針）: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
+- normalized_dev removal SSOT（dev-only normalized lane の隔離→削除順序）: `docs/development/current/main/design/normalized-dev-removal-ssot.md`
 - vm-hako array shim contract SSOT（array_get/array_set の interim 契約）: `docs/development/current/main/design/vm-hako-array-shim-contract-ssot.md`
 - MIR callsite retire lane SSOT（post-canonical 削除順序/契約）: `docs/development/current/main/design/mir-callsite-retire-lane-ssot.md`
 - `.hako` mirbuilder Load/Store minimal contract SSOT（B1 docs-first）: `docs/development/current/main/design/hako-mirbuilder-load-store-minimal-contract-ssot.md`

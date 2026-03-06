@@ -66,7 +66,7 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
         .facts
         .as_ref()
         .and_then(|facts| {
-            facts.facts.loop_continue_recipe().map(|loop_continue| {
+            facts.facts.loop_continue_only().map(|loop_continue| {
                 let mut carrier_vars: Vec<String> =
                     loop_continue.carrier_updates.keys().cloned().collect();
                 carrier_vars.sort();
@@ -97,7 +97,7 @@ fn allow_strict_nested_loop_continue_min1(
     outcome: &PlanBuildOutcome,
     ctx: &LoopRouteContext,
 ) -> bool {
-    if ctx.route_kind != LoopPatternKind::Pattern4Continue {
+    if ctx.route_kind != LoopPatternKind::LoopContinueOnly {
         return false;
     }
     let Some(facts) = outcome.facts.as_ref() else {
@@ -110,7 +110,7 @@ fn allow_strict_nested_loop_continue_min1(
         return false;
     }
 
-    let Some(loop_continue) = facts.facts.loop_continue_recipe() else {
+    let Some(loop_continue) = facts.facts.loop_continue_only() else {
         return false;
     };
     if loop_continue.carrier_updates.len() != 1 {

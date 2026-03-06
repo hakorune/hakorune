@@ -53,10 +53,6 @@ pub struct ConditionPromotionRequest<'a> {
 
     /// Loop body statements
     pub loop_body: &'a [ASTNode],
-
-    /// Phase 77: Optional BindingId map for type-safe promotion tracking (dev-only)
-    #[cfg(feature = "normalized_dev")]
-    pub binding_map: Option<&'a std::collections::BTreeMap<String, crate::mir::BindingId>>,
 }
 
 /// Promotion result
@@ -179,8 +175,6 @@ impl LoopBodyCondPromoter {
             cond_scope: req.cond_scope,
             break_cond: condition_for_promotion,
             loop_body: req.loop_body,
-            #[cfg(feature = "normalized_dev")]
-            binding_map: req.binding_map,
         };
 
         match LoopBodyCarrierPromoter::try_promote(&promotion_request) {
@@ -193,10 +187,6 @@ impl LoopBodyCondPromoter {
                     ));
                 }
 
-                // Convert TrimPatternInfo to CarrierInfo
-                #[cfg(feature = "normalized_dev")]
-                let carrier_info = trim_info.to_carrier_info(req.binding_map);
-                #[cfg(not(feature = "normalized_dev"))]
                 let carrier_info = trim_info.to_carrier_info();
 
                 return ConditionPromotionResult::Promoted {
@@ -222,8 +212,6 @@ impl LoopBodyCondPromoter {
             break_cond: req.break_cond,
             continue_cond: req.continue_cond,
             loop_body: req.loop_body,
-            #[cfg(feature = "normalized_dev")]
-            binding_map: req.binding_map,
         };
 
         match DigitPosPromoter::try_promote(digitpos_request) {
@@ -396,8 +384,6 @@ mod tests {
             break_cond: None,
             continue_cond: None,
             loop_body: &[],
-            #[cfg(feature = "normalized_dev")]
-            binding_map: None,
         };
 
         match LoopBodyCondPromoter::try_promote_for_condition(req) {
@@ -420,8 +406,6 @@ mod tests {
             break_cond: None,
             continue_cond: None,
             loop_body: &[],
-            #[cfg(feature = "normalized_dev")]
-            binding_map: None,
         };
 
         match LoopBodyCondPromoter::try_promote_for_condition(req) {
@@ -453,8 +437,6 @@ mod tests {
             break_cond: None,
             continue_cond: Some(&continue_cond),
             loop_body: &loop_body,
-            #[cfg(feature = "normalized_dev")]
-            binding_map: None,
         };
 
         match LoopBodyCondPromoter::try_promote_for_condition(req) {
@@ -492,8 +474,6 @@ mod tests {
             break_cond: Some(&break_cond),
             continue_cond: None,
             loop_body: &loop_body,
-            #[cfg(feature = "normalized_dev")]
-            binding_map: None,
         };
 
         match LoopBodyCondPromoter::try_promote_for_condition(req) {
@@ -524,8 +504,6 @@ mod tests {
             break_cond: None,
             continue_cond: Some(&continue_cond),
             loop_body: &loop_body,
-            #[cfg(feature = "normalized_dev")]
-            binding_map: None,
         };
 
         match LoopBodyCondPromoter::try_promote_for_condition(req) {

@@ -1,12 +1,12 @@
-//! Phase 171-C-5: TrimLoopHelper - Trim Pattern Lowering Helper
+//! Phase 171-C-5: TrimLoopHelper - trim route lowering helper
 //!
-//! This module provides a helper struct for Trim pattern lowering.
-//! It encapsulates pattern-specific logic for converting LoopBodyLocal-based
+//! This module provides a helper struct for trim-route lowering.
+//! It encapsulates route-specific logic for converting LoopBodyLocal-based
 //! conditions to carrier-based conditions.
 //!
 //! ## Purpose
 //!
-//! When a Trim pattern is detected (e.g., trim leading/trailing whitespace),
+//! When a trim route shape is detected (e.g., trim leading/trailing whitespace),
 //! the LoopBodyCarrierPromoter promotes the LoopBodyLocal variable (like `ch`)
 //! to a bool carrier (like `is_whitespace`).
 //!

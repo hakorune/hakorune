@@ -2,7 +2,7 @@
 //!
 //! Responsibility (analysis only):
 //! - Recognize the `depth` scan loop shape with nested-if + `return i`
-//! - Produce a Pattern2-compatible break condition + derived recipe inputs
+//! - Produce a loop-break-compatible break condition + derived recipe inputs
 //! - Fail-fast with tagged reasons when the shape is close but unsupported
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};

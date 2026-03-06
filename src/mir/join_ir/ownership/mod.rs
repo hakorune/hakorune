@@ -21,25 +21,19 @@
 //!
 //! # Phase Status
 //!
-//! - Phase 57: Analyzer implemented (dev-only)
+//! - Phase 57: Analyzer implemented
 //! - Phase 58: plan_to_lowering helper for P2 (analyzer-based testing only)
 //! - Phase 59: plan_to_lowering helper for P3 (if-sum patterns)
 //! - Phase 71-Pre: plan_validator box (reusable validation)
 
 mod analyzer;
-#[cfg(feature = "normalized_dev")]
 mod ast_analyzer;
-#[cfg(feature = "normalized_dev")]
 mod plan_to_lowering;
-#[cfg(feature = "normalized_dev")]
 mod plan_validator;
 mod types;
 
 pub use analyzer::*;
-#[cfg(feature = "normalized_dev")]
 pub use ast_analyzer::*;
-#[cfg(feature = "normalized_dev")]
 pub use plan_to_lowering::*;
-#[cfg(feature = "normalized_dev")]
 pub use plan_validator::*;
 pub use types::*;

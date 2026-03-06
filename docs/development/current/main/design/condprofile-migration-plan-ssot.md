@@ -148,11 +148,11 @@ Failure handling (design-only):
 | `src/mir/builder/control_flow/plan/facts/loop_step_shape.rs` | StepShape | Step extractor |
 | `src/mir/builder/control_flow/plan/facts/scan_shapes.rs` | ConditionShape, StepShape | Scan helpers (cmp/bound/step) |
 | `src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs` | ConditionShape, StepShape | ScanWithInit facts |
-| `src/mir/builder/control_flow/plan/facts/pattern1_array_join_facts.rs` | ConditionShape, StepShape | Pattern1ArrayJoin facts |
-| `src/mir/builder/control_flow/plan/facts/pattern1_char_map_facts.rs` | ConditionShape, StepShape | Pattern1CharMap facts |
-| `src/mir/builder/control_flow/plan/facts/pattern6_nested_minimal_facts.rs` | ConditionShape, StepShape | Nested minimal inner loop facts |
-| `src/mir/builder/control_flow/plan/facts/pattern8_bool_predicate_scan_facts.rs` | ConditionShape, StepShape | Pattern8 facts |
-| `src/mir/builder/control_flow/plan/facts/pattern9_accum_const_loop_facts.rs` | ConditionShape, StepShape | Pattern9 facts |
+| `src/mir/builder/control_flow/plan/facts/loop_array_join_facts.rs` | ConditionShape, StepShape | LoopArrayJoin facts |
+| `src/mir/builder/control_flow/plan/facts/loop_char_map_facts.rs` | ConditionShape, StepShape | LoopCharMap facts |
+| `src/mir/builder/control_flow/plan/facts/nested_loop_minimal_facts.rs` | ConditionShape, StepShape | NestedLoopMinimal facts |
+| `src/mir/builder/control_flow/plan/facts/bool_predicate_scan_facts.rs` | ConditionShape, StepShape | BoolPredicateScan facts |
+| `src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs` | ConditionShape, StepShape | AccumConstLoop facts |
 
 ### After migration: CondProfile as the only observation source (order)
 
@@ -163,11 +163,11 @@ Failure handling (design-only):
 | 3 | `facts/loop_step_shape.rs` | CondProfile replaces step extraction |
 | 4 | `facts/loop_builder.rs` | Wire CondProfile in the builder entry |
 | 5 | `facts/loop_scan_with_init.rs` | ScanWithInit reads CondProfile only |
-| 6 | `facts/pattern1_char_map_facts.rs` | Facts read CondProfile only |
-| 7 | `facts/pattern1_array_join_facts.rs` | Facts read CondProfile only |
-| 8 | `facts/pattern8_bool_predicate_scan_facts.rs` | Facts read CondProfile only |
-| 9 | `facts/pattern9_accum_const_loop_facts.rs` | Facts read CondProfile only |
-| 10 | `facts/pattern6_nested_minimal_facts.rs` | Inner loop facts read CondProfile only |
+| 6 | `facts/loop_char_map_facts.rs` | Facts read CondProfile only |
+| 7 | `facts/loop_array_join_facts.rs` | Facts read CondProfile only |
+| 8 | `facts/bool_predicate_scan_facts.rs` | Facts read CondProfile only |
+| 9 | `facts/accum_const_loop_facts.rs` | Facts read CondProfile only |
+| 10 | `facts/nested_loop_minimal_facts.rs` | Inner loop facts read CondProfile only |
 
 ### Drift check (SSOT)
 

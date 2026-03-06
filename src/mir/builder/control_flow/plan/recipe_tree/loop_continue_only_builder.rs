@@ -2,7 +2,7 @@
 
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::LoopContinueRecipeFacts;
+use crate::mir::builder::control_flow::plan::facts::LoopContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
@@ -32,7 +32,7 @@ pub(in crate::mir::builder) fn build_loop_continue_only_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     continue_cond_view: CondBlockView,
-    facts: &LoopContinueRecipeFacts,
+    facts: &LoopContinueOnlyFacts,
 ) -> Option<LoopContinueOnlyRecipe> {
     let mut arena = RecipeBodies::new();
 

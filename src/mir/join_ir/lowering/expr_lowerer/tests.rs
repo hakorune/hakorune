@@ -3,7 +3,7 @@ use super::{ExprContext, ExprLowerer, ExprLoweringError};
 use crate::ast::{BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::condition_env::ConditionEnv;
-use crate::mir::join_ir::lowering::scope_manager::Pattern2ScopeManager;
+use crate::mir::join_ir::lowering::scope_manager::LoopBreakScopeManager;
 use crate::mir::join_ir::{BinOpKind, JoinInst, MirLikeInst, UnaryOp as JoinUnaryOp};
 use crate::mir::{builder::MirBuilder, ValueId};
 
@@ -30,12 +30,10 @@ fn test_expr_lowerer_simple_comparison() {
         loop_var_id: ValueId(1),
         carriers: vec![],
         trim_helper: None,
-        promoted_loopbodylocals: vec![],
-        #[cfg(feature = "normalized_dev")]
-        promoted_bindings: std::collections::BTreeMap::new(),
+        promoted_body_locals: vec![],
     };
 
-    let scope = Pattern2ScopeManager {
+    let scope = LoopBreakScopeManager {
         condition_env: &condition_env,
         loop_body_local_env: None,
         captured_env: None,
@@ -76,12 +74,10 @@ fn test_expr_lowerer_variable_not_found() {
         loop_var_id: ValueId(1),
         carriers: vec![],
         trim_helper: None,
-        promoted_loopbodylocals: vec![],
-        #[cfg(feature = "normalized_dev")]
-        promoted_bindings: std::collections::BTreeMap::new(),
+        promoted_body_locals: vec![],
     };
 
-    let scope = Pattern2ScopeManager {
+    let scope = LoopBreakScopeManager {
         condition_env: &condition_env,
         loop_body_local_env: None,
         captured_env: None,
@@ -122,12 +118,10 @@ fn test_expr_lowerer_unsupported_node() {
         loop_var_id: ValueId(1),
         carriers: vec![],
         trim_helper: None,
-        promoted_loopbodylocals: vec![],
-        #[cfg(feature = "normalized_dev")]
-        promoted_bindings: std::collections::BTreeMap::new(),
+        promoted_body_locals: vec![],
     };
 
-    let scope = Pattern2ScopeManager {
+    let scope = LoopBreakScopeManager {
         condition_env: &condition_env,
         loop_body_local_env: None,
         captured_env: None,
@@ -162,7 +156,7 @@ fn test_is_supported_condition() {
         }),
         span: Span::unknown(),
     };
-    assert!(ExprLowerer::<Pattern2ScopeManager>::is_supported_condition(
+    assert!(ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(
         &ast
     ));
 
@@ -176,7 +170,7 @@ fn test_is_supported_condition() {
         arguments: vec![],
         span: Span::unknown(),
     };
-    assert!(ExprLowerer::<Pattern2ScopeManager>::is_supported_condition(
+    assert!(ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(
         &ast
     ));
 
@@ -184,12 +178,12 @@ fn test_is_supported_condition() {
     let ast = crate::ast::ASTNode::Break {
         span: Span::unknown(),
     };
-    assert!(!ExprLowerer::<Pattern2ScopeManager>::is_supported_condition(&ast));
+    assert!(!ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(&ast));
 }
 
 // Phase 235: Additional patterns for condition lowering
 
-fn make_basic_scope() -> Pattern2ScopeManager<'static> {
+fn make_basic_scope() -> LoopBreakScopeManager<'static> {
     // NOTE: we leak these small envs for the duration of the test to satisfy lifetimes simply.
     // テスト専用なので許容する。
     let mut condition_env = ConditionEnv::new();
@@ -204,14 +198,12 @@ fn make_basic_scope() -> Pattern2ScopeManager<'static> {
         loop_var_id: ValueId(1),
         carriers: vec![],
         trim_helper: None,
-        promoted_loopbodylocals: vec![],
-        #[cfg(feature = "normalized_dev")]
-        promoted_bindings: std::collections::BTreeMap::new(),
+        promoted_body_locals: vec![],
     };
     let boxed_carrier: Box<CarrierInfo> = Box::new(carrier_info);
     let carrier_ref: &'static CarrierInfo = Box::leak(boxed_carrier);
 
-    Pattern2ScopeManager {
+    LoopBreakScopeManager {
         condition_env: condition_env_ref,
         loop_body_local_env: None,
         captured_env: None,
@@ -219,7 +211,7 @@ fn make_basic_scope() -> Pattern2ScopeManager<'static> {
     }
 }
 
-fn make_scope_with_p_and_s() -> Pattern2ScopeManager<'static> {
+fn make_scope_with_p_and_s() -> LoopBreakScopeManager<'static> {
     // Leak these tiny envs for test lifetime convenience only.
     let mut condition_env = ConditionEnv::new();
     condition_env.insert("p".to_string(), ValueId(1));
@@ -233,14 +225,12 @@ fn make_scope_with_p_and_s() -> Pattern2ScopeManager<'static> {
         loop_var_id: ValueId(1),
         carriers: vec![],
         trim_helper: None,
-        promoted_loopbodylocals: vec![],
-        #[cfg(feature = "normalized_dev")]
-        promoted_bindings: std::collections::BTreeMap::new(),
+        promoted_body_locals: vec![],
     };
     let boxed_carrier: Box<CarrierInfo> = Box::new(carrier_info);
     let carrier_ref: &'static CarrierInfo = Box::leak(boxed_carrier);
 
-    Pattern2ScopeManager {
+    LoopBreakScopeManager {
         condition_env: condition_env_ref,
         loop_body_local_env: None,
         captured_env: None,
@@ -384,12 +374,10 @@ fn test_expr_lowerer_pattern2_break_digit_pos_less_zero_generates_compare() {
         loop_var_id: ValueId(1),
         carriers: vec![],
         trim_helper: None,
-        promoted_loopbodylocals: vec![],
-        #[cfg(feature = "normalized_dev")]
-        promoted_bindings: std::collections::BTreeMap::new(),
+        promoted_body_locals: vec![],
     };
 
-    let scope = Pattern2ScopeManager {
+    let scope = LoopBreakScopeManager {
         condition_env: &condition_env,
         loop_body_local_env: None,
         captured_env: None,
@@ -401,8 +389,8 @@ fn test_expr_lowerer_pattern2_break_digit_pos_less_zero_generates_compare() {
     // digit_pos < 0
     let ast = bin(BinaryOperator::Less, var("digit_pos"), lit_i(0));
     assert!(
-        ExprLowerer::<Pattern2ScopeManager>::is_supported_condition(&ast),
-        "digit_pos < 0 should be supported in Pattern2 break condition"
+        ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(&ast),
+        "digit_pos < 0 should be supported in loop_break condition"
     );
 
     let mut expr_lowerer = ExprLowerer::new(&scope, ExprContext::Condition, &mut builder);
@@ -431,7 +419,7 @@ fn test_expr_lowerer_methodcall_unknown_method_is_rejected() {
     };
 
     assert!(
-        ExprLowerer::<Pattern2ScopeManager>::is_supported_condition(&ast),
+        ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(&ast),
         "MethodCall nodes should be routed to MethodCallLowerer for validation"
     );
 
@@ -451,8 +439,8 @@ fn test_expr_lowerer_supports_simple_header_condition_i_less_literal() {
     // header pattern: i < 10
     let ast = bin(BinaryOperator::Less, var("i"), lit_i(10));
     assert!(
-        ExprLowerer::<Pattern2ScopeManager>::is_supported_condition(&ast),
-        "i < 10 should be supported for Pattern2 header condition"
+        ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(&ast),
+        "i < 10 should be supported for loop_break header condition"
     );
 
     // lower and verify success
@@ -473,8 +461,8 @@ fn test_expr_lowerer_supports_header_condition_var_less_var() {
     // header pattern: i < n (variable vs variable)
     let ast = bin(BinaryOperator::Less, var("i"), var("j"));
     assert!(
-        ExprLowerer::<Pattern2ScopeManager>::is_supported_condition(&ast),
-        "i < n should be supported for Pattern2 header condition"
+        ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(&ast),
+        "i < n should be supported for loop_break header condition"
     );
 
     // lower and verify success
@@ -502,8 +490,8 @@ fn test_expr_lowerer_supports_header_condition_with_length_call() {
     let ast = bin(BinaryOperator::Less, var("p"), length_call);
 
     assert!(
-        ExprLowerer::<Pattern2ScopeManager>::is_supported_condition(&ast),
-        "p < s.length() should be supported for Pattern2 header condition"
+        ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(&ast),
+        "p < s.length() should be supported for loop_break header condition"
     );
 
     let scope = make_scope_with_p_and_s();

@@ -305,9 +305,7 @@ mod tests {
                 CarrierInit::FromHost,
             )],
             trim_helper: None,
-            promoted_loopbodylocals: vec![],
-            #[cfg(feature = "normalized_dev")]
-            promoted_bindings: std::collections::BTreeMap::new(),
+            promoted_body_locals: vec![],
         };
 
         let condition_bindings: BTreeSet<String> =
