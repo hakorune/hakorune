@@ -1,6 +1,6 @@
-//! Trim Pattern JoinIR Lowering
+//! Trim JoinIR Lowering
 //!
-//! Handles JoinIR-specific lowering for Trim patterns.
+//! Handles JoinIR-specific lowering for Trim routes.
 //! Responsible for:
 //! - Trim break condition generation
 //! - Carrier binding setup in ConditionEnv
@@ -10,9 +10,9 @@ use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::loop_pattern_detection::trim_loop_helper::TrimLoopHelper;
 use crate::mir::ValueId;
 
-pub(in crate::mir::builder) struct TrimPatternLowerer;
+pub(in crate::mir::builder) struct TrimLowerer;
 
-impl TrimPatternLowerer {
+impl TrimLowerer {
     /// Generate Trim-specific JoinIR break condition
     ///
     /// Replaces: break on (ch == " " || ...)
@@ -63,7 +63,7 @@ impl TrimPatternLowerer {
         // Get host ValueId for carrier
         let host_value_id = get_host_value(carrier_name).ok_or_else(|| {
             format!(
-                "[TrimPatternLowerer] Carrier '{}' not in variable_map",
+                "[TrimLowerer] Carrier '{}' not in variable_map",
                 carrier_name
             )
         })?;
@@ -123,7 +123,7 @@ mod tests {
     #[test]
     fn test_generate_trim_break_condition() {
         let helper = create_test_helper();
-        let result = TrimPatternLowerer::generate_trim_break_condition(&helper);
+        let result = TrimLowerer::generate_trim_break_condition(&helper);
 
         // Should be UnaryOp::Not
         match result {
@@ -158,7 +158,7 @@ mod tests {
         };
 
         let get_value = |name: &str| variable_map.get(name).copied();
-        let result = TrimPatternLowerer::setup_trim_carrier_binding(&helper, get_value, &mut alloc);
+        let result = TrimLowerer::setup_trim_carrier_binding(&helper, get_value, &mut alloc);
 
         assert!(result.is_ok());
         let binding = result.unwrap();
@@ -181,7 +181,7 @@ mod tests {
         };
 
         let get_value = |name: &str| variable_map.get(name).copied();
-        let result = TrimPatternLowerer::setup_trim_carrier_binding(&helper, get_value, &mut alloc);
+        let result = TrimLowerer::setup_trim_carrier_binding(&helper, get_value, &mut alloc);
 
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("not in variable_map"));
@@ -209,7 +209,7 @@ mod tests {
         };
 
         let result =
-            TrimPatternLowerer::add_to_condition_env(&helper, get_value, insert, &mut alloc);
+            TrimLowerer::add_to_condition_env(&helper, get_value, insert, &mut alloc);
 
         assert!(result.is_ok());
         let binding = result.unwrap();

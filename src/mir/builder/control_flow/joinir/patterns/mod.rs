@@ -32,8 +32,8 @@
 //! Phase 33-23: Pattern-Specific Analyzers (Stage 2)
 //!
 //! Stage 3 + Issue 1: Trim Route Extraction
-//! - trim_pattern_validator.rs: Trim pattern validation and whitespace check generation (moved to plan/)
-//! - trim_pattern_lowerer.rs: Trim-specific JoinIR lowering (moved to plan/)
+//! - trim_validator.rs: Trim whitespace validation and helper generation (moved to plan/)
+//! - trim_lowerer.rs: Trim-specific JoinIR lowering (moved to plan/)
 //!
 //! Phase 179-B: Generic Loop Framework
 //! - route_prep_pipeline.rs: Unified preprocessing pipeline for simple loop families (moved to plan/)

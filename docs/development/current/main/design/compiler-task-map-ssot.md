@@ -180,7 +180,7 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
    - Phase‑2/Step7: break-subset policy routing（old numbered label is traceability-only, current path `loop_break_policy_router.rs`）を plan 側へ移設。
    - Phase‑2/Step8: break-subset steps route（old numbered label is traceability-only, `loop_break_steps/`）を plan 側へ移設。
    - Phase‑2/Step9: `conversion_pipeline.rs` を plan 側へ移設。
-  - Phase‑2/Step10: trim 系（`trim_loop_lowering.rs` / `trim_pattern_lowerer.rs` / `trim_pattern_validator.rs`）を plan 側へ移設。
+  - Phase‑2/Step10: trim 系（`trim_loop_lowering.rs` / `trim_lowerer.rs` / `trim_validator.rs`）を plan 側へ移設。
   - Phase‑2/Step11: loop_true_counter_extractor を plan 側へ移設。
   - Phase‑2/Step12: loop_scope_shape_builder を plan 側へ移設。
   - Phase‑2/Step13: exit_binding 系（orchestrator/validator/constructor/applicator）を plan 側へ移設。

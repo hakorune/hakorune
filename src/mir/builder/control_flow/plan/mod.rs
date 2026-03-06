@@ -126,8 +126,8 @@ pub(in crate::mir::builder) mod read_digits_break_condition_box;
 pub(in crate::mir::builder) mod scan_loop_segments;
 // Phase 29bq+: Trim utilities moved to plan side
 pub(in crate::mir::builder) mod trim_loop_lowering;
-pub(in crate::mir::builder) mod trim_pattern_lowerer;
-pub(in crate::mir::builder) mod trim_pattern_validator;
+pub(in crate::mir::builder) mod trim_lowerer;
+pub(in crate::mir::builder) mod trim_validator;
 
 // Layer 6: Data Structures (データ構造)
 // CorePlan の構成要素

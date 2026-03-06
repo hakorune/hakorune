@@ -1,6 +1,6 @@
-//! Trim Pattern Validation
+//! Trim Validation
 //!
-//! Validates and prepares Trim pattern information for JoinIR lowering.
+//! Validates and prepares Trim route information for JoinIR lowering.
 //! Responsible for:
 //! - Safety checks on Trim pattern structure
 //! - Whitespace check generation
@@ -10,9 +10,9 @@ use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-pub(in crate::mir::builder) struct TrimPatternValidator;
+pub(in crate::mir::builder) struct TrimValidator;
 
-impl TrimPatternValidator {
+impl TrimValidator {
     /// Generate MIR for OR chain of whitespace character comparisons
     ///
     /// Creates: ch == " " || ch == "\t" || ch == "\n" || ch == "\r" ...
@@ -168,7 +168,7 @@ mod tests {
             span: Span::unknown(),
         }];
 
-        let result = TrimPatternValidator::extract_substring_args(&body, "ch");
+        let result = TrimValidator::extract_substring_args(&body, "ch");
         assert!(result.is_some());
         let (s_name, _) = result.unwrap();
         assert_eq!(s_name, "s");
@@ -178,7 +178,7 @@ mod tests {
     fn test_extract_substring_args_not_found() {
         // Empty body
         let body = vec![];
-        let result = TrimPatternValidator::extract_substring_args(&body, "ch");
+        let result = TrimValidator::extract_substring_args(&body, "ch");
         assert!(result.is_none());
     }
 
@@ -208,7 +208,7 @@ mod tests {
             span: Span::unknown(),
         }];
 
-        let result = TrimPatternValidator::extract_substring_args(&body, "ch");
+        let result = TrimValidator::extract_substring_args(&body, "ch");
         assert!(result.is_none());
     }
 
@@ -232,7 +232,7 @@ mod tests {
             span: Span::unknown(),
         }];
 
-        let result = TrimPatternValidator::extract_substring_args(&body, "ch");
+        let result = TrimValidator::extract_substring_args(&body, "ch");
         assert!(result.is_none());
     }
 }

@@ -390,13 +390,13 @@ impl TrimLoopLowerer {
         body: &[ASTNode],
         trim_helper: &crate::mir::loop_pattern_detection::trim_loop_helper::TrimLoopHelper,
     ) -> Result<(), String> {
-        use crate::mir::builder::control_flow::plan::trim_pattern_validator::TrimPatternValidator;
+        use crate::mir::builder::control_flow::plan::trim_validator::TrimValidator;
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
         let verbose = crate::config::env::joinir_dev_enabled() || trace.is_joinir_enabled();
 
         // Extract substring pattern from body
         let (s_name, start_expr) =
-            TrimPatternValidator::extract_substring_args(body, &trim_helper.original_var)
+            TrimValidator::extract_substring_args(body, &trim_helper.original_var)
                 .ok_or_else(|| {
                     format!(
                     "[TrimLoopLowerer] Failed to extract substring pattern for Trim carrier '{}'",
@@ -454,7 +454,7 @@ impl TrimLoopLowerer {
         );
 
         // Generate: is_ch_match0 = (ch0 == " " || ch0 == "\t" || ...)
-        let is_ch_match0 = TrimPatternValidator::emit_whitespace_check(
+        let is_ch_match0 = TrimValidator::emit_whitespace_check(
             builder,
             ch0,
             &trim_helper.whitespace_chars,
@@ -488,8 +488,8 @@ impl TrimLoopLowerer {
     fn generate_trim_break_condition(
         trim_helper: &crate::mir::loop_pattern_detection::trim_loop_helper::TrimLoopHelper,
     ) -> ASTNode {
-        use crate::mir::builder::control_flow::plan::trim_pattern_lowerer::TrimPatternLowerer;
-        TrimPatternLowerer::generate_trim_break_condition(trim_helper)
+        use crate::mir::builder::control_flow::plan::trim_lowerer::TrimLowerer;
+        TrimLowerer::generate_trim_break_condition(trim_helper)
     }
 
 
