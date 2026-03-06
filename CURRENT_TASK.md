@@ -342,6 +342,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{domainplan-thinning-ssot,condition-observation-ssot,coreloop-composer-v0-v1-boundary-ssot,coreplan-unknown-loop-strategy-ssot,joinir-plan-frag-ssot,loop-canonicalizer,plan-mod-layout-ssot}.md`
     - intent: current guidance から `PatternX` 主語を外し、route/capability/skeleton を本文の主語に寄せる。番号付き label は traceability-only note へ後退させる
     - verification: `rg -n "legacy label: PatternX|対応Pattern|選択された Pattern|Pattern 検出|Pattern1–N|Pattern1-9 は traceability-only legacy labels|Pattern6\\)|Pattern2/3/5/7" docs/development/current/main/design/{domainplan-thinning-ssot,condition-observation-ssot,coreloop-composer-v0-v1-boundary-ssot,coreplan-unknown-loop-strategy-ssot,joinir-plan-frag-ssot,loop-canonicalizer,plan-mod-layout-ssot}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 28): active design の stale migration prose / stale JoinIR map を current runtime に同期した
+    - synced files: `docs/development/current/main/design/{coreplan-migration-roadmap-ssot,joinir-design-map,condprofile-migration-plan-ssot,plan-dir-shallowing-ssot,generic-loop-v1-acceptance-by-recipe-ssot}.md`
+    - intent: `pattern5` などの stale route 名、removed `join_ir/normalized` lane、`pattern1/8/9 facts` の旧語彙を current route tree / recipe-first runtime に合わせる
+    - verification: `rg -n "pattern5|JoinIR \\(Normalized\\)|join_ir/normalized/shape_guard|Pattern router|pattern1 / pattern8 / pattern9 facts|legacy label: Pattern1|legacy label: PatternX" docs/development/current/main/design/{coreplan-migration-roadmap-ssot,joinir-design-map,condprofile-migration-plan-ssot,plan-dir-shallowing-ssot,generic-loop-v1-acceptance-by-recipe-ssot}.md` = 0 hit
 
 ## next fixed order (resume point)
 

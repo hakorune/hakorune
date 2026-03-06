@@ -29,7 +29,7 @@ Related:
 
 ## 1. “CorePlan で組み立てる” の定義
 
-ここでの完了は「legacy label: PatternX の列挙が消えた」ではなく、以下が成立していること。
+ここでの完了は「legacy numbered labels の列挙が消えた」ではなく、以下が成立していること。
 
 - 構造SSOTは `CorePlan`（emit/merge は CorePlan/Frag 以外を再解析しない）
 - `Facts → Recipe → Verifier → Parts/Lower → emit → merge` が主経路
@@ -45,7 +45,7 @@ Within Phase 29bq (expressivity-first):
   - SSOT: `docs/development/current/main/design/coreloop-stepmode-inline-in-body-ssot.md`
 
 Recent (done):
-- Plan decomposition: `generic_loop` / `scan_with_init` / `split_scan` / `pattern5` / `loop_true` / `loop_cond` は skeleton+pipeline+feature helper へ移行済み（legacy label: PatternX 依存を増やさず、release 既定不変、gate green 維持）。
+- Plan decomposition: `generic_loop` / `scan_with_init` / `split_scan` / `loop_true_early_exit` / `loop_true_break_continue` / `loop_cond` は skeleton+pipeline+feature helper へ移行済み（legacy numbered labels 依存を増やさず、release 既定不変、gate green 維持）。
 
 Candidate next (after selfhost canary / Stage-1):
 - Remaining compatibility-lane normalizers の lego-ization（pipeline/skeleton/feature 化）: `src/mir/builder/control_flow/plan/REGISTRY.md` の “Remaining legacy normalizers” table を SSOT として進める
@@ -96,7 +96,7 @@ Candidate next (after selfhost canary / Stage-1):
 ### Step B: Facts / Recipe を Skeleton+Feature の SSOTへ寄せる
 
 狙い:
-- traceability-only legacy label（Pattern1/2/4/5 など）を current route semantics の主語に戻さない
+- traceability-only legacy numbered label（Pattern1/2/4/5 など）を current route semantics の主語に戻さない
 - `LoopSkeleton + ExitMap + ValueJoin + ...` の合成で表現できる状態に寄せる
 
 やらない:
@@ -138,10 +138,10 @@ Candidate next (after selfhost canary / Stage-1):
 
 最低限の Done:
 - JoinIR 回帰 SSOT が緑: `phase29ae_regression_pack_vm.sh`
-- 回帰対象（現状の gate: pattern2/6/7 + phase1883 + phase263）が “CorePlan 合成” 経路で通る
+- 回帰対象（現状の gate: loop_break / scan_with_init / split_scan smoke 群 + phase1883 + phase263）が “CorePlan 合成” 経路で通る
 
 強い Done（段階2）:
-- Facts が complete route（legacy label: PatternX）を増やさず Skeleton+Feature に寄っている
+- Facts が route-specific complete variants を増やさず Skeleton+Feature に寄っている
 - scan/split/predicate 等の algorithm intent は Recipe/feature として表現され、historical planner-payload wording は移行履歴に限定される
 - Freeze taxonomy が運用でぶれず、strict/dev の診断が安定タグで追える
 

@@ -28,7 +28,7 @@
 
 ## Current Layout (深い階層の代表例)
 
-### 深さ4の例: break-on-condition facts ルート（legacy label: Pattern2）
+### 深さ4の例: loop_break facts ルート（legacy numbered label is traceability-only）
 
 ```
 facts/loop_break_facts/
@@ -45,7 +45,7 @@ facts/loop_break_facts/
   └── types.rs
 ```
 
-**→ 提案**: break-on-condition facts を `facts/loop_break_*.rs` へ集約 (12ファイルをフラット化、legacy label: Pattern2)
+**→ 提案**: loop_break facts を `facts/loop_break_*.rs` へ集約 (12ファイルをフラット化、旧 numbered label は traceability-only)
 
 ### 深さ4の例: features/loop_cond_break_continue_pipeline/item_lowering/
 
@@ -365,7 +365,7 @@ loop_*_v0_recipe.rs
 **リスク**: ディレクトリ構造から意図が読めなくなる
 
 **対策**:
-- ファイル名で route 意味を明示（必要時は legacy label: PatternX を併記）
+- ファイル名で route 意味を明示（必要時は legacy numbered label を併記）
 - 各カテゴリの `mod.rs` にコメントを追加
 
 ---

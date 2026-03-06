@@ -134,7 +134,7 @@ Failure handling (design-only):
 ## Target Order (SSOT)
 
 1) scan_shapes (ConditionShape / StepShape)
-2) pattern1 / pattern8 / pattern9 facts
+2) loop_char_map / loop_array_join / bool_predicate_scan / accum_const_loop facts
 3) generic_loop v1 (only after scan_shapes is stabilized)
 
 ## Migration Tables (SSOT)
