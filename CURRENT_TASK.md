@@ -393,6 +393,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - naming cleanup (2026-03-07, slice 40): `loop_canonicalizer` と近傍 lower comment の current-facing `Pattern` wording を route-shape 主語へ寄せた
   - naming cleanup (2026-03-07, slice 41): `normalization` と canonicalizer/bridge tests の current-facing `Pattern` wording を route-shape 主語へ寄せた
   - naming cleanup (2026-03-07, slice 42): `pattern_recognizers` と generic-loop shape detector の current-facing `Pattern` prose を route-shape 主語へ寄せた
+  - naming cleanup (2026-03-07, slice 43): `pattern_recognizers` の current module surface を `route_shape_recognizers` に切り替え、legacy directory 名を on-disk residue に後退させた
+    - synced files: `src/mir/builder/control_flow/plan/{mod.rs,ast_feature_extractor.rs}` / `docs/development/current/main/design/{plan-mod-layout-ssot,compiler-task-map-ssot}.md`
+    - intent: current code/docs では semantic module surface を `route_shape_recognizers` に固定し、`pattern_recognizers/` は physical path traceability に限定する
+    - verification: `rg -n "mod pattern_recognizers|use .*pattern_recognizers|pattern_recognizers::|pattern_recognizers - route recognizers" src/mir/builder/control_flow/plan docs/development/current/main/design/{plan-mod-layout-ssot,compiler-task-map-ssot}.md` = physical path note only
     - synced files: `src/mir/builder/control_flow/plan/pattern_recognizers/{mod,parse_number,parse_string,skip_whitespace,if_else_phi}.rs` / `src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/{basic,accum,complex_parsers}.rs` / `src/mir/builder/control_flow/plan/generic_loop/README.md`
     - intent: active recognizer/detector prose では `Pattern` を architecture の主語にせず、route shape / shape detector / legacy file name 注記に縮退する
     - verification: `rg -n "Pattern Recognizers Module|Pattern Detection|pattern-specific semantics|^/// Pattern:|Recognized patterns|pattern analyzers|if-sum patterns|loop pattern\\.|int_to_str loop pattern" src/mir/builder/control_flow/plan/pattern_recognizers src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors src/mir/builder/control_flow/plan/generic_loop/README.md` = 0 hit

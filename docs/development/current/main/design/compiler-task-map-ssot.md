@@ -186,7 +186,7 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
   - Phase‑2/Step13: exit_binding 系（orchestrator/validator/constructor/applicator）を plan 側へ移設。
   - Phase‑2/Step14: condition_env_builder を plan 側へ移設。
   - Phase‑2/Step15: ast_feature_extractor / escape_pattern_recognizer を plan 側へ移設。
-  - Phase‑2/Step16: pattern_recognizers/ を plan 側へ移設。
+  - Phase‑2/Step16: route_shape_recognizers（legacy on-disk dir: `pattern_recognizers/`）を plan 側へ移設。
   - Phase‑2/Step17: policies/ を plan 側へ移設。
   - Phase‑2/Step18: common_init + common/ を plan 側へ移設。
   - Phase‑2/Step19: read_digits_break_condition_box を plan 側へ移設。

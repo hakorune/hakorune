@@ -1,6 +1,6 @@
 //! Phase 193: AST Feature Extractor Box
 //!
-//! Phase 287 P1: Facade pattern - re-exports recognizers from pattern_recognizers/
+//! Phase 287 P1: Facade pattern - re-exports recognizers from route_shape_recognizers
 //!
 //! Modularized feature extraction from loop AST nodes.
 //! Separated from router.rs to improve reusability and testability.
@@ -15,7 +15,7 @@
 //!   route expansions, and route-shape analysis tools
 //! - **Independent testability**: Can be unit tested without MirBuilder context
 //! - **Extension-friendly**: Easy to add new feature detection methods
-//! - **Facade pattern**: Re-exports from pattern_recognizers/ for backward compatibility
+//! - **Facade pattern**: Re-exports from `route_shape_recognizers` for backward compatibility
 //!
 //! # Phase 33-23: Refactoring
 //!
@@ -25,7 +25,7 @@
 //!
 //! # Phase 287 P1: Modularization
 //!
-//! - Individual recognizers extracted to `pattern_recognizers/` subdirectory
+//! - Individual recognizers extracted to `route_shape_recognizers` (legacy on-disk dir: `pattern_recognizers/`)
 //! - This file now acts as a facade, re-exporting public APIs
 //! - Internal implementation moved to specialized modules
 //!
@@ -40,35 +40,35 @@ use crate::ast::ASTNode;
 use crate::mir::loop_pattern_detection::LoopFeatures;
 
 // Phase 287 P1: Use recognizer modules from parent
-use super::pattern_recognizers;
+use super::route_shape_recognizers;
 
 // Re-export continue/break/return detection
-pub(crate) use pattern_recognizers::continue_break::{
+pub(crate) use route_shape_recognizers::continue_break::{
     detect_break_in_body, detect_continue_in_body, detect_return_in_body,
     find_first_control_flow_stmt,
 };
 
 // Re-export infinite loop detection
-use pattern_recognizers::infinite_loop::detect_infinite_loop;
+use route_shape_recognizers::infinite_loop::detect_infinite_loop;
 
 // Re-export if-else phi detection
-use pattern_recognizers::if_else_phi::detect_if_else_phi_in_body;
+use route_shape_recognizers::if_else_phi::detect_if_else_phi_in_body;
 
 // Re-export carrier count estimation
-use pattern_recognizers::carrier_count::count_carriers_in_body;
+use route_shape_recognizers::carrier_count::count_carriers_in_body;
 
 // Re-export parse_number pattern detection
-pub use pattern_recognizers::parse_number::{
+pub use route_shape_recognizers::parse_number::{
     detect_parse_number_pattern, detect_read_digits_loop_true_pattern,
 };
 
 // Re-export parse_string pattern detection
-pub use pattern_recognizers::parse_string::{
+pub use route_shape_recognizers::parse_string::{
     detect_continue_pattern, detect_parse_string_pattern,
 };
 
 // Re-export skip_whitespace pattern detection
-pub use pattern_recognizers::skip_whitespace::detect_skip_whitespace_pattern;
+pub use route_shape_recognizers::skip_whitespace::detect_skip_whitespace_pattern;
 
 // Re-export escape pattern recognizer (existing module, not moved in P1)
 pub use super::escape_pattern_recognizer::detect_escape_skip_pattern;
