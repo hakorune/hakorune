@@ -1,4 +1,4 @@
-//! Phase 259 P0: Pattern 8 (BoolPredicateScan) JoinIR Lowerer
+//! Phase 259 P0: bool_predicate_scan JoinIR Lowerer
 //!
 //! Target: apps/tests/phase259_p0_is_integer_min.hako
 //!
@@ -43,7 +43,7 @@ use crate::mir::join_ir::{
     UnaryOp,
 };
 
-/// Lower Pattern 8 (BoolPredicateScan) to JoinIR
+/// Lower the bool_predicate_scan route to JoinIR
 ///
 /// # Arguments
 ///
@@ -244,10 +244,14 @@ pub(crate) fn lower_scan_bool_predicate_minimal(
 
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug("[joinir/pattern8] Generated JoinIR for BoolPredicateScan Pattern");
-        ring0.log.debug("[joinir/pattern8] Functions: main, loop_step, k_exit");
+        ring0
+            .log
+            .debug("[joinir/bool_predicate_scan] Generated JoinIR for bool_predicate_scan route");
+        ring0
+            .log
+            .debug("[joinir/bool_predicate_scan] Functions: main, loop_step, k_exit");
         ring0.log.debug(&format!(
-            "[joinir/pattern8] Predicate: {}.{}",
+            "[joinir/bool_predicate_scan] Predicate: {}.{}",
             predicate_receiver, predicate_method
         ));
     }

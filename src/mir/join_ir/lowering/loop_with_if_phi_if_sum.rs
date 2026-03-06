@@ -1,8 +1,9 @@
-//! Phase 213: Pattern 3 if-sum AST-based lowerer
+//! Phase 213: if_phi_join if-sum AST-based lowerer
 //!
-//! This module implements AST-based JoinIR lowering for "simple if-sum" patterns.
+//! This module implements AST-based JoinIR lowering for a simple if-sum
+//! branch inside the `if_phi_join` route.
 //!
-//! # Target Pattern
+//! # Target Route Shape
 //!
 //! ```nyash
 //! loop(i < len) {
@@ -16,7 +17,7 @@
 //! # Design Philosophy
 //!
 //! - **AST-driven**: Loop condition, if condition, and updates extracted from AST
-//! - **80/20 rule**: Only handles simple patterns, rejects complex ones (Fail-Fast)
+//! - **80/20 rule**: Only handles simple route shapes, rejects complex ones (Fail-Fast)
 //! - **Reuses existing infrastructure**: JoinValueSpace, ExitMeta, CarrierInfo
 //!
 //! # Comparison with Legacy PoC
@@ -45,7 +46,7 @@ use crate::mir::join_ir::{
 };
 use crate::mir::ValueId;
 
-/// Phase 213: Lower if-sum pattern to JoinIR using AST
+/// Phase 213: Lower an if-sum shape inside the if_phi_join route to JoinIR using AST
 ///
 /// # Arguments
 ///
@@ -58,7 +59,7 @@ use crate::mir::ValueId;
 /// # Returns
 ///
 /// * `Ok((JoinModule, JoinFragmentMeta))` - JoinIR module with exit metadata
-/// * `Err(String)` - Pattern not supported or extraction failed
+/// * `Err(String)` - Route shape not supported or extraction failed
 /// Phase 256.7: Condition binding for if-sum lowerer
 /// Maps a variable name to its JoinIR ValueId (used for main() params)
 pub struct IfSumConditionBinding {
@@ -75,7 +76,7 @@ pub fn lower_if_sum_pattern(
     condition_bindings: &[IfSumConditionBinding], // Phase 256.7: External variable bindings
 ) -> Result<(JoinModule, JoinFragmentMeta), String> {
     // Phase 252 P1: Use DebugOutputBox for unified trace output
-    let trace = DebugOutputBox::new_dev("joinir/pattern3/if-sum");
+    let trace = DebugOutputBox::new_dev("joinir/if_phi_join/if_sum");
     trace.log("start", "Starting AST-based if-sum lowering");
 
     // Allocator for extracting condition values
@@ -770,7 +771,7 @@ mod tests {
 
     #[test]
     fn if_sum_lowering_supports_i_mod_2_eq_1_filter() {
-        // Pattern3/4 で使う複雑条件 (i % 2 == 1) が JoinIR に落ちることを確認
+        // if_phi_join / loop_continue_only で使う複雑条件 (i % 2 == 1) が JoinIR に落ちることを確認
         let mut join_value_space = JoinValueSpace::new();
         let mut cond_env = ConditionEnv::new();
         let i_id = join_value_space.alloc_param();

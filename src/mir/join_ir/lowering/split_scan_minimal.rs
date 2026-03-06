@@ -1,4 +1,4 @@
-//! Phase 256 P0: Pattern 7 (SplitScan) Minimal Lowerer
+//! Phase 256 P0: split_scan Minimal Lowerer
 //!
 //! Target: apps/tests/phase256_p0_split_min.hako
 //!
@@ -78,7 +78,7 @@ use crate::mir::join_ir::{
 };
 use crate::runtime::get_global_ring0;
 
-/// Lower Pattern 7 (SplitScan) to JoinIR
+/// Lower the split_scan route to JoinIR
 ///
 /// # Phase 256 P0: Pure JoinIR Fragment Generation
 ///
@@ -377,16 +377,16 @@ pub(crate) fn lower_split_scan_minimal(
         let ring0 = get_global_ring0();
         ring0
             .log
-            .debug("[joinir/pattern7] Generated JoinIR for SplitScan Pattern");
+            .debug("[joinir/split_scan] Generated JoinIR for split_scan route");
         ring0
             .log
-            .debug("[joinir/pattern7] Functions: main, loop_step, k_exit");
+            .debug("[joinir/split_scan] Functions: main, loop_step, k_exit");
         ring0
             .log
-            .debug("[joinir/pattern7] Variables: 5 (i, result, s, sep, start)");
+            .debug("[joinir/split_scan] Variables: 5 (i, result, s, sep, start)");
         ring0
             .log
-            .debug("[joinir/pattern7] Conditional step: Select-based (P0)");
+            .debug("[joinir/split_scan] Conditional step: Select-based (P0)");
     }
 
     join_module

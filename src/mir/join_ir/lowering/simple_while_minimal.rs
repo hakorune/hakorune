@@ -1,4 +1,4 @@
-//! Phase 188-Impl-1: Pattern 1 (Simple While Loop) Minimal Lowerer
+//! Phase 188-Impl-1: loop_simple_while Minimal Lowerer
 //!
 //! Target: apps/tests/loop_min_while.hako
 //!
@@ -37,7 +37,7 @@
 //! ## Design Notes
 //!
 //! This is a MINIMAL implementation targeting loop_min_while.hako specifically.
-//! It establishes the infrastructure for Pattern 1 lowering, which will be
+//! It establishes the infrastructure for loop_simple_while lowering, which will be
 //! generalized in future phases.
 //!
 //! Following the "80/20 rule" from CLAUDE.md - get it working first, generalize later.
@@ -51,7 +51,7 @@ use crate::mir::join_ir::{
 };
 use crate::runtime::get_global_ring0;
 
-/// Lower Pattern 1 (Simple While Loop) to JoinIR
+/// Lower the loop_simple_while route to JoinIR
 ///
 /// # Phase 188-Impl-3: Pure JoinIR Fragment Generation
 /// # Phase 202-A: JoinValueSpace Integration
@@ -79,7 +79,7 @@ use crate::runtime::get_global_ring0;
 /// # Returns
 ///
 /// * `Some(JoinModule)` - Successfully lowered to JoinIR
-/// * `None` - Pattern not matched (fallback to other lowerers)
+/// * `None` - Route not matched (fallback to other lowerers)
 ///
 /// # Boundary Contract
 ///
@@ -248,10 +248,10 @@ pub(crate) fn lower_simple_while_minimal(
         let ring0 = get_global_ring0();
         ring0
             .log
-            .debug("[joinir/pattern1] Generated JoinIR for Simple While Pattern");
+            .debug("[joinir/loop_simple_while] Generated JoinIR for loop_simple_while route");
         ring0
             .log
-            .debug("[joinir/pattern1] Functions: main, loop_step, k_exit");
+            .debug("[joinir/loop_simple_while] Functions: main, loop_step, k_exit");
     }
 
     Some(join_module)

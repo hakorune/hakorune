@@ -1,4 +1,4 @@
-//! Phase 257 P0: Pattern 6 Reverse Scan Lowerer (last_index_of)
+//! Phase 257 P0: scan_with_init reverse lowerer (last_index_of)
 //!
 //! Target: apps/tests/phase257_p0_last_index_of_min.hako
 //!
@@ -55,7 +55,7 @@ use crate::mir::join_ir::{
 };
 use crate::runtime::get_global_ring0;
 
-/// Lower Pattern 6 Reverse Scan to JoinIR
+/// Lower the reverse scan_with_init route to JoinIR
 ///
 /// # Phase 257 P0: Reverse scan (backward iteration)
 ///
@@ -267,13 +267,13 @@ pub(crate) fn lower_scan_with_init_reverse(
         let ring0 = get_global_ring0();
         ring0
             .log
-            .debug("[joinir/pattern6] Generated JoinIR for ScanWithInit Reverse Pattern");
+            .debug("[joinir/scan_with_init] Generated JoinIR for reverse scan_with_init route");
         ring0
             .log
-            .debug("[joinir/pattern6] Functions: main, loop_step, k_exit");
+            .debug("[joinir/scan_with_init] Functions: main, loop_step, k_exit");
         ring0
             .log
-            .debug("[joinir/pattern6] Direction: Reverse (i >= 0, i = i - 1)");
+            .debug("[joinir/scan_with_init] Direction: Reverse (i >= 0, i = i - 1)");
     }
 
     join_module

@@ -13,16 +13,16 @@
 //! ## Usage
 //! ```rust,ignore
 //! // Before:
-//! return Err(format!("[joinir/freeze] Pattern not supported: {}", reason));
+//! return Err(format!("[joinir/freeze] route not supported: {}", reason));
 //!
 //! // After:
 //! use crate::mir::join_ir::lowering::error_tags;
-//! return Err(error_tags::freeze(&format!("Pattern not supported: {}", reason)));
+//! return Err(error_tags::freeze(&format!("route not supported: {}", reason)));
 //! ```
 
-/// JoinIR freeze error - Pattern not supported by current lowering implementation
+/// JoinIR freeze error - route not supported by current lowering implementation
 ///
-/// Used when a JoinIR pattern cannot be lowered to MIR due to limitations
+/// Used when a JoinIR route cannot be lowered to MIR due to limitations
 /// in the current implementation.
 ///
 /// # Example
@@ -85,20 +85,20 @@ pub fn ownership_relay_unsupported(diagnostic: &str) -> String {
     format!("[ownership/relay:runtime_unsupported] {}", diagnostic)
 }
 
-/// Pattern detection failure - JoinIR pattern could not be classified
+/// Route detection failure - JoinIR route could not be classified
 ///
-/// Used when pattern detection fails to match a loop structure to any
-/// known Pattern 1-4 template.
+/// Used when route detection fails to match a loop structure to any
+/// known lowering route.
 ///
 /// # Example
 /// ```rust,ignore
-/// return Err(pattern_detection_failed("pattern3", "Missing if-phi"));
-/// // Output: "[joinir/pattern/pattern3] Detection failed: Missing if-phi"
+/// return Err(route_detection_failed("if_phi_join", "Missing if-phi"));
+/// // Output: "[joinir/route/if_phi_join] Detection failed: Missing if-phi"
 /// ```
-pub fn pattern_detection_failed(pattern_name: &str, reason: &str) -> String {
+pub fn route_detection_failed(route_name: &str, reason: &str) -> String {
     format!(
-        "[joinir/pattern/{}] Detection failed: {}",
-        pattern_name, reason
+        "[joinir/route/{}] Detection failed: {}",
+        route_name, reason
     )
 }
 
@@ -167,9 +167,9 @@ mod tests {
     }
 
     #[test]
-    fn test_pattern_detection_failed_tag() {
-        let err = pattern_detection_failed("pattern2", "Missing break");
-        assert!(err.contains("[joinir/pattern/pattern2]"));
+    fn test_route_detection_failed_tag() {
+        let err = route_detection_failed("loop_break", "Missing break");
+        assert!(err.contains("[joinir/route/loop_break]"));
         assert!(err.contains("Detection failed"));
         assert!(err.contains("Missing break"));
     }

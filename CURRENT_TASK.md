@@ -139,6 +139,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - verification: `rg -n "Pattern(IsInteger|StartsWith|IntToStr|EscapeMap|SplitLines|SkipWs)|pattern_(is_integer|starts_with|int_to_str|escape_map|split_lines|skip_ws)" src/mir/builder/control_flow/plan docs/development/current/main/design CURRENT_TASK.md -g '!**/*history*' -g '!**/*archive*'` = 0 hit
   - `LoopPatternKind::{LoopSimpleWhile,NestedLoopMinimal}` へ active enum variant を semantic 化済み。classifier/router/loop_context/loop_canonicalizer/tests と active docs（`domainplan-thinning-ssot.md`, `coreplan-skeleton-feature-model.md`）も同期した
   - verification: `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `rg -n "Pattern1SimpleWhile|Pattern6NestedLoopMinimal" src CURRENT_TASK.md docs/development/current/main/design/domainplan-thinning-ssot.md docs/development/current/main/design/coreplan-skeleton-feature-model.md` = 0 hit
+  - `src/mir/join_ir/lowering/**` の live `joinir/patternN` debug/error tags を route 主語へ同期済み（`simple_while_minimal` / `scan_with_init_{minimal,reverse}` / `split_scan_minimal` / `scan_bool_predicate_minimal` / `loop_with_if_phi_if_sum` / `error_tags`）。history/traceability docs と legacy smoke 名はこの slice では不変
   - active docs の `Pattern3/4` current-looking wording をさらに薄くし、`strict-nested-loop-guard` は actual route_kind `LoopContinueOnly` へ同期済み
   - verification: `cargo build --release --bin hakorune` PASS / `cargo check --tests` PASS / `cargo test --lib extract_loop_break_parse_integer_subset` PASS / `cargo test --lib loop_break_body_local_facts_detect_trim_seg` PASS / `cargo test --lib coreloop_v1_composes_loop_break_with_value_join` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
   - verification: `rg -n 'pattern2_break_types|Pattern2BreakFacts|pattern2_loopbodylocal_facts|Pattern2LoopBodyLocalFacts|pattern2_break:|pattern2_loopbodylocal:' src/mir/builder/control_flow/plan src/mir/builder/control_flow/joinir CURRENT_TASK.md docs/development/current/main/design/plan-dir-shallowing-ssot.md docs/development/current/main/design/pattern-naming-migration-ssot.md` = migration-doc example rows only
@@ -189,6 +190,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced code comments: `src/mir/policies/post_loop_early_return_plan.rs` / `src/mir/policies/balanced_depth_scan.rs` / `src/mir/loop_pattern_detection/legacy/trim_loop_helper.rs` / `src/mir/join_ir/mod.rs`
     - intent: active prose では route/semantic 名を主語にし、legacy labels は traceability-only 説明へ後退
     - verification: targeted grep on synced docs shows expected traceability-only hits; `cargo build --release --bin hakorune` PASS
+  - naming cleanup (2026-03-06, slice 5): active JoinIR lowering の live debug/error tags を route 主語へ同期した
+    - synced files: `src/mir/join_ir/lowering/error_tags.rs` / `simple_while_minimal.rs` / `scan_with_init_minimal.rs` / `scan_with_init_reverse.rs` / `split_scan_minimal.rs` / `scan_bool_predicate_minimal.rs` / `loop_with_if_phi_if_sum.rs`
+    - intent: active `joinir/patternN` tags を `joinir/<route>` / `joinir/route/<route>` へ寄せ、近傍の current-looking `Pattern N` wording も semantic route 名へ同期する
+    - verification: `cargo test --lib test_route_detection_failed_tag` PASS / `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
+    - verification: `rg -n "joinir/pattern[1-9]|\\[joinir/pattern/|Pattern [13678]|Pattern[13678]" src/mir/join_ir/lowering/error_tags.rs src/mir/join_ir/lowering/simple_while_minimal.rs src/mir/join_ir/lowering/scan_with_init_minimal.rs src/mir/join_ir/lowering/scan_with_init_reverse.rs src/mir/join_ir/lowering/split_scan_minimal.rs src/mir/join_ir/lowering/scan_bool_predicate_minimal.rs src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs` = 0 hit
 
 ## next fixed order (resume point)
 

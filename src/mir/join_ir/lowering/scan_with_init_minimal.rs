@@ -1,4 +1,4 @@
-//! Phase 254 P1: Pattern 6 (ScanWithInit) Minimal Lowerer
+//! Phase 254 P1: scan_with_init Minimal Lowerer
 //!
 //! Target: apps/tests/phase254_p0_index_of_min.hako
 //!
@@ -63,7 +63,7 @@ use crate::mir::join_ir::{
 };
 use crate::runtime::get_global_ring0;
 
-/// Lower Pattern 6 (ScanWithInit) to JoinIR
+/// Lower the scan_with_init route to JoinIR
 ///
 /// # Phase 254 P1: Pure JoinIR Fragment Generation
 ///
@@ -73,7 +73,7 @@ use crate::runtime::get_global_ring0;
 ///
 /// ## Design Philosophy
 ///
-/// Following Pattern 1's architecture:
+/// Following the loop_simple_while lowerer's architecture:
 /// - **Pure transformer**: No side effects, only JoinIR generation
 /// - **Reusable**: Works in any context with proper boundary
 /// - **Testable**: Can test JoinIR independently
@@ -352,13 +352,13 @@ pub(crate) fn lower_scan_with_init_minimal(
         let ring0 = get_global_ring0();
         ring0
             .log
-            .debug("[joinir/pattern6] Generated JoinIR for ScanWithInit Pattern");
+            .debug("[joinir/scan_with_init] Generated JoinIR for scan_with_init route");
         ring0
             .log
-            .debug("[joinir/pattern6] Functions: main, loop_step, k_exit");
+            .debug("[joinir/scan_with_init] Functions: main, loop_step, k_exit");
         ring0
             .log
-            .debug("[joinir/pattern6] BoxCall: substring (init-time, not condition whitelist)");
+            .debug("[joinir/scan_with_init] BoxCall: substring (init-time, not condition whitelist)");
     }
 
     join_module
