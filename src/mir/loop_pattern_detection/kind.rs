@@ -14,22 +14,22 @@ pub enum LoopPatternKind {
     /// - No continue statements
     LoopBreak,
 
-    /// Pattern 3: Loop with If-Else PHI
+    /// IfPhiJoin route family (historical Pattern 3)
     /// - Has if-else statement with PHI
     /// - No break, no continue
     /// - Multiple carrier variables
     IfPhiJoin,
 
-    /// Pattern 4: Loop with Continue
+    /// LoopContinueOnly route family (historical Pattern 4)
     /// - Has continue statement(s)
     /// - No break statements (for simplicity)
     LoopContinueOnly,
 
-    /// Pattern 5: Infinite Loop with Early Exit (Phase 131-11)
+    /// LoopTrueEarlyExit route family (historical Pattern 5, Phase 131-11)
     /// - Infinite loop: condition is `loop(true)`
     /// - Has both break AND continue
     /// - Minimal carrier (1 counter-like variable)
-    InfiniteEarlyExit,
+    LoopTrueEarlyExit,
 
     /// NestedLoopMinimal route family (historical Pattern 6) - Phase 188.1
     /// - Outer loop: loop_simple_while-compatible
@@ -38,7 +38,7 @@ pub enum LoopPatternKind {
     /// - No break/continue in either loop
     NestedLoopMinimal,
 
-    /// Pattern not recognized
+    /// Route family not recognized
     Unknown,
 }
 
@@ -46,13 +46,13 @@ impl LoopPatternKind {
     /// Phase 193-3: Get human-readable route name.
     pub fn name(&self) -> &'static str {
         match self {
-            LoopPatternKind::LoopSimpleWhile => "Pattern 1: Simple While Loop",
+            LoopPatternKind::LoopSimpleWhile => "LoopSimpleWhile",
             LoopPatternKind::LoopBreak => "LoopBreak",
-            LoopPatternKind::IfPhiJoin => "Pattern 3: Loop with If-Else PHI",
-            LoopPatternKind::LoopContinueOnly => "Pattern 4: Loop with Continue",
-            LoopPatternKind::InfiniteEarlyExit => "Pattern 5: Infinite Loop with Early Exit",
-            LoopPatternKind::NestedLoopMinimal => "Pattern 6: Nested Loop (1-level minimal)",
-            LoopPatternKind::Unknown => "Unknown Loop Shape",
+            LoopPatternKind::IfPhiJoin => "IfPhiJoin",
+            LoopPatternKind::LoopContinueOnly => "LoopContinueOnly",
+            LoopPatternKind::LoopTrueEarlyExit => "LoopTrueEarlyExit",
+            LoopPatternKind::NestedLoopMinimal => "NestedLoopMinimal",
+            LoopPatternKind::Unknown => "UnknownLoopShape",
         }
     }
 
@@ -65,13 +65,13 @@ impl LoopPatternKind {
             LoopPatternKind::LoopBreak => "LoopBreakRecipe",
             LoopPatternKind::IfPhiJoin => "IfPhiJoin",
             LoopPatternKind::LoopContinueOnly => "LoopContinueOnly",
-            LoopPatternKind::InfiniteEarlyExit => "LoopTrueEarlyExit",
+            LoopPatternKind::LoopTrueEarlyExit => "LoopTrueEarlyExit",
             LoopPatternKind::NestedLoopMinimal => "NestedLoopMinimal",
             LoopPatternKind::Unknown => "UnknownLoopShape",
         }
     }
 
-    /// Phase 193-3: Get numeric pattern ID
+    /// Phase 193-3: Get historical numeric route ID
     ///
     /// Returns the pattern number (1-5) or 0 for unknown.
     /// Useful for priority sorting.
@@ -81,28 +81,28 @@ impl LoopPatternKind {
             LoopPatternKind::LoopBreak => 2,
             LoopPatternKind::IfPhiJoin => 3,
             LoopPatternKind::LoopContinueOnly => 4,
-            LoopPatternKind::InfiniteEarlyExit => 5,
+            LoopPatternKind::LoopTrueEarlyExit => 5,
             LoopPatternKind::NestedLoopMinimal => 6,
             LoopPatternKind::Unknown => 0,
         }
     }
 
-    /// Phase 193-3: Check if this is a recognized pattern
+    /// Phase 193-3: Check if this is a recognized route family
     ///
     /// Returns false only for Unknown.
     pub fn is_recognized(&self) -> bool {
         !matches!(self, LoopPatternKind::Unknown)
     }
 
-    /// Phase 193-3: Check if route family has special control flow
+    /// Phase 193-3: Check if route family has special control flow.
     ///
-    /// Returns true if pattern involves break or continue.
+    /// Returns true if the route involves break or continue.
     pub fn has_special_control_flow(&self) -> bool {
         matches!(
             self,
             LoopPatternKind::LoopBreak
                 | LoopPatternKind::LoopContinueOnly
-                | LoopPatternKind::InfiniteEarlyExit
+                | LoopPatternKind::LoopTrueEarlyExit
         )
     }
 

@@ -1,17 +1,18 @@
-//! # Loop Pattern JoinIR Lowering Router
+//! # Loop Route JoinIR Lowering Router
 //!
 //! **Phase 33-12 Modularization**: Extracted from `mod.rs` (lines 424-511)
 //!
 //! ## Responsibility
-//! Routes loop patterns to appropriate JoinIR lowering strategies.
+//! Routes loop route families to appropriate JoinIR lowering strategies.
 //! This is the **main entry point** for loop → JoinIR lowering.
 //!
 //! ## Route Dispatch
 //! Routes to:
-//! - Pattern 1 / `LoopSimpleWhile`: `loop_patterns::simple_while` (no break/continue)
+//! - `LoopSimpleWhile`: `loop_patterns::simple_while` (no break/continue)
 //! - `LoopBreak`: `loop_patterns::with_break` (conditional break)
 //! - `IfPhiJoin`: `loop_patterns::with_if_phi` (if + PHI merging)
 //! - `LoopContinueOnly`: `loop_patterns::with_continue` (deferred to Phase 195)
+//! - `LoopTrueEarlyExit`: planned route family for `loop(true)` + early exit
 //!
 //! ## Why Separate Router?
 //! See `if_lowering_router.rs` for rationale.
@@ -19,10 +20,10 @@
 //!
 //! # Routing Strategy
 //!
-//! This router uses structure-based pattern classification (Phase 194):
+//! This router uses structure-based route classification (Phase 194):
 //! 1. Extract CFG features from LoopForm
-//! 2. Classify into pattern kind (1-4 or Unknown) using `loop_pattern_detection::classify`
-//! 3. Route to appropriate pattern lowerer
+//! 2. Classify into a route family using `loop_pattern_detection::classify`
+//! 3. Route to the appropriate lowerer
 //!
 //! # Phase 183: Unified Detection
 //!
@@ -35,7 +36,7 @@
 //! - **LoopContinueOnly** (highest complexity)
 //! - **IfPhiJoin** (leverages If lowering)
 //! - **LoopBreak** (medium complexity)
-//! - **Pattern 1 / LoopSimpleWhile** (foundational, easiest)
+//! - **LoopSimpleWhile** (foundational, easiest)
 //!
 //! # Integration Points
 //!
@@ -52,7 +53,7 @@ use crate::runtime::get_global_ring0;
 /// This function routes loop lowering to specific pattern handlers based on
 /// loop structure characteristics. It tries route families in order of complexity:
 ///
-/// 1. **Pattern 1 / LoopSimpleWhile** (foundational, easiest)
+/// 1. **LoopSimpleWhile** (foundational, easiest)
 /// 2. **LoopBreak** (medium complexity)
 /// 3. **IfPhiJoin** (leverages existing If lowering)
 /// 4. **LoopContinueOnly** (highest complexity)
@@ -65,14 +66,14 @@ use crate::runtime::get_global_ring0;
 /// # Returns
 ///
 /// * `Some(JoinInst)` - Successfully lowered to JoinIR
-/// * `None` - No pattern matched (fallback to existing lowering)
+/// * `None` - No route matched (fallback to existing lowering)
 ///
 /// # Route Selection Strategy
 ///
 /// Route families are tried sequentially. First matching route wins.
 /// If no route matches, returns `None` to trigger fallback.
 ///
-/// ## Pattern 1: Simple While Loop
+/// ## LoopSimpleWhile
 /// - **Condition**: Empty break/continue targets, single latch
 /// - **Handler**: `loop_patterns::lower_simple_while_to_joinir()`
 /// - **Priority**: First (most common, simplest)
@@ -82,12 +83,12 @@ use crate::runtime::get_global_ring0;
 /// - **Handler**: `loop_patterns::lower_loop_with_break_to_joinir()`
 /// - **Priority**: Second (common, medium complexity)
 ///
-/// ## Pattern 3: Loop with If-Else PHI
+/// ## IfPhiJoin
 /// - **Condition**: Empty break/continue, if-else in body
 /// - **Handler**: `loop_patterns::lower_loop_with_conditional_phi_to_joinir()`
 /// - **Priority**: Third (reuses If lowering infrastructure)
 ///
-/// ## Pattern 4: Loop with Continue
+/// ## LoopContinueOnly
 /// - **Condition**: Non-empty continue_targets
 /// - **Handler**: `loop_patterns::lower_loop_with_continue_to_joinir()`
 /// - **Priority**: Fourth (most complex)
@@ -105,10 +106,10 @@ use crate::runtime::get_global_ring0;
 ///
 /// // In loop lowering entry point:
 /// if let Some(joinir_inst) = try_lower_loop_pattern_to_joinir(&loop_form, &mut lowerer) {
-///     // Pattern matched, use JoinIR
+///     // Route matched, use JoinIR
 ///     return Some(joinir_inst);
 /// }
-/// // No pattern matched, use existing lowering
+/// // No route matched, use existing lowering
 /// existing_loop_lowering(&loop_form, &mut lowerer)
 /// ```
 ///
@@ -120,19 +121,19 @@ pub fn try_lower_loop_pattern_to_joinir(
     loop_form: &LoopForm,
     lowerer: &mut crate::mir::join_ir::lowering::LoopToJoinLowerer,
 ) -> Option<JoinInst> {
-    // Phase 194: Structure-based pattern classification
-    // Tries patterns based on CFG structure, not function names
+    // Phase 194: Structure-based route classification
+    // Tries routes based on CFG structure, not function names
 
     use crate::mir::loop_pattern_detection::{classify, extract_features, LoopPatternKind};
 
     // Step 1: Extract features from LoopForm (no LoopScope needed for now)
     let features = extract_features(loop_form, None);
 
-    // Step 2: Classify pattern based on structure
-    let pattern = classify(&features);
+    // Step 2: Classify route family based on structure
+    let route_kind = classify(&features);
 
-    // Step 3: Route to appropriate lowerer based on pattern
-    match pattern {
+    // Step 3: Route to the appropriate lowerer
+    match route_kind {
         LoopPatternKind::NestedLoopMinimal => {
             // Phase 188.2: NestedLoopMinimal lowering stub (infrastructure only)
             // Currently unreachable: LoopForm has no nesting info, so classify() never returns NestedLoopMinimal
@@ -198,11 +199,11 @@ pub fn try_lower_loop_pattern_to_joinir(
                 return Some(inst);
             }
         }
-        LoopPatternKind::InfiniteEarlyExit => {
+        LoopPatternKind::LoopTrueEarlyExit => {
             // Phase 131-11: Not implemented yet in LoopForm-based router
             if crate::config::env::joinir_dev::debug_enabled() {
                 get_global_ring0().log.debug(
-                    "[try_lower_loop_pattern] ⚠️ Pattern 5 (InfiniteEarlyExit) not implemented in LoopForm router",
+                    "[try_lower_loop_pattern] ⚠️ LoopTrueEarlyExit not implemented in LoopForm router",
                 );
             }
         }
@@ -223,18 +224,17 @@ pub fn try_lower_loop_pattern_to_joinir(
             } else {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0().log.debug(
-                        "[try_lower_loop_pattern] ❌ Unknown pattern, fallback to existing lowering",
+                        "[try_lower_loop_pattern] ❌ Unknown route, fallback to existing lowering",
                     );
                 }
             }
         }
     }
 
-    // No Pattern Matched (fallback to existing lowering)
-    // ===================================================
+    // No route matched (fallback to existing lowering)
     if crate::config::env::joinir_dev::debug_enabled() {
         get_global_ring0().log.debug(
-            "[try_lower_loop_pattern] ❌ Pattern lowering failed, fallback to existing lowering",
+            "[try_lower_loop_pattern] ❌ Route lowering failed, fallback to existing lowering",
         );
     }
     None

@@ -17,7 +17,7 @@
 //! - `if_dry_runner.rs`: Phase 33-10 If lowering dry-run スキャナー（箱化版）
 //! - `bool_expr_lowerer.rs`: Phase 168 Boolean expression lowering (AST → SSA)
 //! - `if_lowering_router.rs`: Phase 33-12 If-expression routing (Select/IfMerge dispatcher)
-//! - `loop_pattern_router.rs`: Phase 33-12 Loop pattern routing (Pattern 1-4 dispatcher)
+//! - `loop_pattern_router.rs`: Phase 33-12 Loop route routing (semantic route-family dispatcher)
 
 #![allow(dead_code)]
 
@@ -58,27 +58,27 @@ pub mod loop_body_local_init; // Phase 186: Body-local init expression lowering
 pub(crate) mod loop_form_intake; // Internal loop form intake
 pub(crate) mod loop_pattern_router; // Phase 33-12: Loop pattern routing (re-exported)
 pub(crate) mod loop_pattern_validator; // Phase 33-23: Loop structure validation
-pub(crate) mod loop_patterns; // Phase 188: Pattern-based loop lowering (3 patterns)
+pub(crate) mod loop_patterns; // Phase 188: Route-family loop lowering (legacy stub cluster)
 pub mod loop_scope_shape;
 pub mod loop_to_join;
 pub mod loop_update_analyzer; // Phase 197: Update expression analyzer for carrier semantics
 pub mod loop_update_summary; // Phase 170-C-2: Update pattern summary for shape detection
 pub(crate) mod loop_view_builder; // Phase 33-23: Loop lowering dispatch
-pub mod loop_with_break_minimal; // Phase 188-Impl-2: Pattern 2 minimal lowerer
+pub mod loop_with_break_minimal; // Phase 188-Impl-2: loop_break minimal lowerer
 pub(crate) mod return_collector; // Phase 284 P1: Return statement collector SSOT
 pub mod method_call_lowerer; // Phase 224-B: MethodCall lowering (metadata-driven)
 pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists)
 pub mod method_return_hint; // Phase 83: P3-D 既知メソッド戻り値型推論箱
-pub mod scope_manager; // Phase 231: Unified variable scope management // Phase 195: Pattern 4 minimal lowerer
-pub(crate) mod step_schedule; // Phase 47-A: Generic step scheduler for P2/P3 (renamed from pattern2_step_schedule) // Phase 73: BindingId-based scope PoC (dev-only)
+pub mod scope_manager; // Phase 231: Unified variable scope management // Phase 195: loop_continue_only minimal lowerer support
+pub(crate) mod step_schedule; // Phase 47-A: Generic step scheduler for loop_break/if_phi_join (renamed from pattern2_step_schedule) // Phase 73: BindingId-based scope PoC (dev-only)
                               // Phase 242-EX-A: loop_with_if_phi_minimal removed - replaced by loop_with_if_phi_if_sum
-pub mod loop_with_if_phi_if_sum; // Phase 213: Pattern 3 AST-based if-sum lowerer (Phase 242-EX-A: supports complex conditions)
+pub mod loop_with_if_phi_if_sum; // Phase 213: if_phi_join AST-based if-sum lowerer (Phase 242-EX-A: supports complex conditions)
 pub mod min_loop;
-pub mod simple_while_minimal; // Phase 188-Impl-1: Pattern 1 minimal lowerer
-pub mod scan_with_init_minimal; // Phase 254 P1: Pattern 6 minimal lowerer (index_of/find/contains)
-pub mod scan_with_init_reverse; // Phase 257 P0: Pattern 6 reverse scan lowerer (last_index_of)
-pub mod split_scan_minimal; // Phase 256 P0: Pattern 7 minimal lowerer (split/tokenization with variable step)
-pub mod scan_bool_predicate_minimal; // Phase 259 P0: Pattern 8 minimal lowerer (is_integer/is_valid boolean predicate scan)
+pub mod simple_while_minimal; // Phase 188-Impl-1: loop_simple_while minimal lowerer
+pub mod scan_with_init_minimal; // Phase 254 P1: scan_with_init minimal lowerer (index_of/find/contains)
+pub mod scan_with_init_reverse; // Phase 257 P0: scan_with_init reverse scan lowerer (last_index_of)
+pub mod split_scan_minimal; // Phase 256 P0: split_scan minimal lowerer (split/tokenization with variable step)
+pub mod scan_bool_predicate_minimal; // Phase 259 P0: bool_predicate_scan minimal lowerer (is_integer/is_valid boolean predicate scan)
 pub mod skip_ws;
 pub mod stage1_using_resolver;
 pub mod stageb_body;

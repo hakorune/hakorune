@@ -1,23 +1,23 @@
 use super::features::LoopFeatures;
 use super::kind::LoopPatternKind;
 
-/// Classify loop pattern based on feature vector.
+/// Classify loop route family based on feature vector.
 ///
 /// This function implements the pattern classification logic using
 /// structure-based rules. It does NOT depend on function names or
 /// variable names like "sum".
 ///
-/// # Route Classification Rules (Phase 131-11: InfiniteEarlyExit added)
+/// # Route Classification Rules (Phase 131-11: LoopTrueEarlyExit added)
 ///
-/// 1. **Pattern 5 (InfiniteEarlyExit)**: `is_infinite_loop && has_break && has_continue`
+/// 1. **LoopTrueEarlyExit**: `is_infinite_loop && has_break && has_continue`
 ///    - Priority: Check first (most specific - infinite loop with both break and continue)
-///    - Phase 131-11: New pattern for `loop(true) { break + continue }`
+///    - Phase 131-11: Route for `loop(true) { break + continue }`
 ///
-/// 2. **Pattern 4 (Continue)**: `has_continue && !has_break`
+/// 2. **LoopContinueOnly**: `has_continue && !has_break`
 ///    - Priority: Check second (has continue but no break)
 ///    - Phase 131-11: Narrowed to exclude break+continue cases
 ///
-/// 3. **Pattern 3 (If-PHI)**: `has_if && carrier_count >= 1 && !has_break && !has_continue`
+/// 3. **IfPhiJoin**: `has_if && carrier_count >= 1 && !has_break && !has_continue`
 ///    - Phase 212.5: Changed from carrier_count > 1 to structural if detection
 ///    - Includes single-carrier if-update patterns (e.g., if-sum with 1 carrier)
 ///
@@ -32,7 +32,7 @@ use super::kind::LoopPatternKind;
 /// * `features` - Feature vector from extract_features()
 ///
 /// # Returns
-/// * `LoopPatternKind` - Classified pattern
+/// * `LoopPatternKind` - Classified route family
 ///
 /// # Phase 183: Unified Detection
 ///
@@ -56,20 +56,20 @@ pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
         return LoopPatternKind::NestedLoopMinimal;
     }
 
-    // Phase 131-11: Pattern 5: InfiniteEarlyExit (highest priority - most specific)
-    // MUST check before Pattern 4 to avoid misrouting break+continue cases
+    // Phase 131-11: LoopTrueEarlyExit (highest priority - most specific)
+    // MUST check before LoopContinueOnly to avoid misrouting break+continue cases
     if features.is_infinite_loop && features.has_break && features.has_continue {
-        return LoopPatternKind::InfiniteEarlyExit;
+        return LoopPatternKind::LoopTrueEarlyExit;
     }
 
-    // Pattern 4: Continue
-    // Phase 131-11: Break+continue stays Pattern5 only for infinite loops
+    // LoopContinueOnly
+    // Phase 131-11: Break+continue stays LoopTrueEarlyExit only for infinite loops
     if features.has_continue {
         return LoopPatternKind::LoopContinueOnly;
     }
 
-    // Pattern 3: If-PHI (check before Pattern 1)
-    // Phase 212.5: Structural if detection - route to P3 if has_if && carrier_count >= 1
+    // IfPhiJoin (check before LoopSimpleWhile)
+    // Phase 212.5: Structural if detection - route to IfPhiJoin if has_if && carrier_count >= 1
     if features.has_if
         && features.carrier_count >= 1
         && !features.has_break
@@ -84,25 +84,25 @@ pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
     }
 
     // LoopSimpleWhile
-    // Phase 212.5: Exclude loops with if statements (they go to P3)
+    // Phase 212.5: Exclude loops with if statements (they go to IfPhiJoin)
     if !features.has_break && !features.has_continue && !features.has_if {
         return LoopPatternKind::LoopSimpleWhile;
     }
 
-    // Unknown pattern
+    // Unknown route family
     LoopPatternKind::Unknown
 }
 
-/// Phase 193-3: Diagnose pattern classification with details
+/// Phase 193-3: Diagnose route classification with details
 ///
 /// This function performs classification AND generates diagnostic information.
 /// Useful for debugging and logging.
 ///
 /// # Returns
-/// * `(LoopPatternKind, String)` - The classified pattern and a diagnostic message
+/// * `(LoopPatternKind, String)` - The classified route family and a diagnostic message
 pub fn classify_with_diagnosis(features: &LoopFeatures) -> (LoopPatternKind, String) {
-    let pattern = classify(features);
-    let reason = match pattern {
+    let route_kind = classify(features);
+    let reason = match route_kind {
         LoopPatternKind::LoopContinueOnly => {
             format!(
                 "Has continue statement (continue_count={})",
@@ -130,16 +130,16 @@ pub fn classify_with_diagnosis(features: &LoopFeatures) -> (LoopPatternKind, Str
                 features.max_loop_depth
             )
         }
-        LoopPatternKind::InfiniteEarlyExit => {
+        LoopPatternKind::LoopTrueEarlyExit => {
             format!(
                 "Infinite loop (loop(true)) with both break and continue (break_count={}, continue_count={})",
                 features.break_count, features.continue_count
             )
         }
         LoopPatternKind::Unknown => {
-            format!("Unknown pattern: {}", features.debug_stats())
+            format!("Unknown route: {}", features.debug_stats())
         }
     };
 
-    (pattern, reason)
+    (route_kind, reason)
 }
