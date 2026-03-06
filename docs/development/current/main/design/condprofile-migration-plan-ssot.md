@@ -120,16 +120,16 @@ Failure handling (design-only):
 
 ## C20-D18: Apply incomplete-freeze to LoopCharMap only
 
-- Scope: LoopCharMap only (planner_required/dev, legacy label `Pattern1CharMap` is traceability-only).
+- Scope: LoopCharMap only (planner_required/dev; legacy numbered route label is traceability-only).
 - Other scan facts keep legacy fallback for now (D19+).
 
 ## C20-D19: Apply incomplete-freeze to LoopArrayJoin
 
-- Scope: LoopArrayJoin only (planner_required/dev, legacy label `Pattern1ArrayJoin` is traceability-only).
+- Scope: LoopArrayJoin only (planner_required/dev; legacy numbered route label is traceability-only).
 
 ## C20-D20: Apply incomplete-freeze to BoolPredicateScan / AccumConstLoop
 
-- Scope: BoolPredicateScan / AccumConstLoop (planner_required/dev; legacy labels `Pattern8/9` are traceability-only).
+- Scope: BoolPredicateScan / AccumConstLoop (planner_required/dev; legacy numbered route labels are traceability-only).
 
 ## Target Order (SSOT)
 

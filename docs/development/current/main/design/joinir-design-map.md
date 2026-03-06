@@ -34,7 +34,7 @@ Related:
 - スコープ解決の SSOT を固定する（検索順）: `ConditionEnv → LoopBodyLocalEnv → CapturedEnv → CarrierInfo`
   - 「なぜこの変数が見える/見えないか」を、層の契約として説明できるようにする
 - ループは route family / shape contract を言語化して段階投入する（fixture + shape guard + Fail-Fast）
-  - numbered pattern label を増やす代わりに、policy（family）で “同型” を吸収する
+  - numbered route label を増やす代わりに、policy（family）で “同型” を吸収する
 - Capability は “解禁の順序” を SSOT 化する（最小形→回帰で積み上げ）
   - 未対応は best-effort で誤魔化さず、Fail-Fast で理由を固定する
 

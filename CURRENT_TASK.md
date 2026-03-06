@@ -362,6 +362,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{recipe-first-entry-contract-ssot,coreplan-skeleton-feature-model,compiler-cleanliness-campaign-ssot,strict-nested-loop-guard-ssot}.md`
     - intent: architecture 説明で `Pattern*` を一般概念として使わず、legacy numbered label / legacy facts key へ縮退させる
     - verification: `rg -n "Historical labels \\(Pattern\\*|“Pattern” は入口の分岐名|LoopCond\\*.*Pattern\\*|pattern4_continue" docs/development/current/main/design/{recipe-first-entry-contract-ssot,coreplan-skeleton-feature-model,compiler-cleanliness-campaign-ssot,strict-nested-loop-guard-ssot}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 33): active design の `legacy pattern` 文言を `legacy numbered route label` へ一般化した
+    - synced files: `docs/development/current/main/design/{joinir-design-map,edgecfg-fragments,condprofile-migration-plan-ssot}.md`
+    - intent: active guidance で `pattern` を architecture 概念として使わず、旧番号ラベルは numbered route label / bridge label としてだけ扱う
+    - verification: `rg -n "numbered pattern label|legacy pattern|Pattern1CharMap|Pattern1ArrayJoin|Pattern8/9" docs/development/current/main/design/{joinir-design-map,edgecfg-fragments,condprofile-migration-plan-ssot}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 34): active SSOT の legacy-note wording を numbered route label に寄せた
+    - synced files: `docs/development/current/main/design/{joinir-plan-frag-ssot,planfrag-ssot-registry,recipe-first-entry-contract-ssot,loop-canonicalizer}.md`
+    - intent: route-first な現役 guidance では `Pattern*` を general term にせず、必要な traceability note だけ numbered route label として残す
+    - verification: `rg -n "legacy pattern labels|Pattern\\* labels|legacy pattern space|legacy labels Pattern6/7" docs/development/current/main/design/{joinir-plan-frag-ssot,planfrag-ssot-registry,recipe-first-entry-contract-ssot,loop-canonicalizer}.md` = 0 hit
 
 ## next fixed order (resume point)
 

@@ -94,7 +94,7 @@ Note: Candidate keys follow current semantic fact accessors where available; his
 
 ## Freeze responsibility (SSOT)
 
-Note: Phase C* sections below use route names as canonical labels, and keep migration-era `Pattern*` labels only as legacy notes for traceability.
+Note: Phase C* sections below use route names as canonical labels, and keep migration-era numbered route labels only as legacy notes for traceability.
 
 どこで freeze するかを固定する（入口の責務分担）。
 

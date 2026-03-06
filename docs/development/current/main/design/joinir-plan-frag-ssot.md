@@ -88,7 +88,7 @@ Frag 段階では以下を保持しない（Plan側の責務）：
 | **Planでの名前解決** | 名前解決はFrag側 |
 | **Planでの最適化** | Planは構造のみ記述 |
 | **Planでのルール実装** | ルールはFrag側で実装 |
-| **Fragでのルート識別** | ルート分類知識はPlan側（legacy pattern labels are traceability-only） |
+| **Fragでのルート識別** | ルート分類知識はPlan側（legacy numbered route labels are traceability-only） |
 | **明示的でないValueIdマッピング** | 全てBoundary経由 |
 | ** terminator の多様な生成ポイント** | emit_frag() SSOT |
 | **freeze point 以降の変更** | 不変条件違反 |
@@ -165,7 +165,7 @@ AST → JoinIR Plan → JoinIR Frag → MIR Merge
 
 共通パスでは以下が共有される：
 
-- **Route Classification**: 同じルート分類アルゴリズム（legacy pattern labels are traceability-only）
+- **Route Classification**: 同じルート分類アルゴリズム（legacy numbered route labels are traceability-only）
 - **Boundary Construction**: 同じ JoinInlineBoundary 構造
 - **MIR Merge**: 同じ merge_joinir_mir_blocks() ロジック
 
