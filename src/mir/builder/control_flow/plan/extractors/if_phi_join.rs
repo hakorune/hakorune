@@ -345,7 +345,7 @@ mod tests {
 
         let result = extract_loop_with_if_phi_parts(&condition, &body);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none()); // No else → Not Pattern3
+        assert!(result.unwrap().is_none()); // No else → not if_phi_join
     }
 
     #[test]
@@ -404,7 +404,7 @@ mod tests {
 
         let result = extract_loop_with_if_phi_parts(&condition, &body);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none()); // Different vars → Not Pattern3
+        assert!(result.unwrap().is_none()); // Different vars → not if_phi_join
     }
 
     #[test]
@@ -484,7 +484,7 @@ mod tests {
 
         let result = extract_loop_with_if_phi_parts(&condition, &body);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none()); // Has break → Not Pattern3
+        assert!(result.unwrap().is_none()); // Has break → not if_phi_join
     }
 
     #[test]
@@ -588,6 +588,6 @@ mod tests {
 
         let result = extract_loop_with_if_phi_parts(&condition, &body);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none()); // Prelude local → Not Pattern3
+        assert!(result.unwrap().is_none()); // Prelude local → not if_phi_join
     }
 }

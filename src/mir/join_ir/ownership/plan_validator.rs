@@ -1,6 +1,6 @@
 //! OwnershipPlan Validator Box
 //!
-//! Phase 71-Pre: Extracted from pattern3_with_if_phi.rs for reuse across patterns.
+//! Phase 71-Pre: Extracted from legacy IfPhiJoin lowering for reuse across route families.
 //!
 //! # Responsibility
 //!
@@ -21,7 +21,8 @@ use std::collections::BTreeSet;
 /// Ownership Plan Validator
 ///
 /// Provides reusable validation methods for OwnershipPlan consistency checks.
-/// Used by Pattern 2, 3, 4 lowering to ensure plan integrity before execution.
+/// Used by `LoopBreak`, `IfPhiJoin`, and `LoopContinueOnly` lowering
+/// to ensure plan integrity before execution.
 pub struct OwnershipPlanValidator;
 
 impl OwnershipPlanValidator {

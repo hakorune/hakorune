@@ -32,7 +32,7 @@
 //! }
 //! ```
 //!
-//! ## Pattern 6: Not Equal (index_of)
+//! ## NestedLoopMinimal-style Not Equal guard (index_of)
 //!
 //! Used in `StringUtils.index_of` and similar search functions.
 //!
@@ -52,7 +52,7 @@
 //!
 //! # Builder Decision
 //!
-//! Deferred to Phase 256+. Currently 2 patterns use this (Pattern 2 and Pattern 6).
+//! Deferred to Phase 256+. Currently 2 route families use this (`LoopBreak` and `NestedLoopMinimal`).
 //! Direct construction is acceptable. Will create builder when 4+ patterns use it.
 
 use crate::ast::ASTNode;

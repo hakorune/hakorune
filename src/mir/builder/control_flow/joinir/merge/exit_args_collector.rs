@@ -56,7 +56,7 @@ pub struct ExitArgsCollectionResult {
 /// - jump_args order is assumed to match exit_bindings order
 /// - Layout is enforced via JumpArgsLayout (no inference)
 /// - Extra trailing args are treated as invariants and ignored
-/// - This avoids if_phi_join-specific assumptions (legacy label: Pattern3), such as
+/// - This avoids if_phi_join-specific assumptions (legacy Pattern 3, traceability-only), such as
 ///   "jump_args[0] is loop_var"
 ///
 /// # Fail-Fast Guarantee

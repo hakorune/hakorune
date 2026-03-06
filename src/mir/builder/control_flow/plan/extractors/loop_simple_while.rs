@@ -62,10 +62,9 @@ pub(crate) fn extract_loop_simple_while_parts(
     }
 
     // Phase 286 P2.6: Reject if-else statements (if_phi_join territory).
-    // loop_simple_while allows simple if without else, but not if-else
-    // (legacy label: Pattern3).
+    // loop_simple_while allows simple if without else, but not if-else.
     if super::common_helpers::has_if_else_statement(body) {
-        // Has if-else statement → if_phi_join (legacy label: Pattern3, if-phi merge)
+        // Has if-else statement → if_phi_join
         return Ok(None);
     }
 

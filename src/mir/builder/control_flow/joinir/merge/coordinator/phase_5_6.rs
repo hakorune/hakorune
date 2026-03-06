@@ -98,7 +98,8 @@ pub fn execute(
     // Header PHI represents the value at the BEGINNING of each iteration.
     // Exit PHI represents the FINAL value when leaving the loop (from any exit path).
     //
-    // For Pattern 2 loops with multiple exit paths (natural exit + break):
+    // For LoopBreak route loops (legacy Pattern 2, traceability-only)
+    // with multiple exit paths (natural exit + break):
     // - Header PHI: `%15 = phi [%3, bb7], [%42, bb14]` (loop variable at iteration start)
     // - Exit PHI:   `%5 = phi [%15, bb11], [%15, bb13]` (final value from exit paths)
     //

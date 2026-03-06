@@ -8,7 +8,7 @@ use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 /// count, and ValueId mapping. This prevents ordering bugs like the scan_with_init loop_invariants
 /// issue where `[s, ch]` → `[ch, s]` required manual debugging.
 ///
-/// # Example Valid (scan_with_init, legacy label: Pattern6):
+/// # Example Valid (`scan_with_init` route, legacy Pattern 6, traceability-only):
 /// ```text
 /// JoinModule.main.params:     [ValueId(100), ValueId(101), ValueId(102)]  (i, ch, s)
 /// boundary.join_inputs:       [ValueId(100), ValueId(101), ValueId(102)]
@@ -51,7 +51,7 @@ pub(in crate::mir::builder::control_flow::joinir) fn verify_boundary_entry_param
                 entry.params.len(),
                 boundary.join_inputs.len()
             ),
-            "ensure pattern lowerer sets boundary.join_inputs with one entry per parameter",
+                "ensure route lowerer sets boundary.join_inputs with one entry per parameter",
         ));
     }
 
@@ -119,7 +119,7 @@ fn get_entry_function(
         error_tags::freeze_with_hint(
             "phase1.5/boundary/no_entry_function",
             "no entry function found (entry=None and no 'main' function)",
-            "pattern lowerer must set join_module.entry OR create 'main' function",
+            "route lowerer must set join_module.entry OR create 'main' function",
         )
     })
 }

@@ -1,6 +1,6 @@
 //! Phase 33-10-Refactor-P1: ExitMetaCollector Box
 //!
-//! Modularizes the exit_bindings collection logic from Pattern lowerers
+//! Modularizes the exit_bindings collection logic from route lowerers
 //! into a focused, testable Box.
 //!
 //! **Responsibility**: Construct exit_bindings from ExitMeta + variable_ctx.variable_map lookup
@@ -24,16 +24,16 @@ use crate::mir::join_ir::lowering::inline_boundary::LoopExitBinding;
 /// - Easy to test (no mocks needed)
 /// - Easy to reason about (input → output mapping)
 /// - Easy to parallelize (future optimization)
-/// - Easy to reuse (any pattern lowerer can call)
+/// - Easy to reuse (any route lowerer can call)
 ///
-/// ## Reusability Across Patterns
-/// This collector is pattern-agnostic:
-/// - Pattern 1: No exit_bindings needed (simple while)
-/// - Pattern 2: Single exit binding (loop variable)
-/// - Pattern 3: Multiple bindings (loop vars + if merges)
-/// - Pattern 4: Single/multiple bindings (with continue)
+/// ## Reusability Across Routes
+/// This collector is route-agnostic:
+/// - LoopSimpleWhile: Often no exit_bindings needed (simple while shape; legacy Pattern 1, traceability-only)
+/// - LoopBreak: Single exit binding (loop variable; legacy Pattern 2, traceability-only)
+/// - IfPhiJoin: Multiple bindings (loop vars + if merges; legacy Pattern 3, traceability-only)
+/// - LoopContinueOnly: Single/multiple bindings (with continue; legacy Pattern 4, traceability-only)
 ///
-/// All patterns use the same `collect()` method!
+/// All routes use the same `collect()` method!
 ///
 /// # Box Contract
 ///

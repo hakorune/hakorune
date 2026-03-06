@@ -23,7 +23,7 @@
 //! Before modularization, reconnect_boundary() was a 87-line monolithic function
 //! in merge/mod.rs. Extracting into Boxes enables:
 //! - Unit testing individual concerns (connection vs collection)
-//! - Reusability across pattern lowerers (Pattern 3, 4, etc.)
+//! - Reusability across route lowerers (IfPhiJoin / LoopContinueOnly, etc.)
 //! - Easier debugging (isolated responsibilities)
 //! - Future optimization without touching merge/mod.rs
 //!
@@ -40,7 +40,8 @@
 //! This ensures variable_map points to PHI-defined values (SSA-correct).
 //!
 //! ## Future Extensions
-//! When implementing Pattern 4 (continue), new pattern lowerers can:
+//! When implementing LoopContinueOnly route (legacy Pattern 4, traceability-only),
+//! new route lowerers can:
 //! ```rust
 //! let exit_bindings = ExitMetaCollector::collect(self, &exit_meta, debug);
 //! let boundary = JoinInlineBoundary::new_with_exits(...);

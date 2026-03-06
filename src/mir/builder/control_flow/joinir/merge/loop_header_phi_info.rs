@@ -40,8 +40,9 @@ pub struct LoopHeaderPhiInfo {
 
     /// Expression result PHI dst (if loop is used as expression)
     ///
-    /// For Pattern 2 (joinir_min_loop), this is the same as the loop
-    /// variable's PHI dst. For carrier-only patterns (trim), this is None.
+    /// For LoopBreak route loops (`joinir_min_loop`; legacy Pattern 2, traceability-only),
+    /// this is the same as the loop variable's PHI dst.
+    /// For carrier-only routes (trim), this is None.
     pub expr_result_phi: Option<ValueId>,
 }
 
