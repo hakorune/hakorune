@@ -12,11 +12,11 @@ Consolidate the two separate entry points for Normalized shadow processing into 
 
 1. **Before**: Dual entry points with scattered responsibility
    - `try_normalized_shadow()` in routing.rs
-   - `suffix_router_box` in patterns/policies/
+   - `suffix_router_box` in policies/
    - Decision logic ("what to lower") is duplicated and inconsistent
 
 2. **After**: Single decision point using Box-First architecture
-   - **NormalizationPlanBox**: Detects pattern and plans consumption (SSOT for "what")
+   - **NormalizationPlanBox**: Detects eligible shape and plans consumption (SSOT for "what")
    - **NormalizationExecuteBox**: Executes the plan (SSOT for "how")
    - Both entry points use the same PlanBox for consistent decisions
 
@@ -75,13 +75,13 @@ pub enum PlanKind {
 - **No duplication**: Suffix router and routing.rs both delegate to the same PlanBox
 
 ### Fail-Fast
-- Invalid patterns return `Err` (not silent fallback)
+- Invalid shapes return `Err` (not silent fallback)
 - STRICT mode (JOINIR_DEV_STRICT) treats contract violations as panics
 - Clear error messages with hints for debugging
 
 ### Legacy Preservation
 - Existing behavior unchanged (dev-only guard)
-- Non-normalized patterns return `Ok(None)` → legacy fallback
+- Non-normalized shapes return `Ok(None)` → legacy fallback
 - No breaking changes to existing smokes
 
 #### Removal conditions (SSOT)
@@ -128,7 +128,7 @@ pub enum PlanKind {
 
 **Returns**:
 - `Ok(Some(plan))`: Shape detected, plan specifies what to do
-- `Ok(None)`: Not a normalized pattern, use legacy fallback
+- `Ok(None)`: Not a normalized shape, use legacy fallback
 - `Err(msg)`: Internal error (should not happen in well-formed AST)
 
 **Invariants**:
@@ -174,9 +174,9 @@ pub enum PlanKind {
 ## Testing Strategy
 
 ### Unit Tests (plan_box.rs)
-- Phase 131 pattern detection (loop-only)
+- Phase 131 shape detection (loop-only)
 - Return boundary detection (consumed stops at return)
-- Non-matching patterns (returns None)
+- Non-matching shapes (returns None)
 
 ### Regression Smokes
 - **Phase 135**: `phase135_loop_true_break_once_post_empty_return_{vm,llvm_exe}.sh` **NEW**

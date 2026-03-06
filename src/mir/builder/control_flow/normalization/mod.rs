@@ -6,7 +6,7 @@
 //! - `routing.rs::try_normalized_shadow()` (loop-only)
 //! - `suffix_router_box::try_lower_loop_suffix()` (loop + post)
 //!
-//! Both now use the same NormalizationPlanBox for pattern detection.
+//! Both now use the same NormalizationPlanBox for shape detection.
 //!
 //! ## Architecture
 //!

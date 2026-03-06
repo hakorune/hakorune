@@ -1,8 +1,8 @@
 use super::*;
 
 #[test]
-fn test_parse_number_pattern_recognized() {
-    // Phase 143-P0: Test parse_number pattern (break in THEN clause)
+fn test_parse_number_route_shape_recognized() {
+    // Phase 143-P0: Test parse_number route shape (break in THEN clause)
     // Build: loop(i < len) { digit_pos = digits.indexOf(ch); if digit_pos < 0 { break } result = result + ch; i = i + 1 }
     let loop_node = ASTNode::Loop {
         condition: Box::new(ASTNode::BinaryOp {

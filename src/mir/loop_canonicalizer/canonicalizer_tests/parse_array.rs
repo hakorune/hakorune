@@ -1,8 +1,8 @@
 use super::*;
 
 #[test]
-fn test_parse_array_pattern_recognized() {
-    // Phase 143-P2: Test parse_array pattern (both continue AND return)
+fn test_parse_array_route_shape_recognized() {
+    // Phase 143-P2: Test parse_array route shape (both continue AND return)
     // Build: loop(p < len) {
     //   local ch = s.substring(p, p + 1)
     //   if ch == "]" { return 0 }

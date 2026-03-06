@@ -11,11 +11,11 @@ pub struct NormalizationPlan {
     /// What kind of normalization to perform
     pub kind: PlanKind,
 
-    /// Whether the pattern includes an explicit return (for unreachable detection)
+    /// Whether the detected shape includes an explicit return (for unreachable detection)
     pub requires_return: bool,
 }
 
-/// Kind of normalization pattern detected
+/// Kind of normalization shape detected
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PlanKind {
     /// Phase 131: loop(true) { ... break } alone

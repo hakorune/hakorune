@@ -2,14 +2,14 @@
 //!
 //! ## Responsibility
 //!
-//! - Detect block suffix patterns that can be normalized
+//! - Detect block suffix shapes that can be normalized
 //! - Return plan specifying what to consume and how to lower
 //! - SSOT for "what to normalize" decision
 //!
 //! ## Contract
 //!
 //! - Returns Ok(Some(plan)): Shape detected, proceed with normalization
-//! - Returns Ok(None): Not a normalized pattern, use legacy fallback
+//! - Returns Ok(None): Not a normalized shape, use legacy fallback
 //! - Returns Err(_): Internal error (malformed AST)
 
 use crate::ast::{ASTNode, LiteralValue};
@@ -23,11 +23,11 @@ use super::plan::PlanKind;
 pub struct NormalizationPlanBox;
 
 impl NormalizationPlanBox {
-    /// Detect Normalized pattern in block suffix
+    /// Detect a Normalized-eligible shape in the block suffix
     ///
     /// Returns:
-    /// - Ok(Some(plan)): Normalized pattern detected
-    /// - Ok(None): Not a normalized pattern (use legacy)
+    /// - Ok(Some(plan)): Normalized-eligible shape detected
+    /// - Ok(None): Not a normalized shape (use legacy)
     /// - Err(_): Internal error
     pub fn plan_block_suffix(
         _builder: &MirBuilder,
@@ -68,7 +68,7 @@ impl NormalizationPlanBox {
                 trace.routing(
                     "normalization/plan",
                     func_name,
-                    "First statement is not loop(true), returning None (not a normalized pattern)",
+                    "First statement is not loop(true), returning None (not a normalized shape)",
                 );
             }
             return Ok(None);
@@ -384,6 +384,6 @@ mod tests {
             .expect("Should not error");
 
         // loop(i < n) is NOT supported by Normalized - should return None
-        assert!(plan.is_none(), "loop(i < n) should NOT match Normalized pattern");
+        assert!(plan.is_none(), "loop(i < n) should NOT match a Normalized shape");
     }
 }

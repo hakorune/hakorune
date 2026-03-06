@@ -1,8 +1,8 @@
 use super::*;
 
 #[test]
-fn test_escape_skip_pattern_recognition() {
-    // Phase 91 P5b: Escape sequence handling pattern
+fn test_escape_skip_route_shape_recognition() {
+    // Phase 91 P5b: Escape sequence handling route shape
     // Build: loop(i < len) {
     //   ch = get_char(i)
     //   if ch == "\"" { break }
@@ -117,7 +117,7 @@ fn test_escape_skip_pattern_recognition() {
     };
 
     let result = canonicalize_loop_expr(&loop_node);
-    assert!(result.is_ok(), "Escape pattern canonicalization should succeed");
+    assert!(result.is_ok(), "Escape route-shape canonicalization should succeed");
 
     let (skeleton, decision) = result.unwrap();
 

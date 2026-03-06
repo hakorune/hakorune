@@ -1,8 +1,8 @@
 use super::*;
 
 #[test]
-fn test_skip_whitespace_pattern_recognition() {
-    // Build skip_whitespace pattern: loop(p < len) { if is_ws == 1 { p = p + 1 } else { break } }
+fn test_skip_whitespace_route_shape_recognition() {
+    // Build skip_whitespace route shape: loop(p < len) { if is_ws == 1 { p = p + 1 } else { break } }
     let loop_node = ASTNode::Loop {
         condition: Box::new(ASTNode::BinaryOp {
             operator: BinaryOperator::Less,
@@ -63,7 +63,7 @@ fn test_skip_whitespace_pattern_recognition() {
 
     // Verify success
     assert!(decision.is_success());
-    // Phase 137-5: Pattern choice reflects ExitContract (has_break=true → LoopBreak)
+    // Phase 137-5: Route choice reflects ExitContract (has_break=true → LoopBreak)
     assert_eq!(decision.chosen, Some(LoopPatternKind::LoopBreak));
     assert_eq!(decision.missing_caps.len(), 0);
 
@@ -90,7 +90,7 @@ fn test_skip_whitespace_pattern_recognition() {
 
 #[test]
 fn test_skip_whitespace_with_body_statements() {
-    // Build pattern with body statements before the if:
+    // Build route shape with body statements before the if:
     // loop(p < len) {
     //   local ch = get_char(p)
     //   if is_ws { p = p + 1 } else { break }
@@ -199,7 +199,7 @@ fn test_skip_whitespace_with_body_statements() {
 
 #[test]
 fn test_skip_whitespace_fails_without_else() {
-    // Build pattern with missing else: loop(p < len) { if is_ws == 1 { p = p + 1 } }
+    // Build route shape with missing else: loop(p < len) { if is_ws == 1 { p = p + 1 } }
     let loop_node = ASTNode::Loop {
         condition: Box::new(ASTNode::BinaryOp {
             operator: BinaryOperator::Less,
@@ -262,7 +262,7 @@ fn test_skip_whitespace_fails_without_else() {
 
 #[test]
 fn test_skip_whitespace_fails_with_wrong_delta() {
-    // Build pattern with wrong update (p = p * 2, not +/-)
+    // Build route shape with wrong update (p = p * 2, not +/-)
     let loop_node = ASTNode::Loop {
         condition: Box::new(ASTNode::Literal {
             value: LiteralValue::Bool(true),

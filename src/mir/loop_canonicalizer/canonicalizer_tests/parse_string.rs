@@ -1,8 +1,8 @@
 use super::*;
 
 #[test]
-fn test_parse_string_pattern_recognized() {
-    // Phase 143-P1: Test parse_string pattern (both continue AND return)
+fn test_parse_string_route_shape_recognized() {
+    // Phase 143-P1: Test parse_string route shape (both continue AND return)
     // Build: loop(p < len) {
     //   local ch = s.substring(p, p + 1)
     //   if ch == "\"" { return 0 }

@@ -1,8 +1,8 @@
 use super::*;
 
 #[test]
-fn test_simple_continue_pattern_recognized() {
-    // Phase 142 P1: Test simple continue pattern
+fn test_simple_continue_route_shape_recognized() {
+    // Phase 142 P1: Test simple continue route shape
     // Build: loop(i < n) { if is_even { i = i + 1; continue } sum = sum + i; i = i + 1 }
     let loop_node = ASTNode::Loop {
         condition: Box::new(ASTNode::BinaryOp {

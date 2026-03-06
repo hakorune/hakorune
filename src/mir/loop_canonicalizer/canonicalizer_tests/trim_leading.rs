@@ -1,8 +1,8 @@
 use super::*;
 
 #[test]
-fn test_trim_leading_pattern_recognized() {
-    // Phase 142 P0: Test trim_leading pattern (start = start + 1)
+fn test_trim_leading_route_shape_recognized() {
+    // Phase 142 P0: Test trim_leading route shape (start = start + 1)
     // Build: loop(start < end) { if is_ws { start = start + 1 } else { break } }
     let loop_node = ASTNode::Loop {
         condition: Box::new(ASTNode::BinaryOp {

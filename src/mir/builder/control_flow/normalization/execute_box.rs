@@ -66,7 +66,7 @@ impl NormalizationExecuteBox {
         }
     }
 
-    /// Execute Phase 131: Loop-only pattern
+    /// Execute Phase 131: Loop-only shape
     ///
     /// ## Phase 141 P1.5: Added prefix_variables parameter
     fn execute_loop_only(

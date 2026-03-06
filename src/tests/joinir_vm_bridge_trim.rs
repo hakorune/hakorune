@@ -4,7 +4,7 @@
 // - JoinIR を VM ブリッジ経由で実行し、直接 VM 実行の結果と一致することを確認する
 // - Route A (AST→MIR→VM) と Route C (AST→MIR→JoinIR→MIR'→VM) の比較
 //
-// Test Pattern:
+// Test Route Shape:
 // - trim("   abc  ") → "abc" (leading + trailing whitespace removed)
 //
 // Implementation Status:

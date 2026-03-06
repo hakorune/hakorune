@@ -4,12 +4,12 @@
 // - JoinIR を VM ブリッジ経由で実行し、直接 VM 実行の結果と一致することを確認する
 // - Route A (AST→MIR→VM) と Route C (AST→MIR→JoinIR→MIR'→VM) の比較
 //
-// Test Pattern:
+// Test Route Shape:
 // - skip_ws("   abc") → 3 (leading spaces count)
 //
 // Implementation Status:
 // - S-4.3: Basic bridge structure ✅
-// - S-4.4-A: Call/Jump instructions for skip_ws pattern ✅
+// - S-4.4-A: Call/Jump instructions for skip_ws route shape ✅
 // - S-4.4-B: A/B test (this file) ✅
 
 use crate::ast::ASTNode;

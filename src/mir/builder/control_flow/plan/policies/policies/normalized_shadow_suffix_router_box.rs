@@ -2,8 +2,8 @@
 //!
 //! ## Responsibility
 //!
-//! - Detect loop(true) patterns at block suffix (with or without subsequent statements)
-//! - Delegate to NormalizationPlanBox for pattern detection (SSOT)
+//! - Detect loop(true) shapes at block suffix (with or without subsequent statements)
+//! - Delegate to NormalizationPlanBox for shape detection (SSOT)
 //! - Delegate to NormalizationExecuteBox for lowering and merge
 //! - Return consumed count to skip processed statements in build_block()
 //!
@@ -27,9 +27,9 @@ use crate::mir::builder::control_flow::normalization::{NormalizationPlanBox, Nor
 pub struct NormalizedShadowSuffixRouterBox;
 
 impl NormalizedShadowSuffixRouterBox {
-    /// Try to lower a loop(true) pattern in block suffix
+    /// Try to lower a loop(true) shape in the block suffix
     ///
-    /// Phase 134 P0: Unified with NormalizationPlanBox for pattern detection
+    /// Phase 134 P0: Unified with NormalizationPlanBox for shape detection
     /// Phase 141 P1.5: Added prefix_variables parameter for external env inputs
     /// Phase 142 P0+: Statement-level normalization accepts LoopOnly only
     ///
@@ -46,7 +46,7 @@ impl NormalizedShadowSuffixRouterBox {
     ) -> Result<Option<usize>, String> {
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
 
-        // Phase 134 P0: Delegate pattern detection to NormalizationPlanBox (SSOT)
+        // Phase 134 P0: Delegate shape detection to NormalizationPlanBox (SSOT)
         let plan = match NormalizationPlanBox::plan_block_suffix(builder, remaining, func_name, debug)? {
             Some(plan) => plan,
             None => {
@@ -61,7 +61,7 @@ impl NormalizedShadowSuffixRouterBox {
                     trace.routing(
                         "suffix_router",
                         func_name,
-                        "NormalizationPlanBox returned None (not a normalized pattern)",
+                        "NormalizationPlanBox returned None (not a normalized shape)",
                     );
                 }
                 return Ok(None);
@@ -71,7 +71,7 @@ impl NormalizedShadowSuffixRouterBox {
         // Phase 142 P0: Normalization unit is now "statement (loop only)", not "block suffix"
         if debug {
             let description = match &plan.kind {
-                PlanKind::LoopOnly => "Loop-only pattern".to_string(),
+                PlanKind::LoopOnly => "Loop-only shape".to_string(),
             };
             trace.routing("suffix_router", func_name, &description);
         }
@@ -112,9 +112,9 @@ mod tests {
     use crate::ast::{ASTNode, LiteralValue, Span};
 
     #[test]
-    fn test_try_lower_loop_suffix_phase132_pattern() {
+    fn test_try_lower_loop_suffix_phase132_shape() {
         // This is an integration test that would require full MirBuilder setup
-        // For now, we test the pattern detection logic
+        // For now, we test the shape detection logic
 
         let span = Span::unknown();
         let remaining = vec![
@@ -167,12 +167,12 @@ mod tests {
             },
         ];
 
-        // Pattern should be detected (at least 2 statements, first is Loop)
+        // Shape should be detected (at least 2 statements, first is Loop)
         assert!(remaining.len() >= 2);
         assert!(matches!(&remaining[0], ASTNode::Loop { .. }));
 
         // Full lowering test would require MirBuilder setup
-        // This validates the pattern structure
+        // This validates the shape structure
     }
 
     #[test]
@@ -190,7 +190,7 @@ mod tests {
             },
         ];
 
-        // Pattern should not match (need at least 2 statements)
+        // Shape should not match (need at least 2 statements)
         assert!(remaining.len() < 2);
     }
 
@@ -219,7 +219,7 @@ mod tests {
             },
         ];
 
-        // Pattern should not match (first statement is not Loop)
+        // Shape should not match (first statement is not Loop)
         assert!(!matches!(&remaining[0], ASTNode::Loop { .. }));
     }
 }
