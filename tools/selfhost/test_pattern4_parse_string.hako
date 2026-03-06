@@ -1,10 +1,10 @@
-// Phase 165: Test _parse_string from JsonParserBox (Pattern4 with continue + return)
+// Phase 165: Test _parse_string from JsonParserBox (continue+return loop)
 // Simulates: loop(p < len) { if quote { return } if escape { continue } else { append } p++ }
 
 static box Main {
   main(args) {
     // Simulate string parsing: collect chars until closing quote
-    // Pattern: continue on escape, return on quote
+    // Route shape: continue on escape, return on quote
     local s = "hello\\\"world\"extra"
     local p = 0
     local len = s.length()

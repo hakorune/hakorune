@@ -1,4 +1,4 @@
-// Phase 164: Test skip_whitespace from JsonParserBox (Pattern3 with if-else PHI + break)
+// Phase 164: Test skip_whitespace from JsonParserBox (if_phi_join-style + break)
 // Simulates: loop(p < len) { if is_whitespace(ch) { p++ } else { break } }
 
 static box Main {
@@ -8,7 +8,7 @@ static box Main {
     local p = 0
     local len = s.length()
 
-    // Loop with if-else PHI: p is updated in both branches differently
+    // if_phi_join-style body update: p changes differently across branches
     loop(p < len) {
       local ch = s.substring(p, p + 1)
       // Check if whitespace

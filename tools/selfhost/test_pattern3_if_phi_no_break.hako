@@ -1,12 +1,12 @@
-// Phase 164: Test Pattern3 (If-Else PHI) without break
-// Pattern3 is: if-else PHI with NO break, NO continue
+// Phase 164: Test if_phi_join-style loop without break
+// if_phi_join-style means: if-else PHI with no break, no continue
 // Example: Accumulate result with conditional assignment
 // Simulates: loop(i < n) { if condition { result = f(result) } else { result = g(result) } i++ }
 
 static box Main {
   main(args) {
     // Accumulate sum with conditional increment
-    // Pattern: if-else PHI where variable gets different values in both branches
+    // Route shape: if-else PHI where the variable gets different values in both branches
     local i = 0
     local sum = 0
     local n = 5
@@ -22,7 +22,7 @@ static box Main {
     }
 
     // Output result
-    print("Pattern3 (If-Else PHI, no break) test")
+    print("if_phi_join-style (no break) test")
     print("Final sum: " + ("" + sum))
     print("Expected: 1 + 1 + 10 + 1 + 1 = 14")
     return 0

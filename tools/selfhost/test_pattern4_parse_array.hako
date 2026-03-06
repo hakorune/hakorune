@@ -1,10 +1,10 @@
-// Phase 165: Test _parse_array style from JsonParserBox (Pattern4 with continue + multi-return)
+// Phase 165: Test _parse_array style from JsonParserBox (continue+multi-return loop)
 // Simulates: loop(p < len) { if stop { return } if sep { continue } else { append } p++ }
 
 static box Main {
   main(args) {
     // Simulate array element parsing: collect elements until ']'
-    // Pattern: continue on ',' separator, return on ']', error on other
+    // Route shape: continue on ',' separator, return on ']', error on other
     local s = "elem1,elem2,elem3]extra"
     local p = 0
     local len = s.length()

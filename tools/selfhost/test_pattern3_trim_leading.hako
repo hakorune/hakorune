@@ -1,4 +1,4 @@
-// Phase 164: Test trim_leading from JsonParserBox (Pattern3 with if-else PHI + break)
+// Phase 164: Test trim_leading from JsonParserBox (if_phi_join-style + break)
 // Simulates: loop(start < end) { if is_whitespace(ch) { start++ } else { break } }
 
 static box Main {
@@ -8,7 +8,7 @@ static box Main {
     local start = 0
     local end = s.length()
 
-    // Loop with if-else PHI: start is updated conditionally with break
+    // if_phi_join-style body update: start changes conditionally before break
     loop(start < end) {
       local ch = s.substring(start, start + 1)
       // Check if whitespace

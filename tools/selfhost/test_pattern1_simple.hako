@@ -1,4 +1,4 @@
-// Phase 162: Simplest Pattern1 test (no ArrayBox/objects)
+// Phase 162: Simplest loop_simple_while test (no ArrayBox/objects)
 // Just accumulate a counter in a simple loop
 
 static box Main {

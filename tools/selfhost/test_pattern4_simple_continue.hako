@@ -1,4 +1,4 @@
-// Phase 165: Test simple Pattern4 (continue) loop
+// Phase 165: Test simple loop_continue_only-style loop
 // Simulates: loop(i < n) { if skip { continue } process i++ }
 
 static box Main {
@@ -33,7 +33,7 @@ static box Main {
       i = i + 1
     }
 
-    print("Pattern4 (Simple Continue) test")
+    print("loop_continue_only-style test")
     print("Sum of odd numbers 0-10: " + ("" + sum))
     print("Expected: 1 + 3 + 5 + 7 + 9 = 25")
     return 0

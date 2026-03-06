@@ -1,4 +1,4 @@
-// Phase 163: Test linear search with break (Pattern2)
+// Phase 163: Test linear search with break (loop_break)
 // Simulates: loop(j < len) { if found { break } j++ }
 
 static box Main {

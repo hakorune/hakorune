@@ -1,5 +1,5 @@
-// Phase 162: Test BundleResolver merge loop (Pattern1 simple)
-// Target: BundleResolver merge loops (L107, L111) - Pattern1 (Simple)
+// Phase 162: Test BundleResolver merge loop (loop_simple_while simple)
+// Target: BundleResolver merge loops (L107, L111) - loop_simple_while route
 
 static box Main {
   main(args) {

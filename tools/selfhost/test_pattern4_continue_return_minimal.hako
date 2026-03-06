@@ -1,6 +1,6 @@
 // Phase 142 P2: Minimal continue + return pattern test
 // Simplified from test_pattern4_parse_string.hako
-// Pattern: loop with continue on skip condition, return on found condition
+// Route shape: loop with continue on skip condition, return on found condition
 
 static box Main {
   main(args) {

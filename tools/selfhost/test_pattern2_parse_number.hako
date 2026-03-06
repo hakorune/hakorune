@@ -1,4 +1,4 @@
-// Phase 163: Test _parse_number from JsonParserBox (Pattern2 with break)
+// Phase 163: Test _parse_number from JsonParserBox (loop_break digit scan)
 // Simulates: loop(digit_pos >= 0) { num_str += ch; p++; break if non-digit }
 
 static box Main {
