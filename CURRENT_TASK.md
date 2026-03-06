@@ -281,9 +281,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - intent: file 名や fixture 名は保持したまま、test 名・doc comment・skip reason comment では `loop_break` / `loop_simple_while` / `loop_true_early_exit` を主語にする
     - verification: `cargo check --tests` PASS / `rg -n "json_parser_min_runs_via_joinir_pattern2_path|Pattern 2 \\(Break\\)|DomainPlan Pattern1|Pattern1 strict shadow|Pattern5 strict shadow|selfhost_mir_min_vm: Pattern 1|selfhost_minimal: Pattern 1|selfhost_minimal: Pattern 4|Pattern 6 \\(NestedLoop Minimal\\)" tests/phase245_json_parse_number.rs tests/phase246_json_atoi.rs tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern5_strict_shadow_vm.sh tools/smokes/v2/profiles/integration/selfhost/selfhost_mir_min_vm.sh tools/smokes/v2/profiles/integration/selfhost/selfhost_minimal.sh` = 0 hit
   - route allowlist note (2026-03-07): `join_ir/frontend/ast_lowerer/route.rs` の fixture key は by-name allowlist 契約として扱う
-    - keep-as-is: `pattern3_if_sum_multi_min` / `jsonparser_if_sum_min` / `selfhost_if_sum_p3` / `selfhost_if_sum_p3_ext`
-    - rule: rename は避ける。必要なら alias 追加に留め、旧キーは維持する
-    - rationale: `lower_program_json()` が `defs[0].name` を `resolve_function_route()` へ直結しており、private/historical JSON fixtures の `name` と結びついている
+    - legacy key: `pattern3_if_sum_multi_min` / `jsonparser_if_sum_min` / `selfhost_if_sum_p3` / `selfhost_if_sum_p3_ext`
+    - semantic alias: `if_phi_join_multi_min` / `jsonparser_if_phi_join_min` / `selfhost_if_phi_join` / `selfhost_if_phi_join_ext`
+    - rule: direct rename/delete は避ける。Phase B/C で semantic alias と managed assets migration を先に済ませ、Phase D で old key を retire する
+    - rationale: `lower_program_json()` が `defs[0].name` を `resolve_function_route()` へ直結するため、runtime 契約は alias-first でしか安全に畳めない
   - compat retirement setup (2026-03-07, phase A): legacy by-name fixture key を独立フェーズとして固定した
     - SSOT: `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
     - scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の `pattern3_if_sum_multi_min` / `jsonparser_if_sum_min` / `selfhost_if_sum_p3` / `selfhost_if_sum_p3_ext`
@@ -298,6 +299,29 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - `selfhost_if_sum_p3_ext` -> `selfhost_if_phi_join_ext`
     - intent: old key を壊さずに semantic key を先行導入し、fixture/doc migration の受け皿を作る
     - verification: `cargo test --lib legacy_and_semantic_if_phi_join_fixture_keys_resolve_to_loop_frontend` PASS / `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - compat retirement (2026-03-07, phase C): managed private fixtures/docs を semantic alias 側へ移行した
+    - renamed fixtures:
+      - `docs/private/roadmap2/phases/normalized_dev/fixtures/if_phi_join_multi_min.program.json`
+      - `docs/private/roadmap2/phases/normalized_dev/fixtures/jsonparser_if_phi_join_min.program.json`
+      - `docs/private/roadmap2/phases/normalized_dev/fixtures/selfhost_if_phi_join.program.json`
+      - `docs/private/roadmap2/phases/normalized_dev/fixtures/selfhost_if_phi_join_ext.program.json`
+    - synced docs:
+      - `docs/private/development/current/main/joinir-architecture-overview.md`
+      - `docs/private/development/current/main/phase47-norm-p3-design.md`
+      - `docs/private/development/current/main/phase49-selfhost-joinir-depth2-design.md`
+      - `docs/private/development/current/main/PHASE_61_SUMMARY.md`
+      - `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
+    - intent: in-repo managed fixture/doc 参照を semantic key へ寄せ、old key の残りを `route.rs` / retirement ledger / archive-history に縮める
+    - verification: `rg -n "pattern3_if_sum_multi_min|jsonparser_if_sum_min|selfhost_if_sum_p3|selfhost_if_sum_p3_ext" src tests tools docs/development/current/main docs/private CURRENT_TASK.md` = `route.rs` / retirement docs / archive only
+    - verification: `rg -n "if_phi_join_multi_min|jsonparser_if_phi_join_min|selfhost_if_phi_join|selfhost_if_phi_join_ext" docs/private/development/current/main docs/private/roadmap2/phases/normalized_dev/fixtures docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md` = semantic fixtures/docs only
+  - compat retirement (2026-03-07, phase D): `route.rs` から old key を retire し、runtime contract を semantic key のみに収束させた
+    - synced files: `src/mir/join_ir/frontend/ast_lowerer/route.rs` / `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
+    - runtime contract:
+      - accepted: `if_phi_join_multi_min` / `jsonparser_if_phi_join_min` / `selfhost_if_phi_join` / `selfhost_if_phi_join_ext`
+      - retired: `pattern3_if_sum_multi_min` / `jsonparser_if_sum_min` / `selfhost_if_sum_p3` / `selfhost_if_sum_p3_ext`
+    - intent: live by-name contract から pattern-era key を外し、repo 内 managed assets と runtime entry を semantic 名へ揃える
+    - verification: `rg -n "pattern3_if_sum_multi_min|jsonparser_if_sum_min|selfhost_if_sum_p3|selfhost_if_sum_p3_ext" src tests tools docs/development/current/main docs/private CURRENT_TASK.md` = `CURRENT_TASK` / retirement SSOT / archive / `route.rs` rejection test only
+    - verification: `cargo test --lib semantic_if_phi_join_fixture_keys_resolve_to_loop_frontend` PASS / `cargo test --lib retired_legacy_if_phi_join_fixture_keys_are_rejected` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
   - truth cleanup (2026-03-07, slice 23): low-risk active docs の stale path / Pattern wording を route-first に寄せた
     - synced files: `docs/development/current/main/design/{coreloop-stepmode-inline-in-body-ssot,pattern-p5b-escape-design,coreplan-skeleton-feature-model,joinir-pattern-selection-shadow-ssot}.md`
     - intent: 現在参照される設計文では semantic route / family を主語にし、stale source path も今の file 名へ合わせる
@@ -310,7 +334,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## next fixed order (resume point)
 
 1. `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. legacy fixture key retirement を A→D の順で進める（A=SSOT/在庫, B=alias追加, C=fixture/doc移行, D=旧key retire）。
+2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
 3. `truth` cleanup を継続し、active docs / runtime comments の旧主語を appendix / archive / README へさらに寄せる。
 4. `naming` cleanup: legacy file/test/comment 名を semantic 名へ同期し、test-only wording と historical docs の境界をさらに薄くする。
 5. `dust` cleanup: warnings / orphan helper / dead code を刈る。

@@ -1,12 +1,12 @@
 # JoinIR Frontend Legacy Fixture Key Retirement SSOT
 
-Status: Phase B accepted
+Status: Phase D accepted
 Date: 2026-03-07
 Scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の legacy by-name fixture key 互換契約
 
 ## Purpose
 
-`route.rs` に残っている pattern-era の関数名 key を、runtime を壊さずに段階撤去する。
+`route.rs` に残っていた pattern-era の関数名 key を、runtime を壊さずに段階撤去し、semantic key 契約へ収束させる。
 
 対象:
 - `pattern3_if_sum_multi_min`
@@ -17,19 +17,21 @@ Scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の legacy by-name fixtur
 ## Current Contract
 
 - Program JSON frontend は `defs[0].name` を `resolve_function_route()` へ直結する。
-- したがって、上記 key は単なる historical string ではなく、**by-name allowlist 契約**である。
+- 旧 key は Phase C までは **by-name allowlist 契約**として live だった。
 - 現行 mainline の active tests / fast gate はこれらを直接 pin していない。
-- ただし private / historical JSON fixtures は `name` を固定している。
+- Phase B で semantic alias を追加し、Phase C で managed private fixtures/docs を semantic key へ移行した。
+- Phase D で `route.rs` の old key は retire 済み。runtime で受理するのは semantic key のみ。
+- old key の残りは retirement ledger、`CURRENT_TASK`、archive/history、explicit rejection test を中心とする。
 
 Code anchors:
 - `src/mir/join_ir/frontend/ast_lowerer/mod.rs`
 - `src/mir/join_ir/frontend/ast_lowerer/route.rs`
 
 Pinned assets:
-- `docs/private/roadmap2/phases/normalized_dev/fixtures/pattern3_if_sum_multi_min.program.json`
-- `docs/private/roadmap2/phases/normalized_dev/fixtures/jsonparser_if_sum_min.program.json`
-- `docs/private/roadmap2/phases/normalized_dev/fixtures/selfhost_if_sum_p3.program.json`
-- `docs/private/roadmap2/phases/normalized_dev/fixtures/selfhost_if_sum_p3_ext.program.json`
+- `docs/private/roadmap2/phases/normalized_dev/fixtures/if_phi_join_multi_min.program.json`
+- `docs/private/roadmap2/phases/normalized_dev/fixtures/jsonparser_if_phi_join_min.program.json`
+- `docs/private/roadmap2/phases/normalized_dev/fixtures/selfhost_if_phi_join.program.json`
+- `docs/private/roadmap2/phases/normalized_dev/fixtures/selfhost_if_phi_join_ext.program.json`
 
 ## Decision
 
@@ -105,7 +107,7 @@ Alias map:
 
 受け入れ条件:
 - in-repo の managed fixture/doc 参照が semantic key に寄る
-- old key の残りが外部互換か archive だけになる
+- old key の残りが `route.rs` / retirement ledger / archive/history に縮む
 
 ### Phase D: Retire Old Keys
 
@@ -124,10 +126,16 @@ Alias map:
 
 ## Drift Checks
 
-Inventory:
+Old-key retirement inventory:
 ```bash
 rg -n "pattern3_if_sum_multi_min|jsonparser_if_sum_min|selfhost_if_sum_p3|selfhost_if_sum_p3_ext" \
   src tests tools docs/development/current/main docs/private CURRENT_TASK.md
+```
+
+Managed semantic assets:
+```bash
+rg -n "if_phi_join_multi_min|jsonparser_if_phi_join_min|selfhost_if_phi_join|selfhost_if_phi_join_ext" \
+  docs/private/development/current/main docs/private/roadmap2/phases/normalized_dev/fixtures
 ```
 
 Runtime contract:
@@ -138,9 +146,9 @@ rg -n "resolve_function_route|lower_program_json" \
 
 ## Recommended Next Step
 
-次の実装 slice は **Phase C: fixture / doc migration**。
+この removal phase は **closed**。
 
 理由:
-- alias の受け皿は既にできた
-- 旧 key を壊さずに managed assets を順番に移せる
-- retire 判定を `rg` で測れる状態になった
+- alias 追加、managed asset migration、old key retire まで完了した
+- runtime の by-name contract は semantic key に収束した
+- 旧 key は retirement ledger / `CURRENT_TASK` / archive-history の traceability に限定できた
