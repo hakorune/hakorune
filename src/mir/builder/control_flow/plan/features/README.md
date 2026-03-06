@@ -30,9 +30,10 @@ Pipeline:
   - scan_with_init: `features/scan_with_init_pipeline.rs` + `features/scan_with_init_ops.rs`
   - split_scan: `features/split_scan_pipeline.rs` + `features/split_scan_ops.rs`
   - split-specific emit/match: `features/split_emit.rs`
-- loop_true_early_exit pipeline:
+- loop_true_early_exit route:
   - semantic route: `loop_true_early_exit`
-  - physical files (legacy names): `features/pattern5_infinite_early_exit_pipeline.rs` + `features/pattern5_infinite_early_exit_ops.rs`
+  - current implementation: `recipe_tree/loop_true_early_exit_{builder,composer}.rs`
+  - note: no dedicated `features/*` pipeline file remains
 
 Exit-branch helper:
 - `features/exit_branch.rs`: shared “exit branch” extractor/lowerer (prelude + ExitKind) used by `exit_if_map` and BranchN/match (SSOT: `docs/development/current/main/design/exit-branch-feature-ssot.md`).

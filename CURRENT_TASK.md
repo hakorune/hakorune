@@ -330,6 +330,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `tools/smokes/v2/profiles/integration/joinir/{phase29ao_pattern{1,2,3,5,6,7}_*,phase29ae_pattern{6,7}_*,phase29ap_pattern4_continue_min_vm.sh,phase29ap_pattern6_nested_*,phase29bi_planner_required_pattern2_pack_vm.sh,phase29bl_planner_required_pattern1_4_5_pack_vm.sh,phase29bn_planner_required_pattern3_pack_vm.sh,phase29bo_planner_required_pattern8_9_pack_vm.sh,phase286_pattern9_legacy_pack.sh}.sh` / `tools/smokes/v2/profiles/integration/selfhost/{selfhost_mir_min_vm,selfhost_minimal}.sh`
     - intent: script 名と fixture 名はそのまま残し、header comment / skip reason comment では `loop_simple_while` / `loop_break` / `if_phi_join` / `loop_continue_only` / `loop_true_early_exit` / `scan_with_init` / `split_scan` / `nested_loop_minimal` / `accum_const_loop` を主語にする
     - verification: `rg -n -g '*.sh' -- "- Pattern[1-9]|Pattern 1 \\(JoinIR loop pattern gap|Pattern 4 \\(OS limitation|Pattern 6 \\(NestedLoop Minimal\\)|Ensure Pattern1 subset" tools/smokes/v2/profiles/integration/joinir tools/smokes/v2/profiles/integration/selfhost` = 0 hit
+  - truth cleanup (2026-03-07, slice 25): stale path inventory を現行 tree に同期した
+    - synced files: `src/mir/builder/control_flow/plan/{REGISTRY.md,features/README.md}` / `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
+    - intent: 既に撤去済みの `features/pattern5_infinite_early_exit_{pipeline,ops}.rs` と `normalizer/pattern8_bool_predicate_scan.rs` / `normalizer/pattern9_accum_const_loop.rs` を active inventory から外し、`loop_true_early_exit` の current implementation を recipe-tree 側へ合わせる
+    - verification: `rg -n "pattern5_infinite_early_exit_pipeline|pattern5_infinite_early_exit_ops|normalizer/pattern8_bool_predicate_scan|normalizer/pattern9_accum_const_loop" src/mir/builder/control_flow/plan docs/development/current/main/design/recipe-tree-and-parts-ssot.md` = archive / history を除いて 0 hit
 
 ## next fixed order (resume point)
 

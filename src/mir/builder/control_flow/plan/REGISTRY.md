@@ -88,7 +88,7 @@ Lower: `src/mir/builder/control_flow/plan/lowerer/`
 - `coreloop_skeleton`: template=`plan/features/coreloop_skeleton/` (SSOT template for Standard5 loop structure with carrier PHI management; pipelines reuse via `build_coreloop_frame` / `build_header_step_phis` / `build_continue_with_phi_args`).
 - `scan_with_init`: skeleton=`plan/skeletons/scan_with_init.rs`, pipeline=`plan/features/scan_with_init_pipeline.rs` (ops=`features/scan_with_init_ops.rs`).
 - `split_scan`: skeleton=`plan/skeletons/split_scan.rs`, pipeline=`plan/features/split_scan_pipeline.rs` (ops=`features/split_scan_ops.rs`, emit/match=`features/split_emit.rs`).
-- `loop_true_early_exit`: skeleton=`plan/skeletons/loop_true.rs`, pipeline=`plan/features/pattern5_infinite_early_exit_pipeline.rs` (semantic route=`loop_true_early_exit`; physical ops files remain `features/pattern5_infinite_early_exit_{pipeline,ops}.rs`).
+- `loop_true_early_exit`: skeleton=`plan/skeletons/loop_true.rs`, recipe=`plan/recipe_tree/loop_true_early_exit_{builder,composer}.rs` (semantic route=`loop_true_early_exit`; no dedicated feature pipeline file remains).
 - scan/split pipeline order (SSOT): skeleton → ops → (split_emit for split) → if_join (join args/phis) → edgecfg_stubs (branches) → carrier_merge (final_values).
 - loop phis are attached via `features/loop_carriers.rs::with_loop_carriers` (ops must not set `phis` directly).
 - carrier collection is centralized in `features/carriers.rs` (pipelines pass carrier lists to carrier_merge/conditional_update_join).
@@ -143,11 +143,12 @@ SSOT: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 
 | Legacy normalizer | Current state | Planned direction | Promotion trigger |
 |---|---|---|---|
-| `normalizer/pattern1_*` | legacy（複数） | `generic_loop_v0/v1` へ寄せるか、`LoopSkeleton + ExitMap/ValueJoin` 合成へ分解 | “pattern1_* に新分岐” を入れたくなった時点 |
+| `normalizer/simple_while_coreloop_builder.rs` | legacy helper lane | `generic_loop_v0/v1` へ寄せるか、`LoopSkeleton + ExitMap/ValueJoin` 合成へ分解 | simple-while helper に route-specific 分岐を足したくなった時点 |
 | `normalizer/loop_break.rs` | test-only loop_break harness | `ExitMap` feature へ（“別pattern” を増やさない） | break/return 形の拡張が必要になった時点 |
-| `normalizer/pattern8_bool_predicate_scan.rs` | legacy | scan/split の skeleton/pipeline と feature helper に寄せる（アルゴリズム意図のみ残す） | scan 系で合流/phi の重複が再発した時点 |
-| `normalizer/pattern9_accum_const_loop.rs` | legacy | scan/split/generic_loop の合成へ寄せ、pattern9 固有は “intent” に縮める | accumulator 形の追加受理が必要になった時点 |
 | `normalizer/pattern_*`（string/helpers: skip_ws/split_lines/escape_map/is_integer/int_to_str/starts_with 等） | legacy（小粒） | 直近は現状維持（小粒）。将来は `generic_loop_v1`/FlowBox へ吸収候補 | 2 箇所以上で同型の手書き合流が増えた時点 |
+
+Note:
+- `bool_predicate_scan` / `accum_const_loop` は facts + recipe_tree entry へ収束済みで、dedicated normalizer file は現行 tree に存在しない。
 
 Hard patterns (special-rule required):
 - irreducible/multi-entry loop, unwind/finally, coroutine/yield 等は “例外で通す” ではなく Freeze taxonomy + SSOT で扱う（入口: `docs/development/current/main/design/coreplan-skeleton-feature-model.md` の Section 3）。
