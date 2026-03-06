@@ -89,8 +89,6 @@ mod cond_profile;
 #[cfg(test)]
 mod tests;
 
-// Re-export for external usage
-pub(in crate::mir::builder) use primitives::debug_assert_value_join_invariants;
 pub(in crate::mir::builder) use core::PlanVerifier;
 
 // Re-export debug helpers for external usage

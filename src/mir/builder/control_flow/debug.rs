@@ -19,12 +19,4 @@
 use super::super::MirBuilder;
 
 impl MirBuilder {
-    /// Trace variable_map state for debugging
-    ///
-    /// Phase 195: Delegates to JoinLoopTrace for unified tracing.
-    /// Enable with NYASH_TRACE_VARMAP=1
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn trace_varmap(&self, context: &str) {
-        super::joinir::trace::trace().varmap(context, &self.variable_ctx.variable_map);
-    }
 }

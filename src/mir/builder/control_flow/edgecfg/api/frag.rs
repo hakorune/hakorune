@@ -100,11 +100,6 @@ impl Frag {
         self.exits.get(kind)
     }
 
-    /// すべての ExitKind を列挙
-    #[cfg(test)]
-    pub fn exit_kinds(&self) -> impl Iterator<Item = &ExitKind> {
-        self.exits.keys()
-    }
 }
 
 // ============================================================================

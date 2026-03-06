@@ -84,7 +84,6 @@ mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare →
 mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer
 mod phi_type_inference; // Phase 29bq+: PHI type inference (multi-phase fallback chain)
 mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures)
-mod loop_frontend_binding; // Phase 50: Loop Frontend Binding (JoinIR variable mapping)
 pub(crate) mod loops;
 mod ops;
 mod phi;

@@ -262,6 +262,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - intent: test 名と test comment でも route semantics を主語にし、numbered label を repo 内部テスト surface から外す
     - verification: `rg -n "pattern3_style|pattern4_style|pattern2_break_digit_pos_less_zero" src/mir/join_ir/lowering` = 0 hit
     - verification: `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - dust cleanup (2026-03-07, slice 19): low-risk warning sourceの unused import / dead helper / unhooked module を削った
+    - synced files: `src/mir/builder.rs` / `src/mir/builder/control_flow/plan/{normalizer,verifier}/mod.rs` / `src/mir/builder/control_flow/joinir/trace.rs` / `src/mir/builder/control_flow/debug.rs` / `src/mir/builder/control_flow/edgecfg/api/frag.rs`
+    - deleted: `src/mir/builder/loop_frontend_binding.rs`
+    - intent: current runtime で未接続の helper と未使用 re-export を消し、warning を挙動不変で減らす
+    - verification: `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 

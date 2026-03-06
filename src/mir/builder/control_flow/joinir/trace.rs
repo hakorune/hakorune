@@ -104,12 +104,6 @@ impl JoinLoopTrace {
             || self.capture_enabled
     }
 
-    /// Check if varmap tracing is enabled
-    #[cfg(test)]
-    pub fn is_varmap_enabled(&self) -> bool {
-        self.varmap_enabled
-    }
-
     /// Check if general joinir debug is enabled
     pub fn is_joinir_enabled(&self) -> bool {
         self.joinir_enabled
@@ -123,23 +117,6 @@ impl JoinLoopTrace {
     /// Check if loopform debug is enabled (legacy compatibility)
     pub fn is_loopform_enabled(&self) -> bool {
         self.loopform_enabled
-    }
-
-    /// Trace route detection/selection.
-    ///
-    /// # Arguments
-    /// - `tag`: Context identifier (e.g., "route", "if_phi_join")
-    /// - `route_name`: Semantic route name (e.g., "IfPhiJoin")
-    /// - `matched`: Whether the route matched (true) or was skipped (false)
-    pub fn route(&self, tag: &str, route_name: &str, matched: bool) {
-        if self.joinir_enabled || self.varmap_enabled {
-            let status = if matched { "MATCHED" } else { "skipped" };
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[trace:route] {}: {} {}",
-                tag, route_name, status
-            ));
-        }
     }
 
     /// Trace variable_map state
@@ -172,54 +149,6 @@ impl JoinLoopTrace {
             ring0.log.debug(&format!(
                 "[trace:joinir] {}: {} functions, {} blocks",
                 tag, func_count, block_count
-            ));
-        }
-    }
-
-    /// Trace PHI operations
-    ///
-    /// # Arguments
-    /// - `tag`: Context identifier (e.g., "if_phi_join", "exit_block")
-    /// - `msg`: Human-readable message about the PHI operation
-    #[cfg(test)]
-    pub fn phi(&self, tag: &str, msg: &str) {
-        if self.phi_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug(&format!("[trace:phi] {}: {}", tag, msg));
-        }
-    }
-
-    /// Trace merge operations
-    ///
-    /// # Arguments
-    /// - `tag`: Context identifier (e.g., "if_phi_join", "block_allocation")
-    /// - `msg`: Human-readable message about the merge operation
-    #[cfg(test)]
-    pub fn merge(&self, tag: &str, msg: &str) {
-        if self.joinir_enabled || self.varmap_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug(&format!("[trace:merge] {}: {}", tag, msg));
-        }
-    }
-
-    /// Trace exit PHI connection (variable_map update)
-    ///
-    /// # Arguments
-    /// - `tag`: Context identifier (e.g., "if_phi_join", "exit_reconnect")
-    /// - `var_name`: Name of the variable being reconnected
-    /// - `old_id`: Old ValueId (before exit PHI)
-    /// - `new_id`: New ValueId (after exit PHI)
-    #[cfg(test)]
-    pub fn exit_phi(&self, tag: &str, var_name: &str, old_id: ValueId, new_id: ValueId) {
-        if self.varmap_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[trace:exit_phi] {}: {} r{}→r{}",
-                tag, var_name, old_id.0, new_id.0
             ));
         }
     }
@@ -315,19 +244,6 @@ impl JoinLoopTrace {
         }
     }
 
-    /// Trace instruction rewriting
-    ///
-    /// # Arguments
-    /// - `tag`: Context identifier (e.g., "rewriter", "phi_inject")
-    /// - `msg`: Human-readable message about instruction operations
-    pub fn instructions(&self, tag: &str, msg: &str) {
-        if self.joinir_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug(&format!("[trace:instructions] {}: {}", tag, msg));
-        }
-    }
 }
 
 impl Default for JoinLoopTrace {
@@ -342,7 +258,6 @@ impl Default for JoinLoopTrace {
 ///
 /// ```rust
 /// trace::trace().varmap("my_tag", &variable_map);
-/// trace::trace().route("route", "LoopSimpleWhile", true);
 /// ```
 pub fn trace() -> &'static JoinLoopTrace {
     use std::sync::OnceLock;
