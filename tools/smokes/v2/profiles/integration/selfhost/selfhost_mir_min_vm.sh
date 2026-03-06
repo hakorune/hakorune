@@ -125,9 +125,9 @@ else
   # Phase S0: Conditional SKIP for known patterns (該当ログの時だけ)
   # SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md
 
-  # Pattern 1: Loop lowering failed / StepTree lowering returned None (JoinIR pattern gap)
+  # Legacy Pattern1 label: loop_simple_while lowering failed / StepTree lowering returned None
   if echo "$output" | grep -qE "(loop pattern is not supported|Loop lowering failed|StepTree lowering returned None)"; then
-    log_warn "[SKIP] selfhost_mir_min_vm: Pattern 1 (JoinIR loop pattern gap - Phase 188 limitation)"
+    log_warn "[SKIP] selfhost_mir_min_vm: loop_simple_while legacy gap (Phase 188 limitation)"
     echo "# SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md" >&2
     cd /
     rm -rf "$TEST_DIR"

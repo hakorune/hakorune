@@ -46,21 +46,21 @@ set -e
 # Phase S0: Conditional SKIP for known patterns (該当ログの時だけ)
 # SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md
 if [ $rc -ne 0 ]; then
-  # Pattern 4: Argument list too long (OS limitation)
+  # Legacy Pattern4 label: argument list too long (OS limitation)
   if echo "$output" | grep -q "Argument list too long"; then
-    warn "[SKIP] selfhost_minimal: Pattern 4 (OS limitation - Argument list too long)"
+    warn "[SKIP] selfhost_minimal: legacy Pattern4 label (OS limitation - Argument list too long)"
     echo "# SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md" >&2
     exit 0
   fi
 
-  # Pattern 1: Loop lowering failed / StepTree lowering returned None (JoinIR pattern gap)
+  # Legacy Pattern1 label: loop_simple_while lowering failed / StepTree lowering returned None
   if echo "$output" | grep -qE "(Loop lowering failed|StepTree lowering returned None)"; then
-    warn "[SKIP] selfhost_minimal: Pattern 1 (JoinIR loop pattern gap - Phase 188 limitation)"
+    warn "[SKIP] selfhost_minimal: loop_simple_while legacy gap (Phase 188 limitation)"
     echo "# SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md" >&2
     exit 0
   fi
 
-  # Phase 188.1: Pattern 6 (NestedLoop Minimal) now supported!
+  # Phase 188.1: legacy Pattern6 label (NestedLoop Minimal) is now supported.
   # Removed conditional SKIP - if BundleResolver.resolve/4 uses unsupported nested form,
   # explicit error will occur (not SKIP)
 

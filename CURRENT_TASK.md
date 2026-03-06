@@ -275,6 +275,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `src/mir/control_tree/normalized_shadow/anf/README.md` / `src/mir/builder/control_flow/plan/REGISTRY.md` / `src/mir/builder/control_flow/plan/features/README.md` / `docs/development/current/main/design/{loop-canonicalizer,joinir-design-map,coreplan-skeleton-feature-model}.md`
     - intent: fixture key と physical file 名は残したまま、今読む guidance では `Pattern` ではなく route / shape / feature を主語にする
     - verification: `rg -n "Pattern Router|Pattern Lowerer|RoutingDecision\\(Pattern2\\)|Pattern 1:|Pattern 2:|Pattern2 の policy" src/mir/control_tree/normalized_shadow/anf/README.md src/mir/builder/control_flow/plan/REGISTRY.md src/mir/builder/control_flow/plan/features/README.md docs/development/current/main/design/{loop-canonicalizer,joinir-design-map,coreplan-skeleton-feature-model}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 22): tests / smoke scripts の current-facing Pattern prose を route-first に寄せた
+    - synced files: `tests/{phase245_json_parse_number,phase246_json_atoi}.rs` / `tools/smokes/v2/profiles/integration/joinir/{phase29ao_pattern1_strict_shadow_vm,phase29ao_pattern5_strict_shadow_vm}.sh` / `tools/smokes/v2/profiles/integration/selfhost/{selfhost_mir_min_vm,selfhost_minimal}.sh`
+    - intent: file 名や fixture 名は保持したまま、test 名・doc comment・skip reason comment では `loop_break` / `loop_simple_while` / `loop_true_early_exit` を主語にする
+    - verification: `cargo check --tests` PASS / `rg -n "json_parser_min_runs_via_joinir_pattern2_path|Pattern 2 \\(Break\\)|DomainPlan Pattern1|Pattern1 strict shadow|Pattern5 strict shadow|selfhost_mir_min_vm: Pattern 1|selfhost_minimal: Pattern 1|selfhost_minimal: Pattern 4|Pattern 6 \\(NestedLoop Minimal\\)" tests/phase245_json_parse_number.rs tests/phase246_json_atoi.rs tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern5_strict_shadow_vm.sh tools/smokes/v2/profiles/integration/selfhost/selfhost_mir_min_vm.sh tools/smokes/v2/profiles/integration/selfhost/selfhost_minimal.sh` = 0 hit
+  - route allowlist note (2026-03-07): `join_ir/frontend/ast_lowerer/route.rs` の fixture key は by-name allowlist 契約として扱う
+    - keep-as-is: `pattern3_if_sum_multi_min` / `jsonparser_if_sum_min` / `selfhost_if_sum_p3` / `selfhost_if_sum_p3_ext`
+    - rule: rename は避ける。必要なら alias 追加に留め、旧キーは維持する
+    - rationale: `lower_program_json()` が `defs[0].name` を `resolve_function_route()` へ直結しており、private/historical JSON fixtures の `name` と結びついている
 
 ## next fixed order (resume point)
 

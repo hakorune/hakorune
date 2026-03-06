@@ -12,7 +12,7 @@ pub(crate) enum FunctionRoute {
 }
 
 pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, String> {
-    // 通常のルーティングテーブル
+    // By-name allowlist for Program JSON / dev fixtures. Prefer additive aliasing; do not rename keys in place.
     const TABLE: &[(&str, FunctionRoute)] = &[
         ("test", FunctionRoute::IfReturn),
         ("local", FunctionRoute::IfReturn),

@@ -1,6 +1,6 @@
 //! Phase 246-EX Step 5: E2E tests for JsonParser _atoi JoinIR integration
 //!
-//! Tests the complete _atoi loop lowering using Pattern 2 (Break) + NumberAccumulation.
+//! Tests the complete _atoi loop lowering using loop_break route + NumberAccumulation.
 //!
 //! Test cases cover:
 //! - Single digit zero: "0" → 0

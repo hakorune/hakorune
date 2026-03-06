@@ -1,12 +1,12 @@
 #!/bin/bash
-# phase29ao_pattern1_strict_shadow_vm.sh - Pattern1 strict shadow adopt gate (VM)
+# phase29ao_pattern1_strict_shadow_vm.sh - loop_simple_while strict shadow adopt gate (VM)
 #
 # Purpose:
 # - Exercise Phase 29ao P17/P18 strict/dev shadow adopt path:
-#   DomainPlan Pattern1 selected -> Facts→CorePlan(skeleton) adopted in router
+#   loop_simple_while route selected -> Facts→CorePlan(skeleton) adopted in router
 #
 # Expected:
-# - Exit code 3 (same as existing Pattern1 PoC expectations)
+# - Exit code 3 (same as existing loop_simple_while PoC expectations)
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2

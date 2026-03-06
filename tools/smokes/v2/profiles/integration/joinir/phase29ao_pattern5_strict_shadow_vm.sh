@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ao_pattern5_strict_shadow_vm.sh - Pattern5 strict shadow adopt gate (VM)
+# phase29ao_pattern5_strict_shadow_vm.sh - loop_true_early_exit strict shadow adopt gate (VM)
 #
 # Expected:
 # - Output "3" or "RC: 3"

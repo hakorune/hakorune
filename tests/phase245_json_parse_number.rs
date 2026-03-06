@@ -1,7 +1,7 @@
 use std::process::Command;
 
 #[test]
-fn json_parser_min_runs_via_joinir_pattern2_path() {
+fn json_parser_min_runs_via_joinir_loop_break_path() {
     // Use the built binary to execute the minimal JsonParser fixture.
     // This ensures _parse_number goes through the JoinIR pipeline without regressions.
     let bin = env!("CARGO_BIN_EXE_hakorune");
