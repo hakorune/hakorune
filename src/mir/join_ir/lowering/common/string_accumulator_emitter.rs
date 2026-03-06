@@ -12,7 +12,7 @@
 //! String concatenation uses BinOp(Add) just like integer addition.
 //! Type semantics are enforced by:
 //! 1. P3-1: AccumulatorKind detection (Int vs String)
-//! 2. P3-3: Pattern2 wiring validation (RHS must be Variable, string-typed)
+//! 2. P3-3: loop_break wiring validation (RHS must be Variable, string-typed)
 //! 3. This emitter: Emit BinOp(Add) for string operands
 //!
 //! The VM and LLVM backends handle BinOp(Add) polymorphically:
@@ -61,7 +61,7 @@ pub fn emit_string_concat(
     instructions: &mut Vec<JoinInst>,
 ) -> Result<ValueId, String> {
     // Phase 100 P3-2: Emit BinOp(Add) for string concatenation
-    // Type semantics enforced by Pattern2 wiring (P3-3)
+    // Type semantics enforced by loop_break wiring (P3-3)
     let result = alloc_value();
     instructions.push(JoinInst::Compute(MirLikeInst::BinOp {
         dst: result,

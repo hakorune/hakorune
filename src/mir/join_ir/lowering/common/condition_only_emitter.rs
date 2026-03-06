@@ -148,7 +148,7 @@ impl ConditionOnlyEmitter {
     /// 3. 結果をConditionEnvに登録
     ///
     /// ## 呼び出しタイミング
-    /// Pattern2の`emit_body_local_init()`の直後
+    /// loop_break の `emit_body_local_init()` の直後
     ///
     /// # Arguments
     /// - `recipe`: 再計算レシピ（Trim pattern情報）

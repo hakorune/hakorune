@@ -213,6 +213,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - intent: current-facing `Pattern N` wording を route 名へ寄せ、残る numbered label は `legacy ... (traceability-only)` 注記つきの参照だけに縮退する
     - verification: `cargo test --lib test_capability_if_phi_join_comparable_simple` PASS / `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
     - verification: `rg -n "Pattern [1-9]|Pattern[1-9]|pattern[1-9]" src/mir/join_ir/lowering/loop_patterns src/mir/join_ir/lowering/loop_view_builder.rs src/mir/join_ir/lowering/carrier_info/types.rs src/mir/join_ir/lowering/loop_update_summary.rs src/mir/loop_pattern_detection/features.rs src/mir/join_ir/lowering/condition_pattern.rs` = traceability-only notes only
+  - naming cleanup (2026-03-06, slice 9): lowering/common と condition entry の current-facing Pattern-era prose を route-first に同期した
+    - synced files: `src/mir/join_ir/lowering/loop_with_break_minimal.rs` / `src/mir/join_ir/lowering/condition_lowering_box.rs` / `src/mir/join_ir/lowering/common/{body_local_derived_emitter,string_accumulator_emitter,dual_value_rewriter,condition_only_emitter}.rs`
+    - intent: `Pattern 1/2/3/4` の current-looking 説明を `LoopSimpleWhile` / `loop_break` / `if_phi_join` / `loop_continue_only` に置き換え、残る numbered label を active lowering surface から外す
+    - verification: `rg -n "Pattern [1-9]|Pattern[1-9]|pattern[1-9]" src/mir/join_ir/lowering/loop_with_break_minimal.rs src/mir/join_ir/lowering/condition_lowering_box.rs src/mir/join_ir/lowering/common/body_local_derived_emitter.rs src/mir/join_ir/lowering/common/string_accumulator_emitter.rs src/mir/join_ir/lowering/common/dual_value_rewriter.rs src/mir/join_ir/lowering/common/condition_only_emitter.rs` = 0 hit
+    - verification: `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 

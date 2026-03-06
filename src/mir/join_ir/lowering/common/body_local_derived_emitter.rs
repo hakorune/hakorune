@@ -11,7 +11,7 @@
 //!   - `ch` is conditionally overridden after a pre-increment of the loop counter
 //!   - loop counter update is `else_delta` always + `pre_delta` when `escape_cond`
 //!
-//! The extraction/policy lives on the Pattern2 builder side; this module only
+//! The extraction/policy lives on the loop_break builder side; this module only
 //! emits JoinIR given a validated recipe.
 
 use crate::ast::ASTNode;

@@ -1,7 +1,7 @@
 //! Phase 246-EX / 247-EX: Dual-value rewrite helpers (Box)
 //!
 //! Purpose: isolate name-based rewrite rules for promoted condition carriers
-//! and loop-local derived carriers, so Pattern2 lowering remains structural.
+//! and loop-local derived carriers, so loop_break lowering remains structural.
 //!
 //! This module is intentionally narrow and fail-fast-ish:
 //! - It only performs rewrites when it can prove the required body-local source exists.
@@ -115,4 +115,3 @@ pub fn try_derive_conditiononly_is_from_bodylocal_pos(
 
     Some(cmp)
 }
-

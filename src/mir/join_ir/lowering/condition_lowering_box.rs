@@ -12,7 +12,7 @@
 //! **Single Responsibility**: Implementations ONLY perform AST → ValueId lowering.
 //! They do NOT manage scopes, extract variables, or handle PHI generation.
 //!
-//! **Fail-Safe**: Implementations return explicit errors for unsupported patterns,
+//! **Fail-Safe**: Implementations return explicit errors for unsupported route shapes,
 //! allowing callers to fall back to alternative paths.
 
 use super::scope_manager::ScopeManager;
@@ -80,7 +80,8 @@ pub struct ConditionContext<'a, S: ScopeManager> {
 /// Phase 244: Unified condition lowering interface
 ///
 /// This trait provides a common interface for all condition lowering implementations.
-/// It allows Pattern 2/3/4 to use any lowering strategy (ExprLowerer, legacy, etc.)
+/// It allows loop_break / if_phi_join / loop_continue_only to use any lowering
+/// strategy (ExprLowerer, legacy, etc.)
 /// without coupling to specific implementation details.
 ///
 /// # Design Principles
@@ -122,17 +123,17 @@ pub trait ConditionLoweringBox<S: ScopeManager> {
     /// # Returns
     ///
     /// * `Ok(ValueId)` - Boolean result ValueId
-    /// * `Err(String)` - Lowering error (unsupported pattern, variable not found, etc.)
+    /// * `Err(String)` - Lowering error (unsupported route shape, variable not found, etc.)
     ///
     /// # Fail-Fast Principle
     ///
-    /// Implementations MUST return `Err` immediately for unsupported patterns.
+    /// Implementations MUST return `Err` immediately for unsupported route shapes.
     /// Callers can then decide whether to fall back to alternative lowering paths.
     ///
     /// # Example
     ///
     /// ```ignore
-    /// // Pattern 2: Break condition lowering
+    /// // LoopBreak: break condition lowering
     /// let cond_value = lowerer.lower_condition(&break_cond_ast, &context)?;
     ///
     /// // Use cond_value in conditional Jump

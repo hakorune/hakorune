@@ -48,7 +48,7 @@
 //! This is a MINIMAL implementation targeting joinir_min_loop.hako specifically.
 //! It establishes the infrastructure for loop_break lowering, building on simple-while lowering.
 //!
-//! Key differences from Pattern 1:
+//! Key differences from LoopSimpleWhile:
 //! - **Multiple Exit Paths**: Natural exit + break exit
 //! - **Exit PHI**: k_exit receives exit value (i) from both paths
 //! - **Sequential Jumps**: Natural exit check → break check → body
@@ -565,13 +565,13 @@ pub(crate) fn lower_loop_with_break_minimal(
             LoopBreakStepKind::BreakCheck => loop_step_func.body.append(&mut break_block),
             LoopBreakStepKind::Updates => loop_step_func.body.append(&mut carrier_update_block),
             LoopBreakStepKind::Tail => loop_step_func.body.append(&mut tail_block),
-            // Phase 47-A: P3 steps not used in P2 lowering (handled in Pattern3 lowerer)
+            // Phase 47-A: IfPhiJoin steps are not used in loop_break lowering.
             LoopBreakStepKind::IfCond
             | LoopBreakStepKind::ThenUpdates
             | LoopBreakStepKind::ElseUpdates => {
                 panic!("IfPhiJoin step kinds should not appear in loop_break lowering");
             }
-            // Phase 48-A: P4 steps not used in P2 lowering (handled in Pattern4 lowerer)
+            // Phase 48-A: LoopContinueOnly steps are not used in loop_break lowering.
             LoopBreakStepKind::ContinueCheck => {
                 panic!("LoopContinueOnly step kinds should not appear in loop_break lowering");
             }
