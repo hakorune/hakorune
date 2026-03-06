@@ -76,6 +76,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - extractor cluster（`extractors/{mod,pattern1,pattern3,common_helpers}` + `pattern_recognizers/if_else_phi`）の補助コメントを route 主語へ同期（legacy label は注記で保持）
   - `facts/pattern*_facts.rs` 系ヘッダと loop_break facts 補助注記（`pattern2_break_{core,helpers,types,tests,step_before_break}`）を route 主語へ同期（型名・ファイル名は legacy のまま保持）
   - scan/split contract docs（`pattern6-7-contracts.md`, `planfrag-freeze-taxonomy.md`, `planfrag-ssot-registry.md`）を route 主語へ同期し、契約タグは `legacy label` 注記で保持
+  - `common_init` / `loop_scope_shape_builder` / `conversion_pipeline` / `ast_feature_extractor` の補助コメントを route 主語へ同期（legacy label 注記を保持、挙動不変）
+  - `phase-29ae/README.md` と `coreplan-shadow-adopt-tag-coverage-ssot.md` の Pattern 箇条書きを route 主語へ同期（script名・tag key は不変）
 - compiler fixed order:
   1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す（進行中: `coreplan-shadow` / `plan-mod-layout` / `compiler-task-map` / `recipe-first-entry` / `condition-observation` / `domainplan-thinning` / `edgecfg-fragments` / `plan-dir-shallowing` / `coreplan-unknown-loop-strategy` / `coreloop-generic-loop-v0` / `joinir-plan-frag` / `coreplan-migration-roadmap` / `condprofile` / `coreloop-composer-v0-v1-boundary` / `pattern6-7-contracts` / `planfrag-freeze-taxonomy` / `planfrag-ssot-registry` は同期済み）。
   2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する（進行中: `coreloop_v0/v1` tests + `facts/loop_builder.rs` comment + `facts/loop_tests.rs` 名称 + `plan/mod.rs` / `route_prep_pipeline.rs` / `policies/*` comment + loop_break module cluster comment + extractor cluster comment + `facts/pattern*_facts.rs` header comment を同期済み）。
@@ -111,6 +113,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Restart Handoff (2026-03-06)
 
 - this round commits:
+  - `967e91b94` docs(plan): route-align phase29ae pack and shadow-adopt labels
+    - `phase-29ae/README.md` の回帰pack箇条書きを route 主語へ更新（`loop_break` / `if_phi_join` / `scan_with_init` / `split_scan` など）し、必要箇所は `legacy label` 注記を保持
+    - `coreplan-shadow-adopt-tag-coverage-ssot.md` の vocabulary / required / forbidden table の Pattern 主語を route 主語へ同期（tag key / smoke path は不変）
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
+  - `425bc661d` refactor(plan): route-align residual initializer and conversion wording
+    - `common_init.rs` / `loop_scope_shape_builder.rs` / `conversion_pipeline.rs` / `ast_feature_extractor.rs` の comment/docstring を route 主語へ同期（legacy label 注記を明示）
+    - `Pattern1..4` 前提の説明を semantic route 名へ更新し、識別子（型/関数/enum）は据え置きで挙動不変
+    - verify: `cargo build --release --bin hakorune` PASS、`phase29bq_fast_gate_vm.sh --only bq` PASS、`phase29x-probe` PASS（`unexpected_emit_fail=0 / route_blocker=0`）
   - `27a899137` docs(plan): route-align scan_split contract references
     - `pattern6-7-contracts.md` の本文/見出しを `scan_with_init` / `split_scan` 主語へ同期し、Pattern番号は `legacy label` 注記で保持
     - `planfrag-freeze-taxonomy.md` / `planfrag-ssot-registry.md` の `Pattern6/7 contracts` 参照を route 主語へ同期
