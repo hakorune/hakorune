@@ -1,8 +1,8 @@
 AST/CFG → JoinIR frontend lowering layer  
 
 Scope:
-- Normalize tiny AST/CFG patterns into JoinIR instructions without touching MIR or runtime concerns.
-- Keep pattern-specific lowering isolated (if/return, loop variants, nested-if, read_quoted_from).
+- Normalize tiny AST/CFG route/shape cases into JoinIR instructions without touching MIR or runtime concerns.
+- Keep route-specific lowering isolated (if/return, loop variants, nested-if, read_quoted_from).
 - Centralize expression/value extraction and small analysis helpers (if-in-loop var tracking).
 
 Boundaries:
@@ -15,7 +15,7 @@ Layout:
 - `context.rs`: `ExtractCtx` (var ids) helpers
 - `expr.rs`: expression-to-JoinIR value extraction
 - `if_return.rs`: simple if→Select lowering
-- `loop_patterns.rs`: loop variants (simple/break/continue)
+- `loop_routes/`: loop route modules (simple/break/continue)
 - `read_quoted.rs`: read_quoted_from lowering
 - `nested_if.rs`: NestedIfMerge lowering/detection
 - `analysis.rs`: loop if-var analysis + metadata helpers

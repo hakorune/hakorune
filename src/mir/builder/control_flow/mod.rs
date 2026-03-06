@@ -15,9 +15,9 @@
 //! ## Submodules
 //!
 //! - `debug` - Debug utilities and tracing
-//! - `joinir` - JoinIR integration (patterns, routing, merge)
-//!   - `patterns` - Loop pattern implementations (3 patterns)
-//!   - `routing` - Pattern routing and dispatch
+//! - `joinir` - JoinIR integration (route entry, routing, merge)
+//!   - `patterns` - Legacy on-disk path for route entry / registry
+//!   - `routing` - Route routing and dispatch
 //!   - `merge` - MIR block merging (5 phases)
 //! - `exception` - Exception handling (try/catch/throw)
 //! - `utils` - Utility functions (loop variable extraction)
@@ -25,7 +25,7 @@
 //! ## Modularization History
 //!
 //! - Phase 1: Debug utilities (debug.rs) ✅
-//! - Phase 2: Pattern lowerers (joinir/patterns/) ✅
+//! - Phase 2: Route entry layer (physical path `joinir/patterns/`) ✅
 //! - Phase 3: JoinIR routing (joinir/routing.rs) ✅
 //! - Phase 4: Merge implementation (joinir/merge/) ✅
 //! - Phase 5: Exception handling (exception/) ✅

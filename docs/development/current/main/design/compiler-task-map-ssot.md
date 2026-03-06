@@ -162,9 +162,9 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
 - verifier always-on scope decision
 - join/phi contract mechanical checks
 
-### E. patterns/（routing layer）cleanup
+### E. route-entry layer cleanup（legacy physical path: `joinir/patterns/`）
 
-目標: `joinir/patterns/` を “薄いディスパッチャ” に縮退させ、意味論/契約は Recipe/Verifier/Parts に集約する。
+目標: physical path `joinir/patterns/` を “薄いディスパッチャ” に縮退させ、意味論/契約は Recipe/Verifier/Parts に集約する。
 
 1) Router registryization（挙動不変）
    - `router.rs` の “候補列挙 + compose 呼び出し” をテーブル化し、見通しを改善する（分岐爆発の抑止）。

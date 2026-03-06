@@ -445,6 +445,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - intent: `TrimPatternInfo` / `from_pattern_info` を `TrimRouteInfo` / `from_route_info` に rename し、trim promotion / helper / carrier-info / trim lowerer の current comment でも `Trim pattern` を route 主語へ後退させる
     - verification: `rg -n "TrimPatternInfo|from_pattern_info" src/mir CURRENT_TASK.md docs/development/current/main/design -g '!**/*history*' -g '!**/*archive*'` = 0 hit
     - verification: `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+  - truth cleanup (2026-03-07, slice 53): `joinir/patterns` 表記を active architecture 主語から外し、legacy physical path 注記へ後退させた
+    - synced files: `src/mir/join_ir/frontend/ast_lowerer/README.md` / `src/mir/builder/control_flow/mod.rs` / `docs/development/current/main/design/{plan-lowering-entry-ssot,joinir-design-map,compiler-task-map-ssot}.md` / `CURRENT_TASK.md`
+    - intent: current README / SSOT では `joinir/patterns` を active module surface として語らず、route-entry layer の legacy on-disk path だと明示する
+    - verification: targeted doc/comment grep on the synced files shows only intentional `legacy physical path` notes
+    - verification: docs/comment-only slice のため build/gate 再実行なし
 
 ## next fixed order (resume point)
 
