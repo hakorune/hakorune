@@ -365,7 +365,7 @@ fn test_expr_lowerer_not_of_comparison() {
 }
 
 #[test]
-fn test_expr_lowerer_pattern2_break_digit_pos_less_zero_generates_compare() {
+fn test_expr_lowerer_loop_break_digit_pos_less_zero_generates_compare() {
     let mut condition_env = ConditionEnv::new();
     condition_env.insert("digit_pos".to_string(), ValueId(10));
 

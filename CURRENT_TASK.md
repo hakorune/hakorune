@@ -252,6 +252,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `src/mir/builder/control_flow/plan/policies/policies/README.md` / `src/mir/builder/control_flow/plan/features/README.md`
     - intent: current README では route/policy decision を主語にし、historical file 名は physical path 注記に限定する
     - verification: `rg -n "Pattern [1-9]|Pattern[1-9]\\b|pattern[1-9]\\b|pattern[1-9]_" src/mir/builder/control_flow/plan/policies/policies/README.md src/mir/builder/control_flow/plan/features/README.md` = physical path note only
+  - naming cleanup (2026-03-06, slice 17): `legacy` route detector の public helper 名を semantic に寄せ、route examples も追従した
+    - synced files: `src/mir/loop_pattern_detection/legacy/mod.rs` / `src/mir/join_ir/lowering/loop_patterns/{simple_while,with_break,with_if_phi,with_continue}.rs`
+    - intent: `legacy/` 配下でも production helper surface では `*_pattern` を使わず、route 名をそのまま helper 名にする
+    - verification: `rg -n "is_simple_while_pattern|is_loop_with_break_pattern|is_loop_with_conditional_phi_pattern|is_loop_with_continue_pattern" src/mir/loop_pattern_detection/legacy/mod.rs src/mir/join_ir/lowering/loop_patterns` = 0 hit
+    - verification: `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - naming cleanup (2026-03-06, slice 18): test-only `Pattern2/3/4` residue を route 名へ揃えた
+    - synced files: `src/mir/join_ir/lowering/inline_boundary_builder.rs` / `src/mir/join_ir/lowering/expr_lowerer/tests.rs`
+    - intent: test 名と test comment でも route semantics を主語にし、numbered label を repo 内部テスト surface から外す
+    - verification: `rg -n "pattern3_style|pattern4_style|pattern2_break_digit_pos_less_zero" src/mir/join_ir/lowering` = 0 hit
+    - verification: `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 

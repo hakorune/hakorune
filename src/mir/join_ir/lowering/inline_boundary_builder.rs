@@ -452,8 +452,8 @@ mod tests {
     }
 
     #[test]
-    fn test_builder_pattern3_style() {
-        // Pattern3 style: Two carriers (i + sum), exit_bindings, loop_var_name
+    fn test_builder_if_phi_join_style() {
+        // IfPhiJoin style: Two carriers (i + sum), exit_bindings, loop_var_name
 
         let boundary = JoinInlineBoundaryBuilder::new()
             .with_inputs(
@@ -478,8 +478,8 @@ mod tests {
     }
 
     #[test]
-    fn test_builder_pattern4_style() {
-        // Pattern4 style: Dynamic carrier count, continue support
+    fn test_builder_loop_continue_only_style() {
+        // LoopContinueOnly style: Dynamic carrier count, continue support
         let boundary = JoinInlineBoundaryBuilder::new()
             .with_inputs(
                 vec![ValueId(0), ValueId(1), ValueId(2)], // i + 2 carriers

@@ -77,9 +77,9 @@ use crate::mir::loop_form::LoopForm;
 /// # Example Usage
 ///
 /// ```rust,ignore
-/// use crate::mir::loop_pattern_detection::is_loop_with_break_pattern;
+/// use crate::mir::loop_pattern_detection::is_loop_break_route;
 ///
-/// if is_loop_with_break_pattern(&loop_form) {
+/// if is_loop_break_route(&loop_form) {
 ///     lower_loop_with_break_to_joinir(&loop_form, &mut lowerer)?;
 /// }
 /// ```

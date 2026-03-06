@@ -15,9 +15,10 @@ use crate::mir::loop_form::LoopForm;
 // detection while remaining production code.
 //
 // Future work: Gradually migrate to Phase 194+ structure-based detection (extract_features/classify).
+// Historical numbered labels stay in docs/ledgers; production comments in this file use route names only.
 
 // ============================================================================
-// LoopSimpleWhile route shape (legacy Pattern 1; traceability-only)
+// LoopSimpleWhile route shape
 // ============================================================================
 
 /// Detect LoopSimpleWhile route shape
@@ -37,18 +38,17 @@ use crate::mir::loop_form::LoopForm;
 /// * `true` if the loop matches LoopSimpleWhile route shape, `false` otherwise
 ///
 /// # Reference
-/// See design.md § LoopSimpleWhile (legacy Pattern 1, traceability-only) → LoopScopeShape Recognition
+/// See design.md § LoopSimpleWhile → LoopScopeShape Recognition
 ///
 /// # Example
 /// ```rust,ignore
 /// let loop_form = /* ... */;
-/// if is_simple_while_pattern(&loop_form) {
+/// if is_loop_simple_while_route(&loop_form) {
 ///     // Lower via LoopSimpleWhile route
 /// }
 /// ```
-pub fn is_simple_while_pattern(loop_form: &LoopForm) -> bool {
+pub fn is_loop_simple_while_route(loop_form: &LoopForm) -> bool {
     // LoopSimpleWhile route-shape recognition criteria
-    // (legacy Pattern 1, traceability-only; from design.md § Pattern 1):
     // 1. break_targets: EMPTY (no break statements)
     // 2. continue_targets: EMPTY (no continue statements)
     // 3. Single backedge (single latch - LoopShape has singular latch field)
@@ -82,7 +82,7 @@ pub fn is_simple_while_pattern(loop_form: &LoopForm) -> bool {
 }
 
 // ============================================================================
-// LoopBreak route shape (legacy Pattern 2; traceability-only)
+// LoopBreak route shape
 // ============================================================================
 
 /// Detect LoopBreak route shape (conditional break)
@@ -101,18 +101,17 @@ pub fn is_simple_while_pattern(loop_form: &LoopForm) -> bool {
 /// * `true` if the loop matches LoopBreak route shape, `false` otherwise
 ///
 /// # Reference
-/// See design.md § LoopBreak (legacy Pattern 2, traceability-only) → LoopScopeShape Recognition
+/// See design.md § LoopBreak → LoopScopeShape Recognition
 ///
 /// # Example
 /// ```rust,ignore
 /// let loop_form = /* ... */;
-/// if is_loop_with_break_pattern(&loop_form) {
+/// if is_loop_break_route(&loop_form) {
 ///     // Lower via LoopBreak route
 /// }
 /// ```
-pub fn is_loop_with_break_pattern(loop_form: &LoopForm) -> bool {
+pub fn is_loop_break_route(loop_form: &LoopForm) -> bool {
     // LoopBreak route-shape recognition criteria
-    // (legacy Pattern 2, traceability-only; from design.md § Pattern 2):
     // 1. break_targets: NON-EMPTY (at least 1 break)
     // 2. continue_targets: EMPTY (for simplicity)
     // 3. Exactly ONE break target
@@ -149,7 +148,7 @@ pub fn is_loop_with_break_pattern(loop_form: &LoopForm) -> bool {
 }
 
 // ============================================================================
-// IfPhiJoin route shape (legacy Pattern 3; traceability-only)
+// IfPhiJoin route shape
 // ============================================================================
 
 /// Detect IfPhiJoin route shape (loop with if-else PHI)
@@ -168,19 +167,18 @@ pub fn is_loop_with_break_pattern(loop_form: &LoopForm) -> bool {
 /// * `true` if the loop matches IfPhiJoin route shape, `false` otherwise
 ///
 /// # Reference
-/// See design.md § IfPhiJoin (legacy Pattern 3, traceability-only) → LoopScopeShape Recognition
+/// See design.md § IfPhiJoin → LoopScopeShape Recognition
 ///
 /// # Example
 /// ```rust,ignore
 /// let loop_form = /* ... */;
-/// if is_loop_with_conditional_phi_pattern(&loop_form) {
+/// if is_if_phi_join_route(&loop_form) {
 ///     // Lower via IfPhiJoin route
 /// }
 /// ```
-pub fn is_loop_with_conditional_phi_pattern(loop_form: &LoopForm) -> bool {
+pub fn is_if_phi_join_route(loop_form: &LoopForm) -> bool {
     // Phase 188-Impl-3: Minimal implementation
     // IfPhiJoin route-shape recognition criteria
-    // (legacy Pattern 3, traceability-only; from design.md § Pattern 3):
     // 1. break_targets: EMPTY (no break statements)
     // 2. continue_targets: EMPTY (no continue statements)
     // 3. All IfPhiJoin route-shape loops are valid LoopSimpleWhile route-shape
@@ -207,7 +205,7 @@ pub fn is_loop_with_conditional_phi_pattern(loop_form: &LoopForm) -> bool {
 }
 
 // ============================================================================
-// LoopContinueOnly route shape (legacy Pattern 4; traceability-only)
+// LoopContinueOnly route shape
 // ============================================================================
 
 /// Detect LoopContinueOnly route shape (loop with continue)
@@ -225,18 +223,17 @@ pub fn is_loop_with_conditional_phi_pattern(loop_form: &LoopForm) -> bool {
 /// * `true` if the loop matches LoopContinueOnly route shape, `false` otherwise
 ///
 /// # Reference
-/// See design.md § LoopContinueOnly (legacy Pattern 4, traceability-only) → LoopScopeShape Recognition
+/// See design.md § LoopContinueOnly → LoopScopeShape Recognition
 ///
 /// # Example
 /// ```rust,ignore
 /// let loop_form = /* ... */;
-/// if is_loop_with_continue_pattern(&loop_form) {
+/// if is_loop_continue_only_route(&loop_form) {
 ///     // Lower via LoopContinueOnly route
 /// }
 /// ```
-pub fn is_loop_with_continue_pattern(loop_form: &LoopForm) -> bool {
+pub fn is_loop_continue_only_route(loop_form: &LoopForm) -> bool {
     // LoopContinueOnly route-shape recognition criteria
-    // (legacy Pattern 4, traceability-only):
     // 1. continue_targets: NON-EMPTY (at least 1 continue)
     // 2. break_targets: EMPTY (for simplicity in LoopContinueOnly route shape)
     // 3. At least ONE continue target
@@ -348,7 +345,7 @@ pub mod loop_condition_scope;
 pub mod loop_body_carrier_promoter;
 
 // Phase 223-3: LoopBodyLocal Condition Promotion
-// (for LoopContinueOnly; legacy Pattern 4, traceability-only)
+// (for LoopContinueOnly)
 pub mod loop_body_cond_promoter;
 
 // Phase 224: A-4 DigitPos Pattern Promotion
