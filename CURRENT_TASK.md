@@ -354,12 +354,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{edgecfg-fragments,compiler-task-map-ssot}.md`
     - intent: current guidance に見える `Pattern2/6/7/8/9` の直接言及を “old numbered label / legacy bridge label” へ後退させ、route-first の本文を維持する
     - verification: `rg -n "legacy label: Pattern2|Pattern9_AccumConstLoop|Pattern2,|Pattern8,|Pattern\\*|PatternN|Pattern6/7" docs/development/current/main/design/{edgecfg-fragments,compiler-task-map-ssot}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 31): active design の traceability-only note と stale Normalized prose をさらに薄くした
+    - synced files: `docs/development/current/main/design/{condition-observation-ssot,domainplan-thinning-ssot,planfrag-freeze-taxonomy,join-explicit-cfg-construction}.md`
+    - intent: specific `Pattern1CharMap/Pattern8` などの traceability note を “legacy numbered label” へ一般化し、`Normalized SSOT` を current route-first / contract-checked wording に寄せる
+    - verification: `rg -n "Pattern1CharMap|Pattern1ArrayJoin|Pattern8BoolPredicateScan|Pattern9AccumConstLoop|Pattern6/7|Normalized SSOT|Structured → Normalized" docs/development/current/main/design/{condition-observation-ssot,domainplan-thinning-ssot,planfrag-freeze-taxonomy,join-explicit-cfg-construction}.md` = 0 hit
 
 ## next fixed order (resume point)
 
 1. `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
-3. `truth` cleanup を継続し、active docs の traceability-only note を `condition-observation.md` / `domainplan-thinning-ssot.md` / `planfrag-freeze-taxonomy.md` などからさらに薄くする。
+3. `truth` cleanup を継続し、active docs の traceability-only note を `strict-nested-loop-guard-ssot.md` / `recipe-first-entry-contract-ssot.md` / `join-explicit-cfg-construction.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 5. `naming` cleanup: legacy file/test/comment 名を semantic 名へ同期し、test-only wording と historical docs の境界をさらに薄くする。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。

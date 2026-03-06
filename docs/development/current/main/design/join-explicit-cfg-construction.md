@@ -44,7 +44,7 @@ Related:
 
 ### 具体例: BoolPredicateScan 契約（Phase 259 P0）
 
-BoolPredicateScan（legacy label: `Pattern8`）の実装で明示した契約要素（"route増でも推測増にしない" の実例）:
+BoolPredicateScan（legacy numbered label is traceability-only）の実装で明示した契約要素（"route増でも推測増にしない" の実例）:
 
 - **`loop_var_name`**: merge_entry_block 選択に使用（`Some(parts.loop_var.clone())`）
   - 未設定だと誤った entry block が選ばれる
@@ -62,7 +62,7 @@ BoolPredicateScan（legacy label: `Pattern8`）の実装で明示した契約要
 
 ## 最小の箱（Box）構成（小さく強く）
 
-- `NormalizeBox`（意味SSOT）: Structured → Normalized、terminator 語彙の固定、Fail-Fast verify
+- `NormalizeBox`（意味SSOT）: Structured/Recipe → contract-checked Frag、terminator 語彙の固定、Fail-Fast verify
 - `AbiBox`（役割/順序SSOT）: `JoinAbi`（sig/roles/special/alias）で暗黙 ABI を封印し、pack/unpack を一箇所に集約
 - `EdgeArgsPlumbingBox`（配線SSOT）: edge-args を terminator operand に寄せる段階導入、CFG/spans の同期点を一本化
 
@@ -74,7 +74,7 @@ BoolPredicateScan（legacy label: `Pattern8`）の実装で明示した契約要
 - **移行を先に固定**し、機能追加は「新契約に乗るものだけ」併走する（旧経路に新機能を足さない）
 - 既定挙動を変えない（必要なら dev-only の診断ガードで観測）
 
-### Stage 1（短期）: JoinIR を “ABI/Contract 付き Normalized SSOT” にする
+### Stage 1（短期）: JoinIR を “ABI/Contract 付き route-first SSOT” にする
 
 狙い: 推測をなくし、順序/役割の SSOT を 1 箇所へ寄せる。
 

@@ -43,9 +43,9 @@ This is **analysis-only** (no rewrite, no semantic change).
 - Note: D14 keeps legacy fallback on incomplete (fail-fast is deferred).
 - Note: D16 freezes on incomplete for scan facts (no legacy fallback).
 - Note: D17 plans expansion order for incomplete-freeze beyond scan facts.
-- Note: D18 applies incomplete-freeze to loop-char-map only (legacy label `Pattern1CharMap` is traceability-only; others keep fallback).
-- Note: D19 applies incomplete-freeze to loop-array-join (legacy label `Pattern1ArrayJoin` is traceability-only).
-- Note: D20 applies incomplete-freeze to bool-predicate-scan / accum-const-loop (legacy labels `Pattern8/9` are traceability-only).
+- Note: D18 applies incomplete-freeze to loop-char-map only (legacy numbered label is traceability-only; others keep fallback).
+- Note: D19 applies incomplete-freeze to loop-array-join (legacy numbered label is traceability-only).
+- Note: D20 applies incomplete-freeze to bool-predicate-scan / accum-const-loop (legacy numbered labels are traceability-only).
 
 ### C. CondBlockView (lowering view)
 - Location: `src/mir/builder/control_flow/plan/canon/cond_block_view.rs`
@@ -67,7 +67,7 @@ Drift checks:
  - Storage: GenericLoopV0Facts / GenericLoopV1Facts carry `cond_profile` (C19-C).
  - Adapter: ConditionShape → CondProfile mapping added in `scan_shapes.rs` (C19-D, observation-only).
  - Verifier: CondProfile is observed in verifier (C19-E, observation-only).
- - Storage: scan facts carry `cond_profile` for loop-char-map / loop-array-join / bool-predicate-scan / accum-const-loop (legacy labels `Pattern1CharMap` / `Pattern1ArrayJoin` / `Pattern8` / `Pattern9` are traceability-only, C20-B).
+ - Storage: scan facts carry `cond_profile` for loop-char-map / loop-array-join / bool-predicate-scan / accum-const-loop (legacy numbered labels are traceability-only, C20-B).
  - Verifier: scan facts `cond_profile` observed (C20-C, observation-only).
  - Contract: idx_var (Facts.loop_var) must match CondProfile::LoopVar (C20-D5 prereq).
    Verifier enforces the contract (freeze on mismatch in planner_required).
