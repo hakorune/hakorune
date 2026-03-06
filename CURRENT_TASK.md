@@ -390,6 +390,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{coreplan-shadow-adopt-tag-coverage-ssot,flowbox-tag-coverage-map-ssot,boxcount-new-box-addition-checklist-ssot}.md`
     - intent: active inventory では semantic scenario を主語にし、pattern-era token は smoke stem / tag suffix / fixture key の traceability 列へ隔離する
     - verification: `rg -n "Scenario \\(smoke\\)|legacy smoke label|phase118_pattern3_if_sum_min" docs/development/current/main/design/{coreplan-shadow-adopt-tag-coverage-ssot,flowbox-tag-coverage-map-ssot,boxcount-new-box-addition-checklist-ssot}.md` = expected legacy fixture/tag references only
+  - naming cleanup (2026-03-07, slice 40): `loop_canonicalizer` と近傍 lower comment の current-facing `Pattern` wording を route-shape 主語へ寄せた
+    - synced files: `src/mir/loop_canonicalizer/{mod.rs,pattern_recognizer.rs,canonicalizer.rs}` / `src/mir/join_ir/lowering/{mod.rs,loop_with_break_minimal.rs}`
+    - intent: current code comment/docstring では `Pattern` を architecture の主語にせず、route shape / route detection / route lowerer を主語にする
+    - verification: `rg -n "Supported patterns|Continue pattern|Parse Number Pattern|Parse String/Array Pattern|Escape Sequence Handling Pattern|Pattern not recognized|Pattern Lowerer|Pattern Recognition Helpers|Pattern not matched or lowering error|if-sum pattern|Pattern B" src/mir/loop_canonicalizer src/mir/join_ir/lowering/{mod.rs,loop_with_break_minimal.rs}` = 0 hit
 
 ## next fixed order (resume point)
 

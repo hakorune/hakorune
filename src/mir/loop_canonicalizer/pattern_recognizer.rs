@@ -1,4 +1,4 @@
-//! Pattern Recognition Helpers
+//! Route-Shape Recognition Helpers
 //!
 //! Phase 140-P4-B: This module now delegates to SSOT implementations in ast_feature_extractor.
 //! Provides backward-compatible wrappers for existing callsites.
@@ -12,12 +12,12 @@ use crate::mir::detect_read_digits_loop_true_pattern as ast_detect_read_digits;
 use crate::mir::detect_escape_skip_pattern as ast_detect_escape;
 
 // ============================================================================
-// Skip Whitespace Pattern (Phase 140-P4-B SSOT Wrapper)
+// Skip Whitespace Route Shape (Phase 140-P4-B SSOT Wrapper)
 // ============================================================================
 
-/// Try to extract skip_whitespace pattern from loop
+/// Try to extract skip_whitespace route shape from loop
 ///
-/// Pattern structure:
+/// Route shape:
 /// ```
 /// loop(cond) {
 ///     // ... optional body statements (Body)
@@ -29,7 +29,7 @@ use crate::mir::detect_escape_skip_pattern as ast_detect_escape;
 /// }
 /// ```
 ///
-/// Returns (carrier_name, delta, body_stmts) if pattern matches.
+/// Returns (carrier_name, delta, body_stmts) if the route shape matches.
 ///
 /// # Phase 140-P4-B: SSOT Migration
 ///
@@ -42,12 +42,12 @@ pub fn try_extract_skip_whitespace_pattern(
 }
 
 // ============================================================================
-// Phase 104: Read Digits loop(true) Pattern
+// Phase 104: Read Digits loop(true) Route Shape
 // ============================================================================
 
-/// Try to extract read_digits_from-like pattern from loop(true) body.
+/// Try to extract read_digits_from-like route shape from loop(true) body.
 ///
-/// Returns (carrier_name, delta, body_stmts) if pattern matches.
+/// Returns (carrier_name, delta, body_stmts) if the route shape matches.
 pub fn try_extract_read_digits_loop_true_pattern(
     body: &[ASTNode],
 ) -> Option<(String, i64, Vec<ASTNode>)> {
@@ -55,12 +55,12 @@ pub fn try_extract_read_digits_loop_true_pattern(
 }
 
 // ============================================================================
-// Parse Number Pattern (Phase 143-P0)
+// Parse Number Route Shape (Phase 143-P0)
 // ============================================================================
 
-/// Try to extract parse_number pattern from loop
+/// Try to extract parse_number route shape from loop
 ///
-/// Pattern structure:
+/// Route shape:
 /// ```
 /// loop(cond) {
 ///     // ... optional body statements (ch, digit_pos computation)
@@ -72,9 +72,9 @@ pub fn try_extract_read_digits_loop_true_pattern(
 /// }
 /// ```
 ///
-/// Returns (carrier_name, delta, body_stmts, rest_stmts) if pattern matches.
+/// Returns (carrier_name, delta, body_stmts, rest_stmts) if the route shape matches.
 ///
-/// # Phase 143-P0: Parse Number Pattern Detection
+/// # Phase 143-P0: Parse Number Route Detection
 ///
 /// This function delegates to `ast_feature_extractor::detect_parse_number_pattern`
 /// for SSOT implementation.
@@ -92,12 +92,12 @@ pub fn try_extract_parse_number_pattern(
 }
 
 // ============================================================================
-// Parse String/Array Pattern (Phase 143-P1/P2)
+// Parse String/Array Route Shape (Phase 143-P1/P2)
 // ============================================================================
 
-/// Try to extract parse_string or parse_array pattern from loop
+/// Try to extract parse_string or parse_array route shape from loop
 ///
-/// Pattern structure:
+/// Route shape:
 /// ```
 /// loop(cond) {
 ///     // ... body statements (ch computation)
@@ -114,24 +114,24 @@ pub fn try_extract_parse_number_pattern(
 /// }
 /// ```
 ///
-/// Returns (carrier_name, delta, body_stmts) if pattern matches.
+/// Returns (carrier_name, delta, body_stmts) if the route shape matches.
 ///
-/// # Phase 143-P1/P2: Parse String/Array Pattern Detection
+/// # Phase 143-P1/P2: Parse String/Array Route Detection
 ///
 /// This function delegates to `ast_feature_extractor::detect_parse_string_pattern`
 /// for SSOT implementation. The same detector handles both parse_string and
-/// parse_array patterns as they share the same structural characteristics.
+/// parse_array route shapes as they share the same structural characteristics.
 pub fn try_extract_parse_string_pattern(body: &[ASTNode]) -> Option<(String, i64, Vec<ASTNode>)> {
     ast_detect_parse_string(body).map(|info| (info.carrier_name, info.delta, info.body_stmts))
 }
 
 // ============================================================================
-// Continue Pattern (Phase 142-P1)
+// Continue Route Shape (Phase 142-P1)
 // ============================================================================
 
-/// Try to extract continue pattern from loop
+/// Try to extract continue route shape from loop
 ///
-/// Pattern structure:
+/// Route shape:
 /// ```
 /// loop(cond) {
 ///     // ... optional body statements (Body)
@@ -144,9 +144,9 @@ pub fn try_extract_parse_string_pattern(body: &[ASTNode]) -> Option<(String, i64
 /// }
 /// ```
 ///
-/// Returns (carrier_name, delta, body_stmts, rest_stmts) if pattern matches.
+/// Returns (carrier_name, delta, body_stmts, rest_stmts) if the route shape matches.
 ///
-/// # Phase 142-P1: Continue Pattern Detection
+/// # Phase 142-P1: Continue Route Detection
 ///
 /// This function delegates to `ast_feature_extractor::detect_continue_pattern`
 /// for SSOT implementation.
@@ -306,14 +306,14 @@ mod tests {
 }
 
 // ============================================================================
-// Escape Skip Pattern (Phase 91 P5b)
+// Escape Skip Route Shape (Phase 91 P5b)
 // ============================================================================
 
-/// Try to extract escape skip pattern from loop
+/// Try to extract escape skip route shape from loop
 ///
-/// Phase 91 P5b: Pattern for string parsers with escape sequence support
+/// Phase 91 P5b: Route shape for string parsers with escape sequence support
 ///
-/// Pattern structure:
+/// Route shape:
 /// ```
 /// loop(i < n) {
 ///     // ... optional body statements
@@ -325,9 +325,9 @@ mod tests {
 /// ```
 ///
 /// Returns (counter_name, normal_delta, escape_delta, quote_char, escape_char, body_stmts, escape_cond)
-/// if pattern matches.
+/// if the route shape matches.
 ///
-/// # Phase 91 P5b: Escape Sequence Pattern Detection
+/// # Phase 91 P5b: Escape Sequence Route Detection
 ///
 /// This function delegates to `ast_feature_extractor::detect_escape_skip_pattern`
 /// for SSOT implementation.

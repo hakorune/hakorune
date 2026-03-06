@@ -146,7 +146,7 @@ pub(crate) struct LoopWithBreakLoweringInputs<'a> {
 /// # Returns
 ///
 /// * `Ok(JoinModule)` - Successfully lowered to JoinIR
-/// * `Err(String)` - Pattern not matched or lowering error
+/// * `Err(String)` - Route shape not matched or lowering error
 ///
 /// # Boundary Contract
 ///
@@ -620,7 +620,7 @@ pub(crate) fn lower_loop_with_break_minimal(
     // Set entry point
     join_module.entry = Some(main_id);
 
-    dev_log.log_simple("Generated JoinIR for Loop with Break Pattern (Phase 170-B)");
+    dev_log.log_simple("Generated JoinIR for loop_break route shape (Phase 170-B)");
     dev_log.log_simple("Functions: main, loop_step, k_exit");
     dev_log.log_simple("Loop condition from AST (ConditionLoweringBox)");
     dev_log.log_simple("Break condition from AST (ConditionLoweringBox)");

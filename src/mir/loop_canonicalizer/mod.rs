@@ -3,7 +3,7 @@
 //! ## Purpose
 //!
 //! Decomposes AST-level loops into a normalized "skeleton" representation
-//! to prevent combinatorial explosion in pattern detection and lowering.
+//! to prevent combinatorial explosion in route-shape detection and lowering.
 //!
 //! ## Design Principle
 //!
@@ -14,21 +14,21 @@
 //! ## Architecture
 //!
 //! ```
-//! AST → LoopSkeleton → Capability Guard → RoutingDecision → Pattern Lowerer
+//! AST → LoopSkeleton → Capability Guard → RoutingDecision → Route Lowerer
 //! ```
 //!
 //! ## Module Structure (Phase 138 Refactoring)
 //!
 //! - `skeleton_types` - Core data structures (LoopSkeleton, SkeletonStep, etc.)
 //! - `capability_guard` - Routing decisions and capability tags
-//! - `pattern_recognizer` - Pattern detection logic (skip_whitespace, etc.)
+//! - `pattern_recognizer` - Route-shape detection logic (skip_whitespace, etc.)
 //! - `canonicalizer` - Main canonicalization entry point
 //!
 //! ## References
 //!
 //! - Design SSOT: `docs/development/current/main/design/loop-canonicalizer.md`
 //! - JoinIR Architecture: `docs/development/current/main/joinir-architecture-overview.md`
-//! - Pattern Space: `docs/development/current/main/loop_pattern_space.md`
+//! - Route-label space: `docs/development/current/main/loop_pattern_space.md`
 
 // ============================================================================
 // Module Declarations
