@@ -4,7 +4,7 @@
 //! 本体ロジックは coordinator に集約し、責務を分割して保守性を上げる。
 //!
 //! ## 責務境界（Box化）
-//! - `LoopPatternValidator`（`../loop_pattern_validator.rs`）: 構造検証（shape guard）
+//! - `LoopRouteValidator`（`../loop_route_validator.rs`）: 構造検証（shape guard）
 //! - `LoopViewBuilder`（`../loop_view_builder.rs`）: lowerer 選択（routing）
 //! - `LoopToJoinLowerer`（このモジュール）: intake/scope 構築と strict ハンドリング（coordinator）
 //!

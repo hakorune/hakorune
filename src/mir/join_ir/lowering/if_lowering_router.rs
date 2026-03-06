@@ -18,7 +18,7 @@
 //! - Keeping separate: Easier to extend, test, and maintain
 //!
 //! ## Related Modules
-//! - See also: `loop_pattern_router.rs` (loop lowering)
+//! - See also: `loop_route_router.rs` (loop lowering)
 //! - Parent: `mod.rs` (central lowering dispatcher)
 //!
 //! # Routing Strategy

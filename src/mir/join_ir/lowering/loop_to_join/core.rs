@@ -1,6 +1,6 @@
 use crate::mir::control_form::LoopId;
 use crate::mir::join_ir::lowering::loop_form_intake::intake_loop_form;
-use crate::mir::join_ir::lowering::loop_pattern_validator::LoopPatternValidator;
+use crate::mir::join_ir::lowering::loop_route_validator::LoopRouteValidator;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::join_ir::lowering::loop_view_builder::LoopViewBuilder;
 use crate::mir::join_ir::JoinModule;
@@ -20,7 +20,7 @@ fn generic_case_a_enabled() -> bool {
 /// - strict mode の fail-fast（対象関数のみ）
 pub struct LoopToJoinLowerer {
     debug: bool,
-    validator: LoopPatternValidator,
+    validator: LoopRouteValidator,
     builder: LoopViewBuilder,
 }
 
@@ -37,7 +37,7 @@ impl LoopToJoinLowerer {
             .unwrap_or(false);
         Self {
             debug,
-            validator: LoopPatternValidator::new(),
+            validator: LoopRouteValidator::new(),
             builder: LoopViewBuilder::new(),
         }
     }

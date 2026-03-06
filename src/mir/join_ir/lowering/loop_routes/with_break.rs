@@ -89,7 +89,7 @@ pub fn lower_loop_with_break_to_joinir(
 ) -> Option<JoinInst> {
     // Phase 203-A: STUB FUNCTION - Called by router but always returns None
     //
-    // Status: This function is called by loop_pattern_router.rs:148 but is a NO-OP stub.
+    // Status: This function is called by loop_route_router.rs but is a NO-OP stub.
     // The actual LoopBreak route lowering happens via control_flow.rs.
     //
     // Why this stub exists:
@@ -98,7 +98,7 @@ pub fn lower_loop_with_break_to_joinir(
     // - Removing it would require updating router dispatch logic
     //
     // Current behavior:
-    // 1. Router calls this function (line 148 in loop_pattern_router.rs)
+    // 1. Router calls this function from loop_route_router.rs
     // 2. Function logs a message and returns None
     // 3. Router falls back to control_flow.rs hardcoded LoopBreak route
     //
@@ -107,7 +107,7 @@ pub fn lower_loop_with_break_to_joinir(
     // - Option 2: Implement JoinModule → JoinInst conversion here
     //
     // Related code:
-    // - Router callsite: loop_pattern_router.rs:148
+    // - Router callsite: loop_route_router.rs
     // - Actual implementation: Plan/Composer route (PlanLowerer)
     // - Minimal lowerer: loop_with_break_minimal::lower_loop_with_break_minimal()
 

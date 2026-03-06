@@ -17,7 +17,7 @@
 //! - `if_dry_runner.rs`: Phase 33-10 If lowering dry-run スキャナー（箱化版）
 //! - `bool_expr_lowerer.rs`: Phase 168 Boolean expression lowering (AST → SSA)
 //! - `if_lowering_router.rs`: Phase 33-12 If-expression routing (Select/IfMerge dispatcher)
-//! - `loop_pattern_router.rs`: Phase 33-12 Loop route routing (semantic route-family dispatcher)
+//! - `loop_route_router.rs`: Phase 33-12 Loop route routing (semantic route-family dispatcher)
 
 #![allow(dead_code)]
 
@@ -56,9 +56,9 @@ pub mod join_value_space; // Phase 201: Unified JoinIR ValueId allocation
 pub mod loop_body_local_env; // Phase 184: Body-local variable environment
 pub mod loop_body_local_init; // Phase 186: Body-local init expression lowering
 pub(crate) mod loop_form_intake; // Internal loop form intake
-pub(crate) mod loop_pattern_router; // Phase 33-12: Loop pattern routing (re-exported)
-pub(crate) mod loop_pattern_validator; // Phase 33-23: Loop structure validation
-pub(crate) mod loop_patterns; // Phase 188: Route-family loop lowering (legacy stub cluster)
+pub(crate) mod loop_route_router; // Phase 33-12: Loop route routing (re-exported)
+pub(crate) mod loop_route_validator; // Phase 33-23: Loop structure validation
+pub(crate) mod loop_routes; // Phase 188: Route-family loop lowering
 pub mod loop_scope_shape;
 pub mod loop_to_join;
 pub mod loop_update_analyzer; // Phase 197: Update expression analyzer for carrier semantics
@@ -104,7 +104,7 @@ pub use stageb_funcscanner::lower_stageb_funcscanner_to_joinir;
 
 // Phase 33-12: Re-export router functions (backward compatibility)
 pub use if_lowering_router::try_lower_if_to_joinir;
-pub use loop_pattern_router::try_lower_loop_pattern_to_joinir;
+pub use loop_route_router::try_lower_loop_route_to_joinir;
 
 /// Phase 33-9.1: Loop lowering対象関数の判定
 ///

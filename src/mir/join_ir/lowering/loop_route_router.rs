@@ -8,10 +8,10 @@
 //!
 //! ## Route Dispatch
 //! Routes to:
-//! - `LoopSimpleWhile`: `loop_patterns::simple_while` (no break/continue)
-//! - `LoopBreak`: `loop_patterns::with_break` (conditional break)
-//! - `IfPhiJoin`: `loop_patterns::with_if_phi` (if + PHI merging)
-//! - `LoopContinueOnly`: `loop_patterns::with_continue` (deferred to Phase 195)
+//! - `LoopSimpleWhile`: `loop_routes::simple_while` (no break/continue)
+//! - `LoopBreak`: `loop_routes::with_break` (conditional break)
+//! - `IfPhiJoin`: `loop_routes::with_if_phi` (if + PHI merging)
+//! - `LoopContinueOnly`: `loop_routes::with_continue` (deferred to Phase 195)
 //! - `LoopTrueEarlyExit`: planned route family for `loop(true)` + early exit
 //!
 //! ## Why Separate Router?
@@ -75,22 +75,22 @@ use crate::runtime::get_global_ring0;
 ///
 /// ## LoopSimpleWhile
 /// - **Condition**: Empty break/continue targets, single latch
-/// - **Handler**: `loop_patterns::lower_simple_while_to_joinir()`
+/// - **Handler**: `loop_routes::lower_simple_while_to_joinir()`
 /// - **Priority**: First (most common, simplest)
 ///
 /// ## LoopBreak
 /// - **Condition**: Non-empty break_targets, exactly 1 break
-/// - **Handler**: `loop_patterns::lower_loop_with_break_to_joinir()`
+/// - **Handler**: `loop_routes::lower_loop_with_break_to_joinir()`
 /// - **Priority**: Second (common, medium complexity)
 ///
 /// ## IfPhiJoin
 /// - **Condition**: Empty break/continue, if-else in body
-/// - **Handler**: `loop_patterns::lower_loop_with_conditional_phi_to_joinir()`
+/// - **Handler**: `loop_routes::lower_loop_with_conditional_phi_to_joinir()`
 /// - **Priority**: Third (reuses If lowering infrastructure)
 ///
 /// ## LoopContinueOnly
 /// - **Condition**: Non-empty continue_targets
-/// - **Handler**: `loop_patterns::lower_loop_with_continue_to_joinir()`
+/// - **Handler**: `loop_routes::lower_loop_with_continue_to_joinir()`
 /// - **Priority**: Fourth (most complex)
 ///
 /// # Integration Point
@@ -102,10 +102,10 @@ use crate::runtime::get_global_ring0;
 /// # Example Usage
 ///
 /// ```rust,ignore
-/// use crate::mir::join_ir::lowering::try_lower_loop_pattern_to_joinir;
+/// use crate::mir::join_ir::lowering::try_lower_loop_route_to_joinir;
 ///
 /// // In loop lowering entry point:
-/// if let Some(joinir_inst) = try_lower_loop_pattern_to_joinir(&loop_form, &mut lowerer) {
+/// if let Some(joinir_inst) = try_lower_loop_route_to_joinir(&loop_form, &mut lowerer) {
 ///     // Route matched, use JoinIR
 ///     return Some(joinir_inst);
 /// }
@@ -117,7 +117,7 @@ use crate::runtime::get_global_ring0;
 ///
 /// See design.md for complete pattern specifications and transformation rules:
 /// `docs/private/roadmap2/phases/phase-188-joinir-loop-pattern-expansion/design.md`
-pub fn try_lower_loop_pattern_to_joinir(
+pub fn try_lower_loop_route_to_joinir(
     loop_form: &LoopForm,
     lowerer: &mut crate::mir::join_ir::lowering::LoopToJoinLowerer,
 ) -> Option<JoinInst> {
@@ -145,7 +145,7 @@ pub fn try_lower_loop_pattern_to_joinir(
             }
 
             if let Some(inst) =
-                super::loop_patterns::lower_nested_loop_minimal_to_joinir(loop_form, lowerer)
+                super::loop_routes::lower_nested_loop_minimal_to_joinir(loop_form, lowerer)
             {
                 return Some(inst);
             }
@@ -153,7 +153,7 @@ pub fn try_lower_loop_pattern_to_joinir(
         }
         LoopPatternKind::LoopContinueOnly => {
             if let Some(inst) =
-                super::loop_patterns::lower_loop_with_continue_to_joinir(loop_form, lowerer)
+                super::loop_routes::lower_loop_with_continue_to_joinir(loop_form, lowerer)
             {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
@@ -165,7 +165,7 @@ pub fn try_lower_loop_pattern_to_joinir(
         }
         LoopPatternKind::IfPhiJoin => {
             if let Some(inst) =
-                super::loop_patterns::lower_loop_with_conditional_phi_to_joinir(loop_form, lowerer)
+                super::loop_routes::lower_loop_with_conditional_phi_to_joinir(loop_form, lowerer)
             {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
@@ -177,7 +177,7 @@ pub fn try_lower_loop_pattern_to_joinir(
         }
         LoopPatternKind::LoopBreak => {
             if let Some(inst) =
-                super::loop_patterns::lower_loop_with_break_to_joinir(loop_form, lowerer)
+                super::loop_routes::lower_loop_with_break_to_joinir(loop_form, lowerer)
             {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
@@ -189,7 +189,7 @@ pub fn try_lower_loop_pattern_to_joinir(
         }
         LoopPatternKind::LoopSimpleWhile => {
             if let Some(inst) =
-                super::loop_patterns::lower_simple_while_to_joinir(loop_form, lowerer)
+                super::loop_routes::lower_simple_while_to_joinir(loop_form, lowerer)
             {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()

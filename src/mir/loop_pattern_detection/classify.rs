@@ -36,7 +36,7 @@ use super::kind::LoopPatternKind;
 /// # Phase 183: Unified Detection
 ///
 /// This is the single source of truth for route classification.
-/// Both routers (`router.rs` and `loop_pattern_router.rs`) use this
+/// Both routers (`router.rs` and `loop_route_router.rs`) use this
 /// function to avoid duplicate detection logic.
 pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
     // Phase 188.1: NestedLoopMinimal (1-level only, check first after depth validation)

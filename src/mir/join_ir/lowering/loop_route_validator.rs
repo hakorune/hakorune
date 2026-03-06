@@ -1,4 +1,4 @@
-//! Phase 33-23: LoopPatternValidator - Loop構造検証箱
+//! Phase 33-23: LoopRouteValidator - Loop構造検証箱
 //!
 //! LoopToJoinLowererから検証責務を分離した専用モジュール。
 //!
@@ -22,19 +22,19 @@ use crate::runtime::get_global_ring0;
 /// Loop構造検証箱
 ///
 /// LoopFormがCase-A loweringに適しているかを検証する。
-pub struct LoopPatternValidator {
+pub struct LoopRouteValidator {
     /// デバッグモード（詳細ログ出力）
     debug: bool,
 }
 
-impl Default for LoopPatternValidator {
+impl Default for LoopRouteValidator {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl LoopPatternValidator {
-    /// 新しいLoopPatternValidatorを作成
+impl LoopRouteValidator {
+    /// 新しいLoopRouteValidatorを作成
     pub fn new() -> Self {
         let debug = std::env::var("NYASH_LOOPTOJOIN_DEBUG")
             .map(|v| v == "1")
@@ -108,7 +108,7 @@ impl LoopPatternValidator {
             if self.debug {
                 let ring0 = get_global_ring0();
                 ring0.log.debug(&format!(
-                    "[LoopPatternValidator] rejected: not single exit group (groups={}, nonlocal={})",
+                    "[LoopRouteValidator] rejected: not single exit group (groups={}, nonlocal={})",
                     exit_analysis.loop_exit_groups.len(),
                     exit_analysis.nonlocal_exits.len()
                 ));
@@ -140,7 +140,7 @@ impl LoopPatternValidator {
             if succ_count != 2 {
                 if self.debug {
                     get_global_ring0().log.debug(&format!(
-                        "[LoopPatternValidator] rejected: header {:?} has {} successors (expected 2)",
+                        "[LoopRouteValidator] rejected: header {:?} has {} successors (expected 2)",
                         region.header, succ_count
                     ));
                 }
@@ -150,7 +150,7 @@ impl LoopPatternValidator {
             // ヘッダブロックが見つからない（異常ケース）
             if self.debug {
                 get_global_ring0().log.debug(&format!(
-                    "[LoopPatternValidator] rejected: header block {:?} not found",
+                    "[LoopRouteValidator] rejected: header block {:?} not found",
                     region.header
                 ));
             }
@@ -170,7 +170,7 @@ impl LoopPatternValidator {
             if self.debug {
                 get_global_ring0()
                     .log
-                    .debug("[LoopPatternValidator] rejected: no carriers or pinned vars");
+                    .debug("[LoopRouteValidator] rejected: no carriers or pinned vars");
             }
             return false;
         }
@@ -205,7 +205,7 @@ impl LoopPatternValidator {
         if scope.progress_carrier.is_none() {
             if self.debug {
                 get_global_ring0().log.debug(&format!(
-                    "[LoopPatternValidator] rejected: no safe progress carrier (progress_carrier={:?})",
+                    "[LoopRouteValidator] rejected: no safe progress carrier (progress_carrier={:?})",
                     scope.progress_carrier
                 ));
             }
@@ -222,7 +222,7 @@ mod tests {
 
     #[test]
     fn test_validator_creation() {
-        let validator = LoopPatternValidator::new();
+        let validator = LoopRouteValidator::new();
         assert!(!validator.debug || validator.debug); // Just check it compiles
     }
 }

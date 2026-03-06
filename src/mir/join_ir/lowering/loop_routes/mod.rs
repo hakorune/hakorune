@@ -1,6 +1,6 @@
 //! # Loop Route Lowering Module
 //!
-//! **Phase 33-12 Modularization**: Split from single 735-line `loop_patterns.rs`
+//! **Phase 33-12 Modularization**: Split from single 735-line route lowering stub
 //!
 //! ## Structure
 //! Each route-focused lowering is a separate sub-module for single responsibility:
@@ -32,7 +32,7 @@
 //! When LoopContinueOnly is implemented:
 //! 1. Modify `with_continue.rs` from stub to full implementation
 //! 2. Update dispatch logic if needed
-//! 3. Add tests to `loop_patterns/tests/`
+//! 3. Add tests to the route-specific lowering tests
 //! 4. No changes to other routes needed!
 //!
 //! # Design Philosophy (Implementation)
