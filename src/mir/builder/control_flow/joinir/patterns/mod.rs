@@ -38,8 +38,8 @@
 //! Phase 179-B: Generic Loop Framework
 //! - route_prep_pipeline.rs: Unified preprocessing pipeline for simple loop families (moved to plan/)
 //!
-//! Phase 91 P5b: Escape Recognizer
-//! - escape_pattern_recognizer.rs: P5b (escape sequence handling) detection (thin wrapper)
+//! Phase 91 P5b: Escape Route-Shape Recognizer
+//! - escape_pattern_recognizer.rs: P5b (escape sequence handling) route-shape detection (thin wrapper, legacy file name)
 //! - Extracted from ast_feature_extractor for improved modularity
 //!
 //! Phase 93/94: Route Policies
@@ -78,4 +78,4 @@ pub(crate) use ast_feature_extractor::detect_parse_number_shape;
 pub(crate) use ast_feature_extractor::detect_parse_string_shape;
 
 // Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
-pub(crate) use ast_feature_extractor::detect_escape_skip_pattern;
+pub(crate) use ast_feature_extractor::detect_escape_skip_shape;

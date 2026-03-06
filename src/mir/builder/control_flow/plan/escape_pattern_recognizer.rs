@@ -1,22 +1,22 @@
-//! Phase 91 P5b: Escape Pattern Recognizer Module
+//! Phase 91 P5b: Escape Route-Shape Recognizer Module
 //!
-//! Specialized recognizer for escape sequence handling patterns in string parsers.
+//! Specialized recognizer for escape sequence handling route shapes in string parsers.
 //! Extracted from ast_feature_extractor.rs for improved modularity and reusability.
 //!
 //! # Design
 //!
-//! - **Single Responsibility**: Handles only P5b (escape sequence) pattern detection
+//! - **Single Responsibility**: Handles only P5b (escape sequence) route-shape detection
 //! - **Isolated Helpers**: Private helpers for break/escape detection
-//! - **Clean Interface**: Exports only `detect_escape_skip_pattern()`
+//! - **Clean Interface**: Exports only `detect_escape_skip_shape()`
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
-/// Information about a detected escape skip pattern
+/// Information about a detected escape skip route shape
 ///
 /// Phase 92 P1-2: Responsibility limited to cond/delta extraction only.
 /// Body-local variable handling (`ch`) should be done by canonicalizer/caller.
 #[derive(Debug, Clone)]
-pub struct EscapeSkipPatternInfo {
+pub struct EscapeSkipShapeInfo {
     pub counter_name: String,
     pub normal_delta: i64,
     pub escape_delta: i64,
@@ -32,9 +32,9 @@ pub struct EscapeSkipPatternInfo {
     pub body_stmts: Vec<ASTNode>,
 }
 
-/// Detect escape sequence handling pattern in loop body
+/// Detect an escape sequence handling route shape in the loop body
 ///
-/// # Pattern Structure
+/// # Shape Structure
 ///
 /// ```text
 /// loop(i < n) {
@@ -50,13 +50,13 @@ pub struct EscapeSkipPatternInfo {
 ///
 /// # Returns
 ///
-/// `Some(EscapeSkipPatternInfo)` if the pattern matches, `None` otherwise
+/// `Some(EscapeSkipShapeInfo)` if the shape matches, `None` otherwise
 ///
 /// # Notes
 ///
 /// This is the recognizer for P5b (Escape Sequence Handling).
-/// Used by loop_canonicalizer (Phase 91) for pattern detection and decision routing.
-pub fn detect_escape_skip_pattern(body: &[ASTNode]) -> Option<EscapeSkipPatternInfo> {
+/// Used by loop_canonicalizer (Phase 91) for route-shape detection and decision routing.
+pub fn detect_escape_skip_shape(body: &[ASTNode]) -> Option<EscapeSkipShapeInfo> {
     if body.len() < 3 {
         return None;  // Need at least: body statements, break check, escape check
     }
@@ -74,7 +74,7 @@ pub fn detect_escape_skip_pattern(body: &[ASTNode]) -> Option<EscapeSkipPatternI
     // Extract body statements before break check
     let body_stmts = body[..break_idx].to_vec();
 
-    Some(EscapeSkipPatternInfo {
+    Some(EscapeSkipShapeInfo {
         counter_name,
         normal_delta,
         escape_delta,

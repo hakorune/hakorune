@@ -73,7 +73,7 @@ pub(crate) use builder::detect_parse_number_shape;
 // Phase 143-P1: 
 pub(crate) use builder::detect_parse_string_shape;
 // Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
-pub(crate) use builder::detect_escape_skip_pattern;
+pub(crate) use builder::detect_escape_skip_shape;
 pub use cfg_extractor::extract_cfg_info; // Phase 154: CFG extraction
 pub use definitions::{CallFlags, Callee, MirCall}; // Unified call definitions
 pub use effect::{Effect, EffectMask};

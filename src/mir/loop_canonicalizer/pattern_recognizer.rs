@@ -9,7 +9,7 @@ use crate::mir::detect_parse_number_shape as ast_detect_parse_number;
 use crate::mir::detect_parse_string_shape as ast_detect_parse_string;
 use crate::mir::detect_skip_whitespace_shape as ast_detect;
 use crate::mir::detect_read_digits_loop_true_shape as ast_detect_read_digits;
-use crate::mir::detect_escape_skip_pattern as ast_detect_escape;
+use crate::mir::detect_escape_skip_shape as ast_detect_escape;
 
 // ============================================================================
 // Skip Whitespace Route Shape (Phase 140-P4-B SSOT Wrapper)
@@ -329,14 +329,14 @@ mod tests {
 ///
 /// # Phase 91 P5b: Escape Sequence Route Detection
 ///
-/// This function delegates to `ast_feature_extractor::detect_escape_skip_pattern`
+/// This function delegates to `ast_feature_extractor::detect_escape_skip_shape`
 /// for SSOT implementation.
 ///
 /// # Phase 92 P0-3: Added escape_cond
 ///
 /// The escape_cond is the condition expression for the conditional increment
 /// (e.g., `ch == '\\'`). This is needed for JoinIR Select generation.
-pub fn try_extract_escape_skip_pattern(
+pub fn try_extract_escape_skip_shape(
     body: &[ASTNode],
 ) -> Option<(String, i64, i64, char, char, Vec<ASTNode>, Box<ASTNode>)> {
     ast_detect_escape(body).map(|info| {

@@ -225,7 +225,7 @@ pub enum Decision {
 - [JoinIR アーキテクチャ概要](../../../../development/current/main/joinir-architecture-overview.md)
 - [JoinIR 設計マップ](../../../../development/current/main/design/joinir-design-map.md)
 - [Route Prep Pipeline](../../../plan/route_prep_pipeline.rs) - パターン判断の統合処理
-- [Escape Pattern Recognizer](../escape_pattern_recognizer.rs) - escape検出ロジック
+- [Escape Route-Shape Recognizer](../escape_pattern_recognizer.rs) - escape検出ロジック（legacy file name）
 
 ### Phase Log
 - [Phase 92 Log](../../../../development/current/main/phases/phase-92/) - ConditionalStep

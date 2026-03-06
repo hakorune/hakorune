@@ -77,7 +77,7 @@ pub(crate) use joinir::detect_parse_number_shape;
 pub(crate) use joinir::detect_parse_string_shape;
 
 // Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
-pub(crate) use joinir::detect_escape_skip_pattern;
+pub(crate) use joinir::detect_escape_skip_shape;
 
 impl super::MirBuilder {
     /// Control-flow: block

@@ -10,7 +10,7 @@ use crate::mir::policies::PolicyDecision;
 
 use super::capability_guard::{CapabilityTag, RoutingDecision};
 use super::pattern_recognizer::{
-    try_extract_continue_shape, try_extract_escape_skip_pattern, try_extract_parse_number_shape,
+    try_extract_continue_shape, try_extract_escape_skip_shape, try_extract_parse_number_shape,
     try_extract_parse_string_shape, try_extract_read_digits_loop_true_shape,
     try_extract_skip_whitespace_shape,
 };
@@ -381,7 +381,7 @@ pub fn canonicalize_loop_expr(
 
     // Phase 92 P0-3: Now also extracts escape_cond for JoinIR Select generation
     if let Some((counter_name, normal_delta, escape_delta, _quote_char, _escape_char, body_stmts, escape_cond)) =
-        try_extract_escape_skip_pattern(body)
+        try_extract_escape_skip_shape(body)
     {
         // Build skeleton for escape skip route shape (P5b)
         let mut skeleton = LoopSkeleton::new(span);

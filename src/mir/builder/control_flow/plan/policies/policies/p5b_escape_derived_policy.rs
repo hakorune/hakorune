@@ -10,7 +10,7 @@
 
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
-use crate::mir::builder::control_flow::plan::escape_pattern_recognizer::EscapeSkipPatternInfo;
+use crate::mir::builder::control_flow::plan::escape_pattern_recognizer::EscapeSkipShapeInfo;
 use crate::mir::join_ir::lowering::common::body_local_derived_emitter::BodyLocalDerivedRecipe;
 use crate::mir::join_ir::lowering::error_tags;
 use super::PolicyDecision;
@@ -21,7 +21,7 @@ pub type P5bEscapeDerivedDecision = PolicyDecision<BodyLocalDerivedRecipe>;
 ///
 /// Minimal supported shape (SSOT):
 /// - `local ch = <expr>` exists at top level
-/// - escape if exists (detected by EscapeSkipPatternInfo)
+/// - escape if exists (detected by EscapeSkipShapeInfo)
 /// - inside the escape if's then-body, after pre-increment:
 ///   - optional bounds `if i < n { ch = <override_expr> }`
 ///   - or direct `ch = <override_expr>`
@@ -33,7 +33,7 @@ pub fn classify_p5b_escape_derived(
     let has_ch_init = find_local_init_expr(body, "ch").is_some();
     let has_ch_reassign = has_assignment_to_var(body, "ch");
 
-    let Some(info) = crate::mir::builder::control_flow::plan::ast_feature_extractor::detect_escape_skip_pattern(body) else {
+    let Some(info) = crate::mir::builder::control_flow::plan::ast_feature_extractor::detect_escape_skip_shape(body) else {
         if strict && has_ch_init && has_ch_reassign {
             return P5bEscapeDerivedDecision::Reject(error_tags::freeze(
                 "[phase94/body_local_derived/contract/unhandled_reassign] Body-local reassignment to 'ch' detected but escape shape is not recognized",
@@ -94,7 +94,7 @@ fn has_assignment_to_var(body: &[ASTNode], name: &str) -> bool {
 
 fn build_recipe_from_info(
     body: &[ASTNode],
-    info: &EscapeSkipPatternInfo,
+    info: &EscapeSkipShapeInfo,
 ) -> Result<Option<BodyLocalDerivedRecipe>, String> {
     // 1) Find base init: `local ch = <expr>`
     let Some(base_init_expr) = find_local_init_expr(body, "ch") else {
@@ -124,7 +124,7 @@ fn build_recipe_from_info(
         return Ok(None);
     };
 
-    // EscapeSkipPatternInfo uses "escape_delta" for the then-body increment, and "normal_delta" for the unconditional tail.
+    // EscapeSkipShapeInfo uses "escape_delta" for the then-body increment, and "normal_delta" for the unconditional tail.
     // For the common P5b shape:
     // - escape iteration total delta = escape_delta + normal_delta
     // - normal iteration total delta = normal_delta

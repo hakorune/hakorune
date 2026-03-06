@@ -70,8 +70,8 @@ pub use route_shape_recognizers::parse_string::{
 // Re-export skip_whitespace shape detection
 pub use route_shape_recognizers::skip_whitespace::detect_skip_whitespace_shape;
 
-// Re-export escape pattern recognizer (existing module, not moved in P1)
-pub use super::escape_pattern_recognizer::detect_escape_skip_pattern;
+// Re-export escape route-shape recognizer (existing module, not moved in P1)
+pub use super::escape_pattern_recognizer::detect_escape_skip_shape;
 
 /// Extract full feature set from loop body AST
 ///
