@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ae_pattern6_scan_with_init_pack_vm.sh - Pattern6 scan-with-init supplemental regression pack (VM)
+# phase29ae_pattern6_scan_with_init_pack_vm.sh - scan_with_init supplemental regression pack (VM)
 #
 # Contract:
 # - strict lane fixtures only

@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ao_pattern3_release_adopt_vm.sh - Pattern3 release adopt path smoke (VM)
+# phase29ao_pattern3_release_adopt_vm.sh - if_phi_join release adopt path smoke (VM)
 #
 # Expected:
 # - Exit code 0

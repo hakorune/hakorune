@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ao_pattern6_strict_shadow_vm.sh - Pattern6 strict shadow adopt tag gate (VM)
+# phase29ao_pattern6_strict_shadow_vm.sh - scan_with_init strict shadow adopt tag gate (VM)
 #
 # Expected:
 # - Exit code 1

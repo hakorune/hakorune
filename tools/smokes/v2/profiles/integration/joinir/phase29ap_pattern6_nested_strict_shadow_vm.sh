@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ap_pattern6_nested_strict_shadow_vm.sh - Pattern6 nested minimal strict shadow gate (VM)
+# phase29ap_pattern6_nested_strict_shadow_vm.sh - nested_loop_minimal strict shadow gate (VM)
 #
 # Expected:
 # - Exit code 9

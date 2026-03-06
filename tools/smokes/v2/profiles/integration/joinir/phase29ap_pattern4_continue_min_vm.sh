@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ap_pattern4_continue_min_vm.sh - Pattern4 continue via plan routing (VM)
+# phase29ap_pattern4_continue_min_vm.sh - loop_continue_only via plan routing (VM)
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2

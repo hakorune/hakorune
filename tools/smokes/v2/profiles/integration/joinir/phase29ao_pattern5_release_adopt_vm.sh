@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ao_pattern5_release_adopt_vm.sh - Pattern5 release adopt path smoke (VM)
+# phase29ao_pattern5_release_adopt_vm.sh - loop_true_early_exit release adopt path smoke (VM)
 #
 # Expected:
 # - Output "3" (or "RC: 3")

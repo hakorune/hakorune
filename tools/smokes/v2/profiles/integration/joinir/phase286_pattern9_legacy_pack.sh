@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase286_pattern9_legacy_pack.sh - Pattern9 legacy pack (intentionally skipped)
+# phase286_pattern9_legacy_pack.sh - accum_const_loop legacy pack (intentionally skipped)
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2

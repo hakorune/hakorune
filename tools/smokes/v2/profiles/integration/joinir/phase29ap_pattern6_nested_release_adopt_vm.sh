@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ap_pattern6_nested_release_adopt_vm.sh - Pattern6 nested minimal release adopt (VM)
+# phase29ap_pattern6_nested_release_adopt_vm.sh - nested_loop_minimal release adopt (VM)
 #
 # Expected:
 # - Exit code 9

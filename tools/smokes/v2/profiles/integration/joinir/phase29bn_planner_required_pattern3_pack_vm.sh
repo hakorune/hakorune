@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29bn_planner_required_pattern3_pack_vm.sh - planner-required Pattern3 pack (strict/dev)
+# phase29bn_planner_required_pattern3_pack_vm.sh - planner-required if_phi_join pack (strict/dev)
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/joinir_planner_first_gate.sh"

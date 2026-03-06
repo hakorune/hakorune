@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29bi_planner_required_pattern2_pack_vm.sh - planner-required Pattern2 small set pack
+# phase29bi_planner_required_pattern2_pack_vm.sh - planner-required loop_break small set pack
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/joinir_planner_first_gate.sh"

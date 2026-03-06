@@ -1,8 +1,8 @@
 #!/bin/bash
-# phase29ao_pattern1_subset_reject_extra_stmt_vm.sh - Pattern1 subset reject extra stmt (VM)
+# phase29ao_pattern1_subset_reject_extra_stmt_vm.sh - loop_simple_while subset reject extra stmt (VM)
 #
 # Purpose:
-# - Ensure Pattern1 subset enforces "step-only body" under strict/dev shadow adopt.
+# - Ensure loop_simple_while subset enforces "step-only body" under strict/dev shadow adopt.
 #
 # Expected:
 # - Exit code 3 (sum increments to 3). If body is dropped, exit would be 0.

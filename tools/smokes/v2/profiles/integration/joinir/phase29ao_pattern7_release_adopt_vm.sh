@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ao_pattern7_release_adopt_vm.sh - Pattern7 release adopt path smoke (VM)
+# phase29ao_pattern7_release_adopt_vm.sh - split_scan release adopt path smoke (VM)
 #
 # Expected:
 # - Exit code 3

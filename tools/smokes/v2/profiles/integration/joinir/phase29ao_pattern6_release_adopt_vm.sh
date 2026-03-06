@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ao_pattern6_release_adopt_vm.sh - Pattern6 release adopt path smoke (VM)
+# phase29ao_pattern6_release_adopt_vm.sh - scan_with_init release adopt path smoke (VM)
 #
 # Expected:
 # - Exit code 1

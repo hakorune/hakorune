@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ae_pattern7_scan_split_pack_vm.sh - Pattern7 scan/split supplemental regression pack (VM)
+# phase29ae_pattern7_scan_split_pack_vm.sh - split_scan supplemental regression pack (VM)
 #
 # Contract:
 # - strict lane fixtures only

@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29ao_pattern2_release_adopt_vm.sh - Pattern2 release adopt path smoke (VM)
+# phase29ao_pattern2_release_adopt_vm.sh - loop_break release adopt path smoke (VM)
 #
 # Expected:
 # - Exit code 15

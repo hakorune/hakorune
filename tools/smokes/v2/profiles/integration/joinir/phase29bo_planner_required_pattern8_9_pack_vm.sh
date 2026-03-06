@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase29bo_planner_required_pattern8_9_pack_vm.sh - planner-required Pattern8/9 small pack (strict/dev)
+# phase29bo_planner_required_pattern8_9_pack_vm.sh - planner-required bool_predicate_scan / accum_const_loop small pack (strict/dev)
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/joinir_planner_first_gate.sh"
@@ -13,4 +13,3 @@ run_planner_first_list_gate \
   "$LIST_FILE" \
   "phase29bo_planner_required_pattern8_9_pack_vm" \
   "$RUN_TIMEOUT_SECS" || exit 1
-
