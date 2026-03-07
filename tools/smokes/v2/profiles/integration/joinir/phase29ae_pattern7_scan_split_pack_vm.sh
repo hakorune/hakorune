@@ -10,8 +10,12 @@
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
+LEGACY_STEM="phase29ae_pattern7_scan_split_pack_vm"
+SEMANTIC_STEM="split_scan_regression_pack_vm"
+LABEL_PREFIX="${SEMANTIC_STEM} (legacy stem ${LEGACY_STEM})"
+
 if ! command -v timeout >/dev/null 2>&1; then
-    log_error "phase29ae_pattern7_scan_split_pack_vm: 'timeout' command not found"
+    log_error "${LABEL_PREFIX}: 'timeout' command not found"
     exit 2
 fi
 
@@ -28,14 +32,14 @@ run_expect_rc1() {
     set -e
 
     if [ "$exit_code" -eq 124 ]; then
-        test_fail "phase29ae_pattern7_scan_split_pack_vm: ${label} timed out"
+        test_fail "${LABEL_PREFIX}: ${label} timed out"
         exit 1
     fi
 
     if [ "$exit_code" -ne 1 ]; then
         echo "[FAIL] ${label}: expected exit 1, got $exit_code"
         echo "$output" | tail -n 60 || true
-        test_fail "phase29ae_pattern7_scan_split_pack_vm: ${label} unexpected rc"
+        test_fail "${LABEL_PREFIX}: ${label} unexpected rc"
         exit 1
     fi
 
@@ -53,13 +57,13 @@ run_contract_freeze_case() {
     set -e
 
     if [ "$exit_code" -eq 124 ]; then
-        test_fail "phase29ae_pattern7_scan_split_pack_vm: ${label} timed out"
+        test_fail "${LABEL_PREFIX}: ${label} timed out"
         exit 1
     fi
 
-    if ! expect_joinir_contract_freeze "phase29ae_pattern7_scan_split_pack_vm:${label}" "$output" "$exit_code" "[joinir/phase29ab/split_scan/contract]"; then
+    if ! expect_joinir_contract_freeze "${LABEL_PREFIX}:${label}" "$output" "$exit_code" "[joinir/phase29ab/split_scan/contract]"; then
         echo "$output" | tail -n 80 || true
-        test_fail "phase29ae_pattern7_scan_split_pack_vm: ${label} contract mismatch"
+        test_fail "${LABEL_PREFIX}: ${label} contract mismatch"
         exit 1
     fi
 
@@ -74,5 +78,5 @@ run_contract_freeze_case \
   "split_scan_contract" \
   "$NYASH_ROOT/apps/tests/phase29ab_pattern7_splitscan_contract_min.hako"
 
-log_success "phase29ae_pattern7_scan_split_pack_vm: PASS"
+log_success "${LABEL_PREFIX}: PASS"
 exit 0

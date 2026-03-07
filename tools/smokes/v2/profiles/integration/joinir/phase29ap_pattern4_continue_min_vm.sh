@@ -5,6 +5,10 @@
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
+LEGACY_STEM="phase29ap_pattern4_continue_min_vm"
+SEMANTIC_STEM="loop_continue_only_vm"
+LABEL_PREFIX="${SEMANTIC_STEM} (legacy stem ${LEGACY_STEM})"
+
 FIXTURE="$NYASH_ROOT/apps/tests/phase29ap_pattern4_continue_min.hako"
 
 output=$(run_nyash_vm "$FIXTURE")
@@ -14,4 +18,4 @@ expected=$(cat << 'TXT'
 TXT
 )
 
-compare_outputs "$expected" "$output" "phase29ap_pattern4_continue_min_vm" || exit 1
+compare_outputs "$expected" "$output" "${LABEL_PREFIX}" || exit 1

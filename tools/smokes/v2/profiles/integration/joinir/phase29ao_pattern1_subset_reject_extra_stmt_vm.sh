@@ -11,6 +11,10 @@
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
+LEGACY_STEM="phase29ao_pattern1_subset_reject_extra_stmt_vm"
+SEMANTIC_STEM="loop_simple_while_subset_reject_extra_stmt_vm"
+LABEL_PREFIX="${SEMANTIC_STEM} (legacy stem ${LEGACY_STEM})"
+
 FIXTURE="$NYASH_ROOT/apps/tests/phase29ao_pattern1_subset_reject_extra_stmt.hako"
 RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 
@@ -20,21 +24,21 @@ EXIT_CODE=$?
 set -e
 
 if [ "$EXIT_CODE" -eq 124 ]; then
-    log_error "phase29ao_pattern1_subset_reject_extra_stmt_vm: hakorune timed out (>${RUN_TIMEOUT_SECS}s)"
+    log_error "${LABEL_PREFIX}: hakorune timed out (>${RUN_TIMEOUT_SECS}s)"
     exit 1
 fi
 
 if [ "$EXIT_CODE" -ne 3 ]; then
-    log_error "phase29ao_pattern1_subset_reject_extra_stmt_vm: expected exit code 3, got $EXIT_CODE"
+    log_error "${LABEL_PREFIX}: expected exit code 3, got $EXIT_CODE"
     echo "$OUTPUT"
     exit 1
 fi
 
 if grep -Eq "\\[flowbox/adopt box_kind=Loop features=(break|continue)" <<<"$OUTPUT"; then
-    log_error "phase29ao_pattern1_subset_reject_extra_stmt_vm: loop break/continue adopt tag must not appear"
+    log_error "${LABEL_PREFIX}: loop break/continue adopt tag must not appear"
     echo "$OUTPUT"
     exit 1
 fi
 
-log_success "phase29ao_pattern1_subset_reject_extra_stmt_vm: PASS (exit=3)"
+log_success "${LABEL_PREFIX}: PASS (exit=3)"
 exit 0

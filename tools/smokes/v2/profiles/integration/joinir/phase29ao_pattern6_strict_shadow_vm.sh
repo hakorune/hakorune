@@ -9,6 +9,10 @@
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
+LEGACY_STEM="phase29ao_pattern6_strict_shadow_vm"
+SEMANTIC_STEM="scan_with_init_strict_shadow_vm"
+LABEL_PREFIX="${SEMANTIC_STEM} (legacy stem ${LEGACY_STEM})"
+
 FIXTURE="$NYASH_ROOT/apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako"
 RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 
@@ -18,14 +22,14 @@ EXIT_CODE=$?
 set -e
 
 if [ "$EXIT_CODE" -eq 124 ]; then
-    test_fail "phase29ao_pattern6_strict_shadow_vm: hakorune timed out (>${RUN_TIMEOUT_SECS}s)"
+    test_fail "${LABEL_PREFIX}: hakorune timed out (>${RUN_TIMEOUT_SECS}s)"
     exit 1
 fi
 
 if [ "$EXIT_CODE" -ne 1 ]; then
     echo "[FAIL] Expected exit 1, got $EXIT_CODE"
     echo "$OUTPUT" | tail -n 40 || true
-    test_fail "phase29ao_pattern6_strict_shadow_vm: Unexpected RC"
+    test_fail "${LABEL_PREFIX}: Unexpected RC"
     exit 1
 fi
 
@@ -35,9 +39,9 @@ if ! grep -qF "[flowbox/adopt box_kind=Loop" <<<"$OUTPUT" \
     || ! grep -qF "via=shadow" <<<"$OUTPUT"; then
     echo "[FAIL] Missing FlowBox tag (box_kind=Loop features=return via=shadow)"
     echo "$OUTPUT" | tail -n 40 || true
-    test_fail "phase29ao_pattern6_strict_shadow_vm: Missing FlowBox tag"
+    test_fail "${LABEL_PREFIX}: Missing FlowBox tag"
     exit 1
 fi
 
-test_pass "phase29ao_pattern6_strict_shadow_vm: PASS (exit=1, flowbox tag)"
+test_pass "${LABEL_PREFIX}: PASS (exit=1, flowbox tag)"
 exit 0

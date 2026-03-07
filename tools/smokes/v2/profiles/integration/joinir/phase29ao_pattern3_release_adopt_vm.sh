@@ -12,6 +12,10 @@ source "$(dirname "$0")/../../../lib/output_validator.sh"
 export SMOKES_USE_PYVM=0
 require_env || exit 2
 
+LEGACY_STEM="phase29ao_pattern3_release_adopt_vm"
+SEMANTIC_STEM="if_phi_join_release_adopt_vm"
+LABEL_PREFIX="${SEMANTIC_STEM} (legacy stem ${LEGACY_STEM})"
+
 RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 
 INPUT="$NYASH_ROOT/apps/tests/phase118_pattern3_if_sum_min.hako"
@@ -30,7 +34,7 @@ EXIT_CODE=$?
 set -e
 
 if [ "$EXIT_CODE" -eq 124 ]; then
-  test_fail "phase29ao_pattern3_release_adopt_vm: hakorune timed out (>${RUN_TIMEOUT_SECS}s)"
+  test_fail "${LABEL_PREFIX}: hakorune timed out (>${RUN_TIMEOUT_SECS}s)"
   exit 1
 fi
 
@@ -38,7 +42,7 @@ if [ "$EXIT_CODE" -ne 0 ]; then
   echo "[FAIL] hakorune failed with exit code $EXIT_CODE"
   echo "[INFO] output (tail):"
   echo "$OUTPUT" | tail -n 80 || true
-  test_fail "phase29ao_pattern3_release_adopt_vm: execution failed"
+  test_fail "${LABEL_PREFIX}: execution failed"
   exit 1
 fi
 
@@ -46,16 +50,16 @@ if grep -qF "[flowbox/" <<<"$OUTPUT"; then
   echo "[FAIL] Unexpected FlowBox tag in release output"
   echo "[INFO] output (tail):"
   echo "$OUTPUT" | tail -n 80 || true
-  test_fail "phase29ao_pattern3_release_adopt_vm: tag should not appear in release"
+  test_fail "${LABEL_PREFIX}: tag should not appear in release"
   exit 1
 fi
 
 if validate_numeric_output 1 "$EXPECTED" "$OUTPUT"; then
-  test_pass "phase29ao_pattern3_release_adopt_vm: output matches expected (12)"
+  test_pass "${LABEL_PREFIX}: output matches expected (12)"
   exit 0
 fi
 
 echo "[INFO] output (tail):"
 echo "$OUTPUT" | tail -n 80 || true
-test_fail "phase29ao_pattern3_release_adopt_vm: output mismatch"
+test_fail "${LABEL_PREFIX}: output mismatch"
 exit 1

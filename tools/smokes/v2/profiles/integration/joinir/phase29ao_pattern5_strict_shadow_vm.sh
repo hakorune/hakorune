@@ -8,6 +8,10 @@
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
+LEGACY_STEM="phase29ao_pattern5_strict_shadow_vm"
+SEMANTIC_STEM="loop_true_early_exit_strict_shadow_vm"
+LABEL_PREFIX="${SEMANTIC_STEM} (legacy stem ${LEGACY_STEM})"
+
 FIXTURE="$NYASH_ROOT/apps/tests/phase286_pattern5_break_min.hako"
 RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 
@@ -17,7 +21,7 @@ EXIT_CODE=$?
 set -e
 
 if [ "$EXIT_CODE" -eq 124 ]; then
-    test_fail "phase29ao_pattern5_strict_shadow_vm: hakorune timed out (>${RUN_TIMEOUT_SECS}s)"
+    test_fail "${LABEL_PREFIX}: hakorune timed out (>${RUN_TIMEOUT_SECS}s)"
     exit 1
 fi
 
@@ -28,10 +32,10 @@ if grep -qE "(^3$|RC: 3$)" <<<"$OUTPUT"; then
         || ! grep -qF "via=shadow" <<<"$OUTPUT"; then
         echo "[FAIL] Missing FlowBox tag (box_kind=Loop features=break via=shadow)"
         echo "$OUTPUT" | tail -n 40 || true
-        test_fail "phase29ao_pattern5_strict_shadow_vm: Missing FlowBox tag"
+        test_fail "${LABEL_PREFIX}: Missing FlowBox tag"
         exit 1
     fi
-    test_pass "phase29ao_pattern5_strict_shadow_vm: PASS (output: 3)"
+    test_pass "${LABEL_PREFIX}: PASS (output: 3)"
     exit 0
 fi
 
@@ -39,5 +43,5 @@ echo "[FAIL] Unexpected output (expected: 3)"
 echo "[INFO] Exit code: $EXIT_CODE"
 echo "[INFO] Output:"
 echo "$OUTPUT" | head -n 20 || true
-test_fail "phase29ao_pattern5_strict_shadow_vm: Unexpected output"
+test_fail "${LABEL_PREFIX}: Unexpected output"
 exit 1
