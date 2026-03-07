@@ -12,11 +12,11 @@ apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_min.hako	0	0	[joinir/pla
 apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_block_min.hako	0	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	scan_methods loop block min
 apps/tests/phase29ap_stringutils_join_min.hako	a,b,c	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	stringutils join
 apps/tests/phase29bq_selfhost_blocker_collect_using_entries_loop_min.hako	0	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	collect_using_entries loop min
-apps/tests/phase29ap_pattern4_continue_min.hako	6	0	[joinir/planner_first rule=LoopContinueOnly] label=LoopContinueOnly	continue min
-apps/tests/phase286_pattern5_break_min.hako	__EMPTY__	0 3	[joinir/planner_first rule=LoopTrueEarlyExit] label=LoopTrueEarlyExit	break min (empty stdout)
-apps/tests/phase118_pattern3_if_sum_min.hako	12	0	[joinir/planner_first rule=IfPhiJoin] label=IfPhiJoin	if_sum min
-apps/tests/phase269_p0_pattern8_frag_min.hako	__EMPTY__	0 7	[joinir/planner_first rule=BoolPredicateScan] label=BoolPredicateScan	bool_predicate_scan frag min
-apps/tests/phase286_pattern9_frag_poc.hako	__EMPTY__	0 3	[joinir/planner_first rule=AccumConstLoop] label=AccumConstLoop	accum_const_loop frag poc
+apps/tests/phase29ap_pattern4_continue_min.hako	6	0	[joinir/planner_first rule=LoopContinueOnly] label=LoopContinueOnly	loop_continue_only min (legacy fixture pin token)
+apps/tests/phase286_pattern5_break_min.hako	__EMPTY__	0 3	[joinir/planner_first rule=LoopTrueEarlyExit] label=LoopTrueEarlyExit	loop_true_early_exit break min (legacy fixture pin token; empty stdout)
+apps/tests/phase118_pattern3_if_sum_min.hako	12	0	[joinir/planner_first rule=IfPhiJoin] label=IfPhiJoin	if_phi_join min (legacy fixture key)
+apps/tests/phase269_p0_pattern8_frag_min.hako	__EMPTY__	0 7	[joinir/planner_first rule=BoolPredicateScan] label=BoolPredicateScan	bool_predicate_scan frag min (legacy fixture pin token)
+apps/tests/phase286_pattern9_frag_poc.hako	__EMPTY__	0 3	[joinir/planner_first rule=AccumConstLoop] label=AccumConstLoop	accum_const_loop frag poc (legacy fixture pin token)
 apps/tests/phase29bq_loop_true_break_return_min.hako	0	0	[joinir/planner_first rule=LoopTrueBreak] label=LoopTrueBreakContinue	loop_true break+return min
 apps/tests/phase29bq_selfhost_blocker_bundle_resolver_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak] label=LoopExitIfBreakContinue	bundle_resolver min
 apps/tests/phase29bq_selfhost_blocker_breakfinder_parse_int_min.hako	-1	0	[joinir/planner_first rule=LoopCondBreak] label=LoopExitIfBreakContinue	else-only-return min

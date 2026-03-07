@@ -598,6 +598,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-29ac,phase-29ad,phase-29bo,phase-91,phase-94}/README.md` / `docs/development/current/main/phases/phase-137/phase-137-4-parity-verification.md` / `CURRENT_TASK.md`
     - intent: current-facing phase docs では `Pattern6/7/8/9` や `Pattern P5b` を architecture の主語にせず、scan_with_init / split_scan / bool_predicate_scan / accum_const_loop / escape route P5b などの route family と `legacy fixture pin token` / `legacy selfhost test stem` を先に出す。昔の numbered label は phase-history note としてだけ残す
     - verification: `rg -n "Pattern6/7 naming|Pattern6 reverse scan|Pattern8/9|Pattern P5b|skip_whitespace Pattern" docs/development/current/main/phases/{phase-29ac,phase-29ad,phase-29bo,phase-91,phase-94}/README.md docs/development/current/main/phases/phase-137/phase-137-4-parity-verification.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 91): active TSV reason の legacy pin token を semantic-first に寄せた
+    - synced files: `tools/smokes/v2/profiles/integration/joinir/{planner_required_cases,phase29bq_fast_gate_cases}.tsv` / `CURRENT_TASK.md`
+    - intent: fixture stem / case_id は filter compatibility のため不変に保ちつつ、`reason` 列は `if_phi_join` / `loop_true_early_exit` / `bool_predicate_scan` / `accum_const_loop` / `loop_simple_while explicit-step` を先に出し、legacy token は注記へ後退させる
+    - verification: `rg -n "if_sum min|break min \\(empty stdout\\)$|bool_predicate_scan frag min$|accum_const_loop frag poc$|loop_simple_while explicit-step source pin$" tools/smokes/v2/profiles/integration/joinir/{planner_required_cases,phase29bq_fast_gate_cases}.tsv` = 0 hit
 
 ## next fixed order (resume point)
 
