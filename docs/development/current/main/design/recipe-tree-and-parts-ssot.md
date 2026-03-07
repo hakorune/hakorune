@@ -42,12 +42,12 @@ Drift checks:
 
 ## Goal: acceptance by composability (Loop)
 
-Loop 受理は「pattern箱の列挙」ではなく、**RecipeBlock の合成可能性**へ寄せる（最終ゴール）。
+Loop 受理は「route-entry 箱の列挙」ではなく、**RecipeBlock の合成可能性**へ寄せる（最終ゴール）。
 
 - 最終目標:
   - Facts は「受理判定」を抱えず、**RecipeBlock を構築できるか**に責務を寄せる。
   - Parts 側は「RecipeBlock を lower できるか（contract を満たすか）」だけを見る（箱固有の例外分岐を増やさない）。
-  - pattern箱は「観測薄皮（view/facts化の入口）」に縮退し、受理の本体は Recipe/Parts の composability に寄せる。
+  - route-entry 箱は「観測薄皮（view/facts化の入口）」に縮退し、受理の本体は Recipe/Parts の composability に寄せる。
   - Anti-goal: 非再帰の allowlist（例: ShapeId 列挙）を “受理の真実” にしない（ネスト合成が閉じないため）。
     - generic_loop_v1 の受理SSOT: `docs/development/current/main/design/generic-loop-v1-acceptance-by-recipe-ssot.md`
 - Loop の入口部品（SSOT）:

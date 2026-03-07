@@ -203,6 +203,6 @@ impl super::PlanLowerer {
     }
 
     // Phase 273 P3: lower_loop_legacy() has been REMOVED
-    // All patterns must use generalized fields (block_effects/phis/frag/final_values)
-    // Pattern-specific emission functions (emit_scan_with_init_edgecfg) are no longer used
+    // All loop routes must use generalized fields (block_effects/phis/frag/final_values)
+    // Route-specific emission functions (emit_scan_with_init_edgecfg) are no longer used
 }

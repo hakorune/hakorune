@@ -31,7 +31,7 @@ use crate::mir::utils::is_current_block_terminated;
 /// allowing the loop to skip ahead.
 ///
 /// # Phase 142 Integration
-/// - Uses NormalizedShadowSuffixRouterBox for JoinIR pattern detection
+/// - Uses NormalizedShadowSuffixRouterBox for JoinIR route-shape detection
 /// - Suffix router can consume statements and return consumed count
 /// - Loop continues processing subsequent statements after suffix match
 ///

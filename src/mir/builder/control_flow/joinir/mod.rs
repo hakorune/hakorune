@@ -17,7 +17,6 @@ pub(in crate::mir::builder) mod merge;
 pub(in crate::mir::builder) mod parity_checker;
 #[path = "patterns/mod.rs"]
 pub(in crate::mir::builder) mod route_entry;
-pub(in crate::mir::builder) use route_entry as patterns;
 pub(in crate::mir::builder) mod routing;
 pub(in crate::mir::builder) mod trace;
 

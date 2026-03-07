@@ -170,7 +170,8 @@ let available_inputs = AvailableInputsCollectorBox::collect(
 - **Implementation**: `src/mir/control_tree/normalized_shadow/available_inputs_collector.rs`
 - **Call sites**:
   - `src/mir/builder/control_flow/normalization/execute_box.rs` (`execute_loop_only`)
-  - `src/mir/builder/control_flow/joinir/patterns/policies/normalized_shadow_suffix_router_box.rs`
+  - active module surface `crate::mir::builder::control_flow::joinir::route_entry::policies::normalized_shadow_suffix_router_box`
+    (legacy physical path remains under `src/mir/builder/control_flow/joinir/patterns/policies/`)
   - `src/mir/builder/stmts.rs` (build_block suffix router call)
 
 ---

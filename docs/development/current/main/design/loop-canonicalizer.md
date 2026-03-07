@@ -44,7 +44,8 @@ loop_canonicalizer/
          ↓
     LoopSkeleton + RoutingDecision
          ↓
-    Route Router (patterns/router.rs)
+    Route Router (active module surface `joinir::route_entry::router`;
+    legacy physical path `joinir/patterns/router.rs`)
          ↓
     Route Lowerer (semantic route modules)
 ```

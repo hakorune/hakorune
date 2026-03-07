@@ -53,7 +53,7 @@
 //! # Builder Decision
 //!
 //! Deferred to Phase 256+. Currently 2 route families use this (`LoopBreak` and `NestedLoopMinimal`).
-//! Direct construction is acceptable. Will create builder when 4+ patterns use it.
+//! Direct construction is acceptable. Will create builder when 4+ route families use it.
 
 use crate::ast::ASTNode;
 

@@ -95,7 +95,9 @@ Wave 3 の小タスク（ordered; docs-first）
    - 対象: `src/mir/builder/control_flow/joinir/legacy/README.md`
    - 追記先: JoinIR map SSOT（`joinir-design-map.md`）か、legacy README を “退避専用” に明記
 3) compatibility-lane normalizer residue と recipe composer の入口順序を SSOT 固定
-   - 対象例: `src/mir/builder/control_flow/joinir/patterns/router.rs`, `src/mir/builder/control_flow/plan/recipe_tree/*_composer.rs`
+   - 対象例: active module surface `crate::mir::builder::control_flow::joinir::route_entry::router`
+     （legacy physical path: `src/mir/builder/control_flow/joinir/patterns/router.rs`）,
+     `src/mir/builder/control_flow/plan/recipe_tree/*_composer.rs`
    - 追記先: 本書 + `recipe-tree-and-parts-ssot.md`
 4) CondBlockView 生成の “許可入口一覧” を SSOT に追加（Facts 直生成の棚卸し）
    - 対象例: `src/mir/builder/control_flow/plan/facts/exit_only_block.rs`
@@ -242,6 +244,7 @@ Naming rule (behavior-preserving):
 - ✅ Phase 13: exit_map/exit_if_map 調査 → effects_to_plans を steps/effects.rs に集約
 - ✅ Phase H: LoopCond/LoopTrue/GenericLoop normalizer fallback 撤去（recipe 直組み固定）
 - ✅ Normalizer fallback 撤去完了（全ルート recipe 直組み固定）
-- ✅ PlanNormalizer 参照ゼロ確認（plan/recipe_tree + joinir/patterns）
+- ✅ PlanNormalizer 参照ゼロ確認（plan/recipe_tree + active module surface `joinir::route_entry`
+  / legacy physical path `joinir/patterns`）
 - ✅ PlanNormalizer 撤去対象は composer/entry 経路に限定（他は別フェーズ）
 - ✅ Composer 経路の PlanNormalizer 参照ゼロ（plan/recipe_tree）

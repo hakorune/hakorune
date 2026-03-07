@@ -468,7 +468,7 @@ impl MirBuilder {
         }
 
         // Phase 194: Use table-driven router instead of if/else chain
-        use super::patterns::{route_loop, LoopRouteContext};
+        use super::route_entry::{route_loop, LoopRouteContext};
 
         // Phase 200-C: Pass fn_body_ast to LoopRouteContext if available
         // Clone fn_body_ast to avoid borrow checker issues

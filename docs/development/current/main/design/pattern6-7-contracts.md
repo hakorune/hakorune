@@ -5,7 +5,7 @@ It is the SSOT for `NotApplicable` vs `Freeze` decisions.
 
 ## Common Rule
 
-- **NotApplicable**: shape mismatch (another pattern may apply)
+- **NotApplicable**: shape mismatch (another route family may apply)
 - **Freeze**: shape matches but contract is violated (fail-fast)
 
 Tags:
