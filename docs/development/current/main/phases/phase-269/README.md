@@ -22,7 +22,7 @@ Date: 2025-12-22
 - historical path token lives under the old `joinir/patterns/` lane (bool_predicate_scan entry basename omitted here to reduce noise)
 - current route family: `src/mir/join_ir/lowering/scan_bool_predicate_minimal.rs`
 - `src/mir/builder/emission/loop_predicate_scan.rs`（薄い入口：Frag 構築 + emit_frag）
-- fixture/smoke（`apps/tests/phase269_p0_pattern8_frag_min.hako`, `tools/smokes/v2/profiles/integration/apps/archive/phase269_p0_pattern8_frag_vm.sh`）
+- representative archived fixture/smoke pair for BoolPredicateScan Frag P0（exact legacy fixture pin token / archived smoke stem are kept in the archived evidence lane）
 
 ### ❌ 触らない（P1 スコープ外）
 - cf_loop（JoinIR-only hard-freeze）
@@ -63,7 +63,7 @@ set_branch_with_edge_args() / set_jump_with_edge_args() (Phase 260 SSOT)
 
 - bool_predicate_scan Frag lower が header に PHI を挿入し、`i_current` を `Compare/substring/step` の参照に使用する
 - integration smoke:
-  - `tools/smokes/v2/profiles/integration/apps/archive/phase269_p0_pattern8_frag_vm.sh` PASS
+  - representative archived BoolPredicateScan Frag smoke PASS
   - `tools/smokes/v2/profiles/integration/apps/archive/phase259_p0_is_integer_vm.sh` PASS（回帰なし）
 
 ## P1.2（DONE）: static box の `this/me` を static call に正規化（runtime receiver 禁止）
@@ -159,9 +159,11 @@ let result = JoinIRConversionPipeline::execute(self, join_module, Some(&boundary
 
 ### 実装方針
 
+Historical P0 lowerer sketch (semanticized excerpt):
+
 ```rust
 #[cfg(test)]
-pub(crate) fn lower_pattern8_frag(
+pub(crate) fn lower_bool_predicate_scan_frag(
     builder: &mut MirBuilder,
     join_module: JoinModule,
     boundary: &JoinInlineBoundary,
@@ -193,10 +195,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_pattern8_frag_lowering() {
+    fn test_bool_predicate_scan_frag_lowering() {
         // 1. Create minimal JoinModule
         // 2. Create boundary
-        // 3. Call lower_pattern8_frag()
+        // 3. Call lower_bool_predicate_scan_frag()
         // 4. Verify MIR terminator generation
         //    - Branch terminator exists
         //    - Jump terminator exists
@@ -207,7 +209,7 @@ mod tests {
 
 ## 最小 fixture 設計
 
-### `phase269_p0_pattern8_frag_min.hako`
+### Representative archived fixture（BoolPredicateScan Frag P0）
 
 Phase 259 の `is_integer_min.hako` の縮小版:
 
@@ -242,7 +244,7 @@ static box Main {
 
 ### Smoke Test 設計
 
-`tools/smokes/v2/profiles/integration/apps/archive/phase269_p0_pattern8_frag_vm.sh`:
+Representative archived smoke stem:
 
 ```bash
 #!/bin/bash
@@ -250,14 +252,14 @@ set -e
 cd "$(dirname "$0")/../../../../../.."
 HAKORUNE_BIN="${HAKORUNE_BIN:-./target/release/hakorune}"
 set +e
-$HAKORUNE_BIN apps/tests/phase269_p0_pattern8_frag_min.hako > /tmp/phase269_out.txt 2>&1
+$HAKORUNE_BIN apps/tests/<representative archived bool_predicate_scan fixture> > /tmp/phase269_out.txt 2>&1
 EXIT_CODE=$?
 set -e
 if [ $EXIT_CODE -eq 7 ]; then
-    echo "[PASS] phase269_p0_pattern8_frag_vm"
+    echo "[PASS] phase269_bool_predicate_scan_frag_vm"
     exit 0
 else
-    echo "[FAIL] phase269_p0_pattern8_frag_vm: expected exit 7, got $EXIT_CODE"
+    echo "[FAIL] phase269_bool_predicate_scan_frag_vm: expected exit 7, got $EXIT_CODE"
     cat /tmp/phase269_out.txt
     exit 1
 fi

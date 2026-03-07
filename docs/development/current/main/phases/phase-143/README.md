@@ -13,7 +13,7 @@ Reading note:
 Expand the canonicalizer to recognize parse_number/digit collection route shapes, maximizing the adaptation range before adding new lowering route shapes.
 
 ### Target Fixture
-`tools/selfhost/test_pattern2_parse_number.hako`
+representative historical selfhost fixture token for the parse_number loop
 
 ```hako
 loop(i < num_str.length()) {
@@ -112,15 +112,12 @@ Added `test_parse_number_route_shape_recognized()` in `canonicalizer.rs`:
 
 ```bash
 NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
-  tools/selfhost/test_pattern2_parse_number.hako
+  <same historical selfhost fixture token as the target fixture above>
 ```
 
-**Historical output**:
-```
-[loop_canonicalizer]   Chosen pattern: Pattern2Break
-[choose_pattern_kind/PARITY] OK: canonical and actual agree on Pattern2Break
-[loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern2Break
-```
+**Historical parity summary**:
+- canonicalizer / router agreed on `LoopBreak`
+- parity log used the old label-2 debug token
 
 **Status**: ✅ **Green parity** - canonicalizer and router agree
 
@@ -193,7 +190,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer_tests::parse_number
 Expand canonicalizer to recognize parse_string route shapes with both `continue` (escape handling) and `return` (quote found).
 
 ### Target Fixture
-`tools/selfhost/test_pattern4_parse_string.hako`
+representative historical selfhost fixture token for the parse_string loop
 
 ```hako
 loop(p < len) {
@@ -315,19 +312,13 @@ Added `test_parse_string_route_shape_recognized()` in `canonicalizer.rs`:
 
 ```bash
 NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
-  tools/selfhost/test_pattern4_parse_string.hako
+  <same historical selfhost fixture token as the target fixture above>
 ```
 
-**Output**:
-```
-[loop_canonicalizer]   Skeleton steps: 3
-[loop_canonicalizer]   Carriers: 1
-[loop_canonicalizer]   Has exits: true
-[loop_canonicalizer]   Decision: SUCCESS
-[loop_canonicalizer]   Chosen pattern: Pattern4Continue
-[loop_canonicalizer]   Missing caps: []
-[loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern4Continue
-```
+**Historical parity summary**:
+- skeleton steps: `3`
+- canonicalizer / router agreed on `LoopContinueOnly`
+- parity log used the old label-4 debug token
 
 **Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly
 
@@ -397,7 +388,7 @@ cargo test --release --lib loop_canonicalizer --release
 Extend canonicalizer to recognize parse_array route shapes with both `continue` (separator handling) and `return` (stop condition).
 
 ### Target Fixture
-`tools/selfhost/test_pattern4_parse_array.hako`
+representative historical selfhost fixture token for the parse_array loop
 
 ```hako
 loop(p < len) {
@@ -496,19 +487,13 @@ loop(cond) {
 
 ```bash
 NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
-  tools/selfhost/test_pattern4_parse_array.hako
+  <same historical selfhost fixture token as the target fixture above>
 ```
 
-**Output**:
-```
-[loop_canonicalizer]   Skeleton steps: 3
-[loop_canonicalizer]   Carriers: 1
-[loop_canonicalizer]   Has exits: true
-[loop_canonicalizer]   Decision: SUCCESS
-[loop_canonicalizer]   Chosen pattern: Pattern4Continue
-[loop_canonicalizer]   Missing caps: []
-[loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern4Continue
-```
+**Historical parity summary**:
+- skeleton steps: `3`
+- canonicalizer / router agreed on `LoopContinueOnly`
+- parity log used the old label-4 debug token
 
 **Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly
 
@@ -583,7 +568,7 @@ This demonstrates the power of AST-based route-shape matching: we can recognize 
 Verify that parse_object route shape (key-value pair collection) is recognized by the existing recognizer, maintaining structural equivalence with parse_string/parse_array.
 
 ### Target Fixture
-`tools/selfhost/test_pattern4_parse_object.hako`
+representative historical selfhost fixture token for the parse_object loop
 
 ```hako
 loop(p < s.length()) {
@@ -674,15 +659,12 @@ loop(cond) {
 
 ```bash
 NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
-  tools/selfhost/test_pattern4_parse_object.hako
+  <same historical selfhost fixture token as the target fixture above>
 ```
 
-**Output**:
-```
-[loop_canonicalizer]   Chosen pattern: Pattern4Continue
-[choose_pattern_kind/PARITY] OK: canonical and actual agree on Pattern4Continue
-[loop_canonicalizer/PARITY] OK in function 'Main.parse_object_loop/0': canonical and actual agree on Pattern4Continue
-```
+**Historical parity summary**:
+- canonicalizer / router agreed on `LoopContinueOnly`
+- parity log used the old label-4 debug token
 
 **Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly
 

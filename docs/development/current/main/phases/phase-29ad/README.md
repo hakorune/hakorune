@@ -13,22 +13,15 @@ Goal: remove ambiguous "firstfail" naming and make the variant explicit for ever
 
 ## Current mapping
 
-scan_with_init OK (legacy fixture pin tokens):
-- `apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako`
-- `apps/tests/phase29ab_pattern6_reverse_ok_min.hako`
-- `apps/tests/phase29ab_pattern6_matchscan_ok_min.hako`
+scan_with_init legacy fixture pin matrix:
+- wildcard family: `phase29ab_pattern6_*`
+- variants: `scan_with_init`, `reverse`, `matchscan`
+- status lanes: `ok`, `contract`
 
-scan_with_init contract (legacy fixture pin tokens):
-- `apps/tests/phase29ab_pattern6_scan_with_init_contract_min.hako`
-- `apps/tests/phase29ab_pattern6_reverse_contract_min.hako`
-- `apps/tests/phase29ab_pattern6_matchscan_contract_min.hako`
-
-split_scan OK (legacy fixture pin tokens):
-- `apps/tests/phase29ab_pattern7_splitscan_ok_min.hako`
-- `apps/tests/phase29ab_pattern7_splitscan_nearmiss_ok_min.hako`
-
-split_scan contract (legacy fixture pin tokens):
-- `apps/tests/phase29ab_pattern7_splitscan_contract_min.hako`
+split_scan legacy fixture pin matrix:
+- wildcard family: `phase29ab_pattern7_*`
+- variants: `splitscan`, `splitscan_nearmiss`
+- status lanes: `ok`, `contract`（near-miss は `ok` lane only）
 
 ## Commands
 

@@ -10,8 +10,8 @@
 Extend Canonicalizer to recognize trim leading/trailing route shapes, enabling proper routing through the normalized loop pipeline.
 
 ### Target Fixtures
-- `tools/selfhost/test_pattern3_trim_leading.hako` - `start = start + 1` route shape
-- `tools/selfhost/test_pattern3_trim_trailing.hako` - `end = end - 1` route shape
+- representative historical selfhost fixture token for trim_leading - `start = start + 1` route shape
+- representative historical selfhost fixture token for trim_trailing - `end = end - 1` route shape
 
 ### Accepted Criteria (All Met ✅)
 - ✅ Canonicalizer creates Skeleton for trim_leading/trailing
@@ -78,26 +78,18 @@ test result: ok. 2 passed; 0 failed; 0 ignored
 **Strict Parity Check**:
 ```bash
 NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
-  tools/selfhost/test_pattern3_trim_leading.hako
+  <same historical selfhost fixture token as the trim_leading target fixture above>
 ```
 
-**Historical debug output at the time** (trim_leading):
-```
-[loop_canonicalizer]   Decision: SUCCESS
-[loop_canonicalizer]   Chosen pattern: Pattern2Break
-[loop_canonicalizer]   Missing caps: []
-[choose_pattern_kind/PARITY] OK: canonical and actual agree on Pattern2Break
-[loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern2Break
-```
+**Historical debug summary at the time** (trim_leading):
+- decision: `SUCCESS`
+- canonicalizer / router agreed on `LoopBreak`
+- parity log used the old label-2 debug token
 
-**Historical debug output at the time** (trim_trailing):
-```
-[loop_canonicalizer]   Decision: SUCCESS
-[loop_canonicalizer]   Chosen pattern: Pattern2Break
-[loop_canonicalizer]   Missing caps: []
-[choose_pattern_kind/PARITY] OK: canonical and actual agree on Pattern2Break
-[loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern2Break
-```
+**Historical debug summary at the time** (trim_trailing):
+- decision: `SUCCESS`
+- canonicalizer / router agreed on `LoopBreak`
+- parity log used the old label-2 debug token
 
 ### Design Principles Applied
 
@@ -149,11 +141,11 @@ cargo test --release loop_canonicalizer::canonicalizer::tests::test_trim --lib
 
 # Manual verification (trim_leading)
 NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
-  tools/selfhost/test_pattern3_trim_leading.hako
+  <same historical selfhost fixture token as the trim_leading target fixture above>
 
 # Manual verification (trim_trailing)
 NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
-  tools/selfhost/test_pattern3_trim_trailing.hako
+  <same historical selfhost fixture token as the trim_trailing target fixture above>
 ```
 
 ### Conclusion
@@ -174,7 +166,7 @@ All acceptance criteria met. ✅
 Extend Canonicalizer to recognize continue route shapes, enabling proper routing through the normalized loop pipeline.
 
 ### Target Fixture
-- `tools/selfhost/test_pattern4_simple_continue.hako` - Simple continue route shape with carrier update
+- representative historical selfhost fixture token for the simple-continue route shape with carrier update
 
 ### Accepted Criteria (All Met ✅)
 - ✅ Canonicalizer creates Skeleton for the continue route shape
@@ -207,7 +199,7 @@ loop(cond) {
 }
 ```
 
-**Example** (from test_pattern4_simple_continue.hako):
+**Example** (from the simple-continue historical fixture above):
 ```nyash
 loop(i < n) {
   if is_even == 1 {
@@ -280,21 +272,13 @@ test result: ok. 8 passed; 0 failed; 0 ignored
 **Strict Parity Check**:
 ```bash
 NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
-  tools/selfhost/test_pattern4_simple_continue.hako
+  <same historical selfhost fixture token as the simple-continue target fixture above>
 ```
 
-**Historical debug output at the time**:
-```
-[loop_canonicalizer] Function: main
-[loop_canonicalizer]   Skeleton steps: 4
-[loop_canonicalizer]   Carriers: 1
-[loop_canonicalizer]   Has exits: true
-[loop_canonicalizer]   Decision: SUCCESS
-[loop_canonicalizer]   Chosen pattern: Pattern4Continue
-[loop_canonicalizer]   Missing caps: []
-[choose_pattern_kind/PARITY] OK: canonical and actual agree on Pattern4Continue
-[loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern4Continue
-```
+**Historical debug summary at the time**:
+- skeleton steps: `4`
+- canonicalizer / router agreed on `LoopContinueOnly`
+- parity log used the old label-4 debug token
 
 **Status**: ✅ Strict parity green!
 
@@ -357,7 +341,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests
 
 # Manual verification
 NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
-  tools/selfhost/test_pattern4_simple_continue.hako
+  <same historical selfhost fixture token as the simple-continue target fixture above>
 ```
 
 ### Conclusion
@@ -378,7 +362,7 @@ All acceptance criteria met. ✅
 Extend loop_continue_only lowering to handle "continue + return" route shapes found in parse_string/array/object.
 
 ### Target Fixture
-- `tools/selfhost/test_pattern4_parse_string.hako` - parse_string route shape with continue (escape) + return (quote)
+- representative historical selfhost fixture token for the parse_string route shape with continue (escape) + return (quote)
 
 ### LoopContinueOnly Lowering Contract (historical Phase 142 P2 note)
 
@@ -440,7 +424,7 @@ The following route shapes are rejected with explicit error messages:
 ### Files to Modify
 
 1. `docs/development/current/main/phases/phase-142/README.md` - Contract documentation
-2. `tools/selfhost/test_pattern4_parse_string_lowering.hako` - Minimal E2E test (new)
+2. representative historical selfhost E2E fixture token for parse_string lowering (new at the time)
 3. `src/mir/join_ir/lowering/loop_routes/with_continue.rs` - current lowerer extension surface
    - same historical continue-analysis lane as above (legacy basename tokens omitted here to reduce noise)
 
