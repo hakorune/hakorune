@@ -1,4 +1,4 @@
-//! Loop Pattern Detection Module
+//! Loop route-shape detection module
 //!
 //! Phase 188 Task 188-4: Route-shape detection helpers for JoinIR loop lowering.
 //!

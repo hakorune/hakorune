@@ -252,7 +252,8 @@ impl LoopBodyCondPromoter {
             .collect();
 
         ConditionPromotionResult::CannotPromote {
-            reason: "No promotable pattern detected (tried A-3 Trim, A-4 DigitPos)".to_string(),
+            reason: "No promotable route shape detected (tried A-3 Trim, A-4 DigitPos)"
+                .to_string(),
             vars: body_local_names,
         }
     }

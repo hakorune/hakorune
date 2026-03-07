@@ -1,9 +1,9 @@
-//! DigitPosDetector - Pure detection logic for digit position pattern
+//! DigitPosDetector - Pure detection logic for digit-position route shape
 //!
 //! Extracted from DigitPosPromoter to enable:
 //! - Single responsibility (detection only)
 //! - Independent unit testing
-//! - Reusable pattern for future analyzers
+//! - Reusable detector shape for future analyzers
 //!
 //! # Design Philosophy
 //!
@@ -11,7 +11,7 @@
 //! - **Detector**: Pure detection logic (this module)
 //! - **Promoter**: Orchestrates carrier building from the detected shape
 //!
-//! # Pattern: A-4 DigitPos (Cascading indexOf)
+//! # Route Shape: A-4 DigitPos (Cascading indexOf)
 //!
 //! ```nyash
 //! loop(p < s.length()) {
@@ -29,7 +29,7 @@
 
 use crate::ast::{ASTNode, BinaryOperator};
 
-/// Detection result for digit position pattern.
+/// Detection result for digit-position route shape.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DigitPosDetectionResult {
     /// Variable name that was promoted (e.g., "digit_pos")
@@ -42,13 +42,13 @@ pub struct DigitPosDetectionResult {
     pub int_carrier_name: String,
 }
 
-/// Pure detection logic for A-4 DigitPos pattern
+/// Pure detection logic for A-4 DigitPos route shape
 pub struct DigitPosDetector;
 
 impl DigitPosDetector {
-    /// Detect digit position pattern in condition and body.
+    /// Detect digit-position route shape in condition and body.
     ///
-    /// Returns None if pattern not found, Some(result) if detected.
+    /// Returns None if the route shape is not found, Some(result) if detected.
     ///
     /// # Algorithm
     ///
@@ -65,8 +65,8 @@ impl DigitPosDetector {
     ///
     /// # Returns
     ///
-    /// * `Some(DigitPosDetectionResult)` if pattern detected
-    /// * `None` if pattern not found
+    /// * `Some(DigitPosDetectionResult)` if the route shape is detected
+    /// * `None` if the route shape is not found
     pub fn detect(
         condition: &ASTNode,
         body: &[ASTNode],

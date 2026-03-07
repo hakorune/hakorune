@@ -450,6 +450,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - intent: current README / SSOT では `joinir/patterns` を active module surface として語らず、route-entry layer の legacy on-disk path だと明示する
     - verification: targeted doc/comment grep on the synced files shows only intentional `legacy physical path` notes
     - verification: docs/comment-only slice のため build/gate 再実行なし
+  - truth cleanup (2026-03-07, slice 54): `loop_pattern_detection/legacy/**` の current-facing prose を route-first に薄くした
+    - synced files: `src/mir/loop_pattern_detection/{mod.rs,legacy/{mod.rs,trim_detector.rs,digitpos_detector.rs,loop_body_cond_promoter.rs,loop_body_digitpos_promoter.rs}}` / `CURRENT_TASK.md`
+    - intent: `Loop Pattern Detection` / `Trim Pattern` / `DigitPos Pattern` / `Pattern detected` を current production prose から外し、route-shape / route promotion / route detected へ寄せる
+    - verification: `rg -n "Loop Pattern Detection Module|Trim Pattern|DigitPos Pattern|Pattern detected|pattern detected|No promotable pattern detected" src/mir/loop_pattern_detection src/mir/loop_pattern_detection/legacy -g '!**/*history*' -g '!**/*archive*'` = generic `Accumulator pattern detected` only
+    - verification: `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 
 ## next fixed order (resume point)
 

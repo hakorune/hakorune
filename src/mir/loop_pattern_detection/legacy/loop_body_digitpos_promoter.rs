@@ -143,7 +143,7 @@ impl DigitPosPromoter {
 
         if detection.is_none() {
             return DigitPosPromotionResult::CannotPromote {
-                reason: "No A-4 DigitPos pattern detected (indexOf not found or not cascading)"
+                reason: "No A-4 DigitPos route shape detected (indexOf not found or not cascading)"
                     .to_string(),
                 vars: body_locals.iter().map(|s| s.to_string()).collect(),
             };
@@ -153,7 +153,7 @@ impl DigitPosPromoter {
         if is_joinir_debug() || std::env::var("JOINIR_TEST_DEBUG").is_ok() {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
-                "[digitpos_promoter] Pattern detected: {} → {} (bool) + {} (int)",
+                "[digitpos_promoter] route detected: {} → {} (bool) + {} (int)",
                 detection.var_name, detection.bool_carrier_name, detection.int_carrier_name
             ));
         }

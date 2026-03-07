@@ -348,10 +348,10 @@ pub mod loop_body_carrier_promoter;
 // (for LoopContinueOnly)
 pub mod loop_body_cond_promoter;
 
-// Phase 224: A-4 DigitPos Pattern Promotion
+// Phase 224: A-4 DigitPos route promotion
 pub mod loop_body_digitpos_promoter;
 
-// Phase 171-C-5: Trim Pattern Helper
+// Phase 171-C-5: Trim route helper
 pub mod trim_loop_helper;
 pub use trim_loop_helper::TrimLoopHelper;
 

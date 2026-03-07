@@ -1,9 +1,9 @@
-//! TrimDetector - Pure detection logic for trim pattern
+//! TrimDetector - Pure detection logic for trim route shape
 //!
 //! Extracted from LoopBodyCarrierPromoter to enable:
 //! - Single responsibility (detection only)
 //! - Independent unit testing
-//! - Reusable pattern for future analyzers
+//! - Reusable detector shape for future analyzers
 //!
 //! # Design Philosophy
 //!
@@ -11,7 +11,7 @@
 //! - **Detector**: Pure detection logic (this module)
 //! - **Promoter**: Orchestrates carrier building from the detected shape
 //!
-//! # Pattern: A-3 Trim (Substring + Equality OR Chain)
+//! # Route Shape: A-3 Trim (Substring + Equality OR Chain)
 //!
 //! ```nyash
 //! loop(start < end) {
@@ -26,7 +26,7 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
-/// Detection result for trim pattern.
+/// Detection result for trim route shape.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TrimDetectionResult {
     /// Variable name (e.g., "ch")
@@ -43,9 +43,9 @@ pub struct TrimDetectionResult {
 pub struct TrimDetector;
 
 impl TrimDetector {
-    /// Detect trim pattern in condition and body.
+    /// Detect trim route shape in condition and body.
     ///
-    /// Returns None if pattern not found, Some(result) if detected.
+    /// Returns None if the route shape is not found, Some(result) if detected.
     ///
     /// # Algorithm
     ///
@@ -61,8 +61,8 @@ impl TrimDetector {
     ///
     /// # Returns
     ///
-    /// * `Some(TrimDetectionResult)` if pattern detected
-    /// * `None` if pattern not found
+    /// * `Some(TrimDetectionResult)` if the route shape is detected
+    /// * `None` if the route shape is not found
     pub fn detect(
         condition: &ASTNode,
         body: &[ASTNode],
