@@ -19,7 +19,7 @@ Date: 2025-12-22
 ## 実装範囲（重要：スコープ境界）
 
 ### ✅ 触る（P1 スコープ）
-- historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern8_scan_bool_predicate.rs`
+- historical path token: `pattern8_scan_bool_predicate.rs` under the old `joinir/patterns/` lane
 - current route family: `src/mir/join_ir/lowering/scan_bool_predicate_minimal.rs`
 - `src/mir/builder/emission/loop_predicate_scan.rs`（薄い入口：Frag 構築 + emit_frag）
 - fixture/smoke（`apps/tests/phase269_p0_pattern8_frag_min.hako`, `tools/smokes/v2/profiles/integration/apps/archive/phase269_p0_pattern8_frag_vm.sh`）

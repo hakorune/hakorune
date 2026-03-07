@@ -51,7 +51,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 ### A) Plan line（scan_with_init / split_scan; historical labels: Pattern6/7）
 
 - 入口: `src/mir/builder/control_flow/joinir/route_entry/router.rs`（route=plan）
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/router.rs`
+  - historical path token: `router.rs` under the old `joinir/patterns/` lane
 - SSOT:
   - `src/mir/builder/control_flow/plan/normalizer/mod.rs`（Frag 構築: branches/wires/exits）
   - `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`（合成 SSOT）

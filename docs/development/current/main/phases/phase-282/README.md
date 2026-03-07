@@ -2,8 +2,12 @@
 
 Status: Active SSOT / ✅ P0–P9a complete (2025-12-23)
 
+Reading note:
+- この文書の `Pattern1..9` は numbered route label の縮退ルールを説明する historical naming token だよ。
+- current runtime mainline の主語は route family / extractor / plan line / joinir line で読む。
+
 Goal:
-- pattern番号（Pattern1/2/…）を “症状ラベル（テスト名）” に縮退させ、router の責務を「抽出の配線」へ収束させる。
+- numbered route label（Pattern1/2/…）を “症状ラベル（テスト名）” に縮退させ、router の責務を「抽出の配線」へ収束させる。
 - CFG 構築は `Frag/ExitKind` 合成 SSOT（`compose::*` + `emit_frag()`）へ一本化する。
 
 ## SSOT References
@@ -11,8 +15,8 @@ Goal:
 - Frag/emit SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
 - Composition SSOT: `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`
 - JoinIR overview: `docs/development/current/main/joinir-architecture-overview.md`
-- Plan line（Pattern6/7）: `docs/development/current/main/phases/phase-273/README.md`
-- Composition adoption（Pattern6/7）: `docs/development/current/main/phases/phase-281/README.md`
+- Plan line（scan_with_init / split_scan; historical labels: Pattern6/7）: `docs/development/current/main/phases/phase-273/README.md`
+- Composition adoption（scan_with_init / split_scan; historical labels: Pattern6/7）: `docs/development/current/main/phases/phase-281/README.md`
 
 ## Problem
 
@@ -48,12 +52,12 @@ CFG構築は以下に収束させる：
 
 **Router がやらないこと**（禁止事項）:
 1. CFG 構築（block 割り当て、PHI 挿入、terminator 生成）
-2. Pattern 固有の lowering ロジック（Normalizer/Lowerer に委譲）
+2. route-family 固有の lowering ロジック（Normalizer/Lowerer に委譲）
 3. Silent fallback（エラーは明示的に）
 4. By-name hardcode（関数名マッチング禁止、debug 以外）
 5. Mock path fallback（test 専用パターンの本番使用禁止）
 
-**Pattern 番号 = 症状ラベル**（Phase 280 SSOT positioning）:
+**numbered route label = 症状ラベル**（Phase 280 SSOT positioning）:
 - ✅ 正しい用途: テスト名（`loop_if_phi.hako` → Pattern3_WithIfPhi）、debug ログ
 - ❌ 禁止: CFG 分岐（`if pattern == 6 then ...`）、アーキテクチャ SSOT（Frag composition が SSOT）
 
@@ -163,7 +167,7 @@ extract_scan_with_init_plan() → Ok(None) for unsupported cases
 Pattern1–5 の extractor が持っていた “再帰カウント/検出/条件ヘルパ” の重複を、pure helper に集約する。
 
 - 追加: `src/mir/builder/control_flow/plan/extractors/common_helpers.rs`
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/extractors/common_helpers.rs`
+  - historical path token: `extractors/common_helpers.rs` under the old `joinir/patterns/` lane
 - 方針:
   - **SSOT=extract** は維持（判定は各 pattern extractor の責務）
   - helper は pure（builder 触らない）・**silent fallback を作らない**

@@ -196,7 +196,7 @@ return/break を正規化して共通語彙へ落とし、JoinIR patterns を縮
    - `tools/smokes/v2/profiles/integration/apps/archive/phase257_p0_last_index_of_llvm_exe.sh`
 
 2) **scan_with_init detector/extractor 拡張（reverse scan）**
-   - historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
+   - historical path token: `pattern6_scan_with_init.rs` under the old `joinir/patterns/` lane
    - current route family lives under `src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs`
    - reverse scan 形を accept し、parts（init/cond/step/return/not-found）を抽出
 

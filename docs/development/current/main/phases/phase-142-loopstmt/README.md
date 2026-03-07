@@ -62,7 +62,7 @@ Ok(Some(NormalizationPlan::loop_only()))
 
 **Current file**: `src/mir/builder/control_flow/plan/policies/policies/normalized_shadow_suffix_router_box.rs`
 
-**Historical path token**: `src/mir/builder/control_flow/joinir/patterns/policies/normalized_shadow_suffix_router_box.rs`
+**Historical path token**: `policies/normalized_shadow_suffix_router_box.rs` under the old `joinir/patterns/` lane
 
 **Before**: Lines 64-75 で PlanKind::LoopOnly を reject ("not a suffix")
 
@@ -265,7 +265,7 @@ NormalizationPlan::loop_only() → consumed = 1 (loop のみ)
    - 7 unit tests updated
 
 2. `src/mir/builder/control_flow/plan/policies/policies/normalized_shadow_suffix_router_box.rs`
-   - historical path token: `src/mir/builder/control_flow/joinir/patterns/policies/normalized_shadow_suffix_router_box.rs`
+   - same historical policy lane as above (`normalized_shadow_suffix_router_box.rs` under the old `joinir/patterns/` lane)
    - Accept LoopOnly patterns
    - Remove rejection logic
 

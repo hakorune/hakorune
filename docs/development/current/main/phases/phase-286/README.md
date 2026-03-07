@@ -12,7 +12,7 @@ Status: ✅ COMPLETE (P0, P1, P2, P2.1, P2.2, P2.3, P2.4.1, P2.6, P2.7, P2.8, P3
 Phase 286 では JoinIR line を “第2の lowerer” として放置せず、**Plan/Frag SSOT へ吸収**する道筋を固定する。
 
 Reading note:
-- 下に出てくる `src/mir/builder/control_flow/joinir/patterns/*` は、特記がない限り execution-time の historical physical path token だよ。
+- 下に出てくる `joinir/patterns/*` は、特記がない限り execution-time の historical physical path token だよ。
 - current live surfaces は `src/mir/builder/control_flow/joinir/route_entry/`, `src/mir/builder/control_flow/plan/`, `src/mir/builder/control_flow/plan/extractors/`, `src/mir/loop_route_detection/` を優先して読むよ。
 
 ## Why（なぜ今）

@@ -3,6 +3,10 @@
 Status: ✅ 完了（P0 + P1）
 Date: 2025-12-21
 
+Reading note:
+- この文書の `Pattern1` / `Pattern9` は当時の numbered route label だよ。
+- current runtime mainline では `LoopSimpleWhile` / `AccumConstLoop` と読めばよい。
+
 ## 目的
 
 **JoinIR経路で最小loopを通す**（JoinIR-only hard-freeze維持）
@@ -132,7 +136,7 @@ k_exit(sum):
 
 **変更ファイル（2個）**:
 - `src/mir/builder/control_flow/joinir/route_entry/mod.rs` (current module surface)
-  - historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{mod.rs,router.rs}`
+  - historical path tokens: `{mod.rs,router.rs}` under the old `joinir/patterns/` lane
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current route entry)
   - 当時は LOOP_PATTERNS テーブルに Pattern9 を **Pattern1より前に追加**した
 

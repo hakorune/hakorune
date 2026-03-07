@@ -46,7 +46,7 @@ Hint: This loop pattern is not supported. All loops must use JoinIR lowering.
 
 **なぜ IfPhiJoin にマッチするか**:
 
-historical code snapshot: `src/mir/loop_pattern_detection/mod.rs:227-230`
+historical code snapshot: `loop_pattern_detection/mod.rs:227-230`
 current module surface: `src/mir/loop_route_detection/mod.rs`
 
 分類ロジック:
@@ -69,7 +69,7 @@ Current route-family surfaces:
 - `src/mir/builder/control_flow/plan/extractors/if_phi_join.rs`
 - `src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs`
 
-historical path token at the time: `src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs:79-86`
+historical path token at the time: `pattern3_with_if_phi.rs:79-86` under the old `joinir/patterns/` lane
 
 ```rust
 if !ctx.is_if_sum_pattern() {
