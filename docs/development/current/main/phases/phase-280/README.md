@@ -6,14 +6,14 @@
 
 ## Executive Summary
 
-**Goal**: Stop pattern number enumeration proliferation by establishing Frag composition API as the Single Source of Truth (SSOT) for structured control flow → CFG lowering.
+**Goal**: Stop numbered route label enumeration proliferation by establishing Frag composition API as the Single Source of Truth (SSOT) for structured control flow → CFG lowering.
 
 **Strategy**: Three-phase approach (A→B→C):
 - **Phase A**: Document SSOT positioning (docs-only, no code) ✅ **Complete**
 - **Phase B**: Solidify composition API contract (minimal test-based verification) ✅ **Complete**
-- **Phase C**: Prepare Pattern6/7 for composition API (documentation-only, defer migration to Phase 281) ✅ **Complete**
+- **Phase C**: Prepare ScanWithInit / SplitScan (historical labels: Pattern6/7) for composition API (documentation-only, defer migration to Phase 281) ✅ **Complete**
 
-**Key Insight**: Pattern numbers (1-9+) are **symptom labels** for regression tests, NOT architectural concepts. The architectural SSOT is **Frag composition rules** (`seq`/`if`/`loop`/`cleanup`).
+**Key Insight**: numbered route labels (Pattern1-9+) are **symptom labels** for regression tests, NOT architectural concepts. The architectural SSOT is **Frag composition rules** (`seq`/`if`/`loop`/`cleanup`).
 
 **Phase 280 Goal**: SSOT positioning + 導線固定 (NOT full migration - that's Phase 281)
 
@@ -22,24 +22,24 @@
 ## Purpose
 
 **What this phase achieves**:
-1. Establish Frag composition API as THE absorption destination for pattern proliferation
+1. Establish Frag composition API as THE absorption destination for numbered-route proliferation
 2. Document composition SSOT positioning in architecture docs (edgecfg-fragments.md, joinir-architecture-overview.md)
 3. Solidify composition API contract through verification and testing
-4. Identify Pattern6/7 hand-rolled Frag construction locations for future migration
+4. Identify ScanWithInit / SplitScan hand-rolled Frag construction locations for future migration
 5. Create clear導線 (guidance) for Phase 281+ migration work
 
 **Why this is needed**:
-- Pattern numbers became architectural decision points (17+ patterns across JoinIR/Plan routes)
+- numbered route labels became architectural decision points (17+ routes across JoinIR/Plan lanes at the time)
 - CFG construction logic duplicated across patterns
 - Adding new loop shapes required full-stack pattern additions
-- Need convergence point to absorb pattern-specific knowledge
+- Need convergence point to absorb route-specific knowledge
 
 ---
 
 ## Non-Goals
 
 **What this phase does NOT do**:
-1. ❌ Migrate Pattern6/7 to use composition API (deferred to Phase 281)
+1. ❌ Migrate ScanWithInit / SplitScan to use composition API (deferred to Phase 281)
 2. ❌ Remove hand-rolled Frag construction (documentation-only in Phase 280 C)
 3. ❌ Change router behavior (routing remains unchanged)
 4. ❌ Add new composition functions (seq/if/loop already exist)
@@ -57,7 +57,7 @@
    - 5 new sections: Composition SSOT, Rules, Laws, Fail-Fast, Ownership
 
 2. **JoinIR Architecture Overview**: [`docs/development/current/main/joinir-architecture-overview.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/joinir-architecture-overview.md)
-   - Section 0.2: **Pattern Number Absorption Destination (Phase 280)** (updated Phase 280 A2)
+   - Section 0.2: **Numbered Route Absorption Destination (Phase 280)** (updated Phase 280 A2)
    - Comparison: JoinIR vs Plan (different extraction, same SSOT)
 
 3. **Phase 280 Plan**: [`/home/tomoaki/.claude/plans/elegant-wondering-stroustrup.md`](/home/tomoaki/.claude/plans/elegant-wondering-stroustrup.md)
@@ -65,7 +65,7 @@
 
 ### Related Documentation
 
-- **Phase 273 (Plan Line SSOT)**: Pattern6/7 Plan-based routing completed
+- **Phase 273 (Plan Line SSOT)**: ScanWithInit / SplitScan Plan-based routing completed
 - **Phase 264 (歴史/別案件)**: BundleResolver loop fix (separate scope)
 - **Phase 265-268**: Frag composition API creation and terminator SSOT
 
@@ -91,15 +91,15 @@
 
 **File**: [`docs/development/current/main/design/edgecfg-fragments.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/edgecfg-fragments.md)
 
-#### A2: Update joinir-architecture-overview.md with "Pattern Number Absorption Destination" ✅
+#### A2: Update joinir-architecture-overview.md with "Numbered Route Absorption Destination" ✅
 
 **Changes Made**:
 - Added section 0.2: **Pattern Number Absorption Destination (Phase 280)**
 - Content:
-  - Problem: Pattern enumeration proliferation
+  - Problem: numbered route label proliferation
   - Solution: Frag Composition SSOT
   - JoinIR vs Plan comparison table (different extraction, same SSOT)
-  - Pattern absorption status table (Pattern6/7 highlighted as Phase 280 targets)
+  - Route absorption status table (ScanWithInit / SplitScan highlighted as Phase 280 targets)
   - Absorption timeline (Phase 280-283+)
 
 **File**: [`docs/development/current/main/joinir-architecture-overview.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/joinir-architecture-overview.md)
@@ -199,7 +199,7 @@
 
 ---
 
-### Phase C: Prepare Pattern6/7 to Use Composition API
+### Phase C: Prepare ScanWithInit / SplitScan to Use Composition API
 
 **Behavior-preserving refactor OR documentation**
 
@@ -207,22 +207,22 @@
 
 **Rationale**:
 - Phase 280 goal is **SSOT positioning + 導線固定** (NOT full migration)
-- Pattern6: early-return doesn't naturally fit `compose::if_()` model
-- Pattern7: 挙動不変保証が難しい、得られる差分が小さい
+- ScanWithInit route: early-return doesn't naturally fit `compose::if_()` model
+- SplitScan route: 挙動不変保証が難しい、得られる差分が小さい
 - **行動は最小が正解** - Full migration deferred to Phase 281
 
 #### C1: Identify Hand-Rolled Frag Construction Locations
 
 **File**: `src/mir/builder/control_flow/plan/normalizer.rs`
 
-**Pattern6 (ScanWithInit)**:
+**ScanWithInit route (historical label: Pattern6)**:
 - **Function**: `normalize_scan_with_init()`
 - **識別コメント**: Search for `// Step 12: Build CoreLoopPlan` or `let branches = vec![...]` near `BranchStub { from: header_bb, cond: cond_loop`
 - **Structure**: 5 blocks (preheader, header, body, step, found, after)
 - **Hand-rolled**: 2 BranchStub + 2 EdgeStub
 - **Composition opportunity**: **Hand-rolled clearer** (early exit breaks if_ model)
 
-**Pattern7 (SplitScan)**:
+**SplitScan route (historical label: Pattern7)**:
 - **Function**: `normalize_split_scan()`
 - **識別コメント**: Search for `// Build Frag with branches and wires` or `let branches = vec![...]` near `BranchStub { from: header_bb, cond: cond_loop` in split context
 - **Structure**: 6 blocks (preheader, header, body, then, else, step, after)
@@ -230,8 +230,8 @@
 - **Composition opportunity**: **Defer to Phase 281** (挙動不変保証が難しい)
 
 **Acceptance**:
-- [ ] Pattern6 location identified (function name + 識別コメント)
-- [ ] Pattern7 location identified (function name + 識別コメント)
+- [ ] ScanWithInit location identified (function name + 識別コメント)
+- [ ] SplitScan location identified (function name + 識別コメント)
 - [ ] Composition opportunities assessed (both defer to Phase 281)
 
 #### C2: Document Hand-Rolled Construction (Defer Migration to Phase 281)
@@ -240,14 +240,14 @@
 
 **Example Documentation** (Option 2 - DEFAULT):
 
-**Pattern6** (normalize_scan_with_init):
+**ScanWithInit route** (`normalize_scan_with_init()`, historical label: Pattern6):
 ```rust
-// Phase 280 TODO: Hand-rolled Frag construction for early exit pattern
+// Phase 280 TODO: Hand-rolled Frag construction for early exit route
 // Reason: `found` is early Return, doesn't fit compose::if_() model
 // Future: Consider compose::cleanup() for early exit normalization (Phase 281+)
 ```
 
-**Pattern7** (normalize_split_scan):
+**SplitScan route** (`normalize_split_scan()`, historical label: Pattern7):
 ```rust
 // Phase 280 TODO: Hand-rolled Frag construction for split scan pattern
 // Target (Phase 281): compose::if_(body_bb, cond_match, then_frag, else_frag, step_frag)
@@ -261,7 +261,7 @@
 3. Document: (a) current structure, (b) future compose target, (c) defer reason
 
 **Acceptance**:
-- [ ] TODO comments added to both Pattern6 and Pattern7
+- [ ] TODO comments added to both ScanWithInit and SplitScan
 - [ ] Comments document: current structure + future target + defer reason
 - [ ] No behavior change (documentation-only)
 
@@ -271,14 +271,14 @@
 
 **Test Strategy**: If desired, run representative smokes to verify baseline
 
-**Pattern6 Smoke (Optional)**:
+**ScanWithInit smoke (Optional)**:
 ```bash
 bash tools/smokes/v2/profiles/integration/apps/archive/phase258_p0_index_of_string_llvm_exe.sh
 ```
 
-**Pattern7 Smoke (Optional)**:
+**SplitScan smoke (Optional)**:
 ```bash
-# Find Pattern7 smokes (split)
+# Find SplitScan smokes
 tools/smokes/v2/run.sh --profile integration --filter "*split*"
 ```
 
@@ -310,7 +310,7 @@ tools/smokes/v2/run.sh --profile quick
    - B3: Add missing tests if needed
    - **Verify**: `cargo test --lib --release` PASS
 
-3. **Phase C** (Pattern preparation - Documentation-only):
+3. **Phase C** (route-family preparation - Documentation-only):
    - C1: Identify hand-rolled locations (function name + 識別コメント)
    - C2: Add TODO comments (Option 2 - default, defer migration to Phase 281)
    - C3: Run smoke tests (optional - no code change, behavior guaranteed)
@@ -341,7 +341,7 @@ tools/smokes/v2/run.sh --profile quick
 - [ ] Missing tests added if gaps found
 - [ ] `cargo test --lib --release` PASS
 
-### Phase C (Pattern Prep) ✓ When all checked:
+### Phase C (route-family prep) ✓ When all checked:
 
 - [ ] Hand-rolled locations identified (function name + 識別コメント)
 - [ ] Documentation-only (Option 2) executed (TODO comments added)
@@ -352,7 +352,7 @@ tools/smokes/v2/run.sh --profile quick
 
 - [ ] No regression (all tests/smokes PASS)
 - [ ] SSOT positioning clear
-- [ ] Pattern6/7 prepared for Phase 281
+- [ ] ScanWithInit / SplitScan prepared for Phase 281
 
 ---
 
@@ -365,11 +365,11 @@ tools/smokes/v2/run.sh --profile quick
 - **Mitigation**: Phase A (docs-only) first, Phase C Option 2 (document) is fallback
 - **Phase 280 Decision**: Documentation-only (Option 2), defer refactor to Phase 281
 
-### Risk 2: Pattern6/7 Have Hidden Dependencies
+### Risk 2: ScanWithInit / SplitScan Have Hidden Dependencies
 
 - **Impact**: Refactor breaks edge cases
 - **Likelihood**: Low (well-tested)
-- **Mitigation**: C3 runs both Pattern-specific and quick profile smokes
+- **Mitigation**: C3 runs both route-family-specific and quick profile smokes
 - **Phase 280 Decision**: No refactor, only documentation
 
 ### Risk 3: Smoke Tests Miss Edge Cases
@@ -393,11 +393,11 @@ tools/smokes/v2/run.sh --profile quick
 
 4. `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`
 
-### Phase C (Code: Pattern Prep - Documentation-only)
+### Phase C (Code: route-family prep - Documentation-only)
 
 5. `src/mir/builder/control_flow/plan/normalizer.rs`
-   - Pattern6: `normalize_scan_with_init()` function
-   - Pattern7: `normalize_split_scan()` function
+   - ScanWithInit: `normalize_scan_with_init()` function
+   - SplitScan: `normalize_split_scan()` function
    - Action: Add TODO comments (no code changes)
 
 ---
@@ -406,15 +406,15 @@ tools/smokes/v2/run.sh --profile quick
 
 ### Predecessor Phases
 
-- **Phase 273 (P0-P4)**: Plan line SSOT for Pattern6/7 (DomainPlan → CorePlan → Frag → emit_frag)
+- **Phase 273 (P0-P4)**: Plan line SSOT for ScanWithInit / SplitScan (DomainPlan → CorePlan → Frag → emit_frag)
 - **Phase 265-268**: Frag composition API creation, terminator SSOT (emit_frag)
 - **Phase 264**: BundleResolver loop fix (歴史/別案件, separate scope)
 
 ### Successor Phases (Planned)
 
-- **Phase 281**: Full Pattern6/7 absorption (replace hand-rolled with compose_*)
+- **Phase 281**: Full ScanWithInit / SplitScan absorption (replace hand-rolled with compose_*)
 - **Phase 282**: Router shrinkage (pattern numbers → test labels)
-- **Phase 283+**: Pattern8 and beyond
+- **Phase 283+**: BoolPredicateScan and beyond (historical numbered label lane continues there)
 
 ---
 

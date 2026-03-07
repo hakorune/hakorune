@@ -9,28 +9,28 @@ Related:
 
 ## P0 Result (2025-12-21)
 
-- **is_integer/1**: Pattern8 で認識・実行成功 ✅
+- **is_integer/1**: BoolPredicateScan route（historical label: Pattern8）で認識・実行成功 ✅
 - **VM smoke test**: `[PASS] phase259_p0_is_integer_vm` ✅
 - **Exit code**: 7（is_integer("123") == true）
-- **json_lint_vm**: まだ FAIL（別問題: nested-loop with break / Pattern2）
+- **json_lint_vm**: まだ FAIL（別問題: nested-loop with break / loop_break route）
 
 ### Key Fixes Applied
 
-1. `expr_result = Some(join_exit_value)` - Pattern7 style で明示設定
+1. `expr_result = Some(join_exit_value)` - scan route family style で明示設定
 2. `loop_var_name = Some(parts.loop_var.clone())` - merge_entry_block 選択用
 3. `loop_invariants = [(me, me_host), (s, s_host)]` - PHI-free 不変量パラメータ
 4. `skipped_entry_redirects` - k_exit のスキップ時ブロック参照リダイレクト
 
 ## Current Status (SSOT)
 
-- ✅ is_integer/1 は Pattern8 で解決
-- ❌ json_lint_vm は別の nested-loop with break パターンで失敗中（Phase 260+）
+- ✅ is_integer/1 は BoolPredicateScan route で解決
+- ❌ json_lint_vm は別の nested-loop with break route で失敗中（Phase 260+）
 
 ### Next FAIL (Phase 260+)
 
 - **Function**: `Main.main/0` in `apps/examples/json_lint/main.hako`
-- **Error**: `[cf_loop/pattern2] Failed to extract break condition from loop body`
-- **Pattern**: Nested loop（外側 `loop(i < cases.length())` 内で内側 `loop(j < valid.length())` + break）
+- **Error**: `[cf_loop/pattern2] Failed to extract break condition from loop body`（historical debug tag）
+- **Route family**: Nested loop（外側 `loop(i < cases.length())` 内で内側 `loop(j < valid.length())` + break）
 - **AST Structure**:
   ```
   loop(i < cases.length()) {
@@ -64,15 +64,15 @@ Related:
 
 ## Proposed Approach (P0)
 
-**P0 Design Decision: Pattern8（新規）採用**
+**P0 Design Decision: BoolPredicateScan route（historical label: Pattern8）採用**
 
-### Why Pattern8?
+### Why BoolPredicateScan?
 
-Pattern6（index_of系）は "見つける" scan（返り値: 整数 i or -1）で、is_integer は "全部検証する" predicate scan（返り値: 真偽値 true/false）。役割が異なるため、Pattern8 として分離した。
+ScanWithInit route（historical label: Pattern6, index_of系）は "見つける" scan（返り値: 整数 i or -1）で、is_integer は "全部検証する" predicate scan（返り値: 真偽値 true/false）。役割が異なるため、BoolPredicateScan route（historical label: Pattern8）として分離した。
 
-### Pattern8 vs Pattern6
+### BoolPredicateScan vs ScanWithInit
 
-| | Pattern6 (index_of系) | Pattern8 (is_integer系) |
+| | ScanWithInit (historical label: Pattern6, index_of系) | BoolPredicateScan (historical label: Pattern8, is_integer系) |
 |---|---|---|
 | 役割 | "見つける" scan | "全部検証する" predicate scan |
 | Match形 | `substring(...) == needle` | `not predicate(ch)` → early exit |

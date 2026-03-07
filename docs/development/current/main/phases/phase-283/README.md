@@ -3,10 +3,10 @@
 Status: **P0 ✅ complete (2025-12-23)**
 
 Goal:
-- Fix a Pattern3 (if-sum) JoinIR lowering bug where complex if-conditions like `i % 2 == 1` could produce MIR that uses an undefined `ValueId`.
+- Fix an IfPhiJoin JoinIR lowering bug where complex if-conditions like `i % 2 == 1` could produce MIR that uses an undefined `ValueId`.
 
 SSOT References:
-- JoinIR lowering (if-sum): `src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs`
+- JoinIR lowering (IfPhiJoin): `src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs`
 - Condition value lowering: `src/mir/join_ir/lowering/condition_lowerer.rs`
 - MIR verification (undefined values): `src/mir/verification/ssa.rs`
 - Test fixture: `apps/tests/loop_if_phi.hako`
@@ -23,7 +23,7 @@ if (i % 2 == 1) { ... } else { ... }
 
 ## Root Cause
 
-In `lower_if_sum_pattern`, the if-condition was extracted (and its JoinIR value-expression lowered) **before** `i_param` / `sum_param` existed, so `Variable("i")` inside complex expressions resolved through the caller-provided `ConditionEnv`.
+In the historical helper `lower_if_sum_pattern`, the if-condition was extracted (and its JoinIR value-expression lowered) **before** `i_param` / `sum_param` existed, so `Variable("i")` inside complex expressions resolved through the caller-provided `ConditionEnv`.
 
 That early `ConditionEnv` mapping could not be remapped by the boundary/merger, resulting in JoinIR ValueIds that became undefined host ValueIds in MIR.
 

@@ -1,21 +1,21 @@
-# Phase 281: Composition Adoption (Pattern6/7)
+# Phase 281: Composition Adoption (ScanWithInit / SplitScan)
 
 Status: **P0-P3 ✅ complete (2025-12-23)**
 
 Goal:
-- Phase 280 で SSOT 化した `compose::*`（Frag 合成）を、実際の pattern（Plan line）へ段階的に適用する。
+- Phase 280 で SSOT 化した `compose::*`（Frag 合成）を、実際の route family（Plan line）へ段階的に適用する。
 - “手組み Frag” を減らし、CFG 構築を **Frag 合成 SSOT**へ収束させる。
 
 ## SSOT References
 
 - Frag/emit SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
 - Composition SSOT: `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`
-- Plan line SSOT（Pattern6/7）: `docs/development/current/main/phases/phase-273/README.md`
+- Plan line SSOT（ScanWithInit / SplitScan; historical labels: Pattern6/7）: `docs/development/current/main/phases/phase-273/README.md`
 - Phase 280（positioning）: `docs/development/current/main/phases/phase-280/README.md`
 
-## P0 完了（Pattern7）
+## P0 完了（SplitScan; historical label: Pattern7）
 
-P0 では、Pattern7（SplitScan）の “body の cond_match 分岐” を `compose::if_()` に置換した。
+P0 では、SplitScan route（historical label: Pattern7）の “body の cond_match 分岐” を `compose::if_()` に置換した。
 
 - 対象: `src/mir/builder/control_flow/plan/normalizer.rs`
 - 方針: 最小差分（header/step は手組みのまま、body だけ compose へ）
@@ -23,13 +23,13 @@ P0 では、Pattern7（SplitScan）の “body の cond_match 分岐” を `com
 
 完了メモ: `docs/development/current/main/phases/phase-281/P0-COMPLETION.md`
 
-## P1: Pattern6正規形 + cleanup()設計
+## P1: ScanWithInit 正規形 + cleanup()設計
 
 Status: **✅ Complete (2025-12-23)**
 
-Pattern6 は early return（found_bb→Return）が絡むため、P1 では "どの合成語彙に落とすか" を設計で固定し、**実装は P2 に defer** した。
+ScanWithInit route（historical label: Pattern6）は early return（found_bb→Return）が絡むため、P1 では "どの合成語彙に落とすか" を設計で固定し、**実装は P2 に defer** した。
 
-### Pattern6 CFG構造
+### ScanWithInit CFG構造
 
 **Blocks (6 total)**:
 - preheader_bb: ループ入口
@@ -74,14 +74,14 @@ let wires = vec![
 
 ### compose::if_()が使えない理由（技術的ブロッカー）
 
-**Pattern7 (P0 Success)**:
+**SplitScan (P0 Success; historical label: Pattern7)**:
 ```
 body_bb → then_bb (Normal) ┐
        → else_bb (Normal) ┘ → step_bb (両方が join に収束)
 ```
 ✅ **Symmetric exits** → compose::if_()が完璧にフィット
 
-**Pattern6 (P1 Challenge)**:
+**ScanWithInit (P1 Challenge; historical label: Pattern6)**:
 ```
 body_bb → found_bb (Return) → EXIT FUNCTION (関数脱出)
        → step_bb (Normal)   → header_bb (ループ継続)
@@ -91,7 +91,7 @@ body_bb → found_bb (Return) → EXIT FUNCTION (関数脱出)
 **compose::if_()の主契約**:
 - Input: then_frag/else_frag 両方が Normal exits を持つ
 - Output: 両方を join_frag.entry に wire
-- Pattern6: found_frag が Return exit → join に収束しない
+- ScanWithInit: found_frag が Return exit → join に収束しない
 
 **結論**: 無理に compose::if_() を使うと：
 1. body_bb から重複 terminator（BranchStub 2個）
@@ -118,52 +118,52 @@ let combined = compose::cleanup(main_loop, early_exit);
 **Rationale**:
 1. compose::if_()は Normal 合流専用（early exit 非対応）
 2. cleanup()契約が SSOT 化されてない（P0では不要だった）
-3. Pattern6 実装前に契約を固定する必要
+3. ScanWithInit 実装前に契約を固定する必要
 
 **P1 Actions**:
 - ✅ cleanup()の契約定義（シグネチャ、入力条件、出力保証）
 - ✅ 最小実装（Fail-Fast stub）
 - ✅ unit test 追加（契約確認）
-- ❌ Pattern6の実コード置換（P2に defer）
+- ❌ ScanWithInit の実コード置換（P2に defer）
 
 **P2でやること**:
 1. cleanup()本体実装（P1契約を満たす）
 2. normalize_scan_with_init()をcleanup()ベースに置換
-3. Pattern6 smokes維持（挙動不変）
+3. ScanWithInit smoke 維持（挙動不変）
 
-## P2: cleanup(Return) 実装 + Pattern6 移行
+## P2: cleanup(Return) 実装 + ScanWithInit 移行
 
 Status: **✅ Complete (2025-12-23)**
 
-cleanup(Return)の本体実装を完了し、Pattern6（normalize_scan_with_init）を `compose::cleanup()` ベースに置換した。
+cleanup(Return)の本体実装を完了し、ScanWithInit route（normalize_scan_with_init, historical label: Pattern6）を `compose::cleanup()` ベースに置換した。
 
 **実装内容**:
 - `compose::cleanup()` に Return exit 伝播ロジック追加
-- Pattern6 の found_bb（early return）を cleanup() で統合
+- ScanWithInit の found_bb（early return）を cleanup() で統合
 - 手組み BranchStub/EdgeStub を compose API に置換
 
 **検証結果**:
 - VM smoke: `phase258_p0_index_of_string_vm.sh` ✅ PASS (exit 0)
 - LLVM smoke: `phase258_p0_index_of_string_llvm_exe.sh` ✅ PASS (exit 0)
-- 挙動不変（Pattern6 の early return が正常動作）
+- 挙動不変（ScanWithInit の early return が正常動作）
 
 ## P3: cleanup(Normal) 追加 + hand-roll ゼロ化
 
 Status: **✅ Complete (2025-12-23)**
 
-cleanup(Normal) を追加し、normalize_scan_with_init() の step back-edge を compose::cleanup() に統合した。これにより Pattern6 の**手組み Frag が完全にゼロ化**された。
+cleanup(Normal) を追加し、normalize_scan_with_init() の step back-edge を compose::cleanup() に統合した。これにより ScanWithInit route の**手組み Frag が完全にゼロ化**された。
 
 **実装内容**:
 - `compose::cleanup()` に Normal exit wiring 追加（Return と統一的に扱う）
-- Pattern6 の step_bb→header_bb back-edge を cleanup() で配線
+- ScanWithInit の step_bb→header_bb back-edge を cleanup() で配線
 - EdgeStub 直接生成コードを全削除
 
 **検証結果**:
 - VM smoke: `phase258_p0_index_of_string_vm.sh` ✅ PASS (exit 0)
 - LLVM smoke: `phase258_p0_index_of_string_llvm_exe.sh` ✅ PASS (exit 0)
-- Pattern6/7 両方が compose API 100%（手組みゼロ）
+- ScanWithInit / SplitScan 両方が compose API 100%（手組みゼロ）
 
-**Phase 281 完全達成**: すべての Plan line パターンが Frag 合成 SSOT に収束 🎉
+**Phase 281 完全達成**: すべての Plan line route family が Frag 合成 SSOT に収束 🎉
 
 ## Non-Goals
 

@@ -1,6 +1,6 @@
 # Phase 104: loop(true) + break-only digits（read_digits 系）
 
-目的: `loop(true)` の break-only ループ（read_digits_from 形）を Pattern2 経路で VM/LLVM EXE parity 固定する。  
+目的: `loop(true)` の break-only ループ（read_digits_from 形）を loop_break route（historical numbered label: Pattern2）で VM/LLVM EXE parity 固定する。
 Fixture: `apps/tests/phase104_read_digits_loop_true_min.hako`（expected: `2`, `1`）  
 Smokes: `tools/smokes/v2/profiles/integration/apps/phase104_read_digits_vm.sh` / `tools/smokes/v2/profiles/integration/apps/phase104_read_digits_llvm_exe.sh`
 

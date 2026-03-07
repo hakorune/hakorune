@@ -22,7 +22,7 @@ Related:
 - タグは strict/dev の診断・観測用途であり、release の既定挙動を変えない。
 - 一部のスモークは `filter_noise` によりタグが落ちるため、タグ検証は raw output を参照する。
 
-## Tag vocabulary (SSOT)
+## Historical tag vocabulary (deprecated)
 
 Note:
 - tag suffix には pattern-era token が残るが、これは traceability-only。

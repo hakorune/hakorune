@@ -80,8 +80,10 @@ step（loop increment / update）が loop body の末尾に無いループを、
   - Contract: branch/exit 経路で continue_target へ直結する形を禁止
 - [x] S3: `InlineInBody && has_explicit_step=true` の実受理形を 1つ固定し、runtime fixture で pin
   - Source: `src/mir/builder/control_flow/plan/normalizer/simple_while_coreloop_builder.rs`
-  - Runtime pin: `apps/tests/phase29bq_pattern1_inline_explicit_step_min.hako`
-  - Gate case: `tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv` (`pattern1_inline_explicit_step_min`)
+  - Runtime pin semantics: `loop_simple_while explicit-step`
+  - legacy fixture pin token: `apps/tests/phase29bq_pattern1_inline_explicit_step_min.hako`
+  - Gate case semantics: `loop_simple_while explicit-step`
+  - legacy gate token: `tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv` (`pattern1_inline_explicit_step_min`)
   - pin taxonomy SSOT: `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`
   - active本文では `loop_simple_while explicit-step` を主語にし、legacy pin token の詳細は inventory SSOT に置く。
 

@@ -45,7 +45,7 @@ Note:
 | `loop_break` realworld route | `loop_break_realworld_vm` | Loop | break | shadow | loop_break derived-slot (realworld subset) |
 | `match_return` strict shadow adopt | `phase29at_match_return_strict_shadow_vm` | Seq | return | shadow | match_return uses Seq(Effects + BranchN) |
 | `nested_loop_minimal` strict shadow adopt | `nested_loop_minimal_strict_shadow_vm` | Loop | nested_loop | shadow | nested minimal |
-| `if_phi_join` purity gate | `phase29as_purity_gate_vm` | Loop | (empty) | shadow | if_phi_join subset (purity gate only; tag token `pattern3_ifphi` is traceability-only) |
+| `if_phi_join` purity gate | `phase29as_purity_gate_vm` | Loop | (empty) | shadow | if_phi_join subset (purity gate only; legacy tag suffix token `pattern3_ifphi` is traceability-only) |
 | `generic_loop_continue` strict shadow adopt | `phase29ca_generic_loop_continue_strict_shadow_vm` | Loop | continue | shadow | generic loop continue (strict/dev) |
 | `generic_loop_in_body_step` strict shadow adopt | `phase29cb_generic_loop_in_body_step_strict_shadow_vm` | Loop | (empty) | shadow | generic loop in-body step (strict/dev) |
 
@@ -53,7 +53,7 @@ Note:
 
 These smoke stems are part of regression coverage and must **not** emit FlowBox adopt tags:
 
-- `phase29ab_pattern2_seg_notapplicable_min_vm` (legacy archive smoke stem; `loop_break` not applicable; output-only check)
+- `loop_break` NotApplicable negative coverage (`phase29ab_pattern2_seg_notapplicable_min_vm`; legacy archive smoke stem, output-only check)
 - `phase29ar_string_is_integer_min_vm` (strict fail-fast reject; expects `[vm-hako/unimplemented] ... newbox(StringUtils)`)
 
 ## Gate set (minimal)

@@ -11,8 +11,8 @@ Reading note:
 
 **JoinIR経路で最小loopを通す**（JoinIR-only hard-freeze維持）
 
-- **P0**: fixture + smoke test 追加 → Pattern1が通るか確認
-- **P1**: Pattern1がtest-only stubと判明 → Pattern9（AccumConstLoop）追加
+- **P0**: fixture + smoke test 追加 → LoopSimpleWhile route（historical label: Pattern1）が通るか確認
+- **P1**: LoopSimpleWhile route が test-only stub と判明 → AccumConstLoop route（historical label: Pattern9）追加
 - **禁止**: cf_loopに非JoinIR経路や環境変数分岐を追加しない
 
 ## P0実装結果（fixture + smoke追加）
@@ -65,10 +65,10 @@ fi
 
 ### P0検証結果 ❌
 
-**Pattern1 FAIL判定**: Pattern1はtest-only stubであり、汎用loopに対応していない
+**LoopSimpleWhile FAIL判定**: LoopSimpleWhile route（historical label: Pattern1）は test-only stub であり、汎用loopに対応していない
 
 **根本原因**:
-- Pattern1 (`src/mir/join_ir/lowering/simple_while_minimal.rs`) は Phase 188 の**特定テスト専用の最小実装**
+- LoopSimpleWhile route（historical label: Pattern1, `src/mir/join_ir/lowering/simple_while_minimal.rs`）は Phase 188 の**特定テスト専用の最小実装**
 - 対象: `apps/tests/loop_min_while.hako` のみ（`print(i); i = i + 1` をハードコード）
 - **サポートしていないもの**:
   1. ❌ キャリア変数（`sum`等）
@@ -87,18 +87,18 @@ bb3 (exit):
     1: ret %2  ← const 0 を返す、sum (3) ではない
 ```
 
-**決定**: Pattern1はtest-only stubとして保存 → P1へ進む
+**決定**: LoopSimpleWhile route は test-only stub として保存 → AccumConstLoop route の PoC へ進む
 
-## P1実装結果（Pattern9追加）
+## P1実装結果（AccumConstLoop route 追加; historical label: Pattern9）
 
 ### 方針
 
-- **Pattern1は触らない**（test-only stubのまま保存）
-- **新規Pattern9を追加**（Phase270 fixture専用の最小固定パターン）
+- **LoopSimpleWhile route は触らない**（test-only stubのまま保存）
+- **新規 AccumConstLoop route を追加**（historical numbered label: Pattern9, Phase270 fixture専用の最小固定 route）
 - **目的**: loopをJoinIR経路で通すSSot固定（汎用実装ではない）
-- **将来**: ExitKind+Fragに吸収される前提の橋渡しパターン
+- **将来**: ExitKind+Fragに吸収される前提の橋渡し route
 
-### Pattern9が受理する形（Fail-Fast固定）
+### AccumConstLoop route が受理する形（Fail-Fast固定）
 
 1. **ループ条件**: `i < <int literal>` のみ
 2. **ループ本体**: 代入2本のみ（順序固定）
@@ -138,7 +138,7 @@ k_exit(sum):
 - `src/mir/builder/control_flow/joinir/route_entry/mod.rs` (current module surface)
   - historical path tokens: `{mod.rs,router.rs}` under the old `joinir/patterns/` lane
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current route entry)
-  - 当時は LOOP_PATTERNS テーブルに Pattern9 を **Pattern1より前に追加**した
+  - 当時は LOOP_PATTERNS テーブルに AccumConstLoop route（historical label: Pattern9）を **LoopSimpleWhile（historical label: Pattern1）より前に追加**した
 
 ### 検証結果 ✅
 
@@ -171,17 +171,17 @@ HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration
 
 ## 核心的な設計判断
 
-### なぜPattern1を触らないか
+### なぜ LoopSimpleWhile route を触らないか
 
-1. **test-only stub保存**: Pattern1は`loop_min_while.hako`専用として歴史的価値を保つ
-2. **責務分離**: Phase270専用の形はPattern9に閉じ込め、Pattern1に汎用性を強要しない
-3. **安全性**: 既存のPattern1依存コードを壊さない
+1. **test-only stub保存**: LoopSimpleWhile route（historical label: Pattern1）は `loop_min_while.hako` 専用として歴史的価値を保つ
+2. **責務分離**: Phase270専用の形は AccumConstLoop route に閉じ込め、LoopSimpleWhile route に汎用性を強要しない
+3. **安全性**: 既存の LoopSimpleWhile route 依存コードを壊さない
 
-### なぜPattern9は橋渡しパターンか
+### なぜ AccumConstLoop route は橋渡し route か
 
-1. **固定形SSOT**: Phase270 fixtureの形を厳密にFail-Fast固定（汎用化しない）
+1. **固定形SSOT**: Phase270 fixture の形を厳密に Fail-Fast 固定（汎用化しない）
 2. **将来吸収**: ExitKind+Frag統合時に自然に消える設計
-3. **Pattern数増加**: 責務が小さく、後で統合しやすい
+3. **route family の局所追加**: 責務が小さく、後で統合しやすい
 
 ### 2キャリア（i, sum）の実装
 
@@ -195,7 +195,7 @@ HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration
 
 ## 重要な発見
 
-### Pattern1はtest-only stub
+### LoopSimpleWhile route は test-only stub
 
 - **Phase 188 実装**: `loop_min_while.hako` 専用ハードコード
 - **ソースコードコメント引用**:
@@ -214,16 +214,16 @@ HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration
 
 ### JoinIR-only経路の堅牢性
 
-- **JoinIR Pattern router**: Pattern1-8に加えPattern9追加で9パターン対応
+- **historical numbered-route table**: 当時は Pattern1-8 に加え Pattern9 を追加して 9 route label を扱っていた
 - **cf_loop hard-freeze**: 非JoinIR経路・環境変数分岐の追加禁止を完全遵守
-- **フォールバック設計**: Pattern9の`can_lower()`がrejectしたら`Ok(None)`で他パターンへ逃がす
+- **フォールバック設計**: AccumConstLoop route の `can_lower()` が reject したら `Ok(None)` で他 route family へ逃がす
 
 ## 次フェーズへの橋渡し
 
 **Phase 271** (仮): ExitKind+Frag 統合
-- Pattern9をEdgeCFG Fragment APIに統合
-- Pattern1-8も順次Frag化
-- pattern番号分岐削減
+- AccumConstLoop route を EdgeCFG Fragment API に統合
+- 旧 numbered route families も順次 Frag 化
+- numbered label 分岐削減
 
 ## 関連ドキュメント
 
@@ -237,11 +237,11 @@ HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration
 ### P0成功条件
 - ✅ `apps/tests/phase270_p0_loop_min_const.hako` 作成
 - ✅ `tools/smokes/v2/profiles/integration/apps/archive/phase270_p0_loop_min_const_vm.sh` 作成
-- ✅ Pattern1がtest-only stubと判明 → P1へ
+- ✅ LoopSimpleWhile route が test-only stub と判明 → P1へ
 
 ### P1成功条件
-- ✅ Pattern9追加（`pattern9_accum_const_loop.rs`）
-- ✅ router登録（Pattern1より前）
+- ✅ AccumConstLoop route 追加（historical file token: `pattern9_accum_const_loop.rs`）
+- ✅ router登録（LoopSimpleWhile より前）
 - ✅ `cargo build --release` 成功
 - ✅ `./target/release/hakorune --backend vm apps/tests/phase270_p0_loop_min_const.hako` → exit code 3
 - ✅ `bash tools/smokes/v2/profiles/integration/apps/archive/phase270_p0_loop_min_const_vm.sh` → PASS
@@ -252,11 +252,11 @@ HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration
 
 **Phase 270 P0-P1 完全成功！**
 
-- ✅ Pattern1はtest-only stubと判明（保存）
-- ✅ Pattern9（AccumConstLoop）橋渡しパターン追加
+- ✅ LoopSimpleWhile route は test-only stub と判明（保存）
+- ✅ AccumConstLoop route（historical label: Pattern9）橋渡し route 追加
 - ✅ Phase270 fixture（2キャリア: i, sum）JoinIR経路で完全動作
 - ✅ 全テスト PASS（build + fixture + smoke + quick smoke）
 - ✅ JoinIR-only hard-freeze維持
 - ✅ 将来のExitKind+Frag統合への橋渡し完了
 
-**次のステップ**: Phase 271でPattern9をEdgeCFG Fragmentに統合
+**次のステップ**: Phase 271で AccumConstLoop route（historical label: Pattern9）を EdgeCFG Fragment に統合
