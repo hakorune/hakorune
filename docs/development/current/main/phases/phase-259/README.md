@@ -9,7 +9,7 @@ Related:
 
 ## P0 Result (2025-12-21)
 
-- **is_integer/1**: BoolPredicateScan route（historical label: Pattern8）で認識・実行成功 ✅
+- **is_integer/1**: BoolPredicateScan route（historical label 8）で認識・実行成功 ✅
 - **VM smoke test**: `[PASS] phase259_p0_is_integer_vm` ✅
 - **Exit code**: 7（is_integer("123") == true）
 - **json_lint_vm**: まだ FAIL（別問題: nested-loop with break / loop_break route）
@@ -40,7 +40,7 @@ Related:
     loop(j < valid.length()) {  // ← 内側ループ
       if (s == valid.get(j)) {
         ok = 1
-        break  // ← Pattern2 が抽出失敗
+        break  // ← loop_break extraction が失敗
       }
       j = j + 1
     }
@@ -64,15 +64,15 @@ Related:
 
 ## Proposed Approach (P0)
 
-**P0 Design Decision: BoolPredicateScan route（historical label: Pattern8）採用**
+**P0 Design Decision: BoolPredicateScan route（historical label 8）採用**
 
 ### Why BoolPredicateScan?
 
-ScanWithInit route（historical label: Pattern6, index_of系）は "見つける" scan（返り値: 整数 i or -1）で、is_integer は "全部検証する" predicate scan（返り値: 真偽値 true/false）。役割が異なるため、BoolPredicateScan route（historical label: Pattern8）として分離した。
+ScanWithInit route（historical label 6, index_of系）は "見つける" scan（返り値: 整数 i or -1）で、is_integer は "全部検証する" predicate scan（返り値: 真偽値 true/false）。役割が異なるため、BoolPredicateScan route（historical label 8）として分離した。
 
 ### BoolPredicateScan vs ScanWithInit
 
-| | ScanWithInit (historical label: Pattern6, index_of系) | BoolPredicateScan (historical label: Pattern8, is_integer系) |
+| | ScanWithInit (historical label 6, index_of系) | BoolPredicateScan (historical label 8, is_integer系) |
 |---|---|---|
 | 役割 | "見つける" scan | "全部検証する" predicate scan |
 | Match形 | `substring(...) == needle` | `not predicate(ch)` → early exit |
