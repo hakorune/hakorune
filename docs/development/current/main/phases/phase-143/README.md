@@ -12,7 +12,7 @@ Reading note:
 ### Objective
 Expand the canonicalizer to recognize parse_number/digit collection patterns, maximizing the adaptation range before adding new lowering patterns.
 
-### Target Pattern
+### Target Fixture
 `tools/selfhost/test_pattern2_parse_number.hako`
 
 ```hako
@@ -53,7 +53,7 @@ loop(cond) {
 
 #### 1. New Recognizer (`ast_feature_extractor.rs`)
 
-Added historical helper `detect_parse_number_pattern()`:
+Added current helper `detect_parse_number_shape()`:
 - Detects `if cond { break }` pattern (no else clause)
 - Extracts body statements before break check
 - Extracts rest statements after break check (including carrier update)
@@ -69,7 +69,7 @@ Added historical helper `detect_parse_number_pattern()`:
   - Step 2: Body (statements before break)
   - Step 3: Body (statements after break, excluding carrier update)
   - Step 4: Update (carrier update)
-- Routes to historical choice `Pattern2Break` (current route family: `LoopBreak`, has_break=true)
+- Routes to `LoopBreak` (historical routing token: `Pattern2Break`, has_break=true)
 
 **Lines modified**: ~60 lines
 
@@ -92,14 +92,14 @@ Added `test_parse_number_pattern_recognized()` in `canonicalizer.rs`:
 - Verifies skeleton structure (4 steps)
 - Verifies carrier (name="i", delta=1, role=Counter)
 - Verifies exit contract (has_break=true)
-- Verifies routing decision (`Pattern2Break`; current route family: `LoopBreak`, no missing_caps)
+- Verifies routing decision (`LoopBreak`; historical routing token: `Pattern2Break`, no missing_caps)
 
 **Lines added**: ~130 lines
 
 ### Acceptance Criteria
 
 - ✅ Canonicalizer creates Skeleton for parse_number loop
-- ✅ RoutingDecision.chosen matches router (`Pattern2Break`; current route family: `LoopBreak`)
+- ✅ RoutingDecision.chosen matches router (`LoopBreak`; historical routing token: `Pattern2Break`)
 - ✅ Strict parity OK (canonicalizer and router agree)
 - ✅ Default behavior unchanged
 - ✅ quick profile not affected
@@ -153,7 +153,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 | **Body before if** | Optional | Optional (ch, digit_pos) |
 | **Body after if** | None (last statement) | Required (result append) |
 | **Carrier update** | In THEN clause | After if statement |
-| **Routing** | Pattern2Break | Pattern2Break |
+| **Routing** | LoopBreak | LoopBreak |
 | **Example** | skip_whitespace, trim_leading/trailing | parse_number, digit collection |
 
 ### Follow-up Opportunities
@@ -184,7 +184,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 
 ---
 
-## P1: parse_string Pattern - Continue + Return Combo
+## P1: parse_string route shape - Continue + Return Combo
 
 ### Status
 ✅ Complete (2025-12-16)
@@ -192,7 +192,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 ### Objective
 Expand canonicalizer to recognize parse_string patterns with both `continue` (escape handling) and `return` (quote found).
 
-### Target Pattern
+### Target Fixture
 `tools/selfhost/test_pattern4_parse_string.hako`
 
 ```hako
@@ -253,7 +253,7 @@ loop(cond) {
 
 #### 1. New Recognizer (`ast_feature_extractor.rs`)
 
-Added `detect_parse_string_pattern()`:
+Added `detect_parse_string_shape()`:
 - Detects `if cond { return }` pattern
 - Detects `continue` statement (with recursive search for nested continue)
 - Uses `has_continue_node()` helper for deep search
@@ -272,14 +272,14 @@ Added `detect_parse_string_pattern()`:
   - `has_break = false`
   - `has_continue = true`
   - `has_return = true`
-- Routes to `Pattern4Continue` (has both continue and return)
+- Routes to `LoopContinueOnly` (historical routing token: `Pattern4Continue`, has both continue and return)
 
 **Lines modified**: ~45 lines
 
 #### 3. Export Chain
 
 Added exports through the module hierarchy:
-- `ast_feature_extractor.rs` → `ParseStringInfo` struct + `detect_parse_string_pattern()`
+- `ast_feature_extractor.rs` → `ParseStringInfo` struct + `detect_parse_string_shape()`
 - `patterns/mod.rs` → re-export
 - `joinir/mod.rs` → re-export
 - `control_flow/mod.rs` → re-export
@@ -295,14 +295,14 @@ Added `test_parse_string_pattern_recognized()` in `canonicalizer.rs`:
 - Verifies skeleton structure (3 steps minimum)
 - Verifies carrier (name="p", delta=1, role=Counter)
 - Verifies exit contract (has_continue=true, has_return=true, has_break=false)
-- Verifies routing decision (Pattern4Continue, no missing_caps)
+- Verifies routing decision (LoopContinueOnly; historical routing token: `Pattern4Continue`, no missing_caps)
 
 **Lines added**: ~180 lines
 
 ### Acceptance Criteria
 
 - ✅ Canonicalizer creates Skeleton for parse_string loop
-- ✅ RoutingDecision.chosen matches router (Pattern4Continue)
+- ✅ RoutingDecision.chosen matches router (LoopContinueOnly; historical routing token: `Pattern4Continue`)
 - ✅ Strict parity green (canonicalizer and router agree)
 - ✅ Default behavior unchanged
 - ✅ quick profile not affected (unrelated smoke test failure)
@@ -329,7 +329,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 [loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern4Continue
 ```
 
-**Status**: ✅ **Green parity** - canonicalizer and router agree on Pattern4Continue
+**Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly (historical token: `Pattern4Continue`)
 
 #### Unit Test Results
 
@@ -365,30 +365,30 @@ cargo test --release --lib loop_canonicalizer --release
 | **Continue** | No | No | Yes | **Yes** |
 | **Return** | No | No | No | **Yes** |
 | **Nested control** | No | No | No | **Yes (nested if + continue)** |
-| **Routing** | Pattern2Break | Pattern2Break | Pattern4Continue | **Pattern4Continue** |
+| **Routing** | LoopBreak | LoopBreak | LoopContinueOnly | **LoopContinueOnly** |
 
 ### Follow-up Opportunities
 
 #### Next Steps (Phase 143 P2-P3)
-- [ ] Support parse_array pattern (array element collection)
-- [ ] Support parse_object pattern (key-value pair collection)
+- [ ] Support parse_array route shape (array element collection)
+- [ ] Support parse_object route shape (key-value pair collection)
 - [ ] Add capability for true variable-step updates (not just const delta)
 
 #### Future Enhancements
 - [ ] Support multiple return points
 - [ ] Handle more complex nested patterns
-- [ ] Add signature-based corpus analysis for pattern discovery
+- [ ] Add signature-based corpus analysis for route-shape discovery
 
 ### Lessons Learned
 
 1. **Nested Detection Required**: Simple shallow iteration isn't enough for real-world patterns
 2. **ExitContract Diversity**: Patterns can have multiple exit types simultaneously
-3. **Parity vs Execution**: Achieving parity doesn't guarantee runtime success (Pattern4 lowering may need enhancements)
+3. **Parity vs Execution**: Achieving parity doesn't guarantee runtime success (historical label-4 lowering may need enhancements)
 4. **Recursive Helpers**: Reusing existing helpers (`has_continue_node`) is better than duplicating logic
 
 ---
 
-## P2: parse_array Pattern - Separator + Stop Combo
+## P2: parse_array route shape - Separator + Stop Combo
 
 ### Status
 ✅ Complete (2025-12-16)
@@ -396,7 +396,7 @@ cargo test --release --lib loop_canonicalizer --release
 ### Objective
 Extend canonicalizer to recognize parse_array patterns with both `continue` (separator handling) and `return` (stop condition).
 
-### Target Pattern
+### Target Fixture
 `tools/selfhost/test_pattern4_parse_array.hako`
 
 ```hako
@@ -457,7 +457,7 @@ loop(cond) {
 
 #### Key Discovery: Shared Pattern with parse_string
 
-**No new recognizer needed!** The existing `detect_parse_string_pattern()` already handles both patterns:
+**No new recognizer needed!** The existing `detect_parse_string_shape()` already handles both route shapes:
 - Both have `return` statement (stop condition)
 - Both have `continue` statement (separator/escape)
 - Both have carrier updates
@@ -474,7 +474,7 @@ loop(cond) {
 2. **Unit Test** (~165 lines)
    - Added `test_parse_array_pattern_recognized()` in `canonicalizer.rs`
    - Mirrors parse_string test structure with array-specific conditions
-   - Verifies same Pattern4Continue routing
+   - Verifies same LoopContinueOnly routing (historical token: `Pattern4Continue`)
 
 3. **Error Messages** (~5 lines)
    - Updated error messages to mention parse_array
@@ -484,7 +484,7 @@ loop(cond) {
 ### Acceptance Criteria
 
 - ✅ Canonicalizer creates Skeleton for parse_array loop
-- ✅ RoutingDecision.chosen == Pattern4Continue
+- ✅ RoutingDecision.chosen == LoopContinueOnly (historical token: `Pattern4Continue`)
 - ✅ Strict parity green (canonicalizer and router agree)
 - ✅ Default behavior unchanged
 - ✅ Unit test added and passing
@@ -510,7 +510,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 [loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern4Continue
 ```
 
-**Status**: ✅ **Green parity** - canonicalizer and router agree on Pattern4Continue
+**Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly (historical token: `Pattern4Continue`)
 
 #### Unit Test Results
 
@@ -539,8 +539,8 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 | **Stop condition** | `"` (quote) | `]` (array end) |
 | **Separator** | `\` (escape) | `,` (element separator) |
 | **Structure** | continue + return | continue + return |
-| **Recognizer** | `detect_parse_string_pattern()` | **Same recognizer!** |
-| **Routing** | Pattern4Continue | Pattern4Continue |
+| **Recognizer** | `detect_parse_string_shape()` | **Same recognizer!** |
+| **Routing** | LoopContinueOnly | LoopContinueOnly |
 | **ExitContract** | has_continue=true, has_return=true | has_continue=true, has_return=true |
 
 ### Key Insight: Structural vs Semantic Patterns
@@ -550,7 +550,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 - Both have `if separator_cond { continue }`
 - Both have carrier updates
 
-The **semantic difference** (what the conditions check) doesn't matter for pattern recognition!
+The semantic difference (what the conditions check) doesn't matter for route-shape recognition.
 
 This demonstrates the power of AST-based pattern matching: we can recognize structural patterns without understanding their semantic meaning.
 
@@ -574,7 +574,7 @@ This demonstrates the power of AST-based pattern matching: we can recognize stru
 
 ---
 
-## P3: parse_object Pattern - Key-Value Pair Collection
+## P3: parse_object route shape - Key-Value Pair Collection
 
 ### Status
 ✅ Complete (2025-12-16)
@@ -582,7 +582,7 @@ This demonstrates the power of AST-based pattern matching: we can recognize stru
 ### Objective
 Verify that parse_object pattern (key-value pair collection) is recognized by the existing recognizer, maintaining structural equivalence with parse_string/parse_array.
 
-### Target Pattern
+### Target Fixture
 `tools/selfhost/test_pattern4_parse_object.hako`
 
 ```hako
@@ -634,13 +634,13 @@ loop(cond) {
 
 #### Key Discovery: Complete Structural Equivalence
 
-**No new recognizer needed!** The existing `detect_parse_string_pattern()` handles parse_object perfectly:
+**No new recognizer needed!** The existing `detect_parse_string_shape()` handles parse_object perfectly:
 - Has `return` statement (stop condition: `}`)
 - Has `continue` statement (separator: `,`)
 - Has carrier updates (`p = p + 1`)
 - Only semantic difference is the stop/separator characters
 
-**Pattern Family Confirmed**: parse_string, parse_array, and parse_object are **structurally identical**.
+**Route-shape family confirmed**: parse_string, parse_array, and parse_object are structurally identical.
 
 #### Changes Made
 
@@ -651,7 +651,7 @@ loop(cond) {
 2. **Unit Test** (~170 lines)
    - Added `test_parse_object_pattern_recognized()` in `canonicalizer.rs`
    - Mirrors parse_array test structure with object-specific conditions (`}` and `,`)
-   - Verifies same Pattern4Continue routing
+   - Verifies same LoopContinueOnly routing (historical token: `Pattern4Continue`)
 
 3. **Documentation** (this section)
 
@@ -660,7 +660,7 @@ loop(cond) {
 ### Acceptance Criteria
 
 - ✅ Canonicalizer creates Skeleton for parse_object loop
-- ✅ RoutingDecision.chosen == Pattern4Continue
+- ✅ RoutingDecision.chosen == LoopContinueOnly (historical token: `Pattern4Continue`)
 - ✅ RoutingDecision.missing_caps == []
 - ✅ Strict parity green (canonicalizer and router agree)
 - ✅ Default behavior unchanged
@@ -684,7 +684,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 [loop_canonicalizer/PARITY] OK in function 'Main.parse_object_loop/0': canonical and actual agree on Pattern4Continue
 ```
 
-**Status**: ✅ **Green parity** - canonicalizer and router agree on Pattern4Continue
+**Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly (historical token: `Pattern4Continue`)
 
 #### Unit Test Results
 
@@ -714,11 +714,11 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 | **Stop condition** | `"` (quote) | `]` (array end) | `}` (object end) |
 | **Separator** | `\` (escape) | `,` (element separator) | `,` (pair separator) |
 | **Structure** | continue + return | continue + return | continue + return |
-| **Recognizer** | `detect_parse_string_pattern()` | **Same** | **Same** |
-| **Routing** | Pattern4Continue | Pattern4Continue | Pattern4Continue |
+| **Recognizer** | `detect_parse_string_shape()` | **Same** | **Same** |
+| **Routing** | LoopContinueOnly | LoopContinueOnly | LoopContinueOnly |
 | **ExitContract** | has_continue=true, has_return=true | **Same** | **Same** |
 
-### Key Insight: Structural Pattern Family
+### Key Insight: Structural Route-Shape Family
 
 **Major Discovery**: parse_string, parse_array, and parse_object form a **structural pattern family**:
 - All have `if stop_cond { return }`

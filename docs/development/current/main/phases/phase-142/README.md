@@ -2,16 +2,16 @@
 
 ## Status
 - P0: ✅ Complete (trim leading/trailing)
-- P1: ✅ Complete (continue pattern)
+- P1: ✅ Complete (continue route shape)
 
 ## P0: trim leading/trailing (COMPLETE)
 
 ### Objective
 Extend Canonicalizer to recognize trim leading/trailing patterns, enabling proper routing through the normalized loop pipeline.
 
-### Target Patterns
-- `tools/selfhost/test_pattern3_trim_leading.hako` - `start = start + 1` pattern
-- `tools/selfhost/test_pattern3_trim_trailing.hako` - `end = end - 1` pattern
+### Target Fixtures
+- `tools/selfhost/test_pattern3_trim_leading.hako` - `start = start + 1` route shape
+- `tools/selfhost/test_pattern3_trim_trailing.hako` - `end = end - 1` route shape
 
 ### Accepted Criteria (All Met ✅)
 - ✅ Canonicalizer creates Skeleton for trim_leading/trailing
@@ -32,7 +32,7 @@ Extend Canonicalizer to recognize trim leading/trailing patterns, enabling prope
 **Changes**:
 - Extended `detect_skip_whitespace_shape()` to accept both `+` and `-` operators
 - Added support for negative deltas (e.g., `-1` for `end = end - 1`)
-- Maintained backward compatibility with existing skip_whitespace patterns
+- Maintained backward compatibility with existing skip_whitespace route shapes
 
 **Key Logic**:
 ```rust
@@ -138,7 +138,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 - Promotion will be addressed in future phases
 
 ### Next Steps (Future Phases)
-- Phase 142 P1: Implement A-3 Trim promotion in Pattern2 handler
+- Phase 142 P1: Implement A-3 Trim promotion in the loop_break handler
 - Phase 142 P2: Extend to other route shapes (`IfPhiJoin` / `LoopContinueOnly`)
 - Phase 142 P3: Add more complex carrier update patterns
 
@@ -162,22 +162,22 @@ Phase 142 P0 successfully extends the Canonicalizer to recognize trim leading/tr
 - Passes all unit tests
 - Achieves strict parity agreement
 - Preserves existing behavior
-- Sets foundation for future pattern extensions
+- Sets foundation for future route-shape extensions
 
 All acceptance criteria met. ✅
 
 ---
 
-## P1: continue pattern (COMPLETE)
+## P1: continue route shape (COMPLETE)
 
 ### Objective
-Extend Canonicalizer to recognize continue patterns, enabling proper routing through the normalized loop pipeline.
+Extend Canonicalizer to recognize continue route shapes, enabling proper routing through the normalized loop pipeline.
 
-### Target Pattern
-- `tools/selfhost/test_pattern4_simple_continue.hako` - Simple continue pattern with carrier update
+### Target Fixture
+- `tools/selfhost/test_pattern4_simple_continue.hako` - Simple continue route shape with carrier update
 
 ### Accepted Criteria (All Met ✅)
-- ✅ Canonicalizer creates Skeleton for continue pattern
+- ✅ Canonicalizer creates Skeleton for the continue route shape
 - ✅ `decision.chosen == LoopContinueOnly` (`Pattern4Continue` at the time, router agreement)
 - ✅ `decision.missing_caps == []` (no missing capabilities)
 - ✅ Strict parity green (NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1)
@@ -231,7 +231,7 @@ loop(i < n) {
 
 **Changes**:
 - Added `try_extract_continue_shape()` call before skip_whitespace check
-- Build skeleton with continue pattern structure
+- Build skeleton with continue route-shape structure
 - Set `ExitContract` with `has_continue=true, has_break=false`
 - Route to `LoopContinueOnly`
 
@@ -344,8 +344,8 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 - Promotion will be addressed when loop_continue_only lowering is enhanced
 
 ### Next Steps (Future Phases)
-- Phase 142 P2: Extend loop_continue_only lowering to handle recognized continue patterns
-- Phase 142 P3: Add more complex continue patterns (multiple carriers, nested conditions)
+- Phase 142 P2: Extend loop_continue_only lowering to handle recognized continue route shapes
+- Phase 142 P3: Add more complex continue route shapes (multiple carriers, nested conditions)
 
 ### Verification Commands
 ```bash
@@ -361,7 +361,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 ```
 
 ### Conclusion
-Phase 142 P1 successfully extends the Canonicalizer to recognize continue patterns. The implementation:
+Phase 142 P1 successfully extends the Canonicalizer to recognize continue route shapes. The implementation:
 - Maintains SSOT architecture
 - Passes all unit tests (8/8)
 - Achieves strict parity agreement with router
@@ -377,10 +377,10 @@ All acceptance criteria met. ✅
 ### Objective
 Extend loop_continue_only lowering to handle "continue + return" patterns found in parse_string/array/object.
 
-### Target Pattern
-- `tools/selfhost/test_pattern4_parse_string.hako` - Parse string with continue (escape) + return (quote)
+### Target Fixture
+- `tools/selfhost/test_pattern4_parse_string.hako` - parse_string route shape with continue (escape) + return (quote)
 
-### Pattern4 Lowering Contract (Phase 142 P2)
+### LoopContinueOnly Lowering Contract (historical Phase 142 P2 note)
 
 #### Accepted Minimum Structure
 
@@ -399,24 +399,24 @@ Extend loop_continue_only lowering to handle "continue + return" patterns found 
 - **Payload**: State updated on non-continue path (e.g., result string)
 
 **Exit Contract**:
-- `has_continue = true` (continue pattern exists)
+- `has_continue = true` (continue route shape exists)
 - `has_return = true` (early return exists)
 - Both must coexist
 
 #### Unsupported (Fail-Fast)
 
-The following patterns are rejected with explicit error messages:
+The following route shapes are rejected with explicit error messages:
 
-- [ ] Multiple continue patterns (2+ continue statements)
+- [ ] Multiple continue route shapes (2+ continue statements)
 - [ ] Nested continue-return (continue inside if inside if)
 - [ ] Complex return values (returning multiple fields)
 - [ ] Variable step updates (escape sequence handling, etc.)
 
 ### Implementation Strategy
 
-**Step 1**: Clarify Pattern4 contract (this document)
+**Step 1**: Clarify the LoopContinueOnly contract (this document)
 **Step 2**: Add E2E test case
-**Step 3**: Extend Pattern4 lowerer
+**Step 3**: Extend the LoopContinueOnly lowerer
 **Step 4**: Consider box-ification / modularization
 **Step 5**: Implementation and verification
 
@@ -448,7 +448,7 @@ The following patterns are rejected with explicit error messages:
 
 **Status**: ✅ COMPLETE - Return detection and explicit error implemented
 
-**Implementation**: Added `has_return_in_body()` helper function to Pattern4 lowerer
+**Implementation**: Added `has_return_in_body()` helper function to the LoopContinueOnly lowerer
 - Recursively scans loop body for return statements
 - Returns explicit Fail-Fast error when return is detected
 - Error message references Phase 142 P2 for future lowering
@@ -465,38 +465,38 @@ The following patterns are rejected with explicit error messages:
 
 ### 🔑 Design Decisions (FIXED for Phase 142 P2 Step 3-B)
 
-#### 1. Return Responsibility Boundary: historical `Pattern5`
+#### 1. Return Responsibility Boundary: historical label-5 lane
 
-**Decision**: Return handling → historical `Pattern5` plan lane (not historical `Pattern4`)
+**Decision**: Return handling → historical label-5 plan lane (not the historical label-4 continue-only lane)
 
 **Rationale**:
-- historical `Pattern4` responsibility at the time: "continue + update rules" only
-- historical `Pattern5` responsibility at the time: "continue + early return" integration
-- Prevents the historical `Pattern4` lane from bloating as parse_string/array/object family expands
+- historical label-4 responsibility at the time: "continue + update rules" only
+- historical label-5 responsibility at the time: "continue + early return" integration
+- Prevents the historical label-4 lane from bloating as parse_string/array/object family expands
 - Aligns with canonicalizer SSOT ("structure is notes, chosen is final lowerer")
 
 **Architecture**:
 ```
 LoopContinueOnly (historical recognizer label: `Pattern4Continue`)
   ↓
-historical `Pattern4Lowerer` (continue only)
+historical label-4 lowerer (continue only)
   ↓ (has_return? → delegate)
-historical `Pattern5Lowerer` (continue + early return)
+historical label-5 lowerer (continue + early return)
 ```
 
-#### 2. Return Payload Transport: Closed within Pattern5
+#### 2. Return Payload Transport: Closed within the historical label-5 lane
 
 **Decision**: ExitMeta expansion NOT needed (initially)
 
 **Rationale**:
 - **Judgment criteria**: "Does return need the same exit_line reconnection as break?"
 - **Answer for parse_***: No - "return ends the function" (not carrier reconnect)
-- **Therefore**: Close return payloads within Pattern5 lowerer (no cross-boundary phi)
+- **Therefore**: Close return payloads within the historical label-5 lowerer (no cross-boundary phi)
 
 **Payload Handling**:
 1. Return value lives in a temporary (or direct function return)
 2. No phi merge with continue-side carrier updates
-3. Return path is self-contained within Pattern5
+3. Return path is self-contained within the historical label-5 lane
 
 **ContinueReturn Asset Reuse**:
 - ✅ Extract: Value consistency checks + transport logic
@@ -506,15 +506,15 @@ historical `Pattern5Lowerer` (continue + early return)
 ### 📋 Implementation Checklist for Step 3-B (Next Session)
 
 **Preparation**:
-- [ ] Design Pattern5 entry point (new or enhance existing Pattern5)
+- [ ] Design the historical label-5 entry point (new or enhanced)
 - [ ] Map return payload handling (temporary, no phi merge)
 - [ ] Document ExitMeta usage (confirm unchanged)
 - [ ] Identify ContinueReturn reusable parts (consistency checks)
 
 **Implementation**:
-- [ ] Create `pattern5_continue_return_minimal.rs` lowerer
-- [ ] Add return path handling (closed within Pattern5)
-- [ ] Use existing carrier reconnection from Pattern4 (for continue side)
+- [ ] Create the minimal continue+return lowerer (`pattern5_continue_return_minimal.rs`; historical file token)
+- [ ] Add return path handling (closed within the historical label-5 lane)
+- [ ] Use the existing label-4 continue-side carrier reconnection
 - [ ] Test on parse_string minimal fixture
 - [ ] Verify no ExitMeta changes needed
 
