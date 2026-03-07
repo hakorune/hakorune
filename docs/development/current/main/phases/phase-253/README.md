@@ -18,12 +18,12 @@ Related:
 
 ## 背景（なぜここで落ちるか）
 
-`Pattern2` の pipeline は、ループ本体の代入から「mutable accumulator（`x = x + y`）」を検出して
+`loop_break` route（legacy Pattern2 label）の pipeline は、ループ本体の代入から「mutable accumulator（`x = x + y`）」を検出して
 最適化/簡略化に利用する。ところが現在の analyzer が Fail-Fast すぎて、
 “accumulator ではない単なる代入” を見つけた時点で Err にしてしまい、JoinIR 経路全体を落としている。
 
 対象 SSOT:
-- `src/mir/loop_pattern_detection/mutable_accumulator_analyzer.rs`
+- `src/mir/loop_route_detection/legacy/mutable_accumulator_analyzer.rs`
 
 ## 方針（構造的に直す）
 
@@ -43,7 +43,7 @@ Related:
 ### 1) Analyzer の振る舞いを “検出器” に寄せる
 
 ファイル:
-- `src/mir/loop_pattern_detection/mutable_accumulator_analyzer.rs`
+- `src/mir/loop_route_detection/legacy/mutable_accumulator_analyzer.rs`
 
 変更案:
 - 以下のケースを `Err` ではなく `Ok(None)` に変更する（= accumulator ではないと判断する）

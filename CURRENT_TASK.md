@@ -630,6 +630,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/phase-{29ao,29ai,29aj,29ak,29bi,29bj,29bl,29bw}/README.md`
     - intent: active phase guidance では `loop_simple_while` / `loop_break` / `if_phi_join` / `loop_continue_only` / `loop_true_early_exit` / `scan_with_init` / `split_scan` を主語にし、numbered labels は legacy fixture token / historical migration label に限定する
     - verification: `rg -n "Scope: .*Pattern|Target set \\(Pattern|Pattern[1-9].*planner-first|release adopt Pattern|Pattern[1-9].*subset adopt" docs/development/current/main/phases/phase-{29ao,29ai,29aj,29ak,29bi,29bj,29bl,29bw}/README.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 99): older but still active phase README の `Pattern2/6/7` 主語と stale path token を route-first / current-path first に寄せた
+    - synced files: `docs/development/current/main/phases/phase-{251,253,257,263,267,273}/README.md` / `CURRENT_TASK.md`
+    - intent: historical phase docs でも current guidance の入口は `loop_break` / `scan_with_init` / `split_scan` / `loop_true_early_exit` で説明し、old `loop_pattern_detection` / `joinir/patterns` path は historical token と current path を分けて記す
+    - verification: `rg -n "JoinIR Pattern2|Pattern2 pipeline|Loop with Early Return Pattern|Pattern6/7/8|Pattern2 LoopBodyLocal|src/mir/loop_pattern_detection/|src/mir/builder/control_flow/joinir/patterns/" docs/development/current/main/phases/phase-{251,253,257,263,267,273}/README.md` = historical note / code-block token only
 
 ## next fixed order (resume point)
 

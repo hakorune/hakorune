@@ -5,7 +5,7 @@ SSOT (design): `docs/development/current/main/design/edgecfg-fragments.md`
 
 ## ゴール
 - `Frag` に **Branch（条件分岐）**を第一級で追加し、`wires`（Jump/Return）と同様に **MIR terminator へ落とせる**入口を作る
-- 既存の JoinIR/NormalizedShadow/Pattern6/7/8 は触らず、**BasicBlockId 層の test-only PoC**で証明する
+- 既存の JoinIR/NormalizedShadow/scan_with_init / split_scan / bool_predicate_scan route には触らず、**BasicBlockId 層の test-only PoC**で証明する
 
 ## P0（完了）
 ### 実装
@@ -31,4 +31,4 @@ SSOT (design): `docs/development/current/main/design/edgecfg-fragments.md`
 
 ## 次フェーズ（Phase 268）
 - Branch の edge-args（then/else entry params）計算を含めた実戦投入
-- JoinIR/NormalizedShadow/Pattern6/7/8 側へ段階的に適用（層境界を守る）
+- JoinIR/NormalizedShadow/scan_with_init / split_scan / bool_predicate_scan route 側へ段階的に適用（層境界を守る）

@@ -60,7 +60,7 @@ Related:
 
 ### 現象
 
-- JoinIR Pattern2 の break 条件 lowering が `MethodCall` を扱えず失敗する
+- JoinIR loop_break route の break 条件 lowering が `MethodCall` を扱えず失敗する
   - 例: `Me.is_whitespace(s.substring(i, i + 1))` のような `MethodCall` を含む条件
 
 ### 指示（Claude 実装用）
@@ -83,4 +83,3 @@ Related:
    - `./tools/smokes/v2/run.sh --profile quick` が緑
    - デフォルトで出力が汚れない（`HAKO_JOINIR_DEBUG=1` の時だけ追加ログ）
    - by-name や特定関数名での分岐など、対処療法的ハードコードを追加しない
-
