@@ -714,6 +714,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-256/README.md,phase-264/README.md,phase-272/README.md,phase-284/README.md,phase-286/README.md}` / `CURRENT_TASK.md`
     - intent: `ScanWithInit` / `SplitScan` / `BoolPredicateScan` / `LoopContinueOnly` / `LoopTrueEarlyExit` / `LoopSimpleWhile` / `IfPhiJoin` / `AccumConstLoop` / `loop_route_detection` を本文の主語へ寄せ、旧 `Pattern1/2/3/4/5/6/7/8/9` と `loop_pattern_detection` は historical label / historical module name としてだけ残す
     - verification: `rg -n "Pattern6 と同じ|Pattern7 の terminator|Pattern4/5 の return|Pattern1/Pattern4|Pattern9 \\(|Pattern8 \\(|Pattern3 Plan化|Pattern2 \\(Loop with Break\\)|Pattern5 は|\\*\\*loop_pattern_detection/mod.rs\\*\\*" docs/development/current/main/phases/{phase-256/README.md,phase-264/README.md,phase-272/README.md,phase-284/README.md,phase-286/README.md}` = 0 hit
+  - truth cleanup (2026-03-07, slice 120): compat token inventory を taxonomy に揃え、TSV の reason で mixed wording を減らした
+    - synced files: `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` / `tools/smokes/v2/profiles/integration/joinir/{planner_required_cases.tsv,phase29bq_fast_gate_cases.tsv}` / `tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv` / `CURRENT_TASK.md`
+    - intent: `phase29bq_pattern2_break_recipe_only_min.hako` / `phase29bq_pattern4continue_multidelta_min.hako` / `p4_multidelta` を `legacy fixture pin token` として inventory 化し、selfhost subset の `promote:` reason を legacy token lane だと明記する
+    - verification: `rg -n "phase29bq_pattern2_break_recipe_only_min|phase29bq_pattern4continue_multidelta_min|p4_multidelta|promote: phase29bq_selfhost_blocker_parse_stmt_skipws_min" docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md tools/smokes/v2/profiles/integration/joinir/planner_required_cases.tsv tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv` = expected taxonomy hits only
 
 ## next fixed order (resume point)
 

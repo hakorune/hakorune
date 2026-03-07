@@ -43,9 +43,12 @@ tokens that still act as traceability pins.
 | `pattern1_inline_explicit_step_min` | `loop_simple_while explicit-step` | legacy fixture pin token |
 | `phase29ab_pattern6_*` | `scan_with_init` | legacy fixture pin token |
 | `phase29ab_pattern7_*` | `split_scan` | legacy fixture pin token |
+| `phase29bq_pattern2_break_recipe_only_min.hako` | `loop_break recipe-only` | legacy fixture pin token |
 | `phase286_pattern5_break_min.hako` | `loop_true_early_exit` | legacy fixture pin token |
 | `phase269_p0_pattern8_frag_min.hako` | `bool_predicate_scan` | legacy fixture pin token |
 | `phase286_pattern9_frag_poc.hako` | `accum_const_loop` | legacy fixture pin token |
+| `phase29bq_pattern4continue_multidelta_min.hako` | `loop_continue_only multi-delta` | legacy fixture pin token |
+| `p4_multidelta` | `loop_continue_only multi-delta` | legacy fixture pin token |
 | `test_pattern3_skip_whitespace.hako` | `skip_whitespace` | legacy selfhost test stem |
 | `test_pattern5b_escape_minimal.hako` | `escape route P5b` | legacy selfhost test stem |
 | `test_pattern5b_escape_*` | `escape route P5b` | legacy selfhost test stem |
@@ -56,5 +59,7 @@ tokens that still act as traceability pins.
   - say `scan_with_init`, not `pattern6`
   - say `split_scan`, not `pattern7`
   - say `if_phi_join`, not `phase118_pattern3_if_sum_min`
+  - say `loop_break recipe-only`, not `phase29bq_pattern2_break_recipe_only_min`
+  - say `loop_continue_only multi-delta`, not `phase29bq_pattern4continue_multidelta_min` / `p4_multidelta`
 - When the filename itself matters for a command or grep, label it explicitly as
   `legacy fixture key`, `legacy fixture pin token`, or `legacy selfhost test stem`.

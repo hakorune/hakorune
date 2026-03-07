@@ -23,7 +23,7 @@ apps/tests/phase29bq_selfhost_blocker_breakfinder_parse_int_min.hako	-1	0	[joini
 apps/tests/phase29bq_else_guard_break_min.hako	3	0 3	[joinir/planner_first rule=LoopCondBreak] label=LoopExitIfBreakContinue	else-guard-break min
 apps/tests/phase29bq_loop_cond_continue_only_no_else_min.hako	3	0	[joinir/planner_first rule=LoopCondContinueOnly] label=LoopContinueOnly	loop_cond continue_only no_else
 apps/tests/phase29bq_shortcircuit_loop_cond_continue_with_return_min.hako	0	0	[joinir/planner_first rule=LoopCondContinueWithReturn] label=LoopContinueWithReturn	loop_cond continue_with_return shortcircuit
-apps/tests/phase29bq_pattern2_break_recipe_only_min.hako	2	0	[joinir/planner_first rule=LoopBreakRecipe] label=LoopBreakRecipe	loop_break recipe-only
+apps/tests/phase29bq_pattern2_break_recipe_only_min.hako	2	0	[joinir/planner_first rule=LoopBreakRecipe] label=LoopBreakRecipe	loop_break recipe-only (legacy fixture pin token)
 apps/tests/phase29bq_div_countdown_by10_min.hako	123	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	div_countdown_by10 (int_to_str)
 apps/tests/phase29bq_funcscanner_extract_ident_min.hako	abc	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	extract_ident min (scan_while_predicate)
 apps/tests/phase29bq_funcscanner_append_defs_min.hako	3	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	append_defs min (effect_step_only)

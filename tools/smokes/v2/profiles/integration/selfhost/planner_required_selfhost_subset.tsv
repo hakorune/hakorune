@@ -85,6 +85,7 @@ apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_min.hako	2	0	[j
 apps/tests/phase29bq_selfhost_blocker_parse_program2_prelude1_ws_loop_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_program2_prelude1_ws_loop_min
 apps/tests/phase29bq_selfhost_blocker_parse_program2_prelude2_depth_ws_loop_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_program2_prelude2_depth_ws_loop_min
 apps/tests/phase29bq_selfhost_blocker_parse_program2_ws_loopcount_continue_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_program2_ws_loopcount_continue_min
+# NOTE: `reason` may include `promote: <fixture-stem>` as a legacy fixture pin token / legacy selfhost test stem for Tier-2 sync.
 apps/tests/phase29bq_selfhost_blocker_parse_stmt_skipws_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_stmt_skipws_min
 apps/tests/phase29bq_selfhost_blocker_parse_string2_min.hako	{"type":"Str","value":"a"}	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_string2_min
 apps/tests/phase29bq_selfhost_blocker_parse_term2_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_term2_min
