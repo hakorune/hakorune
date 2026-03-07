@@ -25,9 +25,11 @@
   - `apps/tests/async-spawn-instance/main.hako`
   - `apps/tests/async-await-timeout-fixed/main.hako`（`NYASH_AWAIT_MAX_MS=100`）
 - Selfhost Stage‑B canaries（opt-in）:
-  - `SMOKES_ENABLE_STAGEB=1 tools/smokes/v2/profiles/integration/selfhost/selfhost_stageb_if_vm.sh`
-  - `SMOKES_ENABLE_STAGEB=1 tools/smokes/v2/profiles/integration/selfhost/selfhost_stageb_index_vm.sh`
+  - `SMOKES_ENABLE_STAGEB=1 tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_if_vm.sh`
+  - `SMOKES_ENABLE_STAGEB=1 tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_index_vm.sh`
+  - `SMOKES_ENABLE_STAGEB=1 tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_binop_vm.sh`
   - これらは `target/release/hakorune` を使用（`nyash` は deprecated で stdout が汚れるため使用しない）
+  - active `integration` profile からは外してあり、manual replay 専用
 
 アーカイブ（非推奨）
 - 旧ランナー（JIT/Cranelift 時代）は削除または archive に移動済み。v2 ランナーのみを使用

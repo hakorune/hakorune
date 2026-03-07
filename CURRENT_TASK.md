@@ -552,7 +552,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - truth cleanup (2026-03-07, slice 78): Mini-VM selfhost smoke 3本を archive profile へ退避した
     - synced files: `tools/smokes/v2/profiles/archive/selfhost/{README.md,selfhost_mir_m2_eq_true_vm.sh,selfhost_mir_m3_branch_true_vm.sh,selfhost_mir_m3_jump_vm.sh}` / `docs/development/current/main/design/selfhost-smoke-retirement-inventory-ssot.md` / `CURRENT_TASK.md`
     - intent: unconditional skip の Mini-VM canary を active `integration/selfhost` から外して `run.sh` auto-discovery 対象外にしつつ、historical replay 用に archive profile へ保持する
-    - verification: `tools/smokes/v2/run.sh --profile integration/selfhost --filter selfhost_mir_m2_eq_true` = `No test files found` / `bash tools/smokes/v2/profiles/archive/selfhost/selfhost_mir_m2_eq_true_vm.sh` = SKIP / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` = PASS
+    - verification: `tools/smokes/v2/run.sh --profile integration --filter selfhost_mir_m2_eq_true` = `No test files found` / `bash tools/smokes/v2/profiles/archive/selfhost/selfhost_mir_m2_eq_true_vm.sh` = SKIP / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` = PASS
+  - truth cleanup (2026-03-07, slice 79): opt-in Stage-B selfhost canary 5本を archive profile へ退避した
+    - synced files: `tools/smokes/v2/profiles/archive/selfhost/{selfhost_stageb_binop_vm.sh,selfhost_stageb_if_vm.sh,selfhost_stageb_index_vm.sh,selfhost_stageb_oob_vm.sh,selfhost_stageb_v1_compat_vm.sh,README.md}` / `docs/development/current/main/design/selfhost-smoke-retirement-inventory-ssot.md` / `docs/how-to/smokes.md` / `CURRENT_TASK.md`
+    - intent: manual Stage-B diagnostics を active `integration/selfhost` から外して `run.sh --profile integration` の auto-discovery 対象外にしつつ、archive/selfhost を selfhost-only manual diagnostics home として固定する
+    - verification: `tools/smokes/v2/run.sh --profile integration --filter selfhost_stageb_` = `No test files found` / `bash tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_if_vm.sh` = SKIP / `bash tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_oob_vm.sh` = SKIP / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` = PASS
 
 ## next fixed order (resume point)
 
@@ -560,7 +564,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
 3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し中。self-only grep の semantic wrapper は current entrypoint として keep し、old stem retire は active caller が 0 になってから別 phase で扱う。selfhost 側は inventory を固定済みで、Mini-VM always-skip trio は archive profile へ退避済み。次は opt-in Stage-B canary の archive/home 分離を dedicated retire slice で実施する。
+5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し中。self-only grep の semantic wrapper は current entrypoint として keep し、old stem retire は active caller が 0 になってから別 phase で扱う。selfhost 側は inventory を固定済みで、Mini-VM always-skip trio と opt-in Stage-B canary は archive profile へ退避済み。次は active docs に残る intentional pin/token の appendix 分離と、generic `Pattern` comment / physical path residue の別 sweep を進める。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 7. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
 

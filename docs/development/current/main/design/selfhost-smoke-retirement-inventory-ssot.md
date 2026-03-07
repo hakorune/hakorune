@@ -25,8 +25,8 @@ smokes so future cleanup does not delete live profile entries by mistake.
   - replaced by a documented semantic successor and verified to be absent from active docs/gates.
 - Always-skipped Mini-VM smokes may be tagged as `retire candidate`, but deletion still requires a
   dedicated retire slice.
-- Stage-B opt-in canaries may be tagged as `opt-in archive candidate`, but they remain available for
-  manual debugging until an archive/home is chosen.
+- Stage-B opt-in canaries may be tagged as `opt-in archive candidate`, then moved to
+  `tools/smokes/v2/profiles/archive/selfhost/` once archive/home is chosen.
 
 ## Categories
 
@@ -41,7 +41,8 @@ smokes so future cleanup does not delete live profile entries by mistake.
 
 - Phase A: inventory fixed
 - Phase B: Mini-VM always-skip trio moved to `tools/smokes/v2/profiles/archive/selfhost/`
-- Phase C: opt-in Stage-B canaries remain in `integration/selfhost` until a dedicated diagnostics home is chosen
+- Phase C: opt-in Stage-B canaries moved to `tools/smokes/v2/profiles/archive/selfhost/`
+- Phase D: `archive/selfhost` is the manual diagnostics home for selfhost-only legacy canaries
 
 ## Inventory (2026-03-07)
 
@@ -53,13 +54,15 @@ smokes so future cleanup does not delete live profile entries by mistake.
 | `tools/smokes/v2/profiles/archive/selfhost/selfhost_mir_m3_branch_true_vm.sh` | moved out of `integration/selfhost`, still skip-only when run directly | Mini-VM branch canary, no longer discovered by active selfhost profile |
 | `tools/smokes/v2/profiles/archive/selfhost/selfhost_mir_m3_jump_vm.sh` | moved out of `integration/selfhost`, still skip-only when run directly | Mini-VM jump canary, no longer discovered by active selfhost profile |
 
-### Opt-in archive candidates
+### Archived opt-in diagnostics
 
 | Script | Evidence | Why it stays for now |
 | --- | --- | --- |
-| `tools/smokes/v2/profiles/integration/selfhost/selfhost_stageb_binop_vm.sh` | runs only when `SMOKES_ENABLE_STAGEB=1`; not part of current required gates | manual Stage-B diagnostic canary |
-| `tools/smokes/v2/profiles/integration/selfhost/selfhost_stageb_oob_vm.sh` | runs only when `SMOKES_ENABLE_STAGEB_OOB=1`; otherwise skips | manual OOB diagnostic canary |
-| `tools/smokes/v2/profiles/integration/selfhost/selfhost_stageb_v1_compat_vm.sh` | runs only when `SMOKES_ENABLE_STAGEB_V1=1`; otherwise skips | manual v1-compat diagnostic canary |
+| `tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_binop_vm.sh` | moved out of `integration/selfhost`; runs only when `SMOKES_ENABLE_STAGEB=1` | manual Stage-B binop diagnostic |
+| `tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_if_vm.sh` | moved out of `integration/selfhost`; runs only when `SMOKES_ENABLE_STAGEB=1` | manual Stage-B if diagnostic |
+| `tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_index_vm.sh` | moved out of `integration/selfhost`; runs only when `SMOKES_ENABLE_STAGEB=1` | manual Stage-B index diagnostic |
+| `tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_oob_vm.sh` | moved out of `integration/selfhost`; runs only when `SMOKES_ENABLE_STAGEB_OOB=1` | manual OOB diagnostic canary |
+| `tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_v1_compat_vm.sh` | moved out of `integration/selfhost`; runs only when `SMOKES_ENABLE_STAGEB_V1=1` | manual v1-compat diagnostic canary |
 
 ### Keep current entry
 
@@ -71,6 +74,6 @@ smokes so future cleanup does not delete live profile entries by mistake.
 
 ## Next retire phase
 
-1. Keep `tools/smokes/v2/profiles/archive/selfhost/` as the historical home for retired Mini-VM canaries.
-2. Verify `tools/smokes/v2/run.sh --profile integration/selfhost` no longer discovers the retired trio.
-3. Keep `opt-in archive candidate` scripts until a dedicated Stage-B diagnostics home is decided.
+1. Keep `tools/smokes/v2/profiles/archive/selfhost/` as the manual/home for retired Mini-VM and opt-in Stage-B selfhost canaries.
+2. Verify `tools/smokes/v2/run.sh --profile integration --filter 'selfhost_(mir_m[23]|stageb_)'` no longer discovers archived scripts.
+3. Keep only active selfhost gate entrypoints under `profiles/integration/selfhost/`.
