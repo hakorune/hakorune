@@ -5,12 +5,12 @@
 
 Reading note:
 - この phase は canonicalizer 初期拡張の historical log だよ。
-- 下の `Pattern2Break` / `Pattern4Continue` / `Chosen pattern` は当時の routing/debug token で、current route family では `LoopBreak` / `LoopContinueOnly` と読めばよい。
+- 下の `Pattern2Break` / `Pattern4Continue` / `Chosen pattern` は当時の routing/debug token だよ。current route family は `LoopBreak` / `LoopContinueOnly` と読めばよい。
 
 ## P0: parse_number route shape - Break in THEN Clause
 
 ### Objective
-Expand the canonicalizer to recognize parse_number/digit collection patterns, maximizing the adaptation range before adding new lowering patterns.
+Expand the canonicalizer to recognize parse_number/digit collection route shapes, maximizing the adaptation range before adding new lowering route shapes.
 
 ### Target Fixture
 `tools/selfhost/test_pattern2_parse_number.hako`
@@ -54,7 +54,7 @@ loop(cond) {
 #### 1. New Recognizer (`ast_feature_extractor.rs`)
 
 Added current helper `detect_parse_number_shape()`:
-- Detects `if cond { break }` pattern (no else clause)
+- Detects `if cond { break }` route shape (no else clause)
 - Extracts body statements before break check
 - Extracts rest statements after break check (including carrier update)
 - Returns `ParseNumberInfo { carrier_name, delta, body_stmts, rest_stmts }`
@@ -63,7 +63,7 @@ Added current helper `detect_parse_number_shape()`:
 
 #### 2. Canonicalizer Integration (`canonicalizer.rs`)
 
-- Tries parse_number pattern before skip_whitespace pattern
+- Tries parse_number route shape before skip_whitespace route shape
 - Builds LoopSkeleton with:
   - Step 1: HeaderCond
   - Step 2: Body (statements before break)
@@ -88,7 +88,7 @@ Added exports through the module hierarchy:
 #### 4. Unit Tests
 
 Added `test_parse_number_pattern_recognized()` in `canonicalizer.rs`:
-- Builds AST for parse_number pattern
+- Builds AST for parse_number route shape
 - Verifies skeleton structure (4 steps)
 - Verifies carrier (name="i", delta=1, role=Counter)
 - Verifies exit contract (has_break=true)
@@ -136,8 +136,8 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 
 | Metric | Count |
 |--------|-------|
-| New patterns supported | 1 (parse_number) |
-| Total patterns supported | 3 (skip_whitespace, parse_number, continue) |
+| New route-shape cases supported | 1 (parse_number) |
+| Total route-shape cases supported | 3 (skip_whitespace, parse_number, continue) |
 | New Capability Tags | 0 (uses existing ConstStep) |
 | Lines added | ~280 |
 | Files modified | 8 |
@@ -149,7 +149,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 | Aspect | Skip Whitespace | Parse Number |
 |--------|----------------|--------------|
 | **Break location** | ELSE clause | THEN clause |
-| **Pattern** | `if cond { update } else { break }` | `if invalid { break } rest... update` |
+| **Route shape** | `if cond { update } else { break }` | `if invalid { break } rest... update` |
 | **Body before if** | Optional | Optional (ch, digit_pos) |
 | **Body after if** | None (last statement) | Required (result append) |
 | **Carrier update** | In THEN clause | After if statement |
@@ -159,17 +159,17 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 ### Follow-up Opportunities
 
 #### Immediate (Phase 143 P1-P2)
-- [ ] Support parse_string pattern (continue + return combo)
+- [ ] Support parse_string route shape (continue + return combo)
 - [ ] Add capability for variable-step updates (escape handling)
 
 #### Future Enhancements
-- [ ] Extend recognizer for nested if patterns
+- [ ] Extend recognizer for nested if route shapes
 - [ ] Support multiple break points (requires new capability)
 - [ ] Add signature-based corpus analysis
 
 ### Lessons Learned
 
-1. **Break location matters**: THEN vs ELSE clause creates different patterns
+1. **Break location matters**: THEN vs ELSE clause creates different route shapes
 2. **rest_stmts extraction**: Need to carefully separate body from carrier update
 3. **Export chain**: Requires 6-level re-export (ast → patterns → joinir → control_flow → builder → mir)
 4. **Parity first**: Always verify strict parity before claiming success
@@ -180,7 +180,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 - **Recognizer**: `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`
   - historical path token: `ast_feature_extractor.rs` under the old `joinir/patterns/` lane
 - **Canonicalizer**: `src/mir/loop_canonicalizer/canonicalizer.rs`
-- **Tests**: Test file `tools/selfhost/test_pattern2_parse_number.hako`
+- **Tests**: historical fixture filename `tools/selfhost/test_pattern2_parse_number.hako`
 
 ---
 
@@ -190,7 +190,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 ✅ Complete (2025-12-16)
 
 ### Objective
-Expand canonicalizer to recognize parse_string patterns with both `continue` (escape handling) and `return` (quote found).
+Expand canonicalizer to recognize parse_string route shapes with both `continue` (escape handling) and `return` (quote found).
 
 ### Target Fixture
 `tools/selfhost/test_pattern4_parse_string.hako`
@@ -221,7 +221,7 @@ loop(p < len) {
 }
 ```
 
-### Pattern Characteristics
+### Route-Shape Characteristics
 
 **Key Features**:
 - Multiple exit types: both `return` and `continue`
@@ -254,7 +254,7 @@ loop(cond) {
 #### 1. New Recognizer (`ast_feature_extractor.rs`)
 
 Added `detect_parse_string_shape()`:
-- Detects `if cond { return }` pattern
+- Detects `if cond { return }` route shape
 - Detects `continue` statement (with recursive search for nested continue)
 - Uses `has_continue_node()` helper for deep search
 - Returns `ParseStringInfo { carrier_name, delta, body_stmts }`
@@ -263,7 +263,7 @@ Added `detect_parse_string_shape()`:
 
 #### 2. Canonicalizer Integration (`canonicalizer.rs`)
 
-- Tries parse_string pattern first (most specific)
+- Tries parse_string route shape first (most specific)
 - Builds LoopSkeleton with:
   - Step 1: HeaderCond
   - Step 2: Body (statements before exit checks)
@@ -291,7 +291,7 @@ Added exports through the module hierarchy:
 #### 4. Unit Tests
 
 Added `test_parse_string_pattern_recognized()` in `canonicalizer.rs`:
-- Builds AST for parse_string pattern
+- Builds AST for parse_string route shape
 - Verifies skeleton structure (3 steps minimum)
 - Verifies carrier (name="p", delta=1, role=Counter)
 - Verifies exit contract (has_continue=true, has_return=true, has_break=false)
@@ -343,8 +343,8 @@ cargo test --release --lib loop_canonicalizer --release
 
 | Metric | Count |
 |--------|-------|
-| New patterns supported | 1 (parse_string) |
-| Total patterns supported | 4 (skip_whitespace, parse_number, continue, parse_string) |
+| New route-shape cases supported | 1 (parse_string) |
+| Total route-shape cases supported | 4 (skip_whitespace, parse_number, continue, parse_string) |
 | New Capability Tags | 0 (uses existing ConstStep) |
 | Lines added | ~300 |
 | Files modified | 9 |
@@ -357,7 +357,7 @@ cargo test --release --lib loop_canonicalizer --release
 2. **Complex Exit Contract**: First pattern with both `has_continue=true` AND `has_return=true`
 3. **Variable Step Updates**: The actual loop has variable steps (p++ vs p+=2), but canonicalizer uses base delta=1
 
-### Comparison: Parse String vs Other Patterns
+### Comparison: Parse String vs Other Route Shapes
 
 | Aspect | Skip Whitespace | Parse Number | Continue | **Parse String** |
 |--------|----------------|--------------|----------|------------------|
@@ -382,7 +382,7 @@ cargo test --release --lib loop_canonicalizer --release
 ### Lessons Learned
 
 1. **Nested Detection Required**: Simple shallow iteration isn't enough for real-world patterns
-2. **ExitContract Diversity**: Patterns can have multiple exit types simultaneously
+2. **ExitContract Diversity**: Route shapes can have multiple exit types simultaneously
 3. **Parity vs Execution**: Achieving parity doesn't guarantee runtime success (historical label-4 lowering may need enhancements)
 4. **Recursive Helpers**: Reusing existing helpers (`has_continue_node`) is better than duplicating logic
 
@@ -394,7 +394,7 @@ cargo test --release --lib loop_canonicalizer --release
 ✅ Complete (2025-12-16)
 
 ### Objective
-Extend canonicalizer to recognize parse_array patterns with both `continue` (separator handling) and `return` (stop condition).
+Extend canonicalizer to recognize parse_array route shapes with both `continue` (separator handling) and `return` (stop condition).
 
 ### Target Fixture
 `tools/selfhost/test_pattern4_parse_array.hako`
@@ -427,13 +427,13 @@ loop(p < len) {
 }
 ```
 
-### Pattern Characteristics
+### Route-Shape Characteristics
 
 **Key Features**:
 - Multiple exit types: both `return` (stop condition) and `continue` (separator)
 - Separator handling: `,` triggers element save and continue
 - Stop condition: `]` triggers final save and return
-- Same structural pattern as parse_string
+- Same route shape as parse_string
 
 **Structure**:
 ```
@@ -468,8 +468,8 @@ loop(cond) {
 1. **Documentation Updates** (~150 lines)
    - Updated `ast_feature_extractor.rs` to document parse_array support
    - Updated `pattern_recognizer.rs` wrapper documentation
-   - Updated `canonicalizer.rs` supported patterns list
-   - Added parse_array example to pattern documentation
+   - Updated `canonicalizer.rs` supported route-shape list
+   - Added parse_array example to route-shape documentation
 
 2. **Unit Test** (~165 lines)
    - Added `test_parse_array_pattern_recognized()` in `canonicalizer.rs`
@@ -524,8 +524,8 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 
 | Metric | Count |
 |--------|-------|
-| New patterns supported | 1 (parse_array, shares recognizer with parse_string) |
-| Total patterns supported | 5 (skip_whitespace, parse_number, continue, parse_string, parse_array) |
+| New route-shape cases supported | 1 (parse_array, shares recognizer with parse_string) |
+| Total route-shape cases supported | 5 (skip_whitespace, parse_number, continue, parse_string, parse_array) |
 | New Capability Tags | 0 (uses existing ConstStep) |
 | Lines added | ~320 (mostly documentation) |
 | Files modified | 3 (canonicalizer.rs, ast_feature_extractor.rs, pattern_recognizer.rs) |
@@ -543,7 +543,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 | **Routing** | LoopContinueOnly | LoopContinueOnly |
 | **ExitContract** | has_continue=true, has_return=true | has_continue=true, has_return=true |
 
-### Key Insight: Structural vs Semantic Patterns
+### Key Insight: Structural vs Semantic Route Shapes
 
 **Major Discovery**: parse_string and parse_array are **structurally identical** at the AST level:
 - Both have `if stop_cond { return }`
@@ -552,18 +552,18 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 
 The semantic difference (what the conditions check) doesn't matter for route-shape recognition.
 
-This demonstrates the power of AST-based pattern matching: we can recognize structural patterns without understanding their semantic meaning.
+This demonstrates the power of AST-based route-shape matching: we can recognize structural route shapes without understanding their semantic meaning.
 
 ### Follow-up Opportunities
 
 #### Next Steps (Phase 143 P3)
-- [ ] Support parse_object pattern (likely also shares the same recognizer!)
-- [ ] Document pattern families (structural equivalence classes)
+- [ ] Support parse_object route shape (likely also shares the same recognizer!)
+- [ ] Document route-shape families (structural equivalence classes)
 
 #### Future Enhancements
-- [ ] Generalize to "dual-exit patterns" (continue + return)
+- [ ] Generalize to "dual-exit route shapes" (continue + return)
 - [ ] Add corpus analysis to discover more structural equivalences
-- [ ] Create pattern taxonomy based on AST structure
+- [ ] Create route-shape taxonomy based on AST structure
 
 ### Lessons Learned
 
@@ -580,7 +580,7 @@ This demonstrates the power of AST-based pattern matching: we can recognize stru
 ✅ Complete (2025-12-16)
 
 ### Objective
-Verify that parse_object pattern (key-value pair collection) is recognized by the existing recognizer, maintaining structural equivalence with parse_string/parse_array.
+Verify that parse_object route shape (key-value pair collection) is recognized by the existing recognizer, maintaining structural equivalence with parse_string/parse_array.
 
 ### Target Fixture
 `tools/selfhost/test_pattern4_parse_object.hako`
@@ -606,13 +606,13 @@ loop(p < s.length()) {
 }
 ```
 
-### Pattern Characteristics
+### Route-Shape Characteristics
 
 **Key Features**:
 - Multiple exit types: both `return` (stop condition) and `continue` (separator)
 - Separator handling: `,` triggers continue to next pair
 - Stop condition: `}` triggers return with result
-- **Same structural pattern as parse_string/parse_array**
+- **Same structural route shape as parse_string/parse_array**
 
 **Structure**:
 ```
@@ -698,8 +698,8 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 
 | Metric | Count |
 |--------|-------|
-| New patterns supported | 1 (parse_object, shares recognizer with parse_string/array) |
-| Total patterns supported | 6 (skip_whitespace, parse_number, continue, parse_string, parse_array, parse_object) |
+| New route-shape cases supported | 1 (parse_object, shares recognizer with parse_string/array) |
+| Total route-shape cases supported | 6 (skip_whitespace, parse_number, continue, parse_string, parse_array, parse_object) |
 | New Capability Tags | 0 (uses existing ConstStep) |
 | Lines added | ~220 (test file + unit test + docs) |
 | Files modified | 2 (canonicalizer.rs, new test file) |
@@ -728,38 +728,38 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 
 The semantic differences (string quote vs array bracket vs object brace) are invisible at the AST structure level.
 
-**Implication**: AST-based pattern matching creates natural pattern families. When we implement one pattern, we often get multiple variants "for free".
+**Implication**: AST-based route-shape matching creates natural route-shape families. When we implement one route shape, we often get multiple variants "for free".
 
 ### Coverage Expansion Summary
 
-Phase 143 started with 3 patterns (skip_whitespace, parse_number, continue) and expanded to 6 patterns:
+Phase 143 started with 3 route shapes (skip_whitespace, parse_number, continue) and expanded to 6 route shapes:
 - P0: Added parse_number (new recognizer)
 - P1: Added parse_string (new recognizer)
 - P2: Added parse_array (**reused parse_string recognizer**)
 - P3: Added parse_object (**reused parse_string recognizer**)
 
-**Recognizer efficiency**: 2 new recognizers → 4 new patterns supported!
+**Recognizer efficiency**: 2 new recognizers → 4 new route-shape cases supported!
 
 ### Follow-up Opportunities
 
 #### Next Steps (Phase 144+)
-- [ ] Document pattern families in design docs
+- [ ] Document route-shape families in design docs
 - [ ] Add corpus analysis to discover more structural equivalences
-- [ ] Create pattern taxonomy based on AST structure
-- [ ] Explore other potential pattern families
+- [ ] Create route-shape taxonomy based on AST structure
+- [ ] Explore other potential route-shape families
 
 #### Future Enhancements
-- [ ] Generalize to "dual-exit patterns" (continue + return)
-- [ ] Support triple-exit patterns (break + continue + return)
+- [ ] Generalize to "dual-exit route shapes" (continue + return)
+- [ ] Support triple-exit route shapes (break + continue + return)
 - [ ] Add signature-based pattern discovery
 
 ### Lessons Learned
 
-1. **Pattern Families**: Structural equivalence creates natural groupings
+1. **Route-Shape Families**: Structural equivalence creates natural groupings
 2. **Recognizer Reuse**: Testing existing recognizers before writing new ones saves effort
-3. **Semantic vs Structural**: AST patterns are structural; semantic meaning doesn't affect recognition
+3. **Semantic vs Structural**: AST route shapes are structural; semantic meaning doesn't affect recognition
 4. **Test-Driven Discovery**: Unit tests verify recognizer generality
-5. **Documentation Value**: Recording discoveries helps future pattern work
+5. **Documentation Value**: Recording discoveries helps future route-shape work
 
 ---
 

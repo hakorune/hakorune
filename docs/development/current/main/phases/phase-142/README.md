@@ -7,7 +7,7 @@
 ## P0: trim leading/trailing (COMPLETE)
 
 ### Objective
-Extend Canonicalizer to recognize trim leading/trailing patterns, enabling proper routing through the normalized loop pipeline.
+Extend Canonicalizer to recognize trim leading/trailing route shapes, enabling proper routing through the normalized loop pipeline.
 
 ### Target Fixtures
 - `tools/selfhost/test_pattern3_trim_leading.hako` - `start = start + 1` route shape
@@ -15,7 +15,7 @@ Extend Canonicalizer to recognize trim leading/trailing patterns, enabling prope
 
 ### Accepted Criteria (All Met ✅)
 - ✅ Canonicalizer creates Skeleton for trim_leading/trailing
-- ✅ `decision.chosen == LoopBreak` (`Pattern2Break` at the time, ExitContract priority)
+- ✅ `decision.chosen == LoopBreak`（historical routing token appears in the parity log below）
 - ✅ `decision.missing_caps == []` (no missing capabilities)
 - ✅ Strict parity green (NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1)
 - ✅ Default behavior unchanged
@@ -157,7 +157,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 ```
 
 ### Conclusion
-Phase 142 P0 successfully extends the Canonicalizer to recognize trim leading/trailing patterns. The implementation:
+Phase 142 P0 successfully extends the Canonicalizer to recognize trim leading/trailing route shapes. The implementation:
 - Maintains SSOT architecture
 - Passes all unit tests
 - Achieves strict parity agreement
@@ -178,7 +178,7 @@ Extend Canonicalizer to recognize continue route shapes, enabling proper routing
 
 ### Accepted Criteria (All Met ✅)
 - ✅ Canonicalizer creates Skeleton for the continue route shape
-- ✅ `decision.chosen == LoopContinueOnly` (`Pattern4Continue` at the time, router agreement)
+- ✅ `decision.chosen == LoopContinueOnly`（historical routing token appears in the parity log below）
 - ✅ `decision.missing_caps == []` (no missing capabilities)
 - ✅ Strict parity green (NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1)
 - ✅ Default behavior unchanged

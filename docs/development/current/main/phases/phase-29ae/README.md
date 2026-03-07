@@ -4,35 +4,37 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 
 ## Regression pack (SSOT)
 
-- loop_break (body-local route, VM; legacy label: Pattern2): `loop_break_body_local_vm`（historical filter key family: `phase29ab_pattern2_*`; exact archived smoke stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_break (body-local seg route, VM; legacy label: Pattern2): `loop_break_body_local_seg_vm`（historical filter key family: `phase29ab_pattern2_*`; exact archived smoke stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_break (real-world route, VM; legacy label: Pattern2): `loop_break_realworld_vm`（historical filter key family: `phase263_pattern2_*`; inventory-only）
-- loop_break (subset, strict shadow, VM; legacy label: Pattern2): `loop_break_plan_subset_vm`（historical filter key family: `phase29ai_pattern2_break_plan_subset_*`; exact archived smoke stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_break (release adopt, VM; legacy label: Pattern2): `loop_break_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- if_phi_join (VM; legacy label: Pattern3): `if_phi_join_vm`（historical smoke stem / fixture key is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md` and `joinir-legacy-fixture-pin-inventory-ssot.md`; inventory/archive-only）
-- if_phi_join (release adopt, VM; legacy label: Pattern3): `if_phi_join_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_continue_only (continue min, VM; legacy label: Pattern4): `loop_continue_only_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_simple_while (strict shadow, VM; legacy label: Pattern1): `loop_simple_while_strict_shadow_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_simple_while (subset reject, VM; legacy label: Pattern1): `loop_simple_while_subset_reject_extra_stmt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_simple_while (stdlib to_lower, VM; legacy label: Pattern1): `phase29ap_stringutils_tolower_vm`
-- loop_simple_while (stdlib join, VM; legacy label: Pattern1): `phase29ap_stringutils_join_vm`
+Numbered route labels below are historical labels only. Current entry names are the semantic wrapper stems shown first.
+
+- loop_break (body-local route, VM): `loop_break_body_local_vm`（historical filter key family for this LoopBreak lane; exact legacy filter/stem tokens are tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_break (body-local seg route, VM): `loop_break_body_local_seg_vm`（historical filter key family for this LoopBreak lane; exact legacy filter/stem tokens are tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_break (real-world route, VM): `loop_break_realworld_vm`（historical filter key family for this LoopBreak lane; inventory-only）
+- loop_break (subset, strict shadow, VM): `loop_break_plan_subset_vm`（historical filter key family for this LoopBreak lane; exact legacy filter/stem tokens are tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_break (release adopt, VM): `loop_break_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- if_phi_join (VM): `if_phi_join_vm`（historical smoke stem / fixture key is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md` and `joinir-legacy-fixture-pin-inventory-ssot.md`; inventory/archive-only）
+- if_phi_join (release adopt, VM): `if_phi_join_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_continue_only (continue min, VM): `loop_continue_only_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_simple_while (strict shadow, VM): `loop_simple_while_strict_shadow_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_simple_while (subset reject, VM): `loop_simple_while_subset_reject_extra_stmt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_simple_while (stdlib to_lower, VM): `phase29ap_stringutils_tolower_vm`
+- loop_simple_while (stdlib join, VM): `phase29ap_stringutils_join_vm`
 - scan_with_init (stdlib index_of, VM): `phase29aq_string_index_of_min_vm`
 - scan_with_init (stdlib last_index_of, VM): `phase29aq_string_last_index_of_min_vm`
 - scan_with_init (stdlib index_of_string, VM): `phase29aq_string_index_of_string_min_vm`
-- loop_break (stdlib parse_integer, VM; legacy label: Pattern2): `phase29aq_string_parse_integer_min_vm`
-- loop_break (stdlib parse_integer sign, VM; legacy label: Pattern2): `phase29aq_string_parse_integer_sign_min_vm`
-- loop_break (stdlib parse_integer leading whitespace, VM; legacy label: Pattern2): `phase29aq_string_parse_integer_ws_min_vm`
-- loop_break (stdlib parse_integer leading zero, VM; legacy label: Pattern2): `phase29aq_string_parse_integer_leading_zero_min_vm`
+- loop_break (stdlib parse_integer, VM): `phase29aq_string_parse_integer_min_vm`
+- loop_break (stdlib parse_integer sign, VM): `phase29aq_string_parse_integer_sign_min_vm`
+- loop_break (stdlib parse_integer leading whitespace, VM): `phase29aq_string_parse_integer_ws_min_vm`
+- loop_break (stdlib parse_integer leading zero, VM): `phase29aq_string_parse_integer_leading_zero_min_vm`
 - split_scan (stdlib split, VM): `phase29aq_string_split_min_vm`
 - split_scan (stdlib split char, VM): `phase29aq_string_split_char_min_vm`
 - split_scan (stdlib split string, VM): `phase29aq_string_split_string_min_vm`
-- loop_break (stdlib trim_start, VM; legacy label: Pattern2): `phase29aq_string_trim_start_min_vm`
-- loop_break (stdlib trim_end, VM; legacy label: Pattern2): `phase29aq_string_trim_end_min_vm`
+- loop_break (stdlib trim_start, VM): `phase29aq_string_trim_start_min_vm`
+- loop_break (stdlib trim_end, VM): `phase29aq_string_trim_end_min_vm`
 - Derived (stdlib contains, VM): `phase29aq_string_contains_min_vm`
 - Derived (stdlib starts_with, VM): `phase29aq_string_starts_with_min_vm`
 - Derived (stdlib ends_with, VM): `phase29aq_string_ends_with_min_vm`
 - Derived (stdlib trim, VM): `phase29aq_string_trim_min_vm`
-- loop_simple_while (stdlib to_upper, VM; legacy label: Pattern1): `phase29aq_string_to_upper_min_vm`
+- loop_simple_while (stdlib to_upper, VM): `phase29aq_string_to_upper_min_vm`
 - Purity gate (strict fallback visibility, VM): `phase29as_purity_gate_vm`
 - Return-in-loop (stdlib is_integer, strict fail-fast reject, VM): `phase29ar_string_is_integer_min_vm`
 - Return-in-loop (stdlib is_integer, release adopt, VM): `phase29ar_string_is_integer_release_adopt_vm`
@@ -44,21 +46,21 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 - BranchN (match return-only, release adopt, VM): `phase29at_match_return_release_adopt_vm`
 - FlowBox tags gate (strict/non-strict, VM): `phase29av_flowbox_tags_gate_vm`
 - FlowBox tag coverage gate (strict/non-strict, VM): `phase29aw_flowbox_tag_coverage_gate_vm`
-- loop_true_early_exit (VM; legacy labels: Pattern5/Break): `loop_true_early_exit_vm`（archived smoke stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_true_early_exit (strict shadow, VM; legacy label: Pattern5): `loop_true_early_exit_strict_shadow_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_true_early_exit (release adopt, VM; legacy label: Pattern5): `loop_true_early_exit_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- scan_with_init (strict shadow, VM; legacy label: Pattern6): `scan_with_init_strict_shadow_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- scan_with_init (release adopt, VM; legacy label: Pattern6): `scan_with_init_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- scan_with_init supplemental pack (VM; legacy label: Pattern6): `scan_with_init_regression_pack_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- nested_loop_minimal (release adopt, VM; historical label: Pattern6 nested lane): `nested_loop_minimal_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- nested_loop_minimal (strict shadow, VM; historical label: Pattern6 nested lane): `nested_loop_minimal_strict_shadow_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- split_scan (strict shadow, VM; legacy label: Pattern7): `split_scan_strict_shadow_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- split_scan (release adopt, VM; legacy label: Pattern7): `split_scan_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- split_scan supplemental pack (VM; legacy label: Pattern7): `split_scan_regression_pack_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_true_early_exit (VM): `loop_true_early_exit_vm`（archived smoke stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_true_early_exit (strict shadow, VM): `loop_true_early_exit_strict_shadow_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_true_early_exit (release adopt, VM): `loop_true_early_exit_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- scan_with_init (strict shadow, VM): `scan_with_init_strict_shadow_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- scan_with_init (release adopt, VM): `scan_with_init_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- scan_with_init supplemental pack (VM): `scan_with_init_regression_pack_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- nested_loop_minimal (release adopt, VM): `nested_loop_minimal_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- nested_loop_minimal (strict shadow, VM): `nested_loop_minimal_strict_shadow_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- split_scan (strict shadow, VM): `split_scan_strict_shadow_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- split_scan (release adopt, VM): `split_scan_release_adopt_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- split_scan supplemental pack (VM): `split_scan_regression_pack_vm`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - この pack が JoinIR 回帰の唯一の integration gate（phase143_* は対象外）
 - JoinIR routing is plan/composer SSOT only (legacy loop table removed in Phase 29ap P12)
 - phase143_* は LoopBuilder 撤去 / plugin disable 固定 / LLVM exe 期待が古いので除外
-- phase286_pattern9_* は plugins disabled 経路の mismatch があるため legacy pack 側で SKIP（phase29ae pack には含めない）
+- legacy pack stems for the historical accum-const-loop lane are SKIP on the plugins-disabled path and stay outside this regression pack（exact stems are tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - legacy fixture family / key の詳細は `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` を正本とする
 - FlowBox schema tag（`[flowbox/*]`）は `filter_noise` で除去される
 - タグ検証が必要な smoke は raw output（filter 前）を参照する
