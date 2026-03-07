@@ -4,6 +4,7 @@ Scope: FlowBox tag coverage map (strict/dev observability)
 Related:
 - docs/development/current/main/design/flowbox-observability-tags-ssot.md
 - docs/development/current/main/design/flowbox-adopt-tag-migration-ssot.md
+- docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md
 - docs/development/current/main/phases/phase-29aw/README.md
 - docs/development/current/main/phases/phase-29ae/README.md
 ---
@@ -29,6 +30,7 @@ This map targets **strict/dev** only (release remains silent).
 Note:
 - smoke 名 / tag suffix には pattern-era token が残るが、これは traceability-only。
 - active docs は semantic alias wrapper stem を優先し、legacy stem は wrapper の転送先として保持する。
+- negative coverage に残る legacy archive stem は compat pin としてのみ扱い、route semantics の主語にしない。
 - current runtime semantics は route 名（`loop_break`, `if_phi_join`, `scan_with_init` など）で読む。
 
 | Scenario | Smoke stem (semantic alias wrapper) | box_kind | features (required subset) | via | Notes |
@@ -51,7 +53,7 @@ Note:
 
 These smoke stems are part of regression coverage and must **not** emit FlowBox adopt tags:
 
-- `phase29ab_pattern2_seg_notapplicable_min_vm` (loop_break not applicable; output-only check)
+- `phase29ab_pattern2_seg_notapplicable_min_vm` (legacy archive smoke stem; `loop_break` not applicable; output-only check)
 - `phase29ar_string_is_integer_min_vm` (strict fail-fast reject; expects `[vm-hako/unimplemented] ... newbox(StringUtils)`)
 
 ## Gate set (minimal)

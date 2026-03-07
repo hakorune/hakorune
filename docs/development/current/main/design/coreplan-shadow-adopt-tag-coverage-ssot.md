@@ -6,6 +6,7 @@ Related:
 - docs/development/current/main/phases/phase-29ao/README.md
 - docs/development/current/main/design/coreplan-migration-roadmap-ssot.md
 - docs/development/current/main/design/flowbox-tag-coverage-map-ssot.md
+- docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md
 ---
 
 # CorePlan shadow-adopt tag coverage (historical)
@@ -25,7 +26,8 @@ Related:
 
 Note:
 - tag suffix には pattern-era token が残るが、これは traceability-only。
-- smoke path は semantic alias wrapper を優先し、legacy file name は wrapper の転送先として保持する。
+- smoke path は semantic alias wrapper を優先し、legacy file name は wrapper の転送先または archive pin としてのみ保持する。
+- current/legacy stem の対応は `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` を正本にする。
 - current route semantics は左側の semantic route 名を主語に読む。
 
 - `loop_simple_while` route: `[coreplan/shadow_adopt:pattern1_simplewhile]`
@@ -39,7 +41,7 @@ Note:
 
 ## Required tags (positive gates)
 
-| Scenario | Smoke path (legacy file name) | Tag suffix (legacy token) |
+| Scenario | Smoke path (current semantic wrapper) | Tag suffix (legacy token) |
 |---|---|---|
 | `loop_simple_while` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` | `pattern1_simplewhile` |
 | `loop_break` planner route | `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh` | `pattern2_break_subset` |
@@ -53,10 +55,10 @@ Note:
 
 ## Forbidden tags (negative gates)
 
-| Scenario | Smoke path (legacy file name) | Forbidden tag suffix (legacy token) |
+| Scenario | Smoke path (current wrapper or archived legacy stem) | Forbidden tag suffix (legacy token) |
 |---|---|---|
-| `loop_break` route NotApplicable | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_notapplicable_min_vm.sh` | `pattern2_break_subset` |
-| `loop_break` route Freeze | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_freeze_min_vm.sh` | `pattern2_break_subset` |
+| `loop_break` route NotApplicable | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_notapplicable_min_vm.sh` (archived legacy stem) | `pattern2_break_subset` |
+| `loop_break` route Freeze | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_freeze_min_vm.sh` (archived legacy stem) | `pattern2_break_subset` |
 | `loop_simple_while` subset reject (extra stmt) | `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_subset_reject_extra_stmt_vm.sh` | `pattern1_simplewhile` |
 
 ## Gate (SSOT)

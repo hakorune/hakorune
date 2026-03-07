@@ -497,6 +497,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{joinir-legacy-fixture-pin-inventory-ssot,pattern-p5b-escape-design,loop-canonicalizer}.md` / `CURRENT_TASK.md`
     - intent: `test_pattern3_skip_whitespace.hako` と `test_pattern5b_escape_*` を `legacy selfhost test stem` として inventory へ逃がし、本文の主語を `skip_whitespace` / `escape route P5b` に固定する
     - verification: `rg -n "legacy selfhost test stem|test_pattern3_skip_whitespace|test_pattern5b_escape_" docs/development/current/main/design/{joinir-legacy-fixture-pin-inventory-ssot,pattern-p5b-escape-design,loop-canonicalizer}.md` = expected hits only
+  - truth cleanup (2026-03-07, slice 65): FlowBox/CorePlan coverage docs の stem/token 役割を分離した
+    - synced files: `docs/development/current/main/design/{flowbox-tag-coverage-map-ssot,coreplan-shadow-adopt-tag-coverage-ssot}.md` / `CURRENT_TASK.md`
+    - intent: FlowBox は semantic alias wrapper stem を主語にし、negative coverage に残る `phase29ab_pattern2_seg_*` は `archived legacy stem` として明示する。CorePlan shadow-adopt は `tag suffix = legacy token` / `smoke path = current wrapper or archived legacy stem` に切り分ける
+    - verification: `rg -n "archived legacy stem|current semantic wrapper|joinir-smoke-legacy-stem-retirement-ssot" docs/development/current/main/design/{flowbox-tag-coverage-map-ssot,coreplan-shadow-adopt-tag-coverage-ssot}.md` = expected hits only
 
 ## next fixed order (resume point)
 
