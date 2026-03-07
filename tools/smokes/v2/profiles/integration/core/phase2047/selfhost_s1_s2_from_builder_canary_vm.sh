@@ -22,12 +22,12 @@ if [ "$rc" -eq 0 ]; then
   exit 0
 fi
 
-# Phase S0: Conditional SKIP for known patterns (該当ログの時だけ)
+# Phase S0: Conditional SKIP for known route-shape gaps (該当ログの時だけ)
 # SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md
 
-# Check for known error patterns (Pattern 1-4)
+# Check for known error signatures from legacy numbered route gaps
 if echo "$out" | grep -qE "(Loop lowering failed|StepTree lowering returned None|loop pattern is not supported|cap_missing/NestedLoop|Argument list too long|strict mode: pattern not matched)"; then
-  echo "[SKIP] selfhost_s1_s2_from_builder_canary_vm: Known pattern (see investigation doc)" >&2
+  echo "[SKIP] selfhost_s1_s2_from_builder_canary_vm: Known route gap (see investigation doc)" >&2
   echo "# SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md" >&2
   exit 0
 fi

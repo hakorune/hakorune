@@ -33,7 +33,7 @@ assert_no_flowbox_tags() {
     fi
 }
 
-run_pattern3_ifphi_strict() {
+run_if_phi_join_strict() {
     local input="$NYASH_ROOT/apps/tests/phase118_pattern3_if_sum_min.hako"
     local expected="12"
 
@@ -47,19 +47,19 @@ run_pattern3_ifphi_strict() {
     set -e
 
     if [ "$exit_code" -eq 124 ]; then
-        test_fail "phase29av_flowbox_tags_gate_vm: pattern3_ifphi timed out"
+        test_fail "phase29av_flowbox_tags_gate_vm: if_phi_join timed out"
         exit 1
     fi
     if [ "$exit_code" -ne 0 ]; then
-        echo "[FAIL] pattern3_ifphi exit code $exit_code"
+        echo "[FAIL] if_phi_join exit code $exit_code"
         echo "$output" | tail -n 80 || true
-        test_fail "phase29av_flowbox_tags_gate_vm: pattern3_ifphi failed"
+        test_fail "phase29av_flowbox_tags_gate_vm: if_phi_join failed"
         exit 1
     fi
-    assert_has_adopt_tag "pattern3_ifphi" "$output" "Loop"
+    assert_has_adopt_tag "if_phi_join" "$output" "Loop"
     if ! validate_numeric_output 1 "$expected" "$output"; then
         echo "$output" | tail -n 80 || true
-        test_fail "phase29av_flowbox_tags_gate_vm: pattern3_ifphi output mismatch"
+        test_fail "phase29av_flowbox_tags_gate_vm: if_phi_join output mismatch"
         exit 1
     fi
 }
@@ -119,7 +119,7 @@ run_match_return_release() {
     assert_no_flowbox_tags "match_return_release" "$output"
 }
 
-run_pattern3_ifphi_strict
+run_if_phi_join_strict
 run_match_return_strict
 run_match_return_release
 

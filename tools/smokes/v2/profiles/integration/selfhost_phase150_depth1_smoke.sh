@@ -30,13 +30,13 @@ for candidate in "${CANDIDATES[@]}"; do
 
     # Run test with timeout
     # Phase S0: Removed NYASH_JOINIR_STRICT=1 to make this a baseline test (not strict-mode canary)
-    # SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md (Pattern 3)
+    # SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md (IfPhiJoin route gap)
     if timeout 10 bash -c \
         "NYASH_FEATURES=stage3 NYASH_USE_NY_COMPILER=1 \
          ./target/release/hakorune '$candidate' > /tmp/test_$$.log 2>&1" ; then
         # Check for errors in output
         if grep -qi "ERROR\|Parse error\|panic" /tmp/test_$$.log 2>/dev/null; then
-            # Phase S0.1: Check for known patterns before failing
+            # Phase S0.1: Check for known route-shape gaps before failing
             # SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md
             if grep -qE "Phase 130 supports:|Loop lowering failed|StepTree lowering returned None|loop pattern is not supported|cap_missing/NestedLoop" /tmp/test_$$.log 2>/dev/null; then
                 echo "⏭️  SKIP (known limitation, see investigation doc)"
@@ -58,7 +58,7 @@ for candidate in "${CANDIDATES[@]}"; do
         else
             # Non-zero exit doesn't necessarily mean failure in our tests
             if grep -qi "ERROR\|Parse error\|panic" /tmp/test_$$.log 2>/dev/null; then
-                # Phase S0.1: Check for known patterns before failing
+                # Phase S0.1: Check for known route-shape gaps before failing
                 # SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md
                 if grep -qE "Phase 130 supports:|Loop lowering failed|StepTree lowering returned None|loop pattern is not supported|cap_missing/NestedLoop" /tmp/test_$$.log 2>/dev/null; then
                     echo "⏭️  SKIP (known limitation, see investigation doc)"
