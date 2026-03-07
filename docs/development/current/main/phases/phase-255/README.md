@@ -137,9 +137,13 @@ pub enum CarrierRole {
 2. すべてのブロックで同じ値を持つ PHI として作成
 3. variable_map に登録
 
-### Task 3: Pattern 6 の boundary 構築を修正
+### Task 3: scan_with_init route（historical Pattern6 label）の boundary 構築を修正
 
-**ファイル**: `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
+**current route files**:
+- `src/mir/join_ir/lowering/scan_with_init_minimal.rs`
+- `src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs`
+
+**historical path token**: `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
 
 1. `with_loop_invariants()` を使って s, ch を登録
 2. `exit_bindings` は i のみ（LoopState）

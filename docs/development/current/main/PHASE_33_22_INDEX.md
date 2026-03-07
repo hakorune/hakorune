@@ -32,7 +32,7 @@
 
 ### Phase 1: CommonPatternInitializer箱化（1時間）
 
-**目的**: Pattern 1-4の初期化ロジック重複削除
+**目的**: loop route families 1-4（historical numbered labels）の初期化ロジック重複削除
 
 **削減**: 200行（4パターン×50行）
 
@@ -55,7 +55,8 @@
 **削減**: 120行（4パターン×30行）
 
 **成果物**:
-- `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs` (50行)
+- active module surface `src/mir/builder/control_flow/plan/conversion_pipeline.rs`
+  (historical physical path at the time: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`)
 
 **影響範囲**:
 - 全パターンでさらに各30行削減

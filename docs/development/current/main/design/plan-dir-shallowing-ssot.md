@@ -275,7 +275,7 @@ recipe_tree/<route>_composer.rs (既存維持)
 recipe_tree/*.rs (既存維持)
 ```
 
-**命名規則**: `recipe_tree/<route>_<role>.rs`
+**命名規則**: `recipe_tree/<semantic>_<role>.rs`（`<route>` は compatibility wording only）
 
 #### 7. normalizer/ (24ファイル → 1階層)
 

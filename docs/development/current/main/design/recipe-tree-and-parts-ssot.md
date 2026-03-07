@@ -445,7 +445,7 @@ Phase 3: emit_frag が汎用化できたら CorePlan を削除
 
 ### M1 (scaffold: no behavior change)
 
-- `recipe_tree/`（型）と `parts/`（dispatch 入口）を追加するが、既存の pipeline は触らない。
+- Historical scaffold note: `recipe_tree/`（型）と `parts/`（dispatch 入口）を追加するが、当時の既存 pipeline は触らない。
 - 目的: “Parts only lowering” に移行できる置き場を先に作る。
 
 Done:
@@ -803,14 +803,9 @@ Next:
 - Exit depth contract (current): `ExitKind::{Break,Continue}{depth!=1}` is fail-fast (`[freeze:contract][exit_depth]`). Supporting depth>1 requires a dedicated design SSOT + fixture pin (BoxCount) before widening acceptance.
 - Expand `RecipeBlock -> parts::dispatch` usage beyond `loop_cond_break_continue` (keep it planner_required-only, behavior-preserving): prioritize additional "no-exit" if sites that currently assemble plans inline.
 
-### Exception routes (temporary exceptions to parts::entry gate)
+### Exception routes
 
-These routes bypass `parts::entry` for historical reasons. They are documented here for tracking and eventual removal.
-
-| Route | Reason | Removal condition |
-|-------|--------|-------------------|
-
-Status: exception routes = 0 (all entry-gate migrations complete)
+Status: exception routes = 0 (all entry-gate migrations complete; the temporary tracking table was retired)
 
 ### Exception Removal Plan (SSOT)
 

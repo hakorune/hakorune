@@ -140,7 +140,7 @@ NOTE:
 - D8: ConditionShape shrink to CFG skeleton only
 - D9: Verifier acceptance pivot to CondProfile
 
-### B. Route/Rule / Recipe-first
+### B. Route wording cleanup / Recipe-first
 - historical planner-payload wording removal
 - Normalizer cleanup (recipe-only path)
 - RecipeComposer consolidation
@@ -174,7 +174,7 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
    - Phase‑2/Step1: simple-while route（`simple_while_minimal.rs`; old numbered label is traceability-only） の実装本体を plan 側へ移設。
    - Phase‑2/Step2: if-phi join route（legacy file label only, `loop_with_if_phi_if_sum.rs`）の実装本体を plan 側へ移設。
    - Phase‑2/Step3: bool-predicate scan route（`scan_bool_predicate_minimal.rs`; old numbered label is traceability-only） の実装本体を plan 側へ移設。
-   - Phase‑2/Step4: `route_prep_pipeline.rs`（旧: `pattern_pipeline.rs`）を plan 側へ移設。
+   - Phase‑2/Step4: `route_prep_pipeline.rs`（旧: `pattern_pipeline.rs`; legacy file token is traceability-only）を plan 側へ移設。
    - Phase‑2/Step5: break-subset orchestration route（old numbered label is traceability-only, old lowering orchestrator wrapper）を plan 側へ移設。
    - Phase‑2/Step6: break-subset input facts route（old numbered label is traceability-only, `loop_break_prep_box.rs`）を plan 側へ移設。
    - Phase‑2/Step7: break-subset policy routing（old numbered label is traceability-only, current path `loop_break_policy_router.rs`）を plan 側へ移設。
@@ -193,10 +193,10 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
   - Phase‑2/Step20: body_local_policy を plan 側へ移設。
   - Phase‑2/Step21: expectations を plan 側へ移設。
   - Phase‑2/Step22: simple-while/if-phi extractors（legacy file labels only）を plan 側へ移設。
-  - Phase‑2/Step23: legacy physical path token は `patterns/` で保持（入口互換のみ）。
+  - Phase‑2/Step23: legacy physical path token は `joinir/patterns/` compatibility lane で一時保持し、その後 current live path を `joinir/route_entry/` に移した。
   - Phase‑2/Step24: break-subset module（old numbered label is traceability-only）を plan 側へ移設。
   - Phase‑2/Step25: wrapper 実態監査と残存実体の移設完了。
-  - Phase‑2/Step26: legacy `patterns` wrapper token を mod.rs に集約。
+  - Phase‑2/Step26: legacy wrapper token を mod.rs に集約し、後段の `route_entry` rename へ備えた。
 3) Label rename（意味名へ置換）
    - route/semantic のログ/TSV ラベルを意味名へ置換（legacy numbered labels / `LoopCond*`; 入口の重なり解消後に一括）。
    - 置換は docs/SSOT/TSV/ログを同コミットで揃える（観測が揺れないようにする）。

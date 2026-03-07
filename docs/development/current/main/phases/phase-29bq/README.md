@@ -218,9 +218,9 @@ Body lowering policy: `body_exit_allowed` is used only when `BodyLoweringPolicy:
 
 | Fixture | Accept predicate (Facts) | Recipe builder | Lower entry | Gate case_id |
 | --- | --- | --- | --- | --- |
-| `apps/tests/phase118_pattern3_if_sum_min.hako` | `if_phi_join/facts.rs`（legacy key: `pattern3_ifphi`） | `(legacy)` | `if_phi_join route`（legacy: `pattern3_pipeline.rs`） | `if_sum min` |
+| `apps/tests/phase118_pattern3_if_sum_min.hako` | `if_phi_join/facts.rs`（legacy key: `pattern3_ifphi`） | `(legacy)` | `if_phi_join route`（legacy lowering token is traceability-only） | `if_sum min` |
 | `apps/tests/phase29bq_selfhost_blocker_rewriteknown_try_apply_loop_true_else_exit_min.hako` | `loop_true_break_continue/facts.rs` | `loop_true_break_continue/recipe.rs` | `loop_true_break_continue_pipeline/` | `selfhost_rewriteknown_try_apply_loop_true_else_exit_min` |
-| `apps/tests/phase29bq_selfhost_subset_scan_funcs_import_min.hako` | `break_continue/facts.rs` | `break_continue/recipe.rs` | `loop_cond_break_continue_pipeline/` | `selfhost-only` |
+| `apps/tests/phase29bq_selfhost_subset_scan_funcs_import_min.hako` | `break_continue/facts.rs` | `break_continue/recipe.rs` | `loop_cond break_continue route`（current recipe/parts lane; legacy lowering token: `loop_cond_break_continue_pipeline/`） | `selfhost-only` |
 | `apps/tests/phase29bq_map_literal_percent_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `map_literal_percent_min` |
 | `apps/tests/phase29bq_strict_nested_loop_guard_min.hako` | `composer/shadow_adopt.rs (strict_nested_loop_guard)` | `(freeze)` | `shadow_pre_plan_guard` | `strict_nested_loop_guard_min` |
 | `apps/tests/phase29bq_strict_nested_loop_guard_accept_min.hako` | `composer/shadow_adopt.rs (strict_nested_loop_guard, accept-min1)` | `(n/a)` | `recipe_first loop_continue_only accept-min1` | `strict_nested_loop_guard_accept_min` |
@@ -297,7 +297,7 @@ Body lowering policy: `body_exit_allowed` is used only when `BodyLoweringPolicy:
 | `apps/tests/phase29bq_using_module_roots_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `using_module_roots_min` |
 | `apps/tests/phase29bq_using_module_roots_multi_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `using_module_roots_multi_min` |
 | `apps/tests/phase29bq_using_module_roots_priority_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `using_module_roots_priority_min` |
-| `apps/tests/phase29bq_pattern2_break_recipe_only_min.hako` | `loop_break/facts.rs`（legacy key: `pattern2_break`） | `recipe_tree/composer.rs`（loop_break recipe） | `loop_break route`（semantic helper: `normalizer::normalize_loop_break`, legacy file: `pattern2_break.rs`） | `pattern2 recipe-only` |
+| `apps/tests/phase29bq_pattern2_break_recipe_only_min.hako` | `loop_break/facts.rs`（legacy key: `pattern2_break`） | `recipe_tree/composer.rs`（loop_break recipe） | `loop_break route`（current semantic helper: `normalizer::normalize_loop_break`; legacy file token is historical-only） | `loop_break recipe-only`（legacy case_id: `pattern2 recipe-only`） |
 
 ## Selfhost Goal Checklist (frontier)
 
@@ -321,7 +321,7 @@ Next actions (post-common):
 
 ## Selfhost Expansion Policy (post-common)
 
-After the common patterns are pinned, stop expanding the subset.
+After the common acceptance shapes / recipe forms are pinned, stop expanding the subset.
 Add new fixtures only when a real selfhost run hits a new freeze/reject.
 
 - New fixture rule: add 1 fixture only after `/tmp/*summary` + first_freeze_or_reject is recorded
@@ -618,7 +618,7 @@ SSOT: `docs/development/current/main/design/ai-handoff-and-debug-contract.md`
 8. [x] CleanupWrap + cleanup region boundary（境界）を SSOT 化して、nested exit で意味論が混線しない土台を先に固める（SSOT: `docs/development/current/main/design/cleanupwrap-cleanup-region-boundary-ssot.md`）
 9. [x] loop_break facts subset を箱化して SSOT を一箇所に集約する（`src/mir/builder/control_flow/plan/facts/loop_break_*.rs` + `loop_break_prep_box.rs` を README+登録表で統一）
 10. [x] Phase 29bq の軽量 gate は list 駆動（`tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv`）
-11. [x] `LoopBreakPlan.step_placement` を `LoopBreakStepPlacement` enum に置換して Facts→Planner→Normalizer の分岐を明文化する（legacy file token: `pattern2_break.rs`; current harness: `normalizer/loop_break.rs`）
+11. [x] `LoopBreakPlan.step_placement` を `LoopBreakStepPlacement` enum に置換して Facts→Planner→Normalizer の分岐を明文化する（historical file token retired; current harness: `normalizer/loop_break.rs`）
 
 ---
 
