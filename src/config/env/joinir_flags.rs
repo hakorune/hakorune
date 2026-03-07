@@ -196,7 +196,7 @@ pub fn is_joinir_debug() -> bool {
 /// When enabled (default), routes loops based purely on structure analysis,
 /// skipping the legacy function name whitelist.
 ///
-/// - Default: ON (structure_only = true) - all loops use JoinIR patterns
+/// - Default: ON (structure_only = true) - all loops use JoinIR route-shape analysis
 /// - To revert to whitelist-only: `NYASH_JOINIR_STRUCTURE_ONLY=0` or `=off`
 ///
 /// # Compatibility
@@ -208,7 +208,7 @@ pub fn is_joinir_debug() -> bool {
 ///
 /// ```rust
 /// if joinir_structure_only_enabled() {
-///     // Route all loops through JoinIR pattern analysis
+///     // Route all loops through JoinIR route-shape analysis
 /// } else {
 ///     // Use legacy whitelist routing
 /// }

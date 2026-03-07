@@ -56,7 +56,7 @@ impl LoopBreakConditionPolicyRouterBox {
             PolicyDecision::Reject(reason) => Err(format!("[cf_loop/loop_break] {}", reason)),
             PolicyDecision::None => Ok(LoopBreakConditionRouting {
                 // Phase 260 P0.1: If the loop has an explicit header condition and the body
-                // does not contain a top-level break-guard pattern, the exit condition is
+                // does not contain a top-level break-guard shape, the exit condition is
                 // structurally derived as `!(loop_condition)`.
                 break_condition_node: BreakConditionAnalyzer::extract_break_condition_node(body)
                     .or_else(|_| {
@@ -67,7 +67,7 @@ impl LoopBreakConditionPolicyRouterBox {
                                 ..
                             }
                         ) {
-                            Err("[cf_loop/loop_break] loop(true) requires a break guard pattern"
+                            Err("[cf_loop/loop_break] loop(true) requires a break-guard shape"
                                 .to_string())
                         } else {
                             Ok(Self::negate_condition(condition))

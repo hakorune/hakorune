@@ -138,7 +138,7 @@ impl<'a> LoopRouteContext<'a> {
 /// Plan-based architecture (Phase 273 P1-P3):
 /// - single_planner::try_build_outcome() → facts/recipe outcome (pure extraction, no builder)
 /// - PlanVerifier::verify() → fail-fast validation
-/// - PlanLowerer::lower() → MIR emission (pattern-agnostic, emit_frag SSOT)
+/// - PlanLowerer::lower() → MIR emission (route-agnostic, emit_frag SSOT)
 ///
 /// SSOT entry points:
 /// - `scan_with_init`: `src/mir/builder/control_flow/plan/normalizer.rs`

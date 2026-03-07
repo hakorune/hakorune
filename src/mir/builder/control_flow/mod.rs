@@ -145,9 +145,9 @@ impl super::MirBuilder {
             .map(|detail| format!("\nDetail: [joinir/reject_detail] {}", detail))
             .unwrap_or_default();
         return Err(error_tags::freeze(&format!(
-            "Loop lowering failed: JoinIR does not support this pattern, and LoopBuilder has been removed.\n\
+            "Loop lowering failed: JoinIR does not support this route shape, and LoopBuilder has been removed.\n\
              Function: {}\n\
-             Hint: This loop pattern is not supported. All loops must use JoinIR lowering.{}",
+             Hint: This loop route shape is not supported. All loops must use JoinIR lowering.{}",
             self.scope_ctx.current_function.as_ref().map(|f| f.signature.name.as_str()).unwrap_or("<unknown>")
             ,
             detail_suffix

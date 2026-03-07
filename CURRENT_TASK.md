@@ -638,6 +638,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/phase-{136,188.1,265,266,269}/README.md` / `CURRENT_TASK.md`
     - intent: active phase guidance では `NestedLoopMinimal` / `bool_predicate_scan` / `scan_with_init` / `split_scan` / `accum_const_loop` / `loop_break` / `loop_simple_while` を主語にし、old numbered label や `joinir/patterns` / `loop_pattern_detection` path は historical token へ後退させる
     - verification: `rg -n "Pattern6|Pattern8|Pattern 6|Pattern 8|Pattern6NestedLoopMinimal|loop_pattern_detection::|src/mir/join_ir/lowering/loop_patterns/nested_minimal.rs|src/mir/builder/control_flow/joinir/patterns/pattern8_scan_bool_predicate.rs|Pattern6/7/8|Pattern2, etc\\.|Added Pattern|Const Generation Pattern" docs/development/current/main/phases/phase-{136,188.1,265,266,269}/README.md` = legacy/historical note only
+  - truth cleanup (2026-03-07, slice 101): current code comment / hint / env doc の `pattern` 語彙を route/shape 主語へ寄せる
+    - synced files: `src/mir/builder/control_flow/mod.rs` / `src/mir/builder/control_flow/plan/loop_break_condition_policy_router.rs` / `src/config/env/joinir_flags.rs` / `src/mir/builder/control_flow/joinir/route_entry/router.rs` / `CURRENT_TASK.md`
+    - intent: current runtime の user-facing freeze hint, loop_break reject wording, JoinIR structure-only env doc, route_entry comment で `pattern` を architecture 主語にしない
+    - verification: `cargo build --release --bin hakorune` = PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` = PASS
 
 ## next fixed order (resume point)
 
