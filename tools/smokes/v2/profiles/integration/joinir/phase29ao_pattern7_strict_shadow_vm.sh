@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ao_pattern7_strict_shadow_vm.sh - split_scan strict shadow adopt tag gate (VM)
+# legacy compat stem; current semantic entry = split_scan_strict_shadow_vm.sh
 #
 # Expected:
 # - Exit code 1

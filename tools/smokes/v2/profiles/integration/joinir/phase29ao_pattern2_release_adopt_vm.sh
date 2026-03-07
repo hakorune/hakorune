@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ao_pattern2_release_adopt_vm.sh - loop_break release adopt path smoke (VM)
+# legacy compat stem; current semantic entry = loop_break_release_adopt_vm.sh
 #
 # Expected:
 # - Exit code 15

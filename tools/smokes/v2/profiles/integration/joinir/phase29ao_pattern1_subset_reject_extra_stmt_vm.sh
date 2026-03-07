@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ao_pattern1_subset_reject_extra_stmt_vm.sh - loop_simple_while subset reject extra stmt (VM)
+# legacy compat stem; current semantic entry = loop_simple_while_subset_reject_extra_stmt_vm.sh
 #
 # Purpose:
 # - Ensure loop_simple_while subset enforces "step-only body" under strict/dev shadow adopt.

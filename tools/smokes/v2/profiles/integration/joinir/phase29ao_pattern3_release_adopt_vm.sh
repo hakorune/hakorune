@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ao_pattern3_release_adopt_vm.sh - if_phi_join release adopt path smoke (VM)
+# legacy compat stem; current semantic entry = if_phi_join_release_adopt_vm.sh
 #
 # Expected:
 # - Exit code 0

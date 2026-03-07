@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ao_pattern5_release_adopt_vm.sh - loop_true_early_exit release adopt path smoke (VM)
+# legacy compat stem; current semantic entry = loop_true_early_exit_release_adopt_vm.sh
 #
 # Expected:
 # - Output "3" (or "RC: 3")

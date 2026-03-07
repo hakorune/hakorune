@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ao_pattern7_release_adopt_vm.sh - split_scan release adopt path smoke (VM)
+# legacy compat stem; current semantic entry = split_scan_release_adopt_vm.sh
 #
 # Expected:
 # - Exit code 3

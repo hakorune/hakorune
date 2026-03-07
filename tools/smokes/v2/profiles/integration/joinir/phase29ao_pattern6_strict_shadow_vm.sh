@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ao_pattern6_strict_shadow_vm.sh - scan_with_init strict shadow adopt tag gate (VM)
+# legacy compat stem; current semantic entry = scan_with_init_strict_shadow_vm.sh
 #
 # Expected:
 # - Exit code 1

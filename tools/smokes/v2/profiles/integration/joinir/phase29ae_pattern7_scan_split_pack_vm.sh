@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ae_pattern7_scan_split_pack_vm.sh - split_scan supplemental regression pack (VM)
+# legacy pack stem; current semantic entry = split_scan_regression_pack_vm.sh
 #
 # Contract:
 # - strict lane fixtures only

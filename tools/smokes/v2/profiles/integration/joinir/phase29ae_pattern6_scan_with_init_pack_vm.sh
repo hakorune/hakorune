@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ae_pattern6_scan_with_init_pack_vm.sh - scan_with_init supplemental regression pack (VM)
+# legacy pack stem; current semantic entry = scan_with_init_regression_pack_vm.sh
 #
 # Contract:
 # - strict lane fixtures only

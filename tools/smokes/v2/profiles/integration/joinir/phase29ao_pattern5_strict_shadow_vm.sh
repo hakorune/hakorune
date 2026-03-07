@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ao_pattern5_strict_shadow_vm.sh - loop_true_early_exit strict shadow adopt gate (VM)
+# legacy compat stem; current semantic entry = loop_true_early_exit_strict_shadow_vm.sh
 #
 # Expected:
 # - Output "3" or "RC: 3"

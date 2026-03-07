@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ap_pattern6_nested_strict_shadow_vm.sh - nested_loop_minimal strict shadow gate (VM)
+# legacy compat stem; current semantic entry = nested_loop_minimal_strict_shadow_vm.sh
 #
 # Expected:
 # - Exit code 9

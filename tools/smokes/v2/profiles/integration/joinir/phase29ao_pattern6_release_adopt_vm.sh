@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ao_pattern6_release_adopt_vm.sh - scan_with_init release adopt path smoke (VM)
+# legacy compat stem; current semantic entry = scan_with_init_release_adopt_vm.sh
 #
 # Expected:
 # - Exit code 1

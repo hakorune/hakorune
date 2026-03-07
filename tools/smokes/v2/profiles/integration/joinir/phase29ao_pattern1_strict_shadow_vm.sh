@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29ao_pattern1_strict_shadow_vm.sh - loop_simple_while strict shadow adopt gate (VM)
+# legacy compat stem; current semantic entry = loop_simple_while_strict_shadow_vm.sh
 #
 # Purpose:
 # - Exercise Phase 29ao P17/P18 strict/dev shadow adopt path:
