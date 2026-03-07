@@ -132,10 +132,12 @@ active callers drop to zero.
 | `tools/smokes/v2/profiles/integration/joinir/phase29ap_pattern*.sh` | compat wrapper targets for continue/nested route aliases | semantic wrappers are the only remaining callers |
 | `tools/smokes/v2/profiles/integration/joinir/phase29ae_pattern{6,7}_*.sh` | legacy regression pack stems | semantic regression-pack wrappers are the only remaining callers |
 | `tools/smokes/v2/profiles/integration/joinir/phase29bi/phase29bj/phase29bl/phase29bn/phase29bo_*pack_vm.sh` | legacy planner-pack stems | semantic planner-pack wrappers are the only remaining callers |
-| `tools/smokes/v2/profiles/integration/joinir/phase143_legacy_pack.sh` / `phase286_pattern9_legacy_pack.sh` | archived legacy pack stems | retained only until archive references are explicitly retired |
+| `tools/smokes/v2/profiles/integration/joinir/phase143_legacy_pack.sh` / `phase286_pattern9_legacy_pack.sh` | archived legacy pack stems | retained only until historical phase docs/archive references are explicitly retired |
 
 ### Decision
 
 - No top-level smoke script is a safe hard-delete candidate as of 2026-03-07.
 - The next cleanup step is to keep thinning `compat wrapper` callers and move archive-only
   mentions into historical ledgers, not to delete low-ref semantic entrypoints.
+- `phase143_legacy_pack.sh` and `phase286_pattern9_legacy_pack.sh` are `archived legacy pack stems`:
+  they are intentionally skipped and kept for historical phase replay only, not for current gates.

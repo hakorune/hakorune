@@ -541,6 +541,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `tools/smokes/v2/profiles/integration/selfhost/{selfhost_mir_m2_eq_true_vm,selfhost_mir_m3_branch_true_vm,selfhost_mir_m3_jump_vm,selfhost_stageb_binop_vm,selfhost_stageb_oob_vm,selfhost_stageb_v1_compat_vm}.sh` / `CURRENT_TASK.md`
     - intent: candidate script を直接開いたときに current selfhost gate の一部ではないことを一目で判断できるようにし、次フェーズの archive/remove 判定を楽にする
     - verification: `rg -n "retire candidate:|opt-in archive candidate:" tools/smokes/v2/profiles/integration/selfhost/{selfhost_mir_m2_eq_true_vm,selfhost_mir_m3_branch_true_vm,selfhost_mir_m3_jump_vm,selfhost_stageb_binop_vm,selfhost_stageb_oob_vm,selfhost_stageb_v1_compat_vm}.sh` = expected hits only
+  - truth cleanup (2026-03-07, slice 76): archived legacy pack stem の役割を phase143/286 script と SSOT に固定した
+    - synced files: `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `tools/smokes/v2/profiles/integration/joinir/{phase143_legacy_pack,phase286_pattern9_legacy_pack}.sh` / `CURRENT_TASK.md`
+    - intent: `phase143_legacy_pack.sh` と `phase286_pattern9_legacy_pack.sh` が current gate surface ではなく historical phase replay 用の `archived legacy pack stem` だと明示し、future retire phase の archive-only 切り出しを準備する
+    - verification: `rg -n "historical phase replay only|archived legacy pack stems|historical phase docs/archive references" docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md tools/smokes/v2/profiles/integration/joinir/{phase143_legacy_pack,phase286_pattern9_legacy_pack}.sh` = expected hits only
 
 ## next fixed order (resume point)
 
