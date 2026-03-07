@@ -49,8 +49,8 @@ impl LoopTrueIfBreakContinueBuilderBox {
             ring0.log.debug(&format!("[phase143/debug] Attempting loop_true_if_break/continue pattern (P0/P1)"));
         }
 
-        // Pattern: loop(true) { if(cond) break/continue }
-        // Step 1: Extract pattern match
+        // Shape: loop(true) { if(cond) break/continue }
+        // Step 1: Extract shape match
         let (shape, cond_ast) = match Self::extract_pattern_shape(&step_tree.root) {
             Ok(Some((s, cond))) => {
                 if crate::config::env::joinir_dev_enabled() {
@@ -404,7 +404,7 @@ impl LoopTrueIfBreakContinueBuilderBox {
     ///
     /// Returns Ok(Some((shape, cond_ast))) if pattern matches, Ok(None) if clearly out of scope,
     /// and Err for specific out-of-scope reasons.
-    /// Pattern: StepNode::Loop with body containing single If with break/continue
+    /// Shape: StepNode::Loop with body containing single If with break/continue
     /// Also returns the If condition AST for lowering.
     fn extract_pattern_shape(
         root: &StepNode,

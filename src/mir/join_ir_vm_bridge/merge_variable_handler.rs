@@ -1,9 +1,9 @@
-//! Merge Variable Handler - Copy emission for if/else merge patterns
+//! Merge Variable Handler - Copy emission for if/else merge shapes
 //!
 //! Phase 260 P0.2: Extracted from joinir_block_converter.rs
-//! Eliminates repeated merge copy emission patterns (4x duplication).
+//! Eliminates repeated merge copy emission shapes (4x duplication).
 //!
-//! ## Pattern Before
+//! ## Structure Before
 //!
 //! ```ignore
 //! for merge in merges {
@@ -15,7 +15,7 @@
 //! }
 //! ```
 //!
-//! ## Pattern After
+//! ## Structure After
 //!
 //! ```ignore
 //! emit_merge_copies_in_func(mir_func, block_id, merges, MergeBranch::Then, reason);

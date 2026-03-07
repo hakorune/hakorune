@@ -24,14 +24,14 @@ use super::{AstToJoinIrLowerer, ExtractCtx, JoinFunction, JoinInst, JoinModule};
 use crate::mir::join_ir::JoinIrPhase;
 
 impl AstToJoinIrLowerer {
-    /// Phase 41-4.2: ネスト if パターンの lowering
+    /// Phase 41-4.2: ネスト if 形の lowering
     ///
     /// # Purpose
     ///
     /// 深いネスト if（3-4レベル）を `NestedIfMerge` 命令に変換する。
     /// 対象: `ParserControlBox.parse_loop()` 関数
     ///
-    /// # Pattern
+    /// # Shape
     ///
     /// ```nyash,ignore
     /// // Level 0 (outer)

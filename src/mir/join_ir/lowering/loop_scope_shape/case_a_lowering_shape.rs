@@ -20,7 +20,7 @@ pub enum CaseALoweringShape {
     ///
     /// Examples: Main.skip/1, FuncScannerBox.trim/1
     ///
-    /// Pattern:
+    /// Shape:
     /// - Loop body: single if statement examining character
     /// - Condition: examines string character (e.g., ch == " ")
     /// - Then branch: updates carrier (e.g., i = i + 1)
@@ -35,7 +35,7 @@ pub enum CaseALoweringShape {
     ///
     /// Examples: FuncScannerBox.append_defs/2
     ///
-    /// Pattern:
+    /// Shape:
     /// - Loop body: access arr[i], mutate collection (push/add)
     /// - Condition: i < array.length()
     /// - Increment: i = i + 1
@@ -50,7 +50,7 @@ pub enum CaseALoweringShape {
     ///
     /// Examples: Stage1UsingResolverBox.resolve_for_source/5
     ///
-    /// Pattern:
+    /// Shape:
     /// - Loop body: access arr[i], update accumulator
     /// - Multiple carriers: progress (i) + result (prefix, sum, etc.)
     /// - Condition: i < array.length()

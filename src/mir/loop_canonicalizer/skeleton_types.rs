@@ -67,7 +67,7 @@ pub enum UpdateKind {
 
     /// Conditional step with numeric deltas
     ///
-    /// # Pattern
+    /// # Shape
     ///
     /// ```text
     /// if escape_cond { carrier = carrier + then_delta }
@@ -85,7 +85,7 @@ pub enum UpdateKind {
     ///
     /// ## Supported Use Cases:
     /// - Escape sequence handling (e.g., `if ch == '\\' { i += 2 } else { i += 1 }`)
-    /// - Conditional skip patterns (e.g., `if skip { pos += len } else { pos += 1 }`)
+    /// - Conditional skip shapes (e.g., `if skip { pos += len } else { pos += 1 }`)
     ///
     /// ## Fail-Fast Conditions:
     /// - Multiple updates to the same carrier in one iteration → Error

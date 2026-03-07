@@ -6,15 +6,15 @@
 //!
 //! ## Responsibilities
 //!
-//! - Detect safe promotion patterns (Category A-3 from phase223-loopbodylocal-condition-inventory.md)
+//! - Detect safe promotion shapes (Category A-3 from phase223-loopbodylocal-condition-inventory.md)
 //! - Coordinate with LoopBodyCarrierPromoter for actual promotion logic
 //! - Provide uniform API for break/continue route integration
 //!
 //! ## Design Principle
 //!
 //! This is a **thin coordinator** that reuses existing boxes:
-//! - LoopBodyCarrierPromoter: Promotion logic (Trim pattern detection)
-//! - TrimLoopHelper: Pattern-specific metadata
+//! - LoopBodyCarrierPromoter: Promotion logic (trim route-shape detection)
+//! - TrimLoopHelper: Route-specific metadata
 //! - ConditionEnvBuilder: Binding generation
 //!
 //! ## P0 Requirements (Category A-3)
@@ -94,7 +94,7 @@ impl LoopBodyCondPromoter {
     /// Finds the first if statement with continue in then-branch and returns its condition.
     /// This is used for `loop_continue_only` skip_whitespace detection.
     ///
-    /// # Pattern
+    /// # Shape
     ///
     /// ```nyash
     /// loop(i < n) {

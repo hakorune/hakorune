@@ -1,9 +1,9 @@
 //! Call Generator - Unified call instruction emission
 //!
 //! Phase 260 P0.2: Extracted from joinir_block_converter.rs
-//! Eliminates repeated call generation patterns (3x duplication).
+//! Eliminates repeated call generation shapes (3x duplication).
 //!
-//! ## Pattern Before
+//! ## Structure Before
 //!
 //! ```ignore
 //! instructions.push(MirInstruction::Const {
@@ -19,7 +19,7 @@
 //! });
 //! ```
 //!
-//! ## Pattern After
+//! ## Structure After
 //!
 //! ```ignore
 //! emit_call_pair(&mut instructions, func_name_id, call_result_id, &func_name, &args);

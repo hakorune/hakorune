@@ -22,7 +22,7 @@
 //!
 //! ## 生成する JoinIR 構造
 //! - Guard if: 早期 return で不正入力を弾く
-//! - Loop: accumulator パターンで文字列を構築
+//! - Loop: accumulator shape で文字列を構築
 //! - Break: 終端条件で抜ける
 
 use super::BTreeMap;
@@ -32,9 +32,9 @@ use super::{
 use crate::mir::join_ir::JoinIrPhase;
 
 impl AstToJoinIrLowerer {
-    /// Phase 45: read_quoted_from パターンの lowering
+    /// Phase 45: read_quoted_from shape の lowering
     ///
-    /// # Pattern
+    /// # Shape
     ///
     /// ```nyash,ignore
     /// read_quoted_from(s, pos) {

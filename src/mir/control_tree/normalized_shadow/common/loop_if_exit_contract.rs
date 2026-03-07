@@ -29,9 +29,9 @@ pub enum LoopIfExitThen {
     Continue,
 }
 
-/// Pattern shape contract (SSOT for what the pattern looks like)
+/// Route-shape contract (SSOT for what the loop-if-exit shape looks like)
 ///
-/// Separates pattern detection from lowering. Used by:
+/// Separates shape detection from lowering. Used by:
 /// - `LoopTrueIfBreakContinueBuilderBox::extract_pattern_shape()` to build
 /// - `LoopTrueIfBreakContinueBuilderBox::lower_with_shape()` to validate & execute
 #[derive(Debug, Clone)]

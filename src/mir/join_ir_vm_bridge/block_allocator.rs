@@ -1,9 +1,9 @@
 //! Block Allocator - Unified block ID allocation
 //!
 //! Phase 260 P0.2: Extracted from joinir_block_converter.rs
-//! Eliminates repeated block allocation patterns (4x duplication).
+//! Eliminates repeated block allocation shapes (4x duplication).
 //!
-//! ## Pattern Before
+//! ## Structure Before
 //!
 //! ```ignore
 //! let then_block = BasicBlockId(self.next_block_id);
@@ -14,7 +14,7 @@
 //! self.next_block_id += 1;
 //! ```
 //!
-//! ## Pattern After
+//! ## Structure After
 //!
 //! ```ignore
 //! let (then_block, else_block, merge_block) = allocator.allocate_three();

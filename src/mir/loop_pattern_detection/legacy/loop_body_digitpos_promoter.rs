@@ -2,7 +2,7 @@
 //!
 //! Handles promotion of A-4 route shape: cascading body-local variables with indexOf()
 //!
-//! ## Pattern Example
+//! ## Shape Example
 //!
 //! ```nyash
 //! loop(p < s.length()) {
@@ -20,7 +20,7 @@
 //!
 //! ## Design
 //!
-//! - **Responsibility**: Detect and promote A-4 digit position pattern
+//! - **Responsibility**: Detect and promote A-4 digit-position route shape
 //! - **Input**: LoopConditionScope + break/continue condition + loop body
 //! - **Output**: CarrierInfo with bool carrier (e.g., "is_digit")
 //!
@@ -90,7 +90,7 @@ pub enum DigitPosPromotionResult {
 pub struct DigitPosPromoter;
 
 impl DigitPosPromoter {
-    /// Try to promote A-4 pattern (cascading indexOf)
+    /// Try to promote A-4 route shape (cascading indexOf)
     ///
     /// ## Algorithm (Phase 79: Simplified using DigitPosDetector)
     ///

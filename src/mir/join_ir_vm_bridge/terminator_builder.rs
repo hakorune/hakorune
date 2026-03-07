@@ -1,9 +1,9 @@
 //! Terminator Builder - Unified terminator creation
 //!
 //! Phase 260 P0.3: Extracted from joinir_block_converter.rs
-//! Eliminates repeated Branch/Jump/Return terminator patterns (4x duplication).
+//! Eliminates repeated Branch/Jump/Return terminator shapes (4x duplication).
 //!
-//! ## Pattern Before
+//! ## Structure Before
 //!
 //! ```ignore
 //! let branch_terminator = MirInstruction::Branch {
@@ -16,7 +16,7 @@
 //! Self::finalize_block(mir_func, block_id, instructions, branch_terminator);
 //! ```
 //!
-//! ## Pattern After
+//! ## Structure After
 //!
 //! ```ignore
 //! emit_branch_and_finalize(mir_func, block_id, instructions, cond, then_bb, else_bb, finalize_fn);

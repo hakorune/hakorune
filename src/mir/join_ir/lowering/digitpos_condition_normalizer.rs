@@ -33,7 +33,7 @@ impl DigitPosConditionNormalizer {
     ///
     /// Transforms: `<promoted_var> < 0` → `!<carrier_name>`
     ///
-    /// # Pattern Matching
+    /// # Shape Matching
     ///
     /// Matches:
     /// - BinaryOp with operator Lt (Less than)
@@ -51,7 +51,7 @@ impl DigitPosConditionNormalizer {
     ///
     /// # Returns
     ///
-    /// Normalized AST (or original if pattern doesn't match)
+    /// Normalized AST (or original if the shape doesn't match)
     ///
     /// # Example
     ///
@@ -65,7 +65,7 @@ impl DigitPosConditionNormalizer {
     /// // normalized is equivalent to parse("!is_digit_pos")
     /// ```
     pub fn normalize(cond: &ASTNode, promoted_var: &str, carrier_name: &str) -> ASTNode {
-        // Pattern: BinaryOp { op: Lt, lhs: Var(promoted_var), rhs: Const(0) }
+        // Shape: BinaryOp { op: Lt, lhs: Var(promoted_var), rhs: Const(0) }
         match cond {
             ASTNode::BinaryOp {
                 operator,
@@ -99,7 +99,7 @@ impl DigitPosConditionNormalizer {
                     return cond.clone();
                 }
 
-                // Pattern matched! Transform to !carrier_name
+                // Shape matched: transform to !carrier_name
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0().log.debug(&format!(
                         "[digitpos_normalizer] Transforming '{}' < 0 → !'{}'",
