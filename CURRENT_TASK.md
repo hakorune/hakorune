@@ -698,6 +698,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-142/README.md,phase-256/README.md,phase-263/README.md,phase-264/README.md,phase-286/README.md}` / `CURRENT_TASK.md`
     - intent: repeated `joinir/patterns/*` / `loop_pattern_detection/*` token を `same historical path token as above` や brace-compressed list に寄せ、traceability を保ったまま phase README old-path hit を減らす
     - verification: `rg -n "src/mir/builder/control_flow/joinir/patterns/|src/mir/loop_pattern_detection/" docs/development/current/main/phases -g 'README.md' | wc -l` = reduced after dedupe; `rg -n "historical (path token|code snapshot)|same historical" docs/development/current/main/phases/{phase-142/README.md,phase-256/README.md,phase-263/README.md,phase-264/README.md,phase-286/README.md}` = historical framing present
+  - truth cleanup (2026-03-07, slice 116): `phase-142/264/286` の repeated historical lane token をさらに圧縮し、same-lane note へ寄せて README old-path hit を追加で落とした
+    - synced files: `docs/development/current/main/phases/{phase-142/README.md,phase-264/README.md,phase-286/README.md}` / `CURRENT_TASK.md`
+    - intent: repeated `ast_feature_extractor.rs`, `loop_pattern_detection/mod.rs`, `joinir/patterns/extractors/*.rs` token を再掲フルパスではなく same-lane note に置き換える
+    - verification: `rg -n "src/mir/builder/control_flow/joinir/patterns/|src/mir/loop_pattern_detection/" docs/development/current/main/phases -g 'README.md' | wc -l` = reduced after slice 116; targeted phase grep keeps historical framing only
 
 ## next fixed order (resume point)
 

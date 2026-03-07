@@ -190,7 +190,7 @@ Extend Canonicalizer to recognize continue patterns, enabling proper routing thr
 #### 1. Continue Route-Shape Detection
 **Current module surface**: `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`
 
-**Historical path token**: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
+**Historical path token**: same as above
 
 **Current function**: `detect_continue_shape()`
 
@@ -320,7 +320,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
    - same historical path token as above
 2. `src/mir/loop_canonicalizer/route_shape_recognizer.rs` (+35 lines, wrapper function)
 3. `src/mir/loop_canonicalizer/canonicalizer.rs` (+103 lines, continue support + unit test)
-4. historical re-export token: `src/mir/builder/control_flow/joinir/patterns/mod.rs` (+3 lines, re-export)
+4. same historical re-export lane as above (`mod.rs`, +3 lines, re-export)
 5. `src/mir/builder/control_flow/joinir/mod.rs` (+3 lines, re-export)
 6. `src/mir/builder/control_flow/mod.rs` (+3 lines, re-export)
 7. `src/mir/builder.rs` (+2 lines, re-export)
@@ -442,8 +442,7 @@ The following patterns are rejected with explicit error messages:
 1. `docs/development/current/main/phases/phase-142/README.md` - Contract documentation
 2. `tools/selfhost/test_pattern4_parse_string_lowering.hako` - Minimal E2E test (new)
 3. `src/mir/join_ir/lowering/loop_routes/with_continue.rs` - current lowerer extension surface
-   - historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`
-4. historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern4_carrier_analyzer.rs` - Carrier analysis (if needed)
+   - historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{pattern4_with_continue.rs,pattern4_carrier_analyzer.rs}`
 
 ### Step 3-A: Early Return Fail-Fast (COMPLETE ✅)
 
@@ -524,4 +523,4 @@ historical `Pattern5Lowerer` (continue + early return)
 - **Design**: `docs/development/current/main/design/loop-canonicalizer.md`
 - **JoinIR Architecture**: `docs/development/current/main/joinir-architecture-overview.md`
 - **LoopContinueOnly route implementation**: `src/mir/join_ir/lowering/loop_routes/with_continue.rs`
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`
+  - same historical path lane as above (`pattern4_with_continue.rs`)

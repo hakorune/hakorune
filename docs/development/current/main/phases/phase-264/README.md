@@ -129,7 +129,7 @@ IfPhiJoin は **if-sum shape** （`sum = sum + (if x then a else b)` のよう�
 
 ### 修正箇所: `src/mir/loop_route_detection/mod.rs`
 
-- historical code snapshot at the time: `src/mir/loop_pattern_detection/mod.rs`
+- same historical code snapshot as above
 
 **現状** (lines 227-230):
 ```rust

@@ -31,7 +31,7 @@ Reading note:
 
 - JoinIR line の共通入口（現状）:
   - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`
-    - historical path token: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
+    - same historical path lane as reading note (`conversion_pipeline.rs`)
   - `src/mir/join_ir_vm_bridge/bridge.rs`
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`
 - Plan/Frag SSOT（収束先）:
@@ -97,7 +97,7 @@ Reading note:
 - `src/mir/builder/control_flow/joinir/merge/mod.rs` (変更)
 - `src/mir/join_ir/lowering/loop_with_break_minimal.rs` (変更)
 - `src/mir/join_ir/lowering/loop_with_continue_minimal.rs` (変更)
-- historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern5_infinite_early_exit.rs` (変更)
+- same historical path lane as reading note (`pattern5_infinite_early_exit.rs`, 変更)
 
 **発見された問題**:
 - 各 pattern の lowering で関数パラメータに `alloc_local()` を使っていた（本来は `alloc_param()`）
@@ -392,7 +392,7 @@ preheader → header(PHI: i_current, carrier_current)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern2_break_no_update_vm.sh` (新規)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: historical struct name `Pattern2BreakPlan` + DomainPlan variant)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-- historical path token: `src/mir/builder/control_flow/joinir/patterns/extractors/pattern2.rs` (変更: extract_pattern2_plan)
+- same historical extractors lane as above (`pattern2.rs`, 変更: extract_pattern2_plan)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern2_break)
 
 **検証結果**:
@@ -453,7 +453,7 @@ preheader → header(PHI: i, carrier) → body(exit_cond)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh`
 - `src/mir/builder/control_flow/plan/mod.rs` (Pattern5InfiniteEarlyExitPlan + Pattern5ExitKind)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-- historical path token: `src/mir/builder/control_flow/joinir/patterns/extractors/pattern5.rs` (extract_pattern5_plan)
+- same historical extractors lane as above (`pattern5.rs`, extract_pattern5_plan)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern5_infinite_early_exit)
 
 **成功基準**:
