@@ -9,3 +9,4 @@ kept separate from the Phase 194+ structure-based classifiers
 - Treat these functions as compatibility/legacy logic.
 - New route detection should go into `features` + `classify`.
 - Migrate callsites gradually; keep behavior stable while moving.
+- Active module/path policy is tracked in `docs/development/current/main/design/route-physical-path-legacy-lane-ssot.md`.

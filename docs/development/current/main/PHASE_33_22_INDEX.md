@@ -37,7 +37,8 @@
 **削減**: 200行（4パターン×50行）
 
 **成果物**:
-- `src/mir/builder/control_flow/joinir/patterns/common_init.rs` (60行)
+- active module surface `crate::mir::builder::control_flow::joinir::route_entry::common_init`
+  (historical physical path at the time: `src/mir/builder/control_flow/joinir/patterns/common_init.rs`)
 
 **影響範囲**:
 - pattern1_minimal.rs: 176 → 126行（-50行、28%削減）

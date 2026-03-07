@@ -426,8 +426,10 @@ Source: moved from `CURRENT_TASK.md` during compaction on 2026-02-08
   - file: `src/mir/builder/control_flow/plan/loop_cond/return_in_body_facts.rs`
 - [x] registry predicate を調整し、`loop_cond_break_continue` と `loop_cond_return_in_body` の重なりで `LoopCondBreak` を優先
   - files:
-    - `src/mir/builder/control_flow/joinir/patterns/registry/predicates.rs`
-    - `src/mir/builder/control_flow/joinir/patterns/registry/handlers.rs`
+    - active module surface `crate::mir::builder::control_flow::joinir::route_entry::registry::predicates`
+      (legacy physical path: `src/mir/builder/control_flow/joinir/patterns/registry/predicates.rs`)
+    - active module surface `crate::mir::builder::control_flow::joinir::route_entry::registry::handlers`
+      (legacy physical path: `src/mir/builder/control_flow/joinir/patterns/registry/handlers.rs`)
 - [x] `tools/hakorune_emit_mir.sh` の Program JSON 抽出を stdin破損しない実装へ修正（`python3 -c`）し、helper 内 Stage-B 呼び出しへ strict/planner_required を明示伝播
   - file: `tools/hakorune_emit_mir.sh`
 - [x] verify: `cargo test -q return_in_body_` PASS

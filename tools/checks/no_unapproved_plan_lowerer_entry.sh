@@ -5,6 +5,8 @@ ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 cd "$ROOT"
 
 # Keep in sync with docs/development/current/main/design/plan-lowering-entry-ssot.md
+# Legacy physical path rationale is tracked in
+# docs/development/current/main/design/route-physical-path-legacy-lane-ssot.md
 ALLOW_GLOBS=(
   '!src/mir/builder/control_flow/joinir/patterns/router.rs'
   '!src/mir/builder/control_flow/joinir/patterns/registry/handlers.rs'

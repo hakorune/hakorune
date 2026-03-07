@@ -20,10 +20,10 @@ Related:
 
 ## Allowlist (2026-02-06)
 
-- `src/mir/builder/control_flow/joinir/patterns/router.rs`
-  - active module surface: `crate::mir::builder::control_flow::joinir::route_entry::router`
-- `src/mir/builder/control_flow/joinir/patterns/registry/handlers.rs`
-  - active module surface: `crate::mir::builder::control_flow::joinir::route_entry::registry::handlers`
+- active module surface: `crate::mir::builder::control_flow::joinir::route_entry::router`
+  - legacy physical path lane は `route-physical-path-legacy-lane-ssot.md` を参照
+- active module surface: `crate::mir::builder::control_flow::joinir::route_entry::registry::handlers`
+  - legacy physical path lane は `route-physical-path-legacy-lane-ssot.md` を参照
 - `src/mir/builder/stmts/return_stmt.rs`
 
 例外理由:
