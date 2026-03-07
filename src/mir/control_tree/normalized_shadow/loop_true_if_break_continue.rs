@@ -55,21 +55,21 @@ impl LoopTrueIfBreakContinueBuilderBox {
             Ok(Some((s, cond))) => {
                 if crate::config::env::joinir_dev_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[phase143/debug] Pattern matched: loop(true) if break/continue"));
+                    ring0.log.debug(&format!("[phase143/debug] Route shape matched: loop(true) if break/continue"));
                 }
                 (s, cond)
             }
             Ok(None) => {
                 if crate::config::env::joinir_dev_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[phase143/debug] Pattern not matched, out of scope"));
+                    ring0.log.debug(&format!("[phase143/debug] Route shape not matched, out of scope"));
                 }
                 return Ok(None); // Out of scope
             }
             Err(reason) => {
                 if crate::config::env::joinir_dev_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[phase143/debug] Pattern out-of-scope: {:?}", reason));
+                    ring0.log.debug(&format!("[phase143/debug] Route shape out-of-scope: {:?}", reason));
                 }
                 return Ok(None);
             }

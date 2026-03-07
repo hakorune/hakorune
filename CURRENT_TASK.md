@@ -517,6 +517,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `src/mir/{builder/control_flow/joinir/patterns/mod.rs,join_ir/lowering/{continue_branch_normalizer,loop_with_if_phi_if_sum}.rs,join_ir/lowering/generic_case_a/mod.rs}` / `CURRENT_TASK.md`
     - intent: `Pattern-Specific` / `pattern mismatch` / `Pattern matched` を `route-shape` / `route-specific` に寄せ、physical path が `patterns/` のままでも current-facing prose は route-first に保つ
     - verification: `rg -n "Pattern-Specific|pattern mismatch|Pattern matched|pattern router|before pattern matching" src/mir/builder/control_flow/joinir/patterns/mod.rs src/mir/join_ir/lowering/{continue_branch_normalizer,loop_with_if_phi_if_sum}.rs src/mir/join_ir/lowering/generic_case_a/mod.rs` = 0 hits
+  - naming cleanup (2026-03-07, slice 70): additional current-facing prose を route/shape 主語へ寄せた
+    - synced files: `src/mir/{join_ir/frontend/ast_lowerer/loop_routes/common.rs,join_ir/lowering/if_lowering_router.rs,builder/control_flow/plan/normalizer/mod.rs,control_tree/normalized_shadow/loop_true_if_break_continue.rs}` / `CURRENT_TASK.md`
+    - intent: `Loop Patterns` / `pattern-specific operations` / `pattern mismatch` / `Pattern matched` の current-facing wording を `Loop Routes` / `route-specific operations` / `route-shape mismatch` / `Route shape matched` に寄せる
+    - verification: `rg -n "Loop Patterns|pattern-specific operations|pattern mismatch|Pattern matched|Pattern not matched|Pattern out-of-scope" src/mir/join_ir/frontend/ast_lowerer/loop_routes/common.rs src/mir/join_ir/lowering/if_lowering_router.rs src/mir/builder/control_flow/plan/normalizer/mod.rs src/mir/control_tree/normalized_shadow/loop_true_if_break_continue.rs` = 0 hits
 
 ## next fixed order (resume point)
 

@@ -32,7 +32,7 @@
 //! - Checks toggle flags (`joinir_if_select_enabled()`)
 //! - Validates function whitelist (test/Stage-1/explicit approvals)
 //! - Excludes loop-lowered functions (Phase 33-9.1 separation)
-//! - Falls back to traditional if_phi on pattern mismatch
+//! - Falls back to traditional if_phi on route-shape mismatch
 //!
 //! # Phase 61-1: If-in-Loop Support
 //!

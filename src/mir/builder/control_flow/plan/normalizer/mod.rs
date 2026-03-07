@@ -7,7 +7,7 @@
 //!
 //! - Convert accepted facts/recipe contracts to CorePlan in legacy/analysis-only lanes
 //! - Generate ValueIds for CorePlan expressions
-//! - Expand pattern-specific operations into generic CoreEffectPlan
+//! - Expand route-specific operations into generic CoreEffectPlan
 //!
 //! # Key Design Decision
 //!

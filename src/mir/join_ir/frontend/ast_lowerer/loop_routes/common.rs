@@ -1,4 +1,4 @@
-//! Phase P2: Loop Patterns 共通処理
+//! Phase P2: Loop Routes 共通処理
 //!
 //! ## 責務
 //! 各 LoopRoute lowering で共通する処理を提供する。
