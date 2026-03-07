@@ -20,16 +20,16 @@ run_gate() {
 }
 
 run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh" \
-  "$LOG_DIR/phase29bn_v2_pattern2_pack.log"
+  "$LOG_DIR/phase29bn_v2_loop_break_pack.log"
 
 run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh" \
   "$LOG_DIR/phase29bn_v2_scan_split_pack.log"
 
 run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bl_planner_required_pattern1_4_5_pack_vm.sh" \
-  "$LOG_DIR/phase29bn_v2_pattern1_4_5_pack.log"
+  "$LOG_DIR/phase29bn_v2_loop_simple_while_loop_continue_only_loop_true_early_exit_pack.log"
 
 run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bn_planner_required_pattern3_pack_vm.sh" \
-  "$LOG_DIR/phase29bn_v2_pattern3_pack.log"
+  "$LOG_DIR/phase29bn_v2_if_phi_join_pack.log"
 
 run_gate "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh" \
   "$LOG_DIR/phase29bn_v2_regression_pack.log"

@@ -43,7 +43,7 @@ NYASH_NY_COMPILER_EMIT_ONLY="${NYASH_NY_COMPILER_EMIT_ONLY:-1}" \
 rc=$?
 set -e
 
-# Phase S0: Conditional SKIP for known patterns (該当ログの時だけ)
+# Phase S0: Conditional SKIP for known route-shape gaps (該当ログの時だけ)
 # SSOT: docs/development/current/main/investigations/selfhost-integration-limitations.md
 if [ $rc -ne 0 ]; then
   # Legacy loop_continue_only label: argument list too long (OS limitation)
