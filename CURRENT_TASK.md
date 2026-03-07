@@ -489,6 +489,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{boxcount-new-box-addition-checklist-ssot,coreloop-stepmode-inline-in-body-ssot}.md` / `tools/smokes/v2/profiles/integration/selfhost/{phase29bq_selfhost_planner_required_dev_gate_vm.sh,planner_required_selfhost_subset.tsv}` / `CURRENT_TASK.md`
     - intent: selfhost gate の絞り込み契約を `SMOKES_SELFHOST_FILTER` に固定し、`phase118_pattern3_if_sum_min` / `pattern1_inline_explicit_step_min` を legacy fixture/case token として明示する。route semantics は `if_phi_join` / `loop_simple_while explicit-step` として読む
     - verification: `SMOKES_ENABLE_SELFHOST=1 SMOKES_SELFHOST_FILTER=phase118_pattern3_if_sum_min RUN_TIMEOUT_SECS=120 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+  - truth cleanup (2026-03-07, slice 63): active design docs の legacy fixture pin を inventory 化し、本文の主語を route semantics へ寄せた
+    - synced files: `docs/development/current/main/design/{joinir-legacy-fixture-pin-inventory-ssot,pattern6-7-contracts,pattern-p5b-escape-design,loop-canonicalizer}.md` / `CURRENT_TASK.md`
+    - intent: `phase29ab_pattern6_*` / `phase29ab_pattern7_*` / `phase286_pattern5_break_min` / `phase269_p0_pattern8_frag_min` / `phase286_pattern9_frag_poc` / `test_pattern5b_escape_minimal.hako` のような active fixture filename を `legacy fixture pin token` として inventory に逃がし、各本文では `scan_with_init` / `split_scan` / `loop_true_early_exit` / `bool_predicate_scan` / `accum_const_loop` / `escape route P5b` を主語にする
+    - verification: `rg -n "legacy fixture pin|legacy selfhost test stem|joinir-legacy-fixture-pin-inventory-ssot" docs/development/current/main/design/{pattern6-7-contracts,pattern-p5b-escape-design,loop-canonicalizer}.md docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` = expected hits only
 
 ## next fixed order (resume point)
 
@@ -496,7 +500,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
 3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、次は active docs/guide と selfhost subset guidance の compat token inventory を進める。old stem retire は active caller が 0 になってから別 phase で扱う。
+5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し中。old stem retire は active caller が 0 になってから別 phase で扱う。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 7. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
 

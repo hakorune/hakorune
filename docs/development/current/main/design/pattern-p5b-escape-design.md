@@ -399,7 +399,12 @@ In `src/mir/builder/control_flow/joinir/routing.rs`:
 
 ## Test Cases
 
-### Minimal Case (test_pattern5b_escape_minimal.hako)
+Note:
+- selfhost test filenames in this section use legacy test stems for traceability.
+- Current semantics should be read as `escape route P5b`.
+- Pin inventory: `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`
+
+### Minimal Case (legacy selfhost test stem: `test_pattern5b_escape_minimal.hako`)
 
 **Input**: String with one escape sequence
 **Carrier**: Single position variable, single accumulator
@@ -489,7 +494,7 @@ loop(i < n) {
 - **JoinIR Architecture**: `joinir-architecture-overview.md`
 - **Loop Canonicalizer**: `loop-canonicalizer.md`
 - **CapabilityTag Enum**: `src/mir/loop_canonicalizer/capability_guard.rs`
-- **Test Fixture**: `tools/selfhost/test_pattern5b_escape_minimal.hako`
+- **Test Fixture**: `tools/selfhost/test_pattern5b_escape_minimal.hako` (legacy selfhost test stem)
 - **Phase 91 Plan**: `phases/phase-91/README.md`
 
 ---

@@ -453,7 +453,7 @@ loop(p < len) {
 - **設計 SSOT**: `docs/development/current/main/design/pattern-p5b-escape-design.md`
 - **Phaseログ（認識）**: `docs/development/current/main/phases/phase-91/README.md`
 - **Phaseログ（lowering/条件式対応）**: `docs/development/current/main/phases/phase-92/README.md`
-- **fixture**: `tools/selfhost/test_pattern5b_escape_minimal.hako`
+- **fixture**: `tools/selfhost/test_pattern5b_escape_minimal.hako` (legacy selfhost test stem; current semantics: `escape route P5b`)
 
 ---
 
