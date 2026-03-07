@@ -686,6 +686,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-256/README.md,phase-272/README.md,phase-286/README.md}` / `CURRENT_TASK.md`
     - intent: `plan/conversion_pipeline.rs`, `plan/loop_break_steps/emit_joinir_step_box.rs`, `join_ir/lowering/{scan_with_init_minimal.rs,split_scan_minimal.rs,loop_routes/with_continue.rs}`, `plan/extractors/common_helpers.rs`, `route_entry/router.rs` を current path anchor にし、旧 `joinir/patterns/*` は historical path token に限定する
     - verification: `rg -n "plan/conversion_pipeline.rs|plan/loop_break_steps/emit_joinir_step_box.rs|scan_with_init_minimal.rs|split_scan_minimal.rs|loop_routes/with_continue.rs|plan/extractors/common_helpers.rs|route_entry/router.rs" docs/development/current/main/phases/{phase-256/README.md,phase-272/README.md,phase-286/README.md}` = current path anchors present
+  - truth cleanup (2026-03-07, slice 113): `phase-142` README の recognizer/lowerer path を current module surface に同期し、旧 `joinir/patterns/*` re-export chain は historical token としてだけ残す
+    - synced files: `docs/development/current/main/phases/phase-142/README.md` / `CURRENT_TASK.md`
+    - intent: `plan/ast_feature_extractor.rs` と `join_ir/lowering/loop_routes/with_continue.rs` を current surface として明示し、旧 `joinir/patterns/{ast_feature_extractor.rs,mod.rs,pattern4_with_continue.rs,pattern4_carrier_analyzer.rs}` は historical path token に限定する
+    - verification: `rg -n "plan/ast_feature_extractor.rs|loop_routes/with_continue.rs|joinir/patterns/ast_feature_extractor.rs|joinir/patterns/pattern4_with_continue.rs" docs/development/current/main/phases/phase-142/README.md` = current path anchors present; old path hits are historical-token note only
 
 ## next fixed order (resume point)
 

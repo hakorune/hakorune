@@ -25,7 +25,9 @@ Extend Canonicalizer to recognize trim leading/trailing patterns, enabling prope
 ### Implementation Summary
 
 #### 1. Pattern Recognizer Generalization
-**File**: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
+**Current module surface**: `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`
+
+**Historical path token**: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
 
 **Changes**:
 - Extended `detect_skip_whitespace_pattern()` to accept both `+` and `-` operators
@@ -115,7 +117,8 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 - Consistent with existing SSOT policy
 
 ### Files Modified
-1. `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs` (+35 lines, improved comments)
+1. `src/mir/builder/control_flow/plan/ast_feature_extractor.rs` (+35 lines, improved comments)
+   - historical path token: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
 2. `src/mir/loop_canonicalizer/canonicalizer.rs` (+178 lines, 2 new tests)
 
 ### Statistics
@@ -185,7 +188,9 @@ Extend Canonicalizer to recognize continue patterns, enabling proper routing thr
 ### Implementation Summary
 
 #### 1. Continue Pattern Detection
-**File**: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
+**Current module surface**: `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`
+
+**Historical path token**: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
 
 **New Function**: `detect_continue_pattern()`
 
@@ -236,8 +241,8 @@ loop(i < n) {
 3. Body - Rest statements (excluding carrier update)
 4. Update - Carrier update step
 
-#### 3. Module Re-exports
-**Files Modified** (re-export chain):
+#### 3. Historical module re-export chain
+**Files Modified** (historical re-export chain at the time):
 - `src/mir/builder/control_flow/joinir/patterns/mod.rs` - Added `detect_continue_pattern`, `ContinuePatternInfo`
 - `src/mir/builder/control_flow/joinir/mod.rs` - Re-export to joinir level
 - `src/mir/builder/control_flow/mod.rs` - Re-export to control_flow level
@@ -311,10 +316,11 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 - Consistent with existing SSOT policy from Phase 137-5
 
 ### Files Modified
-1. `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs` (+167 lines, new function)
+1. `src/mir/builder/control_flow/plan/ast_feature_extractor.rs` (+167 lines, new function)
+   - historical path token: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
 2. `src/mir/loop_canonicalizer/pattern_recognizer.rs` (+35 lines, wrapper function)
 3. `src/mir/loop_canonicalizer/canonicalizer.rs` (+103 lines, continue support + unit test)
-4. `src/mir/builder/control_flow/joinir/patterns/mod.rs` (+3 lines, re-export)
+4. historical re-export token: `src/mir/builder/control_flow/joinir/patterns/mod.rs` (+3 lines, re-export)
 5. `src/mir/builder/control_flow/joinir/mod.rs` (+3 lines, re-export)
 6. `src/mir/builder/control_flow/mod.rs` (+3 lines, re-export)
 7. `src/mir/builder.rs` (+2 lines, re-export)
@@ -435,8 +441,9 @@ The following patterns are rejected with explicit error messages:
 
 1. `docs/development/current/main/phases/phase-142/README.md` - Contract documentation
 2. `tools/selfhost/test_pattern4_parse_string_lowering.hako` - Minimal E2E test (new)
-3. `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs` - Lowerer extension
-4. `src/mir/builder/control_flow/joinir/patterns/pattern4_carrier_analyzer.rs` - Carrier analysis (if needed)
+3. `src/mir/join_ir/lowering/loop_routes/with_continue.rs` - current lowerer extension surface
+   - historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`
+4. historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern4_carrier_analyzer.rs` - Carrier analysis (if needed)
 
 ### Step 3-A: Early Return Fail-Fast (COMPLETE ✅)
 
@@ -516,5 +523,5 @@ Pattern5Lowerer (continue + early return)
 
 - **Design**: `docs/development/current/main/design/loop-canonicalizer.md`
 - **JoinIR Architecture**: `docs/development/current/main/joinir-architecture-overview.md`
-- **Pattern4 Implementation**: `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`
-
+- **LoopContinueOnly route implementation**: `src/mir/join_ir/lowering/loop_routes/with_continue.rs`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`
