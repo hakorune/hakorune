@@ -11,6 +11,10 @@ Status: ✅ COMPLETE (P0, P1, P2, P2.1, P2.2, P2.3, P2.4.1, P2.6, P2.7, P2.8, P3
 
 Phase 286 では JoinIR line を “第2の lowerer” として放置せず、**Plan/Frag SSOT へ吸収**する道筋を固定する。
 
+Reading note:
+- 下に出てくる `src/mir/builder/control_flow/joinir/patterns/*` は、特記がない限り execution-time の historical physical path token だよ。
+- current live surfaces は `src/mir/builder/control_flow/joinir/route_entry/`, `src/mir/builder/control_flow/plan/`, `src/mir/builder/control_flow/plan/extractors/`, `src/mir/loop_route_detection/` を優先して読むよ。
+
 ## Why（なぜ今）
 
 - `return` のような「大きな出口語彙」は、責務が分散すると実装場所が揺れて事故りやすい
@@ -86,14 +90,14 @@ Phase 286 では JoinIR line を “第2の lowerer” として放置せず、*
   - B1検証: join_inputs が Param 領域にあること
   - C2検証: condition_bindings が Param 領域にあること
 - **merge/mod.rs に検証呼び出し追加**: merge開始時にFail-Fast検証
-- **実バグ3件修正**: Pattern2/4/5 で `alloc_local()` を誤って使っていた箇所を `alloc_param()` に修正
+- **実バグ3件修正**: loop_break / loop_continue_only / loop_true_early_exit（historical labels: Pattern2/4/5）で `alloc_local()` を誤って使っていた箇所を `alloc_param()` に修正
 
 **成果物**:
 - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs` (変更)
 - `src/mir/builder/control_flow/joinir/merge/mod.rs` (変更)
 - `src/mir/join_ir/lowering/loop_with_break_minimal.rs` (変更)
 - `src/mir/join_ir/lowering/loop_with_continue_minimal.rs` (変更)
-- `src/mir/builder/control_flow/joinir/patterns/pattern5_infinite_early_exit.rs` (変更)
+- historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern5_infinite_early_exit.rs` (変更)
 
 **発見された問題**:
 - 各 pattern の lowering で関数パラメータに `alloc_local()` を使っていた（本来は `alloc_param()`）
@@ -158,10 +162,14 @@ Phase 286 では JoinIR line を “第2の lowerer” として放置せず、*
   - 3行パターン（normalize→verify→lower）を1関数に集約（ボイラープレート削減 ~40行）
 
 **成果物**:
-- `src/mir/builder/control_flow/joinir/patterns/extractors/common_helpers.rs` (変更)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/pattern1.rs` (変更)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/pattern4.rs` (変更)
-- `src/mir/builder/control_flow/joinir/patterns/router.rs` (変更)
+- current semantic surfaces:
+  - `src/mir/builder/control_flow/plan/extractors/common_helpers.rs`
+  - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
+- historical path tokens:
+  - `src/mir/builder/control_flow/joinir/patterns/extractors/common_helpers.rs`
+  - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern1.rs`
+  - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern4.rs`
+  - `src/mir/builder/control_flow/joinir/patterns/router.rs`
 
 **検証結果**:
 - Regression test: quick smoke 154 PASS

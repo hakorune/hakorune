@@ -682,6 +682,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-29bd/README.md,phase-29be/README.md,phase-270/README.md,phase-272/README.md,phase-282/README.md,phase-286/README.md,phase-264/README.md}` / `CURRENT_TASK.md`
     - intent: `joinir/patterns/router.rs`, `joinir/patterns/extractors/common_helpers.rs`, `joinir/patterns/conversion_pipeline.rs`, `loop_pattern_detection/mod.rs` を current docs の主語から外し、`route_entry/router.rs`, `plan/extractors/common_helpers.rs`, `plan/conversion_pipeline.rs`, `loop_route_detection/mod.rs` を live path として示す
     - verification: `rg -n "route_entry/router.rs|plan/extractors/common_helpers.rs|plan/conversion_pipeline.rs|loop_route_detection/mod.rs" docs/development/current/main/phases/{phase-29bd/README.md,phase-29be/README.md,phase-270/README.md,phase-272/README.md,phase-282/README.md,phase-286/README.md,phase-264/README.md}` = current path anchors present; remaining old tokens in those files are historical phase-log references only
+  - truth cleanup (2026-03-07, slice 112): long phase README（256/272/286）の route/path wording を current surface + historical token 併記へ寄せ、numbered label を current runtime 主語に見せないようにした
+    - synced files: `docs/development/current/main/phases/{phase-256/README.md,phase-272/README.md,phase-286/README.md}` / `CURRENT_TASK.md`
+    - intent: `plan/conversion_pipeline.rs`, `plan/loop_break_steps/emit_joinir_step_box.rs`, `join_ir/lowering/{scan_with_init_minimal.rs,split_scan_minimal.rs,loop_routes/with_continue.rs}`, `plan/extractors/common_helpers.rs`, `route_entry/router.rs` を current path anchor にし、旧 `joinir/patterns/*` は historical path token に限定する
+    - verification: `rg -n "plan/conversion_pipeline.rs|plan/loop_break_steps/emit_joinir_step_box.rs|scan_with_init_minimal.rs|split_scan_minimal.rs|loop_routes/with_continue.rs|plan/extractors/common_helpers.rs|route_entry/router.rs" docs/development/current/main/phases/{phase-256/README.md,phase-272/README.md,phase-286/README.md}` = current path anchors present
 
 ## next fixed order (resume point)
 

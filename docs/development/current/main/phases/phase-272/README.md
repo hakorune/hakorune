@@ -1,6 +1,6 @@
 Status: Active  
 Date: 2025-12-22  
-Scope: Pattern6/7 を `Frag + emit_frag()` へ段階吸収（pattern列挙の増殖を止める）  
+Scope: scan_with_init / split_scan（historical Pattern6/7 labels）を `Frag + emit_frag()` へ段階吸収（numbered-label 列挙の増殖を止める）
 Related:
 - Design SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
 - Phase 269（Pattern8 Frag）: `docs/development/current/main/phases/phase-269/README.md`
@@ -15,14 +15,18 @@ Related:
 
 ## 目的
 
-- Pattern6/7（scan系）の CFG 構築を “pattern番号ごとの推測分岐” から外し、**EdgeCFG Frag 合成（ExitKind/wires/branches）**に収束させる。
+- scan_with_init / split_scan（scan系）の CFG 構築を “numbered route label ごとの推測分岐” から外し、**EdgeCFG Frag 合成（ExitKind/wires/branches）**に収束させる。
 - terminator emission を SSOT（`emit_frag()`）へ集約し、block の successors/preds 同期漏れを構造で防ぐ。
 
 ## スコープ境界
 
 ### ✅ 触る
-- `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
-- `src/mir/builder/control_flow/joinir/patterns/pattern7_split_scan.rs`
+- current route files:
+  - `src/mir/join_ir/lowering/scan_with_init_minimal.rs`
+  - `src/mir/join_ir/lowering/split_scan_minimal.rs`
+- historical path tokens:
+  - `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
+  - `src/mir/builder/control_flow/joinir/patterns/pattern7_split_scan.rs`
 - `src/mir/builder/emission/`（Pattern8 と同じ “薄い入口” の追加）
 
 ### ❌ 触らない
@@ -63,11 +67,12 @@ P0 は “両方一気に” ではなく、以下の順で段階適用する。
 
 ### 実装結果（✅ 完了）
 
-- emission 入口を新設し、Pattern6 の terminator emission を `emit_frag()`（SSOT）へ集約
+- emission 入口を新設し、scan_with_init route の terminator emission を `emit_frag()`（SSOT）へ集約
   - 新規: `src/mir/builder/emission/loop_scan_with_init.rs`
   - 更新: `src/mir/builder/emission/mod.rs`
-- Pattern6 の JoinIRConversionPipeline 経路を撤去し、Frag 経路へ切り替え
-  - 更新: `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
+- scan_with_init route の JoinIRConversionPipeline 経路を撤去し、Frag 経路へ切り替え
+  - current route file: `src/mir/join_ir/lowering/scan_with_init_minimal.rs`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
 - P0 スコープ:
   - forward scan（`step=1`）のみ適用
   - reverse/dynamic needle 等は `Ok(None)` で不適用（既定挙動不変）

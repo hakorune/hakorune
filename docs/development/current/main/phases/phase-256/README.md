@@ -1,17 +1,17 @@
-# Phase 256: StringUtils.split/2 Pattern Support
+# Phase 256: StringUtils.split/2 route support（historical Pattern6/7 labels）
 
 Status: Completed
-Scope: Loop pattern recognition for split/tokenization operations
+Scope: Loop route recognition for split/tokenization operations
 Related:
-- Phase 255 完了（loop_invariants 導入、Pattern 6 完成）
-- Phase 254 完了（Pattern 6 index_of 実装）
+- Phase 255 完了（loop_invariants 導入、scan_with_init route 完成）
+- Phase 254 完了（scan_with_init route / historical Pattern6 index_of 実装）
 - North star（設計目標）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 
 ## Current Status (SSOT)
 
 - Current first FAIL: `json_lint_vm / StringUtils.last_index_of/2`（Loop with early return pattern - unsupported）
 - `StringUtils.split/2` は VM `--verify` / smoke まで PASS
-- Pattern6（index_of）は PASS 維持
+- scan_with_init route（historical Pattern6 index_of lane）は PASS 維持
 - 次フェーズ: Phase 257（`last_index_of/2` の reverse scan + early return loop）
 - 直近の完了:
   - P1.13: Pattern2 boundary entry_param_mismatch 根治（`join_module.entry.params` SSOT 化）
@@ -348,7 +348,8 @@ Option A（Pattern 7 新設）を推奨。
   - `verify_boundary_entry_params()`（個数/順序/ValueId の検証）
   - `get_entry_function()`（`join_module.entry` → `"main"` へのフォールバック）
   - unit tests を追加（正常/順序ミスマッチ/個数ミスマッチ）
-- `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
+- `src/mir/builder/control_flow/plan/conversion_pipeline.rs`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
   - JoinIR→MIR 変換直前に検証を追加
   - `is_joinir_debug()` 時にログ出力
 
@@ -365,7 +366,8 @@ Option A（Pattern 7 新設）を推奨。
 - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs`
   - `run_all_pipeline_checks()`（薄い集約エントリ）
   - `debug_log_boundary_contract()` を同ファイルへ移設（`is_joinir_debug()` ガード）
-- `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
+- `src/mir/builder/control_flow/plan/conversion_pipeline.rs`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
   - `run_all_pipeline_checks()` の 1 呼び出しに縮退
 
 効果:
@@ -506,7 +508,8 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
 - **実装**: `emit_joinir_step_box.rs` で `join_input_slots = entry_func.params.clone()` に置き換え
 
 実装（SSOT）:
-- `src/mir/builder/control_flow/joinir/patterns/pattern2_steps/emit_joinir_step_box.rs` (lines 71-96)
+- `src/mir/builder/control_flow/plan/loop_break_steps/emit_joinir_step_box.rs`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern2_steps/emit_joinir_step_box.rs` (lines 71-96)
   - Entry function extraction (priority: `join_module.entry` → fallback to "main")
   - `join_input_slots = main_func.params.clone()` (SSOT from JoinModule)
   - `host_input_values` を同じ順序で構築（loop_var + carriers）
@@ -514,7 +517,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
 
 結果:
 - `./tools/smokes/v2/run.sh --profile quick` の first FAIL が `StringUtils.trim_end/1` から `StringUtils.last_index_of/2` へ移動
-- Pattern2 の boundary contract は安定化
+- loop_break family の boundary contract は安定化
 
 次のブロッカー（Phase 257）:
 - `StringUtils.last_index_of/2` - Loop with early return pattern (unsupported)
@@ -525,22 +528,27 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
   - Fixture: `apps/tests/phase257_p0_last_index_of_min.hako`
   - Integration smokes: `phase257_p0_last_index_of_vm.sh`, `phase257_p0_last_index_of_llvm_exe.sh`
 
-### P1.13.5: Boundary SSOT Unification - Pattern4/6/7 (完了)
+### P1.13.5: Boundary SSOT Unification - loop_continue_only / scan_with_init / split_scan (完了)
 
 背景:
-- P1.13 で Pattern2 の boundary entry_param_mismatch を根治したが、同じ hardcoded ValueId パターンが Pattern4/6/7 にも存在していた
+- P1.13 で loop_break family の boundary entry_param_mismatch を根治したが、同じ hardcoded ValueId パターンが loop_continue_only / scan_with_init / split_scan にも存在していた
 
 実施内容:
-- Pattern4/6/7 の `boundary.join_inputs` を hardcoded ValueId(0), ValueId(PARAM_MIN + k) から撤去
-- 全パターン（2, 3, 4, 6, 7）で `join_module.entry.params.clone()` を SSOT として統一
+- loop_continue_only / scan_with_init / split_scan の `boundary.join_inputs` を hardcoded ValueId(0), ValueId(PARAM_MIN + k) から撤去
+- 関連 route families で `join_module.entry.params.clone()` を SSOT として統一
 - Fail-fast validation（params count mismatch）を全パターンに追加
 - 共通ヘルパ `get_entry_function()` を抽出（`patterns/common/joinir_helpers.rs`）
 
 修正ファイル:
-- `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`
-- `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
-- `src/mir/builder/control_flow/joinir/patterns/pattern7_split_scan.rs`
-- `src/mir/builder/control_flow/joinir/patterns/common/joinir_helpers.rs` (新規・ヘルパ追加)
+- current route files:
+  - `src/mir/join_ir/lowering/loop_routes/with_continue.rs`
+  - `src/mir/join_ir/lowering/scan_with_init_minimal.rs`
+  - `src/mir/join_ir/lowering/split_scan_minimal.rs`
+- historical path tokens:
+  - `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`
+  - `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
+  - `src/mir/builder/control_flow/joinir/patterns/pattern7_split_scan.rs`
+  - `src/mir/builder/control_flow/joinir/patterns/common/joinir_helpers.rs`
 
 結果:
 - Entry param mismatch の構造的防止（全パターン統一）
