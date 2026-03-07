@@ -784,6 +784,24 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 5. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
 
+## Remaining Effort Snapshot (2026-03-08)
+
+- total estimate: あと **3-5 slices** で current compiler/docs cleanup はかなり収束、repo 全体の historical/compat token 後始末まで含めると **5-8 slices**
+- highest-value remaining docs:
+  1. `docs/development/current/main/phases/phase-263/README.md`
+  2. `docs/development/current/main/phases/phase-286/README.md`
+  3. `docs/development/current/main/phases/phase-259/README.md`
+  4. `docs/development/current/main/phases/phase-270/README.md`
+- compat token retirement lane:
+  - smoke stem / selfhost filter / fixture key の caller 0 棚卸しと retire phase
+  - blocking fact: `tools/smokes/v2/run.sh` の auto-discovery があるため、grep hit 0 だけでは削除条件にならない
+- code-side residue:
+  - `src/**` の loop-route `PatternN` residue は broad grep で **1 hit**（legacy script contract comment 程度）
+  - 残りは physical path / generic wording / intentional legacy token が中心
+- phase/docs residue snapshot:
+  - `docs/development/current/main/phases/**/README.md` の `PatternN` / `patternN_` broad grep は **548 hits**
+  - ただし多くは historical label / fixture token / archive stem / debug token で、current architecture prose はかなり整理済み
+
 ## Quick Restart (After Reboot)
 
 1. `git status -sb`
