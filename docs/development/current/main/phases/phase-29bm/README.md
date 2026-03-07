@@ -32,11 +32,11 @@ planner miss の Freeze を減らす（Facts/Planner が plan を返せる範囲
 
 ## Target
 
-- Added coverage (Pattern6): `phase29aq_string_last_index_of_min_vm`（理由: index_of と対になる ScanWithInit 代表ケース）
+- Added coverage (scan_with_init route; historical label: Pattern6): `phase29aq_string_last_index_of_min_vm`（理由: index_of と対になる ScanWithInit 代表ケース）
 
 ## Status note
 
-- `phase29bj_planner_required_scan_split_pack_vm.sh` / `phase29bk_planner_required_dev_gate_vm.sh` / `phase29ae_regression_pack_vm.sh` are green post-change.
+- `scan_split_planner_required_pack_vm.sh` / `phase29bk_planner_required_dev_gate_vm.sh` / `phase29ae_regression_pack_vm.sh` are green post-change.
 
 ## Acceptance criteria (RC)
 

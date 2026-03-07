@@ -39,13 +39,13 @@ release 既定は不変、JoinIR regression gate は常に緑維持。
 
 - `./tools/hako_check_loopless_gate.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/scan_split_planner_required_pack_vm.sh`（compat stem: `phase29bj_planner_required_scan_split_pack_vm.sh`）
 
 ## Acceptance criteria (RC)
 
 - `./tools/hako_check_loopless_gate.sh` -> RC=0
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` -> RC=0
-- `./tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh` -> RC=0
+- `./tools/smokes/v2/profiles/integration/joinir/scan_split_planner_required_pack_vm.sh` -> RC=0
 
 ## Policy
 
@@ -54,4 +54,4 @@ release 既定は不変、JoinIR regression gate は常に緑維持。
 - stdout が SSOT。exit code が 0-255 に丸められる場合は allow_rc を使う
 
 P2 note: index_of_min は stdout=2、RC=2（exit code 丸めのため allow_rc を使用）。
-Status note: phase29bj_planner_required_scan_split_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
+Status note: scan_split_planner_required_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
