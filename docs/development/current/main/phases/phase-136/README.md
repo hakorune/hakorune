@@ -61,7 +61,7 @@ return 3.14
 
 **Method**: `lower_return_value_to_vid()` (行 638-743, Integer literal at 行 661)
 
-**Added Pattern**: Integer literal
+**Added Case**: Integer literal
 ```rust
 ASTNode::Literal { value: LiteralValue::Integer(i), .. } => {
     let const_vid = ValueId(*next_value_id);
@@ -79,11 +79,11 @@ ASTNode::Literal { value: LiteralValue::Integer(i), .. } => {
 ### Fixtures
 
 1. **phase136_loop_true_break_once_return_literal_min.hako**
-   - Pattern: `loop(true){ x=1; break }; return 7`
+   - Shape: `loop(true){ x=1; break }; return 7`
    - Expected: exit code 7
 
 2. **phase136_loop_true_break_once_post_return_literal_min.hako**
-   - Pattern: `loop(true){ x=1; break }; x=x+2; return 7`
+   - Shape: `loop(true){ x=1; break }; x=x+2; return 7`
    - Expected: exit code 7
 
 ### Smoke Tests
@@ -123,11 +123,11 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase135_loop_true_break_
 ## Key Design Points
 
 ### Ok(None) for Fallback
-- Unsupported patterns (e.g., `return "hello"`) return `Ok(None)`
-- Fallback to existing JoinIR routing (Pattern2, etc.)
+- Unsupported shapes (e.g., `return "hello"`) return `Ok(None)`
+- Fallback to existing JoinIR routing (`loop_break` etc.)
 - No hard errors for out-of-scope patterns
 
-### Const Generation Pattern (Phase 123)
+### Const Generation Shape (Phase 123)
 - `Const{dst, Integer(i)} → Ret{Some(dst)}`
 - Reused existing pattern from Phase 123
 

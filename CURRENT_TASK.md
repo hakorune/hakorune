@@ -634,6 +634,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/phase-{251,253,257,263,267,273}/README.md` / `CURRENT_TASK.md`
     - intent: historical phase docs でも current guidance の入口は `loop_break` / `scan_with_init` / `split_scan` / `loop_true_early_exit` で説明し、old `loop_pattern_detection` / `joinir/patterns` path は historical token と current path を分けて記す
     - verification: `rg -n "JoinIR Pattern2|Pattern2 pipeline|Loop with Early Return Pattern|Pattern6/7/8|Pattern2 LoopBodyLocal|src/mir/loop_pattern_detection/|src/mir/builder/control_flow/joinir/patterns/" docs/development/current/main/phases/phase-{251,253,257,263,267,273}/README.md` = historical note / code-block token only
+  - truth cleanup (2026-03-07, slice 100): remaining active phase README の `Pattern6/8` / nested-loop numbered label / stale current path を route-first / current-path first に寄せる
+    - synced files: `docs/development/current/main/phases/phase-{136,188.1,265,266,269}/README.md` / `CURRENT_TASK.md`
+    - intent: active phase guidance では `NestedLoopMinimal` / `bool_predicate_scan` / `scan_with_init` / `split_scan` / `accum_const_loop` / `loop_break` / `loop_simple_while` を主語にし、old numbered label や `joinir/patterns` / `loop_pattern_detection` path は historical token へ後退させる
+    - verification: `rg -n "Pattern6|Pattern8|Pattern 6|Pattern 8|Pattern6NestedLoopMinimal|loop_pattern_detection::|src/mir/join_ir/lowering/loop_patterns/nested_minimal.rs|src/mir/builder/control_flow/joinir/patterns/pattern8_scan_bool_predicate.rs|Pattern6/7/8|Pattern2, etc\\.|Added Pattern|Const Generation Pattern" docs/development/current/main/phases/phase-{136,188.1,265,266,269}/README.md` = legacy/historical note only
 
 ## next fixed order (resume point)
 

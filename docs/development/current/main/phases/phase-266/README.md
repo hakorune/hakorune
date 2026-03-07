@@ -28,4 +28,4 @@ SSOT (design): `docs/development/current/main/design/edgecfg-fragments.md`
 ## 次フェーズ
 - Phase 267:
   - Branch の生成（wires → MIR）を追加
-  - JoinIR/NormalizedShadow/Pattern6/7/8 の実適用（層境界を守って段階導入）
+  - JoinIR/NormalizedShadow/scan_with_init / split_scan / bool_predicate_scan route への実適用（層境界を守って段階導入）

@@ -4,8 +4,8 @@ Status: Completed ✅
 SSOT (design): `docs/development/current/main/design/edgecfg-fragments.md`
 
 ## ゴール
-- Structured→CFG lowering を **ExitKind + Frag 合成**として表現する入口を育てる（pattern番号列挙を将来縮退させる）
-- 既存の JoinIR/merge/Pattern6/7/8 は触らず、**API と合成則だけ**を段階投入する
+- Structured→CFG lowering を **ExitKind + Frag 合成**として表現する入口を育てる（legacy numbered route label 列挙を将来縮退させる）
+- 既存の JoinIR/merge/scan_with_init / split_scan / bool_predicate_scan route には触らず、**API と合成則だけ**を段階投入する
 
 ## 完了内容
 - P0: `compose`/`verify` の形を固定（入口SSOT迷子防止）
