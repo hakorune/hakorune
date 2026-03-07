@@ -40,7 +40,7 @@ Related:
 ## Gate (SSOT)
 
 - `./tools/hako_check_loopless_gate.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_pack_vm.sh`（compat stem: `phase29bo_planner_required_pattern8_9_pack_vm.sh`）
 - `./tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_dev_gate_v3_vm.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
@@ -55,4 +55,4 @@ Related:
 - stdout が SSOT。必要なら case-by-case allow_rc を使う（0-255 丸めを扱う）。
 - `HAKO_JOINIR_PLANNER_REQUIRED=1` は strict/dev gate のみで使用（既定OFF）。
 
-Status note: `phase29bo_planner_required_pattern8_9_pack_vm.sh` + `phase29bo_planner_required_dev_gate_v3_vm.sh` + `phase29ae_regression_pack_vm.sh` are green.
+Status note: `bool_predicate_accum_planner_required_pack_vm.sh` + `phase29bo_planner_required_dev_gate_v3_vm.sh` + `phase29ae_regression_pack_vm.sh` are green.

@@ -14,7 +14,7 @@ Related:
 
 ## Goal
 
-Pattern2 + Scan/Split の planner-required pack を 1 コマンドで回せる dev gate に統合する。
+loop_break + scan/split の planner-required pack を 1 コマンドで回せる dev gate に統合する。
 release 既定は不変、JoinIR regression gate は常に緑維持。
 
 ## Non-goals
@@ -31,8 +31,8 @@ release 既定は不変、JoinIR regression gate は常に緑維持。
 
 ## Target gates
 
-- `./tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_pack_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/scan_split_planner_required_pack_vm.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
 ## Gate (SSOT)
@@ -55,4 +55,4 @@ Default dev entry: `./tools/smokes/v2/profiles/integration/joinir/phase29bk_plan
 - planner-required は strict/dev gate のみで使用（既定OFF）
 - 失敗時は最後のログ位置を出して再実行を容易にする
 
-Status note: `phase29bk_planner_required_dev_gate_vm.sh` green (includes Pattern2/6/7 required packs + JoinIR regression pack; post-change).
+Status note: `phase29bk_planner_required_dev_gate_vm.sh` green (includes loop_break + scan/split planner-required packs + JoinIR regression pack; post-change).

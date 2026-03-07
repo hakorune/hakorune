@@ -730,6 +730,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-264,phase-256,phase-272,phase-286}/README.md` / `CURRENT_TASK.md`
     - intent: `IfPhiJoin` / `LoopBreak` / `LoopSimpleWhile` / `AccumConstLoop` を本文の主語に戻しつつ、昔の debug token / DomainPlan token / `joinir/patterns/*` root token は historical label と basename-only same-lane note としてだけ残す
     - verification: `git diff --check` PASS; `rg -n "### Test 2: Pattern3 Regression|Pattern3 既存テスト|### P1.13: Pattern2 boundary|Pattern1 より優先|\\*\\*Pattern2 調査結果|src/mir/builder/control_flow/joinir/patterns/\\{extractors/pattern4.rs,router.rs\\}|src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs" docs/development/current/main/phases/{phase-264,phase-256,phase-272,phase-286}/README.md` = 0 hit
+  - naming cleanup (2026-03-07, slice 124): active planner-pack / regression-pack README の smoke entry を semantic wrapper 主語へ寄せ、legacy stem は `compat stem` 注記に後退させた
+    - synced files: `docs/development/current/main/phases/{phase-29ae,phase-29bk,phase-29bl,phase-29bn,phase-29bo}/README.md` / `CURRENT_TASK.md`
+    - intent: active README で `loop_break_planner_required_pack_vm.sh` / `core_loop_routes_planner_required_pack_vm.sh` / `if_phi_join_planner_required_pack_vm.sh` / `bool_predicate_accum_planner_required_pack_vm.sh` / `loop_continue_only_vm` などの semantic wrapper を先頭に出し、`phase29ao/29ap/29bn/29bo` stem は compatibility lane へ下げる
+    - verification: `git diff --check` PASS; `rg -n "phase29bi_planner_required_pattern2_pack_vm|phase29bl_planner_required_pattern1_4_5_pack_vm|phase29bn_planner_required_pattern3_pack_vm|phase29bo_planner_required_pattern8_9_pack_vm|phase29ap_pattern4_continue_min_vm|phase29ao_pattern1_strict_shadow_vm|phase29ao_pattern2_release_adopt_vm|phase29ao_pattern3_release_adopt_vm|phase29ao_pattern5_release_adopt_vm|phase29ao_pattern6_release_adopt_vm|phase29ao_pattern7_release_adopt_vm" docs/development/current/main/phases/{phase-29ae,phase-29bk,phase-29bl,phase-29bn,phase-29bo}/README.md` = compat-stem notes only
 
 ## next fixed order (resume point)
 

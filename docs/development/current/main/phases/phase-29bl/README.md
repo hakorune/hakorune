@@ -32,20 +32,20 @@ planner-first が通る状態に拡張する。release 既定は不変、JoinIR 
 ## Target set (loop_simple_while / loop_continue_only / loop_true_early_exit)
 
 - loop_simple_while: phase29ap_stringutils_join_min_vm（理由: StringUtils 系の代表で回帰価値が高い）
-- loop_continue_only: phase29ap_pattern4_continue_min_vm（理由: continue 経路の代表で制御系の回帰価値が高い。fixture stem は legacy token）
+- loop_continue_only: loop_continue_only_vm（compat stem: `phase29ap_pattern4_continue_min_vm`; 理由: continue 経路の代表で制御系の回帰価値が高い）
 - loop_true_early_exit: phase286_pattern5_break_min_vm（理由: break 経路の代表で制御系の回帰価値が高い。fixture stem は legacy token）
 
 ## Gate (SSOT)
 
 - `./tools/hako_check_loopless_gate.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29bl_planner_required_pattern1_4_5_pack_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/core_loop_routes_planner_required_pack_vm.sh`
 
 ## Acceptance criteria (RC)
 
 - `./tools/hako_check_loopless_gate.sh` -> RC=0
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` -> RC=0
-- `./tools/smokes/v2/profiles/integration/joinir/phase29bl_planner_required_pattern1_4_5_pack_vm.sh` -> RC=0
+- `./tools/smokes/v2/profiles/integration/joinir/core_loop_routes_planner_required_pack_vm.sh` -> RC=0
 
 ## Policy
 
@@ -54,7 +54,7 @@ planner-first が通る状態に拡張する。release 既定は不変、JoinIR 
 - stdout が SSOT。exit code が 0-255 に丸められる場合は allow_rc を使う
 
 P2 note: pattern5_break_min は stdout なし、RC=3 のため allow_rc を使用（cases では __EMPTY__ で表現）。
-Status note: phase29bl_planner_required_pattern1_4_5_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
+Status note: core_loop_routes_planner_required_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
 
 P2 note: pattern5_break_min は stdout なし、RC=3 のため allow_rc を使用。
-Status note: phase29bl_planner_required_pattern1_4_5_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
+Status note: core_loop_routes_planner_required_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
