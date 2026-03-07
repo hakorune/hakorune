@@ -3,6 +3,11 @@
 ## Overview
 Phase 136 follow-up extracts builder context into dedicated Context structures for better organization and SSOT enforcement.
 
+Historical note:
+- This progress ledger preserves file paths and module names as they existed during the 2025 extraction work.
+- Old `src/mir/builder/control_flow/joinir/patterns/*` entries below are historical path tokens from before the later
+  `joinir/route_entry` / `loop_route_detection` cleanup.
+
 ## Progress Tracking
 
 ### ✅ Step 1/7: TypeContext extraction (Complete)
@@ -54,10 +59,10 @@ Phase 136 follow-up extracts builder context into dedicated Context structures f
 - **Updated files**:
   - `src/mir/builder.rs` - Added binding_ctx field, sync helpers
   - `src/mir/builder/vars/lexical_scope.rs` - Use binding_ctx SSOT
-  - `src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs` - Use binding_ctx.lookup()
-  - `src/mir/builder/control_flow/joinir/patterns/pattern2_with_break.rs` - Use binding_ctx.lookup()
-  - `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs` - Use binding_ctx.binding_map()
-  - `src/mir/builder/control_flow/joinir/patterns/trim_loop_lowering.rs` - Use binding_ctx.binding_map()
+  - `src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs` - historical path token; current route-entry cleanup later renamed this lane
+  - `src/mir/builder/control_flow/joinir/patterns/pattern2_with_break.rs` - historical path token; current route-entry cleanup later renamed this lane
+  - `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs` - historical path token; current route-entry cleanup later renamed this lane
+  - `src/mir/builder/control_flow/plan/trim_loop_lowering.rs` - current semantic path for the trim lowering lane
 - **Tests**: All passing (1008 passed; 4 pre-existing failures)
 - **Migration**: Dual-access pattern with sync helpers
 - **Acceptance criteria**:

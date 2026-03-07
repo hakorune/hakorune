@@ -56,14 +56,14 @@ Goal: numbered route label による分岐を外部APIから消し、Facts（事
 - 完了: Facts split-scan subset / planner candidate / single_planner split_scan planner-first を接続
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
-## P10: Move loop_break extractor to plan layer（SSOT）
+## P10: Move loop_break extraction to plan layer（historical Pattern2 label）
 
 - 指示書: `docs/development/current/main/phases/phase-29ai/P10-MOVE-PATTERN2-EXTRACTOR-TO-PLAN-LAYER-INSTRUCTIONS.md`
 - ねらい: loop_break の抽出（legacy Pattern2 label 由来の知識）を plan 側へ寄せて依存方向を一方向に固定（仕様不変）
 - 完了: plan/extractors へ移設、JoinIR 側は wrapper 化、legacy_rules を plan 側へ統一
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
-## P11: Planner support + wiring（loop_break subset）
+## P11: Planner support + wiring（loop_break subset; historical Pattern2 label）
 
 - 指示書: `docs/development/current/main/phases/phase-29ai/P11-PLANNER-PATTERN2-BREAK-SUBSET-WIRE-INSTRUCTIONS.md`
 - ねらい: loop_break PoC subset を Facts→Planner に吸収し、single_planner で planner-first を開始（仕様不変で段階吸収）
@@ -77,7 +77,7 @@ Goal: numbered route label による分岐を外部APIから消し、Facts（事
 - 完了: LoopBreakBodyLocal facts 抽出 + LoopFacts 接続（guard解除） + unit tests 追加
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
-## P13: Memoize Facts in single_planner（SSOT）
+## P13: Memoize Facts in single_planner（scan_with_init / split_scan / loop_break）
 
 - 指示書: `docs/development/current/main/phases/phase-29ai/P13-PLANNER-MEMOIZE-FACTS-IN_SINGLE_PLANNER-INSTRUCTIONS.md`
 - ねらい: planner 呼び出しを 1 回に収束し、scan_with_init / split_scan / loop_break の planner-first が二重に Facts を走らせないようにする（仕様不変）

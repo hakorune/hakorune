@@ -124,7 +124,7 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase135_loop_true_break_
 
 ### Ok(None) for Fallback
 - Unsupported shapes (e.g., `return "hello"`) return `Ok(None)`
-- Fallback to existing JoinIR routing (`loop_break` etc.)
+- Fallback to the existing loop-route / plan pipeline (`loop_break` などの current route lane)
 - No hard errors for out-of-scope patterns
 
 ### Const Generation Shape (Phase 123)

@@ -5,6 +5,11 @@
 **実装日**: 2025-12-15
 **コミット**: ceb7baff
 
+Historical note:
+- The large-file inventory below is a 2025 snapshot taken before the later `joinir/route_entry` and `loop_route_detection`
+  cleanup.
+- `control_flow/joinir/patterns/*` rows are historical path tokens, not current runtime paths.
+
 ---
 
 ## 📊 実装サマリー
@@ -292,23 +297,23 @@ let comp_ctx = compilation_context::CompilationContext::with_plugin_sigs(plugin_
 2. **SSAContext** (local_ssa_map, schedule_mat_map, pin_slot_names)
 3. **CallContext** (in_unified_boxcall_fallback, recursion_depth)
 
-### 大きなファイル（箱化候補）
+### 大きなファイル（historical snapshot / 箱化候補）
 
 | ファイル | 行数 | 箱化機会 |
 |---------|------|---------|
-| control_flow/joinir/patterns/pattern2_with_break.rs | 1179 | Pattern ロジック共通化？ |
+| control_flow/joinir/patterns/pattern2_with_break.rs | 1179 | historical path token; loop-route logic 共通化候補 |
 | control_flow/joinir/merge/mod.rs | 1084 | Merge strategy 分離？ |
 | control_flow/joinir/merge/instruction_rewriter.rs | 892 | Rewrite rule Box 化？ |
 | lifecycle.rs | 753 | Lifecycle phase 分離？ |
 | ops.rs | 643 | Operation category 分離？ |
 
-### 重複コード調査
+### 重複コード調査（historical snapshot）
 
-**Pattern ファイル** (4 ファイル, 合計 2400+ 行):
-- pattern2_with_break.rs (1179 行)
-- pattern4_with_continue.rs (438 行)
-- pattern5_infinite_early_exit.rs (524 行)
-- trim_loop_lowering.rs (594 行)
+**Historical pattern-era route files** (4 ファイル, 合計 2400+ 行):
+- pattern2_with_break.rs (1179 行; historical path token)
+- pattern4_with_continue.rs (438 行; historical path token)
+- pattern5_infinite_early_exit.rs (524 行; historical path token)
+- trim_loop_lowering.rs (594 行; later moved to plan lane)
 
 **共通化機会**:
 - Exit line 処理（Phase 33 で一部完了）
@@ -329,7 +334,7 @@ let comp_ctx = compilation_context::CompilationContext::with_plugin_sigs(plugin_
 - SSAContext: Local SSA + Schedule 管理
 - CallContext: Unified call + Recursion 管理
 
-### 優先度 3: Pattern ロジック共通化
+### 優先度 3: legacy route logic 共通化
 - Exit line 処理の完全統一
 - Variable mapping helper Box 化
 - PHI 生成 strategy Box 化

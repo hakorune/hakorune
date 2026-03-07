@@ -3,6 +3,11 @@
 ## Overview
 Successfully extracted `binding_map` (String → BindingId mapping) into a dedicated `BindingContext` structure, following the same pattern as TypeContext, CoreContext, and ScopeContext.
 
+Historical note:
+- This summary keeps the file paths that existed at Step 4 execution time.
+- `src/mir/builder/control_flow/joinir/patterns/*` entries below are historical path tokens from before the later
+  `joinir/route_entry` migration, not current runtime paths.
+
 ## Implementation Details
 
 ### New File: `src/mir/builder/binding_context.rs`
@@ -63,21 +68,22 @@ fn sync_legacy_to_binding_ctx(&mut self) {
 3. **BindingMapProvider trait implementation**
    - Updated to return `binding_ctx.binding_map()` instead of direct field access
 
-#### Pattern Files (4 files)
-All pattern files updated to use `binding_ctx` for binding lookups:
+#### Historical pattern-era route files (4 files)
+All listed files were updated at Step 4 execution time to use `binding_ctx` for binding lookups:
 
-4. **`src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs`**
+4. **`src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs`** (historical path token)
    - Changed `self.binding_map.get(&loop_var_name)` → `self.binding_ctx.lookup(&loop_var_name)`
    - Changed `self.binding_map.get(&binding.name)` → `self.binding_ctx.lookup(&binding.name)`
 
-5. **`src/mir/builder/control_flow/joinir/patterns/pattern2_with_break.rs`**
+5. **`src/mir/builder/control_flow/joinir/patterns/pattern2_with_break.rs`** (historical path token)
    - Changed `builder.binding_map.get(&loop_var_name).copied()` → `builder.binding_ctx.lookup(&loop_var_name)`
 
-6. **`src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`**
+6. **`src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`** (historical path token)
    - Changed `binding_map: Some(&builder.binding_map)` → `binding_map: Some(builder.binding_ctx.binding_map())`
    - Changed `builder.binding_map.clone()` → `builder.binding_ctx.binding_map().clone()`
 
-7. **`src/mir/builder/control_flow/joinir/patterns/trim_loop_lowering.rs`**
+7. **`src/mir/builder/control_flow/plan/trim_loop_lowering.rs`**
+   - Current semantic path for the trim lowering lane (historical Step 4 work started from `joinir/patterns/trim_loop_lowering.rs`)
    - Changed `binding_map: Some(&builder.binding_map)` → `binding_map: Some(builder.binding_ctx.binding_map())`
    - Changed `trim_info.to_carrier_info(Some(&builder.binding_map))` → `trim_info.to_carrier_info(Some(builder.binding_ctx.binding_map()))`
 
@@ -219,7 +225,7 @@ Extract `variable_map` and related variable tracking:
 ### Notes for Next Steps
 - Keep same pattern: extract → deprecate → sync helpers → update tests
 - Verify all `rg` searches to find usage sites
-- Update both feature-gated code (`#[cfg(feature = "normalized_dev")]`) and regular code
+- At execution time, update both feature-gated code and regular code when they share the same binding access pattern
 - Don't forget to update trait implementations (like BindingMapProvider)
 
 ## File Statistics
@@ -230,10 +236,10 @@ Extract `variable_map` and related variable tracking:
 ### Modified Files
 - `src/mir/builder.rs` (+18 lines net)
 - `src/mir/builder/vars/lexical_scope.rs` (+9 lines net)
-- `src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs` (+4 lines net)
-- `src/mir/builder/control_flow/joinir/patterns/pattern2_with_break.rs` (+2 lines net)
-- `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs` (+4 lines net)
-- `src/mir/builder/control_flow/joinir/patterns/trim_loop_lowering.rs` (+3 lines net)
+- `src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs` (+4 lines net; historical path token)
+- `src/mir/builder/control_flow/joinir/patterns/pattern2_with_break.rs` (+2 lines net; historical path token)
+- `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs` (+4 lines net; historical path token)
+- `src/mir/builder/control_flow/plan/trim_loop_lowering.rs` (+3 lines net; current semantic path)
 
 ### Total Impact
 - **New**: 149 lines
@@ -254,7 +260,7 @@ Changes:
 - MirBuilder: Add binding_ctx field, deprecate binding_map
 - Add sync helpers: sync_binding_ctx_to_legacy() / sync_legacy_to_binding_ctx()
 - Update vars/lexical_scope.rs to use binding_ctx SSOT
-- Update pattern files to use binding_ctx.lookup() / binding_map()
+- Update historical route files to use binding_ctx.lookup() / binding_map()
 - Update BindingMapProvider trait to use binding_ctx
 - Update tests to verify both SSOT and legacy access
 
