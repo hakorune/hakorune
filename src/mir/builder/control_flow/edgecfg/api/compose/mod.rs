@@ -8,7 +8,7 @@
  * Pattern numbers (1-9+) are **symptom labels** for regression tests, NOT architectural concepts.
  * The architectural SSOT is **Frag composition rules** (`seq`/`if`/`loop`/`cleanup`).
  *
- * **Upstream (Extractor/Normalizer)**: Finish "shape recognition" and extract pattern-specific knowledge
+ * **Upstream (Extractor/Normalizer)**: Finish "shape recognition" and extract route-specific knowledge
  * **Downstream (Composition)**: Use Frag composition rules to build CFG converging to SSOT
  * **Terminator Generation**: `FragEmitSession`（手順SSOT）+ `emit_frag()`（低レベルSSOT）(Phase 29bq+)
  *
@@ -29,8 +29,8 @@
  *
  * ## Ownership Model (3-tier)
  *
- * 1. **Normalizer** (Tier 1): Allocates blocks/values, pattern-specific knowledge
- * 2. **Composition** (Tier 2): Rearranges exits/wires/branches, pattern-agnostic
+ * 1. **Normalizer** (Tier 1): Allocates blocks/values, route-specific knowledge
+ * 2. **Composition** (Tier 2): Rearranges exits/wires/branches, route-agnostic
  * 3. **Lowerer** (Tier 3): Emits MIR terminators via `FragEmitSession::emit_and_seal()`
  *
  * ## Usage Example
@@ -61,7 +61,7 @@
  *
  * - Phase 264: Entry API creation (signatures only)
  * - Phase 265-268: Implementation (seq/if/loop wiring, emit_frag SSOT)
- * - Phase 280: SSOT positioning (composition as pattern absorption destination)
+ * - Phase 280: SSOT positioning (composition as legacy numbered-label absorption destination)
  */
 
 use std::collections::BTreeMap;

@@ -89,7 +89,7 @@ pub fn joinir_stage1_enabled() -> bool {
 /// Phase 33-8: JoinIR debug log level (0-3)
 /// - 0: No logs (default)
 /// - 1: Basic logs (which functions were lowered)
-/// - 2: Pattern matching details (CFG analysis)
+/// - 2: Route/shape matching details (CFG analysis)
 /// - 3: Full dump (all variables, all instructions)
 pub fn joinir_debug_level() -> u8 {
     // Primary: HAKO_JOINIR_DEBUG

@@ -2,7 +2,7 @@
 
 **Phase**: 29bQ (Self-hosting compiler blocker)
 
-## Pattern
+## Route Shape
 
 This box handles loops with the following characteristics:
 - **Condition**: `loop(cond)` with a conditional expression
@@ -43,23 +43,23 @@ loop(i < n) {
 
 ## Key Features
 
-1. **step_bb pattern**: Continue jumps go to step_bb, which merges PHI inputs, then jumps to header_bb
+1. **step_bb route shape**: Continue jumps go to step_bb, which merges PHI inputs, then jumps to header_bb
 2. **Carrier variable handling**: Variables that persist across iterations with Select merge
 3. **Prelude save/restore**: Branch-local bindings in continue-if preludes are isolated
 
 ## Out-of-Scope
 
-The following patterns are explicitly out of scope for this box:
+The following route shapes are explicitly out of scope for this box:
 
 - **Nested return depth 3+**: Deeply nested return statements (depth 3 or more) in else chains
   - Example: `if cond { x = 1 } else { if other { ... } else { if depth == 0 { return } } } }`
   - **Handoff**: `LoopCondContinueWithReturnNested3` (v2 box)
-  - **Reason**: Different dominance/merge boundary pattern requiring specialized handling
+  - **Reason**: Different dominance/merge boundary shape requiring specialized handling
 
-See `LoopCondContinueWithReturnNested3` for these patterns.
+See `LoopCondContinueWithReturnNested3` for these route shapes.
 
 ## Test Coverage
 
-- **Simple pattern**: `phase29bq_selfhost_blocker_return_continue_hetero_simple.hako`
+- **Simple route shape**: `phase29bq_selfhost_blocker_return_continue_hetero_simple.hako`
   - Shallow return (depth 1) with continue
   - Expected: stdout = 0, rc = 0

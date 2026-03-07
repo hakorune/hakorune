@@ -271,7 +271,7 @@ pub enum JoinInst {
     ///   → エラー: "Call with k_next is not yet supported"
     /// - 典型的な使い方: `Call { func, args, k_next: None, dst: Some(...) }`
     ///
-    /// # Loop Pattern での使い方 (Phase 34-7)
+    /// # Loop Route での使い方 (Phase 34-7)
     /// ```rust
     /// // ✅ 正解: 末尾再帰
     /// Call {
@@ -302,7 +302,7 @@ pub enum JoinInst {
     ///   - continue_block: 次の JoinInst に続く
     /// - cond=None: 無条件に cont を Call して Return
     ///
-    /// # Loop Pattern での使い方 (Phase 34-7)
+    /// # Loop Route での使い方 (Phase 34-7)
     /// ```rust
     /// // ✅ 正解: 条件付き早期 return
     /// Jump {

@@ -12,7 +12,7 @@
 //! - Frame setup with break/continue targets and PHI inputs
 //! - 8-step pipeline for comprehensive loop lowering
 //! - PlanBuildSession integration for structural lock
-//! - Pattern-agnostic (all pattern knowledge in Normalizer)
+//! - Route-agnostic (all route knowledge is fixed in Normalizer)
 //!
 //! # Phase Comments
 //!
@@ -38,7 +38,7 @@ use super::phi_processing;
 impl super::PlanLowerer {
     /// Loop: emit blocks, effects, PHI, and edge CFG
     ///
-    /// This is pattern-agnostic. All pattern knowledge is in Normalizer.
+    /// This is route-agnostic. All route knowledge is in Normalizer.
     /// Phase 273 P3: Generalized fields are now REQUIRED (Fail-Fast).
     pub(super) fn lower_loop(
         builder: &mut MirBuilder,

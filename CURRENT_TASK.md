@@ -501,6 +501,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{flowbox-tag-coverage-map-ssot,coreplan-shadow-adopt-tag-coverage-ssot}.md` / `CURRENT_TASK.md`
     - intent: FlowBox は semantic alias wrapper stem を主語にし、negative coverage に残る `phase29ab_pattern2_seg_*` は `archived legacy stem` として明示する。CorePlan shadow-adopt は `tag suffix = legacy token` / `smoke path = current wrapper or archived legacy stem` に切り分ける
     - verification: `rg -n "archived legacy stem|current semantic wrapper|joinir-smoke-legacy-stem-retirement-ssot" docs/development/current/main/design/{flowbox-tag-coverage-map-ssot,coreplan-shadow-adopt-tag-coverage-ssot}.md` = expected hits only
+  - naming cleanup (2026-03-07, slice 66): current-facing code comments の `pattern` 語彙を route/shape へ寄せた
+    - synced files: `src/mir/{builder/control_flow/plan/lowerer/{loop_lowering,mod}.rs,builder/control_flow/plan/features/loop_cond_continue_with_return/README.md,builder/control_flow/edgecfg/api/compose/mod.rs,join_ir/mod.rs}` / `src/config/env/joinir_flags.rs` / `CURRENT_TASK.md`
+    - intent: Lowerer / feature README / env debug comments の `pattern-specific` / `Loop Pattern` を `route-specific` / `Loop Route` / `route shape` に寄せ、current surface の語彙を runtime semantics に合わせる
+    - verification: `rg -n "pattern-agnostic|pattern-specific|Loop Pattern|Pattern matching details|route shape" src/mir/builder/control_flow/plan/lowerer/{loop_lowering,mod}.rs src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return/README.md src/mir/builder/control_flow/edgecfg/api/compose/mod.rs src/mir/join_ir/mod.rs src/config/env/joinir_flags.rs` = expected route/shape wording only
 
 ## next fixed order (resume point)
 

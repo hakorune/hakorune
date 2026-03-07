@@ -15,18 +15,18 @@
 //!
 //! - Receive CorePlan from PlanNormalizer
 //! - Emit MIR instructions using pre-allocated ValueIds
-//! - No pattern-specific knowledge (pattern-agnostic)
+//! - No route-specific knowledge (route-agnostic)
 //!
 //! # Key Design Decision
 //!
 //! Lowerer processes CorePlan ONLY. It does not know about scan, split, or
-//! any other pattern-specific semantics. All pattern knowledge is in Normalizer.
+//! any other route-specific semantics. All route knowledge is in Normalizer.
 //!
 //! # Phase 273 P3: SSOT Finalization
 //!
 //! - Generalized fields (block_effects/phis/frag/final_values) are now REQUIRED
 //! - Legacy fallback has been removed (Fail-Fast on missing fields)
-//! - Pattern-specific emission functions (emit_scan_with_init_edgecfg) no longer used
+//! - Route-specific emission functions (emit_scan_with_init_edgecfg) no longer used
 //!
 //! # Module Dependencies
 //!
