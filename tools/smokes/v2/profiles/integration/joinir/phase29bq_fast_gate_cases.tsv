@@ -1,4 +1,6 @@
 # fixture	expected	allowed_rc	planner_tag	case_id	reason
+# NOTE: `case_id` and some fixture stems are legacy fixture pin tokens kept for filter compatibility.
+# Do not rename them outside a dedicated fixture-pin retirement phase.
 apps/tests/phase29bq_selfhost_blocker_parse_string2_return_prelude_call_min.hako	MISS	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	selfhost_parse_string2_return_prelude_call_min	selfhost parse_string2 return-prelude Call stmt (generic_loop_v1 recipe-first)
 apps/tests/phase29bq_selfhost_blocker_trim_generic_loop_min.hako	OK	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	selfhost_trim_generic_loop_min	selfhost trim loop(cond) with AND/OR comparisons
 apps/tests/phase29bq_pattern1_inline_explicit_step_min.hako	6	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	pattern1_inline_explicit_step_min	loop_simple_while explicit-step source pin

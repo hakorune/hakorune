@@ -545,6 +545,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `tools/smokes/v2/profiles/integration/joinir/{phase143_legacy_pack,phase286_pattern9_legacy_pack}.sh` / `CURRENT_TASK.md`
     - intent: `phase143_legacy_pack.sh` と `phase286_pattern9_legacy_pack.sh` が current gate surface ではなく historical phase replay 用の `archived legacy pack stem` だと明示し、future retire phase の archive-only 切り出しを準備する
     - verification: `rg -n "historical phase replay only|archived legacy pack stems|historical phase docs/archive references" docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md tools/smokes/v2/profiles/integration/joinir/{phase143_legacy_pack,phase286_pattern9_legacy_pack}.sh` = expected hits only
+  - truth cleanup (2026-03-07, slice 77): planner/fast-gate TSV header に legacy pin taxonomy を同期した
+    - synced files: `tools/smokes/v2/profiles/integration/{joinir/{planner_required_cases,phase29bq_fast_gate_cases}.tsv,selfhost/planner_required_selfhost_subset.tsv}` / `CURRENT_TASK.md`
+    - intent: TSV を直接編集するときにも `legacy fixture key / legacy fixture pin token / legacy selfhost test stem` のまま保持すべき列が分かるようにし、filter compatibility を壊す accidental rename を防ぐ
+    - verification: `rg -n "legacy fixture keys/pin tokens|legacy fixture pin tokens|legacy fixture keys or legacy selfhost test stems" tools/smokes/v2/profiles/integration/joinir/{planner_required_cases,phase29bq_fast_gate_cases}.tsv tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv` = expected hits only
 
 ## next fixed order (resume point)
 

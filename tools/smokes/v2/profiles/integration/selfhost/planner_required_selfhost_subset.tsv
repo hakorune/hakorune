@@ -1,5 +1,6 @@
 # fixture	expected	allow_rc	planner_tag	reason
 # NOTE: keep minimal set for selfhost execution (grow 1 -> N, stop on freeze and record LOG in phase-29bq README).
+# NOTE: selfhost subset may still pin legacy fixture keys or legacy selfhost test stems; keep the token stable until a dedicated retire phase.
 apps/tests/phase118_pattern3_if_sum_min.hako	12	0	[joinir/planner_first rule=LoopCondBreak]	if_phi_join selfhost subset (legacy fixture key)
 apps/tests/phase29bq_selfhost_blocker_rewriteknown_try_apply_loop_true_else_exit_min.hako	XY	0	[joinir/planner_first rule=LoopTrueBreak]	selfhost RewriteKnown.try_apply loop(true) general-if-else-exit
 apps/tests/phase29bq_selfhost_subset_scan_funcs_import_min.hako	0	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset scan: compile FuncScannerBox (scan loops)
