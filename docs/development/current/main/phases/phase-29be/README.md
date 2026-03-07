@@ -43,7 +43,7 @@ Stage-3 では **DomainPlan 経由の合成（PlanNormalizer::normalize(domain_p
 
 | Location | Why it uses DomainPlan | Gate impact | Replacement plan |
 | --- | --- | --- | --- |
-| `src/mir/builder/control_flow/plan/composer/coreloop_single_entry.rs` | historical labels `2/3/5` の `value_join_needed=false` を typed normalizer（`normalize_pattern2_break/3_if_phi/5_infinite_early_exit`）で合成 | gate 内 | facts → parts → typed entry へ置換済み |
+| `src/mir/builder/control_flow/plan/composer/coreloop_single_entry.rs` | historical labels `2/3/5` の `value_join_needed=false` を typed normalizer entry（`loop_break / if_phi_join / loop_true_early_exit`）で合成 | gate 内 | facts → parts → typed entry へ置換済み |
 
 ### 2) router: final fallback
 
@@ -53,7 +53,7 @@ Stage-3 では **DomainPlan 経由の合成（PlanNormalizer::normalize(domain_p
 
 ### 3) plan/normalizer: facts → parts の不足
 
-- LoopBreak（historical label `2`）: `Pattern2BreakPlan` 相当の parts を facts だけで復元できず DomainPlan に依存
+- LoopBreak（historical label `2`）: `LoopBreakPlan` 相当の parts を facts だけで復元できず DomainPlan に依存
 - IfPhiJoin（historical label `3`）: branch updates の構成が DomainPlan に寄っている
 - LoopTrueEarlyExit（historical label `5`）: exit kind/value の parts を facts から復元できない
 

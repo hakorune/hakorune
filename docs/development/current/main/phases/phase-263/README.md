@@ -72,7 +72,7 @@ PolicyDecision::Reject(reason) => {
         #[cfg(debug_assertions)]
         {
             eprintln!(
-                "[pattern2/promote_step] Pattern2 対象外（LoopBodyLocal {:?}）: {}. 後続経路へfallback.",
+                "[legacy label-2 promote-step tag] route-outside target (LoopBodyLocal {:?}): {}. Continue via next lane.",
                 cond_body_local_vars, reason
             );
         }
@@ -80,7 +80,7 @@ PolicyDecision::Reject(reason) => {
     } else {
         // 対象だが未対応（freeze級）: 実装バグ or 将来実装予定 → Err で Fail-Fast
         return Err(format!(
-            "[pattern2/promote_step] Pattern2 未対応エラー（LoopBodyLocal {:?}）: {}",
+            "[legacy label-2 promote-step tag] unsupported route error (LoopBodyLocal {:?}): {}",
             cond_body_local_vars, reason
         ));
     }
@@ -108,7 +108,10 @@ let mut inputs = match promoted {
     None => {
         // Phase 263 P0: old label-2 lane cannot handle this loop (e.g., reassigned LoopBodyLocal)
         // Return Ok(None) to allow router to try next path (legacy binding)
-        super::super::trace::trace().debug("pattern2", "Pattern2 aborted (promotion failed), allowing fallback");
+        super::super::trace::trace().debug(
+            "<legacy label-2 debug tag>",
+            "legacy label-2 lane aborted (promotion failed), allowing fallback",
+        );
         return Ok(None);
     }
 };

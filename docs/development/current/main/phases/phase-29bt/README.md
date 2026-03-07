@@ -32,7 +32,7 @@ Goal: “箱（plan rule）を増やして凌ぐ”のではなく、`Skeleton +
 
 ## P1 (first extraction)
 
-- `pattern3_if_phi` の if-join（pred 収集/phi 挿入規則）を JoinFeature として抽出
+- old label-3 if-phi lane の if-join（pred 収集/phi 挿入規則）を JoinFeature として抽出
 - 影響範囲は最小（既定挙動不変・strict/dev の観測強化のみ）
 - P1 post-change green: `./tools/smokes/v2/profiles/integration/joinir/phase29bp_planner_required_dev_gate_v4_vm.sh` PASS
 - Status: ✅ done（`features/if_join.rs` に集約、lowerer は呼び出しのみ）

@@ -16,7 +16,7 @@ Goal: Reduce legacy extractor fallbacks while keeping planner+composer as the SS
 
 - JoinIR legacy loop table removed; router now delegates to plan/composer only.
 - stdlib loop subsets migrated to plan facts (StringUtils.to_lower, StringUtils.join, trim_start/trim_end).
-- Pattern2/4/8/9 legacy routing removed; Pattern6 nested minimal adopted via CorePlan (strict+release).
+- legacy labels `2/4/8/9` routing removed; nested_loop_minimal lane（historical label `6`）adopted via CorePlan (strict+release).
 - Dead-code cleanup after legacy removal (unused JoinIR lowerers removed).
 
 ## Gate (SSOT)

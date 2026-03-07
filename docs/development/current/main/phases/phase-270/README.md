@@ -129,7 +129,7 @@ k_exit(sum):
 ### 実装ファイル
 
 **新規ファイル（1個, historical joinir/patterns lane）**:
-- historical file token `pattern9_accum_const_loop.rs` (470行)
+- historical file token for the old label-9 accum-const-loop lane (470行)
   - `can_lower()`: Phase270 fixture形状を厳密判定
   - `lower()`: JoinIR生成 → JoinIRConversionPipeline::execute
   - `lower_accum_const_loop_joinir()`: 2キャリア（i, sum）JoinIR lowerer
@@ -240,7 +240,7 @@ HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration
 - ✅ LoopSimpleWhile route が test-only stub と判明 → P1へ
 
 ### P1成功条件
-- ✅ AccumConstLoop route 追加（historical file token: `pattern9_accum_const_loop.rs`）
+- ✅ AccumConstLoop route 追加（historical file token: old label-9 accum-const-loop basename）
 - ✅ router登録（LoopSimpleWhile より前）
 - ✅ `cargo build --release` 成功
 - ✅ `./target/release/hakorune --backend vm apps/tests/phase270_p0_loop_min_const.hako` → exit code 3

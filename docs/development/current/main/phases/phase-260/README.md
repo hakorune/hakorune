@@ -17,7 +17,7 @@ Last updated: 2025-12-21
   - Phase 1: terminator_builder, block_finalizer
   - Phase 2: handlers/（call, jump, conditional_method_call, if_merge, nested_if_merge）
   - **合計抽出**: 15モジュール、約3941行、53単体テスト全てpass
-  - **統合テスト**: 45/46 pass（既知のPattern2 LoopBodyLocal問題1件のみ）
+  - **統合テスト**: 45/46 pass（既知の loop_break LoopBodyLocal 問題1件のみ）
 - **P2（削除）: 完了 ✅**
   - **BasicBlock.jump_args 完全削除**、edge-args SSOT を terminator operand 側に一本化
   - フィールド変更: `jump_args` → `return_env`（Return専用metadata）

@@ -1,6 +1,6 @@
 ---
 Status: Complete
-Scope: planner-first required (loop_break small set; legacy Pattern2 label is traceability-only)
+Scope: planner-first required (loop_break small set; legacy label `2` is traceability-only)
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/30-Backlog.md

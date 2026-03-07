@@ -263,7 +263,7 @@ Phase 131 P2 - Variable Propagation (2025-12-18)
 
 ### ✅ P1 Completed (Execution Path)
 
-- **Routing**: `try_cf_loop_joinir` now checks Normalized shadow before Pattern2 (`routing.rs`)
+- **Routing**: `try_cf_loop_joinir` now checks Normalized shadow before the loop_break lane (`routing.rs`)
 - **Dev Gating**: Routes to Normalized when `NYASH_JOINIR_DEV=1`
 - **Merge Pipeline**: Uses existing `JoinIRConversionPipeline` (JoinModule → MirModule → merge)
 - **Execution**: Loop executes successfully without freeze (verified in trace output)

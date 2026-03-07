@@ -32,7 +32,7 @@ planner miss の Freeze を減らす（Facts/Planner が plan を返せる範囲
 
 ## Target
 
-- Added coverage (scan_with_init route; historical label: Pattern6): `phase29aq_string_last_index_of_min_vm`（理由: index_of と対になる ScanWithInit 代表ケース）
+- Added coverage (scan_with_init route; historical label `6`): `phase29aq_string_last_index_of_min_vm`（理由: index_of と対になる ScanWithInit 代表ケース）
 
 ## Status note
 

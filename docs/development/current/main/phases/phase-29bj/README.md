@@ -1,6 +1,6 @@
 ---
 Status: Complete
-Scope: planner-required scan_with_init / split_scan（legacy Pattern6/7 labels are traceability-only）
+Scope: planner-required scan_with_init / split_scan（legacy labels `6/7` are traceability-only）
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/30-Backlog.md

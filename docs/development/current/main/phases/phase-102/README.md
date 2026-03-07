@@ -6,4 +6,4 @@
 - smoke:
   - VM: `tools/smokes/v2/profiles/integration/apps/archive/phase102_realapp_read_quoted_vm.sh`
   - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/archive/phase102_realapp_read_quoted_llvm_exe.sh`
-- 次候補: `parse_object` / `parse_array` の key/value ループ（Pattern4 continue + return 混在）や read_digits 系。
+- 次候補: `parse_object` / `parse_array` の key/value ループ（loop_continue_only; historical label `4`; continue + return 混在）や read_digits 系。

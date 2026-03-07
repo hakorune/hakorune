@@ -36,8 +36,8 @@ Acceptance:
 
 - `src/mir/builder/control_flow/plan/normalizer/pattern_scan_with_init.rs`
 - `src/mir/builder/control_flow/plan/normalizer/pattern_split_scan.rs`
-- `src/mir/builder/control_flow/plan/extractors/pattern6_scan_with_init.rs`
-- `src/mir/builder/control_flow/plan/extractors/pattern7_split_scan.rs`
+- historical label-6 extractor basename lane
+- historical label-7 extractor basename lane
 
 ## Notes
 

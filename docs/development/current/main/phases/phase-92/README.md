@@ -3,7 +3,7 @@
 ## Status
 - ✅ P0: Contract + skeleton-to-lowering wiring (foundations)
 - ✅ P1: Boxification / module isolation (ConditionalStep emitter)
-- ✅ P2: loop_break route（historical label: Pattern2）へ配線 + body-local 条件式サポート
+- ✅ P2: loop_break route（historical label `2`）へ配線 + body-local 条件式サポート
 - ✅ P3: BodyLocal 1変数（read-only）を loop_break route 条件で許可（Fail-Fast）
 - ✅ P4: E2E固定（最小）+ 回帰最小化（unit + integration smoke）
 - ⏸️ P5: P5b “完全E2E” は promotion 拡張後
@@ -50,8 +50,8 @@
 ## P4（完了）: E2E固定（最小）+ 回帰最小化
 
 - unit: `src/mir/join_ir/lowering/condition_lowerer.rs` に body-local 解決のユニットテストを追加
-- integration smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase92_pattern2_baseline.sh`
-  - Case A: `apps/tests/loop_min_while.hako`（既存 loop_break route の退行チェック; legacy fixture token retained）
+- integration smoke: `tools/smokes/v2/profiles/integration/apps/archive/` 配下の phase92 legacy baseline smoke
+  - Case A: `apps/tests/loop_min_while.hako`（既存 loop_break route の退行チェック; legacy archive stem retained）
   - Case B: `apps/tests/phase92_conditional_step_minimal.hako`（ConditionalStep の最小確認）
 - 詳細ログ（歴史）:
   - `docs/development/current/main/phases/phase-92/P4-E2E-PLAN.md`

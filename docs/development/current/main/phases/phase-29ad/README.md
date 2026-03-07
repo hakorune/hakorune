@@ -5,11 +5,11 @@ Goal: remove ambiguous "firstfail" naming and make the variant explicit for ever
 ## Naming rules (SSOT)
 
 - scan_with_init legacy fixture pin family (historical label `6`):
-  - old label-6 family stem: `phase29ab_pattern6_<variant>_{ok|contract}_min.{hako,sh}`
+  - old label-6 family stem: `phase29ab_<label-6-scan-family>_<variant>_{ok|contract}_min.{hako,sh}`
   - variants: `scan_with_init`, `reverse`, `matchscan`
 - split_scan legacy fixture pin family (historical label `7`):
-  - old label-7 family stem: `phase29ab_pattern7_splitscan_{ok|contract}_min.{hako,sh}`
-  - near-miss OK variant: `phase29ab_pattern7_splitscan_nearmiss_ok_min.{hako,sh}`
+  - old label-7 family stem: `phase29ab<label-7-split-family>_{ok|contract}_min.{hako,sh}`
+  - near-miss OK variant: `phase29ab<label-7-split-nearmiss>_ok_min.{hako,sh}`
 
 ## Current mapping
 

@@ -106,7 +106,7 @@ print(out.length())   # Output: 2
 
 **Implementation**:
 - **P2-1**: MutableAccumulatorAnalyzer (AST shape detection only)
-- **P2-2**: Pattern2 wiring (ScopeManager delegates read-only check)
+- **P2-2**: loop_break wiring (ScopeManager delegates read-only check)
 - **P2-3**: Lowering (carrier update emission)
 - **P2-4**: Integration test (fixture + smoke, length-based validation)
 
@@ -140,5 +140,5 @@ loop(i < 3) {
 **Implementation**:
 - **P3-1**: AccumulatorKind::{Int, String} 追加（型判定は委譲）
 - **P3-2**: StringAccumulatorEmitter 専用箱（JoinIR lowering）
-- **P3-3**: Pattern2 wiring（string carrier 昇格、emitter 分岐）
+- **P3-3**: loop_break wiring（string carrier 昇格、emitter 分岐）
 - **P3-4**: Fixture + smokes（VM + LLVM EXE）

@@ -86,7 +86,7 @@ Status: ✅ COMPLETE（実装コミット: `5ac2f3586`）
 ## P8: exit_usage invariants (debug-only)
 
 - 指示書: `docs/development/current/main/phases/phase-29an/P8-EXITUSAGE-INVARIANTS-INSTRUCTIONS.md`
-- ねらい: exit_usage と DomainPlan（Pattern1/2/4/5）の整合を debug-only で固定（release は仕様不変）
+- ねらい: exit_usage と DomainPlan（historical labels `1/2/4/5`）の整合を debug-only で固定（release は仕様不変）
 
 Status: ✅ COMPLETE（実装コミット: `195b424cc`）
 

@@ -115,8 +115,8 @@ set_branch_with_edge_args() / set_jump_with_edge_args() (Phase 260 SSOT)
 
 ## 次フェーズへの橋渡し
 
-**Phase 269**: Pattern への展開
-- Pattern6/7/8 を Frag 化
+**Phase 269**: route family への展開
+- scan_with_init / split_scan / bool_predicate_scan を Frag 化
 - NormalizedShadow/JoinIR への適用
 - pattern番号分岐削減
 - fixture + smoke test
@@ -160,4 +160,4 @@ set_branch_with_edge_args() / set_jump_with_edge_args() (Phase 260 SSOT)
 - ✅ 全テスト PASS（1444 tests + 45/46 smoke）
 - ✅ TODO 削除完了
 
-**次のステップ**: Phase 269 で Pattern6/7/8 への Frag 適用 + fixture/smoke test
+**次のステップ**: Phase 269 で scan_with_init / split_scan / bool_predicate_scan への Frag 適用 + fixture/smoke test

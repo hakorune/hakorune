@@ -24,7 +24,7 @@ Closeout SSOT:
 
 Reading note:
 - 下の instruction filename に残る `PATTERN*` は historical instruction token だよ。
-- smoke script は semantic wrapper を current entry とし、old `phase29ao_*` / `phase29ab_*` / `phase263_pattern2_*` stem は historical compat wrapper / legacy fixture pin token として読む。
+- smoke script は semantic wrapper を current entry とし、old `phase29ao_*` / `phase29ab_*` / `phase263_<label-2-compat-stem>*` は historical compat wrapper / legacy fixture pin token として読む。
 
 ## P0: Composer scaffold（未接続・仕様不変）✅
 
@@ -46,7 +46,7 @@ Reading note:
 ## P3: CoreLoop skeleton を CorePlan で直接生成（未接続・仕様不変）✅
 
 - 指示書: `docs/development/current/main/phases/phase-29ao/P3-CORELOOP-SKELETON-COMPOSE-INSTRUCTIONS.md`
-- ねらい: `CanonicalLoopFacts` から `CorePlan::Loop`（skeleton）を direct 生成（loop_simple_while subset のみ。legacy Pattern1 label は traceability-only）
+- ねらい: `CanonicalLoopFacts` から `CorePlan::Loop`（skeleton）を direct 生成（loop_simple_while subset のみ。legacy label `1` は traceability-only）
 
 ## P4: ExitMap presence を Frag.exits に投影（未接続・仕様不変）✅
 

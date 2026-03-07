@@ -910,26 +910,30 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-29ad,phase-287,phase-29bq}/README.md` / `CURRENT_TASK.md`
     - intent: `phase-29ad` は exact label-6/7 family stem と near-miss variant だけを inventory SSOT に残し、`phase-287` / `phase-29bq` は old file token / old case-id token の再掲を route-first wording へ縮約する
     - verification: `git diff --check` PASS; `python` inventory で `docs/development/current/main/phases/**/README.md` の `Pattern[0-9]|pattern[0-9]_` total = `42`; top files = `phase-29ad=3`, `phase-263=3`, `phase-92=2`, `phase-29bv=2`, `phase-29be=2`, `phase-29ap=2`; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/{phase-29ad,phase-287,phase-29bq,phase-263}/README.md` = exact inventory/debug evidence only
+  - truth cleanup (2026-03-08, slice 169): `phase-92/29bv/29be/29ao/29ap/270/268/117/103/100` の exact `PatternN/patternN_` token を semantic route family / historical label / wildcard placeholder に置換し、broad residue を `16` まで圧縮した
+    - synced files: `docs/development/current/main/phases/{phase-92,phase-29bv,phase-29be,phase-29ao,phase-29ap,phase-270,phase-268,phase-117,phase-103,phase-100}/README.md` / `CURRENT_TASK.md`
+    - intent: active guide では exact legacy basename や numbered route label を current prose の主語にせず、route family / historical label / inventory placeholder に押し戻す。`phase-263` の exact debug tag も active evidence lane では placeholder 化して raw token の再掲を止める
+    - verification: `git diff --check` PASS; `python` inventory で `docs/development/current/main/phases/**/README.md` の `Pattern[0-9]|pattern[0-9]_` total = `16`; top files = `phase-94=1`, `phase-29bt=1`, `phase-29bm=1`, `phase-29bj=1`, `phase-29bi=1`, `phase-29an=1`
+  - truth cleanup (2026-03-08, slice 170): remaining single-hit phase README residue（`phase-94/29bt/29bm/29bj/29bi/29an/29ak/29af/260/253/131/126/108/107/104/102`）を semantic route / historical label wording に統一し、active phase README の broad residue を `0` にした
+    - synced files: `docs/development/current/main/phases/{phase-94,phase-29bt,phase-29bm,phase-29bj,phase-29bi,phase-29an,phase-29ak,phase-29af,phase-260,phase-253,phase-131,phase-126,phase-108,phase-107,phase-104,phase-102}/README.md` / `CURRENT_TASK.md`
+    - intent: active phase README では `PatternN/patternN_` を完全に historical/compat lane へ退避し、semantic route family / historical label / evidence placeholder だけで読める状態にする
+    - verification: `git diff --check` PASS; `python` inventory で `docs/development/current/main/phases/**/README.md` の `Pattern[0-9]|pattern[0-9]_` total = `0`; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/**/README.md` = 0 hit
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
 2. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `historical compat wrapper` / `active semantic wrapper` にさらに分離し、design 側の tag/fixture inventories と役割を揃える。
-3. phase README truth cleanup: [phase-29ad/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-29ad/README.md) を label-6/7 inventory-only lane として維持しつつ、[phase-92/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-92/README.md) / [phase-29bv/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-29bv/README.md) / [phase-29be/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-29be/README.md) / [phase-29ap/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-29ap/README.md) の remaining historical token を same-lane note にさらに圧縮する。`phase-263` は exact debug tags の evidence lane を維持する。
+3. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `dust` cleanup: warnings / orphan helper / dead code を刈る。
-6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
+5. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
 
 ## Remaining Effort Snapshot (2026-03-08)
 
-- total estimate: あと **1 slice 前後** で current compiler/docs cleanup はかなり収束、repo 全体の historical/compat token 後始末まで含めると **2-3 slices**
-- highest-value remaining docs:
+- total estimate: current compiler/docs cleanup は **ほぼ収束**。repo 全体の historical/compat token 後始末まで含めると **1-2 slices**
+- highest-value remaining work:
   1. compat token retirement lane (`smoke stem` / `selfhost filter` / `fixture key`)
-  2. `docs/development/current/main/phases/phase-29ad/README.md`
-  3. `docs/development/current/main/phases/phase-263/README.md`
-  4. `docs/development/current/main/phases/phase-92/README.md`
-  5. `docs/development/current/main/phases/phase-29bv/README.md`
-  6. low-risk dust cleanup
+  2. low-risk dust cleanup
+  3. `docs/private` nested repo drift
 - compat token retirement lane:
   - smoke stem / selfhost filter / fixture key の caller 0 棚卸しと retire phase
   - blocking fact: `tools/smokes/v2/run.sh` の auto-discovery があるため、grep hit 0 だけでは削除条件にならない
@@ -938,11 +942,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - その 1 hit は `src/mir/join_ir/frontend/ast_lowerer/route.rs:106` の intentional by-name legacy fixture key allowlist（`pattern3_if_sum_multi_min`）
   - 残りは physical path / generic wording / intentional legacy token が中心
 - phase/docs residue snapshot:
-  - `docs/development/current/main/phases/**/README.md` の `PatternN` / `patternN_` broad grep は **42 hits**
-  - 上位残件は `phase-29ad=3`, `phase-263=3`, `phase-92=2`, `phase-29bv=2`, `phase-29be=2`, `phase-29ap=2`
+  - `docs/development/current/main/phases/**/README.md` の `PatternN` / `patternN_` broad grep は **0 hits**
+  - active phase README の current-looking numbered route residue は cleanup 完了
   - `phase-142` + `phase-143` の broad grep は **0 hits**
-  - `phase-263` + `phase-29ad` の broad grep は **6 hits**、多くは wildcard inventory / exact debug evidence lane
-  - ただし多くは historical label / fixture token / archive stem / debug token で、current architecture prose はかなり整理済み
+  - 残る old token は主に compat wrapper / legacy fixture key / archive stem / debug token の inventory/evidence lane
 
 ## Quick Restart (After Reboot)
 

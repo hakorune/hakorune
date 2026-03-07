@@ -16,7 +16,7 @@
 ### available_inputs のソース（優先順位）
 
 1. **function params**: MirBuilder の `scope_ctx.function_param_names` + `variable_ctx.variable_map`
-2. **CapturedEnv**: pinned/captured の host ValueId（Pattern2 等で使用）
+2. **CapturedEnv**: pinned/captured の host ValueId（loop_break 等で使用）
 3. **禁止**: AST からの推測 capture（Phase 100 の CapturedEnv と混同しない）
 
 ### 契約

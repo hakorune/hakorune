@@ -1,6 +1,6 @@
 # Phase 107 — json_cur find_balanced_array_end（Active）
 
-目的: `apps/libs/json_cur.hako` の `find_balanced_array_end`（depth scan + nested if + return-in-loop）を Pattern2 policy で受理し、VM/LLVM EXE parity を integration smoke で固定する。
+目的: `apps/libs/json_cur.hako` の `find_balanced_array_end`（depth scan + nested if + return-in-loop）を loop_break policy で受理し、VM/LLVM EXE parity を integration smoke で固定する。
 形状: `loop(i < n)` + `ch = s.substring(i, i+1)` + `depth += 1/-1` + `if depth == 0 { return i }` + `i = i + 1`。
 受け入れ基準: fixture で `[]`→`1`, `[[]]`→`3` を VM と LLVM EXE の両方で出す（LLVM 前提不足時は SKIP のみ許容）。
 

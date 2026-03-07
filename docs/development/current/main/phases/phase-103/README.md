@@ -10,7 +10,7 @@ Related:
 ## 目的
 
 - 「loop が無い `if`」でも JoinIR 経路（if lowering + merge）が壊れないことを、**VM/LLVM EXE parity** で固定する。
-- ループ系の変更（Pattern2/4/derived/pinned/mutable accumulator）の回帰を、if-only で早期検知できるようにする。
+- ループ系の変更（loop_break / loop_continue_only / derived/pinned/mutable accumulator）の回帰を、if-only で早期検知できるようにする。
 - CI は最小のまま（`tools/smokes/v2` の `integration` にのみ追加）。
 
 ## P0: Fixture + integration smokes（最小）
@@ -76,5 +76,5 @@ if 文の then/else 内で return する形（merge 不要 or merge 途中で re
   - `apps/libs/json_cur.hako:29`（`read_digits_from`）
   - `apps/selfhost-vm/json_loader.hako:25`（`read_digits_from`）
 - 進め方（箱理論）:
-  - “新パターン増殖” ではなく、**Pattern5 系（infinite loop family）**として扱う方針を先に決める。
+  - “新route増殖” ではなく、**loop_true_early_exit family（historical label `5`）**として扱う方針を先に決める。
   - まずは fixture + shape guard + Fail-Fast で段階投入し、VM/LLVM parity を固めてから lowering を広げる。

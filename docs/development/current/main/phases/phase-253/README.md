@@ -18,7 +18,7 @@ Related:
 
 ## 背景（なぜここで落ちるか）
 
-`loop_break` route（historical numbered label: Pattern2）の pipeline は、ループ本体の代入から「mutable accumulator（`x = x + y`）」を検出して
+`loop_break` route（historical numbered label `2`）の pipeline は、ループ本体の代入から「mutable accumulator（`x = x + y`）」を検出して
 最適化/簡略化に利用する。ところが現在の analyzer が Fail-Fast すぎて、
 “accumulator ではない単なる代入” を見つけた時点で Err にしてしまい、JoinIR 経路全体を落としている。
 
