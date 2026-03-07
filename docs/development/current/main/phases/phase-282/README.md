@@ -1,13 +1,13 @@
-# Phase 282: Router Shrinkage (pattern番号の症状ラベル化)
+# Phase 282: Router Shrinkage (numbered route label の症状ラベル化)
 
 Status: Active SSOT / ✅ P0–P9a complete (2025-12-23)
 
 Reading note:
-- この文書の `Pattern1..9` は numbered route label の縮退ルールを説明する historical naming token だよ。
+- この文書の `label-1..9` は numbered route label の縮退ルールを説明する historical naming token だよ。
 - current runtime mainline の主語は route family / extractor / plan line / joinir line で読む。
 
 Goal:
-- numbered route label（Pattern1/2/…）を “症状ラベル（テスト名）” に縮退させ、router の責務を「抽出の配線」へ収束させる。
+- numbered route label（label-1/2/…）を “症状ラベル（テスト名）” に縮退させ、router の責務を「抽出の配線」へ収束させる。
 - CFG 構築は `Frag/ExitKind` 合成 SSOT（`compose::*` + `emit_frag()`）へ一本化する。
 
 ## SSOT References
@@ -15,8 +15,8 @@ Goal:
 - Frag/emit SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
 - Composition SSOT: `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`
 - JoinIR overview: `docs/development/current/main/joinir-architecture-overview.md`
-- Plan line（scan_with_init / split_scan; historical labels: Pattern6/7）: `docs/development/current/main/phases/phase-273/README.md`
-- Composition adoption（scan_with_init / split_scan; historical labels: Pattern6/7）: `docs/development/current/main/phases/phase-281/README.md`
+- Plan line（scan_with_init / split_scan; historical labels 6/7）: `docs/development/current/main/phases/phase-273/README.md`
+- Composition adoption（scan_with_init / split_scan; historical labels 6/7）: `docs/development/current/main/phases/phase-281/README.md`
 
 ## Problem
 
@@ -58,44 +58,44 @@ CFG構築は以下に収束させる：
 5. Mock path fallback（test 専用パターンの本番使用禁止）
 
 **numbered route label = 症状ラベル**（Phase 280 SSOT positioning）:
-- ✅ 正しい用途: テスト名（`loop_if_phi.hako` → Pattern3_WithIfPhi）、debug ログ
+- ✅ 正しい用途: テスト名 suffix（historical label-3 with-if-phi family など）、debug ログ
 - ❌ 禁止: CFG 分岐（`if pattern == 6 then ...`）、アーキテクチャ SSOT（Frag composition が SSOT）
 
 **Detection 戦略**（Phase 282 P3-P7 migration 完了）:
-- **ExtractionBased** (全Pattern統一): extract_*() 成功 → match（SSOT 単一）
-  - Pattern1-5: Phase 282 P3-P7 で ExtractionBased 移行完了
-  - Pattern6/7: Phase 273 Plan-based (extract_*_plan)
-  - Pattern8/9: Phase 259/270 で既に ExtractionBased
-  - pattern_kind: **safety valve のみ**（O(1) perf guard、検出ロジックではない）
+- **ExtractionBased** (全 route family 統一): extract_*() / try_extract_*() 成功 → match（SSOT 単一）
+  - historical labels 1-5: Phase 282 P3-P7 で ExtractionBased 移行完了
+  - historical labels 6/7: Phase 273 Plan-based
+  - historical labels 8/9: Phase 259/270 で既に ExtractionBased
+  - kind gate: **safety valve のみ**（O(1) perf guard、検出ロジックではない）
 
-### Pattern Detection SSOT Table (Phase 282 P3-P7 Complete)
+### Route Detection SSOT Table (Phase 282 P3-P7 Complete)
 
-**全Pattern統一ルール**:
-1. **SSOT = extract**: Extraction 関数が検出の唯一の真実（pattern_kind ではない）
-2. **Safety valve**: pattern_kind は O(1) 早期reject のみ（検出ロジックに使わない）
+**全 route family 統一ルール**:
+1. **SSOT = extract**: Extraction 関数が検出の唯一の真実（kind gate ではない）
+2. **Safety valve**: kind gate は O(1) 早期reject のみ（検出ロジックに使わない）
 3. **Re-extract**: lower() は必ず再extract して SSOT 強制（can_lower 通過を信じない）
 
-| Pattern | SSOT Entrypoint | Safety Valve | Re-extract | Phase |
-|---------|-----------------|--------------|------------|-------|
-| **Pattern1** | `extractors/pattern1.rs::extract_*` | `pattern_kind==Minimal` | ✅ | P282 P3 |
-| **Pattern2** | `extractors/pattern2.rs::extract_*` | `pattern_kind==Basic` | ✅ | P282 P4 |
-| **Pattern3** | `extractors/pattern3.rs::extract_*` | `pattern_kind==WithIfPhi` | ✅ | P282 P5 |
-| **Pattern4** | `extractors/pattern4.rs::extract_*` | `pattern_kind==Carrier` | ✅ | P282 P6 |
-| **Pattern5** | `extractors/pattern5.rs::extract_*` | `pattern_kind==InfiniteEarlyExit` | ✅ | P282 P7 |
-| **Pattern6** | `pattern6_scan_with_init.rs::extract_scan_with_init_plan()` | (none, Plan-based) | ✅ | P273 P1 |
-| **Pattern7** | `pattern7_split_scan.rs::extract_split_scan_plan()` | (none, Plan-based) | ✅ | P273 P2 |
-| **Pattern8** | `pattern8_scan_bool_predicate.rs` (can_lower) | (none, ExtractionBased) | ✅ | P259 |
-| **Pattern9** | `pattern9_accum_const_loop.rs` (can_lower) | (none, ExtractionBased) | ✅ | P270 |
+| Route family | SSOT Entrypoint | Safety Valve | Re-extract | Phase |
+|--------------|-----------------|--------------|------------|-------|
+| **LoopSimpleWhile** (historical label 1) | `extractors/loop_simple_while.rs::extract_*` | `kind gate == LoopSimpleWhile` | ✅ | P282 P3 |
+| **LoopBreak** (historical label 2) | `facts/loop_break_*.rs::try_extract_*` | `kind gate == LoopBreak` | ✅ | P282 P4 |
+| **IfPhiJoin** (historical label 3) | `extractors/if_phi_join.rs::extract_*` | `kind gate == IfPhiJoin` | ✅ | P282 P5 |
+| **LoopContinueOnly** (historical label 4) | `facts/loop_continue_only_facts.rs::try_extract_loop_continue_only_facts()` | `kind gate == LoopContinueOnly` | ✅ | P282 P6 |
+| **LoopTrueEarlyExit** (historical label 5) | `facts/loop_true_early_exit_facts.rs::try_extract_loop_true_early_exit_facts()` | `kind gate == LoopTrueEarlyExit` | ✅ | P282 P7 |
+| **ScanWithInit** (historical label 6) | `facts/loop_scan_with_init.rs::try_extract_scan_with_init_facts()` | (none, Plan-based) | ✅ | P273 P1 |
+| **SplitScan** (historical label 7) | `facts/loop_split_scan.rs::try_extract_split_scan_facts()` | (none, Plan-based) | ✅ | P273 P2 |
+| **BoolPredicateScan** (historical label 8) | `facts/bool_predicate_scan_facts.rs::try_extract_bool_predicate_scan_facts()` | (none, ExtractionBased) | ✅ | P259 |
+| **AccumConstLoop** (historical label 9) | `facts/accum_const_loop_facts.rs::try_extract_accum_const_loop_facts()` | (none, ExtractionBased) | ✅ | P270 |
 
-**pattern_kind の正しい使い方**:
-- ✅ **O(1) guard**: `if pattern_kind != Expected { return false }` (perf最適化)
-- ✅ **Debug logging**: `pattern_kind={:?}` (診断情報)
-- ❌ **検出ロジック**: `if pattern_kind == X then lower_X()` (禁止、SSOT違反)
-- ❌ **CFG 分岐**: `match pattern_kind { ... }` (禁止、extract が SSOT)
+**kind gate の正しい使い方**:
+- ✅ **O(1) guard**: `if kind_gate != Expected { return false }` (perf最適化)
+- ✅ **Debug logging**: `kind_gate={:?}` (診断情報)
+- ❌ **検出ロジック**: `if kind_gate == X then lower_X()` (禁止、SSOT違反)
+- ❌ **CFG 分岐**: `match kind_gate { ... }` (禁止、extract が SSOT)
 
 **移行完了状態** (Phase 282 P8):
-- すべての Pattern が extract_*() を SSOT として使用
-- pattern_kind は早期reject の補助にすぎない
+- すべての route family が extract_*() / try_extract_*() を SSOT として使用
+- kind gate は早期reject の補助にすぎない
 - lower() は必ず re-extract して SSOT 強制（二重検証）
 
 **SSOT 参照**:
@@ -133,7 +133,7 @@ extract_scan_with_init_plan() → Ok(None) for unsupported cases
 
 | Entrypoint | Entry Condition | Patterns | SSOT Downstream |
 |------------|----------------|----------|-----------------|
-| **Plan line** | extract_*_plan() が Ok(Some) | Pattern6/7 | Normalizer → CorePlan → Lowerer → emit_frag |
+| **Plan line** | plan facts / extractor が Ok(Some) | historical labels 6/7 | Normalizer → CorePlan → Lowerer → emit_frag |
 | **JoinIR table** | legacy JoinIR table 反復 | historical labels 1-5,8-9 | cf_loop 抽出 → Frag composition → emit_frag |
 | **No match** | すべての extract が Ok(None) | (none) | Err を caller に返す |
 
@@ -164,14 +164,14 @@ extract_scan_with_init_plan() → Ok(None) for unsupported cases
 
 ## P9a (refactor, behavior-preserving) — Extractor 重複削減（Common helpers）
 
-Pattern1–5 の extractor が持っていた “再帰カウント/検出/条件ヘルパ” の重複を、pure helper に集約する。
+historical labels 1–5 の extractor が持っていた “再帰カウント/検出/条件ヘルパ” の重複を、pure helper に集約する。
 
 - 追加: `src/mir/builder/control_flow/plan/extractors/common_helpers.rs`
   - historical path token: `extractors/common_helpers.rs` under the old `joinir/patterns/` lane
 - 方針:
   - **SSOT=extract** は維持（判定は各 pattern extractor の責務）
   - helper は pure（builder 触らない）・**silent fallback を作らない**
-  - Pattern3 の “if-else PHI” は専用ロジックが多いため、段階的に扱う（P9b 以降）
+  - historical label 3 の “if-else PHI” は専用ロジックが多いため、段階的に扱う（P9b 以降）
 
 - router に “経路ログ” を追加（既定OFF、debugのみに限定）
 - pattern番号ではなく “entrypoint（Plan/JoinIR）” をログの主語にする

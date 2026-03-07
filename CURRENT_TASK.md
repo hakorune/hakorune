@@ -826,6 +826,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/phase-287/README.md` / `CURRENT_TASK.md`
     - intent: active phase closeout では `Pattern5` / `Pattern1-4` / `Pattern8-9` を architectural main term として扱わず、`LoopTrueEarlyExit` / `LoopContinueOnly` / `BoolPredicateScan` / `AccumConstLoop` などの semantic route family を主語にする。exact `pattern5_infinite_early_exit.rs` は historical file token 4件に閉じ込める
     - verification: `git diff --check` PASS; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/phase-287/README.md | wc -l` = `4` (all hits are historical file token `pattern5_infinite_early_exit.rs`); recent gate baseline remains green: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS; `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
+  - truth cleanup (2026-03-08, slice 148): `phase-282` の numbered route table を semantic route family table に差し替え、old `Pattern1..9` は historical label note へ後退させた
+    - synced files: `docs/development/current/main/phases/phase-282/README.md` / `CURRENT_TASK.md`
+    - intent: router shrinkage SSOT では `LoopSimpleWhile` / `LoopBreak` / `IfPhiJoin` / `LoopContinueOnly` / `LoopTrueEarlyExit` / `ScanWithInit` / `SplitScan` / `BoolPredicateScan` / `AccumConstLoop` を main term にし、historical numbered labels は migration note と test/debug suffix の説明に限定する
+    - verification: `git diff --check` PASS; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/phase-282/README.md | wc -l` = `0`
+  - truth cleanup (2026-03-08, slice 149): `phase-269` の bool_predicate_scan phase guide を route/shape 主語へ寄せ、Pattern8 wording は historical token / fixture filename に限定した
+    - synced files: `docs/development/current/main/phases/phase-269/README.md` / `CURRENT_TASK.md`
+    - intent: active implementation note では `bool_predicate_scan route` と `route/shape parts` を主語にし、`Pattern8` は legacy label 8 と historical file token / fixture token に後退させる
+    - verification: pending
 
 ## next fixed order (resume point)
 

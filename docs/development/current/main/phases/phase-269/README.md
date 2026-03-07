@@ -11,7 +11,7 @@ Date: 2025-12-22
 
 ## 目的
 
-**bool_predicate_scan route（legacy Pattern8 label）を EdgeCFG Fragment（Frag + emit_frag）で実装し、legacy numbered route label の列挙を “exit配線” に収束させる。**
+**bool_predicate_scan route（legacy route label 8 / bool-predicate shape）を EdgeCFG Fragment（Frag + emit_frag）で実装し、legacy numbered route label の列挙を “exit配線” に収束させる。**
 
 - **P0**: test-only stub + 最小 fixture/smoke で “入口” を固定（DONE）
 - **P1**: 実装（MIR CFG層で Frag を組み、emit_frag で terminator を SSOT 化）（DONE）
@@ -29,7 +29,7 @@ Date: 2025-12-22
 - merge/EdgeCFG plumbing（Phase 260-268 の SSOT は維持）
 - scan_with_init / split_scan / accum_const_loop（Phase 269 は bool_predicate_scan に集中）
 
-## 実装戦略（Phase 268 パターン踏襲）
+## 実装戦略（Phase 268 route/shape 踏襲）
 
 ### アーキテクチャ図
 ```
@@ -125,7 +125,7 @@ P0 の test-only 記録は履歴として残す（入口の固定に寄与）。
 
 ### 既存実装の処理フロー
 ```rust
-// 1. Extract pattern parts
+// 1. Extract route/shape parts
 let parts = extract_bool_predicate_scan_parts(condition, body)?;
 
 // 2. Get host ValueIds
