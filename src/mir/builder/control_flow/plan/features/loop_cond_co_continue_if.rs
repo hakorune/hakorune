@@ -1,4 +1,4 @@
-//! Continue-if pattern lowering functions.
+//! Continue-if route lowering functions.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;

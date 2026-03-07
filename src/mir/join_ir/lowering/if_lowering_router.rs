@@ -14,7 +14,7 @@
 //! ## Why Separate Router?
 //! If and loop lowering are orthogonal concerns:
 //! - If: Expression-level lowering (conditional value selection)
-//! - Loop: Statement-level lowering (control flow patterns)
+//! - Loop: Statement-level lowering (control flow routes)
 //! - Keeping separate: Easier to extend, test, and maintain
 //!
 //! ## Related Modules
@@ -53,9 +53,9 @@ use crate::runtime::get_global_ring0;
 ///   - JsonShapeToMap._read_value_from_pair/1 (Phase 33-4 Stage-1)
 ///   - Stage1JsonScannerBox.value_start_after_key_pos/2 (Phase 33-4 Stage-B)
 /// - Requires JoinIR If-select toggle (HAKO_JOINIR_IF_SELECT / joinir_if_select_enabled)
-/// - Falls back to traditional if_phi on pattern mismatch
+/// - Falls back to traditional if_phi on structural mismatch
 ///
-/// Pattern selection:
+/// Shape selection:
 /// - 1 variable → Select
 /// - 2+ variables → IfMerge
 ///
@@ -63,7 +63,7 @@ use crate::runtime::get_global_ring0;
 /// - `context` parameter: If-in-loop context (carrier_names for loop variables)
 /// - None = Pure If, Some(_) = If-in-loop
 ///
-/// Returns Some(JoinInst::Select) or Some(JoinInst::IfMerge) if pattern matched, None otherwise.
+/// Returns Some(JoinInst::Select) or Some(JoinInst::IfMerge) if a supported shape matched, None otherwise.
 pub fn try_lower_if_to_joinir(
     func: &MirFunction,
     block_id: BasicBlockId,
@@ -130,7 +130,7 @@ pub fn try_lower_if_to_joinir(
         ));
     }
 
-    // 3. Phase 33-7: IfMerge を優先的に試行（複数変数パターン）
+    // 3. Phase 33-7: IfMerge を優先的に試行（複数変数shape）
     //    IfMerge が成功すればそれを返す、失敗したら Select を試行
     // Phase 61-1: context がある場合は with_context() を使用
     let if_merge_lowerer = if let Some(ctx) = context {
@@ -154,7 +154,7 @@ pub fn try_lower_if_to_joinir(
         }
     }
 
-    // 4. IfMerge が失敗したら Select を試行（単一変数パターン）
+    // 4. IfMerge が失敗したら Select を試行（単一変数shape）
     // Phase 61-1: context がある場合は with_context() を使用
     let if_select_lowerer = if let Some(ctx) = context {
         crate::mir::join_ir::lowering::if_select::IfSelectLowerer::with_context(
@@ -170,7 +170,7 @@ pub fn try_lower_if_to_joinir(
     if !if_select_lowerer.can_lower_to_select(func, block_id) {
         if debug_level >= 1 {
             get_global_ring0().log.debug(&format!(
-                "[try_lower_if_to_joinir] pattern not matched for {}",
+                "[try_lower_if_to_joinir] shape not matched for {}",
                 func.signature.name
             ));
         }

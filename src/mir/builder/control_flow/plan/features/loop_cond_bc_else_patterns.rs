@@ -1,4 +1,4 @@
-//! Else-only-return and else-guard-break pattern handlers.
+//! Else-only-return and else-guard-break route handlers.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;

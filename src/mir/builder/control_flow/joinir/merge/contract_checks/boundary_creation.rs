@@ -39,12 +39,12 @@ pub(in crate::mir::builder::control_flow::joinir) fn verify_boundary_contract_at
     // B1: join_inputs in Param region (100-999)
     for (i, join_id) in boundary.join_inputs.iter().enumerate() {
         if !(PARAM_MIN..=PARAM_MAX).contains(&join_id.0) {
-            // Debug: Print backtrace to identify which pattern caused this
+            // Debug: Print backtrace to identify which route lowering caused this
             if crate::config::env::is_joinir_debug() {
                 let ring0 = crate::runtime::get_global_ring0();
                 ring0.log.debug(&format!("[joinir/contract/B1] FAILED - join_inputs[{}] = ValueId({}) outside Param region", i, join_id.0));
                 ring0.log.debug("  [DEBUG] This likely means alloc_local() was used instead of alloc_param() for function parameters");
-                ring0.log.debug("  [DEBUG] Check pattern lowering code for function parameter allocations");
+                ring0.log.debug("  [DEBUG] Check route lowering code for function parameter allocations");
             }
 
             return Err(error_tags::freeze_with_hint(

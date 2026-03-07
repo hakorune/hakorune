@@ -347,14 +347,14 @@ impl MirBuilder {
                         if joinir_dryrun {
                             let ring0 = crate::runtime::get_global_ring0();
                             ring0.log.debug(&format!(
-                                "[Phase 61-4] ⏭️ JoinIR pattern not matched for {}, using fallback",
+                                "[Phase 61-4] ⏭️ JoinIR shape not matched for {}, using fallback",
                                 func_name
                             ));
                         }
                         // Phase 80/81: Strict mode では本線対象関数の失敗でパニック
                         if strict_mode {
                             panic!(
-                                "[joinir/if] strict mode: pattern not matched for {} (if_form.rs)",
+                                "[joinir/if] strict mode: shape not matched for {} (if_form.rs)",
                                 func_name
                             );
                         }

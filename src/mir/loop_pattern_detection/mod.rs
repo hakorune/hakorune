@@ -32,5 +32,5 @@ pub mod legacy;
 pub use classify::{classify, classify_with_diagnosis};
 pub(crate) use features::extract_features;
 pub use features::LoopFeatures;
-pub use kind::{LoopPatternKind, LoopRouteKind};
+pub use kind::LoopRouteKind;
 pub use legacy::*;

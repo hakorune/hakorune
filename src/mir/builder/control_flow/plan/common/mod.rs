@@ -1,6 +1,6 @@
-//! Phase 255 P2: Common utilities for JoinIR pattern lowering
+//! Phase 255 P2: Common utilities for JoinIR route lowering
 //!
-//! This module provides shared helper functions used across different pattern
+//! This module provides shared helper functions used across different route
 //! lowering implementations, eliminating code duplication and ensuring consistency.
 
 mod carrier_binding_policy;

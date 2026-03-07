@@ -92,7 +92,7 @@ pub fn lower_loop_with_conditional_phi_to_joinir(
         get_global_ring0()
             .log
             .debug(
-                "[loop_patterns] IfPhiJoin route: stub (routing via legacy if-phi lowerer)",
+                "[loop_routes] IfPhiJoin route: stub (routing via legacy if-phi lowerer)",
             );
     }
     None

@@ -127,7 +127,7 @@ pub fn lower_loop_with_continue_to_joinir(
 
     if crate::config::env::joinir_dev::debug_enabled() {
         get_global_ring0().log.debug(
-            "[loop_patterns] LoopContinueOnly route: continue lowering not yet implemented",
+            "[loop_routes] LoopContinueOnly route: continue lowering not yet implemented",
         );
     }
     None

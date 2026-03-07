@@ -1,4 +1,4 @@
-//! Group-if and nested loop pattern lowering functions.
+//! Group-if and nested-loop route lowering functions.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;

@@ -157,7 +157,7 @@ impl super::MirBuilder {
     /// Phase 49: Try JoinIR Frontend for mainline integration
     ///
     /// Returns `Ok(Some(value))` if the loop is successfully lowered via JoinIR,
-    /// `Ok(None)` if no JoinIR pattern matched (unsupported loop structure).
+    /// `Ok(None)` if no JoinIR route matched (unsupported loop structure).
     /// Phase 187-2: Legacy LoopBuilder removed - all loops must use JoinIR.
     ///
     /// # Phase 49-4: Multi-target support

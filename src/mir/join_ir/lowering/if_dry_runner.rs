@@ -98,7 +98,7 @@ impl IfLoweringDryRunner {
                             if self.debug_level >= 2 {
                                 let ring0 = crate::runtime::get_global_ring0();
                                 ring0.log.debug(&format!(
-                                    "[joinir/if_lowering] ⏭️ {} block {:?}: pattern not matched",
+                                    "[joinir/if_lowering] ⏭️ {} block {:?}: shape not matched",
                                     func_name, block_id
                                 ));
                             }

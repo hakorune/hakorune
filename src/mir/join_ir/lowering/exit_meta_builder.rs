@@ -1,7 +1,7 @@
-//! Phase 118: IfSumExitMetaBuilderBox - Exit metadata builder for if-sum pattern
+//! Phase 118: IfSumExitMetaBuilderBox - Exit metadata builder for IfPhiJoin route
 //!
 //! This module provides a box-based abstraction for building ExitMeta structures
-//! in the if-sum pattern lowering process.
+//! in the IfPhiJoin lowering process.
 //!
 //! # Design Philosophy
 //!
@@ -19,7 +19,7 @@
 use crate::mir::join_ir::lowering::carrier_info::ExitMeta;
 use crate::mir::ValueId;
 
-/// Phase 118: Box for building ExitMeta in if-sum pattern
+/// Phase 118: Box for building ExitMeta in IfPhiJoin route
 ///
 /// This box separates the concern of "which carriers should be in exit_bindings"
 /// from the JoinIR generation logic.

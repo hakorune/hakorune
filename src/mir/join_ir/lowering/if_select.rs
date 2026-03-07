@@ -188,36 +188,36 @@ impl IfSelectLowerer {
 
         // 3. simple パターンのチェック
         if let Some(pattern) = self.try_match_simple_pattern(&branch, then_block, else_block) {
-            // Phase 33-8: Level 2 - Pattern matching details
+            // Phase 33-8: Level 2 - Shape matching details
             if self.debug_level >= 2 {
                 get_global_ring0()
                     .log
-                    .debug("[IfSelectLowerer] ✅ matched simple pattern");
+                    .debug("[IfSelectLowerer] ✅ matched simple shape");
             }
             return Some(pattern);
         }
 
-        // 4. local パターンのチェック
+        // 4. local shape のチェック
         if let Some(pattern) = self.try_match_local_pattern(func, &branch, then_block, else_block) {
-            // Phase 33-8: Level 2 - Pattern matching details
+            // Phase 33-8: Level 2 - Shape matching details
             if self.debug_level >= 2 {
                 get_global_ring0()
                     .log
-                    .debug("[IfSelectLowerer] ✅ matched local pattern");
+                    .debug("[IfSelectLowerer] ✅ matched local shape");
             }
             return Some(pattern);
         }
 
-        // Phase 33-8: Level 2 - Pattern matching details
+        // Phase 33-8: Level 2 - Shape matching details
         if self.debug_level >= 2 {
             get_global_ring0()
                 .log
-                .debug("[IfSelectLowerer] ❌ no pattern matched");
+                .debug("[IfSelectLowerer] ❌ no supported shape matched");
         }
         None
     }
 
-    /// simple パターン: if cond { return 1 } else { return 2 }
+    /// simple shape: if cond { return 1 } else { return 2 }
     ///
     /// Phase 33-9.2: 実用MIR対応 - 副作用なし命令（Const/Copy）を許容
     /// - 旧: Return のみ（instructions empty）

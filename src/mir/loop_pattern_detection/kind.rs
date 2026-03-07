@@ -117,4 +117,5 @@ impl LoopRouteKind {
 /// Legacy compatibility alias for traceability-era callsites.
 ///
 /// Current-facing runtime code should prefer `LoopRouteKind`.
+#[allow(dead_code)]
 pub type LoopPatternKind = LoopRouteKind;

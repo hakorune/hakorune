@@ -114,7 +114,7 @@ pub fn lower_loop_with_break_to_joinir(
     if crate::config::env::joinir_dev::debug_enabled() {
         get_global_ring0()
             .log
-            .debug("[loop_patterns] LoopBreak route: lowering delegated to control_flow.rs (stub)");
+            .debug("[loop_routes] LoopBreak route: lowering delegated to control_flow.rs (stub)");
     }
     None
 }

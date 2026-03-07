@@ -47,7 +47,7 @@ impl super::MirBuilder {
             } => {
                 if crate::config::env::builder_loopform_debug() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[exprs.rs:35] FIRST Loop pattern matched"));
+                    ring0.log.debug("[exprs.rs:35] FIRST Loop route matched");
                 }
                 self.cf_loop(*condition, body)
             }

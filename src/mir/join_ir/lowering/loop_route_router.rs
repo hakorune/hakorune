@@ -50,7 +50,7 @@ use crate::runtime::get_global_ring0;
 
 /// Phase 188: Try to lower loop to JoinIR using route-family-based dispatch
 ///
-/// This function routes loop lowering to specific pattern handlers based on
+/// This function routes loop lowering to specific route handlers based on
 /// loop structure characteristics. It tries route families in order of complexity:
 ///
 /// 1. **LoopSimpleWhile** (foundational, easiest)
@@ -140,7 +140,7 @@ pub fn try_lower_loop_route_to_joinir(
             #[cfg(debug_assertions)]
             if crate::config::env::joinir_dev::debug_enabled() {
                 get_global_ring0().log.debug(
-                    "[try_lower_loop_pattern] ℹ️ NestedLoopMinimal reached (should be unreachable until Phase 188.3)",
+                    "[try_lower_loop_route] ℹ️ NestedLoopMinimal reached (should be unreachable until Phase 188.3)",
                 );
             }
 
@@ -158,7 +158,7 @@ pub fn try_lower_loop_route_to_joinir(
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
                         .log
-                        .debug("[try_lower_loop_pattern] ✅ LoopContinueOnly matched");
+                        .debug("[try_lower_loop_route] ✅ LoopContinueOnly matched");
                 }
                 return Some(inst);
             }
@@ -170,7 +170,7 @@ pub fn try_lower_loop_route_to_joinir(
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
                         .log
-                        .debug("[try_lower_loop_pattern] ✅ IfPhiJoin matched");
+                        .debug("[try_lower_loop_route] ✅ IfPhiJoin matched");
                 }
                 return Some(inst);
             }
@@ -182,7 +182,7 @@ pub fn try_lower_loop_route_to_joinir(
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
                         .log
-                        .debug("[try_lower_loop_pattern] ✅ LoopBreak matched");
+                        .debug("[try_lower_loop_route] ✅ LoopBreak matched");
                 }
                 return Some(inst);
             }
@@ -194,7 +194,7 @@ pub fn try_lower_loop_route_to_joinir(
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()
                         .log
-                        .debug("[try_lower_loop_pattern] ✅ LoopSimpleWhile matched");
+                        .debug("[try_lower_loop_route] ✅ LoopSimpleWhile matched");
                 }
                 return Some(inst);
             }
@@ -203,7 +203,7 @@ pub fn try_lower_loop_route_to_joinir(
             // Phase 131-11: Not implemented yet in LoopForm-based router
             if crate::config::env::joinir_dev::debug_enabled() {
                 get_global_ring0().log.debug(
-                    "[try_lower_loop_pattern] ⚠️ LoopTrueEarlyExit not implemented in LoopForm router",
+                    "[try_lower_loop_route] ⚠️ LoopTrueEarlyExit not implemented in LoopForm router",
                 );
             }
         }
@@ -213,18 +213,18 @@ pub fn try_lower_loop_route_to_joinir(
                 if crate::config::env::joinir_dev::debug_enabled() {
                     let ring0 = get_global_ring0();
                     ring0.log.debug(&format!(
-                        "[try_lower_loop_pattern] ❌ EXPLICIT ERROR: max_loop_depth={} exceeds limit (max=2)",
+                        "[try_lower_loop_route] ❌ EXPLICIT ERROR: max_loop_depth={} exceeds limit (max=2)",
                         features.max_loop_depth
                     ));
                     ring0.log.debug(
-                        "[try_lower_loop_pattern]   Hint: Nested loops with depth > 2 not supported in Phase 188.1",
+                        "[try_lower_loop_route]   Hint: Nested loops with depth > 2 not supported in Phase 188.1",
                     );
                 }
                 // Fallback will trigger error (no silent Ok(None))
             } else {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0().log.debug(
-                        "[try_lower_loop_pattern] ❌ Unknown route, fallback to existing lowering",
+                        "[try_lower_loop_route] ❌ Unknown route, fallback to existing lowering",
                     );
                 }
             }
@@ -234,7 +234,7 @@ pub fn try_lower_loop_route_to_joinir(
     // No route matched (fallback to existing lowering)
     if crate::config::env::joinir_dev::debug_enabled() {
         get_global_ring0().log.debug(
-            "[try_lower_loop_pattern] ❌ Route lowering failed, fallback to existing lowering",
+            "[try_lower_loop_route] ❌ Route lowering failed, fallback to existing lowering",
         );
     }
     None
