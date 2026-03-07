@@ -1,5 +1,6 @@
 #!/bin/bash
 # selfhost_stageb_v1_compat_vm.sh — Stage-B emit via MirJsonV1Adapter opt-in canary
+# opt-in archive candidate: manual Stage-B diagnostic, not part of current selfhost required gate
 
 set -uo pipefail
 

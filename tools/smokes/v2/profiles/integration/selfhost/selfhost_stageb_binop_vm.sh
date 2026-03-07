@@ -1,5 +1,6 @@
 #!/bin/bash
 # selfhost_stageb_binop_vm.sh — Hako Stage‑B pipeline (ParserBox→FlowEntry) binop canary (opt‑in)
+# opt-in archive candidate: manual Stage-B diagnostic, not part of current selfhost required gate
 
 set -uo pipefail
 

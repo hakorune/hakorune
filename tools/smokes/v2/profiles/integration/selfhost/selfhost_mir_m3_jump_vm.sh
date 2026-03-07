@@ -1,5 +1,6 @@
 #!/bin/bash
 # selfhost_mir_m3_jump_vm.sh — jump(target) changes block
+# retire candidate: default lane is unconditional skip; not part of current selfhost gate
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 export SMOKES_USE_PYVM=0

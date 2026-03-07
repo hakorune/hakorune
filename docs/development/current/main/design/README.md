@@ -62,6 +62,7 @@
 - Code retirement/history policy SSOT（退役コード保存方針）: `docs/development/current/main/design/code-retirement-history-policy-ssot.md`
 - normalized_dev removal SSOT（dev-only normalized lane の隔離→削除順序）: `docs/development/current/main/design/normalized-dev-removal-ssot.md`
 - JoinIR frontend legacy fixture key retirement SSOT（by-name fixture key の alias-first 撤去順序）: `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
+- Selfhost smoke retirement inventory SSOT（Mini-VM / Stage-B canary の retire/archive 分類）: `docs/development/current/main/design/selfhost-smoke-retirement-inventory-ssot.md`
 - vm-hako array shim contract SSOT（array_get/array_set の interim 契約）: `docs/development/current/main/design/vm-hako-array-shim-contract-ssot.md`
 - MIR callsite retire lane SSOT（post-canonical 削除順序/契約）: `docs/development/current/main/design/mir-callsite-retire-lane-ssot.md`
 - `.hako` mirbuilder Load/Store minimal contract SSOT（B1 docs-first）: `docs/development/current/main/design/hako-mirbuilder-load-store-minimal-contract-ssot.md`

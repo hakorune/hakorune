@@ -533,6 +533,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `tools/smokes/v2/profiles/integration/joinir/{phase29ao_pattern1_strict_shadow_vm,phase29ao_pattern1_subset_reject_extra_stmt_vm,phase29ao_pattern2_release_adopt_vm,phase29ao_pattern3_release_adopt_vm,phase29ao_pattern5_release_adopt_vm,phase29ao_pattern5_strict_shadow_vm,phase29ao_pattern6_release_adopt_vm,phase29ao_pattern6_strict_shadow_vm,phase29ao_pattern7_release_adopt_vm,phase29ao_pattern7_strict_shadow_vm,phase29ap_pattern4_continue_min_vm,phase29ap_pattern6_nested_release_adopt_vm,phase29ap_pattern6_nested_strict_shadow_vm,phase29ae_pattern6_scan_with_init_pack_vm,phase29ae_pattern7_scan_split_pack_vm}.sh` / `CURRENT_TASK.md`
     - intent: compat/legacy stem を直接開いたときにも `current semantic entry` を一目で辿れるようにし、future retire phase の誤削除を防ぐ
     - verification: `rg -n "legacy compat stem; current semantic entry|legacy pack stem; current semantic entry" tools/smokes/v2/profiles/integration/joinir/{phase29ao_pattern1_strict_shadow_vm,phase29ao_pattern1_subset_reject_extra_stmt_vm,phase29ao_pattern2_release_adopt_vm,phase29ao_pattern3_release_adopt_vm,phase29ao_pattern5_release_adopt_vm,phase29ao_pattern5_strict_shadow_vm,phase29ao_pattern6_release_adopt_vm,phase29ao_pattern6_strict_shadow_vm,phase29ao_pattern7_release_adopt_vm,phase29ao_pattern7_strict_shadow_vm,phase29ap_pattern4_continue_min_vm,phase29ap_pattern6_nested_release_adopt_vm,phase29ap_pattern6_nested_strict_shadow_vm,phase29ae_pattern6_scan_with_init_pack_vm,phase29ae_pattern7_scan_split_pack_vm}.sh` = expected hits only
+  - truth cleanup (2026-03-07, slice 74): selfhost smoke retirement inventory を追加して Mini-VM / Stage-B 候補を分類した
+    - synced files: `docs/development/current/main/design/selfhost-smoke-retirement-inventory-ssot.md` / `CURRENT_TASK.md`
+    - intent: selfhost profile 配下の low-ref smoke を `keep-current-entry / retire candidate / opt-in archive candidate` に分け、`tools/smokes/v2/run.sh` の auto-discovery 前提を明示して `grep少ない=削除可` の誤読を防ぐ
+    - verification: `rg -n "retire candidate|opt-in archive candidate|auto-discovers|run.sh" docs/development/current/main/design/selfhost-smoke-retirement-inventory-ssot.md` = expected hits only
+  - truth cleanup (2026-03-07, slice 75): selfhost candidate script header に retirement taxonomy を同期した
+    - synced files: `tools/smokes/v2/profiles/integration/selfhost/{selfhost_mir_m2_eq_true_vm,selfhost_mir_m3_branch_true_vm,selfhost_mir_m3_jump_vm,selfhost_stageb_binop_vm,selfhost_stageb_oob_vm,selfhost_stageb_v1_compat_vm}.sh` / `CURRENT_TASK.md`
+    - intent: candidate script を直接開いたときに current selfhost gate の一部ではないことを一目で判断できるようにし、次フェーズの archive/remove 判定を楽にする
+    - verification: `rg -n "retire candidate:|opt-in archive candidate:" tools/smokes/v2/profiles/integration/selfhost/{selfhost_mir_m2_eq_true_vm,selfhost_mir_m3_branch_true_vm,selfhost_mir_m3_jump_vm,selfhost_stageb_binop_vm,selfhost_stageb_oob_vm,selfhost_stageb_v1_compat_vm}.sh` = expected hits only
 
 ## next fixed order (resume point)
 
@@ -540,7 +548,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
 3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し中。self-only grep の semantic wrapper は current entrypoint として keep し、old stem retire は active caller が 0 になってから別 phase で扱う。
+5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し中。self-only grep の semantic wrapper は current entrypoint として keep し、old stem retire は active caller が 0 になってから別 phase で扱う。selfhost 側は `retire candidate` と `opt-in archive candidate` の inventory を先に固定し、archive/remove は dedicated retire slice で実施する。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 7. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
 

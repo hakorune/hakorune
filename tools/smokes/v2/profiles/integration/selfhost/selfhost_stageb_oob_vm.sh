@@ -1,5 +1,6 @@
 #!/bin/bash
 # Stage‑B OOB canaries（opt‑in）: 配列/Map の OOB 振る舞い確認（現状は SKIP 既定）
+# opt-in archive candidate: manual Stage-B diagnostic, not part of current selfhost required gate
 
 set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

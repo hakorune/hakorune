@@ -1,5 +1,6 @@
 #!/bin/bash
 # selfhost_mir_m2_eq_true_vm.sh — MirVmMin M2 compare(Eq) true → prints 1
+# retire candidate: default lane is unconditional skip; not part of current selfhost gate
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 export SMOKES_USE_PYVM=0
