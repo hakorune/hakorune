@@ -237,7 +237,7 @@ return/break を正規化して共通語彙へ落とし、JoinIR patterns を縮
 6. ✅ scan_with_init lowering 分岐実装（scan direction に応じて適切な lowerer 選択）
 
 **ファイル変更**:
-- historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
+- same historical scan_with_init lane as P0 task above (`pattern6_scan_with_init.rs`)
 - current route family: `src/mir/builder/control_flow/plan/facts/scan_with_init_facts.rs`
 - `src/mir/join_ir/lowering/scan_with_init_reverse.rs` (新規)
 - `src/mir/join_ir/lowering/mod.rs`

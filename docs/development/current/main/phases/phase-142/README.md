@@ -442,7 +442,7 @@ The following patterns are rejected with explicit error messages:
 1. `docs/development/current/main/phases/phase-142/README.md` - Contract documentation
 2. `tools/selfhost/test_pattern4_parse_string_lowering.hako` - Minimal E2E test (new)
 3. `src/mir/join_ir/lowering/loop_routes/with_continue.rs` - current lowerer extension surface
-   - historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{pattern4_with_continue.rs,pattern4_carrier_analyzer.rs}`
+   - same historical continue-analysis lane as above (`pattern4_with_continue.rs`, `pattern4_carrier_analyzer.rs`)
 
 ### Step 3-A: Early Return Fail-Fast (COMPLETE ✅)
 

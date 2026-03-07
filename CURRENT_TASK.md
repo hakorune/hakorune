@@ -738,6 +738,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-29bi,phase-29bj,phase-29bm}/README.md` / `CURRENT_TASK.md`
     - intent: `loop_break_planner_required_pack_vm.sh` / `scan_split_planner_required_pack_vm.sh` を current pack entry として前面に出し、旧 `phase29bi_*` / `phase29bj_*` stem は wrapper 互換トークンとしてだけ残す
     - verification: `git diff --check` PASS; `rg -n "phase29bi_planner_required_pattern2_pack_vm|phase29bj_planner_required_scan_split_pack_vm" docs/development/current/main/phases/{phase-29bi,phase-29bj,phase-29bm}/README.md` = compat-stem notes only
+  - truth cleanup (2026-03-07, slice 126): `phase-257/269/142/188.3` の repeated historical root path を basename-only same-lane note に圧縮した
+    - synced files: `docs/development/current/main/phases/{phase-257,phase-269,phase-142,phase-188.3}/README.md` / `CURRENT_TASK.md`
+    - intent: `pattern6_scan_with_init.rs` / `pattern8_scan_bool_predicate.rs` / `pattern4_with_continue.rs` / `pattern6_nested_minimal.rs` の full historical root token を 1回目だけに抑えるか basename-only lane note に置き換え、active README の old-path noise を減らす
+    - verification: `git diff --check` PASS; `rg -n "src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs|src/mir/builder/control_flow/joinir/patterns/pattern8_scan_bool_predicate.rs|src/mir/builder/control_flow/joinir/patterns/\\{pattern4_with_continue.rs,pattern4_carrier_analyzer.rs\\}|src/mir/builder/control_flow/joinir/patterns/pattern6_nested_minimal.rs" docs/development/current/main/phases/{phase-257,phase-269,phase-142,phase-188.3}/README.md` = reduced / basename-only hits only
 
 ## next fixed order (resume point)
 

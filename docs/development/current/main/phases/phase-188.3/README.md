@@ -50,7 +50,7 @@ Phase 188.3 は “選択ロジック（NestedLoopMinimal route 選定）→ low
   - cheap check → StepTree → AST validation
   - `max_loop_depth == 2` かつ “NestedLoopMinimal lowerable” のときだけ `LoopRouteKind::NestedLoopMinimal` を返す
 - Lowering: `src/mir/join_ir/lowering/loop_routes/nested_minimal.rs`
-  - historical physical path at the time: `src/mir/builder/control_flow/joinir/patterns/pattern6_nested_minimal.rs`
+  - historical physical path at the time: `pattern6_nested_minimal.rs` in the old `joinir/patterns` lane
   - JoinIR pipeline で `inner_step/k_inner_exit/k_exit` を含む関数群を生成して merge する
   - Fixture: `apps/tests/phase1883_nested_minimal.hako`（RC=9）
 - Merge/Rewrite contract（SSOT）:
