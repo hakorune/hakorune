@@ -60,7 +60,9 @@ Ok(Some(NormalizationPlan::loop_only()))
 
 #### 2. SuffixRouter の LoopOnly 対応
 
-**File**: `src/mir/builder/control_flow/joinir/patterns/policies/normalized_shadow_suffix_router_box.rs`
+**Current file**: `src/mir/builder/control_flow/plan/policies/policies/normalized_shadow_suffix_router_box.rs`
+
+**Historical path token**: `src/mir/builder/control_flow/joinir/patterns/policies/normalized_shadow_suffix_router_box.rs`
 
 **Before**: Lines 64-75 で PlanKind::LoopOnly を reject ("not a suffix")
 
@@ -262,7 +264,8 @@ NormalizationPlan::loop_only() → consumed = 1 (loop のみ)
    - Always return loop_only for loop(true)
    - 7 unit tests updated
 
-2. `src/mir/builder/control_flow/joinir/patterns/policies/normalized_shadow_suffix_router_box.rs`
+2. `src/mir/builder/control_flow/plan/policies/policies/normalized_shadow_suffix_router_box.rs`
+   - historical path token: `src/mir/builder/control_flow/joinir/patterns/policies/normalized_shadow_suffix_router_box.rs`
    - Accept LoopOnly patterns
    - Remove rejection logic
 

@@ -131,10 +131,11 @@ k_exit(sum):
   - `lower_accum_const_loop_joinir()`: 2キャリア（i, sum）JoinIR lowerer
 
 **変更ファイル（2個）**:
-- `src/mir/builder/control_flow/joinir/patterns/mod.rs` (1行追加)
-  - `pub(in crate::mir::builder) mod pattern9_accum_const_loop;`
-- `src/mir/builder/control_flow/joinir/patterns/router.rs` (4行追加)
-  - LOOP_PATTERNS テーブルに Pattern9 を **Pattern1より前に追加**
+- `src/mir/builder/control_flow/joinir/route_entry/mod.rs` (current module surface)
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/mod.rs`
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current route entry)
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/router.rs`
+  - 当時は LOOP_PATTERNS テーブルに Pattern9 を **Pattern1より前に追加**した
 
 ### 検証結果 ✅
 

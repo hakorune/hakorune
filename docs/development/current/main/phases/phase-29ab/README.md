@@ -1,10 +1,11 @@
 # Phase 29ab: JoinIR completion triage (P1–P9)
 
-Goal: Fix near-miss vs OK boundaries for Pattern2/6/7 and provide a single entry point for fixtures, smokes, and contracts.
+Goal: Fix near-miss vs OK boundaries for loop_break / scan_with_init / split_scan（historical labels: Pattern2/6/7）and provide a single entry point for fixtures, smokes, and contracts.
 
 ## Contracts (SSOT)
 
-- Pattern2 promotion: `src/mir/builder/control_flow/joinir/patterns/pattern2/api/README.md`
+- loop_break promotion: `src/mir/builder/control_flow/plan/loop_break/api/README.md`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern2/api/README.md`
 - Pattern6/7 contracts: `docs/development/current/main/design/pattern6-7-contracts.md`
 - compose SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
 

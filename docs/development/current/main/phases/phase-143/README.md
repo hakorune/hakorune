@@ -173,7 +173,8 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 ## SSOT
 
 - **Design**: `docs/development/current/main/design/loop-canonicalizer.md`
-- **Recognizer**: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
+- **Recognizer**: `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
 - **Canonicalizer**: `src/mir/loop_canonicalizer/canonicalizer.rs`
 - **Tests**: Test file `tools/selfhost/test_pattern2_parse_number.hako`
 

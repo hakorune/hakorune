@@ -46,7 +46,10 @@ Hint: This loop pattern is not supported. All loops must use JoinIR lowering.
 
 **なぜ Pattern3 にマッチするか**:
 
-`src/mir/loop_pattern_detection/mod.rs:227-230` の分類ロジック:
+historical code snapshot: `src/mir/loop_pattern_detection/mod.rs:227-230`
+current module surface: `src/mir/loop_route_detection/mod.rs`
+
+分類ロジック:
 ```rust
 // Pattern 3 heuristic: has_if_else_phi if carrier_count > 1
 // This is a conservative heuristic - multiple carriers typically
@@ -119,7 +122,9 @@ Pattern3 は **if-sum pattern** （`sum = sum + (if x then a else b)` のよう�
 
 ## 実装計画 (Option B)
 
-### 修正箇所: `src/mir/loop_pattern_detection/mod.rs`
+### 修正箇所: `src/mir/loop_route_detection/mod.rs`
+
+- historical code snapshot at the time: `src/mir/loop_pattern_detection/mod.rs`
 
 **現状** (lines 227-230):
 ```rust
@@ -291,9 +296,11 @@ Phase 264 P1: TODO - implement accurate if-sum signature detection
 ## 参考
 
 ### 関連ファイル
-- `src/mir/loop_pattern_detection/mod.rs:227-230` - 分類 heuristic
-- `src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs:79-86` - Pattern3 rejection
-- `src/mir/builder/control_flow/joinir/patterns/router.rs:212-225` - pattern routing order
+- `src/mir/loop_route_detection/mod.rs` - current classify module surface
+  - historical code snapshot: `src/mir/loop_pattern_detection/mod.rs:227-230`
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs` - current route-entry ordering lane
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/router.rs:212-225`
+- `src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs:79-86` - Pattern3 rejection（historical path token）
 - `apps/tests/phase264_p0_bundle_resolver_loop_min.hako` - 最小再現
 
 ### BundleResolver 元コードの特徴 (参考)

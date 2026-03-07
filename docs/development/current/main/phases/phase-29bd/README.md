@@ -36,8 +36,8 @@ strict/dev で fallback を 0 に収束させるため、Ok(None)/unsupported/un
 
 | Location | Condition | Current behavior | Strict/Dev policy | Notes |
 | --- | --- | --- | --- | --- |
-| `src/mir/builder/control_flow/joinir/patterns/router.rs:300` | planner_none (facts present, plan None) | flowbox/freeze + Err | Freeze(contract) | gate対象での fallback は禁止 |
-| `src/mir/builder/control_flow/joinir/patterns/router.rs:265` | composer_reject (facts+plan present) | flowbox/freeze + Err | Freeze(contract) | strict/dev で fail-fast |
+| `src/mir/builder/control_flow/joinir/route_entry/router.rs` | planner_none (facts present, plan None) | flowbox/freeze + Err | Freeze(contract) | gate対象での fallback は禁止（historical path token: `joinir/patterns/router.rs`） |
+| `src/mir/builder/control_flow/joinir/route_entry/router.rs` | composer_reject (facts+plan present) | flowbox/freeze + Err | Freeze(contract) | strict/dev で fail-fast（historical path token: `joinir/patterns/router.rs`） |
 | `src/mir/builder/control_flow/plan/composer/coreloop_single_entry.rs:119` | DomainPlan not supported | Ok(None) | Freeze(unsupported) | gate対象は fail-fast |
 | `src/mir/builder/control_flow/plan/composer/coreloop_v0.rs:27` | v0 gate reject | Ok(None) | Freeze(contract) | value_join/exit/cleanup で拒否 |
 | `src/mir/builder/control_flow/plan/composer/coreloop_v1.rs:21` | v1 gate reject | Ok(None) | Freeze(contract) | v1 専用条件の不一致 |

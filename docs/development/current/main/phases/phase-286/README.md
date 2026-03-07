@@ -26,7 +26,8 @@ Phase 286 では JoinIR line を “第2の lowerer” として放置せず、*
 ## Responsibility Map（どこを触るか）
 
 - JoinIR line の共通入口（現状）:
-  - `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
+  - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`
+    - historical path token: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
   - `src/mir/join_ir_vm_bridge/bridge.rs`
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`
 - Plan/Frag SSOT（収束先）:

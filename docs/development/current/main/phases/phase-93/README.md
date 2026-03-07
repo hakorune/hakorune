@@ -24,7 +24,8 @@ JoinIR で “初回の計算値が固定される” 事故を避ける。
   - `ConditionOnlyEmitter`: `LoopBodyLocalEnv` を使って毎イテレーション再計算
 - schedule: `src/mir/join_ir/lowering/step_schedule.rs`
   - ConditionOnly がある場合に `body-init → derived → break` を強制（評価順のSSOT）
-- Trim: `src/mir/builder/control_flow/joinir/patterns/trim_loop_lowering.rs`
+- Trim: `src/mir/builder/control_flow/plan/trim_loop_lowering.rs`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/trim_loop_lowering.rs`
   - ConditionOnly 用 break 生成（反転の有無を明示）
 
 ## 成果（P1）: 箱化・語彙のSSOT化

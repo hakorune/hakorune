@@ -49,7 +49,7 @@ Stage-3 では **DomainPlan 経由の合成（PlanNormalizer::normalize(domain_p
 
 | Location | Why it uses DomainPlan | Gate impact | Replacement plan |
 | --- | --- | --- | --- |
-| `src/mir/builder/control_flow/joinir/patterns/router.rs` | `lower_via_plan(domain_plan)` が最終 fallback | gate では strict/dev で freeze（`composer_reject`）、lower_via_plan は非gateのみ | strict/dev は fail-fast、release は最終fallback |
+| `src/mir/builder/control_flow/joinir/route_entry/router.rs` | `lower_via_plan(domain_plan)` が最終 fallback | gate では strict/dev で freeze（`composer_reject`）、lower_via_plan は非gateのみ | strict/dev は fail-fast、release は最終fallback（historical path token: `joinir/patterns/router.rs`） |
 
 ### 3) plan/normalizer: facts → parts の不足
 

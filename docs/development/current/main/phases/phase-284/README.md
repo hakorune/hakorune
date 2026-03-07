@@ -48,23 +48,26 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 このフェーズで一番起きやすい事故は「`return` をどこで処理するべきか分からず、pattern 側へ散布してしまう」こと。
 そこで、**どの経路で lower されるか**を前提に責務を固定する。
 
-### A) Plan line（Pattern6/7）
+### A) Plan line（scan_with_init / split_scan; historical labels: Pattern6/7）
 
-- 入口: `src/mir/builder/control_flow/joinir/patterns/router.rs`（route=plan）
+- 入口: `src/mir/builder/control_flow/joinir/route_entry/router.rs`（route=plan）
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/router.rs`
 - SSOT:
-  - `src/mir/builder/control_flow/plan/normalizer.rs`（Frag 構築: branches/wires/exits）
+  - `src/mir/builder/control_flow/plan/normalizer/mod.rs`（Frag 構築: branches/wires/exits）
   - `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`（合成 SSOT）
   - `src/mir/builder/control_flow/edgecfg/api/emit.rs`（`emit_frag()` terminator SSOT）
 - ここでは `return` を **Return edge（ExitKind::Return）**として組み立てるのが自然。
 
-### B) JoinIR line（Pattern1–5,9）
+### B) JoinIR line（historical numbered labels: Pattern1–5,9）
 
-- 入口: `src/mir/builder/control_flow/joinir/patterns/router.rs`（route=joinir）
+- 入口: `src/mir/builder/control_flow/joinir/route_entry/router.rs`（route=joinir）
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/router.rs`
 - SSOT:
   - JoinIR 生成（pattern 固有の JoinIR lowerer）
-  - `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`（JoinIR→MIR→merge の唯一入口）
+  - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`（JoinIR→MIR→merge の current single entry）
+    - historical path token: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`（Return merge / exit block SSOT）
-- **注意**: `src/mir/builder/control_flow/plan/normalizer.rs` は Plan line 専用なので、
+- **注意**: `src/mir/builder/control_flow/plan/normalizer/mod.rs` は Plan line 専用なので、
   Pattern4/5 の return 問題の root fix をここへ寄せても効かない。
 
 ### 禁止事項（Phase 284 の憲法）
@@ -127,7 +130,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 P1 の root fix は「PlanNormalizer へ寄せる」ではなく、**JoinIR line の共通入口**へ寄せる：
 
 - 入口候補:
-  - `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`（最終的な “ここで統一したい”）
+  - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`（current single entry; historical path token: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`）
   - もしくは JoinIR lowerer 側に “Return collector” を 1 箇所だけ作り、Pattern4/5 はそれを呼ぶだけにする
 
 どちらにしても、目的は同じ：

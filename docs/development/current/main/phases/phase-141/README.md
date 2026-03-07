@@ -77,7 +77,8 @@ Related:
   - 優先順位: Function params > Prefix variables > CapturedEnv
 - Call sites:
   - `src/mir/builder/control_flow/normalization/execute_box.rs`
-  - `src/mir/builder/control_flow/joinir/patterns/policies/normalized_shadow_suffix_router_box.rs`
+  - `src/mir/builder/control_flow/plan/policies/policies/normalized_shadow_suffix_router_box.rs`
+    - historical path token: `src/mir/builder/control_flow/joinir/patterns/policies/normalized_shadow_suffix_router_box.rs`
 
 ### Task C: Diagnostics
 

@@ -162,7 +162,8 @@ extract_scan_with_init_plan() → Ok(None) for unsupported cases
 
 Pattern1–5 の extractor が持っていた “再帰カウント/検出/条件ヘルパ” の重複を、pure helper に集約する。
 
-- 追加: `src/mir/builder/control_flow/joinir/patterns/extractors/common_helpers.rs`
+- 追加: `src/mir/builder/control_flow/plan/extractors/common_helpers.rs`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/extractors/common_helpers.rs`
 - 方針:
   - **SSOT=extract** は維持（判定は各 pattern extractor の責務）
   - helper は pure（builder 触らない）・**silent fallback を作らない**
