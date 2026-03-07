@@ -292,7 +292,7 @@ mod tests {
 
     #[test]
     fn test_index_of_pattern() {
-        // Pattern: local pos = this.index_of(s, ch)
+        // Case: local pos = this.index_of(s, ch)
         // index_of returns integer (-1 or index), not boolean
 
         // Should NOT be allowed in condition

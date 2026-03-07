@@ -158,7 +158,7 @@ impl LoopUpdateAnalyzer {
                 ..
             } => {
                 // Phase 190: Check for number accumulation pattern first
-                // Pattern: (carrier * base) + digit
+                // Case: (carrier * base) + digit
                 if matches!(operator, BinaryOperator::Add | BinaryOperator::Subtract) {
                     if let ASTNode::BinaryOp {
                         operator: BinaryOperator::Multiply,

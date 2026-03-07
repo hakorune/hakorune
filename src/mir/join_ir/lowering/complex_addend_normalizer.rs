@@ -251,7 +251,7 @@ mod tests {
 
     #[test]
     fn test_normalize_complex_addend_method_call() {
-        // Pattern: result = result * 10 + digits.indexOf(ch)
+        // Case: result = result * 10 + digits.indexOf(ch)
         let assign = ASTNode::Assignment {
             target: var("result"),
             value: Box::new(ASTNode::BinaryOp {
@@ -326,7 +326,7 @@ mod tests {
 
     #[test]
     fn test_normalize_simple_variable_unchanged() {
-        // Pattern: result = result * 10 + digit (simple variable - no normalization)
+        // Case: result = result * 10 + digit (simple variable - no normalization)
         let assign = ASTNode::Assignment {
             target: var("result"),
             value: Box::new(ASTNode::BinaryOp {
@@ -348,14 +348,14 @@ mod tests {
                 // Expected - simple variable doesn't need normalization
             }
             NormalizationResult::Normalized { .. } => {
-                panic!("Expected Unchanged for simple variable pattern");
+                panic!("Expected Unchanged for simple variable case");
             }
         }
     }
 
     #[test]
     fn test_normalize_wrong_lhs_unchanged() {
-        // Pattern: result = other * 10 + digits.indexOf(ch) (wrong LHS - no match)
+        // Case: result = other * 10 + digits.indexOf(ch) (wrong LHS - no match)
         let assign = ASTNode::Assignment {
             target: var("result"),
             value: Box::new(ASTNode::BinaryOp {
@@ -384,7 +384,7 @@ mod tests {
 
     #[test]
     fn test_normalize_no_multiplication_unchanged() {
-        // Pattern: result = result + digits.indexOf(ch) (no multiplication - no match)
+        // Case: result = result + digits.indexOf(ch) (no multiplication - no match)
         let assign = ASTNode::Assignment {
             target: var("result"),
             value: Box::new(ASTNode::BinaryOp {
@@ -408,7 +408,7 @@ mod tests {
 
     #[test]
     fn test_normalize_subtraction_complex_addend() {
-        // Pattern: result = result * 10 - digits.indexOf(ch)
+        // Case: result = result * 10 - digits.indexOf(ch)
         // Should also normalize (subtraction variant)
         let assign = ASTNode::Assignment {
             target: var("result"),

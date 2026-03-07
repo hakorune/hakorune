@@ -154,7 +154,7 @@ mod tests {
 
     #[test]
     fn test_normalize_digit_pos_lt_zero() {
-        // Pattern: digit_pos < 0
+        // Case: digit_pos < 0
         let cond = binary_op(var_node("digit_pos"), BinaryOperator::Less, int_literal(0));
 
         let normalized = DigitPosConditionNormalizer::normalize(&cond, "digit_pos", "is_digit_pos");
@@ -177,7 +177,7 @@ mod tests {
 
     #[test]
     fn test_no_normalize_wrong_operator() {
-        // Pattern: digit_pos >= 0 (Greater or equal, not Less)
+        // Case: digit_pos >= 0 (Greater or equal, not Less)
         let cond = binary_op(
             var_node("digit_pos"),
             BinaryOperator::GreaterEqual,
@@ -197,7 +197,7 @@ mod tests {
 
     #[test]
     fn test_no_normalize_wrong_variable() {
-        // Pattern: other_var < 0 (different variable name)
+        // Case: other_var < 0 (different variable name)
         let cond = binary_op(var_node("other_var"), BinaryOperator::Less, int_literal(0));
 
         let normalized = DigitPosConditionNormalizer::normalize(&cond, "digit_pos", "is_digit_pos");
@@ -219,7 +219,7 @@ mod tests {
 
     #[test]
     fn test_no_normalize_wrong_constant() {
-        // Pattern: digit_pos < 10 (different constant, not 0)
+        // Case: digit_pos < 10 (different constant, not 0)
         let cond = binary_op(var_node("digit_pos"), BinaryOperator::Less, int_literal(10));
 
         let normalized = DigitPosConditionNormalizer::normalize(&cond, "digit_pos", "is_digit_pos");
@@ -246,7 +246,7 @@ mod tests {
 
     #[test]
     fn test_no_normalize_non_binary_op() {
-        // Pattern: just a variable (not a binary operation)
+        // Case: just a variable (not a binary operation)
         let cond = var_node("digit_pos");
 
         let normalized = DigitPosConditionNormalizer::normalize(&cond, "digit_pos", "is_digit_pos");

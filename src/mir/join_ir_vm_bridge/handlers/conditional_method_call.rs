@@ -3,7 +3,7 @@
 //! Phase 260 P0.3: Extracted from joinir_block_converter.rs (lines 243-327)
 //! Handles JoinIR ConditionalMethodCall instruction conversion.
 //!
-//! ## Pattern: if/phi expansion (3 blocks)
+//! ## Shape: if/phi expansion (3 blocks)
 //!
 //! ```text
 //! ConditionalMethodCall:

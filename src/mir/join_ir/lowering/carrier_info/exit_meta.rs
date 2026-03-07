@@ -3,7 +3,7 @@ use crate::mir::ValueId;
 use std::collections::BTreeSet;
 
 impl JoinFragmentMeta {
-    /// Create JoinFragmentMeta for expression result pattern
+    /// Create JoinFragmentMeta for expression-result shape
     ///
     /// Use when the loop returns a value (like `return loop(...)`).
     pub fn with_expr_result(expr_result: ValueId, exit_meta: ExitMeta) -> Self {
@@ -14,9 +14,9 @@ impl JoinFragmentMeta {
         }
     }
 
-    /// Create JoinFragmentMeta for carrier-only pattern
+    /// Create JoinFragmentMeta for carrier-only shape
     ///
-    /// Use when the loop only updates carriers (like trim pattern).
+    /// Use when the loop only updates carriers (like the trim route).
     pub fn carrier_only(exit_meta: ExitMeta) -> Self {
         Self {
             expr_result: None,

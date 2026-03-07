@@ -160,10 +160,10 @@ impl IfMergeLowerer {
         );
 
         if !is_then_return || !is_else_return {
-            // Phase 33-8: Level 2 - Pattern matching details
+            // Phase 33-8: Level 2 - shape matching details
             if self.debug_level >= 2 {
                 get_global_ring0().log.debug(&format!(
-                    "[IfMergeLowerer] ❌ not return pattern (then={}, else={})",
+                    "[IfMergeLowerer] ❌ not return shape (then={}, else={})",
                     is_then_return, is_else_return
                 ));
             }
@@ -186,7 +186,7 @@ impl IfMergeLowerer {
         let common_writes: HashSet<_> = then_writes.intersection(&else_writes).copied().collect();
 
         if common_writes.is_empty() {
-            // Phase 33-8: Level 2 - Pattern matching details
+            // Phase 33-8: Level 2 - shape matching details
             if self.debug_level >= 2 {
                 get_global_ring0()
                     .log

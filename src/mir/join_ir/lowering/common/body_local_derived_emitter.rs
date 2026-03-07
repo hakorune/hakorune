@@ -326,7 +326,7 @@ mod tests {
 
     #[test]
     fn derived_emits_select_and_updates_env() {
-        // Pattern:
+        // Shape:
         //   base: ch_top already computed and in body_local_env
         //   escape_cond: ch == "\\"
         //   bounds: i < n (evaluated with i_pre)

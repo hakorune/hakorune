@@ -412,7 +412,7 @@ pub enum JoinInst {
 
     /// Phase 41-4: 深いネスト if の複数変数 merge（else なし）
     ///
-    /// # Pattern
+    /// # Shape
     /// ```text
     /// if cond1 {
     ///   if cond2 {

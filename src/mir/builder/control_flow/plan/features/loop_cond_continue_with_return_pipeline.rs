@@ -574,7 +574,7 @@ fn lower_hetero_return_if(
     else_chain: &[ASTNode],
 ) -> Result<Vec<LoweredRecipe>, String> {
     // For heterogeneous return-if with else_chain:
-    // Pattern: if cond { then_assignment (e.g., in_str = 1) } else { else_chain (nested if-else) }
+    // Shape: if cond { then_assignment (e.g., in_str = 1) } else { else_chain (nested if-else) }
     //
     // Solution: Use CoreIfJoin for merge at join point (SSA-correct)
     //

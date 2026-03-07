@@ -198,8 +198,8 @@ fn build_exit_allowed_item(
                     else_block,
                 })
             } else if let Some(else_body) = else_body {
-                // Case 2: then doesn't exit, but else might → ElseOnlyExit pattern
-                // Pattern: if cond { stmts } else { break/continue/return }
+                // Case 2: then doesn't exit, but else might → ElseOnlyExit shape
+                // Shape: if cond { stmts } else { break/continue/return }
                 //
                 // If else is not exit-only, treat the whole if as a stmt (join-bearing).
                 let else_exit_only = build_exit_only_block(arena, else_body, allow_extended);

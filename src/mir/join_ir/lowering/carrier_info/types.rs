@@ -186,14 +186,14 @@ pub struct ExitMeta {
 ///
 /// Separates two distinct use cases for JoinIR loops:
 ///
-/// 1. **Expr Result Pattern** (joinir_min_loop.hako):
+/// 1. **Expr Result Shape** (joinir_min_loop.hako):
 ///    ```nyash
 ///    local result = loop(...) { ... }  // Loop used as expression
 ///    return result
 ///    ```
 ///    Here, the k_exit return value is the "expr result" that should go to exit_phi_inputs.
 ///
-/// 2. **Carrier Update Pattern** (trim pattern):
+/// 2. **Carrier Update Shape** (trim route):
 ///    ```nyash
 ///    loop(...) { start = start + 1 }   // Loop used for side effects
 ///    print(start)                      // Use carrier after loop

@@ -6,7 +6,7 @@
 //!
 //! Lowers Main.skip/1 whitespace skipping loop to JoinIR.
 //!
-//! ## Pattern Structure
+//! ## Shape Structure
 //!
 //! ```text
 //! entry: skip(s)

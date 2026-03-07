@@ -6,7 +6,7 @@
 //!
 //! Lowers Stage1UsingResolverBox.resolve_for_source/5 using namespace resolution loop to JoinIR.
 //!
-//! ## Pattern Structure
+//! ## Shape Structure
 //!
 //! ```text
 //! entry: resolve_entries(entries, n, modules, seen, prefix_init)

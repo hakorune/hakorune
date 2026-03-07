@@ -6,7 +6,7 @@
 //!
 //! Lowers FuncScannerBox.trim/1 string trimming loop to JoinIR.
 //!
-//! ## Pattern Structure
+//! ## Shape Structure
 //!
 //! ```text
 //! entry: trim_main(s)

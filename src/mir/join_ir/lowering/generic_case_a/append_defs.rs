@@ -6,7 +6,7 @@
 //!
 //! Lowers FuncScannerBox.append_defs/2 array concatenation loop to JoinIR.
 //!
-//! ## Pattern Structure
+//! ## Shape Structure
 //!
 //! ```text
 //! entry: append_defs_entry(dst, defs_box, n)
