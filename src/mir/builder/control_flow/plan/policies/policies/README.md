@@ -30,13 +30,13 @@
 - `TrimLoweringResult` - condition, carrier_info, condition_only_recipe
 
 **将来的な整理**:
-- Trimパターン判断ロジックをpolicies/へ移動検討
-- 現在はpatterns/直下に配置（Phase 180統合済み）
+- Trim route 判断ロジックを policies/ へ寄せる方針は完了済み
+- current location は `plan/trim_loop_lowering.rs`（old `patterns/*` path は historical token のみ）
 
 ---
 
 ### p5b_escape_derived_policy.rs (Phase 94)
-**現在の場所**: `patterns/policies/p5b_escape_derived_policy.rs`
+**現在の場所**: `plan/policies/policies/p5b_escape_derived_policy.rs`
 
 **責務**: P5b escapeパターン認識とBodyLocalDerivedルーティング
 
@@ -56,7 +56,7 @@
 ---
 
 ### loop_true_read_digits_policy.rs (Phase 104/105)
-**現在の場所**: `patterns/policies/loop_true_read_digits_policy.rs`
+**現在の場所**: `plan/policies/policies/loop_true_read_digits_policy.rs`
 
 **責務**: `loop(true)` + break-only digits（`read_digits_from` family）の認識とルーティング
 

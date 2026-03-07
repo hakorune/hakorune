@@ -4,7 +4,7 @@ Status: SSOT（navigation）
 Scope: JoinIR の「Loop/If を JoinIR 化して MIR に統合する」導線（検出→shape guard→lower→merge→契約検証）
 Related:
 - SSOT: [`docs/development/current/main/joinir-architecture-overview.md`](../joinir-architecture-overview.md)
-- SSOT: [`docs/development/current/main/loop_pattern_space.md`](../loop_pattern_space.md)（legacy loop label inventory）
+- SSOT: [`docs/development/current/main/loop_pattern_space.md`](../loop_pattern_space.md)（legacy route-label ledger / traceability-only inventory）
 - SSOT: [`docs/development/current/main/joinir-boundary-builder-pattern.md`](../joinir-boundary-builder-pattern.md)
 - SSOT: [`docs/development/current/main/design/loop-canonicalizer.md`](./loop-canonicalizer.md)
 - SSOT: [`docs/development/current/main/design/recipe-first-entry-contract-ssot.md`](./recipe-first-entry-contract-ssot.md) ← Recipe-first 主軸
@@ -286,10 +286,10 @@ Box を新規実装・変更した際は以下を必ず確認：
 5. merge/ExitLine を接続（契約が満たされるように）
    - carrier/ExitMeta/Boundary が揃っているか確認する
 6. Tests を追加（仕様固定）
-   - unit: pattern/validator/merge の局所テスト
+   - unit: route/validator/merge の局所テスト
    - smoke: `tools/smokes/v2/` の profile に軽いケースを追加（quick を重くしない）
 7. Docs を更新（地図を更新）
-   - `docs/development/current/main/loop_pattern_space.md`（パターン空間に追記が必要なら）
+   - `docs/development/current/main/loop_pattern_space.md`（legacy route-label ledger に追記が必要なら）
    - `docs/development/current/main/joinir-architecture-overview.md`（箱/契約が増えたなら）
    - 本ファイル（入口・責務マップの更新）
 

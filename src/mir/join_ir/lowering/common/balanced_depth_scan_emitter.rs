@@ -1,6 +1,6 @@
 //! Phase 107: Balanced depth-scan derived emission (recipe only)
 //!
-//! This recipe is produced by builder-side policy (`patterns/policies/*`) and
+//! This recipe is produced by builder-side policy (`plan/policies/policies/*`) and
 //! consumed by JoinIR lowering to derive:
 //! - `depth_delta`: per-iteration delta (-1/0/+1)
 //! - `depth_next`: depth + depth_delta (for break checks)

@@ -61,7 +61,7 @@ impl LoopVarClass {
 ///
 /// LoopScopeShape has two construction paths depending on context:
 ///
-/// 1. **AST-based** (MIR building): `patterns/loop_scope_shape_builder.rs`
+/// 1. **AST-based** (MIR building): `plan/loop_scope_shape_builder.rs`
 ///    - Extracts body_locals from AST nodes
 ///    - Used during initial MIR generation from source
 ///

@@ -41,11 +41,11 @@ This is the ordered task map for compiler cleanliness. Use this order unless a n
 5) Gate/tag pinning
    - 変更ごとに freeze/reject タグを taxonomy に合わせて固定し、揺れを局所で止める。
 
-6) Residue cleanup (historical domain wording / legacy extractors)
-   - historical planner-payload wording / Normalizer 残骸・未参照抽出器などを “掃除” として最後にまとめて削る。
+6) Residue cleanup (historical domain wording / legacy route extractors)
+   - historical planner-payload wording / Normalizer 残骸・未参照 route extractor などを “掃除” として最後にまとめて削る。
    - ここで新しい受理形を増やさない（BoxCount を混ぜない）。
    - active module surface `joinir::route_entry` は最終的に「薄い入口/ルーティング層」に縮退させる（legacy physical path lane の扱いは `route-physical-path-legacy-lane-ssot.md` を参照）。
-     - ルーティングの SSOT は Facts/Recipe/Verifier に寄せ、patterns 層は “どの入口を呼ぶか” だけにする。
+     - ルーティングの SSOT は Facts/Recipe/Verifier に寄せ、`route_entry` 層は “どの入口を呼ぶか” だけにする。
      - ただし release 挙動は変えない（構造整理で fail-fast 位置を動かす場合は strict/dev(+planner_required) 限定）。
 
 ## Phase29x Direct Route Recovery Pack (2026-03-03)
@@ -168,9 +168,9 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
 
 1) Router registryization（挙動不変）
    - `router.rs` の “候補列挙 + compose 呼び出し” をテーブル化し、見通しを改善する（分岐爆発の抑止）。
-2) Route implementation relocation（挙動不変, legacy module prefix: `pattern*`）
+2) Route implementation relocation（挙動不変, legacy numbered/file labels are traceability-only）
    - `simple_while_minimal.rs` / `loop_with_if_phi_if_sum.rs` / `scan_bool_predicate_minimal.rs` 等の “直接MIR構築” を plan/recipe-first（Composer/Normalizer/Parts）側へ移す。
-   - patterns 層は “入口選択と呼び出し” のみ（Verify/Lower の真実は持たない）。
+   - `route_entry` 層は “入口選択と呼び出し” のみ（Verify/Lower の真実は持たない）。
    - Phase‑2/Step1: simple-while route（`simple_while_minimal.rs`; old numbered label is traceability-only） の実装本体を plan 側へ移設。
    - Phase‑2/Step2: if-phi join route（legacy file label only, `loop_with_if_phi_if_sum.rs`）の実装本体を plan 側へ移設。
    - Phase‑2/Step3: bool-predicate scan route（`scan_bool_predicate_minimal.rs`; old numbered label is traceability-only） の実装本体を plan 側へ移設。

@@ -1,6 +1,6 @@
 ---
 Status: Complete
-Scope: planner-first required (Pattern2 small set)
+Scope: planner-first required (loop_break small set; legacy Pattern2 label is traceability-only)
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/30-Backlog.md
@@ -9,11 +9,11 @@ Related:
 - docs/development/current/main/phases/phase-29ae/README.md
 ---
 
-# Phase 29bi: planner-first required (Pattern2 small set)
+# Phase 29bi: planner-first required (loop_break small set)
 
 ## Goal
 
-Pattern2 の小集合で、strict/dev で HAKO_JOINIR_PLANNER_REQUIRED=1 を有効にしても
+loop_break route の小集合で、strict/dev で HAKO_JOINIR_PLANNER_REQUIRED=1 を有効にしても
 planner-first が通る状態を増やす。release 既定は不変、JoinIR regression gate は常に緑維持。
 
 ## Non-goals
@@ -25,18 +25,18 @@ planner-first が通る状態を増やす。release 既定は不変、JoinIR reg
 ## Plan (P0-P3)
 
 - P0: docs-first（phase doc + gate SSOT）
-- P1: 対象選定（Pattern2 small set 4 本）
+- P1: 対象選定（loop_break small set 4 本）
 - P2: gate 追加（planner-required pack）
 - P3: closeout
 
-## Target set (Pattern2 small set, final)
+## Target set (loop_break small set, final)
 
 - phase29aq_string_parse_integer_min_vm
-- phase29aq_string_parse_integer_leading_zero_min_vm（理由: 先頭ゼロの境界で Pattern2 の分岐条件を踏む）
+- phase29aq_string_parse_integer_leading_zero_min_vm（理由: 先頭ゼロの境界で loop_break route の分岐条件を踏む）
 - phase29aq_string_parse_integer_ws_min_vm
 - phase29aq_string_parse_integer_sign_min_vm
 
-追加ルール: 1 本追加するたびに「なぜ pattern2 の代表か」を 1 行追記。
+追加ルール: 1 本追加するたびに「なぜ loop_break route の代表か」を 1 行追記。
 
 ## Gate (SSOT)
 

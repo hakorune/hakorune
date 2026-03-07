@@ -1,6 +1,6 @@
 ---
 Status: Complete
-Scope: planner-required expansion (Pattern1/4/5)
+Scope: planner-required expansion (loop_simple_while / loop_continue_only / loop_true_early_exit; legacy Pattern1/4/5 labels are traceability-only)
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/30-Backlog.md
@@ -9,11 +9,11 @@ Related:
 - docs/development/current/main/phases/phase-29ae/README.md
 ---
 
-# Phase 29bl: planner-required expansion (Pattern1/4/5)
+# Phase 29bl: planner-required expansion (loop_simple_while / loop_continue_only / loop_true_early_exit)
 
 ## Goal
 
-Pattern1/4/5 で、strict/dev gate において HAKO_JOINIR_PLANNER_REQUIRED=1 を有効にしても
+loop_simple_while / loop_continue_only / loop_true_early_exit で、strict/dev gate において HAKO_JOINIR_PLANNER_REQUIRED=1 を有効にしても
 planner-first が通る状態に拡張する。release 既定は不変、JoinIR regression gate は常に緑維持。
 
 ## Non-goals
@@ -25,15 +25,15 @@ planner-first が通る状態に拡張する。release 既定は不変、JoinIR 
 ## Plan (P0-P3)
 
 - P0: docs-first（phase doc + gate SSOT）
-- P1: 対象選定（Pattern1/4/5 を各1本）
+- P1: 対象選定（loop_simple_while / loop_continue_only / loop_true_early_exit を各1本）
 - P2: gate 追加（planner-required pack）
 - P3: closeout
 
-## Target set (Pattern1/4/5)
+## Target set (loop_simple_while / loop_continue_only / loop_true_early_exit)
 
-- Pattern1: phase29ap_stringutils_join_min_vm（理由: StringUtils 系の代表で回帰価値が高い）
-- Pattern4: phase29ap_pattern4_continue_min_vm（理由: continue 経路の代表で制御系の回帰価値が高い）
-- Pattern5: phase286_pattern5_break_min_vm（理由: break 経路の代表で制御系の回帰価値が高い）
+- loop_simple_while: phase29ap_stringutils_join_min_vm（理由: StringUtils 系の代表で回帰価値が高い）
+- loop_continue_only: phase29ap_pattern4_continue_min_vm（理由: continue 経路の代表で制御系の回帰価値が高い。fixture stem は legacy token）
+- loop_true_early_exit: phase286_pattern5_break_min_vm（理由: break 経路の代表で制御系の回帰価値が高い。fixture stem は legacy token）
 
 ## Gate (SSOT)
 

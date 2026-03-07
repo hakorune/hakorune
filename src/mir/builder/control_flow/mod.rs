@@ -45,7 +45,7 @@ use crate::ast::ASTNode;
 // Phase 1: Debug utilities
 pub(in crate::mir::builder) mod debug;
 
-// Phase 2-4: JoinIR integration (patterns, routing, merge)
+// Phase 2-4: JoinIR integration (route entry, routing, merge)
 pub(in crate::mir::builder) mod joinir;
 
 // Phase 5: Exception handling

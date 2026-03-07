@@ -29,5 +29,5 @@ pub(super) use entry_like_policy::is_entry_like_source;
 pub(in crate::mir::builder::control_flow::joinir) use boundary_creation::verify_boundary_contract_at_creation;
 pub(in crate::mir::builder) use entry_params::run_all_pipeline_checks;
 
-// Note: get_entry_function is kept internal to entry_params module
-// Patterns use the version from patterns/common/joinir_helpers.rs instead
+// Note: get_entry_function is kept internal to entry_params module.
+// JoinIR route-entry helpers use the shared version from `joinir/common/joinir_helpers.rs`.

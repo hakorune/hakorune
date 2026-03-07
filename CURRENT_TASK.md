@@ -622,6 +622,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `src/mir/{mod.rs,loop_route_detection/mod.rs}` / `docs/development/current/main/design/{route-physical-path-legacy-lane-ssot,loop-route-detection-physical-path-retirement-ssot}.md` / `CURRENT_TASK.md`
     - intent: repo-local caller が 0 だったので old module alias を削除し、`crate::mir::loop_pattern_detection` は historical module token に後退させる。current code は `crate::mir::loop_route_detection::*` だけを使う
     - verification: `rg -n "\\bloop_pattern_detection::|crate::mir::loop_pattern_detection|use .*loop_pattern_detection" src tests -g '!src/mir/loop_route_detection/**'` = 0 hit / `cargo build --release --bin hakorune` = PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` = PASS
+  - truth cleanup (2026-03-07, slice 97): active design guidance の stale `pattern space` / `patterns layer` wording を route-first に同期した
+    - synced files: `docs/development/current/main/design/{joinir-design-map,loop-canonicalizer,normalized-expr-lowering,compiler-task-map-ssot}.md` / `src/mir/builder/control_flow/{mod.rs,joinir/merge/contract_checks/mod.rs}` / `src/mir/builder/control_flow/plan/policies/policies/README.md` / `src/mir/join_ir/lowering/{common/balanced_depth_scan_emitter.rs,loop_scope_shape/shape.rs}`
+    - intent: current guidance では `route_entry` / `loop_route_detection` を主語にし、`joinir/patterns/` や `loop_pattern_space` は legacy ledger / traceability-only note に後退させる
+    - verification: `rg -n "loop_pattern_space|patterns layer|patterns/|loop_pattern_detection" docs/development/current/main/design/joinir-design-map.md docs/development/current/main/design/loop-canonicalizer.md docs/development/current/main/design/normalized-expr-lowering.md docs/development/current/main/design/compiler-task-map-ssot.md src/mir/builder/control_flow/mod.rs src/mir/builder/control_flow/joinir/merge/contract_checks/mod.rs src/mir/builder/control_flow/plan/policies/policies/README.md src/mir/join_ir/lowering/common/balanced_depth_scan_emitter.rs src/mir/join_ir/lowering/loop_scope_shape/shape.rs` = expected legacy-lane notes only
+  - truth cleanup (2026-03-07, slice 98): planner/closeout phase README の current-facing `PatternN` 見出しを route/taxonomy first に寄せた
+    - synced files: `docs/development/current/main/phases/phase-{29ao,29ai,29aj,29ak,29bi,29bj,29bl,29bw}/README.md`
+    - intent: active phase guidance では `loop_simple_while` / `loop_break` / `if_phi_join` / `loop_continue_only` / `loop_true_early_exit` / `scan_with_init` / `split_scan` を主語にし、numbered labels は legacy fixture token / historical migration label に限定する
+    - verification: `rg -n "Scope: .*Pattern|Target set \\(Pattern|Pattern[1-9].*planner-first|release adopt Pattern|Pattern[1-9].*subset adopt" docs/development/current/main/phases/phase-{29ao,29ai,29aj,29ak,29bi,29bj,29bl,29bw}/README.md` = 0 hit
 
 ## next fixed order (resume point)
 
@@ -665,7 +673,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - probe:
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
 - allowlist guard:
-  - `tools/dev/check_loop_pattern_context_allowlist.sh`
+  - `tools/dev/check_loop_pattern_context_allowlist.sh` (`loop_pattern_context` is a legacy filename token; script contract is still current)
 
 ## Archive
 

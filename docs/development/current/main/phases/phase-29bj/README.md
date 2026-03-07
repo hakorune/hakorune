@@ -1,6 +1,6 @@
 ---
 Status: Complete
-Scope: planner-required Pattern6/7 (ScanWithInit / SplitScan)
+Scope: planner-required scan_with_init / split_scan（legacy Pattern6/7 labels are traceability-only）
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/30-Backlog.md
@@ -9,7 +9,7 @@ Related:
 - docs/development/current/main/phases/phase-29ae/README.md
 ---
 
-# Phase 29bj: planner-required Scan/Split (ScanWithInit / SplitScan)
+# Phase 29bj: planner-required scan_with_init / split_scan
 
 ## Goal
 
@@ -26,14 +26,14 @@ release 既定は不変、JoinIR regression gate は常に緑維持。
 ## Plan (P0-P3)
 
 - P0: docs-first（phase doc + gate SSOT）
-- P1: 対象選定（Pattern6/7 を各1本）
+- P1: 対象選定（scan_with_init / split_scan を各1本）
 - P2: gate 追加（planner-required pack）
 - P3: closeout
 
-## Target set (Pattern6/7)
+## Target set (scan_with_init / split_scan)
 
-- Pattern6: phase29aq_string_index_of_min_vm（理由: ScanWithInit の代表で回帰価値が高い）
-- Pattern7: phase29aq_string_split_min_vm（理由: SplitScan の代表で回帰価値が高い）
+- scan_with_init: phase29aq_string_index_of_min_vm（理由: scan_with_init route の代表で回帰価値が高い）
+- split_scan: phase29aq_string_split_min_vm（理由: split_scan route の代表で回帰価値が高い）
 
 ## Gate (SSOT)
 

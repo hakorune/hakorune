@@ -1,6 +1,6 @@
 ---
 Status: Complete
-Scope: pattern5_infinite_early_exit decomposition (LoopTrueSkeleton + ExitIfMap + CarrierUpdate)
+Scope: loop_true_early_exit decomposition (LoopTrueSkeleton + ExitIfMap + CarrierUpdate)
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/30-Backlog.md
@@ -8,9 +8,9 @@ Related:
 - docs/development/current/main/design/coreplan-migration-roadmap-ssot.md
 ---
 
-# Phase 29bw: pattern5_infinite_early_exit decomposition
+# Phase 29bw: loop_true_early_exit decomposition
 
-Goal: pattern5_infinite_early_exit を `LoopTrueSkeleton + FeatureSet` 合成へ寄せる。
+Goal: loop_true_early_exit route を `LoopTrueSkeleton + FeatureSet` 合成へ寄せる。
 release 既定は不変、strict/dev + planner_required のみで表現力を広げる。
 
 Non-goals:
@@ -28,14 +28,15 @@ Acceptance:
 ## Plan (P0-P3)
 
 - P0: 対象ファイルを SSOT で固定（この README と `src/mir/builder/control_flow/plan/REGISTRY.md`）
-- P1: pattern5 の normalizer を skeleton + pipeline 呼び出しのみに寄せる
+- P1: loop_true_early_exit route の normalizer/composer を skeleton + pipeline 呼び出しのみに寄せる
 - P2: exit-map / carrier / conditional_update の重複を feature へ集約
 - P3: legacy 経路を deprecated→削除し、gate green を証跡として closeout
 
 ## Targets (SSOT)
 
-- `src/mir/builder/control_flow/plan/normalizer/pattern5_infinite_early_exit.rs`
-- `src/mir/builder/control_flow/plan/facts/pattern5_infinite_early_exit_facts.rs`
+- `src/mir/builder/control_flow/plan/facts/loop_true_early_exit_facts.rs`
+- `src/mir/builder/control_flow/plan/recipe_tree/loop_true_early_exit_composer.rs`
+- `src/mir/builder/control_flow/plan/recipe_tree/loop_true_early_exit_builder.rs`
 
 ## Notes
 
@@ -44,6 +45,6 @@ Acceptance:
 ## Progress
 
 - P0: targets fixed in this README + REGISTRY.
-- P1: pattern5 normalizer → pipeline 呼び出しに寄せた。
+- P1: loop_true_early_exit route の normalizer/composer → pipeline 呼び出しに寄せた。
 - P2: exit/phi/branch 合流は feature helper へ集約。
 - P3: legacy 経路削除、post-change green（`phase29bq_fast_gate_vm.sh` / `phase29bp_planner_required_dev_gate_v4_vm.sh`）。

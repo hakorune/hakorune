@@ -5,7 +5,7 @@ Scope: ループ形の組み合わせ爆発を抑えるための "前処理" の
 Related:
 - SSOT (契約/不変条件): `docs/development/current/main/joinir-architecture-overview.md`
 - SSOT (地図/入口): `docs/development/current/main/design/joinir-design-map.md`
-- SSOT (ルート空間 / legacy route-label space): `docs/development/current/main/loop_pattern_space.md`
+- SSOT (legacy route-label ledger / traceability-only inventory): `docs/development/current/main/loop_pattern_space.md`
 
 ## アーキテクチャ図
 
