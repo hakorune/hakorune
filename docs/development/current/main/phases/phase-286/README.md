@@ -15,6 +15,17 @@ Reading note:
 - 下に出てくる `joinir/patterns/*` は、特記がない限り execution-time の historical physical path token だよ。
 - current live surfaces は `src/mir/builder/control_flow/joinir/route_entry/`, `src/mir/builder/control_flow/plan/`, `src/mir/builder/control_flow/plan/extractors/`, `src/mir/loop_route_detection/` を優先して読むよ。
 
+Historical numbered-label legend used below:
+- `1` = `LoopSimpleWhile`
+- `2` = `LoopBreak`
+- `3` = `IfPhiJoin`
+- `4` = `LoopContinueOnly`
+- `5` = `LoopTrueEarlyExit`
+- `6` = `ScanWithInit`
+- `7` = `SplitScan`
+- `8` = `BoolPredicateScan`
+- `9` = `AccumConstLoop`
+
 ## Why（なぜ今）
 
 - `return` のような「大きな出口語彙」は、責務が分散すると実装場所が揺れて事故りやすい
@@ -23,7 +34,7 @@ Reading note:
 
 ## SSOT（Phase 286 で守る憲法）
 
-- **SSOT=extract**（Phase 282）: 検出は extract の成功でのみ決める。`pattern_kind` は O(1) safety valve のみ。
+- **SSOT=extract**（Phase 282）: 検出は extract の成功でのみ決める。route discriminator は O(1) safety valve のみ。
 - **CFG/terminator SSOT**（Phase 280/281）: `Frag + compose::* + emit_frag()` が唯一の terminator 生成点。
 - **Fail-Fast**: close-but-unsupported を `Ok(None)` で黙殺しない（silent reroute 禁止）。
 
@@ -48,7 +59,7 @@ Reading note:
 
 ## Coverage Map（Plan line 移行状況）
 
-| Historical route token ID | Shape | Status | Notes |
+| Historical numbered label | Shape | Status | Notes |
 |---:|---|---|---|
 | 1 | SimpleWhile | ✅ Plan line | PoC + integration fixture固定済み |
 | 2 | Break | ✅ Plan line | PoCサブセットは Plan 完走、PoC外は `Ok(None)` で historical-token lane fallback |
@@ -58,7 +69,7 @@ Reading note:
 | 6 | ScanWithInit | ✅ Plan line | Phase 273 で SSOT |
 | 7 | SplitScan | ✅ Plan line | Phase 273 で SSOT |
 | 8 | BoolPredicateScan | ✅ Plan line | static box は設計上スキップ（ReceiverNormalizeBox が担当） |
-| 9 | AccumConstLoop | ✅ Plan line | LoopSimpleWhile（historical label: Pattern1）より優先（より具体的） |
+| 9 | AccumConstLoop | ✅ Plan line | LoopSimpleWhile（historical label 1）より優先（より具体的） |
 
 ### P0（docs-only）✅ COMPLETE (2025-12-25)
 
@@ -90,7 +101,7 @@ Reading note:
   - B1検証: join_inputs が Param 領域にあること
   - C2検証: condition_bindings が Param 領域にあること
 - **merge/mod.rs に検証呼び出し追加**: merge開始時にFail-Fast検証
-- **実バグ3件修正**: loop_break / loop_continue_only / loop_true_early_exit（historical labels: Pattern2/4/5）で `alloc_local()` を誤って使っていた箇所を `alloc_param()` に修正
+- **実バグ3件修正**: loop_break / loop_continue_only / loop_true_early_exit（historical labels 2/4/5）で `alloc_local()` を誤って使っていた箇所を `alloc_param()` に修正
 
 **成果物**:
 - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs` (変更)
@@ -112,21 +123,21 @@ Reading note:
 - **エラーメッセージ改善**: `verify_boundary_contract_at_creation()` に `context: &str` パラメータ追加
 - **docs反映**: SSOTドキュメントに脚注形式で数値記載、新API使用の明記
 
-### P2（LoopContinueOnly PoC; historical label: Pattern4）✅ COMPLETE (2025-12-26)
+### P2（LoopContinueOnly PoC）✅ COMPLETE (2025-12-26)
 
 **完了内容**:
-- **LoopContinueOnly（historical label: Pattern4 / Loop with Continue）を Plan/Frag SSOT に移行**
-  - historical numbered label at the time: `DomainPlan::Pattern4Continue` 追加
-  - PlanNormalizer::normalize_pattern4_continue() 実装（phi_bindings によるAST抽出ベース）
+- **LoopContinueOnly（historical label 4 / Loop with Continue）を Plan/Frag SSOT に移行**
+  - historical numbered-route DomainPlan variant を old lane に追加
+  - historical numbered-route normalizer を実装（phi_bindings によるAST抽出ベース）
   - Router integration（Plan line routing → historical-token lane fallback）
 
 **成果物**:
 - `apps/tests/phase286_pattern4_frag_poc.hako` (最小fixture: single continue)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern4_frag_poc.sh` (integration smoke)
-- `src/mir/builder/control_flow/plan/mod.rs` (historical struct name: `Pattern4ContinuePlan` 追加)
+- `src/mir/builder/control_flow/plan/mod.rs` (historical numbered-route plan struct added in the old lane)
   - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-  - same historical extractors lane as reading note (`extractors/pattern4.rs`, `router.rs`; extract_pattern4_plan / Plan routing 追加)
-- `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern4_continue + phi_bindings)
+  - same historical extractors lane as reading note (`extractors/pattern4.rs`, `router.rs`; historical extractor / Plan routing 追加)
+- `src/mir/builder/control_flow/plan/normalizer.rs` (historical numbered-route normalizer + phi_bindings)
 
 **重要な設計決定**:
 - **phi_bindings**: lower_*_ast関数でPHI dstを優先参照（variable_mapの初期値ではなく）
@@ -137,16 +148,16 @@ Reading note:
 - Integration test: phase286_pattern4_frag_poc.sh PASS (output: 6)
 - Regression test: quick smoke 154 PASS, 0 FAILED
 
-**LoopBreak 調査結果（historical label: Pattern2, 別タスク化）**:
+**LoopBreak 調査結果（historical label 2, 別タスク化）**:
 - break経路の値再接続が複雑（after_bbにPHI必要）
 - 詳細: [pattern2-deferred.md](./pattern2-deferred.md)
 
-### P2.1（LoopSimpleWhile PoC; historical label: Pattern1）✅ COMPLETE (2025-12-26)
+### P2.1（LoopSimpleWhile PoC）✅ COMPLETE (2025-12-26)
 
 **完了内容**:
-- **LoopSimpleWhile（historical label: Pattern1 / SimpleWhile）を Plan/Frag SSOT に移行**
-  - DomainPlan::Pattern1SimpleWhile 追加
-  - PlanNormalizer::normalize_pattern1_simple_while() 実装（phi_bindings によるPHI dst優先参照）
+- **LoopSimpleWhile（historical label 1 / SimpleWhile）を Plan/Frag SSOT に移行**
+  - historical numbered-route DomainPlan variant を old lane に追加
+  - historical numbered-route normalizer を実装（phi_bindings によるPHI dst優先参照）
   - Router integration（Plan line routing → historical-token lane fallback）
 
 **検証結果**:
@@ -157,8 +168,8 @@ Reading note:
 
 **完了内容**:
 - **extractor helper化**: `extract_loop_increment_plan` を `common_helpers.rs` に統一
-  - LoopSimpleWhile / LoopContinueOnly（historical labels: Pattern1/4）が呼ぶだけに変更（重複排除 ~25行）
-- **router helper化**: `lower_via_plan()` を追加し ScanWithInit / SplitScan / LoopContinueOnly / LoopSimpleWhile（historical labels: Pattern6/7/4/1）で共用
+  - LoopSimpleWhile / LoopContinueOnly（historical labels 1/4）が呼ぶだけに変更（重複排除 ~25行）
+- **router helper化**: `lower_via_plan()` を追加し ScanWithInit / SplitScan / LoopContinueOnly / LoopSimpleWhile（historical labels 6/7/4/1）で共用
   - 3行パターン（normalize→verify→lower）を1関数に集約（ボイラープレート削減 ~40行）
 
 **成果物**:
@@ -171,28 +182,28 @@ Reading note:
 - Regression test: quick smoke 154 PASS
 - LoopSimpleWhile PoC: PASS, LoopContinueOnly PoC: PASS
 
-### P2.3 (AccumConstLoop Plan化 PoC; historical label: Pattern9) ✅ COMPLETE (2025-12-26)
+### P2.3 (AccumConstLoop Plan化 PoC) ✅ COMPLETE (2025-12-26)
 
 **完了内容**:
-- **AccumConstLoop（historical label: Pattern9）を Plan/Frag SSOT に移行**
-  - DomainPlan::Pattern9AccumConstLoop 追加
-  - PlanNormalizer::normalize_pattern9_accum_const_loop() 実装（PHI 2本: loop_var, acc_var）
+- **AccumConstLoop（historical label 9）を Plan/Frag SSOT に移行**
+  - historical numbered-route DomainPlan variant を old lane に追加
+  - historical numbered-route normalizer を実装（PHI 2本: loop_var, acc_var）
   - Router integration（Plan line routing → historical-token lane fallback）
-  - AccumConstLoop（historical label: Pattern9）は LoopSimpleWhile（historical label: Pattern1）より優先（より具体的な route family）
+  - AccumConstLoop（historical label 9）は LoopSimpleWhile（historical label 1）より優先（より具体的な route family）
 
 **設計決定**:
 - **PoC は const/var 両方 OK**: `sum = sum + 1`（定数）または `sum = sum + i`（変数）
 - **本体の順序固定**: 1行目=累積更新, 2行目=ループ変数更新
-- **CFG 構造**: LoopSimpleWhile と同じ骨格（historical label: Pattern1）、PHI 2本（i_current, sum_current）
+- **CFG 構造**: LoopSimpleWhile と同じ骨格（historical label 1）、PHI 2本（i_current, sum_current）
 
 **成果物**:
 - `apps/tests/phase286_pattern9_frag_poc.hako` (最小fixture: const accumulation)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern9_frag_poc.sh` (integration smoke)
-- `src/mir/builder/control_flow/plan/mod.rs` (Pattern9AccumConstLoopPlan + DomainPlan variant)
+- `src/mir/builder/control_flow/plan/mod.rs` (historical numbered-route plan struct + DomainPlan variant in the old lane)
 - `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-  - same historical extractors lane as reading note (`extractors/pattern9.rs`, `extractors/mod.rs`; extract_pattern9_plan() / pattern9 モジュール追加)
-- `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern9_accum_const_loop())
+  - same historical extractors lane as reading note (`extractors/pattern9.rs`, `extractors/mod.rs`; historical extractor / module 追加)
+- `src/mir/builder/control_flow/plan/normalizer.rs` (historical numbered-route normalizer)
 
 **検証結果**:
 - Integration test: `phase286_pattern9_frag_poc` PASS (return: 3)
@@ -246,28 +257,27 @@ Reading note:
 - 核ロジックは main loop に密結合しているため、完全な分離にはさらなるリファクタリングが必要
 - スモークテスト: 既存FAILなし（1件のemit失敗は本変更と無関係）
 
-### P2.4 (BoolPredicateScan Plan化 PoC; historical label: Pattern8) ✅ COMPLETE (2025-12-26)
+### P2.4 (BoolPredicateScan Plan化 PoC) ✅ COMPLETE (2025-12-26)
 
 **背景**:
-- BoolPredicateScan（historical label: Pattern8）は Phase 269 P1.2 で `static box` コンテキストを明示的にスキップする設計決定あり
-- 既存 fixture (`phase269_p0_pattern8_frag_min.hako`) は static box のため BoolPredicateScan がマッチせず LoopSimpleWhile（historical label: Pattern1）にフォールバック
+- BoolPredicateScan（historical label 8）は Phase 269 P1.2 で `static box` コンテキストを明示的にスキップする設計決定あり
+- 既存 fixture (`phase269_p0_pattern8_frag_min.hako`) は static box のため BoolPredicateScan がマッチせず LoopSimpleWhile（historical label 1）にフォールバック
 - PoC のためには BoolPredicateScan が実際にマッチする**非 static box の fixture** が必要
 
 **実装方針**:
 - **非 static box fixture**: `box StringUtils` に変更し、`Main.main()` から `new StringUtils()` でインスタンス生成
-- **Plan line 抽出**: `extract_pattern8_plan()` で parts 抽出（既存 pattern8 の構造を参考）
-- **Normalizer**: `normalize_pattern8_bool_predicate_scan()` で Scan 系の骨格を最小で再利用
-- **Router integration**: PLAN_EXTRACTORS テーブルに BoolPredicateScan（historical label: Pattern8）追加、`Ok(None)` なら historical token `Pattern8` lane へフォールバック
+- **Plan line 抽出**: historical numbered-route extractor で parts 抽出（既存 legacy-8 構造を参考）
+- **Normalizer**: historical numbered-route normalizer で Scan 系の骨格を最小で再利用
+- **Router integration**: PLAN_EXTRACTORS テーブルに BoolPredicateScan（historical label 8）追加、`Ok(None)` なら historical token lane へフォールバック
 
 **成果物** (予定):
 - `apps/tests/phase286_pattern8_plan_poc.hako` (新規: 非 static box fixture)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern8_plan_poc_vm.sh` (新規: integration smoke)
-- `src/mir/builder/control_flow/plan/mod.rs` (変更: Pattern8BoolPredicateScanPlan + DomainPlan variant)
+- `src/mir/builder/control_flow/plan/mod.rs` (変更: historical numbered-route plan struct + DomainPlan variant)
 - `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-  - historical path tokens:
-  - same historical extractors lane as reading note (`extractors/pattern8.rs`, `extractors/mod.rs`; 新規: extract_pattern8_plan / 変更: pattern8 モジュール追加)
-- `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern8_bool_predicate_scan)
+  - same historical extractors lane as reading note (`extractors/pattern8.rs`, `extractors/mod.rs`; historical extractor / module 追加)
+- `src/mir/builder/control_flow/plan/normalizer.rs` (変更: historical numbered-route normalizer)
 
 **検証結果**:
 - Integration test: `phase286_pattern8_plan_poc_vm` PASS (exit 7)
@@ -275,45 +285,44 @@ Reading note:
 - Debug log: `route=plan strategy=extract pattern=Pattern8_BoolPredicateScan` 確認
 
 **P2.4.1（Plan 完走 / Fail-Fast 統一）** ✅ COMPLETE (2025-12-26)
-- BoolPredicateScan（historical label: Pattern8）の normalizer を実装し、Plan line で完走（historical-token lane fallback 禁止）
+- BoolPredicateScan（historical label 8）の normalizer を実装し、Plan line で完走（historical-token lane fallback 禁止）
 - router の “文字列判定 e.contains(...)” などの暫定フォールバックを撤去し、extract 成功後は Fail-Fast に統一
 
 **補足（設計相談）**:
-- “Pattern を Plan に落とした後、Plan 側に残る pattern 臭さをどう減らすか” の相談パケット:  
+- “legacy numbered-route token を Plan line に移した後、current guide 側の臭さをどう減らすか” の相談パケット:
   `docs/development/current/main/investigations/phase-286-plan-normalization-consult.md`
 
-### P2.6 (IfPhiJoin Plan化 PoC + LoopSimpleWhile 退行修正; historical labels: Pattern3/1) ✅ COMPLETE (2025-12-26)
+### P2.6 (IfPhiJoin Plan化 PoC + LoopSimpleWhile 退行修正) ✅ COMPLETE (2025-12-26)
 
 **背景**:
-- **退行バグ発見**: `apps/tests/phase118_pattern3_if_sum_min.hako` が FAIL (期待 12、実際 10)
-- **原因**: LoopSimpleWhile Plan（historical label: Pattern1）が IfPhiJoin fixture（historical label: Pattern3）を誤ってマッチ
+- **退行バグ発見**: legacy fixture pin token `phase118_pattern3_if_sum_min.hako` が FAIL (期待 12、実際 10)
+- **原因**: LoopSimpleWhile Plan（historical label 1）が IfPhiJoin fixture（historical label 3）を誤ってマッチ
   - LoopSimpleWhile extractor の `has_control_flow_statement()` が if/else をチェックしていない
-  - pattern_kind ガードもなく、LoopSimpleWhile Plan が IfPhiJoin にマッチしていた
+  - route-kind guard もなく、LoopSimpleWhile Plan が IfPhiJoin にマッチしていた
 
 **実装内容**:
 
-**Step 0: LoopSimpleWhile 退行修正（historical label: Pattern1, 最優先）** ✅ COMPLETE
-- **0.1 Router guard**: `router.rs` の `try_plan_extractors()` で LoopSimpleWhile Plan は `ctx.pattern_kind == Pattern1SimpleWhile` のみマッチ
+**Step 0: LoopSimpleWhile 退行修正（historical label 1, 最優先）** ✅ COMPLETE
+- **0.1 Router guard**: `router.rs` の `try_plan_extractors()` で LoopSimpleWhile Plan は `ctx.route_kind == LoopRouteKind::LoopSimpleWhile` のみマッチ
 - **0.2 has_if_statement 追加**: `common_helpers.rs` に再帰的 if 検出ヘルパー追加
 - **0.3 LoopSimpleWhile extractor 強化**: `has_if_statement()` による if-else 拒否を追加（防御in深さ）
-- **検証**: phase118 PASS (出力 12)、historical token Pattern3 lane が正しく動作
+- **検証**: phase118 PASS (出力 12)、historical label 3 lane が正しく動作
 
-**Step 1: IfPhiJoin Plan line 実装（historical label: Pattern3）** ✅ COMPLETE
-- **DomainPlan 追加**: `Pattern3IfPhiPlan { loop_var, carrier_var, condition, if_condition, then_update, else_update, loop_increment }`
-- **Extractor**: `extract_pattern3_plan()` - 既存 `extract_loop_with_if_phi_parts()` を活用
+**Step 1: IfPhiJoin Plan line 実装（historical label 3）** ✅ COMPLETE
+- **DomainPlan 追加**: historical numbered-route plan struct を old lane に追加
+- **Extractor**: historical numbered-route extractor が既存 `extract_loop_with_if_phi_parts()` を活用
 - **Normalizer**: CFG構造 `preheader → header(PHI: i, sum) → body → then/else → merge(PHI: sum) → step → header → after`
-- **Router**: Plan 完走のため、Pattern3 の “stub fallback” を撤去し Fail-Fast に統一（extract が Some の後は Err を伝播）
+- **Router**: Plan 完走のため、legacy label 3 の “stub fallback” を撤去し Fail-Fast に統一（extract が Some の後は Err を伝播）
 
 **成果物** (予定):
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
 - `src/mir/builder/control_flow/plan/extractors/common_helpers.rs` (current helper surface)
-- `src/mir/builder/control_flow/plan/mod.rs` (変更: Pattern3IfPhiPlan + DomainPlan variant)
-- historical path tokens:
-  - same historical extractors lane as reading note (`extractors/pattern1.rs`, `extractors/pattern3.rs`; 変更: if 拒否 / extract_pattern3_plan)
-- `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern3_if_phi)
+- `src/mir/builder/control_flow/plan/mod.rs` (変更: historical numbered-route plan struct + DomainPlan variant)
+- historical path tokens are centralized in the reading note / old-lane files (`extractors/pattern1.rs`, `extractors/pattern3.rs`)
+- `src/mir/builder/control_flow/plan/normalizer.rs` (変更: historical numbered-route normalizer)
 
 **成功基準**:
-- Regression fix: `phase118_pattern3_if_sum_vm` PASS (出力 12) ✅
+- Regression fix: compat smoke/filter token `phase118_pattern3_if_sum_vm` PASS (出力 12) ✅
 - IfPhiJoin Plan line: `route=plan pattern=Pattern3_IfPhi` 確認
 - Full regression: `tools/smokes/v2/run.sh --profile quick` 0 failed
 
@@ -342,10 +351,10 @@ Reading note:
 - Build: cargo build --release PASS
 - Regression: quick smoke 0 failed
 
-### P3.1 (LoopBreak Plan化; historical label: Pattern2) ✅ COMPLETE (2025-12-26)
+### P3.1 (LoopBreak Plan化) ✅ COMPLETE (2025-12-26)
 
 **背景**:
-- LoopBreak（historical label: Pattern2 / Loop with Break）は P2 で別タスク化された（break経路の値再接続が複雑）
+- LoopBreak（historical label 2 / Loop with Break）は P2 で別タスク化された（break経路の値再接続が複雑）
 - 詳細: [pattern2-deferred.md](./pattern2-deferred.md)
 
 **本質的課題: after_bb PHI**:
@@ -374,9 +383,9 @@ preheader → header(PHI: i_current, carrier_current)
 **実装ステップ**:
 1. ✅ Step 0: docs-first - README.md P3.1節追加、pattern2-deferred.md更新
 2. ✅ Step 1: Fixture B作成 + smoke script追加
-3. ✅ Step 2: historical numbered-route addition (`DomainPlan::Pattern2Break` + `extract_pattern2_plan()`)
-4. ✅ Step 3: normalize_pattern2_break() 実装（after_bb PHI）
-5. ✅ Step 4: router に Pattern2 追加
+3. ✅ Step 2: historical numbered-route DomainPlan/extractor を old lane に追加
+4. ✅ Step 3: historical numbered-route normalizer 実装（after_bb PHI）
+5. ✅ Step 4: router に legacy label 2 lane を追加
 6. ✅ Step 5: 検証（Fixture B PASS 出力11、quick 154/154 PASS）
 
 **PoC サブセット厳守**:
@@ -390,28 +399,28 @@ preheader → header(PHI: i_current, carrier_current)
 **成果物** (予定):
 - `apps/tests/phase286_pattern2_break_no_update_min.hako` (新規: break without update fixture)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern2_break_no_update_vm.sh` (新規)
-- `src/mir/builder/control_flow/plan/mod.rs` (変更: historical struct name `Pattern2BreakPlan` + DomainPlan variant)
+- `src/mir/builder/control_flow/plan/mod.rs` (変更: historical numbered-route plan struct + DomainPlan variant)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-- same historical extractors lane as above (`pattern2.rs`, 変更: extract_pattern2_plan)
-- `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern2_break)
+- historical extractor/path tokens are centralized in the reading note / old-lane files (`pattern2.rs`)
+- `src/mir/builder/control_flow/plan/normalizer.rs` (変更: historical numbered-route normalizer)
 
 **検証結果**:
 - ✅ Fixture A (break with update): historical-token lane fallback（PoC サブセット外、出力 42）
 - ✅ Fixture B (break without update): Plan line PASS (出力 11)
 - ✅ Regression: quick smoke 154 PASS, 0 FAILED
 
-### P3.2 (LoopTrueEarlyExit Plan化; historical label: Pattern5) ✅ COMPLETE (2025-12-26)
+### P3.2 (LoopTrueEarlyExit Plan化) ✅ COMPLETE (2025-12-26)
 
 **完了内容**:
-- LoopTrueEarlyExit plan（historical struct name: `Pattern5InfiniteEarlyExitPlan`）追加（Return版・Break版両対応）
-- extract_pattern5_plan() 実装（loop(true) リテラル限定）
-- normalize_pattern5_infinite_early_exit() 実装（Return版5blocks、Break版6blocks CFG）
-- NormalizationPlanBox で Pattern5 スタイルループを除外（Plan line へルーティング）
+- historical numbered-route plan struct を追加（Return版・Break版両対応）
+- historical numbered-route extractor 実装（`loop(true)` リテラル限定）
+- historical numbered-route normalizer 実装（Return版5blocks、Break版6blocks CFG）
+- NormalizationPlanBox で legacy label 5 スタイルループを除外（Plan line へルーティング）
 - quick smoke 154/154 PASS
 
 **背景**:
-- LoopTrueEarlyExit（historical label: Pattern5）は `loop(true)` の無限ループ route family
-- 既存 historical token Pattern5 lane は `break + continue` 両方必須の複雑な形式
+- LoopTrueEarlyExit（historical label 5）は `loop(true)` の無限ループ route family
+- 既存 historical token label-5 lane は `break + continue` 両方必須の複雑な形式
 - PoC は **simpler subset**: 早期 return または break 単独
 
 **CFG構造（Return版）**:
@@ -435,10 +444,10 @@ preheader → header(PHI: i, carrier) → body(exit_cond)
 **実装ステップ**:
 1. Step 0: docs-first - README P3.2節追加
 2. Step 1: integration fixture 2本 (return版、break版)
-3. Step 2: DomainPlan::Pattern5InfiniteEarlyExit 追加
-4. Step 3: extract_pattern5_plan() 実装
-5. Step 4: normalize_pattern5_infinite_early_exit() 実装
-6. Step 5: router に Pattern5 追加
+3. Step 2: historical numbered-route DomainPlan variant 追加
+4. Step 3: historical numbered-route extractor 実装
+5. Step 4: historical numbered-route normalizer 実装
+6. Step 5: router に legacy label 5 lane を追加
 7. Step 6: 検証
 
 **PoC サブセット厳守**:
@@ -451,10 +460,10 @@ preheader → header(PHI: i, carrier) → body(exit_cond)
 - `apps/tests/phase286_pattern5_break_min.hako` (Fixture B)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_return_vm.sh`
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh`
-- `src/mir/builder/control_flow/plan/mod.rs` (Pattern5InfiniteEarlyExitPlan + Pattern5ExitKind)
+- `src/mir/builder/control_flow/plan/mod.rs` (historical numbered-route plan struct + exit kind in the old lane)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-- same historical extractors lane as above (`pattern5.rs`, extract_pattern5_plan)
-- `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern5_infinite_early_exit)
+- historical extractor/path tokens are centralized in the reading note / old-lane files (`pattern5.rs`)
+- `src/mir/builder/control_flow/plan/normalizer.rs` (historical numbered-route normalizer)
 
 **成功基準**:
 - Fixture A (return): PASS (出力 7)
@@ -462,20 +471,20 @@ preheader → header(PHI: i, carrier) → body(exit_cond)
 - Regression: quick smoke 154 PASS, 0 FAILED
 
 **クリーンアップ完了（P3.2後）**:
-- **historical token Pattern5 実装削除**: `pattern5_infinite_early_exit.rs` (488行) 完全削除
-- **Plan extractor が SSOT**: `extractors/pattern5.rs::extract_pattern5_plan()` が唯一の検出ロジック
+- **historical token label-5 implementation deleted**: `pattern5_infinite_early_exit.rs` (488行) 完全削除
+- **Plan extractor が SSOT**: `extractors/pattern5.rs` 側の historical numbered-route extractor が唯一の検出ロジック
 - **LOOP_PATTERNS テーブルからエントリ削除**: router.rs の historical-token lane エントリ撤去
 
-**Fail-Fast 方針（extract_pattern5_plan）**:
+**Fail-Fast 方針（historical label 5 extractor）**:
 | 状況 | 返り値 | 動作 |
 |------|--------|------|
 | PoC サブセット合致 | `Ok(Some(plan))` | Plan line 完走 |
 | PoC サブセット外（構造ミスマッチ） | `Ok(None)` | 他のパターンへ回す |
-| close-but-unsupported（例: return in historical token Pattern5 lane） | `Err(msg)` | Fail-Fast（silent fallback 禁止） |
+| close-but-unsupported（例: return in historical token label-5 lane） | `Err(msg)` | Fail-Fast（silent fallback 禁止） |
 
 **設計決定**:
 - PoC サブセット外（複雑な loop(true)）は `Ok(None)` で他へ回す
-- 既存 historical token Pattern5 lane の `break + continue` 必須形式は対象外（extractor でマッチしない）
+- 既存 historical token label-5 lane の `break + continue` 必須形式は対象外（extractor でマッチしない）
 - 検出できたが未対応の場合は `Err` で明示的に失敗（Fail-Fast 原則維持）
 
 ## Acceptance（P0）
