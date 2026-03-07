@@ -718,16 +718,20 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` / `tools/smokes/v2/profiles/integration/joinir/{planner_required_cases.tsv,phase29bq_fast_gate_cases.tsv}` / `tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv` / `CURRENT_TASK.md`
     - intent: `phase29bq_pattern2_break_recipe_only_min.hako` / `phase29bq_pattern4continue_multidelta_min.hako` / `p4_multidelta` を `legacy fixture pin token` として inventory 化し、selfhost subset の `promote:` reason を legacy token lane だと明記する
     - verification: `rg -n "phase29bq_pattern2_break_recipe_only_min|phase29bq_pattern4continue_multidelta_min|p4_multidelta|promote: phase29bq_selfhost_blocker_parse_stmt_skipws_min" docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md tools/smokes/v2/profiles/integration/joinir/planner_required_cases.tsv tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv` = expected taxonomy hits only
+  - truth cleanup (2026-03-07, slice 121): `phase-263/142` の repeated historical token を same-lane note に圧縮し、current-looking `Pattern2` prose を route-first に寄せた
+    - synced files: `docs/development/current/main/phases/{phase-263/README.md,phase-142/README.md}` / `CURRENT_TASK.md`
+    - intent: repeated `ast_feature_extractor.rs` / `pattern2_steps/promote_step_box.rs` token を same-lane note に縮退し、`LoopBreak（historical label: Pattern2）` を本文の主語へ寄せる
+    - verification: `rg -n "src/mir/builder/control_flow/joinir/patterns/|src/mir/loop_pattern_detection/" docs/development/current/main/phases/{phase-263/README.md,phase-142/README.md}` = reduced historical token hits only
 
 ## next fixed order (resume point)
 
-1. `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
-3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
-4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し済み。compat/pack stem script の runtime label は `${SEMANTIC_STEM} (legacy stem ${LEGACY_STEM})` に揃えたので、残る old stem は filename / filter token / archive replay lane が中心。phase docs でも route/taxonomy first を適用済みで、legacy numbered label は phase-history note に後退した。self-only grep の semantic wrapper は current entrypoint として keep し、old stem retire は active caller が 0 になってから別 phase で扱う。selfhost 側は inventory を固定済みで、Mini-VM always-skip trio と opt-in Stage-B canary は archive profile へ退避済み。`joinir::route_entry` と `src/mir/loop_route_detection/` の on-disk rename、`crate::mir::loop_pattern_detection` alias retirement は完了した。次は compat token inventory を続けつつ historical path/module token を docs/ledger にさらに押し込む。
+1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
+2. phase README truth cleanup: [phase-263/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-263/README.md) / [phase-142/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-142/README.md) の残り historical token を same-lane note に圧縮する。
+3. active design truth cleanup: `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` の remaining traceability-only note をさらに薄くする。
+4. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `compat wrapper` / `active semantic wrapper` にさらに分離する。
+5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
-7. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
+7. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
 
 ## Quick Restart (After Reboot)
 

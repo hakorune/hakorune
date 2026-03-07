@@ -118,7 +118,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 
 ### Files Modified
 1. `src/mir/builder/control_flow/plan/ast_feature_extractor.rs` (+35 lines, improved comments)
-   - historical path token: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
+   - same historical path token as the Route-Shape Recognizer section above (`src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`)
 2. `src/mir/loop_canonicalizer/canonicalizer.rs` (+178 lines, 2 new tests)
 
 ### Statistics
@@ -243,7 +243,7 @@ loop(i < n) {
 
 #### 3. Historical module re-export chain
 **Files Modified** (historical re-export chain at the time):
-- `src/mir/builder/control_flow/joinir/patterns/mod.rs` - Added historical re-export for the continue helper (`detect_continue_pattern`, `ContinuePatternInfo`) at the time
+- same historical re-export lane as the recognizer path token above (`src/mir/builder/control_flow/joinir/patterns/mod.rs`) - Added historical re-export for the continue helper (`detect_continue_pattern`, `ContinuePatternInfo`) at the time
 - `src/mir/builder/control_flow/joinir/mod.rs` - Re-export to joinir level
 - `src/mir/builder/control_flow/mod.rs` - Re-export to control_flow level
 - `src/mir/builder.rs` - Re-export to builder level
