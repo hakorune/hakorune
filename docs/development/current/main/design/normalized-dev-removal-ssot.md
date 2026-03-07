@@ -87,7 +87,7 @@ Goal:
 
 Work:
 - `Cargo.toml` の `normalized_dev = []` を削除する。
-- `binding_context` / `loop_route_detection::legacy`（legacy physical path lane: `route-physical-path-legacy-lane-ssot.md` を参照） / `join_ir::lowering` / frontend 周辺の conditional fields / helpers を通常実装へ吸収または削除する。
+- `binding_context` / `loop_route_detection::legacy`（current physical path: `src/mir/loop_route_detection/legacy/`、historical token/retire条件は `route-physical-path-legacy-lane-ssot.md` を参照） / `join_ir::lowering` / frontend 周辺の conditional fields / helpers を通常実装へ吸収または削除する。
 
 Accept:
 - `rg -n 'feature *= *"normalized_dev"|normalized_dev' Cargo.toml src`

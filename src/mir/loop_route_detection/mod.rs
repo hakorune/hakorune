@@ -2,7 +2,8 @@
 //!
 //! Current module declaration: `crate::mir::loop_route_detection`
 //! Compatibility alias: `crate::mir::loop_pattern_detection`
-//! Current physical path (legacy naming, rename-candidate): `src/mir/loop_pattern_detection/`
+//! Current physical path: `src/mir/loop_route_detection/`
+//! Historical physical path token: `src/mir/loop_pattern_detection/`
 //!
 //! Phase 188 Task 188-4: Route-shape detection helpers for JoinIR loop lowering.
 //!

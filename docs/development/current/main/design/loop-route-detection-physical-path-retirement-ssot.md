@@ -5,15 +5,15 @@ Decision: accepted
 Related:
 - docs/development/current/main/design/route-physical-path-legacy-lane-ssot.md
 - src/mir/mod.rs
-- src/mir/loop_pattern_detection/mod.rs
+- src/mir/loop_route_detection/mod.rs
 - CURRENT_TASK.md
 ---
 
 # Loop Route Detection Physical Path Retirement (SSOT)
 
 目的:
-- active module surface `crate::mir::loop_route_detection` と on-disk path `src/mir/loop_pattern_detection/` のズレを docs-first で管理する。
-- 物理 rename を急がず、caller / doc pin / compatibility alias の撤去条件を先に固定する。
+- `loop_route_detection` physical rename の完了状態と、残る compatibility alias / historical path token を docs-first で管理する。
+- caller / doc pin / compatibility alias の撤去条件を先に固定する。
 - rename phase を BoxShape として閉じ、BoxCount や route acceptance の変更を混ぜない。
 
 ## Current State
@@ -23,8 +23,10 @@ Related:
 - compatibility alias:
   - `crate::mir::loop_pattern_detection`
 - current physical path:
+  - `src/mir/loop_route_detection/`
+- historical physical path token:
   - `src/mir/loop_pattern_detection/`
-- tree size snapshot:
+- tree size snapshot at rename time:
   - classifier / features / kind / tests
   - `legacy/` helper lane
   - total files seen in top tree: 22
@@ -36,8 +38,8 @@ Related:
 - [src/mir/mod.rs](/home/tomoaki/git/hakorune-selfhost/src/mir/mod.rs)
   - current module declaration は `loop_route_detection`
   - `loop_pattern_detection` は compatibility alias として残っている
-- [src/mir/loop_pattern_detection/mod.rs](/home/tomoaki/git/hakorune-selfhost/src/mir/loop_pattern_detection/mod.rs)
-  - active surface / compatibility alias / current physical path (legacy naming) を明記
+- [src/mir/loop_route_detection/mod.rs](/home/tomoaki/git/hakorune-selfhost/src/mir/loop_route_detection/mod.rs)
+  - active surface / compatibility alias / current physical path を明記
 - [route-physical-path-legacy-lane-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/route-physical-path-legacy-lane-ssot.md)
   - remaining legacy physical path lane として current inventory を保持
 - [normalized-dev-removal-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/normalized-dev-removal-ssot.md)
@@ -76,8 +78,9 @@ Related:
 3. physical rename prep
    - remaining active-current path token を 0 に近づける
 4. physical rename
+   - 完了済み
    - `src/mir/loop_pattern_detection/` -> `src/mir/loop_route_detection/`
-   - compatibility alias は必要最小限だけ残す
+   - compatibility alias は必要最小限だけ残した
 5. alias retirement
    - `crate::mir::loop_pattern_detection` caller が 0 になった時点で閉じる
 
