@@ -218,7 +218,7 @@ Body lowering policy: `body_exit_allowed` is used only when `BodyLoweringPolicy:
 
 | Representative fixture / route | Accept predicate (Facts) | Recipe builder | Lower entry | Gate case_id |
 | --- | --- | --- | --- | --- |
-| `if_phi_join baseline`（representative legacy fixture key: `apps/tests/phase118_pattern3_if_sum_min.hako`; inventory-only） | `if_phi_join/facts.rs`（historical facts key; exact token is traceability-only） | `(legacy)` | `if_phi_join route`（legacy lowering token is traceability-only） | `if_sum min` |
+| `if_phi_join baseline`（representative legacy fixture key lives in the inventory lane; traceability-only） | `if_phi_join/facts.rs`（historical facts key; exact token is traceability-only） | `(legacy)` | `if_phi_join route`（legacy lowering token is traceability-only） | `if_sum min` |
 | `apps/tests/phase29bq_selfhost_blocker_rewriteknown_try_apply_loop_true_else_exit_min.hako` | `loop_true_break_continue/facts.rs` | `loop_true_break_continue/recipe.rs` | `loop_true_break_continue_pipeline/` | `selfhost_rewriteknown_try_apply_loop_true_else_exit_min` |
 | `apps/tests/phase29bq_selfhost_subset_scan_funcs_import_min.hako` | `break_continue/facts.rs` | `break_continue/recipe.rs` | `loop_cond break_continue route`（current recipe/parts lane; legacy lowering token: `loop_cond_break_continue_pipeline/`） | `selfhost-only` |
 | `apps/tests/phase29bq_map_literal_percent_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `map_literal_percent_min` |
@@ -297,7 +297,7 @@ Body lowering policy: `body_exit_allowed` is used only when `BodyLoweringPolicy:
 | `apps/tests/phase29bq_using_module_roots_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `using_module_roots_min` |
 | `apps/tests/phase29bq_using_module_roots_multi_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `using_module_roots_multi_min` |
 | `apps/tests/phase29bq_using_module_roots_priority_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `using_module_roots_priority_min` |
-| `apps/tests/phase29bq_pattern2_break_recipe_only_min.hako` | `loop_break/facts.rs`（legacy key: `pattern2_break`） | `recipe_tree/composer.rs`（loop_break recipe） | `loop_break route`（current semantic helper: `normalizer::normalize_loop_break`; legacy file token is historical-only） | `loop_break recipe-only`（legacy case_id: `pattern2 recipe-only`） |
+| `loop_break recipe-only representative fixture` | `loop_break/facts.rs`（legacy key: old label-2 break facts key） | `recipe_tree/composer.rs`（loop_break recipe） | `loop_break route`（current semantic helper: `normalizer::normalize_loop_break`; legacy file token is historical-only） | `loop_break recipe-only`（legacy case_id inventory-only） |
 
 ## Selfhost Goal Checklist (frontier)
 
