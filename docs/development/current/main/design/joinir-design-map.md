@@ -4,7 +4,7 @@ Status: SSOT（navigation）
 Scope: JoinIR の「Loop/If を JoinIR 化して MIR に統合する」導線（検出→shape guard→lower→merge→契約検証）
 Related:
 - SSOT: [`docs/development/current/main/joinir-architecture-overview.md`](../joinir-architecture-overview.md)
-- SSOT: [`docs/development/current/main/loop_pattern_space.md`](../loop_pattern_space.md)（legacy route-label ledger / traceability-only inventory）
+- SSOT: [`docs/development/current/main/loop_pattern_space.md`](../loop_pattern_space.md)（historical route-label ledger）
 - SSOT: [`docs/development/current/main/joinir-boundary-builder-pattern.md`](../joinir-boundary-builder-pattern.md)
 - SSOT: [`docs/development/current/main/design/loop-canonicalizer.md`](./loop-canonicalizer.md)
 - SSOT: [`docs/development/current/main/design/recipe-first-entry-contract-ssot.md`](./recipe-first-entry-contract-ssot.md) ← Recipe-first 主軸

@@ -722,16 +722,19 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-263/README.md,phase-142/README.md}` / `CURRENT_TASK.md`
     - intent: repeated `ast_feature_extractor.rs` / `pattern2_steps/promote_step_box.rs` token を same-lane note に縮退し、`LoopBreak（historical label: Pattern2）` を本文の主語へ寄せる
     - verification: `rg -n "src/mir/builder/control_flow/joinir/patterns/|src/mir/loop_pattern_detection/" docs/development/current/main/phases/{phase-263/README.md,phase-142/README.md}` = reduced historical token hits only
+  - truth cleanup (2026-03-07, slice 122): active design docs の repeated traceability note を圧縮し、current route-first wording は本文に、historical lane は top-level note と short historical wording に寄せた
+    - synced files: `docs/development/current/main/design/{joinir-design-map,planfrag-freeze-taxonomy,edgecfg-fragments}.md` / `CURRENT_TASK.md`
+    - intent: `loop_pattern_space.md` を historical ledger として再表示し、`pattern` token / numbered route label の残留理由を short historical wording へ揃え、`edgecfg-fragments.md` では top-level reading note で repeated note を置き換える
+    - verification: `git diff --check` PASS; `rg -n "legacy numbered route labels are traceability-only|legacy numbered label is traceability-only|traceability-only inventory" docs/development/current/main/design/{joinir-design-map,planfrag-freeze-taxonomy,edgecfg-fragments}.md` = 0 hit
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. phase README truth cleanup: [phase-263/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-263/README.md) / [phase-142/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-142/README.md) の残り historical token を same-lane note に圧縮する。
-3. active design truth cleanup: `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` の remaining traceability-only note をさらに薄くする。
-4. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `compat wrapper` / `active semantic wrapper` にさらに分離する。
-5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
-7. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
+2. phase README truth cleanup: [phase-286/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-286/README.md) / [phase-264/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-264/README.md) / [phase-256/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-256/README.md) / [phase-272/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-272/README.md) の deep historical section を same-lane note に圧縮する。
+3. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `compat wrapper` / `active semantic wrapper` にさらに分離する。
+4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
+5. `dust` cleanup: warnings / orphan helper / dead code を刈る。
+6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
 
 ## Quick Restart (After Reboot)
 

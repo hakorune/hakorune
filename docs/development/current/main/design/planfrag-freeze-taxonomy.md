@@ -26,7 +26,7 @@ Used when a plan was chosen but internal recipe/contract invariants fail.
 Used when JoinIR lowering fails after plan/normalizer succeeded.
 
 - Generic JoinIR freeze: `[joinir/freeze] ...`
-- Route-specific contracts: `[joinir/<phase>/<pattern>/contract] ...` (tag path keeps `pattern` for traceability; current semantics are route-first)
+- Route-specific contracts: `[joinir/<phase>/<pattern>/contract] ...` (`pattern` token is retained only for historical log compatibility; current semantics are route-first)
 
 ## Test expectations (SSOT)
 
@@ -79,7 +79,7 @@ Tests must match the layer they exercise:
 
 - Entry: `docs/development/current/main/phases/phase-29ai/README.md`
 - Plan/Frag overview: `docs/development/current/main/design/edgecfg-fragments.md`
-- scan_with_init/split_scan route contracts (legacy numbered labels are traceability-only): `docs/development/current/main/design/pattern6-7-contracts.md`
+- scan_with_init/split_scan route contracts（historical numbered labels only）: `docs/development/current/main/design/pattern6-7-contracts.md`
 - CorePlan Skeleton/Feature model: `docs/development/current/main/design/coreplan-skeleton-feature-model.md`
 
 ## Non-goals
