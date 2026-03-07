@@ -3,7 +3,11 @@
 ## Status
 - State: 🎉 Complete (P0)
 
-## P0: parse_number Pattern - Break in THEN Clause
+Reading note:
+- この phase は canonicalizer 初期拡張の historical log だよ。
+- 下の `Pattern2Break` / `Pattern4Continue` / `Chosen pattern` は当時の routing/debug token で、current route family では `LoopBreak` / `LoopContinueOnly` と読めばよい。
+
+## P0: parse_number route shape - Break in THEN Clause
 
 ### Objective
 Expand the canonicalizer to recognize parse_number/digit collection patterns, maximizing the adaptation range before adding new lowering patterns.
@@ -27,7 +31,7 @@ loop(i < num_str.length()) {
 }
 ```
 
-### Pattern Characteristics
+### Route-Shape Characteristics
 
 **Key Difference from skip_whitespace**:
 - **skip_whitespace**: `if cond { update } else { break }` - break in ELSE clause
@@ -49,7 +53,7 @@ loop(cond) {
 
 #### 1. New Recognizer (`ast_feature_extractor.rs`)
 
-Added `detect_parse_number_pattern()`:
+Added historical helper `detect_parse_number_pattern()`:
 - Detects `if cond { break }` pattern (no else clause)
 - Extracts body statements before break check
 - Extracts rest statements after break check (including carrier update)
@@ -65,7 +69,7 @@ Added `detect_parse_number_pattern()`:
   - Step 2: Body (statements before break)
   - Step 3: Body (statements after break, excluding carrier update)
   - Step 4: Update (carrier update)
-- Routes to `Pattern2Break` (has_break=true)
+- Routes to historical choice `Pattern2Break` (current route family: `LoopBreak`, has_break=true)
 
 **Lines modified**: ~60 lines
 
@@ -88,14 +92,14 @@ Added `test_parse_number_pattern_recognized()` in `canonicalizer.rs`:
 - Verifies skeleton structure (4 steps)
 - Verifies carrier (name="i", delta=1, role=Counter)
 - Verifies exit contract (has_break=true)
-- Verifies routing decision (Pattern2Break, no missing_caps)
+- Verifies routing decision (`Pattern2Break`; current route family: `LoopBreak`, no missing_caps)
 
 **Lines added**: ~130 lines
 
 ### Acceptance Criteria
 
 - ✅ Canonicalizer creates Skeleton for parse_number loop
-- ✅ RoutingDecision.chosen matches router (Pattern2Break)
+- ✅ RoutingDecision.chosen matches router (`Pattern2Break`; current route family: `LoopBreak`)
 - ✅ Strict parity OK (canonicalizer and router agree)
 - ✅ Default behavior unchanged
 - ✅ quick profile not affected
@@ -111,7 +115,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
   tools/selfhost/test_pattern2_parse_number.hako
 ```
 
-**Output**:
+**Historical output**:
 ```
 [loop_canonicalizer]   Chosen pattern: Pattern2Break
 [choose_pattern_kind/PARITY] OK: canonical and actual agree on Pattern2Break
@@ -174,7 +178,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 
 - **Design**: `docs/development/current/main/design/loop-canonicalizer.md`
 - **Recognizer**: `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
+  - historical path token: `ast_feature_extractor.rs` under the old `joinir/patterns/` lane
 - **Canonicalizer**: `src/mir/loop_canonicalizer/canonicalizer.rs`
 - **Tests**: Test file `tools/selfhost/test_pattern2_parse_number.hako`
 

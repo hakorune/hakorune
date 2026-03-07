@@ -1,5 +1,5 @@
 Status: Completed
-Scope: Phase 255 (Pattern 6 multi-param loop wiring/PHI 対応)
+Scope: Phase 255 (scan_with_init multi-param loop wiring/PHI 対応; historical numbered label: Pattern6)
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/phases/phase-254/README.md
@@ -8,7 +8,7 @@ Related:
 
 ## 前フェーズ（Phase 254）からの引き継ぎ
 
-Phase 254 で Pattern 6 (ScanWithInit) の実装が完了したが、integration テストで失敗：
+Phase 254 で scan_with_init route（historical numbered label: Pattern6）の実装が完了したが、integration テストで失敗：
 
 ```
 [ERROR] ❌ [rust-vm] VM error: Invalid value:
@@ -21,13 +21,13 @@ Phase 254 で Pattern 6 (ScanWithInit) の実装が完了したが、integration
 
 **JoinIR→MIR merge/boundary システムが複数ループ変数を想定していない**
 
-### 現状の仕様（Pattern 1-5）
+### 現状の仕様（early numbered-route line; historical labels Pattern1-5）
 
 - 単一ループ変数前提（例: `i` のみ）
 - `with_loop_var_name()` が1つの変数名を受け取る
 - `exit_bindings` が単一 carrier を想定
 
-### Pattern 6 の要求（3変数ループ）
+### scan_with_init route の要求（3変数ループ）
 
 ```nyash
 index_of(s, ch) {
@@ -97,7 +97,7 @@ pub struct JoinInlineBoundary {
 ```
 
 **利点**:
-- 既存の Pattern 1-5 に影響なし
+- 既存の early numbered-route line（historical labels: Pattern1-5）に影響なし
 - invariants の扱いを明示的に分離
 - PHI 生成ロジックを追加しやすい
 
@@ -137,13 +137,13 @@ pub enum CarrierRole {
 2. すべてのブロックで同じ値を持つ PHI として作成
 3. variable_map に登録
 
-### Task 3: scan_with_init route（historical Pattern6 label）の boundary 構築を修正
+### Task 3: scan_with_init route（historical numbered label: Pattern6）の boundary 構築を修正
 
 **current route files**:
 - `src/mir/join_ir/lowering/scan_with_init_minimal.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs`
 
-**historical path token**: `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
+**historical path token**: `pattern6_scan_with_init.rs` under the old `joinir/patterns/` lane
 
 1. `with_loop_invariants()` を使って s, ch を登録
 2. `exit_bindings` は i のみ（LoopState）
@@ -183,7 +183,7 @@ HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration
 ## 禁止事項
 
 - ❌ workaround / by-name 分岐 / ハック禁止
-- ❌ Pattern 1-5 の動作を変更しない（regression 禁止）
+- ❌ early numbered-route line（historical labels: Pattern1-5）の動作を変更しない（regression 禁止）
 - ❌ フォールバック処理の追加禁止（Fail-Fast 原則維持）
 
 ## 受け入れ基準
@@ -191,12 +191,12 @@ HAKORUNE_BIN=./target/release/hakorune bash tools/smokes/v2/profiles/integration
 - ✅ phase254_p0_index_of_vm.sh が PASS
 - ✅ phase254_p0_index_of_llvm_exe.sh が PASS
 - ✅ 最終的に `--profile quick` の最初の FAIL が次へ進む（index_of で freeze しない）
-- ✅ Pattern 1-5 の既存テストがすべて PASS（regression なし）
+- ✅ early numbered-route line（historical labels: Pattern1-5）の既存テストがすべて PASS（regression なし）
 
 ## 進捗（P0）
 
 - Task 1: Boundary 構造拡張: 未着手
 - Task 2: PHI 生成ロジック拡張: 未着手
-- Task 3: Pattern 6 boundary 修正: 未着手
+- Task 3: scan_with_init boundary 修正: 未着手
 - Task 4: Unit Tests: 未着手
 - Task 5: Integration Tests: 未着手

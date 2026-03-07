@@ -22,6 +22,10 @@ Closeout SSOT:
 - Done criteria: `docs/development/current/main/design/coreplan-migration-done-criteria-ssot.md`
 - v0/v1 boundary: `docs/development/current/main/design/coreloop-composer-v0-v1-boundary-ssot.md`
 
+Reading note:
+- 下の instruction filename に残る `PATTERN*` は historical instruction token だよ。
+- smoke script は semantic wrapper を current entry とし、old `phase29ao_*` / `phase29ab_*` / `phase263_pattern2_*` stem は compat stem / legacy fixture token として読む。
+
 ## P0: Composer scaffold（未接続・仕様不変）✅
 
 - 指示書: `docs/development/current/main/phases/phase-29ao/P0-COREPLAN-COMPOSER-SCAFFOLD-INSTRUCTIONS.md`
@@ -123,7 +127,7 @@ Closeout SSOT:
 
 - 指示書: `docs/development/current/main/phases/phase-29ao/P19-REGRESSION-PACK-ADD-PATTERN1-STRICT-SHADOW-INSTRUCTIONS.md`
 - 変更:
-  - `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh` を追加
+  - `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` を current wrapper として追加（compat stem: `phase29ao_pattern1_strict_shadow_vm.sh`）
   - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` に組み込み
   - `docs/development/current/main/phases/phase-29ae/README.md` の回帰セットに追記
 - ねらい: P17/P18 の strict/dev shadow adopt が回帰ゲートで必ず踏まれる状態を SSOT 化
@@ -190,17 +194,17 @@ Closeout SSOT:
 ## P32: loop_break real-world strict/dev shadow adopt（phase263 をタグ必須で固定）✅
 
 - 指示書: `docs/development/current/main/phases/phase-29ao/P32-STRICT-ADOPT-PATTERN2-REALWORLD-FROM-FACTS-INSTRUCTIONS.md`
-- ねらい: `phase263_pattern2_*` が strict/dev で Facts→CorePlan shadow adopt を踏むことを “タグ必須” で固定し、CorePlan 完全移行の回帰穴を塞ぐ（仕様不変）
+- ねらい: `phase263_pattern2_*` legacy fixture token 群が strict/dev で Facts→CorePlan shadow adopt を踏むことを “タグ必須” で固定し、CorePlan 完全移行の回帰穴を塞ぐ（仕様不変）
 
 ## P33: loop_break body-local planner-derive + tag gate ✅
 
 - 指示書: `docs/development/current/main/phases/phase-29ao/P33-PLANNER-DERIVE-PATTERN2-LOOPBODYLOCAL-SMOKES-INSTRUCTIONS.md`
-- ねらい: `phase29ab_pattern2_loopbodylocal_{min,seg_min}` を planner 由来 loop_break plan に引き上げ、shadow adopt タグを strict/dev 回帰で必須化（仕様不変）
+- ねらい: `phase29ab_pattern2_loopbodylocal_{min,seg_min}` legacy fixture token 群を planner 由来 loop_break plan に引き上げ、shadow adopt タグを strict/dev 回帰で必須化（仕様不変）
 
 ## P34: loop_break negative shadow adopt tag gates ✅
 
 - 指示書: `docs/development/current/main/phases/phase-29ao/P34-PATTERN2-NEGATIVE-SHADOW-ADOPT-TAG-GATES-INSTRUCTIONS.md`
-- ねらい: `phase29ab_pattern2_seg_{freeze,notapplicable}` で shadow adopt タグが出ないことを回帰で固定（仕様不変）
+- ねらい: `phase29ab_pattern2_seg_{freeze,notapplicable}` legacy fixture token 群で shadow adopt タグが出ないことを回帰で固定（仕様不変）
 
 ## P35: Shadow-adopt tag coverage SSOT + loop_simple_while negative gate ✅
 

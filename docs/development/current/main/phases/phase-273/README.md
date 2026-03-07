@@ -9,13 +9,13 @@ Goal:
 
 Historical note:
 - この phase 文書は 2025-12 時点の DomainPlan/CorePlan migration record だよ。
-- current runtime mainline は recipe-first / route-first なので、下の `Pattern6/7` は historical migration label、`joinir/patterns/*` は historical path token として読む。
+- current runtime mainline は recipe-first / route-first なので、下の numbered route labels は historical migration label、`joinir/patterns/*` は historical path token として読む。
 
 ---
 
 ## P2 完了 (2025-12-22)
 
-P2 では split_scan route（legacy Pattern7 label）を Plan ラインへ移行し、P1 の CorePlan を保ったまま “収束圧” を上げた。
+P2 では split_scan route（historical numbered label: Pattern7）を Plan ラインへ移行し、P1 の CorePlan を保ったまま “収束圧” を上げた。
 
 - ✅ split_scan route: Extractor → DomainPlan → Normalizer → CorePlan → Lowerer（MIR/Frag/emit_frag）へ統一
 - ✅ CoreLoopPlan: `block_effects / phis / frag / final_values` で一般化（scan_with_init / split_scan が同一 CorePlan に収束）
@@ -32,7 +32,7 @@ P2 では split_scan route（legacy Pattern7 label）を Plan ラインへ移行
 ### アーキテクチャ
 
 ```
-DomainPlan (Pattern固有)
+DomainPlan (route-family specific)
     ↓ PlanNormalizer (SSOT)
 CorePlan (固定語彙 - 構造ノードのみ)
     ↓ PlanVerifier (fail-fast)
@@ -51,7 +51,7 @@ MIR (block/value/phi)
 ### 原則
 
 - Extractor は **pure**（builder 触り厳禁、DomainPlan を返すのみ）
-- Normalizer は **SSOT**（pattern 固有知識はここに集約）
+- Normalizer は **SSOT**（route-family 固有知識はここに集約）
 - CorePlan の式は **ValueId 参照のみ**（String 禁止 → 第2の言語処理系を作らない）
 - Lowerer は **pattern-agnostic**（CorePlan のみを処理）
 - terminator SSOT: Frag → emit_frag()
@@ -91,7 +91,7 @@ pub enum CoreEffectPlan {
 - New: `src/mir/builder/control_flow/plan/normalizer.rs` - PlanNormalizer (~290 lines)
 - New: `src/mir/builder/control_flow/plan/verifier.rs` - PlanVerifier (~180 lines)
 - Modified: `src/mir/builder/control_flow/plan/lowerer.rs` - CorePlan 対応 (~250 lines)
-- Modified (historical path token): `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs` - DomainPlan 返却
+- Modified (historical path token): `pattern6_scan_with_init.rs` under the old `joinir/patterns/` lane - DomainPlan 返却
 - Modified (current route-entry family): `src/mir/builder/control_flow/joinir/route_entry/router.rs` - Normalizer + Verifier 経由
 
 **Regression test**:
@@ -134,7 +134,7 @@ AOT ランタイム（nyrt）は `ny_main()` の返り値が **raw i64** か **h
 
 ## P3 完了 (2025-12-23)
 
-P3 では scan_with_init route（legacy Pattern6 label）を generalized CoreLoopPlan に移行し、legacy fallback を撤去して Plan ラインの収束を完成させた。
+P3 では scan_with_init route（historical numbered label: Pattern6）を generalized CoreLoopPlan に移行し、legacy fallback を撤去して Plan ラインの収束を完成させた。
 
 - ✅ scan_with_init route: generalized CoreLoopPlan（`frag/block_effects/phis/final_values`）へ完全移行
 - ✅ CoreLoopPlan: すべてのフィールドを必須化（`Option` 削除）
@@ -156,13 +156,13 @@ P3 完了により、以下が Plan ライン SSOT の入口となった：
    - `CoreLoopPlan { block_effects, phis, frag, final_values }`
 
 3. **正規化 SSOT**: `src/mir/builder/control_flow/plan/normalizer.rs`
-   - Pattern 固有知識の一元管理（ScanWithInit/SplitScan normalization）
+   - route-family 固有知識の一元管理（ScanWithInit/SplitScan normalization）
 
 4. **検証 SSOT**: `src/mir/builder/control_flow/plan/verifier.rs`
    - fail-fast 不変条件チェック（V2-V9）
 
 5. **降格 SSOT**: `src/mir/builder/control_flow/plan/lowerer.rs`
-   - Pattern 知識なし、CorePlan のみ処理
+   - route-family 知識なし、CorePlan のみ処理
    - emit_frag() で terminator SSOT
 
 ### P3+ Legacy Removal (2025-12-23)

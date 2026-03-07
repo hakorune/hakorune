@@ -74,7 +74,7 @@ index_of(s, ch) {
   - 目的: 既存 `loop_with_*` 巨大ファイルに寄せず、責務を分離する（設計優先）
 
 入出力（案）:
-- 入力: loop condition AST, loop body AST, `current_static_box_name`, env/JoinValueSpace など（Pattern2 と同等の配線）
+- 入力: loop condition AST, loop body AST, `current_static_box_name`, env/JoinValueSpace など（loop_break route と同等の配線）
 - 出力: `(JoinModule, JoinFragmentMeta)`（既存パターンと同様）
 
 ### 3) condition lowering の利用
@@ -109,14 +109,14 @@ index_of(s, ch) {
   - `tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_llvm_exe.sh`
 
 - **Task 2**: デバッグ実行（現状把握）: ✅ 完了
-  - Pattern 3 と判定されるが "if-sum ではない" で reject される
+  - if_phi_join route（historical numbered label: Pattern3）と判定されるが "if-sum ではない" で reject される
   - loop_canonicalizer の `ConstStep` 不足で fail するケースがある
 
-- **Task 3**: Pattern6 DetectorBox 実装: ✅ 完了
-  - `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs` - can_lower()
-  - Pattern 3 より前に配置（router priority 調整）
-  - `Pattern2Break` と `Pattern3IfPhi` の双方の分類に対応
-  - **検出成功**: `Pattern6_ScanWithInit MATCHED` を確認
+- **Task 3**: scan_with_init detector box 実装: ✅ 完了
+  - historical path token: `pattern6_scan_with_init.rs` under the old `joinir/patterns/` lane
+  - Pattern3 相当の旧 lane より前に配置（router priority 調整）
+  - `LoopBreak` と `IfPhiJoin` の双方の分類に対応
+  - **検出成功**: `Pattern6_ScanWithInit MATCHED` を historical debug token として確認
 
 - **Task 4**: ScanWithInit Lowerer 実装: ✅ 完了
   - **Task 4-1**: extract_scan_with_init_parts() - 構造抽出関数実装
@@ -136,8 +136,8 @@ index_of(s, ch) {
 
 **根本原因**: JoinIR→MIR merge/boundary システムが**複数ループ変数を想定していない**
 
-- 現状の仕様: Pattern 1-5 は単一ループ変数前提（例: `i` のみ）
-- Pattern 6 の要求: 3変数ループ（`s`, `ch`, `i`）
+- 現状の仕様: early numbered-route line（historical labels: Pattern1-5）は単一ループ変数前提（例: `i` のみ）
+- scan_with_init route（historical numbered label: Pattern6）の要求: 3変数ループ（`s`, `ch`, `i`）
 - 問題: PHI ノードが 1つしか作られない（`s` のみ）、`ch` と `i` が undefined
 
 **影響範囲**:
@@ -146,7 +146,7 @@ index_of(s, ch) {
 - `JoinIRConversionPipeline` が複数 PHI 作成に未対応
 
 **Phase 254 の受け入れ境界**:
-- ✅ Pattern 6 が検出される
+- ✅ scan_with_init route（historical numbered label: Pattern6）が検出される
 - ✅ JoinIR が正しく生成される（main/loop_step/k_exit 構造）
 - ✅ substring が BoxCall として init-time に emit される
 - ❌ 実行（VM/LLVM）で PASS にするのは **Phase 255 の範囲**
