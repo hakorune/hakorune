@@ -509,6 +509,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{recipe-file-naming-unification-ssot,pattern-naming-migration-ssot}.md` / `CURRENT_TASK.md`
     - intent: `recipe-file-naming-unification-ssot` を active rename plan ではなく implemented historical mapping として読み直せるようにし、current architecture の参照先を `recipe-tree-and-parts-ssot` 側へ寄せる
     - verification: `rg -n "Historical mapping ledger|Historical -> Current|active rename plan|Historical mapping SSOT" docs/development/current/main/design/{recipe-file-naming-unification-ssot,pattern-naming-migration-ssot}.md` = expected hits only
+  - truth cleanup (2026-03-07, slice 68): pin taxonomy を `fixture key / fixture pin token / selfhost test stem` に統一した
+    - synced files: `docs/development/current/main/design/{joinir-legacy-fixture-pin-inventory-ssot,boxcount-new-box-addition-checklist-ssot,coreloop-stepmode-inline-in-body-ssot,pattern6-7-contracts,pattern-p5b-escape-design}.md` / `CURRENT_TASK.md`
+    - intent: active docs が legacy token を指すときの語彙を 3分類へ統一し、`phase118_pattern3_if_sum_min` は `legacy fixture key`、runtime/gate fixture は `legacy fixture pin token`、selfhost test filename は `legacy selfhost test stem` として読むよう固定する
+    - verification: `rg -n "legacy fixture key|legacy fixture pin token|legacy selfhost test stem|Pin categories|Pin category" docs/development/current/main/design/{joinir-legacy-fixture-pin-inventory-ssot,boxcount-new-box-addition-checklist-ssot,coreloop-stepmode-inline-in-body-ssot,pattern6-7-contracts,pattern-p5b-escape-design}.md` = expected taxonomy hits only
 
 ## next fixed order (resume point)
 

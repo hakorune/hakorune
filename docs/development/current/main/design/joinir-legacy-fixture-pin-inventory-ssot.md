@@ -25,21 +25,30 @@ tokens that still act as traceability pins.
 - If a rename is needed later, use alias-first retirement and keep the old token in this
   ledger until active callers reach zero.
 
+## Pin categories
+
+- `legacy fixture key`
+  - by-name / filter contract token that is still required by a live entrypoint.
+- `legacy fixture pin token`
+  - fixture filename or case id kept for traceability, gate pinning, or command examples.
+- `legacy selfhost test stem`
+  - selfhost-side test filename stem kept only for traceability.
+
 ## Active pins
 
-| Legacy pin token | Current route semantics | Current role |
+| Legacy pin token | Current route semantics | Pin category |
 | --- | --- | --- |
-| `phase118_pattern3_if_sum_min.hako` | `if_phi_join` | selfhost / planner-required fixture pin |
-| `phase29bq_pattern1_inline_explicit_step_min.hako` | `loop_simple_while explicit-step` | runtime fixture pin |
-| `pattern1_inline_explicit_step_min` | `loop_simple_while explicit-step` | fast-gate case id |
-| `phase29ab_pattern6_*` | `scan_with_init` | fixture family pin |
-| `phase29ab_pattern7_*` | `split_scan` | fixture family pin |
-| `phase286_pattern5_break_min.hako` | `loop_true_early_exit` | planner-required / smoke fixture pin |
-| `phase269_p0_pattern8_frag_min.hako` | `bool_predicate_scan` | planner-required fixture pin |
-| `phase286_pattern9_frag_poc.hako` | `accum_const_loop` | planner-required fixture pin |
-| `test_pattern3_skip_whitespace.hako` | `skip_whitespace` | selfhost test stem pin |
-| `test_pattern5b_escape_minimal.hako` | `escape route P5b` | selfhost test stem pin |
-| `test_pattern5b_escape_*` | `escape route P5b` | selfhost test stem family pin |
+| `phase118_pattern3_if_sum_min.hako` | `if_phi_join` | legacy fixture key |
+| `phase29bq_pattern1_inline_explicit_step_min.hako` | `loop_simple_while explicit-step` | legacy fixture pin token |
+| `pattern1_inline_explicit_step_min` | `loop_simple_while explicit-step` | legacy fixture pin token |
+| `phase29ab_pattern6_*` | `scan_with_init` | legacy fixture pin token |
+| `phase29ab_pattern7_*` | `split_scan` | legacy fixture pin token |
+| `phase286_pattern5_break_min.hako` | `loop_true_early_exit` | legacy fixture pin token |
+| `phase269_p0_pattern8_frag_min.hako` | `bool_predicate_scan` | legacy fixture pin token |
+| `phase286_pattern9_frag_poc.hako` | `accum_const_loop` | legacy fixture pin token |
+| `test_pattern3_skip_whitespace.hako` | `skip_whitespace` | legacy selfhost test stem |
+| `test_pattern5b_escape_minimal.hako` | `escape route P5b` | legacy selfhost test stem |
+| `test_pattern5b_escape_*` | `escape route P5b` | legacy selfhost test stem |
 
 ## Usage
 
@@ -48,4 +57,4 @@ tokens that still act as traceability pins.
   - say `split_scan`, not `pattern7`
   - say `if_phi_join`, not `phase118_pattern3_if_sum_min`
 - When the filename itself matters for a command or grep, label it explicitly as
-  `legacy fixture pin token`.
+  `legacy fixture key`, `legacy fixture pin token`, or `legacy selfhost test stem`.
