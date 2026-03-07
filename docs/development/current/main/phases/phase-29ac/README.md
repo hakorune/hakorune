@@ -34,5 +34,5 @@ Goal: Convert freeze-fixed scan_with_init / split_scan near-miss cases into PASS
 
 - `bash tools/smokes/v2/profiles/integration/joinir/scan_with_init_regression_pack_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/joinir/split_scan_regression_pack_vm.sh`
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern6_*"` (`phase29ab_pattern6_*` = legacy fixture pin token family; semantic current entry is `scan_with_init_regression_pack_vm.sh`)
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern7_*"` (`phase29ab_pattern7_*` = legacy fixture pin token family; semantic current entry is `split_scan_regression_pack_vm.sh`)
+- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern6_*"` (`phase29ab_pattern6_*` = historical fixture pin token family; semantic current entry is `scan_with_init_regression_pack_vm.sh`)
+- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern7_*"` (`phase29ab_pattern7_*` = historical fixture pin token family; semantic current entry is `split_scan_regression_pack_vm.sh`)

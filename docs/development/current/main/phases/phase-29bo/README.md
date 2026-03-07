@@ -32,15 +32,15 @@ Related:
 
 ## Target (P1)
 
-- BoolPredicateScan route: bool_predicate_scan planner-required target（representative legacy fixture pin token: `phase269_p0_pattern8_frag_min.hako`）
+- BoolPredicateScan route: bool_predicate_scan planner-required target（representative legacy fixture pin token is tracked in `joinir-legacy-fixture-pin-inventory-ssot.md`）
   - 理由: bool_predicate_scan 系の最小POC、planner-required の代表として固定できる
-- AccumConstLoop route: accum_const_loop planner-required target（representative legacy fixture pin token: `phase286_pattern9_frag_poc.hako`）
+- AccumConstLoop route: accum_const_loop planner-required target（representative legacy fixture pin token is tracked in `joinir-legacy-fixture-pin-inventory-ssot.md`）
   - 理由: accum_const_loop 系の最小POC、planner-required の代表として固定できる
 
 ## Gate (SSOT)
 
 - `./tools/hako_check_loopless_gate.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_pack_vm.sh`（compat wrapper: `phase29bo_planner_required_pattern8_9_pack_vm.sh`）
+- `./tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_pack_vm.sh`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - `./tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_dev_gate_v3_vm.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
