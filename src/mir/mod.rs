@@ -40,8 +40,9 @@ pub mod join_ir_runner; // Phase 27.2: JoinIR 実行器（実験用）
 pub mod join_ir_vm_bridge; // Phase 27-shortterm S-4: JoinIR → Rust VM ブリッジ
 pub mod join_ir_vm_bridge_dispatch; // Phase 30 F-4.4: JoinIR VM ブリッジ dispatch helper
 pub mod loop_form; // ControlForm::LoopShape の薄いエイリアス
-pub mod loop_pattern_detection; // Legacy physical path for loop route-shape detection
-pub use self::loop_pattern_detection as loop_route_detection; // Active module surface for loop route-shape detection
+#[path = "loop_pattern_detection/mod.rs"]
+pub mod loop_route_detection; // Active module surface for loop route-shape detection
+pub use self::loop_route_detection as loop_pattern_detection; // Compatibility alias for the legacy module name
 pub mod optimizer_passes; // optimizer passes (normalize/diagnostics)
 pub mod optimizer_stats; // extracted stats struct
 pub mod passes;

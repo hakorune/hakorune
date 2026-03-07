@@ -49,6 +49,7 @@ Follow-up:
 
 Keep now:
 - active code は `crate::mir::loop_route_detection` surface へ寄っている。
+- current module declaration も `src/mir/mod.rs` の `#[path = "loop_pattern_detection/mod.rs"] pub mod loop_route_detection;` へ寄せた。
 - classifier / legacy helpers / tests を含む tree が大きく、rename diff が広い。
 - historical phase docs が `src/mir/loop_pattern_detection/...` を多数 pin している。
 
