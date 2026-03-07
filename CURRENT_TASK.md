@@ -481,6 +481,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{joinir-smoke-legacy-stem-retirement-ssot,coreplan-shadow-adopt-tag-coverage-ssot,flowbox-tag-coverage-map-ssot}.md` / `tools/smokes/v2/profiles/integration/joinir/{loop_simple_while_strict_shadow_vm,loop_simple_while_subset_reject_extra_stmt_vm,loop_break_release_adopt_vm,loop_break_plan_subset_vm,loop_break_realworld_vm,loop_break_body_local_vm,loop_break_body_local_seg_vm,if_phi_join_vm,if_phi_join_release_adopt_vm,loop_continue_only_vm,loop_true_early_exit_vm,loop_true_early_exit_strict_shadow_vm,loop_true_early_exit_release_adopt_vm,scan_with_init_strict_shadow_vm,scan_with_init_release_adopt_vm,scan_with_init_regression_pack_vm,nested_loop_minimal_release_adopt_vm,nested_loop_minimal_strict_shadow_vm,split_scan_strict_shadow_vm,split_scan_release_adopt_vm,split_scan_regression_pack_vm}.sh` / `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `CURRENT_TASK.md`
     - intent: old script stem は互換 entry として残しつつ、semantic alias wrapper を新 surface として追加する。active docs と regression pack filter は alias wrapper を優先し、legacy stem は archive / traceability-only note に後退させる
     - verification: `bash tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+  - naming cleanup (2026-03-07, slice 61): planner-required pack stem も alias-first で semantic wrapper を追加し、dev gate/current guidance を wrapper surface へ切り替えた
+    - synced files: `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `tools/smokes/v2/profiles/integration/joinir/{loop_break_planner_required_pack_vm,scan_split_planner_required_pack_vm,core_loop_routes_planner_required_pack_vm,if_phi_join_planner_required_pack_vm,bool_predicate_accum_planner_required_pack_vm}.sh` / `tools/smokes/v2/profiles/integration/joinir/{phase29bk_planner_required_dev_gate_vm,phase29bn_planner_required_dev_gate_v2_vm,phase29bo_planner_required_dev_gate_v3_vm}.sh` / `CURRENT_TASK.md`
+    - intent: `phase29bi/bl/bn/bo_*` pack stem は互換 entry として残しつつ、semantic pack alias wrapper を current gate surface と daily guidance に導入する。旧 stem retire は active caller が 0 になるまで行わない
+    - verification: `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_dev_gate_v3_vm.sh` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 
 ## next fixed order (resume point)
 
@@ -488,7 +492,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
 3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。次は alias wrapper を張った stem を active docs/guide へ広げ、old stem retire は active caller が 0 になってから別 phase で扱う。
+5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、次は active docs/guide への展開と compat caller inventory を進める。old stem retire は active caller が 0 になってから別 phase で扱う。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 7. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
 
@@ -519,8 +523,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - fast gate:
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 - planner-required packs:
-  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_pattern6_7_pack_vm.sh`
-  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/joinir/scan_split_planner_required_pack_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_pack_vm.sh`
 - probe:
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
 - allowlist guard:

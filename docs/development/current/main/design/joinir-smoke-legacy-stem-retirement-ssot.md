@@ -32,6 +32,8 @@ script stems remain available as compatibility entrypoints until all callers mov
 
 ## Alias map
 
+### Route smoke aliases
+
 | Semantic alias wrapper | Legacy target |
 | --- | --- |
 | `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh` |
@@ -56,8 +58,19 @@ script stems remain available as compatibility entrypoints until all callers mov
 | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_seg_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` |
 
+### Planner-required pack aliases
+
+| Semantic alias wrapper | Legacy target |
+| --- | --- |
+| `tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/scan_split_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/core_loop_routes_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bl_planner_required_pattern1_4_5_pack_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/if_phi_join_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bn_planner_required_pattern3_pack_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` |
+
 ## Acceptance
 
 - Regression packs may filter semantic alias wrappers without changing fixture names.
 - Active docs should reference alias wrappers when they need a current-facing smoke path.
+- Planner-required dev gates should call semantic pack alias wrappers rather than legacy pack stems.
 - Legacy script stems stay in historical inventories, archive packs, and traceability notes only.
