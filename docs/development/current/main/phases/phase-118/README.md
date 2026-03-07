@@ -7,7 +7,7 @@ Phase 117で if-only nested-if + call merge が固まったので、Phase 118で
 - **Phase 117**: if-only nested-if + call merge parity 確立（`phase117_if_only_nested_if_call_merge_min.hako`）
 - **Phase 118**: loop + if-only merge の組み合わせテスト
   - ループ内で if-only により条件付き変数更新
-  - Pattern3 (if-sum) の活用（既存実装を利用）
+  - IfPhiJoin（historical label `3` / if-sum）の活用（既存実装を利用）
   - ループ継続条件での PHI 生成
   - Exit での merge 処理
 
@@ -45,7 +45,7 @@ static box Main {
 - `i=2`: `i > 0` は true、`x = 1 + 1 → 2`（if ブランチ）
 - ループ終了後に `x` の値 `2` を出力
 
-**Pattern3 活用**: このパターンは Pattern3 (if-sum) で既に対応済み。if-only で条件付き加算を行うパターンとして、既存実装を活用。
+**IfPhiJoin 活用**: この route family は historical label `3`（if-sum）で既に対応済み。if-only で条件付き加算を行う route shape として、既存実装を活用。
 
 ### スモークテスト
 
@@ -154,17 +154,17 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase117_if_only_nested_i
 3. **LLVM EXE Smoke**: `tools/smokes/v2/profiles/integration/apps/phase118_loop_nested_if_merge_llvm_exe.sh`
 4. **ドキュメント**: `docs/development/current/main/phases/phase-118/README.md`（本ファイル）
 
-## 追加（Phase 118 follow-up）：Pattern3 carrier PHI contract 固定
+## 追加（Phase 118 follow-up）：IfPhiJoin carrier PHI contract 固定
 
-Pattern3（if-sum）の exit carrier PHI が欠けると、後段で `Carrier '<name>' not found in carrier_phis` が発生する。
+IfPhiJoin（historical label `3` / if-sum）の exit carrier PHI が欠けると、後段で `Carrier '<name>' not found in carrier_phis` が発生する。
 このフェーズでは fixture + VM/LLVM EXE smoke で再現と回帰固定を行い、さらに Fail-Fast の契約チェックを追加した。
 
 ### Fixture
-- `apps/tests/phase118_pattern3_if_sum_min.hako`（期待: `12`）
+- representative legacy fixture key for the phase-118 if-phi carrier-PHI contract（期待: `12`）
 
 ### Smoke
-- VM: `tools/smokes/v2/profiles/integration/apps/phase118_pattern3_if_sum_vm.sh`
-- LLVM EXE: `tools/smokes/v2/profiles/integration/apps/phase118_pattern3_if_sum_llvm_exe.sh`
+- VM: representative legacy smoke stem for the phase-118 if-phi carrier-PHI contract
+- LLVM EXE: representative legacy LLVM smoke stem for the same evidence lane
 
 ### 契約（SSOT）
 - `exit_bindings` に含まれる `LoopState` carrier は、必ず exit PHI（`exit_carrier_phis`）を持つこと。
