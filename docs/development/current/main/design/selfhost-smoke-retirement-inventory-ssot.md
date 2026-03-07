@@ -37,15 +37,21 @@ smokes so future cleanup does not delete live profile entries by mistake.
 - `opt-in archive candidate`
   - manual/diagnostic canary behind explicit env flags, not part of the current daily lane
 
+## Phase status
+
+- Phase A: inventory fixed
+- Phase B: Mini-VM always-skip trio moved to `tools/smokes/v2/profiles/archive/selfhost/`
+- Phase C: opt-in Stage-B canaries remain in `integration/selfhost` until a dedicated diagnostics home is chosen
+
 ## Inventory (2026-03-07)
 
-### Retire candidates
+### Retired to archive profile
 
 | Script | Evidence | Why it is not current |
 | --- | --- | --- |
-| `tools/smokes/v2/profiles/integration/selfhost/selfhost_mir_m2_eq_true_vm.sh` | unconditional `test_skip` in default lane, no active refs outside the script itself | Mini-VM compare polish canary, currently dead by default |
-| `tools/smokes/v2/profiles/integration/selfhost/selfhost_mir_m3_branch_true_vm.sh` | unconditional `test_skip` in default lane, no active refs outside the script itself | Mini-VM branch canary, currently dead by default |
-| `tools/smokes/v2/profiles/integration/selfhost/selfhost_mir_m3_jump_vm.sh` | unconditional `test_skip` in default lane, no active refs outside the script itself | Mini-VM jump canary, currently dead by default |
+| `tools/smokes/v2/profiles/archive/selfhost/selfhost_mir_m2_eq_true_vm.sh` | moved out of `integration/selfhost`, still skip-only when run directly | Mini-VM compare polish canary, no longer discovered by active selfhost profile |
+| `tools/smokes/v2/profiles/archive/selfhost/selfhost_mir_m3_branch_true_vm.sh` | moved out of `integration/selfhost`, still skip-only when run directly | Mini-VM branch canary, no longer discovered by active selfhost profile |
+| `tools/smokes/v2/profiles/archive/selfhost/selfhost_mir_m3_jump_vm.sh` | moved out of `integration/selfhost`, still skip-only when run directly | Mini-VM jump canary, no longer discovered by active selfhost profile |
 
 ### Opt-in archive candidates
 
@@ -65,7 +71,6 @@ smokes so future cleanup does not delete live profile entries by mistake.
 
 ## Next retire phase
 
-1. Move `retire candidate` Mini-VM smokes to an archive directory or remove them in one commit.
-2. Update any remaining docs/indexes in the same commit.
-3. Verify `tools/smokes/v2/run.sh` profile discovery no longer picks them up.
-4. Keep `opt-in archive candidate` scripts until a dedicated Stage-B diagnostics home is decided.
+1. Keep `tools/smokes/v2/profiles/archive/selfhost/` as the historical home for retired Mini-VM canaries.
+2. Verify `tools/smokes/v2/run.sh --profile integration/selfhost` no longer discovers the retired trio.
+3. Keep `opt-in archive candidate` scripts until a dedicated Stage-B diagnostics home is decided.

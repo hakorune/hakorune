@@ -549,6 +549,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `tools/smokes/v2/profiles/integration/{joinir/{planner_required_cases,phase29bq_fast_gate_cases}.tsv,selfhost/planner_required_selfhost_subset.tsv}` / `CURRENT_TASK.md`
     - intent: TSV を直接編集するときにも `legacy fixture key / legacy fixture pin token / legacy selfhost test stem` のまま保持すべき列が分かるようにし、filter compatibility を壊す accidental rename を防ぐ
     - verification: `rg -n "legacy fixture keys/pin tokens|legacy fixture pin tokens|legacy fixture keys or legacy selfhost test stems" tools/smokes/v2/profiles/integration/joinir/{planner_required_cases,phase29bq_fast_gate_cases}.tsv tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv` = expected hits only
+  - truth cleanup (2026-03-07, slice 78): Mini-VM selfhost smoke 3本を archive profile へ退避した
+    - synced files: `tools/smokes/v2/profiles/archive/selfhost/{README.md,selfhost_mir_m2_eq_true_vm.sh,selfhost_mir_m3_branch_true_vm.sh,selfhost_mir_m3_jump_vm.sh}` / `docs/development/current/main/design/selfhost-smoke-retirement-inventory-ssot.md` / `CURRENT_TASK.md`
+    - intent: unconditional skip の Mini-VM canary を active `integration/selfhost` から外して `run.sh` auto-discovery 対象外にしつつ、historical replay 用に archive profile へ保持する
+    - verification: `tools/smokes/v2/run.sh --profile integration/selfhost --filter selfhost_mir_m2_eq_true` = `No test files found` / `bash tools/smokes/v2/profiles/archive/selfhost/selfhost_mir_m2_eq_true_vm.sh` = SKIP / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` = PASS
 
 ## next fixed order (resume point)
 
@@ -556,7 +560,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
 3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し中。self-only grep の semantic wrapper は current entrypoint として keep し、old stem retire は active caller が 0 になってから別 phase で扱う。selfhost 側は `retire candidate` と `opt-in archive candidate` の inventory を先に固定し、archive/remove は dedicated retire slice で実施する。
+5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し中。self-only grep の semantic wrapper は current entrypoint として keep し、old stem retire は active caller が 0 になってから別 phase で扱う。selfhost 側は inventory を固定済みで、Mini-VM always-skip trio は archive profile へ退避済み。次は opt-in Stage-B canary の archive/home 分離を dedicated retire slice で実施する。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 7. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
 
