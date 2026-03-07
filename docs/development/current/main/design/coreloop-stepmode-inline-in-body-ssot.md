@@ -82,8 +82,8 @@ step（loop increment / update）が loop body の末尾に無いループを、
   - Source: `src/mir/builder/control_flow/plan/normalizer/simple_while_coreloop_builder.rs`
   - Runtime pin: `apps/tests/phase29bq_pattern1_inline_explicit_step_min.hako`
   - Gate case: `tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv` (`pattern1_inline_explicit_step_min`)
-  - `phase29bq_pattern1_inline_explicit_step_min.hako` / `pattern1_inline_explicit_step_min` は legacy fixture pin token。current route semantics は `loop_simple_while explicit-step` として読む。
   - pin taxonomy SSOT: `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`
+  - active本文では `loop_simple_while explicit-step` を主語にし、legacy pin token の詳細は inventory SSOT に置く。
 
 実装順（次の1本）:
 1. [x] `CoreLoopPlan` に explicit-step marker を追加（挙動不変）

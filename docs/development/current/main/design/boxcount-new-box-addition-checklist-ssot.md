@@ -90,7 +90,7 @@ Reject→handoffの表現は `docs/development/current/main/design/plan-reject-h
 3. `./tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only <case_id>`
 4. canary（確認として1回）:
    - `NYASH_ROOT=/home/tomoaki/git/hakorune-selfhost NYASH_BIN=target/release/hakorune HAKO_JOINIR_DEBUG=1 SMOKES_ENABLE_SELFHOST=1 SMOKES_SELFHOST_FILTER=phase118_pattern3_if_sum_min ./tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh`
-     - `phase118_pattern3_if_sum_min` は legacy fixture key。現役の route semantics は `if_phi_join` として読む。
+     - 現役の route semantics は `if_phi_join` として読み、legacy fixture key の詳細は pin inventory SSOT を参照する。
      - pin taxonomy SSOT: `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`
      - selfhost gate の絞り込みは `--only` ではなく `SMOKES_SELFHOST_FILTER=<substring>` が正本。
 

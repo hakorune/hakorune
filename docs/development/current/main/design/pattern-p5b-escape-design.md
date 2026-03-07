@@ -404,7 +404,7 @@ Note:
 - Current semantics should be read as `escape route P5b`.
 - Pin inventory: `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`
 
-### Minimal Case (legacy selfhost test stem: `test_pattern5b_escape_minimal.hako`)
+### Minimal Case
 
 **Input**: String with one escape sequence
 **Carrier**: Single position variable, single accumulator
@@ -413,11 +413,11 @@ Note:
 
 ### Extended Cases (Phase 91 Step 2+; legacy selfhost test stems)
 
-1. **test_pattern5b_escape_json**: JSON string with multiple escapes
-2. **test_pattern5b_escape_custom**: Custom escape character
-3. **test_pattern5b_escape_newline**: Escape newline handling
-4. **test_pattern5b_escape_fail_multiple**: Multiple escapes (should Fail-Fast)
-5. **test_pattern5b_escape_fail_variable**: Variable delta (should Fail-Fast)
+1. JSON string with multiple escapes
+2. Custom escape character
+3. Escape newline handling
+4. Multiple escapes (should Fail-Fast)
+5. Variable delta (should Fail-Fast)
 
 ## Lowering Strategy (Future Phase 92)
 
@@ -494,7 +494,7 @@ loop(i < n) {
 - **JoinIR Architecture**: `joinir-architecture-overview.md`
 - **Loop Canonicalizer**: `loop-canonicalizer.md`
 - **CapabilityTag Enum**: `src/mir/loop_canonicalizer/capability_guard.rs`
-- **Test Fixture**: `tools/selfhost/test_pattern5b_escape_minimal.hako` (legacy selfhost test stem)
+- **Test Fixture pin inventory**: `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`
 - **Phase 91 Plan**: `phases/phase-91/README.md`
 
 ---

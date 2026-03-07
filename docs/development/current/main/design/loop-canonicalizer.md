@@ -398,7 +398,8 @@ pub struct RoutingDecision {
 
 ### 対象ファイル
 
-`tools/selfhost/test_pattern3_skip_whitespace.hako` (legacy selfhost test stem; current semantics: `skip_whitespace`)
+Legacy selfhost test stem inventory:
+`docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`
 
 ```hako
 loop(p < len) {
@@ -453,7 +454,7 @@ loop(p < len) {
 - **設計 SSOT**: `docs/development/current/main/design/pattern-p5b-escape-design.md`
 - **Phaseログ（認識）**: `docs/development/current/main/phases/phase-91/README.md`
 - **Phaseログ（lowering/条件式対応）**: `docs/development/current/main/phases/phase-92/README.md`
-- **fixture**: `tools/selfhost/test_pattern5b_escape_minimal.hako` (legacy selfhost test stem; current semantics: `escape route P5b`)
+- **fixture pin inventory**: `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`
 
 ---
 

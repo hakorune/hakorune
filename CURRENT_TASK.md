@@ -557,6 +557,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `tools/smokes/v2/profiles/archive/selfhost/{selfhost_stageb_binop_vm.sh,selfhost_stageb_if_vm.sh,selfhost_stageb_index_vm.sh,selfhost_stageb_oob_vm.sh,selfhost_stageb_v1_compat_vm.sh,README.md}` / `docs/development/current/main/design/selfhost-smoke-retirement-inventory-ssot.md` / `docs/how-to/smokes.md` / `CURRENT_TASK.md`
     - intent: manual Stage-B diagnostics を active `integration/selfhost` から外して `run.sh --profile integration` の auto-discovery 対象外にしつつ、archive/selfhost を selfhost-only manual diagnostics home として固定する
     - verification: `tools/smokes/v2/run.sh --profile integration --filter selfhost_stageb_` = `No test files found` / `bash tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_if_vm.sh` = SKIP / `bash tools/smokes/v2/profiles/archive/selfhost/selfhost_stageb_oob_vm.sh` = SKIP / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` = PASS
+  - truth cleanup (2026-03-07, slice 80): active design から legacy pin token の列挙を inventory SSOT 側へ寄せた
+    - synced files: `docs/development/current/main/design/{pattern6-7-contracts,pattern-p5b-escape-design,loop-canonicalizer,coreloop-stepmode-inline-in-body-ssot,boxcount-new-box-addition-checklist-ssot}.md` / `CURRENT_TASK.md`
+    - intent: contract/design 本文では semantic route だけを主語にし、legacy fixture key / legacy fixture pin token / legacy selfhost test stem の詳細列挙は `joinir-legacy-fixture-pin-inventory-ssot.md` に集約する
+    - verification: `rg -n "test_pattern5b_escape|minimal.hako|phase29ab_pattern6_|phase29ab_pattern7_|phase29bq_pattern1_inline_explicit_step_min|phase118_pattern3_if_sum_min" docs/development/current/main/design/{pattern6-7-contracts,pattern-p5b-escape-design,loop-canonicalizer,coreloop-stepmode-inline-in-body-ssot,boxcount-new-box-addition-checklist-ssot}.md` = inventory pointer / command example only
 
 ## next fixed order (resume point)
 
@@ -564,7 +568,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
 3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し中。self-only grep の semantic wrapper は current entrypoint として keep し、old stem retire は active caller が 0 になってから別 phase で扱う。selfhost 側は inventory を固定済みで、Mini-VM always-skip trio と opt-in Stage-B canary は archive profile へ退避済み。次は active docs に残る intentional pin/token の appendix 分離と、generic `Pattern` comment / physical path residue の別 sweep を進める。
+5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し済み。self-only grep の semantic wrapper は current entrypoint として keep し、old stem retire は active caller が 0 になってから別 phase で扱う。selfhost 側は inventory を固定済みで、Mini-VM always-skip trio と opt-in Stage-B canary は archive profile へ退避済み。次は generic `Pattern` comment / physical path residue の別 sweep を進める。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 7. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
 

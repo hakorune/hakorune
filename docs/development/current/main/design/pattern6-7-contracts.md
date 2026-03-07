@@ -12,9 +12,9 @@ Tags:
 - `scan_with_init`: `[joinir/phase29ab/scan_with_init/contract]` (legacy numbered route label is traceability-only)
 - `split_scan`: `[joinir/phase29ab/split_scan/contract]` (legacy numbered route label is traceability-only)
 
-Fixture filenames below are legacy fixture pin tokens.
+Legacy fixture filenames are tracked in
+`docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`.
 Current runtime semantics should be read as `scan_with_init` / `split_scan`.
-Pin inventory: `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`
 
 ## `scan_with_init` Route
 
@@ -42,21 +42,8 @@ Freeze conditions:
 - then/else update contracts broken (start/i updates)
 - separator literal length != 1 (P0 scope)
 
-## Fixtures (OK vs Contract)
+## Fixture Pins
 
-`scan_with_init` OK (legacy fixture pin tokens):
-- `apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako`
-- `apps/tests/phase29ab_pattern6_reverse_ok_min.hako`
-- `apps/tests/phase29ab_pattern6_matchscan_ok_min.hako`
-
-`scan_with_init` contract (legacy fixture pin tokens):
-- `apps/tests/phase29ab_pattern6_scan_with_init_contract_min.hako`
-- `apps/tests/phase29ab_pattern6_reverse_contract_min.hako`
-- `apps/tests/phase29ab_pattern6_matchscan_contract_min.hako`
-
-`split_scan` OK (legacy fixture pin tokens):
-- `apps/tests/phase29ab_pattern7_splitscan_ok_min.hako`
-- `apps/tests/phase29ab_pattern7_splitscan_nearmiss_ok_min.hako`
-
-`split_scan` contract (legacy fixture pin tokens):
-- `apps/tests/phase29ab_pattern7_splitscan_contract_min.hako`
+- Representative legacy fixture pin tokens live in
+  `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`.
+- This contract doc keeps only the route semantics and freeze boundary.
