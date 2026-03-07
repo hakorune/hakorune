@@ -24,7 +24,7 @@ Related:
 - current route files:
   - `src/mir/join_ir/lowering/scan_with_init_minimal.rs`
   - `src/mir/join_ir/lowering/split_scan_minimal.rs`
-- historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{pattern6_scan_with_init.rs,pattern7_split_scan.rs}`
+- same historical path lane as scope boundary (`pattern6_scan_with_init.rs`, `pattern7_split_scan.rs`)
 - `src/mir/builder/emission/`（BoolPredicateScan と同じ “薄い入口” の追加; historical label: Pattern8）
 
 ### ❌ 触らない

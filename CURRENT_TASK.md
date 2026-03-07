@@ -726,6 +726,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{joinir-design-map,planfrag-freeze-taxonomy,edgecfg-fragments}.md` / `CURRENT_TASK.md`
     - intent: `loop_pattern_space.md` を historical ledger として再表示し、`pattern` token / numbered route label の残留理由を short historical wording へ揃え、`edgecfg-fragments.md` では top-level reading note で repeated note を置き換える
     - verification: `git diff --check` PASS; `rg -n "legacy numbered route labels are traceability-only|legacy numbered label is traceability-only|traceability-only inventory" docs/development/current/main/design/{joinir-design-map,planfrag-freeze-taxonomy,edgecfg-fragments}.md` = 0 hit
+  - truth cleanup (2026-03-07, slice 123): `phase-264/256/272/286` の deep section で current-looking `PatternN` wording と repeated historical root path を semantic route family 主語 + same-lane note に寄せた
+    - synced files: `docs/development/current/main/phases/{phase-264,phase-256,phase-272,phase-286}/README.md` / `CURRENT_TASK.md`
+    - intent: `IfPhiJoin` / `LoopBreak` / `LoopSimpleWhile` / `AccumConstLoop` を本文の主語に戻しつつ、昔の debug token / DomainPlan token / `joinir/patterns/*` root token は historical label と basename-only same-lane note としてだけ残す
+    - verification: `git diff --check` PASS; `rg -n "### Test 2: Pattern3 Regression|Pattern3 既存テスト|### P1.13: Pattern2 boundary|Pattern1 より優先|\\*\\*Pattern2 調査結果|src/mir/builder/control_flow/joinir/patterns/\\{extractors/pattern4.rs,router.rs\\}|src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs" docs/development/current/main/phases/{phase-264,phase-256,phase-272,phase-286}/README.md` = 0 hit
 
 ## next fixed order (resume point)
 

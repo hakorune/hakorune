@@ -58,7 +58,7 @@ Reading note:
 | 6 | ScanWithInit | ✅ Plan line | Phase 273 で SSOT |
 | 7 | SplitScan | ✅ Plan line | Phase 273 で SSOT |
 | 8 | BoolPredicateScan | ✅ Plan line | static box は設計上スキップ（ReceiverNormalizeBox が担当） |
-| 9 | AccumConstLoop | ✅ Plan line | Pattern1 より優先（より具体的） |
+| 9 | AccumConstLoop | ✅ Plan line | LoopSimpleWhile（historical label: Pattern1）より優先（より具体的） |
 
 ### P0（docs-only）✅ COMPLETE (2025-12-25)
 
@@ -125,7 +125,7 @@ Reading note:
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern4_frag_poc.sh` (integration smoke)
 - `src/mir/builder/control_flow/plan/mod.rs` (historical struct name: `Pattern4ContinuePlan` 追加)
   - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-  - historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{extractors/pattern4.rs,router.rs}` (extract_pattern4_plan / Plan routing 追加)
+  - same historical extractors lane as reading note (`extractors/pattern4.rs`, `router.rs`; extract_pattern4_plan / Plan routing 追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern4_continue + phi_bindings)
 
 **重要な設計決定**:
@@ -137,7 +137,7 @@ Reading note:
 - Integration test: phase286_pattern4_frag_poc.sh PASS (output: 6)
 - Regression test: quick smoke 154 PASS, 0 FAILED
 
-**Pattern2 調査結果（別タスク化）**:
+**LoopBreak 調査結果（historical label: Pattern2, 別タスク化）**:
 - break経路の値再接続が複雑（after_bbにPHI必要）
 - 詳細: [pattern2-deferred.md](./pattern2-deferred.md)
 
@@ -165,7 +165,7 @@ Reading note:
 - current semantic surfaces:
   - `src/mir/builder/control_flow/plan/extractors/common_helpers.rs`
   - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
-- historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{extractors/common_helpers.rs,extractors/pattern1.rs,extractors/pattern4.rs,router.rs}`
+- same historical extractors lane as reading note (`extractors/common_helpers.rs`, `extractors/pattern1.rs`, `extractors/pattern4.rs`, `router.rs`)
 
 **検証結果**:
 - Regression test: quick smoke 154 PASS
@@ -183,7 +183,7 @@ Reading note:
 **設計決定**:
 - **PoC は const/var 両方 OK**: `sum = sum + 1`（定数）または `sum = sum + i`（変数）
 - **本体の順序固定**: 1行目=累積更新, 2行目=ループ変数更新
-- **CFG 構造**: Pattern1 と同じ骨格、PHI 2本（i_current, sum_current）
+- **CFG 構造**: LoopSimpleWhile と同じ骨格（historical label: Pattern1）、PHI 2本（i_current, sum_current）
 
 **成果物**:
 - `apps/tests/phase286_pattern9_frag_poc.hako` (最小fixture: const accumulation)
@@ -191,7 +191,7 @@ Reading note:
 - `src/mir/builder/control_flow/plan/mod.rs` (Pattern9AccumConstLoopPlan + DomainPlan variant)
 - `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-  - historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{extractors/pattern9.rs,extractors/mod.rs}` (extract_pattern9_plan() / pattern9 モジュール追加)
+  - same historical extractors lane as reading note (`extractors/pattern9.rs`, `extractors/mod.rs`; extract_pattern9_plan() / pattern9 モジュール追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern9_accum_const_loop())
 
 **検証結果**:
@@ -266,7 +266,7 @@ Reading note:
 - `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
   - historical path tokens:
-  - `src/mir/builder/control_flow/joinir/patterns/{extractors/pattern8.rs,extractors/mod.rs}` (新規: extract_pattern8_plan / 変更: pattern8 モジュール追加)
+  - same historical extractors lane as reading note (`extractors/pattern8.rs`, `extractors/mod.rs`; 新規: extract_pattern8_plan / 変更: pattern8 モジュール追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern8_bool_predicate_scan)
 
 **検証結果**:
@@ -309,7 +309,7 @@ Reading note:
 - `src/mir/builder/control_flow/plan/extractors/common_helpers.rs` (current helper surface)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: Pattern3IfPhiPlan + DomainPlan variant)
 - historical path tokens:
-  - `src/mir/builder/control_flow/joinir/patterns/{extractors/pattern1.rs,extractors/pattern3.rs}` (変更: if 拒否 / extract_pattern3_plan)
+  - same historical extractors lane as reading note (`extractors/pattern1.rs`, `extractors/pattern3.rs`; 変更: if 拒否 / extract_pattern3_plan)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern3_if_phi)
 
 **成功基準**:

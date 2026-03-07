@@ -163,7 +163,7 @@ let has_if_else_phi = carrier_count > 1 && has_if_sum_signature(scope);
 fn has_if_sum_signature(scope: Option<&LoopScopeShape>) -> bool {
     // TODO: Implement via AST/CFG analysis
     // For Phase 264 P0: Conservative - return false for now
-    // This makes carrier_count > 1 loops fall through to Pattern1
+    // This makes carrier_count > 1 loops fall through to LoopSimpleWhile.
     false
 }
 ```
@@ -193,9 +193,9 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase264_p0_bundle_resolv
 # Expected: PASS
 ```
 
-### Test 2: Pattern3 Regression
+### Test 2: IfPhiJoin Regression
 ```bash
-# Pattern3 の既存テストが壊れていないか確認
+# IfPhiJoin の既存テストが壊れていないか確認
 ./tools/smokes/v2/run.sh --profile quick --filter "*if_phi*"
 # Expected: PASS
 ```
@@ -219,8 +219,8 @@ cargo test -p nyash-rust --lib --release
 **Risk Level**: MEDIUM
 
 **Main Risks**:
-1. Pattern3 既存テストが壊れる可能性
-   - Mitigation: Pattern3 tests を regression suite に含める
+1. IfPhiJoin 既存テストが壊れる可能性
+   - Mitigation: IfPhiJoin tests を regression suite に含める
 2. has_if_sum_signature() の実装が不正確
    - Mitigation: Phase 264 P0 は conservative (常に false)
 
@@ -250,7 +250,7 @@ git revert HEAD  # 修正が問題なら即座に revert
    - `detect_if_else_phi_in_body()`: 常に `false` を返す（保守的実装）
    - `has_if = has_if_else_phi` に変更（detect_if_in_body() を使わない）
 
-2. **loop_route_detection/mod.rs**（historical module name: `loop_pattern_detection/mod.rs`）:
+2. **loop_route_detection/mod.rs**（same historical classify-module lane as below: `loop_pattern_detection/mod.rs`）:
    - `has_if_sum_signature()` 関数追加（Phase 264 P0 では常に false）
    - `has_if_else_phi = carrier_count > 1 && has_if_sum_signature(scope)` に変更
 
@@ -270,7 +270,7 @@ git revert HEAD  # 修正が問題なら即座に revert
 
 **Phase 264 P1 の課題**:
 - BundleResolver.resolve/4 のような複雑ループは新しい promotion pattern (A-5 等) が必要
-- または Pattern2 の対象外として別の lowering 経路で処理
+- または LoopBreak（historical label: Pattern2）の対象外として別の lowering 経路で処理
 
 **Phase 264 P0 の成果**:
 - 簡単な条件付き代入ループの誤分類を修正 ✅
@@ -283,9 +283,9 @@ git revert HEAD  # 修正が問題なら即座に revert
 ```
 fix(joinir): improve IfPhiJoin classification to exclude simple conditional assignment
 
-- IfPhiJoin heuristic was too conservative: carrier_count > 1 → Pattern3IfPhi
+- IfPhiJoin heuristic was too conservative: carrier_count > 1 → IfPhiJoin（historical label: Pattern3IfPhi）
 - Problem: Simple conditional assignment (seg = if x then "A" else "B") was
-  incorrectly classified as Pattern3IfPhi, which only handles if-sum shapes
+  incorrectly classified as IfPhiJoin（historical label: Pattern3IfPhi）, which only handles if-sum shapes
 - Solution: Add has_if_sum_signature() check (Phase 264 P0: returns false)
 - Effect: carrier_count > 1 loops now fall through to LoopSimpleWhile
 
@@ -302,10 +302,10 @@ Phase 264 P1: TODO - implement accurate if-sum signature detection
 
 ### 関連ファイル
 - `src/mir/loop_route_detection/mod.rs` - current classify module surface
-  - same historical code snapshot as above (`src/mir/loop_pattern_detection/mod.rs:227-230`)
+  - same historical classify-module lane as above (`mod.rs:227-230`)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` - current route-entry ordering lane
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/router.rs:212-225`
-- same historical if-phi rejection token as above (`src/mir/builder/control_flow/joinir/patterns/pattern3_with_if_phi.rs:79-86`)
+  - same historical route-entry lane as above (`router.rs:212-225`)
+- same historical if-phi rejection lane as above (`pattern3_with_if_phi.rs:79-86`)
 - `apps/tests/phase264_p0_bundle_resolver_loop_min.hako` - 最小再現
 
 ### BundleResolver 元コードの特徴 (参考)

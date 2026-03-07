@@ -349,7 +349,7 @@ Option A（Pattern 7 新設）を推奨。
   - `get_entry_function()`（`join_module.entry` → `"main"` へのフォールバック）
   - unit tests を追加（正常/順序ミスマッチ/個数ミスマッチ）
 - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
+  - historical path token: `conversion_pipeline.rs` in the old `joinir/patterns` lane
   - JoinIR→MIR 変換直前に検証を追加
   - `is_joinir_debug()` 時にログ出力
 
@@ -367,7 +367,7 @@ Option A（Pattern 7 新設）を推奨。
   - `run_all_pipeline_checks()`（薄い集約エントリ）
   - `debug_log_boundary_contract()` を同ファイルへ移設（`is_joinir_debug()` ガード）
 - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`
-  - same historical conversion_pipeline token as P1.5 above (`src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`)
+  - same historical conversion_pipeline lane as P1.5 above (`conversion_pipeline.rs`)
   - `run_all_pipeline_checks()` の 1 呼び出しに縮退
 
 効果:
@@ -488,7 +488,7 @@ Option A（Pattern 7 新設）を推奨。
 
 ## 進捗（P1.13）
 
-### P1.13: Pattern2 boundary entry_param_mismatch 根治（完了）
+### P1.13: LoopBreak boundary entry_param_mismatch 根治（historical label: Pattern2, 完了）
 
 症状（json_lint_vm / StringUtils.trim_end/1）:
 ```
@@ -509,7 +509,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
 
 実装（SSOT）:
 - `src/mir/builder/control_flow/plan/loop_break_steps/emit_joinir_step_box.rs`
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern2_steps/emit_joinir_step_box.rs` (lines 71-96)
+  - historical path token: `emit_joinir_step_box.rs` in the old `pattern2_steps` lane (lines 71-96)
   - Entry function extraction (priority: `join_module.entry` → fallback to "main")
   - `join_input_slots = main_func.params.clone()` (SSOT from JoinModule)
   - `host_input_values` を同じ順序で構築（loop_var + carriers）
@@ -524,7 +524,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
   - Structure: `loop(i >= 0) { if (cond) { return value } i = i - 1 } return default`
   - Capabilities: `caps=If,Loop,Return` (no Break)
   - Missing: ConstStep capability
-  - Approach: Extend Pattern2 to handle return (similar to break) or create Pattern2Return variant
+  - Approach: Extend LoopBreak（historical label: Pattern2）to handle return (similar to break) or create LoopBreakReturn variant
   - Fixture: `apps/tests/phase257_p0_last_index_of_min.hako`
   - Integration smokes: `phase257_p0_last_index_of_vm.sh`, `phase257_p0_last_index_of_llvm_exe.sh`
 
@@ -539,7 +539,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
 - Fail-fast validation（params count mismatch）を全パターンに追加
 - 共通ヘルパ `get_entry_function()` を抽出
   - current helper path: `src/mir/builder/control_flow/plan/common/joinir_helpers.rs`
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/common/joinir_helpers.rs`
+  - historical path token: `joinir_helpers.rs` in the old `patterns/common` lane
 
 修正ファイル:
 - current route files:
@@ -547,7 +547,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
   - `src/mir/join_ir/lowering/scan_with_init_minimal.rs`
   - `src/mir/join_ir/lowering/split_scan_minimal.rs`
 - historical path tokens:
-  - `src/mir/builder/control_flow/joinir/patterns/{pattern4_with_continue.rs,pattern6_scan_with_init.rs,pattern7_split_scan.rs,common/joinir_helpers.rs}`
+  - same historical route-helper lane as above (`pattern4_with_continue.rs`, `pattern6_scan_with_init.rs`, `pattern7_split_scan.rs`, `common/joinir_helpers.rs`)
 
 結果:
 - Entry param mismatch の構造的防止（全パターン統一）
