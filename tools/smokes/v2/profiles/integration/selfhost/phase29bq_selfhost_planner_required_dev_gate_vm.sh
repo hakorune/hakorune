@@ -1,5 +1,6 @@
 #!/bin/bash
 # phase29bq_selfhost_planner_required_dev_gate_vm.sh - selfhost entry gate (subset list)
+# Filter contract: use `SMOKES_SELFHOST_FILTER=<substring>`; this script does not parse `--only`.
 
 set -euo pipefail
 
