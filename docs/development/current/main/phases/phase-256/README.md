@@ -547,10 +547,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
   - `src/mir/join_ir/lowering/scan_with_init_minimal.rs`
   - `src/mir/join_ir/lowering/split_scan_minimal.rs`
 - historical path tokens:
-  - `src/mir/builder/control_flow/joinir/patterns/pattern4_with_continue.rs`
-  - `src/mir/builder/control_flow/joinir/patterns/pattern6_scan_with_init.rs`
-  - `src/mir/builder/control_flow/joinir/patterns/pattern7_split_scan.rs`
-  - `src/mir/builder/control_flow/joinir/patterns/common/joinir_helpers.rs`
+  - `src/mir/builder/control_flow/joinir/patterns/{pattern4_with_continue.rs,pattern6_scan_with_init.rs,pattern7_split_scan.rs,common/joinir_helpers.rs}`
 
 結果:
 - Entry param mismatch の構造的防止（全パターン統一）

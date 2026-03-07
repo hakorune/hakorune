@@ -1,4 +1,4 @@
-# Phase 142: Canonicalizer Pattern Extension
+# Phase 142: Canonicalizer Route-Shape Extension
 
 ## Status
 - P0: ✅ Complete (trim leading/trailing)
@@ -15,7 +15,7 @@ Extend Canonicalizer to recognize trim leading/trailing patterns, enabling prope
 
 ### Accepted Criteria (All Met ✅)
 - ✅ Canonicalizer creates Skeleton for trim_leading/trailing
-- ✅ `decision.chosen == Pattern2Break` (ExitContract priority)
+- ✅ `decision.chosen == LoopBreak` (`Pattern2Break` at the time, ExitContract priority)
 - ✅ `decision.missing_caps == []` (no missing capabilities)
 - ✅ Strict parity green (NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1)
 - ✅ Default behavior unchanged
@@ -24,13 +24,13 @@ Extend Canonicalizer to recognize trim leading/trailing patterns, enabling prope
 
 ### Implementation Summary
 
-#### 1. Pattern Recognizer Generalization
+#### 1. Route-Shape Recognizer Generalization
 **Current module surface**: `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`
 
 **Historical path token**: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
 
 **Changes**:
-- Extended `detect_skip_whitespace_pattern()` to accept both `+` and `-` operators
+- Extended `detect_skip_whitespace_shape()` to accept both `+` and `-` operators
 - Added support for negative deltas (e.g., `-1` for `end = end - 1`)
 - Maintained backward compatibility with existing skip_whitespace patterns
 
@@ -63,7 +63,7 @@ let delta = const_val * op_multiplier;
 - Skeleton creation
 - Carrier slot creation with correct delta (+1 or -1)
 - ExitContract setup (has_break=true)
-- RoutingDecision (chosen=Pattern2Break, missing_caps=[])
+- RoutingDecision (chosen=LoopBreak, missing_caps=[])
 
 **Test Results**:
 ```
@@ -81,7 +81,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
   tools/selfhost/test_pattern3_trim_leading.hako
 ```
 
-**Output** (trim_leading):
+**Historical debug output at the time** (trim_leading):
 ```
 [loop_canonicalizer]   Decision: SUCCESS
 [loop_canonicalizer]   Chosen pattern: Pattern2Break
@@ -90,7 +90,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 [loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern2Break
 ```
 
-**Output** (trim_trailing):
+**Historical debug output at the time** (trim_trailing):
 ```
 [loop_canonicalizer]   Decision: SUCCESS
 [loop_canonicalizer]   Chosen pattern: Pattern2Break
@@ -102,9 +102,9 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 ### Design Principles Applied
 
 #### Box-First Modularization
-- Extended existing `detect_skip_whitespace_pattern()` instead of creating new functions
+- Extended existing `detect_skip_whitespace_shape()` instead of creating new functions
 - Maintained SSOT (Single Source of Truth) architecture
-- Preserved delegation pattern through `pattern_recognizer.rs` wrapper
+- Preserved delegation pattern through the canonicalizer recognizer wrapper (`route_shape_recognizer.rs`)
 
 #### Incremental Implementation
 - Focused on recognizer generalization only
@@ -112,8 +112,8 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 - Kept scope minimal (P0 only)
 
 #### ExitContract Priority
-- Pattern choice determined by ExitContract (has_break=true)
-- Routes to Pattern2Break (not Pattern3IfPhi)
+- Route choice determined by ExitContract (has_break=true)
+- Routes to `LoopBreak` (historical label: `Pattern2Break`), not `IfPhiJoin`
 - Consistent with existing SSOT policy
 
 ### Files Modified
@@ -130,16 +130,16 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 ### SSOT References
 - **Design**: `docs/development/current/main/design/loop-canonicalizer.md`
 - **JoinIR Architecture**: `docs/development/current/main/joinir-architecture-overview.md`
-- **Pattern Detection**: `ast_feature_extractor.rs` (Phase 140-P4-A SSOT)
+- **Route-shape detection**: `ast_feature_extractor.rs` (Phase 140-P4-A SSOT)
 
 ### Known Limitations
-- Pattern2 variable promotion (A-3 Trim promotion) not yet implemented
+- loop_break variable promotion (A-3 Trim promotion) not yet implemented
 - This is expected - Phase 142 P0 only targets recognizer extension
 - Promotion will be addressed in future phases
 
 ### Next Steps (Future Phases)
 - Phase 142 P1: Implement A-3 Trim promotion in Pattern2 handler
-- Phase 142 P2: Extend to other loop patterns (Pattern 3/4)
+- Phase 142 P2: Extend to other route shapes (`IfPhiJoin` / `LoopContinueOnly`)
 - Phase 142 P3: Add more complex carrier update patterns
 
 ### Verification Commands
@@ -178,7 +178,7 @@ Extend Canonicalizer to recognize continue patterns, enabling proper routing thr
 
 ### Accepted Criteria (All Met ✅)
 - ✅ Canonicalizer creates Skeleton for continue pattern
-- ✅ `decision.chosen == Pattern4Continue` (router agreement)
+- ✅ `decision.chosen == LoopContinueOnly` (`Pattern4Continue` at the time, router agreement)
 - ✅ `decision.missing_caps == []` (no missing capabilities)
 - ✅ Strict parity green (NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1)
 - ✅ Default behavior unchanged
@@ -187,12 +187,12 @@ Extend Canonicalizer to recognize continue patterns, enabling proper routing thr
 
 ### Implementation Summary
 
-#### 1. Continue Pattern Detection
+#### 1. Continue Route-Shape Detection
 **Current module surface**: `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`
 
 **Historical path token**: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
 
-**New Function**: `detect_continue_pattern()`
+**Current function**: `detect_continue_shape()`
 
 **Pattern Structure**:
 ```rust
@@ -224,16 +224,16 @@ loop(i < n) {
 - Extracts body statements before the if
 - Extracts rest statements after the if
 - Detects carrier update (last statement in rest_stmts)
-- Returns `ContinuePatternInfo` with carrier name, delta, body_stmts, and rest_stmts
+- Returns the continue route-shape tuple with carrier name, delta, body_stmts, and rest_stmts
 
 #### 2. Canonicalizer Integration
 **File**: `src/mir/loop_canonicalizer/canonicalizer.rs`
 
 **Changes**:
-- Added `try_extract_continue_pattern()` call before skip_whitespace check
+- Added `try_extract_continue_shape()` call before skip_whitespace check
 - Build skeleton with continue pattern structure
 - Set `ExitContract` with `has_continue=true, has_break=false`
-- Route to `Pattern4Continue`
+- Route to `LoopContinueOnly`
 
 **Skeleton Structure**:
 1. HeaderCond - Loop condition
@@ -243,7 +243,7 @@ loop(i < n) {
 
 #### 3. Historical module re-export chain
 **Files Modified** (historical re-export chain at the time):
-- `src/mir/builder/control_flow/joinir/patterns/mod.rs` - Added `detect_continue_pattern`, `ContinuePatternInfo`
+- `src/mir/builder/control_flow/joinir/patterns/mod.rs` - Added historical re-export for the continue helper (`detect_continue_pattern`, `ContinuePatternInfo`) at the time
 - `src/mir/builder/control_flow/joinir/mod.rs` - Re-export to joinir level
 - `src/mir/builder/control_flow/mod.rs` - Re-export to control_flow level
 - `src/mir/builder.rs` - Re-export to builder level
@@ -251,11 +251,11 @@ loop(i < n) {
 
 **Pattern**: Followed existing SSOT pattern from Phase 140-P4-A
 
-#### 4. Pattern Recognizer Wrapper
-**File**: `src/mir/loop_canonicalizer/pattern_recognizer.rs`
+#### 4. Route-Shape Recognizer Wrapper
+**File**: `src/mir/loop_canonicalizer/route_shape_recognizer.rs`
 
-**New Function**: `try_extract_continue_pattern()`
-- Delegates to `detect_continue_pattern()` from ast_feature_extractor
+**New Function**: `try_extract_continue_shape()`
+- Delegates to `detect_continue_shape()` from ast_feature_extractor
 - Returns tuple: `(carrier_name, delta, body_stmts, rest_stmts)`
 - Maintains backward compatibility with existing callsites
 
@@ -267,7 +267,7 @@ loop(i < n) {
 - Verifies skeleton creation with correct structure
 - Checks carrier slot (name="i", delta=1)
 - Validates ExitContract (has_continue=true, has_break=false)
-- Confirms routing decision (Pattern4Continue, missing_caps=[])
+- Confirms routing decision (LoopContinueOnly, missing_caps=[])
 
 **Test Results**:
 ```
@@ -283,7 +283,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
   tools/selfhost/test_pattern4_simple_continue.hako
 ```
 
-**Output**:
+**Historical debug output at the time**:
 ```
 [loop_canonicalizer] Function: main
 [loop_canonicalizer]   Skeleton steps: 4
@@ -301,24 +301,24 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 ### Design Principles Applied
 
 #### Box-First Modularization
-- Created dedicated `detect_continue_pattern()` function in ast_feature_extractor
+- Created dedicated `detect_continue_shape()` function in ast_feature_extractor
 - Maintained SSOT architecture with proper re-export chain
 - Followed existing pattern from skip_whitespace detection
 
 #### Incremental Implementation
-- Focused on pattern recognition only (P1 scope)
+- Focused on route-shape recognition only (P1 scope)
 - Did not modify lowering logic (expected promotion errors)
 - Kept changes minimal and focused
 
 #### ExitContract Priority
-- Pattern choice determined by ExitContract (has_continue=true, has_break=false)
-- Routes to Pattern4Continue (not Pattern2 or Pattern3)
+- Route choice determined by ExitContract (has_continue=true, has_break=false)
+- Routes to `LoopContinueOnly` (historical label: `Pattern4Continue`)
 - Consistent with existing SSOT policy from Phase 137-5
 
 ### Files Modified
 1. `src/mir/builder/control_flow/plan/ast_feature_extractor.rs` (+167 lines, new function)
-   - historical path token: `src/mir/builder/control_flow/joinir/patterns/ast_feature_extractor.rs`
-2. `src/mir/loop_canonicalizer/pattern_recognizer.rs` (+35 lines, wrapper function)
+   - same historical path token as above
+2. `src/mir/loop_canonicalizer/route_shape_recognizer.rs` (+35 lines, wrapper function)
 3. `src/mir/loop_canonicalizer/canonicalizer.rs` (+103 lines, continue support + unit test)
 4. historical re-export token: `src/mir/builder/control_flow/joinir/patterns/mod.rs` (+3 lines, re-export)
 5. `src/mir/builder/control_flow/joinir/mod.rs` (+3 lines, re-export)
@@ -336,15 +336,15 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 ### SSOT References
 - **Design**: `docs/development/current/main/design/loop-canonicalizer.md`
 - **JoinIR Architecture**: `docs/development/current/main/joinir-architecture-overview.md`
-- **Pattern Detection**: `ast_feature_extractor.rs` (Phase 140-P4-A SSOT)
+- **Route-shape detection**: `ast_feature_extractor.rs` (Phase 140-P4-A SSOT)
 
 ### Known Limitations
-- Pattern4 variable promotion (A-3 Trim, A-4 DigitPos) not yet handling this pattern
+- loop_continue_only variable promotion (A-3 Trim, A-4 DigitPos) not yet handling this pattern
 - This is expected - Phase 142 P1 only targets recognizer extension
-- Promotion will be addressed when Pattern4 lowering is enhanced
+- Promotion will be addressed when loop_continue_only lowering is enhanced
 
 ### Next Steps (Future Phases)
-- Phase 142 P2: Extend Pattern4 lowering to handle recognized continue patterns
+- Phase 142 P2: Extend loop_continue_only lowering to handle recognized continue patterns
 - Phase 142 P3: Add more complex continue patterns (multiple carriers, nested conditions)
 
 ### Verification Commands
@@ -372,10 +372,10 @@ All acceptance criteria met. ✅
 
 ---
 
-## P2: Pattern4 Lowering Extension (IN PROGRESS)
+## P2: LoopContinueOnly Lowering Extension (historical design snapshot; numbered labels below follow the original phase notes)
 
 ### Objective
-Extend Pattern4 lowering to handle "continue + return" patterns found in parse_string/array/object.
+Extend loop_continue_only lowering to handle "continue + return" patterns found in parse_string/array/object.
 
 ### Target Pattern
 - `tools/selfhost/test_pattern4_parse_string.hako` - Parse string with continue (escape) + return (quote)
@@ -466,23 +466,23 @@ The following patterns are rejected with explicit error messages:
 
 ### 🔑 Design Decisions (FIXED for Phase 142 P2 Step 3-B)
 
-#### 1. Return Responsibility Boundary: Pattern5
+#### 1. Return Responsibility Boundary: historical `Pattern5`
 
-**Decision**: Return handling → Pattern5 (not Pattern4)
+**Decision**: Return handling → historical `Pattern5` plan lane (not historical `Pattern4`)
 
 **Rationale**:
-- Pattern4 responsibility: "continue + update rules" only
-- Pattern5 responsibility: "continue + early return" integration
-- Prevents Pattern4 from bloating as parse_string/array/object family expands
+- historical `Pattern4` responsibility at the time: "continue + update rules" only
+- historical `Pattern5` responsibility at the time: "continue + early return" integration
+- Prevents the historical `Pattern4` lane from bloating as parse_string/array/object family expands
 - Aligns with canonicalizer SSOT ("structure is notes, chosen is final lowerer")
 
 **Architecture**:
 ```
-Pattern4Continue (recognizer)
+LoopContinueOnly (historical recognizer label: `Pattern4Continue`)
   ↓
-Pattern4Lowerer (continue only)
+historical `Pattern4Lowerer` (continue only)
   ↓ (has_return? → delegate)
-Pattern5Lowerer (continue + early return)
+historical `Pattern5Lowerer` (continue + early return)
 ```
 
 #### 2. Return Payload Transport: Closed within Pattern5

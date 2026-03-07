@@ -690,6 +690,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/phase-142/README.md` / `CURRENT_TASK.md`
     - intent: `plan/ast_feature_extractor.rs` と `join_ir/lowering/loop_routes/with_continue.rs` を current surface として明示し、旧 `joinir/patterns/{ast_feature_extractor.rs,mod.rs,pattern4_with_continue.rs,pattern4_carrier_analyzer.rs}` は historical path token に限定する
     - verification: `rg -n "plan/ast_feature_extractor.rs|loop_routes/with_continue.rs|joinir/patterns/ast_feature_extractor.rs|joinir/patterns/pattern4_with_continue.rs" docs/development/current/main/phases/phase-142/README.md` = current path anchors present; old path hits are historical-token note only
+  - truth cleanup (2026-03-07, slice 114): `phase-142/263/264/286` の current-looking numbered-route/path wording を route-first / historical-token-first に整理し、active phase docs の主語を current runtime surface に寄せた
+    - synced files: `docs/development/current/main/phases/{phase-142/README.md,phase-263/README.md,phase-264/README.md,phase-286/README.md}` / `CURRENT_TASK.md`
+    - intent: `LoopBreak` / `LoopContinueOnly` / `IfPhiJoin` を current route family として明示し、旧 `Pattern2/3/4/8` と `joinir/patterns/*` は historical debug token / historical path token としてだけ残す
+    - verification: `rg -n "Pattern2Break|Pattern4Continue|pattern2_lowering_orchestrator|pattern3_with_if_phi|joinir/patterns/ast_feature_extractor.rs|Legacy fallback" docs/development/current/main/phases/{phase-142/README.md,phase-263/README.md,phase-264/README.md,phase-286/README.md}` = remaining hits are historical-token note or debug-output context only
+  - truth cleanup (2026-03-07, slice 115): long README に残っていた repeated historical path token を dedupe し、同じ旧 path を current docs で何度も列挙しないようにした
+    - synced files: `docs/development/current/main/phases/{phase-142/README.md,phase-256/README.md,phase-263/README.md,phase-264/README.md,phase-286/README.md}` / `CURRENT_TASK.md`
+    - intent: repeated `joinir/patterns/*` / `loop_pattern_detection/*` token を `same historical path token as above` や brace-compressed list に寄せ、traceability を保ったまま phase README old-path hit を減らす
+    - verification: `rg -n "src/mir/builder/control_flow/joinir/patterns/|src/mir/loop_pattern_detection/" docs/development/current/main/phases -g 'README.md' | wc -l` = reduced after dedupe; `rg -n "historical (path token|code snapshot)|same historical" docs/development/current/main/phases/{phase-142/README.md,phase-256/README.md,phase-263/README.md,phase-264/README.md,phase-286/README.md}` = historical framing present
 
 ## next fixed order (resume point)
 

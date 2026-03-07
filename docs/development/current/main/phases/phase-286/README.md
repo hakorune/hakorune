@@ -6,8 +6,8 @@ Status: ✅ COMPLETE (P0, P1, P2, P2.1, P2.2, P2.3, P2.4.1, P2.6, P2.7, P2.8, P3
 
 移行期間に残っている「2本の lowering」を、構造で 1 本に収束させる。
 
-- Plan line（Pattern6/7）: `CorePlan → Frag(compose) → emit_frag()` が SSOT
-- JoinIR line（Pattern1–5,9）: `JoinIR → bridge → merge` が SSOT
+- Plan line（`ScanWithInit` / `SplitScan`）: `CorePlan → Frag(compose) → emit_frag()` が SSOT
+- JoinIR line（`LoopSimpleWhile` / `LoopBreak` / `IfPhiJoin` / `LoopContinueOnly` / `LoopTrueEarlyExit` / `AccumConstLoop`）: `JoinIR → bridge → merge` が SSOT
 
 Phase 286 では JoinIR line を “第2の lowerer” として放置せず、**Plan/Frag SSOT へ吸収**する道筋を固定する。
 
@@ -48,7 +48,7 @@ Reading note:
 
 ## Coverage Map（Plan line 移行状況）
 
-| Pattern | Shape | Status | Notes |
+| Legacy route ID | Shape | Status | Notes |
 |---:|---|---|---|
 | 1 | SimpleWhile | ✅ Plan line | PoC + integration fixture固定済み |
 | 2 | Break | ✅ Plan line | PoCサブセットは Plan 完走、PoC外は `Ok(None)` で legacy fallback |
@@ -116,18 +116,16 @@ Reading note:
 
 **完了内容**:
 - **Pattern4 (Loop with Continue) を Plan/Frag SSOT に移行**
-  - DomainPlan::Pattern4Continue 追加
+  - historical numbered label at the time: `DomainPlan::Pattern4Continue` 追加
   - PlanNormalizer::normalize_pattern4_continue() 実装（phi_bindings によるAST抽出ベース）
   - Router integration（Plan line routing → legacy fallback）
 
 **成果物**:
 - `apps/tests/phase286_pattern4_frag_poc.hako` (最小fixture: single continue)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern4_frag_poc.sh` (integration smoke)
-- `src/mir/builder/control_flow/plan/mod.rs` (Pattern4ContinuePlan struct追加)
-- `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-  - historical path tokens:
-    - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern4.rs` (extract_pattern4_plan追加)
-    - `src/mir/builder/control_flow/joinir/patterns/router.rs` (Plan routing追加)
+- `src/mir/builder/control_flow/plan/mod.rs` (historical struct name: `Pattern4ContinuePlan` 追加)
+  - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
+  - historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{extractors/pattern4.rs,router.rs}` (extract_pattern4_plan / Plan routing 追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern4_continue + phi_bindings)
 
 **重要な設計決定**:
@@ -167,11 +165,7 @@ Reading note:
 - current semantic surfaces:
   - `src/mir/builder/control_flow/plan/extractors/common_helpers.rs`
   - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
-- historical path tokens:
-  - `src/mir/builder/control_flow/joinir/patterns/extractors/common_helpers.rs`
-  - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern1.rs`
-  - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern4.rs`
-  - `src/mir/builder/control_flow/joinir/patterns/router.rs`
+- historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{extractors/common_helpers.rs,extractors/pattern1.rs,extractors/pattern4.rs,router.rs}`
 
 **検証結果**:
 - Regression test: quick smoke 154 PASS
@@ -197,9 +191,7 @@ Reading note:
 - `src/mir/builder/control_flow/plan/mod.rs` (Pattern9AccumConstLoopPlan + DomainPlan variant)
 - `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-  - historical path tokens:
-    - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern9.rs` (extract_pattern9_plan() 新規)
-    - `src/mir/builder/control_flow/joinir/patterns/extractors/mod.rs` (pattern9 モジュール追加)
+  - historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{extractors/pattern9.rs,extractors/mod.rs}` (extract_pattern9_plan() / pattern9 モジュール追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern9_accum_const_loop())
 
 **検証結果**:
@@ -274,8 +266,7 @@ Reading note:
 - `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
   - historical path tokens:
-    - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern8.rs` (新規: extract_pattern8_plan)
-    - `src/mir/builder/control_flow/joinir/patterns/extractors/mod.rs` (変更: pattern8 モジュール追加)
+  - `src/mir/builder/control_flow/joinir/patterns/{extractors/pattern8.rs,extractors/mod.rs}` (新規: extract_pattern8_plan / 変更: pattern8 モジュール追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern8_bool_predicate_scan)
 
 **検証結果**:
@@ -318,8 +309,7 @@ Reading note:
 - `src/mir/builder/control_flow/plan/extractors/common_helpers.rs` (current helper surface)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: Pattern3IfPhiPlan + DomainPlan variant)
 - historical path tokens:
-  - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern1.rs` (変更: if 拒否 ✅)
-  - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern3.rs` (変更: extract_pattern3_plan)
+  - `src/mir/builder/control_flow/joinir/patterns/{extractors/pattern1.rs,extractors/pattern3.rs}` (変更: if 拒否 / extract_pattern3_plan)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern3_if_phi)
 
 **成功基準**:
@@ -384,7 +374,7 @@ preheader → header(PHI: i_current, carrier_current)
 **実装ステップ**:
 1. ✅ Step 0: docs-first - README.md P3.1節追加、pattern2-deferred.md更新
 2. ✅ Step 1: Fixture B作成 + smoke script追加
-3. ✅ Step 2: DomainPlan::Pattern2Break + extract_pattern2_plan() 追加
+3. ✅ Step 2: historical numbered-route addition (`DomainPlan::Pattern2Break` + `extract_pattern2_plan()`)
 4. ✅ Step 3: normalize_pattern2_break() 実装（after_bb PHI）
 5. ✅ Step 4: router に Pattern2 追加
 6. ✅ Step 5: 検証（Fixture B PASS 出力11、quick 154/154 PASS）
@@ -400,7 +390,7 @@ preheader → header(PHI: i_current, carrier_current)
 **成果物** (予定):
 - `apps/tests/phase286_pattern2_break_no_update_min.hako` (新規: break without update fixture)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern2_break_no_update_vm.sh` (新規)
-- `src/mir/builder/control_flow/plan/mod.rs` (変更: Pattern2BreakPlan + DomainPlan variant)
+- `src/mir/builder/control_flow/plan/mod.rs` (変更: historical struct name `Pattern2BreakPlan` + DomainPlan variant)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
 - historical path token: `src/mir/builder/control_flow/joinir/patterns/extractors/pattern2.rs` (変更: extract_pattern2_plan)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern2_break)
