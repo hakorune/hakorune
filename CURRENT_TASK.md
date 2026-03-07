@@ -525,6 +525,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `tools/smokes/v2/profiles/integration/joinir/{phase29bi_planner_required_pattern2_pack_vm,phase29bj_planner_required_pattern6_7_pack_vm,phase29bl_planner_required_pattern1_4_5_pack_vm,phase29bn_planner_required_pattern3_pack_vm,phase29bo_planner_required_pattern8_9_pack_vm}.sh` / `CURRENT_TASK.md`
     - intent: smoke/script 側の legacy stem を `active semantic wrapper / compat wrapper / archived legacy stem / legacy pack stem` に分類し、legacy pack script header から current semantic entry を一目で辿れるようにする
     - verification: `rg -n "Stem categories|active semantic wrapper|compat wrapper|archived legacy stem|legacy pack stem|Current semantic entry" docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md tools/smokes/v2/profiles/integration/joinir/{phase29bi_planner_required_pattern2_pack_vm,phase29bj_planner_required_pattern6_7_pack_vm,phase29bl_planner_required_pattern1_4_5_pack_vm,phase29bn_planner_required_pattern3_pack_vm,phase29bo_planner_required_pattern8_9_pack_vm}.sh` = expected taxonomy hits only
+  - truth cleanup (2026-03-07, slice 72): low-ref smoke inventory を追加して hard-delete 候補がまだ無いことを固定した
+    - synced files: `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `tools/smokes/v2/profiles/integration/joinir/{if_phi_join_release_adopt_vm,loop_break_release_adopt_vm,loop_continue_only_vm,loop_true_early_exit_release_adopt_vm,loop_true_early_exit_vm,nested_loop_minimal_release_adopt_vm,nested_loop_minimal_strict_shadow_vm}.sh` / `CURRENT_TASK.md`
+    - intent: repo grep が self-only の semantic wrapper を dead smoke と誤読しないように `keep: current semantic entrypoint` と `future retire group` を分離し、top-level ではまだ safe hard-delete candidate が無いことを handoff に固定する
+    - verification: `rg -n "Low-ref inventory|safe hard-delete candidate|current semantic wrapper; keep even if repo grep is self-only" docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md tools/smokes/v2/profiles/integration/joinir/{if_phi_join_release_adopt_vm,loop_break_release_adopt_vm,loop_continue_only_vm,loop_true_early_exit_release_adopt_vm,loop_true_early_exit_vm,nested_loop_minimal_release_adopt_vm,nested_loop_minimal_strict_shadow_vm}.sh` = expected hits only
 
 ## next fixed order (resume point)
 
@@ -532,7 +536,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
 3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し中。old stem retire は active caller が 0 になってから別 phase で扱う。
+5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外した。smoke/planner pack alias wrapper は current gate surface へ導入済みで、active docs の fixture pin inventory も切り出し中。self-only grep の semantic wrapper は current entrypoint として keep し、old stem retire は active caller が 0 になってから別 phase で扱う。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 7. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
 

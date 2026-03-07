@@ -89,3 +89,53 @@ Note:
 - Active docs should reference alias wrappers when they need a current-facing smoke path.
 - Planner-required dev gates should call semantic pack alias wrappers rather than legacy pack stems.
 - Legacy script stems stay in historical inventories, archive packs, and traceability notes only.
+
+## Low-ref inventory (2026-03-07)
+
+The following inventory separates `self-only grep hits` from actual removal candidates.
+`rg` counts inside the repo are advisory only; they do not prove that a smoke is dead.
+
+### Keep: current semantic entrypoints
+
+These scripts are current-facing route smoke entrypoints even when repo grep shows only
+their own filename.
+
+| Script | Evidence | Why it stays |
+| --- | --- | --- |
+| `tools/smokes/v2/profiles/integration/joinir/if_phi_join_release_adopt_vm.sh` | repo grep: self-only | canonical semantic entry for if-phi release-adopt smoke |
+| `tools/smokes/v2/profiles/integration/joinir/loop_break_release_adopt_vm.sh` | repo grep: self-only | canonical semantic entry for loop-break release-adopt smoke |
+| `tools/smokes/v2/profiles/integration/joinir/loop_continue_only_vm.sh` | repo grep: self-only | canonical semantic entry for continue-only route smoke |
+| `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_release_adopt_vm.sh` | repo grep: self-only | canonical semantic entry for loop-true-early-exit release-adopt smoke |
+| `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_vm.sh` | repo grep: self-only | canonical semantic entry for loop-true-early-exit route smoke |
+| `tools/smokes/v2/profiles/integration/joinir/nested_loop_minimal_release_adopt_vm.sh` | repo grep: self-only | canonical semantic entry for nested-loop release-adopt smoke |
+| `tools/smokes/v2/profiles/integration/joinir/nested_loop_minimal_strict_shadow_vm.sh` | repo grep: self-only | canonical semantic entry for nested-loop strict-shadow smoke |
+
+### Keep: standalone coverage smokes
+
+These scripts are not wrapper aliases. Their low ref count comes from being direct,
+single-purpose checks.
+
+| Script | Evidence | Why it stays |
+| --- | --- | --- |
+| `tools/smokes/v2/profiles/integration/joinir/json_missing_vm.sh` | repo grep: self-only | unique MissingBox/file-using observation coverage |
+| `tools/smokes/v2/profiles/integration/joinir/method_resolution_is_eof_vm.sh` | repo grep: self-only | unique method-resolution regression coverage |
+| `tools/smokes/v2/profiles/integration/joinir/phase29bh_planner_first_parse_integer_ws_single_case_vm.sh` | repo grep: self-only | unique single-case planner-first probe |
+
+### Future retire groups
+
+These are not safe hard-delete targets yet, but they are the primary retirement groups once
+active callers drop to zero.
+
+| Group | Current role | Retirement precondition |
+| --- | --- | --- |
+| `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern*.sh` | compat wrapper targets for route smoke aliases | semantic wrappers or packs are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/phase29ap_pattern*.sh` | compat wrapper targets for continue/nested route aliases | semantic wrappers are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/phase29ae_pattern{6,7}_*.sh` | legacy regression pack stems | semantic regression-pack wrappers are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/phase29bi/phase29bj/phase29bl/phase29bn/phase29bo_*pack_vm.sh` | legacy planner-pack stems | semantic planner-pack wrappers are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/phase143_legacy_pack.sh` / `phase286_pattern9_legacy_pack.sh` | archived legacy pack stems | retained only until archive references are explicitly retired |
+
+### Decision
+
+- No top-level smoke script is a safe hard-delete candidate as of 2026-03-07.
+- The next cleanup step is to keep thinning `compat wrapper` callers and move archive-only
+  mentions into historical ledgers, not to delete low-ref semantic entrypoints.
