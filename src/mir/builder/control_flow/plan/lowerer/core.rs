@@ -13,7 +13,7 @@
 //! - lower_with_stack() is the internal dispatcher
 //! - LoopFrame tracks break/continue targets and PHI inputs
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};

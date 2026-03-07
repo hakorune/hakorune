@@ -21,9 +21,9 @@ Related:
 ## Allowlist (2026-02-06)
 
 - `src/mir/builder/control_flow/joinir/patterns/router.rs`
-  - legacy physical path; active role is route-entry router
+  - active module surface: `crate::mir::builder::control_flow::joinir::route_entry::router`
 - `src/mir/builder/control_flow/joinir/patterns/registry/handlers.rs`
-  - legacy physical path; active role is route-entry registry handler
+  - active module surface: `crate::mir::builder::control_flow::joinir::route_entry::registry::handlers`
 - `src/mir/builder/stmts/return_stmt.rs`
 
 例外理由:

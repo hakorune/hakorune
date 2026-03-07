@@ -2,7 +2,7 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::config::env::joinir_dev;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::{
     detect_nested_loop,
 };

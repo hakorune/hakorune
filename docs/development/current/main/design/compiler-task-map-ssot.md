@@ -44,7 +44,7 @@ This is the ordered task map for compiler cleanliness. Use this order unless a n
 6) Residue cleanup (historical domain wording / legacy extractors)
    - historical planner-payload wording / Normalizer 残骸・未参照抽出器などを “掃除” として最後にまとめて削る。
    - ここで新しい受理形を増やさない（BoxCount を混ぜない）。
-   - `joinir/patterns/` は最終的に「薄い入口/ルーティング層」に縮退させる（巨大 router / pattern*_minimal などの残骸を整理）。
+   - active module surface `joinir::route_entry` は最終的に「薄い入口/ルーティング層」に縮退させる（legacy physical path `joinir/patterns/` 配下の巨大 router / pattern*_minimal などの残骸を整理）。
      - ルーティングの SSOT は Facts/Recipe/Verifier に寄せ、patterns 層は “どの入口を呼ぶか” だけにする。
      - ただし release 挙動は変えない（構造整理で fail-fast 位置を動かす場合は strict/dev(+planner_required) 限定）。
 
@@ -162,9 +162,9 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
 - verifier always-on scope decision
 - join/phi contract mechanical checks
 
-### E. route-entry layer cleanup（legacy physical path: `joinir/patterns/`）
+### E. route-entry layer cleanup（active module surface: `joinir::route_entry`; legacy physical path: `joinir/patterns/`）
 
-目標: physical path `joinir/patterns/` を “薄いディスパッチャ” に縮退させ、意味論/契約は Recipe/Verifier/Parts に集約する。
+目標: active module surface `joinir::route_entry` を “薄いディスパッチャ” に縮退させ、意味論/契約は Recipe/Verifier/Parts に集約する。
 
 1) Router registryization（挙動不変）
    - `router.rs` の “候補列挙 + compose 呼び出し” をテーブル化し、見通しを改善する（分岐爆発の抑止）。

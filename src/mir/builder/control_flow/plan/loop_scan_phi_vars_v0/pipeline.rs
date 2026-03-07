@@ -2,7 +2,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;

@@ -2,7 +2,7 @@
 
 use crate::mir::basic_block::EdgeArgs;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
     coreloop_base_gate, exit_kinds_empty,
 };
@@ -281,7 +281,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v2_nested_minimal(
 mod tests {
     use super::try_compose_core_loop_v2_nested_minimal;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+    use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         LoopFeatureFacts, ValueJoinFacts,
     };

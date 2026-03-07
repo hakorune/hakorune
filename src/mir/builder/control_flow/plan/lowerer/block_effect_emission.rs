@@ -8,7 +8,7 @@
 //! - Strict planner validation for undefined operands and forward references
 //! - Body block vs normal block handling
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, LoweredRecipe,
 };

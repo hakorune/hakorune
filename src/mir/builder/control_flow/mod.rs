@@ -16,7 +16,8 @@
 //!
 //! - `debug` - Debug utilities and tracing
 //! - `joinir` - JoinIR integration (route entry, routing, merge)
-//!   - `patterns` - Legacy on-disk path for route entry / registry
+//!   - `route_entry` - Active module surface for route entry / registry
+//!   - `patterns/` - Legacy on-disk path alias for route entry / registry
 //!   - `routing` - Route routing and dispatch
 //!   - `merge` - MIR block merging (5 phases)
 //! - `exception` - Exception handling (try/catch/throw)
@@ -25,7 +26,8 @@
 //! ## Modularization History
 //!
 //! - Phase 1: Debug utilities (debug.rs) ✅
-//! - Phase 2: Route entry layer (physical path `joinir/patterns/`) ✅
+//! - Phase 2: Route entry layer (active module surface `joinir::route_entry`,
+//!   legacy physical path `joinir/patterns/`) ✅
 //! - Phase 3: JoinIR routing (joinir/routing.rs) ✅
 //! - Phase 4: Merge implementation (joinir/merge/) ✅
 //! - Phase 5: Exception handling (exception/) ✅

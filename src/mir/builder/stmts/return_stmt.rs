@@ -43,7 +43,7 @@
 //! - Match-return composer: `control_flow/plan/composer/match_return_branchn.rs`
 
 use crate::ast::{ASTNode, LiteralValue, Span};
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::{
     compose_match_return_branchn, MatchReturnPlan,
 };

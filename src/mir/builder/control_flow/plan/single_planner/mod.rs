@@ -3,7 +3,7 @@
 //! SSOT entrypoint for planner outcome extraction. Router should call only this.
 //! Contract: keep `Result<_, String>` to preserve existing behavior/messages.
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 
 use super::planner::PlanBuildOutcome;
 

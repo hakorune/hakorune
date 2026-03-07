@@ -9,7 +9,7 @@ use super::coreloop_v1::{
     try_compose_core_loop_v1_loop_true_early_exit,
 };
 use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     cond_profile_from_scan_shapes, match_scan_with_init_shape, ConditionShape, SplitScanShape,
 };
@@ -178,7 +178,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_from_facts(
 mod tests {
     use super::try_compose_core_loop_from_facts;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+    use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         LoopFeatureFacts, ValueJoinFacts,
     };

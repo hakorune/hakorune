@@ -13,7 +13,7 @@
 //! - BranchN is rewritten to nested If chain
 
 use super::LoopFrame;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{
     CoreBranchNPlan, CoreEffectPlan, CoreIfPlan, CorePlan, LoweredRecipe,
 };

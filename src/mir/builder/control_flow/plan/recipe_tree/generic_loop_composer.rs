@@ -1,7 +1,7 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::generic_loop_pipeline;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;

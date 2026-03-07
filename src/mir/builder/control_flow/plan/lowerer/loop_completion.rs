@@ -9,7 +9,7 @@
 //! - Step 7: Setup after_bb for subsequent AST lowering
 //! - Step 8: Return Void (pattern applied successfully)
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::CoreLoopPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};

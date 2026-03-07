@@ -67,7 +67,7 @@ pub(in crate::mir::builder) struct PlanLowerer;
 mod tests {
     use super::*;
     use crate::mir::builder::MirBuilder;
-    use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+    use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
     use crate::mir::builder::control_flow::plan::{
         CorePlan, CoreExitPlan, CoreIfPlan, CoreEffectPlan, CoreLoopPlan,
     };

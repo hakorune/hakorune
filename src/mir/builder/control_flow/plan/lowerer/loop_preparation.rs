@@ -9,7 +9,7 @@
 //! - Jump to loop entry
 //! - Provisional PHI insertion (Step 1.5)
 
-use crate::mir::builder::control_flow::joinir::patterns::router::LoopRouteContext;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, LoweredRecipe,
 };
