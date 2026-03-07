@@ -250,7 +250,7 @@ git revert HEAD  # 修正が問題なら即座に revert
    - `detect_if_else_phi_in_body()`: 常に `false` を返す（保守的実装）
    - `has_if = has_if_else_phi` に変更（detect_if_in_body() を使わない）
 
-2. **loop_pattern_detection/mod.rs**:
+2. **loop_route_detection/mod.rs**（historical module name: `loop_pattern_detection/mod.rs`）:
    - `has_if_sum_signature()` 関数追加（Phase 264 P0 では常に false）
    - `has_if_else_phi = carrier_count > 1 && has_if_sum_signature(scope)` に変更
 
@@ -263,10 +263,10 @@ git revert HEAD  # 修正が問題なら即座に revert
 ### 残課題
 **BundleResolver.resolve/4 の複雑ループ**:
 - 構造: 非単位増分 (i = j + 3) + 複雑なネスト + break + 条件付き代入
-- 問題: Pattern2 の A-3 Trim, A-4 DigitPos 両方で reject
+- 問題: LoopBreak（historical label: Pattern2）の A-3 Trim, A-4 DigitPos 両方で reject
 - 最小再現との違い:
-  - **最小再現** (F2): 単純な条件付き代入 → Pattern1 で PASS ✅
-  - **実際の BundleResolver** (F5): 複雑なネスト構造 → Pattern2 で reject ❌
+  - **最小再現** (F2): 単純な条件付き代入 → LoopSimpleWhile（historical label: Pattern1）で PASS ✅
+  - **実際の BundleResolver** (F5): 複雑なネスト構造 → LoopBreak（historical label: Pattern2）で reject ❌
 
 **Phase 264 P1 の課題**:
 - BundleResolver.resolve/4 のような複雑ループは新しい promotion pattern (A-5 等) が必要
@@ -274,25 +274,25 @@ git revert HEAD  # 修正が問題なら即座に revert
 
 **Phase 264 P0 の成果**:
 - 簡単な条件付き代入ループの誤分類を修正 ✅
-- Pattern3 への誤ルーティング防止 ✅
+- IfPhiJoin（historical label: Pattern3）への誤ルーティング防止 ✅
 
 ---
 
 ## コミットメッセージ案
 
 ```
-fix(joinir): improve Pattern3 classification to exclude simple conditional assignment
+fix(joinir): improve IfPhiJoin classification to exclude simple conditional assignment
 
-- Pattern3 heuristic was too conservative: carrier_count > 1 → Pattern3IfPhi
+- IfPhiJoin heuristic was too conservative: carrier_count > 1 → Pattern3IfPhi
 - Problem: Simple conditional assignment (seg = if x then "A" else "B") was
-  incorrectly classified as Pattern3IfPhi, which only handles if-sum patterns
+  incorrectly classified as Pattern3IfPhi, which only handles if-sum shapes
 - Solution: Add has_if_sum_signature() check (Phase 264 P0: returns false)
-- Effect: carrier_count > 1 loops now fall through to Pattern1
+- Effect: carrier_count > 1 loops now fall through to LoopSimpleWhile
 
 Fixes: core_direct_array_oob_set_rc_vm smoke test FAIL
 Fixes: phase264_p0_bundle_resolver_loop_min.hako (新規テスト)
 
-Phase 264 P0: Conservative implementation (has_if_sum_signature = false)
+Phase 264 P0: Conservative implementation (IfPhiJoin guard; has_if_sum_signature = false)
 Phase 264 P1: TODO - implement accurate if-sum signature detection
 ```
 

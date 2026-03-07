@@ -710,6 +710,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-270/README.md,phase-284/README.md}` / `CURRENT_TASK.md`
     - intent: `pattern9_accum_const_loop.rs`, `mod.rs`, `router.rs`, `conversion_pipeline.rs` の historical lane を current surface の補足へ圧縮し、active docs で旧 lane フルパスを繰り返さない
     - verification: `rg -n "src/mir/builder/control_flow/joinir/patterns/|src/mir/loop_pattern_detection/" docs/development/current/main/phases -g 'README.md' | wc -l` = reduced after slice 118
+  - truth cleanup (2026-03-07, slice 119): `phase-272/284/256/264/286` の current-looking numbered-route wording を route-first / historical-label-first に再整理した
+    - synced files: `docs/development/current/main/phases/{phase-256/README.md,phase-264/README.md,phase-272/README.md,phase-284/README.md,phase-286/README.md}` / `CURRENT_TASK.md`
+    - intent: `ScanWithInit` / `SplitScan` / `BoolPredicateScan` / `LoopContinueOnly` / `LoopTrueEarlyExit` / `LoopSimpleWhile` / `IfPhiJoin` / `AccumConstLoop` / `loop_route_detection` を本文の主語へ寄せ、旧 `Pattern1/2/3/4/5/6/7/8/9` と `loop_pattern_detection` は historical label / historical module name としてだけ残す
+    - verification: `rg -n "Pattern6 と同じ|Pattern7 の terminator|Pattern4/5 の return|Pattern1/Pattern4|Pattern9 \\(|Pattern8 \\(|Pattern3 Plan化|Pattern2 \\(Loop with Break\\)|Pattern5 は|\\*\\*loop_pattern_detection/mod.rs\\*\\*" docs/development/current/main/phases/{phase-256/README.md,phase-264/README.md,phase-272/README.md,phase-284/README.md,phase-286/README.md}` = 0 hit
 
 ## next fixed order (resume point)
 

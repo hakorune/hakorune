@@ -9,20 +9,20 @@ Related:
 
 ## Current Status (SSOT)
 
-- Current first FAIL: `json_lint_vm / StringUtils.last_index_of/2`（Loop with early return pattern - unsupported）
+- Current first FAIL: `json_lint_vm / StringUtils.last_index_of/2`（loop with early return shape - unsupported）
 - `StringUtils.split/2` は VM `--verify` / smoke まで PASS
 - scan_with_init route（historical Pattern6 index_of lane）は PASS 維持
 - 次フェーズ: Phase 257（`last_index_of/2` の reverse scan + early return loop）
 - 直近の完了:
-  - P1.13: Pattern2 boundary entry_param_mismatch 根治（`join_module.entry.params` SSOT 化）
-  - P1.13.5（= Phase 256.8.5）: Pattern4/6/7 でも `boundary.join_inputs` を `join_module.entry.params` SSOT に統一（hardcoded ValueId/PARAM_MIN を撤去）
+  - P1.13: LoopBreak（historical label: Pattern2）boundary entry_param_mismatch 根治（`join_module.entry.params` SSOT 化）
+  - P1.13.5（= Phase 256.8.5）: LoopContinueOnly / ScanWithInit / SplitScan（historical labels: Pattern4/6/7）でも `boundary.join_inputs` を `join_module.entry.params` SSOT に統一（hardcoded ValueId/PARAM_MIN を撤去）
   - P1.10: DCE が `jump_args` 参照を保持し、`instruction_spans` と同期するよう修正（回帰テスト追加）
   - P1.7: SSA undef（`%49/%67`）根治（continuation 関数名の SSOT 不一致）
   - P1.6: pipeline contract checks を `run_all_pipeline_checks()` に集約
 - 次の作業: Phase 257（last_index_of pattern - loop with return support）
 - 設計メモ（ChatGPT Pro 相談まとめ）: `docs/development/current/main/investigations/phase-256-joinir-contract-questions.md`
 - Known issue（非ブロッカー）:
-  - Pattern7 integration smoke で `phi predecessor mismatch` が残っている（今回の boundary SSOT 統一とは独立）
+  - SplitScan（historical label: Pattern7）integration smoke で `phi predecessor mismatch` が残っている（今回の boundary SSOT 統一とは独立）
 
 ---
 
@@ -311,7 +311,7 @@ Option A（Pattern 7 新設）を推奨。
 
 #### 次のブロッカー（P1.5 Task 3.2）
 
-`ValueId(57)` は直ったが、Pattern7(split) はまだ PASS していない。新たに以下が露出:
+`ValueId(57)` は直ったが、SplitScan（historical label: Pattern7 / split）はまだ PASS していない。新たに以下が露出:
 
 - SSA:
   - `Undefined value %49 used in block bb10`
@@ -341,7 +341,7 @@ Option A（Pattern 7 新設）を推奨。
 
 目的:
 - `boundary.join_inputs` と JoinIR entry function の `params` の対応（個数/順序/ValueId）を **VM 実行前**に fail-fast で検出する。
-- これにより、Pattern6 で起きた `loop_invariants` 順序バグ（例: `[s, ch]` ↔ `[ch, s]`）のような問題を「実行時の undef」ではなく「構造エラー」として落とせる。
+- これにより、ScanWithInit（historical label: Pattern6）で起きた `loop_invariants` 順序バグ（例: `[s, ch]` ↔ `[ch, s]`）のような問題を「実行時の undef」ではなく「構造エラー」として落とせる。
 
 実装（SSOT）:
 - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs`
@@ -367,7 +367,7 @@ Option A（Pattern 7 新設）を推奨。
   - `run_all_pipeline_checks()`（薄い集約エントリ）
   - `debug_log_boundary_contract()` を同ファイルへ移設（`is_joinir_debug()` ガード）
 - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
+  - same historical conversion_pipeline token as P1.5 above (`src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`)
   - `run_all_pipeline_checks()` の 1 呼び出しに縮退
 
 効果:
@@ -481,7 +481,7 @@ Option A（Pattern 7 新設）を推奨。
 - JoinIR の関数名は `src/mir/join_ir/lowering/canonical_names.rs` を SSOT とする
   - `"k_exit"` / `"loop_step"` / `"main"` の直書きは段階的に `canonical_names::*` へ置換
   - 正規化 shadow の `"join_func_2"` は `canonical_names::K_EXIT_LEGACY` として隔離し、統一は Phase 256 完了後に検討
-- legacy 掃除候補:
+- historical-token lane 掃除候補:
   - `join_func_name(id)` の利用箇所を棚卸しし、「structured JoinIR では使用禁止 / normalized shadow だけで使用」など境界を明文化
 
 ---
@@ -520,7 +520,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
 - loop_break family の boundary contract は安定化
 
 次のブロッカー（Phase 257）:
-- `StringUtils.last_index_of/2` - Loop with early return pattern (unsupported)
+- `StringUtils.last_index_of/2` - loop with early return shape (unsupported)
   - Structure: `loop(i >= 0) { if (cond) { return value } i = i - 1 } return default`
   - Capabilities: `caps=If,Loop,Return` (no Break)
   - Missing: ConstStep capability

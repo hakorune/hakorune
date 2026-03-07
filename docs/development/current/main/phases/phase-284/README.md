@@ -68,7 +68,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
     - historical joinir/patterns lane token: `conversion_pipeline.rs`
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`（Return merge / exit block SSOT）
 - **注意**: `src/mir/builder/control_flow/plan/normalizer/mod.rs` は Plan line 専用なので、
-  Pattern4/5 の return 問題の root fix をここへ寄せても効かない。
+  LoopContinueOnly / LoopTrueEarlyExit（historical labels: Pattern4/5）の return 問題の root fix をここへ寄せても効かない。
 
 ### 禁止事項（Phase 284 の憲法）
 
@@ -87,7 +87,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 
 **実装完了内容**:
 1. **return_collector.rs** - Return statement detection SSOT (既存)
-2. **return_jump_emitter.rs** - Return jump emission helper (Pattern4/5 reuse) ⭐NEW
+2. **return_jump_emitter.rs** - Return jump emission helper (LoopContinueOnly / LoopTrueEarlyExit reuse; historical labels: Pattern4/5) ⭐NEW
 3. **block_remapper.rs** - Block ID remap SSOT (Phase 284 P1 Fix) ⭐NEW
 4. **Loop refactoring** - loop_with_continue_minimal.rs simplified (~100 lines removed)
 5. **Instruction/terminator updates** - Use block_remapper SSOT
@@ -95,7 +95,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 **コード品質向上**:
 - Return handling: ~100 lines inline code → 1 function call
 - Block remapping: Duplicate logic → SSOT function
-- Future reusability: Pattern5 can now reuse return_jump_emitter
+- Future reusability: LoopTrueEarlyExit（historical label: Pattern5）can now reuse return_jump_emitter
 
 ### P2（smoke 固定） ✅ COMPLETE (2025-12-26)
 
@@ -117,7 +117,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 
 ### P3+（将来）
 
-- 他の return パターン（Pattern8 等）の smoke 追加
+- 他の return route family（BoolPredicateScan など; historical label: Pattern8）の smoke 追加
 - LLVM AOT 経路での return 検証
 
 ## Acceptance
@@ -131,7 +131,7 @@ P1 の root fix は「PlanNormalizer へ寄せる」ではなく、**JoinIR line
 
 - 入口候補:
   - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`（current single entry; historical joinir/patterns lane: `conversion_pipeline.rs`）
-  - もしくは JoinIR lowerer 側に “Return collector” を 1 箇所だけ作り、Pattern4/5 はそれを呼ぶだけにする
+  - もしくは JoinIR lowerer 側に “Return collector” を 1 箇所だけ作り、LoopContinueOnly / LoopTrueEarlyExit（historical labels: Pattern4/5）はそれを呼ぶだけにする
 
 どちらにしても、目的は同じ：
 - pattern 側へロジックを増やさず（散布しない）
