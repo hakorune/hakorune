@@ -71,6 +71,10 @@ Historical numbered-label legend used below:
 | 8 | BoolPredicateScan | ✅ Plan line | static box は設計上スキップ（ReceiverNormalizeBox が担当） |
 | 9 | AccumConstLoop | ✅ Plan line | LoopSimpleWhile（historical label 1）より優先（より具体的） |
 
+Reading note:
+- 下の subsection では semantic route family を主語にするよ。
+- numbered label は上の coverage map を参照し、exact fixture/debug token が必要な箇所だけ本文に残す。
+
 ### P0（docs-only）✅ COMPLETE (2025-12-25)
 
 **完了内容**:
@@ -101,7 +105,7 @@ Historical numbered-label legend used below:
   - B1検証: join_inputs が Param 領域にあること
   - C2検証: condition_bindings が Param 領域にあること
 - **merge/mod.rs に検証呼び出し追加**: merge開始時にFail-Fast検証
-- **実バグ3件修正**: loop_break / loop_continue_only / loop_true_early_exit（historical labels 2/4/5）で `alloc_local()` を誤って使っていた箇所を `alloc_param()` に修正
+- **実バグ3件修正**: loop_break / loop_continue_only / loop_true_early_exit で `alloc_local()` を誤って使っていた箇所を `alloc_param()` に修正
 
 **成果物**:
 - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs` (変更)
@@ -126,7 +130,7 @@ Historical numbered-label legend used below:
 ### P2（LoopContinueOnly PoC）✅ COMPLETE (2025-12-26)
 
 **完了内容**:
-- **LoopContinueOnly（historical label 4 / Loop with Continue）を Plan/Frag SSOT に移行**
+- **LoopContinueOnly を Plan/Frag SSOT に移行**
   - historical numbered-route DomainPlan variant を old lane に追加
   - historical numbered-route normalizer を実装（phi_bindings によるAST抽出ベース）
   - Router integration（Plan line routing → historical-token lane fallback）
@@ -148,14 +152,14 @@ Historical numbered-label legend used below:
 - Integration smoke PASS (fixture/smoke pair above, output: 6)
 - Regression test: quick smoke 154 PASS, 0 FAILED
 
-**LoopBreak 調査結果（historical label 2, 別タスク化）**:
+**LoopBreak 調査結果（coverage map 上の break lane、別タスク化）**:
 - break経路の値再接続が複雑（after_bbにPHI必要）
 - 詳細: [pattern2-deferred.md](./pattern2-deferred.md)
 
 ### P2.1（LoopSimpleWhile PoC）✅ COMPLETE (2025-12-26)
 
 **完了内容**:
-- **LoopSimpleWhile（historical label 1 / SimpleWhile）を Plan/Frag SSOT に移行**
+- **LoopSimpleWhile を Plan/Frag SSOT に移行**
   - historical numbered-route DomainPlan variant を old lane に追加
   - historical numbered-route normalizer を実装（phi_bindings によるPHI dst優先参照）
   - Router integration（Plan line routing → historical-token lane fallback）
@@ -168,8 +172,8 @@ Historical numbered-label legend used below:
 
 **完了内容**:
 - **extractor helper化**: `extract_loop_increment_plan` を `common_helpers.rs` に統一
-  - LoopSimpleWhile / LoopContinueOnly（historical labels 1/4）が呼ぶだけに変更（重複排除 ~25行）
-- **router helper化**: `lower_via_plan()` を追加し ScanWithInit / SplitScan / LoopContinueOnly / LoopSimpleWhile（historical labels 6/7/4/1）で共用
+  - LoopSimpleWhile / LoopContinueOnly が呼ぶだけに変更（重複排除 ~25行）
+- **router helper化**: `lower_via_plan()` を追加し ScanWithInit / SplitScan / LoopContinueOnly / LoopSimpleWhile で共用
   - 3行パターン（normalize→verify→lower）を1関数に集約（ボイラープレート削減 ~40行）
 
 **成果物**:
@@ -185,16 +189,16 @@ Historical numbered-label legend used below:
 ### P2.3 (AccumConstLoop Plan化 PoC) ✅ COMPLETE (2025-12-26)
 
 **完了内容**:
-- **AccumConstLoop（historical label 9）を Plan/Frag SSOT に移行**
+- **AccumConstLoop を Plan/Frag SSOT に移行**
   - historical numbered-route DomainPlan variant を old lane に追加
   - historical numbered-route normalizer を実装（PHI 2本: loop_var, acc_var）
   - Router integration（Plan line routing → historical-token lane fallback）
-  - AccumConstLoop（historical label 9）は LoopSimpleWhile（historical label 1）より優先（より具体的な route family）
+  - AccumConstLoop は LoopSimpleWhile より優先（より具体的な route family）
 
 **設計決定**:
 - **PoC は const/var 両方 OK**: `sum = sum + 1`（定数）または `sum = sum + i`（変数）
 - **本体の順序固定**: 1行目=累積更新, 2行目=ループ変数更新
-- **CFG 構造**: LoopSimpleWhile と同じ骨格（historical label 1）、PHI 2本（i_current, sum_current）
+- **CFG 構造**: LoopSimpleWhile と同じ骨格、PHI 2本（i_current, sum_current）
 
 **成果物**:
 - `apps/tests/phase286_pattern9_frag_poc.hako` (representative legacy fixture pin token: const accumulation)
@@ -260,15 +264,15 @@ Historical numbered-label legend used below:
 ### P2.4 (BoolPredicateScan Plan化 PoC) ✅ COMPLETE (2025-12-26)
 
 **背景**:
-- BoolPredicateScan（historical label 8）は Phase 269 P1.2 で `static box` コンテキストを明示的にスキップする設計決定あり
-- 既存 legacy fixture pin token `phase269_p0_pattern8_frag_min.hako` は static box のため BoolPredicateScan がマッチせず LoopSimpleWhile（historical label 1）にフォールバック
+- BoolPredicateScan は Phase 269 P1.2 で `static box` コンテキストを明示的にスキップする設計決定あり
+- 既存 legacy fixture pin token `phase269_p0_pattern8_frag_min.hako` は static box のため BoolPredicateScan がマッチせず LoopSimpleWhile にフォールバック
 - PoC のためには BoolPredicateScan が実際にマッチする**非 static box の fixture** が必要
 
 **実装方針**:
 - **非 static box fixture**: `box StringUtils` に変更し、`Main.main()` から `new StringUtils()` でインスタンス生成
 - **Plan line 抽出**: historical numbered-route extractor で parts 抽出（既存 legacy-8 構造を参考）
 - **Normalizer**: historical numbered-route normalizer で Scan 系の骨格を最小で再利用
-- **Router integration**: PLAN_EXTRACTORS テーブルに BoolPredicateScan（historical label 8）追加、`Ok(None)` なら historical token lane へフォールバック
+- **Router integration**: PLAN_EXTRACTORS テーブルに BoolPredicateScan を追加し、`Ok(None)` なら historical token lane へフォールバック
 
 **成果物** (予定):
 - `apps/tests/phase286_pattern8_plan_poc.hako` (legacy fixture pin token: 非 static box fixture)
@@ -285,7 +289,7 @@ Historical numbered-label legend used below:
 - historical debug token: `route=plan strategy=extract pattern=Pattern8_BoolPredicateScan`
 
 **P2.4.1（Plan 完走 / Fail-Fast 統一）** ✅ COMPLETE (2025-12-26)
-- BoolPredicateScan（historical label 8）の normalizer を実装し、Plan line で完走（historical-token lane fallback 禁止）
+- BoolPredicateScan の normalizer を実装し、Plan line で完走（historical-token lane fallback 禁止）
 - router の “文字列判定 e.contains(...)” などの暫定フォールバックを撤去し、extract 成功後は Fail-Fast に統一
 
 **補足（設計相談）**:
@@ -296,23 +300,23 @@ Historical numbered-label legend used below:
 
 **背景**:
 - **退行バグ発見**: representative legacy fixture key `phase118_pattern3_if_sum_min.hako` が FAIL (期待 12、実際 10)
-- **原因**: LoopSimpleWhile Plan（historical label 1）が IfPhiJoin fixture（historical label 3）を誤ってマッチ
+- **原因**: LoopSimpleWhile Plan が IfPhiJoin fixture を誤ってマッチ
   - LoopSimpleWhile extractor の `has_control_flow_statement()` が if/else をチェックしていない
   - route-kind guard もなく、LoopSimpleWhile Plan が IfPhiJoin にマッチしていた
 
 **実装内容**:
 
-**Step 0: LoopSimpleWhile 退行修正（historical label 1, 最優先）** ✅ COMPLETE
+**Step 0: LoopSimpleWhile 退行修正（coverage map 上の simple-while lane, 最優先）** ✅ COMPLETE
 - **0.1 Router guard**: `router.rs` の `try_plan_extractors()` で LoopSimpleWhile Plan は `ctx.route_kind == LoopRouteKind::LoopSimpleWhile` のみマッチ
 - **0.2 has_if_statement 追加**: `common_helpers.rs` に再帰的 if 検出ヘルパー追加
 - **0.3 LoopSimpleWhile extractor 強化**: `has_if_statement()` による if-else 拒否を追加（防御in深さ）
-- **検証**: phase118 PASS (出力 12)、historical label 3 lane が正しく動作
+- **検証**: phase118 PASS (出力 12)、IfPhiJoin lane が正しく動作
 
-**Step 1: IfPhiJoin Plan line 実装（historical label 3）** ✅ COMPLETE
+**Step 1: IfPhiJoin Plan line 実装** ✅ COMPLETE
 - **DomainPlan 追加**: historical numbered-route plan struct を old lane に追加
 - **Extractor**: historical numbered-route extractor が既存 `extract_loop_with_if_phi_parts()` を活用
 - **Normalizer**: CFG構造 `preheader → header(PHI: i, sum) → body → then/else → merge(PHI: sum) → step → header → after`
-- **Router**: Plan 完走のため、legacy label 3 の “stub fallback” を撤去し Fail-Fast に統一（extract が Some の後は Err を伝播）
+- **Router**: Plan 完走のため、historical token lane の “stub fallback” を撤去し Fail-Fast に統一（extract が Some の後は Err を伝播）
 
 **成果物** (予定):
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
@@ -354,7 +358,7 @@ Historical numbered-label legend used below:
 ### P3.1 (LoopBreak Plan化) ✅ COMPLETE (2025-12-26)
 
 **背景**:
-- LoopBreak（historical label 2 / Loop with Break）は P2 で別タスク化された（break経路の値再接続が複雑）
+- LoopBreak は P2 で別タスク化された（break経路の値再接続が複雑）
 - 詳細: [pattern2-deferred.md](./pattern2-deferred.md)
 
 **本質的課題: after_bb PHI**:
@@ -419,7 +423,7 @@ preheader → header(PHI: i_current, carrier_current)
 - quick smoke 154/154 PASS
 
 **背景**:
-- LoopTrueEarlyExit（historical label 5）は `loop(true)` の無限ループ route family
+- LoopTrueEarlyExit は `loop(true)` の無限ループ route family
 - 既存 historical token label-5 lane は `break + continue` 両方必須の複雑な形式
 - PoC は **simpler subset**: 早期 return または break 単独
 

@@ -5,7 +5,7 @@
 
 Reading note:
 - この phase は canonicalizer 初期拡張の historical log だよ。
-- 下の `Pattern2Break` / `Pattern4Continue` / `Chosen pattern` は当時の routing/debug token だよ。current route family は `LoopBreak` / `LoopContinueOnly` と読めばよい。
+- 下の routing/debug token と `Chosen pattern` 行は当時の evidence だよ。current route family は `LoopBreak` / `LoopContinueOnly` と読めばよい。
 
 ## P0: parse_number route shape - Break in THEN Clause
 
@@ -69,7 +69,7 @@ Added current helper `detect_parse_number_shape()`:
   - Step 2: Body (statements before break)
   - Step 3: Body (statements after break, excluding carrier update)
   - Step 4: Update (carrier update)
-- Routes to `LoopBreak` (historical routing token: `Pattern2Break`, has_break=true)
+- Routes to `LoopBreak` (has_break=true; the historical routing token appears in the parity block below)
 
 **Lines modified**: ~60 lines
 
@@ -92,14 +92,14 @@ Added `test_parse_number_pattern_recognized()` in `canonicalizer.rs`:
 - Verifies skeleton structure (4 steps)
 - Verifies carrier (name="i", delta=1, role=Counter)
 - Verifies exit contract (has_break=true)
-- Verifies routing decision (`LoopBreak`; historical routing token: `Pattern2Break`, no missing_caps)
+- Verifies routing decision (`LoopBreak`, no missing_caps)
 
 **Lines added**: ~130 lines
 
 ### Acceptance Criteria
 
 - ✅ Canonicalizer creates Skeleton for parse_number loop
-- ✅ RoutingDecision.chosen matches router (`LoopBreak`; historical routing token: `Pattern2Break`)
+- ✅ RoutingDecision.chosen matches router (`LoopBreak`)
 - ✅ Strict parity OK (canonicalizer and router agree)
 - ✅ Default behavior unchanged
 - ✅ quick profile not affected
@@ -180,7 +180,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 - **Recognizer**: `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`
   - historical path token: `ast_feature_extractor.rs` under the old `joinir/patterns/` lane
 - **Canonicalizer**: `src/mir/loop_canonicalizer/canonicalizer.rs`
-- **Tests**: historical fixture filename `tools/selfhost/test_pattern2_parse_number.hako`
+- **Tests**: same historical fixture filename as the target fixture above
 
 ---
 
@@ -272,7 +272,7 @@ Added `detect_parse_string_shape()`:
   - `has_break = false`
   - `has_continue = true`
   - `has_return = true`
-- Routes to `LoopContinueOnly` (historical routing token: `Pattern4Continue`, has both continue and return)
+- Routes to `LoopContinueOnly` (has both continue and return; the historical routing token appears in the parity block below)
 
 **Lines modified**: ~45 lines
 
@@ -295,14 +295,14 @@ Added `test_parse_string_pattern_recognized()` in `canonicalizer.rs`:
 - Verifies skeleton structure (3 steps minimum)
 - Verifies carrier (name="p", delta=1, role=Counter)
 - Verifies exit contract (has_continue=true, has_return=true, has_break=false)
-- Verifies routing decision (LoopContinueOnly; historical routing token: `Pattern4Continue`, no missing_caps)
+- Verifies routing decision (LoopContinueOnly, no missing_caps)
 
 **Lines added**: ~180 lines
 
 ### Acceptance Criteria
 
 - ✅ Canonicalizer creates Skeleton for parse_string loop
-- ✅ RoutingDecision.chosen matches router (LoopContinueOnly; historical routing token: `Pattern4Continue`)
+- ✅ RoutingDecision.chosen matches router (LoopContinueOnly)
 - ✅ Strict parity green (canonicalizer and router agree)
 - ✅ Default behavior unchanged
 - ✅ quick profile not affected (unrelated smoke test failure)
@@ -329,7 +329,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 [loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern4Continue
 ```
 
-**Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly (historical token: `Pattern4Continue`)
+**Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly
 
 #### Unit Test Results
 
@@ -474,7 +474,7 @@ loop(cond) {
 2. **Unit Test** (~165 lines)
    - Added `test_parse_array_pattern_recognized()` in `canonicalizer.rs`
    - Mirrors parse_string test structure with array-specific conditions
-   - Verifies same LoopContinueOnly routing (historical token: `Pattern4Continue`)
+   - Verifies the same LoopContinueOnly routing
 
 3. **Error Messages** (~5 lines)
    - Updated error messages to mention parse_array
@@ -484,7 +484,7 @@ loop(cond) {
 ### Acceptance Criteria
 
 - ✅ Canonicalizer creates Skeleton for parse_array loop
-- ✅ RoutingDecision.chosen == LoopContinueOnly (historical token: `Pattern4Continue`)
+- ✅ RoutingDecision.chosen == LoopContinueOnly
 - ✅ Strict parity green (canonicalizer and router agree)
 - ✅ Default behavior unchanged
 - ✅ Unit test added and passing
@@ -510,7 +510,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 [loop_canonicalizer/PARITY] OK in function 'main': canonical and actual agree on Pattern4Continue
 ```
 
-**Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly (historical token: `Pattern4Continue`)
+**Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly
 
 #### Unit Test Results
 
@@ -645,13 +645,13 @@ loop(cond) {
 #### Changes Made
 
 1. **Test File Creation** (~50 lines)
-   - Created `tools/selfhost/test_pattern4_parse_object.hako`
+   - Created the same historical fixture filename as the target fixture above
    - Minimal test demonstrating parse_object loop structure
 
 2. **Unit Test** (~170 lines)
    - Added `test_parse_object_pattern_recognized()` in `canonicalizer.rs`
    - Mirrors parse_array test structure with object-specific conditions (`}` and `,`)
-   - Verifies same LoopContinueOnly routing (historical token: `Pattern4Continue`)
+   - Verifies the same LoopContinueOnly routing
 
 3. **Documentation** (this section)
 
@@ -660,7 +660,7 @@ loop(cond) {
 ### Acceptance Criteria
 
 - ✅ Canonicalizer creates Skeleton for parse_object loop
-- ✅ RoutingDecision.chosen == LoopContinueOnly (historical token: `Pattern4Continue`)
+- ✅ RoutingDecision.chosen == LoopContinueOnly
 - ✅ RoutingDecision.missing_caps == []
 - ✅ Strict parity green (canonicalizer and router agree)
 - ✅ Default behavior unchanged
@@ -684,7 +684,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 [loop_canonicalizer/PARITY] OK in function 'Main.parse_object_loop/0': canonical and actual agree on Pattern4Continue
 ```
 
-**Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly (historical token: `Pattern4Continue`)
+**Status**: ✅ **Green parity** - canonicalizer and router agree on LoopContinueOnly
 
 #### Unit Test Results
 
