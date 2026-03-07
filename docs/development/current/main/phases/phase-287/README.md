@@ -227,7 +227,7 @@ Pattern4 → Pattern8 → Pattern9 → Pattern3 → Pattern1 → Pattern2
 
 1. **Phase 286（完了）**: Legacy Pattern5 削除 + Warning クリーンアップ
 2. **Phase 287-P0（保留）**: normalizer.rs 分割（P0優先度は低い）
-3. **Phase 287-P1（将来）**: LOOP_PATTERNS テーブル削除（全Pattern Plan line化後）
+3. **Phase 287-P1（将来）**: legacy JoinIR table 削除（全route family の Plan line 化後）
 
 ### 段階的移行
 
@@ -261,7 +261,7 @@ Pattern4 → Pattern8 → Pattern9 → Pattern3 → Pattern1 → Pattern2
 - [ ] LOOP_PATTERNS テーブル削除（P1）
   - [ ] 全Pattern Plan line経由確認
   - [ ] `LOOP_PATTERNS` static削除
-  - [ ] `LoopPatternEntry` struct削除
+  - [ ] legacy route-entry struct 削除
 
 ## 備考
 

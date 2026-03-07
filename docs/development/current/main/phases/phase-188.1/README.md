@@ -257,7 +257,7 @@ pub struct LoopRegion {
 2. **`src/mir/join_ir/lowering/loop_routes/mod.rs`** (~2 lines)
    - Export `nested_minimal` module
 
-3. **`src/mir/join_ir/lowering/loop_pattern_router.rs`** (~10 lines)
+3. **`src/mir/join_ir/lowering/loop_route_router.rs`** (~10 lines)
    - Add NestedLoopMinimal route case
    - Add explicit error for `max_loop_depth > 2`
 

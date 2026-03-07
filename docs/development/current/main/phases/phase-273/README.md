@@ -140,7 +140,7 @@ P3 では scan_with_init route（historical numbered label: Pattern6）を gener
 - ✅ CoreLoopPlan: すべてのフィールドを必須化（`Option` 削除）
 - ✅ Lowerer: `lower_loop_legacy()` 撤去、CorePlan SSOT 化（Fail-Fast）
 - ✅ PlanLowerer: route 固有参照（`emit_scan_with_init_edgecfg()` 等）を完全削除
-- ✅ route_loop_pattern(): Plan ラインを明示的 SSOT として文書化
+- ✅ route helper（historical token `route_loop_pattern()`）: Plan ラインを明示的 SSOT として文書化
 
 ### SSOT Documentation Entry Points
 

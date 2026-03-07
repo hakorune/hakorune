@@ -70,7 +70,7 @@ index_of(s, ch) {
 ### 2) 新しい lowering 箱（案）
 
 候補配置:
-- `src/mir/join_ir/lowering/loop_patterns/` 配下に `index_of/` を作り、`lower_box.rs` を置く
+- `src/mir/join_ir/lowering/loop_routes/` 配下に `index_of/` を作り、`lower_box.rs` を置く
   - 目的: 既存 `loop_with_*` 巨大ファイルに寄せず、責務を分離する（設計優先）
 
 入出力（案）:

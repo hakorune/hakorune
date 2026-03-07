@@ -782,23 +782,31 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-259,phase-270}/README.md` / `CURRENT_TASK.md`
     - intent: `BoolPredicateScan` / `ScanWithInit` / `LoopSimpleWhile` / `AccumConstLoop` を本文主語に戻し、旧 `Pattern6/8/9` は historical label number、`pattern9_accum_const_loop.rs` は historical file token としてだけ残す
     - verification: `git diff --check` PASS; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/{phase-259,phase-270}/README.md | wc -l` = `2`; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases -g 'README.md' | wc -l` = `452`
+  - truth cleanup (2026-03-08, slice 137): `phase-263/286` の repeated historical extractor/step-lane token を same-lane note に寄せ、fixture/debug evidence 以外で `pattern2_*` / `extractors/pattern*.rs` を再掲しない形にした
+    - synced files: `docs/development/current/main/phases/{phase-263,phase-286}/README.md` / `CURRENT_TASK.md`
+    - intent: `promote_step_box.rs` と `loop_break_prep_box.rs` まわりの old step-lane 表現を generic historical lane に置き換え、`phase-286` 側の `extractors/pattern{1,3,4,5,8,9}.rs` 再掲は same historical extractor lane note に圧縮する
+    - verification: `git diff --check` PASS; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/{phase-263,phase-286}/README.md | wc -l` = `33`; `rg -n "src/mir/builder/control_flow/joinir/patterns/|src/mir/loop_pattern_detection/|joinir/patterns/|loop_pattern_detection/" docs/development/current/main/phases/{phase-263,phase-286}/README.md | wc -l` = `0`
+  - truth cleanup (2026-03-08, slice 138): `phase-257/92/188.1/29bd/273/269/254/282/287` の current-looking old-family token を semantic route wording / legacy taxonomy へ寄せ、active phase guide から `JoinIR patterns` / `LoopPatternContext` / `loop_pattern_router.rs` / `LOOP_PATTERNS` をさらに後退させた
+    - synced files: `docs/development/current/main/phases/{phase-257,phase-92,phase-188.1,phase-29bd,phase-273,phase-269,phase-254,phase-282,phase-287}/README.md` / `CURRENT_TASK.md`
+    - intent: active guide では `route_entry` / `loop_route_router.rs` / `legacy JoinIR table` / `legacy context carrier type` を優先し、旧 family token は historical helper 名や migration note としてだけ残す
+    - verification: `git diff --check` PASS; `rg -n "JoinIR patterns|LoopPatternContext|loop_pattern_router\\.rs|LOOP_PATTERNS|LoopPatternEntry" docs/development/current/main/phases/{phase-257,phase-92,phase-188.1,phase-29bd,phase-273,phase-269,phase-254,phase-282,phase-287}/README.md` = expected historical/helper-token hits only; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases -g 'README.md' | wc -l` = `438`
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. phase README truth cleanup: [phase-263/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-263/README.md) / [phase-286/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-286/README.md) の残り historical label / fixture token / debug token を same-lane note に寄せきる。
-3. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `compat wrapper` / `active semantic wrapper` にさらに分離し、design 側の tag/fixture inventories と役割を揃える。
+2. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `compat wrapper` / `active semantic wrapper` にさらに分離し、design 側の tag/fixture inventories と役割を揃える。
+3. phase README truth cleanup: [phase-263/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-263/README.md) / [phase-286/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-286/README.md) の残り fixture token / debug token を evidence lane に寄せきる。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 5. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
 
 ## Remaining Effort Snapshot (2026-03-08)
 
-- total estimate: あと **2-4 slices** で current compiler/docs cleanup はかなり収束、repo 全体の historical/compat token 後始末まで含めると **4-7 slices**
+- total estimate: あと **2-3 slices** で current compiler/docs cleanup はかなり収束、repo 全体の historical/compat token 後始末まで含めると **4-6 slices**
 - highest-value remaining docs:
-  1. `docs/development/current/main/phases/phase-263/README.md`
-  2. `docs/development/current/main/phases/phase-286/README.md`
-  3. compat token retirement lane (`smoke stem` / `selfhost filter` / `fixture key`)
+  1. compat token retirement lane (`smoke stem` / `selfhost filter` / `fixture key`)
+  2. `docs/development/current/main/phases/phase-263/README.md`
+  3. `docs/development/current/main/phases/phase-286/README.md`
   4. low-risk dust cleanup
 - compat token retirement lane:
   - smoke stem / selfhost filter / fixture key の caller 0 棚卸しと retire phase
@@ -809,7 +817,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - phase/docs residue snapshot:
   - `docs/development/current/main/phases/**/README.md` の `PatternN` / `patternN_` broad grep は **452 hits**
   - `phase-259` + `phase-270` の broad grep は **2 hits**（historical file tokenのみ）
-  - `phase-263` + `phase-286` の broad grep は **46 hits**、old-path token は **3 hits**
+  - `phase-263` + `phase-286` の broad grep は **33 hits**、old-path token は **0 hits**
   - ただし多くは historical label / fixture token / archive stem / debug token で、current architecture prose はかなり整理済み
 
 ## Quick Restart (After Reboot)

@@ -12,7 +12,7 @@ Status: ✅ COMPLETE (P0, P1, P2, P2.1, P2.2, P2.3, P2.4.1, P2.6, P2.7, P2.8, P3
 Phase 286 では JoinIR line を “第2の lowerer” として放置せず、**Plan/Frag SSOT へ吸収**する道筋を固定する。
 
 Reading note:
-- 下に出てくる `joinir/patterns/*` は、特記がない限り execution-time の historical physical path token だよ。
+- 下に出てくる old JoinIR route-entry path token は、特記がない限り execution-time の historical physical path token だよ。
 - current live surfaces は `src/mir/builder/control_flow/joinir/route_entry/`, `src/mir/builder/control_flow/plan/`, `src/mir/builder/control_flow/plan/extractors/`, `src/mir/loop_route_detection/` を優先して読むよ。
 
 Historical numbered-label legend used below:
@@ -86,7 +86,7 @@ Historical numbered-label legend used below:
   8. デバッグ導線 - NYASH_CLI_VERBOSE, HAKO_JOINIR_DEBUG, NYASH_TRACE_VARMAP 等
 
 **重要な設計決定**:
-- JoinIR line を AST → MIR 全体ではなく、「(Pattern detection/Plan) → (Frag+Boundary) → (MIR merge) の限定されたパイプライン」として定義
+- JoinIR line を AST → MIR 全体ではなく、「(route/plan extract) → (Frag+Boundary) → (MIR merge) の限定されたパイプライン」として定義
 - 禁止事項の「例外なし」表現を削除し、「診断専用の扱い（debugタグ付き・既定OFF）」という運用ルールに変更
 - ValueId 100-999 固定範囲を「host ValueId と衝突しない領域」という原則に変更（具体数値は実装詳細として注記）
 
@@ -108,10 +108,10 @@ Historical numbered-label legend used below:
 - `src/mir/builder/control_flow/joinir/merge/mod.rs` (変更)
 - `src/mir/join_ir/lowering/loop_with_break_minimal.rs` (変更)
 - `src/mir/join_ir/lowering/loop_with_continue_minimal.rs` (変更)
-- same historical path lane as reading note (`pattern5_infinite_early_exit.rs`, 変更)
+- same historical path lane as reading note (legacy label-5 implementation file, changed)
 
 **発見された問題**:
-- 各 pattern の lowering で関数パラメータに `alloc_local()` を使っていた（本来は `alloc_param()`）
+- 各 route lowering で関数パラメータに `alloc_local()` を使っていた（本来は `alloc_param()`）
 - これにより join_inputs に Local ValueId (1000+) が混入し、検証エラーになっていた
 
 **改善の示唆（Post-P1 Polish 実施済み）**:
@@ -136,7 +136,7 @@ Historical numbered-label legend used below:
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern4_frag_poc.sh` (integration smoke)
 - `src/mir/builder/control_flow/plan/mod.rs` (historical numbered-route plan struct added in the old lane)
   - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-  - same historical extractors lane as reading note (`extractors/pattern4.rs`, `router.rs`; historical extractor / Plan routing 追加)
+  - same historical extractor lane as the reading note (historical extractor / Plan routing 追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (historical numbered-route normalizer + phi_bindings)
 
 **重要な設計決定**:
@@ -145,7 +145,7 @@ Historical numbered-label legend used below:
 - **carrier passthrough**: Add 0 不要、carrier_current をそのままPHI入力に渡す
 
 **検証結果**:
-- Integration test: phase286_pattern4_frag_poc.sh PASS (output: 6)
+- Integration smoke PASS (fixture/smoke pair above, output: 6)
 - Regression test: quick smoke 154 PASS, 0 FAILED
 
 **LoopBreak 調査結果（historical label 2, 別タスク化）**:
@@ -161,7 +161,7 @@ Historical numbered-label legend used below:
   - Router integration（Plan line routing → historical-token lane fallback）
 
 **検証結果**:
-- Integration test: `phase286_pattern1_frag_poc` PASS (return: 3)
+- Integration smoke PASS (LoopSimpleWhile PoC, return: 3)
 - Regression test: quick smoke 154 PASS, 0 FAILED
 
 ### P2.2 (hygiene: extractor重複排除 + router小整理) ✅ COMPLETE (2025-12-26)
@@ -202,11 +202,11 @@ Historical numbered-label legend used below:
 - `src/mir/builder/control_flow/plan/mod.rs` (historical numbered-route plan struct + DomainPlan variant in the old lane)
 - `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-  - same historical extractors lane as reading note (`extractors/pattern9.rs`, `extractors/mod.rs`; historical extractor / module 追加)
+  - same historical extractor lane as the reading note (historical extractor / module 追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (historical numbered-route normalizer)
 
 **検証結果**:
-- Integration test: `phase286_pattern9_frag_poc` PASS (return: 3)
+- Integration smoke PASS (AccumConstLoop PoC, return: 3)
 - Regression test: quick smoke 154 PASS, 0 FAILED
 
 ### P3 (error context enrichment) ✅ COMPLETE (2025-12-25)
@@ -276,11 +276,11 @@ Historical numbered-label legend used below:
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: historical numbered-route plan struct + DomainPlan variant)
 - `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-  - same historical extractors lane as reading note (`extractors/pattern8.rs`, `extractors/mod.rs`; historical extractor / module 追加)
+  - same historical extractor lane as the reading note (historical extractor / module 追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: historical numbered-route normalizer)
 
 **検証結果**:
-- Integration test: `phase286_pattern8_plan_poc_vm` PASS (exit 7)
+- Integration smoke PASS (BoolPredicateScan PoC, exit 7)
 - Regression test: quick smoke 0 failed
 - Debug log: `route=plan strategy=extract pattern=Pattern8_BoolPredicateScan` 確認
 
@@ -318,11 +318,11 @@ Historical numbered-label legend used below:
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
 - `src/mir/builder/control_flow/plan/extractors/common_helpers.rs` (current helper surface)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: historical numbered-route plan struct + DomainPlan variant)
-- historical path tokens are centralized in the reading note / old-lane files (`extractors/pattern1.rs`, `extractors/pattern3.rs`)
+- historical extractor/file tokens are centralized in the reading note / old-lane note
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: historical numbered-route normalizer)
 
 **成功基準**:
-- Regression fix: compat smoke/filter token `phase118_pattern3_if_sum_vm` PASS (出力 12) ✅
+- Regression fix: compat smoke/filter PASS (legacy if-phi fixture family, 出力 12) ✅
 - IfPhiJoin Plan line: `route=plan pattern=Pattern3_IfPhi` 確認
 - Full regression: `tools/smokes/v2/run.sh --profile quick` 0 failed
 
@@ -401,7 +401,7 @@ preheader → header(PHI: i_current, carrier_current)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern2_break_no_update_vm.sh` (新規)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: historical numbered-route plan struct + DomainPlan variant)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-- historical extractor/path tokens are centralized in the reading note / old-lane files (`pattern2.rs`)
+- historical extractor/path tokens are centralized in the reading note / old-lane note
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: historical numbered-route normalizer)
 
 **検証結果**:
@@ -462,7 +462,7 @@ preheader → header(PHI: i, carrier) → body(exit_cond)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh`
 - `src/mir/builder/control_flow/plan/mod.rs` (historical numbered-route plan struct + exit kind in the old lane)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
-- historical extractor/path tokens are centralized in the reading note / old-lane files (`pattern5.rs`)
+- historical extractor/path tokens are centralized in the reading note / old-lane note
 - `src/mir/builder/control_flow/plan/normalizer.rs` (historical numbered-route normalizer)
 
 **成功基準**:
@@ -472,7 +472,7 @@ preheader → header(PHI: i, carrier) → body(exit_cond)
 
 **クリーンアップ完了（P3.2後）**:
 - **historical token label-5 implementation deleted**: `pattern5_infinite_early_exit.rs` (488行) 完全削除
-- **Plan extractor が SSOT**: `extractors/pattern5.rs` 側の historical numbered-route extractor が唯一の検出ロジック
+- **Plan extractor が SSOT**: same historical extractor lane が唯一の検出ロジック
 - **LOOP_PATTERNS テーブルからエントリ削除**: router.rs の historical-token lane エントリ撤去
 
 **Fail-Fast 方針（historical label 5 extractor）**:

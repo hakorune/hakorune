@@ -18,7 +18,7 @@
   - 実装/記録: `src/mir/loop_canonicalizer/skeleton_types.rs`（契約コメント）
   - 記録（歴史）: `docs/development/current/main/phases/phase-92/p0-2-skeleton-to-context.md`
 - P0-2: Skeleton → lowering への配線（Option A）
-  - `LoopPatternContext` に skeleton を optional に通した（後に P1 で境界を整理）
+  - legacy context carrier type `LoopPatternContext` に skeleton を optional に通した（後に P1 で境界を整理）
 - P0-3: ConditionalStep を JoinIR（Select 等）で表現する基盤を追加
 
 ## P1（完了）: 箱化・モジュール化

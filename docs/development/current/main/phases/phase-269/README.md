@@ -287,7 +287,7 @@ fi
 ## 次フェーズへの橋渡し
 
 **Phase 269 P1+**: 既存 bool_predicate_scan route を Frag 版に置換
-- `cf_loop_pattern8_bool_predicate_impl()` から bool_predicate_scan Frag lower を呼び出す
+- historical helper token `cf_loop_pattern8_bool_predicate_impl()` から bool_predicate_scan Frag lower を呼び出す
 - JoinIRConversionPipeline を廃止（Frag 版に一本化）
 - scan_with_init / split_scan にも適用
 

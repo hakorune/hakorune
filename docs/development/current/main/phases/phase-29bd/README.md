@@ -44,7 +44,7 @@ strict/dev で fallback を 0 に収束させるため、Ok(None)/unsupported/un
 | `src/mir/builder/control_flow/plan/facts/skeleton_facts.rs:67` | skeleton multiple | Err(Freeze::unstructured) | Freeze(unstructured) | 既定のまま |
 | `src/mir/builder/control_flow/plan/facts/loop_facts.rs:189` | contract violation | Err(Freeze::bug) | Freeze(contract) | バグ扱いで fail-fast |
 | `src/mir/builder/control_flow/plan/facts/pattern_match_return_facts.rs:101` | unsupported match return | Err(Freeze::unsupported) | Freeze(unsupported) | strict/dev のみ採用対象 |
-| `src/mir/join_ir/lowering/loop_pattern_router.rs:67` | no pattern matched | Ok(None) | Allow (tag only) | join_ir 側は対象外、段階2で再整理 |
+| `src/mir/join_ir/lowering/loop_route_router.rs:67` | no route matched | Ok(None) | Allow (tag only) | join_ir 側は対象外、段階2で再整理 |
 
 ## Gate (SSOT)
 

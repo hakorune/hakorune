@@ -134,7 +134,7 @@ extract_scan_with_init_plan() → Ok(None) for unsupported cases
 | Entrypoint | Entry Condition | Patterns | SSOT Downstream |
 |------------|----------------|----------|-----------------|
 | **Plan line** | extract_*_plan() が Ok(Some) | Pattern6/7 | Normalizer → CorePlan → Lowerer → emit_frag |
-| **JoinIR table** | LOOP_PATTERNS 反復 | Pattern1-5,8-9 | cf_loop 抽出 → Frag composition → emit_frag |
+| **JoinIR table** | legacy JoinIR table 反復 | historical labels 1-5,8-9 | cf_loop 抽出 → Frag composition → emit_frag |
 | **No match** | すべての extract が Ok(None) | (none) | Err を caller に返す |
 
 **Plan line の責務**（Phase 273 SSOT）:

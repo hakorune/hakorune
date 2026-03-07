@@ -174,7 +174,7 @@ scan_with_init route を触らずに、reverse scan 専用 route として箱を
 
 **Option C: Normalization（将来）**
 
-return/break を正規化して共通語彙へ落とし、JoinIR patterns を縮退させる。
+return/break を正規化して共通語彙へ落とし、historical JoinIR route-entry lane を縮退させる。
 （Phase 257 ではやらない）
 
 ### 実装計画
