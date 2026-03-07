@@ -77,13 +77,13 @@ HAKO_JOINIR_STRICT=1 ./target/release/hakorune program.hako
 
 1. **`test_parity_check_mismatch_detected`**
    - Verifies mismatch detection on skip_whitespace pattern
-   - Canonicalizer: Pattern3IfPhi (recognizes if-else structure)
-   - Router: Pattern2Break (sees has_break flag)
+   - Canonicalizer: if_phi_join route (`Pattern3IfPhi` legacy label; recognizes if-else structure)
+   - Router: loop_break route (`Pattern2Break` legacy label; sees `has_break` flag)
    - Asserts inequality to document expected mismatch
 
 2. **`test_parity_check_match_simple_while`**
-   - Verifies canonicalizer fails on Pattern1 (not yet implemented)
-   - Router: Pattern1SimpleWhile
+   - Verifies canonicalizer fails on loop_simple_while route (not yet implemented at that phase)
+   - Router: `LoopSimpleWhile` route (`Pattern1SimpleWhile` legacy label)
    - Canonicalizer: Fail-Fast (only supports skip_whitespace in Phase 3)
 
 ### Integration Tests
@@ -101,7 +101,7 @@ HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 
 ## Known Mismatches
 
-### skip_whitespace Pattern
+### skip_whitespace route shape
 
 **Structure**:
 ```nyash
@@ -115,9 +115,9 @@ loop(p < len) {
 ```
 
 **Mismatch**:
-- **Canonicalizer**: Pattern3IfPhi
+- **Canonicalizer**: if_phi_join route shape (`Pattern3IfPhi` legacy label)
   - Recognizes specific if-else structure with conditional carrier update
-  - Sees: `if cond { carrier += 1 } else { break }` as Pattern3 variant
+  - Sees: `if cond { carrier += 1 } else { break }` as an if-phi style route shape
 
 - **Router**: Pattern2Break
   - Classification based on `has_break` flag
