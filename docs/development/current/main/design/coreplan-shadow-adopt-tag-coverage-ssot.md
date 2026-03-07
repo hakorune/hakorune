@@ -25,7 +25,7 @@ Related:
 
 Note:
 - tag suffix には pattern-era token が残るが、これは traceability-only。
-- smoke path も legacy file name を保持する場合がある。
+- smoke path は semantic alias wrapper を優先し、legacy file name は wrapper の転送先として保持する。
 - current route semantics は左側の semantic route 名を主語に読む。
 
 - `loop_simple_while` route: `[coreplan/shadow_adopt:pattern1_simplewhile]`
@@ -41,15 +41,15 @@ Note:
 
 | Scenario | Smoke path (legacy file name) | Tag suffix (legacy token) |
 |---|---|---|
-| `loop_simple_while` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh` | `pattern1_simplewhile` |
-| `loop_break` planner route | `tools/smokes/v2/profiles/integration/apps/archive/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh` | `pattern2_break_subset` |
-| `loop_break` realworld route (phase263) | `tools/smokes/v2/profiles/integration/apps/archive/phase263_pattern2_seg_realworld_min_vm.sh` | `pattern2_break_subset` |
-| `loop_break` body-local route (2 cases) | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` | `pattern2_break_subset` |
-| `loop_break` body-local-seg route (2 cases) | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` | `pattern2_break_subset` |
-| `if_phi_join` route | `tools/smokes/v2/profiles/integration/apps/phase118_pattern3_if_sum_vm.sh` | `pattern3_ifphi` |
-| `loop_true_early_exit` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern5_strict_shadow_vm.sh` | `pattern5_infinite_early_exit` |
-| `scan_with_init` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern6_strict_shadow_vm.sh` | `pattern6_scan_with_init` |
-| `split_scan` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern7_strict_shadow_vm.sh` | `pattern7_split_scan` |
+| `loop_simple_while` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` | `pattern1_simplewhile` |
+| `loop_break` planner route | `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh` | `pattern2_break_subset` |
+| `loop_break` realworld route (phase263) | `tools/smokes/v2/profiles/integration/joinir/loop_break_realworld_vm.sh` | `pattern2_break_subset` |
+| `loop_break` body-local route (2 cases) | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_vm.sh` | `pattern2_break_subset` |
+| `loop_break` body-local-seg route (2 cases) | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_seg_vm.sh` | `pattern2_break_subset` |
+| `if_phi_join` route | `tools/smokes/v2/profiles/integration/joinir/if_phi_join_vm.sh` | `pattern3_ifphi` |
+| `loop_true_early_exit` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_strict_shadow_vm.sh` | `pattern5_infinite_early_exit` |
+| `scan_with_init` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/scan_with_init_strict_shadow_vm.sh` | `pattern6_scan_with_init` |
+| `split_scan` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/split_scan_strict_shadow_vm.sh` | `pattern7_split_scan` |
 
 ## Forbidden tags (negative gates)
 
@@ -57,7 +57,7 @@ Note:
 |---|---|---|
 | `loop_break` route NotApplicable | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_notapplicable_min_vm.sh` | `pattern2_break_subset` |
 | `loop_break` route Freeze | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_freeze_min_vm.sh` | `pattern2_break_subset` |
-| `loop_simple_while` subset reject (extra stmt) | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_subset_reject_extra_stmt_vm.sh` | `pattern1_simplewhile` |
+| `loop_simple_while` subset reject (extra stmt) | `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_subset_reject_extra_stmt_vm.sh` | `pattern1_simplewhile` |
 
 ## Gate (SSOT)
 
