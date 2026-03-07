@@ -616,9 +616,9 @@ SSOT: `docs/development/current/main/design/ai-handoff-and-debug-contract.md`
    - ✅ Phase 2b-3: `loop_cond_break_continue` / `loop_cond_return_in_body` loop header を `lower_loop_header_cond()` に移行。
 7. [x] StepMode: `InlineInBody` の “一般化” と verifier 契約の強化（S1+S2+S3 完了。LoopSimpleWhile source + runtime fixture pin を固定）
 8. [x] CleanupWrap + cleanup region boundary（境界）を SSOT 化して、nested exit で意味論が混線しない土台を先に固める（SSOT: `docs/development/current/main/design/cleanupwrap-cleanup-region-boundary-ssot.md`）
-9. [x] pattern2_break の subset を箱化して SSOT を一箇所に集約する（`src/mir/builder/control_flow/plan/facts/pattern2_break_facts/` 配下を README+登録表で統一）
+9. [x] loop_break facts subset を箱化して SSOT を一箇所に集約する（`src/mir/builder/control_flow/plan/facts/loop_break_*.rs` + `loop_break_prep_box.rs` を README+登録表で統一）
 10. [x] Phase 29bq の軽量 gate は list 駆動（`tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv`）
-11. [x] `LoopBreakPlan.step_placement` を `Pattern2StepPlacement` enum に置換して Facts→Planner→Normalizer の分岐を明文化する（legacy file: `pattern2_break.rs`, dev-only subset は維持）
+11. [x] `LoopBreakPlan.step_placement` を `LoopBreakStepPlacement` enum に置換して Facts→Planner→Normalizer の分岐を明文化する（legacy file token: `pattern2_break.rs`; current harness: `normalizer/loop_break.rs`）
 
 ---
 

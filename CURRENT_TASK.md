@@ -642,6 +642,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `src/mir/builder/control_flow/mod.rs` / `src/mir/builder/control_flow/plan/loop_break_condition_policy_router.rs` / `src/config/env/joinir_flags.rs` / `src/mir/builder/control_flow/joinir/route_entry/router.rs` / `CURRENT_TASK.md`
     - intent: current runtime の user-facing freeze hint, loop_break reject wording, JoinIR structure-only env doc, route_entry comment で `pattern` を architecture 主語にしない
     - verification: `cargo build --release --bin hakorune` = PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` = PASS
+  - truth cleanup (2026-03-07, slice 102): stale-current doc path / enum token を現行 route-first layout に同期
+    - synced files: `docs/development/current/main/phases/phase-29bq/README.md` / `docs/development/current/main/design/{plan-dir-shallowing-ssot,recipe-tree-and-parts-ssot,compiler-task-map-ssot}.md` / `CURRENT_TASK.md`
+    - intent: active SSOT では `loop_break_*` / `LoopBreakStepPlacement` / `route_entry` / semantic `recipe_tree` + `normalizer` layout を current truth とし、old `pattern*` path は historical token に限定する
+    - verification: `rg -n "pattern2_break_facts|Pattern2StepPlacement|recipe_tree/builders/pattern\\*\\.rs|normalizer/pattern\\*\\.rs|patterns wrapper" docs/development/current/main/phases/phase-29bq/README.md docs/development/current/main/design/{plan-dir-shallowing-ssot,recipe-tree-and-parts-ssot,compiler-task-map-ssot}.md` = legacy/historical note only
 
 ## next fixed order (resume point)
 

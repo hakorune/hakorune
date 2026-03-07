@@ -193,10 +193,10 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
   - Phase‑2/Step20: body_local_policy を plan 側へ移設。
   - Phase‑2/Step21: expectations を plan 側へ移設。
   - Phase‑2/Step22: simple-while/if-phi extractors（legacy file labels only）を plan 側へ移設。
-  - Phase‑2/Step23: legacy は patterns で保持（入口互換のみ）。
+  - Phase‑2/Step23: legacy physical path token は `patterns/` で保持（入口互換のみ）。
   - Phase‑2/Step24: break-subset module（old numbered label is traceability-only）を plan 側へ移設。
   - Phase‑2/Step25: wrapper 実態監査と残存実体の移設完了。
-  - Phase‑2/Step26: patterns wrapper を mod.rs に集約。
+  - Phase‑2/Step26: legacy `patterns` wrapper token を mod.rs に集約。
 3) Label rename（意味名へ置換）
    - route/semantic のログ/TSV ラベルを意味名へ置換（legacy numbered labels / `LoopCond*`; 入口の重なり解消後に一括）。
    - 置換は docs/SSOT/TSV/ログを同コミットで揃える（観測が揺れないようにする）。

@@ -164,18 +164,18 @@ composer/coreloop_v1/
 
 **現在**:
 ```
-facts/loop_break_facts/*.rs (12ファイル)
-facts/loop_facts/*.rs (9ファイル)
-facts/expr/*.rs (5ファイル)
-facts/pattern*_facts.rs (20+ファイル)
+facts/loop_break_*.rs (loop_break cluster)
+facts/loop_*.rs (loop family)
+facts/expr_*.rs (expr family)
+facts/<route>_facts.rs (semantic facts family)
 ```
 
 **提案**:
 ```
-facts/loop_break_*.rs (12ファイル)
-facts/loop_*.rs (9ファイル)
-facts/expr_*.rs (5ファイル)
-facts/pattern*_facts.rs (既存維持)
+facts/loop_break_*.rs (既存維持)
+facts/loop_*.rs (既存維持)
+facts/expr_*.rs (既存維持)
+facts/<route>_facts.rs (semantic facts family維持)
 ```
 
 **命名規則**: `facts/<category>_<module>.rs`
@@ -263,32 +263,32 @@ composer/*.rs (既存維持)
 
 **現在**:
 ```
-recipe_tree/builders/pattern*.rs (11ファイル)
-recipe_tree/composer/*.rs (12ファイル)
-recipe_tree/*.rs (5ファイル)
+recipe_tree/<route>_builder.rs (semantic builder family)
+recipe_tree/<route>_composer.rs (semantic composer family)
+recipe_tree/*.rs (contracts/common/verified)
 ```
 
 **提案**:
 ```
-recipe_tree/<route>_builder.rs (11ファイル)
-recipe_tree/pattern*_composer.rs (12ファイル)
+recipe_tree/<route>_builder.rs (既存維持)
+recipe_tree/<route>_composer.rs (既存維持)
 recipe_tree/*.rs (既存維持)
 ```
 
-**命名規則**: `recipe_tree/<pattern>_<role>.rs`（`<pattern>` は legacy label。意味は route名で管理）
+**命名規則**: `recipe_tree/<route>_<role>.rs`
 
 #### 7. normalizer/ (24ファイル → 1階層)
 
 **現在**:
 ```
-normalizer/cond_lowering/*.rs (8ファイル)
-normalizer/pattern*.rs (16ファイル)
+normalizer/cond_lowering_*.rs (cond lowering family)
+normalizer/<route_or_helper>.rs (semantic helper family)
 ```
 
 **提案**:
 ```
-normalizer/cond_lowering_*.rs (8ファイル)
-normalizer/pattern*.rs (既存維持)
+normalizer/cond_lowering_*.rs (既存維持)
+normalizer/<route_or_helper>.rs (semantic helper family維持)
 ```
 
 **命名規則**: `normalizer/<component>_<module>.rs`
