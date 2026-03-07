@@ -32,7 +32,7 @@ Related:
 
 ## Target (P1)
 
-- IfPhiJoin: `if_phi_join_vm`（legacy fixture key: `phase118_pattern3_if_sum_min.hako`）
+- IfPhiJoin: `if_phi_join_vm`（representative legacy fixture key: `phase118_pattern3_if_sum_min.hako`; pin inventory SSOT を参照）
   - 理由: If‑Phi の最小代表、回帰価値が高い（regression pack に含まれる）
 
 ## Gate (SSOT)

@@ -216,9 +216,9 @@ Update when a new accept shape is added.
 Note: Gate case_id is `selfhost-only` if not found in fast gate TSV.
 Body lowering policy: `body_exit_allowed` is used only when `BodyLoweringPolicy::ExitAllowed` (allow_extended=true and no ThenOnlyBreakIf); `allow_join_if=false` is fixed.
 
-| Fixture | Accept predicate (Facts) | Recipe builder | Lower entry | Gate case_id |
+| Representative fixture / route | Accept predicate (Facts) | Recipe builder | Lower entry | Gate case_id |
 | --- | --- | --- | --- | --- |
-| `apps/tests/phase118_pattern3_if_sum_min.hako` | `if_phi_join/facts.rs`（legacy key: `pattern3_ifphi`） | `(legacy)` | `if_phi_join route`（legacy lowering token is traceability-only） | `if_sum min` |
+| `if_phi_join baseline`（representative legacy fixture key: `apps/tests/phase118_pattern3_if_sum_min.hako`; inventory-only） | `if_phi_join/facts.rs`（legacy key: `pattern3_ifphi`） | `(legacy)` | `if_phi_join route`（legacy lowering token is traceability-only） | `if_sum min` |
 | `apps/tests/phase29bq_selfhost_blocker_rewriteknown_try_apply_loop_true_else_exit_min.hako` | `loop_true_break_continue/facts.rs` | `loop_true_break_continue/recipe.rs` | `loop_true_break_continue_pipeline/` | `selfhost_rewriteknown_try_apply_loop_true_else_exit_min` |
 | `apps/tests/phase29bq_selfhost_subset_scan_funcs_import_min.hako` | `break_continue/facts.rs` | `break_continue/recipe.rs` | `loop_cond break_continue route`（current recipe/parts lane; legacy lowering token: `loop_cond_break_continue_pipeline/`） | `selfhost-only` |
 | `apps/tests/phase29bq_map_literal_percent_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `map_literal_percent_min` |

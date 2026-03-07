@@ -4,11 +4,12 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 
 ## Regression pack (SSOT)
 
-- loop_break (legacy label: Pattern2): `phase29ab_pattern2_*`
-- loop_break (real-world, legacy label: Pattern2): `phase263_pattern2_*`
-- loop_break (subset, strict shadow, VM; legacy label: Pattern2): `phase29ai_pattern2_break_plan_subset_ok_min_vm`
+- loop_break (body-local route, VM; legacy label: Pattern2): `loop_break_body_local_vm`（historical filter key family: `phase29ab_pattern2_*`; exact archived smoke stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_break (body-local seg route, VM; legacy label: Pattern2): `loop_break_body_local_seg_vm`（historical filter key family: `phase29ab_pattern2_*`; exact archived smoke stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_break (real-world route, VM; legacy label: Pattern2): `loop_break_realworld_vm`（historical filter key family: `phase263_pattern2_*`; inventory-only）
+- loop_break (subset, strict shadow, VM; legacy label: Pattern2): `loop_break_plan_subset_vm`（historical filter key family: `phase29ai_pattern2_break_plan_subset_*`; exact archived smoke stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - loop_break (release adopt, VM; legacy label: Pattern2): `loop_break_release_adopt_vm`（compat wrapper: `phase29ao_pattern2_release_adopt_vm`）
-- if_phi_join (VM; legacy label: Pattern3): `phase118_pattern3_if_sum_vm`
+- if_phi_join (VM; legacy label: Pattern3): `if_phi_join_vm`（historical smoke stem / fixture key is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md` and `joinir-legacy-fixture-pin-inventory-ssot.md`; inventory/archive-only）
 - if_phi_join (release adopt, VM; legacy label: Pattern3): `if_phi_join_release_adopt_vm`（compat wrapper: `phase29ao_pattern3_release_adopt_vm`）
 - loop_continue_only (continue min, VM; legacy label: Pattern4): `loop_continue_only_vm`（compat wrapper: `phase29ap_pattern4_continue_min_vm`）
 - loop_simple_while (strict shadow, VM; legacy label: Pattern1): `loop_simple_while_strict_shadow_vm`（compat wrapper: `phase29ao_pattern1_strict_shadow_vm`）
@@ -43,7 +44,7 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 - BranchN (match return-only, release adopt, VM): `phase29at_match_return_release_adopt_vm`
 - FlowBox tags gate (strict/non-strict, VM): `phase29av_flowbox_tags_gate_vm`
 - FlowBox tag coverage gate (strict/non-strict, VM): `phase29aw_flowbox_tag_coverage_gate_vm`
-- loop_true_early_exit (VM; legacy labels: Pattern5/Break): `phase286_pattern5_break_vm`
+- loop_true_early_exit (VM; legacy labels: Pattern5/Break): `loop_true_early_exit_vm`（backed by archived smoke stem `phase286_pattern5_break_vm.sh`）
 - loop_true_early_exit (strict shadow, VM; legacy label: Pattern5): `loop_true_early_exit_strict_shadow_vm`（compat wrapper: `phase29ao_pattern5_strict_shadow_vm`）
 - loop_true_early_exit (release adopt, VM; legacy label: Pattern5): `loop_true_early_exit_release_adopt_vm`（compat wrapper: `phase29ao_pattern5_release_adopt_vm`）
 - scan_with_init (strict shadow, VM; legacy label: Pattern6): `scan_with_init_strict_shadow_vm`（compat wrapper: `phase29ao_pattern6_strict_shadow_vm`）
@@ -58,6 +59,7 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 - JoinIR routing is plan/composer SSOT only (legacy loop table removed in Phase 29ap P12)
 - phase143_* は LoopBuilder 撤去 / plugin disable 固定 / LLVM exe 期待が古いので除外
 - phase286_pattern9_* は plugins disabled 経路の mismatch があるため legacy pack 側で SKIP（phase29ae pack には含めない）
+- legacy fixture family / key の詳細は `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` を正本とする
 - FlowBox schema tag（`[flowbox/*]`）は `filter_noise` で除去される
 - タグ検証が必要な smoke は raw output（filter 前）を参照する
 - タグ coverage SSOT: `docs/development/current/main/design/flowbox-tag-coverage-map-ssot.md`

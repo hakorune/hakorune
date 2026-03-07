@@ -53,7 +53,7 @@ Note:
 
 These smoke stems are part of regression coverage and must **not** emit FlowBox adopt tags:
 
-- `loop_break` NotApplicable negative coverage (`phase29ab_pattern2_seg_notapplicable_min_vm`; archived smoke stem, output-only check)
+- `loop_break` NotApplicable negative coverage（archived smoke stem; exact legacy stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - `phase29ar_string_is_integer_min_vm` (strict fail-fast reject; expects `[vm-hako/unimplemented] ... newbox(StringUtils)`)
 
 ## Gate set (minimal)

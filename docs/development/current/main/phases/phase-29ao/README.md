@@ -194,17 +194,17 @@ Reading note:
 ## P32: loop_break real-world strict/dev shadow adopt（phase263 をタグ必須で固定）✅
 
 - 指示書: `docs/development/current/main/phases/phase-29ao/P32-STRICT-ADOPT-PATTERN2-REALWORLD-FROM-FACTS-INSTRUCTIONS.md`
-- ねらい: `phase263_pattern2_*` legacy fixture pin token 群が strict/dev で Facts→CorePlan shadow adopt を踏むことを “タグ必須” で固定し、CorePlan 完全移行の回帰穴を塞ぐ（仕様不変）
+- ねらい: `loop_break_realworld_vm` が strict/dev で Facts→CorePlan shadow adopt を踏むことを “タグ必須” で固定し、CorePlan 完全移行の回帰穴を塞ぐ（対応する legacy fixture pin family は inventory-only。詳細は `joinir-legacy-fixture-pin-inventory-ssot.md` を参照）
 
 ## P33: loop_break body-local planner-derive + tag gate ✅
 
 - 指示書: `docs/development/current/main/phases/phase-29ao/P33-PLANNER-DERIVE-PATTERN2-LOOPBODYLOCAL-SMOKES-INSTRUCTIONS.md`
-- ねらい: `phase29ab_pattern2_loopbodylocal_{min,seg_min}` legacy fixture pin token 群を planner 由来 loop_break plan に引き上げ、shadow adopt タグを strict/dev 回帰で必須化（仕様不変）
+- ねらい: `loop_break_body_local_vm` / `loop_break_body_local_seg_vm` を planner 由来 loop_break plan に引き上げ、shadow adopt タグを strict/dev 回帰で必須化する（対応する legacy fixture pin token は historical inventory only。詳細は `joinir-legacy-fixture-pin-inventory-ssot.md` を参照）
 
 ## P34: loop_break negative shadow adopt tag gates ✅
 
 - 指示書: `docs/development/current/main/phases/phase-29ao/P34-PATTERN2-NEGATIVE-SHADOW-ADOPT-TAG-GATES-INSTRUCTIONS.md`
-- ねらい: `phase29ab_pattern2_seg_{freeze,notapplicable}` legacy fixture token 群で shadow adopt タグが出ないことを回帰で固定（仕様不変）
+- ねらい: loop_break negative routes の archived smoke stem で shadow adopt タグが出ないことを回帰で固定する（仕様不変。exact archived stems は `joinir-smoke-legacy-stem-retirement-ssot.md` を参照）
 
 ## P35: Shadow-adopt tag coverage SSOT + loop_simple_while negative gate ✅
 

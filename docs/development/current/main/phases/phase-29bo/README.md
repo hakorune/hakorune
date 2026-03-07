@@ -32,9 +32,9 @@ Related:
 
 ## Target (P1)
 
-- BoolPredicateScan route: bool_predicate_scan planner-required target（legacy fixture pin token: `phase269_p0_pattern8_frag_min.hako`）
+- BoolPredicateScan route: bool_predicate_scan planner-required target（representative legacy fixture pin token: `phase269_p0_pattern8_frag_min.hako`）
   - 理由: bool_predicate_scan 系の最小POC、planner-required の代表として固定できる
-- AccumConstLoop route: accum_const_loop planner-required target（legacy fixture pin token: `phase286_pattern9_frag_poc.hako`）
+- AccumConstLoop route: accum_const_loop planner-required target（representative legacy fixture pin token: `phase286_pattern9_frag_poc.hako`）
   - 理由: accum_const_loop 系の最小POC、planner-required の代表として固定できる
 
 ## Gate (SSOT)

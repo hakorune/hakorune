@@ -132,8 +132,8 @@ Historical numbered-label legend used below:
   - Router integration（Plan line routing → historical-token lane fallback）
 
 **成果物**:
-- `apps/tests/phase286_pattern4_frag_poc.hako` (最小fixture: single continue)
-- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern4_frag_poc.sh` (integration smoke)
+- `apps/tests/phase286_pattern4_frag_poc.hako` (legacy fixture pin token: single continue)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern4_frag_poc.sh` (archived smoke stem)
 - `src/mir/builder/control_flow/plan/mod.rs` (historical numbered-route plan struct added in the old lane)
   - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
   - same historical extractor lane as the reading note (historical extractor / Plan routing 追加)
@@ -197,8 +197,8 @@ Historical numbered-label legend used below:
 - **CFG 構造**: LoopSimpleWhile と同じ骨格（historical label 1）、PHI 2本（i_current, sum_current）
 
 **成果物**:
-- `apps/tests/phase286_pattern9_frag_poc.hako` (最小fixture: const accumulation)
-- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern9_frag_poc.sh` (integration smoke)
+- `apps/tests/phase286_pattern9_frag_poc.hako` (representative legacy fixture pin token: const accumulation)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern9_frag_poc.sh` (archived smoke stem)
 - `src/mir/builder/control_flow/plan/mod.rs` (historical numbered-route plan struct + DomainPlan variant in the old lane)
 - `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
@@ -261,7 +261,7 @@ Historical numbered-label legend used below:
 
 **背景**:
 - BoolPredicateScan（historical label 8）は Phase 269 P1.2 で `static box` コンテキストを明示的にスキップする設計決定あり
-- 既存 fixture (`phase269_p0_pattern8_frag_min.hako`) は static box のため BoolPredicateScan がマッチせず LoopSimpleWhile（historical label 1）にフォールバック
+- 既存 legacy fixture pin token `phase269_p0_pattern8_frag_min.hako` は static box のため BoolPredicateScan がマッチせず LoopSimpleWhile（historical label 1）にフォールバック
 - PoC のためには BoolPredicateScan が実際にマッチする**非 static box の fixture** が必要
 
 **実装方針**:
@@ -271,8 +271,8 @@ Historical numbered-label legend used below:
 - **Router integration**: PLAN_EXTRACTORS テーブルに BoolPredicateScan（historical label 8）追加、`Ok(None)` なら historical token lane へフォールバック
 
 **成果物** (予定):
-- `apps/tests/phase286_pattern8_plan_poc.hako` (新規: 非 static box fixture)
-- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern8_plan_poc_vm.sh` (新規: integration smoke)
+- `apps/tests/phase286_pattern8_plan_poc.hako` (legacy fixture pin token: 非 static box fixture)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern8_plan_poc_vm.sh` (archived smoke stem)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: historical numbered-route plan struct + DomainPlan variant)
 - `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
@@ -282,7 +282,7 @@ Historical numbered-label legend used below:
 **検証結果**:
 - Integration smoke PASS (BoolPredicateScan PoC, exit 7)
 - Regression test: quick smoke 0 failed
-- Debug log: `route=plan strategy=extract pattern=Pattern8_BoolPredicateScan` 確認
+- historical debug token: `route=plan strategy=extract pattern=Pattern8_BoolPredicateScan`
 
 **P2.4.1（Plan 完走 / Fail-Fast 統一）** ✅ COMPLETE (2025-12-26)
 - BoolPredicateScan（historical label 8）の normalizer を実装し、Plan line で完走（historical-token lane fallback 禁止）
@@ -295,7 +295,7 @@ Historical numbered-label legend used below:
 ### P2.6 (IfPhiJoin Plan化 PoC + LoopSimpleWhile 退行修正) ✅ COMPLETE (2025-12-26)
 
 **背景**:
-- **退行バグ発見**: legacy fixture pin token `phase118_pattern3_if_sum_min.hako` が FAIL (期待 12、実際 10)
+- **退行バグ発見**: representative legacy fixture key `phase118_pattern3_if_sum_min.hako` が FAIL (期待 12、実際 10)
 - **原因**: LoopSimpleWhile Plan（historical label 1）が IfPhiJoin fixture（historical label 3）を誤ってマッチ
   - LoopSimpleWhile extractor の `has_control_flow_statement()` が if/else をチェックしていない
   - route-kind guard もなく、LoopSimpleWhile Plan が IfPhiJoin にマッチしていた
@@ -323,7 +323,7 @@ Historical numbered-label legend used below:
 
 **成功基準**:
 - Regression fix: compat smoke/filter PASS (legacy if-phi fixture family, 出力 12) ✅
-- IfPhiJoin Plan line: `route=plan pattern=Pattern3_IfPhi` 確認
+- historical debug token: `route=plan pattern=Pattern3_IfPhi`
 - Full regression: `tools/smokes/v2/run.sh --profile quick` 0 failed
 
 **P2.6.1 指示書**:
@@ -397,8 +397,8 @@ preheader → header(PHI: i_current, carrier_current)
 - body 側の carrier 更新が特定できない
 
 **成果物** (予定):
-- `apps/tests/phase286_pattern2_break_no_update_min.hako` (新規: break without update fixture)
-- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern2_break_no_update_vm.sh` (新規)
+- `apps/tests/phase286_pattern2_break_no_update_min.hako` (legacy fixture pin token: break without update fixture)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern2_break_no_update_vm.sh` (archived smoke stem)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: historical numbered-route plan struct + DomainPlan variant)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
 - historical extractor/path tokens are centralized in the reading note / old-lane note
@@ -456,10 +456,10 @@ preheader → header(PHI: i, carrier) → body(exit_cond)
 - Break版: `if (cond) { break }` + `sum = sum + 1` + `i = i + 1`（carrier_update 必須）
 
 **成果物** (予定):
-- `apps/tests/phase286_pattern5_return_min.hako` (Fixture A)
-- `apps/tests/phase286_pattern5_break_min.hako` (Fixture B)
-- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_return_vm.sh`
-- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh`
+- `apps/tests/phase286_pattern5_return_min.hako` (legacy fixture pin token: Fixture A)
+- `apps/tests/phase286_pattern5_break_min.hako` (representative legacy fixture pin token: Fixture B)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_return_vm.sh` (archived smoke stem)
+- `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh` (archived smoke stem; semantic current entry: `loop_true_early_exit_vm`)
 - `src/mir/builder/control_flow/plan/mod.rs` (historical numbered-route plan struct + exit kind in the old lane)
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
 - historical extractor/path tokens are centralized in the reading note / old-lane note
