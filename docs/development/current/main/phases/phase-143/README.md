@@ -77,7 +77,7 @@ Added current helper `detect_parse_number_shape()`:
 
 Added exports through the module hierarchy:
 - `ast_feature_extractor.rs` → `ParseNumberInfo` struct
-- `patterns/mod.rs` → re-export
+- historical re-export lane (`mod.rs` under the old `joinir/patterns/` lane) → re-export
 - `joinir/mod.rs` → re-export
 - `control_flow/mod.rs` → re-export
 - `builder.rs` → re-export
@@ -87,7 +87,7 @@ Added exports through the module hierarchy:
 
 #### 4. Unit Tests
 
-Added `test_parse_number_pattern_recognized()` in `canonicalizer.rs`:
+Added `test_parse_number_route_shape_recognized()` in `canonicalizer.rs`:
 - Builds AST for parse_number route shape
 - Verifies skeleton structure (4 steps)
 - Verifies carrier (name="i", delta=1, role=Counter)
@@ -127,7 +127,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 #### Unit Test Results
 
 ```bash
-cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_number_pattern_recognized
+cargo test --release --lib loop_canonicalizer::canonicalizer_tests::parse_number::test_parse_number_route_shape_recognized
 ```
 
 **Status**: ✅ **PASS**
@@ -171,7 +171,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 
 1. **Break location matters**: THEN vs ELSE clause creates different route shapes
 2. **rest_stmts extraction**: Need to carefully separate body from carrier update
-3. **Export chain**: Requires 6-level re-export (ast → patterns → joinir → control_flow → builder → mir)
+3. **Historical re-export chain at the time**: Required 6-level re-export (ast → old route-entry predecessor lane → joinir → control_flow → builder → mir)
 4. **Parity first**: Always verify strict parity before claiming success
 
 ## SSOT
@@ -280,7 +280,7 @@ Added `detect_parse_string_shape()`:
 
 Added exports through the module hierarchy:
 - `ast_feature_extractor.rs` → `ParseStringInfo` struct + `detect_parse_string_shape()`
-- `patterns/mod.rs` → re-export
+- historical re-export lane (`mod.rs` under the old `joinir/patterns/` lane) → re-export
 - `joinir/mod.rs` → re-export
 - `control_flow/mod.rs` → re-export
 - `builder.rs` → re-export
@@ -290,7 +290,7 @@ Added exports through the module hierarchy:
 
 #### 4. Unit Tests
 
-Added `test_parse_string_pattern_recognized()` in `canonicalizer.rs`:
+Added `test_parse_string_route_shape_recognized()` in `canonicalizer.rs`:
 - Builds AST for parse_string route shape
 - Verifies skeleton structure (3 steps minimum)
 - Verifies carrier (name="p", delta=1, role=Counter)
@@ -354,7 +354,7 @@ cargo test --release --lib loop_canonicalizer --release
 ### Technical Challenges
 
 1. **Nested Continue Detection**: Required using `has_continue_node()` recursive helper instead of shallow iteration
-2. **Complex Exit Contract**: First pattern with both `has_continue=true` AND `has_return=true`
+2. **Complex Exit Contract**: First route shape with both `has_continue=true` AND `has_return=true`
 3. **Variable Step Updates**: The actual loop has variable steps (p++ vs p+=2), but canonicalizer uses base delta=1
 
 ### Comparison: Parse String vs Other Route Shapes
@@ -376,12 +376,12 @@ cargo test --release --lib loop_canonicalizer --release
 
 #### Future Enhancements
 - [ ] Support multiple return points
-- [ ] Handle more complex nested patterns
+- [ ] Handle more complex nested route shapes
 - [ ] Add signature-based corpus analysis for route-shape discovery
 
 ### Lessons Learned
 
-1. **Nested Detection Required**: Simple shallow iteration isn't enough for real-world patterns
+1. **Nested Detection Required**: Simple shallow iteration isn't enough for real-world route shapes
 2. **ExitContract Diversity**: Route shapes can have multiple exit types simultaneously
 3. **Parity vs Execution**: Achieving parity doesn't guarantee runtime success (historical label-4 lowering may need enhancements)
 4. **Recursive Helpers**: Reusing existing helpers (`has_continue_node`) is better than duplicating logic
@@ -455,7 +455,7 @@ loop(cond) {
 
 ### Implementation Summary
 
-#### Key Discovery: Shared Pattern with parse_string
+#### Key Discovery: Shared Route Shape with parse_string
 
 **No new recognizer needed!** The existing `detect_parse_string_shape()` already handles both route shapes:
 - Both have `return` statement (stop condition)
@@ -467,12 +467,12 @@ loop(cond) {
 
 1. **Documentation Updates** (~150 lines)
    - Updated `ast_feature_extractor.rs` to document parse_array support
-   - Updated `pattern_recognizer.rs` wrapper documentation
+   - Updated `route_shape_recognizer.rs` wrapper documentation
    - Updated `canonicalizer.rs` supported route-shape list
    - Added parse_array example to route-shape documentation
 
 2. **Unit Test** (~165 lines)
-   - Added `test_parse_array_pattern_recognized()` in `canonicalizer.rs`
+   - Added `test_parse_array_route_shape_recognized()` in `canonicalizer.rs`
    - Mirrors parse_string test structure with array-specific conditions
    - Verifies the same LoopContinueOnly routing
 
@@ -515,7 +515,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 #### Unit Test Results
 
 ```bash
-cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_array_pattern_recognized
+cargo test --release --lib loop_canonicalizer::canonicalizer_tests::parse_array::test_parse_array_route_shape_recognized
 ```
 
 **Status**: ✅ **PASS**
@@ -528,7 +528,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 | Total route-shape cases supported | 5 (skip_whitespace, parse_number, continue, parse_string, parse_array) |
 | New Capability Tags | 0 (uses existing ConstStep) |
 | Lines added | ~320 (mostly documentation) |
-| Files modified | 3 (canonicalizer.rs, ast_feature_extractor.rs, pattern_recognizer.rs) |
+| Files modified | 3 (canonicalizer.rs, ast_feature_extractor.rs, route_shape_recognizer.rs) |
 | Unit tests added | 1 |
 | Parity status | Green ✅ |
 
@@ -567,7 +567,7 @@ This demonstrates the power of AST-based route-shape matching: we can recognize 
 
 ### Lessons Learned
 
-1. **Structural Equivalence**: Different semantic patterns can share the same AST structure
+1. **Structural Equivalence**: Different semantic route shapes can share the same AST structure
 2. **Recognizer Reuse**: One recognizer can handle multiple use cases
 3. **Documentation > Code**: More documentation changes than code changes
 4. **Test Coverage**: Unit tests verify both semantic variants work with the same recognizer
@@ -649,7 +649,7 @@ loop(cond) {
    - Minimal test demonstrating parse_object loop structure
 
 2. **Unit Test** (~170 lines)
-   - Added `test_parse_object_pattern_recognized()` in `canonicalizer.rs`
+   - Added `test_parse_object_route_shape_recognized()` in `canonicalizer.rs`
    - Mirrors parse_array test structure with object-specific conditions (`}` and `,`)
    - Verifies the same LoopContinueOnly routing
 
@@ -689,7 +689,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 #### Unit Test Results
 
 ```bash
-cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_object_pattern_recognized
+cargo test --release --lib loop_canonicalizer::canonicalizer_tests::parse_object::test_parse_object_route_shape_recognized
 ```
 
 **Status**: ✅ **PASS**
@@ -720,7 +720,7 @@ cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_parse_
 
 ### Key Insight: Structural Route-Shape Family
 
-**Major Discovery**: parse_string, parse_array, and parse_object form a **structural pattern family**:
+**Major Discovery**: parse_string, parse_array, and parse_object form a **structural route-shape family**:
 - All have `if stop_cond { return }`
 - All have `if separator_cond { continue }`
 - All have carrier updates
@@ -751,7 +751,7 @@ Phase 143 started with 3 route shapes (skip_whitespace, parse_number, continue) 
 #### Future Enhancements
 - [ ] Generalize to "dual-exit route shapes" (continue + return)
 - [ ] Support triple-exit route shapes (break + continue + return)
-- [ ] Add signature-based pattern discovery
+- [ ] Add signature-based route-shape discovery
 
 ### Lessons Learned
 

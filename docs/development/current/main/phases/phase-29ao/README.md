@@ -13,7 +13,7 @@ Related:
 
 # Phase 29ao: CorePlan composition from Skeleton/Feature (Step-C/D)
 
-Goal: numbered route label の “complete pattern” に寄り過ぎない形で、**Skeleton + Feature** から `CorePlan` を合成していく（仕様不変で段階導入）。
+Goal: numbered route label の “complete route recipe” に寄り過ぎない形で、**Skeleton + Feature** から `CorePlan` を合成していく（仕様不変で段階導入）。
 
 Gate（SSOT）:
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
@@ -24,7 +24,7 @@ Closeout SSOT:
 
 Reading note:
 - 下の instruction filename に残る `PATTERN*` は historical instruction token だよ。
-- smoke script は semantic wrapper を current entry とし、old `phase29ao_*` / `phase29ab_*` / `phase263_pattern2_*` stem は compat wrapper / legacy fixture pin token として読む。
+- smoke script は semantic wrapper を current entry とし、old `phase29ao_*` / `phase29ab_*` / `phase263_pattern2_*` stem は historical compat wrapper / legacy fixture pin token として読む。
 
 ## P0: Composer scaffold（未接続・仕様不変）✅
 
@@ -127,7 +127,7 @@ Reading note:
 
 - 指示書: `docs/development/current/main/phases/phase-29ao/P19-REGRESSION-PACK-ADD-PATTERN1-STRICT-SHADOW-INSTRUCTIONS.md`
 - 変更:
-  - `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` を current wrapper として追加（compat wrapper: `phase29ao_pattern1_strict_shadow_vm.sh`）
+  - `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` を current wrapper として追加（historical compat wrapper は `joinir-smoke-legacy-stem-retirement-ssot.md` を参照）
   - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` に組み込み
   - `docs/development/current/main/phases/phase-29ae/README.md` の回帰セットに追記
 - ねらい: P17/P18 の strict/dev shadow adopt が回帰ゲートで必ず踏まれる状態を SSOT 化

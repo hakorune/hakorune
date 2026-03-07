@@ -56,8 +56,8 @@ let delta = const_val * op_multiplier;
 **File**: `src/mir/loop_canonicalizer/canonicalizer.rs`
 
 **Added Tests**:
-- `test_trim_leading_pattern_recognized()` - Verifies `start = start + 1` pattern
-- `test_trim_trailing_pattern_recognized()` - Verifies `end = end - 1` pattern
+- `test_trim_leading_route_shape_recognized()` - Verifies `start = start + 1` route shape
+- `test_trim_trailing_route_shape_recognized()` - Verifies `end = end - 1` route shape
 
 **Test Coverage**:
 - Skeleton creation
@@ -68,8 +68,8 @@ let delta = const_val * op_multiplier;
 **Test Results**:
 ```
 running 2 tests
-test mir::loop_canonicalizer::canonicalizer::tests::test_trim_leading_pattern_recognized ... ok
-test mir::loop_canonicalizer::canonicalizer::tests::test_trim_trailing_pattern_recognized ... ok
+test mir::loop_canonicalizer::canonicalizer_tests::trim_leading::test_trim_leading_route_shape_recognized ... ok
+test mir::loop_canonicalizer::canonicalizer_tests::trim_trailing::test_trim_trailing_route_shape_recognized ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored
 ```
@@ -104,7 +104,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 #### Box-First Modularization
 - Extended existing `detect_skip_whitespace_shape()` instead of creating new functions
 - Maintained SSOT (Single Source of Truth) architecture
-- Preserved delegation pattern through the canonicalizer recognizer wrapper (`route_shape_recognizer.rs`)
+- Preserved the delegation flow through the canonicalizer recognizer wrapper (`route_shape_recognizer.rs`)
 
 #### Incremental Implementation
 - Focused on recognizer generalization only
@@ -140,7 +140,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 ### Next Steps (Future Phases)
 - Phase 142 P1: Implement A-3 Trim promotion in the loop_break handler
 - Phase 142 P2: Extend to other route shapes (`IfPhiJoin` / `LoopContinueOnly`)
-- Phase 142 P3: Add more complex carrier update patterns
+- Phase 142 P3: Add more complex carrier-update route shapes
 
 ### Verification Commands
 ```bash
@@ -243,7 +243,7 @@ loop(i < n) {
 
 #### 3. Historical module re-export chain
 **Files Modified** (historical re-export chain at the time):
-- same historical re-export lane as the recognizer path token above (`mod.rs` under the old `joinir/patterns/` lane) - Added historical re-export for the continue helper (`detect_continue_pattern`, `ContinuePatternInfo`) at the time
+- same historical re-export lane as the recognizer path token above (`mod.rs` under the old `joinir/patterns/` lane) - Added historical re-export for the continue helper (`detect_continue_shape`, `ContinueShapeInfo`) at the time
 - `src/mir/builder/control_flow/joinir/mod.rs` - Re-export to joinir level
 - `src/mir/builder/control_flow/mod.rs` - Re-export to control_flow level
 - `src/mir/builder.rs` - Re-export to builder level
@@ -262,7 +262,7 @@ loop(i < n) {
 #### 5. Unit Tests
 **File**: `src/mir/loop_canonicalizer/canonicalizer.rs`
 
-**Added Test**: `test_simple_continue_pattern_recognized()`
+**Added Test**: `test_simple_continue_route_shape_recognized()`
 - Builds AST: `loop(i < n) { if is_even { i = i + 1; continue } sum = sum + i; i = i + 1 }`
 - Verifies skeleton creation with correct structure
 - Checks carrier slot (name="i", delta=1)
@@ -272,7 +272,7 @@ loop(i < n) {
 **Test Results**:
 ```
 running 8 tests
-test mir::loop_canonicalizer::canonicalizer::tests::test_simple_continue_pattern_recognized ... ok
+test mir::loop_canonicalizer::canonicalizer_tests::continue_pattern::test_simple_continue_route_shape_recognized ... ok
 test result: ok. 8 passed; 0 failed; 0 ignored
 ```
 
@@ -339,7 +339,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 - **Route-shape detection**: `ast_feature_extractor.rs` (Phase 140-P4-A SSOT)
 
 ### Known Limitations
-- loop_continue_only variable promotion (A-3 Trim, A-4 DigitPos) not yet handling this pattern
+- loop_continue_only variable promotion (A-3 Trim, A-4 DigitPos) not yet handling this route shape
 - This is expected - Phase 142 P1 only targets recognizer extension
 - Promotion will be addressed when loop_continue_only lowering is enhanced
 
@@ -350,7 +350,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 ### Verification Commands
 ```bash
 # Unit tests
-cargo test --release --lib loop_canonicalizer::canonicalizer::tests::test_simple_continue_pattern_recognized
+cargo test --release --lib loop_canonicalizer::canonicalizer_tests::continue_pattern::test_simple_continue_route_shape_recognized
 
 # All canonicalizer tests
 cargo test --release --lib loop_canonicalizer::canonicalizer::tests
@@ -366,7 +366,7 @@ Phase 142 P1 successfully extends the Canonicalizer to recognize continue route 
 - Passes all unit tests (8/8)
 - Achieves strict parity agreement with router
 - Preserves existing behavior
-- Follows existing re-export pattern from Phase 140-P4-A
+- Follows the existing re-export flow from Phase 140-P4-A
 
 All acceptance criteria met. ✅
 
@@ -375,7 +375,7 @@ All acceptance criteria met. ✅
 ## P2: LoopContinueOnly Lowering Extension (historical design snapshot; numbered labels below follow the original phase notes)
 
 ### Objective
-Extend loop_continue_only lowering to handle "continue + return" patterns found in parse_string/array/object.
+Extend loop_continue_only lowering to handle "continue + return" route shapes found in parse_string/array/object.
 
 ### Target Fixture
 - `tools/selfhost/test_pattern4_parse_string.hako` - parse_string route shape with continue (escape) + return (quote)
@@ -390,7 +390,7 @@ Extend loop_continue_only lowering to handle "continue + return" patterns found 
 - **Constraint**: Only the last return in loop body is processed
 
 **Continue Side Updates**:
-- **Pattern**: `if cond { carrier = carrier ± 1; continue }`
+- **Shape**: `if cond { carrier = carrier ± 1; continue }`
 - **Update**: Constant step only (+1, -1, +2, -2, etc.)
 - **Constraint**: Multiple carriers not yet supported
 
@@ -433,7 +433,7 @@ The following route shapes are rejected with explicit error messages:
 - ✅ Representative test (parse_string or simple_continue) passes JoinIR lowering
 - ✅ Execution results are correct in both VM and LLVM (scope to be determined)
 - ✅ No regression in existing tests (phase132_exit_phi_parity, etc.)
-- ✅ Unsupported patterns fail fast with reason (error_tags)
+- ✅ Unsupported route shapes fail fast with reason (error_tags)
 - ✅ No new environment variables added (dev-only observation only)
 - ✅ Documentation updated
 
