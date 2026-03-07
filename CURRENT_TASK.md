@@ -465,6 +465,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - intent: `LoopPatternKind` re-export を止めて alias を `kind.rs` 内の traceability-only residue に縮退し、`try_lower_loop_pattern` / `[loop_patterns]` / `pattern not matched` などの current-facing log/comment を route/shape 主語へ寄せる
     - verification: `rg -n "\\bLoopPatternKind\\b|try_lower_loop_pattern|\\[loop_patterns\\]|pattern not matched|no pattern matched|Loop pattern matched|JoinIR pattern not matched|Pattern selection:|pattern lowering code" src/mir docs/development/current/main/design CURRENT_TASK.md -g '!**/*history*' -g '!**/*archive*'` = `kind.rs` alias + `CURRENT_TASK` 履歴のみ
     - verification: `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS（`unexpected_emit_fail_count=0`, `route_blocker_count=0`）
+  - naming cleanup (2026-03-07, slice 57): smoke gate labels / TSV reason prose の numbered token を semantic route 名へ寄せた
+    - synced files: `tools/smokes/v2/profiles/integration/joinir/{phase29ae_regression_pack_vm.sh,phase29as_purity_gate_vm.sh,planner_required_cases.tsv,phase29bq_fast_gate_cases.tsv}` / `CURRENT_TASK.md`
+    - intent: smoke script 内の display label / helper 名 / reason 列だけを `loop_break` / `if_phi_join` / `loop_continue_only` / `loop_simple_while` / `loop_true_early_exit` / `scan_with_init` / `nested_loop_minimal` / `split_scan` に同期し、`phase29ao_pattern*` の script stem・fixture filename・`case_id` は互換 token として不変に保つ
+    - verification: `bash tools/smokes/v2/profiles/integration/joinir/phase29as_purity_gate_vm.sh` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS（`unexpected_emit_fail_count=0`, `route_blocker_count=0`）
 
 ## next fixed order (resume point)
 
@@ -472,7 +476,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
 3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `naming` cleanup: `LoopPatternKind` alias を traceability-only に閉じ込め、残る test/tag/script の legacy token と physical path residue をさらに薄くする。
+5. `naming` cleanup: smoke/test/script の legacy token は display label / reason / helper 名から先に外し、filename / fixture key / case_id は compat contract を崩さない phase を切って扱う。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 7. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
 

@@ -13,15 +13,15 @@ apps/tests/phase29bq_selfhost_blocker_collect_using_entries_loop_min.hako	0	0	[j
 apps/tests/phase29ap_pattern4_continue_min.hako	6	0	[joinir/planner_first rule=LoopContinueOnly] label=LoopContinueOnly	continue min
 apps/tests/phase286_pattern5_break_min.hako	__EMPTY__	0 3	[joinir/planner_first rule=LoopTrueEarlyExit] label=LoopTrueEarlyExit	break min (empty stdout)
 apps/tests/phase118_pattern3_if_sum_min.hako	12	0	[joinir/planner_first rule=IfPhiJoin] label=IfPhiJoin	if_sum min
-apps/tests/phase269_p0_pattern8_frag_min.hako	__EMPTY__	0 7	[joinir/planner_first rule=BoolPredicateScan] label=BoolPredicateScan	pattern8 frag min
-apps/tests/phase286_pattern9_frag_poc.hako	__EMPTY__	0 3	[joinir/planner_first rule=AccumConstLoop] label=AccumConstLoop	pattern9 frag poc
+apps/tests/phase269_p0_pattern8_frag_min.hako	__EMPTY__	0 7	[joinir/planner_first rule=BoolPredicateScan] label=BoolPredicateScan	bool_predicate_scan frag min
+apps/tests/phase286_pattern9_frag_poc.hako	__EMPTY__	0 3	[joinir/planner_first rule=AccumConstLoop] label=AccumConstLoop	accum_const_loop frag poc
 apps/tests/phase29bq_loop_true_break_return_min.hako	0	0	[joinir/planner_first rule=LoopTrueBreak] label=LoopTrueBreakContinue	loop_true break+return min
 apps/tests/phase29bq_selfhost_blocker_bundle_resolver_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak] label=LoopExitIfBreakContinue	bundle_resolver min
 apps/tests/phase29bq_selfhost_blocker_breakfinder_parse_int_min.hako	-1	0	[joinir/planner_first rule=LoopCondBreak] label=LoopExitIfBreakContinue	else-only-return min
 apps/tests/phase29bq_else_guard_break_min.hako	3	0 3	[joinir/planner_first rule=LoopCondBreak] label=LoopExitIfBreakContinue	else-guard-break min
 apps/tests/phase29bq_loop_cond_continue_only_no_else_min.hako	3	0	[joinir/planner_first rule=LoopCondContinueOnly] label=LoopContinueOnly	loop_cond continue_only no_else
 apps/tests/phase29bq_shortcircuit_loop_cond_continue_with_return_min.hako	0	0	[joinir/planner_first rule=LoopCondContinueWithReturn] label=LoopContinueWithReturn	loop_cond continue_with_return shortcircuit
-apps/tests/phase29bq_pattern2_break_recipe_only_min.hako	2	0	[joinir/planner_first rule=LoopBreakRecipe] label=LoopBreakRecipe	pattern2 recipe-only
+apps/tests/phase29bq_pattern2_break_recipe_only_min.hako	2	0	[joinir/planner_first rule=LoopBreakRecipe] label=LoopBreakRecipe	loop_break recipe-only
 apps/tests/phase29bq_div_countdown_by10_min.hako	123	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	div_countdown_by10 (int_to_str)
 apps/tests/phase29bq_funcscanner_extract_ident_min.hako	abc	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	extract_ident min (scan_while_predicate)
 apps/tests/phase29bq_funcscanner_append_defs_min.hako	3	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	append_defs min (effect_step_only)

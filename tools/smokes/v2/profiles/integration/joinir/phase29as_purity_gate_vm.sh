@@ -44,7 +44,7 @@ assert_flowbox_adopt() {
     fi
 }
 
-run_pattern3_ifphi() {
+run_if_phi_join() {
     local input="$NYASH_ROOT/apps/tests/phase118_pattern3_if_sum_min.hako"
     local expected="12"
 
@@ -55,25 +55,25 @@ run_pattern3_ifphi() {
     set -e
 
     if [ "$exit_code" -eq 124 ]; then
-        test_fail "phase29as_purity_gate_vm: pattern3_ifphi timed out"
+        test_fail "phase29as_purity_gate_vm: if_phi_join timed out"
         exit 1
     fi
     if [ "$exit_code" -ne 0 ]; then
-        echo "[FAIL] pattern3_ifphi exit code $exit_code"
+        echo "[FAIL] if_phi_join exit code $exit_code"
         echo "$output" | tail -n 80 || true
-        test_fail "phase29as_purity_gate_vm: pattern3_ifphi failed"
+        test_fail "phase29as_purity_gate_vm: if_phi_join failed"
         exit 1
     fi
-    assert_flowbox_adopt "pattern3_ifphi" "$output" ""
+    assert_flowbox_adopt "if_phi_join" "$output" ""
     if ! validate_numeric_output 1 "$expected" "$output"; then
         echo "$output" | tail -n 80 || true
-        test_fail "phase29as_purity_gate_vm: pattern3_ifphi output mismatch"
+        test_fail "phase29as_purity_gate_vm: if_phi_join output mismatch"
         exit 1
     fi
-    assert_no_fallback "pattern3_ifphi" "$output"
+    assert_no_fallback "if_phi_join" "$output"
 }
 
-run_pattern6_scan_with_init() {
+run_scan_with_init() {
     local input="$NYASH_ROOT/apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako"
 
     set +e
@@ -83,17 +83,17 @@ run_pattern6_scan_with_init() {
     set -e
 
     if [ "$exit_code" -eq 124 ]; then
-        test_fail "phase29as_purity_gate_vm: pattern6_scan_with_init timed out"
+        test_fail "phase29as_purity_gate_vm: scan_with_init timed out"
         exit 1
     fi
     if [ "$exit_code" -ne 1 ]; then
-        echo "[FAIL] pattern6_scan_with_init exit code $exit_code"
+        echo "[FAIL] scan_with_init exit code $exit_code"
         echo "$output" | tail -n 80 || true
-        test_fail "phase29as_purity_gate_vm: pattern6_scan_with_init failed"
+        test_fail "phase29as_purity_gate_vm: scan_with_init failed"
         exit 1
     fi
-    assert_flowbox_adopt "pattern6_scan_with_init" "$output" "return"
-    assert_no_fallback "pattern6_scan_with_init" "$output"
+    assert_flowbox_adopt "scan_with_init" "$output" "return"
+    assert_no_fallback "scan_with_init" "$output"
 }
 
 run_is_integer_strict_reject() {
@@ -134,8 +134,8 @@ run_is_integer_strict_reject() {
     assert_no_fallback "is_integer_strict_reject" "$output"
 }
 
-run_pattern3_ifphi
-run_pattern6_scan_with_init
+run_if_phi_join
+run_scan_with_init
 run_is_integer_strict_reject
 
 log_success "phase29as_purity_gate_vm: PASS"
