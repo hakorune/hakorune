@@ -850,6 +850,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/phase-263/README.md` / `CURRENT_TASK.md`
     - intent: historical code block / debug output / fixture pair は evidence として残しつつ、同じ `pattern2_lowering_orchestrator.rs` / `phase263_p0_pattern2_seg_*` / `pattern2` token の repeated prose mention を `same historical file token` / `same evidence pair` / `historical label-2 token` に寄せる
     - verification: `git diff --check` PASS; `rg -n 'pattern2_lowering_orchestrator.rs\\)|same evidence pair as above \\(`phase263_p0_pattern2_seg_min.hako` / `phase263_p0_pattern2_seg_vm.sh`\\)|historical token `pattern2` 専用だったケース|historical token: `pattern2` / label `2`' docs/development/current/main/phases/phase-263/README.md | wc -l` = `0`; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/phase-263/README.md | wc -l` = `14`; recent gate baseline remains green from slice 151 (`phase29bq_fast_gate_vm.sh --only bq` PASS / `phase29x-probe` PASS with `unexpected_emit_fail_count=0`, `route_blocker_count=0`)
+  - truth cleanup (2026-03-08, slice 154): `phase-269` の bool_predicate_scan Frag README で repeated `pattern8` file/helper/smoke token を same-evidence phrasing に圧縮した
+    - synced files: `docs/development/current/main/phases/phase-269/README.md` / `CURRENT_TASK.md`
+    - intent: exact fixture token / archived smoke stem / historical helper lane はスコープか evidence lane に 1回だけ残し、architecture 図・テスト手順・acceptance checklist の repeated `pattern8` basename/token は `same historical lane` / `same archived smoke stem` / `same legacy fixture pin token` に寄せる
+    - verification: `git diff --check` PASS; `rg -n 'pattern8_scan_bool_predicate.rs \\(historical bool_predicate_scan entry\\)|same historical bool_predicate_scan lane as P1 scope above \\(`pattern8_scan_bool_predicate.rs`\\)|phase269_p0_pattern8_frag_vm.sh` 作成|cf_loop_pattern8_bool_predicate_impl\\(\\)' docs/development/current/main/phases/phase-269/README.md | wc -l` = `0`; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/phase-269/README.md | wc -l` = `10`
 
 ## next fixed order (resume point)
 
