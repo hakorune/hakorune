@@ -1,7 +1,7 @@
 //! Loop route-shape detection module.
 //!
 //! Current module declaration: `crate::mir::loop_route_detection`
-//! Compatibility alias: `crate::mir::loop_pattern_detection`
+//! Historical module token: `crate::mir::loop_pattern_detection`
 //! Current physical path: `src/mir/loop_route_detection/`
 //! Historical physical path token: `src/mir/loop_pattern_detection/`
 //!
@@ -26,9 +26,8 @@
 //!
 //! Reference: docs/private/roadmap2/phases/phase-188-joinir-loop-pattern-expansion/design.md
 //!
-//! Legacy detection (Phase 188 name-based) lives under `legacy/` and is
-//! re-exported here for compatibility. Current code should prefer the
-//! `crate::mir::loop_route_detection::*` module surface.
+//! Legacy detection (Phase 188 name-based) lives under `legacy/`.
+//! Current code should use the `crate::mir::loop_route_detection::*` module surface.
 
 mod classify;
 mod features;

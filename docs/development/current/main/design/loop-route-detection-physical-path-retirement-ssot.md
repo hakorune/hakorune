@@ -12,15 +12,15 @@ Related:
 # Loop Route Detection Physical Path Retirement (SSOT)
 
 目的:
-- `loop_route_detection` physical rename の完了状態と、残る compatibility alias / historical path token を docs-first で管理する。
-- caller / doc pin / compatibility alias の撤去条件を先に固定する。
+- `loop_route_detection` physical rename と alias retirement の完了状態、残る historical token を docs-first で管理する。
+- caller / doc pin / historical token の撤去条件を先に固定する。
 - rename phase を BoxShape として閉じ、BoxCount や route acceptance の変更を混ぜない。
 
 ## Current State
 
 - active module surface:
   - `crate::mir::loop_route_detection`
-- compatibility alias:
+- retired module token:
   - `crate::mir::loop_pattern_detection`
 - current physical path:
   - `src/mir/loop_route_detection/`
@@ -37,9 +37,9 @@ Related:
 
 - [src/mir/mod.rs](/home/tomoaki/git/hakorune-selfhost/src/mir/mod.rs)
   - current module declaration は `loop_route_detection`
-  - `loop_pattern_detection` は compatibility alias として残っている
+  - `loop_pattern_detection` alias は retired
 - [src/mir/loop_route_detection/mod.rs](/home/tomoaki/git/hakorune-selfhost/src/mir/loop_route_detection/mod.rs)
-  - active surface / compatibility alias / current physical path を明記
+  - active surface / historical module token / current physical path を明記
 - [route-physical-path-legacy-lane-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/route-physical-path-legacy-lane-ssot.md)
   - remaining legacy physical path lane として current inventory を保持
 - [normalized-dev-removal-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/normalized-dev-removal-ssot.md)
@@ -64,7 +64,7 @@ Related:
 物理 rename を始める前に、次を満たすこと。
 
 1. active-current docs が module surface-first で固定されている
-2. compatibility alias をどこまで残すか決まっている
+2. historical module token をどこまで docs に残すか決まっている
 3. `docs/development/current/main/phases/**` の old path pin を historical lane として扱う方針が固定されている
 4. rename diff を build + fast gate + probe で一度に検証できる
 
@@ -80,9 +80,10 @@ Related:
 4. physical rename
    - 完了済み
    - `src/mir/loop_pattern_detection/` -> `src/mir/loop_route_detection/`
-   - compatibility alias は必要最小限だけ残した
+   - old path token は historical lane に後退した
 5. alias retirement
-   - `crate::mir::loop_pattern_detection` caller が 0 になった時点で閉じる
+   - 完了済み
+   - repo-local caller 0 を確認して `crate::mir::loop_pattern_detection` alias を削除した
 
 ## Non-goals
 

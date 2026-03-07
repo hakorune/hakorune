@@ -30,7 +30,7 @@ Related:
 | Area | Active module surface | Current physical path | Historical physical path | Current role | Rename stance |
 |---|---|---|---|---|---|
 | JoinIR route entry | `crate::mir::builder::control_flow::joinir::route_entry` | `src/mir/builder/control_flow/joinir/route_entry/` | `src/mir/builder/control_flow/joinir/patterns/` | thin routing / registry / wrapper lane | 2026-03-07 slice 92 で rename 完了。old path は historical docs / grep traceability のみ |
-| Loop route detection | `crate::mir::loop_route_detection` | `src/mir/loop_route_detection/` | `src/mir/loop_pattern_detection/` | structure-based classify + legacy helper lane | 2026-03-07 slice 95 で rename 完了。compat alias `crate::mir::loop_pattern_detection` は traceability / staged retirement 用に保持 |
+| Loop route detection | `crate::mir::loop_route_detection` | `src/mir/loop_route_detection/` | `src/mir/loop_pattern_detection/` | structure-based classify + legacy helper lane | 2026-03-07 slice 95-96 で rename + alias retirement 完了。old module/path token は historical docs / grep traceability のみ |
 
 ## Lane Notes
 
@@ -50,13 +50,13 @@ Follow-up:
 Current state:
 - active code と current physical path は `src/mir/loop_route_detection/` に同期済み。
 - old `src/mir/loop_pattern_detection/` は historical physical path token へ後退した。
-- compatibility alias `crate::mir::loop_pattern_detection` は staged retirement 用に残している。
+- old `crate::mir::loop_pattern_detection` module token も historical note へ後退した。
 - historical phase docs が `src/mir/loop_pattern_detection/...` を多数 pin している。
 
 Follow-up:
 - active docs では current physical path `src/mir/loop_route_detection/` を優先する。
-- old `loop_pattern_detection/` token は historical note / grep traceability に限定する。
-- alias retirement 条件は `loop-route-detection-physical-path-retirement-ssot.md` に集約する。
+- old `loop_pattern_detection/` / `crate::mir::loop_pattern_detection` token は historical note / grep traceability に限定する。
+- future cleanup は historical pin token の圧縮だけを扱う。
 
 ## Non-goals
 
