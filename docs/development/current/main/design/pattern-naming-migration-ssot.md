@@ -161,7 +161,7 @@ Note:
 **Completion (2026-01-29)**:
 - Phase A (aliases), Phase B (internal references), Phase C (legacy names removed) are complete.
 - Logs/TSV are unchanged; Facts naming remains as-is.
-- File-name renaming is deferred to `docs/development/current/main/design/recipe-file-naming-unification-ssot.md`.
+- File-name renaming is deferred to the historical mapping ledger `docs/development/current/main/design/recipe-file-naming-unification-ssot.md`.
 
 ### Phase A: 型別名で互換維持
 
@@ -300,7 +300,7 @@ rg "Pattern2Break" --type rust src/
 ### ファイル名の変更（別 SSOT へ移管）
 
 - ファイル名の語彙統一は本 SSOT から切り出し、別設計として管理する。
-- SSOT: `docs/development/current/main/design/recipe-file-naming-unification-ssot.md`
+- Historical mapping SSOT: `docs/development/current/main/design/recipe-file-naming-unification-ssot.md`
 
 ### 命名規則の例外
 

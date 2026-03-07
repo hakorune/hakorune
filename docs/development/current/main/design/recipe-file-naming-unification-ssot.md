@@ -1,13 +1,17 @@
 # Recipe File Naming Unification SSOT
 
-**Purpose**: Pattern 数字ベースのファイル名を、意味ベース（Recipe/Lego 語彙）へ統一する。
+**Purpose**: Pattern 数字ベースの file naming から、意味ベース（Recipe/Lego 語彙）への移行結果を固定する。
 
-**Status**: ✅ Implemented (2026-01-30)
-**Last updated**: 2026-01-30
+**Status**: Historical mapping ledger (implemented 2026-01-30)
+**Last updated**: 2026-03-07
 
 ---
 
 ## Scope
+
+Note:
+- Current canonical file names are already implemented.
+- This document is kept as a historical mapping ledger for traceability, not as an active rename plan.
 
 ### In Scope
 
@@ -22,7 +26,7 @@
 
 ---
 
-## Naming Rules (SSOT)
+## Naming Rules (Historical Decision)
 
 1. **Pattern 数字を排除**: `pattern1_` などの接頭辞を使わない。
 2. **Recipe 名をベースにする**: `LoopSimpleWhileRecipe` → `loop_simple_while_*`。
@@ -36,7 +40,7 @@
 
 ---
 
-## Mapping (Proposed)
+## Mapping (Historical -> Current)
 
 ### Builder files
 
@@ -62,7 +66,7 @@
 
 ---
 
-## Migration Plan (Design)
+## Migration Record
 
 ### Phase 1: Builder rename (11 files)
 
@@ -89,6 +93,10 @@
 - `find src/mir/builder/control_flow/plan/recipe_tree -name 'pattern*_builder.rs'` is empty.
 - `rg -n "pattern[1-9]_.*_builder" src/` returns no hits.
 - Build passes with no new warnings.
+
+Current reading rule:
+- For runtime/current architecture, prefer `recipe-tree-and-parts-ssot.md`.
+- Use this document only when a historical file rename mapping is needed.
 
 ---
 

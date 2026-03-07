@@ -505,6 +505,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `src/mir/{builder/control_flow/plan/lowerer/{loop_lowering,mod}.rs,builder/control_flow/plan/features/loop_cond_continue_with_return/README.md,builder/control_flow/edgecfg/api/compose/mod.rs,join_ir/mod.rs}` / `src/config/env/joinir_flags.rs` / `CURRENT_TASK.md`
     - intent: Lowerer / feature README / env debug comments の `pattern-specific` / `Loop Pattern` を `route-specific` / `Loop Route` / `route shape` に寄せ、current surface の語彙を runtime semantics に合わせる
     - verification: `rg -n "pattern-agnostic|pattern-specific|Loop Pattern|Pattern matching details|route shape" src/mir/builder/control_flow/plan/lowerer/{loop_lowering,mod}.rs src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return/README.md src/mir/builder/control_flow/edgecfg/api/compose/mod.rs src/mir/join_ir/mod.rs src/config/env/joinir_flags.rs` = expected route/shape wording only
+  - truth cleanup (2026-03-07, slice 67): recipe file rename SSOT を historical mapping ledger として明確化した
+    - synced files: `docs/development/current/main/design/{recipe-file-naming-unification-ssot,pattern-naming-migration-ssot}.md` / `CURRENT_TASK.md`
+    - intent: `recipe-file-naming-unification-ssot` を active rename plan ではなく implemented historical mapping として読み直せるようにし、current architecture の参照先を `recipe-tree-and-parts-ssot` 側へ寄せる
+    - verification: `rg -n "Historical mapping ledger|Historical -> Current|active rename plan|Historical mapping SSOT" docs/development/current/main/design/{recipe-file-naming-unification-ssot,pattern-naming-migration-ssot}.md` = expected hits only
 
 ## next fixed order (resume point)
 
