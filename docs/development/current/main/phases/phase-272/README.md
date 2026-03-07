@@ -115,8 +115,9 @@ P0 は “両方一気に” ではなく、以下の順で段階適用する。
 
 ### 実装結果（✅ 完了）
 
-- Pattern7 の JoinIRConversionPipeline 経路を撤去し、Frag+emit_frag 経路へ切り替え
-  - 更新: `src/mir/builder/control_flow/joinir/patterns/pattern7_split_scan.rs`
+- split_scan route の JoinIRConversionPipeline 経路を撤去し、Frag+emit_frag 経路へ切り替え
+  - current route file: `src/mir/join_ir/lowering/split_scan_minimal.rs`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/pattern7_split_scan.rs`
 - emission 入口を新設し、terminator emission を `emit_frag()`（SSOT）へ集約
   - 新規: `src/mir/builder/emission/loop_split_scan.rs`
   - 更新: `src/mir/builder/emission/mod.rs`

@@ -537,7 +537,9 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
 - loop_continue_only / scan_with_init / split_scan の `boundary.join_inputs` を hardcoded ValueId(0), ValueId(PARAM_MIN + k) から撤去
 - 関連 route families で `join_module.entry.params.clone()` を SSOT として統一
 - Fail-fast validation（params count mismatch）を全パターンに追加
-- 共通ヘルパ `get_entry_function()` を抽出（`patterns/common/joinir_helpers.rs`）
+- 共通ヘルパ `get_entry_function()` を抽出
+  - current helper path: `src/mir/builder/control_flow/plan/common/joinir_helpers.rs`
+  - historical path token: `src/mir/builder/control_flow/joinir/patterns/common/joinir_helpers.rs`
 
 修正ファイル:
 - current route files:

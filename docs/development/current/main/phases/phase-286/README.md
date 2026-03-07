@@ -124,8 +124,10 @@ Reading note:
 - `apps/tests/phase286_pattern4_frag_poc.hako` (最小fixture: single continue)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern4_frag_poc.sh` (integration smoke)
 - `src/mir/builder/control_flow/plan/mod.rs` (Pattern4ContinuePlan struct追加)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/pattern4.rs` (extract_pattern4_plan追加)
-- `src/mir/builder/control_flow/joinir/patterns/router.rs` (Plan routing追加)
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
+  - historical path tokens:
+    - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern4.rs` (extract_pattern4_plan追加)
+    - `src/mir/builder/control_flow/joinir/patterns/router.rs` (Plan routing追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern4_continue + phi_bindings)
 
 **重要な設計決定**:
@@ -193,10 +195,12 @@ Reading note:
 - `apps/tests/phase286_pattern9_frag_poc.hako` (最小fixture: const accumulation)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern9_frag_poc.sh` (integration smoke)
 - `src/mir/builder/control_flow/plan/mod.rs` (Pattern9AccumConstLoopPlan + DomainPlan variant)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/pattern9.rs` (extract_pattern9_plan() 新規)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/mod.rs` (pattern9 モジュール追加)
+- `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
+  - historical path tokens:
+    - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern9.rs` (extract_pattern9_plan() 新規)
+    - `src/mir/builder/control_flow/joinir/patterns/extractors/mod.rs` (pattern9 モジュール追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern9_accum_const_loop())
-- `src/mir/builder/control_flow/joinir/patterns/router.rs` (Pattern9 Plan line routing)
 
 **検証結果**:
 - Integration test: `phase286_pattern9_frag_poc` PASS (return: 3)
@@ -267,10 +271,12 @@ Reading note:
 - `apps/tests/phase286_pattern8_plan_poc.hako` (新規: 非 static box fixture)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern8_plan_poc_vm.sh` (新規: integration smoke)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: Pattern8BoolPredicateScanPlan + DomainPlan variant)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/pattern8.rs` (新規: extract_pattern8_plan)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/mod.rs` (変更: pattern8 モジュール追加)
+- `src/mir/builder/control_flow/plan/extractors/mod.rs` (current extractor module surface)
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
+  - historical path tokens:
+    - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern8.rs` (新規: extract_pattern8_plan)
+    - `src/mir/builder/control_flow/joinir/patterns/extractors/mod.rs` (変更: pattern8 モジュール追加)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern8_bool_predicate_scan)
-- `src/mir/builder/control_flow/joinir/patterns/router.rs` (変更: PLAN_EXTRACTORS に Pattern8 追加)
 
 **検証結果**:
 - Integration test: `phase286_pattern8_plan_poc_vm` PASS (exit 7)
@@ -308,11 +314,12 @@ Reading note:
 - **Router**: Plan 完走のため、Pattern3 の “stub fallback” を撤去し Fail-Fast に統一（extract が Some の後は Err を伝播）
 
 **成果物** (予定):
-- `src/mir/builder/control_flow/joinir/patterns/router.rs` (変更: Pattern1 guard ✅)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/common_helpers.rs` (変更: has_if_statement ✅)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/pattern1.rs` (変更: if 拒否 ✅)
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
+- `src/mir/builder/control_flow/plan/extractors/common_helpers.rs` (current helper surface)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: Pattern3IfPhiPlan + DomainPlan variant)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/pattern3.rs` (変更: extract_pattern3_plan)
+- historical path tokens:
+  - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern1.rs` (変更: if 拒否 ✅)
+  - `src/mir/builder/control_flow/joinir/patterns/extractors/pattern3.rs` (変更: extract_pattern3_plan)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern3_if_phi)
 
 **成功基準**:
@@ -394,9 +401,9 @@ preheader → header(PHI: i_current, carrier_current)
 - `apps/tests/phase286_pattern2_break_no_update_min.hako` (新規: break without update fixture)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern2_break_no_update_vm.sh` (新規)
 - `src/mir/builder/control_flow/plan/mod.rs` (変更: Pattern2BreakPlan + DomainPlan variant)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/pattern2.rs` (変更: extract_pattern2_plan)
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
+- historical path token: `src/mir/builder/control_flow/joinir/patterns/extractors/pattern2.rs` (変更: extract_pattern2_plan)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (変更: normalize_pattern2_break)
-- `src/mir/builder/control_flow/joinir/patterns/router.rs` (変更: Pattern2 Plan line routing)
 
 **検証結果**:
 - ✅ Fixture A (break with update): legacy fallback（PoC サブセット外、出力 42）
@@ -455,9 +462,9 @@ preheader → header(PHI: i, carrier) → body(exit_cond)
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_return_vm.sh`
 - `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh`
 - `src/mir/builder/control_flow/plan/mod.rs` (Pattern5InfiniteEarlyExitPlan + Pattern5ExitKind)
-- `src/mir/builder/control_flow/joinir/patterns/extractors/pattern5.rs` (extract_pattern5_plan)
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current routing surface)
+- historical path token: `src/mir/builder/control_flow/joinir/patterns/extractors/pattern5.rs` (extract_pattern5_plan)
 - `src/mir/builder/control_flow/plan/normalizer.rs` (normalize_pattern5_infinite_early_exit)
-- `src/mir/builder/control_flow/joinir/patterns/router.rs` (Pattern5 Plan line routing)
 
 **成功基準**:
 - Fixture A (return): PASS (出力 7)
