@@ -1,4 +1,4 @@
-# Phase 270: loop への EdgeCFG Fragment 適用（JoinIR経路実証）
+# Phase 270: loop への EdgeCFG Fragment 適用（JoinIR route 実証）
 
 Status: ✅ 完了（P0 + P1）
 Date: 2025-12-21
@@ -124,17 +124,16 @@ k_exit(sum):
 
 ### 実装ファイル
 
-**新規ファイル（1個）**:
-- `src/mir/builder/control_flow/joinir/patterns/pattern9_accum_const_loop.rs` (470行)
+**新規ファイル（1個, historical joinir/patterns lane）**:
+- `pattern9_accum_const_loop.rs` (470行)
   - `can_lower()`: Phase270 fixture形状を厳密判定
   - `lower()`: JoinIR生成 → JoinIRConversionPipeline::execute
   - `lower_accum_const_loop_joinir()`: 2キャリア（i, sum）JoinIR lowerer
 
 **変更ファイル（2個）**:
 - `src/mir/builder/control_flow/joinir/route_entry/mod.rs` (current module surface)
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/mod.rs`
+  - historical path tokens: `src/mir/builder/control_flow/joinir/patterns/{mod.rs,router.rs}`
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs` (current route entry)
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/router.rs`
   - 当時は LOOP_PATTERNS テーブルに Pattern9 を **Pattern1より前に追加**した
 
 ### 検証結果 ✅

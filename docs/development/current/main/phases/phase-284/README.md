@@ -1,4 +1,4 @@
-# Phase 284: Return as ExitKind SSOT（patternに散らさない）
+# Phase 284: Return as ExitKind SSOT（route familyに散らさない）
 
 Status: P1 Complete (2025-12-23)
 
@@ -16,8 +16,8 @@ Status: P1 Complete (2025-12-23)
 
 ## Problem（移行期間の弱さ）
 
-- Pattern 単位で `return` を “未対応” にすると、検出戦略（Ok(None)/Err）次第で **静かに別経路へ落ちる**。
-- その結果、同じソースでも「どの lowering が `return` を解釈したか」が曖昧になり、SSOT が割れる。
+- route family 単位で `return` を “未対応” にすると、検出戦略（Ok(None)/Err）次第で **静かに別経路へ落ちる**。
+- その結果、同じソースでも「どの lowerer が `return` を解釈したか」が曖昧になり、SSOT が割れる。
 
 ## Core SSOT（決めること）
 
@@ -61,18 +61,18 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 ### B) JoinIR line（historical numbered labels: Pattern1–5,9）
 
 - 入口: `src/mir/builder/control_flow/joinir/route_entry/router.rs`（route=joinir）
-  - historical path token: `src/mir/builder/control_flow/joinir/patterns/router.rs`
+  - same historical route-entry lane as above (`router.rs`)
 - SSOT:
   - JoinIR 生成（pattern 固有の JoinIR lowerer）
   - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`（JoinIR→MIR→merge の current single entry）
-    - historical path token: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
+    - historical joinir/patterns lane token: `conversion_pipeline.rs`
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`（Return merge / exit block SSOT）
 - **注意**: `src/mir/builder/control_flow/plan/normalizer/mod.rs` は Plan line 専用なので、
   Pattern4/5 の return 問題の root fix をここへ寄せても効かない。
 
 ### 禁止事項（Phase 284 の憲法）
 
-- ❌ Pattern4/5 の `lower()` へ「return を特別扱いする if」を散布しない（SSOTが割れる）
+- ❌ historical `Pattern4/5` の `lower()` へ「return を特別扱いする if」を散布しない（SSOTが割れる）
 - ❌ Extractor が `return` を見つけた時に `Ok(None)` で黙殺しない（silent reroute 禁止）
 - ✅ `return` の “対応/非対応” は **共通入口の Fail-Fast**で固定する（P1 で実装）
 
@@ -130,7 +130,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 P1 の root fix は「PlanNormalizer へ寄せる」ではなく、**JoinIR line の共通入口**へ寄せる：
 
 - 入口候補:
-  - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`（current single entry; historical path token: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`）
+  - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`（current single entry; historical joinir/patterns lane: `conversion_pipeline.rs`）
   - もしくは JoinIR lowerer 側に “Return collector” を 1 箇所だけ作り、Pattern4/5 はそれを呼ぶだけにする
 
 どちらにしても、目的は同じ：

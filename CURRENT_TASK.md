@@ -702,6 +702,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-142/README.md,phase-264/README.md,phase-286/README.md}` / `CURRENT_TASK.md`
     - intent: repeated `ast_feature_extractor.rs`, `loop_pattern_detection/mod.rs`, `joinir/patterns/extractors/*.rs` token を再掲フルパスではなく same-lane note に置き換える
     - verification: `rg -n "src/mir/builder/control_flow/joinir/patterns/|src/mir/loop_pattern_detection/" docs/development/current/main/phases -g 'README.md' | wc -l` = reduced after slice 116; targeted phase grep keeps historical framing only
+  - truth cleanup (2026-03-07, slice 117): `phase-272/284` の route-family wording と repeated old-path token を current surface + same-lane note に整理し、scan/return 系 README の drift を縮めた
+    - synced files: `docs/development/current/main/phases/{phase-272/README.md,phase-284/README.md}` / `CURRENT_TASK.md`
+    - intent: `scan_with_init` / `split_scan` / `BoolPredicateScan` / `route family` を current主語にし、`joinir/patterns/{pattern6_scan_with_init.rs,pattern7_split_scan.rs,router.rs,conversion_pipeline.rs}` は scope-boundary note か same-lane note に寄せる
+    - verification: `rg -n "src/mir/builder/control_flow/joinir/patterns/|src/mir/loop_pattern_detection/" docs/development/current/main/phases/{phase-272/README.md,phase-284/README.md}` = historical token notes only; no current-looking old-path prose
+  - truth cleanup (2026-03-07, slice 118): `phase-270/284` の old joinir/patterns re-listing を same-lane note へ寄せ、route-first README のフルパス再掲をさらに減らした
+    - synced files: `docs/development/current/main/phases/{phase-270/README.md,phase-284/README.md}` / `CURRENT_TASK.md`
+    - intent: `pattern9_accum_const_loop.rs`, `mod.rs`, `router.rs`, `conversion_pipeline.rs` の historical lane を current surface の補足へ圧縮し、active docs で旧 lane フルパスを繰り返さない
+    - verification: `rg -n "src/mir/builder/control_flow/joinir/patterns/|src/mir/loop_pattern_detection/" docs/development/current/main/phases -g 'README.md' | wc -l` = reduced after slice 118
 
 ## next fixed order (resume point)
 
