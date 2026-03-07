@@ -11,9 +11,9 @@
 **Strategy**: Three-phase approach (A→B→C):
 - **Phase A**: Document SSOT positioning (docs-only, no code) ✅ **Complete**
 - **Phase B**: Solidify composition API contract (minimal test-based verification) ✅ **Complete**
-- **Phase C**: Prepare ScanWithInit / SplitScan (historical labels: Pattern6/7) for composition API (documentation-only, defer migration to Phase 281) ✅ **Complete**
+- **Phase C**: Prepare ScanWithInit / SplitScan (historical labels: `6/7`) for composition API (documentation-only, defer migration to Phase 281) ✅ **Complete**
 
-**Key Insight**: numbered route labels (Pattern1-9+) are **symptom labels** for regression tests, NOT architectural concepts. The architectural SSOT is **Frag composition rules** (`seq`/`if`/`loop`/`cleanup`).
+**Key Insight**: numbered route labels (`1-9+`) are **symptom labels** for regression tests, NOT architectural concepts. The architectural SSOT is **Frag composition rules** (`seq`/`if`/`loop`/`cleanup`).
 
 **Phase 280 Goal**: SSOT positioning + 導線固定 (NOT full migration - that's Phase 281)
 
@@ -215,14 +215,14 @@
 
 **File**: `src/mir/builder/control_flow/plan/normalizer.rs`
 
-**ScanWithInit route (historical label: Pattern6)**:
+**ScanWithInit route (historical label: `6`)**:
 - **Function**: `normalize_scan_with_init()`
 - **識別コメント**: Search for `// Step 12: Build CoreLoopPlan` or `let branches = vec![...]` near `BranchStub { from: header_bb, cond: cond_loop`
 - **Structure**: 5 blocks (preheader, header, body, step, found, after)
 - **Hand-rolled**: 2 BranchStub + 2 EdgeStub
 - **Composition opportunity**: **Hand-rolled clearer** (early exit breaks if_ model)
 
-**SplitScan route (historical label: Pattern7)**:
+**SplitScan route (historical label: `7`)**:
 - **Function**: `normalize_split_scan()`
 - **識別コメント**: Search for `// Build Frag with branches and wires` or `let branches = vec![...]` near `BranchStub { from: header_bb, cond: cond_loop` in split context
 - **Structure**: 6 blocks (preheader, header, body, then, else, step, after)
@@ -240,14 +240,14 @@
 
 **Example Documentation** (Option 2 - DEFAULT):
 
-**ScanWithInit route** (`normalize_scan_with_init()`, historical label: Pattern6):
+**ScanWithInit route** (`normalize_scan_with_init()`, historical label: `6`):
 ```rust
 // Phase 280 TODO: Hand-rolled Frag construction for early exit route
 // Reason: `found` is early Return, doesn't fit compose::if_() model
 // Future: Consider compose::cleanup() for early exit normalization (Phase 281+)
 ```
 
-**SplitScan route** (`normalize_split_scan()`, historical label: Pattern7):
+**SplitScan route** (`normalize_split_scan()`, historical label: `7`):
 ```rust
 // Phase 280 TODO: Hand-rolled Frag construction for split scan pattern
 // Target (Phase 281): compose::if_(body_bb, cond_match, then_frag, else_frag, step_frag)

@@ -26,7 +26,7 @@ document unsupported cases for handoff.
 
 ## Added subsets (P1–P7)
 
-- Pattern2Break: trim_start/trim_end, parse_integer (basic + sign/whitespace/leading zero)
+- LoopBreak (historical label `2`): trim_start/trim_end, parse_integer (basic + sign/whitespace/leading zero)
 - ScanWithInit: index_of, last_index_of, to_upper
 - SplitScan: split (min/char/string), index_of_string
 - Derived helpers: contains/starts_with/ends_with/trim (fixture coverage)
@@ -37,17 +37,17 @@ document unsupported cases for handoff.
 
 | Function | Loop summary | Provisional bucket | Notes |
 | --- | --- | --- | --- |
-| `trim_start` | scan until non-whitespace, `break` | Pattern2Break | Subset already exists (Phase 29ap P6) |
-| `trim_end` | reverse scan until non-whitespace, `break` | Pattern2Break | Subset already exists (Phase 29ap P6) |
+| `trim_start` | scan until non-whitespace, `break` | LoopBreak | Subset already exists (Phase 29ap P6) |
+| `trim_end` | reverse scan until non-whitespace, `break` | LoopBreak | Subset already exists (Phase 29ap P6) |
 | `index_of` | scan, early `return` on match | ScanWithInit | Needs return-in-loop handling |
 | `last_index_of` | reverse scan, early `return` | ScanWithInit | Needs return-in-loop handling |
 | `index_of_string` | scan substrings, early `return` | SplitScan | Candidate subset |
 | `to_upper` | scan + accumulate | ScanWithInit | Candidate subset |
-| `to_lower` | scan + accumulate | Pattern1 subset | Already migrated (Phase 29ap P2) |
-| `join` | array join with `if i > 0` separator | Pattern1 subset | Already migrated (Phase 29ap P3) |
+| `to_lower` | scan + accumulate | LoopSimpleWhile subset | Already migrated (Phase 29ap P2) |
+| `join` | array join with `if i > 0` separator | LoopSimpleWhile subset | Already migrated (Phase 29ap P3) |
 | `split` | scan + push segments | SplitScan | Candidate subset |
 | `is_integer` | scan digits, early `return false` | Unsupported | Return-in-loop needs CorePlan vocab |
-| `parse_integer` | scan digits, `break` on invalid | Pattern2Break | Subset variants (sign/whitespace/leading zero) |
+| `parse_integer` | scan digits, `break` on invalid | LoopBreak | Subset variants (sign/whitespace/leading zero) |
 
 ### EscapeUtils (`apps/lib/json_native/utils/escape.hako`)
 

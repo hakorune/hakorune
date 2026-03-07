@@ -5,7 +5,7 @@ Related:
 - docs/development/current/main/phases/phase-253/README.md
 - docs/development/current/main/phases/phase-255/README.md (次フェーズ: multi-param loop wiring)
 
-# Phase 254: `StringUtils.index_of/2` の loop パターンを JoinIR で受理する
+# Phase 254: `StringUtils.index_of/2` の loop shape を JoinIR で受理する
 
 ## 現象（最初の FAIL）
 
@@ -41,12 +41,12 @@ index_of(s, ch) {
 
 ## 問題の構造（なぜ落ちるか）
 
-- 現状は LoopBuilder が削除済みなので、JoinIR パターンがマッチしない loop はすべて freeze する（フォールバックなし）。
-- つまり “この loop 形” を JoinIR パターンとして受理できるようにするしかない。
+- 現状は LoopBuilder が削除済みなので、JoinIR route/shape がマッチしない loop はすべて freeze する（フォールバックなし）。
+- つまり “この loop 形” を JoinIR route/shape として受理できるようにするしかない。
 
 ## 解決方針（構造的）
 
-### 方針 A（推奨・最小）: 「index_of 形」を Pattern として追加する
+### 方針 A（推奨・最小）: 「index_of 形」を route shape として追加する
 
 - “箱”として 1つ追加し、1つの質問だけに答える:
   - 「`index_of` 形の loop を JoinIR に lowering できるか？」
@@ -65,7 +65,7 @@ index_of(s, ch) {
 - どの AST/StepTree 形を受理するかを README or doc comment に明記
   - 必須: loop cond が `<`/`<=` の比較で、rhs が `s.length()` または定数/変数（Phase 251/252 の流れと整合）
   - 必須: loop 内 if が “then return i” である
-  - 必須: update が `i = i + 1`（Phase 253 で analyzer を緩くしたので、ここは loop パターン側の契約にする）
+  - 必須: update が `i = i + 1`（Phase 253 で analyzer を緩くしたので、ここは loop route-shape 側の契約にする）
 
 ### 2) 新しい lowering 箱（案）
 
@@ -109,14 +109,14 @@ index_of(s, ch) {
   - `tools/smokes/v2/profiles/integration/apps/archive/phase254_p0_index_of_llvm_exe.sh`
 
 - **Task 2**: デバッグ実行（現状把握）: ✅ 完了
-  - if_phi_join route（historical numbered label: Pattern3）と判定されるが "if-sum ではない" で reject される
+  - if_phi_join route（historical numbered label: `3`）と判定されるが "if-sum ではない" で reject される
   - loop_canonicalizer の `ConstStep` 不足で fail するケースがある
 
 - **Task 3**: scan_with_init detector box 実装: ✅ 完了
-  - historical path token: `pattern6_scan_with_init.rs` under the old `joinir/patterns/` lane
-  - Pattern3 相当の旧 lane より前に配置（router priority 調整）
+  - historical path token: old scan_with_init detector basename under the retired `joinir/patterns/` lane
+  - old label-3 lane より前に配置（router priority 調整）
   - `LoopBreak` と `IfPhiJoin` の双方の分類に対応
-  - **検出成功**: `Pattern6_ScanWithInit MATCHED` を historical debug token として確認
+  - **検出成功**: label-6 scan_with_init match を示す historical debug token を確認
 
 - **Task 4**: ScanWithInit Lowerer 実装: ✅ 完了
   - **Task 4-1**: extract_scan_with_init_parts() - 構造抽出関数実装
@@ -136,8 +136,8 @@ index_of(s, ch) {
 
 **根本原因**: JoinIR→MIR merge/boundary システムが**複数ループ変数を想定していない**
 
-- 現状の仕様: early numbered-route line（historical labels: Pattern1-5）は単一ループ変数前提（例: `i` のみ）
-- scan_with_init route（historical numbered label: Pattern6）の要求: 3変数ループ（`s`, `ch`, `i`）
+- 現状の仕様: early numbered-route line（historical labels: `1-5`）は単一ループ変数前提（例: `i` のみ）
+- scan_with_init route（historical numbered label: `6`）の要求: 3変数ループ（`s`, `ch`, `i`）
 - 問題: PHI ノードが 1つしか作られない（`s` のみ）、`ch` と `i` が undefined
 
 **影響範囲**:
@@ -146,7 +146,7 @@ index_of(s, ch) {
 - `JoinIRConversionPipeline` が複数 PHI 作成に未対応
 
 **Phase 254 の受け入れ境界**:
-- ✅ scan_with_init route（historical numbered label: Pattern6）が検出される
+- ✅ scan_with_init route（historical numbered label: `6`）が検出される
 - ✅ JoinIR が正しく生成される（main/loop_step/k_exit 構造）
 - ✅ substring が BoxCall として init-time に emit される
 - ❌ 実行（VM/LLVM）で PASS にするのは **Phase 255 の範囲**

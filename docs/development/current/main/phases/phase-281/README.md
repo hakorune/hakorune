@@ -10,12 +10,12 @@ Goal:
 
 - Frag/emit SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
 - Composition SSOT: `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`
-- Plan line SSOT（ScanWithInit / SplitScan; historical labels: Pattern6/7）: `docs/development/current/main/phases/phase-273/README.md`
+- Plan line SSOT（ScanWithInit / SplitScan; historical labels: `6/7`）: `docs/development/current/main/phases/phase-273/README.md`
 - Phase 280（positioning）: `docs/development/current/main/phases/phase-280/README.md`
 
-## P0 完了（SplitScan; historical label: Pattern7）
+## P0 完了（SplitScan; historical label: `7`）
 
-P0 では、SplitScan route（historical label: Pattern7）の “body の cond_match 分岐” を `compose::if_()` に置換した。
+P0 では、SplitScan route（historical label: `7`）の “body の cond_match 分岐” を `compose::if_()` に置換した。
 
 - 対象: `src/mir/builder/control_flow/plan/normalizer.rs`
 - 方針: 最小差分（header/step は手組みのまま、body だけ compose へ）
@@ -27,7 +27,7 @@ P0 では、SplitScan route（historical label: Pattern7）の “body の cond_
 
 Status: **✅ Complete (2025-12-23)**
 
-ScanWithInit route（historical label: Pattern6）は early return（found_bb→Return）が絡むため、P1 では "どの合成語彙に落とすか" を設計で固定し、**実装は P2 に defer** した。
+ScanWithInit route（historical label: `6`）は early return（found_bb→Return）が絡むため、P1 では "どの合成語彙に落とすか" を設計で固定し、**実装は P2 に defer** した。
 
 ### ScanWithInit CFG構造
 
@@ -74,14 +74,14 @@ let wires = vec![
 
 ### compose::if_()が使えない理由（技術的ブロッカー）
 
-**SplitScan (P0 Success; historical label: Pattern7)**:
+**SplitScan (P0 Success; historical label: `7`)**:
 ```
 body_bb → then_bb (Normal) ┐
        → else_bb (Normal) ┘ → step_bb (両方が join に収束)
 ```
 ✅ **Symmetric exits** → compose::if_()が完璧にフィット
 
-**ScanWithInit (P1 Challenge; historical label: Pattern6)**:
+**ScanWithInit (P1 Challenge; historical label: `6`)**:
 ```
 body_bb → found_bb (Return) → EXIT FUNCTION (関数脱出)
        → step_bb (Normal)   → header_bb (ループ継続)
@@ -135,7 +135,7 @@ let combined = compose::cleanup(main_loop, early_exit);
 
 Status: **✅ Complete (2025-12-23)**
 
-cleanup(Return)の本体実装を完了し、ScanWithInit route（normalize_scan_with_init, historical label: Pattern6）を `compose::cleanup()` ベースに置換した。
+cleanup(Return)の本体実装を完了し、ScanWithInit route（normalize_scan_with_init, historical label: `6`）を `compose::cleanup()` ベースに置換した。
 
 **実装内容**:
 - `compose::cleanup()` に Return exit 伝播ロジック追加
