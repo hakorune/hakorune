@@ -70,7 +70,7 @@ Single entry pipeline for loop routing (no bypass):
 `route_loop` → `single_planner::try_build_outcome` → recipe/composer adopt path → plan lowerer
 
 Router: active module surface `crate::mir::builder::control_flow::joinir::route_entry::router`
-(legacy physical path: `src/mir/builder/control_flow/joinir/patterns/router.rs`)  
+(physical path: `src/mir/builder/control_flow/joinir/route_entry/router.rs`)  
 Planner: `src/mir/builder/control_flow/plan/single_planner/`  
 Composer (adopt ordering SSOT): `src/mir/builder/control_flow/plan/composer/`  
 Lower: `src/mir/builder/control_flow/plan/lowerer/`

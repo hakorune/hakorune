@@ -27,7 +27,8 @@
 //!
 //! # Phase 183: Unified Detection
 //!
-//! This router shares route classification logic with `patterns/router.rs`.
+//! This router shares route classification logic with
+//! `crate::mir::builder::control_flow::joinir::route_entry::router`.
 //! Both use `loop_route_detection::classify()` for consistent classification.
 //!
 //! # Route Priority (Phase 188)

@@ -8,8 +8,8 @@ cd "$ROOT"
 # Legacy physical path rationale is tracked in
 # docs/development/current/main/design/route-physical-path-legacy-lane-ssot.md
 ALLOW_GLOBS=(
-  '!src/mir/builder/control_flow/joinir/patterns/router.rs'
-  '!src/mir/builder/control_flow/joinir/patterns/registry/handlers.rs'
+  '!src/mir/builder/control_flow/joinir/route_entry/router.rs'
+  '!src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs'
   '!src/mir/builder/stmts/return_stmt.rs'
   '!src/mir/builder/control_flow/plan/lowerer/mod.rs'
   '!tests/**'

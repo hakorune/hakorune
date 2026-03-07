@@ -171,7 +171,7 @@ let available_inputs = AvailableInputsCollectorBox::collect(
 - **Call sites**:
   - `src/mir/builder/control_flow/normalization/execute_box.rs` (`execute_loop_only`)
   - active module surface `crate::mir::builder::control_flow::joinir::route_entry::policies::normalized_shadow_suffix_router_box`
-    (legacy physical path lane remains under `src/mir/builder/control_flow/joinir/patterns/policies/`; see `route-physical-path-legacy-lane-ssot.md`)
+    (historical path notes may still mention `src/mir/builder/control_flow/joinir/patterns/policies/`; see `route-physical-path-legacy-lane-ssot.md`)
   - `src/mir/builder/stmts.rs` (build_block suffix router call)
 
 ---

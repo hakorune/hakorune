@@ -12,7 +12,7 @@
 //! This builder constructs LoopScopeShape from **LoopForm** during JoinIR lowering.
 //! For AST-based construction (MIR building), see the active route-entry surface
 //! `crate::mir::builder::control_flow::joinir::route_entry::loop_scope_shape_builder`
-//! (legacy physical path: `src/mir/builder/control_flow/joinir/patterns/loop_scope_shape_builder.rs`).
+//! (historical physical path at the time: `src/mir/builder/control_flow/joinir/patterns/loop_scope_shape_builder.rs`).
 //!
 //! Both builders maintain consistent field initialization for LoopScopeShape.
 

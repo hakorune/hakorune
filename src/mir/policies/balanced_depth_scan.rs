@@ -441,9 +441,8 @@ fn is_var_plus_int(node: &ASTNode, var_name: &str, n: i64) -> bool {
     expr_view::match_add_by_const(node, var_name, n, true).is_some()
 }
 
-// Phase 255 P2: var() function removed - now using the active route-entry surface
-// (`crate::mir::builder::control_flow::joinir::route_entry::common::var`;
-// legacy physical path remains `joinir/patterns/common.rs`).
+// Phase 255 P2: var() function removed; route-entry callers now rely on the
+// plan-side helpers exposed through the active `joinir::route_entry` surface.
 
 fn eq_str(left: ASTNode, s: &str) -> ASTNode {
     ASTNode::BinaryOp {

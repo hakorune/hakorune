@@ -1,7 +1,7 @@
 //! JoinIR integration for control flow
 //!
 //! This module contains JoinIR-related control flow logic:
-//! - Route lowerers (active module surface: route_entry / legacy physical path: patterns/)
+//! - Route lowerers (active module surface and physical path: route_entry/)
 //! - Routing logic (routing.rs) ✅
 //! - Parity verification (parity_checker.rs) ✅ Phase 138
 //! - Loop processing context (loop_context.rs) ✅ Phase 140-P5
@@ -15,7 +15,6 @@ pub(in crate::mir::builder) mod api;
 pub(in crate::mir::builder) mod loop_context;
 pub(in crate::mir::builder) mod merge;
 pub(in crate::mir::builder) mod parity_checker;
-#[path = "patterns/mod.rs"]
 pub(in crate::mir::builder) mod route_entry;
 pub(in crate::mir::builder) mod routing;
 pub(in crate::mir::builder) mod trace;

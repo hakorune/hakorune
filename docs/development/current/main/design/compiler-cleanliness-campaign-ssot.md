@@ -244,7 +244,6 @@ Naming rule (behavior-preserving):
 - ✅ Phase 13: exit_map/exit_if_map 調査 → effects_to_plans を steps/effects.rs に集約
 - ✅ Phase H: LoopCond/LoopTrue/GenericLoop normalizer fallback 撤去（recipe 直組み固定）
 - ✅ Normalizer fallback 撤去完了（全ルート recipe 直組み固定）
-- ✅ PlanNormalizer 参照ゼロ確認（plan/recipe_tree + active module surface `joinir::route_entry`
-  / legacy physical path lane `joinir/patterns`）
+- ✅ PlanNormalizer 参照ゼロ確認（plan/recipe_tree + active module surface and physical path `joinir::route_entry`）
 - ✅ PlanNormalizer 撤去対象は composer/entry 経路に限定（他は別フェーズ）
 - ✅ Composer 経路の PlanNormalizer 参照ゼロ（plan/recipe_tree）
