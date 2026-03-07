@@ -23,6 +23,17 @@ script stems remain available as compatibility entrypoints until all callers mov
 - Keep legacy script stems for traceability and backward compatibility until grep shows
   no active callers outside history/archive inventories.
 
+## Stem categories
+
+- `active semantic wrapper`
+  - current-facing smoke entrypoint that docs and daily gates should prefer.
+- `compat wrapper`
+  - old stem kept as a forwarding script to the active semantic wrapper.
+- `archived legacy stem`
+  - archived smoke path kept only for traceability or negative coverage.
+- `legacy pack stem`
+  - old planner-pack stem kept until all callers move to the semantic pack alias.
+
 ## Phase status
 
 - Phase A: inventory fixed
@@ -34,7 +45,7 @@ script stems remain available as compatibility entrypoints until all callers mov
 
 ### Route smoke aliases
 
-| Semantic alias wrapper | Legacy target |
+| Active semantic wrapper | Compat target |
 | --- | --- |
 | `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_subset_reject_extra_stmt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_subset_reject_extra_stmt_vm.sh` |
@@ -58,9 +69,13 @@ script stems remain available as compatibility entrypoints until all callers mov
 | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_seg_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` |
 
+Note:
+- Entries under `apps/archive/` are `archived legacy stems`, not compat wrappers.
+- Entries under `joinir/phase29ao*` / `joinir/phase29ap*` / `joinir/phase29ae*` are compat/legacy stems still kept for forwarding or direct pinning.
+
 ### Planner-required pack aliases
 
-| Semantic alias wrapper | Legacy target |
+| Active semantic wrapper | Legacy pack stem |
 | --- | --- |
 | `tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/scan_split_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh` |

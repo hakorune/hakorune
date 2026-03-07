@@ -1,5 +1,6 @@
 #!/bin/bash
-# phase29bi_planner_required_pattern2_pack_vm.sh - planner-required loop_break small set pack
+# phase29bi_planner_required_pattern2_pack_vm.sh - legacy pack stem for loop_break planner-required small set
+# Current semantic entry: loop_break_planner_required_pack_vm.sh
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/joinir_planner_first_gate.sh"

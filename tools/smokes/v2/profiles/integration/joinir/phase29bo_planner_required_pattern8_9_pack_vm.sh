@@ -1,5 +1,6 @@
 #!/bin/bash
-# phase29bo_planner_required_pattern8_9_pack_vm.sh - planner-required bool_predicate_scan / accum_const_loop small pack (strict/dev)
+# phase29bo_planner_required_pattern8_9_pack_vm.sh - legacy pack stem for bool_predicate_scan / accum_const_loop planner-required gate
+# Current semantic entry: bool_predicate_accum_planner_required_pack_vm.sh
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/joinir_planner_first_gate.sh"
