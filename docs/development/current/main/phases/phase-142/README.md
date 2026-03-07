@@ -113,7 +113,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 
 #### ExitContract Priority
 - Route choice determined by ExitContract (has_break=true)
-- Routes to `LoopBreak` (historical label: `Pattern2Break`), not `IfPhiJoin`
+- Routes to `LoopBreak` (the historical routing token appears in the parity block above), not `IfPhiJoin`
 - Consistent with existing SSOT policy
 
 ### Files Modified
@@ -312,7 +312,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 
 #### ExitContract Priority
 - Route choice determined by ExitContract (has_continue=true, has_break=false)
-- Routes to `LoopContinueOnly` (historical label: `Pattern4Continue`)
+- Routes to `LoopContinueOnly` (the historical routing token appears in the parity block above)
 - Consistent with existing SSOT policy from Phase 137-5
 
 ### Files Modified
@@ -442,7 +442,7 @@ The following route shapes are rejected with explicit error messages:
 1. `docs/development/current/main/phases/phase-142/README.md` - Contract documentation
 2. `tools/selfhost/test_pattern4_parse_string_lowering.hako` - Minimal E2E test (new)
 3. `src/mir/join_ir/lowering/loop_routes/with_continue.rs` - current lowerer extension surface
-   - same historical continue-analysis lane as above (`pattern4_with_continue.rs`, `pattern4_carrier_analyzer.rs`)
+   - same historical continue-analysis lane as above (legacy basename tokens omitted here to reduce noise)
 
 ### Step 3-A: Early Return Fail-Fast (COMPLETE ✅)
 
@@ -477,7 +477,7 @@ The following route shapes are rejected with explicit error messages:
 
 **Architecture**:
 ```
-LoopContinueOnly (historical recognizer label: `Pattern4Continue`)
+LoopContinueOnly (historical recognizer token shown in the parity evidence above)
   ↓
 historical label-4 lowerer (continue only)
   ↓ (has_return? → delegate)
@@ -512,7 +512,7 @@ historical label-5 lowerer (continue + early return)
 - [ ] Identify ContinueReturn reusable parts (consistency checks)
 
 **Implementation**:
-- [ ] Create the minimal continue+return lowerer (`pattern5_continue_return_minimal.rs`; historical file token)
+- [ ] Create the minimal continue+return lowerer (historical file token kept in the implementation notes)
 - [ ] Add return path handling (closed within the historical label-5 lane)
 - [ ] Use the existing label-4 continue-side carrier reconnection
 - [ ] Test on parse_string minimal fixture
@@ -523,4 +523,4 @@ historical label-5 lowerer (continue + early return)
 - **Design**: `docs/development/current/main/design/loop-canonicalizer.md`
 - **JoinIR Architecture**: `docs/development/current/main/joinir-architecture-overview.md`
 - **LoopContinueOnly route implementation**: `src/mir/join_ir/lowering/loop_routes/with_continue.rs`
-  - same historical path lane as above (`pattern4_with_continue.rs`)
+  - same historical path lane as above (legacy basename token omitted here to reduce noise)
