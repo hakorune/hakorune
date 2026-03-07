@@ -398,7 +398,7 @@ pub struct RoutingDecision {
 
 ### 対象ファイル
 
-`tools/selfhost/test_pattern3_skip_whitespace.hako`
+`tools/selfhost/test_pattern3_skip_whitespace.hako` (legacy selfhost test stem; current semantics: `skip_whitespace`)
 
 ```hako
 loop(p < len) {

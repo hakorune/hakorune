@@ -411,7 +411,7 @@ Note:
 **Deltas**: normal=1, escape=2
 **Output**: Processed string (escape removed)
 
-### Extended Cases (Phase 91 Step 2+)
+### Extended Cases (Phase 91 Step 2+; legacy selfhost test stems)
 
 1. **test_pattern5b_escape_json**: JSON string with multiple escapes
 2. **test_pattern5b_escape_custom**: Custom escape character

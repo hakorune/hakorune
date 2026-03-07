@@ -37,7 +37,9 @@ tokens that still act as traceability pins.
 | `phase286_pattern5_break_min.hako` | `loop_true_early_exit` | planner-required / smoke fixture pin |
 | `phase269_p0_pattern8_frag_min.hako` | `bool_predicate_scan` | planner-required fixture pin |
 | `phase286_pattern9_frag_poc.hako` | `accum_const_loop` | planner-required fixture pin |
+| `test_pattern3_skip_whitespace.hako` | `skip_whitespace` | selfhost test stem pin |
 | `test_pattern5b_escape_minimal.hako` | `escape route P5b` | selfhost test stem pin |
+| `test_pattern5b_escape_*` | `escape route P5b` | selfhost test stem family pin |
 
 ## Usage
 

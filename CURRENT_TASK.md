@@ -493,6 +493,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{joinir-legacy-fixture-pin-inventory-ssot,pattern6-7-contracts,pattern-p5b-escape-design,loop-canonicalizer}.md` / `CURRENT_TASK.md`
     - intent: `phase29ab_pattern6_*` / `phase29ab_pattern7_*` / `phase286_pattern5_break_min` / `phase269_p0_pattern8_frag_min` / `phase286_pattern9_frag_poc` / `test_pattern5b_escape_minimal.hako` のような active fixture filename を `legacy fixture pin token` として inventory に逃がし、各本文では `scan_with_init` / `split_scan` / `loop_true_early_exit` / `bool_predicate_scan` / `accum_const_loop` / `escape route P5b` を主語にする
     - verification: `rg -n "legacy fixture pin|legacy selfhost test stem|joinir-legacy-fixture-pin-inventory-ssot" docs/development/current/main/design/{pattern6-7-contracts,pattern-p5b-escape-design,loop-canonicalizer}.md docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` = expected hits only
+  - truth cleanup (2026-03-07, slice 64): selfhost test stem の active docs を legacy pin inventory に寄せた
+    - synced files: `docs/development/current/main/design/{joinir-legacy-fixture-pin-inventory-ssot,pattern-p5b-escape-design,loop-canonicalizer}.md` / `CURRENT_TASK.md`
+    - intent: `test_pattern3_skip_whitespace.hako` と `test_pattern5b_escape_*` を `legacy selfhost test stem` として inventory へ逃がし、本文の主語を `skip_whitespace` / `escape route P5b` に固定する
+    - verification: `rg -n "legacy selfhost test stem|test_pattern3_skip_whitespace|test_pattern5b_escape_" docs/development/current/main/design/{joinir-legacy-fixture-pin-inventory-ssot,pattern-p5b-escape-design,loop-canonicalizer}.md` = expected hits only
 
 ## next fixed order (resume point)
 
