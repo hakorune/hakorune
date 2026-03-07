@@ -24,7 +24,7 @@ Goal: numbered route label による分岐を外部APIから消し、Facts（事
 - 指示書: `docs/development/current/main/phases/phase-29ai/P3-TYPED-FREEZE-CANDIDATESET-IMPLEMENTATION-INSTRUCTIONS.md`
 - ねらい: Planner の契約を型/候補集合で固定（Facts 未実装の間は未到達、仕様不変）
 
-## P4: First LoopFacts（scan_with_init route; legacy Pattern6 label）
+## P4: First LoopFacts（scan_with_init route; historical label `6`）
 
 - 指示書: `docs/development/current/main/phases/phase-29ai/P4-FIRST-LOOPFACTS-PATTERN6-SCAN_WITH_INIT-INSTRUCTIONS.md`
 - ねらい: Facts→Planner を 1 ケースだけ前進（未接続のまま、仕様不変）
@@ -56,19 +56,19 @@ Goal: numbered route label による分岐を外部APIから消し、Facts（事
 - 完了: Facts split-scan subset / planner candidate / single_planner split_scan planner-first を接続
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
-## P10: Move loop_break extraction to plan layer（historical Pattern2 label）
+## P10: Move loop_break extraction to plan layer（historical label `2`）
 
 - 指示書: `docs/development/current/main/phases/phase-29ai/P10-MOVE-PATTERN2-EXTRACTOR-TO-PLAN-LAYER-INSTRUCTIONS.md`
-- ねらい: loop_break の抽出（legacy Pattern2 label 由来の知識）を plan 側へ寄せて依存方向を一方向に固定（仕様不変）
+- ねらい: loop_break の抽出（historical label `2` 由来の知識）を plan 側へ寄せて依存方向を一方向に固定（仕様不変）
 - 完了: plan/extractors へ移設、JoinIR 側は wrapper 化、legacy_rules を plan 側へ統一
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
-## P11: Planner support + wiring（loop_break subset; historical Pattern2 label）
+## P11: Planner support + wiring（loop_break subset; historical label `2`）
 
 - 指示書: `docs/development/current/main/phases/phase-29ai/P11-PLANNER-PATTERN2-BREAK-SUBSET-WIRE-INSTRUCTIONS.md`
 - ねらい: loop_break PoC subset を Facts→Planner に吸収し、single_planner で planner-first を開始（仕様不変で段階吸収）
 - 完了: LoopBreakFacts / Planner 候補 / loop_break planner-first を接続、subset fixture + smoke 追加
-- 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/run.sh --profile integration --filter "phase29ai_pattern2_break_plan_subset_ok_min"`
+- 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / label-2 planner-subset fixture pin token（inventory lane）
 
 ## P12: Facts SSOT（loop_break body-local promotion）
 

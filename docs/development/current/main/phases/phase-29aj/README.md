@@ -35,7 +35,7 @@ Goal: planner の facts/plan を 1 本の outcome に集約し、観測の SSOT 
 - 指示書: `docs/development/current/main/phases/phase-29aj/P4-PATTERN4-CONTINUE-PLANNER-FIRST-INSTRUCTIONS.md`
 - ねらい: loop_continue_only を Facts→Planner-first に接続し、extractor 依存を削減
 - 完了: loop_continue_only facts/planner/single_planner を接続
-- 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/run.sh --profile integration --filter "phase286_pattern4_frag_poc"`
+- 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / representative legacy label-4 frag POC filter token
 
 ## P5: loop_true_early_exit planner-first（subset）
 
@@ -69,9 +69,9 @@ Goal: planner の facts/plan を 1 本の outcome に集約し、観測の SSOT 
 ## P9: phase286_pattern9 legacy isolation (docs/smokes)
 
 - 指示書: `docs/development/current/main/phases/phase-29aj/P9-ISOLATE-PHASE286-PATTERN9-LEGACY-INSTRUCTIONS.md`
-- ねらい: JoinIR 回帰の SSOT は phase29ae pack に固定し、phase286_pattern9_* は legacy pack (SKIP) に隔離
-- 完了: phase286_pattern9_legacy_pack を追加し、運用ルールを docs に固定
-- 検証: `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/profiles/integration/joinir/phase286_pattern9_legacy_pack.sh` (SKIP)
+- ねらい: JoinIR 回帰の SSOT は phase29ae pack に固定し、label-9 legacy pack lane は SKIP に隔離
+- 完了: label-9 legacy pack を追加し、運用ルールを docs に固定
+- 検証: `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / representative label-9 legacy pack smoke (SKIP)
 
 ## P10: single_planner planner-first 形の統一（挙動不変）
 

@@ -25,9 +25,9 @@ Related:
 
 ## Proposed Approach (P0)
 
-方針: Pattern6（ScanWithInit）を “needle length 付き scan” に最小拡張する（構造で解決）
+方針: ScanWithInit route（historical label `6`）を “needle length 付き scan” に最小拡張する（構造で解決）
 
-Pattern6 との差分だけを足す:
+historical label `6` route との差分だけを足す:
 - loop cond: `i <= s.length() - substr.length()`（bound 付き）
 - window: `substring(i, i + substr.length())`
 - needle: `substr`（String）
@@ -42,6 +42,6 @@ JoinIR 側は P0 では “毎回 length() を呼んでよい”。まず correc
 ## Tasks (Draft)
 
 1) Fixture + integration smokes
-2) Pattern6 extractor を拡張して `index_of_string/2` の loop 形を accept（Fail-Fast）
-3) Pattern6 lowerer を拡張（dynamic window length / bound）して JoinIR を生成
+2) ScanWithInit extractor を拡張して `index_of_string/2` の loop 形を accept（Fail-Fast）
+3) ScanWithInit lowerer を拡張（dynamic window length / bound）して JoinIR を生成
 4) `--verify` / integration / quick を回して SSOT 更新

@@ -15,7 +15,7 @@ Historical note:
 
 ## P2 完了 (2025-12-22)
 
-P2 では split_scan route（historical numbered label: Pattern7）を Plan ラインへ移行し、P1 の CorePlan を保ったまま “収束圧” を上げた。
+P2 では split_scan route（historical numbered label: `7`）を Plan ラインへ移行し、P1 の CorePlan を保ったまま “収束圧” を上げた。
 
 - ✅ split_scan route: Extractor → DomainPlan → Normalizer → CorePlan → Lowerer（MIR/Frag/emit_frag）へ統一
 - ✅ CoreLoopPlan: `block_effects / phis / frag / final_values` で一般化（scan_with_init / split_scan が同一 CorePlan に収束）
@@ -91,7 +91,7 @@ pub enum CoreEffectPlan {
 - New: `src/mir/builder/control_flow/plan/normalizer.rs` - PlanNormalizer (~290 lines)
 - New: `src/mir/builder/control_flow/plan/verifier.rs` - PlanVerifier (~180 lines)
 - Modified: `src/mir/builder/control_flow/plan/lowerer.rs` - CorePlan 対応 (~250 lines)
-- Modified (historical path token): `pattern6_scan_with_init.rs` under the old `joinir/patterns/` lane - DomainPlan 返却
+- Modified (historical path token): old scan_with_init detector basename under the retired `joinir/patterns/` lane - DomainPlan 返却
 - Modified (current route-entry family): `src/mir/builder/control_flow/joinir/route_entry/router.rs` - Normalizer + Verifier 経由
 
 **Regression test**:
@@ -134,7 +134,7 @@ AOT ランタイム（nyrt）は `ny_main()` の返り値が **raw i64** か **h
 
 ## P3 完了 (2025-12-23)
 
-P3 では scan_with_init route（historical numbered label: Pattern6）を generalized CoreLoopPlan に移行し、legacy fallback を撤去して Plan ラインの収束を完成させた。
+P3 では scan_with_init route（historical numbered label: `6`）を generalized CoreLoopPlan に移行し、legacy fallback を撤去して Plan ラインの収束を完成させた。
 
 - ✅ scan_with_init route: generalized CoreLoopPlan（`frag/block_effects/phis/final_values`）へ完全移行
 - ✅ CoreLoopPlan: すべてのフィールドを必須化（`Option` 削除）

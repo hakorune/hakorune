@@ -14,8 +14,8 @@
 
 | Category | Count | Status | Effort |
 |----------|-------|--------|--------|
-| LoopSimpleWhile route family (legacy Pattern1 label) | 16 | ✅ Ready | None |
-| LoopBreak route family (legacy Pattern2 label) | 1 | ⚠️ Partial | Low |
+| LoopSimpleWhile route family (historical label `1`) | 16 | ✅ Ready | None |
+| LoopBreak route family (historical label `2`) | 1 | ⚠️ Partial | Low |
 | Escape route P5b (legacy label) | ~3 | ✅ Recognized (canonicalizer) | Medium |
 | Guard-bounded legacy route P5 | ~2 | ❌ Blocked | High |
 | Nested-loop legacy route P6 | ~8 | ❌ Blocked | Very High |
@@ -28,7 +28,7 @@
 
 #### File: `apps/selfhost-vm/boxes/json_cur.hako` (3 loops)
 - Lines 9-14: ✅ LoopSimpleWhile route family
-- Lines 23-32: ✅ LoopBreak-style bounded loop (legacy Pattern2 note)
+- Lines 23-32: ✅ LoopBreak-style bounded loop (historical label `2` note)
 - Lines 42-57: ✅ LoopSimpleWhile variant with guard-less `loop(true)`
 
 #### File: `apps/selfhost-vm/json_loader.hako` (3 loops)
@@ -134,7 +134,7 @@ loop(true) {
 - ✅ **Monolithic optimization opportunity** - 204 lines of complex control flow
 - ✅ **Real-world JSON parsing** - demonstrates practical JoinIR application
 - ✅ **High performance impact** - guard counter could be eliminated via SSA
-- ❌ **High complexity** - needs new Pattern5 guard-handling variant
+- ❌ **High complexity** - needs new guard-bounded early-exit variant（historical label `5` lane）
 - ❌ **Large scope** - would benefit from split into micro-loops first
 
 **Effort Estimate**: 1-2 weeks

@@ -1,14 +1,14 @@
 Status: Completed
-Scope: Phase 252 (JoinIR Pattern2 break 条件: `this.methodcall(...)` 対応 + policy SSOT)
+Scope: Phase 252 (JoinIR LoopBreak 条件: `this.methodcall(...)` 対応 + policy SSOT)
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/phases/phase-251/README.md
 
-# Phase 252: Pattern2 break 条件の `this.methodcall(...)` 対応
+# Phase 252: LoopBreak 条件の `this.methodcall(...)` 対応
 
 ## 目的
 
-- `--profile quick` の `json_lint_vm` で露出した JoinIR Pattern2 の回帰を潰す。
+- `--profile quick` の `json_lint_vm` で露出した JoinIR LoopBreak route（historical label `2`）の回帰を潰す。
 - 具体的には `if not this.is_whitespace(s.substring(i, i + 1)) { break }` のような
   `this.methodcall(...)` を break 条件として lowering できるようにする。
 
@@ -32,11 +32,11 @@ Related:
 - break 条件のトップレベルが `MethodCall(Me, ...)` の場合に lowering できる分岐を追加。
 - `this` の所属 box 名は `current_static_box_name` を経由して受け取る（固定名分岐しない）。
 
-### 3) `current_static_box_name` の配線（Pattern2 まで）
+### 3) `current_static_box_name` の配線（LoopBreak まで）
 
 変更点:
 - `ConditionContext` に `current_static_box_name` を追加
-- Pattern2 lowering 入力（inputs）から break/header 条件 lowering まで `current_static_box_name` を伝搬
+- LoopBreak lowering 入力（inputs）から break/header 条件 lowering まで `current_static_box_name` を伝搬
 
 注:
 - ここは “構造” による情報伝達であり、特定関数名での回避分岐（ハードコード）ではない。

@@ -1,6 +1,6 @@
 ---
 Status: Complete
-Scope: planner-required expansion (loop_simple_while / loop_continue_only / loop_true_early_exit; legacy Pattern1/4/5 labels are traceability-only)
+Scope: planner-required expansion (loop_simple_while / loop_continue_only / loop_true_early_exit; legacy labels `1/4/5` are traceability-only)
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/30-Backlog.md
@@ -53,8 +53,8 @@ planner-first が通る状態に拡張する。release 既定は不変、JoinIR 
 - planner miss は Freeze、silent fallback は禁止
 - stdout が SSOT。exit code が 0-255 に丸められる場合は allow_rc を使う
 
-P2 note: pattern5_break_min は stdout なし、RC=3 のため allow_rc を使用（cases では __EMPTY__ で表現）。
+P2 note: representative label-5 break fixture token は stdout なし、RC=3 のため allow_rc を使用（cases では __EMPTY__ で表現）。
 Status note: core_loop_routes_planner_required_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
 
-P2 note: pattern5_break_min は stdout なし、RC=3 のため allow_rc を使用。
+P2 note: representative label-5 break fixture token は stdout なし、RC=3 のため allow_rc を使用。
 Status note: core_loop_routes_planner_required_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。

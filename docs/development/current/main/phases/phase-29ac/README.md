@@ -21,7 +21,7 @@ Goal: Convert freeze-fixed scan_with_init / split_scan near-miss cases into PASS
 
 1. **scan_with_init reverse scan**
    - Plan/Normalizer: add reverse support (`i >= 0`, step `i = i - 1`).
-   - Smoke: legacy fixture pin token `phase29ab_pattern6_reverse_ok_min` now OK PASS (RC=1).
+   - Smoke: representative label-6 reverse OK fixture pin token now PASS (RC=1).
 2. **scan_with_init matchscan missing step**
    - Freeze reason: `[joinir/phase29ab/scan_with_init/contract] scan-with-init contract: missing step update`
    - Resolution: add explicit `i = i + 1` step in fixture (contract-aligned).
@@ -34,5 +34,4 @@ Goal: Convert freeze-fixed scan_with_init / split_scan near-miss cases into PASS
 
 - `bash tools/smokes/v2/profiles/integration/joinir/scan_with_init_regression_pack_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/joinir/split_scan_regression_pack_vm.sh`
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern6_*"` (`phase29ab_pattern6_*` = historical fixture pin token family; semantic current entry is `scan_with_init_regression_pack_vm.sh`)
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern7_*"` (`phase29ab_pattern7_*` = historical fixture pin token family; semantic current entry is `split_scan_regression_pack_vm.sh`)
+- legacy label-6 / label-7 fixture pin families are tracked in [phase-29ad/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-29ad/README.md); active current entries are the two semantic regression packs above

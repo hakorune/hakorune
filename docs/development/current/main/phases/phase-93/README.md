@@ -1,7 +1,7 @@
 # Phase 93: ConditionOnly Derived Slot（Trim / body-local）
 
 Status: ✅ Done（P0+P1）
-Scope: loop_break route（historical label: Pattern2）で「ConditionOnly（PHIで運ばない派生値）」を毎イテレーション再計算できるようにする。
+Scope: loop_break route（historical label `2`）で「ConditionOnly（PHIで運ばない派生値）」を毎イテレーション再計算できるようにする。
 Related:
 - 設計地図（入口）: `docs/development/current/main/design/joinir-design-map.md`
 - Phase 92（ConditionalStep / body-local 条件式）: `docs/development/current/main/phases/phase-92/README.md`
@@ -33,7 +33,7 @@ JoinIR で “初回の計算値が固定される” 事故を避ける。
 コミット: `c213ecc3 refactor(mir): Phase 93 リファクタリング - 箱化モジュール化`
 
 - schedule:
-  - `decide_pattern2_schedule()` に判定を集約し、理由（ConditionOnly / body-local / loop-local / default）をSSOT化
+  - loop_break schedule helper に判定を集約し、理由（ConditionOnly / body-local / loop-local / default）をSSOT化
   - 決定→生成を分離（decision→build）してテスト容易性を上げた
 - ConditionOnlyRecipe:
   - `BreakSemantics`（WhenMatch / WhenNotMatch）を recipe に保持し、break 条件生成の責務を recipe 側へ移動
@@ -43,7 +43,7 @@ JoinIR で “初回の計算値が固定される” 事故を避ける。
 
 ## 受け入れ基準（P0）
 
-- `apps/tests/loop_min_while.hako` が退行しない（loop_break baseline; historical label: Pattern2）
+- `apps/tests/loop_min_while.hako` が退行しない（loop_break baseline; historical label `2`）
 - `/tmp/test_body_local_simple.hako` が “毎イテレーション再計算” で期待通り動く
 - ConditionOnly を `ConditionBinding`（join input）で運ばない（初回値固定を禁止）
 
