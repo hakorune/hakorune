@@ -833,7 +833,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - truth cleanup (2026-03-08, slice 149): `phase-269` の bool_predicate_scan phase guide を route/shape 主語へ寄せ、Pattern8 wording は historical token / fixture filename に限定した
     - synced files: `docs/development/current/main/phases/phase-269/README.md` / `CURRENT_TASK.md`
     - intent: active implementation note では `bool_predicate_scan route` と `route/shape parts` を主語にし、`Pattern8` は legacy label 8 と historical file token / fixture token に後退させる
-    - verification: pending
+    - verification: `git diff --check` PASS; `rg -n "legacy Pattern8 label|Phase 268 パターン踏襲|Extract pattern parts" docs/development/current/main/phases/phase-269/README.md` = 0 hit
+  - truth cleanup (2026-03-08, slice 150): `phase-142` の canonicalizer route-shape extension docs と `phase-29ab/263` の historical route token wording を current route/compat taxonomy に揃えた
+    - synced files: `docs/development/current/main/phases/{phase-142,phase-29ab,phase-263}/README.md` / `CURRENT_TASK.md`
+    - intent: active phase docs では `Pattern` を current architecture term にせず、`route shape` / `historical route token` / `historical compat token` を使い分ける。fixture filename・debug output・historical code snippet は evidence lane として維持し、本文の current-looking wording だけを route-first に揃える
+    - verification: `git diff --check` PASS; `rg -n "Recognized Patterns|Pattern Structure|SSOT pattern|Followed existing pattern from skip_whitespace detection|Manual tests: [12] patterns verified" docs/development/current/main/phases/phase-142/README.md | wc -l` = `0`; `rg -n "historical labels: Pattern|Pattern6/7 contracts|Pattern6/7 の OK/contract fixtures" docs/development/current/main/phases/phase-29ab/README.md | wc -l` = `0`; `rg -n "Historical numbered label:|後続経路（legacy binding|legacy label 2 専用だったケース|LoopBreak（historical label 2）" docs/development/current/main/phases/phase-263/README.md | wc -l` = `0`; `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS; `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` = PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
 
 ## next fixed order (resume point)
 

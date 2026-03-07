@@ -47,7 +47,7 @@ let op_multiplier = match operator {
 let delta = const_val * op_multiplier;
 ```
 
-**Recognized Patterns**:
+**Recognized Route Shapes**:
 - skip_whitespace: `p = p + 1` (delta = +1)
 - trim_leading: `start = start + 1` (delta = +1)
 - trim_trailing: `end = end - 1` (delta = -1)
@@ -124,7 +124,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 ### Statistics
 - **Total changes**: +213 lines
 - **Unit tests**: 2 new tests (100% pass)
-- **Manual tests**: 2 patterns verified (strict parity green)
+- **Manual tests**: 2 route shapes verified (strict parity green)
 - **Build status**: ✅ No errors, no warnings (lib)
 
 ### SSOT References
@@ -194,7 +194,7 @@ Extend Canonicalizer to recognize continue route shapes, enabling proper routing
 
 **Current function**: `detect_continue_shape()`
 
-**Pattern Structure**:
+**Route-Shape Structure**:
 ```rust
 loop(cond) {
     // ... optional body statements (Body)
@@ -249,7 +249,7 @@ loop(i < n) {
 - `src/mir/builder.rs` - Re-export to builder level
 - `src/mir/mod.rs` - Re-export to crate level
 
-**Pattern**: Followed existing SSOT pattern from Phase 140-P4-A
+**Contract**: Followed the existing SSOT route-shape contract from Phase 140-P4-A
 
 #### 4. Route-Shape Recognizer Wrapper
 **File**: `src/mir/loop_canonicalizer/route_shape_recognizer.rs`
@@ -303,7 +303,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 #### Box-First Modularization
 - Created dedicated `detect_continue_shape()` function in ast_feature_extractor
 - Maintained SSOT architecture with proper re-export chain
-- Followed existing pattern from skip_whitespace detection
+- Followed the existing route-shape contract from skip_whitespace detection
 
 #### Incremental Implementation
 - Focused on route-shape recognition only (P1 scope)
@@ -330,7 +330,7 @@ NYASH_JOINIR_DEV=1 HAKO_JOINIR_STRICT=1 ./target/release/hakorune \
 - **Total changes**: +318 lines
 - **Unit tests**: 1 new test (100% pass)
 - **All canonicalizer tests**: 8 passed (100%)
-- **Manual tests**: 1 pattern verified (strict parity green)
+- **Manual tests**: 1 route shape verified (strict parity green)
 - **Build status**: ✅ No errors (warnings are pre-existing)
 
 ### SSOT References
