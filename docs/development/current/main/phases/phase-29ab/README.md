@@ -15,24 +15,18 @@ scan_with_init / split_scan route の OK/contract fixtures（historical tokens: 
 - `docs/development/current/main/design/pattern6-7-contracts.md`
 
 ### loop_break / Phase 263 (historical fixture inventory)
-- LoopBodyLocal min (historical fixture pin token):
-  - `apps/tests/phase29ab_pattern2_loopbodylocal_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh`
-- LoopBodyLocal seg (historical fixture pin token):
-  - `apps/tests/phase29ab_pattern2_loopbodylocal_seg_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
-- seg notapplicable (historical fixture pin token):
-  - `apps/tests/phase29ab_pattern2_seg_notapplicable_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_notapplicable_min_vm.sh`
-- seg freeze (historical fixture pin token):
-  - `apps/tests/phase29ab_pattern2_seg_freeze_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_freeze_min_vm.sh`
-- Phase 263 real-world seg (historical fixture pin token; Derived slot path):
-  - `apps/tests/phase263_pattern2_seg_realworld_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/archive/phase263_pattern2_seg_realworld_min_vm.sh`
+- legacy fixture pin family: `phase29ab_pattern2_*`
+  - evidence lanes: `loopbodylocal_min`, `loopbodylocal_seg_min`, `seg_notapplicable_min`, `seg_freeze_min`
+  - archived smoke stems mirror the same wildcard family under `tools/smokes/v2/profiles/integration/apps/archive/`
+- representative Phase 263 real-world seg evidence lane:
+  - legacy fixture pin family rooted at `phase263_pattern2_seg_*`
+  - archived smoke stems mirror the same wildcard family under the same archive lane
 
 ## Commands
 
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern2_*"`  # historical replay only; current regression gate is `phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern6_*"`
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern7_*"`
+- historical replay template:
+  - `./tools/smokes/v2/run.sh --profile integration --filter "<legacy-lane-stem>*"`
+- current lane mapping:
+  - `phase29ab_pattern2_*` = loop_break historical replay only（current regression gate: `phase29ae_regression_pack_vm.sh`）
+  - `phase29ab_pattern6_*` = scan_with_init historical replay only
+  - `phase29ab_pattern7_*` = split_scan historical replay only

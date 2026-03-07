@@ -48,7 +48,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 このフェーズで一番起きやすい事故は「`return` をどこで処理するべきか分からず、pattern 側へ散布してしまう」こと。
 そこで、**どの経路で lower されるか**を前提に責務を固定する。
 
-### A) Plan line（scan_with_init / split_scan; historical labels: Pattern6/7）
+### A) Plan line（scan_with_init / split_scan; historical labels `6/7`）
 
 - 入口: `src/mir/builder/control_flow/joinir/route_entry/router.rs`（route=plan）
   - historical path token: `router.rs` under the old `joinir/patterns/` lane
@@ -58,7 +58,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
   - `src/mir/builder/control_flow/edgecfg/api/emit.rs`（`emit_frag()` terminator SSOT）
 - ここでは `return` を **Return edge（ExitKind::Return）**として組み立てるのが自然。
 
-### B) JoinIR line（historical numbered labels: Pattern1–5,9）
+### B) JoinIR line（historical numbered labels `1–5,9`）
 
 - 入口: `src/mir/builder/control_flow/joinir/route_entry/router.rs`（route=joinir）
   - same historical route-entry lane as above (`router.rs`)
@@ -68,11 +68,11 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
     - historical joinir/patterns lane token: `conversion_pipeline.rs`
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`（Return merge / exit block SSOT）
 - **注意**: `src/mir/builder/control_flow/plan/normalizer/mod.rs` は Plan line 専用なので、
-  LoopContinueOnly / LoopTrueEarlyExit（historical labels: Pattern4/5）の return 問題の root fix をここへ寄せても効かない。
+  LoopContinueOnly / LoopTrueEarlyExit（historical labels `4/5`）の return 問題の root fix をここへ寄せても効かない。
 
 ### 禁止事項（Phase 284 の憲法）
 
-- ❌ historical `Pattern4/5` の `lower()` へ「return を特別扱いする if」を散布しない（SSOTが割れる）
+- ❌ historical label-`4/5` lowerer へ「return を特別扱いする if」を散布しない（SSOTが割れる）
 - ❌ Extractor が `return` を見つけた時に `Ok(None)` で黙殺しない（silent reroute 禁止）
 - ✅ `return` の “対応/非対応” は **共通入口の Fail-Fast**で固定する（P1 で実装）
 
@@ -87,7 +87,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 
 **実装完了内容**:
 1. **return_collector.rs** - Return statement detection SSOT (既存)
-2. **return_jump_emitter.rs** - Return jump emission helper (LoopContinueOnly / LoopTrueEarlyExit reuse; historical labels: Pattern4/5) ⭐NEW
+2. **return_jump_emitter.rs** - Return jump emission helper (LoopContinueOnly / LoopTrueEarlyExit reuse; historical labels `4/5`) ⭐NEW
 3. **block_remapper.rs** - Block ID remap SSOT (Phase 284 P1 Fix) ⭐NEW
 4. **Loop refactoring** - loop_with_continue_minimal.rs simplified (~100 lines removed)
 5. **Instruction/terminator updates** - Use block_remapper SSOT
@@ -95,14 +95,14 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 **コード品質向上**:
 - Return handling: ~100 lines inline code → 1 function call
 - Block remapping: Duplicate logic → SSOT function
-- Future reusability: LoopTrueEarlyExit（historical label: Pattern5）can now reuse return_jump_emitter
+- Future reusability: LoopTrueEarlyExit（historical label `5`）can now reuse return_jump_emitter
 
 ### P2（smoke 固定） ✅ COMPLETE (2025-12-26)
 
 **目的**: return を含む loop を VM/LLVM 両方で同一結果にし、integration smoke で固定。
 
 **対象 fixture（既存再利用優先）**:
-- `apps/tests/phase286_pattern5_return_min.hako` (exit 7) - Return-in-infinite-loop
+- representative legacy fixture pin token for the return-in-infinite-loop case (exit 7)
 
 **smoke スクリプト**:
 - `tools/smokes/v2/profiles/integration/apps/archive/phase284_p2_return_in_loop_vm.sh` (VM)
@@ -117,7 +117,7 @@ Phase 284 の完了条件は「`return` を含むケースが close-but-unsuppor
 
 ### P3+（将来）
 
-- 他の return route family（BoolPredicateScan など; historical label: Pattern8）の smoke 追加
+- 他の return route family（BoolPredicateScan など; historical label `8`）の smoke 追加
 - LLVM AOT 経路での return 検証
 
 ## Acceptance
@@ -131,7 +131,7 @@ P1 の root fix は「PlanNormalizer へ寄せる」ではなく、**JoinIR line
 
 - 入口候補:
   - `src/mir/builder/control_flow/plan/conversion_pipeline.rs`（current single entry; historical joinir/patterns lane: `conversion_pipeline.rs`）
-  - もしくは JoinIR lowerer 側に “Return collector” を 1 箇所だけ作り、LoopContinueOnly / LoopTrueEarlyExit（historical labels: Pattern4/5）はそれを呼ぶだけにする
+  - もしくは JoinIR lowerer 側に “Return collector” を 1 箇所だけ作り、LoopContinueOnly / LoopTrueEarlyExit（historical labels `4/5`）はそれを呼ぶだけにする
 
 どちらにしても、目的は同じ：
 - pattern 側へロジックを増やさず（散布しない）

@@ -1,28 +1,28 @@
-# Phase 256: StringUtils.split/2 route support（historical Pattern6/7 labels）
+# Phase 256: StringUtils.split/2 route support（historical labels `6/7`）
 
 Status: Completed
 Scope: Loop route recognition for split/tokenization operations
 Related:
 - Phase 255 完了（loop_invariants 導入、scan_with_init route 完成）
-- Phase 254 完了（scan_with_init route / historical Pattern6 index_of 実装）
+- Phase 254 完了（scan_with_init route / historical label `6` index_of 実装）
 - North star（設計目標）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 
 ## Current Status (SSOT)
 
 - Current first FAIL: `json_lint_vm / StringUtils.last_index_of/2`（loop with early return shape - unsupported）
 - `StringUtils.split/2` は VM `--verify` / smoke まで PASS
-- scan_with_init route（historical Pattern6 index_of lane）は PASS 維持
+- scan_with_init route（historical label `6` index_of lane）は PASS 維持
 - 次フェーズ: Phase 257（`last_index_of/2` の reverse scan + early return loop）
 - 直近の完了:
-  - P1.13: LoopBreak（historical label: Pattern2）boundary entry_param_mismatch 根治（`join_module.entry.params` SSOT 化）
-  - P1.13.5（= Phase 256.8.5）: LoopContinueOnly / ScanWithInit / SplitScan（historical labels: Pattern4/6/7）でも `boundary.join_inputs` を `join_module.entry.params` SSOT に統一（hardcoded ValueId/PARAM_MIN を撤去）
+  - P1.13: LoopBreak（historical label: `2`）boundary entry_param_mismatch 根治（`join_module.entry.params` SSOT 化）
+  - P1.13.5（= Phase 256.8.5）: LoopContinueOnly / ScanWithInit / SplitScan（historical labels: `4/6/7`）でも `boundary.join_inputs` を `join_module.entry.params` SSOT に統一（hardcoded ValueId/PARAM_MIN を撤去）
   - P1.10: DCE が `jump_args` 参照を保持し、`instruction_spans` と同期するよう修正（回帰テスト追加）
   - P1.7: SSA undef（`%49/%67`）根治（continuation 関数名の SSOT 不一致）
   - P1.6: pipeline contract checks を `run_all_pipeline_checks()` に集約
 - 次の作業: Phase 257（last_index_of pattern - loop with return support）
 - 設計メモ（ChatGPT Pro 相談まとめ）: `docs/development/current/main/investigations/phase-256-joinir-contract-questions.md`
 - Known issue（非ブロッカー）:
-  - SplitScan（historical label: Pattern7）integration smoke で `phi predecessor mismatch` が残っている（今回の boundary SSOT 統一とは独立）
+  - SplitScan（historical label: `7`）integration smoke で `phi predecessor mismatch` が残っている（今回の boundary SSOT 統一とは独立）
 
 ---
 
@@ -115,15 +115,15 @@ split(s, separator) {
 Missing caps: [ConstStep]
 ```
 
-- 既存の Pattern 1-6 は定数ステップを想定
+- 既存の early route families（historical labels `1-6`）は定数ステップを想定
 - このループは条件分岐で異なるステップ幅を使う
-- Pattern 2 (balanced_depth_scan) に近いが、可変ステップがネック
+- loop_break family（historical label `2`; 당시 balanced_depth_scan 系）に近いが、可変ステップがネック
 
 ### 実装計画
 
-#### Option A: Pattern 7 - Split/Tokenization Pattern
+#### Option A: Split/Tokenization route family（historical label `7`）
 
-**新しいパターン追加**:
+**新しい route family 追加**:
 - 可変ステップサポート
 - 複数キャリア（i, start, accumulator）
 - If-else での異なるステップ幅処理
@@ -135,9 +135,9 @@ Missing caps: [ConstStep]
    - Else: `i = i + 1` (定数ステップ)
 3. Accumulator への追加操作 (`push` など)
 
-#### Option B: Pattern 2 拡張
+#### Option B: loop_break family（historical label `2`）拡張
 
-**既存 Pattern 2 を拡張**:
+**既存 loop_break family を拡張**:
 - ConstStep 要件を緩和
 - If-else で異なるステップ幅を許可
 - balanced_depth_scan_policy を拡張
@@ -152,7 +152,7 @@ Missing caps: [ConstStep]
 
 1. **StepTree 詳細解析**: split ループの完全な AST 構造確認
 2. **類似パターン調査**: 他の可変ステップループ（indexOf, contains など）
-3. **Option 選択**: Pattern 7 新設 vs Pattern 2 拡張 vs Normalization
+3. **Option 選択**: historical label `7` 新設 vs label `2` 拡張 vs Normalization
 4. **実装戦略策定**: 選択した Option の詳細設計
 
 ---
@@ -167,11 +167,11 @@ Missing caps: [ConstStep]
 
 ### 推奨方針（P0）
 
-Option A（Pattern 7 新設）を推奨。
+Option A（SplitScan route family / historical label `7`）を推奨。
 
 理由:
 - 可変 step（then: `i = start` / else: `i = i + 1`）は既存の ConstStep 前提と相性が悪い。
-- Pattern 2 を膨らませず、tokenization 系の “専用パターン” として箱化した方が責務が綺麗。
+- loop_break family（historical label `2`）を膨らませず、tokenization 系の専用 route family として箱化した方が責務が綺麗。
 
 ### P0 タスク
 
@@ -213,13 +213,13 @@ Option A（Pattern 7 新設）を推奨。
 
 ## 進捗（P0/P1）
 
-### P0: Pattern 7 基本実装（完了）
+### P0: SplitScan 基本実装（historical label `7`, 完了）
 
 - Fixture & smokes（integration）:
   - `apps/tests/phase256_p0_split_min.hako`
   - `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/archive/phase256_p0_split_llvm_exe.sh`
-- Pattern 7:
+- SplitScan route family:
   - Detector / Extractor / JoinIR lowerer / MirBuilder 統合まで実装
   - JoinIR lowerer は可変 step を `JoinInst::Select` で表現
 
@@ -311,7 +311,7 @@ Option A（Pattern 7 新設）を推奨。
 
 #### 次のブロッカー（P1.5 Task 3.2）
 
-`ValueId(57)` は直ったが、SplitScan（historical label: Pattern7 / split）はまだ PASS していない。新たに以下が露出:
+`ValueId(57)` は直ったが、SplitScan（historical label: `7` / split）はまだ PASS していない。新たに以下が露出:
 
 - SSA:
   - `Undefined value %49 used in block bb10`
@@ -341,7 +341,7 @@ Option A（Pattern 7 新設）を推奨。
 
 目的:
 - `boundary.join_inputs` と JoinIR entry function の `params` の対応（個数/順序/ValueId）を **VM 実行前**に fail-fast で検出する。
-- これにより、ScanWithInit（historical label: Pattern6）で起きた `loop_invariants` 順序バグ（例: `[s, ch]` ↔ `[ch, s]`）のような問題を「実行時の undef」ではなく「構造エラー」として落とせる。
+- これにより、ScanWithInit（historical label: `6`）で起きた `loop_invariants` 順序バグ（例: `[s, ch]` ↔ `[ch, s]`）のような問題を「実行時の undef」ではなく「構造エラー」として落とせる。
 
 実装（SSOT）:
 - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs`
@@ -488,7 +488,7 @@ Option A（Pattern 7 新設）を推奨。
 
 ## 進捗（P1.13）
 
-### P1.13: LoopBreak boundary entry_param_mismatch 根治（historical label: Pattern2, 完了）
+### P1.13: LoopBreak boundary entry_param_mismatch 根治（historical label: `2`, 完了）
 
 症状（json_lint_vm / StringUtils.trim_end/1）:
 ```
@@ -509,7 +509,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
 
 実装（SSOT）:
 - `src/mir/builder/control_flow/plan/loop_break_steps/emit_joinir_step_box.rs`
-  - historical path token: `emit_joinir_step_box.rs` in the old `pattern2_steps` lane (lines 71-96)
+  - historical path token: `emit_joinir_step_box.rs` in the old label-2 step lane (lines 71-96)
   - Entry function extraction (priority: `join_module.entry` → fallback to "main")
   - `join_input_slots = main_func.params.clone()` (SSOT from JoinModule)
   - `host_input_values` を同じ順序で構築（loop_var + carriers）
@@ -524,7 +524,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
   - Structure: `loop(i >= 0) { if (cond) { return value } i = i - 1 } return default`
   - Capabilities: `caps=If,Loop,Return` (no Break)
   - Missing: ConstStep capability
-  - Approach: Extend LoopBreak（historical label: Pattern2）to handle return (similar to break) or create LoopBreakReturn variant
+  - Approach: Extend LoopBreak（historical label: `2`）to handle return (similar to break) or create LoopBreakReturn variant
   - Fixture: `apps/tests/phase257_p0_last_index_of_min.hako`
   - Integration smokes: `phase257_p0_last_index_of_vm.sh`, `phase257_p0_last_index_of_llvm_exe.sh`
 
@@ -539,7 +539,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
 - Fail-fast validation（params count mismatch）を全パターンに追加
 - 共通ヘルパ `get_entry_function()` を抽出
   - current helper path: `src/mir/builder/control_flow/plan/common/joinir_helpers.rs`
-  - historical path token: `joinir_helpers.rs` in the old `patterns/common` lane
+  - historical path token: `joinir_helpers.rs` in the old route-entry predecessor common lane
 
 修正ファイル:
 - current route files:
@@ -547,7 +547,7 @@ Hint: parameter ValueId mismatch indicates boundary.join_inputs constructed in w
   - `src/mir/join_ir/lowering/scan_with_init_minimal.rs`
   - `src/mir/join_ir/lowering/split_scan_minimal.rs`
 - historical path tokens:
-  - same historical route-helper lane as above (`pattern4_with_continue.rs`, `pattern6_scan_with_init.rs`, `pattern7_split_scan.rs`, `common/joinir_helpers.rs`)
+  - same historical route-helper lane as above（continue / scan_with_init / split_scan helper basenames omitted here to reduce repeated token noise）
 
 結果:
 - Entry param mismatch の構造的防止（全パターン統一）

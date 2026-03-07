@@ -874,25 +874,33 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-142,phase-29ad}/README.md` / `CURRENT_TASK.md`
     - intent: `phase-142` は route-shape current wording を維持しつつ、trim/simple-continue/parse_string の raw fixture token と `Pattern2Break` / `Pattern4Continue` dump を evidence summary に圧縮する。`phase-29ad` は exact file-by-file mapping ではなく `phase29ab_pattern6_*` / `phase29ab_pattern7_*` wildcard family を SSOT とする inventory-only lane に寄せる
     - verification: `git diff --check` PASS; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/phase-142/README.md | wc -l` = `0`; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/phase-29ad/README.md | wc -l` = `7`; `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` = PASS; `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` = PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
+  - truth cleanup (2026-03-08, slice 160): `phase-29ab/256/284` の numbered-label prose と repeated exact fixture/helper token を route-family / wildcard inventory phrasing に寄せた
+    - synced files: `docs/development/current/main/phases/{phase-29ab,phase-256,phase-284}/README.md` / `CURRENT_TASK.md`
+    - intent: `phase-29ab` は historical replay を wildcard family inventory に圧縮し、`phase-256` は `Pattern2/6/7` を loop_break / scan_with_init / split_scan と numeric label note に置き換える。`phase-284` は label `4/5/6/7/8` を repeated parenthetical から外し、return SSOT の本文主語を semantic route family に戻す
+    - verification: `git diff --check` PASS; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/{phase-29ab,phase-256,phase-284}/README.md` = intended wildcard inventory / residual historical label hits only
+  - truth cleanup (2026-03-08, slice 161): `phase-263` の token-A/B alias 化と `phase-29ab` の replay command template 化を入れ、broad residue snapshot を `162` まで更新した
+    - synced files: `docs/development/current/main/phases/{phase-263,phase-29ab}/README.md` / `CURRENT_TASK.md`
+    - intent: `phase-263` は `pattern2` literal を debug tag / commit message / representative realworld evidence に限定し、周辺 prose は `token-A` / `token-B` / `old label-2 lane` に寄せる。`phase-29ab` は replay command を `<legacy-lane-stem>*` template に寄せ、route family mapping だけを残す
+    - verification: `git diff --check` PASS; `python` inventory で `docs/development/current/main/phases/**/README.md` の `Pattern[0-9]|pattern[0-9]_` total = `162`; top files = `phase-29ad=9`, `phase-263=8`, `phase-255=8`, `phase-188.3=8`, `phase-118=8`, `phase-281=7`
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
 2. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `historical compat wrapper` / `active semantic wrapper` にさらに分離し、design 側の tag/fixture inventories と役割を揃える。
-3. phase README truth cleanup: [phase-263/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-263/README.md) / [phase-256/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-256/README.md) / [phase-29ab/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-29ab/README.md) / [phase-284/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-284/README.md) の残り fixture token / debug token を evidence lane に寄せきり、[phase-29ad/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-29ad/README.md) は wildcard inventory-only lane として維持する。
+3. phase README truth cleanup: [phase-263/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-263/README.md) / [phase-255/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-255/README.md) / [phase-188.3/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-188.3/README.md) / [phase-118/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-118/README.md) の残り fixture token / debug token を evidence lane に寄せきり、[phase-29ad/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-29ad/README.md) は wildcard inventory-only lane として維持する。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 5. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
 
 ## Remaining Effort Snapshot (2026-03-08)
 
-- total estimate: あと **1-2 slices** で current compiler/docs cleanup はかなり収束、repo 全体の historical/compat token 後始末まで含めると **3-4 slices**
+- total estimate: あと **1 slice 前後** で current compiler/docs cleanup はかなり収束、repo 全体の historical/compat token 後始末まで含めると **2-4 slices**
 - highest-value remaining docs:
   1. compat token retirement lane (`smoke stem` / `selfhost filter` / `fixture key`)
   2. `docs/development/current/main/phases/phase-263/README.md`
-  3. `docs/development/current/main/phases/phase-256/README.md`
-  4. `docs/development/current/main/phases/phase-29ab/README.md`
-  5. `docs/development/current/main/phases/phase-284/README.md`
+  3. `docs/development/current/main/phases/phase-29ad/README.md`
+  4. `docs/development/current/main/phases/phase-255/README.md`
+  5. `docs/development/current/main/phases/phase-188.3/README.md`
   6. low-risk dust cleanup
 - compat token retirement lane:
   - smoke stem / selfhost filter / fixture key の caller 0 棚卸しと retire phase
@@ -902,10 +910,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - その 1 hit は `src/mir/join_ir/frontend/ast_lowerer/route.rs:106` の intentional by-name legacy fixture key allowlist（`pattern3_if_sum_multi_min`）
   - 残りは physical path / generic wording / intentional legacy token が中心
 - phase/docs residue snapshot:
-  - `docs/development/current/main/phases/**/README.md` の `PatternN` / `patternN_` broad grep は **200 hits**
-  - 上位残件は `phase-263=15`, `phase-256=14`, `phase-29ab=13`, `phase-29ad=9`, `phase-284=9`, `phase-255=8`
+  - `docs/development/current/main/phases/**/README.md` の `PatternN` / `patternN_` broad grep は **162 hits**
+  - 上位残件は `phase-29ad=9`, `phase-263=8`, `phase-255=8`, `phase-188.3=8`, `phase-118=8`, `phase-281=7`
   - `phase-142` + `phase-143` の broad grep は **0 hits**
-  - `phase-263` + `phase-286` の broad grep は **25 hits**、old-path token は **0 hits**
+  - `phase-263` + `phase-29ab` の broad grep は **13 hits**、多くは replay/inventory/debug evidence lane
   - ただし多くは historical label / fixture token / archive stem / debug token で、current architecture prose はかなり整理済み
 
 ## Quick Restart (After Reboot)
