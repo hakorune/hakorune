@@ -9,6 +9,7 @@
 
 - JoinIR の地図（navigation SSOT）: `docs/development/current/main/design/joinir-design-map.md`
 - route physical path lane / loop route detection rename candidate: `docs/development/current/main/design/route-physical-path-legacy-lane-ssot.md`
+- loop route detection physical-path retirement: `docs/development/current/main/design/loop-route-detection-physical-path-retirement-ssot.md`
 - JoinIR 拡張の固定順序（dual-route 契約 SSOT）: `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
 - Join-Explicit CFG Construction（north star）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 - Compiler Pipeline（north star; 箱の責務/入口の最終形SSOT）: `docs/development/current/main/design/compiler-pipeline-ssot.md`

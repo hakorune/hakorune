@@ -6,6 +6,7 @@ Related:
 - docs/development/current/main/design/joinir-design-map.md
 - docs/development/current/main/design/compiler-task-map-ssot.md
 - docs/development/current/main/design/plan-lowering-entry-ssot.md
+- docs/development/current/main/design/loop-route-detection-physical-path-retirement-ssot.md
 - src/mir/builder/control_flow/joinir/route_entry/README.md
 - src/mir/loop_pattern_detection/mod.rs
 ---
@@ -57,6 +58,7 @@ Rename later when:
 - active docs で module surface-first が定着している。
 - historical path pin を archive / inventory に追い出せる。
 - dedicated rename phase を切って build + fast gate + probe をまとめて固定できる。
+- dedicated inventory / retire conditions は `loop-route-detection-physical-path-retirement-ssot.md` に集約する。
 
 ## Non-goals
 
