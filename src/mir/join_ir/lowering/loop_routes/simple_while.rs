@@ -83,7 +83,7 @@ use crate::mir::loop_form::LoopForm;
 /// # Example Usage
 ///
 /// ```rust,ignore
-/// use crate::mir::loop_pattern_detection::is_loop_simple_while_route;
+/// use crate::mir::loop_route_detection::is_loop_simple_while_route;
 ///
 /// if is_loop_simple_while_route(&loop_form) {
 ///     lower_simple_while_to_joinir(&loop_form, &mut lowerer)?;

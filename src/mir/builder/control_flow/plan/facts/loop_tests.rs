@@ -55,7 +55,7 @@ mod tests {
     use super::super::{try_build_loop_facts, try_build_loop_facts_with_ctx};
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::planner::PlannerContext;
-    use crate::mir::loop_pattern_detection::LoopRouteKind;
+    use crate::mir::loop_route_detection::LoopRouteKind;
 
     fn v(name: &str) -> ASTNode {
         ASTNode::Variable {

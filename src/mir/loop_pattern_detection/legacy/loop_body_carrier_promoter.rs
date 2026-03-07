@@ -22,7 +22,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::loop_pattern_detection::loop_condition_scope::LoopConditionScope;
+use crate::mir::loop_route_detection::loop_condition_scope::LoopConditionScope;
 
 /// 昇格リクエスト
 pub struct PromotionRequest<'a> {
@@ -128,8 +128,8 @@ impl LoopBodyCarrierPromoter {
     /// 2. TrimDetector で純粋な検出ロジックを実行
     /// 3. 昇格可能なら TrimRouteInfo を返す
     pub fn try_promote(request: &PromotionRequest) -> PromotionResult {
-        use crate::mir::loop_pattern_detection::loop_condition_scope::CondVarScope;
-        use crate::mir::loop_pattern_detection::trim_detector::TrimDetector;
+        use crate::mir::loop_route_detection::loop_condition_scope::CondVarScope;
+        use crate::mir::loop_route_detection::trim_detector::TrimDetector;
 
         // 1. body-local 変数を抽出
         let body_locals: Vec<&String> = request
@@ -209,7 +209,7 @@ impl LoopBodyCarrierPromoter {
 mod tests {
     use super::*;
     use crate::ast::{BinaryOperator, LiteralValue, Span};
-    use crate::mir::loop_pattern_detection::loop_condition_scope::{
+    use crate::mir::loop_route_detection::loop_condition_scope::{
         CondVarScope, LoopConditionScope,
     };
     use crate::mir::BasicBlockId;

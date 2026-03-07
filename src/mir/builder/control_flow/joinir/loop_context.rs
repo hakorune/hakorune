@@ -9,7 +9,7 @@
 
 use crate::ast::{ASTNode, Span};
 use crate::mir::loop_canonicalizer::{LoopSkeleton, RoutingDecision};
-use crate::mir::loop_pattern_detection::LoopRouteKind;
+use crate::mir::loop_route_detection::LoopRouteKind;
 
 /// Loop processing context - SSOT for AST + Skeleton + Route
 ///

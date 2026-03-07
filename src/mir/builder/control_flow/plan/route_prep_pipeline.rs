@@ -39,7 +39,7 @@ use crate::mir::join_ir::lowering::condition_env::ConditionEnv;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr;
 use crate::mir::join_ir::lowering::loop_update_summary::LoopUpdateSummary; // Phase 213
-use crate::mir::loop_pattern_detection::trim_loop_helper::TrimLoopHelper;
+use crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper;
 use crate::mir::BasicBlockId;
 use crate::mir::ValueId;
 use std::collections::{BTreeMap, BTreeSet}; // Phase 222.5-D: HashMap → BTreeMap for determinism

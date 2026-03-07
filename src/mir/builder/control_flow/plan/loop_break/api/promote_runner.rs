@@ -28,7 +28,7 @@ pub(in crate::mir::builder) fn try_promote(
 ) -> Result<PromoteDecision, String> {
     let mut inputs = inputs;
     use crate::mir::join_ir::lowering::digitpos_condition_normalizer::DigitPosConditionNormalizer;
-    use crate::mir::loop_pattern_detection::loop_condition_scope::LoopConditionScopeBox;
+    use crate::mir::loop_route_detection::loop_condition_scope::LoopConditionScopeBox;
 
     let cond_scope = LoopConditionScopeBox::analyze(
         &inputs.loop_var_name,
@@ -40,7 +40,7 @@ pub(in crate::mir::builder) fn try_promote(
     let cond_body_local_vars: Vec<String> = cond_scope
         .vars
         .iter()
-        .filter(|v| matches!(v.scope, crate::mir::loop_pattern_detection::loop_condition_scope::CondVarScope::LoopBodyLocal))
+        .filter(|v| matches!(v.scope, crate::mir::loop_route_detection::loop_condition_scope::CondVarScope::LoopBodyLocal))
         .map(|v| v.name.clone())
         .collect();
 

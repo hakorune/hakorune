@@ -19,7 +19,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-use crate::mir::loop_pattern_detection::LoopRouteKind;
+use crate::mir::loop_route_detection::LoopRouteKind;
 
 // Phase 273 P1: Import Plan components (facts/recipe outcome -> verifier -> lowerer)
 use super::registry;

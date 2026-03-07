@@ -7,7 +7,7 @@
 use super::carrier_info::CarrierInfo;
 use super::condition_env::ConditionEnv;
 use super::loop_body_local_env::LoopBodyLocalEnv;
-use crate::mir::loop_pattern_detection::function_scope_capture::CapturedEnv;
+use crate::mir::loop_route_detection::function_scope_capture::CapturedEnv;
 use crate::mir::ValueId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -85,7 +85,7 @@ impl<'a> ScopeManager for LoopBreakScopeManager<'a> {
 mod tests {
     use super::*;
     use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, CarrierInit, CarrierRole, CarrierVar};
-    use crate::mir::loop_pattern_detection::function_scope_capture::CapturedVar;
+    use crate::mir::loop_route_detection::function_scope_capture::CapturedVar;
 
     #[test]
     fn test_loop_break_scope_manager_loop_var() {
@@ -205,12 +205,12 @@ mod tests {
         condition_env.insert("len".to_string(), ValueId(201));
 
         let mut captured_env =
-            crate::mir::loop_pattern_detection::function_scope_capture::CapturedEnv::new();
+            crate::mir::loop_route_detection::function_scope_capture::CapturedEnv::new();
         captured_env.add_var(CapturedVar {
             name: "len".to_string(),
             host_id: ValueId(42),
             is_immutable: true,
-            kind: crate::mir::loop_pattern_detection::function_scope_capture::CapturedKind::Explicit,
+            kind: crate::mir::loop_route_detection::function_scope_capture::CapturedKind::Explicit,
         });
 
         let carrier_info = CarrierInfo {

@@ -78,7 +78,7 @@ use crate::mir::join_ir::lowering::step_schedule::{
 };
 use crate::mir::loop_canonicalizer::LoopSkeleton;
 use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinInst, JoinModule, MirLikeInst, UnaryOp};
-use crate::mir::loop_pattern_detection::loop_condition_scope::{
+use crate::mir::loop_route_detection::loop_condition_scope::{
     extract_loop_body_local_names, LoopConditionScopeBox,
 };
 use crate::mir::ValueId;

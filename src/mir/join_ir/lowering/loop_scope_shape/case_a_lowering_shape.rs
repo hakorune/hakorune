@@ -105,7 +105,7 @@ impl CaseALoweringShape {
     /// * `has_progress_carrier` - Whether progress carrier exists
     #[allow(dead_code)]
     pub fn detect_from_features(
-        features: &crate::mir::loop_pattern_detection::LoopFeatures,
+        features: &crate::mir::loop_route_detection::LoopFeatures,
         carrier_count: usize,
         has_progress_carrier: bool,
     ) -> Self {
@@ -168,7 +168,7 @@ impl CaseALoweringShape {
     /// More precise CaseALoweringShape classification
     #[allow(dead_code)]
     pub fn detect_with_carrier_name(
-        features: &crate::mir::loop_pattern_detection::LoopFeatures,
+        features: &crate::mir::loop_route_detection::LoopFeatures,
         carrier_count: usize,
         has_progress_carrier: bool,
         progress_carrier_name: Option<&str>,
@@ -217,7 +217,7 @@ impl CaseALoweringShape {
     /// # Returns
     /// CaseALoweringShape classification based on UpdateSummary
     pub fn detect_with_updates(
-        features: &crate::mir::loop_pattern_detection::LoopFeatures,
+        features: &crate::mir::loop_route_detection::LoopFeatures,
         carrier_count: usize,
         has_progress_carrier: bool,
     ) -> Self {
@@ -306,7 +306,7 @@ impl CaseALoweringShape {
             );
 
         // Create stub features (Phase 170-B will use real LoopFeatures)
-        let stub_features = crate::mir::loop_pattern_detection::LoopFeatures {
+        let stub_features = crate::mir::loop_route_detection::LoopFeatures {
             carrier_count,
             update_summary: Some(update_summary),
             ..Default::default()  // Phase 188.1: Use Default for nesting fields

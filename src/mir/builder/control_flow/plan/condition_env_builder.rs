@@ -31,7 +31,7 @@ use crate::mir::join_ir::lowering::condition_env::{ConditionBinding, ConditionEn
 use crate::mir::join_ir::lowering::condition_to_joinir::extract_condition_variables;
 use crate::mir::join_ir::lowering::inline_boundary_builder::JoinInlineBoundaryBuilder;
 use crate::mir::join_ir::lowering::join_value_space::JoinValueSpace;
-use crate::mir::loop_pattern_detection::function_scope_capture::CapturedEnv;
+use crate::mir::loop_route_detection::function_scope_capture::CapturedEnv;
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
 

@@ -19,7 +19,7 @@ use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr;
 use crate::mir::ValueId;
 
-use crate::mir::loop_pattern_detection::function_scope_capture::CapturedEnv;
+use crate::mir::loop_route_detection::function_scope_capture::CapturedEnv;
 
 pub(crate) struct LoopBreakDebugLog {
     verbose: bool,
@@ -117,7 +117,7 @@ impl LoopBreakPrepFactsBox {
     ) -> Result<LoopBreakPrepFacts, String> {
         let log = LoopBreakDebugLog::new(verbose);
         use crate::mir::builder::control_flow::plan::condition_env_builder::ConditionEnvBuilder;
-        use crate::mir::loop_pattern_detection::function_scope_capture::{analyze_captured_vars_v2, CapturedEnv};
+        use crate::mir::loop_route_detection::function_scope_capture::{analyze_captured_vars_v2, CapturedEnv};
 
         let loop_var_name = ctx.loop_var_name.clone();
         let loop_var_id = ctx.loop_var_id;
@@ -175,7 +175,7 @@ impl LoopBreakPrepFactsBox {
             builder.variable_ctx.variable_map.keys().cloned().collect();
 
         if !candidate_locals.is_empty() {
-            use crate::mir::loop_pattern_detection::pinned_local_analyzer::analyze_pinned_locals;
+            use crate::mir::loop_route_detection::pinned_local_analyzer::analyze_pinned_locals;
 
             match analyze_pinned_locals(body, &candidate_locals) {
                 Ok(pinned_names) => {
@@ -213,7 +213,7 @@ impl LoopBreakPrepFactsBox {
         }
 
         // Phase 100 P2-2: Mutable Accumulator Analysis
-        use crate::mir::loop_pattern_detection::mutable_accumulator_analyzer::{
+        use crate::mir::loop_route_detection::mutable_accumulator_analyzer::{
             AccumulatorKind, MutableAccumulatorAnalyzer, RhsExprKind,
         };
 

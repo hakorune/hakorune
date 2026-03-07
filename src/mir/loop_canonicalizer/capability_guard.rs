@@ -3,7 +3,7 @@
 //! This module defines the vocabulary for route selection and failure reasons.
 //! It provides standardized capability tags and routing decision structures.
 
-use crate::mir::loop_pattern_detection::LoopRouteKind;
+use crate::mir::loop_route_detection::LoopRouteKind;
 
 // ============================================================================
 // Routing Decision

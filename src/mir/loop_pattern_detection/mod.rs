@@ -1,5 +1,8 @@
 //! Loop route-shape detection module
 //!
+//! Active module surface: `crate::mir::loop_route_detection`
+//! Legacy physical path: `src/mir/loop_pattern_detection/`
+//!
 //! Phase 188 Task 188-4: Route-shape detection helpers for JoinIR loop lowering.
 //!
 //! This module provides detection functions for the current loop route families:
@@ -22,7 +25,8 @@
 //! Reference: docs/private/roadmap2/phases/phase-188-joinir-loop-pattern-expansion/design.md
 //!
 //! Legacy detection (Phase 188 name-based) lives under `legacy/` and is
-//! re-exported here for compatibility.
+//! re-exported here for compatibility. Current code should prefer the
+//! `crate::mir::loop_route_detection::*` module surface.
 
 mod classify;
 mod features;

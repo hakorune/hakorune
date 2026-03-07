@@ -75,7 +75,7 @@ impl LoopViewBuilder {
         let carrier_names: Vec<String> = scope.carriers.iter().cloned().collect();
         let update_summary = loop_update_summary::analyze_loop_updates_by_name(&carrier_names);
 
-        let stub_features = crate::mir::loop_pattern_detection::LoopFeatures {
+        let stub_features = crate::mir::loop_route_detection::LoopFeatures {
             carrier_count: scope.carriers.len(),
             update_summary: Some(update_summary),
             ..Default::default()  // Phase 188.1: Use Default for nesting fields

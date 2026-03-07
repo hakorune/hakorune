@@ -1,4 +1,4 @@
-use crate::mir::loop_pattern_detection::LoopRouteKind;
+use crate::mir::loop_route_detection::LoopRouteKind;
 
 #[derive(Debug, Clone, Copy)]
 pub(in crate::mir::builder) struct PlannerContext {

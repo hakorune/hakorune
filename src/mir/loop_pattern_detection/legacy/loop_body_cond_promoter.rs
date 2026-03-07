@@ -27,10 +27,10 @@
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::loop_pattern_detection::loop_body_carrier_promoter::{
+use crate::mir::loop_route_detection::loop_body_carrier_promoter::{
     LoopBodyCarrierPromoter, PromotionRequest, PromotionResult,
 };
-use crate::mir::loop_pattern_detection::loop_condition_scope::LoopConditionScope;
+use crate::mir::loop_route_detection::loop_condition_scope::LoopConditionScope;
 
 /// Promotion request for condition variables
 ///
@@ -148,10 +148,10 @@ impl LoopBodyCondPromoter {
     /// - TrimLoopLowerer: Full lowering pipeline (detection + code generation)
     /// - LoopBodyCondPromoter: Detection + metadata only (no code generation)
     pub fn try_promote_for_condition(req: ConditionPromotionRequest) -> ConditionPromotionResult {
-        use crate::mir::loop_pattern_detection::loop_body_digitpos_promoter::{
+        use crate::mir::loop_route_detection::loop_body_digitpos_promoter::{
             DigitPosPromoter, DigitPosPromotionRequest, DigitPosPromotionResult,
         };
-        use crate::mir::loop_pattern_detection::loop_condition_scope::CondVarScope;
+        use crate::mir::loop_route_detection::loop_condition_scope::CondVarScope;
 
         // P0 constraint: Need LoopScopeShape for LoopBodyCarrierPromoter
         let scope_shape = match req.scope_shape {
@@ -292,7 +292,7 @@ impl LoopBodyCondPromoter {
 mod tests {
     use super::*;
     use crate::ast::{BinaryOperator, LiteralValue, Span};
-    use crate::mir::loop_pattern_detection::loop_condition_scope::{
+    use crate::mir::loop_route_detection::loop_condition_scope::{
         CondVarScope, LoopConditionScope,
     };
     use crate::mir::BasicBlockId;

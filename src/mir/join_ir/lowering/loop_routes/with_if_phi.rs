@@ -74,7 +74,7 @@ use crate::runtime::get_global_ring0;
 /// # Example Usage
 ///
 /// ```rust,ignore
-/// use crate::mir::loop_pattern_detection::is_if_phi_join_route;
+/// use crate::mir::loop_route_detection::is_if_phi_join_route;
 ///
 /// if is_if_phi_join_route(&loop_form) {
 ///     lower_loop_with_conditional_phi_to_joinir(&loop_form, &mut lowerer)?;

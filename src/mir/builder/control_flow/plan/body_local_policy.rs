@@ -13,10 +13,10 @@ use crate::mir::join_ir::lowering::common::body_local_slot::{
     ReadOnlyBodyLocalSlot, ReadOnlyBodyLocalSlotBox,
 };
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::loop_pattern_detection::loop_body_cond_promoter::{
+use crate::mir::loop_route_detection::loop_body_cond_promoter::{
     ConditionPromotionRequest, ConditionPromotionResult, LoopBodyCondPromoter,
 };
-use crate::mir::loop_pattern_detection::loop_condition_scope::{CondVarScope, LoopConditionScope};
+use crate::mir::loop_route_detection::loop_condition_scope::{CondVarScope, LoopConditionScope};
 
 /// Explicit routing policy for LoopBodyLocal variables used in loop-break conditions.
 ///

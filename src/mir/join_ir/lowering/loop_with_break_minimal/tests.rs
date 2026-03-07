@@ -1,7 +1,7 @@
 use super::*;
 use crate::ast::Span;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::loop_pattern_detection::loop_condition_scope::CondVarScope;
+use crate::mir::loop_route_detection::loop_condition_scope::CondVarScope;
 use std::collections::{BTreeMap, BTreeSet};
 
 fn var_node(name: &str) -> ASTNode {

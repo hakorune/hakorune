@@ -37,7 +37,7 @@
 //!   and must not drive routing decisions yet; it is used for dev-only observation and parity checks.
 
 use crate::ast::ASTNode;
-use crate::mir::loop_pattern_detection::LoopFeatures;
+use crate::mir::loop_route_detection::LoopFeatures;
 
 // Phase 287 P1: Use recognizer modules from parent
 use super::route_shape_recognizers;

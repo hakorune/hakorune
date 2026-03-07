@@ -8,7 +8,7 @@ use crate::mir::builder::control_flow::plan::facts::feature_facts::{
 };
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
-use crate::mir::loop_pattern_detection::LoopRouteKind;
+use crate::mir::loop_route_detection::LoopRouteKind;
 
 pub(in crate::mir::builder) fn strict_nested_loop_guard(
     outcome: &PlanBuildOutcome,

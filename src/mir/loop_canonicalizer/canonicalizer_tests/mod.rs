@@ -5,7 +5,7 @@
 use super::canonicalizer::canonicalize_loop_expr;
 use super::skeleton_types::{CarrierRole, SkeletonStep, UpdateKind};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::loop_pattern_detection::LoopRouteKind;
+use crate::mir::loop_route_detection::LoopRouteKind;
 
 mod basic;
 mod skip_whitespace;

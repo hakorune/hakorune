@@ -1,6 +1,6 @@
 use super::*;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::loop_pattern_detection::LoopFeatures;
+use crate::mir::loop_route_detection::LoopFeatures;
 
 fn span() -> Span {
     Span::unknown()

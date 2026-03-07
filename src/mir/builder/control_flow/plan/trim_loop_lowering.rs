@@ -42,7 +42,7 @@ use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::join_ir::lowering::common::condition_only_emitter::BreakSemantics;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::loop_pattern_detection::loop_body_carrier_promoter::{
+use crate::mir::loop_route_detection::loop_body_carrier_promoter::{
     LoopBodyCarrierPromoter, PromotionRequest, PromotionResult,
 };
 use crate::mir::ValueId;
@@ -235,7 +235,7 @@ impl TrimLoopLowerer {
                     .push(trim_info.var_name.clone());
 
                 // Step 3.5: Attach TrimLoopHelper for route-specific lowering logic
-                use crate::mir::loop_pattern_detection::trim_loop_helper::TrimLoopHelper;
+                use crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper;
                 carrier_info.trim_helper = Some(TrimLoopHelper::from_route_info(&trim_info));
 
                 trace.emit_if(
@@ -388,7 +388,7 @@ impl TrimLoopLowerer {
     fn generate_carrier_initialization(
         builder: &mut MirBuilder,
         body: &[ASTNode],
-        trim_helper: &crate::mir::loop_pattern_detection::trim_loop_helper::TrimLoopHelper,
+        trim_helper: &crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper,
     ) -> Result<(), String> {
         use crate::mir::builder::control_flow::plan::trim_validator::TrimValidator;
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
@@ -486,7 +486,7 @@ impl TrimLoopLowerer {
     /// Returns: !is_carrier (negated carrier check)
     /// Used for "break when NOT match" semantics (e.g., str.trim())
     fn generate_trim_break_condition(
-        trim_helper: &crate::mir::loop_pattern_detection::trim_loop_helper::TrimLoopHelper,
+        trim_helper: &crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper,
     ) -> ASTNode {
         use crate::mir::builder::control_flow::plan::trim_lowerer::TrimLowerer;
         TrimLowerer::generate_trim_break_condition(trim_helper)
@@ -503,7 +503,7 @@ impl TrimLoopLowerer {
     /// 2. Original variable (e.g., "ch") - mapped to same JoinIR ValueId
     fn setup_condition_env_bindings(
         _builder: &mut MirBuilder,
-        trim_helper: &crate::mir::loop_pattern_detection::trim_loop_helper::TrimLoopHelper,
+        trim_helper: &crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper,
         break_semantics: BreakSemantics,
         _alloc_join_value: &mut dyn FnMut() -> ValueId,
     ) -> Result<(Vec<ConditionBinding>, Option<crate::mir::join_ir::lowering::common::condition_only_emitter::ConditionOnlyRecipe>), String> {

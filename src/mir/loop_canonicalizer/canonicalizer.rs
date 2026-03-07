@@ -4,7 +4,7 @@
 //! AST loops into normalized LoopSkeleton structures.
 
 use crate::ast::{ASTNode, LiteralValue};
-use crate::mir::loop_pattern_detection::LoopRouteKind;
+use crate::mir::loop_route_detection::LoopRouteKind;
 use crate::mir::policies::balanced_depth_scan;
 use crate::mir::policies::PolicyDecision;
 

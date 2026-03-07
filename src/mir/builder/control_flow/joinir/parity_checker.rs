@@ -183,7 +183,7 @@ mod tests {
         let has_continue = ast_features::detect_continue_in_body(body);
         let has_break = ast_features::detect_break_in_body(body);
         let features = ast_features::extract_features(condition, body, has_continue, has_break);
-        let router_route_kind = crate::mir::loop_pattern_detection::classify(&features);
+        let router_route_kind = crate::mir::loop_route_detection::classify(&features);
 
         // Phase 137-5: Verify MATCH (ExitContract policy fix)
         // Both canonicalizer and router should agree on loop-break route kind
@@ -252,7 +252,7 @@ mod tests {
         let has_continue = ast_features::detect_continue_in_body(body);
         let has_break = ast_features::detect_break_in_body(body);
         let features = ast_features::extract_features(condition, body, has_continue, has_break);
-        let router_route_kind = crate::mir::loop_pattern_detection::classify(&features);
+        let router_route_kind = crate::mir::loop_route_detection::classify(&features);
 
         // Router should classify as simple-while route kind
         assert_eq!(router_route_kind.semantic_label(), "LoopSimpleWhile");

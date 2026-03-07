@@ -22,13 +22,13 @@
 //!
 //! This router uses structure-based route classification (Phase 194):
 //! 1. Extract CFG features from LoopForm
-//! 2. Classify into a route family using `loop_pattern_detection::classify`
+//! 2. Classify into a route family using `loop_route_detection::classify`
 //! 3. Route to the appropriate lowerer
 //!
 //! # Phase 183: Unified Detection
 //!
-//! This router shares pattern detection logic with `patterns/router.rs`.
-//! Both use `loop_pattern_detection::classify()` for consistent classification.
+//! This router shares route classification logic with `patterns/router.rs`.
+//! Both use `loop_route_detection::classify()` for consistent classification.
 //!
 //! # Route Priority (Phase 188)
 //!
@@ -124,7 +124,7 @@ pub fn try_lower_loop_route_to_joinir(
     // Phase 194: Structure-based route classification
     // Tries routes based on CFG structure, not function names
 
-    use crate::mir::loop_pattern_detection::{classify, extract_features, LoopRouteKind};
+    use crate::mir::loop_route_detection::{classify, extract_features, LoopRouteKind};
 
     // Step 1: Extract features from LoopForm (no LoopScope needed for now)
     let features = extract_features(loop_form, None);

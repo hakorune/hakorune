@@ -9,7 +9,7 @@ use crate::mir::join_ir::lowering::expr_lowerer::{ExprContext, ExprLowerer};
 use crate::mir::join_ir::lowering::loop_body_local_env::LoopBodyLocalEnv;
 use crate::mir::join_ir::lowering::scope_manager::LoopBreakScopeManager;
 use crate::mir::join_ir::JoinInst;
-use crate::mir::loop_pattern_detection::function_scope_capture::CapturedEnv;
+use crate::mir::loop_route_detection::function_scope_capture::CapturedEnv;
 use crate::mir::ValueId;
 
 /// Build a LoopBreakScopeManager for ExprLowerer paths.
