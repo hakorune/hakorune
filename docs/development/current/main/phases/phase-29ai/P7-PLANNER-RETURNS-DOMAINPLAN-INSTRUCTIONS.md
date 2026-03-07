@@ -1,18 +1,24 @@
-# Phase 29ai P7: Planner returns DomainPlan (remove duplicate Plan types) — Instructions
+# Phase 29ai P7: Planner returns DomainPlan (historical design snapshot) — Instructions
 
-Status: Ready for execution  
-Scope: 構造整理（仕様不変）
+Status: Historical reference (superseded)
+Scope: historical planner design snapshot（仕様不変）
 
 ## Goal
 
-Phase 29ai の `facts/normalize/planner` が “別系統の Plan 型” を持っている状態を解消し、既存の `plan::DomainPlan` を唯一の
-Plan語彙（SSOT）として使う。
+Phase 29ai の `facts/normalize/planner` が “別系統の Plan 型” を持っていた時期の整理方針を記録する。
+当時は `plan::DomainPlan` を唯一の Plan語彙（SSOT）として使う方針だった。
 
-これにより、single_planner が将来 `facts→planner` を直接利用できるようになり、吸収作業（Pattern2/6/7/…）を一本道で進められる。
+Historical intent:
+- single_planner が将来 `facts->planner` を直接利用できるようにする
+- 吸収作業（loop_break / scan_with_init / split_scan など）を一本道で進める
+
+Current note:
+- current runtime は recipe-first / `PlanBuildOutcome` / `single_planner::try_build_outcome()` に寄っていて、
+  `DomainPlan` は live runtime vocabulary ではないよ。
 
 ## Non-goals
 
-- 既存の lowering 経路の変更（`single_planner` の legacy_rules は維持）
+- 既存の lowering 経路の変更（execution-time compatibility lane は維持）
 - 仕様変更（挙動/エラー文字列/ログの変更）
 - 新しいトグル/環境変数の追加
 
@@ -26,7 +32,7 @@ Plan語彙（SSOT）として使う。
 ## Target
 
 - `CandidateSet::finalize() -> Result<Option<DomainPlan>, Freeze>`
-- `planner::build_plan(...) -> Result<Option<DomainPlan>, Freeze>`
+- execution-time API token: `planner::build_plan(...) -> Result<Option<DomainPlan>, Freeze>`
 - `PlanKind` / `Plan`（29ai専用）を撤去し、候補は `DomainPlan` を直接保持する
 
 ## Implementation Steps
@@ -41,7 +47,7 @@ Plan語彙（SSOT）として使う。
    - `PlanCandidate { plan: DomainPlan, rule: &'static str }`
    - `finalize()` の 0/1/2+ 境界（SSOT）は維持
 
-3) build.rs の最小 rule を DomainPlan で表現
+3) planner entry の最小 rule を DomainPlan で表現（historical token）
    - 現状の “ScanWithInit” placeholder は `DomainPlan::ScanWithInit(ScanWithInitPlan{...})` の形へ
    - ただし P7 では実行経路に接続しないため、**未到達**でもコンパイルできるようにする
      - 例: facts が `Ok(None)` の間は build_plan が `Ok(None)` を返す
@@ -59,6 +65,5 @@ Plan語彙（SSOT）として使う。
 ## Acceptance Criteria
 
 - quick/回帰パックが緑（仕様不変）
-- 29ai planner の “Plan語彙” が `DomainPlan` に一本化され、二重Planが消える
+- 29ai planner の “Plan語彙” が `DomainPlan` に一本化され、二重Planが消える（historical design intent）
 - candidate-set の 0/1/2+ 境界（SSOT）が保持される
-

@@ -1,19 +1,23 @@
-# Phase 29ai P4: First LoopFacts (Pattern6 scan-with-init) — Instructions
+# Phase 29ai P4: First LoopFacts (scan_with_init route; historical Pattern6 label) — Instructions
 
-Status: Ready for execution  
+Status: Historical reference (implemented)
 Scope: Facts→Planner を “1ケースだけ” 前進（仕様不変・未接続）
 
 ## Goal
 
 Facts SSOT を「実際に1ケース取れる」状態にし、Planner が `Ok(Some(plan))` まで到達できる最小の縦割りを作る。
 
-- 対象: Pattern6 `scan_with_init` の **最小・正規形**（既存で PASS している fixture の形に限る）
-- 入口は single-planner のまま（pattern 名で分岐しない）
+- 対象: scan_with_init route の **最小・正規形**（既存で PASS している fixture の形に限る）
+- 入口は single-planner のまま（numbered route label で分岐しない）
 - 既存ルーティング/emit には接続しない（仕様不変）
+
+Historical note:
+- `Pattern6`, `facts/loop_facts.rs`, `planner/build.rs` は P4 実行時の token だよ。
+- current runtime では `facts/{loop_builder.rs,loop_scan_with_init.rs}` と `planner/mod.rs` が live lane だよ。
 
 ## Non-goals
 
-- Pattern6 の全派生（reverse/matchscan/splitscan 等）の吸収
+- scan_with_init の全派生（reverse/matchscan/splitscan 等）の吸収
 - 既存 `plan/normalizer/*` の置換
 - 新しいトグル/環境変数の追加
 - 永続ログの追加
@@ -35,7 +39,7 @@ Loop + step の最小形だけを認識する（例）:
    - `ConditionShape::VarLessVar { left: String, right: String }`
    - Unknown は残す（拡張余地）
 
-2) `facts/loop_facts.rs` で canonical 抽出（厳格）
+2) `facts/loop_builder.rs` / `facts/loop_scan_with_init.rs` で canonical 抽出（厳格）
    - `try_build_loop_facts(condition, body)` で上記 shape を抽出できたときだけ `Ok(Some(LoopFacts{...}))`
    - それ以外は `Ok(None)`（NotApplicable）
    - “loop だけど条件/step が壊れてる” と断定できる場合のみ `Err(Freeze::contract(...))`
@@ -43,7 +47,7 @@ Loop + step の最小形だけを認識する（例）:
 3) `normalize/canonicalize.rs` は表現ゆれ吸収の座席だけ用意
    - P4 では実質 no-op でも良い（P5 で reverse 等を吸収するための前提を置く）
 
-4) `planner/build.rs` に最小 rule を追加（候補集合方式）
+4) `planner/mod.rs` 経由の最小 rule を追加（候補集合方式）
    - `rule = "loop/scan_with_init"` のような内部名で `PlanCandidate` を1件だけ出す
    - `PlanKind` に `ScanWithInit` を追加（Plan はまだ placeholder でも良い）
 
@@ -63,4 +67,3 @@ Loop + step の最小形だけを認識する（例）:
 - Facts が “1ケースだけ” `Ok(Some)` を返せる
 - Planner がその Facts で `Ok(Some(plan))` まで到達できる（候補集合→一意化）
 - `Ok(None)` / `Err(Freeze)` の境界が docs の taxonomy と矛盾しない
-

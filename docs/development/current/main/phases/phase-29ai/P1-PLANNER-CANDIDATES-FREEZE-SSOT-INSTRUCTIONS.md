@@ -1,19 +1,24 @@
 # Phase 29ai P1: Planner “candidate-set” + Freeze SSOT — Instructions
 
-Status: Ready for execution  
+Status: Historical reference (implemented)
 Scope: Plan/Frag 導線の「判定/失敗」のSSOT化（docs-first, 仕様不変）
 
 ## Goal
 
 P0 の骨格を “一本道のパイプライン” として完成させるために、Planner の契約を先に固定する。
 
-- 外部APIは **常に1本**: `build_plan(...) -> Result<Option<Plan>, Freeze>`
-- “pattern名で入口分岐” をしない（候補推論は planner 内部に閉じる）
+- Historical API at execution time: `build_plan(...) -> Result<Option<Plan>, Freeze>`
+- Current live surface: `single_planner::try_build_outcome(...) -> Result<PlanBuildOutcome, String>`
+- “numbered route label で入口分岐” をしない（候補推論は planner 内部に閉じる）
 - `Ok(None)` / `Err(Freeze)` の境界を SSOT 化して、後続の Facts 実装が迷わない土台を作る
+
+Historical note:
+- `planner/build.rs`, `planner/candidates.rs`, `PlanCandidate { kind: PlanKind, ... }` は P1 実行時の skeleton-era token だよ。
+- current runtime では `planner/{mod.rs,outcome.rs,freeze.rs,helpers.rs}` が live lane だよ。
 
 ## Non-goals
 
-- 既存 JoinIR/Pattern 実装の置換（P1では未接続のまま）
+- 既存 JoinIR / route implementation の置換（P1では未接続のまま）
 - 仕様変更（挙動変更）/ 既存のエラー文言変更
 - 新しい env 変数 / トグルの追加
 
@@ -40,12 +45,13 @@ P0 の骨格を “一本道のパイプライン” として完成させるた
 ```
 src/mir/builder/control_flow/plan/planner/
   mod.rs
-  build.rs            # build_plan, build_plan_from_facts
+  outcome.rs          # current PlanBuildOutcome surface
   freeze.rs           # Freeze SSOT（tag + message + hint）
-  candidates.rs       # PlanCandidate / CandidateSet（0/1/Many の一意化）
+  helpers.rs          # planner helpers
 ```
 
-Note: ファイル分割は必須ではないが、Freeze と候補集合は “再利用される契約” なので build.rs から分離する。
+Note:
+- file split 自体は skeleton-era だったけど、Freeze と候補集合の契約分離という意図は current runtime にもそのまま有効だよ。
 
 ## Implementation Steps (P1)
 
@@ -55,7 +61,7 @@ Note: ファイル分割は必須ではないが、Freeze と候補集合は “
    - `Freeze::ambiguous(...)` / `Freeze::contract(...)` など、生成ヘルパーを用意する。
 
 2) “候補集合 → 一意化” の小さな仕組みを追加
-   - `PlanCandidate { kind: PlanKind, rule: &'static str }` 程度で良い（公開APIに pattern 名を漏らさない）。
+   - `PlanCandidate { kind: PlanKind, rule: &'static str }` 程度で良い（公開APIに numbered route label を漏らさない）。
    - `CandidateSet::finalize()`:
      - 0件 → `Ok(None)`
      - 1件 → `Ok(Some(plan))`
@@ -80,5 +86,4 @@ Note: ファイル分割は必須ではないが、Freeze と候補集合は “
 
 - 仕様不変（quick/回帰パックが緑）
 - `Ok(None)` と `Err(Freeze)` の境界が SSOT として文章・型で固定される
-- Planner が “候補集合→一意化” で一本道化され、入口に pattern 名分岐が増えない
-
+- Planner が “候補集合→一意化” で一本道化され、入口に numbered route label 分岐が増えない

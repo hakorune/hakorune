@@ -1,6 +1,6 @@
 # Phase 29ai P3: Typed Freeze + CandidateSet implementation (code) — Instructions
 
-Status: Ready for execution  
+Status: Historical reference (implemented)
 Scope: planner の型/契約をコードに落とす（仕様不変）
 
 ## Goal
@@ -9,20 +9,24 @@ Scope: planner の型/契約をコードに落とす（仕様不変）
 
 このP3は、Facts がまだ `Ok(None)` を返す限り、実行経路は変化しない（仕様不変）。
 
+Historical note:
+- `Plan`, `planner/build.rs`, `planner/candidates.rs`, `facts/loop_facts.rs` は P3 実行時の token だよ。
+- current runtime では `planner/{mod.rs,outcome.rs,freeze.rs}` と `plan/facts/{loop_builder.rs,loop_types.rs}` が live lane だよ。
+
 ## Non-goals
 
 - Facts の実装（P4以降）
-- 既存 pattern/normalizer の置換
+- 既存 route / normalizer の置換
 - 新しい env 変数 / トグルの追加
 - 永続ログの追加
 
 ## Target Files
 
 - `src/mir/builder/control_flow/plan/planner/mod.rs`
-- `src/mir/builder/control_flow/plan/planner/build.rs`
+- `src/mir/builder/control_flow/plan/planner/outcome.rs`
 - （必要なら追加）`src/mir/builder/control_flow/plan/planner/freeze.rs`
-- （必要なら追加）`src/mir/builder/control_flow/plan/planner/candidates.rs`
-- `src/mir/builder/control_flow/plan/facts/loop_facts.rs`（Freeze 型参照の調整のみ）
+- （必要なら追加）`src/mir/builder/control_flow/plan/planner/helpers.rs`
+- `src/mir/builder/control_flow/plan/facts/loop_builder.rs`（Freeze 型参照の調整のみ）
 
 ## Implementation Steps
 
@@ -63,4 +67,3 @@ Scope: planner の型/契約をコードに落とす（仕様不変）
 - 仕様不変（quick/回帰パックが緑）
 - Planner の入口が “候補集合→一意化” で固定され、入口分岐が増えない
 - `Ok(None)` / `Err(Freeze)` の境界が “型” で表現され、将来の Facts 実装で揺れない
-
