@@ -54,7 +54,7 @@ impl ContinueBranchNormalizer {
                             let ring0 = get_global_ring0();
                             ring0
                                 .log
-                                .debug("[continue_normalizer] Pattern matched: else-continue detected");
+                                .debug("[continue_normalizer] Route shape matched: else-continue detected");
                             ring0.log.debug(&format!(
                                 "[continue_normalizer] Original condition: {:?}",
                                 condition
@@ -123,7 +123,7 @@ impl ContinueBranchNormalizer {
 
     /// Check if a loop body contains an if-else pattern with else-continue
     ///
-    /// This is used by the pattern router to detect Pattern B cases.
+    /// This is used by the route router to detect else-continue route shapes.
     pub fn has_else_continue_pattern(body: &[ASTNode]) -> bool {
         for node in body {
             if let ASTNode::If { else_body, .. } = node {
@@ -139,8 +139,8 @@ impl ContinueBranchNormalizer {
 
     /// Normalize all if-statements in a loop body for continue handling
     ///
-    /// This is called by the loop lowerer before pattern matching.
-    /// It transforms all else-continue patterns to then-continue patterns.
+    /// This is called by the loop lowerer before route-shape matching.
+    /// It transforms all else-continue route shapes to then-continue route shapes.
     pub fn normalize_loop_body(body: &[ASTNode]) -> Vec<ASTNode> {
         body.iter()
             .map(|node| Self::normalize_if_for_continue(node))

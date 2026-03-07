@@ -29,7 +29,7 @@
 //! - loop_scope_shape_builder.rs: Unified LoopScopeShape initialization (Issue 4, thin wrapper)
 //! - condition_env_builder.rs: Unified ConditionEnv construction (Issue 5, thin wrapper)
 //!
-//! Phase 33-23: Pattern-Specific Analyzers (Stage 2)
+//! Phase 33-23: Route-Shape Analyzers (Stage 2)
 //!
 //! Stage 3 + Issue 1: Trim Route Extraction
 //! - trim_validator.rs: Trim whitespace validation and helper generation (moved to plan/)
@@ -77,5 +77,5 @@ pub(crate) use ast_feature_extractor::detect_parse_number_shape;
 // Phase 143-P1: 
 pub(crate) use ast_feature_extractor::detect_parse_string_shape;
 
-// Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
+// Phase 91 P5b: Re-export escape skip shape detection for loop_canonicalizer
 pub(crate) use ast_feature_extractor::detect_escape_skip_shape;

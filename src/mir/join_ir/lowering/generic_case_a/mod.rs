@@ -12,9 +12,9 @@
 //!
 //! ## Architecture
 //!
-//! ### Core Lowering Modules (Pattern-Specific)
+//! ### Core Lowering Modules (Route-Specific)
 //!
-//! Each lowering module handles one specific loop pattern:
+//! Each lowering module handles one specific loop route shape:
 //!
 //! - `skip_ws` - Skip whitespace loop lowering (~220 lines)
 //! - `trim` - String trim loop lowering (~500 lines, largest)
@@ -31,7 +31,7 @@
 //! - **No condition analysis**: Compare/BinOp instructions are copied as-is from MIR
 //! - **No multi-header loops**: Only single-header loops supported (v1 limitation)
 //! - **Pinned/Carrier from LoopScopeShape**: Must be provided by caller
-//! - **Fail-fast**: Returns `None` on pattern mismatch, caller handles fallback
+//! - **Fail-fast**: Returns `None` on route-shape mismatch, caller handles fallback
 //!
 //! ## Public API
 //!
@@ -57,7 +57,7 @@
 //!     // JoinIR successfully generated
 //!     return Some(join_module);
 //! }
-//! // Pattern mismatch, fallback to other lowering
+//! // Route-shape mismatch, fallback to other lowering
 //! ```
 //!
 //! ## Module Organization (Phase 192)
@@ -83,7 +83,7 @@
 //! - `value_id_ranges` - ValueId allocation strategy
 //! - `loop_to_join` - Main loop lowering coordinator
 
-// Pattern-specific lowering modules
+// Route-specific lowering modules
 pub mod append_defs;
 pub mod skip_ws;
 pub mod stage1_using_resolver;

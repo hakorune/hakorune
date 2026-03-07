@@ -631,7 +631,7 @@ pub fn extract_then_update(if_stmt: &ASTNode) -> Result<(String, ASTNode), Strin
 /// Looks for `var = var + <expr>` where var is the accumulator (update_var)
 /// and the statement is NOT inside the if statement.
 ///
-/// Pattern: After `if i > 0 { result = result + separator }` there might be
+/// Route shape: After `if i > 0 { result = result + separator }` there might be
 /// `result = result + arr.get(i)` which is the unconditional append.
 ///
 /// # Arguments
