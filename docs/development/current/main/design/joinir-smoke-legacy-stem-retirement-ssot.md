@@ -29,7 +29,7 @@ script stems remain available as compatibility entrypoints until all callers mov
   - current-facing smoke entrypoint that docs and daily gates should prefer.
 - `compat wrapper`
   - old stem kept as a forwarding script to the active semantic wrapper.
-- `archived legacy stem`
+- `archived smoke stem`
   - archived smoke path kept only for traceability or negative coverage.
 - `legacy pack stem`
   - old planner-pack stem kept until all callers move to the semantic pack alias.
@@ -53,6 +53,7 @@ script stems remain available as compatibility entrypoints until all callers mov
 | `tools/smokes/v2/profiles/integration/joinir/if_phi_join_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase118_pattern3_if_sum_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/if_phi_join_release_adopt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern3_release_adopt_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_continue_only_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ap_pattern4_continue_min_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/loop_continue_only_multidelta_planner_required_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bq_pattern4continue_multidelta_planner_required_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern5_strict_shadow_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_release_adopt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern5_release_adopt_vm.sh` |
@@ -70,7 +71,7 @@ script stems remain available as compatibility entrypoints until all callers mov
 | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_seg_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` |
 
 Note:
-- Entries under `apps/archive/` are `archived legacy stems`, not compat wrappers.
+- Entries under `apps/archive/` are `archived smoke stems`, not compat wrappers.
 - Entries under `joinir/phase29ao*` / `joinir/phase29ap*` / `joinir/phase29ae*` are compat/legacy stems still kept for forwarding or direct pinning.
 
 ### Planner-required pack aliases

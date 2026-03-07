@@ -44,6 +44,8 @@ tokens that still act as traceability pins.
 | `phase29ab_pattern6_*` | `scan_with_init` | legacy fixture pin token |
 | `phase29ab_pattern7_*` | `split_scan` | legacy fixture pin token |
 | `phase29bq_pattern2_break_recipe_only_min.hako` | `loop_break recipe-only` | legacy fixture pin token |
+| `phase263_p0_pattern2_seg_min.hako` | `loop_break minimal seg` | legacy fixture pin token |
+| `phase263_pattern2_seg_realworld_min.hako` | `loop_break realworld seg` | legacy fixture pin token |
 | `phase286_pattern5_break_min.hako` | `loop_true_early_exit` | legacy fixture pin token |
 | `phase269_p0_pattern8_frag_min.hako` | `bool_predicate_scan` | legacy fixture pin token |
 | `phase286_pattern9_frag_poc.hako` | `accum_const_loop` | legacy fixture pin token |

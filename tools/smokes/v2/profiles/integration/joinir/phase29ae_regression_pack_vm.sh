@@ -31,8 +31,8 @@ run_filter() {
 }
 
 run_filter "loop_break" "phase29ab_pattern2_" || exit 1
-run_filter "loop_break_realworld" "phase263_pattern2_" || exit 1
-run_filter "loop_break_subset" "phase29ai_pattern2_break_plan_subset_ok_min_vm" || exit 1
+run_filter "loop_break_realworld" "loop_break_realworld_vm" || exit 1
+run_filter "loop_break_subset" "loop_break_plan_subset_vm" || exit 1
 run_filter "loop_break_release_adopt_vm" "loop_break_release_adopt_vm" || exit 1
 run_filter "if_phi_join_vm" "if_phi_join_vm" || exit 1
 run_filter "if_phi_join_release_adopt_vm" "if_phi_join_release_adopt_vm" || exit 1

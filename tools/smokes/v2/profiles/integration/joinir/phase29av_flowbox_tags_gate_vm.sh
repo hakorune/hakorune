@@ -34,6 +34,7 @@ assert_no_flowbox_tags() {
 }
 
 run_if_phi_join_strict() {
+    # legacy fixture key kept for flowbox-tag coverage; semantic route family = if_phi_join
     local input="$NYASH_ROOT/apps/tests/phase118_pattern3_if_sum_min.hako"
     local expected="12"
 

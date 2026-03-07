@@ -7,12 +7,12 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 - loop_break (legacy label: Pattern2): `phase29ab_pattern2_*`
 - loop_break (real-world, legacy label: Pattern2): `phase263_pattern2_*`
 - loop_break (subset, strict shadow, VM; legacy label: Pattern2): `phase29ai_pattern2_break_plan_subset_ok_min_vm`
-- loop_break (release adopt, VM; legacy label: Pattern2): `loop_break_release_adopt_vm`（compat stem: `phase29ao_pattern2_release_adopt_vm`）
+- loop_break (release adopt, VM; legacy label: Pattern2): `loop_break_release_adopt_vm`（compat wrapper: `phase29ao_pattern2_release_adopt_vm`）
 - if_phi_join (VM; legacy label: Pattern3): `phase118_pattern3_if_sum_vm`
-- if_phi_join (release adopt, VM; legacy label: Pattern3): `if_phi_join_release_adopt_vm`（compat stem: `phase29ao_pattern3_release_adopt_vm`）
-- loop_continue_only (continue min, VM; legacy label: Pattern4): `loop_continue_only_vm`（compat stem: `phase29ap_pattern4_continue_min_vm`）
-- loop_simple_while (strict shadow, VM; legacy label: Pattern1): `loop_simple_while_strict_shadow_vm`（compat stem: `phase29ao_pattern1_strict_shadow_vm`）
-- loop_simple_while (subset reject, VM; legacy label: Pattern1): `loop_simple_while_subset_reject_extra_stmt_vm`（compat stem: `phase29ao_pattern1_subset_reject_extra_stmt_vm`）
+- if_phi_join (release adopt, VM; legacy label: Pattern3): `if_phi_join_release_adopt_vm`（compat wrapper: `phase29ao_pattern3_release_adopt_vm`）
+- loop_continue_only (continue min, VM; legacy label: Pattern4): `loop_continue_only_vm`（compat wrapper: `phase29ap_pattern4_continue_min_vm`）
+- loop_simple_while (strict shadow, VM; legacy label: Pattern1): `loop_simple_while_strict_shadow_vm`（compat wrapper: `phase29ao_pattern1_strict_shadow_vm`）
+- loop_simple_while (subset reject, VM; legacy label: Pattern1): `loop_simple_while_subset_reject_extra_stmt_vm`（compat wrapper: `phase29ao_pattern1_subset_reject_extra_stmt_vm`）
 - loop_simple_while (stdlib to_lower, VM; legacy label: Pattern1): `phase29ap_stringutils_tolower_vm`
 - loop_simple_while (stdlib join, VM; legacy label: Pattern1): `phase29ap_stringutils_join_vm`
 - scan_with_init (stdlib index_of, VM): `phase29aq_string_index_of_min_vm`
@@ -44,16 +44,16 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 - FlowBox tags gate (strict/non-strict, VM): `phase29av_flowbox_tags_gate_vm`
 - FlowBox tag coverage gate (strict/non-strict, VM): `phase29aw_flowbox_tag_coverage_gate_vm`
 - loop_true_early_exit (VM; legacy labels: Pattern5/Break): `phase286_pattern5_break_vm`
-- loop_true_early_exit (strict shadow, VM; legacy label: Pattern5): `loop_true_early_exit_strict_shadow_vm`（compat stem: `phase29ao_pattern5_strict_shadow_vm`）
-- loop_true_early_exit (release adopt, VM; legacy label: Pattern5): `loop_true_early_exit_release_adopt_vm`（compat stem: `phase29ao_pattern5_release_adopt_vm`）
-- scan_with_init (strict shadow, VM; legacy label: Pattern6): `scan_with_init_strict_shadow_vm`（compat stem: `phase29ao_pattern6_strict_shadow_vm`）
-- scan_with_init (release adopt, VM; legacy label: Pattern6): `scan_with_init_release_adopt_vm`（compat stem: `phase29ao_pattern6_release_adopt_vm`）
-- scan_with_init supplemental pack (VM; legacy label: Pattern6): `scan_with_init_regression_pack_vm`（compat stem: `phase29ae_pattern6_scan_with_init_pack_vm`）
-- nested_loop_minimal (release adopt, VM; historical label: Pattern6 nested lane): `nested_loop_minimal_release_adopt_vm`（compat stem: `phase29ap_pattern6_nested_release_adopt_vm`）
-- nested_loop_minimal (strict shadow, VM; historical label: Pattern6 nested lane): `nested_loop_minimal_strict_shadow_vm`（compat stem: `phase29ap_pattern6_nested_strict_shadow_vm`）
-- split_scan (strict shadow, VM; legacy label: Pattern7): `split_scan_strict_shadow_vm`（compat stem: `phase29ao_pattern7_strict_shadow_vm`）
-- split_scan (release adopt, VM; legacy label: Pattern7): `split_scan_release_adopt_vm`（compat stem: `phase29ao_pattern7_release_adopt_vm`）
-- split_scan supplemental pack (VM; legacy label: Pattern7): `split_scan_regression_pack_vm`（compat stem: `phase29ae_pattern7_scan_split_pack_vm`）
+- loop_true_early_exit (strict shadow, VM; legacy label: Pattern5): `loop_true_early_exit_strict_shadow_vm`（compat wrapper: `phase29ao_pattern5_strict_shadow_vm`）
+- loop_true_early_exit (release adopt, VM; legacy label: Pattern5): `loop_true_early_exit_release_adopt_vm`（compat wrapper: `phase29ao_pattern5_release_adopt_vm`）
+- scan_with_init (strict shadow, VM; legacy label: Pattern6): `scan_with_init_strict_shadow_vm`（compat wrapper: `phase29ao_pattern6_strict_shadow_vm`）
+- scan_with_init (release adopt, VM; legacy label: Pattern6): `scan_with_init_release_adopt_vm`（compat wrapper: `phase29ao_pattern6_release_adopt_vm`）
+- scan_with_init supplemental pack (VM; legacy label: Pattern6): `scan_with_init_regression_pack_vm`（compat wrapper: `phase29ae_pattern6_scan_with_init_pack_vm`）
+- nested_loop_minimal (release adopt, VM; historical label: Pattern6 nested lane): `nested_loop_minimal_release_adopt_vm`（compat wrapper: `phase29ap_pattern6_nested_release_adopt_vm`）
+- nested_loop_minimal (strict shadow, VM; historical label: Pattern6 nested lane): `nested_loop_minimal_strict_shadow_vm`（compat wrapper: `phase29ap_pattern6_nested_strict_shadow_vm`）
+- split_scan (strict shadow, VM; legacy label: Pattern7): `split_scan_strict_shadow_vm`（compat wrapper: `phase29ao_pattern7_strict_shadow_vm`）
+- split_scan (release adopt, VM; legacy label: Pattern7): `split_scan_release_adopt_vm`（compat wrapper: `phase29ao_pattern7_release_adopt_vm`）
+- split_scan supplemental pack (VM; legacy label: Pattern7): `split_scan_regression_pack_vm`（compat wrapper: `phase29ae_pattern7_scan_split_pack_vm`）
 - この pack が JoinIR 回帰の唯一の integration gate（phase143_* は対象外）
 - JoinIR routing is plan/composer SSOT only (legacy loop table removed in Phase 29ap P12)
 - phase143_* は LoopBuilder 撤去 / plugin disable 固定 / LLVM exe 期待が古いので除外

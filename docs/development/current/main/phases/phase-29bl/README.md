@@ -32,8 +32,8 @@ planner-first が通る状態に拡張する。release 既定は不変、JoinIR 
 ## Target set (loop_simple_while / loop_continue_only / loop_true_early_exit)
 
 - loop_simple_while: phase29ap_stringutils_join_min_vm（理由: StringUtils 系の代表で回帰価値が高い）
-- loop_continue_only: loop_continue_only_vm（compat stem: `phase29ap_pattern4_continue_min_vm`; 理由: continue 経路の代表で制御系の回帰価値が高い）
-- loop_true_early_exit: phase286_pattern5_break_min_vm（理由: break 経路の代表で制御系の回帰価値が高い。fixture stem は legacy token）
+- loop_continue_only: loop_continue_only_vm（compat wrapper: `phase29ap_pattern4_continue_min_vm`; 理由: continue 経路の代表で制御系の回帰価値が高い）
+- loop_true_early_exit: loop_true_early_exit_vm（legacy fixture pin token: `phase286_pattern5_break_min.hako`; 理由: break 経路の代表で制御系の回帰価値が高い）
 
 ## Gate (SSOT)
 

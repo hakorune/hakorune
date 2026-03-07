@@ -32,14 +32,14 @@ Related:
 
 ## Target (P1)
 
-- IfPhiJoin: `phase118_pattern3_if_sum_vm`（legacy fixture pin token; fixture: `apps/tests/phase118_pattern3_if_sum_min.hako`）
+- IfPhiJoin: `if_phi_join_vm`（legacy fixture key: `phase118_pattern3_if_sum_min.hako`）
   - 理由: If‑Phi の最小代表、回帰価値が高い（regression pack に含まれる）
 
 ## Gate (SSOT)
 
 - `./tools/hako_check_loopless_gate.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/if_phi_join_planner_required_pack_vm.sh`（compat stem: `phase29bn_planner_required_pattern3_pack_vm.sh`）
+- `./tools/smokes/v2/profiles/integration/joinir/if_phi_join_planner_required_pack_vm.sh`（compat wrapper: `phase29bn_planner_required_pattern3_pack_vm.sh`）
 
 Default dev entry: `./tools/smokes/v2/profiles/integration/joinir/phase29bn_planner_required_dev_gate_v2_vm.sh`
 

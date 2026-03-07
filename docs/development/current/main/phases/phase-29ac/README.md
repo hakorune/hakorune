@@ -21,7 +21,7 @@ Goal: Convert freeze-fixed scan_with_init / split_scan near-miss cases into PASS
 
 1. **scan_with_init reverse scan**
    - Plan/Normalizer: add reverse support (`i >= 0`, step `i = i - 1`).
-   - Smoke: `phase29ab_pattern6_reverse_ok_min` now OK PASS (RC=1).
+   - Smoke: legacy fixture pin token `phase29ab_pattern6_reverse_ok_min` now OK PASS (RC=1).
 2. **scan_with_init matchscan missing step**
    - Freeze reason: `[joinir/phase29ab/scan_with_init/contract] scan-with-init contract: missing step update`
    - Resolution: add explicit `i = i + 1` step in fixture (contract-aligned).
@@ -32,6 +32,7 @@ Goal: Convert freeze-fixed scan_with_init / split_scan near-miss cases into PASS
 
 ## Commands
 
+- `bash tools/smokes/v2/profiles/integration/joinir/scan_with_init_regression_pack_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/joinir/split_scan_regression_pack_vm.sh`
 - `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern6_*"` (`phase29ab_pattern6_*` = legacy fixture pin token family)
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern7_*"` (`phase29ab_pattern7_*` = legacy fixture pin token family)
 - `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern7_*"` (`phase29ab_pattern7_*` = legacy fixture pin token family)
