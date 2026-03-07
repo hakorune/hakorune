@@ -4,7 +4,7 @@
 //! AST loops into normalized LoopSkeleton structures.
 
 use crate::ast::{ASTNode, LiteralValue};
-use crate::mir::loop_pattern_detection::LoopPatternKind;
+use crate::mir::loop_pattern_detection::LoopRouteKind;
 use crate::mir::policies::balanced_depth_scan;
 use crate::mir::policies::PolicyDecision;
 
@@ -107,12 +107,12 @@ pub fn canonicalize_loop_expr(
     // Phase 29bq: Align canonicalizer with balanced depth-scan policy routing.
     match balanced_depth_scan::decide(condition, body) {
         PolicyDecision::Use(_) => {
-            let decision = RoutingDecision::success(LoopPatternKind::LoopBreak);
+            let decision = RoutingDecision::success(LoopRouteKind::LoopBreak);
             return Ok((LoopSkeleton::new(span), decision));
         }
         PolicyDecision::Reject(_) => {
             if crate::config::env::joinir_dev::strict_enabled() {
-                let decision = RoutingDecision::success(LoopPatternKind::LoopBreak);
+                let decision = RoutingDecision::success(LoopRouteKind::LoopBreak);
                 return Ok((LoopSkeleton::new(span), decision));
             }
         }
@@ -159,7 +159,7 @@ pub fn canonicalize_loop_expr(
         };
 
         // Phase 143-P1: Route to LoopContinueOnly (has both continue and return)
-        let decision = RoutingDecision::success(LoopPatternKind::LoopContinueOnly);
+        let decision = RoutingDecision::success(LoopRouteKind::LoopContinueOnly);
         return Ok((skeleton, decision));
     }
 
@@ -217,7 +217,7 @@ pub fn canonicalize_loop_expr(
         };
 
         // Phase 142-P1: Route to LoopContinueOnly
-        let decision = RoutingDecision::success(LoopPatternKind::LoopContinueOnly);
+        let decision = RoutingDecision::success(LoopRouteKind::LoopContinueOnly);
         return Ok((skeleton, decision));
     }
 
@@ -263,7 +263,7 @@ pub fn canonicalize_loop_expr(
                 break_has_value: false,
             };
 
-            let decision = RoutingDecision::success(LoopPatternKind::LoopBreak);
+            let decision = RoutingDecision::success(LoopRouteKind::LoopBreak);
             return Ok((skeleton, decision));
         }
     }
@@ -322,7 +322,7 @@ pub fn canonicalize_loop_expr(
         };
 
         // Phase 143-P0: Route to LoopBreak (has_break=true)
-        let decision = RoutingDecision::success(LoopPatternKind::LoopBreak);
+        let decision = RoutingDecision::success(LoopRouteKind::LoopBreak);
         return Ok((skeleton, decision));
     }
 
@@ -367,7 +367,7 @@ pub fn canonicalize_loop_expr(
         // Phase 137-5: Decision policy SSOT - ExitContract determines route choice
         // Since has_break=true, this should route to LoopBreak (not IfPhiJoin)
         // IfPhiJoin is for if-else PHI *without* break statements
-        let decision = RoutingDecision::success(LoopPatternKind::LoopBreak);
+        let decision = RoutingDecision::success(LoopRouteKind::LoopBreak);
         return Ok((skeleton, decision));
     }
 
@@ -434,13 +434,13 @@ pub fn canonicalize_loop_expr(
         // Same as skip_whitespace (LoopBreak)
         // P5b is a "detailed version" of LoopBreak, not a separate chosen route
         // Notes field would record escape-specific details (Phase 91 MVP: omitted)
-        let decision = RoutingDecision::success(LoopPatternKind::LoopBreak);
+        let decision = RoutingDecision::success(LoopRouteKind::LoopBreak);
         return Ok((skeleton, decision));
     }
 
     // Phase 29bq: loop(true) break-only scan (parse_term2 family).
     if matches_loop_true_break_only_body(condition, body) {
-        let decision = RoutingDecision::success(LoopPatternKind::LoopBreak);
+        let decision = RoutingDecision::success(LoopRouteKind::LoopBreak);
         return Ok((LoopSkeleton::new(span), decision));
     }
 

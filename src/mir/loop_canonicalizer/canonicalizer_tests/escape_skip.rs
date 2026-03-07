@@ -125,7 +125,7 @@ fn test_escape_skip_route_shape_recognition() {
     assert!(decision.is_success(), "Decision should indicate success");
     assert_eq!(
         decision.chosen,
-        Some(LoopPatternKind::LoopBreak),
+        Some(LoopRouteKind::LoopBreak),
         "P5b should route to LoopBreak (has_break=true)"
     );
     assert!(decision.missing_caps.is_empty(), "No missing capabilities");

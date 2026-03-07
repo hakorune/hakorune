@@ -65,7 +65,7 @@ fn test_trim_leading_route_shape_recognized() {
     // Verify success
     assert!(decision.is_success());
     // chosen == LoopBreak (ExitContract priority)
-    assert_eq!(decision.chosen, Some(LoopPatternKind::LoopBreak));
+    assert_eq!(decision.chosen, Some(LoopRouteKind::LoopBreak));
     // missing_caps == []
     assert!(decision.missing_caps.is_empty());
 

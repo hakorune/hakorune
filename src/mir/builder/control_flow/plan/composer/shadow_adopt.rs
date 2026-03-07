@@ -8,7 +8,7 @@ use crate::mir::builder::control_flow::plan::facts::feature_facts::{
 };
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
-use crate::mir::loop_pattern_detection::LoopPatternKind;
+use crate::mir::loop_pattern_detection::LoopRouteKind;
 
 pub(in crate::mir::builder) fn strict_nested_loop_guard(
     outcome: &PlanBuildOutcome,
@@ -97,7 +97,7 @@ fn allow_strict_nested_loop_continue_min1(
     outcome: &PlanBuildOutcome,
     ctx: &LoopRouteContext,
 ) -> bool {
-    if ctx.route_kind != LoopPatternKind::LoopContinueOnly {
+    if ctx.route_kind != LoopRouteKind::LoopContinueOnly {
         return false;
     }
     let Some(facts) = outcome.facts.as_ref() else {

@@ -55,7 +55,7 @@ mod tests {
     use super::super::{try_build_loop_facts, try_build_loop_facts_with_ctx};
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::planner::PlannerContext;
-    use crate::mir::loop_pattern_detection::LoopPatternKind;
+    use crate::mir::loop_pattern_detection::LoopRouteKind;
 
     fn v(name: &str) -> ASTNode {
         ASTNode::Variable {
@@ -388,7 +388,7 @@ mod tests {
             span: Span::unknown(),
         };
         let ctx = PlannerContext {
-            route_kind: Some(LoopPatternKind::LoopBreak),
+            route_kind: Some(LoopRouteKind::LoopBreak),
             in_static_box: false,
             debug: false,
         };
@@ -422,7 +422,7 @@ mod tests {
             span: Span::unknown(),
         };
         let ctx = PlannerContext {
-            route_kind: Some(LoopPatternKind::LoopSimpleWhile),
+            route_kind: Some(LoopRouteKind::LoopSimpleWhile),
             in_static_box: false,
             debug: false,
         };

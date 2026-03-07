@@ -1,24 +1,24 @@
 //! Capability Guard - Fail-Fast Reasons and Routing Decisions
 //!
-//! This module defines the vocabulary for pattern selection and failure reasons.
+//! This module defines the vocabulary for route selection and failure reasons.
 //! It provides standardized capability tags and routing decision structures.
 
-use crate::mir::loop_pattern_detection::LoopPatternKind;
+use crate::mir::loop_pattern_detection::LoopRouteKind;
 
 // ============================================================================
 // Routing Decision
 // ============================================================================
 
-/// Routing decision - The result of pattern selection
+/// Routing decision - The result of route selection
 ///
-/// This contains both the chosen pattern (if any) and detailed
-/// diagnostic information about why other patterns were rejected.
+/// This contains both the chosen route (if any) and detailed
+/// diagnostic information about why other routes were rejected.
 #[derive(Debug, Clone)]
 pub struct RoutingDecision {
-    /// Selected pattern (None = Fail-Fast)
-    pub chosen: Option<LoopPatternKind>,
+    /// Selected route (None = Fail-Fast)
+    pub chosen: Option<LoopRouteKind>,
 
-    /// Missing capabilities that prevented other patterns (type-safe!)
+    /// Missing capabilities that prevented other routes (type-safe!)
     pub missing_caps: Vec<CapabilityTag>,
 
     /// Selection reasoning (for debugging)
@@ -30,9 +30,9 @@ pub struct RoutingDecision {
 
 impl RoutingDecision {
     /// Create a successful routing decision
-    pub fn success(pattern: LoopPatternKind) -> Self {
+    pub fn success(route_kind: LoopRouteKind) -> Self {
         Self {
-            chosen: Some(pattern),
+            chosen: Some(route_kind),
             missing_caps: Vec::new(),
             notes: Vec::new(),
             error_tags: Vec::new(),
@@ -74,9 +74,9 @@ impl RoutingDecision {
 // Capability Tags (Type-Safe Enum)
 // ============================================================================
 
-/// Capability tag - Type-safe vocabulary for pattern requirements
+/// Capability tag - Type-safe vocabulary for route requirements
 ///
-/// Each tag represents a specific capability that a loop pattern requires.
+/// Each tag represents a specific capability that a loop route requires.
 /// Using an enum (instead of string constants) provides:
 /// - Compile-time error detection for typos
 /// - IDE auto-completion

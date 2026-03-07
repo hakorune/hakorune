@@ -1,8 +1,8 @@
-use crate::mir::loop_pattern_detection::LoopPatternKind;
+use crate::mir::loop_pattern_detection::LoopRouteKind;
 
 #[derive(Debug, Clone, Copy)]
 pub(in crate::mir::builder) struct PlannerContext {
-    pub route_kind: Option<LoopPatternKind>,
+    pub route_kind: Option<LoopRouteKind>,
     pub in_static_box: bool,
     pub debug: bool,
 }

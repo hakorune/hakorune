@@ -9,7 +9,7 @@
 
 use crate::ast::{ASTNode, Span};
 use crate::mir::loop_canonicalizer::{LoopSkeleton, RoutingDecision};
-use crate::mir::loop_pattern_detection::LoopPatternKind;
+use crate::mir::loop_pattern_detection::LoopRouteKind;
 
 /// Loop processing context - SSOT for AST + Skeleton + Route
 ///
@@ -50,7 +50,7 @@ pub struct LoopProcessingContext<'a> {
     // Router Information (Always Present)
     // ========================================================================
     /// Route kind determined by router
-    pub route_kind: LoopPatternKind,
+    pub route_kind: LoopRouteKind,
 
 }
 
@@ -67,7 +67,7 @@ impl<'a> LoopProcessingContext<'a> {
         condition: &'a ASTNode,
         body: &'a [ASTNode],
         span: Span,
-        route_kind: LoopPatternKind,
+        route_kind: LoopRouteKind,
     ) -> Self {
         Self {
             condition,
@@ -172,7 +172,7 @@ mod tests {
             condition,
             body,
             Span::unknown(),
-            LoopPatternKind::LoopSimpleWhile,
+            LoopRouteKind::LoopSimpleWhile,
         )
     }
 
@@ -201,7 +201,7 @@ mod tests {
         assert!(ctx.decision.is_none());
 
         // Check router fields
-        assert_eq!(ctx.route_kind, LoopPatternKind::LoopSimpleWhile);
+        assert_eq!(ctx.route_kind, LoopRouteKind::LoopSimpleWhile);
     }
 
     #[test]
@@ -260,7 +260,7 @@ mod tests {
         let mut ctx = make_simple_context(&condition, &body);
 
         // Set canonicalizer result with matching route kind
-        let decision = RoutingDecision::success(LoopPatternKind::LoopSimpleWhile);
+        let decision = RoutingDecision::success(LoopRouteKind::LoopSimpleWhile);
         ctx.set_canonicalizer_result(
             LoopSkeleton {
                 steps: vec![],

@@ -124,7 +124,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - historical planner-payload wording は active contract から切り離し、ledger / appendix / archive へ退避済み
   - `loop_continue_only` の semantic entry (`LoopContinueOnlyFacts` / `loop_continue_only()` / `PlanRuleId::LoopContinueOnly`) へ runtime 露出を同期済み
   - `if_phi_join` / `loop_continue_only` の facts file/module/type 名も semantic 名へ同期済み
-  - compiler 主経路の route enum を semantic 名へ同期済み（`LoopPatternKind::LoopBreak`, `RouteVariant::{LoopSimpleWhile,LoopBreak,IfPhiJoin,LoopContinueOnly}`）
+  - compiler 主経路の route enum を semantic 名へ同期済み（`LoopRouteKind::LoopBreak`, `RouteVariant::{LoopSimpleWhile,LoopBreak,IfPhiJoin,LoopContinueOnly}`）
   - loop_break prep-layer の internal type 名も semantic 化済み（`LoopBreakPrepFacts`, `LoopBreakPrepInputs`, `LoopBreakPrepFactsBox`, `LoopBreakDebugLog`）
   - semantic module surface と physical path を同期済み（`plan::loop_break`, `plan::loop_break_prep_box`, `plan::loop_break_steps`）
   - loop_break facts cluster も physical path / type / field を semantic 名へ同期済み（`facts/loop_break_{core,helpers,types,tests,body_local_subset,...}.rs`, `LoopBreakFacts`, `LoopBreakBodyLocalFacts`, `LoopFacts::{loop_break,loop_break_body_local}`）
@@ -138,10 +138,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - string-helper facts cluster も physical file/type/function/field 名を semantic 化済み（`facts/{string_is_integer,starts_with,int_to_str,escape_map,split_lines,skip_whitespace}_facts.rs`, `StringIsIntegerFacts`, `StartsWithFacts`, `IntToStrFacts`, `EscapeMapFacts`, `SplitLinesFacts`, `SkipWhitespaceFacts`, `LoopFacts::{string_is_integer,starts_with,int_to_str,escape_map,split_lines,skip_whitespace}`）
   - verification: `cargo build --release --bin hakorune` PASS / `cargo test --release --lib starts_with_subset_matches_minimal_shape` PASS / `cargo test --release --lib int_to_str_subset_matches_minimal_shape` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
   - verification: `rg -n "Pattern(IsInteger|StartsWith|IntToStr|EscapeMap|SplitLines|SkipWs)|pattern_(is_integer|starts_with|int_to_str|escape_map|split_lines|skip_ws)" src/mir/builder/control_flow/plan docs/development/current/main/design CURRENT_TASK.md -g '!**/*history*' -g '!**/*archive*'` = 0 hit
-  - `LoopPatternKind::{LoopSimpleWhile,NestedLoopMinimal}` へ active enum variant を semantic 化済み。classifier/router/loop_context/loop_canonicalizer/tests と active docs（`domainplan-thinning-ssot.md`, `coreplan-skeleton-feature-model.md`）も同期した
+  - `LoopRouteKind::{LoopSimpleWhile,NestedLoopMinimal}` へ active enum variant を semantic 化済み。classifier/router/loop_context/loop_canonicalizer/tests と active docs（`domainplan-thinning-ssot.md`, `coreplan-skeleton-feature-model.md`）も同期した
   - verification: `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `rg -n "Pattern1SimpleWhile|Pattern6NestedLoopMinimal" src CURRENT_TASK.md docs/development/current/main/design/domainplan-thinning-ssot.md docs/development/current/main/design/coreplan-skeleton-feature-model.md` = 0 hit
   - `src/mir/join_ir/lowering/**` の live `joinir/patternN` debug/error tags を route 主語へ同期済み（`simple_while_minimal` / `scan_with_init_{minimal,reverse}` / `split_scan_minimal` / `scan_bool_predicate_minimal` / `loop_with_if_phi_if_sum` / `error_tags`）。history/traceability docs と legacy smoke 名はこの slice では不変
-  - `LoopPatternKind::LoopTrueEarlyExit` へ enum surface を semantic 化し、`loop_pattern_detection::{kind,classify}` と `join_ir/lowering::{loop_route_router,mod}` の current-facing prose も route 主語へ同期中
+  - `LoopRouteKind::LoopTrueEarlyExit` へ enum surface を semantic 化し、`loop_pattern_detection::{kind,classify}` と `join_ir/lowering::{loop_route_router,mod}` の current-facing prose も route 主語へ同期中
   - `ConditionCapability::IfPhiJoinComparable` / `LoopViewBuilder::try_loop_simple_while` へ current helper surface を semantic 化し、`features` / `condition_pattern` / `loop_view_builder` / `route_prep_pipeline` / `loop_with_if_phi_if_sum` の近傍 prose も route 主語へ同期中
   - `join_ir/lowering/loop_routes/**` と `carrier_info` / `loop_update_summary` の stub/docs wording も route-first に同期し、残る `Pattern N` は `traceability-only` 注記へ後退
   - active docs の `Pattern3/4` current-looking wording をさらに薄くし、`strict-nested-loop-guard` は actual route_kind `LoopContinueOnly` へ同期済み
@@ -455,6 +455,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - intent: `Loop Pattern Detection` / `Trim Pattern` / `DigitPos Pattern` / `Pattern detected` を current production prose から外し、route-shape / route promotion / route detected へ寄せる
     - verification: `rg -n "Loop Pattern Detection Module|Trim Pattern|DigitPos Pattern|Pattern detected|pattern detected|No promotable pattern detected" src/mir/loop_pattern_detection src/mir/loop_pattern_detection/legacy -g '!**/*history*' -g '!**/*archive*'` = generic `Accumulator pattern detected` only
     - verification: `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+  - naming cleanup (2026-03-07, slice 55): `LoopPatternKind` を alias-first で `LoopRouteKind` へ移し、current runtime surface を semantic enum 名へ同期した
+    - synced files: `src/mir/loop_pattern_detection/{kind,mod,classify,tests}.rs` / `src/mir/loop_canonicalizer/{mod,canonicalizer,capability_guard,canonicalizer_tests/**}.rs` / `src/mir/builder/control_flow/{joinir/{loop_context,patterns/router,routing}.rs,plan/{planner/context.rs,composer/shadow_adopt.rs,facts/loop_tests.rs}}` / `src/mir/join_ir/lowering/{loop_route_router.rs,loop_scope_shape/case_a_lowering_shape.rs,loop_routes/nested_minimal.rs}` / active docs（`joinir-design-map.md`, `loop-canonicalizer.md`）
+    - intent: runtime/current docs と planner/joinir/canonicalizer surface では `LoopRouteKind` を主語にし、`LoopPatternKind` は `loop_pattern_detection::kind` の traceability alias に後退させる
+    - verification: `rg -n "\\bLoopPatternKind\\b|LoopForm → extract_features\\(\\) → LoopFeatures → classify\\(\\) → LoopPatternKind|pattern selection and failure reasons|result of pattern selection" src/mir/loop_pattern_detection src/mir/loop_canonicalizer src/mir/builder/control_flow/joinir/loop_context.rs src/mir/join_ir/lowering/loop_route_router.rs docs/development/current/main/design/{joinir-design-map,loop-canonicalizer}.md CURRENT_TASK.md -g '!**/*history*' -g '!**/*archive*'` = alias export + `CURRENT_TASK` 履歴のみ
+    - verification: `cargo check --tests` PASS / `cargo build --release --bin hakorune` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS（`unexpected_emit_fail_count=0`, `route_blocker_count=0`）
 
 ## next fixed order (resume point)
 
@@ -462,7 +467,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. legacy fixture key retirement は完了。old/new mapping は `CURRENT_TASK` / retirement SSOT / archive-history にだけ残し、runtime contract へ戻さない。
 3. `truth` cleanup を継続し、active docs の remaining traceability-only note を `joinir-design-map.md` / `planfrag-freeze-taxonomy.md` / `edgecfg-fragments.md` などからさらに薄くする。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. `naming` cleanup: legacy file/test/comment 名を semantic 名へ同期し、test-only wording と historical docs の境界をさらに薄くする。
+5. `naming` cleanup: `LoopPatternKind` alias を traceability-only に閉じ込め、残る test/tag/script の legacy token と physical path residue をさらに薄くする。
 6. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 7. docs / CURRENT_TASK / phase README は archive-first 運用を維持し、長文の時系列ログを root pointer に戻さない。
 

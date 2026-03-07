@@ -36,7 +36,7 @@ fn take_step_tree_parity_error() -> Option<String> {
 pub(in crate::mir::builder) fn choose_route_kind(
     condition: &ASTNode,
     body: &[ASTNode],
-) -> crate::mir::loop_pattern_detection::LoopPatternKind {
+) -> crate::mir::loop_pattern_detection::LoopRouteKind {
     use crate::mir::builder::control_flow::plan::ast_feature_extractor as ast_features;
     use crate::mir::builder::control_flow::plan::policies::balanced_depth_scan_policy_box::BalancedDepthScanPolicyBox;
     use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
@@ -49,13 +49,13 @@ pub(in crate::mir::builder) fn choose_route_kind(
     // This keeps loop routing structural: no by-name dispatch, no silent fallback.
     match BalancedDepthScanPolicyBox::decide(condition, body) {
         PolicyDecision::Use(_) => {
-            return loop_pattern_detection::LoopPatternKind::LoopBreak;
+            return loop_pattern_detection::LoopRouteKind::LoopBreak;
         }
         PolicyDecision::Reject(_reason) => {
             // In strict mode, treat "close-but-unsupported" as a fail-fast
             // loop-break route so the policy can surface the precise contract violation.
             if crate::config::env::joinir_dev::strict_enabled() {
-                return loop_pattern_detection::LoopPatternKind::LoopBreak;
+                return loop_pattern_detection::LoopRouteKind::LoopBreak;
             }
         }
         PolicyDecision::None => {}
@@ -97,7 +97,7 @@ pub(in crate::mir::builder) fn choose_route_kind(
                     "choose_route_kind",
                     "[routing] nested_loop_minimal selected: 1-level nested loop validated",
                 );
-                return loop_pattern_detection::LoopPatternKind::NestedLoopMinimal;
+                return loop_pattern_detection::LoopRouteKind::NestedLoopMinimal;
             }
             // Validation failed - not nested_loop_minimal, fall through to router_choice
         }

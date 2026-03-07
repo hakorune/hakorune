@@ -106,7 +106,7 @@ fn test_parse_number_route_shape_recognized() {
     // Verify success
     assert!(decision.is_success());
     // chosen == LoopBreak (has_break=true)
-    assert_eq!(decision.chosen, Some(LoopPatternKind::LoopBreak));
+    assert_eq!(decision.chosen, Some(LoopRouteKind::LoopBreak));
     // missing_caps == []
     assert!(decision.missing_caps.is_empty());
 

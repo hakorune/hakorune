@@ -87,7 +87,7 @@ impl CaseALoweringShape {
     /// # Phase 170-A Design Principle
     ///
     /// **CaseALoweringShape does NOT look at function names.**
-    /// Input: LoopFeatures / LoopPatternKind only (structure-based detection).
+    /// Input: LoopFeatures / LoopRouteKind only (structure-based detection).
     ///
     /// This is the core architectural invariant that enables generic routing.
     ///

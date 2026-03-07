@@ -19,7 +19,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-use crate::mir::loop_pattern_detection::LoopPatternKind;
+use crate::mir::loop_pattern_detection::LoopRouteKind;
 
 // Phase 273 P1: Import Plan components (facts/recipe outcome -> verifier -> lowerer)
 use super::registry;
@@ -57,7 +57,7 @@ pub(crate) struct LoopRouteContext<'a> {
     pub in_static_box: bool,
 
     /// Phase 192: Loop route classification based on features.
-    pub route_kind: LoopPatternKind,
+    pub route_kind: LoopRouteKind,
 
     /// Phase 200-C: Optional function body AST for capture analysis
     /// None if not available, Some(&[ASTNode]) if function body is accessible

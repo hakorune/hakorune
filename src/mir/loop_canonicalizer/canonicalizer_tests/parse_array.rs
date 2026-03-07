@@ -150,7 +150,7 @@ fn test_parse_array_route_shape_recognized() {
     // Verify success
     assert!(decision.is_success());
     // chosen == LoopContinueOnly (has both continue and return)
-    assert_eq!(decision.chosen, Some(LoopPatternKind::LoopContinueOnly));
+    assert_eq!(decision.chosen, Some(LoopRouteKind::LoopContinueOnly));
     // missing_caps == []
     assert!(decision.missing_caps.is_empty());
 

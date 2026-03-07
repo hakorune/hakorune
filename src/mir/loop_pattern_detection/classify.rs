@@ -1,5 +1,5 @@
 use super::features::LoopFeatures;
-use super::kind::LoopPatternKind;
+use super::kind::LoopRouteKind;
 
 /// Classify loop route family based on feature vector.
 ///
@@ -31,19 +31,19 @@ use super::kind::LoopPatternKind;
 /// * `features` - Feature vector from extract_features()
 ///
 /// # Returns
-/// * `LoopPatternKind` - Classified route family
+/// * `LoopRouteKind` - Classified route family
 ///
 /// # Phase 183: Unified Detection
 ///
 /// This is the single source of truth for route classification.
 /// Both routers (`router.rs` and `loop_route_router.rs`) use this
 /// function to avoid duplicate detection logic.
-pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
+pub fn classify(features: &LoopFeatures) -> LoopRouteKind {
     // Phase 188.1: NestedLoopMinimal (1-level only, check first after depth validation)
     // Reject 2+ level nesting (explicit error) BEFORE any pattern matching
     if features.max_loop_depth > 2 {
         // Return Unknown to trigger explicit error in router
-        return LoopPatternKind::Unknown;
+        return LoopRouteKind::Unknown;
     }
 
     // NestedLoopMinimal: 1-level nested, simple-while-compatible inner/outer loops
@@ -52,19 +52,19 @@ pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
         && !features.has_break
         && !features.has_continue
     {
-        return LoopPatternKind::NestedLoopMinimal;
+        return LoopRouteKind::NestedLoopMinimal;
     }
 
     // Phase 131-11: LoopTrueEarlyExit (highest priority - most specific)
     // MUST check before LoopContinueOnly to avoid misrouting break+continue cases
     if features.is_infinite_loop && features.has_break && features.has_continue {
-        return LoopPatternKind::LoopTrueEarlyExit;
+        return LoopRouteKind::LoopTrueEarlyExit;
     }
 
     // LoopContinueOnly
     // Phase 131-11: Break+continue stays LoopTrueEarlyExit only for infinite loops
     if features.has_continue {
-        return LoopPatternKind::LoopContinueOnly;
+        return LoopRouteKind::LoopContinueOnly;
     }
 
     // IfPhiJoin (check before LoopSimpleWhile)
@@ -74,22 +74,22 @@ pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
         && !features.has_break
         && !features.has_continue
     {
-        return LoopPatternKind::IfPhiJoin;
+        return LoopRouteKind::IfPhiJoin;
     }
 
     // LoopBreak
     if features.has_break && !features.has_continue {
-        return LoopPatternKind::LoopBreak;
+        return LoopRouteKind::LoopBreak;
     }
 
     // LoopSimpleWhile
     // Phase 212.5: Exclude loops with if statements (they go to IfPhiJoin)
     if !features.has_break && !features.has_continue && !features.has_if {
-        return LoopPatternKind::LoopSimpleWhile;
+        return LoopRouteKind::LoopSimpleWhile;
     }
 
     // Unknown route family
-    LoopPatternKind::Unknown
+    LoopRouteKind::Unknown
 }
 
 /// Phase 193-3: Diagnose route classification with details
@@ -98,44 +98,44 @@ pub fn classify(features: &LoopFeatures) -> LoopPatternKind {
 /// Useful for debugging and logging.
 ///
 /// # Returns
-/// * `(LoopPatternKind, String)` - The classified route family and a diagnostic message
-pub fn classify_with_diagnosis(features: &LoopFeatures) -> (LoopPatternKind, String) {
+/// * `(LoopRouteKind, String)` - The classified route family and a diagnostic message
+pub fn classify_with_diagnosis(features: &LoopFeatures) -> (LoopRouteKind, String) {
     let route_kind = classify(features);
     let reason = match route_kind {
-        LoopPatternKind::LoopContinueOnly => {
+        LoopRouteKind::LoopContinueOnly => {
             format!(
                 "Has continue statement (continue_count={})",
                 features.continue_count
             )
         }
-        LoopPatternKind::IfPhiJoin => {
+        LoopRouteKind::IfPhiJoin => {
             format!(
                 "Has if-else PHI with {} carriers, no break/continue",
                 features.carrier_count
             )
         }
-        LoopPatternKind::LoopBreak => {
+        LoopRouteKind::LoopBreak => {
             format!(
                 "Has break statement (break_count={}), no continue",
                 features.break_count
             )
         }
-        LoopPatternKind::LoopSimpleWhile => {
+        LoopRouteKind::LoopSimpleWhile => {
             "Simple while loop with no special control flow".to_string()
         }
-        LoopPatternKind::NestedLoopMinimal => {
+        LoopRouteKind::NestedLoopMinimal => {
             format!(
                 "Nested loop (1-level, max_loop_depth={}) with no break/continue",
                 features.max_loop_depth
             )
         }
-        LoopPatternKind::LoopTrueEarlyExit => {
+        LoopRouteKind::LoopTrueEarlyExit => {
             format!(
                 "Infinite loop (loop(true)) with both break and continue (break_count={}, continue_count={})",
                 features.break_count, features.continue_count
             )
         }
-        LoopPatternKind::Unknown => {
+        LoopRouteKind::Unknown => {
             format!("Unknown route: {}", features.debug_stats())
         }
     };

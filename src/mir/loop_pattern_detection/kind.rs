@@ -3,7 +3,7 @@
 /// Historical numbering remains available via `pattern_id()`, but runtime-facing
 /// code should use the semantic route labels below.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum LoopPatternKind {
+pub enum LoopRouteKind {
     /// LoopSimpleWhile route family
     /// - No break, no continue
     /// - Single backedge
@@ -42,17 +42,17 @@ pub enum LoopPatternKind {
     Unknown,
 }
 
-impl LoopPatternKind {
+impl LoopRouteKind {
     /// Phase 193-3: Get human-readable route name.
     pub fn name(&self) -> &'static str {
         match self {
-            LoopPatternKind::LoopSimpleWhile => "LoopSimpleWhile",
-            LoopPatternKind::LoopBreak => "LoopBreak",
-            LoopPatternKind::IfPhiJoin => "IfPhiJoin",
-            LoopPatternKind::LoopContinueOnly => "LoopContinueOnly",
-            LoopPatternKind::LoopTrueEarlyExit => "LoopTrueEarlyExit",
-            LoopPatternKind::NestedLoopMinimal => "NestedLoopMinimal",
-            LoopPatternKind::Unknown => "UnknownLoopShape",
+            LoopRouteKind::LoopSimpleWhile => "LoopSimpleWhile",
+            LoopRouteKind::LoopBreak => "LoopBreak",
+            LoopRouteKind::IfPhiJoin => "IfPhiJoin",
+            LoopRouteKind::LoopContinueOnly => "LoopContinueOnly",
+            LoopRouteKind::LoopTrueEarlyExit => "LoopTrueEarlyExit",
+            LoopRouteKind::NestedLoopMinimal => "NestedLoopMinimal",
+            LoopRouteKind::Unknown => "UnknownLoopShape",
         }
     }
 
@@ -61,13 +61,13 @@ impl LoopPatternKind {
     /// Preferred for runtime diagnostics in planner/router paths.
     pub fn semantic_label(&self) -> &'static str {
         match self {
-            LoopPatternKind::LoopSimpleWhile => "LoopSimpleWhile",
-            LoopPatternKind::LoopBreak => "LoopBreakRecipe",
-            LoopPatternKind::IfPhiJoin => "IfPhiJoin",
-            LoopPatternKind::LoopContinueOnly => "LoopContinueOnly",
-            LoopPatternKind::LoopTrueEarlyExit => "LoopTrueEarlyExit",
-            LoopPatternKind::NestedLoopMinimal => "NestedLoopMinimal",
-            LoopPatternKind::Unknown => "UnknownLoopShape",
+            LoopRouteKind::LoopSimpleWhile => "LoopSimpleWhile",
+            LoopRouteKind::LoopBreak => "LoopBreakRecipe",
+            LoopRouteKind::IfPhiJoin => "IfPhiJoin",
+            LoopRouteKind::LoopContinueOnly => "LoopContinueOnly",
+            LoopRouteKind::LoopTrueEarlyExit => "LoopTrueEarlyExit",
+            LoopRouteKind::NestedLoopMinimal => "NestedLoopMinimal",
+            LoopRouteKind::Unknown => "UnknownLoopShape",
         }
     }
 
@@ -77,13 +77,13 @@ impl LoopPatternKind {
     /// Useful for priority sorting.
     pub fn pattern_id(&self) -> u8 {
         match self {
-            LoopPatternKind::LoopSimpleWhile => 1,
-            LoopPatternKind::LoopBreak => 2,
-            LoopPatternKind::IfPhiJoin => 3,
-            LoopPatternKind::LoopContinueOnly => 4,
-            LoopPatternKind::LoopTrueEarlyExit => 5,
-            LoopPatternKind::NestedLoopMinimal => 6,
-            LoopPatternKind::Unknown => 0,
+            LoopRouteKind::LoopSimpleWhile => 1,
+            LoopRouteKind::LoopBreak => 2,
+            LoopRouteKind::IfPhiJoin => 3,
+            LoopRouteKind::LoopContinueOnly => 4,
+            LoopRouteKind::LoopTrueEarlyExit => 5,
+            LoopRouteKind::NestedLoopMinimal => 6,
+            LoopRouteKind::Unknown => 0,
         }
     }
 
@@ -91,7 +91,7 @@ impl LoopPatternKind {
     ///
     /// Returns false only for Unknown.
     pub fn is_recognized(&self) -> bool {
-        !matches!(self, LoopPatternKind::Unknown)
+        !matches!(self, LoopRouteKind::Unknown)
     }
 
     /// Phase 193-3: Check if route family has special control flow.
@@ -100,16 +100,21 @@ impl LoopPatternKind {
     pub fn has_special_control_flow(&self) -> bool {
         matches!(
             self,
-            LoopPatternKind::LoopBreak
-                | LoopPatternKind::LoopContinueOnly
-                | LoopPatternKind::LoopTrueEarlyExit
+            LoopRouteKind::LoopBreak
+                | LoopRouteKind::LoopContinueOnly
+                | LoopRouteKind::LoopTrueEarlyExit
         )
     }
 
     /// Phase 193-3: Check if route family involves PHI merging
     ///
-    /// Returns true if pattern has if-else PHI merge.
+    /// Returns true if the route has if-else PHI merge.
     pub fn has_phi_merge(&self) -> bool {
-        matches!(self, LoopPatternKind::IfPhiJoin)
+        matches!(self, LoopRouteKind::IfPhiJoin)
     }
 }
+
+/// Legacy compatibility alias for traceability-era callsites.
+///
+/// Current-facing runtime code should prefer `LoopRouteKind`.
+pub type LoopPatternKind = LoopRouteKind;

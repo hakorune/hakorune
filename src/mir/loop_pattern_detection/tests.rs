@@ -105,7 +105,7 @@ fn carrier_count(body: &[ASTNode]) -> usize {
     }
 }
 
-fn classify_body(body: &[ASTNode]) -> LoopPatternKind {
+fn classify_body(body: &[ASTNode]) -> LoopRouteKind {
     let has_continue_flag = body.iter().any(has_continue);
     let has_break_flag = body.iter().any(has_break);
     let features = LoopFeatures {
@@ -131,7 +131,7 @@ fn loop_simple_while_is_detected() {
         bin(BinaryOperator::Add, var("i"), lit_i(1)),
     )];
     let kind = classify_body(&body);
-    assert_eq!(kind, LoopPatternKind::LoopSimpleWhile);
+    assert_eq!(kind, LoopRouteKind::LoopSimpleWhile);
 }
 
 #[test]
@@ -148,7 +148,7 @@ fn loop_break_is_detected() {
         assignment(var("i"), bin(BinaryOperator::Add, var("i"), lit_i(1))),
     ];
     let kind = classify_body(&body);
-    assert_eq!(kind, LoopPatternKind::LoopBreak);
+    assert_eq!(kind, LoopRouteKind::LoopBreak);
 }
 
 #[test]
@@ -169,7 +169,7 @@ fn parse_number_like_loop_is_classified_as_loop_break() {
     ];
 
     let kind = classify_body(&body);
-    assert_eq!(kind, LoopPatternKind::LoopBreak);
+    assert_eq!(kind, LoopRouteKind::LoopBreak);
 }
 
 #[test]
@@ -193,7 +193,7 @@ fn if_phi_join_shape_is_detected() {
         assignment(var("i"), bin(BinaryOperator::Add, var("i"), lit_i(1))),
     ];
     let kind = classify_body(&body);
-    assert_eq!(kind, LoopPatternKind::IfPhiJoin);
+    assert_eq!(kind, LoopRouteKind::IfPhiJoin);
 }
 
 #[test]
@@ -217,7 +217,7 @@ fn loop_continue_only_shape_is_detected() {
         assignment(var("i"), bin(BinaryOperator::Add, var("i"), lit_i(1))),
     ];
     let kind = classify_body(&body);
-    assert_eq!(kind, LoopPatternKind::LoopContinueOnly);
+    assert_eq!(kind, LoopRouteKind::LoopContinueOnly);
 }
 
 #[test]
@@ -258,7 +258,7 @@ fn atoi_loop_is_classified_as_loop_break() {
     let kind = classify_body(&body);
     assert_eq!(
         kind,
-        LoopPatternKind::LoopBreak,
+        LoopRouteKind::LoopBreak,
         "_atoi loop should be classified as LoopBreak due to if-break structure"
     );
 }

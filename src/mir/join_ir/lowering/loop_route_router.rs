@@ -124,7 +124,7 @@ pub fn try_lower_loop_route_to_joinir(
     // Phase 194: Structure-based route classification
     // Tries routes based on CFG structure, not function names
 
-    use crate::mir::loop_pattern_detection::{classify, extract_features, LoopPatternKind};
+    use crate::mir::loop_pattern_detection::{classify, extract_features, LoopRouteKind};
 
     // Step 1: Extract features from LoopForm (no LoopScope needed for now)
     let features = extract_features(loop_form, None);
@@ -134,7 +134,7 @@ pub fn try_lower_loop_route_to_joinir(
 
     // Step 3: Route to the appropriate lowerer
     match route_kind {
-        LoopPatternKind::NestedLoopMinimal => {
+        LoopRouteKind::NestedLoopMinimal => {
             // Phase 188.2: NestedLoopMinimal lowering stub (infrastructure only)
             // Currently unreachable: LoopForm has no nesting info, so classify() never returns NestedLoopMinimal
             #[cfg(debug_assertions)]
@@ -151,7 +151,7 @@ pub fn try_lower_loop_route_to_joinir(
             }
             // Stub returns None - fallback to existing lowering
         }
-        LoopPatternKind::LoopContinueOnly => {
+        LoopRouteKind::LoopContinueOnly => {
             if let Some(inst) =
                 super::loop_routes::lower_loop_with_continue_to_joinir(loop_form, lowerer)
             {
@@ -163,7 +163,7 @@ pub fn try_lower_loop_route_to_joinir(
                 return Some(inst);
             }
         }
-        LoopPatternKind::IfPhiJoin => {
+        LoopRouteKind::IfPhiJoin => {
             if let Some(inst) =
                 super::loop_routes::lower_loop_with_conditional_phi_to_joinir(loop_form, lowerer)
             {
@@ -175,7 +175,7 @@ pub fn try_lower_loop_route_to_joinir(
                 return Some(inst);
             }
         }
-        LoopPatternKind::LoopBreak => {
+        LoopRouteKind::LoopBreak => {
             if let Some(inst) =
                 super::loop_routes::lower_loop_with_break_to_joinir(loop_form, lowerer)
             {
@@ -187,7 +187,7 @@ pub fn try_lower_loop_route_to_joinir(
                 return Some(inst);
             }
         }
-        LoopPatternKind::LoopSimpleWhile => {
+        LoopRouteKind::LoopSimpleWhile => {
             if let Some(inst) =
                 super::loop_routes::lower_simple_while_to_joinir(loop_form, lowerer)
             {
@@ -199,7 +199,7 @@ pub fn try_lower_loop_route_to_joinir(
                 return Some(inst);
             }
         }
-        LoopPatternKind::LoopTrueEarlyExit => {
+        LoopRouteKind::LoopTrueEarlyExit => {
             // Phase 131-11: Not implemented yet in LoopForm-based router
             if crate::config::env::joinir_dev::debug_enabled() {
                 get_global_ring0().log.debug(
@@ -207,7 +207,7 @@ pub fn try_lower_loop_route_to_joinir(
                 );
             }
         }
-        LoopPatternKind::Unknown => {
+        LoopRouteKind::Unknown => {
             // Phase 188.1: Check for explicit rejection reasons (depth > 2)
             if features.max_loop_depth > 2 {
                 if crate::config::env::joinir_dev::debug_enabled() {
