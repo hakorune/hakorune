@@ -1,9 +1,9 @@
 ---
 Status: Ready
-Scope: Pattern6_NestedLoopMinimal strict/dev observability (no release change)
+Scope: NestedLoopMinimal strict/dev observability (historical label 6; no release change)
 ---
 
-# Phase 29ap P9: Pattern6_NestedLoopMinimal — strict/dev shadow gate (facts-only)
+# Phase 29ap P9: NestedLoopMinimal — strict/dev shadow gate (facts-only; historical label 6)
 
 ## Goal
 
@@ -34,7 +34,7 @@ Reference fixture:
    - Use `Freeze::unstructured` with a short message.
 
 3. Router uses the strict/dev guard before legacy fallback
-   - `src/mir/builder/control_flow/joinir/patterns/router.rs`
+   - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
    - In strict/dev, return the freeze error string (do not fall through to legacy).
 
 ## Gate / Smoke

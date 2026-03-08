@@ -9,7 +9,7 @@ Scope: code + docs
 
 Phase 29be P0 の inventory に基づき、gate 内で `DomainPlan → PlanNormalizer::normalize(domain_plan)` を踏む経路を削減する。
 
-対象は `LoopBreak / IfPhiJoin / LoopTrueEarlyExit`（historical labels 2/3/5）の `value_join_needed=false` 経路で、現状 `coreloop_single_entry.rs` が
+対象は `LoopBreak / IfPhiJoin / LoopTrueEarlyExit`（historical labels `2/3/5`）の `value_join_needed=false` 経路で、現状 `coreloop_single_entry.rs` が
 `PlanNormalizer::normalize(domain_plan.clone(), ctx)` を呼んでいる部分。
 
 ## Non-goals

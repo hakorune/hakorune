@@ -1,4 +1,4 @@
-# Phase 29ap P11: Pattern6_NestedLoopMinimal release adopt (CorePlan default)
+# Phase 29ap P11: NestedLoopMinimal release adopt (CorePlan default; historical label 6)
 
 ## Goal
 
@@ -26,4 +26,3 @@
 - `cargo build --release`
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-
