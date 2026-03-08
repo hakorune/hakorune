@@ -8,7 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-29ae/README.md
 ---
 
-# Phase 29ao P14: ValueJoin exit の実使用（Pattern2 Break の after join を block_params 化）
+# Phase 29ao P14: ValueJoin exit の実使用（LoopBreak route / historical label 2 の after join を block_params 化）
 
 Date: 2025-12-30  
 Status: Ready for execution  
@@ -16,9 +16,9 @@ Scope: 仕様不変。P10 の `Frag.block_params → emit_frag() の PHI` を、
 
 ## 目的
 
-- Pattern2 Break の loop exit 合流（`after_bb` の PHI）を **`Frag.block_params + EdgeArgs(values)`** に置き換える。
+- LoopBreak route の loop exit 合流（`after_bb` の PHI）を **`Frag.block_params + EdgeArgs(values)`** に置き換える。
 - `CorePhiInfo` の “exit 側の PHI” を減らし、join の表現を EdgeCFG の SSOT に寄せる。
-- JoinIR 回帰 SSOT（phase29ae pack）を緑のまま維持する（Pattern2 は pack に入っている）。
+- JoinIR 回帰 SSOT（phase29ae pack）を緑のまま維持する（LoopBreak lane は pack に入っている）。
 
 ## 非目的
 
@@ -28,7 +28,8 @@ Scope: 仕様不変。P10 の `Frag.block_params → emit_frag() の PHI` を、
 
 ## 対象（最小）
 
-- `src/mir/builder/control_flow/plan/normalizer/pattern2_break.rs`
+- `src/mir/builder/control_flow/plan/normalizer/loop_break.rs`
+  - historical implementation file token: `pattern2_break.rs`
   - 現状: `CorePhiInfo` 3 本（header 2 本 + after 1 本）
   - 変更: **after の 1 本だけ**を block_params へ移し、`CorePhiInfo` から除去する
 
@@ -56,7 +57,7 @@ Scope: 仕様不変。P10 の `Frag.block_params → emit_frag() の PHI` を、
 
 ### Step 1: after PHI 1 本を CorePhiInfo から削除
 
-- `pattern2_break.rs` の `phis` 生成で、`block: after_bb` の 1 件を削除する
+- current implementation file `loop_break.rs` の `phis` 生成で、`block: after_bb` の 1 件を削除する
 - `header_bb` の 2 PHI はそのまま維持する（仕様不変）
 
 ### Step 2: header の loop exit edge args を “join 値” にする
@@ -79,11 +80,10 @@ Scope: 仕様不変。P10 の `Frag.block_params → emit_frag() の PHI` を、
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
-任意（Pattern2 だけ回す）:
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern2_"`
+任意（LoopBreak lane だけ回す）:
+- `bash tools/smokes/v2/profiles/integration/joinir/loop_break_release_adopt_vm.sh`
 
 ## コミット
 
 - `git add -A`
-- `git commit -m "phase29ao(p14): use block_params for pattern2 break exit join"`
-
+- `git commit -m "phase29ao(p14): use block params for loop break exit join"`

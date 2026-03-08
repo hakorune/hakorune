@@ -1,6 +1,6 @@
 ---
 Status: Ready
-Scope: Stage-2（release既定）を Pattern5(Infinite Early-Exit) の “planner subset” へ拡張する（仕様不変）
+Scope: Stage-2（release既定）を LoopTrueEarlyExit route（historical label 5）の “planner subset” へ拡張する（仕様不変）
 Related:
 - docs/development/current/main/phases/phase-29ao/README.md
 - docs/development/current/main/phases/phase-29ae/README.md
@@ -51,7 +51,7 @@ Related:
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
 
 位置:
-- `if !strict_or_dev { ... }` ブロック内（Pattern1/6/7/2/3 の後）
+- `if !strict_or_dev { ... }` ブロック内（LoopSimpleWhile / ScanWithInit / SplitScan / LoopBreak / IfPhiJoin の後）
 - `lower_via_plan(...)` の前
 
 処理:

@@ -1,8 +1,8 @@
-# Phase 29ap P10: Pattern6_NestedLoopMinimal minimal CorePlan subset (strict/dev)
+# Phase 29ap P10: NestedLoopMinimal minimal CorePlan subset (strict/dev; historical label 6)
 
 ## Goal
 
-- In strict/dev, adopt a minimal nested-loop CorePlan for the `phase1883_nested_minimal` shape.
+- In strict/dev, adopt a minimal nested-loop CorePlan for the `nested_loop_minimal` shape.
 - Keep release/default behavior unchanged (legacy JoinIR path remains).
 - Fail-fast in strict/dev when nested loops are detected but the subset does not match.
 
@@ -17,7 +17,7 @@
 ## Steps
 
 1. Facts (SSOT)
-   - Add `Pattern6NestedMinimalFacts` and wire it into `LoopFacts` (optional field).
+   - Add `NestedLoopMinimalFacts` and wire it into `LoopFacts` (optional field).
    - Keep `Ok(None)` for non-matches; no hardcode by-name.
 
 2. Composer v2 (strict/dev)
@@ -30,11 +30,10 @@
    - If nested facts are missing, keep the strict/dev freeze (fail-fast).
 
 4. Smoke gate
-   - Update `phase29ap_pattern6_nested_strict_shadow_vm.sh` to require the shadow-adopt tag.
+   - Update `nested_loop_minimal_strict_shadow_vm.sh` to require the shadow-adopt tag.
 
 ## Verification
 
 - `cargo build --release`
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-

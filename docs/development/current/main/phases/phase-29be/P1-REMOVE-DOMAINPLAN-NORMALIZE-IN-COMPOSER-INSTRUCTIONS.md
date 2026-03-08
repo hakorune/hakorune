@@ -9,7 +9,7 @@ Scope: code + docs
 
 Phase 29be P0 の inventory に基づき、gate 内で `DomainPlan → PlanNormalizer::normalize(domain_plan)` を踏む経路を削減する。
 
-対象は `Pattern2/3/5` の `value_join_needed=false` 経路で、現状 `coreloop_single_entry.rs` が
+対象は `LoopBreak / IfPhiJoin / LoopTrueEarlyExit`（historical labels 2/3/5）の `value_join_needed=false` 経路で、現状 `coreloop_single_entry.rs` が
 `PlanNormalizer::normalize(domain_plan.clone(), ctx)` を呼んでいる部分。
 
 ## Non-goals
@@ -22,7 +22,7 @@ Phase 29be P0 の inventory に基づき、gate 内で `DomainPlan → PlanNorma
 
 Inventory (P0):
 - `src/mir/builder/control_flow/plan/composer/coreloop_single_entry.rs`
-  - Pattern2/3/5 の `value_join_needed=false` が `PlanNormalizer::normalize(domain_plan)` に依存
+  - LoopBreak / IfPhiJoin / LoopTrueEarlyExit の `value_join_needed=false` が `PlanNormalizer::normalize(domain_plan)` に依存
 
 ## Steps
 
@@ -31,15 +31,15 @@ Inventory (P0):
 `src/mir/builder/control_flow/plan/composer/coreloop_single_entry.rs`
 
 - `try_compose_core_loop_for_domain_plan(...)` の以下を置換:
-  - `DomainPlan::Pattern2Break(_)` かつ `!facts.value_join_needed`
-  - `DomainPlan::Pattern3IfPhi(_)` かつ `!facts.value_join_needed`
-  - `DomainPlan::Pattern5InfiniteEarlyExit(_)` かつ `!facts.value_join_needed`
+  - `DomainPlan::LoopBreak(_)` かつ `!facts.value_join_needed`
+  - `DomainPlan::IfPhiJoin(_)` かつ `!facts.value_join_needed`
+  - `DomainPlan::LoopTrueEarlyExit(_)` かつ `!facts.value_join_needed`
 
 置換方針:
 
 - `PlanNormalizer::normalize(builder, domain_plan.clone(), ctx)` を廃止し、
-  各 pattern の typed entry（例: `PlanNormalizer::normalize_pattern2_break(...)`）で CorePlan を生成する。
-- 引数の `Pattern*Plan` は `DomainPlan` 内に保持されている型をそのまま使う（clone）。
+  各 route family の typed entry（例: `PlanNormalizer::normalize_loop_break(...)`）で CorePlan を生成する。
+- 引数の typed plan は `DomainPlan` 内に保持されている型をそのまま使う（clone）。
 
 狙い:
 
@@ -62,7 +62,7 @@ Inventory (P0):
 ## Verification
 
 - `rg -n \"PlanNormalizer::normalize\\(\" src/mir/builder/control_flow/plan/composer/coreloop_single_entry.rs`
-  - Pattern2/3/5 の non-join 経路でヒットしないこと
+  - LoopBreak / IfPhiJoin / LoopTrueEarlyExit の non-join 経路でヒットしないこと
 - `cargo build --release`
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
@@ -71,4 +71,3 @@ Inventory (P0):
 
 - `git add -A`
 - `git commit -m \"phase29be(p1): remove domain_plan normalize from composer\"`
-

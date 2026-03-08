@@ -1,6 +1,6 @@
 ---
 Status: Ready
-Scope: Stage-2（release既定）を Pattern2(Break) の “planner subset” へ拡張する（仕様不変）
+Scope: Stage-2（release既定）を LoopBreak route（historical label 2）の “planner subset” へ拡張する（仕様不変）
 Related:
 - docs/development/current/main/phases/phase-29ao/README.md
 - docs/development/current/main/phases/phase-29ae/README.md
@@ -12,7 +12,7 @@ Related:
 
 ## 目的
 
-- P36/P37/P38 で Pattern1/6/7 の “planner subset” を release 既定で composer 経由に寄せられた。
+- P36/P37/P38 で LoopSimpleWhile / ScanWithInit / SplitScan の “planner subset” を release 既定で composer 経由に寄せられた。
 - P39 は同じ安全方針で、LoopBreak（historical label 2）のうち **planner subset（outcome.plan が `DomainPlan::LoopBreak` のケース）** を release 既定で `facts → composer → CorePlan` に寄せる。
 - strict/dev の shadow adopt は引き続き「タグ必須」で回帰固定する（観測/Fail-Fast 維持）。
 
@@ -51,7 +51,7 @@ Related:
 - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
 
 位置:
-- `if !strict_or_dev { ... }` ブロック内（Pattern1/6/7 の直後）
+- `if !strict_or_dev { ... }` ブロック内（LoopSimpleWhile / ScanWithInit / SplitScan の直後）
 - `lower_via_plan(...)` の前
 
 処理:

@@ -3,8 +3,8 @@ Status: Ready
 Scope: tests+docs（仕様不変）
 Related:
   - tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh
-  - tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_notapplicable_min_vm.sh
-  - tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_freeze_min_vm.sh
+  - tools/smokes/v2/profiles/integration/apps/archive/README.md
+  - docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md
   - docs/development/current/main/phases/phase-29ao/README.md
 ---
 
@@ -15,9 +15,9 @@ Status: Ready for execution
 Goal: Phase 29ao P33 で LoopBreak（historical label 2）の match 範囲を広げたので、**本来 LoopBreak として planner 由来になってはいけないケース**でも
 誤って shadow adopt してしまう退行を防ぐ。
 
-対象は historical compat wrapper `phase29ab_pattern2_` に対応する negative ケース:
-- `phase29ab_pattern2_seg_notapplicable_min_vm`（historical compat wrapper / NotApplicable）
-- `phase29ab_pattern2_seg_freeze_min_vm`（historical compat wrapper / Freeze）
+対象は LoopBreak route の negative archived replay lane:
+- historical compat wrapper / NotApplicable case
+- historical compat wrapper / Freeze case
 
 これらで strict/dev 実行時に `[coreplan/shadow_adopt:pattern2_break_subset]` が出たら FAIL とする。
 
@@ -31,7 +31,7 @@ Goal: Phase 29ao P33 で LoopBreak（historical label 2）の match 範囲を広
 ### 1) NotApplicable smoke に “shadow adopt タグ禁止” を追加
 
 対象:
-- `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_notapplicable_min_vm.sh`
+- archived replay wrapper（NotApplicable case; exact basename は retirement SSOT を参照）
 
 やること:
 - raw `OUTPUT` に `[coreplan/shadow_adopt:pattern2_break_subset]` が含まれていたら FAIL。
@@ -40,7 +40,7 @@ Goal: Phase 29ao P33 で LoopBreak（historical label 2）の match 範囲を広
 ### 2) Freeze smoke に “shadow adopt タグ禁止” を追加
 
 対象:
-- `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_seg_freeze_min_vm.sh`
+- archived replay wrapper（Freeze case; exact basename は retirement SSOT を参照）
 
 やること:
 - raw `OUTPUT` に `[coreplan/shadow_adopt:pattern2_break_subset]` が含まれていたら FAIL。

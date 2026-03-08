@@ -8,7 +8,7 @@ Related:
   - docs/development/current/main/design/coreplan-migration-roadmap-ssot.md
 ---
 
-# Phase 29ao P19: 回帰ゲートに Pattern1 strict/dev shadow adopt を含める
+# Phase 29ao P19: 回帰ゲートに LoopSimpleWhile strict/dev shadow adopt を含める（historical label 1）
 
 Date: 2025-12-30  
 Status: Ready for execution  
@@ -16,7 +16,7 @@ Scope: 仕様不変。P17/P18 で導入した strict/dev の shadow adopt を、
 
 ## 目的
 
-- strict/dev の Pattern1 shadow adopt（Facts→CorePlan(skeleton)）が、回帰ゲートで常に実行されるようにする。
+- strict/dev の LoopSimpleWhile shadow adopt（Facts→CorePlan(skeleton)）が、回帰ゲートで常に実行されるようにする。
 - “実装は入ったが回帰で踏まれない” 状態を防ぐ（SSOTの維持）。
 
 ## 非目的
@@ -37,7 +37,7 @@ Scope: 仕様不変。P17/P18 で導入した strict/dev の shadow adopt を、
 
 理由:
 - strict/dev の shadow adopt を確実に踏むため（strict=1）。
-- fixture を増やさない（既存の Pattern1 PoC を流用）。
+- fixture を増やさない（既存の LoopSimpleWhile PoC を流用）。
 
 ### regression pack に追加
 
