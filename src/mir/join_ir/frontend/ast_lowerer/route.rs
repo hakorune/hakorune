@@ -30,12 +30,8 @@ pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, S
         ("jsonparser_parse_number_real", FunctionRoute::LoopFrontend),
         ("if_phi_join_multi_min", FunctionRoute::LoopFrontend),
         ("jsonparser_if_phi_join_min", FunctionRoute::LoopFrontend),
-        ("selfhost_token_scan_p2", FunctionRoute::LoopFrontend),
-        ("selfhost_token_scan_p2_accum", FunctionRoute::LoopFrontend),
-        ("selfhost_args_parse_p2", FunctionRoute::LoopFrontend),
         ("selfhost_if_phi_join", FunctionRoute::LoopFrontend),
         ("selfhost_if_phi_join_ext", FunctionRoute::LoopFrontend),
-        ("selfhost_stmt_count_p3", FunctionRoute::LoopFrontend),
         // Phase 54: selfhost P2/P3 shape growth
         ("selfhost_verify_schema_p2", FunctionRoute::LoopFrontend),
         ("selfhost_detect_format_p3", FunctionRoute::LoopFrontend),
@@ -112,6 +108,22 @@ mod tests {
             assert!(
                 err.contains("unsupported function"),
                 "legacy key should fail via unsupported-function path: {name} => {err}"
+            );
+        }
+    }
+
+    #[test]
+    fn retired_unused_selfhost_fixture_keys_are_rejected() {
+        for name in [
+            "selfhost_token_scan_p2",
+            "selfhost_token_scan_p2_accum",
+            "selfhost_args_parse_p2",
+            "selfhost_stmt_count_p3",
+        ] {
+            let err = resolve_function_route(name).expect_err("unused legacy key must be retired");
+            assert!(
+                err.contains("unsupported function"),
+                "retired selfhost key should fail via unsupported-function path: {name} => {err}"
             );
         }
     }

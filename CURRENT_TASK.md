@@ -934,12 +934,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/{joinir-legacy-fixture-pin-inventory-ssot,joinir-planner-required-gates-ssot}.md` / `tools/smokes/v2/profiles/integration/selfhost/{phase29bq_selfhost_planner_required_dev_gate_vm.sh,planner_required_selfhost_subset.tsv}`
     - intent: `SMOKES_SELFHOST_FILTER` と legacy fixture basename を混同しないように、`phase118_pattern3_if_sum_min.hako` を still-live contract token、`phase29bq_pattern1_inline_explicit_step_min.hako` や `p4_multidelta` を inventory-only pin として明示する。current docs は semantic route name を先頭に置き、exact legacy token は必要時だけ taxonomy 付きで参照する
     - verification: `git diff --check` PASS; `bash -n tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS; `cargo check --tests` PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - compat cleanup (2026-03-08, slice 175): caller 0 の legacy by-name selfhost fixture key 4件を `route.rs` allowlist から retire し、explicit rejection test に移した
+    - synced files: `CURRENT_TASK.md` / `src/mir/join_ir/frontend/ast_lowerer/route.rs` / `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
+    - intent: `selfhost_token_scan_p2` / `selfhost_token_scan_p2_accum` / `selfhost_args_parse_p2` / `selfhost_stmt_count_p3` は repo-local caller がなく、semantic alias を足すより reject lane に退避する方が current contract を細くできる。`route.rs` の live by-name contract は semantic key 中心に縮める
+    - verification: `git diff --check` PASS; `cargo test --lib retired_unused_selfhost_fixture_keys_are_rejected` PASS; `cargo build --release --bin hakorune` PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
 2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は `archive-fixed keep` に固定したので、次は caller inventory / retire 条件 / archive replay collapse 条件を詰める。
-3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。次は by-name route allowlist と selfhost subset pin の retire 条件を詰める。
+3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。次は selfhost subset pin と by-name semantic key の retire 条件を詰める。
 4. `dust` cleanup: warnings / orphan helper / dead code を刈る（現状 `cargo check --tests` は warning なし）。
 5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
@@ -966,9 +970,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current broad residue is intentionally small and explicit:
     - selfhost filter contract: `SMOKES_SELFHOST_FILTER=<substring>` in `phase29bq_selfhost_planner_required_dev_gate_vm.sh`
     - selfhost subset row pin: `apps/tests/phase118_pattern3_if_sum_min.hako`
-    - by-name route allowlist residue: `src/mir/join_ir/frontend/ast_lowerer/route.rs:106` (`pattern3_if_sum_multi_min` family is already retired; remaining table is semantic-first)
+    - by-name route allowlist residue: `src/mir/join_ir/frontend/ast_lowerer/route.rs` (retired legacy aliases and caller-0 selfhost dev keys are already rejection-test only; remaining table is semantic-first)
   - status: `legacy fixture key` と `legacy fixture pin token` の docs/gate 読み分けは整理済み
-  - next step: selfhost subset / by-name allowlist で still-live token が caller 0 になった時の alias-first retire 条件を切る
+  - next step: selfhost subset pin と by-name semantic key で still-live token が caller 0 になった時の alias-first retire 条件を切る
 - code-side residue:
   - `src/**` の loop-route `PatternN` residue は broad grep で **1 hit**
   - その 1 hit は `src/mir/join_ir/frontend/ast_lowerer/route.rs:106` の intentional by-name legacy fixture key allowlist（`pattern3_if_sum_multi_min`）

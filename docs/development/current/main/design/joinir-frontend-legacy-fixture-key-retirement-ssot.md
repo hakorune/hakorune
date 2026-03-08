@@ -13,6 +13,10 @@ Scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の legacy by-name fixtur
 - `jsonparser_if_sum_min`
 - `selfhost_if_sum_p3`
 - `selfhost_if_sum_p3_ext`
+- `selfhost_token_scan_p2`
+- `selfhost_token_scan_p2_accum`
+- `selfhost_args_parse_p2`
+- `selfhost_stmt_count_p3`
 
 ## Current Contract
 
@@ -21,6 +25,7 @@ Scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の legacy by-name fixtur
 - 現行 mainline の active tests / fast gate はこれらを直接 pin していない。
 - Phase B で semantic alias を追加し、Phase C で managed private fixtures/docs を semantic key へ移行した。
 - Phase D で `route.rs` の old key は retire 済み。runtime で受理するのは semantic key のみ。
+- `selfhost_token_scan_p2` / `selfhost_token_scan_p2_accum` / `selfhost_args_parse_p2` / `selfhost_stmt_count_p3` は repo-local caller 0 の selfhost dev fixture key だったため、semantic alias を足さずに reject lane へ退避した。
 - old key の残りは retirement ledger、`CURRENT_TASK`、archive/history、explicit rejection test を中心とする。
 
 Code anchors:
@@ -128,7 +133,7 @@ Alias map:
 
 Old-key retirement inventory:
 ```bash
-rg -n "pattern3_if_sum_multi_min|jsonparser_if_sum_min|selfhost_if_sum_p3|selfhost_if_sum_p3_ext" \
+rg -n "pattern3_if_sum_multi_min|jsonparser_if_sum_min|selfhost_if_sum_p3|selfhost_if_sum_p3_ext|selfhost_token_scan_p2|selfhost_token_scan_p2_accum|selfhost_args_parse_p2|selfhost_stmt_count_p3" \
   src tests tools docs/development/current/main docs/private CURRENT_TASK.md
 ```
 
