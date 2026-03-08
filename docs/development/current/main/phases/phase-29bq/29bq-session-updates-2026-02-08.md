@@ -2,6 +2,8 @@
 
 Status: historical session log (read-only)
 Source: moved from `CURRENT_TASK.md` during compaction on 2026-02-08
+Note: exact `SMOKES_SELFHOST_FILTER=...` substrings and exact fixture basenames below are historical evidence only.
+Use semantic substring guidance from `joinir-planner-required-gates-ssot.md` / `phase-29ce` for current operations.
 
 ### Session Update (2026-02-08, mirbuilder handler extraction M0)
 
