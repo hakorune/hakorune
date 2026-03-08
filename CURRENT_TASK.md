@@ -995,6 +995,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 4. `dust` cleanup: warnings / orphan helper / dead code を刈る（現状 `cargo check --tests` は warning なし）。`bool_expr_lowerer` orphan module と low-risk legacy stubs 3本は撤去済み。次は low-risk compat shim / stale comments を優先する。
 5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
+7. live compat retirement は `phase-29ce` として独立管理し、`SMOKES_SELFHOST_FILTER` / by-name fixture key / semantic fixture alias の retire authority を archive replay lane から分離する。
 
 ## Remaining Effort Snapshot (2026-03-08)
 
@@ -1007,6 +1008,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - aftercare phase entry:
   - `docs/development/current/main/phases/phase-29cd/README.md`
   - `docs/development/current/main/phases/phase-29cd/P0-AFTERCARE-CLOSEOUT-INSTRUCTIONS.md`
+- live compat retirement phase entry:
+  - `docs/development/current/main/phases/phase-29ce/README.md`
+  - `docs/development/current/main/phases/phase-29ce/P0-LIVE-COMPAT-RETIREMENT-INSTRUCTIONS.md`
 - archive replay lane:
   - archived replay stem の caller inventory / retire phase
   - current semantic wrappers no longer `exec bash` into archive stems; the remaining archive lane is limited to historical replay forwarders:
@@ -1129,6 +1133,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `apps/tests/{loop_continue_only_min.hako,loop_simple_while_strict_shadow_min.hako,loop_simple_while_subset_reject_extra_stmt_min.hako}` / `tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv`
     - intent: current lane では exact old basename を必須情報にせず semantic route meaning を前面に置き、gate reason でも `pattern` を architecture 主語として読まない
     - verification: `git diff --check` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+  - aftercare setup (2026-03-08, slice 210): `live compat retirement` を `phase-29ce` として独立させ、`SMOKES_SELFHOST_FILTER` / by-name fixture key / semantic fixture alias の fixed order と acceptance を phase docs に固定した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29ce/{README.md,P0-LIVE-COMPAT-RETIREMENT-INSTRUCTIONS.md}`
+    - intent: archive replay lane と live compat contract lane を別フェーズに分け、selfhost/noise になりやすい exact compat token の retire authority を 1 箇所で読めるようにする
+    - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 
 ## Quick Restart (After Reboot)
 
