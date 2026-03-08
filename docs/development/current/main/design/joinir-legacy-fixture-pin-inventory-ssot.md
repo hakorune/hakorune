@@ -117,7 +117,7 @@ and active docs (`joinir-planner-required-gates-ssot.md`, `phase-29bq/README.md`
 Selfhost filter interpretation:
 - allowed current examples: semantic route substrings or semantic fixture aliases such as `if_phi_join`
   / `apps/tests/if_phi_join_min.hako`
-- inventory-only legacy examples: exact historical basenames such as `phase118_pattern3_if_sum_min.hako`
+- inventory-only legacy examples: historical if-phi-join basenames kept in the Active pins table
 - current docs/how-to should teach the semantic examples first and keep the exact historical basename in
   this ledger or other historical notes only
 
@@ -133,8 +133,8 @@ guidance.
 
 | Token family | Why inventory-only |
 | --- | --- |
-| `phase118_pattern3_if_sum_min.hako` | historical selfhost/joinir fixture basename; current gates/selfhost subset now pin `if_phi_join_min.hako` |
-| `phase29bq_pattern1_inline_explicit_step_min.hako` / `pattern1_inline_explicit_step_min` | runtime/gate pin for explicit-step fixture; say `loop_simple_while explicit-step` in prose |
+| `historical if_phi_join basename family` | historical selfhost/joinir fixture basename family; current gates/selfhost subset now pin `if_phi_join_min.hako` |
+| `loop_simple_while explicit-step historical pins` | runtime/gate pin family for explicit-step fixture; say `loop_simple_while explicit-step` in prose |
 | `phase29bq_pattern4continue_multidelta_min.hako` / `p4_multidelta` | planner-required multi-delta fixture pin; say `loop_continue_only multi-delta` in prose |
 | `phase29ab_pattern6_*` / `phase29ab_pattern7_*` | route-family fixture pin tokens for scan regressions; current docs should say `scan_with_init` / `split_scan` |
 | `phase29ai_pattern2_break_plan_subset_ok_min.hako` / `phase29ab_pattern2_loopbodylocal_min.hako` / `phase29ab_pattern2_loopbodylocal_seg_min.hako` / `phase263_pattern2_seg_realworld_min.hako` / `phase286_pattern5_break_min.hako` / `phase269_p0_pattern8_frag_min.hako` / `phase286_pattern9_frag_poc.hako` | historical coverage pins kept for replay and gate traceability |

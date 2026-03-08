@@ -75,8 +75,8 @@ apps/tests/phase29bq_selfhost_blocker_scan_all_boxes_return_in_debug_guard_min.h
 apps/tests/phase29bq_using_module_roots_min.hako	1	0	StepTree root for 'Main.equals/1'	selfhost subset: module_roots resolution minimal
 apps/tests/phase29bq_using_module_roots_multi_min.hako	2	0	StepTree root for 'Main.equals/1'	selfhost subset: module_roots two using minimal
 apps/tests/phase29bq_using_module_roots_priority_min.hako	2	0	StepTree root for 'Main.equals/1'	selfhost subset: module_roots priority ([modules] wins)
-apps/tests/phase29bq_selfhost_blocker_extract_body_brace_return_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_extract_body_brace_return_min
-apps/tests/phase29bq_selfhost_blocker_find_matching_brace_return_continue_min.hako	OK	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_find_matching_brace_return_continue_min
+apps/tests/phase29bq_selfhost_blocker_extract_body_brace_return_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: extract-body-brace-return
+apps/tests/phase29bq_selfhost_blocker_find_matching_brace_return_continue_min.hako	OK	0	[joinir/planner_first rule=LoopCondBreak]	promote: find-matching-brace-return-continue
 apps/tests/phase29bq_selfhost_blocker_generic_loop_print_min.hako	P	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_generic_loop_print_min
 apps/tests/phase29bq_selfhost_blocker_localssa_block_insts_end_min.hako	0	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_localssa_block_insts_end_min
 apps/tests/phase29bq_selfhost_blocker_loop_cond_if_assign_min.hako	2	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_loop_cond_if_assign_min
@@ -88,7 +88,7 @@ apps/tests/phase29bq_selfhost_blocker_parse_program2_prelude1_ws_loop_min.hako	1
 apps/tests/phase29bq_selfhost_blocker_parse_program2_prelude2_depth_ws_loop_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_program2_prelude2_depth_ws_loop_min
 apps/tests/phase29bq_selfhost_blocker_parse_program2_ws_loopcount_continue_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_program2_ws_loopcount_continue_min
 # NOTE: `reason` may include `promote: <fixture-stem>` as a legacy fixture pin token / legacy selfhost test stem for Tier-2 sync.
-apps/tests/phase29bq_selfhost_blocker_parse_stmt_skipws_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_stmt_skipws_min
+apps/tests/phase29bq_selfhost_blocker_parse_stmt_skipws_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: parse-stmt-skipws
 apps/tests/phase29bq_selfhost_blocker_parse_string2_min.hako	{"type":"Str","value":"a"}	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_string2_min
 apps/tests/phase29bq_selfhost_blocker_parse_term2_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_term2_min
 apps/tests/phase29bq_selfhost_blocker_parse_try_min.hako	2	0	[joinir/planner_first rule=LoopCondBreak]	promote: phase29bq_selfhost_blocker_parse_try_min
