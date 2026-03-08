@@ -12,8 +12,8 @@ Related:
 
 ## 目的
 
-- P37 で Pattern6(ScanWithInit) の planner subset を release 既定で Facts→CorePlan に寄せた。
-- P38 では同じ安全方針で、Pattern7(SplitScan) のうち **planner subset（Facts が取れているケース）** を release 既定で “facts→compose→CorePlan” に寄せる。
+- P37 で ScanWithInit（historical label 6）の planner subset を release 既定で Facts→CorePlan に寄せた。
+- P38 では同じ安全方針で、SplitScan（historical label 7）のうち **planner subset（Facts が取れているケース）** を release 既定で “facts→compose→CorePlan” に寄せる。
 - strict/dev の shadow adopt は引き続き “タグ必須” で回帰固定する（観測/Fail-Fast 維持）。
 
 ## 非目的
@@ -48,7 +48,7 @@ Related:
 ### Step 2: router で Pattern7 release adopt を接続
 
 対象:
-- `src/mir/builder/control_flow/joinir/patterns/router.rs`
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs`
 
 位置:
 - `try_shadow_adopt_core_plan(...)` が `None` のあと、`lower_via_plan(...)` の前
@@ -65,12 +65,12 @@ Related:
 - “strictを付けない” integration smoke を 1 本追加して、非strict 実行でも安定することを固定する。
 
 追加（例）:
-- `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern7_release_adopt_vm.sh`
+- `tools/smokes/v2/profiles/integration/joinir/split_scan_release_adopt_vm.sh`
 
 要件:
 - `HAKO_JOINIR_STRICT=1` を設定しない
 - fixture は既存 OK minimal を使用:
-  - `apps/tests/phase29ab_pattern7_splitscan_ok_min.hako`
+  - `apps/tests/split_scan_ok_min.hako`
 - 期待:
   - 既存と同じ RC（既存 smoke の期待値に合わせる）
 
@@ -93,4 +93,4 @@ Related:
 ## コミット
 
 - `git add -A`
-- `git commit -m "phase29ao(p38): release adopt pattern7 split-scan subset"`
+- `git commit -m "phase29ao(p38): release adopt split-scan subset"`

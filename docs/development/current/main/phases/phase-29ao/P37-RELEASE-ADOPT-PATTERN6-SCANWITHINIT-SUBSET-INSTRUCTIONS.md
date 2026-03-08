@@ -13,7 +13,7 @@ Related:
 ## 目的
 
 - P36 で Pattern1 を release 既定で Facts→CorePlan へ寄せる「Stage-2 pilot」を開始した。
-- P37 は次の安全ステップとして、Pattern6(ScanWithInit) のうち **planner subset（Facts が取れているケース）** を release 既定で “facts→compose→CorePlan” に寄せる。
+- P37 は次の安全ステップとして、ScanWithInit（historical label 6）のうち **planner subset（Facts が取れているケース）** を release 既定で “facts→compose→CorePlan” に寄せる。
 - strict/dev の shadow adopt は引き続き「タグ必須」で回帰固定する（観測/Fail-Fast 維持）。
 
 ## 非目的
@@ -25,8 +25,8 @@ Related:
 
 ## 現状（前提）
 
-- Pattern6 strict/dev shadow adopt は回帰で固定済み:
-  - `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern6_strict_shadow_vm.sh`
+- ScanWithInit strict/dev shadow adopt は回帰で固定済み:
+  - `tools/smokes/v2/profiles/integration/joinir/scan_with_init_strict_shadow_vm.sh`
   - タグ: `[coreplan/shadow_adopt:pattern6_scan_with_init]`
 - router の採用順（概略）:
   - `single_planner` が返した `domain_plan` を基本経路として `lower_via_plan` で処理
@@ -58,7 +58,7 @@ Related:
 ### Step 2: router で Pattern6 release adopt を接続
 
 - 対象ファイル:
-  - `src/mir/builder/control_flow/joinir/patterns/router.rs`
+  - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
 
 位置:
 - `try_shadow_adopt_core_plan(...)` が `None` のあと、`lower_via_plan(...)` の前
@@ -78,12 +78,12 @@ Related:
 - P37 は “strictを付けない” integration smoke を 1 本追加して、非strict 実行でも安定することを固定する。
 
 追加（例）:
-- `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern6_release_adopt_vm.sh`
+- `tools/smokes/v2/profiles/integration/joinir/scan_with_init_release_adopt_vm.sh`
 
 要件:
 - `HAKO_JOINIR_STRICT=1` を設定しない（非strict）
 - fixture は既存の OK minimal を使う:
-  - `apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako`
+  - `apps/tests/scan_with_init_ok_min.hako`
 - 期待:
   - exit code = 1（既存と同じ）
 
@@ -106,4 +106,4 @@ Related:
 ## コミット
 
 - `git add -A`
-- `git commit -m "phase29ao(p37): release adopt pattern6 scan_with_init subset"`
+- `git commit -m "phase29ao(p37): release adopt scan-with-init subset"`

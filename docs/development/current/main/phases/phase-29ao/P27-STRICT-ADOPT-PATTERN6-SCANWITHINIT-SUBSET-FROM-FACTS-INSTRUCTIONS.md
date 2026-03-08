@@ -4,21 +4,21 @@ Scope: code+tests+docs（strict/dev のみ、仕様不変）
 Related:
   - docs/development/current/main/phases/phase-29ao/README.md
   - tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh
-  - tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern6_scan_with_init_ok_min_vm.sh
-  - src/mir/builder/control_flow/joinir/patterns/router.rs
-  - src/mir/builder/control_flow/plan/normalizer/pattern_scan_with_init.rs
+  - tools/smokes/v2/profiles/integration/joinir/scan_with_init_strict_shadow_vm.sh
+  - src/mir/builder/control_flow/joinir/route_entry/router.rs
+  - historical implementation file token: src/mir/builder/control_flow/plan/normalizer/pattern_scan_with_init.rs
   - src/mir/builder/control_flow/plan/facts/loop_facts.rs
 ---
 
-# Phase 29ao P27: strict/dev Pattern6(ScanWithInit) “planner subset” を Facts→CorePlan で shadow adopt
+# Phase 29ao P27: strict/dev ScanWithInit（historical label 6）“planner subset” を Facts→CorePlan で shadow adopt
 
 Date: 2025-12-30  
 Status: Ready for execution  
-Goal: Pattern6 のうち **planner が Facts から一意に作れる ScanWithInit subset** だけを strict/dev で Facts→CorePlan に寄せ、DomainPlan 経路との差分（facts/extractor/normalize のズレ）を早期検知する（release 既定挙動は不変）。
+Goal: ScanWithInit（historical label 6）のうち **planner が Facts から一意に作れる subset** だけを strict/dev で Facts→CorePlan に寄せ、DomainPlan 経路との差分（facts/extractor/normalize のズレ）を早期検知する（release 既定挙動は不変）。
 
 ## 背景
 
-- Pattern6 は OK/contract/variant（reverse/matchscan 等）が混在している。
+- ScanWithInit は OK/contract/variant（reverse/matchscan 等）が混在している。
 - 現状の Facts（`scan_with_init`）は “最小 subset” に寄せてあり、すべての variant を表現できるわけではない。
 - そこで P27 は P26 と同様に **planner 由来のときだけ** strict/dev shadow adopt を行う：
   - planner が作れない variant は従来どおり extractor（fallback）経路で維持
@@ -26,7 +26,7 @@ Goal: Pattern6 のうち **planner が Facts から一意に作れる ScanWithIn
 
 ## 非目的
 
-- Pattern6 の reverse/matchscan など、Facts 未対応 variant を adopt 強制すること
+- ScanWithInit の reverse/matchscan など、Facts 未対応 variant を adopt 強制すること
 - Facts subset の拡張（別Pで扱う）
 - 新しい env var/恒常ログ追加
 - release 既定経路の変更
@@ -37,7 +37,7 @@ Goal: Pattern6 のうち **planner が Facts から一意に作れる ScanWithIn
 
 対象:
 - `src/mir/builder/control_flow/plan/normalizer/mod.rs`
-- `src/mir/builder/control_flow/plan/normalizer/pattern_scan_with_init.rs`
+- historical implementation file token `pattern_scan_with_init.rs`
 
 追加:
 - `pub(in crate::mir::builder) fn normalize_scan_with_init_from_facts(...) -> Result<Option<CorePlan>, String>`
@@ -54,7 +54,7 @@ Goal: Pattern6 のうち **planner が Facts から一意に作れる ScanWithIn
 ### 2) router の strict/dev shadow adopt を Pattern6 subset に追加（planner 由来のみ）
 
 対象:
-- `src/mir/builder/control_flow/joinir/patterns/router.rs`
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs`
 
 方針:
 - strict/dev でも Pattern6 全体には強制しない（P26と同様）
@@ -71,8 +71,8 @@ Goal: Pattern6 のうち **planner が Facts から一意に作れる ScanWithIn
 
 ### 3) 回帰ゲート（SSOT）
 
-Pattern6 の integration smokes は既に strict で実行されている（例: `phase29ab_pattern6_scan_with_init_ok_min_vm.sh`）。
-よって新しい smoke 追加は不要で、`phase29ae_regression_pack_vm.sh` の `phase29ab_pattern6_` がそのまま adopt 経路のゲートになる。
+ScanWithInit の integration smokes は既に strict で実行されている（current semantic wrapper: `scan_with_init_strict_shadow_vm.sh`）。
+よって新しい smoke 追加は不要で、`phase29ae_regression_pack_vm.sh` の `scan_with_init_regression_pack_vm.sh` がそのまま adopt 経路のゲートになる。
 
 ## テスト（必須）
 
@@ -89,4 +89,4 @@ Pattern6 の integration smokes は既に strict で実行されている（例:
 ## コミット
 
 - `git add -A`
-- `git commit -m "phase29ao(p27): strict/dev adopt pattern6 scan_with_init subset from facts"`
+- `git commit -m "phase29ao(p27): strict/dev adopt scan-with-init subset from facts"`
