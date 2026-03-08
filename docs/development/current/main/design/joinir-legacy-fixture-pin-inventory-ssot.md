@@ -121,6 +121,9 @@ and active docs (`joinir-planner-required-gates-ssot.md`, `phase-29bq/README.md`
 Selfhost filter interpretation:
 - allowed current examples: semantic route substrings or semantic fixture aliases such as `if_phi_join`
   / `apps/tests/if_phi_join_min.hako`
+- current gate also derives semantic aliases from the pinned fixture basename
+  (for example `phase29bq_selfhost_blocker_parse_map_min.hako` -> `parse-map`,
+  `phase29bq_selfhost_blocker_localssa_block_insts_end_min.hako` -> `localssa-block-insts-end`)
 - current subset TSV may also expose `filter_alias` so semantic basename filters such as
   `selfhost_cleanup_only_min.hako`, `selfhost_trim_generic_loop_min.hako`, and
   `selfhost_breakfinder_parse_int_min.hako` stay current without rewriting the pinned historical fixture path

@@ -129,21 +129,55 @@ emit_failure_summary_from_log() {
   echo "[diag/selfhost] summary_end"
 }
 
+fixture_filter_aliases() {
+  local fixture="$1"
+  local basename stem semantic short
+  local aliases=()
+
+  basename="$(basename "$fixture")"
+  stem="${basename%.hako}"
+
+  aliases+=("$basename" "$stem")
+
+  semantic="$(printf '%s' "$stem" | sed -E 's/^phase[0-9a-z]+_//')"
+  semantic="$(printf '%s' "$semantic" | sed -E 's/_(min|ok|real|poc)$//')"
+  aliases+=("$semantic" "${semantic//_/-}")
+
+  short="$semantic"
+  short="${short#selfhost_blocker_}"
+  short="${short#selfhost_}"
+  if [ "$short" != "$semantic" ]; then
+    aliases+=("$short" "${short//_/-}")
+  fi
+
+  short="$semantic"
+  short="${short#loop_}"
+  if [ "$short" != "$semantic" ]; then
+    aliases+=("$short" "${short//_/-}")
+  fi
+
+  printf '%s\n' "${aliases[@]}" | awk 'length($0) > 0 && !seen[$0]++' | tr '\n' ' '
+}
+
 case_matches_filter() {
   local fixture="$1"
   local planner_tag="$2"
   local reason="$3"
   local filter_alias="${4:-}"
+  local fixture_aliases
 
   if [ -z "$CASE_FILTER" ]; then
     return 0
   fi
 
+  fixture_aliases="$(fixture_filter_aliases "$fixture")"
+
   # Live contract note:
-  # `SMOKES_SELFHOST_FILTER` still matches fixture + planner_tag + reason + filter_alias.
+  # `SMOKES_SELFHOST_FILTER` still matches
+  # fixture + planner_tag + reason + filter_alias + fixture-derived semantic aliases.
   # Semantic route substrings are preferred, but exact historical tokens may
   # remain live while they survive in the fixture column of the subset TSV.
-  local haystack="$fixture $planner_tag $reason $filter_alias"
+  local haystack="$fixture $planner_tag $reason $filter_alias $fixture_aliases"
   [[ "$haystack" == *"$CASE_FILTER"* ]]
 }
 

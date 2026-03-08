@@ -59,7 +59,24 @@ pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, S
 
 #[cfg(test)]
 mod tests {
-    use super::resolve_function_route;
+    use super::{resolve_function_route, FunctionRoute};
+
+    #[test]
+    fn current_program_json_route_keys_resolve_to_expected_routes() {
+        for (name, expected) in [
+            ("test", FunctionRoute::IfReturn),
+            ("local", FunctionRoute::IfReturn),
+            ("_read_value_from_pair", FunctionRoute::IfReturn),
+            ("simple", FunctionRoute::LoopFrontend),
+        ] {
+            let route =
+                resolve_function_route(name).expect("current accepted Program JSON key must stay live");
+            assert_eq!(
+                route, expected,
+                "current accepted Program JSON key must resolve to the frozen route bucket: {name}"
+            );
+        }
+    }
 
     #[test]
     fn retired_legacy_if_phi_join_fixture_keys_are_rejected() {
