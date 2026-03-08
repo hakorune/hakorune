@@ -1,4 +1,4 @@
-// Semantic alias for historical fixture token `phase286_pattern1_frag_poc.hako`.
+// Semantic alias for the historical simple-while strict-shadow fixture.
 // Expected: return 3 (loop 3 times: i=0,1,2 -> i=3 で終了)
 
 static box Main {

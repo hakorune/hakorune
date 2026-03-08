@@ -1,4 +1,4 @@
-// Phase 29ap P8: Pattern4 continue minimal fixture (plan routing)
+// Phase 29ap P8: loop_continue_only minimal fixture (plan routing)
 // Expected output: 6
 
 static box Main {

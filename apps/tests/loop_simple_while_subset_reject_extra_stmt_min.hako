@@ -1,4 +1,4 @@
-// Semantic alias for historical fixture token `phase29ao_pattern1_subset_reject_extra_stmt.hako`.
+// Semantic alias for the historical simple-while subset reject fixture.
 // Expected: return 3 (sum increments each iteration)
 
 static box Main {

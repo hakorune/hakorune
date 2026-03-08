@@ -1125,6 +1125,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - aftercare cleanup (2026-03-08, slice 208): active instruction docs に残っていた exact compat basename を pointer-first に寄せ、semantic wrapper / semantic fixture alias を current 主語へ揃えた
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/{phase-29af/P2-JOINIR-REGRESSION-PACK-ENTRYPOINT-INSTRUCTIONS.md,phase-29ah/P0-REGRESSION-PACK-INCLUDES-PHASE263-PATTERN2-INSTRUCTIONS.md,phase-29ao/P19-REGRESSION-PACK-ADD-PATTERN1-STRICT-SHADOW-INSTRUCTIONS.md,phase-29ao/P21-PATTERN1-SUBSET-BODY-IS-STEP-ONLY-INSTRUCTIONS.md,phase-29ao/P34-PATTERN2-NEGATIVE-SHADOW-ADOPT-TAG-GATES-INSTRUCTIONS.md,phase-29ao/P12-VALUEJOIN-FIRST-REAL-USAGE-PATTERN7-SPLITSCAN-INSTRUCTIONS.md,phase-29aw/P0-FLOWBOX-TAG-COVERAGE-MAP-INSTRUCTIONS.md,phase-29cb/P0-INBODY-STEP-NORMALIZATION-INSTRUCTIONS.md}`
     - intent: active instruction lane では `loop_break_*` / `split_scan_*` / `loop_simple_while_*` と semantic fixture alias を先頭に置き、exact archived stem や exact historical fixture basename は retirement SSOT / inventory lane を参照させる
+  - aftercare cleanup (2026-03-08, slice 209): active semantic fixture alias comment と gate reason の current-looking `pattern` wording を route/shape 主語へ整理した
+    - synced files: `CURRENT_TASK.md` / `apps/tests/{loop_continue_only_min.hako,loop_simple_while_strict_shadow_min.hako,loop_simple_while_subset_reject_extra_stmt_min.hako}` / `tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv`
+    - intent: current lane では exact old basename を必須情報にせず semantic route meaning を前面に置き、gate reason でも `pattern` を architecture 主語として読まない
+    - verification: `git diff --check` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## Quick Restart (After Reboot)
 
