@@ -77,20 +77,22 @@ Goal: strict/dev の Pattern1 shadow adopt（Facts→CorePlan(skeleton)）が意
 
 ### A) 既存の “strict shadow adopt を踏む” テストは維持
 
-- 既存: `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh`
-  - fixture: `apps/tests/phase286_pattern1_frag_poc.hako`
+- 既存: `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh`
+  - fixture: `apps/tests/loop_simple_while_strict_shadow_min.hako`
+  - historical fixture token: `apps/tests/phase286_pattern1_frag_poc.hako`
   - 期待: exit=3
 
 ### B) 誤マッチ防止の新規 fixture + smoke を追加（必須）
 
 新規 fixture（例）:
-- `apps/tests/phase29ao_pattern1_subset_reject_extra_stmt.hako`
+- `apps/tests/loop_simple_while_subset_reject_extra_stmt_min.hako`
+  - historical fixture token: `apps/tests/phase29ao_pattern1_subset_reject_extra_stmt.hako`
   - `sum = sum + 1; i = i + 1` を含む（sum を return）
   - 正しい意味論: exit=3
   - Pattern1 subset で誤マッチすると body が落ちて exit=0 になるため、確実に検出できる
 
 新規 smoke（joinir strict で実行）:
-- `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_subset_reject_extra_stmt_vm.sh`
+- `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_subset_reject_extra_stmt_vm.sh`
   - `NYASH_DISABLE_PLUGINS=1 HAKO_JOINIR_STRICT=1` を付けて VM 実行
   - 期待: exit=3
 
@@ -113,4 +115,3 @@ Goal: strict/dev の Pattern1 shadow adopt（Facts→CorePlan(skeleton)）が意
 
 - `git add -A`
 - `git commit -m "phase29ao(p21): tighten pattern1 subset to step-only body"`
-

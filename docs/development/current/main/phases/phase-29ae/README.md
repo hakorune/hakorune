@@ -85,4 +85,4 @@ Exact compat/archive stem mapping is tracked in
 ## Status
 
 - phase1883: PASS（RC=9 を成功扱い）
-- loop_break: PASS（JoinIR main param remap を carrier_order に揃える, historical route token: pattern2 / label 2） `cf95afbd8`
+- loop_break: PASS（JoinIR main param remap を carrier_order に揃える; historical numbered route label 2 は inventory-only） `cf95afbd8`

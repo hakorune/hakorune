@@ -11,7 +11,7 @@ RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 SCRIPT_STEM="${LEGACY_STEM_OVERRIDE:-bool_predicate_accum_planner_required_pack_vm}"
 
 
-LIST_FILE="$(dirname "$0")/phase29bo_planner_required_pattern8_9_cases.tsv"
+LIST_FILE="$(dirname "$0")/bool_predicate_accum_planner_required_cases.tsv"
 run_planner_first_list_gate \
   "$LIST_FILE" \
   "bool_predicate_accum_planner_required_pack_vm" \

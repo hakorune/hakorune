@@ -10,7 +10,7 @@ require_env || exit 2
 RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 SCRIPT_STEM="${LEGACY_STEM_OVERRIDE:-if_phi_join_planner_required_pack_vm}"
 
-LIST_FILE="$(dirname "$0")/phase29bn_planner_required_pattern3_cases.tsv"
+LIST_FILE="$(dirname "$0")/if_phi_join_planner_required_cases.tsv"
 
 run_planner_first_list_gate \
   "$LIST_FILE" \

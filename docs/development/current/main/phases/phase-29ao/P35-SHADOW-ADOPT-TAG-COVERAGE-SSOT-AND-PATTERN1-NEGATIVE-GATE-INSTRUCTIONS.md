@@ -25,7 +25,7 @@ Related:
 1. SSOT 追加（表形式）
    - `docs/development/current/main/design/coreplan-shadow-adopt-tag-coverage-ssot.md`
 2. negative gate 追加（Pattern1 subset reject）
-   - `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_subset_reject_extra_stmt_vm.sh`
+   - `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_subset_reject_extra_stmt_vm.sh`
 3. 参照導線の追記（任意）
    - `docs/development/current/main/design/planfrag-ssot-registry.md`
 
@@ -41,7 +41,7 @@ Related:
 ### Step 2: Pattern1 subset reject を negative gate にする
 
 - 変更:
-  - `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_subset_reject_extra_stmt_vm.sh`
+  - `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_subset_reject_extra_stmt_vm.sh`
 - 追加するチェック:
   - strict/dev 実行の raw output に `[coreplan/shadow_adopt:pattern1_simplewhile]` が出たら FAIL
   - 既存の exit code=3 期待は維持（副作用 drop 誤マッチ検出の本体）

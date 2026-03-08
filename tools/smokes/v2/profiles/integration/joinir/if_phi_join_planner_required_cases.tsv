@@ -1,0 +1,3 @@
+# Semantic alias for historical cases token `phase29bn_planner_required_pattern3_cases.tsv`.
+# fixture	expected	allow_rc	planner_tag
+apps/tests/if_phi_join_min.hako	12	0	[joinir/planner_first rule=IfPhiJoin] label=IfPhiJoin

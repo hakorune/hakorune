@@ -11,7 +11,7 @@ RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 SCRIPT_STEM="${LEGACY_STEM_OVERRIDE:-loop_break_planner_required_pack_vm}"
 
 
-LIST_FILE="$(dirname "$0")/phase29bi_planner_required_pattern2_cases.tsv"
+LIST_FILE="$(dirname "$0")/loop_break_planner_required_cases.tsv"
 run_planner_first_list_gate \
   "$LIST_FILE" \
   "loop_break_planner_required_pack_vm" \

@@ -11,7 +11,7 @@ Related:
 
 # CorePlan shadow-adopt tag coverage (historical)
 
-目的: 旧 `[coreplan/shadow_adopt:*]` 観測タグの運用履歴を残す。
+目的: 旧 `[coreplan/shadow_adopt:*]` 観測タグの運用履歴を残す。current coverage contract は FlowBox schema 側を正本にする。
 
 現行の SSOT は FlowBox schema:
 
@@ -24,7 +24,7 @@ Related:
 
 ## Historical tag vocabulary (deprecated)
 
-Note:
+Pointer rule:
 - tag suffix には pattern-era token が残るが、これは traceability-only。
 - smoke path は semantic alias wrapper を優先し、legacy file name は wrapper の転送先または archive pin としてのみ保持する。
 - current/legacy stem の対応は `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` を正本にする。

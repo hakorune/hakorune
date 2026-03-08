@@ -69,7 +69,7 @@ Fail-Fast 方針:
 ### Step 3: 回帰で“subset reject の負例”が release flip でも維持されることを確認
 
 - 既存の負例スモーク:
-  - `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_subset_reject_extra_stmt_vm.sh`
+  - `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_subset_reject_extra_stmt_vm.sh`
   - 期待: exit=3 かつ shadow-adopt tag 不在（P35で固定済み）
 - P36は release flip なので、strict/dev 以外の別スモーク追加は不要（観測増加を避ける）
 

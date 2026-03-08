@@ -11,7 +11,7 @@ RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 SCRIPT_STEM="${LEGACY_STEM_OVERRIDE:-core_loop_routes_planner_required_pack_vm}"
 
 
-LIST_FILE="$(dirname "$0")/phase29bl_planner_required_pattern1_4_5_cases.tsv"
+LIST_FILE="$(dirname "$0")/core_loop_routes_planner_required_cases.tsv"
 run_planner_first_list_gate \
   "$LIST_FILE" \
   "core_loop_routes_planner_required_pack_vm" \

@@ -1,0 +1,16 @@
+// Semantic alias for historical fixture token `phase29ao_pattern1_subset_reject_extra_stmt.hako`.
+// Expected: return 3 (sum increments each iteration)
+
+static box Main {
+    main() {
+        local i
+        local sum
+        i = 0
+        sum = 0
+        loop(i < 3) {
+            sum = sum + 1
+            i = i + 1
+        }
+        return sum
+    }
+}

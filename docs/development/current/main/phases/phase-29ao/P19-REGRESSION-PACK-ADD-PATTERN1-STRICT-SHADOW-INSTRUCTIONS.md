@@ -29,8 +29,9 @@ Scope: 仕様不変。P17/P18 で導入した strict/dev の shadow adopt を、
 
 ### 追加する smoke（新規）
 
-- 新規ファイル: `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh`
-  - 入力: `apps/tests/phase286_pattern1_frag_poc.hako` を再利用（既存fixture）
+- 新規ファイル: `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh`
+  - 入力: `apps/tests/loop_simple_while_strict_shadow_min.hako` を current semantic fixture alias として使う
+  - historical fixture token: `apps/tests/phase286_pattern1_frag_poc.hako`
   - 実行: `NYASH_DISABLE_PLUGINS=1 HAKO_JOINIR_STRICT=1` を付けて VM 実行
   - 期待: exit code `3`（既存PoCと同じ）
 
@@ -41,12 +42,12 @@ Scope: 仕様不変。P17/P18 で導入した strict/dev の shadow adopt を、
 ### regression pack に追加
 
 - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` に 1 行追加
-  - `run_filter "pattern1_strict_shadow_vm" "phase29ao_pattern1_strict_shadow_vm" || exit 1`
+  - `run_filter "loop_simple_while_strict_shadow_vm" "loop_simple_while_strict_shadow_vm" || exit 1`
 
 ### SSOT ドキュメント更新
 
 - `docs/development/current/main/phases/phase-29ae/README.md`
-  - Regression pack (SSOT) に `phase29ao_pattern1_strict_shadow_vm` を追記
+  - Regression pack (SSOT) に current semantic wrapper `loop_simple_while_strict_shadow_vm` を追記
 
 ## 検証（必須）
 
@@ -56,5 +57,4 @@ Scope: 仕様不変。P17/P18 で導入した strict/dev の shadow adopt を、
 ## コミット
 
 - `git add -A`
-- `git commit -m "docs(phase29ao): gate pattern1 strict shadow adopt in regression pack"`
-
+- `git commit -m "docs(phase29ao): gate loop_simple_while strict shadow adopt in regression pack"`

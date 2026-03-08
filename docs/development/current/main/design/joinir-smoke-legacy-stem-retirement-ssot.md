@@ -118,6 +118,12 @@ Operational rule:
 | `tools/smokes/v2/profiles/integration/joinir/if_phi_join_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bn_planner_required_pattern3_pack_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` |
 
+Current semantic planner-case lists:
+- `tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_cases.tsv`
+- `tools/smokes/v2/profiles/integration/joinir/core_loop_routes_planner_required_cases.tsv`
+- `tools/smokes/v2/profiles/integration/joinir/if_phi_join_planner_required_cases.tsv`
+- `tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_cases.tsv`
+
 ## Acceptance
 
 - Regression packs may filter semantic alias wrappers without changing fixture names.
