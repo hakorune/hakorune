@@ -1079,6 +1079,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `CURRENT_TASK.md`
     - intent: archive replay の残り forwarder は archived stem 側だけにあることを SSOT 化し、current semantic wrapper は retire 判定の対象ではなく replay handle 側だけが段階撤去対象だと明確にする
     - verification: `rg -n "exec bash .*apps/archive|integration/apps/archive/phase" tools/smokes/v2/profiles/integration/joinir/*.sh` = 0 hit / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+  - compat-guidance cleanup (2026-03-08, slice 197): `phase-29ae` の wrapper 列と selfhost filter contract の重複 wording を common note 化し、active docs は semantic wrapper / semantic route substring / semantic fixture alias 優先に揃えた
+    - synced files: `docs/development/current/main/{design/{joinir-legacy-fixture-pin-inventory-ssot,joinir-planner-required-gates-ssot}.md,phases/{phase-29ae/README.md,phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md}}` / `CURRENT_TASK.md`
+    - intent: exact compat stem や exact legacy substring は inventory-only lane に閉じ、current guidance では semantic wrapper / semantic route substring / semantic fixture alias を先頭に置く
+    - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 
 ## Quick Restart (After Reboot)
 

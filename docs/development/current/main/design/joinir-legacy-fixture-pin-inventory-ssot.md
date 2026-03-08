@@ -106,6 +106,11 @@ For `SMOKES_SELFHOST_FILTER` legacy-example retirement, use this caller scope:
 `planner_required_selfhost_subset.tsv` semantic pin row (`apps/tests/if_phi_join_min.hako`),
 and active docs (`joinir-planner-required-gates-ssot.md`, `phase-29bq/README.md`).
 
+Selfhost filter interpretation:
+- allowed current examples: semantic route substrings or semantic fixture aliases such as `if_phi_join`
+  / `apps/tests/if_phi_join_min.hako`
+- inventory-only legacy examples: exact historical basenames such as `phase118_pattern3_if_sum_min.hako`
+
 ### Inventory-only pins
 
 These tokens should be read as traceability pins, not as the preferred semantic names in current

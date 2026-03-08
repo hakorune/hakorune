@@ -56,6 +56,7 @@ Related:
 - [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=<try_throw_cleanup_case_substring> SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`Expected 15`)
 - [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=<cleanup_only_case_substring> SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`Expected 11`)
 - [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=<parse_string_return_case_substring> SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`Expected MISS`)
+- note: exact legacy substring examples are inventory-only; current guidance should prefer semantic route substrings or semantic fixture aliases
 - [x] closeout blockers status is synced in `29bq-115-selfhost-to-go-checklist.md`（G1/G2/G3 complete）
 
 ### 2.3.1 Quick evidence refresh（2026-02-28, Stage2 fixed）

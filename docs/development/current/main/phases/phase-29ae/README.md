@@ -5,17 +5,20 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 ## Regression pack (SSOT)
 
 Numbered route labels below are historical labels only. Current entry names are the semantic wrapper stems shown first.
+Exact compat/archive stem mapping is tracked in
+`joinir-smoke-legacy-stem-retirement-ssot.md`; legacy fixture key/pin details are tracked in
+`joinir-legacy-fixture-pin-inventory-ssot.md`.
 
-- loop_break (body-local route, VM): `loop_break_body_local_vm`（coverage-only semantic-body wrapper; archived replay stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_break (body-local seg route, VM): `loop_break_body_local_seg_vm`（coverage-only semantic-body wrapper; archived replay stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_break (real-world route, VM): `loop_break_realworld_vm`（regression-pack semantic-body wrapper; historical filter key family is inventory-only）
-- loop_break (subset, strict shadow, VM): `loop_break_plan_subset_vm`（regression-pack semantic-body wrapper; archived replay stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_break (release adopt, VM): `loop_break_release_adopt_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- if_phi_join (VM): `if_phi_join_vm`（regression-pack semantic-body wrapper; historical smoke stem / fixture key is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md` and `joinir-legacy-fixture-pin-inventory-ssot.md`）
-- if_phi_join (release adopt, VM): `if_phi_join_release_adopt_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_continue_only (continue min, VM): `loop_continue_only_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_simple_while (strict shadow, VM): `loop_simple_while_strict_shadow_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_simple_while (subset reject, VM): `loop_simple_while_subset_reject_extra_stmt_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_break (body-local route, VM): `loop_break_body_local_vm`（coverage-only semantic-body wrapper）
+- loop_break (body-local seg route, VM): `loop_break_body_local_seg_vm`（coverage-only semantic-body wrapper）
+- loop_break (real-world route, VM): `loop_break_realworld_vm`（regression-pack semantic-body wrapper）
+- loop_break (subset, strict shadow, VM): `loop_break_plan_subset_vm`（regression-pack semantic-body wrapper）
+- loop_break (release adopt, VM): `loop_break_release_adopt_vm`
+- if_phi_join (VM): `if_phi_join_vm`（regression-pack semantic-body wrapper）
+- if_phi_join (release adopt, VM): `if_phi_join_release_adopt_vm`
+- loop_continue_only (continue min, VM): `loop_continue_only_vm`
+- loop_simple_while (strict shadow, VM): `loop_simple_while_strict_shadow_vm`
+- loop_simple_while (subset reject, VM): `loop_simple_while_subset_reject_extra_stmt_vm`
 - loop_simple_while (stdlib to_lower, VM): `phase29ap_stringutils_tolower_vm`
 - loop_simple_while (stdlib join, VM): `phase29ap_stringutils_join_vm`
 - scan_with_init (stdlib index_of, VM): `phase29aq_string_index_of_min_vm`
@@ -46,17 +49,17 @@ Numbered route labels below are historical labels only. Current entry names are 
 - BranchN (match return-only, release adopt, VM): `phase29at_match_return_release_adopt_vm`
 - FlowBox tags gate (strict/non-strict, VM): `phase29av_flowbox_tags_gate_vm`
 - FlowBox tag coverage gate (strict/non-strict, VM): `phase29aw_flowbox_tag_coverage_gate_vm`
-- loop_true_early_exit (VM): `loop_true_early_exit_vm`（regression-pack semantic-body wrapper; archived replay stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_true_early_exit (strict shadow, VM): `loop_true_early_exit_strict_shadow_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_true_early_exit (release adopt, VM): `loop_true_early_exit_release_adopt_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- scan_with_init (strict shadow, VM): `scan_with_init_strict_shadow_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- scan_with_init (release adopt, VM): `scan_with_init_release_adopt_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- scan_with_init supplemental pack (VM): `scan_with_init_regression_pack_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- nested_loop_minimal (release adopt, VM): `nested_loop_minimal_release_adopt_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- nested_loop_minimal (strict shadow, VM): `nested_loop_minimal_strict_shadow_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- split_scan (strict shadow, VM): `split_scan_strict_shadow_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- split_scan (release adopt, VM): `split_scan_release_adopt_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- split_scan supplemental pack (VM): `split_scan_regression_pack_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_true_early_exit (VM): `loop_true_early_exit_vm`（regression-pack semantic-body wrapper）
+- loop_true_early_exit (strict shadow, VM): `loop_true_early_exit_strict_shadow_vm`
+- loop_true_early_exit (release adopt, VM): `loop_true_early_exit_release_adopt_vm`
+- scan_with_init (strict shadow, VM): `scan_with_init_strict_shadow_vm`
+- scan_with_init (release adopt, VM): `scan_with_init_release_adopt_vm`
+- scan_with_init supplemental pack (VM): `scan_with_init_regression_pack_vm`
+- nested_loop_minimal (release adopt, VM): `nested_loop_minimal_release_adopt_vm`
+- nested_loop_minimal (strict shadow, VM): `nested_loop_minimal_strict_shadow_vm`
+- split_scan (strict shadow, VM): `split_scan_strict_shadow_vm`
+- split_scan (release adopt, VM): `split_scan_release_adopt_vm`
+- split_scan supplemental pack (VM): `split_scan_regression_pack_vm`
 - この pack が JoinIR 回帰の唯一の integration gate（phase143_* は対象外）
 - JoinIR routing is plan/composer SSOT only (legacy loop table removed in Phase 29ap P12)
 - phase143_* は LoopBuilder 撤去 / plugin disable 固定 / LLVM exe 期待が古いので除外
