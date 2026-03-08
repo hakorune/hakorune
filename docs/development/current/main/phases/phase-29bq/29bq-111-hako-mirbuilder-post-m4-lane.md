@@ -31,28 +31,28 @@ Related:
 
 - [x] `PrintStmtHandler` が Print 実装を直接持つ（`ProgramJsonV0ConsumerPrintBox` への単純委譲を解消）。
 - [x] verify:
-  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/phase29bq_selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
+  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 
 ### P2: Local logic ownership move
 
 - [x] `LocalStmtHandler` が Local 実装を直接持つ（`ProgramJsonV0ConsumerLocalBox` への単純委譲を解消）。
 - [x] verify:
-  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/phase29bq_selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
+  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 
 ### P3: Assignment logic ownership move
 
 - [x] `AssignmentStmtHandler` が Assignment 実装を直接持つ（`ProgramJsonV0ConsumerAssignmentBox` への単純委譲を解消）。
 - [x] verify:
-  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/phase29bq_selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
+  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 
 ### P4: Return logic ownership move
 
 - [x] `ReturnStmtHandler` が Return 実装を直接持つ（`ProgramJsonV0ConsumerReturnBox` への単純委譲を解消）。
 - [x] verify:
-  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/phase29bq_selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
+  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 
 ### P5: Consumer layer residue cleanup

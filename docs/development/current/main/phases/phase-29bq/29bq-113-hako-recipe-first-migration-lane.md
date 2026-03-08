@@ -116,7 +116,7 @@ R5 minimal Loop contract (implementation SSOT):
 ## 2) Acceptance (per task)
 
 必須:
-- `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/phase29bq_selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
+- `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
 - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 
 節目（R5/R6）:

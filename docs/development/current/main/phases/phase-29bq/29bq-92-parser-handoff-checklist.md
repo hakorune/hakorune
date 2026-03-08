@@ -36,7 +36,7 @@ Related:
 
 - [x] `phase29bq*selfhost*parse*.hako` 系の既存 blocker は subset へ PROMOTE 済み（remaining=0）。
 - [x] 次の parser handoff は「新規 fixture を 1本作って PROBE」から開始する（`try` なし形を先に受理してから）。
-  - evidence: `apps/tests/phase29bq_selfhost_cleanup_only_min.hako`
+  - evidence: `apps/tests/selfhost_cleanup_only_min.hako`
 
 ## 0) 前提（着手条件）
 
@@ -53,7 +53,7 @@ Related:
 - [x] legacy literal readiness flow（撤去判断前）:
   - unified helper: `bash tools/selfhost/legacy_main_readiness.sh`
   - strict gate: `bash tools/selfhost/legacy_main_readiness.sh --strict`
-- [x] parser/mirbuilder の `.hako` 修正を含むコミットでは、internal-only emit を先に通す: `bash tools/hakorune_emit_mir_mainline.sh apps/tests/phase29bq_selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`（latest evidence: 2026-02-25 PASS）
+- [x] parser/mirbuilder の `.hako` 修正を含むコミットでは、internal-only emit を先に通す: `bash tools/hakorune_emit_mir_mainline.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`（latest evidence: 2026-02-25 PASS）
 
 ### 1.1 subset intentional exclusions（2026-02-24 snapshot）
 

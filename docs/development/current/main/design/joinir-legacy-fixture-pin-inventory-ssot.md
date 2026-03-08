@@ -65,6 +65,9 @@ tokens that still act as traceability pins.
 | `loop_simple_while_inline_explicit_step_min.hako` | `loop_simple_while explicit-step` | semantic fixture alias |
 | `loop_simple_while_strict_shadow_min.hako` | `loop_simple_while strict shadow` | semantic fixture alias |
 | `loop_simple_while_subset_reject_extra_stmt_min.hako` | `loop_simple_while subset reject extra stmt` | semantic fixture alias |
+| `selfhost_cleanup_only_min.hako` | `selfhost cleanup-only` | semantic fixture alias |
+| `selfhost_trim_generic_loop_min.hako` | `selfhost trim generic-loop` | semantic fixture alias |
+| `selfhost_breakfinder_parse_int_min.hako` | `selfhost BreakFinder parse-int` | semantic fixture alias |
 | `phase29bq_pattern1_inline_explicit_step_min.hako` | `loop_simple_while explicit-step` | legacy fixture pin token |
 | `pattern1_inline_explicit_step_min` | `loop_simple_while explicit-step` | legacy fixture pin token |
 | `phase29ap_pattern4_continue_min.hako` | `loop_continue_only` | legacy fixture pin token |
@@ -94,7 +97,7 @@ or caller-migration phase.
 
 | Token | Why still live |
 | --- | --- |
-| `SMOKES_SELFHOST_FILTER=<substring>` matches on fixture/reason/planner_tag | selfhost gate contract is substring-based, so pinned fixture stems may still be used operationally |
+| `SMOKES_SELFHOST_FILTER=<substring>` matches on fixture/reason/planner_tag/filter_alias | selfhost gate contract is substring-based, so pinned fixture stems may still be used operationally |
 | Program JSON by-name keys in `src/mir/join_ir/frontend/ast_lowerer/route.rs` | frontend allowlist remains a live entry contract; legacy retired aliases are handled separately |
 
 Current hotspot files:
@@ -118,6 +121,9 @@ and active docs (`joinir-planner-required-gates-ssot.md`, `phase-29bq/README.md`
 Selfhost filter interpretation:
 - allowed current examples: semantic route substrings or semantic fixture aliases such as `if_phi_join`
   / `apps/tests/if_phi_join_min.hako`
+- current subset TSV may also expose `filter_alias` so semantic basename filters such as
+  `selfhost_cleanup_only_min.hako`, `selfhost_trim_generic_loop_min.hako`, and
+  `selfhost_breakfinder_parse_int_min.hako` stay current without rewriting the pinned historical fixture path
 - inventory-only legacy examples: historical if-phi-join basenames kept in the Active pins table
 - current docs/how-to should teach the semantic examples first and keep the exact historical basename in
   this ledger or other historical notes only
@@ -157,6 +163,9 @@ guidance.
   - say `bool_predicate_scan`, and use `bool_predicate_scan_frag_min.hako` when an exact current fixture basename matters
   - say `loop_simple_while strict shadow`, and use `loop_simple_while_strict_shadow_min.hako` when an exact current fixture basename matters
   - say `loop_simple_while subset reject extra stmt`, and use `loop_simple_while_subset_reject_extra_stmt_min.hako` when an exact current fixture basename matters
+  - say `selfhost cleanup-only`, and use `selfhost_cleanup_only_min.hako` when an exact current fixture basename matters
+  - say `selfhost trim generic-loop`, and use `selfhost_trim_generic_loop_min.hako` when an exact current fixture basename matters
+  - say `selfhost BreakFinder parse-int`, and use `selfhost_breakfinder_parse_int_min.hako` when an exact current fixture basename matters
   - say `accum_const_loop`, and use `accum_const_loop_frag_poc.hako` when an exact current fixture basename matters
   - say `loop_break recipe-only`, and use `loop_break_recipe_only_min.hako` when an exact current fixture basename matters
   - say `loop_continue_only multi-delta`, and use `loop_continue_only_multidelta_min.hako` when an exact current fixture basename matters

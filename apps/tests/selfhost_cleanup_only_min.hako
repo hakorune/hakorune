@@ -1,0 +1,13 @@
+// Semantic fixture alias for the selfhost cleanup-only minimal lane.
+// Expected output: 11
+static box Main {
+  main() {
+    local x = 1
+    {
+      x = x + 10
+    } cleanup {
+      print(x)
+    }
+    return 0
+  }
+}

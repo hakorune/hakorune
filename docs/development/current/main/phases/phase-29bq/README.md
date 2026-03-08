@@ -224,7 +224,7 @@ Body lowering policy: `body_exit_allowed` is used only when `BodyLoweringPolicy:
 | `apps/tests/phase29bq_map_literal_percent_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `map_literal_percent_min` |
 | `apps/tests/phase29bq_strict_nested_loop_guard_min.hako` | `composer/shadow_adopt.rs (strict_nested_loop_guard)` | `(freeze)` | `shadow_pre_plan_guard` | `strict_nested_loop_guard_min` |
 | `apps/tests/phase29bq_strict_nested_loop_guard_accept_min.hako` | `composer/shadow_adopt.rs (strict_nested_loop_guard, accept-min1)` | `(n/a)` | `recipe_first loop_continue_only accept-min1` | `strict_nested_loop_guard_accept_min` |
-| `apps/tests/phase29bq_selfhost_blocker_trim_generic_loop_min.hako` | `generic_loop/facts/` | `generic_loop/recipe.rs` | `generic_loop_pipeline.rs` | `selfhost_trim_generic_loop_min` |
+| `apps/tests/selfhost_trim_generic_loop_min.hako` | `generic_loop/facts/` | `generic_loop/recipe.rs` | `generic_loop_pipeline.rs` | `selfhost_trim_generic_loop_min` |
 | `apps/tests/phase29bq_selfhost_blocker_rewriteknown_trim_loop_cond_and_methodcall_min.hako` | `generic_loop/facts/` | `generic_loop/recipe.rs` | `generic_loop_pipeline.rs` | `selfhost_rewriteknown_trim_loop_cond_and_methodcall_min` |
 | `apps/tests/phase29bq_selfhost_blocker_parse_if_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `selfhost_parse_if_min` |
 | `apps/tests/phase29bq_selfhost_blocker_parse_program2_if_return_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `selfhost_parse_program2_if_return_min` |
@@ -550,7 +550,7 @@ Selfhost canary reported: 198/198 tests PASS (milestone run on 2026-02-28, `tota
 - ✅ `PhiInjectorBox._collect_phi_vars/2` nested `k` loop (local init patterns)
   - Note: generic_loop の value/local allowlist を selfhost 実態に合わせて拡張し、`no_valid_loop_var_candidates` の freeze を解消。
 - ✅ `BreakFinderBox._parse_int/1` else-only return in loop body
-  - Fixture: `apps/tests/phase29bq_selfhost_blocker_breakfinder_parse_int_min.hako`
+  - Fixture: `apps/tests/selfhost_breakfinder_parse_int_min.hako`
   - Fast gate: `tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_cases.tsv` case_id=`selfhost_breakfinder_parse_int_min`
   - Design: avoid `IfAny` drift by adding a box-local recipe vocab (`ElseOnlyReturnIf`) in `loop_cond_break_continue`
 - ✅ `BuildBox.emit_program_json_v0` loop(cond) with then-only break + else update

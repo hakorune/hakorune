@@ -133,24 +133,25 @@ case_matches_filter() {
   local fixture="$1"
   local planner_tag="$2"
   local reason="$3"
+  local filter_alias="${4:-}"
 
   if [ -z "$CASE_FILTER" ]; then
     return 0
   fi
 
   # Live contract note:
-  # `SMOKES_SELFHOST_FILTER` still matches fixture + planner_tag + reason.
+  # `SMOKES_SELFHOST_FILTER` still matches fixture + planner_tag + reason + filter_alias.
   # Semantic route substrings are preferred, but exact historical tokens may
-  # remain live while they survive in the `reason` column of the subset TSV.
-  local haystack="$fixture $planner_tag $reason"
+  # remain live while they survive in the fixture column of the subset TSV.
+  local haystack="$fixture $planner_tag $reason $filter_alias"
   [[ "$haystack" == *"$CASE_FILTER"* ]]
 }
 
 count_selected_cases() {
   local count=0
-  local fixture expected allowed_rc planner_tag reason
+  local fixture expected allowed_rc planner_tag reason filter_alias
 
-  while IFS=$'\t' read -r fixture expected allowed_rc planner_tag reason; do
+  while IFS=$'\t' read -r fixture expected allowed_rc planner_tag reason filter_alias; do
     if [ -z "$fixture" ] || [[ "$fixture" == \#* ]]; then
       continue
     fi
@@ -158,8 +159,9 @@ count_selected_cases() {
     fixture=${fixture//$'\r'/}
     planner_tag=${planner_tag//$'\r'/}
     reason=${reason//$'\r'/}
+    filter_alias=${filter_alias//$'\r'/}
 
-    if ! case_matches_filter "$fixture" "$planner_tag" "$reason"; then
+    if ! case_matches_filter "$fixture" "$planner_tag" "$reason" "$filter_alias"; then
       continue
     fi
 
@@ -403,7 +405,7 @@ run_master_list_parallel() {
   TOTAL_STAGEB_SECS=0
   TOTAL_RUN_SECS=0
 
-  while IFS=$'\t' read -r fixture expected allowed_rc planner_tag reason; do
+  while IFS=$'\t' read -r fixture expected allowed_rc planner_tag reason filter_alias; do
     if [ -z "$fixture" ] || [[ "$fixture" == \#* ]]; then
       continue
     fi
@@ -413,8 +415,9 @@ run_master_list_parallel() {
     allowed_rc=${allowed_rc//$'\r'/}
     planner_tag=${planner_tag//$'\r'/}
     reason=${reason//$'\r'/}
+    filter_alias=${filter_alias//$'\r'/}
 
-    if ! case_matches_filter "$fixture" "$planner_tag" "$reason"; then
+    if ! case_matches_filter "$fixture" "$planner_tag" "$reason" "$filter_alias"; then
       continue
     fi
 
@@ -496,7 +499,7 @@ run_master_list() {
   local gate_name="phase29bq_selfhost_planner_required_dev_gate_vm"
   local failed=0
   local executed=0
-  local fixture expected allowed_rc planner_tag reason
+  local fixture expected allowed_rc planner_tag reason filter_alias
   local selected
   local summary_total_secs
   local summary_avg_case
@@ -514,7 +517,7 @@ run_master_list() {
     fi
     executed="$PARALLEL_EXECUTED"
   else
-    while IFS=$'\t' read -r fixture expected allowed_rc planner_tag reason; do
+    while IFS=$'\t' read -r fixture expected allowed_rc planner_tag reason filter_alias; do
       if [ -z "$fixture" ] || [[ "$fixture" == \#* ]]; then
         continue
       fi
@@ -524,8 +527,9 @@ run_master_list() {
       allowed_rc=${allowed_rc//$'\r'/}
       planner_tag=${planner_tag//$'\r'/}
       reason=${reason//$'\r'/}
+      filter_alias=${filter_alias//$'\r'/}
 
-      if ! case_matches_filter "$fixture" "$planner_tag" "$reason"; then
+      if ! case_matches_filter "$fixture" "$planner_tag" "$reason" "$filter_alias"; then
         continue
       fi
 

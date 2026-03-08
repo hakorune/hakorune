@@ -43,7 +43,7 @@ Related:
 - [x] `PrintStmtHandler.handle(...)` を STUB から実体化（既存 Print consumer ロジックを再利用して挙動中立で抽出）。
 - [x] `program_json_v0_phase_state_consumer_box.hako` の配線を handler 呼び出しへ切替。
 - [x] verify:
-  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/phase29bq_selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
+  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 
 ### M1: Local handler extraction
@@ -51,7 +51,7 @@ Related:
 - [x] `LocalStmtHandler.handle(...)` を STUB から実体化（既存 Local consumer ロジックを再利用して挙動中立で抽出）。
 - [x] `program_json_v0_phase_state_consumer_box.hako` の Local 配線を handler 呼び出しへ切替。
 - [x] verify:
-  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/phase29bq_selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
+  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 
 ### M2: Assignment handler extraction
@@ -59,7 +59,7 @@ Related:
 - [x] `AssignmentStmtHandler.handle(...)` を STUB から実体化（既存 Assignment consumer ロジックを再利用して挙動中立で抽出）。
 - [x] `program_json_v0_phase_state_consumer_box.hako` の Assignment 配線を handler 呼び出しへ切替。
 - [x] verify:
-  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/phase29bq_selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
+  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 
 ### M3: Return handler extraction
@@ -67,7 +67,7 @@ Related:
 - [x] `ReturnStmtHandler.handle(...)` を STUB から実体化（既存 Return consumer ロジックを再利用して挙動中立で抽出）。
 - [x] `program_json_v0_phase_state_consumer_box.hako` の Return 配線を handler 呼び出しへ切替。
 - [x] verify:
-  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/phase29bq_selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
+  - `HAKO_SELFHOST_BUILDER_FIRST=1 HAKO_SELFHOST_NO_DELEGATE=1 bash tools/hakorune_emit_mir.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 
 ### M4: Inline residue cleanup

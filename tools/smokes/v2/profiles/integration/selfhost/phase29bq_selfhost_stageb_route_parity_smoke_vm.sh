@@ -9,7 +9,7 @@ require_env || exit 2
 
 WRAPPER="$NYASH_ROOT/tools/selfhost/run.sh"
 COMPILER="$NYASH_ROOT/lang/src/compiler/entry/compiler.hako"
-FIXTURE="${1:-$NYASH_ROOT/apps/tests/phase29bq_selfhost_cleanup_only_min.hako}"
+FIXTURE="${1:-$NYASH_ROOT/apps/tests/selfhost_cleanup_only_min.hako}"
 TIMEOUT_SECS="${SMOKES_SELFHOST_STAGEB_TIMEOUT_SECS:-${RUN_TIMEOUT_SECS:-20}}"
 
 if ! [[ "$TIMEOUT_SECS" =~ ^[0-9]+$ ]]; then

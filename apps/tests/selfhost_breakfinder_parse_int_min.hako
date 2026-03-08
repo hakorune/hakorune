@@ -1,0 +1,25 @@
+// Semantic fixture alias for the selfhost BreakFinder parse-int minimal lane.
+// Expected output: -1
+static box Main {
+    parse() {
+        local result = 0
+        local i = 0
+        local n = 3
+
+        loop(i < n) {
+            if i < 2 {
+                result = result + 1
+            } else {
+                return -1
+            }
+            i = i + 1
+        }
+
+        return result
+    }
+
+    main() {
+        print(Main.parse())
+        return 0
+    }
+}

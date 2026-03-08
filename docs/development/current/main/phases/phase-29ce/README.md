@@ -30,6 +30,7 @@ current semantic wrapper / semantic fixture alias / semantic route substring を
 
 1. `SMOKES_SELFHOST_FILTER`
    - semantic route substring / semantic fixture alias を current contract として固定
+   - selfhost subset TSV では optional `filter_alias` column で semantic basename を前に出す
    - exact historical basename は inventory-only に寄せる
 2. Program JSON by-name fixture key
     - live key / retired key / inventory-only key を分ける
@@ -42,7 +43,7 @@ current semantic wrapper / semantic fixture alias / semantic route substring を
 
 1. selfhost filter contract
    - `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh`
-   - `SMOKES_SELFHOST_FILTER` は `fixture + planner_tag + reason` を部分一致で見るので、
+   - `SMOKES_SELFHOST_FILTER` は `fixture + planner_tag + reason + filter_alias` を部分一致で見るので、
      `reason` に残る exact historical token も live compat token になる
 2. selfhost subset TSV
    - `tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv`

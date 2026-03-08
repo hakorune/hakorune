@@ -36,7 +36,7 @@ Related:
 C0 contract（fixed）:
 - 最小受理形（このレーンの起点）:
   - non-loop postfix cleanup のみ。
-  - 参照 fixture: `apps/tests/phase29bq_selfhost_cleanup_only_min.hako`
+  - 参照 fixture: `apps/tests/selfhost_cleanup_only_min.hako`
   - 期待する最小流れ: `Local -> Block -> postfix cleanup -> Return`
 - reject 形（R5最小契約の維持）:
   - `loop + cleanup` 混在（同一スコープ）。
@@ -59,20 +59,20 @@ C0 contract（fixed）:
 
 C1 contract（fixed）:
 - accept pin（runtime/gate 側の基準）:
-  - fixture: `apps/tests/phase29bq_selfhost_cleanup_only_min.hako`
+  - fixture: `apps/tests/selfhost_cleanup_only_min.hako`
   - command:
     - `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 ./tools/selfhost/run.sh --gate --planner-required 1 --filter cleanup_only_min --max-cases 1`
   - pass 条件: gate exit=0 かつ case PASS（`Expected 11` 互換）。
 - reject pin（C1 baseline / pre-M7 snapshot）:
-  - fixture: `apps/tests/phase29bq_selfhost_cleanup_only_min.hako`
+  - fixture: `apps/tests/selfhost_cleanup_only_min.hako`
   - command（2段）:
-    - `./target/release/hakorune --emit-program-json-v0 /tmp/phase29bq_c1_cleanup_try.json apps/tests/phase29bq_selfhost_cleanup_only_min.hako`
+    - `./target/release/hakorune --emit-program-json-v0 /tmp/phase29bq_c1_cleanup_try.json apps/tests/selfhost_cleanup_only_min.hako`
     - `HAKO_PROGRAM_JSON_FILE=/tmp/phase29bq_c1_cleanup_try.json ./target/release/hakorune --backend vm lang/src/compiler/mirbuilder/emit_mir_json_v0_from_program_json_v0.hako > /tmp/phase29bq_c1_cleanup_try.mir.json`
   - pass 条件: exit=2 かつ `/tmp/phase29bq_c1_cleanup_try.mir.json` に
     - `[freeze:contract][hako_mirbuilder][cap_missing/stmt:Try]`
     - を含む（cleanup 統合前の fail-fast 境界）。
 - accept pin（post-M7-min-1 / `.hako` mirbuilder 経路）:
-  - fixture: `apps/tests/phase29bq_selfhost_cleanup_only_min.hako`
+  - fixture: `apps/tests/selfhost_cleanup_only_min.hako`
   - command:
     - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_cleanup_try_min_vm.sh`
   - pass 条件: exit=0 かつ stdout=`11`。

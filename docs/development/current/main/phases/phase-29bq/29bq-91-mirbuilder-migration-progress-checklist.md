@@ -157,7 +157,7 @@ Related:
   - full canary は節目のみ、BoxShape/BoxCount 混在禁止を再確認
 - [x] M7-min-1 implemented:
   - commit: `192173aca`
-  - target fixture: `apps/tests/phase29bq_selfhost_cleanup_only_min.hako`
+  - target fixture: `apps/tests/selfhost_cleanup_only_min.hako`
 - [x] M7-min-2 implemented:
   - commit: this change-set（M7-min-2）
   - target pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_cleanup_try_reject_nonminimal_vm.sh`

@@ -1,20 +1,20 @@
-# fixture	expected	allow_rc	planner_tag	reason
+# fixture	expected	allow_rc	planner_tag	reason	filter_alias
 # NOTE: keep minimal set for selfhost execution (grow 1 -> N, stop on freeze and record LOG in phase-29bq README).
 # NOTE: selfhost subset may still pin legacy fixture keys or legacy selfhost test stems; keep the token stable until a dedicated retire phase.
 # NOTE: current subset pin uses semantic fixture alias `if_phi_join_min.hako`; historical basename stays in the pin inventory.
 # NOTE: `reason` is part of the live filter contract. Prefer semantic wording first; exact historical tokens belong in inventory/evidence lanes only.
-apps/tests/if_phi_join_min.hako	12	0	[joinir/planner_first rule=LoopCondBreak]	if_phi_join selfhost subset (semantic fixture alias)
+apps/tests/if_phi_join_min.hako	12	0	[joinir/planner_first rule=LoopCondBreak]	if_phi_join selfhost subset (semantic fixture alias)	if-phi-join
 apps/tests/phase29bq_selfhost_blocker_rewriteknown_try_apply_loop_true_else_exit_min.hako	XY	0	[joinir/planner_first rule=LoopTrueBreak]	selfhost RewriteKnown.try_apply loop(true) general-if-else-exit
 apps/tests/phase29bq_selfhost_subset_scan_funcs_import_min.hako	0	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset scan: compile FuncScannerBox (scan loops)
 apps/tests/phase29bq_map_literal_percent_min.hako	0	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset parse: %{...} map literal (v1)
-apps/tests/phase29bq_selfhost_blocker_trim_generic_loop_min.hako	OK	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset trim: generic loop (StringHelpers.trim shape)
-apps/tests/phase29bq_selfhost_cleanup_only_min.hako	11	0	[joinir/planner_first rule=LoopCondBreak]	selfhost cleanup-only minimal (no-try postfix cleanup)
+apps/tests/phase29bq_selfhost_blocker_trim_generic_loop_min.hako	OK	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset trim: generic loop (StringHelpers.trim shape)	trim-generic-loop
+apps/tests/phase29bq_selfhost_cleanup_only_min.hako	11	0	[joinir/planner_first rule=LoopCondBreak]	selfhost cleanup-only minimal (no-try postfix cleanup)	cleanup-only
 apps/tests/phase29bq_selfhost_blocker_parse_if_min.hako	P	0	StepTree root for 'Main.equals/1'	selfhost subset parse: parse_if minimal if/else
 apps/tests/phase29bq_selfhost_blocker_parse_block_expr_min.hako	{"type":"Error","message":"BlockExpr requires at least one expression"}	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset parse: parse_block_expr minimal (error JSON)
 apps/tests/phase29bq_selfhost_blocker_parse_block_min.hako	[]@2	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset parse: parse_block minimal (real-shape)
 apps/tests/phase29bq_selfhost_blocker_parse_block_v2_min.hako	[]@2	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset parse: parse_block v2 minimal
 apps/tests/phase29bq_selfhost_blocker_parse_expr2_min.hako	P	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset parse: parse_expr2 minimal
-apps/tests/phase29bq_selfhost_blocker_breakfinder_parse_int_min.hako	-1	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset: BreakFinderBox._parse_int/1 loop shape
+apps/tests/phase29bq_selfhost_blocker_breakfinder_parse_int_min.hako	-1	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset: BreakFinderBox._parse_int/1 loop shape	breakfinder-parse-int
 apps/tests/phase29bq_selfhost_blocker_bundle_resolver_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset: BundleResolver minimal (split by \"|||\")
 apps/tests/phase29bq_selfhost_blocker_collect_using_entries_loop_min.hako	0	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset: Stage1UsingResolverBox._collect_using_entries loop
 apps/tests/phase29bq_selfhost_blocker_decode_escapes_group_if_fallthrough_mutation_min.hako	0	0	[joinir/planner_first rule=LoopCondBreak]	selfhost subset: decode_escapes group-if + nested loop
