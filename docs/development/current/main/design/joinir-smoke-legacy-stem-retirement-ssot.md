@@ -91,6 +91,8 @@ Resolution rule:
   not to the current semantic wrappers.
 - Retire or collapse the archive stems only after current docs/packs/manual lanes no longer need the
   historical basename as a replay handle.
+- repo-local current semantic wrappers no longer `exec bash` into `apps/archive/**`; remaining
+  replay forwarding is intentional and lives in the archived stems themselves.
 
 ### Archived replay forwarder resolution conditions
 

@@ -1075,6 +1075,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md` / `CURRENT_TASK.md`
     - intent: live contract / reject lane / history lane の key 群を同じ文字列列挙で何度も繰り返さず、retirement SSOT を canonical table first に保つ
     - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+  - compat-lane cleanup (2026-03-08, slice 196): archive replay lane の current/archived 向きを明文化し、current semantic wrapper から `apps/archive/**` へ `exec bash` する経路は 0 hit だと固定した
+    - synced files: `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `CURRENT_TASK.md`
+    - intent: archive replay の残り forwarder は archived stem 側だけにあることを SSOT 化し、current semantic wrapper は retire 判定の対象ではなく replay handle 側だけが段階撤去対象だと明確にする
+    - verification: `rg -n "exec bash .*apps/archive|integration/apps/archive/phase" tools/smokes/v2/profiles/integration/joinir/*.sh` = 0 hit / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 
 ## Quick Restart (After Reboot)
 
