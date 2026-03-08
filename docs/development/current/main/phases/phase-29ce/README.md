@@ -33,6 +33,8 @@ current semantic wrapper / semantic fixture alias / semantic route substring を
    - exact historical basename は inventory-only に寄せる
 2. Program JSON by-name fixture key
    - live key / retired key / inventory-only key を分ける
+   - `current runtime keep` / `low-risk retire candidate` / `historical docs-private caller only` /
+     `dev-gated compat key` の bucket を固定する
 3. semantic fixture alias
    - active docs / gate / selfhost subset の先頭に置く
 
@@ -51,6 +53,9 @@ current semantic wrapper / semantic fixture alias / semantic route substring を
 4. Program JSON by-name key
    - `src/mir/join_ir/frontend/ast_lowerer/route.rs`
    - runtime code 内に live string-key contract が埋め込まれている
+   - current bucket authority は
+     `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
+     を正本とする
 
 ## Non-goals
 

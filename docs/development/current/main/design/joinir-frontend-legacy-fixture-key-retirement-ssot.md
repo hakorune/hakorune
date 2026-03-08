@@ -45,6 +45,20 @@ Canonical key groups:
 - Phase E で normalized-dev historical semantic key (`if_phi_join_*`, `selfhost_verify_schema_p2`, `selfhost_detect_format_p3`, `jsonparser_unescape_string_step2_min`) も retire 済み。
 - current runtime は active Program JSON frontend entrypoint だけを受理し、historical fixture key は retirement ledger / `CURRENT_TASK` / archive/history / explicit rejection test に限定する。
 
+### Current live key buckets (2026-03-08 audit)
+
+| Bucket | Keys | Current status | Retirement rule |
+| --- | --- | --- | --- |
+| current runtime keep | `test`, `local`, `_read_value_from_pair`, `simple` | repo-local current caller / current runtime examplesあり | keep |
+| low-risk retire candidate | `filter`, `print_tokens`, `map`, `reduce`, `fold` | repo-local Program JSON caller 0 | explicit reject test を足して retire phase で削除 |
+| historical docs/private caller only | `jsonparser_skip_ws_mini`, `jsonparser_skip_ws_real`, `jsonparser_atoi_mini`, `jsonparser_atoi_real`, `jsonparser_parse_number_real` | repo-local caller は `docs/private/roadmap2/phases/normalized_dev/fixtures/*.program.json` のみ | `docs/private` replay / historical lane が不要になったら retire |
+| dev-gated compat key | `parse_loop`, `read_quoted_from` | dev env guard 下だけで受理 | dev caller 0 と env gate closeout のあと retire |
+
+Audit notes:
+- repo-local Program JSON caller audit では `map` / `filter` / `print_tokens` / `reduce` / `fold` の current `.program.json` caller は 0。
+- `jsonparser_*` keys は current runtime lane ではなく `docs/private` historical fixture lane に寄っている。
+- `parse_loop` は `docs/private/roadmap2/phases/phase-41-if-phi-level3/fixtures/nested_if_merge_simple.program.json` で historical/dev fixture caller を持つ。
+
 Code anchors:
 - `src/mir/join_ir/frontend/ast_lowerer/mod.rs`
 - `src/mir/join_ir/frontend/ast_lowerer/route.rs`
