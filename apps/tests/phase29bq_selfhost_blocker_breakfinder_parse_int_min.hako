@@ -1,4 +1,4 @@
-// Minimal fixture for BreakFinderBox._parse_int/1 pattern
+// Minimal fixture for BreakFinderBox._parse_int/1 loop shape
 // Pattern: loop(cond) with if-else where only else has return
 
 static box Main {

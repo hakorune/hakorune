@@ -138,6 +138,10 @@ case_matches_filter() {
     return 0
   fi
 
+  # Live contract note:
+  # `SMOKES_SELFHOST_FILTER` still matches fixture + planner_tag + reason.
+  # Semantic route substrings are preferred, but exact historical tokens may
+  # remain live while they survive in the `reason` column of the subset TSV.
   local haystack="$fixture $planner_tag $reason"
   [[ "$haystack" == *"$CASE_FILTER"* ]]
 }

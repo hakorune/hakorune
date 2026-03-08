@@ -1137,6 +1137,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29ce/{README.md,P0-LIVE-COMPAT-RETIREMENT-INSTRUCTIONS.md}`
     - intent: archive replay lane と live compat contract lane を別フェーズに分け、selfhost/noise になりやすい exact compat token の retire authority を 1 箇所で読めるようにする
     - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+  - live compat retirement (2026-03-08, slice 211): `SMOKES_SELFHOST_FILTER` lane の hotspot を phase docs と selfhost gate comment に固定し、low-risk reason token を semantic wording に寄せた
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29ce/{README.md,P0-LIVE-COMPAT-RETIREMENT-INSTRUCTIONS.md}` / `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` / `tools/smokes/v2/profiles/integration/selfhost/{phase29bq_selfhost_planner_required_dev_gate_vm.sh,planner_required_selfhost_subset.tsv}` / `apps/tests/phase29bq_selfhost_blocker_breakfinder_parse_int_min.hako`
+    - intent: current SSOT で「どこに live compat token が残っているか」を `selfhost filter` / `subset TSV reason` / `phase29ae regression pack` / `route.rs by-name key` に限定して読めるようにし、reason column の low-risk current wording は `shape` 主語へ寄せる
+    - verification: `git diff --check` PASS / `cargo check --tests` PASS / `SMOKES_ENABLE_SELFHOST=1 SMOKES_SELFHOST_FILTER=cleanup-only SMOKES_SELFHOST_MAX_CASES=1 RUN_TIMEOUT_SECS=120 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## Quick Restart (After Reboot)
 

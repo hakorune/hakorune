@@ -36,6 +36,22 @@ current semantic wrapper / semantic fixture alias / semantic route substring を
 3. semantic fixture alias
    - active docs / gate / selfhost subset の先頭に置く
 
+## Current live-token hotspots
+
+1. selfhost filter contract
+   - `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh`
+   - `SMOKES_SELFHOST_FILTER` は `fixture + planner_tag + reason` を部分一致で見るので、
+     `reason` に残る exact historical token も live compat token になる
+2. selfhost subset TSV
+   - `tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv`
+   - semantic fixture alias を前面に置いていても、`reason` 列の legacy stem は filter 契約へ波及する
+3. regression pack filters
+   - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
+   - current pack でも phase-prefixed filter family が残るため、archive replay lane とは別に retire authority が必要
+4. Program JSON by-name key
+   - `src/mir/join_ir/frontend/ast_lowerer/route.rs`
+   - runtime code 内に live string-key contract が埋め込まれている
+
 ## Non-goals
 
 - archive replay forwarder の hard-delete

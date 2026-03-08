@@ -96,6 +96,12 @@ or caller-migration phase.
 | `SMOKES_SELFHOST_FILTER=<substring>` matches on fixture/reason/planner_tag | selfhost gate contract is substring-based, so pinned fixture stems may still be used operationally |
 | Program JSON by-name keys in `src/mir/join_ir/frontend/ast_lowerer/route.rs` | frontend allowlist remains a live entry contract; legacy retired aliases are handled separately |
 
+Current hotspot files:
+- `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh`
+- `tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv`
+- `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
+- `src/mir/join_ir/frontend/ast_lowerer/route.rs`
+
 ### Retirement conditions for still-live contract tokens
 
 | Token / lane | Retirement precondition |
