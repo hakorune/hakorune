@@ -40,6 +40,7 @@ script stems remain available as compatibility entrypoints until all callers mov
 - Phase B: semantic alias wrappers added for current route-facing smokes
 - Phase C: active docs and regression packs may switch to semantic alias wrappers
 - Phase D: old stems can retire only after active callers reach zero
+- Phase E1: selected release-adopt/current route wrappers promote the semantic entry to the real script body, and legacy stems become thin forwarders
 
 ## Alias map
 

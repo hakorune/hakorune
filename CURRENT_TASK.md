@@ -918,11 +918,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/{phase-94,phase-29bt,phase-29bm,phase-29bj,phase-29bi,phase-29an,phase-29ak,phase-29af,phase-260,phase-253,phase-131,phase-126,phase-108,phase-107,phase-104,phase-102}/README.md` / `CURRENT_TASK.md`
     - intent: active phase README では `PatternN/patternN_` を完全に historical/compat lane へ退避し、semantic route family / historical label / evidence placeholder だけで読める状態にする
     - verification: `git diff --check` PASS; `python` inventory で `docs/development/current/main/phases/**/README.md` の `Pattern[0-9]|pattern[0-9]_` total = `0`; `rg -n "Pattern[0-9]|pattern[0-9]_" docs/development/current/main/phases/**/README.md` = 0 hit
+  - compat cleanup (2026-03-08, slice 171): selected current route wrappers を semantic script body に昇格し、legacy release-adopt/continue stems を thin forwarder に後退させた
+    - synced files: `tools/smokes/v2/profiles/integration/joinir/{loop_break_release_adopt_vm,if_phi_join_release_adopt_vm,loop_continue_only_vm,loop_true_early_exit_release_adopt_vm,scan_with_init_release_adopt_vm,split_scan_release_adopt_vm,nested_loop_minimal_release_adopt_vm}.sh` / `tools/smokes/v2/profiles/integration/joinir/{phase29ao_pattern2_release_adopt_vm,phase29ao_pattern3_release_adopt_vm,phase29ap_pattern4_continue_min_vm,phase29ao_pattern5_release_adopt_vm,phase29ao_pattern6_release_adopt_vm,phase29ao_pattern7_release_adopt_vm,phase29ap_pattern6_nested_release_adopt_vm}.sh` / `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `CURRENT_TASK.md`
+    - intent: current semantic entrypoint が legacy stem 実体に依存する向きを解消し、old stem は `LEGACY_STEM_OVERRIDE` 付き forwarder としてだけ残す。active guidance を守りつつ compat lane を薄くする
+    - verification: `bash -n` on touched scripts PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS; `phase29x-probe` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `historical compat wrapper` / `active semantic wrapper` にさらに分離し、design 側の tag/fixture inventories と役割を揃える。
+2. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `historical compat wrapper` / `active semantic wrapper` にさらに分離し、次は regression pack / strict-shadow / planner-pack alias でも semantic body 昇格を進める。
 3. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 5. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
@@ -936,6 +940,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   3. `docs/private` nested repo drift
 - compat token retirement lane:
   - smoke stem / selfhost filter / fixture key の caller 0 棚卸しと retire phase
+  - selected release-adopt/current route wrappers are now semantic bodies; next target is regression pack / strict-shadow / planner-pack aliases
   - blocking fact: `tools/smokes/v2/run.sh` の auto-discovery があるため、grep hit 0 だけでは削除条件にならない
 - code-side residue:
   - `src/**` の loop-route `PatternN` residue は broad grep で **1 hit**
