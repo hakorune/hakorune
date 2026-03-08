@@ -137,11 +137,12 @@ pub fn try_lower_loop_route_to_joinir(
     match route_kind {
         LoopRouteKind::NestedLoopMinimal => {
             // Phase 188.2: NestedLoopMinimal lowering stub (infrastructure only)
-            // Currently unreachable: LoopForm has no nesting info, so classify() never returns NestedLoopMinimal
+            // classify() can reach NestedLoopMinimal when depth/features confirm
+            // a minimal nested-loop route shape, but the lowerer is still a stub.
             #[cfg(debug_assertions)]
             if crate::config::env::joinir_dev::debug_enabled() {
                 get_global_ring0().log.debug(
-                    "[try_lower_loop_route] ℹ️ NestedLoopMinimal reached (should be unreachable until Phase 188.3)",
+                    "[try_lower_loop_route] ℹ️ NestedLoopMinimal reached (lowerer still stubbed)",
                 );
             }
 

@@ -63,7 +63,6 @@ pub(in crate::mir::builder) fn lower_loop_cond_exit_leaf(
 /// - value: None → Return(None)
 ///
 /// This is the canonical entry point for Return lowering in all pipelines.
-#[allow(unused_variables)]
 pub(in crate::mir::builder) fn lower_return_stmt_with_effects(
     builder: &mut MirBuilder,
     value: Option<&crate::ast::ASTNode>,

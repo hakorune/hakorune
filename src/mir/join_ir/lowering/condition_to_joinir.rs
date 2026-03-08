@@ -21,12 +21,11 @@
 //!
 //! ## Separation of Concerns
 //!
-//! - BoolExprLowerer: AST → MIR (for regular control flow)
-//! - condition_to_joinir: AST → JoinIR (for loop lowerers)
+//! - `condition_to_joinir`: AST → JoinIR (for loop lowerers)
+//! - MIR-side condition lowering stays on the regular builder path
 //!
-//! This dual approach maintains clean boundaries:
-//! - Loop lowerers work in JoinIR space (pure functional transformation)
-//! - Regular control flow uses MIR space (stateful builder)
+//! Loop lowerers work in JoinIR space as a pure lowering step, while regular control flow
+//! remains on the MIR builder path.
 
 // Re-export public API from specialized modules
 pub use super::condition_env::{ConditionBinding, ConditionEnv};

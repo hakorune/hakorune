@@ -15,13 +15,11 @@
 //! - `funcscanner_append_defs.rs`: FuncScannerBox._append_defs/2 の配列結合 lowering（Phase 27.14）
 //! - `if_select.rs`: Phase 33 If/Else → Select lowering
 //! - `if_dry_runner.rs`: Phase 33-10 If lowering dry-run スキャナー（箱化版）
-//! - `bool_expr_lowerer.rs`: Phase 168 Boolean expression lowering (AST → SSA)
 //! - `if_lowering_router.rs`: Phase 33-12 If-expression routing (Select/IfMerge dispatcher)
 //! - `loop_route_router.rs`: Phase 33-12 Loop route routing (semantic route-family dispatcher)
 
 #![allow(dead_code)]
 
-pub(crate) mod bool_expr_lowerer; // Phase 168: Boolean expression lowering (unused - candidate for removal)
 pub mod canonical_names; // Phase 256 P1.7: SSOT for JoinIR function names (k_exit, loop_step, main)
 pub mod carrier_info; // Phase 196: Carrier metadata for loop lowering
 pub(crate) mod carrier_update_emitter; // Phase 179: Carrier update instruction emission
