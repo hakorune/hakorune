@@ -926,11 +926,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `tools/smokes/v2/profiles/integration/joinir/{loop_simple_while_strict_shadow_vm,loop_simple_while_subset_reject_extra_stmt_vm,loop_true_early_exit_strict_shadow_vm,scan_with_init_strict_shadow_vm,split_scan_strict_shadow_vm,nested_loop_minimal_strict_shadow_vm,scan_with_init_regression_pack_vm,split_scan_regression_pack_vm,loop_continue_only_multidelta_planner_required_vm,loop_break_planner_required_pack_vm,scan_split_planner_required_pack_vm,core_loop_routes_planner_required_pack_vm,if_phi_join_planner_required_pack_vm,bool_predicate_accum_planner_required_pack_vm}.sh` / `tools/smokes/v2/profiles/integration/joinir/{phase29ao_pattern1_strict_shadow_vm,phase29ao_pattern1_subset_reject_extra_stmt_vm,phase29ao_pattern5_strict_shadow_vm,phase29ao_pattern6_strict_shadow_vm,phase29ao_pattern7_strict_shadow_vm,phase29ap_pattern6_nested_strict_shadow_vm,phase29ae_pattern6_scan_with_init_pack_vm,phase29ae_pattern7_scan_split_pack_vm,phase29bq_pattern4continue_multidelta_planner_required_vm,phase29bi_planner_required_pattern2_pack_vm,phase29bj_planner_required_scan_split_pack_vm,phase29bl_planner_required_pattern1_4_5_pack_vm,phase29bn_planner_required_pattern3_pack_vm,phase29bo_planner_required_pattern8_9_pack_vm}.sh` / `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `CURRENT_TASK.md`
     - intent: current semantic wrapper が compat stem を実体として抱える最後の mainline 群を解消し、legacy numbered stem は `LEGACY_STEM_OVERRIDE` 付き thin forwarder に限定する。`exec bash` が残る current wrapper は archive replay lane 由来の 6 本だけに縮退させる
     - verification: `git diff --check` PASS; `bash -n` on touched scripts PASS; representative wrappers PASS (`loop_simple_while_strict_shadow_vm`, `loop_true_early_exit_strict_shadow_vm`, `nested_loop_minimal_strict_shadow_vm`, `scan_with_init_regression_pack_vm`, `split_scan_regression_pack_vm`, `loop_break_planner_required_pack_vm`, `scan_split_planner_required_pack_vm`, `if_phi_join_planner_required_pack_vm`, `bool_predicate_accum_planner_required_pack_vm`, `loop_continue_only_multidelta_planner_required_vm`); `phase29bq_fast_gate_vm.sh --only bq` PASS; `phase29x-probe` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
+  - compat cleanup (2026-03-08, slice 173): archive-backed current wrappers 6 本は promote 候補から外し、`archive-fixed keep` として inventory/retire lane に固定した
+    - synced files: `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `CURRENT_TASK.md`
+    - intent: `loop_break_plan_subset_vm`, `loop_break_realworld_vm`, `loop_break_body_local_vm`, `loop_break_body_local_seg_vm`, `if_phi_join_vm`, `loop_true_early_exit_vm` は current semantic entry ではあるが、historical instruction / archive replay stem が still-live なため、いまは semantic-body promotion ではなく caller inventory と retire condition 固定を優先する
+    - verification: repo-local inventory で current wrapper 6 本の direct caller が sparse であることを確認しつつ、archive target 参照は historical instruction / evidence lane が中心だと確認; `git diff --check` PASS; `cargo check --tests` PASS; worktree clean after reverting the experimental promote attempt
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `historical compat wrapper` / `active semantic wrapper` にさらに分離する。current wrapper で `exec bash` が残るのは archive-backed 6 本のみなので、次は archive replay lane の retire 条件と caller inventory を詰める。
+2. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `historical compat wrapper` / `active semantic wrapper` にさらに分離する。archive-backed current wrapper 6 本は `archive-fixed keep` に固定したので、次は archive replay lane の retire 条件と caller inventory を詰める。
 3. `dust` cleanup: warnings / orphan helper / dead code を刈る。
 4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 5. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
@@ -944,7 +948,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   3. `docs/private` nested repo drift
 - compat token retirement lane:
   - archive replay stem / selfhost filter / fixture key の caller 0 棚卸しと retire phase
-  - current semantic wrappers that still `exec bash` are now limited to 6 archive-backed replay entries:
+  - current semantic wrappers that still `exec bash` are limited to 6 archive-backed replay entries, and these are now explicit `archive-fixed keep`:
     - `loop_break_plan_subset_vm.sh`
     - `loop_break_realworld_vm.sh`
     - `loop_break_body_local_vm.sh`

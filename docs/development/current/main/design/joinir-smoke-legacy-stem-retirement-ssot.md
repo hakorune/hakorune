@@ -42,6 +42,7 @@ script stems remain available as compatibility entrypoints until all callers mov
 - Phase D: old stems can retire only after active callers reach zero
 - Phase E1: selected release-adopt/current route wrappers promote the semantic entry to the real script body, and legacy stems become thin forwarders
 - Phase E2: strict-shadow / regression-pack / planner-pack wrappers also promote the semantic entry to the real script body; remaining `exec bash` current wrappers are limited to archive replay entries
+- Phase E3: the remaining archive-backed current wrappers are explicitly `archive-fixed keep`; they do not promote until an archive replay retirement phase is accepted
 
 ## Alias map
 
@@ -78,6 +79,9 @@ Note:
 - Current semantic wrappers that still `exec bash` are intentionally archive-backed replay entries only:
   `loop_break_plan_subset_vm.sh`, `loop_break_realworld_vm.sh`, `loop_break_body_local_vm.sh`,
   `loop_break_body_local_seg_vm.sh`, `if_phi_join_vm.sh`, `loop_true_early_exit_vm.sh`.
+- These six entries are `archive-fixed keep` for now: repo-local callers are sparse, but historical
+  instruction docs and archive replay references still treat the archive stem as the stable evidence
+  lane. The next step is caller/retire inventory, not semantic-body promotion.
 
 ### Planner-required pack aliases
 
@@ -139,6 +143,7 @@ active callers drop to zero.
 | `tools/smokes/v2/profiles/integration/joinir/phase29ap_pattern*.sh` | compat wrapper targets for continue/nested route aliases | semantic wrappers are the only remaining callers |
 | `tools/smokes/v2/profiles/integration/joinir/phase29ae_pattern{6,7}_*.sh` | legacy regression pack stems | semantic regression-pack wrappers are the only remaining callers |
 | `tools/smokes/v2/profiles/integration/joinir/phase29bi/phase29bj/phase29bl/phase29bn/phase29bo_*pack_vm.sh` | legacy planner-pack stems | semantic planner-pack wrappers are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/{loop_break_plan_subset_vm,loop_break_realworld_vm,loop_break_body_local_vm,loop_break_body_local_seg_vm,if_phi_join_vm,loop_true_early_exit_vm}.sh` | archive-backed current wrappers | accepted archive replay retirement phase or explicit decision to collapse archive/current lanes |
 | `tools/smokes/v2/profiles/integration/joinir/phase143_legacy_pack.sh` / `phase286_pattern9_legacy_pack.sh` | archived legacy pack stems | retained only until historical phase docs/archive references are explicitly retired |
 
 ### Decision
