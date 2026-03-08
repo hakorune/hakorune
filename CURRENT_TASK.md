@@ -1004,6 +1004,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   2. live compat contract inventory (`selfhost filter` / `fixture key`)
   3. low-risk dust cleanup
   4. `docs/private` nested repo drift
+- aftercare phase entry:
+  - `docs/development/current/main/phases/phase-29cd/README.md`
+  - `docs/development/current/main/phases/phase-29cd/P0-AFTERCARE-CLOSEOUT-INSTRUCTIONS.md`
 - archive replay lane:
   - archived replay stem の caller inventory / retire phase
   - current semantic wrappers no longer `exec bash` into archive stems; the remaining archive lane is limited to historical replay forwarders:
@@ -1113,6 +1116,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/{design/{joinir-smoke-legacy-stem-retirement-ssot,joinir-legacy-fixture-pin-inventory-ssot,joinir-planner-required-gates-ssot}.md,phases/phase-29be/P2-NO-LOWER_VIA_PLAN-IN-GATE-INSTRUCTIONS.md}` / `src/mir/join_ir/lowering/loop_route_router.rs` / `CURRENT_TASK.md`
     - intent: archive-backed six-route wrappers は `fixed keep` を current closeout decision として明記し、`SMOKES_SELFHOST_FILTER` exact legacy basename は inventory-only lane へ固定する。`loop_route_router.rs` の stale route-priority comment は classifier-first dispatch の実態に合わせて、actual match order とズレない説明へ寄せる
     - verification: `git diff --check` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
+  - aftercare setup (2026-03-08, slice 206): residual cleanup lane を `phase-29cd` として独立させ、archive replay / live compat contract / dust の fixed order と acceptance を phase docs に固定した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29cd/{README.md,P0-AFTERCARE-CLOSEOUT-INSTRUCTIONS.md}`
+    - intent: current compiler/docs cleanup はほぼ収束したため、残りを “設計 cleanup 継続” ではなく “aftercare closeout” として扱う。以後は archive replay lane・live compat contract lane・dust lane を別々に閉じる
 
 ## Quick Restart (After Reboot)
 

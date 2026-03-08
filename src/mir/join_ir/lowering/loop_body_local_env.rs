@@ -1,6 +1,6 @@
 //! Phase 184: Loop Body Local Variable Environment
 //!
-//! This module provides a storage box for body-local variables in loop patterns.
+//! This module provides a storage box for body-local variables in loop routes.
 //! It collects local variable declarations from loop body AST and maintains
 //! name → JoinIR ValueId mappings.
 //!

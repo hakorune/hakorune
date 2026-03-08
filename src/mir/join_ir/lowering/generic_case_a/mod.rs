@@ -4,7 +4,7 @@
 //!
 //! ## Overview
 //!
-//! This module provides Case A lowering for four minimal SSA loop patterns:
+//! This module provides Case A lowering for four minimal SSA loop route shapes:
 //! - **skip_ws**: Whitespace skipping loop (Main.skip/1)
 //! - **trim**: String trimming loop (FuncScannerBox.trim/1)
 //! - **append_defs**: Array concatenation loop (FuncScannerBox.append_defs/2)

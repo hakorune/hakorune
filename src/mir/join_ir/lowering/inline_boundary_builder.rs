@@ -169,7 +169,7 @@ impl JoinInlineBoundaryBuilder {
 
     /// Phase 287 P2: Set loop header function name (SSOT)
     ///
-    /// If omitted for loop patterns, `build()` defaults it to `"loop_step"` when `loop_var_name` is set.
+    /// If omitted for loop routes, `build()` defaults it to `"loop_step"` when `loop_var_name` is set.
     pub fn with_loop_header_func_name(mut self, name: Option<String>) -> Self {
         self.boundary.loop_header_func_name = name;
         self
@@ -192,7 +192,7 @@ impl JoinInlineBoundaryBuilder {
             boundary.exit_bindings.as_slice(),
         );
 
-        // Phase 287 P2: Default loop header function name for loop patterns.
+        // Phase 287 P2: Default loop header function name for loop routes.
         // If a pattern sets loop_var_name, it must have a loop header function.
         if boundary.loop_var_name.is_some() && boundary.loop_header_func_name.is_none() {
             boundary.loop_header_func_name =

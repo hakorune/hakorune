@@ -3,7 +3,7 @@
 //! Consolidates variable name → ValueId mapping management:
 //! - variable_map: String -> ValueId mapping (SSA conversion tracking)
 //! - Used extensively by JoinIR lowering for carrier tracking
-//! - Critical for PHI node generation in if/loop patterns
+//! - Critical for PHI node generation in if/loop route handling
 //!
 //! ## Relationship with other contexts:
 //! - **BindingContext**: String -> BindingId (binding identity, parallel to variable_map)
@@ -14,7 +14,7 @@
 //! ## Design:
 //! - variable_map tracks current SSA values for named variables
 //! - Used by JoinIR CarrierInfo::from_variable_map() for loop carrier tracking
-//! - PHI nodes in if/loop patterns update variable_map with merged values
+//! - PHI nodes in if/loop route handling update variable_map with merged values
 //! - NYASH_TRACE_VARMAP debug feature visualizes variable_map changes
 //!
 //! ## JoinIR Integration:

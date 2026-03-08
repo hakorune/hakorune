@@ -151,7 +151,7 @@ pub struct JoinInlineBoundary {
     /// Phase 287 P2: Loop header function name (SSOT)
     ///
     /// Merge must not guess the loop header function from "first non-main non-continuation".
-    /// For loop patterns, set this explicitly (typically "loop_step").
+    /// For loop routes, set this explicitly (typically "loop_step").
     pub loop_header_func_name: Option<String>,
 
     /// Phase 228: Carrier metadata (for header PHI generation)

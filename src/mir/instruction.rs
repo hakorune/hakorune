@@ -225,7 +225,7 @@ pub enum MirInstruction {
 
     /// Phase 256 P1.5: Select instruction (ternary conditional)
     /// Equivalent to: dst = cond ? then_val : else_val
-    /// Used by JoinIR for conditional carrier updates in loop patterns
+    /// Used by JoinIR for conditional carrier updates in loop routes
     Select {
         dst: ValueId,
         cond: ValueId,     // Boolean condition
