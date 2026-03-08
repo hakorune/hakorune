@@ -930,24 +930,30 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `CURRENT_TASK.md`
     - intent: `loop_break_plan_subset_vm`, `loop_break_realworld_vm`, `loop_break_body_local_vm`, `loop_break_body_local_seg_vm`, `if_phi_join_vm`, `loop_true_early_exit_vm` は current semantic entry ではあるが、historical instruction / archive replay stem が still-live なため、いまは semantic-body promotion ではなく caller inventory と retire condition 固定を優先する
     - verification: repo-local inventory で current wrapper 6 本の direct caller が sparse であることを確認しつつ、archive target 参照は historical instruction / evidence lane が中心だと確認; `git diff --check` PASS; `cargo check --tests` PASS; worktree clean after reverting the experimental promote attempt
+  - compat cleanup (2026-03-08, slice 174): `live compat contract` と `inventory-only pin` を分離し、selfhost filter / pin inventory / gate SSOT の読み方を current semantics 優先に揃えた
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/{joinir-legacy-fixture-pin-inventory-ssot,joinir-planner-required-gates-ssot}.md` / `tools/smokes/v2/profiles/integration/selfhost/{phase29bq_selfhost_planner_required_dev_gate_vm.sh,planner_required_selfhost_subset.tsv}`
+    - intent: `SMOKES_SELFHOST_FILTER` と legacy fixture basename を混同しないように、`phase118_pattern3_if_sum_min.hako` を still-live contract token、`phase29bq_pattern1_inline_explicit_step_min.hako` や `p4_multidelta` を inventory-only pin として明示する。current docs は semantic route name を先頭に置き、exact legacy token は必要時だけ taxonomy 付きで参照する
+    - verification: `git diff --check` PASS; `bash -n tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS; `cargo check --tests` PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. compat token retirement prep: smoke/test/script の old stem を caller 0 ベースで `archive replay lane` / `historical compat wrapper` / `active semantic wrapper` にさらに分離する。archive-backed current wrapper 6 本は `archive-fixed keep` に固定したので、次は archive replay lane の retire 条件と caller inventory を詰める。
-3. `dust` cleanup: warnings / orphan helper / dead code を刈る。
-4. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
-5. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
+2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は `archive-fixed keep` に固定したので、次は caller inventory / retire 条件 / archive replay collapse 条件を詰める。
+3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。次は by-name route allowlist と selfhost subset pin の retire 条件を詰める。
+4. `dust` cleanup: warnings / orphan helper / dead code を刈る（現状 `cargo check --tests` は warning なし）。
+5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
+6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
 
 ## Remaining Effort Snapshot (2026-03-08)
 
 - total estimate: current compiler/docs cleanup は **ほぼ収束**。repo 全体の historical/compat token 後始末まで含めると **1-2 slices**
 - highest-value remaining work:
-  1. compat token retirement lane (`archive replay stem` / `selfhost filter` / `fixture key`)
-  2. low-risk dust cleanup
-  3. `docs/private` nested repo drift
-- compat token retirement lane:
-  - archive replay stem / selfhost filter / fixture key の caller 0 棚卸しと retire phase
+  1. archive replay lane retirement prep
+  2. live compat contract inventory (`selfhost filter` / `fixture key` / by-name route key)
+  3. low-risk dust cleanup
+  4. `docs/private` nested repo drift
+- archive replay lane:
+  - archive replay stem の caller 0 棚卸しと retire phase
   - current semantic wrappers that still `exec bash` are limited to 6 archive-backed replay entries, and these are now explicit `archive-fixed keep`:
     - `loop_break_plan_subset_vm.sh`
     - `loop_break_realworld_vm.sh`
@@ -956,6 +962,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `if_phi_join_vm.sh`
     - `loop_true_early_exit_vm.sh`
   - blocking fact: `tools/smokes/v2/run.sh` の auto-discovery があるため、grep hit 0 だけでは削除条件にならない
+- live compat contract lane:
+  - current broad residue is intentionally small and explicit:
+    - selfhost filter contract: `SMOKES_SELFHOST_FILTER=<substring>` in `phase29bq_selfhost_planner_required_dev_gate_vm.sh`
+    - selfhost subset row pin: `apps/tests/phase118_pattern3_if_sum_min.hako`
+    - by-name route allowlist residue: `src/mir/join_ir/frontend/ast_lowerer/route.rs:106` (`pattern3_if_sum_multi_min` family is already retired; remaining table is semantic-first)
+  - status: `legacy fixture key` と `legacy fixture pin token` の docs/gate 読み分けは整理済み
+  - next step: selfhost subset / by-name allowlist で still-live token が caller 0 になった時の alias-first retire 条件を切る
 - code-side residue:
   - `src/**` の loop-route `PatternN` residue は broad grep で **1 hit**
   - その 1 hit は `src/mir/join_ir/frontend/ast_lowerer/route.rs:106` の intentional by-name legacy fixture key allowlist（`pattern3_if_sum_multi_min`）

@@ -55,6 +55,31 @@ tokens that still act as traceability pins.
 | `test_pattern5b_escape_minimal.hako` | `escape route P5b` | legacy selfhost test stem |
 | `test_pattern5b_escape_*` | `escape route P5b` | legacy selfhost test stem |
 
+## Current interpretation
+
+### Still-live contract tokens
+
+These tokens are still part of a live contract and should not be retired without an alias-first
+or caller-migration phase.
+
+| Token | Why still live |
+| --- | --- |
+| `phase118_pattern3_if_sum_min.hako` | selfhost planner-required subset row is still pinned to this fixture basename |
+| `SMOKES_SELFHOST_FILTER=<substring>` matches on fixture/reason/planner_tag | selfhost gate contract is substring-based, so pinned fixture stems may still be used operationally |
+| Program JSON by-name keys in `src/mir/join_ir/frontend/ast_lowerer/route.rs` | frontend allowlist remains a live entry contract; legacy retired aliases are handled separately |
+
+### Inventory-only pins
+
+These tokens should be read as traceability pins, not as the preferred semantic names in current
+guidance.
+
+| Token family | Why inventory-only |
+| --- | --- |
+| `phase29bq_pattern1_inline_explicit_step_min.hako` / `pattern1_inline_explicit_step_min` | runtime/gate pin for explicit-step fixture; say `loop_simple_while explicit-step` in prose |
+| `phase29bq_pattern4continue_multidelta_min.hako` / `p4_multidelta` | planner-required multi-delta fixture pin; say `loop_continue_only multi-delta` in prose |
+| `phase29ab_pattern6_*` / `phase29ab_pattern7_*` | route-family fixture pin tokens for scan regressions; current docs should say `scan_with_init` / `split_scan` |
+| `phase263_pattern2_seg_realworld_min.hako` / `phase286_pattern5_break_min.hako` / `phase269_p0_pattern8_frag_min.hako` / `phase286_pattern9_frag_poc.hako` | historical coverage pins kept for replay and gate traceability |
+
 ## Usage
 
 - In active docs:

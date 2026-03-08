@@ -34,6 +34,7 @@ Related:
   - `SMOKES_ENABLE_SELFHOST=1 ./tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh`
   - quick/probe knobs (default behaviorは不変):
     - `SMOKES_SELFHOST_FILTER=<substring>`（fixture/planner_tag/reason を部分一致で絞る）
+      - semantic route name で絞るのを優先し、exact legacy token を使う場合は `joinir-legacy-fixture-pin-inventory-ssot.md` で `still-live contract token` か `inventory-only pin` かを確認する
     - `SMOKES_SELFHOST_MAX_CASES=<N>`（先頭 N 件だけ実行）
     - `SMOKES_SELFHOST_STAGEB_TIMEOUT_SECS=<sec>` / `SMOKES_SELFHOST_JSON_TIMEOUT_SECS=<sec>`（phase別 timeout）
     - `SMOKES_SELFHOST_PROGRESS=0|1`（進捗ログのON/OFF）

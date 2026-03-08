@@ -82,6 +82,8 @@ Note:
 - These six entries are `archive-fixed keep` for now: repo-local callers are sparse, but historical
   instruction docs and archive replay references still treat the archive stem as the stable evidence
   lane. The next step is caller/retire inventory, not semantic-body promotion.
+  - `regression-pack archive-fixed keep`: `loop_break_plan_subset_vm.sh`, `loop_break_realworld_vm.sh`, `if_phi_join_vm.sh`, `loop_true_early_exit_vm.sh`
+  - `coverage-only archive-fixed keep`: `loop_break_body_local_vm.sh`, `loop_break_body_local_seg_vm.sh`
 
 ### Planner-required pack aliases
 

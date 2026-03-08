@@ -1,6 +1,7 @@
 #!/bin/bash
 # phase29bq_selfhost_planner_required_dev_gate_vm.sh - selfhost entry gate (subset list)
 # Filter contract: use `SMOKES_SELFHOST_FILTER=<substring>`; this script does not parse `--only`.
+# Prefer semantic route substrings; exact legacy fixture/filter tokens should be treated via the pin inventory SSOT.
 
 set -euo pipefail
 
