@@ -29,6 +29,14 @@ selfhost を目的化せず、compiler-first の方針を守りつつ、
 SSOT:
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
 
+## Current Active Contract Snapshot (2026-03-09)
+
+- mainline selfhost route は `stage1` / semantic wrapper / no-fallback を正本とする
+- `phase-29cf` が `VM fallback compat lane` と `bootstrap boundary reduction` を accepted monitor-only で独立管理する
+- binary-only `--hako-emit-mir-json` / `--hako-run` は ported contract として monitor-only 運用する
+- G1 identity (`tools/selfhost_identity_check.sh --mode full`) は現行 bootstrap contract の正本として維持する
+- この文書の後半にある `BINARY-ONLY-*` / debt pack は active contract の補助 evidence であり、current blocker を直接定義しない
+
 ## Non-goals
 
 - 大規模な仕様拡張
