@@ -112,6 +112,8 @@ Selfhost filter interpretation:
 - allowed current examples: semantic route substrings or semantic fixture aliases such as `if_phi_join`
   / `apps/tests/if_phi_join_min.hako`
 - inventory-only legacy examples: exact historical basenames such as `phase118_pattern3_if_sum_min.hako`
+- current docs/how-to should teach the semantic examples first and keep the exact historical basename in
+  this ledger or other historical notes only
 
 ### Inventory-only pins
 
@@ -150,3 +152,5 @@ guidance.
   - say `loop_simple_while explicit-step`, and use `loop_simple_while_inline_explicit_step_min.hako` when an exact current fixture basename matters
 - When the filename itself matters for a command or grep, label it explicitly as
   `semantic fixture alias`, `legacy fixture key`, `legacy fixture pin token`, or `legacy selfhost test stem`.
+- For `SMOKES_SELFHOST_FILTER`, prefer semantic route substrings first; use an exact historical basename only
+  when a replay/debug note explicitly needs that archived token.

@@ -107,6 +107,11 @@ Operational rule:
 - do not treat `caller 0` as the sole next-step condition; archive/manual guidance must also stop pointing at the archived basename
 - retire only after repo-local caller inventory and active-doc caller inventory both reach zero
 - `rg`/grep zero-hit alone is not retirement evidence; include `tools/smokes/v2/run.sh` auto-discovery scope and active-doc/manual replay inventory
+- the six archive-backed routes stay current only through their semantic wrappers:
+  `loop_break_plan_subset_vm.sh`, `loop_break_realworld_vm.sh`,
+  `loop_break_body_local_vm.sh`, `loop_break_body_local_seg_vm.sh`,
+  `if_phi_join_vm.sh`, `loop_true_early_exit_vm.sh`
+- exact archived replay basenames belong in this SSOT, inventory ledgers, or archive/manual notes only
 
 ### Planner-required pack aliases
 
@@ -205,3 +210,4 @@ Operational rule:
 - keep these scripts as long as current docs or manual replay instructions still point at them
 - when active guidance moves to the canonical reference and repo-local callers drop to zero, retire
   them via the same archive-first process used for other compat wrappers
+- current how-to/checklist prose should point at the canonical reference, not at the exact low-ref basename
