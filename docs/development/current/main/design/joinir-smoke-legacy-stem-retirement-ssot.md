@@ -101,6 +101,22 @@ Resolution rule:
 | `regression-pack semantic-body wrapper + archived replay forwarder` | `phase29ae_regression_pack_vm.sh` via `loop_break_plan_subset_vm`, `loop_break_realworld_vm`, `if_phi_join_vm`, `loop_true_early_exit_vm` | semantic wrapper owns the real body; archive script is replay-only forwarder | `phase29ae` pack and active docs use only semantic wrappers, and no manual replay/how-to lane still points at the archived basename |
 | `coverage-only semantic-body wrapper + archived replay forwarder` | flowbox/coreplan coverage docs and `phase29ae_regression_pack_vm.sh` for the body-local pair | semantic wrapper owns the real body; archive script is replay-only forwarder | coverage docs no longer require the archived basename as a replay handle, and archive/manual guidance either moves to semantic wrappers or is explicitly archived-only |
 
+### Archive-backed six-route keep authority
+
+| Current semantic wrapper | Runtime caller owner | Doc owner | Archive replay owner | Current role | Ready for retire/demotion |
+| --- | --- | --- | --- | --- | --- |
+| `loop_break_plan_subset_vm.sh` | `phase29ae_regression_pack_vm.sh` | `phase-29ae/README.md`, `phase-29ai/P11`, `phase-29ao/P26/P29` | `apps/archive/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh` | regression-pack semantic-body wrapper | no |
+| `loop_break_realworld_vm.sh` | `phase29ae_regression_pack_vm.sh` | `phase-29ae/README.md`, `phase-29ah/P0`, `phase-29ao/P32` | `apps/archive/phase263_pattern2_seg_realworld_min_vm.sh` | regression-pack semantic-body wrapper | no |
+| `loop_break_body_local_vm.sh` | `phase29ae_regression_pack_vm.sh` | `phase-29ae/README.md`, `phase-29ai/P15`, `phase-29ao/P33`, coverage SSOTs | `apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` | coverage-only semantic-body wrapper | no |
+| `loop_break_body_local_seg_vm.sh` | `phase29ae_regression_pack_vm.sh` | `phase-29ae/README.md`, `phase-29ai/P15`, `phase-29ao/P33`, coverage SSOTs | `apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh` | coverage-only semantic-body wrapper | no |
+| `if_phi_join_vm.sh` | `phase29ae_regression_pack_vm.sh` | `phase-29ae/README.md`, `phase-286/P2.6.1`, `phase-29ao/P15/P23/P29` | `apps/archive/phase118_pattern3_if_sum_vm.sh` | regression-pack semantic-body wrapper | no |
+| `loop_true_early_exit_vm.sh` | `phase29ae_regression_pack_vm.sh` | `phase-29ae/README.md`, `phase-29ao/P16/P25` | `apps/archive/phase286_pattern5_break_vm.sh` | regression-pack semantic-body wrapper | no |
+
+Interpretation:
+- retire authority lives here plus the current pack SSOT in `phase-29ae/README.md`
+- coverage docs and historical instructions may describe the route, but they do not override retire readiness
+- caller-zero is necessary but insufficient; runtime caller owner, doc owner, and archive replay owner all have to be cleared
+
 Operational rule:
 - prefer semantic wrapper names in current scripts/docs
 - archived stems are replay handles only; they should not be the primary current entry

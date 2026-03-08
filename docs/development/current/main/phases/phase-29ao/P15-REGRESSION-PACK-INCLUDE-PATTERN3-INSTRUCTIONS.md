@@ -30,7 +30,7 @@ Scope: 仕様不変。回帰ゲート（SSOT）を “P13 の実経路” を含
 
 - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
   - current semantic wrapper: `run_filter "if_phi_join_vm" "if_phi_join_vm"`
-  - historical replay basename `phase118_pattern3_if_sum_vm.sh` は inventory lane にのみ残す
+  - historical replay basename は retirement SSOT の replay lane にのみ残す
   - 位置: loop_break route family の後 / scan route family の前（順序は SSOT として固定）
 
 ### Step 2: SSOT ドキュメントに追記

@@ -41,6 +41,11 @@ Pointer rule:
 
 ## Required tags (positive gates)
 
+Retire authority note:
+- archive-backed wrapper の retire/demotion 判定はこの表では決めない
+- authority は `joinir-smoke-legacy-stem-retirement-ssot.md` と current regression pack SSOT (`phase-29ae/README.md`) のみ
+- この文書は tag coverage の参照面として使い、archive replay caller inventory のSSOTにはしない
+
 | Scenario | Smoke path (current semantic wrapper) | Tag suffix (legacy token) |
 |---|---|---|
 | `loop_simple_while` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` | `pattern1_simplewhile` |

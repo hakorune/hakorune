@@ -66,6 +66,7 @@ Exact compat/archive stem mapping is tracked in
 - legacy pack stems for the historical accum-const-loop lane are SKIP on the plugins-disabled path and stay outside this regression pack（exact stems are tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - legacy fixture family / key の詳細は `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` を正本とする
 - archive-backed 6本の retire/collapse 判定は `joinir-smoke-legacy-stem-retirement-ssot.md` の `Archived replay forwarder resolution conditions` を正本とし、caller 0 単独では判定しない。
+- archive-backed 6本の keep authority / demotion readiness は `joinir-smoke-legacy-stem-retirement-ssot.md` の `Archive-backed six-route keep authority` を正本とする。
 - FlowBox schema tag（`[flowbox/*]`）は `filter_noise` で除去される
 - タグ検証が必要な smoke は raw output（filter 前）を参照する
 - タグ coverage SSOT: `docs/development/current/main/design/flowbox-tag-coverage-map-ssot.md`
