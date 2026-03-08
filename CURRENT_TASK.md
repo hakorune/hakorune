@@ -48,7 +48,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current follow-up:
     - `phase-29ce / accepted`
     - `phase-29cf / accepted monitor-only`
-    - `phase-29cg / accepted planning`
+    - `phase-29cg / accepted docs-first`
     - `VM fallback compat lane: explicit compat keep`
     - `bootstrap boundary reduction: future-wave target`
 - perf lane: `phase-21.5 / monitor-only`
@@ -74,7 +74,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - route authority probes are now split into `route observability keep`, `strict-dev priority keep`, and `non-strict compat boundary keep`
     - `phase29x_derust_strict_default_route_vm.sh` is `done-sync keep` because `phase29x_derust_done_matrix_vm.sh` and the de-rust lane map still consume it as current evidence
     - `route_env_probe.sh` is `current diagnostics keep` because `route_no_fallback_guard.sh` and tools docs still treat it as the active route-probe contract
-    - Stage2 current reduction target is exact: `tools/selfhost_identity_check.sh` falls back to default bootstrap when artifact-kind is `stage1-cli` because the Stage1 CLI artifact is emit-only and does not export a bootstrap executable for Stage2 build
+    - Stage2 current reduction target is exact: `tools/selfhost_identity_check.sh` falls back to default bootstrap when artifact-kind is `stage1-cli` because the Stage1 CLI artifact does not satisfy raw `NYASH_BIN` bootstrap contract even though `stage1_contract_exec_mode` can emit Program/MIR through the stage1 bridge
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
@@ -1301,6 +1301,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - verification: `git diff --check` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
   - de-rust Stage2 bootstrap reduction planning (2026-03-09, slice 239): `phase-29cg` を追加し、`stage1-cli artifact is emit-route entry only; using default bootstrap for Stage2 build` を next concrete reduction target として独立管理する
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{design/selfhost-bootstrap-route-ssot.md,phases/phase-29cc/29cc-260-derust-task-checklist.md,phases/phase-29cg/{README.md,P0-STAGE2-BOOTSTRAP-REDUCTION-INVENTORY.md,29cg-10-stage2-bootstrap-reduction-checklist.md}}`
+  - de-rust Stage2 bootstrap reduction contract (2026-03-09, slice 240): `phase-29cg` の docs-first contract を固定し、raw `target/selfhost/hakorune.stage1_cli emit ...` と `--emit-mir-json ...` は `97` を返す一方、`stage1_contract_exec_mode` は Program/MIR emit が通ることを実測で確認した
+    - implication: next reduction target は `stage1-cli` binary の raw `NYASH_BIN` 置換ではなく、stage1-bridge helper contract の Stage2 build path への昇格
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{design/selfhost-bootstrap-route-ssot.md,phases/phase-29cg/{README.md,P0-STAGE2-BOOTSTRAP-REDUCTION-INVENTORY.md,29cg-10-stage2-bootstrap-reduction-checklist.md}}`
     - intent: `phase-29cf` の inventory lane と、次に実際に削減する Stage2 bootstrap dependency lane を分離し、1 blocker = 1 phase で進められるようにする
 
 ## Quick Restart (After Reboot)

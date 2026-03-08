@@ -37,6 +37,20 @@ Related:
 - note:
   - `stage1-cli artifact is emit-route entry only; using default bootstrap for Stage2 build`
 
+## Capability probe (fixed)
+
+1. raw direct contract is not valid for `stage1-cli`
+- `target/selfhost/hakorune.stage1_cli emit program-json apps/tests/hello_simple_llvm.hako` -> `97`
+- `target/selfhost/hakorune.stage1_cli --emit-mir-json /tmp/out apps/tests/hello_simple_llvm.hako` -> `97`
+
+2. stage1-bridge helper contract is valid for `stage1-cli`
+- `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-program ...` -> Program(JSON v0)
+- `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir ...` -> MIR(JSON v0)
+
+3. implication
+- next reduction target is not `stage1-cli` as raw `NYASH_BIN`
+- next reduction target is `stage1-cli` as a stage1-bridge emit provider inside Stage2 build path
+
 ## Reduction target
 
 - target:
@@ -50,3 +64,4 @@ Related:
 
 - exact owner / exact condition / exact target が 1 枚で読める
 - checklist がこの inventory を参照して進められる
+- raw direct probe and helper-driven probe are both fixed so the next reduction cannot drift into the wrong contract

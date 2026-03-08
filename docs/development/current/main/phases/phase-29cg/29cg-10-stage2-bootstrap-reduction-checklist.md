@@ -20,8 +20,8 @@ Related:
 
 ## 2) Contract definition
 
-- [ ] `SBR-04` define stage1-first Stage2 build contract for `stage1-cli`
-- [ ] `SBR-05` define acceptance proof for removing one default-bootstrap dependency
+- [x] `SBR-04` define stage1-first Stage2 build contract for `stage1-cli`
+- [x] `SBR-05` define acceptance proof for removing one default-bootstrap dependency
 
 ## 3) Execution rule
 
@@ -32,3 +32,10 @@ Related:
 
 - [ ] `tools/selfhost_identity_check.sh` no longer needs the current default-bootstrap note for the reduced case
 - [ ] `selfhost-bootstrap-route-ssot.md` can reclassify one `future retire target`
+
+## 5) Current contract note
+
+- `stage1-cli` reduction means `bridge-first Stage2 build`, not raw `NYASH_BIN=$STAGE1_BIN`
+- proof sources:
+  - raw direct contract returns `97`
+  - `stage1_contract_exec_mode` emits Program/MIR successfully

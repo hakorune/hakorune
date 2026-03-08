@@ -34,12 +34,14 @@ SSOT:
 - mainline selfhost route は `stage1` / semantic wrapper / no-fallback を正本とする
 - `phase-29cf` が `VM fallback compat lane` と `bootstrap boundary reduction` を accepted monitor-only で独立管理する
 - `phase-29cg` が `stage1-cli` 時の Stage2 default-bootstrap dependency reduction を docs-first で管理する
+- `phase-29cg` の current contract は `raw NYASH_BIN replacement` ではなく `stage1-bridge helper contract を Stage2 build に持ち込む reduction` である
 - `compat-fallback` は explicit compat keep であり、current caller authority は `phase29x_vm_route_non_strict_compat_boundary_vm.sh` / `phase29x_vm_route_observability_vm.sh` / `phase29x_vm_route_strict_dev_priority_vm.sh` に限定する
 - 上の3本はさらに `route observability keep` / `strict-dev priority keep` / `non-strict compat boundary keep` に分けて扱い、generic monitor-only probe と混同しない
 - `phase29x_derust_strict_default_route_vm.sh` は de-rust done-sync keep、`route_env_probe.sh` は current diagnostics keep、plugin route-resolver test は plugin test keep として別 bucket で管理する
 - binary-only `--hako-emit-mir-json` / `--hako-run` は ported contract として monitor-only 運用する
 - G1 identity (`tools/selfhost_identity_check.sh --mode full`) は現行 bootstrap contract の正本として維持する
 - `tools/selfhost_identity_check.sh` は artifact-kind=`stage1-cli` 時に Stage2 build を default bootstrap へ落とす。この 1 点が bootstrap reduction の next concrete target である
+- exact probe では `target/selfhost/hakorune.stage1_cli` は raw direct contract (`emit ...` / `--emit-mir-json`) で `97` を返す一方、`stage1_contract_exec_mode` 経由では Program/MIR emit が通る。したがって reduction target は `stage1-cli` binary の raw replacement ではなく、stage1-bridge helper contract の Stage2 build への昇格である
 - この文書の後半にある `BINARY-ONLY-*` / debt pack は active contract の補助 evidence であり、current blocker を直接定義しない
 
 ## Non-goals
