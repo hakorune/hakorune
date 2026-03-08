@@ -32,7 +32,7 @@ Related:
 
 ## Target (P1)
 
-- IfPhiJoin: `if_phi_join_vm`（representative legacy fixture key is tracked in `joinir-legacy-fixture-pin-inventory-ssot.md`）
+- IfPhiJoin: `if_phi_join_vm`（current semantic wrapper; representative legacy fixture key is tracked in `joinir-legacy-fixture-pin-inventory-ssot.md`）
   - 理由: If‑Phi の最小代表、回帰価値が高い（regression pack に含まれる）
 
 ## Gate (SSOT)

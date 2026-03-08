@@ -1119,6 +1119,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - aftercare setup (2026-03-08, slice 206): residual cleanup lane を `phase-29cd` として独立させ、archive replay / live compat contract / dust の fixed order と acceptance を phase docs に固定した
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29cd/{README.md,P0-AFTERCARE-CLOSEOUT-INSTRUCTIONS.md}`
     - intent: current compiler/docs cleanup はほぼ収束したため、残りを “設計 cleanup 継続” ではなく “aftercare closeout” として扱う。以後は archive replay lane・live compat contract lane・dust lane を別々に閉じる
+  - aftercare cleanup (2026-03-08, slice 207): active phase guide の IfPhiJoin evidence wording を semantic fixture alias / semantic wrapper 優先へ揃えた
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/{phase-29bq/README.md,phase-118/README.md,phase-29bn/README.md}`
+    - intent: active docs の current lane では `if_phi_join min` / `apps/tests/if_phi_join_min.hako` / `if_phi_join_vm.sh` を先頭に置き、exact legacy fixture key や LLVM smoke stem は inventory/evidence lane へ後退させる
 
 ## Quick Restart (After Reboot)
 

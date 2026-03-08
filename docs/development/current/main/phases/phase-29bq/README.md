@@ -218,7 +218,7 @@ Body lowering policy: `body_exit_allowed` is used only when `BodyLoweringPolicy:
 
 | Representative fixture / route | Accept predicate (Facts) | Recipe builder | Lower entry | Gate case_id |
 | --- | --- | --- | --- | --- |
-| `if_phi_join baseline`（representative legacy fixture key lives in the inventory lane; traceability-only） | `if_phi_join/facts.rs`（historical facts key; exact token is traceability-only） | `if_phi_join recipe` | `if_phi_join route`（legacy lowering token is traceability-only） | `if_sum min` |
+| `if_phi_join baseline`（representative legacy fixture key lives in the inventory lane; traceability-only） | `if_phi_join/facts.rs`（historical facts key; exact token is traceability-only） | `if_phi_join recipe` | `if_phi_join route`（legacy lowering token is traceability-only） | `if_phi_join min` |
 | `apps/tests/phase29bq_selfhost_blocker_rewriteknown_try_apply_loop_true_else_exit_min.hako` | `loop_true_break_continue/facts.rs` | `loop_true_break_continue/recipe.rs` | `loop_true_break_continue_pipeline/` | `selfhost_rewriteknown_try_apply_loop_true_else_exit_min` |
 | `apps/tests/phase29bq_selfhost_subset_scan_funcs_import_min.hako` | `break_continue/facts.rs` | `break_continue/recipe.rs` | `loop_cond break_continue route`（current recipe/parts lane; legacy lowering token: `loop_cond_break_continue_pipeline/`） | `selfhost-only` |
 | `apps/tests/phase29bq_map_literal_percent_min.hako` | `(no-loop)` | `step_tree` | `if_lowering/` | `map_literal_percent_min` |

@@ -160,11 +160,12 @@ IfPhiJoin（historical label `3` / if-sum）の exit carrier PHI が欠けると
 このフェーズでは fixture + VM/LLVM EXE smoke で再現と回帰固定を行い、さらに Fail-Fast の契約チェックを追加した。
 
 ### Fixture
-- representative legacy fixture key for the phase-118 if-phi carrier-PHI contract（期待: `12`）
+- current semantic fixture alias: `apps/tests/if_phi_join_min.hako`（期待: `12`）
+- representative legacy fixture key is tracked in `joinir-legacy-fixture-pin-inventory-ssot.md`
 
 ### Smoke
-- VM: representative legacy smoke stem for the phase-118 if-phi carrier-PHI contract
-- LLVM EXE: representative legacy LLVM smoke stem for the same evidence lane
+- VM: current semantic wrapper `if_phi_join_vm.sh`
+- LLVM EXE: representative legacy LLVM smoke stem is tracked as historical evidence
 
 ### 契約（SSOT）
 - `exit_bindings` に含まれる `LoopState` carrier は、必ず exit PHI（`exit_carrier_phis`）を持つこと。
