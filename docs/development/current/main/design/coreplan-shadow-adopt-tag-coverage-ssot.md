@@ -44,11 +44,11 @@ Note:
 | Scenario | Smoke path (current semantic wrapper) | Tag suffix (legacy token) |
 |---|---|---|
 | `loop_simple_while` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` | `pattern1_simplewhile` |
-| `loop_break` planner route | `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh` | `pattern2_break_subset` |
-| `loop_break` realworld route (phase263) | `tools/smokes/v2/profiles/integration/joinir/loop_break_realworld_vm.sh` | `pattern2_break_subset` |
-| `loop_break` body-local route (2 cases) | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_vm.sh` | `pattern2_break_subset` |
-| `loop_break` body-local-seg route (2 cases) | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_seg_vm.sh` | `pattern2_break_subset` |
-| `if_phi_join` route | `tools/smokes/v2/profiles/integration/joinir/if_phi_join_vm.sh` | `pattern3_ifphi` |
+| `loop_break` planner route | `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh` | `pattern2_break_subset` (regression-pack archive-fixed keep) |
+| `loop_break` realworld route (phase263) | `tools/smokes/v2/profiles/integration/joinir/loop_break_realworld_vm.sh` | `pattern2_break_subset` (regression-pack archive-fixed keep) |
+| `loop_break` body-local route (2 cases) | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_vm.sh` | `pattern2_break_subset` (coverage-only archive-fixed keep) |
+| `loop_break` body-local-seg route (2 cases) | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_seg_vm.sh` | `pattern2_break_subset` (coverage-only archive-fixed keep) |
+| `if_phi_join` route | `tools/smokes/v2/profiles/integration/joinir/if_phi_join_vm.sh` | `pattern3_ifphi` (regression-pack archive-fixed keep) |
 | `loop_true_early_exit` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_strict_shadow_vm.sh` | `pattern5_infinite_early_exit` |
 | `scan_with_init` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/scan_with_init_strict_shadow_vm.sh` | `pattern6_scan_with_init` |
 | `split_scan` strict shadow adopt | `tools/smokes/v2/profiles/integration/joinir/split_scan_strict_shadow_vm.sh` | `pattern7_split_scan` |

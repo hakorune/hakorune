@@ -938,6 +938,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `src/mir/join_ir/frontend/ast_lowerer/route.rs` / `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
     - intent: `selfhost_token_scan_p2` / `selfhost_token_scan_p2_accum` / `selfhost_args_parse_p2` / `selfhost_stmt_count_p3` は repo-local caller がなく、semantic alias を足すより reject lane に退避する方が current contract を細くできる。`route.rs` の live by-name contract は semantic key 中心に縮める
     - verification: `git diff --check` PASS; `cargo test --lib retired_unused_selfhost_fixture_keys_are_rejected` PASS; `cargo build --release --bin hakorune` PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - compat cleanup (2026-03-08, slice 176): archive-backed current wrapper 6 本を active docs 上でも `regression-pack archive-fixed keep` / `coverage-only archive-fixed keep` に分けた
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29ae/README.md` / `docs/development/current/main/design/{flowbox-tag-coverage-map-ssot,coreplan-shadow-adopt-tag-coverage-ssot}.md`
+    - intent: `loop_break_plan_subset_vm` / `loop_break_realworld_vm` / `if_phi_join_vm` / `loop_true_early_exit_vm` は regression-pack keep、`loop_break_body_local_vm` / `loop_break_body_local_seg_vm` は coverage-only keep と読めるようにして、archive replay lane の caller/retire 条件を次 slice で詰めやすくする
+    - verification: `git diff --check` PASS; `rg -n "regression-pack archive-fixed keep|coverage-only archive-fixed keep" docs/development/current/main/{phases/phase-29ae/README.md,design/flowbox-tag-coverage-map-ssot.md,design/coreplan-shadow-adopt-tag-coverage-ssot.md}` = expected hits only; `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 
