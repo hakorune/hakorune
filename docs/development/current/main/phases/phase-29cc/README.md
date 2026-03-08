@@ -17,6 +17,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-260-derust-task-checklist.md
   - docs/development/current/main/phases/phase-29cc/29cc-93-rnr05-loop-scan-range-shape-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
@@ -48,6 +49,9 @@ Related:
 - 脱Rustの全体順序（lane A/B/C + done判定 + scope decision）は
   `docs/development/current/main/design/de-rust-master-task-map-ssot.md` を正本とする。
 - この文書は phase-29cc（orchestration lane）の実行詳細に限定する。
+- checkbox 形式の残件一覧は
+  `docs/development/current/main/phases/phase-29cc/29cc-260-derust-task-checklist.md`
+  を正本とする。
 
 ## Non-goals
 

@@ -34,6 +34,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - SSOT:
     - `docs/development/current/main/phases/phase-29cc/README.md`
     - `docs/development/current/main/design/de-rust-scope-decision-ssot.md`
+    - `docs/development/current/main/phases/phase-29cc/29cc-260-derust-task-checklist.md`
 - perf lane: `phase-21.5 / monitor-only`
   - SSOT:
     - `docs/private/roadmap/phases/phase-21.5/PLAN.md`

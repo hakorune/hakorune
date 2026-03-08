@@ -1,0 +1,142 @@
+---
+Status: Active (checklist SSOT)
+Decision: accepted
+Date: 2026-03-09
+Scope: de-rust lane の「完了済み」と「残タスク」を checkbox で固定する。`CURRENT_TASK.md` は薄い入口のまま保つ。
+Related:
+  - CURRENT_TASK.md
+  - docs/development/current/main/phases/phase-29cc/README.md
+  - docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md
+  - docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-179-plg07-min1-min2-filebox-binary-rust-parity-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-204-plg07-min7-filebox-retire-execution-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-209-plg-hm1-core8-module-provider-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-210-plg-hm2-core-wave2-rust-recovery-line-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-213-plg-hm3-next-blocker-candidate-memo.md
+  - docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md
+  - docs/development/current/main/design/de-rust-master-task-map-ssot.md
+  - docs/development/current/main/design/de-rust-scope-decision-ssot.md
+  - docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md
+  - docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md
+---
+
+# 29cc-260 De-Rust Task Checklist
+
+## Purpose
+
+- de-rust の完了済み領域と、まだ残っている aftercare / future-wave を 1 枚で固定する。
+- `CURRENT_TASK.md` には blocker と next order だけを書き、詳細な棚卸しはこの checklist を正本にする。
+- plugin lane が「まだ未着手」ではなく「かなり done」であることを、wave 単位で見えるようにする。
+
+## 0) Current normalized snapshot (2026-03-09)
+
+- [x] non-plugin de-rust done declaration accepted（`29cc-94`）
+- [x] de-rust orchestration lane active next = `none`（monitor-only）
+- [x] runtime lane active next = `none`（monitor-only）
+- [x] selfhost / planner-required gate green
+- [x] no-compat mainline VM gate green
+
+## 1) Completed foundations
+
+### 1.1 Non-plugin lane
+
+- [x] `RNR-01` vm_hako compile bridge seam split
+- [x] `RNR-02` shape/payload contract consolidation
+- [x] `RNR-03` selfhost JSON payload ownership consolidation
+- [x] `RNR-04` orchestrator meaning-decision retirement
+- [x] `RNR-05` parser + plan single-shape pack
+- [x] non-plugin de-rust done sync accepted
+
+### 1.2 Plugin lane rewrite waves
+
+- [x] `PLG-01` ABI / loader acceptance lock
+- [x] `PLG-02` plugin gate pack lock
+- [x] `PLG-03` wave-1 CounterBox pilot
+- [x] `PLG-04` wave-1 core rollout complete
+  - [x] ArrayBox
+  - [x] IntCellBox reserved-core lock
+  - [x] MapBox
+  - [x] StringBox
+  - [x] ConsoleBox
+  - [x] FileBox
+- [x] `PLG-05` wave-2 utility rollout complete
+  - [x] Json
+  - [x] TOML
+  - [x] Regex
+  - [x] Encoding
+  - [x] Path
+  - [x] Math
+  - [x] Net
+- [x] `PLG-06` wave-3 rollout complete
+  - [x] PythonCompiler
+  - [x] Python
+  - [x] PythonParser
+  - [x] Egui
+- [x] `PLG-07` FileBox binary retire execution lock complete
+
+### 1.3 Plugin post-wave route hardening
+
+- [x] `PLG-HM1` Core8 module-provider route lock complete
+- [x] `PLG-HM2` Rust recovery line + route matrix lock complete
+- [x] `PLG-HM3` residue classification lock complete
+
+## 2) Fixed keep / explicit non-goals
+
+- [x] `plugins/nyash-integer-plugin`
+  - classification: `mainline keep`
+- [x] `plugins/nyash-fixture-plugin`
+  - classification: `test-only keep`
+- [x] plugin lane is not a blocker for non-plugin done
+- [x] plugin full replacement is a separate lane / future decision, not part of current done declaration
+
+## 3) Remaining de-rust tasks
+
+### 3.1 Source-zero / bootstrap boundary
+
+- [ ] `DRC-01` source-zero final wave inventory refresh
+  - goal: re-list which Rust runtime/plugin sources are still intentionally kept under `source keep`
+  - authority: `29cc-220`, `29cc-253`
+- [ ] `DRC-02` bootstrap boundary inventory
+  - goal: make Stage0 / Stage1 / Stage2 Rust dependency explicit
+  - done when: selfhost build path documents which boundaries are allowed keeps vs future retire targets
+
+### 3.2 Live compat retirement
+
+- [ ] `DRC-03` `SMOKES_SELFHOST_FILTER` semantic-only closeout
+  - goal: old exact basename examples become inventory-only
+  - done when: active docs / active daily commands use semantic substring or semantic fixture alias only
+- [ ] `DRC-04` Program JSON by-name compat key closeout
+  - goal: classify remaining keys into `runtime keep` / `retire when caller=0` / `historical docs/private only`
+  - authority: `src/mir/join_ir/frontend/ast_lowerer/route.rs`
+
+### 3.3 Plugin lane aftercare
+
+- [ ] `DRC-05` archive / recovery authority closeout
+  - goal: confirm whether remaining Rust recovery line is permanent CI keep or future retire target
+  - authority: `29cc-210`
+- [ ] `DRC-06` plugin residue recheck
+  - goal: reconfirm `mainline keep` / `test-only keep` / `retire` classifications stay correct after selfhost work resumes
+  - authority: `29cc-213`
+
+### 3.4 Optional cleanup
+
+- [ ] `DRC-07` `docs/private` de-rust/plugin drift sync（separate repo）
+- [ ] `DRC-08` micro dust sweep（comment / orphan helper / wording）
+
+## 4) Recommended execution order
+
+1. [ ] `DRC-03` selfhost/live compat contract cleanup
+2. [ ] `DRC-04` Program JSON key classification closeout
+3. [ ] `DRC-01` source-zero inventory refresh
+4. [ ] `DRC-02` bootstrap boundary inventory
+5. [ ] `DRC-05` / `DRC-06` plugin aftercare recheck
+6. [ ] `DRC-08` micro dust
+
+## 5) Done judgment for this checklist
+
+- [ ] `DRC-01` to `DRC-06` are either completed or explicitly reclassified as permanent keep / non-goal
+- [ ] active docs keep semantic-first wording
+- [ ] `CURRENT_TASK.md` points here as the detailed de-rust checklist
+- [ ] de-rust lane remains `monitor-only` with blocker `none`
