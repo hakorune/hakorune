@@ -1,5 +1,7 @@
 #!/bin/bash
 # phase29bq_joinir_port02_if_merge_minimal_vm.sh
+# historical standalone probe.
+# Current fast gate focuses later if-merge ports; this script stays as direct evidence.
 # JIR-PORT-02 contract:
 # - if/merge minimal shape is accepted in .hako route.
 # - hako route must run via selfhost-first (no direct-emit/delegate fallback).

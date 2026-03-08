@@ -1,6 +1,6 @@
 #!/bin/bash
 # phase29bq_mir_preflight_lowered_away_reject_vm.sh
-# Compatibility wrapper.
+# historical compat wrapper.
 # Canonical gate moved to:
 #   phase29bq_mir_preflight_unsupported_reject_vm.sh
 

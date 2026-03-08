@@ -1,6 +1,7 @@
 #!/bin/bash
 # phase29bq_continue_target_header_planner_required_vm.sh
 #
+# single-case semantic wrapper around the canonical fast gate.
 # Strict/dev + planner_required gate for continue_target=header minimal case.
 
 set -euo pipefail

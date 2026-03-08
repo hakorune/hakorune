@@ -1,5 +1,7 @@
 #!/bin/bash
 # phase29bq_hako_mirbuilder_phase9_min_vm.sh
+# manual single-fixture pin.
+# Current canonical bundle is `phase29bq_hako_mirbuilder_quick_suite_vm.sh`.
 # Phase-9 pin: --emit-program-json-v0 → (.hako mirbuilder) MIR JSON v0 → --mir-json-file execution
 #
 # Expected: stdout="1", RC=0
@@ -56,4 +58,3 @@ if [ "$OUT" != "1" ]; then
 fi
 
 echo "[PASS] hako_mirbuilder phase9 pin: PASS"
-

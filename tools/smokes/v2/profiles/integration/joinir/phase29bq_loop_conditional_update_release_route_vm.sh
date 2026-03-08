@@ -1,5 +1,7 @@
 #!/bin/bash
 # Phase 29bq BQ-A01: loop_cond_break_continue conditional-update release route
+# manual release-route probe.
+# Current canonical planner-required gate is `phase29bq_conditional_update_join_planner_required_vm.sh`.
 #
 # Contract pin:
 # - In non-planner_required mode, conditional-update loop(cond) must lower via JoinIR (no freeze).

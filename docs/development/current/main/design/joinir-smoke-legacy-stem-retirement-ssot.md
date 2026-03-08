@@ -168,3 +168,24 @@ active callers drop to zero.
   mentions into historical ledgers, not to delete low-ref semantic entrypoints.
 - `phase143_legacy_pack.sh` and `phase286_pattern9_legacy_pack.sh` are `archived legacy pack stems`:
   they are intentionally skipped and kept for historical phase replay only, not for current gates.
+
+## Manual-lane and one-case wrappers (2026-03-08)
+
+These scripts are intentionally low-ref, but they are not retirement-ready without an explicit
+archive/manual-lane decision.
+
+| Script | Classification | Current canonical reference |
+| --- | --- | --- |
+| `tools/smokes/v2/profiles/integration/joinir/phase29bq_mir_preflight_lowered_away_reject_vm.sh` | historical compat wrapper | `phase29bq_mir_preflight_unsupported_reject_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/phase29bq_continue_target_header_planner_required_vm.sh` | one-case semantic wrapper | `phase29bq_fast_gate_vm.sh --only continue_target_header` |
+| `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase5_min_vm.sh` | manual single-fixture pin | `phase29bq_hako_mirbuilder_quick_suite_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase7_min_vm.sh` | manual single-fixture pin | `phase29bq_hako_mirbuilder_quick_suite_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase9_min_vm.sh` | manual single-fixture pin | `phase29bq_hako_mirbuilder_quick_suite_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port02_if_merge_minimal_vm.sh` | historical standalone probe | later if-merge ports in fast-gate / current route docs |
+| `tools/smokes/v2/profiles/integration/joinir/phase29bq_loop_conditional_update_release_route_vm.sh` | manual release-route probe | `phase29bq_conditional_update_join_planner_required_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/phase1883_nested_minimal_vm.sh` | historical compat wrapper | `nested_loop_minimal_strict_shadow_vm.sh` |
+
+Operational rule:
+- keep these scripts as long as current docs or manual replay instructions still point at them
+- when active guidance moves to the canonical reference and repo-local callers drop to zero, retire
+  them via the same archive-first process used for other compat wrappers

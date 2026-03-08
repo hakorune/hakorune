@@ -958,13 +958,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md`
     - intent: `regression-pack archive-fixed keep` と `coverage-only archive-fixed keep` の終了条件を明記し、次に caller 0 を確認すべき場所を `phase29ae_regression_pack_vm.sh` と coverage docs に限定する。archive replay lane の cleanup を “いつ消せるか不明” な状態から外す
     - verification: `git diff --check` PASS; `rg -n "Archive-fixed keep retirement conditions|regression-pack archive-fixed keep|coverage-only archive-fixed keep" docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` = expected hits only
+  - dust cleanup (2026-03-08, slice 181): low-ref wrapper/manual-lane を `historical compat wrapper` / `one-case semantic wrapper` / `manual single-fixture pin` / `manual release-route probe` に分類し、current canonical gate を明記した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `docs/development/current/main/phases/phase-188.3/P1-INSTRUCTIONS.md` / `tools/smokes/v2/profiles/integration/joinir/{phase29bq_mir_preflight_lowered_away_reject_vm,phase29bq_continue_target_header_planner_required_vm,phase29bq_hako_mirbuilder_phase5_min_vm,phase29bq_hako_mirbuilder_phase7_min_vm,phase29bq_hako_mirbuilder_phase9_min_vm,phase29bq_joinir_port02_if_merge_minimal_vm,phase29bq_loop_conditional_update_release_route_vm,phase1883_nested_minimal_vm}.sh`
+    - intent: repo-local grep が sparse な wrapper/script を即削除候補と誤読しないように、canonical fast gate / quick suite / semantic strict-shadow entry を header と SSOT で固定する。`phase1883_nested_minimal_vm.sh` は legacy compat wrapper から current semantic strict-shadow gate へ forward する形に整理した
+    - verification: `git diff --check` PASS; `bash -n` on touched scripts PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_continue_target_header_planner_required_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase1883_nested_minimal_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
 2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は `archive-fixed keep` と retire/collapse 条件を固定したので、次は caller 0 確認と active-doc caller inventory を詰める。
 3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。次は selfhost subset pin と by-name semantic key の retire 条件を詰める。
-4. `dust` cleanup: warnings / orphan helper / dead code を刈る（現状 `cargo check --tests` は warning なし）。
+4. `dust` cleanup: warnings / orphan helper / dead code を刈る（現状 `cargo check --tests` は warning なし）。low-ref wrapper/manual probe の役割注記は固定済み。
 5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
 

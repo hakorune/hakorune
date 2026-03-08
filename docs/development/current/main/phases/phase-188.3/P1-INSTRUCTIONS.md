@@ -1,7 +1,8 @@
 # Phase 188.3 P1: Pattern6（NestedLoopMinimal）lowering を “実装済み” にする
 
-**Date**: 2025-12-27  
-**Scope**: Pattern6 の lowering 実装（fixture を PASS）  
+**Date**: 2025-12-27
+**Status**: historical implementation snapshot
+**Scope**: NestedLoopMinimal lowering 実装（fixture を PASS）
 **Non-goals**: 汎用 nested loop / break/continue / 多段ネスト / 多重 inner loop
 
 ---
@@ -11,14 +12,14 @@
 - `apps/tests/phase1883_nested_minimal.hako` が `--backend vm` で **exit=9**
 - `./tools/smokes/v2/run.sh --profile quick` が **154/154 PASS**
 - integration selfhost が **FAIL=0 維持**
-- Pattern6 を選んだ後に **silent fallback しない**（Fail-Fast）
+- NestedLoopMinimal route を選んだ後に **silent fallback しない**（Fail-Fast）
 
 ---
 
 ## SSOT / Constraints
 
 - ネスト深さ SSOT: `StepTreeFeatures.max_loop_depth`
-- Pattern6 選択 SSOT: `src/mir/builder/control_flow/joinir/routing.rs::choose_pattern_kind()`
+- historical route selection SSOT at implementation time: `src/mir/builder/control_flow/joinir/routing.rs::choose_pattern_kind()`
 - Phase 188.2: strict では depth > 2 を明示エラー
 - 本タスクで触るのは “lowering stub を実装” のみ
 
@@ -51,11 +52,11 @@ nested loop では `inner_step` が混ざるので、**`inner_step` / `k_inner_e
 
 ### Task A: lowering を実装する
 
-対象: `src/mir/builder/control_flow/joinir/patterns/pattern6_nested_minimal.rs`
+対象: historical implementation file `src/mir/builder/control_flow/joinir/patterns/pattern6_nested_minimal.rs`
 
 やること:
 - `lower()` で `Err` している stub を置き換えて、JoinIR pipeline を呼ぶ
-- 最小形だけ対応し、外れた形は **Pattern6 選択前に落とす**（`is_pattern6_lowerable()` 側を強化）か、ここで明示エラー
+- 最小形だけ対応し、外れた形は route 選択前に落とす（historical helper: `is_pattern6_lowerable()`）か、ここで明示エラー
 
 推奨構成（Pattern1 と同じ流儀）:
 - JoinIR 生成は `src/mir/join_ir/lowering/nested_loop_minimal.rs`（新規）に切り出す
@@ -109,8 +110,9 @@ nested loop では `inner_step` が混ざるので、**`inner_step` / `k_inner_e
 ### Task D: integration smoke を追加する（exit code SSOT）
 
 新規:
-- `tools/smokes/v2/profiles/integration/joinir/phase1883_nested_minimal_vm.sh`
-  - `apps/tests/phase1883_nested_minimal.hako` を実行し、exit code == 9 で PASS
+- current semantic gate: `tools/smokes/v2/profiles/integration/joinir/nested_loop_minimal_strict_shadow_vm.sh`
+- historical compat wrapper: `tools/smokes/v2/profiles/integration/joinir/phase1883_nested_minimal_vm.sh`
+  - both execute `apps/tests/phase1883_nested_minimal.hako` and expect exit code == 9
   - stdout 比較はしない
 
 注意:
@@ -123,7 +125,7 @@ nested loop では `inner_step` が混ざるので、**`inner_step` / `k_inner_e
 
 1. `cargo build --release`
 2. `./target/release/hakorune --backend vm apps/tests/phase1883_nested_minimal.hako`（exit=9）
-3. `./tools/smokes/v2/run.sh --profile integration --filter "phase1883_nested_minimal"`
+3. `./tools/smokes/v2/run.sh --profile integration --filter "nested_loop_minimal_strict_shadow_vm"`
 4. `./tools/smokes/v2/run.sh --profile quick`（154/154 PASS）
 5. `./tools/smokes/v2/run.sh --profile integration --filter "selfhost_"`（FAIL=0）
 
