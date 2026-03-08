@@ -30,7 +30,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - compiler pipeline lane: `hako-using-resolver-parity / monitor-only`
   - SSOT:
     - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
-- de-rust orchestration lane: `phase-29cc / monitor-only`
+- de-rust selfhost orchestration lane: `phase-29cc / monitor-only`
   - SSOT:
     - `docs/development/current/main/phases/phase-29cc/README.md`
     - `docs/development/current/main/design/de-rust-scope-decision-ssot.md`
@@ -1222,6 +1222,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29cc/{README.md,29cc-260-derust-task-checklist.md}`
     - intent: current top-level では `cargo check --tests` warning-free と low-risk comment/helper sweep が完了しているため、micro dust は reopen-on-demand 扱いに下げる。de-rust aftercare の未完は separate repo の `docs/private` drift だけと読む
     - verification: `git diff --check` PASS / `cargo check --tests` PASS
+  - de-rust selfhost docs sync (2026-03-09, slice 231): root pointer と active lane docs の入口文言を `脱Rust selfhost` 主語へ同期し、`phase-29cc` / `phase-29bq` / `phase-29y` が同じ closeout family に属することを一読で分かる形へ整理した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/{phase-29cc/{README.md,29cc-260-derust-task-checklist.md},phase-29bq/29bq-115-selfhost-to-go-checklist.md,phase-29y/60-NEXT-TASK-PLAN.md}`
+    - intent: `de-rust` と `selfhost` を別概念として読まないように、current lane の scope/goal/title を `脱Rust selfhost` に寄せる。runtime/compiler/orchestration の 3 lane が同じ migration family だと root から追えるようにする
+    - verification: `git diff --check` PASS
 
 ## Quick Restart (After Reboot)
 

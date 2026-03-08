@@ -2,7 +2,7 @@
 Status: Active (closeout locked; optional aftercare only)
 Decision: accepted
 Date: 2026-03-09
-Scope: de-rust lane の「完了済み」と「残タスク」を checkbox で固定する。`CURRENT_TASK.md` は薄い入口のまま保つ。
+Scope: 脱Rust selfhost lane の「完了済み」と「残タスク」を checkbox で固定する。`CURRENT_TASK.md` は薄い入口のまま保つ。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/phases/phase-29cc/README.md
@@ -22,18 +22,18 @@ Related:
   - docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md
 ---
 
-# 29cc-260 De-Rust Task Checklist
+# 29cc-260 De-Rust Selfhost Task Checklist
 
 ## Purpose
 
-- de-rust の完了済み領域と、まだ残っている aftercare / future-wave を 1 枚で固定する。
+- 脱Rust selfhost の完了済み領域と、まだ残っている aftercare / future-wave を 1 枚で固定する。
 - `CURRENT_TASK.md` には blocker と next order だけを書き、詳細な棚卸しはこの checklist を正本にする。
 - plugin lane が「まだ未着手」ではなく「かなり done」であることを、wave 単位で見えるようにする。
 
 ## 0) Current normalized snapshot (2026-03-09)
 
 - [x] non-plugin de-rust done declaration accepted（`29cc-94`）
-- [x] de-rust orchestration lane active next = `none`（monitor-only）
+- [x] 脱Rust selfhost orchestration lane active next = `none`（monitor-only）
 - [x] runtime lane active next = `none`（monitor-only）
 - [x] selfhost / planner-required gate green
 - [x] no-compat mainline VM gate green
@@ -162,4 +162,4 @@ Related:
 - [x] `DRC-01` to `DRC-06` are either completed or explicitly reclassified as permanent keep / non-goal
 - [x] active docs keep semantic-first wording
 - [x] `CURRENT_TASK.md` points here as the detailed de-rust checklist
-- [x] de-rust lane remains `monitor-only` with blocker `none`
+- [x] 脱Rust selfhost lane remains `monitor-only` with blocker `none`

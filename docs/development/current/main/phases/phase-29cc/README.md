@@ -1,6 +1,6 @@
 ---
 Status: Active (M0-M4 done; plugin waves done through PLG-06-min4; wasm lane done through WSM-P10-min1)
-Scope: Rust -> .hako migration orchestration lane (M0-M4)
+Scope: 脱Rust selfhost orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
@@ -36,13 +36,14 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-108-plg05-regex-wave2-min3-ssot.md
 ---
 
-# Phase 29cc: Rust -> .hako Migration Orchestration
+# Phase 29cc: De-Rust Selfhost Orchestration
 
 ## Goal
 
-"一気に移植" を迷走させず、M0-M4 の固定順序で Rust 依存を段階縮退する。
+"脱Rust selfhost" を迷走させず、M0-M4 の固定順序で Rust 依存を段階縮退する。
 
 この phase は実装レーンを増やすための「管理レーン」であり、既存 lane（29bq/29y）を置換しない。
+`phase-29bq` compiler lane と `phase-29y` runtime lane を束ねる、脱Rust selfhost の orchestration SSOT として使う。
 
 ## Master Pointer
 
@@ -69,7 +70,7 @@ Related:
 
 ## Current focus
 
-- de-rust checklist snapshot (2026-03-09):
+- de-rust selfhost checklist snapshot (2026-03-09):
   - `DRC-01` source-zero inventory: done
   - `DRC-02` bootstrap boundary inventory: done
   - `DRC-03` / `DRC-04` live compat closeout: done
@@ -93,7 +94,7 @@ Related:
     - `bash tools/checks/dev_gate.sh quick` PASS
     - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` PASS
     - `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（`5/5`, `stageb_total_secs=19`, `avg_case_secs=3.80`）
-    - de-rust orchestration lane の active next は引き続き `none`
+    - 脱Rust selfhost orchestration lane の active next は引き続き `none`
 - RNR queue active（non-plugin residue, docs-first）:
   - fixed order 正本は `29cc-92-non-plugin-rust-residue-task-set.md`
   - `RNR-01` 完了（`vm_hako` compile bridge seam split）

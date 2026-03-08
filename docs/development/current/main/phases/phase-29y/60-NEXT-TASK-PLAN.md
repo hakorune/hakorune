@@ -2,7 +2,7 @@
 Status: Active (Y1/Y2/Y3 done, min1/min2/min3 done, RVP-0..RVP-5 done, RING1-CORE-06..09 done)
 Decision: provisional
 Date: 2026-02-19
-Scope: Phase 29y runtime lane（lane C）の current/next と運用契約を短く維持する。
+Scope: 脱Rust selfhost の Phase 29y runtime lane（lane C）の current/next と運用契約を短く維持する。
 Related:
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md
@@ -25,7 +25,7 @@ Related:
 - APP-1（Gate Log Summarizer）acceptance は PASS。
 - APP-2（Controlflow Probe）acceptance は PASS。
 - APP-3（MIR Shape Guard）acceptance は PASS。
-- Current blocker（runtime lane）は `none`（RVP-5-min12 complete; monitor-only）。
+- Current blocker（脱Rust selfhost runtime lane）は `none`（RVP-5-min12 complete; monitor-only）。
 - 2026-03-09 monitor refresh:
   - `bash tools/checks/dev_gate.sh quick` PASS
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` PASS

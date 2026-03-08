@@ -1,6 +1,6 @@
 ---
 Status: Active (closeout blockers completed; failure-driven backlog only)
-Scope: Phase 29bq から「selfhosting closeout」へ進む最短チェックリスト（single-developer）
+Scope: Phase 29bq から「脱Rust selfhost closeout」へ進む最短チェックリスト（single-developer）
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
@@ -10,9 +10,9 @@ Related:
   - docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md
 ---
 
-# Phase 29bq — Selfhost To-Go Checklist (SSOT)
+# Phase 29bq — De-Rust Selfhost To-Go Checklist (SSOT)
 
-目的: 「今どこまで終わっていて、selfhosting closeout まで何が残っているか」を 1 枚で固定する。  
+目的: 「今どこまで終わっていて、脱Rust selfhost closeout まで何が残っているか」を 1 枚で固定する。
 原則: failure-driven（新規 freeze/reject が出るまで受理拡張しない）。
 
 ## 0) Normalized snapshot (2026-02-11)
@@ -39,7 +39,7 @@ Related:
 - ここからの closeout では、機能追加ではなく「証拠の固定」と「再現手順の安定化」を優先する。
 - parser/mirbuilder の受理拡張は、failure-driven 条件を満たした時だけ行う。
 
-## 1) Blocking tasks for selfhost closeout
+## 1) Blocking tasks for de-rust selfhost closeout
 
 ### G1. Stage identity evidence refresh (must)
 
@@ -145,7 +145,7 @@ Related:
 - fallback で通さない（strict/dev + planner_required で fail-fast）。
 - 新規 fixture は `no-try/no-throw` 方針を維持（postfix `cleanup` / DropScope 優先）。
 
-## 4) Done definition (selfhost closeout)
+## 4) Done definition (de-rust selfhost closeout)
 
 - [x] G1, G2, G3 がすべて完了
 - [x] `Current blocker: none` を維持
