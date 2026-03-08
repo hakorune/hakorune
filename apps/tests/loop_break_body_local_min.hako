@@ -1,0 +1,24 @@
+// Semantic fixture alias for the loop_break body-local route.
+// Expected output: 2
+
+static box Main {
+    main() {
+        local s = "12a"
+        local digits = "0123456789"
+        local p = 0
+
+        loop(p < s.length()) {
+            local ch = s.substring(p, p + 1)
+            local digit_pos = digits.indexOf(ch)
+
+            if digit_pos < 0 {
+                break
+            }
+
+            p = p + 1
+        }
+
+        print(p)
+        return p
+    }
+}

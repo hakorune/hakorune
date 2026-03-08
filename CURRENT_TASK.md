@@ -982,11 +982,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `src/mir/join_ir/lowering/loop_route_router.rs` / `src/mir/loop_route_detection/legacy/mod.rs` / `src/mir/builder/control_flow/plan/parts/exit.rs`
     - intent: `NestedLoopMinimal` comment は current classifier 実態に合わせ、`legacy/mod.rs` の unused TODO stub 3本は private callsite `0` なので撤去し、`lower_return_stmt_with_effects` の redundant `#[allow(unused_variables)]` を外す
     - verification: `git diff --check` PASS; `rg -n "count_carrier_variables|has_nested_loops\\(|has_simple_condition\\(" src/mir/loop_route_detection/legacy/mod.rs` = `0 hit`; `cargo check --tests` PASS; `cargo build --release --bin hakorune` PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+  - compat cleanup (2026-03-08, slice 187): archive-backed current wrapper 6 本を semantic-body wrapper に昇格し、archive stem は historical replay forwarder へ後退させた
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/{joinir-smoke-legacy-stem-retirement-ssot,joinir-legacy-fixture-pin-inventory-ssot,flowbox-tag-coverage-map-ssot,coreplan-shadow-adopt-tag-coverage-ssot}.md` / `docs/development/current/main/phases/phase-29ae/README.md` / `apps/tests/{loop_break_plan_subset_min,loop_break_realworld_min,loop_break_body_local_min,loop_break_body_local_seg_min}.hako` / `tools/smokes/v2/profiles/integration/joinir/{loop_break_plan_subset_vm,loop_break_realworld_vm,loop_break_body_local_vm,loop_break_body_local_seg_vm,if_phi_join_vm,loop_true_early_exit_vm}.sh` / `tools/smokes/v2/profiles/integration/apps/archive/{phase29ai_pattern2_break_plan_subset_ok_min_vm,phase263_pattern2_seg_realworld_min_vm,phase29ab_pattern2_loopbodylocal_min_vm,phase29ab_pattern2_loopbodylocal_seg_min_vm,phase118_pattern3_if_sum_vm,phase286_pattern5_break_vm}.sh`
+    - intent: archive-backed current wrapper は thin `exec bash` のまま残さず、current semantic wrapper が real body を持つ形へ揃える。archived stem は `LEGACY_STEM_OVERRIDE` 付き replay forwarder に後退させ、historical basename による手動 replay だけを維持する。loop_break 4 本は semantic fixture alias も追加して current script から exact `pattern*` basename をさらに後退させる
+    - verification: `git diff --check` PASS; `bash -n` on touched smoke scripts PASS; `bash tools/smokes/v2/profiles/integration/joinir/{loop_break_plan_subset_vm,loop_break_realworld_vm,loop_break_body_local_vm,loop_break_body_local_seg_vm,if_phi_join_vm,loop_true_early_exit_vm}.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` PASS; `cargo build --release --bin hakorune` PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS; `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は `archive-fixed keep` だが、次手は `caller 0` だけではない。wrapper ごとに `semantic-body promotion` か `historical replay / archive-only demotion` を先に決め、その後 caller inventory で retire/collapse 条件を詰める。
+2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は semantic-body wrapper 化済み。次は archived replay forwarder の caller inventory と manual replay/how-to lane を詰め、archive basename を retire/collapse できる条件を固定する。
 3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。historical normalized-dev / selfhost prototype key は retire 済みで、single-fixture gate/selfhost pin は semantic alias 化済みなので、次は `SMOKES_SELFHOST_FILTER` exact legacy examples と subset alias-first retire 条件を詰める。
 4. `dust` cleanup: warnings / orphan helper / dead code を刈る（現状 `cargo check --tests` は warning なし）。`bool_expr_lowerer` orphan module と low-risk legacy stubs 3本は撤去済み。次は low-risk compat shim / stale comments を優先する。
 5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
@@ -1001,17 +1005,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   3. low-risk dust cleanup
   4. `docs/private` nested repo drift
 - archive replay lane:
-  - archive replay stem の `semantic-body promotion` vs `archive-only demotion` 判断と、その後の caller inventory / retire phase
-  - current semantic wrappers that still `exec bash` are limited to 6 archive-backed replay entries, and these are now explicit `archive-fixed keep`:
-    - `loop_break_plan_subset_vm.sh`
-    - `loop_break_realworld_vm.sh`
-    - `loop_break_body_local_vm.sh`
-    - `loop_break_body_local_seg_vm.sh`
-    - `if_phi_join_vm.sh`
-    - `loop_true_early_exit_vm.sh`
+  - archived replay stem の caller inventory / retire phase
+  - current semantic wrappers no longer `exec bash` into archive stems; the remaining archive lane is limited to historical replay forwarders:
+    - `phase29ai_pattern2_break_plan_subset_ok_min_vm.sh`
+    - `phase263_pattern2_seg_realworld_min_vm.sh`
+    - `phase29ab_pattern2_loopbodylocal_min_vm.sh`
+    - `phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
+    - `phase118_pattern3_if_sum_vm.sh`
+    - `phase286_pattern5_break_vm.sh`
   - blocking facts:
     - `tools/smokes/v2/run.sh` の auto-discovery があるため、grep hit 0 だけでは削除条件にならない
-    - caller 0 は必要条件だが十分条件ではなく、先に `semantic-body promotion` か `archive-only demotion` を決める必要がある
+    - archive/manual replay how-to が残る間は basename を retire できない
 - live compat contract lane:
   - current broad residue is intentionally small and explicit:
     - selfhost filter contract: `SMOKES_SELFHOST_FILTER=<substring>` in `phase29bq_selfhost_planner_required_dev_gate_vm.sh`

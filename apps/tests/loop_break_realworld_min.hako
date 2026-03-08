@@ -1,0 +1,29 @@
+// Semantic fixture alias for the loop_break realworld route.
+// Expected output: 4
+
+static box Main {
+    main() {
+        local table = "a|||"
+        local i = 0
+
+        loop(true) {
+            local j = table.indexOf("|||", i)
+            local seg = ""
+
+            if j >= 0 {
+                seg = table.substring(i, j)
+            } else {
+                seg = table.substring(i, table.length())
+            }
+
+            if seg == "" {
+                break
+            }
+
+            i = j + 3
+        }
+
+        print(i)
+        return i
+    }
+}

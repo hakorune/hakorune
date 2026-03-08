@@ -32,7 +32,7 @@ Note:
 - active docs は semantic alias wrapper stem を優先し、legacy stem は wrapper の転送先として保持する。
 - negative coverage に残る legacy archive stem は compat pin としてのみ扱い、route semantics の主語にしない。
 - current runtime semantics は route 名（`loop_break`, `if_phi_join`, `scan_with_init` など）で読む。
-- `archive-fixed keep` wrapper は caller-0 待ちで直接 retire しない。current coverage へ残すか archive-only replay へ落とすかを先に決める。
+- archive-backed coverage lane は semantic wrapper が real body を持ち、archived stem は replay forwarder に後退している。retire は archived basename の replay need が 0 になってから行う。
 
 | Scenario | Smoke stem (semantic alias wrapper) | box_kind | features (required subset) | via | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -40,13 +40,13 @@ Note:
 | `scan_with_init` strict shadow adopt | `scan_with_init_strict_shadow_vm` | Loop | return | shadow | scan_with_init subset |
 | `split_scan` strict shadow adopt | `split_scan_strict_shadow_vm` | Loop | (empty) | shadow | split_scan subset |
 | `loop_true_early_exit` strict shadow adopt | `loop_true_early_exit_strict_shadow_vm` | Loop | break | shadow | loop_true_early_exit subset |
-| `loop_break` planner route | `loop_break_plan_subset_vm` | Loop | break | shadow | loop_break subset (generic; regression-pack archive-fixed keep) |
-| `loop_break` body-local route | `loop_break_body_local_vm` | Loop | break | shadow | loop_break promotion (body-local; coverage-only archive-fixed keep) |
-| `loop_break` body-local-seg route | `loop_break_body_local_seg_vm` | Loop | break | shadow | loop_break promotion (body-local + seg; coverage-only archive-fixed keep) |
-| `loop_break` realworld route | `loop_break_realworld_vm` | Loop | break | shadow | loop_break derived-slot (realworld subset; regression-pack archive-fixed keep) |
+| `loop_break` planner route | `loop_break_plan_subset_vm` | Loop | break | shadow | loop_break subset (generic; regression-pack semantic-body wrapper) |
+| `loop_break` body-local route | `loop_break_body_local_vm` | Loop | break | shadow | loop_break promotion (body-local; coverage-only semantic-body wrapper) |
+| `loop_break` body-local-seg route | `loop_break_body_local_seg_vm` | Loop | break | shadow | loop_break promotion (body-local + seg; coverage-only semantic-body wrapper) |
+| `loop_break` realworld route | `loop_break_realworld_vm` | Loop | break | shadow | loop_break derived-slot (realworld subset; regression-pack semantic-body wrapper) |
 | `match_return` strict shadow adopt | `phase29at_match_return_strict_shadow_vm` | Seq | return | shadow | match_return uses Seq(Effects + BranchN) |
 | `nested_loop_minimal` strict shadow adopt | `nested_loop_minimal_strict_shadow_vm` | Loop | nested_loop | shadow | nested minimal |
-| `if_phi_join` purity gate | `phase29as_purity_gate_vm` | Loop | (empty) | shadow | if_phi_join subset (purity gate only; paired route smoke `if_phi_join_vm` is regression-pack archive-fixed keep; legacy tag suffix token `pattern3_ifphi` is traceability-only) |
+| `if_phi_join` purity gate | `phase29as_purity_gate_vm` | Loop | (empty) | shadow | if_phi_join subset (purity gate only; paired route smoke `if_phi_join_vm` is a regression-pack semantic-body wrapper; legacy tag suffix token `pattern3_ifphi` is traceability-only) |
 | `generic_loop_continue` strict shadow adopt | `phase29ca_generic_loop_continue_strict_shadow_vm` | Loop | continue | shadow | generic loop continue (strict/dev) |
 | `generic_loop_in_body_step` strict shadow adopt | `phase29cb_generic_loop_in_body_step_strict_shadow_vm` | Loop | (empty) | shadow | generic loop in-body step (strict/dev) |
 

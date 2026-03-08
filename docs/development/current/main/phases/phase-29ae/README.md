@@ -6,12 +6,12 @@ Goal: JoinIR の最小回帰セットを SSOT として固定する。
 
 Numbered route labels below are historical labels only. Current entry names are the semantic wrapper stems shown first.
 
-- loop_break (body-local route, VM): `loop_break_body_local_vm`（coverage-only archive-fixed keep; historical filter key family for this LoopBreak lane is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_break (body-local seg route, VM): `loop_break_body_local_seg_vm`（coverage-only archive-fixed keep; historical filter key family for this LoopBreak lane is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- loop_break (real-world route, VM): `loop_break_realworld_vm`（regression-pack archive-fixed keep; historical filter key family for this LoopBreak lane is inventory-only）
-- loop_break (subset, strict shadow, VM): `loop_break_plan_subset_vm`（regression-pack archive-fixed keep; historical filter key family for this LoopBreak lane is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_break (body-local route, VM): `loop_break_body_local_vm`（coverage-only semantic-body wrapper; archived replay stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_break (body-local seg route, VM): `loop_break_body_local_seg_vm`（coverage-only semantic-body wrapper; archived replay stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_break (real-world route, VM): `loop_break_realworld_vm`（regression-pack semantic-body wrapper; historical filter key family is inventory-only）
+- loop_break (subset, strict shadow, VM): `loop_break_plan_subset_vm`（regression-pack semantic-body wrapper; archived replay stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - loop_break (release adopt, VM): `loop_break_release_adopt_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- if_phi_join (VM): `if_phi_join_vm`（regression-pack archive-fixed keep; historical smoke stem / fixture key is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md` and `joinir-legacy-fixture-pin-inventory-ssot.md`）
+- if_phi_join (VM): `if_phi_join_vm`（regression-pack semantic-body wrapper; historical smoke stem / fixture key is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md` and `joinir-legacy-fixture-pin-inventory-ssot.md`）
 - if_phi_join (release adopt, VM): `if_phi_join_release_adopt_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - loop_continue_only (continue min, VM): `loop_continue_only_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - loop_simple_while (strict shadow, VM): `loop_simple_while_strict_shadow_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
@@ -46,7 +46,7 @@ Numbered route labels below are historical labels only. Current entry names are 
 - BranchN (match return-only, release adopt, VM): `phase29at_match_return_release_adopt_vm`
 - FlowBox tags gate (strict/non-strict, VM): `phase29av_flowbox_tags_gate_vm`
 - FlowBox tag coverage gate (strict/non-strict, VM): `phase29aw_flowbox_tag_coverage_gate_vm`
-- loop_true_early_exit (VM): `loop_true_early_exit_vm`（regression-pack archive-fixed keep; archived smoke stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- loop_true_early_exit (VM): `loop_true_early_exit_vm`（regression-pack semantic-body wrapper; archived replay stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - loop_true_early_exit (strict shadow, VM): `loop_true_early_exit_strict_shadow_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - loop_true_early_exit (release adopt, VM): `loop_true_early_exit_release_adopt_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - scan_with_init (strict shadow, VM): `scan_with_init_strict_shadow_vm`（exact historical wrapper/stem mapping is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
@@ -62,7 +62,7 @@ Numbered route labels below are historical labels only. Current entry names are 
 - phase143_* は LoopBuilder 撤去 / plugin disable 固定 / LLVM exe 期待が古いので除外
 - legacy pack stems for the historical accum-const-loop lane are SKIP on the plugins-disabled path and stay outside this regression pack（exact stems are tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - legacy fixture family / key の詳細は `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` を正本とする
-- `archive-fixed keep` 6 本は current semantic wrapper として残しているが、次の判断は単純な caller-0 retire ではない。`joinir-smoke-legacy-stem-retirement-ssot.md` に従って、`semantic-body promotion` か `historical replay / archive-only demotion` を先に決める。
+- archive-backed 6 本は semantic wrapper が real body を持ち、archived stem は replay forwarder に後退した。残タスクは archived basename の retire 条件を inventory lane で詰めること。
 - FlowBox schema tag（`[flowbox/*]`）は `filter_noise` で除去される
 - タグ検証が必要な smoke は raw output（filter 前）を参照する
 - タグ coverage SSOT: `docs/development/current/main/design/flowbox-tag-coverage-map-ssot.md`

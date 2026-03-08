@@ -1,0 +1,22 @@
+// Semantic fixture alias for the loop_break body-local-seg route.
+// Expected output: 2
+
+static box Main {
+    main() {
+        local s = "ab "
+        local i = 0
+
+        loop(i < s.length()) {
+            local seg = s.substring(i, i + 1)
+
+            if seg == " " || seg == "\t" {
+                break
+            }
+
+            i = i + 1
+        }
+
+        print(i)
+        return i
+    }
+}
