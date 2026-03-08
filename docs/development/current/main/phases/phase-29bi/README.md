@@ -42,7 +42,7 @@ planner-first が通る状態を増やす。release 既定は不変、JoinIR reg
 
 - `./tools/hako_check_loopless_gate.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_pack_vm.sh`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- `./tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_pack_vm.sh`（legacy wrapper token details live in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 
 Note: `loop_break_planner_required_pack_vm.sh` は stdout を SSOT とし、exit code は 0-255 に丸められるため case-by-case の allow_rc を使う。
 

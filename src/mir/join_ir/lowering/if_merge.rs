@@ -52,7 +52,7 @@ impl IfMergeLowerer {
         }
     }
 
-    /// Phase 33-8: debug-level backward compat wrapper
+    /// Phase 33-8: debug-level legacy shim
     pub fn with_debug(debug: bool) -> Self {
         Self {
             debug_level: if debug { 1 } else { 0 },

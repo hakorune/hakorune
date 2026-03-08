@@ -32,7 +32,7 @@ planner-first が通る状態に拡張する。release 既定は不変、JoinIR 
 ## Target set (loop_simple_while / loop_continue_only / loop_true_early_exit)
 
 - loop_simple_while: phase29ap_stringutils_join_min_vm（理由: StringUtils 系の代表で回帰価値が高い）
-- loop_continue_only: loop_continue_only_vm（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`; 理由: continue 経路の代表で制御系の回帰価値が高い）
+- loop_continue_only: loop_continue_only_vm（legacy wrapper token details live in `joinir-smoke-legacy-stem-retirement-ssot.md`; 理由: continue 経路の代表で制御系の回帰価値が高い）
 - loop_true_early_exit: loop_true_early_exit_vm（representative legacy fixture pin token is tracked in `joinir-legacy-fixture-pin-inventory-ssot.md`; 理由: break 経路の代表で制御系の回帰価値が高い）
 
 ## Gate (SSOT)

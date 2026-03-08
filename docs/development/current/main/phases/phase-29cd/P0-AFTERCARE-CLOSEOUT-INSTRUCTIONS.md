@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted
 Phase: 29cd
 Lane: aftercare closeout
 ---
@@ -30,3 +30,8 @@ archive replay / live compat / dust の残件を、current lane を汚さずに�
 - `cargo check --tests` PASS
 - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+
+## Result
+
+- accepted on 2026-03-08
+- remaining work is optional aftercare only

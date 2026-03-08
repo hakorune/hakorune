@@ -2,7 +2,7 @@
 //!
 //! Phase 287 P1: Extracted from ast_feature_extractor.rs
 //!
-//! This module detects infinite loop patterns (condition == true).
+//! This module detects infinite loop route shapes (condition == true).
 
 use crate::ast::ASTNode;
 

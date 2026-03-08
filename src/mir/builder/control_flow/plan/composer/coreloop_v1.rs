@@ -1,7 +1,7 @@
 //! CoreLoop v1 composers for loop-break / if-phi-join / loop-true-early-exit.
 //!
 //! This module provides functions to compose CorePlan from CanonicalLoopFacts
-//! for specific loop patterns that require value_join support.
+//! for specific loop route shapes that require value_join support.
 
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{

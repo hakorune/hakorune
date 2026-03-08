@@ -111,7 +111,7 @@ nested loop では `inner_step` が混ざるので、**`inner_step` / `k_inner_e
 
 新規:
 - current semantic gate: `tools/smokes/v2/profiles/integration/joinir/nested_loop_minimal_strict_shadow_vm.sh`
-- historical compat wrapper: `tools/smokes/v2/profiles/integration/joinir/phase1883_nested_minimal_vm.sh`
+- historical replay wrapper details live in `joinir-smoke-legacy-stem-retirement-ssot.md`
   - both execute `apps/tests/phase1883_nested_minimal.hako` and expect exit code == 9
   - stdout 比較はしない
 

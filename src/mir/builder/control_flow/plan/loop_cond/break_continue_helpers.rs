@@ -90,7 +90,7 @@ pub(super) fn collect_vars_from_expr(ast: &ASTNode, vars: &mut BTreeSet<String>)
 ///
 /// A nested loop is allowed if:
 /// - It has no return statements
-/// - It matches one of the supported loop patterns (loop_true_break_continue, generic_loop, etc.)
+/// - It matches one of the supported loop route shapes (loop_true_break_continue, generic_loop, etc.)
 pub(super) fn is_nested_loop_allowed(
     condition: &ASTNode,
     body: &[ASTNode],

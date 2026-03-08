@@ -39,7 +39,7 @@ release 既定は不変、JoinIR regression gate は常に緑維持。
 
 - `./tools/hako_check_loopless_gate.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/scan_split_planner_required_pack_vm.sh`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- `./tools/smokes/v2/profiles/integration/joinir/scan_split_planner_required_pack_vm.sh`（legacy wrapper token details live in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 
 ## Acceptance criteria (RC)
 

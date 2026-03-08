@@ -39,7 +39,7 @@ Related:
 
 - `./tools/hako_check_loopless_gate.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/if_phi_join_planner_required_pack_vm.sh`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- `./tools/smokes/v2/profiles/integration/joinir/if_phi_join_planner_required_pack_vm.sh`（legacy wrapper token details live in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 
 Default dev entry: `./tools/smokes/v2/profiles/integration/joinir/phase29bn_planner_required_dev_gate_v2_vm.sh`
 

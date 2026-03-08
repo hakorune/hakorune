@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted
 Scope: live compat retirement (`SMOKES_SELFHOST_FILTER` / by-name fixture key / semantic fixture alias)
 Related:
 - CURRENT_TASK.md
@@ -70,6 +70,12 @@ current semantic wrapper / semantic fixture alias / semantic route substring を
 - exact historical basename は inventory/retirement SSOT にだけ残る
 - by-name key の live set / retired set が SSOT で一意に読める
 - `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` が緑のまま
+
+## Closeout decision
+
+- semantic route substring / semantic fixture alias is now the current live contract
+- historical exact basename examples are inventory-only unless a replay note says otherwise
+- future retire work is optional and should be handled as dedicated follow-up slices
 
 ## Instructions
 

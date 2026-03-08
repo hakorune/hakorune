@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted
 Scope: compiler cleanliness aftercare (archive replay lane / live compat contract / dust)
 Related:
 - CURRENT_TASK.md
@@ -47,6 +47,12 @@ current compiler/docs lane を保ったまま、残っている compat/historica
 - current gate / selfhost how-to は semantic wrapper / semantic fixture alias / semantic route substring を先頭に置く
 - archive-backed six-route wrappers の keep authority が SSOT で一意に読める
 - `cargo check --tests` と fast gate / probe が緑を維持する
+
+## Closeout decision
+
+- mandatory aftercare closeout is complete
+- remaining archive replay / docs-private / micro dust work is optional follow-up
+- current compiler/docs/smoke lane may return to feature work without waiting for further cleanup
 
 ## Gate
 

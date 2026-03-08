@@ -222,7 +222,7 @@ pub(in crate::mir::builder) fn detect_generic_loop_v1_shape(
         matches.push(GenericLoopV1ShapeId::DivCountdownBy10);
     }
 
-    // Parse program2 nested loop patterns
+    // Parse program2 nested loop route shapes
     if super::super::body_check_shape_detectors::matches_parse_program2_nested_loop_if_return_shape(
         body,
         loop_var,

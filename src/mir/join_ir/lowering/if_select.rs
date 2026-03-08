@@ -60,7 +60,7 @@ impl IfSelectLowerer {
         }
     }
 
-    /// Phase 33-8: debug-level backward compat wrapper
+    /// Phase 33-8: debug-level legacy shim
     #[allow(dead_code)]
     pub fn with_debug(debug: bool) -> Self {
         Self {

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted
 Phase: 29ce
 Lane: live compat retirement
 ---
@@ -44,3 +44,8 @@ current lane と inventory lane に分離し、retire authority を固定する�
 - `git diff --check` PASS
 - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+
+## Result
+
+- accepted on 2026-03-08
+- live compat lane is semantic-first and inventory/pointer-first

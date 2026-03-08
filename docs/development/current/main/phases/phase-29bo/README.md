@@ -40,7 +40,7 @@ Related:
 ## Gate (SSOT)
 
 - `./tools/hako_check_loopless_gate.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_pack_vm.sh`（exact compat wrapper is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- `./tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_pack_vm.sh`（legacy wrapper token details live in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - `./tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_dev_gate_v3_vm.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 

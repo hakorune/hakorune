@@ -154,7 +154,7 @@ pub(crate) fn is_outer_scope_variable(var_name: &str, scope: Option<&LoopScopeSh
 
                 // Case 2b (Phase 170-ultrathink): Defined in header AND latch ONLY
                 // → carrier variable (updated each iteration, but not body-local)
-                // This supports loop patterns like:
+                // This supports loop route shapes like:
                 //   local i = 0  (header)
                 //   loop(i < 10) {
                 //       ...

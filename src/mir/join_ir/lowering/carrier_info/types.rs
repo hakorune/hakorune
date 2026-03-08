@@ -74,7 +74,7 @@ pub enum CarrierInit {
 ///
 /// - **DirectValue**: Normalized loops prohibit PHI generation. Exit values are directly
 ///   wired to variable_map using remapped_exit_values from MergeResult.
-/// - **Phi**: Existing loop patterns use PHI generation for exit value merging.
+/// - **Phi**: Existing loop routes use PHI generation for exit value merging.
 ///
 /// # Example
 ///
