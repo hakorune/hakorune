@@ -1,6 +1,6 @@
 ---
 Status: Ready
-Scope: Stage-2（release既定）を Pattern6(ScanWithInit) の “planner subset” へ拡張する（仕様不変）
+Scope: Stage-2（release既定）を ScanWithInit（historical label 6）の “planner subset” へ拡張する（仕様不変）
 Related:
 - docs/development/current/main/phases/phase-29ao/README.md
 - docs/development/current/main/phases/phase-29ae/README.md
@@ -8,17 +8,17 @@ Related:
 - docs/development/current/main/design/coreplan-shadow-adopt-tag-coverage-ssot.md
 ---
 
-# Phase 29ao P37: Stage-2 — release adopt Pattern6(ScanWithInit) planner subset
+# Phase 29ao P37: Stage-2 — release adopt ScanWithInit planner subset（historical label 6）
 
 ## 目的
 
-- P36 で Pattern1 を release 既定で Facts→CorePlan へ寄せる「Stage-2 pilot」を開始した。
+- P36 で LoopSimpleWhile（historical label 1）を release 既定で Facts→CorePlan へ寄せる「Stage-2 pilot」を開始した。
 - P37 は次の安全ステップとして、ScanWithInit（historical label 6）のうち **planner subset（Facts が取れているケース）** を release 既定で “facts→compose→CorePlan” に寄せる。
 - strict/dev の shadow adopt は引き続き「タグ必須」で回帰固定する（観測/Fail-Fast 維持）。
 
 ## 非目的
 
-- Pattern6 の reverse/matchscan variant を release adopt する（subset外なので従来経路維持）
+- ScanWithInit の reverse/matchscan variant を release adopt する（subset外なので従来経路維持）
 - 新しい env var の追加
 - release でタグを出す（恒常ログ増加になるので禁止）
 - エラー文字列の変更（strict/dev の Fail-Fast 文言も変えない）
@@ -31,18 +31,18 @@ Related:
 - router の採用順（概略）:
   - `single_planner` が返した `domain_plan` を基本経路として `lower_via_plan` で処理
   - strict/dev のときだけ composer で shadow adopt → tag 出力 → CorePlan lower
-- composer 側には P36 で Pattern1 の release adopt 入口が追加済み:
+- composer 側には P36 で LoopSimpleWhile の release adopt 入口が追加済み:
   - `src/mir/builder/control_flow/plan/composer/shadow_adopt.rs`
 
 ## 実装内容
 
-### Step 1: composer に Pattern6 release adopt 入口を追加
+### Step 1: composer に ScanWithInit release adopt 入口を追加
 
 - 対象ファイル:
   - `src/mir/builder/control_flow/plan/composer/shadow_adopt.rs`
 
 追加する関数（例）:
-- `try_release_adopt_core_plan_for_pattern6_scan_with_init(...) -> Result<Option<CorePlan>, String>`
+- `try_release_adopt_core_plan_for_scan_with_init(...) -> Result<Option<CorePlan>, String>`
 
 条件（安全ゲート）:
 - `domain_plan` が `DomainPlan::ScanWithInit(_)` のときだけ
@@ -50,12 +50,12 @@ Related:
 - `outcome.facts` が存在し、`facts.facts.scan_with_init` が `Some` のときだけ
 
 生成:
-- 既存の `compose_coreplan_for_pattern6_scan_with_init(builder, facts, ctx)` を再利用
+- 既存の `compose_coreplan_for_scan_with_init(builder, facts, ctx)` を再利用
 
 失敗時の扱い（release既定の安全策）:
 - `Ok(None)` または `Err(_)` は **すべて `Ok(None)`** に丸めて、従来経路へフォールバック（既定挙動不変）
 
-### Step 2: router で Pattern6 release adopt を接続
+### Step 2: router で ScanWithInit release adopt を接続
 
 - 対象ファイル:
   - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
@@ -65,7 +65,7 @@ Related:
 - かつ `strict_or_dev == false` のときのみ
 
 形（例）:
-- `if !strict_or_dev { if let Some(core_plan) = composer::try_release_adopt_core_plan_for_pattern6_scan_with_init(...) { verify+lower } }`
+- `if !strict_or_dev { if let Some(core_plan) = composer::try_release_adopt_core_plan_for_scan_with_init(...) { verify+lower } }`
 
 注意:
 - release 側ではタグ出力しない（`eprintln!` は strict/dev adopt のみに限定）

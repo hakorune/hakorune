@@ -13,19 +13,19 @@ Related:
   - src/mir/builder/control_flow/plan/composer/shadow_adopt.rs
 ---
 
-# Phase 29ao P33: LoopBreak body-local（phase29ab / historical fixture token）を planner 由来に引き上げ、shadow adopt タグを回帰で固定する
+# Phase 29ao P33: LoopBreak body-local（phase29ab / historical fixture token / label 2）を planner 由来に引き上げ、shadow adopt タグを回帰で固定する
 
 Date: 2025-12-30  
 Status: Ready for execution  
-Goal: `loop_break_body_local_{min,seg_min}.hako`（historical fixture token: `phase29ab_pattern2_loopbodylocal_{min,seg_min}`）が strict/dev で **planner 由来の `DomainPlan::LoopBreak`** になり、既存の shadow adopt タグ
+Goal: `loop_break_body_local_{min,seg_min}.hako`（historical fixture token: `phase29ab_pattern2_loopbodylocal_{min,seg_min}`）が strict/dev で **planner 由来の `DomainPlan::LoopBreak`** になり、既存の historical debug tag
 `[coreplan/shadow_adopt:pattern2_break_subset]` が必ず出るようにして回帰で固定する。
 
 ## 背景
 
-- `phase29ab_pattern2_loopbodylocal_*` historical fixture family は現状、promotion hint タグ（`[plan/loop_break/promotion_hint:*]`）は出るが、
+- `loop_break_body_local*` current semantic lane に対応する historical fixture family `phase29ab_pattern2_loopbodylocal_*` は現状、promotion hint タグ（`[plan/loop_break/promotion_hint:*]`）は出るが、
   `outcome.plan` が `LoopBreak` ではないため shadow adopt が走らず、CorePlan 経路の差分検知ができない。
 - Phase 29ao の “段階1（strict/dev）完了” は、「回帰パックに含まれる代表ケースが shadow adopt タグで検知できる」状態。
-  Pattern2 の realworld（phase263）は P32 で埋めたので、次は phase29ab の LoopBodyLocal を埋めるのが自然。
+  historical label 2 の realworld（phase263）は P32 で埋めたので、次は phase29ab の LoopBodyLocal を埋めるのが自然。
 
 ## 非目的
 
@@ -59,8 +59,8 @@ Goal: `loop_break_body_local_{min,seg_min}.hako`（historical fixture token: `ph
 - `apps/tests/loop_break_body_local_min.hako`
 - `apps/tests/loop_break_body_local_seg_min.hako`
 - historical fixture token:
-  - `phase29ab_pattern2_loopbodylocal_min.hako`
-  - `phase29ab_pattern2_loopbodylocal_seg_min.hako`
+  - historical fixture token: `phase29ab_pattern2_loopbodylocal_min.hako`
+  - historical fixture token: `phase29ab_pattern2_loopbodylocal_seg_min.hako`
 
 ### Step 2: planner で LoopBreak を候補に出す（planner 由来にする）
 
@@ -81,7 +81,7 @@ Goal: `loop_break_body_local_{min,seg_min}.hako`（historical fixture token: `ph
 
 このファイルは既に
 - `DomainPlan::LoopBreak` かつ `outcome.plan` が `LoopBreak` のときだけ adopt
-- タグは `[coreplan/shadow_adopt:pattern2_break_subset]`
+- タグは historical debug token `[coreplan/shadow_adopt:pattern2_break_subset]`
 なので、P33 では増殖しない。
 
 ### Step 4: 既存 smoke を “タグ必須” に昇格（filter_noise を避ける）

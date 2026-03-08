@@ -8,15 +8,15 @@ Related:
   - docs/development/current/main/phases/phase-29ae/README.md
 ---
 
-# Phase 29ao P12: ValueJoin の最初の実使用（Pattern7 SplitScan の step join を block_params 化）
+# Phase 29ao P12: ValueJoin の最初の実使用（SplitScan step join を block_params 化 / historical label 7）
 
 Date: 2025-12-30  
 Status: Ready for execution  
-Scope: 仕様不変。P10/P11 で用意した `Frag.block_params → emit_frag() の PHI` を、**実経路（Pattern7 SplitScan）**で 1 箇所だけ使い始める。
+Scope: 仕様不変。P10/P11 で用意した `Frag.block_params → emit_frag() の PHI` を、**実経路（SplitScan route）**で 1 箇所だけ使い始める。
 
 ## 目的
 
-- Pattern7 SplitScan の `then/else → step_bb` の合流（これまで `CorePhiInfo` で表現していた PHI）を、
+- SplitScan route の `then/else → step_bb` の合流（これまで `CorePhiInfo` で表現していた PHI）を、
   **`Frag.block_params + EdgeArgs(values)`** に置き換える。
 - これにより “join の合流は EdgeCFG の SSOT（block params + edge-args）で表す” を、実経路で 1 件固定できる。
 - JoinIR 回帰 SSOT（phase29ae pack）を緑のまま維持する。
@@ -29,7 +29,7 @@ Scope: 仕様不変。P10/P11 で用意した `Frag.block_params → emit_frag()
 
 ## 対象（最小）
 
-- `src/mir/builder/control_flow/plan/normalizer/pattern_split_scan.rs`
+- `src/mir/builder/control_flow/plan/normalizer/pattern_split_scan.rs`（historical implementation file token）
   - 現状: `CorePhiInfo` 4 本（header 2 本 + step 2 本）
   - 変更: **step の 2 本だけ**を block_params へ移し、`CorePhiInfo` から除去する
 
@@ -77,7 +77,7 @@ Scope: 仕様不変。P10/P11 で用意した `Frag.block_params → emit_frag()
 ### Step 4: 最小の固定（テスト/回帰）
 
 必須の確認:
-- `phase29ab_pattern7_*` が PASS のまま（回帰 pack で担保）
+- `split_scan_*` current semantic wrapper lane が PASS のまま（historical replay token `phase29ab_pattern7_*` は regression pack 側で担保）
 
 任意（もし不安なら）:
 - `pattern_split_scan.rs` に unit test を 1 本追加し、`frag.block_params.contains_key(&step_bb)` と、
@@ -89,7 +89,7 @@ Scope: 仕様不変。P10/P11 で用意した `Frag.block_params → emit_frag()
 - `cargo build --release`
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- 任意: `./tools/smokes/v2/run.sh --profile integration --filter "phase29ab_pattern7_"`
+- 任意: `./tools/smokes/v2/run.sh --profile integration --filter "split_scan_regression_pack_vm"`
 
 ## コミット
 
