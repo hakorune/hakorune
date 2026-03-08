@@ -27,8 +27,8 @@
 ///
 /// # Example
 /// ```rust,ignore
-/// return Err(freeze("Loop lowering failed: unsupported break pattern"));
-/// // Output: "[joinir/freeze] Loop lowering failed: unsupported break pattern"
+/// return Err(freeze("Loop lowering failed: unsupported loop-break shape"));
+/// // Output: "[joinir/freeze] Loop lowering failed: unsupported loop-break shape"
 /// ```
 pub fn freeze(diagnostic: &str) -> String {
     format!("[joinir/freeze] {}", diagnostic)

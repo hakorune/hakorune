@@ -10,8 +10,8 @@
 //!
 //! ## Phase 34-2 での実装スコープ
 //!
-//! 最初は `IfSelectTest.*` 相当の tiny ケースのみ対応：
-//! - simple if-return shape: `if cond { return 1 } else { return 2 }`
+//! 最初は `IfSelectTest.*` 相当の tiny route-shape ケースのみ対応：
+//! - simple if-return route shape: `if cond { return 1 } else { return 2 }`
 //!
 //! ## 設計原則
 //!
@@ -65,7 +65,7 @@ impl AstToJoinIrLowerer {
 
     /// Program(JSON v0) → JoinModule
     ///
-    /// Phase 34-2/34-3/34-4: simple/local/json_shape pattern に対応
+    /// Phase 34-2/34-3/34-4: simple/local/json_shape route-family shapes に対応
     /// Phase 34-5: extract_value 統一化（Int/Var/Method 構造まで）
     ///
     /// # Panics

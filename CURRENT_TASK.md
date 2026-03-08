@@ -1201,6 +1201,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `src/mir/join_ir/frontend/ast_lowerer/route.rs` / `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
     - intent: DRC-04 の current accepted key set を SSOT と test で一致させ、live by-name key の “残している理由” を runtime keep と fixture/test keep に分けて読めるようにする。retire 済み key の reject test だけでは current bucket が曖昧なので accept-side contract を補う
     - verification: `git diff --check` PASS / `cargo test --lib current_program_json_route_keys_resolve_to_expected_routes` PASS / `cargo test --lib retired_program_json_loop_frontend_compat_keys_are_rejected` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+  - aftercare closeout (2026-03-09, slice 227): de-rust checklist の live compat lane を完了扱いへ同期し、current lane の low-risk route-shape comment を semantic-first にそろえた
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29cc/29cc-260-derust-task-checklist.md` / `src/mir/{builder.rs,builder/control_flow/joinir/api/mod.rs,join_ir/frontend/ast_lowerer/{mod.rs,if_return.rs},loop_route_detection/classify.rs,join_ir/lowering/error_tags.rs}`
+    - intent: `phase-29ce` accepted と `route.rs` accept/reject test の完了を `DRC-03` / `DRC-04` に反映し、current source comment では `pattern` より `route shape` / `route family` を前面に置く
+    - verification: `git diff --check` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+  - aftercare closeout (2026-03-09, slice 228): plugin aftercare の `DRC-05` / `DRC-06` は authority docs の実態どおり `monitor-only fixed keep / failure-driven reopen` に再分類し、checklist 側の未完ノイズを解消した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29cc/29cc-260-derust-task-checklist.md`
+    - intent: `29cc-210` と `29cc-213` はすでに `done` / `next: none (monitor-only)` / residue classification fixed なので、current cleanup の blocker としては扱わない。de-rust checklist では `completed or explicitly reclassified` に寄せる
+    - verification: `git diff --check` PASS / authority check: `docs/development/current/main/phases/phase-29cc/{29cc-210-plg-hm2-core-wave2-rust-recovery-line-lock-ssot.md,29cc-213-plg-hm3-next-blocker-candidate-memo.md,README.md}`
 
 ## Quick Restart (After Reboot)
 

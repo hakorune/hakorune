@@ -104,20 +104,22 @@ Related:
 
 ### 3.2 Live compat retirement
 
-- [ ] `DRC-03` `SMOKES_SELFHOST_FILTER` semantic-only closeout
+- [x] `DRC-03` `SMOKES_SELFHOST_FILTER` semantic-only closeout
   - goal: old exact basename examples become inventory-only
   - done when: active docs / active daily commands use semantic substring or semantic fixture alias only
-- [ ] `DRC-04` Program JSON by-name compat key closeout
+- [x] `DRC-04` Program JSON by-name compat key closeout
   - goal: classify remaining keys into `runtime keep` / `retire when caller=0` / `historical docs/private only`
   - authority: `src/mir/join_ir/frontend/ast_lowerer/route.rs`
 
-### 3.3 Plugin lane aftercare
+### 3.3 Plugin lane aftercare / monitor-only recheck
 
-- [ ] `DRC-05` archive / recovery authority closeout
-  - goal: confirm whether remaining Rust recovery line is permanent CI keep or future retire target
+- [x] `DRC-05` archive / recovery authority closeout
+  - classification: `monitor-only fixed keep`
+  - note: `29cc-210` is already `Status: Done` with `next: none (monitor-only)`; reopen only if recovery-line ownership changes
   - authority: `29cc-210`
-- [ ] `DRC-06` plugin residue recheck
-  - goal: reconfirm `mainline keep` / `test-only keep` / `retire` classifications stay correct after selfhost work resumes
+- [x] `DRC-06` plugin residue recheck
+  - classification: `monitor-only recheck`
+  - note: `29cc-213` already fixes `mainline keep` / `test-only keep` / `retire` residue buckets; reopen only when selfhost/plugin work finds a new blocker
   - authority: `29cc-213`
 
 ### 3.4 Optional cleanup
@@ -131,8 +133,8 @@ Related:
 2. [ ] `DRC-04` Program JSON key classification closeout
 3. [ ] `DRC-01` source-zero inventory refresh
 4. [ ] `DRC-02` bootstrap boundary inventory
-5. [ ] `DRC-05` / `DRC-06` plugin aftercare recheck
-6. [ ] `DRC-08` micro dust
+5. [ ] `DRC-08` micro dust
+6. [x] `DRC-05` / `DRC-06` plugin aftercare is monitor-only unless a new blocker reopens it
 
 ## 5) Done judgment for this checklist
 

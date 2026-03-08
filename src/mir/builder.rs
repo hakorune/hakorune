@@ -46,7 +46,7 @@ pub(crate) use control_flow::detect_continue_shape;
 // Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
 pub(crate) use control_flow::detect_parse_number_shape;
 pub(crate) use control_flow::detect_parse_string_shape;
-// Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
+// Phase 91 P5b: Re-export escape skip shape detection for loop_canonicalizer
 pub(crate) use control_flow::detect_escape_skip_shape;
 
 /// Phase 129: Public (crate) wrapper for StepTree capability guard.

@@ -40,7 +40,7 @@ use super::kind::LoopRouteKind;
 /// function to avoid duplicate detection logic.
 pub fn classify(features: &LoopFeatures) -> LoopRouteKind {
     // Phase 188.1: NestedLoopMinimal (1-level only, check first after depth validation)
-    // Reject 2+ level nesting (explicit error) BEFORE any pattern matching
+    // Reject 2+ level nesting (explicit error) BEFORE any route matching
     if features.max_loop_depth > 2 {
         // Return Unknown to trigger explicit error in router
         return LoopRouteKind::Unknown;

@@ -1,18 +1,18 @@
-//! Phase P5: If Return パターン lowering
+//! Phase P5: If Return route-shape lowering
 //!
 //! ## 責務（1行で表現）
-//! **if-then-else で異なる値を return するパターンを Select に落とす**
+//! **if-then-else で異なる値を return する route shape を Select に落とす**
 //!
-//! ## パターン例
+//! ## Route-shape examples
 //! ```nyash
-//! // simple pattern
+//! // simple route shape
 //! if cond { return 10 } else { return 20 }
 //!
-//! // local pattern
+//! // local route shape
 //! if cond { x = 10 } else { x = 20 }
 //! return x
 //!
-//! // json_shape pattern
+//! // json_shape route shape
 //! if at { return v.substring(0, at) } else { return v }
 //! ```
 //!
@@ -23,7 +23,7 @@ use super::{AstToJoinIrLowerer, BTreeMap, ExtractCtx, JoinFunction, JoinInst, Jo
 use crate::mir::join_ir::JoinIrPhase;
 
 impl AstToJoinIrLowerer {
-    /// If Return pattern の共通 lowering
+    /// If Return route shape の共通 lowering
     ///
     /// Phase 34-2/34-3/34-4: simple/local/json_shape 対応
     /// Phase 34-5: extract_value ベースに統一（Int/Var/Method 構造まで）
@@ -74,7 +74,7 @@ impl AstToJoinIrLowerer {
             .expect("If must have 'then' array");
         let else_stmts = if_stmt["else"]
             .as_array()
-            .expect("If must have 'else' array (simple pattern)");
+            .expect("If must have 'else' array (simple route shape)");
 
         let then_ret = then_stmts.get(0).expect("then branch must have Return");
         let else_ret = else_stmts.get(0).expect("else branch must have Return");
