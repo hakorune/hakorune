@@ -2,7 +2,7 @@ AST/CFG → JoinIR frontend lowering layer
 
 Scope:
 - Normalize tiny AST/CFG route/shape cases into JoinIR instructions without touching MIR or runtime concerns.
-- Keep route-specific lowering isolated (if/return, loop variants, nested-if, read_quoted_from).
+- Keep route-specific lowering isolated (if/return, loop variants, nested_if_merge, read_quoted).
 - Centralize expression/value extraction and small analysis helpers (if-in-loop var tracking).
 
 Boundaries:
@@ -16,7 +16,7 @@ Layout:
 - `expr.rs`: expression-to-JoinIR value extraction
 - `if_return.rs`: simple if→Select lowering
 - `loop_routes/`: loop route modules (simple/break/continue)
-- `read_quoted.rs`: read_quoted_from lowering
-- `nested_if.rs`: NestedIfMerge lowering/detection
+- `read_quoted.rs`: read_quoted lowering (`read_quoted_from` is retired route token)
+- `nested_if.rs`: nested_if_merge lowering/detection (`parse_loop` is retired route token)
 - `analysis.rs`: loop if-var analysis + metadata helpers
 - `tests.rs`: frontend lowering tests gated by dev flags

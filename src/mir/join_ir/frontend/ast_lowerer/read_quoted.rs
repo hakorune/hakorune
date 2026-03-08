@@ -1,4 +1,4 @@
-//! Phase P5/45: Read Quoted パターン lowering
+//! Phase P5/45: read_quoted route lowering
 //!
 //! ## 責務（1行で表現）
 //! **Guard if + Loop with break + accumulator パターンを JoinIR に落とす**
@@ -32,7 +32,7 @@ use super::{
 use crate::mir::join_ir::JoinIrPhase;
 
 impl AstToJoinIrLowerer {
-    /// Phase 45: read_quoted_from shape の lowering
+    /// Phase 45: read_quoted shape の lowering
     ///
     /// # Shape
     ///
@@ -62,6 +62,7 @@ impl AstToJoinIrLowerer {
     ///
     /// # Dev Flag
     ///
+    /// Current dev key: `read_quoted` (`read_quoted_from` is a retired route token).
     /// 環境変数 `HAKO_JOINIR_READ_QUOTED=1` が必須。
     pub(crate) fn lower_read_quoted_pattern(
         &mut self,

@@ -2,7 +2,7 @@ use super::*;
 use crate::mir::join_ir::JoinInst;
 use crate::runtime::get_global_ring0;
 
-/// Phase 41-4.4: NestedIfMerge パターン検出のテスト
+/// Phase 41-4.4: nested_if_merge route shape detection test
 ///
 /// 2レベル以上のネスト if が検出されることを確認する。
 #[test]
@@ -10,7 +10,7 @@ fn test_nested_if_pattern_detection_two_levels() {
     // 2レベルのネスト if: if a { if b { x = 1 } }
     let program_json = serde_json::json!({
         "defs": [{
-            "name": "parse_loop",
+            "name": "nested_if_merge",
             "params": ["src", "i"],
             "body": {
                 "body": [
@@ -74,7 +74,7 @@ fn test_nested_if_pattern_detection_two_levels() {
     assert_eq!(pattern.merges[0].0, "x", "Merged variable should be 'x'");
 }
 
-/// Phase 41-4.4: NestedIfMerge lowering のテスト（dev flag 必要）
+/// Phase 41-4.4: nested_if_merge lowering のテスト（dev flag 必要）
 ///
 /// HAKO_JOINIR_NESTED_IF=1 が設定されている場合のみ実行。
 /// 設定されていない場合はスキップ。
@@ -92,7 +92,7 @@ fn test_nested_if_merge_lowering() {
     // 2レベルのネスト if
     let program_json = serde_json::json!({
         "defs": [{
-            "name": "parse_loop",
+            "name": "nested_if_merge",
             "params": ["src", "i"],
             "body": {
                 "body": [
@@ -201,10 +201,10 @@ fn test_nested_if_pattern_single_level_does_not_match() {
 }
 
 // ========================================
-// Phase 45: read_quoted_from Pattern Tests
+// Phase 45: read_quoted route tests
 // ========================================
 
-/// Phase 45: read_quoted_from lowering のテスト（dev flag 必要）
+/// Phase 45: read_quoted lowering のテスト（dev flag 必要）
 ///
 /// HAKO_JOINIR_READ_QUOTED=1 が設定されている場合のみ実行。
 /// 設定されていない場合はスキップ。
@@ -219,10 +219,10 @@ fn test_read_quoted_from_lowering() {
         return;
     }
 
-    // read_quoted_from パターンの JSON 表現
+    // read_quoted route の JSON 表現
     let program_json = serde_json::json!({
         "defs": [{
-            "name": "read_quoted_from",
+            "name": "read_quoted",
             "params": ["s", "pos"],
             "body": {
                 "body": [
@@ -315,7 +315,7 @@ fn test_read_quoted_from_lowering() {
         .collect();
 
     assert!(
-        func_names.iter().any(|n| *n == "read_quoted_from"),
+        func_names.iter().any(|n| *n == "read_quoted"),
         "Should have entry function"
     );
     assert!(
@@ -331,7 +331,7 @@ fn test_read_quoted_from_lowering() {
         "Should have k_guard_fail function"
     );
 
-    get_global_ring0().log.debug("[Phase 45] test_read_quoted_from_lowering PASSED");
+    get_global_ring0().log.debug("[Phase 45] test_read_quoted_lowering PASSED");
     get_global_ring0().log.debug(&format!(
         "[Phase 45] Functions: {:?}",
         func_names
@@ -349,7 +349,7 @@ fn test_read_quoted_from_lowering_instructions() {
     // 簡易的な program_json（実際の AST 構造は不要、パターンが認識されればOK）
     let program_json = serde_json::json!({
         "defs": [{
-            "name": "read_quoted_from",
+            "name": "read_quoted",
             "params": ["s", "pos"],
             "body": { "body": [] }
         }]
@@ -417,7 +417,7 @@ fn test_read_quoted_from_lowering_instructions() {
     );
 
     get_global_ring0().log.debug(
-        "[Phase 45] test_read_quoted_from_lowering_instructions PASSED",
+        "[Phase 45] test_read_quoted_lowering_instructions PASSED",
     );
 }
 
@@ -426,7 +426,7 @@ fn test_read_quoted_from_lowering_instructions() {
 fn test_read_quoted_escape_ifmerge_uses_merged_values() {
     let program_json = serde_json::json!({
         "defs": [{
-            "name": "read_quoted_from",
+            "name": "read_quoted",
             "params": ["s", "pos"],
             "body": { "body": [] }
         }]

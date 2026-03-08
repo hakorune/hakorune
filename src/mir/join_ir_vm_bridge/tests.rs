@@ -96,14 +96,14 @@ fn test_convert_print_inst_to_externcall() {
 }
 
 // ========================================
-// Phase 45: read_quoted_from Bridge Tests
+// Phase 45: read_quoted Bridge Tests
 // ========================================
 
-/// Phase 45: read_quoted_from JoinIR → MIR 変換テスト
+/// Phase 45: read_quoted JoinIR → MIR 変換テスト
 ///
 /// HAKO_JOINIR_READ_QUOTED=1 が設定されている場合のみ実行。
 #[test]
-fn test_read_quoted_from_joinir_to_mir_conversion() {
+fn test_read_quoted_joinir_to_mir_conversion() {
     ensure_ring0_initialized();
 
     // Dev flag がない場合はスキップ
@@ -118,7 +118,7 @@ fn test_read_quoted_from_joinir_to_mir_conversion() {
     // 1. JoinModule を生成（lower_read_quoted_pattern を使用）
     let program_json = serde_json::json!({
         "defs": [{
-            "name": "read_quoted_from",
+            "name": "read_quoted",
             "params": ["s", "pos"],
             "body": { "body": [] }
         }]
@@ -168,7 +168,7 @@ fn test_read_quoted_from_joinir_to_mir_conversion() {
     );
 
     get_global_ring0().log.debug(
-        "[Phase 45] test_read_quoted_from_joinir_to_mir_conversion PASSED",
+        "[Phase 45] test_read_quoted_joinir_to_mir_conversion PASSED",
     );
 }
 
@@ -209,7 +209,7 @@ fn test_convert_string_const_inst() {
 ///
 /// T5 (escape handling) runs when `HAKO_JOINIR_READ_QUOTED_IFMERGE=1`.
 #[test]
-fn test_read_quoted_from_route_b_e2e() {
+fn test_read_quoted_route_b_e2e() {
     ensure_ring0_initialized();
 
     // Dev flag がない場合はスキップ
@@ -224,7 +224,7 @@ fn test_read_quoted_from_route_b_e2e() {
     // 1. JoinModule を生成
     let program_json = serde_json::json!({
         "defs": [{
-            "name": "read_quoted_from",
+            "name": "read_quoted",
             "params": ["s", "pos"],
             "body": { "body": [] }
         }]
@@ -360,5 +360,5 @@ fn test_read_quoted_from_route_b_e2e() {
 
     get_global_ring0()
         .log
-        .debug("[Phase 45] test_read_quoted_from_route_b_e2e completed");
+        .debug("[Phase 45] test_read_quoted_route_b_e2e completed");
 }

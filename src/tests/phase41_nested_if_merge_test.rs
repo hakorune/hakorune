@@ -13,7 +13,7 @@ use crate::mir::join_ir_vm_bridge::run_joinir_via_vm;
 /// Phase 41-4.5: NestedIfMerge パスが有効化されることを確認
 ///
 /// dev flag HAKO_JOINIR_NESTED_IF=1 がある場合のみ、
-/// parse_loop 関数が NestedIfMerge 命令を生成することを確認する。
+/// `nested_if_merge` route key が NestedIfMerge 命令を生成することを確認する。
 #[test]
 fn phase41_nested_if_merge_path_activation() {
     // Dev flag がない場合はスキップ
@@ -28,7 +28,7 @@ fn phase41_nested_if_merge_path_activation() {
     // 2レベルのネスト if: if a > 0 { if b > 0 { result = 42 } }; return result
     let program_json = serde_json::json!({
         "defs": [{
-            "name": "parse_loop",
+            "name": "nested_if_merge",
             "params": ["a", "b"],
             "body": {
                 "body": [
@@ -83,7 +83,7 @@ fn phase41_nested_if_merge_path_activation() {
 
     assert!(
         nested_if_merge_count > 0,
-        "[Phase 41-4.5] NestedIfMerge instruction not found in parse_loop. \
+        "[Phase 41-4.5] NestedIfMerge instruction not found in nested_if_merge. \
          Expected at least 1, found {}",
         nested_if_merge_count
     );
@@ -112,7 +112,7 @@ fn phase41_nested_if_merge_route_b_execution() {
     // 2レベルのネスト if
     let program_json = serde_json::json!({
         "defs": [{
-            "name": "parse_loop",
+            "name": "nested_if_merge",
             "params": ["a", "b"],
             "body": {
                 "body": [
@@ -197,7 +197,7 @@ fn phase41_nested_if_merge_route_b_execution() {
 /// 実行結果が一致することを確認する。
 ///
 /// 注意: このテストは現時点では Route B の実行結果のみを確認する。
-/// Route A との完全な比較は、parse_loop が本番パイプラインに統合された後に行う。
+/// Route A との完全な比較は、nested_if_merge route が本番パイプラインに統合された後に行う。
 #[test]
 fn phase41_nested_if_merge_route_ab_comparison() {
     // Dev flag がない場合はスキップ
@@ -209,10 +209,10 @@ fn phase41_nested_if_merge_route_ab_comparison() {
         return;
     }
 
-    // Route B の実行結果を確認（Route A は parse_loop 統合後に比較予定）
+    // Route B の実行結果を確認（Route A は nested_if_merge 統合後に比較予定）
     let program_json = serde_json::json!({
         "defs": [{
-            "name": "parse_loop",
+            "name": "nested_if_merge",
             "params": ["a", "b"],
             "body": {
                 "body": [

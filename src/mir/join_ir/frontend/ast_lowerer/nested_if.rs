@@ -1,4 +1,4 @@
-//! Phase P5/41-4: Nested If パターン lowering
+//! Phase P5/41-4: nested_if_merge route lowering
 //!
 //! ## 責務（1行で表現）
 //! **深いネスト if（3-4レベル）を NestedIfMerge 命令に落とす**
@@ -24,12 +24,13 @@ use super::{AstToJoinIrLowerer, ExtractCtx, JoinFunction, JoinInst, JoinModule};
 use crate::mir::join_ir::JoinIrPhase;
 
 impl AstToJoinIrLowerer {
-    /// Phase 41-4.2: ネスト if 形の lowering
+    /// Phase 41-4.2: nested_if_merge 形の lowering
     ///
     /// # Purpose
     ///
     /// 深いネスト if（3-4レベル）を `NestedIfMerge` 命令に変換する。
-    /// 対象: `ParserControlBox.parse_loop()` 関数
+    /// Current dev key: `nested_if_merge` (`parse_loop` is a retired route token).
+    /// Source shape example: `ParserControlBox.parse_loop()`
     ///
     /// # Shape
     ///
@@ -159,7 +160,7 @@ impl AstToJoinIrLowerer {
         } else {
             // パターンがマッチしない場合は panic（dev フラグ ON の時のみ到達）
             panic!(
-                "lower_nested_if_pattern: No nested if pattern found in parse_loop. \
+                "lower_nested_if_pattern: No nested if pattern found in nested_if_merge route. \
                  Expected 2-4 level nested if structure."
             );
         }

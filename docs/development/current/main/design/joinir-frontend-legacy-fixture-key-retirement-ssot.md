@@ -51,13 +51,16 @@ Canonical key groups:
 | --- | --- | --- | --- |
 | current runtime keep | `test`, `local`, `_read_value_from_pair`, `simple` | repo-local current caller / current runtime examplesあり | keep |
 | retired Program JSON compat key | `filter`, `print_tokens`, `map`, `reduce`, `fold` | repo-local Program JSON caller 0 / explicit reject test added | retired from `route.rs`; AST/frontend route-family support stays elsewhere |
-| historical docs/private caller only | `jsonparser_skip_ws_mini`, `jsonparser_skip_ws_real`, `jsonparser_atoi_mini`, `jsonparser_atoi_real`, `jsonparser_parse_number_real` | repo-local caller は `docs/private/roadmap2/phases/normalized_dev/fixtures/*.program.json` のみ | `docs/private` replay / historical lane が不要になったら retire |
-| dev-gated compat key | `parse_loop`, `read_quoted_from` | dev env guard 下だけで受理 | dev caller 0 と env gate closeout のあと retire |
+| retired historical docs/private-only key | `jsonparser_skip_ws_mini`, `jsonparser_skip_ws_real`, `jsonparser_atoi_mini`, `jsonparser_atoi_real`, `jsonparser_parse_number_real` | repo-local current caller 0 / docs-private historical fixture only | retired from `route.rs`; docs/private replay lane is historical-only |
+| current dev key | `nested_if_merge`, `read_quoted` | repo-local current tests / dev fixtures が current lane として利用 | keep while dev-gated route lane is active |
+| retired dev-gated compat key | `parse_loop`, `read_quoted_from` | repo-local Program JSON caller 0 / explicit reject test added | retired from `route.rs`; source/app method symbol usage is unrelated |
 
 Audit notes:
 - repo-local Program JSON caller audit では `map` / `filter` / `print_tokens` / `reduce` / `fold` の current `.program.json` caller は 0。Phase 29ce で `route.rs` allowlist から削除し、reject test へ移した。
-- `jsonparser_*` keys は current runtime lane ではなく `docs/private` historical fixture lane に寄っている。
-- `parse_loop` は `docs/private/roadmap2/phases/phase-41-if-phi-level3/fixtures/nested_if_merge_simple.program.json` で historical/dev fixture caller を持つ。
+- `jsonparser_*` keys は repo-local current caller 0 を確認できたため、Phase 29ce で `route.rs` から retire 済み。残る caller は `docs/private` historical fixture lane のみ。
+- repo-local current tests/dev fixtures は `nested_if_merge` / `read_quoted` を current dev key として使う。
+- `parse_loop` は `docs/private/roadmap2/phases/phase-41-if-phi-level3/fixtures/nested_if_merge_simple.program.json` に historical/dev fixture caller が残るが、repo-local current Program JSON caller は 0 のため retire 済み。
+- `read_quoted_from` は route token としての repo-local current caller が 0 だったため retire 済み。`apps/**` / `apps/libs/**` の `read_quoted_from` は language/app symbol usage であり、Program JSON route key とは別契約。
 
 Code anchors:
 - `src/mir/join_ir/frontend/ast_lowerer/mod.rs`

@@ -19,39 +19,36 @@ pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, S
         ("local", FunctionRoute::IfReturn),
         ("_read_value_from_pair", FunctionRoute::IfReturn),
         ("simple", FunctionRoute::LoopFrontend),
-        ("jsonparser_skip_ws_mini", FunctionRoute::LoopFrontend),
-        ("jsonparser_skip_ws_real", FunctionRoute::LoopFrontend),
-        ("jsonparser_atoi_mini", FunctionRoute::LoopFrontend),
-        ("jsonparser_atoi_real", FunctionRoute::LoopFrontend),
-        ("jsonparser_parse_number_real", FunctionRoute::LoopFrontend),
     ];
+    const NESTED_IF_KEYS: &[&str] = &["nested_if_merge"];
+    const READ_QUOTED_KEYS: &[&str] = &["read_quoted"];
 
     if let Some((_, route)) = TABLE.iter().find(|(name, _)| *name == func_name) {
         return Ok(*route);
     }
 
-    if func_name == "parse_loop" {
+    if NESTED_IF_KEYS.contains(&func_name) {
         if crate::config::env::joinir_dev_enabled()
             && crate::config::env::joinir_dev::nested_if_enabled()
         {
             return Ok(FunctionRoute::NestedIf);
         }
-        return Err(
-            "[joinir/frontend] 'parse_loop' requires HAKO_JOINIR_NESTED_IF=1 (dev only)"
-                .to_string(),
-        );
+        return Err(format!(
+            "[joinir/frontend] '{}' requires HAKO_JOINIR_NESTED_IF=1 (dev only; current key: nested_if_merge)",
+            func_name
+        ));
     }
 
-    if func_name == "read_quoted_from" {
+    if READ_QUOTED_KEYS.contains(&func_name) {
         if crate::config::env::joinir_dev_enabled()
             && crate::config::env::joinir_dev::read_quoted_enabled()
         {
             return Ok(FunctionRoute::ReadQuoted);
         }
-        return Err(
-            "[joinir/frontend] 'read_quoted_from' requires HAKO_JOINIR_READ_QUOTED=1 (dev only)"
-                .to_string(),
-        );
+        return Err(format!(
+            "[joinir/frontend] '{}' requires HAKO_JOINIR_READ_QUOTED=1 (dev only; current key: read_quoted)",
+            func_name
+        ));
     }
 
     Err(format!(
@@ -110,6 +107,64 @@ mod tests {
             assert!(
                 err.contains("unsupported function"),
                 "retired Program JSON key should fail via unsupported-function path: {name} => {err}"
+            );
+        }
+    }
+
+    #[test]
+    fn nested_if_dev_keys_fail_fast_without_env() {
+        for name in ["nested_if_merge"] {
+            let err = resolve_function_route(name).expect_err("dev-gated key must fail without env");
+            assert!(
+                err.contains("HAKO_JOINIR_NESTED_IF=1"),
+                "nested-if dev key should fail via env guard path: {name} => {err}"
+            );
+        }
+    }
+
+    #[test]
+    fn read_quoted_dev_keys_fail_fast_without_env() {
+        for name in ["read_quoted"] {
+            let err = resolve_function_route(name).expect_err("dev-gated key must fail without env");
+            assert!(
+                err.contains("HAKO_JOINIR_READ_QUOTED=1"),
+                "read_quoted dev key should fail via env guard path: {name} => {err}"
+            );
+        }
+    }
+
+    #[test]
+    fn retired_read_quoted_compat_key_is_rejected() {
+        let err =
+            resolve_function_route("read_quoted_from").expect_err("compat key must be retired");
+        assert!(
+            err.contains("unsupported function"),
+            "retired read_quoted compat key should fail via unsupported-function path: {err}"
+        );
+    }
+
+    #[test]
+    fn retired_parse_loop_compat_key_is_rejected() {
+        let err = resolve_function_route("parse_loop").expect_err("compat key must be retired");
+        assert!(
+            err.contains("unsupported function"),
+            "retired parse_loop compat key should fail via unsupported-function path: {err}"
+        );
+    }
+
+    #[test]
+    fn retired_historical_jsonparser_loop_frontend_keys_are_rejected() {
+        for name in [
+            "jsonparser_skip_ws_mini",
+            "jsonparser_skip_ws_real",
+            "jsonparser_atoi_mini",
+            "jsonparser_atoi_real",
+            "jsonparser_parse_number_real",
+        ] {
+            let err = resolve_function_route(name).expect_err("historical key must be retired");
+            assert!(
+                err.contains("unsupported function"),
+                "retired jsonparser historical key should fail via unsupported-function path: {name} => {err}"
             );
         }
     }
