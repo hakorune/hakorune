@@ -4,7 +4,7 @@ Scope: code+tests+docs（仕様不変）
 Related:
   - docs/development/current/main/phases/phase-29ao/README.md
   - tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh
-  - src/mir/builder/control_flow/joinir/patterns/router.rs
+  - src/mir/builder/control_flow/joinir/route_entry/router.rs
   - src/mir/builder/control_flow/plan/composer/shadow_adopt.rs
 ---
 
@@ -12,17 +12,17 @@ Related:
 
 Date: 2025-12-30  
 Status: Ready for execution  
-Goal: `router.rs` に散っている shadow adopt の分岐（Pattern1/2/3/5/6/7 の facts検証 + subset gate + tag 出力）を `plan/composer` 側の SSOT 入口に集約し、router を “呼ぶだけ” の薄い orchestrator に縮退する。挙動（strict/dev の fail-fast・タグ・ログ）は不変。
+Goal: `router.rs` に散っている shadow adopt の分岐（LoopSimpleWhile / LoopBreak / IfPhiJoin / LoopTrueEarlyExit / scan_with_init / split_scan の facts検証 + subset gate + tag 出力）を `plan/composer` 側の SSOT 入口に集約し、router を “呼ぶだけ” の薄い orchestrator に縮退する。挙動（strict/dev の fail-fast・タグ・ログ）は不変。
 
 ## 背景
 
 - P30 で Facts→CorePlan の入口自体は composer に集約できたが、router にはまだ
   - patternごとの `if strict_or_dev && matches!(...)` 連鎖
   - `facts missing/mismatch/compose rejected` のエラーパス
-  - subset gate（Pattern2/6 の `outcome.plan` 条件）
+  - subset gate（LoopBreak / scan_with_init の `outcome.plan` 条件）
   - タグ出力（P28/P29）
   が残っている。
-- ここが残ると、今後の拡張（Pattern4/8/9 や feature合成の導線追加）のたびに router が肥大化し、SSOT が分散する。
+- ここが残ると、今後の拡張（loop_continue_only / bool_predicate_scan / accum_const_loop や feature合成の導線追加）のたびに router が肥大化し、SSOT が分散する。
 
 ## 非目的
 
@@ -47,7 +47,7 @@ pub(in crate::mir::builder) struct ShadowAdoptOutcome {
 
 pub(in crate::mir::builder) fn try_shadow_adopt_core_plan(
     builder: &mut MirBuilder,
-    ctx: &LoopPatternContext,
+    ctx: &LoopRouteContext,
     strict_or_dev: bool,
     domain_plan: &DomainPlan,
     outcome: &PlanBuildOutcome,
@@ -56,14 +56,14 @@ pub(in crate::mir::builder) fn try_shadow_adopt_core_plan(
 
 責務:
 - strict/dev でしか shadow adopt しない（strict_or_dev=false なら常に Ok(None)）
-- Pattern2/6 の subset gate はここに集約（`outcome.plan` が planner 由来かどうかで判定）
+- LoopBreak / scan_with_init の subset gate はここに集約（`outcome.plan` が planner 由来かどうかで判定）
 - `facts missing/mismatch/compose rejected` の fail-fast をここに集約（メッセージは現状の router と一致させる）
 - 成功時に返す `tag` は既存タグをそのまま返す（出力は router 側で `eprintln!("{}", tag)` に統一）
 
 ### 2) router は “1回呼ぶだけ” に縮退
 
 対象:
-- `src/mir/builder/control_flow/joinir/patterns/router.rs`
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs`
 
 変更:
 - `if strict_or_dev { ... }` の pattern 連鎖を削除し、代わりに 1 箇所だけ:

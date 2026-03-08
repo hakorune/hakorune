@@ -8,16 +8,16 @@ Related:
   - docs/development/current/main/phases/phase-29ao/README.md
 ---
 
-# Phase 29ao P34: Pattern2 の誤マッチ防止（freeze / notapplicable で shadow adopt タグが出ないことを回帰で固定）
+# Phase 29ao P34: LoopBreak の誤マッチ防止（freeze / notapplicable で shadow adopt タグが出ないことを回帰で固定）
 
 Date: 2025-12-30  
 Status: Ready for execution  
-Goal: Phase 29ao P33 で Pattern2 の match 範囲を広げたので、**本来 Pattern2Break として planner 由来になってはいけないケース**でも
+Goal: Phase 29ao P33 で LoopBreak（historical label 2）の match 範囲を広げたので、**本来 LoopBreak として planner 由来になってはいけないケース**でも
 誤って shadow adopt してしまう退行を防ぐ。
 
-対象は `phase29ab_pattern2_` の negative ケース:
-- `phase29ab_pattern2_seg_notapplicable_min_vm`（NotApplicable）
-- `phase29ab_pattern2_seg_freeze_min_vm`（Freeze）
+対象は historical compat wrapper `phase29ab_pattern2_` に対応する negative ケース:
+- `phase29ab_pattern2_seg_notapplicable_min_vm`（historical compat wrapper / NotApplicable）
+- `phase29ab_pattern2_seg_freeze_min_vm`（historical compat wrapper / Freeze）
 
 これらで strict/dev 実行時に `[coreplan/shadow_adopt:pattern2_break_subset]` が出たら FAIL とする。
 
@@ -56,4 +56,3 @@ Goal: Phase 29ao P33 で Pattern2 の match 範囲を広げたので、**本来 
 
 - `git add -A`
 - `git commit -m "phase29ao(p34): prevent pattern2 shadow-adopt on negative cases"`
-

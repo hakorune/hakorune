@@ -1054,6 +1054,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - active phase README の current-looking numbered route residue は cleanup 完了
   - `phase-142` + `phase-143` の broad grep は **0 hits**
   - 残る old token は主に compat wrapper / legacy fixture key / archive stem / debug token の inventory/evidence lane
+  - instruction-doc cleanup (2026-03-08, slice 191): `phase-29ao/P17/P18/P30/P31/P34/P36/P40` を current semantic route family / current live path first に整理した
+    - synced files: `docs/development/current/main/phases/phase-29ao/{P17-COMPOSER-PATTERN1-STRICT-SHADOW-INSTRUCTIONS.md,P18-SINGLE_PLANNER-OUTCOME-PLUMBING-INSTRUCTIONS.md,P30-MOVE-SHADOW-ADOPT-COMPOSER-SSOT-INSTRUCTIONS.md,P31-REFactor-SHADOW-ADOPT-ROUTER-TO-COMPOSER-SSOT-INSTRUCTIONS.md,P34-PATTERN2-NEGATIVE-SHADOW-ADOPT-TAG-GATES-INSTRUCTIONS.md,P36-RELEASE-ADOPT-PATTERN1-COREPLAN-SKELETON-PILOT-INSTRUCTIONS.md,P40-RELEASE-ADOPT-PATTERN3-IFPHI-SUBSET-INSTRUCTIONS.md}` / `CURRENT_TASK.md`
+    - intent: active instruction docs では `LoopSimpleWhile` / `IfPhiJoin` / `LoopBreak` / `route_entry/router.rs` / `single_planner::try_build_outcome()` / current semantic fixture alias を前面に置き、`Pattern1/3` / `joinir/patterns/router.rs` / old replay basename は historical token lane に後退させる
+    - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 
 ## Quick Restart (After Reboot)
 
