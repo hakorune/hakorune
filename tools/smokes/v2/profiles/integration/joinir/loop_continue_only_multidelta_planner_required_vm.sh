@@ -6,7 +6,7 @@ source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/joinir_planner_first_gate.sh"
 require_env || exit 2
 
-FIXTURE="$NYASH_ROOT/apps/tests/phase29bq_pattern4continue_multidelta_min.hako"
+FIXTURE="$NYASH_ROOT/apps/tests/loop_continue_only_multidelta_min.hako"
 RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 SCRIPT_STEM="${LEGACY_STEM_OVERRIDE:-loop_continue_only_multidelta_planner_required_vm}"
 expected=$(cat << 'TXT'

@@ -33,12 +33,21 @@ tokens that still act as traceability pins.
   - fixture filename or case id kept for traceability, gate pinning, or command examples.
 - `legacy selfhost test stem`
   - selfhost-side test filename stem kept only for traceability.
+- `semantic fixture alias`
+  - preferred current fixture basename for active gate/selfhost guidance.
 
 ## Active pins
 
 | Legacy pin token | Current route semantics | Pin category |
 | --- | --- | --- |
-| `phase118_pattern3_if_sum_min.hako` | `if_phi_join` | legacy fixture key |
+| `phase118_pattern3_if_sum_min.hako` | `if_phi_join` | legacy fixture pin token |
+| `if_phi_join_min.hako` | `if_phi_join` | semantic fixture alias |
+| `loop_true_early_exit_min.hako` | `loop_true_early_exit` | semantic fixture alias |
+| `bool_predicate_scan_frag_min.hako` | `bool_predicate_scan` | semantic fixture alias |
+| `accum_const_loop_frag_poc.hako` | `accum_const_loop` | semantic fixture alias |
+| `loop_continue_only_multidelta_min.hako` | `loop_continue_only multi-delta` | semantic fixture alias |
+| `loop_break_recipe_only_min.hako` | `loop_break recipe-only` | semantic fixture alias |
+| `loop_simple_while_inline_explicit_step_min.hako` | `loop_simple_while explicit-step` | semantic fixture alias |
 | `phase29bq_pattern1_inline_explicit_step_min.hako` | `loop_simple_while explicit-step` | legacy fixture pin token |
 | `pattern1_inline_explicit_step_min` | `loop_simple_while explicit-step` | legacy fixture pin token |
 | `phase29ab_pattern6_*` | `scan_with_init` | legacy fixture pin token |
@@ -64,7 +73,6 @@ or caller-migration phase.
 
 | Token | Why still live |
 | --- | --- |
-| `phase118_pattern3_if_sum_min.hako` | selfhost planner-required subset row is still pinned to this fixture basename |
 | `SMOKES_SELFHOST_FILTER=<substring>` matches on fixture/reason/planner_tag | selfhost gate contract is substring-based, so pinned fixture stems may still be used operationally |
 | Program JSON by-name keys in `src/mir/join_ir/frontend/ast_lowerer/route.rs` | frontend allowlist remains a live entry contract; legacy retired aliases are handled separately |
 
@@ -72,7 +80,6 @@ or caller-migration phase.
 
 | Token / lane | Retirement precondition |
 | --- | --- |
-| `phase118_pattern3_if_sum_min.hako` selfhost subset row | a semantic fixture basename or explicit alias row replaces the subset pin, and selfhost operational docs stop using the legacy basename |
 | `SMOKES_SELFHOST_FILTER=<substring>` exact legacy token examples | all active how-to/checklist examples have semantic route substrings or semantic fixture names, and exact legacy token examples are inventory-only |
 | current Program JSON by-name keys in `route.rs` | repo-local active callers are non-historical and require the key; otherwise retire via alias-first or direct reject lane |
 
@@ -83,18 +90,24 @@ guidance.
 
 | Token family | Why inventory-only |
 | --- | --- |
+| `phase118_pattern3_if_sum_min.hako` | historical selfhost/joinir fixture basename; current gates/selfhost subset now pin `if_phi_join_min.hako` |
 | `phase29bq_pattern1_inline_explicit_step_min.hako` / `pattern1_inline_explicit_step_min` | runtime/gate pin for explicit-step fixture; say `loop_simple_while explicit-step` in prose |
 | `phase29bq_pattern4continue_multidelta_min.hako` / `p4_multidelta` | planner-required multi-delta fixture pin; say `loop_continue_only multi-delta` in prose |
 | `phase29ab_pattern6_*` / `phase29ab_pattern7_*` | route-family fixture pin tokens for scan regressions; current docs should say `scan_with_init` / `split_scan` |
 | `phase263_pattern2_seg_realworld_min.hako` / `phase286_pattern5_break_min.hako` / `phase269_p0_pattern8_frag_min.hako` / `phase286_pattern9_frag_poc.hako` | historical coverage pins kept for replay and gate traceability |
+| semantic fixture aliases such as `if_phi_join_min.hako` / `loop_true_early_exit_min.hako` / `bool_predicate_scan_frag_min.hako` / `accum_const_loop_frag_poc.hako` / `loop_continue_only_multidelta_min.hako` / `loop_break_recipe_only_min.hako` / `loop_simple_while_inline_explicit_step_min.hako` | preferred current gate/selfhost entry names; old basenames are now historical pin tokens only |
 
 ## Usage
 
 - In active docs:
   - say `scan_with_init`, not `pattern6`
   - say `split_scan`, not `pattern7`
-  - say `if_phi_join`, not `phase118_pattern3_if_sum_min`
-  - say `loop_break recipe-only`, not `phase29bq_pattern2_break_recipe_only_min`
-  - say `loop_continue_only multi-delta`, not `phase29bq_pattern4continue_multidelta_min` / `p4_multidelta`
+  - say `if_phi_join`, and use `if_phi_join_min.hako` when an exact current fixture basename matters
+  - say `loop_true_early_exit`, and use `loop_true_early_exit_min.hako` when an exact current fixture basename matters
+  - say `bool_predicate_scan`, and use `bool_predicate_scan_frag_min.hako` when an exact current fixture basename matters
+  - say `accum_const_loop`, and use `accum_const_loop_frag_poc.hako` when an exact current fixture basename matters
+  - say `loop_break recipe-only`, and use `loop_break_recipe_only_min.hako` when an exact current fixture basename matters
+  - say `loop_continue_only multi-delta`, and use `loop_continue_only_multidelta_min.hako` when an exact current fixture basename matters
+  - say `loop_simple_while explicit-step`, and use `loop_simple_while_inline_explicit_step_min.hako` when an exact current fixture basename matters
 - When the filename itself matters for a command or grep, label it explicitly as
-  `legacy fixture key`, `legacy fixture pin token`, or `legacy selfhost test stem`.
+  `semantic fixture alias`, `legacy fixture key`, `legacy fixture pin token`, or `legacy selfhost test stem`.

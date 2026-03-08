@@ -1,4 +1,3 @@
 # fixture	expected	allow_rc	planner_tag
-apps/tests/phase269_p0_pattern8_frag_min.hako	__EMPTY__	0 7	[joinir/planner_first rule=BoolPredicateScan] label=BoolPredicateScan
-apps/tests/phase286_pattern9_frag_poc.hako	__EMPTY__	0 3	[joinir/planner_first rule=AccumConstLoop] label=AccumConstLoop
-
+apps/tests/bool_predicate_scan_frag_min.hako	__EMPTY__	0 7	[joinir/planner_first rule=BoolPredicateScan] label=BoolPredicateScan
+apps/tests/accum_const_loop_frag_poc.hako	__EMPTY__	0 3	[joinir/planner_first rule=AccumConstLoop] label=AccumConstLoop

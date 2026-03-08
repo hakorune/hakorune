@@ -5,5 +5,5 @@
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
-test_skip "phase286_pattern9_legacy_pack" "phase286_pattern9_frag_poc uses plugins disabled path; provider expectations mismatch"
+test_skip "phase286_pattern9_legacy_pack" "accum_const_loop legacy pack uses plugins-disabled path; provider expectations mismatch"
 exit 0

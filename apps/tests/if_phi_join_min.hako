@@ -1,0 +1,21 @@
+// Semantic fixture alias for the minimal if_phi_join route.
+// Expected output: 12 (numeric line).
+
+static box Main {
+    main() {
+        local sum = 10
+        local i = 0
+
+        loop(i < 3) {
+            if i > 0 {
+                sum = sum + 1
+            } else {
+                sum = sum + 0
+            }
+            i = i + 1
+        }
+
+        print(sum)
+        return 0
+    }
+}

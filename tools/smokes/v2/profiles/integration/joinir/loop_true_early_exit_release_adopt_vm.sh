@@ -11,7 +11,7 @@ if [ -n "$LEGACY_STEM" ]; then
     LABEL_PREFIX="${SEMANTIC_STEM} (legacy stem ${LEGACY_STEM})"
 fi
 
-FIXTURE="$NYASH_ROOT/apps/tests/phase286_pattern5_break_min.hako"
+FIXTURE="$NYASH_ROOT/apps/tests/loop_true_early_exit_min.hako"
 RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 
 set +e

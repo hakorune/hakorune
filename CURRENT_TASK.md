@@ -970,12 +970,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `docs/development/current/main/phases/phase-29ae/README.md` / `docs/development/current/main/design/flowbox-tag-coverage-map-ssot.md`
     - intent: `loop_break_plan_subset_vm` / `loop_break_realworld_vm` / `loop_break_body_local_vm` / `loop_break_body_local_seg_vm` / `if_phi_join_vm` / `loop_true_early_exit_vm` は archive replay stem を背負った current wrapper なので、単純に caller 0 を待つのではなく、先に `semantic-body promotion` か `historical replay / archive-only demotion` のどちらへ進むかを決める。retire はその後の caller inventory で行う
     - verification: `git diff --check` PASS; `rg -n "caller 0|semantic-body promotion|archive-only demotion|archive-fixed keep" docs/development/current/main/{design/joinir-smoke-legacy-stem-retirement-ssot.md,design/flowbox-tag-coverage-map-ssot.md,phases/phase-29ae/README.md}` = expected hits only
+  - compat cleanup (2026-03-08, slice 184): current joinir gate/selfhost single-fixture pinsを semantic fixture alias へ寄せ、old basename を inventory/historical lane へ後退させた
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` / `apps/tests/{if_phi_join_min,loop_true_early_exit_min,bool_predicate_scan_frag_min,accum_const_loop_frag_poc,loop_continue_only_multidelta_min,loop_break_recipe_only_min,loop_simple_while_inline_explicit_step_min}.hako` / `tools/smokes/v2/profiles/integration/joinir/{if_phi_join_release_adopt_vm,loop_true_early_exit_release_adopt_vm,loop_true_early_exit_strict_shadow_vm,loop_continue_only_multidelta_planner_required_vm,phase29as_purity_gate_vm,phase29av_flowbox_tags_gate_vm,phase286_pattern9_legacy_pack}.sh` / `tools/smokes/v2/profiles/integration/joinir/{phase29bn_planner_required_pattern3_cases,phase29bl_planner_required_pattern1_4_5_cases,phase29bo_planner_required_pattern8_9_cases,planner_required_cases,phase29bq_fast_gate_cases}.tsv` / `tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv`
+    - intent: active gate/selfhost の exact fixture basename は `if_phi_join_min.hako` / `loop_true_early_exit_min.hako` / `bool_predicate_scan_frag_min.hako` / `accum_const_loop_frag_poc.hako` / `loop_continue_only_multidelta_min.hako` / `loop_break_recipe_only_min.hako` / `loop_simple_while_inline_explicit_step_min.hako` を current entry として使い、`phase118_pattern3_if_sum_min.hako` などの旧 basename は `legacy fixture pin token` へ後退させる
+    - verification: `git diff --check` PASS; `rg -n "phase118_pattern3_if_sum_min|phase286_pattern5_break_min|phase269_p0_pattern8_frag_min|phase286_pattern9_frag_poc|phase29bq_pattern4continue_multidelta_min|phase29bq_pattern2_break_recipe_only_min|phase29bq_pattern1_inline_explicit_step_min" tools/smokes/v2/profiles/integration/joinir tools/smokes/v2/profiles/integration/selfhost -g '!**/archive/**'` = `0 hit`; `bash tools/smokes/v2/profiles/integration/joinir/if_phi_join_release_adopt_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_strict_shadow_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/loop_continue_only_multidelta_planner_required_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS; `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
 2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は `archive-fixed keep` だが、次手は `caller 0` だけではない。wrapper ごとに `semantic-body promotion` か `historical replay / archive-only demotion` を先に決め、その後 caller inventory で retire/collapse 条件を詰める。
-3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。historical normalized-dev / selfhost prototype key は retire 済みなので、次は selfhost subset pin の alias-first retire 条件を詰める。
+3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。historical normalized-dev / selfhost prototype key は retire 済みで、single-fixture gate/selfhost pin は semantic alias 化済みなので、次は `SMOKES_SELFHOST_FILTER` exact legacy examples と subset alias-first retire 条件を詰める。
 4. `dust` cleanup: warnings / orphan helper / dead code を刈る（現状 `cargo check --tests` は warning なし）。low-ref wrapper/manual probe の役割注記は固定済み。
 5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
@@ -1003,10 +1007,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - live compat contract lane:
   - current broad residue is intentionally small and explicit:
     - selfhost filter contract: `SMOKES_SELFHOST_FILTER=<substring>` in `phase29bq_selfhost_planner_required_dev_gate_vm.sh`
-    - selfhost subset row pin: `apps/tests/phase118_pattern3_if_sum_min.hako`
+    - selfhost subset row current pin: `apps/tests/if_phi_join_min.hako`
+    - historical subset basename pin: `apps/tests/phase118_pattern3_if_sum_min.hako` (inventory-only)
     - by-name route allowlist residue: `src/mir/join_ir/frontend/ast_lowerer/route.rs` (historical normalized-dev / selfhost prototype keys are retired; remaining table is current-entry semantic-first)
-  - status: `legacy fixture key` と `legacy fixture pin token` の docs/gate 読み分けは整理済み
-  - next step: selfhost subset pin と exact filter examplesで still-live token が caller 0 になった時の alias-first retire 条件を切る
+  - status: `legacy fixture key` / `legacy fixture pin token` / `semantic fixture alias` の docs/gate 読み分けは整理済み
+  - next step: selfhost subset alias row と exact filter examplesで still-live token が caller 0 になった時の alias-first retire 条件を切る
 - code-side residue:
   - `src/**` の loop-route `PatternN` residue は broad grep で rejection-test / intentional historical token が中心
   - current runtime by-name allowlist は active Program JSON entrypoint のみ

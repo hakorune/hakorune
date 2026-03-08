@@ -45,8 +45,8 @@ assert_flowbox_adopt() {
 }
 
 run_if_phi_join() {
-    # still-live legacy fixture key for the if_phi_join purity gate lane
-    local input="$NYASH_ROOT/apps/tests/phase118_pattern3_if_sum_min.hako"
+    # semantic fixture alias for the if_phi_join purity gate lane
+    local input="$NYASH_ROOT/apps/tests/if_phi_join_min.hako"
     local expected="12"
 
     set +e

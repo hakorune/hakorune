@@ -15,8 +15,8 @@ fi
 
 RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
 
-# still-live legacy fixture key for the if_phi_join release-adopt route
-INPUT="$NYASH_ROOT/apps/tests/phase118_pattern3_if_sum_min.hako"
+# semantic fixture alias for the if_phi_join release-adopt route
+INPUT="$NYASH_ROOT/apps/tests/if_phi_join_min.hako"
 EXPECTED="12"
 
 set +e

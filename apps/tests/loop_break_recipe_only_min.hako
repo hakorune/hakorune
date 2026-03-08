@@ -1,0 +1,17 @@
+// Semantic fixture alias for the minimal loop_break recipe-only gate.
+// Expected: recipe-first compose (not legacy planner payload).
+static box Main {
+    main() {
+        local i = 0
+        local sum = 0
+
+        loop(i < 10) {
+            i = i + 1
+            if i >= 3 { break }
+            sum = sum + 1
+        }
+
+        print(sum)
+        return 0
+    }
+}

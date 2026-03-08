@@ -34,8 +34,8 @@ assert_no_flowbox_tags() {
 }
 
 run_if_phi_join_strict() {
-    # still-live legacy fixture key kept for if_phi_join flowbox-tag coverage
-    local input="$NYASH_ROOT/apps/tests/phase118_pattern3_if_sum_min.hako"
+    # semantic fixture alias kept for if_phi_join flowbox-tag coverage
+    local input="$NYASH_ROOT/apps/tests/if_phi_join_min.hako"
     local expected="12"
 
     set +e
