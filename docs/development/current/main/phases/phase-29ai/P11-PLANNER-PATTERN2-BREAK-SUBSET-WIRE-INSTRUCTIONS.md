@@ -7,7 +7,7 @@ Goal: 「入口は一本（Facts→Planner→historical plan payload）」を維
 
 Historical note:
 - `DomainPlan::Pattern2Break`, `pattern2_break_facts.rs`, `phase29ai_pattern2_break_plan_subset_ok_min`
-  は P11 実行時の payload / file / fixture token だよ。
+  は P11 実行時の historical payload / file / fixture token だよ。
 - current runtime では semantic vocabulary を使い、facts 側は `LoopBreakFacts`,
   `loop_break`, `loop_break_body_local` に揃っているよ。
 - current semantic wrapper / fixture alias:
@@ -66,7 +66,7 @@ Current semantic outcome:
 - `carrier_update_in_body`（AST clone）
 - `loop_increment`（AST clone）
 
-### Step 2: planner で loop_break candidate を生成（historical payload: `DomainPlan::Pattern2Break`）
+### Step 2: planner で loop_break candidate を生成（historical payload token: `DomainPlan::Pattern2Break`）
 
 ファイル:
 - `src/mir/builder/control_flow/plan/planner/mod.rs`
