@@ -151,6 +151,7 @@ Related:
 
 - [x] `DCF-01` `VM fallback compat lane` follow-up moved to `phase-29cf`
 - [x] `DCF-02` `bootstrap boundary reduction` follow-up moved to `phase-29cf`
+- [x] `DCF-03` `Stage2 bootstrap reduction execution lane` moved to `phase-29cg`
 - note: `phase-29cf` は `phase-29cc` closeout を取り消さず、post-closeout inventory / keep / future-retire target を accepted monitor-only で独立管理する
 
 ## 4) Recommended execution order

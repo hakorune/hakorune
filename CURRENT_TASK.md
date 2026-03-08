@@ -44,9 +44,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `docs/development/current/main/phases/phase-29ce/README.md`
     - `docs/development/current/main/phases/phase-29cf/README.md`
     - `docs/development/current/main/phases/phase-29cf/29cf-10-vm-fallback-bootstrap-retirement-checklist.md`
+    - `docs/development/current/main/phases/phase-29cg/README.md`
   - current follow-up:
     - `phase-29ce / accepted`
     - `phase-29cf / accepted monitor-only`
+    - `phase-29cg / accepted planning`
     - `VM fallback compat lane: explicit compat keep`
     - `bootstrap boundary reduction: future-wave target`
 - perf lane: `phase-21.5 / monitor-only`
@@ -63,7 +65,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - selfhost mainline next:
   - return to de-rust selfhost feature work
   - treat `compat-fallback` as explicit compat keep, not as current workstream
-  - treat Stage2 default bootstrap dependency as future-wave reduction target
+  - treat Stage2 default bootstrap dependency as `phase-29cg` dedicated reduction target
   - `phase-29cf` deep inventory fixed:
     - live fallback callers are now bucketed as `implementation keep` / `stage-a compat keep` / `route authority probe keep` / `done-sync keep` / `current diagnostics keep` / `plugin test keep` / `historical`
     - bootstrap owners are now bucketed as `current keep` / `compat keep` / `bootstrap keep` / `future retire target`
@@ -127,6 +129,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. `phase-29cf` は monitor-only の follow-up lane として維持する
 3. `phase-29cc` / `phase-29ce` は reopen 条件が出た時だけ failure-driven で再開する
 4. `docs/private` は separate repo の optional follow-up として扱う
+5. Stage2 bootstrap reduction planning is owned by `phase-29cg`
 
 ## Slice Log (latest)
 
@@ -1296,6 +1299,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{design/selfhost-bootstrap-route-ssot.md,phases/phase-29cf/{README.md,P0-VM-FALLBACK-AND-BOOTSTRAP-BOUNDARY-INVENTORY.md,29cf-10-vm-fallback-bootstrap-retirement-checklist.md}}`
     - intent: 観測プローブ・strict/dev 優先検証・non-strict compat 境界検証を分離し、次の retire 判断を 1本ずつ切れるようにする
     - verification: `git diff --check` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
+  - de-rust Stage2 bootstrap reduction planning (2026-03-09, slice 239): `phase-29cg` を追加し、`stage1-cli artifact is emit-route entry only; using default bootstrap for Stage2 build` を next concrete reduction target として独立管理する
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{design/selfhost-bootstrap-route-ssot.md,phases/phase-29cc/29cc-260-derust-task-checklist.md,phases/phase-29cg/{README.md,P0-STAGE2-BOOTSTRAP-REDUCTION-INVENTORY.md,29cg-10-stage2-bootstrap-reduction-checklist.md}}`
+    - intent: `phase-29cf` の inventory lane と、次に実際に削減する Stage2 bootstrap dependency lane を分離し、1 blocker = 1 phase で進められるようにする
 
 ## Quick Restart (After Reboot)
 

@@ -33,6 +33,7 @@ SSOT:
 
 - mainline selfhost route は `stage1` / semantic wrapper / no-fallback を正本とする
 - `phase-29cf` が `VM fallback compat lane` と `bootstrap boundary reduction` を accepted monitor-only で独立管理する
+- `phase-29cg` が `stage1-cli` 時の Stage2 default-bootstrap dependency reduction を docs-first で管理する
 - `compat-fallback` は explicit compat keep であり、current caller authority は `phase29x_vm_route_non_strict_compat_boundary_vm.sh` / `phase29x_vm_route_observability_vm.sh` / `phase29x_vm_route_strict_dev_priority_vm.sh` に限定する
 - 上の3本はさらに `route observability keep` / `strict-dev priority keep` / `non-strict compat boundary keep` に分けて扱い、generic monitor-only probe と混同しない
 - `phase29x_derust_strict_default_route_vm.sh` は de-rust done-sync keep、`route_env_probe.sh` は current diagnostics keep、plugin route-resolver test は plugin test keep として別 bucket で管理する
