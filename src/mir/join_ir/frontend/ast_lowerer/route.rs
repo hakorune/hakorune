@@ -19,11 +19,6 @@ pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, S
         ("local", FunctionRoute::IfReturn),
         ("_read_value_from_pair", FunctionRoute::IfReturn),
         ("simple", FunctionRoute::LoopFrontend),
-        ("filter", FunctionRoute::LoopFrontend),
-        ("print_tokens", FunctionRoute::LoopFrontend),
-        ("map", FunctionRoute::LoopFrontend),
-        ("reduce", FunctionRoute::LoopFrontend),
-        ("fold", FunctionRoute::LoopFrontend),
         ("jsonparser_skip_ws_mini", FunctionRoute::LoopFrontend),
         ("jsonparser_skip_ws_real", FunctionRoute::LoopFrontend),
         ("jsonparser_atoi_mini", FunctionRoute::LoopFrontend),
@@ -104,6 +99,17 @@ mod tests {
             assert!(
                 err.contains("unsupported function"),
                 "retired selfhost key should fail via unsupported-function path: {name} => {err}"
+            );
+        }
+    }
+
+    #[test]
+    fn retired_program_json_loop_frontend_compat_keys_are_rejected() {
+        for name in ["filter", "print_tokens", "map", "reduce", "fold"] {
+            let err = resolve_function_route(name).expect_err("compat key must be retired");
+            assert!(
+                err.contains("unsupported function"),
+                "retired Program JSON key should fail via unsupported-function path: {name} => {err}"
             );
         }
     }

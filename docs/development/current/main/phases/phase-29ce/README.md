@@ -33,7 +33,7 @@ current semantic wrapper / semantic fixture alias / semantic route substring を
    - exact historical basename は inventory-only に寄せる
 2. Program JSON by-name fixture key
    - live key / retired key / inventory-only key を分ける
-   - `current runtime keep` / `low-risk retire candidate` / `historical docs-private caller only` /
+   - `current runtime keep` / `retired Program JSON compat key` / `historical docs-private caller only` /
      `dev-gated compat key` の bucket を固定する
 3. semantic fixture alias
    - active docs / gate / selfhost subset の先頭に置く

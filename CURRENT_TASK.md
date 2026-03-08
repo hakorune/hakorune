@@ -1153,6 +1153,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{design/joinir-frontend-legacy-fixture-key-retirement-ssot.md,phases/phase-29ce/{README.md,P0-LIVE-COMPAT-RETIREMENT-INSTRUCTIONS.md}}`
     - intent: `route.rs` の current active key と future retire 候補を混ぜて読まないようにし、`map/filter/print_tokens/reduce/fold` の repo-local caller 0 bucket、`jsonparser_*` の docs/private historical bucket、`parse_loop/read_quoted_from` の dev-gated bucket を明示する
     - verification: `git diff --check` PASS / repo-local Program JSON caller audit: `map/filter/print_tokens/reduce/fold` = 0, `jsonparser_*` = `docs/private/roadmap2/phases/normalized_dev/fixtures/*.program.json`, `parse_loop` = historical/dev fixture only / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
+  - live compat retirement (2026-03-08, slice 215): `route.rs` の repo-local caller 0 な Program JSON compat key (`filter` / `print_tokens` / `map` / `reduce` / `fold`) を allowlist から retire し、reject test と SSOT bucket を同期した
+    - synced files: `CURRENT_TASK.md` / `src/mir/join_ir/frontend/ast_lowerer/route.rs` / `docs/development/current/main/{design/joinir-frontend-legacy-fixture-key-retirement-ssot.md,phases/phase-29ce/{README.md,P0-LIVE-COMPAT-RETIREMENT-INSTRUCTIONS.md}}`
+    - intent: AST/frontend route-family support (`loop_frontend_binding.rs`) は維持したまま、Program JSON by-name allowlist だけを current keep set に収束させる。repo-local `.program.json` caller 0 の `filter/print_tokens/map/reduce/fold` は live compat token から外し、explicit reject test に移す
+    - verification: repo-local Program JSON caller audit: `map/filter/print_tokens/reduce/fold` = 0 / `cargo check --tests` PASS / `cargo test --lib retired_program_json_loop_frontend_compat_keys_are_rejected` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## Quick Restart (After Reboot)
 
