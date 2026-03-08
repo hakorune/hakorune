@@ -942,6 +942,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29ae/README.md` / `docs/development/current/main/design/{flowbox-tag-coverage-map-ssot,coreplan-shadow-adopt-tag-coverage-ssot}.md`
     - intent: `loop_break_plan_subset_vm` / `loop_break_realworld_vm` / `if_phi_join_vm` / `loop_true_early_exit_vm` は regression-pack keep、`loop_break_body_local_vm` / `loop_break_body_local_seg_vm` は coverage-only keep と読めるようにして、archive replay lane の caller/retire 条件を次 slice で詰めやすくする
     - verification: `git diff --check` PASS; `rg -n "regression-pack archive-fixed keep|coverage-only archive-fixed keep" docs/development/current/main/{phases/phase-29ae/README.md,design/flowbox-tag-coverage-map-ssot.md,design/coreplan-shadow-adopt-tag-coverage-ssot.md}` = expected hits only; `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - docs cleanup (2026-03-08, slice 177): active/historical instruction docs の exact compat token を inventory pointer に寄せた
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/coreloop-stepmode-inline-in-body-ssot.md` / `docs/development/current/main/phases/{phase-286/P2.6.1-INSTRUCTIONS.md,phase-29ao/P40-RELEASE-ADOPT-PATTERN3-IFPHI-SUBSET-INSTRUCTIONS.md}`
+    - intent: exact legacy fixture key / gate token / legacy tag suffix token を active本文に埋め込まず、semantic route name と inventory/coverage SSOT への pointer を先頭に出す。historical instruction lane でも exact token は必要時だけ inventory 側で引ける形にする
+    - verification: `git diff --check` PASS; `rg -n "phase118_pattern3_if_sum_min|pattern1_inline_explicit_step_min" docs/development/current/main/design/coreloop-stepmode-inline-in-body-ssot.md docs/development/current/main/phases/{phase-286/P2.6.1-INSTRUCTIONS.md,phase-29ao/P40-RELEASE-ADOPT-PATTERN3-IFPHI-SUBSET-INSTRUCTIONS.md}` = 0 hit
 
 ## next fixed order (resume point)
 

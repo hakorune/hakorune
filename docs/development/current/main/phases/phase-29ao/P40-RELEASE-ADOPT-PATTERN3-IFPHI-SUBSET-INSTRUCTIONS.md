@@ -69,12 +69,11 @@ Related:
 
 要件:
 - `HAKO_JOINIR_STRICT=1` を設定しない（`env -u` で外す）
-- fixture は既存の Pattern3 minimal を使用:
-  - `apps/tests/phase118_pattern3_if_sum_min.hako`
+- fixture は pinned if_phi_join subset fixture を使用（exact legacy fixture key は `joinir-legacy-fixture-pin-inventory-ssot.md` を参照）
 - 期待:
   - exit code = 0
   - output 数値が `12`
-  - タグ（`[coreplan/shadow_adopt:pattern3_ifphi]`）は出ない（releaseでタグ出力禁止）
+- タグは出ない（releaseでタグ出力禁止。exact legacy tag suffix token は coverage SSOT 側の traceability lane を参照）
 
 配線:
 - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` に filter 1 行追加
