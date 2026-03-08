@@ -30,7 +30,8 @@ run_filter() {
     return 0
 }
 
-run_filter "loop_break" "phase29ab_pattern2_" || exit 1
+run_filter "loop_break_body_local_vm" "loop_break_body_local_vm" || exit 1
+run_filter "loop_break_body_local_seg_vm" "loop_break_body_local_seg_vm" || exit 1
 run_filter "loop_break_realworld" "loop_break_realworld_vm" || exit 1
 run_filter "loop_break_subset" "loop_break_plan_subset_vm" || exit 1
 run_filter "loop_break_release_adopt_vm" "loop_break_release_adopt_vm" || exit 1

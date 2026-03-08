@@ -84,6 +84,7 @@ Note:
   lane. The next step is caller/retire inventory, not semantic-body promotion.
   - `regression-pack archive-fixed keep`: `loop_break_plan_subset_vm.sh`, `loop_break_realworld_vm.sh`, `if_phi_join_vm.sh`, `loop_true_early_exit_vm.sh`
   - `coverage-only archive-fixed keep`: `loop_break_body_local_vm.sh`, `loop_break_body_local_seg_vm.sh`
+  - current `phase29ae_regression_pack_vm.sh` now calls the body-local pair via semantic wrapper names, not via the historical `phase29ab_pattern2_` family filter
 
 ### Planner-required pack aliases
 

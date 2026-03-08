@@ -950,6 +950,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `tools/smokes/v2/profiles/integration/joinir/{if_phi_join_release_adopt_vm.sh,phase29as_purity_gate_vm.sh,phase29av_flowbox_tags_gate_vm.sh,phase29bn_planner_required_pattern3_cases.tsv}`
     - intent: current gate/script では exact legacy fixture key をまだ使うが、その意味は `if_phi_join` route の still-live contract token だと明示する。inventory-only pin と混同させない
     - verification: `git diff --check` PASS; `bash -n tools/smokes/v2/profiles/integration/joinir/{if_phi_join_release_adopt_vm.sh,phase29as_purity_gate_vm.sh,phase29av_flowbox_tags_gate_vm.sh}` PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - compat cleanup (2026-03-08, slice 179): `phase29ae_regression_pack_vm.sh` の body-local broad compat filter を semantic wrapper 2本へ置き換えた
+    - synced files: `CURRENT_TASK.md` / `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md`
+    - intent: current regression pack で `phase29ab_pattern2_` family を直接 filter するのをやめ、`loop_break_body_local_vm` / `loop_break_body_local_seg_vm` を semantic wrapper として明示的に呼ぶ。coverage-only archive-fixed keep の current caller を semantic lane に揃え、compat token を pack entrypoint から後退させる
+    - verification: `git diff --check` PASS; `bash tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_seg_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 
