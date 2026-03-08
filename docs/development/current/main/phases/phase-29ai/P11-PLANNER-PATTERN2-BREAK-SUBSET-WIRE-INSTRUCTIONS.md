@@ -10,6 +10,9 @@ Historical note:
   は P11 実行時の payload / file / fixture token だよ。
 - current runtime では semantic vocabulary を使い、facts 側は `LoopBreakFacts`,
   `loop_break`, `loop_break_body_local` に揃っているよ。
+- current semantic wrapper / fixture alias:
+  - `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh`
+  - `apps/tests/loop_break_plan_subset_min.hako`
 
 ## Objective
 
@@ -86,8 +89,10 @@ Current semantic outcome:
 ### Step 4: SSOT fixture/smoke を追加（PoC subset 固定）
 
 追加（推奨）:
-- `apps/tests/phase29ai_pattern2_break_plan_subset_ok_min.hako`（legacy fixture pin token）
-- `tools/smokes/v2/profiles/integration/apps/archive/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh`（legacy archive stem）
+- current semantic fixture alias: `apps/tests/loop_break_plan_subset_min.hako`
+- historical fixture pin token: `phase29ai_pattern2_break_plan_subset_ok_min.hako`
+- current semantic wrapper: `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh`
+- historical archive stem: `phase29ai_pattern2_break_plan_subset_ok_min_vm.sh`
 
 方針:
 - 既存 loop_break 複雑系 fixture は変えない（回帰パック維持）。
@@ -109,7 +114,7 @@ Current semantic outcome:
 - `cargo build --release`
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase29ai_pattern2_break_plan_subset_ok_min"`
+- `./tools/smokes/v2/run.sh --profile integration --filter "loop_break_plan_subset_vm"`
 
 期待:
 - quick/regression は既定挙動不変で PASS

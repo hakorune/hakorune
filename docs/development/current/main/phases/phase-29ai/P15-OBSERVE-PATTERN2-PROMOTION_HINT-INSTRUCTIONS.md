@@ -48,8 +48,12 @@ Historical note:
 ### Step 2: integration smoke をタグ検証に昇格
 
 対象ファイル（既存2本の強化）:
-- `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`（legacy fixture pin token）
-- `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh`（legacy fixture pin token）
+- current semantic wrapper:
+  - `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_seg_vm.sh`
+  - `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_vm.sh`
+- historical archive stem:
+  - `phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
+  - `phase29ab_pattern2_loopbodylocal_min_vm.sh`
 
 変更内容:
 - 既存の `RC=2`/出力チェックは維持

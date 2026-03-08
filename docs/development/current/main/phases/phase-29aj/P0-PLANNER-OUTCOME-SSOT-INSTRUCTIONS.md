@@ -65,8 +65,12 @@ Files:
 ### Step 3: smoke は現状維持
 
 Files:
-- `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
-- `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh`
+- `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_seg_vm.sh`
+- `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_vm.sh`
+
+Historical replay basenames remain:
+- `phase29ab_pattern2_loopbodylocal_seg_min_vm.sh`
+- `phase29ab_pattern2_loopbodylocal_min_vm.sh`
 
 やること:
 - 変更なし（タグ必須のまま PASS すること）

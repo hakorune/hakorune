@@ -7,7 +7,7 @@ Related:
   - tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh
 ---
 
-# Phase 29ao P15: JoinIR 回帰パックに Pattern3(If‑Phi, VM) を追加
+# Phase 29ao P15: JoinIR 回帰パックに IfPhiJoin (VM) を追加
 
 Date: 2025-12-30  
 Status: Ready for execution  
@@ -15,27 +15,28 @@ Scope: 仕様不変。回帰ゲート（SSOT）を “P13 の実経路” を含
 
 ## 目的
 
-- P13 で移行した `Pattern3 If‑Phi`（merge join の block_params 化）が、JoinIR 回帰 SSOT のゲートで必ず実行されるようにする。
+- P13 で移行した `IfPhiJoin`（historical label 3, merge join の block_params 化）が、JoinIR 回帰 SSOT のゲートで必ず実行されるようにする。
 - 既存の回帰パック設計（VM backend / filter で小さく）を維持する。
 
 ## 非目的
 
 - LLVM EXE 系テストを回帰ゲートに含める（時間/環境依存が大きいので対象外）
-- 新しい fixture/smoke の新設（既存 `phase118_pattern3_if_sum_vm` を流用）
+- 新しい fixture/smoke の新設（current semantic wrapper `if_phi_join_vm.sh` を流用）
 - 新 env var 追加
 
 ## 実装
 
-### Step 1: regression pack に Pattern3 VM を追加
+### Step 1: regression pack に IfPhiJoin VM を追加
 
 - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-  - 追加: `run_filter "pattern3_ifphi_vm" "phase118_pattern3_if_sum_vm"`
-  - 位置: pattern2 の後 / pattern6 の前（順序は SSOT として固定）
+  - current semantic wrapper: `run_filter "if_phi_join_vm" "if_phi_join_vm"`
+  - historical replay basename `phase118_pattern3_if_sum_vm.sh` は inventory lane にのみ残す
+  - 位置: loop_break route family の後 / scan route family の前（順序は SSOT として固定）
 
 ### Step 2: SSOT ドキュメントに追記
 
 - `docs/development/current/main/phases/phase-29ae/README.md`
-  - Regression pack に `phase118_pattern3_if_sum_vm` を追記
+  - Regression pack に `if_phi_join_vm` を追記
 
 ### Step 3: Phase 29ao の進捗と Next を更新
 
@@ -52,5 +53,4 @@ Scope: 仕様不変。回帰ゲート（SSOT）を “P13 の実経路” を含
 ## コミット
 
 - `git add -A`
-- `git commit -m "docs(phase29ao): add pattern3 vm to joinir regression pack"`
-
+- `git commit -m "docs(phase29ao): add if-phi-join vm to joinir regression pack"`
