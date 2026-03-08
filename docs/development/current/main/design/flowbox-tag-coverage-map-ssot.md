@@ -32,6 +32,7 @@ Note:
 - active docs は semantic alias wrapper stem を優先し、legacy stem は wrapper の転送先として保持する。
 - negative coverage に残る legacy archive stem は compat pin としてのみ扱い、route semantics の主語にしない。
 - current runtime semantics は route 名（`loop_break`, `if_phi_join`, `scan_with_init` など）で読む。
+- `archive-fixed keep` wrapper は caller-0 待ちで直接 retire しない。current coverage へ残すか archive-only replay へ落とすかを先に決める。
 
 | Scenario | Smoke stem (semantic alias wrapper) | box_kind | features (required subset) | via | Notes |
 | --- | --- | --- | --- | --- | --- |

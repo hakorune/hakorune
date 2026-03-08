@@ -42,7 +42,7 @@ script stems remain available as compatibility entrypoints until all callers mov
 - Phase D: old stems can retire only after active callers reach zero
 - Phase E1: selected release-adopt/current route wrappers promote the semantic entry to the real script body, and legacy stems become thin forwarders
 - Phase E2: strict-shadow / regression-pack / planner-pack wrappers also promote the semantic entry to the real script body; remaining `exec bash` current wrappers are limited to archive replay entries
-- Phase E3: the remaining archive-backed current wrappers are explicitly `archive-fixed keep`; they do not promote until an archive replay retirement phase is accepted
+- Phase E3: the remaining archive-backed current wrappers are explicitly `archive-fixed keep`; they do not promote until an archive replay retirement phase is accepted, and `caller 0` alone is not treated as the next decision
 
 ## Alias map
 
@@ -86,16 +86,24 @@ Note:
   - `coverage-only archive-fixed keep`: `loop_break_body_local_vm.sh`, `loop_break_body_local_seg_vm.sh`
   - current `phase29ae_regression_pack_vm.sh` now calls the body-local pair via semantic wrapper names, not via the historical `phase29ab_pattern2_` family filter
 
-### Archive-fixed keep retirement conditions
+Resolution rule:
+- `caller 0` is necessary but not sufficient for these six wrappers.
+- First decide whether each lane needs:
+  - a non-archive semantic body (`semantic-body promotion`), or
+  - an explicit move to historical replay / coverage only (`archive-only demotion`).
+- Only after that decision should caller inventory be used to retire or collapse the wrapper.
 
-| Group | Current active callers | Retirement / collapse precondition |
+### Archive-fixed keep resolution conditions
+
+| Group | Current active callers | Structural decision before retire | Retirement / collapse precondition |
 | --- | --- | --- |
-| `regression-pack archive-fixed keep` | `phase29ae_regression_pack_vm.sh` via `loop_break_plan_subset_vm`, `loop_break_realworld_vm`, `if_phi_join_vm`, `loop_true_early_exit_vm` | `phase29ae` pack no longer calls these wrappers directly, and active docs move the scenario to a non-archive semantic entry or explicitly historical replay lane |
-| `coverage-only archive-fixed keep` | flowbox/coreplan coverage docs and `phase29ae_regression_pack_vm.sh` for the body-local pair | coverage docs no longer treat the wrapper as current gate entry, and either a semantic non-archive body exists or the scenario is accepted as archive-only replay coverage |
+| `regression-pack archive-fixed keep` | `phase29ae_regression_pack_vm.sh` via `loop_break_plan_subset_vm`, `loop_break_realworld_vm`, `if_phi_join_vm`, `loop_true_early_exit_vm` | choose `semantic-body promotion` or explicit `historical replay demotion` for each route | `phase29ae` pack no longer calls these wrappers directly, and active docs move the scenario to a non-archive semantic entry or explicitly historical replay lane |
+| `coverage-only archive-fixed keep` | flowbox/coreplan coverage docs and `phase29ae_regression_pack_vm.sh` for the body-local pair | choose a non-archive coverage probe or accept `archive-only replay coverage` | coverage docs no longer treat the wrapper as current gate entry, and either a semantic non-archive body exists or the scenario is accepted as archive-only replay coverage |
 
 Operational rule:
 - while a wrapper is `archive-fixed keep`, prefer semantic wrapper names in current scripts/docs
 - do not promote archive-backed wrappers to real bodies unless a separate phase reopens semantic-body promotion
+- do not treat `caller 0` as the sole next-step condition; decide `semantic-body promotion` vs `archive-only demotion` first
 - retire only after repo-local caller inventory and active-doc caller inventory both reach zero
 
 ### Planner-required pack aliases

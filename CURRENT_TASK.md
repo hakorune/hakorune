@@ -966,11 +966,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `src/mir/join_ir/frontend/ast_lowerer/route.rs` / `docs/development/current/main/design/{joinir-frontend-legacy-fixture-key-retirement-ssot,joinir-legacy-fixture-pin-inventory-ssot}.md`
     - intent: `if_phi_join_multi_min` / `jsonparser_if_phi_join_min` / `selfhost_if_phi_join` / `selfhost_if_phi_join_ext` / `selfhost_verify_schema_p2` / `selfhost_detect_format_p3` / `jsonparser_unescape_string_step2_min` は repo-local current caller がなく、`docs/private` historical assets だけが残っていたので、current Program JSON frontend allowlist から外す。runtime の by-name contract を現役 entrypoint だけに絞り、historical semantic key は rejection test と historical ledger に閉じ込める
     - verification: `git diff --check` PASS; `cargo test --lib retired_unused_selfhost_fixture_keys_are_rejected` PASS; `cargo build --release --bin hakorune` PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - compat cleanup (2026-03-08, slice 183): archive-backed current wrapper 6 本の次手を `caller 0` ではなく `semantic-body promotion` / `archive-only demotion` の構造判断として固定した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `docs/development/current/main/phases/phase-29ae/README.md` / `docs/development/current/main/design/flowbox-tag-coverage-map-ssot.md`
+    - intent: `loop_break_plan_subset_vm` / `loop_break_realworld_vm` / `loop_break_body_local_vm` / `loop_break_body_local_seg_vm` / `if_phi_join_vm` / `loop_true_early_exit_vm` は archive replay stem を背負った current wrapper なので、単純に caller 0 を待つのではなく、先に `semantic-body promotion` か `historical replay / archive-only demotion` のどちらへ進むかを決める。retire はその後の caller inventory で行う
+    - verification: `git diff --check` PASS; `rg -n "caller 0|semantic-body promotion|archive-only demotion|archive-fixed keep" docs/development/current/main/{design/joinir-smoke-legacy-stem-retirement-ssot.md,design/flowbox-tag-coverage-map-ssot.md,phases/phase-29ae/README.md}` = expected hits only
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は `archive-fixed keep` と retire/collapse 条件を固定したので、次は caller 0 確認と active-doc caller inventory を詰める。
+2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は `archive-fixed keep` だが、次手は `caller 0` だけではない。wrapper ごとに `semantic-body promotion` か `historical replay / archive-only demotion` を先に決め、その後 caller inventory で retire/collapse 条件を詰める。
 3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。historical normalized-dev / selfhost prototype key は retire 済みなので、次は selfhost subset pin の alias-first retire 条件を詰める。
 4. `dust` cleanup: warnings / orphan helper / dead code を刈る（現状 `cargo check --tests` は warning なし）。low-ref wrapper/manual probe の役割注記は固定済み。
 5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
@@ -985,7 +989,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   3. low-risk dust cleanup
   4. `docs/private` nested repo drift
 - archive replay lane:
-  - archive replay stem の caller 0 棚卸しと retire phase
+  - archive replay stem の `semantic-body promotion` vs `archive-only demotion` 判断と、その後の caller inventory / retire phase
   - current semantic wrappers that still `exec bash` are limited to 6 archive-backed replay entries, and these are now explicit `archive-fixed keep`:
     - `loop_break_plan_subset_vm.sh`
     - `loop_break_realworld_vm.sh`
@@ -993,7 +997,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `loop_break_body_local_seg_vm.sh`
     - `if_phi_join_vm.sh`
     - `loop_true_early_exit_vm.sh`
-  - blocking fact: `tools/smokes/v2/run.sh` の auto-discovery があるため、grep hit 0 だけでは削除条件にならない
+  - blocking facts:
+    - `tools/smokes/v2/run.sh` の auto-discovery があるため、grep hit 0 だけでは削除条件にならない
+    - caller 0 は必要条件だが十分条件ではなく、先に `semantic-body promotion` か `archive-only demotion` を決める必要がある
 - live compat contract lane:
   - current broad residue is intentionally small and explicit:
     - selfhost filter contract: `SMOKES_SELFHOST_FILTER=<substring>` in `phase29bq_selfhost_planner_required_dev_gate_vm.sh`
