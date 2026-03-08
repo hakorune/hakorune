@@ -79,6 +79,11 @@ Related:
   - RDM-2-min1..min5 を完了（direct-v0 bridge route retired + parser-flag entrypoints removed）
   - M4 tail cleanup（docs/guard/code/historical sync）完了
   - 進捗チェックの正本は `29cc-90-migration-execution-checklist.md` に固定
+  - 2026-03-09 monitor refresh:
+    - `bash tools/checks/dev_gate.sh quick` PASS
+    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` PASS
+    - `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（`5/5`, `stageb_total_secs=19`, `avg_case_secs=3.80`）
+    - de-rust orchestration lane の active next は引き続き `none`
 - RNR queue active（non-plugin residue, docs-first）:
   - fixed order 正本は `29cc-92-non-plugin-rust-residue-task-set.md`
   - `RNR-01` 完了（`vm_hako` compile bridge seam split）

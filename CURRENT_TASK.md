@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-06
+Date: 2026-03-09
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -1188,6 +1188,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/{phase-29cd/{README.md,P0-AFTERCARE-CLOSEOUT-INSTRUCTIONS.md},phase-29ce/{README.md,P0-LIVE-COMPAT-RETIREMENT-INSTRUCTIONS.md},phase-29ao/README.md,phase-29ao/P34-PATTERN2-NEGATIVE-SHADOW-ADOPT-TAG-GATES-INSTRUCTIONS.md,phase-29bi/README.md,phase-29bj/README.md,phase-29bl/README.md,phase-29bn/README.md,phase-29bo/README.md,phase-29bq/README.md,phase-188.3/P1-INSTRUCTIONS.md}` / `src/mir/{loop_route_detection/legacy/condition_var_analyzer.rs,join_ir/lowering/{if_merge.rs,if_select.rs,carrier_info/types.rs},builder/control_flow/plan/{route_shape_recognizers/infinite_loop.rs,loop_cond/break_continue_helpers.rs,composer/coreloop_v1.rs,generic_loop/body_check/shape_resolution.rs}}`
     - intent: mandatory aftercare closeout は完了とし、remaining work は archive replay / docs-private / micro dust の optional follow-up に後退させる。active docs では exact compat wrapper 名を本文の current guidance から外し、retirement SSOT pointer を正本にする
     - verification: `rg -n "exact compat wrapper|historical compat wrapper" docs/development/current/main/phases -g '*.md'` = 0 hit / `git diff --check` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
+  - selfhost/de-rust monitor refresh (2026-03-09, slice 224): `phase-29y` runtime lane と `phase-29bq` selfhost lane と `phase-29cc` de-rust lane を current green snapshot で再固定し、active next が `none` のまま維持されていることを SSOT に同期した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/{phase-29y/60-NEXT-TASK-PLAN.md,phase-29bq/{29bq-91-mirbuilder-migration-progress-checklist.md,29bq-115-selfhost-to-go-checklist.md},phase-29cc/README.md}`
+    - intent: selfhost/de-rust 再開時に「monitor-only 緑を確認済みで、再オープン blocker はない」ことを root pointer から即読できるようにする。`none` blocker に対して speculative widening を入れず、current ops は green snapshot の再固定だけに留める
+    - verification: `bash tools/checks/dev_gate.sh quick` PASS / `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` PASS / `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS (`5/5`, `stageb_total_secs=19`, `avg_case_secs=3.80`) / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## Quick Restart (After Reboot)
 

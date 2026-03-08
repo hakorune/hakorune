@@ -26,6 +26,11 @@ Related:
 - APP-2（Controlflow Probe）acceptance は PASS。
 - APP-3（MIR Shape Guard）acceptance は PASS。
 - Current blocker（runtime lane）は `none`（RVP-5-min12 complete; monitor-only）。
+- 2026-03-09 monitor refresh:
+  - `bash tools/checks/dev_gate.sh quick` PASS
+  - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` PASS
+  - `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（`5/5`, `stageb_total_secs=19`, `avg_case_secs=3.80`）
+  - reopen blocker は発火せず、active next は引き続き `none`
 - runtime diagnostic pin（non-gating）:
   - `D-RVP-continue-assignment`
   - `tools/smokes/v2/profiles/integration/apps/phase29y_continue_assignment_in_continue_stale_guard_vm.sh`

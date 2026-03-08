@@ -28,6 +28,12 @@ Related:
   - `local_fini_multi_lifo_cleanup_min` PASS
   - `local_expr_blockexpr_fini_cleanup_min` PASS
   - full canary PASS（`198/198`, `total_secs=682`, `avg_case_secs=3.44`, `jobs=4`）
+- [x] monitor refresh（2026-03-09）:
+  - `bash tools/checks/dev_gate.sh quick` PASS
+  - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` PASS
+  - `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（`5/5`, `stageb_total_secs=19`, `avg_case_secs=3.80`）
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+  - `Current blocker: none` を再確認
 
 注意:
 - ここからの closeout では、機能追加ではなく「証拠の固定」と「再現手順の安定化」を優先する。

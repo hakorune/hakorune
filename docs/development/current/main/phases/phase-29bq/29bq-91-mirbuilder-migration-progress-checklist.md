@@ -71,6 +71,14 @@ Related:
 - [x] quick probe: `./tools/selfhost/run.sh --gate --planner-required 1 --filter local_expr_blockexpr_fini_cleanup_min --max-cases 1 --timeout-secs 120` PASS（`1/1`, `stageb_total_secs=3`, `avg_case_secs=3.00`）
 - [x] milestone canary refresh: `RUN_TIMEOUT_SECS=120 SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS（`198/198`, `total_secs=682`, `avg_case_secs=3.44`, `jobs=4`）
 
+### 2.3.2 Daily monitor refresh（2026-03-09）
+
+- [x] `bash tools/checks/dev_gate.sh quick` PASS
+- [x] `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` PASS
+- [x] `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（`5/5`, `stageb_total_secs=19`, `avg_case_secs=3.80`）
+- [x] `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+- [x] blocker refresh: `runtime lane = none`, `phase-29bq = monitor-only`, `phase-29cc = monitor-only`
+
 ### 2.4 Post-migration default checks（.hako MirBuilder移植後）
 
 この節は「移植した .hako 実装を Rust compiler 側で常に検証する」ための定型チェック。
