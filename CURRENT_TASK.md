@@ -946,6 +946,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/coreloop-stepmode-inline-in-body-ssot.md` / `docs/development/current/main/phases/{phase-286/P2.6.1-INSTRUCTIONS.md,phase-29ao/P40-RELEASE-ADOPT-PATTERN3-IFPHI-SUBSET-INSTRUCTIONS.md}`
     - intent: exact legacy fixture key / gate token / legacy tag suffix token を active本文に埋め込まず、semantic route name と inventory/coverage SSOT への pointer を先頭に出す。historical instruction lane でも exact token は必要時だけ inventory 側で引ける形にする
     - verification: `git diff --check` PASS; `rg -n "phase118_pattern3_if_sum_min|pattern1_inline_explicit_step_min" docs/development/current/main/design/coreloop-stepmode-inline-in-body-ssot.md docs/development/current/main/phases/{phase-286/P2.6.1-INSTRUCTIONS.md,phase-29ao/P40-RELEASE-ADOPT-PATTERN3-IFPHI-SUBSET-INSTRUCTIONS.md}` = 0 hit
+  - compat cleanup (2026-03-08, slice 178): current scripts/TSV で `phase118_pattern3_if_sum_min.hako` を `still-live legacy fixture key` として統一し、semantic route (`if_phi_join`) を先頭に読めるようにした
+    - synced files: `CURRENT_TASK.md` / `tools/smokes/v2/profiles/integration/joinir/{if_phi_join_release_adopt_vm.sh,phase29as_purity_gate_vm.sh,phase29av_flowbox_tags_gate_vm.sh,phase29bn_planner_required_pattern3_cases.tsv}`
+    - intent: current gate/script では exact legacy fixture key をまだ使うが、その意味は `if_phi_join` route の still-live contract token だと明示する。inventory-only pin と混同させない
+    - verification: `git diff --check` PASS; `bash -n tools/smokes/v2/profiles/integration/joinir/{if_phi_join_release_adopt_vm.sh,phase29as_purity_gate_vm.sh,phase29av_flowbox_tags_gate_vm.sh}` PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 

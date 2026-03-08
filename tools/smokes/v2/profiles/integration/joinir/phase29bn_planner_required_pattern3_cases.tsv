@@ -1,2 +1,3 @@
 # fixture	expected	allow_rc	planner_tag
+# NOTE: `phase118_pattern3_if_sum_min.hako` is a still-live legacy fixture key for the if_phi_join planner-required lane.
 apps/tests/phase118_pattern3_if_sum_min.hako	12	0	[joinir/planner_first rule=IfPhiJoin] label=IfPhiJoin
