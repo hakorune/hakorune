@@ -1071,6 +1071,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/design/{joinir-smoke-legacy-stem-retirement-ssot,joinir-legacy-fixture-pin-inventory-ssot}.md` / `docs/development/current/main/phases/{phase-29ae/README.md,phase-29aj/P0-PLANNER-OUTCOME-SSOT-INSTRUCTIONS.md,phase-29ao/P23-STRICT-ADOPT-PATTERN3-IFPHI-FROM-FACTS-INSTRUCTIONS.md,phase-29ao/P26-STRICT-ADOPT-PATTERN2-BREAK-SUBSET-FROM-FACTS-INSTRUCTIONS.md,phase-29ao/P16-VALUEJOIN-REAL-USAGE-PATTERN5-EXITJOIN-INSTRUCTIONS.md}` / `CURRENT_TASK.md`
     - intent: active docs は current semantic wrapper / semantic fixture alias を先頭に置き、exact old archive stem や exact legacy filter example は retirement/inventory SSOT pointer と caller-scope 条件から辿る形に固定する
     - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+  - ledger cleanup (2026-03-08, slice 195): `joinir-frontend-legacy-fixture-key-retirement-ssot.md` の repeated key list を canonical key-group へ畳み、pattern-era old key / unused selfhost dev key / historical semantic key の3群で読める形に整理した
+    - synced files: `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md` / `CURRENT_TASK.md`
+    - intent: live contract / reject lane / history lane の key 群を同じ文字列列挙で何度も繰り返さず、retirement SSOT を canonical table first に保つ
+    - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 
 ## Quick Restart (After Reboot)
 

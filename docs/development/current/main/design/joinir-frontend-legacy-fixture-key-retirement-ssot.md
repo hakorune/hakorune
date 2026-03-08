@@ -8,15 +8,24 @@ Scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の legacy/historical by-
 
 `route.rs` に残っていた pattern-era の関数名 key を、runtime を壊さずに段階撤去し、semantic key 契約へ収束させる。
 
-対象:
+Canonical key groups:
+
+### Pattern-era old keys
+
 - `pattern3_if_sum_multi_min`
 - `jsonparser_if_sum_min`
 - `selfhost_if_sum_p3`
 - `selfhost_if_sum_p3_ext`
+
+### Unused selfhost dev keys
+
 - `selfhost_token_scan_p2`
 - `selfhost_token_scan_p2_accum`
 - `selfhost_args_parse_p2`
 - `selfhost_stmt_count_p3`
+
+### Historical semantic keys
+
 - `if_phi_join_multi_min`
 - `jsonparser_if_phi_join_min`
 - `selfhost_if_phi_join`
@@ -84,10 +93,11 @@ Pinned assets:
 - semantic key を追加し、旧 key と新 key の両方を受理できるようにする
 
 Alias map:
-- `pattern3_if_sum_multi_min` -> `if_phi_join_multi_min`
-- `jsonparser_if_sum_min` -> `jsonparser_if_phi_join_min`
-- `selfhost_if_sum_p3` -> `selfhost_if_phi_join`
-- `selfhost_if_sum_p3_ext` -> `selfhost_if_phi_join_ext`
+- pattern-era old keys -> historical semantic keys
+  - `pattern3_if_sum_multi_min` -> `if_phi_join_multi_min`
+  - `jsonparser_if_sum_min` -> `jsonparser_if_phi_join_min`
+  - `selfhost_if_sum_p3` -> `selfhost_if_phi_join`
+  - `selfhost_if_sum_p3_ext` -> `selfhost_if_phi_join_ext`
 
 変更対象:
 - `src/mir/join_ir/frontend/ast_lowerer/route.rs`
@@ -143,13 +153,7 @@ Alias map:
 - normalized-dev や historical selfhost prototype 向けに残っていた semantic by-name key を current runtime から外す
 
 対象:
-- `if_phi_join_multi_min`
-- `jsonparser_if_phi_join_min`
-- `selfhost_if_phi_join`
-- `selfhost_if_phi_join_ext`
-- `selfhost_verify_schema_p2`
-- `selfhost_detect_format_p3`
-- `jsonparser_unescape_string_step2_min`
+- historical semantic keys
 
 前提:
 - repo-local current callers が 0
