@@ -41,6 +41,7 @@ script stems remain available as compatibility entrypoints until all callers mov
 - Phase C: active docs and regression packs may switch to semantic alias wrappers
 - Phase D: old stems can retire only after active callers reach zero
 - Phase E1: selected release-adopt/current route wrappers promote the semantic entry to the real script body, and legacy stems become thin forwarders
+- Phase E2: strict-shadow / regression-pack / planner-pack wrappers also promote the semantic entry to the real script body; remaining `exec bash` current wrappers are limited to archive replay entries
 
 ## Alias map
 
@@ -74,6 +75,9 @@ script stems remain available as compatibility entrypoints until all callers mov
 Note:
 - Entries under `apps/archive/` are `archived smoke stems`, not compat wrappers.
 - Entries under `joinir/phase29ao*` / `joinir/phase29ap*` / `joinir/phase29ae*` are compat/legacy stems still kept for forwarding or direct pinning.
+- Current semantic wrappers that still `exec bash` are intentionally archive-backed replay entries only:
+  `loop_break_plan_subset_vm.sh`, `loop_break_realworld_vm.sh`, `loop_break_body_local_vm.sh`,
+  `loop_break_body_local_seg_vm.sh`, `if_phi_join_vm.sh`, `loop_true_early_exit_vm.sh`.
 
 ### Planner-required pack aliases
 
@@ -90,6 +94,7 @@ Note:
 - Regression packs may filter semantic alias wrappers without changing fixture names.
 - Active docs should reference alias wrappers when they need a current-facing smoke path.
 - Planner-required dev gates should call semantic pack alias wrappers rather than legacy pack stems.
+- Strict-shadow / regression-pack / planner-pack semantic wrappers should own the real script body unless they are archive-backed replay entries.
 - Legacy script stems stay in historical inventories, archive packs, and traceability notes only.
 
 ## Low-ref inventory (2026-03-07)
