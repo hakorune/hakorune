@@ -187,6 +187,9 @@ run_stage_cli() {
     return 0
   fi
 
+  # `auto` -> `stage0` is compatibility-only recovery.
+  # It is useful for diagnostics, but it is not accepted as full-mode identity
+  # evidence while `stage1` remains the mainline selfhost route.
   echo "[identity/compat-fallback] route=stage0 subcmd=${subcmd} reason=stage1-route-failed bin=$(basename "$bin")" >&2
   if [[ "$subcmd" == "program-json" ]]; then
     "$bin" --emit-program-json-v0 "$outfile" "$entry" >/dev/null 2>&1

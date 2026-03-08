@@ -3,6 +3,8 @@
  *
  * Phase 29x X25:
  * - Centralize VM lane selection (`vm` / `vm-hako` / compat-fallback)
+ * - `compat-fallback` is a compatibility lane only; current mainline stays on
+ *   `vm` / `vm-hako` and must not silently route here.
  */
 
 use super::NyashRunner;

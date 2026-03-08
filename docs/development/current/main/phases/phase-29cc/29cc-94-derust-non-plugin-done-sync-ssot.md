@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/README.md
   - docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md
   - docs/development/current/main/phases/phase-29cc/29cc-92-non-plugin-rust-residue-task-set.md
+  - docs/development/current/main/phases/phase-29cf/README.md
   - docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-45-rust-optional-done-sync-ssot.md
   - CURRENT_TASK.md
@@ -47,6 +48,7 @@ phase-29cc（non-plugin residue lane）の done 宣言を 1 枚で固定し、
 1. phase-29cc は `monitor-only` を維持し、fixed backlog は置かない。
 2. reopen は failure-driven（gate FAIL 時のみ）で行う。
 3. plugin 実装の全面 `.hako` 置換は separate lane として扱う（done 条件外）。
+4. `VM fallback compat lane` / `bootstrap boundary reduction` の post-closeout follow-up は `phase-29cf` accepted monitor-only で扱い、この done 判定は再オープンしない。
 
 ## 4. Reopen Rule (failure-driven)
 

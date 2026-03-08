@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md
   - docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
+  - docs/development/current/main/phases/phase-29cf/README.md
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-scope-decision-ssot.md
@@ -108,6 +109,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - De-rust orchestration lane（phase-29cc）:
   - status dashboard（SSOT）: `docs/development/current/main/phases/phase-29cc/README.md`
   - execution checklist: `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`
+  - post-closeout follow-up: `docs/development/current/main/phases/phase-29cf/README.md`（accepted monitor-only）
   - scope decision（L5 accepted）: `docs/development/current/main/design/de-rust-scope-decision-ssot.md`
   - strict readiness（L4 done）: `tools/selfhost/check_phase29x_x23_readiness.sh --strict` -> `status=READY`（2026-02-25）
   - plugin lane: done through `PLG-07`, active next=`none`（monitor-only）
@@ -127,6 +129,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
       - `kernel-bootstrap`: Rust static archive（`libnyash_kernel.a`）起動経路（source keep）
     - order lock: `runtime契約維持 -> mainline最適化（既定） -> bootstrap保守`
   - wasm lane: done through `WSM-P10`, active next=`none`（monitor-only）
+  - note: `phase-29cf` handles post-closeout `VM fallback compat lane` / `bootstrap boundary reduction` as accepted monitor-only, without reopening `phase-29cc`
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Perf lane（phase-21.5）:
   - monitor-only（runtime lane とは別コミット境界で運用）

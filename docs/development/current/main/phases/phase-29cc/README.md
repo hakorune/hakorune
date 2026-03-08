@@ -18,6 +18,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-243-runtime-route-zero-sync-closeout-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-260-derust-task-checklist.md
+  - docs/development/current/main/phases/phase-29cf/README.md
   - docs/development/current/main/phases/phase-29cc/29cc-93-rnr05-loop-scan-range-shape-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
@@ -75,7 +76,8 @@ Related:
   - `DRC-02` bootstrap boundary inventory: done
   - `DRC-03` / `DRC-04` live compat closeout: done
   - `DRC-05` / `DRC-06` plugin aftercare: monitor-only fixed keep / recheck
-  - remaining follow-up is `DRC-07` (`docs/private` separate repo) だけ
+  - remaining top-level checklist follow-up is `DRC-07` (`docs/private` separate repo) だけ
+  - post-closeout `VM fallback compat lane` / `bootstrap boundary reduction` follow-up は `phase-29cf` accepted monitor-only で独立管理する
 ### Plugin Progress Snapshot
 
 | Wave | Status | Lock |

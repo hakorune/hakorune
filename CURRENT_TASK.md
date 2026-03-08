@@ -40,12 +40,23 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `DRC-05` / `DRC-06`: monitor-only
     - `DRC-08`: top-level closeout done
     - `DRC-07`: optional (`docs/private` separate repo)
+  - post-closeout follow-up:
+    - `docs/development/current/main/phases/phase-29cf/README.md`
+    - `docs/development/current/main/phases/phase-29cf/29cf-10-vm-fallback-bootstrap-retirement-checklist.md`
+  - current follow-up:
+    - `phase-29cf / accepted monitor-only`
+    - `VM fallback compat lane: explicit compat keep`
+    - `bootstrap boundary reduction: future-wave target`
 - perf lane: `phase-21.5 / monitor-only`
   - SSOT:
     - `docs/private/roadmap/phases/phase-21.5/PLAN.md`
 
 ## Immediate Next (this round)
 
+- de-rust selfhost post-closeout follow-up:
+  - `phase-29cf` accepted monitor-only
+  - `compat-fallback` is explicit compat keep
+  - Stage2 default bootstrap dependency is future-wave target
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
@@ -1017,6 +1028,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - live compat retirement phase entry:
   - `docs/development/current/main/phases/phase-29ce/README.md`
   - `docs/development/current/main/phases/phase-29ce/P0-LIVE-COMPAT-RETIREMENT-INSTRUCTIONS.md`
+- post-closeout de-rust selfhost follow-up:
+  - `docs/development/current/main/phases/phase-29cf/README.md`
+  - `docs/development/current/main/phases/phase-29cf/P0-VM-FALLBACK-AND-BOOTSTRAP-BOUNDARY-INVENTORY.md`
+  - `docs/development/current/main/phases/phase-29cf/29cf-10-vm-fallback-bootstrap-retirement-checklist.md`
 - archive replay lane:
   - archived replay stem の caller inventory / retire phase
   - current semantic wrappers no longer `exec bash` into archive stems; the remaining archive lane is limited to historical replay forwarders:
@@ -1225,6 +1240,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - de-rust selfhost docs sync (2026-03-09, slice 231): root pointer と active lane docs の入口文言を `脱Rust selfhost` 主語へ同期し、`phase-29cc` / `phase-29bq` / `phase-29y` が同じ closeout family に属することを一読で分かる形へ整理した
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/{phase-29cc/{README.md,29cc-260-derust-task-checklist.md},phase-29bq/29bq-115-selfhost-to-go-checklist.md,phase-29y/60-NEXT-TASK-PLAN.md}`
     - intent: `de-rust` と `selfhost` を別概念として読まないように、current lane の scope/goal/title を `脱Rust selfhost` に寄せる。runtime/compiler/orchestration の 3 lane が同じ migration family だと root から追えるようにする
+    - verification: `git diff --check` PASS
+  - de-rust selfhost post-closeout follow-up split (2026-03-09, slice 232): `phase-29cc` closeout を再オープンせず、`VM fallback compat lane` と `bootstrap boundary reduction` を `phase-29cf` へ独立管理として切り出した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/{phase-29cc/{README.md,29cc-260-derust-task-checklist.md},phase-29cf/{README.md,P0-VM-FALLBACK-AND-BOOTSTRAP-BOUNDARY-INVENTORY.md,29cf-10-vm-fallback-bootstrap-retirement-checklist.md}}` / `src/runner/route_orchestrator.rs` / `tools/selfhost/lib/identity_routes.sh`
+    - intent: top-level de-rust closeout は維持しつつ、残る selfhost ノイズ源 (`compat-fallback`, Stage0/1/2 bootstrap keep) を docs-first で追える separate lane を作る。`compat-fallback` と `stage0` recovery は compatibility-only と読み取れる comment へ同期する
+    - verification: `git diff --check` PASS
+  - de-rust selfhost phase pointer sync (2026-03-09, slice 233): root/status SSOT (`10-Now`, de-rust master map, 29cc non-plugin done sync) でも `phase-29cf` を post-closeout follow-up として参照し、`phase-29cc` done 判定と follow-up lane の境界を揃えた
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{10-Now.md,design/de-rust-master-task-map-ssot.md,phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md}`
+    - intent: 再起動時に `phase-29cc` を reopened と誤読しないように、root pointer / status snapshot / done SSOT の3箇所で「closeout維持 + phase-29cf follow-up」を明示する
+    - verification: `git diff --check` PASS
+  - de-rust selfhost follow-up closeout (2026-03-09, slice 234): `phase-29cf` を accepted monitor-only に閉じ、`compat-fallback` を explicit compat keep、Stage2 default bootstrap dependency を future-wave target として固定した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{10-Now.md,design/de-rust-master-task-map-ssot.md,phases/phase-29cc/{README.md,29cc-260-derust-task-checklist.md,29cc-94-derust-non-plugin-done-sync-ssot.md},phases/phase-29cf/{README.md,P0-VM-FALLBACK-AND-BOOTSTRAP-BOUNDARY-INVENTORY.md,29cf-10-vm-fallback-bootstrap-retirement-checklist.md}}`
+    - intent: low-risk code retire を無理に入れず、current mainline で触るべきではない compat/bootstrap residue を `fixed keep` / `future-wave target` に再分類して、de-rust selfhost closeout を再び薄い入口へ戻す
     - verification: `git diff --check` PASS
 
 ## Quick Restart (After Reboot)

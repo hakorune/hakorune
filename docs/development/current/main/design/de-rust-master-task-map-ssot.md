@@ -16,6 +16,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md
+  - docs/development/current/main/phases/phase-29cf/README.md
   - docs/development/current/main/phases/phase-29x/29x-45-rust-optional-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
@@ -56,6 +57,7 @@ Separate lane pointer:
 5. L4 strict readiness: PASS（`tools/selfhost/check_phase29x_x23_readiness.sh --strict`, 2026-02-25）
 6. L5 scope decision: accepted（`de-rust-scope-decision-ssot.md`）
 7. de-rust done declaration (non-plugin): accepted（`phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md`）
+8. post-closeout follow-up: `phase-29cf` accepted monitor-only で `VM fallback compat lane` / `bootstrap boundary reduction` を独立管理
 
 ## 3. Fixed Completion Ladder
 

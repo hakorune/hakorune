@@ -11,6 +11,7 @@ Related:
 - docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
 - docs/development/current/main/design/hako-mirbuilder-migration-phase0-entry-contract-ssot.md
 - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
+- docs/development/current/main/phases/phase-29cf/README.md
 - docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md
 - docs/development/current/main/design/pyvm-retreat-ssot.md
 

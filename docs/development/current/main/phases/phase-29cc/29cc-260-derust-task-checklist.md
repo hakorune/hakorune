@@ -147,6 +147,12 @@ Related:
   - classification: `top-level closeout done`
   - note: `cargo check --tests` warning-free と low-risk comment/helper sweep を確認済み。今後は新しい stale residue が surfaced した時だけ reopen する
 
+### 3.5 Separate post-closeout follow-up (does not reopen this checklist)
+
+- [x] `DCF-01` `VM fallback compat lane` follow-up moved to `phase-29cf`
+- [x] `DCF-02` `bootstrap boundary reduction` follow-up moved to `phase-29cf`
+- note: `phase-29cf` は `phase-29cc` closeout を取り消さず、post-closeout inventory / keep / future-retire target を accepted monitor-only で独立管理する
+
 ## 4) Recommended execution order
 
 1. [x] `DRC-01` source-zero inventory refresh
@@ -156,6 +162,7 @@ Related:
 5. [x] `DRC-05` / `DRC-06` plugin aftercare is monitor-only unless a new blocker reopens it
 6. [x] `DRC-08` micro dust
 7. [ ] `DRC-07` `docs/private` drift sync（separate repo）
+8. [x] post-closeout `VM fallback compat lane` / `bootstrap boundary reduction` は `phase-29cf` へ分離済み
 
 ## 5) Done judgment for this checklist
 
@@ -163,3 +170,4 @@ Related:
 - [x] active docs keep semantic-first wording
 - [x] `CURRENT_TASK.md` points here as the detailed de-rust checklist
 - [x] 脱Rust selfhost lane remains `monitor-only` with blocker `none`
+- [x] `phase-29cf` の follow-up はこの checklist を再オープンしない
