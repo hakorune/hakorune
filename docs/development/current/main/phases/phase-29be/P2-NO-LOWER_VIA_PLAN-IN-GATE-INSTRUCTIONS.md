@@ -9,7 +9,8 @@ Scope: code + docs
 
 Phase 29be P0 inventory の “router final fallback” を解消する。
 
-- `src/mir/builder/control_flow/joinir/patterns/router.rs` に残っている
+- current `src/mir/builder/control_flow/joinir/route_entry/router.rs`
+  （historical path token: `joinir/patterns/router.rs`）に残っている
   `lower_via_plan(builder, domain_plan, ctx)` は **最終fallbackとして残してよい**が、
   **gate 対象（phase-29ae regression pack）がその経路を踏まない**ことを SSOT と smoke で固定する。
 
@@ -30,7 +31,7 @@ Phase 29be P0 inventory の “router final fallback” を解消する。
 ### Step 1: strict/dev で “gate-candidate なのに lower_via_plan へ落ちる” を禁止
 
 対象:
-- `src/mir/builder/control_flow/joinir/patterns/router.rs`
+- `src/mir/builder/control_flow/joinir/route_entry/router.rs`
 
 方針:
 - `domain_plan.is_some()` なのに
@@ -79,4 +80,3 @@ Phase 29be P0 inventory の “router final fallback” を解消する。
 
 - `git add -A`
 - `git commit -m "phase29be(p2): gate must not rely on lower_via_plan"`
-

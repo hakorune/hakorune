@@ -36,6 +36,7 @@ Related:
     - `SMOKES_SELFHOST_FILTER=<substring>`（fixture/planner_tag/reason を部分一致で絞る）
       - semantic route name で絞るのを優先し、exact legacy token を使う場合は `joinir-legacy-fixture-pin-inventory-ssot.md` で `still-live contract token` か `inventory-only pin` かを確認する
       - current examples は semantic route substring / semantic fixture alias を使い、exact legacy basename は inventory-only lane に閉じる
+      - exact legacy basename を current how-to の主語へ戻さない
     - `SMOKES_SELFHOST_MAX_CASES=<N>`（先頭 N 件だけ実行）
     - `SMOKES_SELFHOST_STAGEB_TIMEOUT_SECS=<sec>` / `SMOKES_SELFHOST_JSON_TIMEOUT_SECS=<sec>`（phase別 timeout）
     - `SMOKES_SELFHOST_PROGRESS=0|1`（進捗ログのON/OFF）

@@ -31,13 +31,16 @@
 //! `crate::mir::builder::control_flow::joinir::route_entry::router`.
 //! Both use `loop_route_detection::classify()` for consistent classification.
 //!
-//! # Route Priority (Phase 188)
+//! # Route Dispatch Order
 //!
-//! Route families are tried in complexity order:
-//! - **LoopContinueOnly** (highest complexity)
-//! - **IfPhiJoin** (leverages If lowering)
-//! - **LoopBreak** (medium complexity)
-//! - **LoopSimpleWhile** (foundational, easiest)
+//! `loop_route_detection::classify()` chooses one route family, then this
+//! router dispatches to that lowerer. The current match order is:
+//! - `NestedLoopMinimal`
+//! - `LoopContinueOnly`
+//! - `IfPhiJoin`
+//! - `LoopBreak`
+//! - `LoopSimpleWhile`
+//! - `LoopTrueEarlyExit` (stub / fallback)
 //!
 //! # Integration Points
 //!
@@ -52,12 +55,9 @@ use crate::runtime::get_global_ring0;
 /// Phase 188: Try to lower loop to JoinIR using route-family-based dispatch
 ///
 /// This function routes loop lowering to specific route handlers based on
-/// loop structure characteristics. It tries route families in order of complexity:
-///
-/// 1. **LoopSimpleWhile** (foundational, easiest)
-/// 2. **LoopBreak** (medium complexity)
-/// 3. **IfPhiJoin** (leverages existing If lowering)
-/// 4. **LoopContinueOnly** (highest complexity)
+/// loop structure characteristics. `loop_route_detection::classify()` decides
+/// the route family, and this function dispatches that result to the matching
+/// lowerer.
 ///
 /// # Arguments
 ///
@@ -71,28 +71,8 @@ use crate::runtime::get_global_ring0;
 ///
 /// # Route Selection Strategy
 ///
-/// Route families are tried sequentially. First matching route wins.
-/// If no route matches, returns `None` to trigger fallback.
-///
-/// ## LoopSimpleWhile
-/// - **Condition**: Empty break/continue targets, single latch
-/// - **Handler**: `loop_routes::lower_simple_while_to_joinir()`
-/// - **Priority**: First (most common, simplest)
-///
-/// ## LoopBreak
-/// - **Condition**: Non-empty break_targets, exactly 1 break
-/// - **Handler**: `loop_routes::lower_loop_with_break_to_joinir()`
-/// - **Priority**: Second (common, medium complexity)
-///
-/// ## IfPhiJoin
-/// - **Condition**: Empty break/continue, if-else in body
-/// - **Handler**: `loop_routes::lower_loop_with_conditional_phi_to_joinir()`
-/// - **Priority**: Third (reuses If lowering infrastructure)
-///
-/// ## LoopContinueOnly
-/// - **Condition**: Non-empty continue_targets
-/// - **Handler**: `loop_routes::lower_loop_with_continue_to_joinir()`
-/// - **Priority**: Fourth (most complex)
+/// If the selected route lowerer returns `None`, this function returns `None`
+/// and the caller may fall back to the existing lowering path.
 ///
 /// # Integration Point
 ///

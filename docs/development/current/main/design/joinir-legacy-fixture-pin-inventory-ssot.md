@@ -115,6 +115,11 @@ Selfhost filter interpretation:
 - current docs/how-to should teach the semantic examples first and keep the exact historical basename in
   this ledger or other historical notes only
 
+Current closeout decision:
+- exact selfhost legacy basename examples are inventory-only
+- active how-to/checklists should keep using semantic route substrings or semantic fixture aliases
+- retire exact legacy filter examples only after caller scope is zero in the gate header contract, current TSV subset, and current active docs
+
 ### Inventory-only pins
 
 These tokens should be read as traceability pins, not as the preferred semantic names in current

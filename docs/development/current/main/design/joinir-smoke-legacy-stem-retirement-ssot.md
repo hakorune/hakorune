@@ -129,6 +129,11 @@ Operational rule:
   `if_phi_join_vm.sh`, `loop_true_early_exit_vm.sh`
 - exact archived replay basenames belong in this SSOT, inventory ledgers, or archive/manual notes only
 
+Current closeout decision:
+- archive-backed six-route wrappers are fixed-keep for now
+- no top-level hard-delete is approved while runtime caller owner, doc owner, or archive replay owner still points at the archived basename
+- next action is caller-zero inventory plus archive/manual-lane collapse, not eager deletion
+
 ### Planner-required pack aliases
 
 | Active semantic wrapper | Legacy pack stem |
