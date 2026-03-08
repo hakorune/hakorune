@@ -67,6 +67,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `phase-29cf` deep inventory fixed:
     - live fallback callers are now bucketed as `implementation keep` / `stage-a compat keep` / `monitor-only keep` / `historical`
     - bootstrap owners are now bucketed as `current keep` / `compat keep` / `bootstrap keep` / `future retire target`
+  - `phase-29cf` exact caller matrix fixed:
+    - current explicit fallback env callers are limited to `phase29x_vm_route_non_strict_compat_boundary_vm.sh`, `phase29x_vm_route_observability_vm.sh`, `phase29x_vm_route_strict_dev_priority_vm.sh`, `phase29x_derust_strict_default_route_vm.sh`, plugin route-resolver compat test, and three `phase2043` historical canaries
+    - Stage2 current reduction target is exact: `tools/selfhost_identity_check.sh` falls back to default bootstrap when artifact-kind is `stage1-cli` because the Stage1 CLI artifact is emit-only and does not export a bootstrap executable for Stage2 build
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
@@ -121,6 +124,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. `phase-29cf` は monitor-only の follow-up lane として維持する
 3. `phase-29cc` / `phase-29ce` は reopen 条件が出た時だけ failure-driven で再開する
 4. `docs/private` は separate repo の optional follow-up として扱う
+
+## Slice Log (latest)
+
+- `slice 236`:
+  - `phase-29cf` docs に exact `NYASH_VM_USE_FALLBACK=1` caller matrix を追加
+  - `phase29x_vm_route_non_strict_compat_boundary_vm.sh` / `phase29x_vm_route_observability_vm.sh` / `phase29x_vm_route_strict_dev_priority_vm.sh` / `phase29x_derust_strict_default_route_vm.sh` を `monitor-only keep`
+  - `phase2043/lower_{load_store_local,typeop_cast,typeop_check}_direct_struct_canary_vm.sh` を `historical canary keep` に分類
+  - `selfhost_identity_check.sh` の Stage2 default-bootstrap dependency を exact note で固定
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
 

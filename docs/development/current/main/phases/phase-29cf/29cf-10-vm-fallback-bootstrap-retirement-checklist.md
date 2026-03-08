@@ -40,7 +40,8 @@ Related:
 - [x] `VCF-05` classify live caller buckets
   - implementation keep: `route_orchestrator.rs` / `vm_fallback.rs` / `vm_backend_flags.rs`
   - stage-a compat keep: `runtime_route_contract.rs` / `stage_a_policy.rs` / `stage_a_compat_bridge.rs`
-  - monitor-only keep: `phase29x_vm_route_non_strict_compat_boundary_vm.sh` / `route_env_probe.sh` / `plugin_loader_v2 route_resolver` tests
+  - monitor-only keep: `phase29x_vm_route_non_strict_compat_boundary_vm.sh` / `phase29x_vm_route_observability_vm.sh` / `phase29x_vm_route_strict_dev_priority_vm.sh` / `phase29x_derust_strict_default_route_vm.sh` / `route_env_probe.sh` / `plugin_loader_v2 route_resolver` tests
+  - historical canary keep: `phase2043/lower_{load_store_local,typeop_cast,typeop_check}_direct_struct_canary_vm.sh`
   - historical bucket: `phase-29x` route docs and archived handoff only
 
 ## 2) Bootstrap boundary reduction
@@ -56,7 +57,7 @@ Related:
   - current keep: `run_stage1_cli.sh` + `selfhost_identity_check.sh` stage1 route
   - compat keep: `identity_routes.sh` stage0/auto recovery
   - bootstrap keep: `build_stage1.sh` default launcher artifact
-  - future retire target: Stage2 default-bootstrap dependency in `selfhost_identity_check.sh`
+  - future retire target: Stage2 default-bootstrap dependency in `selfhost_identity_check.sh` (`stage1-cli artifact is emit-route entry only; using default bootstrap for Stage2 build`)
 
 ## 3) Follow-up rule
 
