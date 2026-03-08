@@ -17,12 +17,12 @@ Related:
 
 Date: 2025-12-30  
 Status: Ready for execution  
-Goal: `loop_break_body_local_{min,seg_min}.hako`（historical fixture token: `phase29ab_pattern2_loopbodylocal_{min,seg_min}`）が strict/dev で **planner 由来の `DomainPlan::LoopBreak`** になり、既存の historical debug tag
+Goal: `loop_break_body_local_{min,seg_min}.hako` が strict/dev で **planner 由来の `DomainPlan::LoopBreak`** になり、既存の historical debug tag
 `[coreplan/shadow_adopt:pattern2_break_subset]` が必ず出るようにして回帰で固定する。
 
 ## 背景
 
-- `loop_break_body_local*` current semantic lane に対応する historical fixture family `phase29ab_pattern2_loopbodylocal_*` は現状、promotion hint タグ（`[plan/loop_break/promotion_hint:*]`）は出るが、
+- `loop_break_body_local*` current semantic lane に対応する historical fixture family は現状、promotion hint タグ（`[plan/loop_break/promotion_hint:*]`）は出るが、
   `outcome.plan` が `LoopBreak` ではないため shadow adopt が走らず、CorePlan 経路の差分検知ができない。
 - Phase 29ao の “段階1（strict/dev）完了” は、「回帰パックに含まれる代表ケースが shadow adopt タグで検知できる」状態。
   historical label 2 の realworld（phase263）は P32 で埋めたので、次は phase29ab の LoopBodyLocal を埋めるのが自然。
@@ -58,9 +58,7 @@ Goal: `loop_break_body_local_{min,seg_min}.hako`（historical fixture token: `ph
 最低限の SSOT:
 - `apps/tests/loop_break_body_local_min.hako`
 - `apps/tests/loop_break_body_local_seg_min.hako`
-- historical fixture token:
-  - historical fixture token: `phase29ab_pattern2_loopbodylocal_min.hako`
-  - historical fixture token: `phase29ab_pattern2_loopbodylocal_seg_min.hako`
+- historical fixture token は inventory SSOT を参照
 
 ### Step 2: planner で LoopBreak を候補に出す（planner 由来にする）
 

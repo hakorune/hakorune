@@ -6,13 +6,18 @@ Scope: loop_break route（break-only subset）を Facts→Planner の subset と
 Goal: 「入口は一本（Facts→Planner→historical plan payload）」を維持しつつ、loop_break route を段階的に plan 系へ寄せる
 
 Historical note:
-- `DomainPlan::Pattern2Break`, `pattern2_break_facts.rs`, `phase29ai_pattern2_break_plan_subset_ok_min`
-  は P11 実行時の historical payload / file / fixture token だよ。
+- `DomainPlan::Pattern2Break` と historical payload / file / fixture token 群は
+  inventory SSOT に退避しているよ。
 - current runtime では semantic vocabulary を使い、facts 側は `LoopBreakFacts`,
   `loop_break`, `loop_break_body_local` に揃っているよ。
 - current semantic wrapper / fixture alias:
   - `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh`
   - `apps/tests/loop_break_plan_subset_min.hako`
+- exact historical basename が必要なら
+  `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md`
+  と
+  `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md`
+  を見ること。
 
 ## Objective
 
@@ -90,10 +95,8 @@ Current semantic outcome:
 
 追加（推奨）:
 - current semantic fixture alias: `apps/tests/loop_break_plan_subset_min.hako`
-- current semantic fixture alias: `apps/tests/loop_break_plan_subset_min.hako`
-- historical fixture pin token: `phase29ai_pattern2_break_plan_subset_ok_min.hako`
 - current semantic wrapper: `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh`
-- historical archive stem: `phase29ai_pattern2_break_plan_subset_ok_min_vm.sh`
+- historical fixture pin / archive basename は inventory SSOT に退避
 
 方針:
 - 既存 loop_break 複雑系 fixture は変えない（回帰パック維持）。
