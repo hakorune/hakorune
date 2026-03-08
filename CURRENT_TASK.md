@@ -954,11 +954,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md`
     - intent: current regression pack で `phase29ab_pattern2_` family を直接 filter するのをやめ、`loop_break_body_local_vm` / `loop_break_body_local_seg_vm` を semantic wrapper として明示的に呼ぶ。coverage-only archive-fixed keep の current caller を semantic lane に揃え、compat token を pack entrypoint から後退させる
     - verification: `git diff --check` PASS; `bash tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_seg_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS
+  - compat cleanup (2026-03-08, slice 180): archive-fixed keep 6 本の retire/collapse 条件を SSOT に固定した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md`
+    - intent: `regression-pack archive-fixed keep` と `coverage-only archive-fixed keep` の終了条件を明記し、次に caller 0 を確認すべき場所を `phase29ae_regression_pack_vm.sh` と coverage docs に限定する。archive replay lane の cleanup を “いつ消せるか不明” な状態から外す
+    - verification: `git diff --check` PASS; `rg -n "Archive-fixed keep retirement conditions|regression-pack archive-fixed keep|coverage-only archive-fixed keep" docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` = expected hits only
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
-2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は `archive-fixed keep` に固定したので、次は caller inventory / retire 条件 / archive replay collapse 条件を詰める。
+2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は `archive-fixed keep` と retire/collapse 条件を固定したので、次は caller 0 確認と active-doc caller inventory を詰める。
 3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。次は selfhost subset pin と by-name semantic key の retire 条件を詰める。
 4. `dust` cleanup: warnings / orphan helper / dead code を刈る（現状 `cargo check --tests` は warning なし）。
 5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。

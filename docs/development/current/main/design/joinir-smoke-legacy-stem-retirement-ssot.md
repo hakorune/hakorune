@@ -86,6 +86,18 @@ Note:
   - `coverage-only archive-fixed keep`: `loop_break_body_local_vm.sh`, `loop_break_body_local_seg_vm.sh`
   - current `phase29ae_regression_pack_vm.sh` now calls the body-local pair via semantic wrapper names, not via the historical `phase29ab_pattern2_` family filter
 
+### Archive-fixed keep retirement conditions
+
+| Group | Current active callers | Retirement / collapse precondition |
+| --- | --- | --- |
+| `regression-pack archive-fixed keep` | `phase29ae_regression_pack_vm.sh` via `loop_break_plan_subset_vm`, `loop_break_realworld_vm`, `if_phi_join_vm`, `loop_true_early_exit_vm` | `phase29ae` pack no longer calls these wrappers directly, and active docs move the scenario to a non-archive semantic entry or explicitly historical replay lane |
+| `coverage-only archive-fixed keep` | flowbox/coreplan coverage docs and `phase29ae_regression_pack_vm.sh` for the body-local pair | coverage docs no longer treat the wrapper as current gate entry, and either a semantic non-archive body exists or the scenario is accepted as archive-only replay coverage |
+
+Operational rule:
+- while a wrapper is `archive-fixed keep`, prefer semantic wrapper names in current scripts/docs
+- do not promote archive-backed wrappers to real bodies unless a separate phase reopens semantic-body promotion
+- retire only after repo-local caller inventory and active-doc caller inventory both reach zero
+
 ### Planner-required pack aliases
 
 | Active semantic wrapper | Legacy pack stem |
