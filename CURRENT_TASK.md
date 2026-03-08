@@ -1026,6 +1026,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - by-name route allowlist residue: `src/mir/join_ir/frontend/ast_lowerer/route.rs` (historical normalized-dev / selfhost prototype keys are retired; remaining table is current-entry semantic-first)
   - status: `legacy fixture key` / `legacy fixture pin token` / `semantic fixture alias` の docs/gate 読み分けは整理済み
   - next step: selfhost subset alias row と exact filter examplesで still-live token が caller 0 になった時の alias-first retire 条件を切る
+  - instruction-doc cleanup (2026-03-08, slice 182): `phase-29ao` の active instruction docs は current semantic wrapper / current fixture alias / current route anchor を前面に出し、`pattern3_if_phi.rs` / `pattern5_infinite_early_exit.rs` / `phase29ai_pattern2_break_plan_subset_ok_min_vm.sh` / `phase263_pattern2_seg_realworld_min_vm.sh` / `phase29ab_pattern2_loopbodylocal_{min,seg_min}.hako` / `phase286_pattern5_break_vm.sh` は historical implementation file token / historical replay basename / historical fixture token として読む形へ整理した
+    - synced files: `docs/development/current/main/phases/phase-29ao/{P13-VALUEJOIN-REAL-USAGE-PATTERN3-IFPHI-MERGE-INSTRUCTIONS.md,P16-VALUEJOIN-REAL-USAGE-PATTERN5-EXITJOIN-INSTRUCTIONS.md,P26-STRICT-ADOPT-PATTERN2-BREAK-SUBSET-FROM-FACTS-INSTRUCTIONS.md,P29-SHADOW-ADOPT-TAGS-COVERAGE-ALL-GATE-PATTERNS-INSTRUCTIONS.md,P32-STRICT-ADOPT-PATTERN2-REALWORLD-FROM-FACTS-INSTRUCTIONS.md,P33-PLANNER-DERIVE-PATTERN2-LOOPBODYLOCAL-SMOKES-INSTRUCTIONS.md}` / `CURRENT_TASK.md`
+    - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 - code-side residue:
   - `src/**` の loop-route `PatternN` residue は broad grep で rejection-test / intentional historical token が中心
   - current runtime by-name allowlist は active Program JSON entrypoint のみ

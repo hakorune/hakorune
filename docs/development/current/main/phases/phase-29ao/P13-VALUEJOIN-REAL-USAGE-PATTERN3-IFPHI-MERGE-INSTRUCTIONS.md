@@ -8,15 +8,15 @@ Related:
   - docs/development/current/main/phases/phase-29ae/README.md
 ---
 
-# Phase 29ao P13: ValueJoin expr_result の実使用（Pattern3 If‑Phi の merge join を block_params 化）
+# Phase 29ao P13: ValueJoin expr_result の実使用（IfPhiJoin merge join を block_params 化）
 
 Date: 2025-12-30  
 Status: Ready for execution  
-Scope: 仕様不変。P10 で用意した `Frag.block_params → emit_frag() の PHI` を、**実経路（Pattern3 If‑Phi）**で 1 箇所だけ使い始める。
+Scope: 仕様不変。P10 で用意した `Frag.block_params → emit_frag() の PHI` を、**実経路（IfPhiJoin、historical label 3）**で 1 箇所だけ使い始める。
 
 ## 目的
 
-- Pattern3 If‑Phi の `then/else → merge_bb` の合流（これまで `CorePhiInfo` で表現していた PHI）を、
+- IfPhiJoin の `then/else → merge_bb` の合流（これまで `CorePhiInfo` で表現していた PHI）を、
   **`Frag.block_params + EdgeArgs(values)`** に置き換える。
 - これにより “expr_result 的な join 値（単一値）を EdgeCFG の SSOT（block params + edge-args）で表す” を、実経路で 1 件固定できる。
 
@@ -28,9 +28,13 @@ Scope: 仕様不変。P10 で用意した `Frag.block_params → emit_frag() の
 
 ## 対象（最小）
 
-- `src/mir/builder/control_flow/plan/normalizer/pattern3_if_phi.rs`
-  - 現状: `CorePhiInfo` 3 本（header 2 本 + merge 1 本）
-  - 変更: **merge の 1 本だけ**を block_params へ移し、`CorePhiInfo` から除去する
+- `src/mir/builder/control_flow/plan/facts/if_phi_join_facts.rs`
+  - facts/current route naming の anchor
+- current route anchor:
+  - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
+- historical implementation file token:
+  - `pattern3_if_phi.rs`
+  - 当時の `CorePhiInfo` 3 本（header 2 本 + merge 1 本）のうち、**merge の 1 本だけ**を block_params へ移して `CorePhiInfo` から除去する
 
 ## 変換方針（SSOT）
 
@@ -56,7 +60,7 @@ Scope: 仕様不変。P10 で用意した `Frag.block_params → emit_frag() の
 
 ### Step 1: merge PHI 1 本を CorePhiInfo から削除
 
-- `pattern3_if_phi.rs` の `phis` 生成で、`block: merge_bb` の 1 件を削除する
+- historical implementation file token `pattern3_if_phi.rs` の `phis` 生成で、`block: merge_bb` の 1 件を削除する
 - `header_bb` の 2 PHI はそのまま維持する（仕様不変）
 
 ### Step 2: then/else の Normal args を “join 値” にする
@@ -76,10 +80,10 @@ Scope: 仕様不変。P10 で用意した `Frag.block_params → emit_frag() の
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
-任意（Pattern3 固定を強くしたい場合）:
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase118_pattern3_if_sum_vm"`
+任意（IfPhiJoin の current semantic wrapper を強くしたい場合）:
+- `./tools/smokes/v2/run.sh --profile integration --filter "if_phi_join_vm"`
 
 ## コミット
 
 - `git add -A`
-- `git commit -m "phase29ao(p13): use block_params for pattern3 if-phi merge join"`
+- `git commit -m "phase29ao(p13): use block_params for if-phi join merge join"`

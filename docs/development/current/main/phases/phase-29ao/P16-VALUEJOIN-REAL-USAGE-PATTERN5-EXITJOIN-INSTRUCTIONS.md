@@ -9,17 +9,17 @@ Related:
   - tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh
 ---
 
-# Phase 29ao P16: ValueJoin exit の実使用（Pattern5 Infinite Early-Exit の after join を block_params 化）
+# Phase 29ao P16: ValueJoin exit の実使用（LoopTrueEarlyExit after join を block_params 化）
 
 Date: 2025-12-30  
 Status: Ready for execution  
-Scope: 仕様不変。P10 の `Frag.block_params → emit_frag() の PHI` を、**実経路（Pattern5: infinite loop with early-exit）**で 1 箇所だけ使い始める。
+Scope: 仕様不変。P10 の `Frag.block_params → emit_frag() の PHI` を、**実経路（LoopTrueEarlyExit、historical label 5）**で 1 箇所だけ使い始める。
 
 ## 目的
 
-- Pattern5 の loop exit 合流（`after_bb` の PHI）を **`Frag.block_params + EdgeArgs(values)`** に置き換える。
+- LoopTrueEarlyExit の loop exit 合流（`after_bb` の PHI）を **`Frag.block_params + EdgeArgs(values)`** に置き換える。
 - `CorePhiInfo` に残っている “exit join の PHI” をもう 1 件減らし、join の表現を EdgeCFG の SSOT に寄せる。
-- 可能なら、回帰パック（phase29ae）に Pattern5 の VM 代表を追加して “実経路” をゲートで固定する。
+- 可能なら、回帰パック（phase29ae）に LoopTrueEarlyExit の VM 代表を追加して “実経路” をゲートで固定する。
 
 ## 非目的
 
@@ -29,9 +29,13 @@ Scope: 仕様不変。P10 の `Frag.block_params → emit_frag() の PHI` を、
 
 ## 対象（最小）
 
-- `src/mir/builder/control_flow/plan/normalizer/pattern5_infinite_early_exit.rs`
-  - 現状: `CorePhiInfo` 3 本（header 2 本 + after 1 本）
-  - 変更: **after の 1 本だけ**を block_params へ移し、`CorePhiInfo` から除去する
+- `src/mir/builder/control_flow/plan/facts/loop_true_early_exit_facts.rs`
+  - current route naming の anchor
+- current route anchor:
+  - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
+- historical implementation file token:
+  - `pattern5_infinite_early_exit.rs`
+  - 当時の `CorePhiInfo` 3 本（header 2 本 + after 1 本）のうち、**after の 1 本だけ**を block_params へ移して `CorePhiInfo` から除去する
 
 ## 変換方針（SSOT）
 
@@ -58,7 +62,7 @@ args を揃えておく（Fail-Fast を安定させる）。
 
 ### Step 1: after PHI 1 本を CorePhiInfo から削除
 
-- `pattern5_infinite_early_exit.rs` の `phis` 生成で、`block: after_bb` の 1 件を削除する
+- historical implementation file token `pattern5_infinite_early_exit.rs` の `phis` 生成で、`block: after_bb` の 1 件を削除する
 - `header_bb` の 2 PHI はそのまま維持する（仕様不変）
 
 ### Step 2: after_bb に incoming する edges の args を “join 値” にする
@@ -73,12 +77,15 @@ args を揃えておく（Fail-Fast を安定させる）。
 
 ## 回帰ゲート（任意だが推奨）
 
-P16 の実使用を “JoinIR regression gate” で固定したい場合は、phase29ae pack に Pattern5 VM 代表を 1 本足す:
+P16 の実使用を “JoinIR regression gate” で固定したい場合は、phase29ae pack に LoopTrueEarlyExit の VM 代表を 1 本足す:
 
-- 対象: `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh`
+- current semantic wrapper:
+  - `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_vm.sh`
+- historical replay basename:
+  - `phase286_pattern5_break_vm.sh`
 - pack 追加案:
   - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` に
-    `run_filter "pattern5_break_vm" "phase286_pattern5_break_vm" || exit 1` を追加
+    `run_filter "loop_true_early_exit_vm" "loop_true_early_exit_vm" || exit 1` を追加
   - `docs/development/current/main/phases/phase-29ae/README.md` の Regression pack に追記
 
 ※ LLVM EXE は時間/環境依存が大きいので pack には入れない（VM のみ）。
@@ -91,10 +98,9 @@ P16 の実使用を “JoinIR regression gate” で固定したい場合は、p
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
 任意:
-- `./tools/smokes/v2/run.sh --profile integration --filter "phase286_pattern5_break_vm"`
+- `./tools/smokes/v2/run.sh --profile integration --filter "loop_true_early_exit_vm"`
 
 ## コミット
 
 - `git add -A`
-- `git commit -m "phase29ao(p16): use block_params for pattern5 exit join"`
-
+- `git commit -m "phase29ao(p16): use block_params for loop-true-early-exit join"`
