@@ -101,6 +101,11 @@ or caller-migration phase.
 | `SMOKES_SELFHOST_FILTER=<substring>` exact legacy token examples | all active how-to/checklist examples have semantic route substrings or semantic fixture names, and exact legacy token examples are inventory-only |
 | current Program JSON by-name keys in `route.rs` | repo-local active callers are non-historical and require the key; otherwise retire via alias-first or direct reject lane |
 
+For `SMOKES_SELFHOST_FILTER` legacy-example retirement, use this caller scope:
+`phase29bq_selfhost_planner_required_dev_gate_vm.sh` header contract,
+`planner_required_selfhost_subset.tsv` semantic pin row (`apps/tests/if_phi_join_min.hako`),
+and active docs (`joinir-planner-required-gates-ssot.md`, `phase-29bq/README.md`).
+
 ### Inventory-only pins
 
 These tokens should be read as traceability pins, not as the preferred semantic names in current

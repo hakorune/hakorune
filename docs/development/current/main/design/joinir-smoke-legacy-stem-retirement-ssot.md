@@ -104,6 +104,7 @@ Operational rule:
 - archived stems are replay handles only; they should not be the primary current entry
 - do not treat `caller 0` as the sole next-step condition; archive/manual guidance must also stop pointing at the archived basename
 - retire only after repo-local caller inventory and active-doc caller inventory both reach zero
+- `rg`/grep zero-hit alone is not retirement evidence; include `tools/smokes/v2/run.sh` auto-discovery scope and active-doc/manual replay inventory
 
 ### Planner-required pack aliases
 
@@ -156,8 +157,8 @@ single-purpose checks.
 
 ### Future retire groups
 
-These are not safe hard-delete targets yet, but they are the primary retirement groups once
-active callers drop to zero.
+These are not safe hard-delete targets yet; retire only when caller inventory is zero and the
+lane-specific precondition below is also satisfied.
 
 | Group | Current role | Retirement precondition |
 | --- | --- | --- |

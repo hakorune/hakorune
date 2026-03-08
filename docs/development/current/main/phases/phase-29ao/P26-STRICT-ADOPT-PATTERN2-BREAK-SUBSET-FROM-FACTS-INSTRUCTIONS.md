@@ -76,8 +76,7 @@ P26 の adopt 経路は、既存の historical fixture family `phase29ab_pattern
 - `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh`（strict、exit=15）
 - current semantic fixture alias:
   - `apps/tests/loop_break_plan_subset_min.hako`
-- historical replay basename:
-  - `phase29ai_pattern2_break_plan_subset_ok_min_vm.sh`
+- historical replay basename は retirement SSOT を参照
 
 追加:
 - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` に filter を 1 行追加:

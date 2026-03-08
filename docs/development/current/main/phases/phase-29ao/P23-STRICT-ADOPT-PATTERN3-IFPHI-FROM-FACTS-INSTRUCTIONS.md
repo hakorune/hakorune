@@ -69,7 +69,7 @@ if strict_or_dev && matches!(domain_plan, DomainPlan::IfPhiJoin(_)) {
 
 IfPhiJoin の regression は既に strict で動いている:
 - current semantic wrapper `tools/smokes/v2/profiles/integration/joinir/if_phi_join_vm.sh` は strict で動いている
-- historical replay basename `phase118_pattern3_if_sum_vm.sh` は replay lane のみ
+- historical replay basename は retirement SSOT の replay lane のみ
 
 よって P23 を入れたら、`phase29ae_regression_pack_vm.sh` の `if_phi_join_vm` がそのまま adopt 経路のゲートになる。
 

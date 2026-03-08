@@ -81,8 +81,7 @@ P16 の実使用を “JoinIR regression gate” で固定したい場合は、p
 
 - current semantic wrapper:
   - `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_vm.sh`
-- historical replay basename:
-  - `phase286_pattern5_break_vm.sh`
+- historical replay basename は retirement SSOT を参照
 - pack 追加案:
   - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` に
     `run_filter "loop_true_early_exit_vm" "loop_true_early_exit_vm" || exit 1` を追加

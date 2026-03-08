@@ -62,7 +62,7 @@ Numbered route labels below are historical labels only. Current entry names are 
 - phase143_* は LoopBuilder 撤去 / plugin disable 固定 / LLVM exe 期待が古いので除外
 - legacy pack stems for the historical accum-const-loop lane are SKIP on the plugins-disabled path and stay outside this regression pack（exact stems are tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 - legacy fixture family / key の詳細は `docs/development/current/main/design/joinir-legacy-fixture-pin-inventory-ssot.md` を正本とする
-- archive-backed 6 本は semantic wrapper が real body を持ち、archived stem は replay forwarder に後退した。残タスクは archived basename の retire 条件を inventory lane で詰めること。
+- archive-backed 6本の retire/collapse 判定は `joinir-smoke-legacy-stem-retirement-ssot.md` の `Archived replay forwarder resolution conditions` を正本とし、caller 0 単独では判定しない。
 - FlowBox schema tag（`[flowbox/*]`）は `filter_noise` で除去される
 - タグ検証が必要な smoke は raw output（filter 前）を参照する
 - タグ coverage SSOT: `docs/development/current/main/design/flowbox-tag-coverage-map-ssot.md`
