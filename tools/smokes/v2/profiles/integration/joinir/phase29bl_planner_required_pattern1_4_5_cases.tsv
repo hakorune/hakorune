@@ -1,4 +1,4 @@
 # fixture	expected	allow_rc	planner_tag
 apps/tests/phase29ap_stringutils_join_min.hako	a,b,c	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile
-apps/tests/phase29ap_pattern4_continue_min.hako	6	0	[joinir/planner_first rule=LoopContinueOnly] label=LoopContinueOnly
+apps/tests/loop_continue_only_min.hako	6	0	[joinir/planner_first rule=LoopContinueOnly] label=LoopContinueOnly
 apps/tests/loop_true_early_exit_min.hako	__EMPTY__	0 3	[joinir/planner_first rule=LoopTrueEarlyExit] label=LoopTrueEarlyExit

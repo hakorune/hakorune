@@ -1,0 +1,19 @@
+// Phase 29ac P1: Pattern6 reverse scan OK minimal
+// Expect: last_index_ok("abc", "b") -> 1
+
+static box Main {
+    last_index_ok(s, ch) {
+        local i = s.length() - 1
+        loop(i >= 0) {
+            if s.substring(i, i + 1) == ch {
+                return i
+            }
+            i = i - 1
+        }
+        return -1
+    }
+
+    main() {
+        return Main.last_index_ok("abc", "b")
+    }
+}

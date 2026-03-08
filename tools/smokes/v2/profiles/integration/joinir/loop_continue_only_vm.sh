@@ -11,7 +11,7 @@ if [ -n "$LEGACY_STEM" ]; then
     LABEL_PREFIX="${SEMANTIC_STEM} (legacy stem ${LEGACY_STEM})"
 fi
 
-FIXTURE="$NYASH_ROOT/apps/tests/phase29ap_pattern4_continue_min.hako"
+FIXTURE="$NYASH_ROOT/apps/tests/loop_continue_only_min.hako"
 
 output=$(run_nyash_vm "$FIXTURE")
 

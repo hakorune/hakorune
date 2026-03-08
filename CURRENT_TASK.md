@@ -1018,6 +1018,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - archive/manual replay how-to が残る間は basename を retire できない
 - live compat contract lane:
   - current broad residue is intentionally small and explicit:
+  - current semantic wrappers / current planner TSV now prefer semantic fixture aliases for `loop_continue_only`, `scan_with_init`, and `split_scan`; remaining old basenames are inventory-only or compat replay tokens
+  - current gate scripts `phase29aw_flowbox_tag_coverage_gate_vm.sh` / `phase29as_purity_gate_vm.sh` も `scan_with_init_ok_min.hako` / `split_scan_ok_min.hako` へ同期済み
     - selfhost filter contract: `SMOKES_SELFHOST_FILTER=<substring>` in `phase29bq_selfhost_planner_required_dev_gate_vm.sh`
     - selfhost subset row current pin: `apps/tests/if_phi_join_min.hako`
     - historical subset basename pin: `apps/tests/phase118_pattern3_if_sum_min.hako` (inventory-only)

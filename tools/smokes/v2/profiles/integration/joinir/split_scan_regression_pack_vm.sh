@@ -75,11 +75,11 @@ run_contract_freeze_case() {
 
 run_expect_rc1 \
   "split_scan_nearmiss_ok" \
-  "$NYASH_ROOT/apps/tests/phase29ab_pattern7_splitscan_nearmiss_ok_min.hako"
+  "$NYASH_ROOT/apps/tests/split_scan_nearmiss_ok_min.hako"
 
 run_contract_freeze_case \
   "split_scan_contract" \
-  "$NYASH_ROOT/apps/tests/phase29ab_pattern7_splitscan_contract_min.hako"
+  "$NYASH_ROOT/apps/tests/split_scan_contract_min.hako"
 
 log_success "${LABEL_PREFIX}: PASS"
 exit 0

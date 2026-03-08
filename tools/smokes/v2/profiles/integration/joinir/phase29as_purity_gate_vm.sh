@@ -75,7 +75,7 @@ run_if_phi_join() {
 }
 
 run_scan_with_init() {
-    local input="$NYASH_ROOT/apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako"
+    local input="$NYASH_ROOT/apps/tests/scan_with_init_ok_min.hako"
 
     set +e
     local output

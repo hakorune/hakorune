@@ -75,27 +75,27 @@ run_contract_freeze_case() {
 
 run_expect_rc1 \
   "scan_with_init_ok" \
-  "$NYASH_ROOT/apps/tests/phase29ab_pattern6_scan_with_init_ok_min.hako"
+  "$NYASH_ROOT/apps/tests/scan_with_init_ok_min.hako"
 
 run_expect_rc1 \
   "matchscan_ok" \
-  "$NYASH_ROOT/apps/tests/phase29ab_pattern6_matchscan_ok_min.hako"
+  "$NYASH_ROOT/apps/tests/scan_with_init_match_ok_min.hako"
 
 run_expect_rc1 \
   "reverse_ok" \
-  "$NYASH_ROOT/apps/tests/phase29ab_pattern6_reverse_ok_min.hako"
+  "$NYASH_ROOT/apps/tests/scan_with_init_reverse_ok_min.hako"
 
 run_contract_freeze_case \
   "scan_with_init_contract" \
-  "$NYASH_ROOT/apps/tests/phase29ab_pattern6_scan_with_init_contract_min.hako"
+  "$NYASH_ROOT/apps/tests/scan_with_init_contract_min.hako"
 
 run_contract_freeze_case \
   "matchscan_contract" \
-  "$NYASH_ROOT/apps/tests/phase29ab_pattern6_matchscan_contract_min.hako"
+  "$NYASH_ROOT/apps/tests/scan_with_init_match_contract_min.hako"
 
 run_contract_freeze_case \
   "reverse_contract" \
-  "$NYASH_ROOT/apps/tests/phase29ab_pattern6_reverse_contract_min.hako"
+  "$NYASH_ROOT/apps/tests/scan_with_init_reverse_contract_min.hako"
 
 log_success "${LABEL_PREFIX}: PASS"
 exit 0

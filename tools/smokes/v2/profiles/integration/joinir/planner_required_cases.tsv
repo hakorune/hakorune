@@ -12,7 +12,7 @@ apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_min.hako	0	0	[joinir/pla
 apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_block_min.hako	0	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	scan_methods loop block min
 apps/tests/phase29ap_stringutils_join_min.hako	a,b,c	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	stringutils join
 apps/tests/phase29bq_selfhost_blocker_collect_using_entries_loop_min.hako	0	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	collect_using_entries loop min
-apps/tests/phase29ap_pattern4_continue_min.hako	6	0	[joinir/planner_first rule=LoopContinueOnly] label=LoopContinueOnly	loop_continue_only min (legacy fixture pin token)
+apps/tests/loop_continue_only_min.hako	6	0	[joinir/planner_first rule=LoopContinueOnly] label=LoopContinueOnly	loop_continue_only min (semantic fixture alias)
 apps/tests/loop_true_early_exit_min.hako	__EMPTY__	0 3	[joinir/planner_first rule=LoopTrueEarlyExit] label=LoopTrueEarlyExit	loop_true_early_exit break min (semantic fixture alias; empty stdout)
 apps/tests/if_phi_join_min.hako	12	0	[joinir/planner_first rule=IfPhiJoin] label=IfPhiJoin	if_phi_join min (semantic fixture alias)
 apps/tests/bool_predicate_scan_frag_min.hako	__EMPTY__	0 7	[joinir/planner_first rule=BoolPredicateScan] label=BoolPredicateScan	bool_predicate_scan frag min (semantic fixture alias)
