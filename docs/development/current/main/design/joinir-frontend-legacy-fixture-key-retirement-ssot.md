@@ -1,8 +1,8 @@
 # JoinIR Frontend Legacy Fixture Key Retirement SSOT
 
-Status: Phase D accepted
-Date: 2026-03-07
-Scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の legacy by-name fixture key 互換契約
+Status: Phase E accepted
+Date: 2026-03-08
+Scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の legacy/historical by-name fixture key 互換契約
 
 ## Purpose
 
@@ -17,6 +17,13 @@ Scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の legacy by-name fixtur
 - `selfhost_token_scan_p2_accum`
 - `selfhost_args_parse_p2`
 - `selfhost_stmt_count_p3`
+- `if_phi_join_multi_min`
+- `jsonparser_if_phi_join_min`
+- `selfhost_if_phi_join`
+- `selfhost_if_phi_join_ext`
+- `selfhost_verify_schema_p2`
+- `selfhost_detect_format_p3`
+- `jsonparser_unescape_string_step2_min`
 
 ## Current Contract
 
@@ -24,9 +31,10 @@ Scope: `src/mir/join_ir/frontend/ast_lowerer/route.rs` の legacy by-name fixtur
 - 旧 key は Phase C までは **by-name allowlist 契約**として live だった。
 - 現行 mainline の active tests / fast gate はこれらを直接 pin していない。
 - Phase B で semantic alias を追加し、Phase C で managed private fixtures/docs を semantic key へ移行した。
-- Phase D で `route.rs` の old key は retire 済み。runtime で受理するのは semantic key のみ。
+- Phase D で pattern-era old key は retire 済み。runtime で受理するのは semantic/current key のみ。
 - `selfhost_token_scan_p2` / `selfhost_token_scan_p2_accum` / `selfhost_args_parse_p2` / `selfhost_stmt_count_p3` は repo-local caller 0 の selfhost dev fixture key だったため、semantic alias を足さずに reject lane へ退避した。
-- old key の残りは retirement ledger、`CURRENT_TASK`、archive/history、explicit rejection test を中心とする。
+- Phase E で normalized-dev historical semantic key (`if_phi_join_*`, `selfhost_verify_schema_p2`, `selfhost_detect_format_p3`, `jsonparser_unescape_string_step2_min`) も retire 済み。
+- current runtime は active Program JSON frontend entrypoint だけを受理し、historical fixture key は retirement ledger / `CURRENT_TASK` / archive/history / explicit rejection test に限定する。
 
 Code anchors:
 - `src/mir/join_ir/frontend/ast_lowerer/mod.rs`
@@ -114,7 +122,7 @@ Alias map:
 - in-repo の managed fixture/doc 参照が semantic key に寄る
 - old key の残りが `route.rs` / retirement ledger / archive/history に縮む
 
-### Phase D: Retire Old Keys
+### Phase D: Retire Pattern-Era Old Keys
 
 目的:
 - `route.rs` の old key を remove する
@@ -129,15 +137,39 @@ Alias map:
 - `rg` で in-repo current assets の old key が 0
 - `cargo check --tests` / `cargo build --release --bin hakorune` / `phase29bq_fast_gate_vm.sh --only bq` が緑
 
+### Phase E: Retire Historical Semantic Fixture Keys
+
+目的:
+- normalized-dev や historical selfhost prototype 向けに残っていた semantic by-name key を current runtime から外す
+
+対象:
+- `if_phi_join_multi_min`
+- `jsonparser_if_phi_join_min`
+- `selfhost_if_phi_join`
+- `selfhost_if_phi_join_ext`
+- `selfhost_verify_schema_p2`
+- `selfhost_detect_format_p3`
+- `jsonparser_unescape_string_step2_min`
+
+前提:
+- repo-local current callers が 0
+- active docs/gates が exact by-name key を current contract として使っていない
+- `docs/private` 側の remaining references は historical/normalized-dev ledger 扱い
+
+受け入れ条件:
+- `route.rs` TABLE から上記 key が削除されている
+- explicit rejection test が追加されている
+- `cargo check --tests` / `cargo build --release --bin hakorune` / `phase29bq_fast_gate_vm.sh --only bq` が緑
+
 ## Drift Checks
 
 Old-key retirement inventory:
 ```bash
-rg -n "pattern3_if_sum_multi_min|jsonparser_if_sum_min|selfhost_if_sum_p3|selfhost_if_sum_p3_ext|selfhost_token_scan_p2|selfhost_token_scan_p2_accum|selfhost_args_parse_p2|selfhost_stmt_count_p3" \
+rg -n "pattern3_if_sum_multi_min|jsonparser_if_sum_min|selfhost_if_sum_p3|selfhost_if_sum_p3_ext|selfhost_token_scan_p2|selfhost_token_scan_p2_accum|selfhost_args_parse_p2|selfhost_stmt_count_p3|if_phi_join_multi_min|jsonparser_if_phi_join_min|selfhost_if_phi_join|selfhost_if_phi_join_ext|selfhost_verify_schema_p2|selfhost_detect_format_p3|jsonparser_unescape_string_step2_min" \
   src tests tools docs/development/current/main docs/private CURRENT_TASK.md
 ```
 
-Managed semantic assets:
+Historical semantic assets:
 ```bash
 rg -n "if_phi_join_multi_min|jsonparser_if_phi_join_min|selfhost_if_phi_join|selfhost_if_phi_join_ext" \
   docs/private/development/current/main docs/private/roadmap2/phases/normalized_dev/fixtures
@@ -154,6 +186,6 @@ rg -n "resolve_function_route|lower_program_json" \
 この removal phase は **closed**。
 
 理由:
-- alias 追加、managed asset migration、old key retire まで完了した
-- runtime の by-name contract は semantic key に収束した
-- 旧 key は retirement ledger / `CURRENT_TASK` / archive-history の traceability に限定できた
+- alias 追加、managed asset migration、pattern-era old key retire、historical semantic key retire まで完了した
+- runtime の by-name contract は current active Program JSON entrypoint に収束した
+- 旧 key/歴史 key は retirement ledger / `CURRENT_TASK` / archive-history / docs/private historical assets の traceability に限定できた

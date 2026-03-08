@@ -68,6 +68,14 @@ or caller-migration phase.
 | `SMOKES_SELFHOST_FILTER=<substring>` matches on fixture/reason/planner_tag | selfhost gate contract is substring-based, so pinned fixture stems may still be used operationally |
 | Program JSON by-name keys in `src/mir/join_ir/frontend/ast_lowerer/route.rs` | frontend allowlist remains a live entry contract; legacy retired aliases are handled separately |
 
+### Retirement conditions for still-live contract tokens
+
+| Token / lane | Retirement precondition |
+| --- | --- |
+| `phase118_pattern3_if_sum_min.hako` selfhost subset row | a semantic fixture basename or explicit alias row replaces the subset pin, and selfhost operational docs stop using the legacy basename |
+| `SMOKES_SELFHOST_FILTER=<substring>` exact legacy token examples | all active how-to/checklist examples have semantic route substrings or semantic fixture names, and exact legacy token examples are inventory-only |
+| current Program JSON by-name keys in `route.rs` | repo-local active callers are non-historical and require the key; otherwise retire via alias-first or direct reject lane |
+
 ### Inventory-only pins
 
 These tokens should be read as traceability pins, not as the preferred semantic names in current

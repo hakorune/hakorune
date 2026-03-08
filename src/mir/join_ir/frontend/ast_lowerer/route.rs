@@ -12,7 +12,8 @@ pub(crate) enum FunctionRoute {
 }
 
 pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, String> {
-    // By-name allowlist for Program JSON / dev fixtures. Retired legacy aliases are tracked in the retirement SSOT.
+    // By-name allowlist for current Program JSON frontend entrypoints.
+    // Historical normalized-dev fixture names are retired and tracked in the retirement SSOT.
     const TABLE: &[(&str, FunctionRoute)] = &[
         ("test", FunctionRoute::IfReturn),
         ("local", FunctionRoute::IfReturn),
@@ -28,18 +29,6 @@ pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, S
         ("jsonparser_atoi_mini", FunctionRoute::LoopFrontend),
         ("jsonparser_atoi_real", FunctionRoute::LoopFrontend),
         ("jsonparser_parse_number_real", FunctionRoute::LoopFrontend),
-        ("if_phi_join_multi_min", FunctionRoute::LoopFrontend),
-        ("jsonparser_if_phi_join_min", FunctionRoute::LoopFrontend),
-        ("selfhost_if_phi_join", FunctionRoute::LoopFrontend),
-        ("selfhost_if_phi_join_ext", FunctionRoute::LoopFrontend),
-        // Phase 54: selfhost P2/P3 shape growth
-        ("selfhost_verify_schema_p2", FunctionRoute::LoopFrontend),
-        ("selfhost_detect_format_p3", FunctionRoute::LoopFrontend),
-        // Phase 88: JsonParser _unescape_string core (step2 + continue) minimal fixture
-        (
-            "jsonparser_unescape_string_step2_min",
-            FunctionRoute::LoopFrontend,
-        ),
     ];
 
     if let Some((_, route)) = TABLE.iter().find(|(name, _)| *name == func_name) {
@@ -78,23 +67,7 @@ pub(crate) fn resolve_function_route(func_name: &str) -> Result<FunctionRoute, S
 
 #[cfg(test)]
 mod tests {
-    use super::{resolve_function_route, FunctionRoute};
-
-    #[test]
-    fn semantic_if_phi_join_fixture_keys_resolve_to_loop_frontend() {
-        for name in [
-            "if_phi_join_multi_min",
-            "jsonparser_if_phi_join_min",
-            "selfhost_if_phi_join",
-            "selfhost_if_phi_join_ext",
-        ] {
-            assert_eq!(
-                resolve_function_route(name),
-                Ok(FunctionRoute::LoopFrontend),
-                "fixture key should resolve to LoopFrontend: {name}"
-            );
-        }
-    }
+    use super::resolve_function_route;
 
     #[test]
     fn retired_legacy_if_phi_join_fixture_keys_are_rejected() {
@@ -119,6 +92,13 @@ mod tests {
             "selfhost_token_scan_p2_accum",
             "selfhost_args_parse_p2",
             "selfhost_stmt_count_p3",
+            "if_phi_join_multi_min",
+            "jsonparser_if_phi_join_min",
+            "selfhost_if_phi_join",
+            "selfhost_if_phi_join_ext",
+            "selfhost_verify_schema_p2",
+            "selfhost_detect_format_p3",
+            "jsonparser_unescape_string_step2_min",
         ] {
             let err = resolve_function_route(name).expect_err("unused legacy key must be retired");
             assert!(

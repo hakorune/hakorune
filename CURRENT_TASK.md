@@ -962,12 +962,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md` / `docs/development/current/main/phases/phase-188.3/P1-INSTRUCTIONS.md` / `tools/smokes/v2/profiles/integration/joinir/{phase29bq_mir_preflight_lowered_away_reject_vm,phase29bq_continue_target_header_planner_required_vm,phase29bq_hako_mirbuilder_phase5_min_vm,phase29bq_hako_mirbuilder_phase7_min_vm,phase29bq_hako_mirbuilder_phase9_min_vm,phase29bq_joinir_port02_if_merge_minimal_vm,phase29bq_loop_conditional_update_release_route_vm,phase1883_nested_minimal_vm}.sh`
     - intent: repo-local grep が sparse な wrapper/script を即削除候補と誤読しないように、canonical fast gate / quick suite / semantic strict-shadow entry を header と SSOT で固定する。`phase1883_nested_minimal_vm.sh` は legacy compat wrapper から current semantic strict-shadow gate へ forward する形に整理した
     - verification: `git diff --check` PASS; `bash -n` on touched scripts PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_continue_target_header_planner_required_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase1883_nested_minimal_vm.sh` PASS; `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+  - compat cleanup (2026-03-08, slice 182): historical normalized-dev / selfhost prototype by-name key を `route.rs` current contract から retire し、retirement SSOT と pin inventory に live-vs-historical 境界を明記した
+    - synced files: `CURRENT_TASK.md` / `src/mir/join_ir/frontend/ast_lowerer/route.rs` / `docs/development/current/main/design/{joinir-frontend-legacy-fixture-key-retirement-ssot,joinir-legacy-fixture-pin-inventory-ssot}.md`
+    - intent: `if_phi_join_multi_min` / `jsonparser_if_phi_join_min` / `selfhost_if_phi_join` / `selfhost_if_phi_join_ext` / `selfhost_verify_schema_p2` / `selfhost_detect_format_p3` / `jsonparser_unescape_string_step2_min` は repo-local current caller がなく、`docs/private` historical assets だけが残っていたので、current Program JSON frontend allowlist から外す。runtime の by-name contract を現役 entrypoint だけに絞り、historical semantic key は rejection test と historical ledger に閉じ込める
+    - verification: `git diff --check` PASS; `cargo test --lib retired_unused_selfhost_fixture_keys_are_rejected` PASS; `cargo build --release --bin hakorune` PASS; `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## next fixed order (resume point)
 
 1. gate 維持: `phase29bq_fast_gate_vm.sh --only bq` と `phase29x-probe` を各 cleanup の節目で継続し、`unexpected_emit_fail=0` / `route_blocker=0` を維持する。
 2. compat token retirement prep (archive replay lane): archive-backed current wrapper 6 本は `archive-fixed keep` と retire/collapse 条件を固定したので、次は caller 0 確認と active-doc caller inventory を詰める。
-3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。次は selfhost subset pin と by-name semantic key の retire 条件を詰める。
+3. compat token retirement prep (live contract lane): `selfhost filter` / `fixture key` / by-name route key のうち、本当に live contract なものと inventory-only pin をさらに分離する。historical normalized-dev / selfhost prototype key は retire 済みなので、次は selfhost subset pin の alias-first retire 条件を詰める。
 4. `dust` cleanup: warnings / orphan helper / dead code を刈る（現状 `cargo check --tests` は warning なし）。low-ref wrapper/manual probe の役割注記は固定済み。
 5. `docs/private` は nested git repo として別管理し、fixture rename / private doc drift は top-level commit と混ぜない。
 6. archive-first 運用維持: docs / `CURRENT_TASK.md` / phase README に長文の時系列ログを戻さない。
@@ -977,7 +981,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - total estimate: current compiler/docs cleanup は **ほぼ収束**。repo 全体の historical/compat token 後始末まで含めると **1-2 slices**
 - highest-value remaining work:
   1. archive replay lane retirement prep
-  2. live compat contract inventory (`selfhost filter` / `fixture key` / by-name route key)
+  2. live compat contract inventory (`selfhost filter` / `fixture key`)
   3. low-risk dust cleanup
   4. `docs/private` nested repo drift
 - archive replay lane:
@@ -994,13 +998,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current broad residue is intentionally small and explicit:
     - selfhost filter contract: `SMOKES_SELFHOST_FILTER=<substring>` in `phase29bq_selfhost_planner_required_dev_gate_vm.sh`
     - selfhost subset row pin: `apps/tests/phase118_pattern3_if_sum_min.hako`
-    - by-name route allowlist residue: `src/mir/join_ir/frontend/ast_lowerer/route.rs` (retired legacy aliases and caller-0 selfhost dev keys are already rejection-test only; remaining table is semantic-first)
+    - by-name route allowlist residue: `src/mir/join_ir/frontend/ast_lowerer/route.rs` (historical normalized-dev / selfhost prototype keys are retired; remaining table is current-entry semantic-first)
   - status: `legacy fixture key` と `legacy fixture pin token` の docs/gate 読み分けは整理済み
-  - next step: selfhost subset pin と by-name semantic key で still-live token が caller 0 になった時の alias-first retire 条件を切る
+  - next step: selfhost subset pin と exact filter examplesで still-live token が caller 0 になった時の alias-first retire 条件を切る
 - code-side residue:
-  - `src/**` の loop-route `PatternN` residue は broad grep で **1 hit**
-  - その 1 hit は `src/mir/join_ir/frontend/ast_lowerer/route.rs:106` の intentional by-name legacy fixture key allowlist（`pattern3_if_sum_multi_min`）
-  - 残りは physical path / generic wording / intentional legacy token が中心
+  - `src/**` の loop-route `PatternN` residue は broad grep で rejection-test / intentional historical token が中心
+  - current runtime by-name allowlist は active Program JSON entrypoint のみ
+  - 残りは physical path / generic wording / intentional historical token が中心
 - phase/docs residue snapshot:
   - `docs/development/current/main/phases/**/README.md` の `PatternN` / `patternN_` broad grep は **0 hits**
   - active phase README の current-looking numbered route residue は cleanup 完了
