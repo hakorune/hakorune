@@ -1058,6 +1058,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `docs/development/current/main/phases/phase-29ao/{P17-COMPOSER-PATTERN1-STRICT-SHADOW-INSTRUCTIONS.md,P18-SINGLE_PLANNER-OUTCOME-PLUMBING-INSTRUCTIONS.md,P30-MOVE-SHADOW-ADOPT-COMPOSER-SSOT-INSTRUCTIONS.md,P31-REFactor-SHADOW-ADOPT-ROUTER-TO-COMPOSER-SSOT-INSTRUCTIONS.md,P34-PATTERN2-NEGATIVE-SHADOW-ADOPT-TAG-GATES-INSTRUCTIONS.md,P36-RELEASE-ADOPT-PATTERN1-COREPLAN-SKELETON-PILOT-INSTRUCTIONS.md,P40-RELEASE-ADOPT-PATTERN3-IFPHI-SUBSET-INSTRUCTIONS.md}` / `CURRENT_TASK.md`
     - intent: active instruction docs では `LoopSimpleWhile` / `IfPhiJoin` / `LoopBreak` / `route_entry/router.rs` / `single_planner::try_build_outcome()` / current semantic fixture alias を前面に置き、`Pattern1/3` / `joinir/patterns/router.rs` / old replay basename は historical token lane に後退させる
     - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
+  - compat-token cleanup (2026-03-08, slice 192): selfhost filter examples と migration instruction docs の exact legacy stem を semantic alias / generic placeholder first に寄せた
+    - synced files: `docs/development/current/main/phases/{phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md,phase-29aw/P2-FLOWBOX-TAGS-MIGRATION-INSTRUCTIONS.md,phase-29ap/P9-PATTERN6-NESTED-MINIMAL-MIGRATION-INSTRUCTIONS.md,phase-29ai/P11-PLANNER-PATTERN2-BREAK-SUBSET-WIRE-INSTRUCTIONS.md}` / `CURRENT_TASK.md`
+    - note: `loop_simple_while_strict_shadow_vm.sh` は semantic fixture alias へ寄せると exit contract (`3 -> 0`) が変わるため、historical fixture pin を維持したまま docs 側だけ整理した
+    - intent: current docs では semantic wrapper / semantic fixture alias / generic selfhost filter placeholder を前面に置き、exact old stem/basename は historical fixture token lane に後退させる
+    - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS
 
 ## Quick Restart (After Reboot)
 

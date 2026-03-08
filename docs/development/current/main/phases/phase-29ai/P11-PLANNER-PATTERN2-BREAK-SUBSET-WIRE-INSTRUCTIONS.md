@@ -90,6 +90,7 @@ Current semantic outcome:
 
 追加（推奨）:
 - current semantic fixture alias: `apps/tests/loop_break_plan_subset_min.hako`
+- current semantic fixture alias: `apps/tests/loop_break_plan_subset_min.hako`
 - historical fixture pin token: `phase29ai_pattern2_break_plan_subset_ok_min.hako`
 - current semantic wrapper: `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh`
 - historical archive stem: `phase29ai_pattern2_break_plan_subset_ok_min_vm.sh`

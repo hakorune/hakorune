@@ -40,7 +40,7 @@ Reference fixture:
 ## Gate / Smoke
 
 - New smoke (strict/dev):
-  - `tools/smokes/v2/profiles/integration/joinir/phase29ap_pattern6_nested_strict_shadow_vm.sh`
+- `tools/smokes/v2/profiles/integration/joinir/nested_loop_minimal_strict_shadow_vm.sh`
   - Requires tag `[plan/freeze:unstructured]` and non-zero exit.
 - Gate: add to `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`.
 

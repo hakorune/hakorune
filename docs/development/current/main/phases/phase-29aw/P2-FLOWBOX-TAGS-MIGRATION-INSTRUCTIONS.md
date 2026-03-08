@@ -17,7 +17,7 @@ Related:
 
 ## Target smokes (minimal)
 
-1) `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern6_strict_shadow_vm.sh`
+1) `tools/smokes/v2/profiles/integration/joinir/scan_with_init_strict_shadow_vm.sh`
 - Require FlowBox tag: box_kind=Loop, via=shadow (features may include return/value_join).
 
 2) `tools/smokes/v2/profiles/integration/joinir/phase29at_match_return_strict_shadow_vm.sh`

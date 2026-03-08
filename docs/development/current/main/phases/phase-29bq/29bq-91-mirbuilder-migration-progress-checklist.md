@@ -50,12 +50,12 @@ Related:
 - [x] `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh` PASS
 - [x] `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_smoke_vm.sh` PASS
 - [x] `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_mode_parity_smoke_vm.sh` PASS
-- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=scan_methods_loop_min SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS
-- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=using_module_roots bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`3/3`)
-- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=side_effect_tail_nested_join_tail bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`4/4`)
-- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=try_loop_throw_catch_min SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`Expected 15`)
-- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=cleanup_only_min SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`Expected 11`)
-- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=parse_string2_return_prelude_call_min SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`Expected MISS`)
+- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=<scan_methods_case_substring> SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS
+- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=<module_roots_case_substring> bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`3/3`)
+- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=<nested_join_tail_case_substring> bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`4/4`)
+- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=<try_throw_cleanup_case_substring> SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`Expected 15`)
+- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=<cleanup_only_case_substring> SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`Expected 11`)
+- [x] quick probe: `SMOKES_ENABLE_SELFHOST=1 HAKO_JOINIR_PLANNER_REQUIRED=1 SMOKES_SELFHOST_FILTER=<parse_string_return_case_substring> SMOKES_SELFHOST_MAX_CASES=1 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh` PASS (`Expected MISS`)
 - [x] closeout blockers status is synced in `29bq-115-selfhost-to-go-checklist.md`（G1/G2/G3 complete）
 
 ### 2.3.1 Quick evidence refresh（2026-02-28, Stage2 fixed）
