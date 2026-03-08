@@ -1026,7 +1026,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - live compat contract lane:
   - current broad residue is intentionally small and explicit:
   - current semantic wrappers / current planner TSV now prefer semantic fixture aliases for `loop_continue_only`, `scan_with_init`, and `split_scan`; remaining old basenames are inventory-only or compat replay tokens
-  - current gate scripts `phase29aw_flowbox_tag_coverage_gate_vm.sh` / `phase29as_purity_gate_vm.sh` も `scan_with_init_ok_min.hako` / `split_scan_ok_min.hako` へ同期済み
+  - current gate scripts `flowbox_tag_coverage_gate_vm.sh` / `phase29as_purity_gate_vm.sh` も `scan_with_init_ok_min.hako` / `split_scan_ok_min.hako` へ同期済み
     - selfhost filter contract: `SMOKES_SELFHOST_FILTER=<substring>` in `phase29bq_selfhost_planner_required_dev_gate_vm.sh`
     - selfhost subset row current pin: `apps/tests/if_phi_join_min.hako`
     - historical subset basename pin: `apps/tests/phase118_pattern3_if_sum_min.hako` (inventory-only)
@@ -1172,6 +1172,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - live compat retirement (2026-03-08, slice 219): `SMOKES_SELFHOST_FILTER` の exact legacy substring は current operations では semantic substring が正本で、`29bq-session-updates-2026-02-08` の exact token は historical evidence lane だと明示した
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29bq/29bq-session-updates-2026-02-08.md`
     - intent: selfhost gate 調査時に `phase29bq_*` exact token を current contract と誤読しないようにし、session archive と live operations の境界を visible にする
+  - live compat retirement (2026-03-08, slice 220): remaining current phase stems `phase29as_purity_gate_vm` / `phase29av_flowbox_tags_gate_vm` を semantic wrapper `joinir_purity_gate_vm` / `flowbox_tags_gate_vm` に昇格し、`string_is_integer_min.hako` alias も current gate fixture として前面化した
+    - synced files: `CURRENT_TASK.md` / `apps/tests/string_is_integer_min.hako` / `docs/development/current/main/{design/{flowbox-tag-coverage-map-ssot,joinir-smoke-legacy-stem-retirement-ssot,joinir-legacy-fixture-pin-inventory-ssot}.md,phases/{phase-29ae/README.md,phase-29ar/{README.md,P1-EXITIFRETURN-MINIMAL-INSTRUCTIONS.md},phase-29av/P2-FLOWBOX-TAGS-GATE-SMOKE-INSTRUCTIONS.md,phase-29ax/{README.md,P2-STABILIZE-PURITY-GATE-ENV-INSTRUCTIONS.md}}}` / `tools/smokes/v2/profiles/integration/joinir/{joinir_purity_gate_vm,flowbox_tags_gate_vm,phase29as_purity_gate_vm,phase29av_flowbox_tags_gate_vm,string_is_integer_{strict_reject,release_adopt}_vm,flowbox_tag_coverage_gate_vm,phase29ae_regression_pack_vm}.sh`
+    - intent: current regression/gate lane は semantic wrapper / semantic fixture alias を先頭に置き、old phase stem は thin compat forwarder としてだけ残す。`string_is_integer` current fixture path も semantic alias に寄せて、exact `phase29ar_*` basename は inventory/historical lane に後退させる
+    - verification: `git diff --check` PASS / `bash -n tools/smokes/v2/profiles/integration/joinir/{joinir_purity_gate_vm,flowbox_tags_gate_vm,phase29as_purity_gate_vm,phase29av_flowbox_tags_gate_vm}.sh` PASS / `bash tools/smokes/v2/profiles/integration/joinir/{joinir_purity_gate_vm,flowbox_tags_gate_vm}.sh` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
+  - live compat retirement (2026-03-08, slice 221): `phase29ae_regression_pack_vm.sh` は basename-suffix regex filter (`/<stem>\\.sh$`) へ切り替え、semantic wrapper filter が compat forwarder を二重実行しない current contract に固定した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{design/joinir-smoke-legacy-stem-retirement-ssot.md,phases/phase-29ae/README.md}` / `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
+    - intent: live compat token が semantic wrapper filter に suffix match して current regression pack を二重実行するノイズを止め、`phase29ae` pack は current semantic wrapper だけを exact basename で選ぶ
+    - verification: `git diff --check` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
 
 ## Quick Restart (After Reboot)
 

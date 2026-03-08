@@ -24,8 +24,8 @@ generic loop v0.2 として、loop body 中の “途中 step” を末尾へ寄
 
 - Fixture: `apps/tests/phase29cb_generic_loop_in_body_step_min.hako`
 - Smokes:
-  - `tools/smokes/v2/profiles/integration/joinir/phase29cb_generic_loop_in_body_step_strict_shadow_vm.sh`
-  - `tools/smokes/v2/profiles/integration/joinir/phase29cb_generic_loop_in_body_step_release_adopt_vm.sh`
+  - `tools/smokes/v2/profiles/integration/joinir/generic_loop_in_body_step_strict_shadow_vm.sh`
+  - `tools/smokes/v2/profiles/integration/joinir/generic_loop_in_body_step_release_adopt_vm.sh`
 
 ## Gate
 

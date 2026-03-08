@@ -42,7 +42,7 @@ Rationale:
    - raw output does **not** contain `[plan/fallback:`
 
    Suggested files:
-   - `tools/smokes/v2/profiles/integration/joinir/phase29at_match_return_release_adopt_vm.sh`
+   - `tools/smokes/v2/profiles/integration/joinir/match_return_release_adopt_vm.sh`
    - Wire into `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
    - Add to `docs/development/current/main/phases/phase-29ae/README.md` gate list.
 

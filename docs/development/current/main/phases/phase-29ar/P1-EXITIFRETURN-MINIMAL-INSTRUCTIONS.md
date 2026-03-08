@@ -46,8 +46,8 @@ Fail-fast rules (strict/dev only):
 
 ### Step 5: Fixture + smoke (SSOT)
 
-- Fixture: `apps/tests/phase29ar_string_is_integer_min.hako`
-- Smoke: `tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_min_vm.sh`
+- Fixture: `apps/tests/string_is_integer_min.hako`
+- Smoke: `tools/smokes/v2/profiles/integration/joinir/string_is_integer_strict_reject_vm.sh`
 - Wire the smoke into `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`.
 
 The smoke must:

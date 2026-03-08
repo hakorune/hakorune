@@ -89,7 +89,7 @@ Add a minimal fixture:
   - each branch returns a constant
 
 Add integration smoke (strict):
-- `tools/smokes/v2/profiles/integration/joinir/phase29at_match_return_strict_shadow_vm.sh`
+- `tools/smokes/v2/profiles/integration/joinir/match_return_strict_shadow_vm.sh`
   - require tag `[coreplan/shadow_adopt:match_return]`
   - assert no `[plan/fallback:` tags in raw output
 

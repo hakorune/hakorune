@@ -20,7 +20,7 @@ Related:
 1) `tools/smokes/v2/profiles/integration/joinir/scan_with_init_strict_shadow_vm.sh`
 - Require FlowBox tag: box_kind=Loop, via=shadow (features may include return/value_join).
 
-2) `tools/smokes/v2/profiles/integration/joinir/phase29at_match_return_strict_shadow_vm.sh`
+2) `tools/smokes/v2/profiles/integration/joinir/match_return_strict_shadow_vm.sh`
 - Require FlowBox tag: box_kind=Seq, features includes return, via=shadow.
 
 ## SSOT updates

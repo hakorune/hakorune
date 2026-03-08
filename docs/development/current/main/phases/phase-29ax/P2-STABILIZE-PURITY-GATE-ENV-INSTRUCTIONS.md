@@ -18,10 +18,10 @@ Scope: Phase 29ax P2
 
 ## 対象
 
-- `tools/smokes/v2/profiles/integration/joinir/phase29as_purity_gate_vm.sh`
+- `tools/smokes/v2/profiles/integration/joinir/joinir_purity_gate_vm.sh`
   - `HAKO_JOINIR_DEBUG/DEV` と `NYASH_JOINIR_DEBUG/DEV` を毎回 `unset`
 
 ## 受け入れ
 
-- `./tools/smokes/v2/profiles/integration/joinir/phase29as_purity_gate_vm.sh` が安定 PASS
+- `./tools/smokes/v2/profiles/integration/joinir/joinir_purity_gate_vm.sh` が安定 PASS
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` が PASS

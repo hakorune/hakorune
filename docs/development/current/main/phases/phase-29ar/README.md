@@ -25,14 +25,14 @@ strict fail-fast reject + release adopt coverage, without widening general loop 
 
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_min_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_release_adopt_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/string_is_integer_strict_reject_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/string_is_integer_release_adopt_vm.sh`
 
 ## Fixtures / smokes (SSOT)
 
-- `apps/tests/phase29ar_string_is_integer_min.hako`
-- `tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_min_vm.sh`
-- `tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_release_adopt_vm.sh`
+- `apps/tests/string_is_integer_min.hako`
+- `tools/smokes/v2/profiles/integration/joinir/string_is_integer_strict_reject_vm.sh`
+- `tools/smokes/v2/profiles/integration/joinir/string_is_integer_release_adopt_vm.sh`
 
 ## Plan
 

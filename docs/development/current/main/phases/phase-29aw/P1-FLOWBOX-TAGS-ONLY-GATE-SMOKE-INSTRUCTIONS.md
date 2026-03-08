@@ -20,7 +20,7 @@ Related:
 
 1. Add gate script
 
-- `tools/smokes/v2/profiles/integration/joinir/phase29aw_flowbox_tag_coverage_gate_vm.sh`
+- `tools/smokes/v2/profiles/integration/joinir/flowbox_tag_coverage_gate_vm.sh`
 - Strict/dev:
   - require `[flowbox/adopt box_kind=...]` per coverage map
   - allow extra features (required subset only)

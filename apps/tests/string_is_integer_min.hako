@@ -1,0 +1,16 @@
+// Semantic fixture alias for the minimal StringUtils.is_integer route.
+// Expected output: 1 then 0.
+
+using "apps/lib/json_native/utils/string.hako" as StringUtils
+
+if StringUtils.is_integer("123") {
+    print(1)
+} else {
+    print(0)
+}
+
+if StringUtils.is_integer("12a") {
+    print(1)
+} else {
+    print(0)
+}

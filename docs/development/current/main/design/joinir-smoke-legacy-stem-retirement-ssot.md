@@ -69,6 +69,20 @@ script stems remain available as compatibility entrypoints until all callers mov
 | `tools/smokes/v2/profiles/integration/joinir/split_scan_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern7_strict_shadow_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/split_scan_release_adopt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern7_release_adopt_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/split_scan_regression_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ae_pattern7_scan_split_pack_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_stringutils_tolower_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ap_stringutils_tolower_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_stringutils_join_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ap_stringutils_join_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/stdlib_string_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29aq_stdlib_pack_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/string_is_integer_strict_reject_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_min_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/string_is_integer_release_adopt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_release_adopt_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/match_return_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29at_match_return_strict_shadow_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/match_return_release_adopt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29at_match_return_release_adopt_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/generic_loop_continue_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ca_generic_loop_continue_strict_shadow_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/generic_loop_continue_release_adopt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ca_generic_loop_continue_release_adopt_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/generic_loop_in_body_step_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29cb_generic_loop_in_body_step_strict_shadow_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/generic_loop_in_body_step_release_adopt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29cb_generic_loop_in_body_step_release_adopt_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/joinir_purity_gate_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29as_purity_gate_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/flowbox_tags_gate_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29av_flowbox_tags_gate_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/flowbox_tag_coverage_gate_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29aw_flowbox_tag_coverage_gate_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_break_plan_subset_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase29ai_pattern2_break_plan_subset_ok_min_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_break_realworld_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase263_pattern2_seg_realworld_min_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_break_body_local_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase29ab_pattern2_loopbodylocal_min_vm.sh` |
@@ -93,6 +107,8 @@ Resolution rule:
   historical basename as a replay handle.
 - repo-local current semantic wrappers no longer `exec bash` into `apps/archive/**`; remaining
   replay forwarding is intentional and lives in the archived stems themselves.
+- current semantic regression packs should filter via basename-suffix regex (`/<stem>\\.sh$`)
+  so compat forwarders do not double-run when their filenames contain the semantic stem as a suffix.
 
 ### Archived replay forwarder resolution conditions
 
@@ -199,6 +215,15 @@ lane-specific precondition below is also satisfied.
 | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern*.sh` | compat wrapper targets for route smoke aliases | semantic wrappers or packs are the only remaining callers |
 | `tools/smokes/v2/profiles/integration/joinir/phase29ap_pattern*.sh` | compat wrapper targets for continue/nested route aliases | semantic wrappers are the only remaining callers |
 | `tools/smokes/v2/profiles/integration/joinir/phase29ae_pattern{6,7}_*.sh` | legacy regression pack stems | semantic regression-pack wrappers are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/phase29ap_stringutils_*.sh` | compat wrapper targets for loop_simple_while stdlib aliases | semantic stdlib wrappers are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/phase29aq_stdlib_pack_vm.sh` | legacy stdlib pack stem | `stdlib_string_pack_vm.sh` is the only current caller |
+| `tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_*.sh` | compat wrapper targets for is_integer gates | semantic is_integer wrappers are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/phase29at_match_return_*.sh` | compat wrapper targets for match-return gates | semantic match_return wrappers are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/phase29ca_generic_loop_continue_*.sh` | compat wrapper targets for generic-loop-continue gates | semantic generic-loop-continue wrappers are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/phase29cb_generic_loop_in_body_step_*.sh` | compat wrapper targets for generic-loop-in-body-step gates | semantic generic-loop-in-body-step wrappers are the only remaining callers |
+| `tools/smokes/v2/profiles/integration/joinir/phase29as_purity_gate_vm.sh` | compat wrapper target for JoinIR purity gate | `joinir_purity_gate_vm.sh` is the only current caller |
+| `tools/smokes/v2/profiles/integration/joinir/phase29av_flowbox_tags_gate_vm.sh` | compat wrapper target for FlowBox tags gate | `flowbox_tags_gate_vm.sh` is the only current caller |
+| `tools/smokes/v2/profiles/integration/joinir/phase29aw_flowbox_tag_coverage_gate_vm.sh` | compat wrapper target for flowbox coverage gate | `flowbox_tag_coverage_gate_vm.sh` is the only current caller |
 | `tools/smokes/v2/profiles/integration/joinir/phase29bi/phase29bj/phase29bl/phase29bn/phase29bo_*pack_vm.sh` | legacy planner-pack stems | semantic planner-pack wrappers are the only remaining callers |
 | `tools/smokes/v2/profiles/integration/apps/archive/{phase29ai_pattern2_break_plan_subset_ok_min_vm,phase263_pattern2_seg_realworld_min_vm,phase29ab_pattern2_loopbodylocal_min_vm,phase29ab_pattern2_loopbodylocal_seg_min_vm,phase118_pattern3_if_sum_vm,phase286_pattern5_break_vm}.sh` | archived replay forwarders | active docs/packs/manual lanes no longer need the archived basename as a replay handle |
 | `tools/smokes/v2/profiles/integration/joinir/phase143_legacy_pack.sh` / `phase286_pattern9_legacy_pack.sh` | archived legacy pack stems | retained only until historical phase docs/archive references are explicitly retired |

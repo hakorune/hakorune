@@ -50,7 +50,7 @@ Goal: StringUtils.join の loop を LoopArrayJoin facts / recipe lane で受理�
 ### 4) Smoke: join を gate に入れる
 
 - 新規 fixture: `apps/tests/phase29ap_stringutils_join_min.hako`
-- 新規 smoke: `tools/smokes/v2/profiles/integration/joinir/phase29ap_stringutils_join_vm.sh`
+- 新規 smoke: `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_stringutils_join_vm.sh`
 - gate へ追加: `phase29ae_regression_pack_vm.sh`
 - docs: `phase-29ae/README.md` に追記
 

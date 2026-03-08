@@ -19,8 +19,8 @@ Exact compat/archive stem mapping is tracked in
 - loop_continue_only (continue min, VM): `loop_continue_only_vm`
 - loop_simple_while (strict shadow, VM): `loop_simple_while_strict_shadow_vm`
 - loop_simple_while (subset reject, VM): `loop_simple_while_subset_reject_extra_stmt_vm`
-- loop_simple_while (stdlib to_lower, VM): `phase29ap_stringutils_tolower_vm`
-- loop_simple_while (stdlib join, VM): `phase29ap_stringutils_join_vm`
+- loop_simple_while (stdlib to_lower, VM): `loop_simple_while_stringutils_tolower_vm`
+- loop_simple_while (stdlib join, VM): `loop_simple_while_stringutils_join_vm`
 - scan_with_init (stdlib index_of, VM): `phase29aq_string_index_of_min_vm`
 - scan_with_init (stdlib last_index_of, VM): `phase29aq_string_last_index_of_min_vm`
 - scan_with_init (stdlib index_of_string, VM): `phase29aq_string_index_of_string_min_vm`
@@ -38,17 +38,17 @@ Exact compat/archive stem mapping is tracked in
 - Derived (stdlib ends_with, VM): `phase29aq_string_ends_with_min_vm`
 - Derived (stdlib trim, VM): `phase29aq_string_trim_min_vm`
 - loop_simple_while (stdlib to_upper, VM): `phase29aq_string_to_upper_min_vm`
-- Purity gate (strict fallback visibility, VM): `phase29as_purity_gate_vm`
-- Return-in-loop (stdlib is_integer, strict fail-fast reject, VM): `phase29ar_string_is_integer_min_vm`
-- Return-in-loop (stdlib is_integer, release adopt, VM): `phase29ar_string_is_integer_release_adopt_vm`
-- Generic loop (continue, strict shadow, VM): `phase29ca_generic_loop_continue_strict_shadow_vm`
-- Generic loop (continue, release adopt, VM): `phase29ca_generic_loop_continue_release_adopt_vm`
-- Generic loop (in-body step, strict shadow, VM): `phase29cb_generic_loop_in_body_step_strict_shadow_vm`
-- Generic loop (in-body step, release adopt, VM): `phase29cb_generic_loop_in_body_step_release_adopt_vm`
-- BranchN (match return-only, strict shadow, VM): `phase29at_match_return_strict_shadow_vm`
-- BranchN (match return-only, release adopt, VM): `phase29at_match_return_release_adopt_vm`
-- FlowBox tags gate (strict/non-strict, VM): `phase29av_flowbox_tags_gate_vm`
-- FlowBox tag coverage gate (strict/non-strict, VM): `phase29aw_flowbox_tag_coverage_gate_vm`
+- Purity gate (strict fallback visibility, VM): `joinir_purity_gate_vm`
+- Return-in-loop (stdlib is_integer, strict fail-fast reject, VM): `string_is_integer_strict_reject_vm`
+- Return-in-loop (stdlib is_integer, release adopt, VM): `string_is_integer_release_adopt_vm`
+- Generic loop (continue, strict shadow, VM): `generic_loop_continue_strict_shadow_vm`
+- Generic loop (continue, release adopt, VM): `generic_loop_continue_release_adopt_vm`
+- Generic loop (in-body step, strict shadow, VM): `generic_loop_in_body_step_strict_shadow_vm`
+- Generic loop (in-body step, release adopt, VM): `generic_loop_in_body_step_release_adopt_vm`
+- BranchN (match return-only, strict shadow, VM): `match_return_strict_shadow_vm`
+- BranchN (match return-only, release adopt, VM): `match_return_release_adopt_vm`
+- FlowBox tags gate (strict/non-strict, VM): `flowbox_tags_gate_vm`
+- FlowBox tag coverage gate (strict/non-strict, VM): `flowbox_tag_coverage_gate_vm`
 - loop_true_early_exit (VM): `loop_true_early_exit_vm`（regression-pack semantic-body wrapper）
 - loop_true_early_exit (strict shadow, VM): `loop_true_early_exit_strict_shadow_vm`
 - loop_true_early_exit (release adopt, VM): `loop_true_early_exit_release_adopt_vm`
@@ -82,6 +82,7 @@ Exact compat/archive stem mapping is tracked in
 ## Commands
 
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
+- The regression pack now uses basename-suffix regex filters (`/<stem>\\.sh$`) so semantic wrappers do not accidentally pull compat forwarders into the same run.
 
 ## Status
 

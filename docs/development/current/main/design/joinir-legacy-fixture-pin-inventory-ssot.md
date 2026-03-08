@@ -47,6 +47,7 @@ tokens that still act as traceability pins.
 | `loop_break_body_local_min.hako` | `loop_break body-local` | semantic fixture alias |
 | `loop_break_body_local_seg_min.hako` | `loop_break body-local-seg` | semantic fixture alias |
 | `loop_true_early_exit_min.hako` | `loop_true_early_exit` | semantic fixture alias |
+| `string_is_integer_min.hako` | `string_is_integer` | semantic fixture alias |
 | `bool_predicate_scan_frag_min.hako` | `bool_predicate_scan` | semantic fixture alias |
 | `accum_const_loop_frag_poc.hako` | `accum_const_loop` | semantic fixture alias |
 | `loop_continue_only_multidelta_min.hako` | `loop_continue_only multi-delta` | semantic fixture alias |
@@ -138,7 +139,7 @@ guidance.
 | `phase29bq_pattern4continue_multidelta_min.hako` / `p4_multidelta` | planner-required multi-delta fixture pin; say `loop_continue_only multi-delta` in prose |
 | `phase29ab_pattern6_*` / `phase29ab_pattern7_*` | route-family fixture pin tokens for scan regressions; current docs should say `scan_with_init` / `split_scan` |
 | `phase29ai_pattern2_break_plan_subset_ok_min.hako` / `phase29ab_pattern2_loopbodylocal_min.hako` / `phase29ab_pattern2_loopbodylocal_seg_min.hako` / `phase263_pattern2_seg_realworld_min.hako` / `phase286_pattern5_break_min.hako` / `phase269_p0_pattern8_frag_min.hako` / `phase286_pattern9_frag_poc.hako` | historical coverage pins kept for replay and gate traceability |
-| semantic fixture aliases such as `if_phi_join_min.hako` / `loop_break_plan_subset_min.hako` / `loop_break_realworld_min.hako` / `loop_break_body_local_min.hako` / `loop_break_body_local_seg_min.hako` / `loop_true_early_exit_min.hako` / `bool_predicate_scan_frag_min.hako` / `accum_const_loop_frag_poc.hako` / `loop_continue_only_min.hako` / `loop_continue_only_multidelta_min.hako` / `scan_with_init_*_min.hako` / `split_scan_*_min.hako` / `loop_break_recipe_only_min.hako` / `loop_simple_while_inline_explicit_step_min.hako` / `loop_simple_while_strict_shadow_min.hako` / `loop_simple_while_subset_reject_extra_stmt_min.hako` | preferred current gate/selfhost entry names; old basenames are now historical pin tokens only |
+| semantic fixture aliases such as `if_phi_join_min.hako` / `loop_break_plan_subset_min.hako` / `loop_break_realworld_min.hako` / `loop_break_body_local_min.hako` / `loop_break_body_local_seg_min.hako` / `loop_true_early_exit_min.hako` / `string_is_integer_min.hako` / `bool_predicate_scan_frag_min.hako` / `accum_const_loop_frag_poc.hako` / `loop_continue_only_min.hako` / `loop_continue_only_multidelta_min.hako` / `scan_with_init_*_min.hako` / `split_scan_*_min.hako` / `loop_break_recipe_only_min.hako` / `loop_simple_while_inline_explicit_step_min.hako` / `loop_simple_while_strict_shadow_min.hako` / `loop_simple_while_subset_reject_extra_stmt_min.hako` | preferred current gate/selfhost entry names; old basenames are now historical pin tokens only |
 
 ## Usage
 
@@ -151,6 +152,7 @@ guidance.
   - say `loop_break body-local`, and use `loop_break_body_local_min.hako` when an exact current fixture basename matters
   - say `loop_break body-local-seg`, and use `loop_break_body_local_seg_min.hako` when an exact current fixture basename matters
   - say `loop_true_early_exit`, and use `loop_true_early_exit_min.hako` when an exact current fixture basename matters
+  - say `string_is_integer`, and use `string_is_integer_min.hako` when an exact current fixture basename matters
   - say `loop_continue_only`, and use `loop_continue_only_min.hako` when an exact current fixture basename matters
   - say `bool_predicate_scan`, and use `bool_predicate_scan_frag_min.hako` when an exact current fixture basename matters
   - say `loop_simple_while strict shadow`, and use `loop_simple_while_strict_shadow_min.hako` when an exact current fixture basename matters

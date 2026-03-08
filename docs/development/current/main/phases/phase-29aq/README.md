@@ -70,7 +70,7 @@ document unsupported cases for handoff.
 
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29aq_stdlib_pack_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/stdlib_string_pack_vm.sh`
 
 ## Completed steps
 

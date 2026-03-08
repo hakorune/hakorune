@@ -17,8 +17,8 @@ as the long-term final form, without changing release behavior.
 
 - `./tools/smokes/v2/run.sh --profile quick`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29at_match_return_strict_shadow_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/phase29at_match_return_release_adopt_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/match_return_strict_shadow_vm.sh`
+- `./tools/smokes/v2/profiles/integration/joinir/match_return_release_adopt_vm.sh`
 
 ## Plan
 

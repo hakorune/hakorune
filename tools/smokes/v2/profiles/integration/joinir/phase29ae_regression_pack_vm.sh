@@ -12,7 +12,8 @@ dump_adopt_env_on_failure() {
 run_filter() {
     local label="$1"
     local filter="$2"
-    local args=("--profile" "integration" "--filter" "$filter")
+    local filter_regex="/${filter}\\.sh$"
+    local args=("--profile" "integration" "--filter" "$filter_regex")
 
     if [ "${PREFLIGHT_DONE:-0}" = "1" ]; then
         args+=("--skip-preflight")
@@ -20,7 +21,7 @@ run_filter() {
         PREFLIGHT_DONE=1
     fi
 
-    log_info "phase29ae_regression_pack_vm: ${label} (${filter})"
+    log_info "phase29ae_regression_pack_vm: ${label} (${filter_regex})"
     if ! bash "$NYASH_ROOT/tools/smokes/v2/run.sh" "${args[@]}"; then
         dump_adopt_env_on_failure
         log_error "phase29ae_regression_pack_vm: ${label} failed"
@@ -40,20 +41,20 @@ run_filter "if_phi_join_release_adopt_vm" "if_phi_join_release_adopt_vm" || exit
 run_filter "loop_continue_only_vm" "loop_continue_only_vm" || exit 1
 run_filter "loop_simple_while_strict_shadow_vm" "loop_simple_while_strict_shadow_vm" || exit 1
 run_filter "loop_simple_while_subset_reject_extra_stmt_vm" "loop_simple_while_subset_reject_extra_stmt_vm" || exit 1
-run_filter "loop_simple_while_stringutils_tolower_vm" "phase29ap_stringutils_tolower_vm" || exit 1
-run_filter "loop_simple_while_stringutils_join_vm" "phase29ap_stringutils_join_vm" || exit 1
-run_filter "stdlib_string_pack_vm" "phase29aq_stdlib_pack_vm" || exit 1
-run_filter "purity_gate_vm" "phase29as_purity_gate_vm" || exit 1
-run_filter "string_is_integer_strict_reject_vm" "phase29ar_string_is_integer_min_vm" || exit 1
-run_filter "string_is_integer_release_adopt_vm" "phase29ar_string_is_integer_release_adopt_vm" || exit 1
-run_filter "generic_loop_continue_strict_shadow_vm" "phase29ca_generic_loop_continue_strict_shadow_vm" || exit 1
-run_filter "generic_loop_continue_release_adopt_vm" "phase29ca_generic_loop_continue_release_adopt_vm" || exit 1
-run_filter "generic_loop_in_body_step_strict_shadow_vm" "phase29cb_generic_loop_in_body_step_strict_shadow_vm" || exit 1
-run_filter "generic_loop_in_body_step_release_adopt_vm" "phase29cb_generic_loop_in_body_step_release_adopt_vm" || exit 1
-run_filter "match_return_strict_shadow_vm" "phase29at_match_return_strict_shadow_vm" || exit 1
-run_filter "match_return_release_adopt_vm" "phase29at_match_return_release_adopt_vm" || exit 1
-run_filter "flowbox_tags_gate_vm" "phase29av_flowbox_tags_gate_vm" || exit 1
-run_filter "flowbox_tag_coverage_gate_vm" "phase29aw_flowbox_tag_coverage_gate_vm" || exit 1
+run_filter "loop_simple_while_stringutils_tolower_vm" "loop_simple_while_stringutils_tolower_vm" || exit 1
+run_filter "loop_simple_while_stringutils_join_vm" "loop_simple_while_stringutils_join_vm" || exit 1
+run_filter "stdlib_string_pack_vm" "stdlib_string_pack_vm" || exit 1
+run_filter "purity_gate_vm" "joinir_purity_gate_vm" || exit 1
+run_filter "string_is_integer_strict_reject_vm" "string_is_integer_strict_reject_vm" || exit 1
+run_filter "string_is_integer_release_adopt_vm" "string_is_integer_release_adopt_vm" || exit 1
+run_filter "generic_loop_continue_strict_shadow_vm" "generic_loop_continue_strict_shadow_vm" || exit 1
+run_filter "generic_loop_continue_release_adopt_vm" "generic_loop_continue_release_adopt_vm" || exit 1
+run_filter "generic_loop_in_body_step_strict_shadow_vm" "generic_loop_in_body_step_strict_shadow_vm" || exit 1
+run_filter "generic_loop_in_body_step_release_adopt_vm" "generic_loop_in_body_step_release_adopt_vm" || exit 1
+run_filter "match_return_strict_shadow_vm" "match_return_strict_shadow_vm" || exit 1
+run_filter "match_return_release_adopt_vm" "match_return_release_adopt_vm" || exit 1
+run_filter "flowbox_tags_gate_vm" "flowbox_tags_gate_vm" || exit 1
+run_filter "flowbox_tag_coverage_gate_vm" "flowbox_tag_coverage_gate_vm" || exit 1
 run_filter "loop_true_early_exit_vm" "loop_true_early_exit_vm" || exit 1
 run_filter "loop_true_early_exit_strict_shadow_vm" "loop_true_early_exit_strict_shadow_vm" || exit 1
 run_filter "loop_true_early_exit_release_adopt_vm" "loop_true_early_exit_release_adopt_vm" || exit 1

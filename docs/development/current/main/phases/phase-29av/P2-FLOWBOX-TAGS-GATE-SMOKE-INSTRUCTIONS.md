@@ -20,7 +20,7 @@ This makes observability drift impossible to miss.
 ## Outline
 
 1. New smoke script:
-   - `tools/smokes/v2/profiles/integration/joinir/phase29av_flowbox_tags_gate_vm.sh`
+   - `tools/smokes/v2/profiles/integration/joinir/flowbox_tags_gate_vm.sh`
 2. Run 2–3 existing fixtures (fast):
    - strict: `HAKO_JOINIR_STRICT=1` require `\[flowbox/adopt `
    - non-strict: require absence of `\[flowbox/`

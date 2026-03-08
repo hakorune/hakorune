@@ -50,7 +50,7 @@ Goal: StringUtils.to_lower の loop を LoopCharMap facts / recipe lane で受�
 ### 4) Smoke: to_lower を gate に入れる
 
 - 新規 fixture: `apps/tests/phase29ap_stringutils_tolower_min.hako`
-- 新規 smoke: `tools/smokes/v2/profiles/integration/joinir/phase29ap_stringutils_tolower_vm.sh`
+- 新規 smoke: `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_stringutils_tolower_vm.sh`
 - gate へ追加: `phase29ae_regression_pack_vm.sh`
 - docs: `phase-29ae/README.md` に追記
 

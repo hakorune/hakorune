@@ -44,18 +44,18 @@ Note:
 | `loop_break` body-local route | `loop_break_body_local_vm` | Loop | break | shadow | loop_break promotion (body-local; coverage-only semantic-body wrapper) |
 | `loop_break` body-local-seg route | `loop_break_body_local_seg_vm` | Loop | break | shadow | loop_break promotion (body-local + seg; coverage-only semantic-body wrapper) |
 | `loop_break` realworld route | `loop_break_realworld_vm` | Loop | break | shadow | loop_break derived-slot (realworld subset; regression-pack semantic-body wrapper) |
-| `match_return` strict shadow adopt | `phase29at_match_return_strict_shadow_vm` | Seq | return | shadow | match_return uses Seq(Effects + BranchN) |
+| `match_return` strict shadow adopt | `match_return_strict_shadow_vm` | Seq | return | shadow | match_return uses Seq(Effects + BranchN) |
 | `nested_loop_minimal` strict shadow adopt | `nested_loop_minimal_strict_shadow_vm` | Loop | nested_loop | shadow | nested minimal |
-| `if_phi_join` purity gate | `phase29as_purity_gate_vm` | Loop | (empty) | shadow | if_phi_join subset (purity gate only; paired route smoke `if_phi_join_vm` is a regression-pack semantic-body wrapper; legacy tag suffix token `pattern3_ifphi` is traceability-only) |
-| `generic_loop_continue` strict shadow adopt | `phase29ca_generic_loop_continue_strict_shadow_vm` | Loop | continue | shadow | generic loop continue (strict/dev) |
-| `generic_loop_in_body_step` strict shadow adopt | `phase29cb_generic_loop_in_body_step_strict_shadow_vm` | Loop | (empty) | shadow | generic loop in-body step (strict/dev) |
+| `if_phi_join` purity gate | `joinir_purity_gate_vm` | Loop | (empty) | shadow | if_phi_join subset (purity gate only; paired route smoke `if_phi_join_vm` is a regression-pack semantic-body wrapper; legacy tag suffix token `pattern3_ifphi` is traceability-only) |
+| `generic_loop_continue` strict shadow adopt | `generic_loop_continue_strict_shadow_vm` | Loop | continue | shadow | generic loop continue (strict/dev) |
+| `generic_loop_in_body_step` strict shadow adopt | `generic_loop_in_body_step_strict_shadow_vm` | Loop | (empty) | shadow | generic loop in-body step (strict/dev) |
 
 ## Negative coverage (no FlowBox adopt tag)
 
 These smoke stems are part of regression coverage and must **not** emit FlowBox adopt tags:
 
 - `loop_break` NotApplicable negative coverage（archived smoke stem; exact legacy stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- `phase29ar_string_is_integer_min_vm` (strict fail-fast reject; expects `[vm-hako/unimplemented] ... newbox(StringUtils)`)
+- `string_is_integer_strict_reject_vm` (strict fail-fast reject; expects `[vm-hako/unimplemented] ... newbox(StringUtils)`)
 
 ## Gate set (minimal)
 
@@ -70,5 +70,5 @@ FlowBox checks are now asserted in these strict smokes as well (semantic alias w
 - `split_scan_strict_shadow_vm`
 - `loop_true_early_exit_strict_shadow_vm`
 - `nested_loop_minimal_strict_shadow_vm`
-- `phase29at_match_return_strict_shadow_vm`
-- `phase29as_purity_gate_vm`
+- `match_return_strict_shadow_vm`
+- `joinir_purity_gate_vm`

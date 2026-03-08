@@ -27,7 +27,7 @@ Inputs exclude empty-only strings; no new Pattern2 logic is introduced.
 
 ## Gate wiring
 
-- Add both smokes to `tools/smokes/v2/profiles/integration/joinir/phase29aq_stdlib_pack_vm.sh`.
+- Add both smokes to `tools/smokes/v2/profiles/integration/joinir/stdlib_string_pack_vm.sh`.
 - Ensure `phase29ae_regression_pack_vm.sh` runs the stdlib pack.
 - Update `docs/development/current/main/phases/phase-29ae/README.md`.
 

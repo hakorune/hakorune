@@ -33,7 +33,7 @@ builds, while keeping default logs unchanged.
 
 - `src/mir/builder/control_flow/plan/composer/shadow_adopt.rs`
 - `src/mir/builder/control_flow/joinir/patterns/router.rs`
-- `tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_release_adopt_vm.sh` (new)
+- `tools/smokes/v2/profiles/integration/joinir/string_is_integer_release_adopt_vm.sh` (new)
 - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 - `docs/development/current/main/phases/phase-29ar/README.md`
 - `docs/development/current/main/phases/phase-29ae/README.md`

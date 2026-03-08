@@ -29,7 +29,7 @@ leading zero) using fixtures + smokes; keep behavior unchanged (invalid returns
 
 ## Gate wiring
 
-- tools/smokes/v2/profiles/integration/joinir/phase29aq_stdlib_pack_vm.sh
+- tools/smokes/v2/profiles/integration/joinir/stdlib_string_pack_vm.sh
 - docs/development/current/main/phases/phase-29ae/README.md
 
 ## Verification
