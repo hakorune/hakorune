@@ -16,7 +16,7 @@ Scope: planner の内部構造だけを Skeleton→Feature の段取りへ寄せ
 
 ## Objective
 
-- `build_plan_from_facts_ctx()` を「complete pattern の羅列」から、**Skeleton inference → Feature inference → CandidateSet finalize** の段取りへ寄せる
+- `build_plan_from_facts_ctx()` を「complete route-family 列挙」から、**Skeleton inference → Feature inference → CandidateSet finalize** の段取りへ寄せる
 - ただし P2 は “段取りの導入” が目的で、**挙動は不変**（候補の集合/順序/ログ/エラー文字列を変えない）
 
 ## Non-goals
@@ -52,13 +52,8 @@ Scope: planner の内部構造だけを Skeleton→Feature の段取りへ寄せ
 例（順序は今のまま）:
 - `push_scan_with_init(&mut candidates, facts)`
 - `push_split_scan(&mut candidates, facts)`
-- `push_pattern2_break(...)`
-- `push_pattern3_ifphi(...)`
-- `push_pattern4_continue(...)`
-- `push_pattern5_infinite_early_exit(...)`
-- `push_pattern8_bool_predicate_scan(...)`（allow_pattern8 gate維持）
-- `push_pattern9_accum_const_loop(...)`
-- `push_pattern1_simplewhile(...)`（allow_pattern1 gate維持）
+- historical helper token group:
+  - `push_pattern*` helpers（historical numbered labels 1/2/3/4/5/8/9; allow gates are preserved）
 
 受け入れ:
 - ルール文字列（`rule: "loop/..."`）は完全一致のまま
@@ -80,4 +75,3 @@ Scope: planner の内部構造だけを Skeleton→Feature の段取りへ寄せ
 ## Commit
 
 - `git add -A && git commit -m "phase29an(p2): stage planner via skeleton/feature inference (no behavior change)"`
-

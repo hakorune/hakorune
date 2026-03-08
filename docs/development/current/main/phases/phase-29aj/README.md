@@ -2,6 +2,10 @@
 
 Goal: planner の facts/plan を 1 本の outcome に集約し、観測の SSOT を planner 側に固定する（仕様不変）。
 
+Note:
+- instruction filename に残る `PATTERN*` は historical numbered label だよ
+- current route family は `loop_simple_while` / `if_phi_join` / `loop_continue_only` / `loop_true_early_exit` / `bool_predicate_scan` / `accum_const_loop` を主語に読む
+
 ## P0: PlannerOutcome（Facts+Plan）SSOT
 
 - 指示書: `docs/development/current/main/phases/phase-29aj/P0-PLANNER-OUTCOME-SSOT-INSTRUCTIONS.md`

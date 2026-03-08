@@ -43,7 +43,7 @@ Rules:
 ### Step 2: skeleton/features の構築を “has_any の後” に固定
 
 `try_build_loop_facts_inner()` 内で:
-- pattern facts 抽出 → `has_any` 判定 → `skeleton` / `features` 抽出 → `Ok(Some(LoopFacts{...}))`
+- route-specific facts 抽出 → `has_any` 判定 → `skeleton` / `features` 抽出 → `Ok(Some(LoopFacts{...}))`
 
 ### Step 3: planner/build.rs の unit test を機械的に更新
 
@@ -58,7 +58,7 @@ Update:
 ### Step 4: “SSOT不変条件” の最小テストを 1 本追加
 
 Add in `src/mir/builder/control_flow/plan/facts/loop_facts.rs`:
-- pattern facts が 1 つでも取れた場合、`LoopFacts.skeleton.kind == Loop` が成立する
+- route-specific facts が 1 つでも取れた場合、`LoopFacts.skeleton.kind == Loop` が成立する
 - `LoopFacts.features.exit_usage` がデフォルトでも存在する（`Option` ではないことの固定）
 
 ## Verification（required）
@@ -70,4 +70,3 @@ Add in `src/mir/builder/control_flow/plan/facts/loop_facts.rs`:
 ## Commit
 
 - `git add -A && git commit -m "phase29an(p4): require skeleton/features in loop facts"`
-

@@ -10,9 +10,13 @@ Related:
 
 # Phase 29an: Skeleton/Feature Facts (SSOT)
 
-Goal: Facts を “complete pattern 列挙” ではなく **Skeleton + Feature** として表現できる状態へ寄せ、CorePlan 合成に向けた SSOT の足場を作る（仕様不変）。
+Goal: Facts を “complete route-family 列挙” ではなく **Skeleton + Feature** として表現できる状態へ寄せ、CorePlan 合成に向けた SSOT の足場を作る（仕様不変）。
 
 SSOT 道筋: `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+
+Note:
+- instruction filename や一部 code token に残る `Pattern*` は historical numbered label / historical symbol だよ
+- current reading は `Skeleton` / `Feature` / semantic route family を優先する
 
 ## Closeout summary
 
@@ -33,7 +37,7 @@ Status: ✅ COMPLETE（実装コミット: `ea32d61a5`）
 ## P1: Add FeatureFacts (ExitMap/ValueJoin/Cleanup materials) as SSOT (code, no wiring)
 
 - 指示書: `docs/development/current/main/phases/phase-29an/P1-FEATUREFACTS-SSOT-INSTRUCTIONS.md`
-- ねらい: Skeleton に直交する “特徴” を Facts に寄せ、complete pattern 増殖を止める（まずは ExitUsage から）
+- ねらい: Skeleton に直交する “特徴” を Facts に寄せ、complete route-family 増殖を止める（まずは ExitUsage から）
 - 重要: **既定挙動は不変**（features だけで Ok(Some) にしない）
 - Gate: `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
@@ -86,7 +90,7 @@ Status: ✅ COMPLETE（実装コミット: `5ac2f3586`）
 ## P8: exit_usage invariants (debug-only)
 
 - 指示書: `docs/development/current/main/phases/phase-29an/P8-EXITUSAGE-INVARIANTS-INSTRUCTIONS.md`
-- ねらい: exit_usage と DomainPlan（historical labels `1/2/4/5`）の整合を debug-only で固定（release は仕様不変）
+- ねらい: exit_usage と plan route（historical labels `1/2/4/5`）の整合を debug-only で固定（release は仕様不変）
 
 Status: ✅ COMPLETE（実装コミット: `195b424cc`）
 
