@@ -64,6 +64,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - return to de-rust selfhost feature work
   - treat `compat-fallback` as explicit compat keep, not as current workstream
   - treat Stage2 default bootstrap dependency as future-wave reduction target
+  - `phase-29cf` deep inventory fixed:
+    - live fallback callers are now bucketed as `implementation keep` / `stage-a compat keep` / `monitor-only keep` / `historical`
+    - bootstrap owners are now bucketed as `current keep` / `compat keep` / `bootstrap keep` / `future retire target`
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
@@ -1267,6 +1270,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{10-Now.md,design/de-rust-master-task-map-ssot.md,phases/phase-29cc/{README.md,29cc-260-derust-task-checklist.md,29cc-94-derust-non-plugin-done-sync-ssot.md},phases/phase-29cf/{README.md,P0-VM-FALLBACK-AND-BOOTSTRAP-BOUNDARY-INVENTORY.md,29cf-10-vm-fallback-bootstrap-retirement-checklist.md}}`
     - intent: low-risk code retire を無理に入れず、current mainline で触るべきではない compat/bootstrap residue を `fixed keep` / `future-wave target` に再分類して、de-rust selfhost closeout を再び薄い入口へ戻す
     - verification: `git diff --check` PASS
+  - de-rust selfhost follow-up deep inventory (2026-03-09, slice 235): `phase-29cf` に live fallback caller bucket と bootstrap owner bucket を追加し、VM fallback / Stage0-2 bootstrap の残存 Rust lane を `implementation keep` / `stage-a compat keep` / `monitor-only keep` / `historical` と `current keep` / `compat keep` / `bootstrap keep` / `future retire target` に分けて固定した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29cf/{README.md,P0-VM-FALLBACK-AND-BOOTSTRAP-BOUNDARY-INVENTORY.md,29cf-10-vm-fallback-bootstrap-retirement-checklist.md}`
+    - intent: `compat-fallback` と bootstrap keep の「まだ残る理由」を exact file owner 付きで読めるようにして、次の retirement phase が caller audit から始められるようにする
+    - verification: `git diff --check` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
 
 ## Quick Restart (After Reboot)
 

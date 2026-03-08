@@ -37,6 +37,11 @@ Related:
   - decision: `failure-driven keep` (`monitor-only`)
   - contract: `compat-fallback` remains explicit opt-in via `NYASH_VM_USE_FALLBACK=1`; bypass stays fail-fast (`[freeze:contract][vm-route/compat-bypass]`)
   - reopen condition: promote to `future retire target` only when active fallback caller=0 is confirmed and `vm` / `vm-hako` mainline stays green without compat lane
+- [x] `VCF-05` classify live caller buckets
+  - implementation keep: `route_orchestrator.rs` / `vm_fallback.rs` / `vm_backend_flags.rs`
+  - stage-a compat keep: `runtime_route_contract.rs` / `stage_a_policy.rs` / `stage_a_compat_bridge.rs`
+  - monitor-only keep: `phase29x_vm_route_non_strict_compat_boundary_vm.sh` / `route_env_probe.sh` / `plugin_loader_v2 route_resolver` tests
+  - historical bucket: `phase-29x` route docs and archived handoff only
 
 ## 2) Bootstrap boundary reduction
 
@@ -47,6 +52,11 @@ Related:
   - decision: `future retire target` (`phase-29cf` では code cut しない)
   - current lock: `stage1` identity route stays mainline; `stage0` / `auto` stay compatibility-only; Stage2 default-bootstrap dependency remains the next dedicated reduction target
   - reopen condition: execute in a dedicated bootstrap-reduction phase when Stage1-first build path can remove one default-bootstrap dependency
+- [x] `BSR-05` classify current bootstrap owners
+  - current keep: `run_stage1_cli.sh` + `selfhost_identity_check.sh` stage1 route
+  - compat keep: `identity_routes.sh` stage0/auto recovery
+  - bootstrap keep: `build_stage1.sh` default launcher artifact
+  - future retire target: Stage2 default-bootstrap dependency in `selfhost_identity_check.sh`
 
 ## 3) Follow-up rule
 

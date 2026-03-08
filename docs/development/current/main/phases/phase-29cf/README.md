@@ -70,6 +70,25 @@ Related:
   - Stage2 still depends on default bootstrap lane and remains a future reduction target
 - `docs/private` drift is out of scope here
 
+## Live Caller Matrix
+
+| Bucket | Current owner / caller | Meaning |
+| --- | --- | --- |
+| `current keep` | [route_orchestrator.rs](/home/tomoaki/git/hakorune-selfhost/src/runner/route_orchestrator.rs), [vm_fallback.rs](/home/tomoaki/git/hakorune-selfhost/src/runner/modes/vm_fallback.rs), [vm_backend_flags.rs](/home/tomoaki/git/hakorune-selfhost/src/config/env/vm_backend_flags.rs) | explicit compat lane implementation remains in top-level runtime; not a mainline route |
+| `monitor-only keep` | [phase29x_vm_route_non_strict_compat_boundary_vm.sh](/home/tomoaki/git/hakorune-selfhost/tools/smokes/v2/profiles/integration/selfhost/phase29x_vm_route_non_strict_compat_boundary_vm.sh), [route_env_probe.sh](/home/tomoaki/git/hakorune-selfhost/tools/checks/route_env_probe.sh), [plugin_loader_v2 route_resolver tests](/home/tomoaki/git/hakorune-selfhost/src/runtime/plugin_loader_v2/enabled/route_resolver.rs) | contract verification / diagnostics for explicit fallback policy |
+| `compat-only recovery keep` | [identity_routes.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/lib/identity_routes.sh) | `auto -> stage0` recovery and `[identity/compat-fallback]` evidence line |
+| `historical / archive` | `phase-29x` historical SSOTs and archived handoff docs | evidence only; not a current route owner |
+
+## Bootstrap Boundary Matrix
+
+| Boundary | Current owner | Bucket | Note |
+| --- | --- | --- | --- |
+| `stage1` identity route | [selfhost_identity_check.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost_identity_check.sh), [run_stage1_cli.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/run_stage1_cli.sh) | `current keep` | mainline selfhost identity route |
+| `stage0` / `auto` identity route | [selfhost_identity_check.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost_identity_check.sh), [identity_routes.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/lib/identity_routes.sh) | `compat keep` | compatibility-only recovery; not full-mode evidence |
+| `launcher-exe` default artifact | [build_stage1.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/build_stage1.sh) | `bootstrap keep` | run-oriented default artifact; does not satisfy G1 emit contract by itself |
+| `stage1-cli` artifact | [build_stage1.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/build_stage1.sh) | `current keep` | explicit emit-capable artifact for G1/full mode |
+| Stage2 default-bootstrap dependency | [selfhost_identity_check.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost_identity_check.sh) | `future retire target` | next dedicated reduction target after stage1-first build path is ready |
+
 ## Exit Criteria
 
 - `VM fallback compat lane` の keep/reject/future-retire bucket が checklist で固定されている
