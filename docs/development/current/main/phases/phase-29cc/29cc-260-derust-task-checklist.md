@@ -1,5 +1,5 @@
 ---
-Status: Active (closeout locked; optional aftercare only)
+Status: Accepted (top-level closeout done; optional separate-repo follow-up only)
 Decision: accepted
 Date: 2026-03-09
 Scope: 脱Rust selfhost lane の「完了済み」と「残タスク」を checkbox で固定する。`CURRENT_TASK.md` は薄い入口のまま保つ。

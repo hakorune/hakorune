@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-02-25
+Date: 2026-03-09
 Scope: 脱Rustタスクを lane A/B/C で固定し、担当境界と導線の混線を防ぐ。
 Related:
   - CURRENT_TASK.md
@@ -36,7 +36,7 @@ Related:
 | lane | name | scope | primary SSOT | current status |
 | --- | --- | --- | --- | --- |
 | A | Compiler Meaning | JoinIR / Planner / CorePlan の受理・意味決定 | `de-rust-compiler-thin-rust-roadmap-ssot.md` + JoinIR gate SSOT | active（monitor-only, blocker=`none`） |
-| B | Compiler Pipeline | `.hako` parser / mirbuilder / Stage1 compiler 導線 | `selfhost-parser-mirbuilder-migration-order-ssot.md` | active（failure-driven） |
+| B | Compiler Pipeline | `.hako` parser / mirbuilder / Stage1 compiler 導線 | `selfhost-parser-mirbuilder-migration-order-ssot.md` | active（monitor-only, blocker=`none`; failure-driven reopen） |
 | C | Runtime Port | Rust VM 依存機能の `.hako VM` 置換（RVP） | `phase-29y/60-NEXT-TASK-PLAN.md` + `phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md` | active（current blocker: `none`, capability=`none`） |
 
 ## Scope Boundary (must keep)
@@ -109,7 +109,7 @@ Related:
 - 条件未達時:
   - `.hako` 単独デバッグへ寄せず、`60-NEXT-TASK-PLAN.md` の Debug Procedure Lock で lane を確定してから修正する。
 
-## Remaining Tasks Snapshot (2026-02-19)
+## Remaining Tasks Snapshot (2026-03-09)
 
 - lane A:
   - done range は `JIR-PORT-00..07`（詳細は `joinir-port-task-pack-ssot.md` の Current State）。
@@ -130,3 +130,7 @@ Related:
 - lane C:
   - `RVP-C15` まで `ported` 昇格済み（feature matrix 全row ported）。
   - fixed backlog は置かず、`phase29y_vm_hako_caps_gate_vm.sh` fail 起点の failure-driven monitor-only で維持する。
+- orchestration / aftercare:
+  - `phase-29cc`: accepted monitor-only（top-level de-rust selfhost closeout done）
+  - `phase-29ce`: accepted（live compat retirement closeout）
+  - `phase-29cf`: accepted monitor-only（`VM fallback compat lane` / `bootstrap boundary reduction` follow-up）

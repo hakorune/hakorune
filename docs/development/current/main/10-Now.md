@@ -109,6 +109,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - De-rust orchestration lane（phase-29cc）:
   - status dashboard（SSOT）: `docs/development/current/main/phases/phase-29cc/README.md`
   - execution checklist: `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`
+  - status: accepted monitor-only（top-level closeout done）
+  - live compat closeout: `docs/development/current/main/phases/phase-29ce/README.md`（accepted）
   - post-closeout follow-up: `docs/development/current/main/phases/phase-29cf/README.md`（accepted monitor-only）
   - scope decision（L5 accepted）: `docs/development/current/main/design/de-rust-scope-decision-ssot.md`
   - strict readiness（L4 done）: `tools/selfhost/check_phase29x_x23_readiness.sh --strict` -> `status=READY`（2026-02-25）
@@ -158,14 +160,17 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 
 ## Immediate Next
 
-1. `.hako` kernel mainline（no-fallback）を日常経路として固定する。
-2. done contract は次の 2 コマンドを正本に固定する:
+1. `.hako` kernel mainline（no-fallback）を日常経路として維持する。
+2. 脱Rust selfhost top-level closeout は完了済みとして扱う。
+3. current development は selfhost / de-rust mainline feature work に戻す。
+4. done contract は次の 2 コマンドを正本に固定する:
    - `tools/checks/dev_gate.sh runtime-exec-zero`
    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
-3. `build-mainline`（cargo-free）を daily default に固定する。
-4. `build-maintenance`（cargo）は host 保守時のみ実行する。
-5. Rust source は保存固定とし、削除タスクは現時点で開始しない。
-6. 最適化 lane（micro/asm -> kilo）は runtime closeout contract 緑を前提に別コミット境界で再開する。
+5. `build-mainline`（cargo-free）を daily default に固定する。
+6. `build-maintenance`（cargo）は host 保守時のみ実行する。
+7. Rust source は保存固定とし、削除タスクは現時点で開始しない。
+8. `phase-29cf` の `VM fallback compat lane` / `bootstrap boundary reduction` は future-wave follow-up として monitor-only で維持する。
+9. 最適化 lane（micro/asm -> kilo）は runtime closeout contract 緑を前提に別コミット境界で再開する。
 
 ## Read First Order
 

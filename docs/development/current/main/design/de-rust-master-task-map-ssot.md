@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-02-25
+Date: 2026-03-09
 Scope: 脱Rust完了までの全体順序（lane A/B/C + 29cc orchestration）と done 判定を 1 枚で固定する。
 Related:
   - CURRENT_TASK.md
@@ -48,16 +48,17 @@ Separate lane pointer:
 - plugin lane `PLG-01` acceptance は `phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md` を正本とする。
 - plugin lane `PLG-02` gate pack lock は `phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md` を正本とする。
 
-## 2. Current Snapshot (2026-02-25)
+## 2. Current Snapshot (2026-03-09)
 
 1. lane A: monitor-only（blocker=`none`）
 2. lane B: monitor-only（current focus は binary-only contract 維持）
 3. lane C: monitor-only（LLVM-first / vm-hako parity monitor）
-4. phase-29cc: `RNR-01..05` 完了（non-plugin residue は monitor-only）
+4. phase-29cc: accepted monitor-only（`RNR-01..05` 完了、top-level closeout done）
 5. L4 strict readiness: PASS（`tools/selfhost/check_phase29x_x23_readiness.sh --strict`, 2026-02-25）
 6. L5 scope decision: accepted（`de-rust-scope-decision-ssot.md`）
 7. de-rust done declaration (non-plugin): accepted（`phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md`）
-8. post-closeout follow-up: `phase-29cf` accepted monitor-only で `VM fallback compat lane` / `bootstrap boundary reduction` を独立管理
+8. `phase-29ce`: accepted（live compat retirement closeout）
+9. `phase-29cf`: accepted monitor-only（`VM fallback compat lane` / `bootstrap boundary reduction` follow-up）
 
 ## 3. Fixed Completion Ladder
 

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted (monitor-only)
 Decision: accepted
 Date: 2026-02-25
 Scope: phase-29cc（non-plugin residue lane）の de-rust done 宣言を docs/evidence で固定する。

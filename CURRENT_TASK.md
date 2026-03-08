@@ -41,9 +41,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `DRC-08`: top-level closeout done
     - `DRC-07`: optional (`docs/private` separate repo)
   - post-closeout follow-up:
+    - `docs/development/current/main/phases/phase-29ce/README.md`
     - `docs/development/current/main/phases/phase-29cf/README.md`
     - `docs/development/current/main/phases/phase-29cf/29cf-10-vm-fallback-bootstrap-retirement-checklist.md`
   - current follow-up:
+    - `phase-29ce / accepted`
     - `phase-29cf / accepted monitor-only`
     - `VM fallback compat lane: explicit compat keep`
     - `bootstrap boundary reduction: future-wave target`
@@ -53,10 +55,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Immediate Next (this round)
 
-- de-rust selfhost post-closeout follow-up:
+- de-rust selfhost top-level closeout:
+  - `phase-29cc` accepted monitor-only
+  - `phase-29ce` accepted
   - `phase-29cf` accepted monitor-only
-  - `compat-fallback` is explicit compat keep
-  - Stage2 default bootstrap dependency is future-wave target
+  - top-level aftercare is no longer the current blocker
+- selfhost mainline next:
+  - return to de-rust selfhost feature work
+  - treat `compat-fallback` as explicit compat keep, not as current workstream
+  - treat Stage2 default bootstrap dependency as future-wave reduction target
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
@@ -104,6 +111,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   1. active docs（archive除外）の Pattern 主語注記を route 主語へ同期し、必要箇所だけ `legacy label` 注記を残す（進行中: `coreplan-shadow` / `plan-mod-layout` / `compiler-task-map` / `recipe-first-entry` / `condition-observation` / `domainplan-thinning` / `edgecfg-fragments` / `plan-dir-shallowing` / `coreplan-unknown-loop-strategy` / `coreloop-generic-loop-v0` / `joinir-plan-frag` / `coreplan-migration-roadmap` / `condprofile` / `coreloop-composer-v0-v1-boundary` / `pattern6-7-contracts` / `planfrag-freeze-taxonomy` / `planfrag-ssot-registry` は同期済み）。
   2. `plan/**` 内の pattern1..9 残語彙を「挙動不変の comment/test 名」から先に縮退し、型名・module名は inventory化して段階移行する（進行中: `coreloop_v0/v1` tests + `facts/loop_builder.rs` comment + `facts/loop_tests.rs` 名称 + `plan/mod.rs` / `route_prep_pipeline.rs` / `policies/*` comment + loop_break module cluster comment + extractor cluster comment + `facts/pattern*_facts.rs` header comment を同期済み）。
   3. planner/normalizer の dead comments・test-only wiring（payload 前提）を段階撤去する。
+
+## Next Fixed Order (2026-03-09)
+
+1. selfhost / de-rust mainline development に戻る
+2. `phase-29cf` は monitor-only の follow-up lane として維持する
+3. `phase-29cc` / `phase-29ce` は reopen 条件が出た時だけ failure-driven で再開する
+4. `docs/private` は separate repo の optional follow-up として扱う
 
 ## Compiler Cleanup Order (2026-03-04, SSOT)
 

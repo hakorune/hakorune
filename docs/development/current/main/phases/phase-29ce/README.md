@@ -59,6 +59,17 @@ current semantic wrapper / semantic fixture alias / semantic route substring を
      `docs/development/current/main/design/joinir-frontend-legacy-fixture-key-retirement-ssot.md`
      を正本とする
 
+## Current Program JSON key matrix
+
+| Bucket | Exact keys | Meaning |
+| --- | --- | --- |
+| current runtime keep | `simple` | current runtime keep |
+| current fixture/test keep | `test`, `local`, `_read_value_from_pair` | current fixture/test keep |
+| current dev key | `nested_if_merge`, `read_quoted` | dev-gated current key |
+| retired dev-gated compat key | `parse_loop`, `read_quoted_from` | retired; reject in current runtime |
+| retired Program JSON compat key | `filter`, `print_tokens`, `map`, `reduce`, `fold` | retired; reject in current runtime |
+| retired historical docs/private key | `pattern3_if_sum_multi_min`, `jsonparser_if_sum_min`, `selfhost_if_sum_p3`, `selfhost_if_sum_p3_ext`, `jsonparser_skip_ws_mini`, `jsonparser_skip_ws_real`, `jsonparser_atoi_mini`, `jsonparser_atoi_real`, `jsonparser_parse_number_real` | historical docs/private only |
+
 ## Non-goals
 
 - archive replay forwarder の hard-delete

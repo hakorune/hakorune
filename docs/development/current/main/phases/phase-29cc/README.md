@@ -1,5 +1,5 @@
 ---
-Status: Active (M0-M4 done; plugin waves done through PLG-06-min4; wasm lane done through WSM-P10-min1)
+Status: Accepted (monitor-only; M0-M4 done, plugin waves done through PLG-07, wasm lane done through WSM-P10)
 Scope: 脱Rust selfhost orchestration lane (M0-M4)
 Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
@@ -72,12 +72,14 @@ Related:
 ## Current focus
 
 - de-rust selfhost checklist snapshot (2026-03-09):
+  - top-level orchestration closeout: accepted monitor-only
   - `DRC-01` source-zero inventory: done
   - `DRC-02` bootstrap boundary inventory: done
   - `DRC-03` / `DRC-04` live compat closeout: done
   - `DRC-05` / `DRC-06` plugin aftercare: monitor-only fixed keep / recheck
   - remaining top-level checklist follow-up is `DRC-07` (`docs/private` separate repo) だけ
   - post-closeout `VM fallback compat lane` / `bootstrap boundary reduction` follow-up は `phase-29cf` accepted monitor-only で独立管理する
+  - live compat retirement lane は `phase-29ce` accepted で closeout 済み
 ### Plugin Progress Snapshot
 
 | Wave | Status | Lock |
