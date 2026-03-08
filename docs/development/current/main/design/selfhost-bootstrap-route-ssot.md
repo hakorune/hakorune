@@ -33,7 +33,8 @@ SSOT:
 
 - mainline selfhost route は `stage1` / semantic wrapper / no-fallback を正本とする
 - `phase-29cf` が `VM fallback compat lane` と `bootstrap boundary reduction` を accepted monitor-only で独立管理する
-- `compat-fallback` は explicit compat keep であり、current caller authority は `phase29x_vm_route_non_strict_compat_boundary_vm.sh` / `phase29x_vm_route_observability_vm.sh` / `phase29x_vm_route_strict_dev_priority_vm.sh` / `phase29x_derust_strict_default_route_vm.sh` / `route_env_probe.sh` / plugin route-resolver test に限定する
+- `compat-fallback` は explicit compat keep であり、current caller authority は `phase29x_vm_route_non_strict_compat_boundary_vm.sh` / `phase29x_vm_route_observability_vm.sh` / `phase29x_vm_route_strict_dev_priority_vm.sh` に限定する
+- `phase29x_derust_strict_default_route_vm.sh` は de-rust done-sync keep、`route_env_probe.sh` は current diagnostics keep、plugin route-resolver test は plugin test keep として別 bucket で管理する
 - binary-only `--hako-emit-mir-json` / `--hako-run` は ported contract として monitor-only 運用する
 - G1 identity (`tools/selfhost_identity_check.sh --mode full`) は現行 bootstrap contract の正本として維持する
 - `tools/selfhost_identity_check.sh` は artifact-kind=`stage1-cli` 時に Stage2 build を default bootstrap へ落とす。この 1 点が bootstrap reduction の next concrete target である

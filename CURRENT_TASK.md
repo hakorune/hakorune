@@ -65,10 +65,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - treat `compat-fallback` as explicit compat keep, not as current workstream
   - treat Stage2 default bootstrap dependency as future-wave reduction target
   - `phase-29cf` deep inventory fixed:
-    - live fallback callers are now bucketed as `implementation keep` / `stage-a compat keep` / `monitor-only keep` / `historical`
+    - live fallback callers are now bucketed as `implementation keep` / `stage-a compat keep` / `route authority probe keep` / `done-sync keep` / `current diagnostics keep` / `plugin test keep` / `historical`
     - bootstrap owners are now bucketed as `current keep` / `compat keep` / `bootstrap keep` / `future retire target`
   - `phase-29cf` exact caller matrix fixed:
     - current explicit fallback env callers are limited to `phase29x_vm_route_non_strict_compat_boundary_vm.sh`, `phase29x_vm_route_observability_vm.sh`, `phase29x_vm_route_strict_dev_priority_vm.sh`, `phase29x_derust_strict_default_route_vm.sh`, plugin route-resolver compat test, and three `phase2043` historical canaries
+    - `phase29x_derust_strict_default_route_vm.sh` is `done-sync keep` because `phase29x_derust_done_matrix_vm.sh` and the de-rust lane map still consume it as current evidence
+    - `route_env_probe.sh` is `current diagnostics keep` because `route_no_fallback_guard.sh` and tools docs still treat it as the active route-probe contract
     - Stage2 current reduction target is exact: `tools/selfhost_identity_check.sh` falls back to default bootstrap when artifact-kind is `stage1-cli` because the Stage1 CLI artifact is emit-only and does not export a bootstrap executable for Stage2 build
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
@@ -1284,6 +1286,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - de-rust selfhost follow-up deep inventory (2026-03-09, slice 235): `phase-29cf` に live fallback caller bucket と bootstrap owner bucket を追加し、VM fallback / Stage0-2 bootstrap の残存 Rust lane を `implementation keep` / `stage-a compat keep` / `monitor-only keep` / `historical` と `current keep` / `compat keep` / `bootstrap keep` / `future retire target` に分けて固定した
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29cf/{README.md,P0-VM-FALLBACK-AND-BOOTSTRAP-BOUNDARY-INVENTORY.md,29cf-10-vm-fallback-bootstrap-retirement-checklist.md}`
     - intent: `compat-fallback` と bootstrap keep の「まだ残る理由」を exact file owner 付きで読めるようにして、次の retirement phase が caller audit から始められるようにする
+    - verification: `git diff --check` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
+  - de-rust selfhost follow-up caller bucket refinement (2026-03-09, slice 237): `phase-29cf` の broad `monitor-only keep` を `route authority probe keep` / `done-sync keep` / `current diagnostics keep` / `plugin test keep` に分割し、`route_env_probe.sh` と `phase29x_derust_strict_default_route_vm.sh` の current authority を別 bucket に固定した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{design/selfhost-bootstrap-route-ssot.md,phases/phase-29cf/{README.md,P0-VM-FALLBACK-AND-BOOTSTRAP-BOUNDARY-INVENTORY.md,29cf-10-vm-fallback-bootstrap-retirement-checklist.md}}`
+    - intent: 次の retirement/reduction で「generic monitor-only probe」と「現役の diagnostics / done-sync evidence」を混同しないようにする
     - verification: `git diff --check` PASS / `cargo check --tests` PASS / `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS / `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail` PASS (`unexpected_emit_fail_count=0`, `route_blocker_count=0`)
 
 ## Quick Restart (After Reboot)
