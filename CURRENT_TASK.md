@@ -1122,6 +1122,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - aftercare cleanup (2026-03-08, slice 207): active phase guide の IfPhiJoin evidence wording を semantic fixture alias / semantic wrapper 優先へ揃えた
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/{phase-29bq/README.md,phase-118/README.md,phase-29bn/README.md}`
     - intent: active docs の current lane では `if_phi_join min` / `apps/tests/if_phi_join_min.hako` / `if_phi_join_vm.sh` を先頭に置き、exact legacy fixture key や LLVM smoke stem は inventory/evidence lane へ後退させる
+  - aftercare cleanup (2026-03-08, slice 208): active instruction docs に残っていた exact compat basename を pointer-first に寄せ、semantic wrapper / semantic fixture alias を current 主語へ揃えた
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/{phase-29af/P2-JOINIR-REGRESSION-PACK-ENTRYPOINT-INSTRUCTIONS.md,phase-29ah/P0-REGRESSION-PACK-INCLUDES-PHASE263-PATTERN2-INSTRUCTIONS.md,phase-29ao/P19-REGRESSION-PACK-ADD-PATTERN1-STRICT-SHADOW-INSTRUCTIONS.md,phase-29ao/P21-PATTERN1-SUBSET-BODY-IS-STEP-ONLY-INSTRUCTIONS.md,phase-29ao/P34-PATTERN2-NEGATIVE-SHADOW-ADOPT-TAG-GATES-INSTRUCTIONS.md,phase-29ao/P12-VALUEJOIN-FIRST-REAL-USAGE-PATTERN7-SPLITSCAN-INSTRUCTIONS.md,phase-29aw/P0-FLOWBOX-TAG-COVERAGE-MAP-INSTRUCTIONS.md,phase-29cb/P0-INBODY-STEP-NORMALIZATION-INSTRUCTIONS.md}`
+    - intent: active instruction lane では `loop_break_*` / `split_scan_*` / `loop_simple_while_*` と semantic fixture alias を先頭に置き、exact archived stem や exact historical fixture basename は retirement SSOT / inventory lane を参照させる
 
 ## Quick Restart (After Reboot)
 

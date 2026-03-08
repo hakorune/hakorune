@@ -18,7 +18,7 @@ JoinIR の回帰確認を “1本のスクリプト” に固定し、semantic r
 1) 回帰パックの entrypoint script を追加
    - `tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
    - 内容: `loop_break*` / `scan_with_init*` / `split_scan*` / `nested_loop_minimal*` の semantic wrapper を順に呼ぶだけ
-   - historical replay stem の exact basename は retirement SSOT/inventory lane にだけ残す
+   - historical replay stem の exact basename は retirement SSOT / inventory lane にだけ残す
 
 2) docs を一本化
    - `docs/development/current/main/phases/phase-29ae/README.md`

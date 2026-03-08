@@ -16,8 +16,8 @@ Goal: Phase 29ao P33 で LoopBreak（historical label 2）の match 範囲を広
 誤って shadow adopt してしまう退行を防ぐ。
 
 対象は LoopBreak route の negative archived replay lane:
-- historical compat wrapper / NotApplicable case
-- historical compat wrapper / Freeze case
+- NotApplicable case（historical compat wrapper は retirement SSOT 参照）
+- Freeze case（historical compat wrapper は retirement SSOT 参照）
 
 これらで strict/dev 実行時に `[coreplan/shadow_adopt:pattern2_break_subset]` が出たら FAIL とする。
 

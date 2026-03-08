@@ -31,7 +31,7 @@ Scope: 仕様不変。P17/P18 で導入した strict/dev の shadow adopt を、
 
 - 新規ファイル: `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh`
   - 入力: `apps/tests/loop_simple_while_strict_shadow_min.hako` を current semantic fixture alias として使う
-  - historical fixture token: `apps/tests/phase286_pattern1_frag_poc.hako`
+  - historical fixture token は inventory lane にのみ残す
   - 実行: `NYASH_DISABLE_PLUGINS=1 HAKO_JOINIR_STRICT=1` を付けて VM 実行
   - 期待: exit code `3`（既存PoCと同じ）
 

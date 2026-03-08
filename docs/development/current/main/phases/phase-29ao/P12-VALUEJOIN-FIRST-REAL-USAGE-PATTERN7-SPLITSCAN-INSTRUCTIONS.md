@@ -77,7 +77,7 @@ Scope: 仕様不変。P10/P11 で用意した `Frag.block_params → emit_frag()
 ### Step 4: 最小の固定（テスト/回帰）
 
 必須の確認:
-- `split_scan_*` current semantic wrapper lane が PASS のまま（historical replay token family は regression pack / retirement SSOT 側で担保）
+- `split_scan_*` current semantic wrapper lane が PASS のまま（historical replay token family の exact basename は regression pack / retirement SSOT 側で担保）
 
 任意（もし不安なら）:
 - `pattern_split_scan.rs` に unit test を 1 本追加し、`frag.block_params.contains_key(&step_bb)` と、

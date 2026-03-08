@@ -23,8 +23,8 @@ pattern-name coupling.
    - Expected `features` subset (csv; empty allowed)
    - Expected `via` (shadow/release) for adopt tags
 2. Decide the minimal set of scenarios to gate (keep fast):
-   - `scan_with_init` (Loop, `via=shadow`; historical label 6)
-   - `split_scan` (Loop, possibly `value_join`; historical label 7)
+   - `scan_with_init` (Loop, `via=shadow`; historical numbered label 6)
+   - `split_scan` (Loop, possibly `value_join`; historical numbered label 7)
    - `is_integer` strict reject (negative coverage: no FlowBox tag, fail-fast marker required)
    - `match_return` (BranchN, features empty or `return`)
 3. Wire a new gate smoke (Phase 29aw P1) into:
