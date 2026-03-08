@@ -35,6 +35,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `docs/development/current/main/phases/phase-29cc/README.md`
     - `docs/development/current/main/design/de-rust-scope-decision-ssot.md`
     - `docs/development/current/main/phases/phase-29cc/29cc-260-derust-task-checklist.md`
+  - current aftercare:
+    - `DRC-01` / `DRC-02` / `DRC-03` / `DRC-04`: done
+    - `DRC-05` / `DRC-06`: monitor-only
+    - `DRC-08`: top-level closeout done
+    - `DRC-07`: optional (`docs/private` separate repo)
 - perf lane: `phase-21.5 / monitor-only`
   - SSOT:
     - `docs/private/roadmap/phases/phase-21.5/PLAN.md`
@@ -1209,6 +1214,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29cc/29cc-260-derust-task-checklist.md`
     - intent: `29cc-210` と `29cc-213` はすでに `done` / `next: none (monitor-only)` / residue classification fixed なので、current cleanup の blocker としては扱わない。de-rust checklist では `completed or explicitly reclassified` に寄せる
     - verification: `git diff --check` PASS / authority check: `docs/development/current/main/phases/phase-29cc/{29cc-210-plg-hm2-core-wave2-rust-recovery-line-lock-ssot.md,29cc-213-plg-hm3-next-blocker-candidate-memo.md,README.md}`
+  - de-rust closeout (2026-03-09, slice 229): `DRC-01` source-zero inventory と `DRC-02` bootstrap boundary inventory を authority 付き matrix へ落とし込み、checklist 上でも完了扱いへ同期した
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29cc/{README.md,29cc-260-derust-task-checklist.md}`
+    - intent: source-zero/source-keep の残存Rust領域を `runtime keep / bootstrap keep / plugin keep / test-only keep` に固定し、Stage0/1/2 bootstrap dependency を `explicit keep / future retire` で読める形にして `DRC-01/02` を close する
+    - verification: `git diff --check` PASS / authority check: `docs/development/current/main/phases/phase-29cc/{29cc-220-runtime-source-zero-cutover-lock-ssot.md,29cc-253-source-zero-static-link-boundary-lock-ssot.md}` + `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+  - de-rust closeout (2026-03-09, slice 230): `DRC-08` micro dust sweep を top-level closeout done に再分類し、de-rust aftercare の残件を `DRC-07` (`docs/private`) だけに絞った
+    - synced files: `CURRENT_TASK.md` / `docs/development/current/main/phases/phase-29cc/{README.md,29cc-260-derust-task-checklist.md}`
+    - intent: current top-level では `cargo check --tests` warning-free と low-risk comment/helper sweep が完了しているため、micro dust は reopen-on-demand 扱いに下げる。de-rust aftercare の未完は separate repo の `docs/private` drift だけと読む
+    - verification: `git diff --check` PASS / `cargo check --tests` PASS
 
 ## Quick Restart (After Reboot)
 

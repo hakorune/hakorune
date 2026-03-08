@@ -1,5 +1,5 @@
 ---
-Status: Active (checklist SSOT)
+Status: Active (closeout locked; optional aftercare only)
 Decision: accepted
 Date: 2026-03-09
 Scope: de-rust lane の「完了済み」と「残タスク」を checkbox で固定する。`CURRENT_TASK.md` は薄い入口のまま保つ。
@@ -95,12 +95,30 @@ Related:
 
 ### 3.1 Source-zero / bootstrap boundary
 
-- [ ] `DRC-01` source-zero final wave inventory refresh
+- [x] `DRC-01` source-zero final wave inventory refresh
   - goal: re-list which Rust runtime/plugin sources are still intentionally kept under `source keep`
   - authority: `29cc-220`, `29cc-253`
-- [ ] `DRC-02` bootstrap boundary inventory
+  - result: source-zero/source-keep buckets are fixed as follows
+
+| Bucket | Exact kept areas (current paths) | Classification | Authority |
+| --- | --- | --- | --- |
+| runtime keep | `src/runtime/plugin_loader_v2/enabled/**`, `src/runtime/plugin_loader_unified.rs`, `src/runtime/semantics.rs`, `src/runtime/box_registry.rs`, `src/runtime/host_api/common.rs`, `crates/nyash_kernel/src/plugin/**`, `crates/nyash_kernel/src/exports/string.rs`, `crates/nyash_kernel/src/hako_forward.rs`, `crates/nyash_kernel/src/hako_forward_bridge.rs` | `source keep` during route-zero / source-zero prep; future source-zero retire target | `29cc-220`, `29cc-245`, `29cc-253`, `29cc-244` |
+| bootstrap keep | `crates/nyash-llvm-compiler/src/main.rs`, `src/runner/modes/common_util/exec.rs`, `src/runner/modes/mir.rs`, `src/runner/modes/llvm/harness_executor.rs` | `bootstrap keep` until static-link/bootstrap boundary retire phase | `29cc-253`, `29cc-245`, `10-Now.md` |
+| plugin keep | `plugins/nyash-integer-plugin/**` | `mainline keep` | `29cc-213`, this checklist §2 |
+| test-only keep | `plugins/nyash-fixture-plugin/**` | `test-only keep` | `29cc-213`, `phase-29cc/README.md`, this checklist §2 |
+
+- [x] `DRC-02` bootstrap boundary inventory
   - goal: make Stage0 / Stage1 / Stage2 Rust dependency explicit
-  - done when: selfhost build path documents which boundaries are allowed keeps vs future retire targets
+  - result: selfhost build path documents allowed keeps vs future retire targets
+
+| Boundary | Current contract | Bucket | Future retire note | Authority |
+| --- | --- | --- | --- | --- |
+| Stage definition / G1 judgment | Stage0/Stage1/Stage2 are fixed; G1 advances only when Stage1 == Stage2 | explicit keep | keep until source-zero/bootstrap final wave | `selfhost-bootstrap-route-ssot.md`, `selfhost-parser-mirbuilder-migration-order-ssot.md` |
+| Identity route | `stage1` is current mainline; `stage0` / `auto` are explicit compat routes only | explicit keep | retire compat routes only after stage1-first evidence stays green | `tools/selfhost/selfhost_identity_check.sh`, `tools/selfhost/lib/identity_routes.sh` |
+| Full-mode evidence | full identity evidence requires Program+MIR on `stage1` route | explicit keep | no retire until full-mode evidence contract changes | `tools/selfhost/selfhost_identity_check.sh` |
+| Artifact kind | build default is `launcher-exe`; G1/full emit identity requires `stage1-cli` artifact | explicit keep | retire only when launcher/exe and emit identity surfaces unify | `tools/selfhost/build_stage1.sh`, `selfhost-bootstrap-route-ssot.md` |
+| Stage2 build dependency | even with `stage1-cli`, Stage2 build still depends on default bootstrap lane | bootstrap keep | future retire target after stage1-first build path removes default bootstrap dependency | `tools/selfhost/selfhost_identity_check.sh` |
+| Stage0 bootstrap build | Rust binary acts as bootstrap when building Stage1 | bootstrap keep | future retire target; current explicit keep | `tools/selfhost/build_stage1.sh`, `29cc-253` |
 
 ### 3.2 Live compat retirement
 
@@ -125,20 +143,23 @@ Related:
 ### 3.4 Optional cleanup
 
 - [ ] `DRC-07` `docs/private` de-rust/plugin drift sync（separate repo）
-- [ ] `DRC-08` micro dust sweep（comment / orphan helper / wording）
+- [x] `DRC-08` micro dust sweep（comment / orphan helper / wording）
+  - classification: `top-level closeout done`
+  - note: `cargo check --tests` warning-free と low-risk comment/helper sweep を確認済み。今後は新しい stale residue が surfaced した時だけ reopen する
 
 ## 4) Recommended execution order
 
-1. [ ] `DRC-03` selfhost/live compat contract cleanup
-2. [ ] `DRC-04` Program JSON key classification closeout
-3. [ ] `DRC-01` source-zero inventory refresh
-4. [ ] `DRC-02` bootstrap boundary inventory
-5. [ ] `DRC-08` micro dust
-6. [x] `DRC-05` / `DRC-06` plugin aftercare is monitor-only unless a new blocker reopens it
+1. [x] `DRC-01` source-zero inventory refresh
+2. [x] `DRC-02` bootstrap boundary inventory
+3. [x] `DRC-03` selfhost/live compat contract cleanup
+4. [x] `DRC-04` Program JSON key classification closeout
+5. [x] `DRC-05` / `DRC-06` plugin aftercare is monitor-only unless a new blocker reopens it
+6. [x] `DRC-08` micro dust
+7. [ ] `DRC-07` `docs/private` drift sync（separate repo）
 
 ## 5) Done judgment for this checklist
 
-- [ ] `DRC-01` to `DRC-06` are either completed or explicitly reclassified as permanent keep / non-goal
-- [ ] active docs keep semantic-first wording
-- [ ] `CURRENT_TASK.md` points here as the detailed de-rust checklist
-- [ ] de-rust lane remains `monitor-only` with blocker `none`
+- [x] `DRC-01` to `DRC-06` are either completed or explicitly reclassified as permanent keep / non-goal
+- [x] active docs keep semantic-first wording
+- [x] `CURRENT_TASK.md` points here as the detailed de-rust checklist
+- [x] de-rust lane remains `monitor-only` with blocker `none`

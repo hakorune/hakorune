@@ -69,6 +69,12 @@ Related:
 
 ## Current focus
 
+- de-rust checklist snapshot (2026-03-09):
+  - `DRC-01` source-zero inventory: done
+  - `DRC-02` bootstrap boundary inventory: done
+  - `DRC-03` / `DRC-04` live compat closeout: done
+  - `DRC-05` / `DRC-06` plugin aftercare: monitor-only fixed keep / recheck
+  - remaining follow-up is `DRC-07` (`docs/private` separate repo) だけ
 ### Plugin Progress Snapshot
 
 | Wave | Status | Lock |
