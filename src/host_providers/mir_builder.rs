@@ -5,6 +5,17 @@ use std::fs;
 // use std::io::Write; // kept for future pretty-print extensions
 
 const FAILFAST_TAG: &str = "[freeze:contract][hako_mirbuilder]";
+const TRACE_ENV: &str = "HAKO_STAGE1_MODULE_DISPATCH_TRACE";
+
+fn trace_enabled() -> bool {
+    std::env::var(TRACE_ENV).ok().as_deref() == Some("1")
+}
+
+fn trace_log(message: impl AsRef<str>) {
+    if trace_enabled() {
+        eprintln!("{}", message.as_ref());
+    }
+}
 
 struct ScopedEnvVar {
     key: &'static str,
@@ -60,6 +71,14 @@ pub fn program_json_to_mir_json_with_imports(
 
     // Parse JSON once and route by shape (Fail-Fast; no silent fallback).
     let parsed: JsonValue = serde_json::from_str(program_json).map_err(|e| {
+        if trace_enabled() {
+            let preview: String = program_json.chars().take(120).collect();
+            let prefix_bytes: Vec<u8> = program_json.as_bytes().iter().take(16).copied().collect();
+            trace_log(format!(
+                "[stage1/mir_builder] invalid_json_preview={:?} prefix_bytes={:?}",
+                preview, prefix_bytes
+            ));
+        }
         let tag = format!("{FAILFAST_TAG} invalid JSON: {}", e);
         crate::runtime::get_global_ring0().log.error(&tag);
         tag
@@ -182,5 +201,28 @@ mod tests {
             mir_json.contains("functions"),
             "MIR JSON should contain functions"
         );
+    }
+
+    #[test]
+    fn test_stageb_program_json_with_stagebdriver_main_call() {
+        let program_json = r#"{
+            "body": [
+                {
+                    "expr": {
+                        "args": [{"name": "args", "type": "Var"}],
+                        "name": "StageBDriverBox.main",
+                        "type": "Call"
+                    },
+                    "type": "Return"
+                }
+            ],
+            "kind": "Program",
+            "version": 0
+        }"#;
+
+        let result = program_json_to_mir_json(program_json);
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+        let mir_json = result.unwrap();
+        assert!(mir_json.contains("functions"));
     }
 }

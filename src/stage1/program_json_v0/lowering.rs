@@ -1,10 +1,40 @@
-use crate::ast::{ASTNode, BinaryOperator, CatchClause, LiteralValue};
+use crate::ast::{ASTNode, BinaryOperator, CatchClause, LiteralValue, UnaryOperator};
 
 pub(super) fn program_json_v0_from_body(body: &[ASTNode]) -> Result<serde_json::Value, String> {
     Ok(serde_json::json!({
         "version": 0,
         "kind": "Program",
         "body": statements_to_json_v0(body)?,
+    }))
+}
+
+pub(super) fn defs_json_v0_from_methods(
+    methods: &[&ASTNode],
+    box_name: &str,
+) -> Result<Vec<serde_json::Value>, String> {
+    let mut defs = Vec::with_capacity(methods.len());
+    for method in methods {
+        defs.push(function_def_json_v0(method, box_name)?);
+    }
+    Ok(defs)
+}
+
+fn function_def_json_v0(
+    declaration: &ASTNode,
+    box_name: &str,
+) -> Result<serde_json::Value, String> {
+    let ASTNode::FunctionDeclaration {
+        name, params, body, ..
+    } = declaration
+    else {
+        return Err("expected FunctionDeclaration in helper defs".to_string());
+    };
+
+    Ok(serde_json::json!({
+        "name": name,
+        "params": params,
+        "body": program_json_v0_from_body(body)?,
+        "box": box_name,
     }))
 }
 
@@ -157,6 +187,11 @@ fn expression_to_json_v0(expression: &ASTNode) -> Result<serde_json::Value, Stri
             right,
             ..
         } => binary_expr_to_json_v0(operator, left, right),
+        ASTNode::UnaryOp {
+            operator,
+            operand,
+            ..
+        } => unary_expr_to_json_v0(operator, operand),
         ASTNode::FunctionCall {
             name, arguments, ..
         } => Ok(serde_json::json!({
@@ -253,6 +288,33 @@ fn expression_to_json_v0(expression: &ASTNode) -> Result<serde_json::Value, Stri
         other => Err(format!(
             "unsupported expression in Main.main/0: {:?}",
             other.node_type()
+        )),
+    }
+}
+
+fn unary_expr_to_json_v0(
+    operator: &UnaryOperator,
+    operand: &ASTNode,
+) -> Result<serde_json::Value, String> {
+    match (operator, operand) {
+        (
+            UnaryOperator::Minus,
+            ASTNode::Literal {
+                value: LiteralValue::Integer(value),
+                ..
+            },
+        ) => Ok(serde_json::json!({
+            "type": "Int",
+            "value": -value,
+        })),
+        _ => Err(format!(
+            "unsupported expression in Main.main/0: {:?}",
+            ASTNode::UnaryOp {
+                operator: operator.clone(),
+                operand: Box::new(operand.clone()),
+                span: crate::ast::Span::unknown(),
+            }
+            .node_type()
         )),
     }
 }

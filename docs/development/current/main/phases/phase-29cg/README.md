@@ -56,12 +56,12 @@ Related:
     - `target/selfhost/hakorune.stage1_cli --emit-mir-json ...` returns `97`
   - helper-driven stage1 bridge contract is only partially valid
     - `stage1_contract_exec_mode <stage1-cli> emit-program ...` succeeds
-    - the emitted Program(JSON v0) for `stage1_cli_env.hako` still has `defs=[]`
-    - `stage1_contract_exec_mode <stage1-cli> emit-mir ...` currently fails with `96` and emits an empty MIR file when fed that `defs`-less Program(JSON)
+    - the emitted Program(JSON v0) for `stage1_cli_env.hako` now materializes helper defs (`defs_len=20`)
+    - `stage1_contract_exec_mode <stage1-cli> emit-mir ...` currently fails with `96`; with `STAGE1_CLI_DEBUG=1`, the exact failure is `[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned null`
   - experimental bootstrap probe:
     - `build_stage1.sh` can now attempt a `stage1-cli bridge-first` Stage2 build when `NYASH_BIN` itself is a `stage1-cli` artifact
-    - `lang/src/runner/stage1_cli_env.hako` has a lower-risk `_find_matching_pair_inline` CFG now, but bridge-first reduction is still blocked earlier
-    - current exact blocker in that path is `emit-program` missing helper defs for `stage1_cli_env.hako`; `build_stage1.sh` now fails fast on that exact condition before `emit-mir`
+    - `lang/src/runner/stage1_cli_env.hako` has a lower-risk `_find_matching_pair_inline` CFG now, and helper defs are no longer the first blocker
+    - current exact blocker in that path is the internal-only `MirBuilderBox.emit_from_program_json_v0(...)` acceptance used by `emit-mir`
 - therefore `phase-29cg` does not treat `stage1-cli` as a drop-in `NYASH_BIN`; it targets a narrower reduction:
   - lift the stage1-bridge helper contract into the Stage2 build path for one reduced case
 
@@ -71,4 +71,4 @@ Related:
 - `tools/selfhost_identity_check.sh` の current fallback note がどの条件で出るか docs から一意に読める
 - checklist に `owner / blocker / acceptance / non-goal` が揃っている
 - `stage1-cli` reduction target is stated as `bridge-first Stage2 build`, not as `raw NYASH_BIN replacement`
-- current G1 route is unchanged until the bridge-first probe clears the stage1-cli registration metadata blocker
+- current G1 route is unchanged until the bridge-first probe clears the stage1-cli internal MirBuilder acceptance blocker

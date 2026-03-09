@@ -43,9 +43,9 @@ Related:
 - `target/selfhost/hakorune.stage1_cli emit program-json apps/tests/hello_simple_llvm.hako` -> `97`
 - `target/selfhost/hakorune.stage1_cli --emit-mir-json /tmp/out apps/tests/hello_simple_llvm.hako` -> `97`
 
-2. stage1-bridge helper contract is valid for `stage1-cli`
+2. stage1-bridge helper contract is only partially valid for `stage1-cli`
 - `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-program ...` -> Program(JSON v0)
-- `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir ...` -> MIR(JSON v0)
+- `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir ...` -> `96`
 
 3. implication
 - next reduction target is not `stage1-cli` as raw `NYASH_BIN`
@@ -56,11 +56,11 @@ Related:
 - `build_stage1.sh` now has an explicit `stage1-cli bridge-first` path when `NYASH_BIN` itself is a `stage1-cli` artifact
 - exact probe result:
   - Stage1 bridge emits Program(JSON) successfully
-  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) still has `defs=[]` even though helper methods exist
-  - the issue is not unique to `stage1_cli_env.hako`; a minimal `Main.main -> method foo()` probe also yields `defs=[]`
-  - `stage1_contract_exec_mode ... emit-mir ...` then fails with `96` and leaves an empty MIR file
-  - `build_stage1.sh` now fail-fast stops on `missing helper defs` before entering the `emit-mir` step
-- therefore the current blocker moved from bootstrap wiring and MIR dominance to helper-def materialization for `stage1_cli_env.hako` under bridge-first bootstrap
+  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) now materializes helper defs (`defs_len=20`)
+  - `stage1_contract_exec_mode ... emit-mir ...` still fails with `96`
+  - with `STAGE1_CLI_DEBUG=1`, the exact failure point is `[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned null`
+  - clean `build_stage1.sh` bridge-first probe still exits non-zero, but no longer because helper defs are absent
+- therefore the current blocker moved from helper-def materialization to internal-only MirBuilder acceptance under bridge-first bootstrap
 
 ## Reduction target
 
@@ -76,4 +76,4 @@ Related:
 - exact owner / exact condition / exact target が 1 枚で読める
 - checklist がこの inventory を参照して進められる
 - raw direct probe and helper-driven probe are both fixed so the next reduction cannot drift into the wrong contract
-- bridge-first probe failure point is fixed so the next execution slice can target `user_box_decls` / box-registration metadata, not route plumbing
+- bridge-first probe failure point is fixed so the next execution slice can target internal MirBuilder acceptance, not route plumbing or helper-def materialization

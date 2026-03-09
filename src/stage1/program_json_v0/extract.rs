@@ -1,6 +1,12 @@
 use crate::ast::ASTNode;
+use std::collections::BTreeMap;
 
-pub(super) fn find_static_main_body(ast: &ASTNode) -> Option<&[ASTNode]> {
+pub(super) struct StaticMainBox<'a> {
+    pub body: &'a [ASTNode],
+    pub helper_methods: Vec<&'a ASTNode>,
+}
+
+pub(super) fn find_static_main_box(ast: &ASTNode) -> Option<StaticMainBox<'_>> {
     let ASTNode::Program { statements, .. } = ast else {
         return None;
     };
@@ -34,7 +40,25 @@ pub(super) fn find_static_main_body(ast: &ASTNode) -> Option<&[ASTNode]> {
             return None;
         };
 
-        return Some(body.as_slice());
+        let mut helper_methods = BTreeMap::new();
+        for declaration in methods.values() {
+            let ASTNode::FunctionDeclaration {
+                name, params, ..
+            } = declaration
+            else {
+                continue;
+            };
+            if name == "main" {
+                continue;
+            }
+            let signature = format!("{}/{}", name, params.len());
+            helper_methods.entry(signature).or_insert(declaration);
+        }
+
+        return Some(StaticMainBox {
+            body: body.as_slice(),
+            helper_methods: helper_methods.into_values().collect(),
+        });
     }
 
     None

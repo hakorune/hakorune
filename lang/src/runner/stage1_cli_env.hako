@@ -6,7 +6,10 @@
 
 using lang.compiler.build.build_box as BuildBox
 using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
+using lang.compiler.entry.func_scanner as FuncScannerBox
+using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
 using lang.mir.builder.MirBuilderBox as MirBuilderBox
+using sh_core as StringHelpers
 static box Main {
   main() {
     local mode = env.get("NYASH_STAGE1_MODE")
@@ -98,9 +101,24 @@ static box Main {
       return 96
     }
 
-    local mir = MirBuilderBox.emit_from_program_json_v0(src_json)
-    if mir == null { return 96 }
-    if mir == "" { return 96 }
+    local mir = MirBuilderBox.emit_from_program_json_v0(src_json, null)
+    local stage1_debug = env.get("STAGE1_CLI_DEBUG")
+    local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
+    if mir == null {
+      if stage1_debug_on {
+        print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned null")
+      }
+      return 96
+    }
+    if mir == "" {
+      if stage1_debug_on {
+        print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned empty string")
+      }
+      return 96
+    }
+    if stage1_debug_on {
+      print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned non-empty payload")
+    }
     mir = me._inject_entry_user_box_decls_if_needed(mir)
     local mir_head = mir.substring(0, 1)
     if mir_head != "{" {
@@ -182,9 +200,24 @@ static box Main {
       print("[freeze:contract][stage1-cli/emit-program] BuildBox.emit_program_json_v0 returned null")
       return null
     }
-    local defs_json = me._build_main_defs_fragment_inline(text)
-    if defs_json != "" && defs_json.length() > 0 {
-      prog = me._inject_json_fragment_inline(prog, defs_json)
+    if prog.indexOf("\"defs\"") < 0 {
+      local defs_json = me._build_main_defs_fragment_inline(text)
+      if env.get("STAGE1_CLI_DEBUG") == "1" {
+        if defs_json == null {
+          print("[stage1-cli/debug] emit-program defs-json:null")
+        } else if defs_json == "" {
+          print("[stage1-cli/debug] emit-program defs-json:empty")
+        } else {
+          print("[stage1-cli/debug] emit-program defs-json:present")
+        }
+      }
+      if defs_json != "" && defs_json.length() > 0 {
+        prog = me._inject_json_fragment_inline(prog, defs_json)
+      }
+    } else {
+      if env.get("STAGE1_CLI_DEBUG") == "1" {
+        print("[stage1-cli/debug] emit-program defs-json:already-present")
+      }
     }
     local has_kind = prog.indexOf("\"kind\":\"Program\"")
     local has_version = prog.indexOf("\"version\":0")
@@ -196,7 +229,31 @@ static box Main {
   }
 
   method _build_main_defs_fragment_inline(source_text) {
+    local scanned_methods = FuncScannerBox.scan_all_boxes(source_text)
+    if scanned_methods != null && scanned_methods.length() > 0 {
+      local scanned_defs = StageBJsonBuilderBox.build_defs_json(scanned_methods)
+      if env.get("STAGE1_CLI_DEBUG") == "1" {
+        print("[stage1-cli/debug] defs-scan scanner:present")
+      }
+      if scanned_defs != null && scanned_defs != "" {
+        return scanned_defs
+      }
+    } else {
+      if env.get("STAGE1_CLI_DEBUG") == "1" {
+        print("[stage1-cli/debug] defs-scan scanner:empty")
+      }
+    }
+
     local body = me._extract_main_box_body_inline(source_text)
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      if body == null {
+        print("[stage1-cli/debug] defs-scan body:null")
+      } else if body == "" {
+        print("[stage1-cli/debug] defs-scan body:empty")
+      } else {
+        print("[stage1-cli/debug] defs-scan body:present")
+      }
+    }
     if body == null || body == "" { return "" }
 
     local defs = ""
@@ -210,6 +267,9 @@ static box Main {
       local name_start = me._skip_ws_inline(body, method_idx + 7)
       local name_end = me._scan_ident_end_inline(body, name_start)
       local name = body.substring(name_start, name_end)
+      if env.get("STAGE1_CLI_DEBUG") == "1" {
+        print("[stage1-cli/debug] defs-scan method=" + name)
+      }
       if name == "" {
         pos = method_idx + 7
         continue
@@ -231,7 +291,7 @@ static box Main {
         pos = rparen + 1
         continue
       }
-      local rbrace = me._find_matching_pair_inline(body, lbrace, "{", "}")
+      local rbrace = FuncScannerBox.find_matching_brace(body, lbrace)
       if rbrace < 0 {
         pos = lbrace + 1
         continue
@@ -242,6 +302,11 @@ static box Main {
         local params_json = me._build_params_json_inline(params_src)
         local method_body = body.substring(lbrace + 1, rbrace)
         local body_json = me._lower_method_body_inline(method_body)
+        if env.get("STAGE1_CLI_DEBUG") == "1" {
+          local body_json_len = 0
+          if body_json != null { body_json_len = body_json.length() }
+          print("[stage1-cli/debug] defs-scan lowered method=" + name + " body_json_len=" + ("" + body_json_len))
+        }
         if body_json != null && body_json != "" {
           if emitted == 0 {
             defs = ",\"defs\":["
@@ -265,12 +330,42 @@ static box Main {
     local s = "" + source_text
     local box_idx = s.indexOf("static box Main")
     if box_idx < 0 { box_idx = s.indexOf("box Main") }
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      if box_idx < 0 {
+        print("[stage1-cli/debug] defs-scan box:not-found")
+      } else {
+        print("[stage1-cli/debug] defs-scan box:found")
+      }
+    }
     if box_idx < 0 { return null }
     local open_idx = s.indexOf("{", box_idx)
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      if open_idx < 0 {
+        print("[stage1-cli/debug] defs-scan open-brace:not-found")
+      } else {
+        print("[stage1-cli/debug] defs-scan open-brace:found")
+      }
+    }
     if open_idx < 0 { return null }
-    local close_idx = me._find_matching_pair_inline(s, open_idx, "{", "}")
+    local close_idx = FuncScannerBox.find_matching_brace(s, open_idx)
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      if close_idx < 0 {
+        print("[stage1-cli/debug] defs-scan close-brace:not-found")
+      } else {
+        print("[stage1-cli/debug] defs-scan close-brace:found")
+        print("[stage1-cli/debug] defs-scan brace-range open=" + StringHelpers.int_to_str(open_idx) + " close=" + StringHelpers.int_to_str(close_idx) + " len=" + StringHelpers.int_to_str(s.length()))
+      }
+    }
     if close_idx < 0 { return null }
-    return s.substring(open_idx + 1, close_idx)
+    local body = s.substring(open_idx + 1, close_idx)
+    if body != null && body != "" { return body }
+
+    local method_idx = s.indexOf("method ")
+    local tail_close = me._find_last_significant_char_inline(s)
+    if method_idx >= 0 && tail_close > method_idx && s.substring(tail_close, tail_close + 1) == "}" {
+      body = s.substring(method_idx, tail_close)
+    }
+    return body
   }
 
   method _lower_method_body_inline(method_body) {
@@ -460,6 +555,20 @@ static box Main {
       break
     }
     return str.substring(start, stop)
+  }
+
+  method _find_last_significant_char_inline(s) {
+    if s == null { return -1 }
+    local i = s.length() - 1
+    loop(i >= 0) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+        i = i - 1
+        continue
+      }
+      return i
+    }
+    return -1
   }
 
   method _clean_env_value(v) {

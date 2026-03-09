@@ -1305,12 +1305,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - implication: next reduction target は `stage1-cli` binary の raw `NYASH_BIN` 置換ではなく、stage1-bridge helper contract の Stage2 build path への昇格
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{design/selfhost-bootstrap-route-ssot.md,phases/phase-29cg/{README.md,P0-STAGE2-BOOTSTRAP-REDUCTION-INVENTORY.md,29cg-10-stage2-bootstrap-reduction-checklist.md}}`
   - de-rust Stage2 bootstrap reduction probe (2026-03-09, slice 241): `build_stage1.sh` に `stage1-cli bridge-first bootstrap` path を追加して exact probe した。初回は `stage1_cli_env.hako` build が `Instruction does not dominate all uses!` で ny-llvmc link fail になったため、bridge-first lane の first blocker を `stage1_cli_env.hako` MIR quality として固定した
-  - de-rust Stage2 bootstrap reduction probe (2026-03-09, slice 242): `stage1_cli_env.hako` の `_find_matching_pair_inline` を単純化したうえで bridge-first bootstrap を再計測した。MIR dominance blocker はこの sliceでは再発しなかったが、exact blocker はさらに手前へ寄り、`emit-program` helper defs 欠落 (`defs=[]`) により `emit-mir` が `96` / empty MIR で止まる形だと固定した
-    - implication: next concrete blocker is stage1-cli registration metadata より前段の helper-def materialization であり、`build_stage1.sh` はこの条件で fail-fast する
+  - de-rust Stage2 bootstrap reduction probe (2026-03-09, slice 242): `stage1_cli_env.hako` の `_find_matching_pair_inline` を単純化したうえで bridge-first bootstrap を再計測した。MIR dominance blocker はこの sliceでは再発しなかったが、exact blocker はさらに手前へ寄り、`stage1_contract_exec_mode ... emit-mir ...` が `96` で止まる形へ固定した
+    - implication: next concrete blocker is helper-def materialization ではなく、internal-only `MirBuilderBox.emit_from_program_json_v0(...)` acceptance under stage1 bridge path
     - intent: `phase-29cf` の inventory lane と、次に実際に削減する Stage2 bootstrap dependency lane を分離し、1 blocker = 1 phase で進められるようにする
-  - de-rust Stage2 bootstrap reduction probe (2026-03-09, slice 243): helper-def materialization blocker を generalize した。`stage1_cli_env.hako` だけでなく、最小 `Main.main -> method foo()` probe でも `emit-program` が `defs=[]` を返すことを確認したため、current blocker は helper-method complexity ではなく `Program(JSON)` helper-def materialization 契約そのものにある
-    - verification: `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-program /tmp/stage1_defs_probe_min.hako ...` -> `defs=[]`
-    - verification: `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli ...` -> `[stage1] stage1-cli bootstrap emit-program missing helper defs`
+  - de-rust Stage2 bootstrap reduction grounding (2026-03-09, slice 243): Rust-side `stage1/program_json_v0` を拡張し、static `Main` helper methods を `defs` として materialize する current contract を追加した。`stage1_cli_env.hako` の clean bridge probe は `defs_len=20` まで進む一方、`stage1_contract_exec_mode ... emit-mir ...` は `96` で fail し、`[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned null` で止まることを確認した
+    - verification: `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-program lang/src/runner/stage1_cli_env.hako ...` -> `defs_len=20`
+    - verification: `STAGE1_CLI_DEBUG=1 stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir lang/src/runner/stage1_cli_env.hako ...` -> `rc=96`, debug=`MirBuilderBox.emit_from_program_json_v0 returned null`
+    - verification: `cargo check --tests` PASS / `cargo test --lib source_to_program_json_v0_emits_helper_defs_for_main_box_methods` PASS / `cargo test --lib test_stageb_program_json_with_stagebdriver_main_call` PASS / `cargo test -p nyash_kernel mir_builder_stageb_program_json_returns_mir_json_handle` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
 
 ## Quick Restart (After Reboot)
 
