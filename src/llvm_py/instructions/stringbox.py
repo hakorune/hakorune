@@ -14,6 +14,7 @@ Phase 134-B: StringBox LLVM Bridge - StringBox 統合モジュール
 import llvmlite.ir as ir
 from typing import Dict, List, Optional, Any
 import os
+from utils.values import resolve_i64_strict
 
 
 # StringBox method mapping (TypeRegistry slots 410-413)
@@ -119,7 +120,16 @@ def emit_stringbox_call(
         """Resolve value ID to i64 via resolver or vmap"""
         if r is not None and p is not None and bev is not None and bbm is not None:
             try:
-                return r.resolve_i64(vid, builder.block, p, bev, vmap, bbm)
+                return resolve_i64_strict(
+                    r,
+                    vid,
+                    builder.block,
+                    p,
+                    bev,
+                    vmap,
+                    bbm,
+                    hot_scope="stringbox",
+                )
             except Exception:
                 return None
         return vmap.get(vid)

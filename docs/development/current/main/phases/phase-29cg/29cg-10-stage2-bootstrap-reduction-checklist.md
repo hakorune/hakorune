@@ -39,10 +39,11 @@ Related:
 - `stage1-cli` reduction means `bridge-first Stage2 build`, not raw `NYASH_BIN=$STAGE1_BIN`
 - proof sources:
   - raw direct contract returns `97`
-  - `stage1_contract_exec_mode` emits Program(JSON), and `stage1_cli_env.hako` now carries helper defs (`defs_len=22`)
+  - `stage1_contract_exec_mode` emits Program(JSON), and `stage1_cli_env.hako` now carries helper defs (`defs_len=22`) for entry-local `Main` helpers
   - `stage1_contract_exec_mode ... emit-mir ...` now returns MIR(JSON)
   - `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1` shows the MirBuilder module-dispatch route is hit and returns `output_bytes=213003` / `output_handle=97`
   - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
+  - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` passes with `verify_rc=0`
   - bridge/runtime extern-like names no longer depend on `HAKO_MIR_BUILDER_CALL_RESOLVE` for `Callee::Extern`
-  - experimental `build_stage1.sh` bridge-first path still exits non-zero because `ny-llvmc` rejects helper-heavy `Program(JSON)->MIR` output with `Instruction does not dominate all uses!`
-  - exact next blocker is LLVM join-value / PHI wiring in helper-heavy functions, not bridge return-path or extern-call classification
+  - experimental `build_stage1.sh` bridge-first path still exits non-zero because the reduced Stage2 object materializes only entry-local defs while helper/import calls and `env.console.log` remain `Global`
+  - exact next blocker is helper/source closure plus selfhost MIR call classification, not bridge return-path or current LLVM PHI wiring

@@ -31,13 +31,6 @@ def resolve_call_arg(
     hot_scope: str = "call",
 ) -> Any:
     """Resolve call argument with local-first + strict resolver fallback."""
-    try:
-        local = vmap.get(vid)
-        if local is not None:
-            return local
-    except (AttributeError, TypeError):
-        pass
-
     if resolver is not None and hasattr(resolver, "resolve_i64"):
         try:
             return resolve_i64_strict(
@@ -54,9 +47,12 @@ def resolve_call_arg(
             pass
 
     try:
-        return vmap.get(vid)
+        local = vmap.get(vid)
+        if local is not None:
+            return local
     except (AttributeError, TypeError):
-        return None
+        pass
+    return None
 
 
 def make_call_arg_resolver(

@@ -46,6 +46,7 @@ Related:
 2. stage1-bridge helper contract is only partially valid for `stage1-cli`
 - `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-program ...` -> Program(JSON v0)
 - `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir ...` -> MIR(JSON v0)
+- `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` -> `emit_program_rc=0 emit_mir_rc=0 llvm_rc=0 verify_rc=0`
 
 3. implication
 - next reduction target is not `stage1-cli` as raw `NYASH_BIN`
@@ -56,17 +57,39 @@ Related:
 - `build_stage1.sh` now has an explicit `stage1-cli bridge-first` path when `NYASH_BIN` itself is a `stage1-cli` artifact
 - exact probe result:
   - Stage1 bridge emits Program(JSON) successfully
-  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) now materializes helper defs (`defs_len=22`)
+  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) now materializes helper defs (`defs_len=22`), but only for entry-local `Main` helpers
   - `stage1_contract_exec_mode ... emit-mir ...` now succeeds and returns MIR(JSON)
   - with `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1`, `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` is hit and returns `output_bytes=213003` / `output_handle=97`
   - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
   - bridge/runtime extern-like names (`env.*`, `nyash.*`) are classified as `Callee::Extern` without depending on `HAKO_MIR_BUILDER_CALL_RESOLVE`
-  - clean `build_stage1.sh` bridge-first probe still exits non-zero because `ny-llvmc` rejects the bridge MIR with `Instruction does not dominate all uses!`
-  - the same `stage1_cli_env.hako` Program(JSON v0) also fails on the direct Rust `--program-json-to-mir` path with the same `Instruction does not dominate all uses!`
-- therefore the current blocker moved from helper-def materialization and stage1 child/plugin return-path bridge to helper-heavy `Program(JSON)->MIR` quality / dominance under `ny-llvmc`
+  - clean `build_stage1.sh` bridge-first probe still exits non-zero, but now at link time
+- therefore the current blocker moved from helper-def materialization, stage1 child/plugin return-path bridge, and PHI/dominance to symbol closure in the reduced Stage2 object
 - exact narrowed blocker:
-  - in helper-heavy functions (notably `Main._build_main_defs_fragment_inline/1`), join values that are copied on predecessor blocks lower to LLVM with a PHI placeholder present but downstream uses still reading predecessor-local values, producing `Instruction does not dominate all uses!`
-  - next file owners: `src/llvm_py/builders/function_lower.py`, `src/llvm_py/builders/block_lower.py`, `src/llvm_py/phi_wiring/tagging.py`, `src/llvm_py/utils/values.py`, `src/llvm_py/instructions/binop.py`
+  - reduced MIR still emits `Global` callees for:
+    - `env.console.log`
+    - `FuncScannerBox.scan_all_boxes`
+    - `FuncScannerBox.find_matching_brace`
+    - `StageBJsonBuilderBox.build_defs_json`
+    - `Stage1UsingResolverBox.resolve_for_source`
+    - `BuildBox.emit_program_json_v0`
+    - `MirBuilderBox.emit_from_program_json_v0`
+    - `BoxTypeInspectorBox.kind`
+    - `BoxTypeInspectorBox.describe`
+    - `StringHelpers.int_to_str`
+  - selfhost helper include gap:
+    - `FuncScannerBox.scan_all_boxes`
+    - `FuncScannerBox.find_matching_brace`
+    - `StageBJsonBuilderBox.build_defs_json`
+    - `Stage1UsingResolverBox.resolve_for_source`
+    - `BuildBox.emit_program_json_v0`
+    - `MirBuilderBox.emit_from_program_json_v0`
+    - `BoxTypeInspectorBox.kind`
+    - `BoxTypeInspectorBox.describe`
+    - `StringHelpers.int_to_str`
+  - meaning:
+    - the reduced object currently contains only entry-local helper defs
+    - imported helper boxes are not yet closed into the bridge-first Stage2 object
+    - `env.console.log` is also still `Global` in this selfhost MIR path, so runtime-extern classification is not yet closed here
 
 ## Reduction target
 
@@ -82,4 +105,4 @@ Related:
 - exact owner / exact condition / exact target が 1 枚で読める
 - checklist がこの inventory を参照して進められる
 - raw direct probe and helper-driven probe are both fixed so the next reduction cannot drift into the wrong contract
-- bridge-first probe failure point is fixed so the next execution slice can target `Program(JSON)->MIR` dominance / helper-heavy lowering shape, not route plumbing or helper-def materialization
+- bridge-first probe failure point is fixed so the next execution slice can target helper/source closure and selfhost MIR call classification, not route plumbing or helper-def materialization

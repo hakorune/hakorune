@@ -7,6 +7,8 @@ Box-First principle: Encapsulate PHI lifecycle management
 - Filter vmap to preserve PHI values
 """
 
+import llvmlite.ir as ir
+
 class PhiManager:
     """PHI value lifecycle manager (Box pattern)"""
 
@@ -21,7 +23,46 @@ class PhiManager:
         """Check if PHI is owned by block"""
         return (bid, vid) in self.predeclared
 
-    def filter_vmap_preserve_phis(self, vmap: dict, target_bid: int) -> dict:
+    def _is_cross_block_safe(self, vid, val, target_bid: int, context) -> bool:
+        """Return True when a global vmap value is safe to reuse in target block.
+
+        Contract:
+        - Function arguments and LLVM constants are safe everywhere.
+        - A PHI is only safe when its actual owner block dominates the target
+          block. MIR-level def_blocks are not enough because later localization
+          PHIs reuse the same value-id.
+        - Any non-PHI SSA value is only safe when it has a single defining
+          block and that block dominates the target block.
+        - Multi-def values must be re-resolved via snapshots/PHI, not copied.
+        """
+        if isinstance(val, (ir.Argument, ir.Constant)):
+            return True
+        if context is None:
+            return False
+        if hasattr(val, "add_incoming"):
+            try:
+                owner = getattr(getattr(val, "basic_block", None), "name", None)
+                if owner is None:
+                    owner = getattr(getattr(val, "parent", None), "name", None)
+                if owner is None:
+                    return False
+                if isinstance(owner, bytes):
+                    owner = owner.decode()
+                if isinstance(owner, str) and owner.startswith("bb"):
+                    return bool(context.dominates(int(owner[2:]), int(target_bid)))
+            except Exception:
+                return False
+            return False
+        try:
+            defs = context.def_blocks.get(int(vid), set())
+            if len(defs) != 1:
+                return False
+            def_bid = next(iter(defs))
+            return bool(context.dominates(int(def_bid), int(target_bid)))
+        except Exception:
+            return False
+
+    def filter_vmap_preserve_phis(self, vmap: dict, target_bid: int, context=None) -> dict:
         """Filter vmap while preserving owned PHIs
 
         SSOT: PHIs in vmap are the single source of truth
@@ -29,8 +70,8 @@ class PhiManager:
         """
         result = {}
         for vid, val in vmap.items():
-            # PHIs are valid SSA values across dominated blocks; keep them in the per-block view.
-            result[vid] = val
+            if self._is_cross_block_safe(vid, val, target_bid, context):
+                result[vid] = val
 
         # Phase 132-P0: Add PHIs from predeclared that aren't in vmap yet
         for (bid, vid), phi_val in self.predeclared.items():

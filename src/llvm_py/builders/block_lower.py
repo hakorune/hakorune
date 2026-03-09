@@ -334,7 +334,8 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         try:
             vmap_cur = context.phi_manager.filter_vmap_preserve_phis(
                 builder.vmap or {},
-                int(bid)
+                int(bid),
+                context,
             )
             # Trace output for debugging (only if env var set)
             if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':

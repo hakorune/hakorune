@@ -155,8 +155,6 @@ def lower_call(
             else:
                 arg_val = _res_i64(arg_id)
         if arg_val is None:
-            arg_val = vmap.get(arg_id)
-        if arg_val is None:
             if i < len(func.args):
                 expected_type = func.args[i].type
             else:
