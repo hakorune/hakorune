@@ -43,4 +43,5 @@ Related:
   - `stage1_contract_exec_mode ... emit-mir ...` currently fails with `96`
   - `STAGE1_CLI_DEBUG=1` shows the exact blocker: `MirBuilderBox.emit_from_program_json_v0 returned null`
   - `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1` shows the MirBuilder module-dispatch route is hit, but no success/error payload is returned before the child receives `null`
+  - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
   - experimental `build_stage1.sh` bridge-first path still exits non-zero, but helper-def absence is no longer the asserted blocker

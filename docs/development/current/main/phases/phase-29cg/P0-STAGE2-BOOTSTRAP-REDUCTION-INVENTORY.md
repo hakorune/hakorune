@@ -60,8 +60,9 @@ Related:
   - `stage1_contract_exec_mode ... emit-mir ...` still fails with `96`
   - with `STAGE1_CLI_DEBUG=1`, the exact failure point is `[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned null`
   - with `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1`, `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` is hit, but no `mir_builder error:` / `output_bytes=` trace is emitted before the child receives `null`
+  - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
   - clean `build_stage1.sh` bridge-first probe still exits non-zero, but no longer because helper defs are absent
-- therefore the current blocker moved from helper-def materialization to the stage1 child/module-dispatch return contract around the internal-only MirBuilder bridge under bridge-first bootstrap
+- therefore the current blocker moved from helper-def materialization to the stage1 child/plugin return-path bridge around the internal-only MirBuilder route under bridge-first bootstrap
 
 ## Reduction target
 

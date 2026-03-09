@@ -1314,6 +1314,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - verification: `cargo check --tests` PASS / `cargo test --lib source_to_program_json_v0_emits_helper_defs_for_main_box_methods` PASS / `cargo test --lib test_stageb_program_json_with_stagebdriver_main_call` PASS / `cargo test -p nyash_kernel mir_builder_stageb_program_json_returns_mir_json_handle` PASS / `phase29bq_fast_gate_vm.sh --only bq` PASS
   - de-rust Stage2 bootstrap reduction trace narrowing (2026-03-09, slice 244): `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1` つきで minimal Program(JSON v0) probe を再計測し、`lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` の module-dispatch route 自体は hit することを確認した。にもかかわらず `mir_builder error:` / `output_bytes=` trace は出ず、child 側は `MirBuilderBox.emit_from_program_json_v0 returned null` を受け取る
     - implication: blocker は単一の Program(JSON) shape family ではなく、stage1 child environment での MirBuilder module-dispatch return contract か post-dispatch bridge semantics にある
+  - de-rust Stage2 bootstrap reduction direct-kernel proof (2026-03-09, slice 245): `crates/nyash_kernel` に `invoke_by_name_accepts_stage1_mir_builder_for_stage1_cli_env_program_json` を追加し、`stage1_cli_env.hako` source から生成した Program(JSON v0) を `nyash_plugin_invoke_by_name_i64(lang.mir.builder.MirBuilderBox, "emit_from_program_json_v0", ...)` へ直接渡すと MIR(JSON) handle が返ることを固定した
+    - implication: same Program(JSON) payload is accepted on the direct kernel/plugin route, so the remaining blocker is narrower than `module_string_dispatch` or `program_json_to_mir_json_with_imports`; it sits in the stage1 child environment / plugin return-path bridge
 
 ## Quick Restart (After Reboot)
 

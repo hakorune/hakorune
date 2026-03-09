@@ -374,6 +374,30 @@ fn invoke_by_name_accepts_stage1_build_box_module_receiver() {
 }
 
 #[test]
+fn invoke_by_name_accepts_stage1_mir_builder_for_stage1_cli_env_program_json() {
+    let receiver: Arc<dyn NyashBox> =
+        Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
+    let receiver_handle = handles::to_handle_arc(receiver) as i64;
+    let source = include_str!("../../../lang/src/runner/stage1_cli_env.hako");
+    let program_json = nyash_rust::stage1::program_json_v0::source_to_program_json_v0(source)
+        .expect("stage1_cli_env Program(JSON v0)");
+    let program_handle = handles::to_handle_arc(Arc::new(StringBox::new(program_json))) as i64;
+    let method = CString::new("emit_from_program_json_v0").expect("CString");
+
+    let result_handle =
+        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, program_handle, 0);
+    assert!(result_handle > 0, "expected MIR JSON StringBox handle");
+
+    let mir_json = decode_string_like_handle(result_handle).expect("mir json string");
+    assert!(
+        mir_json.starts_with('{'),
+        "expected MIR JSON payload, got: {}",
+        mir_json
+    );
+    assert!(mir_json.contains("\"functions\""));
+}
+
+#[test]
 fn invoke_by_name_build_box_unsupported_source_returns_freeze_tag() {
     let receiver: Arc<dyn NyashBox> =
         Arc::new(StringBox::new("lang.compiler.build.build_box".to_string()));
