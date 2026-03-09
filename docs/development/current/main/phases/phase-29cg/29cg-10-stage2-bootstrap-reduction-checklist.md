@@ -43,4 +43,6 @@ Related:
   - `stage1_contract_exec_mode ... emit-mir ...` now returns MIR(JSON)
   - `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1` shows the MirBuilder module-dispatch route is hit and returns `output_bytes=213003` / `output_handle=97`
   - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
+  - bridge/runtime extern-like names no longer depend on `HAKO_MIR_BUILDER_CALL_RESOLVE` for `Callee::Extern`
   - experimental `build_stage1.sh` bridge-first path still exits non-zero because `ny-llvmc` rejects helper-heavy `Program(JSON)->MIR` output with `Instruction does not dominate all uses!`
+  - exact next blocker is LLVM join-value / PHI wiring in helper-heavy functions, not bridge return-path or extern-call classification

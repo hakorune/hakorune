@@ -66,67 +66,63 @@ pub(super) fn maybe_resolve_calls(
     func_map: &BTreeMap<String, String>,
 ) {
     // Phase 21.6: Call resolution post-processing
-    // Toggle: HAKO_MIR_BUILDER_CALL_RESOLVE=1
-    // Resolve Call instructions to use qualified function names (e.g., "add" -> "Main.add")
-    if std::env::var("HAKO_MIR_BUILDER_CALL_RESOLVE")
+    // Toggle: HAKO_MIR_BUILDER_CALL_RESOLVE=1 controls legacy unqualified function-name
+    // resolution. Extern-like runtime names still need callee classification even when the
+    // legacy resolver is off so Program(JSON v0) keeps the current bridge/runtime contract.
+    let resolve_unqualified_calls = std::env::var("HAKO_MIR_BUILDER_CALL_RESOLVE")
         .ok()
         .as_deref()
-        != Some("1")
-    {
-        return;
-    }
-
-    if func_map.is_empty() {
-        return;
-    }
+        == Some("1");
 
     for (_func_idx, func) in module.functions.iter_mut() {
         for (_block_id, block) in func.blocks.iter_mut() {
             let mut const_replacements: Vec<(ValueId, String)> = Vec::new();
 
             // Find Call instructions and their associated Const values
-            for inst in &block.instructions {
-                if let MirInstruction::Call {
-                    func: func_reg,
-                    args,
-                    ..
-                } = inst
-                {
-                    // Look for the Const instruction that defines func_reg
-                    for const_inst in &block.instructions {
-                        if let MirInstruction::Const { dst, value } = const_inst {
-                            if dst == func_reg {
-                                if let ConstValue::String(name) = value {
-                                    // Try to resolve the name
-                                    if let Some(resolved) = func_map.get(name) {
-                                        let mut new_name = resolved.clone();
-                                        // Avoid double suffix if already contains '/N'
-                                        if !resolved
-                                            .rsplit('/')
-                                            .next()
-                                            .unwrap_or("")
-                                            .chars()
-                                            .all(|c| c.is_ascii_digit())
-                                            || !resolved.contains('/')
-                                        {
-                                            new_name = format!(
-                                                "{}{}",
-                                                resolved.clone(),
-                                                format!("/{}", args.len())
-                                            );
-                                        }
-                                        const_replacements.push((*dst, new_name));
-                                        if std::env::var("HAKO_MIR_BUILDER_DEBUG")
-                                            .ok()
-                                            .as_deref()
-                                            == Some("1")
-                                        {
-                                            crate::runtime::get_global_ring0().log.debug(
-                                                &format!(
-                                                    "[mirbuilder/call:resolve] {} => {}",
-                                                    name, resolved
-                                                ),
-                                            );
+            if resolve_unqualified_calls {
+                for inst in &block.instructions {
+                    if let MirInstruction::Call {
+                        func: func_reg,
+                        args,
+                        ..
+                    } = inst
+                    {
+                        // Look for the Const instruction that defines func_reg
+                        for const_inst in &block.instructions {
+                            if let MirInstruction::Const { dst, value } = const_inst {
+                                if dst == func_reg {
+                                    if let ConstValue::String(name) = value {
+                                        // Try to resolve the name
+                                        if let Some(resolved) = func_map.get(name) {
+                                            let mut new_name = resolved.clone();
+                                            // Avoid double suffix if already contains '/N'
+                                            if !resolved
+                                                .rsplit('/')
+                                                .next()
+                                                .unwrap_or("")
+                                                .chars()
+                                                .all(|c| c.is_ascii_digit())
+                                                || !resolved.contains('/')
+                                            {
+                                                new_name = format!(
+                                                    "{}{}",
+                                                    resolved.clone(),
+                                                    format!("/{}", args.len())
+                                                );
+                                            }
+                                            const_replacements.push((*dst, new_name));
+                                            if std::env::var("HAKO_MIR_BUILDER_DEBUG")
+                                                .ok()
+                                                .as_deref()
+                                                == Some("1")
+                                            {
+                                                crate::runtime::get_global_ring0().log.debug(
+                                                    &format!(
+                                                        "[mirbuilder/call:resolve] {} => {}",
+                                                        name, resolved
+                                                    ),
+                                                );
+                                            }
                                         }
                                     }
                                 }
@@ -165,12 +161,49 @@ pub(super) fn maybe_resolve_calls(
                 } = inst
                 {
                     if let Some(name) = reg_name.get(func_reg).cloned() {
-                        *callee = Some(Callee::Global(name));
+                        if should_classify_call_callee(&name, func_map, resolve_unqualified_calls) {
+                            *callee = Some(resolve_legacy_call_callee(&name, func_map));
+                        }
                     }
                 }
             }
         }
     }
+}
+
+fn should_classify_call_callee(
+    name: &str,
+    func_map: &BTreeMap<String, String>,
+    resolve_unqualified_calls: bool,
+) -> bool {
+    resolve_unqualified_calls
+        || name.contains('/')
+        || func_map.values().any(|resolved| resolved == name)
+        || is_json_v0_extern_name(name)
+}
+
+fn resolve_legacy_call_callee(name: &str, func_map: &BTreeMap<String, String>) -> Callee {
+    if func_map.values().any(|resolved| resolved == name) {
+        return Callee::Global(name.to_string());
+    }
+
+    let base_name = normalize_legacy_call_name(name);
+    if is_json_v0_extern_name(base_name) {
+        return Callee::Extern(base_name.to_string());
+    }
+
+    Callee::Global(name.to_string())
+}
+
+fn normalize_legacy_call_name(name: &str) -> &str {
+    match name.rsplit_once('/') {
+        Some((base, arity)) if arity.chars().all(|c| c.is_ascii_digit()) => base,
+        _ => name,
+    }
+}
+
+fn is_json_v0_extern_name(name: &str) -> bool {
+    name.starts_with("env.") || name.starts_with("nyash.")
 }
 
 pub(super) fn lower_main_body(
@@ -224,4 +257,157 @@ pub(super) fn lower_main_body(
     f.signature.return_type = MirType::Unknown;
     module.add_function(f);
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::Span;
+    use std::sync::{Mutex, OnceLock};
+
+    fn env_guard() -> &'static Mutex<()> {
+        static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
+        GUARD.get_or_init(|| Mutex::new(()))
+    }
+
+    fn test_module_with_call_name(name: &str) -> MirModule {
+        let mut module = MirModule::new("json_v0_program".to_string());
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(signature, BasicBlockId::new(0));
+        let block = func
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry block exists");
+
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::String(name.to_string()),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::new(1),
+            callee: None,
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        module.add_function(func);
+        module
+    }
+
+    fn entry_call(module: &MirModule) -> &MirInstruction {
+        &module
+            .get_function("main")
+            .expect("main function exists")
+            .blocks
+            .get(&BasicBlockId::new(0))
+            .expect("entry block exists")
+            .instructions[1]
+    }
+
+    #[test]
+    fn maybe_resolve_calls_keeps_env_console_as_extern() {
+        let _lock = env_guard().lock().expect("env lock");
+        let mut module = test_module_with_call_name("env.console.log");
+        maybe_resolve_calls(&mut module, &BTreeMap::new());
+        let got = format!("{:?}", entry_call(&module));
+
+        assert!(matches!(
+            entry_call(&module),
+            MirInstruction::Call {
+                func,
+                callee: Some(Callee::Extern(name)),
+                ..
+            } if *func == ValueId::new(1) && name == "env.console.log"
+        ), "got={got}");
+    }
+
+    #[test]
+    fn maybe_resolve_calls_keeps_qualified_defs_as_global() {
+        let _lock = env_guard().lock().expect("env lock");
+        std::env::set_var("HAKO_MIR_BUILDER_CALL_RESOLVE", "1");
+        let mut module = test_module_with_call_name("Main.helper/0");
+        let mut func_map = BTreeMap::new();
+        func_map.insert("helper".to_string(), "Main.helper/0".to_string());
+        maybe_resolve_calls(&mut module, &func_map);
+        std::env::remove_var("HAKO_MIR_BUILDER_CALL_RESOLVE");
+
+        assert!(matches!(
+            entry_call(&module),
+            MirInstruction::Call {
+                callee: Some(Callee::Global(name)),
+                ..
+            } if name == "Main.helper/0"
+        ));
+    }
+
+    #[test]
+    fn maybe_resolve_calls_normalizes_arity_suffixed_env_console_as_extern() {
+        let _lock = env_guard().lock().expect("env lock");
+        std::env::remove_var("HAKO_MIR_BUILDER_CALL_RESOLVE");
+        let mut module = test_module_with_call_name("env.console.log/1");
+        maybe_resolve_calls(&mut module, &BTreeMap::new());
+
+        assert!(matches!(
+            entry_call(&module),
+            MirInstruction::Call {
+                callee: Some(Callee::Extern(name)),
+                ..
+            } if name == "env.console.log"
+        ));
+    }
+
+    #[test]
+    fn maybe_resolve_calls_normalizes_arity_suffixed_env_get_as_extern() {
+        let _lock = env_guard().lock().expect("env lock");
+        std::env::remove_var("HAKO_MIR_BUILDER_CALL_RESOLVE");
+        let mut module = test_module_with_call_name("env.get/1");
+        maybe_resolve_calls(&mut module, &BTreeMap::new());
+
+        assert!(matches!(
+            entry_call(&module),
+            MirInstruction::Call {
+                callee: Some(Callee::Extern(name)),
+                ..
+            } if name == "env.get"
+        ));
+    }
+
+    #[test]
+    fn maybe_resolve_calls_normalizes_arity_suffixed_nyash_console_as_extern() {
+        let _lock = env_guard().lock().expect("env lock");
+        std::env::remove_var("HAKO_MIR_BUILDER_CALL_RESOLVE");
+        let mut module = test_module_with_call_name("nyash.console.log/1");
+        maybe_resolve_calls(&mut module, &BTreeMap::new());
+
+        assert!(matches!(
+            entry_call(&module),
+            MirInstruction::Call {
+                callee: Some(Callee::Extern(name)),
+                ..
+            } if name == "nyash.console.log"
+        ));
+    }
+
+    #[test]
+    fn maybe_resolve_calls_keeps_unqualified_names_unresolved_when_toggle_is_off() {
+        let _lock = env_guard().lock().expect("env lock");
+        std::env::remove_var("HAKO_MIR_BUILDER_CALL_RESOLVE");
+        let mut module = test_module_with_call_name("helper");
+        maybe_resolve_calls(&mut module, &BTreeMap::new());
+
+        assert!(matches!(
+            entry_call(&module),
+            MirInstruction::Call { callee: None, .. }
+        ));
+    }
 }

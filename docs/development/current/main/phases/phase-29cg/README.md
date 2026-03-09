@@ -67,8 +67,10 @@ Final direction:
   - experimental bootstrap probe:
     - `build_stage1.sh` can now attempt a `stage1-cli bridge-first` Stage2 build when `NYASH_BIN` itself is a `stage1-cli` artifact
     - `lang/src/runner/stage1_cli_env.hako` has a lower-risk `_find_matching_pair_inline` CFG now, helper defs are materialized, and bridge `emit-mir` itself is green
+    - bridge/runtime extern-like names (`env.*`, `nyash.*`) are now classified as `Callee::Extern` even when `HAKO_MIR_BUILDER_CALL_RESOLVE` is off; the legacy toggle now only controls unqualified helper-name upgrades
     - current exact blocker in that path is helper-heavy `Program(JSON)->MIR` validity under `ny-llvmc`: `Instruction does not dominate all uses!`
-    - representative failing helper-heavy functions are `Main._build_program_json/0` and `Main._trim_inline/1`
+    - exact failing family is now narrowed to join-value / PHI wiring in helper-heavy functions, especially `Main._build_main_defs_fragment_inline/1`
+    - representative failing helper-heavy functions are `Main._build_main_defs_fragment_inline/1`, `Main._build_program_json/0`, and `Main._trim_inline/1`
 - therefore `phase-29cg` does not treat `stage1-cli` as a drop-in `NYASH_BIN`; it targets a narrower reduction:
   - lift the stage1-bridge helper contract into the Stage2 build path for one reduced case
   - then retire the bridge dependency itself once direct MIR parity is available for the reduced case
@@ -80,3 +82,4 @@ Final direction:
 - checklist に `owner / blocker / acceptance / non-goal` が揃っている
 - `stage1-cli` reduction target is stated as `bridge-first Stage2 build`, not as `raw NYASH_BIN replacement`
 - current G1 route is unchanged until the `Program(JSON)->MIR` dominance blocker is cleared for the reduced case
+- exact next reduction focus is `llvm_py` join-value / PHI wiring, not bridge/dispatch or extern-call classification

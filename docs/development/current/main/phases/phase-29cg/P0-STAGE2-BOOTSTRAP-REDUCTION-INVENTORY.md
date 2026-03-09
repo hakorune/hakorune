@@ -60,9 +60,13 @@ Related:
   - `stage1_contract_exec_mode ... emit-mir ...` now succeeds and returns MIR(JSON)
   - with `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1`, `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` is hit and returns `output_bytes=213003` / `output_handle=97`
   - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
+  - bridge/runtime extern-like names (`env.*`, `nyash.*`) are classified as `Callee::Extern` without depending on `HAKO_MIR_BUILDER_CALL_RESOLVE`
   - clean `build_stage1.sh` bridge-first probe still exits non-zero because `ny-llvmc` rejects the bridge MIR with `Instruction does not dominate all uses!`
   - the same `stage1_cli_env.hako` Program(JSON v0) also fails on the direct Rust `--program-json-to-mir` path with the same `Instruction does not dominate all uses!`
 - therefore the current blocker moved from helper-def materialization and stage1 child/plugin return-path bridge to helper-heavy `Program(JSON)->MIR` quality / dominance under `ny-llvmc`
+- exact narrowed blocker:
+  - in helper-heavy functions (notably `Main._build_main_defs_fragment_inline/1`), join values that are copied on predecessor blocks lower to LLVM with a PHI placeholder present but downstream uses still reading predecessor-local values, producing `Instruction does not dominate all uses!`
+  - next file owners: `src/llvm_py/builders/function_lower.py`, `src/llvm_py/builders/block_lower.py`, `src/llvm_py/phi_wiring/tagging.py`, `src/llvm_py/utils/values.py`, `src/llvm_py/instructions/binop.py`
 
 ## Reduction target
 

@@ -47,10 +47,12 @@ This SSOT defines the responsibility map, split completion state, and post-split
 - Contents:
   - `lower_program`
   - defs lowering loop
-  - optional call-target resolution (`HAKO_MIR_BUILDER_CALL_RESOLVE`)
+  - unqualified function-name resolution (`HAKO_MIR_BUILDER_CALL_RESOLVE`)
+  - always-on extern-like callee classification for bridge/runtime names (`env.*`, `nyash.*`)
 - Contract:
   - CLI entry keeps `args` injection behavior.
-  - call-resolution toggle semantics remain unchanged.
+  - `HAKO_MIR_BUILDER_CALL_RESOLVE` only controls legacy unqualified function-name upgrades.
+  - extern-like runtime names stay `Callee::Extern` even when the legacy resolver is off.
 
 ### R5. MIR dump helper
 - Main file: `src/runner/json_v0_bridge/lowering/dump.rs`
