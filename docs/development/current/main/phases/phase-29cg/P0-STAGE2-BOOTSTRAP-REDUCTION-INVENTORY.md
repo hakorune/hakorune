@@ -45,7 +45,7 @@ Related:
 
 2. stage1-bridge helper contract is only partially valid for `stage1-cli`
 - `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-program ...` -> Program(JSON v0)
-- `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir ...` -> `96`
+- `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir ...` -> MIR(JSON v0)
 
 3. implication
 - next reduction target is not `stage1-cli` as raw `NYASH_BIN`
@@ -56,13 +56,13 @@ Related:
 - `build_stage1.sh` now has an explicit `stage1-cli bridge-first` path when `NYASH_BIN` itself is a `stage1-cli` artifact
 - exact probe result:
   - Stage1 bridge emits Program(JSON) successfully
-  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) now materializes helper defs (`defs_len=20`)
-  - `stage1_contract_exec_mode ... emit-mir ...` still fails with `96`
-  - with `STAGE1_CLI_DEBUG=1`, the exact failure point is `[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned null`
-  - with `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1`, `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` is hit, but no `mir_builder error:` / `output_bytes=` trace is emitted before the child receives `null`
+  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) now materializes helper defs (`defs_len=22`)
+  - `stage1_contract_exec_mode ... emit-mir ...` now succeeds and returns MIR(JSON)
+  - with `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1`, `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` is hit and returns `output_bytes=213003` / `output_handle=97`
   - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
-  - clean `build_stage1.sh` bridge-first probe still exits non-zero, but no longer because helper defs are absent
-- therefore the current blocker moved from helper-def materialization to the stage1 child/plugin return-path bridge around the internal-only MirBuilder route under bridge-first bootstrap
+  - clean `build_stage1.sh` bridge-first probe still exits non-zero because `ny-llvmc` rejects the bridge MIR with `Instruction does not dominate all uses!`
+  - the same `stage1_cli_env.hako` Program(JSON v0) also fails on the direct Rust `--program-json-to-mir` path with the same `Instruction does not dominate all uses!`
+- therefore the current blocker moved from helper-def materialization and stage1 child/plugin return-path bridge to helper-heavy `Program(JSON)->MIR` quality / dominance under `ny-llvmc`
 
 ## Reduction target
 
@@ -78,4 +78,4 @@ Related:
 - exact owner / exact condition / exact target が 1 枚で読める
 - checklist がこの inventory を参照して進められる
 - raw direct probe and helper-driven probe are both fixed so the next reduction cannot drift into the wrong contract
-- bridge-first probe failure point is fixed so the next execution slice can target internal MirBuilder acceptance, not route plumbing or helper-def materialization
+- bridge-first probe failure point is fixed so the next execution slice can target `Program(JSON)->MIR` dominance / helper-heavy lowering shape, not route plumbing or helper-def materialization

@@ -66,9 +66,18 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
         return 0;
     };
 
+    let trace = std::env::var("HAKO_STAGE1_MODULE_DISPATCH_TRACE").ok().as_deref() == Some("1")
+        || std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1");
+
     if let Some(result) =
         crate::plugin::module_string_dispatch::try_dispatch(recv_handle, method_str, argc, a1, a2)
     {
+        if trace {
+            eprintln!(
+                "[stage1/plugin_invoke] module_dispatch result method={} argc={} result_handle={}",
+                method_str, argc, result
+            );
+        }
         return result;
     }
 

@@ -318,9 +318,23 @@ def lower_compare(
         except Exception:
             pass
         if force_string or lhs_tag or rhs_tag:
-            trace_values(f"[compare] string-eq path: lhs={lhs} rhs={rhs} force={force_string} tagL={lhs_tag} tagR={rhs_tag}")
+            try:
+                fn_name = getattr(getattr(builder, "block", None), "parent", None)
+                fn_name = getattr(fn_name, "name", "?")
+            except Exception:
+                fn_name = "?"
+            trace_values(
+                f"[compare] string-eq path: fn={fn_name} lhs={lhs} rhs={rhs} "
+                f"force={force_string} tagL={lhs_tag} tagR={rhs_tag}"
+            )
+            # String handles are often produced in-place in the same block. Even when
+            # fast_int is disabled, prefer the local SSA handle before falling back to
+            # dominance-based resolution so we do not accidentally compare against 0.
+            local_lh = _canonicalize_i64(builder, vmap.get(lhs), lhs, vmap, "cmp_str_lhs_local")
+            local_rh = _canonicalize_i64(builder, vmap.get(rhs), rhs, vmap, "cmp_str_rhs_local")
             # Prefer same-block SSA (vmap) since string handles are produced in-place; fallback to resolver
-            lh = lhs_val if lhs_val is not None else (
+            lh = local_lh if local_lh is not None else (
+                lhs_val if lhs_val is not None else (
                 resolve_i64_strict(
                     resolver,
                     lhs,
@@ -333,8 +347,9 @@ def lower_compare(
                     hot_scope="compare",
                 )
                 if (resolver is not None and preds is not None and block_end_values is not None and current_block is not None) else ir.Constant(i64, 0)
-            )
-            rh = rhs_val if rhs_val is not None else (
+            ))
+            rh = local_rh if local_rh is not None else (
+                rhs_val if rhs_val is not None else (
                 resolve_i64_strict(
                     resolver,
                     rhs,
@@ -347,8 +362,13 @@ def lower_compare(
                     hot_scope="compare",
                 )
                 if (resolver is not None and preds is not None and block_end_values is not None and current_block is not None) else ir.Constant(i64, 0)
+            ))
+            trace_values(
+                f"[compare] string-eq args: fn={fn_name} "
+                f"local_lh={local_lh is not None} local_rh={local_rh is not None} "
+                f"lhs_val={lhs_val is not None} rhs_val={rhs_val is not None} "
+                f"lh_is_const={isinstance(lh, ir.Constant)} rh_is_const={isinstance(rh, ir.Constant)}"
             )
-            trace_values(f"[compare] string-eq args: lh_is_const={isinstance(lh, ir.Constant)} rh_is_const={isinstance(rh, ir.Constant)}")
             eqf = None
             for f in builder.module.functions:
                 if f.name == 'nyash.string.eq_hh':

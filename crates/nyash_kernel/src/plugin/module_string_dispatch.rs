@@ -150,10 +150,19 @@ fn handle_mir_builder_emit_from_program_json_v0(
         }
     };
     trace_log(format!(
+        "[stage1/module_dispatch] mir_builder post_provider bytes={}",
+        mir_json.len()
+    ));
+    trace_log(format!(
         "[stage1/module_dispatch] mir_builder output_bytes={}",
         mir_json.len()
     ));
-    Some(encode_string_handle(&mir_json))
+    let out = encode_string_handle(&mir_json);
+    trace_log(format!(
+        "[stage1/module_dispatch] mir_builder output_handle={}",
+        out
+    ));
+    Some(out)
 }
 
 fn decode_string_handle(handle: i64) -> Option<String> {

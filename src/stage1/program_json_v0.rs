@@ -15,20 +15,34 @@ fn trace_enabled() -> bool {
 
 pub fn source_to_program_json_v0(source_text: &str) -> Result<String, String> {
     match NyashParser::parse_from_string(source_text) {
-        Ok(ast) => ast_to_program_json_v0(&ast),
+        Ok(ast) => match ast_to_program_json_v0(&ast) {
+            Ok(json) => Ok(json),
+            Err(primary_error)
+                if primary_error == "expected `static box Main { main() { ... } }`" =>
+            {
+                fallback_static_main_body(source_text, primary_error)
+            }
+            Err(primary_error) => Err(primary_error),
+        },
         Err(primary_error) => {
-            let body = extract_static_main_body_text(source_text)
-                .ok_or_else(|| format!("parse error (Rust parser, v0 subset): {}", primary_error))?;
-            let wrapped = format!("static box Main {{ main(args) {{\n{}\n}} }}", body);
-            let ast = NyashParser::parse_from_string(&wrapped).map_err(|fallback_error| {
-                format!(
-                    "parse error (Rust parser, v0 subset): {}; fallback parse error: {}",
-                    primary_error, fallback_error
-                )
-            })?;
-            ast_to_program_json_v0(&ast)
+            fallback_static_main_body(
+                source_text,
+                format!("parse error (Rust parser, v0 subset): {}", primary_error),
+            )
         }
     }
+}
+
+fn fallback_static_main_body(
+    source_text: &str,
+    primary_error: impl Into<String>,
+) -> Result<String, String> {
+    let primary_error = primary_error.into();
+    let body = extract_static_main_body_text(source_text).ok_or(primary_error.clone())?;
+    let wrapped = format!("static box Main {{ main(args) {{\n{}\n}} }}", body);
+    let ast = NyashParser::parse_from_string(&wrapped)
+        .map_err(|fallback_error| format!("{}; fallback parse error: {}", primary_error, fallback_error))?;
+    ast_to_program_json_v0(&ast)
 }
 
 pub fn ast_to_program_json_v0(ast: &ASTNode) -> Result<String, String> {
@@ -125,5 +139,13 @@ static box Main {
         assert_eq!(defs[0]["params"], serde_json::json!(["x"]));
         assert_eq!(defs[0]["body"]["kind"], "Program");
         assert!(defs[0]["body"]["body"].is_array());
+    }
+
+    #[test]
+    fn source_to_program_json_v0_accepts_stage1_cli_env_source() {
+        let source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
+        let json = source_to_program_json_v0(source).expect("program json");
+        assert!(json.contains("\"kind\":\"Program\""));
+        assert!(json.contains("\"version\":0"));
     }
 }

@@ -9,6 +9,7 @@ using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
 using lang.compiler.entry.func_scanner as FuncScannerBox
 using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
 using lang.mir.builder.MirBuilderBox as MirBuilderBox
+using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 using sh_core as StringHelpers
 static box Main {
   main() {
@@ -73,14 +74,25 @@ static box Main {
   }
 
   method _run_emit_mir_mode(tag) {
+    local stage1_debug = env.get("STAGE1_CLI_DEBUG")
+    local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
     local src_json = null
     local prog_json_path = env.get("HAKO_STAGE1_PROGRAM_JSON")
     if prog_json_path == null || prog_json_path == "" { prog_json_path = env.get("NYASH_STAGE1_PROGRAM_JSON") }
     if prog_json_path == null || prog_json_path == "" { prog_json_path = env.get("STAGE1_PROGRAM_JSON") }
     if prog_json_path != null && prog_json_path != "" {
-      src_json = env.get("HAKO_STAGE1_PROGRAM_JSON_TEXT")
-      if src_json == null || src_json == "" { src_json = env.get("NYASH_STAGE1_PROGRAM_JSON_TEXT") }
-      if src_json == null || src_json == "" { src_json = env.get("STAGE1_PROGRAM_JSON_TEXT") }
+      local hako_prog_json_text = env.get("HAKO_STAGE1_PROGRAM_JSON_TEXT")
+      local nyash_prog_json_text = env.get("NYASH_STAGE1_PROGRAM_JSON_TEXT")
+      local stage1_prog_json_text = env.get("STAGE1_PROGRAM_JSON_TEXT")
+      if stage1_debug_on {
+        print("[stage1-cli/debug] emit-mir path.len=" + me._debug_len_inline(prog_json_path) + " preview=" + me._debug_preview_inline(prog_json_path))
+        print("[stage1-cli/debug] emit-mir HAKO_STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(hako_prog_json_text) + " preview=" + me._debug_preview_inline(hako_prog_json_text))
+        print("[stage1-cli/debug] emit-mir NYASH_STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(nyash_prog_json_text) + " preview=" + me._debug_preview_inline(nyash_prog_json_text))
+        print("[stage1-cli/debug] emit-mir STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(stage1_prog_json_text) + " preview=" + me._debug_preview_inline(stage1_prog_json_text))
+      }
+      src_json = hako_prog_json_text
+      if src_json == null || src_json == "" { src_json = nyash_prog_json_text }
+      if src_json == null || src_json == "" { src_json = stage1_prog_json_text }
       if src_json == null {
         print("[freeze:contract][stage1-cli/emit-mir] Program(JSON) text is required")
         return 96
@@ -100,26 +112,90 @@ static box Main {
       print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
       return 96
     }
+    if stage1_debug_on {
+      print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(src_json) + " preview=" + me._debug_preview_inline(src_json))
+    }
 
     local mir = MirBuilderBox.emit_from_program_json_v0(src_json, null)
-    local stage1_debug = env.get("STAGE1_CLI_DEBUG")
-    local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
-    if mir == null {
-      if stage1_debug_on {
-        print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned null")
-      }
-      return 96
+    local mir_kind = BoxTypeInspectorBox.kind(mir)
+    local mir_desc = BoxTypeInspectorBox.describe(mir)
+    local mir_text = "" + mir
+    local mir_text_kind = BoxTypeInspectorBox.kind(mir_text)
+    local mir_text_len = mir_text.length()
+    local mir_text_len_sign = "zero"
+    if mir_text_len < 0 {
+      mir_text_len_sign = "neg"
+    } else if mir_text_len > 0 {
+      mir_text_len_sign = "pos"
     }
-    if mir == "" {
-      if stage1_debug_on {
-        print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned empty string")
+    local mir_is_null = 0
+    if mir == null { mir_is_null = 1 }
+    local mir_is_empty = 0
+    if mir == "" { mir_is_empty = 1 }
+    local mir_text_is_empty = 0
+    if mir_text_len <= 0 { mir_text_is_empty = 1 }
+    local mir_text_head = mir_text.substring(0, 1)
+    local mir_text_head_is_lbrace = 0
+    if mir_text_head == "{" { mir_text_head_is_lbrace = 1 }
+    local mir_text_has_functions = mir_text.indexOf("\"functions\"")
+    local mir_text_has_functions_flag = 0
+    if mir_text_has_functions >= 0 { mir_text_has_functions_flag = 1 }
+    if stage1_debug_on {
+      print("[stage1-cli/debug] emit-mir result.kind=" + ("" + mir_kind) +
+            " is_null=" + ("" + mir_is_null) +
+            " is_empty=" + ("" + mir_is_empty) +
+            " text_kind=" + ("" + mir_text_kind) +
+            " text_is_empty=" + ("" + mir_text_is_empty) +
+            " text_len_sign=" + mir_text_len_sign +
+            " text_len=" + me._debug_len_inline(mir_text) +
+            " text_head_preview=" + me._debug_preview_inline(mir_text_head) +
+            " text_head_is_lbrace=" + ("" + mir_text_head_is_lbrace) +
+            " text_has_functions=" + ("" + mir_text_has_functions_flag) +
+            " desc=" + me._debug_preview_inline(mir_desc) +
+            " preview=" + me._debug_preview_inline(mir) +
+            " text_preview=" + me._debug_preview_inline(mir_text))
+      if mir_text_len < 0 {
+        print("[stage1-cli/debug] emit-mir text-len-sign=neg")
+      } else if mir_text_len == 0 {
+        print("[stage1-cli/debug] emit-mir text-len-sign=zero")
+      } else {
+        print("[stage1-cli/debug] emit-mir text-len-sign=pos")
       }
-      return 96
+      if mir == "" {
+        print("[stage1-cli/debug] emit-mir direct-empty-compare=true")
+      } else {
+        print("[stage1-cli/debug] emit-mir direct-empty-compare=false")
+      }
+      if mir_text == "" {
+        print("[stage1-cli/debug] emit-mir text-empty-compare=true")
+      } else {
+        print("[stage1-cli/debug] emit-mir text-empty-compare=false")
+      }
+      if mir_text_head == "{" {
+        print("[stage1-cli/debug] emit-mir text-head-is-lbrace=true")
+      } else {
+        print("[stage1-cli/debug] emit-mir text-head-is-lbrace=false")
+        print("[stage1-cli/debug] emit-mir text-head-preview=" + me._debug_preview_inline(mir_text_head))
+      }
+      if mir_text_has_functions >= 0 {
+        print("[stage1-cli/debug] emit-mir text-has-functions=true")
+      } else {
+        print("[stage1-cli/debug] emit-mir text-has-functions=false")
+      }
     }
     if stage1_debug_on {
-      print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned non-empty payload")
+      if mir_is_null == 1 {
+        print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 null compare matched; ignoring and using structural JSON validation")
+      }
+      if mir_is_empty == 1 {
+        print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 direct compare matched empty string; ignoring and using structural JSON validation")
+      }
+      if mir_text_is_empty == 1 {
+        print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 materialized empty string; ignoring and using structural JSON validation")
+      }
+      print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 validating materialized payload")
     }
-    mir = me._inject_entry_user_box_decls_if_needed(mir)
+    mir = me._inject_entry_user_box_decls_if_needed(mir_text)
     local mir_head = mir.substring(0, 1)
     if mir_head != "{" {
       print("[freeze:contract][stage1-cli/emit-mir] output is not MIR JSON")
@@ -149,7 +225,7 @@ static box Main {
 
   method _inject_root_user_box_decls_inline(mir_json, user_box_decls_json) {
     if mir_json == null { return null }
-    local s = "" + mir_json
+    local s = mir_json
     if s.length() < 2 { return s }
     if s.substring(0, 1) != "{" { return s }
     local decls = user_box_decls_json
@@ -222,6 +298,10 @@ static box Main {
     local has_kind = prog.indexOf("\"kind\":\"Program\"")
     local has_version = prog.indexOf("\"version\":0")
     if has_kind < 0 || has_version < 0 {
+      if env.get("STAGE1_CLI_DEBUG") == "1" {
+        print("[stage1-cli/debug] emit-program output.len=" + me._debug_len_inline(prog) +
+              " preview=" + me._debug_preview_inline(prog))
+      }
       print("[freeze:contract][stage1-cli/emit-program] BuildBox output missing Program(JSON v0) markers")
       return null
     }
@@ -323,6 +403,19 @@ static box Main {
 
     if emitted == 0 { return "" }
     return defs + "]"
+  }
+
+  method _debug_len_inline(value) {
+    if value == null { return "null" }
+    local s = "" + value
+    return StringHelpers.int_to_str(s.length())
+  }
+
+  method _debug_preview_inline(value) {
+    if value == null { return "<null>" }
+    local s = "" + value
+    if s.length() <= 64 { return s }
+    return s.substring(0, 64)
   }
 
   method _extract_main_box_body_inline(source_text) {

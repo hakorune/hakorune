@@ -7,6 +7,18 @@ impl MirInterpreter {
         func_name: &str,
         args: &[ValueId],
     ) -> Result<VMValue, VMError> {
+        let stage1_trace = std::env::var("HAKO_STAGE1_MODULE_DISPATCH_TRACE")
+            .ok()
+            .as_deref()
+            == Some("1")
+            || std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1");
+        if stage1_trace && func_name.contains("MirBuilderBox.emit_from_program_json_v0") {
+            eprintln!(
+                "[stage1/call_shape] execute_global_function raw={} argc={}",
+                func_name,
+                args.len()
+            );
+        }
         // 🎯 Phase 21.7++ Phase 2: StaticMethodId SSOT 実装
         let canonical = if let Some(mut id) = StaticMethodId::parse(func_name) {
             // 1. Parse success - this is a static method call (e.g., "Box.method" or "Box.method/N")
@@ -26,6 +38,12 @@ impl MirInterpreter {
         // Normalize arity suffix for extern-like dispatch, but keep canonical/original name
         // for module-local function table lookup (functions may carry arity suffix).
         let base = super::super::utils::normalize_arity_suffix(&canonical);
+        if stage1_trace && func_name.contains("MirBuilderBox.emit_from_program_json_v0") {
+            eprintln!(
+                "[stage1/call_shape] execute_global_function canonical={} base={}",
+                canonical, base
+            );
+        }
 
         // 🔍 Debug: Check function lookup (Phase 21.7++ Phase 2.2: StaticMethodId info)
         if std::env::var("NYASH_DEBUG_FUNCTION_LOOKUP").ok().as_deref() == Some("1") {
@@ -72,11 +90,23 @@ impl MirInterpreter {
         // まず canonical 名で探す（Main._nop/0 など）。Phase 25.x 時点では
         // レガシー名での再探索は廃止し、NamingBox 側の正規化に一本化する。
         if let Some(func) = self.functions.get(&canonical).cloned() {
+            if stage1_trace && func_name.contains("MirBuilderBox.emit_from_program_json_v0") {
+                eprintln!(
+                    "[stage1/call_shape] execute_global_function route=function-table name={}",
+                    canonical
+                );
+            }
             let mut argv: Vec<VMValue> = Vec::with_capacity(args.len());
             for a in args {
                 argv.push(self.reg_load(*a)?);
             }
             return self.exec_function_inner(&func, Some(&argv));
+        }
+        if stage1_trace && func_name.contains("MirBuilderBox.emit_from_program_json_v0") {
+            eprintln!(
+                "[stage1/call_shape] execute_global_function route=non-function-table name={} base={}",
+                canonical, base
+            );
         }
 
         match base {

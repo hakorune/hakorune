@@ -49,6 +49,60 @@ fn env_flag_default_on_cached(_cell: &'static OnceLock<bool>, key: &str) -> bool
     }
 }
 
+fn stage1_string_debug_enabled() -> bool {
+    static STAGE1_STRING_DEBUG: OnceLock<bool> = OnceLock::new();
+    env_flag_cached(&STAGE1_STRING_DEBUG, "STAGE1_CLI_DEBUG")
+}
+
+fn stage1_string_handle_debug(handle: i64) -> (bool, usize, String) {
+    if let Some(span) = resolve_string_span_from_handle_nocache(handle) {
+        let s = span.as_str();
+        let preview = if s.len() <= 48 {
+            s.to_string()
+        } else {
+            s[..48].to_string()
+        };
+        return (true, s.len(), preview);
+    }
+    (false, 0, String::new())
+}
+
+fn stage1_string_debug_log_eq(a_h: i64, b_h: i64, result: i64) {
+    if !stage1_string_debug_enabled() {
+        return;
+    }
+    let (a_ok, a_len, a_preview) = stage1_string_handle_debug(a_h);
+    let (b_ok, b_len, b_preview) = stage1_string_handle_debug(b_h);
+    eprintln!(
+        "[stage1/string_export] op=eq lhs={} lhs_ok={} lhs_len={} lhs_preview={:?} rhs={} rhs_ok={} rhs_len={} rhs_preview={:?} result={}",
+        a_h, a_ok, a_len, a_preview, b_h, b_ok, b_len, b_preview, result
+    );
+}
+
+fn stage1_string_debug_log_concat_materialize(a_h: i64, b_h: i64, out_h: i64) {
+    if !stage1_string_debug_enabled() {
+        return;
+    }
+    let (a_ok, a_len, a_preview) = stage1_string_handle_debug(a_h);
+    let (b_ok, b_len, b_preview) = stage1_string_handle_debug(b_h);
+    let (out_ok, out_len, out_preview) = stage1_string_handle_debug(out_h);
+    eprintln!(
+        "[stage1/string_export] op=concat_materialize lhs={} lhs_ok={} lhs_len={} lhs_preview={:?} rhs={} rhs_ok={} rhs_len={} rhs_preview={:?} out={} out_ok={} out_len={} out_preview={:?}",
+        a_h,
+        a_ok,
+        a_len,
+        a_preview,
+        b_h,
+        b_ok,
+        b_len,
+        b_preview,
+        out_h,
+        out_ok,
+        out_len,
+        out_preview
+    );
+}
+
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     if handle <= 0 {
         return None;
@@ -268,7 +322,9 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
 fn concat_pair_with_materialize(a_h: i64, b_h: i64) -> i64 {
     let lhs = to_owned_string_handle_arg(a_h);
     let rhs = to_owned_string_handle_arg(b_h);
-    concat_to_string_handle(&[lhs.as_str(), rhs.as_str()])
+    let out = concat_to_string_handle(&[lhs.as_str(), rhs.as_str()]);
+    stage1_string_debug_log_concat_materialize(a_h, b_h, out);
+    out
 }
 
 #[inline(always)]
@@ -526,7 +582,9 @@ pub extern "C" fn nyash_string_eq_hh_export(a_h: i64, b_h: i64) -> i64 {
     if !allow_rust_string_fallback() {
         return hook_miss_scalar_error("string.eq_hh");
     }
-    compare_string_pair_hh(a_h, b_h, |lhs, rhs| lhs == rhs)
+    let result = compare_string_pair_hh(a_h, b_h, |lhs, rhs| lhs == rhs);
+    stage1_string_debug_log_eq(a_h, b_h, result);
+    result
 }
 
 // String.substring_hii(handle, start, end) -> handle

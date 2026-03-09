@@ -54,6 +54,30 @@ pub mod string_ops {
     pub const FROM_U64X2: i64 = 10;
 }
 
+fn stage1_string_dispatch_trace_enabled() -> bool {
+    std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1")
+        || std::env::var("HAKO_STAGE1_MODULE_DISPATCH_TRACE")
+            .ok()
+            .as_deref()
+            == Some("1")
+}
+
+fn string_op_name(op: i64) -> &'static str {
+    match op {
+        string_ops::LEN_H => "len_h",
+        string_ops::CHARCODE_AT_H => "charcode_at_h",
+        string_ops::CONCAT_HH => "concat_hh",
+        string_ops::CONCAT3_HHH => "concat3_hhh",
+        string_ops::EQ_HH => "eq_hh",
+        string_ops::SUBSTRING_HII => "substring_hii",
+        string_ops::INDEXOF_HH => "indexof_hh",
+        string_ops::LASTINDEXOF_HH => "lastindexof_hh",
+        string_ops::LT_HH => "lt_hh",
+        string_ops::FROM_U64X2 => "from_u64x2",
+        _ => "unknown",
+    }
+}
+
 pub fn call_plugin_invoke_by_name(
     recv_handle: i64,
     method: *const i8,
@@ -91,6 +115,17 @@ pub fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
     if ok == 0 {
         None
     } else {
+        if stage1_string_dispatch_trace_enabled() {
+            eprintln!(
+                "[stage1/string_dispatch] op={}({}) a0={} a1={} a2={} out={}",
+                string_op_name(op),
+                op,
+                a0,
+                a1,
+                a2,
+                out
+            );
+        }
         Some(out)
     }
 }
