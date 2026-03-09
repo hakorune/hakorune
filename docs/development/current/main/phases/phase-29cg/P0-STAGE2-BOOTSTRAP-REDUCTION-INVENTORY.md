@@ -51,6 +51,17 @@ Related:
 - next reduction target is not `stage1-cli` as raw `NYASH_BIN`
 - next reduction target is `stage1-cli` as a stage1-bridge emit provider inside Stage2 build path
 
+## Current probe result
+
+- `build_stage1.sh` now has an explicit `stage1-cli bridge-first` path when `NYASH_BIN` itself is a `stage1-cli` artifact
+- exact probe result:
+  - Stage1 bridge emits Program(JSON) successfully
+  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) still has `defs=[]` even though helper methods exist
+  - the issue is not unique to `stage1_cli_env.hako`; a minimal `Main.main -> method foo()` probe also yields `defs=[]`
+  - `stage1_contract_exec_mode ... emit-mir ...` then fails with `96` and leaves an empty MIR file
+  - `build_stage1.sh` now fail-fast stops on `missing helper defs` before entering the `emit-mir` step
+- therefore the current blocker moved from bootstrap wiring and MIR dominance to helper-def materialization for `stage1_cli_env.hako` under bridge-first bootstrap
+
 ## Reduction target
 
 - target:
@@ -65,3 +76,4 @@ Related:
 - exact owner / exact condition / exact target が 1 枚で読める
 - checklist がこの inventory を参照して進められる
 - raw direct probe and helper-driven probe are both fixed so the next reduction cannot drift into the wrong contract
+- bridge-first probe failure point is fixed so the next execution slice can target `user_box_decls` / box-registration metadata, not route plumbing

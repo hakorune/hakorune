@@ -97,7 +97,9 @@ def lower_call(
 
     # Resolve function: accepts string name or value-id referencing a string literal
     actual_name = func_name
-    if not isinstance(func_name, str):
+    if isinstance(func_name, dict):
+        actual_name = func_name.get("name") or func_name.get("func")
+    if not isinstance(actual_name, str):
         # Try resolver.string_literals
         if resolver is not None and hasattr(resolver, 'string_literals'):
             actual_name = resolver.string_literals.get(func_name)

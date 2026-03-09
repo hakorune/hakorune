@@ -92,6 +92,65 @@ USAGE
 ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
 source "$ROOT/tools/selfhost/lib/stage1_contract.sh"
 
+read_bootstrap_artifact_kind() {
+  local bin="${NYASH_BIN:-}"
+  local meta
+  if [ -z "$bin" ]; then
+    printf "unknown"
+    return 0
+  fi
+  meta="${bin}.artifact_kind"
+  if [ ! -f "$meta" ]; then
+    printf "unknown"
+    return 0
+  fi
+  awk -F= '$1=="artifact_kind"{print $2; exit}' "$meta" 2>/dev/null || printf "unknown"
+}
+
+build_with_stage1_cli_bootstrap() {
+  local tmp_prog tmp_mir source_text
+  tmp_prog="$(mktemp --suffix .stage1_cli_bootstrap.program.json)"
+  tmp_mir="$(mktemp --suffix .stage1_cli_bootstrap.mir.json)"
+  trap 'rm -f "$tmp_prog" "$tmp_mir" 2>/dev/null || true' RETURN
+
+  source_text="$(stage1_contract_source_text "$ENTRY")"
+  if ! NYASH_BRIDGE_ME_DUMMY="${NYASH_BRIDGE_ME_DUMMY:-1}" \
+    stage1_contract_exec_mode "$NYASH_BIN" "emit-program" "$ENTRY" "$source_text" >"$tmp_prog"; then
+    echo "[stage1] stage1-cli bootstrap emit-program failed: $ENTRY" >&2
+    return 1
+  fi
+  if ! grep -q '"kind"[[:space:]]*:[[:space:]]*"Program"' "$tmp_prog"; then
+    echo "[stage1] stage1-cli bootstrap produced non-Program payload: $ENTRY" >&2
+    return 1
+  fi
+  if [[ "$ENTRY" == *"/lang/src/runner/stage1_cli_env.hako" ]]; then
+    if ! python - "$tmp_prog" <<'PY'
+import json, pathlib, sys
+p = pathlib.Path(sys.argv[1])
+obj = json.loads(p.read_text())
+sys.exit(0 if len(obj.get("defs", [])) > 0 else 1)
+PY
+    then
+      echo "[stage1] stage1-cli bootstrap emit-program missing helper defs: $ENTRY" >&2
+      return 1
+    fi
+  fi
+  if ! NYASH_BRIDGE_ME_DUMMY="${NYASH_BRIDGE_ME_DUMMY:-1}" \
+    stage1_contract_exec_mode "$NYASH_BIN" "emit-mir" "$ENTRY" "$source_text" "$tmp_prog" >"$tmp_mir"; then
+    echo "[stage1] stage1-cli bootstrap emit-mir failed: $ENTRY" >&2
+    return 1
+  fi
+  if ! grep -q '"functions"' "$tmp_mir"; then
+    echo "[stage1] stage1-cli bootstrap produced non-MIR payload: $ENTRY" >&2
+    return 1
+  fi
+
+  NYASH_LLVM_BACKEND=crate \
+  NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
+  NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
+    bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null
+}
+
 ENTRY_DEFAULT_LAUNCHER="$ROOT/lang/src/runner/launcher.hako"
 ENTRY_DEFAULT_STAGE1_CLI="$ROOT/lang/src/runner/stage1_cli_env.hako"
 OUT_DEFAULT_LAUNCHER="$ROOT/target/selfhost/hakorune"
@@ -222,7 +281,60 @@ if is_truthy "$REUSE_IF_FRESH"; then
 fi
 
 if [ "$SKIPPED_BUILD" -ne 1 ]; then
-  if [ "$TIMEOUT_SECS" -gt 0 ]; then
+  BOOTSTRAP_KIND="$(read_bootstrap_artifact_kind)"
+  if [ "$ARTIFACT_KIND" = "stage1-cli" ] && [ "$BOOTSTRAP_KIND" = "stage1-cli" ]; then
+    echo "         bootstrap: stage1-cli bridge-first" >&2
+    if [ "$TIMEOUT_SECS" -gt 0 ]; then
+      set +e
+      timeout --preserve-status "${TIMEOUT_SECS}s" bash -lc '
+        set -euo pipefail
+        ROOT="$1"
+        ENTRY="$2"
+        OUT="$3"
+        NYASH_BIN="$4"
+        source "$ROOT/tools/selfhost/lib/stage1_contract.sh"
+        source_text="$(stage1_contract_source_text "$ENTRY")"
+        tmp_prog="$(mktemp --suffix .stage1_cli_bootstrap.program.json)"
+        tmp_mir="$(mktemp --suffix .stage1_cli_bootstrap.mir.json)"
+        trap '\''rm -f "$tmp_prog" "$tmp_mir" 2>/dev/null || true'\'' EXIT
+        NYASH_BRIDGE_ME_DUMMY="${NYASH_BRIDGE_ME_DUMMY:-1}" \
+          stage1_contract_exec_mode "$NYASH_BIN" "emit-program" "$ENTRY" "$source_text" >"$tmp_prog"
+        grep -q "\"kind\"[[:space:]]*:[[:space:]]*\"Program\"" "$tmp_prog"
+        if [[ "$ENTRY" == *"/lang/src/runner/stage1_cli_env.hako" ]]; then
+          if ! python - "$tmp_prog" <<'\''PY'\''
+import json, pathlib, sys
+p = pathlib.Path(sys.argv[1])
+obj = json.loads(p.read_text())
+sys.exit(0 if len(obj.get("defs", [])) > 0 else 1)
+PY
+          then
+            echo "[stage1] stage1-cli bootstrap emit-program missing helper defs: $ENTRY" >&2
+            exit 1
+          fi
+        fi
+        NYASH_BRIDGE_ME_DUMMY="${NYASH_BRIDGE_ME_DUMMY:-1}" \
+          stage1_contract_exec_mode "$NYASH_BIN" "emit-mir" "$ENTRY" "$source_text" "$tmp_prog" >"$tmp_mir"
+        grep -q "\"functions\"" "$tmp_mir"
+        NYASH_LLVM_BACKEND=crate \
+        NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
+        NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
+          bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null
+      ' bash "$ROOT" "$ENTRY" "$OUT" "$NYASH_BIN"
+      RC=$?
+      set -e
+      if [ "$RC" -eq 124 ] || [ "$RC" -eq 137 ] || [ "$RC" -eq 143 ]; then
+        echo "[stage1] build timed out after ${TIMEOUT_SECS}s" >&2
+        echo "         hint: rerun with larger --timeout-secs or use --skip-build with prebuilt binaries" >&2
+        exit 2
+      fi
+      if [ "$RC" -ne 0 ]; then
+        echo "[stage1] build failed (rc=$RC)" >&2
+        exit "$RC"
+      fi
+    else
+      build_with_stage1_cli_bootstrap
+    fi
+  elif [ "$TIMEOUT_SECS" -gt 0 ]; then
     set +e
     # Keep env overrides opt-in; stage1-cli correctness is validated post-build.
     timeout --preserve-status "${TIMEOUT_SECS}s" env NYASH_ROOT="$ROOT" "${EXTRA_ENV[@]}" \

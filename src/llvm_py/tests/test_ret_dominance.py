@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
+import sys
 import unittest
+from pathlib import Path
 
 import llvmlite.ir as ir
 
-from src.llvm_py.instructions.ret import lower_return
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from instructions.ret import lower_return
 
 
 class _ResolverStub:

@@ -48,7 +48,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current follow-up:
     - `phase-29ce / accepted`
     - `phase-29cf / accepted monitor-only`
-    - `phase-29cg / accepted docs-first`
+    - `phase-29cg / accepted probing`
     - `VM fallback compat lane: explicit compat keep`
     - `bootstrap boundary reduction: future-wave target`
 - perf lane: `phase-21.5 / monitor-only`
@@ -74,7 +74,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - route authority probes are now split into `route observability keep`, `strict-dev priority keep`, and `non-strict compat boundary keep`
     - `phase29x_derust_strict_default_route_vm.sh` is `done-sync keep` because `phase29x_derust_done_matrix_vm.sh` and the de-rust lane map still consume it as current evidence
     - `route_env_probe.sh` is `current diagnostics keep` because `route_no_fallback_guard.sh` and tools docs still treat it as the active route-probe contract
-    - Stage2 current reduction target is exact: `tools/selfhost_identity_check.sh` falls back to default bootstrap when artifact-kind is `stage1-cli` because the Stage1 CLI artifact does not satisfy raw `NYASH_BIN` bootstrap contract even though `stage1_contract_exec_mode` can emit Program/MIR through the stage1 bridge
+    - Stage2 current reduction target is exact: `tools/selfhost_identity_check.sh` keeps default bootstrap when artifact-kind is `stage1-cli`; `build_stage1.sh` now has an explicit bridge-first probe path, and the current exact blocker is `stage1_cli_env.hako` helper defs materialization (`emit-program` still yields `defs=[]`, `emit-mir` returns `96`, empty MIR)
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
@@ -1304,7 +1304,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - de-rust Stage2 bootstrap reduction contract (2026-03-09, slice 240): `phase-29cg` の docs-first contract を固定し、raw `target/selfhost/hakorune.stage1_cli emit ...` と `--emit-mir-json ...` は `97` を返す一方、`stage1_contract_exec_mode` は Program/MIR emit が通ることを実測で確認した
     - implication: next reduction target は `stage1-cli` binary の raw `NYASH_BIN` 置換ではなく、stage1-bridge helper contract の Stage2 build path への昇格
     - synced files: `CURRENT_TASK.md` / `docs/development/current/main/{design/selfhost-bootstrap-route-ssot.md,phases/phase-29cg/{README.md,P0-STAGE2-BOOTSTRAP-REDUCTION-INVENTORY.md,29cg-10-stage2-bootstrap-reduction-checklist.md}}`
+  - de-rust Stage2 bootstrap reduction probe (2026-03-09, slice 241): `build_stage1.sh` に `stage1-cli bridge-first bootstrap` path を追加して exact probe した。初回は `stage1_cli_env.hako` build が `Instruction does not dominate all uses!` で ny-llvmc link fail になったため、bridge-first lane の first blocker を `stage1_cli_env.hako` MIR quality として固定した
+  - de-rust Stage2 bootstrap reduction probe (2026-03-09, slice 242): `stage1_cli_env.hako` の `_find_matching_pair_inline` を単純化したうえで bridge-first bootstrap を再計測した。MIR dominance blocker はこの sliceでは再発しなかったが、exact blocker はさらに手前へ寄り、`emit-program` helper defs 欠落 (`defs=[]`) により `emit-mir` が `96` / empty MIR で止まる形だと固定した
+    - implication: next concrete blocker is stage1-cli registration metadata より前段の helper-def materialization であり、`build_stage1.sh` はこの条件で fail-fast する
     - intent: `phase-29cf` の inventory lane と、次に実際に削減する Stage2 bootstrap dependency lane を分離し、1 blocker = 1 phase で進められるようにする
+  - de-rust Stage2 bootstrap reduction probe (2026-03-09, slice 243): helper-def materialization blocker を generalize した。`stage1_cli_env.hako` だけでなく、最小 `Main.main -> method foo()` probe でも `emit-program` が `defs=[]` を返すことを確認したため、current blocker は helper-method complexity ではなく `Program(JSON)` helper-def materialization 契約そのものにある
+    - verification: `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-program /tmp/stage1_defs_probe_min.hako ...` -> `defs=[]`
+    - verification: `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli ...` -> `[stage1] stage1-cli bootstrap emit-program missing helper defs`
 
 ## Quick Restart (After Reboot)
 

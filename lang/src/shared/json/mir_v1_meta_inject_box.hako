@@ -20,7 +20,29 @@ static box MirV1MetaInjectBox {
     local head = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"metadata\":{\"extern_c\":" + ext + "},"
     return head + tail
   }
+
+  // Injects root-level user_box_decls while preserving the existing root payload.
+  // - mir_json must be an object JSON starting with '{'
+  // - user_box_decls_json must be a JSON array text
+  // - if user_box_decls already exists and is non-empty, the input is returned unchanged
+  // - if user_box_decls exists as [], it is replaced with the provided decls
+  inject_user_box_decls(mir_json, user_box_decls_json) {
+    if mir_json == null { return null }
+    local s = "" + mir_json
+    if s.length() < 2 { return s }
+    if s.substring(0, 1) != "{" { return s }
+    local decls = user_box_decls_json
+    if decls == null || decls == "" { decls = "[]" }
+    local empty_pos = s.indexOf("\"user_box_decls\":[]")
+    if empty_pos >= 0 {
+      local prefix = s.substring(0, empty_pos)
+      local suffix = s.substring(empty_pos + 19, s.length())
+      return prefix + "\"user_box_decls\":" + decls + suffix
+    }
+    if s.indexOf("\"user_box_decls\"") >= 0 { return s }
+    local tail = s.substring(1, s.length())
+    return "{\"user_box_decls\":" + decls + "," + tail
+  }
 }
 
 static box MirV1MetaInjectMain { main(args) { return 0 } }
-

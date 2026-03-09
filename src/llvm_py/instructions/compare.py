@@ -282,6 +282,7 @@ def lower_compare(
             block_end_values,
             vmap,
             bb_map,
+            prefer_local=False,
             hot_scope="compare",
         )
     if rhs_val is None:
@@ -293,6 +294,7 @@ def lower_compare(
             block_end_values,
             vmap,
             bb_map,
+            prefer_local=False,
             hot_scope="compare",
         )
     lhs_val = _canonicalize_i64(builder, lhs_val, lhs, vmap, "cmp_lhs")
@@ -327,6 +329,7 @@ def lower_compare(
                     block_end_values,
                     vmap,
                     bb_map,
+                    prefer_local=False,
                     hot_scope="compare",
                 )
                 if (resolver is not None and preds is not None and block_end_values is not None and current_block is not None) else ir.Constant(i64, 0)
@@ -340,6 +343,7 @@ def lower_compare(
                     block_end_values,
                     vmap,
                     bb_map,
+                    prefer_local=False,
                     hot_scope="compare",
                 )
                 if (resolver is not None and preds is not None and block_end_values is not None and current_block is not None) else ir.Constant(i64, 0)

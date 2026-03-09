@@ -38,4 +38,7 @@ Related:
 - `stage1-cli` reduction means `bridge-first Stage2 build`, not raw `NYASH_BIN=$STAGE1_BIN`
 - proof sources:
   - raw direct contract returns `97`
-  - `stage1_contract_exec_mode` emits Program/MIR successfully
+  - `stage1_contract_exec_mode` emits Program(JSON), but `stage1_cli_env.hako` still loses helper `defs`
+  - a minimal `Main.main -> method foo()` probe also loses helper `defs`, so the blocker is helper-def materialization itself, not only `stage1_cli_env` complexity
+  - `stage1_contract_exec_mode ... emit-mir ...` currently fails with `96` on that `defs`-less Program(JSON)
+  - experimental `build_stage1.sh` bridge-first path now fail-fast stops on `missing helper defs`

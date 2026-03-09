@@ -38,7 +38,7 @@ static box MirBuilderBox {
       result = FuncLoweringBox.methodize_calls_in_mir(result)
     }
     local nv = env.get("HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE")
-    if nv != null && ("" + nv) == "1" { return NormBox.normalize_all(result) }
+    if nv != null && ("" + nv) == "1" { result = NormBox.normalize_all(result) }
     return result
   }
   // Availability probe (for canaries)

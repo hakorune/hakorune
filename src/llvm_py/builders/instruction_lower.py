@@ -148,6 +148,8 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
 
     elif op == "call":
         func_name = inst.get("func")
+        if func_name is None:
+            func_name = inst.get("callee")
         args = inst.get("args", [])
         dst = inst.get("dst")
         lower_call(builder, owner.module, func_name, args, dst, vmap_ctx, owner.resolver, owner.preds, owner.block_end_values, owner.bb_map, getattr(owner, 'ctx', None))

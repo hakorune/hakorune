@@ -212,7 +212,7 @@ if [[ "$SKIP_BUILD" -eq 0 ]]; then
   if [[ "$BUILD_ARTIFACT_KIND" == "launcher-exe" ]]; then
     STAGE2_BUILD_PREFIX=(NYASH_BIN="$STAGE1_BIN")
   else
-    echo "[G1] Stage2 build note: stage1-cli artifact is emit-route entry only; using default bootstrap for Stage2 build" >&2
+    echo "[G1] Stage2 build note: stage1-cli artifact uses experimental bridge-first bootstrap path only; default bootstrap remains current keep for G1" >&2
   fi
   if ! env "${STAGE2_BUILD_PREFIX[@]}" bash "${ROOT}/tools/selfhost/build_stage1.sh" --artifact-kind "$BUILD_ARTIFACT_KIND" --out "$STAGE2_BIN" --timeout-secs "$BUILD_TIMEOUT_SECS" >/dev/null 2>&1; then
     echo "[G1:FAIL] Stage2 build failed (likely OOM - try --skip-build with prebuilt binaries)" >&2

@@ -40,15 +40,35 @@ def resolve_i64_strict(
         if debug:
             trace_phi(f"[resolve_i64_strict] v{value_id} -> local vmap")
         return val
-    # If local map misses, try builder-global vmap (e.g., predeclared PHIs)
+    # If local map misses, try builder-global vmap only for values that are
+    # known to safely dominate here. Raw global vmap reuse for ordinary SSA
+    # values can pull a sibling-block definition into the current block and
+    # trigger LLVM dominance failures.
     try:
         if hasattr(resolver, 'global_vmap') and isinstance(resolver.global_vmap, dict):
             gval = resolver.global_vmap.get(value_id)
             if gval is not None:
-                trace_hot_count(resolver, f"resolve_global_hit_{scope}")
-                if debug:
-                    trace_phi(f"[resolve_i64_strict] v{value_id} -> global_vmap")
-                return gval
+                allow_global = False
+                try:
+                    allow_global = hasattr(gval, 'add_incoming')
+                except Exception:
+                    allow_global = False
+                if not allow_global and prefer_local:
+                    try:
+                        cur_bid = int(str(current_block.name).replace("bb", ""))
+                        def_blocks = getattr(resolver, "def_blocks", {})
+                        allow_global = (
+                            isinstance(def_blocks, dict)
+                            and value_id in def_blocks
+                            and cur_bid in def_blocks.get(value_id, set())
+                        )
+                    except Exception:
+                        allow_global = False
+                if allow_global:
+                    trace_hot_count(resolver, f"resolve_global_hit_{scope}")
+                    if debug:
+                        trace_phi(f"[resolve_i64_strict] v{value_id} -> global_vmap")
+                    return gval
     except Exception:
         pass
     # Fallback to resolver
