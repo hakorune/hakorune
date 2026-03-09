@@ -59,8 +59,9 @@ Related:
   - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) now materializes helper defs (`defs_len=20`)
   - `stage1_contract_exec_mode ... emit-mir ...` still fails with `96`
   - with `STAGE1_CLI_DEBUG=1`, the exact failure point is `[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 returned null`
+  - with `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1`, `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` is hit, but no `mir_builder error:` / `output_bytes=` trace is emitted before the child receives `null`
   - clean `build_stage1.sh` bridge-first probe still exits non-zero, but no longer because helper defs are absent
-- therefore the current blocker moved from helper-def materialization to internal-only MirBuilder acceptance under bridge-first bootstrap
+- therefore the current blocker moved from helper-def materialization to the stage1 child/module-dispatch return contract around the internal-only MirBuilder bridge under bridge-first bootstrap
 
 ## Reduction target
 

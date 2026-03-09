@@ -32,6 +32,7 @@ Related:
 
 - [ ] `tools/selfhost_identity_check.sh` no longer needs the current default-bootstrap note for the reduced case
 - [ ] `selfhost-bootstrap-route-ssot.md` can reclassify one `future retire target`
+- [ ] reduced case can describe the bridge as `temporary bootstrap boundary`, not as current route authority
 
 ## 5) Current contract note
 
@@ -41,4 +42,5 @@ Related:
   - `stage1_contract_exec_mode` emits Program(JSON), and `stage1_cli_env.hako` now carries helper defs (`defs_len=20`)
   - `stage1_contract_exec_mode ... emit-mir ...` currently fails with `96`
   - `STAGE1_CLI_DEBUG=1` shows the exact blocker: `MirBuilderBox.emit_from_program_json_v0 returned null`
+  - `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1` shows the MirBuilder module-dispatch route is hit, but no success/error payload is returned before the child receives `null`
   - experimental `build_stage1.sh` bridge-first path still exits non-zero, but helper-def absence is no longer the asserted blocker

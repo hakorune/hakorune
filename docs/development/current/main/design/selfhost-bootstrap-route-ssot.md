@@ -41,8 +41,8 @@ SSOT:
 - binary-only `--hako-emit-mir-json` / `--hako-run` は ported contract として monitor-only 運用する
 - G1 identity (`tools/selfhost_identity_check.sh --mode full`) は現行 bootstrap contract の正本として維持する
 - `tools/selfhost_identity_check.sh` は artifact-kind=`stage1-cli` 時に Stage2 build を default bootstrap へ落とす。この 1 点が bootstrap reduction の next concrete target である
-- exact probe では `target/selfhost/hakorune.stage1_cli` は raw direct contract (`emit ...` / `--emit-mir-json`) で `97` を返す一方、`stage1_contract_exec_mode` 経由では Program/MIR emit が通る。したがって reduction target は `stage1-cli` binary の raw replacement ではなく、stage1-bridge helper contract の Stage2 build への昇格である
-- `build_stage1.sh` には experimental `stage1-cli bridge-first` bootstrap path を追加済みで、`stage1_cli_env.hako` の Program(JSON) helper defs は current source では materialize する。ただし `emit-mir` は still `96` で fail し、`MirBuilderBox.emit_from_program_json_v0` internal-only acceptance が次の exact blocker になっているため、G1 の current contract は default bootstrap keep のまま維持する
+- exact probe では `target/selfhost/hakorune.stage1_cli` は raw direct contract (`emit ...` / `--emit-mir-json`) で `97` を返す一方、`stage1_contract_exec_mode` 経由では Program(JSON) emit までは通る。したがって reduction target は `stage1-cli` binary の raw replacement ではなく、stage1-bridge helper contract の Stage2 build への昇格である
+- `build_stage1.sh` には experimental `stage1-cli bridge-first` bootstrap path を追加済みで、`stage1_cli_env.hako` の Program(JSON) helper defs は current source では materialize する。ただし `emit-mir` は still `96` で fail し、`HAKO_STAGE1_MODULE_DISPATCH_TRACE=1` でも `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` hit の後に success/error payload が返らない。したがって次の exact blocker は internal-only MirBuilder shape acceptance だけでなく、stage1 child/module-dispatch return contract を含む bridge semantics であり、G1 の current contract は default bootstrap keep のまま維持する
 - この文書の後半にある `BINARY-ONLY-*` / debt pack は active contract の補助 evidence であり、current blocker を直接定義しない
 
 ## Non-goals
