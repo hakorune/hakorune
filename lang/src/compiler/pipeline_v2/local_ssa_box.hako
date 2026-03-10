@@ -85,9 +85,7 @@ static box LocalSSABox {
       loop (i < n) {
         local ins = BoxHelpers.array_get(insts, i)
         if ins != null {
-          print("[LS] checking def ins=" + ("" + ins))
           local d_raw = BoxHelpers.map_get(ins, "dst")
-          print("[LS] dst raw=" + ("" + d_raw))
           local d = BoxHelpers.value_i64(d_raw)
           if d != null && d == src { insert_at = i + 1 }
         }
