@@ -59,6 +59,21 @@ pub fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
     program_json_to_mir_json_with_imports(program_json, BTreeMap::new())
 }
 
+/// Convert source text through the existing stage1 Program(JSON v0) surrogate and
+/// return both the transient Program(JSON) and MIR(JSON) while keeping that
+/// boundary inside the provider.
+pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
+    let program_json = crate::stage1::program_json_v0::source_to_program_json_v0(source_text)
+        .map_err(|e| format!("{FAILFAST_TAG} {}", e))?;
+    let mir_json = program_json_to_mir_json(&program_json)?;
+    Ok((program_json, mir_json))
+}
+
+pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
+    let (_, mir_json) = source_to_program_and_mir_json(source_text)?;
+    Ok(mir_json)
+}
+
 /// Convert Program(JSON v0) to MIR(JSON v0) with using imports support.
 pub fn program_json_to_mir_json_with_imports(
     program_json: &str,
@@ -255,5 +270,26 @@ mod tests {
         let mir_json = result.unwrap();
         assert!(mir_json.contains("lang.compiler.build.build_box"));
         assert!(!mir_json.contains("\"BuildBox.emit_program_json_v0\""));
+    }
+
+    #[test]
+    fn test_source_to_mir_json_handles_stage1_cli_env_source() {
+        let source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
+        let result = source_to_mir_json(source);
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+
+        let mir_json = result.unwrap();
+        assert!(mir_json.contains("functions"));
+    }
+
+    #[test]
+    fn test_source_to_program_and_mir_json_returns_program_and_mir() {
+        let source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
+        let result = source_to_program_and_mir_json(source);
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+
+        let (program_json, mir_json) = result.unwrap();
+        assert!(program_json.contains("\"kind\":\"Program\""));
+        assert!(mir_json.contains("functions"));
     }
 }

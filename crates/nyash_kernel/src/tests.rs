@@ -398,6 +398,28 @@ fn invoke_by_name_accepts_stage1_mir_builder_for_stage1_cli_env_program_json() {
 }
 
 #[test]
+fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_stage1_cli_env() {
+    let receiver: Arc<dyn NyashBox> =
+        Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
+    let receiver_handle = handles::to_handle_arc(receiver) as i64;
+    let source = "static box Main { main() { return 0 } }";
+    let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
+    let method = CString::new("emit_from_source_v0").expect("CString");
+
+    let result_handle =
+        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, source_handle, 0);
+    assert!(result_handle > 0, "expected MIR JSON StringBox handle");
+
+    let mir_json = decode_string_like_handle(result_handle).expect("mir json string");
+    assert!(
+        mir_json.starts_with('{'),
+        "expected MIR JSON payload, got: {}",
+        mir_json
+    );
+    assert!(mir_json.contains("\"functions\""));
+}
+
+#[test]
 fn invoke_by_name_accepts_stage1_mir_builder_for_launcher_program_json() {
     let receiver: Arc<dyn NyashBox> =
         Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));

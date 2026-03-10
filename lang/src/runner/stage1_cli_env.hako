@@ -72,7 +72,6 @@ static box Main {
     if stage1_debug_on {
       print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(src_json) + " preview=" + me._debug_preview_inline(src_json))
     }
-
     local mir = MirBuilderBox.emit_from_program_json_v0(src_json, null)
     local mir_kind = BoxTypeInspectorBox.kind(mir)
     local mir_desc = BoxTypeInspectorBox.describe(mir)

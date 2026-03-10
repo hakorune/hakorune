@@ -5,6 +5,7 @@
 //
 // API
 // - emit_from_program_json_v0(program_json: String, opts: Map|Null) -> String|Null
+// - emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null
 //   Returns MIR(JSON v0) on success, or prints a tag and returns null on failure/skip.
 //
 // Toggles
@@ -16,6 +17,7 @@
 // Phase 22.0: Hako‑first（registry）を既定ONにする。必要なら 0 を明示して無効化する。
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
+using lang.compiler.build.build_box as BuildBox
 using "hako.mir.builder.internal.jsonfrag_normalizer" as NormBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 using lang.mir.builder.func_lowering as FuncLoweringBox
@@ -570,5 +572,18 @@ static box MirBuilderBox {
     // Provider not wired → Fail‑Fast tag
     print("[mirbuilder/delegate/missing] no provider; enable HAKO_MIR_BUILDER_DELEGATE=1")
     return null
+  }
+
+  method emit_from_source_v0(source_text, opts) {
+    if source_text == null {
+      print("[mirbuilder/input/null] source_text is null")
+      return null
+    }
+    local program_json = BuildBox.emit_program_json_v0("" + source_text, opts)
+    if program_json == null {
+      print("[mirbuilder/input/invalid] BuildBox returned null")
+      return null
+    }
+    return me.emit_from_program_json_v0(program_json, opts)
   }
 }

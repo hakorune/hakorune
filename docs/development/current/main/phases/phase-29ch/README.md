@@ -111,11 +111,12 @@ Current branch point (2026-03-11):
   3. fresh `G1 full` is raw-exact green for both `Program JSON v0` and `MIR JSON v0`
 - therefore the current preferred order is now: keep `stage1-env-program` + `stage1-env-mir-source` as the only reduced authority evidence, keep `run_stage1_cli.sh` as a compatibility wrapper over that contract, and choose the first true bootstrap reduction slice instead of spending more work on current-route determinism
 - next owner order remains fixed:
-  1. inventory the exact transient Program(JSON v0) boundary introduced by `lang/src/runner/stage1_cli_env.hako` (`_resolve_emit_mir_program_json_text` -> `_build_emit_mir_program_json_transient` -> `_build_program_json`)
-  2. keep `lang/src/mir/builder/MirBuilderBox.hako` as the contract surface but treat compiled-artifact module dispatch as the current execution owner while selecting one minimal BoxShape slice
-  3. shrink that transient boundary without creating a new authority route
+  1. keep the exact transient Program(JSON v0) boundary introduced by `lang/src/runner/stage1_cli_env.hako` (`_resolve_emit_mir_program_json_text` -> `_build_emit_mir_program_json_transient` -> `_build_program_json`) as the current green seam
+  2. treat `MirBuilderBox.emit_from_source_v0(...)` + compiled-artifact module dispatch as a future reduction target only until its return/materialization contract is proven on fresh stage2 artifacts
+  3. shrink the transient boundary without creating a new authority route
   4. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 - transient-boundary proof rule: `bash tools/dev/phase29ch_transient_boundary_probe.sh [entry]` must stay raw-exact quiet for current reduced sources. It compares source-only authority `emit-mir` against the same saved Program(JSON v0) supplied explicitly, so the next reduction slice can prove the transient boundary is semantically transparent before shrinking it.
+- source-route caution (2026-03-11): `MirBuilderBox.emit_from_source_v0(...)` is not accepted as reduced-case authority evidence yet. Fresh compiled stage2 artifacts currently hit the route through `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`, but `apps/tests/hello_simple_llvm.hako` still materializes a null-like result at the `stage1_cli_env.hako` caller boundary. Record it as `future retire target` / diagnostics-only until that contract is closed.
 - detour prevention for the next slice: `src/runner/modes/vm_hako/compile_bridge.rs` already contains a Rust direct source→MIR helper, but it is reference-only for `phase-29ch`. Do not promote it into current selfhost authority while choosing the next reduction slice.
 
 Route guard lock:

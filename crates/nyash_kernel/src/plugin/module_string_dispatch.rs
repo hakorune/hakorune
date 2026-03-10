@@ -52,7 +52,7 @@ struct DispatchRoute {
     handler: fn(i64, i64, i64) -> Option<i64>,
 }
 
-const DISPATCH_ROUTES: [DispatchRoute; 4] = [
+const DISPATCH_ROUTES: [DispatchRoute; 5] = [
     DispatchRoute {
         module: USING_RESOLVER_BOX_MODULE,
         method: "resolve_for_source",
@@ -72,6 +72,11 @@ const DISPATCH_ROUTES: [DispatchRoute; 4] = [
         module: MIR_BUILDER_MODULE,
         method: "emit_from_program_json_v0",
         handler: handle_mir_builder_emit_from_program_json_v0,
+    },
+    DispatchRoute {
+        module: MIR_BUILDER_MODULE,
+        method: "emit_from_source_v0",
+        handler: handle_mir_builder_emit_from_source_v0,
     },
 ];
 
@@ -222,6 +227,74 @@ fn handle_mir_builder_emit_from_program_json_v0(
     Some(out)
 }
 
+fn handle_mir_builder_emit_from_source_v0(arg_count: i64, arg1: i64, arg2: i64) -> Option<i64> {
+    if arg_count < 1 {
+        return Some(encode_string_handle(
+            "[freeze:contract][stage1_mir_builder] missing arg0(source_text)",
+        ));
+    }
+    let source_text = match decode_string_handle(arg1).or_else(|| decode_string_handle(arg2)) {
+        Some(text) => text,
+        None => {
+            trace_log(format!(
+                "[stage1/module_dispatch] mir_builder source decode failed: arg1={} arg2={}",
+                arg1, arg2
+            ));
+            return Some(encode_string_handle(
+                "[freeze:contract][stage1_mir_builder] source decode failed",
+            ));
+        }
+    };
+    let internal_on = mir_builder_internal_on();
+    let delegate_on = mir_builder_delegate_on();
+    let no_delegate = mir_builder_no_delegate();
+    trace_log(format!(
+        "[stage1/module_dispatch] mir_builder source gate internal_on={} delegate_on={} no_delegate={}",
+        internal_on, delegate_on, no_delegate
+    ));
+    if !internal_on && (no_delegate || !delegate_on) {
+        let reason = if no_delegate {
+            "delegate disabled by HAKO_SELFHOST_NO_DELEGATE=1"
+        } else {
+            "internal off and delegate off"
+        };
+        return Some(encode_string_handle(&format!(
+            "[freeze:contract][stage1_mir_builder] {}",
+            reason
+        )));
+    }
+
+    let (program_json, mir_json) =
+        match nyash_rust::host_providers::mir_builder::source_to_program_and_mir_json(&source_text)
+        {
+            Ok(pair) => pair,
+            Err(error_text) => {
+                trace_log(format!(
+                    "[stage1/module_dispatch] mir_builder source error: {}",
+                    error_text
+                ));
+                return Some(encode_string_handle(&format!(
+                    "[freeze:contract][stage1_mir_builder] {}",
+                    error_text
+                )));
+            }
+        };
+    let mir_json = match inject_stage1_user_box_decls_from_program_json(&program_json, &mir_json) {
+        Ok(json_text) => json_text,
+        Err(error_text) => {
+            trace_log(format!(
+                "[stage1/module_dispatch] mir_builder source user_box_decls error: {}",
+                error_text
+            ));
+            return Some(encode_string_handle(&format!(
+                "[freeze:contract][stage1_mir_builder] {}",
+                error_text
+            )));
+        }
+    };
+    Some(encode_string_handle(&mir_json))
+}
+
 fn inject_stage1_user_box_decls_from_program_json(
     program_json: &str,
     mir_json: &str,
@@ -368,4 +441,5 @@ mod tests {
         assert!(message.starts_with("[freeze:contract][stage1_mir_builder]"));
         assert!(message.contains("delegate disabled") || message.contains("internal off"));
     }
+
 }
