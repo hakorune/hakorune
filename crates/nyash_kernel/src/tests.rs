@@ -398,6 +398,53 @@ fn invoke_by_name_accepts_stage1_mir_builder_for_stage1_cli_env_program_json() {
 }
 
 #[test]
+fn invoke_by_name_stage1_using_resolver_route_is_stubbed_empty_in_kernel_dispatch() {
+    let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new(
+        "lang.compiler.entry.using_resolver_box".to_string(),
+    ));
+    let receiver_handle = handles::to_handle_arc(receiver) as i64;
+    let source = include_str!("../../../lang/src/runner/stage1_cli_env.hako");
+    let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
+    let method = CString::new("resolve_for_source").expect("CString");
+
+    let result_handle =
+        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, source_handle, 0);
+    assert!(result_handle > 0, "expected stub StringBox handle");
+
+    let prefix = decode_string_like_handle(result_handle).expect("prefix text");
+    assert_eq!(
+        prefix, "",
+        "kernel direct module dispatch intentionally stubs resolve_for_source"
+    );
+}
+
+#[test]
+fn invoke_by_name_stage1_build_box_route_keeps_stage1_cli_env_defs_main_only() {
+    let receiver: Arc<dyn NyashBox> =
+        Arc::new(StringBox::new("lang.compiler.build.build_box".to_string()));
+    let receiver_handle = handles::to_handle_arc(receiver) as i64;
+    let source = include_str!("../../../lang/src/runner/stage1_cli_env.hako");
+    let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
+    let method = CString::new("emit_program_json_v0").expect("CString");
+
+    let result_handle =
+        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 2, source_handle, 0);
+    assert!(result_handle > 0, "expected Program JSON StringBox handle");
+
+    let program_json = decode_string_like_handle(result_handle).expect("program json");
+    assert!(program_json.contains("\"kind\":\"Program\""));
+    assert!(program_json.contains("\"box\":\"Main\""));
+    assert!(
+        !program_json.contains("\"box\":\"FuncScannerBox\""),
+        "stage1 surrogate build_box should still be Main-only in kernel dispatch"
+    );
+    assert!(
+        !program_json.contains("\"imports\":"),
+        "stage1 surrogate build_box currently omits imports in kernel dispatch"
+    );
+}
+
+#[test]
 fn invoke_by_name_build_box_unsupported_source_returns_freeze_tag() {
     let receiver: Arc<dyn NyashBox> =
         Arc::new(StringBox::new("lang.compiler.build.build_box".to_string()));

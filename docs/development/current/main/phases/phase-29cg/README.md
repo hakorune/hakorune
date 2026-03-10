@@ -73,9 +73,11 @@ Final direction:
       - `src/mir/passes/callsite_canonicalize.rs`
       - `src/runner/json_v0_bridge/lowering/program.rs`
       - both now suffix unsuffixed dotted helper `Global` callees when a matching `name/arity` definition exists
-    - current exact blocker in that path is link-time unresolved symbol closure caused by entry-only defs plus unresolved `Global` helper calls in the reduced MIR
-    - the reduced MIR currently keeps these callees as `Global`:
-      - `env.console.log`
+    - current exact blocker in that path is surrogate helper/source closure in the stage1 bridge lane
+    - kernel-direct `lang.compiler.entry.using_resolver_box.resolve_for_source` is intentionally stubbed empty in `module_string_dispatch.rs`
+    - kernel-direct `lang.compiler.build.build_box.emit_program_json_v0` delegates to Rust `source_to_program_json_v0(...)`, which materializes entry-local `Main` helper defs only
+    - as a result, the bridge-first Program(JSON v0) for `stage1_cli_env.hako` still has `defs_len=22`, `box=Main` only, and `imports` empty
+    - the reduced Stage2 object therefore keeps imported helper owners unresolved:
       - `FuncScannerBox.*`
       - `StageBJsonBuilderBox.*`
       - `Stage1UsingResolverBox.*`
@@ -83,15 +85,10 @@ Final direction:
       - `MirBuilderBox.emit_from_program_json_v0`
       - `BoxTypeInspectorBox.*`
       - `StringHelpers.int_to_str`
-    - selfhost helper include gap:
-      - `FuncScannerBox.*`
-      - `StageBJsonBuilderBox.*`
-      - `Stage1UsingResolverBox.*`
-      - `BuildBox.emit_program_json_v0`
-      - `MirBuilderBox.emit_from_program_json_v0`
-      - `BoxTypeInspectorBox.*`
-      - `StringHelpers.int_to_str`
-    - the next reduction owner is therefore source-merge/helper bundling plus call classification in the selfhost stage1 MIR path, not current LLVM PHI repair
+    - the next reduction owner is therefore stage1 surrogate helper/source closure in:
+      - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+      - `src/stage1/program_json_v0.rs`
+      not bridge return-path, extern classification, or current LLVM PHI repair
 - therefore `phase-29cg` does not treat `stage1-cli` as a drop-in `NYASH_BIN`; it targets a narrower reduction:
   - lift the stage1-bridge helper contract into the Stage2 build path for one reduced case
   - then retire the bridge dependency itself once direct MIR parity is available for the reduced case
@@ -103,5 +100,5 @@ Final direction:
 - checklist に `owner / blocker / acceptance / non-goal` が揃っている
 - `stage1-cli` reduction target is stated as `bridge-first Stage2 build`, not as `raw NYASH_BIN replacement`
 - current G1 route is unchanged until the bridge-first Stage2 object closes helper/runtime symbols for the reduced case
-- exact next reduction focus is helper/source closure plus selfhost MIR call classification, not bridge/dispatch or current LLVM PHI wiring
+- exact next reduction focus is surrogate helper/source closure for the bridge-first Stage2 object, not bridge return-path, extern classification, or current LLVM PHI wiring
 - mixed worker stash lanes outside that narrow Rust fix remain deferred until they can be split into single-owner patches

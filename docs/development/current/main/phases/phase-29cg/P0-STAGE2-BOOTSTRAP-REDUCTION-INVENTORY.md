@@ -63,20 +63,16 @@ Related:
   - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
   - bridge/runtime extern-like names (`env.*`, `nyash.*`) are classified as `Callee::Extern` without depending on `HAKO_MIR_BUILDER_CALL_RESOLVE`
   - clean `build_stage1.sh` bridge-first probe still exits non-zero, but now at link time
-- therefore the current blocker moved from helper-def materialization, stage1 child/plugin return-path bridge, and PHI/dominance to symbol closure in the reduced Stage2 object
+- therefore the current blocker moved from helper-def materialization, stage1 child/plugin return-path bridge, and PHI/dominance to surrogate helper/source closure in the reduced Stage2 object
 - exact narrowed blocker:
-  - reduced MIR still emits `Global` callees for:
-    - `env.console.log`
-    - `FuncScannerBox.scan_all_boxes`
-    - `FuncScannerBox.find_matching_brace`
-    - `StageBJsonBuilderBox.build_defs_json`
-    - `Stage1UsingResolverBox.resolve_for_source`
-    - `BuildBox.emit_program_json_v0`
-    - `MirBuilderBox.emit_from_program_json_v0`
-    - `BoxTypeInspectorBox.kind`
-    - `BoxTypeInspectorBox.describe`
-    - `StringHelpers.int_to_str`
-  - selfhost helper include gap:
+  - `module_string_dispatch.rs` currently treats the stage1 trio as surrogate routes:
+    - `lang.compiler.entry.using_resolver_box.resolve_for_source` returns an intentionally empty prefix in the kernel/stage1 surrogate lane
+    - `lang.compiler.build.build_box.emit_program_json_v0` delegates to Rust `source_to_program_json_v0(...)`
+  - the resulting bridge-first Program(JSON v0) has:
+    - `defs_len=22`
+    - `box=Main` only
+    - `imports` empty
+  - unresolved helper/source closure set:
     - `FuncScannerBox.scan_all_boxes`
     - `FuncScannerBox.find_matching_brace`
     - `StageBJsonBuilderBox.build_defs_json`
@@ -89,7 +85,7 @@ Related:
   - meaning:
     - the reduced object currently contains only entry-local helper defs
     - imported helper boxes are not yet closed into the bridge-first Stage2 object
-    - `env.console.log` is also still `Global` in this selfhost MIR path, so runtime-extern classification is not yet closed here
+    - this is a helper/source closure issue in the stage1 surrogate routes, not an extern classification issue
 
 ## Reduction target
 
@@ -105,4 +101,4 @@ Related:
 - exact owner / exact condition / exact target が 1 枚で読める
 - checklist がこの inventory を参照して進められる
 - raw direct probe and helper-driven probe are both fixed so the next reduction cannot drift into the wrong contract
-- bridge-first probe failure point is fixed so the next execution slice can target helper/source closure and selfhost MIR call classification, not route plumbing or helper-def materialization
+- bridge-first probe failure point is fixed so the next execution slice can target stage1 surrogate helper/source closure, not route plumbing or helper-def materialization
