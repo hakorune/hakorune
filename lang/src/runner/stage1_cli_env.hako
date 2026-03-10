@@ -67,7 +67,7 @@ static box Main {
   method _run_emit_mir_mode(tag) {
     local stage1_debug = env.get("STAGE1_CLI_DEBUG")
     local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
-    local src_json = me._resolve_emit_mir_input_text(tag)
+    local src_json = me._resolve_emit_mir_program_json_text(tag)
     if src_json == null { return 96 }
     if stage1_debug_on {
       print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(src_json) + " preview=" + me._debug_preview_inline(src_json))
@@ -165,7 +165,18 @@ static box Main {
     return 0
   }
 
-  method _resolve_emit_mir_input_text(tag) {
+  // Current authority route still passes Program(JSON v0) into MirBuilderBox.
+  // Keep the transient/supplied boundary explicit in one helper so the next
+  // MIR-direct reduction slice can replace it without widening route authority.
+  method _resolve_emit_mir_program_json_text(tag) {
+    local supplied = me._resolve_supplied_program_json_text(tag)
+    if supplied != null && supplied != "" {
+      return supplied
+    }
+    return me._build_emit_mir_program_json_transient(tag)
+  }
+
+  method _resolve_supplied_program_json_text(tag) {
     local stage1_debug = env.get("STAGE1_CLI_DEBUG")
     local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
     local prog_json_path = me._resolve_program_json_path()
@@ -195,7 +206,10 @@ static box Main {
       print(tag + " Program(JSON) text is required")
       return null
     }
+    return ""
+  }
 
+  method _build_emit_mir_program_json_transient(tag) {
     local prog_json = me._build_program_json()
     if prog_json != null && prog_json != "" {
       return prog_json
