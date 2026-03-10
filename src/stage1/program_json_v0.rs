@@ -72,7 +72,7 @@ fn ast_to_program_json_v0_with_imports(
         );
     }
     let mut program = program_json_v0_from_body(main_box.body)?;
-    let defs = defs_json_v0_from_methods(&main_box.helper_methods, "Main")?;
+    let defs = defs_json_v0_from_methods(&main_box.helper_methods)?;
     if trace_enabled() {
         eprintln!("[stage1/program_json_v0] serialized_defs={}", defs.len());
     }
@@ -180,6 +180,31 @@ static box Main {
             "lang.compiler.entry.using_resolver_box"
         );
         assert_eq!(value["imports"]["StringHelpers"], "sh_core");
+    }
+
+    #[test]
+    fn source_to_program_json_v0_accepts_launcher_source_with_multibox_defs() {
+        let source = include_str!("../../lang/src/runner/launcher.hako");
+        let json = source_to_program_json_v0(source).expect("program json");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        let defs = value["defs"].as_array().expect("defs array");
+        assert!(
+            defs.iter()
+                .any(|def| def["box"] == "HakoCli" && def["name"] == "run"),
+            "launcher surrogate should materialize HakoCli.run in defs"
+        );
+        assert_eq!(
+            value["imports"]["MirBuilderBox"],
+            "lang.mir.builder.MirBuilderBox"
+        );
+        assert_eq!(
+            value["imports"]["BuildBox"],
+            "lang.compiler.build.build_box"
+        );
+        assert_eq!(
+            value["imports"]["CodegenBridgeBox"],
+            "selfhost.shared.host_bridge.codegen_bridge"
+        );
     }
 
     #[test]

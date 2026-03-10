@@ -1,9 +1,14 @@
 use crate::ast::ASTNode;
 use std::collections::BTreeMap;
 
+pub(super) struct HelperMethod<'a> {
+    pub box_name: &'a str,
+    pub declaration: &'a ASTNode,
+}
+
 pub(super) struct StaticMainBox<'a> {
     pub body: &'a [ASTNode],
-    pub helper_methods: Vec<&'a ASTNode>,
+    pub helper_methods: Vec<HelperMethod<'a>>,
 }
 
 pub(super) fn find_static_main_box(ast: &ASTNode) -> Option<StaticMainBox<'_>> {
@@ -11,6 +16,7 @@ pub(super) fn find_static_main_box(ast: &ASTNode) -> Option<StaticMainBox<'_>> {
         return None;
     };
 
+    let mut main_body = None;
     for statement in statements.iter().rev() {
         let ASTNode::BoxDeclaration {
             name,
@@ -39,29 +45,48 @@ pub(super) fn find_static_main_box(ast: &ASTNode) -> Option<StaticMainBox<'_>> {
         let ASTNode::FunctionDeclaration { body, .. } = declaration else {
             return None;
         };
+        main_body = Some(body.as_slice());
+        break;
+    }
 
-        let mut helper_methods = BTreeMap::new();
+    let mut helper_methods = BTreeMap::new();
+    for statement in statements {
+        let ASTNode::BoxDeclaration {
+            name: box_name,
+            methods,
+            ..
+        } = statement
+        else {
+            continue;
+        };
+
         for declaration in methods.values() {
             let ASTNode::FunctionDeclaration {
-                name, params, ..
+                name: method_name,
+                params,
+                ..
             } = declaration
             else {
                 continue;
             };
-            if name == "main" {
+            if statement_is_static_main(statement) && method_name == "main" {
                 continue;
             }
-            let signature = format!("{}/{}", name, params.len());
-            helper_methods.entry(signature).or_insert(declaration);
+            let signature = format!("{}::{}:{}", box_name, method_name, params.len());
+            helper_methods.insert(
+                signature,
+                HelperMethod {
+                    box_name: box_name.as_str(),
+                    declaration,
+                },
+            );
         }
-
-        return Some(StaticMainBox {
-            body: body.as_slice(),
-            helper_methods: helper_methods.into_values().collect(),
-        });
     }
 
-    None
+    Some(StaticMainBox {
+        body: main_body?,
+        helper_methods: helper_methods.into_values().collect(),
+    })
 }
 
 pub(super) fn extract_static_main_body_text(source: &str) -> Option<String> {
@@ -168,8 +193,15 @@ fn split_line_ending(line: &str) -> (&str, &str) {
 }
 
 fn split_using_alias(rest: &str) -> Option<(&str, &str)> {
-    let (target, alias) = rest.rsplit_once(" as ")?;
-    Some((target.trim(), alias.trim()))
+    if let Some((target, alias)) = rest.rsplit_once(" as ") {
+        return Some((target.trim(), alias.trim()));
+    }
+
+    let target = rest.trim();
+    if target.is_empty() {
+        return None;
+    }
+    Some((target, default_using_alias(target)))
 }
 
 fn strip_wrapping_quotes(text: &str) -> &str {
@@ -205,6 +237,26 @@ fn strip_line_comment(line: &str) -> &str {
     }
 
     line
+}
+
+fn default_using_alias(target: &str) -> &str {
+    let clean = strip_wrapping_quotes(target);
+    clean
+        .rsplit_once('.')
+        .map(|(_, tail)| tail)
+        .or_else(|| clean.rsplit_once('/').map(|(_, tail)| tail))
+        .unwrap_or(clean)
+}
+
+fn statement_is_static_main(statement: &ASTNode) -> bool {
+    matches!(
+        statement,
+        ASTNode::BoxDeclaration {
+            name,
+            is_static: true,
+            ..
+        } if name == "Main"
+    )
 }
 
 fn find_next_uncommented_char(source: &str, start: usize, needle: char) -> Option<usize> {

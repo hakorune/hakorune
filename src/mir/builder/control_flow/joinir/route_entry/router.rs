@@ -185,6 +185,43 @@ fn freeze_expected_plan(
     flowbox_tags::emit_flowbox_freeze_contract(strict_or_dev, tag, facts, message)
 }
 
+fn release_allows_nested_recipe_first(outcome: &PlanBuildOutcome) -> bool {
+    let Some(facts) = outcome.facts.as_ref() else {
+        return false;
+    };
+
+    if facts.facts.nested_loop_minimal().is_some() {
+        return true;
+    }
+    if facts.facts.generic_loop_v1().is_some() || facts.facts.generic_loop_v0().is_some() {
+        return true;
+    }
+
+    // Phase C15/C16 scan families already have recipe-first pipelines and fast gates.
+    // Keep release nested-loop policy aligned with those migrated routes.
+    if facts.facts.loop_scan_methods_v0().is_some()
+        || facts.facts.loop_scan_methods_block_v0().is_some()
+        || facts.facts.loop_scan_phi_vars_v0().is_some()
+        || facts.facts.loop_scan_v0().is_some()
+        || facts.facts.loop_collect_using_entries_v0().is_some()
+        || facts.facts.loop_bundle_resolver_v0().is_some()
+    {
+        return true;
+    }
+
+    if !(facts.exit_usage.has_break && facts.exit_usage.has_continue) || facts.exit_usage.has_return
+    {
+        return false;
+    }
+    let Some(loop_cond) = facts.facts.loop_cond_break_continue() else {
+        return false;
+    };
+    !matches!(
+        loop_cond.accept_kind,
+        LoopCondBreakAcceptKind::NestedLoopOnly | LoopCondBreakAcceptKind::ProgramBlockNoExit
+    )
+}
+
 pub(crate) fn route_loop(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
@@ -256,36 +293,12 @@ pub(crate) fn route_loop(
     // Exceptions:
     // - nested_loop_minimal facts (same compose contract as release_adopt nested-minimal lane)
     // - generic_loop_v{1,0} facts (recipe-first best-effort; only no-match `Ok(None)` continues routing, `Err` propagates)
+    // - migrated scan families (Phase C15/C16 recipe-first pipelines are already gated)
     // - loop_cond_break_continue with explicit exit-driven accept kinds.
     let release_recipe_first_allowed = if !detect_nested_loop(ctx.body) {
         true
     } else {
-        outcome
-            .facts
-            .as_ref()
-            .is_some_and(|facts| {
-                if facts.facts.nested_loop_minimal().is_some() {
-                    return true;
-                }
-                if facts.facts.generic_loop_v1().is_some()
-                    || facts.facts.generic_loop_v0().is_some()
-                {
-                    return true;
-                }
-                if !(facts.exit_usage.has_break && facts.exit_usage.has_continue)
-                    || facts.exit_usage.has_return
-                {
-                    return false;
-                }
-                let Some(loop_cond) = facts.facts.loop_cond_break_continue() else {
-                    return false;
-                };
-                !matches!(
-                    loop_cond.accept_kind,
-                    LoopCondBreakAcceptKind::NestedLoopOnly
-                        | LoopCondBreakAcceptKind::ProgramBlockNoExit
-                )
-            })
+        release_allows_nested_recipe_first(&outcome)
     };
     let recipe_first_allowed = strict_or_dev || release_recipe_first_allowed;
     if recipe_first_allowed {
@@ -340,4 +353,247 @@ pub(crate) fn route_loop(
     }
     trace_entry_route("none");
     Ok(None)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::release_allows_nested_recipe_first;
+    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+    use crate::mir::builder::control_flow::plan::facts::feature_facts::LoopFeatureFacts;
+    use crate::mir::builder::control_flow::plan::facts::loop_types::LoopFacts;
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
+    use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
+    use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
+    use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
+    use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
+    use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
+
+    fn var(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn int(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn string(value: &str) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::String(value.to_string()),
+            span: Span::unknown(),
+        }
+    }
+
+    fn binop(operator: BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
+        ASTNode::BinaryOp {
+            operator,
+            left: Box::new(left),
+            right: Box::new(right),
+            span: Span::unknown(),
+        }
+    }
+
+    fn assign(target: ASTNode, value: ASTNode) -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(target),
+            value: Box::new(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn local(name: &str, init: Option<ASTNode>) -> ASTNode {
+        ASTNode::Local {
+            variables: vec![name.to_string()],
+            initial_values: vec![init.map(Box::new)],
+            span: Span::unknown(),
+        }
+    }
+
+    fn sample_condition() -> ASTNode {
+        binop(BinaryOperator::Less, var("i"), var("n"))
+    }
+
+    fn base_loop_facts() -> LoopFacts {
+        LoopFacts {
+            condition_shape: ConditionShape::Unknown,
+            step_shape: StepShape::Unknown,
+            skeleton: SkeletonFacts {
+                kind: SkeletonKind::Loop,
+                ..Default::default()
+            },
+            features: LoopFeatureFacts {
+                nested_loop: true,
+                ..Default::default()
+            },
+            scan_with_init: None,
+            split_scan: None,
+            loop_simple_while: None,
+            loop_char_map: None,
+            loop_array_join: None,
+            string_is_integer: None,
+            starts_with: None,
+            int_to_str: None,
+            escape_map: None,
+            split_lines: None,
+            skip_whitespace: None,
+            generic_loop_v0: None,
+            generic_loop_v1: None,
+            if_phi_join: None,
+            loop_continue_only: None,
+            loop_true_early_exit: None,
+            loop_true_break_continue: None,
+            loop_cond_break_continue: None,
+            loop_cond_continue_only: None,
+            loop_cond_continue_with_return: None,
+            loop_cond_return_in_body: None,
+            loop_scan_v0: None,
+            loop_scan_methods_block_v0: None,
+            loop_scan_methods_v0: None,
+            loop_scan_phi_vars_v0: None,
+            loop_collect_using_entries_v0: None,
+            loop_bundle_resolver_v0: None,
+            nested_loop_minimal: None,
+            bool_predicate_scan: None,
+            accum_const_loop: None,
+            loop_break: None,
+            loop_break_body_local: None,
+        }
+    }
+
+    fn nested_outcome_with_block_facts() -> PlanBuildOutcome {
+        let mut facts = base_loop_facts();
+        let condition = sample_condition();
+        let inner_loop_body = vec![
+            ASTNode::If {
+                condition: Box::new(binop(
+                    BinaryOperator::Equal,
+                    ASTNode::MethodCall {
+                        object: Box::new(var("s")),
+                        method: "substring".to_string(),
+                        arguments: vec![
+                            var("j"),
+                            binop(BinaryOperator::Add, var("j"), var("m")),
+                        ],
+                        span: Span::unknown(),
+                    },
+                    var("pat"),
+                )),
+                then_body: vec![
+                    assign(var("k"), var("j")),
+                    ASTNode::Break {
+                        span: Span::unknown(),
+                    },
+                ],
+                else_body: None,
+                span: Span::unknown(),
+            },
+            assign(var("j"), binop(BinaryOperator::Add, var("j"), int(1))),
+        ];
+        let body = vec![
+            local("next_i", Some(int(0))),
+            local("k", Some(int(0))),
+            local("name_start", Some(int(0))),
+            ASTNode::Program {
+                statements: vec![
+                    local("pat", Some(string("p"))),
+                    local("m", Some(int(1))),
+                    local("j", Some(int(0))),
+                    ASTNode::Loop {
+                        condition: Box::new(binop(
+                            BinaryOperator::LessEqual,
+                            binop(BinaryOperator::Add, var("j"), var("m")),
+                            var("n"),
+                        )),
+                        body: inner_loop_body,
+                        span: Span::unknown(),
+                    },
+                ],
+                span: Span::unknown(),
+            },
+            ASTNode::If {
+                condition: Box::new(binop(
+                    BinaryOperator::LessEqual,
+                    var("next_i"),
+                    var("i"),
+                )),
+                then_body: vec![assign(var("next_i"), binop(BinaryOperator::Add, var("i"), int(1)))],
+                else_body: None,
+                span: Span::unknown(),
+            },
+            assign(var("i"), var("next_i")),
+        ];
+        facts.loop_scan_methods_block_v0 = Some(try_extract_loop_scan_methods_block_v0_facts(
+            &condition,
+            &body,
+        )
+        .expect("extract ok")
+        .expect("block facts"));
+        PlanBuildOutcome {
+            facts: Some(canonicalize_loop_facts(facts)),
+            recipe_contract: None,
+        }
+    }
+
+    fn nested_outcome_with_scan_methods_facts() -> PlanBuildOutcome {
+        let mut facts = base_loop_facts();
+        let condition = sample_condition();
+        let body = vec![
+            local("next_i", Some(int(0))),
+            local("j", Some(int(0))),
+            local("m", Some(int(0))),
+            ASTNode::Loop {
+                condition: Box::new(binop(
+                    BinaryOperator::LessEqual,
+                    binop(BinaryOperator::Add, var("j"), var("m")),
+                    var("n"),
+                )),
+                body: vec![assign(var("j"), binop(BinaryOperator::Add, var("j"), int(1)))],
+                span: Span::unknown(),
+            },
+            ASTNode::If {
+                condition: Box::new(binop(
+                    BinaryOperator::LessEqual,
+                    var("next_i"),
+                    var("i"),
+                )),
+                then_body: vec![assign(var("next_i"), binop(BinaryOperator::Add, var("i"), int(1)))],
+                else_body: None,
+                span: Span::unknown(),
+            },
+            assign(var("i"), var("next_i")),
+        ];
+        facts.loop_scan_methods_v0 = Some(try_extract_loop_scan_methods_v0_facts(&condition, &body)
+            .expect("extract ok")
+            .expect("scan methods facts"));
+        PlanBuildOutcome {
+            facts: Some(canonicalize_loop_facts(facts)),
+            recipe_contract: None,
+        }
+    }
+
+    #[test]
+    fn release_nested_recipe_first_allows_scan_methods_block_family() {
+        assert!(release_allows_nested_recipe_first(&nested_outcome_with_block_facts()));
+    }
+
+    #[test]
+    fn release_nested_recipe_first_allows_scan_methods_v0_family() {
+        assert!(release_allows_nested_recipe_first(
+            &nested_outcome_with_scan_methods_facts()
+        ));
+    }
+
+    #[test]
+    fn release_nested_recipe_first_rejects_unclassified_nested_loop() {
+        let outcome = PlanBuildOutcome {
+            facts: Some(canonicalize_loop_facts(base_loop_facts())),
+            recipe_contract: None,
+        };
+        assert!(!release_allows_nested_recipe_first(&outcome));
+    }
 }

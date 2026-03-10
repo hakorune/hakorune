@@ -5,6 +5,7 @@
 // Output: [{"name":"<name>","params":[...],"body_json":"<Program JSON>","box":"Main"}]
 
 using sh_core as StringHelpers  // Required: using chain resolution not implemented
+using lang.compiler.parser.parser_box as ParserBox
 
 static box FuncScannerBox {
   // Scan source for method definitions (excluding Main.main)

@@ -347,17 +347,7 @@ static box ParserControlBox {
       }
       env.set("HAKO_STAGEB_BLOCK_DEPTH", StringHelpers.int_to_str(depth_before + 1))
     }
-    local j = ctx.skip_ws(src, i)
-    // Stage‑B safety: inline whitespace skip in case ctx.skip_ws fails to advance on VM
-    {
-      local n = src.length()
-      local jj = j
-      loop(jj < n) {
-        local ch = src.substring(jj, jj+1)
-        if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { jj = jj + 1 } else { break }
-      }
-      j = jj
-    }
+    local j = me._skip_ws_with_fallback(src, i, ctx)
     if src.substring(j, j+1) != "{" { return "[]@" + ctx.i2s(j) }
     j = j + 1
 
@@ -367,17 +357,7 @@ static box ParserControlBox {
     // MirBuilder-friendly: explicit break instead of flag
     loop(true) {
       local j_before_skip = j
-      j = ctx.skip_ws(src, j)
-      // Stage-B safety: inline fallback when ctx.skip_ws fails to advance
-      if j == j_before_skip {
-        local n = src.length()
-        local jj = j
-        loop(jj < n) {
-          local ch = src.substring(jj, jj+1)
-          if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { jj = jj + 1 } else { break }
-        }
-        j = jj
-      }
+      j = me._skip_ws_with_fallback(src, j, ctx)
 
       if j >= src.length() { break }
 
@@ -402,15 +382,7 @@ static box ParserControlBox {
       }
 
       // consume optional semicolons (ASI minimal) - MirBuilder-friendly
-      loop(true) {
-        local before = j
-        j = ctx.skip_ws(src, j)
-        if j < src.length() && src.substring(j, j+1) == ";" {
-          j = j + 1
-          continue
-        }
-        break
-      }
+      j = me._consume_optional_semicolons(src, j, ctx)
 
       if s.length() > 0 {
         if first == 1 {
@@ -442,5 +414,22 @@ static box ParserControlBox {
     body = body + "]"
     env.set("HAKO_STAGEB_BLOCK_DEPTH", StringHelpers.int_to_str(depth_before))
     return body + "@" + ctx.i2s(j)
+  }
+
+  method _skip_ws_with_fallback(src, j, ctx) {
+    local next = ctx.skip_ws(src, j)
+    if next != null && next != j { return next }
+    return ParserStringUtilsBox.skip_ws(src, j)
+  }
+
+  method _consume_optional_semicolons(src, j, ctx) {
+    loop(true) {
+      local next = me._skip_ws_with_fallback(src, j, ctx)
+      if next < src.length() && src.substring(next, next+1) == ";" {
+        j = next + 1
+        continue
+      }
+      return next
+    }
   }
 }

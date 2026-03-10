@@ -19,7 +19,7 @@ static box Main {
 
     // TestBox 本体の brace 範囲を FuncScannerBox の実装で検出
     local open1 = 19
-    local close1 = FuncScannerBox._find_matching_brace(src, open1)
+    local close1 = FuncScannerBox.find_matching_brace(src, open1)
     print("[scan_methods] brace1 open=" + ("" + open1) + " close=" + ("" + close1))
     if close1 < 0 { return 1 }
 

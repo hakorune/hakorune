@@ -100,25 +100,6 @@ fn release_allows_loop_cond_break_continue(
     )
 }
 
-fn release_allows_loop_scan_methods_block_v0(outcome: &PlanBuildOutcome, env: &RouterEnv) -> bool {
-    if env.planner_required {
-        return true;
-    }
-    let Some(facts) = outcome
-        .facts
-        .as_ref()
-        .and_then(|facts| facts.facts.loop_scan_methods_block_v0())
-    else {
-        return false;
-    };
-    !facts.recipe.segments.iter().any(|segment| {
-        matches!(
-            segment,
-            crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::ScanSegment::NestedLoop(_)
-        )
-    })
-}
-
 pub(crate) fn route_loop_break_recipe(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
@@ -479,10 +460,6 @@ pub(crate) fn route_loop_scan_methods_block_v0(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
-    if !release_allows_loop_scan_methods_block_v0(outcome, env) {
-        return Ok(None);
-    }
-
     const ENTRY: StandardEntry = StandardEntry {
         route_label: route_labels::SCAN_METHODS_BLOCK_V0,
         missing_contract_msg:

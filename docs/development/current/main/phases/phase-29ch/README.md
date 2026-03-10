@@ -75,9 +75,10 @@ Evidence (2026-03-10):
 Current branch point (2026-03-10):
 - the next reduction slice is `launcher-exe`
 - `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.launcher_from_stage1_cli --force-rebuild` -> PASS
-- but `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli.next emit-program lang/src/runner/launcher.hako "$(cat lang/src/runner/launcher.hako)"` still emits Program(JSON v0) without `defs`, and `... emit-mir ...` still emits `newbox HakoCli` with empty `user_box_decls`
-- direct scanner probe `target/release/hakorune --backend vm lang/src/compiler/tests/funcscanner_launcher_probe.hako` currently freezes in `FuncScannerBox._scan_methods/4` with `[joinir/reject_detail] box=generic_loop_v0 reason=no_valid_loop_var_candidates`
-- therefore the current preferred next move is `BoxCount` on compiler expressivity for `FuncScannerBox.scan_all_boxes(...)` / `_scan_methods/4`; bootstrap-only Rust surrogate expansion is the fallback branch and must be kept in a separate commit series
+- `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli.next emit-program lang/src/runner/launcher.hako "$(cat lang/src/runner/launcher.hako)"` now emits Program(JSON v0) with `defs_boxes=[HakoCli]` and bare-using imports including `MirBuilderBox`
+- `... emit-mir ...` now emits `user_box_decls=[HakoCli, Main]` and lowers `HakoCli.run/1` on the current reduced authority route
+- the closure was achieved by strengthening the existing bootstrap-only Rust surrogates (`src/stage1/program_json_v0.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`), not by introducing a new authority route
+- therefore the current preferred order is: keep `stage1-env-program` + `stage1-env-mir-source` as the only reduced authority evidence, mark the `launcher-exe` helper/user-box closure bucket solved, and choose the next non-green widening target separately
 
 Route guard lock:
 - `tools/selfhost_identity_check.sh --mode full` must observe

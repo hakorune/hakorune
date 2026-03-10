@@ -501,6 +501,42 @@ where
     )
 }
 
+/// Delegate to parts::if_general recipe-authority wrapper.
+///
+/// Use this only when the caller already owns a release-valid recipe-first route.
+pub(in crate::mir::builder) fn try_lower_general_if_recipe_authority<F>(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    condition: &ASTNode,
+    then_body: &[ASTNode],
+    else_body: Option<&Vec<ASTNode>>,
+    error_prefix: &str,
+    lower_block: F,
+) -> Result<Option<Vec<LoweredRecipe>>, String>
+where
+    F: FnMut(
+        &mut MirBuilder,
+        &mut BTreeMap<String, crate::mir::ValueId>,
+        &BTreeMap<String, crate::mir::ValueId>,
+        &BTreeMap<String, crate::mir::ValueId>,
+        &[ASTNode],
+    ) -> Result<Vec<LoweredRecipe>, String>,
+{
+    parts_if_general::try_lower_general_if_recipe_authority(
+        builder,
+        current_bindings,
+        carrier_phis,
+        carrier_step_phis,
+        condition,
+        then_body,
+        else_body,
+        error_prefix,
+        lower_block,
+    )
+}
+
 pub(in crate::mir::builder) fn try_lower_general_if_adapter<F, U, T>(
     builder: &mut MirBuilder,
     base_bindings: &BTreeMap<String, crate::mir::ValueId>,

@@ -1,3 +1,4 @@
+use super::extract::HelperMethod;
 use crate::ast::{ASTNode, BinaryOperator, CatchClause, LiteralValue, UnaryOperator};
 
 pub(super) fn program_json_v0_from_body(body: &[ASTNode]) -> Result<serde_json::Value, String> {
@@ -9,12 +10,11 @@ pub(super) fn program_json_v0_from_body(body: &[ASTNode]) -> Result<serde_json::
 }
 
 pub(super) fn defs_json_v0_from_methods(
-    methods: &[&ASTNode],
-    box_name: &str,
+    methods: &[HelperMethod<'_>],
 ) -> Result<Vec<serde_json::Value>, String> {
     let mut defs = Vec::with_capacity(methods.len());
     for method in methods {
-        defs.push(function_def_json_v0(method, box_name)?);
+        defs.push(function_def_json_v0(method.declaration, method.box_name)?);
     }
     Ok(defs)
 }

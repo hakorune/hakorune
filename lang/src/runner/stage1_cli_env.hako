@@ -152,7 +152,7 @@ static box Main {
       }
       print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 validating materialized payload")
     }
-    mir = me._inject_entry_user_box_decls_if_needed(mir_text)
+    mir = mir_text
     local mir_head = mir.substring(0, 1)
     if mir_head != "{" {
       print("[freeze:contract][stage1-cli/emit-mir] output is not MIR JSON")
@@ -200,31 +200,38 @@ static box Main {
     return null
   }
 
-  method _inject_entry_user_box_decls_if_needed(mir_json) {
-    local entry = env.get("HAKO_STAGE1_INPUT")
-    if entry == null || entry == "" { entry = env.get("NYASH_STAGE1_INPUT") }
-    if entry == null || entry == "" { entry = env.get("STAGE1_SOURCE") }
-    if entry == null || entry == "" { entry = env.get("STAGE1_INPUT") }
-    if entry == null || entry == "" { return mir_json }
-    local source_text = me._load_source_text_from_path_inline(entry)
-    if source_text == null || source_text == "" {
-      source_text = me._resolve_source_text()
-    }
-    local decls = me._build_user_box_decls_json_inline(source_text)
-    if decls == null || decls == "" || decls == "[]" {
-      if source_text != null && source_text != "" {
-        if source_text.indexOf("static box Main") >= 0 || source_text.indexOf("box Main") >= 0 {
-          decls = "[{\"name\":\"Main\",\"fields\":[]}]"
-        }
-      }
-    }
-    if (decls == null || decls == "" || decls == "[]") && entry.indexOf("stage1_cli_env.hako") >= 0 {
-      decls = "[{\"name\":\"Main\",\"fields\":[]}]"
-    }
+  method _inject_entry_user_box_decls_if_needed(mir_json, program_json_text) {
+    local decls = me._build_user_box_decls_from_program_json_inline(program_json_text)
     if decls != null && decls != "" && decls != "[]" {
       return me._inject_root_user_box_decls_inline(mir_json, decls)
     }
     return mir_json
+  }
+
+  method _build_user_box_decls_from_program_json_inline(program_json_text) {
+    if program_json_text == null || program_json_text == "" { return "" }
+    local s = "" + program_json_text
+    local out = "[{\"name\":\"Main\",\"fields\":[]}"
+    local seen = "|Main|"
+    local pos = 0
+    local n = s.length()
+    loop(pos < n) {
+      local box_idx = StringHelpers.index_of(s, pos, "\"box\":\"")
+      if box_idx < 0 { break }
+      local name_start = box_idx + 7
+      local name_end = StringHelpers.index_of(s, name_start, "\"")
+      if name_end < 0 { break }
+      local box_name = s.substring(name_start, name_end)
+      if box_name != "" {
+        local marker = "|" + box_name + "|"
+        if seen.indexOf(marker) < 0 {
+          out = out + ",{\"name\":\"" + box_name + "\",\"fields\":[]}"
+          seen = seen + box_name + "|"
+        }
+      }
+      pos = name_end + 1
+    }
+    return out + "]"
   }
 
   method _load_source_text_from_path_inline(source) {
@@ -304,7 +311,6 @@ static box Main {
     local source = me._resolve_source_path()
     if source == null || source == "" { return 0 }
     if source.indexOf("stage1_cli_env.hako") >= 0 { return 1 }
-    if source.indexOf("launcher.hako") >= 0 { return 1 }
     return 0
   }
 
@@ -384,7 +390,18 @@ static box Main {
       }
     }
 
-    local body = me._extract_main_box_body_inline(source_text)
+    local manual_defs = me._build_all_defs_fragment_inline(source_text)
+    if manual_defs != null && manual_defs != "" {
+      if env.get("STAGE1_CLI_DEBUG") == "1" {
+        print("[stage1-cli/debug] defs-scan manual:present")
+      }
+      return manual_defs
+    }
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] defs-scan manual:empty")
+    }
+
+    local body = me._extract_box_body_inline(source_text, "Main")
     if env.get("STAGE1_CLI_DEBUG") == "1" {
       if body == null {
         print("[stage1-cli/debug] defs-scan body:null")
@@ -396,22 +413,117 @@ static box Main {
     }
     if body == null || body == "" { return "" }
 
+    local defs_array = me._build_box_defs_array_inline("Main", body)
+    if defs_array == null || defs_array == "" || defs_array == "[]" { return "" }
+    return ",\"defs\":" + defs_array
+  }
+
+  method _debug_len_inline(value) {
+    if value == null { return "null" }
+    local s = "" + value
+    return StringHelpers.int_to_str(s.length())
+  }
+
+  method _debug_preview_inline(value) {
+    if value == null { return "<null>" }
+    local s = "" + value
+    if s.length() <= 64 { return s }
+    return s.substring(0, 64)
+  }
+
+  method _build_all_defs_fragment_inline(source_text) {
+    if source_text == null || source_text == "" { return "" }
+    local s = "" + source_text
     local defs = ""
+    local first = 1
+    local pos = 0
+    local n = s.length()
+    loop(pos < n) {
+      local box_idx = s.indexOf("box", pos)
+      if box_idx < 0 { break }
+      if FuncScannerBox.kw_boundary_before(s, box_idx) != 1 || FuncScannerBox.kw_boundary_after(s, box_idx + 3) != 1 {
+        pos = box_idx + 3
+        continue
+      }
+      local name_start = FuncScannerBox.skip_whitespace(s, box_idx + 3)
+      local ident = FuncScannerBox._extract_ident(s, name_start)
+      local box_name = "" + ident.get("name")
+      if box_name == "" {
+        pos = name_start + 1
+        continue
+      }
+      local open_idx = FuncScannerBox._seek_box_body_open_brace(s, ident.get("end"))
+      if open_idx < 0 {
+        pos = ident.get("end")
+        continue
+      }
+      local close_idx = FuncScannerBox.find_matching_brace(s, open_idx)
+      if close_idx < 0 { break }
+      local body = s.substring(open_idx + 1, close_idx)
+      local defs_array = me._build_box_defs_array_inline(box_name, body)
+      if defs_array != null && defs_array != "" && defs_array != "[]" {
+        local inner = defs_array.substring(1, defs_array.length() - 1)
+        if inner != "" {
+          if first == 1 {
+            defs = ",\"defs\":[" + inner
+            first = 0
+          } else {
+            defs = defs + "," + inner
+          }
+        }
+      }
+      pos = close_idx + 1
+    }
+    if first == 1 { return "" }
+    return defs + "]"
+  }
+
+  method _build_box_defs_array_inline(box_name, body) {
+    if body == null || body == "" { return "[]" }
+    local skip_main = 0
+    if box_name == "Main" { skip_main = 1 }
+    local scanned_methods = FuncScannerBox._scan_methods(body, box_name, skip_main, 1)
+    if scanned_methods != null && scanned_methods.length() > 0 {
+      local scanned_defs = StageBJsonBuilderBox.build_defs_json(scanned_methods)
+      if scanned_defs != null && scanned_defs != "" {
+        local defs_idx = scanned_defs.indexOf("\"defs\":")
+        if defs_idx >= 0 {
+          local open_idx = scanned_defs.indexOf("[", defs_idx)
+          if open_idx >= 0 {
+            local close_idx = me._find_matching_pair_inline(scanned_defs, open_idx, "[", "]")
+            if close_idx >= 0 {
+              return scanned_defs.substring(open_idx, close_idx + 1)
+            }
+          }
+        }
+      }
+    }
+
+    local defs = "["
     local emitted = 0
     local pos = 0
     local n = body.length()
     loop(pos < n) {
-      local method_idx = body.indexOf("method ", pos)
-      if method_idx < 0 { break }
-
-      local name_start = me._skip_ws_inline(body, method_idx + 7)
+      local probe = me._skip_ws_inline(body, pos)
+      if probe >= n { break }
+      local name_start = -1
+      if body.indexOf("method ", probe) == probe {
+        name_start = probe + 7
+      } else {
+        if me._is_ident_char_inline(body.substring(probe, probe + 1)) == 1 {
+          name_start = probe
+        } else {
+          pos = probe + 1
+          continue
+        }
+      }
       local name_end = me._scan_ident_end_inline(body, name_start)
       local name = body.substring(name_start, name_end)
       if env.get("STAGE1_CLI_DEBUG") == "1" {
-        print("[stage1-cli/debug] defs-scan method=" + name)
+        print("[stage1-cli/debug] defs-scan method=" + box_name + "." + name)
       }
       if name == "" {
-        pos = method_idx + 7
+        pos = probe + 1
         continue
       }
 
@@ -437,7 +549,11 @@ static box Main {
         continue
       }
 
-      if name != "main" {
+      local skip_method = 0
+      if box_name == "Main" {
+        if name == "main" { skip_method = 1 }
+      }
+      if skip_method == 0 {
         local params_src = body.substring(lparen + 1, rparen)
         local params_json = me._build_params_json_inline(params_src)
         local method_body = body.substring(lbrace + 1, rbrace)
@@ -445,44 +561,26 @@ static box Main {
         if env.get("STAGE1_CLI_DEBUG") == "1" {
           local body_json_len = 0
           if body_json != null { body_json_len = body_json.length() }
-          print("[stage1-cli/debug] defs-scan lowered method=" + name + " body_json_len=" + ("" + body_json_len))
+          print("[stage1-cli/debug] defs-scan lowered method=" + box_name + "." + name + " body_json_len=" + ("" + body_json_len))
         }
         if body_json != null && body_json != "" {
-          if emitted == 0 {
-            defs = ",\"defs\":["
-          } else {
-            defs = defs + ","
-          }
-          defs = defs + "{\"name\":\"" + name + "\",\"params\":" + params_json + ",\"body\":{\"version\":0,\"kind\":\"Program\",\"body\":" + body_json + "},\"box\":\"Main\"}"
-          emitted = emitted + 1
+          if emitted == 1 { defs = defs + "," }
+          defs = defs + "{\"name\":\"" + name + "\",\"params\":" + params_json + ",\"body\":{\"version\":0,\"kind\":\"Program\",\"body\":" + body_json + "},\"box\":\"" + box_name + "\"}"
+          emitted = 1
         }
       }
 
       pos = rbrace + 1
     }
 
-    if emitted == 0 { return "" }
     return defs + "]"
   }
 
-  method _debug_len_inline(value) {
-    if value == null { return "null" }
-    local s = "" + value
-    return StringHelpers.int_to_str(s.length())
-  }
-
-  method _debug_preview_inline(value) {
-    if value == null { return "<null>" }
-    local s = "" + value
-    if s.length() <= 64 { return s }
-    return s.substring(0, 64)
-  }
-
-  method _extract_main_box_body_inline(source_text) {
+  method _extract_box_body_inline(source_text, box_name) {
     if source_text == null { return null }
     local s = "" + source_text
-    local box_idx = s.indexOf("static box Main")
-    if box_idx < 0 { box_idx = s.indexOf("box Main") }
+    local box_idx = s.indexOf("static box " + box_name)
+    if box_idx < 0 { box_idx = s.indexOf("box " + box_name) }
     if env.get("STAGE1_CLI_DEBUG") == "1" {
       if box_idx < 0 {
         print("[stage1-cli/debug] defs-scan box:not-found")
@@ -734,31 +832,87 @@ static box Main {
 
   method _build_user_box_decls_json_inline(source_text) {
     if source_text == null || source_text == "" { return "" }
-    local scan_source = FuncScannerBox._strip_comments(source_text)
-    local methods = FuncScannerBox.scan_all_boxes(scan_source)
-    if methods == null { return "" }
-    local cnt = methods.length()
-    if cnt <= 0 { return "" }
-
+    local s = "" + source_text
     local out = "["
     local first = 1
     local seen = "|"
-    local i = 0
-    loop(i < cnt) {
-      local def = methods.get(i)
-      if def != null {
-        local box_name = "" + def.get("box")
-        if box_name != null && box_name != "" {
-          local marker = "|" + box_name + "|"
-          if seen.indexOf(marker) < 0 {
-            if first == 0 { out = out + "," }
-            out = out + "{\"name\":\"" + box_name + "\",\"fields\":[]}"
-            seen = seen + box_name + "|"
-            first = 0
-          }
+    local pos = 0
+    local n = s.length()
+    loop(pos < n) {
+      local line_end = StringHelpers.index_of(s, pos, "\n")
+      if line_end < 0 { line_end = n }
+      local line = me._trim_inline(s.substring(pos, line_end))
+      local box_name = me._box_name_from_decl_line_inline(line)
+      if box_name != "" {
+        local marker = "|" + box_name + "|"
+        if seen.indexOf(marker) < 0 {
+          if first == 0 { out = out + "," }
+          out = out + "{\"name\":\"" + box_name + "\",\"fields\":[]}"
+          seen = seen + box_name + "|"
+          first = 0
         }
       }
-      i = i + 1
+      pos = line_end + 1
+    }
+    out = out + "]"
+    if first == 1 { return "" }
+    return out
+  }
+
+  method _box_name_from_decl_line_inline(line) {
+    if line == null || line == "" { return "" }
+    local name_start = -1
+    if line.indexOf("static box ") == 0 {
+      name_start = 11
+    } else if line.indexOf("interface box ") == 0 {
+      name_start = 14
+    } else if line.indexOf("box ") == 0 {
+      name_start = 4
+    }
+    if name_start < 0 { return "" }
+    local start = me._skip_ws_inline(line, name_start)
+    local stop = me._scan_ident_end_inline(line, start)
+    if stop <= start { return "" }
+    return line.substring(start, stop)
+  }
+
+  method _build_user_box_decls_fallback_inline(source_text) {
+    if source_text == null || source_text == "" { return "" }
+    local s = "" + source_text
+    local out = "["
+    local first = 1
+    local seen = "|"
+    local pos = 0
+    local n = s.length()
+    loop(pos < n) {
+      local box_idx = s.indexOf("box", pos)
+      if box_idx < 0 { break }
+      if FuncScannerBox.kw_boundary_before(s, box_idx) != 1 || FuncScannerBox.kw_boundary_after(s, box_idx + 3) != 1 {
+        pos = box_idx + 3
+        continue
+      }
+      local name_start = FuncScannerBox.skip_whitespace(s, box_idx + 3)
+      local ident = FuncScannerBox._extract_ident(s, name_start)
+      local box_name = "" + ident.get("name")
+      if box_name == "" {
+        pos = name_start + 1
+        continue
+      }
+      local marker = "|" + box_name + "|"
+      if seen.indexOf(marker) < 0 {
+        if first == 0 { out = out + "," }
+        out = out + "{\"name\":\"" + box_name + "\",\"fields\":[]}"
+        seen = seen + box_name + "|"
+        first = 0
+      }
+      local open_idx = FuncScannerBox._seek_box_body_open_brace(s, ident.get("end"))
+      if open_idx < 0 {
+        pos = ident.get("end")
+        continue
+      }
+      local close_idx = FuncScannerBox.find_matching_brace(s, open_idx)
+      if close_idx < 0 { break }
+      pos = close_idx + 1
     }
     out = out + "]"
     if first == 1 { return "" }
