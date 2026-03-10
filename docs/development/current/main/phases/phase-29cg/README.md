@@ -103,8 +103,9 @@ Final direction:
 When resuming after reboot:
 
 1. keep the goal hierarchy explicit
-   - final goal: bootstrap also moves to MIR-direct
-   - current task: close one surrogate helper/source closure bucket in the bridge-first reduced Stage2 object
+   - final goal: `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`
+   - bootstrap rule: `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
+   - current task: `phase-29cg` is not the MIR-direct unification phase; close one surrogate helper/source closure bucket in the bridge-first reduced Stage2 object
 2. do not re-open solved buckets
    - bridge return-path
    - extern classification
@@ -112,6 +113,10 @@ When resuming after reboot:
 3. prefer the smallest owner first
    - `src/stage1/program_json_v0.rs`
    - then, only if needed, `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+4. run proof-first before widening the slice
+   - `bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
+   - `NYASH_BIN=<stage1-cli bootstrap> bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli ...`
+   - only after the proof pair stays green/non-regressed, move to the next reduction step
 
 ## Acceptance
 

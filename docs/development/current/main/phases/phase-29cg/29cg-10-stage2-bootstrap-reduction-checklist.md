@@ -50,3 +50,20 @@ Related:
   - mixed worker stash review adopted only Rust-side minimal arity canonicalization in `callsite_canonicalize.rs` and `json_v0_bridge/lowering/program.rs`; broader `lang/src/mir/builder/**`, `tools/selfhost/lib/stage1_contract.sh`, and `src/llvm_py/**` stash lanes remain deferred
   - experimental `build_stage1.sh` bridge-first path still exits non-zero because the reduced Stage2 object materializes only entry-local defs and the stage1 surrogate routes do not yet close imported helper/source owners
   - exact next blocker is stage1 surrogate helper/source closure, not bridge return-path, extern classification, or current LLVM PHI wiring
+
+## 6) Restart quick entry (2026-03-10)
+
+- final goal: `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`
+- bootstrap rule: `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
+- current minimal task: `phase-29cg` is not the MIR-direct unification phase; first close exactly one imported helper/source closure bucket in the reduced Stage2 object
+- solved bucket keep-closed:
+  - `bridge return-path`
+  - `extern classification`
+  - `current LLVM PHI repair`
+- next owner order:
+  - `src/stage1/program_json_v0.rs`
+  - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` (only if needed)
+- proof-first next steps:
+  - `bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
+  - `NYASH_BIN=<stage1-cli bootstrap> bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli ...`
+  - only after the proof pair stays green/non-regressed, move to the next reduction slice

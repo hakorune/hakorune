@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-09
+Date: 2026-03-10
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -64,6 +64,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - top-level aftercare is no longer the current blocker
 - selfhost mainline next:
   - return to de-rust selfhost feature work
+  - restart quick entry (2026-03-10):
+    - final goal: `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`
+    - bootstrap rule: `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
+    - current minimal task: `phase-29cg` is not the MIR-direct unification phase; first close exactly one imported helper/source closure bucket in the reduced Stage2 object
+    - solved bucket keep-closed: `bridge return-path`, `extern classification`, `current LLVM PHI repair`
+    - next owner order: `src/stage1/program_json_v0.rs` -> `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` (only if needed)
+    - proof-first next steps:
+      - `bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
+      - `NYASH_BIN=<stage1-cli bootstrap> bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli ...`
+      - only after the proof pair stays green/non-regressed, move to the next reduction slice
   - final direction is `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`; `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
   - treat `compat-fallback` as explicit compat keep, not as current workstream
   - treat Stage2 default bootstrap dependency as `phase-29cg` dedicated reduction target
