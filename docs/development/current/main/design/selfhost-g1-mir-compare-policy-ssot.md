@@ -9,7 +9,7 @@ Purpose:
 
 Scope:
 - Stage1 vs Stage2 identity comparison for MIR(JSON v0) only.
-- Initial target: `compiler_stageb.hako` matches on Program(JSON v0) but diverges on raw MIR text at `StageBArgsBox.resolve_src/1` and then `StageBDriverBox.main/1`.
+- Initial target: `compiler_stageb.hako` matched on Program(JSON v0) but diverged on raw MIR text at `StageBArgsBox.resolve_src/1` and then `StageBDriverBox.main/1`.
 
 Decision:
 - During `phase-29ch`, the G1 done gate now uses `semantic canonical match` for MIR(JSON v0).
@@ -80,6 +80,8 @@ Sequencing:
 2. Turn `G1 full` green on semantic canonical match. Status: done on 2026-03-11.
 3. Keep raw exact diff visible as follow-up evidence.
 4. After `phase-29ch` is stable, decide whether to tighten generator ordering so raw MIR text also converges.
+   - Status: the current reduced authority route now reaches raw-exact MIR equality again on `compiler_stageb.hako` after provider-path ordering stabilization in `src/runner/json_v0_bridge/lowering/merge.rs` and `src/runner/json_v0_bridge/lowering/try_catch.rs`.
+   - The canonical compare policy remains active as the narrow allowed-noise contract for future widenings; it is no longer blocking the current reduced route.
 
 Non-goals:
 - Do not widen authority routes.

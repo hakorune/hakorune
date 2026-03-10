@@ -79,7 +79,7 @@ Evidence (2026-03-11):
 - `bash tools/selfhost/run_stage1_cli.sh --bin target/selfhost/hakorune.stage1_cli emit mir-json apps/tests/hello_simple_llvm.hako` -> `rc=0`
 - `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.next --force-rebuild` -> PASS
 - `bash tools/selfhost_identity_check.sh --mode smoke` -> PASS
-- `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` -> PASS (`Program JSON v0` raw match; `MIR JSON v0` canonical match with raw diff retained at `/tmp/g1_mir_diff.txt.raw`)
+- `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` -> PASS (`Program JSON v0` raw match; `MIR JSON v0` raw match on the current reduced authority route)
 - exact raw diff probe is fixed to `bash tools/dev/phase29ch_raw_mir_diff_probe.sh [entry]` (default: `lang/src/compiler/entry/compiler_stageb.hako`)
 - route-mode branchpoint probe is fixed to `bash tools/dev/phase29ch_route_mode_matrix.sh [entry]`
 - same-route repeatability probe is fixed to `bash tools/dev/phase29ch_same_route_repeat_probe.sh [entry]`
@@ -95,20 +95,25 @@ Current compare decision (2026-03-11):
 - `phase-29ch` now uses `semantic canonical match` for G1 MIR compare and keeps raw MIR exact diff as tightening evidence.
 - compare rules SSOT: `docs/development/current/main/design/selfhost-g1-mir-compare-policy-ssot.md`
 - fast regression entry: `python3 -m unittest tools.selfhost.lib.tests.test_mir_canonical_compare`
-- Raw exact MIR equality remains the follow-up target after `G1 full` is green again.
+- Raw exact MIR equality has now been reached again for the current reduced authority route on `compiler_stageb.hako`; the canonical compare policy remains in place for future widenings and for narrowing future non-semantic noise without changing route authority.
 
 Current branch point (2026-03-11):
 - the last solved reduction slice is `launcher-exe`
 - `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.launcher_from_stage1_cli --force-rebuild` -> PASS
 - `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli.next emit-program lang/src/runner/launcher.hako "$(cat lang/src/runner/launcher.hako)"` now emits Program(JSON v0) with `defs_boxes=[HakoCli]` and bare-using imports including `MirBuilderBox`
 - `... emit-mir ...` now emits `user_box_decls=[HakoCli, Main]` and lowers `HakoCli.run/1` on the current reduced authority route
-- the former active blocker was G1 full MIR exact diff on `compiler_stageb.hako`; it is now downgraded to tightening evidence because the canonical compare is green and still reports the raw diff
-- therefore the current preferred order is: keep `stage1-env-program` + `stage1-env-mir-source` as the only reduced authority evidence, keep `run_stage1_cli.sh` as a compatibility wrapper over that contract, and decide whether raw MIR determinism needs tightening before widening the next bootstrap slice
-- current raw determinism note: the mismatch is not owned by a late `jsonfrag_normalizer_box.hako` text reorder pass. `compiler_stageb.hako` had diverged across `default`, `internal-only`, and `delegate-only` route modes on a single Stage1 binary, so the authority shell contract is now pinned to `internal-only` by default. After that pin, same-route repeatability still diverges for repeated `default`, repeated `internal-only`, and repeated `delegate-only` emits, so the first owner is now execution-path nondeterminism rather than route selection alone. Repeated `emit-program` is raw exact-match, but repeated `emit-mir` from a fixed saved Program(JSON v0) payload still diverges at `StageBArgsBox.resolve_src/1` block 8. The impossible gate (`HAKO_SELFHOST_NO_DELEGATE=1 HAKO_MIR_BUILDER_DELEGATE=0 HAKO_MIR_BUILDER_INTERNAL=0`) no longer emits MIR after the fix in `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`; compiled stage1 artifacts had been bypassing `.hako` MirBuilder gate semantics there. Therefore the current blocker has moved back to raw MIR ordering under the Rust provider path (`src/host_providers/mir_builder.rs` / `runner::json_v0_bridge`) that module dispatch actually executes. `stage1_contract_exec_mode` owns fail-fast validation for silent-success emits. Delegate remains explicit compat-only and is still the retire-target route after MIR-direct authority is stable.
-- current owner order remains fixed:
-  1. `tools/selfhost/lib/identity_compare.sh`
-  2. `tools/selfhost/lib/mir_canonical_compare.py`
-  3. generator-order stabilization only after the narrow compare policy is proven in green G1 full
+- the former active blocker was G1 full MIR exact diff on `compiler_stageb.hako`; that exact diff is now closed on the current reduced authority route
+- raw determinism closure note: the effective repair owner was the compiled-artifact Rust provider path under module dispatch, specifically `src/runner/json_v0_bridge/lowering/merge.rs` and `src/runner/json_v0_bridge/lowering/try_catch.rs`, where merge-variable name collection now uses `BTreeSet<String>` instead of `HashSet<String>`. This stabilizes the copy/materialization order that had been drifting first at `StageBArgsBox.resolve_src/1` block 8.
+- current evidence after that repair:
+  1. `bash tools/dev/phase29ch_fixed_program_mir_repeat_probe.sh` is quiet/raw-exact for `lang/src/compiler/entry/compiler_stageb.hako`
+  2. `bash tools/dev/phase29ch_route_mode_matrix.sh` is quiet for the same source
+  3. fresh `G1 full` is raw-exact green for both `Program JSON v0` and `MIR JSON v0`
+- therefore the current preferred order is now: keep `stage1-env-program` + `stage1-env-mir-source` as the only reduced authority evidence, keep `run_stage1_cli.sh` as a compatibility wrapper over that contract, and choose the first true bootstrap reduction slice instead of spending more work on current-route determinism
+- next owner order remains fixed:
+  1. inventory the exact transient Program(JSON v0) boundary introduced by `lang/src/runner/stage1_cli_env.hako` (`_resolve_emit_mir_input_text` -> `_build_program_json`)
+  2. keep `lang/src/mir/builder/MirBuilderBox.hako` as the contract surface but treat compiled-artifact module dispatch as the current execution owner while selecting one minimal BoxShape slice
+  3. shrink that transient boundary without creating a new authority route
+  4. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 
 Route guard lock:
 - `tools/selfhost_identity_check.sh --mode full` must observe

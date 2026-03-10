@@ -101,8 +101,8 @@ pub(super) fn merge_var_maps(
     base_vars: std::collections::BTreeMap<String, ValueId>,
     out_vars: &mut std::collections::BTreeMap<String, ValueId>,
 ) -> Result<(), String> {
-    use std::collections::HashSet;
-    let mut names: HashSet<String> = base_vars.keys().cloned().collect();
+    use std::collections::BTreeSet;
+    let mut names: BTreeSet<String> = base_vars.keys().cloned().collect();
     for k in then_vars.keys() {
         names.insert(k.clone());
     }

@@ -213,7 +213,7 @@ pub(super) fn lower_try_stmt(
         };
 
         // Finally or direct exit; merge variables across branches
-        use std::collections::HashSet;
+        use std::collections::{BTreeSet, HashSet};
         if let Some(finally_block) = finally_bb {
             // Compute merged var map from try_end + catch_end (if has_catch)
         let mut branch_vars: Vec<(BasicBlockId, BTreeMap<String, ValueId>)> = Vec::new();
@@ -223,7 +223,7 @@ pub(super) fn lower_try_stmt(
         if has_catch {
             branch_vars.push((catch_end, catch_branch_vars.clone()));
         }
-        let mut names: HashSet<String> = base_vars.keys().cloned().collect();
+        let mut names: BTreeSet<String> = base_vars.keys().cloned().collect();
         for (_, map) in &branch_vars {
             names.extend(map.keys().cloned());
         }
@@ -287,7 +287,7 @@ pub(super) fn lower_try_stmt(
             if has_catch {
                 branch_vars.push((catch_end, catch_branch_vars));
             }
-            let mut names: HashSet<String> = base_vars.keys().cloned().collect();
+            let mut names: BTreeSet<String> = base_vars.keys().cloned().collect();
             for (_, map) in &branch_vars {
                 names.extend(map.keys().cloned());
             }
@@ -386,11 +386,11 @@ pub(super) fn lower_try_stmt(
     f.set_jump_terminator(catch_end, handler_target)?;
     let catch_branch_vars = catch_vars.clone();
 
-    use std::collections::HashSet;
+    use std::collections::{BTreeSet, HashSet};
     let branch_vars = vec![(try_end, try_branch_vars), (catch_end, catch_branch_vars)];
     if let Some(finally_block) = finally_bb {
-        let names: HashSet<String> = {
-            let mut set: HashSet<String> = base_vars.keys().cloned().collect();
+        let names: BTreeSet<String> = {
+            let mut set: BTreeSet<String> = base_vars.keys().cloned().collect();
             for (_, map) in &branch_vars {
                 set.extend(map.keys().cloned());
             }
@@ -446,8 +446,8 @@ pub(super) fn lower_try_stmt(
         *vars = finally_vars;
         Ok(exit_bb)
     } else {
-        let names: HashSet<String> = {
-            let mut set: HashSet<String> = base_vars.keys().cloned().collect();
+        let names: BTreeSet<String> = {
+            let mut set: BTreeSet<String> = base_vars.keys().cloned().collect();
             for (_, map) in &branch_vars {
                 set.extend(map.keys().cloned());
             }
