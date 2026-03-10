@@ -207,7 +207,7 @@ run_stage1_env_route() {
   if run_and_extract_stage_payload \
     "mir-json" \
     "$outfile" \
-    bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$bin" emit mir-json --from-program-json "$tmp_prog" "$entry"; then
+    bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$bin" emit mir-json --from-program-json "$tmp_prog"; then
     rm -f "$tmp_prog"
     if [[ -n "$route_file" ]]; then
       echo "stage1-subcmd-mir-program" >"$route_file"

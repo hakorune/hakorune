@@ -30,6 +30,77 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="${ROOT_DIR}/target/selfhost/hakorune"
 source "${ROOT_DIR}/tools/selfhost/lib/stage1_contract.sh"
 
+read_entry_source_text() {
+  local entry="$1"
+  if [[ -z "$entry" ]]; then
+    echo "[run-stage1] source path is required" >&2
+    exit 2
+  fi
+  if [[ ! -f "$entry" ]]; then
+    echo "[run-stage1] source not found: $entry" >&2
+    exit 2
+  fi
+  stage1_contract_source_text "$entry"
+}
+
+run_emit_program_json() {
+  if [[ $# -ne 1 ]]; then
+    echo "[run-stage1] usage: emit program-json <source.hako>" >&2
+    exit 2
+  fi
+  local entry="$1"
+  local source_text
+  source_text="$(read_entry_source_text "$entry")"
+  stage1_contract_exec_mode "$BIN" "emit-program" "$entry" "$source_text"
+}
+
+run_emit_mir_json() {
+  local program_json_path=""
+  local entry=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --from-program-json)
+        if [[ $# -lt 2 ]]; then
+          echo "[run-stage1] emit mir-json: --from-program-json requires a path" >&2
+          exit 2
+        fi
+        program_json_path="$2"
+        shift 2
+        ;;
+      *)
+        if [[ -n "$entry" ]]; then
+          echo "[run-stage1] emit mir-json: unexpected extra argument: $1" >&2
+          exit 2
+        fi
+        entry="$1"
+        shift
+        ;;
+    esac
+  done
+
+  if [[ -n "$program_json_path" && -n "$entry" ]]; then
+    echo "[run-stage1] emit mir-json: specify either --from-program-json or <source.hako>" >&2
+    exit 2
+  fi
+  if [[ -z "$program_json_path" && -z "$entry" ]]; then
+    echo "[run-stage1] emit mir-json: require --from-program-json <file> or <source.hako>" >&2
+    exit 2
+  fi
+
+  if [[ -n "$program_json_path" ]]; then
+    if [[ ! -f "$program_json_path" ]]; then
+      echo "[run-stage1] program-json not found: $program_json_path" >&2
+      exit 2
+    fi
+    stage1_contract_exec_mode "$BIN" "emit-mir" "__stage1_program_json__" "" "$program_json_path"
+    return 0
+  fi
+
+  local source_text
+  source_text="$(read_entry_source_text "$entry")"
+  stage1_contract_exec_mode "$BIN" "emit-mir" "$entry" "$source_text"
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --bin)
@@ -68,5 +139,24 @@ fi
 
 # Default env toggles for Stage1 CLI execution (shared contract SSOT)
 stage1_contract_export_runner_defaults
+
+if [[ "$1" == "emit" ]]; then
+  if [[ $# -lt 2 ]]; then
+    echo "[run-stage1] emit requires a subcommand" >&2
+    exit 2
+  fi
+  subcmd="$2"
+  shift 2
+  case "$subcmd" in
+    program-json)
+      run_emit_program_json "$@"
+      exit $?
+      ;;
+    mir-json)
+      run_emit_mir_json "$@"
+      exit $?
+      ;;
+  esac
+fi
 
 exec "$BIN" "$@"

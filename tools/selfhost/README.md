@@ -195,7 +195,8 @@ Helper — Stage1 CLI Runner
   - Wraps a Stage1 binary (default `target/selfhost/hakorune`) with the required runtime env:
     - `NYASH_NYRT_SILENT_RESULT=1`（Result 行を抑止して JSON stdout を維持）
     - `NYASH_DISABLE_PLUGINS=1`, `NYASH_FILEBOX_MODE=core-ro`（FileBox などのコア実装を強制）
-  - Pass arguments verbatim to the Stage1 CLI:
+  - For `emit program-json` / `emit mir-json`, translate the raw CLI surface into the current env contract (`stage1_contract_exec_mode`) so the wrapper stays compatible even when the artifact entry itself is env-only.
+  - Non-`emit` arguments are passed verbatim to the Stage1 binary:
     ```bash
     tools/selfhost/run_stage1_cli.sh emit program-json apps/tests/minimal.hako
     tools/selfhost/run_stage1_cli.sh --bin /tmp/hakorune-dev emit mir-json apps/tests/minimal.hako

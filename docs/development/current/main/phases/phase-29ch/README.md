@@ -61,24 +61,28 @@ Known non-authority routes:
   - non-stage1-cli artifact build 用の compatibility/bootstrap lane
 - `tools/selfhost_exe_stageb.sh` `direct`
   - Stage0 direct `--emit-mir-json` probe 用で、reduced proof source の authority ではない
-- `tools/selfhost/run_stage1_cli.sh ... emit mir-json ...`
+- direct raw artifact invocation (`target/selfhost/hakorune.stage1_cli emit ...`)
   - current reduced artifact (`stage1_cli_env.hako`) では raw/subcmd contract を持たず `rc=97`
+- `tools/selfhost/run_stage1_cli.sh ... emit ...`
+  - compatibility wrapper only; it translates raw `emit` surface into the env mainline contract and is not accepted as reduced-case authority evidence
 
 Evidence (2026-03-10):
 - `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir apps/tests/hello_simple_llvm.hako "$(cat apps/tests/hello_simple_llvm.hako)"` -> `rc=0`
 - `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir lang/src/runner/stage1_cli_env.hako "$(cat lang/src/runner/stage1_cli_env.hako)"` -> `rc=0`
+- `bash tools/selfhost/run_stage1_cli.sh --bin target/selfhost/hakorune.stage1_cli emit program-json apps/tests/hello_simple_llvm.hako` -> `rc=0`
+- `bash tools/selfhost/run_stage1_cli.sh --bin target/selfhost/hakorune.stage1_cli emit mir-json apps/tests/hello_simple_llvm.hako` -> `rc=0`
 - `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.next --force-rebuild` -> PASS
 - `bash tools/selfhost_identity_check.sh --mode smoke` -> PASS
-- `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` -> PASS
-- `bash tools/selfhost_identity_check.sh --mode full` -> PASS
+- `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` -> FAIL (`Program JSON v0` matches; `MIR JSON v0` first diverges in `StageBArgsBox.resolve_src/1`)
+- current branch point is no longer launcher closure; it is whether G1 should canonicalize alpha-equivalent MIR or whether `.hako` MirBuilder ordering must be stabilized for raw-text equality
 
 Current branch point (2026-03-10):
-- the next reduction slice is `launcher-exe`
+- the last solved reduction slice is `launcher-exe`
 - `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.launcher_from_stage1_cli --force-rebuild` -> PASS
 - `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli.next emit-program lang/src/runner/launcher.hako "$(cat lang/src/runner/launcher.hako)"` now emits Program(JSON v0) with `defs_boxes=[HakoCli]` and bare-using imports including `MirBuilderBox`
 - `... emit-mir ...` now emits `user_box_decls=[HakoCli, Main]` and lowers `HakoCli.run/1` on the current reduced authority route
-- the closure was achieved by strengthening the existing bootstrap-only Rust surrogates (`src/stage1/program_json_v0.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`), not by introducing a new authority route
-- therefore the current preferred order is: keep `stage1-env-program` + `stage1-env-mir-source` as the only reduced authority evidence, mark the `launcher-exe` helper/user-box closure bucket solved, and choose the next non-green widening target separately
+- the new active blocker is G1 full MIR exact diff on `compiler_stageb.hako`: Stage1/Stage2 keep matching Program(JSON v0), matching function names, matching block counts, and matching user box decls, but the first MIR text divergence appears in `StageBArgsBox.resolve_src/1` as a live-in/copy bundle reorder
+- therefore the current preferred order is: keep `stage1-env-program` + `stage1-env-mir-source` as the only reduced authority evidence, keep `run_stage1_cli.sh` as a compatibility wrapper over that contract, and resolve the G1 MIR compare/determinism branch point before widening the next bootstrap slice
 
 Route guard lock:
 - `tools/selfhost_identity_check.sh --mode full` must observe

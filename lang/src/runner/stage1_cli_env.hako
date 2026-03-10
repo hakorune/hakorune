@@ -188,6 +188,10 @@ static box Main {
       if stage1_prog_json_text != null && stage1_prog_json_text != "" {
         return stage1_prog_json_text
       }
+      local loaded_prog_json_text = me._load_source_text_from_path_inline(prog_json_path)
+      if loaded_prog_json_text != null && loaded_prog_json_text != "" {
+        return loaded_prog_json_text
+      }
       print(tag + " Program(JSON) text is required")
       return null
     }
