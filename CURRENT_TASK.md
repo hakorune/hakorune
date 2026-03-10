@@ -74,6 +74,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - `bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
       - `NYASH_BIN=<stage1-cli bootstrap> bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli ...`
       - only after the proof pair stays green/non-regressed, move to the next reduction slice
+    - cleanliness order lock:
+      - `phase-29cg`: close the current bootstrap helper/source closure bucket only; do not start generic `Program(JSON v0)` removal here
+      - next separate phase: cut a MIR-direct bootstrap unification phase only after the reduced Stage2 proof is stable
+      - later separate phase: retire/delete `Program(JSON v0)` bridge only after MIR-direct parity is the route authority
   - final direction is `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`; `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
   - treat `compat-fallback` as explicit compat keep, not as current workstream
   - treat Stage2 default bootstrap dependency as `phase-29cg` dedicated reduction target
@@ -85,8 +89,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - route authority probes are now split into `route observability keep`, `strict-dev priority keep`, and `non-strict compat boundary keep`
     - `phase29x_derust_strict_default_route_vm.sh` is `done-sync keep` because `phase29x_derust_done_matrix_vm.sh` and the de-rust lane map still consume it as current evidence
     - `route_env_probe.sh` is `current diagnostics keep` because `route_no_fallback_guard.sh` and tools docs still treat it as the active route-probe contract
-    - Stage2 current reduction target is exact: `tools/selfhost_identity_check.sh` keeps default bootstrap when artifact-kind is `stage1-cli`; `build_stage1.sh` now has an explicit bridge-first probe path. `stage1_contract_exec_mode ... emit-mir ...` is green and `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` proves the reduced `Program(JSON)->MIR->LLVM verify` lane is green. The current exact blocker is stage1 surrogate helper/source closure: `module_string_dispatch.rs` still returns empty prefix for `lang.compiler.entry.using_resolver_box.resolve_for_source`, `lang.compiler.build.build_box.emit_program_json_v0` still delegates to Rust `source_to_program_json_v0(...)`, and the resulting bridge-first Program(JSON) for `stage1_cli_env.hako` remains `defs_len=22` / `box=Main` only / `imports=[]`. The active blocker is therefore imported helper/source closure for the reduced Stage2 object.
-    - restart rule for `phase-29cg`: do not widen scope into generic bridge cleanup. First try the smallest reduction that closes imported helper/source owners for the reduced Stage2 object; only after that succeeds, start a separate MIR-direct bootstrap phase.
+    - Stage2 current reduction target is exact: `tools/selfhost_identity_check.sh` keeps default bootstrap when artifact-kind is `stage1-cli`; `build_stage1.sh` now has an explicit bridge-first probe path. `stage1_contract_exec_mode ... emit-mir ...` is green and `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` proves the reduced `Program(JSON)->MIR->LLVM verify` lane is green. Owner-1 probe (`src/stage1/program_json_v0.rs`) now emits `imports` for `stage1_cli_env.hako` in the Rust surrogate lane and the targeted tests are green, but the bridge-first Stage2 proof still link-fails because the active proof path remains `lang/src/runner/stage1_cli_env.hako -> BuildBox.emit_program_json_v0(merged, null)` and that Hako emit-program authority still leaves imported helper/source owners unresolved. The active blocker is therefore still imported helper/source closure for the reduced Stage2 object; `Program(JSON v0)` is confirmed bootstrap debt, but not yet in the deletion phase.
+    - restart rule for `phase-29cg`: do not widen scope into generic bridge cleanup or ad-hoc `Program(JSON v0)` deletion. First close the current reduced-case helper/source closure bucket; only after that succeeds, cut a separate MIR-direct bootstrap phase, and only after MIR-direct parity is stable, cut a separate JSON v0 retirement phase.
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
