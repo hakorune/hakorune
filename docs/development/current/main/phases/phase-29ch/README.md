@@ -84,6 +84,7 @@ Evidence (2026-03-11):
 - route-mode branchpoint probe is fixed to `bash tools/dev/phase29ch_route_mode_matrix.sh [entry]`
 - same-route repeatability probe is fixed to `bash tools/dev/phase29ch_same_route_repeat_probe.sh [entry]`
 - fixed-Program repeatability probe is fixed to `bash tools/dev/phase29ch_fixed_program_mir_repeat_probe.sh [entry]`
+- transient-boundary probe is fixed to `bash tools/dev/phase29ch_transient_boundary_probe.sh [entry]`
 - impossible-gate probe is fixed to `bash tools/dev/phase29ch_impossible_gate_probe.sh [entry]`
 - bridge-bypass probe is fixed to `bash tools/dev/phase29ch_bridge_bypass_probe.sh [entry]`
 - current authority shell contract now pins `stage1_contract_exec_mode` to `HAKO_SELFHOST_NO_DELEGATE=1` + `HAKO_MIR_BUILDER_DELEGATE=0` by default; delegate route is explicit compat only
@@ -114,6 +115,7 @@ Current branch point (2026-03-11):
   2. keep `lang/src/mir/builder/MirBuilderBox.hako` as the contract surface but treat compiled-artifact module dispatch as the current execution owner while selecting one minimal BoxShape slice
   3. shrink that transient boundary without creating a new authority route
   4. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
+- transient-boundary proof rule: `bash tools/dev/phase29ch_transient_boundary_probe.sh [entry]` must stay raw-exact quiet for current reduced sources. It compares source-only authority `emit-mir` against the same saved Program(JSON v0) supplied explicitly, so the next reduction slice can prove the transient boundary is semantically transparent before shrinking it.
 - detour prevention for the next slice: `src/runner/modes/vm_hako/compile_bridge.rs` already contains a Rust direct source→MIR helper, but it is reference-only for `phase-29ch`. Do not promote it into current selfhost authority while choosing the next reduction slice.
 
 Route guard lock:
