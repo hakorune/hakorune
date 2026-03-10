@@ -256,22 +256,172 @@ def canonicalize_module(payload: dict) -> dict:
     return module
 
 
+def summarize_first_raw_diff(lhs: dict, rhs: dict) -> dict | None:
+    if lhs == rhs:
+        return None
+
+    lhs_functions = lhs.get("functions")
+    rhs_functions = rhs.get("functions")
+    if not isinstance(lhs_functions, list) or not isinstance(rhs_functions, list):
+        return {
+            "scope": "module",
+            "reason": "top-level mismatch outside functions",
+            "lhs": lhs,
+            "rhs": rhs,
+        }
+
+    if len(lhs_functions) != len(rhs_functions):
+        return {
+            "scope": "functions",
+            "reason": "function_count_mismatch",
+            "lhs_count": len(lhs_functions),
+            "rhs_count": len(rhs_functions),
+        }
+
+    for func_idx, (lhs_func, rhs_func) in enumerate(zip(lhs_functions, rhs_functions)):
+        if lhs_func == rhs_func:
+            continue
+        lhs_name = lhs_func.get("name") if isinstance(lhs_func, dict) else None
+        rhs_name = rhs_func.get("name") if isinstance(rhs_func, dict) else None
+        summary: dict[str, object] = {
+            "scope": "function",
+            "function_idx": func_idx,
+            "function_name": lhs_name or rhs_name or f"function[{func_idx}]",
+        }
+        if not isinstance(lhs_func, dict) or not isinstance(rhs_func, dict):
+            summary["reason"] = "function_shape_mismatch"
+            summary["lhs"] = lhs_func
+            summary["rhs"] = rhs_func
+            return summary
+        if lhs_name != rhs_name:
+            summary["reason"] = "function_name_mismatch"
+            summary["lhs"] = lhs_name
+            summary["rhs"] = rhs_name
+            return summary
+
+        lhs_blocks = lhs_func.get("blocks")
+        rhs_blocks = rhs_func.get("blocks")
+        if not isinstance(lhs_blocks, list) or not isinstance(rhs_blocks, list):
+            summary["reason"] = "blocks_shape_mismatch"
+            summary["lhs"] = lhs_blocks
+            summary["rhs"] = rhs_blocks
+            return summary
+        if len(lhs_blocks) != len(rhs_blocks):
+            summary["reason"] = "block_count_mismatch"
+            summary["lhs_count"] = len(lhs_blocks)
+            summary["rhs_count"] = len(rhs_blocks)
+            return summary
+
+        for block_idx, (lhs_block, rhs_block) in enumerate(zip(lhs_blocks, rhs_blocks)):
+            if lhs_block == rhs_block:
+                continue
+            summary["scope"] = "block"
+            summary["block_idx"] = block_idx
+            summary["block_id"] = (
+                lhs_block.get("id")
+                if isinstance(lhs_block, dict)
+                else rhs_block.get("id") if isinstance(rhs_block, dict) else block_idx
+            )
+            if not isinstance(lhs_block, dict) or not isinstance(rhs_block, dict):
+                summary["reason"] = "block_shape_mismatch"
+                summary["lhs"] = lhs_block
+                summary["rhs"] = rhs_block
+                return summary
+
+            lhs_instructions = lhs_block.get("instructions")
+            rhs_instructions = rhs_block.get("instructions")
+            if not isinstance(lhs_instructions, list) or not isinstance(rhs_instructions, list):
+                summary["reason"] = "instructions_shape_mismatch"
+                summary["lhs"] = lhs_instructions
+                summary["rhs"] = rhs_instructions
+                return summary
+            if len(lhs_instructions) != len(rhs_instructions):
+                summary["reason"] = "instruction_count_mismatch"
+                summary["lhs_count"] = len(lhs_instructions)
+                summary["rhs_count"] = len(rhs_instructions)
+                return summary
+
+            for inst_idx, (lhs_inst, rhs_inst) in enumerate(
+                zip(lhs_instructions, rhs_instructions)
+            ):
+                if lhs_inst == rhs_inst:
+                    continue
+                summary["scope"] = "instruction"
+                summary["inst_idx"] = inst_idx
+                summary["reason"] = "instruction_mismatch"
+                summary["lhs"] = lhs_inst
+                summary["rhs"] = rhs_inst
+                return summary
+
+            summary["reason"] = "block_metadata_mismatch"
+            summary["lhs"] = lhs_block
+            summary["rhs"] = rhs_block
+            return summary
+
+        summary["reason"] = "function_metadata_mismatch"
+        summary["lhs"] = lhs_func
+        summary["rhs"] = rhs_func
+        return summary
+
+    return {
+        "scope": "module",
+        "reason": "top-level metadata mismatch",
+        "lhs": lhs,
+        "rhs": rhs,
+    }
+
+
+def _load_json(path: Path) -> dict:
+    return json.loads(path.read_text())
+
+
 def main(argv: list[str]) -> int:
-    if len(argv) != 3 or argv[1] != "canonicalize":
+    if len(argv) < 2:
         print(
-            "usage: mir_canonical_compare.py canonicalize <mir.json>",
+            "usage: mir_canonical_compare.py canonicalize <mir.json> | summarize-first-diff <lhs.json> <rhs.json>",
+            file=sys.stderr,
+        )
+        return 2
+    if argv[1] == "canonicalize":
+        if len(argv) != 3:
+            print(
+                "usage: mir_canonical_compare.py canonicalize <mir.json>",
+                file=sys.stderr,
+            )
+            return 2
+        path = Path(argv[2])
+        try:
+            payload = _load_json(path)
+        except Exception as exc:  # pragma: no cover - fail-fast helper
+            print(f"[mir-canonical-compare] failed to parse {path}: {exc}", file=sys.stderr)
+            return 1
+
+        json.dump(
+            canonicalize_module(payload), sys.stdout, sort_keys=True, separators=(",", ":")
+        )
+        sys.stdout.write("\n")
+        return 0
+
+    if argv[1] != "summarize-first-diff" or len(argv) != 4:
+        print(
+            "usage: mir_canonical_compare.py summarize-first-diff <lhs.json> <rhs.json>",
             file=sys.stderr,
         )
         return 2
 
-    path = Path(argv[2])
+    lhs_path = Path(argv[2])
+    rhs_path = Path(argv[3])
     try:
-        payload = json.loads(path.read_text())
+        lhs = _load_json(lhs_path)
+        rhs = _load_json(rhs_path)
     except Exception as exc:  # pragma: no cover - fail-fast helper
-        print(f"[mir-canonical-compare] failed to parse {path}: {exc}", file=sys.stderr)
+        print(f"[mir-canonical-compare] failed to parse diff input: {exc}", file=sys.stderr)
         return 1
 
-    json.dump(canonicalize_module(payload), sys.stdout, sort_keys=True, separators=(",", ":"))
+    summary = summarize_first_raw_diff(lhs, rhs)
+    if summary is None:
+        return 0
+    json.dump(summary, sys.stdout, sort_keys=True, separators=(",", ":"))
     sys.stdout.write("\n")
     return 0
 

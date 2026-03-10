@@ -11,7 +11,7 @@ LIB_DIR = THIS_DIR.parent
 if str(LIB_DIR) not in sys.path:
     sys.path.insert(0, str(LIB_DIR))
 
-from mir_canonical_compare import canonicalize_module  # noqa: E402
+from mir_canonical_compare import canonicalize_module, summarize_first_raw_diff  # noqa: E402
 
 
 def _dump(payload: dict) -> str:
@@ -112,6 +112,17 @@ class MirCanonicalCompareTests(unittest.TestCase):
         lhs = _phi_bundle_module([2, 4, 3, 0, 1])
         rhs = _phi_bundle_module([2, 4, 3, 0, 0])
         self.assertNotEqual(_dump(lhs), _dump(rhs))
+
+    def test_summarize_first_raw_diff_reports_instruction_site(self) -> None:
+        lhs = _phi_bundle_module([2, 4, 3, 0, 1])
+        rhs = _phi_bundle_module([0, 1, 2, 3, 4])
+        summary = summarize_first_raw_diff(lhs, rhs)
+        self.assertIsNotNone(summary)
+        assert summary is not None
+        self.assertEqual(summary["function_name"], "PhiBundle.test/1")
+        self.assertEqual(summary["block_idx"], 1)
+        self.assertEqual(summary["inst_idx"], 1)
+        self.assertEqual(summary["reason"], "instruction_mismatch")
 
 
 if __name__ == "__main__":

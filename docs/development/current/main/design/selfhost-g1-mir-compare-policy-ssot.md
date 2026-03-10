@@ -72,6 +72,8 @@ Fast regression entry:
 - covers the two current allowed-noise shapes:
   - PHI-local copy bundle reorder
   - boxcall-local copy bundle reorder
+- runtime diagnostics:
+  - `tools/selfhost_identity_check.sh --mode full` prints the first raw MIR mismatch summary even when canonical compare passes, so the determinism lane can start from a concrete function/block/instruction site instead of a whole-file diff.
 
 Sequencing:
 1. Land the narrow canonical compare for the allowed noise only.

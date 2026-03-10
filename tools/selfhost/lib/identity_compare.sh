@@ -53,10 +53,12 @@ compare_mir_emit_outputs() {
   local rhs="$3"
   local diff_path="$4"
   local helper="$ROOT/tools/selfhost/lib/mir_canonical_compare.py"
-  local lhs_canon rhs_canon raw_diff_path
+  local lhs_canon rhs_canon raw_diff_path raw_summary
   lhs_canon="$(mktemp)"
   rhs_canon="$(mktemp)"
   raw_diff_path="${diff_path}.raw"
+
+  raw_summary="$(python3 "$helper" summarize-first-diff "$lhs" "$rhs" 2>/dev/null || true)"
 
   if ! python3 "$helper" canonicalize "$lhs" >"$lhs_canon"; then
     echo "[G1:FAIL] ${label} canonicalization failed for lhs" >&2
@@ -75,6 +77,9 @@ compare_mir_emit_outputs() {
     diff "$lhs_canon" "$rhs_canon" >"$diff_path" 2>&1 || true
     diff "$lhs" "$rhs" >"$raw_diff_path" 2>&1 || true
     echo "         Raw diff saved: ${raw_diff_path}" >&2
+    if [[ -n "$raw_summary" ]]; then
+      echo "         Raw first diff: ${raw_summary}" >&2
+    fi
     cleanup_compare_tmp "$lhs_canon" "$rhs_canon"
     return 1
   fi
@@ -88,6 +93,9 @@ compare_mir_emit_outputs() {
   diff "$lhs" "$rhs" >"$raw_diff_path" 2>&1 || true
   echo "[G1] ${label}: ✅ CANONICAL MATCH" >&2
   echo "     raw exact diff saved: ${raw_diff_path}" >&2
+  if [[ -n "$raw_summary" ]]; then
+    echo "     raw first diff: ${raw_summary}" >&2
+  fi
   cleanup_compare_tmp "$lhs_canon" "$rhs_canon"
   return 0
 }
