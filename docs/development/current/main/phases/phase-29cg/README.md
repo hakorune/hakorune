@@ -26,6 +26,9 @@ Related:
 Final direction:
 - bootstrap でも `Program(JSON v0)` bridge を常設の本線にしない
 - 最終的には `stage1-cli` / selfhost mirbuilder から direct MIR へ寄せ、bridge は retire target にする
+- current phase boundary:
+  - `phase-29cg` itself is not the MIR-direct unification phase
+  - it exists to remove exactly one Stage2 default-bootstrap dependency without reopening generic bridge cleanup
 
 ## Why a separate phase
 
@@ -47,6 +50,8 @@ Final direction:
 1. Stage2 default-bootstrap dependency を exact owner / exact condition で inventory 化する
 2. `stage1-cli` artifact で Stage2 build を stage1-first に寄せるための contract を定義する
 3. reduction を 1 箇所だけ切る acceptance を決める
+4. imported helper/source owners を reduced Stage2 object に 1 bucket だけ閉じる
+5. その成功を確認してから、次段で MIR-direct bootstrap unification phase を切る
 
 ## Contract Snapshot
 
@@ -92,6 +97,21 @@ Final direction:
 - therefore `phase-29cg` does not treat `stage1-cli` as a drop-in `NYASH_BIN`; it targets a narrower reduction:
   - lift the stage1-bridge helper contract into the Stage2 build path for one reduced case
   - then retire the bridge dependency itself once direct MIR parity is available for the reduced case
+
+## Restart Rule
+
+When resuming after reboot:
+
+1. keep the goal hierarchy explicit
+   - final goal: bootstrap also moves to MIR-direct
+   - current task: close one surrogate helper/source closure bucket in the bridge-first reduced Stage2 object
+2. do not re-open solved buckets
+   - bridge return-path
+   - extern classification
+   - current LLVM PHI repair
+3. prefer the smallest owner first
+   - `src/stage1/program_json_v0.rs`
+   - then, only if needed, `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
 
 ## Acceptance
 

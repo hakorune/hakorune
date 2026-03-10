@@ -64,6 +64,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - top-level aftercare is no longer the current blocker
 - selfhost mainline next:
   - return to de-rust selfhost feature work
+  - final direction is `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`; `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
   - treat `compat-fallback` as explicit compat keep, not as current workstream
   - treat Stage2 default bootstrap dependency as `phase-29cg` dedicated reduction target
   - `phase-29cf` deep inventory fixed:
@@ -75,6 +76,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `phase29x_derust_strict_default_route_vm.sh` is `done-sync keep` because `phase29x_derust_done_matrix_vm.sh` and the de-rust lane map still consume it as current evidence
     - `route_env_probe.sh` is `current diagnostics keep` because `route_no_fallback_guard.sh` and tools docs still treat it as the active route-probe contract
     - Stage2 current reduction target is exact: `tools/selfhost_identity_check.sh` keeps default bootstrap when artifact-kind is `stage1-cli`; `build_stage1.sh` now has an explicit bridge-first probe path. `stage1_contract_exec_mode ... emit-mir ...` is green and `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` proves the reduced `Program(JSON)->MIR->LLVM verify` lane is green. The current exact blocker is stage1 surrogate helper/source closure: `module_string_dispatch.rs` still returns empty prefix for `lang.compiler.entry.using_resolver_box.resolve_for_source`, `lang.compiler.build.build_box.emit_program_json_v0` still delegates to Rust `source_to_program_json_v0(...)`, and the resulting bridge-first Program(JSON) for `stage1_cli_env.hako` remains `defs_len=22` / `box=Main` only / `imports=[]`. The active blocker is therefore imported helper/source closure for the reduced Stage2 object.
+    - restart rule for `phase-29cg`: do not widen scope into generic bridge cleanup. First try the smallest reduction that closes imported helper/source owners for the reduced Stage2 object; only after that succeeds, start a separate MIR-direct bootstrap phase.
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
@@ -1377,6 +1379,20 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `tools/dev/direct_loop_progression_sweep.sh --profile phase29x-probe --allow-emit-fail`
 - allowlist guard:
   - `tools/dev/check_loop_pattern_context_allowlist.sh` (`loop_pattern_context` is a legacy filename token; script contract is still current)
+
+## Next Exact Steps
+
+1. keep `phase-29cg` docs-first and narrow:
+  - treat `Program(JSON v0)` as bootstrap-only bridge, not as final route
+  - do not reopen `phase-29cf` or generic bridge/fallback cleanup while `phase-29cg` is active
+2. fix exactly one owner bucket for the reduced Stage2 object:
+  - prefer `src/stage1/program_json_v0.rs` source/helper closure first
+  - if still needed, add minimal `using_resolver` closure in `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+3. rerun exact proof:
+  - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
+  - `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.stage2.bridge --force-rebuild`
+4. only after one Stage2 bootstrap dependency is actually reduced:
+  - open the next phase for MIR-direct bootstrap unification
 
 ## Archive
 
