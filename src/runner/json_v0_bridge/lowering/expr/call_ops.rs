@@ -11,6 +11,13 @@ pub(super) fn lower_call_expr<S: VarScope>(
     args: &[ExprV0],
     vars: &mut S,
 ) -> Result<(ValueId, BasicBlockId), String> {
+    if let Some((recv_alias, method)) = split_imported_alias_call(env, name) {
+        let recv = ExprV0::Var {
+            name: recv_alias.to_string(),
+        };
+        return lower_method_expr(env, f, cur_bb, &recv, method, args, vars);
+    }
+
     if name == "array.of" {
         let arr = f.next_value_id();
         if let Some(bb) = f.get_block_mut(cur_bb) {
@@ -97,6 +104,17 @@ pub(super) fn lower_call_expr<S: VarScope>(
         });
     }
     Ok((dst, cur))
+}
+
+fn split_imported_alias_call<'a>(env: &'a BridgeEnv, name: &'a str) -> Option<(&'a str, &'a str)> {
+    let (recv_alias, method) = name.split_once('.')?;
+    if recv_alias.is_empty() || method.is_empty() {
+        return None;
+    }
+    if !env.imports.contains_key(recv_alias) {
+        return None;
+    }
+    Some((recv_alias, method))
 }
 
 pub(super) fn lower_method_expr<S: VarScope>(

@@ -419,7 +419,7 @@ fn invoke_by_name_stage1_using_resolver_route_is_stubbed_empty_in_kernel_dispatc
 }
 
 #[test]
-fn invoke_by_name_stage1_build_box_route_keeps_stage1_cli_env_defs_main_only() {
+fn invoke_by_name_stage1_build_box_route_emits_stage1_cli_env_imports() {
     let receiver: Arc<dyn NyashBox> =
         Arc::new(StringBox::new("lang.compiler.build.build_box".to_string()));
     let receiver_handle = handles::to_handle_arc(receiver) as i64;
@@ -439,8 +439,16 @@ fn invoke_by_name_stage1_build_box_route_keeps_stage1_cli_env_defs_main_only() {
         "stage1 surrogate build_box should still be Main-only in kernel dispatch"
     );
     assert!(
-        !program_json.contains("\"imports\":"),
-        "stage1 surrogate build_box currently omits imports in kernel dispatch"
+        program_json.contains("\"imports\":"),
+        "stage1 surrogate build_box should now carry imports for stage1-cli env aliases"
+    );
+    assert!(
+        program_json.contains("\"BuildBox\":\"lang.compiler.build.build_box\""),
+        "stage1 surrogate build_box should include BuildBox import mapping"
+    );
+    assert!(
+        program_json.contains("\"FuncScannerBox\":\"lang.compiler.entry.func_scanner\""),
+        "stage1 surrogate build_box should include FuncScannerBox import mapping"
     );
 }
 

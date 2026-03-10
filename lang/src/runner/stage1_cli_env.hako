@@ -13,23 +13,14 @@ using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 using sh_core as StringHelpers
 static box Main {
   main() {
-    local mode = env.get("NYASH_STAGE1_MODE")
-    if mode == null || mode == "" || mode == "null" {
-      mode = env.get("HAKO_STAGE1_MODE")
-    }
-    if mode == null || mode == "null" {
-      mode = ""
-    }
-    local emit_program = env.get("STAGE1_EMIT_PROGRAM_JSON")
-    if emit_program == "1" || mode == "emit-program" || mode == "emit_program_json" || mode == "emit-program-json" {
+    local mode = me._resolve_mode()
+    if mode == "emit-program" {
       return me._run_emit_program_mode()
     }
-    local emit_mir = env.get("STAGE1_EMIT_MIR_JSON")
-    if emit_mir == "1" || mode == "emit-mir" || mode == "emit_mir_json" || mode == "emit-mir-json" {
+    if mode == "emit-mir" {
       return me._run_emit_mir_mode("[freeze:contract][stage1-cli/emit-mir]")
     }
-    local use_stage1 = env.get("NYASH_USE_STAGE1_CLI")
-    if use_stage1 == "1" || mode == "run" {
+    if mode == "run" {
       return me._run_emit_mir_mode("[freeze:contract][stage1-cli/run]")
     }
     return 97
@@ -76,42 +67,8 @@ static box Main {
   method _run_emit_mir_mode(tag) {
     local stage1_debug = env.get("STAGE1_CLI_DEBUG")
     local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
-    local src_json = null
-    local prog_json_path = env.get("HAKO_STAGE1_PROGRAM_JSON")
-    if prog_json_path == null || prog_json_path == "" { prog_json_path = env.get("NYASH_STAGE1_PROGRAM_JSON") }
-    if prog_json_path == null || prog_json_path == "" { prog_json_path = env.get("STAGE1_PROGRAM_JSON") }
-    if prog_json_path != null && prog_json_path != "" {
-      local hako_prog_json_text = env.get("HAKO_STAGE1_PROGRAM_JSON_TEXT")
-      local nyash_prog_json_text = env.get("NYASH_STAGE1_PROGRAM_JSON_TEXT")
-      local stage1_prog_json_text = env.get("STAGE1_PROGRAM_JSON_TEXT")
-      if stage1_debug_on {
-        print("[stage1-cli/debug] emit-mir path.len=" + me._debug_len_inline(prog_json_path) + " preview=" + me._debug_preview_inline(prog_json_path))
-        print("[stage1-cli/debug] emit-mir HAKO_STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(hako_prog_json_text) + " preview=" + me._debug_preview_inline(hako_prog_json_text))
-        print("[stage1-cli/debug] emit-mir NYASH_STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(nyash_prog_json_text) + " preview=" + me._debug_preview_inline(nyash_prog_json_text))
-        print("[stage1-cli/debug] emit-mir STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(stage1_prog_json_text) + " preview=" + me._debug_preview_inline(stage1_prog_json_text))
-      }
-      src_json = hako_prog_json_text
-      if src_json == null || src_json == "" { src_json = nyash_prog_json_text }
-      if src_json == null || src_json == "" { src_json = stage1_prog_json_text }
-      if src_json == null {
-        print("[freeze:contract][stage1-cli/emit-mir] Program(JSON) text is required")
-        return 96
-      }
-      if src_json == "" {
-        print("[freeze:contract][stage1-cli/emit-mir] Program(JSON) text is required")
-        return 96
-      }
-    } else {
-      src_json = env.get("STAGE1_SOURCE_TEXT")
-    }
-    if src_json == null {
-      print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
-      return 96
-    }
-    if src_json == "" {
-      print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
-      return 96
-    }
+    local src_json = me._resolve_emit_mir_input_text(tag)
+    if src_json == null { return 96 }
     if stage1_debug_on {
       print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(src_json) + " preview=" + me._debug_preview_inline(src_json))
     }
@@ -137,7 +94,7 @@ static box Main {
     local mir_text_head = mir_text.substring(0, 1)
     local mir_text_head_is_lbrace = 0
     if mir_text_head == "{" { mir_text_head_is_lbrace = 1 }
-    local mir_text_has_functions = mir_text.indexOf("\"functions\"")
+    local mir_text_has_functions = mir_text.indexOf("functions")
     local mir_text_has_functions_flag = 0
     if mir_text_has_functions >= 0 { mir_text_has_functions_flag = 1 }
     if stage1_debug_on {
@@ -202,10 +159,45 @@ static box Main {
       print(mir)
       return 96
     }
-    local has_functions = mir.indexOf("\"functions\"")
+    local has_functions = mir.indexOf("functions")
     if has_functions < 0 { return 96 }
     print(mir)
     return 0
+  }
+
+  method _resolve_emit_mir_input_text(tag) {
+    local stage1_debug = env.get("STAGE1_CLI_DEBUG")
+    local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
+    local prog_json_path = me._resolve_program_json_path()
+    if prog_json_path != null && prog_json_path != "" {
+      local hako_prog_json_text = me._clean_env_value(env.get("HAKO_STAGE1_PROGRAM_JSON_TEXT"))
+      local nyash_prog_json_text = me._clean_env_value(env.get("NYASH_STAGE1_PROGRAM_JSON_TEXT"))
+      local stage1_prog_json_text = me._clean_env_value(env.get("STAGE1_PROGRAM_JSON_TEXT"))
+      if stage1_debug_on {
+        print("[stage1-cli/debug] emit-mir path.len=" + me._debug_len_inline(prog_json_path) + " preview=" + me._debug_preview_inline(prog_json_path))
+        print("[stage1-cli/debug] emit-mir HAKO_STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(hako_prog_json_text) + " preview=" + me._debug_preview_inline(hako_prog_json_text))
+        print("[stage1-cli/debug] emit-mir NYASH_STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(nyash_prog_json_text) + " preview=" + me._debug_preview_inline(nyash_prog_json_text))
+        print("[stage1-cli/debug] emit-mir STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(stage1_prog_json_text) + " preview=" + me._debug_preview_inline(stage1_prog_json_text))
+      }
+      if hako_prog_json_text != null && hako_prog_json_text != "" {
+        return hako_prog_json_text
+      }
+      if nyash_prog_json_text != null && nyash_prog_json_text != "" {
+        return nyash_prog_json_text
+      }
+      if stage1_prog_json_text != null && stage1_prog_json_text != "" {
+        return stage1_prog_json_text
+      }
+      print(tag + " Program(JSON) text is required")
+      return null
+    }
+
+    local prog_json = me._build_program_json()
+    if prog_json != null && prog_json != "" {
+      return prog_json
+    }
+    print(tag + " input missing source/program-json contract")
+    return null
   }
 
   method _inject_entry_user_box_decls_if_needed(mir_json) {
@@ -214,13 +206,38 @@ static box Main {
     if entry == null || entry == "" { entry = env.get("STAGE1_SOURCE") }
     if entry == null || entry == "" { entry = env.get("STAGE1_INPUT") }
     if entry == null || entry == "" { return mir_json }
-    if entry.indexOf("stage1_cli_env.hako") >= 0 {
-      return me._inject_root_user_box_decls_inline(
-        mir_json,
-        "[{\"name\":\"Main\",\"fields\":[]}]"
-      )
+    local source_text = me._load_source_text_from_path_inline(entry)
+    if source_text == null || source_text == "" {
+      source_text = me._resolve_source_text()
+    }
+    local decls = me._build_user_box_decls_json_inline(source_text)
+    if decls == null || decls == "" || decls == "[]" {
+      if source_text != null && source_text != "" {
+        if source_text.indexOf("static box Main") >= 0 || source_text.indexOf("box Main") >= 0 {
+          decls = "[{\"name\":\"Main\",\"fields\":[]}]"
+        }
+      }
+    }
+    if (decls == null || decls == "" || decls == "[]") && entry.indexOf("stage1_cli_env.hako") >= 0 {
+      decls = "[{\"name\":\"Main\",\"fields\":[]}]"
+    }
+    if decls != null && decls != "" && decls != "[]" {
+      return me._inject_root_user_box_decls_inline(mir_json, decls)
     }
     return mir_json
+  }
+
+  method _load_source_text_from_path_inline(source) {
+    if source == null || source == "" { return "" }
+    local fb = new FileBox()
+    local ok = fb.open(source, "r")
+    if ok != 1 {
+      return ""
+    }
+    local loaded = fb.read()
+    fb.close()
+    if loaded == null { return "" }
+    return loaded
   }
 
   method _inject_root_user_box_decls_inline(mir_json, user_box_decls_json) {
@@ -242,74 +259,117 @@ static box Main {
   }
 
   method _build_program_json() {
-    local text = env.get("STAGE1_SOURCE_TEXT")
-    if text == null || text == "" {
-      local source = env.get("HAKO_STAGE1_INPUT")
-      if source == null || source == "" { source = env.get("NYASH_STAGE1_INPUT") }
-      if source == null || source == "" { source = env.get("STAGE1_SOURCE") }
-      if source == null || source == "" { source = env.get("STAGE1_INPUT") }
-      if source == null || source == "" {
-        print("[stage1-cli] emit program-json: STAGE1_SOURCE is required")
-        return null
-      }
-      local fb = new FileBox()
-      local ok = fb.open(source, "r")
-      if ok != 1 {
-        print("[stage1-cli] emit program-json: failed to open " + source)
-        return null
-      }
-      text = fb.read()
-      fb.close()
-    }
-
-    if text == null || text == "" {
-      print("[stage1-cli] emit program-json: source is empty")
-      return null
-    }
+    local text = me._resolve_emit_program_source_text()
+    if text == null { return null }
 
     local prefix = Stage1UsingResolverBox.resolve_for_source(text)
     if prefix == null { prefix = "" }
     local merged = prefix + text
 
-    local prog = BuildBox.emit_program_json_v0(merged, null)
-    if prog == null {
+    local raw_prog = BuildBox.emit_program_json_v0(merged, null)
+    if raw_prog == null {
       print("[freeze:contract][stage1-cli/emit-program] BuildBox.emit_program_json_v0 returned null")
       return null
     }
-    if prog.indexOf("\"defs\"") < 0 {
-      local defs_json = me._build_main_defs_fragment_inline(text)
-      if env.get("STAGE1_CLI_DEBUG") == "1" {
-        if defs_json == null {
-          print("[stage1-cli/debug] emit-program defs-json:null")
-        } else if defs_json == "" {
-          print("[stage1-cli/debug] emit-program defs-json:empty")
-        } else {
-          print("[stage1-cli/debug] emit-program defs-json:present")
-        }
-      }
-      if defs_json != "" && defs_json.length() > 0 {
-        prog = me._inject_json_fragment_inline(prog, defs_json)
-      }
-    } else {
+    local prog = "" + raw_prog
+    if prog.indexOf("defs") >= 0 {
       if env.get("STAGE1_CLI_DEBUG") == "1" {
         print("[stage1-cli/debug] emit-program defs-json:already-present")
       }
+      return prog
     }
-    local has_kind = prog.indexOf("\"kind\":\"Program\"")
-    local has_version = prog.indexOf("\"version\":0")
-    if has_kind < 0 || has_version < 0 {
-      if env.get("STAGE1_CLI_DEBUG") == "1" {
-        print("[stage1-cli/debug] emit-program output.len=" + me._debug_len_inline(prog) +
-              " preview=" + me._debug_preview_inline(prog))
+
+    local defs_json = ""
+    if me._should_synthesize_entry_defs_inline() == 1 {
+      defs_json = me._build_main_defs_fragment_inline(text)
+    }
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      if defs_json == null {
+        print("[stage1-cli/debug] emit-program defs-json:null")
+      } else if defs_json == "" {
+        print("[stage1-cli/debug] emit-program defs-json:empty")
+      } else {
+        print("[stage1-cli/debug] emit-program defs-json:present")
       }
-      print("[freeze:contract][stage1-cli/emit-program] BuildBox output missing Program(JSON v0) markers")
-      return null
+    }
+    if defs_json != null && defs_json != "" && defs_json.length() > 0 {
+      if prog.indexOf("defs") < 0 {
+        prog = me._inject_json_fragment_inline(prog, defs_json)
+      }
     }
     return prog
   }
 
+  method _should_synthesize_entry_defs_inline() {
+    local source = me._resolve_source_path()
+    if source == null || source == "" { return 0 }
+    if source.indexOf("stage1_cli_env.hako") >= 0 { return 1 }
+    if source.indexOf("launcher.hako") >= 0 { return 1 }
+    return 0
+  }
+
+  method _resolve_emit_program_source_text() {
+    local text = me._resolve_source_text()
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] emit-program resolved-text.len=" + me._debug_len_inline(text) +
+            " preview=" + me._debug_preview_inline(text))
+    }
+    if text != null && text != "" {
+      return text
+    }
+
+    local source = me._resolve_source_path()
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] emit-program resolved-source.len=" + me._debug_len_inline(source) +
+            " preview=" + me._debug_preview_inline(source))
+    }
+    if source == null || source == "" {
+      print("[stage1-cli] emit program-json: STAGE1_SOURCE is required")
+      return null
+    }
+
+    local fb = new FileBox()
+    local ok = fb.open(source, "r")
+    if ok != 1 {
+      print("[stage1-cli] emit program-json: failed to open " + source)
+      return null
+    }
+    local loaded = fb.read()
+    fb.close()
+
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] emit-program loaded-text.len=" + me._debug_len_inline(loaded) +
+            " preview=" + me._debug_preview_inline(loaded))
+    }
+    if loaded == null || loaded == "" {
+      print("[stage1-cli] emit program-json: source is empty")
+      return null
+    }
+    return loaded
+  }
+
+  method _resolve_source_text() {
+    return me._clean_env_value(env.get("STAGE1_SOURCE_TEXT"))
+  }
+
+  method _resolve_source_path() {
+    local source = me._clean_env_value(env.get("HAKO_STAGE1_INPUT"))
+    if source == "" { source = me._clean_env_value(env.get("NYASH_STAGE1_INPUT")) }
+    if source == "" { source = me._clean_env_value(env.get("STAGE1_SOURCE")) }
+    if source == "" { source = me._clean_env_value(env.get("STAGE1_INPUT")) }
+    return source
+  }
+
+  method _resolve_program_json_path() {
+    local path = me._clean_env_value(env.get("HAKO_STAGE1_PROGRAM_JSON"))
+    if path == "" { path = me._clean_env_value(env.get("NYASH_STAGE1_PROGRAM_JSON")) }
+    if path == "" { path = me._clean_env_value(env.get("STAGE1_PROGRAM_JSON")) }
+    return path
+  }
+
   method _build_main_defs_fragment_inline(source_text) {
-    local scanned_methods = FuncScannerBox.scan_all_boxes(source_text)
+    local scan_source = FuncScannerBox._strip_comments(source_text)
+    local scanned_methods = FuncScannerBox.scan_all_boxes(scan_source)
     if scanned_methods != null && scanned_methods.length() > 0 {
       local scanned_defs = StageBJsonBuilderBox.build_defs_json(scanned_methods)
       if env.get("STAGE1_CLI_DEBUG") == "1" {
@@ -670,6 +730,39 @@ static box Main {
       return ""
     }
     return s
+  }
+
+  method _build_user_box_decls_json_inline(source_text) {
+    if source_text == null || source_text == "" { return "" }
+    local scan_source = FuncScannerBox._strip_comments(source_text)
+    local methods = FuncScannerBox.scan_all_boxes(scan_source)
+    if methods == null { return "" }
+    local cnt = methods.length()
+    if cnt <= 0 { return "" }
+
+    local out = "["
+    local first = 1
+    local seen = "|"
+    local i = 0
+    loop(i < cnt) {
+      local def = methods.get(i)
+      if def != null {
+        local box_name = "" + def.get("box")
+        if box_name != null && box_name != "" {
+          local marker = "|" + box_name + "|"
+          if seen.indexOf(marker) < 0 {
+            if first == 0 { out = out + "," }
+            out = out + "{\"name\":\"" + box_name + "\",\"fields\":[]}"
+            seen = seen + box_name + "|"
+            first = 0
+          }
+        }
+      }
+      i = i + 1
+    }
+    out = out + "]"
+    if first == 1 { return "" }
+    return out
   }
 
 }

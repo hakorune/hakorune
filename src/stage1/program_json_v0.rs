@@ -1,12 +1,16 @@
 use crate::ast::ASTNode;
 use crate::parser::NyashParser;
+use std::collections::BTreeMap;
 
 #[path = "program_json_v0/extract.rs"]
 mod extract;
 #[path = "program_json_v0/lowering.rs"]
 mod lowering;
 
-use extract::{extract_static_main_body_text, find_static_main_box};
+use extract::{
+    collect_using_imports, extract_static_main_body_text, find_static_main_box,
+    preexpand_dev_local_aliases,
+};
 use lowering::{defs_json_v0_from_methods, program_json_v0_from_body};
 
 fn trace_enabled() -> bool {
@@ -14,20 +18,23 @@ fn trace_enabled() -> bool {
 }
 
 pub fn source_to_program_json_v0(source_text: &str) -> Result<String, String> {
-    match NyashParser::parse_from_string(source_text) {
-        Ok(ast) => match ast_to_program_json_v0(&ast) {
+    let imports = collect_using_imports(source_text);
+    let normalized_source = preexpand_dev_local_aliases(source_text);
+    match NyashParser::parse_from_string(&normalized_source) {
+        Ok(ast) => match ast_to_program_json_v0_with_imports(&ast, imports.clone()) {
             Ok(json) => Ok(json),
             Err(primary_error)
                 if primary_error == "expected `static box Main { main() { ... } }`" =>
             {
-                fallback_static_main_body(source_text, primary_error)
+                fallback_static_main_body(&normalized_source, primary_error, imports)
             }
             Err(primary_error) => Err(primary_error),
         },
         Err(primary_error) => {
             fallback_static_main_body(
-                source_text,
+                &normalized_source,
                 format!("parse error (Rust parser, v0 subset): {}", primary_error),
+                imports,
             )
         }
     }
@@ -36,23 +43,32 @@ pub fn source_to_program_json_v0(source_text: &str) -> Result<String, String> {
 fn fallback_static_main_body(
     source_text: &str,
     primary_error: impl Into<String>,
+    imports: BTreeMap<String, String>,
 ) -> Result<String, String> {
     let primary_error = primary_error.into();
     let body = extract_static_main_body_text(source_text).ok_or(primary_error.clone())?;
     let wrapped = format!("static box Main {{ main(args) {{\n{}\n}} }}", body);
     let ast = NyashParser::parse_from_string(&wrapped)
         .map_err(|fallback_error| format!("{}; fallback parse error: {}", primary_error, fallback_error))?;
-    ast_to_program_json_v0(&ast)
+    ast_to_program_json_v0_with_imports(&ast, imports)
 }
 
 pub fn ast_to_program_json_v0(ast: &ASTNode) -> Result<String, String> {
+    ast_to_program_json_v0_with_imports(ast, BTreeMap::new())
+}
+
+fn ast_to_program_json_v0_with_imports(
+    ast: &ASTNode,
+    imports: BTreeMap<String, String>,
+) -> Result<String, String> {
     let main_box = find_static_main_box(ast)
         .ok_or_else(|| "expected `static box Main { main() { ... } }`".to_string())?;
     if trace_enabled() {
         eprintln!(
-            "[stage1/program_json_v0] main_body_stmts={} helper_defs={}",
+            "[stage1/program_json_v0] main_body_stmts={} helper_defs={} imports={}",
             main_box.body.len(),
-            main_box.helper_methods.len()
+            main_box.helper_methods.len(),
+            imports.len()
         );
     }
     let mut program = program_json_v0_from_body(main_box.body)?;
@@ -65,6 +81,16 @@ pub fn ast_to_program_json_v0(ast: &ASTNode) -> Result<String, String> {
             .as_object_mut()
             .ok_or_else(|| "program json root must be object".to_string())?;
         object.insert("defs".to_string(), serde_json::Value::Array(defs));
+    }
+    if !imports.is_empty() {
+        let object = program
+            .as_object_mut()
+            .ok_or_else(|| "program json root must be object".to_string())?;
+        object.insert(
+            "imports".to_string(),
+            serde_json::to_value(imports)
+                .map_err(|error| format!("imports serialize error: {}", error))?,
+        );
     }
     serde_json::to_string(&program).map_err(|error| format!("serialize error: {}", error))
 }
@@ -145,7 +171,31 @@ static box Main {
     fn source_to_program_json_v0_accepts_stage1_cli_env_source() {
         let source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
         let json = source_to_program_json_v0(source).expect("program json");
-        assert!(json.contains("\"kind\":\"Program\""));
-        assert!(json.contains("\"version\":0"));
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        assert_eq!(value["kind"], "Program");
+        assert_eq!(value["version"], 0);
+        assert_eq!(value["imports"]["BuildBox"], "lang.compiler.build.build_box");
+        assert_eq!(
+            value["imports"]["Stage1UsingResolverBox"],
+            "lang.compiler.entry.using_resolver_box"
+        );
+        assert_eq!(value["imports"]["StringHelpers"], "sh_core");
+    }
+
+    #[test]
+    fn source_to_program_json_v0_accepts_dev_local_alias_sugar() {
+        let source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
+        let json = source_to_program_json_v0(source).expect("program json");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        assert_eq!(value["kind"], "Program");
+        assert_eq!(value["version"], 0);
+        assert!(value["body"].is_array());
     }
 }

@@ -225,4 +225,35 @@ mod tests {
         let mir_json = result.unwrap();
         assert!(mir_json.contains("functions"));
     }
+
+    #[test]
+    fn test_imported_alias_qualified_call_uses_json_imports() {
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "imports": {
+                "BuildBox": "lang.compiler.build.build_box"
+            },
+            "body": [
+                {
+                    "type": "Return",
+                    "expr": {
+                        "type": "Call",
+                        "name": "BuildBox.emit_program_json_v0",
+                        "args": [
+                            {"type": "Str", "value": "box MainBox { method main() { return 1 } }"},
+                            {"type": "Null"}
+                        ]
+                    }
+                }
+            ]
+        }"#;
+
+        let result = program_json_to_mir_json(program_json);
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+
+        let mir_json = result.unwrap();
+        assert!(mir_json.contains("lang.compiler.build.build_box"));
+        assert!(!mir_json.contains("\"BuildBox.emit_program_json_v0\""));
+    }
 }

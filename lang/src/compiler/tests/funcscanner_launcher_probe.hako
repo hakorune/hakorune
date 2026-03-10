@@ -1,0 +1,52 @@
+// funcscanner_launcher_probe.hako
+//
+// Purpose:
+// - Probe FuncScannerBox.scan_all_boxes against launcher.hako source.
+// - Compare raw source vs comment-stripped source so bootstrap failures can be
+//   pinned to scanner input shape instead of stage1 runner glue.
+
+using lang.compiler.entry.func_scanner as FuncScannerBox
+
+static box Main {
+  main() {
+    local path = "lang/src/runner/launcher.hako"
+    local fb = new FileBox()
+    if fb.open(path, "r") != 1 {
+      print("[funcscanner/launcher_probe] open failed: " + path)
+      return 2
+    }
+
+    local raw = fb.read()
+    fb.close()
+    if raw == null || raw == "" {
+      print("[funcscanner/launcher_probe] source empty")
+      return 3
+    }
+
+    local stripped = FuncScannerBox._strip_comments(raw)
+    me._dump_defs("raw", FuncScannerBox.scan_all_boxes(raw))
+    me._dump_defs("stripped", FuncScannerBox.scan_all_boxes(stripped))
+    return 0
+  }
+
+  method _dump_defs(tag, defs) {
+    if defs == null {
+      print("[funcscanner/launcher_probe] " + tag + " defs=null")
+      return
+    }
+
+    local n = defs.length()
+    print("[funcscanner/launcher_probe] " + tag + " defs.len=" + ("" + n))
+
+    local i = 0
+    loop(i < n) {
+      local d = defs.get(i)
+      print(
+        "[funcscanner/launcher_probe] " + tag +
+        " def[" + ("" + i) + "] box=" + ("" + d.get("box")) +
+        " name=" + ("" + d.get("name"))
+      )
+      i = i + 1
+    }
+  }
+}

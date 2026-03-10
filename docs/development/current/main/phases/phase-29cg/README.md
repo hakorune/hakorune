@@ -78,22 +78,19 @@ Final direction:
       - `src/mir/passes/callsite_canonicalize.rs`
       - `src/runner/json_v0_bridge/lowering/program.rs`
       - both now suffix unsuffixed dotted helper `Global` callees when a matching `name/arity` definition exists
-    - current exact blocker in that path is surrogate helper/source closure in the stage1 bridge lane
+    - the current reduced-case helper/source closure bucket is now closed in the stage1 bridge lane
     - kernel-direct `lang.compiler.entry.using_resolver_box.resolve_for_source` is intentionally stubbed empty in `module_string_dispatch.rs`
     - kernel-direct `lang.compiler.build.build_box.emit_program_json_v0` delegates to Rust `source_to_program_json_v0(...)`, which materializes entry-local `Main` helper defs only
-    - as a result, the bridge-first Program(JSON v0) for `stage1_cli_env.hako` still has `defs_len=22`, `box=Main` only, and `imports` empty
-    - the reduced Stage2 object therefore keeps imported helper owners unresolved:
-      - `FuncScannerBox.*`
-      - `StageBJsonBuilderBox.*`
-      - `Stage1UsingResolverBox.*`
-      - `BuildBox.emit_program_json_v0`
-      - `MirBuilderBox.emit_from_program_json_v0`
-      - `BoxTypeInspectorBox.*`
-      - `StringHelpers.int_to_str`
-    - the next reduction owner is therefore stage1 surrogate helper/source closure in:
-      - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
-      - `src/stage1/program_json_v0.rs`
-      not bridge return-path, extern classification, or current LLVM PHI repair
+    - the reduced bridge-first Program(JSON v0) path now carries `imports` for `using ... as ...`, bridge alias-lowering routes those imports into MIR lowering, and `stage1_cli_env.hako` env-mode source/program-json contracts no longer false-negative on fresh `.next` artifacts
+    - exact reduced-case proof is now green:
+      - `bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
+      - `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.next --force-rebuild`
+      - direct env-mode probe on `apps/tests/hello_simple_llvm.hako` passes for both `emit-program` and `emit-mir` on the fresh `.next` artifact
+      - `tools/selfhost_identity_check.sh --mode smoke` passes with `stage1-cli bridge-first bootstrap`
+      - `tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` also passes
+      - `tools/selfhost_identity_check.sh --mode full` also passes with build enabled
+    - this closes the current surrogate helper/source closure bucket without reopening `module_string_dispatch.rs`
+    - the next reduction step is therefore to freeze/promote this solved bucket and hand off to `phase-29ch` for MIR-direct bootstrap unification, not to reopen bridge return-path, extern classification, current LLVM PHI repair, or ad-hoc JSON v0 deletion
 - therefore `phase-29cg` does not treat `stage1-cli` as a drop-in `NYASH_BIN`; it targets a narrower reduction:
   - lift the stage1-bridge helper contract into the Stage2 build path for one reduced case
   - then retire the bridge dependency itself once direct MIR parity is available for the reduced case
@@ -124,6 +121,6 @@ When resuming after reboot:
 - `tools/selfhost_identity_check.sh` の current fallback note がどの条件で出るか docs から一意に読める
 - checklist に `owner / blocker / acceptance / non-goal` が揃っている
 - `stage1-cli` reduction target is stated as `bridge-first Stage2 build`, not as `raw NYASH_BIN replacement`
-- current G1 route is unchanged until the bridge-first Stage2 object closes helper/runtime symbols for the reduced case
-- exact next reduction focus is surrogate helper/source closure for the bridge-first Stage2 object, not bridge return-path, extern classification, or current LLVM PHI wiring
+- reduced G1 smoke route can now use `stage1-cli bridge-first bootstrap`, the same prebuilt Stage1/Stage2 pair already passes `full --skip-build`, and build-enabled `full` is also green; wider G1 authority and generic MIR-direct unification remain out of scope for this phase
+- exact next reduction focus is to freeze/promote the solved reduced case and then pick the next Stage2 bootstrap slice, not bridge return-path, extern classification, or current LLVM PHI wiring
 - mixed worker stash lanes outside that narrow Rust fix remain deferred until they can be split into single-owner patches

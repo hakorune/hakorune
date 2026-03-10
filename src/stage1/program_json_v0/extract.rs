@@ -76,6 +76,137 @@ pub(super) fn extract_static_main_body_text(source: &str) -> Option<String> {
     Some(source[open_brace + 1..close_brace].to_string())
 }
 
+pub(super) fn collect_using_imports(source: &str) -> BTreeMap<String, String> {
+    let mut imports = BTreeMap::new();
+
+    for raw_line in source.lines() {
+        let line = strip_line_comment(raw_line).trim();
+        let Some(rest) = line.strip_prefix("using ") else {
+            continue;
+        };
+        let Some((target, alias)) = split_using_alias(rest) else {
+            continue;
+        };
+        if target.is_empty() || alias.is_empty() {
+            continue;
+        }
+        imports.insert(alias.to_string(), strip_wrapping_quotes(target).to_string());
+    }
+
+    imports
+}
+
+pub(super) fn preexpand_dev_local_aliases(source: &str) -> String {
+    let mut out = String::with_capacity(source.len());
+    for raw_line in source.split_inclusive('\n') {
+        out.push_str(&preexpand_dev_local_alias_line(raw_line));
+    }
+    out
+}
+
+fn preexpand_dev_local_alias_line(line: &str) -> String {
+    let (body, ending) = split_line_ending(line);
+    let indent_len = body
+        .as_bytes()
+        .iter()
+        .take_while(|byte| matches!(**byte, b' ' | b'\t'))
+        .count();
+    let indent = &body[..indent_len];
+    let rest = &body[indent_len..];
+    let Some(stripped) = rest.strip_prefix('@') else {
+        return line.to_string();
+    };
+
+    let ident_len = stripped
+        .as_bytes()
+        .iter()
+        .take_while(|byte| byte.is_ascii_alphanumeric() || **byte == b'_')
+        .count();
+    if ident_len == 0 {
+        return line.to_string();
+    }
+
+    let mut cursor = ident_len;
+    let bytes = stripped.as_bytes();
+    while cursor < bytes.len() && matches!(bytes[cursor], b' ' | b'\t') {
+        cursor += 1;
+    }
+    if cursor < bytes.len() && bytes[cursor] == b':' {
+        cursor += 1;
+        while cursor < bytes.len() && matches!(bytes[cursor], b' ' | b'\t') {
+            cursor += 1;
+        }
+        let type_len = stripped[cursor..]
+            .as_bytes()
+            .iter()
+            .take_while(|byte| byte.is_ascii_alphanumeric() || **byte == b'_')
+            .count();
+        if type_len == 0 {
+            return line.to_string();
+        }
+        cursor += type_len;
+        while cursor < bytes.len() && matches!(bytes[cursor], b' ' | b'\t') {
+            cursor += 1;
+        }
+    }
+    if cursor >= bytes.len() || bytes[cursor] != b'=' {
+        return line.to_string();
+    }
+
+    let local_decl = &rest[1..];
+    format!("{indent}local {local_decl}{ending}")
+}
+
+fn split_line_ending(line: &str) -> (&str, &str) {
+    if let Some(body) = line.strip_suffix("\r\n") {
+        return (body, "\r\n");
+    }
+    if let Some(body) = line.strip_suffix('\n') {
+        return (body, "\n");
+    }
+    (line, "")
+}
+
+fn split_using_alias(rest: &str) -> Option<(&str, &str)> {
+    let (target, alias) = rest.rsplit_once(" as ")?;
+    Some((target.trim(), alias.trim()))
+}
+
+fn strip_wrapping_quotes(text: &str) -> &str {
+    if text.len() >= 2 && text.starts_with('"') && text.ends_with('"') {
+        &text[1..text.len() - 1]
+    } else {
+        text
+    }
+}
+
+fn strip_line_comment(line: &str) -> &str {
+    let mut in_string = false;
+    let mut escaped = false;
+
+    for (index, ch) in line.char_indices() {
+        if in_string {
+            if escaped {
+                escaped = false;
+            } else if ch == '\\' {
+                escaped = true;
+            } else if ch == '"' {
+                in_string = false;
+            }
+            continue;
+        }
+        if ch == '"' {
+            in_string = true;
+            continue;
+        }
+        if ch == '/' && line[index..].starts_with("//") {
+            return &line[..index];
+        }
+    }
+
+    line
+}
+
 fn find_next_uncommented_char(source: &str, start: usize, needle: char) -> Option<usize> {
     let bytes = source.as_bytes();
     let mut index = start;
@@ -216,4 +347,41 @@ fn find_matching_brace(source: &str, open_pos: usize) -> Option<usize> {
         index += 1;
     }
     None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{collect_using_imports, preexpand_dev_local_aliases};
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn preexpand_dev_local_aliases_rewrites_line_head_locals_only() {
+        let source = "  @argc = 0\n@name: String = \"x\"\n@hint(inline)\ncall(@argc)\n";
+        let expanded = preexpand_dev_local_aliases(source);
+        assert!(expanded.contains("  local argc = 0\n"));
+        assert!(expanded.contains("local name: String = \"x\"\n"));
+        assert!(expanded.contains("@hint(inline)\n"));
+        assert!(expanded.contains("call(@argc)\n"));
+    }
+
+    #[test]
+    fn collect_using_imports_keeps_alias_to_namespace_path() {
+        let source = r#"
+using lang.compiler.build.build_box as BuildBox
+using "apps/foo/bar.hako" as BarBox
+using sh_core as StringHelpers // comment
+using lang.compiler.entry.func_scanner
+"#;
+
+        let imports = collect_using_imports(source);
+        let expected = BTreeMap::from([
+            ("BarBox".to_string(), "apps/foo/bar.hako".to_string()),
+            (
+                "BuildBox".to_string(),
+                "lang.compiler.build.build_box".to_string(),
+            ),
+            ("StringHelpers".to_string(), "sh_core".to_string()),
+        ]);
+        assert_eq!(imports, expected);
+    }
 }

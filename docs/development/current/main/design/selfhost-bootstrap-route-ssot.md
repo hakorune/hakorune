@@ -12,6 +12,7 @@ Related:
 - docs/development/current/main/design/hako-mirbuilder-migration-phase0-entry-contract-ssot.md
 - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
 - docs/development/current/main/phases/phase-29cf/README.md
+- docs/development/current/main/phases/phase-29ch/README.md
 - docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md
 - docs/development/current/main/design/pyvm-retreat-ssot.md
 
@@ -26,6 +27,12 @@ selfhost を目的化せず、compiler-first の方針を守りつつ、
 新規fixture追加や受理拡張は、freeze/reject・回帰・Decision変更が出た時だけ行い、
 日常は軽量 gate で健康診断を回す。
 
+Current blocker (2026-03-10):
+- reduced `stage1-cli` authority itself remains green
+- the next widening target `launcher-exe` is blocked by `FuncScannerBox.scan_all_boxes(...)` not producing local helper closure for `launcher.hako`
+- direct probe `target/release/hakorune --backend vm lang/src/compiler/tests/funcscanner_launcher_probe.hako` freezes in `FuncScannerBox._scan_methods/4` with `[joinir/reject_detail] box=generic_loop_v0 reason=no_valid_loop_var_candidates`
+- classify this as `BoxCount` (`compiler expressivity / JoinIR acceptance`), not as route-script `BoxShape`
+
 SSOT:
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
 
@@ -34,15 +41,20 @@ SSOT:
 - mainline selfhost route は `stage1` / semantic wrapper / no-fallback を正本とする
 - `phase-29cf` が `VM fallback compat lane` と `bootstrap boundary reduction` を accepted monitor-only で独立管理する
 - `phase-29cg` が `stage1-cli` 時の Stage2 default-bootstrap dependency reduction を docs-first で管理する
+- `phase-29ch` は `phase-29cg` の solved reduced case を入力に、MIR-direct bootstrap unification を別 phase で扱う
 - `phase-29cg` の current contract は `raw NYASH_BIN replacement` ではなく `stage1-bridge helper contract を Stage2 build に持ち込む reduction` である
 - `compat-fallback` は explicit compat keep であり、current caller authority は `phase29x_vm_route_non_strict_compat_boundary_vm.sh` / `phase29x_vm_route_observability_vm.sh` / `phase29x_vm_route_strict_dev_priority_vm.sh` に限定する
 - 上の3本はさらに `route observability keep` / `strict-dev priority keep` / `non-strict compat boundary keep` に分けて扱い、generic monitor-only probe と混同しない
 - `phase29x_derust_strict_default_route_vm.sh` は de-rust done-sync keep、`route_env_probe.sh` は current diagnostics keep、plugin route-resolver test は plugin test keep として別 bucket で管理する
 - binary-only `--hako-emit-mir-json` / `--hako-run` は ported contract として monitor-only 運用する
 - G1 identity (`tools/selfhost_identity_check.sh --mode full`) は現行 bootstrap contract の正本として維持する
-- `tools/selfhost_identity_check.sh` は artifact-kind=`stage1-cli` 時に Stage2 build を default bootstrap へ落とす。この 1 点が bootstrap reduction の next concrete target である
-- exact probe では `target/selfhost/hakorune.stage1_cli` は raw direct contract (`emit ...` / `--emit-mir-json`) で `97` を返す一方、`stage1_contract_exec_mode` 経由では Program(JSON) emit までは通る。したがって reduction target は `stage1-cli` binary の raw replacement ではなく、stage1-bridge helper contract の Stage2 build への昇格である
-- `build_stage1.sh` には experimental `stage1-cli bridge-first` bootstrap path を追加済みで、`stage1_cli_env.hako` の Program(JSON) helper defs は current source では materialize し、`stage1_contract_exec_mode ... emit-mir ...` も current contract では green になった。`HAKO_STAGE1_MODULE_DISPATCH_TRACE=1` では `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` hit の後に `output_bytes=213003` / `output_handle=97` が返り、`tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` でも `verify_rc=0` を確認できる。ただし bridge-first Stage2 object は still entry-local `Main` helper defs しか materialize せず、stage1 surrogate routes (`module_string_dispatch.rs`) では `lang.compiler.entry.using_resolver_box.resolve_for_source` が empty-prefix stub、`lang.compiler.build.build_box.emit_program_json_v0` が Rust `source_to_program_json_v0(...)` に委譲される。そのため imported helper/source owners (`FuncScannerBox.*`, `StageBJsonBuilderBox.*`, `Stage1UsingResolverBox.*`, `BuildBox.emit_program_json_v0`, `MirBuilderBox.emit_from_program_json_v0`, `BoxTypeInspectorBox.*`, `StringHelpers.int_to_str`) が bridge-first Stage2 object へ閉じず、現時点の exact blocker は stage1 surrogate helper/source closure である。G1 の current contract は default bootstrap keep のまま維持する
+- `tools/selfhost_identity_check.sh` は reduced case として artifact-kind=`stage1-cli` smoke lane で `NYASH_BIN=<stage1-cli>` bridge-first bootstrap を使う。raw direct `stage1-cli` replacement ではなく、helper-driven Stage1 bridge contract を Stage2 build に昇格した narrow reduction として扱う
+- exact probe では `target/selfhost/hakorune.stage1_cli` は raw direct contract (`emit ...` / `--emit-mir-json`) で `97` を返す一方、`stage1_contract_exec_mode` は current reduced artifact に single-step source→MIR env contract を提供する。したがって reduction target は `stage1-cli` binary の raw replacement ではなく、stage1-bridge helper contract を MIR-direct authority として Stage2 build に昇格することである
+- `build_stage1.sh` の `stage1-cli bridge-first` bootstrap path は current reduced source (`lang/src/runner/stage1_cli_env.hako`) を `stage1_contract_exec_mode ... emit-mir <entry> <source_text>` で single-step source→MIR へ通し、`tools/ny_mir_builder.sh` には MIR(JSON) だけを渡す。`stage1_cli_env.hako` の Program(JSON) helper defs は entry-local fallback synth で internal transient として materialize され、external route authority ではない。evidence として、`stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir apps/tests/hello_simple_llvm.hako "$(cat apps/tests/hello_simple_llvm.hako)"` と `stage1_contract_exec_mode target/selfhost/hakorune.stage1_cli emit-mir lang/src/runner/stage1_cli_env.hako "$(cat lang/src/runner/stage1_cli_env.hako)"` はともに `rc=0`。さらに reduced smoke case では `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.next --force-rebuild` が green、`tools/selfhost_identity_check.sh --mode smoke`、`tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2`、`tools/selfhost_identity_check.sh --mode full` も green である。未解決なのは reduced proof source の MIR-direct authority ではなく、この authority を他の bootstrap reduction slice へどの順番で広げるかである
+- the first non-green widening target is `launcher-exe`: `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.launcher_from_stage1_cli --force-rebuild` is green, but `stage1_contract_exec_mode ... emit-program lang/src/runner/launcher.hako ...` still lacks `defs`, `... emit-mir ...` still leaves `user_box_decls` empty, and runtime smoke on the built launcher still fails on `Unknown Box type: HakoCli`
+- G1 full-mode route guard も current authority に同期しており、`tools/selfhost_identity_check.sh --mode full` は `program-json=stage1-env-program` と `mir-json=stage1-env-mir-source` の exact route 以外では pass しない。`stage1-env-mir-program` / `stage1-env-mir-legacy` / `stage1-subcmd-mir-program` は compatibility-only boundary として残すが、reduced-case authority evidence には使わない
+- `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli` の post-build capability probe も同じ shared helper で `stage1-env-program` + `stage1-env-mir-source` を要求する。したがって stale/compat-only stage1-cli artifact は G1 まで進む前に build 時点で fail-fast する
+- `tools/selfhost/build_stage1.sh` の stage1-cli bridge-first bootstrap 本体も同じ shared helper (`probe_exact_stage1_env_authority`) で MIR(JSON) を materialize する。build 本体 / build probe / G1 preflight-gate が同じ authority SSOT を見るので、manual `stage1_contract_exec_mode ... emit-mir` + local marker-grep を別 truth source として戻さない
 - この文書の後半にある `BINARY-ONLY-*` / debt pack は active contract の補助 evidence であり、current blocker を直接定義しない
 
 ## Non-goals

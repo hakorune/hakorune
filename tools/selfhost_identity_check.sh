@@ -16,9 +16,9 @@
 #   --skip-build     Skip Stage1/Stage2 build (use prebuilt binaries)
 #   --build-timeout-secs Timeout for each Stage1/Stage2 build invocation (default: 900, 0 disables)
 #   --cli-mode       Emit route for binaries:
-#                    stage1=emit subcommand (run_stage1_cli wrapper, default)
+#                    stage1=stage1 selfhost emit route (default; env-mainline for stage1-cli artifacts)
 #                    stage0=direct flags (--emit-program-json-v0 / --emit-mir-json)
-#                    auto=try stage1 then fallback to stage0 (compat-only)
+#                    auto=try stage1 selfhost route then fallback to stage0 (compat-only)
 #   --allow-compat-route
 #                    Required when --cli-mode is auto/stage0 (compat-only lane)
 #   --bin-stage1     Path to prebuilt Stage1 binary (default: cli-mode依存)
@@ -73,8 +73,8 @@ Options:
   --build-timeout-secs <n>
                      Timeout for each Stage build (default: 900, 0 disables)
   --cli-mode <m>     CLI emit route (default: stage1)
-                     stage1 = require stage1 emit subcommand route
-                     auto   = try stage1 emit subcommand then fallback to stage0 flags (compat-only)
+                     stage1 = require stage1 selfhost emit route
+                     auto   = try stage1 selfhost route then fallback to stage0 flags (compat-only)
                      stage0 = require stage0 direct flag route
   --allow-compat-route
                      Explicitly allow compat-only route (required for cli-mode=auto|stage0)
@@ -208,11 +208,9 @@ if [[ "$SKIP_BUILD" -eq 0 ]]; then
   fi
 
   echo "[G1] Building Stage2 binary (using Stage1 as bootstrap)..." >&2
-  STAGE2_BUILD_PREFIX=()
-  if [[ "$BUILD_ARTIFACT_KIND" == "launcher-exe" ]]; then
-    STAGE2_BUILD_PREFIX=(NYASH_BIN="$STAGE1_BIN")
-  else
-    echo "[G1] Stage2 build note: stage1-cli artifact uses experimental bridge-first bootstrap path only; default bootstrap remains current keep for G1" >&2
+  STAGE2_BUILD_PREFIX=(NYASH_BIN="$STAGE1_BIN")
+  if [[ "$BUILD_ARTIFACT_KIND" == "stage1-cli" ]]; then
+    echo "[G1] Stage2 build route: stage1-cli bridge-first bootstrap (reduced case)" >&2
   fi
   if ! env "${STAGE2_BUILD_PREFIX[@]}" bash "${ROOT}/tools/selfhost/build_stage1.sh" --artifact-kind "$BUILD_ARTIFACT_KIND" --out "$STAGE2_BIN" --timeout-secs "$BUILD_TIMEOUT_SECS" >/dev/null 2>&1; then
     echo "[G1:FAIL] Stage2 build failed (likely OOM - try --skip-build with prebuilt binaries)" >&2
@@ -262,6 +260,21 @@ S2_MIR="${TMP_DIR}/s2_mir.json"
 S1_ROUTE_FILE="${TMP_DIR}/stage1.route"
 S2_ROUTE_FILE="${TMP_DIR}/stage2.route"
 
+emit_and_validate_stage_payload() {
+  local stage_label="$1"
+  local bin="$2"
+  local subcmd="$3"
+  local entry="$4"
+  local outfile="$5"
+  local route_file="$6"
+
+  if ! run_stage_cli "$bin" "$subcmd" "$entry" "$outfile" "$route_file"; then
+    echo "[G1:FAIL] ${stage_label} emit ${subcmd} failed" >&2
+    return 1
+  fi
+  validate_emit_payload "$subcmd" "$outfile" "$stage_label"
+}
+
 
 if [[ "$MODE" == "full" && "$CLI_MODE" != "stage0" ]]; then
   echo "[G1] Preflight: checking Stage1 CLI emit capability..." >&2
@@ -276,19 +289,10 @@ fi
 # --- Program JSON v0 comparison ---
 echo "[G1] Comparing Program JSON v0..." >&2
 
-if ! run_stage_cli "$STAGE1_BIN" "program-json" "$ENTRY" "$S1_PROG" "$S1_ROUTE_FILE"; then
-  echo "[G1:FAIL] Stage1 emit program-json failed" >&2
+if ! emit_and_validate_stage_payload "Stage1" "$STAGE1_BIN" "program-json" "$ENTRY" "$S1_PROG" "$S1_ROUTE_FILE"; then
   exit 1
 fi
-if ! validate_emit_payload "program-json" "$S1_PROG" "Stage1"; then
-  exit 1
-fi
-
-if ! run_stage_cli "$STAGE2_BIN" "program-json" "$ENTRY" "$S2_PROG" "$S2_ROUTE_FILE"; then
-  echo "[G1:FAIL] Stage2 emit program-json failed" >&2
-  exit 1
-fi
-if ! validate_emit_payload "program-json" "$S2_PROG" "Stage2"; then
+if ! emit_and_validate_stage_payload "Stage2" "$STAGE2_BIN" "program-json" "$ENTRY" "$S2_PROG" "$S2_ROUTE_FILE"; then
   exit 1
 fi
 
@@ -297,15 +301,17 @@ if ! compare_emit_outputs "Program JSON v0" "$S1_PROG" "$S2_PROG" "/tmp/g1_progr
 fi
 
 # Route snapshot after Program(JSON) comparison
-S1_ROUTE="$(cat "$S1_ROUTE_FILE" 2>/dev/null || echo unknown)"
-S2_ROUTE="$(cat "$S2_ROUTE_FILE" 2>/dev/null || echo unknown)"
+S1_ROUTE="$(route_file_value "$S1_ROUTE_FILE")"
+S2_ROUTE="$(route_file_value "$S2_ROUTE_FILE")"
 
 # In full mode, require true stage1 CLI route for G1 evidence
 if [[ "$MODE" == "full" ]]; then
-  if [[ ! "$S1_ROUTE" =~ ^stage1 || ! "$S2_ROUTE" =~ ^stage1 ]]; then
-    echo "[G1:FAIL] full mode requires stage1 emit route on both binaries" >&2
-    echo "          detected routes: stage1_bin=$S1_ROUTE stage2_bin=$S2_ROUTE" >&2
-    echo "          use --cli-mode stage1 with real Stage1/Stage2 binaries for G1 evidence" >&2
+  if ! require_stage1_route_for_full_mode "emit" "$S1_ROUTE" "$S2_ROUTE" \
+    "use --cli-mode stage1 with real Stage1/Stage2 binaries for G1 evidence"; then
+    exit 2
+  fi
+  if ! require_exact_stage1_route_for_full_mode "program-json" "stage1-env-program" "$S1_ROUTE" "$S2_ROUTE" \
+    "current reduced authority pins program-json on stage1 env mainline"; then
     exit 2
   fi
 fi
@@ -322,30 +328,23 @@ fi
 # --- MIR JSON v0 comparison ---
 echo "[G1] Comparing MIR JSON v0..." >&2
 
-if ! run_stage_cli "$STAGE1_BIN" "mir-json" "$ENTRY" "$S1_MIR" "$S1_ROUTE_FILE"; then
-  echo "[G1:FAIL] Stage1 emit mir-json failed" >&2
+if ! emit_and_validate_stage_payload "Stage1" "$STAGE1_BIN" "mir-json" "$ENTRY" "$S1_MIR" "$S1_ROUTE_FILE"; then
   exit 1
 fi
-if ! validate_emit_payload "mir-json" "$S1_MIR" "Stage1"; then
-  exit 1
-fi
-
-if ! run_stage_cli "$STAGE2_BIN" "mir-json" "$ENTRY" "$S2_MIR" "$S2_ROUTE_FILE"; then
-  echo "[G1:FAIL] Stage2 emit mir-json failed" >&2
-  exit 1
-fi
-if ! validate_emit_payload "mir-json" "$S2_MIR" "Stage2"; then
+if ! emit_and_validate_stage_payload "Stage2" "$STAGE2_BIN" "mir-json" "$ENTRY" "$S2_MIR" "$S2_ROUTE_FILE"; then
   exit 1
 fi
 
 # In full mode, MIR must also stay on stage1 route (no stage0 compatibility fallback).
 if [[ "$MODE" == "full" ]]; then
-  S1_ROUTE="$(cat "$S1_ROUTE_FILE" 2>/dev/null || echo unknown)"
-  S2_ROUTE="$(cat "$S2_ROUTE_FILE" 2>/dev/null || echo unknown)"
-  if [[ ! "$S1_ROUTE" =~ ^stage1 || ! "$S2_ROUTE" =~ ^stage1 ]]; then
-    echo "[G1:FAIL] full mode requires stage1 mir-json route on both binaries" >&2
-    echo "          detected routes: stage1_bin=$S1_ROUTE stage2_bin=$S2_ROUTE" >&2
-    echo "          use --cli-mode stage1 with stage1-cli artifacts" >&2
+  S1_ROUTE="$(route_file_value "$S1_ROUTE_FILE")"
+  S2_ROUTE="$(route_file_value "$S2_ROUTE_FILE")"
+  if ! require_stage1_route_for_full_mode "mir-json" "$S1_ROUTE" "$S2_ROUTE" \
+    "use --cli-mode stage1 with stage1-cli artifacts"; then
+    exit 2
+  fi
+  if ! require_exact_stage1_route_for_full_mode "mir-json" "stage1-env-mir-source" "$S1_ROUTE" "$S2_ROUTE" \
+    "current reduced authority pins mir-json on single-step source->MIR env mainline"; then
     exit 2
   fi
 fi

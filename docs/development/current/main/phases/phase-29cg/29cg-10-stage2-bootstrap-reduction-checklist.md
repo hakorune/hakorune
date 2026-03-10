@@ -25,15 +25,15 @@ Related:
 
 ## 3) Execution rule
 
-- [ ] `SBR-06` reduce exactly one Stage2 default-bootstrap dependency
-- [ ] `SBR-07` keep `phase-29cf` inventory unchanged while `phase-29cg` executes reduction
+- [x] `SBR-06` reduce exactly one Stage2 default-bootstrap dependency
+- [x] `SBR-07` keep `phase-29cf` inventory unchanged while `phase-29cg` executes reduction
 - [x] `SBR-08` review mixed worker diff and adopt only minimal Rust-side safe-keep patches
 
 ## 4) Done judgment
 
-- [ ] `tools/selfhost_identity_check.sh` no longer needs the current default-bootstrap note for the reduced case
-- [ ] `selfhost-bootstrap-route-ssot.md` can reclassify one `future retire target`
-- [ ] reduced case can describe the bridge as `temporary bootstrap boundary`, not as current route authority
+- [x] `tools/selfhost_identity_check.sh` no longer needs the current default-bootstrap note for the reduced case
+- [x] `selfhost-bootstrap-route-ssot.md` can reclassify one `future retire target`
+- [x] reduced case can describe the bridge as `temporary bootstrap boundary`, not as current route authority
 
 ## 5) Current contract note
 
@@ -48,8 +48,12 @@ Related:
   - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` passes with `verify_rc=0`
   - bridge/runtime extern-like names no longer depend on `HAKO_MIR_BUILDER_CALL_RESOLVE` for `Callee::Extern`
   - mixed worker stash review adopted only Rust-side minimal arity canonicalization in `callsite_canonicalize.rs` and `json_v0_bridge/lowering/program.rs`; broader `lang/src/mir/builder/**`, `tools/selfhost/lib/stage1_contract.sh`, and `src/llvm_py/**` stash lanes remain deferred
-  - experimental `build_stage1.sh` bridge-first path still exits non-zero because the reduced Stage2 object materializes only entry-local defs and the stage1 surrogate routes do not yet close imported helper/source owners
-  - exact next blocker is stage1 surrogate helper/source closure, not bridge return-path, extern classification, or current LLVM PHI wiring
+  - reduced-case `build_stage1.sh` bridge-first path is now green for `NYASH_BIN=<stage1-cli bootstrap> ... --artifact-kind stage1-cli`
+  - fresh `.next` artifact now passes direct env-mode `emit-program` and `emit-mir` probes for `apps/tests/hello_simple_llvm.hako`
+  - `tools/selfhost_identity_check.sh --mode smoke` is now green on the `stage1-cli bridge-first bootstrap` route
+  - the same prebuilt pair also passes `tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2`
+  - build-enabled `tools/selfhost_identity_check.sh --mode full` is also green
+  - exact next step is to freeze/promote this solved bucket and hand off to `phase-29ch` for MIR-direct bootstrap unification
 
 ## 6) Restart quick entry (2026-03-10)
 

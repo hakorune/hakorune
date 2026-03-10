@@ -59,6 +59,44 @@ artifact_is_fresh() {
   return 0
 }
 
+tree_has_newer_file() {
+  local tree="$1"
+  local out_path="$2"
+  [ -e "$tree" ] || return 1
+  if [ -d "$tree" ]; then
+    find "$tree" -type f -newer "$out_path" -print -quit | grep -q .
+    return $?
+  fi
+  [ "$tree" -nt "$out_path" ]
+}
+
+release_artifacts_are_fresh_for_skip() {
+  local hakorune="$ROOT/target/release/hakorune"
+  local nyllvmc="$ROOT/target/release/ny-llvmc"
+  local kernel="$ROOT/target/release/libnyash_kernel.a"
+  [ -x "$hakorune" ] || return 1
+  [ -x "$nyllvmc" ] || return 1
+  [ -f "$kernel" ] || return 1
+
+  local freshness_roots=(
+    "$ROOT/Cargo.toml"
+    "$ROOT/Cargo.lock"
+    "$ROOT/src"
+    "$ROOT/crates/nyash_kernel/Cargo.toml"
+    "$ROOT/crates/nyash_kernel/src"
+  )
+  local dep
+  for dep in "${freshness_roots[@]}"; do
+    if tree_has_newer_file "$dep" "$hakorune"; then
+      return 1
+    fi
+    if tree_has_newer_file "$dep" "$kernel"; then
+      return 1
+    fi
+  done
+  return 0
+}
+
 usage() {
   cat <<'USAGE'
 build_stage1.sh — Build Hakorune selfhost stage artifact
@@ -91,6 +129,7 @@ USAGE
 
 ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
 source "$ROOT/tools/selfhost/lib/stage1_contract.sh"
+source "$ROOT/tools/selfhost/lib/identity_routes.sh"
 
 read_bootstrap_artifact_kind() {
   local bin="${NYASH_BIN:-}"
@@ -108,40 +147,13 @@ read_bootstrap_artifact_kind() {
 }
 
 build_with_stage1_cli_bootstrap() {
-  local tmp_prog tmp_mir source_text
+  local tmp_prog tmp_mir
   tmp_prog="$(mktemp --suffix .stage1_cli_bootstrap.program.json)"
   tmp_mir="$(mktemp --suffix .stage1_cli_bootstrap.mir.json)"
   trap 'rm -f "$tmp_prog" "$tmp_mir" 2>/dev/null || true' RETURN
 
-  source_text="$(stage1_contract_source_text "$ENTRY")"
-  if ! NYASH_BRIDGE_ME_DUMMY="${NYASH_BRIDGE_ME_DUMMY:-1}" \
-    stage1_contract_exec_mode "$NYASH_BIN" "emit-program" "$ENTRY" "$source_text" >"$tmp_prog"; then
-    echo "[stage1] stage1-cli bootstrap emit-program failed: $ENTRY" >&2
-    return 1
-  fi
-  if ! grep -q '"kind"[[:space:]]*:[[:space:]]*"Program"' "$tmp_prog"; then
-    echo "[stage1] stage1-cli bootstrap produced non-Program payload: $ENTRY" >&2
-    return 1
-  fi
-  if [[ "$ENTRY" == *"/lang/src/runner/stage1_cli_env.hako" ]]; then
-    if ! python - "$tmp_prog" <<'PY'
-import json, pathlib, sys
-p = pathlib.Path(sys.argv[1])
-obj = json.loads(p.read_text())
-sys.exit(0 if len(obj.get("defs", [])) > 0 else 1)
-PY
-    then
-      echo "[stage1] stage1-cli bootstrap emit-program missing helper defs: $ENTRY" >&2
-      return 1
-    fi
-  fi
-  if ! NYASH_BRIDGE_ME_DUMMY="${NYASH_BRIDGE_ME_DUMMY:-1}" \
-    stage1_contract_exec_mode "$NYASH_BIN" "emit-mir" "$ENTRY" "$source_text" "$tmp_prog" >"$tmp_mir"; then
-    echo "[stage1] stage1-cli bootstrap emit-mir failed: $ENTRY" >&2
-    return 1
-  fi
-  if ! grep -q '"functions"' "$tmp_mir"; then
-    echo "[stage1] stage1-cli bootstrap produced non-MIR payload: $ENTRY" >&2
+  if ! probe_exact_stage1_env_authority "$NYASH_BIN" "$ENTRY" "$tmp_prog" "$tmp_mir"; then
+    echo "[stage1] stage1-cli bootstrap env-mainline probe failed: $ENTRY" >&2
     return 1
   fi
 
@@ -262,8 +274,7 @@ fi
 # Use the Stage‑B → MirBuilder → ny-llvmc path
 EXTRA_ENV=()
 if [ -z "${NYASH_LLVM_SKIP_BUILD+x}" ]; then
-  if [ -x "$ROOT/target/release/hakorune" ] && [ -x "$ROOT/target/release/ny-llvmc" ] \
-     && { [ -f "$ROOT/target/release/libnyash_kernel.a" ] || [ -f "$ROOT/crates/nyash_kernel/target/release/libnyash_kernel.a" ]; }; then
+  if release_artifacts_are_fresh_for_skip; then
     EXTRA_ENV+=("NYASH_LLVM_SKIP_BUILD=1")
     echo "         build-opt: NYASH_LLVM_SKIP_BUILD=1 (auto)" >&2
   fi
@@ -282,7 +293,7 @@ fi
 
 if [ "$SKIPPED_BUILD" -ne 1 ]; then
   BOOTSTRAP_KIND="$(read_bootstrap_artifact_kind)"
-  if [ "$ARTIFACT_KIND" = "stage1-cli" ] && [ "$BOOTSTRAP_KIND" = "stage1-cli" ]; then
+  if [ "$BOOTSTRAP_KIND" = "stage1-cli" ]; then
     echo "         bootstrap: stage1-cli bridge-first" >&2
     if [ "$TIMEOUT_SECS" -gt 0 ]; then
       set +e
@@ -293,28 +304,11 @@ if [ "$SKIPPED_BUILD" -ne 1 ]; then
         OUT="$3"
         NYASH_BIN="$4"
         source "$ROOT/tools/selfhost/lib/stage1_contract.sh"
-        source_text="$(stage1_contract_source_text "$ENTRY")"
+        source "$ROOT/tools/selfhost/lib/identity_routes.sh"
         tmp_prog="$(mktemp --suffix .stage1_cli_bootstrap.program.json)"
         tmp_mir="$(mktemp --suffix .stage1_cli_bootstrap.mir.json)"
         trap '\''rm -f "$tmp_prog" "$tmp_mir" 2>/dev/null || true'\'' EXIT
-        NYASH_BRIDGE_ME_DUMMY="${NYASH_BRIDGE_ME_DUMMY:-1}" \
-          stage1_contract_exec_mode "$NYASH_BIN" "emit-program" "$ENTRY" "$source_text" >"$tmp_prog"
-        grep -q "\"kind\"[[:space:]]*:[[:space:]]*\"Program\"" "$tmp_prog"
-        if [[ "$ENTRY" == *"/lang/src/runner/stage1_cli_env.hako" ]]; then
-          if ! python - "$tmp_prog" <<'\''PY'\''
-import json, pathlib, sys
-p = pathlib.Path(sys.argv[1])
-obj = json.loads(p.read_text())
-sys.exit(0 if len(obj.get("defs", [])) > 0 else 1)
-PY
-          then
-            echo "[stage1] stage1-cli bootstrap emit-program missing helper defs: $ENTRY" >&2
-            exit 1
-          fi
-        fi
-        NYASH_BRIDGE_ME_DUMMY="${NYASH_BRIDGE_ME_DUMMY:-1}" \
-          stage1_contract_exec_mode "$NYASH_BIN" "emit-mir" "$ENTRY" "$source_text" "$tmp_prog" >"$tmp_mir"
-        grep -q "\"functions\"" "$tmp_mir"
+        probe_exact_stage1_env_authority "$NYASH_BIN" "$ENTRY" "$tmp_prog" "$tmp_mir"
         NYASH_LLVM_BACKEND=crate \
         NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
         NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
@@ -364,33 +358,13 @@ if [ "$ARTIFACT_KIND" = "stage1-cli" ]; then
     echo "[stage1] stage1-cli probe source not found: $PROBE_SRC" >&2
     exit 2
   fi
-  PROBE_SOURCE_TEXT="$(stage1_contract_source_text "$PROBE_SRC")"
-  TMP_PROBE_OUT="$(mktemp)"
-  set +e
-  stage1_contract_exec_mode "$OUT" "emit-program" "$PROBE_SRC" "$PROBE_SOURCE_TEXT" >"$TMP_PROBE_OUT" 2>/dev/null
-  PROBE_RC=$?
-  set -e
-  if [ "$PROBE_RC" -ne 0 ]; then
-    rm -f "$TMP_PROBE_OUT" || true
+  if ! require_stage1_env_mainline_capability "stage1 artifact" "$OUT" "$PROBE_SRC"; then
     echo "[stage1] stage1-cli capability check failed" >&2
-    echo "         artifact failed env-mode smoke: emit-program (rc=$PROBE_RC)" >&2
+    echo "         artifact failed current env mainline authority probe" >&2
     echo "         hint: adjust build route/env and retry" >&2
     exit 2
   fi
-  if grep -Eq '"kind"[[:space:]]*:[[:space:]]*"Program"' "$TMP_PROBE_OUT"; then
-    rm -f "$TMP_PROBE_OUT" || true
-    echo "[stage1] stage1-cli capability: OK (program-json)" >&2
-  elif grep -Eq '^Result:[[:space:]]*0$' "$TMP_PROBE_OUT"; then
-    rm -f "$TMP_PROBE_OUT" || true
-    echo "[stage1] stage1-cli capability: SMOKE-OK (env route returned 0)" >&2
-    echo "         note: program-json payload was not observed on stdout in this route" >&2
-  else
-    rm -f "$TMP_PROBE_OUT" || true
-    echo "[stage1] stage1-cli capability check failed" >&2
-    echo "         artifact did not produce Program(JSON) or Result: 0 on env-mode smoke" >&2
-    echo "         hint: adjust build route/env and retry" >&2
-    exit 2
-  fi
+  echo "[stage1] stage1-cli capability: OK (env mainline program-json + single-step mir-json)" >&2
 fi
 
 {
