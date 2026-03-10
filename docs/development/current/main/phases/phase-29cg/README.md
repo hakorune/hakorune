@@ -69,6 +69,10 @@ Final direction:
     - `build_stage1.sh` can now attempt a `stage1-cli bridge-first` Stage2 build when `NYASH_BIN` itself is a `stage1-cli` artifact
     - `lang/src/runner/stage1_cli_env.hako` has a lower-risk `_find_matching_pair_inline` CFG now, helper defs are materialized, and bridge `emit-mir` itself is green
     - bridge/runtime extern-like names (`env.*`, `nyash.*`) are now classified as `Callee::Extern` even when `HAKO_MIR_BUILDER_CALL_RESOLVE` is off; the legacy toggle now only controls unqualified helper-name upgrades
+    - Rust-side minimal safe-keep from mixed stash review is now applied in two places:
+      - `src/mir/passes/callsite_canonicalize.rs`
+      - `src/runner/json_v0_bridge/lowering/program.rs`
+      - both now suffix unsuffixed dotted helper `Global` callees when a matching `name/arity` definition exists
     - current exact blocker in that path is link-time unresolved symbol closure caused by entry-only defs plus unresolved `Global` helper calls in the reduced MIR
     - the reduced MIR currently keeps these callees as `Global`:
       - `env.console.log`
@@ -100,3 +104,4 @@ Final direction:
 - `stage1-cli` reduction target is stated as `bridge-first Stage2 build`, not as `raw NYASH_BIN replacement`
 - current G1 route is unchanged until the bridge-first Stage2 object closes helper/runtime symbols for the reduced case
 - exact next reduction focus is helper/source closure plus selfhost MIR call classification, not bridge/dispatch or current LLVM PHI wiring
+- mixed worker stash lanes outside that narrow Rust fix remain deferred until they can be split into single-owner patches

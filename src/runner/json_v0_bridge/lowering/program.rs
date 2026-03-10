@@ -157,12 +157,14 @@ pub(super) fn maybe_resolve_calls(
                 if let MirInstruction::Call {
                     func: func_reg,
                     callee,
+                    args,
                     ..
                 } = inst
                 {
                     if let Some(name) = reg_name.get(func_reg).cloned() {
                         if should_classify_call_callee(&name, func_map, resolve_unqualified_calls) {
-                            *callee = Some(resolve_legacy_call_callee(&name, func_map));
+                            *callee =
+                                Some(resolve_legacy_call_callee(&name, args.len(), func_map));
                         }
                     }
                 }
@@ -182,9 +184,13 @@ fn should_classify_call_callee(
         || is_json_v0_extern_name(name)
 }
 
-fn resolve_legacy_call_callee(name: &str, func_map: &BTreeMap<String, String>) -> Callee {
-    if func_map.values().any(|resolved| resolved == name) {
-        return Callee::Global(name.to_string());
+fn resolve_legacy_call_callee(
+    name: &str,
+    args_len: usize,
+    func_map: &BTreeMap<String, String>,
+) -> Callee {
+    if let Some(global_name) = canonicalize_legacy_global_name(name, args_len, func_map) {
+        return Callee::Global(global_name);
     }
 
     let base_name = normalize_legacy_call_name(name);
@@ -195,11 +201,36 @@ fn resolve_legacy_call_callee(name: &str, func_map: &BTreeMap<String, String>) -
     Callee::Global(name.to_string())
 }
 
+fn canonicalize_legacy_global_name(
+    name: &str,
+    args_len: usize,
+    func_map: &BTreeMap<String, String>,
+) -> Option<String> {
+    if func_map.values().any(|resolved| resolved == name) {
+        return Some(name.to_string());
+    }
+    if has_explicit_arity(name) || !name.contains('.') {
+        return None;
+    }
+    let suffixed = format!("{name}/{args_len}");
+    if func_map.values().any(|resolved| resolved == &suffixed) {
+        return Some(suffixed);
+    }
+    None
+}
+
 fn normalize_legacy_call_name(name: &str) -> &str {
     match name.rsplit_once('/') {
         Some((base, arity)) if arity.chars().all(|c| c.is_ascii_digit()) => base,
         _ => name,
     }
+}
+
+fn has_explicit_arity(name: &str) -> bool {
+    matches!(
+        name.rsplit_once('/'),
+        Some((_base, arity)) if arity.chars().all(|c| c.is_ascii_digit())
+    )
 }
 
 fn is_json_v0_extern_name(name: &str) -> bool {
@@ -305,13 +336,16 @@ mod tests {
     }
 
     fn entry_call(module: &MirModule) -> &MirInstruction {
-        &module
+        module
             .get_function("main")
             .expect("main function exists")
             .blocks
             .get(&BasicBlockId::new(0))
             .expect("entry block exists")
-            .instructions[1]
+            .instructions
+            .iter()
+            .find(|inst| matches!(inst, MirInstruction::Call { .. }))
+            .expect("entry block contains a call")
     }
 
     #[test]
@@ -347,6 +381,60 @@ mod tests {
                 callee: Some(Callee::Global(name)),
                 ..
             } if name == "Main.helper/0"
+        ));
+    }
+
+    #[test]
+    fn maybe_resolve_calls_suffixes_unsuffixed_qualified_defs_when_matching_arity_exists() {
+        let _lock = env_guard().lock().expect("env lock");
+        std::env::set_var("HAKO_MIR_BUILDER_CALL_RESOLVE", "1");
+        let mut module = MirModule::new("json_v0_program".to_string());
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(signature, BasicBlockId::new(0));
+        let block = func
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry block exists");
+
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::String("Main.helper".to_string()),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::Integer(1),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::new(1),
+            callee: None,
+            args: vec![ValueId::new(10)],
+            effects: EffectMask::PURE,
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        module.add_function(func);
+
+        let mut func_map = BTreeMap::new();
+        func_map.insert("helper".to_string(), "Main.helper/1".to_string());
+        maybe_resolve_calls(&mut module, &func_map);
+        std::env::remove_var("HAKO_MIR_BUILDER_CALL_RESOLVE");
+
+        assert!(matches!(
+            entry_call(&module),
+            MirInstruction::Call {
+                callee: Some(Callee::Global(name)),
+                ..
+            } if name == "Main.helper/1"
         ));
     }
 

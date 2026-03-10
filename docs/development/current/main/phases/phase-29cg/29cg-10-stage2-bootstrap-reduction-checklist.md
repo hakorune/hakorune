@@ -27,6 +27,7 @@ Related:
 
 - [ ] `SBR-06` reduce exactly one Stage2 default-bootstrap dependency
 - [ ] `SBR-07` keep `phase-29cf` inventory unchanged while `phase-29cg` executes reduction
+- [x] `SBR-08` review mixed worker diff and adopt only minimal Rust-side safe-keep patches
 
 ## 4) Done judgment
 
@@ -45,5 +46,6 @@ Related:
   - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
   - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` passes with `verify_rc=0`
   - bridge/runtime extern-like names no longer depend on `HAKO_MIR_BUILDER_CALL_RESOLVE` for `Callee::Extern`
+  - mixed worker stash review adopted only Rust-side minimal arity canonicalization in `callsite_canonicalize.rs` and `json_v0_bridge/lowering/program.rs`; broader `lang/src/mir/builder/**`, `tools/selfhost/lib/stage1_contract.sh`, and `src/llvm_py/**` stash lanes remain deferred
   - experimental `build_stage1.sh` bridge-first path still exits non-zero because the reduced Stage2 object materializes only entry-local defs while helper/import calls and `env.console.log` remain `Global`
   - exact next blocker is helper/source closure plus selfhost MIR call classification, not bridge return-path or current LLVM PHI wiring

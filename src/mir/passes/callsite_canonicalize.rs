@@ -11,7 +11,7 @@
 //! - NCL-2 fixes closure-call shape boundary:
 //!   only `dst=Some(_) + args=[]` is canonicalized to `NewClosure`.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::ssot::closure_call::{ClosureCallShape, classify_closure_call_shape};
 use crate::mir::{Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId};
@@ -23,6 +23,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
     let mut rewritten = 0usize;
     let mut closure_bodies = std::mem::take(&mut module.metadata.closure_bodies);
     let mut next_closure_body_id = module.metadata.next_closure_body_id;
+    let function_names = module.functions.keys().cloned().collect::<BTreeSet<_>>();
 
     for (_func_name, func) in &mut module.functions {
         let const_strings = collect_const_string_literals(func);
@@ -32,6 +33,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
                 rewritten += canonicalize_callsite_instruction(
                     inst,
                     &const_strings,
+                    &function_names,
                     &mut closure_bodies,
                     &mut next_closure_body_id,
                 );
@@ -40,6 +42,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
                 rewritten += canonicalize_callsite_instruction(
                     term,
                     &const_strings,
+                    &function_names,
                     &mut closure_bodies,
                     &mut next_closure_body_id,
                 );
@@ -56,6 +59,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
 fn canonicalize_callsite_instruction(
     inst: &mut MirInstruction,
     const_strings: &BTreeMap<ValueId, String>,
+    function_names: &BTreeSet<String>,
     closure_bodies: &mut BTreeMap<crate::mir::function::ClosureBodyId, Vec<crate::ast::ASTNode>>,
     next_closure_body_id: &mut crate::mir::function::ClosureBodyId,
 ) -> usize {
@@ -105,10 +109,11 @@ fn canonicalize_callsite_instruction(
             effects,
         } => {
             if let Some(name) = const_strings.get(func) {
+                let canonical_name = canonicalize_legacy_global_name(name, args.len(), function_names);
                 let rewritten = MirInstruction::Call {
                     dst: *dst,
                     func: ValueId::INVALID,
-                    callee: Some(Callee::Global(name.clone())),
+                    callee: Some(Callee::Global(canonical_name)),
                     args: args.clone(),
                     effects: *effects,
                 };
@@ -118,9 +123,47 @@ fn canonicalize_callsite_instruction(
                 0
             }
         }
+        MirInstruction::Call {
+            callee: Some(Callee::Global(name)),
+            args,
+            ..
+        } => {
+            let canonical_name = canonicalize_legacy_global_name(name, args.len(), function_names);
+            if canonical_name != *name {
+                *name = canonical_name;
+                1
+            } else {
+                0
+            }
+        }
         MirInstruction::Call { .. } => 0,
         _ => 0,
     }
+}
+
+fn canonicalize_legacy_global_name(
+    name: &str,
+    args_len: usize,
+    function_names: &BTreeSet<String>,
+) -> String {
+    if has_explicit_arity(name) {
+        return name.to_string();
+    }
+    if !name.contains('.') {
+        return name.to_string();
+    }
+    let suffixed = format!("{name}/{args_len}");
+    if function_names.contains(&suffixed) {
+        return suffixed;
+    }
+    name.to_string()
+}
+
+fn has_explicit_arity(name: &str) -> bool {
+    matches!(
+        name.rsplit_once('/'),
+        Some((_base, arity)) if arity.chars().all(|c| c.is_ascii_digit())
+    )
 }
 
 fn collect_const_string_literals(func: &MirFunction) -> BTreeMap<ValueId, String> {
@@ -212,6 +255,133 @@ mod tests {
                 && name == "RewriteKnownMini.run/1"
                 && args == &vec![ValueId(2)]
                 && *effects == EffectMask::PURE
+        ));
+    }
+
+    #[test]
+    fn mcl5_suffixes_unsuffixed_qualified_global_name_when_matching_arity_exists() {
+        let mut module = MirModule::new("mcl5_suffix".to_string());
+        let callee_sig = FunctionSignature {
+            name: "RewriteKnownMini.run/1".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        module.add_function(MirFunction::new(callee_sig, BasicBlockId(0)));
+
+        let signature = FunctionSignature {
+            name: "mcl5_suffix/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(signature, BasicBlockId(0));
+        let block = func
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .expect("entry block exists");
+
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(1),
+            value: crate::mir::ConstValue::String("RewriteKnownMini.run".to_string()),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(2),
+            value: crate::mir::ConstValue::Integer(7),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId(3)),
+            func: ValueId(1),
+            callee: None,
+            args: vec![ValueId(2)],
+            effects: EffectMask::PURE,
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(3)),
+        });
+        module.add_function(func);
+
+        let rewritten = canonicalize_callsites(&mut module);
+        assert_eq!(rewritten, 1);
+
+        let inst = &module
+            .get_function("mcl5_suffix/0")
+            .expect("function exists")
+            .blocks
+            .get(&BasicBlockId(0))
+            .expect("entry block exists")
+            .instructions[2];
+
+        assert!(matches!(
+            inst,
+            MirInstruction::Call {
+                callee: Some(Callee::Global(name)),
+                ..
+            } if name == "RewriteKnownMini.run/1"
+        ));
+    }
+
+    #[test]
+    fn mcl5_suffixes_existing_global_callee_when_matching_arity_exists() {
+        let mut module = MirModule::new("mcl5_global_suffix".to_string());
+        let callee_sig = FunctionSignature {
+            name: "RewriteKnownMini.run/1".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        module.add_function(MirFunction::new(callee_sig, BasicBlockId(0)));
+
+        let signature = FunctionSignature {
+            name: "mcl5_global_suffix/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(signature, BasicBlockId(0));
+        let block = func
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .expect("entry block exists");
+
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(2),
+            value: crate::mir::ConstValue::Integer(7),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId(3)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("RewriteKnownMini.run".to_string())),
+            args: vec![ValueId(2)],
+            effects: EffectMask::PURE,
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(3)),
+        });
+        module.add_function(func);
+
+        let rewritten = canonicalize_callsites(&mut module);
+        assert_eq!(rewritten, 1);
+
+        let inst = &module
+            .get_function("mcl5_global_suffix/0")
+            .expect("function exists")
+            .blocks
+            .get(&BasicBlockId(0))
+            .expect("entry block exists")
+            .instructions[1];
+
+        assert!(matches!(
+            inst,
+            MirInstruction::Call {
+                callee: Some(Callee::Global(name)),
+                ..
+            } if name == "RewriteKnownMini.run/1"
         ));
     }
 
