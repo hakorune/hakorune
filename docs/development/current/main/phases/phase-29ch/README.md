@@ -74,6 +74,8 @@ Evidence (2026-03-11):
 - `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.next --force-rebuild` -> PASS
 - `bash tools/selfhost_identity_check.sh --mode smoke` -> PASS
 - `bash tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` -> PASS (`Program JSON v0` raw match; `MIR JSON v0` canonical match with raw diff retained at `/tmp/g1_mir_diff.txt.raw`)
+- exact raw diff probe is fixed to `bash tools/dev/phase29ch_raw_mir_diff_probe.sh [entry]` (default: `lang/src/compiler/entry/compiler_stageb.hako`)
+- route-mode branchpoint probe is fixed to `bash tools/dev/phase29ch_route_mode_matrix.sh [entry]`
 - current branch point is no longer whether to land canonical compare; it is whether `.hako` MirBuilder ordering should later be tightened until raw-text MIR also converges
 
 Current compare decision (2026-03-11):
@@ -89,6 +91,7 @@ Current branch point (2026-03-11):
 - `... emit-mir ...` now emits `user_box_decls=[HakoCli, Main]` and lowers `HakoCli.run/1` on the current reduced authority route
 - the former active blocker was G1 full MIR exact diff on `compiler_stageb.hako`; it is now downgraded to tightening evidence because the canonical compare is green and still reports the raw diff
 - therefore the current preferred order is: keep `stage1-env-program` + `stage1-env-mir-source` as the only reduced authority evidence, keep `run_stage1_cli.sh` as a compatibility wrapper over that contract, and decide whether raw MIR determinism needs tightening before widening the next bootstrap slice
+- current raw determinism note: the mismatch is not owned by a late `jsonfrag_normalizer_box.hako` text reorder pass. `compiler_stageb.hako` emits in `default`, `internal-only`, and `delegate-only` modes, and those three route modes already diverge on a single Stage1 binary. Therefore the first repair owner is the route-selection / mixed-lowering contract inside `MirBuilderBox.emit_from_program_json_v0(...)`, not a late post-pass reorder.
 - current owner order remains fixed:
   1. `tools/selfhost/lib/identity_compare.sh`
   2. `tools/selfhost/lib/mir_canonical_compare.py`
