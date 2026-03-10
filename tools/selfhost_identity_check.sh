@@ -310,8 +310,7 @@ if [[ "$MODE" == "full" ]]; then
     "use --cli-mode stage1 with real Stage1/Stage2 binaries for G1 evidence"; then
     exit 2
   fi
-  if ! require_exact_stage1_route_for_full_mode "program-json" "stage1-env-program" "$S1_ROUTE" "$S2_ROUTE" \
-    "current reduced authority pins program-json on stage1 env mainline"; then
+  if ! require_current_stage1_env_route_for_full_mode "program-json" "$S1_ROUTE" "$S2_ROUTE"; then
     exit 2
   fi
 fi
@@ -343,8 +342,7 @@ if [[ "$MODE" == "full" ]]; then
     "use --cli-mode stage1 with stage1-cli artifacts"; then
     exit 2
   fi
-  if ! require_exact_stage1_route_for_full_mode "mir-json" "stage1-env-mir-source" "$S1_ROUTE" "$S2_ROUTE" \
-    "current reduced authority pins mir-json on single-step source->MIR env mainline"; then
+  if ! require_current_stage1_env_route_for_full_mode "mir-json" "$S1_ROUTE" "$S2_ROUTE"; then
     exit 2
   fi
 fi

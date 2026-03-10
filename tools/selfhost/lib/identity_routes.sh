@@ -19,6 +19,14 @@ read_artifact_kind() {
   echo "$kind"
 }
 
+cleanup_stage_temp_files() {
+  rm -f "$@" 2>/dev/null || true
+}
+
+cleanup_stage_temp_dir() {
+  rm -rf "$1" 2>/dev/null || true
+}
+
 report_stage1_cli_capability_hint() {
   local stage_label="$1"
   local bin="$2"
@@ -67,6 +75,14 @@ route_file_value() {
   cat "$route_file" 2>/dev/null || echo unknown
 }
 
+stage1_env_program_route_id() {
+  printf '%s' 'stage1-env-program'
+}
+
+stage1_env_mir_source_route_id() {
+  printf '%s' 'stage1-env-mir-source'
+}
+
 require_stage1_route_for_full_mode() {
   local subcmd="$1"
   local stage1_route="$2"
@@ -97,6 +113,35 @@ require_exact_stage1_route_for_full_mode() {
   return 0
 }
 
+require_current_stage1_env_route_for_full_mode() {
+  local subcmd="$1"
+  local stage1_route="$2"
+  local stage2_route="$3"
+
+  case "$subcmd" in
+    program-json)
+      require_exact_stage1_route_for_full_mode \
+        "$subcmd" \
+        "$(stage1_env_program_route_id)" \
+        "$stage1_route" \
+        "$stage2_route" \
+        "current reduced authority pins program-json on stage1 env mainline"
+      ;;
+    mir-json)
+      require_exact_stage1_route_for_full_mode \
+        "$subcmd" \
+        "$(stage1_env_mir_source_route_id)" \
+        "$stage1_route" \
+        "$stage2_route" \
+        "current reduced authority pins mir-json on single-step source->MIR env mainline"
+      ;;
+    *)
+      echo "[G1:FAIL] unsupported current stage1 route check: ${subcmd}" >&2
+      return 1
+      ;;
+  esac
+}
+
 require_exact_stage1_route_for_bin() {
   local subcmd="$1"
   local expected_route="$2"
@@ -110,6 +155,32 @@ require_exact_stage1_route_for_bin() {
     return 1
   fi
   return 0
+}
+
+require_current_stage1_env_route_for_bin() {
+  local subcmd="$1"
+  local detected_route="$2"
+
+  case "$subcmd" in
+    program-json)
+      require_exact_stage1_route_for_bin \
+        "$subcmd" \
+        "$(stage1_env_program_route_id)" \
+        "$detected_route" \
+        "current reduced authority pins program-json on stage1 env mainline"
+      ;;
+    mir-json)
+      require_exact_stage1_route_for_bin \
+        "$subcmd" \
+        "$(stage1_env_mir_source_route_id)" \
+        "$detected_route" \
+        "current reduced authority pins mir-json on single-step source->MIR env mainline"
+      ;;
+    *)
+      echo "[G1:FAIL] unsupported current stage1 route check: ${subcmd}" >&2
+      return 1
+      ;;
+  esac
 }
 
 run_and_extract_stage_payload() {
@@ -152,7 +223,7 @@ run_stage1_env_route() {
       "$outfile" \
       stage1_contract_exec_mode "$bin" "emit-program" "$entry" "$source_text"
     if [[ $? -eq 0 && -n "$route_file" ]]; then
-      echo "stage1-env-program" >"$route_file"
+      echo "$(stage1_env_program_route_id)" >"$route_file"
       return 0
     fi
     return $?
@@ -167,7 +238,7 @@ run_stage1_env_route() {
     "$outfile" \
     stage1_contract_exec_mode "$bin" "emit-mir" "$entry" "$source_text"; then
     if [[ -n "$route_file" ]]; then
-      echo "stage1-env-mir-source" >"$route_file"
+      echo "$(stage1_env_mir_source_route_id)" >"$route_file"
     fi
     return 0
   fi
@@ -229,31 +300,27 @@ probe_exact_stage1_env_authority() {
   local mir_route_file="${tmp_dir}/mir.route"
 
   if ! run_stage1_env_route "$bin" "program-json" "$entry" "$program_out" "$program_route_file"; then
-    rm -rf "$tmp_dir" 2>/dev/null || true
+    cleanup_stage_temp_dir "$tmp_dir"
     return 1
   fi
-  if ! require_exact_stage1_route_for_bin \
+  if ! require_current_stage1_env_route_for_bin \
     "program-json" \
-    "stage1-env-program" \
-    "$(route_file_value "$program_route_file")" \
-    "current reduced authority pins program-json on stage1 env mainline"; then
-    rm -rf "$tmp_dir" 2>/dev/null || true
+    "$(route_file_value "$program_route_file")"; then
+    cleanup_stage_temp_dir "$tmp_dir"
     return 1
   fi
 
   if ! run_stage1_env_route "$bin" "mir-json" "$entry" "$mir_out" "$mir_route_file"; then
-    rm -rf "$tmp_dir" 2>/dev/null || true
+    cleanup_stage_temp_dir "$tmp_dir"
     return 1
   fi
-  if ! require_exact_stage1_route_for_bin \
+  if ! require_current_stage1_env_route_for_bin \
     "mir-json" \
-    "stage1-env-mir-source" \
-    "$(route_file_value "$mir_route_file")" \
-    "current reduced authority pins mir-json on single-step source->MIR env mainline"; then
-    rm -rf "$tmp_dir" 2>/dev/null || true
+    "$(route_file_value "$mir_route_file")"; then
+    cleanup_stage_temp_dir "$tmp_dir"
     return 1
   fi
-  rm -rf "$tmp_dir" 2>/dev/null || true
+  cleanup_stage_temp_dir "$tmp_dir"
   return 0
 }
 

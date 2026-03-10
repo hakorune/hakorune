@@ -150,10 +150,10 @@ build_with_stage1_cli_bootstrap() {
   local tmp_prog tmp_mir
   tmp_prog="$(mktemp --suffix .stage1_cli_bootstrap.program.json)"
   tmp_mir="$(mktemp --suffix .stage1_cli_bootstrap.mir.json)"
-  trap 'rm -f "$tmp_prog" "$tmp_mir" 2>/dev/null || true' RETURN
 
   if ! probe_exact_stage1_env_authority "$NYASH_BIN" "$ENTRY" "$tmp_prog" "$tmp_mir"; then
     echo "[stage1] stage1-cli bootstrap env-mainline probe failed: $ENTRY" >&2
+    cleanup_stage_temp_files "$tmp_prog" "$tmp_mir"
     return 1
   fi
 
@@ -161,6 +161,7 @@ build_with_stage1_cli_bootstrap() {
   NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
   NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
     bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null
+  cleanup_stage_temp_files "$tmp_prog" "$tmp_mir"
 }
 
 ENTRY_DEFAULT_LAUNCHER="$ROOT/lang/src/runner/launcher.hako"
