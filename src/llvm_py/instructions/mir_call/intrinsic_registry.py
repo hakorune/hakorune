@@ -96,6 +96,9 @@ _INTRINSIC_SPECS: Tuple[IntrinsicSpec, ...] = (
     _spec("dirname", tags=(TAG_STRING_RESULT,)),
     _spec("join", tags=(TAG_STRING_RESULT,)),
     _spec("read_all", tags=(TAG_STRING_RESULT,)),
+    _spec("resolve_for_source", tags=(TAG_STRING_RESULT,)),
+    _spec("emit_program_json_v0", tags=(TAG_STRING_RESULT,)),
+    _spec("emit_from_source_v0", tags=(TAG_STRING_RESULT,)),
     _spec("toJson", tags=(TAG_STRING_RESULT,)),
 )
 

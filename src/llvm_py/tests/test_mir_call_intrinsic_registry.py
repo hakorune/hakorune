@@ -33,6 +33,9 @@ class TestMirCallIntrinsicRegistry(unittest.TestCase):
     def test_string_result_methods(self):
         self.assertTrue(produces_string_result("substring"))
         self.assertTrue(produces_string_result("toJson"))
+        self.assertTrue(produces_string_result("resolve_for_source"))
+        self.assertTrue(produces_string_result("emit_program_json_v0"))
+        self.assertTrue(produces_string_result("emit_from_source_v0"))
         self.assertFalse(produces_string_result("indexOf"))
         self.assertFalse(produces_string_result(None))
 

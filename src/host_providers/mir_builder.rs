@@ -292,4 +292,16 @@ mod tests {
         assert!(program_json.contains("\"kind\":\"Program\""));
         assert!(mir_json.contains("functions"));
     }
+
+    #[test]
+    fn test_source_to_program_and_mir_json_handles_hello_simple_llvm_source() {
+        let source = include_str!("../../apps/tests/hello_simple_llvm.hako");
+        let result = source_to_program_and_mir_json(source);
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+
+        let (program_json, mir_json) = result.unwrap();
+        assert!(program_json.contains("\"kind\":\"Program\""));
+        assert!(program_json.contains("env.console.log"));
+        assert!(mir_json.contains("\"functions\""));
+    }
 }

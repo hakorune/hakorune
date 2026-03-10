@@ -14,6 +14,7 @@ from naming_helper import encode_static_method
 from console_bridge import emit_console_call  # Phase 133: Console 箱化モジュール
 from instructions.stringbox import emit_stringbox_call  # Phase 134-B: StringBox 箱化モジュール
 from instructions.mir_call.auto_specialize import receiver_is_arrayish, receiver_is_stringish
+from instructions.mir_call.intrinsic_registry import produces_string_result
 from utils.values import resolve_i64_strict
 from utils.resolver_helpers import mark_as_handle
 
@@ -364,14 +365,8 @@ def lower_boxcall(
         # Type tagging: mark handles for downstream consumers (e.g., print)
         try:
             if resolver is not None and hasattr(resolver, 'value_types'):
-                # String-returning plugin methods
-                if hasattr(resolver, 'mark_string') and method_name in (
-                    "read",
-                    "dirname",
-                    "join",
-                    "resolve_for_source",
-                    "emit_program_json_v0",
-                ):
+                # String-returning plugin methods share the MIR call registry SSOT.
+                if hasattr(resolver, 'mark_string') and produces_string_result(method_name):
                     resolver.mark_string(dst_vid)
 
                 # Phase 285LLVM-1.5: Tag getField results as handles (unified via mark_as_handle)
