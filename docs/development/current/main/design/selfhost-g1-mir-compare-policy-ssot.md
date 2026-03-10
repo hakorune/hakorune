@@ -67,6 +67,12 @@ Implementation ownership:
      - semantic canonical compare result
      - raw exact diff result as diagnostics/tightening evidence
 
+Fast regression entry:
+- `python3 -m unittest tools.selfhost.lib.tests.test_mir_canonical_compare`
+- covers the two current allowed-noise shapes:
+  - PHI-local copy bundle reorder
+  - boxcall-local copy bundle reorder
+
 Sequencing:
 1. Land the narrow canonical compare for the allowed noise only.
 2. Turn `G1 full` green on semantic canonical match. Status: done on 2026-03-11.

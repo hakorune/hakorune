@@ -158,6 +158,9 @@ Helper — G1 Identity Check
     - `tools/selfhost/lib/identity_routes.sh`
     - `tools/selfhost/lib/identity_compare.sh`
   - This split keeps route policy and compare policy centralized, while preserving existing CLI behavior.
+  - MIR canonical compare helper/test:
+    - `tools/selfhost/lib/mir_canonical_compare.py`
+    - `python3 -m unittest tools.selfhost.lib.tests.test_mir_canonical_compare`
 
 Helper — Legacy Main Readiness
 - `tools/selfhost/legacy_main_readiness.sh`

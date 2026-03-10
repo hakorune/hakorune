@@ -78,12 +78,8 @@ Evidence (2026-03-11):
 
 Current compare decision (2026-03-11):
 - `phase-29ch` now uses `semantic canonical match` for G1 MIR compare and keeps raw MIR exact diff as tightening evidence.
-- SSOT: `docs/development/current/main/design/selfhost-g1-mir-compare-policy-ssot.md`
-- Allowed noise is narrow:
-  - ValueId renumber
-  - BasicBlockId renumber
-  - PHI incoming order
-  - alpha-equivalent copy/live-in bundle order
+- compare rules SSOT: `docs/development/current/main/design/selfhost-g1-mir-compare-policy-ssot.md`
+- fast regression entry: `python3 -m unittest tools.selfhost.lib.tests.test_mir_canonical_compare`
 - Raw exact MIR equality remains the follow-up target after `G1 full` is green again.
 
 Current branch point (2026-03-11):
@@ -93,7 +89,7 @@ Current branch point (2026-03-11):
 - `... emit-mir ...` now emits `user_box_decls=[HakoCli, Main]` and lowers `HakoCli.run/1` on the current reduced authority route
 - the former active blocker was G1 full MIR exact diff on `compiler_stageb.hako`; it is now downgraded to tightening evidence because the canonical compare is green and still reports the raw diff
 - therefore the current preferred order is: keep `stage1-env-program` + `stage1-env-mir-source` as the only reduced authority evidence, keep `run_stage1_cli.sh` as a compatibility wrapper over that contract, and decide whether raw MIR determinism needs tightening before widening the next bootstrap slice
-- implementation owner for the current branch point is fixed:
+- current owner order remains fixed:
   1. `tools/selfhost/lib/identity_compare.sh`
   2. `tools/selfhost/lib/mir_canonical_compare.py`
   3. generator-order stabilization only after the narrow compare policy is proven in green G1 full

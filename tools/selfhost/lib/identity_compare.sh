@@ -43,6 +43,10 @@ validate_emit_payload() {
   return 0
 }
 
+cleanup_compare_tmp() {
+  rm -f "$@" 2>/dev/null || true
+}
+
 compare_mir_emit_outputs() {
   local label="$1"
   local lhs="$2"
@@ -56,12 +60,12 @@ compare_mir_emit_outputs() {
 
   if ! python3 "$helper" canonicalize "$lhs" >"$lhs_canon"; then
     echo "[G1:FAIL] ${label} canonicalization failed for lhs" >&2
-    rm -f "$lhs_canon" "$rhs_canon" 2>/dev/null || true
+    cleanup_compare_tmp "$lhs_canon" "$rhs_canon"
     return 1
   fi
   if ! python3 "$helper" canonicalize "$rhs" >"$rhs_canon"; then
     echo "[G1:FAIL] ${label} canonicalization failed for rhs" >&2
-    rm -f "$lhs_canon" "$rhs_canon" 2>/dev/null || true
+    cleanup_compare_tmp "$lhs_canon" "$rhs_canon"
     return 1
   fi
 
@@ -71,20 +75,20 @@ compare_mir_emit_outputs() {
     diff "$lhs_canon" "$rhs_canon" >"$diff_path" 2>&1 || true
     diff "$lhs" "$rhs" >"$raw_diff_path" 2>&1 || true
     echo "         Raw diff saved: ${raw_diff_path}" >&2
-    rm -f "$lhs_canon" "$rhs_canon" 2>/dev/null || true
+    cleanup_compare_tmp "$lhs_canon" "$rhs_canon"
     return 1
   fi
 
   if diff -q "$lhs" "$rhs" >/dev/null 2>&1; then
     echo "[G1] ${label}: ✅ MATCH" >&2
-    rm -f "$lhs_canon" "$rhs_canon" 2>/dev/null || true
+    cleanup_compare_tmp "$lhs_canon" "$rhs_canon"
     return 0
   fi
 
   diff "$lhs" "$rhs" >"$raw_diff_path" 2>&1 || true
   echo "[G1] ${label}: ✅ CANONICAL MATCH" >&2
   echo "     raw exact diff saved: ${raw_diff_path}" >&2
-  rm -f "$lhs_canon" "$rhs_canon" 2>/dev/null || true
+  cleanup_compare_tmp "$lhs_canon" "$rhs_canon"
   return 0
 }
 
