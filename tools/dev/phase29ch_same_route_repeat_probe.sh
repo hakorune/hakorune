@@ -24,7 +24,7 @@ trap cleanup EXIT
 
 src_text="$(cat "$ENTRY")"
 
-emit_mode() {
+emit_once() {
   local mode="$1"
   local out="$2"
   case "$mode" in
@@ -66,26 +66,24 @@ pathlib.Path(sys.argv[2]).write_text(json.dumps(data, ensure_ascii=False))
 PY
 }
 
-default_out="$tmp_dir/default.out"
-internal_out="$tmp_dir/internal-only.out"
-delegate_out="$tmp_dir/delegate-only.out"
-default_json="$tmp_dir/default.json"
-internal_json="$tmp_dir/internal-only.json"
-delegate_json="$tmp_dir/delegate-only.json"
+compare_pair() {
+  local lhs="$1"
+  local rhs="$2"
+  local lhs_json="$tmp_dir/$lhs.json"
+  local rhs_json="$tmp_dir/$rhs.json"
+  echo "[repeat] $lhs vs $rhs"
+  python3 "$ROOT/tools/selfhost/lib/mir_canonical_compare.py" summarize-first-diff "$lhs_json" "$rhs_json"
+}
 
-emit_mode default "$default_out"
-emit_mode internal-only "$internal_out"
-emit_mode delegate-only "$delegate_out"
+for mode in default internal-only delegate-only; do
+  emit_once "$mode" "$tmp_dir/${mode}.a.out"
+  emit_once "$mode" "$tmp_dir/${mode}.b.out"
+  extract_json "$tmp_dir/${mode}.a.out" "$tmp_dir/${mode}.a.json"
+  extract_json "$tmp_dir/${mode}.b.out" "$tmp_dir/${mode}.b.json"
+done
 
-extract_json "$default_out" "$default_json"
-extract_json "$internal_out" "$internal_json"
-extract_json "$delegate_out" "$delegate_json"
-
-echo "[matrix] bin=$BIN"
-echo "[matrix] entry=$ENTRY"
-echo "[matrix] default vs internal-only"
-python3 "$ROOT/tools/selfhost/lib/mir_canonical_compare.py" summarize-first-diff "$default_json" "$internal_json"
-echo "[matrix] default vs delegate-only"
-python3 "$ROOT/tools/selfhost/lib/mir_canonical_compare.py" summarize-first-diff "$default_json" "$delegate_json"
-echo "[matrix] internal-only vs delegate-only"
-python3 "$ROOT/tools/selfhost/lib/mir_canonical_compare.py" summarize-first-diff "$internal_json" "$delegate_json"
+echo "[repeat] bin=$BIN"
+echo "[repeat] entry=$ENTRY"
+compare_pair "default.a" "default.b"
+compare_pair "internal-only.a" "internal-only.b"
+compare_pair "delegate-only.a" "delegate-only.b"

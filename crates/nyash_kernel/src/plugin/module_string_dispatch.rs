@@ -20,6 +20,32 @@ fn trace_log(message: impl AsRef<str>) {
     }
 }
 
+#[inline(always)]
+fn env_is_on(key: &str) -> bool {
+    matches!(
+        std::env::var(key).ok().as_deref(),
+        Some("1" | "true" | "on" | "TRUE" | "ON")
+    )
+}
+
+#[inline(always)]
+fn mir_builder_internal_on() -> bool {
+    !matches!(
+        std::env::var("HAKO_MIR_BUILDER_INTERNAL").ok().as_deref(),
+        Some("0" | "false" | "off" | "FALSE" | "OFF")
+    )
+}
+
+#[inline(always)]
+fn mir_builder_delegate_on() -> bool {
+    env_is_on("HAKO_MIR_BUILDER_DELEGATE")
+}
+
+#[inline(always)]
+fn mir_builder_no_delegate() -> bool {
+    env_is_on("HAKO_SELFHOST_NO_DELEGATE")
+}
+
 struct DispatchRoute {
     module: &'static str,
     method: &'static str,
@@ -132,6 +158,24 @@ fn handle_mir_builder_emit_from_program_json_v0(
             "[stage1/module_dispatch] mir_builder input_preview={:?}",
             preview
         ));
+    }
+    let internal_on = mir_builder_internal_on();
+    let delegate_on = mir_builder_delegate_on();
+    let no_delegate = mir_builder_no_delegate();
+    trace_log(format!(
+        "[stage1/module_dispatch] mir_builder gate internal_on={} delegate_on={} no_delegate={}",
+        internal_on, delegate_on, no_delegate
+    ));
+    if !internal_on && (no_delegate || !delegate_on) {
+        let reason = if no_delegate {
+            "delegate disabled by HAKO_SELFHOST_NO_DELEGATE=1"
+        } else {
+            "internal off and delegate off"
+        };
+        return Some(encode_string_handle(&format!(
+            "[freeze:contract][stage1_mir_builder] {}",
+            reason
+        )));
     }
     let mir_json = match nyash_rust::host_providers::mir_builder::program_json_to_mir_json_with_imports(
         &program_json,
@@ -300,5 +344,28 @@ mod tests {
             message
         );
         assert!(message.contains("functions"));
+    }
+
+    #[test]
+    fn mir_builder_respects_impossible_gate_contract() {
+        let recv = module_handle(MIR_BUILDER_MODULE);
+        let program_json = encode_string_handle(
+            r#"{"body":[{"expr":{"type":"Int","value":1},"type":"Return"}],"kind":"Program","version":0}"#,
+        );
+
+        std::env::set_var("HAKO_MIR_BUILDER_INTERNAL", "0");
+        std::env::set_var("HAKO_MIR_BUILDER_DELEGATE", "0");
+        std::env::set_var("HAKO_SELFHOST_NO_DELEGATE", "1");
+
+        let out = try_dispatch(recv, "emit_from_program_json_v0", 1, program_json, 0)
+            .expect("dispatch result");
+        let message = decode_result(out);
+
+        std::env::remove_var("HAKO_MIR_BUILDER_INTERNAL");
+        std::env::remove_var("HAKO_MIR_BUILDER_DELEGATE");
+        std::env::remove_var("HAKO_SELFHOST_NO_DELEGATE");
+
+        assert!(message.starts_with("[freeze:contract][stage1_mir_builder]"));
+        assert!(message.contains("delegate disabled") || message.contains("internal off"));
     }
 }
