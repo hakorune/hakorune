@@ -141,15 +141,15 @@ static box Main {
     }
     if stage1_debug_on {
       if mir_is_null == 1 {
-        print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 null compare matched; ignoring and using structural JSON validation")
+        print("[stage1-cli/debug] emit-mir current-route null compare matched; ignoring and using structural JSON validation")
       }
       if mir_is_empty == 1 {
-        print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 direct compare matched empty string; ignoring and using structural JSON validation")
+        print("[stage1-cli/debug] emit-mir current-route direct compare matched empty string; ignoring and using structural JSON validation")
       }
       if mir_text_is_empty == 1 {
-        print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 materialized empty string; ignoring and using structural JSON validation")
+        print("[stage1-cli/debug] emit-mir current-route materialized empty string; ignoring and using structural JSON validation")
       }
-      print("[stage1-cli/debug] MirBuilderBox.emit_from_program_json_v0 validating materialized payload")
+      print("[stage1-cli/debug] emit-mir current-route validating materialized payload")
     }
     mir = mir_text
     local mir_head = mir.substring(0, 1)

@@ -85,6 +85,9 @@ Evidence (2026-03-11):
 - same-route repeatability probe is fixed to `bash tools/dev/phase29ch_same_route_repeat_probe.sh [entry]`
 - fixed-Program repeatability probe is fixed to `bash tools/dev/phase29ch_fixed_program_mir_repeat_probe.sh [entry]`
 - transient-boundary probe is fixed to `bash tools/dev/phase29ch_transient_boundary_probe.sh [entry]`
+- source-route direct probe is fixed to `bash tools/dev/phase29ch_source_route_direct_probe.sh [entry]`
+  - diagnostics-only: builds a temporary helper artifact and calls `MirBuilderBox.emit_from_source_v0(...)` directly on a compiled artifact
+  - not accepted as reduced-case authority evidence
 - impossible-gate probe is fixed to `bash tools/dev/phase29ch_impossible_gate_probe.sh [entry]`
 - bridge-bypass probe is fixed to `bash tools/dev/phase29ch_bridge_bypass_probe.sh [entry]`
 - current authority shell contract now pins `stage1_contract_exec_mode` to `HAKO_SELFHOST_NO_DELEGATE=1` + `HAKO_MIR_BUILDER_DELEGATE=0` by default; delegate route is explicit compat only

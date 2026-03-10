@@ -3,7 +3,8 @@ MIRCall intrinsic registry (SSOT).
 
 This module centralizes method-name based intrinsic classifications used by
 LLVM MIRCall lowering. The goal is to avoid scattering hard-coded method lists
-across lowering modules.
+across lowering modules. Plugin/by-name String-return contracts also belong
+here, so boxcall/method_call lowering can share one string-result SSOT.
 """
 
 from typing import Dict, FrozenSet, Iterable, NamedTuple, Optional, Sequence, Tuple
