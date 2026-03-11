@@ -103,7 +103,7 @@ run_emit_mir_json_from_program_json() {
     exit 2
   fi
   program_json_text="$(cat "$program_json_path")"
-  stage1_contract_exec_program_json_text "$BIN" "__stage1_program_json__" "$program_json_text" "emit-mir"
+  stage1_contract_exec_program_json_text "$BIN" "__stage1_program_json__" "$program_json_text" "emit-mir-program"
 }
 
 run_emit_mir_json_from_source() {

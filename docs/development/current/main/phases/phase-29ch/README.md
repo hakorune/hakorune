@@ -90,8 +90,9 @@ Known non-authority routes:
   - explicit compat keep: `stage1-env-mir-program`
     - minimal selfhost helper calling `MirBuilderBox.emit_from_program_json_v0(...)` is green
     - `stage1_cli_env.hako` now keeps source-mainline vs explicit-compat in separate helper methods
+    - explicit mode is `emit-mir-program`; plain `emit-mir` now fail-fast on mixed-in Program(JSON) text
   - no separate cold compat lane remains on the current green route
-    - diagnostics-only from the dedicated cold-compat probe; alternate env/raw-wrapper shapes currently collapse to `stage1-env-mir-program`
+    - diagnostics-only from the dedicated cold-compat probe; legacy env shape now returns `none`, and only raw wrapper sugar still collapses to `stage1-env-mir-program`
   - raw `run_stage1_cli.sh ... --from-program-json` is wrapper sugar over `stage1-env-mir-program`, not a separate compat lane
 - current reduced route is green:
   - `smoke` PASS

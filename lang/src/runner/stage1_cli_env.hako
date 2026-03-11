@@ -20,6 +20,9 @@ static box Main {
     if mode == "emit-mir" {
       return me._run_emit_mir_mode("[freeze:contract][stage1-cli/emit-mir]")
     }
+    if mode == "emit-mir-program" {
+      return me._run_emit_mir_program_json_compat_mode("[freeze:contract][stage1-cli/emit-mir-program]")
+    }
     if mode == "run" {
       return me._run_emit_mir_mode("[freeze:contract][stage1-cli/run]")
     }
@@ -54,6 +57,9 @@ static box Main {
     if mode == "emit_mir_json" || mode == "emit-mir-json" {
       return "emit-mir"
     }
+    if mode == "emit_mir_program" || mode == "emit-mir-program" || mode == "emit_mir_program_json" || mode == "emit-mir-program-json" {
+      return "emit-mir-program"
+    }
     return mode
   }
 
@@ -65,23 +71,31 @@ static box Main {
   }
 
   method _run_emit_mir_mode(tag) {
+    if me._resolve_supplied_program_json_text() != "" {
+      print(tag + " explicit program-json text requires emit-mir-program mode")
+      return 96
+    }
+    local source_text = me._resolve_emit_program_source_text()
+    local mir = me._emit_mir_from_source_mainline(tag, source_text)
+    if mir == null {
+      return 96
+    }
+    return me._finalize_emit_mir_result(tag, source_text, mir)
+  }
+
+  method _run_emit_mir_program_json_compat_mode(tag) {
+    local supplied_program_json = me._resolve_supplied_program_json_text()
+    if supplied_program_json == null || supplied_program_json == "" {
+      print(tag + " missing program-json text contract")
+      return 96
+    }
+    local mir = me._emit_mir_from_explicit_program_json_text(supplied_program_json)
+    return me._finalize_emit_mir_result(tag, supplied_program_json, mir)
+  }
+
+  method _finalize_emit_mir_result(tag, selected_input, mir) {
     local stage1_debug = env.get("STAGE1_CLI_DEBUG")
     local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
-    // Authority: source-only env input goes straight to emit_from_source_v0().
-    // Compat keep: explicit supplied Program(JSON) text still routes through
-    // emit_from_program_json_v0() without changing current route authority.
-    local supplied_program_json = me._resolve_supplied_program_json_text()
-    local selected_input = supplied_program_json
-    local mir = null
-    if supplied_program_json != null && supplied_program_json != "" {
-      mir = me._emit_mir_from_explicit_program_json_text(supplied_program_json)
-    } else {
-      selected_input = me._resolve_emit_program_source_text()
-      mir = me._emit_mir_from_source_mainline(tag, selected_input)
-      if mir == null {
-        return 96
-      }
-    }
     if stage1_debug_on {
       print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(selected_input) + " preview=" + me._debug_preview_inline(selected_input))
     }

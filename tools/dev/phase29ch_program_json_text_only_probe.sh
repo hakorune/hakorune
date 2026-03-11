@@ -58,7 +58,7 @@ set +e
 stage1_contract_export_runner_defaults
 stage1_contract_run_bin_with_env \
   "$BIN" \
-  "emit-mir" \
+  "emit-mir-program" \
   "__stage1_program_json__" \
   "$program_json_text" \
   0 \

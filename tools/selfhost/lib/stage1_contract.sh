@@ -11,7 +11,7 @@ stage1_contract_emit_marker() {
     emit-program|emit_program_json|emit-program-json)
       printf '%s' '"kind"[[:space:]]*:[[:space:]]*"Program"'
       ;;
-    emit-mir|emit_mir_json|emit-mir-json)
+    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program|emit_mir_program|emit-mir-program-json|emit_mir_program_json)
       printf '%s' '"functions"[[:space:]]*:'
       ;;
     *)
@@ -191,7 +191,7 @@ stage1_contract_exec_program_json_text() {
   local bin="$1"
   local entry="$2"
   local program_json_text="$3"
-  local mode="${4:-emit-mir}"
+  local mode="${4:-emit-mir-program}"
   local emit_program_flag=0
   local emit_mir_flag=0
   local tmp_stdout=""
@@ -204,7 +204,7 @@ stage1_contract_exec_program_json_text() {
     emit-program|emit_program_json|emit-program-json)
       emit_program_flag=1
       ;;
-    emit-mir|emit_mir_json|emit-mir-json)
+    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program|emit_mir_program|emit-mir-program-json|emit_mir_program_json)
       emit_mir_flag=1
       ;;
   esac

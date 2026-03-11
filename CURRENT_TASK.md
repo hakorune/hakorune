@@ -119,9 +119,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - probe owner: `tools/dev/phase29ch_program_json_compat_route_probe.sh`
       - minimal selfhost helper proof: `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
       - `stage1_cli_env.hako` wrapper-level source/compat branch is helper-split for future removal
+      - explicit mode: `emit-mir-program`; plain `emit-mir` now fail-fast if Program(JSON) text is mixed in
     - no separate cold supplied-Program compat lane remains
       - diagnostics-only owner: `tools/dev/phase29ch_program_json_cold_compat_probe.sh`
-      - current observed aliases collapse to `stage1-env-mir-program`
+      - legacy env shape now returns `none`; only raw wrapper sugar still collapses to `stage1-env-mir-program`
     - raw `run_stage1_cli.sh ... --from-program-json` is sugar over `stage1-env-mir-program`, not a separate compat lane
     - direct raw/subcmd `stage1-cli emit ...` remains non-authority (`rc=97`)
     - solved locks:
