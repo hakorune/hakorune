@@ -245,7 +245,7 @@ Do not leave plugin ownership ambiguous.
 ### Compat keep
 
 - explicit supplied `Program(JSON)` input
-  - explicit compat route: `stage1-env-mir-program`
+  - monitor-only explicit compat route: `stage1-env-mir-program`
   - current transport: text-only
   - quarantined `.hako` owner:
     - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox`
@@ -253,6 +253,8 @@ Do not leave plugin ownership ambiguous.
     - `tools/selfhost/lib/stage1_contract.sh::stage1_contract_exec_program_json_compat()`
     - `tools/dev/phase29ch_program_json_compat_route_probe.sh`
     - `tools/dev/phase29ch_program_json_text_only_probe.sh`
+  - note:
+    - current caller inventory is probe/helper-owned only; this route is outside reduced authority evidence
 - alternate supplied-Program caller shapes
   - diagnostics-only aliases over `stage1-env-mir-program`
 - raw `run_stage1_cli.sh ... --from-program-json`

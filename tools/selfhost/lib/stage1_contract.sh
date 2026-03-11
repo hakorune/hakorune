@@ -256,8 +256,8 @@ stage1_contract_exec_program_json_text() {
     ""
 }
 
-# Exact-only live compat helper. Keep the generic text helper above it as the
-# low-level probe/diagnostics entry so live shell callers have a single SSOT.
+# Exact-only monitor/probe compat helper. Keep the generic text helper above it
+# as the low-level probe/diagnostics entry so the quarantine surface stays thin.
 stage1_contract_exec_program_json_compat() {
   local bin="$1"
   local program_json_text="$2"

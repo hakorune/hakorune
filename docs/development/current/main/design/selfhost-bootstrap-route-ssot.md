@@ -95,6 +95,7 @@ SSOT:
 - materialized MIR(JSON) validation / debug surface is isolated in `stage1_cli_env.hako::Stage1MirResultValidationBox`, keeping `Main` as a thin dispatcher
 - that explicit compatibility gate/call is now quarantined in `Stage1ProgramJsonCompatBox` inside `lang/src/runner/stage1_cli_env.hako`
 - explicit compatibility input shape は exact-only `emit-mir-program` mode でのみ許可し、live text transport は `STAGE1_SOURCE_TEXT` を再利用する
+- current caller inventory for that explicit compat helper is probe/helper-owned only; it is outside reduced authority evidence
 - plain `emit-mir` は mixed-in `STAGE1_PROGRAM_JSON_TEXT` を fail-fast する
 - legacy alias forms for that explicit mode are not part of the active contract
 - raw `stage1-cli` artifact の helper execution lane はまだ `rc=97` のため、explicit Program(JSON) compat dispatch は Stage1-side keep のままにする

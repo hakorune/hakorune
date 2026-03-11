@@ -115,7 +115,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `phase-29ch` summary lock:
     - current authority: `stage1-env-program` + `stage1-env-mir-source`
     - reduced proof source: `lang/src/runner/stage1_cli_env.hako`
-    - explicit compat keep: `stage1-env-mir-program`
+    - monitor-only explicit compat keep: `stage1-env-mir-program`
       - current live text transport SSOT: `STAGE1_SOURCE_TEXT`
       - legacy/cold env key: `STAGE1_PROGRAM_JSON_TEXT` (fail-fast / diagnostics only; no longer injected by live shell helpers)
       - retired path transport is gone from `stage1_contract.sh`; live shell compat is exact helper only
@@ -125,6 +125,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - code-side quarantine owner: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (explicit compat call + mixed-input fail-fast gate)
       - explicit mode is exact-only: `emit-mir-program`
       - shell-side exact compat helper/entry/mode SSOT: `tools/selfhost/lib/stage1_contract.sh` (`stage1_contract_exec_program_json_compat()`)
+      - current caller inventory: probe/helper-owned only; not part of the reduced authority proof path
       - plain `emit-mir` now fail-fast if Program(JSON) text is mixed in
       - gate probe: `tools/dev/phase29ch_program_json_explicit_mode_gate_probe.sh`
       - legacy alias forms such as `emit_mir_program` are rejected

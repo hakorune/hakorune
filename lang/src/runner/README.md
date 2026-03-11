@@ -53,7 +53,7 @@ Pointers:
 - materialized Program(JSON) validation is isolated in `Stage1ProgramResultValidationBox` inside `stage1_cli_env.hako`; keep emit-program on the same thin-dispatch pattern as emit-mir.
 - source-only authority call is isolated in `Stage1SourceMirAuthorityBox` inside `stage1_cli_env.hako`; keep Main as a thin dispatcher.
 - shared MIR materialization/validation is isolated in `Stage1MirResultValidationBox` inside `stage1_cli_env.hako`; keep result checking out of Main and out of the compat box.
-- explicit Program(JSON) compat keep is quarantined in `Stage1ProgramJsonCompatBox` inside `stage1_cli_env.hako`; keep both the mixed-input fail-fast gate and the explicit compat call separate from the source-mainline authority, then retire that box slice-by-slice.
+- explicit Program(JSON) compat keep is quarantined in `Stage1ProgramJsonCompatBox` inside `stage1_cli_env.hako`; current callers are probe/helper-owned only, so keep it outside reduced authority evidence and retire that box slice-by-slice.
 - Fail-Fast 原則:
   - 未実装コマンドや不正な引数は明示的なメッセージ＋非0終了コードで返す。
   - 暗黙のフォールバックや静かな無視は行わない。
