@@ -51,7 +51,10 @@ Related:
   - diagnostics-only: emits/runs temporary `stage1_cli_env`-shaped clones through Stage1/Stage2 and narrows where source-route promotion first turns red
 - explicit Program(JSON) compat probe:
   - `bash tools/dev/phase29ch_program_json_compat_route_probe.sh --bin <stage1-cli>`
-  - diagnostics-only: reports which compat-only supplied-Program route is actually live on a compiled artifact
+  - diagnostics-only: reports which live env-mainline supplied-Program route is actually used on a compiled artifact
+- explicit Program(JSON) cold compat probe:
+  - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin <stage1-cli>`
+  - diagnostics-only: reports whether legacy/subcmd cold compat routes are still accepted on a compiled artifact
 - explicit Program(JSON) text-only probe:
   - `bash tools/dev/phase29ch_program_json_text_only_probe.sh --bin <stage1-cli>`
   - diagnostics-only: proves whether the remaining compat resolver can accept `*_PROGRAM_JSON_TEXT` alone
@@ -117,7 +120,10 @@ Related:
   both report `compat_route=stage1-env-mir-program`.
 - That live env-mainline compat route uses text transport through `stage1_contract_exec_program_json_text()`.
 - Raw `tools/selfhost/run_stage1_cli.sh ... emit mir-json --from-program-json <file>` is aligned to the same text-only transport.
-- `stage1-env-mir-legacy` and `stage1-subcmd-mir-program` remain cold compat keeps on green artifacts.
+- `stage1-env-mir-legacy` and `stage1-subcmd-mir-program` remain cold compat keeps on green artifacts, but they are no longer part of the shared live compat helper order.
+- `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin target/selfhost/hakorune.stage1_cli`
+  and `--bin target/selfhost/hakorune.stage1_cli.stage2`
+  currently both report `cold_compat_route=stage1-env-mir-legacy`.
 - After the `_resolve_supplied_program_json_text()` cleanup in `lang/src/runner/stage1_cli_env.hako`,
   `bash tools/dev/phase29ch_program_json_text_only_probe.sh --bin target/selfhost/hakorune.stage1_cli`
   and `--bin target/selfhost/hakorune.stage1_cli.stage2`
@@ -129,6 +135,7 @@ Related:
   - `program-json`: `stage1-env-program`
   - `mir-json`: `stage1-env-mir-source`
 - `stage1-env-mir-program` / `stage1-env-mir-legacy` / `stage1-subcmd-mir-program` are compatibility-only and are not accepted as reduced-case authority evidence.
+- only `stage1-env-mir-program` is part of the shared live env-mainline compat helper order.
 - `tools/selfhost/build_stage1.sh` stage1-cli capability probe and `identity_routes.sh` preflight share the same env-mainline capability helper.
 - `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli` capability probe must fail fast if the artifact only exposes compat/stale routes.
 - `tools/selfhost/build_stage1.sh` bridge-first bootstrap body also uses the same shared env-mainline helper for actual source->MIR emission.

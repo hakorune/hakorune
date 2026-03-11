@@ -213,8 +213,8 @@ run_stage1_env_mir_program_compat_route() {
   local entry="$2"
   local outfile="$3"
   local route_file="${4:-}"
-  local tmp_prog
   local program_json_text
+  local tmp_prog
   tmp_prog="$(mktemp)"
 
   if ! run_stage1_env_route "$bin" "program-json" "$entry" "$tmp_prog"; then
@@ -223,7 +223,7 @@ run_stage1_env_mir_program_compat_route() {
   fi
   program_json_text="$(cat "$tmp_prog")"
 
-  # Compatibility path for artifacts that still require explicit Program(JSON v0).
+  # Current live compat keep: env-mainline Program(JSON text) -> emit-mir.
   if run_and_extract_stage_payload \
     "mir-json" \
     "$outfile" \
@@ -235,7 +235,25 @@ run_stage1_env_mir_program_compat_route() {
     return 0
   fi
 
-  # Compatibility toggle for artifacts that still key off legacy STAGE1_EMIT_MIR_JSON.
+  rm -f "$tmp_prog"
+  return 1
+}
+
+probe_stage1_env_mir_program_cold_compat_route() {
+  local bin="$1"
+  local entry="$2"
+  local outfile="$3"
+  local route_file="${4:-}"
+  local tmp_prog
+  local program_json_text
+  tmp_prog="$(mktemp)"
+
+  if ! run_stage1_env_route "$bin" "program-json" "$entry" "$tmp_prog"; then
+    rm -f "$tmp_prog"
+    return 1
+  fi
+  program_json_text="$(cat "$tmp_prog")"
+
   if run_and_extract_stage_payload \
     "mir-json" \
     "$outfile" \
@@ -247,7 +265,6 @@ run_stage1_env_mir_program_compat_route() {
     return 0
   fi
 
-  # Last attempt inside stage1 route: explicit subcommand with --from-program-json.
   if run_stage1_subcmd_mir_program_compat_route "$bin" "$tmp_prog" "$outfile"; then
     rm -f "$tmp_prog"
     if [[ -n "$route_file" ]]; then

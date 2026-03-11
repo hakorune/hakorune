@@ -89,6 +89,7 @@ Known non-authority routes:
 - explicit supplied `Program(JSON)` input remains compatibility-only:
   - live compat keep: `stage1-env-mir-program`
   - cold compat keeps: `stage1-env-mir-legacy`, `stage1-subcmd-mir-program`
+    - diagnostics-only from shared route helper; not part of live env-mainline compat fallback order
 - current reduced route is green:
   - `smoke` PASS
   - `G1 full` PASS
