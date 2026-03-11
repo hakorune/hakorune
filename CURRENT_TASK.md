@@ -158,6 +158,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - owner-2 minimal tightening:
         - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` now routes `stage1-env-program` through the strict default surrogate when the current normalized mode is `emit-program`
         - launcher/no-mode keep still uses the relaxed surrogate; do not broaden strict mode beyond explicit authority
+      - rejected owner-1 shape:
+        - do not narrow strict default helper defs to `Main`-only yet; fresh Stage2 build loses same-file `Stage1InputContractBox.*` / `Stage1ProgramAuthorityBox.*` / `Stage1MirResultValidationBox.*` closure and fails link
       - raw direct `stage1-cli` lane absence (`<bin> <source>` / `emit ...` / helper execute => `rc=97`) is a separate future slice, not the current reduced authority owner
       - do not spend the next slice on shell/probe boundary cleanup; wrapper/docs are thin enough for `phase-29ch`
       - keep alternate supplied-Program diagnostics probe-owned; do not pull legacy/raw wrapper aliases back into shared helpers

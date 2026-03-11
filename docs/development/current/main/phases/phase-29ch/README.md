@@ -129,6 +129,7 @@ Detailed evidence / solved slice log / diagnostics probes:
    - latest authority tightening: `src/host_providers/mir_builder.rs` now uses the strict default surrogate for `stage1-env-mir-source`, so current source authority does not depend on dev-local alias sugar preexpansion
    - latest owner-1 API reduction: `source_to_program_json_v0(...)` is now strict-by-default, and relaxed dev-local alias / launcher keep moved to explicit `source_to_program_json_v0_relaxed(...)`
    - latest owner-2 minimal tightening: `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` routes normalized `emit-program` authority through the strict default surrogate, while launcher/no-mode keep stays on the explicit relaxed helper
+   - rejected narrowing for now: strict default cannot switch to `Main`-only helper defs yet; fresh Stage2 build loses same-file `Stage1*` box closure and fails link
 5. do not spend the next slice on shell/probe boundary cleanup or raw direct lane revival
 6. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 
