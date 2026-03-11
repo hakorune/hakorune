@@ -121,7 +121,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - retired path transport is gone from `stage1_contract.sh`; live shell compat is exact helper only
       - probe owner: `tools/dev/phase29ch_program_json_compat_route_probe.sh`
       - minimal selfhost helper proof: `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
-      - `stage1_cli_env.hako` dispatcher now hands emit-program authority to `Stage1ProgramAuthorityBox`, source authority to `Stage1SourceMirAuthorityBox`, shared MIR validation to `Stage1MirResultValidationBox`, and compat keep to `Stage1ProgramJsonCompatBox`
+      - `stage1_cli_env.hako` dispatcher now hands shared input/env contract to `Stage1InputContractBox`, emit-program authority to `Stage1ProgramAuthorityBox`, emit-program validation to `Stage1ProgramResultValidationBox`, source authority to `Stage1SourceMirAuthorityBox`, shared MIR validation to `Stage1MirResultValidationBox`, and compat keep to `Stage1ProgramJsonCompatBox`
       - code-side quarantine owner: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (explicit compat call + mixed-input fail-fast gate)
       - explicit mode is exact-only: `emit-mir-program`
       - shell-side exact compat helper/entry/mode SSOT: `tools/selfhost/lib/stage1_contract.sh` (`stage1_contract_exec_program_json_compat()`)
@@ -147,7 +147,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - keep supplied `Program(JSON)` compat explicit-only; do not reintroduce it into generic env route resolution
       - treat `emit_from_program_json_v0(...)` itself as green in minimal selfhost helper shape; `stage1_cli_env.hako` wrapper-level compat branch is now thin enough
       - raw direct `stage1-cli` lane absence (`<bin> <source>` / `emit ...` / helper execute => `rc=97`) is a separate future slice, not the current reduced authority owner
-      - next BoxShape owner can align the shell helper boundary (`stage1_contract_exec_program_json_compat()` vs low-level probe helper) and legacy raw-direct notes without reopening raw direct lanes
+      - next BoxShape owner can leave `stage1_cli_env.hako` alone and move to the next MIR-direct reduction slice, or quarantine the shell-side live/probe helper boundary a little further without reopening raw direct lanes
       - keep alternate supplied-Program diagnostics probe-owned; do not pull legacy/raw wrapper aliases back into shared helpers
       - touch `lang/src/runner/stage1_cli_env.hako` again only if the execute-lane slice proves a Stage1-side shim is still needed
       - do not widen authority or jump to JSON v0 retirement

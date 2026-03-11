@@ -113,14 +113,18 @@ Current note:
 
 Primary owner:
 - `lang/src/runner/stage1_cli_env.hako`
+- `lang/src/runner/stage1_cli_env.hako::Stage1InputContractBox` (`shared input/env contract`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramAuthorityBox` (`emit-program authority`, same-file)
+- `lang/src/runner/stage1_cli_env.hako::Stage1ProgramResultValidationBox` (`Program JSON validation`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1SourceMirAuthorityBox` (`source authority`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1MirResultValidationBox` (`shared MIR validation`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (`compat quarantine`, not authority)
 
 Responsibility:
 - reduced bootstrap の current authority entry
+- shared env/source resolution contract を `Stage1InputContractBox` に閉じて authority/compat box から切り離す
 - emit-program authority / defs materialization を `Stage1ProgramAuthorityBox` に閉じて `Main` から切り離す
+- materialized Program(JSON) validation を `Stage1ProgramResultValidationBox` に閉じる
 - source-only `emit-mir` authority input を `Stage1SourceMirAuthorityBox` 経由で `MirBuilderBox.emit_from_source_v0(...)` へ渡す
 - shared MIR materialization / validation / debug surface を `Stage1MirResultValidationBox` に閉じる
 - explicit supplied `Program(JSON)` は compat-only input shape として受ける

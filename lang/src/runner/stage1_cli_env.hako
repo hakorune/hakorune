@@ -30,21 +30,21 @@ static box Main {
   }
 
   method _resolve_mode() {
-    local explicit = me._clean_env_value(env.get("NYASH_STAGE1_MODE"))
+    local explicit = Stage1InputContractBox.clean_env_value(env.get("NYASH_STAGE1_MODE"))
     if explicit == "" {
-      explicit = me._clean_env_value(env.get("HAKO_STAGE1_MODE"))
+      explicit = Stage1InputContractBox.clean_env_value(env.get("HAKO_STAGE1_MODE"))
     }
     if explicit != "" {
       return me._normalize_mode_alias_inline(explicit)
     }
 
-    if me._clean_env_value(env.get("STAGE1_EMIT_PROGRAM_JSON")) == "1" {
+    if Stage1InputContractBox.clean_env_value(env.get("STAGE1_EMIT_PROGRAM_JSON")) == "1" {
       return "emit-program"
     }
-    if me._clean_env_value(env.get("STAGE1_EMIT_MIR_JSON")) == "1" {
+    if Stage1InputContractBox.clean_env_value(env.get("STAGE1_EMIT_MIR_JSON")) == "1" {
       return "emit-mir"
     }
-    if me._clean_env_value(env.get("NYASH_USE_STAGE1_CLI")) == "1" {
+    if Stage1InputContractBox.clean_env_value(env.get("NYASH_USE_STAGE1_CLI")) == "1" {
       return "run"
     }
     return ""
@@ -61,21 +61,20 @@ static box Main {
   }
 
   method _run_emit_program_mode() {
-    local source_text = me._resolve_emit_program_source_text()
+    local source_text = Stage1InputContractBox.resolve_emit_program_source_text()
     if source_text == null { return 96 }
-    local source_path = me._resolve_source_path()
+    local source_path = Stage1InputContractBox.resolve_source_path()
     local prog = Stage1ProgramAuthorityBox.build_program_json_from_source(source_text, source_path)
     if prog == null { return 96 }
-    print(prog)
-    return 0
+    return Stage1ProgramResultValidationBox.finalize_emit_result(prog)
   }
 
   method _run_emit_mir_mode(tag) {
-    local supplied_program_json_text = me._resolve_supplied_program_json_text()
+    local supplied_program_json_text = Stage1InputContractBox.resolve_supplied_program_json_text()
     if Stage1ProgramJsonCompatBox.fail_fast_mixed_source_mode(tag, supplied_program_json_text) != 0 {
       return 96
     }
-    local source_text = me._resolve_emit_program_source_text()
+    local source_text = Stage1InputContractBox.resolve_emit_program_source_text()
     local mir = Stage1SourceMirAuthorityBox.emit_mir_from_source(tag, source_text)
     if mir == null {
       return 96
@@ -84,7 +83,7 @@ static box Main {
   }
 
   method _run_emit_mir_program_json_compat_mode(tag) {
-    local program_json_text = me._resolve_source_text()
+    local program_json_text = Stage1InputContractBox.resolve_source_text()
     local mir = Stage1ProgramJsonCompatBox.emit_mir_from_text(tag, program_json_text)
     if mir == null {
       return 96
@@ -92,10 +91,15 @@ static box Main {
     return Stage1MirResultValidationBox.finalize_emit_result(tag, program_json_text, mir)
   }
 
-  method _resolve_supplied_program_json_text() {
+}
+
+// Shared env/source contract keep stays same-file so authority/compat boxes can
+// share input resolution without widening the current stage1 artifact boundary.
+static box Stage1InputContractBox {
+  method resolve_supplied_program_json_text() {
     local stage1_debug = env.get("STAGE1_CLI_DEBUG")
     local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
-    local stage1_prog_json_text = me._clean_env_value(env.get("STAGE1_PROGRAM_JSON_TEXT"))
+    local stage1_prog_json_text = me.clean_env_value(env.get("STAGE1_PROGRAM_JSON_TEXT"))
     if stage1_debug_on {
       print("[stage1-cli/debug] emit-mir STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(stage1_prog_json_text) + " preview=" + me._debug_preview_inline(stage1_prog_json_text))
     }
@@ -105,8 +109,8 @@ static box Main {
     return ""
   }
 
-  method _resolve_emit_program_source_text() {
-    local text = me._resolve_source_text()
+  method resolve_emit_program_source_text() {
+    local text = me.resolve_source_text()
     if env.get("STAGE1_CLI_DEBUG") == "1" {
       print("[stage1-cli/debug] emit-program resolved-text.len=" + me._debug_len_inline(text) +
             " preview=" + me._debug_preview_inline(text))
@@ -115,7 +119,7 @@ static box Main {
       return text
     }
 
-    local source = me._resolve_source_path()
+    local source = me.resolve_source_path()
     if env.get("STAGE1_CLI_DEBUG") == "1" {
       print("[stage1-cli/debug] emit-program resolved-source.len=" + me._debug_len_inline(source) +
             " preview=" + me._debug_preview_inline(source))
@@ -145,16 +149,24 @@ static box Main {
     return loaded
   }
 
-  method _resolve_source_text() {
-    return me._clean_env_value(env.get("STAGE1_SOURCE_TEXT"))
+  method resolve_source_text() {
+    return me.clean_env_value(env.get("STAGE1_SOURCE_TEXT"))
   }
 
-  method _resolve_source_path() {
-    local source = me._clean_env_value(env.get("HAKO_STAGE1_INPUT"))
-    if source == "" { source = me._clean_env_value(env.get("NYASH_STAGE1_INPUT")) }
-    if source == "" { source = me._clean_env_value(env.get("STAGE1_SOURCE")) }
-    if source == "" { source = me._clean_env_value(env.get("STAGE1_INPUT")) }
+  method resolve_source_path() {
+    local source = me.clean_env_value(env.get("HAKO_STAGE1_INPUT"))
+    if source == "" { source = me.clean_env_value(env.get("NYASH_STAGE1_INPUT")) }
+    if source == "" { source = me.clean_env_value(env.get("STAGE1_SOURCE")) }
+    if source == "" { source = me.clean_env_value(env.get("STAGE1_INPUT")) }
     return source
+  }
+
+  method clean_env_value(v) {
+    local s = "" + v
+    if s == "null" || s == "Null" || s == "void" || s == "Void" {
+      return ""
+    }
+    return s
   }
 
   method _debug_len_inline(value) {
@@ -169,15 +181,6 @@ static box Main {
     if s.length() <= 64 { return s }
     return s.substring(0, 64)
   }
-
-  method _clean_env_value(v) {
-    local s = "" + v
-    if s == "null" || s == "Null" || s == "void" || s == "Void" {
-      return ""
-    }
-    return s
-  }
-
 }
 
 // Emit-program authority keep stays in the same file so Main can stay a thin
@@ -756,6 +759,27 @@ static box Stage1ProgramAuthorityBox {
     out = out + "]"
     if first == 1 { return "" }
     return out
+  }
+}
+
+// Materialized Program(JSON) validation stays same-file so emit-program can use
+// the same thin-dispatch pattern as emit-mir without widening the boundary.
+static box Stage1ProgramResultValidationBox {
+  method finalize_emit_result(program_json) {
+    local prog_text = "" + program_json
+    local prog_head = prog_text.substring(0, 1)
+    if prog_head != "{" {
+      print("[freeze:contract][stage1-cli/emit-program] output is not Program JSON")
+      print(prog_text)
+      return 96
+    }
+    if prog_text.indexOf("\"version\":0") < 0 || prog_text.indexOf("\"kind\":\"Program\"") < 0 {
+      print("[freeze:contract][stage1-cli/emit-program] output missing Program(JSON v0) markers")
+      print(prog_text)
+      return 96
+    }
+    print(prog_text)
+    return 0
   }
 }
 
