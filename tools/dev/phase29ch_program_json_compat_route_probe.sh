@@ -11,7 +11,7 @@ usage() {
   cat <<'USAGE' >&2
 Usage: tools/dev/phase29ch_program_json_compat_route_probe.sh [--bin <path>] [entry.hako]
 
-Reports which live env-mainline Program(JSON) compatibility route is actually
+Reports which explicit Program(JSON) compatibility route is actually
 used for `emit mir-json` on the given compiled stage1-compatible artifact.
 USAGE
 }

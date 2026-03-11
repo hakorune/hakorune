@@ -51,7 +51,7 @@ Related:
   - diagnostics-only: emits/runs temporary `stage1_cli_env`-shaped clones through Stage1/Stage2 and narrows where source-route promotion first turns red
 - explicit Program(JSON) compat probe:
   - `bash tools/dev/phase29ch_program_json_compat_route_probe.sh --bin <stage1-cli>`
-  - diagnostics-only: reports which live env-mainline supplied-Program route is actually used on a compiled artifact
+  - diagnostics-only: reports which explicit supplied-Program compat route is actually used on a compiled artifact
 - explicit Program(JSON) cold compat probe:
   - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin <stage1-cli>`
   - diagnostics-only: reports whether legacy/subcmd cold compat routes are still accepted on a compiled artifact
@@ -118,7 +118,7 @@ Related:
 - `bash tools/dev/phase29ch_program_json_compat_route_probe.sh --bin target/selfhost/hakorune.stage1_cli`
   and `--bin target/selfhost/hakorune.stage1_cli.stage2`
   both report `compat_route=stage1-env-mir-program`.
-- That live env-mainline compat route uses text transport through `stage1_contract_exec_program_json_text()` and the current text SSOT is `STAGE1_PROGRAM_JSON_TEXT`.
+- That explicit compat route uses text transport through `stage1_contract_exec_program_json_text()` and the current text SSOT is `STAGE1_PROGRAM_JSON_TEXT`.
 - Raw `tools/selfhost/run_stage1_cli.sh ... emit mir-json --from-program-json <file>` is aligned to the same text-only transport and is treated as sugar over `stage1-env-mir-program`.
 - No separate cold supplied-Program compat lane remains on green artifacts.
 - The remaining diagnostics owner is `tools/dev/phase29ch_program_json_cold_compat_probe.sh`, not `identity_routes.sh` / `stage1_contract.sh`.
@@ -137,8 +137,8 @@ Related:
 - `tools/selfhost_identity_check.sh --mode full` must observe:
   - `program-json`: `stage1-env-program`
   - `mir-json`: `stage1-env-mir-source`
-- `stage1-env-mir-program` is compatibility-only and is not accepted as reduced-case authority evidence.
-- only `stage1-env-mir-program` is part of the shared live env-mainline compat helper order.
+- `stage1-env-mir-program` is explicit compatibility-only and is not accepted as reduced-case authority evidence.
+- only `stage1-env-mir-program` remains as the explicit supplied-Program compat route.
 - `tools/selfhost/build_stage1.sh` stage1-cli capability probe and `identity_routes.sh` preflight share the same env-mainline capability helper.
 - `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli` capability probe must fail fast if the artifact only exposes compat/stale routes.
 - `tools/selfhost/build_stage1.sh` bridge-first bootstrap body also uses the same shared env-mainline helper for actual source->MIR emission.

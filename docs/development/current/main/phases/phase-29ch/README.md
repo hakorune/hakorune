@@ -87,7 +87,7 @@ Known non-authority routes:
 - source-only authority input is accepted evidence:
   - `lang/src/runner/stage1_cli_env.hako` -> `MirBuilderBox.emit_from_source_v0(...)`
 - explicit supplied `Program(JSON)` input remains compatibility-only:
-  - live compat keep: `stage1-env-mir-program`
+  - explicit compat keep: `stage1-env-mir-program`
   - no separate cold compat lane remains on the current green route
     - diagnostics-only from the dedicated cold-compat probe; alternate env/raw-wrapper shapes currently collapse to `stage1-env-mir-program`
   - raw `run_stage1_cli.sh ... --from-program-json` is wrapper sugar over `stage1-env-mir-program`, not a separate compat lane

@@ -223,7 +223,7 @@ run_stage1_env_mir_program_compat_route() {
   fi
   program_json_text="$(cat "$tmp_prog")"
 
-  # Current live compat keep: env-mainline Program(JSON text) -> emit-mir.
+  # Explicit compat keep: supplied Program(JSON text) -> emit-mir.
   if run_and_extract_stage_payload \
     "mir-json" \
     "$outfile" \
@@ -273,10 +273,7 @@ run_stage1_env_route() {
     fi
     return 0
   fi
-
-  run_stage1_env_mir_program_compat_route \
-    "$bin" "$entry" "$outfile" "$route_file"
-  return $?
+  return 1
 }
 
 probe_exact_stage1_env_authority() {

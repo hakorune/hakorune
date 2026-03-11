@@ -150,7 +150,7 @@ Current note:
 ### Compat keep
 
 - explicit supplied `Program(JSON)` input
-  - live compat route: `stage1-env-mir-program`
+  - explicit compat route: `stage1-env-mir-program`
   - current transport: text-only
 - alternate supplied-Program caller shapes
   - diagnostics-only aliases over `stage1-env-mir-program`
