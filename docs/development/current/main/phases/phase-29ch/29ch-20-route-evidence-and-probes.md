@@ -69,6 +69,9 @@ Related:
   - `bash tools/dev/phase29ch_selfhost_source_route_helper_probe.sh`
 - selfhost source-route bisect probe:
   - `bash tools/dev/phase29ch_selfhost_source_route_bisect_probe.sh`
+- selfhost Program(JSON) helper probe:
+  - `bash tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
+  - diagnostics-only: proves that a minimal selfhost helper calling `MirBuilderBox.emit_from_program_json_v0(...)` stays green on Stage1/Stage2
 
 ## Current Compare Decision
 
@@ -123,6 +126,10 @@ Related:
 - Raw `tools/selfhost/run_stage1_cli.sh ... emit mir-json --from-program-json <file>` is aligned to the same text-only transport and is treated as sugar over `stage1-env-mir-program`.
 - No separate cold supplied-Program compat lane remains on green artifacts.
 - The remaining diagnostics owner is `tools/dev/phase29ch_program_json_cold_compat_probe.sh`, not `identity_routes.sh` / `stage1_contract.sh`.
+- `bash tools/dev/phase29ch_selfhost_program_json_helper_probe.sh` is green:
+  - `stage1_stage2_mir=exact-match`
+  - runtime flags: `MIR_NONNULL`, `MIR_NONEMPTY`, `TEXT_NONEMPTY`, `LEN_POS`, `HEAD_OK`, `IDX_OK`
+- therefore the next owner is `stage1_cli_env.hako` wrapper-level compat branching, not `MirBuilderBox.emit_from_program_json_v0(...)` itself.
 - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin target/selfhost/hakorune.stage1_cli`
   and `--bin target/selfhost/hakorune.stage1_cli.stage2`
   currently both report:

@@ -117,6 +117,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - explicit compat keep: `stage1-env-mir-program`
       - current supplied Program(JSON) text SSOT: `STAGE1_PROGRAM_JSON_TEXT`
       - probe owner: `tools/dev/phase29ch_program_json_compat_route_probe.sh`
+      - minimal selfhost helper proof: `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
+      - `stage1_cli_env.hako` wrapper-level source/compat branch is helper-split for future removal
     - no separate cold supplied-Program compat lane remains
       - diagnostics-only owner: `tools/dev/phase29ch_program_json_cold_compat_probe.sh`
       - current observed aliases collapse to `stage1-env-mir-program`
@@ -130,6 +132,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - next owner order:
       - keep `stage1-env-mir-source` green as current authority
       - keep supplied `Program(JSON)` compat explicit-only; do not reintroduce it into generic env route resolution
+      - treat `emit_from_program_json_v0(...)` itself as green in minimal selfhost helper shape; next owner is `stage1_cli_env.hako` wrapper-level compat branch, not `MirBuilderBox`
       - keep alternate supplied-Program diagnostics probe-owned; do not pull legacy/raw wrapper aliases back into shared helpers
       - touch `lang/src/runner/stage1_cli_env.hako` only if compat input still needs a Stage1-side shim
       - do not widen authority or jump to JSON v0 retirement

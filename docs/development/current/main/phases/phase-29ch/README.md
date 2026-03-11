@@ -88,6 +88,8 @@ Known non-authority routes:
   - `lang/src/runner/stage1_cli_env.hako` -> `MirBuilderBox.emit_from_source_v0(...)`
 - explicit supplied `Program(JSON)` input remains compatibility-only:
   - explicit compat keep: `stage1-env-mir-program`
+    - minimal selfhost helper calling `MirBuilderBox.emit_from_program_json_v0(...)` is green
+    - `stage1_cli_env.hako` now keeps source-mainline vs explicit-compat in separate helper methods
   - no separate cold compat lane remains on the current green route
     - diagnostics-only from the dedicated cold-compat probe; alternate env/raw-wrapper shapes currently collapse to `stage1-env-mir-program`
   - raw `run_stage1_cli.sh ... --from-program-json` is wrapper sugar over `stage1-env-mir-program`, not a separate compat lane
@@ -106,6 +108,7 @@ Detailed evidence / solved slice log / diagnostics probes:
 1. keep source-only `stage1-env-mir-source` as the current green authority path
 2. thin explicit supplied Program(JSON) compat surface
 3. touch `lang/src/runner/stage1_cli_env.hako` only if the compat input itself still needs a Stage1-side shim
+   - `MirBuilderBox.emit_from_program_json_v0(...)` itself is already green in minimal selfhost helper shape
 4. choose the next reduction slice without widening authority
 5. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 

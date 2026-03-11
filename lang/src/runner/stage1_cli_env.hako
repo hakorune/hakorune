@@ -74,15 +74,13 @@ static box Main {
     local selected_input = supplied_program_json
     local mir = null
     if supplied_program_json != null && supplied_program_json != "" {
-      mir = MirBuilderBox.emit_from_program_json_v0(supplied_program_json, null)
+      mir = me._emit_mir_from_explicit_program_json_text(supplied_program_json)
     } else {
-      local source_text = me._resolve_emit_program_source_text()
-      selected_input = source_text
-      if source_text == null || source_text == "" {
-        print(tag + " input missing source/program-json contract")
+      selected_input = me._resolve_emit_program_source_text()
+      mir = me._emit_mir_from_source_mainline(tag, selected_input)
+      if mir == null {
         return 96
       }
-      mir = MirBuilderBox.emit_from_source_v0(source_text, null)
     }
     if stage1_debug_on {
       print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(selected_input) + " preview=" + me._debug_preview_inline(selected_input))
@@ -176,6 +174,18 @@ static box Main {
     if has_functions < 0 { return 96 }
     print(mir)
     return 0
+  }
+
+  method _emit_mir_from_explicit_program_json_text(program_json_text) {
+    return MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
+  }
+
+  method _emit_mir_from_source_mainline(tag, source_text) {
+    if source_text == null || source_text == "" {
+      print(tag + " input missing source/program-json contract")
+      return null
+    }
+    return MirBuilderBox.emit_from_source_v0(source_text, null)
   }
 
   method _resolve_supplied_program_json_text() {
