@@ -64,6 +64,19 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - top-level aftercare is no longer the current blocker
 - selfhost mainline next:
   - return to de-rust selfhost feature work
+  - selfhost / de-rust mainline reading order (restart SSOT):
+    1. `CURRENT_TASK.md`
+       - current blocker, exact next owner order, latest accepted truth
+    2. `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
+       - final goal and non-negotiable migration order (`mirbuilder first`, `parser later`)
+    3. `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+       - current route authority, compatibility boundaries, bootstrap acceptance
+    4. `docs/development/current/main/phases/phase-29ch/README.md`
+       - active phase for MIR-direct bootstrap unification
+    5. `docs/development/current/main/phases/phase-29cg/README.md`
+       - solved reduced bootstrap slice that must stay closed
+    6. `docs/development/current/main/phases/phase-29cc/README.md`
+       - de-rust orchestration/top-level scope aftercare (monitor-only)
   - restart quick entry (2026-03-10):
     - final goal: `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`
     - bootstrap rule: `Program(JSON v0)` bridge is bootstrap-only and remains a retire target

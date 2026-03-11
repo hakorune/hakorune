@@ -4,6 +4,7 @@ Status: SSOT
 Scope: selfhost を「.hako コンパイラ → JoinIR → JSON v0 → VM」まで戻す最小経路の契約。
 
 Related:
+- CURRENT_TASK.md
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/phases/phase-29bq/README.md
 - docs/development/current/main/design/compiler-expressivity-first-policy.md
@@ -20,6 +21,21 @@ Related:
 
 selfhost を目的化せず、compiler-first の方針を守りつつ、
 「.hako コンパイラが自己コンパイル可能な状態」へ戻すための最小経路を定義する。
+
+## Reading Order
+
+Restart / handoff では次の順で読む。
+
+1. `CURRENT_TASK.md`
+   - current blocker / next owner / latest accepted branch point
+2. `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
+   - final goal and migration order
+3. `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+   - current route authority and compatibility boundaries
+4. `docs/development/current/main/phases/phase-29ch/README.md`
+   - active reduction slice
+5. `docs/development/current/main/phases/phase-29cg/README.md`
+   - solved reduced slice that must stay closed
 
 ## Policy (Steady State)
 
