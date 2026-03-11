@@ -52,7 +52,8 @@ Current reduced-case authority:
 2. `tools/selfhost/lib/stage1_contract.sh`
    - `stage1_contract_exec_mode <bin> emit-mir <entry> <source_text>` を single-step source→MIR contract として注入する
 3. `lang/src/runner/stage1_cli_env.hako`
-   - env-mode `emit-mir` が source text から `_build_program_json()` を internal transient として組み立て、`MirBuilderBox.emit_from_program_json_v0(...)` へ渡す
+   - env-mode `emit-mir` は source-only authority input を `MirBuilderBox.emit_from_source_v0(...)` へ直接渡す
+   - explicit supplied Program(JSON) text がある場合だけ `MirBuilderBox.emit_from_program_json_v0(...)` を compatibility input shape として使う
 4. `tools/ny_mir_builder.sh`
    - MIR(JSON) -> backend/VM link だけを担当する
 
@@ -68,6 +69,9 @@ Known non-authority routes:
   - current reduced artifact (`stage1_cli_env.hako`) では raw/subcmd contract を持たず `rc=97`
 - `tools/selfhost/run_stage1_cli.sh ... emit ...`
   - compatibility wrapper only; it translates raw `emit` surface into the env mainline contract and is not accepted as reduced-case authority evidence
+- explicit supplied Program(JSON) text (`HAKO_STAGE1_PROGRAM_JSON[_TEXT]` / `NYASH_*` / `STAGE1_*`)
+  - compatibility-only input shape inside `stage1_cli_env.hako`
+  - not accepted as separate authority evidence once source-only `stage1-env-mir-source` is green
 - compiled stage1 artifact module dispatch (`crates/nyash_kernel/src/plugin/module_string_dispatch.rs`)
   - this is currently part of the reduced execution path for `BuildBox.emit_program_json_v0` / `MirBuilderBox.emit_from_program_json_v0`
   - it is not a separate authority route, but it is the first implementation owner for gate semantics on compiled stage1 artifacts
@@ -88,6 +92,8 @@ Evidence (2026-03-11):
 - source-route direct probe is fixed to `bash tools/dev/phase29ch_source_route_direct_probe.sh [entry]`
   - diagnostics-only: builds a temporary helper artifact and calls `MirBuilderBox.emit_from_source_v0(...)` directly on a compiled artifact
   - not accepted as reduced-case authority evidence
+- stage1 env file-context probe is fixed to `bash tools/dev/phase29ch_stage1_cli_env_file_context_probe.sh`
+  - diagnostics-only: emits/runs temporary `stage1_cli_env`-shaped clones through Stage1/Stage2 and narrows where the source-route promotion first turns red
 - impossible-gate probe is fixed to `bash tools/dev/phase29ch_impossible_gate_probe.sh [entry]`
 - bridge-bypass probe is fixed to `bash tools/dev/phase29ch_bridge_bypass_probe.sh [entry]`
 - current authority shell contract now pins `stage1_contract_exec_mode` to `HAKO_SELFHOST_NO_DELEGATE=1` + `HAKO_MIR_BUILDER_DELEGATE=0` by default; delegate route is explicit compat only
@@ -112,14 +118,15 @@ Current branch point (2026-03-11):
   1. `bash tools/dev/phase29ch_fixed_program_mir_repeat_probe.sh` is quiet/raw-exact for `lang/src/compiler/entry/compiler_stageb.hako`
   2. `bash tools/dev/phase29ch_route_mode_matrix.sh` is quiet for the same source
   3. fresh `G1 full` is raw-exact green for both `Program JSON v0` and `MIR JSON v0`
-- therefore the current preferred order is now: keep `stage1-env-program` + `stage1-env-mir-source` as the only reduced authority evidence, keep `run_stage1_cli.sh` as a compatibility wrapper over that contract, and choose the first true bootstrap reduction slice instead of spending more work on current-route determinism
+- therefore the current preferred order is now: keep `stage1-env-program` + `stage1-env-mir-source` as the only reduced authority evidence, keep `run_stage1_cli.sh` as a compatibility wrapper over that contract, and use the first true bootstrap reduction slice to promote source->MIR directly without widening authority
 - next owner order remains fixed:
-  1. keep the exact transient Program(JSON v0) boundary introduced by `lang/src/runner/stage1_cli_env.hako` (`_resolve_emit_mir_program_json_text` -> `_build_emit_mir_program_json_transient` -> `_build_program_json`) as the current green seam
-  2. treat `MirBuilderBox.emit_from_source_v0(...)` + compiled-artifact module dispatch as a future reduction target only until its return/materialization contract is proven on fresh stage2 artifacts
-  3. shrink the transient boundary without creating a new authority route
-  4. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
+  1. keep source-only `stage1-env-mir-source` as the current green authority path
+  2. thin explicit supplied Program(JSON) text to a smaller compat-only surface (`tools/selfhost/lib/identity_routes.sh` -> `tools/selfhost/run_stage1_cli.sh` -> `tools/selfhost/lib/stage1_contract.sh`)
+  3. touch `lang/src/runner/stage1_cli_env.hako` only if the compat input itself still needs a Stage1-side shim
+  4. choose the next reduction slice without widening authority
+  5. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 - transient-boundary proof rule: `bash tools/dev/phase29ch_transient_boundary_probe.sh [entry]` must stay raw-exact quiet for current reduced sources. It compares source-only authority `emit-mir` against the same saved Program(JSON v0) supplied explicitly, so the next reduction slice can prove the transient boundary is semantically transparent before shrinking it.
-- source-route caution (2026-03-11): `MirBuilderBox.emit_from_source_v0(...)` is not accepted as reduced-case authority evidence yet. A fresh promotion attempt on 2026-03-11 rebuilt Stage1 green but made fresh Stage2 fail the capability probe: the compiled Stage2 artifact still hit `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` for `emit_from_source_v0(...)` and returned a nonzero result handle, but `stage1_cli_env.hako` immediately materialized an empty string and fell into the structural JSON validation/freeze path for `apps/tests/hello_simple_llvm.hako`. Rust-side helper coverage is green for the same fixture (`src/host_providers/mir_builder.rs` and `crates/nyash_kernel/src/tests.rs`), `bash tools/dev/phase29ch_source_route_materialize_probe.sh` keeps the same post-call observation flags (`MIR_NONNULL`, `MIR_NONEMPTY`, `TEXT_NONEMPTY`, `LEN_POS`, `HEAD_OK`, `IDX_OK`) green on a host-compiled helper, `bash tools/dev/phase29ch_selfhost_source_route_helper_probe.sh` keeps the same minimal selfhost caller shape green through Stage1/Stage2 MIR exact-match plus Stage1/Stage2 runtime flags even after `BoxTypeInspectorBox.kind/describe`, and `bash tools/dev/phase29ch_selfhost_source_route_bisect_probe.sh` keeps the `_run_emit_mir_mode`-like stepwise bundles (`base`, `len_sign`, `debug_gate`, `full_guard`) green on selfhost-generated helpers. Therefore the current owner is the larger file-context / surrounding-control-flow shape inside `stage1_cli_env.hako`, not helper/provider availability. Record the route as `future retire target` / diagnostics-only until that contract is closed.
+- source-route promotion note (2026-03-11): `MirBuilderBox.emit_from_source_v0(...)` is now accepted as reduced-case authority evidence for source-only `stage1-env-mir-source`. The previously red env-wrapper/file-context cluster turned green after fixing the compiled-artifact Rust provider path under `src/runner/json_v0_bridge/lowering/if_else.rs` -> `src/runner/json_v0_bridge/lowering/merge.rs` to use PHI-unified `if` joins. `bash tools/dev/phase29ch_source_route_materialize_probe.sh`, `bash tools/dev/phase29ch_selfhost_source_route_helper_probe.sh`, and `bash tools/dev/phase29ch_selfhost_source_route_bisect_probe.sh` stay green, and `bash tools/dev/phase29ch_stage1_cli_env_file_context_probe.sh` is now green for `env_source_only`, `env_mode_no_supplied`, `env_branch_literal_empty`, `env_branch_helper_empty`, `env_branch_helper_env_text`, `env_branch_select_then_call`, `env_branch_same_callee_two_calls`, `mini_env`, `full`, `thin`, and `thin_imports`. The focused case now emits `block 9: phi dst=31 incoming=[[11,8],[19,15]]` before `emit_from_source_v0(selected_input, null)`, and the previous `[freeze:contract][stage1_mir_builder] source decode failed` path is gone on fresh Stage1/Stage2 artifacts.
 - detour prevention for the next slice: `src/runner/modes/vm_hako/compile_bridge.rs` already contains a Rust direct source→MIR helper, but it is reference-only for `phase-29ch`. Do not promote it into current selfhost authority while choosing the next reduction slice.
 
 Route guard lock:

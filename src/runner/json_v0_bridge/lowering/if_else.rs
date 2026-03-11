@@ -60,13 +60,8 @@ pub(super) fn lower_if_stmt(
         *vars = then_vars;
         return Ok(merge_bb);
     }
-    // PHI-off policy (edge-copy) is the default in Phase 15.
-    // In strict+planner_required gates, prefer PHI to keep SSA valid.
-    let no_phi = !(crate::config::env::joinir_dev::strict_enabled()
-        && crate::config::env::joinir_dev::planner_required_enabled());
     merge_var_maps(
         f,
-        no_phi,
         merge_bb,
         tend,
         else_end_pred,

@@ -208,43 +208,15 @@ run_and_extract_stage_payload() {
   return 0
 }
 
-run_stage1_env_route() {
+run_stage1_env_mir_program_compat_route() {
   local bin="$1"
-  local subcmd="$2"
-  local entry="$3"
+  local entry="$2"
+  local source_text="$3"
   local outfile="$4"
   local route_file="${5:-}"
-  local source_text
-  source_text="$(stage_entry_source_text "$entry")"
-
-  if [[ "$subcmd" == "program-json" ]]; then
-    run_and_extract_stage_payload \
-      "program-json" \
-      "$outfile" \
-      stage1_contract_exec_mode "$bin" "emit-program" "$entry" "$source_text"
-    if [[ $? -eq 0 && -n "$route_file" ]]; then
-      echo "$(stage1_env_program_route_id)" >"$route_file"
-      return 0
-    fi
-    return $?
-  fi
-
-  if [[ "$subcmd" != "mir-json" ]]; then
-    return 1
-  fi
-
-  if run_and_extract_stage_payload \
-    "mir-json" \
-    "$outfile" \
-    stage1_contract_exec_mode "$bin" "emit-mir" "$entry" "$source_text"; then
-    if [[ -n "$route_file" ]]; then
-      echo "$(stage1_env_mir_source_route_id)" >"$route_file"
-    fi
-    return 0
-  fi
-
   local tmp_prog
   tmp_prog="$(mktemp)"
+
   if ! run_stage1_env_route "$bin" "program-json" "$entry" "$tmp_prog"; then
     rm -f "$tmp_prog"
     return 1
@@ -285,8 +257,49 @@ run_stage1_env_route() {
     fi
     return 0
   fi
+
   rm -f "$tmp_prog"
   return 1
+}
+
+run_stage1_env_route() {
+  local bin="$1"
+  local subcmd="$2"
+  local entry="$3"
+  local outfile="$4"
+  local route_file="${5:-}"
+  local source_text
+  source_text="$(stage_entry_source_text "$entry")"
+
+  if [[ "$subcmd" == "program-json" ]]; then
+    run_and_extract_stage_payload \
+      "program-json" \
+      "$outfile" \
+      stage1_contract_exec_mode "$bin" "emit-program" "$entry" "$source_text"
+    if [[ $? -eq 0 && -n "$route_file" ]]; then
+      echo "$(stage1_env_program_route_id)" >"$route_file"
+      return 0
+    fi
+    return $?
+  fi
+
+  if [[ "$subcmd" != "mir-json" ]]; then
+    return 1
+  fi
+
+  if run_and_extract_stage_payload \
+    "mir-json" \
+    "$outfile" \
+    stage1_contract_exec_mode "$bin" "emit-mir" "$entry" "$source_text"; then
+    if [[ -n "$route_file" ]]; then
+      echo "$(stage1_env_mir_source_route_id)" >"$route_file"
+    fi
+    return 0
+  fi
+
+  run_stage1_env_mir_program_compat_route \
+    "$bin" "$entry" "$source_text" "$outfile" "$route_file"
+  return $?
 }
 
 probe_exact_stage1_env_authority() {

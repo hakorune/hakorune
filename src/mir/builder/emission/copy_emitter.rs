@@ -17,7 +17,6 @@ pub enum CopyEmitReason {
     JoinIrMergeRewriterTailCallParamsContinuation,
     JoinIrMergeRewriterTailCallParamsTailCall,
     JsonV0BridgeLoopformEmitCopy,
-    JsonV0BridgeMergeEdgeCopy,
     #[cfg(test)]
     TestDceEdgeArgCopy,
     #[cfg(test)]
@@ -59,7 +58,6 @@ impl CopyEmitReason {
                 "joinir_merge_rewriter/tail_call_params:tail_call"
             }
             CopyEmitReason::JsonV0BridgeLoopformEmitCopy => "json_v0_bridge/loopform/emit_copy",
-            CopyEmitReason::JsonV0BridgeMergeEdgeCopy => "json_v0_bridge/merge/edge_copy",
             #[cfg(test)]
             CopyEmitReason::TestDceEdgeArgCopy => "test/dce:edge_arg_copy",
             #[cfg(test)]
@@ -132,47 +130,6 @@ pub(crate) fn emit_copy_in_block(
         .get_block_mut(bb)
         .ok_or_else(|| format!("copy_emitter: missing block {:?}", bb))?;
     block.add_instruction(MirInstruction::Copy { dst, src });
-    Ok(())
-}
-
-#[inline]
-#[track_caller]
-pub(crate) fn emit_copy_before_terminator(
-    func: &mut MirFunction,
-    bb: BasicBlockId,
-    dst: ValueId,
-    src: ValueId,
-    reason: CopyEmitReason,
-) -> Result<(), String> {
-    if crate::config::env::joinir_dev::debug_enabled() {
-        let caller = std::panic::Location::caller();
-        func.metadata.value_origin_callers.insert(
-            dst,
-            format!("{}:{}:{}", caller.file(), caller.line(), caller.column()),
-        );
-    }
-    if strict_planner_required() {
-        let def_blocks = compute_def_blocks(func);
-        if let Some(def_block) = def_blocks.get(&src).copied() {
-            let dominators = compute_dominators(func);
-            let dominates = dominators.dominates(def_block, bb);
-            if !dominates {
-                return Err(format!(
-                    "[freeze:contract][copy/non_dominating] fn={} bb={:?} src=%{} def_block={:?} reason={}",
-                    func.signature.name,
-                    bb,
-                    src.0,
-                    def_block,
-                    reason.as_str()
-                ));
-            }
-        }
-    }
-
-    let block = func
-        .get_block_mut(bb)
-        .ok_or_else(|| format!("copy_emitter: missing block {:?}", bb))?;
-    block.add_instruction_before_terminator(MirInstruction::Copy { dst, src });
     Ok(())
 }
 
