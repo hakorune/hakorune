@@ -114,6 +114,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - details SSOT:
         - route/acceptance: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
         - active phase: `docs/development/current/main/phases/phase-29ch/README.md`
+        - active evidence/probes: `docs/development/current/main/phases/phase-29ch/29ch-20-route-evidence-and-probes.md`
         - compiler ownership map: `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
         - G1 compare policy: `docs/development/current/main/design/selfhost-g1-mir-compare-policy-ssot.md`
     - `phase-29ch` solved locks:
