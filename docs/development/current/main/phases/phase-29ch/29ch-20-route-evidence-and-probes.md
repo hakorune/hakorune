@@ -121,6 +121,7 @@ Related:
 - That live env-mainline compat route uses text transport through `stage1_contract_exec_program_json_text()`.
 - Raw `tools/selfhost/run_stage1_cli.sh ... emit mir-json --from-program-json <file>` is aligned to the same text-only transport.
 - `stage1-env-mir-legacy` and `stage1-subcmd-mir-program` remain cold compat keeps on green artifacts, but they are no longer part of the shared live compat helper order.
+- Their remaining diagnostics owner is `tools/dev/phase29ch_program_json_cold_compat_probe.sh`, not `identity_routes.sh` / `stage1_contract.sh`.
 - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin target/selfhost/hakorune.stage1_cli`
   and `--bin target/selfhost/hakorune.stage1_cli.stage2`
   currently both report `cold_compat_route=stage1-env-mir-legacy`.

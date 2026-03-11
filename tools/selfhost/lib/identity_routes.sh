@@ -239,55 +239,6 @@ run_stage1_env_mir_program_compat_route() {
   return 1
 }
 
-probe_stage1_env_mir_program_cold_compat_route() {
-  local bin="$1"
-  local entry="$2"
-  local outfile="$3"
-  local route_file="${4:-}"
-  local tmp_prog
-  local program_json_text
-  tmp_prog="$(mktemp)"
-
-  if ! run_stage1_env_route "$bin" "program-json" "$entry" "$tmp_prog"; then
-    rm -f "$tmp_prog"
-    return 1
-  fi
-  program_json_text="$(cat "$tmp_prog")"
-
-  if run_and_extract_stage_payload \
-    "mir-json" \
-    "$outfile" \
-    stage1_contract_exec_legacy_emit_mir_text "$bin" "$entry" "$program_json_text"; then
-    rm -f "$tmp_prog"
-    if [[ -n "$route_file" ]]; then
-      echo "stage1-env-mir-legacy" >"$route_file"
-    fi
-    return 0
-  fi
-
-  if run_stage1_subcmd_mir_program_compat_route "$bin" "$tmp_prog" "$outfile"; then
-    rm -f "$tmp_prog"
-    if [[ -n "$route_file" ]]; then
-      echo "stage1-subcmd-mir-program" >"$route_file"
-    fi
-    return 0
-  fi
-
-  rm -f "$tmp_prog"
-  return 1
-}
-
-run_stage1_subcmd_mir_program_compat_route() {
-  local bin="$1"
-  local program_json_path="$2"
-  local outfile="$3"
-
-  run_and_extract_stage_payload \
-    "mir-json" \
-    "$outfile" \
-    bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$bin" emit mir-json --from-program-json "$program_json_path"
-}
-
 run_stage1_env_route() {
   local bin="$1"
   local subcmd="$2"
