@@ -121,7 +121,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - retired path transport is gone from `stage1_contract.sh`; live shell compat is exact helper only
       - probe owner: `tools/dev/phase29ch_program_json_compat_route_probe.sh`
       - minimal selfhost helper proof: `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
-      - `stage1_cli_env.hako` dispatcher now hands source authority to `Stage1SourceMirAuthorityBox` and compat keep to `Stage1ProgramJsonCompatBox`
+      - `stage1_cli_env.hako` dispatcher now hands source authority to `Stage1SourceMirAuthorityBox`, shared MIR validation to `Stage1MirResultValidationBox`, and compat keep to `Stage1ProgramJsonCompatBox`
       - code-side quarantine owner: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (explicit compat call + mixed-input fail-fast gate)
       - explicit mode is exact-only: `emit-mir-program`
       - shell-side exact compat helper/entry/mode SSOT: `tools/selfhost/lib/stage1_contract.sh` (`stage1_contract_exec_program_json_compat()`)

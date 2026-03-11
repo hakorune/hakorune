@@ -77,7 +77,7 @@ static box Main {
     if mir == null {
       return 96
     }
-    return me._finalize_emit_mir_result(tag, source_text, mir)
+    return Stage1MirResultValidationBox.finalize_emit_result(tag, source_text, mir)
   }
 
   method _run_emit_mir_program_json_compat_mode(tag) {
@@ -86,104 +86,7 @@ static box Main {
     if mir == null {
       return 96
     }
-    return me._finalize_emit_mir_result(tag, program_json_text, mir)
-  }
-
-  method _finalize_emit_mir_result(tag, selected_input, mir) {
-    local stage1_debug = env.get("STAGE1_CLI_DEBUG")
-    local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
-    if stage1_debug_on {
-      print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(selected_input) + " preview=" + me._debug_preview_inline(selected_input))
-    }
-    local mir_kind = BoxTypeInspectorBox.kind(mir)
-    local mir_desc = BoxTypeInspectorBox.describe(mir)
-    local mir_text = "" + mir
-    local mir_text_kind = BoxTypeInspectorBox.kind(mir_text)
-    local mir_text_len = mir_text.length()
-    local mir_text_len_sign = "zero"
-    if mir_text_len < 0 {
-      mir_text_len_sign = "neg"
-    } else if mir_text_len > 0 {
-      mir_text_len_sign = "pos"
-    }
-    local mir_is_null = 0
-    if mir == null { mir_is_null = 1 }
-    local mir_is_empty = 0
-    if mir == "" { mir_is_empty = 1 }
-    local mir_text_is_empty = 0
-    if mir_text_len <= 0 { mir_text_is_empty = 1 }
-    local mir_text_head = mir_text.substring(0, 1)
-    local mir_text_head_is_lbrace = 0
-    if mir_text_head == "{" { mir_text_head_is_lbrace = 1 }
-    local mir_text_has_functions = mir_text.indexOf("functions")
-    local mir_text_has_functions_flag = 0
-    if mir_text_has_functions >= 0 { mir_text_has_functions_flag = 1 }
-    if stage1_debug_on {
-      print("[stage1-cli/debug] emit-mir result.kind=" + ("" + mir_kind) +
-            " is_null=" + ("" + mir_is_null) +
-            " is_empty=" + ("" + mir_is_empty) +
-            " text_kind=" + ("" + mir_text_kind) +
-            " text_is_empty=" + ("" + mir_text_is_empty) +
-            " text_len_sign=" + mir_text_len_sign +
-            " text_len=" + me._debug_len_inline(mir_text) +
-            " text_head_preview=" + me._debug_preview_inline(mir_text_head) +
-            " text_head_is_lbrace=" + ("" + mir_text_head_is_lbrace) +
-            " text_has_functions=" + ("" + mir_text_has_functions_flag) +
-            " desc=" + me._debug_preview_inline(mir_desc) +
-            " preview=" + me._debug_preview_inline(mir) +
-            " text_preview=" + me._debug_preview_inline(mir_text))
-      if mir_text_len < 0 {
-        print("[stage1-cli/debug] emit-mir text-len-sign=neg")
-      } else if mir_text_len == 0 {
-        print("[stage1-cli/debug] emit-mir text-len-sign=zero")
-      } else {
-        print("[stage1-cli/debug] emit-mir text-len-sign=pos")
-      }
-      if mir == "" {
-        print("[stage1-cli/debug] emit-mir direct-empty-compare=true")
-      } else {
-        print("[stage1-cli/debug] emit-mir direct-empty-compare=false")
-      }
-      if mir_text == "" {
-        print("[stage1-cli/debug] emit-mir text-empty-compare=true")
-      } else {
-        print("[stage1-cli/debug] emit-mir text-empty-compare=false")
-      }
-      if mir_text_head == "{" {
-        print("[stage1-cli/debug] emit-mir text-head-is-lbrace=true")
-      } else {
-        print("[stage1-cli/debug] emit-mir text-head-is-lbrace=false")
-        print("[stage1-cli/debug] emit-mir text-head-preview=" + me._debug_preview_inline(mir_text_head))
-      }
-      if mir_text_has_functions >= 0 {
-        print("[stage1-cli/debug] emit-mir text-has-functions=true")
-      } else {
-        print("[stage1-cli/debug] emit-mir text-has-functions=false")
-      }
-    }
-    if stage1_debug_on {
-      if mir_is_null == 1 {
-        print("[stage1-cli/debug] emit-mir current-route null compare matched; ignoring and using structural JSON validation")
-      }
-      if mir_is_empty == 1 {
-        print("[stage1-cli/debug] emit-mir current-route direct compare matched empty string; ignoring and using structural JSON validation")
-      }
-      if mir_text_is_empty == 1 {
-        print("[stage1-cli/debug] emit-mir current-route materialized empty string; ignoring and using structural JSON validation")
-      }
-      print("[stage1-cli/debug] emit-mir current-route validating materialized payload")
-    }
-    mir = mir_text
-    local mir_head = mir.substring(0, 1)
-    if mir_head != "{" {
-      print("[freeze:contract][stage1-cli/emit-mir] output is not MIR JSON")
-      print(mir)
-      return 96
-    }
-    local has_functions = mir.indexOf("functions")
-    if has_functions < 0 { return 96 }
-    print(mir)
-    return 0
+    return Stage1MirResultValidationBox.finalize_emit_result(tag, program_json_text, mir)
   }
 
   method _resolve_supplied_program_json_text() {
@@ -197,58 +100,6 @@ static box Main {
       return stage1_prog_json_text
     }
     return ""
-  }
-
-  method _inject_entry_user_box_decls_if_needed(mir_json, program_json_text) {
-    local decls = me._build_user_box_decls_from_program_json_inline(program_json_text)
-    if decls != null && decls != "" && decls != "[]" {
-      return me._inject_root_user_box_decls_inline(mir_json, decls)
-    }
-    return mir_json
-  }
-
-  method _build_user_box_decls_from_program_json_inline(program_json_text) {
-    if program_json_text == null || program_json_text == "" { return "" }
-    local s = "" + program_json_text
-    local out = "[{\"name\":\"Main\",\"fields\":[]}"
-    local seen = "|Main|"
-    local pos = 0
-    local n = s.length()
-    loop(pos < n) {
-      local box_idx = StringHelpers.index_of(s, pos, "\"box\":\"")
-      if box_idx < 0 { break }
-      local name_start = box_idx + 7
-      local name_end = StringHelpers.index_of(s, name_start, "\"")
-      if name_end < 0 { break }
-      local box_name = s.substring(name_start, name_end)
-      if box_name != "" {
-        local marker = "|" + box_name + "|"
-        if seen.indexOf(marker) < 0 {
-          out = out + ",{\"name\":\"" + box_name + "\",\"fields\":[]}"
-          seen = seen + box_name + "|"
-        }
-      }
-      pos = name_end + 1
-    }
-    return out + "]"
-  }
-
-  method _inject_root_user_box_decls_inline(mir_json, user_box_decls_json) {
-    if mir_json == null { return null }
-    local s = mir_json
-    if s.length() < 2 { return s }
-    if s.substring(0, 1) != "{" { return s }
-    local decls = user_box_decls_json
-    if decls == null || decls == "" { decls = "[]" }
-    local empty_pos = s.indexOf("\"user_box_decls\":[]")
-    if empty_pos >= 0 {
-      local prefix = s.substring(0, empty_pos)
-      local suffix = s.substring(empty_pos + 19, s.length())
-      return prefix + "\"user_box_decls\":" + decls + suffix
-    }
-    if s.indexOf("\"user_box_decls\"") >= 0 { return s }
-    local tail = s.substring(1, s.length())
-    return "{\"user_box_decls\":" + decls + "," + tail
   }
 
   method _build_program_json() {
@@ -909,6 +760,118 @@ static box Stage1SourceMirAuthorityBox {
       return null
     }
     return MirBuilderBox.emit_from_source_v0(source_text, null)
+  }
+}
+
+static box Stage1MirResultValidationBox {
+  method finalize_emit_result(tag, selected_input, mir) {
+    local stage1_debug = env.get("STAGE1_CLI_DEBUG")
+    local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
+    if stage1_debug_on {
+      print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(selected_input) + " preview=" + me._debug_preview_inline(selected_input))
+    }
+    local mir_kind = BoxTypeInspectorBox.kind(mir)
+    local mir_desc = BoxTypeInspectorBox.describe(mir)
+    local mir_text = "" + mir
+    local mir_text_kind = BoxTypeInspectorBox.kind(mir_text)
+    local mir_text_len = mir_text.length()
+    local mir_text_len_sign = "zero"
+    if mir_text_len < 0 {
+      mir_text_len_sign = "neg"
+    } else if mir_text_len > 0 {
+      mir_text_len_sign = "pos"
+    }
+    local mir_is_null = 0
+    if mir == null { mir_is_null = 1 }
+    local mir_is_empty = 0
+    if mir == "" { mir_is_empty = 1 }
+    local mir_text_is_empty = 0
+    if mir_text_len <= 0 { mir_text_is_empty = 1 }
+    local mir_text_head = mir_text.substring(0, 1)
+    local mir_text_head_is_lbrace = 0
+    if mir_text_head == "{" { mir_text_head_is_lbrace = 1 }
+    local mir_text_has_functions = mir_text.indexOf("functions")
+    local mir_text_has_functions_flag = 0
+    if mir_text_has_functions >= 0 { mir_text_has_functions_flag = 1 }
+    if stage1_debug_on {
+      print("[stage1-cli/debug] emit-mir result.kind=" + ("" + mir_kind) +
+            " is_null=" + ("" + mir_is_null) +
+            " is_empty=" + ("" + mir_is_empty) +
+            " text_kind=" + ("" + mir_text_kind) +
+            " text_is_empty=" + ("" + mir_text_is_empty) +
+            " text_len_sign=" + mir_text_len_sign +
+            " text_len=" + me._debug_len_inline(mir_text) +
+            " text_head_preview=" + me._debug_preview_inline(mir_text_head) +
+            " text_head_is_lbrace=" + ("" + mir_text_head_is_lbrace) +
+            " text_has_functions=" + ("" + mir_text_has_functions_flag) +
+            " desc=" + me._debug_preview_inline(mir_desc) +
+            " preview=" + me._debug_preview_inline(mir) +
+            " text_preview=" + me._debug_preview_inline(mir_text))
+      if mir_text_len < 0 {
+        print("[stage1-cli/debug] emit-mir text-len-sign=neg")
+      } else if mir_text_len == 0 {
+        print("[stage1-cli/debug] emit-mir text-len-sign=zero")
+      } else {
+        print("[stage1-cli/debug] emit-mir text-len-sign=pos")
+      }
+      if mir == "" {
+        print("[stage1-cli/debug] emit-mir direct-empty-compare=true")
+      } else {
+        print("[stage1-cli/debug] emit-mir direct-empty-compare=false")
+      }
+      if mir_text == "" {
+        print("[stage1-cli/debug] emit-mir text-empty-compare=true")
+      } else {
+        print("[stage1-cli/debug] emit-mir text-empty-compare=false")
+      }
+      if mir_text_head == "{" {
+        print("[stage1-cli/debug] emit-mir text-head-is-lbrace=true")
+      } else {
+        print("[stage1-cli/debug] emit-mir text-head-is-lbrace=false")
+        print("[stage1-cli/debug] emit-mir text-head-preview=" + me._debug_preview_inline(mir_text_head))
+      }
+      if mir_text_has_functions >= 0 {
+        print("[stage1-cli/debug] emit-mir text-has-functions=true")
+      } else {
+        print("[stage1-cli/debug] emit-mir text-has-functions=false")
+      }
+    }
+    if stage1_debug_on {
+      if mir_is_null == 1 {
+        print("[stage1-cli/debug] emit-mir current-route null compare matched; ignoring and using structural JSON validation")
+      }
+      if mir_is_empty == 1 {
+        print("[stage1-cli/debug] emit-mir current-route direct compare matched empty string; ignoring and using structural JSON validation")
+      }
+      if mir_text_is_empty == 1 {
+        print("[stage1-cli/debug] emit-mir current-route materialized empty string; ignoring and using structural JSON validation")
+      }
+      print("[stage1-cli/debug] emit-mir current-route validating materialized payload")
+    }
+    mir = mir_text
+    local mir_head = mir.substring(0, 1)
+    if mir_head != "{" {
+      print("[freeze:contract][stage1-cli/emit-mir] output is not MIR JSON")
+      print(mir)
+      return 96
+    }
+    local has_functions = mir.indexOf("functions")
+    if has_functions < 0 { return 96 }
+    print(mir)
+    return 0
+  }
+
+  method _debug_len_inline(value) {
+    if value == null { return "null" }
+    local s = "" + value
+    return StringHelpers.int_to_str(s.length())
+  }
+
+  method _debug_preview_inline(value) {
+    if value == null { return "<null>" }
+    local s = "" + value
+    if s.length() <= 64 { return s }
+    return s.substring(0, 64)
   }
 }
 

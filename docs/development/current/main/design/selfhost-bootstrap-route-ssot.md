@@ -89,6 +89,7 @@ SSOT:
 - exact probe では `target/selfhost/hakorune.stage1_cli` は raw direct contract (`emit ...` / `--emit-mir-json`) で `97` を返す一方、`stage1_contract_exec_mode` は current reduced artifact に single-step source→MIR env contract を提供する。`tools/selfhost/run_stage1_cli.sh` は raw `emit program-json` / `emit mir-json` surface をこの env contract に変換する compatibility wrapper であり、新しい authority route ではない
 - `build_stage1.sh` の `stage1-cli bridge-first` bootstrap path は current reduced source (`lang/src/runner/stage1_cli_env.hako`) を single-step source→MIR へ通し、`tools/ny_mir_builder.sh` には MIR(JSON) だけを渡す
 - source-only authority case では `stage1_cli_env.hako::Stage1SourceMirAuthorityBox` が `MirBuilderBox.emit_from_source_v0(...)` を担当し、explicit supplied Program(JSON) text-only input がある時だけ `MirBuilderBox.emit_from_program_json_v0(...)` を explicit compatibility input shape として残す
+- materialized MIR(JSON) validation / debug surface is isolated in `stage1_cli_env.hako::Stage1MirResultValidationBox`, keeping `Main` as a thin dispatcher
 - that explicit compatibility gate/call is now quarantined in `Stage1ProgramJsonCompatBox` inside `lang/src/runner/stage1_cli_env.hako`
 - explicit compatibility input shape は exact-only `emit-mir-program` mode でのみ許可し、live text transport は `STAGE1_SOURCE_TEXT` を再利用する
 - plain `emit-mir` は mixed-in `STAGE1_PROGRAM_JSON_TEXT` を fail-fast する
