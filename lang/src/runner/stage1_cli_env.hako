@@ -182,30 +182,30 @@ static box Main {
     local stage1_debug = env.get("STAGE1_CLI_DEBUG")
     local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
     local prog_json_path = me._resolve_program_json_path()
+    local hako_prog_json_text = me._clean_env_value(env.get("HAKO_STAGE1_PROGRAM_JSON_TEXT"))
+    local nyash_prog_json_text = me._clean_env_value(env.get("NYASH_STAGE1_PROGRAM_JSON_TEXT"))
+    local stage1_prog_json_text = me._clean_env_value(env.get("STAGE1_PROGRAM_JSON_TEXT"))
+    if stage1_debug_on {
+      print("[stage1-cli/debug] emit-mir path.len=" + me._debug_len_inline(prog_json_path) + " preview=" + me._debug_preview_inline(prog_json_path))
+      print("[stage1-cli/debug] emit-mir HAKO_STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(hako_prog_json_text) + " preview=" + me._debug_preview_inline(hako_prog_json_text))
+      print("[stage1-cli/debug] emit-mir NYASH_STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(nyash_prog_json_text) + " preview=" + me._debug_preview_inline(nyash_prog_json_text))
+      print("[stage1-cli/debug] emit-mir STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(stage1_prog_json_text) + " preview=" + me._debug_preview_inline(stage1_prog_json_text))
+    }
+    if hako_prog_json_text != null && hako_prog_json_text != "" {
+      return hako_prog_json_text
+    }
+    if nyash_prog_json_text != null && nyash_prog_json_text != "" {
+      return nyash_prog_json_text
+    }
+    if stage1_prog_json_text != null && stage1_prog_json_text != "" {
+      return stage1_prog_json_text
+    }
     if prog_json_path != null && prog_json_path != "" {
-      local hako_prog_json_text = me._clean_env_value(env.get("HAKO_STAGE1_PROGRAM_JSON_TEXT"))
-      local nyash_prog_json_text = me._clean_env_value(env.get("NYASH_STAGE1_PROGRAM_JSON_TEXT"))
-      local stage1_prog_json_text = me._clean_env_value(env.get("STAGE1_PROGRAM_JSON_TEXT"))
-      if stage1_debug_on {
-        print("[stage1-cli/debug] emit-mir path.len=" + me._debug_len_inline(prog_json_path) + " preview=" + me._debug_preview_inline(prog_json_path))
-        print("[stage1-cli/debug] emit-mir HAKO_STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(hako_prog_json_text) + " preview=" + me._debug_preview_inline(hako_prog_json_text))
-        print("[stage1-cli/debug] emit-mir NYASH_STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(nyash_prog_json_text) + " preview=" + me._debug_preview_inline(nyash_prog_json_text))
-        print("[stage1-cli/debug] emit-mir STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(stage1_prog_json_text) + " preview=" + me._debug_preview_inline(stage1_prog_json_text))
-      }
-      if hako_prog_json_text != null && hako_prog_json_text != "" {
-        return hako_prog_json_text
-      }
-      if nyash_prog_json_text != null && nyash_prog_json_text != "" {
-        return nyash_prog_json_text
-      }
-      if stage1_prog_json_text != null && stage1_prog_json_text != "" {
-        return stage1_prog_json_text
-      }
       local loaded_prog_json_text = me._load_source_text_from_path_inline(prog_json_path)
       if loaded_prog_json_text != null && loaded_prog_json_text != "" {
         return loaded_prog_json_text
       }
-      print(tag + " Program(JSON) text is required")
+      print("[stage1-cli] emit-mir Program(JSON) text is required")
       return null
     }
     return ""

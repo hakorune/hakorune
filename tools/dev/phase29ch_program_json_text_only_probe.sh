@@ -13,7 +13,8 @@ Usage: tools/dev/phase29ch_program_json_text_only_probe.sh [--bin <path>] [entry
 
 Builds Program(JSON) once, then tries the compat emit-mir contract with only
 `*_PROGRAM_JSON_TEXT` populated and no `*_PROGRAM_JSON` path. The current
-expected result is nonzero because the compat resolver still needs the path lane.
+expected result is zero on fresh green artifacts because the remaining compat
+resolver should no longer require the explicit path lane.
 USAGE
 }
 
@@ -73,7 +74,7 @@ echo "bin=${BIN}"
 echo "entry=${ENTRY}"
 echo "text_only_rc=${rc}"
 
-if [[ "$rc" -eq 0 ]]; then
-  echo "[phase29ch/text-only-probe] expected current text-only compat lane to stay nonzero" >&2
+if [[ "$rc" -ne 0 ]]; then
+  echo "[phase29ch/text-only-probe] expected current text-only compat lane to succeed" >&2
   exit 1
 fi

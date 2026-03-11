@@ -97,7 +97,7 @@ Evidence (2026-03-11):
 - explicit Program(JSON) compat probe is fixed to `bash tools/dev/phase29ch_program_json_compat_route_probe.sh --bin <stage1-cli>`
   - diagnostics-only: reports which compat-only supplied-Program route (`stage1-env-mir-program` / `stage1-env-mir-legacy` / `stage1-subcmd-mir-program`) is actually live on a compiled artifact
 - explicit Program(JSON) text-only probe is fixed to `bash tools/dev/phase29ch_program_json_text_only_probe.sh --bin <stage1-cli>`
-  - diagnostics-only: proves whether the remaining compat resolver still needs the `*_PROGRAM_JSON` path lane after shell-side cleanup
+  - diagnostics-only: proves whether the remaining compat resolver can accept `*_PROGRAM_JSON_TEXT` alone without the explicit `*_PROGRAM_JSON` path lane
 - impossible-gate probe is fixed to `bash tools/dev/phase29ch_impossible_gate_probe.sh [entry]`
 - bridge-bypass probe is fixed to `bash tools/dev/phase29ch_bridge_bypass_probe.sh [entry]`
 - current authority shell contract now pins `stage1_contract_exec_mode` to `HAKO_SELFHOST_NO_DELEGATE=1` + `HAKO_MIR_BUILDER_DELEGATE=0` by default; delegate route is explicit compat only
@@ -143,7 +143,7 @@ Route guard lock:
 - `tools/selfhost/build_stage1.sh` bridge-first bootstrap body also uses the same shared env-mainline helper for actual source->MIR emission; manual `stage1_contract_exec_mode ... emit-mir` + local marker checks are no longer the mainline authority path
 - route retirement rule: when this phase discovers a non-authority route, the route must be documented immediately as exactly one of `compat-only keep` or `future retire target`. Discovery alone must not create new authority evidence.
 - fresh compat-status note (2026-03-11): `bash tools/dev/phase29ch_program_json_compat_route_probe.sh --bin target/selfhost/hakorune.stage1_cli` and `--bin target/selfhost/hakorune.stage1_cli.stage2` both report `compat_route=stage1-env-mir-program`. Therefore `stage1-env-mir-legacy` and `stage1-subcmd-mir-program` are currently cold compat keeps on green artifacts, not live fallback.
-- fresh text-only note (2026-03-11): `bash tools/dev/phase29ch_program_json_text_only_probe.sh --bin target/selfhost/hakorune.stage1_cli` and `--bin target/selfhost/hakorune.stage1_cli.stage2` both stay nonzero today. So the residual compat resolver still depends on the explicit Program(JSON) path lane even though the user-facing shell surface has been thinned.
+- fresh text-only note (2026-03-11): after the `_resolve_supplied_program_json_text()` cleanup in `lang/src/runner/stage1_cli_env.hako`, `bash tools/dev/phase29ch_program_json_text_only_probe.sh --bin target/selfhost/hakorune.stage1_cli` and `--bin target/selfhost/hakorune.stage1_cli.stage2` both return `text_only_rc=0`. So the remaining green compat resolver no longer depends on the explicit Program(JSON) path lane; the path vars are now compat transport only.
 
 ## Acceptance
 
