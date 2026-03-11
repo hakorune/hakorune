@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 source "${ROOT}/tools/selfhost/lib/identity_routes.sh"
+source "${ROOT}/tools/selfhost/lib/stage1_contract.sh"
 
 BIN="${ROOT}/target/selfhost/hakorune.stage1_cli"
 ENTRY="${ROOT}/apps/tests/hello_simple_llvm.hako"
@@ -11,12 +12,11 @@ usage() {
   cat <<'USAGE' >&2
 Usage: tools/dev/phase29ch_program_json_cold_compat_probe.sh [--bin <path>] [entry.hako]
 
-Reports how alternate supplied-Program(JSON) caller shapes collapse onto the
-current live compat transport on a compiled stage1-compatible artifact. This is
-diagnostics only; current mainline compat uses text transport through
-`stage1-env-mir-program`, and both the old env shape and raw
-`run_stage1_cli.sh --from-program-json` are tracked here as aliases/sugar
-rather than as separate lanes.
+Reports how non-authority supplied-Program(JSON) caller shapes behave on a
+compiled stage1-compatible artifact. This is diagnostics only; current live
+compat uses `stage1_contract_exec_program_json_compat()`, while the old env
+shape and retired raw wrapper sugar are expected to stay outside the live
+contract.
 USAGE
 }
 
@@ -100,11 +100,20 @@ else
   echo "legacy_env_program_json=none"
 fi
 
-if ! run_and_extract_stage_payload \
+if run_and_extract_stage_payload \
   "mir-json" \
   "$out_file" \
   bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$BIN" emit mir-json --from-program-json "$tmp_prog"; then
-  echo "[phase29ch/cold-compat-probe] raw wrapper sugar failed unexpectedly" >&2
+  echo "[phase29ch/cold-compat-probe] raw wrapper sugar unexpectedly stayed live" >&2
   exit 1
 fi
-echo "raw_wrapper_program_json=stage1-env-mir-program"
+echo "raw_wrapper_program_json=none"
+
+if ! run_and_extract_stage_payload \
+  "mir-json" \
+  "$out_file" \
+  stage1_contract_exec_program_json_compat "$BIN" "$program_json_text"; then
+  echo "[phase29ch/cold-compat-probe] explicit compat helper failed unexpectedly" >&2
+  exit 1
+fi
+echo "explicit_helper_program_json=stage1-env-mir-program"

@@ -55,17 +55,13 @@ run_emit_program_json() {
 }
 
 run_emit_mir_json() {
-  local program_json_path=""
   local entry=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --from-program-json)
-        if [[ $# -lt 2 ]]; then
-          echo "[run-stage1] emit mir-json: --from-program-json requires a path" >&2
-          exit 2
-        fi
-        program_json_path="$2"
-        shift 2
+        echo "[run-stage1] emit mir-json: --from-program-json is retired from this wrapper" >&2
+        echo "             use tools/dev/phase29ch_program_json_compat_route_probe.sh or stage1_contract_exec_program_json_compat" >&2
+        exit 2
         ;;
       *)
         if [[ -n "$entry" ]]; then
@@ -78,32 +74,12 @@ run_emit_mir_json() {
     esac
   done
 
-  if [[ -n "$program_json_path" && -n "$entry" ]]; then
-    echo "[run-stage1] emit mir-json: specify either --from-program-json or <source.hako>" >&2
+  if [[ -z "$entry" ]]; then
+    echo "[run-stage1] emit mir-json: require <source.hako>" >&2
     exit 2
-  fi
-  if [[ -z "$program_json_path" && -z "$entry" ]]; then
-    echo "[run-stage1] emit mir-json: require --from-program-json <file> or <source.hako>" >&2
-    exit 2
-  fi
-
-  if [[ -n "$program_json_path" ]]; then
-    run_emit_mir_json_from_program_json "$program_json_path"
-    return $?
   fi
 
   run_emit_mir_json_from_source "$entry"
-}
-
-run_emit_mir_json_from_program_json() {
-  local program_json_path="$1"
-  local program_json_text
-  if [[ ! -f "$program_json_path" ]]; then
-    echo "[run-stage1] program-json not found: $program_json_path" >&2
-    exit 2
-  fi
-  program_json_text="$(cat "$program_json_path")"
-  stage1_contract_exec_program_json_compat "$BIN" "$program_json_text"
 }
 
 run_emit_mir_json_from_source() {

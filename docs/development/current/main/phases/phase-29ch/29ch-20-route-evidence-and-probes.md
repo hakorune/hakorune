@@ -131,8 +131,8 @@ Related:
 - That explicit compat route uses text transport through `stage1_contract_exec_program_json_compat()` and the current live text SSOT is `STAGE1_SOURCE_TEXT`.
 - `STAGE1_PROGRAM_JSON_TEXT` is now retained only for fail-fast diagnostics and cold compat observation; the explicit mode gate probe and cold compat probe inject it directly, while live shell helpers do not.
 - retired path transport has been removed from `stage1_contract_exec_mode()` / `stage1_contract_run_bin_with_env()`;
-  only raw wrapper sugar still performs file->text conversion before entering the text contract.
-- Raw `tools/selfhost/run_stage1_cli.sh ... emit mir-json --from-program-json <file>` now uses exact-only explicit compat mode (`emit-mir-program`) and is treated as sugar over `stage1-env-mir-program`.
+  live shell compat now enters through `stage1_contract_exec_program_json_compat()` only.
+- Raw `tools/selfhost/run_stage1_cli.sh ... emit mir-json --from-program-json <file>` is retired from the live wrapper surface.
 - exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) are now centralized in `tools/selfhost/lib/stage1_contract.sh`.
 - No separate cold supplied-Program compat lane remains on green artifacts.
 - The remaining diagnostics owner is `tools/dev/phase29ch_program_json_cold_compat_probe.sh`, not `identity_routes.sh` / `stage1_contract.sh`.
@@ -155,7 +155,8 @@ Related:
   and `--bin target/selfhost/hakorune.stage1_cli.stage2`
   currently both report:
   - `legacy_env_program_json=none`
-  - `raw_wrapper_program_json=stage1-env-mir-program`
+  - `raw_wrapper_program_json=none`
+  - `explicit_helper_program_json=stage1-env-mir-program`
 - After the `_resolve_supplied_program_json_text()` cleanup in `lang/src/runner/stage1_cli_env.hako`,
   `bash tools/dev/phase29ch_program_json_text_only_probe.sh --bin target/selfhost/hakorune.stage1_cli`
   and `--bin target/selfhost/hakorune.stage1_cli.stage2`

@@ -118,7 +118,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - explicit compat keep: `stage1-env-mir-program`
       - current live text transport SSOT: `STAGE1_SOURCE_TEXT`
       - legacy/cold env key: `STAGE1_PROGRAM_JSON_TEXT` (fail-fast / diagnostics only; no longer injected by live shell helpers)
-      - retired path transport is gone from `stage1_contract.sh`; file->text conversion is raw wrapper sugar only
+      - retired path transport is gone from `stage1_contract.sh`; live shell compat is exact helper only
       - probe owner: `tools/dev/phase29ch_program_json_compat_route_probe.sh`
       - minimal selfhost helper proof: `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
       - `stage1_cli_env.hako` wrapper-level source/compat branch is helper-split for future removal
@@ -132,8 +132,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - removal blocker probe: `tools/dev/phase29ch_program_json_helper_exec_probe.sh`
     - no separate cold supplied-Program compat lane remains
       - diagnostics-only owner: `tools/dev/phase29ch_program_json_cold_compat_probe.sh`
-      - legacy env shape now returns `none`; only raw wrapper sugar still collapses to `stage1-env-mir-program`
-    - raw `run_stage1_cli.sh ... --from-program-json` is sugar over `stage1-env-mir-program`, not a separate compat lane
+      - legacy env shape returns `none`; retired raw wrapper sugar also returns `none`
+      - explicit helper diagnostics still report `explicit_helper_program_json=stage1-env-mir-program`
+    - raw `run_stage1_cli.sh ... --from-program-json` is retired from the live wrapper surface
     - direct raw/subcmd `stage1-cli emit ...` remains non-authority (`rc=97`)
     - solved locks:
       - launcher-exe widening slice stays green

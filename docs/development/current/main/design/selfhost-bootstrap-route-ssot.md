@@ -100,7 +100,7 @@ SSOT:
 - supplied Program(JSON) compat text transport の shell-side SSOT は `tools/selfhost/lib/stage1_contract.sh` -> `tools/selfhost/run_stage1_cli.sh` -> `tools/selfhost/lib/identity_routes.sh` で固定し、live transport は `STAGE1_SOURCE_TEXT` を再利用する
 - exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) も `tools/selfhost/lib/stage1_contract.sh` を単一正本にする
 - `STAGE1_PROGRAM_JSON_TEXT` is outside the live shell contract and exists only for fail-fast / diagnostics probes
-- retired path transport is not part of the live shell contract anymore; file->text conversion is wrapper sugar only
+- retired path transport is not part of the live shell contract anymore; live shell compat is exact-helper only
 - `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli` の post-build capability probe も同じ shared helper で `stage1-env-program` + `stage1-env-mir-source` を要求する
 - `tools/selfhost/build_stage1.sh` の stage1-cli bridge-first bootstrap 本体も同じ shared helper (`probe_exact_stage1_env_authority`) で MIR(JSON) を materialize する
 

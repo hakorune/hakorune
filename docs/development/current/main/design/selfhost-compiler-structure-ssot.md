@@ -241,14 +241,14 @@ Do not leave plugin ownership ambiguous.
   - quarantined `.hako` owner:
     - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox`
   - current callers:
-    - `tools/selfhost/run_stage1_cli.sh --from-program-json`
+    - `tools/selfhost/lib/stage1_contract.sh::stage1_contract_exec_program_json_compat()`
     - `tools/dev/phase29ch_program_json_compat_route_probe.sh`
     - `tools/dev/phase29ch_program_json_text_only_probe.sh`
 - alternate supplied-Program caller shapes
   - diagnostics-only aliases over `stage1-env-mir-program`
 - raw `run_stage1_cli.sh ... --from-program-json`
-  - user-facing file input shape only
-  - sugar over `stage1-env-mir-program`
+  - retired wrapper sugar
+  - diagnostics should observe `none`, not a live compat lane
 
 ### Future retire targets
 

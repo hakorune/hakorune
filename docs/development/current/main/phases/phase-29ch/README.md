@@ -94,14 +94,14 @@ Known non-authority routes:
     - live text transport reuses the existing `STAGE1_SOURCE_TEXT` contract
     - exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) are centralized in `tools/selfhost/lib/stage1_contract.sh`
     - legacy `STAGE1_PROGRAM_JSON_TEXT` is now diagnostics-only / fail-fast only and is no longer injected by live shell helpers
-    - `stage1_contract.sh` no longer carries retired path transport; raw wrapper sugar owns file->text conversion
+    - `stage1_contract.sh` no longer carries retired path transport; live shell compat is exact-helper only
     - explicit mode is exact-only: `emit-mir-program`
     - plain `emit-mir` now fail-fast on mixed-in Program(JSON) text
     - legacy alias forms such as `emit_mir_program` are rejected
     - removal is still blocked because raw `stage1-cli` artifacts do not execute helper sources directly (`rc=97`)
   - no separate cold compat lane remains on the current green route
-    - diagnostics-only from the dedicated cold-compat probe; legacy env shape now returns `none`, and only raw wrapper sugar still collapses to `stage1-env-mir-program`
-  - raw `run_stage1_cli.sh ... --from-program-json` is wrapper sugar over `stage1-env-mir-program`, not a separate compat lane
+    - diagnostics-only from the dedicated cold-compat probe; legacy env shape now returns `none`, retired raw wrapper sugar also returns `none`, and only the explicit helper still reports `stage1-env-mir-program`
+  - raw `run_stage1_cli.sh ... --from-program-json` is retired from the live wrapper surface
 - current reduced route is green:
   - `smoke` PASS
   - `G1 full` PASS
