@@ -8,8 +8,7 @@ mod extract;
 mod lowering;
 
 use extract::{
-    collect_using_imports, extract_static_main_body_text, find_static_main_box,
-    preexpand_dev_local_aliases,
+    collect_using_imports, find_static_main_box, preexpand_dev_local_aliases,
 };
 use lowering::{defs_json_v0_from_methods, program_json_v0_from_body};
 
@@ -20,36 +19,8 @@ fn trace_enabled() -> bool {
 pub fn source_to_program_json_v0(source_text: &str) -> Result<String, String> {
     let imports = collect_using_imports(source_text);
     let normalized_source = preexpand_dev_local_aliases(source_text);
-    match NyashParser::parse_from_string(&normalized_source) {
-        Ok(ast) => match ast_to_program_json_v0_with_imports(&ast, imports.clone()) {
-            Ok(json) => Ok(json),
-            Err(primary_error)
-                if primary_error == "expected `static box Main { main() { ... } }`" =>
-            {
-                fallback_static_main_body(&normalized_source, primary_error, imports)
-            }
-            Err(primary_error) => Err(primary_error),
-        },
-        Err(primary_error) => {
-            fallback_static_main_body(
-                &normalized_source,
-                format!("parse error (Rust parser, v0 subset): {}", primary_error),
-                imports,
-            )
-        }
-    }
-}
-
-fn fallback_static_main_body(
-    source_text: &str,
-    primary_error: impl Into<String>,
-    imports: BTreeMap<String, String>,
-) -> Result<String, String> {
-    let primary_error = primary_error.into();
-    let body = extract_static_main_body_text(source_text).ok_or(primary_error.clone())?;
-    let wrapped = format!("static box Main {{ main(args) {{\n{}\n}} }}", body);
-    let ast = NyashParser::parse_from_string(&wrapped)
-        .map_err(|fallback_error| format!("{}; fallback parse error: {}", primary_error, fallback_error))?;
+    let ast = NyashParser::parse_from_string(&normalized_source)
+        .map_err(|primary_error| format!("parse error (Rust parser, v0 subset): {}", primary_error))?;
     ast_to_program_json_v0_with_imports(&ast, imports)
 }
 
@@ -222,5 +193,19 @@ static box Main {
         assert_eq!(value["kind"], "Program");
         assert_eq!(value["version"], 0);
         assert!(value["body"].is_array());
+    }
+
+    #[test]
+    fn source_to_program_json_v0_rejects_script_body_without_static_main() {
+        let source = r#"
+print(42)
+return 0
+"#;
+        let error = source_to_program_json_v0(source).expect_err("script body should fail-fast");
+        assert!(
+            error.contains("expected `static box Main { main() { ... } }`")
+                || error.contains("parse error (Rust parser, v0 subset):"),
+            "unexpected error: {error}"
+        );
     }
 }

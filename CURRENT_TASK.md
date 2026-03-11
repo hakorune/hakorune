@@ -150,6 +150,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - next actual reduction owner is Rust-owned bootstrap debt on the authority path:
         - `src/stage1/program_json_v0.rs`
         - only if proof still demands it: `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+      - owner-1 latest slice:
+        - `src/stage1/program_json_v0.rs` no longer auto-wraps bare script bodies into synthetic `static box Main`; unsupported script-body input now fail-fast directly
+        - keep launcher/dev-sugar support frozen for now; do not widen the owner-1 slice into wrapper or raw-lane cleanup
       - raw direct `stage1-cli` lane absence (`<bin> <source>` / `emit ...` / helper execute => `rc=97`) is a separate future slice, not the current reduced authority owner
       - do not spend the next slice on shell/probe boundary cleanup; wrapper/docs are thin enough for `phase-29ch`
       - keep alternate supplied-Program diagnostics probe-owned; do not pull legacy/raw wrapper aliases back into shared helpers
