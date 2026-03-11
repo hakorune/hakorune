@@ -118,7 +118,8 @@ Detailed evidence / solved slice log / diagnostics probes:
 2. thin explicit supplied Program(JSON) compat surface
 3. touch `lang/src/runner/stage1_cli_env.hako` only if the compat input itself still needs a Stage1-side shim
    - `MirBuilderBox.emit_from_program_json_v0(...)` itself is already green in minimal selfhost helper shape
-   - raw helper execution on `stage1-cli` artifacts is still missing, so full removal is blocked until a separate execute lane exists
+   - `stage1_cli_env.hako` wrapper-level compat branching is now thin enough; the next removal owner is raw helper execution on `stage1-cli` artifacts
+   - full removal is blocked until a separate execute lane exists (`tools/dev/phase29ch_program_json_helper_exec_probe.sh`, current `rc=97`)
 4. choose the next reduction slice without widening authority
 5. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 
