@@ -59,6 +59,9 @@ Related:
 - explicit Program(JSON) text-only probe:
   - `bash tools/dev/phase29ch_program_json_text_only_probe.sh --bin <stage1-cli>`
   - diagnostics-only: proves whether the remaining compat resolver can accept `*_PROGRAM_JSON_TEXT` alone
+- explicit Program(JSON) mode-gate probe:
+  - `bash tools/dev/phase29ch_program_json_explicit_mode_gate_probe.sh`
+  - diagnostics-only: proves that plain `emit-mir` rejects mixed-in Program(JSON) text while `emit-mir-program` stays green
 - impossible-gate probe:
   - `bash tools/dev/phase29ch_impossible_gate_probe.sh [entry]`
 - bridge-bypass probe:
@@ -130,6 +133,10 @@ Related:
   - `stage1_stage2_mir=exact-match`
   - runtime flags: `MIR_NONNULL`, `MIR_NONEMPTY`, `TEXT_NONEMPTY`, `LEN_POS`, `HEAD_OK`, `IDX_OK`
 - therefore the next owner is `stage1_cli_env.hako` wrapper-level compat branching, not `MirBuilderBox.emit_from_program_json_v0(...)` itself.
+- `bash tools/dev/phase29ch_program_json_explicit_mode_gate_probe.sh` is green:
+  - `stage1.plain_rc=96`
+  - `stage2.plain_rc=96`
+  - explicit compat mode still emits MIR JSON on both bins
 - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin target/selfhost/hakorune.stage1_cli`
   and `--bin target/selfhost/hakorune.stage1_cli.stage2`
   currently both report:

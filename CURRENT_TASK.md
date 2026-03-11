@@ -120,6 +120,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - minimal selfhost helper proof: `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
       - `stage1_cli_env.hako` wrapper-level source/compat branch is helper-split for future removal
       - explicit mode: `emit-mir-program`; plain `emit-mir` now fail-fast if Program(JSON) text is mixed in
+      - gate probe: `tools/dev/phase29ch_program_json_explicit_mode_gate_probe.sh`
     - no separate cold supplied-Program compat lane remains
       - diagnostics-only owner: `tools/dev/phase29ch_program_json_cold_compat_probe.sh`
       - legacy env shape now returns `none`; only raw wrapper sugar still collapses to `stage1-env-mir-program`
