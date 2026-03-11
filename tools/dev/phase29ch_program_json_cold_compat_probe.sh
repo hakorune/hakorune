@@ -41,8 +41,6 @@ run_cold_legacy_env_mir_route() {
     "STAGE1_SOURCE=${entry}" \
     "STAGE1_INPUT=${entry}" \
     "STAGE1_SOURCE_TEXT=${program_json_text}" \
-    "HAKO_STAGE1_PROGRAM_JSON_TEXT=${program_json_text}" \
-    "NYASH_STAGE1_PROGRAM_JSON_TEXT=${program_json_text}" \
     "STAGE1_PROGRAM_JSON_TEXT=${program_json_text}" \
     "$bin"
 }

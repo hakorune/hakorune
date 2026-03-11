@@ -175,8 +175,6 @@ stage1_contract_run_bin_with_env() {
 
   if [[ -n "${program_json_text}" ]]; then
     cmd_env+=(
-      "HAKO_STAGE1_PROGRAM_JSON_TEXT=${program_json_text}"
-      "NYASH_STAGE1_PROGRAM_JSON_TEXT=${program_json_text}"
       "STAGE1_PROGRAM_JSON_TEXT=${program_json_text}"
     )
   fi

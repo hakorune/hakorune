@@ -72,7 +72,7 @@ Known non-authority routes:
   - current reduced artifact (`stage1_cli_env.hako`) では raw/subcmd contract を持たず `rc=97`
 - `tools/selfhost/run_stage1_cli.sh ... emit ...`
   - compatibility wrapper only; it translates raw `emit` surface into the env mainline contract and is not accepted as reduced-case authority evidence
-- explicit supplied Program(JSON) text (`HAKO_STAGE1_PROGRAM_JSON_TEXT` / `NYASH_*_PROGRAM_JSON_TEXT` / `STAGE1_PROGRAM_JSON_TEXT`)
+- explicit supplied Program(JSON) text (`STAGE1_PROGRAM_JSON_TEXT`)
   - compatibility-only input shape inside `stage1_cli_env.hako`
   - not accepted as separate authority evidence once source-only `stage1-env-mir-source` is green
 - compiled stage1 artifact module dispatch (`crates/nyash_kernel/src/plugin/module_string_dispatch.rs`)

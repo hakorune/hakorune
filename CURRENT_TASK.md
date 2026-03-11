@@ -115,6 +115,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - current authority: `stage1-env-program` + `stage1-env-mir-source`
     - reduced proof source: `lang/src/runner/stage1_cli_env.hako`
     - live compat keep: `stage1-env-mir-program`
+      - current supplied Program(JSON) text SSOT: `STAGE1_PROGRAM_JSON_TEXT`
     - no separate cold supplied-Program compat lane remains
       - diagnostics-only owner: `tools/dev/phase29ch_program_json_cold_compat_probe.sh`
       - current observed aliases collapse to `stage1-env-mir-program`

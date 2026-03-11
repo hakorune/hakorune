@@ -462,14 +462,6 @@ static box Main {
   }
 
   method _resolve_supplied_program_json_text(tag) {
-    local path = me._clean_env_value(env.get("HAKO_STAGE1_PROGRAM_JSON"))
-    if path == "" { path = me._clean_env_value(env.get("NYASH_STAGE1_PROGRAM_JSON")) }
-    if path == "" { path = me._clean_env_value(env.get("STAGE1_PROGRAM_JSON")) }
-    if path != "" { return "" }
-    local hako_prog_json_text = me._clean_env_value(env.get("HAKO_STAGE1_PROGRAM_JSON_TEXT"))
-    if hako_prog_json_text != "" { return hako_prog_json_text }
-    local nyash_prog_json_text = me._clean_env_value(env.get("NYASH_STAGE1_PROGRAM_JSON_TEXT"))
-    if nyash_prog_json_text != "" { return nyash_prog_json_text }
     return me._clean_env_value(env.get("STAGE1_PROGRAM_JSON_TEXT"))
   }
 
