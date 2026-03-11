@@ -152,6 +152,10 @@ Current note:
 - explicit supplied `Program(JSON)` input
   - explicit compat route: `stage1-env-mir-program`
   - current transport: text-only
+  - current callers:
+    - `tools/selfhost/run_stage1_cli.sh --from-program-json`
+    - `tools/dev/phase29ch_program_json_compat_route_probe.sh`
+    - `tools/dev/phase29ch_program_json_text_only_probe.sh`
 - alternate supplied-Program caller shapes
   - diagnostics-only aliases over `stage1-env-mir-program`
 - raw `run_stage1_cli.sh ... --from-program-json`
