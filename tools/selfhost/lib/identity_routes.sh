@@ -208,37 +208,6 @@ run_and_extract_stage_payload() {
   return 0
 }
 
-run_stage1_env_mir_program_compat_route() {
-  local bin="$1"
-  local entry="$2"
-  local outfile="$3"
-  local route_file="${4:-}"
-  local program_json_text
-  local tmp_prog
-  tmp_prog="$(mktemp)"
-
-  if ! run_stage1_env_route "$bin" "program-json" "$entry" "$tmp_prog"; then
-    rm -f "$tmp_prog"
-    return 1
-  fi
-  program_json_text="$(cat "$tmp_prog")"
-
-  # Explicit compat keep: supplied Program(JSON text) -> emit-mir.
-  if run_and_extract_stage_payload \
-    "mir-json" \
-    "$outfile" \
-    stage1_contract_exec_program_json_text "$bin" "$entry" "$program_json_text" "emit-mir"; then
-    rm -f "$tmp_prog"
-    if [[ -n "$route_file" ]]; then
-      echo "stage1-env-mir-program" >"$route_file"
-    fi
-    return 0
-  fi
-
-  rm -f "$tmp_prog"
-  return 1
-}
-
 run_stage1_env_route() {
   local bin="$1"
   local subcmd="$2"

@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 source "${ROOT}/tools/selfhost/lib/identity_routes.sh"
+source "${ROOT}/tools/selfhost/lib/stage1_contract.sh"
 
 BIN="${ROOT}/target/selfhost/hakorune.stage1_cli"
 ENTRY="${ROOT}/apps/tests/hello_simple_llvm.hako"
@@ -47,13 +48,27 @@ if [[ ! -f "$ENTRY" ]]; then
 fi
 
 tmp_dir="$(mktemp -d)"
+tmp_prog="${tmp_dir}/program.json"
 out_file="${tmp_dir}/mir.json"
 route_file="${tmp_dir}/route.txt"
-if ! run_stage1_env_mir_program_compat_route "$BIN" "$ENTRY" "$out_file" "$route_file"; then
+
+if ! run_stage1_env_route "$BIN" "program-json" "$ENTRY" "$tmp_prog"; then
+  cleanup_stage_temp_dir "$tmp_dir"
+  echo "[phase29ch/compat-probe] failed to materialize Program(JSON)" >&2
+  exit 1
+fi
+
+program_json_text="$(cat "$tmp_prog")"
+if ! run_and_extract_stage_payload \
+  "mir-json" \
+  "$out_file" \
+  stage1_contract_exec_program_json_text "$BIN" "$ENTRY" "$program_json_text" "emit-mir"; then
   cleanup_stage_temp_dir "$tmp_dir"
   echo "[phase29ch/compat-probe] compat route failed" >&2
   exit 1
 fi
+
+echo "stage1-env-mir-program" >"$route_file"
 
 route="$(route_file_value "$route_file")"
 echo "bin=${BIN}"

@@ -52,6 +52,7 @@ Related:
 - explicit Program(JSON) compat probe:
   - `bash tools/dev/phase29ch_program_json_compat_route_probe.sh --bin <stage1-cli>`
   - diagnostics-only: reports which explicit supplied-Program compat route is actually used on a compiled artifact
+  - current owner: the probe itself + `stage1_contract_exec_program_json_text()`; no shared compat helper remains in `identity_routes.sh`
 - explicit Program(JSON) cold compat probe:
   - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin <stage1-cli>`
   - diagnostics-only: reports whether legacy/subcmd cold compat routes are still accepted on a compiled artifact
