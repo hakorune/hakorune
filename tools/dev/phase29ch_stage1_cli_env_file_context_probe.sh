@@ -1423,8 +1423,6 @@ def replace_method(text: str, name: str, body: str) -> str:
 
 if case_name in {"thin", "thin_imports"}:
     for name, body in [
-        ("_inject_entry_user_box_decls_if_needed", '    return mir_json'),
-        ("_build_user_box_decls_from_program_json_inline", '    return ""'),
         ("_build_program_json", '    return ""'),
         ("_should_synthesize_entry_defs_inline", '    return ""'),
         ("_build_main_defs_fragment_inline", '    return ""'),

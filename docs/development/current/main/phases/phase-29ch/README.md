@@ -99,6 +99,7 @@ Known non-authority routes:
     - plain `emit-mir` now fail-fast on mixed-in Program(JSON) text
     - legacy alias forms such as `emit_mir_program` are rejected
     - removal is still blocked because raw `stage1-cli` artifacts do not execute helper sources directly (`rc=97`)
+    - generic raw direct `stage1-cli` lane is absent on green artifacts (`<bin> <source>` / `emit ...` / helper execute => `rc=97`)
   - no separate cold compat lane remains on the current green route
     - diagnostics-only from the dedicated cold-compat probe; legacy env shape now returns `none`, retired raw wrapper sugar also returns `none`, and only the explicit helper still reports `stage1-env-mir-program`
   - raw `run_stage1_cli.sh ... --from-program-json` is retired from the live wrapper surface
@@ -118,8 +119,9 @@ Detailed evidence / solved slice log / diagnostics probes:
 2. thin explicit supplied Program(JSON) compat surface
 3. touch `lang/src/runner/stage1_cli_env.hako` only if the compat input itself still needs a Stage1-side shim
    - `MirBuilderBox.emit_from_program_json_v0(...)` itself is already green in minimal selfhost helper shape
-   - `stage1_cli_env.hako` wrapper-level compat branching is now thin enough; the next removal owner is raw helper execution on `stage1-cli` artifacts
-   - full removal is blocked until a separate execute lane exists (`tools/dev/phase29ch_program_json_helper_exec_probe.sh`, current `rc=97`)
+   - `stage1_cli_env.hako` wrapper-level compat branching is now thin enough
+   - raw direct `stage1-cli` lane absence is a separate future slice (`tools/dev/phase29ch_raw_direct_stage1_cli_probe.sh` + `tools/dev/phase29ch_program_json_helper_exec_probe.sh`, current `rc=97`)
+   - current BoxShape owner can move to the `emit-program` authority side without reopening that lane
 4. choose the next reduction slice without widening authority
 5. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 

@@ -130,6 +130,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - legacy alias forms such as `emit_mir_program` are rejected
       - raw helper execution prerequisite is still missing on `stage1-cli` artifacts
       - removal blocker probe: `tools/dev/phase29ch_program_json_helper_exec_probe.sh`
+      - generic raw direct lane absence probe: `tools/dev/phase29ch_raw_direct_stage1_cli_probe.sh`
     - no separate cold supplied-Program compat lane remains
       - diagnostics-only owner: `tools/dev/phase29ch_program_json_cold_compat_probe.sh`
       - legacy env shape returns `none`; retired raw wrapper sugar also returns `none`
@@ -145,7 +146,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - keep `stage1-env-mir-source` green as current authority
       - keep supplied `Program(JSON)` compat explicit-only; do not reintroduce it into generic env route resolution
       - treat `emit_from_program_json_v0(...)` itself as green in minimal selfhost helper shape; `stage1_cli_env.hako` wrapper-level compat branch is now thin enough
-      - next removal owner is the raw helper execute blocker on `stage1-cli` artifacts (`tools/dev/phase29ch_program_json_helper_exec_probe.sh`, current `rc=97`)
+      - raw direct `stage1-cli` lane absence (`<bin> <source>` / `emit ...` / helper execute => `rc=97`) is a separate future slice, not the current reduced authority owner
+      - next BoxShape owner inside `stage1_cli_env.hako` can move to the `emit-program` authority side without reopening raw direct lanes
       - keep alternate supplied-Program diagnostics probe-owned; do not pull legacy/raw wrapper aliases back into shared helpers
       - touch `lang/src/runner/stage1_cli_env.hako` again only if the execute-lane slice proves a Stage1-side shim is still needed
       - do not widen authority or jump to JSON v0 retirement
