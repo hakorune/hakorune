@@ -145,10 +145,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - transient-boundary probe stays quiet/raw-exact
     - next owner order:
       - keep `stage1-env-mir-source` green as current authority
-      - keep supplied `Program(JSON)` compat explicit-only; do not reintroduce it into generic env route resolution
-      - treat `emit_from_program_json_v0(...)` itself as green in minimal selfhost helper shape; `stage1_cli_env.hako` wrapper-level compat branch is now thin enough
+      - keep supplied `Program(JSON)` compat monitor-only; do not reintroduce it into generic env route resolution
+      - treat `emit_from_program_json_v0(...)` itself as green in minimal selfhost helper shape; `stage1_cli_env.hako` wrapper-level compat branch is now thin enough and should stay frozen unless a later slice proves otherwise
+      - next actual reduction owner is Rust-owned bootstrap debt on the authority path:
+        - `src/stage1/program_json_v0.rs`
+        - only if proof still demands it: `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
       - raw direct `stage1-cli` lane absence (`<bin> <source>` / `emit ...` / helper execute => `rc=97`) is a separate future slice, not the current reduced authority owner
-      - next BoxShape owner can leave `stage1_cli_env.hako` alone and move to the next MIR-direct reduction slice, or quarantine the shell-side live/probe helper boundary a little further without reopening raw direct lanes
+      - do not spend the next slice on shell/probe boundary cleanup; wrapper/docs are thin enough for `phase-29ch`
       - keep alternate supplied-Program diagnostics probe-owned; do not pull legacy/raw wrapper aliases back into shared helpers
       - touch `lang/src/runner/stage1_cli_env.hako` again only if the execute-lane slice proves a Stage1-side shim is still needed
       - do not widen authority or jump to JSON v0 retirement

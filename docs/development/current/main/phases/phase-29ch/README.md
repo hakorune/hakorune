@@ -117,14 +117,15 @@ Detailed evidence / solved slice log / diagnostics probes:
 ## Next Owner Order
 
 1. keep source-only `stage1-env-mir-source` as the current green authority path
-2. thin explicit supplied Program(JSON) compat surface
-3. touch `lang/src/runner/stage1_cli_env.hako` only if the compat input itself still needs a Stage1-side shim
+2. keep explicit supplied Program(JSON) compat monitor-only and frozen
+3. touch `lang/src/runner/stage1_cli_env.hako` only if a later execute-lane slice proves a Stage1-side shim is still needed
    - `MirBuilderBox.emit_from_program_json_v0(...)` itself is already green in minimal selfhost helper shape
    - `stage1_cli_env.hako` wrapper-level compat branching is now thin enough
    - raw direct `stage1-cli` lane absence is a separate future slice (`tools/dev/phase29ch_raw_direct_stage1_cli_probe.sh` + `tools/dev/phase29ch_program_json_helper_exec_probe.sh`, current `rc=97`)
-   - current BoxShape owner can move to the `emit-program` authority side without reopening that lane
-4. align the shell helper boundary (`stage1_contract_exec_program_json_compat()` vs low-level probe helper) and legacy raw-direct notes without widening authority
-5. choose the next reduction slice without reopening raw direct lanes
+4. move to the next actual reduction owner on the authority path
+   - first: `src/stage1/program_json_v0.rs`
+   - only if proof still demands it: `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+5. do not spend the next slice on shell/probe boundary cleanup or raw direct lane revival
 6. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 
 ## Acceptance
