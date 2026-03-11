@@ -56,17 +56,9 @@ program_json_text="$(cat "$tmp_prog")"
 
 set +e
 stage1_contract_export_runner_defaults
-stage1_contract_run_bin_with_env \
+stage1_contract_exec_program_json_compat \
   "$BIN" \
-  "emit-mir-program" \
-  "__stage1_program_json__" \
-  "$program_json_text" \
-  0 \
-  1 \
-  "" \
-  "$program_json_text" \
-  /dev/null \
-  /dev/null
+  "$program_json_text" >/dev/null 2>/dev/null
 rc=$?
 set -e
 

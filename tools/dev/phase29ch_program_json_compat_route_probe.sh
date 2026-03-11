@@ -62,7 +62,7 @@ program_json_text="$(cat "$tmp_prog")"
 if ! run_and_extract_stage_payload \
   "mir-json" \
   "$out_file" \
-  stage1_contract_exec_program_json_text "$BIN" "$ENTRY" "$program_json_text" "emit-mir-program"; then
+  stage1_contract_exec_program_json_compat "$BIN" "$program_json_text"; then
   cleanup_stage_temp_dir "$tmp_dir"
   echo "[phase29ch/compat-probe] compat route failed" >&2
   exit 1

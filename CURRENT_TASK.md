@@ -81,6 +81,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - de-rust orchestration/top-level scope aftercare (monitor-only)
   - restart quick entry (2026-03-10):
     - final goal: `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`
+    - end state: compiler と plugin behavior は `.hako` mainline へ寄せ、Rust は host/runtime/backend の最小面に縮退する
     - bootstrap rule: `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
     - current minimal task: `phase-29cg` reduced-case authority is now green; next separate phase is `phase-29ch` for MIR-direct bootstrap unification only
     - solved bucket keep-closed: `bridge return-path`, `extern classification`, `current LLVM PHI repair`
@@ -115,12 +116,20 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - current authority: `stage1-env-program` + `stage1-env-mir-source`
     - reduced proof source: `lang/src/runner/stage1_cli_env.hako`
     - explicit compat keep: `stage1-env-mir-program`
-      - current supplied Program(JSON) text SSOT: `STAGE1_PROGRAM_JSON_TEXT`
+      - current live text transport SSOT: `STAGE1_SOURCE_TEXT`
+      - legacy/cold env key: `STAGE1_PROGRAM_JSON_TEXT` (fail-fast / diagnostics only; no longer injected by live shell helpers)
+      - retired path transport is gone from `stage1_contract.sh`; file->text conversion is raw wrapper sugar only
       - probe owner: `tools/dev/phase29ch_program_json_compat_route_probe.sh`
       - minimal selfhost helper proof: `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
       - `stage1_cli_env.hako` wrapper-level source/compat branch is helper-split for future removal
-      - explicit mode: `emit-mir-program`; plain `emit-mir` now fail-fast if Program(JSON) text is mixed in
+      - code-side quarantine owner: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (explicit compat call + mixed-input fail-fast gate)
+      - explicit mode is exact-only: `emit-mir-program`
+      - shell-side exact compat helper/entry/mode SSOT: `tools/selfhost/lib/stage1_contract.sh` (`stage1_contract_exec_program_json_compat()`)
+      - plain `emit-mir` now fail-fast if Program(JSON) text is mixed in
       - gate probe: `tools/dev/phase29ch_program_json_explicit_mode_gate_probe.sh`
+      - legacy alias forms such as `emit_mir_program` are rejected
+      - raw helper execution prerequisite is still missing on `stage1-cli` artifacts
+      - removal blocker probe: `tools/dev/phase29ch_program_json_helper_exec_probe.sh`
     - no separate cold supplied-Program compat lane remains
       - diagnostics-only owner: `tools/dev/phase29ch_program_json_cold_compat_probe.sh`
       - legacy env shape now returns `none`; only raw wrapper sugar still collapses to `stage1-env-mir-program`

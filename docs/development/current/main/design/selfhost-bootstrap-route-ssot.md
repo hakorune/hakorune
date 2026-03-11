@@ -25,6 +25,11 @@ Related:
 selfhost を目的化せず、compiler-first の方針を守りつつ、
 「.hako コンパイラが自己コンパイル可能な状態」へ戻すための最小経路を定義する。
 
+End-state note:
+- bootstrap route の最終目標は `.hako` compiler mainline が compiler meaning を持ち、
+  plugin behavior も `.hako` 側へ寄り、Rust は host/runtime/backend の最小面だけを残すこと
+- `Program(JSON v0)` / stage1 wrapper / surrogate provider はその途中にある bootstrap-only boundary で、authority ではなく最終 retire target だと扱う
+
 ## Reading Order
 
 Restart / handoff では次の順で読む。
@@ -84,11 +89,18 @@ SSOT:
 - exact probe では `target/selfhost/hakorune.stage1_cli` は raw direct contract (`emit ...` / `--emit-mir-json`) で `97` を返す一方、`stage1_contract_exec_mode` は current reduced artifact に single-step source→MIR env contract を提供する。`tools/selfhost/run_stage1_cli.sh` は raw `emit program-json` / `emit mir-json` surface をこの env contract に変換する compatibility wrapper であり、新しい authority route ではない
 - `build_stage1.sh` の `stage1-cli bridge-first` bootstrap path は current reduced source (`lang/src/runner/stage1_cli_env.hako`) を single-step source→MIR へ通し、`tools/ny_mir_builder.sh` には MIR(JSON) だけを渡す
 - source-only authority case では `stage1_cli_env.hako` が `MirBuilderBox.emit_from_source_v0(...)` を直接使い、explicit supplied Program(JSON) text-only input がある時だけ `MirBuilderBox.emit_from_program_json_v0(...)` を explicit compatibility input shape として残す
-- explicit compatibility input shape は `emit-mir-program` mode でのみ許可し、plain `emit-mir` は mixed-in `STAGE1_PROGRAM_JSON_TEXT` を fail-fast する
+- that explicit compatibility gate/call is now quarantined in `Stage1ProgramJsonCompatBox` inside `lang/src/runner/stage1_cli_env.hako`
+- explicit compatibility input shape は exact-only `emit-mir-program` mode でのみ許可し、live text transport は `STAGE1_SOURCE_TEXT` を再利用する
+- plain `emit-mir` は mixed-in `STAGE1_PROGRAM_JSON_TEXT` を fail-fast する
+- legacy alias forms for that explicit mode are not part of the active contract
+- raw `stage1-cli` artifact の helper execution lane はまだ `rc=97` のため、explicit Program(JSON) compat dispatch は Stage1-side keep のままにする
 - `phase-29ch` compare policy is split on purpose: authority and route identity stay exact, but G1 MIR comparison may start with a narrow semantic canonical compare while raw MIR exact diff remains tightening evidence
 - exact env-mainline route ids and their fail-fast hints are centralized in `tools/selfhost/lib/identity_routes.sh`
 - G1 full-mode route guard も current authority に同期しており、`tools/selfhost_identity_check.sh --mode full` は `program-json=stage1-env-program` と `mir-json=stage1-env-mir-source` の exact route 以外では pass しない
-- supplied Program(JSON) compat text transport の shell-side SSOT は `tools/selfhost/lib/stage1_contract.sh` -> `tools/selfhost/run_stage1_cli.sh` -> `tools/selfhost/lib/identity_routes.sh` で固定する
+- supplied Program(JSON) compat text transport の shell-side SSOT は `tools/selfhost/lib/stage1_contract.sh` -> `tools/selfhost/run_stage1_cli.sh` -> `tools/selfhost/lib/identity_routes.sh` で固定し、live transport は `STAGE1_SOURCE_TEXT` を再利用する
+- exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) も `tools/selfhost/lib/stage1_contract.sh` を単一正本にする
+- `STAGE1_PROGRAM_JSON_TEXT` is outside the live shell contract and exists only for fail-fast / diagnostics probes
+- retired path transport is not part of the live shell contract anymore; file->text conversion is wrapper sugar only
 - `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli` の post-build capability probe も同じ shared helper で `stage1-env-program` + `stage1-env-mir-source` を要求する
 - `tools/selfhost/build_stage1.sh` の stage1-cli bridge-first bootstrap 本体も同じ shared helper (`probe_exact_stage1_env_authority`) で MIR(JSON) を materialize する
 

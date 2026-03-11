@@ -2,7 +2,7 @@
 # stage1_contract.sh — Stage1 CLI env contract helpers (SSOT)
 #
 # Purpose:
-# - Keep Stage1 input/program-json alias resolution in one place.
+# - Keep Stage1 input/text contract resolution in one place.
 # - Share the same env-injection contract across selfhost helpers.
 
 stage1_contract_emit_marker() {
@@ -11,13 +11,21 @@ stage1_contract_emit_marker() {
     emit-program|emit_program_json|emit-program-json)
       printf '%s' '"kind"[[:space:]]*:[[:space:]]*"Program"'
       ;;
-    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program|emit_mir_program|emit-mir-program-json|emit_mir_program_json)
+    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
       printf '%s' '"functions"[[:space:]]*:'
       ;;
     *)
       return 1
       ;;
   esac
+}
+
+stage1_contract_program_json_compat_mode() {
+  printf '%s' 'emit-mir-program'
+}
+
+stage1_contract_program_json_compat_entry() {
+  printf '%s' '__stage1_program_json__'
 }
 
 stage1_contract_emit_stdout_has_marker() {
@@ -151,10 +159,8 @@ stage1_contract_run_bin_with_env() {
   local source_text_for_mode="$4"
   local emit_program_flag="$5"
   local emit_mir_flag="$6"
-  local program_json_path="${7:-}"
-  local program_json_text="${8:-}"
-  local stdout_file="${9:-}"
-  local stderr_file="${10:-}"
+  local stdout_file="${7:-}"
+  local stderr_file="${8:-}"
   local -a cmd_env=(
     "NYASH_NYRT_SILENT_RESULT=${NYASH_NYRT_SILENT_RESULT:-1}"
     "NYASH_DISABLE_PLUGINS=1"
@@ -173,12 +179,6 @@ stage1_contract_run_bin_with_env() {
     "STAGE1_SOURCE_TEXT=${source_text_for_mode}"
   )
 
-  if [[ -n "${program_json_text}" ]]; then
-    cmd_env+=(
-      "STAGE1_PROGRAM_JSON_TEXT=${program_json_text}"
-    )
-  fi
-
   if [[ -n "${stdout_file}" ]]; then
     env "${cmd_env[@]}" "$bin" >"$stdout_file" 2>"$stderr_file"
     return $?
@@ -191,7 +191,7 @@ stage1_contract_exec_program_json_text() {
   local bin="$1"
   local entry="$2"
   local program_json_text="$3"
-  local mode="${4:-emit-mir-program}"
+  local mode="${4:-$(stage1_contract_program_json_compat_mode)}"
   local emit_program_flag=0
   local emit_mir_flag=0
   local tmp_stdout=""
@@ -204,7 +204,7 @@ stage1_contract_exec_program_json_text() {
     emit-program|emit_program_json|emit-program-json)
       emit_program_flag=1
       ;;
-    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program|emit_mir_program|emit-mir-program-json|emit_mir_program_json)
+    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
       emit_mir_flag=1
       ;;
   esac
@@ -222,8 +222,6 @@ stage1_contract_exec_program_json_text() {
       "$program_json_text" \
       "$emit_program_flag" \
       "$emit_mir_flag" \
-      "" \
-      "$program_json_text" \
       "$tmp_stdout" \
       "$tmp_stderr"; then
       rc=0
@@ -253,8 +251,19 @@ stage1_contract_exec_program_json_text() {
     "$program_json_text" \
     "$emit_program_flag" \
     "$emit_mir_flag" \
-    "" \
-    "$program_json_text"
+    ""
+}
+
+# Exact-only live compat helper. Keep the generic text helper below it so
+# probes can still exercise legacy aliases and cold diagnostics explicitly.
+stage1_contract_exec_program_json_compat() {
+  local bin="$1"
+  local program_json_text="$2"
+  stage1_contract_exec_program_json_text \
+    "$bin" \
+    "$(stage1_contract_program_json_compat_entry)" \
+    "$program_json_text" \
+    "$(stage1_contract_program_json_compat_mode)"
 }
 
 stage1_contract_exec_mode() {
@@ -262,8 +271,6 @@ stage1_contract_exec_mode() {
   local mode="$2"
   local entry="$3"
   local source_text="$4"
-  local program_json_path="${5:-}"
-  local program_json_text=""
   local source_text_for_mode="$source_text"
   local emit_program_flag=0
   local emit_mir_flag=0
@@ -282,59 +289,9 @@ stage1_contract_exec_mode() {
       ;;
   esac
 
-  if [[ -n "$program_json_path" && "$mode" == "emit-mir" && -f "$program_json_path" ]]; then
-    program_json_text="$(cat "$program_json_path")"
-    source_text_for_mode="$program_json_text"
-  fi
-
   if [[ "$emit_program_flag" -eq 1 || "$emit_mir_flag" -eq 1 ]]; then
     tmp_stdout="$(mktemp)"
     tmp_stderr="$(mktemp)"
-  fi
-
-  if [[ -n "$program_json_path" ]]; then
-    if [[ -n "$tmp_stdout" ]]; then
-      if stage1_contract_run_bin_with_env \
-        "$bin" \
-        "$mode" \
-        "$entry" \
-        "$source_text_for_mode" \
-        "$emit_program_flag" \
-        "$emit_mir_flag" \
-        "$program_json_path" \
-        "$program_json_text" \
-        "$tmp_stdout" \
-        "$tmp_stderr"; then
-        rc=0
-      else
-        rc=$?
-      fi
-      if [[ "$rc" -ne 0 ]]; then
-        stage1_contract_report_emit_failure "$mode" "$rc" "$tmp_stdout" "$tmp_stderr"
-        stage1_contract_cleanup_exec_temp "$tmp_stdout" "$tmp_stderr"
-        return "$rc"
-      fi
-      stage1_contract_validate_emit_output "$mode" "$tmp_stdout" "$tmp_stderr" || {
-        rc=$?
-        stage1_contract_cleanup_exec_temp "$tmp_stdout" "$tmp_stderr"
-        return "$rc"
-      }
-      cat "$tmp_stdout"
-      cat "$tmp_stderr" >&2
-      stage1_contract_cleanup_exec_temp "$tmp_stdout" "$tmp_stderr"
-      return 0
-    fi
-
-    stage1_contract_run_bin_with_env \
-      "$bin" \
-      "$mode" \
-      "$entry" \
-      "$source_text_for_mode" \
-      "$emit_program_flag" \
-      "$emit_mir_flag" \
-      "$program_json_path" \
-      "$program_json_text"
-    return $?
   fi
 
   if [[ -n "$tmp_stdout" ]]; then
@@ -345,8 +302,6 @@ stage1_contract_exec_mode() {
       "$source_text_for_mode" \
       "$emit_program_flag" \
       "$emit_mir_flag" \
-      "" \
-      "" \
       "$tmp_stdout" \
       "$tmp_stderr"; then
       rc=0

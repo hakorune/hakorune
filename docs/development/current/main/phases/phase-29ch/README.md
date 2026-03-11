@@ -90,7 +90,15 @@ Known non-authority routes:
   - explicit compat keep: `stage1-env-mir-program`
     - minimal selfhost helper calling `MirBuilderBox.emit_from_program_json_v0(...)` is green
     - `stage1_cli_env.hako` now keeps source-mainline vs explicit-compat in separate helper methods
-    - explicit mode is `emit-mir-program`; plain `emit-mir` now fail-fast on mixed-in Program(JSON) text
+    - explicit compat MIR call and mixed-input fail-fast gate are quarantined in `Stage1ProgramJsonCompatBox` inside `lang/src/runner/stage1_cli_env.hako`
+    - live text transport reuses the existing `STAGE1_SOURCE_TEXT` contract
+    - exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) are centralized in `tools/selfhost/lib/stage1_contract.sh`
+    - legacy `STAGE1_PROGRAM_JSON_TEXT` is now diagnostics-only / fail-fast only and is no longer injected by live shell helpers
+    - `stage1_contract.sh` no longer carries retired path transport; raw wrapper sugar owns file->text conversion
+    - explicit mode is exact-only: `emit-mir-program`
+    - plain `emit-mir` now fail-fast on mixed-in Program(JSON) text
+    - legacy alias forms such as `emit_mir_program` are rejected
+    - removal is still blocked because raw `stage1-cli` artifacts do not execute helper sources directly (`rc=97`)
   - no separate cold compat lane remains on the current green route
     - diagnostics-only from the dedicated cold-compat probe; legacy env shape now returns `none`, and only raw wrapper sugar still collapses to `stage1-env-mir-program`
   - raw `run_stage1_cli.sh ... --from-program-json` is wrapper sugar over `stage1-env-mir-program`, not a separate compat lane
@@ -110,6 +118,7 @@ Detailed evidence / solved slice log / diagnostics probes:
 2. thin explicit supplied Program(JSON) compat surface
 3. touch `lang/src/runner/stage1_cli_env.hako` only if the compat input itself still needs a Stage1-side shim
    - `MirBuilderBox.emit_from_program_json_v0(...)` itself is already green in minimal selfhost helper shape
+   - raw helper execution on `stage1-cli` artifacts is still missing, so full removal is blocked until a separate execute lane exists
 4. choose the next reduction slice without widening authority
 5. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 

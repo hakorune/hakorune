@@ -57,9 +57,6 @@ static box Main {
     if mode == "emit_mir_json" || mode == "emit-mir-json" {
       return "emit-mir"
     }
-    if mode == "emit_mir_program" || mode == "emit-mir-program" || mode == "emit_mir_program_json" || mode == "emit-mir-program-json" {
-      return "emit-mir-program"
-    }
     return mode
   }
 
@@ -71,8 +68,8 @@ static box Main {
   }
 
   method _run_emit_mir_mode(tag) {
-    if me._resolve_supplied_program_json_text() != "" {
-      print(tag + " explicit program-json text requires emit-mir-program mode")
+    local supplied_program_json_text = me._resolve_supplied_program_json_text()
+    if Stage1ProgramJsonCompatBox.fail_fast_mixed_source_mode(tag, supplied_program_json_text) != 0 {
       return 96
     }
     local source_text = me._resolve_emit_program_source_text()
@@ -84,13 +81,12 @@ static box Main {
   }
 
   method _run_emit_mir_program_json_compat_mode(tag) {
-    local supplied_program_json = me._resolve_supplied_program_json_text()
-    if supplied_program_json == null || supplied_program_json == "" {
-      print(tag + " missing program-json text contract")
+    local program_json_text = me._resolve_source_text()
+    local mir = Stage1ProgramJsonCompatBox.emit_mir_from_text(tag, program_json_text)
+    if mir == null {
       return 96
     }
-    local mir = me._emit_mir_from_explicit_program_json_text(supplied_program_json)
-    return me._finalize_emit_mir_result(tag, supplied_program_json, mir)
+    return me._finalize_emit_mir_result(tag, program_json_text, mir)
   }
 
   method _finalize_emit_mir_result(tag, selected_input, mir) {
@@ -188,10 +184,6 @@ static box Main {
     if has_functions < 0 { return 96 }
     print(mir)
     return 0
-  }
-
-  method _emit_mir_from_explicit_program_json_text(program_json_text) {
-    return MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
   }
 
   method _emit_mir_from_source_mainline(tag, source_text) {
@@ -914,4 +906,24 @@ static box Main {
     return out
   }
 
+}
+
+// Explicit Program(JSON) compat keep stays in the same file so current stage1
+// artifacts can materialize the helper closure without widening authority.
+static box Stage1ProgramJsonCompatBox {
+  method fail_fast_mixed_source_mode(tag, supplied_program_json_text) {
+    if supplied_program_json_text != null && supplied_program_json_text != "" {
+      print(tag + " explicit program-json text requires emit-mir-program mode")
+      return 96
+    }
+    return 0
+  }
+
+  method emit_mir_from_text(tag, program_json_text) {
+    if program_json_text == null || program_json_text == "" {
+      print(tag + " missing explicit source-text program-json contract")
+      return null
+    }
+    return MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
+  }
 }

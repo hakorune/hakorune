@@ -61,7 +61,10 @@ Related:
   - diagnostics-only: proves whether the remaining compat resolver can accept `*_PROGRAM_JSON_TEXT` alone
 - explicit Program(JSON) mode-gate probe:
   - `bash tools/dev/phase29ch_program_json_explicit_mode_gate_probe.sh`
-  - diagnostics-only: proves that plain `emit-mir` rejects mixed-in Program(JSON) text while `emit-mir-program` stays green
+  - diagnostics-only: proves that plain `emit-mir` rejects mixed-in Program(JSON) text, exact-only `emit-mir-program` stays green, and legacy alias forms such as `emit_mir_program` are rejected
+- Program(JSON) helper execution probe:
+  - `bash tools/dev/phase29ch_program_json_helper_exec_probe.sh`
+  - diagnostics-only: proves that raw `stage1-cli` artifacts still return `rc=97` when asked to execute a helper source that would print `MirBuilderBox.emit_from_program_json_v0(...)`
 - impossible-gate probe:
   - `bash tools/dev/phase29ch_impossible_gate_probe.sh [entry]`
 - bridge-bypass probe:
@@ -125,18 +128,29 @@ Related:
 - `bash tools/dev/phase29ch_program_json_compat_route_probe.sh --bin target/selfhost/hakorune.stage1_cli`
   and `--bin target/selfhost/hakorune.stage1_cli.stage2`
   both report `compat_route=stage1-env-mir-program`.
-- That explicit compat route uses text transport through `stage1_contract_exec_program_json_text()` and the current text SSOT is `STAGE1_PROGRAM_JSON_TEXT`.
-- Raw `tools/selfhost/run_stage1_cli.sh ... emit mir-json --from-program-json <file>` now uses explicit compat mode (`emit-mir-program`) and is treated as sugar over `stage1-env-mir-program`.
+- That explicit compat route uses text transport through `stage1_contract_exec_program_json_compat()` and the current live text SSOT is `STAGE1_SOURCE_TEXT`.
+- `STAGE1_PROGRAM_JSON_TEXT` is now retained only for fail-fast diagnostics and cold compat observation; the explicit mode gate probe and cold compat probe inject it directly, while live shell helpers do not.
+- retired path transport has been removed from `stage1_contract_exec_mode()` / `stage1_contract_run_bin_with_env()`;
+  only raw wrapper sugar still performs file->text conversion before entering the text contract.
+- Raw `tools/selfhost/run_stage1_cli.sh ... emit mir-json --from-program-json <file>` now uses exact-only explicit compat mode (`emit-mir-program`) and is treated as sugar over `stage1-env-mir-program`.
+- exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) are now centralized in `tools/selfhost/lib/stage1_contract.sh`.
 - No separate cold supplied-Program compat lane remains on green artifacts.
 - The remaining diagnostics owner is `tools/dev/phase29ch_program_json_cold_compat_probe.sh`, not `identity_routes.sh` / `stage1_contract.sh`.
 - `bash tools/dev/phase29ch_selfhost_program_json_helper_probe.sh` is green:
   - `stage1_stage2_mir=exact-match`
   - runtime flags: `MIR_NONNULL`, `MIR_NONEMPTY`, `TEXT_NONEMPTY`, `LEN_POS`, `HEAD_OK`, `IDX_OK`
 - therefore the next owner is `stage1_cli_env.hako` wrapper-level compat branching, not `MirBuilderBox.emit_from_program_json_v0(...)` itself.
+- current code-side quarantine owner for that branch is `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (mixed-input fail-fast gate + explicit compat call).
 - `bash tools/dev/phase29ch_program_json_explicit_mode_gate_probe.sh` is green:
   - `stage1.plain_rc=96`
   - `stage2.plain_rc=96`
+  - `stage1.legacy_alias_rc=97`
+  - `stage2.legacy_alias_rc=97`
   - explicit compat mode still emits MIR JSON on both bins
+- `bash tools/dev/phase29ch_program_json_helper_exec_probe.sh` is green:
+  - `stage1.raw_exec_rc=97`
+  - `stage2.raw_exec_rc=97`
+  - therefore raw helper execution is not yet available as a shell-side replacement for the Stage1-side explicit compat dispatch
 - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh --bin target/selfhost/hakorune.stage1_cli`
   and `--bin target/selfhost/hakorune.stage1_cli.stage2`
   currently both report:

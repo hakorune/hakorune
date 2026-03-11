@@ -37,22 +37,31 @@ probe_bin() {
   local plain_err="$tmp_dir/${label}.plain.err"
   local compat_out="$tmp_dir/${label}.compat.out"
   local compat_err="$tmp_dir/${label}.compat.err"
+  local alias_out="$tmp_dir/${label}.alias.out"
+  local alias_err="$tmp_dir/${label}.alias.err"
   local rc=0
 
   stage1_contract_export_runner_defaults
 
   set +e
-  stage1_contract_run_bin_with_env \
-    "$bin" \
-    "emit-mir" \
-    "$ENTRY" \
-    "$program_json_text" \
-    0 \
-    1 \
-    "" \
-    "$program_json_text" \
-    "$plain_out" \
-    "$plain_err"
+  env \
+    "NYASH_NYRT_SILENT_RESULT=${NYASH_NYRT_SILENT_RESULT:-1}" \
+    "NYASH_DISABLE_PLUGINS=1" \
+    "NYASH_FILEBOX_MODE=core-ro" \
+    "HAKO_SELFHOST_NO_DELEGATE=${HAKO_SELFHOST_NO_DELEGATE:-1}" \
+    "HAKO_MIR_BUILDER_DELEGATE=${HAKO_MIR_BUILDER_DELEGATE:-0}" \
+    "NYASH_USE_STAGE1_CLI=1" \
+    "NYASH_STAGE1_MODE=emit-mir" \
+    "HAKO_STAGE1_MODE=emit-mir" \
+    "STAGE1_EMIT_PROGRAM_JSON=0" \
+    "STAGE1_EMIT_MIR_JSON=1" \
+    "HAKO_STAGE1_INPUT=${ENTRY}" \
+    "NYASH_STAGE1_INPUT=${ENTRY}" \
+    "STAGE1_SOURCE=${ENTRY}" \
+    "STAGE1_INPUT=${ENTRY}" \
+    "STAGE1_SOURCE_TEXT=${program_json_text}" \
+    "STAGE1_PROGRAM_JSON_TEXT=${program_json_text}" \
+    "$bin" >"$plain_out" 2>"$plain_err"
   rc=$?
   set -e
 
@@ -70,11 +79,28 @@ probe_bin() {
     exit 1
   fi
 
+  set +e
+  stage1_contract_exec_program_json_text \
+    "$bin" \
+    "$ENTRY" \
+    "$program_json_text" \
+    "emit_mir_program" >"$alias_out" 2>"$alias_err"
+  rc=$?
+  set -e
+
+  echo "[program-json-explicit-gate] ${label}.legacy_alias_rc=${rc}"
+  if [[ "$rc" -eq 0 ]]; then
+    echo "[FAIL] ${label}: legacy explicit alias unexpectedly accepted" >&2
+    cat "$alias_out" >&2
+    cat "$alias_err" >&2
+    exit 1
+  fi
+
   if ! stage1_contract_exec_program_json_text \
     "$bin" \
     "$ENTRY" \
     "$program_json_text" \
-    "emit-mir-program" >"$compat_out" 2>"$compat_err"; then
+    "$(stage1_contract_program_json_compat_mode)" >"$compat_out" 2>"$compat_err"; then
     echo "[FAIL] ${label}: explicit compat mode failed" >&2
     cat "$compat_out" >&2
     cat "$compat_err" >&2
