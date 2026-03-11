@@ -63,7 +63,7 @@ pub fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
 /// return both the transient Program(JSON) and MIR(JSON) while keeping that
 /// boundary inside the provider.
 pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
-    let program_json = crate::stage1::program_json_v0::source_to_program_json_v0(source_text)
+    let program_json = crate::stage1::program_json_v0::source_to_program_json_v0_strict(source_text)
         .map_err(|e| format!("{FAILFAST_TAG} {}", e))?;
     let mir_json = program_json_to_mir_json(&program_json)?;
     Ok((program_json, mir_json))
@@ -303,5 +303,20 @@ mod tests {
         assert!(program_json.contains("\"kind\":\"Program\""));
         assert!(program_json.contains("env.console.log"));
         assert!(mir_json.contains("\"functions\""));
+    }
+
+    #[test]
+    fn test_source_to_program_and_mir_json_rejects_dev_local_alias_sugar_on_authority_path() {
+        let source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
+        let result = source_to_program_and_mir_json(source);
+        let error = result.expect_err("authority path should stay strict");
+        assert!(error.contains(FAILFAST_TAG), "unexpected error: {error}");
     }
 }

@@ -152,6 +152,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - only if proof still demands it: `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
       - owner-1 latest slice:
         - `src/stage1/program_json_v0.rs` no longer auto-wraps bare script bodies into synthetic `static box Main`; unsupported script-body input now fail-fast directly
+        - `src/host_providers/mir_builder.rs` now calls `source_to_program_json_v0_strict(...)` on `stage1-env-mir-source`, so current source authority no longer depends on `@local` dev-sugar preexpansion
         - keep launcher/dev-sugar support frozen for now; do not widen the owner-1 slice into wrapper or raw-lane cleanup
       - raw direct `stage1-cli` lane absence (`<bin> <source>` / `emit ...` / helper execute => `rc=97`) is a separate future slice, not the current reduced authority owner
       - do not spend the next slice on shell/probe boundary cleanup; wrapper/docs are thin enough for `phase-29ch`

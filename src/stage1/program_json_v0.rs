@@ -17,8 +17,23 @@ fn trace_enabled() -> bool {
 }
 
 pub fn source_to_program_json_v0(source_text: &str) -> Result<String, String> {
+    source_to_program_json_v0_impl(source_text, true)
+}
+
+pub fn source_to_program_json_v0_strict(source_text: &str) -> Result<String, String> {
+    source_to_program_json_v0_impl(source_text, false)
+}
+
+fn source_to_program_json_v0_impl(
+    source_text: &str,
+    allow_dev_local_alias_sugar: bool,
+) -> Result<String, String> {
     let imports = collect_using_imports(source_text);
-    let normalized_source = preexpand_dev_local_aliases(source_text);
+    let normalized_source = if allow_dev_local_alias_sugar {
+        preexpand_dev_local_aliases(source_text)
+    } else {
+        source_text.to_string()
+    };
     let ast = NyashParser::parse_from_string(&normalized_source)
         .map_err(|primary_error| format!("parse error (Rust parser, v0 subset): {}", primary_error))?;
     ast_to_program_json_v0_with_imports(&ast, imports)
@@ -68,7 +83,7 @@ fn ast_to_program_json_v0_with_imports(
 
 #[cfg(test)]
 mod tests {
-    use super::source_to_program_json_v0;
+    use super::{source_to_program_json_v0, source_to_program_json_v0_strict};
 
     #[test]
     fn source_to_program_json_v0_minimal_main() {
@@ -205,6 +220,33 @@ return 0
         assert!(
             error.contains("expected `static box Main { main() { ... } }`")
                 || error.contains("parse error (Rust parser, v0 subset):"),
+            "unexpected error: {error}"
+        );
+    }
+
+    #[test]
+    fn source_to_program_json_v0_strict_accepts_stage1_cli_env_source() {
+        let source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
+        let json = source_to_program_json_v0_strict(source).expect("program json");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        assert_eq!(value["kind"], "Program");
+        assert_eq!(value["version"], 0);
+    }
+
+    #[test]
+    fn source_to_program_json_v0_strict_rejects_dev_local_alias_sugar() {
+        let source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
+        let error =
+            source_to_program_json_v0_strict(source).expect_err("strict path should reject @local sugar");
+        assert!(
+            error.contains("parse error (Rust parser, v0 subset):"),
             "unexpected error: {error}"
         );
     }

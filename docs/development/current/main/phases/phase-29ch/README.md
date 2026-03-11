@@ -126,6 +126,7 @@ Detailed evidence / solved slice log / diagnostics probes:
    - first: `src/stage1/program_json_v0.rs`
    - only if proof still demands it: `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
    - latest owner-1 reduction: `source_to_program_json_v0(...)` no longer accepts bare script-body fallback; the Rust surrogate now requires explicit parseable source shape instead of synthesizing `static box Main`
+   - latest authority tightening: `src/host_providers/mir_builder.rs` now uses `source_to_program_json_v0_strict(...)` for `stage1-env-mir-source`, so current source authority does not depend on dev-local alias sugar preexpansion
 5. do not spend the next slice on shell/probe boundary cleanup or raw direct lane revival
 6. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 
