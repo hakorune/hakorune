@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+STAGE1_BIN="${STAGE1_BIN:-target/selfhost/hakorune.stage1_cli}"
+STAGE2_BIN="${STAGE2_BIN:-target/selfhost/hakorune.stage1_cli.stage2}"
+
+for bin in "$STAGE1_BIN" "$STAGE2_BIN"; do
+  if [[ ! -x "$bin" ]]; then
+    echo "[FAIL] missing selfhost bin: $bin" >&2
+    exit 2
+  fi
+done
+
+tmp_dir="$(mktemp -d)"
+cleanup() {
+  rm -rf "$tmp_dir"
+}
+trap cleanup EXIT
+
+helper_src="$tmp_dir/phase29ch_selfhost_source_route_helper_probe.hako"
+stage1_mir="$tmp_dir/stage1.mir.json"
+stage2_mir="$tmp_dir/stage2.mir.json"
+stage1_exe="$tmp_dir/stage1_probe"
+stage2_exe="$tmp_dir/stage2_probe"
+
+cat >"$helper_src" <<'HAKO'
+using lang.mir.builder.MirBuilderBox as MirBuilderBox
+using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
+
+static box Main {
+  main() {
+    local source_text = "static box Main { main() { print(42) return 0 } }"
+    local mir = MirBuilderBox.emit_from_source_v0(source_text, null)
+    local kind = BoxTypeInspectorBox.kind(mir)
+    local desc = BoxTypeInspectorBox.describe(mir)
+    local mir_text = "" + mir
+    if mir == null { print("MIR_NULL") } else { print("MIR_NONNULL") }
+    if mir == "" { print("MIR_EMPTY") } else { print("MIR_NONEMPTY") }
+    if mir_text == "" { print("TEXT_EMPTY") } else { print("TEXT_NONEMPTY") }
+    if mir_text.length() > 0 { print("LEN_POS") } else { print("LEN_NONPOS") }
+    if mir_text.substring(0, 1) == "{" { print("HEAD_OK") } else { print("HEAD_BAD") }
+    if mir_text.indexOf("functions") >= 0 { print("IDX_OK") } else { print("IDX_BAD") }
+    print("K=" + kind)
+    print("D=" + desc)
+    print("T=" + mir_text)
+    return 0
+  }
+}
+HAKO
+
+bash "$ROOT/tools/selfhost/run_stage1_cli.sh" --bin "$STAGE1_BIN" emit mir-json "$helper_src" >"$stage1_mir"
+bash "$ROOT/tools/selfhost/run_stage1_cli.sh" --bin "$STAGE2_BIN" emit mir-json "$helper_src" >"$stage2_mir"
+
+if ! diff -q "$stage1_mir" "$stage2_mir" >/dev/null; then
+  echo "[FAIL] Stage1/Stage2 helper MIR mismatch" >&2
+  diff -u "$stage1_mir" "$stage2_mir" | sed -n '1,120p' >&2 || true
+  exit 1
+fi
+
+bash "$ROOT/tools/ny_mir_builder.sh" --in "$stage1_mir" --emit exe -o "$stage1_exe" >/dev/null
+bash "$ROOT/tools/ny_mir_builder.sh" --in "$stage2_mir" --emit exe -o "$stage2_exe" >/dev/null
+
+expected_flags=$'MIR_NONNULL\nMIR_NONEMPTY\nTEXT_NONEMPTY\nLEN_POS\nHEAD_OK\nIDX_OK'
+
+run_probe_exe() {
+  local exe="$1"
+  local label="$2"
+  local out="$tmp_dir/${label}.out"
+  NYASH_NYRT_SILENT_RESULT="${NYASH_NYRT_SILENT_RESULT:-1}" \
+  NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
+  NYASH_FILEBOX_MODE="${NYASH_FILEBOX_MODE:-core-ro}" \
+  "$exe" >"$out" 2>&1
+  echo "[selfhost-source-route-helper] ${label}=$(sed -n '1,8p' "$out" | tr '\n' ';')"
+  if ! diff -u <(printf '%s\n' "$expected_flags") <(grep -E '^(MIR_|TEXT_|LEN_|HEAD_|IDX_)' "$out") >/dev/null; then
+    echo "[FAIL] unexpected flags for ${label}" >&2
+    sed -n '1,40p' "$out" >&2
+    exit 1
+  fi
+}
+
+run_probe_exe "$stage1_exe" "stage1"
+run_probe_exe "$stage2_exe" "stage2"
+
+echo "[selfhost-source-route-helper] stage1_stage2_mir=exact-match"
+echo "[selfhost-source-route-helper] result=PASS"
