@@ -89,7 +89,7 @@ Known non-authority routes:
 - explicit supplied `Program(JSON)` input remains compatibility-only:
   - explicit compat keep: `stage1-env-mir-program`
     - minimal selfhost helper calling `MirBuilderBox.emit_from_program_json_v0(...)` is green
-    - `stage1_cli_env.hako` now keeps source-mainline, MIR result validation, and explicit-compat in separate same-file boxes (`Stage1SourceMirAuthorityBox` / `Stage1MirResultValidationBox` / `Stage1ProgramJsonCompatBox`)
+    - `stage1_cli_env.hako` now keeps emit-program authority, source-mainline, MIR result validation, and explicit-compat in separate same-file boxes (`Stage1ProgramAuthorityBox` / `Stage1SourceMirAuthorityBox` / `Stage1MirResultValidationBox` / `Stage1ProgramJsonCompatBox`)
     - explicit compat MIR call and mixed-input fail-fast gate are quarantined in `Stage1ProgramJsonCompatBox` inside `lang/src/runner/stage1_cli_env.hako`
     - live text transport reuses the existing `STAGE1_SOURCE_TEXT` contract
     - exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) are centralized in `tools/selfhost/lib/stage1_contract.sh`
@@ -122,8 +122,9 @@ Detailed evidence / solved slice log / diagnostics probes:
    - `stage1_cli_env.hako` wrapper-level compat branching is now thin enough
    - raw direct `stage1-cli` lane absence is a separate future slice (`tools/dev/phase29ch_raw_direct_stage1_cli_probe.sh` + `tools/dev/phase29ch_program_json_helper_exec_probe.sh`, current `rc=97`)
    - current BoxShape owner can move to the `emit-program` authority side without reopening that lane
-4. choose the next reduction slice without widening authority
-5. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
+4. align the shell helper boundary (`stage1_contract_exec_program_json_compat()` vs low-level probe helper) and legacy raw-direct notes without widening authority
+5. choose the next reduction slice without reopening raw direct lanes
+6. keep delegate as explicit compat-only / future retire target until MIR-direct authority is stable
 
 ## Acceptance
 

@@ -2,6 +2,9 @@
 //
 // 役割: Stage‑B → Stage‑1 UsingResolver → MirBuilder を経由する self-host CLI の
 //      入口シグネチャを固定するだけの箱。Phase 25.1A-3 で最低限の中身を実装。
+// Note:
+// - This embedded raw/subcmd lane is a non-authority future retire target.
+// - Current green selfhost authority is `stage1_cli_env.hako`, not this file.
 // トグル（既定OFF）:
 //   - NYASH_USE_STAGE1_CLI=1             : Rust 側がこの CLI を呼ぶときに使用
 //   - STAGE1_EMIT_PROGRAM_JSON=1         : source → Program(JSON v0) を emit

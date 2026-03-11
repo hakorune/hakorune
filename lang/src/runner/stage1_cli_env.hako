@@ -61,7 +61,10 @@ static box Main {
   }
 
   method _run_emit_program_mode() {
-    local prog = me._build_program_json()
+    local source_text = me._resolve_emit_program_source_text()
+    if source_text == null { return 96 }
+    local source_path = me._resolve_source_path()
+    local prog = Stage1ProgramAuthorityBox.build_program_json_from_source(source_text, source_path)
     if prog == null { return 96 }
     print(prog)
     return 0
@@ -100,55 +103,6 @@ static box Main {
       return stage1_prog_json_text
     }
     return ""
-  }
-
-  method _build_program_json() {
-    local text = me._resolve_emit_program_source_text()
-    if text == null { return null }
-
-    local prefix = Stage1UsingResolverBox.resolve_for_source(text)
-    if prefix == null { prefix = "" }
-    local merged = prefix + text
-
-    local raw_prog = BuildBox.emit_program_json_v0(merged, null)
-    if raw_prog == null {
-      print("[freeze:contract][stage1-cli/emit-program] BuildBox.emit_program_json_v0 returned null")
-      return null
-    }
-    local prog = "" + raw_prog
-    if prog.indexOf("defs") >= 0 {
-      if env.get("STAGE1_CLI_DEBUG") == "1" {
-        print("[stage1-cli/debug] emit-program defs-json:already-present")
-      }
-      return prog
-    }
-
-    local defs_json = ""
-    if me._should_synthesize_entry_defs_inline() == 1 {
-      defs_json = me._build_main_defs_fragment_inline(text)
-    }
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-      if defs_json == null {
-        print("[stage1-cli/debug] emit-program defs-json:null")
-      } else if defs_json == "" {
-        print("[stage1-cli/debug] emit-program defs-json:empty")
-      } else {
-        print("[stage1-cli/debug] emit-program defs-json:present")
-      }
-    }
-    if defs_json != null && defs_json != "" && defs_json.length() > 0 {
-      if prog.indexOf("defs") < 0 {
-        prog = me._inject_json_fragment_inline(prog, defs_json)
-      }
-    }
-    return prog
-  }
-
-  method _should_synthesize_entry_defs_inline() {
-    local source = me._resolve_source_path()
-    if source == null || source == "" { return 0 }
-    if source.indexOf("stage1_cli_env.hako") >= 0 { return 1 }
-    return 0
   }
 
   method _resolve_emit_program_source_text() {
@@ -203,6 +157,82 @@ static box Main {
     return source
   }
 
+  method _debug_len_inline(value) {
+    if value == null { return "null" }
+    local s = "" + value
+    return StringHelpers.int_to_str(s.length())
+  }
+
+  method _debug_preview_inline(value) {
+    if value == null { return "<null>" }
+    local s = "" + value
+    if s.length() <= 64 { return s }
+    return s.substring(0, 64)
+  }
+
+  method _clean_env_value(v) {
+    local s = "" + v
+    if s == "null" || s == "Null" || s == "void" || s == "Void" {
+      return ""
+    }
+    return s
+  }
+
+}
+
+// Emit-program authority keep stays in the same file so Main can stay a thin
+// dispatcher while defs synthesis/materialization remain inside the current
+// stage1 artifact boundary.
+static box Stage1ProgramAuthorityBox {
+  method build_program_json_from_source(source_text, source_path) {
+    local text = source_text
+    if text == null || text == "" { return null }
+
+    local prefix = Stage1UsingResolverBox.resolve_for_source(text)
+    if prefix == null { prefix = "" }
+    local merged = prefix + text
+
+    local raw_prog = BuildBox.emit_program_json_v0(merged, null)
+    if raw_prog == null {
+      print("[freeze:contract][stage1-cli/emit-program] BuildBox.emit_program_json_v0 returned null")
+      return null
+    }
+    local prog = "" + raw_prog
+    if prog.indexOf("defs") >= 0 {
+      if env.get("STAGE1_CLI_DEBUG") == "1" {
+        print("[stage1-cli/debug] emit-program defs-json:already-present")
+      }
+      return prog
+    }
+
+    local defs_json = ""
+    if me._should_synthesize_entry_defs_inline(source_path) == 1 {
+      defs_json = me._build_main_defs_fragment_inline(text)
+    }
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      if defs_json == null {
+        print("[stage1-cli/debug] emit-program defs-json:null")
+      } else if defs_json == "" {
+        print("[stage1-cli/debug] emit-program defs-json:empty")
+      } else {
+        print("[stage1-cli/debug] emit-program defs-json:present")
+      }
+    }
+    if defs_json != null && defs_json != "" && defs_json.length() > 0 {
+      if prog.indexOf("defs") < 0 {
+        prog = me._inject_json_fragment_inline(prog, defs_json)
+      }
+    }
+    return prog
+  }
+
+  method _should_synthesize_entry_defs_inline(source_path) {
+    local source = source_path
+    if source == null || source == "" { return 0 }
+    if source.indexOf("stage1_cli_env.hako") >= 0 { return 1 }
+    return 0
+  }
+
   method _build_main_defs_fragment_inline(source_text) {
     local scan_source = FuncScannerBox._strip_comments(source_text)
     local scanned_methods = FuncScannerBox.scan_all_boxes(scan_source)
@@ -246,19 +276,6 @@ static box Main {
     local defs_array = me._build_box_defs_array_inline("Main", body)
     if defs_array == null || defs_array == "" || defs_array == "[]" { return "" }
     return ",\"defs\":" + defs_array
-  }
-
-  method _debug_len_inline(value) {
-    if value == null { return "null" }
-    local s = "" + value
-    return StringHelpers.int_to_str(s.length())
-  }
-
-  method _debug_preview_inline(value) {
-    if value == null { return "<null>" }
-    local s = "" + value
-    if s.length() <= 64 { return s }
-    return s.substring(0, 64)
   }
 
   method _build_all_defs_fragment_inline(source_text) {
@@ -652,14 +669,6 @@ static box Main {
     return -1
   }
 
-  method _clean_env_value(v) {
-    local s = "" + v
-    if s == "null" || s == "Null" || s == "void" || s == "Void" {
-      return ""
-    }
-    return s
-  }
-
   method _build_user_box_decls_json_inline(source_text) {
     if source_text == null || source_text == "" { return "" }
     local s = "" + source_text
@@ -748,7 +757,6 @@ static box Main {
     if first == 1 { return "" }
     return out
   }
-
 }
 
 // Source-only authority keep stays in the same file so Main can remain a thin

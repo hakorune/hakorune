@@ -187,6 +187,8 @@ stage1_contract_run_bin_with_env() {
   env "${cmd_env[@]}" "$bin"
 }
 
+# Low-level text transport helper for probes/diagnostics. Live shell callers
+# should prefer stage1_contract_exec_program_json_compat().
 stage1_contract_exec_program_json_text() {
   local bin="$1"
   local entry="$2"
@@ -254,8 +256,8 @@ stage1_contract_exec_program_json_text() {
     ""
 }
 
-# Exact-only live compat helper. Keep the generic text helper below it so
-# probes can still exercise legacy aliases and cold diagnostics explicitly.
+# Exact-only live compat helper. Keep the generic text helper above it as the
+# low-level probe/diagnostics entry so live shell callers have a single SSOT.
 stage1_contract_exec_program_json_compat() {
   local bin="$1"
   local program_json_text="$2"

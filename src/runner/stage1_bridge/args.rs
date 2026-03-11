@@ -2,6 +2,8 @@
  * Stage-1 CLI bridge - args builder
  *
  * Constructs stage1_args based on execution mode (emit_program / emit_mir / run).
+ * The resulting raw/subcmd lane is a non-authority future-retire target;
+ * current green selfhost authority lives in stage1_cli_env.hako.
  */
 
 use crate::cli::CliGroups;
