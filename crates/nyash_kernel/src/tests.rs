@@ -447,8 +447,9 @@ fn invoke_by_name_accepts_stage1_mir_builder_for_launcher_program_json() {
         Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
     let receiver_handle = handles::to_handle_arc(receiver) as i64;
     let source = include_str!("../../../lang/src/runner/launcher.hako");
-    let program_json = nyash_rust::stage1::program_json_v0::source_to_program_json_v0(source)
-        .expect("launcher Program(JSON v0)");
+    let program_json =
+        nyash_rust::stage1::program_json_v0::source_to_program_json_v0_relaxed(source)
+            .expect("launcher Program(JSON v0)");
     let program_handle = handles::to_handle_arc(Arc::new(StringBox::new(program_json))) as i64;
     let method = CString::new("emit_from_program_json_v0").expect("CString");
 
@@ -550,6 +551,42 @@ fn invoke_by_name_stage1_build_box_route_emits_launcher_multibox_defs() {
         program_json.contains("\"MirBuilderBox\":\"lang.mir.builder.MirBuilderBox\""),
         "launcher surrogate should preserve bare using imports"
     );
+}
+
+#[test]
+fn invoke_by_name_stage1_build_box_route_is_strict_in_emit_program_mode() {
+    with_env_var("NYASH_STAGE1_MODE", "emit-program", || {
+        let receiver: Arc<dyn NyashBox> =
+            Arc::new(StringBox::new("lang.compiler.build.build_box".to_string()));
+        let receiver_handle = handles::to_handle_arc(receiver) as i64;
+        let source: Arc<dyn NyashBox> = Arc::new(StringBox::new(
+            r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#
+            .to_string(),
+        ));
+        let source_handle = handles::to_handle_arc(source) as i64;
+        let method = CString::new("emit_program_json_v0").expect("CString");
+
+        let result_handle =
+            nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 2, source_handle, 0);
+        assert!(result_handle > 0, "expected StringBox result with freeze tag");
+
+        let result_text = decode_string_like_handle(result_handle).expect("freeze string");
+        assert!(
+            result_text.contains("[freeze:contract][stage1_program_json_v0]"),
+            "unexpected result: {result_text}"
+        );
+        assert!(
+            result_text.contains("parse error (Rust parser, v0 subset):"),
+            "unexpected error detail: {result_text}"
+        );
+    });
 }
 
 #[test]

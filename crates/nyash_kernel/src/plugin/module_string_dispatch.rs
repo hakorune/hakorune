@@ -46,6 +46,41 @@ fn mir_builder_no_delegate() -> bool {
     env_is_on("HAKO_SELFHOST_NO_DELEGATE")
 }
 
+#[inline(always)]
+fn clean_env_value(key: &str) -> String {
+    match std::env::var(key) {
+        Ok(value) => match value.as_str() {
+            "" | "null" | "Null" | "void" | "Void" => String::new(),
+            _ => value,
+        },
+        Err(_) => String::new(),
+    }
+}
+
+#[inline(always)]
+fn normalized_stage1_mode() -> String {
+    let explicit = clean_env_value("NYASH_STAGE1_MODE");
+    let explicit = if explicit.is_empty() {
+        clean_env_value("HAKO_STAGE1_MODE")
+    } else {
+        explicit
+    };
+
+    match explicit.as_str() {
+        "emit_program_json" | "emit-program-json" => "emit-program".to_string(),
+        "emit_mir_json" | "emit-mir-json" => "emit-mir".to_string(),
+        _ if !explicit.is_empty() => explicit,
+        _ if clean_env_value("STAGE1_EMIT_PROGRAM_JSON") == "1" => "emit-program".to_string(),
+        _ if clean_env_value("STAGE1_EMIT_MIR_JSON") == "1" => "emit-mir".to_string(),
+        _ => String::new(),
+    }
+}
+
+#[inline(always)]
+fn build_box_strict_authority_on() -> bool {
+    normalized_stage1_mode() == "emit-program"
+}
+
 struct DispatchRoute {
     module: &'static str,
     method: &'static str,
@@ -118,16 +153,24 @@ fn handle_build_box_emit_program_json_v0(arg_count: i64, arg1: i64, _arg2: i64) 
         Some(text) => text,
         None => return Some(0),
     };
-    let program_json =
-        match nyash_rust::stage1::program_json_v0::source_to_program_json_v0(&source_text) {
-            Ok(json_text) => json_text,
-            Err(error_text) => {
-                return Some(encode_string_handle(&format!(
-                    "[freeze:contract][stage1_program_json_v0] {}",
-                    error_text
-                )));
-            }
-        };
+    let strict_authority = build_box_strict_authority_on();
+    trace_log(format!(
+        "[stage1/module_dispatch] build_box strict_authority={}",
+        strict_authority
+    ));
+    let program_json = match if strict_authority {
+        nyash_rust::stage1::program_json_v0::source_to_program_json_v0(&source_text)
+    } else {
+        nyash_rust::stage1::program_json_v0::source_to_program_json_v0_relaxed(&source_text)
+    } {
+        Ok(json_text) => json_text,
+        Err(error_text) => {
+            return Some(encode_string_handle(&format!(
+                "[freeze:contract][stage1_program_json_v0] {}",
+                error_text
+            )));
+        }
+    };
     Some(encode_string_handle(&program_json))
 }
 

@@ -17,11 +17,15 @@ fn trace_enabled() -> bool {
 }
 
 pub fn source_to_program_json_v0(source_text: &str) -> Result<String, String> {
+    source_to_program_json_v0_impl(source_text, false)
+}
+
+pub fn source_to_program_json_v0_relaxed(source_text: &str) -> Result<String, String> {
     source_to_program_json_v0_impl(source_text, true)
 }
 
 pub fn source_to_program_json_v0_strict(source_text: &str) -> Result<String, String> {
-    source_to_program_json_v0_impl(source_text, false)
+    source_to_program_json_v0(source_text)
 }
 
 fn source_to_program_json_v0_impl(
@@ -83,7 +87,10 @@ fn ast_to_program_json_v0_with_imports(
 
 #[cfg(test)]
 mod tests {
-    use super::{source_to_program_json_v0, source_to_program_json_v0_strict};
+    use super::{
+        source_to_program_json_v0, source_to_program_json_v0_relaxed,
+        source_to_program_json_v0_strict,
+    };
 
     #[test]
     fn source_to_program_json_v0_minimal_main() {
@@ -171,7 +178,7 @@ static box Main {
     #[test]
     fn source_to_program_json_v0_accepts_launcher_source_with_multibox_defs() {
         let source = include_str!("../../lang/src/runner/launcher.hako");
-        let json = source_to_program_json_v0(source).expect("program json");
+        let json = source_to_program_json_v0_relaxed(source).expect("program json");
         let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
         let defs = value["defs"].as_array().expect("defs array");
         assert!(
@@ -203,7 +210,7 @@ static box Main {
   }
 }
 "#;
-        let json = source_to_program_json_v0(source).expect("program json");
+        let json = source_to_program_json_v0_relaxed(source).expect("program json");
         let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
         assert_eq!(value["kind"], "Program");
         assert_eq!(value["version"], 0);
@@ -245,6 +252,23 @@ static box Main {
 "#;
         let error =
             source_to_program_json_v0_strict(source).expect_err("strict path should reject @local sugar");
+        assert!(
+            error.contains("parse error (Rust parser, v0 subset):"),
+            "unexpected error: {error}"
+        );
+    }
+
+    #[test]
+    fn source_to_program_json_v0_default_is_now_strict() {
+        let source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
+        let error = source_to_program_json_v0(source).expect_err("default path should be strict");
         assert!(
             error.contains("parse error (Rust parser, v0 subset):"),
             "unexpected error: {error}"

@@ -63,7 +63,7 @@ pub fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
 /// return both the transient Program(JSON) and MIR(JSON) while keeping that
 /// boundary inside the provider.
 pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
-    let program_json = crate::stage1::program_json_v0::source_to_program_json_v0_strict(source_text)
+    let program_json = crate::stage1::program_json_v0::source_to_program_json_v0(source_text)
         .map_err(|e| format!("{FAILFAST_TAG} {}", e))?;
     let mir_json = program_json_to_mir_json(&program_json)?;
     Ok((program_json, mir_json))
