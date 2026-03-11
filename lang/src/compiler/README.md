@@ -1,5 +1,11 @@
 # Hakorune Compiler — Layout and Responsibilities
 
+Pointers:
+- selfhost compiler ownership map (repo-wide SSOT):
+  - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+- current bootstrap/authority contract:
+  - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+
 Structure (target)
 - emit/
   - mir_emitter_box.hako — high-level MIR emitter entry

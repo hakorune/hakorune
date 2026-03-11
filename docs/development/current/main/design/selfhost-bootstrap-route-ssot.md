@@ -5,6 +5,7 @@ Scope: selfhost を「.hako コンパイラ → JoinIR → JSON v0 → VM」ま�
 
 Related:
 - CURRENT_TASK.md
+- docs/development/current/main/design/selfhost-compiler-structure-ssot.md
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/phases/phase-29bq/README.md
 - docs/development/current/main/design/compiler-expressivity-first-policy.md
@@ -32,9 +33,11 @@ Restart / handoff では次の順で読む。
    - final goal and migration order
 3. `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
    - current route authority and compatibility boundaries
-4. `docs/development/current/main/phases/phase-29ch/README.md`
+4. `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+   - `.hako` / Rust ownership map and mainline structure
+5. `docs/development/current/main/phases/phase-29ch/README.md`
    - active reduction slice
-5. `docs/development/current/main/phases/phase-29cg/README.md`
+6. `docs/development/current/main/phases/phase-29cg/README.md`
    - solved reduced slice that must stay closed
 
 ## Policy (Steady State)

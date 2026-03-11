@@ -1,5 +1,13 @@
 ## JSON v0 Bridge
 
+Pointers:
+- repo-wide selfhost compiler ownership map:
+  - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+- current bootstrap/authority contract:
+  - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+- active MIR-direct bootstrap phase:
+  - `docs/development/current/main/phases/phase-29ch/README.md`
+
 - 役割: Stage‑B / self‑host 側で生成した `Program(JSON v0)` を、Rust 側の `LoopFormBuilder + LoopSnapshotMergeBox` に渡して MIR を生成する薄いフロント。
 - 責務:
   1. JSON を `ProgramV0` にデシリアライズし、`lower_stmt_with_vars` / `loop_.rs` などへ流す。
@@ -30,3 +38,7 @@ LoopForm/PHI の意味論を変更したい場合は、`loopform_builder.rs` / `
  から同じ箱を使い回せるようにする。
 
 このディレクトリでは「JSON → MIR 変換」と「最低限のブリッジ設定」だけを行い、その先の最適化や意味論変更は `mir/*`（optimizer/pass, LoopForm, VM/LLVM）側に任せる。
+
+Current note:
+- この層は bootstrap-only compatibility boundary として扱う。
+- current authority は `stage1-env-mir-source` であり、この bridge を current authority へ戻さない。

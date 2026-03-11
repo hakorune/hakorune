@@ -1,5 +1,13 @@
 # MirBuilderBox — Program(JSON v0) → MIR(JSON v0)
 
+Pointers
+- repo-wide selfhost compiler ownership map:
+  - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+- current bootstrap/authority contract:
+  - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+- active reduction phase:
+  - `docs/development/current/main/phases/phase-29ch/README.md`
+
 Responsibility
 - Convert Stage‑B Program(JSON v0) into MIR(JSON v0) for VM/LLVM lines.
 - Keep the boundary/contract stable and Fail‑Fast; no silent fallback to stub MIR.

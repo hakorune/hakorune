@@ -1,5 +1,13 @@
 # `lang/src/compiler/mirbuilder/` (Phase-0)
 
+Pointers:
+- repo-wide selfhost compiler ownership map:
+  - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+- current bootstrap/authority contract:
+  - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+- migration order SSOT:
+  - `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
+
 Responsibility (Phase-0):
 - Convert **Stage-B Program(JSON v0)** → **MIR JSON v0**.
 - This layer is an **I/O + contract** boundary for starting the `.hako` MIR Builder migration.

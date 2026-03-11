@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/phases/phase-29cg/README.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
+  - docs/development/current/main/design/selfhost-compiler-structure-ssot.md
   - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
 ---
 

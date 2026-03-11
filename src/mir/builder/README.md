@@ -1,5 +1,11 @@
 # MIR Builder (`src/mir/builder/`)
 
+Pointers:
+- repo-wide selfhost compiler ownership map:
+  - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+- current selfhost bootstrap authority:
+  - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+
 このディレクトリは Rust 側の MIR 生成（AST → MIR）を担う。  
 JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 
@@ -44,4 +50,3 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 - 新しい状態を追加する場合は、まず「どの Context の責務か」を決めてから追加する（`MirBuilder` 直下に増やさない）。
 - 変更後に最低限確認する:
   - `tools/smokes/v2/profiles/integration/apps/phase135_trim_mir_verify.sh`（MIR verify の回帰防止）
-

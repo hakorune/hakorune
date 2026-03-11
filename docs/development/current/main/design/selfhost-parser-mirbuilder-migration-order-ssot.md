@@ -2,16 +2,17 @@
 Status: SSOT
 Scope: single-developer 運用で `.hako` mirbuilder / parser 移植順序を固定する
 Related:
-  - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
-  - docs/development/current/main/design/hako-mirbuilder-migration-phase0-entry-contract-ssot.md
-  - docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md
-  - docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
-  - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
-  - docs/development/current/main/design/parser-extensions-param-implements-interface-generic-ssot.md
-  - docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md
-  - docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md
-  - docs/development/current/main/phases/phase-29bq/29bq-109-hako-mirbuilder-handler-extraction-backlog.md
-  - docs/development/current/main/phases/phase-29bq/29bq-113-hako-recipe-first-migration-lane.md
+- docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
+- docs/development/current/main/design/selfhost-compiler-structure-ssot.md
+- docs/development/current/main/design/hako-mirbuilder-migration-phase0-entry-contract-ssot.md
+- docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md
+- docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
+- docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
+- docs/development/current/main/design/parser-extensions-param-implements-interface-generic-ssot.md
+- docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md
+- docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md
+- docs/development/current/main/phases/phase-29bq/29bq-109-hako-mirbuilder-handler-extraction-backlog.md
+- docs/development/current/main/phases/phase-29bq/29bq-113-hako-recipe-first-migration-lane.md
 ---
 
 # Selfhost Parser/MirBuilder Migration Order (SSOT)

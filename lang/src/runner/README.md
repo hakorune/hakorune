@@ -1,5 +1,13 @@
 # Runner Facade / Stage1 CLI — Runner Layer Guide
 
+Pointers:
+- repo-wide selfhost compiler ownership map:
+  - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+- current bootstrap/authority contract:
+  - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+- active MIR-direct bootstrap phase:
+  - `docs/development/current/main/phases/phase-29ch/README.md`
+
 ## Responsibility
 - Provide script-side orchestration primitives for execution:
   - Runner facade (`runner_facade.hako`) for entry selection and pre/post hooks.
@@ -39,6 +47,7 @@
 - Runner 層は「構造とオーケストレーション専用レイヤ」として扱う。
   - 言語意味論・最適化ロジックは compiler / opt / AotPrep に留める。
   - VM/LLVM の実行コアは Rust 側（Stage0 / NyRT）に委譲する。
+- current selfhost authority entry is `stage1_cli_env.hako`; `launcher.hako` / raw subcmd lane は authority ではなく compat/future retire target として扱う。
 - Fail-Fast 原則:
   - 未実装コマンドや不正な引数は明示的なメッセージ＋非0終了コードで返す。
   - 暗黙のフォールバックや静かな無視は行わない。
