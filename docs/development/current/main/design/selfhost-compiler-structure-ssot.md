@@ -113,11 +113,12 @@ Current note:
 
 Primary owner:
 - `lang/src/runner/stage1_cli_env.hako`
+- `lang/src/runner/stage1_cli_env.hako::Stage1SourceMirAuthorityBox` (`source authority`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (`compat quarantine`, not authority)
 
 Responsibility:
 - reduced bootstrap の current authority entry
-- source-only `emit-mir` authority input を `MirBuilderBox.emit_from_source_v0(...)` へ渡す
+- source-only `emit-mir` authority input を `Stage1SourceMirAuthorityBox` 経由で `MirBuilderBox.emit_from_source_v0(...)` へ渡す
 - explicit supplied `Program(JSON)` は compat-only input shape として受ける
 - explicit compat MIR call と mixed-input fail-fast gate は `Stage1ProgramJsonCompatBox` へ隔離する
 

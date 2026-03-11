@@ -85,11 +85,11 @@ Known non-authority routes:
   - `stage1-env-program`
   - `stage1-env-mir-source`
 - source-only authority input is accepted evidence:
-  - `lang/src/runner/stage1_cli_env.hako` -> `MirBuilderBox.emit_from_source_v0(...)`
+  - `lang/src/runner/stage1_cli_env.hako::Stage1SourceMirAuthorityBox` -> `MirBuilderBox.emit_from_source_v0(...)`
 - explicit supplied `Program(JSON)` input remains compatibility-only:
   - explicit compat keep: `stage1-env-mir-program`
     - minimal selfhost helper calling `MirBuilderBox.emit_from_program_json_v0(...)` is green
-    - `stage1_cli_env.hako` now keeps source-mainline vs explicit-compat in separate helper methods
+    - `stage1_cli_env.hako` now keeps source-mainline vs explicit-compat in separate same-file boxes (`Stage1SourceMirAuthorityBox` / `Stage1ProgramJsonCompatBox`)
     - explicit compat MIR call and mixed-input fail-fast gate are quarantined in `Stage1ProgramJsonCompatBox` inside `lang/src/runner/stage1_cli_env.hako`
     - live text transport reuses the existing `STAGE1_SOURCE_TEXT` contract
     - exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) are centralized in `tools/selfhost/lib/stage1_contract.sh`

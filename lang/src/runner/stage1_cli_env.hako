@@ -73,7 +73,7 @@ static box Main {
       return 96
     }
     local source_text = me._resolve_emit_program_source_text()
-    local mir = me._emit_mir_from_source_mainline(tag, source_text)
+    local mir = Stage1SourceMirAuthorityBox.emit_mir_from_source(tag, source_text)
     if mir == null {
       return 96
     }
@@ -184,14 +184,6 @@ static box Main {
     if has_functions < 0 { return 96 }
     print(mir)
     return 0
-  }
-
-  method _emit_mir_from_source_mainline(tag, source_text) {
-    if source_text == null || source_text == "" {
-      print(tag + " input missing source/program-json contract")
-      return null
-    }
-    return MirBuilderBox.emit_from_source_v0(source_text, null)
   }
 
   method _resolve_supplied_program_json_text() {
@@ -906,6 +898,18 @@ static box Main {
     return out
   }
 
+}
+
+// Source-only authority keep stays in the same file so Main can remain a thin
+// dispatcher without widening the current stage1 artifact boundary.
+static box Stage1SourceMirAuthorityBox {
+  method emit_mir_from_source(tag, source_text) {
+    if source_text == null || source_text == "" {
+      print(tag + " input missing source/program-json contract")
+      return null
+    }
+    return MirBuilderBox.emit_from_source_v0(source_text, null)
+  }
 }
 
 // Explicit Program(JSON) compat keep stays in the same file so current stage1
