@@ -115,8 +115,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - current authority: `stage1-env-program` + `stage1-env-mir-source`
     - reduced proof source: `lang/src/runner/stage1_cli_env.hako`
     - live compat keep: `stage1-env-mir-program`
-    - cold compat keeps: `stage1-env-mir-legacy`, `stage1-subcmd-mir-program`
-      - diagnostics-only outside the shared live compat helper order; current owner is `tools/dev/phase29ch_program_json_cold_compat_probe.sh`
+    - no separate cold supplied-Program compat lane remains
+      - diagnostics-only owner: `tools/dev/phase29ch_program_json_cold_compat_probe.sh`
+      - current observed aliases collapse to `stage1-env-mir-program`
+    - raw `run_stage1_cli.sh ... --from-program-json` is sugar over `stage1-env-mir-program`, not a separate compat lane
     - direct raw/subcmd `stage1-cli emit ...` remains non-authority (`rc=97`)
     - solved locks:
       - launcher-exe widening slice stays green
@@ -126,7 +128,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - next owner order:
       - keep `stage1-env-mir-source` green as current authority
       - thin explicit supplied `Program(JSON)` compat surface
-      - keep cold compat diagnostics probe-owned; do not pull legacy/subcmd lanes back into shared helpers
+      - keep alternate supplied-Program diagnostics probe-owned; do not pull legacy/raw wrapper aliases back into shared helpers
       - touch `lang/src/runner/stage1_cli_env.hako` only if compat input still needs a Stage1-side shim
       - do not widen authority or jump to JSON v0 retirement
     - route discipline:

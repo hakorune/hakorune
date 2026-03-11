@@ -173,11 +173,8 @@ stage1_contract_run_bin_with_env() {
     "STAGE1_SOURCE_TEXT=${source_text_for_mode}"
   )
 
-  if [[ -n "${program_json_path}" || -n "${program_json_text}" ]]; then
+  if [[ -n "${program_json_text}" ]]; then
     cmd_env+=(
-      "HAKO_STAGE1_PROGRAM_JSON=${program_json_path}"
-      "NYASH_STAGE1_PROGRAM_JSON=${program_json_path}"
-      "STAGE1_PROGRAM_JSON=${program_json_path}"
       "HAKO_STAGE1_PROGRAM_JSON_TEXT=${program_json_text}"
       "NYASH_STAGE1_PROGRAM_JSON_TEXT=${program_json_text}"
       "STAGE1_PROGRAM_JSON_TEXT=${program_json_text}"

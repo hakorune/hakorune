@@ -11,9 +11,12 @@ usage() {
   cat <<'USAGE' >&2
 Usage: tools/dev/phase29ch_program_json_cold_compat_probe.sh [--bin <path>] [entry.hako]
 
-Reports whether the remaining cold Program(JSON) compatibility routes are still
-accepted on the given compiled stage1-compatible artifact. This is diagnostics
-only; current mainline compat uses text transport through `stage1-env-mir-program`.
+Reports how alternate supplied-Program(JSON) caller shapes collapse onto the
+current live compat transport on a compiled stage1-compatible artifact. This is
+diagnostics only; current mainline compat uses text transport through
+`stage1-env-mir-program`, and both the old env shape and raw
+`run_stage1_cli.sh --from-program-json` are tracked here as aliases/sugar
+rather than as separate lanes.
 USAGE
 }
 
@@ -38,9 +41,6 @@ run_cold_legacy_env_mir_route() {
     "STAGE1_SOURCE=${entry}" \
     "STAGE1_INPUT=${entry}" \
     "STAGE1_SOURCE_TEXT=${program_json_text}" \
-    "HAKO_STAGE1_PROGRAM_JSON=" \
-    "NYASH_STAGE1_PROGRAM_JSON=" \
-    "STAGE1_PROGRAM_JSON=" \
     "HAKO_STAGE1_PROGRAM_JSON_TEXT=${program_json_text}" \
     "NYASH_STAGE1_PROGRAM_JSON_TEXT=${program_json_text}" \
     "STAGE1_PROGRAM_JSON_TEXT=${program_json_text}" \
@@ -96,18 +96,17 @@ if run_and_extract_stage_payload \
   "mir-json" \
   "$out_file" \
   run_cold_legacy_env_mir_route "$BIN" "$ENTRY" "$program_json_text"; then
-  echo "stage1-env-mir-legacy" >"$route_file"
-  echo "cold_compat_route=$(route_file_value "$route_file")"
-  exit 0
+  echo "stage1-env-mir-program" >"$route_file"
+  echo "legacy_env_program_json=$(route_file_value "$route_file")"
+else
+  echo "legacy_env_program_json=none"
 fi
 
-if run_and_extract_stage_payload \
+if ! run_and_extract_stage_payload \
   "mir-json" \
   "$out_file" \
   bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$BIN" emit mir-json --from-program-json "$tmp_prog"; then
-  echo "stage1-subcmd-mir-program" >"$route_file"
-  echo "cold_compat_route=$(route_file_value "$route_file")"
-  exit 0
+  echo "[phase29ch/cold-compat-probe] raw wrapper sugar failed unexpectedly" >&2
+  exit 1
 fi
-
-echo "cold_compat_route=none"
+echo "raw_wrapper_program_json=stage1-env-mir-program"

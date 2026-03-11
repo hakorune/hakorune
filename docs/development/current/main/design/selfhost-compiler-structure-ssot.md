@@ -152,12 +152,11 @@ Current note:
 - explicit supplied `Program(JSON)` input
   - live compat route: `stage1-env-mir-program`
   - current transport: text-only
-- cold compat keeps:
-  - `stage1-env-mir-legacy`
-  - `stage1-subcmd-mir-program`
+- alternate supplied-Program caller shapes
+  - diagnostics-only aliases over `stage1-env-mir-program`
 - raw `run_stage1_cli.sh ... --from-program-json`
   - user-facing file input shape only
-  - transport itself is now text-only
+  - sugar over `stage1-env-mir-program`
 
 ### Future retire targets
 
