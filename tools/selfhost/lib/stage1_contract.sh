@@ -144,6 +144,54 @@ stage1_contract_export_runner_defaults() {
   stage1_contract_export_stageb_module_env
 }
 
+stage1_contract_run_bin_with_env() {
+  local bin="$1"
+  local mode="$2"
+  local entry="$3"
+  local source_text_for_mode="$4"
+  local emit_program_flag="$5"
+  local emit_mir_flag="$6"
+  local program_json_path="${7:-}"
+  local program_json_text="${8:-}"
+  local stdout_file="${9:-}"
+  local stderr_file="${10:-}"
+  local -a cmd_env=(
+    "NYASH_NYRT_SILENT_RESULT=${NYASH_NYRT_SILENT_RESULT:-1}"
+    "NYASH_DISABLE_PLUGINS=1"
+    "NYASH_FILEBOX_MODE=core-ro"
+    "HAKO_SELFHOST_NO_DELEGATE=${HAKO_SELFHOST_NO_DELEGATE:-1}"
+    "HAKO_MIR_BUILDER_DELEGATE=${HAKO_MIR_BUILDER_DELEGATE:-0}"
+    "NYASH_USE_STAGE1_CLI=1"
+    "NYASH_STAGE1_MODE=${mode}"
+    "HAKO_STAGE1_MODE=${mode}"
+    "STAGE1_EMIT_PROGRAM_JSON=${emit_program_flag}"
+    "STAGE1_EMIT_MIR_JSON=${emit_mir_flag}"
+    "HAKO_STAGE1_INPUT=${entry}"
+    "NYASH_STAGE1_INPUT=${entry}"
+    "STAGE1_SOURCE=${entry}"
+    "STAGE1_INPUT=${entry}"
+    "STAGE1_SOURCE_TEXT=${source_text_for_mode}"
+  )
+
+  if [[ -n "${program_json_path}" || -n "${program_json_text}" ]]; then
+    cmd_env+=(
+      "HAKO_STAGE1_PROGRAM_JSON=${program_json_path}"
+      "NYASH_STAGE1_PROGRAM_JSON=${program_json_path}"
+      "STAGE1_PROGRAM_JSON=${program_json_path}"
+      "HAKO_STAGE1_PROGRAM_JSON_TEXT=${program_json_text}"
+      "NYASH_STAGE1_PROGRAM_JSON_TEXT=${program_json_text}"
+      "STAGE1_PROGRAM_JSON_TEXT=${program_json_text}"
+    )
+  fi
+
+  if [[ -n "${stdout_file}" ]]; then
+    env "${cmd_env[@]}" "$bin" >"$stdout_file" 2>"$stderr_file"
+    return $?
+  fi
+
+  env "${cmd_env[@]}" "$bin"
+}
+
 stage1_contract_exec_mode() {
   local bin="$1"
   local mode="$2"
@@ -181,18 +229,17 @@ stage1_contract_exec_mode() {
 
   if [[ -n "$program_json_path" ]]; then
     if [[ -n "$tmp_stdout" ]]; then
-      if NYASH_NYRT_SILENT_RESULT="${NYASH_NYRT_SILENT_RESULT:-1}" \
-           NYASH_DISABLE_PLUGINS=1 NYASH_FILEBOX_MODE=core-ro \
-           HAKO_SELFHOST_NO_DELEGATE="${HAKO_SELFHOST_NO_DELEGATE:-1}" \
-           HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}" \
-           NYASH_USE_STAGE1_CLI=1 \
-           NYASH_STAGE1_MODE="$mode" HAKO_STAGE1_MODE="$mode" \
-           STAGE1_EMIT_PROGRAM_JSON="$emit_program_flag" STAGE1_EMIT_MIR_JSON="$emit_mir_flag" \
-           HAKO_STAGE1_INPUT="$entry" NYASH_STAGE1_INPUT="$entry" STAGE1_SOURCE="$entry" STAGE1_INPUT="$entry" \
-           HAKO_STAGE1_PROGRAM_JSON="$program_json_path" NYASH_STAGE1_PROGRAM_JSON="$program_json_path" STAGE1_PROGRAM_JSON="$program_json_path" \
-           HAKO_STAGE1_PROGRAM_JSON_TEXT="$program_json_text" NYASH_STAGE1_PROGRAM_JSON_TEXT="$program_json_text" STAGE1_PROGRAM_JSON_TEXT="$program_json_text" \
-           STAGE1_SOURCE_TEXT="$source_text_for_mode" \
-           "$bin" >"$tmp_stdout" 2>"$tmp_stderr"; then
+      if stage1_contract_run_bin_with_env \
+        "$bin" \
+        "$mode" \
+        "$entry" \
+        "$source_text_for_mode" \
+        "$emit_program_flag" \
+        "$emit_mir_flag" \
+        "$program_json_path" \
+        "$program_json_text" \
+        "$tmp_stdout" \
+        "$tmp_stderr"; then
         rc=0
       else
         rc=$?
@@ -213,32 +260,30 @@ stage1_contract_exec_mode() {
       return 0
     fi
 
-    NYASH_NYRT_SILENT_RESULT="${NYASH_NYRT_SILENT_RESULT:-1}" \
-      NYASH_DISABLE_PLUGINS=1 NYASH_FILEBOX_MODE=core-ro \
-      HAKO_SELFHOST_NO_DELEGATE="${HAKO_SELFHOST_NO_DELEGATE:-1}" \
-      HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}" \
-      NYASH_USE_STAGE1_CLI=1 \
-      NYASH_STAGE1_MODE="$mode" HAKO_STAGE1_MODE="$mode" \
-      STAGE1_EMIT_PROGRAM_JSON="$emit_program_flag" STAGE1_EMIT_MIR_JSON="$emit_mir_flag" \
-      HAKO_STAGE1_INPUT="$entry" NYASH_STAGE1_INPUT="$entry" STAGE1_SOURCE="$entry" STAGE1_INPUT="$entry" \
-      HAKO_STAGE1_PROGRAM_JSON="$program_json_path" NYASH_STAGE1_PROGRAM_JSON="$program_json_path" STAGE1_PROGRAM_JSON="$program_json_path" \
-      HAKO_STAGE1_PROGRAM_JSON_TEXT="$program_json_text" NYASH_STAGE1_PROGRAM_JSON_TEXT="$program_json_text" STAGE1_PROGRAM_JSON_TEXT="$program_json_text" \
-      STAGE1_SOURCE_TEXT="$source_text_for_mode" \
-      "$bin"
+    stage1_contract_run_bin_with_env \
+      "$bin" \
+      "$mode" \
+      "$entry" \
+      "$source_text_for_mode" \
+      "$emit_program_flag" \
+      "$emit_mir_flag" \
+      "$program_json_path" \
+      "$program_json_text"
     return $?
   fi
 
   if [[ -n "$tmp_stdout" ]]; then
-    if NYASH_NYRT_SILENT_RESULT="${NYASH_NYRT_SILENT_RESULT:-1}" \
-         NYASH_DISABLE_PLUGINS=1 NYASH_FILEBOX_MODE=core-ro \
-         HAKO_SELFHOST_NO_DELEGATE="${HAKO_SELFHOST_NO_DELEGATE:-1}" \
-         HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}" \
-         NYASH_USE_STAGE1_CLI=1 \
-         NYASH_STAGE1_MODE="$mode" HAKO_STAGE1_MODE="$mode" \
-         STAGE1_EMIT_PROGRAM_JSON="$emit_program_flag" STAGE1_EMIT_MIR_JSON="$emit_mir_flag" \
-         HAKO_STAGE1_INPUT="$entry" NYASH_STAGE1_INPUT="$entry" STAGE1_SOURCE="$entry" STAGE1_INPUT="$entry" \
-         STAGE1_SOURCE_TEXT="$source_text_for_mode" \
-         "$bin" >"$tmp_stdout" 2>"$tmp_stderr"; then
+    if stage1_contract_run_bin_with_env \
+      "$bin" \
+      "$mode" \
+      "$entry" \
+      "$source_text_for_mode" \
+      "$emit_program_flag" \
+      "$emit_mir_flag" \
+      "" \
+      "" \
+      "$tmp_stdout" \
+      "$tmp_stderr"; then
       rc=0
     else
       rc=$?
@@ -259,16 +304,13 @@ stage1_contract_exec_mode() {
     return 0
   fi
 
-  NYASH_NYRT_SILENT_RESULT="${NYASH_NYRT_SILENT_RESULT:-1}" \
-    NYASH_DISABLE_PLUGINS=1 NYASH_FILEBOX_MODE=core-ro \
-    HAKO_SELFHOST_NO_DELEGATE="${HAKO_SELFHOST_NO_DELEGATE:-1}" \
-    HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}" \
-    NYASH_USE_STAGE1_CLI=1 \
-    NYASH_STAGE1_MODE="$mode" HAKO_STAGE1_MODE="$mode" \
-    STAGE1_EMIT_PROGRAM_JSON="$emit_program_flag" STAGE1_EMIT_MIR_JSON="$emit_mir_flag" \
-    HAKO_STAGE1_INPUT="$entry" NYASH_STAGE1_INPUT="$entry" STAGE1_SOURCE="$entry" STAGE1_INPUT="$entry" \
-    STAGE1_SOURCE_TEXT="$source_text_for_mode" \
-    "$bin"
+  stage1_contract_run_bin_with_env \
+    "$bin" \
+    "$mode" \
+    "$entry" \
+    "$source_text_for_mode" \
+    "$emit_program_flag" \
+    "$emit_mir_flag"
 }
 
 stage1_contract_exec_legacy_emit_mir() {
@@ -286,17 +328,13 @@ stage1_contract_exec_legacy_emit_mir() {
     source_text_for_mode="$program_json_text"
   fi
 
-  NYASH_NYRT_SILENT_RESULT="${NYASH_NYRT_SILENT_RESULT:-1}" \
-    NYASH_DISABLE_PLUGINS=1 NYASH_FILEBOX_MODE=core-ro \
-    HAKO_SELFHOST_NO_DELEGATE="${HAKO_SELFHOST_NO_DELEGATE:-1}" \
-    HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}" \
-    NYASH_USE_STAGE1_CLI=1 \
-    HAKO_STAGE1_MODE="emit-mir" NYASH_STAGE1_MODE="emit-mir" \
-    STAGE1_EMIT_MIR_JSON=1 \
-    STAGE1_EMIT_PROGRAM_JSON=0 \
-    HAKO_STAGE1_INPUT="$entry" NYASH_STAGE1_INPUT="$entry" STAGE1_SOURCE="$entry" STAGE1_INPUT="$entry" \
-    HAKO_STAGE1_PROGRAM_JSON="$program_json_path" NYASH_STAGE1_PROGRAM_JSON="$program_json_path" STAGE1_PROGRAM_JSON="$program_json_path" \
-    HAKO_STAGE1_PROGRAM_JSON_TEXT="$program_json_text" NYASH_STAGE1_PROGRAM_JSON_TEXT="$program_json_text" STAGE1_PROGRAM_JSON_TEXT="$program_json_text" \
-    STAGE1_SOURCE_TEXT="$source_text_for_mode" \
-    "$bin"
+  stage1_contract_run_bin_with_env \
+    "$bin" \
+    "emit-mir" \
+    "$entry" \
+    "$source_text_for_mode" \
+    0 \
+    1 \
+    "$program_json_path" \
+    "$program_json_text"
 }

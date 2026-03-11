@@ -88,14 +88,24 @@ run_emit_mir_json() {
   fi
 
   if [[ -n "$program_json_path" ]]; then
-    if [[ ! -f "$program_json_path" ]]; then
-      echo "[run-stage1] program-json not found: $program_json_path" >&2
-      exit 2
-    fi
-    stage1_contract_exec_mode "$BIN" "emit-mir" "__stage1_program_json__" "" "$program_json_path"
-    return 0
+    run_emit_mir_json_from_program_json "$program_json_path"
+    return $?
   fi
 
+  run_emit_mir_json_from_source "$entry"
+}
+
+run_emit_mir_json_from_program_json() {
+  local program_json_path="$1"
+  if [[ ! -f "$program_json_path" ]]; then
+    echo "[run-stage1] program-json not found: $program_json_path" >&2
+    exit 2
+  fi
+  stage1_contract_exec_mode "$BIN" "emit-mir" "__stage1_program_json__" "" "$program_json_path"
+}
+
+run_emit_mir_json_from_source() {
+  local entry="$1"
   local source_text
   source_text="$(read_entry_source_text "$entry")"
   stage1_contract_exec_mode "$BIN" "emit-mir" "$entry" "$source_text"

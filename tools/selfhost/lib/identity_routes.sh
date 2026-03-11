@@ -247,10 +247,7 @@ run_stage1_env_mir_program_compat_route() {
   fi
 
   # Last attempt inside stage1 route: explicit subcommand with --from-program-json.
-  if run_and_extract_stage_payload \
-    "mir-json" \
-    "$outfile" \
-    bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$bin" emit mir-json --from-program-json "$tmp_prog"; then
+  if run_stage1_subcmd_mir_program_compat_route "$bin" "$tmp_prog" "$outfile"; then
     rm -f "$tmp_prog"
     if [[ -n "$route_file" ]]; then
       echo "stage1-subcmd-mir-program" >"$route_file"
@@ -260,6 +257,17 @@ run_stage1_env_mir_program_compat_route() {
 
   rm -f "$tmp_prog"
   return 1
+}
+
+run_stage1_subcmd_mir_program_compat_route() {
+  local bin="$1"
+  local program_json_path="$2"
+  local outfile="$3"
+
+  run_and_extract_stage_payload \
+    "mir-json" \
+    "$outfile" \
+    bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$bin" emit mir-json --from-program-json "$program_json_path"
 }
 
 run_stage1_env_route() {
