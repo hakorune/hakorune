@@ -97,11 +97,13 @@ run_emit_mir_json() {
 
 run_emit_mir_json_from_program_json() {
   local program_json_path="$1"
+  local program_json_text
   if [[ ! -f "$program_json_path" ]]; then
     echo "[run-stage1] program-json not found: $program_json_path" >&2
     exit 2
   fi
-  stage1_contract_exec_mode "$BIN" "emit-mir" "__stage1_program_json__" "" "$program_json_path"
+  program_json_text="$(cat "$program_json_path")"
+  stage1_contract_exec_program_json_text "$BIN" "__stage1_program_json__" "$program_json_text" "emit-mir"
 }
 
 run_emit_mir_json_from_source() {
