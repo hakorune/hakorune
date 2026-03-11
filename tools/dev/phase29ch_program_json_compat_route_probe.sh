@@ -49,9 +49,7 @@ fi
 tmp_dir="$(mktemp -d)"
 out_file="${tmp_dir}/mir.json"
 route_file="${tmp_dir}/route.txt"
-source_text="$(stage_entry_source_text "$ENTRY")"
-
-if ! run_stage1_env_mir_program_compat_route "$BIN" "$ENTRY" "$source_text" "$out_file" "$route_file"; then
+if ! run_stage1_env_mir_program_compat_route "$BIN" "$ENTRY" "$out_file" "$route_file"; then
   cleanup_stage_temp_dir "$tmp_dir"
   echo "[phase29ch/compat-probe] compat route failed" >&2
   exit 1

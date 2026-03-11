@@ -211,22 +211,23 @@ run_and_extract_stage_payload() {
 run_stage1_env_mir_program_compat_route() {
   local bin="$1"
   local entry="$2"
-  local source_text="$3"
-  local outfile="$4"
-  local route_file="${5:-}"
+  local outfile="$3"
+  local route_file="${4:-}"
   local tmp_prog
+  local program_json_text
   tmp_prog="$(mktemp)"
 
   if ! run_stage1_env_route "$bin" "program-json" "$entry" "$tmp_prog"; then
     rm -f "$tmp_prog"
     return 1
   fi
+  program_json_text="$(cat "$tmp_prog")"
 
   # Compatibility path for artifacts that still require explicit Program(JSON v0).
   if run_and_extract_stage_payload \
     "mir-json" \
     "$outfile" \
-    stage1_contract_exec_mode "$bin" "emit-mir" "$entry" "$source_text" "$tmp_prog"; then
+    stage1_contract_exec_program_json_text "$bin" "$entry" "$program_json_text" "emit-mir"; then
     rm -f "$tmp_prog"
     if [[ -n "$route_file" ]]; then
       echo "stage1-env-mir-program" >"$route_file"
@@ -238,7 +239,7 @@ run_stage1_env_mir_program_compat_route() {
   if run_and_extract_stage_payload \
     "mir-json" \
     "$outfile" \
-    stage1_contract_exec_legacy_emit_mir "$bin" "$entry" "$source_text" "$tmp_prog"; then
+    stage1_contract_exec_legacy_emit_mir_text "$bin" "$entry" "$program_json_text"; then
     rm -f "$tmp_prog"
     if [[ -n "$route_file" ]]; then
       echo "stage1-env-mir-legacy" >"$route_file"
@@ -306,7 +307,7 @@ run_stage1_env_route() {
   fi
 
   run_stage1_env_mir_program_compat_route \
-    "$bin" "$entry" "$source_text" "$outfile" "$route_file"
+    "$bin" "$entry" "$outfile" "$route_file"
   return $?
 }
 
