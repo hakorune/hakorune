@@ -96,46 +96,50 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - final direction is `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`; `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
   - treat `compat-fallback` as explicit compat keep, not as current workstream
   - treat Stage2 default bootstrap dependency as `phase-29cg` dedicated reduction target
-  - `phase-29cf` deep inventory fixed:
-    - live fallback callers are now bucketed as `implementation keep` / `stage-a compat keep` / `route authority probe keep` / `done-sync keep` / `current diagnostics keep` / `plugin test keep` / `historical`
-    - bootstrap owners are now bucketed as `current keep` / `compat keep` / `bootstrap keep` / `future retire target`
-  - `phase-29cf` exact caller matrix fixed:
-    - current explicit fallback env callers are limited to `phase29x_vm_route_non_strict_compat_boundary_vm.sh`, `phase29x_vm_route_observability_vm.sh`, `phase29x_vm_route_strict_dev_priority_vm.sh`, `phase29x_derust_strict_default_route_vm.sh`, plugin route-resolver compat test, and three `phase2043` historical canaries
-    - route authority probes are now split into `route observability keep`, `strict-dev priority keep`, and `non-strict compat boundary keep`
-    - `phase29x_derust_strict_default_route_vm.sh` is `done-sync keep` because `phase29x_derust_done_matrix_vm.sh` and the de-rust lane map still consume it as current evidence
-    - `route_env_probe.sh` is `current diagnostics keep` because `route_no_fallback_guard.sh` and tools docs still treat it as the active route-probe contract
-    - Stage2 current reduction target is exact: `build_stage1.sh` now has an explicit bridge-first path for artifact-kind=`stage1-cli`, and the reduced smoke case stays green. `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` is green, `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.next --force-rebuild` passes, the fresh `.next` artifact passes direct env-mode `emit-program` and `emit-mir` probes for `apps/tests/hello_simple_llvm.hako`, `tools/selfhost_identity_check.sh --mode smoke` passes, and `tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` is now raw-exact green again for both `Program(JSON v0)` and `MIR JSON v0`.
-    - `phase-29ch` summary lock:
-      - current authority: `stage1-env-program` + `stage1-env-mir-source`
-      - reduced proof source: `lang/src/runner/stage1_cli_env.hako`
-      - live compat keep: `stage1-env-mir-program`
-      - cold compat keeps: `stage1-env-mir-legacy`, `stage1-subcmd-mir-program`
-      - direct raw/subcmd `stage1-cli emit ...` remains non-authority (`rc=97`)
-      - details SSOT:
-        - route/acceptance: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
-        - active phase: `docs/development/current/main/phases/phase-29ch/README.md`
-        - active evidence/probes: `docs/development/current/main/phases/phase-29ch/29ch-20-route-evidence-and-probes.md`
-        - compiler ownership map: `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
-        - G1 compare policy: `docs/development/current/main/design/selfhost-g1-mir-compare-policy-ssot.md`
-    - `phase-29ch` solved locks:
+  - `phase-29cf` summary lock:
+    - purpose: `VM fallback compat lane` と `bootstrap boundary reduction` を monitor-only で固定する
+    - current truth: `compat-fallback` は explicit compat keep、Stage2 default-bootstrap dependency は `future retire target`
+    - details SSOT:
+      - `docs/development/current/main/phases/phase-29cf/README.md`
+      - `docs/development/current/main/phases/phase-29cf/P0-VM-FALLBACK-AND-BOOTSTRAP-BOUNDARY-INVENTORY.md`
+      - `docs/development/current/main/phases/phase-29cf/29cf-10-vm-fallback-bootstrap-retirement-checklist.md`
+  - `phase-29cg` summary lock:
+    - purpose: `stage1-cli` Stage2 default-bootstrap dependency の reduced slice を keep-closed にする
+    - current truth: reduced proof pair は green のまま handoff 済み
+    - proof pins:
+      - `bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
+      - `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.next --force-rebuild`
+    - details SSOT:
+      - `docs/development/current/main/phases/phase-29cg/README.md`
+  - `phase-29ch` summary lock:
+    - current authority: `stage1-env-program` + `stage1-env-mir-source`
+    - reduced proof source: `lang/src/runner/stage1_cli_env.hako`
+    - live compat keep: `stage1-env-mir-program`
+    - cold compat keeps: `stage1-env-mir-legacy`, `stage1-subcmd-mir-program`
+    - direct raw/subcmd `stage1-cli emit ...` remains non-authority (`rc=97`)
+    - solved locks:
       - launcher-exe widening slice stays green
       - raw MIR determinism on current authority stays raw-exact green
       - source-route promotion/file-context cluster stays green
       - transient-boundary probe stays quiet/raw-exact
-    - `phase-29ch` next owner order:
+    - next owner order:
       - keep `stage1-env-mir-source` green as current authority
       - thin explicit supplied `Program(JSON)` compat surface
       - touch `lang/src/runner/stage1_cli_env.hako` only if compat input still needs a Stage1-side shim
       - do not widen authority or jump to JSON v0 retirement
-    - `phase-29ch` route discipline:
+    - route discipline:
       - discovered non-authority routes must be labeled immediately as `compat-only keep` or `future retire target`
       - `src/runner/stage1_bridge/mod.rs` / embedded `stage1_cli.hako` stays `future retire target`
       - delegate stays explicit compat only / future retire target
-    - `phase-29ch` probe/contract lock:
-      - `tools/selfhost_identity_check.sh --mode full` must see `program-json=stage1-env-program` and `mir-json=stage1-env-mir-source`
-      - `tools/selfhost/build_stage1.sh` and `tools/selfhost_identity_check.sh` must keep sharing `tools/selfhost/lib/identity_routes.sh` as probe SSOT
-      - `tools/dev/phase29ch_program_json_compat_route_probe.sh` and `tools/dev/phase29ch_program_json_text_only_probe.sh` are the current compat-boundary diagnostics
-    - restart rule for `phase-29cg`: do not widen scope into generic bridge cleanup or ad-hoc `Program(JSON v0)` deletion. First close the current reduced-case helper/source closure bucket; only after that succeeds, cut a separate MIR-direct bootstrap phase, and only after MIR-direct parity is stable, cut a separate JSON v0 retirement phase.
+    - details SSOT:
+      - route/acceptance: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+      - compiler ownership map: `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+      - active phase: `docs/development/current/main/phases/phase-29ch/README.md`
+      - active evidence/probes: `docs/development/current/main/phases/phase-29ch/29ch-20-route-evidence-and-probes.md`
+      - G1 compare policy: `docs/development/current/main/design/selfhost-g1-mir-compare-policy-ssot.md`
+    - restart rule:
+      - do not widen scope into generic bridge cleanup or ad-hoc `Program(JSON v0)` deletion
+      - only after the reduced bucket stays green, move to the next MIR-direct reduction slice
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
