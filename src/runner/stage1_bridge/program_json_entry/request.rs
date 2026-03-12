@@ -45,6 +45,12 @@ mod tests {
 
     #[test]
     fn build_emit_request_captures_exact_out_path() {
+        let _guard = env_lock().lock().expect("env lock");
+        std::env::remove_var("HAKO_STAGE1_INPUT");
+        std::env::remove_var("NYASH_STAGE1_INPUT");
+        std::env::remove_var("STAGE1_SOURCE");
+        std::env::remove_var("STAGE1_INPUT");
+
         let mut groups = CliConfig::default().as_groups();
         groups.input.file = Some("/tmp/source.hako".to_string());
         groups.emit.emit_program_json_v0 = Some("/tmp/out.json".to_string());
