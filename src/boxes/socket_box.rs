@@ -509,11 +509,7 @@ impl NyashBox for SocketBox {
             "Disconnected"
         };
 
-        socket_debug!(
-            "[socket/to_string] id={} status={}",
-            self.base.id,
-            status
-        );
+        socket_debug!("[socket/to_string] id={} status={}", self.base.id, status);
         StringBox::new(format!(
             "SocketBox(id: {}, status: {})",
             self.base.id, status

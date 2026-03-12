@@ -30,7 +30,9 @@ pub fn create(_args: &[Box<dyn NyashBox>]) -> Result<Box<dyn NyashBox>, RuntimeE
 
     if crate::config::env::cli_verbose_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug("[FileBox] Using builtin core-ro fallback implementation");
+        ring0
+            .log
+            .debug("[FileBox] Using builtin core-ro fallback implementation");
     }
 
     // Create FileBox with core-ro provider directly

@@ -17,7 +17,7 @@ pub fn create(_args: &[Box<dyn NyashBox>]) -> Result<Box<dyn NyashBox>, RuntimeE
         ring0.log.warn(
             "⚠️ [DEPRECATED] Using builtin MapBox - check nyash-map-plugin!\n\
             📋 Phase 15.5: Everything is Plugin!\n\
-            🔧 Check: plugins/nyash-map-plugin"
+            🔧 Check: plugins/nyash-map-plugin",
         );
     }
 

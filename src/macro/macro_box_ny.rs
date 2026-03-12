@@ -32,8 +32,8 @@ pub fn init_from_env() {
     for p in paths.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()) {
         if let Err(e) = try_load_one(p) {
             // Quiet by default; print only when tracing is enabled to reduce noise in normal runs
-            let noisy = crate::config::env::macro_trace()
-                || crate::config::env::macro_cli_verbose();
+            let noisy =
+                crate::config::env::macro_trace() || crate::config::env::macro_cli_verbose();
             if noisy {
                 crate::macro_log!("[macro][box_ny] failed to load '{}': {}", p, e);
             }
@@ -96,7 +96,8 @@ fn try_load_one(path: &str) -> Result<(), String> {
                             )));
                             crate::macro_log!(
                                 "[macro][box_ny] registered child-proxy MacroBox '{}' for {}",
-                                nm, path
+                                nm,
+                                path
                             );
                         } else {
                             // Heuristic mapping by name first, otherwise inspect body pattern.
@@ -108,7 +109,8 @@ fn try_load_one(path: &str) -> Result<(), String> {
                                     );
                                     crate::macro_log!(
                                         "[macro][box_ny] registered built-in '{}' from {}",
-                                        reg_name, path
+                                        reg_name,
+                                        path
                                     );
                                     mapped = true;
                                 }

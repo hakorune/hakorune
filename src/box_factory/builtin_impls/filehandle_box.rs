@@ -15,7 +15,9 @@ use crate::boxes::file::FileHandleBox;
 pub fn create(_args: &[Box<dyn NyashBox>]) -> Result<Box<dyn NyashBox>, RuntimeError> {
     if crate::config::env::cli_verbose_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug("[FileHandleBox] Creating FileHandleBox instance (Phase 113)");
+        ring0
+            .log
+            .debug("[FileHandleBox] Creating FileHandleBox instance (Phase 113)");
     }
 
     // FileHandleBox::new() will automatically use the global Ring0 registry

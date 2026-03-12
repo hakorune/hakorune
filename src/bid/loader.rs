@@ -119,7 +119,9 @@ static HOST_VTABLE_STORAGE: std::sync::LazyLock<NyashHostVtable> = std::sync::La
             if let Ok(s) = msg.to_str() {
                 if crate::config::env::debug_plugin() || crate::config::env::cli_verbose_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("🔌 Plugin log [{}]: {}", _level, s));
+                    ring0
+                        .log
+                        .debug(&format!("🔌 Plugin log [{}]: {}", _level, s));
                 }
             }
         }

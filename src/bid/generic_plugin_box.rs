@@ -20,7 +20,9 @@ mod plugin_impl {
         pub fn birth(plugin: &'static LoadedPlugin, box_name: String) -> BidResult<Self> {
             if crate::config::env::debug_plugin() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("🔍 GenericPluginBox::birth for '{}'", box_name));
+                ring0
+                    .log
+                    .debug(&format!("🔍 GenericPluginBox::birth for '{}'", box_name));
             }
 
             // birthメソッド（method_id = 0）を呼び出し
@@ -36,7 +38,10 @@ mod plugin_impl {
 
             if crate::config::env::debug_plugin() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("✅ Created {} instance with ID: {}", box_name, instance_id));
+                ring0.log.debug(&format!(
+                    "✅ Created {} instance with ID: {}",
+                    box_name, instance_id
+                ));
             }
 
             Ok(Self {
@@ -62,7 +67,10 @@ mod plugin_impl {
                 Ok(Some((method_id, _signature))) => {
                     if crate::config::env::debug_plugin() {
                         let ring0 = crate::runtime::get_global_ring0();
-                        ring0.log.debug(&format!("✅ Found method '{}' with ID: {}", method_name, method_id));
+                        ring0.log.debug(&format!(
+                            "✅ Found method '{}' with ID: {}",
+                            method_name, method_id
+                        ));
                     }
 
                     let mut out = Vec::new();
@@ -79,7 +87,10 @@ mod plugin_impl {
                 Ok(None) => {
                     if crate::config::env::debug_plugin() {
                         let ring0 = crate::runtime::get_global_ring0();
-                        ring0.log.debug(&format!("❌ Method '{}' not found in {}", method_name, self.box_name));
+                        ring0.log.debug(&format!(
+                            "❌ Method '{}' not found in {}",
+                            method_name, self.box_name
+                        ));
                     }
                     Err(BidError::InvalidArgs)
                 }

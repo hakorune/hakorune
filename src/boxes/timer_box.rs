@@ -189,17 +189,17 @@ impl TimerBox {
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn request_animation_frame(&self) -> i32 {
-        get_global_ring0().log.warn(
-            "[timer_box] requestAnimationFrame not supported in non-WASM environment",
-        );
+        get_global_ring0()
+            .log
+            .warn("[timer_box] requestAnimationFrame not supported in non-WASM environment");
         -1
     }
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn cancel_animation_frame(&self, _id: i32) {
-        get_global_ring0().log.warn(
-            "[timer_box] cancelAnimationFrame not supported in non-WASM environment",
-        );
+        get_global_ring0()
+            .log
+            .warn("[timer_box] cancelAnimationFrame not supported in non-WASM environment");
     }
 }
 

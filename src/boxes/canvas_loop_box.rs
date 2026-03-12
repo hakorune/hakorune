@@ -125,9 +125,9 @@ impl CanvasLoopBox {
     #[cfg(not(target_arch = "wasm32"))]
     /// Non-WASM環境用のダミー実装
     pub fn start(&mut self) {
-        get_global_ring0().log.warn(
-            "[canvas_loop_box] animation loop not supported in non-WASM environment",
-        );
+        get_global_ring0()
+            .log
+            .warn("[canvas_loop_box] animation loop not supported in non-WASM environment");
         self.is_running = true;
     }
 

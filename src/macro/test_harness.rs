@@ -369,7 +369,9 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
                                 }
                             }
                             if args.is_empty() && !params.is_empty() {
-                                if crate::config::env::env_flag("NYASH_TEST_ARGS_DEFAULTS").unwrap_or(false) {
+                                if crate::config::env::env_flag("NYASH_TEST_ARGS_DEFAULTS")
+                                    .unwrap_or(false)
+                                {
                                     for _ in params {
                                         args.push(nyash_rust::ASTNode::Literal {
                                             value: nyash_rust::ast::LiteralValue::Integer(0),
@@ -448,7 +450,9 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
                                 }
                             }
                             if args.is_empty() && !params.is_empty() {
-                                if crate::config::env::env_flag("NYASH_TEST_ARGS_DEFAULTS").unwrap_or(false) {
+                                if crate::config::env::env_flag("NYASH_TEST_ARGS_DEFAULTS")
+                                    .unwrap_or(false)
+                                {
                                     for _ in params {
                                         args.push(nyash_rust::ASTNode::Literal {
                                             value: nyash_rust::ast::LiteralValue::Integer(0),

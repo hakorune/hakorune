@@ -17,7 +17,7 @@ pub fn create(args: &[Box<dyn NyashBox>]) -> Result<Box<dyn NyashBox>, RuntimeEr
         ring0.log.warn(
             "⚠️ [DEPRECATED] Using builtin BoolBox - BoolBox plugin needed!\n\
             📋 Phase 15.5: Everything is Plugin!\n\
-            🔧 TODO: Create nyash-bool-plugin"
+            🔧 TODO: Create nyash-bool-plugin",
         );
     }
 

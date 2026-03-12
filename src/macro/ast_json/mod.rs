@@ -15,4 +15,3 @@ mod shared;
 pub use joinir_compat::ast_to_json;
 pub use roundtrip::ast_to_json_roundtrip;
 pub use roundtrip::json_to_ast;
-

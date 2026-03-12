@@ -6,7 +6,9 @@ impl FileHandleBox {
     /// Phase 114: Internal helper using FileIo::stat()
     ///
     /// Unified metadata access through FileIo trait.
-    pub(super) fn metadata_internal(&self) -> Result<crate::boxes::file::provider::FileStat, String> {
+    pub(super) fn metadata_internal(
+        &self,
+    ) -> Result<crate::boxes::file::provider::FileStat, String> {
         let io = self
             .io
             .as_ref()

@@ -17,7 +17,7 @@ pub fn create(_args: &[Box<dyn NyashBox>]) -> Result<Box<dyn NyashBox>, RuntimeE
         ring0.log.warn(
             "⚠️ [DEPRECATED] Using builtin ArrayBox - check nyash-array-plugin!\n\
             📋 Phase 15.5: Everything is Plugin!\n\
-            🔧 Check: plugins/nyash-array-plugin"
+            🔧 Check: plugins/nyash-array-plugin",
         );
     }
 

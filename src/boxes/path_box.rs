@@ -17,7 +17,8 @@ pub struct PathBox {
 impl PathBox {
     /// Create new PathBox (panic-on-missing-provider helper).
     pub fn new() -> Self {
-        Self::try_new().expect("PathBox provider is not initialized. Call Runtime::initialize() first.")
+        Self::try_new()
+            .expect("PathBox provider is not initialized. Call Runtime::initialize() first.")
     }
 
     /// Result-based constructor used by factories.
@@ -137,6 +138,9 @@ mod tests {
         assert_eq!(p.basename("apps/tests/main.hako"), "main.hako");
         assert_eq!(p.extname("apps/tests/main.hako"), ".hako");
         assert!(!p.is_abs("apps/tests/main.hako"));
-        assert_eq!(p.normalize("./apps/./tests/../tests/main.hako"), "apps/tests/main.hako");
+        assert_eq!(
+            p.normalize("./apps/./tests/../tests/main.hako"),
+            "apps/tests/main.hako"
+        );
     }
 }

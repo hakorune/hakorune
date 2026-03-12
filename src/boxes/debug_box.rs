@@ -152,9 +152,7 @@ impl DebugBox {
         let mut enabled = self.tracking_enabled.write().unwrap();
         *enabled = true;
         if debug_log_enabled() {
-            get_global_ring0()
-                .log
-                .debug("[debug_box] Tracking started");
+            get_global_ring0().log.debug("[debug_box] Tracking started");
         }
         Ok(Box::new(VoidBox::new()))
     }
@@ -163,9 +161,7 @@ impl DebugBox {
         let mut enabled = self.tracking_enabled.write().unwrap();
         *enabled = false;
         if debug_log_enabled() {
-            get_global_ring0()
-                .log
-                .debug("[debug_box] Tracking stopped");
+            get_global_ring0().log.debug("[debug_box] Tracking stopped");
         }
         Ok(Box::new(VoidBox::new()))
     }
@@ -238,10 +234,9 @@ impl DebugBox {
         })?;
 
         if debug_log_enabled() {
-            get_global_ring0().log.debug(&format!(
-                "[debug_box] Saved debug info to {}",
-                filename
-            ));
+            get_global_ring0()
+                .log
+                .debug(&format!("[debug_box] Saved debug info to {}", filename));
         }
         Ok(Box::new(VoidBox::new()))
     }

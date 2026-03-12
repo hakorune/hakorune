@@ -13,9 +13,9 @@ use std::sync::Arc;
 mod core;
 mod io;
 mod metadata;
-mod traits;
 #[cfg(test)]
 mod tests;
+mod traits;
 
 // ===== Phase 115: Helper macros for Nyash wrapper methods =====
 

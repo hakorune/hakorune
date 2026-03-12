@@ -253,10 +253,9 @@ impl QRBox {
         get_global_ring0()
             .log
             .info(&format!("[qr_box] Data: {}", self.data));
-        get_global_ring0().log.info(&format!(
-            "[qr_box] Size: {}x{}",
-            self.size.0, self.size.1
-        ));
+        get_global_ring0()
+            .log
+            .info(&format!("[qr_box] Size: {}x{}", self.size.0, self.size.1));
         get_global_ring0().log.info(&format!(
             "[qr_box] Colors: {} on {}",
             self.foreground_color, self.background_color

@@ -223,44 +223,44 @@ impl CanvasEventBox {
     #[cfg(not(target_arch = "wasm32"))]
     /// Non-WASM環境用のダミー実装
     pub fn on_mouse_down(&self) {
-        get_global_ring0().log.warn(
-            "[canvas_event_box] mouse events not supported in non-WASM environment",
-        );
+        get_global_ring0()
+            .log
+            .warn("[canvas_event_box] mouse events not supported in non-WASM environment");
     }
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn on_mouse_up(&self) {
-        get_global_ring0().log.warn(
-            "[canvas_event_box] mouse events not supported in non-WASM environment",
-        );
+        get_global_ring0()
+            .log
+            .warn("[canvas_event_box] mouse events not supported in non-WASM environment");
     }
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn on_mouse_move(&self) {
-        get_global_ring0().log.warn(
-            "[canvas_event_box] mouse events not supported in non-WASM environment",
-        );
+        get_global_ring0()
+            .log
+            .warn("[canvas_event_box] mouse events not supported in non-WASM environment");
     }
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn on_mouse_click(&self) {
-        get_global_ring0().log.warn(
-            "[canvas_event_box] mouse events not supported in non-WASM environment",
-        );
+        get_global_ring0()
+            .log
+            .warn("[canvas_event_box] mouse events not supported in non-WASM environment");
     }
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn on_touch_start(&self) {
-        get_global_ring0().log.warn(
-            "[canvas_event_box] touch events not supported in non-WASM environment",
-        );
+        get_global_ring0()
+            .log
+            .warn("[canvas_event_box] touch events not supported in non-WASM environment");
     }
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn on_key_down(&self) {
-        get_global_ring0().log.warn(
-            "[canvas_event_box] keyboard events not supported in non-WASM environment",
-        );
+        get_global_ring0()
+            .log
+            .warn("[canvas_event_box] keyboard events not supported in non-WASM environment");
     }
 }
 

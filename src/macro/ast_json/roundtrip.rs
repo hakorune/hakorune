@@ -74,11 +74,8 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 })
                 .collect::<HashMap<String, ASTNode>>();
             let static_init = v.get("static_init").and_then(|s| {
-                s.as_array().map(|arr| {
-                    arr.iter()
-                        .filter_map(json_to_ast)
-                        .collect::<Vec<ASTNode>>()
-                })
+                s.as_array()
+                    .map(|arr| arr.iter().filter_map(json_to_ast).collect::<Vec<ASTNode>>())
             });
 
             ASTNode::BoxDeclaration {
@@ -127,7 +124,10 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                             .collect::<Vec<_>>()
                     })
                     .unwrap_or_default(),
-                is_interface: v.get("is_interface").and_then(|b| b.as_bool()).unwrap_or(false),
+                is_interface: v
+                    .get("is_interface")
+                    .and_then(|b| b.as_bool())
+                    .unwrap_or(false),
                 extends: v
                     .get("extends")
                     .and_then(|a| a.as_array())
@@ -155,7 +155,10 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                             .collect::<Vec<_>>()
                     })
                     .unwrap_or_default(),
-                is_static: v.get("is_static").and_then(|b| b.as_bool()).unwrap_or(false),
+                is_static: v
+                    .get("is_static")
+                    .and_then(|b| b.as_bool())
+                    .unwrap_or(false),
                 static_init,
                 span: Span::unknown(),
             }
@@ -185,18 +188,16 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
             span: Span::unknown(),
         },
         "Assignment" => ASTNode::Assignment {
-            target: Box::new(
-                if let Some(lhs) = v.get("lhs").and_then(json_to_ast) {
-                    lhs
-                } else if let Some(name) = v.get("target").and_then(|t| t.as_str()) {
-                    ASTNode::Variable {
-                        name: name.to_string(),
-                        span: Span::unknown(),
-                    }
-                } else {
-                    json_to_ast(v.get("target")?)?
-                },
-            ),
+            target: Box::new(if let Some(lhs) = v.get("lhs").and_then(json_to_ast) {
+                lhs
+            } else if let Some(name) = v.get("target").and_then(|t| t.as_str()) {
+                ASTNode::Variable {
+                    name: name.to_string(),
+                    span: Span::unknown(),
+                }
+            } else {
+                json_to_ast(v.get("target")?)?
+            }),
             value: Box::new(json_to_ast(v.get("value")?)?),
             span: Span::unknown(),
         },
@@ -400,4 +401,3 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
         _ => return None,
     })
 }
-

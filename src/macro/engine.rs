@@ -16,8 +16,12 @@ pub struct MacroEngine {
 
 impl MacroEngine {
     pub fn new() -> Self {
-        let max_passes = crate::config::env::macro_max_passes().map(|v| v as usize).unwrap_or(32);
-        let cycle_window = crate::config::env::macro_cycle_window().map(|v| v as usize).unwrap_or(8);
+        let max_passes = crate::config::env::macro_max_passes()
+            .map(|v| v as usize)
+            .unwrap_or(32);
+        let cycle_window = crate::config::env::macro_cycle_window()
+            .map(|v| v as usize)
+            .unwrap_or(8);
         let trace = crate::config::env::macro_trace();
         Self {
             max_passes,
@@ -129,7 +133,9 @@ impl MacroEngine {
                 if crate::config::env::macro_trace() {
                     crate::macro_log!(
                         "[macro][derive] box={} derive_all={} set={}",
-                        name, derive_all, derive_set
+                        name,
+                        derive_all,
+                        derive_set
                     );
                 }
                 let want_equals = derive_all || derive_set.contains("Equals");

@@ -17,7 +17,7 @@ pub fn create(args: &[Box<dyn NyashBox>]) -> Result<Box<dyn NyashBox>, RuntimeEr
         ring0.log.warn(
             "⚠️ [DEPRECATED] Using builtin StringBox - install nyash-string-plugin!\n\
             📋 Phase 15.5: Everything is Plugin!\n\
-            🔧 Command: cargo build -p nyash-string-plugin --release"
+            🔧 Command: cargo build -p nyash-string-plugin --release",
         );
     }
 
