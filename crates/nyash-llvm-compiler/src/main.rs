@@ -404,7 +404,8 @@ fn link_executable(
     // Perf fast path (Linux): disable PIE to avoid TEXTREL/relocation overhead
     // on micro-bench AOT executables. Keep default behavior unchanged unless
     // NYASH_LLVM_FAST=1.
-    let use_no_pie = cfg!(target_os = "linux") && env::var("NYASH_LLVM_FAST").ok().as_deref() == Some("1");
+    let use_no_pie =
+        cfg!(target_os = "linux") && env::var("NYASH_LLVM_FAST").ok().as_deref() == Some("1");
     if use_no_pie {
         cmd.arg("-no-pie");
     }
