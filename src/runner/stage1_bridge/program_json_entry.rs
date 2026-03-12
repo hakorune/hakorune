@@ -1,11 +1,6 @@
 use super::NyashRunner;
 use crate::cli::CliGroups;
 
-pub(in crate::runner) enum ProgramJsonEntryOutcome {
-    Success { out_path: String },
-    Error { message: String },
-}
-
 impl NyashRunner {
     pub(in crate::runner) fn emit_program_json_v0_requested(groups: &CliGroups) -> bool {
         groups.emit.emit_program_json_v0.is_some()
@@ -16,16 +11,23 @@ impl NyashRunner {
         super::program_json::emit_program_json_v0(groups, out_path)
     }
 
-    pub(in crate::runner) fn maybe_emit_program_json_v0(
-        groups: &CliGroups,
-    ) -> Option<ProgramJsonEntryOutcome> {
-        let out_path = groups.emit.emit_program_json_v0.as_ref()?.clone();
-        Some(match Self::emit_program_json_v0(groups, &out_path) {
-            Ok(()) => ProgramJsonEntryOutcome::Success { out_path },
-            Err(error) => ProgramJsonEntryOutcome::Error {
-                message: format!("❌ emit-program-json-v0 error: {}", error),
-            },
-        })
+    pub(in crate::runner) fn emit_program_json_v0_and_exit(groups: &CliGroups) -> ! {
+        let out_path = groups
+            .emit
+            .emit_program_json_v0
+            .as_ref()
+            .expect("emit-program-json-v0 flag should be present")
+            .clone();
+        match Self::emit_program_json_v0(groups, &out_path) {
+            Ok(()) => {
+                println!("Program JSON written: {}", out_path);
+                std::process::exit(0);
+            }
+            Err(error) => {
+                eprintln!("❌ emit-program-json-v0 error: {}", error);
+                std::process::exit(1);
+            }
+        }
     }
 }
 

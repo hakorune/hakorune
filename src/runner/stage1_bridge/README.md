@@ -23,7 +23,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - binary-only direct-route MIR output-path policy and JSON write live in `direct_route/emit.rs`
 - bridge-local emit output-path resolution lives in `emit_paths.rs`
 - bridge-local Program(JSON v0) entry facade lives in `program_json_entry.rs`
-- `program_json_entry.rs` owns the explicit `emit-program-json-v0` branch selection and success/error formatting for the bridge entry
+- `program_json_entry.rs` owns the explicit `emit-program-json-v0` branch selection and success/error process-exit formatting for the bridge entry
 - `program_json_entry.rs` also owns the bridge-entry request predicate used by `runner/mod.rs` for `skip_stage1_stub`
 - `emit_program_json_v0(...)` must use `stage1::program_json_v0::emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
 - Stage1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `stub_child.rs`
@@ -50,6 +50,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - route execution facade delegated out of `mod.rs`
 - bridge-local Program(JSON v0) entry delegated out of `mod.rs`
 - bridge-local Program(JSON v0) branch selection and success/error formatting delegated out of `src/runner/emit.rs`
+- bridge-local Program(JSON v0) success/error process-exit delegated out of `src/runner/emit.rs`
 - direct-route compile / emit policy delegated out of `direct_route/mod.rs`
 - emit output-path policy delegated out of `stub_emit.rs` and `direct_route/emit.rs`
 - stub plain delegate-status execution delegated out of `route_exec/stub.rs`

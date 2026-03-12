@@ -80,6 +80,27 @@ mod tests {
         decode_string_handle(result_handle).expect("program json string handle")
     }
 
+    fn invoke_stage1_mir_builder_for_program_json(program_json: String) -> String {
+        ensure_test_ring0();
+        let receiver: Arc<dyn NyashBox> =
+            Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
+        let receiver_handle = handles::to_handle_arc(receiver) as i64;
+        let program_handle =
+            handles::to_handle_arc(Arc::new(StringBox::new(program_json))) as i64;
+        let method = CString::new("emit_from_program_json_v0").expect("CString");
+
+        let result_handle = crate::nyash_plugin_invoke_by_name_i64(
+            receiver_handle,
+            method.as_ptr(),
+            1,
+            program_handle,
+            0,
+        );
+        assert!(result_handle > 0, "expected MIR JSON StringBox handle");
+
+        decode_string_like_handle(result_handle)
+    }
+
     #[test]
     fn build_surrogate_route_registration_is_stable() {
         assert_eq!(BUILD_SURROGATE_ROUTE.module, "lang.compiler.build.build_box");
@@ -227,26 +248,30 @@ static box Main {
 
     #[test]
     fn invoke_by_name_accepts_stage1_mir_builder_for_stage1_cli_env_program_json() {
-        ensure_test_ring0();
         let source = include_str!("../../../../../lang/src/runner/stage1_cli_env.hako");
         let build_result_text = invoke_by_name_build_box_emit_program_json(source);
-        let receiver: Arc<dyn NyashBox> =
-            Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
-        let receiver_handle = handles::to_handle_arc(receiver) as i64;
-        let program_handle =
-            handles::to_handle_arc(Arc::new(StringBox::new(build_result_text))) as i64;
-        let method = CString::new("emit_from_program_json_v0").expect("CString");
-
-        let result_handle =
-            crate::nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, program_handle, 0);
-        assert!(result_handle > 0, "expected MIR JSON StringBox handle");
-
-        let mir_json = decode_string_like_handle(result_handle);
+        let mir_json = invoke_stage1_mir_builder_for_program_json(build_result_text);
         assert!(
             mir_json.starts_with('{'),
             "expected MIR JSON payload, got: {}",
             mir_json
         );
         assert!(mir_json.contains("\"functions\""));
+    }
+
+    #[test]
+    fn invoke_by_name_accepts_stage1_mir_builder_for_launcher_program_json() {
+        let source = include_str!("../../../../../lang/src/runner/launcher.hako");
+        let build_result_text = invoke_by_name_build_box_emit_program_json(source);
+        let mir_json = invoke_stage1_mir_builder_for_program_json(build_result_text);
+        assert!(mir_json.contains("\"functions\""));
+        assert!(
+            mir_json.contains("\"name\":\"Main\""),
+            "stage1 mir-builder surrogate should always expose Main user_box_decl"
+        );
+        assert!(
+            mir_json.contains("\"name\":\"HakoCli\""),
+            "stage1 mir-builder surrogate should expose launcher helper box decls"
+        );
     }
 }

@@ -416,35 +416,6 @@ fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_hello_simple_llvm(
 }
 
 #[test]
-fn invoke_by_name_accepts_stage1_mir_builder_for_launcher_program_json() {
-    ensure_test_ring0();
-    let receiver: Arc<dyn NyashBox> =
-        Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source = include_str!("../../../lang/src/runner/launcher.hako");
-    let program_json = nyash_rust::stage1::program_json_v0::
-        emit_program_json_v0_for_current_stage1_build_box_mode(source)
-        .expect("launcher build surrogate emission");
-    let program_handle = handles::to_handle_arc(Arc::new(StringBox::new(program_json))) as i64;
-    let method = CString::new("emit_from_program_json_v0").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, program_handle, 0);
-    assert!(result_handle > 0, "expected MIR JSON StringBox handle");
-
-    let mir_json = decode_string_like_handle(result_handle).expect("mir json string");
-    assert!(mir_json.contains("\"functions\""));
-    assert!(
-        mir_json.contains("\"name\":\"Main\""),
-        "stage1 mir-builder surrogate should always expose Main user_box_decl"
-    );
-    assert!(
-        mir_json.contains("\"name\":\"HakoCli\""),
-        "stage1 mir-builder surrogate should expose launcher helper box decls"
-    );
-}
-
-#[test]
 fn invoke_by_name_stage1_using_resolver_route_is_stubbed_empty_in_kernel_dispatch() {
     ensure_test_ring0();
     let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new(

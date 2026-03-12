@@ -54,8 +54,8 @@ Related:
   - Rust-owned `build surrogate keep`
   - then `future-retire bridge`
 - retreat note:
-  - compiled-stage1 build surrogate is not deletable yet, but it is now intended to shrink behind a single owner-local module; route registration, handler ownership, and build-box invoke-by-name regression coverage moved there too, so retirement no longer needs shared route-table or root-test edits
-  - future-retire bridge entry is also close to owner-local: direct emit-flag reads now stay inside `src/runner/stage1_bridge/**`, while outer root-runner files remain only as thin caller contracts (`src/runner/mod.rs`, `src/runner/emit.rs`)
+  - compiled-stage1 build surrogate is not deletable yet, but it is now intended to shrink behind a single owner-local module; route registration, handler ownership, and build-box/launcher MIR handoff regression coverage moved there too, so retirement no longer needs shared route-table or root-test edits
+  - future-retire bridge entry is also close to owner-local: direct emit-flag reads now stay inside `src/runner/stage1_bridge/**`, bridge-specific success/error process-exit also stays in `program_json_entry.rs`, and outer root-runner files remain only as thin caller contracts (`src/runner/mod.rs`, `src/runner/emit.rs`)
   - bridge-local Program(JSON v0) file read policy and payload emission are now owner-local to `src/runner/stage1_bridge/program_json/read_input.rs` and `src/runner/stage1_bridge/program_json/emit_payload.rs`, so `program_json.rs` keeps shrinking toward a pure facade
   - `MirBuilderBox.emit_from_source_v0(...)` remains a live keep and must not be demoted into the diagnostics/probe bucket
   - shell/helper delete order still has a wider test-only shell/apps tail beyond the three shared helper scripts; keep that caller audit separate from the first Rust-only delete slices

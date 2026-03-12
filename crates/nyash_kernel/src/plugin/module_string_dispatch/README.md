@@ -13,6 +13,7 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
   - compiled-stage1 `BuildBox.emit_program_json_v0` surrogate only
   - owner of the `build surrogate keep` bucket for `phase-29ci`
   - owner of the surrogate route registration (`BUILD_SURROGATE_ROUTE`) and its regression coverage
+  - owner of the launcher/stage1-cli-env Program(JSON) -> MIR handoff regression coverage too
   - the surrogate handler stays owner-local; parent modules import only the route registration
 
 ## Retirement Note
