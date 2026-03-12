@@ -25,6 +25,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - bridge-local Program(JSON v0) entry facade lives in `program_json_entry.rs`
 - `program_json_entry.rs` owns the explicit `emit-program-json-v0` branch selection and success/error process-exit formatting for the bridge entry
 - `program_json_entry.rs` also owns the bridge-entry request predicate used by `runner/mod.rs` for `skip_stage1_stub`
+- `program_json_entry.rs` also owns source-path precedence for `emit-program-json-v0` (`stage1::input_path()` aliases first, CLI input fallback second)
 - outer callers should use the `program_json_entry` module helpers directly; this contract is no longer rebound as `NyashRunner` methods
 - `emit_program_json_v0(...)` must use `stage1::program_json_v0::emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
 - Stage1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `stub_child.rs`
@@ -38,7 +39,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - parser / using toggle propagation lives in `env/parser_stageb.rs`
 - Stage-B module payload generation + child-env apply live in `modules.rs`
 - bridge-local file read/write for this route lives in `program_json/mod.rs`
-- `program_json/mod.rs` is a thin facade; source-path precedence lives in `program_json/source.rs`, and bridge-local writeback policy lives in `program_json/writeback.rs`
+- `program_json/mod.rs` is a thin facade; source-text read lives in `program_json/read_input.rs`, bridge-local payload emission lives in `program_json/emit_payload.rs`, and bridge-local writeback policy lives in `program_json/writeback.rs`
 - do not call `source_to_program_json_v0_strict(...)` from this directory
 - do not add new bridge-local Program(JSON v0) parsing policy here
 
