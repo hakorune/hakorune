@@ -3,7 +3,7 @@
 //! Keep the bridge root focused on routing while `program_json/` owns
 //! source-text read, bridge-local payload emission, and writeback policy
 //! for the future-retire lane. Source-path precedence stays in the
-//! bridge-entry owner (`program_json_entry.rs`).
+//! bridge-entry owner (`program_json_entry/request.rs`).
 
 mod emit_payload;
 mod read_input;

@@ -22,10 +22,10 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - binary-only direct-route MIR compile lives in `direct_route/compile.rs`
 - binary-only direct-route MIR output-path policy and JSON write live in `direct_route/emit.rs`
 - bridge-local emit output-path resolution lives in `emit_paths.rs`
-- bridge-local Program(JSON v0) entry facade lives in `program_json_entry.rs`
-- `program_json_entry.rs` owns the explicit `emit-program-json-v0` branch selection and success/error process-exit formatting for the bridge entry
-- `program_json_entry.rs` also owns the bridge-entry request predicate used by `runner/mod.rs` for `skip_stage1_stub`
-- `program_json_entry.rs` also owns source-path precedence for `emit-program-json-v0` (`stage1::input_path()` aliases first, CLI input fallback second)
+- bridge-local Program(JSON v0) entry cluster lives in `program_json_entry/`
+- `program_json_entry/mod.rs` owns the explicit `emit-program-json-v0` branch selection and success/error process-exit formatting for the bridge entry
+- `program_json_entry/mod.rs` also owns the bridge-entry request predicate used by `runner/mod.rs` for `skip_stage1_stub`
+- `program_json_entry/request.rs` owns source-path precedence for `emit-program-json-v0` (`stage1::input_path()` aliases first, CLI input fallback second) and exact out-path extraction from the explicit CLI flag
 - outer callers should use the `program_json_entry` module helpers directly; this contract is no longer rebound as `NyashRunner` methods
 - `emit_program_json_v0(...)` must use `stage1::program_json_v0::emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
 - Stage1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `stub_child.rs`
@@ -59,7 +59,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - stub emit parse / writeback delegated out of `stub_emit.rs`
 - child-process / embedded-entry orchestration
 - file read/write around bridge-specific CLI surfaces
-- thin delegate modules such as `entry_guard.rs` / `route_exec.rs` / `route_exec/*` / `direct_route/*` / `emit_paths.rs` / `stub_child.rs` / `stub_delegate.rs` / `program_json_entry.rs` / `program_json/mod.rs` / `program_json/*` / `stub_emit.rs` / `stub_emit/*` that keep bridge-only command prep, dispatch, route-local exit handling, compile/output policy, plain delegate-status execution, parse/writeback policy, I/O, and stub emit output handling out of `mod.rs`
+- thin delegate modules such as `entry_guard.rs` / `route_exec.rs` / `route_exec/*` / `direct_route/*` / `emit_paths.rs` / `stub_child.rs` / `stub_delegate.rs` / `program_json_entry/` / `program_json/mod.rs` / `program_json/*` / `stub_emit.rs` / `stub_emit/*` that keep bridge-only command prep, dispatch, route-local exit handling, compile/output policy, plain delegate-status execution, parse/writeback policy, I/O, and stub emit output handling out of `mod.rs`
 
 ## Forbidden Responsibilities
 

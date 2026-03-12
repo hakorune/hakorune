@@ -55,7 +55,7 @@ Related:
   - then `future-retire bridge`
 - retreat note:
   - compiled-stage1 build surrogate is not deletable yet, but it is now intended to shrink behind a single owner-local module; route registration, handler ownership, and build-box/launcher MIR handoff regression coverage moved there too, so retirement no longer needs shared route-table or root-test edits
-  - future-retire bridge entry is also close to owner-local: direct emit-flag reads now stay inside `src/runner/stage1_bridge/**`, bridge-specific success/error process-exit and source-path precedence also stay in `program_json_entry.rs`, and outer root-runner files remain only as thin caller contracts (`src/runner/mod.rs`, `src/runner/emit.rs`)
+  - future-retire bridge entry is also close to owner-local: direct emit-flag reads now stay inside `src/runner/stage1_bridge/**`, bridge-specific success/error process-exit lives in `program_json_entry/mod.rs`, request building/source-path precedence lives in `program_json_entry/request.rs`, and outer root-runner files remain only as thin caller contracts (`src/runner/mod.rs`, `src/runner/emit.rs`)
   - bridge-local Program(JSON v0) file read policy and payload emission are now owner-local to `src/runner/stage1_bridge/program_json/read_input.rs` and `src/runner/stage1_bridge/program_json/emit_payload.rs`, while writeback stays in `src/runner/stage1_bridge/program_json/writeback.rs`, so `program_json/mod.rs` keeps shrinking toward a pure facade
   - `MirBuilderBox.emit_from_source_v0(...)` remains a live keep and must not be demoted into the diagnostics/probe bucket
   - shell/helper delete order still has a wider test-only shell/apps tail beyond the three shared helper scripts; keep that caller audit separate from the first Rust-only delete slices
@@ -65,7 +65,7 @@ Related:
 - `src/stage1/program_json_v0.rs` cluster
 - `src/runner/stage1_bridge/program_json/mod.rs`
 - `src/runner/stage1_bridge/program_json/`
-- `src/runner/stage1_bridge/program_json_entry.rs`
+- `src/runner/stage1_bridge/program_json_entry/`
 - `src/runner/mod.rs` bridge-entry caller contract
 - `src/runner/stage1_bridge/**` future-retire bridge lane
 - compiled-stage1 / shell callers that still need the bootstrap-only JSON v0 boundary

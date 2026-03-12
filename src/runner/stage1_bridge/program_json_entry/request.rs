@@ -1,13 +1,9 @@
 use crate::cli::CliGroups;
 use crate::config::env::stage1;
 
-struct ProgramJsonEmitRequest {
-    source_path: String,
-    out_path: String,
-}
-
-pub(in crate::runner) fn emit_program_json_v0_requested(groups: &CliGroups) -> bool {
-    groups.emit.emit_program_json_v0.is_some()
+pub(super) struct ProgramJsonEmitRequest {
+    pub(super) source_path: String,
+    pub(super) out_path: String,
 }
 
 fn resolve_source_path(groups: &CliGroups) -> Result<String, String> {
@@ -16,7 +12,7 @@ fn resolve_source_path(groups: &CliGroups) -> Result<String, String> {
         .ok_or_else(|| "emit-program-json-v0 requires an input file".to_string())
 }
 
-fn build_emit_request(groups: &CliGroups) -> Result<ProgramJsonEmitRequest, String> {
+pub(super) fn build_emit_request(groups: &CliGroups) -> Result<ProgramJsonEmitRequest, String> {
     let source_path = resolve_source_path(groups)?;
     let out_path = groups
         .emit
@@ -30,42 +26,22 @@ fn build_emit_request(groups: &CliGroups) -> Result<ProgramJsonEmitRequest, Stri
     })
 }
 
-pub(in crate::runner) fn emit_program_json_v0_and_exit(groups: &CliGroups) -> ! {
-    let request = match build_emit_request(groups) {
-        Ok(request) => request,
-        Err(error) => {
-            eprintln!("❌ emit-program-json-v0 error: {}", error);
-            std::process::exit(1);
-        }
-    };
-    match super::program_json::emit_program_json_v0(&request.source_path, &request.out_path) {
-        Ok(()) => {
-            println!("Program JSON written: {}", request.out_path);
-            std::process::exit(0);
-        }
-        Err(error) => {
-            eprintln!("❌ emit-program-json-v0 error: {}", error);
-            std::process::exit(1);
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
+    use super::{build_emit_request, resolve_source_path};
     use crate::cli::CliConfig;
-    use crate::runner::stage1_bridge::program_json_entry::{
-        emit_program_json_v0_requested, resolve_source_path,
-    };
     use crate::runner::stage1_bridge::test_support::env_lock;
 
     #[test]
-    fn emit_program_json_v0_requested_reports_exact_flag_presence() {
-        let groups = CliConfig::default().as_groups();
-        assert!(!emit_program_json_v0_requested(&groups));
-
+    fn build_emit_request_captures_exact_out_path() {
         let mut groups = CliConfig::default().as_groups();
+        groups.input.file = Some("/tmp/source.hako".to_string());
         groups.emit.emit_program_json_v0 = Some("/tmp/out.json".to_string());
-        assert!(emit_program_json_v0_requested(&groups));
+
+        let request = build_emit_request(&groups).expect("emit request");
+
+        assert_eq!(request.source_path, "/tmp/source.hako");
+        assert_eq!(request.out_path, "/tmp/out.json");
     }
 
     #[test]
