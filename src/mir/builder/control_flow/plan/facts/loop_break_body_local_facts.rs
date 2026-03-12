@@ -54,12 +54,7 @@ pub(in crate::mir::builder) fn try_extract_loop_break_body_local_facts(
 }
 
 fn extract_loop_var(condition: &ASTNode) -> Option<String> {
-    let ASTNode::BinaryOp {
-        operator,
-        left,
-        ..
-    } = condition
-    else {
+    let ASTNode::BinaryOp { operator, left, .. } = condition else {
         return None;
     };
     if !matches!(operator, BinaryOperator::Less | BinaryOperator::LessEqual) {
@@ -73,7 +68,13 @@ fn extract_loop_var(condition: &ASTNode) -> Option<String> {
 
 fn find_break_guard_if(body: &[ASTNode]) -> Option<(&ASTNode, usize)> {
     for (idx, stmt) in body.iter().enumerate() {
-        let ASTNode::If { condition, then_body, else_body, .. } = stmt else {
+        let ASTNode::If {
+            condition,
+            then_body,
+            else_body,
+            ..
+        } = stmt
+        else {
             continue;
         };
         if else_body.is_some() {
@@ -140,7 +141,11 @@ fn try_match_digit_pos(
     else {
         return None;
     };
-    let ASTNode::Variable { name: body_local_var, .. } = left.as_ref() else {
+    let ASTNode::Variable {
+        name: body_local_var,
+        ..
+    } = left.as_ref()
+    else {
         return None;
     };
     if !matches!(
@@ -167,10 +172,7 @@ fn try_match_digit_pos(
 
     Some((
         body_local_var.clone(),
-        LoopBodyLocalShape::DigitPos {
-            digits_var,
-            ch_var,
-        },
+        LoopBodyLocalShape::DigitPos { digits_var, ch_var },
     ))
 }
 
@@ -292,7 +294,10 @@ fn extract_indexof_expr(expr: &ASTNode) -> Option<(String, String)> {
     if method != "indexOf" || arguments.len() != 1 {
         return None;
     }
-    let ASTNode::Variable { name: digits_var, .. } = object.as_ref() else {
+    let ASTNode::Variable {
+        name: digits_var, ..
+    } = object.as_ref()
+    else {
         return None;
     };
     let ASTNode::Variable { name: ch_var, .. } = &arguments[0] else {
@@ -413,7 +418,9 @@ mod tests {
             local("seg", substring("s", "i", 1)),
             ASTNode::If {
                 condition: Box::new(or(eq(v("seg"), lit_str(" ")), eq(v("seg"), lit_str("\t")))),
-                then_body: vec![ASTNode::Break { span: Span::unknown() }],
+                then_body: vec![ASTNode::Break {
+                    span: Span::unknown(),
+                }],
                 else_body: None,
                 span: Span::unknown(),
             },
@@ -442,7 +449,9 @@ mod tests {
             local("digit_pos", index_of("digits", "ch")),
             ASTNode::If {
                 condition: Box::new(less(v("digit_pos"), lit_int(0))),
-                then_body: vec![ASTNode::Break { span: Span::unknown() }],
+                then_body: vec![ASTNode::Break {
+                    span: Span::unknown(),
+                }],
                 else_body: None,
                 span: Span::unknown(),
             },
@@ -470,7 +479,9 @@ mod tests {
             local("seg", substring("s", "i", 2)),
             ASTNode::If {
                 condition: Box::new(or(eq(v("seg"), lit_str(" ")), eq(v("seg"), lit_str("\t")))),
-                then_body: vec![ASTNode::Break { span: Span::unknown() }],
+                then_body: vec![ASTNode::Break {
+                    span: Span::unknown(),
+                }],
                 else_body: None,
                 span: Span::unknown(),
             },

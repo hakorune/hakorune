@@ -180,9 +180,7 @@ fn match_delim_then(
 
     for then_stmt in &flat_then {
         if result_var.is_none() {
-            if let Some((result, start, haystack)) =
-                match_push_stmt(then_stmt, loop_var)
-            {
+            if let Some((result, start, haystack)) = match_push_stmt(then_stmt, loop_var) {
                 result_var = Some(result);
                 start_var = Some(start);
                 push_haystack = Some(haystack);
@@ -266,7 +264,10 @@ fn match_push_stmt(stmt: &ASTNode, loop_var: &str) -> Option<(String, String, St
     if method != "push" || arguments.len() != 1 {
         return None;
     }
-    let ASTNode::Variable { name: result_var, .. } = object else {
+    let ASTNode::Variable {
+        name: result_var, ..
+    } = object
+    else {
         return None;
     };
 
@@ -278,7 +279,10 @@ fn match_push_stmt(stmt: &ASTNode, loop_var: &str) -> Option<(String, String, St
     let ASTNode::Variable { name: haystack, .. } = substr_object else {
         return None;
     };
-    let ASTNode::Variable { name: start_var, .. } = &substr_args[0] else {
+    let ASTNode::Variable {
+        name: start_var, ..
+    } = &substr_args[0]
+    else {
         return None;
     };
     if !matches!(&substr_args[1], ASTNode::Variable { name, .. } if name == loop_var) {
@@ -292,7 +296,10 @@ fn match_start_update_stmt(stmt: &ASTNode, loop_var: &str) -> Option<String> {
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return None;
     };
-    let ASTNode::Variable { name: start_var, .. } = target.as_ref() else {
+    let ASTNode::Variable {
+        name: start_var, ..
+    } = target.as_ref()
+    else {
         return None;
     };
 
@@ -353,9 +360,7 @@ fn match_loop_increment_stmt(stmt: &ASTNode, loop_var: &str) -> Option<ASTNode> 
     Some(value.as_ref().clone())
 }
 
-fn match_method_call<'a>(
-    node: &'a ASTNode,
-) -> Option<(&'a ASTNode, &'a str, &'a [ASTNode])> {
+fn match_method_call<'a>(node: &'a ASTNode) -> Option<(&'a ASTNode, &'a str, &'a [ASTNode])> {
     match node {
         ASTNode::MethodCall {
             object,
@@ -363,7 +368,9 @@ fn match_method_call<'a>(
             arguments,
             ..
         } => Some((object.as_ref(), method.as_str(), arguments.as_slice())),
-        ASTNode::Call { callee, arguments, .. } => match callee.as_ref() {
+        ASTNode::Call {
+            callee, arguments, ..
+        } => match callee.as_ref() {
             ASTNode::FieldAccess { object, field, .. } => {
                 Some((object.as_ref(), field.as_str(), arguments.as_slice()))
             }
@@ -374,7 +381,10 @@ fn match_method_call<'a>(
 }
 
 fn match_substring_call(object: &ASTNode, arguments: &[ASTNode], loop_var: &str) -> Option<String> {
-    let ASTNode::Variable { name: haystack_var, .. } = object else {
+    let ASTNode::Variable {
+        name: haystack_var, ..
+    } = object
+    else {
         return None;
     };
     if !matches!(&arguments[0], ASTNode::Variable { name, .. } if name == loop_var) {

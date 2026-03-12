@@ -3,16 +3,16 @@
 //! This module contains the main item builder that converts AST statements
 //! into LoopCondBreakContinueItem recipe elements.
 
-use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
-use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
-use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use super::break_continue_recipe::{
     LoopCondBreakContinueItem, LoopCondBreakContinueRecipe, NestedLoopDepth1Recipe,
 };
+use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
+use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
+use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
+use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
+use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
@@ -21,12 +21,12 @@ use super::break_continue_classify::{build_continue_if_with_else_recipes, classi
 use super::break_continue_helpers::is_nested_loop_allowed;
 use super::break_continue_tree::build_exit_if_tree_recipe;
 use super::break_continue_types::IfStmtKind;
+use super::break_continue_validator_cond::build_conditional_update_branch_recipe;
 use super::break_continue_validator_else::{
     build_else_guard_break_recipes, is_else_guard_break_if_shape, is_else_only_break_if_shape,
     is_else_only_return_if_shape, is_then_only_break_if_shape, is_then_only_return_if_shape,
 };
 use super::break_continue_validator_exit::try_build_else_nested_exit_if_return_exit_allowed_recipe;
-use super::break_continue_validator_cond::build_conditional_update_branch_recipe;
 
 /// Build a recipe for the loop body.
 pub(super) fn build_loop_cond_break_continue_recipe(
@@ -141,7 +141,9 @@ fn build_loop_cond_break_continue_item(
         ASTNode::ScopeBox { body, .. } => {
             build_program_or_scope_item(body, stmt_ref, allow_extended)
         }
-        ASTNode::Loop { condition, body, .. } => {
+        ASTNode::Loop {
+            condition, body, ..
+        } => {
             if !allow_nested || *nested_seen >= max_nested_loops {
                 return None;
             }
@@ -149,7 +151,11 @@ fn build_loop_cond_break_continue_item(
                 return None;
             }
             *nested_seen += 1;
-            let body_recipe = if !allow_extended && body.iter().any(|stmt| matches!(stmt, ASTNode::Print { .. })) {
+            let body_recipe = if !allow_extended
+                && body
+                    .iter()
+                    .any(|stmt| matches!(stmt, ASTNode::Print { .. }))
+            {
                 None
             } else {
                 try_build_stmt_only_block_recipe(body)
@@ -167,22 +173,20 @@ fn build_loop_cond_break_continue_item(
             then_body,
             else_body,
             ..
-        } => {
-            build_if_item(
-                stmt,
-                condition,
-                then_body,
-                else_body.as_ref(),
-                stmt_ref,
-                exit_if_seen,
-                continue_if_seen,
-                conditional_update_seen,
-                allow_extended,
-                allow_nested,
-                max_nested_loops,
-                debug,
-            )
-        }
+        } => build_if_item(
+            stmt,
+            condition,
+            then_body,
+            else_body.as_ref(),
+            stmt_ref,
+            exit_if_seen,
+            continue_if_seen,
+            conditional_update_seen,
+            allow_extended,
+            allow_nested,
+            max_nested_loops,
+            debug,
+        ),
         ASTNode::Break { .. } => {
             if allow_extended && is_last {
                 let exit_allowed_block =
@@ -214,7 +218,11 @@ fn build_program_or_scope_item(
             stmt_only: None,
         });
     }
-    if !allow_extended && flat.iter().any(|stmt| matches!(stmt, ASTNode::Print { .. })) {
+    if !allow_extended
+        && flat
+            .iter()
+            .any(|stmt| matches!(stmt, ASTNode::Print { .. }))
+    {
         return None;
     }
     let stmt_only = try_build_stmt_only_block_recipe(&flat);
@@ -231,7 +239,10 @@ fn build_program_or_scope_item(
     {
         return None;
     }
-    Some(LoopCondBreakContinueItem::ProgramBlock { stmt: stmt_ref, stmt_only })
+    Some(LoopCondBreakContinueItem::ProgramBlock {
+        stmt: stmt_ref,
+        stmt_only,
+    })
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -336,8 +347,7 @@ fn build_if_item(
     // else-guard-break pattern
     if is_else_guard_break_if_shape(condition, then_body, else_body, allow_extended) {
         let else_body = else_body.unwrap();
-        let else_exit_allowed =
-            try_build_exit_allowed_block_recipe(else_body, allow_extended);
+        let else_exit_allowed = try_build_exit_allowed_block_recipe(else_body, allow_extended);
         if let Some((then_recipe, else_recipe)) = build_else_guard_break_recipes(
             then_body,
             else_body,
@@ -482,13 +492,10 @@ fn build_if_item(
                     });
                 }
             }
-            if allow_extended
-                && if_has_any_exit_signals(then_body, else_body)
-            {
-                if let Some(exit_allowed_block) = try_build_exit_allowed_block_recipe(
-                    std::slice::from_ref(stmt),
-                    allow_extended,
-                ) {
+            if allow_extended && if_has_any_exit_signals(then_body, else_body) {
+                if let Some(exit_allowed_block) =
+                    try_build_exit_allowed_block_recipe(std::slice::from_ref(stmt), allow_extended)
+                {
                     if !exit_allowed_block_has_non_stmt_items(&exit_allowed_block) {
                         *conditional_update_seen += 1;
                         return Some(LoopCondBreakContinueItem::ProgramBlock {
@@ -516,11 +523,12 @@ fn build_if_item(
 fn exit_allowed_block_has_non_stmt_items(
     block: &crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe,
 ) -> bool {
-    block
-        .block
-        .items
-        .iter()
-        .any(|item| !matches!(item, crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem::Stmt(_)))
+    block.block.items.iter().any(|item| {
+        !matches!(
+            item,
+            crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem::Stmt(_)
+        )
+    })
 }
 
 fn if_has_any_exit_signals(then_body: &[ASTNode], else_body: Option<&Vec<ASTNode>>) -> bool {

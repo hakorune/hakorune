@@ -76,19 +76,24 @@ fn match_loop_condition(condition: &ASTNode) -> Option<(String, LoopBound)> {
             let ASTNode::Variable { name: s_var, .. } = object.as_ref() else {
                 return None;
             };
-            Some((loop_var.clone(), LoopBound::LengthCall { s_var: s_var.clone() }))
+            Some((
+                loop_var.clone(),
+                LoopBound::LengthCall {
+                    s_var: s_var.clone(),
+                },
+            ))
         }
-        ASTNode::Variable { name: len_var, .. } => {
-            Some((loop_var.clone(), LoopBound::LengthVar { len_var: len_var.clone() }))
-        }
+        ASTNode::Variable { name: len_var, .. } => Some((
+            loop_var.clone(),
+            LoopBound::LengthVar {
+                len_var: len_var.clone(),
+            },
+        )),
         _ => None,
     }
 }
 
-fn match_loop_body(
-    body: &[ASTNode],
-    loop_var: &str,
-    ) -> Option<(String, ASTNode, ASTNode, bool)> {
+fn match_loop_body(body: &[ASTNode], loop_var: &str) -> Option<(String, ASTNode, ASTNode, bool)> {
     match body {
         [digit_stmt, increment_stmt] => {
             let (s_var, digit_call, return_zero_on_fail) =
@@ -97,10 +102,8 @@ fn match_loop_body(
             Some((s_var, digit_call, loop_increment, return_zero_on_fail))
         }
         [local_stmt, digit_stmt, increment_stmt] => {
-            let (s_var, substring_expr, ch_var) =
-                match_local_substring(local_stmt, loop_var)?;
-            let return_zero_on_fail =
-                match_range_if_return_false(digit_stmt, &ch_var)?;
+            let (s_var, substring_expr, ch_var) = match_local_substring(local_stmt, loop_var)?;
+            let return_zero_on_fail = match_range_if_return_false(digit_stmt, &ch_var)?;
             let loop_increment = match_loop_increment_stmt(increment_stmt, loop_var)?;
             let digit_call = build_is_digit_call(substring_expr);
             Some((s_var, digit_call, loop_increment, return_zero_on_fail))
@@ -109,10 +112,7 @@ fn match_loop_body(
     }
 }
 
-fn match_local_substring(
-    stmt: &ASTNode,
-    loop_var: &str,
-) -> Option<(String, ASTNode, String)> {
+fn match_local_substring(stmt: &ASTNode, loop_var: &str) -> Option<(String, ASTNode, String)> {
     let ASTNode::Local {
         variables,
         initial_values,
@@ -151,10 +151,7 @@ fn match_range_if_return_false(stmt: &ASTNode, ch_var: &str) -> Option<bool> {
     Some(return_zero_on_fail)
 }
 
-fn match_digit_if_return_false(
-    stmt: &ASTNode,
-    loop_var: &str,
-) -> Option<(String, ASTNode, bool)> {
+fn match_digit_if_return_false(stmt: &ASTNode, loop_var: &str) -> Option<(String, ASTNode, bool)> {
     let ASTNode::If {
         condition,
         then_body,
@@ -173,10 +170,7 @@ fn match_digit_if_return_false(
     Some((s_var, digit_call, return_zero_on_fail))
 }
 
-fn match_not_is_digit_condition(
-    condition: &ASTNode,
-    loop_var: &str,
-) -> Option<(ASTNode, String)> {
+fn match_not_is_digit_condition(condition: &ASTNode, loop_var: &str) -> Option<(ASTNode, String)> {
     let ASTNode::UnaryOp {
         operator: UnaryOperator::Not,
         operand,
@@ -250,8 +244,7 @@ fn match_substring_call(expr: &ASTNode, loop_var: &str) -> Option<String> {
                         ..
                     }
                 )
-    )
-    ;
+    );
 
     if !ok {
         return None;
@@ -261,7 +254,10 @@ fn match_substring_call(expr: &ASTNode, loop_var: &str) -> Option<String> {
 }
 
 fn match_return_false_or_zero(stmt: &ASTNode) -> Option<bool> {
-    let ASTNode::Return { value: Some(ret), .. } = stmt else {
+    let ASTNode::Return {
+        value: Some(ret), ..
+    } = stmt
+    else {
         return None;
     };
     match ret.as_ref() {

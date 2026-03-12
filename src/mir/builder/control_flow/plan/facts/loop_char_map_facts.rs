@@ -2,8 +2,8 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
-    extract_loop_increment_plan, has_break_statement, has_continue_statement, has_if_else_statement,
-    has_return_statement,
+    extract_loop_increment_plan, has_break_statement, has_continue_statement,
+    has_if_else_statement, has_return_statement,
 };
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     loop_var_from_profile, step_delta_from_profile, ConditionShape, ScanConditionObservation,
@@ -31,8 +31,7 @@ pub(in crate::mir::builder) fn try_extract_loop_char_map_facts(
 ) -> Result<Option<LoopCharMapFacts>, Freeze> {
     let condition_shape = &observation.condition_shape;
     let step_shape = &observation.step_shape;
-    let ConditionShape::VarLessLength { haystack_var, .. } = condition_shape
-    else {
+    let ConditionShape::VarLessLength { haystack_var, .. } = condition_shape else {
         return Ok(None);
     };
 
@@ -91,11 +90,7 @@ pub(in crate::mir::builder) fn try_extract_loop_char_map_facts(
     }))
 }
 
-fn extract_local_substring(
-    stmt: &ASTNode,
-    idx_var: &str,
-    haystack_var: &str,
-) -> Option<String> {
+fn extract_local_substring(stmt: &ASTNode, idx_var: &str, haystack_var: &str) -> Option<String> {
     let ASTNode::Local {
         variables,
         initial_values,
@@ -169,7 +164,10 @@ fn extract_result_update(stmt: &ASTNode, ch_var: &str) -> Option<(String, String
         return None;
     };
 
-    let ASTNode::Variable { name: result_var, .. } = target.as_ref() else {
+    let ASTNode::Variable {
+        name: result_var, ..
+    } = target.as_ref()
+    else {
         return None;
     };
 
@@ -287,7 +285,9 @@ mod tests {
                 operator: BinaryOperator::Add,
                 left: Box::new(v("result")),
                 right: Box::new(method_call(
-                    ASTNode::This { span: Span::unknown() },
+                    ASTNode::This {
+                        span: Span::unknown(),
+                    },
                     "char_to_lower",
                     vec![v("ch")],
                 )),
@@ -351,8 +351,7 @@ mod tests {
         }];
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
-        let facts = try_extract_loop_char_map_facts(&condition, &body, &observation)
-            .expect("Ok");
+        let facts = try_extract_loop_char_map_facts(&condition, &body, &observation).expect("Ok");
         assert!(facts.is_none());
     }
 }

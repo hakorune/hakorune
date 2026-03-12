@@ -333,8 +333,7 @@ mod tests {
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
         let facts =
-            try_extract_bool_predicate_scan_facts(&condition, &body, &observation)
-                .expect("Ok");
+            try_extract_bool_predicate_scan_facts(&condition, &body, &observation).expect("Ok");
         let facts = facts.expect("Some");
 
         assert_eq!(facts.loop_var, "i");
@@ -364,8 +363,7 @@ mod tests {
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
         let facts =
-            try_extract_bool_predicate_scan_facts(&condition, &body, &observation)
-                .expect("Ok");
+            try_extract_bool_predicate_scan_facts(&condition, &body, &observation).expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -386,8 +384,7 @@ mod tests {
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
         let facts =
-            try_extract_bool_predicate_scan_facts(&condition, &body, &observation)
-                .expect("Ok");
+            try_extract_bool_predicate_scan_facts(&condition, &body, &observation).expect("Ok");
         assert!(facts.is_none());
     }
 }

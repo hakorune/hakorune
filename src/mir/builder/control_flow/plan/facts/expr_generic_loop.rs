@@ -58,9 +58,9 @@ pub(in crate::mir::builder) fn is_supported_value_expr_for_generic_loop(ast: &AS
                     .all(|(_, expr)| is_supported_value_expr_for_generic_loop(expr))
                 && is_supported_value_expr_for_generic_loop(else_expr)
         }
-        ASTNode::ArrayLiteral { elements, .. } => {
-            elements.iter().all(is_supported_value_expr_for_generic_loop)
-        }
+        ASTNode::ArrayLiteral { elements, .. } => elements
+            .iter()
+            .all(is_supported_value_expr_for_generic_loop),
         ASTNode::MapLiteral { entries, .. } => entries
             .iter()
             .all(|(_, value)| is_supported_value_expr_for_generic_loop(value)),

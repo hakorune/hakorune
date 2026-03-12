@@ -1,8 +1,6 @@
 //! Phase 29ai P0: Loop scan shape enums — skeleton
 
-use crate::mir::policies::{
-    BoundExpr, CmpOp, CondParam, CondProfile, CondSkeleton, StepExpr,
-};
+use crate::mir::policies::{BoundExpr, CmpOp, CondParam, CondProfile, CondSkeleton, StepExpr};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum LengthMethod {
@@ -106,9 +104,7 @@ pub(in crate::mir::builder) fn match_scan_with_init_shape(
     }
 }
 
-pub(in crate::mir::builder) fn loop_var_from_profile(
-    cond_profile: &CondProfile,
-) -> Option<String> {
+pub(in crate::mir::builder) fn loop_var_from_profile(cond_profile: &CondProfile) -> Option<String> {
     cond_profile.loop_var_name().map(|s| s.to_string())
 }
 
@@ -158,9 +154,7 @@ fn extract_reverse_scan_profile(cond_profile: &CondProfile) -> Option<String> {
     Some(loop_var)
 }
 
-pub(in crate::mir::builder) fn step_delta_from_profile(
-    cond_profile: &CondProfile,
-) -> Option<i64> {
+pub(in crate::mir::builder) fn step_delta_from_profile(cond_profile: &CondProfile) -> Option<i64> {
     cond_profile.params.iter().find_map(|param| {
         if let CondParam::Step(StepExpr::Delta(k)) = param {
             Some(*k)

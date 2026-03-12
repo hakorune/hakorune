@@ -1,11 +1,11 @@
 //! Scan with init facts extraction
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+use super::loop_types::ScanWithInitFacts;
 use super::scan_shapes::{
     loop_var_from_profile, match_scan_with_init_shape, scan_condition_observation,
     step_delta_from_profile, ConditionShape, StepShape,
 };
-use super::loop_types::ScanWithInitFacts;
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 pub(super) fn try_extract_scan_with_init_facts(
@@ -23,19 +23,18 @@ pub(super) fn try_extract_scan_with_init_facts(
     let observation = scan_condition_observation(condition_shape, step_shape);
     let profile_loop_var = loop_var_from_profile(&observation.cond_profile);
     let candidate_idx_var = profile_loop_var.as_deref();
-    let (candidate_expected_haystack, candidate_dynamic_needle, expected_step) = match condition_shape {
-        ConditionShape::VarLessLength {
-            haystack_var,
-            ..
-        } => (Some(haystack_var.as_str()), false, Some(1)),
-        ConditionShape::VarLessLiteral { .. } => (None, false, None),
-        ConditionShape::VarLessEqualLengthMinusNeedle {
-            haystack_var,
-            ..
-        } => (Some(haystack_var.as_str()), true, Some(1)),
-        ConditionShape::VarGreaterEqualZero { .. } => (None, false, Some(-1)),
-        ConditionShape::Unknown => (None, false, None),
-    };
+    let (candidate_expected_haystack, candidate_dynamic_needle, expected_step) =
+        match condition_shape {
+            ConditionShape::VarLessLength { haystack_var, .. } => {
+                (Some(haystack_var.as_str()), false, Some(1))
+            }
+            ConditionShape::VarLessLiteral { .. } => (None, false, None),
+            ConditionShape::VarLessEqualLengthMinusNeedle { haystack_var, .. } => {
+                (Some(haystack_var.as_str()), true, Some(1))
+            }
+            ConditionShape::VarGreaterEqualZero { .. } => (None, false, Some(-1)),
+            ConditionShape::Unknown => (None, false, None),
+        };
     let candidate_needle_var = None; // Derived from CondProfile, not shape
     if let (Some(idx_var), Some(expected_step)) = (candidate_idx_var, expected_step) {
         let step_lit_candidate = match step_shape {
@@ -224,15 +223,13 @@ fn find_scan_if_return(
                     _ => continue,
                 };
 
-                let ASTNode::Variable { name: needle_var, .. } = right.as_ref() else {
+                let ASTNode::Variable {
+                    name: needle_var, ..
+                } = right.as_ref()
+                else {
                     continue;
                 };
-                Some((
-                    resolved_haystack,
-                    needle_var.clone(),
-                    is_dynamic,
-                    len_var,
-                ))
+                Some((resolved_haystack, needle_var.clone(), is_dynamic, len_var))
             } else if method == "starts_with"
                 && arguments.len() == 3
                 && matches!(
@@ -249,7 +246,10 @@ fn find_scan_if_return(
                 let ASTNode::Variable { name: idx_name, .. } = &arguments[1] else {
                     continue;
                 };
-                let ASTNode::Variable { name: needle_var, .. } = &arguments[2] else {
+                let ASTNode::Variable {
+                    name: needle_var, ..
+                } = &arguments[2]
+                else {
                     continue;
                 };
                 if idx_name != idx_var {
@@ -274,9 +274,7 @@ fn find_scan_if_return(
                 None
             }
         } else if let ASTNode::MethodCall {
-            method,
-            arguments,
-            ..
+            method, arguments, ..
         } = condition.as_ref()
         {
             if method != "starts_with" || arguments.len() != 3 {
@@ -288,7 +286,10 @@ fn find_scan_if_return(
             let ASTNode::Variable { name: idx_name, .. } = &arguments[1] else {
                 continue;
             };
-            let ASTNode::Variable { name: needle_var, .. } = &arguments[2] else {
+            let ASTNode::Variable {
+                name: needle_var, ..
+            } = &arguments[2]
+            else {
                 continue;
             };
             if idx_name != idx_var {

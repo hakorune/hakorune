@@ -133,7 +133,9 @@ fn extract_trim_break_condition(stmt: &ASTNode, loop_var: &str) -> Option<ASTNod
     }
 
     let whitespace_call = match condition.as_ref() {
-        ASTNode::UnaryOp { operator, operand, .. } => {
+        ASTNode::UnaryOp {
+            operator, operand, ..
+        } => {
             use crate::ast::UnaryOperator;
             if !matches!(operator, UnaryOperator::Not) {
                 return None;
@@ -221,13 +223,7 @@ fn match_trim_header_condition(
     let haystack_var = haystack_var?;
     let direction = direction?;
 
-    Some((
-        loop_var,
-        bound,
-        haystack_var,
-        direction,
-        delimiters,
-    ))
+    Some((loop_var, bound, haystack_var, direction, delimiters))
 }
 
 fn match_bound_condition(condition: &ASTNode) -> Option<String> {
@@ -260,23 +256,17 @@ fn collect_whitespace_terms(
             right,
             ..
         } => {
-            collect_whitespace_terms(
-                left.as_ref(),
-                loop_var,
-                haystack_var,
-                direction,
-                delimiters,
-            ) && collect_whitespace_terms(
-                right.as_ref(),
-                loop_var,
-                haystack_var,
-                direction,
-                delimiters,
-            )
+            collect_whitespace_terms(left.as_ref(), loop_var, haystack_var, direction, delimiters)
+                && collect_whitespace_terms(
+                    right.as_ref(),
+                    loop_var,
+                    haystack_var,
+                    direction,
+                    delimiters,
+                )
         }
         _ => {
-            let Some((delim, haystack, term_dir)) =
-                match_substring_equals_literal(expr, loop_var)
+            let Some((delim, haystack, term_dir)) = match_substring_equals_literal(expr, loop_var)
             else {
                 return false;
             };
@@ -314,11 +304,13 @@ fn match_substring_equals_literal(
         return None;
     };
 
-    if let Some((lit, haystack, dir)) = match_substring_side(left.as_ref(), right.as_ref(), loop_var)
+    if let Some((lit, haystack, dir)) =
+        match_substring_side(left.as_ref(), right.as_ref(), loop_var)
     {
         return Some((lit, haystack, dir));
     }
-    if let Some((lit, haystack, dir)) = match_substring_side(right.as_ref(), left.as_ref(), loop_var)
+    if let Some((lit, haystack, dir)) =
+        match_substring_side(right.as_ref(), left.as_ref(), loop_var)
     {
         return Some((lit, haystack, dir));
     }
@@ -424,7 +416,12 @@ fn build_not_whitespace_condition(
     iter.fold(first, |acc, delim| ASTNode::BinaryOp {
         operator: BinaryOperator::And,
         left: Box::new(acc),
-        right: Box::new(build_mismatch_expr(loop_var, haystack_var, direction, delim)),
+        right: Box::new(build_mismatch_expr(
+            loop_var,
+            haystack_var,
+            direction,
+            delim,
+        )),
         span: Span::unknown(),
     })
 }
@@ -490,8 +487,12 @@ fn match_is_whitespace_call(expr: &ASTNode, loop_var: &str) -> Option<ASTNode> {
         return None;
     }
     let normalized_object = match object.as_ref() {
-        ASTNode::This { .. } => ASTNode::This { span: Span::unknown() },
-        ASTNode::Me { .. } => ASTNode::This { span: Span::unknown() },
+        ASTNode::This { .. } => ASTNode::This {
+            span: Span::unknown(),
+        },
+        ASTNode::Me { .. } => ASTNode::This {
+            span: Span::unknown(),
+        },
         _ => return None,
     };
     if !matches_substring_at_loop_var(&arguments[0], loop_var) {

@@ -1,8 +1,8 @@
 //! Split scan facts extraction
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-use super::scan_shapes::SplitScanShape;
 use super::loop_types::SplitScanFacts;
+use super::scan_shapes::SplitScanShape;
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 pub(super) fn try_extract_split_scan_facts(
@@ -33,10 +33,9 @@ pub(super) fn try_extract_split_scan_facts(
         return Ok(None);
     }
 
-    let Some((result_var, start_var)) =
-        then_body
-            .iter()
-            .find_map(|stmt| extract_split_scan_then_push(stmt, &s_var, &i_var))
+    let Some((result_var, start_var)) = then_body
+        .iter()
+        .find_map(|stmt| extract_split_scan_then_push(stmt, &s_var, &i_var))
     else {
         return Err(Freeze::contract(
             "[joinir/phase29ab/split_scan/contract] splitscan contract: missing result push",
@@ -159,12 +158,7 @@ fn is_split_scan_match_condition(
     matches_left || matches_right
 }
 
-fn is_substring_i_plus_sep_len(
-    expr: &ASTNode,
-    s_var: &str,
-    i_var: &str,
-    sep_var: &str,
-) -> bool {
+fn is_substring_i_plus_sep_len(expr: &ASTNode, s_var: &str, i_var: &str, sep_var: &str) -> bool {
     let ASTNode::MethodCall {
         object,
         method,
@@ -228,7 +222,10 @@ fn extract_split_scan_then_push(
     if method != "push" || arguments.len() != 1 {
         return None;
     }
-    let ASTNode::Variable { name: result_var, .. } = object.as_ref() else {
+    let ASTNode::Variable {
+        name: result_var, ..
+    } = object.as_ref()
+    else {
         return None;
     };
     let ASTNode::MethodCall {
@@ -243,13 +240,19 @@ fn extract_split_scan_then_push(
     if substr_method != "substring" || substr_args.len() != 2 {
         return None;
     }
-    let ASTNode::Variable { name: substr_obj, .. } = substr_object.as_ref() else {
+    let ASTNode::Variable {
+        name: substr_obj, ..
+    } = substr_object.as_ref()
+    else {
         return None;
     };
     if substr_obj != s_var {
         return None;
     }
-    let ASTNode::Variable { name: start_var, .. } = &substr_args[0] else {
+    let ASTNode::Variable {
+        name: start_var, ..
+    } = &substr_args[0]
+    else {
         return None;
     };
     match &substr_args[1] {

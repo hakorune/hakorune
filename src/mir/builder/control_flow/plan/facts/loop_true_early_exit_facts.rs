@@ -1,11 +1,11 @@
 //! Phase 29aj P5: loop_true_early_exit facts (SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator};
+use crate::mir::builder::control_flow::plan::domain::LoopTrueEarlyExitKind;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, extract_loop_increment_plan, is_true_literal, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::domain::LoopTrueEarlyExitKind;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopTrueEarlyExitFacts {
@@ -247,7 +247,9 @@ mod tests {
     fn if_break(cond: ASTNode) -> ASTNode {
         ASTNode::If {
             condition: Box::new(cond),
-            then_body: vec![ASTNode::Break { span: Span::unknown() }],
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
             else_body: None,
             span: Span::unknown(),
         }
@@ -256,8 +258,12 @@ mod tests {
     fn if_break_else(cond: ASTNode) -> ASTNode {
         ASTNode::If {
             condition: Box::new(cond),
-            then_body: vec![ASTNode::Break { span: Span::unknown() }],
-            else_body: Some(vec![ASTNode::Continue { span: Span::unknown() }]),
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
+            else_body: Some(vec![ASTNode::Continue {
+                span: Span::unknown(),
+            }]),
             span: Span::unknown(),
         }
     }
@@ -265,13 +271,9 @@ mod tests {
     #[test]
     fn facts_extracts_loop_true_early_exit_return_success() {
         let condition = lit_true();
-        let body = vec![
-            if_return(v("done"), Some(v("value"))),
-            increment("i"),
-        ];
+        let body = vec![if_return(v("done"), Some(v("value"))), increment("i")];
 
-        let facts = try_extract_loop_true_early_exit_facts(&condition, &body)
-            .expect("Ok");
+        let facts = try_extract_loop_true_early_exit_facts(&condition, &body).expect("Ok");
         let facts = facts.expect("Some");
 
         assert_eq!(facts.loop_var, "i");
@@ -288,8 +290,7 @@ mod tests {
             increment("i"),
         ];
 
-        let facts = try_extract_loop_true_early_exit_facts(&condition, &body)
-            .expect("Ok");
+        let facts = try_extract_loop_true_early_exit_facts(&condition, &body).expect("Ok");
         let facts = facts.expect("Some");
 
         assert_eq!(facts.loop_var, "i");
@@ -302,8 +303,7 @@ mod tests {
         let condition = lit_true();
         let body = vec![if_break_else(v("done")), increment("i")];
 
-        let facts = try_extract_loop_true_early_exit_facts(&condition, &body)
-            .expect("Ok");
+        let facts = try_extract_loop_true_early_exit_facts(&condition, &body).expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -312,8 +312,7 @@ mod tests {
         let condition = lit_true();
         let body = vec![if_return(v("done"), None)];
 
-        let facts = try_extract_loop_true_early_exit_facts(&condition, &body)
-            .expect("Ok");
+        let facts = try_extract_loop_true_early_exit_facts(&condition, &body).expect("Ok");
         assert!(facts.is_none());
     }
 }

@@ -2,8 +2,8 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
-    extract_loop_increment_plan, has_break_statement, has_continue_statement, has_if_else_statement,
-    has_return_statement,
+    extract_loop_increment_plan, has_break_statement, has_continue_statement,
+    has_if_else_statement, has_return_statement,
 };
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     loop_var_from_profile, step_delta_from_profile, ConditionShape, ScanConditionObservation,
@@ -31,8 +31,7 @@ pub(in crate::mir::builder) fn try_extract_loop_array_join_facts(
 ) -> Result<Option<LoopArrayJoinFacts>, Freeze> {
     let condition_shape = &observation.condition_shape;
     let step_shape = &observation.step_shape;
-    let ConditionShape::VarLessLength { haystack_var, .. } = condition_shape
-    else {
+    let ConditionShape::VarLessLength { haystack_var, .. } = condition_shape else {
         return Ok(None);
     };
 
@@ -99,10 +98,7 @@ pub(in crate::mir::builder) fn try_extract_loop_array_join_facts(
     }))
 }
 
-fn extract_separator_guard(
-    stmt: &ASTNode,
-    idx_var: &str,
-) -> Option<(ASTNode, String, String)> {
+fn extract_separator_guard(stmt: &ASTNode, idx_var: &str) -> Option<(ASTNode, String, String)> {
     let ASTNode::If {
         condition,
         then_body,
@@ -150,7 +146,10 @@ fn extract_append_with_separator(stmt: &ASTNode) -> Option<(String, String)> {
         return None;
     };
 
-    let ASTNode::Variable { name: result_var, .. } = target.as_ref() else {
+    let ASTNode::Variable {
+        name: result_var, ..
+    } = target.as_ref()
+    else {
         return None;
     };
 
@@ -168,7 +167,11 @@ fn extract_append_with_separator(stmt: &ASTNode) -> Option<(String, String)> {
         return None;
     }
 
-    let ASTNode::Variable { name: separator_var, .. } = right.as_ref() else {
+    let ASTNode::Variable {
+        name: separator_var,
+        ..
+    } = right.as_ref()
+    else {
         return None;
     };
 
@@ -180,7 +183,10 @@ fn extract_array_append(stmt: &ASTNode, idx_var: &str) -> Option<(String, String
         return None;
     };
 
-    let ASTNode::Variable { name: result_var, .. } = target.as_ref() else {
+    let ASTNode::Variable {
+        name: result_var, ..
+    } = target.as_ref()
+    else {
         return None;
     };
 
@@ -212,7 +218,10 @@ fn extract_array_append(stmt: &ASTNode, idx_var: &str) -> Option<(String, String
         return None;
     }
 
-    let ASTNode::Variable { name: array_var, .. } = object.as_ref() else {
+    let ASTNode::Variable {
+        name: array_var, ..
+    } = object.as_ref()
+    else {
         return None;
     };
 
@@ -281,7 +290,10 @@ mod tests {
         let body = vec![
             ASTNode::If {
                 condition: Box::new(binop(BinaryOperator::Greater, v("i"), lit_int(0))),
-                then_body: vec![assign("result", binop(BinaryOperator::Add, v("result"), v("sep")))],
+                then_body: vec![assign(
+                    "result",
+                    binop(BinaryOperator::Add, v("result"), v("sep")),
+                )],
                 else_body: None,
                 span: Span::unknown(),
             },
@@ -307,8 +319,8 @@ mod tests {
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
         let facts = try_extract_loop_array_join_facts(&condition, &body, &observation)
-        .expect("Ok")
-        .expect("Some facts");
+            .expect("Ok")
+            .expect("Some facts");
 
         assert_eq!(facts.loop_var, "i");
         assert_eq!(facts.array_var, "arr");
@@ -327,7 +339,10 @@ mod tests {
         let body = vec![
             ASTNode::If {
                 condition: Box::new(binop(BinaryOperator::Greater, v("i"), lit_int(0))),
-                then_body: vec![assign("result", binop(BinaryOperator::Add, v("result"), v("sep")))],
+                then_body: vec![assign(
+                    "result",
+                    binop(BinaryOperator::Add, v("result"), v("sep")),
+                )],
                 else_body: Some(vec![assign("result", v("result"))]),
                 span: Span::unknown(),
             },
@@ -352,8 +367,7 @@ mod tests {
         };
 
         let observation = scan_condition_observation(&condition_shape, &step_shape);
-        let facts =
-            try_extract_loop_array_join_facts(&condition, &body, &observation).expect("Ok");
+        let facts = try_extract_loop_array_join_facts(&condition, &body, &observation).expect("Ok");
         assert!(facts.is_none());
     }
 }

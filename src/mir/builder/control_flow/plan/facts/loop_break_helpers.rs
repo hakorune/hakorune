@@ -19,7 +19,10 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn var(name: &str) -> AST
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn add(left: ASTNode, right: ASTNode) -> ASTNode {
+pub(in crate::mir::builder::control_flow::plan::facts) fn add(
+    left: ASTNode,
+    right: ASTNode,
+) -> ASTNode {
     ASTNode::BinaryOp {
         operator: BinaryOperator::Add,
         left: Box::new(left),
@@ -58,7 +61,11 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn length_call(obj: &str)
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call(haystack: &str, sep: &str, loop_var: &str) -> ASTNode {
+pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call(
+    haystack: &str,
+    sep: &str,
+    loop_var: &str,
+) -> ASTNode {
     ASTNode::MethodCall {
         object: Box::new(var(haystack)),
         method: "indexOf".to_string(),
@@ -67,7 +74,10 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call(haystack
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call_expr(haystack: &str, needle: ASTNode) -> ASTNode {
+pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call_expr(
+    haystack: &str,
+    needle: ASTNode,
+) -> ASTNode {
     ASTNode::MethodCall {
         object: Box::new(var(haystack)),
         method: "indexOf".to_string(),
@@ -76,7 +86,11 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call_expr(hay
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn substring_call(haystack: &str, start: ASTNode, end: ASTNode) -> ASTNode {
+pub(in crate::mir::builder::control_flow::plan::facts) fn substring_call(
+    haystack: &str,
+    start: ASTNode,
+    end: ASTNode,
+) -> ASTNode {
     ASTNode::MethodCall {
         object: Box::new(var(haystack)),
         method: "substring".to_string(),
@@ -89,12 +103,16 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn substring_call(haystac
 // Section: Control Flow Helpers
 // ============================================================================
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn has_continue_statement(body: &[ASTNode]) -> bool {
+pub(in crate::mir::builder::control_flow::plan::facts) fn has_continue_statement(
+    body: &[ASTNode],
+) -> bool {
     use crate::mir::builder::control_flow::plan::extractors::common_helpers::has_continue_statement as common_has_continue;
     common_has_continue(body)
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn has_return_statement(body: &[ASTNode]) -> bool {
+pub(in crate::mir::builder::control_flow::plan::facts) fn has_return_statement(
+    body: &[ASTNode],
+) -> bool {
     use crate::mir::builder::control_flow::plan::extractors::common_helpers::has_return_statement as common_has_return;
     common_has_return(body)
 }
@@ -103,7 +121,9 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn has_return_statement(b
 // Section: Break/If Pattern Extraction
 // ============================================================================
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_break_if_parts(stmt: &ASTNode) -> Option<(ASTNode, Option<ASTNode>)> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn extract_break_if_parts(
+    stmt: &ASTNode,
+) -> Option<(ASTNode, Option<ASTNode>)> {
     let ASTNode::If {
         condition,
         then_body,
@@ -139,7 +159,9 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_break_if_parts
     Some((condition.as_ref().clone(), carrier_update_in_break))
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn find_break_if_parts(body: &[ASTNode]) -> Option<(usize, ASTNode, Option<ASTNode>)> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn find_break_if_parts(
+    body: &[ASTNode],
+) -> Option<(usize, ASTNode, Option<ASTNode>)> {
     for (idx, stmt) in body.iter().enumerate() {
         if let Some(parts) = extract_break_if_parts(stmt) {
             return Some((idx, parts.0, parts.1));
@@ -160,7 +182,8 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_substring_
         variables,
         initial_values,
         ..
-    } = stmt else {
+    } = stmt
+    else {
         return None;
     };
     if variables.len() != 1 || initial_values.len() != 1 {
@@ -175,13 +198,17 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_substring_
         method,
         arguments,
         ..
-    } = expr.as_ref() else {
+    } = expr.as_ref()
+    else {
         return None;
     };
     if method != "substring" || arguments.len() != 2 {
         return None;
     }
-    let ASTNode::Variable { name: haystack_var, .. } = object.as_ref() else {
+    let ASTNode::Variable {
+        name: haystack_var, ..
+    } = object.as_ref()
+    else {
         return None;
     };
     if !matches!(&arguments[0], ASTNode::Variable { name, .. } if name == loop_var) {
@@ -214,12 +241,16 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_substring_
     Some((ch_var, haystack_var.clone(), expr.as_ref().clone()))
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_this_index_of(stmt: &ASTNode, ch_var: &str) -> Option<(String, String)> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_this_index_of(
+    stmt: &ASTNode,
+    ch_var: &str,
+) -> Option<(String, String)> {
     let ASTNode::Local {
         variables,
         initial_values,
         ..
-    } = stmt else {
+    } = stmt
+    else {
         return None;
     };
     if variables.len() != 1 || initial_values.len() != 1 {
@@ -234,7 +265,8 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_this_index
         method,
         arguments,
         ..
-    } = expr.as_ref() else {
+    } = expr.as_ref()
+    else {
         return None;
     };
     if method != "index_of" || arguments.len() != 2 {
@@ -243,7 +275,10 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_this_index
     if !matches!(object.as_ref(), ASTNode::This { .. } | ASTNode::Me { .. }) {
         return None;
     }
-    let ASTNode::Variable { name: digits_var, .. } = &arguments[0] else {
+    let ASTNode::Variable {
+        name: digits_var, ..
+    } = &arguments[0]
+    else {
         return None;
     };
     if !matches!(&arguments[1], ASTNode::Variable { name, .. } if name == ch_var) {
@@ -253,7 +288,9 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_this_index
     Some((digits_var.clone(), d_var))
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_indexof_local(stmt: &ASTNode) -> Option<(String, String, String, String)> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn match_indexof_local(
+    stmt: &ASTNode,
+) -> Option<(String, String, String, String)> {
     let ASTNode::Local {
         variables,
         initial_values,
@@ -281,7 +318,10 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_indexof_local(st
     if method != "indexOf" || arguments.len() != 2 {
         return None;
     }
-    let ASTNode::Variable { name: haystack_var, .. } = object.as_ref() else {
+    let ASTNode::Variable {
+        name: haystack_var, ..
+    } = object.as_ref()
+    else {
         return None;
     };
     let ASTNode::Literal {
@@ -303,7 +343,9 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_indexof_local(st
     ))
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_empty_string(stmt: &ASTNode) -> Option<String> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_empty_string(
+    stmt: &ASTNode,
+) -> Option<String> {
     let ASTNode::Local {
         variables,
         initial_values,
@@ -332,7 +374,10 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_empty_stri
     Some(seg_var)
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn find_local_init_expr(body: &[ASTNode], name: &str) -> Option<ASTNode> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn find_local_init_expr(
+    body: &[ASTNode],
+    name: &str,
+) -> Option<ASTNode> {
     for stmt in body {
         let ASTNode::Local {
             variables,
@@ -360,7 +405,9 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn find_local_init_expr(b
 // Section: Condition Matching
 // ============================================================================
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if_less_than_zero(stmt: &ASTNode) -> Option<String> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if_less_than_zero(
+    stmt: &ASTNode,
+) -> Option<String> {
     let (cond, update_opt) = extract_break_if_parts(stmt)?;
     if update_opt.is_some() {
         return None;
@@ -370,7 +417,8 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if_less_th
         left,
         right,
         ..
-    } = cond else {
+    } = cond
+    else {
         return None;
     };
     let ASTNode::Variable { name, .. } = left.as_ref() else {
@@ -388,11 +436,17 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if_less_th
     Some(name.clone())
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_acc_update_mul10_plus_d(stmt: &ASTNode, d_var: &str) -> Option<String> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn match_acc_update_mul10_plus_d(
+    stmt: &ASTNode,
+    d_var: &str,
+) -> Option<String> {
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return None;
     };
-    let ASTNode::Variable { name: carrier_var, .. } = target.as_ref() else {
+    let ASTNode::Variable {
+        name: carrier_var, ..
+    } = target.as_ref()
+    else {
         return None;
     };
     let ASTNode::BinaryOp {
@@ -400,7 +454,8 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_acc_update_mul10
         left,
         right,
         ..
-    } = value.as_ref() else {
+    } = value.as_ref()
+    else {
         return None;
     };
 
@@ -436,7 +491,10 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_acc_update_mul10
     Some(carrier_var.clone())
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn matches_ge_zero(node: &ASTNode, var_name: &str) -> bool {
+pub(in crate::mir::builder::control_flow::plan::facts) fn matches_ge_zero(
+    node: &ASTNode,
+    var_name: &str,
+) -> bool {
     let ASTNode::BinaryOp {
         operator: BinaryOperator::GreaterEqual,
         left,
@@ -456,7 +514,10 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn matches_ge_zero(node: 
         )
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn matches_eq_empty_string(node: &ASTNode, var_name: &str) -> bool {
+pub(in crate::mir::builder::control_flow::plan::facts) fn matches_eq_empty_string(
+    node: &ASTNode,
+    var_name: &str,
+) -> bool {
     let ASTNode::BinaryOp {
         operator: BinaryOperator::Equal,
         left,
@@ -487,7 +548,9 @@ fn matches_eq_empty_string_sides(var_node: &ASTNode, lit_node: &ASTNode, var_nam
 // Section: Trim Whitespace Helpers
 // ============================================================================
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_loop_var(condition: &ASTNode) -> Option<String> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_loop_var(
+    condition: &ASTNode,
+) -> Option<String> {
     let ASTNode::BinaryOp {
         operator,
         left,
@@ -530,7 +593,10 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_loop_var(
     None
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_break_condition(stmt: &ASTNode, loop_var: &str) -> Option<ASTNode> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_break_condition(
+    stmt: &ASTNode,
+    loop_var: &str,
+) -> Option<ASTNode> {
     let ASTNode::If {
         condition,
         then_body,
@@ -548,7 +614,9 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_break_con
     }
 
     let whitespace_call = match condition.as_ref() {
-        ASTNode::UnaryOp { operator, operand, .. } => {
+        ASTNode::UnaryOp {
+            operator, operand, ..
+        } => {
             use crate::ast::UnaryOperator;
             if !matches!(operator, UnaryOperator::Not) {
                 return None;
@@ -606,8 +674,12 @@ fn match_is_whitespace_call(expr: &ASTNode, loop_var: &str) -> Option<ASTNode> {
         return None;
     }
     let normalized_object = match object.as_ref() {
-        ASTNode::This { .. } => ASTNode::This { span: Span::unknown() },
-        ASTNode::Me { .. } => ASTNode::This { span: Span::unknown() },
+        ASTNode::This { .. } => ASTNode::This {
+            span: Span::unknown(),
+        },
+        ASTNode::Me { .. } => ASTNode::This {
+            span: Span::unknown(),
+        },
         _ => return None,
     };
     if !matches_substring_at_loop_var(&arguments[0], loop_var) {
@@ -660,7 +732,10 @@ fn matches_substring_at_loop_var(expr: &ASTNode, loop_var: &str) -> bool {
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_loop_increment(stmt: &ASTNode, loop_var: &str) -> Option<ASTNode> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_loop_increment(
+    stmt: &ASTNode,
+    loop_var: &str,
+) -> Option<ASTNode> {
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return None;
     };
@@ -698,7 +773,9 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_loop_incr
 // Section: Loop Variable Extraction
 // ============================================================================
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_var_for_len_condition(condition: &ASTNode) -> Option<String> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_var_for_len_condition(
+    condition: &ASTNode,
+) -> Option<String> {
     let ASTNode::BinaryOp {
         operator: BinaryOperator::Less | BinaryOperator::LessEqual,
         left,
@@ -724,7 +801,9 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_var_for_l
 }
 
 /// Extract loop variable from `i < N` condition where N is an integer literal.
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_var_for_plan_subset(condition: &ASTNode) -> Option<String> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_var_for_plan_subset(
+    condition: &ASTNode,
+) -> Option<String> {
     let ASTNode::BinaryOp {
         operator: BinaryOperator::Less,
         left,
@@ -750,7 +829,10 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_var_for_p
     Some(name.clone())
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_increment_at_end(body: &[ASTNode], loop_var: &str) -> Option<ASTNode> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_increment_at_end(
+    body: &[ASTNode],
+    loop_var: &str,
+) -> Option<ASTNode> {
     let last = body.last()?;
     let ASTNode::Assignment { target, value, .. } = last else {
         return None;
@@ -785,7 +867,11 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_increment
     Some(value.as_ref().clone())
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn has_assignment_after(body: &[ASTNode], start_idx: usize, var_name: &str) -> bool {
+pub(in crate::mir::builder::control_flow::plan::facts) fn has_assignment_after(
+    body: &[ASTNode],
+    start_idx: usize,
+    var_name: &str,
+) -> bool {
     for stmt in body.iter().skip(start_idx + 1) {
         let ASTNode::Assignment { target, .. } = stmt else {
             continue;
@@ -885,7 +971,10 @@ fn matches_substring_args(
     if arguments.len() != 2 {
         return false;
     }
-    let ASTNode::Variable { name: start_var, .. } = &arguments[0] else {
+    let ASTNode::Variable {
+        name: start_var, ..
+    } = &arguments[0]
+    else {
         return false;
     };
     if start_var != loop_var {
@@ -894,7 +983,16 @@ fn matches_substring_args(
 
     match (&arguments[1], end_var, end_length_of) {
         (ASTNode::Variable { name, .. }, Some(var), None) => name == var,
-        (ASTNode::MethodCall { object, method, arguments, .. }, None, Some(owner)) => {
+        (
+            ASTNode::MethodCall {
+                object,
+                method,
+                arguments,
+                ..
+            },
+            None,
+            Some(owner),
+        ) => {
             if method != "length" || !arguments.is_empty() {
                 return false;
             }
@@ -904,7 +1002,10 @@ fn matches_substring_args(
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if(stmt: &ASTNode, seg_var: &str) -> Option<bool> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if(
+    stmt: &ASTNode,
+    seg_var: &str,
+) -> Option<bool> {
     let ASTNode::If {
         condition,
         then_body,
@@ -953,7 +1054,8 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_loop_increment(
     if !matches!(left.as_ref(), ASTNode::Variable { name, .. } if name == j_var) {
         return None;
     }
-    if !matches!(right.as_ref(), ASTNode::Literal { value: LiteralValue::Integer(v), .. } if *v == sep_len) {
+    if !matches!(right.as_ref(), ASTNode::Literal { value: LiteralValue::Integer(v), .. } if *v == sep_len)
+    {
         return None;
     }
     Some(true)

@@ -107,7 +107,9 @@ fn match_mismatch_if_return_zero(stmt: &ASTNode, loop_var: &str) -> Option<ASTNo
     }
 
     match then_body.first()? {
-        ASTNode::Return { value: Some(ret), .. } => {
+        ASTNode::Return {
+            value: Some(ret), ..
+        } => {
             if !matches!(
                 ret.as_ref(),
                 ASTNode::Literal {
@@ -227,10 +229,16 @@ fn match_add_vars(expr: &ASTNode) -> Option<(&str, &str)> {
     else {
         return None;
     };
-    let ASTNode::Variable { name: left_name, .. } = left.as_ref() else {
+    let ASTNode::Variable {
+        name: left_name, ..
+    } = left.as_ref()
+    else {
         return None;
     };
-    let ASTNode::Variable { name: right_name, .. } = right.as_ref() else {
+    let ASTNode::Variable {
+        name: right_name, ..
+    } = right.as_ref()
+    else {
         return None;
     };
     Some((left_name.as_str(), right_name.as_str()))

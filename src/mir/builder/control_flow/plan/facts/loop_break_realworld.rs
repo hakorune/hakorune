@@ -5,7 +5,7 @@ use super::loop_break_helpers::{
 use super::loop_break_types::LoopBreakFacts;
 use crate::ast::{ASTNode, BinaryOperator, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
-    count_control_flow, ControlFlowDetector, is_true_literal,
+    count_control_flow, is_true_literal, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
@@ -26,17 +26,10 @@ pub(super) fn try_extract_loop_break_realworld_subset(
         return None;
     }
 
-    let (j_var, haystack_var, sep_lit, loop_var) =
-        match_indexof_local(&body[0])?;
+    let (j_var, haystack_var, sep_lit, loop_var) = match_indexof_local(&body[0])?;
     let seg_var = match_local_empty_string(&body[1])?;
 
-    if !match_seg_if_else(
-        &body[2],
-        &j_var,
-        &seg_var,
-        &haystack_var,
-        &loop_var,
-    )? {
+    if !match_seg_if_else(&body[2], &j_var, &seg_var, &haystack_var, &loop_var)? {
         return None;
     }
 
@@ -59,7 +52,11 @@ pub(super) fn try_extract_loop_break_realworld_subset(
     let index_expr = index_of_call(&haystack_var, &sep_lit, &loop_var);
     let break_condition = ASTNode::BinaryOp {
         operator: BinaryOperator::Equal,
-        left: Box::new(substring_call(&haystack_var, var(&loop_var), index_expr.clone())),
+        left: Box::new(substring_call(
+            &haystack_var,
+            var(&loop_var),
+            index_expr.clone(),
+        )),
         right: Box::new(lit_str("")),
         span: Span::unknown(),
     };

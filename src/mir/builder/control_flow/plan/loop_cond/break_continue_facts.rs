@@ -13,15 +13,17 @@ use crate::mir::builder::control_flow::plan::facts::reject_reason::{
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 use super::break_continue_accept::determine_accept_kind;
-use super::break_continue_helpers::{collect_continue_branch_sigs, detect_handled_guard_break, matches_parse_string2_shape};
+use super::break_continue_helpers::{
+    collect_continue_branch_sigs, detect_handled_guard_break, matches_parse_string2_shape,
+};
 use super::break_continue_item::build_loop_cond_break_continue_recipe;
 use super::break_continue_recipe::{LoopCondBreakContinueItem, LoopCondBreakContinueRecipe};
 use super::break_continue_types::{LoopCondBreakAcceptKind, LoopCondBreakContinueFacts};
 use super::break_continue_validator_exit::returns_only_in_exit_if;
-use crate::mir::policies::BodyLoweringPolicy;
 use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
+use crate::mir::policies::BodyLoweringPolicy;
 
 /// Core extraction function for loop_cond_break_continue facts.
 ///
@@ -74,8 +76,7 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
     };
     if counts.return_count > 0 {
         let returns_shape_ok = returns_only_in_exit_if(body, allow_extended);
-        let allow_return_via_exit_allowed =
-            allow_extended && body_exit_allowed_probe.is_some();
+        let allow_return_via_exit_allowed = allow_extended && body_exit_allowed_probe.is_some();
         if !allow_extended || (!returns_shape_ok && !allow_return_via_exit_allowed) {
             log_reject(
                 "loop_cond_break_continue",
@@ -112,17 +113,19 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
     ) {
         Some(recipe) => recipe,
         None => {
-            if let Some(recipe) =
-                try_build_exit_free_if_stmt_recipe(body, allow_extended, &mut conditional_update_seen)
-            {
+            if let Some(recipe) = try_build_exit_free_if_stmt_recipe(
+                body,
+                allow_extended,
+                &mut conditional_update_seen,
+            ) {
                 recipe
             } else {
-            log_reject(
-                "loop_cond_break_continue",
-                RejectReason::UnsupportedStmt,
-                handoff_tables::for_loop_cond_break_continue,
-            );
-            return Ok(None);
+                log_reject(
+                    "loop_cond_break_continue",
+                    RejectReason::UnsupportedStmt,
+                    handoff_tables::for_loop_cond_break_continue,
+                );
+                return Ok(None);
             }
         }
     };
@@ -142,7 +145,10 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
     // lowering can collapse branch-specific values onto a shared predecessor and violate dominance.
     // Let other loop routes handle these shapes.
     let has_stmt_only_exit_if_payload = recipe.items.iter().any(|item| {
-        let LoopCondBreakContinueItem::ExitIf { block: Some(block), .. } = item else {
+        let LoopCondBreakContinueItem::ExitIf {
+            block: Some(block), ..
+        } = item
+        else {
             return false;
         };
         block
@@ -160,10 +166,12 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
         return Ok(None);
     }
 
-    let program_block_seen = recipe
-        .items
-        .iter()
-        .any(|item| matches!(item, super::break_continue_recipe::LoopCondBreakContinueItem::ProgramBlock { .. }));
+    let program_block_seen = recipe.items.iter().any(|item| {
+        matches!(
+            item,
+            super::break_continue_recipe::LoopCondBreakContinueItem::ProgramBlock { .. }
+        )
+    });
     let has_exit_signal = counts.break_count > 0
         || counts.continue_count > 0
         || counts.return_count > 0
@@ -258,31 +266,27 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
         &recipe,
     )?;
 
-    let has_then_only_break = recipe.items.iter().any(|item| {
-        matches!(item, LoopCondBreakContinueItem::ThenOnlyBreakIf { .. })
-    });
+    let has_then_only_break = recipe
+        .items
+        .iter()
+        .any(|item| matches!(item, LoopCondBreakContinueItem::ThenOnlyBreakIf { .. }));
     let is_parse_string2 = matches_parse_string2_shape(body);
-    let body_lowering_policy = if !allow_extended
-        || has_then_only_break
-        || is_parse_string2
-        || program_block_seen
-    {
-        // ProgramBlock items are lowered item-by-item via recipe path.
-        // Forcing ExitAllowed here can reject valid recipes when the whole-body
-        // exit_allowed block is unavailable (e.g. nested-if + break tail shapes).
-        BodyLoweringPolicy::RecipeOnly
-    } else {
-        BodyLoweringPolicy::ExitAllowed {
-            allow_join_if: false,
-        }
-    };
+    let body_lowering_policy =
+        if !allow_extended || has_then_only_break || is_parse_string2 || program_block_seen {
+            // ProgramBlock items are lowered item-by-item via recipe path.
+            // Forcing ExitAllowed here can reject valid recipes when the whole-body
+            // exit_allowed block is unavailable (e.g. nested-if + break tail shapes).
+            BodyLoweringPolicy::RecipeOnly
+        } else {
+            BodyLoweringPolicy::ExitAllowed {
+                allow_join_if: false,
+            }
+        };
 
     let body_exit_allowed = match body_lowering_policy {
-        BodyLoweringPolicy::ExitAllowed { .. } => {
-            body_exit_allowed_probe
-                .clone()
-                .or_else(|| try_build_exit_allowed_block_recipe(body, allow_extended))
-        }
+        BodyLoweringPolicy::ExitAllowed { .. } => body_exit_allowed_probe
+            .clone()
+            .or_else(|| try_build_exit_allowed_block_recipe(body, allow_extended)),
         BodyLoweringPolicy::RecipeOnly => None,
     };
     if matches!(body_lowering_policy, BodyLoweringPolicy::ExitAllowed { .. })
@@ -362,11 +366,11 @@ fn if_has_exit_signals(then_body: &[ASTNode], else_body: Option<&Vec<ASTNode>>) 
 
 #[cfg(test)]
 mod tests {
+    use super::super::break_continue_types::MAX_NESTED_LOOPS;
     use super::try_extract_loop_cond_break_continue_facts_inner;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::policies::BodyLoweringPolicy;
     use crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueItem;
-    use super::super::break_continue_types::MAX_NESTED_LOOPS;
+    use crate::mir::policies::BodyLoweringPolicy;
 
     fn v(name: &str) -> ASTNode {
         ASTNode::Variable {

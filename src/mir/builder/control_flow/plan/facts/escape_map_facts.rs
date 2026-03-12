@@ -133,7 +133,10 @@ fn match_local_substring(stmt: &ASTNode, loop_var: &str) -> Option<(String, Stri
         return None;
     }
 
-    let ASTNode::Variable { name: haystack_var, .. } = object.as_ref() else {
+    let ASTNode::Variable {
+        name: haystack_var, ..
+    } = object.as_ref()
+    else {
         return None;
     };
 
@@ -297,9 +300,7 @@ fn match_out_add_assignment(stmt: &ASTNode, ch_var: &str) -> Option<(String, Esc
             }
             EscapeDefaultFacts::Char
         }
-        ASTNode::Literal { value, .. } => {
-            EscapeDefaultFacts::Literal(literal_string(value)?)
-        }
+        ASTNode::Literal { value, .. } => EscapeDefaultFacts::Literal(literal_string(value)?),
         _ => return None,
     };
 
@@ -505,7 +506,10 @@ static box StringHelpers {
                         methods.get("json_quote")
                     {
                         for node in body {
-                            if let ASTNode::Loop { condition, body, .. } = node {
+                            if let ASTNode::Loop {
+                                condition, body, ..
+                            } = node
+                            {
                                 loop_condition = Some(condition.clone());
                                 loop_body = Some(body.clone());
                                 break;
@@ -518,8 +522,7 @@ static box StringHelpers {
 
         let condition = loop_condition.expect("loop condition");
         let body = loop_body.expect("loop body");
-        let facts = try_extract_escape_map_facts(&condition, &body)
-            .expect("extract ok");
+        let facts = try_extract_escape_map_facts(&condition, &body).expect("extract ok");
         assert!(
             facts.is_some(),
             "escape_map facts should match json_quote subset"

@@ -2,13 +2,13 @@
 //!
 //! This module handles the `ExitIfTree` pattern: nested if-in-loop with exit on all branches.
 
+use super::break_continue_recipe::LoopCondBreakContinueItem;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
-    ExitOnlyBlockRecipe, try_build_exit_only_block_recipe,
+    try_build_exit_only_block_recipe, ExitOnlyBlockRecipe,
 };
 use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
-use super::break_continue_recipe::LoopCondBreakContinueItem;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::IfMode;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 

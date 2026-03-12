@@ -11,12 +11,14 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{RecipeBlock, RecipeBo
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 
+use super::break_continue_tree::build_exit_if_tree_recipe;
+use super::break_continue_validator_else::{
+    is_else_only_return_if_shape, is_then_only_return_if_shape,
+};
 use super::break_continue_validator_prelude::{
     branch_effects_only, exit_prelude_is_allowed, exit_prelude_is_allowed_for_break,
     return_prelude_is_allowed,
 };
-use super::break_continue_validator_else::{is_else_only_return_if_shape, is_then_only_return_if_shape};
-use super::break_continue_tree::build_exit_if_tree_recipe;
 
 /// Check if an if statement is an exit-if pattern.
 ///
@@ -44,8 +46,10 @@ pub(in super::super) fn is_exit_if_stmt(
         return false;
     }
     let then_is_return = allow_return && matches!(then_body[0], ASTNode::Return { .. });
-    if !matches!(then_body[0], ASTNode::Break { .. } | ASTNode::Continue { .. })
-        && !then_is_return
+    if !matches!(
+        then_body[0],
+        ASTNode::Break { .. } | ASTNode::Continue { .. }
+    ) && !then_is_return
     {
         return false;
     }
@@ -54,8 +58,10 @@ pub(in super::super) fn is_exit_if_stmt(
             return false;
         }
         let else_is_return = allow_return && matches!(else_body[0], ASTNode::Return { .. });
-        if !matches!(else_body[0], ASTNode::Break { .. } | ASTNode::Continue { .. })
-            && !else_is_return
+        if !matches!(
+            else_body[0],
+            ASTNode::Break { .. } | ASTNode::Continue { .. }
+        ) && !else_is_return
         {
             return false;
         }
@@ -111,11 +117,7 @@ pub(in super::super) fn is_exit_if_with_prelude(
         if then_body.len() == 1 {
             return true;
         }
-        return return_prelude_is_allowed(
-            &then_body[..then_body.len() - 1],
-            last,
-            allow_return,
-        );
+        return return_prelude_is_allowed(&then_body[..then_body.len() - 1], last, allow_return);
     }
     if matches!(last, ASTNode::Break { .. } | ASTNode::Continue { .. }) {
         if !allow_return {
@@ -224,12 +226,21 @@ pub(in super::super) fn returns_only_in_exit_if(body: &[ASTNode], allow_return: 
                     continue;
                 }
                 // else-only return pattern
-                if is_else_only_return_if_shape(condition, then_body, else_body.as_ref(), allow_return) {
+                if is_else_only_return_if_shape(
+                    condition,
+                    then_body,
+                    else_body.as_ref(),
+                    allow_return,
+                ) {
                     continue;
                 }
                 // then-only return pattern
-                if is_then_only_return_if_shape(condition, then_body, else_body.as_ref(), allow_return)
-                {
+                if is_then_only_return_if_shape(
+                    condition,
+                    then_body,
+                    else_body.as_ref(),
+                    allow_return,
+                ) {
                     continue;
                 }
                 if is_exit_if_stmt(condition, then_body, else_body.as_ref(), allow_return) {

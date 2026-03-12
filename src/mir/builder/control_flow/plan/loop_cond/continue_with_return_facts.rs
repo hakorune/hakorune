@@ -3,14 +3,14 @@
 //! Minimal sibling box for continue-only loops with nested return.
 //! This is a fixture-derived 1-shape box (BoxCount approach).
 
+use super::continue_with_return_recipe::{ContinueWithReturnItem, ContinueWithReturnRecipe};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::loop_cond_shared::{
     branch_tail_is_continue, LoopCondRecipe,
 };
-use super::continue_with_return_recipe::{ContinueWithReturnItem, ContinueWithReturnRecipe};
+use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipes::refs::{StmtRef, StmtSpan};
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
-use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopCondContinueWithReturnFacts {
@@ -67,10 +67,7 @@ fn build_block_recipe(body: &[ASTNode], debug: bool) -> Result<ContinueWithRetur
     Ok(LoopCondRecipe::new(recipe_body.body, items))
 }
 
-fn build_block_items(
-    body: &[ASTNode],
-    debug: bool,
-) -> Result<Vec<ContinueWithReturnItem>, Freeze> {
+fn build_block_items(body: &[ASTNode], debug: bool) -> Result<Vec<ContinueWithReturnItem>, Freeze> {
     let mut items = Vec::with_capacity(body.len());
     for (idx, stmt) in body.iter().enumerate() {
         let item = build_stmt_recipe(stmt, idx, debug)?;
@@ -145,7 +142,10 @@ fn is_hetero_return_if_shape(
 
     if debug {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[loop_cond_continue_with_return] detected hetero-return-if shape (depth={})", depth));
+        ring0.log.debug(&format!(
+            "[loop_cond_continue_with_return] detected hetero-return-if shape (depth={})",
+            depth
+        ));
     }
 
     Ok(true)
@@ -170,11 +170,18 @@ fn find_return_in_else_chain_depth(body: &[ASTNode], current_depth: usize, debug
                 }
                 if debug {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[loop_cond_continue_with_return] found Return at depth={}", current_depth));
+                    ring0.log.debug(&format!(
+                        "[loop_cond_continue_with_return] found Return at depth={}",
+                        current_depth
+                    ));
                 }
                 return current_depth;
             }
-            ASTNode::If { then_body, else_body, .. } => {
+            ASTNode::If {
+                then_body,
+                else_body,
+                ..
+            } => {
                 if debug {
                     let ring0 = crate::runtime::get_global_ring0();
                     let else_len = else_body.as_ref().map(|b| b.len()).unwrap_or(0);
@@ -183,7 +190,8 @@ fn find_return_in_else_chain_depth(body: &[ASTNode], current_depth: usize, debug
                 // Check then_body (for patterns like: if cond { ...; return })
                 // Only recurse if we haven't exceeded MAX_DEPTH for the next level
                 if current_depth < MAX_DEPTH {
-                    let found_in_then = find_return_in_else_chain_depth(then_body, current_depth + 1, debug);
+                    let found_in_then =
+                        find_return_in_else_chain_depth(then_body, current_depth + 1, debug);
                     if found_in_then > 0 {
                         return found_in_then;
                     }
@@ -202,7 +210,8 @@ fn find_return_in_else_chain_depth(body: &[ASTNode], current_depth: usize, debug
                 // Recurse into else body for else-if chains
                 if let Some(else_b) = else_body {
                     if current_depth < MAX_DEPTH {
-                        let found = find_return_in_else_chain_depth(else_b, current_depth + 1, debug);
+                        let found =
+                            find_return_in_else_chain_depth(else_b, current_depth + 1, debug);
                         if found > 0 {
                             return found;
                         }

@@ -242,7 +242,9 @@ mod tests {
                 right: Box::new(lit_int(0)),
                 span: Span::unknown(),
             },
-            vec![ASTNode::Break { span: Span::unknown() }],
+            vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
             vec![assign(
                 "sum",
                 ASTNode::BinaryOp {

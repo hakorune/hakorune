@@ -1,5 +1,6 @@
 //! Phase 29bq P2.x: LoopCondContinueOnlyFacts (Facts SSOT)
 
+use super::continue_only_recipe::{ContinueOnlyRecipe, ContinueOnlyStmtRecipe};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
@@ -10,7 +11,6 @@ use crate::mir::builder::control_flow::plan::facts::reject_reason::{
 use crate::mir::builder::control_flow::plan::loop_cond_shared::{
     branch_tail_is_continue, LoopCondRecipe,
 };
-use super::continue_only_recipe::{ContinueOnlyRecipe, ContinueOnlyStmtRecipe};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipes::refs::{StmtRef, StmtSpan};
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
@@ -87,7 +87,10 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_continue_only_facts(
     let recipe_body = RecipeBody::new(body.to_vec());
     let mut items = Vec::with_capacity(recipe_body.body.len());
     for (idx, stmt) in recipe_body.body.iter().enumerate() {
-        if matches!(stmt, ASTNode::Continue { .. } | ASTNode::Break { .. } | ASTNode::Return { .. }) {
+        if matches!(
+            stmt,
+            ASTNode::Continue { .. } | ASTNode::Break { .. } | ASTNode::Return { .. }
+        ) {
             return Err(Freeze::contract(format!(
                 "loop_cond_continue_only: top-level exit stmt at idx={} kind={}",
                 idx,
@@ -141,8 +144,7 @@ fn has_continue_in_if_with_else(body: &[ASTNode]) -> bool {
                 if else_body.is_some() && (then_tail || else_tail) {
                     return true;
                 }
-                then_body.iter().any(scan)
-                    || else_body.as_ref().is_some_and(|b| b.iter().any(scan))
+                then_body.iter().any(scan) || else_body.as_ref().is_some_and(|b| b.iter().any(scan))
             }
             ASTNode::Loop { body, .. }
             | ASTNode::While { body, .. }
@@ -176,7 +178,8 @@ fn build_stmt_recipe(
                     &[]
                 };
                 if !continue_prelude_is_allowed(prelude) {
-                    let counts = super::loop_cond_unified_helpers::count_control_flow_with_returns(prelude);
+                    let counts =
+                        super::loop_cond_unified_helpers::count_control_flow_with_returns(prelude);
                     if counts.break_count > 0 {
                         return Err(Freeze::contract(
                             "loop_cond_continue_only: continue-if prelude contains break",
@@ -218,7 +221,8 @@ fn build_stmt_recipe(
                 .as_ref()
                 .map_or(false, |b| contains_return_in_branch(b));
 
-            if (then_has_return && !else_has_return) || (!then_has_return && else_has_return)
+            if (then_has_return && !else_has_return)
+                || (!then_has_return && else_has_return)
                 || (then_has_return && else_has_return)
             {
                 // Heterogeneous exit types - not continue-only
@@ -246,7 +250,9 @@ fn build_stmt_recipe(
             if then_has_continue || else_has_continue {
                 if debug {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[loop_cond_continue_only] group_if detected"));
+                    ring0
+                        .log
+                        .debug(&format!("[loop_cond_continue_only] group_if detected"));
                 }
                 let then_recipes = build_group_body_recipe(then_body, saw_continue_if, debug)?;
                 let else_recipes = match else_body.as_ref() {
@@ -324,7 +330,10 @@ fn contains_return_in_branch(body: &[ASTNode]) -> bool {
 
 fn continue_prelude_is_allowed(body: &[ASTNode]) -> bool {
     let counts = super::loop_cond_unified_helpers::count_control_flow_with_returns(body);
-    !counts.has_nested_loop && counts.break_count == 0 && counts.continue_count == 0 && counts.return_count == 0
+    !counts.has_nested_loop
+        && counts.break_count == 0
+        && counts.continue_count == 0
+        && counts.return_count == 0
 }
 
 fn prelude_has_illegal_return(body: &[ASTNode]) -> bool {
@@ -431,8 +440,11 @@ fn try_extract_continue_if_nested_loop(
 
     if debug {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[loop_cond_continue_only] ContinueIfNestedLoop detected: prelude={}, postlude={}",
-            inner_loop_prelude.len(), inner_loop_postlude.len()));
+        ring0.log.debug(&format!(
+            "[loop_cond_continue_only] ContinueIfNestedLoop detected: prelude={}, postlude={}",
+            inner_loop_prelude.len(),
+            inner_loop_postlude.len()
+        ));
     }
 
     Some(ContinueOnlyStmtRecipe::ContinueIfNestedLoop {

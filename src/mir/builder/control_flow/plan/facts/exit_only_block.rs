@@ -11,12 +11,12 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::facts::block_policies::is_allowed_effect_stmt;
+use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::parts::exit_kind_depth_view::ExitKindDepthView;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, ExitKind, IfContractKind, IfMode, LoopKindV0, LoopV0Features, RecipeBodies,
-    RecipeBlock, RecipeItem,
+    BlockContractKind, ExitKind, IfContractKind, IfMode, LoopKindV0, LoopV0Features, RecipeBlock,
+    RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
@@ -141,7 +141,12 @@ fn build_exit_allowed_item(
     }
 
     match stmt {
-        ASTNode::Loop { condition, body, .. } | ASTNode::While { condition, body, .. } => {
+        ASTNode::Loop {
+            condition, body, ..
+        }
+        | ASTNode::While {
+            condition, body, ..
+        } => {
             if !is_supported_bool_expr_with_canon(condition, allow_extended) {
                 return None;
             }
@@ -347,7 +352,9 @@ fn exit_only_item_exits_on_all_paths(arena: &RecipeBodies, item: &RecipeItem) ->
                     IfMode::ExitIf | IfMode::ElseOnlyExit => false,
                 },
                 // ElseOnlyExit: then falls through, so not exit-all
-                IfContractKind::ExitAllowed { mode: IfMode::ElseOnlyExit } => false,
+                IfContractKind::ExitAllowed {
+                    mode: IfMode::ElseOnlyExit,
+                } => false,
                 _ => false,
             }
         }

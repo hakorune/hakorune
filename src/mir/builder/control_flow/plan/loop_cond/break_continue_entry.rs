@@ -7,9 +7,9 @@ use crate::mir::builder::control_flow::plan::ast_feature_extractor::{
 use crate::mir::builder::control_flow::plan::loop_cond_shared::planner_required_for_loop_cond;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
+use super::break_continue_facts::try_extract_loop_cond_break_continue_facts_inner;
 use super::break_continue_helpers::matches_parse_string2_shape;
 use super::break_continue_types::{LoopCondBreakContinueFacts, MAX_NESTED_LOOPS};
-use super::break_continue_facts::try_extract_loop_cond_break_continue_facts_inner;
 
 fn allow_extended_for_loop_cond_break_continue(
     body: &[ASTNode],
@@ -20,10 +20,7 @@ fn allow_extended_for_loop_cond_break_continue(
     planner_required || (strict_or_dev && matches_parse_string2_shape(body)) || has_return_stmt
 }
 
-fn allow_nested_for_loop_cond_break_continue(
-    body: &[ASTNode],
-    planner_required: bool,
-) -> bool {
+fn allow_nested_for_loop_cond_break_continue(body: &[ASTNode], planner_required: bool) -> bool {
     if planner_required {
         return true;
     }
@@ -39,8 +36,8 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopCondBreakContinueFacts>, Freeze> {
-    let strict_or_dev =
-        crate::config::env::joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
+    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
+        || crate::config::env::joinir_dev_enabled();
     let planner_required = planner_required_for_loop_cond();
     let allow_extended =
         allow_extended_for_loop_cond_break_continue(body, strict_or_dev, planner_required);
@@ -66,8 +63,8 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_with_l
     max_nested_loops: usize,
     require_nested_loops: Option<usize>,
 ) -> Result<Option<LoopCondBreakContinueFacts>, Freeze> {
-    let strict_or_dev =
-        crate::config::env::joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
+    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
+        || crate::config::env::joinir_dev_enabled();
     let planner_required = planner_required_for_loop_cond();
     let allow_extended =
         allow_extended_for_loop_cond_break_continue(body, strict_or_dev, planner_required);

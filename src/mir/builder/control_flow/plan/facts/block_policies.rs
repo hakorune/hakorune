@@ -23,4 +23,3 @@ pub(in crate::mir::builder) fn is_allowed_effect_stmt(
         None => false,
     }
 }
-

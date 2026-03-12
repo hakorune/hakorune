@@ -27,7 +27,8 @@ pub(super) fn try_extract_loop_break_step_before_break_subset(
 ) -> Option<LoopBreakFacts> {
     let strict = crate::config::env::joinir_dev::strict_enabled();
     let strict_or_dev = strict || crate::config::env::joinir_dev_enabled();
-    let planner_required = strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
+    let planner_required =
+        strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
     if !planner_required {
         return None;
     }
@@ -82,8 +83,7 @@ pub(super) fn try_extract_loop_break_step_before_break_subset(
         _ => return None,
     };
 
-    let (break_condition, carrier_update_in_break) =
-        extract_break_if_parts(&body[1])?;
+    let (break_condition, carrier_update_in_break) = extract_break_if_parts(&body[1])?;
 
     let (carrier_var, carrier_update_in_body) = match &body[2] {
         ASTNode::Assignment { target, value, .. } => {

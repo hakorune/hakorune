@@ -11,11 +11,11 @@ use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockVi
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
+use crate::mir::builder::control_flow::plan::facts::block_policies::is_allowed_effect_stmt;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_in_arena;
 use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
-use crate::mir::builder::control_flow::plan::facts::block_policies::is_allowed_effect_stmt;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
+    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
     RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
@@ -69,7 +69,12 @@ fn build_no_exit_item(
     }
 
     match stmt {
-        ASTNode::Loop { condition, body, .. } | ASTNode::While { condition, body, .. } => {
+        ASTNode::Loop {
+            condition, body, ..
+        }
+        | ASTNode::While {
+            condition, body, ..
+        } => {
             if !is_supported_bool_expr_with_canon(condition, allow_extended) {
                 return None;
             }
@@ -141,5 +146,6 @@ fn body_has_non_local_exit_outside_loops(body: &[ASTNode]) -> bool {
     if counts.return_count > 0 {
         return true;
     }
-    body.iter().any(ASTNode::contains_non_local_exit_outside_loops)
+    body.iter()
+        .any(ASTNode::contains_non_local_exit_outside_loops)
 }

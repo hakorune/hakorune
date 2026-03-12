@@ -5,16 +5,16 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::is_true_literal;
+use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
+    try_build_exit_allowed_block_recipe, ExitAllowedBlockRecipe,
+};
 use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::recipe::{
     ElseExitMixedRecipe, ElseItem, LoopTrueBreakContinueRecipe, LoopTrueItem,
 };
-use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
-    ExitAllowedBlockRecipe, try_build_exit_allowed_block_recipe,
-};
+use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipes::refs::{StmtPair, StmtRef};
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
-use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::policies::BodyLoweringPolicy;
 
 #[derive(Debug, Clone)]
@@ -147,15 +147,26 @@ fn classify_stmt(
         }
 
         // Nested loop
-        ASTNode::Loop { condition, body, .. } => {
-            if !allow_nested || *nested_seen >= 1 || !super::loop_cond_unified_helpers::is_supported_nested_loop_condition(condition) {
+        ASTNode::Loop {
+            condition, body, ..
+        } => {
+            if !allow_nested
+                || *nested_seen >= 1
+                || !super::loop_cond_unified_helpers::is_supported_nested_loop_condition(condition)
+            {
                 return None;
             }
             // Validate nested body can form a recipe
             let mut inner_items = Vec::new();
             let mut inner_exit_if_seen = 0usize;
             let mut inner_nested_seen = 0usize;
-            if !build_recipe_items(body, &mut inner_items, &mut inner_exit_if_seen, &mut inner_nested_seen, false) {
+            if !build_recipe_items(
+                body,
+                &mut inner_items,
+                &mut inner_exit_if_seen,
+                &mut inner_nested_seen,
+                false,
+            ) {
                 return None;
             }
             if inner_exit_if_seen == 0 {
@@ -166,7 +177,11 @@ fn classify_stmt(
         }
 
         // If statement
-        ASTNode::If { then_body, else_body, .. } => {
+        ASTNode::If {
+            then_body,
+            else_body,
+            ..
+        } => {
             if is_exit_block(then_body) {
                 // ExitIf: both then+else are exit-blocks
                 if let Some(else_body) = else_body {
@@ -208,10 +223,7 @@ fn classify_stmt(
     }
 }
 
-fn is_general_if_block(
-    then_body: &[ASTNode],
-    else_body: Option<&Vec<ASTNode>>,
-) -> bool {
+fn is_general_if_block(then_body: &[ASTNode], else_body: Option<&Vec<ASTNode>>) -> bool {
     if then_body.is_empty() {
         return false;
     }
@@ -234,7 +246,11 @@ fn is_general_if_body(body: &[ASTNode]) -> bool {
             | ASTNode::MethodCall { .. }
             | ASTNode::FunctionCall { .. }
             | ASTNode::Print { .. } => {}
-            ASTNode::If { then_body, else_body, .. } => {
+            ASTNode::If {
+                then_body,
+                else_body,
+                ..
+            } => {
                 if !is_general_if_block(then_body, else_body.as_ref()) {
                     return false;
                 }
@@ -246,7 +262,12 @@ fn is_general_if_body(body: &[ASTNode]) -> bool {
 }
 
 fn is_if_tail_exit_pair(stmt: &ASTNode, next: Option<&ASTNode>) -> bool {
-    let ASTNode::If { then_body, else_body: None, .. } = stmt else {
+    let ASTNode::If {
+        then_body,
+        else_body: None,
+        ..
+    } = stmt
+    else {
         return false;
     };
     let Some(next) = next else {
@@ -306,9 +327,7 @@ fn is_exit_block(body: &[ASTNode]) -> bool {
 /// - ExitIf can be else-less: `if { continue }` is OK
 ///
 /// CRITICAL: StmtRef indices are RELATIVE to else_body (0..else_body.len())
-fn build_else_exit_mixed_recipe(
-    else_body: &[ASTNode],
-) -> Option<ElseExitMixedRecipe> {
+fn build_else_exit_mixed_recipe(else_body: &[ASTNode]) -> Option<ElseExitMixedRecipe> {
     if else_body.is_empty() {
         return None;
     }
@@ -329,7 +348,11 @@ fn build_else_exit_mixed_recipe(
             }
 
             // If statement → check for exit-if pattern
-            ASTNode::If { then_body, else_body: inner_else, .. } => {
+            ASTNode::If {
+                then_body,
+                else_body: inner_else,
+                ..
+            } => {
                 // Accept exit-if: if { exit } or if { exit } else { exit }
                 let then_is_exit = is_exit_block(then_body);
                 let else_is_exit = inner_else.as_ref().map_or(false, |e| is_exit_block(e));
@@ -432,11 +455,7 @@ mod tests {
 
         let condition = bool_lit(true);
         let body = vec![ASTNode::If {
-            condition: Box::new(binop(
-                BinaryOperator::Equal,
-                bool_lit(true),
-                bool_lit(true),
-            )),
+            condition: Box::new(binop(BinaryOperator::Equal, bool_lit(true), bool_lit(true))),
             then_body: vec![ASTNode::Break {
                 span: Span::unknown(),
             }],

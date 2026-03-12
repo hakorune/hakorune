@@ -3,56 +3,56 @@
 use crate::ast::ASTNode;
 use std::collections::BTreeMap;
 
+use super::accum_const_loop_facts::try_extract_accum_const_loop_facts;
+use super::bool_predicate_scan_facts::try_extract_bool_predicate_scan_facts;
+use super::escape_map_facts::try_extract_escape_map_facts;
+use super::feature_facts::try_extract_loop_feature_facts;
+use super::int_to_str_facts::try_extract_int_to_str_facts;
+use super::loop_array_join_facts::try_extract_loop_array_join_facts;
+use super::loop_break_body_local_facts::try_extract_loop_break_body_local_facts;
+use super::loop_break_core::try_extract_loop_break_facts;
+use super::loop_char_map_facts::try_extract_loop_char_map_facts;
+use super::loop_simple_while_facts::try_extract_loop_simple_while_facts;
+use super::loop_true_early_exit_facts::try_extract_loop_true_early_exit_facts;
+use super::nested_loop_minimal_facts::try_extract_nested_loop_minimal_facts;
+use super::nested_loop_profile::CLUSTER_PROFILES;
 use super::scan_shapes::{scan_condition_observation, ConditionShape, StepShape};
 use super::skeleton_facts::try_extract_loop_skeleton_facts;
-use super::feature_facts::try_extract_loop_feature_facts;
-use super::loop_simple_while_facts::try_extract_loop_simple_while_facts;
-use super::loop_char_map_facts::try_extract_loop_char_map_facts;
-use super::loop_array_join_facts::try_extract_loop_array_join_facts;
-use super::string_is_integer_facts::try_extract_string_is_integer_facts;
-use super::starts_with_facts::try_extract_starts_with_facts;
-use super::int_to_str_facts::try_extract_int_to_str_facts;
-use super::escape_map_facts::try_extract_escape_map_facts;
-use super::split_lines_facts::try_extract_split_lines_facts;
 use super::skip_whitespace_facts::try_extract_skip_whitespace_facts;
+use super::split_lines_facts::try_extract_split_lines_facts;
+use super::starts_with_facts::try_extract_starts_with_facts;
+use super::stmt_view::flatten_scope_boxes;
+use super::string_is_integer_facts::try_extract_string_is_integer_facts;
+use super::{try_extract_if_phi_join_facts, try_extract_loop_continue_only_facts};
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
     has_generic_loop_v1_recipe_hint, try_extract_generic_loop_v0_facts,
     try_extract_generic_loop_v1_facts,
 };
-use super::loop_true_early_exit_facts::try_extract_loop_true_early_exit_facts;
-use super::{try_extract_if_phi_join_facts, try_extract_loop_continue_only_facts};
-use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
-use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::{
-    LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
-};
+use crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::try_extract_loop_bundle_resolver_v0_facts;
+use crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::try_extract_loop_collect_using_entries_v0_facts;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_entry::{
     try_extract_loop_cond_break_continue_facts,
     try_extract_loop_cond_break_continue_facts_with_limit,
 };
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueItem;
-use super::nested_loop_profile::CLUSTER_PROFILES;
+use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::{
+    LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
+};
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::try_extract_loop_cond_continue_only_facts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::try_extract_loop_cond_continue_with_return_facts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::try_extract_loop_cond_return_in_body_facts;
-use crate::mir::builder::control_flow::plan::loop_scan_v0::try_extract_loop_scan_v0_facts;
-use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
 use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
+use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
 use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::try_extract_loop_scan_phi_vars_v0_facts;
-use crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::try_extract_loop_collect_using_entries_v0_facts;
-use crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::try_extract_loop_bundle_resolver_v0_facts;
-use super::nested_loop_minimal_facts::try_extract_nested_loop_minimal_facts;
-use super::bool_predicate_scan_facts::try_extract_bool_predicate_scan_facts;
-use super::accum_const_loop_facts::try_extract_accum_const_loop_facts;
-use super::loop_break_core::try_extract_loop_break_facts;
-use super::loop_break_body_local_facts::try_extract_loop_break_body_local_facts;
-use super::stmt_view::flatten_scope_boxes;
+use crate::mir::builder::control_flow::plan::loop_scan_v0::try_extract_loop_scan_v0_facts;
+use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};
 
-use super::loop_types::LoopFacts;
 use super::loop_condition_shape::try_extract_condition_shape;
-use super::loop_step_shape::try_extract_step_shape;
 use super::loop_scan_with_init::try_extract_scan_with_init_facts;
 use super::loop_split_scan::try_extract_split_scan_facts;
+use super::loop_step_shape::try_extract_step_shape;
+use super::loop_types::LoopFacts;
 
 pub(in crate::mir::builder) fn try_build_loop_facts(
     condition: &ASTNode,
@@ -79,8 +79,7 @@ fn try_build_loop_facts_inner(
     // NOTE: Some BoxCount routes intentionally match on `ScopeBox`/block wrapper
     // boundaries (analysis-only observation). Those must run on the original body,
     // before `flatten_scope_boxes()` strips wrapper nodes.
-    let loop_scan_methods_block_v0 =
-        try_extract_loop_scan_methods_block_v0_facts(condition, body)?;
+    let loop_scan_methods_block_v0 = try_extract_loop_scan_methods_block_v0_facts(condition, body)?;
     let flat_body = flatten_scope_boxes(body);
     let body = flat_body.as_slice();
 
@@ -125,12 +124,10 @@ fn try_build_loop_facts_inner(
         // Fall back to base if no cluster matched
         selected.or(try_extract_loop_cond_break_continue_facts(condition, body)?)
     };
-    let loop_cond_continue_only =
-        try_extract_loop_cond_continue_only_facts(condition, body)?;
+    let loop_cond_continue_only = try_extract_loop_cond_continue_only_facts(condition, body)?;
     let loop_cond_continue_with_return =
         try_extract_loop_cond_continue_with_return_facts(condition, body)?;
-    let loop_cond_return_in_body =
-        try_extract_loop_cond_return_in_body_facts(condition, body)?;
+    let loop_cond_return_in_body = try_extract_loop_cond_return_in_body_facts(condition, body)?;
     // Phase 29bq: Skip generic_loop_v0/v1 extraction when loop_cond_* routes matched.
     // generic_loop_v0 would freeze on shapes like ExitIfTree that loop_cond_break_continue
     // can handle. By skipping when we have a specific match, we avoid the freeze.
@@ -174,16 +171,11 @@ fn try_build_loop_facts_inner(
     };
     let if_phi_join = try_extract_if_phi_join_facts(condition, body)?;
     let loop_continue_only = try_extract_loop_continue_only_facts(condition, body)?;
-    let loop_true_early_exit =
-        try_extract_loop_true_early_exit_facts(condition, body)?;
-    let loop_true_break_continue =
-        try_extract_loop_true_break_continue_facts(condition, body)?;
-    let nested_loop_minimal =
-        try_extract_nested_loop_minimal_facts(condition, body)?;
-    let bool_predicate_scan =
-        try_extract_bool_predicate_scan_facts(condition, body, &observation)?;
-    let accum_const_loop =
-        try_extract_accum_const_loop_facts(condition, body, &observation)?;
+    let loop_true_early_exit = try_extract_loop_true_early_exit_facts(condition, body)?;
+    let loop_true_break_continue = try_extract_loop_true_break_continue_facts(condition, body)?;
+    let nested_loop_minimal = try_extract_nested_loop_minimal_facts(condition, body)?;
+    let bool_predicate_scan = try_extract_bool_predicate_scan_facts(condition, body, &observation)?;
+    let accum_const_loop = try_extract_accum_const_loop_facts(condition, body, &observation)?;
     let loop_break = try_extract_loop_break_facts(condition, body)?;
     let loop_break_body_local = try_extract_loop_break_body_local_facts(condition, body)?;
 

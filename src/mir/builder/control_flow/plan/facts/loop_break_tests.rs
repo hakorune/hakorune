@@ -59,7 +59,9 @@ fn method_call(obj: &str, method: &str, args: Vec<ASTNode>) -> ASTNode {
 
 fn this_method_call(method: &str, args: Vec<ASTNode>) -> ASTNode {
     ASTNode::MethodCall {
-        object: Box::new(ASTNode::This { span: Span::unknown() }),
+        object: Box::new(ASTNode::This {
+            span: Span::unknown(),
+        }),
         method: method.to_string(),
         arguments: args,
         span: Span::unknown(),
@@ -94,7 +96,9 @@ fn extract_loop_break_parse_integer_subset() {
         ASTNode::Local {
             variables: vec!["d".to_string()],
             initial_values: vec![Some(Box::new(ASTNode::MethodCall {
-                object: Box::new(ASTNode::This { span: Span::unknown() }),
+                object: Box::new(ASTNode::This {
+                    span: Span::unknown(),
+                }),
                 method: "index_of".to_string(),
                 arguments: vec![v("digits"), v("ch")],
                 span: Span::unknown(),
@@ -103,7 +107,9 @@ fn extract_loop_break_parse_integer_subset() {
         },
         ASTNode::If {
             condition: Box::new(binop(BinaryOperator::Less, v("d"), lit_int(0))),
-            then_body: vec![ASTNode::Break { span: Span::unknown() }],
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
             else_body: None,
             span: Span::unknown(),
         },
@@ -125,7 +131,10 @@ fn extract_loop_break_parse_integer_subset() {
     assert_eq!(facts.carrier_var, "acc");
     assert!(matches!(
         facts.break_condition,
-        ASTNode::BinaryOp { operator: BinaryOperator::Less, .. }
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            ..
+        }
     ));
 }
 
@@ -139,24 +148,26 @@ fn extract_loop_break_realworld_subset() {
         ),
         local("seg", lit_str("")),
         ASTNode::If {
-            condition: Box::new(binop(
-                BinaryOperator::GreaterEqual,
-                v("j"),
-                lit_int(0),
-            )),
+            condition: Box::new(binop(BinaryOperator::GreaterEqual, v("j"), lit_int(0))),
             then_body: vec![assign(
                 "seg",
                 method_call("table", "substring", vec![v("i"), v("j")]),
             )],
             else_body: Some(vec![assign(
                 "seg",
-                method_call("table", "substring", vec![v("i"), method_call("table", "length", vec![])]),
+                method_call(
+                    "table",
+                    "substring",
+                    vec![v("i"), method_call("table", "length", vec![])],
+                ),
             )]),
             span: Span::unknown(),
         },
         ASTNode::If {
             condition: Box::new(binop(BinaryOperator::Equal, v("seg"), lit_str(""))),
-            then_body: vec![ASTNode::Break { span: Span::unknown() }],
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
             else_body: None,
             span: Span::unknown(),
         },
@@ -170,7 +181,12 @@ fn extract_loop_break_realworld_subset() {
     assert_eq!(facts.carrier_var, "i");
 
     match facts.loop_condition {
-        ASTNode::BinaryOp { operator: BinaryOperator::Less, left, right, .. } => {
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left,
+            right,
+            ..
+        } => {
             assert!(matches!(left.as_ref(), ASTNode::Variable { name, .. } if name == "i"));
             assert!(matches!(
                 right.as_ref(),
@@ -181,7 +197,12 @@ fn extract_loop_break_realworld_subset() {
     }
 
     match facts.break_condition {
-        ASTNode::BinaryOp { operator: BinaryOperator::Equal, left, right, .. } => {
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Equal,
+            left,
+            right,
+            ..
+        } => {
             assert!(matches!(
                 right.as_ref(),
                 ASTNode::Literal { value: LiteralValue::String(value), .. } if value.is_empty()
@@ -195,14 +216,22 @@ fn extract_loop_break_realworld_subset() {
     }
 
     match facts.loop_increment {
-        ASTNode::BinaryOp { operator: BinaryOperator::Add, left, right, .. } => {
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            left,
+            right,
+            ..
+        } => {
             assert!(matches!(
                 left.as_ref(),
                 ASTNode::MethodCall { method, .. } if method == "indexOf"
             ));
             assert!(matches!(
                 right.as_ref(),
-                ASTNode::Literal { value: LiteralValue::Integer(3), .. }
+                ASTNode::Literal {
+                    value: LiteralValue::Integer(3),
+                    ..
+                }
             ));
         }
         other => panic!("unexpected loop_increment: {:?}", other),
@@ -232,7 +261,9 @@ fn extract_loop_break_trim_whitespace_subset_start() {
                 )),
                 span: Span::unknown(),
             }),
-            then_body: vec![ASTNode::Break { span: Span::unknown() }],
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
             else_body: None,
             span: Span::unknown(),
         },
@@ -246,7 +277,10 @@ fn extract_loop_break_trim_whitespace_subset_start() {
     assert_eq!(facts.carrier_var, "i");
     assert!(matches!(
         facts.break_condition,
-        ASTNode::BinaryOp { operator: BinaryOperator::Equal, .. }
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Equal,
+            ..
+        }
     ));
 }
 
@@ -269,7 +303,9 @@ fn extract_loop_break_trim_whitespace_subset_end() {
                 )),
                 span: Span::unknown(),
             }),
-            then_body: vec![ASTNode::Break { span: Span::unknown() }],
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
             else_body: None,
             span: Span::unknown(),
         },
@@ -283,7 +319,10 @@ fn extract_loop_break_trim_whitespace_subset_end() {
     assert_eq!(facts.carrier_var, "i");
     assert!(matches!(
         facts.loop_increment,
-        ASTNode::BinaryOp { operator: BinaryOperator::Subtract, .. }
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Subtract,
+            ..
+        }
     ));
 }
 
@@ -304,15 +343,16 @@ fn extract_loop_break_trim_whitespace_subset_rejects_missing_not() {
                     vec![v("i"), binop(BinaryOperator::Add, v("i"), lit_int(1))],
                 )],
             )),
-            then_body: vec![ASTNode::Break { span: Span::unknown() }],
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
             else_body: None,
             span: Span::unknown(),
         },
         assign("i", binop(BinaryOperator::Add, v("i"), lit_int(1))),
     ];
 
-    let facts = try_extract_loop_break_facts(&condition, &body)
-        .expect("Ok");
+    let facts = try_extract_loop_break_facts(&condition, &body).expect("Ok");
     assert!(facts.is_none());
 }
 
@@ -338,7 +378,9 @@ fn extract_loop_break_body_local_subset_trim_seg_subset() {
                 binop(BinaryOperator::Equal, v("seg"), lit_str(" ")),
                 binop(BinaryOperator::Equal, v("seg"), lit_str("\t")),
             )),
-            then_body: vec![ASTNode::Break { span: Span::unknown() }],
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
             else_body: None,
             span: Span::unknown(),
         },
@@ -368,13 +410,12 @@ fn extract_loop_break_body_local_subset_digit_pos_subset() {
                 vec![v("p"), binop(BinaryOperator::Add, v("p"), lit_int(1))],
             ),
         ),
-        local(
-            "digit_pos",
-            method_call("digits", "indexOf", vec![v("ch")]),
-        ),
+        local("digit_pos", method_call("digits", "indexOf", vec![v("ch")])),
         ASTNode::If {
             condition: Box::new(binop(BinaryOperator::Less, v("digit_pos"), lit_int(0))),
-            then_body: vec![ASTNode::Break { span: Span::unknown() }],
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
             else_body: None,
             span: Span::unknown(),
         },

@@ -10,15 +10,15 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
 use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::{
-    NoExitBlockRecipe, try_build_no_exit_block_recipe,
+    try_build_no_exit_block_recipe, NoExitBlockRecipe,
 };
 use crate::mir::builder::control_flow::plan::loop_cond_shared::branch_tail_is_continue_flattened;
 
 use super::break_continue_helpers::{branch_has_exit_or_loop, is_nested_loop_allowed};
 use super::break_continue_types::IfStmtKind;
-use super::break_continue_validator_exit::{is_exit_if_stmt};
-use super::break_continue_validator_prelude::exit_prelude_is_allowed;
 use super::break_continue_validator_cond::is_conditional_update_if;
+use super::break_continue_validator_exit::is_exit_if_stmt;
+use super::break_continue_validator_prelude::exit_prelude_is_allowed;
 
 /// Classify an if statement into one of the recognized patterns.
 pub(super) fn classify_if_stmt(
@@ -140,12 +140,18 @@ pub(super) fn build_continue_if_with_else_recipes(
     let continue_prelude = if flat_continue.is_empty() {
         None
     } else {
-        Some(try_build_no_exit_block_recipe(&flat_continue, allow_extended)?)
+        Some(try_build_no_exit_block_recipe(
+            &flat_continue,
+            allow_extended,
+        )?)
     };
     let fallthrough_body = if flat_fallthrough.is_empty() {
         None
     } else {
-        Some(try_build_no_exit_block_recipe(&flat_fallthrough, allow_extended)?)
+        Some(try_build_no_exit_block_recipe(
+            &flat_fallthrough,
+            allow_extended,
+        )?)
     };
 
     let _ = (allow_nested, max_nested_loops, debug);
@@ -182,11 +188,14 @@ fn branch_has_exit_or_forbidden_loop(
 ) -> bool {
     for stmt in body {
         match stmt {
-            ASTNode::Break { .. }
-            | ASTNode::Continue { .. }
-            | ASTNode::Return { .. } => return true,
-            ASTNode::Loop { condition, body, .. } => {
-                if !allow_nested || !is_nested_loop_allowed(condition, body, allow_extended, debug) {
+            ASTNode::Break { .. } | ASTNode::Continue { .. } | ASTNode::Return { .. } => {
+                return true
+            }
+            ASTNode::Loop {
+                condition, body, ..
+            } => {
+                if !allow_nested || !is_nested_loop_allowed(condition, body, allow_extended, debug)
+                {
                     return true;
                 }
             }

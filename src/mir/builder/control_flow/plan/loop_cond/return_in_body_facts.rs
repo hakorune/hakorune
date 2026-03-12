@@ -2,9 +2,11 @@
 //!
 //! Fixture-derived 1-shape for loop(cond) with nested return and no break/continue.
 
+use super::return_in_body_recipe::{
+    build_loop_cond_return_in_body_recipe, LoopCondReturnInBodyRecipe,
+};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
-use super::return_in_body_recipe::{build_loop_cond_return_in_body_recipe, LoopCondReturnInBodyRecipe};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 #[derive(Debug, Clone)]
@@ -167,9 +169,7 @@ fn block_guarantees_return(stmts: &[ASTNode]) -> Result<bool, Freeze> {
                 let Some(else_body) = else_body else {
                     continue;
                 };
-                if block_guarantees_return(then_body)?
-                    && block_guarantees_return(else_body)?
-                {
+                if block_guarantees_return(then_body)? && block_guarantees_return(else_body)? {
                     return Ok(true);
                 }
             }
@@ -179,7 +179,10 @@ fn block_guarantees_return(stmts: &[ASTNode]) -> Result<bool, Freeze> {
     Ok(false)
 }
 
-fn matches_balanced_depth_scan_shape(condition: &ASTNode, body: &[ASTNode]) -> Result<bool, Freeze> {
+fn matches_balanced_depth_scan_shape(
+    condition: &ASTNode,
+    body: &[ASTNode],
+) -> Result<bool, Freeze> {
     use crate::mir::policies::balanced_depth_scan;
     use crate::mir::policies::PolicyDecision;
 
@@ -215,7 +218,8 @@ fn matches_seek_array_end_shape(body: &[ASTNode]) -> Result<bool, Freeze> {
         then_body,
         else_body,
         ..
-    } = &body[1] else {
+    } = &body[1]
+    else {
         return Ok(false);
     };
 
@@ -342,7 +346,8 @@ fn is_simple_if_with_assignment(stmt: &ASTNode) -> Result<bool, Freeze> {
         then_body,
         else_body,
         ..
-    } = stmt else {
+    } = stmt
+    else {
         return Ok(false);
     };
     if !is_supported_bool_expr_with_canon(condition, true) {
@@ -461,7 +466,8 @@ fn is_if_with_assignment_and_return(stmt: &ASTNode) -> Result<bool, Freeze> {
         then_body,
         else_body,
         ..
-    } = stmt else {
+    } = stmt
+    else {
         return Ok(false);
     };
     if !is_supported_bool_expr_with_canon(condition, true) {
@@ -481,7 +487,8 @@ fn is_if_with_assignment_and_return(stmt: &ASTNode) -> Result<bool, Freeze> {
         then_body,
         else_body,
         ..
-    } = &then_body[1] else {
+    } = &then_body[1]
+    else {
         return Ok(false);
     };
     if !is_supported_bool_expr_with_canon(condition, true) {
@@ -603,8 +610,8 @@ mod tests {
             assign(var("i"), binop(BinaryOperator::Add, var("i"), int(1))),
         ];
 
-        let facts = try_extract_loop_cond_return_in_body_facts(&condition, &body)
-            .expect("extract ok");
+        let facts =
+            try_extract_loop_cond_return_in_body_facts(&condition, &body).expect("extract ok");
         assert!(facts.is_none());
     }
 
@@ -626,8 +633,8 @@ mod tests {
             assign(var("i"), binop(BinaryOperator::Add, var("i"), int(1))),
         ];
 
-        let facts = try_extract_loop_cond_return_in_body_facts(&condition, &body)
-            .expect("extract ok");
+        let facts =
+            try_extract_loop_cond_return_in_body_facts(&condition, &body).expect("extract ok");
         assert!(facts.is_none());
     }
 
@@ -653,7 +660,11 @@ mod tests {
     fn return_in_body_simple_if_return_then_step_matches_in_dev_mode() {
         std::env::set_var("NYASH_JOINIR_DEV", "1");
 
-        let condition = binop(BinaryOperator::LessEqual, binop(BinaryOperator::Add, var("j"), var("m")), var("n"));
+        let condition = binop(
+            BinaryOperator::LessEqual,
+            binop(BinaryOperator::Add, var("j"), var("m")),
+            var("n"),
+        );
         let body = vec![
             ASTNode::If {
                 condition: Box::new(var("found")),

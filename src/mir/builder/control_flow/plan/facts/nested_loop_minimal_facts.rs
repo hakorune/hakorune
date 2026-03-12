@@ -2,11 +2,11 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::facts::accum_const_loop_facts::try_extract_accum_const_loop_facts;
+use crate::mir::builder::control_flow::plan::facts::loop_condition_shape::try_extract_condition_shape;
+use crate::mir::builder::control_flow::plan::facts::loop_step_shape::try_extract_step_shape;
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     scan_condition_observation, ConditionShape, StepShape,
 };
-use crate::mir::builder::control_flow::plan::facts::loop_condition_shape::try_extract_condition_shape;
-use crate::mir::builder::control_flow::plan::facts::loop_step_shape::try_extract_step_shape;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 #[derive(Debug, Clone)]
@@ -46,8 +46,7 @@ pub(in crate::mir::builder) fn try_extract_nested_loop_minimal_facts(
 
     let inner_condition_shape =
         try_extract_condition_shape(inner_condition)?.unwrap_or(ConditionShape::Unknown);
-    let inner_step_shape =
-        try_extract_step_shape(inner_body)?.unwrap_or(StepShape::Unknown);
+    let inner_step_shape = try_extract_step_shape(inner_body)?.unwrap_or(StepShape::Unknown);
     let inner_observation = scan_condition_observation(&inner_condition_shape, &inner_step_shape);
     let Some(inner_facts) =
         try_extract_accum_const_loop_facts(inner_condition, inner_body, &inner_observation)?
@@ -68,8 +67,7 @@ pub(in crate::mir::builder) fn try_extract_nested_loop_minimal_facts(
         return Ok(None);
     };
 
-    let Some(acc_step) =
-        extract_accum_add_const(&inner_facts.acc_update, &inner_facts.acc_var)
+    let Some(acc_step) = extract_accum_add_const(&inner_facts.acc_update, &inner_facts.acc_var)
     else {
         return Ok(None);
     };
@@ -78,15 +76,11 @@ pub(in crate::mir::builder) fn try_extract_nested_loop_minimal_facts(
         return Ok(None);
     }
 
-    let (inner_init_lit, outer_increment) = match scan_outer_body(
-        body,
-        inner_idx,
-        &outer_loop_var,
-        &inner_facts.loop_var,
-    ) {
-        Some(values) => values,
-        None => return Ok(None),
-    };
+    let (inner_init_lit, outer_increment) =
+        match scan_outer_body(body, inner_idx, &outer_loop_var, &inner_facts.loop_var) {
+            Some(values) => values,
+            None => return Ok(None),
+        };
 
     if inner_init_lit != 0 {
         return Ok(None);
@@ -363,8 +357,7 @@ mod tests {
         ];
         let condition = condition_lt("i", 3);
 
-        let facts =
-            try_extract_nested_loop_minimal_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_nested_loop_minimal_facts(&condition, &body).expect("Ok");
         let facts = facts.expect("Some");
 
         assert_eq!(facts.outer_loop_var, "i");
@@ -383,8 +376,7 @@ mod tests {
         let body = vec![inner_loop, increment("i", 1)];
         let condition = condition_lt("i", 3);
 
-        let facts =
-            try_extract_nested_loop_minimal_facts(&condition, &body).expect("Ok");
+        let facts = try_extract_nested_loop_minimal_facts(&condition, &body).expect("Ok");
         assert!(facts.is_none());
     }
 }

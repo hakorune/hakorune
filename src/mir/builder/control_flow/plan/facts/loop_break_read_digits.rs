@@ -1,5 +1,5 @@
-use super::loop_break_types::LoopBreakFacts;
 use super::loop_break_helpers::{extract_break_if_parts, lit_str, var};
+use super::loop_break_types::LoopBreakFacts;
 use crate::ast::ASTNode;
 use crate::ast::{BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::is_true_literal;
@@ -60,9 +60,7 @@ pub(super) fn try_extract_loop_break_read_digits_subset(
     })
 }
 
-fn match_local_substring_any(
-    stmt: &ASTNode,
-) -> Option<(String, String, String, ASTNode)> {
+fn match_local_substring_any(stmt: &ASTNode) -> Option<(String, String, String, ASTNode)> {
     let ASTNode::Local {
         variables,
         initial_values,
@@ -90,7 +88,10 @@ fn match_local_substring_any(
         return None;
     }
 
-    let ASTNode::Variable { name: haystack_var, .. } = object.as_ref() else {
+    let ASTNode::Variable {
+        name: haystack_var, ..
+    } = object.as_ref()
+    else {
         return None;
     };
     let ASTNode::Variable { name: loop_var, .. } = &arguments[0] else {
@@ -173,7 +174,8 @@ fn match_digit_if_update_else_break(
                     {
                         return None;
                     }
-                    if !matches!(right.as_ref(), ASTNode::Variable { name: rhs, .. } if rhs == ch_var) {
+                    if !matches!(right.as_ref(), ASTNode::Variable { name: rhs, .. } if rhs == ch_var)
+                    {
                         return None;
                     }
                     carrier_var = Some(name.clone());
@@ -213,12 +215,7 @@ fn match_digit_range_condition(condition: &ASTNode, ch_var: &str) -> bool {
             && match_char_cmp(right.as_ref(), ch_var, BinaryOperator::GreaterEqual, "0"))
 }
 
-fn match_char_cmp(
-    expr: &ASTNode,
-    ch_var: &str,
-    op: BinaryOperator,
-    lit: &str,
-) -> bool {
+fn match_char_cmp(expr: &ASTNode, ch_var: &str, op: BinaryOperator, lit: &str) -> bool {
     let ASTNode::BinaryOp {
         operator,
         left,

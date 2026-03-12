@@ -1,15 +1,16 @@
 //! LoopCondBreakContinue recipe (shape-only refs).
 
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
-use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitOnlyBlockRecipe;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::StmtOnlyBlockRecipe;
+use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
+use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 
-pub(in crate::mir::builder) type LoopCondBreakContinueRecipe = LoopCondRecipe<LoopCondBreakContinueItem>;
+pub(in crate::mir::builder) type LoopCondBreakContinueRecipe =
+    LoopCondRecipe<LoopCondBreakContinueItem>;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct NestedLoopDepth1Recipe {
@@ -59,7 +60,9 @@ pub(in crate::mir::builder) enum LoopCondBreakContinueItem {
         nested: NestedLoopDepth1Recipe,
     },
     /// Tail break at top level.
-    TailBreak { block: Option<ExitAllowedBlockRecipe> },
+    TailBreak {
+        block: Option<ExitAllowedBlockRecipe>,
+    },
     /// If-else where only else has return (then=non-exit, else=return value)
     ElseOnlyReturnIf {
         if_stmt: StmtRef,
@@ -105,10 +108,7 @@ pub(in crate::mir::builder) enum LoopCondBreakContinueItem {
     },
     /// Exit leaf: break/continue/return（再帰の終端）
     /// Used inside ExitIfTree for recursive exit structure.
-    ExitLeaf {
-        kind: ExitKind,
-        stmt: StmtRef,
-    },
+    ExitLeaf { kind: ExitKind, stmt: StmtRef },
     /// Exit-if tree: nested if structure where all branches end with exit.
     /// Pattern: if cond { exit-only-recipe } else { exit-only-recipe }
     /// Recursive structure for nested if-in-loop with break/continue/return.
@@ -147,7 +147,9 @@ impl LoopCondBreakContinueItem {
         }
     }
 
-    pub fn tail_break_with_optional_block(exit_allowed_block: Option<ExitAllowedBlockRecipe>) -> Self {
+    pub fn tail_break_with_optional_block(
+        exit_allowed_block: Option<ExitAllowedBlockRecipe>,
+    ) -> Self {
         Self::TailBreak {
             block: exit_allowed_block,
         }

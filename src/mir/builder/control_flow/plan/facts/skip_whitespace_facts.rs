@@ -21,8 +21,7 @@ pub(in crate::mir::builder) fn try_extract_skip_whitespace_facts(
         return Ok(None);
     }
 
-    let Some((space_call, loop_increment)) =
-        match_if_space_then_continue(&body[0], &loop_var)
+    let Some((space_call, loop_increment)) = match_if_space_then_continue(&body[0], &loop_var)
     else {
         return Ok(None);
     };
@@ -64,10 +63,7 @@ fn match_loop_condition(condition: &ASTNode) -> Option<String> {
     Some(name.clone())
 }
 
-fn match_if_space_then_continue(
-    stmt: &ASTNode,
-    loop_var: &str,
-) -> Option<(ASTNode, ASTNode)> {
+fn match_if_space_then_continue(stmt: &ASTNode, loop_var: &str) -> Option<(ASTNode, ASTNode)> {
     let ASTNode::If {
         condition,
         then_body,

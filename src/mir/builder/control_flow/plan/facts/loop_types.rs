@@ -2,39 +2,39 @@
 //!
 //! Contains the main structs: LoopFacts, ScanWithInitFacts, SplitScanFacts
 
+use super::accum_const_loop_facts::AccumConstLoopFacts;
+use super::bool_predicate_scan_facts::BoolPredicateScanFacts;
+use super::escape_map_facts::EscapeMapFacts;
+use super::feature_facts::LoopFeatureFacts;
+use super::int_to_str_facts::IntToStrFacts;
+use super::loop_array_join_facts::LoopArrayJoinFacts;
+use super::loop_break_body_local_facts::LoopBreakBodyLocalFacts;
+use super::loop_break_types::LoopBreakFacts;
+use super::loop_char_map_facts::LoopCharMapFacts;
+use super::loop_simple_while_facts::LoopSimpleWhileFacts;
+use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
+use super::nested_loop_minimal_facts::NestedLoopMinimalFacts;
 use super::scan_shapes::{ConditionShape, SplitScanShape, StepShape};
 use super::skeleton_facts::SkeletonFacts;
-use super::feature_facts::LoopFeatureFacts;
-use super::loop_simple_while_facts::LoopSimpleWhileFacts;
-use super::loop_char_map_facts::LoopCharMapFacts;
-use super::loop_array_join_facts::LoopArrayJoinFacts;
-use super::string_is_integer_facts::StringIsIntegerFacts;
-use super::starts_with_facts::StartsWithFacts;
-use super::int_to_str_facts::IntToStrFacts;
-use super::escape_map_facts::EscapeMapFacts;
-use super::split_lines_facts::SplitLinesFacts;
 use super::skip_whitespace_facts::SkipWhitespaceFacts;
+use super::split_lines_facts::SplitLinesFacts;
+use super::starts_with_facts::StartsWithFacts;
+use super::string_is_integer_facts::StringIsIntegerFacts;
 use super::{IfPhiJoinFacts, LoopContinueOnlyFacts};
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
 };
-use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
-use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::LoopTrueBreakContinueFacts;
+use crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::LoopBundleResolverV0Facts;
+use crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
-use crate::mir::builder::control_flow::plan::loop_scan_v0::LoopScanV0Facts;
-use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::LoopScanMethodsV0Facts;
 use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Facts;
+use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::LoopScanMethodsV0Facts;
 use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts;
-use crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts;
-use crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::LoopBundleResolverV0Facts;
-use super::nested_loop_minimal_facts::NestedLoopMinimalFacts;
-use super::bool_predicate_scan_facts::BoolPredicateScanFacts;
-use super::accum_const_loop_facts::AccumConstLoopFacts;
-use super::loop_break_types::LoopBreakFacts;
-use super::loop_break_body_local_facts::LoopBreakBodyLocalFacts;
+use crate::mir::builder::control_flow::plan::loop_scan_v0::LoopScanV0Facts;
+use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::LoopTrueBreakContinueFacts;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopFacts {
@@ -162,9 +162,7 @@ impl LoopFacts {
         self.loop_cond_continue_only.as_ref()
     }
 
-    pub fn loop_cond_continue_with_return(
-        &self,
-    ) -> Option<&LoopCondContinueWithReturnFacts> {
+    pub fn loop_cond_continue_with_return(&self) -> Option<&LoopCondContinueWithReturnFacts> {
         self.loop_cond_continue_with_return.as_ref()
     }
 
@@ -200,9 +198,7 @@ impl LoopFacts {
         self.loop_scan_v0.as_ref()
     }
 
-    pub fn loop_collect_using_entries_v0(
-        &self,
-    ) -> Option<&LoopCollectUsingEntriesV0Facts> {
+    pub fn loop_collect_using_entries_v0(&self) -> Option<&LoopCollectUsingEntriesV0Facts> {
         self.loop_collect_using_entries_v0.as_ref()
     }
 

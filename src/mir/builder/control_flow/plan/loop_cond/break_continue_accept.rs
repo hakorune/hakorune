@@ -3,8 +3,8 @@
 //! This module determines which LoopCondBreakAcceptKind should be assigned
 //! based on the analysis counters collected during recipe building.
 
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::ControlFlowCounts;
 use super::break_continue_recipe::{LoopCondBreakContinueItem, LoopCondBreakContinueRecipe};
+use crate::mir::builder::control_flow::plan::extractors::common_helpers::ControlFlowCounts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 use super::break_continue_types::LoopCondBreakAcceptKind;

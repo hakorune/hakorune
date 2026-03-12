@@ -26,12 +26,20 @@ pub(in crate::mir::builder) fn flatten_scope_boxes(body: &[ASTNode]) -> Vec<ASTN
                 else_body: else_body.as_ref().map(|body| flatten_scope_boxes(body)),
                 span: span.clone(),
             },
-            ASTNode::Loop { condition, body, span } => ASTNode::Loop {
+            ASTNode::Loop {
+                condition,
+                body,
+                span,
+            } => ASTNode::Loop {
                 condition: condition.clone(),
                 body: flatten_scope_boxes(body),
                 span: span.clone(),
             },
-            ASTNode::While { condition, body, span } => ASTNode::While {
+            ASTNode::While {
+                condition,
+                body,
+                span,
+            } => ASTNode::While {
                 condition: condition.clone(),
                 body: flatten_scope_boxes(body),
                 span: span.clone(),
@@ -70,9 +78,7 @@ pub(in crate::mir::builder) fn flatten_scope_boxes(body: &[ASTNode]) -> Vec<ASTN
                         span: clause.span,
                     })
                     .collect(),
-                finally_body: finally_body
-                    .as_ref()
-                    .map(|body| flatten_scope_boxes(body)),
+                finally_body: finally_body.as_ref().map(|body| flatten_scope_boxes(body)),
                 span: span.clone(),
             },
             _ => node.clone(),
@@ -150,10 +156,7 @@ mod tests {
         let span = Span::unknown();
         let body = vec![
             ASTNode::ScopeBox {
-                body: vec![
-                    ASTNode::Break { span },
-                    ASTNode::Continue { span },
-                ],
+                body: vec![ASTNode::Break { span }, ASTNode::Continue { span }],
                 span,
             },
             ASTNode::Return { value: None, span },

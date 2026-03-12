@@ -14,9 +14,9 @@ use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
     try_extract_generic_loop_v0_facts, try_extract_generic_loop_v1_facts,
 };
+use crate::mir::builder::control_flow::plan::loop_cond_shared::branch_tail_is_continue_flattened;
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts::try_extract_nested_loop_depth1_facts;
-use crate::mir::builder::control_flow::plan::loop_cond_shared::branch_tail_is_continue_flattened;
 use std::collections::BTreeSet;
 
 use super::break_continue_types::{ContinueBranchSig, MAX_NESTED_LOOPS};
@@ -57,7 +57,9 @@ pub(super) fn collect_vars_from_expr(ast: &ASTNode, vars: &mut BTreeSet<String>)
             }
             true
         }
-        ASTNode::Call { callee, arguments, .. } => {
+        ASTNode::Call {
+            callee, arguments, ..
+        } => {
             if !collect_vars_from_expr(callee, vars) {
                 return false;
             }
@@ -111,10 +113,16 @@ pub(super) fn is_nested_loop_allowed(
         return false;
     }
     if allow_extended {
-        if matches!(try_extract_generic_loop_v0_facts(condition, body), Ok(Some(_))) {
+        if matches!(
+            try_extract_generic_loop_v0_facts(condition, body),
+            Ok(Some(_))
+        ) {
             return true;
         }
-        if matches!(try_extract_generic_loop_v1_facts(condition, body), Ok(Some(_))) {
+        if matches!(
+            try_extract_generic_loop_v1_facts(condition, body),
+            Ok(Some(_))
+        ) {
             return true;
         }
         // Phase 12: Use unified nested_loop_depth1 facts extraction
@@ -258,7 +266,11 @@ pub(super) fn body_has_any_exit(body: &[ASTNode]) -> bool {
             ASTNode::Break { .. } | ASTNode::Continue { .. } | ASTNode::Return { .. } => {
                 return true;
             }
-            ASTNode::If { then_body, else_body, .. } => {
+            ASTNode::If {
+                then_body,
+                else_body,
+                ..
+            } => {
                 if body_has_any_exit(then_body) {
                     return true;
                 }
@@ -317,7 +329,8 @@ fn is_break_only_if(stmt: &ASTNode) -> bool {
         then_body,
         else_body,
         ..
-    } = stmt else {
+    } = stmt
+    else {
         return false;
     };
     if else_body.is_some() {
@@ -331,7 +344,8 @@ fn is_return_exit_if(stmt: &ASTNode) -> bool {
         then_body,
         else_body,
         ..
-    } = stmt else {
+    } = stmt
+    else {
         return false;
     };
     if else_body.is_some() {
@@ -342,7 +356,11 @@ fn is_return_exit_if(stmt: &ASTNode) -> bool {
     }
     matches!(
         (&then_body[0], &then_body[1], &then_body[2]),
-        (ASTNode::Assignment { .. }, ASTNode::MethodCall { .. }, ASTNode::Return { .. })
+        (
+            ASTNode::Assignment { .. },
+            ASTNode::MethodCall { .. },
+            ASTNode::Return { .. }
+        )
     )
 }
 
@@ -351,7 +369,8 @@ fn is_escape_continue_if(stmt: &ASTNode) -> bool {
         then_body,
         else_body,
         ..
-    } = stmt else {
+    } = stmt
+    else {
         return false;
     };
     if else_body.is_some() {
@@ -368,7 +387,8 @@ fn is_escape_continue_if(stmt: &ASTNode) -> bool {
             then_body,
             else_body,
             ..
-        } = &then_body[idx] else {
+        } = &then_body[idx]
+        else {
             return false;
         };
         if else_body.is_some() {

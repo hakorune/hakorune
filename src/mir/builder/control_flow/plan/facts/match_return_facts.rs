@@ -51,7 +51,10 @@ pub(in crate::mir::builder) fn try_extract_match_return_facts(
                 RejectReason::MatchReturnScrutineeNotSupported,
                 handoff_tables::for_match_return_facts,
             );
-            return reject_or_none(strict, RejectReason::MatchReturnScrutineeNotSupported.as_freeze_message());
+            return reject_or_none(
+                strict,
+                RejectReason::MatchReturnScrutineeNotSupported.as_freeze_message(),
+            );
         }
     };
 
@@ -61,7 +64,10 @@ pub(in crate::mir::builder) fn try_extract_match_return_facts(
             RejectReason::MatchReturnTooFewArms,
             handoff_tables::for_match_return_facts,
         );
-        return reject_or_none(strict, RejectReason::MatchReturnTooFewArms.as_freeze_message());
+        return reject_or_none(
+            strict,
+            RejectReason::MatchReturnTooFewArms.as_freeze_message(),
+        );
     }
 
     let else_value = match literal_from_expr(else_expr.as_ref()) {
@@ -72,7 +78,10 @@ pub(in crate::mir::builder) fn try_extract_match_return_facts(
                 RejectReason::MatchReturnElseNotLiteral,
                 handoff_tables::for_match_return_facts,
             );
-            return reject_or_none(strict, RejectReason::MatchReturnElseNotLiteral.as_freeze_message());
+            return reject_or_none(
+                strict,
+                RejectReason::MatchReturnElseNotLiteral.as_freeze_message(),
+            );
         }
     };
 
@@ -84,7 +93,10 @@ pub(in crate::mir::builder) fn try_extract_match_return_facts(
                 RejectReason::MatchReturnArmLabelNotSupported,
                 handoff_tables::for_match_return_facts,
             );
-            return reject_or_none(strict, RejectReason::MatchReturnArmLabelNotSupported.as_freeze_message());
+            return reject_or_none(
+                strict,
+                RejectReason::MatchReturnArmLabelNotSupported.as_freeze_message(),
+            );
         }
         let Some(return_value) = literal_from_expr(arm_expr) else {
             log_reject(
@@ -92,7 +104,10 @@ pub(in crate::mir::builder) fn try_extract_match_return_facts(
                 RejectReason::MatchReturnArmNotLiteral,
                 handoff_tables::for_match_return_facts,
             );
-            return reject_or_none(strict, RejectReason::MatchReturnArmNotLiteral.as_freeze_message());
+            return reject_or_none(
+                strict,
+                RejectReason::MatchReturnArmNotLiteral.as_freeze_message(),
+            );
         };
         if !is_allowed_return_literal(&return_value) {
             log_reject(
@@ -100,7 +115,10 @@ pub(in crate::mir::builder) fn try_extract_match_return_facts(
                 RejectReason::MatchReturnArmLiteralTypeUnsupported,
                 handoff_tables::for_match_return_facts,
             );
-            return reject_or_none(strict, RejectReason::MatchReturnArmLiteralTypeUnsupported.as_freeze_message());
+            return reject_or_none(
+                strict,
+                RejectReason::MatchReturnArmLiteralTypeUnsupported.as_freeze_message(),
+            );
         }
         arm_facts.push(MatchReturnArmFacts {
             label: label.clone(),
@@ -130,10 +148,7 @@ fn is_allowed_return_literal(value: &LiteralValue) -> bool {
     matches!(value, LiteralValue::Integer(_) | LiteralValue::Bool(_))
 }
 
-fn reject_or_none(
-    strict: bool,
-    message: &str,
-) -> Result<Option<MatchReturnFacts>, Freeze> {
+fn reject_or_none(strict: bool, message: &str) -> Result<Option<MatchReturnFacts>, Freeze> {
     if strict {
         Err(Freeze::unsupported(message))
     } else {

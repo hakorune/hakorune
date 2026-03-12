@@ -5,7 +5,8 @@ use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 
-pub(in crate::mir::builder) type LoopCondReturnInBodyRecipe = LoopCondRecipe<LoopCondReturnInBodyItem>;
+pub(in crate::mir::builder) type LoopCondReturnInBodyRecipe =
+    LoopCondRecipe<LoopCondReturnInBodyItem>;
 
 pub(in crate::mir::builder) fn build_loop_cond_return_in_body_recipe(
     body: Vec<ASTNode>,

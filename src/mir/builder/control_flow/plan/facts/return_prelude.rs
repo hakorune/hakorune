@@ -45,15 +45,25 @@ fn flatten_block_containers(body: &[ASTNode]) -> Vec<ASTNode> {
             } => ASTNode::If {
                 condition: condition.clone(),
                 then_body: flatten_block_containers(then_body),
-                else_body: else_body.as_ref().map(|body| flatten_block_containers(body)),
+                else_body: else_body
+                    .as_ref()
+                    .map(|body| flatten_block_containers(body)),
                 span: span.clone(),
             },
-            ASTNode::Loop { condition, body, span } => ASTNode::Loop {
+            ASTNode::Loop {
+                condition,
+                body,
+                span,
+            } => ASTNode::Loop {
                 condition: condition.clone(),
                 body: flatten_block_containers(body),
                 span: span.clone(),
             },
-            ASTNode::While { condition, body, span } => ASTNode::While {
+            ASTNode::While {
+                condition,
+                body,
+                span,
+            } => ASTNode::While {
                 condition: condition.clone(),
                 body: flatten_block_containers(body),
                 span: span.clone(),
@@ -170,7 +180,12 @@ fn try_build_exit_allowed_return_prelude_recipe(
                 kind: ExitKind::Return,
                 stmt: StmtRef::new(idx),
             }),
-            ASTNode::Loop { condition, body, .. } | ASTNode::While { condition, body, .. } => {
+            ASTNode::Loop {
+                condition, body, ..
+            }
+            | ASTNode::While {
+                condition, body, ..
+            } => {
                 if !is_supported_bool_expr_with_canon(condition, allow_extended) {
                     return None;
                 }
@@ -201,10 +216,7 @@ fn try_build_exit_allowed_return_prelude_recipe(
     Some(ExitAllowedBlockRecipe { arena, block })
 }
 
-fn build_from_flat(
-    flat: &[ASTNode],
-    allow_extended: bool,
-) -> Option<ReturnPreludeContainerRecipe> {
+fn build_from_flat(flat: &[ASTNode], allow_extended: bool) -> Option<ReturnPreludeContainerRecipe> {
     if let Some(no_exit) = try_build_no_exit_block_recipe(flat, allow_extended) {
         return Some(ReturnPreludeContainerRecipe::NoExit(no_exit));
     }
@@ -233,7 +245,10 @@ pub(in crate::mir::builder) fn try_build_return_prelude_container_recipe(
             build_from_flat(&flat, allow_extended)
         }
         ASTNode::Loop {
-            condition, body, span, ..
+            condition,
+            body,
+            span,
+            ..
         } => {
             // Container wrappers (ScopeBox/Program) inside loop bodies must be flattened before
             // recipe construction, otherwise `ExitAllowed` loop-body recipes cannot represent them.
@@ -250,7 +265,10 @@ pub(in crate::mir::builder) fn try_build_return_prelude_container_recipe(
                 .map(ReturnPreludeContainerRecipe::ExitAllowed)
         }
         ASTNode::While {
-            condition, body, span, ..
+            condition,
+            body,
+            span,
+            ..
         } => {
             let stmt = ASTNode::While {
                 condition: condition.clone(),

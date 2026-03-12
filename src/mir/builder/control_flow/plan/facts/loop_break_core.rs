@@ -3,25 +3,25 @@
 //! This module contains the main entry function and fallback extraction logic.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+    count_control_flow, extract_loop_increment_plan, ControlFlowDetector,
+};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
-    count_control_flow, ControlFlowDetector, extract_loop_increment_plan,
-};
 
-use super::loop_break_types::LoopBreakFacts;
 use super::loop_break_helpers::{
     extract_break_if_parts, extract_loop_var_for_len_condition, extract_loop_var_for_plan_subset,
     has_continue_statement, has_return_statement,
 };
+use super::loop_break_types::LoopBreakFacts;
 
 // Import subset extractors
-use super::loop_break_read_digits::try_extract_loop_break_read_digits_subset;
-use super::loop_break_parse_integer::try_extract_loop_break_parse_integer_subset;
-use super::loop_break_trim_whitespace::try_extract_loop_break_trim_whitespace_subset;
-use super::loop_break_realworld::try_extract_loop_break_realworld_subset;
 use super::loop_break_body_local_subset::try_extract_loop_break_body_local_subset;
+use super::loop_break_parse_integer::try_extract_loop_break_parse_integer_subset;
+use super::loop_break_read_digits::try_extract_loop_break_read_digits_subset;
+use super::loop_break_realworld::try_extract_loop_break_realworld_subset;
 use super::loop_break_step_before_break::try_extract_loop_break_step_before_break_subset;
+use super::loop_break_trim_whitespace::try_extract_loop_break_trim_whitespace_subset;
 
 /// Main entry point for loop_break facts extraction.
 ///
@@ -38,9 +38,7 @@ pub(in crate::mir::builder) fn try_extract_loop_break_facts(
         return Ok(Some(parse_int));
     }
 
-    if let Some(trim_whitespace) =
-        try_extract_loop_break_trim_whitespace_subset(condition, body)
-    {
+    if let Some(trim_whitespace) = try_extract_loop_break_trim_whitespace_subset(condition, body) {
         return Ok(Some(trim_whitespace));
     }
 

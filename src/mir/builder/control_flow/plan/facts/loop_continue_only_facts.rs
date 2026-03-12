@@ -100,10 +100,12 @@ fn find_continue_condition(body: &[ASTNode]) -> Option<(usize, ASTNode)> {
             continue;
         };
 
-        let then_has_continue = then_body.iter().any(|n| matches!(n, ASTNode::Continue { .. }));
-        let else_has_continue = else_body
-            .as_ref()
-            .map_or(false, |b| b.iter().any(|n| matches!(n, ASTNode::Continue { .. })));
+        let then_has_continue = then_body
+            .iter()
+            .any(|n| matches!(n, ASTNode::Continue { .. }));
+        let else_has_continue = else_body.as_ref().map_or(false, |b| {
+            b.iter().any(|n| matches!(n, ASTNode::Continue { .. }))
+        });
 
         if else_body.is_some() && (then_has_continue || else_has_continue) {
             return None;
@@ -117,10 +119,7 @@ fn find_continue_condition(body: &[ASTNode]) -> Option<(usize, ASTNode)> {
     None
 }
 
-fn extract_carrier_updates(
-    body: &[ASTNode],
-    loop_var: &str,
-) -> BTreeMap<String, ASTNode> {
+fn extract_carrier_updates(body: &[ASTNode], loop_var: &str) -> BTreeMap<String, ASTNode> {
     let mut updates = BTreeMap::new();
 
     for stmt in body {
@@ -151,7 +150,7 @@ fn extract_carrier_updates(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{Span};
+    use crate::ast::Span;
 
     fn v(name: &str) -> ASTNode {
         ASTNode::Variable {
@@ -205,7 +204,9 @@ mod tests {
     fn if_continue(cond: ASTNode) -> ASTNode {
         ASTNode::If {
             condition: Box::new(cond),
-            then_body: vec![ASTNode::Continue { span: Span::unknown() }],
+            then_body: vec![ASTNode::Continue {
+                span: Span::unknown(),
+            }],
             else_body: None,
             span: Span::unknown(),
         }
@@ -232,7 +233,9 @@ mod tests {
         let body = vec![
             ASTNode::If {
                 condition: Box::new(v("done")),
-                then_body: vec![ASTNode::Break { span: Span::unknown() }],
+                then_body: vec![ASTNode::Break {
+                    span: Span::unknown(),
+                }],
                 else_body: None,
                 span: Span::unknown(),
             },

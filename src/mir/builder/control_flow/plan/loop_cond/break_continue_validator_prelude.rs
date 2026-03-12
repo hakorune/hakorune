@@ -8,9 +8,9 @@ use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
 use std::collections::BTreeSet;
 
+use super::break_continue_helpers::collect_vars_from_expr;
 use super::break_continue_validator_cond::is_conditional_update_if;
 use super::break_continue_validator_exit::is_exit_if_stmt;
-use super::break_continue_helpers::collect_vars_from_expr;
 
 /// Check if a prelude (statements before exit) is allowed for break/continue.
 pub(in super::super) fn exit_prelude_is_allowed(prelude: &[ASTNode], allow_extended: bool) -> bool {
@@ -22,9 +22,7 @@ pub(in super::super) fn exit_prelude_is_allowed(prelude: &[ASTNode], allow_exten
                 }
             }
             ASTNode::Local { .. } => {}
-            ASTNode::MethodCall { .. }
-            | ASTNode::FunctionCall { .. }
-            | ASTNode::Call { .. } => {}
+            ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. } | ASTNode::Call { .. } => {}
             ASTNode::Print { .. } => {
                 if !allow_extended {
                     return false;
@@ -52,7 +50,12 @@ pub(in super::super) fn exit_prelude_is_allowed(prelude: &[ASTNode], allow_exten
                 // Also allow nested conditional-update if (assignment/local + optional exit).
                 // This is still "exit-ish" control flow and is lowered as an exit-if in the
                 // prelude lowering path (contract: analysis-only observation, no AST rewrite).
-                if is_conditional_update_if(condition, then_body, else_body.as_ref(), allow_extended) {
+                if is_conditional_update_if(
+                    condition,
+                    then_body,
+                    else_body.as_ref(),
+                    allow_extended,
+                ) {
                     continue;
                 }
                 if !branch_effects_only(then_body, allow_extended) {
@@ -82,7 +85,10 @@ pub(in super::super) fn branch_effects_only(body: &[ASTNode], allow_extended: bo
 }
 
 /// Check if a prelude is allowed specifically for break exits.
-pub(in super::super) fn exit_prelude_is_allowed_for_break(prelude: &[ASTNode], allow_extended: bool) -> bool {
+pub(in super::super) fn exit_prelude_is_allowed_for_break(
+    prelude: &[ASTNode],
+    allow_extended: bool,
+) -> bool {
     for stmt in prelude {
         match stmt {
             ASTNode::Assignment { target, .. } => {
@@ -94,9 +100,7 @@ pub(in super::super) fn exit_prelude_is_allowed_for_break(prelude: &[ASTNode], a
                 }
             }
             ASTNode::Local { .. } => {}
-            ASTNode::MethodCall { .. }
-            | ASTNode::FunctionCall { .. }
-            | ASTNode::Call { .. } => {}
+            ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. } | ASTNode::Call { .. } => {}
             ASTNode::Print { .. } => {
                 if !allow_extended {
                     return false;
@@ -117,7 +121,12 @@ pub(in super::super) fn exit_prelude_is_allowed_for_break(prelude: &[ASTNode], a
                 if is_exit_if_stmt(condition, then_body, else_body.as_ref(), allow_extended) {
                     continue;
                 }
-                if is_conditional_update_if(condition, then_body, else_body.as_ref(), allow_extended) {
+                if is_conditional_update_if(
+                    condition,
+                    then_body,
+                    else_body.as_ref(),
+                    allow_extended,
+                ) {
                     continue;
                 }
                 if !branch_effects_only_for_break(then_body, allow_extended) {
@@ -136,7 +145,10 @@ pub(in super::super) fn exit_prelude_is_allowed_for_break(prelude: &[ASTNode], a
 }
 
 /// Check if a branch contains only effect statements suitable for break prelude.
-pub(in super::super) fn branch_effects_only_for_break(body: &[ASTNode], allow_extended: bool) -> bool {
+pub(in super::super) fn branch_effects_only_for_break(
+    body: &[ASTNode],
+    allow_extended: bool,
+) -> bool {
     body.iter().all(|stmt| match stmt {
         ASTNode::Local { .. } => true,
         ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. } | ASTNode::Call { .. } => true,
@@ -186,9 +198,7 @@ pub(in super::super) fn return_prelude_is_allowed(
                     return false;
                 }
             }
-            ASTNode::MethodCall { .. }
-            | ASTNode::FunctionCall { .. }
-            | ASTNode::Call { .. } => {}
+            ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. } | ASTNode::Call { .. } => {}
             _ => return false,
         }
     }
@@ -418,7 +428,9 @@ fn is_supported_value_ast_for_then_only_return(ast: &ASTNode, allow_extended: bo
                 .iter()
                 .all(|arg| is_supported_value_ast_for_then_only_return(arg, allow_extended))
         }
-        ASTNode::Call { callee, arguments, .. } => {
+        ASTNode::Call {
+            callee, arguments, ..
+        } => {
             if !allow_extended {
                 return false;
             }

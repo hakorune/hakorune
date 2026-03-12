@@ -22,9 +22,18 @@ pub(in crate::mir::builder) struct ClusterCountProfile {
 ///
 /// cluster6+ 追加時は、この配列に1行追加するだけ。
 pub(in crate::mir::builder) const CLUSTER_PROFILES: &[ClusterCountProfile] = &[
-    ClusterCountProfile { required_count: 5, rule: "loop/loop_cond_break_continue_cluster5" },
-    ClusterCountProfile { required_count: 4, rule: "loop/loop_cond_break_continue_cluster4" },
-    ClusterCountProfile { required_count: 3, rule: "loop/loop_cond_break_continue_cluster3" },
+    ClusterCountProfile {
+        required_count: 5,
+        rule: "loop/loop_cond_break_continue_cluster5",
+    },
+    ClusterCountProfile {
+        required_count: 4,
+        rule: "loop/loop_cond_break_continue_cluster4",
+    },
+    ClusterCountProfile {
+        required_count: 3,
+        rule: "loop/loop_cond_break_continue_cluster3",
+    },
 ];
 
 /// Base profile rule (no cluster requirement)
@@ -35,10 +44,8 @@ pub(in crate::mir::builder) const BASE_RULE: &str = "loop/loop_cond_break_contin
 // ============================================================================
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::
-    strip_trailing_continue_view;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::
-    is_supported_bool_expr_with_canon;
+use crate::mir::builder::control_flow::plan::extractors::common_helpers::strip_trailing_continue_view;
+use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
 
 #[derive(Debug, Clone, Copy)]
 pub(in crate::mir::builder) struct NestedLoopBodyProfile {
@@ -67,13 +74,7 @@ pub(in crate::mir::builder) fn scan_nested_loop_body(
     };
 
     let mut seen_call = false;
-    if !scan_body(
-        trimmed_body,
-        false,
-        profile,
-        allow_extended,
-        &mut seen_call,
-    ) {
+    if !scan_body(trimmed_body, false, profile, allow_extended, &mut seen_call) {
         return None;
     }
 
@@ -117,9 +118,7 @@ fn scan_body(
                     *seen_call = true;
                 }
             }
-            ASTNode::MethodCall { .. }
-            | ASTNode::FunctionCall { .. }
-            | ASTNode::Call { .. } => {
+            ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. } | ASTNode::Call { .. } => {
                 if !profile.allow_calls {
                     return false;
                 }

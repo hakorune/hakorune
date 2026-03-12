@@ -1,28 +1,24 @@
 use super::loop_break_helpers::{
-    extract_break_if_parts, extract_loop_var_for_len_condition, extract_loop_increment_at_end,
-    var, lit_int, lit_str,
+    extract_break_if_parts, extract_loop_increment_at_end, extract_loop_var_for_len_condition,
+    lit_int, lit_str, var,
 };
 use super::loop_break_types::LoopBreakFacts;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
+use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
 pub(super) fn try_extract_loop_break_parse_integer_subset(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Option<LoopBreakFacts> {
-    if let Some(range_based) =
-        try_extract_loop_break_parse_integer_range_subset(condition, body)
-    {
+    if let Some(range_based) = try_extract_loop_break_parse_integer_range_subset(condition, body) {
         return Some(range_based);
     }
 
-    let loop_var =
-        extract_loop_var_for_len_condition(condition).or_else(|| {
-            extract_loop_var_for_cached_len_condition(condition)
-        })?;
+    let loop_var = extract_loop_var_for_len_condition(condition)
+        .or_else(|| extract_loop_var_for_cached_len_condition(condition))?;
 
     let counts = count_control_flow(body, ControlFlowDetector::default());
     if counts.break_count != 1 || counts.continue_count > 0 || counts.return_count > 0 {
@@ -51,7 +47,9 @@ pub(super) fn try_extract_loop_break_parse_integer_subset(
     // Rebuild break_condition and carrier_update_in_body without relying on the local `d`.
     // This avoids requiring a local binding in PlanNormalizer while keeping semantics.
     let index_expr = ASTNode::MethodCall {
-        object: Box::new(ASTNode::This { span: Span::unknown() }),
+        object: Box::new(ASTNode::This {
+            span: Span::unknown(),
+        }),
         method: "index_of".to_string(),
         arguments: vec![var(&digits_var), ch_expr],
         span: Span::unknown(),
@@ -94,10 +92,8 @@ fn try_extract_loop_break_parse_integer_range_subset(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Option<LoopBreakFacts> {
-    let loop_var =
-        extract_loop_var_for_len_condition(condition).or_else(|| {
-            extract_loop_var_for_cached_len_condition(condition)
-        })?;
+    let loop_var = extract_loop_var_for_len_condition(condition)
+        .or_else(|| extract_loop_var_for_cached_len_condition(condition))?;
 
     let counts = count_control_flow(body, ControlFlowDetector::default());
     if counts.break_count != 2 || counts.continue_count > 0 || counts.return_count > 0 {
@@ -124,7 +120,9 @@ fn try_extract_loop_break_parse_integer_range_subset(
     let loop_increment = extract_loop_increment_at_end(body, &loop_var)?;
 
     let index_expr = ASTNode::MethodCall {
-        object: Box::new(ASTNode::This { span: Span::unknown() }),
+        object: Box::new(ASTNode::This {
+            span: Span::unknown(),
+        }),
         method: "index_of".to_string(),
         arguments: vec![lit_str(&digits_lit), lit_int(0), ch_expr],
         span: Span::unknown(),
@@ -165,15 +163,13 @@ fn try_extract_loop_break_parse_integer_range_subset(
     })
 }
 
-fn match_local_substring_char(
-    stmt: &ASTNode,
-    loop_var: &str,
-) -> Option<(String, String, ASTNode)> {
+fn match_local_substring_char(stmt: &ASTNode, loop_var: &str) -> Option<(String, String, ASTNode)> {
     let ASTNode::Local {
         variables,
         initial_values,
         ..
-    } = stmt else {
+    } = stmt
+    else {
         return None;
     };
     if variables.len() != 1 || initial_values.len() != 1 {
@@ -188,13 +184,17 @@ fn match_local_substring_char(
         method,
         arguments,
         ..
-    } = expr.as_ref() else {
+    } = expr.as_ref()
+    else {
         return None;
     };
     if method != "substring" || arguments.len() != 2 {
         return None;
     }
-    let ASTNode::Variable { name: haystack_var, .. } = object.as_ref() else {
+    let ASTNode::Variable {
+        name: haystack_var, ..
+    } = object.as_ref()
+    else {
         return None;
     };
     if !matches!(&arguments[0], ASTNode::Variable { name, .. } if name == loop_var) {
@@ -295,12 +295,7 @@ fn build_range_break_condition(ch_expr: &ASTNode) -> ASTNode {
     }
 }
 
-fn match_char_cmp(
-    expr: &ASTNode,
-    ch_var: &str,
-    op: BinaryOperator,
-    lit: &str,
-) -> bool {
+fn match_char_cmp(expr: &ASTNode, ch_var: &str, op: BinaryOperator, lit: &str) -> bool {
     let ASTNode::BinaryOp {
         operator,
         left,
@@ -342,7 +337,8 @@ fn match_local_digits_literal(stmt: &ASTNode) -> Option<(String, String)> {
     let ASTNode::Literal {
         value: LiteralValue::String(lit),
         ..
-    } = expr.as_ref() else {
+    } = expr.as_ref()
+    else {
         return None;
     };
     Some((name, lit.clone()))
@@ -369,7 +365,8 @@ fn match_local_indexof(stmt: &ASTNode, digits_var: &str, ch_var: &str) -> Option
         method,
         arguments,
         ..
-    } = expr.as_ref() else {
+    } = expr.as_ref()
+    else {
         return None;
     };
     if method != "indexOf" || arguments.len() != 1 {
@@ -392,7 +389,8 @@ fn match_local_this_index_of(stmt: &ASTNode, ch_var: &str) -> Option<(String, St
         variables,
         initial_values,
         ..
-    } = stmt else {
+    } = stmt
+    else {
         return None;
     };
     if variables.len() != 1 || initial_values.len() != 1 {
@@ -407,7 +405,8 @@ fn match_local_this_index_of(stmt: &ASTNode, ch_var: &str) -> Option<(String, St
         method,
         arguments,
         ..
-    } = expr.as_ref() else {
+    } = expr.as_ref()
+    else {
         return None;
     };
     if method != "index_of" || arguments.len() != 2 {
@@ -416,7 +415,10 @@ fn match_local_this_index_of(stmt: &ASTNode, ch_var: &str) -> Option<(String, St
     if !matches!(object.as_ref(), ASTNode::This { .. } | ASTNode::Me { .. }) {
         return None;
     }
-    let ASTNode::Variable { name: digits_var, .. } = &arguments[0] else {
+    let ASTNode::Variable {
+        name: digits_var, ..
+    } = &arguments[0]
+    else {
         return None;
     };
     if !matches!(&arguments[1], ASTNode::Variable { name, .. } if name == ch_var) {
@@ -436,7 +438,8 @@ fn match_break_if_less_than_zero(stmt: &ASTNode) -> Option<String> {
         left,
         right,
         ..
-    } = cond else {
+    } = cond
+    else {
         return None;
     };
     let ASTNode::Variable { name, .. } = left.as_ref() else {
@@ -458,7 +461,10 @@ fn match_acc_update_mul10_plus_d(stmt: &ASTNode, d_var: &str) -> Option<String> 
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return None;
     };
-    let ASTNode::Variable { name: carrier_var, .. } = target.as_ref() else {
+    let ASTNode::Variable {
+        name: carrier_var, ..
+    } = target.as_ref()
+    else {
         return None;
     };
     let ASTNode::BinaryOp {
@@ -466,7 +472,8 @@ fn match_acc_update_mul10_plus_d(stmt: &ASTNode, d_var: &str) -> Option<String> 
         left,
         right,
         ..
-    } = value.as_ref() else {
+    } = value.as_ref()
+    else {
         return None;
     };
 

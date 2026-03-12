@@ -167,7 +167,10 @@ fn match_char_local(stmt: &ASTNode, digit_var: &str) -> Option<(String, String)>
         return None;
     }
 
-    let ASTNode::Variable { name: digits_var, .. } = object.as_ref() else {
+    let ASTNode::Variable {
+        name: digits_var, ..
+    } = object.as_ref()
+    else {
         return None;
     };
     if !matches!(&arguments[0], ASTNode::Variable { name, .. } if name == digit_var) {

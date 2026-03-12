@@ -46,7 +46,10 @@ pub(in crate::mir::builder) fn try_extract_skeleton_facts_from_stmt(
         _ => return Ok(None),
     };
 
-    Ok(Some(SkeletonFacts { kind, feature_slots: vec![] }))
+    Ok(Some(SkeletonFacts {
+        kind,
+        feature_slots: vec![],
+    }))
 }
 
 pub(in crate::mir::builder) fn try_extract_loop_skeleton_facts(

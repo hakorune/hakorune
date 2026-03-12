@@ -1,12 +1,14 @@
-use super::loop_break_types::LoopBreakFacts;
+use super::loop_break_body_local_facts::{
+    try_extract_loop_break_body_local_facts, LoopBodyLocalShape,
+};
 use super::loop_break_helpers::*;
-use super::loop_break_body_local_facts::{try_extract_loop_break_body_local_facts, LoopBodyLocalShape};
+use super::loop_break_types::LoopBreakFacts;
 use crate::ast::{ASTNode, BinaryOperator, Span};
-use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
 pub(super) fn try_extract_loop_break_body_local_subset(
     condition: &ASTNode,
@@ -56,11 +58,7 @@ pub(super) fn try_extract_loop_break_body_local_subset(
             if i_var != loop_var {
                 return Ok(None);
             }
-            let seg_expr = substring_call(
-                &s_var,
-                var(&loop_var),
-                add(var(&loop_var), lit_int(1)),
-            );
+            let seg_expr = substring_call(&s_var, var(&loop_var), add(var(&loop_var), lit_int(1)));
             let is_space = ASTNode::BinaryOp {
                 operator: BinaryOperator::Equal,
                 left: Box::new(seg_expr.clone()),

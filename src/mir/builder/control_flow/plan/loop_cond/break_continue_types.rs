@@ -1,9 +1,9 @@
 //! Type definitions for loop_cond_break_continue facts.
 
+use super::break_continue_recipe::LoopCondBreakContinueRecipe;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe;
 use crate::mir::policies::BodyLoweringPolicy;
-use super::break_continue_recipe::LoopCondBreakContinueRecipe;
 
 /// Accept kind for loop_cond_break_continue facts.
 /// This enum represents the different patterns that can be accepted by the facts extractor.

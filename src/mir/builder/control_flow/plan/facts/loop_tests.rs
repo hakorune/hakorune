@@ -515,7 +515,8 @@ mod tests {
             .and_then(|facts| facts.bool_predicate_scan.as_ref())
             .is_some());
 
-        let allow_static = try_build_loop_facts_with_ctx(&block_ctx, &condition, &body).expect("Ok");
+        let allow_static =
+            try_build_loop_facts_with_ctx(&block_ctx, &condition, &body).expect("Ok");
         assert!(allow_static
             .as_ref()
             .and_then(|facts| facts.bool_predicate_scan.as_ref())

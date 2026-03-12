@@ -1,7 +1,7 @@
 //! Step shape extraction for loop analysis
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use super::scan_shapes::StepShape;
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 pub(in crate::mir::builder) fn try_extract_step_shape(

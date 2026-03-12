@@ -61,10 +61,7 @@ pub(in crate::mir::builder) fn try_extract_accum_const_loop_facts(
     }))
 }
 
-fn extract_accum_const_update(
-    stmt: &ASTNode,
-    loop_var: &str,
-) -> Option<(String, ASTNode)> {
+fn extract_accum_const_update(stmt: &ASTNode, loop_var: &str) -> Option<(String, ASTNode)> {
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return None;
     };
@@ -191,12 +188,10 @@ mod tests {
     fn facts_extracts_accum_const_loop_success() {
         let condition = condition_lt("i", 3);
         let body = vec![accum_const("sum", 1), increment("i", 1)];
-        let observation =
-            scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
+        let observation = scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
 
         let facts =
-            try_extract_accum_const_loop_facts(&condition, &body, &observation)
-                .expect("Ok");
+            try_extract_accum_const_loop_facts(&condition, &body, &observation).expect("Ok");
         let facts = facts.expect("Some");
 
         assert_eq!(facts.loop_var, "i");
@@ -207,15 +202,15 @@ mod tests {
     fn facts_rejects_break_or_continue() {
         let condition = condition_lt("i", 3);
         let body = vec![
-            ASTNode::Break { span: Span::unknown() },
+            ASTNode::Break {
+                span: Span::unknown(),
+            },
             increment("i", 1),
         ];
-        let observation =
-            scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
+        let observation = scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
 
         let facts =
-            try_extract_accum_const_loop_facts(&condition, &body, &observation)
-                .expect("Ok");
+            try_extract_accum_const_loop_facts(&condition, &body, &observation).expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -223,12 +218,10 @@ mod tests {
     fn facts_rejects_if_else() {
         let condition = condition_lt("i", 3);
         let body = vec![if_else_stub(), increment("i", 1)];
-        let observation =
-            scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
+        let observation = scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
 
         let facts =
-            try_extract_accum_const_loop_facts(&condition, &body, &observation)
-                .expect("Ok");
+            try_extract_accum_const_loop_facts(&condition, &body, &observation).expect("Ok");
         assert!(facts.is_none());
     }
 
@@ -236,12 +229,10 @@ mod tests {
     fn facts_rejects_var_accumulation() {
         let condition = condition_lt("i", 3);
         let body = vec![accum_var("sum", "i"), increment("i", 1)];
-        let observation =
-            scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
+        let observation = scan_condition_observation(&ConditionShape::Unknown, &StepShape::Unknown);
 
         let facts =
-            try_extract_accum_const_loop_facts(&condition, &body, &observation)
-                .expect("Ok");
+            try_extract_accum_const_loop_facts(&condition, &body, &observation).expect("Ok");
         assert!(facts.is_none());
     }
 }

@@ -3,16 +3,16 @@
 //! These validators check for patterns where exit statements appear only in
 //! the else branch, not in the then branch.
 
+use super::break_continue_recipe::{LoopCondBreakContinueItem, LoopCondBreakContinueRecipe};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
-use super::break_continue_recipe::{LoopCondBreakContinueItem, LoopCondBreakContinueRecipe};
 use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 
-use super::break_continue_validator_prelude::then_only_return_prelude_is_allowed_local_then_return_value;
 use super::break_continue_helpers::{body_has_any_exit, branch_has_exit_or_loop};
+use super::break_continue_validator_prelude::then_only_return_prelude_is_allowed_local_then_return_value;
 
 /// Check if-else pattern: then=non-exit body, else=single return
 /// Box-local (does not touch shared is_exit_if_stmt)
@@ -44,13 +44,14 @@ pub(in super::super) fn is_else_only_return_if_shape(
     match else_body.as_slice() {
         [ASTNode::Return { value: Some(_), .. }] => true,
         [ASTNode::Print { .. }, ASTNode::Return { value: Some(_), .. }] => true,
-        [prelude @ ASTNode::Local { variables, .. }, ASTNode::Return { value: Some(value), .. }]
-            if matches!(value.as_ref(), ASTNode::Variable { name, .. } if variables.len() == 1 && variables[0] == *name)
-                && then_only_return_prelude_is_allowed_local_then_return_value(
-                    std::slice::from_ref(prelude),
-                    value,
-                    allow_return,
-                ) =>
+        [prelude @ ASTNode::Local { variables, .. }, ASTNode::Return {
+            value: Some(value), ..
+        }] if matches!(value.as_ref(), ASTNode::Variable { name, .. } if variables.len() == 1 && variables[0] == *name)
+            && then_only_return_prelude_is_allowed_local_then_return_value(
+                std::slice::from_ref(prelude),
+                value,
+                allow_return,
+            ) =>
         {
             true
         }
@@ -82,12 +83,13 @@ pub(in super::super) fn is_then_only_return_if_shape(
     // - `local t = <pure>; return <value>`
     let then_has_supported_return = match then_body {
         [ASTNode::Return { value: Some(_), .. }] => true,
-        [prelude, ASTNode::Return { value: Some(value), .. }]
-            if then_only_return_prelude_is_allowed_local_then_return_value(
-                std::slice::from_ref(prelude),
-                value,
-                allow_return,
-            ) =>
+        [prelude, ASTNode::Return {
+            value: Some(value), ..
+        }] if then_only_return_prelude_is_allowed_local_then_return_value(
+            std::slice::from_ref(prelude),
+            value,
+            allow_return,
+        ) =>
         {
             true
         }
@@ -216,8 +218,13 @@ pub(in super::super) fn build_else_guard_break_recipes(
     debug: bool,
 ) -> Option<(LoopCondBreakContinueRecipe, LoopCondBreakContinueRecipe)> {
     // Build then recipe (simple body, no exits)
-    let then_recipe =
-        build_branch_recipe(then_body, allow_nested, allow_extended, max_nested_loops, debug)?;
+    let then_recipe = build_branch_recipe(
+        then_body,
+        allow_nested,
+        allow_extended,
+        max_nested_loops,
+        debug,
+    )?;
 
     // Build else recipe - guard breaks become ExitIf items
     let else_recipe = build_else_guard_break_body_recipe(else_body)?;
@@ -251,7 +258,9 @@ fn build_branch_recipe(
     )
 }
 
-pub(in super::super) fn build_else_guard_break_body_recipe(body: &[ASTNode]) -> Option<LoopCondBreakContinueRecipe> {
+pub(in super::super) fn build_else_guard_break_body_recipe(
+    body: &[ASTNode],
+) -> Option<LoopCondBreakContinueRecipe> {
     let recipe_body = RecipeBody::new(body.to_vec());
     let mut items = Vec::with_capacity(recipe_body.len());
     for (idx, stmt) in recipe_body.body.iter().enumerate() {
@@ -264,10 +273,8 @@ pub(in super::super) fn build_else_guard_break_body_recipe(body: &[ASTNode]) -> 
             } => {
                 if then_body.len() == 1 && matches!(&then_body[0], ASTNode::Break { .. }) {
                     // Guard break -> ExitIf
-                    let exit_allowed_block = try_build_exit_allowed_block_recipe(
-                        std::slice::from_ref(stmt),
-                        true,
-                    );
+                    let exit_allowed_block =
+                        try_build_exit_allowed_block_recipe(std::slice::from_ref(stmt), true);
                     items.push(LoopCondBreakContinueItem::exit_if_with_optional_block(
                         stmt_ref,
                         exit_allowed_block,
