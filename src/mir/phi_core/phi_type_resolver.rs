@@ -77,10 +77,9 @@ impl<'f> PhiTypeResolver<'f> {
                 Some(DefKind::Copy { src }) => {
                     // Copy → src へ進む
                     if std::env::var("NYASH_PHI_RESOLVER_DEBUG").is_ok() {
-                        crate::runtime::get_global_ring0().log.debug(&format!(
-                            "[phi_resolver] {:?} -> Copy from {:?}",
-                            v, src
-                        ));
+                        crate::runtime::get_global_ring0()
+                            .log
+                            .debug(&format!("[phi_resolver] {:?} -> Copy from {:?}", v, src));
                     }
                     stack.push(src);
                 }
@@ -114,10 +113,9 @@ impl<'f> PhiTypeResolver<'f> {
                             }
                         }
                     } else if std::env::var("NYASH_PHI_RESOLVER_DEBUG").is_ok() {
-                        crate::runtime::get_global_ring0().log.debug(&format!(
-                            "[phi_resolver] {:?} -> No type in value_types",
-                            v
-                        ));
+                        crate::runtime::get_global_ring0()
+                            .log
+                            .debug(&format!("[phi_resolver] {:?} -> No type in value_types", v));
                     }
                 }
             }

@@ -170,7 +170,9 @@ pub(super) fn check_phi_predecessors(
                 // This is CRITICAL - catches the "no input for predecessor" runtime error
                 for &expected_pred in expected_preds {
                     // Only check reachable predecessors
-                    if reachable.contains(&expected_pred) && !phi_input_preds.contains(&expected_pred) {
+                    if reachable.contains(&expected_pred)
+                        && !phi_input_preds.contains(&expected_pred)
+                    {
                         errors.push(VerificationError::InvalidPhi {
                             phi_value: *dst,
                             block: *block_id,

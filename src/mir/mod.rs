@@ -5,6 +5,7 @@
  * Based on SSA form with effect tracking and Box-aware optimizations
  */
 
+pub mod analysis; // analysis-only views (no AST rewrite)
 #[cfg(feature = "aot-plan-import")]
 pub mod aot_plan_import;
 pub mod basic_block;
@@ -24,7 +25,6 @@ pub mod loop_canonicalizer; // Phase 1: Loop skeleton canonicalization (AST prep
 pub mod naming; // Static box / entry naming rules（NamingBox）
 pub mod optimizer;
 pub mod policies; // shared routing policies (SSOT)
-pub mod analysis; // analysis-only views (no AST rewrite)
 pub mod ssot; // Shared helpers (SSOT) for instruction lowering
 pub mod types; // core MIR enums (ConstValue, Ops, MirType)
 pub mod utils; // Phase 15 control flow utilities for root treatment
@@ -46,12 +46,12 @@ pub mod optimizer_stats; // extracted stats struct
 pub mod passes;
 pub mod phi_core; // Phase 1 scaffold: unified PHI entry (re-exports only)
 pub mod printer;
-pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
 mod printer_helpers; // internal helpers extracted from printer.rs
 pub mod query; // Phase 26-G: MIR read/write/CFGビュー (MirQuery)
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 mod spanned_instruction;
+pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
 pub mod value_id;
 pub mod value_kind; // Phase 26-A: ValueId型安全化
 pub mod verification;
@@ -70,7 +70,7 @@ pub(crate) use builder::detect_read_digits_loop_true_shape;
 pub(crate) use builder::detect_continue_shape;
 // Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
 pub(crate) use builder::detect_parse_number_shape;
-// Phase 143-P1: 
+// Phase 143-P1:
 pub(crate) use builder::detect_parse_string_shape;
 // Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
 pub(crate) use builder::detect_escape_skip_shape;
@@ -581,7 +581,9 @@ mod tests {
         if crate::config::env::mir_core13_pure() {
             if crate::config::env::joinir_dev::debug_enabled() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug("[TEST] skip try/catch under Core-13 pure mode");
+                ring0
+                    .log
+                    .debug("[TEST] skip try/catch under Core-13 pure mode");
             }
             return;
         }

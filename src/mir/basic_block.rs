@@ -116,7 +116,7 @@ impl BasicBlock {
             effects: EffectMask::PURE,
             reachable: false,
             sealed: false,
-            return_env: None, // Phase 260 P2: No return env by default
+            return_env: None,        // Phase 260 P2: No return env by default
             return_env_layout: None, // Phase 260 P2: Unknown by default
         }
     }
@@ -237,7 +237,7 @@ impl BasicBlock {
                 ..
             }) => vec![OutEdge {
                 target,
-                args: edge_args.clone(),  // Phase 260 P2: No fallback, terminator SSOT
+                args: edge_args.clone(), // Phase 260 P2: No fallback, terminator SSOT
             }],
             _ => Vec::new(),
         }

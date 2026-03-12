@@ -176,9 +176,7 @@ impl MirInstruction {
             return used;
         }
         match self {
-            MirInstruction::Const { .. } | MirInstruction::Jump { .. } => {
-                Vec::new()
-            }
+            MirInstruction::Const { .. } | MirInstruction::Jump { .. } => Vec::new(),
 
             MirInstruction::UnaryOp { operand, .. }
             | MirInstruction::Load { ptr: operand, .. }
@@ -241,7 +239,6 @@ impl MirInstruction {
             MirInstruction::FutureNew { value, .. } => vec![*value],
             MirInstruction::FutureSet { future, value } => vec![*future, *value],
             MirInstruction::Await { future, .. } => vec![*future],
-
         }
     }
 }

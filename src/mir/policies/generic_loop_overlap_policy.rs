@@ -16,10 +16,7 @@ pub(crate) fn v1_shape_blocks_v0(shape: Option<GenericLoopV1ShapeId>) -> bool {
     shape.is_some()
 }
 
-pub(crate) fn is_v1_shape_overlap(
-    a: GenericLoopV1ShapeId,
-    b: GenericLoopV1ShapeId,
-) -> bool {
+pub(crate) fn is_v1_shape_overlap(a: GenericLoopV1ShapeId, b: GenericLoopV1ShapeId) -> bool {
     // Current policy: any distinct shapes are treated as an overlap (fail-fast).
     a != b
 }

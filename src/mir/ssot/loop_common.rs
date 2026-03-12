@@ -1,5 +1,5 @@
-use crate::mir::{BasicBlockId, BinaryOp, ConstValue, MirFunction, MirInstruction, ValueId};
 use crate::mir::query::{MirQuery, MirQueryBox};
+use crate::mir::{BasicBlockId, BinaryOp, ConstValue, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
 /// Apply `var += step` before continue so that header sees updated value.

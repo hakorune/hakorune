@@ -66,11 +66,9 @@ pub fn capture_actual_predecessor_and_jump(
             crate::mir::ssot::cf_common::set_jump(function, cur_id, target_block);
             Ok(Some(cur_id))
         } else {
-            Err(
-                FreezeContract::new("builder/capture_jump_without_function")
-                    .field("target_bb", format!("{:?}", target_block))
-                    .build(),
-            )
+            Err(FreezeContract::new("builder/capture_jump_without_function")
+                .field("target_bb", format!("{:?}", target_block))
+                .build())
         }
     } else {
         // 既に終端済み（break/continue等）、PHI incomingから除外

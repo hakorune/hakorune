@@ -370,7 +370,10 @@ mod tests {
             args: vec![],
             effects: EffectMask::PURE,
         };
-        assert_eq!(legacy_callsite_reject_code(&inst), Some("call-missing-callee"));
+        assert_eq!(
+            legacy_callsite_reject_code(&inst),
+            Some("call-missing-callee")
+        );
         assert!(!is_supported_vm_instruction(&inst));
     }
 
@@ -519,7 +522,10 @@ mod tests {
         assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), lowered);
         assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), removed);
         assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, vocab);
-        assert_eq!(crate::mir::instruction_introspection::mir14_instruction_names().len(), mir14);
+        assert_eq!(
+            crate::mir::instruction_introspection::mir14_instruction_names().len(),
+            mir14
+        );
         assert_eq!(core26, 26, "Core-26 profile contract changed");
     }
 

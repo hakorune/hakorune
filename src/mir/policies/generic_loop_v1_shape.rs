@@ -33,9 +33,13 @@ impl GenericLoopV1ShapeId {
             Self::ParseMap => "parse_map",
             Self::PeekParse => "peek_parse",
             Self::RewriteKnownItoaComplexStep => "rewriteknown_itoa_complex_step",
-            Self::RewriteKnownTrimLoopCondAndMethodCall => "rewriteknown_trim_loop_cond_and_methodcall",
+            Self::RewriteKnownTrimLoopCondAndMethodCall => {
+                "rewriteknown_trim_loop_cond_and_methodcall"
+            }
             Self::ParseProgram2NestedLoopIfReturn => "parse_program2_nested_loop_if_return",
-            Self::ParseProgram2NestedLoopIfElseReturn => "parse_program2_nested_loop_if_else_return",
+            Self::ParseProgram2NestedLoopIfElseReturn => {
+                "parse_program2_nested_loop_if_else_return"
+            }
             Self::ParseProgram2NestedLoopIfReturnVar => "parse_program2_nested_loop_if_return_var",
             Self::ParseProgram2NestedLoopIfReturnLocal => {
                 "parse_program2_nested_loop_if_return_local"

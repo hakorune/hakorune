@@ -4,22 +4,10 @@
 pub fn mir14_instruction_names() -> &'static [&'static str] {
     &[
         // values / arithmetic
-        "Const",
-        "UnaryOp",
-        "BinOp",
-        "Compare",
-        "TypeOp",
-        // memory
-        "Load",
-        "Store",
-        // control flow
-        "Jump",
-        "Branch",
-        "Return",
-        "Phi",
-        // boxes / calls
-        "NewBox",
-        "Call",
+        "Const", "UnaryOp", "BinOp", "Compare", "TypeOp", // memory
+        "Load", "Store", // control flow
+        "Jump", "Branch", "Return", "Phi", // boxes / calls
+        "NewBox", "Call",
     ]
 }
 

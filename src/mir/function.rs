@@ -158,7 +158,9 @@ impl MirFunction {
             && std::env::var("NYASH_LOCAL_SSA_TRACE").ok().as_deref() == Some("1")
         {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[mir-function] replacing existing block {:?}", id));
+            ring0
+                .log
+                .debug(&format!("[mir-function] replacing existing block {:?}", id));
         }
         self.blocks.insert(id, block);
         id
@@ -212,7 +214,9 @@ impl MirFunction {
         for (id, _block) in &self.blocks {
             if !reachable.contains(id) {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("Warning: Block {} is unreachable", id));
+                ring0
+                    .log
+                    .debug(&format!("Warning: Block {} is unreachable", id));
             }
         }
 
@@ -441,10 +445,7 @@ impl MirModule {
     }
 
     /// NCL-1: Store closure body into module metadata and return stable id.
-    pub fn intern_closure_body(
-        &mut self,
-        body: Vec<crate::ast::ASTNode>,
-    ) -> ClosureBodyId {
+    pub fn intern_closure_body(&mut self, body: Vec<crate::ast::ASTNode>) -> ClosureBodyId {
         let id = self.metadata.next_closure_body_id;
         self.metadata.next_closure_body_id = self.metadata.next_closure_body_id.saturating_add(1);
         self.metadata.closure_bodies.insert(id, body);

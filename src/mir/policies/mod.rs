@@ -17,6 +17,6 @@ pub mod loop_body_lowering_policy;
 pub mod post_loop_early_return_plan;
 pub mod return_prelude_policy;
 
-pub use loop_body_lowering_policy::BodyLoweringPolicy;
-pub use generic_loop_v1_shape::GenericLoopV1ShapeId;
 pub use cond_profile::{BoundExpr, CmpOp, CondParam, CondProfile, CondSkeleton, StepExpr};
+pub use generic_loop_v1_shape::GenericLoopV1ShapeId;
+pub use loop_body_lowering_policy::BodyLoweringPolicy;

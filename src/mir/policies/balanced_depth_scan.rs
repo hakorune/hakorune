@@ -89,7 +89,9 @@ fn classify_balanced_depth_scan(
 
     let depth_delta_name = "depth_delta".to_string();
     let depth_next_name = "depth_next".to_string();
-    if summary.declared_locals.contains(&depth_delta_name) || summary.declared_locals.contains(&depth_next_name) {
+    if summary.declared_locals.contains(&depth_delta_name)
+        || summary.declared_locals.contains(&depth_next_name)
+    {
         return PolicyDecision::Reject(error_tags::freeze(
             "[phase107/balanced_depth_scan/contract/name_conflict] 'depth_delta' or 'depth_next' is already declared in the loop body",
         ));
@@ -194,7 +196,8 @@ fn extract_depth_scan_shape(
     let (depth_from_open, depth_from_close, has_return_i) =
         find_depth_branches(body, &ch_name, loop_counter_name, open, close)?;
 
-    let (Some(depth_from_open), Some(depth_from_close)) = (depth_from_open, depth_from_close) else {
+    let (Some(depth_from_open), Some(depth_from_close)) = (depth_from_open, depth_from_close)
+    else {
         // Not a depth-scan candidate: no `if ch == open/close` pair.
         return Ok(None);
     };
@@ -285,10 +288,9 @@ fn find_substring_body_local(body: &[ASTNode], loop_counter_name: &str) -> Optio
                 variables,
                 initial_values,
                 ..
-            } if variables.len() == 1 && initial_values.len() == 1 => (
-                variables[0].clone(),
-                initial_values[0].as_deref()?,
-            ),
+            } if variables.len() == 1 && initial_values.len() == 1 => {
+                (variables[0].clone(), initial_values[0].as_deref()?)
+            }
             _ => continue,
         };
 
@@ -349,10 +351,15 @@ fn find_depth_branches(
                 left,
                 right,
                 ..
-            } if matches!(left.as_ref(), ASTNode::Variable { name, .. } if name == ch_name) => match right.as_ref() {
-                ASTNode::Literal { value: LiteralValue::String(s), .. } => s.as_str(),
-                _ => continue,
-            },
+            } if matches!(left.as_ref(), ASTNode::Variable { name, .. } if name == ch_name) => {
+                match right.as_ref() {
+                    ASTNode::Literal {
+                        value: LiteralValue::String(s),
+                        ..
+                    } => s.as_str(),
+                    _ => continue,
+                }
+            }
             _ => continue,
         };
 
@@ -369,7 +376,9 @@ fn find_depth_branches(
 }
 
 fn find_depth_delta_assign(stmts: &[ASTNode], delta: i64) -> Result<String, String> {
-    if let Some(v) = expr_view::find_single_self_update_assign_by_const_any_target(stmts, delta, true) {
+    if let Some(v) =
+        expr_view::find_single_self_update_assign_by_const_any_target(stmts, delta, true)
+    {
         return Ok(v.target_var.to_string());
     }
 
@@ -416,11 +425,13 @@ fn find_depth_zero_return(stmts: &[ASTNode], depth_name: &str, loop_counter_name
             continue;
         }
 
-        if then_body.iter().any(|n| matches!(
-            n,
-            ASTNode::Return { value: Some(v), .. }
-            if matches!(v.as_ref(), ASTNode::Variable { name, .. } if name == loop_counter_name)
-        )) {
+        if then_body.iter().any(|n| {
+            matches!(
+                n,
+                ASTNode::Return { value: Some(v), .. }
+                if matches!(v.as_ref(), ASTNode::Variable { name, .. } if name == loop_counter_name)
+            )
+        }) {
             return true;
         }
     }
@@ -535,7 +546,9 @@ mod tests {
 
     fn find_first_loop<'a>(node: &'a ASTNode) -> Option<(&'a ASTNode, &'a [ASTNode])> {
         match node {
-            ASTNode::Loop { condition, body, .. } => Some((condition.as_ref(), body.as_slice())),
+            ASTNode::Loop {
+                condition, body, ..
+            } => Some((condition.as_ref(), body.as_slice())),
             ASTNode::Program { statements, .. } => statements.iter().find_map(find_first_loop),
             ASTNode::BoxDeclaration {
                 methods,
@@ -587,7 +600,10 @@ mod tests {
             initial_values: vec![Some(Box::new(ASTNode::MethodCall {
                 object: Box::new(var_node("s")),
                 method: "substring".to_string(),
-                arguments: vec![var_node("i"), bin(BinaryOperator::Add, var_node("i"), int_lit(1))],
+                arguments: vec![
+                    var_node("i"),
+                    bin(BinaryOperator::Add, var_node("i"), int_lit(1)),
+                ],
                 span: span(),
             }))],
             span: span(),
@@ -652,8 +668,12 @@ mod tests {
             "post-loop ret_expr must be `i`, got {:?}",
             result.post_loop_early_return.ret_expr
         );
-        assert!(result.allowed_body_locals_for_conditions.contains(&"ch".to_string()));
-        assert!(result.allowed_body_locals_for_conditions.contains(&"depth_next".to_string()));
+        assert!(result
+            .allowed_body_locals_for_conditions
+            .contains(&"ch".to_string()));
+        assert!(result
+            .allowed_body_locals_for_conditions
+            .contains(&"depth_next".to_string()));
         assert!(result.carrier_updates_override.contains_key("i"));
         assert!(result.carrier_updates_override.contains_key("depth"));
     }
@@ -680,7 +700,11 @@ static box Main {
         let ast = NyashParser::parse_from_string(src).expect("parse ok");
         let (condition, body) = find_first_loop(&ast).expect("find loop");
         let decision = classify_balanced_depth_scan_array_end(condition, body);
-        assert!(matches!(decision, PolicyDecision::Use(_)), "got {:?}", decision);
+        assert!(
+            matches!(decision, PolicyDecision::Use(_)),
+            "got {:?}",
+            decision
+        );
     }
 
     #[test]
@@ -700,8 +724,12 @@ static box Main {
             var_node("depth"),
             bin(BinaryOperator::Add, int_lit(1), var_node("depth")),
         )];
-        let v = expr_view::find_single_self_update_assign_by_const_any_target(&depth_add_swapped, 1, true)
-            .expect("depth = 1 + depth");
+        let v = expr_view::find_single_self_update_assign_by_const_any_target(
+            &depth_add_swapped,
+            1,
+            true,
+        )
+        .expect("depth = 1 + depth");
         assert_eq!(v.target_var, "depth");
         assert_eq!(v.rhs.op, expr_view::SelfUpdateOp::Add);
         assert_eq!(v.rhs.step, 1);
@@ -723,14 +751,19 @@ static box Main {
             bin(BinaryOperator::Subtract, int_lit(1), var_node("depth")),
         )];
         assert!(
-            expr_view::find_single_self_update_assign_by_const_any_target(&depth_sub_wrong, -1, true)
-                .is_none(),
+            expr_view::find_single_self_update_assign_by_const_any_target(
+                &depth_sub_wrong,
+                -1,
+                true
+            )
+            .is_none(),
             "1 - depth must be rejected"
         );
     }
 
     #[test]
-    fn analysis_view_blockexpr_accepts_single_update_and_rejects_ambiguous_or_control_flow_prelude() {
+    fn analysis_view_blockexpr_accepts_single_update_and_rejects_ambiguous_or_control_flow_prelude()
+    {
         let ok_tail_update = vec![blockexpr(
             vec![ASTNode::Local {
                 variables: vec!["t".to_string()],
@@ -762,15 +795,19 @@ static box Main {
             int_lit(0),
         )];
         assert!(
-            expr_view::find_single_self_update_assign_by_const_any_target(&two_updates, 1, true).is_none(),
+            expr_view::find_single_self_update_assign_by_const_any_target(&two_updates, 1, true)
+                .is_none(),
             "BlockExpr with 2 updates must be rejected"
         );
 
         let prelude_has_if = vec![blockexpr(
-            vec![if_then(int_lit(1), vec![assign(
-                var_node("depth"),
-                bin(BinaryOperator::Add, var_node("depth"), int_lit(1)),
-            )])],
+            vec![if_then(
+                int_lit(1),
+                vec![assign(
+                    var_node("depth"),
+                    bin(BinaryOperator::Add, var_node("depth"), int_lit(1)),
+                )],
+            )],
             int_lit(0),
         )];
         assert!(

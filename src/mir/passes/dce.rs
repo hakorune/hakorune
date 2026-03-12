@@ -109,7 +109,9 @@ mod tests {
     use super::*;
     use crate::ast::Span;
     use crate::mir::builder::copy_emitter::{self, CopyEmitReason};
-    use crate::mir::{BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirInstruction, MirType};
+    use crate::mir::{
+        BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirInstruction, MirType,
+    };
 
     #[test]
     fn test_dce_keeps_edge_args_values() {
@@ -136,8 +138,13 @@ mod tests {
             });
             bb0.instruction_spans.push(Span::unknown());
 
-            copy_emitter::emit_copy_into_detached_block(bb0, v2, v1, CopyEmitReason::TestDceEdgeArgCopy)
-                .unwrap();
+            copy_emitter::emit_copy_into_detached_block(
+                bb0,
+                v2,
+                v1,
+                CopyEmitReason::TestDceEdgeArgCopy,
+            )
+            .unwrap();
 
             // This pure instruction should be eliminated.
             bb0.instructions.push(MirInstruction::Const {

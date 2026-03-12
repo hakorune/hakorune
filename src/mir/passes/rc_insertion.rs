@@ -24,9 +24,9 @@ use crate::mir::MirModule;
 #[cfg(feature = "rc-insertion-minimal")]
 use crate::ast::Span;
 #[cfg(feature = "rc-insertion-minimal")]
-use crate::mir::{BasicBlockId, MirInstruction, ValueId};
-#[cfg(feature = "rc-insertion-minimal")]
 use crate::mir::types::ConstValue;
+#[cfg(feature = "rc-insertion-minimal")]
+use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 #[cfg(feature = "rc-insertion-minimal")]
 use std::collections::{HashMap, HashSet};
 #[cfg(feature = "rc-insertion-minimal")]
@@ -176,7 +176,9 @@ pub fn insert_rc_instructions(module: &mut MirModule) -> RcInsertionStats {
                     MirInstruction::Jump { target, .. } => {
                         predecessors.entry(*target).or_default().push(*bid);
                     }
-                    MirInstruction::Branch { then_bb, else_bb, .. } => {
+                    MirInstruction::Branch {
+                        then_bb, else_bb, ..
+                    } => {
                         predecessors.entry(*then_bb).or_default().push(*bid);
                         predecessors.entry(*else_bb).or_default().push(*bid);
                     }
@@ -192,7 +194,10 @@ pub fn insert_rc_instructions(module: &mut MirModule) -> RcInsertionStats {
                 if !func.blocks.contains_key(target) {
                     continue;
                 }
-                let preds = predecessors.get(target).map(|p| p.as_slice()).unwrap_or(&[]);
+                let preds = predecessors
+                    .get(target)
+                    .map(|p| p.as_slice())
+                    .unwrap_or(&[]);
                 if preds.len() == 1 {
                     debug_assert!(
                         preds[0] == *bid,
@@ -212,9 +217,10 @@ pub fn insert_rc_instructions(module: &mut MirModule) -> RcInsertionStats {
 
             let empty_state: HashMap<ValueId, ValueId> = HashMap::new();
             let empty_null: HashSet<ValueId> = HashSet::new(); // P8: null 伝播用
-            let mut initial_state: HashMap<BasicBlockId, HashMap<ValueId, ValueId>> = HashMap::new();
+            let mut initial_state: HashMap<BasicBlockId, HashMap<ValueId, ValueId>> =
+                HashMap::new();
             let mut initial_null_values: HashMap<BasicBlockId, HashSet<ValueId>> = HashMap::new(); // P8
-            // P5: end_states を保持して multi-pred join に使う
+                                                                                                   // P5: end_states を保持して multi-pred join に使う
             let mut end_states: HashMap<BasicBlockId, HashMap<ValueId, ValueId>> = HashMap::new();
             let mut end_null_states: HashMap<BasicBlockId, HashSet<ValueId>> = HashMap::new(); // P8
             let max_iters = func.blocks.len().max(1);
@@ -315,10 +321,8 @@ pub fn insert_rc_instructions(module: &mut MirModule) -> RcInsertionStats {
                     // intersection 計算: 最初の state から所有 HashMap を作成（retain のため）
                     // ⚠️ pred_end_states[0] は &HashMap なので .clone() は参照複製になる
                     // → iter().map() で所有 HashMap を作る
-                    let mut join_state: HashMap<ValueId, ValueId> = pred_end_states[0]
-                        .iter()
-                        .map(|(k, v)| (*k, *v))
-                        .collect();
+                    let mut join_state: HashMap<ValueId, ValueId> =
+                        pred_end_states[0].iter().map(|(k, v)| (*k, *v)).collect();
 
                     for other_state in pred_end_states.iter().skip(1) {
                         // join_state から、other_state に無い or value が違う ptr を削除
@@ -333,7 +337,10 @@ pub fn insert_rc_instructions(module: &mut MirModule) -> RcInsertionStats {
                     } else {
                         // 非 empty intersection → initial_state にセット
                         debug_assert!(
-                            matches!(block.terminator.as_ref(), Some(MirInstruction::Return { .. })),
+                            matches!(
+                                block.terminator.as_ref(),
+                                Some(MirInstruction::Return { .. })
+                            ),
                             "rc_insertion: multi-pred join only for Return blocks"
                         );
                         if initial_state.get(bid) != Some(&join_state) {
@@ -355,17 +362,10 @@ pub fn insert_rc_instructions(module: &mut MirModule) -> RcInsertionStats {
                 }
             }
 
-            let break_cleanup_values_by_block = collect_break_cleanup_values(
-                func,
-                &predecessors,
-                &end_states,
-                &initial_state,
-            );
-            let continue_cleanup_values_by_block = collect_continue_cleanup_values(
-                func,
-                &predecessors,
-                &end_states,
-            );
+            let break_cleanup_values_by_block =
+                collect_break_cleanup_values(func, &predecessors, &end_states, &initial_state);
+            let continue_cleanup_values_by_block =
+                collect_continue_cleanup_values(func, &predecessors, &end_states);
             if let Err(err) = verify_rc_phi_edge_contracts(
                 &func.signature.name,
                 func,
@@ -422,9 +422,10 @@ pub fn insert_rc_instructions(module: &mut MirModule) -> RcInsertionStats {
                         "rc_insertion: initial state must be non-empty"
                     );
                     if let Some(MirInstruction::Jump { target, .. }) = terminator.as_ref() {
-                        let target_pred_count = predecessors.get(target).map(|p| p.len()).unwrap_or(0);
-                        let is_jump_to_multi_pred_return = target_pred_count >= 2
-                            && return_blocks.contains(target);
+                        let target_pred_count =
+                            predecessors.get(target).map(|p| p.len()).unwrap_or(0);
+                        let is_jump_to_multi_pred_return =
+                            target_pred_count >= 2 && return_blocks.contains(target);
                         let has_early_exit_cleanup = break_cleanup_values_by_block
                             .contains_key(bid)
                             || continue_cleanup_values_by_block.contains_key(bid);
@@ -495,7 +496,10 @@ fn collect_break_cleanup_values(
     let mut by_pred_block: HashMap<BasicBlockId, Vec<ValueId>> = HashMap::new();
 
     for (ret_bid, ret_block) in &func.blocks {
-        if !matches!(ret_block.terminator.as_ref(), Some(MirInstruction::Return { .. })) {
+        if !matches!(
+            ret_block.terminator.as_ref(),
+            Some(MirInstruction::Return { .. })
+        ) {
             continue;
         }
         // Safety: keep break cleanup limited to immediate-return exits only.
@@ -572,7 +576,10 @@ fn collect_continue_cleanup_values(
 
     for (target_bid, target_block) in &func.blocks {
         // Continue target is loop-header-like Branch block in this minimal contract.
-        if !matches!(target_block.terminator.as_ref(), Some(MirInstruction::Branch { .. })) {
+        if !matches!(
+            target_block.terminator.as_ref(),
+            Some(MirInstruction::Branch { .. })
+        ) {
             continue;
         }
         let preds = predecessors.get(target_bid).cloned().unwrap_or_default();
@@ -590,10 +597,8 @@ fn collect_continue_cleanup_values(
             continue;
         }
 
-        let mut join_state: HashMap<ValueId, ValueId> = pred_end_states[0]
-            .iter()
-            .map(|(k, v)| (*k, *v))
-            .collect();
+        let mut join_state: HashMap<ValueId, ValueId> =
+            pred_end_states[0].iter().map(|(k, v)| (*k, *v)).collect();
         for other_state in pred_end_states.iter().skip(1) {
             join_state.retain(|ptr, val| other_state.get(ptr) == Some(val));
         }
@@ -682,7 +687,8 @@ fn verify_rc_phi_edge_contract_for_kind(
         let Some(pred_block) = func.blocks.get(pred_bid) else {
             continue;
         };
-        let Some(MirInstruction::Jump { target, edge_args }) = pred_block.terminator.as_ref() else {
+        let Some(MirInstruction::Jump { target, edge_args }) = pred_block.terminator.as_ref()
+        else {
             return Err(RcPhiEdgeMismatch {
                 func_name: func_name.to_string(),
                 cleanup_kind,
@@ -698,7 +704,10 @@ fn verify_rc_phi_edge_contract_for_kind(
         };
         match cleanup_kind {
             "break" => {
-                if !matches!(target_block.terminator.as_ref(), Some(MirInstruction::Return { .. })) {
+                if !matches!(
+                    target_block.terminator.as_ref(),
+                    Some(MirInstruction::Return { .. })
+                ) {
                     return Err(RcPhiEdgeMismatch {
                         func_name: func_name.to_string(),
                         cleanup_kind,
@@ -710,7 +719,10 @@ fn verify_rc_phi_edge_contract_for_kind(
                 }
             }
             "continue" => {
-                if !matches!(target_block.terminator.as_ref(), Some(MirInstruction::Branch { .. })) {
+                if !matches!(
+                    target_block.terminator.as_ref(),
+                    Some(MirInstruction::Branch { .. })
+                ) {
                     return Err(RcPhiEdgeMismatch {
                         func_name: func_name.to_string(),
                         cleanup_kind,
@@ -726,7 +738,11 @@ fn verify_rc_phi_edge_contract_for_kind(
 
         if let Some(args) = edge_args.as_ref() {
             if !args.values.is_empty() {
-                let conflict = args.values.iter().copied().find(|v| release_set.contains(v));
+                let conflict = args
+                    .values
+                    .iter()
+                    .copied()
+                    .find(|v| release_set.contains(v));
                 return Err(RcPhiEdgeMismatch {
                     func_name: func_name.to_string(),
                     cleanup_kind,

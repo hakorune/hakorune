@@ -403,7 +403,6 @@ inst_meta! {
     }
 }
 
-
 // ---- Phi ---- (macro-generated)
 inst_meta! {
     pub struct PhiInst { dst: ValueId, inputs: Vec<(BasicBlockId, ValueId)> }
@@ -447,7 +446,6 @@ inst_meta! {
         used = |s: &Self| vec![s.value, s.ptr];
     }
 }
-
 
 // ---- Return ---- (macro-generated)
 inst_meta! {

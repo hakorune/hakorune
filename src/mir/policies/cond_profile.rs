@@ -34,7 +34,10 @@ pub enum BoundExpr {
     /// length(var)
     LengthOfVar(String),
     /// length(haystack) - length(needle)
-    LengthMinusVar { haystack: String, needle: String },
+    LengthMinusVar {
+        haystack: String,
+        needle: String,
+    },
     Unknown,
 }
 

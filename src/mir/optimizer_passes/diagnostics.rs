@@ -29,10 +29,7 @@ pub fn diagnose_unlowered_type_ops(
             for inst in &block.instructions {
                 match inst {
                     MirInstruction::Call {
-                        callee:
-                            Some(crate::mir::Callee::Method {
-                                method, ..
-                            }),
+                        callee: Some(crate::mir::Callee::Method { method, .. }),
                         ..
                     } if method == "is"
                         || method == "as"

@@ -407,10 +407,7 @@ impl MirVerifier {
         for (bid, bb) in &function.blocks {
             if let Some(I::Return { .. }) = bb.terminator {
                 for (idx, inst) in bb.instructions.iter().enumerate() {
-                    let allowed = matches!(
-                        inst,
-                        I::Const { .. } | I::Copy { .. } | I::Phi { .. }
-                    );
+                    let allowed = matches!(inst, I::Const { .. } | I::Copy { .. } | I::Phi { .. });
                     if !allowed {
                         let name = format!("{:?}", inst);
                         errors.push(VerificationError::RetBlockSideEffect {

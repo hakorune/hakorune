@@ -124,7 +124,9 @@ pub fn match_add_by_const<'expr, 'name>(
 ) -> Option<SelfUpdateByConstView<'name>> {
     let bin = match_binop(expr, BinaryOperator::Add)?;
 
-    if matches!(match_var(bin.left), Some(name) if name == var_name) && match_int(bin.right) == Some(step) {
+    if matches!(match_var(bin.left), Some(name) if name == var_name)
+        && match_int(bin.right) == Some(step)
+    {
         return Some(SelfUpdateByConstView {
             var_name,
             op: SelfUpdateOp::Add,
@@ -156,7 +158,9 @@ pub fn match_sub_by_const<'expr, 'name>(
 ) -> Option<SelfUpdateByConstView<'name>> {
     let bin = match_binop(expr, BinaryOperator::Subtract)?;
 
-    if matches!(match_var(bin.left), Some(name) if name == var_name) && match_int(bin.right) == Some(step) {
+    if matches!(match_var(bin.left), Some(name) if name == var_name)
+        && match_int(bin.right) == Some(step)
+    {
         return Some(SelfUpdateByConstView {
             var_name,
             op: SelfUpdateOp::Sub,
@@ -181,7 +185,10 @@ pub fn match_self_update_by_const<'expr, 'name>(
 
 fn blockexpr_prelude_is_allowed(prelude_stmts: &[ASTNode]) -> bool {
     prelude_stmts.iter().all(|stmt| {
-        matches!(stmt, ASTNode::Local { .. } | ASTNode::Assignment { .. } | ASTNode::BlockExpr { .. })
+        matches!(
+            stmt,
+            ASTNode::Local { .. } | ASTNode::Assignment { .. } | ASTNode::BlockExpr { .. }
+        )
     })
 }
 
@@ -213,7 +220,13 @@ fn collect_self_update_assign_matches<'a>(
         for stmt in block.prelude_stmts {
             collect_self_update_assign_matches(stmt, target_var, step, allow_commutative_add, out);
         }
-        collect_self_update_assign_matches(block.tail_expr, target_var, step, allow_commutative_add, out);
+        collect_self_update_assign_matches(
+            block.tail_expr,
+            target_var,
+            step,
+            allow_commutative_add,
+            out,
+        );
     }
 }
 
@@ -229,7 +242,13 @@ pub fn find_single_self_update_assign_by_const<'a>(
 ) -> Option<SelfUpdateAssignByConstView<'a>> {
     let mut matches: Vec<SelfUpdateAssignByConstView<'a>> = Vec::new();
     for stmt in stmts {
-        collect_self_update_assign_matches(stmt, target_var, step, allow_commutative_add, &mut matches);
+        collect_self_update_assign_matches(
+            stmt,
+            target_var,
+            step,
+            allow_commutative_add,
+            &mut matches,
+        );
         if matches.len() > 1 {
             return None;
         }
@@ -265,7 +284,12 @@ fn collect_self_update_assign_matches_any_target<'a>(
         for stmt in block.prelude_stmts {
             collect_self_update_assign_matches_any_target(stmt, delta, allow_commutative_add, out);
         }
-        collect_self_update_assign_matches_any_target(block.tail_expr, delta, allow_commutative_add, out);
+        collect_self_update_assign_matches_any_target(
+            block.tail_expr,
+            delta,
+            allow_commutative_add,
+            out,
+        );
     }
 }
 
@@ -278,7 +302,12 @@ pub fn find_single_self_update_assign_by_const_any_target<'a>(
 ) -> Option<SelfUpdateAssignByConstView<'a>> {
     let mut matches: Vec<SelfUpdateAssignByConstView<'a>> = Vec::new();
     for stmt in stmts {
-        collect_self_update_assign_matches_any_target(stmt, delta, allow_commutative_add, &mut matches);
+        collect_self_update_assign_matches_any_target(
+            stmt,
+            delta,
+            allow_commutative_add,
+            &mut matches,
+        );
         if matches.len() > 1 {
             return None;
         }

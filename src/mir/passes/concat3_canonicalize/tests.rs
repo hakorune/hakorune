@@ -77,11 +77,21 @@ fn build_concat3_chain_module(right_assoc: bool) -> MirModule {
         value: Some(ValueId(5)),
     });
 
-    func.metadata.value_types.insert(ValueId(1), MirType::String);
-    func.metadata.value_types.insert(ValueId(2), MirType::String);
-    func.metadata.value_types.insert(ValueId(3), MirType::String);
-    func.metadata.value_types.insert(ValueId(4), MirType::String);
-    func.metadata.value_types.insert(ValueId(5), MirType::String);
+    func.metadata
+        .value_types
+        .insert(ValueId(1), MirType::String);
+    func.metadata
+        .value_types
+        .insert(ValueId(2), MirType::String);
+    func.metadata
+        .value_types
+        .insert(ValueId(3), MirType::String);
+    func.metadata
+        .value_types
+        .insert(ValueId(4), MirType::String);
+    func.metadata
+        .value_types
+        .insert(ValueId(5), MirType::String);
 
     module.add_function(func);
     module

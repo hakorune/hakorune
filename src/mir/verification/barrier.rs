@@ -84,10 +84,7 @@ pub fn check_barrier_context(function: &MirFunction) -> Result<(), Vec<Verificat
             .map(|(i, sp)| (i, sp.inst))
             .collect();
         for (idx, inst) in &insts {
-            let is_barrier = matches!(
-                inst,
-                MirInstruction::Barrier { .. }
-            );
+            let is_barrier = matches!(inst, MirInstruction::Barrier { .. });
             if !is_barrier {
                 continue;
             }

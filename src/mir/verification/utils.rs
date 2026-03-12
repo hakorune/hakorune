@@ -46,7 +46,6 @@ impl DominatorTree {
         };
         self.tin[a_idx] <= self.tin[b_idx] && self.tout[b_idx] <= self.tout[a_idx]
     }
-
 }
 
 fn compute_reachable_rpo(function: &MirFunction) -> Vec<BasicBlockId> {
@@ -178,7 +177,11 @@ pub fn compute_dominators(function: &MirFunction) -> DominatorTree {
         }
     }
 
-    DominatorTree { index_of, tin, tout }
+    DominatorTree {
+        index_of,
+        tin,
+        tout,
+    }
 }
 
 #[allow(dead_code)]
