@@ -241,7 +241,11 @@ impl Registry {
         ) -> R,
     ) -> R {
         let table = self.table.read();
-        f(slot_ref(&table, a), slot_ref(&table, b), slot_ref(&table, c))
+        f(
+            slot_ref(&table, a),
+            slot_ref(&table, b),
+            slot_ref(&table, c),
+        )
     }
 
     fn with_str_pair<R>(&self, a: u64, b: u64, f: impl FnOnce(&str, &str) -> R) -> Option<R> {

@@ -2,7 +2,6 @@
 ///
 /// This module provides structured error reporting with clear context,
 /// attempted paths, and actionable hints for plugin loading failures.
-
 use crate::bid::BidError;
 use std::path::PathBuf;
 
@@ -53,18 +52,13 @@ impl PluginErrorContext {
             ),
             attempted_paths: paths_str,
             hint: Some(
-                "Check LD_LIBRARY_PATH or configure nyash.toml [libraries] section"
-                    .to_string(),
+                "Check LD_LIBRARY_PATH or configure nyash.toml [libraries] section".to_string(),
             ),
         }
     }
 
     /// Create error context for load failure
-    pub fn load_failed(
-        plugin_name: &str,
-        path: &str,
-        error_msg: &str,
-    ) -> Self {
+    pub fn load_failed(plugin_name: &str, path: &str, error_msg: &str) -> Self {
         Self {
             kind: PluginErrorKind::LoadFailed,
             plugin_name: plugin_name.to_string(),
@@ -100,7 +94,9 @@ impl PluginErrorContext {
 
         match self.kind {
             PluginErrorKind::MissingLibrary => {
-                ring0.log.error(&format!("[plugin/missing] {}", self.message));
+                ring0
+                    .log
+                    .error(&format!("[plugin/missing] {}", self.message));
                 if !self.attempted_paths.is_empty() {
                     ring0.log.error(&format!(
                         "[plugin/missing] Attempted paths: {}",
@@ -124,7 +120,9 @@ impl PluginErrorContext {
                 }
             }
             PluginErrorKind::VersionMismatch => {
-                ring0.log.error(&format!("[plugin/version] {}", self.message));
+                ring0
+                    .log
+                    .error(&format!("[plugin/version] {}", self.message));
                 if let Some(ref hint) = self.hint {
                     ring0.log.warn(&format!("[plugin/hint] {}", hint));
                 }

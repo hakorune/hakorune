@@ -11,7 +11,9 @@ pub(super) fn box_invoke_fn_for_type_id(
     loader: &PluginLoaderV2,
     type_id: u32,
 ) -> Option<BoxInvokeFn> {
-    if let Some((lib_name, box_type)) = super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id) {
+    if let Some((lib_name, box_type)) =
+        super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id)
+    {
         if let Some(spec) = specs::get_spec(loader, &lib_name, &box_type) {
             if spec.invoke_id.is_none() && super::util::dbg_on() {
                 get_global_ring0().log.debug(&format!(
@@ -29,14 +31,14 @@ pub(super) fn metadata_for_type_id(
     loader: &PluginLoaderV2,
     type_id: u32,
 ) -> Option<PluginBoxMetadata> {
-    let (lib_name, box_type) = super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id)?;
+    let (lib_name, box_type) =
+        super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id)?;
     let plugins = loader.plugins.read().ok()?;
     let _plugin = plugins.get(&lib_name)?.clone();
-    let (resolved_type, fini_method) =
-        super::super::route_resolver::resolve_type_and_fini_for_lib(
-            loader, &lib_name, &box_type, type_id,
-        )
-        .ok()?;
+    let (resolved_type, fini_method) = super::super::route_resolver::resolve_type_and_fini_for_lib(
+        loader, &lib_name, &box_type, type_id,
+    )
+    .ok()?;
     Some(PluginBoxMetadata {
         lib_name: lib_name.clone(),
         box_type: box_type.clone(),
@@ -51,7 +53,8 @@ pub(super) fn construct_existing_instance(
     type_id: u32,
     instance_id: u32,
 ) -> Option<Box<dyn NyashBox>> {
-    let (lib_name, box_type) = super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id)?;
+    let (lib_name, box_type) =
+        super::super::route_resolver::resolve_lib_box_for_type_id(loader, type_id)?;
     let plugins = loader.plugins.read().ok()?;
     let _plugin = plugins.get(&lib_name)?.clone();
     let (_resolved_type, fini_method_id) =

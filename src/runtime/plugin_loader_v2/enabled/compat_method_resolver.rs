@@ -41,10 +41,22 @@ mod tests {
 
     #[test]
     fn compat_method_table_maps_known_entries() {
-        assert_eq!(resolve_method_id_from_file("StringBox", "concat").unwrap(), 102);
-        assert_eq!(resolve_method_id_from_file("StringBox", "upper").unwrap(), 103);
-        assert_eq!(resolve_method_id_from_file("CounterBox", "inc").unwrap(), 102);
-        assert_eq!(resolve_method_id_from_file("CounterBox", "get").unwrap(), 103);
+        assert_eq!(
+            resolve_method_id_from_file("StringBox", "concat").unwrap(),
+            102
+        );
+        assert_eq!(
+            resolve_method_id_from_file("StringBox", "upper").unwrap(),
+            103
+        );
+        assert_eq!(
+            resolve_method_id_from_file("CounterBox", "inc").unwrap(),
+            102
+        );
+        assert_eq!(
+            resolve_method_id_from_file("CounterBox", "get").unwrap(),
+            103
+        );
     }
 
     #[test]

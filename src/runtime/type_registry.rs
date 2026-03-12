@@ -57,7 +57,10 @@ fn core_method_entries_for_box_signatures(
         .collect()
 }
 
-fn merge_method_entries(mut entries: Vec<MethodEntry>, extras: &[MethodEntry]) -> &'static [MethodEntry] {
+fn merge_method_entries(
+    mut entries: Vec<MethodEntry>,
+    extras: &[MethodEntry],
+) -> &'static [MethodEntry] {
     entries.extend_from_slice(extras);
     let mut seen = HashSet::new();
     entries.retain(|method| seen.insert((method.name, method.arity)));
@@ -278,11 +281,8 @@ const PRIMITIVE_STRING_EXTRAS: &[MethodEntry] = &[
     },
 ];
 
-const PRIMITIVE_ARRAY_ALLOWED_SIGNATURES: &[(&str, usize)] = &[
-    ("get", 1),
-    ("length", 0),
-    ("push", 1),
-];
+const PRIMITIVE_ARRAY_ALLOWED_SIGNATURES: &[(&str, usize)] =
+    &[("get", 1), ("length", 0), ("push", 1)];
 const PRIMITIVE_ARRAY_EXTRAS: &[MethodEntry] = &[
     MethodEntry {
         name: "set",

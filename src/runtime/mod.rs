@@ -32,11 +32,11 @@ pub mod unified_registry; // Deprecation warnings with warn-once guards
 pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ
 pub mod host_api; // C ABI: plugins -> host 逆呼び出しAPI（TLSでVMに橋渡し）
 pub mod host_handles; // C ABI(TLV) 向け HostHandle レジストリ（ユーザー/内蔵Box受け渡し）
-pub mod weak_handles; // Phase 285LLVM-1: WeakRef Handle レジストリ（bit 63 = 1）
 pub mod modules_registry;
 pub mod type_box_abi; // Phase 12: Nyash ABI (vtable) 雛形
 pub mod type_meta;
-pub mod type_registry; // Phase 12: TypeId→TypeBox 解決（雛形） // env.modules minimal registry
+pub mod type_registry;
+pub mod weak_handles; // Phase 285LLVM-1: WeakRef Handle レジストリ（bit 63 = 1） // Phase 12: TypeId→TypeBox 解決（雛形） // env.modules minimal registry
 
 #[cfg(test)]
 mod tests;

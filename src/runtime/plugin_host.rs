@@ -289,13 +289,14 @@ impl PluginHost {
                 "[Phase 29y] Ring1ArrayService registered as default ArrayBox provider",
                 "[Phase 29y] ArrayBox provider already registered (plugin priority)",
             );
-            core.array =
-                Some(provider_lock::new_arraybox_provider_instance().map_err(|hint| {
+            core.array = Some(
+                provider_lock::new_arraybox_provider_instance().map_err(|hint| {
                     CoreInitError::MissingService {
                         box_id: CoreBoxId::Array,
                         hint,
                     }
-                })?);
+                })?,
+            );
         }
 
         // MapService: Optional
@@ -316,12 +317,14 @@ impl PluginHost {
                 "[Phase 29y] Ring1MapService registered as default MapBox provider",
                 "[Phase 29y] MapBox provider already registered (plugin priority)",
             );
-            core.map = Some(provider_lock::new_mapbox_provider_instance().map_err(|hint| {
-                CoreInitError::MissingService {
-                    box_id: CoreBoxId::Map,
-                    hint,
-                }
-            })?);
+            core.map = Some(
+                provider_lock::new_mapbox_provider_instance().map_err(|hint| {
+                    CoreInitError::MissingService {
+                        box_id: CoreBoxId::Map,
+                        hint,
+                    }
+                })?,
+            );
         }
 
         // ConsoleService: MANDATORY (Graceful Degradation principle)
@@ -342,13 +345,12 @@ impl PluginHost {
                 "[Phase 29y] Ring1ConsoleService registered as default ConsoleBox provider",
                 "[Phase 29y] ConsoleBox provider already registered (plugin priority)",
             );
-            core.console =
-                Some(provider_lock::new_consolebox_provider_instance().map_err(|hint| {
-                    CoreInitError::MissingService {
-                        box_id: CoreBoxId::Console,
-                        hint,
-                    }
-                })?);
+            core.console = Some(provider_lock::new_consolebox_provider_instance().map_err(
+                |hint| CoreInitError::MissingService {
+                    box_id: CoreBoxId::Console,
+                    hint,
+                },
+            )?);
         } else {
             return Err(CoreInitError::MissingService {
                 box_id: CoreBoxId::Console,

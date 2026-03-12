@@ -37,10 +37,7 @@ impl PluginLoaderV2 {
 
     /// Shutdown singletons: finalize and clear all singleton handles
     pub fn shutdown_singletons(&self) -> BidResult<()> {
-        let mut map = self
-            .singletons
-            .write()
-            .map_err(|_| BidError::PluginError)?;
+        let mut map = self.singletons.write().map_err(|_| BidError::PluginError)?;
         for (_, handle) in map.drain() {
             if let Ok(inner) = Arc::try_unwrap(handle) {
                 inner.finalize_now();

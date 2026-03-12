@@ -5,10 +5,10 @@
  * Behavior: Quiet by default; use NYASH_CLI_VERBOSE=1 or NYASH_DEBUG_PLUGIN=1 for logs
  */
 
+use crate::runtime::get_global_ring0;
 use crate::runtime::{
     get_global_plugin_host, get_global_registry, init_global_plugin_host, PluginConfig,
 };
-use crate::runtime::get_global_ring0;
 
 fn resolve_plugin_toml() -> String {
     // Prefer hakorune.toml, fallback to nyash.toml (check CWD, then NYASH_ROOT)
@@ -89,8 +89,7 @@ pub fn init_bid_plugins() {
             }
 
             // Optional autoload for [using.*] kind="dylib" packages
-            if crate::config::env::using_dylib_autoload()
-                && !crate::config::env::disable_plugins()
+            if crate::config::env::using_dylib_autoload() && !crate::config::env::disable_plugins()
             {
                 if plugin_debug || cli_verbose {
                     get_global_ring0()

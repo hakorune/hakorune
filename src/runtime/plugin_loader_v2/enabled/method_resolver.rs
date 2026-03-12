@@ -43,9 +43,12 @@ impl PluginLoaderV2 {
         box_type: &str,
         method_name: &str,
     ) -> BidResult<(u32, u32, bool)> {
-        let contract =
-            super::route_resolver::resolve_method_contract(self, box_type, method_name)?;
-        Ok((contract.type_id, contract.method_id, contract.returns_result))
+        let contract = super::route_resolver::resolve_method_contract(self, box_type, method_name)?;
+        Ok((
+            contract.type_id,
+            contract.method_id,
+            contract.returns_result,
+        ))
     }
 }
 

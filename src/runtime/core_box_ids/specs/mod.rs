@@ -1,5 +1,5 @@
-use super::CoreBoxId;
 use super::method_id::CoreMethodId;
+use super::CoreBoxId;
 
 /// SSOT for CoreMethodId metadata (name/arity/return types and policy flags).
 #[derive(Debug, Clone, Copy)]
@@ -20,7 +20,8 @@ pub(super) mod optional;
 pub(super) mod special;
 
 pub(super) fn iter_all_specs() -> impl Iterator<Item = &'static CoreMethodSpec> {
-    basic::SPECS.iter()
+    basic::SPECS
+        .iter()
         .chain(optional::SPECS.iter())
         .chain(special::SPECS.iter())
 }

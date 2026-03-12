@@ -114,14 +114,14 @@ fn decode_tlv_result(
                 if let Some((ret_type, inst)) =
                     crate::runtime::plugin_ffi_common::decode::plugin_handle(payload)
                 {
-                    let (ret_box_type, fini_method_id) = if let Some(meta) =
-                        loader.metadata_for_type_id(ret_type)
-                    {
+                    let (ret_box_type, fini_method_id) =
+                        if let Some(meta) = loader.metadata_for_type_id(ret_type) {
                             (meta.box_type, meta.fini_method_id)
                         } else {
                             (box_type.to_string(), None)
                         };
-                    let route = super::route_resolver::resolve_invoke_route_contract(loader, ret_type);
+                    let route =
+                        super::route_resolver::resolve_invoke_route_contract(loader, ret_type);
                     let handle = Arc::new(super::types::PluginHandleInner {
                         type_id: ret_type,
                         invoke_fn: route.invoke_shim_fn,

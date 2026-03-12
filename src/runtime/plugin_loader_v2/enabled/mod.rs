@@ -1,6 +1,6 @@
-mod compat_method_resolver;
-mod compat_host_bridge;
 mod compat_ffi_bridge;
+mod compat_host_bridge;
+mod compat_method_resolver;
 mod errors;
 mod extern_functions;
 mod ffi_bridge;

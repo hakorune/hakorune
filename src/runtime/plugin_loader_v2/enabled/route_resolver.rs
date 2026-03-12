@@ -3,8 +3,8 @@
 //! Keeps config/spec/compat resolution policy in one place so bridge and
 //! instance manager do not duplicate route logic.
 
-use super::loader::PluginLoaderV2;
 use super::host_bridge::{BoxInvokeFn, InvokeFn};
+use super::loader::PluginLoaderV2;
 use crate::bid::{BidError, BidResult};
 
 #[derive(Clone, Debug)]
@@ -38,7 +38,8 @@ pub(super) fn resolve_lib_box_for_type_id(
     loader: &PluginLoaderV2,
     type_id: u32,
 ) -> Option<(String, String)> {
-    if let (Some(config), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
+    if let (Some(config), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref())
+    {
         for (lib_name, lib_def) in &config.libraries {
             for box_name in &lib_def.boxes {
                 if let Some(box_conf) = config.get_box_config(lib_name, box_name, toml_value) {
@@ -230,8 +231,8 @@ pub(super) fn resolve_type_and_fini_for_lib(
     box_type: &str,
     fallback_type_id: u32,
 ) -> BidResult<(u32, Option<u32>)> {
-    let mut resolved_type = type_id_from_selected_lib(loader, lib_name, box_type)?
-        .unwrap_or(fallback_type_id);
+    let mut resolved_type =
+        type_id_from_selected_lib(loader, lib_name, box_type)?.unwrap_or(fallback_type_id);
     let mut fini_id = None;
 
     if let (Some(cfg), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref()) {
@@ -401,7 +402,15 @@ run = { method_id = 7, returns_result = true }
         let mut out = [0u8; 8];
         let mut out_len: usize = out.len();
         let code = unsafe {
-            (got.invoke_shim_fn)(42, 7, 1, std::ptr::null(), 0, out.as_mut_ptr(), &mut out_len)
+            (got.invoke_shim_fn)(
+                42,
+                7,
+                1,
+                std::ptr::null(),
+                0,
+                out.as_mut_ptr(),
+                &mut out_len,
+            )
         };
         assert_eq!(code, -5);
     }

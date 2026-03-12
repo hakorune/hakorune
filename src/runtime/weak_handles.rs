@@ -14,7 +14,8 @@
 use once_cell::sync::OnceCell;
 use std::collections::HashMap;
 use std::sync::{
-    atomic::{AtomicU64, Ordering}, RwLock, Weak,
+    atomic::{AtomicU64, Ordering},
+    RwLock, Weak,
 };
 
 use crate::box_trait::NyashBox;

@@ -215,9 +215,7 @@ pub fn emit_leak_report() {
     }
 
     // Summary header
-    ring0
-        .log
-        .warn("[lifecycle/leak] Roots still held at exit:");
+    ring0.log.warn("[lifecycle/leak] Roots still held at exit:");
 
     // Summary counts
     if modules_count > 0 {
@@ -232,24 +230,33 @@ pub fn emit_leak_report() {
         ));
     }
     if plugin_boxes > 0 {
-        ring0
-            .log
-            .warn(&format!("[lifecycle/leak]   plugin_boxes: {}", plugin_boxes));
+        ring0.log.warn(&format!(
+            "[lifecycle/leak]   plugin_boxes: {}",
+            plugin_boxes
+        ));
     }
 
     // Phase 29y.1/29x-X17: Root category summary
     let obs = collect_root_summary_observation();
     ring0.log.warn("[lifecycle/leak] Root categories:");
     let debug = debug_root_summary();
-    ring0.log.warn(&format!("[lifecycle/leak]   handles: {}", debug.handles));
-    ring0.log.warn(&format!("[lifecycle/leak]   locals: {}", debug.locals));
-    ring0.log.warn(&format!("[lifecycle/leak]   temps: {}", debug.temps));
     ring0
         .log
-        .warn(&format!("[lifecycle/leak]   heap_fields: {}", debug.heap_fields));
+        .warn(&format!("[lifecycle/leak]   handles: {}", debug.handles));
     ring0
         .log
-        .warn(&format!("[lifecycle/leak]   singletons: {}", debug.singletons));
+        .warn(&format!("[lifecycle/leak]   locals: {}", debug.locals));
+    ring0
+        .log
+        .warn(&format!("[lifecycle/leak]   temps: {}", debug.temps));
+    ring0.log.warn(&format!(
+        "[lifecycle/leak]   heap_fields: {}",
+        debug.heap_fields
+    ));
+    ring0.log.warn(&format!(
+        "[lifecycle/leak]   singletons: {}",
+        debug.singletons
+    ));
 
     // min2: optional GC observability (dev/diagnostic only, default OFF).
     if crate::config::env::gc_metrics() {
