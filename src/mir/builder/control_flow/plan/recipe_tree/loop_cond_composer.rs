@@ -8,7 +8,6 @@ use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
-
     /// Compose loop_scan_methods_v0 facts into LoweredRecipe.
     ///
     /// Phase C15: Recipe-first compose path for loop_scan_methods_v0.
@@ -46,11 +45,15 @@ impl RecipeComposer {
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
-        let scan_facts = facts.facts.loop_scan_methods_block_v0.clone().ok_or_else(|| {
-            Freeze::contract(
+        let scan_facts = facts
+            .facts
+            .loop_scan_methods_block_v0
+            .clone()
+            .ok_or_else(|| {
+                Freeze::contract(
                 "loop_scan_methods_block_v0 facts missing in compose_loop_scan_methods_block_v0",
             )
-        })?;
+            })?;
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -172,15 +175,11 @@ impl RecipeComposer {
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
-        let bundle_facts = facts
-            .facts
-            .loop_bundle_resolver_v0
-            .clone()
-            .ok_or_else(|| {
-                Freeze::contract(
-                    "loop_bundle_resolver_v0 facts missing in compose_loop_bundle_resolver_v0",
-                )
-            })?;
+        let bundle_facts = facts.facts.loop_bundle_resolver_v0.clone().ok_or_else(|| {
+            Freeze::contract(
+                "loop_bundle_resolver_v0 facts missing in compose_loop_bundle_resolver_v0",
+            )
+        })?;
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -250,15 +249,11 @@ impl RecipeComposer {
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 
-        let loop_cond_facts = facts
-            .facts
-            .loop_cond_continue_only
-            .clone()
-            .ok_or_else(|| {
-                Freeze::contract(
-                    "loop_cond_continue_only facts missing in compose_loop_cond_continue_only_recipe",
-                )
-            })?;
+        let loop_cond_facts = facts.facts.loop_cond_continue_only.clone().ok_or_else(|| {
+            Freeze::contract(
+                "loop_cond_continue_only facts missing in compose_loop_cond_continue_only_recipe",
+            )
+        })?;
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -359,5 +354,4 @@ impl RecipeComposer {
             ))
         })
     }
-
 }

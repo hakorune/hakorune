@@ -1,38 +1,36 @@
 #[cfg(test)]
 mod tests {
     use super::super::core::PlanVerifier;
-    use crate::mir::builder::control_flow::plan::branchn::CoreBranchArmPlan;
-    use crate::mir::{BasicBlockId, ConstValue, ValueId};
+    use super::super::primitives::debug_assert_value_join_invariants;
     use crate::mir::basic_block::EdgeArgs;
+    use crate::mir::builder::control_flow::plan::branchn::CoreBranchArmPlan;
     use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
-    use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
-    use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
-    use crate::mir::builder::control_flow::plan::CoreIfJoin;
-    use crate::mir::builder::control_flow::plan::{
-        CorePlan, CoreLoopPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreBranchNPlan,
-    };
-    use crate::mir::builder::control_flow::plan::step_mode::{
-        extract_to_step_bb_explicit_step, inline_in_body_explicit_step,
-    };
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         LoopFeatureFacts, ValueJoinFacts,
     };
     #[cfg(debug_assertions)]
-    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
-    #[cfg(debug_assertions)]
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
-        ConditionShape, StepShape,
-    };
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
         SkeletonFacts, SkeletonKind,
     };
     #[cfg(debug_assertions)]
+    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
+    use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
+    use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
+    #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
+    use crate::mir::builder::control_flow::plan::step_mode::{
+        extract_to_step_bb_explicit_step, inline_in_body_explicit_step,
+    };
+    use crate::mir::builder::control_flow::plan::CoreIfJoin;
+    use crate::mir::builder::control_flow::plan::{
+        CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan, CorePlan,
+    };
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+    use crate::mir::{BasicBlockId, ConstValue, ValueId};
     use std::collections::BTreeMap;
-    use super::super::primitives::debug_assert_value_join_invariants;
 
     fn make_loop_plan(body: Vec<CorePlan>) -> CoreLoopPlan {
         let preheader_bb = BasicBlockId(0);
@@ -183,9 +181,9 @@ mod tests {
 
     #[test]
     fn test_verify_loop_body_exit_fails() {
-        let plan = CorePlan::Loop(make_loop_plan(vec![CorePlan::Exit(
-            CoreExitPlan::Return(None),
-        )]));
+        let plan = CorePlan::Loop(make_loop_plan(vec![CorePlan::Exit(CoreExitPlan::Return(
+            None,
+        ))]));
         let result = PlanVerifier::verify(&plan);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("[V12]"));
@@ -391,16 +389,11 @@ mod tests {
 
             starts_with: None,
 
-
             int_to_str: None,
-
 
             escape_map: None,
 
-
             split_lines: None,
-
-
 
             skip_whitespace: None,
             generic_loop_v0: None,
@@ -456,16 +449,11 @@ mod tests {
 
             starts_with: None,
 
-
             int_to_str: None,
-
 
             escape_map: None,
 
-
             split_lines: None,
-
-
 
             skip_whitespace: None,
             generic_loop_v0: None,
@@ -521,10 +509,13 @@ mod tests {
                 (preheader_bb, vec![]),
                 (header_bb, vec![]),
                 // V10 violation: body_bb has effects in block_effects
-                (body_bb, vec![CoreEffectPlan::Const {
-                    dst: ValueId(102),
-                    value: ConstValue::Integer(42),
-                }]),
+                (
+                    body_bb,
+                    vec![CoreEffectPlan::Const {
+                        dst: ValueId(102),
+                        value: ConstValue::Integer(42),
+                    }],
+                ),
                 (step_bb, vec![]),
             ],
             phis: vec![build_loop_phi_info(
@@ -553,7 +544,11 @@ mod tests {
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert!(err.contains("[V10]"), "Expected V10 error, got: {}", err);
-        assert!(err.contains("body_bb"), "Expected body_bb in error, got: {}", err);
+        assert!(
+            err.contains("body_bb"),
+            "Expected body_bb in error, got: {}",
+            err
+        );
     }
 
     #[test]

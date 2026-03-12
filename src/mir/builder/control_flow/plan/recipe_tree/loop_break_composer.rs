@@ -1,22 +1,22 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
+use super::{build_loop_break_recipe, LoopBreakRecipe};
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::{
-    build_loop_break_recipe, LoopBreakRecipe,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
-use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::{LoweredRecipe, LoopBreakStepPlacement};
+use crate::mir::builder::control_flow::plan::{LoopBreakStepPlacement, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 
 fn then_body_has_top_level_break(then_body: &[ASTNode]) -> bool {
-    then_body.iter().any(|stmt| matches!(stmt, ASTNode::Break { .. }))
+    then_body
+        .iter()
+        .any(|stmt| matches!(stmt, ASTNode::Break { .. }))
 }
 
 fn body_has_step_before_break(body: &[ASTNode], loop_var: &str) -> bool {
@@ -40,7 +40,6 @@ fn body_has_step_before_break(body: &[ASTNode], loop_var: &str) -> bool {
 }
 
 impl RecipeComposer {
-
     /// Compose loop-break facts into LoweredRecipe via RecipeBlock (no normalizer).
     ///
     /// Used only in strict/dev + planner_required routing.
@@ -53,11 +52,9 @@ impl RecipeComposer {
 
         const CTX: &str = "loop_break_recipe";
 
-        let mut loop_break_facts = facts
-            .facts
-            .loop_break()
-            .cloned()
-            .ok_or_else(|| Freeze::contract("LoopBreak facts missing in compose_loop_break_recipe"))?;
+        let mut loop_break_facts = facts.facts.loop_break().cloned().ok_or_else(|| {
+            Freeze::contract("LoopBreak facts missing in compose_loop_break_recipe")
+        })?;
 
         // Planner-required strict mode: recover step-before-break placement from the body shape.
         if body_has_step_before_break(ctx.body, &loop_break_facts.loop_var) {
@@ -93,9 +90,8 @@ impl RecipeComposer {
             ));
         };
 
-        check_block_contract(&arena, &root, BlockContractKind::NoExit, CTX).map_err(|e| {
-            Freeze::contract("LoopBreak recipe verification failed").with_hint(&e)
-        })?;
+        check_block_contract(&arena, &root, BlockContractKind::NoExit, CTX)
+            .map_err(|e| Freeze::contract("LoopBreak recipe verification failed").with_hint(&e))?;
 
         let Some(loop_item) = root.items.first() else {
             return Err(Freeze::contract("LoopBreak recipe root missing LoopV0"));
@@ -108,9 +104,7 @@ impl RecipeComposer {
             ..
         } = loop_item
         else {
-            return Err(Freeze::contract(
-                "LoopBreak recipe root is not LoopV0",
-            ));
+            return Err(Freeze::contract("LoopBreak recipe root is not LoopV0"));
         };
 
         let mut current_bindings = builder.variable_ctx.variable_map.clone();
@@ -125,5 +119,4 @@ impl RecipeComposer {
         )
         .map_err(|e| Freeze::contract(&format!("LoopBreak recipe lower failed: {e}")))
     }
-
 }

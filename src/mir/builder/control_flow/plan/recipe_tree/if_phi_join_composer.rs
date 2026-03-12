@@ -1,22 +1,19 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
+use super::{build_if_phi_join_recipe, IfPhiJoinRecipe};
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::{
-    build_if_phi_join_recipe, IfPhiJoinRecipe,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
-
     /// Compose if-phi-join facts into LoweredRecipe via RecipeBlock (no normalizer).
     ///
     /// Used only in strict/dev + planner_required routing.
@@ -29,11 +26,9 @@ impl RecipeComposer {
 
         const CTX: &str = "if_phi_join_recipe";
 
-        let if_phi_join_facts = facts
-            .facts
-            .if_phi_join()
-            .clone()
-            .ok_or_else(|| Freeze::contract("IfPhiJoin facts missing in compose_if_phi_join_recipe"))?;
+        let if_phi_join_facts = facts.facts.if_phi_join().clone().ok_or_else(|| {
+            Freeze::contract("IfPhiJoin facts missing in compose_if_phi_join_recipe")
+        })?;
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -52,20 +47,16 @@ impl RecipeComposer {
         let loop_cond_view = CondBlockView::from_expr(&if_phi_join_facts.condition);
         let if_cond_view = CondBlockView::from_expr(&if_phi_join_facts.if_condition);
 
-        let Some(IfPhiJoinRecipe { arena, root }) = build_if_phi_join_recipe(
-            &loop_stmt,
-            loop_cond_view,
-            if_cond_view,
-            &if_phi_join_facts,
-        ) else {
+        let Some(IfPhiJoinRecipe { arena, root }) =
+            build_if_phi_join_recipe(&loop_stmt, loop_cond_view, if_cond_view, &if_phi_join_facts)
+        else {
             return Err(Freeze::contract(
                 "IfPhiJoin recipe missing (planner_required)",
             ));
         };
 
-        check_block_contract(&arena, &root, BlockContractKind::NoExit, CTX).map_err(|e| {
-            Freeze::contract("IfPhiJoin recipe verification failed").with_hint(&e)
-        })?;
+        check_block_contract(&arena, &root, BlockContractKind::NoExit, CTX)
+            .map_err(|e| Freeze::contract("IfPhiJoin recipe verification failed").with_hint(&e))?;
 
         let Some(loop_item) = root.items.first() else {
             return Err(Freeze::contract("IfPhiJoin recipe root missing LoopV0"));
@@ -78,9 +69,7 @@ impl RecipeComposer {
             ..
         } = loop_item
         else {
-            return Err(Freeze::contract(
-                "IfPhiJoin recipe root is not LoopV0",
-            ));
+            return Err(Freeze::contract("IfPhiJoin recipe root is not LoopV0"));
         };
 
         let mut current_bindings = builder.variable_ctx.variable_map.clone();
@@ -95,5 +84,4 @@ impl RecipeComposer {
         )
         .map_err(|e| Freeze::contract(&format!("IfPhiJoin recipe lower failed: {e}")))
     }
-
 }

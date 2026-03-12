@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockVi
 use crate::mir::builder::control_flow::plan::facts::LoopContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
+    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
     RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
@@ -49,17 +49,13 @@ pub(in crate::mir::builder) fn build_loop_continue_only_recipe(
     // Body 1: continue path body (step + continue for Exit item reference)
     let continue_body_id = arena.register(RecipeBody::new(vec![
         loop_increment_stmt.clone(),
-        ASTNode::Continue {
-            span: dummy_span(),
-        },
+        ASTNode::Continue { span: dummy_span() },
     ]));
 
     // Build combined body: [if_continue_stmt, carrier_updates..., loop_increment]
     let continue_if_stmt = ASTNode::If {
         condition: Box::new(facts.continue_condition.clone()),
-        then_body: vec![ASTNode::Continue {
-            span: dummy_span(),
-        }],
+        then_body: vec![ASTNode::Continue { span: dummy_span() }],
         else_body: None,
         span: dummy_span(),
     };

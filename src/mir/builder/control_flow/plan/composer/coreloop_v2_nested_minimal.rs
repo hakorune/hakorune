@@ -1,11 +1,11 @@
 //! Phase 29ap P10: CoreLoopComposer v2 (nested minimal, strict/dev only)
 
 use crate::mir::basic_block::EdgeArgs;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
     coreloop_base_gate, exit_kinds_empty,
 };
+use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
@@ -285,15 +285,12 @@ mod tests {
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         LoopFeatureFacts, ValueJoinFacts,
     };
-    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
-    use crate::mir::builder::control_flow::plan::facts::nested_loop_minimal_facts::
-        NestedLoopMinimalFacts;
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
-        ConditionShape, StepShape,
-    };
+    use crate::mir::builder::control_flow::plan::facts::nested_loop_minimal_facts::NestedLoopMinimalFacts;
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
         SkeletonFacts, SkeletonKind,
     };
+    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
     use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::plan::CorePlan;
     use crate::mir::builder::MirBuilder;
@@ -428,16 +425,11 @@ mod tests {
 
             starts_with: None,
 
-
             int_to_str: None,
-
 
             escape_map: None,
 
-
             split_lines: None,
-
-
 
             skip_whitespace: None,
             generic_loop_v0: None,
@@ -465,8 +457,8 @@ mod tests {
         let canonical = canonicalize_loop_facts(facts);
         let ctx = LoopRouteContext::new(&condition, &body, "coreloop_v2_nested", false, false);
 
-        let composed = try_compose_core_loop_v2_nested_minimal(&mut builder, &canonical, &ctx)
-            .expect("Ok");
+        let composed =
+            try_compose_core_loop_v2_nested_minimal(&mut builder, &canonical, &ctx).expect("Ok");
         assert!(matches!(composed, Some(CorePlan::Loop(_))));
     }
 
@@ -508,16 +500,11 @@ mod tests {
 
             starts_with: None,
 
-
             int_to_str: None,
-
 
             escape_map: None,
 
-
             split_lines: None,
-
-
 
             skip_whitespace: None,
             generic_loop_v0: None,
@@ -545,8 +532,8 @@ mod tests {
         let canonical = canonicalize_loop_facts(facts);
         let ctx = LoopRouteContext::new(&condition, &body, "coreloop_v2_nested_join", false, false);
 
-        let composed = try_compose_core_loop_v2_nested_minimal(&mut builder, &canonical, &ctx)
-            .expect("Ok");
+        let composed =
+            try_compose_core_loop_v2_nested_minimal(&mut builder, &canonical, &ctx).expect("Ok");
         assert!(composed.is_none());
     }
 }

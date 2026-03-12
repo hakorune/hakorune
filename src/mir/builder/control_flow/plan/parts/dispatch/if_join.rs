@@ -7,14 +7,12 @@
 
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_value;
+use crate::mir::builder::control_flow::plan::recipe_tree::RecipeBlock;
+use crate::mir::builder::control_flow::plan::recipe_tree::RecipeBodies;
 use crate::mir::builder::control_flow::plan::steps::build_join_payload;
 use crate::mir::builder::control_flow::plan::steps::build_join_payload_filtered;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
-use crate::mir::builder::control_flow::plan::recipe_tree::RecipeBodies;
-use crate::mir::builder::control_flow::plan::recipe_tree::RecipeBlock;
-use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CorePlan, LoweredRecipe,
-};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::ConstValue;
 use std::collections::BTreeMap;
@@ -136,12 +134,8 @@ pub(super) fn lower_if_join_with_stmt_lowerer<'a>(
             arena, else_block,
         ));
     }
-    let (then_map, else_map) = filter_branch_locals_from_maps(
-        &pre_if_map,
-        &then_map,
-        &else_map,
-        &branch_locals,
-    );
+    let (then_map, else_map) =
+        filter_branch_locals_from_maps(&pre_if_map, &then_map, &else_map, &branch_locals);
 
     // This path lowers branches under NoExit join contract, but keep the same
     // exit-shape signal handling as the general join path to avoid binding
@@ -205,7 +199,13 @@ fn debug_log_if_join_lit3_origin(
     let mut lit3_dsts = Vec::new();
     let mut lit3_spans = Vec::new();
     let mut origin_missing = 0usize;
-    collect_lit3_from_plans(builder, plans, &mut lit3_dsts, &mut lit3_spans, &mut origin_missing);
+    collect_lit3_from_plans(
+        builder,
+        plans,
+        &mut lit3_dsts,
+        &mut lit3_spans,
+        &mut origin_missing,
+    );
 
     if lit3_dsts.is_empty() {
         return;
@@ -275,7 +275,13 @@ fn collect_lit3_from_plans(
                     origin_missing,
                 );
                 for (_, effects) in &loop_plan.block_effects {
-                    collect_lit3_from_effects(builder, effects, lit3_dsts, lit3_spans, origin_missing);
+                    collect_lit3_from_effects(
+                        builder,
+                        effects,
+                        lit3_dsts,
+                        lit3_spans,
+                        origin_missing,
+                    );
                 }
             }
             CorePlan::BranchN(branch_plan) => {
@@ -344,9 +350,7 @@ fn collect_lit3_from_effect(
 /// - `build_join_payload(...)`
 /// - `lower_cond_branch(..., joins)`
 /// - Applying join results to `variable_map` and `current_bindings`
-pub(in crate::mir::builder) fn lower_if_join_with_branch_lowerers<
-    ShouldUpdateBinding,
->(
+pub(in crate::mir::builder) fn lower_if_join_with_branch_lowerers<ShouldUpdateBinding>(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     cond_view: &crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView,
@@ -392,12 +396,8 @@ where
     // After lowering, bindings must reflect the *continuing* branch map.
     let exit_shape = analyze_branch_exit_shape(&then_plans, else_plans.as_deref());
     let branch_locals = collect_branch_local_vars_from_maps(&pre_if_map, &then_map, &else_map);
-    let (then_map, else_map) = filter_branch_locals_from_maps(
-        &pre_if_map,
-        &then_map,
-        &else_map,
-        &branch_locals,
-    );
+    let (then_map, else_map) =
+        filter_branch_locals_from_maps(&pre_if_map, &then_map, &else_map, &branch_locals);
     let joins = if exit_shape.no_join_continuation {
         Vec::new()
     } else {

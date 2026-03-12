@@ -1,6 +1,6 @@
+use super::utils::*;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::utils::*;
 
 /// Recipe-first verification for loop_scan_methods_v0.
 pub fn verify_loop_scan_methods_v0_recipe(
@@ -23,7 +23,9 @@ pub fn verify_loop_scan_methods_v0_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:scan_methods] verified OK"));
+        ring0
+            .log
+            .debug(&format!("[recipe:scan_methods] verified OK"));
     }
     Ok(())
 }
@@ -57,7 +59,9 @@ pub fn verify_loop_scan_methods_block_v0_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:scan_methods_block] verified OK"));
+        ring0
+            .log
+            .debug(&format!("[recipe:scan_methods_block] verified OK"));
     }
     Ok(())
 }
@@ -83,7 +87,9 @@ pub fn verify_loop_scan_phi_vars_v0_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:scan_phi_vars] verified OK"));
+        ring0
+            .log
+            .debug(&format!("[recipe:scan_phi_vars] verified OK"));
     }
     Ok(())
 }

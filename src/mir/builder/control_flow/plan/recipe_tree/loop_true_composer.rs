@@ -8,7 +8,6 @@ use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
-
     /// Compose loop_true_break_continue facts into LoweredRecipe without normalizer.
     ///
     /// Used only in strict/dev + planner_required routing.
@@ -48,5 +47,4 @@ impl RecipeComposer {
             ))
         })
     }
-
 }

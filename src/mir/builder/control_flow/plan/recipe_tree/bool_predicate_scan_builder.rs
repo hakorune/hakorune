@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockVi
 use crate::mir::builder::control_flow::plan::facts::BoolPredicateScanFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
+    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
     RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
@@ -91,7 +91,6 @@ pub(in crate::mir::builder) fn build_bool_predicate_scan_recipe(
 
     Some(BoolPredicateScanRecipe { arena, root })
 }
-
 
 fn build_not_predicate_condition(facts: &BoolPredicateScanFacts) -> ASTNode {
     let span = Span::unknown();

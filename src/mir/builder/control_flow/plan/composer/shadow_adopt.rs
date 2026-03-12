@@ -3,9 +3,7 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::facts::feature_facts::{
-    detect_nested_loop,
-};
+use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::loop_route_detection::LoopRouteKind;
@@ -38,9 +36,7 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
             "[plan/trace:nested_loop_guard] func={} nested_loop={} facts_present={}",
-            ctx.func_name,
-            nested_loop,
-            facts_present,
+            ctx.func_name, nested_loop, facts_present,
         ));
     }
     if !nested_loop {

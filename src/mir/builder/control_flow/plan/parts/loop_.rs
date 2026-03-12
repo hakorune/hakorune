@@ -7,30 +7,30 @@
 //! NOTE:
 //! - This is an implementation-prep step. Producers are unchanged.
 
+use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::StmtOnlyBlockRecipe;
 use crate::mir::builder::control_flow::plan::features::carriers;
-use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::features::coreloop_frame::{
     build_coreloop_frame, build_header_step_phis,
 };
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
+use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
-use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
-use crate::mir::builder::control_flow::plan::scan_loop_segments::NestedLoopRecipe;
 use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
+use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, RecipeBodies, RecipeBlock,
+    BlockContractKind, RecipeBlock, RecipeBodies,
 };
+use crate::mir::builder::control_flow::plan::scan_loop_segments::NestedLoopRecipe;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, CorePhiInfo, CorePlan, LoweredRecipe,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, ConstValue, MirType, ValueId};
-use crate::config::env::joinir_dev;
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::{stmt as parts_stmt, verify};
@@ -205,12 +205,15 @@ pub(in crate::mir::builder) fn lower_nested_loop_depth1_stmt_only(
         error_prefix,
     )?;
 
-    let body = body_recipe.arena.get(body_recipe.block.body_id).ok_or_else(|| {
-        format!(
-            "[freeze:contract][recipe] invalid_body_id: ctx={}",
-            error_prefix
-        )
-    })?;
+    let body = body_recipe
+        .arena
+        .get(body_recipe.block.body_id)
+        .ok_or_else(|| {
+            format!(
+                "[freeze:contract][recipe] invalid_body_id: ctx={}",
+                error_prefix
+            )
+        })?;
 
     match lower_nested_loop_depth1_any(builder, &cond_view.tail_expr, &body.body, error_prefix) {
         Ok(plan) => Ok(plan),
@@ -250,7 +253,12 @@ pub(in crate::mir::builder) fn lower_nested_loop_recipe_stmt_only(
         ));
     }
 
-    let plan = lower_nested_loop_depth1_stmt_only(builder, &nested.cond_view, body_stmt_only, error_prefix)?;
+    let plan = lower_nested_loop_depth1_stmt_only(
+        builder,
+        &nested.cond_view,
+        body_stmt_only,
+        error_prefix,
+    )?;
     Ok(Some(vec![plan]))
 }
 
@@ -308,9 +316,9 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         }
     };
 
-    let body_recipe = arena.get(body_block.body_id).ok_or_else(|| {
-        format!("{LOOP_V0_ERR} invalid_body_id: ctx={error_prefix}")
-    })?;
+    let body_recipe = arena
+        .get(body_block.body_id)
+        .ok_or_else(|| format!("{LOOP_V0_ERR} invalid_body_id: ctx={error_prefix}"))?;
 
     let mut carrier_vars = BTreeSet::from_iter(carriers::collect_from_body(&body_recipe.body).vars);
     let mut assigned_vars = BTreeSet::new();
@@ -318,7 +326,9 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         collect_assigned_vars(stmt, &mut assigned_vars);
     }
     for name in assigned_vars {
-        if current_bindings.contains_key(&name) || builder.variable_ctx.variable_map.contains_key(&name) {
+        if current_bindings.contains_key(&name)
+            || builder.variable_ctx.variable_map.contains_key(&name)
+        {
             carrier_vars.insert(name);
         }
     }
@@ -620,10 +630,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     }))
 }
 
-fn collect_defined_values_from_plans(
-    plans: &[LoweredRecipe],
-    out: &mut BTreeSet<ValueId>,
-) {
+fn collect_defined_values_from_plans(plans: &[LoweredRecipe], out: &mut BTreeSet<ValueId>) {
     for plan in plans {
         match plan {
             CorePlan::Effect(effect) => collect_defined_values_from_effect(effect, out),
@@ -807,7 +814,8 @@ fn collect_carriers_from_condition(
     cond_vars
         .into_iter()
         .filter(|name| {
-            current_bindings.contains_key(name) || builder.variable_ctx.variable_map.contains_key(name)
+            current_bindings.contains_key(name)
+                || builder.variable_ctx.variable_map.contains_key(name)
         })
         .collect()
 }

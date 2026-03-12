@@ -9,17 +9,19 @@ use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRec
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
+use super::super::steps::effects_to_plans;
 use super::exit as parts_exit;
 use super::stmt as parts_stmt;
 use super::var_map_scope::with_saved_variable_map;
-use super::super::steps::effects_to_plans;
 
 pub(in crate::mir::builder) fn split_exit_branch<'a>(
     body: &'a [ASTNode],
     error_prefix: &str,
 ) -> Result<(Vec<&'a ASTNode>, &'a ASTNode, bool), String> {
     let Some(last) = body.last() else {
-        return Err(format!("{error_prefix}: if body must be single-exit (empty)"));
+        return Err(format!(
+            "{error_prefix}: if body must be single-exit (empty)"
+        ));
     };
     if matches!(
         last,
@@ -42,10 +44,7 @@ pub(in crate::mir::builder) fn split_exit_branch<'a>(
                 else_body,
                 ..
             } => {
-                let then_last = then_body
-                    .last()
-                    .map(|n| n.node_type())
-                    .unwrap_or("empty");
+                let then_last = then_body.last().map(|n| n.node_type()).unwrap_or("empty");
                 let else_last = else_body
                     .as_ref()
                     .and_then(|b| b.last())
@@ -154,19 +153,19 @@ fn lower_exit_branch(
     let mut plans = Vec::new();
     let exit = match stmt {
         ASTNode::Break { .. } => match break_phi_dsts {
-            Some(break_phi_dsts) => {
-                parts_exit::build_break_with_phi_args(break_phi_dsts, current_bindings, error_prefix)?
-            }
-            None => CoreExitPlan::Break(1),
-        },
-        ASTNode::Continue { .. } => {
-            parts_exit::build_continue_with_phi_args(
-                builder,
-                carrier_step_phis,
+            Some(break_phi_dsts) => parts_exit::build_break_with_phi_args(
+                break_phi_dsts,
                 current_bindings,
                 error_prefix,
-            )?
-        }
+            )?,
+            None => CoreExitPlan::Break(1),
+        },
+        ASTNode::Continue { .. } => parts_exit::build_continue_with_phi_args(
+            builder,
+            carrier_step_phis,
+            current_bindings,
+            error_prefix,
+        )?,
         ASTNode::Return { value, .. } => {
             let Some(value) = value.as_ref() else {
                 return Err(format!("{error_prefix}: return without value"));

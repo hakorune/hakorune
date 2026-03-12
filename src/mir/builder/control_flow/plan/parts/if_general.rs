@@ -3,13 +3,13 @@
 //! Scope: behavior-preserving extraction of existing lowering logic.
 //! SSOT for try_lower_general_if.
 
+use super::super::steps::build_join_payload;
+use super::join_scope::{collect_branch_local_vars_from_body, filter_branch_locals_from_maps};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
-use super::join_scope::{collect_branch_local_vars_from_body, filter_branch_locals_from_maps};
-use super::super::steps::build_join_payload;
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
@@ -110,8 +110,8 @@ where
         &[ASTNode],
     ) -> Result<Vec<LoweredRecipe>, String>,
 {
-    let strict_or_dev =
-        crate::config::env::joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
+    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
+        || crate::config::env::joinir_dev_enabled();
     let planner_required =
         strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
     let release_recipe_authority = allow_release_recipe_authority && !strict_or_dev;
@@ -159,12 +159,8 @@ where
 
     let branch_locals =
         collect_branch_local_vars_from_body(then_body, else_body.map(|body| body.as_slice()));
-    let (then_map, else_map) = filter_branch_locals_from_maps(
-        &pre_if_map,
-        &then_map,
-        &else_map,
-        &branch_locals,
-    );
+    let (then_map, else_map) =
+        filter_branch_locals_from_maps(&pre_if_map, &then_map, &else_map, &branch_locals);
 
     // Phase 8: use step for join payload generation (3-map diff)
     let joins = build_join_payload(builder, &pre_if_map, &then_map, &else_map)?;
@@ -338,15 +334,24 @@ mod tests {
     fn recipe_authority_allows_general_if_lowering_in_release() {
         crate::tests::helpers::joinir_env::with_joinir_env_lock(|| {
             let saved = [
-                ("HAKO_JOINIR_STRICT", std::env::var("HAKO_JOINIR_STRICT").ok()),
-                ("NYASH_JOINIR_STRICT", std::env::var("NYASH_JOINIR_STRICT").ok()),
+                (
+                    "HAKO_JOINIR_STRICT",
+                    std::env::var("HAKO_JOINIR_STRICT").ok(),
+                ),
+                (
+                    "NYASH_JOINIR_STRICT",
+                    std::env::var("NYASH_JOINIR_STRICT").ok(),
+                ),
                 (
                     "HAKO_JOINIR_PLANNER_REQUIRED",
                     std::env::var("HAKO_JOINIR_PLANNER_REQUIRED").ok(),
                 ),
                 ("NYASH_JOINIR_DEV", std::env::var("NYASH_JOINIR_DEV").ok()),
                 ("HAKO_JOINIR_DEBUG", std::env::var("HAKO_JOINIR_DEBUG").ok()),
-                ("NYASH_JOINIR_DEBUG", std::env::var("NYASH_JOINIR_DEBUG").ok()),
+                (
+                    "NYASH_JOINIR_DEBUG",
+                    std::env::var("NYASH_JOINIR_DEBUG").ok(),
+                ),
             ];
             for (key, _) in &saved {
                 std::env::remove_var(key);

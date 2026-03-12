@@ -9,10 +9,10 @@
 //! - Contract checks are always-on; debug-only checks live elsewhere.
 
 use crate::mir::builder::control_flow::plan::features::carriers;
+use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, ExitKind, IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::ValueId;
 use crate::{ast::ASTNode, config::env::joinir_dev};
 use std::collections::BTreeMap;
@@ -229,9 +229,8 @@ fn build_port_sig_with_pre(
                 if strict_planner_required() {
                     for var in &carrier_vars {
                         if !pre_vars.contains(var) {
-                            let freeze = Freeze::contract(format!(
-                                "loop_carrier_missing_in_pre var={var}"
-                            ));
+                            let freeze =
+                                Freeze::contract(format!("loop_carrier_missing_in_pre var={var}"));
                             return Err(freeze.to_string());
                         }
                     }
@@ -291,7 +290,10 @@ fn build_port_sig_with_pre(
         }
     }
 
-    if matches!(kind, BlockContractKind::ExitAllowed | BlockContractKind::ExitOnly) {
+    if matches!(
+        kind,
+        BlockContractKind::ExitAllowed | BlockContractKind::ExitOnly
+    ) {
         for var in &base_pre_vars {
             port_sig
                 .port_mut(PortType::Break)

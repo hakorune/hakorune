@@ -22,11 +22,9 @@ pub(in crate::mir::builder) fn compose_match_return_branchn(
     let mut effects = Vec::new();
 
     let scrutinee_id = match &facts.scrutinee {
-        crate::mir::builder::control_flow::plan::facts::MatchReturnScrutinee::Var(name) => {
-            builder
-                .variable_ctx
-                .require(name, "match_return_scrutinee")?
-        }
+        crate::mir::builder::control_flow::plan::facts::MatchReturnScrutinee::Var(name) => builder
+            .variable_ctx
+            .require(name, "match_return_scrutinee")?,
         crate::mir::builder::control_flow::plan::facts::MatchReturnScrutinee::Int(value) => {
             let (value_id, effect) = alloc_const_effect(builder, &LiteralValue::Integer(*value))?;
             effects.push(effect);
@@ -56,8 +54,7 @@ pub(in crate::mir::builder) fn compose_match_return_branchn(
         });
     }
 
-    let (else_value_id, else_effect) =
-        alloc_const_effect(builder, &facts.else_value)?;
+    let (else_value_id, else_effect) = alloc_const_effect(builder, &facts.else_value)?;
     effects.push(else_effect);
 
     let branch_plan = CoreBranchNPlan {

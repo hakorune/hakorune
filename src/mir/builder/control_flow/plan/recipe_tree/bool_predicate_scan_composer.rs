@@ -1,22 +1,19 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
+use super::{build_bool_predicate_scan_recipe, BoolPredicateScanRecipe};
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::{
-    build_bool_predicate_scan_recipe, BoolPredicateScanRecipe,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
-
     /// Compose bool-predicate-scan facts into LoweredRecipe via RecipeBlock (no normalizer).
     pub fn compose_bool_predicate_scan_recipe(
         builder: &mut MirBuilder,
@@ -27,15 +24,11 @@ impl RecipeComposer {
 
         const CTX: &str = "bool_predicate_scan_recipe";
 
-        let bool_scan_facts = facts
-            .facts
-            .bool_predicate_scan()
-            .clone()
-            .ok_or_else(|| {
-                Freeze::contract(
-                    "BoolPredicateScan facts missing in compose_bool_predicate_scan_recipe",
-                )
-            })?;
+        let bool_scan_facts = facts.facts.bool_predicate_scan().clone().ok_or_else(|| {
+            Freeze::contract(
+                "BoolPredicateScan facts missing in compose_bool_predicate_scan_recipe",
+            )
+        })?;
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -95,11 +88,6 @@ impl RecipeComposer {
             body_block,
             CTX,
         )
-        .map_err(|e| {
-            Freeze::contract(&format!(
-                "BoolPredicateScan recipe lower failed: {e}"
-            ))
-        })
+        .map_err(|e| Freeze::contract(&format!("BoolPredicateScan recipe lower failed: {e}")))
     }
-
 }

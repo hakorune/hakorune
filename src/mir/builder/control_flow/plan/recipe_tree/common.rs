@@ -22,4 +22,3 @@ pub(in crate::mir::builder) enum ExitKind {
     Break { depth: u32 },
     Continue { depth: u32 },
 }
-

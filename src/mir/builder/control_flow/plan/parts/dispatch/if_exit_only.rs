@@ -5,14 +5,14 @@
 //! - lower_exit_only_if
 //! - lower_else_only_exit_if
 
+use super::super::exit as parts_exit;
+use super::super::stmt as parts_stmt;
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    IfContractKind, IfMode, RecipeBodies, RecipeBlock, RecipeItem,
+    IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
-use super::super::exit as parts_exit;
-use super::super::stmt as parts_stmt;
 use std::collections::BTreeMap;
 
 use super::block::lower_exit_only_block;
@@ -32,7 +32,10 @@ pub(super) fn lower_exit_only_item(
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let body = arena.get(body_id).ok_or_else(|| {
-        format!("[freeze:contract][recipe] invalid_body_id: ctx={}", error_prefix)
+        format!(
+            "[freeze:contract][recipe] invalid_body_id: ctx={}",
+            error_prefix
+        )
     })?;
 
     #[allow(unreachable_patterns)]
@@ -67,61 +70,53 @@ pub(super) fn lower_exit_only_item(
             )?;
             Ok(vec![plan])
         }
-        RecipeItem::Exit { kind, stmt } => {
-            parts_exit::lower_loop_cond_exit_leaf(
-                builder,
-                current_bindings,
-                carrier_step_phis,
-                break_phi_dsts,
-                body,
-                *kind,
-                *stmt,
-                error_prefix,
-            )
-        }
+        RecipeItem::Exit { kind, stmt } => parts_exit::lower_loop_cond_exit_leaf(
+            builder,
+            current_bindings,
+            carrier_step_phis,
+            break_phi_dsts,
+            body,
+            *kind,
+            *stmt,
+            error_prefix,
+        ),
         RecipeItem::IfV2 {
             if_stmt: _,
             cond_view,
             contract,
             then_block,
             else_block,
-        } => {
-            match contract {
-                IfContractKind::ExitOnly { mode } => {
-                    lower_exit_only_if(
-                        builder,
-                        current_bindings,
-                        carrier_step_phis,
-                        break_phi_dsts,
-                        arena,
-                        cond_view,
-                        *mode,
-                        then_block,
-                        else_block.as_ref().map(|b| b.as_ref()),
-                        error_prefix,
-                    )
-                }
-                IfContractKind::ExitAllowed { mode: IfMode::ElseOnlyExit } => {
-                    lower_else_only_exit_if(
-                        builder,
-                        current_bindings,
-                        carrier_step_phis,
-                        break_phi_dsts,
-                        arena,
-                        cond_view,
-                        then_block,
-                        else_block.as_ref().map(|b| b.as_ref()),
-                        error_prefix,
-                    )
-                }
-                _ => {
-                    Err(format!(
-                        "[freeze:contract][recipe] dispatch_saw_unsupported_item: ctx={}",
-                        error_prefix
-                    ))
-                }
-            }
-        }
+        } => match contract {
+            IfContractKind::ExitOnly { mode } => lower_exit_only_if(
+                builder,
+                current_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                arena,
+                cond_view,
+                *mode,
+                then_block,
+                else_block.as_ref().map(|b| b.as_ref()),
+                error_prefix,
+            ),
+            IfContractKind::ExitAllowed {
+                mode: IfMode::ElseOnlyExit,
+            } => lower_else_only_exit_if(
+                builder,
+                current_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                arena,
+                cond_view,
+                then_block,
+                else_block.as_ref().map(|b| b.as_ref()),
+                error_prefix,
+            ),
+            _ => Err(format!(
+                "[freeze:contract][recipe] dispatch_saw_unsupported_item: ctx={}",
+                error_prefix
+            )),
+        },
         _ => Err(format!(
             "[freeze:contract][recipe] dispatch_saw_unsupported_item: ctx={}",
             error_prefix
@@ -182,7 +177,10 @@ fn lower_exit_only_if(
     let else_plans = match mode {
         IfMode::ExitAll => {
             let eb = else_block.ok_or_else(|| {
-                format!("[freeze:contract][recipe] if_exit_all_requires_else: ctx={}", error_prefix)
+                format!(
+                    "[freeze:contract][recipe] if_exit_all_requires_else: ctx={}",
+                    error_prefix
+                )
             })?;
             Some(lower_exit_only_block(
                 builder,

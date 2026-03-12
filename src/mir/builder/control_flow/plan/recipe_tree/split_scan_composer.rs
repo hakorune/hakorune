@@ -1,17 +1,15 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
+use super::{build_split_scan_recipe, SplitScanRecipe};
 use crate::ast::{ASTNode, BinaryOperator, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::{
-    build_split_scan_recipe, SplitScanRecipe,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
@@ -57,7 +55,6 @@ fn build_split_scan_loop_condition(
 }
 
 impl RecipeComposer {
-
     /// Compose split-scan facts into LoweredRecipe via RecipeBlock (no normalizer).
     pub fn compose_split_scan_recipe(
         builder: &mut MirBuilder,
@@ -69,9 +66,7 @@ impl RecipeComposer {
         const CTX: &str = "split_scan_recipe";
 
         let split_facts = facts.facts.split_scan.clone().ok_or_else(|| {
-            Freeze::contract(
-                "SplitScan facts missing in compose_split_scan_recipe",
-            )
+            Freeze::contract("SplitScan facts missing in compose_split_scan_recipe")
         })?;
 
         if joinir_dev::debug_enabled() {
@@ -93,19 +88,14 @@ impl RecipeComposer {
         let Some(SplitScanRecipe { arena, root }) =
             build_split_scan_recipe(&loop_stmt, loop_cond_view, &split_facts)
         else {
-            return Err(Freeze::contract(
-                "SplitScan recipe build returned None",
-            ));
+            return Err(Freeze::contract("SplitScan recipe build returned None"));
         };
 
-        check_block_contract(&arena, &root, BlockContractKind::NoExit, CTX).map_err(|e| {
-            Freeze::contract("SplitScan recipe verification failed").with_hint(&e)
-        })?;
+        check_block_contract(&arena, &root, BlockContractKind::NoExit, CTX)
+            .map_err(|e| Freeze::contract("SplitScan recipe verification failed").with_hint(&e))?;
 
         let Some(loop_item) = root.items.first() else {
-            return Err(Freeze::contract(
-                "SplitScan recipe root missing LoopV0",
-            ));
+            return Err(Freeze::contract("SplitScan recipe root missing LoopV0"));
         };
 
         let RecipeItem::LoopV0 {
@@ -115,9 +105,7 @@ impl RecipeComposer {
             ..
         } = loop_item
         else {
-            return Err(Freeze::contract(
-                "SplitScan recipe root is not LoopV0",
-            ));
+            return Err(Freeze::contract("SplitScan recipe root is not LoopV0"));
         };
 
         let mut current_bindings = builder.variable_ctx.variable_map.clone();
@@ -130,11 +118,6 @@ impl RecipeComposer {
             body_block,
             CTX,
         )
-        .map_err(|e| {
-            Freeze::contract(&format!(
-                "SplitScan recipe lower failed: {e}"
-            ))
-        })
+        .map_err(|e| Freeze::contract(&format!("SplitScan recipe lower failed: {e}")))
     }
-
 }

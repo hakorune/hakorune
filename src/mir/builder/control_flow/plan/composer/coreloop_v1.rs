@@ -5,8 +5,7 @@
 
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
-    if_phi_join_value_join_gate, loop_break_value_join_gate,
-    loop_true_early_exit_value_join_gate,
+    if_phi_join_value_join_gate, loop_break_value_join_gate, loop_true_early_exit_value_join_gate,
 };
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;

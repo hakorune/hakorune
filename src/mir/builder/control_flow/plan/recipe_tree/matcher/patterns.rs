@@ -1,19 +1,15 @@
-use crate::config::env::joinir_dev;
-use crate::mir::builder::control_flow::plan::planner::Freeze;
 use super::super::{
-    build_loop_break_recipe, LoopBreakRecipe,
-    build_if_phi_join_recipe, IfPhiJoinRecipe,
-    build_loop_continue_only_recipe, LoopContinueOnlyRecipe,
-    build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe,
-    build_loop_simple_while_recipe, LoopSimpleWhileRecipe,
-    build_char_map_recipe, CharMapRecipe,
-    build_array_join_recipe, ArrayJoinRecipe,
-    build_scan_with_init_recipe, ScanWithInitRecipe,
-    build_split_scan_recipe, SplitScanRecipe,
-    build_bool_predicate_scan_recipe, BoolPredicateScanRecipe,
-    build_accum_const_loop_recipe, AccumConstLoopRecipe,
+    build_accum_const_loop_recipe, build_array_join_recipe, build_bool_predicate_scan_recipe,
+    build_char_map_recipe, build_if_phi_join_recipe, build_loop_break_recipe,
+    build_loop_continue_only_recipe, build_loop_simple_while_recipe,
+    build_loop_true_early_exit_recipe, build_scan_with_init_recipe, build_split_scan_recipe,
+    AccumConstLoopRecipe, ArrayJoinRecipe, BoolPredicateScanRecipe, CharMapRecipe, IfPhiJoinRecipe,
+    LoopBreakRecipe, LoopContinueOnlyRecipe, LoopSimpleWhileRecipe, LoopTrueEarlyExitRecipe,
+    ScanWithInitRecipe, SplitScanRecipe,
 };
 use super::utils::*;
+use crate::config::env::joinir_dev;
+use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 /// Recipe-first verification for loop-break.
 pub fn verify_loop_break_recipe(
@@ -57,10 +53,8 @@ pub fn verify_loop_break_recipe(
         &root,
         BlockContractKind::ExitAllowed,
         "loop_break_recipe",
-    ).map_err(|e| {
-        Freeze::contract("LoopBreak recipe verification failed")
-            .with_hint(&e)
-    })?;
+    )
+    .map_err(|e| Freeze::contract("LoopBreak recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -74,8 +68,8 @@ pub fn verify_loop_break_recipe(
 pub fn verify_generic_loop_v1_recipe(
     generic_loop: &crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV1Facts,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     let Some(recipe) = generic_loop.body_exit_allowed.as_ref() else {
         return Err(Freeze::unsupported(
@@ -90,9 +84,7 @@ pub fn verify_generic_loop_v1_recipe(
         "generic_loop_v1",
     )
     .map(|_| ())
-    .map_err(|e| {
-        Freeze::contract("[generic_loop_v1] recipe verification failed").with_hint(&e)
-    })
+    .map_err(|e| Freeze::contract("[generic_loop_v1] recipe verification failed").with_hint(&e))
 }
 
 /// Recipe-first verification for if-phi-join.
@@ -114,12 +106,8 @@ pub fn verify_if_phi_join_recipe(
     let loop_cond_view = CondBlockView::from_expr(&if_phi_join_facts.condition);
     let if_cond_view = CondBlockView::from_expr(&if_phi_join_facts.if_condition);
 
-    let recipe = build_if_phi_join_recipe(
-        &loop_stmt,
-        loop_cond_view,
-        if_cond_view,
-        if_phi_join_facts,
-    );
+    let recipe =
+        build_if_phi_join_recipe(&loop_stmt, loop_cond_view, if_cond_view, if_phi_join_facts);
 
     let Some(IfPhiJoinRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
@@ -133,10 +121,7 @@ pub fn verify_if_phi_join_recipe(
         BlockContractKind::NoExit,
         "if_phi_join_recipe",
     )
-    .map_err(|e| {
-        Freeze::contract("IfPhiJoin recipe verification failed")
-            .with_hint(&e)
-    })?;
+    .map_err(|e| Freeze::contract("IfPhiJoin recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -232,9 +217,7 @@ pub fn verify_loop_true_early_exit_recipe(
         BlockContractKind::ExitAllowed,
         "loop_true_early_exit_recipe",
     )
-    .map_err(|e| {
-        Freeze::contract("LoopTrueEarlyExit recipe verification failed").with_hint(&e)
-    })?;
+    .map_err(|e| Freeze::contract("LoopTrueEarlyExit recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -282,10 +265,7 @@ pub fn verify_loop_simple_while_recipe(
         BlockContractKind::NoExit,
         "loop_simple_while_recipe",
     )
-    .map_err(|e| {
-        Freeze::contract("LoopSimpleWhile recipe verification failed")
-            .with_hint(&e)
-    })?;
+    .map_err(|e| Freeze::contract("LoopSimpleWhile recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -333,10 +313,7 @@ pub fn verify_loop_char_map_recipe(
         BlockContractKind::NoExit,
         "loop_char_map_recipe",
     )
-    .map_err(|e| {
-        Freeze::contract("LoopCharMap recipe verification failed")
-            .with_hint(&e)
-    })?;
+    .map_err(|e| Freeze::contract("LoopCharMap recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -368,12 +345,8 @@ pub fn verify_loop_array_join_recipe(
         &array_join_facts.cond_profile,
     );
     let if_cond_view = CondBlockView::from_expr(&array_join_facts.if_condition);
-    let recipe = build_array_join_recipe(
-        &loop_stmt,
-        loop_cond_view,
-        if_cond_view,
-        array_join_facts,
-    );
+    let recipe =
+        build_array_join_recipe(&loop_stmt, loop_cond_view, if_cond_view, array_join_facts);
 
     let Some(ArrayJoinRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
@@ -388,10 +361,7 @@ pub fn verify_loop_array_join_recipe(
         BlockContractKind::NoExit,
         "loop_array_join_recipe",
     )
-    .map_err(|e| {
-        Freeze::contract("LoopArrayJoin recipe verification failed")
-            .with_hint(&e)
-    })?;
+    .map_err(|e| Freeze::contract("LoopArrayJoin recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -434,10 +404,7 @@ pub fn verify_scan_with_init_recipe(
         BlockContractKind::ExitAllowed,
         "scan_with_init_recipe",
     )
-    .map_err(|e| {
-        Freeze::contract("ScanWithInit recipe verification failed")
-            .with_hint(&e)
-    })?;
+    .map_err(|e| Freeze::contract("ScanWithInit recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -480,10 +447,7 @@ pub fn verify_split_scan_recipe(
         BlockContractKind::NoExit,
         "split_scan_recipe",
     )
-    .map_err(|e| {
-        Freeze::contract("SplitScan recipe verification failed")
-            .with_hint(&e)
-    })?;
+    .map_err(|e| Freeze::contract("SplitScan recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -514,8 +478,7 @@ pub fn verify_bool_predicate_scan_recipe(
     crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
         &bool_scan_facts.cond_profile,
     );
-    let recipe =
-        build_bool_predicate_scan_recipe(&loop_stmt, loop_cond_view, bool_scan_facts);
+    let recipe = build_bool_predicate_scan_recipe(&loop_stmt, loop_cond_view, bool_scan_facts);
 
     let Some(BoolPredicateScanRecipe { arena, root }) = recipe else {
         return Err(Freeze::contract(
@@ -529,10 +492,7 @@ pub fn verify_bool_predicate_scan_recipe(
         BlockContractKind::ExitAllowed,
         "bool_predicate_scan_recipe",
     )
-    .map_err(|e| {
-        Freeze::contract("BoolPredicateScan recipe verification failed")
-            .with_hint(&e)
-    })?;
+    .map_err(|e| Freeze::contract("BoolPredicateScan recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -577,10 +537,7 @@ pub fn verify_accum_const_loop_recipe(
         BlockContractKind::NoExit,
         "accum_const_loop_recipe",
     )
-    .map_err(|e| {
-        Freeze::contract("AccumConstLoop recipe verification failed")
-            .with_hint(&e)
-    })?;
+    .map_err(|e| Freeze::contract("AccumConstLoop recipe verification failed").with_hint(&e))?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();

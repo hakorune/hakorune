@@ -3,14 +3,14 @@
 //! Scope: behavior-preserving extraction of existing lowering logic.
 //! SSOT for lower_if_exit_stmt.
 
-use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use super::exit_branch::{
     lower_exit_branch_with_prelude, lower_exit_branch_with_prelude_with_break_phi_args,
     split_exit_branch,
 };
 use super::stmt::lower_return_prelude_stmt;
 use super::var_map_scope::with_saved_variable_map;
+use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
@@ -153,8 +153,7 @@ fn lower_if_exit_stmt_impl_view(
     )? {
         return Ok(plans);
     }
-    let (then_prelude, then_exit, then_is_return) =
-        split_exit_branch(then_body, error_prefix)?;
+    let (then_prelude, then_exit, then_is_return) = split_exit_branch(then_body, error_prefix)?;
     if then_is_return && !then_prelude.is_empty() && else_body.is_some() {
         return Err(format!(
             "{error_prefix}: return prelude cannot have else branch"
@@ -438,8 +437,7 @@ fn try_lower_else_nested_exit_if_view(
         return Ok(None);
     }
 
-    let Ok((then_prelude, then_exit, _then_is_return)) =
-        split_exit_branch(then_body, error_prefix)
+    let Ok((then_prelude, then_exit, _then_is_return)) = split_exit_branch(then_body, error_prefix)
     else {
         return Ok(None);
     };

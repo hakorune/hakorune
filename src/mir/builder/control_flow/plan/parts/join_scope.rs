@@ -4,7 +4,7 @@
 //! treat branch-scoped locals consistently across parts.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::recipe_tree::{RecipeBodies, RecipeBlock, RecipeItem};
+use crate::mir::builder::control_flow::plan::recipe_tree::{RecipeBlock, RecipeBodies, RecipeItem};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub(super) fn filter_branch_locals_from_maps(

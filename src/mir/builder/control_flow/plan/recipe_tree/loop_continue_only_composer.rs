@@ -1,22 +1,19 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
+use super::{build_loop_continue_only_recipe, LoopContinueOnlyRecipe};
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::{
-    build_loop_continue_only_recipe, LoopContinueOnlyRecipe,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
-
     /// Compose loop-continue-only facts into LoweredRecipe via RecipeBlock (no normalizer).
     ///
     /// Used only in strict/dev + planner_required routing.
@@ -66,7 +63,9 @@ impl RecipeComposer {
         })?;
 
         let Some(loop_item) = root.items.first() else {
-            return Err(Freeze::contract("LoopContinueOnly recipe root missing LoopV0"));
+            return Err(Freeze::contract(
+                "LoopContinueOnly recipe root missing LoopV0",
+            ));
         };
 
         let RecipeItem::LoopV0 {
@@ -93,5 +92,4 @@ impl RecipeComposer {
         )
         .map_err(|e| Freeze::contract(&format!("LoopContinueOnly recipe lower failed: {e}")))
     }
-
 }

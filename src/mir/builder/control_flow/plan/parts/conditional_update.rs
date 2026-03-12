@@ -4,24 +4,24 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::plan::normalizer::{
-    common::negate_bool_cond,
-    lower_cond_value,
+    common::negate_bool_cond, lower_cond_value,
 };
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe};
-use crate::mir::builder::MirBuilder;
-use crate::mir::MirType;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::ExitKind;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem;
+use crate::mir::builder::control_flow::plan::{
+    CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,
+};
+use crate::mir::builder::MirBuilder;
+use crate::mir::MirType;
 use std::collections::BTreeMap;
 
-use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use super::exit as parts_exit;
 use super::if_general as parts_if_general;
+use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 mod helpers;
 use helpers::{
-    collect_conditional_update_assignment_or_local,
-    attach_phi_args_if_continue_or_break, current_value_for_join, has_any_assignment,
-    is_conditional_update_branch_supported,
+    attach_phi_args_if_continue_or_break, collect_conditional_update_assignment_or_local,
+    current_value_for_join, has_any_assignment, is_conditional_update_branch_supported,
 };
 
 pub(in crate::mir::builder) use helpers::collect_conditional_update_branch;
@@ -96,8 +96,8 @@ fn try_lower_conditional_update_if_impl(
     else_body: Option<&Vec<ASTNode>>,
     error_prefix: &str,
 ) -> Result<Option<Vec<LoweredRecipe>>, String> {
-    let has_update = has_any_assignment(then_body)
-        || else_body.map_or(false, |body| has_any_assignment(body));
+    let has_update =
+        has_any_assignment(then_body) || else_body.map_or(false, |body| has_any_assignment(body));
     if !has_update {
         return Ok(None);
     }
@@ -432,15 +432,14 @@ fn lower_conditional_update_if_from_branches_with_cond_view(
     plans.extend(effects_to_plans(select_effects));
 
     if let Some(exit) = then_branch.exit {
-        let exit =
-            attach_phi_args_if_continue_or_break(
-                builder,
-                exit,
-                carrier_step_phis,
-                break_phi_dsts,
-                current_bindings,
-                error_prefix,
-            )?;
+        let exit = attach_phi_args_if_continue_or_break(
+            builder,
+            exit,
+            carrier_step_phis,
+            break_phi_dsts,
+            current_bindings,
+            error_prefix,
+        )?;
         plans.push(CorePlan::Effect(CoreEffectPlan::ExitIf {
             cond: cond_id,
             exit,
@@ -449,15 +448,14 @@ fn lower_conditional_update_if_from_branches_with_cond_view(
     if let Some(exit) = else_branch.exit {
         let (cond_neg, neg_effects) = negate_bool_cond(builder, cond_id);
         plans.extend(effects_to_plans(neg_effects));
-        let exit =
-            attach_phi_args_if_continue_or_break(
-                builder,
-                exit,
-                carrier_step_phis,
-                break_phi_dsts,
-                current_bindings,
-                error_prefix,
-            )?;
+        let exit = attach_phi_args_if_continue_or_break(
+            builder,
+            exit,
+            carrier_step_phis,
+            break_phi_dsts,
+            current_bindings,
+            error_prefix,
+        )?;
         plans.push(CorePlan::Effect(CoreEffectPlan::ExitIf {
             cond: cond_neg,
             exit,

@@ -1,6 +1,6 @@
+use super::utils::*;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::utils::*;
 
 /// Recipe-first verification for loop_collect_using_entries_v0.
 pub fn verify_loop_collect_using_entries_v0_recipe(
@@ -13,7 +13,9 @@ pub fn verify_loop_collect_using_entries_v0_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:collect_using_entries] verified OK"));
+        ring0
+            .log
+            .debug(&format!("[recipe:collect_using_entries] verified OK"));
     }
     Ok(())
 }
@@ -29,7 +31,9 @@ pub fn verify_loop_bundle_resolver_v0_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:bundle_resolver] verified OK"));
+        ring0
+            .log
+            .debug(&format!("[recipe:bundle_resolver] verified OK"));
     }
     Ok(())
 }
@@ -70,7 +74,10 @@ pub fn verify_loop_true_break_continue_recipe(
                     LoopTrueItem::IfTailExitPair(pair) => {
                         verify_stmt_pair_in_bounds(*pair, body_len, "loop_true_break_continue")?;
                     }
-                    LoopTrueItem::GeneralIfElseExit { if_ref, else_recipe } => {
+                    LoopTrueItem::GeneralIfElseExit {
+                        if_ref,
+                        else_recipe,
+                    } => {
                         verify_stmt_ref_in_bounds(*if_ref, body_len, "loop_true_break_continue")?;
                         let else_len = else_recipe.else_body.len();
                         for else_item in &else_recipe.items {
@@ -103,7 +110,10 @@ pub fn verify_loop_cond_break_continue_recipe(
 ) -> Result<(), Freeze> {
     use crate::mir::policies::BodyLoweringPolicy;
 
-    if matches!(facts.body_lowering_policy, BodyLoweringPolicy::ExitAllowed { .. }) {
+    if matches!(
+        facts.body_lowering_policy,
+        BodyLoweringPolicy::ExitAllowed { .. }
+    ) {
         let Some(body_exit_allowed) = facts.body_exit_allowed.as_ref() else {
             return Err(Freeze::contract(
                 "loop_cond_break_continue: body_exit_allowed missing (planner_required)",
@@ -115,14 +125,13 @@ pub fn verify_loop_cond_break_continue_recipe(
         )?;
     }
 
-    verify_loop_cond_break_continue_recipe_items(
-        &facts.recipe,
-        "loop_cond_break_continue_body",
-    )?;
+    verify_loop_cond_break_continue_recipe_items(&facts.recipe, "loop_cond_break_continue_body")?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:loop_cond_break_continue] verified OK"));
+        ring0
+            .log
+            .debug(&format!("[recipe:loop_cond_break_continue] verified OK"));
     }
     Ok(())
 }
@@ -135,7 +144,9 @@ pub fn verify_loop_cond_continue_only_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:loop_cond_continue_only] verified OK"));
+        ring0
+            .log
+            .debug(&format!("[recipe:loop_cond_continue_only] verified OK"));
     }
     Ok(())
 }
@@ -144,14 +155,13 @@ pub fn verify_loop_cond_continue_only_recipe(
 pub fn verify_loop_cond_continue_with_return_recipe(
     facts: &crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts,
 ) -> Result<(), Freeze> {
-    verify_continue_with_return_recipe(
-        &facts.recipe,
-        "loop_cond_continue_with_return_body",
-    )?;
+    verify_continue_with_return_recipe(&facts.recipe, "loop_cond_continue_with_return_body")?;
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:loop_cond_continue_with_return] verified OK"));
+        ring0.log.debug(&format!(
+            "[recipe:loop_cond_continue_with_return] verified OK"
+        ));
     }
     Ok(())
 }
@@ -173,7 +183,9 @@ pub fn verify_loop_cond_return_in_body_recipe(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:loop_cond_return_in_body] verified OK"));
+        ring0
+            .log
+            .debug(&format!("[recipe:loop_cond_return_in_body] verified OK"));
     }
     Ok(())
 }

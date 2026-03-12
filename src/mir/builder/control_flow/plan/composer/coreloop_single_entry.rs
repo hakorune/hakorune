@@ -15,9 +15,7 @@ use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
 };
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
-use crate::mir::builder::control_flow::plan::{
-    scan_direction_from_step_lit, LoweredRecipe,
-};
+use crate::mir::builder::control_flow::plan::{scan_direction_from_step_lit, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 
 /// Unified ScanWithInit composer with all v0/v1 gate conditions preserved.
@@ -57,10 +55,8 @@ pub(super) fn try_compose_scan_with_init_unified(
     let shapes_match = if matches!(facts.facts.condition_shape, ConditionShape::Unknown) {
         true
     } else {
-        let cond_profile = cond_profile_from_scan_shapes(
-            &facts.facts.condition_shape,
-            &facts.facts.step_shape,
-        );
+        let cond_profile =
+            cond_profile_from_scan_shapes(&facts.facts.condition_shape, &facts.facts.step_shape);
         match_scan_with_init_shape(
             &facts.facts.condition_shape,
             &facts.facts.step_shape,
@@ -147,19 +143,13 @@ pub(in crate::mir::builder) fn try_compose_core_loop_from_facts(
     }
 
     if facts.value_join_needed {
-        if let Some(core) =
-            try_compose_core_loop_v1_loop_break(builder, facts, ctx)?
-        {
+        if let Some(core) = try_compose_core_loop_v1_loop_break(builder, facts, ctx)? {
             return Ok(Some(core));
         }
-        if let Some(core) =
-            try_compose_core_loop_v1_if_phi_join(builder, facts, ctx)?
-        {
+        if let Some(core) = try_compose_core_loop_v1_if_phi_join(builder, facts, ctx)? {
             return Ok(Some(core));
         }
-        if let Some(core) =
-            try_compose_core_loop_v1_loop_true_early_exit(builder, facts, ctx)?
-        {
+        if let Some(core) = try_compose_core_loop_v1_loop_true_early_exit(builder, facts, ctx)? {
             return Ok(Some(core));
         }
         if let Some(core) = try_compose_split_scan_unified(builder, facts, ctx)? {
@@ -182,7 +172,6 @@ mod tests {
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         LoopFeatureFacts, ValueJoinFacts,
     };
-    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
     use crate::mir::builder::control_flow::plan::facts::loop_simple_while_facts::LoopSimpleWhileFacts;
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
         ConditionShape, SplitScanShape, StepShape,
@@ -190,6 +179,7 @@ mod tests {
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
         SkeletonFacts, SkeletonKind,
     };
+    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
     use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
     use crate::mir::builder::MirBuilder;
     use crate::mir::MirType;
@@ -247,16 +237,11 @@ mod tests {
 
             starts_with: None,
 
-
             int_to_str: None,
-
 
             escape_map: None,
 
-
             split_lines: None,
-
-
 
             skip_whitespace: None,
             generic_loop_v0: None,
@@ -289,11 +274,9 @@ mod tests {
             .variable_ctx
             .variable_map
             .insert("i".to_string(), init);
-        let ctx =
-            LoopRouteContext::new(&condition, &[], "single_entry_nested", false, false);
+        let ctx = LoopRouteContext::new(&condition, &[], "single_entry_nested", false, false);
         let composed =
-            try_compose_core_loop_from_facts(&mut builder, &canonical, &ctx)
-                .expect("Ok");
+            try_compose_core_loop_from_facts(&mut builder, &canonical, &ctx).expect("Ok");
         assert!(
             composed.is_none(),
             "nested_loop must not fall back to v0/v1"
@@ -336,16 +319,11 @@ mod tests {
 
             starts_with: None,
 
-
             int_to_str: None,
-
 
             escape_map: None,
 
-
             split_lines: None,
-
-
 
             skip_whitespace: None,
             generic_loop_v0: None,
@@ -398,16 +376,9 @@ mod tests {
             .variable_ctx
             .variable_map
             .insert("start".to_string(), start_val);
-        let ctx = LoopRouteContext::new(
-            &condition,
-            &[],
-            "single_entry_value_join",
-            false,
-            false,
-        );
+        let ctx = LoopRouteContext::new(&condition, &[], "single_entry_value_join", false, false);
         let composed =
-            try_compose_core_loop_from_facts(&mut builder, &canonical, &ctx)
-                .expect("Ok");
+            try_compose_core_loop_from_facts(&mut builder, &canonical, &ctx).expect("Ok");
         assert!(composed.is_some(), "value-join path should compose");
     }
 
@@ -446,16 +417,11 @@ mod tests {
 
             starts_with: None,
 
-
             int_to_str: None,
-
 
             escape_map: None,
 
-
             split_lines: None,
-
-
 
             skip_whitespace: None,
             generic_loop_v0: None,
@@ -488,11 +454,9 @@ mod tests {
             .variable_ctx
             .variable_map
             .insert("i".to_string(), init);
-        let ctx =
-            LoopRouteContext::new(&condition, &[], "single_entry_no_join", false, false);
+        let ctx = LoopRouteContext::new(&condition, &[], "single_entry_no_join", false, false);
         let composed =
-            try_compose_core_loop_from_facts(&mut builder, &canonical, &ctx)
-                .expect("Ok");
+            try_compose_core_loop_from_facts(&mut builder, &canonical, &ctx).expect("Ok");
         assert!(composed.is_some(), "no-join path should compose");
     }
 }

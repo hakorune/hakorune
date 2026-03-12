@@ -77,20 +77,25 @@ pub(crate) fn verify_no_exit_block_recipe(
     recipe: &crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
-    check_block_contract(&recipe.arena, &recipe.block, BlockContractKind::NoExit, context)
-        .map(|_| ())
-        .map_err(|e| Freeze::contract("scan_segment_no_exit_recipe_verification_failed").with_hint(&e))
+    check_block_contract(
+        &recipe.arena,
+        &recipe.block,
+        BlockContractKind::NoExit,
+        context,
+    )
+    .map(|_| ())
+    .map_err(|e| Freeze::contract("scan_segment_no_exit_recipe_verification_failed").with_hint(&e))
 }
 
 pub(crate) fn verify_exit_allowed_block_recipe(
     recipe: &crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     check_block_contract(
         &recipe.arena,
@@ -108,12 +113,17 @@ pub(crate) fn verify_stmt_only_block_recipe(
     recipe: &crate::mir::builder::control_flow::plan::facts::stmt_view::StmtOnlyBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
-    check_block_contract(&recipe.arena, &recipe.block, BlockContractKind::StmtOnly, context)
-        .map(|_| ())
-        .map_err(|e| Freeze::contract("scan_segment_stmt_only_verification_failed").with_hint(&e))
+    check_block_contract(
+        &recipe.arena,
+        &recipe.block,
+        BlockContractKind::StmtOnly,
+        context,
+    )
+    .map(|_| ())
+    .map_err(|e| Freeze::contract("scan_segment_stmt_only_verification_failed").with_hint(&e))
 }
 
 pub(crate) fn verify_nested_loop_stmt_only_if_available(
@@ -172,8 +182,8 @@ pub(crate) fn verify_exit_only_block_recipe(
     recipe: &crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitOnlyBlockRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
     use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
+    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     check_block_contract(
         &recipe.arena,
@@ -399,7 +409,10 @@ pub(crate) fn verify_continue_only_items_with_len(
             ContinueOnlyStmtRecipe::Stmt(stmt) => {
                 verify_stmt_ref_in_bounds(*stmt, len, &item_ctx)?;
             }
-            ContinueOnlyStmtRecipe::ContinueIf { if_stmt, prelude_span } => {
+            ContinueOnlyStmtRecipe::ContinueIf {
+                if_stmt,
+                prelude_span,
+            } => {
                 verify_stmt_ref_in_bounds(*if_stmt, len, &item_ctx)?;
                 let _ = verify_stmt_span_len(*prelude_span, &item_ctx)?;
             }
@@ -435,9 +448,17 @@ pub(crate) fn verify_continue_only_items_with_len(
                 verify_stmt_ref_in_bounds(*if_stmt, len, &item_ctx)?;
                 verify_stmt_ref_in_bounds(*inner_loop_stmt, len, &item_ctx)?;
                 let prelude_len = verify_stmt_span_len(*inner_loop_prelude_span, &item_ctx)?;
-                verify_continue_only_items_with_len(inner_loop_prelude_items, prelude_len, &item_ctx)?;
+                verify_continue_only_items_with_len(
+                    inner_loop_prelude_items,
+                    prelude_len,
+                    &item_ctx,
+                )?;
                 let postlude_len = verify_stmt_span_len(*inner_loop_postlude_span, &item_ctx)?;
-                verify_continue_only_items_with_len(inner_loop_postlude_items, postlude_len, &item_ctx)?;
+                verify_continue_only_items_with_len(
+                    inner_loop_postlude_items,
+                    postlude_len,
+                    &item_ctx,
+                )?;
             }
         }
     }

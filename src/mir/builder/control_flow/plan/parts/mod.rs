@@ -19,20 +19,20 @@
 //! - loop.rs: Loop skeleton assembly
 //! - join.rs: JoinPayload generation
 
+pub(super) mod conditional_update;
+mod dispatch;
+pub(in crate::mir::builder) mod entry;
 pub(super) mod exit;
-pub(super) mod exit_kind_depth_view;
 pub(super) mod exit_branch;
+pub(super) mod exit_kind_depth_view;
 pub(super) mod if_;
 pub(super) mod if_exit;
 pub(super) mod if_general;
 pub(super) mod join_scope;
-pub(super) mod conditional_update;
-pub(super) mod stmt;
-pub(super) mod verify;
-mod var_map_scope;
 mod loop_;
-pub(in crate::mir::builder) mod entry;
-mod dispatch;
+pub(super) mod stmt;
+mod var_map_scope;
+pub(super) mod verify;
 
 pub(in crate::mir::builder) use loop_::LoopBodyContractKind;
 

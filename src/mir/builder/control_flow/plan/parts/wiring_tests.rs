@@ -4,8 +4,8 @@ mod tests {
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
     use crate::mir::builder::control_flow::plan::recipe_tree::{
-        BlockContractKind, ExitKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies,
-        RecipeBlock, RecipeItem,
+        BlockContractKind, ExitKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
+        RecipeBodies, RecipeItem,
     };
     use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
     use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan};
@@ -91,17 +91,19 @@ mod tests {
         };
 
         let mut arena = RecipeBodies::new();
-        let inner_body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            vec![sum_inc.clone()],
-        ));
-        let inner_body_block = RecipeBlock::new(
-            inner_body_id,
-            vec![RecipeItem::Stmt(StmtRef::new(0))],
+        let inner_body_id = arena.register(
+            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
+                vec![sum_inc.clone()],
+            ),
         );
+        let inner_body_block =
+            RecipeBlock::new(inner_body_id, vec![RecipeItem::Stmt(StmtRef::new(0))]);
 
-        let then_body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            then_body_ast.clone(),
-        ));
+        let then_body_id = arena.register(
+            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
+                then_body_ast.clone(),
+            ),
+        );
         let then_block = RecipeBlock::new(
             then_body_id,
             vec![
@@ -117,9 +119,9 @@ mod tests {
             ],
         );
 
-        let outer_body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            vec![if_ast],
-        ));
+        let outer_body_id = arena.register(
+            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(vec![if_ast]),
+        );
         let outer_body_block = RecipeBlock::new(
             outer_body_id,
             vec![RecipeItem::IfV2 {
@@ -201,14 +203,14 @@ mod tests {
         };
 
         let mut arena = RecipeBodies::new();
-        let then_body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            then_body_ast,
-        ));
+        let then_body_id = arena.register(
+            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(then_body_ast),
+        );
         let then_block = RecipeBlock::new(then_body_id, vec![RecipeItem::Stmt(StmtRef::new(0))]);
 
-        let body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            vec![if_ast],
-        ));
+        let body_id = arena.register(
+            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(vec![if_ast]),
+        );
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::IfV2 {
@@ -238,7 +240,10 @@ mod tests {
         std::env::set_var("HAKO_JOINIR_STRICT", "1");
         std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
 
-        let loop_body = vec![assign("sum", bin(BinaryOperator::Add, var("sum"), lit_int(1)))];
+        let loop_body = vec![assign(
+            "sum",
+            bin(BinaryOperator::Add, var("sum"), lit_int(1)),
+        )];
         let loop_ast = ASTNode::Loop {
             condition: Box::new(lit_bool(true)),
             body: loop_body.clone(),
@@ -246,17 +251,14 @@ mod tests {
         };
 
         let mut arena = RecipeBodies::new();
-        let inner_body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            loop_body,
-        ));
-        let inner_body_block = RecipeBlock::new(
-            inner_body_id,
-            vec![RecipeItem::Stmt(StmtRef::new(0))],
-        );
+        let inner_body_id = arena
+            .register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(loop_body));
+        let inner_body_block =
+            RecipeBlock::new(inner_body_id, vec![RecipeItem::Stmt(StmtRef::new(0))]);
 
-        let body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            vec![loop_ast],
-        ));
+        let body_id = arena.register(
+            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(vec![loop_ast]),
+        );
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::LoopV0 {
@@ -300,17 +302,14 @@ mod tests {
         };
 
         let mut arena = RecipeBodies::new();
-        let inner_body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            loop_body,
-        ));
-        let inner_body_block = RecipeBlock::new(
-            inner_body_id,
-            vec![RecipeItem::Stmt(StmtRef::new(0))],
-        );
+        let inner_body_id = arena
+            .register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(loop_body));
+        let inner_body_block =
+            RecipeBlock::new(inner_body_id, vec![RecipeItem::Stmt(StmtRef::new(0))]);
 
-        let body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            vec![loop_ast],
-        ));
+        let body_id = arena.register(
+            crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(vec![loop_ast]),
+        );
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::LoopV0 {
@@ -350,9 +349,8 @@ mod tests {
         }];
 
         let mut arena = RecipeBodies::new();
-        let body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            body_ast,
-        ));
+        let body_id = arena
+            .register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(body_ast));
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::Exit {
@@ -390,9 +388,8 @@ mod tests {
         }];
 
         let mut arena = RecipeBodies::new();
-        let body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            body_ast,
-        ));
+        let body_id = arena
+            .register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(body_ast));
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::Exit {
@@ -413,15 +410,24 @@ mod tests {
         .expect("verify exit-allowed block");
 
         assert!(
-            verified.port_sig().port(PortType::Return).contains_key("sum"),
+            verified
+                .port_sig()
+                .port(PortType::Return)
+                .contains_key("sum"),
             "expected return port to include pre-bound var"
         );
         assert!(
-            verified.port_sig().port(PortType::Break).contains_key("sum"),
+            verified
+                .port_sig()
+                .port(PortType::Break)
+                .contains_key("sum"),
             "expected break port to include pre-bound var"
         );
         assert!(
-            verified.port_sig().port(PortType::Continue).contains_key("sum"),
+            verified
+                .port_sig()
+                .port(PortType::Continue)
+                .contains_key("sum"),
             "expected continue port to include pre-bound var"
         );
 
@@ -445,9 +451,8 @@ mod tests {
         }];
 
         let mut arena = RecipeBodies::new();
-        let body_id = arena.register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(
-            body_ast,
-        ));
+        let body_id = arena
+            .register(crate::mir::builder::control_flow::plan::recipes::RecipeBody::new(body_ast));
         let block = RecipeBlock::new(
             body_id,
             vec![RecipeItem::Exit {
@@ -468,15 +473,24 @@ mod tests {
         .expect("verify exit-only block");
 
         assert!(
-            verified.port_sig().port(PortType::Return).contains_key("sum"),
+            verified
+                .port_sig()
+                .port(PortType::Return)
+                .contains_key("sum"),
             "expected return port to include pre-bound var"
         );
         assert!(
-            verified.port_sig().port(PortType::Break).contains_key("sum"),
+            verified
+                .port_sig()
+                .port(PortType::Break)
+                .contains_key("sum"),
             "expected break port to include pre-bound var"
         );
         assert!(
-            verified.port_sig().port(PortType::Continue).contains_key("sum"),
+            verified
+                .port_sig()
+                .port(PortType::Continue)
+                .contains_key("sum"),
             "expected continue port to include pre-bound var"
         );
 

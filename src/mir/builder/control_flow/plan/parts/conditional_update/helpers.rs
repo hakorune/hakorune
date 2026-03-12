@@ -19,7 +19,9 @@ pub(in crate::mir::builder) fn attach_phi_args_if_continue_or_break(
     match exit {
         CoreExitPlan::Continue(depth) => {
             if depth != 1 {
-                return Err(format!("[freeze:contract][exit_depth] {error_prefix}: continue depth must be 1"));
+                return Err(format!(
+                    "[freeze:contract][exit_depth] {error_prefix}: continue depth must be 1"
+                ));
             }
             if carrier_step_phis.is_empty() {
                 return Ok(CoreExitPlan::Continue(depth));
@@ -36,7 +38,9 @@ pub(in crate::mir::builder) fn attach_phi_args_if_continue_or_break(
                 return Ok(CoreExitPlan::Break(depth));
             };
             if depth != 1 {
-                return Err(format!("[freeze:contract][exit_depth] {error_prefix}: break depth must be 1"));
+                return Err(format!(
+                    "[freeze:contract][exit_depth] {error_prefix}: break depth must be 1"
+                ));
             }
             parts_exit::build_break_with_phi_args(break_phi_dsts, current_bindings, error_prefix)
         }
@@ -190,9 +194,7 @@ pub(in crate::mir::builder) fn current_value_for_join(
 pub(super) fn has_any_assignment(body: &[ASTNode]) -> bool {
     body.iter().any(|stmt| match stmt {
         ASTNode::Assignment { .. } => true,
-        ASTNode::Local { initial_values, .. } => {
-            initial_values.iter().all(|init| init.is_some())
-        }
+        ASTNode::Local { initial_values, .. } => initial_values.iter().all(|init| init.is_some()),
         _ => false,
     })
 }

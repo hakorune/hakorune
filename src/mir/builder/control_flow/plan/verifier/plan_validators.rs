@@ -12,9 +12,7 @@
 //! - V4: Seq may be empty (no-op)
 //! - V5: If/BranchN completeness (then_plans non-empty)
 
-use super::super::{
-    CoreBranchNPlan, CoreExitPlan, CoreIfPlan, LoweredRecipe,
-};
+use super::super::{CoreBranchNPlan, CoreExitPlan, CoreIfPlan, LoweredRecipe};
 use super::{position_validators, primitives};
 
 /// V4: Seq may be empty (no-op)
@@ -30,16 +28,19 @@ pub(super) fn verify_seq(
     position_validators::verify_exit_position(plans, depth, "Seq")?;
 
     for (i, plan) in plans.iter().enumerate() {
-        super::core::PlanVerifier::verify_plan(plan, depth + 1, loop_depth).map_err(|e| {
-            format!("[Seq[{}]] {}", i, e)
-        })?;
+        super::core::PlanVerifier::verify_plan(plan, depth + 1, loop_depth)
+            .map_err(|e| format!("[Seq[{}]] {}", i, e))?;
     }
 
     Ok(())
 }
 
 /// V5: If completeness
-pub(super) fn verify_if(if_plan: &CoreIfPlan, depth: usize, loop_depth: usize) -> Result<(), String> {
+pub(super) fn verify_if(
+    if_plan: &CoreIfPlan,
+    depth: usize,
+    loop_depth: usize,
+) -> Result<(), String> {
     // V2: Condition validity
     primitives::verify_value_id_basic(if_plan.condition, depth, "if.condition")?;
 
@@ -64,27 +65,27 @@ pub(super) fn verify_if(if_plan: &CoreIfPlan, depth: usize, loop_depth: usize) -
         }
     }
 
-    position_validators::verify_branch_plans(&if_plan.then_plans, depth, loop_depth, "If.then", |p, d, l| super::core::PlanVerifier::verify_plan(p, d, l))?;
+    position_validators::verify_branch_plans(
+        &if_plan.then_plans,
+        depth,
+        loop_depth,
+        "If.then",
+        |p, d, l| super::core::PlanVerifier::verify_plan(p, d, l),
+    )?;
     if let Some(else_plans) = &if_plan.else_plans {
-        position_validators::verify_branch_plans(else_plans, depth, loop_depth, "If.else", |p, d, l| super::core::PlanVerifier::verify_plan(p, d, l))?;
+        position_validators::verify_branch_plans(
+            else_plans,
+            depth,
+            loop_depth,
+            "If.else",
+            |p, d, l| super::core::PlanVerifier::verify_plan(p, d, l),
+        )?;
     }
 
     for (idx, join) in if_plan.joins.iter().enumerate() {
-        primitives::verify_value_id_basic(
-            join.dst,
-            depth,
-            &format!("if.join[{}].dst", idx),
-        )?;
-        primitives::verify_value_id_basic(
-            join.then_val,
-            depth,
-            &format!("if.join[{}].then", idx),
-        )?;
-        primitives::verify_value_id_basic(
-            join.else_val,
-            depth,
-            &format!("if.join[{}].else", idx),
-        )?;
+        primitives::verify_value_id_basic(join.dst, depth, &format!("if.join[{}].dst", idx))?;
+        primitives::verify_value_id_basic(join.then_val, depth, &format!("if.join[{}].then", idx))?;
+        primitives::verify_value_id_basic(join.else_val, depth, &format!("if.join[{}].else", idx))?;
     }
 
     Ok(())
@@ -105,7 +106,11 @@ pub(super) fn verify_branch_n(
     }
 
     for (i, arm) in branch_plan.arms.iter().enumerate() {
-        primitives::verify_value_id_basic(arm.condition, depth, &format!("BranchN.arm[{}].cond", i))?;
+        primitives::verify_value_id_basic(
+            arm.condition,
+            depth,
+            &format!("BranchN.arm[{}].cond", i),
+        )?;
         if arm.plans.is_empty() {
             return Err(primitives::err(
                 "V5",
@@ -133,14 +138,24 @@ pub(super) fn verify_branch_n(
                 format!("BranchN at depth {} has empty else_plans", depth),
             ));
         }
-        position_validators::verify_branch_plans(else_plans, depth, loop_depth, "BranchN.else", |p, d, l| super::core::PlanVerifier::verify_plan(p, d, l))?;
+        position_validators::verify_branch_plans(
+            else_plans,
+            depth,
+            loop_depth,
+            "BranchN.else",
+            |p, d, l| super::core::PlanVerifier::verify_plan(p, d, l),
+        )?;
     }
 
     Ok(())
 }
 
 /// V3: Exit validity
-pub(super) fn verify_exit(exit: &CoreExitPlan, depth: usize, loop_depth: usize) -> Result<(), String> {
+pub(super) fn verify_exit(
+    exit: &CoreExitPlan,
+    depth: usize,
+    loop_depth: usize,
+) -> Result<(), String> {
     match exit {
         CoreExitPlan::Return(opt_val) => {
             if let Some(val) = opt_val {
@@ -158,15 +173,15 @@ pub(super) fn verify_exit(exit: &CoreExitPlan, depth: usize, loop_depth: usize) 
             }
             position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
         }
-        CoreExitPlan::BreakWithPhiArgs { depth: exit_depth, phi_args } => {
+        CoreExitPlan::BreakWithPhiArgs {
+            depth: exit_depth,
+            phi_args,
+        } => {
             if loop_depth == 0 {
                 return Err(primitives::err(
                     "V3",
                     "break_outside_loop",
-                    format!(
-                        "BreakWithPhiArgs at depth {} outside of loop",
-                        depth
-                    ),
+                    format!("BreakWithPhiArgs at depth {} outside of loop", depth),
                 ));
             }
             position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
@@ -192,7 +207,10 @@ pub(super) fn verify_exit(exit: &CoreExitPlan, depth: usize, loop_depth: usize) 
             }
             position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
         }
-        CoreExitPlan::ContinueWithPhiArgs { depth: exit_depth, phi_args } => {
+        CoreExitPlan::ContinueWithPhiArgs {
+            depth: exit_depth,
+            phi_args,
+        } => {
             if loop_depth == 0 {
                 return Err(primitives::err(
                     "V3",

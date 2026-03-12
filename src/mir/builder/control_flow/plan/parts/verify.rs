@@ -7,15 +7,15 @@
 //! - Debug-only checks stay behind dev/strict guards.
 //! - On violation returns `Err("[freeze:contract][recipe] ...")`.
 
+use crate::ast::ASTNode;
+use crate::config::env::joinir_dev;
+use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::plan::recipe_tree::verified::ObligationState;
+use crate::mir::builder::control_flow::plan::recipe_tree::verified::VerifiedRecipeBlock;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, ExitKind, IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::verified::ObligationState;
-use crate::mir::builder::control_flow::plan::recipe_tree::verified::VerifiedRecipeBlock;
-use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
-use crate::ast::ASTNode;
-use crate::config::env::joinir_dev;
 
 // ============================================================================
 // RecipeBlock verifier (M5m-3)
@@ -230,7 +230,9 @@ pub(in crate::mir::builder) fn verify_port_sig_obligations_if_enabled(
     // Exclude StmtOnly (no PortSig obligations)
     match verified.kind() {
         BlockContractKind::StmtOnly => return Ok(()),
-        BlockContractKind::NoExit | BlockContractKind::ExitAllowed | BlockContractKind::ExitOnly => {}
+        BlockContractKind::NoExit
+        | BlockContractKind::ExitAllowed
+        | BlockContractKind::ExitOnly => {}
     }
 
     for (name, state) in verified.port_sig().fallthrough() {
@@ -464,11 +466,9 @@ fn verify_item_refs_in_range(
             }
             Ok(())
         }
-        RecipeItem::IfV2 { contract, .. } if matches!(contract, IfContractKind::Join) => {
-            Err(format!(
-                "[freeze:contract][recipe] exit_only_verifier_saw_if_join: ctx={context}"
-            ))
-        }
+        RecipeItem::IfV2 { contract, .. } if matches!(contract, IfContractKind::Join) => Err(
+            format!("[freeze:contract][recipe] exit_only_verifier_saw_if_join: ctx={context}"),
+        ),
         RecipeItem::IfV2 {
             if_stmt,
             cond_view: _cond_view,

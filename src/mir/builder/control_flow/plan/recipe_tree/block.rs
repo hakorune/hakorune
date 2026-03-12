@@ -4,10 +4,10 @@
 //! `RecipeItem::IfV2` holds `if_stmt: StmtRef` (the If node itself).
 //! `RecipeItem::Exit` uses existing `ExitKind`.
 
+use super::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
-use super::common::{ExitKind, IfMode};
 
 /// Contract kind for `RecipeItem` if-vocabulary unification (M19).
 ///
@@ -17,9 +17,13 @@ use super::common::{ExitKind, IfMode};
 /// adds a unified-if `RecipeItem` variant and migrates producers gradually.
 #[derive(Debug, Clone, Copy)]
 pub(in crate::mir::builder) enum IfContractKind {
-    ExitOnly { mode: IfMode },
+    ExitOnly {
+        mode: IfMode,
+    },
     /// then=fallthrough, else=exit-only (ElseOnlyExit pattern)
-    ExitAllowed { mode: IfMode },
+    ExitAllowed {
+        mode: IfMode,
+    },
     Join,
 }
 

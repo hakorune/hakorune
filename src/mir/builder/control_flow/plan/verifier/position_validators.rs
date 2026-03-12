@@ -24,8 +24,8 @@
 //! - Phase 273 P3: PlanVerifier infrastructure
 //! - Phase 29bq+: Cleanliness campaign - verifier.rs modularization (Step 2/7)
 
-use super::primitives;
 use super::super::{CorePlan, LoweredRecipe};
+use super::primitives;
 
 /// V11: Verify that Exit (if present) is last in sequence
 ///
@@ -67,9 +67,8 @@ pub(super) fn verify_branch_plans(
 ) -> Result<(), String> {
     verify_exit_position(plans, depth, scope)?;
     for (i, plan) in plans.iter().enumerate() {
-        verify_plan_fn(plan, depth + 1, loop_depth).map_err(|e| {
-            format!("[{}[{}]] {}", scope, i, e)
-        })?;
+        verify_plan_fn(plan, depth + 1, loop_depth)
+            .map_err(|e| format!("[{}[{}]] {}", scope, i, e))?;
     }
     Ok(())
 }

@@ -1,22 +1,19 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
+use super::{build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe};
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::{
-    build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
-
     /// Compose loop(true) early-exit facts into LoweredRecipe via RecipeBlock (no normalizer).
     pub fn compose_loop_true_early_exit_recipe(
         builder: &mut MirBuilder,
@@ -28,15 +25,11 @@ impl RecipeComposer {
 
         const CTX: &str = "loop_true_early_exit_recipe";
 
-        let early_exit_facts = facts
-            .facts
-            .loop_true_early_exit()
-            .clone()
-            .ok_or_else(|| {
-                Freeze::contract(
-                    "LoopTrueEarlyExit facts missing in compose_loop_true_early_exit_recipe",
-                )
-            })?;
+        let early_exit_facts = facts.facts.loop_true_early_exit().clone().ok_or_else(|| {
+            Freeze::contract(
+                "LoopTrueEarlyExit facts missing in compose_loop_true_early_exit_recipe",
+            )
+        })?;
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -97,11 +90,6 @@ impl RecipeComposer {
             body_block,
             CTX,
         )
-        .map_err(|e| {
-            Freeze::contract(&format!(
-                "LoopTrueEarlyExit recipe lower failed: {e}"
-            ))
-        })
+        .map_err(|e| Freeze::contract(&format!("LoopTrueEarlyExit recipe lower failed: {e}")))
     }
-
 }

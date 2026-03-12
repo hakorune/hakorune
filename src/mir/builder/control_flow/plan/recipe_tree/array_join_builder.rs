@@ -16,7 +16,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::LoopArrayJoinFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
+    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
     RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
@@ -87,7 +87,6 @@ pub(in crate::mir::builder) fn build_array_join_recipe(
 
     Some(ArrayJoinRecipe { arena, root })
 }
-
 
 /// Build separator append statement: result = result + separator
 fn build_separator_append(facts: &LoopArrayJoinFacts) -> ASTNode {

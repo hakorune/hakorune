@@ -38,10 +38,16 @@ impl PlanVerifier {
     ) -> Result<(), String> {
         match plan {
             CorePlan::Seq(plans) => super::plan_validators::verify_seq(plans, depth, loop_depth),
-            CorePlan::Loop(loop_plan) => super::loop_validators::verify_loop(loop_plan, depth, loop_depth),
+            CorePlan::Loop(loop_plan) => {
+                super::loop_validators::verify_loop(loop_plan, depth, loop_depth)
+            }
             CorePlan::If(if_plan) => super::plan_validators::verify_if(if_plan, depth, loop_depth),
-            CorePlan::BranchN(branch_plan) => super::plan_validators::verify_branch_n(branch_plan, depth, loop_depth),
-            CorePlan::Effect(effect) => super::effect_validators::verify_effect(effect, depth, loop_depth),
+            CorePlan::BranchN(branch_plan) => {
+                super::plan_validators::verify_branch_n(branch_plan, depth, loop_depth)
+            }
+            CorePlan::Effect(effect) => {
+                super::effect_validators::verify_effect(effect, depth, loop_depth)
+            }
             CorePlan::Exit(exit) => super::plan_validators::verify_exit(exit, depth, loop_depth),
         }
     }

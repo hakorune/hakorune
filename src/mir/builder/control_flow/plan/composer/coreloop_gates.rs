@@ -3,8 +3,7 @@ use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 
 pub(super) fn coreloop_base_gate(facts: &CanonicalLoopFacts) -> bool {
-    matches!(facts.skeleton_kind, SkeletonKind::Loop)
-        && facts.cleanup_kinds_present.is_empty()
+    matches!(facts.skeleton_kind, SkeletonKind::Loop) && facts.cleanup_kinds_present.is_empty()
 }
 
 pub(super) fn coreloop_value_join_gate(facts: &CanonicalLoopFacts) -> bool {

@@ -5,21 +5,19 @@ use super::coreloop_single_entry::{
 };
 use super::coreloop_v0::try_compose_core_loop_v0;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::{
     ExitKindFacts, ExitMapFacts, ExitUsageFacts, LoopFeatureFacts, ValueJoinFacts,
 };
+use crate::mir::builder::control_flow::plan::facts::loop_simple_while_facts::LoopSimpleWhileFacts;
 use crate::mir::builder::control_flow::plan::facts::loop_types::LoopFacts;
 use crate::mir::builder::control_flow::plan::facts::loop_types::ScanWithInitFacts;
-use crate::mir::builder::control_flow::plan::facts::loop_simple_while_facts::LoopSimpleWhileFacts;
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     ConditionShape, LengthMethod, SplitScanShape, StepShape,
 };
-use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
-    SkeletonFacts, SkeletonKind,
-};
+use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
 use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
 use crate::mir::builder::control_flow::plan::CorePlan;
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
 use std::collections::BTreeSet;
@@ -38,10 +36,7 @@ fn lit_int(value: i64) -> ASTNode {
     }
 }
 
-fn base_facts(
-    skeleton_kind: SkeletonKind,
-    features: LoopFeatureFacts,
-) -> LoopFacts {
+fn base_facts(skeleton_kind: SkeletonKind, features: LoopFeatureFacts) -> LoopFacts {
     LoopFacts {
         condition_shape: ConditionShape::Unknown,
         step_shape: StepShape::Unknown,
@@ -96,8 +91,7 @@ fn coreloop_v0_returns_none_for_non_loop_skeleton() {
         span: Span::unknown(),
     };
     let ctx = LoopRouteContext::new(&condition, &[], "coreloop_v0_non_loop", false, false);
-    let composed =
-        try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
+    let composed = try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(composed.is_none());
 }
 
@@ -116,8 +110,7 @@ fn coreloop_v0_returns_none_when_value_join_needed() {
         span: Span::unknown(),
     };
     let ctx = LoopRouteContext::new(&condition, &[], "coreloop_v0_value_join", false, false);
-    let composed =
-        try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
+    let composed = try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(composed.is_none());
 }
 
@@ -156,16 +149,11 @@ fn coreloop_v0_composes_simple_while_route() {
 
         starts_with: None,
 
-
         int_to_str: None,
-
 
         escape_map: None,
 
-
         split_lines: None,
-
-
 
         skip_whitespace: None,
         generic_loop_v0: None,
@@ -198,10 +186,8 @@ fn coreloop_v0_composes_simple_while_route() {
         .variable_ctx
         .variable_map
         .insert("i".to_string(), init);
-    let ctx =
-        LoopRouteContext::new(&condition, &[], "coreloop_v0_simple_while", false, false);
-    let composed =
-        try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
+    let ctx = LoopRouteContext::new(&condition, &[], "coreloop_v0_simple_while", false, false);
+    let composed = try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(matches!(composed, Some(CorePlan::Loop(_))));
 }
 
@@ -254,16 +240,11 @@ fn coreloop_v0_returns_none_when_exitmap_present() {
 
         starts_with: None,
 
-
         int_to_str: None,
-
 
         escape_map: None,
 
-
         split_lines: None,
-
-
 
         skip_whitespace: None,
         generic_loop_v0: None,
@@ -297,8 +278,7 @@ fn coreloop_v0_returns_none_when_exitmap_present() {
         .variable_map
         .insert("i".to_string(), init);
     let ctx = LoopRouteContext::new(&condition, &[], "coreloop_v0_exitmap", false, false);
-    let composed =
-        try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
+    let composed = try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(composed.is_none());
 }
 
@@ -359,16 +339,11 @@ fn coreloop_v0_composes_scan_with_init_subset() {
 
         starts_with: None,
 
-
         int_to_str: None,
-
 
         escape_map: None,
 
-
         split_lines: None,
-
-
 
         skip_whitespace: None,
         generic_loop_v0: None,
@@ -412,8 +387,7 @@ fn coreloop_v0_composes_scan_with_init_subset() {
         .variable_map
         .insert("ch".to_string(), ch_val);
     let ctx = LoopRouteContext::new(&condition, &[], "coreloop_v0_scan", false, false);
-    let composed =
-        try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
+    let composed = try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(matches!(composed, Some(CorePlan::Loop(_))));
 }
 
@@ -460,16 +434,11 @@ fn coreloop_v0_rejects_scan_with_init_when_shapes_mismatch() {
 
         starts_with: None,
 
-
         int_to_str: None,
-
 
         escape_map: None,
 
-
         split_lines: None,
-
-
 
         skip_whitespace: None,
         generic_loop_v0: None,
@@ -498,8 +467,7 @@ fn coreloop_v0_rejects_scan_with_init_when_shapes_mismatch() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("coreloop_v0_scan_mismatch".to_string());
     let ctx = LoopRouteContext::new(&condition, &[], "coreloop_v0_scan", false, false);
-    let composed =
-        try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
+    let composed = try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(composed.is_none());
 }
 
@@ -560,16 +528,11 @@ fn coreloop_v0_rejects_scan_with_init_value_join_direct() {
 
         starts_with: None,
 
-
         int_to_str: None,
-
 
         escape_map: None,
 
-
         split_lines: None,
-
-
 
         skip_whitespace: None,
         generic_loop_v0: None,
@@ -604,9 +567,7 @@ fn coreloop_v0_rejects_scan_with_init_value_join_direct() {
         false,
         false,
     );
-    let composed =
-        try_compose_scan_with_init_unified(&mut builder, &canonical, &ctx)
-            .expect("Ok");
+    let composed = try_compose_scan_with_init_unified(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(
         composed.is_none(),
         "scan_with_init rejects value_join_needed"
@@ -628,14 +589,16 @@ fn coreloop_v0_composes_split_scan_subset() {
         },
         features: LoopFeatureFacts::default(),
         scan_with_init: None,
-        split_scan: Some(crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts {
-            s_var: "s".to_string(),
-            sep_var: "sep".to_string(),
-            result_var: "result".to_string(),
-            i_var: "i".to_string(),
-            start_var: "start".to_string(),
-            shape: SplitScanShape::Minimal,
-        }),
+        split_scan: Some(
+            crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts {
+                s_var: "s".to_string(),
+                sep_var: "sep".to_string(),
+                result_var: "result".to_string(),
+                i_var: "i".to_string(),
+                start_var: "start".to_string(),
+                shape: SplitScanShape::Minimal,
+            },
+        ),
         loop_simple_while: None,
         loop_char_map: None,
         loop_array_join: None,
@@ -643,16 +606,11 @@ fn coreloop_v0_composes_split_scan_subset() {
 
         starts_with: None,
 
-
         int_to_str: None,
-
 
         escape_map: None,
 
-
         split_lines: None,
-
-
 
         skip_whitespace: None,
         generic_loop_v0: None,
@@ -705,10 +663,8 @@ fn coreloop_v0_composes_split_scan_subset() {
         .variable_ctx
         .variable_map
         .insert("start".to_string(), start_val);
-    let ctx =
-        LoopRouteContext::new(&condition, &[], "coreloop_v0_split_scan", false, false);
-    let composed =
-        try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
+    let ctx = LoopRouteContext::new(&condition, &[], "coreloop_v0_split_scan", false, false);
+    let composed = try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(matches!(composed, Some(CorePlan::Loop(_))));
 }
 
@@ -731,14 +687,16 @@ fn coreloop_v0_rejects_split_scan_value_join_entrypoint() {
         },
         features,
         scan_with_init: None,
-        split_scan: Some(crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts {
-            s_var: "s".to_string(),
-            sep_var: "sep".to_string(),
-            result_var: "result".to_string(),
-            i_var: "i".to_string(),
-            start_var: "start".to_string(),
-            shape: SplitScanShape::Minimal,
-        }),
+        split_scan: Some(
+            crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts {
+                s_var: "s".to_string(),
+                sep_var: "sep".to_string(),
+                result_var: "result".to_string(),
+                i_var: "i".to_string(),
+                start_var: "start".to_string(),
+                shape: SplitScanShape::Minimal,
+            },
+        ),
         loop_simple_while: None,
         loop_char_map: None,
         loop_array_join: None,
@@ -746,16 +704,11 @@ fn coreloop_v0_rejects_split_scan_value_join_entrypoint() {
 
         starts_with: None,
 
-
         int_to_str: None,
-
 
         escape_map: None,
 
-
         split_lines: None,
-
-
 
         skip_whitespace: None,
         generic_loop_v0: None,
@@ -783,15 +736,8 @@ fn coreloop_v0_rejects_split_scan_value_join_entrypoint() {
     let canonical = canonicalize_loop_facts(facts);
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("coreloop_v0_split_scan_join".to_string());
-    let ctx = LoopRouteContext::new(
-        &condition,
-        &[],
-        "coreloop_v0_split_scan_join",
-        false,
-        false,
-    );
-    let composed =
-        try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
+    let ctx = LoopRouteContext::new(&condition, &[], "coreloop_v0_split_scan_join", false, false);
+    let composed = try_compose_core_loop_v0(&mut builder, &canonical, &ctx).expect("Ok");
     assert!(
         composed.is_none(),
         "v0 entrypoint rejects split_scan value_join_needed"
@@ -817,14 +763,16 @@ fn coreloop_v0_rejects_split_scan_value_join_direct() {
         },
         features,
         scan_with_init: None,
-        split_scan: Some(crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts {
-            s_var: "s".to_string(),
-            sep_var: "sep".to_string(),
-            result_var: "result".to_string(),
-            i_var: "i".to_string(),
-            start_var: "start".to_string(),
-            shape: SplitScanShape::Minimal,
-        }),
+        split_scan: Some(
+            crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts {
+                s_var: "s".to_string(),
+                sep_var: "sep".to_string(),
+                result_var: "result".to_string(),
+                i_var: "i".to_string(),
+                start_var: "start".to_string(),
+                shape: SplitScanShape::Minimal,
+            },
+        ),
         loop_simple_while: None,
         loop_char_map: None,
         loop_array_join: None,
@@ -832,16 +780,11 @@ fn coreloop_v0_rejects_split_scan_value_join_direct() {
 
         starts_with: None,
 
-
         int_to_str: None,
-
 
         escape_map: None,
 
-
         split_lines: None,
-
-
 
         skip_whitespace: None,
         generic_loop_v0: None,
@@ -876,10 +819,6 @@ fn coreloop_v0_rejects_split_scan_value_join_direct() {
         false,
         false,
     );
-    let composed =
-        try_compose_split_scan_unified(&mut builder, &canonical, &ctx).expect("Ok");
-    assert!(
-        composed.is_none(),
-        "split_scan rejects value_join_needed"
-    );
+    let composed = try_compose_split_scan_unified(&mut builder, &canonical, &ctx).expect("Ok");
+    assert!(composed.is_none(), "split_scan rejects value_join_needed");
 }

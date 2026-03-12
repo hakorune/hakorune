@@ -29,20 +29,21 @@ fn accept_via_cond_profile_freeze_on_incomplete(
     route: &str,
 ) -> Result<bool, Freeze> {
     if !cond_profile_is_complete_for_accept(cond_profile) {
-        return Err(Freeze::contract(
-            "condprofile incomplete: legacy fallback disallowed",
-        )
-        .with_hint(format!("route={}", route)));
+        return Err(
+            Freeze::contract("condprofile incomplete: legacy fallback disallowed")
+                .with_hint(format!("route={}", route)),
+        );
     }
     Ok(true)
 }
 
-fn cond_profile_is_complete_for_accept(
-    cond_profile: &crate::mir::policies::CondProfile,
-) -> bool {
-    let (has_loop_var, has_cmp, has_bound, has_step) = cond_profile_param_flags_accept(cond_profile);
-    matches!(cond_profile.skeleton, crate::mir::policies::CondSkeleton::LoopCond)
-        && has_loop_var
+fn cond_profile_is_complete_for_accept(cond_profile: &crate::mir::policies::CondProfile) -> bool {
+    let (has_loop_var, has_cmp, has_bound, has_step) =
+        cond_profile_param_flags_accept(cond_profile);
+    matches!(
+        cond_profile.skeleton,
+        crate::mir::policies::CondSkeleton::LoopCond
+    ) && has_loop_var
         && has_cmp
         && has_bound
         && has_step

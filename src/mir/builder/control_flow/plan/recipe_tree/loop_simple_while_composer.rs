@@ -1,24 +1,22 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
+use super::{
+    build_array_join_recipe, build_char_map_recipe, build_loop_simple_while_recipe,
+    ArrayJoinRecipe, CharMapRecipe, LoopSimpleWhileRecipe,
+};
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::{
-    build_array_join_recipe, build_char_map_recipe,
-    build_loop_simple_while_recipe, ArrayJoinRecipe, CharMapRecipe,
-    LoopSimpleWhileRecipe,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
-
     /// Compose loop-simple-while facts into LoweredRecipe via RecipeBlock (no normalizer).
     pub fn compose_loop_simple_while_recipe(
         builder: &mut MirBuilder,
@@ -30,9 +28,7 @@ impl RecipeComposer {
         const CTX: &str = "loop_simple_while_recipe";
 
         let simple_while_facts = facts.facts.loop_simple_while().cloned().ok_or_else(|| {
-            Freeze::contract(
-                "LoopSimpleWhile facts missing in compose_loop_simple_while_recipe",
-            )
+            Freeze::contract("LoopSimpleWhile facts missing in compose_loop_simple_while_recipe")
         })?;
 
         if joinir_dev::debug_enabled() {
@@ -75,7 +71,9 @@ impl RecipeComposer {
         })?;
 
         let Some(loop_item) = root.items.first() else {
-            return Err(Freeze::contract("LoopSimpleWhile recipe root missing LoopV0"));
+            return Err(Freeze::contract(
+                "LoopSimpleWhile recipe root missing LoopV0",
+            ));
         };
 
         let RecipeItem::LoopV0 {
@@ -156,9 +154,7 @@ impl RecipeComposer {
             ..
         } = loop_item
         else {
-            return Err(Freeze::contract(
-                "LoopCharMap recipe root is not LoopV0",
-            ));
+            return Err(Freeze::contract("LoopCharMap recipe root is not LoopV0"));
         };
 
         let mut current_bindings = builder.variable_ctx.variable_map.clone();
@@ -185,9 +181,7 @@ impl RecipeComposer {
         const CTX: &str = "loop_array_join_recipe";
 
         let array_join_facts = facts.facts.loop_array_join().cloned().ok_or_else(|| {
-            Freeze::contract(
-                "LoopArrayJoin facts missing in compose_loop_array_join_recipe",
-            )
+            Freeze::contract("LoopArrayJoin facts missing in compose_loop_array_join_recipe")
         })?;
 
         if joinir_dev::debug_enabled() {
@@ -207,12 +201,9 @@ impl RecipeComposer {
         let loop_cond_view = CondBlockView::from_expr(&array_join_facts.condition);
         let if_cond_view = CondBlockView::from_expr(&array_join_facts.if_condition);
 
-        let Some(ArrayJoinRecipe { arena, root }) = build_array_join_recipe(
-            &loop_stmt,
-            loop_cond_view,
-            if_cond_view,
-            &array_join_facts,
-        ) else {
+        let Some(ArrayJoinRecipe { arena, root }) =
+            build_array_join_recipe(&loop_stmt, loop_cond_view, if_cond_view, &array_join_facts)
+        else {
             return Err(Freeze::contract(
                 "LoopArrayJoin recipe missing (planner_required)",
             ));
@@ -233,9 +224,7 @@ impl RecipeComposer {
             ..
         } = loop_item
         else {
-            return Err(Freeze::contract(
-                "LoopArrayJoin recipe root is not LoopV0",
-            ));
+            return Err(Freeze::contract("LoopArrayJoin recipe root is not LoopV0"));
         };
 
         let mut current_bindings = builder.variable_ctx.variable_map.clone();
@@ -250,5 +239,4 @@ impl RecipeComposer {
         )
         .map_err(|e| Freeze::contract(&format!("LoopArrayJoin recipe lower failed: {e}")))
     }
-
 }

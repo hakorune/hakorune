@@ -15,9 +15,7 @@ pub(in crate::mir::builder) enum RecipeContractKind {
         has_return: bool,
     },
     /// Loop with carrier merge (PHI).
-    LoopWithCarrier {
-        carrier_count: usize,
-    },
+    LoopWithCarrier { carrier_count: usize },
     /// Simple statement sequence.
     StmtSeq,
 }

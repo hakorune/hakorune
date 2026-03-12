@@ -11,8 +11,8 @@
 //!   - Forbidden: If, BranchN, Exit (control flow exits)
 //!   - Exception: ExitIf within IfEffect is allowed (leaf-level exit)
 
-use super::{primitives, position_validators, plan_validators, effect_validators};
 use super::super::{CorePlan, LoweredRecipe};
+use super::{effect_validators, plan_validators, position_validators, primitives};
 
 pub(super) fn verify_loop_body_tree(
     plans: &[LoweredRecipe],
@@ -44,7 +44,9 @@ fn verify_body_plan_tree(
             Ok(())
         }
         CorePlan::If(if_plan) => plan_validators::verify_if(if_plan, depth + 1, loop_depth),
-        CorePlan::Loop(loop_plan) => super::loop_validators::verify_loop(loop_plan, depth + 1, loop_depth),
+        CorePlan::Loop(loop_plan) => {
+            super::loop_validators::verify_loop(loop_plan, depth + 1, loop_depth)
+        }
         CorePlan::Exit(exit) => plan_validators::verify_exit(exit, depth, loop_depth),
         CorePlan::BranchN(_) => Err(primitives::err(
             "V12",

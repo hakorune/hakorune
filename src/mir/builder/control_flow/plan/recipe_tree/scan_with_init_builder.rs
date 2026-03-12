@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockVi
 use crate::mir::builder::control_flow::plan::facts::loop_types::ScanWithInitFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
+    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
     RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
@@ -94,7 +94,6 @@ pub(in crate::mir::builder) fn build_scan_with_init_recipe(
 
     Some(ScanWithInitRecipe { arena, root })
 }
-
 
 fn build_match_condition(facts: &ScanWithInitFacts) -> ASTNode {
     let span = Span::unknown();

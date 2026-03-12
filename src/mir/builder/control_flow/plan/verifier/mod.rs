@@ -74,23 +74,22 @@
 //! - Phase 29bq+: Modularization from 1,416 line monolith → 7 focused modules
 //! - Original verifier.rs: Steps 1-7 extraction (2025-01-12)
 
-
 // Phase 29bq+: Modularized verifier components
-pub(super) mod primitives;
-pub(super) mod position_validators;
 pub(super) mod core;
-pub(super) mod plan_validators;
 pub(super) mod effect_validators;
-pub(super) mod loop_validators;
 pub(super) mod loop_body_validators;
+pub(super) mod loop_validators;
+pub(super) mod plan_validators;
+pub(super) mod position_validators;
+pub(super) mod primitives;
 
-mod debug_helpers;
 mod cond_profile;
+mod debug_helpers;
 #[cfg(test)]
 mod tests;
 
 pub(in crate::mir::builder) use core::PlanVerifier;
 
 // Re-export debug helpers for external usage
-pub(in crate::mir::builder) use debug_helpers::*;
 pub(in crate::mir::builder) use cond_profile::*;
+pub(in crate::mir::builder) use debug_helpers::*;

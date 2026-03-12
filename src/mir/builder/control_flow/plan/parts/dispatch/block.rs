@@ -6,15 +6,15 @@
 //! - Core lower_block_internal function
 //! - Block-level lowering entry points (exit-only, exit-allowed, stmt-only, no-exit)
 
-use crate::mir::builder::control_flow::plan::recipe_tree::{
-    IfContractKind, RecipeBodies, RecipeBlock, RecipeItem,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::verified::VerifiedRecipeBlock;
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
-use crate::mir::builder::MirBuilder;
 use super::super::stmt as parts_stmt;
 #[cfg(debug_assertions)]
 use super::super::verify;
+use crate::mir::builder::control_flow::plan::recipe_tree::verified::VerifiedRecipeBlock;
+use crate::mir::builder::control_flow::plan::recipe_tree::{
+    IfContractKind, RecipeBlock, RecipeBodies, RecipeItem,
+};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
 use super::if_exit_only::lower_exit_only_item;
@@ -25,13 +25,13 @@ use super::if_join::lower_if_join_with_stmt_lowerer;
 // ============================================================================
 
 pub(super) type LowerStmtFn<'a> = dyn FnMut(
-    &mut MirBuilder,
-    &mut BTreeMap<String, crate::mir::ValueId>,
-    &BTreeMap<String, crate::mir::ValueId>,
-    Option<&BTreeMap<String, crate::mir::ValueId>>,
-    &crate::ast::ASTNode,
-    &str,
-) -> Result<Vec<LoweredRecipe>, String>
+        &mut MirBuilder,
+        &mut BTreeMap<String, crate::mir::ValueId>,
+        &BTreeMap<String, crate::mir::ValueId>,
+        Option<&BTreeMap<String, crate::mir::ValueId>>,
+        &crate::ast::ASTNode,
+        &str,
+    ) -> Result<Vec<LoweredRecipe>, String>
     + 'a;
 
 pub(super) type BoxedLowerStmtFn<'a> = Box<LowerStmtFn<'a>>;
@@ -69,7 +69,10 @@ pub(super) fn lower_block_internal<'a>(
     kind: BlockKindInternal<'a>,
 ) -> Result<Vec<LoweredRecipe>, String> {
     arena.get(block.body_id).ok_or_else(|| {
-        format!("[freeze:contract][recipe] invalid_body_id: ctx={}", error_prefix)
+        format!(
+            "[freeze:contract][recipe] invalid_body_id: ctx={}",
+            error_prefix
+        )
     })?;
 
     match kind {
@@ -108,7 +111,10 @@ pub(super) fn lower_block_internal<'a>(
             verify::debug_check_stmt_only_block_contract(arena, block, error_prefix)?;
 
             let body = arena.get(block.body_id).ok_or_else(|| {
-                format!("[freeze:contract][recipe] invalid_body_id: ctx={}", error_prefix)
+                format!(
+                    "[freeze:contract][recipe] invalid_body_id: ctx={}",
+                    error_prefix
+                )
             })?;
 
             let mut plans = Vec::new();
@@ -143,7 +149,10 @@ pub(super) fn lower_block_internal<'a>(
             verify::debug_check_no_exit_block_contract(arena, block, error_prefix)?;
 
             let body = arena.get(block.body_id).ok_or_else(|| {
-                format!("[freeze:contract][recipe] invalid_body_id: ctx={}", error_prefix)
+                format!(
+                    "[freeze:contract][recipe] invalid_body_id: ctx={}",
+                    error_prefix
+                )
             })?;
 
             let mut lower_stmt_outer = make_lower_stmt();
@@ -348,7 +357,10 @@ pub(super) fn lower_exit_allowed_block(
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
     arena.get(block.body_id).ok_or_else(|| {
-        format!("[freeze:contract][recipe] invalid_body_id: ctx={}", error_prefix)
+        format!(
+            "[freeze:contract][recipe] invalid_body_id: ctx={}",
+            error_prefix
+        )
     })?;
 
     #[cfg(debug_assertions)]
@@ -493,11 +505,7 @@ pub(in crate::mir::builder) fn lower_no_exit_block_verified(
 /// - `make_lower_stmt` is called once per block lowering context (outer, then, else) to allow
 ///   block-local state (e.g., carrier_updates map) without cross-branch leakage.
 /// - `should_update_binding` controls which joins update `current_bindings`.
-fn lower_no_exit_block_with_stmt_lowerer<
-    MakeLowerStmt,
-    LowerStmt,
-    ShouldUpdateBinding,
->(
+fn lower_no_exit_block_with_stmt_lowerer<MakeLowerStmt, LowerStmt, ShouldUpdateBinding>(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,

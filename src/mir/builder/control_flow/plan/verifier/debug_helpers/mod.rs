@@ -85,8 +85,7 @@ pub(in crate::mir::builder) fn debug_observe_cond_profile_completeness(
     use crate::config::env::joinir_dev;
 
     let complete = cond_profile_is_complete(cond_profile);
-    let (has_loop_var, has_cmp, has_bound, has_step) =
-        cond_profile_param_flags(cond_profile);
+    let (has_loop_var, has_cmp, has_bound, has_step) = cond_profile_param_flags(cond_profile);
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
@@ -111,7 +110,9 @@ pub(in crate::mir::builder) fn debug_observe_cond_profile_completeness(
             } else {
                 missing.join(",")
             };
-            ring0.log.debug(&format!("[condprofile:incomplete] missing={}", missing));
+            ring0
+                .log
+                .debug(&format!("[condprofile:incomplete] missing={}", missing));
         }
     }
 }
@@ -182,14 +183,13 @@ pub(in crate::mir::builder) fn debug_observe_cond_profile_idx_var(
 }
 
 #[cfg(debug_assertions)]
-fn cond_profile_is_complete(
-    cond_profile: &crate::mir::policies::CondProfile,
-) -> bool {
-    let (has_loop_var, has_cmp, has_bound, has_step) =
-        cond_profile_param_flags(cond_profile);
+fn cond_profile_is_complete(cond_profile: &crate::mir::policies::CondProfile) -> bool {
+    let (has_loop_var, has_cmp, has_bound, has_step) = cond_profile_param_flags(cond_profile);
 
-    matches!(cond_profile.skeleton, crate::mir::policies::CondSkeleton::LoopCond)
-        && has_loop_var
+    matches!(
+        cond_profile.skeleton,
+        crate::mir::policies::CondSkeleton::LoopCond
+    ) && has_loop_var
         && has_cmp
         && has_bound
         && has_step

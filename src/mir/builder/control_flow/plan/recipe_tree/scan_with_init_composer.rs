@@ -1,17 +1,15 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
+use super::{build_scan_with_init_recipe, ScanWithInitRecipe};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::{
-    build_scan_with_init_recipe, ScanWithInitRecipe,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
@@ -87,7 +85,6 @@ fn build_scan_with_init_loop_condition(
 }
 
 impl RecipeComposer {
-
     /// Compose scan-with-init facts into LoweredRecipe via RecipeBlock (no normalizer).
     pub fn compose_scan_with_init_recipe(
         builder: &mut MirBuilder,
@@ -99,9 +96,7 @@ impl RecipeComposer {
         const CTX: &str = "scan_with_init_recipe";
 
         let scan_facts = facts.facts.scan_with_init.clone().ok_or_else(|| {
-            Freeze::contract(
-                "ScanWithInit facts missing in compose_scan_with_init_recipe",
-            )
+            Freeze::contract("ScanWithInit facts missing in compose_scan_with_init_recipe")
         })?;
 
         if joinir_dev::debug_enabled() {
@@ -123,9 +118,7 @@ impl RecipeComposer {
         let Some(ScanWithInitRecipe { arena, root }) =
             build_scan_with_init_recipe(&loop_stmt, loop_cond_view, &scan_facts)
         else {
-            return Err(Freeze::contract(
-                "ScanWithInit recipe build returned None",
-            ));
+            return Err(Freeze::contract("ScanWithInit recipe build returned None"));
         };
 
         check_block_contract(&arena, &root, BlockContractKind::ExitAllowed, CTX).map_err(|e| {
@@ -133,9 +126,7 @@ impl RecipeComposer {
         })?;
 
         let Some(loop_item) = root.items.first() else {
-            return Err(Freeze::contract(
-                "ScanWithInit recipe root missing LoopV0",
-            ));
+            return Err(Freeze::contract("ScanWithInit recipe root missing LoopV0"));
         };
 
         let RecipeItem::LoopV0 {
@@ -145,9 +136,7 @@ impl RecipeComposer {
             ..
         } = loop_item
         else {
-            return Err(Freeze::contract(
-                "ScanWithInit recipe root is not LoopV0",
-            ));
+            return Err(Freeze::contract("ScanWithInit recipe root is not LoopV0"));
         };
 
         let mut current_bindings = builder.variable_ctx.variable_map.clone();
@@ -160,11 +149,6 @@ impl RecipeComposer {
             body_block,
             CTX,
         )
-        .map_err(|e| {
-            Freeze::contract(&format!(
-                "ScanWithInit recipe lower failed: {e}"
-            ))
-        })
+        .map_err(|e| Freeze::contract(&format!("ScanWithInit recipe lower failed: {e}")))
     }
-
 }

@@ -14,11 +14,10 @@
 //! - V10b: InlineInBody requires empty step_bb effects
 //! - V14: Continue target must be in frag wiring (pipeline invariant)
 
-use super::{effect_validators, primitives};
 use super::super::{
-    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePlan, LoopStepMode,
-    LoweredRecipe,
+    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePlan, LoopStepMode, LoweredRecipe,
 };
+use super::{effect_validators, primitives};
 use crate::mir::builder::control_flow::plan::edgecfg_facade::ExitKind;
 
 /// Phase 273 P3: Verify loop with generalized fields
@@ -28,7 +27,11 @@ use crate::mir::builder::control_flow::plan::edgecfg_facade::ExitKind;
 /// - V7: PHI non-empty (at least one carrier)
 /// - V8: Frag entry matches header_bb
 /// - V9: block_effects contains header_bb
-pub(super) fn verify_loop(loop_plan: &CoreLoopPlan, depth: usize, loop_depth: usize) -> Result<(), String> {
+pub(super) fn verify_loop(
+    loop_plan: &CoreLoopPlan,
+    depth: usize,
+    loop_depth: usize,
+) -> Result<(), String> {
     // V2: Condition validity (basic check - ValueId should be non-zero for safety)
     primitives::verify_value_id_basic(loop_plan.cond_loop, depth, "cond_loop")?;
     primitives::verify_value_id_basic(loop_plan.cond_match, depth, "cond_match")?;
@@ -58,7 +61,10 @@ pub(super) fn verify_loop(loop_plan: &CoreLoopPlan, depth: usize, loop_depth: us
     }
 
     // V9: block_effects contains header_bb
-    let has_header = loop_plan.block_effects.iter().any(|(bb, _)| *bb == loop_plan.header_bb);
+    let has_header = loop_plan
+        .block_effects
+        .iter()
+        .any(|(bb, _)| *bb == loop_plan.header_bb);
     if !has_header {
         return Err(primitives::err(
             "V9",
@@ -128,9 +134,8 @@ pub(super) fn verify_loop(loop_plan: &CoreLoopPlan, depth: usize, loop_depth: us
     // Verify block_effects
     for (i, (bb, effects)) in loop_plan.block_effects.iter().enumerate() {
         for (j, effect) in effects.iter().enumerate() {
-            effect_validators::verify_effect(effect, depth, 0).map_err(|e| {
-                format!("[Loop.block_effects[{}={:?}][{}]] {}", i, bb, j, e)
-            })?;
+            effect_validators::verify_effect(effect, depth, 0)
+                .map_err(|e| format!("[Loop.block_effects[{}={:?}][{}]] {}", i, bb, j, e))?;
         }
     }
 
@@ -151,10 +156,7 @@ pub(super) fn verify_loop(loop_plan: &CoreLoopPlan, depth: usize, loop_depth: us
             return Err(primitives::err(
                 "V6",
                 "final_value_empty_name",
-                format!(
-                    "final_values[{}] at depth {} has empty name",
-                    i, depth
-                ),
+                format!("final_values[{}] at depth {} has empty name", i, depth),
             ));
         }
         primitives::verify_value_id_basic(*val, depth, &format!("final_values[{}]", i))?;
@@ -189,33 +191,29 @@ pub(super) fn verify_loop(loop_plan: &CoreLoopPlan, depth: usize, loop_depth: us
     Ok(())
 }
 
-fn verify_loop_pipeline_invariants(
-    loop_plan: &CoreLoopPlan,
-    depth: usize,
-) -> Result<(), String> {
+fn verify_loop_pipeline_invariants(loop_plan: &CoreLoopPlan, depth: usize) -> Result<(), String> {
     let continue_target = loop_plan.continue_target;
     let mut continue_in_frag = loop_plan.frag.entry == continue_target;
     if !continue_in_frag {
-        continue_in_frag =
-            loop_plan
-                .frag
-                .wires
+        continue_in_frag = loop_plan
+            .frag
+            .wires
+            .iter()
+            .any(|wire| wire.from == continue_target || wire.target == Some(continue_target))
+            || loop_plan.frag.branches.iter().any(|branch| {
+                branch.from == continue_target
+                    || branch.then_target == continue_target
+                    || branch.else_target == continue_target
+            })
+            || loop_plan.frag.exits.values().any(|stubs| {
+                stubs.iter().any(|stub| {
+                    stub.from == continue_target || stub.target == Some(continue_target)
+                })
+            })
+            || loop_plan
+                .block_effects
                 .iter()
-                .any(|wire| wire.from == continue_target || wire.target == Some(continue_target))
-                || loop_plan.frag.branches.iter().any(|branch| {
-                    branch.from == continue_target
-                        || branch.then_target == continue_target
-                        || branch.else_target == continue_target
-                })
-                || loop_plan.frag.exits.values().any(|stubs| {
-                    stubs
-                        .iter()
-                        .any(|stub| stub.from == continue_target || stub.target == Some(continue_target))
-                })
-                || loop_plan
-                    .block_effects
-                    .iter()
-                    .any(|(bb, _)| *bb == continue_target);
+                .any(|(bb, _)| *bb == continue_target);
     }
     if !continue_in_frag {
         return Err(primitives::err(

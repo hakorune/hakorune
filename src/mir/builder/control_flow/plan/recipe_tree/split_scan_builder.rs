@@ -1,11 +1,11 @@
 //! SplitScan recipe builder for Recipe-first verification
 
+use super::build_stmt_only_block;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts;
-use super::build_stmt_only_block;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies, RecipeBlock,
+    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
     RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
@@ -78,7 +78,6 @@ pub(in crate::mir::builder) fn build_split_scan_recipe(
 
     Some(SplitScanRecipe { arena, root })
 }
-
 
 fn build_match_condition(facts: &SplitScanFacts) -> ASTNode {
     let span = Span::unknown();

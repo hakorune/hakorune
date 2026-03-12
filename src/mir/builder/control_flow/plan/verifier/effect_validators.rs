@@ -11,14 +11,24 @@
 //! - V6: Effect ValueId validity (all ValueIds pre-generated)
 //! - V12: Loop body effect-only (IfEffect/ExitIf allowed with restrictions)
 
-use super::super::{CoreEffectPlan, CoreExitPlan};
 use super::super::coreloop_body_contract::is_leaf_effect_plan;
+use super::super::{CoreEffectPlan, CoreExitPlan};
 use super::{position_validators, primitives};
 
 /// V6: Effect ValueId validity
-pub(super) fn verify_effect(effect: &CoreEffectPlan, depth: usize, loop_depth: usize) -> Result<(), String> {
+pub(super) fn verify_effect(
+    effect: &CoreEffectPlan,
+    depth: usize,
+    loop_depth: usize,
+) -> Result<(), String> {
     match effect {
-        CoreEffectPlan::MethodCall { dst, object, method, args, effects: _ } => {
+        CoreEffectPlan::MethodCall {
+            dst,
+            object,
+            method,
+            args,
+            effects: _,
+        } => {
             // P2: dst is now Option<ValueId>
             if let Some(dst_val) = dst {
                 primitives::verify_value_id_basic(*dst_val, depth, "MethodCall.dst")?;
@@ -73,17 +83,18 @@ pub(super) fn verify_effect(effect: &CoreEffectPlan, depth: usize, loop_depth: u
                 return Err(primitives::err(
                     "V6",
                     "extern_call_empty_name",
-                    format!(
-                        "ExternCall at depth {} has empty iface/method",
-                        depth
-                    ),
+                    format!("ExternCall at depth {} has empty iface/method", depth),
                 ));
             }
             for (i, arg) in args.iter().enumerate() {
                 primitives::verify_value_id_basic(*arg, depth, &format!("ExternCall.args[{}]", i))?;
             }
         }
-        CoreEffectPlan::NewBox { dst, box_type, args } => {
+        CoreEffectPlan::NewBox {
+            dst,
+            box_type,
+            args,
+        } => {
             primitives::verify_value_id_basic(*dst, depth, "NewBox.dst")?;
             if box_type.is_empty() {
                 return Err(primitives::err(
@@ -96,12 +107,22 @@ pub(super) fn verify_effect(effect: &CoreEffectPlan, depth: usize, loop_depth: u
                 primitives::verify_value_id_basic(*arg, depth, &format!("NewBox.args[{}]", i))?;
             }
         }
-        CoreEffectPlan::BinOp { dst, lhs, op: _, rhs } => {
+        CoreEffectPlan::BinOp {
+            dst,
+            lhs,
+            op: _,
+            rhs,
+        } => {
             primitives::verify_value_id_basic(*dst, depth, "BinOp.dst")?;
             primitives::verify_value_id_basic(*lhs, depth, "BinOp.lhs")?;
             primitives::verify_value_id_basic(*rhs, depth, "BinOp.rhs")?;
         }
-        CoreEffectPlan::Compare { dst, lhs, op: _, rhs } => {
+        CoreEffectPlan::Compare {
+            dst,
+            lhs,
+            op: _,
+            rhs,
+        } => {
             primitives::verify_value_id_basic(*dst, depth, "Compare.dst")?;
             primitives::verify_value_id_basic(*lhs, depth, "Compare.lhs")?;
             primitives::verify_value_id_basic(*rhs, depth, "Compare.rhs")?;
@@ -147,7 +168,10 @@ pub(super) fn verify_effect(effect: &CoreEffectPlan, depth: usize, loop_depth: u
                 CoreExitPlan::Break(exit_depth) | CoreExitPlan::Continue(exit_depth) => {
                     position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
                 }
-                CoreExitPlan::BreakWithPhiArgs { depth: exit_depth, phi_args } => {
+                CoreExitPlan::BreakWithPhiArgs {
+                    depth: exit_depth,
+                    phi_args,
+                } => {
                     position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
                     if phi_args.is_empty() {
                         return Err(primitives::err(
@@ -164,13 +188,19 @@ pub(super) fn verify_effect(effect: &CoreEffectPlan, depth: usize, loop_depth: u
                         primitives::verify_value_id_basic(*src, depth, "ExitIf.break.phi_src")?;
                     }
                 }
-                CoreExitPlan::ContinueWithPhiArgs { depth: exit_depth, phi_args } => {
+                CoreExitPlan::ContinueWithPhiArgs {
+                    depth: exit_depth,
+                    phi_args,
+                } => {
                     position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
                     if phi_args.is_empty() {
                         return Err(primitives::err(
                             "V12",
                             "exit_if_continue_phi_args_empty",
-                            format!("ExitIf(ContinueWithPhiArgs) has empty phi_args at depth {}", depth),
+                            format!(
+                                "ExitIf(ContinueWithPhiArgs) has empty phi_args at depth {}",
+                                depth
+                            ),
                         ));
                     }
                     for (dst, src) in phi_args {
@@ -195,12 +225,7 @@ pub(super) fn verify_effect(effect: &CoreEffectPlan, depth: usize, loop_depth: u
             primitives::verify_value_id_basic(*cond, depth, "IfEffect.cond")?;
             verify_if_effect_branch(then_effects, depth, loop_depth, "then_effects")?;
             if let Some(else_effects) = else_effects {
-                verify_if_effect_branch(
-                    else_effects,
-                    depth,
-                    loop_depth,
-                    "else_effects",
-                )?;
+                verify_if_effect_branch(else_effects, depth, loop_depth, "else_effects")?;
             }
         }
     }
@@ -233,7 +258,11 @@ pub(super) fn verify_if_effect_branch(
             }
             CoreEffectPlan::ExitIf {
                 cond: exit_cond,
-                exit: CoreExitPlan::ContinueWithPhiArgs { depth: exit_depth, phi_args },
+                exit:
+                    CoreExitPlan::ContinueWithPhiArgs {
+                        depth: exit_depth,
+                        phi_args,
+                    },
             } if is_last => {
                 primitives::verify_value_id_basic(*exit_cond, depth, "IfEffect.continue.cond")?;
                 position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;

@@ -1,22 +1,19 @@
 //! Split from composer.rs (behavior-preserving module split).
 
 use super::RecipeComposer;
+use super::{build_accum_const_loop_recipe, AccumConstLoopRecipe};
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use super::{
-    build_accum_const_loop_recipe, AccumConstLoopRecipe,
-};
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::check_block_contract;
 use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 impl RecipeComposer {
-
     /// Compose accum-const-loop facts into LoweredRecipe via RecipeBlock (no normalizer).
     pub fn compose_accum_const_loop_recipe(
         builder: &mut MirBuilder,
@@ -27,15 +24,9 @@ impl RecipeComposer {
 
         const CTX: &str = "accum_const_loop_recipe";
 
-        let accum_facts = facts
-            .facts
-            .accum_const_loop()
-            .clone()
-            .ok_or_else(|| {
-                Freeze::contract(
-                    "AccumConstLoop facts missing in compose_accum_const_loop_recipe",
-                )
-            })?;
+        let accum_facts = facts.facts.accum_const_loop().clone().ok_or_else(|| {
+            Freeze::contract("AccumConstLoop facts missing in compose_accum_const_loop_recipe")
+        })?;
 
         if joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -80,9 +71,7 @@ impl RecipeComposer {
             ..
         } = loop_item
         else {
-            return Err(Freeze::contract(
-                "AccumConstLoop recipe root is not LoopV0",
-            ));
+            return Err(Freeze::contract("AccumConstLoop recipe root is not LoopV0"));
         };
 
         let mut current_bindings = builder.variable_ctx.variable_map.clone();
@@ -95,11 +84,6 @@ impl RecipeComposer {
             body_block,
             CTX,
         )
-        .map_err(|e| {
-            Freeze::contract(&format!(
-                "AccumConstLoop recipe lower failed: {e}"
-            ))
-        })
+        .map_err(|e| Freeze::contract(&format!("AccumConstLoop recipe lower failed: {e}")))
     }
-
 }

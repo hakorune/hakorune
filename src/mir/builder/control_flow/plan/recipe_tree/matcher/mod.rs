@@ -8,14 +8,14 @@ use crate::mir::builder::control_flow::plan::facts::feature_facts::ExitKindFacts
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
-mod utils;
-mod patterns;
-mod loop_scan;
 mod loop_cond;
+mod loop_scan;
+mod patterns;
+mod utils;
 
-use patterns::*;
-use loop_scan::*;
 use loop_cond::*;
+use loop_scan::*;
+use patterns::*;
 
 /// Macro to simplify CondProfile-based route verification.
 ///
@@ -92,13 +92,22 @@ impl RecipeMatcher {
         verify_route!(facts.facts.if_phi_join(), verify_if_phi_join_recipe);
 
         // Phase C9: loop_continue_only verification (planner_required only)
-        verify_route!(facts.facts.loop_continue_only(), verify_loop_continue_only_recipe);
+        verify_route!(
+            facts.facts.loop_continue_only(),
+            verify_loop_continue_only_recipe
+        );
 
         // Phase C10: loop_true_early_exit verification (planner_required only)
-        verify_route!(facts.facts.loop_true_early_exit(), verify_loop_true_early_exit_recipe);
+        verify_route!(
+            facts.facts.loop_true_early_exit(),
+            verify_loop_true_early_exit_recipe
+        );
 
         // Phase C11: loop_simple_while verification (planner_required only)
-        verify_route!(facts.facts.loop_simple_while(), verify_loop_simple_while_recipe);
+        verify_route!(
+            facts.facts.loop_simple_while(),
+            verify_loop_simple_while_recipe
+        );
 
         // Phase C12: loop_char_map verification (planner_required only)
         if let Some(loop_char_map) = facts.facts.loop_char_map() {

@@ -3,8 +3,8 @@
 //! Scope: behavior-preserving extraction of existing lowering logic.
 //! SSOT for exit (break/continue/return) lowering.
 
-use crate::ast::ASTNode;
 use super::super::steps::effects_to_plans;
+use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::ExitKind;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
@@ -72,10 +72,11 @@ pub(in crate::mir::builder) fn lower_return_stmt_with_effects(
     let mut plans = Vec::new();
     let ret_val = match value {
         Some(v) => {
-            let (value_id, effects) = PlanNormalizer::lower_value_ast(v, builder, current_bindings)?;
+            let (value_id, effects) =
+                PlanNormalizer::lower_value_ast(v, builder, current_bindings)?;
             plans.extend(effects_to_plans(effects));
             Some(value_id)
-        },
+        }
         None => None,
     };
     plans.push(CorePlan::Exit(CoreExitPlan::Return(ret_val)));
@@ -109,7 +110,10 @@ pub(in crate::mir::builder) fn build_continue_with_phi_args(
     };
     for (name, phi_dst) in carrier_step_phis {
         let Some(&val) = current_bindings.get(name) else {
-            return Err(format!("{error_prefix}: step join value {} not found", name));
+            return Err(format!(
+                "{error_prefix}: step join value {} not found",
+                name
+            ));
         };
         if debug {
             let ring0 = crate::runtime::get_global_ring0();
@@ -125,10 +129,7 @@ pub(in crate::mir::builder) fn build_continue_with_phi_args(
         }
         phi_args.push((*phi_dst, val));
     }
-    Ok(CoreExitPlan::ContinueWithPhiArgs {
-        depth: 1,
-        phi_args,
-    })
+    Ok(CoreExitPlan::ContinueWithPhiArgs { depth: 1, phi_args })
 }
 
 pub(in crate::mir::builder) fn build_break_with_phi_args(
@@ -139,12 +140,12 @@ pub(in crate::mir::builder) fn build_break_with_phi_args(
     let mut phi_args = Vec::new();
     for (name, phi_dst) in break_phi_dsts {
         let Some(&val) = current_bindings.get(name) else {
-            return Err(format!("{error_prefix}: break merge value {} not found", name));
+            return Err(format!(
+                "{error_prefix}: break merge value {} not found",
+                name
+            ));
         };
         phi_args.push((*phi_dst, val));
     }
-    Ok(CoreExitPlan::BreakWithPhiArgs {
-        depth: 1,
-        phi_args,
-    })
+    Ok(CoreExitPlan::BreakWithPhiArgs { depth: 1, phi_args })
 }

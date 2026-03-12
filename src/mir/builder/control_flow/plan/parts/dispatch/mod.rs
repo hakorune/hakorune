@@ -13,15 +13,11 @@ mod if_join;
 
 // Re-export public entry points
 pub(in crate::mir::builder) use block::{
-    lower_exit_allowed_block_verified,
-    lower_exit_only_block_verified,
-    lower_no_exit_block_verified,
-    lower_no_exit_block_with_stmt_lowerer_verified,
-    lower_stmt_only_block,
-    plans_exit_on_all_paths,
+    lower_exit_allowed_block_verified, lower_exit_only_block_verified,
+    lower_no_exit_block_verified, lower_no_exit_block_with_stmt_lowerer_verified,
+    lower_stmt_only_block, plans_exit_on_all_paths,
 };
 
 pub(in crate::mir::builder) use if_join::{
-    lower_if_join_with_branch_lowerers,
-    lower_value_cond_if_with_filtered_joins,
+    lower_if_join_with_branch_lowerers, lower_value_cond_if_with_filtered_joins,
 };

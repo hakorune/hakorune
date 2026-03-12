@@ -66,7 +66,11 @@ pub(super) fn verify_edge_args_layout(
 ///
 /// Format: `[Vx][reason=...] detail`
 /// Enables stable reason codes for diagnostics and filtering.
-pub(super) fn err(code: &'static str, reason: &'static str, detail: impl std::fmt::Display) -> String {
+pub(super) fn err(
+    code: &'static str,
+    reason: &'static str,
+    detail: impl std::fmt::Display,
+) -> String {
     format!("[{}][reason={}] {}", code, reason, detail)
 }
 

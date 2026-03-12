@@ -7,29 +7,29 @@
 
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::StmtOnlyBlockRecipe;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 
-pub(in crate::mir::builder) mod common;
 pub(in crate::mir::builder) mod block;
+pub(in crate::mir::builder) mod common;
 // Re-export block types explicitly (use block::* doesn't work with visibility)
 pub(in crate::mir::builder) use block::{
-    BlockContractKind, BodyId, IfContractKind, LoopKindV0, LoopV0Features, RecipeBodies,
-    RecipeBlock, RecipeItem,
+    BlockContractKind, BodyId, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
+    RecipeBodies, RecipeItem,
 };
 
 // Builder modules (flattened from builders/)
-pub(in crate::mir::builder) mod loop_simple_while_builder;
-pub(in crate::mir::builder) mod char_map_builder;
+pub(in crate::mir::builder) mod accum_const_loop_builder;
 pub(in crate::mir::builder) mod array_join_builder;
-pub(in crate::mir::builder) mod loop_break_builder;
+pub(in crate::mir::builder) mod bool_predicate_scan_builder;
+pub(in crate::mir::builder) mod char_map_builder;
 pub(in crate::mir::builder) mod if_phi_join_builder;
+pub(in crate::mir::builder) mod loop_break_builder;
 pub(in crate::mir::builder) mod loop_continue_only_builder;
+pub(in crate::mir::builder) mod loop_simple_while_builder;
 pub(in crate::mir::builder) mod loop_true_early_exit_builder;
 pub(in crate::mir::builder) mod scan_with_init_builder;
 pub(in crate::mir::builder) mod split_scan_builder;
-pub(in crate::mir::builder) mod bool_predicate_scan_builder;
-pub(in crate::mir::builder) mod accum_const_loop_builder;
 
 // Composer modules (flattened from composer/)
 mod accum_const_loop_composer;
@@ -51,50 +51,29 @@ pub(in crate::mir::builder) use matcher::RecipeMatcher;
 pub(in crate::mir::builder) mod verified;
 
 // Re-export builder types (maintains backward compatibility)
-pub(in crate::mir::builder) use loop_simple_while_builder::{
-    build_loop_simple_while_recipe,
-    LoopSimpleWhileRecipe,
+pub(in crate::mir::builder) use accum_const_loop_builder::{
+    build_accum_const_loop_recipe, AccumConstLoopRecipe,
 };
-pub(in crate::mir::builder) use char_map_builder::{
-    build_char_map_recipe,
-    CharMapRecipe,
+pub(in crate::mir::builder) use array_join_builder::{build_array_join_recipe, ArrayJoinRecipe};
+pub(in crate::mir::builder) use bool_predicate_scan_builder::{
+    build_bool_predicate_scan_recipe, BoolPredicateScanRecipe,
 };
-pub(in crate::mir::builder) use array_join_builder::{
-    build_array_join_recipe,
-    ArrayJoinRecipe,
-};
-pub(in crate::mir::builder) use loop_break_builder::{
-    build_loop_break_recipe,
-    LoopBreakRecipe,
-};
-pub(in crate::mir::builder) use if_phi_join_builder::{
-    build_if_phi_join_recipe,
-    IfPhiJoinRecipe,
-};
+pub(in crate::mir::builder) use char_map_builder::{build_char_map_recipe, CharMapRecipe};
+pub(in crate::mir::builder) use if_phi_join_builder::{build_if_phi_join_recipe, IfPhiJoinRecipe};
+pub(in crate::mir::builder) use loop_break_builder::{build_loop_break_recipe, LoopBreakRecipe};
 pub(in crate::mir::builder) use loop_continue_only_builder::{
-    build_loop_continue_only_recipe,
-    LoopContinueOnlyRecipe,
+    build_loop_continue_only_recipe, LoopContinueOnlyRecipe,
+};
+pub(in crate::mir::builder) use loop_simple_while_builder::{
+    build_loop_simple_while_recipe, LoopSimpleWhileRecipe,
 };
 pub(in crate::mir::builder) use loop_true_early_exit_builder::{
-    build_loop_true_early_exit_recipe,
-    LoopTrueEarlyExitRecipe,
+    build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe,
 };
 pub(in crate::mir::builder) use scan_with_init_builder::{
-    build_scan_with_init_recipe,
-    ScanWithInitRecipe,
+    build_scan_with_init_recipe, ScanWithInitRecipe,
 };
-pub(in crate::mir::builder) use split_scan_builder::{
-    build_split_scan_recipe,
-    SplitScanRecipe,
-};
-pub(in crate::mir::builder) use bool_predicate_scan_builder::{
-    build_bool_predicate_scan_recipe,
-    BoolPredicateScanRecipe,
-};
-pub(in crate::mir::builder) use accum_const_loop_builder::{
-    build_accum_const_loop_recipe,
-    AccumConstLoopRecipe,
-};
+pub(in crate::mir::builder) use split_scan_builder::{build_split_scan_recipe, SplitScanRecipe};
 
 // ===== RecipeComposer (moved from composer/mod.rs) =====
 pub(in crate::mir::builder) struct RecipeComposer;
