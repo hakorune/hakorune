@@ -6,6 +6,10 @@ pub(super) struct ProgramJsonEmitRequest {
     pub(super) out_path: String,
 }
 
+pub(super) fn emit_program_json_v0_requested(groups: &CliGroups) -> bool {
+    groups.emit.emit_program_json_v0.is_some()
+}
+
 fn resolve_source_path(groups: &CliGroups) -> Result<String, String> {
     stage1::input_path()
         .or_else(|| groups.input.file.as_ref().cloned())
@@ -28,9 +32,19 @@ pub(super) fn build_emit_request(groups: &CliGroups) -> Result<ProgramJsonEmitRe
 
 #[cfg(test)]
 mod tests {
-    use super::{build_emit_request, resolve_source_path};
+    use super::{build_emit_request, emit_program_json_v0_requested, resolve_source_path};
     use crate::cli::CliConfig;
     use crate::runner::stage1_bridge::test_support::env_lock;
+
+    #[test]
+    fn emit_program_json_v0_requested_reports_exact_flag_presence() {
+        let groups = CliConfig::default().as_groups();
+        assert!(!emit_program_json_v0_requested(&groups));
+
+        let mut groups = CliConfig::default().as_groups();
+        groups.emit.emit_program_json_v0 = Some("/tmp/out.json".to_string());
+        assert!(emit_program_json_v0_requested(&groups));
+    }
 
     #[test]
     fn build_emit_request_captures_exact_out_path() {
