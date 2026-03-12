@@ -6,13 +6,13 @@
 //!
 //! 公開API: run_repl() のみ
 
+mod ast_rewriter;
 mod repl_runner;
-mod repl_session;
-mod ast_rewriter; // Phase 288.1: AST rewriting for session variable bridge
+mod repl_session; // Phase 288.1: AST rewriting for session variable bridge
 
+use crate::cli::CliConfig;
 use repl_runner::ReplRunnerBox;
 pub use repl_session::ReplSessionBox; // Phase 288.1: Export for ExternCall bridge
-use crate::cli::CliConfig;
 
 /// Phase 288: REPL モード起動（公開API）
 ///

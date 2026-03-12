@@ -55,7 +55,7 @@ impl ReplRunnerBox {
 
             line_buf.clear();
             match stdin.read_line(&mut line_buf) {
-                Ok(0) => break,  // EOF
+                Ok(0) => break, // EOF
                 Ok(_) => {
                     let line = line_buf.trim();
 
@@ -102,9 +102,9 @@ impl ReplRunnerBox {
 
     /// 1行評価（内部メソッド）
     fn eval_line(&self, line: &str) -> Result<String, String> {
-        use crate::parser::NyashParser;
-        use crate::mir::MirCompiler;
         use crate::backend::mir_interpreter::MirInterpreter;
+        use crate::mir::MirCompiler;
+        use crate::parser::NyashParser;
 
         // REPL mode では内部デバッグログを自動抑制
         // （quiet_internal_logs フラグで制御、環境変数操作不要）
@@ -113,8 +113,8 @@ impl ReplRunnerBox {
 
         // Parse (minimal wrapper for REPL context - use Main for VM entry point)
         let code = format!("static box Main {{ main() {{ {} }} }}", line);
-        let ast = NyashParser::parse_from_string(&code)
-            .map_err(|e| format!("Parse error: {}", e))?;
+        let ast =
+            NyashParser::parse_from_string(&code).map_err(|e| format!("Parse error: {}", e))?;
 
         // Phase 288.1: Check if wrapper AST is a pure expression (for auto-display)
         use super::ast_rewriter::ReplAstRewriter;
@@ -131,7 +131,8 @@ impl ReplRunnerBox {
         compiler.set_quiet_internal_logs(self.quiet_internal_logs);
 
         // Phase 288.1: Use rewritten AST for compilation
-        let mir_result = compiler.compile_with_source(rewritten_ast, Some("<repl>"))
+        let mir_result = compiler
+            .compile_with_source(rewritten_ast, Some("<repl>"))
             .map_err(|e| format!("Compile error: {}", e))?;
 
         // Phase 288.1: Set REPL session in VM (Rc clone, not inner session clone)
@@ -139,7 +140,8 @@ impl ReplRunnerBox {
         vm.set_repl_session(self.session.clone());
 
         // Execute
-        let result_box = vm.execute_module(&mir_result.module)
+        let result_box = vm
+            .execute_module(&mir_result.module)
             .map_err(|e| format!("Runtime error: {}", e))?;
 
         // Phase 288.1: Convert to VMValue and store in session
@@ -151,7 +153,9 @@ impl ReplRunnerBox {
                 VMValue::Void => String::new(), // Void は表示しない
                 value => {
                     // `_` 変数に保存
-                    self.session.borrow_mut().set("_".to_string(), value.clone());
+                    self.session
+                        .borrow_mut()
+                        .set("_".to_string(), value.clone());
                     Self::format_vm_value(value)
                 }
             }

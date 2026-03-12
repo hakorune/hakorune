@@ -71,7 +71,11 @@ impl ReplAstRewriter {
             }
 
             // Box declarations (methods: HashMap<String, ASTNode>)
-            ASTNode::BoxDeclaration { methods, static_init, .. } => {
+            ASTNode::BoxDeclaration {
+                methods,
+                static_init,
+                ..
+            } => {
                 for (_method_name, method_node) in methods {
                     self.collect_from_node(method_node);
                 }
@@ -83,7 +87,11 @@ impl ReplAstRewriter {
             }
 
             // Recurse into compound nodes
-            ASTNode::If { then_body, else_body, .. } => {
+            ASTNode::If {
+                then_body,
+                else_body,
+                ..
+            } => {
                 for stmt in then_body {
                     self.collect_from_node(stmt);
                 }
@@ -109,8 +117,14 @@ impl ReplAstRewriter {
         match node {
             // Program: recurse into statements
             ASTNode::Program { statements, span } => {
-                let rewritten = statements.into_iter().map(|s| self.rewrite_node(s)).collect();
-                ASTNode::Program { statements: rewritten, span }
+                let rewritten = statements
+                    .into_iter()
+                    .map(|s| self.rewrite_node(s))
+                    .collect();
+                ASTNode::Program {
+                    statements: rewritten,
+                    span,
+                }
             }
 
             // Variable read: rewrite if undeclared and not in nested scope
@@ -123,18 +137,29 @@ impl ReplAstRewriter {
             }
 
             // Assignment: rewrite target if undeclared Variable
-            ASTNode::Assignment { target, value, span } => {
+            ASTNode::Assignment {
+                target,
+                value,
+                span,
+            } => {
                 let rewritten_value = Box::new(self.rewrite_node(*value));
 
                 // Check if target is a simple Variable
-                if let ASTNode::Variable { name, span: var_span } = *target {
+                if let ASTNode::Variable {
+                    name,
+                    span: var_span,
+                } = *target
+                {
                     if self.should_rewrite_variable(&name) {
                         // Rewrite to __repl.set("name", value)
                         return self.make_repl_set(name, *rewritten_value, span);
                     } else {
                         // Keep as Assignment
                         return ASTNode::Assignment {
-                            target: Box::new(ASTNode::Variable { name, span: var_span }),
+                            target: Box::new(ASTNode::Variable {
+                                name,
+                                span: var_span,
+                            }),
                             value: rewritten_value,
                             span,
                         };
@@ -151,7 +176,14 @@ impl ReplAstRewriter {
 
             // Function/Method declarations: enter nested scope
             // Phase 288.1: Special case - don't enter nested scope for "main" function (REPL wrapper)
-            ASTNode::FunctionDeclaration { name, params, body, is_static, is_override, span } => {
+            ASTNode::FunctionDeclaration {
+                name,
+                params,
+                body,
+                is_static,
+                is_override,
+                span,
+            } => {
                 let prev_nested = self.in_nested_scope;
                 // Don't enter nested scope for "main" function (REPL wrapper)
                 let is_repl_main = name == "main";
@@ -175,7 +207,23 @@ impl ReplAstRewriter {
 
             // Box declarations: enter nested scope for methods (methods: HashMap)
             // Phase 288.1: Special case - don't enter nested scope for static box "Main" (REPL wrapper)
-            ASTNode::BoxDeclaration { name, fields, public_fields, private_fields, methods, constructors, init_fields, weak_fields, is_interface, extends, implements, type_parameters, is_static, static_init, span } => {
+            ASTNode::BoxDeclaration {
+                name,
+                fields,
+                public_fields,
+                private_fields,
+                methods,
+                constructors,
+                init_fields,
+                weak_fields,
+                is_interface,
+                extends,
+                implements,
+                type_parameters,
+                is_static,
+                static_init,
+                span,
+            } => {
                 let prev_nested = self.in_nested_scope;
                 // Don't enter nested scope for static box "Main" (REPL wrapper)
                 let is_repl_wrapper = is_static && name == "Main";
@@ -183,11 +231,16 @@ impl ReplAstRewriter {
                     self.in_nested_scope = true;
                 }
 
-                let rewritten_methods = methods.into_iter().map(|(k, v)| (k, self.rewrite_node(v))).collect();
-                let rewritten_constructors = constructors.into_iter().map(|(k, v)| (k, self.rewrite_node(v))).collect();
-                let rewritten_static_init = static_init.map(|stmts| {
-                    stmts.into_iter().map(|s| self.rewrite_node(s)).collect()
-                });
+                let rewritten_methods = methods
+                    .into_iter()
+                    .map(|(k, v)| (k, self.rewrite_node(v)))
+                    .collect();
+                let rewritten_constructors = constructors
+                    .into_iter()
+                    .map(|(k, v)| (k, self.rewrite_node(v)))
+                    .collect();
+                let rewritten_static_init = static_init
+                    .map(|stmts| stmts.into_iter().map(|s| self.rewrite_node(s)).collect());
 
                 self.in_nested_scope = prev_nested;
 
@@ -211,12 +264,19 @@ impl ReplAstRewriter {
             }
 
             // If: recurse into branches
-            ASTNode::If { condition, then_body, else_body, span } => {
+            ASTNode::If {
+                condition,
+                then_body,
+                else_body,
+                span,
+            } => {
                 let rewritten_cond = Box::new(self.rewrite_node(*condition));
-                let rewritten_then = then_body.into_iter().map(|s| self.rewrite_node(s)).collect();
-                let rewritten_else = else_body.map(|stmts| {
-                    stmts.into_iter().map(|s| self.rewrite_node(s)).collect()
-                });
+                let rewritten_then = then_body
+                    .into_iter()
+                    .map(|s| self.rewrite_node(s))
+                    .collect();
+                let rewritten_else = else_body
+                    .map(|stmts| stmts.into_iter().map(|s| self.rewrite_node(s)).collect());
 
                 ASTNode::If {
                     condition: rewritten_cond,
@@ -227,7 +287,11 @@ impl ReplAstRewriter {
             }
 
             // Loop: recurse into body
-            ASTNode::Loop { condition, body, span } => {
+            ASTNode::Loop {
+                condition,
+                body,
+                span,
+            } => {
                 let rewritten_cond = Box::new(self.rewrite_node(*condition));
                 let rewritten_body = body.into_iter().map(|s| self.rewrite_node(s)).collect();
 
@@ -239,89 +303,113 @@ impl ReplAstRewriter {
             }
 
             // Binary operation: recurse into operands
-            ASTNode::BinaryOp { operator, left, right, span } => {
-                ASTNode::BinaryOp {
-                    operator,
-                    left: Box::new(self.rewrite_node(*left)),
-                    right: Box::new(self.rewrite_node(*right)),
-                    span,
-                }
-            }
+            ASTNode::BinaryOp {
+                operator,
+                left,
+                right,
+                span,
+            } => ASTNode::BinaryOp {
+                operator,
+                left: Box::new(self.rewrite_node(*left)),
+                right: Box::new(self.rewrite_node(*right)),
+                span,
+            },
 
             // Unary operation: recurse into operand
-            ASTNode::UnaryOp { operator, operand, span } => {
-                ASTNode::UnaryOp {
-                    operator,
-                    operand: Box::new(self.rewrite_node(*operand)),
-                    span,
-                }
-            }
+            ASTNode::UnaryOp {
+                operator,
+                operand,
+                span,
+            } => ASTNode::UnaryOp {
+                operator,
+                operand: Box::new(self.rewrite_node(*operand)),
+                span,
+            },
 
             // Method call: recurse into object and arguments
-            ASTNode::MethodCall { object, method, arguments, span } => {
-                ASTNode::MethodCall {
-                    object: Box::new(self.rewrite_node(*object)),
-                    method,
-                    arguments: arguments.into_iter().map(|a| self.rewrite_node(a)).collect(),
-                    span,
-                }
-            }
+            ASTNode::MethodCall {
+                object,
+                method,
+                arguments,
+                span,
+            } => ASTNode::MethodCall {
+                object: Box::new(self.rewrite_node(*object)),
+                method,
+                arguments: arguments
+                    .into_iter()
+                    .map(|a| self.rewrite_node(a))
+                    .collect(),
+                span,
+            },
 
             // Function call: recurse into arguments
-            ASTNode::FunctionCall { name, arguments, span } => {
-                ASTNode::FunctionCall {
-                    name,
-                    arguments: arguments.into_iter().map(|a| self.rewrite_node(a)).collect(),
-                    span,
-                }
-            }
+            ASTNode::FunctionCall {
+                name,
+                arguments,
+                span,
+            } => ASTNode::FunctionCall {
+                name,
+                arguments: arguments
+                    .into_iter()
+                    .map(|a| self.rewrite_node(a))
+                    .collect(),
+                span,
+            },
 
             // Field access: recurse into object
-            ASTNode::FieldAccess { object, field, span } => {
-                ASTNode::FieldAccess {
-                    object: Box::new(self.rewrite_node(*object)),
-                    field,
-                    span,
-                }
-            }
+            ASTNode::FieldAccess {
+                object,
+                field,
+                span,
+            } => ASTNode::FieldAccess {
+                object: Box::new(self.rewrite_node(*object)),
+                field,
+                span,
+            },
 
             // Return: recurse into value
-            ASTNode::Return { value, span } => {
-                ASTNode::Return {
-                    value: value.map(|v| Box::new(self.rewrite_node(*v))),
-                    span,
-                }
-            }
+            ASTNode::Return { value, span } => ASTNode::Return {
+                value: value.map(|v| Box::new(self.rewrite_node(*v))),
+                span,
+            },
 
             // Print: recurse into expression
-            ASTNode::Print { expression, span } => {
-                ASTNode::Print {
-                    expression: Box::new(self.rewrite_node(*expression)),
-                    span,
-                }
-            }
+            ASTNode::Print { expression, span } => ASTNode::Print {
+                expression: Box::new(self.rewrite_node(*expression)),
+                span,
+            },
 
             // New: recurse into arguments
-            ASTNode::New { class, arguments, type_arguments, span } => {
-                ASTNode::New {
-                    class,
-                    arguments: arguments.into_iter().map(|a| self.rewrite_node(a)).collect(),
-                    type_arguments,
-                    span,
-                }
-            }
+            ASTNode::New {
+                class,
+                arguments,
+                type_arguments,
+                span,
+            } => ASTNode::New {
+                class,
+                arguments: arguments
+                    .into_iter()
+                    .map(|a| self.rewrite_node(a))
+                    .collect(),
+                type_arguments,
+                span,
+            },
 
             // Match: recurse into scrutinee and arms
-            ASTNode::MatchExpr { scrutinee, arms, else_expr, span } => {
-                ASTNode::MatchExpr {
-                    scrutinee: Box::new(self.rewrite_node(*scrutinee)),
-                    arms: arms.into_iter().map(|(pattern, body)| {
-                        (pattern, self.rewrite_node(body))
-                    }).collect(),
-                    else_expr: Box::new(self.rewrite_node(*else_expr)),
-                    span,
-                }
-            }
+            ASTNode::MatchExpr {
+                scrutinee,
+                arms,
+                else_expr,
+                span,
+            } => ASTNode::MatchExpr {
+                scrutinee: Box::new(self.rewrite_node(*scrutinee)),
+                arms: arms
+                    .into_iter()
+                    .map(|(pattern, body)| (pattern, self.rewrite_node(body)))
+                    .collect(),
+                else_expr: Box::new(self.rewrite_node(*else_expr)),
+                span,
+            },
 
             // All other nodes pass through unchanged
             other => other,
@@ -402,23 +490,23 @@ impl ReplAstRewriter {
     fn is_expression_node(node: &ASTNode) -> bool {
         match node {
             // Expressions: display target
-            ASTNode::Literal { .. } |
-            ASTNode::Variable { .. } |
-            ASTNode::BinaryOp { .. } |
-            ASTNode::UnaryOp { .. } |
-            ASTNode::FieldAccess { .. } |
-            ASTNode::MethodCall { .. } |
-            ASTNode::FunctionCall { .. } |
-            ASTNode::New { .. } |
-            ASTNode::MatchExpr { .. } => true,
+            ASTNode::Literal { .. }
+            | ASTNode::Variable { .. }
+            | ASTNode::BinaryOp { .. }
+            | ASTNode::UnaryOp { .. }
+            | ASTNode::FieldAccess { .. }
+            | ASTNode::MethodCall { .. }
+            | ASTNode::FunctionCall { .. }
+            | ASTNode::New { .. }
+            | ASTNode::MatchExpr { .. } => true,
 
             // Statements: don't display
-            ASTNode::Assignment { .. } |
-            ASTNode::Local { .. } |
-            ASTNode::Return { .. } |
-            ASTNode::Print { .. } |
-            ASTNode::If { .. } |
-            ASTNode::Loop { .. } => false,
+            ASTNode::Assignment { .. }
+            | ASTNode::Local { .. }
+            | ASTNode::Return { .. }
+            | ASTNode::Print { .. }
+            | ASTNode::If { .. }
+            | ASTNode::Loop { .. } => false,
 
             _ => false,
         }
