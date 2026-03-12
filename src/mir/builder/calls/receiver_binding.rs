@@ -46,9 +46,9 @@ impl MirBuilder {
                     }
                     // this.method(args) → current_static_box.method/arity(args)
                     // Delegate to static_resolution module for static method handling
-                    return Ok(Some(self.handle_static_method_call(
-                        &box_name, method, arguments,
-                    )?));
+                    return Ok(Some(
+                        self.handle_static_method_call(&box_name, method, arguments)?,
+                    ));
                 }
 
                 // Instance fallback (requires variable_map["me"])

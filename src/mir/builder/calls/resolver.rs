@@ -77,16 +77,21 @@ impl<'a> CalleeResolverBox<'a> {
                 receiver,
             } => {
                 // 🔍 Debug: trace box_name resolution
-                let trace_enabled =
-                    crate::config::env::builder_callee_resolve_trace();
+                let trace_enabled = crate::config::env::builder_callee_resolve_trace();
                 if trace_enabled {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
                         "[callee-resolve] receiver=%{} method={}",
                         receiver.0, method
                     ));
-                    ring0.log.debug(&format!("[callee-resolve]   explicit box_type: {:?}", box_type));
-                    ring0.log.debug(&format!("[callee-resolve]   use_registry: {}", use_registry));
+                    ring0.log.debug(&format!(
+                        "[callee-resolve]   explicit box_type: {:?}",
+                        box_type
+                    ));
+                    ring0.log.debug(&format!(
+                        "[callee-resolve]   use_registry: {}",
+                        use_registry
+                    ));
                 }
 
                 let inferred_box_type =
@@ -114,7 +119,9 @@ impl<'a> CalleeResolverBox<'a> {
                         "[callee-resolve]   inferred_box_name: {}",
                         inferred_box_type
                     ));
-                    ring0.log.debug(&format!("[callee-resolve]   box_kind: {:?}", box_kind));
+                    ring0
+                        .log
+                        .debug(&format!("[callee-resolve]   box_kind: {:?}", box_kind));
                 }
 
                 Ok(Callee::Method {
@@ -245,11 +252,15 @@ impl<'a> CalleeResolverBox<'a> {
                     let inferred = reg.infer_class(receiver, None);
                     if trace_enabled {
                         let ring0 = crate::runtime::get_global_ring0();
-                        ring0.log.debug(&format!("[callee-resolve]   from_registry: {}", inferred));
+                        ring0
+                            .log
+                            .debug(&format!("[callee-resolve]   from_registry: {}", inferred));
                         // トレースチェーン表示
                         let chain = reg.trace_origin(receiver);
                         if !chain.is_empty() {
-                            ring0.log.debug(&format!("[callee-resolve]   trace_chain: {:?}", chain));
+                            ring0
+                                .log
+                                .debug(&format!("[callee-resolve]   trace_chain: {:?}", chain));
                         }
                     }
                     return inferred;
@@ -265,8 +276,13 @@ impl<'a> CalleeResolverBox<'a> {
 
             if trace_enabled {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[callee-resolve]   from_type: {:?}", from_type));
-                ring0.log.debug(&format!("[callee-resolve]   from_origin: {:?}", from_origin));
+                ring0
+                    .log
+                    .debug(&format!("[callee-resolve]   from_type: {:?}", from_type));
+                ring0.log.debug(&format!(
+                    "[callee-resolve]   from_origin: {:?}",
+                    from_origin
+                ));
             }
 
             // 型情報（MirType）がある場合はそれを優先し、無い場合のみ origin にフォールバックする。

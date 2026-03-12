@@ -60,8 +60,7 @@ impl<'a> CalleeGuardBox<'a> {
         {
             // Only apply guard if box_kind is StaticCompiler
             if box_kind == CalleeBoxKind::StaticCompiler {
-                let trace_enabled =
-                    crate::config::env::builder_callee_resolve_trace();
+                let trace_enabled = crate::config::env::builder_callee_resolve_trace();
 
                 // Check if receiver has a Box type
                 if let Some(MirType::Box(receiver_box)) = self.value_types.get(&recv) {
@@ -89,8 +88,13 @@ impl<'a> CalleeGuardBox<'a> {
                             "  Original: {}.{} (box_kind=StaticCompiler)",
                             box_name, method
                         ));
-                        ring0.log.debug(&format!("  Receiver %{} has runtime type: {}", recv.0, receiver_box));
-                        ring0.log.debug(&format!("  Normalized: {}.{}", receiver_box, method));
+                        ring0.log.debug(&format!(
+                            "  Receiver %{} has runtime type: {}",
+                            recv.0, receiver_box
+                        ));
+                        ring0
+                            .log
+                            .debug(&format!("  Normalized: {}.{}", receiver_box, method));
                     }
 
                     return Ok(Callee::Method {
@@ -128,7 +132,9 @@ impl<'a> CalleeGuardBox<'a> {
                                 "  {}.{} receiver %{} has no type info",
                                 box_name, method, recv.0
                             ));
-                            ring0.log.debug(&format!("  → Normalize: StringBox.{}", method));
+                            ring0
+                                .log
+                                .debug(&format!("  → Normalize: StringBox.{}", method));
                         }
 
                         // Normalize to StringBox method call
@@ -150,7 +156,9 @@ impl<'a> CalleeGuardBox<'a> {
                         // because the function table expected "JsonParserBox.parse/1" with arity.
                         if trace_enabled {
                             let ring0 = crate::runtime::get_global_ring0();
-                            ring0.log.debug("[static-runtime-guard] StaticCompiler trusting methodize:");
+                            ring0
+                                .log
+                                .debug("[static-runtime-guard] StaticCompiler trusting methodize:");
                             ring0.log.debug(&format!(
                                 "  {}.{} receiver %{} - passing through as static box call",
                                 box_name, method, recv.0

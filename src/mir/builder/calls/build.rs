@@ -53,7 +53,9 @@ impl MirBuilder {
         // SSOT: docs/reference/language/lifecycle.md - weak <expr> is the ONLY valid syntax
         if name == "weak" {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.error("[Phase285W-0.1] Rejecting weak(...) function call");
+            ring0
+                .log
+                .error("[Phase285W-0.1] Rejecting weak(...) function call");
             return Err(format!(
                 "Invalid syntax: weak(...). Use unary operator: weak <expr>\n\
                  Help: Change 'weak(obj)' to 'weak obj' (unary operator, no parentheses)\n\
@@ -108,7 +110,9 @@ impl MirBuilder {
                 "[FATAL] build_method_call recursion depth exceeded {}",
                 MAX_METHOD_DEPTH
             ));
-            ring0.log.error(&format!("[FATAL] Current depth: {}", self.recursion_depth));
+            ring0
+                .log
+                .error(&format!("[FATAL] Current depth: {}", self.recursion_depth));
             ring0.log.error(&format!("[FATAL] Method: {}", method));
             return Err(format!(
                 "build_method_call recursion depth exceeded: {}",
@@ -151,7 +155,9 @@ impl MirBuilder {
         // ========================================
 
         // 1. Static box method call: BoxName.method(args)
-        if let Some(result) = self.try_build_static_receiver_method_call(&object, &method, &arguments)? {
+        if let Some(result) =
+            self.try_build_static_receiver_method_call(&object, &method, &arguments)?
+        {
             return Ok(result);
         }
 
@@ -165,7 +171,9 @@ impl MirBuilder {
         // ========================================
 
         // 3. Phase 269 P1.2: ReceiverNormalizeBox - MethodCall 共通入口 SSOT
-        if let Some(result) = self.try_normalize_this_me_method_call(&object, &method, &arguments)? {
+        if let Some(result) =
+            self.try_normalize_this_me_method_call(&object, &method, &arguments)?
+        {
             return Ok(result);
         }
 
@@ -175,7 +183,10 @@ impl MirBuilder {
         // Phase 287 P4: Debug object value after build_expression
         if crate::config::env::builder_static_call_trace() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[P287-DEBUG] After build_expression: object_value={:?}", object_value));
+            ring0.log.debug(&format!(
+                "[P287-DEBUG] After build_expression: object_value={:?}",
+                object_value
+            ));
         }
 
         // Debug trace for receiver (debug_method_routing module)

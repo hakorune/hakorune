@@ -13,7 +13,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::mir::ssot::closure_call::{ClosureCallShape, classify_closure_call_shape};
+use crate::mir::ssot::closure_call::{classify_closure_call_shape, ClosureCallShape};
 use crate::mir::{Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId};
 
 /// Canonicalize call-site instructions.
@@ -64,11 +64,9 @@ fn canonicalize_callsite_instruction(
     next_closure_body_id: &mut crate::mir::function::ClosureBodyId,
 ) -> usize {
     match inst {
-        MirInstruction::NewClosure {
-            body_id,
-            body,
-            ..
-        } if body_id.is_none() && !body.is_empty() => {
+        MirInstruction::NewClosure { body_id, body, .. }
+            if body_id.is_none() && !body.is_empty() =>
+        {
             let id = *next_closure_body_id;
             *next_closure_body_id = next_closure_body_id.saturating_add(1);
             closure_bodies.insert(id, body.clone());
@@ -109,7 +107,8 @@ fn canonicalize_callsite_instruction(
             effects,
         } => {
             if let Some(name) = const_strings.get(func) {
-                let canonical_name = canonicalize_legacy_global_name(name, args.len(), function_names);
+                let canonical_name =
+                    canonicalize_legacy_global_name(name, args.len(), function_names);
                 let rewritten = MirInstruction::Call {
                     dst: *dst,
                     func: ValueId::INVALID,

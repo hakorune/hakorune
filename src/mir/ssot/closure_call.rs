@@ -37,14 +37,17 @@ pub fn closure_call_reject_code(shape: ClosureCallShape) -> &'static str {
 
 #[cfg(test)]
 mod tests {
-    use super::{ClosureCallShape, classify_closure_call_shape, closure_call_reject_code};
+    use super::{classify_closure_call_shape, closure_call_reject_code, ClosureCallShape};
     use crate::mir::ValueId;
 
     #[test]
     fn classifies_canonical_ctor_shape() {
         let shape = classify_closure_call_shape(Some(ValueId::new(1)), &[]);
         assert_eq!(shape, ClosureCallShape::CanonicalCtor);
-        assert_eq!(closure_call_reject_code(shape), "call-closure-not-canonical");
+        assert_eq!(
+            closure_call_reject_code(shape),
+            "call-closure-not-canonical"
+        );
     }
 
     #[test]

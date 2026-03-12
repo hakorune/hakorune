@@ -23,7 +23,10 @@ impl MirBuilder {
             ASTNode::Me { .. } => "Me",
             _ => "Other",
         };
-        crate::runtime::get_global_ring0().log.info(&format!("[builder] method-call object kind={} method={}", kind, method));
+        crate::runtime::get_global_ring0().log.info(&format!(
+            "[builder] method-call object kind={} method={}",
+            kind, method
+        ));
     }
 
     /// Try to build __mir__.log() or __mir__.mark() method call
@@ -59,7 +62,10 @@ impl MirBuilder {
 
         // Only handle get/set methods
         if method != "get" && method != "set" {
-            return Err(format!("__repl.{} is not supported. Only __repl.get and __repl.set are allowed.", method));
+            return Err(format!(
+                "__repl.{} is not supported. Only __repl.get and __repl.set are allowed.",
+                method
+            ));
         }
 
         // Build argument values
@@ -204,7 +210,10 @@ impl MirBuilder {
                     );
                 }
                 trace.stderr_if(
-                    &format!("[DEBUG/param-recv]   current_block: {:?}", self.current_block),
+                    &format!(
+                        "[DEBUG/param-recv]   current_block: {:?}",
+                        self.current_block
+                    ),
                     true,
                 );
             }

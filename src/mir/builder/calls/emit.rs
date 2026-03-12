@@ -66,13 +66,7 @@ impl MirBuilder {
                     ("nyash".to_string(), name)
                 };
 
-                self.emit_extern_call_with_effects(
-                    &iface,
-                    &method,
-                    args,
-                    dst,
-                    EffectMask::IO,
-                )
+                self.emit_extern_call_with_effects(&iface, &method, args, dst, EffectMask::IO)
             }
             CallTarget::Global(name) => {
                 super::unified_emitter::UnifiedCallEmitterBox::emit_global_unified(

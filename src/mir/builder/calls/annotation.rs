@@ -16,7 +16,9 @@ pub(in super::super) fn callee_sig_name(callee: &Callee, arity: usize) -> Option
                 Some(format!("{}/{}", name, arity))
             }
         }
-        Callee::Method { box_name, method, .. } => {
+        Callee::Method {
+            box_name, method, ..
+        } => {
             // Method: "BoxName.method/arity" format (SSOT for annotation lookup)
             Some(format!("{}.{}/{}", box_name, method, arity))
         }
@@ -38,7 +40,10 @@ pub(in super::super) fn annotate_call_result_from_func_name<S: AsRef<str>>(
             let mut ret = func.signature.return_type.clone();
             if crate::config::env::builder_debug_annotation() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[annotation] Found function {} with return type {:?}", name, ret));
+                ring0.log.debug(&format!(
+                    "[annotation] Found function {} with return type {:?}",
+                    name, ret
+                ));
             }
             // Targeted stabilization: JsonParser.parse/1 should produce JsonNode
             // If signature is Unknown/Void, normalize to Box("JsonNode")

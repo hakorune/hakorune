@@ -37,7 +37,10 @@ impl MirBuilder {
         if crate::config::env::builder_static_call_trace() {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!("[P287-DEBUG] try_build_static_receiver_method_call: obj_name={}, method={}, is_local_var={}", obj_name, method, is_local_var));
-            ring0.log.debug(&format!("[P287-DEBUG] variable_map keys: {:?}", self.variable_ctx.variable_map.keys().collect::<Vec<_>>()));
+            ring0.log.debug(&format!(
+                "[P287-DEBUG] variable_map keys: {:?}",
+                self.variable_ctx.variable_map.keys().collect::<Vec<_>>()
+            ));
         }
 
         if is_local_var {
@@ -45,7 +48,9 @@ impl MirBuilder {
             // Let it flow through to handle_standard_method_call (line 147 in build_method_call_impl)
             if crate::config::env::builder_static_call_trace() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug("[P287-DEBUG] -> Returning None (local var, will use method call)");
+                ring0
+                    .log
+                    .debug("[P287-DEBUG] -> Returning None (local var, will use method call)");
             }
             return Ok(None);
         }
@@ -53,7 +58,9 @@ impl MirBuilder {
         // Only treat as static box method call if obj_name is NOT a local variable
         if crate::config::env::builder_static_call_trace() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug("[P287-DEBUG] -> Calling try_build_static_method_call (not a local var)");
+            ring0
+                .log
+                .debug("[P287-DEBUG] -> Calling try_build_static_method_call (not a local var)");
         }
         self.try_build_static_method_call(obj_name, method, arguments)
     }

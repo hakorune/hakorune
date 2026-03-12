@@ -44,7 +44,10 @@ impl UnifiedCallEmitterBox {
                 "[FATAL] emit_unified_call recursion depth exceeded {}",
                 MAX_EMIT_DEPTH
             ));
-            ring0.log.error(&format!("[FATAL] Current depth: {}", builder.recursion_depth));
+            ring0.log.error(&format!(
+                "[FATAL] Current depth: {}",
+                builder.recursion_depth
+            ));
             ring0.log.error(&format!("[FATAL] Target: {:?}", target));
             return Err(format!(
                 "emit_unified_call recursion depth exceeded: {}",
@@ -72,7 +75,10 @@ impl UnifiedCallEmitterBox {
         // Phase 287 P4: Debug trace to see what CallTarget is passed
         if crate::config::env::builder_static_call_trace() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[P287-TRACE] emit_unified_call_impl: target={:?}, dst={:?}, args={:?}", target, dst, args));
+            ring0.log.debug(&format!(
+                "[P287-TRACE] emit_unified_call_impl: target={:?}, dst={:?}, args={:?}",
+                target, dst, args
+            ));
         }
 
         // Emit resolve.try for method targets (dev-only; default OFF)
@@ -319,7 +325,10 @@ impl UnifiedCallEmitterBox {
                 }
                 Callee::Global(name) => {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[call-resolve] Global name='{}' args={:?}", name, args));
+                    ring0.log.debug(&format!(
+                        "[call-resolve] Global name='{}' args={:?}",
+                        name, args
+                    ));
                 }
                 Callee::Constructor { box_type, .. } => {
                     let ring0 = crate::runtime::get_global_ring0();
@@ -330,15 +339,23 @@ impl UnifiedCallEmitterBox {
                 }
                 Callee::Closure { .. } => {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[call-resolve] Closure args={:?}", args));
+                    ring0
+                        .log
+                        .debug(&format!("[call-resolve] Closure args={:?}", args));
                 }
                 Callee::Value(v) => {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[call-resolve] Value callee=%{:?} args={:?}", v.0, args));
+                    ring0.log.debug(&format!(
+                        "[call-resolve] Value callee=%{:?} args={:?}",
+                        v.0, args
+                    ));
                 }
                 Callee::Extern(name) => {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[call-resolve] Extern name='{}' args={:?}", name, args));
+                    ring0.log.debug(&format!(
+                        "[call-resolve] Extern name='{}' args={:?}",
+                        name, args
+                    ));
                 }
             }
         }
@@ -480,7 +497,10 @@ impl UnifiedCallEmitterBox {
         if let Some((dst, func_name)) = annotation_info {
             if crate::config::env::builder_debug_annotation() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[annotation] dst=%{} func_name={}", dst.0, func_name));
+                ring0.log.debug(&format!(
+                    "[annotation] dst=%{} func_name={}",
+                    dst.0, func_name
+                ));
             }
             super::annotation::annotate_call_result_from_func_name(builder, dst, &func_name);
         }

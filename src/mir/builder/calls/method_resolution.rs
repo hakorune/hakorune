@@ -27,7 +27,10 @@ pub fn resolve_call_target(
             if is_commonly_shadowed_method(name) {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.warn(&format!("{}", generate_self_recursion_warning(box_name, name)));
+                    ring0.log.warn(&format!(
+                        "{}",
+                        generate_self_recursion_warning(box_name, name)
+                    ));
                 }
             }
 

@@ -140,14 +140,14 @@ impl MirBuilder {
         // Void return追加（必要な場合）
         if !returns_value {
             if let Some(ref mut f) = self.scope_ctx.current_function {
-                    if let Some(block) = f.get_block(self.current_block.unwrap()) {
-                        if !block.is_terminated() {
-                            let void_val = crate::mir::builder::emission::constant::emit_void(self)?;
-                            self.emit_instruction(MirInstruction::Return {
-                                value: Some(void_val),
-                            })?;
-                        }
+                if let Some(block) = f.get_block(self.current_block.unwrap()) {
+                    if !block.is_terminated() {
+                        let void_val = crate::mir::builder::emission::constant::emit_void(self)?;
+                        self.emit_instruction(MirInstruction::Return {
+                            value: Some(void_val),
+                        })?;
                     }
+                }
             }
         }
 
