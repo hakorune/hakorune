@@ -6,11 +6,10 @@
 //! bridge-entry owner (`program_json_entry/request.rs`).
 
 mod emit_payload;
+mod pipeline;
 mod read_input;
 mod writeback;
 
 pub(super) fn emit_program_json_v0(source_path: &str, out_path: &str) -> Result<(), String> {
-    let code = read_input::read_source_text(source_path)?;
-    let out = emit_payload::emit_program_json_payload(&code)?;
-    writeback::write_program_json_output(out_path, &out)
+    pipeline::emit_program_json_v0(source_path, out_path)
 }
