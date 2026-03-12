@@ -6,13 +6,13 @@
 //! - Only record latch_incoming for `TailCallKind::BackEdge`
 //! - Never record for LoopEntry (main → loop_step), to avoid overwriting the true latch
 
+use crate::mir::builder::control_flow::joinir::merge::boundary_carrier_layout::BoundaryCarrierLayout;
+use crate::mir::builder::control_flow::joinir::merge::dev_log;
 use crate::mir::builder::control_flow::joinir::merge::loop_header_phi_info::LoopHeaderPhiInfo;
 use crate::mir::builder::control_flow::joinir::merge::tail_call_classifier::TailCallKind;
-use crate::mir::builder::control_flow::joinir::merge::boundary_carrier_layout::BoundaryCarrierLayout;
+use crate::mir::builder::control_flow::joinir::trace;
 use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 use crate::mir::{BasicBlockId, ValueId};
-use crate::mir::builder::control_flow::joinir::merge::dev_log;
-use crate::mir::builder::control_flow::joinir::trace;
 
 pub(in crate::mir::builder::control_flow::joinir::merge) fn record_if_backedge(
     tail_call_kind: TailCallKind,

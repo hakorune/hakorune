@@ -33,7 +33,8 @@ pub(in crate::mir::builder::control_flow::joinir::merge) struct RewriteContext {
 impl RewriteContext {
     /// Create a new RewriteContext
     pub fn new(exit_block_id: BasicBlockId) -> Self {
-        let strict_exit = crate::config::env::joinir_strict_enabled() || crate::config::env::joinir_dev_enabled();
+        let strict_exit =
+            crate::config::env::joinir_strict_enabled() || crate::config::env::joinir_dev_enabled();
 
         Self {
             exit_phi_inputs: Vec::new(),
@@ -52,7 +53,12 @@ impl RewriteContext {
     }
 
     /// Add a carrier input
-    pub fn add_carrier_input(&mut self, carrier_name: String, from_block: BasicBlockId, value: ValueId) {
+    pub fn add_carrier_input(
+        &mut self,
+        carrier_name: String,
+        from_block: BasicBlockId,
+        value: ValueId,
+    ) {
         self.carrier_inputs
             .entry(carrier_name)
             .or_insert_with(Vec::new)

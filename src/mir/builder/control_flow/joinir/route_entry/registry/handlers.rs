@@ -210,10 +210,7 @@ pub(crate) fn route_loop_continue_only(
         env,
         PlanRuleId::LoopContinueOnly,
     );
-    debug_log_recipe_entry(
-        planner_rule_route_label(PlanRuleId::LoopContinueOnly),
-        env,
-    );
+    debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::LoopContinueOnly), env);
     if env.planner_required {
         if let Some(err) = composer::strict_nested_loop_guard(outcome, ctx) {
             flowbox_tags::emit_flowbox_freeze_tag_from_facts(
@@ -256,8 +253,7 @@ pub(crate) fn route_loop_true_early_exit(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopTrueEarlyExit),
-        missing_contract_msg:
-            "LoopTrueEarlyExit requires recipe_contract in planner_required mode",
+        missing_contract_msg: "LoopTrueEarlyExit requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_true_early_exit_recipe,
         planner_required_only: false,
         skip_without_contract: true,
@@ -277,8 +273,7 @@ pub(crate) fn route_loop_simple_while(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopSimpleWhile),
-        missing_contract_msg:
-            "LoopSimpleWhile requires recipe_contract in planner_required mode",
+        missing_contract_msg: "LoopSimpleWhile requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_loop_simple_while_recipe,
         planner_required_only: false,
         skip_without_contract: false,
@@ -338,8 +333,7 @@ pub(crate) fn route_scan_with_init(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::ScanWithInit),
-        missing_contract_msg:
-            "ScanWithInit requires recipe_contract in planner_required mode",
+        missing_contract_msg: "ScanWithInit requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_scan_with_init_recipe,
         planner_required_only: false,
         skip_without_contract: true,
@@ -379,8 +373,7 @@ pub(crate) fn route_bool_predicate_scan(
 ) -> Result<Option<ValueId>, String> {
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::BoolPredicateScan),
-        missing_contract_msg:
-            "BoolPredicateScan requires recipe_contract in planner_required mode",
+        missing_contract_msg: "BoolPredicateScan requires recipe_contract in planner_required mode",
         compose: RecipeComposer::compose_bool_predicate_scan_recipe,
         planner_required_only: false,
         skip_without_contract: false,
@@ -551,8 +544,7 @@ pub(crate) fn route_nested_loop_minimal(
         return Ok(None);
     }
 
-    let Some(core_plan) =
-        composer::try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)?
+    let Some(core_plan) = composer::try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)?
     else {
         if env.strict_or_dev {
             return Err(

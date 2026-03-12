@@ -27,10 +27,7 @@ pub(super) fn allocate_blocks(
 
     trace::trace().dev(
         "cf_loop/joinir/block_allocator",
-        &format!(
-            "Phase 177-3: Allocated exit_block_id = {:?}",
-            exit_block_id
-        ),
+        &format!("Phase 177-3: Allocated exit_block_id = {:?}", exit_block_id),
     );
 
     // Phase 195: Use unified trace

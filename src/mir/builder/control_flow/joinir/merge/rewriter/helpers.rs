@@ -49,7 +49,9 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn is_skippable_continu
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType};
+    use crate::mir::{
+        BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType,
+    };
 
     fn make_test_function(name: &str) -> MirFunction {
         let signature = FunctionSignature {

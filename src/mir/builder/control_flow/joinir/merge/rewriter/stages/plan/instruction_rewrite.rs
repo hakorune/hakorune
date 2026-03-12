@@ -10,20 +10,17 @@
 
 // Rewriter siblings (2 super:: up from plan/ to stages/, then 1 more to rewriter/)
 use super::super::super::{
-    rewrite_context::RewriteContext,
-    instruction_filter_box::InstructionFilterBox,
+    instruction_filter_box::InstructionFilterBox, rewrite_context::RewriteContext,
 };
 
 // Merge level (3 super:: up from plan/ to stages/, then 1 more to rewriter/, then 1 more to merge/)
 use super::super::super::super::{
-    phi_block_remapper::remap_phi_instruction,
-    block_remapper::remap_block_id,
-    loop_header_phi_info::LoopHeaderPhiInfo,
-    trace,
+    block_remapper::remap_block_id, loop_header_phi_info::LoopHeaderPhiInfo,
+    phi_block_remapper::remap_phi_instruction, trace,
 };
 
-use crate::mir::{BasicBlock, BasicBlockId, MirInstruction, ValueId};
 use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
+use crate::mir::{BasicBlock, BasicBlockId, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
 /// Process block instructions: filter, remap, detect tail calls
@@ -60,7 +57,10 @@ pub(super) fn process_block_instructions(
                 let dst_remapped = remapper.get_value(*dst).unwrap_or(*dst);
                 let is_boundary_input = boundary_input_set.contains(src);
                 if is_boundary_input
-                    && InstructionFilterBox::should_skip_copy_overwriting_phi(dst_remapped, phi_dst_ids_for_block)
+                    && InstructionFilterBox::should_skip_copy_overwriting_phi(
+                        dst_remapped,
+                        phi_dst_ids_for_block,
+                    )
                 {
                     log!(
                         verbose,
@@ -77,7 +77,11 @@ pub(super) fn process_block_instructions(
             if InstructionFilterBox::should_skip_function_name_const(value)
                 && value_to_func_name.contains_key(dst)
             {
-                log!(verbose, "[plan_rewrites] Skipping function name const: {:?}", inst);
+                log!(
+                    verbose,
+                    "[plan_rewrites] Skipping function name const: {:?}",
+                    inst
+                );
                 continue;
             }
 
@@ -88,7 +92,11 @@ pub(super) fn process_block_instructions(
                 &boundary_inputs,
                 is_loop_header_entry_block,
             ) {
-                log!(verbose, "[plan_rewrites] Skipping boundary input const: {:?}", inst);
+                log!(
+                    verbose,
+                    "[plan_rewrites] Skipping boundary input const: {:?}",
+                    inst
+                );
                 continue;
             }
         }
@@ -107,7 +115,8 @@ pub(super) fn process_block_instructions(
                     log!(
                         verbose,
                         "[plan_rewrites] Detected tail call to '{}' (args={:?})",
-                        callee_name, args
+                        callee_name,
+                        args
                     );
                     continue; // Skip the Call instruction itself
                 }
@@ -147,8 +156,10 @@ pub(super) fn process_block_instructions(
                 then_edge_args,
                 else_edge_args,
             } => {
-                let remapped_then = remap_block_id(then_bb, local_block_map, &ctx.skipped_entry_redirects);
-                let remapped_else = remap_block_id(else_bb, local_block_map, &ctx.skipped_entry_redirects);
+                let remapped_then =
+                    remap_block_id(then_bb, local_block_map, &ctx.skipped_entry_redirects);
+                let remapped_else =
+                    remap_block_id(else_bb, local_block_map, &ctx.skipped_entry_redirects);
                 MirInstruction::Branch {
                     condition,
                     then_bb: remapped_then,
@@ -157,9 +168,11 @@ pub(super) fn process_block_instructions(
                     else_edge_args,
                 }
             }
-            MirInstruction::Phi { dst, inputs, type_hint } => {
-                remap_phi_instruction(dst, &inputs, type_hint, local_block_map)
-            }
+            MirInstruction::Phi {
+                dst,
+                inputs,
+                type_hint,
+            } => remap_phi_instruction(dst, &inputs, type_hint, local_block_map),
             other => other,
         };
 

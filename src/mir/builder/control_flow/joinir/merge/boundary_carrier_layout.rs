@@ -35,11 +35,13 @@ impl BoundaryCarrierLayout {
     }
 
     pub fn ordered_names(&self) -> Vec<&str> {
-        self.ordered_names.iter().map(|name| name.as_str()).collect()
+        self.ordered_names
+            .iter()
+            .map(|name| name.as_str())
+            .collect()
     }
 
     pub fn ordered_arg_index(&self, name: &str) -> Option<usize> {
         self.ordered_names.iter().position(|n| n == name)
     }
-
 }

@@ -7,9 +7,9 @@
 //! - Reverse lookup function name by entry block
 //! - Entry-like判定は tail_call_policy に集約
 
-use crate::mir::{BasicBlockId, MirFunction};
-use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 use crate::mir::join_ir::lowering::canonical_names;
+use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
+use crate::mir::{BasicBlockId, MirFunction};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Determine entry function (loop header)

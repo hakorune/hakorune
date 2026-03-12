@@ -51,7 +51,7 @@ pub(in crate::mir::builder::control_flow::joinir) fn verify_boundary_entry_param
                 entry.params.len(),
                 boundary.join_inputs.len()
             ),
-                "ensure route lowerer sets boundary.join_inputs with one entry per parameter",
+            "ensure route lowerer sets boundary.join_inputs with one entry per parameter",
         ));
     }
 
@@ -116,12 +116,12 @@ fn get_entry_function(
     join_module
         .get_function_by_name(crate::mir::join_ir::lowering::canonical_names::MAIN)
         .ok_or_else(|| {
-        error_tags::freeze_with_hint(
-            "phase1.5/boundary/no_entry_function",
-            "no entry function found (entry=None and no 'main' function)",
-            "route lowerer must set join_module.entry OR create 'main' function",
-        )
-    })
+            error_tags::freeze_with_hint(
+                "phase1.5/boundary/no_entry_function",
+                "no entry function found (entry=None and no 'main' function)",
+                "route lowerer must set join_module.entry OR create 'main' function",
+            )
+        })
 }
 
 /// Phase 256 P1.6: Run all JoinIR conversion pipeline contract checks
@@ -212,8 +212,8 @@ fn debug_log_boundary_contract(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::join_ir::{JoinFunction, JoinFuncId, JoinModule};
     use crate::mir::join_ir::lowering::JoinInlineBoundaryBuilder;
+    use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinModule};
     use crate::mir::ValueId;
 
     #[test]

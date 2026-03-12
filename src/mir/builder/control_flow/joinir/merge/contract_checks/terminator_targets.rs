@@ -19,7 +19,9 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn verify_all_terminato
     use crate::mir::join_ir::lowering::error_tags;
 
     for (block_id, block) in &func.blocks {
-        let Some(term) = &block.terminator else { continue };
+        let Some(term) = &block.terminator else {
+            continue;
+        };
 
         match term {
             MirInstruction::Jump { target, .. } => {

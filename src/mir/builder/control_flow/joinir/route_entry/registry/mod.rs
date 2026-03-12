@@ -1,22 +1,22 @@
 //! Phase 1: Registry-ize recipe-first routing (router becomes thin).
 //! This module defines the ordered recipe-first entries and their handlers.
 
-use crate::mir::builder::MirBuilder;
-use crate::mir::ValueId;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
+use crate::mir::builder::MirBuilder;
+use crate::mir::ValueId;
 
 use super::router::LoopRouteContext;
 
-mod types;
-mod predicates;
 mod handlers;
+mod predicates;
+mod types;
 mod utils;
 
-pub(crate) use types::{RouterEnv, Entry};
-use types::entry_keys;
-use predicates::*;
 use handlers::*;
+use predicates::*;
+use types::entry_keys;
+pub(crate) use types::{Entry, RouterEnv};
 
 pub(crate) const ENTRIES: &[Entry] = &[
     Entry {
@@ -174,8 +174,8 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
     };
     let mut names = Vec::new();
     let suppression = CandidateSuppression {
-        scan_methods_candidate:
-            pred_loop_scan_methods_block_v0(facts) || pred_loop_scan_methods_v0(facts),
+        scan_methods_candidate: pred_loop_scan_methods_block_v0(facts)
+            || pred_loop_scan_methods_v0(facts),
         if_phi_join_candidate: pred_if_phi_join(facts),
         loop_continue_only_candidate: pred_loop_continue_only(facts),
         loop_true_early_exit_candidate: pred_loop_true_early_exit(facts),

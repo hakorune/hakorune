@@ -73,11 +73,9 @@ pub(super) fn prebuild_header_phis(
             let loop_var_init = if let Some(ref carrier_info) = boundary.carrier_info {
                 carrier_info.loop_var_id
             } else {
-                boundary
-                    .host_inputs
-                    .first()
-                    .copied()
-                    .ok_or("Phase 287 P0.4: No host_inputs or carrier_info in boundary for loop_var_init")?
+                boundary.host_inputs.first().copied().ok_or(
+                    "Phase 287 P0.4: No host_inputs or carrier_info in boundary for loop_var_init",
+                )?
             };
 
             // Extract carriers with their initialization strategy

@@ -4,8 +4,8 @@
 //! - Identify entry-like source blocks (LoopEntry vs BackEdge)
 //! - Record latch incoming in one place for BackEdge
 
-use crate::mir::builder::control_flow::joinir::merge::contract_checks::is_entry_like_source;
 use crate::mir::builder::control_flow::joinir::merge::boundary_carrier_layout::BoundaryCarrierLayout;
+use crate::mir::builder::control_flow::joinir::merge::contract_checks::is_entry_like_source;
 use crate::mir::builder::control_flow::joinir::merge::loop_header_phi_info::LoopHeaderPhiInfo;
 use crate::mir::builder::control_flow::joinir::merge::rewriter::latch_incoming_recorder;
 use crate::mir::builder::control_flow::joinir::merge::tail_call_classifier::TailCallKind;
@@ -39,8 +39,7 @@ pub(super) fn record_latch_incoming_if_backedge(
     let mut latch_args: Vec<ValueId> = Vec::new();
     let mut loop_var_updated = false;
 
-    let mut other_phi_dsts: std::collections::BTreeSet<ValueId> =
-        std::collections::BTreeSet::new();
+    let mut other_phi_dsts: std::collections::BTreeSet<ValueId> = std::collections::BTreeSet::new();
     if let Some(loop_var) = boundary.loop_var_name.as_deref() {
         for (name, entry) in loop_header_phi_info.carrier_phis.iter() {
             if name.as_str() != loop_var {

@@ -39,8 +39,7 @@ struct ScanFamilyPresence {
 
 impl ScanFamilyPresence {
     fn from_facts(facts: &CanonicalLoopFacts) -> Self {
-        let methods =
-            pred_loop_scan_methods_v0(facts) || pred_loop_scan_methods_block_v0(facts);
+        let methods = pred_loop_scan_methods_v0(facts) || pred_loop_scan_methods_block_v0(facts);
         let v0 = pred_loop_scan_v0(facts)
             || pred_loop_scan_phi_vars_v0(facts)
             || pred_loop_collect_using_entries_v0(facts)
@@ -78,7 +77,10 @@ pub(crate) fn pred_loop_scan_methods_block_v0(facts: &CanonicalLoopFacts) -> boo
 
 pred_accessor!(pred_loop_scan_phi_vars_v0, loop_scan_phi_vars_v0);
 pred_accessor!(pred_loop_scan_v0, loop_scan_v0);
-pred_accessor!(pred_loop_collect_using_entries_v0, loop_collect_using_entries_v0);
+pred_accessor!(
+    pred_loop_collect_using_entries_v0,
+    loop_collect_using_entries_v0
+);
 pred_accessor!(pred_nested_loop_minimal, nested_loop_minimal);
 pub(crate) fn pred_loop_bundle_resolver_v0(facts: &CanonicalLoopFacts) -> bool {
     facts.facts.loop_bundle_resolver_v0().is_some()
@@ -95,7 +97,10 @@ pub(crate) fn pred_loop_cond_break_continue(facts: &CanonicalLoopFacts) -> bool 
 pub(crate) fn pred_loop_cond_continue_only(facts: &CanonicalLoopFacts) -> bool {
     facts.facts.loop_cond_continue_only().is_some() && !pred_loop_continue_only(facts)
 }
-pred_accessor!(pred_loop_cond_continue_with_return, loop_cond_continue_with_return);
+pred_accessor!(
+    pred_loop_cond_continue_with_return,
+    loop_cond_continue_with_return
+);
 pub(crate) fn pred_loop_cond_return_in_body(facts: &CanonicalLoopFacts) -> bool {
     if facts.facts.loop_cond_return_in_body().is_none() {
         return false;

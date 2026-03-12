@@ -87,10 +87,7 @@ impl ExitMetaCollector {
             trace.emit_if(
                 "exit-line",
                 "collector",
-                &format!(
-                    "Collecting {} exit values",
-                    exit_meta.exit_values.len()
-                ),
+                &format!("Collecting {} exit values", exit_meta.exit_values.len()),
                 true,
             );
         }

@@ -14,15 +14,12 @@ use super::entry_resolver::resolve_target_func_name;
 use super::super::super::rewrite_context::RewriteContext;
 
 // Merge level (3 super:: up from plan/ to stages/, then 1 more to rewriter/, then 1 more to merge/)
-use super::super::super::super::{
-    loop_header_phi_info::LoopHeaderPhiInfo,
-    trace,
-};
+use super::super::super::super::{loop_header_phi_info::LoopHeaderPhiInfo, trace};
 
 use crate::mir::builder::emission::copy_emitter::{self, CopyEmitReason};
-use crate::mir::{BasicBlock, BasicBlockId, MirFunction, ValueId};
 use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
 use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
+use crate::mir::{BasicBlock, BasicBlockId, MirFunction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Process tail call parameter bindings
@@ -70,7 +67,9 @@ pub(super) fn process_tail_call_params(
         .map(|name| continuation_candidates.contains(name))
         .unwrap_or(false);
 
-    let is_recursive_call = target_func_name.map(|name| name == func_name).unwrap_or(false);
+    let is_recursive_call = target_func_name
+        .map(|name| name == func_name)
+        .unwrap_or(false);
 
     // Phase 188.3: Define is_target_loop_entry early for latch incoming logic
     let is_target_loop_entry = target_func_name
@@ -79,7 +78,6 @@ pub(super) fn process_tail_call_params(
 
     if let Some(target_func_name) = target_func_name {
         if let Some(target_params) = function_params.get(target_func_name) {
-
             log!(
                 verbose,
                 "[plan_rewrites] Tail call param binding: from='{}' to='{}' (recursive={}, loop_entry={}, continuation={})",
@@ -111,7 +109,11 @@ pub(super) fn process_tail_call_params(
                 log!(
                     verbose,
                     "[plan_rewrites] Skip Copy bindings for {} call (remapper updated)",
-                    if is_recursive_call { "recursive" } else { "entry" }
+                    if is_recursive_call {
+                        "recursive"
+                    } else {
+                        "entry"
+                    }
                 );
             } else if is_target_continuation {
                 // Continuation call: Copy args to original params
@@ -127,7 +129,8 @@ pub(super) fn process_tail_call_params(
                         log!(
                             verbose,
                             "[plan_rewrites] Continuation param binding: {:?} = copy {:?}",
-                            param_val_original, arg_val_remapped
+                            param_val_original,
+                            arg_val_remapped
                         );
                     }
                 }
@@ -155,7 +158,8 @@ pub(super) fn process_tail_call_params(
                         // LoopEntry (host → loop_step) must NOT define header-PHI dsts.
                         // BackEdge (loop_step → loop_step) is allowed to define them (latch update).
                         let is_loop_entry_source = is_target_loop_entry && !is_recursive_call;
-                        if is_header_phi_dst && (is_loop_header_entry_block || is_loop_entry_source) {
+                        if is_header_phi_dst && (is_loop_header_entry_block || is_loop_entry_source)
+                        {
                             log!(
                                 verbose,
                                 "[plan_rewrites] Skip param binding to PHI dst {:?}",

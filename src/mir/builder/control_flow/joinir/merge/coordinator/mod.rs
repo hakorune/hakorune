@@ -186,14 +186,8 @@ pub(in crate::mir::builder) fn merge_joinir_mir_blocks(
     )?;
 
     // Phase 5-6: Build exit PHIs and reconnect boundary
-    let (exit_phi_result_id, carrier_phis) = phase_5_6::execute(
-        builder,
-        boundary,
-        &merge_result,
-        &config,
-        &trace,
-        debug,
-    )?;
+    let (exit_phi_result_id, carrier_phis) =
+        phase_5_6::execute(builder, boundary, &merge_result, &config, &trace, debug)?;
 
     // Final: Jump to entry, switch to exit block, handle return
     finalize::execute(

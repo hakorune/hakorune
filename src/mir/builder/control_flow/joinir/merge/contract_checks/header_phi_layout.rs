@@ -9,8 +9,8 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn verify_header_phi_la
 ) -> Result<(), String> {
     use crate::mir::join_ir::lowering::error_tags;
 
-    let strict = crate::config::env::joinir_strict_enabled()
-        || crate::config::env::joinir_dev_enabled();
+    let strict =
+        crate::config::env::joinir_strict_enabled() || crate::config::env::joinir_dev_enabled();
     if !strict {
         return Ok(());
     }

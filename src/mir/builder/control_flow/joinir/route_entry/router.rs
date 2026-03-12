@@ -26,8 +26,8 @@ use super::registry;
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::expectations;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
-use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::facts::reject_reason;
+use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
@@ -119,7 +119,6 @@ impl<'a> LoopRouteContext<'a> {
         ctx.fn_body = Some(fn_body);
         ctx
     }
-
 }
 
 // Phase 29ai P5: Plan extractor routing moved to `plan::single_planner`.
@@ -362,10 +361,12 @@ mod tests {
     use crate::mir::builder::control_flow::plan::facts::feature_facts::LoopFeatureFacts;
     use crate::mir::builder::control_flow::plan::facts::loop_types::LoopFacts;
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
-    use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
-    use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
+    use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
+        SkeletonFacts, SkeletonKind,
+    };
     use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
     use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
+    use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 
     fn var(name: &str) -> ASTNode {
@@ -475,10 +476,7 @@ mod tests {
                     ASTNode::MethodCall {
                         object: Box::new(var("s")),
                         method: "substring".to_string(),
-                        arguments: vec![
-                            var("j"),
-                            binop(BinaryOperator::Add, var("j"), var("m")),
-                        ],
+                        arguments: vec![var("j"), binop(BinaryOperator::Add, var("j"), var("m"))],
                         span: Span::unknown(),
                     },
                     var("pat"),
@@ -516,23 +514,21 @@ mod tests {
                 span: Span::unknown(),
             },
             ASTNode::If {
-                condition: Box::new(binop(
-                    BinaryOperator::LessEqual,
+                condition: Box::new(binop(BinaryOperator::LessEqual, var("next_i"), var("i"))),
+                then_body: vec![assign(
                     var("next_i"),
-                    var("i"),
-                )),
-                then_body: vec![assign(var("next_i"), binop(BinaryOperator::Add, var("i"), int(1)))],
+                    binop(BinaryOperator::Add, var("i"), int(1)),
+                )],
                 else_body: None,
                 span: Span::unknown(),
             },
             assign(var("i"), var("next_i")),
         ];
-        facts.loop_scan_methods_block_v0 = Some(try_extract_loop_scan_methods_block_v0_facts(
-            &condition,
-            &body,
-        )
-        .expect("extract ok")
-        .expect("block facts"));
+        facts.loop_scan_methods_block_v0 = Some(
+            try_extract_loop_scan_methods_block_v0_facts(&condition, &body)
+                .expect("extract ok")
+                .expect("block facts"),
+        );
         PlanBuildOutcome {
             facts: Some(canonicalize_loop_facts(facts)),
             recipe_contract: None,
@@ -552,24 +548,28 @@ mod tests {
                     binop(BinaryOperator::Add, var("j"), var("m")),
                     var("n"),
                 )),
-                body: vec![assign(var("j"), binop(BinaryOperator::Add, var("j"), int(1)))],
+                body: vec![assign(
+                    var("j"),
+                    binop(BinaryOperator::Add, var("j"), int(1)),
+                )],
                 span: Span::unknown(),
             },
             ASTNode::If {
-                condition: Box::new(binop(
-                    BinaryOperator::LessEqual,
+                condition: Box::new(binop(BinaryOperator::LessEqual, var("next_i"), var("i"))),
+                then_body: vec![assign(
                     var("next_i"),
-                    var("i"),
-                )),
-                then_body: vec![assign(var("next_i"), binop(BinaryOperator::Add, var("i"), int(1)))],
+                    binop(BinaryOperator::Add, var("i"), int(1)),
+                )],
                 else_body: None,
                 span: Span::unknown(),
             },
             assign(var("i"), var("next_i")),
         ];
-        facts.loop_scan_methods_v0 = Some(try_extract_loop_scan_methods_v0_facts(&condition, &body)
-            .expect("extract ok")
-            .expect("scan methods facts"));
+        facts.loop_scan_methods_v0 = Some(
+            try_extract_loop_scan_methods_v0_facts(&condition, &body)
+                .expect("extract ok")
+                .expect("scan methods facts"),
+        );
         PlanBuildOutcome {
             facts: Some(canonicalize_loop_facts(facts)),
             recipe_contract: None,
@@ -578,7 +578,9 @@ mod tests {
 
     #[test]
     fn release_nested_recipe_first_allows_scan_methods_block_family() {
-        assert!(release_allows_nested_recipe_first(&nested_outcome_with_block_facts()));
+        assert!(release_allows_nested_recipe_first(
+            &nested_outcome_with_block_facts()
+        ));
     }
 
     #[test]

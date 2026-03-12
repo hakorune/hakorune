@@ -117,8 +117,13 @@ impl ExitArgsCollectorBox {
         }
 
         // Phase 118 P2: Calculate offset (SSOT)
-        let offset =
-            self.calculate_offset(remapped_args.len(), exit_phi_bindings.len(), block_id, strict_exit, layout)?;
+        let offset = self.calculate_offset(
+            remapped_args.len(),
+            exit_phi_bindings.len(),
+            block_id,
+            strict_exit,
+            layout,
+        )?;
 
         // Collect expr result (first jump arg if offset > 0)
         let expr_result_value = if layout == JumpArgsLayout::ExprResultPlusCarriers && offset > 0 {
@@ -132,10 +137,7 @@ impl ExitArgsCollectorBox {
         for (binding_idx, binding) in exit_phi_bindings.iter().enumerate() {
             let jump_args_idx = offset + binding_idx;
             if let Some(&carrier_exit) = remapped_args.get(jump_args_idx) {
-                carrier_values.push((
-                    binding.carrier_name.clone(),
-                    (block_id, carrier_exit),
-                ));
+                carrier_values.push((binding.carrier_name.clone(), (block_id, carrier_exit)));
             } else {
                 // Missing carrier value - Fail-Fast in strict mode
                 let msg = format!(

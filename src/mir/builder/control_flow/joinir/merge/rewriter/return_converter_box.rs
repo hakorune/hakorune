@@ -24,7 +24,10 @@ impl ReturnConverterBox {
     /// # Returns
     /// * `true` if the Return should be kept (not converted to Jump)
     /// * `false` if the Return should be converted to Jump to exit block
-    pub fn should_keep_return(is_continuation_candidate: bool, is_skippable_continuation: bool) -> bool {
+    pub fn should_keep_return(
+        is_continuation_candidate: bool,
+        is_skippable_continuation: bool,
+    ) -> bool {
         is_continuation_candidate && !is_skippable_continuation
     }
 
@@ -39,10 +42,7 @@ impl ReturnConverterBox {
     ///
     /// # Returns
     /// * The remapped optional return value
-    pub fn remap_return_value<F>(
-        value: Option<ValueId>,
-        remap_fn: F,
-    ) -> Option<ValueId>
+    pub fn remap_return_value<F>(value: Option<ValueId>, remap_fn: F) -> Option<ValueId>
     where
         F: FnOnce(ValueId) -> ValueId,
     {

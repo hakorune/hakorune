@@ -10,7 +10,9 @@
 //! - Non-skippable continuation: Contains other instructions (e.g., TailCall)
 
 use crate::mir::builder::control_flow::joinir::merge::rewriter::helpers::is_skippable_continuation;
-use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirType, ValueId};
+use crate::mir::{
+    BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirType, ValueId,
+};
 
 fn make_function(name: &str) -> MirFunction {
     let signature = FunctionSignature {

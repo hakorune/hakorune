@@ -25,7 +25,10 @@ impl InstructionFilterBox {
     /// # Returns
     /// * `true` if the Copy should be skipped (overwrites a PHI dst)
     /// * `false` if the Copy should be kept
-    pub fn should_skip_copy_overwriting_phi(dst: ValueId, phi_dsts: &std::collections::HashSet<ValueId>) -> bool {
+    pub fn should_skip_copy_overwriting_phi(
+        dst: ValueId,
+        phi_dsts: &std::collections::HashSet<ValueId>,
+    ) -> bool {
         phi_dsts.contains(&dst)
     }
 

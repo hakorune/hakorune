@@ -1,5 +1,5 @@
-use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 use crate::mir::builder::control_flow::joinir::merge::boundary_carrier_layout::BoundaryCarrierLayout;
+use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 use crate::mir::ValueId;
 use std::collections::BTreeSet;
 
@@ -10,8 +10,8 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn verify_boundary_hygi
     use crate::mir::join_ir::lowering::carrier_info::{CarrierInit, CarrierRole};
     use crate::mir::join_ir::lowering::error_tags;
 
-    let strict = crate::config::env::joinir_strict_enabled()
-        || crate::config::env::joinir_dev_enabled();
+    let strict =
+        crate::config::env::joinir_strict_enabled() || crate::config::env::joinir_dev_enabled();
     if !strict {
         return Ok(());
     }

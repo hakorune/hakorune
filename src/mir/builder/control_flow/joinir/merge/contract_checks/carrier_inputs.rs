@@ -71,20 +71,18 @@ fn make_boundary(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::join_ir::lowering::inline_boundary::LoopExitBinding;
     use crate::mir::join_ir::lowering::carrier_info::CarrierRole;
+    use crate::mir::join_ir::lowering::inline_boundary::LoopExitBinding;
 
     #[test]
     fn test_verify_carrier_inputs_complete_missing_carrier() {
         // Setup: boundary with Accumulator carrier
-        let boundary = make_boundary(vec![
-            LoopExitBinding {
-                carrier_name: "sum".to_string(),
-                host_slot: ValueId(10),
-                join_exit_value: ValueId(100),
-                role: CarrierRole::LoopState,
-            },
-        ]);
+        let boundary = make_boundary(vec![LoopExitBinding {
+            carrier_name: "sum".to_string(),
+            host_slot: ValueId(10),
+            join_exit_value: ValueId(100),
+            role: CarrierRole::LoopState,
+        }]);
 
         // Empty carrier_inputs (欠落シミュレート)
         let carrier_inputs = BTreeMap::new();
@@ -100,14 +98,12 @@ mod tests {
     #[test]
     fn test_verify_carrier_inputs_complete_condition_only_skipped() {
         // Setup: ConditionOnly carrier (should be skipped)
-        let boundary = make_boundary(vec![
-            LoopExitBinding {
-                carrier_name: "is_found".to_string(),
-                role: CarrierRole::ConditionOnly,
-                host_slot: ValueId(20),
-                join_exit_value: ValueId(101),
-            },
-        ]);
+        let boundary = make_boundary(vec![LoopExitBinding {
+            carrier_name: "is_found".to_string(),
+            role: CarrierRole::ConditionOnly,
+            host_slot: ValueId(20),
+            join_exit_value: ValueId(101),
+        }]);
 
         // Empty carrier_inputs (but OK because ConditionOnly)
         let carrier_inputs = BTreeMap::new();
@@ -120,14 +116,12 @@ mod tests {
     #[test]
     fn test_verify_carrier_inputs_complete_valid() {
         // Setup: LoopState carrier with inputs
-        let boundary = make_boundary(vec![
-            LoopExitBinding {
-                carrier_name: "count".to_string(),
-                host_slot: ValueId(30),
-                join_exit_value: ValueId(102),
-                role: CarrierRole::LoopState,
-            },
-        ]);
+        let boundary = make_boundary(vec![LoopExitBinding {
+            carrier_name: "count".to_string(),
+            host_slot: ValueId(30),
+            join_exit_value: ValueId(102),
+            role: CarrierRole::LoopState,
+        }]);
 
         let mut carrier_inputs = BTreeMap::new();
         carrier_inputs.insert(

@@ -14,21 +14,12 @@
 //! - Boundary injection (lines 1755-1857)
 //! - Context updates (carrier_inputs, exit_phi_inputs)
 
-use super::super::{
-    rewrite_context::RewriteContext,
-    plan_box::RewrittenBlocks,
-};
-use super::super::super::{
-    loop_header_phi_info::LoopHeaderPhiInfo,
-    trace,
-};
-use crate::mir::{MirModule, ValueId};
-use crate::mir::builder::{MirBuilder, joinir_id_remapper::JoinIrIdRemapper};
+use super::super::super::{loop_header_phi_info::LoopHeaderPhiInfo, trace};
+use super::super::{plan_box::RewrittenBlocks, rewrite_context::RewriteContext};
 use crate::mir::builder::joinir_inline_boundary_injector::BoundaryInjector;
-use crate::mir::join_ir::lowering::{
-    inline_boundary::JoinInlineBoundary,
-    canonical_names,
-};
+use crate::mir::builder::{joinir_id_remapper::JoinIrIdRemapper, MirBuilder};
+use crate::mir::join_ir::lowering::{canonical_names, inline_boundary::JoinInlineBoundary};
+use crate::mir::{MirModule, ValueId};
 
 /// Stage 3: Apply - Apply rewritten blocks to MirBuilder
 ///
@@ -72,7 +63,8 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn apply_rewrites(
                 log!(
                     true,
                     "[apply_rewrites] Adding block {:?} with {} instructions",
-                    new_block.id, new_block.instructions.len()
+                    new_block.id,
+                    new_block.instructions.len()
                 );
                 for (idx, inst) in new_block.instructions.iter().enumerate() {
                     log!(true, "[apply_rewrites]   [{}] {:?}", idx, inst);
@@ -118,7 +110,9 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn apply_rewrites(
         log!(
             verbose,
             "[apply_rewrites] Boundary entry: func='{}' entry_block={:?} remapped={:?}",
-            entry_func_name, entry_func.entry_block, entry_block_remapped
+            entry_func_name,
+            entry_func.entry_block,
+            entry_block_remapped
         );
 
         // Build value map for BoundaryInjector
@@ -138,7 +132,9 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn apply_rewrites(
                 log!(
                     verbose,
                     "[apply_rewrites] Condition binding '{}': JoinIR {:?} → remapped {:?}",
-                    binding.name, binding.join_value, remapped
+                    binding.name,
+                    binding.join_value,
+                    remapped
                 );
             }
         }
@@ -178,7 +174,9 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn apply_rewrites(
         log!(
             true,
             "[apply_rewrites] Applied {} blocks, {} phi_inputs, {} carriers",
-            builder.scope_ctx.current_function
+            builder
+                .scope_ctx
+                .current_function
                 .as_ref()
                 .map(|f| f.blocks.len())
                 .unwrap_or(0),

@@ -6,9 +6,7 @@
 //! - Debug contract verification
 //! - Expression result resolution and return
 
-use super::super::{
-    boundary_logging, expr_result_resolver, loop_header_phi_info, merge_result,
-};
+use super::super::{boundary_logging, expr_result_resolver, loop_header_phi_info, merge_result};
 use crate::mir::builder::control_flow::joinir::trace;
 use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
 use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;

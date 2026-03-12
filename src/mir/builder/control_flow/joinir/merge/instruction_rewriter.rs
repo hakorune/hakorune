@@ -11,10 +11,10 @@
 //! Phase 286C-4: 3-stage pipeline (Scan → Plan → Apply)
 //! Phase 287 P3: Physical modularization - extracted stages to separate files
 
- // Phase 284 P1: SSOT
+// Phase 284 P1: SSOT
+use super::super::trace;
 use super::loop_header_phi_info::LoopHeaderPhiInfo;
 use super::merge_result::MergeResult;
-use super::super::trace;
 use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
 use crate::mir::join_ir::lowering::error_tags;
 use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
@@ -23,13 +23,12 @@ use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 
 // Phase 287 P3: Import 3-stage pipeline functions
+use super::contract_checks;
 use super::rewriter::helpers::is_skippable_continuation;
 use super::rewriter::rewrite_context::RewriteContext;
-use super::contract_checks;
 
 // Phase 287 P5: Unified import through stages facade (SSOT)
-use super::rewriter::stages::{plan_rewrites, apply_rewrites};
-
+use super::rewriter::stages::{apply_rewrites, plan_rewrites};
 
 /// Phase 4: Merge ALL functions and rewrite instructions
 ///
@@ -184,10 +183,7 @@ pub(super) fn merge_and_rewrite(
     )?;
 
     if debug {
-        log!(
-            true,
-            "[merge_and_rewrite] Phase 286C-4: Apply complete"
-        );
+        log!(true, "[merge_and_rewrite] Phase 286C-4: Apply complete");
     }
     // Phase 131 P2: DirectValue mode remapped_exit_values SSOT
     // Phase 286C-3: Use ctx.set_remapped_exit_value() for state management
@@ -198,9 +194,13 @@ pub(super) fn merge_and_rewrite(
     // - remapper owns JoinIR→Host mapping, so merge_and_rewrite is responsible for producing
     //   carrier_name → host ValueId.
     if let Some(b) = boundary {
-        if b.exit_reconnect_mode == crate::mir::join_ir::lowering::carrier_info::ExitReconnectMode::DirectValue {
+        if b.exit_reconnect_mode
+            == crate::mir::join_ir::lowering::carrier_info::ExitReconnectMode::DirectValue
+        {
             for binding in &b.exit_bindings {
-                if binding.role == crate::mir::join_ir::lowering::carrier_info::CarrierRole::ConditionOnly {
+                if binding.role
+                    == crate::mir::join_ir::lowering::carrier_info::CarrierRole::ConditionOnly
+                {
                     continue;
                 }
 

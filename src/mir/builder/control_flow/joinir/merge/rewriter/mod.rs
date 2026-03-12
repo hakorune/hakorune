@@ -56,5 +56,5 @@ pub(super) mod plan_helpers; // Helper functions for plan_rewrites()
 pub(super) mod stages; // scan_blocks(), plan_rewrites(), apply_rewrites()
 
 // Re-export public API
- // Phase 260 P0.1 Step 3: From helpers ✅
+// Phase 260 P0.1 Step 3: From helpers ✅
 pub(super) use super::instruction_rewriter::merge_and_rewrite; // Still in parent (TODO: extract)

@@ -14,9 +14,9 @@
 //! single entry point for the pipeline.
 
 // Module declarations (implementation files)
-mod plan;
 mod apply;
+mod plan;
 
 // Phase 287 P5: Re-export stage functions (facade pattern)
-pub(in crate::mir::builder::control_flow::joinir::merge) use plan::plan_rewrites;
 pub(in crate::mir::builder::control_flow::joinir::merge) use apply::apply_rewrites;
+pub(in crate::mir::builder::control_flow::joinir::merge) use plan::plan_rewrites;

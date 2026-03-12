@@ -376,9 +376,7 @@ fn process_fallback(
 ) {
     if let Some(phi_dst) = loop_header_phi_info.get_carrier_phi(loop_var_name) {
         let join_ids = boundary.join_inputs.as_slice();
-        let loop_var_idx = layout_names
-            .iter()
-            .position(|name| *name == loop_var_name);
+        let loop_var_idx = layout_names.iter().position(|name| *name == loop_var_name);
         if let Some(idx) = loop_var_idx {
             if let Some(&join_value_id) = join_ids.get(idx) {
                 // Phase 177-3: Don't override condition_bindings

@@ -13,22 +13,19 @@
 
 // Rewriter siblings (2 levels up: stages/ → rewriter/)
 use super::super::{
+    helpers::is_skippable_continuation,
+    plan_box::RewrittenBlocks,
     plan_helpers::{build_local_block_map, sync_spans},
     rewrite_context::RewriteContext,
-    plan_box::RewrittenBlocks,
-    helpers::is_skippable_continuation,
 };
 
 // Merge level (3 levels up: stages/ → rewriter/ → merge/)
-use super::super::super::{
-    loop_header_phi_info::LoopHeaderPhiInfo,
-    trace,
-};
+use super::super::super::{loop_header_phi_info::LoopHeaderPhiInfo, trace};
 
 // Crate-level imports
-use crate::mir::{BasicBlock, MirModule, ValueId};
 use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
 use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
+use crate::mir::{BasicBlock, MirModule, ValueId};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 // Phase 287 P4: Import extracted modules
@@ -160,16 +157,15 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn plan_rewrites(
             is_loop_header_func && !loop_header_phi_info.carrier_phis.is_empty();
 
         // Collect PHI dst IDs for this block (if loop header)
-        let phi_dst_ids_for_block: HashSet<ValueId> =
-            if is_loop_header_with_phi {
-                loop_header_phi_info
-                    .carrier_phis
-                    .values()
-                    .map(|entry| entry.phi_dst)
-                    .collect()
-            } else {
-                HashSet::new()
-            };
+        let phi_dst_ids_for_block: HashSet<ValueId> = if is_loop_header_with_phi {
+            loop_header_phi_info
+                .carrier_phis
+                .values()
+                .map(|entry| entry.phi_dst)
+                .collect()
+        } else {
+            HashSet::new()
+        };
 
         // Process each block in the function
         for (old_block_id, old_block) in blocks_merge {
@@ -181,7 +177,10 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn plan_rewrites(
                 log!(
                     true,
                     "[plan_rewrites] Block mapping: func='{}' old={:?} → new={:?} (inst_count={})",
-                    func_name, old_block_id, new_block_id, old_block.instructions.len()
+                    func_name,
+                    old_block_id,
+                    new_block_id,
+                    old_block.instructions.len()
                 );
             }
 

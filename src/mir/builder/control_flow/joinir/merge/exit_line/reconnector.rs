@@ -118,7 +118,10 @@ impl ExitLineReconnector {
         // Early return for empty exit_bindings
         if boundary.exit_bindings.is_empty() {
             if verbose {
-                trace.stderr_if("[joinir/exit-line] reconnect: no exit bindings, skip", verbose);
+                trace.stderr_if(
+                    "[joinir/exit-line] reconnect: no exit bindings, skip",
+                    verbose,
+                );
             }
             return Ok(());
         }

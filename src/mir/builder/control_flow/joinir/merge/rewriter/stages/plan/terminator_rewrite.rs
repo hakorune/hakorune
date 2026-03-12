@@ -13,25 +13,25 @@ use super::entry_resolver::resolve_target_func_name;
 
 // Rewriter siblings (2 super:: up from plan/ to stages/, then 1 more to rewriter/)
 use super::super::super::{
-    rewrite_context::RewriteContext,
+    carrier_inputs_collector::CarrierInputsCollector,
     plan_box::RewrittenBlocks,
     return_converter_box::ReturnConverterBox,
-    carrier_inputs_collector::CarrierInputsCollector,
+    rewrite_context::RewriteContext,
     tail_call_policy,
     terminator::{remap_branch, remap_jump},
 };
 
 // Merge level (3 super:: up from plan/ to stages/, then 1 more to rewriter/, then 1 more to merge/)
 use super::super::super::super::{
-    tail_call_classifier::{classify_tail_call, TailCallKind},
     exit_args_collector::ExitArgsCollectorBox,
     loop_header_phi_info::LoopHeaderPhiInfo,
+    tail_call_classifier::{classify_tail_call, TailCallKind},
     trace,
 };
 
-use crate::mir::{BasicBlock, BasicBlockId, MirInstruction, MirFunction, ValueId};
 use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
 use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
+use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Process block terminator: convert Return, remap Jump/Branch, or insert tail call Jump
@@ -81,10 +81,17 @@ pub(super) fn process_block_terminator(
             match term {
                 MirInstruction::Return { value } => {
                     // Check if we should keep Return or convert to Jump
-                    if ReturnConverterBox::should_keep_return(is_continuation_candidate, is_skippable_continuation) {
+                    if ReturnConverterBox::should_keep_return(
+                        is_continuation_candidate,
+                        is_skippable_continuation,
+                    ) {
                         // Non-skippable continuation: keep Return
-                        let remapped_value = ReturnConverterBox::remap_return_value(*value, |v| remapper.remap_value(v));
-                        new_block.set_terminator(MirInstruction::Return { value: remapped_value });
+                        let remapped_value = ReturnConverterBox::remap_return_value(*value, |v| {
+                            remapper.remap_value(v)
+                        });
+                        new_block.set_terminator(MirInstruction::Return {
+                            value: remapped_value,
+                        });
                         log!(
                             verbose,
                             "[plan_rewrites] Keeping Return for non-skippable continuation '{}' (value={:?})",
@@ -139,25 +146,31 @@ pub(super) fn process_block_terminator(
                                     )?;
 
                                     // Add expr_result to exit_phi_inputs
-                                    if let Some(expr_result_val) = collection_result.expr_result_value {
+                                    if let Some(expr_result_val) =
+                                        collection_result.expr_result_value
+                                    {
                                         result
                                             .phi_inputs
                                             .push((collection_result.block_id, expr_result_val));
                                         log!(
                                             verbose,
                                             "[plan_rewrites] exit_phi_inputs: ({:?}, {:?})",
-                                            collection_result.block_id, expr_result_val
+                                            collection_result.block_id,
+                                            expr_result_val
                                         );
                                     }
 
                                     // Add carrier values to carrier_inputs
-                                    for (carrier_name, (block_id, value_id)) in collection_result.carrier_values {
+                                    for (carrier_name, (block_id, value_id)) in
+                                        collection_result.carrier_values
+                                    {
                                         log!(
                                             verbose,
                                             "[plan_rewrites] Collecting carrier '{}': from {:?} value {:?}",
                                             carrier_name, block_id, value_id
                                         );
-                                        result.carrier_inputs
+                                        result
+                                            .carrier_inputs
                                             .entry(carrier_name)
                                             .or_insert_with(Vec::new)
                                             .push((block_id, value_id));
@@ -173,7 +186,10 @@ pub(super) fn process_block_terminator(
 
                                     if let Some(ret_val) = value {
                                         // ReturnConverterBox を使って既存契約に揃える
-                                        let remapped_val = ReturnConverterBox::remap_return_value(Some(*ret_val), |v| remapper.remap_value(v));
+                                        let remapped_val = ReturnConverterBox::remap_return_value(
+                                            Some(*ret_val),
+                                            |v| remapper.remap_value(v),
+                                        );
                                         if let Some(val) = remapped_val {
                                             result.phi_inputs.push((new_block_id, val));
                                             log!(
@@ -184,7 +200,9 @@ pub(super) fn process_block_terminator(
                                         }
                                     } else if let Some(loop_var_name) = &b.loop_var_name {
                                         // value が None の場合のみ header PHI fallback を使用
-                                        if let Some(phi_dst) = loop_header_phi_info.get_carrier_phi(loop_var_name) {
+                                        if let Some(phi_dst) =
+                                            loop_header_phi_info.get_carrier_phi(loop_var_name)
+                                        {
                                             result.phi_inputs.push((new_block_id, phi_dst));
                                             log!(
                                                 verbose,
@@ -196,17 +214,21 @@ pub(super) fn process_block_terminator(
 
                                     // Phase 286C-5 Step 1: Use CarrierInputsCollector to eliminate duplication
                                     // CRITICAL: Do not move this call - exact location matters (line 574 equivalent)
-                                    let collector = CarrierInputsCollector::new(b, loop_header_phi_info);
+                                    let collector =
+                                        CarrierInputsCollector::new(b, loop_header_phi_info);
                                     let carrier_inputs = collector.collect(new_block_id);
                                     for (carrier_name, block_id, value_id) in carrier_inputs {
-                                        result.carrier_inputs
+                                        result
+                                            .carrier_inputs
                                             .entry(carrier_name.clone())
                                             .or_insert_with(Vec::new)
                                             .push((block_id, value_id));
                                         log!(
                                             verbose,
                                             "[plan_rewrites] Carrier '{}': from {:?} value {:?}",
-                                            carrier_name, block_id, value_id
+                                            carrier_name,
+                                            block_id,
+                                            value_id
                                         );
                                     }
                                 }
@@ -302,7 +324,8 @@ pub(super) fn process_block_terminator(
                 log!(
                     verbose,
                     "[plan_rewrites] BackEdge: redirecting from {:?} to header {:?}",
-                    target_block, loop_header_phi_info.header_block
+                    target_block,
+                    loop_header_phi_info.header_block
                 );
                 loop_header_phi_info.header_block
             }
@@ -316,9 +339,10 @@ pub(super) fn process_block_terminator(
             }
             TailCallKind::ExitJump => {
                 // Check if target is skippable continuation
-                let is_target_skippable = resolve_target_func_name(&ctx.function_entry_map, target_block)
-                    .map(|name| skippable_continuation_func_names.contains(name))
-                    .unwrap_or(false);
+                let is_target_skippable =
+                    resolve_target_func_name(&ctx.function_entry_map, target_block)
+                        .map(|name| skippable_continuation_func_names.contains(name))
+                        .unwrap_or(false);
 
                 if is_target_skippable {
                     log!(
@@ -334,14 +358,17 @@ pub(super) fn process_block_terminator(
                         let collector = CarrierInputsCollector::new(b, loop_header_phi_info);
                         let carrier_inputs = collector.collect(new_block_id);
                         for (carrier_name, block_id, value_id) in carrier_inputs {
-                            result.carrier_inputs
+                            result
+                                .carrier_inputs
                                 .entry(carrier_name.clone())
                                 .or_insert_with(Vec::new)
                                 .push((block_id, value_id));
                             log!(
                                 verbose,
                                 "[plan_rewrites] ExitJump carrier '{}': from {:?} value {:?}",
-                                carrier_name, block_id, value_id
+                                carrier_name,
+                                block_id,
+                                value_id
                             );
                         }
                     }

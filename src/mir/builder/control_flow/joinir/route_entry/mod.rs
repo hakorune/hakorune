@@ -49,8 +49,8 @@
 //! Phase 255 P2: Common Utilities
 //! - common/: Shared helper functions (moved to plan/, thin wrapper)
 
-pub(in crate::mir::builder) mod router;
 pub(in crate::mir::builder) mod registry;
+pub(in crate::mir::builder) mod router;
 
 pub(crate) mod ast_feature_extractor {
     pub(crate) use crate::mir::builder::control_flow::plan::ast_feature_extractor::*;
@@ -74,7 +74,7 @@ pub(crate) use ast_feature_extractor::detect_continue_shape;
 // Phase 143-P0: Re-export parse_number / parse_string shape detection for loop_canonicalizer
 pub(crate) use ast_feature_extractor::detect_parse_number_shape;
 
-// Phase 143-P1: 
+// Phase 143-P1:
 pub(crate) use ast_feature_extractor::detect_parse_string_shape;
 
 // Phase 91 P5b: Re-export escape skip shape detection for loop_canonicalizer

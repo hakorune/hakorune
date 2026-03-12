@@ -1,11 +1,11 @@
+use super::super::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::plan::single_planner::PlanRuleId;
-use crate::mir::builder::control_flow::plan::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::control_flow::plan::CorePlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
-use super::super::router::LoopRouteContext;
 
 pub(crate) mod entry_keys {
     pub(crate) const LOOP_BREAK_RECIPE: &str = "loop_break_recipe";
@@ -76,11 +76,8 @@ pub(crate) enum PlannerFirstMode {
     StrictOrDevPlannerRequired,
 }
 
-pub(crate) type ComposeFn = fn(
-    &mut MirBuilder,
-    &CanonicalLoopFacts,
-    &LoopRouteContext,
-) -> Result<CorePlan, Freeze>;
+pub(crate) type ComposeFn =
+    fn(&mut MirBuilder, &CanonicalLoopFacts, &LoopRouteContext) -> Result<CorePlan, Freeze>;
 
 pub(crate) struct StandardEntry {
     pub route_label: &'static str,

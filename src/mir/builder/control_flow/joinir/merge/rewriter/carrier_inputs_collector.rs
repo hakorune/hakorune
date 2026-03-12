@@ -84,7 +84,10 @@ impl<'a> CarrierInputsCollector<'a> {
             }
 
             // Try to get carrier value from header PHI
-            if let Some(phi_dst) = self.loop_header_phi_info.get_carrier_phi(&binding.carrier_name) {
+            if let Some(phi_dst) = self
+                .loop_header_phi_info
+                .get_carrier_phi(&binding.carrier_name)
+            {
                 result.push((binding.carrier_name.clone(), block_id, phi_dst));
             } else if self.boundary.exit_reconnect_mode == ExitReconnectMode::DirectValue {
                 // DirectValue fallback: use host_slot

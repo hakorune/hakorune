@@ -22,7 +22,10 @@ impl MirBuilder {
         body: &[ASTNode],
         func_name: &str,
         ctx: &super::route_entry::LoopRouteContext,
-    ) -> (Result<(), String>, Option<crate::mir::loop_canonicalizer::LoopSkeleton>) {
+    ) -> (
+        Result<(), String>,
+        Option<crate::mir::loop_canonicalizer::LoopSkeleton>,
+    ) {
         use crate::mir::loop_canonicalizer::canonicalize_loop_expr;
 
         // Reconstruct loop AST for canonicalizer

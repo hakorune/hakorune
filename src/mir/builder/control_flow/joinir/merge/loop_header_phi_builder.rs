@@ -27,10 +27,10 @@
 //! Called from merge pipeline between Phase 3 (remap_values) and Phase 4
 //! (instruction_rewriter).
 
+use super::super::trace;
 use super::dev_log;
 use super::header_pred_policy;
 use super::loop_header_phi_info::{CarrierPhiEntry, LoopHeaderPhiInfo};
-use super::super::trace;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 
 /// Builder for loop header PHIs
@@ -350,7 +350,9 @@ impl LoopHeaderPhiBuilder {
                 block.successors.clear();
                 if let Some(ref terminator) = block.terminator {
                     match terminator {
-                        crate::mir::MirInstruction::Branch { then_bb, else_bb, .. } => {
+                        crate::mir::MirInstruction::Branch {
+                            then_bb, else_bb, ..
+                        } => {
                             block.successors.insert(*then_bb);
                             block.successors.insert(*else_bb);
                             if dev_debug {
@@ -378,7 +380,10 @@ impl LoopHeaderPhiBuilder {
                         _ => {
                             if dev_debug {
                                 trace.stderr_if(
-                                    &format!("[joinir/header-phi] Step 0: bb{} has other terminator", bid.0),
+                                    &format!(
+                                        "[joinir/header-phi] Step 0: bb{} has other terminator",
+                                        bid.0
+                                    ),
                                     true,
                                 );
                             }
@@ -407,7 +412,10 @@ impl LoopHeaderPhiBuilder {
             let mut latch_opt: Option<BasicBlockId> = None;
             for (name, entry) in &info.carrier_phis {
                 let (carrier_latch, _) = entry.latch_incoming.ok_or_else(|| {
-                    format!("[loop_header_phi_builder] Carrier '{}' missing latch_incoming", name)
+                    format!(
+                        "[loop_header_phi_builder] Carrier '{}' missing latch_incoming",
+                        name
+                    )
                 })?;
 
                 if let Some(expected_latch) = latch_opt {
@@ -459,7 +467,8 @@ impl LoopHeaderPhiBuilder {
         }
 
         if dev_debug {
-            let host_desc = host_entry_block_opt.map_or_else(|| "None".to_string(), |bb| format!("bb{}", bb.0));
+            let host_desc =
+                host_entry_block_opt.map_or_else(|| "None".to_string(), |bb| format!("bb{}", bb.0));
             trace.stderr_if(
                 &format!(
                     "[joinir/header-phi] Entry predecessors: {:?} (latch=bb{}, host={}, total_preds={}, latch_preds={:?})",
@@ -497,7 +506,7 @@ impl LoopHeaderPhiBuilder {
         // Step 6: Insert PHIs with inputs from ALL entry preds + latch
         // Phase 257 P1.2-FIX: Handle multiple entry predecessors (bb0 host + bb10 JoinIR main)
         for (name, entry) in &info.carrier_phis {
-            let (_stored_entry_block, entry_val) = entry.entry_incoming;  // Use value only
+            let (_stored_entry_block, entry_val) = entry.entry_incoming; // Use value only
             let (_latch_block_stored, latch_val) = entry.latch_incoming.unwrap();
 
             // Build PHI inputs: entry preds use init value, latch preds use next value
@@ -517,7 +526,9 @@ impl LoopHeaderPhiBuilder {
 
             if crate::config::env::joinir_dev::debug_enabled() {
                 let caller = std::panic::Location::caller();
-                builder.metadata_ctx.record_value_caller(entry.phi_dst, caller);
+                builder
+                    .metadata_ctx
+                    .record_value_caller(entry.phi_dst, caller);
                 if let Some(loc) = builder
                     .metadata_ctx
                     .value_origin_callers()

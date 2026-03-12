@@ -1,5 +1,5 @@
-use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 use super::verify_boundary_hygiene;
+use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 
 /// Phase 286 P1: Boundary contract validation (B1/C2 invariants)
 ///
@@ -18,19 +18,33 @@ pub(in crate::mir::builder::control_flow::joinir) fn verify_boundary_contract_at
     context: &str,
 ) -> Result<(), String> {
     use crate::mir::join_ir::lowering::error_tags;
-    use crate::mir::join_ir::lowering::join_value_space::{PARAM_MIN, PARAM_MAX};
+    use crate::mir::join_ir::lowering::join_value_space::{PARAM_MAX, PARAM_MIN};
 
     // Debug logging (HAKO_JOINIR_DEBUG=1)
     if crate::config::env::is_joinir_debug() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug("[joinir/boundary-contract] Validating boundary:");
-        ring0.log.debug(&format!("  join_inputs: {:?}", boundary.join_inputs));
-        ring0.log.debug(&format!("  condition_bindings: {} bindings", boundary.condition_bindings.len()));
-        ring0.log.debug(&format!("  exit_bindings: {} bindings", boundary.exit_bindings.len()));
+        ring0
+            .log
+            .debug("[joinir/boundary-contract] Validating boundary:");
+        ring0
+            .log
+            .debug(&format!("  join_inputs: {:?}", boundary.join_inputs));
+        ring0.log.debug(&format!(
+            "  condition_bindings: {} bindings",
+            boundary.condition_bindings.len()
+        ));
+        ring0.log.debug(&format!(
+            "  exit_bindings: {} bindings",
+            boundary.exit_bindings.len()
+        ));
 
         // Debug: Print file/line info
-        ring0.log.debug("  [DEBUG] verify_boundary_contract_at_creation called from:");
-        ring0.log.debug("         (This should help identify which pattern is causing the issue)");
+        ring0
+            .log
+            .debug("  [DEBUG] verify_boundary_contract_at_creation called from:");
+        ring0
+            .log
+            .debug("         (This should help identify which pattern is causing the issue)");
     }
 
     // Phase 29af P1: Boundary hygiene checks (strict/dev only)
@@ -44,7 +58,9 @@ pub(in crate::mir::builder::control_flow::joinir) fn verify_boundary_contract_at
                 let ring0 = crate::runtime::get_global_ring0();
                 ring0.log.debug(&format!("[joinir/contract/B1] FAILED - join_inputs[{}] = ValueId({}) outside Param region", i, join_id.0));
                 ring0.log.debug("  [DEBUG] This likely means alloc_local() was used instead of alloc_param() for function parameters");
-                ring0.log.debug("  [DEBUG] Check route lowering code for function parameter allocations");
+                ring0.log.debug(
+                    "  [DEBUG] Check route lowering code for function parameter allocations",
+                );
             }
 
             return Err(error_tags::freeze_with_hint(
@@ -92,11 +108,7 @@ mod tests {
             .build();
 
         let result = verify_boundary_contract_at_creation(&boundary, "test_valid");
-        assert!(
-            result.is_ok(),
-            "Valid boundary should pass: {:?}",
-            result
-        );
+        assert!(result.is_ok(), "Valid boundary should pass: {:?}", result);
     }
 
     #[test]

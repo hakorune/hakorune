@@ -4,8 +4,8 @@
 //! These are pure helper functions that both the current monolithic code and the
 //! new plan_rewrites() function can use.
 
-use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction};
 use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
+use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction};
 use std::collections::BTreeMap;
 
 /// Build a local block map for a single function
@@ -79,8 +79,14 @@ mod tests {
     #[test]
     fn test_sync_spans_exact_match() {
         let instructions = vec![
-            MirInstruction::Const { dst: ValueId(1), value: crate::mir::types::ConstValue::Integer(42) },
-            MirInstruction::Const { dst: ValueId(2), value: crate::mir::types::ConstValue::Integer(43) },
+            MirInstruction::Const {
+                dst: ValueId(1),
+                value: crate::mir::types::ConstValue::Integer(42),
+            },
+            MirInstruction::Const {
+                dst: ValueId(2),
+                value: crate::mir::types::ConstValue::Integer(43),
+            },
         ];
         let mut block = BasicBlock::new(BasicBlockId(0));
         block.instruction_spans = vec![Span::unknown(), Span::unknown()];
@@ -92,9 +98,18 @@ mod tests {
     #[test]
     fn test_sync_spans_more_instructions() {
         let instructions = vec![
-            MirInstruction::Const { dst: ValueId(1), value: crate::mir::types::ConstValue::Integer(42) },
-            MirInstruction::Const { dst: ValueId(2), value: crate::mir::types::ConstValue::Integer(43) },
-            MirInstruction::Const { dst: ValueId(3), value: crate::mir::types::ConstValue::Integer(44) },
+            MirInstruction::Const {
+                dst: ValueId(1),
+                value: crate::mir::types::ConstValue::Integer(42),
+            },
+            MirInstruction::Const {
+                dst: ValueId(2),
+                value: crate::mir::types::ConstValue::Integer(43),
+            },
+            MirInstruction::Const {
+                dst: ValueId(3),
+                value: crate::mir::types::ConstValue::Integer(44),
+            },
         ];
         let mut block = BasicBlock::new(BasicBlockId(0));
         block.instruction_spans = vec![Span::unknown()];
@@ -105,9 +120,10 @@ mod tests {
 
     #[test]
     fn test_sync_spans_fewer_instructions() {
-        let instructions = vec![
-            MirInstruction::Const { dst: ValueId(1), value: crate::mir::types::ConstValue::Integer(42) },
-        ];
+        let instructions = vec![MirInstruction::Const {
+            dst: ValueId(1),
+            value: crate::mir::types::ConstValue::Integer(42),
+        }];
         let mut block = BasicBlock::new(BasicBlockId(0));
         block.instruction_spans = vec![Span::unknown(), Span::unknown(), Span::unknown()];
 

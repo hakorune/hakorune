@@ -103,7 +103,13 @@ impl ExitLineOrchestrator {
         }
 
         // Phase 33-13 + Phase 131 P1.5: Delegate to ExitLineReconnector with carrier_phis and remapped_exit_values
-        ExitLineReconnector::reconnect(builder, boundary, carrier_phis, remapped_exit_values, debug)?;
+        ExitLineReconnector::reconnect(
+            builder,
+            boundary,
+            carrier_phis,
+            remapped_exit_values,
+            debug,
+        )?;
 
         if verbose {
             trace.stderr_if("[joinir/exit-line] orchestrator complete", verbose);

@@ -14,7 +14,7 @@ pub(crate) fn remap_phi_instruction(
     inputs: &[(BasicBlockId, ValueId)],
     type_hint: Option<MirType>,
     local_block_map: &BTreeMap<BasicBlockId, BasicBlockId>,
-)-> MirInstruction {
+) -> MirInstruction {
     MirInstruction::Phi {
         dst,
         inputs: remap_phi_inputs(inputs, local_block_map),
@@ -53,12 +53,13 @@ mod tests {
         let inst = remap_phi_instruction(ValueId(5), &inputs, None, &map);
 
         match inst {
-            MirInstruction::Phi { dst, inputs, type_hint } => {
+            MirInstruction::Phi {
+                dst,
+                inputs,
+                type_hint,
+            } => {
                 assert_eq!(dst, ValueId(5));
-                assert_eq!(
-                    inputs,
-                    vec![(bb(10), ValueId(10)), (bb(2), ValueId(11))]
-                );
+                assert_eq!(inputs, vec![(bb(10), ValueId(10)), (bb(2), ValueId(11))]);
                 assert!(type_hint.is_none());
             }
             other => panic!("expected Phi, got {:?}", other),
@@ -74,7 +75,11 @@ mod tests {
         let inst = remap_phi_instruction(ValueId(7), &inputs, Some(MirType::Integer), &map);
 
         match inst {
-            MirInstruction::Phi { dst, inputs, type_hint } => {
+            MirInstruction::Phi {
+                dst,
+                inputs,
+                type_hint,
+            } => {
                 assert_eq!(dst, ValueId(7));
                 assert_eq!(inputs, vec![(bb(30), ValueId(20))]);
                 assert_eq!(type_hint, Some(MirType::Integer));
@@ -83,4 +88,3 @@ mod tests {
         }
     }
 }
-
