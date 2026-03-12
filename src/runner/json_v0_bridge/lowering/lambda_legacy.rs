@@ -114,7 +114,8 @@ fn stageb_expr_to_ast(e: &ExprV0) -> Result<ASTNode, String> {
             let ival: i64 = if let Some(n) = value.as_i64() {
                 n
             } else if let Some(s) = value.as_str() {
-                s.parse().map_err(|_| "stageb legacy fn literal: invalid int literal")?
+                s.parse()
+                    .map_err(|_| "stageb legacy fn literal: invalid int literal")?
             } else {
                 return Err("stageb legacy fn literal: invalid int literal".into());
             };

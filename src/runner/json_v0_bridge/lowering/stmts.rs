@@ -1,7 +1,8 @@
 use super::super::ast::StmtV0;
 use super::{
-    expr, if_else, if_legacy, lambda_legacy, loop_, loop_runtime, normalize_scope_exit_registrations,
-    throw_lower, try_catch, while_legacy, BridgeEnv, LoopContext,
+    expr, if_else, if_legacy, lambda_legacy, loop_, loop_runtime,
+    normalize_scope_exit_registrations, throw_lower, try_catch, while_legacy, BridgeEnv,
+    LoopContext,
 };
 use crate::mir::{BasicBlockId, EffectMask, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
@@ -108,9 +109,15 @@ pub(super) fn lower_stmt_list_with_vars(
     let mut cur = start_bb;
     let mut i: usize = 0;
     while i < normalized.len() {
-        if let Some((cur2, consumed)) =
-            if_legacy::try_lower_stageb_legacy_if_not_stmt_quad(f, cur, &normalized, i, vars, loop_stack, env)?
-        {
+        if let Some((cur2, consumed)) = if_legacy::try_lower_stageb_legacy_if_not_stmt_quad(
+            f,
+            cur,
+            &normalized,
+            i,
+            vars,
+            loop_stack,
+            env,
+        )? {
             cur = cur2;
             i += consumed;
             if let Some(bb) = f.blocks.get(&cur) {
@@ -122,7 +129,13 @@ pub(super) fn lower_stmt_list_with_vars(
         }
 
         if let Some((cur2, consumed)) = while_legacy::try_lower_stageb_legacy_while_stmt_triplet(
-            f, cur, &normalized, i, vars, loop_stack, env,
+            f,
+            cur,
+            &normalized,
+            i,
+            vars,
+            loop_stack,
+            env,
         )? {
             cur = cur2;
             i += consumed;
@@ -135,7 +148,13 @@ pub(super) fn lower_stmt_list_with_vars(
         }
 
         if let Some((cur2, consumed)) = lambda_legacy::try_lower_stageb_legacy_fn_literal_stmt_pair(
-            f, cur, &normalized, i, vars, loop_stack, env,
+            f,
+            cur,
+            &normalized,
+            i,
+            vars,
+            loop_stack,
+            env,
         )? {
             cur = cur2;
             i += consumed;

@@ -128,15 +128,12 @@ fn emit_mir_json(module: &crate::mir::MirModule, path: &std::path::Path) -> Resu
     // pre-AotPrep MIR emission usable even when BoxCall(MatI64, mul_naive) is
     // still present.
 
-    let file = std::fs::File::create(path)
-        .map_err(|e| format!("write mir json: {}", e))?;
+    let file = std::fs::File::create(path).map_err(|e| format!("write mir json: {}", e))?;
     let mut writer = std::io::BufWriter::new(file);
     serde_json::to_writer_pretty(&mut writer, &root)
         .map_err(|e| format!("write mir json: {}", e))?;
     writer
         .write_all(b"\n")
         .map_err(|e| format!("write mir json: {}", e))?;
-    writer
-        .flush()
-        .map_err(|e| format!("write mir json: {}", e))
+    writer.flush().map_err(|e| format!("write mir json: {}", e))
 }

@@ -6,11 +6,7 @@ pub(crate) fn emit_copy(dst: &ValueId, src: &ValueId) -> serde_json::Value {
     json!({"op":"copy","dst": dst.as_u32(), "src": src.as_u32()})
 }
 
-pub(crate) fn emit_unary_op(
-    dst: &ValueId,
-    op: &UnaryOp,
-    operand: &ValueId,
-) -> serde_json::Value {
+pub(crate) fn emit_unary_op(dst: &ValueId, op: &UnaryOp, operand: &ValueId) -> serde_json::Value {
     let kind = match op {
         UnaryOp::Neg => "neg",
         UnaryOp::Not => "not",
@@ -27,7 +23,9 @@ pub(crate) fn emit_const(dst: &ValueId, value: &ConstValue) -> serde_json::Value
         ConstValue::Float(fv) => {
             json!({"op":"const","dst": dst.as_u32(), "value": {"type": "f64", "value": fv}})
         }
-        ConstValue::Bool(b) => json!({"op":"const","dst": dst.as_u32(), "value": {"type": "i64", "value": if *b {1} else {0}}}),
+        ConstValue::Bool(b) => {
+            json!({"op":"const","dst": dst.as_u32(), "value": {"type": "i64", "value": if *b {1} else {0}}})
+        }
         ConstValue::String(s) => json!({
             "op":"const",
             "dst": dst.as_u32(),
@@ -132,8 +130,7 @@ pub(crate) fn emit_compare(
         CompareOp::Eq => "==",
         CompareOp::Ne => "!=",
     };
-    let mut obj =
-        json!({"op":"compare","operation": op_s, "lhs": lhs.as_u32(), "rhs": rhs.as_u32(), "dst": dst.as_u32()});
+    let mut obj = json!({"op":"compare","operation": op_s, "lhs": lhs.as_u32(), "rhs": rhs.as_u32(), "dst": dst.as_u32()});
     // cmp_kind hint for string equality
     if matches!(op, CompareOp::Eq | CompareOp::Ne) {
         let lhs_is_str = match value_types.get(lhs) {

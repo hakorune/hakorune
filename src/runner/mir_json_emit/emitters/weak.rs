@@ -2,11 +2,7 @@ use serde_json::json;
 
 use crate::mir::{ValueId, WeakRefOp};
 
-pub(crate) fn emit_weak_ref(
-    dst: &ValueId,
-    op: &WeakRefOp,
-    value: &ValueId,
-) -> serde_json::Value {
+pub(crate) fn emit_weak_ref(dst: &ValueId, op: &WeakRefOp, value: &ValueId) -> serde_json::Value {
     let op_name = match op {
         WeakRefOp::New => "weak_new",
         WeakRefOp::Load => "weak_load",

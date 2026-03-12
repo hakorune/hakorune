@@ -9,23 +9,23 @@ use std::collections::BTreeMap;
 mod merge;
 use merge::{merge_var_maps, new_block};
 // Feature splits (gradual extraction)
-pub(super) mod expr;
 pub(super) mod dump;
+pub(super) mod expr;
 pub(super) mod globals;
-pub(super) mod if_legacy;
 pub(super) mod if_else;
+pub(super) mod if_legacy;
 pub(super) mod lambda_legacy;
 pub(super) mod loop_;
 pub(super) mod loop_runtime;
 pub(super) mod match_expr; // placeholder (not wired)
 pub(super) mod program;
+pub(super) mod scope_exit;
+pub(super) mod stmts;
 pub(super) mod ternary; // placeholder (not wired)
 pub(super) mod throw_ctx;
 pub(super) mod throw_lower;
 pub(super) mod try_catch; // thread-local ctx for Result-mode throw routing
 pub(super) mod while_legacy;
-pub(super) mod scope_exit;
-pub(super) mod stmts;
 
 pub(super) fn normalize_scope_exit_registrations(stmts: &[StmtV0]) -> Result<Vec<StmtV0>, String> {
     scope_exit::normalize_scope_exit_registrations(stmts)
@@ -68,7 +68,9 @@ impl BridgeEnv {
         // フェーズM.2: no_phi変数削除
         if crate::config::env::cli_verbose() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[Bridge] load: try_result_mode={}", trm));
+            ring0
+                .log
+                .debug(&format!("[Bridge] load: try_result_mode={}", trm));
         }
         Self {
             throw_enabled: std::env::var("NYASH_BRIDGE_THROW_ENABLE").ok().as_deref() == Some("1"),
@@ -171,7 +173,12 @@ pub(super) fn lower_program(
     // Precompute static-box method table from defs, so Expr lowering can resolve `BoxName.method()`
     // even when `BoxName` isn't a runtime variable in JSON v0.
     for def in &prog.defs {
-        let q = format!("{}.{}{}", def.box_name, def.name, format!("/{}", def.params.len()));
+        let q = format!(
+            "{}.{}{}",
+            def.box_name,
+            def.name,
+            format!("/{}", def.params.len())
+        );
         env.static_methods.insert(q, ());
     }
     let mut module = MirModule::new("ny_json_v0".into());

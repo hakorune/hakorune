@@ -96,6 +96,9 @@ mod tests {
         assert_eq!(provider.basename("apps/tests/main.hako"), "main.hako");
         assert_eq!(provider.extname("apps/tests/main.hako"), ".hako");
         assert!(!provider.is_abs("apps/tests/main.hako"));
-        assert_eq!(provider.normalize("./apps/./tests/../tests/main.hako"), "apps/tests/main.hako");
+        assert_eq!(
+            provider.normalize("./apps/./tests/../tests/main.hako"),
+            "apps/tests/main.hako"
+        );
     }
 }

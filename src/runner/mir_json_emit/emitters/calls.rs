@@ -221,29 +221,21 @@ pub(crate) fn emit_box_call(
         obj["method_id"] = json!(mid);
     }
     let m = method;
-    let dst_ty = if m == "substring"
-        || m == "dirname"
-        || m == "join"
-        || m == "read_all"
-        || m == "read"
-    {
-        Some(json!({"kind":"handle","box_type":"StringBox"}))
-    } else if m == "length" || m == "lastIndexOf" {
-        Some(json!("i64"))
-    } else {
-        None
-    };
+    let dst_ty =
+        if m == "substring" || m == "dirname" || m == "join" || m == "read_all" || m == "read" {
+            Some(json!({"kind":"handle","box_type":"StringBox"}))
+        } else if m == "length" || m == "lastIndexOf" {
+            Some(json!("i64"))
+        } else {
+            None
+        };
     if let Some(t) = dst_ty {
         obj["dst_type"] = t;
     }
     obj
 }
 
-pub(crate) fn emit_new_box(
-    dst: &ValueId,
-    box_type: &str,
-    args: &[ValueId],
-) -> serde_json::Value {
+pub(crate) fn emit_new_box(dst: &ValueId, box_type: &str, args: &[ValueId]) -> serde_json::Value {
     let args_a: Vec<_> = args.iter().map(|v| json!(v.as_u32())).collect();
     json!({"op":"newbox","type": box_type, "args": args_a, "dst": dst.as_u32()})
 }
@@ -315,7 +307,10 @@ mod tests {
         assert!(v.get("func").is_none(), "func must be omitted when INVALID");
         let callee = v.get("callee").expect("callee must exist");
         assert_eq!(callee.get("type").and_then(|x| x.as_str()), Some("Global"));
-        assert_eq!(callee.get("name").and_then(|x| x.as_str()), Some("my_func/0"));
+        assert_eq!(
+            callee.get("name").and_then(|x| x.as_str()),
+            Some("my_func/0")
+        );
     }
 
     #[test]

@@ -126,7 +126,9 @@ pub(super) fn lower_try_stmt(
             super::throw_ctx::set(catch_bb);
         } else if crate::config::env::cli_verbose() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[Bridge] try_result_mode: no catch present; ThrowCtx not set"));
+            ring0.log.debug(&format!(
+                "[Bridge] try_result_mode: no catch present; ThrowCtx not set"
+            ));
         }
         let mut try_vars = base_vars.clone();
         let try_end =
@@ -216,17 +218,17 @@ pub(super) fn lower_try_stmt(
         use std::collections::{BTreeSet, HashSet};
         if let Some(finally_block) = finally_bb {
             // Compute merged var map from try_end + catch_end (if has_catch)
-        let mut branch_vars: Vec<(BasicBlockId, BTreeMap<String, ValueId>)> = Vec::new();
-        if let Some(map) = try_branch_vars.clone() {
-            branch_vars.push((try_end, map));
-        }
-        if has_catch {
-            branch_vars.push((catch_end, catch_branch_vars.clone()));
-        }
-        let mut names: BTreeSet<String> = base_vars.keys().cloned().collect();
-        for (_, map) in &branch_vars {
-            names.extend(map.keys().cloned());
-        }
+            let mut branch_vars: Vec<(BasicBlockId, BTreeMap<String, ValueId>)> = Vec::new();
+            if let Some(map) = try_branch_vars.clone() {
+                branch_vars.push((try_end, map));
+            }
+            if has_catch {
+                branch_vars.push((catch_end, catch_branch_vars.clone()));
+            }
+            let mut names: BTreeSet<String> = base_vars.keys().cloned().collect();
+            for (_, map) in &branch_vars {
+                names.extend(map.keys().cloned());
+            }
             let mut merged_vars = base_vars.clone();
             let mut phi_entries: Vec<(ValueId, Vec<(BasicBlockId, ValueId)>)> = Vec::new();
             for name in names {

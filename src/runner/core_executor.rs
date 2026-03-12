@@ -33,16 +33,16 @@ pub fn run_json_v0(runner: &NyashRunner, json: &str) -> i32 {
                 if let Some(rc) = try_run_core_direct_inproc(runner, json) {
                     return rc;
                 }
-                crate::runtime::get_global_ring0().log.warn(
-                    "[core-exec] direct Core (inproc) failed; trying child wrapper",
-                );
+                crate::runtime::get_global_ring0()
+                    .log
+                    .warn("[core-exec] direct Core (inproc) failed; trying child wrapper");
             }
             if let Some(rc) = try_run_core_direct(json) {
                 return rc;
             }
-            crate::runtime::get_global_ring0().log.warn(
-                "[core-exec] direct Core (child) failed; falling back to VM interpreter",
-            );
+            crate::runtime::get_global_ring0()
+                .log
+                .warn("[core-exec] direct Core (child) failed; falling back to VM interpreter");
         }
         // else: skip direct Core and continue to bridge/VM path
     }
@@ -213,7 +213,9 @@ fn extract_program_json_v0_used_import_targets(json: &str) -> Result<Vec<String>
     let mut out: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
     for (alias, target) in map.iter() {
         let Some(s) = target.as_str() else {
-            return Err("[freeze:contract][json_v0/imports] imports value must be string".to_string());
+            return Err(
+                "[freeze:contract][json_v0/imports] imports value must be string".to_string(),
+            );
         };
         let s = s.trim();
         if s.is_empty() {
@@ -228,7 +230,10 @@ fn extract_program_json_v0_used_import_targets(json: &str) -> Result<Vec<String>
     Ok(out.into_iter().collect())
 }
 
-fn collect_program_json_v0_var_names(v: &serde_json::Value, out: &mut std::collections::BTreeSet<String>) {
+fn collect_program_json_v0_var_names(
+    v: &serde_json::Value,
+    out: &mut std::collections::BTreeSet<String>,
+) {
     match v {
         serde_json::Value::Object(obj) => {
             if obj.get("type").and_then(|t| t.as_str()) == Some("Var") {
@@ -253,11 +258,11 @@ fn compile_program_json_v0_imports_bundle(
     runner: &NyashRunner,
     targets: &[String],
 ) -> Result<crate::mir::MirModule, String> {
+    use crate::mir::MirCompiler;
     use crate::parser::NyashParser;
     use crate::runner::modes::common_util::resolve::prelude_manager::PreludeManagerBox;
     use crate::runner::modes::common_util::resolve::strip::resolve_prelude_paths_profiled;
     use crate::using::resolver::resolve_using_target_common;
-    use crate::mir::MirCompiler;
 
     struct EnvVarRestore {
         key: &'static str,
@@ -305,8 +310,12 @@ fn compile_program_json_v0_imports_bundle(
         )
         .map_err(|e| format!("[freeze:contract][json_v0/imports] {e}"))?;
 
-        let abs = std::fs::canonicalize(&resolved)
-            .map_err(|e| format!("[freeze:contract][json_v0/imports] canonicalize {}: {e}", resolved))?;
+        let abs = std::fs::canonicalize(&resolved).map_err(|e| {
+            format!(
+                "[freeze:contract][json_v0/imports] canonicalize {}: {e}",
+                resolved
+            )
+        })?;
         let path = abs.to_string_lossy().to_string();
         let src = std::fs::read_to_string(&path)
             .map_err(|e| format!("[freeze:contract][json_v0/imports] read {}: {e}", path))?;
@@ -345,13 +354,12 @@ fn compile_program_json_v0_imports_bundle(
     let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
 
     let mut compiler = MirCompiler::with_options(true);
-    let compile =
-        crate::runner::modes::common_util::source_hint::compile_with_source_hint(
-            &mut compiler,
-            ast,
-            Some("<json_v0/imports>"),
-        )
-        .map_err(|e| format!("[freeze:contract][json_v0/imports] compile: {e}"))?;
+    let compile = crate::runner::modes::common_util::source_hint::compile_with_source_hint(
+        &mut compiler,
+        ast,
+        Some("<json_v0/imports>"),
+    )
+    .map_err(|e| format!("[freeze:contract][json_v0/imports] compile: {e}"))?;
     Ok(compile.module)
 }
 

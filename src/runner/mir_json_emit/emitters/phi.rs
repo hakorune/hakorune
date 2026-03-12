@@ -18,7 +18,7 @@ pub(crate) fn emit_phi(
     if let Some(dst_type) = value_types.get(dst) {
         let type_json = match dst_type {
             MirType::Integer => json!("i64"),
-            MirType::Float => json!("f64"),  // Phase 275 P0: Float PHI type
+            MirType::Float => json!("f64"), // Phase 275 P0: Float PHI type
             MirType::String => json!({"kind": "string"}),
             MirType::Box(bt) => json!({"kind": "handle", "box_type": bt}),
             MirType::Bool => json!("i1"),

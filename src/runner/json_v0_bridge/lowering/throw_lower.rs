@@ -19,7 +19,9 @@ pub(super) fn lower_throw(
     if env.try_result_mode && super::throw_ctx::is_active() {
         if crate::config::env::cli_verbose() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[Bridge] lower_throw: routing to catch (Result-mode)"));
+            ring0.log.debug(&format!(
+                "[Bridge] lower_throw: routing to catch (Result-mode)"
+            ));
         }
         let _ = super::throw_ctx::record_throw(f, cur_bb, exception_value, vars);
         return (exception_value, cur_bb);

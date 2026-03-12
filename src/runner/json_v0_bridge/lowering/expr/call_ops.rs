@@ -344,19 +344,18 @@ fn lower_stageb_static_method_call<S: VarScope>(
         // Program(JSON v0) often carries imported static calls only via `imports`,
         // while `defs` stays empty. In that shape, allow alias-qualified static calls
         // to lower directly instead of falling back to runtime String.method(...).
-        let force_alias_static = recv_is_import_alias && import_maps_to_self && box_name == recv_name;
-        if let Some(hit) =
-            lower_stageb_static_call_for_box(
-                env,
-                f,
-                cur_bb,
-                &box_name,
-                method,
-                args,
-                scope,
-                force_alias_static,
-            )?
-        {
+        let force_alias_static =
+            recv_is_import_alias && import_maps_to_self && box_name == recv_name;
+        if let Some(hit) = lower_stageb_static_call_for_box(
+            env,
+            f,
+            cur_bb,
+            &box_name,
+            method,
+            args,
+            scope,
+            force_alias_static,
+        )? {
             return Ok(Some(hit));
         }
         if let Some(hit) =

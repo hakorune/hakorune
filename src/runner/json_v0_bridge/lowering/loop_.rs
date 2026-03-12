@@ -222,8 +222,8 @@ impl LoopFormOps for LoopFormJsonOps<'_> {
         // `get_variable_at_block` is used as a contract observation point: returning a value
         // that is not actually available on the predecessor edge can silently inject invalid
         // PHI inputs (later surfacing as VM reg_load undefined).
-        let strict_or_dev =
-            crate::config::env::joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
+        let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
+            || crate::config::env::joinir_dev_enabled();
         if strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled() {
             // Parameters dominate every block; it's safe to fall back for them even in strict mode.
             if matches!(name, "me" | "args") {
@@ -355,7 +355,9 @@ pub(super) fn lower_loop_stmt(
     // DEBUG: Log writes collection
     if env::env_bool("NYASH_LOOPFORM_DEBUG") {
         let func_name = ops.f.signature.name.clone(); // Clone before borrowing
-        get_global_ring0().log.debug("[loop_/lower] === WRITES COLLECTION (Step 5-1) ===");
+        get_global_ring0()
+            .log
+            .debug("[loop_/lower] === WRITES COLLECTION (Step 5-1) ===");
         get_global_ring0()
             .log
             .debug(&format!("[loop_/lower] Function: {}", func_name));
@@ -399,95 +401,95 @@ pub(super) fn lower_loop_stmt(
     crate::mir::ssot::cf_common::set_jump(ops.f, latch_bb, header_bb);
 
     // 6) continue 経路を canonical continue_merge に統合し、header PHI 用 snapshot を 1 本にまとめる
-    let canonical_continue_snaps: Vec<(BasicBlockId, BTreeMap<String, ValueId>)> =
-        if continue_snaps.is_empty() {
-            Vec::new()
-        } else {
-            // 6-1) 各変数ごとに (pred_bb, value) の入力を集約
-            let mut all_inputs: BTreeMap<String, Vec<(BasicBlockId, ValueId)>> = BTreeMap::new();
-            for (bb, snap) in &continue_snaps {
-                // Only merge variables that exist at loop entry (base_vars).
-                //
-                // Body-local variables can appear in `continue` snapshots after they are first
-                // assigned, but they do NOT need to be carried through the canonical continue-merge
-                // block for header PHIs. Including them here creates "partial PHI" inputs where
-                // early-continue edges don't have a value yet, which later fails MIR verification
-                // (`invalid_phi` / missing input from predecessor).
-                //
-                // Contract (Phase 29bq selfhost): header/continue merge handles Env_in(loop) only.
-                for (name, _) in &base_vars {
-                    let Some(&val) = snap.get(name) else {
-                        let strict_planner_required =
-                            crate::config::env::joinir_dev::strict_enabled()
-                                && crate::config::env::joinir_dev::planner_required_enabled();
-                        if strict_planner_required {
-                            return Err(format!(
+    let canonical_continue_snaps: Vec<(BasicBlockId, BTreeMap<String, ValueId>)> = if continue_snaps
+        .is_empty()
+    {
+        Vec::new()
+    } else {
+        // 6-1) 各変数ごとに (pred_bb, value) の入力を集約
+        let mut all_inputs: BTreeMap<String, Vec<(BasicBlockId, ValueId)>> = BTreeMap::new();
+        for (bb, snap) in &continue_snaps {
+            // Only merge variables that exist at loop entry (base_vars).
+            //
+            // Body-local variables can appear in `continue` snapshots after they are first
+            // assigned, but they do NOT need to be carried through the canonical continue-merge
+            // block for header PHIs. Including them here creates "partial PHI" inputs where
+            // early-continue edges don't have a value yet, which later fails MIR verification
+            // (`invalid_phi` / missing input from predecessor).
+            //
+            // Contract (Phase 29bq selfhost): header/continue merge handles Env_in(loop) only.
+            for (name, _) in &base_vars {
+                let Some(&val) = snap.get(name) else {
+                    let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
+                        && crate::config::env::joinir_dev::planner_required_enabled();
+                    if strict_planner_required {
+                        return Err(format!(
                                 "[freeze:contract][json_v0_bridge/continue_snapshot_missing_base_var] fn={} pred_bb={:?} var={}",
                                 ops.f.signature.name, bb, name
                             ));
-                        }
-                        // Non-strict fallback: treat missing as base value.
-                        if let Some(&base_val) = base_vars.get(name) {
-                            all_inputs
-                                .entry(name.clone())
-                                .or_default()
-                                .push((*bb, base_val));
-                        }
-                        continue;
-                    };
-                    all_inputs.entry(name.clone()).or_default().push((*bb, val));
-                }
-            }
-
-            // 6-2) continue_merge_bb に必要な PHI を生成しつつ、merged_snapshot を作る
-            // Phase 62: PhiInputCollector インライン化
-            let mut merged_snapshot: BTreeMap<String, ValueId> = BTreeMap::new();
-            for (name, inputs) in all_inputs {
-                // Inline PhiInputCollector logic
-                // 1. Sanitize: remove duplicates and sort
-                let mut seen: BTreeMap<BasicBlockId, ValueId> = BTreeMap::new();
-                for (bb, val) in inputs.iter() {
-                    seen.insert(*bb, *val);
-                }
-                let mut sanitized_inputs: Vec<(BasicBlockId, ValueId)> = seen.into_iter().collect();
-                sanitized_inputs.sort_by_key(|(bb, _)| bb.0);
-
-                // 2. Optimize: check if all inputs have the same value
-                let value = if sanitized_inputs.is_empty() {
-                    // Should not happen, but handle gracefully
-                    continue;
-                } else if sanitized_inputs.len() == 1 {
-                    // Single input - no PHI needed
-                    sanitized_inputs[0].1
-                } else {
-                    let first_val = sanitized_inputs[0].1;
-                    if sanitized_inputs.iter().all(|(_, val)| *val == first_val) {
-                        // All same value - no PHI needed
-                        first_val
-                    } else {
-                        // Different values - PHI required
-                        let phi_id = ops.f.next_value_id();
-                        crate::mir::ssot::cf_common::insert_phi_at_head_spanned(
-                            ops.f,
-                            continue_merge_bb,
-                            phi_id,
-                            sanitized_inputs,
-                            Span::unknown(),
-                        )?;
-                        phi_id
                     }
+                    // Non-strict fallback: treat missing as base value.
+                    if let Some(&base_val) = base_vars.get(name) {
+                        all_inputs
+                            .entry(name.clone())
+                            .or_default()
+                            .push((*bb, base_val));
+                    }
+                    continue;
                 };
-                merged_snapshot.insert(name, value);
+                all_inputs.entry(name.clone()).or_default().push((*bb, val));
             }
+        }
 
-            // continue_merge_bb から header への backedge を 1 本だけ張る
-            crate::mir::ssot::cf_common::set_jump(ops.f, continue_merge_bb, header_bb);
-            // LoopForm から get_variable_at_block されたときのために snapshot も登録
-            ops.block_var_maps
-                .insert(continue_merge_bb, merged_snapshot.clone());
+        // 6-2) continue_merge_bb に必要な PHI を生成しつつ、merged_snapshot を作る
+        // Phase 62: PhiInputCollector インライン化
+        let mut merged_snapshot: BTreeMap<String, ValueId> = BTreeMap::new();
+        for (name, inputs) in all_inputs {
+            // Inline PhiInputCollector logic
+            // 1. Sanitize: remove duplicates and sort
+            let mut seen: BTreeMap<BasicBlockId, ValueId> = BTreeMap::new();
+            for (bb, val) in inputs.iter() {
+                seen.insert(*bb, *val);
+            }
+            let mut sanitized_inputs: Vec<(BasicBlockId, ValueId)> = seen.into_iter().collect();
+            sanitized_inputs.sort_by_key(|(bb, _)| bb.0);
 
-            vec![(continue_merge_bb, merged_snapshot)]
-        };
+            // 2. Optimize: check if all inputs have the same value
+            let value = if sanitized_inputs.is_empty() {
+                // Should not happen, but handle gracefully
+                continue;
+            } else if sanitized_inputs.len() == 1 {
+                // Single input - no PHI needed
+                sanitized_inputs[0].1
+            } else {
+                let first_val = sanitized_inputs[0].1;
+                if sanitized_inputs.iter().all(|(_, val)| *val == first_val) {
+                    // All same value - no PHI needed
+                    first_val
+                } else {
+                    // Different values - PHI required
+                    let phi_id = ops.f.next_value_id();
+                    crate::mir::ssot::cf_common::insert_phi_at_head_spanned(
+                        ops.f,
+                        continue_merge_bb,
+                        phi_id,
+                        sanitized_inputs,
+                        Span::unknown(),
+                    )?;
+                    phi_id
+                }
+            };
+            merged_snapshot.insert(name, value);
+        }
+
+        // continue_merge_bb から header への backedge を 1 本だけ張る
+        crate::mir::ssot::cf_common::set_jump(ops.f, continue_merge_bb, header_bb);
+        // LoopForm から get_variable_at_block されたときのために snapshot も登録
+        ops.block_var_maps
+            .insert(continue_merge_bb, merged_snapshot.clone());
+
+        vec![(continue_merge_bb, merged_snapshot)]
+    };
 
     // 7) header PHI seal（latch + canonical continue_merge スナップショット）
     // Step 5-1/5-2: Pass writes 集合 for PHI縮約

@@ -1,8 +1,8 @@
 use super::{lower_stmt_list_with_vars, BridgeEnv, FunctionDefBuilder, LoopContext};
 use crate::mir::Callee;
 use crate::mir::{
-    BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule,
-    MirType, ValueId,
+    BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
+    MirModule, MirType, ValueId,
 };
 use std::collections::BTreeMap;
 
@@ -61,10 +61,7 @@ pub(super) fn lower_defs_into_module(
     Ok(func_map)
 }
 
-pub(super) fn maybe_resolve_calls(
-    module: &mut MirModule,
-    func_map: &BTreeMap<String, String>,
-) {
+pub(super) fn maybe_resolve_calls(module: &mut MirModule, func_map: &BTreeMap<String, String>) {
     // Phase 21.6: Call resolution post-processing
     // Toggle: HAKO_MIR_BUILDER_CALL_RESOLVE=1 controls legacy unqualified function-name
     // resolution. Extern-like runtime names still need callee classification even when the
@@ -163,8 +160,7 @@ pub(super) fn maybe_resolve_calls(
                 {
                     if let Some(name) = reg_name.get(func_reg).cloned() {
                         if should_classify_call_callee(&name, func_map, resolve_unqualified_calls) {
-                            *callee =
-                                Some(resolve_legacy_call_callee(&name, args.len(), func_map));
+                            *callee = Some(resolve_legacy_call_callee(&name, args.len(), func_map));
                         }
                     }
                 }
@@ -355,14 +351,17 @@ mod tests {
         maybe_resolve_calls(&mut module, &BTreeMap::new());
         let got = format!("{:?}", entry_call(&module));
 
-        assert!(matches!(
-            entry_call(&module),
-            MirInstruction::Call {
-                func,
-                callee: Some(Callee::Extern(name)),
-                ..
-            } if *func == ValueId::new(1) && name == "env.console.log"
-        ), "got={got}");
+        assert!(
+            matches!(
+                entry_call(&module),
+                MirInstruction::Call {
+                    func,
+                    callee: Some(Callee::Extern(name)),
+                    ..
+                } if *func == ValueId::new(1) && name == "env.console.log"
+            ),
+            "got={got}"
+        );
     }
 
     #[test]

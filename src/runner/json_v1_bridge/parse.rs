@@ -28,8 +28,7 @@ fn infer_param_count_from_v1_func(func: &Value, func_name: &str) -> Result<usize
         }
         return Ok(params.len());
     }
-    if let Some((_box_name, _method, arity)) = crate::mir::naming::decode_static_method(func_name)
-    {
+    if let Some((_box_name, _method, arity)) = crate::mir::naming::decode_static_method(func_name) {
         return Ok(arity);
     }
     Ok(0)
