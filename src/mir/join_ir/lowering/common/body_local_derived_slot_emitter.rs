@@ -122,12 +122,14 @@ fn lower_value_expr(
                 value
             ))),
         },
-        ASTNode::Variable { name, .. } => resolve_var_value(name, env, body_local_env).ok_or_else(|| {
-            error_tags::freeze(&format!(
+        ASTNode::Variable { name, .. } => {
+            resolve_var_value(name, env, body_local_env).ok_or_else(|| {
+                error_tags::freeze(&format!(
                 "[phase29ab/body_local_derived_slot/contract/missing_var] '{}' not found in envs",
                 name
             ))
-        }),
+            })
+        }
         ASTNode::MethodCall {
             object,
             method,

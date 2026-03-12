@@ -38,8 +38,8 @@ use crate::mir::join_ir::{
     BinOpKind, CompareOp, ConstValue, JoinContId, JoinFuncId, JoinFunction, JoinInst, JoinModule,
     LoopExitShape, LoopHeaderShape, MirLikeInst,
 };
-use crate::runtime::get_global_ring0;
 use crate::mir::ValueId;
+use crate::runtime::get_global_ring0;
 
 use super::entry_builder::EntryFunctionBuilder;
 

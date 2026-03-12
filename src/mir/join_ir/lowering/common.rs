@@ -2,14 +2,14 @@
 //!
 //! CFG sanity checks and dispatcher helpers for MIR-based lowering.
 
-pub mod case_a;
-pub mod conditional_step_emitter; // Phase 92 P1-1: ConditionalStep emission module
-pub mod body_local_slot; // Phase 92 P3: Read-only body-local slot for conditions
-pub mod dual_value_rewriter; // Phase 246-EX/247-EX: name-based dual-value rewrites
-pub mod condition_only_emitter; // Phase 93 P0: ConditionOnly (Derived Slot) recalculation
+pub mod balanced_depth_scan_emitter; // Phase 107: Balanced depth-scan (find_balanced_* recipe)
 pub mod body_local_derived_emitter; // Phase 94: Derived body-local (P5b escape "ch" reassignment)
 pub mod body_local_derived_slot_emitter; // Phase 29ab P4: Derived slot for seg
-pub mod balanced_depth_scan_emitter; // Phase 107: Balanced depth-scan (find_balanced_* recipe)
+pub mod body_local_slot; // Phase 92 P3: Read-only body-local slot for conditions
+pub mod case_a;
+pub mod condition_only_emitter; // Phase 93 P0: ConditionOnly (Derived Slot) recalculation
+pub mod conditional_step_emitter; // Phase 92 P1-1: ConditionalStep emission module
+pub mod dual_value_rewriter; // Phase 246-EX/247-EX: name-based dual-value rewrites
 pub mod string_accumulator_emitter; // Phase 100 P3-2: String accumulator (out = out + ch)
 
 use crate::mir::loop_form::LoopForm;

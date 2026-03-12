@@ -63,21 +63,21 @@ pub mod loop_update_analyzer; // Phase 197: Update expression analyzer for carri
 pub mod loop_update_summary; // Phase 170-C-2: Update pattern summary for shape detection
 pub(crate) mod loop_view_builder; // Phase 33-23: Loop lowering dispatch
 pub mod loop_with_break_minimal; // Phase 188-Impl-2: loop_break minimal lowerer
-pub(crate) mod return_collector; // Phase 284 P1: Return statement collector SSOT
 pub mod method_call_lowerer; // Phase 224-B: MethodCall lowering (metadata-driven)
-pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists)
 pub mod method_return_hint; // Phase 83: P3-D 既知メソッド戻り値型推論箱
+pub(crate) mod return_collector; // Phase 284 P1: Return statement collector SSOT
 pub mod scope_manager; // Phase 231: Unified variable scope management // Phase 195: loop_continue_only minimal lowerer support
-pub(crate) mod step_schedule; // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
-                              // Phase 242-EX-A: loop_with_if_phi_minimal removed - replaced by loop_with_if_phi_if_sum
+pub(crate) mod step_schedule;
+pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists) // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
+                            // Phase 242-EX-A: loop_with_if_phi_minimal removed - replaced by loop_with_if_phi_if_sum
 pub mod loop_with_if_phi_if_sum; // Phase 213: if_phi_join AST-based if-sum lowerer (Phase 242-EX-A: supports complex conditions)
 pub mod min_loop;
-pub mod simple_while_minimal; // Phase 188-Impl-1: loop_simple_while minimal lowerer
+pub mod scan_bool_predicate_minimal; // Phase 259 P0: bool_predicate_scan minimal lowerer (is_integer/is_valid boolean predicate scan)
 pub mod scan_with_init_minimal; // Phase 254 P1: scan_with_init minimal lowerer (index_of/find/contains)
 pub mod scan_with_init_reverse; // Phase 257 P0: scan_with_init reverse scan lowerer (last_index_of)
-pub mod split_scan_minimal; // Phase 256 P0: split_scan minimal lowerer (split/tokenization with variable step)
-pub mod scan_bool_predicate_minimal; // Phase 259 P0: bool_predicate_scan minimal lowerer (is_integer/is_valid boolean predicate scan)
+pub mod simple_while_minimal; // Phase 188-Impl-1: loop_simple_while minimal lowerer
 pub mod skip_ws;
+pub mod split_scan_minimal; // Phase 256 P0: split_scan minimal lowerer (split/tokenization with variable step)
 pub mod stage1_using_resolver;
 pub mod stageb_body;
 pub mod stageb_funcscanner;

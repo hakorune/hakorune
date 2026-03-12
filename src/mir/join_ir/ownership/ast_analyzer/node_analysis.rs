@@ -103,7 +103,10 @@ impl AstOwnershipAnalyzer {
                 ..
             } => {
                 let binding = self.resolve_binding(variable).ok_or_else(|| {
-                    format!("AstOwnershipAnalyzer: write to undefined var '{}'", variable)
+                    format!(
+                        "AstOwnershipAnalyzer: write to undefined var '{}'",
+                        variable
+                    )
                 })?;
                 self.record_write(binding, current_scope);
                 self.analyze_node(expression, current_scope, false)?;

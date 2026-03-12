@@ -40,7 +40,9 @@ pub fn rewrite_break_condition_insts(
                     if carrier.join_id == Some(operand_value) {
                         if let Some(stripped) = carrier.name.strip_prefix("is_") {
                             let source_name = stripped.to_string();
-                            if let Some(src_val) = body_local_env.and_then(|env| env.get(&source_name)) {
+                            if let Some(src_val) =
+                                body_local_env.and_then(|env| env.get(&source_name))
+                            {
                                 // Emit fresh comparison: is_* = (source >= 0)
                                 let zero = alloc_value();
                                 out.push(JoinInst::Compute(MirLikeInst::Const {

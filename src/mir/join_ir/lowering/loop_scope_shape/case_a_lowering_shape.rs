@@ -309,7 +309,7 @@ impl CaseALoweringShape {
         let stub_features = crate::mir::loop_route_detection::LoopFeatures {
             carrier_count,
             update_summary: Some(update_summary),
-            ..Default::default()  // Phase 188.1: Use Default for nesting fields
+            ..Default::default() // Phase 188.1: Use Default for nesting fields
         };
 
         Self::detect_with_updates(&stub_features, carrier_count, has_progress_carrier)

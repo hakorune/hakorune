@@ -16,13 +16,13 @@
 //! to fall back to legacy paths.
 
 mod ast_support;
+mod lowerer;
 mod scope_resolution;
 #[cfg(test)]
 mod test_helpers;
-mod types;
-mod lowerer;
 #[cfg(test)]
 mod tests;
+mod types;
 
 pub use lowerer::ExprLowerer;
 pub use types::{ExprContext, ExprLoweringError};

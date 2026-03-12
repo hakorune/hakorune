@@ -116,12 +116,14 @@ impl IfSelectLowerer {
             ring0
                 .log
                 .debug(&format!("[IfSelectLowerer] cond: {:?}", pattern.cond));
-            ring0
-                .log
-                .debug(&format!("[IfSelectLowerer] then_val: {:?}", pattern.then_val));
-            ring0
-                .log
-                .debug(&format!("[IfSelectLowerer] else_val: {:?}", pattern.else_val));
+            ring0.log.debug(&format!(
+                "[IfSelectLowerer] then_val: {:?}",
+                pattern.then_val
+            ));
+            ring0.log.debug(&format!(
+                "[IfSelectLowerer] else_val: {:?}",
+                pattern.else_val
+            ));
             ring0
                 .log
                 .debug(&format!("[IfSelectLowerer] dst: {:?}", pattern.dst));
@@ -178,9 +180,9 @@ impl IfSelectLowerer {
                 .any(|inst| matches!(inst, MirInstruction::Phi { .. }))
             {
                 if self.debug_level >= 2 {
-                    get_global_ring0().log.debug(
-                        "[IfSelectLowerer] ⏭️ PHI already exists in merge block, skipping",
-                    );
+                    get_global_ring0()
+                        .log
+                        .debug("[IfSelectLowerer] ⏭️ PHI already exists in merge block, skipping");
                 }
                 return None;
             }

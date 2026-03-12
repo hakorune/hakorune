@@ -117,7 +117,10 @@ fn test_escape_skip_route_shape_recognition() {
     };
 
     let result = canonicalize_loop_expr(&loop_node);
-    assert!(result.is_ok(), "Escape route-shape canonicalization should succeed");
+    assert!(
+        result.is_ok(),
+        "Escape route-shape canonicalization should succeed"
+    );
 
     let (skeleton, decision) = result.unwrap();
 
@@ -141,7 +144,10 @@ fn test_escape_skip_route_shape_recognition() {
         "First step should be HeaderCond"
     );
     assert!(
-        matches!(skeleton.steps[skeleton.steps.len() - 1], SkeletonStep::Update { .. }),
+        matches!(
+            skeleton.steps[skeleton.steps.len() - 1],
+            SkeletonStep::Update { .. }
+        ),
         "Last step should be Update"
     );
 
@@ -149,28 +155,32 @@ fn test_escape_skip_route_shape_recognition() {
     assert_eq!(skeleton.carriers.len(), 1, "Should have 1 carrier");
     let carrier = &skeleton.carriers[0];
     assert_eq!(carrier.name, "i", "Carrier should be named 'i'");
-    assert_eq!(carrier.role, CarrierRole::Counter, "Carrier should be a Counter");
+    assert_eq!(
+        carrier.role,
+        CarrierRole::Counter,
+        "Carrier should be a Counter"
+    );
 
     // Verify ConditionalStep with escape_delta=2, normal_delta=1
     // Phase 92 P0-3: ConditionalStep now includes cond
     match &carrier.update_kind {
         UpdateKind::ConditionalStep {
-            cond: _,  // Phase 92 P0-3: Condition for Select (don't check exact AST)
+            cond: _, // Phase 92 P0-3: Condition for Select (don't check exact AST)
             then_delta,
             else_delta,
         } => {
             assert_eq!(*then_delta, 2, "Escape delta (then) should be 2");
             assert_eq!(*else_delta, 1, "Normal delta (else) should be 1");
         }
-        other => panic!(
-            "Expected ConditionalStep, got {:?}",
-            other
-        ),
+        other => panic!("Expected ConditionalStep, got {:?}", other),
     }
 
     // Verify exit contract (P5b has break for string boundary)
     assert!(skeleton.exits.has_break, "P5b should have break");
     assert!(!skeleton.exits.has_continue, "P5b should not have continue");
     assert!(!skeleton.exits.has_return, "P5b should not have return");
-    assert!(!skeleton.exits.break_has_value, "Break should not have value");
+    assert!(
+        !skeleton.exits.break_has_value,
+        "Break should not have value"
+    );
 }

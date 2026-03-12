@@ -293,7 +293,8 @@ mod tests {
 
     #[test]
     fn default_schedule_break_before_body_init() {
-        let facts = LoopBreakScheduleFactsBox::gather(None, &carrier_info(vec![]), false, false, false);
+        let facts =
+            LoopBreakScheduleFactsBox::gather(None, &carrier_info(vec![]), false, false, false);
         let decision = decide_loop_break_schedule(&facts);
         let schedule = build_loop_break_schedule_from_decision(&decision);
         assert_eq!(
@@ -333,13 +334,21 @@ mod tests {
                 LoopBreakStepKind::Tail
             ]
         );
-        assert_eq!(schedule.reason(), "body-local variables require init before break");
+        assert_eq!(
+            schedule.reason(),
+            "body-local variables require init before break"
+        );
     }
 
     #[test]
     fn loop_local_carrier_triggers_body_first() {
-        let facts =
-            LoopBreakScheduleFactsBox::gather(None, &carrier_info(vec![carrier(true)]), false, false, false);
+        let facts = LoopBreakScheduleFactsBox::gather(
+            None,
+            &carrier_info(vec![carrier(true)]),
+            false,
+            false,
+            false,
+        );
         let decision = decide_loop_break_schedule(&facts);
         let schedule = build_loop_break_schedule_from_decision(&decision);
         assert_eq!(
@@ -352,14 +361,18 @@ mod tests {
                 LoopBreakStepKind::Tail
             ]
         );
-        assert_eq!(schedule.reason(), "loop-local carrier requires init before break");
+        assert_eq!(
+            schedule.reason(),
+            "loop-local carrier requires init before break"
+        );
     }
 
     /// Phase 93 P0: ConditionOnly recipe triggers body-init before break
     #[test]
     fn condition_only_recipe_triggers_body_first() {
         // Empty body_local_env but has condition_only_recipe
-        let facts = LoopBreakScheduleFactsBox::gather(None, &carrier_info(vec![]), true, false, false);
+        let facts =
+            LoopBreakScheduleFactsBox::gather(None, &carrier_info(vec![]), true, false, false);
         let decision = decide_loop_break_schedule(&facts);
         let schedule = build_loop_break_schedule_from_decision(&decision);
         assert_eq!(
@@ -372,12 +385,16 @@ mod tests {
                 LoopBreakStepKind::Tail
             ]
         );
-        assert_eq!(schedule.reason(), "ConditionOnly requires body-init before break");
+        assert_eq!(
+            schedule.reason(),
+            "ConditionOnly requires body-init before break"
+        );
     }
 
     #[test]
     fn allowed_body_local_deps_trigger_body_first_even_if_env_empty() {
-        let facts = LoopBreakScheduleFactsBox::gather(None, &carrier_info(vec![]), false, false, true);
+        let facts =
+            LoopBreakScheduleFactsBox::gather(None, &carrier_info(vec![]), false, false, true);
         let decision = decide_loop_break_schedule(&facts);
         let schedule = build_loop_break_schedule_from_decision(&decision);
         assert_eq!(
@@ -390,7 +407,10 @@ mod tests {
                 LoopBreakStepKind::Tail
             ]
         );
-        assert_eq!(schedule.reason(), "body-local variables require init before break");
+        assert_eq!(
+            schedule.reason(),
+            "body-local variables require init before break"
+        );
     }
 
     #[test]

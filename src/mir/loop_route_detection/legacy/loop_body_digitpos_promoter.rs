@@ -210,7 +210,7 @@ impl DigitPosPromoter {
         }
     }
 
-        // Phase 79: Helper methods removed - now in DigitPosDetector
+    // Phase 79: Helper methods removed - now in DigitPosDetector
     // - find_index_of_definition
     // - is_index_of_method_call
     // - extract_comparison_var

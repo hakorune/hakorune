@@ -71,7 +71,9 @@ fn collect_variables_recursive(ast: &ASTNode, vars: &mut BTreeSet<String>) {
             // Literals have no variables
         }
         // Phase 251 Fix: Handle complex condition expressions
-        ASTNode::MethodCall { object, arguments, .. } => {
+        ASTNode::MethodCall {
+            object, arguments, ..
+        } => {
             // Recurse into object (e.g., 'arr' in 'arr.length()')
             collect_variables_recursive(object, vars);
             // Recurse into arguments (e.g., 'i' in 'arr.get(i)')
@@ -89,7 +91,9 @@ fn collect_variables_recursive(ast: &ASTNode, vars: &mut BTreeSet<String>) {
             // Recurse into index (e.g., 'i' in 'arr[i]')
             collect_variables_recursive(index, vars);
         }
-        ASTNode::Call { callee, arguments, .. } => {
+        ASTNode::Call {
+            callee, arguments, ..
+        } => {
             // Recurse into callee (e.g., function references)
             collect_variables_recursive(callee, vars);
             // Recurse into arguments

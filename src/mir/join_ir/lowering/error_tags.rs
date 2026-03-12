@@ -96,10 +96,7 @@ pub fn ownership_relay_unsupported(diagnostic: &str) -> String {
 /// // Output: "[joinir/route/if_phi_join] Detection failed: Missing if-phi"
 /// ```
 pub fn route_detection_failed(route_name: &str, reason: &str) -> String {
-    format!(
-        "[joinir/route/{}] Detection failed: {}",
-        route_name, reason
-    )
+    format!("[joinir/route/{}] Detection failed: {}", route_name, reason)
 }
 
 /// Generic JoinIR lowering error with custom tag

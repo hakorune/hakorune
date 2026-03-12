@@ -17,8 +17,8 @@
 
 use crate::mir::join_ir::lowering::loop_to_join::LoopToJoinLowerer;
 use crate::mir::join_ir::JoinInst;
-use crate::runtime::get_global_ring0;
 use crate::mir::loop_form::LoopForm;
+use crate::runtime::get_global_ring0;
 
 /// Lowering for LoopBreak route (conditional break)
 ///

@@ -5,11 +5,11 @@
 
 use crate::ast::ASTNode;
 use crate::mir::detect_continue_shape;
+use crate::mir::detect_escape_skip_shape as ast_detect_escape;
 use crate::mir::detect_parse_number_shape as ast_detect_parse_number;
 use crate::mir::detect_parse_string_shape as ast_detect_parse_string;
-use crate::mir::detect_skip_whitespace_shape as ast_detect;
 use crate::mir::detect_read_digits_loop_true_shape as ast_detect_read_digits;
-use crate::mir::detect_escape_skip_shape as ast_detect_escape;
+use crate::mir::detect_skip_whitespace_shape as ast_detect;
 
 // ============================================================================
 // Skip Whitespace Route Shape (Phase 140-P4-B SSOT Wrapper)
@@ -35,9 +35,7 @@ use crate::mir::detect_escape_skip_shape as ast_detect_escape;
 ///
 /// This function now delegates to `ast_feature_extractor::detect_skip_whitespace_shape`
 /// for SSOT implementation. This wrapper maintains backward compatibility for existing callsites.
-pub fn try_extract_skip_whitespace_shape(
-    body: &[ASTNode],
-) -> Option<(String, i64, Vec<ASTNode>)> {
+pub fn try_extract_skip_whitespace_shape(body: &[ASTNode]) -> Option<(String, i64, Vec<ASTNode>)> {
     ast_detect(body).map(|info| (info.carrier_name, info.delta, info.body_stmts))
 }
 
@@ -344,10 +342,10 @@ pub fn try_extract_escape_skip_shape(
             info.counter_name,
             info.normal_delta,
             info.escape_delta,
-            '"',   // Phase 92 P1-2: Default quote_char for JSON/CSV
-            '\\',  // Phase 92 P1-2: Default escape_char for JSON/CSV
+            '"',  // Phase 92 P1-2: Default quote_char for JSON/CSV
+            '\\', // Phase 92 P1-2: Default escape_char for JSON/CSV
             info.body_stmts,
-            info.escape_cond,  // Phase 92 P0-3: Condition for JoinIR Select
+            info.escape_cond, // Phase 92 P0-3: Condition for JoinIR Select
         )
     })
 }

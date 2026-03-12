@@ -105,9 +105,7 @@ fn collect_referenced_vars_in_node(node: &ASTNode, result: &mut BTreeSet<String>
             // Only collect from RHS (value expression)
             collect_referenced_vars_in_node(value, result);
         }
-        ASTNode::Local {
-            initial_values, ..
-        } => {
+        ASTNode::Local { initial_values, .. } => {
             for init_opt in initial_values {
                 if let Some(init) = init_opt {
                     collect_referenced_vars_in_node(init, result);
@@ -126,7 +124,9 @@ fn collect_referenced_vars_in_node(node: &ASTNode, result: &mut BTreeSet<String>
                 collect_referenced_vars(else_stmts, result);
             }
         }
-        ASTNode::Loop { condition, body, .. } => {
+        ASTNode::Loop {
+            condition, body, ..
+        } => {
             collect_referenced_vars_in_node(condition, result);
             collect_referenced_vars(body, result);
         }
@@ -136,7 +136,10 @@ fn collect_referenced_vars_in_node(node: &ASTNode, result: &mut BTreeSet<String>
             }
         }
         ASTNode::MatchExpr {
-            scrutinee, arms, else_expr, ..
+            scrutinee,
+            arms,
+            else_expr,
+            ..
         } => {
             collect_referenced_vars_in_node(scrutinee, result);
             for (_pattern, arm_expr) in arms {

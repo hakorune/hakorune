@@ -104,9 +104,7 @@ use crate::runtime::get_global_ring0;
 ///
 /// * `JoinModule` - Successfully lowered to JoinIR
 #[allow(dead_code)]
-pub(crate) fn lower_split_scan_minimal(
-    join_value_space: &mut JoinValueSpace,
-) -> JoinModule {
+pub(crate) fn lower_split_scan_minimal(join_value_space: &mut JoinValueSpace) -> JoinModule {
     let mut join_module = JoinModule::new();
 
     // ==================================================================
@@ -162,17 +160,31 @@ pub(crate) fn lower_split_scan_minimal(
     let mut main_func = JoinFunction::new(
         main_id,
         crate::mir::join_ir::lowering::canonical_names::MAIN.to_string(),
-        vec![i_main_param, start_main_param, result_main_param, s_main_param, sep_main_param],
+        vec![
+            i_main_param,
+            start_main_param,
+            result_main_param,
+            s_main_param,
+            sep_main_param,
+        ],
     );
 
     main_func.body.push(JoinInst::Call {
         func: loop_step_id,
-        args: vec![i_main_param, start_main_param, result_main_param, s_main_param, sep_main_param],
+        args: vec![
+            i_main_param,
+            start_main_param,
+            result_main_param,
+            s_main_param,
+            sep_main_param,
+        ],
         k_next: None,
         dst: Some(loop_result),
     });
 
-    main_func.body.push(JoinInst::Ret { value: Some(loop_result) });
+    main_func.body.push(JoinInst::Ret {
+        value: Some(loop_result),
+    });
 
     join_module.add_function(main_func);
 
@@ -182,7 +194,13 @@ pub(crate) fn lower_split_scan_minimal(
     let mut loop_step_func = JoinFunction::new(
         loop_step_id,
         crate::mir::join_ir::lowering::canonical_names::LOOP_STEP.to_string(),
-        vec![i_step_param, start_step_param, result_step_param, s_step_param, sep_step_param],
+        vec![
+            i_step_param,
+            start_step_param,
+            result_step_param,
+            s_step_param,
+            sep_step_param,
+        ],
     );
 
     // Phase 256 P1: Simplified bound computation - just use s.length() for now
@@ -225,7 +243,12 @@ pub(crate) fn lower_split_scan_minimal(
     // k_exit needs: [i, start, result, s] (all 4 values needed for k_exit computation)
     loop_step_func.body.push(JoinInst::Jump {
         cont: k_exit_id.as_cont(),
-        args: vec![i_step_param, start_step_param, result_step_param, s_step_param],
+        args: vec![
+            i_step_param,
+            start_step_param,
+            result_step_param,
+            s_step_param,
+        ],
         cond: Some(exit_cond),
     });
 
@@ -319,31 +342,33 @@ pub(crate) fn lower_split_scan_minimal(
         }));
 
     // 11. Select for start_next: Select(is_match, i_plus_sep, start)
-    loop_step_func
-        .body
-        .push(JoinInst::Select {
-            dst: start_next,
-            cond: is_match,
-            then_val: start_next_if_actual,
-            else_val: start_step_param,
-            type_hint: None,
-        });
+    loop_step_func.body.push(JoinInst::Select {
+        dst: start_next,
+        cond: is_match,
+        then_val: start_next_if_actual,
+        else_val: start_step_param,
+        type_hint: None,
+    });
 
     // 12. Select for i_next: Select(is_match, i_plus_sep, i + 1)
-    loop_step_func
-        .body
-        .push(JoinInst::Select {
-            dst: i_next,
-            cond: is_match,
-            then_val: i_next_if_actual,
-            else_val: i_next_else,
-            type_hint: None,
-        });
+    loop_step_func.body.push(JoinInst::Select {
+        dst: i_next,
+        cond: is_match,
+        then_val: i_next_if_actual,
+        else_val: i_next_else,
+        type_hint: None,
+    });
 
     // 13. Tail recursion: Call(loop_step, [i_next, start_next, result, s, sep]) - Carriers-First!
     loop_step_func.body.push(JoinInst::Call {
         func: loop_step_id,
-        args: vec![i_next, start_next, result_next, s_step_param, sep_step_param],
+        args: vec![
+            i_next,
+            start_next,
+            result_next,
+            s_step_param,
+            sep_step_param,
+        ],
         k_next: None,
         dst: None,
     });
@@ -359,7 +384,12 @@ pub(crate) fn lower_split_scan_minimal(
     let mut k_exit_func = JoinFunction::new(
         k_exit_id,
         crate::mir::join_ir::lowering::canonical_names::K_EXIT.to_string(),
-        vec![i_exit_param, start_exit_param, result_exit_param, s_exit_param],
+        vec![
+            i_exit_param,
+            start_exit_param,
+            result_exit_param,
+            s_exit_param,
+        ],
     );
 
     // Return result (main return value).
@@ -429,10 +459,7 @@ mod tests {
             )
         });
 
-        assert!(
-            has_substring,
-            "loop_step should contain substring BoxCall"
-        );
+        assert!(has_substring, "loop_step should contain substring BoxCall");
     }
 
     #[test]

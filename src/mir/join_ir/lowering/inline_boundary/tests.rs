@@ -40,7 +40,8 @@ fn test_jump_args_layout_rejects_expr_result_carrier_mismatch() {
         loop_header_func_name: None,
         carrier_info: None,
         continuation_func_ids: JoinInlineBoundary::default_continuations(),
-        exit_reconnect_mode: crate::mir::join_ir::lowering::carrier_info::ExitReconnectMode::default(),
+        exit_reconnect_mode:
+            crate::mir::join_ir::lowering::carrier_info::ExitReconnectMode::default(),
     };
 
     let err = boundary

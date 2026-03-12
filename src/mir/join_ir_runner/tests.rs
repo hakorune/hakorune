@@ -1,6 +1,8 @@
 use super::{run_joinir_function, JoinValue};
 use crate::backend::mir_interpreter::MirInterpreter;
-use crate::mir::join_ir::{ConstValue, JoinFunction, JoinFuncId, JoinInst, JoinModule, MirLikeInst};
+use crate::mir::join_ir::{
+    ConstValue, JoinFuncId, JoinFunction, JoinInst, JoinModule, MirLikeInst,
+};
 use crate::mir::ValueId;
 
 #[test]

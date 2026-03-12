@@ -1,20 +1,20 @@
 use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, CarrierInit, CarrierRole};
+use crate::mir::join_ir::lowering::carrier_update_emitter;
 use crate::mir::join_ir::lowering::common::body_local_derived_emitter::{
     BodyLocalDerivedEmitter, BodyLocalDerivedRecipe,
 };
+use crate::mir::join_ir::lowering::common::conditional_step_emitter::emit_conditional_step_update;
 use crate::mir::join_ir::lowering::common::dual_value_rewriter::{
     try_derive_conditiononly_is_from_bodylocal_pos, try_derive_looplocal_from_bodylocal_pos,
 };
-use crate::mir::join_ir::lowering::common::conditional_step_emitter::emit_conditional_step_update;
 use crate::mir::join_ir::lowering::condition_to_joinir::ConditionEnv;
 use crate::mir::join_ir::lowering::debug_output_box::DebugOutputBox;
 use crate::mir::join_ir::lowering::loop_body_local_env::LoopBodyLocalEnv;
 use crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr;
 use crate::mir::join_ir::lowering::update_env::UpdateEnv;
-use crate::mir::join_ir::lowering::{carrier_update_emitter};
 use crate::mir::join_ir::JoinInst;
-use crate::mir::loop_canonicalizer::UpdateKind;
 use crate::mir::loop_canonicalizer::LoopSkeleton;
+use crate::mir::loop_canonicalizer::UpdateKind;
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
@@ -37,7 +37,9 @@ pub(crate) fn emit_carrier_updates(
 ) -> Result<CarrierUpdateResult, String> {
     let mut loop_var_next_override: Option<ValueId> = None;
 
-    if let (Some(recipe), Some(body_env)) = (body_local_derived_recipe, body_local_env.as_deref_mut()) {
+    if let (Some(recipe), Some(body_env)) =
+        (body_local_derived_recipe, body_local_env.as_deref_mut())
+    {
         let emission = BodyLocalDerivedEmitter::emit(
             recipe,
             alloc_local_fn,

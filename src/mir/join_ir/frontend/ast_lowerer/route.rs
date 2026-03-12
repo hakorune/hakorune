@@ -69,8 +69,8 @@ mod tests {
             ("_read_value_from_pair", FunctionRoute::IfReturn),
             ("simple", FunctionRoute::LoopFrontend),
         ] {
-            let route =
-                resolve_function_route(name).expect("current accepted Program JSON key must stay live");
+            let route = resolve_function_route(name)
+                .expect("current accepted Program JSON key must stay live");
             assert_eq!(
                 route, expected,
                 "current accepted Program JSON key must resolve to the frozen route bucket: {name}"
@@ -131,7 +131,8 @@ mod tests {
     #[test]
     fn nested_if_dev_keys_fail_fast_without_env() {
         for name in ["nested_if_merge"] {
-            let err = resolve_function_route(name).expect_err("dev-gated key must fail without env");
+            let err =
+                resolve_function_route(name).expect_err("dev-gated key must fail without env");
             assert!(
                 err.contains("HAKO_JOINIR_NESTED_IF=1"),
                 "nested-if dev key should fail via env guard path: {name} => {err}"
@@ -142,7 +143,8 @@ mod tests {
     #[test]
     fn read_quoted_dev_keys_fail_fast_without_env() {
         for name in ["read_quoted"] {
-            let err = resolve_function_route(name).expect_err("dev-gated key must fail without env");
+            let err =
+                resolve_function_route(name).expect_err("dev-gated key must fail without env");
             assert!(
                 err.contains("HAKO_JOINIR_READ_QUOTED=1"),
                 "read_quoted dev key should fail via env guard path: {name} => {err}"

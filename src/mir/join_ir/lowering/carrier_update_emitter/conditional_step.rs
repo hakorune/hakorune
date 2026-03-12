@@ -48,7 +48,8 @@ pub fn emit_conditional_step_update(
 ) -> Result<ValueId, String> {
     // Step 1: Lower the condition expression
     // Phase 92 P2-2: No body-local support in legacy emitter (use common/conditional_step_emitter instead)
-    let (cond_id, cond_insts) = lower_condition_to_joinir_no_body_locals(cond_ast, alloc_value, env)?;
+    let (cond_id, cond_insts) =
+        lower_condition_to_joinir_no_body_locals(cond_ast, alloc_value, env)?;
     instructions.extend(cond_insts);
 
     // Step 2: Get carrier parameter ValueId from env
@@ -91,7 +92,7 @@ pub fn emit_conditional_step_update(
         cond: cond_id,
         then_val: then_result,
         else_val: else_result,
-        type_hint: Some(MirType::Integer),  // Carrier is always Integer
+        type_hint: Some(MirType::Integer), // Carrier is always Integer
     });
 
     Ok(carrier_new)

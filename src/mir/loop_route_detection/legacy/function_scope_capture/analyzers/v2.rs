@@ -35,7 +35,9 @@ pub(crate) fn analyze_captured_vars_v2(
 
     if debug {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[capture/debug] Starting capture analysis v2 (structural matching)"));
+        ring0.log.debug(&format!(
+            "[capture/debug] Starting capture analysis v2 (structural matching)"
+        ));
     }
 
     // Step 1: Find loop position in fn_body by structural matching
@@ -72,14 +74,19 @@ pub(crate) fn analyze_captured_vars_v2(
     for (name, init_expr) in &pre_loop_locals {
         if debug {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[capture/check] Checking variable '{}'", name));
+            ring0
+                .log
+                .debug(&format!("[capture/check] Checking variable '{}'", name));
         }
 
         // 3a: Is init expression a safe constant?
         if !is_safe_const_init(init_expr) {
             if debug {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[capture/reject] '{}': init is not a safe constant", name));
+                ring0.log.debug(&format!(
+                    "[capture/reject] '{}': init is not a safe constant",
+                    name
+                ));
             }
             continue;
         }
@@ -88,7 +95,10 @@ pub(crate) fn analyze_captured_vars_v2(
         if is_reassigned_in_fn(fn_body, name) {
             if debug {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[capture/reject] '{}': reassigned in function", name));
+                ring0.log.debug(&format!(
+                    "[capture/reject] '{}': reassigned in function",
+                    name
+                ));
             }
             continue;
         }
@@ -97,7 +107,9 @@ pub(crate) fn analyze_captured_vars_v2(
         if !is_used_in_loop_parts(loop_condition, loop_body, name) {
             if debug {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[capture/reject] '{}': not used in loop", name));
+                ring0
+                    .log
+                    .debug(&format!("[capture/reject] '{}': not used in loop", name));
             }
             continue;
         }
@@ -106,7 +118,10 @@ pub(crate) fn analyze_captured_vars_v2(
         if scope.pinned.contains(name) {
             if debug {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[capture/reject] '{}': is a pinned variable", name));
+                ring0.log.debug(&format!(
+                    "[capture/reject] '{}': is a pinned variable",
+                    name
+                ));
             }
             continue;
         }
@@ -114,7 +129,10 @@ pub(crate) fn analyze_captured_vars_v2(
         if scope.carriers.contains(name) {
             if debug {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[capture/reject] '{}': is a carrier variable", name));
+                ring0.log.debug(&format!(
+                    "[capture/reject] '{}': is a carrier variable",
+                    name
+                ));
             }
             continue;
         }
@@ -122,7 +140,10 @@ pub(crate) fn analyze_captured_vars_v2(
         if scope.body_locals.contains(name) {
             if debug {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[capture/reject] '{}': is a body-local variable", name));
+                ring0.log.debug(&format!(
+                    "[capture/reject] '{}': is a body-local variable",
+                    name
+                ));
             }
             continue;
         }
@@ -172,7 +193,10 @@ pub(crate) fn analyze_captured_vars_v2(
         if is_reassigned_in_fn(fn_body, &name) {
             if debug {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[capture/param/reject] '{}': reassigned in function", name));
+                ring0.log.debug(&format!(
+                    "[capture/param/reject] '{}': reassigned in function",
+                    name
+                ));
             }
             continue;
         }

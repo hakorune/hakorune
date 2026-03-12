@@ -49,10 +49,7 @@ pub fn collect_return_from_body(body: &[ASTNode]) -> Result<Option<ReturnInfo>, 
 }
 
 /// Recursive helper to collect return statements from if branches
-fn collect_returns_recursive(
-    body: &[ASTNode],
-    found: &mut Vec<ReturnInfo>,
-) -> Result<(), String> {
+fn collect_returns_recursive(body: &[ASTNode], found: &mut Vec<ReturnInfo>) -> Result<(), String> {
     for stmt in body {
         match stmt {
             ASTNode::Return { value, .. } => {
@@ -64,10 +61,8 @@ fn collect_returns_recursive(
                             ..
                         } => *n,
                         _ => {
-                            return Err(
-                                "Phase 284 P1 scope: return value must be integer literal"
-                                    .to_string(),
-                            );
+                            return Err("Phase 284 P1 scope: return value must be integer literal"
+                                .to_string());
                         }
                     },
                     None => {
@@ -78,7 +73,9 @@ fn collect_returns_recursive(
                     }
                 };
 
-                found.push(ReturnInfo { value: return_value });
+                found.push(ReturnInfo {
+                    value: return_value,
+                });
             }
             ASTNode::If {
                 then_body,

@@ -60,7 +60,11 @@ impl IfSumExitMetaBuilderBox {
     ///
     /// This method immediately returns an error if the carrier name is empty,
     /// preventing downstream issues from undefined carrier bindings.
-    pub fn build_single(&self, carrier_name: String, exit_value: ValueId) -> Result<ExitMeta, String> {
+    pub fn build_single(
+        &self,
+        carrier_name: String,
+        exit_value: ValueId,
+    ) -> Result<ExitMeta, String> {
         // Fail-Fast: Validate carrier name
         if carrier_name.is_empty() {
             return Err("[IfSumExitMetaBuilderBox] Carrier name cannot be empty".to_string());
@@ -89,10 +93,15 @@ impl IfSumExitMetaBuilderBox {
     /// This method immediately returns an error if:
     /// - Any carrier name is empty
     /// - No carrier bindings provided
-    pub fn build_multiple(&self, carrier_bindings: Vec<(String, ValueId)>) -> Result<ExitMeta, String> {
+    pub fn build_multiple(
+        &self,
+        carrier_bindings: Vec<(String, ValueId)>,
+    ) -> Result<ExitMeta, String> {
         // Fail-Fast: Validate at least one carrier
         if carrier_bindings.is_empty() {
-            return Err("[IfSumExitMetaBuilderBox] At least one carrier binding required".to_string());
+            return Err(
+                "[IfSumExitMetaBuilderBox] At least one carrier binding required".to_string(),
+            );
         }
 
         // Fail-Fast: Validate all carrier names

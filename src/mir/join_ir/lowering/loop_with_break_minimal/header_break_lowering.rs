@@ -73,12 +73,14 @@ pub(crate) fn lower_header_condition(
         current_static_box_name: current_static_box_name.map(|s| s.to_string()), // Phase 252
     };
 
-    let value_id = expr_lowerer.lower_condition(condition, &mut context).map_err(|e| {
-        format!(
+    let value_id = expr_lowerer
+        .lower_condition(condition, &mut context)
+        .map_err(|e| {
+            format!(
             "[joinir/loop_break/phase244] ConditionLoweringBox failed on supported condition: {:?}",
             e
         )
-    })?;
+        })?;
 
     let instructions = expr_lowerer.take_last_instructions();
     debug.log(
@@ -109,7 +111,7 @@ pub(crate) fn lower_break_condition(
     loop_var_id: ValueId,
     alloc_value: &mut dyn FnMut() -> ValueId,
     body_local_env: Option<&LoopBodyLocalEnv>, // Phase 92 P2-2
-    current_static_box_name: Option<&str>, // Phase 252
+    current_static_box_name: Option<&str>,     // Phase 252
 ) -> Result<(ValueId, Vec<JoinInst>), String> {
     use crate::mir::join_ir::lowering::condition_lowering_box::ConditionLoweringBox;
 

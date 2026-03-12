@@ -155,7 +155,9 @@ fn test_nested_if_merge_lowering() {
         "JoinFunction should contain NestedIfMerge instruction"
     );
 
-    get_global_ring0().log.debug("[Phase 41-4] test_nested_if_merge_lowering PASSED");
+    get_global_ring0()
+        .log
+        .debug("[Phase 41-4] test_nested_if_merge_lowering PASSED");
 }
 
 /// Phase 41-4.4: 単一レベル if はマッチしないことを確認
@@ -331,11 +333,12 @@ fn test_read_quoted_from_lowering() {
         "Should have k_guard_fail function"
     );
 
-    get_global_ring0().log.debug("[Phase 45] test_read_quoted_lowering PASSED");
-    get_global_ring0().log.debug(&format!(
-        "[Phase 45] Functions: {:?}",
-        func_names
-    ));
+    get_global_ring0()
+        .log
+        .debug("[Phase 45] test_read_quoted_lowering PASSED");
+    get_global_ring0()
+        .log
+        .debug(&format!("[Phase 45] Functions: {:?}", func_names));
 }
 
 /// Phase 45: lowering で生成される JoinInst の種類確認
@@ -416,9 +419,9 @@ fn test_read_quoted_from_lowering_instructions() {
         "loop_step should have 2 Jumps (exit check, break check)"
     );
 
-    get_global_ring0().log.debug(
-        "[Phase 45] test_read_quoted_lowering_instructions PASSED",
-    );
+    get_global_ring0()
+        .log
+        .debug("[Phase 45] test_read_quoted_lowering_instructions PASSED");
 }
 
 /// Phase 46: escape branch が stale step を使わないことを確認

@@ -197,7 +197,10 @@ fn collect_assignments_in_node<'a>(
 ) {
     match node {
         ASTNode::Assignment {
-            target, value, span, ..
+            target,
+            value,
+            span,
+            ..
         } => {
             if let ASTNode::Variable { name, .. } = target.as_ref() {
                 assignments.push((name.clone(), value.as_ref(), span.clone()));
@@ -292,7 +295,10 @@ mod tests {
 
         let result = MutableAccumulatorAnalyzer::analyze(&loop_body);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none(), "Reversed operands should return None");
+        assert!(
+            result.unwrap().is_none(),
+            "Reversed operands should return None"
+        );
     }
 
     #[test]
@@ -342,7 +348,10 @@ mod tests {
 
         let result = MutableAccumulatorAnalyzer::analyze(&loop_body);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none(), "Multiple assignments should return None, not error");
+        assert!(
+            result.unwrap().is_none(),
+            "Multiple assignments should return None, not error"
+        );
     }
 
     #[test]
@@ -376,7 +385,10 @@ mod tests {
 
         let result = MutableAccumulatorAnalyzer::analyze(&loop_body);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none(), "RHS with function call should return None");
+        assert!(
+            result.unwrap().is_none(),
+            "RHS with function call should return None"
+        );
     }
 
     #[test]
@@ -527,7 +539,10 @@ mod tests {
 
         let result = MutableAccumulatorAnalyzer::analyze(&loop_body);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none(), "Decrement (i = i - 1) should return None");
+        assert!(
+            result.unwrap().is_none(),
+            "Decrement (i = i - 1) should return None"
+        );
     }
 
     #[test]
@@ -564,7 +579,10 @@ mod tests {
 
         let result = MutableAccumulatorAnalyzer::analyze(&loop_body);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none(), "Complex RHS (x = x + (i + 1)) should return None");
+        assert!(
+            result.unwrap().is_none(),
+            "Complex RHS (x = x + (i + 1)) should return None"
+        );
     }
 
     #[test]
@@ -590,6 +608,9 @@ mod tests {
 
         let result = MutableAccumulatorAnalyzer::analyze(&loop_body);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none(), "Non-BinaryOp assignment (i = s.length()) should return None");
+        assert!(
+            result.unwrap().is_none(),
+            "Non-BinaryOp assignment (i = s.length()) should return None"
+        );
     }
 }

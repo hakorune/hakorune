@@ -88,16 +88,12 @@ mod tests {
         };
 
         let target_id = ValueId(1); // "out" parameter
-        let rhs_id = ValueId(2);    // "ch" body-local
+        let rhs_id = ValueId(2); // "ch" body-local
 
         let mut instructions = Vec::new();
 
-        let result = emit_string_concat(
-            target_id,
-            rhs_id,
-            &mut alloc_value,
-            &mut instructions,
-        ).unwrap();
+        let result =
+            emit_string_concat(target_id, rhs_id, &mut alloc_value, &mut instructions).unwrap();
 
         // Verify result
         assert_eq!(result, ValueId(10));

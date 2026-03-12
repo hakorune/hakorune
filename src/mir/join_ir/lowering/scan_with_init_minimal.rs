@@ -149,19 +149,21 @@ pub(crate) fn lower_scan_with_init_minimal(
     let mut main_func = JoinFunction::new(
         main_id,
         "main".to_string(),
-        vec![i_main_param, ch_main_param, s_main_param],  // Phase 255 P0: [i, ch, s] alphabetical
+        vec![i_main_param, ch_main_param, s_main_param], // Phase 255 P0: [i, ch, s] alphabetical
     );
 
     // result = loop_step(i, ch, s)  // Phase 255 P0: alphabetical order
     main_func.body.push(JoinInst::Call {
         func: loop_step_id,
-        args: vec![i_main_param, ch_main_param, s_main_param],  // Phase 255 P0: [i, ch, s] alphabetical
+        args: vec![i_main_param, ch_main_param, s_main_param], // Phase 255 P0: [i, ch, s] alphabetical
         k_next: None,
         dst: Some(loop_result),
     });
 
     // Return loop_result (found index or -1)
-    main_func.body.push(JoinInst::Ret { value: Some(loop_result) });
+    main_func.body.push(JoinInst::Ret {
+        value: Some(loop_result),
+    });
 
     join_module.add_function(main_func);
 
@@ -172,7 +174,7 @@ pub(crate) fn lower_scan_with_init_minimal(
     let mut loop_step_func = JoinFunction::new(
         loop_step_id,
         cn::LOOP_STEP.to_string(),
-        vec![i_step_param, ch_step_param, s_step_param],  // Phase 255 P0: [i, ch, s] alphabetical
+        vec![i_step_param, ch_step_param, s_step_param], // Phase 255 P0: [i, ch, s] alphabetical
     );
 
     // 1. len = s.length()
@@ -326,8 +328,8 @@ pub(crate) fn lower_scan_with_init_minimal(
     // Phase 255 P0: Loop variable first, then alphabetical [ch, s]
     loop_step_func.body.push(JoinInst::Call {
         func: loop_step_id,
-        args: vec![i_plus_1, ch_step_param, s_step_param],  // Phase 255 P0: [i_plus_1, ch, s] alphabetical
-        k_next: None, // CRITICAL: None for tail call
+        args: vec![i_plus_1, ch_step_param, s_step_param], // Phase 255 P0: [i_plus_1, ch, s] alphabetical
+        k_next: None,                                      // CRITICAL: None for tail call
         dst: None,
     });
 
@@ -356,9 +358,9 @@ pub(crate) fn lower_scan_with_init_minimal(
         ring0
             .log
             .debug("[joinir/scan_with_init] Functions: main, loop_step, k_exit");
-        ring0
-            .log
-            .debug("[joinir/scan_with_init] BoxCall: substring (init-time, not condition whitelist)");
+        ring0.log.debug(
+            "[joinir/scan_with_init] BoxCall: substring (init-time, not condition whitelist)",
+        );
     }
 
     join_module
@@ -409,10 +411,7 @@ mod tests {
             )
         });
 
-        assert!(
-            has_substring,
-            "loop_step should contain substring BoxCall"
-        );
+        assert!(has_substring, "loop_step should contain substring BoxCall");
     }
 
     #[test]
@@ -440,9 +439,6 @@ mod tests {
             })
             .count();
 
-        assert_eq!(
-            exit_jump_count, 2,
-            "loop_step should have 2 exit jumps"
-        );
+        assert_eq!(exit_jump_count, 2, "loop_step should have 2 exit jumps");
     }
 }

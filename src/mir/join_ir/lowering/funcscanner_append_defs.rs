@@ -95,9 +95,9 @@ fn build_funcscanner_append_defs_joinir(module: &crate::mir::MirModule) -> Optio
         ring0
             .log
             .debug("[joinir/funcscanner_append_defs/build] Phase 27.14 implementation");
-        ring0
-            .log
-            .debug("[joinir/funcscanner_append_defs/build] Generating JoinIR for _append_defs loop");
+        ring0.log.debug(
+            "[joinir/funcscanner_append_defs/build] Generating JoinIR for _append_defs loop",
+        );
         ring0.log.debug(
             "[joinir/funcscanner_append_defs/build] Using ValueId range: 9000-10999 (via value_id_ranges)",
         );

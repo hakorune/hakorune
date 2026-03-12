@@ -55,8 +55,8 @@ fn format_expected_arities(expected: &[usize]) -> String {
 }
 
 use super::condition_env::ConditionEnv;
-use super::loop_body_local_env::LoopBodyLocalEnv;
 use super::debug_output_box::DebugOutputBox;
+use super::loop_body_local_env::LoopBodyLocalEnv;
 
 /// Box: resolves method call arguments with cascading lookup (body-local → condition).
 struct CascadingArgResolver<'a> {
@@ -84,12 +84,14 @@ impl<'a> CascadingArgResolver<'a> {
             // Variables - check body_local_env first, then cond_env
             ASTNode::Variable { name, .. } => {
                 if let Some(vid) = self.body_local_env.get(name) {
-                    self.debug
-                        .log_if_enabled(|| format!("Arg '{}' found in LoopBodyLocalEnv → {:?}", name, vid));
+                    self.debug.log_if_enabled(|| {
+                        format!("Arg '{}' found in LoopBodyLocalEnv → {:?}", name, vid)
+                    });
                     Ok(vid)
                 } else if let Some(vid) = self.cond_env.get(name) {
-                    self.debug
-                        .log_if_enabled(|| format!("Arg '{}' found in ConditionEnv → {:?}", name, vid));
+                    self.debug.log_if_enabled(|| {
+                        format!("Arg '{}' found in ConditionEnv → {:?}", name, vid)
+                    });
                     Ok(vid)
                 } else {
                     Err(format!(
@@ -326,7 +328,6 @@ impl MethodCallLowerer {
 
         Ok(dst)
     }
-
 }
 
 #[cfg(test)]

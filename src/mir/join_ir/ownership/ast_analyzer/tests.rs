@@ -104,12 +104,7 @@ fn condition_reads_are_marked() {
         span: Span::unknown(),
     }];
 
-    let plan = analyze_loop(
-        &condition,
-        &body,
-        &["i".to_string(), "n".to_string()],
-    )
-    .unwrap();
+    let plan = analyze_loop(&condition, &body, &["i".to_string(), "n".to_string()]).unwrap();
 
     let names: Vec<_> = plan
         .condition_captures

@@ -46,17 +46,17 @@
 //!
 //! Design document: `docs/private/roadmap2/phases/phase-188-joinir-loop-pattern-expansion/design.md`
 
+pub mod nested_minimal;
 pub mod simple_while;
 pub mod with_break;
 pub mod with_continue;
-pub mod with_if_phi;
-pub mod nested_minimal;  // Phase 188.1
+pub mod with_if_phi; // Phase 188.1
 
+pub use nested_minimal::lower_nested_loop_minimal_to_joinir;
 pub use simple_while::lower_simple_while_to_joinir;
 pub use with_break::lower_loop_with_break_to_joinir;
 pub use with_continue::lower_loop_with_continue_to_joinir;
-pub use with_if_phi::lower_loop_with_conditional_phi_to_joinir;
-pub use nested_minimal::lower_nested_loop_minimal_to_joinir;  // Phase 188.1
+pub use with_if_phi::lower_loop_with_conditional_phi_to_joinir; // Phase 188.1
 
 // ============================================================================
 // Helper Functions (Shared Utilities)

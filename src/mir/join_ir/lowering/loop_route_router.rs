@@ -170,8 +170,7 @@ pub fn try_lower_loop_route_to_joinir(
             }
         }
         LoopRouteKind::LoopSimpleWhile => {
-            if let Some(inst) =
-                super::loop_routes::lower_simple_while_to_joinir(loop_form, lowerer)
+            if let Some(inst) = super::loop_routes::lower_simple_while_to_joinir(loop_form, lowerer)
             {
                 if crate::config::env::joinir_dev::debug_enabled() {
                     get_global_ring0()

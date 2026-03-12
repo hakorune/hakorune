@@ -34,10 +34,7 @@ use super::{AstToJoinIrLowerer, JoinModule};
 ///
 /// # Returns
 /// 検出された LoopRoute
-pub fn detect_loop_route(
-    func_name: &str,
-    loop_body: Option<&[serde_json::Value]>,
-) -> LoopRoute {
+pub fn detect_loop_route(func_name: &str, loop_body: Option<&[serde_json::Value]>) -> LoopRoute {
     // Phase P3: 関数名ベースの判定
     // 将来的には Box 名やアノテーションも考慮可能
     match func_name {

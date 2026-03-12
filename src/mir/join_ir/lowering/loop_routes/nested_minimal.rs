@@ -263,10 +263,7 @@ pub fn lower_nested_loop_minimal_to_joinir(
 /// - `[joinir/nested_loop/depth_exceeded]` - Nesting depth > 2
 /// - `[joinir/nested_loop/multiple_inner]` - Multiple inner loops detected
 #[allow(dead_code)]
-fn validate_nested_structure(
-    _outer_loop: &LoopForm,
-    _inner_loop: &LoopForm,
-) -> Result<(), String> {
+fn validate_nested_structure(_outer_loop: &LoopForm, _inner_loop: &LoopForm) -> Result<(), String> {
     // TODO: Implement validation (Phase 188.1 Task 4)
     //
     // Check 1: Outer loop must match LoopSimpleWhile route shape

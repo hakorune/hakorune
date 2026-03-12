@@ -1,5 +1,5 @@
-use crate::mir::join_ir::{BinOpKind, ConstValue, JoinFuncId, JoinInst, MirLikeInst};
 use crate::mir::join_ir::lowering::debug_output_box::DebugOutputBox;
+use crate::mir::join_ir::{BinOpKind, ConstValue, JoinFuncId, JoinInst, MirLikeInst};
 use crate::mir::ValueId;
 
 pub(crate) fn emit_tail_call(

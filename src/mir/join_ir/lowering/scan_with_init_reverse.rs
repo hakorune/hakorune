@@ -82,9 +82,7 @@ use crate::runtime::get_global_ring0;
 ///
 /// * `JoinModule` - Successfully lowered to JoinIR
 #[allow(dead_code)]
-pub(crate) fn lower_scan_with_init_reverse(
-    join_value_space: &mut JoinValueSpace,
-) -> JoinModule {
+pub(crate) fn lower_scan_with_init_reverse(join_value_space: &mut JoinValueSpace) -> JoinModule {
     let mut join_module = JoinModule::new();
 
     // ==================================================================
@@ -126,19 +124,21 @@ pub(crate) fn lower_scan_with_init_reverse(
     let mut main_func = JoinFunction::new(
         main_id,
         "main".to_string(),
-        vec![i_main_param, ch_main_param, s_main_param],  // Phase 255 P0: [i, ch, s] alphabetical
+        vec![i_main_param, ch_main_param, s_main_param], // Phase 255 P0: [i, ch, s] alphabetical
     );
 
     // result = loop_step(i, ch, s)  // Phase 255 P0: alphabetical order
     main_func.body.push(JoinInst::Call {
         func: loop_step_id,
-        args: vec![i_main_param, ch_main_param, s_main_param],  // Phase 255 P0: [i, ch, s] alphabetical
+        args: vec![i_main_param, ch_main_param, s_main_param], // Phase 255 P0: [i, ch, s] alphabetical
         k_next: None,
         dst: Some(loop_result),
     });
 
     // Return loop_result (found index or -1)
-    main_func.body.push(JoinInst::Ret { value: Some(loop_result) });
+    main_func.body.push(JoinInst::Ret {
+        value: Some(loop_result),
+    });
 
     join_module.add_function(main_func);
 
@@ -148,7 +148,7 @@ pub(crate) fn lower_scan_with_init_reverse(
     let mut loop_step_func = JoinFunction::new(
         loop_step_id,
         cn::LOOP_STEP.to_string(),
-        vec![i_step_param, ch_step_param, s_step_param],  // Phase 255 P0: [i, ch, s] alphabetical
+        vec![i_step_param, ch_step_param, s_step_param], // Phase 255 P0: [i, ch, s] alphabetical
     );
 
     // 1. const 0
@@ -241,8 +241,8 @@ pub(crate) fn lower_scan_with_init_reverse(
     // 10. Call(loop_step, [i_minus_1, ch, s]) - tail recursion
     loop_step_func.body.push(JoinInst::Call {
         func: loop_step_id,
-        args: vec![i_minus_1, ch_step_param, s_step_param],  // Phase 255 P0: [i_minus_1, ch, s] alphabetical
-        k_next: None, // CRITICAL: None for tail call
+        args: vec![i_minus_1, ch_step_param, s_step_param], // Phase 255 P0: [i_minus_1, ch, s] alphabetical
+        k_next: None,                                       // CRITICAL: None for tail call
         dst: None,
     });
 
@@ -319,13 +319,13 @@ mod tests {
         let has_decrement = loop_step.body.iter().any(|inst| {
             matches!(
                 inst,
-                JoinInst::Compute(MirLikeInst::BinOp { op: BinOpKind::Sub, .. })
+                JoinInst::Compute(MirLikeInst::BinOp {
+                    op: BinOpKind::Sub,
+                    ..
+                })
             )
         });
 
-        assert!(
-            has_decrement,
-            "loop_step should contain i - 1 decrement"
-        );
+        assert!(has_decrement, "loop_step should contain i - 1 decrement");
     }
 }

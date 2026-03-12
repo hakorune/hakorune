@@ -164,8 +164,7 @@ pub fn canonicalize_loop_expr(
     }
 
     // Phase 142-P1: Try to extract continue route shape
-    if let Some((carrier_name, delta, body_stmts, rest_stmts)) = try_extract_continue_shape(body)
-    {
+    if let Some((carrier_name, delta, body_stmts, rest_stmts)) = try_extract_continue_shape(body) {
         // Build skeleton for continue route shape
         let mut skeleton = LoopSkeleton::new(span);
 
@@ -234,7 +233,9 @@ pub fn canonicalize_loop_expr(
             ..
         }
     ) {
-        if let Some((carrier_name, delta, body_stmts)) = try_extract_read_digits_loop_true_shape(body) {
+        if let Some((carrier_name, delta, body_stmts)) =
+            try_extract_read_digits_loop_true_shape(body)
+        {
             let mut skeleton = LoopSkeleton::new(span);
 
             skeleton.steps.push(SkeletonStep::HeaderCond {
@@ -242,7 +243,9 @@ pub fn canonicalize_loop_expr(
             });
 
             if !body_stmts.is_empty() {
-                skeleton.steps.push(SkeletonStep::Body { stmts: body_stmts });
+                skeleton
+                    .steps
+                    .push(SkeletonStep::Body { stmts: body_stmts });
             }
 
             skeleton.steps.push(SkeletonStep::Update {
@@ -380,8 +383,15 @@ pub fn canonicalize_loop_expr(
     // Notes: Added for parity/observability, lowering deferred to Phase 92
 
     // Phase 92 P0-3: Now also extracts escape_cond for JoinIR Select generation
-    if let Some((counter_name, normal_delta, escape_delta, _quote_char, _escape_char, body_stmts, escape_cond)) =
-        try_extract_escape_skip_shape(body)
+    if let Some((
+        counter_name,
+        normal_delta,
+        escape_delta,
+        _quote_char,
+        _escape_char,
+        body_stmts,
+        escape_cond,
+    )) = try_extract_escape_skip_shape(body)
     {
         // Build skeleton for escape skip route shape (P5b)
         let mut skeleton = LoopSkeleton::new(span);
@@ -405,9 +415,9 @@ pub fn canonicalize_loop_expr(
         skeleton.steps.push(SkeletonStep::Update {
             carrier_name: counter_name.clone(),
             update_kind: UpdateKind::ConditionalStep {
-                cond: escape_cond.clone(),  // Phase 92 P0-3: Condition for Select
-                then_delta: escape_delta,    // Escape branch: +2 or other
-                else_delta: normal_delta,    // Normal branch: +1
+                cond: escape_cond.clone(), // Phase 92 P0-3: Condition for Select
+                then_delta: escape_delta,  // Escape branch: +2 or other
+                else_delta: normal_delta,  // Normal branch: +1
             },
         });
 
@@ -416,7 +426,7 @@ pub fn canonicalize_loop_expr(
             name: counter_name,
             role: CarrierRole::Counter,
             update_kind: UpdateKind::ConditionalStep {
-                cond: escape_cond,           // Phase 92 P0-3: Condition for Select
+                cond: escape_cond, // Phase 92 P0-3: Condition for Select
                 then_delta: escape_delta,
                 else_delta: normal_delta,
             },

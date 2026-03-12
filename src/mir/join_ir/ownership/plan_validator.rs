@@ -144,10 +144,9 @@ impl OwnershipPlanValidator {
             ring0
                 .log
                 .warn("[ownership/validator] Carrier set mismatch (warn-only):");
-            ring0.log.warn(&format!(
-                "  OwnershipPlan carriers: {:?}",
-                plan_carriers
-            ));
+            ring0
+                .log
+                .warn(&format!("  OwnershipPlan carriers: {:?}", plan_carriers));
             ring0
                 .log
                 .warn(&format!("  Existing carriers: {:?}", existing_carriers));

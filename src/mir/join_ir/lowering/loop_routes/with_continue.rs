@@ -18,8 +18,8 @@
 
 use crate::mir::join_ir::lowering::loop_to_join::LoopToJoinLowerer;
 use crate::mir::join_ir::JoinInst;
-use crate::runtime::get_global_ring0;
 use crate::mir::loop_form::LoopForm;
+use crate::runtime::get_global_ring0;
 
 /// Lowering for LoopContinueOnly route
 ///
@@ -126,9 +126,9 @@ pub fn lower_loop_with_continue_to_joinir(
     // Call(loop_step, [i_next, sum_next], k_next: None)
 
     if crate::config::env::joinir_dev::debug_enabled() {
-        get_global_ring0().log.debug(
-            "[loop_routes] LoopContinueOnly route: continue lowering not yet implemented",
-        );
+        get_global_ring0()
+            .log
+            .debug("[loop_routes] LoopContinueOnly route: continue lowering not yet implemented");
     }
     None
 }

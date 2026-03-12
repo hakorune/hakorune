@@ -24,7 +24,7 @@ pub(super) fn lower_condition_recursive(
     alloc_value: &mut dyn FnMut() -> ValueId,
     env: &ConditionEnv,
     body_local_env: Option<&LoopBodyLocalEnv>, // Phase 92 P2-2
-    current_static_box_name: Option<&str>, // Phase 252
+    current_static_box_name: Option<&str>,     // Phase 252
     instructions: &mut Vec<JoinInst>,
 ) -> Result<ValueId, String> {
     match cond_ast {
@@ -191,7 +191,7 @@ fn lower_comparison(
     alloc_value: &mut dyn FnMut() -> ValueId,
     env: &ConditionEnv,
     body_local_env: Option<&LoopBodyLocalEnv>, // Phase 92 P2-2
-    current_static_box_name: Option<&str>, // Phase 252
+    current_static_box_name: Option<&str>,     // Phase 252
     instructions: &mut Vec<JoinInst>,
 ) -> Result<ValueId, String> {
     // Lower left and right sides
@@ -241,7 +241,7 @@ fn lower_logical_and(
     alloc_value: &mut dyn FnMut() -> ValueId,
     env: &ConditionEnv,
     body_local_env: Option<&LoopBodyLocalEnv>, // Phase 92 P2-2
-    current_static_box_name: Option<&str>, // Phase 252
+    current_static_box_name: Option<&str>,     // Phase 252
     instructions: &mut Vec<JoinInst>,
 ) -> Result<ValueId, String> {
     // Logical AND: evaluate both sides and combine
@@ -281,7 +281,7 @@ fn lower_logical_or(
     alloc_value: &mut dyn FnMut() -> ValueId,
     env: &ConditionEnv,
     body_local_env: Option<&LoopBodyLocalEnv>, // Phase 92 P2-2
-    current_static_box_name: Option<&str>, // Phase 252
+    current_static_box_name: Option<&str>,     // Phase 252
     instructions: &mut Vec<JoinInst>,
 ) -> Result<ValueId, String> {
     // Logical OR: evaluate both sides and combine
@@ -320,7 +320,7 @@ fn lower_not_operator(
     alloc_value: &mut dyn FnMut() -> ValueId,
     env: &ConditionEnv,
     body_local_env: Option<&LoopBodyLocalEnv>, // Phase 92 P2-2
-    current_static_box_name: Option<&str>, // Phase 252
+    current_static_box_name: Option<&str>,     // Phase 252
     instructions: &mut Vec<JoinInst>,
 ) -> Result<ValueId, String> {
     let operand_val = lower_condition_recursive(

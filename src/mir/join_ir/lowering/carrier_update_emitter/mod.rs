@@ -10,9 +10,9 @@
 
 mod conditional_step;
 mod legacy;
-mod with_env;
 #[cfg(test)]
 mod tests;
+mod with_env;
 
 #[allow(unused_imports)]
 pub use conditional_step::emit_conditional_step_update;

@@ -42,7 +42,11 @@ fn test_simple_comparison() {
     assert!(result.is_ok(), "Simple comparison should succeed");
 
     let (_cond_value, instructions) = result.unwrap();
-    assert_eq!(instructions.len(), 1, "Should generate 1 Compare instruction");
+    assert_eq!(
+        instructions.len(),
+        1,
+        "Should generate 1 Compare instruction"
+    );
 }
 
 #[test]
@@ -204,13 +208,8 @@ fn test_body_local_variable_resolution() {
     };
 
     // Phase 92 P2-2: Use lower_condition_to_joinir with body_local_env
-    let result = lower_condition_to_joinir(
-        &ast,
-        &mut alloc_value,
-        &env,
-        Some(&body_local_env),
-        None,
-    );
+    let result =
+        lower_condition_to_joinir(&ast, &mut alloc_value, &env, Some(&body_local_env), None);
     assert!(
         result.is_ok(),
         "Body-local variable resolution should succeed"
@@ -235,7 +234,10 @@ fn test_body_local_variable_resolution() {
         panic!("Expected Compare instruction at position 1");
     }
 
-    assert!(cond_value.0 >= 300, "Result should use newly allocated ValueId");
+    assert!(
+        cond_value.0 >= 300,
+        "Result should use newly allocated ValueId"
+    );
 }
 
 /// Phase 92 P4 Level 2: Test variable resolution priority (ConditionEnv takes precedence)
@@ -272,7 +274,8 @@ fn test_variable_resolution_priority() {
         span: Span::unknown(),
     };
 
-    let result = lower_condition_to_joinir(&ast, &mut alloc_value, &env, Some(&body_local_env), None);
+    let result =
+        lower_condition_to_joinir(&ast, &mut alloc_value, &env, Some(&body_local_env), None);
     assert!(result.is_ok(), "Variable resolution should succeed");
 
     let (_cond_value, instructions) = result.unwrap();
@@ -318,7 +321,8 @@ fn test_undefined_variable_error() {
         span: Span::unknown(),
     };
 
-    let result = lower_condition_to_joinir(&ast, &mut alloc_value, &env, Some(&body_local_env), None);
+    let result =
+        lower_condition_to_joinir(&ast, &mut alloc_value, &env, Some(&body_local_env), None);
     assert!(result.is_err(), "Undefined variable should fail");
 
     let err = result.unwrap_err();
@@ -377,7 +381,11 @@ fn test_this_methodcall_in_condition() {
         Some("StringUtils"), // Phase 252: static box context
     );
 
-    assert!(result.is_ok(), "this.methodcall should succeed: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "this.methodcall should succeed: {:?}",
+        result
+    );
 
     let (_cond_value, instructions) = result.unwrap();
 
@@ -388,10 +396,12 @@ fn test_this_methodcall_in_condition() {
     );
 
     // Verify BoxCall instruction exists
-    let has_box_call = instructions.iter().any(|inst| matches!(
-        inst,
-        JoinInst::Compute(MirLikeInst::BoxCall { method, .. }) if method == "is_whitespace"
-    ));
+    let has_box_call = instructions.iter().any(|inst| {
+        matches!(
+            inst,
+            JoinInst::Compute(MirLikeInst::BoxCall { method, .. }) if method == "is_whitespace"
+        )
+    });
     assert!(has_box_call, "Should generate BoxCall for is_whitespace");
 }
 
@@ -418,7 +428,10 @@ fn test_this_methodcall_requires_context() {
 
     let result = lower_condition_to_joinir(&ast, &mut alloc_value, &env, None, None);
 
-    assert!(result.is_err(), "this.methodcall should fail without context");
+    assert!(
+        result.is_err(),
+        "this.methodcall should fail without context"
+    );
     let err = result.unwrap_err();
     assert!(
         err.contains("current_static_box_name"),
@@ -447,13 +460,7 @@ fn test_this_methodcall_disallowed_method() {
         span: Span::unknown(),
     };
 
-    let result = lower_condition_to_joinir(
-        &ast,
-        &mut alloc_value,
-        &env,
-        None,
-        Some("StringUtils"),
-    );
+    let result = lower_condition_to_joinir(&ast, &mut alloc_value, &env, None, Some("StringUtils"));
 
     assert!(result.is_err(), "Disallowed method should fail");
     let err = result.unwrap_err();

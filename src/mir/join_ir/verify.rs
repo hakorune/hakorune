@@ -218,9 +218,10 @@ pub fn verify_select_minimal(
     debug: bool,
 ) -> Result<(), JoinIrVerifyError> {
     if debug {
-        get_global_ring0()
-            .log
-            .debug(&format!("[verify_select_minimal] checking {}", join_func.name));
+        get_global_ring0().log.debug(&format!(
+            "[verify_select_minimal] checking {}",
+            join_func.name
+        ));
     }
 
     // 1. Select 命令を探す

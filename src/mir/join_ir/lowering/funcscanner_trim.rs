@@ -87,9 +87,9 @@ fn build_funcscanner_trim_joinir(module: &crate::mir::MirModule) -> Option<JoinM
     let k_exit_id = JoinFuncId::new(3);
     let k_exit_param = ValueId(8000);
     let mut k_exit_func = JoinFunction::new(k_exit_id, "k_exit".to_string(), vec![k_exit_param]);
-    k_exit_func
-        .body
-        .push(JoinInst::Ret { value: Some(k_exit_param) });
+    k_exit_func.body.push(JoinInst::Ret {
+        value: Some(k_exit_param),
+    });
     join_module.add_function(k_exit_func);
 
     // trim_main 関数: 前処理 + 先頭/末尾の空白を除去

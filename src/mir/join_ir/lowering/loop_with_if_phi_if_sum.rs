@@ -33,12 +33,12 @@ use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::lowering::condition_env::ConditionEnv;
 use crate::mir::join_ir::lowering::condition_lowerer::lower_value_expression;
-use crate::mir::join_ir::lowering::debug_output_box::DebugOutputBox; // Phase 252 P1
-use crate::mir::join_ir::lowering::exit_meta_builder::IfSumExitMetaBuilderBox;
 #[cfg(debug_assertions)]
 use crate::mir::join_ir::lowering::condition_pattern::{
     analyze_condition_capability, ConditionCapability,
 };
+use crate::mir::join_ir::lowering::debug_output_box::DebugOutputBox; // Phase 252 P1
+use crate::mir::join_ir::lowering::exit_meta_builder::IfSumExitMetaBuilderBox;
 use crate::mir::join_ir::lowering::join_value_space::JoinValueSpace;
 use crate::mir::join_ir::{
     BinOpKind, CompareOp, ConstValue, JoinFuncId, JoinFunction, JoinInst, JoinModule, MirLikeInst,
@@ -100,7 +100,7 @@ pub fn lower_if_sum_pattern(
         extract_loop_condition(loop_condition, &mut alloc_value, cond_env)?;
     trace.log(
         "loop-cond",
-        &format!("{} {:?} ValueId({})", loop_var, loop_op, loop_limit_val.0)
+        &format!("{} {:?} ValueId({})", loop_var, loop_op, loop_limit_val.0),
     );
 
     // Step 3: Extract then-branch update (e.g., sum = sum + 1 → var="sum", addend=<expr>)
@@ -108,14 +108,14 @@ pub fn lower_if_sum_pattern(
     let (update_var, update_addend_ast) = extract_then_update(if_stmt)?;
     trace.log(
         "then-update",
-        &format!("{} += {:?}", update_var, update_addend_ast)
+        &format!("{} += {:?}", update_var, update_addend_ast),
     );
 
     // Step 4: Extract counter update (e.g., i = i + 1 → var="i", step=1)
     let (counter_var, counter_step) = extract_counter_update(body, &loop_var)?;
     trace.log(
         "counter-update",
-        &format!("{} += {}", counter_var, counter_step)
+        &format!("{} += {}", counter_var, counter_step),
     );
 
     // Step 5: Generate JoinIR
@@ -153,7 +153,7 @@ pub fn lower_if_sum_pattern(
     let exit_cond = alloc_value(); // negated loop condition
     let if_cmp = alloc_value(); // if condition comparison
     let sum_then = alloc_value(); // sum + addend (Phase 256.7: addend via lower_value_expression)
-    // Phase 256.7: const_0, sum_else, step_const removed (+0 else branch eliminated)
+                                  // Phase 256.7: const_0, sum_else, step_const removed (+0 else branch eliminated)
     let sum_new = alloc_value(); // Select result for sum
     let i_next = alloc_value(); // i + step
 
@@ -185,7 +185,7 @@ pub fn lower_if_sum_pattern(
         extract_if_condition(if_stmt, &mut alloc_value, cond_env)?;
     trace.log(
         "if-cond",
-        &format!("{} {:?} ValueId({})", if_var, if_op, if_value_val.0)
+        &format!("{} {:?} ValueId({})", if_var, if_op, if_value_val.0),
     );
 
     // === main() function ===
@@ -326,45 +326,46 @@ pub fn lower_if_sum_pattern(
     // --- Phase 256.7: Unconditional Append ---
     // Handle patterns like: result = result + arr.get(i)
     // This comes AFTER the conditional update (if any)
-    let sum_for_tail = if let Some(uncond_addend_ast) = extract_unconditional_update(body, &update_var) {
-        trace.log(
-            "uncond-update",
-            &format!("{} += {:?}", update_var, uncond_addend_ast)
-        );
+    let sum_for_tail =
+        if let Some(uncond_addend_ast) = extract_unconditional_update(body, &update_var) {
+            trace.log(
+                "uncond-update",
+                &format!("{} += {:?}", update_var, uncond_addend_ast),
+            );
 
-        // Allocate ValueId for the unconditional append result
-        let sum_after = alloc_value();
+            // Allocate ValueId for the unconditional append result
+            let sum_after = alloc_value();
 
-        // Lower the unconditional addend expression (e.g., arr.get(i))
-        let mut uncond_insts = Vec::new();
-        let uncond_val = lower_value_expression(
-            &uncond_addend_ast,
-            &mut alloc_value,
-            cond_env,
-            None,
-            None,
-            &mut uncond_insts,
-        )?;
+            // Lower the unconditional addend expression (e.g., arr.get(i))
+            let mut uncond_insts = Vec::new();
+            let uncond_val = lower_value_expression(
+                &uncond_addend_ast,
+                &mut alloc_value,
+                cond_env,
+                None,
+                None,
+                &mut uncond_insts,
+            )?;
 
-        // Emit instructions for lowering the addend
-        for inst in uncond_insts {
-            loop_step_func.body.push(inst);
-        }
+            // Emit instructions for lowering the addend
+            for inst in uncond_insts {
+                loop_step_func.body.push(inst);
+            }
 
-        // sum_after = sum_new + uncond_val
-        loop_step_func
-            .body
-            .push(JoinInst::Compute(MirLikeInst::BinOp {
-                dst: sum_after,
-                op: BinOpKind::Add,
-                lhs: sum_new,
-                rhs: uncond_val,
-            }));
+            // sum_after = sum_new + uncond_val
+            loop_step_func
+                .body
+                .push(JoinInst::Compute(MirLikeInst::BinOp {
+                    dst: sum_after,
+                    op: BinOpKind::Add,
+                    lhs: sum_new,
+                    rhs: uncond_val,
+                }));
 
-        sum_after // Use this in tail call
-    } else {
-        sum_new // No unconditional update, use conditional result
-    };
+            sum_after // Use this in tail call
+        } else {
+            sum_new // No unconditional update, use conditional result
+        };
 
     // --- Counter Update ---
     let step_const2 = alloc_value();
@@ -420,16 +421,13 @@ pub fn lower_if_sum_pattern(
     trace.log("complete", "Generated AST-based JoinIR");
     trace.log(
         "summary-loop",
-        &format!("{} {:?} ValueId({})", loop_var, loop_op, loop_limit_val.0)
+        &format!("{} {:?} ValueId({})", loop_var, loop_op, loop_limit_val.0),
     );
     trace.log(
         "summary-if",
-        &format!("{} {:?} ValueId({})", if_var, if_op, if_value_val.0)
+        &format!("{} {:?} ValueId({})", if_var, if_op, if_value_val.0),
     );
-    trace.log(
-        "summary-result",
-        &format!("expr_result={:?}", sum_final)
-    );
+    trace.log("summary-result", &format!("expr_result={:?}", sum_final));
 
     Ok((join_module, fragment_meta))
 }
@@ -497,7 +495,14 @@ where
                         column: 1,
                     },
                 };
-                lower_value_expression(&var_node, alloc_value, cond_env, None, None, &mut limit_instructions)? // Phase 92 P2-2 + Phase 252
+                lower_value_expression(
+                    &var_node,
+                    alloc_value,
+                    cond_env,
+                    None,
+                    None,
+                    &mut limit_instructions,
+                )? // Phase 92 P2-2 + Phase 252
             }
         };
 
@@ -546,13 +551,27 @@ where
                 _ => {
                     // Complex expression - lower it
                     let mut insts = Vec::new();
-                    let lhs = lower_value_expression(left, alloc_value, cond_env, None, None, &mut insts)?;
+                    let lhs = lower_value_expression(
+                        left,
+                        alloc_value,
+                        cond_env,
+                        None,
+                        None,
+                        &mut insts,
+                    )?;
                     (Some(lhs), insts)
                 }
             };
 
             // Lower right-hand side
-            let rhs_val = lower_value_expression(right, alloc_value, cond_env, None, None, &mut instructions)?; // Phase 92 P2-2 + Phase 252
+            let rhs_val = lower_value_expression(
+                right,
+                alloc_value,
+                cond_env,
+                None,
+                None,
+                &mut instructions,
+            )?; // Phase 92 P2-2 + Phase 252
 
             Ok((var_name, op, lhs_val_opt, rhs_val, instructions))
         }

@@ -78,7 +78,7 @@ impl LoopViewBuilder {
         let stub_features = crate::mir::loop_route_detection::LoopFeatures {
             carrier_count: scope.carriers.len(),
             update_summary: Some(update_summary),
-            ..Default::default()  // Phase 188.1: Use Default for nesting fields
+            ..Default::default() // Phase 188.1: Use Default for nesting fields
         };
 
         let has_progress_carrier = scope.progress_carrier.is_some();
@@ -119,12 +119,10 @@ impl LoopViewBuilder {
 
         if scope.pinned.is_empty() && !scope.carriers.is_empty() {
             if self.debug {
-                get_global_ring0()
-                    .log
-                    .debug(&format!(
-                        "[LoopViewBuilder] Trying LoopSimpleWhile route lowering for {:?}",
-                        name
-                    ));
+                get_global_ring0().log.debug(&format!(
+                    "[LoopViewBuilder] Trying LoopSimpleWhile route lowering for {:?}",
+                    name
+                ));
             }
 
             // Phase 202-A: Create JoinValueSpace for LoopSimpleWhile route

@@ -208,7 +208,6 @@ impl CarrierInfo {
                 self.promoted_body_locals.push(promoted_var.clone());
             }
         }
-
     }
 
     /// Phase 171-C-5: Get Trim route helper

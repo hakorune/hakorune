@@ -52,9 +52,9 @@ impl ContinueBranchNormalizer {
 
                         if crate::config::env::joinir_dev::debug_enabled() {
                             let ring0 = get_global_ring0();
-                            ring0
-                                .log
-                                .debug("[continue_normalizer] Route shape matched: else-continue detected");
+                            ring0.log.debug(
+                                "[continue_normalizer] Route shape matched: else-continue detected",
+                            );
                             ring0.log.debug(&format!(
                                 "[continue_normalizer] Original condition: {:?}",
                                 condition

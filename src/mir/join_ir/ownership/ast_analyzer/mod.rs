@@ -3,8 +3,8 @@
 //! Phase 63: analysis-only helper for real AST input.
 
 mod core;
-mod node_analysis;
 mod loop_helper;
+mod node_analysis;
 #[cfg(test)]
 mod tests;
 

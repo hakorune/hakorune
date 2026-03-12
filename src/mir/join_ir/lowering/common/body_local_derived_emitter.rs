@@ -132,8 +132,13 @@ impl BodyLocalDerivedEmitter {
         let override_guard = if let Some(bounds_ast) = &recipe.bounds_check {
             let mut env_pre = env.clone();
             env_pre.insert(recipe.loop_counter_name.clone(), counter_pre);
-            let (bounds_ok, bounds_insts) =
-                lower_condition_to_joinir(bounds_ast, alloc_value, &env_pre, Some(body_local_env), None)?; // Phase 252: No static box context
+            let (bounds_ok, bounds_insts) = lower_condition_to_joinir(
+                bounds_ast,
+                alloc_value,
+                &env_pre,
+                Some(body_local_env),
+                None,
+            )?; // Phase 252: No static box context
             instructions.extend(bounds_insts);
 
             let guard = alloc_value();
@@ -366,8 +371,14 @@ mod tests {
         };
 
         let mut insts = Vec::new();
-        let out = BodyLocalDerivedEmitter::emit(&recipe, &mut alloc_value, &env, &mut body_env, &mut insts)
-            .expect("emit should succeed");
+        let out = BodyLocalDerivedEmitter::emit(
+            &recipe,
+            &mut alloc_value,
+            &env,
+            &mut body_env,
+            &mut insts,
+        )
+        .expect("emit should succeed");
 
         // Env must now point `ch` to the derived value (not the base 20).
         let ch_now = body_env.get("ch").expect("ch should exist");
@@ -386,7 +397,11 @@ mod tests {
             pre_delta: 0,
             post_delta: 1,
             bounds_check: None,
-            override_expr: method_call("s", "substring", vec![var("i"), binop(BinaryOperator::Add, var("i"), int_lit(1))]),
+            override_expr: method_call(
+                "s",
+                "substring",
+                vec![var("i"), binop(BinaryOperator::Add, var("i"), int_lit(1))],
+            ),
         };
 
         let mut env = ConditionEnv::new();
@@ -404,8 +419,14 @@ mod tests {
         };
 
         let mut insts = Vec::new();
-        let err = BodyLocalDerivedEmitter::emit(&recipe, &mut alloc_value, &env, &mut body_env, &mut insts)
-            .unwrap_err();
+        let err = BodyLocalDerivedEmitter::emit(
+            &recipe,
+            &mut alloc_value,
+            &env,
+            &mut body_env,
+            &mut insts,
+        )
+        .unwrap_err();
         assert!(err.contains("equal_total_deltas"));
     }
 
@@ -438,8 +459,14 @@ mod tests {
         };
 
         let mut insts = Vec::new();
-        let err = BodyLocalDerivedEmitter::emit(&recipe, &mut alloc_value, &env, &mut body_env, &mut insts)
-            .unwrap_err();
+        let err = BodyLocalDerivedEmitter::emit(
+            &recipe,
+            &mut alloc_value,
+            &env,
+            &mut body_env,
+            &mut insts,
+        )
+        .unwrap_err();
         assert!(
             err.contains("override_expr_kind"),
             "expected override_expr_kind contract violation, got: {err}"

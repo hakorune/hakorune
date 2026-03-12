@@ -88,10 +88,9 @@ impl DebugOutputBox {
     /// ```
     pub fn log(&self, category: &str, message: &str) {
         if self.enabled {
-            get_global_ring0().log.debug(&format!(
-                "[{}/{}] {}",
-                self.context_tag, category, message
-            ));
+            get_global_ring0()
+                .log
+                .debug(&format!("[{}/{}] {}", self.context_tag, category, message));
         }
     }
 

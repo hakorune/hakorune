@@ -24,8 +24,8 @@ use crate::mir::loop_form::LoopForm;
 use crate::mir::{BasicBlockId, MirQuery};
 
 use super::case_a::{is_case_a_minimal_target, validate_case_a_structural};
-use crate::runtime::get_global_ring0;
 use super::shape::{LoopScopeShape, LoopVarClass};
+use crate::runtime::get_global_ring0;
 
 impl LoopScopeShape {
     /// Case-A ルーティング込みで LoopScopeShape を構築

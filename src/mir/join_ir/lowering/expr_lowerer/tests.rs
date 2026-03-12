@@ -156,9 +156,7 @@ fn test_is_supported_condition() {
         }),
         span: Span::unknown(),
     };
-    assert!(ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(
-        &ast
-    ));
+    assert!(ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(&ast));
 
     // Supported: MethodCall
     let ast = crate::ast::ASTNode::MethodCall {
@@ -170,9 +168,7 @@ fn test_is_supported_condition() {
         arguments: vec![],
         span: Span::unknown(),
     };
-    assert!(ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(
-        &ast
-    ));
+    assert!(ExprLowerer::<LoopBreakScopeManager>::is_supported_condition(&ast));
 
     // Unsupported: Break node
     let ast = crate::ast::ASTNode::Break {

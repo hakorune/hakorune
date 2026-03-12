@@ -451,7 +451,10 @@ impl<'a> LoopBodyLocalInitLowerer<'a> {
                     // Phase 100 P1-4: Search in CapturedEnv (pinned loop-outer locals)
                     debug.log(
                         "method_call",
-                        &format!("Receiver '{}' found in CapturedEnv (pinned) → {:?}", name, vid),
+                        &format!(
+                            "Receiver '{}' found in CapturedEnv (pinned) → {:?}",
+                            name, vid
+                        ),
                     );
                     vid
                 } else {

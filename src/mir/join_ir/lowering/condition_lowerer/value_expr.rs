@@ -55,7 +55,7 @@ pub fn lower_value_expression(
     alloc_value: &mut dyn FnMut() -> ValueId,
     env: &ConditionEnv,
     body_local_env: Option<&LoopBodyLocalEnv>, // Phase 92 P2-2
-    current_static_box_name: Option<&str>, // Phase 252
+    current_static_box_name: Option<&str>,     // Phase 252
     instructions: &mut Vec<JoinInst>,
 ) -> Result<ValueId, String> {
     match expr {
@@ -145,7 +145,7 @@ fn lower_arithmetic_binop(
     alloc_value: &mut dyn FnMut() -> ValueId,
     env: &ConditionEnv,
     body_local_env: Option<&LoopBodyLocalEnv>, // Phase 92 P2-2
-    current_static_box_name: Option<&str>, // Phase 252
+    current_static_box_name: Option<&str>,     // Phase 252
     instructions: &mut Vec<JoinInst>,
 ) -> Result<ValueId, String> {
     let lhs = lower_value_expression(

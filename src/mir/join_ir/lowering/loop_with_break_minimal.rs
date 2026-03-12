@@ -65,9 +65,11 @@ mod tail_builder;
 mod tests;
 
 use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, JoinFragmentMeta};
-use crate::mir::join_ir::lowering::common::body_local_derived_emitter::BodyLocalDerivedRecipe;
 use crate::mir::join_ir::lowering::common::balanced_depth_scan_emitter::BalancedDepthScanRecipe;
+use crate::mir::join_ir::lowering::common::body_local_derived_emitter::BodyLocalDerivedRecipe;
 use crate::mir::join_ir::lowering::condition_to_joinir::ConditionEnv;
+use crate::mir::join_ir::lowering::debug_output_box::DebugOutputBox;
+use crate::mir::join_ir::lowering::error_tags;
 use crate::mir::join_ir::lowering::join_value_space::JoinValueSpace;
 use crate::mir::join_ir::lowering::loop_body_local_env::LoopBodyLocalEnv;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
@@ -76,20 +78,18 @@ use crate::mir::join_ir::lowering::step_schedule::{
     build_loop_break_schedule_from_decision, decide_loop_break_schedule, LoopBreakScheduleFactsBox,
     LoopBreakStepKind,
 };
-use crate::mir::loop_canonicalizer::LoopSkeleton;
 use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinInst, JoinModule, MirLikeInst, UnaryOp};
+use crate::mir::loop_canonicalizer::LoopSkeleton;
 use crate::mir::loop_route_detection::loop_condition_scope::{
     extract_loop_body_local_names, LoopConditionScopeBox,
 };
 use crate::mir::ValueId;
-use crate::mir::join_ir::lowering::error_tags;
-use crate::mir::join_ir::lowering::debug_output_box::DebugOutputBox;
 use body_local_init::emit_body_local_inits;
 use boundary_builder::build_fragment_meta;
 use carrier_update::{emit_carrier_updates, CarrierUpdateResult};
 use header_break_lowering::{lower_break_condition, lower_header_condition};
-use tail_builder::emit_tail_call;
-use std::collections::BTreeMap; // Phase 222.5-D: HashMap → BTreeMap for determinism
+use std::collections::BTreeMap;
+use tail_builder::emit_tail_call; // Phase 222.5-D: HashMap → BTreeMap for determinism
 
 pub(crate) struct LoopWithBreakLoweringInputs<'a> {
     pub scope: LoopScopeShape,
@@ -482,7 +482,7 @@ pub(crate) fn lower_loop_with_break_minimal(
         i_param,
         &mut alloc_local_fn,
         body_local_env.as_ref().map(|e| &**e), // Phase 92 P2-2: Pass body_local_env
-        current_static_box_name.as_deref(), // Phase 252
+        current_static_box_name.as_deref(),    // Phase 252
     )?;
 
     // ------------------------------------------------------------------
@@ -598,7 +598,10 @@ pub(crate) fn lower_loop_with_break_minimal(
         });
         for (idx, carrier) in carrier_info.carriers.iter().enumerate() {
             let exit_id = carrier_exit_ids.get(idx).copied().unwrap_or(ValueId(0));
-            strict_debug.log("k_exit", &format!("carrier '{}' exit -> {:?}", carrier.name, exit_id));
+            strict_debug.log(
+                "k_exit",
+                &format!("carrier '{}' exit -> {:?}", carrier.name, exit_id),
+            );
         }
     }
 

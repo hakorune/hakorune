@@ -84,7 +84,9 @@ impl<'a> ScopeManager for LoopBreakScopeManager<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, CarrierInit, CarrierRole, CarrierVar};
+    use crate::mir::join_ir::lowering::carrier_info::{
+        CarrierInfo, CarrierInit, CarrierRole, CarrierVar,
+    };
     use crate::mir::loop_route_detection::function_scope_capture::CapturedVar;
 
     #[test]

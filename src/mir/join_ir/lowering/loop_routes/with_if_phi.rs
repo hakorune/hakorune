@@ -91,9 +91,7 @@ pub fn lower_loop_with_conditional_phi_to_joinir(
     if crate::config::env::joinir_dev::debug_enabled() {
         get_global_ring0()
             .log
-            .debug(
-                "[loop_routes] IfPhiJoin route: stub (routing via legacy if-phi lowerer)",
-            );
+            .debug("[loop_routes] IfPhiJoin route: stub (routing via legacy if-phi lowerer)");
     }
     None
 }

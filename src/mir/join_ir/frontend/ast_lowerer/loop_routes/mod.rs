@@ -17,8 +17,8 @@ use super::{AstToJoinIrLowerer, JoinModule};
 
 pub mod break_route;
 pub mod common;
-pub mod continue_route;
 pub mod continue_return_route;
+pub mod continue_route;
 pub mod filter;
 pub mod param_guess;
 pub mod print_tokens;
@@ -63,7 +63,6 @@ pub enum LoopRoute {
     /// - continue: Select で carrier 切り替え
     /// - early return: 条件付き Jump で k_exit へ早期脱出
     ContinueReturn,
-
 }
 
 /// ループ route lowering エラー
@@ -71,10 +70,7 @@ pub enum LoopRoute {
 #[allow(dead_code)]
 pub enum LoweringError {
     /// 未実装の route
-    UnimplementedRoute {
-        route: LoopRoute,
-        reason: String,
-    },
+    UnimplementedRoute { route: LoopRoute, reason: String },
     /// JSON パースエラー
     JsonParseError { message: String },
     /// ループ body が不正

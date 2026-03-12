@@ -2,9 +2,9 @@ use crate::ast::ASTNode;
 use crate::mir::join_ir::JoinInst;
 use crate::mir::ValueId;
 
-use super::condition_ops::lower_condition_recursive;
 use super::super::condition_env::ConditionEnv;
-use super::super::loop_body_local_env::LoopBodyLocalEnv; // Phase 92 P2-2: Body-local support
+use super::super::loop_body_local_env::LoopBodyLocalEnv;
+use super::condition_ops::lower_condition_recursive; // Phase 92 P2-2: Body-local support
 
 /// Lower an AST condition to JoinIR instructions
 ///
@@ -73,7 +73,7 @@ pub fn lower_condition_to_joinir(
     alloc_value: &mut dyn FnMut() -> ValueId,
     env: &ConditionEnv,
     body_local_env: Option<&LoopBodyLocalEnv>, // Phase 92 P2-2
-    current_static_box_name: Option<&str>, // Phase 252
+    current_static_box_name: Option<&str>,     // Phase 252
 ) -> Result<(ValueId, Vec<JoinInst>), String> {
     let mut instructions = Vec::new();
     let result_value = lower_condition_recursive(

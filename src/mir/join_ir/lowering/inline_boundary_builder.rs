@@ -94,7 +94,7 @@ impl JoinInlineBoundaryBuilder {
                 jump_args_layout: JumpArgsLayout::CarriersOnly,
                 loop_var_name: None,
                 loop_header_func_name: None, // Phase 287 P2
-                carrier_info: None, // Phase 228: Initialize as None
+                carrier_info: None,          // Phase 228: Initialize as None
                 continuation_func_ids: JoinInlineBoundary::default_continuations(),
                 exit_reconnect_mode: ExitReconnectMode::default(), // Phase 131 P1.5
             },
@@ -342,7 +342,10 @@ impl JoinInlineBoundaryBuilder {
     /// The MirModule after bridge conversion uses JoinFunction.name as the function key,
     /// not "join_func_{id}". The merge code looks up functions by name, so we must use
     /// actual function names here.
-    pub fn with_continuation_funcs(mut self, func_names: std::collections::BTreeSet<String>) -> Self {
+    pub fn with_continuation_funcs(
+        mut self,
+        func_names: std::collections::BTreeSet<String>,
+    ) -> Self {
         self.boundary.continuation_func_ids = func_names;
         self
     }

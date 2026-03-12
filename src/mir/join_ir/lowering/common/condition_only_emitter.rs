@@ -337,7 +337,11 @@ mod tests {
 
         // Should generate: 3 * (Const + Compare) + 2 * Or = 8 instructions
         // Const(" "), Compare, Const("\t"), Compare, Or, Const("\n"), Compare, Or
-        assert_eq!(instructions.len(), 8, "Should generate 3 comparisons + 2 ORs");
+        assert_eq!(
+            instructions.len(),
+            8,
+            "Should generate 3 comparisons + 2 ORs"
+        );
     }
 
     #[test]
@@ -367,9 +371,14 @@ mod tests {
             &mut instructions,
         );
 
-        assert!(result.is_err(), "Should fail when body-local variable missing");
         assert!(
-            result.unwrap_err().contains("not found in LoopBodyLocalEnv"),
+            result.is_err(),
+            "Should fail when body-local variable missing"
+        );
+        assert!(
+            result
+                .unwrap_err()
+                .contains("not found in LoopBodyLocalEnv"),
             "Error should mention missing variable"
         );
     }

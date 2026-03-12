@@ -44,9 +44,10 @@ pub fn lower_min_loop_to_joinir(module: &crate::mir::MirModule) -> Option<JoinMo
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = get_global_ring0();
         ring0.log.debug("[joinir/lower] Found JoinIrMin.main/0");
-        ring0
-            .log
-            .debug(&format!("[joinir/lower] MIR blocks: {}", target_func.blocks.len()));
+        ring0.log.debug(&format!(
+            "[joinir/lower] MIR blocks: {}",
+            target_func.blocks.len()
+        ));
     }
 
     // Step 2: JoinModule を構築

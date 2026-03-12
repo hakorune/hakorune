@@ -140,7 +140,8 @@ fn find_top_level_local_init(body: &[ASTNode], name: &str) -> Option<(usize, AST
 }
 
 fn contains_assignment_to_name(body: &[ASTNode], name: &str) -> bool {
-    body.iter().any(|stmt| contains_assignment_to_name_in_node(stmt, name))
+    body.iter()
+        .any(|stmt| contains_assignment_to_name_in_node(stmt, name))
 }
 
 fn contains_assignment_to_name_in_node(node: &ASTNode, name: &str) -> bool {
@@ -168,13 +169,17 @@ fn contains_assignment_to_name_in_node(node: &ASTNode, name: &str) -> bool {
                         .any(|n| contains_assignment_to_name_in_node(n, name))
                 })
         }
-        ASTNode::Loop { condition, body, .. } => {
+        ASTNode::Loop {
+            condition, body, ..
+        } => {
             contains_assignment_to_name_in_node(condition, name)
                 || body
                     .iter()
                     .any(|n| contains_assignment_to_name_in_node(n, name))
         }
-        ASTNode::While { condition, body, .. } => {
+        ASTNode::While {
+            condition, body, ..
+        } => {
             contains_assignment_to_name_in_node(condition, name)
                 || body
                     .iter()
@@ -285,8 +290,8 @@ mod tests {
             },
         ];
 
-        let err = ReadOnlyBodyLocalSlotBox::extract_single(&[String::from("ch")], &body)
-            .unwrap_err();
+        let err =
+            ReadOnlyBodyLocalSlotBox::extract_single(&[String::from("ch")], &body).unwrap_err();
         assert!(err.contains("[joinir/freeze]"));
         assert!(err.contains("read-only"));
     }
@@ -307,8 +312,8 @@ mod tests {
             },
         ];
 
-        let err = ReadOnlyBodyLocalSlotBox::extract_single(&[String::from("ch")], &body)
-            .unwrap_err();
+        let err =
+            ReadOnlyBodyLocalSlotBox::extract_single(&[String::from("ch")], &body).unwrap_err();
         assert!(err.contains("[joinir/freeze]"));
         assert!(err.contains("must appear before"));
     }

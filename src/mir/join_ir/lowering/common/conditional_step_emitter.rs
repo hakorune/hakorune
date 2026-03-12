@@ -176,8 +176,8 @@ mod tests {
             "i",
             ValueId(20), // carrier_param
             &cond_ast,
-            2,  // then_delta (escape: i + 2)
-            1,  // else_delta (normal: i + 1)
+            2, // then_delta (escape: i + 2)
+            1, // else_delta (normal: i + 1)
             &mut alloc_value,
             &env,
             None,
@@ -195,7 +195,9 @@ mod tests {
         assert!(instructions.len() >= 6); // At least 6 instructions
 
         // Check Select instruction exists
-        let select_found = instructions.iter().any(|inst| matches!(inst, JoinInst::Select { .. }));
+        let select_found = instructions
+            .iter()
+            .any(|inst| matches!(inst, JoinInst::Select { .. }));
         assert!(select_found, "Select instruction should be emitted");
 
         assert!(result_id.0 >= 100);

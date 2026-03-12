@@ -217,7 +217,7 @@ impl<'env, 'builder, S: ScopeManager> ConditionLoweringBox<S> for ExprLowerer<'e
             condition,
             &mut *context.alloc_value,
             &condition_env,
-            None, // body_local_env
+            None,                                       // body_local_env
             context.current_static_box_name.as_deref(), // Phase 256.7
         )
         .map_err(|e| e.to_string())?;

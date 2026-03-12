@@ -179,7 +179,9 @@ impl LoopBodyCondPromoter {
 
         match LoopBodyCarrierPromoter::try_promote(&promotion_request) {
             PromotionResult::Promoted { trim_info } => {
-                if crate::config::env::is_joinir_debug() || std::env::var("JOINIR_TEST_DEBUG").is_ok() {
+                if crate::config::env::is_joinir_debug()
+                    || std::env::var("JOINIR_TEST_DEBUG").is_ok()
+                {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
                         "[cond_promoter] A-3 Trim pattern promoted: '{}' → carrier '{}'",
@@ -196,10 +198,17 @@ impl LoopBodyCondPromoter {
                 };
             }
             PromotionResult::CannotPromote { reason, .. } => {
-                if crate::config::env::is_joinir_debug() || std::env::var("JOINIR_TEST_DEBUG").is_ok() {
+                if crate::config::env::is_joinir_debug()
+                    || std::env::var("JOINIR_TEST_DEBUG").is_ok()
+                {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[cond_promoter] A-3 Trim promotion failed: {}", reason));
-                    ring0.log.debug(&format!("[cond_promoter] Trying A-4 DigitPos promotion..."));
+                    ring0.log.debug(&format!(
+                        "[cond_promoter] A-3 Trim promotion failed: {}",
+                        reason
+                    ));
+                    ring0
+                        .log
+                        .debug(&format!("[cond_promoter] Trying A-4 DigitPos promotion..."));
                 }
             }
         }
@@ -220,7 +229,9 @@ impl LoopBodyCondPromoter {
                 promoted_var,
                 carrier_name,
             } => {
-                if crate::config::env::is_joinir_debug() || std::env::var("JOINIR_TEST_DEBUG").is_ok() {
+                if crate::config::env::is_joinir_debug()
+                    || std::env::var("JOINIR_TEST_DEBUG").is_ok()
+                {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
                         "[cond_promoter] A-4 DigitPos pattern promoted: '{}' → carrier '{}'",
@@ -235,9 +246,14 @@ impl LoopBodyCondPromoter {
                 };
             }
             DigitPosPromotionResult::CannotPromote { reason, .. } => {
-                if crate::config::env::is_joinir_debug() || std::env::var("JOINIR_TEST_DEBUG").is_ok() {
+                if crate::config::env::is_joinir_debug()
+                    || std::env::var("JOINIR_TEST_DEBUG").is_ok()
+                {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[cond_promoter] A-4 DigitPos promotion failed: {}", reason));
+                    ring0.log.debug(&format!(
+                        "[cond_promoter] A-4 DigitPos promotion failed: {}",
+                        reason
+                    ));
                 }
             }
         }
@@ -252,8 +268,7 @@ impl LoopBodyCondPromoter {
             .collect();
 
         ConditionPromotionResult::CannotPromote {
-            reason: "No promotable route shape detected (tried A-3 Trim, A-4 DigitPos)"
-                .to_string(),
+            reason: "No promotable route shape detected (tried A-3 Trim, A-4 DigitPos)".to_string(),
             vars: body_local_names,
         }
     }

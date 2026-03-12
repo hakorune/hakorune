@@ -227,11 +227,8 @@ pub(crate) fn lower_scan_bool_predicate_minimal(
     join_module.add_function(loop_step_func);
 
     // k_exit(ret_bool) function
-    let mut k_exit_func = JoinFunction::new(
-        k_exit_id,
-        cn::K_EXIT.to_string(),
-        vec![ret_bool_param],
-    );
+    let mut k_exit_func =
+        JoinFunction::new(k_exit_id, cn::K_EXIT.to_string(), vec![ret_bool_param]);
 
     k_exit_func.body.push(JoinInst::Ret {
         value: Some(ret_bool_param),

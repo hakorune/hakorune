@@ -90,8 +90,7 @@ pub fn analyze_condition_capability(cond: &ASTNode) -> ConditionCapability {
             if !is_comparison {
                 return ConditionCapability::Unsupported;
             }
-            if is_if_phi_join_value_expr(left.as_ref())
-                && is_if_phi_join_value_expr(right.as_ref())
+            if is_if_phi_join_value_expr(left.as_ref()) && is_if_phi_join_value_expr(right.as_ref())
             {
                 ConditionCapability::IfPhiJoinComparable
             } else {
