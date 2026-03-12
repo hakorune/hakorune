@@ -1,7 +1,7 @@
-use super::*;
 use super::temp_dispatch::{
     with_temp_receiver_dispatch, TMP_OUT_BUFFER_METHOD_BRIDGE, TMP_RECV_BUFFER_METHOD_BRIDGE,
 };
+use super::*;
 use crate::boxes::math_box::FloatBox;
 
 pub(super) fn try_handle_buffer_box(
@@ -176,24 +176,14 @@ mod tests {
         interp.regs.insert(arg_id, VMValue::Integer(0x3456));
         interp.regs.insert(off_id, VMValue::Integer(0));
 
-        let handled = try_handle_buffer_box(
-            &mut interp,
-            Some(dst_id),
-            recv_id,
-            "writeU16",
-            &[arg_id],
-        )
-        .expect("writeU16 should not error");
+        let handled =
+            try_handle_buffer_box(&mut interp, Some(dst_id), recv_id, "writeU16", &[arg_id])
+                .expect("writeU16 should not error");
         assert!(handled);
 
-        let handled = try_handle_buffer_box(
-            &mut interp,
-            Some(dst_id),
-            recv_id,
-            "readU16",
-            &[off_id],
-        )
-        .expect("readU16 should not error");
+        let handled =
+            try_handle_buffer_box(&mut interp, Some(dst_id), recv_id, "readU16", &[off_id])
+                .expect("readU16 should not error");
         assert!(handled);
         assert_eq!(
             interp.reg_load(dst_id).expect("dst must exist"),

@@ -11,10 +11,7 @@ pub(crate) fn prepare_stepbudget_dumps(
 ) -> (Option<String>, Option<String>) {
     let fn_name_sanitized = sanitize_for_path(&func.signature.name);
     let pid = std::process::id();
-    let path = format!(
-        "/tmp/mir_dump_stepbudget_{}_{}.txt",
-        fn_name_sanitized, pid
-    );
+    let path = format!("/tmp/mir_dump_stepbudget_{}_{}.txt", fn_name_sanitized, pid);
     let dump_text = MirPrinter::new().print_function(func);
     let mir_dump_path = if let Ok(mut f) = std::fs::File::create(&path) {
         let _ = std::io::Write::write_all(&mut f, dump_text.as_bytes());

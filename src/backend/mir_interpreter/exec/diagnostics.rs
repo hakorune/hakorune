@@ -38,7 +38,8 @@ impl MirInterpreter {
                 if let Some(reason) =
                     crate::mir::contracts::backend_core_ops::legacy_callsite_reject_code(sp.inst)
                 {
-                    let inst_tag = crate::mir::contracts::backend_core_ops::instruction_tag(sp.inst);
+                    let inst_tag =
+                        crate::mir::contracts::backend_core_ops::instruction_tag(sp.inst);
                     if crate::config::env::joinir_dev::debug_enabled() {
                         let ring0 = crate::runtime::get_global_ring0();
                         ring0.log.debug(&format!(
@@ -425,8 +426,7 @@ impl MirInterpreter {
 mod tests {
     use super::*;
     use crate::mir::{
-        BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirInstruction, MirType,
-        ValueId,
+        BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirInstruction, MirType, ValueId,
     };
     use std::sync::{Mutex, OnceLock};
 
@@ -471,10 +471,7 @@ mod tests {
         };
         let entry = BasicBlockId::new(0);
         let mut func = MirFunction::new(signature, entry);
-        let block = func
-            .blocks
-            .get_mut(&entry)
-            .expect("entry block must exist");
+        let block = func.blocks.get_mut(&entry).expect("entry block must exist");
         let thrown = ValueId::new(1);
         block.add_instruction(MirInstruction::Const {
             dst: thrown,
@@ -496,10 +493,7 @@ mod tests {
         };
         let entry = BasicBlockId::new(0);
         let mut func = MirFunction::new(signature, entry);
-        let block = func
-            .blocks
-            .get_mut(&entry)
-            .expect("entry block must exist");
+        let block = func.blocks.get_mut(&entry).expect("entry block must exist");
         block.add_instruction(MirInstruction::Call {
             dst: Some(ValueId::new(2)),
             func: ValueId::new(1),
@@ -522,10 +516,7 @@ mod tests {
         };
         let entry = BasicBlockId::new(0);
         let mut func = MirFunction::new(signature, entry);
-        let block = func
-            .blocks
-            .get_mut(&entry)
-            .expect("entry block must exist");
+        let block = func.blocks.get_mut(&entry).expect("entry block must exist");
         block.add_instruction(MirInstruction::Call {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
@@ -618,7 +609,11 @@ mod tests {
             "missing callsite reason: {}",
             msg
         );
-        assert!(msg.contains("inst=Call"), "missing instruction tag: {}", msg);
+        assert!(
+            msg.contains("inst=Call"),
+            "missing instruction tag: {}",
+            msg
+        );
     }
 
     #[test]
@@ -655,7 +650,10 @@ mod tests {
             "missing closure callsite reason: {}",
             msg
         );
-        assert!(msg.contains("inst=Call"), "missing instruction tag: {}", msg);
+        assert!(
+            msg.contains("inst=Call"),
+            "missing instruction tag: {}",
+            msg
+        );
     }
-
 }

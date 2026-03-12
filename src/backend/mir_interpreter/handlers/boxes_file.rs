@@ -1,10 +1,9 @@
-use super::*;
 use super::temp_dispatch::{
     with_temp_receiver_dispatch, TMP_OUT_FILE_METHOD_BRIDGE, TMP_RECV_FILE_METHOD_BRIDGE,
 };
+use super::*;
 
-const FILEBOX_OPEN_ARG_ERROR: &str =
-    "FileBox.open: requires 1 (path) or 2 (path, mode) arguments";
+const FILEBOX_OPEN_ARG_ERROR: &str = "FileBox.open: requires 1 (path) or 2 (path, mode) arguments";
 const FILEBOX_READ_ARG_ERROR: &str = "FileBox.read: requires 0 arguments";
 const FILEBOX_READ_BYTES_ARG_ERROR: &str = "FileBox.readBytes: requires 0 arguments";
 const FILEBOX_WRITE_BYTES_ARG_ERROR: &str = "FileBox.writeBytes: requires 1 argument";
@@ -24,7 +23,10 @@ pub(super) fn try_handle_file_box(
     args: &[ValueId],
     mode: FileBoxDispatchMode,
 ) -> Result<bool, VMError> {
-    if !matches!(method, "open" | "read" | "readBytes" | "writeBytes" | "close") {
+    if !matches!(
+        method,
+        "open" | "read" | "readBytes" | "writeBytes" | "close"
+    ) {
         return Ok(false);
     }
 
@@ -122,7 +124,14 @@ pub(super) fn try_handle_file_box_boxcall(
     method: &str,
     args: &[ValueId],
 ) -> Result<bool, VMError> {
-    try_handle_file_box(this, dst, box_val, method, args, FileBoxDispatchMode::BoxCall)
+    try_handle_file_box(
+        this,
+        dst,
+        box_val,
+        method,
+        args,
+        FileBoxDispatchMode::BoxCall,
+    )
 }
 
 pub(super) fn try_handle_file_box_methodcall(

@@ -55,8 +55,7 @@ pub(super) fn run_boxcall_prelude(
     if MirInterpreter::box_trace_enabled() {
         let cls = match this.reg_load(box_val).unwrap_or(VMValue::Void) {
             VMValue::BoxRef(b) => {
-                if let Some(inst) = b.as_any().downcast_ref::<crate::instance_v2::InstanceBox>()
-                {
+                if let Some(inst) = b.as_any().downcast_ref::<crate::instance_v2::InstanceBox>() {
                     inst.class_name.clone()
                 } else {
                     b.type_name().to_string()

@@ -91,11 +91,7 @@ fn subset_rejects_boxcall_push_with_two_args() {
     let out = check_vm_hako_subset_json(&mir_json);
     assert_eq!(
         out,
-        Err((
-            "main".to_string(),
-            0,
-            "boxcall(push:args!=1)".to_string()
-        ))
+        Err(("main".to_string(), 0, "boxcall(push:args!=1)".to_string()))
     );
 }
 
@@ -493,11 +489,7 @@ fn subset_rejects_boxcall_length_with_arg() {
     let out = check_vm_hako_subset_json(&mir_json);
     assert_eq!(
         out,
-        Err((
-            "main".to_string(),
-            0,
-            "boxcall(length:args!=0)".to_string()
-        ))
+        Err(("main".to_string(), 0, "boxcall(length:args!=0)".to_string()))
     );
 }
 
@@ -589,9 +581,10 @@ static box Main {
         .and_then(|blocks| {
             blocks.iter().find_map(|b| {
                 b["instructions"].as_array().and_then(|insts| {
-                    insts
-                        .iter()
-                        .find(|inst| inst["op"].as_str() == Some("boxcall") && inst["method"].as_str() == Some("open"))
+                    insts.iter().find(|inst| {
+                        inst["op"].as_str() == Some("boxcall")
+                            && inst["method"].as_str() == Some("open")
+                    })
                 })
             })
         })

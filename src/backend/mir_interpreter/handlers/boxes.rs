@@ -257,28 +257,13 @@ mod tests {
     #[test]
     fn select_unique_tail_method_key_respects_receiver_class() {
         let keys = vec!["Foo.bar/2", "Bar.bar/2", "Foo.baz/2"];
-        let pick = select_unique_tail_method_key(
-            "bar",
-            2,
-            None,
-            keys.iter().copied(),
-        );
+        let pick = select_unique_tail_method_key("bar", 2, None, keys.iter().copied());
         assert!(pick.is_none());
 
-        let pick = select_unique_tail_method_key(
-            "bar",
-            2,
-            Some("Foo"),
-            keys.iter().copied(),
-        );
+        let pick = select_unique_tail_method_key("bar", 2, Some("Foo"), keys.iter().copied());
         assert_eq!(pick.as_deref(), Some("Foo.bar/2"));
 
-        let pick = select_unique_tail_method_key(
-            "bar",
-            2,
-            Some("Baz"),
-            keys.iter().copied(),
-        );
+        let pick = select_unique_tail_method_key("bar", 2, Some("Baz"), keys.iter().copied());
         assert!(pick.is_none());
     }
 }

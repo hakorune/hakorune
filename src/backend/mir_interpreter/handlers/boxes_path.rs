@@ -1,7 +1,7 @@
-use super::*;
 use super::temp_dispatch::{
     with_temp_receiver_dispatch, TMP_OUT_PATH_METHOD_BRIDGE, TMP_RECV_PATH_METHOD_BRIDGE,
 };
+use super::*;
 
 const PATHBOX_JOIN_ARG_ERROR: &str = "PathBox.join: requires 2 arguments";
 const PATHBOX_DIRNAME_ARG_ERROR: &str = "PathBox.dirname: requires 1 argument";
@@ -54,7 +54,10 @@ pub(super) fn try_handle_path_box(
     let VMValue::BoxRef(ref recv_box) = recv else {
         return Ok(false);
     };
-    let Some(path_box) = recv_box.as_any().downcast_ref::<crate::boxes::path_box::PathBox>() else {
+    let Some(path_box) = recv_box
+        .as_any()
+        .downcast_ref::<crate::boxes::path_box::PathBox>()
+    else {
         return Ok(false);
     };
 
@@ -96,7 +99,14 @@ pub(super) fn try_handle_path_box_boxcall(
     method: &str,
     args: &[ValueId],
 ) -> Result<bool, VMError> {
-    try_handle_path_box(this, dst, box_val, method, args, PathBoxDispatchMode::BoxCall)
+    try_handle_path_box(
+        this,
+        dst,
+        box_val,
+        method,
+        args,
+        PathBoxDispatchMode::BoxCall,
+    )
 }
 
 pub(super) fn try_handle_path_box_methodcall(
@@ -171,8 +181,8 @@ fn is_pathbox_value(this: &mut MirInterpreter, value_id: ValueId) -> Result<bool
 mod tests {
     use super::{try_handle_path_box, PathBoxDispatchMode};
     use crate::backend::mir_interpreter::{MirInterpreter, VMValue};
-    use crate::mir::ValueId;
     use crate::boxes::path_box::PathBox;
+    use crate::mir::ValueId;
     use crate::providers::ring1::path::Ring1PathService;
     use crate::runtime::provider_lock;
     use std::sync::Arc;

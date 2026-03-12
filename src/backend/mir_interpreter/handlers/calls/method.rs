@@ -1,6 +1,4 @@
 use super::*;
-use crate::config::env;
-use crate::runtime::get_global_ring0;
 use crate::backend::mir_interpreter::handlers::string_method_helpers::{
     parse_index_of_args, parse_last_index_of_args, parse_substring_args, ArgParsePolicy,
 };
@@ -10,6 +8,8 @@ use crate::backend::mir_interpreter::handlers::temp_dispatch::{
     TMP_RECV_INSTANCE_METHOD_BRIDGE, TMP_RECV_OBJECT_FIELD_METHOD_BRIDGE,
 };
 use crate::boxes::string_ops;
+use crate::config::env;
+use crate::runtime::get_global_ring0;
 
 impl MirInterpreter {
     fn normalize_plugin_method_args<'a>(
@@ -169,10 +169,9 @@ impl MirInterpreter {
             let is_kw = method == "keyword_to_token_type";
             if dev_trace && is_kw {
                 let a0 = args.get(0).and_then(|id| self.reg_load(*id).ok());
-                get_global_ring0().log.debug(&format!(
-                    "[vm-trace] mcall {} argv0={:?}",
-                    method, a0
-                ));
+                get_global_ring0()
+                    .log
+                    .debug(&format!("[vm-trace] mcall {} argv0={:?}", method, a0));
             }
             let method_args = self.normalize_plugin_method_args(&recv_val, args);
             let out = self.execute_method_call(&recv_val, method, method_args)?;
@@ -383,14 +382,15 @@ impl MirInterpreter {
                         )
                     },
                 )?;
-                let exists =
-                    out.is_some_and(|v| !matches!(v, VMValue::Void));
+                let exists = out.is_some_and(|v| !matches!(v, VMValue::Void));
                 Ok(VMValue::Bool(exists))
             }
             ("InstanceBox", 4) => {
                 // size()
                 if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(inst) = bx.as_any().downcast_ref::<crate::instance_v2::InstanceBox>()
+                    if let Some(inst) = bx
+                        .as_any()
+                        .downcast_ref::<crate::instance_v2::InstanceBox>()
                     {
                         let size = inst.get_fields().lock().unwrap().len() as i64;
                         return Ok(VMValue::Integer(size));
@@ -455,8 +455,7 @@ impl MirInterpreter {
             ("MapBox", 200) | ("MapBox", 201) => {
                 // size/len
                 if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>()
-                    {
+                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
                         let ret = map.size();
                         return Ok(VMValue::from_nyash_box(ret));
                     }
@@ -466,8 +465,7 @@ impl MirInterpreter {
             ("MapBox", 202) => {
                 // has
                 if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>()
-                    {
+                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
                         if let Some(a0) = args.get(0) {
                             let key = self.load_as_box(*a0)?;
                             let ret = map.has(key);
@@ -480,8 +478,7 @@ impl MirInterpreter {
             ("MapBox", 203) => {
                 // get
                 if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>()
-                    {
+                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
                         if let Some(a0) = args.get(0) {
                             let key = self.load_as_box(*a0)?;
                             let ret = map.get(key);
@@ -494,8 +491,7 @@ impl MirInterpreter {
             ("MapBox", 204) => {
                 // set
                 if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>()
-                    {
+                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
                         if args.len() >= 2 {
                             let key = self.load_as_box(args[0])?;
                             let value = self.load_as_box(args[1])?;
@@ -509,8 +505,7 @@ impl MirInterpreter {
             ("MapBox", 205) => {
                 // delete/remove
                 if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>()
-                    {
+                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
                         if let Some(a0) = args.get(0) {
                             let key = self.load_as_box(*a0)?;
                             let ret = map.delete(key);
@@ -523,8 +518,7 @@ impl MirInterpreter {
             ("MapBox", 206) => {
                 // keys
                 if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>()
-                    {
+                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
                         let ret = map.keys();
                         return Ok(VMValue::from_nyash_box(ret));
                     }
@@ -534,8 +528,7 @@ impl MirInterpreter {
             ("MapBox", 207) => {
                 // values
                 if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>()
-                    {
+                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
                         let ret = map.values();
                         return Ok(VMValue::from_nyash_box(ret));
                     }
@@ -545,8 +538,7 @@ impl MirInterpreter {
             ("MapBox", 208) => {
                 // clear
                 if let VMValue::BoxRef(bx) = receiver {
-                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>()
-                    {
+                    if let Some(map) = bx.as_any().downcast_ref::<crate::boxes::map_box::MapBox>() {
                         let ret = map.clear();
                         return Ok(VMValue::from_nyash_box(ret));
                     }
@@ -740,33 +732,31 @@ impl MirInterpreter {
 
         // Canonical alias map for slot dispatch.
         // Keep fallback surface minimal by normalizing aliases before lookup.
-        let canonical_method =
-            if matches!(type_name, "String" | "StringBox") && method == "find" {
-                "indexOf"
-            } else {
-                method
-            };
+        let canonical_method = if matches!(type_name, "String" | "StringBox") && method == "find" {
+            "indexOf"
+        } else {
+            method
+        };
 
         // 2. Lookup type in TypeRegistry and get slot
         // Note: Try exact arity first, then try with args.len()-1 (in case receiver is duplicated in args)
-        let slot =
-            crate::runtime::type_registry::resolve_slot_by_name(
-                type_name,
-                canonical_method,
-                args.len(),
-            )
-                .or_else(|| {
-                    // Fallback: try with one less argument (receiver might be in args)
-                    if args.len() > 0 {
-                        crate::runtime::type_registry::resolve_slot_by_name(
-                            type_name,
-                            canonical_method,
-                            args.len() - 1,
-                        )
-                    } else {
-                        None
-                    }
-                });
+        let slot = crate::runtime::type_registry::resolve_slot_by_name(
+            type_name,
+            canonical_method,
+            args.len(),
+        )
+        .or_else(|| {
+            // Fallback: try with one less argument (receiver might be in args)
+            if args.len() > 0 {
+                crate::runtime::type_registry::resolve_slot_by_name(
+                    type_name,
+                    canonical_method,
+                    args.len() - 1,
+                )
+            } else {
+                None
+            }
+        });
 
         if let Some(slot) = slot {
             // 3. Use unified dispatch
@@ -859,9 +849,9 @@ impl MirInterpreter {
                 return Ok(out);
             }
             // BufferBox fallback: typed binary read/write helpers.
-            if let Some(out) = super::boxes_buffer::try_handle_buffer_box_methodcall(
-                self, receiver, method, args,
-            )? {
+            if let Some(out) =
+                super::boxes_buffer::try_handle_buffer_box_methodcall(self, receiver, method, args)?
+            {
                 return Ok(out);
             }
             // PathBox fallback: join/dirname/basename/extname/isAbs/normalize via provider dispatch.

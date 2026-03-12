@@ -1,11 +1,11 @@
-use super::*;
 use super::string_method_helpers::{
     parse_index_of_args, parse_last_index_of_args, parse_substring_args, ArgParsePolicy,
 };
+use super::*;
 use crate::boxes::string_ops;
 use crate::config::env;
-use crate::runtime::get_global_ring0;
 use crate::config::env::string_codepoint_mode;
+use crate::runtime::get_global_ring0;
 
 pub(super) fn try_handle_string_box(
     this: &mut MirInterpreter,

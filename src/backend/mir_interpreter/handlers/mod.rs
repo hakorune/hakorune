@@ -4,7 +4,9 @@ use super::*;
 macro_rules! trace_dispatch {
     ($method:expr, $handler:expr) => {
         if $method == "length" && std::env::var("NYASH_VM_TRACE").ok().as_deref() == Some("1") {
-            crate::runtime::get_global_ring0().log.debug(&format!("[vm-trace] length dispatch handler={}", $handler));
+            crate::runtime::get_global_ring0()
+                .log
+                .debug(&format!("[vm-trace] length dispatch handler={}", $handler));
         }
     };
 }
@@ -19,8 +21,8 @@ mod boxes_file;
 mod boxes_instance;
 mod boxes_map;
 mod boxes_object_fields;
-mod boxes_plugin;
 mod boxes_path;
+mod boxes_plugin;
 mod boxes_string;
 mod boxes_void_guards;
 mod calls;
@@ -89,12 +91,11 @@ impl MirInterpreter {
             MirInstruction::WeakRef { dst, op, value } => match op {
                 WeakRefOp::New => self.handle_weak_new(*dst, *value)?,
                 WeakRefOp::Load => self.handle_weak_load(*dst, *value)?,
-            }
+            },
             MirInstruction::RefNew { dst, box_val } => {
                 self.handle_ref_new(*dst, *box_val)?;
             }
-            MirInstruction::Barrier { .. }
-            | MirInstruction::Safepoint => {}
+            MirInstruction::Barrier { .. } | MirInstruction::Safepoint => {}
             MirInstruction::FutureNew { dst, value } => {
                 let fut = crate::boxes::future::FutureBox::new();
                 let v = self.load_as_box(*value)?;

@@ -30,18 +30,19 @@ where
 
     let dispatch_result = dispatch(vm, recv_tmp, out_tmp);
 
-    let restore = |this: &mut MirInterpreter, prev_recv: Option<VMValue>, prev_out: Option<VMValue>| {
-        if let Some(v) = prev_recv {
-            this.regs.insert(recv_tmp, v);
-        } else {
-            this.regs.remove(&recv_tmp);
-        }
-        if let Some(v) = prev_out {
-            this.regs.insert(out_tmp, v);
-        } else {
-            this.regs.remove(&out_tmp);
-        }
-    };
+    let restore =
+        |this: &mut MirInterpreter, prev_recv: Option<VMValue>, prev_out: Option<VMValue>| {
+            if let Some(v) = prev_recv {
+                this.regs.insert(recv_tmp, v);
+            } else {
+                this.regs.remove(&recv_tmp);
+            }
+            if let Some(v) = prev_out {
+                this.regs.insert(out_tmp, v);
+            } else {
+                this.regs.remove(&out_tmp);
+            }
+        };
 
     let handled = match dispatch_result {
         Ok(handled) => handled,

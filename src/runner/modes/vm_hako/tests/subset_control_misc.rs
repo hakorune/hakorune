@@ -299,8 +299,8 @@ fn vm_hako_runtime_compare_contract_is_in_sync() {
         .join("vm")
         .join("boxes")
         .join("mir_vm_s0.hako");
-    let runtime_src = std::fs::read_to_string(&runtime_path)
-        .expect("read lang/src/vm/boxes/mir_vm_s0.hako");
+    let runtime_src =
+        std::fs::read_to_string(&runtime_path).expect("read lang/src/vm/boxes/mir_vm_s0.hako");
 
     // Rust subset allowlist and Hako runtime implementation must stay aligned.
     for sym in ["==", "!=", "<", ">", ">="] {

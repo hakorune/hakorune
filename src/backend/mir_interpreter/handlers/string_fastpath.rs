@@ -27,11 +27,21 @@ pub(super) fn try_handle_fast_string_len(
 
 pub(super) fn string_len_from_vmvalue(recv: &VMValue, use_cp: bool) -> Option<i64> {
     match recv {
-        VMValue::String(s) => Some(if use_cp { s.chars().count() as i64 } else { s.len() as i64 }),
+        VMValue::String(s) => Some(if use_cp {
+            s.chars().count() as i64
+        } else {
+            s.len() as i64
+        }),
         VMValue::BoxRef(b) => b
             .as_any()
             .downcast_ref::<crate::box_trait::StringBox>()
-            .map(|sb| if use_cp { sb.value.chars().count() as i64 } else { sb.value.len() as i64 }),
+            .map(|sb| {
+                if use_cp {
+                    sb.value.chars().count() as i64
+                } else {
+                    sb.value.len() as i64
+                }
+            }),
         _ => None,
     }
 }

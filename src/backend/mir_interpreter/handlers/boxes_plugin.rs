@@ -1,7 +1,5 @@
+use super::string_method_helpers::{parse_index_of_args, parse_last_index_of_args, ArgParsePolicy};
 use super::*;
-use super::string_method_helpers::{
-    parse_index_of_args, parse_last_index_of_args, ArgParsePolicy,
-};
 use crate::box_trait::NyashBox;
 
 pub(super) fn invoke_plugin_box(

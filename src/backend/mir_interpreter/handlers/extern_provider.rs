@@ -51,12 +51,16 @@ impl MirInterpreter {
             // Split iface.method for filtering
             if let Some((iface, method)) = extern_name.rsplit_once('.') {
                 if Self::should_trace_call_extern(iface, method) {
-                    crate::runtime::get_global_ring0().log.debug(&format!("[call:{}.{}]", iface, method));
+                    crate::runtime::get_global_ring0()
+                        .log
+                        .debug(&format!("[call:{}.{}]", iface, method));
                 }
             } else {
                 // Fallback: no dot in extern name (e.g., 'print')
                 if Self::should_trace_call_extern("", extern_name) {
-                    crate::runtime::get_global_ring0().log.debug(&format!("[call:{}]", extern_name));
+                    crate::runtime::get_global_ring0()
+                        .log
+                        .debug(&format!("[call:{}]", extern_name));
                 }
             }
         }
@@ -332,11 +336,11 @@ impl MirInterpreter {
                         args.len(),
                     )));
                 }
-                let now_ms = match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)
-                {
-                    Ok(d) => d.as_millis() as i64,
-                    Err(_) => 0,
-                };
+                let now_ms =
+                    match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH) {
+                        Ok(d) => d.as_millis() as i64,
+                        Err(_) => 0,
+                    };
                 Some(Ok(VMValue::Integer(now_ms)))
             }
             "env.set" => {
@@ -399,7 +403,9 @@ impl MirInterpreter {
             }
             "hostbridge.extern_invoke" => {
                 if std::env::var("HAKO_CABI_TRACE").ok().as_deref() == Some("1") {
-                    crate::runtime::get_global_ring0().log.debug("[hb:entry:provider] hostbridge.extern_invoke");
+                    crate::runtime::get_global_ring0()
+                        .log
+                        .debug("[hb:entry:provider] hostbridge.extern_invoke");
                 }
                 if args.len() < 2 {
                     return Some(Err(
@@ -439,7 +445,9 @@ impl MirInterpreter {
                 }
                 // Dispatch to known providers
                 if std::env::var("HAKO_CABI_TRACE").ok().as_deref() == Some("1") {
-                    crate::runtime::get_global_ring0().log.debug(&format!("[hb:dispatch:provider] {} {}", name, method));
+                    crate::runtime::get_global_ring0()
+                        .log
+                        .debug(&format!("[hb:dispatch:provider] {} {}", name, method));
                 }
                 let out = match (name.as_str(), method.as_str()) {
                     ("env.codegen", "link_object")
@@ -457,7 +465,9 @@ impl MirInterpreter {
                                         .downcast_ref::<crate::boxes::array::ArrayBox>()
                                         .is_some()
                                     {
-                                        crate::runtime::get_global_ring0().log.debug("[hb:provider:args] link_object third=ArrayBox");
+                                        crate::runtime::get_global_ring0()
+                                            .log
+                                            .debug("[hb:provider:args] link_object third=ArrayBox");
                                     } else {
                                         crate::runtime::get_global_ring0().log.debug(&format!(
                                             "[hb:provider:args] link_object third=BoxRef({})",
@@ -466,11 +476,16 @@ impl MirInterpreter {
                                     }
                                 }
                                 other => {
-                                    crate::runtime::get_global_ring0().log.debug(&format!("[hb:provider:args] link_object third={:?}", other));
+                                    crate::runtime::get_global_ring0().log.debug(&format!(
+                                        "[hb:provider:args] link_object third={:?}",
+                                        other
+                                    ));
                                 }
                             }
                         } else {
-                            crate::runtime::get_global_ring0().log.debug("[hb:provider:args] link_object third=<none>");
+                            crate::runtime::get_global_ring0()
+                                .log
+                                .debug("[hb:provider:args] link_object third=<none>");
                         }
                         // fallthrough to real handler below by duplicating arm
                         // Args in third param (ArrayBox): [obj_path, exe_out?]
@@ -739,7 +754,9 @@ impl MirInterpreter {
                     }
                     _ => {
                         if std::env::var("HAKO_CABI_TRACE").ok().as_deref() == Some("1") {
-                            crate::runtime::get_global_ring0().log.debug(&format!("[hb:unsupported:provider] {}.{}", name, method));
+                            crate::runtime::get_global_ring0()
+                                .log
+                                .debug(&format!("[hb:unsupported:provider] {}.{}", name, method));
                         }
                         Err(self.err_invalid(format!(
                             "hostbridge.extern_invoke unsupported for {}.{} [provider] (check extern_provider_dispatch / env.* handlers)",

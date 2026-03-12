@@ -17,7 +17,7 @@ pub(super) fn try_handle_object_fields(
             VV::Bool(b) => NV::Bool(*b),
             VV::String(s) => NV::String(s.clone()),
             VV::Void => NV::Void,
-            VV::Future(_) => NV::Void, // not expected in fields
+            VV::Future(_) => NV::Void,  // not expected in fields
             VV::BoxRef(_) => NV::Void, // store minimal; complex object fields are not required here
             VV::WeakBox(_) => NV::Void, // Phase 285A0: WeakBox not expected in this context
         }
@@ -98,7 +98,9 @@ pub(super) fn try_handle_object_fields(
                     Ok(VMValue::WeakBox(_)) => "WeakRef".to_string(), // Phase 285A0
                     Err(_) => "<err>".to_string(),
                 };
-                crate::runtime::get_global_ring0().log.debug(&format!("[vm-trace] getField recv_kind={}", rk));
+                crate::runtime::get_global_ring0()
+                    .log
+                    .debug(&format!("[vm-trace] getField recv_kind={}", rk));
             }
             let fname = match this.reg_load(args[0])? {
                 VMValue::String(s) => s,
@@ -111,7 +113,10 @@ pub(super) fn try_handle_object_fields(
                     .downcast_ref::<crate::instance_v2::InstanceBox>()
                 {
                     if std::env::var("NYASH_VM_TRACE").ok().as_deref() == Some("1") {
-                        crate::runtime::get_global_ring0().log.debug(&format!("[vm-trace] getField instance class={}", inst.class_name));
+                        crate::runtime::get_global_ring0().log.debug(&format!(
+                            "[vm-trace] getField instance class={}",
+                            inst.class_name
+                        ));
                     }
                     // Special-case bridge: JsonParser.length -> tokens.length()
                     if inst.class_name == "JsonParser" && fname == "length" {
@@ -134,7 +139,10 @@ pub(super) fn try_handle_object_fields(
                         if std::env::var("NYASH_VM_TRACE").ok().as_deref() == Some("1")
                             && inst.class_name == "JsonToken"
                         {
-                            crate::runtime::get_global_ring0().log.debug(&format!("[vm-trace] JsonToken.getField name={} nv={:?}", fname, nv));
+                            crate::runtime::get_global_ring0().log.debug(&format!(
+                                "[vm-trace] JsonToken.getField name={} nv={:?}",
+                                fname, nv
+                            ));
                         }
                         // Treat complex Box-like values as "missing" for internal storage so that
                         // legacy obj_fields (which stores BoxRef) is used instead.
@@ -329,7 +337,9 @@ pub(super) fn try_handle_object_fields(
                         b.type_name()
                     ));
                 } else {
-                    crate::runtime::get_global_ring0().log.debug(&format!("[vm-trace] getField legacy {} -> {:?}", fname, v));
+                    crate::runtime::get_global_ring0()
+                        .log
+                        .debug(&format!("[vm-trace] getField legacy {} -> {:?}", fname, v));
                 }
             }
             this.write_result(dst, v.clone());
@@ -515,10 +525,10 @@ pub(super) fn try_handle_object_fields(
                         // interpreter object_fields so identity-based get/set remains observable.
                         if inst.fields.is_none() {
                             let key = this.object_key_for(actual_box_val);
-                            this.obj_fields.entry(key).or_default().insert(
-                                fname.clone(),
-                                VMValue::BoxRef(std::sync::Arc::clone(bx)),
-                            );
+                            this.obj_fields
+                                .entry(key)
+                                .or_default()
+                                .insert(fname.clone(), VMValue::BoxRef(std::sync::Arc::clone(bx)));
                         }
                         return Ok(true);
                     }

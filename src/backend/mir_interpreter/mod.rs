@@ -192,7 +192,8 @@ impl MirInterpreter {
             .iter()
             .filter(|(id, v)| {
                 let idx = id.as_u32() as usize;
-                let shadowed_by_slot = idx < self.reg_fast_slots.len() && self.reg_fast_slots[idx].is_some();
+                let shadowed_by_slot =
+                    idx < self.reg_fast_slots.len() && self.reg_fast_slots[idx].is_some();
                 !shadowed_by_slot && Self::is_strong_root_value(v)
             })
             .count();

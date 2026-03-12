@@ -79,8 +79,9 @@ pub fn matches_spec(value: &VMValue, spec: &RuntimeTypeSpec) -> bool {
             // Keep this as a conservative name match to avoid guessing.
             match value {
                 VMValue::BoxRef(bx) => {
-                    if let Some(inst) =
-                        bx.as_any().downcast_ref::<crate::instance_v2::InstanceBox>()
+                    if let Some(inst) = bx
+                        .as_any()
+                        .downcast_ref::<crate::instance_v2::InstanceBox>()
                     {
                         inst.class_name == "ArrayBox"
                     } else {
@@ -93,7 +94,10 @@ pub fn matches_spec(value: &VMValue, spec: &RuntimeTypeSpec) -> bool {
         RuntimeTypeSpec::Box(name) => match value {
             VMValue::BoxRef(bx) => {
                 // User-defined boxes are represented as InstanceBox (type_name is not stable for user boxes).
-                if let Some(inst) = bx.as_any().downcast_ref::<crate::instance_v2::InstanceBox>() {
+                if let Some(inst) = bx
+                    .as_any()
+                    .downcast_ref::<crate::instance_v2::InstanceBox>()
+                {
                     if inst.class_name == *name {
                         return true;
                     }

@@ -20,7 +20,11 @@ impl MirInterpreter {
         if std::env::var("HAKO_CABI_TRACE").ok().as_deref() == Some("1") {
             match callee {
                 Some(Callee::Global(n)) => {
-                    crate::runtime::get_global_ring0().log.debug(&format!("[hb:path] call Callee::Global {} argc={}", n, args.len()));
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[hb:path] call Callee::Global {} argc={}",
+                        n,
+                        args.len()
+                    ));
                 }
                 Some(Callee::Method {
                     box_name, method, ..
@@ -30,19 +34,30 @@ impl MirInterpreter {
                     method,
                     args.len()
                 )),
-                Some(Callee::Constructor { box_type }) => crate::runtime::get_global_ring0().log.debug(&format!(
-                    "[hb:path] call Callee::Constructor {} argc={}",
-                    box_type,
-                    args.len()
-                )),
+                Some(Callee::Constructor { box_type }) => {
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[hb:path] call Callee::Constructor {} argc={}",
+                        box_type,
+                        args.len()
+                    ))
+                }
                 Some(Callee::Closure { .. }) => {
-                    crate::runtime::get_global_ring0().log.debug(&format!("[hb:path] call Callee::Closure argc={}", args.len()));
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[hb:path] call Callee::Closure argc={}",
+                        args.len()
+                    ));
                 }
                 Some(Callee::Value(_)) => {
-                    crate::runtime::get_global_ring0().log.debug(&format!("[hb:path] call Callee::Value argc={}", args.len()));
+                    crate::runtime::get_global_ring0()
+                        .log
+                        .debug(&format!("[hb:path] call Callee::Value argc={}", args.len()));
                 }
                 Some(Callee::Extern(n)) => {
-                    crate::runtime::get_global_ring0().log.debug(&format!("[hb:path] call Callee::Extern {} argc={}", n, args.len()));
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[hb:path] call Callee::Extern {} argc={}",
+                        n,
+                        args.len()
+                    ));
                 }
                 None => crate::runtime::get_global_ring0().log.debug(&format!(
                     "[hb:path] call Legacy func_id={:?} argc={}",

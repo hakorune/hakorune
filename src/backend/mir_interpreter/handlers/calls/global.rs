@@ -47,7 +47,9 @@ impl MirInterpreter {
 
         // 🔍 Debug: Check function lookup (Phase 21.7++ Phase 2.2: StaticMethodId info)
         if std::env::var("NYASH_DEBUG_FUNCTION_LOOKUP").ok().as_deref() == Some("1") {
-            crate::runtime::get_global_ring0().log.debug(&format!("[DEBUG/vm] Looking up function: '{}'", func_name));
+            crate::runtime::get_global_ring0()
+                .log
+                .debug(&format!("[DEBUG/vm] Looking up function: '{}'", func_name));
 
             // Phase 2.2: Show parsed StaticMethodId info
             if let Some(id) = StaticMethodId::parse(func_name) {
@@ -56,14 +58,26 @@ impl MirInterpreter {
                     id.box_name, id.method, id.arity
                 ));
             } else {
-                crate::runtime::get_global_ring0().log.debug("[DEBUG/vm]   Not a static method (builtin?)");
+                crate::runtime::get_global_ring0()
+                    .log
+                    .debug("[DEBUG/vm]   Not a static method (builtin?)");
             }
 
-            crate::runtime::get_global_ring0().log.debug(&format!("[DEBUG/vm]   canonical: '{}'", canonical));
-            crate::runtime::get_global_ring0().log.debug(&format!("[DEBUG/vm]   base: '{}'", base));
-            crate::runtime::get_global_ring0().log.debug(&format!("[DEBUG/vm]   Available functions: {}", self.functions.len()));
+            crate::runtime::get_global_ring0()
+                .log
+                .debug(&format!("[DEBUG/vm]   canonical: '{}'", canonical));
+            crate::runtime::get_global_ring0()
+                .log
+                .debug(&format!("[DEBUG/vm]   base: '{}'", base));
+            crate::runtime::get_global_ring0().log.debug(&format!(
+                "[DEBUG/vm]   Available functions: {}",
+                self.functions.len()
+            ));
             if !self.functions.contains_key(&canonical) {
-                crate::runtime::get_global_ring0().log.debug(&format!("[DEBUG/vm]   ❌ '{}' NOT found in functions", canonical));
+                crate::runtime::get_global_ring0().log.debug(&format!(
+                    "[DEBUG/vm]   ❌ '{}' NOT found in functions",
+                    canonical
+                ));
                 // List functions starting with same prefix
                 let prefix = if let Some(idx) = canonical.find('.') {
                     &canonical[..idx]
@@ -76,13 +90,19 @@ impl MirInterpreter {
                     .filter(|k| k.starts_with(prefix))
                     .collect();
                 if !matching.is_empty() {
-                    crate::runtime::get_global_ring0().log.debug("[DEBUG/vm]   Similar functions:");
+                    crate::runtime::get_global_ring0()
+                        .log
+                        .debug("[DEBUG/vm]   Similar functions:");
                     for k in matching.iter().take(10) {
-                        crate::runtime::get_global_ring0().log.debug(&format!("[DEBUG/vm]     - {}", k));
+                        crate::runtime::get_global_ring0()
+                            .log
+                            .debug(&format!("[DEBUG/vm]     - {}", k));
                     }
                 }
             } else {
-                crate::runtime::get_global_ring0().log.debug(&format!("[DEBUG/vm]   ✅ '{}' found", canonical));
+                crate::runtime::get_global_ring0()
+                    .log
+                    .debug(&format!("[DEBUG/vm]   ✅ '{}' found", canonical));
             }
         }
 

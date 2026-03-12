@@ -14,10 +14,10 @@ pub mod vm {
 }
 // Core backend modules
 pub mod abi_util; // Shared ABI/utility helpers
-pub mod runtime_type_tag; // Runtime type tag (entry classification)
-pub mod runtime_type_spec; // Runtime type spec (semantic SSOT for type matching)
 pub mod gc_helpers;
-pub mod mir_interpreter; // Lightweight MIR interpreter (Rust VM core)
+pub mod mir_interpreter;
+pub mod runtime_type_spec; // Runtime type spec (semantic SSOT for type matching)
+pub mod runtime_type_tag; // Runtime type tag (entry classification) // Lightweight MIR interpreter (Rust VM core)
 
 #[cfg(feature = "wasm-backend")]
 pub mod aot;
