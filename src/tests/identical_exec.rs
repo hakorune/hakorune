@@ -84,15 +84,15 @@ mod tests {
                 dst: v0,
                 value: crate::mir::ConstValue::Integer(1),
             });
-        func.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::extern_call::extern_call(
+        func.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::extern_call::extern_call(
                 None,
                 "env.console".to_string(),
                 "log".to_string(),
                 vec![v0],
                 EffectMask::IO,
-            ));
+            ),
+        );
         func.get_block_mut(bb)
             .unwrap()
             .add_instruction(MirInstruction::Return { value: Some(v0) });

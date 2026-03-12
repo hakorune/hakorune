@@ -64,7 +64,8 @@ fn wasm_demo_min_fixture_compile_to_wasm_contract() {
 fn wasm_demo_unsupported_boundary_fails_fast_contract() {
     let _ = nyash_rust::runtime::ring0::ensure_global_ring0_initialized();
 
-    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm02d_demo_unsupported_boundary_min.hako");
+    let fixture =
+        wasm_common::fixture_path("apps/tests/phase29cc_wsm02d_demo_unsupported_boundary_min.hako");
 
     let source = fs::read_to_string(&fixture).expect("fixture should be readable");
     let ast = NyashParser::parse_from_string(&source).expect("fixture should parse");
@@ -585,8 +586,10 @@ fn wasm_demo_default_route_p10_min9_debug_native_uses_native_helper_contract() {
 
 #[test]
 fn wasm_demo_route_trace_reports_shape_id_for_native_default_contract() {
-    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p5_min6_const_copy_return.hako");
-    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native");
+    let fixture =
+        wasm_common::fixture_path("apps/tests/phase29cc_wsm_p5_min6_const_copy_return.hako");
+    let mut out_base =
+        wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native");
     out_base.set_extension("");
     let out_file = out_base.with_extension("wasm");
     let _ = fs::remove_file(&out_file);
@@ -601,7 +604,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_default_contract() {
         .arg(&fixture)
         .output()
         .expect("default route compile-wasm with trace must launch");
-    assert!(output.status.success(), "default route compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "default route compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains(
@@ -613,8 +619,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_default_contract() {
 
 #[test]
 fn wasm_demo_route_trace_reports_shape_id_for_native_const_binop_contract() {
-    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p9_min1_const_binop_return.hako");
-    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_binop");
+    let fixture =
+        wasm_common::fixture_path("apps/tests/phase29cc_wsm_p9_min1_const_binop_return.hako");
+    let mut out_base =
+        wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_binop");
     out_base.set_extension("");
     let out_file = out_base.with_extension("wasm");
     let _ = fs::remove_file(&out_file);
@@ -629,7 +637,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_const_binop_contract() {
         .arg(&fixture)
         .output()
         .expect("default route compile-wasm with trace must launch");
-    assert!(output.status.success(), "default route compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "default route compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains(
@@ -641,8 +652,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_const_binop_contract() {
 
 #[test]
 fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min4_contract() {
-    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p10_min4_loop_extern_native.hako");
-    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_p10_min4");
+    let fixture =
+        wasm_common::fixture_path("apps/tests/phase29cc_wsm_p10_min4_loop_extern_native.hako");
+    let mut out_base =
+        wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_p10_min4");
     out_base.set_extension("");
     let out_file = out_base.with_extension("wasm");
     let _ = fs::remove_file(&out_file);
@@ -657,7 +670,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min4_contract() {
         .arg(&fixture)
         .output()
         .expect("default route compile-wasm with trace must launch");
-    assert!(output.status.success(), "default route compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "default route compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains(
@@ -669,8 +685,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min4_contract() {
 
 #[test]
 fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min6_warn_contract() {
-    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p10_min6_loop_extern_warn_native.hako");
-    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_p10_min6_warn");
+    let fixture =
+        wasm_common::fixture_path("apps/tests/phase29cc_wsm_p10_min6_loop_extern_warn_native.hako");
+    let mut out_base =
+        wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_p10_min6_warn");
     out_base.set_extension("");
     let out_file = out_base.with_extension("wasm");
     let _ = fs::remove_file(&out_file);
@@ -685,7 +703,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min6_warn_contract() {
         .arg(&fixture)
         .output()
         .expect("default route compile-wasm with trace must launch");
-    assert!(output.status.success(), "default route compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "default route compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains(
@@ -697,8 +718,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min6_warn_contract() {
 
 #[test]
 fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min7_info_contract() {
-    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p10_min7_loop_extern_info_native.hako");
-    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_p10_min7_info");
+    let fixture =
+        wasm_common::fixture_path("apps/tests/phase29cc_wsm_p10_min7_loop_extern_info_native.hako");
+    let mut out_base =
+        wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_p10_min7_info");
     out_base.set_extension("");
     let out_file = out_base.with_extension("wasm");
     let _ = fs::remove_file(&out_file);
@@ -713,7 +736,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min7_info_contract() {
         .arg(&fixture)
         .output()
         .expect("default route compile-wasm with trace must launch");
-    assert!(output.status.success(), "default route compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "default route compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains(
@@ -725,8 +751,12 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min7_info_contract() {
 
 #[test]
 fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min8_error_contract() {
-    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p10_min8_loop_extern_error_native.hako");
-    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_p10_min8_error");
+    let fixture = wasm_common::fixture_path(
+        "apps/tests/phase29cc_wsm_p10_min8_loop_extern_error_native.hako",
+    );
+    let mut out_base = wasm_common::target_temp_wat_path(
+        "phase29cc_wsm_route_trace_default_native_p10_min8_error",
+    );
     out_base.set_extension("");
     let out_file = out_base.with_extension("wasm");
     let _ = fs::remove_file(&out_file);
@@ -741,7 +771,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min8_error_contract() {
         .arg(&fixture)
         .output()
         .expect("default route compile-wasm with trace must launch");
-    assert!(output.status.success(), "default route compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "default route compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains(
@@ -753,8 +786,12 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min8_error_contract() {
 
 #[test]
 fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min9_debug_contract() {
-    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_p10_min9_loop_extern_debug_native.hako");
-    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_native_p10_min9_debug");
+    let fixture = wasm_common::fixture_path(
+        "apps/tests/phase29cc_wsm_p10_min9_loop_extern_debug_native.hako",
+    );
+    let mut out_base = wasm_common::target_temp_wat_path(
+        "phase29cc_wsm_route_trace_default_native_p10_min9_debug",
+    );
     out_base.set_extension("");
     let out_file = out_base.with_extension("wasm");
     let _ = fs::remove_file(&out_file);
@@ -769,7 +806,10 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min9_debug_contract() {
         .arg(&fixture)
         .output()
         .expect("default route compile-wasm with trace must launch");
-    assert!(output.status.success(), "default route compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "default route compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains(
@@ -782,7 +822,8 @@ fn wasm_demo_route_trace_reports_shape_id_for_native_p10_min9_debug_contract() {
 #[test]
 fn wasm_demo_route_trace_reports_bridge_and_legacy_policy_rejected_contract() {
     let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm02d_demo_min.hako");
-    let mut out_default_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_bridge");
+    let mut out_default_base =
+        wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_default_bridge");
     out_default_base.set_extension("");
     let out_default = out_default_base.with_extension("wasm");
     let _ = fs::remove_file(&out_default);
@@ -797,10 +838,14 @@ fn wasm_demo_route_trace_reports_bridge_and_legacy_policy_rejected_contract() {
         .arg(&fixture)
         .output()
         .expect("default route compile-wasm with trace must launch");
-    assert!(output_default.status.success(), "default route compile-wasm should succeed");
+    assert!(
+        output_default.status.success(),
+        "default route compile-wasm should succeed"
+    );
     let stderr_default = String::from_utf8_lossy(&output_default.stderr);
     assert!(
-        stderr_default.contains("[wasm/route-trace] policy=default plan=bridge-rust-backend shape_id=-"),
+        stderr_default
+            .contains("[wasm/route-trace] policy=default plan=bridge-rust-backend shape_id=-"),
         "default non-native fixture must report bridge plan in route trace"
     );
 
@@ -838,7 +883,8 @@ fn wasm_demo_route_trace_reports_bridge_and_legacy_policy_rejected_contract() {
 #[test]
 fn wasm_demo_route_trace_reports_rust_native_forced_contract() {
     let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm02d_demo_min.hako");
-    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_forced_rust_native");
+    let mut out_base =
+        wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_forced_rust_native");
     out_base.set_extension("");
     let out_file = out_base.with_extension("wasm");
     let _ = fs::remove_file(&out_file);
@@ -852,7 +898,10 @@ fn wasm_demo_route_trace_reports_rust_native_forced_contract() {
         .arg(&fixture)
         .output()
         .expect("rust_native forced compile-wasm must launch");
-    assert!(output.status.success(), "rust_native forced compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "rust_native forced compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains("[wasm/route-trace] policy=rust_native plan=bridge-rust-backend shape_id=- route=rust_native"),
@@ -908,7 +957,10 @@ fn wasm_demo_route_trace_is_emitted_without_trace_env_contract() {
         .arg(&fixture)
         .output()
         .expect("default compile-wasm must launch");
-    assert!(output.status.success(), "default compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "default compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains("[wasm/route-trace] policy=default"),
@@ -918,8 +970,10 @@ fn wasm_demo_route_trace_is_emitted_without_trace_env_contract() {
 
 #[test]
 fn wasm_demo_route_trace_reports_bridge_for_webcanvas_fixture_contract() {
-    let fixture = wasm_common::fixture_path("apps/tests/phase29cc_wsm_g4_min3_webcanvas_fixture_min.hako");
-    let mut out_base = wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_webcanvas_bridge");
+    let fixture =
+        wasm_common::fixture_path("apps/tests/phase29cc_wsm_g4_min3_webcanvas_fixture_min.hako");
+    let mut out_base =
+        wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_webcanvas_bridge");
     out_base.set_extension("");
     let out_file = out_base.with_extension("wasm");
     let _ = fs::remove_file(&out_file);
@@ -934,7 +988,10 @@ fn wasm_demo_route_trace_reports_bridge_for_webcanvas_fixture_contract() {
         .arg(&fixture)
         .output()
         .expect("default route compile-wasm with trace must launch");
-    assert!(output.status.success(), "default route compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "default route compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains("[wasm/route-trace] policy=default plan=bridge-rust-backend shape_id=-"),
@@ -944,8 +1001,9 @@ fn wasm_demo_route_trace_reports_bridge_for_webcanvas_fixture_contract() {
 
 #[test]
 fn wasm_demo_route_trace_reports_bridge_for_canvas_advanced_fixture_contract() {
-    let fixture =
-        wasm_common::fixture_path("apps/tests/phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.hako");
+    let fixture = wasm_common::fixture_path(
+        "apps/tests/phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.hako",
+    );
     let mut out_base =
         wasm_common::target_temp_wat_path("phase29cc_wsm_route_trace_canvas_advanced_bridge");
     out_base.set_extension("");
@@ -962,7 +1020,10 @@ fn wasm_demo_route_trace_reports_bridge_for_canvas_advanced_fixture_contract() {
         .arg(&fixture)
         .output()
         .expect("default route compile-wasm with trace must launch");
-    assert!(output.status.success(), "default route compile-wasm should succeed");
+    assert!(
+        output.status.success(),
+        "default route compile-wasm should succeed"
+    );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         stderr.contains("[wasm/route-trace] policy=default plan=bridge-rust-backend shape_id=-"),
@@ -1058,7 +1119,9 @@ fn wasm_demo_min_const_return_neg1_binary_writer_parity_contract() {
 
 #[test]
 fn wasm_demo_g4_min3_webcanvas_fixture_compile_to_wat_contract() {
-    let wat = compile_fixture_to_wat_direct("apps/tests/phase29cc_wsm_g4_min3_webcanvas_fixture_min.hako");
+    let wat = compile_fixture_to_wat_direct(
+        "apps/tests/phase29cc_wsm_g4_min3_webcanvas_fixture_min.hako",
+    );
     assert!(wat.contains("(export \"main\" (func $main))"));
     assert!(wat.contains("\"console_log\""));
     assert!(wat.contains("\"canvas_clear\""));
@@ -1068,8 +1131,9 @@ fn wasm_demo_g4_min3_webcanvas_fixture_compile_to_wat_contract() {
 
 #[test]
 fn wasm_demo_g4_min4_canvas_advanced_fixture_compile_to_wat_contract() {
-    let wat =
-        compile_fixture_to_wat_direct("apps/tests/phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.hako");
+    let wat = compile_fixture_to_wat_direct(
+        "apps/tests/phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.hako",
+    );
     assert!(wat.contains("(export \"main\" (func $main))"));
     assert!(wat.contains("\"console_log\""));
     assert!(wat.contains("\"console_info\""));
@@ -1080,8 +1144,9 @@ fn wasm_demo_g4_min4_canvas_advanced_fixture_compile_to_wat_contract() {
 
 #[test]
 fn wasm_demo_g4_min8_global_call_probe_compile_to_wat_contract() {
-    let wat =
-        compile_fixture_to_wat_direct("apps/tests/phase29cc_wsm_g4_min8_global_call_probe_min.hako");
+    let wat = compile_fixture_to_wat_direct(
+        "apps/tests/phase29cc_wsm_g4_min8_global_call_probe_min.hako",
+    );
     assert!(wat.contains("(export \"main\" (func $main))"));
     assert!(wat.contains("(func $WsmProbeBox.ping/1"));
     assert!(wat.contains("call $WsmProbeBox.ping/1"));

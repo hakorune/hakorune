@@ -1,11 +1,11 @@
 #[test]
 fn vtable_string_substring_concat() {
     use crate::backend::VM;
+    use crate::mir::definitions::call_unified::TypeCertainty;
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirModule, MirType,
     };
-    use crate::mir::definitions::call_unified::TypeCertainty;
     std::env::set_var("NYASH_ABI_VTABLE", "1");
 
     // substring: "hello".substring(1,4) == "ell"
@@ -47,9 +47,8 @@ fn vtable_string_substring_concat() {
             value: ConstValue::Integer(4),
         });
     let sub = f.next_value_id();
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(sub),
             sb,
             "StringBox",
@@ -57,7 +56,8 @@ fn vtable_string_substring_concat() {
             vec![i1, i4],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     f.get_block_mut(bb)
         .unwrap()
         .add_instruction(MirInstruction::Return { value: Some(sub) });
@@ -99,9 +99,8 @@ fn vtable_string_substring_concat() {
             value: ConstValue::String("cd".into()),
         });
     let joined = f2.next_value_id();
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(joined),
             ab,
             "StringBox",
@@ -109,7 +108,8 @@ fn vtable_string_substring_concat() {
             vec![c],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     f2.get_block_mut(bb2)
         .unwrap()
         .add_instruction(MirInstruction::Return {

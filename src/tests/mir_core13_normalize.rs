@@ -1,11 +1,11 @@
 mod tests {
     use crate::mir::contracts::backend_core_ops::lowered_away_tag;
+    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::optimizer::MirOptimizer;
     use crate::mir::{
         BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
         MirInstruction as I, MirModule, MirType, ValueId,
     };
-    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 
     fn mk_func(name: &str) -> (MirFunction, BasicBlockId) {
         let sig = FunctionSignature {
@@ -67,7 +67,9 @@ mod tests {
             args: vec![idx, val],
             effects: EffectMask::WRITE,
         });
-        b0.add_instruction(I::Return { value: Some(get_dst) });
+        b0.add_instruction(I::Return {
+            value: Some(get_dst),
+        });
         f.add_block(b0);
 
         let mut m = MirModule::new("test_core13_method_call".into());

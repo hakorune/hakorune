@@ -3,11 +3,8 @@ use std::collections::BTreeMap;
 
 fn parse_program(label: &str, program: serde_json::Value) -> nyash_rust::mir::MirModule {
     let src = serde_json::to_string(&program).expect("serialize program");
-    nyash_rust::runner::json_v0_bridge::parse_json_v0_to_module_with_imports(
-        &src,
-        BTreeMap::new(),
-    )
-    .unwrap_or_else(|e| panic!("{}: failed to parse Program(JSON): {}", label, e))
+    nyash_rust::runner::json_v0_bridge::parse_json_v0_to_module_with_imports(&src, BTreeMap::new())
+        .unwrap_or_else(|e| panic!("{}: failed to parse Program(JSON): {}", label, e))
 }
 
 fn verify_program(label: &str, program: serde_json::Value) {
@@ -183,10 +180,7 @@ fn program_blockexpr_prelude_legacy_local_chain() -> serde_json::Value {
 
 #[test]
 fn json_blockexpr_prelude_if_verifies() {
-    verify_program(
-        "json_blockexpr_prelude_if",
-        program_blockexpr_prelude_if(),
-    );
+    verify_program("json_blockexpr_prelude_if", program_blockexpr_prelude_if());
 }
 
 #[test]
@@ -207,10 +201,7 @@ fn json_blockexpr_prelude_loop_verifies() {
 
 #[test]
 fn json_blockexpr_tail_loop_verifies() {
-    verify_program(
-        "json_blockexpr_tail_loop",
-        program_blockexpr_tail_loop(),
-    );
+    verify_program("json_blockexpr_tail_loop", program_blockexpr_tail_loop());
 }
 
 #[test]
@@ -251,6 +242,12 @@ fn json_defs_param_valueids_are_reserved() {
         .get_function("Main.foo/2")
         .expect("Main.foo/2 present");
 
-    assert_eq!(func.params, vec![nyash_rust::mir::ValueId::new(0), nyash_rust::mir::ValueId::new(1)]);
+    assert_eq!(
+        func.params,
+        vec![
+            nyash_rust::mir::ValueId::new(0),
+            nyash_rust::mir::ValueId::new(1)
+        ]
+    );
     assert_eq!(func.next_value_id, 2);
 }

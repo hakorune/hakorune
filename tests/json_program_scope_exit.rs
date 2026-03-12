@@ -161,7 +161,11 @@ fn json_fini_reg_forbid_return_in_fini() {
         "Error should contain freeze tag: {}",
         err
     );
-    assert!(err.contains("return"), "Error should mention 'return': {}", err);
+    assert!(
+        err.contains("return"),
+        "Error should mention 'return': {}",
+        err
+    );
 }
 
 fn program_fini_reg_with_throw_in_fini() -> serde_json::Value {
@@ -206,7 +210,11 @@ fn json_fini_reg_forbid_throw_in_fini() {
         "Error should contain freeze tag: {}",
         err
     );
-    assert!(err.contains("throw"), "Error should mention 'throw': {}", err);
+    assert!(
+        err.contains("throw"),
+        "Error should mention 'throw': {}",
+        err
+    );
 }
 
 fn program_fini_reg_with_break_in_fini() -> serde_json::Value {
@@ -251,7 +259,11 @@ fn json_fini_reg_forbid_break_in_fini() {
         "Error should contain freeze tag: {}",
         err
     );
-    assert!(err.contains("break"), "Error should mention 'break': {}", err);
+    assert!(
+        err.contains("break"),
+        "Error should mention 'break': {}",
+        err
+    );
 }
 
 fn program_fini_reg_with_continue_in_fini() -> serde_json::Value {
@@ -296,7 +308,11 @@ fn json_fini_reg_forbid_continue_in_fini() {
         "Error should contain freeze tag: {}",
         err
     );
-    assert!(err.contains("continue"), "Error should mention 'continue': {}", err);
+    assert!(
+        err.contains("continue"),
+        "Error should mention 'continue': {}",
+        err
+    );
 }
 
 fn program_fini_reg_with_nested_fini_reg() -> serde_json::Value {
@@ -345,5 +361,9 @@ fn json_fini_reg_forbid_nested_fini_reg() {
         "Error should contain freeze tag: {}",
         err
     );
-    assert!(err.contains("nested FiniReg"), "Error should mention 'nested FiniReg': {}", err);
+    assert!(
+        err.contains("nested FiniReg"),
+        "Error should mention 'nested FiniReg': {}",
+        err
+    );
 }

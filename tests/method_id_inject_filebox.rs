@@ -4,10 +4,8 @@ use nyash_rust::runtime::plugin_loader_v2::{get_global_loader_v2, init_global_lo
 use nyash_rust::runtime::PluginConfig;
 use nyash_rust::{
     mir::{
-        definitions::Callee,
-        instruction::MirInstruction,
-        passes::method_id_inject::inject_method_ids,
-        MirCompiler,
+        definitions::Callee, instruction::MirInstruction,
+        passes::method_id_inject::inject_method_ids, MirCompiler,
     },
     parser::NyashParser,
 };
@@ -56,7 +54,10 @@ f.open("/tmp/test.txt", "r")
             for inst in &block.instructions {
                 match inst {
                     MirInstruction::Call {
-                        callee: Some(Callee::Method { box_name, method, .. }),
+                        callee:
+                            Some(Callee::Method {
+                                box_name, method, ..
+                            }),
                         ..
                     } if box_name == "FileBox" && method == "open" => {
                         return;

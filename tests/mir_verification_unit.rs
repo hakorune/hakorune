@@ -310,27 +310,67 @@ fn test_loop_nested_if_phi() {
                 }),
                 body: vec![
                     ASTNode::If {
-                    condition: Box::new(ASTNode::BinaryOp {
-                        operator: nyash_rust::ast::BinaryOperator::Equal,
-                        left: Box::new(ASTNode::Variable {
-                            name: "i".to_string(),
+                        condition: Box::new(ASTNode::BinaryOp {
+                            operator: nyash_rust::ast::BinaryOperator::Equal,
+                            left: Box::new(ASTNode::Variable {
+                                name: "i".to_string(),
+                                span: Span::unknown(),
+                            }),
+                            right: Box::new(ASTNode::Literal {
+                                value: LiteralValue::Integer(0),
+                                span: Span::unknown(),
+                            }),
                             span: Span::unknown(),
                         }),
-                        right: Box::new(ASTNode::Literal {
-                            value: LiteralValue::Integer(0),
+                        then_body: vec![ASTNode::Assignment {
+                            target: Box::new(ASTNode::Variable {
+                                name: "x".to_string(),
+                                span: Span::unknown(),
+                            }),
+                            value: Box::new(ASTNode::BinaryOp {
+                                operator: nyash_rust::ast::BinaryOperator::Add,
+                                left: Box::new(ASTNode::Variable {
+                                    name: "x".to_string(),
+                                    span: Span::unknown(),
+                                }),
+                                right: Box::new(ASTNode::Literal {
+                                    value: LiteralValue::Integer(1),
+                                    span: Span::unknown(),
+                                }),
+                                span: Span::unknown(),
+                            }),
                             span: Span::unknown(),
-                        }),
+                        }],
+                        else_body: Some(vec![ASTNode::Assignment {
+                            target: Box::new(ASTNode::Variable {
+                                name: "x".to_string(),
+                                span: Span::unknown(),
+                            }),
+                            value: Box::new(ASTNode::BinaryOp {
+                                operator: nyash_rust::ast::BinaryOperator::Add,
+                                left: Box::new(ASTNode::Variable {
+                                    name: "x".to_string(),
+                                    span: Span::unknown(),
+                                }),
+                                right: Box::new(ASTNode::Literal {
+                                    value: LiteralValue::Integer(2),
+                                    span: Span::unknown(),
+                                }),
+                                span: Span::unknown(),
+                            }),
+                            span: Span::unknown(),
+                        }]),
                         span: Span::unknown(),
-                    }),
-                    then_body: vec![ASTNode::Assignment {
+                    },
+                    ASTNode::Assignment {
                         target: Box::new(ASTNode::Variable {
-                            name: "x".to_string(),
+                            name: "i".to_string(),
                             span: Span::unknown(),
                         }),
                         value: Box::new(ASTNode::BinaryOp {
                             operator: nyash_rust::ast::BinaryOperator::Add,
                             left: Box::new(ASTNode::Variable {
-                                name: "x".to_string(),
+                                name: "i".to_string(),
                                 span: Span::unknown(),
                             }),
                             right: Box::new(ASTNode::Literal {
@@ -340,47 +380,7 @@ fn test_loop_nested_if_phi() {
                             span: Span::unknown(),
                         }),
                         span: Span::unknown(),
-                    }],
-                    else_body: Some(vec![ASTNode::Assignment {
-                        target: Box::new(ASTNode::Variable {
-                            name: "x".to_string(),
-                            span: Span::unknown(),
-                        }),
-                        value: Box::new(ASTNode::BinaryOp {
-                            operator: nyash_rust::ast::BinaryOperator::Add,
-                            left: Box::new(ASTNode::Variable {
-                                name: "x".to_string(),
-                                span: Span::unknown(),
-                            }),
-                            right: Box::new(ASTNode::Literal {
-                                value: LiteralValue::Integer(2),
-                                span: Span::unknown(),
-                            }),
-                            span: Span::unknown(),
-                        }),
-                        span: Span::unknown(),
-                    }]),
-                    span: Span::unknown(),
-                },
-                ASTNode::Assignment {
-                    target: Box::new(ASTNode::Variable {
-                        name: "i".to_string(),
-                        span: Span::unknown(),
-                    }),
-                    value: Box::new(ASTNode::BinaryOp {
-                        operator: nyash_rust::ast::BinaryOperator::Add,
-                        left: Box::new(ASTNode::Variable {
-                            name: "i".to_string(),
-                            span: Span::unknown(),
-                        }),
-                        right: Box::new(ASTNode::Literal {
-                            value: LiteralValue::Integer(1),
-                            span: Span::unknown(),
-                        }),
-                        span: Span::unknown(),
-                    }),
-                    span: Span::unknown(),
-                },
+                    },
                 ],
                 span: Span::unknown(),
             },

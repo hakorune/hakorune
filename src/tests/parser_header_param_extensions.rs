@@ -62,7 +62,10 @@ box B implements Runnable {
         panic!("expected BoxDeclaration A");
     };
     assert_eq!(extends, &vec!["Base".to_string()]);
-    assert_eq!(implements, &vec!["Runnable".to_string(), "Loggable".to_string()]);
+    assert_eq!(
+        implements,
+        &vec!["Runnable".to_string(), "Loggable".to_string()]
+    );
 
     let ASTNode::BoxDeclaration { implements, .. } = find_box(&ast, "B") else {
         panic!("expected BoxDeclaration B");

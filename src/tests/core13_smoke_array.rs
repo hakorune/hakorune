@@ -1,11 +1,11 @@
 #[test]
 fn core13_array_boxcall_push_len_get() {
     use crate::backend::vm::VM;
+    use crate::mir::definitions::call_unified::TypeCertainty;
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirModule, MirType,
     };
-    use crate::mir::definitions::call_unified::TypeCertainty;
 
     // Build: a = new ArrayBox(); a.push(7); r = a.len() + a.get(0); return r
     let sig = FunctionSignature {
@@ -32,9 +32,8 @@ fn core13_array_boxcall_push_len_get() {
             dst: seven,
             value: ConstValue::Integer(7),
         });
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             a,
             "ArrayBox",
@@ -42,12 +41,12 @@ fn core13_array_boxcall_push_len_get() {
             vec![seven],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     // len()
     let ln = f.next_value_id();
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(ln),
             a,
             "ArrayBox",
@@ -55,7 +54,8 @@ fn core13_array_boxcall_push_len_get() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     // get(0)
     let zero = f.next_value_id();
     f.get_block_mut(bb)
@@ -65,9 +65,8 @@ fn core13_array_boxcall_push_len_get() {
             value: ConstValue::Integer(0),
         });
     let g0 = f.next_value_id();
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(g0),
             a,
             "ArrayBox",
@@ -75,7 +74,8 @@ fn core13_array_boxcall_push_len_get() {
             vec![zero],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     // sum
     let sum = f.next_value_id();
     f.get_block_mut(bb)
@@ -100,11 +100,11 @@ fn core13_array_boxcall_push_len_get() {
 #[test]
 fn core13_array_boxcall_set_get() {
     use crate::backend::vm::VM;
+    use crate::mir::definitions::call_unified::TypeCertainty;
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirModule, MirType,
     };
-    use crate::mir::definitions::call_unified::TypeCertainty;
 
     // Build: a = new ArrayBox(); a.set(0, 5); return a.get(0)
     let sig = FunctionSignature {
@@ -137,9 +137,8 @@ fn core13_array_boxcall_set_get() {
             dst: five,
             value: ConstValue::Integer(5),
         });
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             a,
             "ArrayBox",
@@ -147,7 +146,8 @@ fn core13_array_boxcall_set_get() {
             vec![zero, five],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let outv = f.next_value_id();
     let zero2 = f.next_value_id();
     f.get_block_mut(bb)
@@ -156,9 +156,8 @@ fn core13_array_boxcall_set_get() {
             dst: zero2,
             value: ConstValue::Integer(0),
         });
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(outv),
             a,
             "ArrayBox",
@@ -166,7 +165,8 @@ fn core13_array_boxcall_set_get() {
             vec![zero2],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     f.get_block_mut(bb)
         .unwrap()
         .add_instruction(MirInstruction::Return { value: Some(outv) });

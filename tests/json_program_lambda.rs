@@ -54,4 +54,3 @@ fn json_stageb_legacy_fn_literal_pair_in_def_verifies() {
         program_stageb_legacy_fn_literal_pair_in_def(),
     );
 }
-

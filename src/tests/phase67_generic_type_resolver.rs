@@ -95,13 +95,15 @@ fn phase67_ab_test_resolve_from_phi_equivalence() {
             dst: cond,
             value: ConstValue::Bool(true),
         });
-    f.get_block_mut(entry).unwrap().set_terminator(MirInstruction::Branch {
-        condition: cond,
-        then_bb,
-        else_bb,
-        then_edge_args: None,
-        else_edge_args: None,
-    });
+    f.get_block_mut(entry)
+        .unwrap()
+        .set_terminator(MirInstruction::Branch {
+            condition: cond,
+            then_bb,
+            else_bb,
+            then_edge_args: None,
+            else_edge_args: None,
+        });
 
     // Then: v2 = 42
     let v2 = f.next_value_id();
@@ -111,10 +113,12 @@ fn phase67_ab_test_resolve_from_phi_equivalence() {
             dst: v2,
             value: ConstValue::Integer(42),
         });
-    f.get_block_mut(then_bb).unwrap().set_terminator(MirInstruction::Jump {
-        target: merge_bb,
-        edge_args: None,
-    });
+    f.get_block_mut(then_bb)
+        .unwrap()
+        .set_terminator(MirInstruction::Jump {
+            target: merge_bb,
+            edge_args: None,
+        });
 
     // Else: v3 = 0
     let v3 = f.next_value_id();
@@ -124,10 +128,12 @@ fn phase67_ab_test_resolve_from_phi_equivalence() {
             dst: v3,
             value: ConstValue::Integer(0),
         });
-    f.get_block_mut(else_bb).unwrap().set_terminator(MirInstruction::Jump {
-        target: merge_bb,
-        edge_args: None,
-    });
+    f.get_block_mut(else_bb)
+        .unwrap()
+        .set_terminator(MirInstruction::Jump {
+            target: merge_bb,
+            edge_args: None,
+        });
 
     // Merge: v4 = phi(v2 from then, v3 from else)
     let v4 = f.next_value_id();

@@ -1,11 +1,11 @@
 #[test]
 fn vtable_map_set_and_strict_unknown() {
     use crate::backend::VM;
+    use crate::mir::definitions::call_unified::TypeCertainty;
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirModule, MirType,
     };
-    use crate::mir::definitions::call_unified::TypeCertainty;
     std::env::set_var("NYASH_ABI_VTABLE", "1");
 
     // Build: new MapBox; call set("k","v"); size(); return size
@@ -39,9 +39,8 @@ fn vtable_map_set_and_strict_unknown() {
             dst: v,
             value: ConstValue::String("v".into()),
         });
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             mapv,
             "MapBox",
@@ -49,11 +48,11 @@ fn vtable_map_set_and_strict_unknown() {
             vec![k, v],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let sz = f.next_value_id();
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(sz),
             mapv,
             "MapBox",
@@ -61,7 +60,8 @@ fn vtable_map_set_and_strict_unknown() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     f.get_block_mut(bb)
         .unwrap()
         .add_instruction(MirInstruction::Return { value: Some(sz) });
@@ -91,9 +91,8 @@ fn vtable_map_set_and_strict_unknown() {
             args: vec![],
         });
     // Call unknown method
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             m2,
             "MapBox",
@@ -101,7 +100,8 @@ fn vtable_map_set_and_strict_unknown() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     f2.get_block_mut(bb2)
         .unwrap()
         .add_instruction(MirInstruction::Return { value: None });

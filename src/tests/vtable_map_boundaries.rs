@@ -1,11 +1,11 @@
 #[test]
 fn vtable_map_boundary_cases() {
     use crate::backend::VM;
+    use crate::mir::definitions::call_unified::TypeCertainty;
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirModule, MirType,
     };
-    use crate::mir::definitions::call_unified::TypeCertainty;
     std::env::set_var("NYASH_ABI_VTABLE", "1");
 
     // Case 1: empty-string key set/get/has
@@ -40,9 +40,8 @@ fn vtable_map_boundary_cases() {
             dst: v1,
             value: ConstValue::Integer(1),
         });
-    f1.get_block_mut(bb1)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f1.get_block_mut(bb1).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             m,
             "MapBox",
@@ -50,12 +49,12 @@ fn vtable_map_boundary_cases() {
             vec![k_empty, v1],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     // has("") -> true
     let h = f1.next_value_id();
-    f1.get_block_mut(bb1)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f1.get_block_mut(bb1).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(h),
             m,
             "MapBox",
@@ -63,12 +62,12 @@ fn vtable_map_boundary_cases() {
             vec![k_empty],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     // get("") -> 1
     let g = f1.next_value_id();
-    f1.get_block_mut(bb1)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f1.get_block_mut(bb1).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(g),
             m,
             "MapBox",
@@ -76,12 +75,12 @@ fn vtable_map_boundary_cases() {
             vec![k_empty],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     // return has + get (true->1) + size == 1 + 1 + 1 = 3 (coerce Bool true to 1 via toString parse in BinOp fallback)
     let sz = f1.next_value_id();
-    f1.get_block_mut(bb1)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f1.get_block_mut(bb1).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(sz),
             m,
             "MapBox",
@@ -89,7 +88,8 @@ fn vtable_map_boundary_cases() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let tmp = f1.next_value_id();
     f1.get_block_mut(bb1)
         .unwrap()
@@ -157,9 +157,8 @@ fn vtable_map_boundary_cases() {
             dst: two,
             value: ConstValue::Integer(2),
         });
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             m2,
             "MapBox",
@@ -167,10 +166,10 @@ fn vtable_map_boundary_cases() {
             vec![k, one],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        ),
+    );
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             m2,
             "MapBox",
@@ -178,12 +177,12 @@ fn vtable_map_boundary_cases() {
             vec![k, two],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     // get("k") should be 2
     let g2 = f2.next_value_id();
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(g2),
             m2,
             "MapBox",
@@ -191,7 +190,8 @@ fn vtable_map_boundary_cases() {
             vec![k],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     // delete("missing") using method name; ensure no panic and still size==1
     let missing = f2.next_value_id();
     f2.get_block_mut(bb2)
@@ -200,9 +200,8 @@ fn vtable_map_boundary_cases() {
             dst: missing,
             value: ConstValue::String("missing".into()),
         });
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             m2,
             "MapBox",
@@ -210,12 +209,12 @@ fn vtable_map_boundary_cases() {
             vec![missing],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     // size()
     let sz2 = f2.next_value_id();
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(sz2),
             m2,
             "MapBox",
@@ -223,7 +222,8 @@ fn vtable_map_boundary_cases() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let sum2 = f2.next_value_id();
     f2.get_block_mut(bb2)
         .unwrap()

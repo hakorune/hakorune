@@ -4,11 +4,11 @@ mod tests {
 
     use crate::box_factory::RuntimeError;
     use crate::box_trait::NyashBox;
+    use crate::mir::definitions::call_unified::TypeCertainty;
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirModule, MirType,
     };
-    use crate::mir::definitions::call_unified::TypeCertainty;
 
     // Minimal Person factory: creates InstanceBox with fields [name, age]
     #[allow(dead_code)]
@@ -77,9 +77,8 @@ mod tests {
                 dst: v_alice,
                 value: ConstValue::String("Alice".into()),
             });
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 None,
                 person,
                 "InstanceBox",
@@ -87,7 +86,8 @@ mod tests {
                 vec![k_name, v_alice],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
 
         // person.setField("age", 25)
         let k_age = f.next_value_id();
@@ -104,9 +104,8 @@ mod tests {
                 dst: v_25,
                 value: ConstValue::Integer(25),
             });
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 None,
                 person,
                 "InstanceBox",
@@ -114,7 +113,8 @@ mod tests {
                 vec![k_age, v_25],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
 
         // name = person.getField("name"); return name
         let k_name2 = f.next_value_id();
@@ -125,9 +125,8 @@ mod tests {
                 value: ConstValue::String("name".into()),
             });
         let out_name = f.next_value_id();
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 Some(out_name),
                 person,
                 "InstanceBox",
@@ -135,7 +134,8 @@ mod tests {
                 vec![k_name2],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
         f.get_block_mut(bb)
             .unwrap()
             .add_instruction(MirInstruction::Return {

@@ -1,7 +1,7 @@
+use nyash_rust::mir::definitions::call_unified::TypeCertainty;
 use nyash_rust::mir::{
     BinaryOp, ConstValue, Effect, EffectMask, MirInstruction, ValueId, WeakRefOp,
 };
-use nyash_rust::mir::definitions::call_unified::TypeCertainty;
 
 #[test]
 fn test_const_instruction() {

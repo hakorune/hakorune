@@ -5,10 +5,8 @@
 
 #[cfg(test)]
 mod select_minimal_test {
-    use crate::mir::{
-        MirInstruction, ValueId,
-    };
     use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
+    use crate::mir::{MirInstruction, ValueId};
 
     /// Test: Select instruction ValueId consistency
     ///
@@ -26,14 +24,22 @@ mod select_minimal_test {
 
         // Verify instruction can be matched and ValueIds extracted
         match select_inst {
-            MirInstruction::Select { dst, cond, then_val, else_val } => {
+            MirInstruction::Select {
+                dst,
+                cond,
+                then_val,
+                else_val,
+            } => {
                 assert_eq!(dst.0, 4, "dst ValueId should be 4");
                 assert_eq!(cond.0, 3, "cond ValueId should be 3");
                 assert_eq!(then_val.0, 1, "then_val ValueId should be 1");
                 assert_eq!(else_val.0, 2, "else_val ValueId should be 2");
 
                 eprintln!("[test] ✅ Select instruction created and verified:");
-                eprintln!("[test]   dst: %{}, cond: %{}, then_val: %{}, else_val: %{}", dst.0, cond.0, then_val.0, else_val.0);
+                eprintln!(
+                    "[test]   dst: %{}, cond: %{}, then_val: %{}, else_val: %{}",
+                    dst.0, cond.0, then_val.0, else_val.0
+                );
             }
             _ => panic!("Expected Select instruction"),
         }
@@ -48,10 +54,10 @@ mod select_minimal_test {
         let mut remapper = JoinIrIdRemapper::new();
 
         // Setup: Map ValueIds from JoinIR local range (1000+) to host range (<1000)
-        remapper.set_value(ValueId::new(1001), ValueId::new(51));  // cond
-        remapper.set_value(ValueId::new(1002), ValueId::new(52));  // then_val
-        remapper.set_value(ValueId::new(1003), ValueId::new(53));  // else_val
-        remapper.set_value(ValueId::new(1004), ValueId::new(54));  // dst
+        remapper.set_value(ValueId::new(1001), ValueId::new(51)); // cond
+        remapper.set_value(ValueId::new(1002), ValueId::new(52)); // then_val
+        remapper.set_value(ValueId::new(1003), ValueId::new(53)); // else_val
+        remapper.set_value(ValueId::new(1004), ValueId::new(54)); // dst
 
         // Create Select instruction with JoinIR-local ValueIds
         let select_inst = MirInstruction::Select {
@@ -66,7 +72,12 @@ mod select_minimal_test {
 
         // Verify: all ValueIds are remapped
         match remapped {
-            MirInstruction::Select { dst, cond, then_val, else_val } => {
+            MirInstruction::Select {
+                dst,
+                cond,
+                then_val,
+                else_val,
+            } => {
                 assert_eq!(dst.0, 54, "dst should be remapped to 54");
                 assert_eq!(cond.0, 51, "cond should be remapped to 51");
                 assert_eq!(then_val.0, 52, "then_val should be remapped to 52");

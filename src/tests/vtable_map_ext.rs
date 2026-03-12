@@ -1,11 +1,11 @@
 #[test]
 fn vtable_map_keys_values_delete_clear() {
     use crate::backend::VM;
+    use crate::mir::definitions::call_unified::TypeCertainty;
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirModule, MirType,
     };
-    use crate::mir::definitions::call_unified::TypeCertainty;
     std::env::set_var("NYASH_ABI_VTABLE", "1");
 
     // keys/values size check
@@ -40,9 +40,8 @@ fn vtable_map_keys_values_delete_clear() {
             dst: v1,
             value: ConstValue::Integer(1),
         });
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             m,
             "MapBox",
@@ -50,7 +49,8 @@ fn vtable_map_keys_values_delete_clear() {
             vec![k1, v1],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let k2 = f.next_value_id();
     f.get_block_mut(bb)
         .unwrap()
@@ -65,9 +65,8 @@ fn vtable_map_keys_values_delete_clear() {
             dst: v2,
             value: ConstValue::Integer(2),
         });
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             m,
             "MapBox",
@@ -75,12 +74,12 @@ fn vtable_map_keys_values_delete_clear() {
             vec![k2, v2],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     // keys().len + values().len == 4
     let keys = f.next_value_id();
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(keys),
             m,
             "MapBox",
@@ -88,11 +87,11 @@ fn vtable_map_keys_values_delete_clear() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let klen = f.next_value_id();
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(klen),
             keys,
             "ArrayBox",
@@ -100,11 +99,11 @@ fn vtable_map_keys_values_delete_clear() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let vals = f.next_value_id();
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(vals),
             m,
             "MapBox",
@@ -112,11 +111,11 @@ fn vtable_map_keys_values_delete_clear() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let vlen = f.next_value_id();
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(vlen),
             vals,
             "ArrayBox",
@@ -124,7 +123,8 @@ fn vtable_map_keys_values_delete_clear() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let sum = f.next_value_id();
     f.get_block_mut(bb)
         .unwrap()
@@ -174,9 +174,8 @@ fn vtable_map_keys_values_delete_clear() {
             dst: v,
             value: ConstValue::String("y".into()),
         });
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             m2v,
             "MapBox",
@@ -184,7 +183,8 @@ fn vtable_map_keys_values_delete_clear() {
             vec![k, v],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let dk = f2.next_value_id();
     f2.get_block_mut(bb2)
         .unwrap()
@@ -192,9 +192,8 @@ fn vtable_map_keys_values_delete_clear() {
             dst: dk,
             value: ConstValue::String("x".into()),
         });
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             m2v,
             "MapBox",
@@ -202,10 +201,10 @@ fn vtable_map_keys_values_delete_clear() {
             vec![dk],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        ),
+    );
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             m2v,
             "MapBox",
@@ -213,11 +212,11 @@ fn vtable_map_keys_values_delete_clear() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let sz = f2.next_value_id();
-    f2.get_block_mut(bb2)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f2.get_block_mut(bb2).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(sz),
             m2v,
             "MapBox",
@@ -225,7 +224,8 @@ fn vtable_map_keys_values_delete_clear() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     f2.get_block_mut(bb2)
         .unwrap()
         .add_instruction(MirInstruction::Return { value: Some(sz) });

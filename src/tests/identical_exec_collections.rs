@@ -1,12 +1,12 @@
 #[cfg(all(test, feature = "cranelift-jit", not(feature = "jit-direct-only")))]
 mod tests {
 
+    use crate::mir::definitions::call_unified::TypeCertainty;
     #[allow(unused_imports)]
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirModule, MirType,
     };
-    use crate::mir::definitions::call_unified::TypeCertainty;
 
     // Build a MIR that exercises Array.get/set/len, Map.set/size/has/get, and String.len
     #[cfg(feature = "cranelift-jit")]
@@ -44,9 +44,8 @@ mod tests {
                 dst: s,
                 value: ConstValue::String("x".into()),
             });
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 None,
                 arr,
                 "ArrayBox",
@@ -54,11 +53,11 @@ mod tests {
                 vec![idx0, s],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
         let alen = f.next_value_id();
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 Some(alen),
                 arr,
                 "ArrayBox",
@@ -66,7 +65,8 @@ mod tests {
                 vec![],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
 
         // Map: m = NewBox(MapBox); m.set("k", 42); size = m.size(); has = m.has("k"); get = m.get("k")
         let m = f.next_value_id();
@@ -91,9 +91,8 @@ mod tests {
                 dst: v,
                 value: ConstValue::Integer(42),
             });
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 None,
                 m,
                 "MapBox",
@@ -101,11 +100,11 @@ mod tests {
                 vec![k, v],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
         let msize = f.next_value_id();
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 Some(msize),
                 m,
                 "MapBox",
@@ -113,7 +112,8 @@ mod tests {
                 vec![],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
         let mhas = f.next_value_id();
         let k2 = f.next_value_id();
         f.get_block_mut(bb)
@@ -122,9 +122,8 @@ mod tests {
                 dst: k2,
                 value: ConstValue::String("k".into()),
             });
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 Some(mhas),
                 m,
                 "MapBox",
@@ -132,7 +131,8 @@ mod tests {
                 vec![k2],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
         let mget = f.next_value_id();
         let k3 = f.next_value_id();
         f.get_block_mut(bb)
@@ -141,9 +141,8 @@ mod tests {
                 dst: k3,
                 value: ConstValue::String("k".into()),
             });
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 Some(mget),
                 m,
                 "MapBox",
@@ -151,7 +150,8 @@ mod tests {
                 vec![k3],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
 
         // String.len: sb = "hello"; slen = sb.len()
         let sb = f.next_value_id();
@@ -162,9 +162,8 @@ mod tests {
                 value: ConstValue::String("hello".into()),
             });
         let slen = f.next_value_id();
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 Some(slen),
                 sb,
                 "StringBox",
@@ -172,7 +171,8 @@ mod tests {
                 vec![],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
 
         // Return: alen + msize + (mhas?1:0) + slen + (mget coerced to int or 0)
         // Simplify: just return alen

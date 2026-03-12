@@ -26,9 +26,8 @@ mod tests {
                 value: ConstValue::String("hello".into()),
             });
         let ln = f.next_value_id();
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 Some(ln),
                 s,
                 "StringBox",
@@ -36,7 +35,8 @@ mod tests {
                 vec![],
                 EffectMask::PURE,
                 crate::mir::definitions::call_unified::TypeCertainty::Known,
-            ));
+            ),
+        );
         f.get_block_mut(bb)
             .unwrap()
             .add_instruction(MirInstruction::Return { value: Some(ln) });

@@ -6,11 +6,11 @@
 
 use nyash_rust::backend::VM;
 use nyash_rust::box_trait::IntegerBox;
+use nyash_rust::mir::definitions::call_unified::TypeCertainty;
 use nyash_rust::mir::{
     BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction,
     MirInstruction, MirModule, MirType, ValueId,
 };
-use nyash_rust::mir::definitions::call_unified::TypeCertainty;
 
 #[test]
 #[ignore]

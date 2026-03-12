@@ -121,7 +121,10 @@ fn no_try_compat_feature_rejects_try_with_freeze_tag() {
     with_stage3_env(Some("stage3,no-try-compat"), None, None, || {
         let code_try = "try { local x = 1 } catch () { }";
         let res_try = NyashParser::parse_from_string(code_try);
-        assert!(res_try.is_err(), "try should be rejected with no-try-compat");
+        assert!(
+            res_try.is_err(),
+            "try should be rejected with no-try-compat"
+        );
         let err = format!("{:?}", res_try.err());
         assert!(
             err.contains("[freeze:contract][parser/try_reserved]"),

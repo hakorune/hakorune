@@ -1,6 +1,6 @@
+use nyash_rust::mir::MirInstruction;
 use serde_json::json;
 use std::collections::BTreeMap;
-use nyash_rust::mir::MirInstruction;
 
 fn program_env_get() -> serde_json::Value {
     json!({
@@ -77,7 +77,8 @@ fn program_if_merge_local_return_var() -> serde_json::Value {
 
 #[test]
 fn json_if_merge_local_return_var_uses_phi_at_join() {
-    let src = serde_json::to_string(&program_if_merge_local_return_var()).expect("serialize program");
+    let src =
+        serde_json::to_string(&program_if_merge_local_return_var()).expect("serialize program");
     let module = nyash_rust::runner::json_v0_bridge::parse_json_v0_to_module_with_imports(
         &src,
         BTreeMap::new(),

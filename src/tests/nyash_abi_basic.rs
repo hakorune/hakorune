@@ -28,11 +28,11 @@ mod tests {
     #[ignore]
     fn vm_vtable_map_set_get_has() {
         use crate::backend::VM;
+        use crate::mir::definitions::call_unified::TypeCertainty;
         use crate::mir::{
             BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
             MirModule, MirType,
         };
-        use crate::mir::definitions::call_unified::TypeCertainty;
 
         // Enable vtable-preferred path
         std::env::set_var("NYASH_ABI_VTABLE", "1");
@@ -71,9 +71,8 @@ mod tests {
                 dst: v,
                 value: ConstValue::String("v".into()),
             });
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 None,
                 mapv,
                 "MapBox",
@@ -81,7 +80,8 @@ mod tests {
                 vec![k, v],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
 
         let k2 = f.next_value_id();
         f.get_block_mut(bb)
@@ -91,9 +91,8 @@ mod tests {
                 value: ConstValue::String("k".into()),
             });
         let hasv = f.next_value_id();
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 Some(hasv),
                 mapv,
                 "MapBox",
@@ -101,7 +100,8 @@ mod tests {
                 vec![k2],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
 
         let k3 = f.next_value_id();
         f.get_block_mut(bb)
@@ -111,9 +111,8 @@ mod tests {
                 value: ConstValue::String("k".into()),
             });
         let got = f.next_value_id();
-        f.get_block_mut(bb)
-            .unwrap()
-            .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+        f.get_block_mut(bb).unwrap().add_instruction(
+            crate::mir::ssot::method_call::runtime_method_call(
                 Some(got),
                 mapv,
                 "MapBox",
@@ -121,7 +120,8 @@ mod tests {
                 vec![k3],
                 EffectMask::PURE,
                 TypeCertainty::Known,
-            ));
+            ),
+        );
         f.get_block_mut(bb)
             .unwrap()
             .add_instruction(MirInstruction::Return { value: Some(got) });

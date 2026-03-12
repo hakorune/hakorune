@@ -197,8 +197,5 @@ fn json_loop_continue_before_and_after_body_local_decl_verifies() {
 
 #[test]
 fn json_legacy_while_triplet_verifies() {
-    verify_program(
-        "json_legacy_while_triplet",
-        program_legacy_while_triplet(),
-    );
+    verify_program("json_legacy_while_triplet", program_legacy_while_triplet());
 }

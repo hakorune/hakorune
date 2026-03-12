@@ -37,13 +37,13 @@ pub mod mir_loopform_conditional_reassign;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_loopform_exit_phi.rs"]
 pub mod mir_loopform_exit_phi;
+#[path = "../mir_move_contract.rs"]
+pub mod mir_move_contract;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_no_phi_merge_tests.rs"]
 pub mod mir_no_phi_merge_tests;
 #[path = "../mir_outbox_contract.rs"]
 pub mod mir_outbox_contract;
-#[path = "../mir_move_contract.rs"]
-pub mod mir_move_contract;
 #[path = "../mir_peek_lower.rs"]
 pub mod mir_peek_lower;
 #[cfg(feature = "legacy-tests")]

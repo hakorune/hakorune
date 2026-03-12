@@ -12,11 +12,11 @@
  */
 
 use nyash_rust::backend::wasm::WasmBackend;
+use nyash_rust::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use nyash_rust::mir::{
     BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
     MirInstruction, MirModule, MirType, ValueId,
 };
-use nyash_rust::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 
 #[test]
 fn test_wasm_poc2_refnew_basic() {

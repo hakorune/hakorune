@@ -2,11 +2,11 @@
 #[test]
 #[ignore]
 fn jit_readonly_array_push_denied() {
+    use crate::mir::definitions::call_unified::TypeCertainty;
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirModule, MirType,
     };
-    use crate::mir::definitions::call_unified::TypeCertainty;
     // Ensure read-only policy is on
     std::env::set_var("NYASH_JIT_READ_ONLY", "1");
 
@@ -35,9 +35,8 @@ fn jit_readonly_array_push_denied() {
             value: ConstValue::Integer(3),
         });
     // push should be denied under read-only policy, effectively no-op for length
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             a,
             "ArrayBox",
@@ -45,11 +44,11 @@ fn jit_readonly_array_push_denied() {
             vec![three],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let ln = f.next_value_id();
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(ln),
             a,
             "ArrayBox",
@@ -57,7 +56,8 @@ fn jit_readonly_array_push_denied() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     f.get_block_mut(bb)
         .unwrap()
         .add_instruction(MirInstruction::Return { value: Some(ln) });
@@ -76,11 +76,11 @@ fn jit_readonly_array_push_denied() {
 #[test]
 #[ignore]
 fn jit_readonly_map_set_denied() {
+    use crate::mir::definitions::call_unified::TypeCertainty;
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
         MirModule, MirType,
     };
-    use crate::mir::definitions::call_unified::TypeCertainty;
     // Ensure read-only policy is on
     std::env::set_var("NYASH_JIT_READ_ONLY", "1");
 
@@ -116,9 +116,8 @@ fn jit_readonly_map_set_denied() {
             value: ConstValue::Integer(2),
         });
     // set should be denied under read-only policy
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             None,
             mbox,
             "MapBox",
@@ -126,11 +125,11 @@ fn jit_readonly_map_set_denied() {
             vec![key, val],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     let sz = f.next_value_id();
-    f.get_block_mut(bb)
-        .unwrap()
-        .add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+    f.get_block_mut(bb).unwrap().add_instruction(
+        crate::mir::ssot::method_call::runtime_method_call(
             Some(sz),
             mbox,
             "MapBox",
@@ -138,7 +137,8 @@ fn jit_readonly_map_set_denied() {
             vec![],
             EffectMask::PURE,
             TypeCertainty::Known,
-        ));
+        ),
+    );
     f.get_block_mut(bb)
         .unwrap()
         .add_instruction(MirInstruction::Return { value: Some(sz) });
