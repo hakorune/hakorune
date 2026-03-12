@@ -1,10 +1,11 @@
 //! Stage1 bridge Program(JSON v0) emit facade.
 //!
-//! Keep `mod.rs` focused on routing while `program_json/` owns
+//! Keep the bridge root focused on routing while `program_json/` owns
 //! source-path precedence, source-text read, bridge-local payload emission,
 //! and writeback policy for the future-retire lane.
 
 use crate::cli::CliGroups;
+
 mod emit_payload;
 mod read_input;
 mod source;

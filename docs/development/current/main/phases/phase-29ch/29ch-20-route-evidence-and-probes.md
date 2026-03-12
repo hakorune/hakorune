@@ -199,10 +199,10 @@ Related:
   - `src/runner/stage1_bridge/direct_route/mod.rs` is a thin facade; MIR compile lives in `direct_route/compile.rs`, and emit output-path resolution / JSON write live in `direct_route/emit.rs`
   - `src/runner/stage1_bridge/emit_paths.rs` owns bridge-local MIR / Program(JSON) output-path resolution; `stub_emit.rs` and `direct_route/emit.rs` no longer duplicate the MIR env alias policy
   - `src/runner/stage1_bridge/stub_emit.rs` is a thin facade; stdout parse / validation live in `stub_emit/parse.rs`, and writeback policy lives in `stub_emit/writeback.rs`
-  - only remaining crate-local non-routing strict-parse consumer is `src/runner/stage1_bridge/program_json.rs`
+  - only remaining crate-local non-routing strict-parse consumer is `src/runner/stage1_bridge/program_json/mod.rs`
   - Stage1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `src/runner/stage1_bridge/stub_child.rs`; `route_exec/stub.rs` no longer owns the prepare error log + `97` mapping
   - Stage1 stub plain delegate-status execution + child-spawn-failure mapping live in `src/runner/stage1_bridge/stub_delegate.rs`; `route_exec/stub.rs` now only selects `stub_exec_plan()` branch
-  - bridge-local `emit-program-json-v0` file I/O lives in `src/runner/stage1_bridge/program_json.rs`
+  - bridge-local `emit-program-json-v0` file I/O lives in `src/runner/stage1_bridge/program_json/mod.rs`
   - Stage1 stub `emit` stdout parse / validation live in `src/runner/stage1_bridge/stub_emit/parse.rs`, and output-path writeback lives in `src/runner/stage1_bridge/stub_emit/writeback.rs` behind the thin `stub_emit.rs` facade
   - `src/runner/stage1_bridge/mod.rs` stays a thin delegate and no longer carries child/enable entry guard checks, child command/env assembly, or JSON line parsing / writeback logic
 - proof refresh after the above narrowing:

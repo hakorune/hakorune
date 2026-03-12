@@ -25,7 +25,7 @@
  * - Stub emit facade/parse/writeback helpers live in `stub_emit.rs` + `stub_emit/`.
  * - Child env section policy lives behind `env.rs` and the `env/` helper modules.
  * - Stage1 stub emit stdout parse / validation / writeback live behind `stub_emit.rs` + `stub_emit/`.
- * - Bridge-local Program(JSON v0) file I/O lives in `program_json.rs`.
+ * - Bridge-local Program(JSON v0) file I/O lives in `program_json/mod.rs`.
  * - Bridge-local Program(JSON v0) entry facade lives in `program_json_entry.rs`.
  * - When toggles are unset or this is a child invocation, the bridge is a no-op.
  */

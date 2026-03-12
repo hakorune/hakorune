@@ -37,8 +37,8 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - Stage-1 alias propagation lives in `env/stage1_aliases.rs`
 - parser / using toggle propagation lives in `env/parser_stageb.rs`
 - Stage-B module payload generation + child-env apply live in `modules.rs`
-- bridge-local file read/write for this route lives in `program_json.rs`
-- `program_json.rs` is a thin facade; source-path precedence lives in `program_json/source.rs`, and bridge-local writeback policy lives in `program_json/writeback.rs`
+- bridge-local file read/write for this route lives in `program_json/mod.rs`
+- `program_json/mod.rs` is a thin facade; source-path precedence lives in `program_json/source.rs`, and bridge-local writeback policy lives in `program_json/writeback.rs`
 - do not call `source_to_program_json_v0_strict(...)` from this directory
 - do not add new bridge-local Program(JSON v0) parsing policy here
 
@@ -58,7 +58,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - stub emit parse / writeback delegated out of `stub_emit.rs`
 - child-process / embedded-entry orchestration
 - file read/write around bridge-specific CLI surfaces
-- thin delegate modules such as `entry_guard.rs` / `route_exec.rs` / `route_exec/*` / `direct_route/*` / `emit_paths.rs` / `stub_child.rs` / `stub_delegate.rs` / `program_json_entry.rs` / `program_json.rs` / `program_json/*` / `stub_emit.rs` / `stub_emit/*` that keep bridge-only command prep, dispatch, route-local exit handling, compile/output policy, plain delegate-status execution, parse/writeback policy, I/O, and stub emit output handling out of `mod.rs`
+- thin delegate modules such as `entry_guard.rs` / `route_exec.rs` / `route_exec/*` / `direct_route/*` / `emit_paths.rs` / `stub_child.rs` / `stub_delegate.rs` / `program_json_entry.rs` / `program_json/mod.rs` / `program_json/*` / `stub_emit.rs` / `stub_emit/*` that keep bridge-only command prep, dispatch, route-local exit handling, compile/output policy, plain delegate-status execution, parse/writeback policy, I/O, and stub emit output handling out of `mod.rs`
 
 ## Forbidden Responsibilities
 

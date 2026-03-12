@@ -4,7 +4,7 @@ Scope: future-retire bridge-only `emit-program-json-v0` helpers under `src/runne
 
 ## Responsibility Split
 
-- `../program_json.rs`
+- `mod.rs`
   - thin facade for the bridge-local Program(JSON v0) emit route
   - delegates source-path precedence, source-text read, bridge-local payload emission, and writeback policy out of the facade
 - `source.rs`
