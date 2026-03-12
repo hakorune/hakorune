@@ -15,7 +15,8 @@ pub(crate) enum CarrierBindingPolicy {
 pub(crate) fn decide_carrier_binding_policy(carrier: &CarrierVar) -> CarrierBindingPolicy {
     // ConditionOnly carriers should never be sourced from host values.
     debug_assert!(
-        !(carrier.role == CarrierRole::ConditionOnly && matches!(carrier.init, CarrierInit::FromHost)),
+        !(carrier.role == CarrierRole::ConditionOnly
+            && matches!(carrier.init, CarrierInit::FromHost)),
         "ConditionOnly carriers must not use FromHost init"
     );
 

@@ -1,13 +1,13 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::nested_loop_plan;
 use crate::mir::builder::control_flow::plan::normalizer::{
-    lower_loop_header_cond, helpers::LoopBlocksStandard5,
+    helpers::LoopBlocksStandard5, lower_loop_header_cond,
 };
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
@@ -149,10 +149,9 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_block_v0(
     };
 
     let mut body_plans: Vec<LoweredRecipe> = Vec::new();
-    facts.body_lowering_policy.expect_exit_allowed(
-        "[loop_scan_methods_block_v0]",
-        LOOP_SCAN_METHODS_BLOCK_ERR,
-    )?;
+    facts
+        .body_lowering_policy
+        .expect_exit_allowed("[loop_scan_methods_block_v0]", LOOP_SCAN_METHODS_BLOCK_ERR)?;
     for segment in &facts.recipe.segments {
         match segment {
             ScanSegment::Linear(linear) => match linear {

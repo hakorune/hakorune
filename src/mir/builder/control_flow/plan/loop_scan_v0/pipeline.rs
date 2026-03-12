@@ -1,13 +1,13 @@
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::nested_loop_plan;
 use crate::mir::builder::control_flow::plan::normalizer::{
-    lower_loop_header_cond, helpers::LoopBlocksStandard5, PlanNormalizer,
+    helpers::LoopBlocksStandard5, lower_loop_header_cond, PlanNormalizer,
 };
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
@@ -15,8 +15,8 @@ use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
 };
 use crate::mir::builder::MirBuilder;
-use crate::mir::MirType;
 use crate::mir::policies::BodyLoweringPolicy;
+use crate::mir::MirType;
 use std::collections::BTreeMap;
 
 use super::facts::LoopScanV0Facts;
@@ -74,7 +74,11 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
     } = blocks;
 
     let loop_var = facts.loop_var;
-    if !builder.variable_ctx.variable_map.contains_key(&facts.limit_var) {
+    if !builder
+        .variable_ctx
+        .variable_map
+        .contains_key(&facts.limit_var)
+    {
         return Err(format!(
             "[freeze:contract][loop_scan_v0] limit var {} missing init: ctx={LOOP_SCAN_ERR}",
             facts.limit_var
@@ -110,7 +114,10 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
 
     let mut current_bindings = carrier_phis.clone();
     for (name, value_id) in &current_bindings {
-        builder.variable_ctx.variable_map.insert(name.clone(), *value_id);
+        builder
+            .variable_ctx
+            .variable_map
+            .insert(name.clone(), *value_id);
     }
 
     let cond_view = CondBlockView::from_expr(&facts.condition);
@@ -205,14 +212,13 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
             // Fallback: legacy hand-lowering (acceptance-preserving).
             //
             // Note: Prefer Facts-provided `segments` for recipe-first lowering.
-            let local_ch_recipe = try_build_stmt_only_block_recipe(std::slice::from_ref(
-                &facts.recipe.local_ch_stmt,
-            ))
-            .ok_or_else(|| {
-                format!(
+            let local_ch_recipe =
+                try_build_stmt_only_block_recipe(std::slice::from_ref(&facts.recipe.local_ch_stmt))
+                    .ok_or_else(|| {
+                        format!(
                     "[freeze:contract][loop_scan_v0] local_ch not stmt-only: ctx={LOOP_SCAN_ERR}"
                 )
-            })?;
+                    })?;
 
             body_plans.extend(parts::entry::lower_loop_with_body_block(
                 builder,
@@ -226,15 +232,18 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
 
             // 2) if ch == "," { i = i + 1; continue }
             let comma_view = CondBlockView::from_expr(&facts.recipe.comma_if_cond);
-            let (comma_cond_id, comma_cond_effects) = crate::mir::builder::control_flow::plan::normalizer::lower_bool_expr_value_id(
-                builder,
-                &current_bindings,
-                &comma_view,
-                LOOP_SCAN_ERR,
-            )?;
-            body_plans.extend(crate::mir::builder::control_flow::plan::steps::effects_to_plans(
-                comma_cond_effects,
-            ));
+            let (comma_cond_id, comma_cond_effects) =
+                crate::mir::builder::control_flow::plan::normalizer::lower_bool_expr_value_id(
+                    builder,
+                    &current_bindings,
+                    &comma_view,
+                    LOOP_SCAN_ERR,
+                )?;
+            body_plans.extend(
+                crate::mir::builder::control_flow::plan::steps::effects_to_plans(
+                    comma_cond_effects,
+                ),
+            );
 
             let (new_i_id, mut inc_effects) = match &facts.recipe.comma_inc_stmt {
                 crate::ast::ASTNode::Assignment { value, .. } => {
@@ -256,10 +265,12 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
                 LOOP_SCAN_ERR,
             )?;
 
-            inc_effects.push(crate::mir::builder::control_flow::plan::CoreEffectPlan::ExitIf {
-                cond: comma_cond_id,
-                exit: continue_exit,
-            });
+            inc_effects.push(
+                crate::mir::builder::control_flow::plan::CoreEffectPlan::ExitIf {
+                    cond: comma_cond_id,
+                    exit: continue_exit,
+                },
+            );
             body_plans.push(CorePlan::Effect(
                 crate::mir::builder::control_flow::plan::CoreEffectPlan::IfEffect {
                     cond: comma_cond_id,
@@ -270,15 +281,18 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
 
             // 3) if ch == "]" { break }
             let close_view = CondBlockView::from_expr(&facts.recipe.close_if_cond);
-            let (close_cond_id, close_cond_effects) = crate::mir::builder::control_flow::plan::normalizer::lower_bool_expr_value_id(
-                builder,
-                &current_bindings,
-                &close_view,
-                LOOP_SCAN_ERR,
-            )?;
-            body_plans.extend(crate::mir::builder::control_flow::plan::steps::effects_to_plans(
-                close_cond_effects,
-            ));
+            let (close_cond_id, close_cond_effects) =
+                crate::mir::builder::control_flow::plan::normalizer::lower_bool_expr_value_id(
+                    builder,
+                    &current_bindings,
+                    &close_view,
+                    LOOP_SCAN_ERR,
+                )?;
+            body_plans.extend(
+                crate::mir::builder::control_flow::plan::steps::effects_to_plans(
+                    close_cond_effects,
+                ),
+            );
             body_plans.push(CorePlan::Effect(
                 crate::mir::builder::control_flow::plan::CoreEffectPlan::ExitIf {
                     cond: close_cond_id,
@@ -291,14 +305,13 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
             ));
 
             // 4) i = i + 1 (fallthrough step)
-            let step_inc_recipe = try_build_stmt_only_block_recipe(std::slice::from_ref(
-                &facts.recipe.step_inc_stmt,
-            ))
-            .ok_or_else(|| {
-                format!(
+            let step_inc_recipe =
+                try_build_stmt_only_block_recipe(std::slice::from_ref(&facts.recipe.step_inc_stmt))
+                    .ok_or_else(|| {
+                        format!(
                     "[freeze:contract][loop_scan_v0] step_inc not stmt-only: ctx={LOOP_SCAN_ERR}"
                 )
-            })?;
+                    })?;
 
             body_plans.extend(parts::entry::lower_loop_with_body_block(
                 builder,
@@ -329,9 +342,9 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
         let step_phi_dst = *carrier_step_phis
             .get(var)
             .ok_or_else(|| format!("[freeze:contract][loop_scan_v0] missing step phi for {var}"))?;
-        let after_phi_dst = *break_phi_dsts
-            .get(var)
-            .ok_or_else(|| format!("[freeze:contract][loop_scan_v0] missing after phi for {var}"))?;
+        let after_phi_dst = *break_phi_dsts.get(var).ok_or_else(|| {
+            format!("[freeze:contract][loop_scan_v0] missing after phi for {var}")
+        })?;
 
         phis.push(loop_carriers::build_step_join_phi_info(
             step_bb,

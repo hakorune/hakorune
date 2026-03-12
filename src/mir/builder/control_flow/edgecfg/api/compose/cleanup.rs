@@ -76,11 +76,9 @@ pub(crate) fn cleanup(
         ..
     } = cleanup_frag;
 
-    if let Err(message) = super::merge_block_params(
-        &mut block_params,
-        cleanup_block_params,
-        "compose::cleanup",
-    ) {
+    if let Err(message) =
+        super::merge_block_params(&mut block_params, cleanup_block_params, "compose::cleanup")
+    {
         return Err(message);
     }
 
@@ -157,7 +155,7 @@ pub(crate) fn cleanup(
     branches.extend(main.branches);
 
     Ok(Frag {
-        entry: main.entry,  // Entry = main entry (header_bb)
+        entry: main.entry, // Entry = main entry (header_bb)
         block_params,
         exits,
         wires,
@@ -202,8 +200,7 @@ mod tests {
             branches: vec![],
         };
 
-        let composed =
-            cleanup(main, cleanup_frag, None, None).expect("cleanup ok");
+        let composed = cleanup(main, cleanup_frag, None, None).expect("cleanup ok");
         assert_eq!(composed.wires.len(), 1);
         assert_eq!(composed.wires[0].args, args);
         assert!(composed.wires[0].target.is_none());

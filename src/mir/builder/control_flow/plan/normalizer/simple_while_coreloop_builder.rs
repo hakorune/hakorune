@@ -205,14 +205,9 @@ mod tests {
             false,
         );
 
-        let loop_plan = build_simple_while_coreloop(
-            &mut builder,
-            loop_var,
-            &condition,
-            &loop_increment,
-            &ctx,
-        )
-        .expect("simple_while coreloop build should succeed");
+        let loop_plan =
+            build_simple_while_coreloop(&mut builder, loop_var, &condition, &loop_increment, &ctx)
+                .expect("simple_while coreloop build should succeed");
 
         assert_eq!(loop_plan.phis.len(), 1);
         assert_eq!(loop_plan.frag.branches.len(), 1);

@@ -17,11 +17,11 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
     ///
     /// Phase 273 P2: dst is Option for void methods, effects for side effects
     MethodCall {
-        dst: Option<ValueId>,   // P2: Option for void methods (push)
+        dst: Option<ValueId>, // P2: Option for void methods (push)
         object: ValueId,
-        method: String,         // Method name only (OK as String)
+        method: String, // Method name only (OK as String)
         args: Vec<ValueId>,
-        effects: EffectMask,    // P2: Side effect mask (PURE+Io or MUT)
+        effects: EffectMask, // P2: Side effect mask (PURE+Io or MUT)
     },
     /// Global/static call (box-level or free function)
     GlobalCall {
@@ -79,10 +79,7 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
     ///
     /// - exit must be Return/Break/Continue only
     /// - Return requires payload (Some)
-    ExitIf {
-        cond: ValueId,
-        exit: CoreExitPlan,
-    },
+    ExitIf { cond: ValueId, exit: CoreExitPlan },
 
     /// Conditional effects inside loop body (optional else, no join)
     ///

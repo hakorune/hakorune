@@ -15,27 +15,27 @@
 //! - 北極星設計: `docs/development/current/main/design/edgecfg-fragments.md`
 //! - EdgeCFG 基盤: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 
-pub mod exit_kind;
-pub mod edge_stub;
 pub mod block_params;
-pub mod frag;
-pub mod compose;
-pub mod verify;
-pub mod emit; // Phase 266: 追加
 pub mod branch_stub; // Phase 267 P0: 追加
-pub mod frag_emit_session; // Phase 29bq+: sealing 層中立化
+pub mod compose;
+pub mod edge_stub;
+pub mod emit; // Phase 266: 追加
+pub mod exit_kind;
+pub mod frag;
+pub mod frag_emit_session;
+pub mod verify; // Phase 29bq+: sealing 層中立化
 
 // 公開型（安定）
-pub use exit_kind::ExitKind;
-pub use edge_stub::EdgeStub;
 pub use block_params::BlockParams;
-pub use frag::Frag;
-pub use branch_stub::BranchStub; // Phase 267 P0: 追加
+pub use branch_stub::BranchStub;
+pub use edge_stub::EdgeStub;
+pub use exit_kind::ExitKind;
+pub use frag::Frag; // Phase 267 P0: 追加
 
 // 合成関数（Phase 264: crate内のみ公開、Phase 265+でpub化）
 
 // 検証関数
- // Phase 266: strict 版追加
+// Phase 266: strict 版追加
 
 // Phase 29bq+: sealing 層中立化
 pub use frag_emit_session::FragEmitSession;

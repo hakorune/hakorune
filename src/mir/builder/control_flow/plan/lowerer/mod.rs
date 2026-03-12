@@ -39,20 +39,20 @@
 //!   └─→ loop_lowering (uses body_processing, effect_emission)
 //! ```
 
+mod block_effect_emission;
+mod body_processing;
 mod core;
 mod debug_ctx;
 mod debug_tags;
-mod span_fmt;
-mod exit_lowering;
 mod effect_emission;
-mod body_processing;
-mod plan_lowering;
-mod block_effect_emission;
+mod exit_lowering;
 mod loop_completion;
 mod loop_lowering;
-mod loop_validation;
 mod loop_preparation;
+mod loop_validation;
 mod phi_processing;
+mod plan_lowering;
+mod span_fmt;
 
 // Re-export LoopFrame for internal use
 pub(super) use core::LoopFrame;
@@ -66,15 +66,15 @@ pub(in crate::mir::builder) struct PlanLowerer;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::builder::MirBuilder;
-    use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-    use crate::mir::builder::control_flow::plan::{
-        CorePlan, CoreExitPlan, CoreIfPlan, CoreEffectPlan, CoreLoopPlan,
-    };
-    use crate::mir::builder::control_flow::plan::branchn::{CoreBranchArmPlan, CoreBranchNPlan};
-    use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
     use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+    use crate::mir::builder::control_flow::plan::branchn::{CoreBranchArmPlan, CoreBranchNPlan};
     use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
+    use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
+    use crate::mir::builder::control_flow::plan::{
+        CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan, CorePlan,
+    };
+    use crate::mir::builder::MirBuilder;
     use crate::mir::{ConstValue, MirInstruction};
 
     fn make_ctx<'a>(condition: &'a ASTNode, body: &'a [ASTNode]) -> LoopRouteContext<'a> {
@@ -106,7 +106,11 @@ mod tests {
         assert!(result.is_ok());
 
         let entry = builder.current_block_for_test().expect("entry block");
-        let func = builder.scope_ctx.current_function.as_ref().expect("function");
+        let func = builder
+            .scope_ctx
+            .current_function
+            .as_ref()
+            .expect("function");
         let block = func.get_block(entry).expect("block");
         assert!(
             matches!(block.terminator, Some(MirInstruction::Return { value: Some(v) }) if v == ret_val),
@@ -149,7 +153,11 @@ mod tests {
         let result = PlanLowerer::lower(&mut builder, CorePlan::If(if_plan), &ctx);
         assert!(result.is_ok());
 
-        let func = builder.scope_ctx.current_function.as_ref().expect("function");
+        let func = builder
+            .scope_ctx
+            .current_function
+            .as_ref()
+            .expect("function");
         let block = func.get_block(entry).expect("entry block");
         assert!(
             matches!(block.terminator, Some(MirInstruction::Branch { .. })),
@@ -277,7 +285,11 @@ mod tests {
         let result = PlanLowerer::lower(&mut builder, CorePlan::Loop(loop_plan), &ctx);
         assert!(result.is_ok());
 
-        let func = builder.scope_ctx.current_function.as_ref().expect("function");
+        let func = builder
+            .scope_ctx
+            .current_function
+            .as_ref()
+            .expect("function");
         let block = func.get_block(body_bb).expect("body block");
         let const_count = block
             .instructions

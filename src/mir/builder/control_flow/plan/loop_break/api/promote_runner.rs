@@ -40,7 +40,12 @@ pub(in crate::mir::builder) fn try_promote(
     let cond_body_local_vars: Vec<String> = cond_scope
         .vars
         .iter()
-        .filter(|v| matches!(v.scope, crate::mir::loop_route_detection::loop_condition_scope::CondVarScope::LoopBodyLocal))
+        .filter(|v| {
+            matches!(
+                v.scope,
+                crate::mir::loop_route_detection::loop_condition_scope::CondVarScope::LoopBodyLocal
+            )
+        })
         .map(|v| v.name.clone())
         .collect();
 
@@ -120,13 +125,20 @@ pub(in crate::mir::builder) fn try_promote(
             .carrier_info
             .find_carrier(&promoted_carrier_name)
             .and_then(|c| c.join_id)
-            .ok_or_else(|| format!("[phase229] promoted carrier '{}' has no join_id", promoted_carrier_name))?;
+            .ok_or_else(|| {
+                format!(
+                    "[phase229] promoted carrier '{}' has no join_id",
+                    promoted_carrier_name
+                )
+            })?;
         inputs.env.insert(promoted_var, join_id);
     }
 
     // ExprLowerer validation (best-effort; unchanged behavior)
     {
-        use crate::mir::join_ir::lowering::expr_lowerer::{ExprContext, ExprLowerer, ExprLoweringError};
+        use crate::mir::join_ir::lowering::expr_lowerer::{
+            ExprContext, ExprLowerer, ExprLoweringError,
+        };
         use crate::mir::join_ir::lowering::scope_manager::LoopBreakScopeManager;
 
         let scope_manager = LoopBreakScopeManager {

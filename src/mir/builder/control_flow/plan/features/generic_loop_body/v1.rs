@@ -20,8 +20,8 @@ use crate::mir::{Effect, EffectMask};
 use std::collections::BTreeMap;
 
 use super::helpers::{
-    apply_loop_final_values_to_bindings, lower_effect_only_stmt,
-    lower_nested_loop_plan, matches_loop_increment,
+    apply_loop_final_values_to_bindings, lower_effect_only_stmt, lower_nested_loop_plan,
+    matches_loop_increment,
 };
 use super::GENERIC_LOOP_ERR;
 
@@ -43,8 +43,8 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
 
     // M28: Under planner_required, lower via Facts-provided RecipeBlock (NoExit).
     // This avoids re-checking in lower and keeps acceptance Recipe-first.
-    let has_nested_loop_stmt = detect_nested_loop(&facts.body.body)
-        || body_has_blockexpr_prelude_loop(&facts.body.body);
+    let has_nested_loop_stmt =
+        detect_nested_loop(&facts.body.body) || body_has_blockexpr_prelude_loop(&facts.body.body);
     if crate::config::env::joinir_dev::planner_required_enabled() && !has_nested_loop_stmt {
         if let Some(body_no_exit) = facts.body_no_exit.as_ref() {
             return parts::entry::lower_loop_with_body_block(
@@ -114,7 +114,10 @@ fn lower_body_stmt_v1(
                     let ASTNode::Variable { name, .. } = target.as_ref() else {
                         unreachable!();
                     };
-                    builder.variable_ctx.variable_map.insert(name.clone(), value_id);
+                    builder
+                        .variable_ctx
+                        .variable_map
+                        .insert(name.clone(), value_id);
                     phi_bindings.insert(name.clone(), value_id);
                     return Ok(plans);
                 }
@@ -150,7 +153,10 @@ fn lower_body_stmt_v1(
                         init,
                     )? {
                         let name = variables[0].clone();
-                        builder.variable_ctx.variable_map.insert(name.clone(), value_id);
+                        builder
+                            .variable_ctx
+                            .variable_map
+                            .insert(name.clone(), value_id);
                         phi_bindings.insert(name, value_id);
                         return Ok(plans);
                     }
@@ -319,9 +325,10 @@ fn body_has_blockexpr_prelude_loop(body: &[ASTNode]) -> bool {
 fn stmt_has_blockexpr_prelude_loop(stmt: &ASTNode) -> bool {
     match stmt {
         ASTNode::Assignment { value, .. } => expr_has_blockexpr_prelude_loop(value),
-        ASTNode::Local {
-            initial_values, ..
-        } => initial_values.iter().flatten().any(|v| expr_has_blockexpr_prelude_loop(v)),
+        ASTNode::Local { initial_values, .. } => initial_values
+            .iter()
+            .flatten()
+            .any(|v| expr_has_blockexpr_prelude_loop(v)),
         ASTNode::If {
             condition,
             then_body,
@@ -340,9 +347,7 @@ fn stmt_has_blockexpr_prelude_loop(stmt: &ASTNode) -> bool {
         }
         | ASTNode::While {
             condition, body, ..
-        } => {
-            expr_has_blockexpr_prelude_loop(condition) || body_has_blockexpr_prelude_loop(body)
-        }
+        } => expr_has_blockexpr_prelude_loop(condition) || body_has_blockexpr_prelude_loop(body),
         ASTNode::Return { value, .. } => value
             .as_ref()
             .is_some_and(|v| expr_has_blockexpr_prelude_loop(v)),

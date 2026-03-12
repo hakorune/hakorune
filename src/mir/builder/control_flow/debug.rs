@@ -18,5 +18,4 @@
 
 use super::super::MirBuilder;
 
-impl MirBuilder {
-}
+impl MirBuilder {}

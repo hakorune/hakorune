@@ -10,4 +10,3 @@ pub(in crate::mir::builder) mod recipe;
 pub(in crate::mir::builder) use facts::{
     try_extract_loop_scan_methods_v0_facts, LoopScanMethodsV0Facts,
 };
-

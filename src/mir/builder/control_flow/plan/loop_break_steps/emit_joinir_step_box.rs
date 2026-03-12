@@ -23,7 +23,10 @@ impl EmitJoinIRStepBox {
         condition: &ASTNode,
         body_ast: &[ASTNode],
         effective_break_condition: &ASTNode,
-        carrier_updates: &BTreeMap<String, crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr>,
+        carrier_updates: &BTreeMap<
+            String,
+            crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr,
+        >,
         inputs: &mut LoopBreakPrepInputs,
         debug: bool,
         verbose: bool,
@@ -33,28 +36,32 @@ impl EmitJoinIRStepBox {
 
         let log = LoopBreakDebugLog::new(verbose);
 
-        let lowering_inputs = crate::mir::join_ir::lowering::loop_with_break_minimal::LoopWithBreakLoweringInputs {
-            scope: inputs.scope.clone(),
-            condition,
-            break_condition: effective_break_condition,
-            env: &inputs.env,
-            carrier_info: &inputs.carrier_info,
-            carrier_updates,
-            body_ast,
-            body_local_env: Some(&mut inputs.body_local_env),
-            allowed_body_locals_for_conditions: if inputs.allowed_body_locals_for_conditions.is_empty() {
-                None
-            } else {
-                Some(inputs.allowed_body_locals_for_conditions.as_slice())
-            },
-            join_value_space: &mut inputs.join_value_space,
-            skeleton,
-            condition_only_recipe: inputs.condition_only_recipe.as_ref(),
-            body_local_derived_recipe: inputs.body_local_derived_recipe.as_ref(),
-            body_local_derived_slot_recipe: inputs.body_local_derived_slot_recipe.as_ref(),
-            balanced_depth_scan_recipe: inputs.balanced_depth_scan_recipe.as_ref(),
-            current_static_box_name: inputs.current_static_box_name.clone(), // Phase 252
-        };
+        let lowering_inputs =
+            crate::mir::join_ir::lowering::loop_with_break_minimal::LoopWithBreakLoweringInputs {
+                scope: inputs.scope.clone(),
+                condition,
+                break_condition: effective_break_condition,
+                env: &inputs.env,
+                carrier_info: &inputs.carrier_info,
+                carrier_updates,
+                body_ast,
+                body_local_env: Some(&mut inputs.body_local_env),
+                allowed_body_locals_for_conditions: if inputs
+                    .allowed_body_locals_for_conditions
+                    .is_empty()
+                {
+                    None
+                } else {
+                    Some(inputs.allowed_body_locals_for_conditions.as_slice())
+                },
+                join_value_space: &mut inputs.join_value_space,
+                skeleton,
+                condition_only_recipe: inputs.condition_only_recipe.as_ref(),
+                body_local_derived_recipe: inputs.body_local_derived_recipe.as_ref(),
+                body_local_derived_slot_recipe: inputs.body_local_derived_slot_recipe.as_ref(),
+                balanced_depth_scan_recipe: inputs.balanced_depth_scan_recipe.as_ref(),
+                current_static_box_name: inputs.current_static_box_name.clone(), // Phase 252
+            };
 
         let (join_module, fragment_meta) = match lower_loop_with_break_minimal(lowering_inputs) {
             Ok((module, meta)) => (module, meta),
@@ -121,7 +128,8 @@ impl EmitJoinIRStepBox {
         if join_input_slots.len() != host_input_values.len() {
             return Err(format!(
                 "[emit_joinir] Params count mismatch: join_inputs={}, host_inputs={}",
-                join_input_slots.len(), host_input_values.len()
+                join_input_slots.len(),
+                host_input_values.len()
             ));
         }
 
@@ -137,6 +145,9 @@ impl EmitJoinIRStepBox {
 
         log.log("emit", "JoinIR module + boundary constructed");
 
-        Ok(EmitJoinIRStepOutput { join_module, boundary })
+        Ok(EmitJoinIRStepOutput {
+            join_module,
+            boundary,
+        })
     }
 }

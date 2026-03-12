@@ -80,9 +80,7 @@ pub(crate) fn flatten_stmt_list<'a>(body: &'a [ASTNode]) -> Vec<&'a ASTNode> {
 }
 
 /// View-only helper: drop a trailing top-level `continue` (no AST rewrite).
-pub(crate) fn strip_trailing_continue_view<'a>(
-    body: &'a [ASTNode],
-) -> (&'a [ASTNode], bool) {
+pub(crate) fn strip_trailing_continue_view<'a>(body: &'a [ASTNode]) -> (&'a [ASTNode], bool) {
     match body.last() {
         Some(ASTNode::Continue { .. }) => (&body[..body.len().saturating_sub(1)], true),
         _ => (body, false),
@@ -241,8 +239,7 @@ pub(crate) fn has_if_statement(body: &[ASTNode]) -> bool {
 pub(crate) fn has_if_else_statement(body: &[ASTNode]) -> bool {
     walk_stmt_list(body, |node| match node {
         ASTNode::If {
-            else_body: Some(_),
-            ..
+            else_body: Some(_), ..
         } => true,
         ASTNode::Loop { body, .. } => has_if_else_statement(body),
         _ => false,
@@ -251,14 +248,20 @@ pub(crate) fn has_if_else_statement(body: &[ASTNode]) -> bool {
 
 /// Phase 286: Find first if-else statement in loop body (non-recursive)
 pub(crate) fn find_if_else_statement(body: &[ASTNode]) -> Option<&ASTNode> {
-    body.iter()
-        .find(|stmt| matches!(stmt, ASTNode::If { else_body: Some(_), .. }))
+    body.iter().find(|stmt| {
+        matches!(
+            stmt,
+            ASTNode::If {
+                else_body: Some(_),
+                ..
+            }
+        )
+    })
 }
 
 /// ============================================================
 /// Group 3: Condition Validation (比較演算検証)
 /// ============================================================
-
 use crate::ast::BinaryOperator;
 
 /// Validate condition: 比較演算 (左辺が変数)
@@ -351,9 +354,7 @@ pub(crate) fn extract_loop_increment_plan(
                 }
                 None
             }
-            BinaryOperator::Subtract
-            | BinaryOperator::Multiply
-            | BinaryOperator::Divide => {
+            BinaryOperator::Subtract | BinaryOperator::Multiply | BinaryOperator::Divide => {
                 let ASTNode::Variable { name: lname, .. } = left.as_ref() else {
                     return None;
                 };
@@ -396,9 +397,9 @@ pub(crate) fn extract_loop_increment_plan(
         };
         let is_continue_tail =
             matches!(then_body.last(), Some(ASTNode::Continue { .. })) && else_body.is_none();
-        let is_break_else = else_body.as_ref().is_some_and(|body| {
-            body.len() == 1 && matches!(body[0], ASTNode::Break { .. })
-        });
+        let is_break_else = else_body
+            .as_ref()
+            .is_some_and(|body| body.len() == 1 && matches!(body[0], ASTNode::Break { .. }));
         if !is_continue_tail && !is_break_else {
             continue;
         }
@@ -468,11 +469,15 @@ mod tests {
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 
     fn make_break() -> ASTNode {
-        ASTNode::Break { span: Span::unknown() }
+        ASTNode::Break {
+            span: Span::unknown(),
+        }
     }
 
     fn make_continue() -> ASTNode {
-        ASTNode::Continue { span: Span::unknown() }
+        ASTNode::Continue {
+            span: Span::unknown(),
+        }
     }
 
     fn make_return() -> ASTNode {
@@ -785,8 +790,7 @@ mod tests {
             },
         ];
 
-        let inc = extract_loop_increment_plan(&body, "i")
-            .expect("no error");
+        let inc = extract_loop_increment_plan(&body, "i").expect("no error");
         assert!(inc.is_none());
     }
 
@@ -802,8 +806,7 @@ mod tests {
             assign("j", lit_i(1)),
         ];
 
-        let inc = extract_loop_increment_plan(&body, "i")
-            .expect("no error");
+        let inc = extract_loop_increment_plan(&body, "i").expect("no error");
         assert!(inc.is_none());
     }
 }

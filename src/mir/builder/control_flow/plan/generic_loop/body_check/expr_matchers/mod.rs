@@ -1,17 +1,20 @@
-mod compare;
-mod literal;
 mod call;
+mod compare;
 mod control;
+mod literal;
 
-pub(in crate::mir::builder) use compare::*;
-pub(in crate::mir::builder) use literal::*;
 pub(in crate::mir::builder) use call::*;
+pub(in crate::mir::builder) use compare::*;
 pub(in crate::mir::builder) use control::*;
+pub(in crate::mir::builder) use literal::*;
 
 use crate::ast::{ASTNode, BinaryOperator};
 
 /// Matches trim condition with method call pattern.
-pub(in crate::mir::builder) fn matches_trim_cond_with_methodcall(condition: &ASTNode, loop_var: &str) -> bool {
+pub(in crate::mir::builder) fn matches_trim_cond_with_methodcall(
+    condition: &ASTNode,
+    loop_var: &str,
+) -> bool {
     let ASTNode::BinaryOp {
         operator: BinaryOperator::And,
         left,
@@ -28,7 +31,11 @@ pub(in crate::mir::builder) fn matches_trim_cond_with_methodcall(condition: &AST
 }
 
 /// Matches `var = var + literal` assignment pattern.
-pub(in crate::mir::builder) fn matches_assignment_add_literal(stmt: &ASTNode, var: &str, literal: i64) -> bool {
+pub(in crate::mir::builder) fn matches_assignment_add_literal(
+    stmt: &ASTNode,
+    var: &str,
+    literal: i64,
+) -> bool {
     use crate::ast::LiteralValue;
     let ASTNode::Assignment {
         target,
@@ -53,9 +60,8 @@ pub(in crate::mir::builder) fn matches_assignment_add_literal(stmt: &ASTNode, va
     else {
         return false;
     };
-    let is_loop_var = |node: &ASTNode| {
-        matches!(node, ASTNode::Variable { name, .. } if name == var)
-    };
+    let is_loop_var =
+        |node: &ASTNode| matches!(node, ASTNode::Variable { name, .. } if name == var);
     let is_literal = |node: &ASTNode| {
         matches!(
             node,

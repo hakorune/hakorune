@@ -15,9 +15,7 @@
 
 use super::LoopFrame;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CorePlan, LoweredRecipe,
-};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 use std::collections::HashSet;
@@ -65,12 +63,7 @@ impl super::PlanLowerer {
         )?;
 
         builder.start_new_block(then_bb)?;
-        Self::emit_effects_with_fallthrough(
-            builder,
-            then_effects,
-            fallthrough_target,
-            loop_stack,
-        )?;
+        Self::emit_effects_with_fallthrough(builder, then_effects, fallthrough_target, loop_stack)?;
 
         if let (Some(else_bb), Some(else_effects)) = (else_bb, else_effects) {
             builder.start_new_block(else_bb)?;
@@ -184,8 +177,10 @@ impl super::PlanLowerer {
                 }
                 _ => {
                     if strict_planner_required {
-                        if let (Some(ref defined_values), CoreEffectPlan::BinOp { dst, lhs, op, rhs }) =
-                            (&defined_values, effect)
+                        if let (
+                            Some(ref defined_values),
+                            CoreEffectPlan::BinOp { dst, lhs, op, rhs },
+                        ) = (&defined_values, effect)
                         {
                             if !defined_values.contains(lhs) {
                                 if let Some((def_idx, def_kind)) =
@@ -398,12 +393,7 @@ impl super::PlanLowerer {
             return Ok(());
         }
 
-        Self::emit_effects_with_fallthrough(
-            builder,
-            effects,
-            fallthrough_target,
-            loop_stack,
-        )
+        Self::emit_effects_with_fallthrough(builder, effects, fallthrough_target, loop_stack)
     }
 
     pub(super) fn emit_effect_in_loop(
@@ -461,7 +451,8 @@ impl super::PlanLowerer {
                 if strict_planner_required {
                     if let CoreEffectPlan::BinOp { dst, lhs, op, rhs } = effect {
                         if let Some(func) = builder.scope_ctx.current_function.as_ref() {
-                            let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
+                            let def_blocks =
+                                crate::mir::verification::utils::compute_def_blocks(func);
                             let span = builder.metadata_ctx.current_span();
                             let file = builder
                                 .metadata_ctx
@@ -537,8 +528,7 @@ impl super::PlanLowerer {
                     if let Some(func) = builder.scope_ctx.current_function.as_ref() {
                         let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
                         if !def_blocks.contains_key(lhs) {
-                            if let Some((def_idx, def_kind)) =
-                                plans_find_def(plans, idx + 1, *lhs)
+                            if let Some((def_idx, def_kind)) = plans_find_def(plans, idx + 1, *lhs)
                             {
                                 return Err(format!(
                                     "[freeze:contract][loop_lowering/effect_cross_plan_forward_ref] fn={} use_idx={} use=%{} def_idx={} def_kind={} use_by=CorePlan::Effect dst=%{} op={:?} operand=lhs path=body_plan",
@@ -556,8 +546,7 @@ impl super::PlanLowerer {
                             ));
                         }
                         if !def_blocks.contains_key(rhs) {
-                            if let Some((def_idx, def_kind)) =
-                                plans_find_def(plans, idx + 1, *rhs)
+                            if let Some((def_idx, def_kind)) = plans_find_def(plans, idx + 1, *rhs)
                             {
                                 return Err(format!(
                                     "[freeze:contract][loop_lowering/effect_cross_plan_forward_ref] fn={} use_idx={} use=%{} def_idx={} def_kind={} use_by=CorePlan::Effect dst=%{} op={:?} operand=rhs path=body_plan",

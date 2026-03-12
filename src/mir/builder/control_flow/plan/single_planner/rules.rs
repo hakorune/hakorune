@@ -72,10 +72,9 @@ fn debug_log_recipe_only_entry(rule_id: PlanRuleId) {
     }
     let ring0 = crate::runtime::get_global_ring0();
     let label = planner_rule_semantic_label(rule_id);
-    ring0.log.debug(&format!(
-        "[recipe:entry] {}: recipe-only entry",
-        label
-    ));
+    ring0
+        .log
+        .debug(&format!("[recipe:entry] {}: recipe-only entry", label));
 }
 
 fn promotion_hint_tag(shape: &LoopBodyLocalShape) -> &'static str {

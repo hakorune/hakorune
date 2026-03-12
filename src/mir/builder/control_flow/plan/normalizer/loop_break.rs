@@ -11,7 +11,7 @@ use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
 use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
 use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe, LoopBreakStepPlacement,
+    CoreEffectPlan, CoreLoopPlan, CorePlan, LoopBreakStepPlacement, LoweredRecipe,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;

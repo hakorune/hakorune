@@ -10,7 +10,11 @@ use super::super::loop_break_prep_box::{LoopBreakPrepFacts, LoopBreakPrepInputs}
 pub(crate) struct ApplyPolicyStepBox;
 
 impl ApplyPolicyStepBox {
-    pub(crate) fn apply(condition: &ASTNode, body: &[ASTNode], facts: LoopBreakPrepFacts) -> Result<LoopBreakPrepInputs, String> {
+    pub(crate) fn apply(
+        condition: &ASTNode,
+        body: &[ASTNode],
+        facts: LoopBreakPrepFacts,
+    ) -> Result<LoopBreakPrepInputs, String> {
         let policy = LoopBreakPolicyRouterBox::route(condition, body)?;
 
         Ok(LoopBreakPrepInputs {

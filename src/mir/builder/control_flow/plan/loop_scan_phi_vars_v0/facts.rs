@@ -4,10 +4,10 @@
 //! loop(i < n) with nested break-search-loop + found-if + collect-loop.
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
+use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::policies::BodyLoweringPolicy;
 
@@ -69,7 +69,10 @@ fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)> {
             left,
             right,
             ..
-        } => Some((as_var_name(left.as_ref())?.to_string(), as_var_name(right.as_ref())?.to_string())),
+        } => Some((
+            as_var_name(left.as_ref())?.to_string(),
+            as_var_name(right.as_ref())?.to_string(),
+        )),
         _ => None,
     }
 }
@@ -107,7 +110,11 @@ fn body_contains_break(body: &[ASTNode]) -> bool {
     for stmt in body {
         match stmt {
             ASTNode::Break { .. } => return true,
-            ASTNode::If { then_body, else_body, .. } => {
+            ASTNode::If {
+                then_body,
+                else_body,
+                ..
+            } => {
                 if body_contains_break(then_body) {
                     return true;
                 }
@@ -132,7 +139,8 @@ fn is_if_stmt(stmt: &ASTNode) -> bool {
 fn is_inc_stmt(stmt: &ASTNode, loop_var: &str) -> bool {
     match stmt {
         ASTNode::Assignment { target, value, .. } => {
-            as_var_name(target.as_ref()) == Some(loop_var) && is_var_plus_one(value.as_ref(), loop_var)
+            as_var_name(target.as_ref()) == Some(loop_var)
+                && is_var_plus_one(value.as_ref(), loop_var)
         }
         _ => false,
     }
@@ -165,7 +173,10 @@ fn contains_exit_anywhere(stmts: &[ASTNode]) -> bool {
                 if contains_exit_anywhere(then_body) {
                     return true;
                 }
-                if else_body.as_ref().is_some_and(|b| contains_exit_anywhere(b)) {
+                if else_body
+                    .as_ref()
+                    .is_some_and(|b| contains_exit_anywhere(b))
+                {
                     return true;
                 }
             }
@@ -258,7 +269,10 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
     let debug_reject = |reason: &str| {
         if debug {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[plan/reject_detail] box=loop_scan_phi_vars_v0 reason={}", reason));
+            ring0.log.debug(&format!(
+                "[plan/reject_detail] box=loop_scan_phi_vars_v0 reason={}",
+                reason
+            ));
         }
     };
 
@@ -385,7 +399,8 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
 
     const ALLOW_EXTENDED: bool = true;
 
-    let Some(prefix_linear) = try_build_no_exit_block_recipe(&body[..prefix_end], ALLOW_EXTENDED) else {
+    let Some(prefix_linear) = try_build_no_exit_block_recipe(&body[..prefix_end], ALLOW_EXTENDED)
+    else {
         debug_reject("segments_prefix_not_no_exit");
         return Ok(None);
     };
@@ -395,7 +410,8 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
         return Ok(None);
     };
 
-    let Some(step_linear) = try_build_no_exit_block_recipe(&body[step_start..], ALLOW_EXTENDED) else {
+    let Some(step_linear) = try_build_no_exit_block_recipe(&body[step_start..], ALLOW_EXTENDED)
+    else {
         debug_reject("segments_step_not_no_exit");
         return Ok(None);
     };
@@ -524,7 +540,10 @@ mod tests {
             local("m", Some(method_call(var("arr"), "length", vec![]))),
             ASTNode::Loop {
                 condition: Box::new(binop(BinaryOperator::Less, var("j"), var("m"))),
-                body: vec![assign(var("j"), binop(BinaryOperator::Add, var("j"), int(1)))],
+                body: vec![assign(
+                    var("j"),
+                    binop(BinaryOperator::Add, var("j"), int(1)),
+                )],
                 span: Span::unknown(),
             },
             assign(
@@ -575,8 +594,7 @@ mod tests {
             ),
         ];
 
-        let facts = try_extract_loop_scan_phi_vars_v0_facts(&condition, &body)
-            .expect("extract ok");
+        let facts = try_extract_loop_scan_phi_vars_v0_facts(&condition, &body).expect("extract ok");
         assert!(facts.is_none());
     }
 
@@ -591,14 +609,16 @@ mod tests {
             local("m", Some(method_call(var("arr"), "length", vec![]))),
             ASTNode::Loop {
                 condition: Box::new(binop(BinaryOperator::Less, var("j"), var("m"))),
-                body: vec![assign(var("j"), binop(BinaryOperator::Add, var("j"), int(1)))],
+                body: vec![assign(
+                    var("j"),
+                    binop(BinaryOperator::Add, var("j"), int(1)),
+                )],
                 span: Span::unknown(),
             },
             assign(var("i"), binop(BinaryOperator::Add, var("i"), int(1))),
         ];
 
-        let facts = try_extract_loop_scan_phi_vars_v0_facts(&condition, &body)
-            .expect("extract ok");
+        let facts = try_extract_loop_scan_phi_vars_v0_facts(&condition, &body).expect("extract ok");
         assert!(facts.is_none());
     }
 }

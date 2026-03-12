@@ -20,8 +20,10 @@
 //! - Phase 142 P0+: Statement-level normalization accepts LoopOnly only
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::normalization::{
+    NormalizationExecuteBox, NormalizationPlanBox, PlanKind,
+};
 use crate::mir::builder::MirBuilder;
-use crate::mir::builder::control_flow::normalization::{NormalizationPlanBox, NormalizationExecuteBox, PlanKind};
 
 /// Box-First: Suffix router for normalized shadow lowering
 pub struct NormalizedShadowSuffixRouterBox;
@@ -47,26 +49,27 @@ impl NormalizedShadowSuffixRouterBox {
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
 
         // Phase 134 P0: Delegate shape detection to NormalizationPlanBox (SSOT)
-        let plan = match NormalizationPlanBox::plan_block_suffix(builder, remaining, func_name, debug)? {
-            Some(plan) => plan,
-            None => {
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!(
-                        "[normalization/fallback] func={} reason=plan_none err=none",
-                        func_name
-                    ));
+        let plan =
+            match NormalizationPlanBox::plan_block_suffix(builder, remaining, func_name, debug)? {
+                Some(plan) => plan,
+                None => {
+                    if crate::config::env::joinir_dev::debug_enabled() {
+                        let ring0 = crate::runtime::get_global_ring0();
+                        ring0.log.debug(&format!(
+                            "[normalization/fallback] func={} reason=plan_none err=none",
+                            func_name
+                        ));
+                    }
+                    if debug {
+                        trace.routing(
+                            "suffix_router",
+                            func_name,
+                            "NormalizationPlanBox returned None (not a normalized shape)",
+                        );
+                    }
+                    return Ok(None);
                 }
-                if debug {
-                    trace.routing(
-                        "suffix_router",
-                        func_name,
-                        "NormalizationPlanBox returned None (not a normalized shape)",
-                    );
-                }
-                return Ok(None);
-            }
-        };
+            };
 
         // Phase 142 P0: Normalization unit is now "statement (loop only)", not "block suffix"
         if debug {
@@ -78,7 +81,14 @@ impl NormalizedShadowSuffixRouterBox {
 
         // Phase 134 P0: Delegate execution to NormalizationExecuteBox (SSOT)
         // Phase 141 P1.5: Pass prefix_variables
-        match NormalizationExecuteBox::execute(builder, &plan, remaining, func_name, debug, prefix_variables) {
+        match NormalizationExecuteBox::execute(
+            builder,
+            &plan,
+            remaining,
+            func_name,
+            debug,
+            prefix_variables,
+        ) {
             Ok(_value_id) => {
                 // ExecuteBox returns a void constant, we don't need it for suffix routing
                 // The consumed count is what build_block() needs
@@ -86,7 +96,10 @@ impl NormalizedShadowSuffixRouterBox {
                     trace.routing(
                         "suffix_router",
                         func_name,
-                        &format!("Normalization succeeded, consumed {} statements", plan.consumed),
+                        &format!(
+                            "Normalization succeeded, consumed {} statements",
+                            plan.consumed
+                        ),
                     );
                 }
                 Ok(Some(plan.consumed))
@@ -179,16 +192,14 @@ mod tests {
     fn test_try_lower_loop_suffix_no_match_too_short() {
         // Single statement - should not match
         let span = Span::unknown();
-        let remaining = vec![
-            ASTNode::Loop {
-                condition: Box::new(ASTNode::Literal {
-                    value: LiteralValue::Bool(true),
-                    span: span.clone(),
-                }),
-                body: vec![ASTNode::Break { span: span.clone() }],
+        let remaining = vec![ASTNode::Loop {
+            condition: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(true),
                 span: span.clone(),
-            },
-        ];
+            }),
+            body: vec![ASTNode::Break { span: span.clone() }],
+            span: span.clone(),
+        }];
 
         // Shape should not match (need at least 2 statements)
         assert!(remaining.len() < 2);

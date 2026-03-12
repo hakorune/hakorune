@@ -14,7 +14,9 @@ pub(in crate::mir::builder) type NestedLoopRecipe =
     crate::mir::builder::control_flow::plan::scan_loop_segments::NestedLoopRecipe;
 
 pub(in crate::mir::builder) type LoopScanSegment =
-    crate::mir::builder::control_flow::plan::scan_loop_segments::LoopScanSegment<ExitAllowedBlockRecipe>;
+    crate::mir::builder::control_flow::plan::scan_loop_segments::LoopScanSegment<
+        ExitAllowedBlockRecipe,
+    >;
 
 /// Segment vocabulary for loop_scan_v0.
 ///

@@ -7,14 +7,17 @@ use crate::mir::builder::control_flow::plan::facts::reject_reason::{
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
-use super::super::facts_helpers::reject_or_false;
 use super::super::facts::stmt_classifier::{
     body_has_continue, is_effect_if, is_exit_if, is_local_init, is_simple_assignment,
     stmt_uses_loop_var,
 };
+use super::super::facts_helpers::reject_or_false;
 
 /// Checks if there is control flow after the step index
-pub(in crate::mir::builder) fn has_control_flow_after_step(body: &[ASTNode], step_index: usize) -> bool {
+pub(in crate::mir::builder) fn has_control_flow_after_step(
+    body: &[ASTNode],
+    step_index: usize,
+) -> bool {
     for stmt in body.iter().skip(step_index + 1) {
         if is_exit_if(stmt) {
             return true;

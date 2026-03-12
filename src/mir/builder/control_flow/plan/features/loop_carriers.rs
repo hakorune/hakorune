@@ -37,7 +37,12 @@ pub(in crate::mir::builder) fn build_loop_phi_info(
     next: ValueId,
     tag: String,
 ) -> CorePhiInfo {
-    build_phi_info(header_bb, dst, vec![(preheader_bb, init), (step_bb, next)], tag)
+    build_phi_info(
+        header_bb,
+        dst,
+        vec![(preheader_bb, init), (step_bb, next)],
+        tag,
+    )
 }
 
 pub(in crate::mir::builder) fn build_loop_carriers(

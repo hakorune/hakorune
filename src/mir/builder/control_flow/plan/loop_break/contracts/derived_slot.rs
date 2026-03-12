@@ -118,7 +118,8 @@ fn find_top_level_conditional_assignment(
             then_body,
             else_body,
             ..
-        } = stmt else {
+        } = stmt
+        else {
             continue;
         };
 
@@ -188,13 +189,17 @@ fn contains_assignment_to_name_in_node(node: &ASTNode, name: &str) -> bool {
                         .any(|n| contains_assignment_to_name_in_node(n, name))
                 })
         }
-        ASTNode::Loop { condition, body, .. } => {
+        ASTNode::Loop {
+            condition, body, ..
+        } => {
             contains_assignment_to_name_in_node(condition, name)
                 || body
                     .iter()
                     .any(|n| contains_assignment_to_name_in_node(n, name))
         }
-        ASTNode::While { condition, body, .. } => {
+        ASTNode::While {
+            condition, body, ..
+        } => {
             contains_assignment_to_name_in_node(condition, name)
                 || body
                     .iter()

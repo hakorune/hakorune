@@ -15,12 +15,12 @@
 //! Composer/entry runtime paths should prefer semantic helpers or feature lowerers,
 //! and Lowerer processes CorePlan without route-specific knowledge.
 
+pub(in crate::mir::builder) mod common;
 pub(in crate::mir::builder) mod helpers;
-mod simple_while_coreloop_builder;
 #[cfg(test)]
 mod loop_break;
+mod simple_while_coreloop_builder;
 mod value_join_args;
-pub(in crate::mir::builder) mod common;
 
 // Cond lowering modules (flattened from cond_lowering/)
 pub(in crate::mir::builder) mod cond_lowering_entry;
@@ -36,10 +36,10 @@ mod value_join_demo_if2;
 
 use super::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::MirBuilder;
 
 pub(in crate::mir::builder) fn build_simple_while_coreloop(
@@ -71,7 +71,9 @@ impl PlanNormalizer {
         facts: LoopCondBreakContinueFacts,
         ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, String> {
-        crate::mir::builder::control_flow::plan::features::lower_loop_cond_break_continue(builder, facts, ctx)
+        crate::mir::builder::control_flow::plan::features::lower_loop_cond_break_continue(
+            builder, facts, ctx,
+        )
     }
 
     pub(in crate::mir::builder) fn normalize_loop_cond_continue_only(
@@ -79,7 +81,9 @@ impl PlanNormalizer {
         facts: LoopCondContinueOnlyFacts,
         ctx: &LoopRouteContext,
     ) -> Result<LoweredRecipe, String> {
-        crate::mir::builder::control_flow::plan::features::lower_loop_cond_continue_only(builder, facts, ctx)
+        crate::mir::builder::control_flow::plan::features::lower_loop_cond_continue_only(
+            builder, facts, ctx,
+        )
     }
 
     pub(in crate::mir::builder) fn normalize_loop_cond_continue_with_return(
@@ -100,5 +104,7 @@ impl PlanNormalizer {
 }
 
 // Re-export cond_lowering types (maintains backward compatibility)
-pub(in crate::mir::builder) use cond_lowering_entry::{lower_bool_expr_value_id, lower_cond_branch, lower_cond_value};
+pub(in crate::mir::builder) use cond_lowering_entry::{
+    lower_bool_expr_value_id, lower_cond_branch, lower_cond_value,
+};
 pub(in crate::mir::builder) use cond_lowering_loop_header::lower_loop_header_cond;

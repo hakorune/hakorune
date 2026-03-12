@@ -252,7 +252,8 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
             .get(name)
             .copied()
             .and_then(|candidate| {
-                if body_defined_values.contains(&candidate) || body_entry_values.contains(&candidate)
+                if body_defined_values.contains(&candidate)
+                    || body_entry_values.contains(&candidate)
                 {
                     Some(candidate)
                 } else {

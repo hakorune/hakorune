@@ -7,7 +7,7 @@ use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::nested_loop_plan;
 use crate::mir::builder::control_flow::plan::normalizer::{
-    lower_loop_header_cond, helpers::LoopBlocksStandard5,
+    helpers::LoopBlocksStandard5, lower_loop_header_cond,
 };
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
@@ -150,10 +150,9 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
         branches: header_result.branches,
     };
 
-    facts.body_lowering_policy.expect_recipe_only(
-        "[loop_scan_methods_v0]",
-        LOOP_SCAN_METHODS_ERR,
-    )?;
+    facts
+        .body_lowering_policy
+        .expect_recipe_only("[loop_scan_methods_v0]", LOOP_SCAN_METHODS_ERR)?;
 
     let mut body_plans: Vec<LoweredRecipe> = Vec::new();
     for segment in &facts.recipe.segments {
@@ -212,15 +211,15 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
     let mut phis = Vec::new();
     let mut final_values = Vec::new();
     for (var, header_phi_dst) in &carrier_phis {
-        let init_val = *carrier_inits
-            .get(var)
-            .ok_or_else(|| format!("[freeze:contract][loop_scan_methods_v0] missing init for {var}"))?;
-        let step_phi_dst = *carrier_step_phis
-            .get(var)
-            .ok_or_else(|| format!("[freeze:contract][loop_scan_methods_v0] missing step phi for {var}"))?;
-        let after_phi_dst = *break_phi_dsts
-            .get(var)
-            .ok_or_else(|| format!("[freeze:contract][loop_scan_methods_v0] missing after phi for {var}"))?;
+        let init_val = *carrier_inits.get(var).ok_or_else(|| {
+            format!("[freeze:contract][loop_scan_methods_v0] missing init for {var}")
+        })?;
+        let step_phi_dst = *carrier_step_phis.get(var).ok_or_else(|| {
+            format!("[freeze:contract][loop_scan_methods_v0] missing step phi for {var}")
+        })?;
+        let after_phi_dst = *break_phi_dsts.get(var).ok_or_else(|| {
+            format!("[freeze:contract][loop_scan_methods_v0] missing after phi for {var}")
+        })?;
 
         phis.push(loop_carriers::build_step_join_phi_info(
             step_bb,

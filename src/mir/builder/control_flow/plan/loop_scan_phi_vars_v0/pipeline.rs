@@ -1,17 +1,17 @@
 //! Pipeline for loop_scan_phi_vars_v0: lowering outer loop with nested loops.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
-use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
+use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::normalizer::{
-    lower_loop_header_cond, helpers::LoopBlocksStandard5,
+    helpers::LoopBlocksStandard5, lower_loop_header_cond,
 };
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
@@ -49,7 +49,9 @@ fn collect_assigned_vars_in_stmt(stmt: &ASTNode, out: &mut BTreeSet<String>) {
                 }
             }
         }
-        ASTNode::Loop { body, .. } | ASTNode::While { body, .. } | ASTNode::ForRange { body, .. } => {
+        ASTNode::Loop { body, .. }
+        | ASTNode::While { body, .. }
+        | ASTNode::ForRange { body, .. } => {
             for s in body {
                 collect_assigned_vars_in_stmt(s, out);
             }
@@ -117,8 +119,12 @@ fn lower_nested_loop_recipe(
         }
         Ok(plans)
     } else {
-        let plan =
-            lower_nested_loop_plan(builder, &nested.cond_view.tail_expr, nested.body.as_ref(), ctx)?;
+        let plan = lower_nested_loop_plan(
+            builder,
+            &nested.cond_view.tail_expr,
+            nested.body.as_ref(),
+            ctx,
+        )?;
         apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
         Ok(vec![plan])
     }
@@ -212,8 +218,10 @@ fn lower_found_if_stmt(
 
     let lower_else = else_body.as_ref().map(|_| {
         &mut lower_else_closure
-            as &mut dyn FnMut(&mut MirBuilder, &mut BTreeMap<String, crate::mir::ValueId>)
-                -> Result<Vec<LoweredRecipe>, String>
+            as &mut dyn FnMut(
+                &mut MirBuilder,
+                &mut BTreeMap<String, crate::mir::ValueId>,
+            ) -> Result<Vec<LoweredRecipe>, String>
     });
 
     parts::entry::lower_if_join_with_branch_lowerers(
@@ -242,14 +250,17 @@ fn lower_found_if_branch_body(
     while idx < stmts.len() {
         if matches!(stmts[idx], ASTNode::Loop { .. } | ASTNode::While { .. }) {
             let nested = match &stmts[idx] {
-                ASTNode::Loop { condition, body, .. } | ASTNode::While { condition, body, .. } => {
-                    NestedLoopRecipe {
-                        cond_view: CondBlockView::from_expr(condition),
-                        loop_stmt: stmts[idx].clone(),
-                        body: RecipeBody::new(body.to_vec()),
-                        body_stmt_only: try_build_stmt_only_block_recipe(body),
-                    }
+                ASTNode::Loop {
+                    condition, body, ..
                 }
+                | ASTNode::While {
+                    condition, body, ..
+                } => NestedLoopRecipe {
+                    cond_view: CondBlockView::from_expr(condition),
+                    loop_stmt: stmts[idx].clone(),
+                    body: RecipeBody::new(body.to_vec()),
+                    body_stmt_only: try_build_stmt_only_block_recipe(body),
+                },
                 _ => unreachable!(),
             };
             plans.extend(lower_nested_loop_recipe(
@@ -384,7 +395,10 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(
 
     let mut current_bindings = carrier_phis.clone();
     for (name, value_id) in &current_bindings {
-        builder.variable_ctx.variable_map.insert(name.clone(), *value_id);
+        builder
+            .variable_ctx
+            .variable_map
+            .insert(name.clone(), *value_id);
     }
 
     let cond_view = CondBlockView::from_expr(&condition);
@@ -413,10 +427,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(
         branches: header_result.branches,
     };
 
-    body_lowering_policy.expect_recipe_only(
-        "[loop_scan_phi_vars_v0]",
-        LOOP_SCAN_PHI_VARS_ERR,
-    )?;
+    body_lowering_policy.expect_recipe_only("[loop_scan_phi_vars_v0]", LOOP_SCAN_PHI_VARS_ERR)?;
 
     if segments.len() != 3 {
         return Err(format!(
@@ -472,15 +483,15 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(
     let mut phis = Vec::new();
     let mut final_values = Vec::new();
     for (var, header_phi_dst) in &carrier_phis {
-        let init_val = *carrier_inits
-            .get(var)
-            .ok_or_else(|| format!("[freeze:contract][loop_scan_phi_vars_v0] missing init for {var}"))?;
-        let step_phi_dst = *carrier_step_phis
-            .get(var)
-            .ok_or_else(|| format!("[freeze:contract][loop_scan_phi_vars_v0] missing step phi for {var}"))?;
-        let after_phi_dst = *break_phi_dsts
-            .get(var)
-            .ok_or_else(|| format!("[freeze:contract][loop_scan_phi_vars_v0] missing after phi for {var}"))?;
+        let init_val = *carrier_inits.get(var).ok_or_else(|| {
+            format!("[freeze:contract][loop_scan_phi_vars_v0] missing init for {var}")
+        })?;
+        let step_phi_dst = *carrier_step_phis.get(var).ok_or_else(|| {
+            format!("[freeze:contract][loop_scan_phi_vars_v0] missing step phi for {var}")
+        })?;
+        let after_phi_dst = *break_phi_dsts.get(var).ok_or_else(|| {
+            format!("[freeze:contract][loop_scan_phi_vars_v0] missing after phi for {var}")
+        })?;
 
         phis.push(loop_carriers::build_step_join_phi_info(
             step_bb,

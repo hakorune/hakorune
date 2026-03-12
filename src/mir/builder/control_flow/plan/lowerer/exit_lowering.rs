@@ -40,10 +40,7 @@ impl super::PlanLowerer {
                 if let Some(current_bb) = builder.current_block {
                     trace_logger.debug(
                         "lowerer/term_set",
-                        &format!(
-                            "func={} bb={:?} term=Return",
-                            func_name, current_bb
-                        ),
+                        &format!("func={} bb={:?} term=Return", func_name, current_bb),
                     );
                 }
                 Ok(opt_val)
@@ -67,9 +64,9 @@ impl super::PlanLowerer {
                 Ok(None)
             }
             CoreExitPlan::BreakWithPhiArgs { depth, phi_args } => {
-                let current_bb = builder
-                    .current_block
-                    .ok_or_else(|| "[lowerer] BreakWithPhiArgs without current block".to_string())?;
+                let current_bb = builder.current_block.ok_or_else(|| {
+                    "[lowerer] BreakWithPhiArgs without current block".to_string()
+                })?;
                 let frame = Self::resolve_loop_frame_mut(loop_stack, depth)?;
                 builder.ensure_block_exists(frame.break_target)?;
                 let phi_args_len = phi_args.len();
@@ -88,10 +85,7 @@ impl super::PlanLowerer {
                     "lowerer/term_set",
                     &format!(
                         "func={} bb={:?} term=Jump target={:?} phi_args.len={}",
-                        func_name,
-                        current_bb,
-                        frame.break_target,
-                        phi_args_len
+                        func_name, current_bb, frame.break_target, phi_args_len
                     ),
                 );
                 Ok(None)
@@ -115,9 +109,9 @@ impl super::PlanLowerer {
                 Ok(None)
             }
             CoreExitPlan::ContinueWithPhiArgs { depth, phi_args } => {
-                let current_bb = builder
-                    .current_block
-                    .ok_or_else(|| "[lowerer] ContinueWithPhiArgs without current block".to_string())?;
+                let current_bb = builder.current_block.ok_or_else(|| {
+                    "[lowerer] ContinueWithPhiArgs without current block".to_string()
+                })?;
                 let frame = Self::resolve_loop_frame_mut(loop_stack, depth)?;
                 builder.ensure_block_exists(frame.continue_target)?;
                 let phi_args_len = phi_args.len();
@@ -158,10 +152,7 @@ impl super::PlanLowerer {
                     "lowerer/term_set",
                     &format!(
                         "func={} bb={:?} term=Jump target={:?} phi_args.len={}",
-                        func_name,
-                        current_bb,
-                        frame.continue_target,
-                        phi_args_len
+                        func_name, current_bb, frame.continue_target, phi_args_len
                     ),
                 );
                 Ok(None)

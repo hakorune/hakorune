@@ -1,8 +1,8 @@
 use super::branchn::CoreBranchNPlan;
+use super::edgecfg_facade::Frag;
 use super::effect::CoreEffectPlan;
 use super::exit::CoreExitPlan;
 use crate::mir::{BasicBlockId, ValueId};
-use super::edgecfg_facade::Frag;
 
 /// Phase 273 P1: CorePlan - Fixed vocabulary plan (structure nodes only)
 ///
@@ -64,7 +64,6 @@ pub(in crate::mir::builder) enum LoopStepMode {
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct CoreLoopPlan {
     // === Block IDs (pre-allocated by Normalizer) ===
-
     /// Preheader block (entry to loop)
     pub preheader_bb: BasicBlockId,
     /// Whether preheader is a fresh block (do not remap to current block)
@@ -89,12 +88,10 @@ pub(in crate::mir::builder) struct CoreLoopPlan {
     pub found_bb: BasicBlockId,
 
     // === Body (for lowerer body emission) ===
-
     /// Body plans (emitted in body_bb, can contain If/Exit)
     pub body: Vec<LoweredRecipe>,
 
     // === Loop control (ValueId references for Frag) ===
-
     /// Loop condition (for header→body/after branch)
     pub cond_loop: ValueId,
 
@@ -102,7 +99,6 @@ pub(in crate::mir::builder) struct CoreLoopPlan {
     pub cond_match: ValueId,
 
     // === Phase 273 P3: Generalized fields (REQUIRED - SSOT) ===
-
     /// Block-level effects (generalized for multiple blocks)
     /// Order: SSOT - preheader, header, body, then, else, step (pattern dependent)
     pub block_effects: Vec<(BasicBlockId, Vec<CoreEffectPlan>)>,

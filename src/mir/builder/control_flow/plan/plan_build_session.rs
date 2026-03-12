@@ -15,9 +15,9 @@
 //! - sealing は FragEmitSession へ delegation
 //! - PlanBuildSession は JoinKey 管理のみ独自実装
 
+use crate::mir::builder::control_flow::plan::edgecfg_facade::{Frag, FragEmitSession};
 use crate::mir::BasicBlockId;
 use crate::mir::MirFunction;
-use crate::mir::builder::control_flow::plan::edgecfg_facade::{Frag, FragEmitSession};
 
 use super::join_key::{JoinKey, JoinRegistry};
 
@@ -63,11 +63,7 @@ impl PlanBuildSession {
     /// # 戻り値
     /// - `Ok(())`: emit 成功、from block を seal 済み
     /// - `Err(String)`: assert_open 違反 or emit_frag 失敗
-    pub fn emit_and_seal(
-        &mut self,
-        func: &mut MirFunction,
-        frag: &Frag,
-    ) -> Result<(), String> {
+    pub fn emit_and_seal(&mut self, func: &mut MirFunction, frag: &Frag) -> Result<(), String> {
         self.session.emit_and_seal(func, frag)
     }
 
@@ -89,10 +85,7 @@ impl PlanBuildSession {
     pub fn alloc_loop(&mut self) -> (JoinKey, JoinKey) {
         let id = self.next_loop_id;
         self.next_loop_id += 1;
-        (
-            JoinKey::LoopHeader { id },
-            JoinKey::LoopAfter { id },
-        )
+        (JoinKey::LoopHeader { id }, JoinKey::LoopAfter { id })
     }
 
     /// JoinKey で登録済みの block を取得（再利用用）

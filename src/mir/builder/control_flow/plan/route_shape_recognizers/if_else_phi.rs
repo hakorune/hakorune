@@ -44,11 +44,17 @@ pub(crate) fn detect_if_else_phi_in_body(body: &[ASTNode]) -> bool {
     // This allows if_phi_join route to be attempted, and extraction will validate.
 
     for stmt in body {
-        if matches!(stmt, ASTNode::If { else_body: Some(_), .. }) {
-            return true;  // Found if-else
+        if matches!(
+            stmt,
+            ASTNode::If {
+                else_body: Some(_),
+                ..
+            }
+        ) {
+            return true; // Found if-else
         }
     }
-    false  // No if-else found
+    false // No if-else found
 }
 
 /// Phase 212.5: Detect ANY if statement in loop body (structural detection)

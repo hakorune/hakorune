@@ -74,8 +74,10 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         &carrier_state.carrier_step_phis,
         ctx,
     )?;
-    crate::mir::builder::control_flow::joinir::trace::trace()
-        .varmap("generic_loop_v1_post_body", &builder.variable_ctx.variable_map);
+    crate::mir::builder::control_flow::joinir::trace::trace().varmap(
+        "generic_loop_v1_post_body",
+        &builder.variable_ctx.variable_map,
+    );
     skeleton.plan.body = body_plans;
 
     let post_body_map = builder.variable_ctx.variable_map.clone();
@@ -107,8 +109,10 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         &facts.loop_var,
         GENERIC_LOOP_ERR,
     )?;
-    crate::mir::builder::control_flow::joinir::trace::trace()
-        .varmap("generic_loop_v1_post_step", &builder.variable_ctx.variable_map);
+    crate::mir::builder::control_flow::joinir::trace::trace().varmap(
+        "generic_loop_v1_post_step",
+        &builder.variable_ctx.variable_map,
+    );
 
     generic_loop_body::finalize_generic_loop_v1_carriers(
         builder,

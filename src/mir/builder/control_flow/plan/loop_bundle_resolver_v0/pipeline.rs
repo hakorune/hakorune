@@ -1,8 +1,8 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::LoweredRecipe;
-use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 use crate::mir::builder::control_flow::plan::parts;
+use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
+use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 use super::facts::LoopBundleResolverV0Facts;
@@ -39,10 +39,9 @@ pub(in crate::mir::builder) fn lower_loop_bundle_resolver_v0(
     // This keeps acceptance aligned with RecipeBlock + Verifier SSOT.
     let cond_view = CondBlockView::from_expr(&facts.condition);
     let mut current_bindings = builder.variable_ctx.variable_map.clone();
-    facts.body_lowering_policy.expect_exit_allowed(
-        "[loop_bundle_resolver_v0]",
-        LOOP_BUNDLE_RESOLVER_ERR,
-    )?;
+    facts
+        .body_lowering_policy
+        .expect_exit_allowed("[loop_bundle_resolver_v0]", LOOP_BUNDLE_RESOLVER_ERR)?;
     parts::entry::lower_loop_v0(
         builder,
         &mut current_bindings,

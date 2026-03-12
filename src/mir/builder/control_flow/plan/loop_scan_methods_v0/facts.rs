@@ -252,7 +252,10 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_v0_facts(
         return Ok(None);
     }
 
-    if !body.iter().any(|stmt| declares_local_var(stmt, &next_i_var)) {
+    if !body
+        .iter()
+        .any(|stmt| declares_local_var(stmt, &next_i_var))
+    {
         debug_reject("missing_next_i_local");
         return Ok(None);
     }
@@ -283,8 +286,12 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_v0_facts(
                     linear.clear();
                 }
                 let nested = match stmt {
-                    ASTNode::Loop { condition, body, .. }
-                    | ASTNode::While { condition, body, .. } => {
+                    ASTNode::Loop {
+                        condition, body, ..
+                    }
+                    | ASTNode::While {
+                        condition, body, ..
+                    } => {
                         let cond_view = CondBlockView::from_expr(condition);
                         let body_stmt_only = try_build_stmt_only_block_recipe(body);
                         NestedLoopRecipe {
@@ -388,16 +395,18 @@ mod tests {
                     binop(BinaryOperator::Add, var("j"), var("m")),
                     var("n"),
                 )),
-                body: vec![assign(var("j"), binop(BinaryOperator::Add, var("j"), int(1)))],
+                body: vec![assign(
+                    var("j"),
+                    binop(BinaryOperator::Add, var("j"), int(1)),
+                )],
                 span: Span::unknown(),
             },
             ASTNode::If {
-                condition: Box::new(binop(
-                    BinaryOperator::LessEqual,
+                condition: Box::new(binop(BinaryOperator::LessEqual, var("next_i"), var("i"))),
+                then_body: vec![assign(
                     var("next_i"),
-                    var("i"),
-                )),
-                then_body: vec![assign(var("next_i"), binop(BinaryOperator::Add, var("i"), int(1)))],
+                    binop(BinaryOperator::Add, var("i"), int(1)),
+                )],
                 else_body: None,
                 span: Span::unknown(),
             },

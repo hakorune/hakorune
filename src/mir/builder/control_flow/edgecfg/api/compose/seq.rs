@@ -48,11 +48,9 @@ pub(crate) fn seq(a: Frag, b: Frag) -> Frag {
     let mut block_params = a.block_params;
     let b_entry = b.entry;
 
-    if let Err(message) = super::merge_block_params(
-        &mut block_params,
-        b.block_params,
-        "compose::seq",
-    ) {
+    if let Err(message) =
+        super::merge_block_params(&mut block_params, b.block_params, "compose::seq")
+    {
         panic!("{}", message);
     }
 
@@ -95,11 +93,11 @@ pub(crate) fn seq(a: Frag, b: Frag) -> Frag {
     branches.extend(b.branches);
 
     Frag {
-        entry: a.entry,  // seq の入口は a の入口
+        entry: a.entry, // seq の入口は a の入口
         block_params,
-        exits,           // a の非 Normal + b の全 exit
-        wires,           // a.Normal → b.entry + a.wires + b.wires
-        branches,        // Phase 267 P0: a.branches + b.branches
+        exits,    // a の非 Normal + b の全 exit
+        wires,    // a.Normal → b.entry + a.wires + b.wires
+        branches, // Phase 267 P0: a.branches + b.branches
     }
 }
 
@@ -123,12 +121,7 @@ mod tests {
             layout: JumpArgsLayout::ExprResultPlusCarriers,
             values: vec![ValueId(10)],
         };
-        let stub = EdgeStub::new(
-            a_entry,
-            ExitKind::Normal,
-            None,
-            args.clone(),
-        );
+        let stub = EdgeStub::new(a_entry, ExitKind::Normal, None, args.clone());
         let mut exits = BTreeMap::new();
         exits.insert(ExitKind::Normal, vec![stub]);
         let a = Frag {

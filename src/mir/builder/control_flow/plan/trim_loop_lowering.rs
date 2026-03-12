@@ -36,18 +36,18 @@
 //! - Break condition replaced: `break on !is_ch_match`
 //! - ConditionEnv binding: `ch` → JoinIR ValueId
 
+use super::policies::trim_policy::{classify_trim_like_loop, TrimPolicyResult};
+use super::policies::PolicyDecision;
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
-use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::join_ir::lowering::common::condition_only_emitter::BreakSemantics;
+use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::loop_route_detection::loop_body_carrier_promoter::{
     LoopBodyCarrierPromoter, PromotionRequest, PromotionResult,
 };
 use crate::mir::ValueId;
-use super::policies::trim_policy::{classify_trim_like_loop, TrimPolicyResult};
-use super::policies::PolicyDecision;
 
 /// Trim route lowering orchestrator
 ///
@@ -80,7 +80,8 @@ pub(crate) struct TrimLoweringResult {
     /// Phase 93 P0: ConditionOnly recipe for derived slot recalculation
     ///
     /// loop_break / loop_continue_only routes use this to emit recalculation after body-local init
-    pub condition_only_recipe: Option<crate::mir::join_ir::lowering::common::condition_only_emitter::ConditionOnlyRecipe>,
+    pub condition_only_recipe:
+        Option<crate::mir::join_ir::lowering::common::condition_only_emitter::ConditionOnlyRecipe>,
 }
 
 impl TrimLoopLowerer {
@@ -316,7 +317,11 @@ impl TrimLoopLowerer {
                     &format!(
                         "Phase 93 P0: condition_bindings={}, condition_only_recipe={}",
                         condition_bindings.len(),
-                        if condition_only_recipe.is_some() { "Some" } else { "None" }
+                        if condition_only_recipe.is_some() {
+                            "Some"
+                        } else {
+                            "None"
+                        }
                     ),
                     verbose,
                 );
@@ -330,8 +335,7 @@ impl TrimLoopLowerer {
                         "break-cond",
                         &format!(
                             "Generated break condition from recipe: {} (semantics: {:?})",
-                            trim_helper.carrier_name,
-                            recipe.break_semantics
+                            trim_helper.carrier_name, recipe.break_semantics
                         ),
                         verbose,
                     );
@@ -396,18 +400,22 @@ impl TrimLoopLowerer {
 
         // Extract substring pattern from body
         let (s_name, start_expr) =
-            TrimValidator::extract_substring_args(body, &trim_helper.original_var)
-                .ok_or_else(|| {
+            TrimValidator::extract_substring_args(body, &trim_helper.original_var).ok_or_else(
+                || {
                     format!(
                     "[TrimLoopLowerer] Failed to extract substring pattern for Trim carrier '{}'",
                     trim_helper.carrier_name
                 )
-                })?;
+                },
+            )?;
 
         trace.emit_if(
             "trim",
             "init",
-            &format!("Extracted substring pattern: s='{}', start={:?}", s_name, start_expr),
+            &format!(
+                "Extracted substring pattern: s='{}', start={:?}",
+                s_name, start_expr
+            ),
             verbose,
         );
 
@@ -454,11 +462,8 @@ impl TrimLoopLowerer {
         );
 
         // Generate: is_ch_match0 = (ch0 == " " || ch0 == "\t" || ...)
-        let is_ch_match0 = TrimValidator::emit_whitespace_check(
-            builder,
-            ch0,
-            &trim_helper.whitespace_chars,
-        )?;
+        let is_ch_match0 =
+            TrimValidator::emit_whitespace_check(builder, ch0, &trim_helper.whitespace_chars)?;
 
         trace.emit_if(
             "trim",
@@ -492,7 +497,6 @@ impl TrimLoopLowerer {
         TrimLowerer::generate_trim_break_condition(trim_helper)
     }
 
-
     /// Setup ConditionEnv bindings for Trim carrier
     ///
     /// Phase 180-3: Extracted from legacy loop_break lowering (lines 345-377)
@@ -506,8 +510,15 @@ impl TrimLoopLowerer {
         trim_helper: &crate::mir::loop_route_detection::trim_loop_helper::TrimLoopHelper,
         break_semantics: BreakSemantics,
         _alloc_join_value: &mut dyn FnMut() -> ValueId,
-    ) -> Result<(Vec<ConditionBinding>, Option<crate::mir::join_ir::lowering::common::condition_only_emitter::ConditionOnlyRecipe>), String> {
-        
+    ) -> Result<
+        (
+            Vec<ConditionBinding>,
+            Option<
+                crate::mir::join_ir::lowering::common::condition_only_emitter::ConditionOnlyRecipe,
+            >,
+        ),
+        String,
+    > {
         use crate::mir::join_ir::lowering::common::condition_only_emitter::ConditionOnlyRecipe;
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
         let verbose = crate::config::env::joinir_dev_enabled() || trace.is_joinir_enabled();
@@ -515,8 +526,12 @@ impl TrimLoopLowerer {
         // Phase 93 P0: Do NOT add is_ch_match to ConditionBinding
         // Phase 93 Refactoring: Use explicit factory method based on loop shape.
         let recipe = match break_semantics {
-            BreakSemantics::WhenMatch => ConditionOnlyRecipe::from_trim_helper_condition_only(trim_helper),
-            BreakSemantics::WhenNotMatch => ConditionOnlyRecipe::from_trim_helper_normal_trim(trim_helper),
+            BreakSemantics::WhenMatch => {
+                ConditionOnlyRecipe::from_trim_helper_condition_only(trim_helper)
+            }
+            BreakSemantics::WhenNotMatch => {
+                ConditionOnlyRecipe::from_trim_helper_normal_trim(trim_helper)
+            }
         };
 
         trace.emit_if(

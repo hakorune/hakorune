@@ -30,7 +30,10 @@ pub(in crate::mir::builder) struct StmtPair {
 
 impl StmtPair {
     pub(in crate::mir::builder) fn new(a: usize, b: usize) -> Self {
-        Self { a: StmtIdx(a), b: StmtIdx(b) }
+        Self {
+            a: StmtIdx(a),
+            b: StmtIdx(b),
+        }
     }
 }
 

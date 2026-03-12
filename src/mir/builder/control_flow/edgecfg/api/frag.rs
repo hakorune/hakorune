@@ -5,12 +5,12 @@
  * 未配線の脱出エッジを持つ CFG 断片を表現する。
  */
 
-use std::collections::BTreeMap;
-use crate::mir::basic_block::BasicBlockId;
 use super::block_params::BlockParams;
-use super::exit_kind::ExitKind;
-use super::edge_stub::EdgeStub;
 use super::branch_stub::BranchStub;
+use super::edge_stub::EdgeStub;
+use super::exit_kind::ExitKind;
+use crate::mir::basic_block::BasicBlockId;
+use std::collections::BTreeMap;
 
 /// CFG Fragment（構造化制御の合成単位）
 ///
@@ -70,8 +70,8 @@ impl Frag {
             entry,
             block_params: BTreeMap::new(),
             exits: BTreeMap::new(),
-            wires: vec![],  // Phase 265 P2: 配線済み内部配線
-            branches: vec![],  // Phase 267 P0: 配線済み分岐
+            wires: vec![],    // Phase 265 P2: 配線済み内部配線
+            branches: vec![], // Phase 267 P0: 配線済み分岐
         }
     }
 
@@ -83,15 +83,18 @@ impl Frag {
             entry,
             block_params: BTreeMap::new(),
             exits,
-            wires: vec![],  // Phase 265 P2: 配線済み内部配線
-            branches: vec![],  // Phase 267 P0: 配線済み分岐
+            wires: vec![],    // Phase 265 P2: 配線済み内部配線
+            branches: vec![], // Phase 267 P0: 配線済み分岐
         }
     }
 
     /// 特定 ExitKind の未配線 edge を追加
     #[cfg(test)]
     pub fn add_exit(&mut self, stub: EdgeStub) {
-        self.exits.entry(stub.kind).or_insert_with(Vec::new).push(stub);
+        self.exits
+            .entry(stub.kind)
+            .or_insert_with(Vec::new)
+            .push(stub);
     }
 
     /// 特定 ExitKind の未配線 edge を取得
@@ -99,7 +102,6 @@ impl Frag {
     pub fn get_exits(&self, kind: &ExitKind) -> Option<&Vec<EdgeStub>> {
         self.exits.get(kind)
     }
-
 }
 
 // ============================================================================
@@ -133,8 +135,14 @@ mod tests {
         let entry = BasicBlockId::new(0);
         let mut frag = Frag::new(entry);
 
-        frag.add_exit(EdgeStub::without_args(BasicBlockId::new(1), ExitKind::Normal));
-        frag.add_exit(EdgeStub::without_args(BasicBlockId::new(2), ExitKind::Return));
+        frag.add_exit(EdgeStub::without_args(
+            BasicBlockId::new(1),
+            ExitKind::Normal,
+        ));
+        frag.add_exit(EdgeStub::without_args(
+            BasicBlockId::new(2),
+            ExitKind::Return,
+        ));
 
         assert_eq!(frag.exits.len(), 2);
         assert!(frag.get_exits(&ExitKind::Normal).is_some());

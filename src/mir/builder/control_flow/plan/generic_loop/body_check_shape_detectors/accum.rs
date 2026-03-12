@@ -1,8 +1,8 @@
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use super::super::body_check_extractors::extract_local_init_var;
-use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
-use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
 use super::utils::*;
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
+use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
 
 /// Matches the while cap accum sum pattern.
 ///
@@ -60,7 +60,10 @@ pub fn matches_accum_add_var(stmt: &ASTNode, rhs_var: &str) -> Option<String> {
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return None;
     };
-    let ASTNode::Variable { name: target_name, .. } = target.as_ref() else {
+    let ASTNode::Variable {
+        name: target_name, ..
+    } = target.as_ref()
+    else {
         return None;
     };
     if target_name == rhs_var {
@@ -78,8 +81,7 @@ pub fn matches_accum_add_var(stmt: &ASTNode, rhs_var: &str) -> Option<String> {
 
     let is_accum =
         |node: &ASTNode| matches!(node, ASTNode::Variable { name, .. } if name == target_name);
-    let is_rhs =
-        |node: &ASTNode| matches!(node, ASTNode::Variable { name, .. } if name == rhs_var);
+    let is_rhs = |node: &ASTNode| matches!(node, ASTNode::Variable { name, .. } if name == rhs_var);
 
     if (is_accum(left.as_ref()) && is_rhs(right.as_ref()))
         || (is_rhs(left.as_ref()) && is_accum(right.as_ref()))
@@ -119,10 +121,7 @@ pub fn matches_div_countdown_by10_shape(
 
 /// Matches `local <name> = <loop_var> % 10` pattern.
 pub fn matches_modulo_by_10_local(stmt: &ASTNode, loop_var: &str) -> bool {
-    let ASTNode::Local {
-        initial_values, ..
-    } = stmt
-    else {
+    let ASTNode::Local { initial_values, .. } = stmt else {
         return false;
     };
     if initial_values.len() != 1 {

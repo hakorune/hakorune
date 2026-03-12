@@ -47,20 +47,21 @@ pub(super) fn contains_var_name(expr: &ASTNode, target_var: &str) -> bool {
     match expr {
         ASTNode::Variable { name, .. } => name == target_var,
         ASTNode::BinaryOp { left, right, .. } => {
-            contains_var_name(left.as_ref(), target_var) || contains_var_name(right.as_ref(), target_var)
+            contains_var_name(left.as_ref(), target_var)
+                || contains_var_name(right.as_ref(), target_var)
         }
         ASTNode::UnaryOp { operand, .. } => contains_var_name(operand.as_ref(), target_var),
         ASTNode::MethodCall {
-            object,
-            arguments,
-            ..
+            object, arguments, ..
         } => {
             contains_var_name(object.as_ref(), target_var)
-                || arguments.iter().any(|arg| contains_var_name(arg, target_var))
+                || arguments
+                    .iter()
+                    .any(|arg| contains_var_name(arg, target_var))
         }
-        ASTNode::FunctionCall { arguments, .. } => {
-            arguments.iter().any(|arg| contains_var_name(arg, target_var))
-        }
+        ASTNode::FunctionCall { arguments, .. } => arguments
+            .iter()
+            .any(|arg| contains_var_name(arg, target_var)),
         ASTNode::FieldAccess { object, .. } => contains_var_name(object.as_ref(), target_var),
         ASTNode::Index { target, index, .. } => {
             contains_var_name(target.as_ref(), target_var)

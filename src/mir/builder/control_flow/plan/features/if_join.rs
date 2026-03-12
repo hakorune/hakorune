@@ -58,9 +58,10 @@ pub(in crate::mir::builder) fn apply_if_joins(
     let mut copy_srcs: Option<HashMap<ValueId, ValueId>> = None;
 
     if strict_planner_required_debug {
-        let func = builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
-            "[if_join] No current function for join dominance check".to_string()
-        })?;
+        let func =
+            builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
+                "[if_join] No current function for join dominance check".to_string()
+            })?;
         def_blocks = Some(crate::mir::verification::utils::compute_def_blocks(func));
         dominators = Some(crate::mir::verification::utils::compute_dominators(func));
         fn_name = Some(func.signature.name.clone());
@@ -114,16 +115,14 @@ pub(in crate::mir::builder) fn apply_if_joins(
         let mut then_pred = None;
         let mut else_pred = None;
         if then_reaches_merge_local {
-            let pred = then_end_bb.ok_or_else(|| {
-                "[lowerer] Missing then end block for CorePlan::If".to_string()
-            })?;
+            let pred = then_end_bb
+                .ok_or_else(|| "[lowerer] Missing then end block for CorePlan::If".to_string())?;
             then_pred = Some(pred);
             inputs.push((pred, then_in));
         }
         if else_reaches_merge_local {
-            let pred = else_end_bb.ok_or_else(|| {
-                "[lowerer] Missing else end block for CorePlan::If".to_string()
-            })?;
+            let pred = else_end_bb
+                .ok_or_else(|| "[lowerer] Missing else end block for CorePlan::If".to_string())?;
             else_pred = Some(pred);
             inputs.push((pred, else_in));
         }
@@ -239,8 +238,7 @@ pub(in crate::mir::builder) fn apply_if_joins(
                         else_root,
                     );
 
-                    if should_log && crate::config::env::joinir_dev::debug_enabled()
-                    {
+                    if should_log && crate::config::env::joinir_dev::debug_enabled() {
                         let then_const_str = then_const
                             .map(|v| v.to_string())
                             .unwrap_or_else(|| "none".to_string());
@@ -285,17 +283,13 @@ pub(in crate::mir::builder) fn apply_if_joins(
 
             let then_ok = then_pred
                 .and_then(|pred| {
-                    then_def_bb.and_then(|def_bb| {
-                        Some(dominators.dominates(def_bb, pred))
-                    })
+                    then_def_bb.and_then(|def_bb| Some(dominators.dominates(def_bb, pred)))
                 })
                 .unwrap_or(!then_reaches_merge_local);
 
             let else_ok = else_pred
                 .and_then(|pred| {
-                    else_def_bb.and_then(|def_bb| {
-                        Some(dominators.dominates(def_bb, pred))
-                    })
+                    else_def_bb.and_then(|def_bb| Some(dominators.dominates(def_bb, pred)))
                 })
                 .unwrap_or(!else_reaches_merge_local);
 

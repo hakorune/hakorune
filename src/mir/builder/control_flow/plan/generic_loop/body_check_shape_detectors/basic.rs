@@ -1,7 +1,7 @@
 use crate::ast::{ASTNode, BinaryOperator};
 
-use super::super::body_check_extractors::extract_next_i_var;
 use super::super::body_check::expr_matchers::matches_trim_cond_with_methodcall;
+use super::super::body_check_extractors::extract_next_i_var;
 use super::super::facts::stmt_classifier::{is_local_decl, is_local_init};
 use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
@@ -149,10 +149,7 @@ pub fn matches_itoa_digit_local(stmt: &ASTNode, loop_var: &str) -> bool {
     if !is_local_init(stmt, loop_var) {
         return false;
     }
-    let ASTNode::Local {
-        initial_values, ..
-    } = stmt
-    else {
+    let ASTNode::Local { initial_values, .. } = stmt else {
         return false;
     };
     if initial_values.len() != 1 {
@@ -171,7 +168,10 @@ pub fn matches_itoa_digit_append_assignment(stmt: &ASTNode, loop_var: &str) -> b
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return false;
     };
-    let ASTNode::Variable { name: target_name, .. } = target.as_ref() else {
+    let ASTNode::Variable {
+        name: target_name, ..
+    } = target.as_ref()
+    else {
         return false;
     };
     if target_name == loop_var {
@@ -214,11 +214,17 @@ pub fn matches_scan_while_predicate_shape(
         return false;
     }
     // body[1]: method call / function call only
-    if !matches!(body[1], ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. }) {
+    if !matches!(
+        body[1],
+        ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. }
+    ) {
         return false;
     }
     // body[2]: method call / function call only
-    if !matches!(body[2], ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. }) {
+    if !matches!(
+        body[2],
+        ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. }
+    ) {
         return false;
     }
     // body[3]: step at last position
@@ -237,7 +243,10 @@ pub fn matches_effect_step_only_shape(
         return false;
     }
     // body[0]: method call / function call only
-    if !matches!(body[0], ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. }) {
+    if !matches!(
+        body[0],
+        ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. }
+    ) {
         return false;
     }
     // body[1]: step at last position

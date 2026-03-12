@@ -11,10 +11,10 @@
 //!
 //! Each recognizer is responsible for a single "question" about the AST structure.
 
-pub mod continue_break;
-pub mod infinite_loop;
-pub mod if_else_phi;
 pub mod carrier_count;
+pub mod continue_break;
+pub mod if_else_phi;
+pub mod infinite_loop;
 pub mod parse_number;
 pub mod parse_string;
 pub mod skip_whitespace;

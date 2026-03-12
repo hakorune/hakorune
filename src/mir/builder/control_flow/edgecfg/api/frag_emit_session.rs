@@ -10,11 +10,11 @@
 //! - seal = insert(Sealed)
 //! - 既 Sealed に emit しようとした → Err（`[freeze:contract]`）
 
-use std::collections::{BTreeMap, BTreeSet};
+use super::emit::emit_frag;
+use super::frag::Frag;
 use crate::mir::BasicBlockId;
 use crate::mir::MirFunction;
-use super::frag::Frag;
-use super::emit::emit_frag;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// Block の状態（Sealed のみ記録、未登録 = Open）
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -96,11 +96,7 @@ impl FragEmitSession {
     /// # 戻り値
     /// - `Ok(())`: emit 成功、from block を seal 済み
     /// - `Err(String)`: assert_open 違反 or emit_frag 失敗
-    pub fn emit_and_seal(
-        &mut self,
-        func: &mut MirFunction,
-        frag: &Frag,
-    ) -> Result<(), String> {
+    pub fn emit_and_seal(&mut self, func: &mut MirFunction, frag: &Frag) -> Result<(), String> {
         let from_blocks = Self::collect_from_blocks(frag);
 
         // Step 1: assert_open before emit（Err で fail-fast）
@@ -174,9 +170,9 @@ mod tests {
 
     #[test]
     fn test_collect_from_blocks_dedup() {
+        use super::super::branch_stub::BranchStub;
         use super::super::edge_stub::EdgeStub;
         use super::super::exit_kind::ExitKind;
-        use super::super::branch_stub::BranchStub;
         use crate::mir::basic_block::EdgeArgs;
         use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
         use crate::mir::ValueId;
@@ -191,33 +187,29 @@ mod tests {
             entry: bb0,
             block_params: BTreeMap::new(),
             exits: BTreeMap::new(),
-            wires: vec![
-                EdgeStub::new(
-                    bb0,
-                    ExitKind::Normal,
-                    Some(bb1),
-                    EdgeArgs {
-                        layout: JumpArgsLayout::CarriersOnly,
-                        values: vec![],
-                    },
-                ),
-            ],
-            branches: vec![
-                BranchStub::new(
-                    bb0, // 同じ from
-                    ValueId(100),
-                    bb1,
-                    EdgeArgs {
-                        layout: JumpArgsLayout::CarriersOnly,
-                        values: vec![],
-                    },
-                    bb2,
-                    EdgeArgs {
-                        layout: JumpArgsLayout::CarriersOnly,
-                        values: vec![],
-                    },
-                ),
-            ],
+            wires: vec![EdgeStub::new(
+                bb0,
+                ExitKind::Normal,
+                Some(bb1),
+                EdgeArgs {
+                    layout: JumpArgsLayout::CarriersOnly,
+                    values: vec![],
+                },
+            )],
+            branches: vec![BranchStub::new(
+                bb0, // 同じ from
+                ValueId(100),
+                bb1,
+                EdgeArgs {
+                    layout: JumpArgsLayout::CarriersOnly,
+                    values: vec![],
+                },
+                bb2,
+                EdgeArgs {
+                    layout: JumpArgsLayout::CarriersOnly,
+                    values: vec![],
+                },
+            )],
         };
 
         let from_blocks = FragEmitSession::collect_from_blocks(&frag);

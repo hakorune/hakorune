@@ -50,21 +50,21 @@ use crate::mir::value_id::ValueId;
 /// - `join_frag`: join 以降の断片（t/e.Normal の配線先 + join 以降の処理）
 pub(crate) fn if_(
     header: BasicBlockId,
-    cond: ValueId,       // Phase 267 P0 で使用開始
-    t: Frag,             // then 分岐
-    then_entry_args: EdgeArgs,  // Phase 268 P1: then entry edge-args (SSOT)
-    e: Frag,             // else 分岐
-    else_entry_args: EdgeArgs,  // Phase 268 P1: else entry edge-args (SSOT)
-    join_frag: Frag,     // join 以降の断片
+    cond: ValueId,             // Phase 267 P0 で使用開始
+    t: Frag,                   // then 分岐
+    then_entry_args: EdgeArgs, // Phase 268 P1: then entry edge-args (SSOT)
+    e: Frag,                   // else 分岐
+    else_entry_args: EdgeArgs, // Phase 268 P1: else entry edge-args (SSOT)
+    join_frag: Frag,           // join 以降の断片
 ) -> Frag {
     // Phase 267 P0: header → then/else の BranchStub を作成
     let branch = BranchStub::new(
         header,
         cond,
         t.entry,
-        then_entry_args,  // Phase 268 P1: caller provides
+        then_entry_args, // Phase 268 P1: caller provides
         e.entry,
-        else_entry_args,  // Phase 268 P1: caller provides
+        else_entry_args, // Phase 268 P1: caller provides
     );
 
     let mut exits = BTreeMap::new();
@@ -72,11 +72,9 @@ pub(crate) fn if_(
     let mut block_params = t.block_params;
     let join_entry = join_frag.entry;
 
-    if let Err(message) = super::merge_block_params(
-        &mut block_params,
-        e.block_params,
-        "compose::if_/else",
-    ) {
+    if let Err(message) =
+        super::merge_block_params(&mut block_params, e.block_params, "compose::if_/else")
+    {
         panic!("{}", message);
     }
     if let Err(message) = super::merge_block_params(
@@ -148,11 +146,11 @@ pub(crate) fn if_(
     branches.extend(join_frag.branches);
 
     Frag {
-        entry: header,  // if の入口は header
+        entry: header, // if の入口は header
         block_params,
-        exits,          // t/e の非 Normal + join_frag.exits
-        wires,          // t/e.Normal → join_frag.entry + t/e/join の wires
-        branches,       // Phase 267 P0: header の BranchStub + t/e/join の branches
+        exits,    // t/e の非 Normal + join_frag.exits
+        wires,    // t/e.Normal → join_frag.entry + t/e/join の wires
+        branches, // Phase 267 P0: header の BranchStub + t/e/join の branches
     }
 }
 
@@ -239,11 +237,13 @@ mod tests {
         );
 
         assert_eq!(composed.wires.len(), 2);
-        assert!(composed.wires.iter().any(|stub| {
-            stub.target == Some(join_entry) && stub.args == then_args
-        }));
-        assert!(composed.wires.iter().any(|stub| {
-            stub.target == Some(join_entry) && stub.args == else_args
-        }));
+        assert!(composed
+            .wires
+            .iter()
+            .any(|stub| { stub.target == Some(join_entry) && stub.args == then_args }));
+        assert!(composed
+            .wires
+            .iter()
+            .any(|stub| { stub.target == Some(join_entry) && stub.args == else_args }));
     }
 }

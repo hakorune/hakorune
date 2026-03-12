@@ -4,9 +4,9 @@
 //! so loop-break routing code does not look like it "falls back" after failure.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::MirBuilder;
-use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
 use crate::mir::builder::control_flow::plan::loop_break::contracts::derived_slot::extract_derived_slot_for_conditions;
+use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
+use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::common::body_local_derived_slot_emitter::BodyLocalDerivedSlotRecipe;
 use crate::mir::join_ir::lowering::common::body_local_slot::{
@@ -82,9 +82,9 @@ pub fn classify_loop_break_body_local_route(
                         "{reason}; read-only-slot rejected: {slot_err}"
                     )),
                 },
-                Err(slot_err) => PolicyDecision::Reject(format!(
-                    "{reason}; derived-slot rejected: {slot_err}"
-                )),
+                Err(slot_err) => {
+                    PolicyDecision::Reject(format!("{reason}; derived-slot rejected: {slot_err}"))
+                }
             }
         }
     }

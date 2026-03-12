@@ -1,10 +1,10 @@
-use crate::ast::{ASTNode, LiteralValue};
 use super::super::body_check::expr_matchers::{
     matches_if_else_return_literal, matches_if_else_return_literal_local,
     matches_if_else_return_literal_var, matches_if_return_literal, matches_if_return_local,
     matches_if_return_var, matches_loop_var_less_than_literal,
 };
 use super::utils::matches_assignment_add_literal;
+use crate::ast::{ASTNode, LiteralValue};
 
 /// Matches inner loop if-return increment pattern.
 pub fn matches_inner_loop_if_return_increment(loop_stmt: &ASTNode, loop_var: &str) -> bool {
@@ -27,10 +27,7 @@ pub fn matches_inner_loop_if_return_increment(loop_stmt: &ASTNode, loop_var: &st
 }
 
 /// Matches inner loop if-return-var increment pattern.
-pub fn matches_inner_loop_if_return_var_increment(
-    loop_stmt: &ASTNode,
-    loop_var: &str,
-) -> bool {
+pub fn matches_inner_loop_if_return_var_increment(loop_stmt: &ASTNode, loop_var: &str) -> bool {
     let ASTNode::Loop {
         condition, body, ..
     } = loop_stmt
@@ -50,10 +47,7 @@ pub fn matches_inner_loop_if_return_var_increment(
 }
 
 /// Matches inner loop if-return-local increment pattern.
-pub fn matches_inner_loop_if_return_local_increment(
-    loop_stmt: &ASTNode,
-    loop_var: &str,
-) -> bool {
+pub fn matches_inner_loop_if_return_local_increment(loop_stmt: &ASTNode, loop_var: &str) -> bool {
     let ASTNode::Loop {
         condition, body, ..
     } = loop_stmt
@@ -107,15 +101,11 @@ pub fn matches_inner_loop_if_else_return_var(
     if body.len() != 1 {
         return false;
     }
-    matches_if_else_return_literal_var(&body[0], loop_var, 0)
-        .map_or(false, |v| v == else_var)
+    matches_if_else_return_literal_var(&body[0], loop_var, 0).map_or(false, |v| v == else_var)
 }
 
 /// Matches inner loop if-else-return-local pattern.
-pub fn matches_inner_loop_if_else_return_local(
-    loop_stmt: &ASTNode,
-    loop_var: &str,
-) -> bool {
+pub fn matches_inner_loop_if_else_return_local(loop_stmt: &ASTNode, loop_var: &str) -> bool {
     let ASTNode::Loop {
         condition, body, ..
     } = loop_stmt
@@ -168,7 +158,7 @@ pub fn matches_if_else_if_return_literal(
     return_literal: i64,
 ) -> bool {
     use super::super::body_check::expr_matchers::matches_loop_var_equal_literal;
-    
+
     let ASTNode::If {
         condition,
         then_body,

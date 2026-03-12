@@ -1,8 +1,8 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::LoweredRecipe;
-use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 use crate::mir::builder::control_flow::plan::parts;
+use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
+use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
 use super::facts::LoopCollectUsingEntriesV0Facts;

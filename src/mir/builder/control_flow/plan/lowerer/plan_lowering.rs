@@ -301,10 +301,7 @@ fn collect_seq_debug(
                 }
                 CoreEffectPlan::BinOp { dst, lhs, op, rhs } => {
                     if *op == crate::mir::BinaryOp::Add && add_binops.len() < 2 {
-                        add_binops.push(format!(
-                            "dst=%{} lhs=%{} rhs=%{}",
-                            dst.0, lhs.0, rhs.0
-                        ));
+                        add_binops.push(format!("dst=%{} lhs=%{} rhs=%{}", dst.0, lhs.0, rhs.0));
                     }
                 }
                 _ => {}

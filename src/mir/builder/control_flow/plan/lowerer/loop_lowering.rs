@@ -54,10 +54,7 @@ impl super::PlanLowerer {
         if debug {
             trace_logger.debug(
                 "lowerer/loop",
-                &format!(
-                    "Phase 273 P3: Lowering CoreLoopPlan for {}",
-                    ctx.func_name
-                ),
+                &format!("Phase 273 P3: Lowering CoreLoopPlan for {}", ctx.func_name),
             );
         }
 
@@ -91,8 +88,8 @@ impl super::PlanLowerer {
         ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
     ) -> Result<Option<ValueId>, String> {
-        use crate::mir::builder::control_flow::joinir::trace;
         use super::super::PlanBuildSession;
+        use crate::mir::builder::control_flow::joinir::trace;
 
         // Phase 29bq+: Create session for structural lock
         let mut session = PlanBuildSession::new();
@@ -102,11 +99,13 @@ impl super::PlanLowerer {
 
         // Phase 6: Prepare loop entry (preheader, body flattening, jump to entry)
         // SSOT: Delegated to loop_preparation::prepare_loop_entry()
-        let (frag, body_effects, mut loop_plan) = loop_preparation::prepare_loop_entry(builder, loop_plan, ctx)?;
+        let (frag, body_effects, mut loop_plan) =
+            loop_preparation::prepare_loop_entry(builder, loop_plan, ctx)?;
 
         // Phase 273 P3: Direct access (not Option - type system guarantees presence)
         // Clone block_effects to avoid borrow conflict with mutable loop_plan access in closure
-        let block_effects: Vec<(BasicBlockId, Vec<CoreEffectPlan>)> = loop_plan.block_effects.clone();
+        let block_effects: Vec<(BasicBlockId, Vec<CoreEffectPlan>)> =
+            loop_plan.block_effects.clone();
         // Clone final_values to avoid borrow conflict with mutable loop_plan access in closure
         let final_values: Vec<(String, ValueId)> = loop_plan.final_values.clone();
 
@@ -180,7 +179,11 @@ impl super::PlanLowerer {
         // Check for unpatched provisional PHIs on error
         // SSOT: Delegated to phi_processing::validate_no_unpatched_phis()
         if res.is_err() {
-            let res_err = res.as_ref().err().map(|e| e.as_str()).unwrap_or("[no_error]");
+            let res_err = res
+                .as_ref()
+                .err()
+                .map(|e| e.as_str())
+                .unwrap_or("[no_error]");
             phi_processing::validate_no_unpatched_phis(builder, &provisional_phis, res_err)?;
         }
 
@@ -193,8 +196,12 @@ impl super::PlanLowerer {
 
         // Steps 6-8: Finalize variables and return Void
         // SSOT: Delegated to loop_completion::finalize_loop_variables()
-        let out =
-            loop_completion::finalize_loop_variables(builder, &final_values, loop_plan.after_bb, ctx)?;
+        let out = loop_completion::finalize_loop_variables(
+            builder,
+            &final_values,
+            loop_plan.after_bb,
+            ctx,
+        )?;
         crate::mir::builder::emission::value_lifecycle::verify_typed_values_are_defined(
             builder,
             "loop_lowerer:after_finalize_loop_variables",

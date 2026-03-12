@@ -1,9 +1,13 @@
-use crate::ast::{ASTNode, LiteralValue};
 use super::compare::matches_loop_var_equal_literal;
 use super::literal::matches_local_init_literal;
+use crate::ast::{ASTNode, LiteralValue};
 
 /// Matches `if (loop_var == literal) return literal` pattern.
-pub(in crate::mir::builder) fn matches_if_return_literal(stmt: &ASTNode, loop_var: &str, literal: i64) -> bool {
+pub(in crate::mir::builder) fn matches_if_return_literal(
+    stmt: &ASTNode,
+    loop_var: &str,
+    literal: i64,
+) -> bool {
     let ASTNode::If {
         condition,
         then_body,
@@ -35,7 +39,11 @@ pub(in crate::mir::builder) fn matches_if_return_literal(stmt: &ASTNode, loop_va
 }
 
 /// Matches `if (loop_var == 0) return var` pattern.
-pub(in crate::mir::builder) fn matches_if_return_var(stmt: &ASTNode, loop_var: &str, return_var: &str) -> bool {
+pub(in crate::mir::builder) fn matches_if_return_var(
+    stmt: &ASTNode,
+    loop_var: &str,
+    return_var: &str,
+) -> bool {
     let ASTNode::If {
         condition,
         then_body,
@@ -61,7 +69,11 @@ pub(in crate::mir::builder) fn matches_if_return_var(stmt: &ASTNode, loop_var: &
 }
 
 /// Matches `if (loop_var == literal) { local x = literal; return x; }` pattern.
-pub(in crate::mir::builder) fn matches_if_return_local(stmt: &ASTNode, loop_var: &str, literal: i64) -> bool {
+pub(in crate::mir::builder) fn matches_if_return_local(
+    stmt: &ASTNode,
+    loop_var: &str,
+    literal: i64,
+) -> bool {
     let ASTNode::If {
         condition,
         then_body,
@@ -90,7 +102,11 @@ pub(in crate::mir::builder) fn matches_if_return_local(stmt: &ASTNode, loop_var:
 }
 
 /// Matches `if (loop_var == literal) { return literal; } else { return literal; }` pattern.
-pub(in crate::mir::builder) fn matches_if_else_return_literal(stmt: &ASTNode, loop_var: &str, literal: i64) -> bool {
+pub(in crate::mir::builder) fn matches_if_else_return_literal(
+    stmt: &ASTNode,
+    loop_var: &str,
+    literal: i64,
+) -> bool {
     let ASTNode::If {
         condition,
         then_body,

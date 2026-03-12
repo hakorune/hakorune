@@ -18,11 +18,7 @@ pub fn matches_loop_var_assign_to(stmt: &ASTNode, loop_var: &str, value_var: &st
 }
 
 /// Matches loop variable assignment to any of a set of variables.
-pub fn matches_loop_var_assign_any(
-    stmt: &ASTNode,
-    loop_var: &str,
-    value_vars: &[String],
-) -> bool {
+pub fn matches_loop_var_assign_any(stmt: &ASTNode, loop_var: &str, value_vars: &[String]) -> bool {
     if value_vars.is_empty() {
         return false;
     }
@@ -70,7 +66,13 @@ pub fn is_loop_var_plus_one(expr: &ASTNode, loop_var: &str) -> bool {
     let is_loop_var =
         |node: &ASTNode| matches!(node, ASTNode::Variable { name, .. } if name == loop_var);
     let is_one = |node: &ASTNode| {
-        matches!(node, ASTNode::Literal { value: LiteralValue::Integer(1), .. })
+        matches!(
+            node,
+            ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                ..
+            }
+        )
     };
     (is_loop_var(left.as_ref()) && is_one(right.as_ref()))
         || (is_loop_var(right.as_ref()) && is_one(left.as_ref()))

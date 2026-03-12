@@ -80,8 +80,15 @@ fn is_loop_var_plus_one(expr: &ASTNode, loop_var: &str) -> bool {
     };
     let is_loop_var =
         |node: &ASTNode| matches!(node, ASTNode::Variable { name, .. } if name == loop_var);
-    let is_one =
-        |node: &ASTNode| matches!(node, ASTNode::Literal { value: LiteralValue::Integer(1), .. });
+    let is_one = |node: &ASTNode| {
+        matches!(
+            node,
+            ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                ..
+            }
+        )
+    };
     (is_loop_var(left.as_ref()) && is_one(right.as_ref()))
         || (is_loop_var(right.as_ref()) && is_one(left.as_ref()))
 }

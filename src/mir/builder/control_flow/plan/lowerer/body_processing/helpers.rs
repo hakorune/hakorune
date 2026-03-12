@@ -1,6 +1,4 @@
-use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CorePlan, LoweredRecipe,
-};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, ValueId};
 use std::collections::HashSet;
@@ -26,8 +24,7 @@ pub(super) fn validate_effects_binop_operands(
     for (effect_idx, effect) in effects.iter().enumerate() {
         if let CoreEffectPlan::BinOp { dst, lhs, op, rhs } = effect {
             if !defined_values.contains(lhs) {
-                if let Some((def_idx, def_kind)) = find_forward_def(effects, effect_idx + 1, *lhs)
-                {
+                if let Some((def_idx, def_kind)) = find_forward_def(effects, effect_idx + 1, *lhs) {
                     return Err(format!(
                         "[freeze:contract][loop_lowering/effect_forward_ref] fn={} bb={:?} use=%{} use_idx={} def_idx={} def_kind={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=lhs path={}",
                         builder
@@ -63,8 +60,7 @@ pub(super) fn validate_effects_binop_operands(
                 ));
             }
             if !defined_values.contains(rhs) {
-                if let Some((def_idx, def_kind)) = find_forward_def(effects, effect_idx + 1, *rhs)
-                {
+                if let Some((def_idx, def_kind)) = find_forward_def(effects, effect_idx + 1, *rhs) {
                     return Err(format!(
                         "[freeze:contract][loop_lowering/effect_forward_ref] fn={} bb={:?} use=%{} use_idx={} def_idx={} def_kind={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=rhs path={}",
                         builder
@@ -171,10 +167,7 @@ pub(super) fn find_forward_def(
     None
 }
 
-pub(super) fn plan_def_kind(
-    plan: &LoweredRecipe,
-    target: ValueId,
-) -> Option<&'static str> {
+pub(super) fn plan_def_kind(plan: &LoweredRecipe, target: ValueId) -> Option<&'static str> {
     match plan {
         CorePlan::Effect(effect) => effect_defined_value(effect)
             .and_then(|(def_value, def_kind)| (def_value == target).then_some(def_kind)),

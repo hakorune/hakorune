@@ -1,11 +1,11 @@
-use crate::ast::ASTNode;
 use super::super::body_check::expr_matchers::{
     matches_if_else_return_literal, matches_if_else_return_literal_local,
     matches_if_else_return_literal_var, matches_if_return_literal, matches_if_return_var,
     matches_local_init_literal, matches_loop_var_less_than_literal,
 };
-use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
 use super::inner_loop::*;
+use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
 
 /// Matches parse program2 nested loop if-return pattern.
 pub fn matches_parse_program2_nested_loop_if_return_shape(

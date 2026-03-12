@@ -180,10 +180,7 @@ fn try_extract_no_break_or_continue_pure(
     })
 }
 
-fn try_extract_methodcall(
-    condition: &ASTNode,
-    body: &[ASTNode],
-) -> Option<NestedLoopDepth1Facts> {
+fn try_extract_methodcall(condition: &ASTNode, body: &[ASTNode]) -> Option<NestedLoopDepth1Facts> {
     let kind = NestedLoopDepth1Kind::MethodCall;
     let profile = kind.profile();
 

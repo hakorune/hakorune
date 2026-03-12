@@ -80,7 +80,10 @@ pub(in crate::mir::builder) fn stmt_kind_name(stmt: &ASTNode) -> &'static str {
 }
 
 /// Returns detailed reason for unsupported statement
-pub(in crate::mir::builder) fn unsupported_stmt_detail(stmt: &ASTNode, loop_var: &str) -> &'static str {
+pub(in crate::mir::builder) fn unsupported_stmt_detail(
+    stmt: &ASTNode,
+    loop_var: &str,
+) -> &'static str {
     if let ASTNode::Local {
         variables,
         initial_values,

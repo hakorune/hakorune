@@ -34,7 +34,7 @@ impl LoopBreakDebugLog {
         }
     }
 
-pub(crate) fn log(&self, tag: &str, message: impl AsRef<str>) {
+    pub(crate) fn log(&self, tag: &str, message: impl AsRef<str>) {
         if self.verbose {
             self.debug.log(tag, message.as_ref());
         }
@@ -117,12 +117,13 @@ impl LoopBreakPrepFactsBox {
     ) -> Result<LoopBreakPrepFacts, String> {
         let log = LoopBreakDebugLog::new(verbose);
         use crate::mir::builder::control_flow::plan::condition_env_builder::ConditionEnvBuilder;
-        use crate::mir::loop_route_detection::function_scope_capture::{analyze_captured_vars_v2, CapturedEnv};
+        use crate::mir::loop_route_detection::function_scope_capture::{
+            analyze_captured_vars_v2, CapturedEnv,
+        };
 
         let loop_var_name = ctx.loop_var_name.clone();
         let loop_var_id = ctx.loop_var_id;
-        let mut carrier_info =
-            ctx.carrier_info.clone(); // Phase 100 P2-2: Make mutable for accumulator promotion
+        let mut carrier_info = ctx.carrier_info.clone(); // Phase 100 P2-2: Make mutable for accumulator promotion
         let scope = ctx.loop_scope.clone();
 
         log.log(
@@ -144,7 +145,10 @@ impl LoopBreakPrepFactsBox {
             ),
         );
         let captured_env = if let Some(fn_body_ref) = fn_body {
-            log.log("phase200c", format!("fn_body has {} nodes", fn_body_ref.len()));
+            log.log(
+                "phase200c",
+                format!("fn_body has {} nodes", fn_body_ref.len()),
+            );
             analyze_captured_vars_v2(fn_body_ref, condition, body, &scope)
         } else {
             log.log("phase200c", "fn_body is None, using empty CapturedEnv");
@@ -153,7 +157,10 @@ impl LoopBreakPrepFactsBox {
         if verbose {
             log.log(
                 "capture",
-                format!("Phase 200-C: Captured {} variables", captured_env.vars.len()),
+                format!(
+                    "Phase 200-C: Captured {} variables",
+                    captured_env.vars.len()
+                ),
             );
             for var in &captured_env.vars {
                 log.log(
@@ -187,7 +194,8 @@ impl LoopBreakPrepFactsBox {
                     }
 
                     for pinned_name in pinned_names {
-                        if let Some(&host_id) = builder.variable_ctx.variable_map.get(&pinned_name) {
+                        if let Some(&host_id) = builder.variable_ctx.variable_map.get(&pinned_name)
+                        {
                             if verbose {
                                 log.log(
                                     "phase100_p1",
@@ -202,7 +210,10 @@ impl LoopBreakPrepFactsBox {
                             use crate::mir::join_ir::lowering::error_tags;
                             return Err(error_tags::freeze_with_hint(
                                 "phase100/pinned/missing_host_id",
-                                &format!("Pinned local '{}' not found in variable_map", pinned_name),
+                                &format!(
+                                    "Pinned local '{}' not found in variable_map",
+                                    pinned_name
+                                ),
                                 "define the local before the loop (dominates loop entry)",
                             ));
                         }
@@ -318,7 +329,9 @@ impl LoopBreakPrepFactsBox {
                             "[joinir/mutable-acc] RHS '{}' must be read-only (Condition/BodyLocal/Captured/Pinned), but found mutable Carrier",
                             rhs_name
                         ));
-                    } else if !in_captured && !builder.variable_ctx.variable_map.contains_key(rhs_name) {
+                    } else if !in_captured
+                        && !builder.variable_ctx.variable_map.contains_key(rhs_name)
+                    {
                         if verbose {
                             log.log(
                                 "phase100_p2",
@@ -346,7 +359,10 @@ impl LoopBreakPrepFactsBox {
                 if verbose {
                     log.log(
                         "phase100_p2",
-                        format!("Promoting '{}' to mutable LoopState carrier", spec.target_name),
+                        format!(
+                            "Promoting '{}' to mutable LoopState carrier",
+                            spec.target_name
+                        ),
                     );
                 }
 

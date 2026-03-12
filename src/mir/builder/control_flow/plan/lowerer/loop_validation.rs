@@ -8,7 +8,12 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, ValueId};
 
 /// Debug logging for literal plan effects (strict/dev+planner_required debug-only)
-pub fn debug_log_literal_plan(builder: &MirBuilder, path: &'static str, dst: ValueId, value: &ConstValue) {
+pub fn debug_log_literal_plan(
+    builder: &MirBuilder,
+    path: &'static str,
+    dst: ValueId,
+    value: &ConstValue,
+) {
     if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
         let fn_name = super::debug_ctx::current_fn_name(builder);
         let next_value_id = builder

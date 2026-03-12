@@ -366,7 +366,10 @@ fn collect_vars_from_stmt(stmt: &ASTNode, vars: &mut BTreeSet<String>) {
                 collect_vars_from_expr(value, vars);
             }
         }
-        ASTNode::Program { statements, .. } | ASTNode::ScopeBox { body: statements, .. } => {
+        ASTNode::Program { statements, .. }
+        | ASTNode::ScopeBox {
+            body: statements, ..
+        } => {
             for child in statements {
                 collect_vars_from_stmt(child, vars);
             }

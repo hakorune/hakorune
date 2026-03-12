@@ -57,13 +57,8 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first(
         ));
     }
 
-    let nested_ctx = LoopRouteContext::new(
-        condition,
-        body,
-        ctx.func_name,
-        ctx.debug,
-        ctx.in_static_box,
-    );
+    let nested_ctx =
+        LoopRouteContext::new(condition, body, ctx.func_name, ctx.debug, ctx.in_static_box);
     let outcome = single_planner::try_build_outcome(&nested_ctx)?;
     plan_trace::trace_outcome_snapshot(
         "nested_loop_plan_with_recipe_first",
@@ -86,8 +81,7 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first(
 
     if planner_required {
         if let Some(facts) = outcome.facts.as_ref() {
-            if facts.facts.loop_cond_break_continue.is_some() && outcome.recipe_contract.is_some()
-            {
+            if facts.facts.loop_cond_break_continue.is_some() && outcome.recipe_contract.is_some() {
                 plan_trace::trace_outcome_path(
                     "nested_loop_plan_with_recipe_first",
                     "recipe_loop_cond_break_continue",

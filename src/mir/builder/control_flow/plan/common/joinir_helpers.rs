@@ -32,10 +32,13 @@ pub(crate) fn get_entry_function<'a>(
     route_label: &str,
 ) -> Result<&'a JoinFunction, String> {
     if let Some(entry_id) = join_module.entry {
-        join_module.functions.get(&entry_id)
+        join_module
+            .functions
+            .get(&entry_id)
             .ok_or_else(|| format!("[{}] Entry function {:?} not found", route_label, entry_id))
     } else {
-        join_module.get_function_by_name("main")
+        join_module
+            .get_function_by_name("main")
             .ok_or_else(|| format!("[{}] JoinModule has no 'main' function", route_label))
     }
 }

@@ -14,11 +14,11 @@ use crate::mir::policies::generic_loop_overlap_policy::v1_shape_blocks_v0;
 use super::super::super::body_check::shape_resolution::{
     check_body_generic_v1, detect_generic_loop_v1_shape,
 };
-use super::super::super::facts_helpers::reject_or_none;
 use super::super::super::body_check::step_validation::{
     has_control_flow_after_step, validate_break_else_if_step, validate_continue_if_step,
     validate_in_body_step,
 };
+use super::super::super::facts_helpers::reject_or_none;
 use super::super::super::facts_types::GenericLoopV0Facts;
 use super::collection::body_writes_non_loop_vars;
 
@@ -30,7 +30,8 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v0_facts(
     let flat_body = flatten_scope_boxes(body);
     let strict = crate::config::env::joinir_dev::strict_enabled();
     let strict_or_dev = strict || crate::config::env::joinir_dev_enabled();
-    let planner_required = strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
+    let planner_required =
+        strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
     if planner_required {
         return Ok(None);
     }
@@ -56,11 +57,7 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v0_facts(
 
         let step_decision = classify_step_placement(&flat_body, loop_var, &loop_increment);
         if let Some(reason) = step_decision.reject_reason {
-            log_reject(
-                "generic_loop_v0",
-                reason,
-                handoff_tables::for_generic_loop,
-            );
+            log_reject("generic_loop_v0", reason, handoff_tables::for_generic_loop);
             return reject_or_none(strict, reason.as_freeze_message());
         }
         let Some(step_placement) = step_decision.placement else {
@@ -77,9 +74,7 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v0_facts(
             StepPlacement::InBody(idx) => {
                 validate_in_body_step(&flat_body, idx, loop_var, &loop_increment, strict)?
             }
-            StepPlacement::InContinueIf(idx) => {
-                validate_continue_if_step(&flat_body, idx, strict)?
-            }
+            StepPlacement::InContinueIf(idx) => validate_continue_if_step(&flat_body, idx, strict)?,
             StepPlacement::InBreakElseIf(idx) => {
                 validate_break_else_if_step(&flat_body, idx, strict)?
             }

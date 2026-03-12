@@ -2,9 +2,9 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
+use crate::mir::builder::control_flow::plan::nested_loop_plan::try_compose_loop_cond_continue_with_return_recipe;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, lower_cond_value};
-use crate::mir::builder::control_flow::plan::nested_loop_plan::try_compose_loop_cond_continue_with_return_recipe;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
@@ -192,14 +192,11 @@ pub(super) fn lower_nested_loop_plan(
                 "generic_loop_body::nested_loop_plan",
                 "recipe_nested_loop_minimal",
             );
-            let core_plan = composer::try_compose_core_loop_v2_nested_minimal(
-                builder,
-                facts,
-                &nested_ctx,
-            )?
-            .ok_or_else(|| {
-                "nested_loop_minimal strict/dev adopt failed: compose rejected".to_string()
-            })?;
+            let core_plan =
+                composer::try_compose_core_loop_v2_nested_minimal(builder, facts, &nested_ctx)?
+                    .ok_or_else(|| {
+                        "nested_loop_minimal strict/dev adopt failed: compose rejected".to_string()
+                    })?;
             return Ok(core_plan);
         }
     }

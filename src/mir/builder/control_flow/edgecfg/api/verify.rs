@@ -291,13 +291,13 @@ pub fn verify_frag_invariants_strict(frag: &Frag) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::BTreeMap;
     use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
     use crate::mir::builder::control_flow::edgecfg::api::block_params::BlockParams;
     use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
     use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::ValueId;
+    use std::collections::BTreeMap;
     use std::env;
 
     #[test]
@@ -361,11 +361,7 @@ mod tests {
         // strict: Fail-Fast with stable tag
         let _guard = strict_env_guard();
         let err = verify_frag_invariants_strict(&frag).unwrap_err();
-        assert!(
-            err.contains("[edgecfg/unwind]"),
-            "unexpected err: {}",
-            err
-        );
+        assert!(err.contains("[edgecfg/unwind]"), "unexpected err: {}", err);
     }
 
     #[test]
@@ -382,17 +378,16 @@ mod tests {
             entry,
             block_params: BTreeMap::new(),
             exits: BTreeMap::new(),
-            wires: vec![EdgeStub::new(
-                entry,
-                ExitKind::Normal,
-                Some(target),
-                args,
-            )],
+            wires: vec![EdgeStub::new(entry, ExitKind::Normal, Some(target), args)],
             branches: vec![],
         };
 
         let err = verify_frag_invariants_strict(&frag).unwrap_err();
-        assert!(err.contains("Missing block_params"), "unexpected err: {}", err);
+        assert!(
+            err.contains("Missing block_params"),
+            "unexpected err: {}",
+            err
+        );
     }
 
     #[test]
@@ -418,12 +413,7 @@ mod tests {
             entry,
             block_params,
             exits: BTreeMap::new(),
-            wires: vec![EdgeStub::new(
-                entry,
-                ExitKind::Normal,
-                Some(target),
-                args,
-            )],
+            wires: vec![EdgeStub::new(entry, ExitKind::Normal, Some(target), args)],
             branches: vec![],
         };
 

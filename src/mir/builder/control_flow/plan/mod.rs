@@ -41,9 +41,9 @@ pub(in crate::mir::builder) mod exit;
 // MIR lowering の中核インフラ
 pub(in crate::mir::builder) mod branchn;
 // Phase 29ai P0: Facts SSOT + Single Planner skeleton (parallel footing, unused in P0)
-pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod diagnostics;
 pub(in crate::mir::builder) mod edgecfg_facade;
+pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod lowerer;
 pub(in crate::mir::builder) mod normalizer;
 pub(in crate::mir::builder) mod step_mode;
@@ -177,8 +177,8 @@ pub(in crate::mir::builder) mod escape_shape_recognizer;
 // sealing は edgecfg/api/frag_emit_session.rs に統合（Phase 29bq+ 骨格拡大）
 pub(in crate::mir::builder) mod join_key;
 // Phase 29bq+: Route prep pipeline moved to plan side (patterns layer thin)
-pub(in crate::mir::builder) mod route_prep_pipeline;
 pub(in crate::mir::builder) mod plan_build_session;
+pub(in crate::mir::builder) mod route_prep_pipeline;
 
 // ============================================================================
 // Entrypoints (SSOT)
@@ -189,15 +189,15 @@ pub(in crate::mir::builder) mod plan_build_session;
 // - PlanVerifier::verify (CorePlan invariants)
 // - PlanLowerer::lower (CorePlan → MIR)
 #[allow(unused_imports)]
+pub(in crate::mir::builder) use lowerer::PlanLowerer;
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use normalizer::PlanNormalizer;
+#[allow(unused_imports)]
 pub(in crate::mir::builder) use planner::{
     build_plan_with_facts, build_plan_with_facts_ctx, PlanBuildOutcome,
 };
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use normalizer::PlanNormalizer;
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use verifier::PlanVerifier;
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use lowerer::PlanLowerer;
 
 pub(in crate::mir::builder) use branchn::CoreBranchNPlan;
 pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;
@@ -208,17 +208,12 @@ pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;
 
 // Core types
 pub(in crate::mir::builder) use self::core::{
-    CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePhiInfo, CorePlan, LoopStepMode,
-    LoweredRecipe,
+    CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePhiInfo, CorePlan, LoopStepMode, LoweredRecipe,
 };
 pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
 pub(in crate::mir::builder) use self::exit::CoreExitPlan;
 
 // Domain types
-pub(in crate::mir::builder) use self::domain::{
-    LoopBreakStepPlacement,
-};
 #[cfg(test)]
-pub(in crate::mir::builder) use self::domain::{
-    scan_direction_from_step_lit,
-};
+pub(in crate::mir::builder) use self::domain::scan_direction_from_step_lit;
+pub(in crate::mir::builder) use self::domain::LoopBreakStepPlacement;

@@ -1,8 +1,8 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::reject_reason::RejectReason;
 
-use super::matcher::{collect_conditional_step_indices, collect_direct_step_indices};
 use super::super::super::{StepPlacement, StepPlacementDecision};
+use super::matcher::{collect_conditional_step_indices, collect_direct_step_indices};
 
 pub(crate) fn classify_step_placement(
     body: &[ASTNode],

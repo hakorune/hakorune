@@ -104,8 +104,7 @@ pub fn merge_deferred_phi_inputs(
                 for (pred, val) in inputs_by_pred {
                     if !phi.inputs.iter().any(|(p, _)| p == pred) {
                         if debug_enabled {
-                            let def_bb = debug_def_blocks
-                                .and_then(|m| m.get(val).copied());
+                            let def_bb = debug_def_blocks.and_then(|m| m.get(val).copied());
                             let ring0 = crate::runtime::get_global_ring0();
                             ring0.log.debug(&format!(
                                 "{} fn={} origin=loop_lowering_merge pred_bb={:?} dst=%{} incoming=%{} incoming_def_bb={:?} phi_tag={}",
@@ -153,10 +152,7 @@ pub fn merge_deferred_phi_inputs(
 ///
 /// PHIs were inserted provisionally in Step 1.5 with empty inputs.
 /// Now update them with the actual inputs merged in Step 3.5.
-pub fn patch_all_phis(
-    builder: &mut MirBuilder,
-    loop_plan: &CoreLoopPlan,
-) -> Result<(), String> {
+pub fn patch_all_phis(builder: &mut MirBuilder, loop_plan: &CoreLoopPlan) -> Result<(), String> {
     for phi in &loop_plan.phis {
         let inputs = phi.inputs.clone();
 
@@ -167,7 +163,10 @@ pub fn patch_all_phis(
         let is_unreferenced_empty_step_phi = inputs.is_empty()
             && phi.tag.starts_with("loop_step_in_")
             && !loop_plan.phis.iter().any(|other| {
-                other.inputs.iter().any(|(_, incoming)| *incoming == phi.dst)
+                other
+                    .inputs
+                    .iter()
+                    .any(|(_, incoming)| *incoming == phi.dst)
             });
         if is_unreferenced_empty_step_phi {
             phi_lifecycle::rollback_provisional_phi(
@@ -205,13 +204,14 @@ pub fn validate_no_unpatched_phis(
 ) -> Result<(), String> {
     use crate::config::env::joinir_dev;
 
-    let strict_or_dev =
-        joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
+    let strict_or_dev = joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
     if strict_or_dev && joinir_dev::planner_required_enabled() {
         let (fn_name, unpatched) = if let Some(func) = builder.scope_ctx.current_function.as_ref() {
             let mut unpatched: Vec<(ValueId, BasicBlockId, String)> = Vec::new();
             for &(phi_dst, phi_bb, ref phi_tag) in provisional_phis {
-                let Some(block) = func.get_block(phi_bb) else { continue };
+                let Some(block) = func.get_block(phi_bb) else {
+                    continue;
+                };
                 let has_empty_inputs = block.instructions.iter().any(|inst| {
                     matches!(inst, crate::mir::MirInstruction::Phi { dst, inputs, .. }
                         if *dst == phi_dst && inputs.is_empty())
@@ -226,11 +226,8 @@ pub fn validate_no_unpatched_phis(
         };
 
         if !unpatched.is_empty() {
-            let (rollback_count, rollback_err) = rollback_unpatched_provisional_phis(
-                builder,
-                &unpatched,
-                "loop_lowerer:rollback",
-            );
+            let (rollback_count, rollback_err) =
+                rollback_unpatched_provisional_phis(builder, &unpatched, "loop_lowerer:rollback");
 
             let reason = if rollback_err.is_some() {
                 "rollback_failed"
@@ -263,8 +260,7 @@ pub fn validate_no_unpatched_phis_after_patch(
 ) -> Result<(), String> {
     use crate::config::env::joinir_dev;
 
-    let strict_or_dev =
-        joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
+    let strict_or_dev = joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
     if !(strict_or_dev && joinir_dev::planner_required_enabled()) {
         return Ok(());
     }
@@ -289,11 +285,8 @@ pub fn validate_no_unpatched_phis_after_patch(
     }
 
     if !unpatched.is_empty() {
-        let (rollback_count, rollback_err) = rollback_unpatched_provisional_phis(
-            builder,
-            &unpatched,
-            "loop_lowerer:rollback_ok",
-        );
+        let (rollback_count, rollback_err) =
+            rollback_unpatched_provisional_phis(builder, &unpatched, "loop_lowerer:rollback_ok");
         let reason = if rollback_err.is_some() {
             "rollback_failed"
         } else {

@@ -118,7 +118,13 @@ pub(in crate::mir::builder) fn try_extract_loop_collect_using_entries_v0_facts(
         return Ok(None);
     }
 
-    if !matches!(body[2], ASTNode::If { else_body: Some(_), .. }) {
+    if !matches!(
+        body[2],
+        ASTNode::If {
+            else_body: Some(_),
+            ..
+        }
+    ) {
         debug_reject("missing_top_level_if_else");
         return Ok(None);
     }

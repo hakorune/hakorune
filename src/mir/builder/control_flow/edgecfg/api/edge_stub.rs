@@ -5,9 +5,9 @@
  * 最終的に EdgeCFG の terminator edge に解決される。
  */
 
+use super::exit_kind::ExitKind;
 use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
-use super::exit_kind::ExitKind;
 
 /// 未配線の脱出エッジ
 ///
@@ -70,7 +70,7 @@ impl EdgeStub {
         Self::new(
             from,
             kind,
-            None,  // P1: 未配線で生成
+            None, // P1: 未配線で生成
             EdgeArgs {
                 layout: JumpArgsLayout::CarriersOnly,
                 values: vec![],

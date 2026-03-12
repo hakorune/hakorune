@@ -63,9 +63,7 @@ pub use route_shape_recognizers::parse_number::{
 };
 
 // Re-export parse_string shape detection
-pub use route_shape_recognizers::parse_string::{
-    detect_continue_shape, detect_parse_string_shape,
-};
+pub use route_shape_recognizers::parse_string::{detect_continue_shape, detect_parse_string_shape};
 
 // Re-export skip_whitespace shape detection
 pub use route_shape_recognizers::skip_whitespace::detect_skip_whitespace_shape;

@@ -10,13 +10,11 @@
 //! - Provisional PHI insertion (Step 1.5)
 
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CoreLoopPlan, LoweredRecipe,
-};
+use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
 use crate::mir::builder::emission::phi_lifecycle;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
-use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 
 /// Prepare loop entry: handle preheader, flatten body, jump to entry
 ///
@@ -147,9 +145,7 @@ pub fn insert_provisional_phis(
 }
 
 /// Flatten nested Seq plans in body into a single Vec
-fn try_flatten_body_effects(
-    body: &[LoweredRecipe],
-) -> Result<Option<Vec<CoreEffectPlan>>, String> {
+fn try_flatten_body_effects(body: &[LoweredRecipe]) -> Result<Option<Vec<CoreEffectPlan>>, String> {
     use crate::mir::builder::control_flow::plan::CorePlan;
 
     if body.is_empty() {

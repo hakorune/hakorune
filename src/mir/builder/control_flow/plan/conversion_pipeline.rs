@@ -178,7 +178,9 @@ impl JoinIRConversionPipeline {
                 let _ = writeln!(file, "; JoinIR → MIR conversion (before merge)\n");
                 let _ = write!(file, "{}", mir_text);
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[trace:bridge] Dumped bridge MIR to /tmp/joinir_bridge_split.mir"));
+                ring0.log.debug(&format!(
+                    "[trace:bridge] Dumped bridge MIR to /tmp/joinir_bridge_split.mir"
+                ));
             }
         }
 

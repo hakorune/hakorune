@@ -10,10 +10,10 @@ use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, CarrierInit, Carr
 use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::join_ir::lowering::loop_update_analyzer::{LoopUpdateAnalyzer, UpdateExpr};
 
+use super::super::loop_break_prep_box::{LoopBreakDebugLog, LoopBreakPrepInputs};
 use crate::mir::builder::control_flow::plan::common::{
     decide_carrier_binding_policy, CarrierBindingPolicy,
 };
-use super::super::loop_break_prep_box::{LoopBreakDebugLog, LoopBreakPrepInputs};
 
 use std::collections::BTreeMap;
 
@@ -28,11 +28,17 @@ impl CarrierUpdatesStepBox {
         let carrier_updates = if let Some(override_map) = inputs.carrier_updates_override.take() {
             override_map
         } else {
-            LoopUpdateAnalyzer::analyze_carrier_updates(analysis_body, &inputs.carrier_info.carriers)
+            LoopUpdateAnalyzer::analyze_carrier_updates(
+                analysis_body,
+                &inputs.carrier_info.carriers,
+            )
         };
         LoopBreakDebugLog::new(verbose).log(
             "updates",
-            format!("Phase 176-3: Analyzed {} carrier updates", carrier_updates.len()),
+            format!(
+                "Phase 176-3: Analyzed {} carrier updates",
+                carrier_updates.len()
+            ),
         );
 
         let original_carrier_count = inputs.carrier_info.carriers.len();

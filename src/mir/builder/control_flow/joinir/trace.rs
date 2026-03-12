@@ -161,9 +161,7 @@ impl JoinLoopTrace {
     pub fn debug(&self, tag: &str, msg: &str) {
         if self.is_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug(&format!("[trace:debug] {}: {}", tag, msg));
+            ring0.log.debug(&format!("[trace:debug] {}: {}", tag, msg));
         }
     }
 
@@ -174,9 +172,7 @@ impl JoinLoopTrace {
     pub fn dev(&self, tag: &str, msg: &str) {
         if self.dev_enabled {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug(&format!("[trace:dev] {}: {}", tag, msg));
+            ring0.log.debug(&format!("[trace:dev] {}: {}", tag, msg));
         }
     }
 
@@ -238,12 +234,9 @@ impl JoinLoopTrace {
     pub fn blocks(&self, tag: &str, msg: &str) {
         if self.joinir_enabled {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug(&format!("[trace:blocks] {}: {}", tag, msg));
+            ring0.log.debug(&format!("[trace:blocks] {}: {}", tag, msg));
         }
     }
-
 }
 
 impl Default for JoinLoopTrace {

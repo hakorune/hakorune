@@ -184,9 +184,10 @@ fn extract_loop_counter_from_indexof_pattern(
     ) {
         match node {
             ASTNode::Assignment { target, value, .. } => {
-                if let (Some(target_name), Some((index_var, const_val))) =
-                    (extract_var_name(target.as_ref()), extract_add_var_const(value.as_ref()))
-                {
+                if let (Some(target_name), Some((index_var, const_val))) = (
+                    extract_var_name(target.as_ref()),
+                    extract_add_var_const(value.as_ref()),
+                ) {
                     if const_val <= 0 {
                         return;
                     }
@@ -278,9 +279,7 @@ fn collect_indexof_bindings(body: &[ASTNode]) -> Vec<(String, String)> {
         };
 
         if let ASTNode::MethodCall {
-            method,
-            arguments,
-            ..
+            method, arguments, ..
         } = value_node
         {
             if method == "indexOf" && arguments.len() == 2 {
@@ -356,9 +355,7 @@ fn has_substring_read(body: &[ASTNode], counter: &str) -> bool {
     fn walk(node: &ASTNode, counter: &str) -> bool {
         match node {
             ASTNode::Assignment { value, .. } => walk(value.as_ref(), counter),
-            ASTNode::Local {
-                initial_values, ..
-            } => initial_values
+            ASTNode::Local { initial_values, .. } => initial_values
                 .iter()
                 .filter_map(|v| v.as_ref())
                 .any(|v| walk(v.as_ref(), counter)),
@@ -389,7 +386,9 @@ fn has_substring_read(body: &[ASTNode], counter: &str) -> bool {
                 // Search recursively in args
                 arguments.iter().any(|a| walk(a, counter))
             }
-            ASTNode::BinaryOp { left, right, .. } => walk(left.as_ref(), counter) || walk(right.as_ref(), counter),
+            ASTNode::BinaryOp { left, right, .. } => {
+                walk(left.as_ref(), counter) || walk(right.as_ref(), counter)
+            }
             ASTNode::If {
                 condition,
                 then_body,
@@ -403,9 +402,9 @@ fn has_substring_read(body: &[ASTNode], counter: &str) -> bool {
                         .map(|eb| eb.iter().any(|s| walk(s, counter)))
                         .unwrap_or(false)
             }
-            ASTNode::Loop { body, condition, .. } => {
-                walk(condition.as_ref(), counter) || body.iter().any(|s| walk(s, counter))
-            }
+            ASTNode::Loop {
+                body, condition, ..
+            } => walk(condition.as_ref(), counter) || body.iter().any(|s| walk(s, counter)),
             _ => false,
         }
     }
@@ -422,9 +421,7 @@ fn has_substring_read_with_start(body: &[ASTNode], counter: &str) -> bool {
                 .filter_map(|v| v.as_ref())
                 .any(|v| walk(v.as_ref(), counter)),
             ASTNode::MethodCall {
-                method,
-                arguments,
-                ..
+                method, arguments, ..
             } => {
                 if method == "substring" && arguments.len() == 2 {
                     if matches!(
@@ -452,9 +449,9 @@ fn has_substring_read_with_start(body: &[ASTNode], counter: &str) -> bool {
                         .map(|eb| eb.iter().any(|s| walk(s, counter)))
                         .unwrap_or(false)
             }
-            ASTNode::Loop { body, condition, .. } => {
-                walk(condition.as_ref(), counter) || body.iter().any(|s| walk(s, counter))
-            }
+            ASTNode::Loop {
+                body, condition, ..
+            } => walk(condition.as_ref(), counter) || body.iter().any(|s| walk(s, counter)),
             _ => false,
         }
     }
@@ -565,9 +562,8 @@ mod tests {
         let body = vec![local_one("ch", substring_i("s", "i"))];
         let mut variable_map = BTreeMap::new();
         variable_map.insert("i".to_string(), ValueId(1));
-        let err =
-            LoopTrueCounterExtractorBox::extract_loop_counter_from_body(&body, &variable_map)
-                .unwrap_err();
+        let err = LoopTrueCounterExtractorBox::extract_loop_counter_from_body(&body, &variable_map)
+            .unwrap_err();
         assert!(err.contains("no_candidate"));
     }
 
@@ -582,9 +578,8 @@ mod tests {
         let mut variable_map = BTreeMap::new();
         variable_map.insert("i".to_string(), ValueId(1));
         variable_map.insert("j".to_string(), ValueId(2));
-        let err =
-            LoopTrueCounterExtractorBox::extract_loop_counter_from_body(&body, &variable_map)
-                .unwrap_err();
+        let err = LoopTrueCounterExtractorBox::extract_loop_counter_from_body(&body, &variable_map)
+            .unwrap_err();
         assert!(err.contains("multiple_candidates"));
     }
 
@@ -593,9 +588,8 @@ mod tests {
         let body = vec![assign(var("i"), add(var("i"), lit_i(1)))];
         let mut variable_map = BTreeMap::new();
         variable_map.insert("i".to_string(), ValueId(1));
-        let err =
-            LoopTrueCounterExtractorBox::extract_loop_counter_from_body(&body, &variable_map)
-                .unwrap_err();
+        let err = LoopTrueCounterExtractorBox::extract_loop_counter_from_body(&body, &variable_map)
+            .unwrap_err();
         assert!(err.contains("missing_substring_guard"));
     }
 

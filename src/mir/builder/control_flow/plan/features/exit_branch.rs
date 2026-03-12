@@ -115,9 +115,7 @@ pub(in crate::mir::builder) fn build_return_exit_plan(
 /// Build a return-only exit plan (no prelude).
 ///
 /// Consolidates Return generation to a single location (BoxShape).
-pub(in crate::mir::builder) fn build_return_only(
-    value_id: crate::mir::ValueId,
-) -> LoweredRecipe {
+pub(in crate::mir::builder) fn build_return_only(value_id: crate::mir::ValueId) -> LoweredRecipe {
     CorePlan::Exit(build_return_exit_plan(value_id))
 }
 

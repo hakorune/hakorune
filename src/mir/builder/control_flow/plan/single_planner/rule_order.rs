@@ -72,9 +72,7 @@ pub(in crate::mir::builder) struct PlannerRuleLabels {
 ///
 /// Keep tag-rule names stable for gate compatibility, while display/route labels
 /// remain semantic and pattern-number free.
-pub(in crate::mir::builder) const fn planner_rule_labels(
-    id: PlanRuleId,
-) -> PlannerRuleLabels {
+pub(in crate::mir::builder) const fn planner_rule_labels(id: PlanRuleId) -> PlannerRuleLabels {
     match id {
         PlanRuleId::LoopSimpleWhile => PlannerRuleLabels {
             tag_rule: "LoopSimpleWhile",
@@ -153,9 +151,7 @@ pub(in crate::mir::builder) const fn planner_rule_tag_name(id: PlanRuleId) -> &'
     planner_rule_labels(id).tag_rule
 }
 
-pub(in crate::mir::builder) const fn planner_rule_route_label(
-    id: PlanRuleId,
-) -> &'static str {
+pub(in crate::mir::builder) const fn planner_rule_route_label(id: PlanRuleId) -> &'static str {
     planner_rule_labels(id).route_label
 }
 

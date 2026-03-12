@@ -1,5 +1,7 @@
 //! Phase 29aj P0: Planner outcome (facts + plan) SSOT
 
+use super::context::PlannerContext;
+use super::Freeze;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::{
     try_build_loop_facts, try_build_loop_facts_with_ctx, LoopFacts,
@@ -8,8 +10,6 @@ use crate::mir::builder::control_flow::plan::normalize::{
     canonicalize_loop_facts, CanonicalLoopFacts,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::contracts::RecipeContract;
-use super::context::PlannerContext;
-use super::Freeze;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct PlanBuildOutcome {

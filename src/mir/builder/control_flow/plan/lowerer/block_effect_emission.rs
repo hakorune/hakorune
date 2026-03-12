@@ -9,14 +9,12 @@
 //! - Body block vs normal block handling
 
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CoreLoopPlan, LoweredRecipe,
-};
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::{HashMap, HashSet};
 
-use super::{LoopFrame, loop_validation};
+use super::{loop_validation, LoopFrame};
 use crate::mir::builder::control_flow::joinir::trace;
 
 /// Emit all block effects for loop lowering (Step 2)
@@ -46,7 +44,8 @@ pub fn emit_all_block_effects(
         for (block_id, effects) in block_effects {
             for (effect_idx, effect) in effects.iter().enumerate() {
                 if let Some((def_value, def_kind)) = loop_validation::effect_defined_value(effect) {
-                    defs.entry(def_value).or_insert((*block_id, effect_idx, def_kind));
+                    defs.entry(def_value)
+                        .or_insert((*block_id, effect_idx, def_kind));
                 }
             }
         }
@@ -88,13 +87,7 @@ pub fn emit_all_block_effects(
             if let Some(ref effects) = body_effects {
                 emit_body_effects_from_lowerer(builder, effects, loop_plan.step_bb, loop_stack)?;
             } else {
-                emit_loop_body_plans(
-                    builder,
-                    &loop_plan.body,
-                    ctx,
-                    loop_stack,
-                    loop_plan.step_bb,
-                )?;
+                emit_loop_body_plans(builder, &loop_plan.body, ctx, loop_stack, loop_plan.step_bb)?;
             }
         } else {
             // Normal block: emit effects with strict validation
@@ -212,7 +205,9 @@ fn validate_binop_operands(
 ) -> Result<(), String> {
     if !defined_values.contains(&operand) {
         // Check for forward definition within same block
-        if let Some((def_idx, def_kind)) = loop_validation::find_forward_def(effects, effect_idx + 1, operand) {
+        if let Some((def_idx, def_kind)) =
+            loop_validation::find_forward_def(effects, effect_idx + 1, operand)
+        {
             return Err(format!(
                 "[freeze:contract][loop_lowering/effect_forward_ref] fn={} bb={:?} use=%{} use_idx={} def_idx={} def_kind={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand={}",
                 func_name, block_id, operand.0, effect_idx, def_idx, def_kind, dst.0, op, operand_name

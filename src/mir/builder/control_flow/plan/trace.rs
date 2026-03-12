@@ -29,10 +29,7 @@ pub(in crate::mir::builder) fn trace_outcome_snapshot(
     let ring0 = crate::runtime::get_global_ring0();
     ring0.log.debug(&format!(
         "[plan/trace] stage={} outcome=plan:{} facts:{} recipe_contract:{}",
-        stage,
-        plan_present as u8,
-        facts_present as u8,
-        recipe_contract_present as u8
+        stage, plan_present as u8, facts_present as u8, recipe_contract_present as u8
     ));
 }
 

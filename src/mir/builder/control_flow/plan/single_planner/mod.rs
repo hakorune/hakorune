@@ -7,8 +7,8 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 
 use super::planner::PlanBuildOutcome;
 
-mod rules;
 mod rule_order;
+mod rules;
 
 pub(in crate::mir::builder) use rule_order::{
     planner_rule_route_label, planner_rule_semantic_label, planner_rule_tag_name, PlanRuleId,

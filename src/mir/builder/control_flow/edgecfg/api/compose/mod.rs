@@ -108,12 +108,12 @@ pub(super) fn merge_block_params(
 mod tests {
     use super::{cleanup, if_, loop_, seq};
     use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+    use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
+    use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
+    use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
     use crate::mir::control_form::LoopId;
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::value_id::ValueId;
-    use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
-    use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
-    use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
     use std::collections::BTreeMap;
 
     #[test]
@@ -121,7 +121,7 @@ mod tests {
         // Setup: body with Normal and Return exits
         let loop_id = LoopId(0);
         let header = BasicBlockId(10);
-        let after = BasicBlockId(11);  // Phase 265 P1: after 追加
+        let after = BasicBlockId(11); // Phase 265 P1: after 追加
         let body_entry = BasicBlockId(20);
 
         let mut body_exits = BTreeMap::new();
@@ -157,7 +157,7 @@ mod tests {
         // Setup: body with Break and Continue
         let loop_id = LoopId(1);
         let header = BasicBlockId(30);
-        let after = BasicBlockId(31);  // Phase 265 P1: after 追加
+        let after = BasicBlockId(31); // Phase 265 P1: after 追加
         let body_entry = BasicBlockId(40);
 
         let mut body_exits = BTreeMap::new();
@@ -167,7 +167,10 @@ mod tests {
         );
         body_exits.insert(
             ExitKind::Continue(loop_id),
-            vec![EdgeStub::without_args(body_entry, ExitKind::Continue(loop_id))],
+            vec![EdgeStub::without_args(
+                body_entry,
+                ExitKind::Continue(loop_id),
+            )],
         );
 
         let body_frag = Frag {
@@ -410,8 +413,14 @@ mod tests {
         // Verify: a.Return + b.Unwind are in exits (unwired)
         assert!(seq_frag.exits.contains_key(&ExitKind::Return));
         assert!(seq_frag.exits.contains_key(&ExitKind::Unwind));
-        assert_eq!(seq_frag.exits.get(&ExitKind::Return).unwrap()[0].target, None);
-        assert_eq!(seq_frag.exits.get(&ExitKind::Unwind).unwrap()[0].target, None);
+        assert_eq!(
+            seq_frag.exits.get(&ExitKind::Return).unwrap()[0].target,
+            None
+        );
+        assert_eq!(
+            seq_frag.exits.get(&ExitKind::Unwind).unwrap()[0].target,
+            None
+        );
 
         // a.Normal is in wires
         assert_eq!(seq_frag.wires.len(), 1);
@@ -503,7 +512,10 @@ mod tests {
 
         // join_frag.Return is in exits
         assert!(if_frag.exits.contains_key(&ExitKind::Return));
-        assert_eq!(if_frag.exits.get(&ExitKind::Return).unwrap()[0].from, join_exit);
+        assert_eq!(
+            if_frag.exits.get(&ExitKind::Return).unwrap()[0].from,
+            join_exit
+        );
     }
 
     #[test]
@@ -576,8 +588,14 @@ mod tests {
         // Verify: Return and Unwind are in exits (unwired)
         assert!(if_frag.exits.contains_key(&ExitKind::Return));
         assert!(if_frag.exits.contains_key(&ExitKind::Unwind));
-        assert_eq!(if_frag.exits.get(&ExitKind::Return).unwrap()[0].target, None);
-        assert_eq!(if_frag.exits.get(&ExitKind::Unwind).unwrap()[0].target, None);
+        assert_eq!(
+            if_frag.exits.get(&ExitKind::Return).unwrap()[0].target,
+            None
+        );
+        assert_eq!(
+            if_frag.exits.get(&ExitKind::Unwind).unwrap()[0].target,
+            None
+        );
 
         // then/else Normal are in wires
         assert_eq!(if_frag.wires.len(), 2);
@@ -607,7 +625,7 @@ mod tests {
                 vec![EdgeStub::new(
                     cleanup_bb,
                     ExitKind::Return,
-                    None,  // Unresolved
+                    None, // Unresolved
                     EdgeArgs {
                         layout: JumpArgsLayout::CarriersOnly,
                         values: vec![],
@@ -625,12 +643,12 @@ mod tests {
         assert!(result.is_ok());
         let composed = result.unwrap();
         assert_eq!(composed.entry, main_entry);
-        assert_eq!(composed.wires.len(), 1);  // Return in wires
+        assert_eq!(composed.wires.len(), 1); // Return in wires
 
         let return_wire = &composed.wires[0];
         assert_eq!(return_wire.from, cleanup_bb);
         assert_eq!(return_wire.kind, ExitKind::Return);
-        assert_eq!(return_wire.target, None);  // Unresolved (upward propagation)
+        assert_eq!(return_wire.target, None); // Unresolved (upward propagation)
     }
 
     // Phase 281 P2: cleanup() test - Return wiring
@@ -638,7 +656,7 @@ mod tests {
     fn test_cleanup_return_wiring() {
         let main_entry = BasicBlockId(100);
         let cleanup_bb = BasicBlockId(200);
-        let target_bb = BasicBlockId(300);  // Wire destination
+        let target_bb = BasicBlockId(300); // Wire destination
 
         // Main Frag: empty
         let main_frag = Frag {
@@ -658,7 +676,7 @@ mod tests {
                 vec![EdgeStub::new(
                     cleanup_bb,
                     ExitKind::Return,
-                    None,  // Unresolved
+                    None, // Unresolved
                     EdgeArgs {
                         layout: JumpArgsLayout::CarriersOnly,
                         values: vec![],
@@ -676,13 +694,13 @@ mod tests {
         assert!(result.is_ok());
         let composed = result.unwrap();
         assert_eq!(composed.entry, main_entry);
-        assert_eq!(composed.exits.len(), 0);  // No exits (closed)
-        assert_eq!(composed.wires.len(), 1);  // Return wired
+        assert_eq!(composed.exits.len(), 0); // No exits (closed)
+        assert_eq!(composed.wires.len(), 1); // Return wired
 
         let wired_stub = &composed.wires[0];
         assert_eq!(wired_stub.from, cleanup_bb);
         assert_eq!(wired_stub.kind, ExitKind::Return);
-        assert_eq!(wired_stub.target, Some(target_bb));  // Wired!
+        assert_eq!(wired_stub.target, Some(target_bb)); // Wired!
     }
 
     // Phase 281 P3: cleanup() test - Normal propagation
@@ -709,7 +727,7 @@ mod tests {
                 vec![EdgeStub::new(
                     cleanup_bb,
                     ExitKind::Normal,
-                    None,  // Unresolved
+                    None, // Unresolved
                     EdgeArgs {
                         layout: JumpArgsLayout::CarriersOnly,
                         values: vec![],
@@ -727,12 +745,12 @@ mod tests {
         assert!(result.is_ok());
         let composed = result.unwrap();
         assert_eq!(composed.entry, main_entry);
-        assert_eq!(composed.wires.len(), 1);  // Normal in wires
+        assert_eq!(composed.wires.len(), 1); // Normal in wires
 
         let normal_wire = &composed.wires[0];
         assert_eq!(normal_wire.from, cleanup_bb);
         assert_eq!(normal_wire.kind, ExitKind::Normal);
-        assert_eq!(normal_wire.target, None);  // Unresolved (upward propagation)
+        assert_eq!(normal_wire.target, None); // Unresolved (upward propagation)
     }
 
     // Phase 281 P3: cleanup() test - Normal wiring
@@ -740,7 +758,7 @@ mod tests {
     fn test_cleanup_normal_wiring() {
         let main_entry = BasicBlockId(100);
         let cleanup_bb = BasicBlockId(200);
-        let target_bb = BasicBlockId(300);  // Wire destination
+        let target_bb = BasicBlockId(300); // Wire destination
 
         // Main Frag: empty
         let main_frag = Frag {
@@ -760,7 +778,7 @@ mod tests {
                 vec![EdgeStub::new(
                     cleanup_bb,
                     ExitKind::Normal,
-                    None,  // Unresolved
+                    None, // Unresolved
                     EdgeArgs {
                         layout: JumpArgsLayout::CarriersOnly,
                         values: vec![],
@@ -778,12 +796,12 @@ mod tests {
         assert!(result.is_ok());
         let composed = result.unwrap();
         assert_eq!(composed.entry, main_entry);
-        assert_eq!(composed.exits.len(), 0);  // No exits (closed)
-        assert_eq!(composed.wires.len(), 1);  // Normal wired
+        assert_eq!(composed.exits.len(), 0); // No exits (closed)
+        assert_eq!(composed.wires.len(), 1); // Normal wired
 
         let wired_stub = &composed.wires[0];
         assert_eq!(wired_stub.from, cleanup_bb);
         assert_eq!(wired_stub.kind, ExitKind::Normal);
-        assert_eq!(wired_stub.target, Some(target_bb));  // Wired!
+        assert_eq!(wired_stub.target, Some(target_bb)); // Wired!
     }
 }

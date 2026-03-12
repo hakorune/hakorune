@@ -9,7 +9,10 @@ use crate::mir::builder::control_flow::plan::single_planner::{
 };
 
 pub(in crate::mir::builder) fn planner_first_tag(rule_id: PlanRuleId) -> String {
-    format!("[joinir/planner_first rule={}]", planner_rule_tag_name(rule_id))
+    format!(
+        "[joinir/planner_first rule={}]",
+        planner_rule_tag_name(rule_id)
+    )
 }
 
 pub(in crate::mir::builder) fn planner_first_display_label(rule_id: PlanRuleId) -> &'static str {

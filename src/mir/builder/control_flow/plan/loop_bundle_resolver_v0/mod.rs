@@ -16,4 +16,3 @@ pub(in crate::mir::builder) use facts::{
     try_extract_loop_bundle_resolver_v0_facts, LoopBundleResolverV0Facts,
 };
 pub(in crate::mir::builder) use pipeline::lower_loop_bundle_resolver_v0;
-

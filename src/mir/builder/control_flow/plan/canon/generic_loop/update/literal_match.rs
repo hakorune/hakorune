@@ -2,10 +2,7 @@ use crate::ast::ASTNode;
 
 use super::UpdateLiteralMatch;
 
-pub(super) fn match_update_literal(
-    stmt: &ASTNode,
-    loop_var: &str,
-) -> Option<UpdateLiteralMatch> {
+pub(super) fn match_update_literal(stmt: &ASTNode, loop_var: &str) -> Option<UpdateLiteralMatch> {
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return None;
     };

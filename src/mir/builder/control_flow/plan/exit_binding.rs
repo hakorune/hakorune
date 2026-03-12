@@ -354,18 +354,20 @@ mod tests {
         let mut boundary = JoinInlineBoundary {
             host_inputs: vec![],
             join_inputs: vec![],
-            exit_bindings: vec![], // Phase 171: Add missing field
+            exit_bindings: vec![],      // Phase 171: Add missing field
             condition_bindings: vec![], // Phase 171-fix: Add missing field
             expr_result: None,          // Phase 33-14: Add missing field
-            jump_args_layout: crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout::CarriersOnly,
-            loop_var_name: None,        // Phase 33-16: Add missing field
+            jump_args_layout:
+                crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout::CarriersOnly,
+            loop_var_name: None,         // Phase 33-16: Add missing field
             loop_header_func_name: None, // Phase 287 P2
-            carrier_info: None,         // Phase 228: Add missing field
-            loop_invariants: vec![],    // Phase 255 P2: Add missing field
+            carrier_info: None,          // Phase 228: Add missing field
+            loop_invariants: vec![],     // Phase 255 P2: Add missing field
             continuation_func_ids: std::collections::BTreeSet::from([
-                "k_exit".to_string(),  // Phase 256 P1.7: Use String instead of JoinFuncId
+                "k_exit".to_string(), // Phase 256 P1.7: Use String instead of JoinFuncId
             ]),
-            exit_reconnect_mode: crate::mir::join_ir::lowering::carrier_info::ExitReconnectMode::default(), // Phase 131 P1.5
+            exit_reconnect_mode:
+                crate::mir::join_ir::lowering::carrier_info::ExitReconnectMode::default(), // Phase 131 P1.5
         };
 
         builder

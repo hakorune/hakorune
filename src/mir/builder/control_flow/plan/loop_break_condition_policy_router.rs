@@ -10,8 +10,8 @@
 //! silently fall back to an unrelated route.
 
 use crate::ast::ASTNode;
-use crate::ast::UnaryOperator;
 use crate::ast::LiteralValue;
+use crate::ast::UnaryOperator;
 use crate::mir::loop_route_detection::break_condition_analyzer::BreakConditionAnalyzer;
 
 use crate::mir::builder::control_flow::plan::policies::{
@@ -43,7 +43,10 @@ impl LoopBreakConditionPolicyRouterBox {
         }
     }
 
-    pub(crate) fn route(condition: &ASTNode, body: &[ASTNode]) -> Result<LoopBreakConditionRouting, String> {
+    pub(crate) fn route(
+        condition: &ASTNode,
+        body: &[ASTNode],
+    ) -> Result<LoopBreakConditionRouting, String> {
         // loop(true) read-digits family:
         // - multiple breaks exist; normalize as:
         //   `break_when_true := (ch == "") || !(is_digit(ch))`
@@ -67,14 +70,17 @@ impl LoopBreakConditionPolicyRouterBox {
                                 ..
                             }
                         ) {
-                            Err("[cf_loop/loop_break] loop(true) requires a break-guard shape"
-                                .to_string())
+                            Err(
+                                "[cf_loop/loop_break] loop(true) requires a break-guard shape"
+                                    .to_string(),
+                            )
                         } else {
                             Ok(Self::negate_condition(condition))
                         }
                     })
                     .map_err(|_| {
-                        "[cf_loop/loop_break] Failed to extract break condition from loop body".to_string()
+                        "[cf_loop/loop_break] Failed to extract break condition from loop body"
+                            .to_string()
                     })?,
                 allowed_body_locals_for_conditions: Vec::new(),
                 is_loop_true_read_digits: false,

@@ -5,11 +5,11 @@ use crate::mir::builder::control_flow::plan::canon::generic_loop::canon_update_f
 
 #[derive(Debug, Clone)]
 pub(crate) struct IfPhiJoinParts {
-    pub loop_var: String,      // Loop variable name (e.g., "i")
-    pub merged_var: String,    // Primary PHI carrier (e.g., "sum")
-    pub carrier_count: usize,  // Validation: 1-2 accumulators
-    // Note: has_else (always true), phi_like_merge (implicit) omitted
-    // AST reused from ctx - no duplication
+    pub loop_var: String,   // Loop variable name (e.g., "i")
+    pub merged_var: String, // Primary PHI carrier (e.g., "sum")
+    pub carrier_count: usize, // Validation: 1-2 accumulators
+                            // Note: has_else (always true), phi_like_merge (implicit) omitted
+                            // AST reused from ctx - no duplication
 }
 
 /// Extract if_phi_join parts.
@@ -173,12 +173,13 @@ fn has_forbidden_control_flow_recursive_if_phi_join(node: &ASTNode) -> bool {
             }
 
             // Check control flow INSIDE branches
-            then_body.iter().any(has_forbidden_control_flow_recursive_if_phi_join)
-                || else_body
-                    .as_ref()
-                    .map_or(false, |b| {
-                        b.iter().any(has_forbidden_control_flow_recursive_if_phi_join)
-                    })
+            then_body
+                .iter()
+                .any(has_forbidden_control_flow_recursive_if_phi_join)
+                || else_body.as_ref().map_or(false, |b| {
+                    b.iter()
+                        .any(has_forbidden_control_flow_recursive_if_phi_join)
+                })
         }
 
         _ => false,

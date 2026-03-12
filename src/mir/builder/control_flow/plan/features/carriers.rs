@@ -1,13 +1,13 @@
 //! Carrier variable collection helpers (analysis-only).
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_recipe::{
     ContinueOnlyRecipe, ContinueOnlyStmtRecipe,
 };
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::{
     ContinueWithReturnItem, ContinueWithReturnRecipe,
 };
-use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
 use crate::mir::builder::MirBuilder;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -41,11 +41,7 @@ pub(in crate::mir::builder) fn collect_outer_from_body(
 fn collect_outer_carrier_vars_impl(builder: &MirBuilder, body: &[ASTNode]) -> Vec<String> {
     let mut carriers = BTreeMap::<String, ()>::new();
 
-    fn scan_stmt(
-        builder: &MirBuilder,
-        carriers: &mut BTreeMap<String, ()>,
-        stmt: &ASTNode,
-    ) {
+    fn scan_stmt(builder: &MirBuilder, carriers: &mut BTreeMap<String, ()>, stmt: &ASTNode) {
         match stmt {
             ASTNode::Program { statements, .. } => {
                 for stmt in statements {
@@ -214,9 +210,7 @@ pub(in crate::mir::builder) fn collect_from_recipe_continue_with_return(
     }
 }
 
-fn collect_carrier_vars_from_recipe_cwr(
-    recipe: &ContinueWithReturnRecipe,
-) -> BTreeSet<String> {
+fn collect_carrier_vars_from_recipe_cwr(recipe: &ContinueWithReturnRecipe) -> BTreeSet<String> {
     let mut locals = BTreeSet::new();
     let body_view = BodyView::Recipe(&recipe.body);
     collect_local_vars_from_items_cwr(&body_view, &recipe.items, &mut locals);
@@ -355,12 +349,7 @@ fn collect_carrier_vars_from_item_cwr(
                 return;
             };
             let prelude_view = BodyView::Slice(prelude_body);
-            collect_carrier_vars_from_items_cwr(
-                &prelude_view,
-                prelude_items,
-                locals,
-                carriers,
-            );
+            collect_carrier_vars_from_items_cwr(&prelude_view, prelude_items, locals, carriers);
         }
         ContinueWithReturnItem::HeteroReturnIf { if_stmt } => {
             let Some(stmt) = body.get_stmt(*if_stmt) else {
@@ -626,12 +615,7 @@ fn collect_carrier_vars_from_item_co(
                 return;
             };
             let prelude_view = BodyView::Slice(prelude_body);
-            collect_carrier_vars_from_items_co(
-                &prelude_view,
-                prelude_items,
-                locals,
-                carriers,
-            );
+            collect_carrier_vars_from_items_co(&prelude_view, prelude_items, locals, carriers);
         }
         ContinueOnlyStmtRecipe::GroupIf {
             then_body,
@@ -642,12 +626,7 @@ fn collect_carrier_vars_from_item_co(
             collect_carrier_vars_from_items_co(&then_view, &then_body.items, locals, carriers);
             if let Some(else_body) = else_body {
                 let else_view = BodyView::Recipe(&else_body.body);
-                collect_carrier_vars_from_items_co(
-                    &else_view,
-                    &else_body.items,
-                    locals,
-                    carriers,
-                );
+                collect_carrier_vars_from_items_co(&else_view, &else_body.items, locals, carriers);
             }
         }
         ContinueOnlyStmtRecipe::ContinueIfNestedLoop {

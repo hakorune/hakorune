@@ -37,7 +37,11 @@ pub fn build_standard5_wiring(
 
     // Internal wires: body → step → header
     let wires = vec![
-        edgecfg_stubs::build_loop_back_edge_with_args(frame.body_bb, frame.step_bb, edge_args.clone()),
+        edgecfg_stubs::build_loop_back_edge_with_args(
+            frame.body_bb,
+            frame.step_bb,
+            edge_args.clone(),
+        ),
         edgecfg_stubs::build_loop_back_edge_with_args(frame.step_bb, frame.header_bb, edge_args),
     ];
 
@@ -88,12 +92,13 @@ pub fn empty_carriers_args() -> EdgeArgs {
 /// - Returns only the internal wires (body→step, step→header)
 /// - Branches are NOT included (caller provides from lower_loop_header_cond)
 /// - edge_args は caller が指定（通常は empty_carriers_args()）
-pub fn build_standard5_internal_wires(
-    frame: &CoreLoopFrame,
-    edge_args: EdgeArgs,
-) -> Vec<EdgeStub> {
+pub fn build_standard5_internal_wires(frame: &CoreLoopFrame, edge_args: EdgeArgs) -> Vec<EdgeStub> {
     vec![
-        edgecfg_stubs::build_loop_back_edge_with_args(frame.body_bb, frame.step_bb, edge_args.clone()),
+        edgecfg_stubs::build_loop_back_edge_with_args(
+            frame.body_bb,
+            frame.step_bb,
+            edge_args.clone(),
+        ),
         edgecfg_stubs::build_loop_back_edge_with_args(frame.step_bb, frame.header_bb, edge_args),
     ]
 }

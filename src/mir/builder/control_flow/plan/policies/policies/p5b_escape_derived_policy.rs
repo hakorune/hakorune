@@ -8,12 +8,12 @@
 //! a body-local reassignment that matches the P5b entry shape but cannot be
 //! converted to a derived recipe, we fail-fast with a reason tag.
 
+use super::PolicyDecision;
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::escape_shape_recognizer::EscapeSkipShapeInfo;
 use crate::mir::join_ir::lowering::common::body_local_derived_emitter::BodyLocalDerivedRecipe;
 use crate::mir::join_ir::lowering::error_tags;
-use super::PolicyDecision;
 
 pub type P5bEscapeDerivedDecision = PolicyDecision<BodyLocalDerivedRecipe>;
 
@@ -33,7 +33,11 @@ pub fn classify_p5b_escape_derived(
     let has_ch_init = find_local_init_expr(body, "ch").is_some();
     let has_ch_reassign = has_assignment_to_var(body, "ch");
 
-    let Some(info) = crate::mir::builder::control_flow::plan::ast_feature_extractor::detect_escape_skip_shape(body) else {
+    let Some(info) =
+        crate::mir::builder::control_flow::plan::ast_feature_extractor::detect_escape_skip_shape(
+            body,
+        )
+    else {
         if strict && has_ch_init && has_ch_reassign {
             return P5bEscapeDerivedDecision::Reject(error_tags::freeze(
                 "[phase94/body_local_derived/contract/unhandled_reassign] Body-local reassignment to 'ch' detected but escape shape is not recognized",
@@ -98,7 +102,10 @@ fn build_recipe_from_info(
 ) -> Result<Option<BodyLocalDerivedRecipe>, String> {
     // 1) Find base init: `local ch = <expr>`
     let Some(base_init_expr) = find_local_init_expr(body, "ch") else {
-        return Err("[phase94/body_local_derived/contract/missing_local_init] Missing `local ch = <expr>`".to_string());
+        return Err(
+            "[phase94/body_local_derived/contract/missing_local_init] Missing `local ch = <expr>`"
+                .to_string(),
+        );
     };
 
     // 2) Locate escape if and find override assignment to ch
@@ -110,7 +117,12 @@ fn build_recipe_from_info(
         )
     })?;
     let (escape_cond, then_body) = match escape_if {
-        ASTNode::If { condition, then_body, else_body: _, .. } => (condition.as_ref().clone(), then_body.as_slice()),
+        ASTNode::If {
+            condition,
+            then_body,
+            else_body: _,
+            ..
+        } => (condition.as_ref().clone(), then_body.as_slice()),
         other => {
             return Err(format!(
                 "[phase94/body_local_derived/contract/escape_node_kind] escape_idx points to non-If: {:?}",
@@ -143,7 +155,12 @@ fn build_recipe_from_info(
 
 fn find_local_init_expr(body: &[ASTNode], name: &str) -> Option<ASTNode> {
     for node in body {
-        if let ASTNode::Local { variables, initial_values, .. } = node {
+        if let ASTNode::Local {
+            variables,
+            initial_values,
+            ..
+        } = node
+        {
             for (var_name, maybe_expr) in variables.iter().zip(initial_values.iter()) {
                 if var_name == name {
                     if let Some(expr) = maybe_expr.as_ref() {
@@ -176,13 +193,22 @@ fn find_ch_override_in_escape_then(
 
     // Nested bounds form: `if <cond> { ch = <expr> }`
     for stmt in then_body {
-        if let ASTNode::If { condition, then_body, else_body: None, .. } = stmt {
+        if let ASTNode::If {
+            condition,
+            then_body,
+            else_body: None,
+            ..
+        } = stmt
+        {
             if then_body.len() != 1 {
                 continue;
             }
             if let ASTNode::Assignment { target, value, .. } = &then_body[0] {
                 if is_var_named(target.as_ref(), "ch") {
-                    return Ok(Some((Some(condition.as_ref().clone()), value.as_ref().clone())));
+                    return Ok(Some((
+                        Some(condition.as_ref().clone()),
+                        value.as_ref().clone(),
+                    )));
                 }
             }
         }
@@ -267,7 +293,9 @@ mod tests {
             },
             ASTNode::If {
                 condition: Box::new(binop(BinaryOperator::Equal, var("ch"), str_lit("\""))),
-                then_body: vec![ASTNode::Break { span: Span::unknown() }],
+                then_body: vec![ASTNode::Break {
+                    span: Span::unknown(),
+                }],
                 else_body: None,
                 span: Span::unknown(),
             },
@@ -312,7 +340,9 @@ mod tests {
             let body = vec![
                 ASTNode::If {
                     condition: Box::new(binop(BinaryOperator::Equal, var("ch"), str_lit("\""))),
-                    then_body: vec![ASTNode::Break { span: Span::unknown() }],
+                    then_body: vec![ASTNode::Break {
+                        span: Span::unknown(),
+                    }],
                     else_body: None,
                     span: Span::unknown(),
                 },

@@ -1,15 +1,17 @@
 //! Facts for loop_scan_methods_block_v0 (one-shape, planner-required only).
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
+use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::policies::BodyLoweringPolicy;
 
-use super::recipe::{LinearBlockRecipe, LoopScanMethodsBlockV0Recipe, NestedLoopRecipe, ScanSegment};
+use super::recipe::{
+    LinearBlockRecipe, LoopScanMethodsBlockV0Recipe, NestedLoopRecipe, ScanSegment,
+};
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopScanMethodsBlockV0Facts {
@@ -145,9 +147,12 @@ fn match_scan_window_block<'a>(
 
     let inner_loop = &stmts[3];
     let (condition, body) = match inner_loop {
-        ASTNode::Loop { condition, body, .. } | ASTNode::While { condition, body, .. } => {
-            (condition.as_ref(), body.as_slice())
+        ASTNode::Loop {
+            condition, body, ..
         }
+        | ASTNode::While {
+            condition, body, ..
+        } => (condition.as_ref(), body.as_slice()),
         _ => return None,
     };
 
@@ -328,7 +333,12 @@ fn try_segmentize_stmt_list(stmts: &[ASTNode], allow_extended: bool) -> Option<V
 
     for stmt in stmts {
         match stmt {
-            ASTNode::Loop { condition, body, .. } | ASTNode::While { condition, body, .. } => {
+            ASTNode::Loop {
+                condition, body, ..
+            }
+            | ASTNode::While {
+                condition, body, ..
+            } => {
                 flush_linear(&mut segments, &mut cur_stmts, &mut cur_recipe);
 
                 segments.push(ScanSegment::NestedLoop(NestedLoopRecipe {
@@ -519,10 +529,7 @@ mod tests {
                     ASTNode::MethodCall {
                         object: Box::new(var("s")),
                         method: "substring".to_string(),
-                        arguments: vec![
-                            var("j"),
-                            binop(BinaryOperator::Add, var("j"), var("m")),
-                        ],
+                        arguments: vec![var("j"), binop(BinaryOperator::Add, var("j"), var("m"))],
                         span: Span::unknown(),
                     },
                     var("pat"),
@@ -563,12 +570,11 @@ mod tests {
             local("name_start", Some(int(0))),
             scan_window_block,
             ASTNode::If {
-                condition: Box::new(binop(
-                    BinaryOperator::LessEqual,
+                condition: Box::new(binop(BinaryOperator::LessEqual, var("next_i"), var("i"))),
+                then_body: vec![assign(
                     var("next_i"),
-                    var("i"),
-                )),
-                then_body: vec![assign(var("next_i"), binop(BinaryOperator::Add, var("i"), int(1)))],
+                    binop(BinaryOperator::Add, var("i"), int(1)),
+                )],
                 else_body: None,
                 span: Span::unknown(),
             },

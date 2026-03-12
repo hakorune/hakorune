@@ -1,7 +1,7 @@
-use crate::ast::ASTNode;
 use super::super::facts::stmt_classifier::{
     is_exit_if, is_general_if_full, is_local_decl, is_simple_assignment,
 };
+use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
 
 /// Matches the peek parse pattern.
@@ -57,8 +57,17 @@ pub fn matches_peek_parse_shape(
     }
 
     let expects = [
-        "Local", "Assignment", "Assignment", "If", "Assignment", "Local", "If", "Local", "If",
-        "Assignment", "Assignment",
+        "Local",
+        "Assignment",
+        "Assignment",
+        "If",
+        "Assignment",
+        "Local",
+        "If",
+        "Local",
+        "If",
+        "Assignment",
+        "Assignment",
     ];
     for (idx, expect) in expects.iter().enumerate() {
         let stmt = &inner_else[idx];
@@ -112,11 +121,7 @@ pub fn matches_decode_escapes_loop_shape(
 /// Matches the parse map pattern.
 ///
 /// Complex nested if pattern for map parsing.
-pub fn matches_parse_map_shape(
-    body: &[ASTNode],
-    loop_var: &str,
-    loop_increment: &ASTNode,
-) -> bool {
+pub fn matches_parse_map_shape(body: &[ASTNode], loop_var: &str, loop_increment: &ASTNode) -> bool {
     if body.len() != 7 {
         return false;
     }
@@ -158,8 +163,18 @@ pub fn matches_parse_map_shape(
     }
 
     let expects = [
-        "Local", "Local", "Assignment", "Assignment", "If", "Assignment", "Local", "Assignment",
-        "If", "Assignment", "Assignment", "If",
+        "Local",
+        "Local",
+        "Assignment",
+        "Assignment",
+        "If",
+        "Assignment",
+        "Local",
+        "Assignment",
+        "If",
+        "Assignment",
+        "Assignment",
+        "If",
     ];
     for (idx, expect) in expects.iter().enumerate() {
         let stmt = &else_body[idx];

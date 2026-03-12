@@ -51,7 +51,6 @@ pub struct LoopProcessingContext<'a> {
     // ========================================================================
     /// Route kind determined by router
     pub route_kind: LoopRouteKind,
-
 }
 
 impl<'a> LoopProcessingContext<'a> {

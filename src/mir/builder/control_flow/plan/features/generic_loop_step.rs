@@ -2,11 +2,11 @@
 
 use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
+use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
+use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::GenericLoopSkeleton;
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
-use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::MirBuilder;
 use crate::mir::BasicBlockId;
 
@@ -46,7 +46,12 @@ pub(in crate::mir::builder) fn apply_generic_loop_condition(
 
     // Merge block_effects (insert可: intermediate BB は新規追加)
     for (bb, effects) in header_result.block_effects {
-        if let Some((_, existing)) = skeleton.plan.block_effects.iter_mut().find(|(b, _)| *b == bb) {
+        if let Some((_, existing)) = skeleton
+            .plan
+            .block_effects
+            .iter_mut()
+            .find(|(b, _)| *b == bb)
+        {
             existing.extend(effects);
         } else {
             skeleton.plan.block_effects.push((bb, effects));
@@ -58,7 +63,11 @@ pub(in crate::mir::builder) fn apply_generic_loop_condition(
     skeleton.plan.cond_match = header_result.first_cond;
 
     // Replace branches: remove header branch, add short-circuit branches
-    skeleton.plan.frag.branches.retain(|b| b.from != skeleton.plan.header_bb);
+    skeleton
+        .plan
+        .frag
+        .branches
+        .retain(|b| b.from != skeleton.plan.header_bb);
     skeleton.plan.frag.branches.extend(header_result.branches);
 
     Ok(())

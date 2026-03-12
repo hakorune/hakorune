@@ -34,7 +34,10 @@ pub(crate) struct LoopBreakPolicyRouting {
 pub(crate) struct LoopBreakPolicyRouterBox;
 
 impl LoopBreakPolicyRouterBox {
-    pub(crate) fn route(condition: &ASTNode, body: &[ASTNode]) -> Result<LoopBreakPolicyRouting, String> {
+    pub(crate) fn route(
+        condition: &ASTNode,
+        body: &[ASTNode],
+    ) -> Result<LoopBreakPolicyRouting, String> {
         // Route 1 (Phase 107): balanced depth-scan (return-in-loop normalization).
         match BalancedDepthScanPolicyBox::decide(condition, body) {
             PolicyDecision::Use(result) => {
@@ -56,14 +59,15 @@ impl LoopBreakPolicyRouterBox {
         // Route 2 (Phase 105): loop(true) read-digits family + default break-cond SSOT.
         let break_routing = LoopBreakConditionPolicyRouterBox::route(condition, body)?;
 
-        let read_only_body_local_slot = if break_routing.allowed_body_locals_for_conditions.is_empty() {
-            None
-        } else {
-            Some(ReadOnlyBodyLocalSlotBox::extract_single(
-                &break_routing.allowed_body_locals_for_conditions,
-                body,
-            )?)
-        };
+        let read_only_body_local_slot =
+            if break_routing.allowed_body_locals_for_conditions.is_empty() {
+                None
+            } else {
+                Some(ReadOnlyBodyLocalSlotBox::extract_single(
+                    &break_routing.allowed_body_locals_for_conditions,
+                    body,
+                )?)
+            };
 
         Ok(LoopBreakPolicyRouting {
             allowed_body_locals_for_conditions: break_routing.allowed_body_locals_for_conditions,

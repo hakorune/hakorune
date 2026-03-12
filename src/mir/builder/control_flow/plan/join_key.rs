@@ -9,8 +9,8 @@
 //! - ID は PlanBuildSession が発行
 //! - ShortCircuitOuter は JoinKey ではない（on_true/on_false ターゲットで表現）
 
-use std::collections::BTreeMap;
 use crate::mir::BasicBlockId;
+use std::collections::BTreeMap;
 
 /// Join block の種別（session-local な id で識別）
 ///

@@ -7,11 +7,11 @@
 //! - pre var missing in both branches → contract freeze
 //! Note: Type resolution fallback → Unknown (挙動不変)
 
+use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::CoreIfJoin;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{MirType, ValueId};
-use crate::config::env::joinir_dev;
 use std::collections::BTreeMap;
 
 #[track_caller]
@@ -114,8 +114,7 @@ pub fn build_join_payload(
     if planner_required {
         for name in pre_if_map.keys() {
             if !then_map.contains_key(name) && !else_map.contains_key(name) {
-                let freeze =
-                    Freeze::contract("if_join: pre var missing in both branches");
+                let freeze = Freeze::contract("if_join: pre var missing in both branches");
                 return Err(freeze.to_string());
             }
         }

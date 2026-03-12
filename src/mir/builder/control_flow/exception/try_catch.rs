@@ -85,7 +85,9 @@ pub(in crate::mir::builder) fn cf_try_catch(
     builder.start_new_block(catch_block)?;
     if crate::config::env::builder_trycatch_debug() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[BUILDER] Enter catch block {:?}", catch_block));
+        ring0
+            .log
+            .debug(&format!("[BUILDER] Enter catch block {:?}", catch_block));
     }
     if let Some(catch_clause) = catch_clauses.first() {
         let catch_ast = ASTNode::Program {

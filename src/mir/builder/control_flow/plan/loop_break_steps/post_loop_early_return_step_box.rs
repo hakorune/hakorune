@@ -16,7 +16,9 @@ impl PostLoopEarlyReturnStepBox {
             &crate::mir::builder::control_flow::plan::policies::post_loop_early_return_plan::PostLoopEarlyReturnPlan,
         >,
     ) -> Result<(), String> {
-        let Some(plan) = plan else { return Ok(()); };
+        let Some(plan) = plan else {
+            return Ok(());
+        };
 
         let ret_stmt = ASTNode::Return {
             value: Some(Box::new(plan.ret_expr.clone())),

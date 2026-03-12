@@ -26,7 +26,8 @@ pub(in crate::mir::builder) fn prepare_generic_loop_v1_carriers(
 ) -> GenericLoopV1CarrierState {
     let pre_loop_map = builder.variable_ctx.variable_map.clone();
     let carrier_vars = collect_loop_carriers(&facts.body.body, &pre_loop_map, &facts.loop_var);
-    let mut phi_bindings = loop_carriers::build_loop_bindings(&[(&facts.loop_var, loop_var_current)]);
+    let mut phi_bindings =
+        loop_carriers::build_loop_bindings(&[(&facts.loop_var, loop_var_current)]);
     let loop_var_step_phi = builder.alloc_typed(
         builder
             .type_ctx

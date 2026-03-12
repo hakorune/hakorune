@@ -48,11 +48,9 @@ mod tests {
         CleanupFacts, CleanupKindFacts, ExitKindFacts, ExitMapFacts, ExitUsageFacts,
         LoopFeatureFacts,
     };
-    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
-        ConditionShape, StepShape,
-    };
+    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
     use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
+    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
     use std::collections::BTreeSet;
 
     fn v(name: &str) -> ASTNode {
@@ -80,10 +78,11 @@ mod tests {
         let facts = LoopFacts {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
-            skeleton: crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
+            skeleton:
+                crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonFacts {
+                    kind: SkeletonKind::Loop,
+                    ..Default::default()
+                },
             features: LoopFeatureFacts {
                 nested_loop: false,
                 exit_usage: ExitUsageFacts {
@@ -107,16 +106,11 @@ mod tests {
 
             starts_with: None,
 
-
             int_to_str: None,
-
 
             escape_map: None,
 
-
             split_lines: None,
-
-
 
             skip_whitespace: None,
             generic_loop_v0: None,
@@ -149,8 +143,12 @@ mod tests {
         assert!(canonical.exit_usage.has_return);
         assert_eq!(canonical.exit_kinds_present.len(), 3);
         assert!(canonical.exit_kinds_present.contains(&ExitKindFacts::Break));
-        assert!(canonical.exit_kinds_present.contains(&ExitKindFacts::Continue));
-        assert!(canonical.exit_kinds_present.contains(&ExitKindFacts::Return));
+        assert!(canonical
+            .exit_kinds_present
+            .contains(&ExitKindFacts::Continue));
+        assert!(canonical
+            .exit_kinds_present
+            .contains(&ExitKindFacts::Return));
         assert_eq!(canonical.cleanup_kinds_present.len(), 1);
         assert!(canonical
             .cleanup_kinds_present
@@ -163,10 +161,11 @@ mod tests {
         let facts = LoopFacts {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
-            skeleton: crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonFacts {
-                kind: SkeletonKind::Loop,
-                ..Default::default()
-            },
+            skeleton:
+                crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonFacts {
+                    kind: SkeletonKind::Loop,
+                    ..Default::default()
+                },
             features: LoopFeatureFacts::default(),
             scan_with_init: None,
             split_scan: None,
@@ -177,16 +176,11 @@ mod tests {
 
             starts_with: None,
 
-
             int_to_str: None,
-
 
             escape_map: None,
 
-
             split_lines: None,
-
-
 
             skip_whitespace: None,
             generic_loop_v0: None,

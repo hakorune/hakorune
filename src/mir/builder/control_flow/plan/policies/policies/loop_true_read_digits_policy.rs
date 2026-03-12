@@ -23,9 +23,9 @@ pub(crate) fn classify_loop_true_read_digits(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> PolicyDecision<LoopTrueReadDigitsPolicyResult> {
-    use crate::mir::builder::control_flow::plan::read_digits_break_condition_box::ReadDigitsBreakConditionBox;
     use crate::mir::builder::control_flow::plan::ast_feature_extractor::detect_read_digits_loop_true_shape;
     use crate::mir::builder::control_flow::plan::loop_true_counter_extractor::LoopTrueCounterExtractorBox;
+    use crate::mir::builder::control_flow::plan::read_digits_break_condition_box::ReadDigitsBreakConditionBox;
 
     if !LoopTrueCounterExtractorBox::is_loop_true(condition) {
         return PolicyDecision::None;
@@ -133,9 +133,7 @@ mod tests {
 
     fn digit_chain(var_name: &str, digits: &[&str]) -> ASTNode {
         let mut it = digits.iter();
-        let first = it
-            .next()
-            .expect("digits must be non-empty");
+        let first = it.next().expect("digits must be non-empty");
         let mut acc = eq(var(var_name), str_lit(first));
         for d in it {
             acc = or(acc, eq(var(var_name), str_lit(d)));
@@ -152,10 +150,7 @@ mod tests {
         let condition = bool_lit(true);
 
         let eos_cond = eq(var("ch"), str_lit(""));
-        let digit_cond = digit_chain(
-            "ch",
-            &["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-        );
+        let digit_cond = digit_chain("ch", &["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
 
         let body = vec![
             ASTNode::If {

@@ -64,7 +64,9 @@ impl NormalizeBodyStepBox {
         for node in body {
             match ComplexAddendNormalizer::normalize_assign(node) {
                 NormalizationResult::Normalized {
-                    temp_def, new_assign, ..
+                    temp_def,
+                    new_assign,
+                    ..
                 } => {
                     normalized_body.push(temp_def);
                     normalized_body.push(new_assign);

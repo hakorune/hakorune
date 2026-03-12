@@ -14,8 +14,8 @@
 
 use super::edge_stub::EdgeStub;
 use super::exit_kind::ExitKind;
-use crate::mir::builder::control_flow::joinir::trace;
 use crate::mir::basic_block::BasicBlockId;
+use crate::mir::builder::control_flow::joinir::trace;
 use crate::mir::instruction::MirInstruction;
 use std::collections::BTreeMap;
 
@@ -88,7 +88,9 @@ pub fn emit_wires(
                     "lowerer/term_set",
                     &format!(
                         "func={} bb={:?} term=Jump target={:?}",
-                        func_name, stub.from, target.unwrap()
+                        func_name,
+                        stub.from,
+                        target.unwrap()
                     ),
                 );
             }
@@ -128,8 +130,8 @@ fn emit_block_params_as_phis(
         return Ok(());
     }
 
-    let strict = crate::config::env::joinir_strict_enabled()
-        || crate::config::env::joinir_dev_enabled();
+    let strict =
+        crate::config::env::joinir_strict_enabled() || crate::config::env::joinir_dev_enabled();
 
     let mut incoming: BTreeMap<BasicBlockId, Vec<(BasicBlockId, EdgeArgs)>> = BTreeMap::new();
     for stub in &frag.wires {
@@ -239,7 +241,10 @@ pub fn emit_frag(
     // Step 1: branches を from ごとにグループ化（1本だけ許可）
     let mut branches_by_block: BTreeMap<BasicBlockId, Vec<&BranchStub>> = BTreeMap::new();
     for branch in &frag.branches {
-        branches_by_block.entry(branch.from).or_default().push(branch);
+        branches_by_block
+            .entry(branch.from)
+            .or_default()
+            .push(branch);
     }
 
     for (block_id, branches) in &branches_by_block {
@@ -343,21 +348,14 @@ mod tests {
 
         // Verify: bb0 has Jump terminator
         let block0 = function.get_block(bb0).unwrap();
-        assert!(
-            block0.is_terminated(),
-            "bb0 should have a terminator"
-        );
+        assert!(block0.is_terminated(), "bb0 should have a terminator");
 
         match &block0.terminator {
             Some(MirInstruction::Jump { target, edge_args }) => {
                 assert_eq!(*target, bb1, "Jump target should be bb1");
                 assert!(edge_args.is_some(), "Jump should have edge_args");
                 let args = edge_args.as_ref().unwrap();
-                assert_eq!(
-                    args.values,
-                    vec![ValueId(100)],
-                    "Edge args values mismatch"
-                );
+                assert_eq!(args.values, vec![ValueId(100)], "Edge args values mismatch");
             }
             other => panic!("Expected Jump terminator, got {:?}", other),
         }
@@ -398,11 +396,7 @@ mod tests {
         let block0 = function.get_block(bb0).unwrap();
         match &block0.terminator {
             Some(MirInstruction::Return { value }) => {
-                assert_eq!(
-                    *value,
-                    Some(ValueId(200)),
-                    "Return value mismatch"
-                );
+                assert_eq!(*value, Some(ValueId(200)), "Return value mismatch");
             }
             other => panic!("Expected Return terminator, got {:?}", other),
         }
@@ -551,14 +545,8 @@ mod tests {
                 assert_eq!(*e, else_bb);
                 assert!(then_edge_args.is_some());
                 assert!(else_edge_args.is_some());
-                assert_eq!(
-                    then_edge_args.as_ref().unwrap().values,
-                    vec![ValueId(101)]
-                );
-                assert_eq!(
-                    else_edge_args.as_ref().unwrap().values,
-                    vec![ValueId(102)]
-                );
+                assert_eq!(then_edge_args.as_ref().unwrap().values, vec![ValueId(101)]);
+                assert_eq!(else_edge_args.as_ref().unwrap().values, vec![ValueId(102)]);
             }
             other => panic!("Expected Branch, got {:?}", other),
         }
@@ -619,20 +607,14 @@ mod tests {
         match &block.instructions[0] {
             MirInstruction::Phi { dst, inputs, .. } => {
                 assert_eq!(*dst, ValueId(100));
-                assert_eq!(
-                    inputs,
-                    &vec![(pred1, ValueId(10)), (pred2, ValueId(12))]
-                );
+                assert_eq!(inputs, &vec![(pred1, ValueId(10)), (pred2, ValueId(12))]);
             }
             other => panic!("Expected Phi at head, got {:?}", other),
         }
         match &block.instructions[1] {
             MirInstruction::Phi { dst, inputs, .. } => {
                 assert_eq!(*dst, ValueId(101));
-                assert_eq!(
-                    inputs,
-                    &vec![(pred1, ValueId(11)), (pred2, ValueId(13))]
-                );
+                assert_eq!(inputs, &vec![(pred1, ValueId(11)), (pred2, ValueId(13))]);
             }
             other => panic!("Expected second Phi, got {:?}", other),
         }

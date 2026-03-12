@@ -1,5 +1,5 @@
-use crate::mir::ValueId;
 use super::{CoreIfPlan, CorePlan, LoweredRecipe};
+use crate::mir::ValueId;
 
 /// Phase 29at P1: BranchN plan (scaffold only)
 #[derive(Debug, Clone)]

@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::policies::BodyLoweringPolicy;
     use super::super::v0::try_extract_generic_loop_v0_facts;
     use super::super::v1::try_extract_generic_loop_v1_facts;
+    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+    use crate::mir::policies::BodyLoweringPolicy;
 
     fn var(name: &str) -> ASTNode {
         ASTNode::Variable {
@@ -272,8 +272,8 @@ mod tests {
             assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
         ];
 
-        if let Some(v0) = try_extract_generic_loop_v0_facts(&outer_cond, &body)
-            .expect("v0: no freeze")
+        if let Some(v0) =
+            try_extract_generic_loop_v0_facts(&outer_cond, &body).expect("v0: no freeze")
         {
             assert_eq!(v0.loop_var, "i");
             assert_is_loop_var_plus_one(&v0.loop_increment, "i");
@@ -305,7 +305,10 @@ mod tests {
         let body = vec![
             ASTNode::If {
                 condition: Box::new(if_cond),
-                then_body: vec![assign("sum", bin(BinaryOperator::Add, var("sum"), lit_i(1)))],
+                then_body: vec![assign(
+                    "sum",
+                    bin(BinaryOperator::Add, var("sum"), lit_i(1)),
+                )],
                 else_body: None,
                 span: Span::unknown(),
             },

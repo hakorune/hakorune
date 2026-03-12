@@ -71,11 +71,11 @@ pub fn check(
         StepCapability::If,
         StepCapability::NestedIf,
         StepCapability::Loop,
-        StepCapability::NestedLoop,  // Phase 188.1: nested_loop_minimal route support
+        StepCapability::NestedLoop, // Phase 188.1: nested_loop_minimal route support
         StepCapability::Return,
         StepCapability::Break,
         StepCapability::Continue,
-        StepCapability::While,  // Phase 29bq: while is semantically equivalent to loop(cond)
+        StepCapability::While, // Phase 29bq: while is semantically equivalent to loop(cond)
     ]
     .into_iter()
     .collect();
@@ -124,9 +124,7 @@ fn get_hint_for_cap(cap: &StepCapability) -> String {
         StepCapability::Lambda => {
             "lambda not supported in JoinIR yet, extract to named function".to_string()
         }
-        StepCapability::While => {
-            "use 'loop(cond)' instead of 'while(cond)' syntax".to_string()
-        }
+        StepCapability::While => "use 'loop(cond)' instead of 'while(cond)' syntax".to_string(),
         StepCapability::ForRange => {
             "use 'loop(i < n)' instead of 'for i in range' syntax".to_string()
         }

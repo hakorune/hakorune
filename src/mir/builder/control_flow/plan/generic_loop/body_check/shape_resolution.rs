@@ -14,9 +14,8 @@ use crate::mir::policies::GenericLoopV1ShapeId;
 use super::super::body_check_extractors::collect_next_step_vars;
 use super::super::body_check_shape_detectors::matches_usingcollector_line_scan_shape;
 use super::super::facts::stmt_classifier::{
-    is_break_else_effect_if, is_conditional_update_if, is_effect_if, is_effect_if_pure,
-    is_exit_if, is_general_if_full, is_local_decl, is_simple_assignment,
-    unsupported_stmt_detail,
+    is_break_else_effect_if, is_conditional_update_if, is_effect_if, is_effect_if_pure, is_exit_if,
+    is_general_if_full, is_local_decl, is_simple_assignment, unsupported_stmt_detail,
 };
 
 // ============================================================================
@@ -44,7 +43,11 @@ pub(in crate::mir::builder) fn check_body_generic_v0(
     // Non planner_required mode keeps the legacy allowlist for release stability.
     for stmt in body {
         if matches_loop_increment(stmt, loop_var, loop_increment)
-            || super::super::body_check_shape_detectors::matches_loop_var_assign_any(stmt, loop_var, &next_step_vars)
+            || super::super::body_check_shape_detectors::matches_loop_var_assign_any(
+                stmt,
+                loop_var,
+                &next_step_vars,
+            )
         {
             continue;
         }
@@ -94,8 +97,7 @@ pub(in crate::mir::builder) fn body_is_generic_v1(
 ) -> bool {
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
-    let require_shape =
-        strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
+    let require_shape = strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
     matches!(
         check_body_generic_v1(body, loop_var, loop_increment, condition, require_shape),
         Ok(None)
@@ -126,7 +128,11 @@ pub(in crate::mir::builder) fn check_body_generic_v1(
     let next_step_vars = collect_next_step_vars(body, loop_var);
     for stmt in body {
         if matches_loop_increment(stmt, loop_var, loop_increment)
-            || super::super::body_check_shape_detectors::matches_loop_var_assign_any(stmt, loop_var, &next_step_vars)
+            || super::super::body_check_shape_detectors::matches_loop_var_assign_any(
+                stmt,
+                loop_var,
+                &next_step_vars,
+            )
         {
             continue;
         }
@@ -183,16 +189,32 @@ pub(in crate::mir::builder) fn detect_generic_loop_v1_shape(
     condition: &ASTNode,
 ) -> Result<Option<GenericLoopV1ShapeId>, Freeze> {
     let mut matches = Vec::new();
-    if super::super::body_check_shape_detectors::matches_parse_block_expr_shape(body, loop_var, loop_increment) {
+    if super::super::body_check_shape_detectors::matches_parse_block_expr_shape(
+        body,
+        loop_var,
+        loop_increment,
+    ) {
         matches.push(GenericLoopV1ShapeId::ParseBlockExpr);
     }
-    if super::super::body_check_shape_detectors::matches_parse_map_shape(body, loop_var, loop_increment) {
+    if super::super::body_check_shape_detectors::matches_parse_map_shape(
+        body,
+        loop_var,
+        loop_increment,
+    ) {
         matches.push(GenericLoopV1ShapeId::ParseMap);
     }
-    if super::super::body_check_shape_detectors::matches_peek_parse_shape(body, loop_var, loop_increment) {
+    if super::super::body_check_shape_detectors::matches_peek_parse_shape(
+        body,
+        loop_var,
+        loop_increment,
+    ) {
         matches.push(GenericLoopV1ShapeId::PeekParse);
     }
-    if super::super::body_check_shape_detectors::matches_rewriteknown_itoa_complex_step_shape(body, loop_var, loop_increment) {
+    if super::super::body_check_shape_detectors::matches_rewriteknown_itoa_complex_step_shape(
+        body,
+        loop_var,
+        loop_increment,
+    ) {
         matches.push(GenericLoopV1ShapeId::RewriteKnownItoaComplexStep);
     }
     if super::super::body_check_shape_detectors::matches_rewriteknown_trim_and_methodcall_shape(
@@ -203,22 +225,46 @@ pub(in crate::mir::builder) fn detect_generic_loop_v1_shape(
     ) {
         matches.push(GenericLoopV1ShapeId::RewriteKnownTrimLoopCondAndMethodCall);
     }
-    if super::super::body_check_shape_detectors::matches_while_cap_accum_sum_shape(body, loop_var, loop_increment) {
+    if super::super::body_check_shape_detectors::matches_while_cap_accum_sum_shape(
+        body,
+        loop_var,
+        loop_increment,
+    ) {
         matches.push(GenericLoopV1ShapeId::WhileCapAccumSum);
     }
-    if super::super::body_check_shape_detectors::matches_decode_escapes_loop_shape(body, loop_var, loop_increment) {
+    if super::super::body_check_shape_detectors::matches_decode_escapes_loop_shape(
+        body,
+        loop_var,
+        loop_increment,
+    ) {
         matches.push(GenericLoopV1ShapeId::DecodeEscapesLoop);
     }
-    if super::super::body_check_shape_detectors::matches_scan_all_boxes_next_i_shape(body, loop_var, loop_increment) {
+    if super::super::body_check_shape_detectors::matches_scan_all_boxes_next_i_shape(
+        body,
+        loop_var,
+        loop_increment,
+    ) {
         matches.push(GenericLoopV1ShapeId::ScanAllBoxesNextI);
     }
-    if super::super::body_check_shape_detectors::matches_scan_while_predicate_shape(body, loop_var, loop_increment) {
+    if super::super::body_check_shape_detectors::matches_scan_while_predicate_shape(
+        body,
+        loop_var,
+        loop_increment,
+    ) {
         matches.push(GenericLoopV1ShapeId::ScanWhilePredicate);
     }
-    if super::super::body_check_shape_detectors::matches_effect_step_only_shape(body, loop_var, loop_increment) {
+    if super::super::body_check_shape_detectors::matches_effect_step_only_shape(
+        body,
+        loop_var,
+        loop_increment,
+    ) {
         matches.push(GenericLoopV1ShapeId::EffectStepOnly);
     }
-    if super::super::body_check_shape_detectors::matches_div_countdown_by10_shape(body, loop_var, loop_increment) {
+    if super::super::body_check_shape_detectors::matches_div_countdown_by10_shape(
+        body,
+        loop_var,
+        loop_increment,
+    ) {
         matches.push(GenericLoopV1ShapeId::DivCountdownBy10);
     }
 

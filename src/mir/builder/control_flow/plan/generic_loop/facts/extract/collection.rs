@@ -28,16 +28,26 @@ pub(in crate::mir::builder) fn body_writes_non_loop_vars(
 }
 
 /// Collect loop var candidates from body by finding variables used in increment expressions.
-pub(in crate::mir::builder) fn collect_loop_var_candidates_from_body(body: &[ASTNode]) -> Vec<String> {
+pub(in crate::mir::builder) fn collect_loop_var_candidates_from_body(
+    body: &[ASTNode],
+) -> Vec<String> {
     let mut out = Vec::new();
     fn walk(stmt: &ASTNode, out: &mut Vec<String>) {
         match stmt {
             ASTNode::Assignment { target, value, .. } => {
                 if let ASTNode::Variable { name, .. } = target.as_ref() {
-                    if let ASTNode::BinaryOp { operator, left, right, .. } = value.as_ref() {
-                        if matches!(operator, crate::ast::BinaryOperator::Add | crate::ast::BinaryOperator::Subtract)
-                            && (matches!(left.as_ref(), ASTNode::Variable { name: ln, .. } if ln == name)
-                                || matches!(right.as_ref(), ASTNode::Variable { name: rn, .. } if rn == name))
+                    if let ASTNode::BinaryOp {
+                        operator,
+                        left,
+                        right,
+                        ..
+                    } = value.as_ref()
+                    {
+                        if matches!(
+                            operator,
+                            crate::ast::BinaryOperator::Add | crate::ast::BinaryOperator::Subtract
+                        ) && (matches!(left.as_ref(), ASTNode::Variable { name: ln, .. } if ln == name)
+                            || matches!(right.as_ref(), ASTNode::Variable { name: rn, .. } if rn == name))
                         {
                             if !out.iter().any(|v| v == name) {
                                 out.push(name.clone());
@@ -46,17 +56,29 @@ pub(in crate::mir::builder) fn collect_loop_var_candidates_from_body(body: &[AST
                     }
                 }
             }
-            ASTNode::If { then_body, else_body, .. } => {
-                for s in then_body { walk(s, out); }
+            ASTNode::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                for s in then_body {
+                    walk(s, out);
+                }
                 if let Some(eb) = else_body {
-                    for s in eb { walk(s, out); }
+                    for s in eb {
+                        walk(s, out);
+                    }
                 }
             }
             ASTNode::Loop { body, .. } | ASTNode::While { body, .. } => {
-                for s in body { walk(s, out); }
+                for s in body {
+                    walk(s, out);
+                }
             }
             ASTNode::Program { statements, .. } => {
-                for s in statements { walk(s, out); }
+                for s in statements {
+                    walk(s, out);
+                }
             }
             _ => {}
         }
@@ -84,9 +106,7 @@ pub(in crate::mir::builder) fn has_continue_recursive(stmt: &ASTNode) -> bool {
         ASTNode::Loop { body, .. } => body.iter().any(has_continue_recursive),
         ASTNode::While { body, .. } => body.iter().any(has_continue_recursive),
         ASTNode::ForRange { body, .. } => body.iter().any(has_continue_recursive),
-        ASTNode::Program { statements, .. } => {
-            statements.iter().any(has_continue_recursive)
-        }
+        ASTNode::Program { statements, .. } => statements.iter().any(has_continue_recursive),
         ASTNode::ScopeBox { body, .. } => body.iter().any(has_continue_recursive),
         _ => false,
     }

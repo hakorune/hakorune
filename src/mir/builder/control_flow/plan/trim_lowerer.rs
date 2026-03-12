@@ -208,8 +208,7 @@ mod tests {
             env.insert(name, value);
         };
 
-        let result =
-            TrimLowerer::add_to_condition_env(&helper, get_value, insert, &mut alloc);
+        let result = TrimLowerer::add_to_condition_env(&helper, get_value, insert, &mut alloc);
 
         assert!(result.is_ok());
         let binding = result.unwrap();

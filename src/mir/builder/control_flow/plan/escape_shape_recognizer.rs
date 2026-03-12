@@ -58,7 +58,7 @@ pub struct EscapeSkipShapeInfo {
 /// Used by loop_canonicalizer (Phase 91) for route-shape detection and decision routing.
 pub fn detect_escape_skip_shape(body: &[ASTNode]) -> Option<EscapeSkipShapeInfo> {
     if body.len() < 3 {
-        return None;  // Need at least: body statements, break check, escape check
+        return None; // Need at least: body statements, break check, escape check
     }
 
     // Find break statement - scan for "if { ... break ... }"
@@ -69,7 +69,8 @@ pub fn detect_escape_skip_shape(body: &[ASTNode]) -> Option<EscapeSkipShapeInfo>
 
     // Extract counter_name, escape_delta, normal_delta, and condition from the escape if statement
     // Phase 92 P0-3: Now also extracts condition expression
-    let (counter_name, escape_delta, normal_delta, escape_cond) = extract_delta_pair_from_if(body, escape_idx)?;
+    let (counter_name, escape_delta, normal_delta, escape_cond) =
+        extract_delta_pair_from_if(body, escape_idx)?;
 
     // Extract body statements before break check
     let body_stmts = body[..break_idx].to_vec();
@@ -80,7 +81,7 @@ pub fn detect_escape_skip_shape(body: &[ASTNode]) -> Option<EscapeSkipShapeInfo>
         escape_delta,
         break_idx,
         escape_idx,
-        escape_cond,  // Phase 92 P0-3: Condition for JoinIR Select
+        escape_cond, // Phase 92 P0-3: Condition for JoinIR Select
         body_stmts,
     })
 }
@@ -96,7 +97,8 @@ fn find_break_in_if(body: &[ASTNode]) -> Option<usize> {
             then_body,
             else_body: None,
             ..
-        } = stmt {
+        } = stmt
+        {
             // Check if then_body contains break
             if then_body.len() == 1 && matches!(&then_body[0], ASTNode::Break { .. }) {
                 return Some(idx);
@@ -118,7 +120,8 @@ fn find_escape_in_if(body: &[ASTNode], after_idx: usize) -> Option<usize> {
             then_body,
             else_body,
             ..
-        } = stmt {
+        } = stmt
+        {
             // Check if then_body contains an increment assignment (escape case)
             let has_then_increment = then_body.iter().any(|s| {
                 if let ASTNode::Assignment { target, value, .. } = s {
@@ -158,7 +161,10 @@ fn find_escape_in_if(body: &[ASTNode], after_idx: usize) -> Option<usize> {
 /// - if ch == escape_char { i = i + 2 } (followed by separate increment)
 ///
 /// Phase 92 P0-3: Now returns the condition expression for JoinIR Select generation
-fn extract_delta_pair_from_if(body: &[ASTNode], idx: usize) -> Option<(String, i64, i64, Box<ASTNode>)> {
+fn extract_delta_pair_from_if(
+    body: &[ASTNode],
+    idx: usize,
+) -> Option<(String, i64, i64, Box<ASTNode>)> {
     if idx >= body.len() {
         return None;
     }
@@ -168,7 +174,8 @@ fn extract_delta_pair_from_if(body: &[ASTNode], idx: usize) -> Option<(String, i
         then_body,
         else_body,
         ..
-    } = &body[idx] {
+    } = &body[idx]
+    {
         // Extract escape_delta from then_body
         let mut escape_delta: Option<i64> = None;
         let mut counter_name: Option<String> = None;

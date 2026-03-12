@@ -119,9 +119,7 @@ pub(in crate::mir::builder) fn build_normal_exit_stub(
     }
 }
 
-pub(in crate::mir::builder) fn build_return_args(
-    values: Vec<ValueId>,
-) -> EdgeArgs {
+pub(in crate::mir::builder) fn build_return_args(values: Vec<ValueId>) -> EdgeArgs {
     EdgeArgs {
         layout: JumpArgsLayout::CarriersOnly,
         values,

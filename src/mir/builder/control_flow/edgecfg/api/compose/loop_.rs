@@ -58,7 +58,7 @@ pub(crate) fn loop_(
 ) -> Frag {
     // Phase 265 P2: exit 集合の配線処理（wires/exits 分離）
     let mut exits = BTreeMap::new();
-    let mut wires = Vec::new();  // Phase 265 P2: 配線済み内部配線
+    let mut wires = Vec::new(); // Phase 265 P2: 配線済み内部配線
     let block_params = body.block_params;
 
     for (kind, stubs) in body.exits {
@@ -101,10 +101,10 @@ pub(crate) fn loop_(
     let branches = body.branches;
 
     Frag {
-        entry: header,  // ループの入口
+        entry: header, // ループの入口
         block_params,
-        exits,          // Normal, Return, Unwind のみ（未配線）
-        wires,          // Continue → header, Break → after（配線済み）
-        branches,       // Phase 267 P0: body の branches
+        exits,    // Normal, Return, Unwind のみ（未配線）
+        wires,    // Continue → header, Break → after（配線済み）
+        branches, // Phase 267 P0: body の branches
     }
 }

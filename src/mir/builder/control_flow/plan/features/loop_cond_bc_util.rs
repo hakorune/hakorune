@@ -126,20 +126,22 @@ pub(super) fn lower_simple_effect_stmt(
                 let mut plans = Vec::new();
                 for (name, init) in variables.iter().zip(initial_values.iter()) {
                     let init_node = loop_body_lowering::local_init_node_or_null(init.as_ref());
-                    let (value_id, mut init_plans) =
-                        lower_value_stmt_with_blockexpr_loop_prelude(
-                            builder,
-                            current_bindings,
-                            carrier_phis,
-                            carrier_step_phis,
-                            break_phi_dsts,
-                            carrier_updates,
-                            init_node.as_ref(),
-                            error_prefix,
-                        )?;
+                    let (value_id, mut init_plans) = lower_value_stmt_with_blockexpr_loop_prelude(
+                        builder,
+                        current_bindings,
+                        carrier_phis,
+                        carrier_step_phis,
+                        break_phi_dsts,
+                        carrier_updates,
+                        init_node.as_ref(),
+                        error_prefix,
+                    )?;
                     plans.append(&mut init_plans);
                     current_bindings.insert(name.clone(), value_id);
-                    builder.variable_ctx.variable_map.insert(name.clone(), value_id);
+                    builder
+                        .variable_ctx
+                        .variable_map
+                        .insert(name.clone(), value_id);
                 }
                 return Ok(Some(plans));
             }
@@ -208,7 +210,8 @@ fn lower_value_stmt_with_blockexpr_loop_prelude(
         ..
     } = value
     else {
-        let (value_id, effects) = PlanNormalizer::lower_value_ast(value, builder, current_bindings)?;
+        let (value_id, effects) =
+            PlanNormalizer::lower_value_ast(value, builder, current_bindings)?;
         return Ok((value_id, effects_to_plans(effects)));
     };
 
@@ -216,7 +219,8 @@ fn lower_value_stmt_with_blockexpr_loop_prelude(
         .iter()
         .any(|stmt| stmt_has_loop_stmt_recursive(stmt))
     {
-        let (value_id, effects) = PlanNormalizer::lower_value_ast(value, builder, current_bindings)?;
+        let (value_id, effects) =
+            PlanNormalizer::lower_value_ast(value, builder, current_bindings)?;
         return Ok((value_id, effects_to_plans(effects)));
     }
 
@@ -348,9 +352,7 @@ pub(super) fn lower_stmt_list_no_direct_exit(
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        direct_exit_reject, is_direct_exit_reject, DirectExitRejectReason,
-    };
+    use super::{direct_exit_reject, is_direct_exit_reject, DirectExitRejectReason};
 
     #[test]
     fn direct_exit_reject_is_tagged_and_detectable() {

@@ -45,8 +45,8 @@ use crate::mir::ValueId;
 use std::collections::{BTreeMap, BTreeSet}; // Phase 222.5-D: HashMap → BTreeMap for determinism
 
 use crate::mir::builder::control_flow::plan::common_init::CommonPatternInitializer;
-use crate::mir::builder::control_flow::plan::loop_true_counter_extractor::LoopTrueCounterExtractorBox;
 use crate::mir::builder::control_flow::plan::loop_scope_shape_builder::LoopScopeShapeBuilder;
+use crate::mir::builder::control_flow::plan::loop_true_counter_extractor::LoopTrueCounterExtractorBox;
 
 /// Phase 179-B: Unified route preprocessing context
 ///
@@ -262,7 +262,8 @@ pub(crate) fn build_route_prep_context(
             body,
             &builder.variable_ctx.variable_map,
         )?;
-        let carrier_info = CarrierInfo::from_variable_map(name.clone(), &builder.variable_ctx.variable_map)?;
+        let carrier_info =
+            CarrierInfo::from_variable_map(name.clone(), &builder.variable_ctx.variable_map)?;
         (name, host_id, carrier_info)
     } else {
         CommonPatternInitializer::initialize_pattern(

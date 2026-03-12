@@ -6,8 +6,8 @@ use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::{
 };
 
 use super::assign::is_simple_assignment;
-use super::local::is_local_init;
 use super::local::is_local_decl;
+use super::local::is_local_init;
 
 /// Checks if a statement is an exit-if (if with single break/continue/return in then-body)
 pub(in crate::mir::builder) fn is_exit_if(stmt: &ASTNode) -> bool {
@@ -33,7 +33,11 @@ pub(in crate::mir::builder) fn is_exit_if(stmt: &ASTNode) -> bool {
 }
 
 /// Checks if a statement is an effect-if (if with effect-only statements)
-pub(in crate::mir::builder) fn is_effect_if(stmt: &ASTNode, loop_var: &str, loop_increment: &ASTNode) -> bool {
+pub(in crate::mir::builder) fn is_effect_if(
+    stmt: &ASTNode,
+    loop_var: &str,
+    loop_increment: &ASTNode,
+) -> bool {
     let ASTNode::If {
         condition,
         then_body,
@@ -146,7 +150,11 @@ pub(in crate::mir::builder) fn is_break_else_effect_if(
 }
 
 /// Checks if a statement is an effect statement
-pub(in crate::mir::builder) fn is_effect_stmt(stmt: &ASTNode, loop_var: &str, loop_increment: &ASTNode) -> bool {
+pub(in crate::mir::builder) fn is_effect_stmt(
+    stmt: &ASTNode,
+    loop_var: &str,
+    loop_increment: &ASTNode,
+) -> bool {
     if is_simple_assignment(stmt, loop_var) || is_local_decl(stmt, loop_var) {
         return true;
     }

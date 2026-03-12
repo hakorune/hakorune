@@ -114,7 +114,9 @@ fn is_local_ch_substring_i_i1(stmt: &ASTNode, loop_var: &str) -> Option<(String,
             arguments,
             ..
         } => (object.as_ref(), method.as_str(), arguments.as_slice()),
-        ASTNode::Call { callee, arguments, .. } => {
+        ASTNode::Call {
+            callee, arguments, ..
+        } => {
             let ASTNode::FieldAccess { object, field, .. } = callee.as_ref() else {
                 return None;
             };
@@ -217,7 +219,10 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_v0_facts(
     let debug_reject = |reason: &str| {
         if debug {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[plan/reject_detail] box=loop_scan_v0 reason={}", reason));
+            ring0.log.debug(&format!(
+                "[plan/reject_detail] box=loop_scan_v0 reason={}",
+                reason
+            ));
         }
     };
 
@@ -240,8 +245,7 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_v0_facts(
         debug_reject("local_ch_not_substring_i_i1");
         return Ok(None);
     };
-    let Some((comma_if_cond, comma_inc_stmt)) =
-        is_comma_continue_if(&body[1], &loop_var, &ch_var)
+    let Some((comma_if_cond, comma_inc_stmt)) = is_comma_continue_if(&body[1], &loop_var, &ch_var)
     else {
         debug_reject("comma_if_shape");
         return Ok(None);
@@ -355,7 +359,10 @@ mod tests {
             ASTNode::If {
                 condition: Box::new(binop(BinaryOperator::Equal, var(ch_var), string(","))),
                 then_body: vec![
-                    assign(var(loop_var), binop(BinaryOperator::Add, var(loop_var), int(1))),
+                    assign(
+                        var(loop_var),
+                        binop(BinaryOperator::Add, var(loop_var), int(1)),
+                    ),
                     ASTNode::Continue {
                         span: Span::unknown(),
                     },
@@ -371,7 +378,10 @@ mod tests {
                 else_body: None,
                 span: Span::unknown(),
             },
-            assign(var(loop_var), binop(BinaryOperator::Add, var(loop_var), int(1))),
+            assign(
+                var(loop_var),
+                binop(BinaryOperator::Add, var(loop_var), int(1)),
+            ),
         ]
     }
 

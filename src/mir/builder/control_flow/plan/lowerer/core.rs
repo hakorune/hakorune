@@ -56,7 +56,9 @@ impl super::PlanLowerer {
             CorePlan::Seq(plans) => Self::lower_seq(builder, plans, ctx, loop_stack),
             CorePlan::Loop(loop_plan) => Self::lower_loop(builder, loop_plan, ctx, loop_stack),
             CorePlan::If(if_plan) => Self::lower_if(builder, if_plan, ctx, loop_stack),
-            CorePlan::BranchN(branch_plan) => Self::lower_branchn(builder, branch_plan, ctx, loop_stack),
+            CorePlan::BranchN(branch_plan) => {
+                Self::lower_branchn(builder, branch_plan, ctx, loop_stack)
+            }
             CorePlan::Effect(effect) => {
                 if loop_stack.is_empty() {
                     Self::emit_effect(builder, &effect)?;
