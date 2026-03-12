@@ -16,10 +16,10 @@
 //!
 //! See README.md for full design and contract documentation.
 
+mod execute_box;
 mod plan;
 mod plan_box;
-mod execute_box;
 
+pub use execute_box::NormalizationExecuteBox;
 pub use plan::PlanKind;
 pub use plan_box::NormalizationPlanBox;
-pub use execute_box::NormalizationExecuteBox;

@@ -126,7 +126,8 @@ pub enum AnfParentKind {
 #[derive(Debug, Clone)]
 pub struct AnfHoistTarget {
     /// The known intrinsic type (e.g., KnownIntrinsic::Length0)
-    pub intrinsic: crate::mir::control_tree::normalized_shadow::common::expr_lowering_contract::KnownIntrinsic,
+    pub intrinsic:
+        crate::mir::control_tree::normalized_shadow::common::expr_lowering_contract::KnownIntrinsic,
 
     /// The AST node of the MethodCall to hoist
     pub ast_node: crate::ast::ASTNode,
@@ -179,7 +180,7 @@ impl AnfPlan {
             requires_anf: false,
             impure_count: 0,
             hoist_targets: vec![],
-            parent_kind: AnfParentKind::BinaryOp,  // Default, will be overridden if needed
+            parent_kind: AnfParentKind::BinaryOp, // Default, will be overridden if needed
         }
     }
 
@@ -230,8 +231,14 @@ mod tests {
 
     #[test]
     fn test_diagnostic_tag_eq() {
-        assert_eq!(AnfDiagnosticTag::OrderViolation, AnfDiagnosticTag::OrderViolation);
-        assert_ne!(AnfDiagnosticTag::OrderViolation, AnfDiagnosticTag::PureRequired);
+        assert_eq!(
+            AnfDiagnosticTag::OrderViolation,
+            AnfDiagnosticTag::OrderViolation
+        );
+        assert_ne!(
+            AnfDiagnosticTag::OrderViolation,
+            AnfDiagnosticTag::PureRequired
+        );
     }
 
     // P0: 2 contract tests (plan_pure + plan_impure)

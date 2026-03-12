@@ -1,12 +1,14 @@
 //! Phase 129-B: if-as-last lowering with join_k (dev-only)
 
-use super::env_layout::EnvLayout;
 use super::common::normalized_helpers::NormalizedHelperBox;
+use super::env_layout::EnvLayout;
 use super::legacy::LegacyLowerer;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::lowering::error_tags;
-use crate::mir::join_ir::{ConstValue, JoinFunction, JoinFuncId, JoinInst, JoinModule, MirLikeInst};
+use crate::mir::join_ir::{
+    ConstValue, JoinFuncId, JoinFunction, JoinInst, JoinModule, MirLikeInst,
+};
 
 pub struct IfAsLastJoinKLowererBox;
 
@@ -48,7 +50,8 @@ impl IfAsLastJoinKLowererBox {
         let env_fields = env_layout.env_fields();
         // Phase 143 fix: env params must be in Param region (100+) per JoinValueSpace contract.
         // All functions share the same params (env passing via continuation).
-        let (main_params, mut next_value_id) = NormalizedHelperBox::alloc_env_params_param_region(&env_fields);
+        let (main_params, mut next_value_id) =
+            NormalizedHelperBox::alloc_env_params_param_region(&env_fields);
 
         // IDs (stable, dev-only)
         let main_id = JoinFuncId::new(0);
@@ -92,7 +95,13 @@ impl IfAsLastJoinKLowererBox {
         // Extract return variable and branch bodies.
         fn split_branch_for_as_last(
             branch: &StepNode,
-        ) -> Result<(&[StepNode], &crate::mir::control_tree::step_tree::AstNodeHandle), String> {
+        ) -> Result<
+            (
+                &[StepNode],
+                &crate::mir::control_tree::step_tree::AstNodeHandle,
+            ),
+            String,
+        > {
             use crate::mir::control_tree::step_tree::StepNode;
             use crate::mir::control_tree::step_tree::StepStmtKind;
             use crate::mir::join_ir::lowering::error_tags;
@@ -156,7 +165,9 @@ impl IfAsLastJoinKLowererBox {
             }
         }
 
-        fn extract_return_var_name(ast_handle: &crate::mir::control_tree::step_tree::AstNodeHandle) -> Result<String, String> {
+        fn extract_return_var_name(
+            ast_handle: &crate::mir::control_tree::step_tree::AstNodeHandle,
+        ) -> Result<String, String> {
             use crate::ast::ASTNode;
             use crate::mir::join_ir::lowering::error_tags;
             match ast_handle.0.as_ref() {
@@ -223,7 +234,9 @@ impl IfAsLastJoinKLowererBox {
             )
         })?;
         let mut join_k_func = JoinFunction::new(join_k_id, "join_k".to_string(), join_k_params);
-        join_k_func.body.push(JoinInst::Ret { value: Some(ret_vid) });
+        join_k_func.body.push(JoinInst::Ret {
+            value: Some(ret_vid),
+        });
 
         // k_then(env_in): <prefix> ; tailcall join_k(env_out)
         // Phase 143 fix: reuse Param region IDs for all functions
@@ -256,12 +269,14 @@ impl IfAsLastJoinKLowererBox {
                 }
             }
         }
-        let then_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_then)
-            .map_err(|e| error_tags::freeze_with_hint(
-                "phase129/join_k/env_missing",
-                &e,
-                "ensure env layout and env map are built from the same SSOT field list",
-            ))?;
+        let then_args =
+            NormalizedHelperBox::collect_env_args(&env_fields, &env_then).map_err(|e| {
+                error_tags::freeze_with_hint(
+                    "phase129/join_k/env_missing",
+                    &e,
+                    "ensure env layout and env map are built from the same SSOT field list",
+                )
+            })?;
         then_func.body.push(JoinInst::Call {
             func: join_k_id,
             args: then_args,
@@ -300,12 +315,14 @@ impl IfAsLastJoinKLowererBox {
                 }
             }
         }
-        let else_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_else)
-            .map_err(|e| error_tags::freeze_with_hint(
-                "phase129/join_k/env_missing",
-                &e,
-                "ensure env layout and env map are built from the same SSOT field list",
-            ))?;
+        let else_args =
+            NormalizedHelperBox::collect_env_args(&env_fields, &env_else).map_err(|e| {
+                error_tags::freeze_with_hint(
+                    "phase129/join_k/env_missing",
+                    &e,
+                    "ensure env layout and env map are built from the same SSOT field list",
+                )
+            })?;
         else_func.body.push(JoinInst::Call {
             func: join_k_id,
             args: else_args,
@@ -335,12 +352,14 @@ impl IfAsLastJoinKLowererBox {
             rhs: rhs_vid,
         }));
 
-        let main_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_main)
-            .map_err(|e| error_tags::freeze_with_hint(
-                "phase129/join_k/env_missing",
-                &e,
-                "ensure env layout and env map are built from the same SSOT field list",
-            ))?;
+        let main_args =
+            NormalizedHelperBox::collect_env_args(&env_fields, &env_main).map_err(|e| {
+                error_tags::freeze_with_hint(
+                    "phase129/join_k/env_missing",
+                    &e,
+                    "ensure env layout and env map are built from the same SSOT field list",
+                )
+            })?;
         main_func.body.push(JoinInst::Jump {
             cont: k_then_id.as_cont(),
             args: main_args.clone(),

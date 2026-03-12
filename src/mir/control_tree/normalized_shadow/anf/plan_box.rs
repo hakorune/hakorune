@@ -17,12 +17,12 @@
 //! - **P1**: Add whitelist check (String.length() only), BinaryOp pattern detection
 //! - **P2**: Add recursive compound expression detection
 
-use super::contract::{AnfOutOfScopeReason, AnfPlan, AnfHoistTarget, HoistPosition, AnfParentKind};
+use super::contract::{AnfHoistTarget, AnfOutOfScopeReason, AnfParentKind, AnfPlan, HoistPosition};
 use crate::ast::ASTNode;
 use crate::mir::control_tree::normalized_shadow::common::expr_lowering_contract::KnownIntrinsic;
 use crate::mir::control_tree::normalized_shadow::common::known_intrinsics::KnownIntrinsicRegistryBox;
-use std::collections::BTreeMap;
 use crate::mir::ValueId;
+use std::collections::BTreeMap;
 
 /// Phase 145 P1: Whitelist of intrinsics allowed for ANF transformation
 ///
@@ -61,20 +61,21 @@ impl AnfPlanBox {
         // P1: Only support simple receivers (not chained calls)
         match object {
             ASTNode::Variable { .. } | ASTNode::Literal { .. } => Some(intrinsic),
-            _ => None,  // Nested MethodCall (e.g., s.trim().length()) is P2+
+            _ => None, // Nested MethodCall (e.g., s.trim().length()) is P2+
         }
     }
 
     /// Phase 146 P1: Check if BinaryOperator is a comparison operator
     fn is_compare_operator(op: &crate::ast::BinaryOperator) -> bool {
         use crate::ast::BinaryOperator;
-        matches!(op,
-            BinaryOperator::Equal |
-            BinaryOperator::NotEqual |
-            BinaryOperator::Less |
-            BinaryOperator::Greater |
-            BinaryOperator::LessEqual |
-            BinaryOperator::GreaterEqual
+        matches!(
+            op,
+            BinaryOperator::Equal
+                | BinaryOperator::NotEqual
+                | BinaryOperator::Less
+                | BinaryOperator::Greater
+                | BinaryOperator::LessEqual
+                | BinaryOperator::GreaterEqual
         )
     }
 
@@ -94,7 +95,7 @@ impl AnfPlanBox {
     /// - **P1+**: Add whitelist check, BinaryOp pattern detection
     pub fn plan_expr(
         ast: &ASTNode,
-        _env: &BTreeMap<String, ValueId>,  // P0: unused, P1+ for intrinsic detection
+        _env: &BTreeMap<String, ValueId>, // P0: unused, P1+ for intrinsic detection
     ) -> Result<Option<AnfPlan>, AnfOutOfScopeReason> {
         // P0: Basic impure detection (Call/MethodCall presence)
         match ast {
@@ -105,27 +106,38 @@ impl AnfPlanBox {
             // Unary: Check operand recursively
             ASTNode::UnaryOp { operand, .. } => {
                 match Self::plan_expr(operand, _env)? {
-                    Some(operand_plan) => {
-                        Ok(Some(AnfPlan {
-                            requires_anf: operand_plan.requires_anf,
-                            impure_count: operand_plan.impure_count,
-                            hoist_targets: vec![],
-                            parent_kind: AnfParentKind::UnaryOp,
-                        }))
-                    }
-                    None => Ok(None),  // Operand out-of-scope → propagate
+                    Some(operand_plan) => Ok(Some(AnfPlan {
+                        requires_anf: operand_plan.requires_anf,
+                        impure_count: operand_plan.impure_count,
+                        hoist_targets: vec![],
+                        parent_kind: AnfParentKind::UnaryOp,
+                    })),
+                    None => Ok(None), // Operand out-of-scope → propagate
                 }
             }
 
             // Binary: Check left and right recursively
             // Phase 146 P1: Handle both arithmetic and comparison operators
-            ASTNode::BinaryOp { operator, left, right, .. } => {
+            ASTNode::BinaryOp {
+                operator,
+                left,
+                right,
+                ..
+            } => {
                 // Phase 145 P1: Detect whitelisted MethodCall in operands
                 let mut hoist_targets = vec![];
 
                 // Check left operand for whitelisted MethodCall
-                if let ASTNode::MethodCall { object, method, arguments, .. } = left.as_ref() {
-                    if let Some(intrinsic) = Self::try_match_whitelisted_method_call(object, method, arguments, _env) {
+                if let ASTNode::MethodCall {
+                    object,
+                    method,
+                    arguments,
+                    ..
+                } = left.as_ref()
+                {
+                    if let Some(intrinsic) =
+                        Self::try_match_whitelisted_method_call(object, method, arguments, _env)
+                    {
                         hoist_targets.push(AnfHoistTarget {
                             intrinsic,
                             ast_node: left.as_ref().clone(),
@@ -135,8 +147,16 @@ impl AnfPlanBox {
                 }
 
                 // Check right operand for whitelisted MethodCall
-                if let ASTNode::MethodCall { object, method, arguments, .. } = right.as_ref() {
-                    if let Some(intrinsic) = Self::try_match_whitelisted_method_call(object, method, arguments, _env) {
+                if let ASTNode::MethodCall {
+                    object,
+                    method,
+                    arguments,
+                    ..
+                } = right.as_ref()
+                {
+                    if let Some(intrinsic) =
+                        Self::try_match_whitelisted_method_call(object, method, arguments, _env)
+                    {
                         hoist_targets.push(AnfHoistTarget {
                             intrinsic,
                             ast_node: right.as_ref().clone(),
@@ -160,11 +180,11 @@ impl AnfPlanBox {
                 // P0 fallback: Recursively check operands for pure/impure
                 let left_plan = match Self::plan_expr(left, _env)? {
                     Some(p) => p,
-                    None => return Ok(None),  // Left out-of-scope → propagate
+                    None => return Ok(None), // Left out-of-scope → propagate
                 };
                 let right_plan = match Self::plan_expr(right, _env)? {
                     Some(p) => p,
-                    None => return Ok(None),  // Right out-of-scope → propagate
+                    None => return Ok(None), // Right out-of-scope → propagate
                 };
 
                 // Combine: ANF needed if either operand requires it
@@ -214,8 +234,8 @@ impl AnfPlanBox {
     pub fn is_pure(ast: &ASTNode, env: &BTreeMap<String, ValueId>) -> bool {
         match Self::plan_expr(ast, env) {
             Ok(Some(plan)) => !plan.requires_anf,
-            Ok(None) => true,  // Unknown → assume pure (conservative fallback)
-            Err(_) => false,   // Contains Call/MethodCall → impure
+            Ok(None) => true, // Unknown → assume pure (conservative fallback)
+            Err(_) => false,  // Contains Call/MethodCall → impure
         }
     }
 }
@@ -302,7 +322,10 @@ mod tests {
         };
         let env = BTreeMap::new();
         let result = AnfPlanBox::plan_expr(&ast, &env);
-        assert!(matches!(result, Err(AnfOutOfScopeReason::ContainsMethodCall)));
+        assert!(matches!(
+            result,
+            Err(AnfOutOfScopeReason::ContainsMethodCall)
+        ));
     }
 
     #[test]
@@ -453,7 +476,10 @@ mod tests {
         // Should fall back to recursive plan which detects MethodCall as out-of-scope
         let result = AnfPlanBox::plan_expr(&ast, &env);
         // MethodCall not whitelisted → falls back to recursive check → Err(ContainsMethodCall)
-        assert!(matches!(result, Err(AnfOutOfScopeReason::ContainsMethodCall)));
+        assert!(matches!(
+            result,
+            Err(AnfOutOfScopeReason::ContainsMethodCall)
+        ));
     }
 
     #[test]

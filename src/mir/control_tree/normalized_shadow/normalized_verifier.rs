@@ -3,9 +3,9 @@
 //! - Fail-Fast in strict mode with `freeze_with_hint`
 //! - No value parity; structure only
 
-use crate::mir::join_ir::{JoinFuncId, JoinInst, JoinModule};
-use crate::mir::join_ir::lowering::error_tags;
 use super::env_layout::EnvLayout;
+use crate::mir::join_ir::lowering::error_tags;
+use crate::mir::join_ir::{JoinFuncId, JoinInst, JoinModule};
 use std::collections::BTreeMap;
 
 /// Verify Normalized JoinModule structure emitted by the shadow lowerer.
@@ -86,7 +86,10 @@ pub fn verify_normalized_structure(
     // PHI prohibition (Phase 129-B scope): no IfMerge/NestedIfMerge in shadow output.
     for (fid, func) in &module.functions {
         for inst in &func.body {
-            if matches!(inst, JoinInst::IfMerge { .. } | JoinInst::NestedIfMerge { .. }) {
+            if matches!(
+                inst,
+                JoinInst::IfMerge { .. } | JoinInst::NestedIfMerge { .. }
+            ) {
                 return Err(error_tags::freeze_with_hint(
                     "phase129/join_k/phi_forbidden",
                     &format!("PHI-like merge instruction found in {:?}", fid),

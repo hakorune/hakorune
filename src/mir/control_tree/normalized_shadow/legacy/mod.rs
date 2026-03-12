@@ -4,7 +4,7 @@ use crate::mir::control_tree::normalized_shadow::env_layout::EnvLayout;
 use crate::mir::control_tree::step_tree::StepTree;
 use crate::mir::control_tree::step_tree_contract_box::StepTreeContract;
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
-use crate::mir::join_ir::{CompareOp, JoinFunction, JoinFuncId, JoinModule};
+use crate::mir::join_ir::{CompareOp, JoinFuncId, JoinFunction, JoinModule};
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
@@ -57,11 +57,7 @@ impl LegacyLowerer {
         env_params.extend(inputs_params);
 
         // main 関数生成
-        let mut main_func = JoinFunction::new(
-            main_func_id,
-            "main".to_string(),
-            env_params.clone(),
-        );
+        let mut main_func = JoinFunction::new(main_func_id, "main".to_string(), env_params.clone());
 
         // Phase 123-128: Return node lowering
         // If Phase 123-128 patterns are not supported, return Ok(None)
@@ -130,7 +126,13 @@ impl LegacyLowerer {
                             kind: StepStmtKind::Return { value_ast },
                             ..
                         } => {
-                            return Self::lower_return_value(value_ast, body, next_value_id, env, contract);
+                            return Self::lower_return_value(
+                                value_ast,
+                                body,
+                                next_value_id,
+                                env,
+                                contract,
+                            );
                         }
                         StepNode::If { .. } => {
                             // Phase 123 P3: Lower If node
@@ -170,18 +172,18 @@ impl LegacyLowerer {
         env: &mut BTreeMap<String, ValueId>,
     ) -> Result<(), String> {
         use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-        use crate::mir::join_ir::{BinOpKind, ConstValue, JoinInst, MirLikeInst};
         use crate::mir::join_ir::lowering::error_tags;
+        use crate::mir::join_ir::{BinOpKind, ConstValue, JoinInst, MirLikeInst};
 
         // Check target
-        let target_name = target
-            .as_ref()
-            .ok_or_else(|| "[phase128/assign/target] Assign target must be a variable".to_string())?;
+        let target_name = target.as_ref().ok_or_else(|| {
+            "[phase128/assign/target] Assign target must be a variable".to_string()
+        })?;
 
         // Check value_ast
-        let value_ast = value_ast.as_ref().ok_or_else(|| {
-            "[phase128/assign/value] Assign value AST is missing".to_string()
-        })?;
+        let value_ast = value_ast
+            .as_ref()
+            .ok_or_else(|| "[phase128/assign/value] Assign value AST is missing".to_string())?;
 
         // Parse value - Phase 128: int literal, Phase 130 P1: variable, Phase 130 P2: add
         match value_ast.0.as_ref() {

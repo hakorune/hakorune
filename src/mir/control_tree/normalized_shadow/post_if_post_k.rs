@@ -30,17 +30,19 @@
 
 use std::collections::BTreeMap;
 
-use super::env_layout::EnvLayout;
-use super::legacy::LegacyLowerer;
-use super::common::return_value_lowerer_box::ReturnValueLowererBox;
-use super::common::normalized_helpers::NormalizedHelperBox;
 use super::common::expr_lowerer_box::NormalizedExprLowererBox;
 use super::common::expr_lowering_contract::ExprLoweringScope;
+use super::common::normalized_helpers::NormalizedHelperBox;
+use super::common::return_value_lowerer_box::ReturnValueLowererBox;
+use super::env_layout::EnvLayout;
+use super::legacy::LegacyLowerer;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::lowering::error_tags;
+use crate::mir::join_ir::{
+    ConstValue, JoinFuncId, JoinFunction, JoinInst, JoinModule, MirLikeInst,
+};
 use crate::mir::ValueId;
-use crate::mir::join_ir::{ConstValue, JoinFunction, JoinFuncId, JoinInst, JoinModule, MirLikeInst};
 
 /// Box-First: Post-if continuation lowering with post_k
 pub struct PostIfPostKBuilderBox;
@@ -57,7 +59,8 @@ impl PostIfPostKBuilderBox {
         env_layout: &EnvLayout,
     ) -> Result<Option<(JoinModule, JoinFragmentMeta)>, String> {
         // Extract if + post pattern
-        let (prefix_nodes, if_node, post_nodes) = match Self::extract_if_with_post(&step_tree.root) {
+        let (prefix_nodes, if_node, post_nodes) = match Self::extract_if_with_post(&step_tree.root)
+        {
             Some(v) => v,
             None => return Ok(None), // Not an if-with-post pattern
         };
@@ -65,7 +68,8 @@ impl PostIfPostKBuilderBox {
         let env_fields = env_layout.env_fields();
         // Phase 143 fix: env params must be in Param region (100+) per JoinValueSpace contract.
         // All functions share the same params (env passing via continuation).
-        let (main_params, mut next_value_id) = NormalizedHelperBox::alloc_env_params_param_region(&env_fields);
+        let (main_params, mut next_value_id) =
+            NormalizedHelperBox::alloc_env_params_param_region(&env_fields);
 
         // IDs (stable, dev-only)
         let main_id = JoinFuncId::new(0);
@@ -155,12 +159,14 @@ impl PostIfPostKBuilderBox {
             }
         }
 
-        let then_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_then)
-            .map_err(|e| error_tags::freeze_with_hint(
-                "phase129/post_k/env_missing",
-                &e,
-                "ensure env layout and env map are built from the same SSOT field list",
-            ))?;
+        let then_args =
+            NormalizedHelperBox::collect_env_args(&env_fields, &env_then).map_err(|e| {
+                error_tags::freeze_with_hint(
+                    "phase129/post_k/env_missing",
+                    &e,
+                    "ensure env layout and env map are built from the same SSOT field list",
+                )
+            })?;
         then_func.body.push(JoinInst::Call {
             func: join_k_id,
             args: then_args,
@@ -196,12 +202,14 @@ impl PostIfPostKBuilderBox {
             }
         }
 
-        let else_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_else)
-            .map_err(|e| error_tags::freeze_with_hint(
-                "phase129/post_k/env_missing",
-                &e,
-                "ensure env layout and env map are built from the same SSOT field list",
-            ))?;
+        let else_args =
+            NormalizedHelperBox::collect_env_args(&env_fields, &env_else).map_err(|e| {
+                error_tags::freeze_with_hint(
+                    "phase129/post_k/env_missing",
+                    &e,
+                    "ensure env layout and env map are built from the same SSOT field list",
+                )
+            })?;
         else_func.body.push(JoinInst::Call {
             func: join_k_id,
             args: else_args,
@@ -215,12 +223,14 @@ impl PostIfPostKBuilderBox {
         let env_join_k = NormalizedHelperBox::build_env_map(&env_fields, &join_k_params);
         let mut join_k_func = JoinFunction::new(join_k_id, "join_k".to_string(), join_k_params);
 
-        let join_k_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_join_k)
-            .map_err(|e| error_tags::freeze_with_hint(
-                "phase129/post_k/env_missing",
-                &e,
-                "ensure env layout and env map are built from the same SSOT field list",
-            ))?;
+        let join_k_args =
+            NormalizedHelperBox::collect_env_args(&env_fields, &env_join_k).map_err(|e| {
+                error_tags::freeze_with_hint(
+                    "phase129/post_k/env_missing",
+                    &e,
+                    "ensure env layout and env map are built from the same SSOT field list",
+                )
+            })?;
         join_k_func.body.push(JoinInst::Call {
             func: post_k_id,
             args: join_k_args,
@@ -268,7 +278,11 @@ impl PostIfPostKBuilderBox {
         }
 
         // If no return was emitted, add void return
-        if !post_k_func.body.iter().any(|inst| matches!(inst, JoinInst::Ret { .. })) {
+        if !post_k_func
+            .body
+            .iter()
+            .any(|inst| matches!(inst, JoinInst::Ret { .. }))
+        {
             post_k_func.body.push(JoinInst::Ret { value: None });
         }
 
@@ -283,17 +297,24 @@ impl PostIfPostKBuilderBox {
             Ok(Some(vid)) => vid,
             Ok(None) => {
                 // Fallback to legacy minimal compare (Phase 129 baseline)
-                Self::lower_condition_legacy(&cond_ast.0, &env_main, &mut main_func.body, &mut next_value_id)?
+                Self::lower_condition_legacy(
+                    &cond_ast.0,
+                    &env_main,
+                    &mut main_func.body,
+                    &mut next_value_id,
+                )?
             }
             Err(e) => return Err(format!("phase146/p0/cond_lowering: {}", e)),
         };
 
-        let main_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_main)
-            .map_err(|e| error_tags::freeze_with_hint(
-                "phase129/post_k/env_missing",
-                &e,
-                "ensure env layout and env map are built from the same SSOT field list",
-            ))?;
+        let main_args =
+            NormalizedHelperBox::collect_env_args(&env_fields, &env_main).map_err(|e| {
+                error_tags::freeze_with_hint(
+                    "phase129/post_k/env_missing",
+                    &e,
+                    "ensure env layout and env map are built from the same SSOT field list",
+                )
+            })?;
         main_func.body.push(JoinInst::Jump {
             cont: k_then_id.as_cont(),
             args: main_args.clone(),
@@ -325,7 +346,9 @@ impl PostIfPostKBuilderBox {
         match node {
             StepNode::Block(nodes) => {
                 // Find the last If node
-                let if_pos = nodes.iter().position(|n| matches!(n, StepNode::If { .. }))?;
+                let if_pos = nodes
+                    .iter()
+                    .position(|n| matches!(n, StepNode::If { .. }))?;
 
                 // Must have post-if statements
                 if if_pos == nodes.len() - 1 {

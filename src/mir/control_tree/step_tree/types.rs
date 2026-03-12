@@ -36,7 +36,10 @@ pub enum StepNode {
         body: Box<StepNode>,
         span: Span,
     },
-    Stmt { kind: StepStmtKind, span: Span },
+    Stmt {
+        kind: StepStmtKind,
+        span: Span,
+    },
 }
 
 /// AST 参照の軽量ハンドル（Phase 119: dev-only 観測用）
@@ -49,7 +52,9 @@ pub struct AstNodeHandle(pub Box<ASTNode>);
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum StepStmtKind {
-    LocalDecl { vars: Vec<String> },
+    LocalDecl {
+        vars: Vec<String>,
+    },
     Assign {
         target: Option<String>,
         /// Phase 128: assignment value AST (for Normalized lowering)
@@ -145,7 +150,10 @@ impl StepNode {
                 span,
             },
             StepNode::Loop {
-                cond, cond_ast, body, ..
+                cond,
+                cond_ast,
+                body,
+                ..
             } => StepNode::Loop {
                 cond,
                 cond_ast,

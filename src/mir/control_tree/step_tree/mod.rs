@@ -3,9 +3,9 @@ mod fact_extractor;
 mod format;
 mod signature;
 mod summary;
-mod types;
 #[cfg(test)]
 mod tests;
+mod types;
 
 pub use builder::StepTreeBuilderBox;
 pub use types::{

@@ -11,10 +11,10 @@ use crate::mir::control_tree::normalized_shadow::env_layout::{
     expected_env_field_count as calc_expected_env_fields, EnvLayout,
 };
 use crate::mir::control_tree::normalized_shadow::if_as_last_join_k::IfAsLastJoinKLowererBox;
+use crate::mir::control_tree::normalized_shadow::legacy::LegacyLowerer;
 use crate::mir::control_tree::normalized_shadow::loop_true_break_once::LoopTrueBreakOnceBuilderBox; // Phase 131
 use crate::mir::control_tree::normalized_shadow::loop_true_if_break_continue::LoopTrueIfBreakContinueBuilderBox; // Phase 143 P0
 use crate::mir::control_tree::normalized_shadow::post_if_post_k::PostIfPostKBuilderBox; // Phase 129-C
-use crate::mir::control_tree::normalized_shadow::legacy::LegacyLowerer;
 use crate::mir::control_tree::step_tree::StepTree;
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::JoinModule;
@@ -100,7 +100,9 @@ impl StepTreeNormalizedShadowLowererBox {
         }
 
         // Phase 143 P0: loop(true) + if + break pattern
-        if let Some((module, meta)) = LoopTrueIfBreakContinueBuilderBox::lower(step_tree, &env_layout)? {
+        if let Some((module, meta)) =
+            LoopTrueIfBreakContinueBuilderBox::lower(step_tree, &env_layout)?
+        {
             return Ok(Some((module, meta)));
         }
 

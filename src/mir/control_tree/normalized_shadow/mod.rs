@@ -29,28 +29,28 @@
 //! - No direct env reads (must go through `src/config/env/*`)
 //! - No hardcoding (no branching on fixture names or variable names)
 
+pub mod anf;
+pub mod available_inputs_collector; // Phase 126: available_inputs SSOT
 pub mod builder;
+pub mod common; // Phase 138: Common utilities (ReturnValueLowererBox)
 pub mod contracts;
-pub mod normalized_verifier;
+pub mod dev_pipeline;
 pub mod env_layout;
+pub mod exit_reconnector; // Phase 131 P1.5: Direct variable_map reconnection (Option B)
 pub mod if_as_last_join_k;
+pub mod legacy;
 pub mod loop_true_break_once; // Phase 131: loop(true) break-once
 mod loop_true_break_once_helpers;
 pub mod loop_true_if_break_continue; // Phase 143 P0: loop(true) + if + break
-pub mod post_if_post_k; // Phase 129-C: post-if with post_k continuation
-pub mod legacy;
-pub mod dev_pipeline;
+pub mod normalized_verifier;
 pub mod parity_contract;
-pub mod available_inputs_collector; // Phase 126: available_inputs SSOT
-pub mod exit_reconnector; // Phase 131 P1.5: Direct variable_map reconnection (Option B)
-pub mod common; // Phase 138: Common utilities (ReturnValueLowererBox)
-pub mod anf; // Phase 145 P0: ANF (A-Normal Form) transformation
+pub mod post_if_post_k; // Phase 129-C: post-if with post_k continuation // Phase 145 P0: ANF (A-Normal Form) transformation
 
 pub use builder::StepTreeNormalizedShadowLowererBox;
 pub use contracts::{CapabilityCheckResult, UnsupportedCapability};
-pub use parity_contract::{MismatchKind, ShadowParityResult};
 pub use env_layout::EnvLayout;
-pub use exit_reconnector::ExitReconnectorBox; // Phase 131 P1.5
+pub use exit_reconnector::ExitReconnectorBox;
+pub use parity_contract::{MismatchKind, ShadowParityResult}; // Phase 131 P1.5
 
 pub const STEP_TREE_GATE_TAG: &str = "[phase132/gate]";
 pub const STEP_TREE_DEBUG_TAG: &str = "[phase132/debug]";

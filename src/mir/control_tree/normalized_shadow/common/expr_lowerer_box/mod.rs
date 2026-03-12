@@ -108,7 +108,10 @@ impl NormalizedExprLowererBox {
                 operator, operand, ..
             } => Self::lower_unary(operator, operand, env, body, next_value_id),
             ASTNode::BinaryOp {
-                operator, left, right, ..
+                operator,
+                left,
+                right,
+                ..
             } => Self::lower_binary(operator, left, right, env, body, next_value_id),
             ASTNode::MethodCall {
                 object,
@@ -118,9 +121,9 @@ impl NormalizedExprLowererBox {
             } => match scope {
                 ExprLoweringScope::PureOnly => Ok(None),
                 ExprLoweringScope::WithImpure(policy) => {
-                    let Some(intrinsic) =
-                        Self::match_known_intrinsic_method_call(policy, object, method, arguments, env)
-                    else {
+                    let Some(intrinsic) = Self::match_known_intrinsic_method_call(
+                        policy, object, method, arguments, env,
+                    ) else {
                         return Ok(None);
                     };
                     Self::lower_known_intrinsic_method_call(

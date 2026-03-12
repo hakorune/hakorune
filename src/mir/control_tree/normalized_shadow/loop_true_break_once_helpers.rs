@@ -71,7 +71,9 @@ pub(super) fn has_unsupported_exits(stmts: &[StepNode]) -> bool {
 
 fn has_unsupported_exits_in_node(node: &StepNode) -> bool {
     match node {
-        StepNode::Stmt { kind, .. } => matches!(kind, StepStmtKind::Return { .. } | StepStmtKind::Continue),
+        StepNode::Stmt { kind, .. } => {
+            matches!(kind, StepStmtKind::Return { .. } | StepStmtKind::Continue)
+        }
         StepNode::Block(stmts) => has_unsupported_exits(stmts),
         StepNode::If {
             then_branch,
@@ -90,13 +92,19 @@ fn has_unsupported_exits_in_node(node: &StepNode) -> bool {
 pub(super) fn log_post_nodes_debug(post_nodes: &[StepNode]) {
     if crate::config::env::joinir_dev_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[phase133/debug] post_nodes.len() = {}", post_nodes.len()));
+        ring0.log.debug(&format!(
+            "[phase133/debug] post_nodes.len() = {}",
+            post_nodes.len()
+        ));
         for (i, node) in post_nodes.iter().enumerate() {
             match node {
-                StepNode::Stmt { kind, .. } => {
-                    ring0.log.debug(&format!("[phase133/debug] post_nodes[{}] = Stmt({:?})", i, kind))
-                }
-                _ => ring0.log.debug(&format!("[phase133/debug] post_nodes[{}] = {:?}", i, node)),
+                StepNode::Stmt { kind, .. } => ring0.log.debug(&format!(
+                    "[phase133/debug] post_nodes[{}] = Stmt({:?})",
+                    i, kind
+                )),
+                _ => ring0
+                    .log
+                    .debug(&format!("[phase133/debug] post_nodes[{}] = {:?}", i, node)),
             }
         }
     }

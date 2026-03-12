@@ -91,10 +91,7 @@ impl StepTreeDevPipelineBox {
             }
             Err(err) => {
                 // Should be supported but failed (internal error)
-                let msg = format!(
-                    "phase121/shadow: internal error for {}: {}",
-                    func_name, err
-                );
+                let msg = format!("phase121/shadow: internal error for {}: {}", func_name, err);
                 // NOTE: Shadow lowering is a dev-only diagnostic path. It must not block
                 // compilation, even under strict, because strict is about fail-fast
                 // capability boundaries, not requiring the dev shadow emitter to succeed.

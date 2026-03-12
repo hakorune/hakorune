@@ -1,9 +1,7 @@
+use super::super::expr_lowering_contract::{ExprLoweringScope, ImpurePolicy, OutOfScopeReason};
+use super::super::known_intrinsics::KnownIntrinsicRegistryBox;
 use super::binary::{binary_kind, BinaryKind};
 use super::NormalizedExprLowererBox;
-use super::super::expr_lowering_contract::{
-    ExprLoweringScope, ImpurePolicy, OutOfScopeReason,
-};
-use super::super::known_intrinsics::KnownIntrinsicRegistryBox;
 use crate::ast::{ASTNode, LiteralValue, UnaryOperator};
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
@@ -66,10 +64,15 @@ impl NormalizedExprLowererBox {
             },
 
             ASTNode::BinaryOp {
-                operator, left, right, ..
+                operator,
+                left,
+                right,
+                ..
             } => {
                 if binary_kind(operator).is_some() {
-                    if Self::is_supported_int_expr(left, env) && Self::is_supported_int_expr(right, env) {
+                    if Self::is_supported_int_expr(left, env)
+                        && Self::is_supported_int_expr(right, env)
+                    {
                         None
                     } else {
                         Some(OutOfScopeReason::UnsupportedOperator)
@@ -101,9 +104,9 @@ impl NormalizedExprLowererBox {
                 {
                     None
                 } else {
-                    let receiver_ok =
-                        matches!(object.as_ref(), ASTNode::Variable { name, .. } if env.contains_key(name));
-                    if receiver_ok && KnownIntrinsicRegistryBox::lookup(method, arguments.len()).is_some()
+                    let receiver_ok = matches!(object.as_ref(), ASTNode::Variable { name, .. } if env.contains_key(name));
+                    if receiver_ok
+                        && KnownIntrinsicRegistryBox::lookup(method, arguments.len()).is_some()
                     {
                         Some(OutOfScopeReason::IntrinsicNotWhitelisted)
                     } else {
@@ -155,7 +158,10 @@ impl NormalizedExprLowererBox {
             },
 
             ASTNode::BinaryOp {
-                operator, left, right, ..
+                operator,
+                left,
+                right,
+                ..
             } => {
                 if binary_kind(operator).is_some() {
                     if Self::is_supported_int_expr_with_scope(
@@ -193,7 +199,10 @@ impl NormalizedExprLowererBox {
                 ..
             } => Self::is_supported_int_expr(operand, env),
             ASTNode::BinaryOp {
-                operator, left, right, ..
+                operator,
+                left,
+                right,
+                ..
             } => {
                 matches!(binary_kind(operator), Some(BinaryKind::Arith(_)))
                     && Self::is_supported_int_expr(left, env)
@@ -232,8 +241,10 @@ impl NormalizedExprLowererBox {
                     method,
                     arguments,
                     ..
-                } => Self::match_known_intrinsic_method_call(policy, object, method, arguments, env)
-                    .is_some(),
+                } => {
+                    Self::match_known_intrinsic_method_call(policy, object, method, arguments, env)
+                        .is_some()
+                }
                 ASTNode::Variable { name, .. } => env.contains_key(name),
                 ASTNode::Literal {
                     value: LiteralValue::Integer(_),
@@ -249,7 +260,10 @@ impl NormalizedExprLowererBox {
                     env,
                 ),
                 ASTNode::BinaryOp {
-                    operator, left, right, ..
+                    operator,
+                    left,
+                    right,
+                    ..
                 } => {
                     matches!(
                         binary_kind(operator),

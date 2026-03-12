@@ -127,7 +127,7 @@ impl LoopIfExitShape {
         // P0: No else branch allowed
         if self.has_else {
             return Err(OutOfScopeReason::ElseNotSupported(
-                self.else_.unwrap_or(LoopIfExitThen::Break)
+                self.else_.unwrap_or(LoopIfExitThen::Break),
             ));
         }
 
@@ -156,7 +156,7 @@ impl LoopIfExitShape {
         // P1: No else branch allowed
         if self.has_else {
             return Err(OutOfScopeReason::ElseNotSupported(
-                self.else_.unwrap_or(LoopIfExitThen::Break)
+                self.else_.unwrap_or(LoopIfExitThen::Break),
             ));
         }
 
@@ -179,7 +179,7 @@ impl LoopIfExitShape {
         // P2: If has_else=true, else_ must be Some
         if self.has_else && self.else_.is_none() {
             return Err(OutOfScopeReason::ThenNotExit(
-                "else branch marked but no action specified".to_string()
+                "else branch marked but no action specified".to_string(),
             ));
         }
 

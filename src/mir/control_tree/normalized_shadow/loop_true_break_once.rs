@@ -47,15 +47,15 @@
 //! - Out of scope → Ok(None) (fallback to legacy)
 //! - In scope but conversion failed → Err (with freeze_with_hint in strict mode)
 
-use super::loop_true_break_once_helpers as helpers;
-use super::common::return_value_lowerer_box::ReturnValueLowererBox;
 use super::common::normalized_helpers::NormalizedHelperBox;
+use super::common::return_value_lowerer_box::ReturnValueLowererBox;
 use super::env_layout::EnvLayout;
 use super::legacy::LegacyLowerer;
+use super::loop_true_break_once_helpers as helpers;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
 use crate::mir::join_ir::lowering::error_tags;
-use crate::mir::join_ir::{JoinFunction, JoinFuncId, JoinInst, JoinModule};
+use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinInst, JoinModule};
 use crate::mir::ValueId;
 
 #[cfg(test)]
@@ -94,18 +94,18 @@ impl LoopTrueBreakOnceBuilderBox {
         // Extract loop(true) pattern from root
         let (prefix_nodes, loop_node, post_nodes) =
             match helpers::extract_loop_true_pattern(&step_tree.root) {
-            Some(v) => v,
-            None => {
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!(
-                        "{} extract_loop_true_pattern returned None",
-                        crate::mir::control_tree::normalized_shadow::STEP_TREE_DEBUG_TAG
-                    ));
+                Some(v) => v,
+                None => {
+                    if crate::config::env::joinir_dev::debug_enabled() {
+                        let ring0 = crate::runtime::get_global_ring0();
+                        ring0.log.debug(&format!(
+                            "{} extract_loop_true_pattern returned None",
+                            crate::mir::control_tree::normalized_shadow::STEP_TREE_DEBUG_TAG
+                        ));
+                    }
+                    return Ok(None); // Not a loop(true) pattern
                 }
-                return Ok(None); // Not a loop(true) pattern
-            }
-        };
+            };
 
         // Verify condition is Bool(true)
         let (cond_ast, body_node) = match loop_node {
@@ -138,7 +138,8 @@ impl LoopTrueBreakOnceBuilderBox {
         let env_fields = env_layout.env_fields();
         // Phase 143 fix: env params must be in Param region (100+) per JoinValueSpace contract.
         // All functions share the same params (env passing via continuation).
-        let (main_params, mut next_value_id) = NormalizedHelperBox::alloc_env_params_param_region(&env_fields);
+        let (main_params, mut next_value_id) =
+            NormalizedHelperBox::alloc_env_params_param_region(&env_fields);
 
         // Function IDs (stable, dev-only).
         //
@@ -151,13 +152,17 @@ impl LoopTrueBreakOnceBuilderBox {
         // main(env): <prefix> → TailCall(loop_step, env)
         // main_params allocated above in Param region. Clone for reuse.
         let mut env_main = NormalizedHelperBox::build_env_map(&env_fields, &main_params);
-        let mut main_func = JoinFunction::new(main_id, "join_func_0".to_string(), main_params.clone());
+        let mut main_func =
+            JoinFunction::new(main_id, "join_func_0".to_string(), main_params.clone());
 
         // Lower prefix (pre-loop) statements into main
         for n in prefix_nodes {
             match n {
                 StepNode::Stmt { kind, .. } => match kind {
-                    StepStmtKind::Assign { ref target, ref value_ast } => {
+                    StepStmtKind::Assign {
+                        ref target,
+                        ref value_ast,
+                    } => {
                         if LegacyLowerer::lower_assign_stmt(
                             target,
                             value_ast,
@@ -182,12 +187,14 @@ impl LoopTrueBreakOnceBuilderBox {
         }
 
         // main → loop_step tailcall
-        let main_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_main)
-            .map_err(|e| error_tags::freeze_with_hint(
-                "phase131/loop_true/env_missing",
-                &e,
-                "ensure env layout and env map are built from the same SSOT field list",
-            ))?;
+        let main_args =
+            NormalizedHelperBox::collect_env_args(&env_fields, &env_main).map_err(|e| {
+                error_tags::freeze_with_hint(
+                    "phase131/loop_true/env_missing",
+                    &e,
+                    "ensure env layout and env map are built from the same SSOT field list",
+                )
+            })?;
         main_func.body.push(JoinInst::Call {
             func: loop_step_id,
             args: main_args,
@@ -205,11 +212,13 @@ impl LoopTrueBreakOnceBuilderBox {
         let mut loop_step_func =
             JoinFunction::new(loop_step_id, "join_func_1".to_string(), loop_step_params);
         let loop_step_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_loop_step)
-            .map_err(|e| error_tags::freeze_with_hint(
-                "phase131/loop_true/env_missing",
-                &e,
-                "ensure env layout and env map are built from the same SSOT field list",
-            ))?;
+            .map_err(|e| {
+                error_tags::freeze_with_hint(
+                    "phase131/loop_true/env_missing",
+                    &e,
+                    "ensure env layout and env map are built from the same SSOT field list",
+                )
+            })?;
         loop_step_func.body.push(JoinInst::Call {
             func: loop_body_id,
             args: loop_step_args,
@@ -229,7 +238,10 @@ impl LoopTrueBreakOnceBuilderBox {
         for n in body_prefix {
             match n {
                 StepNode::Stmt { kind, .. } => match kind {
-                    StepStmtKind::Assign { ref target, ref value_ast } => {
+                    StepStmtKind::Assign {
+                        ref target,
+                        ref value_ast,
+                    } => {
                         if LegacyLowerer::lower_assign_stmt(
                             target,
                             value_ast,
@@ -255,16 +267,24 @@ impl LoopTrueBreakOnceBuilderBox {
 
         // loop_body → k_exit tailcall
         let loop_body_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_loop_body)
-            .map_err(|e| error_tags::freeze_with_hint(
-                "phase131/loop_true/env_missing",
-                &e,
-                "ensure env layout and env map are built from the same SSOT field list",
-            ))?;
+            .map_err(|e| {
+                error_tags::freeze_with_hint(
+                    "phase131/loop_true/env_missing",
+                    &e,
+                    "ensure env layout and env map are built from the same SSOT field list",
+                )
+            })?;
         if crate::config::env::joinir_strict_enabled() {
             for n in body_prefix {
-                let StepNode::Stmt { kind, .. } = n else { continue };
-                let StepStmtKind::Assign { target, .. } = kind else { continue };
-                let Some(target_name) = target.as_ref() else { continue };
+                let StepNode::Stmt { kind, .. } = n else {
+                    continue;
+                };
+                let StepStmtKind::Assign { target, .. } = kind else {
+                    continue;
+                };
+                let Some(target_name) = target.as_ref() else {
+                    continue;
+                };
                 if !env_layout.writes.iter().any(|w| w == target_name) {
                     continue;
                 }
@@ -332,14 +352,23 @@ impl LoopTrueBreakOnceBuilderBox {
             false
         } else if post_nodes.len() >= 2 {
             // Check if all nodes except the last are Assign statements
-            let all_assigns = post_nodes[..post_nodes.len() - 1]
-                .iter()
-                .all(|n| matches!(n, StepNode::Stmt { kind: StepStmtKind::Assign { .. }, .. }));
+            let all_assigns = post_nodes[..post_nodes.len() - 1].iter().all(|n| {
+                matches!(
+                    n,
+                    StepNode::Stmt {
+                        kind: StepStmtKind::Assign { .. },
+                        ..
+                    }
+                )
+            });
 
             // Check if the last node is a Return statement
             let ends_with_return = matches!(
                 post_nodes.last(),
-                Some(StepNode::Stmt { kind: StepStmtKind::Return { .. }, .. })
+                Some(StepNode::Stmt {
+                    kind: StepStmtKind::Return { .. },
+                    ..
+                })
             );
 
             all_assigns && ends_with_return
@@ -362,11 +391,13 @@ impl LoopTrueBreakOnceBuilderBox {
             // Phase 132-P4/133-P0: k_exit → TailCall(post_k, env)
             let post_k_id = JoinFuncId::new(4);
             let k_exit_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_k_exit)
-                .map_err(|e| error_tags::freeze_with_hint(
-                    "phase131/loop_true/env_missing",
-                    &e,
-                    "ensure env layout and env map are built from the same SSOT field list",
-                ))?;
+                .map_err(|e| {
+                    error_tags::freeze_with_hint(
+                        "phase131/loop_true/env_missing",
+                        &e,
+                        "ensure env layout and env map are built from the same SSOT field list",
+                    )
+                })?;
             k_exit_func.body.push(JoinInst::Call {
                 func: post_k_id,
                 args: k_exit_args,
@@ -389,10 +420,11 @@ impl LoopTrueBreakOnceBuilderBox {
             // Lower all assignment statements
             for node in assign_nodes {
                 let StepNode::Stmt {
-                    kind: StepStmtKind::Assign {
-                        ref target,
-                        ref value_ast,
-                    },
+                    kind:
+                        StepStmtKind::Assign {
+                            ref target,
+                            ref value_ast,
+                        },
                     ..
                 } = node
                 else {
@@ -467,9 +499,17 @@ impl LoopTrueBreakOnceBuilderBox {
             // Phase 132-P4/133-P0 DEBUG: Verify all 5 functions are added
             if crate::config::env::joinir_dev_enabled() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[phase133/debug] JoinModule has {} functions (expected 5)", module.functions.len()));
+                ring0.log.debug(&format!(
+                    "[phase133/debug] JoinModule has {} functions (expected 5)",
+                    module.functions.len()
+                ));
                 for (id, func) in &module.functions {
-                    ring0.log.debug(&format!("[phase133/debug]   Function {}: {} ({} instructions)", id.0, func.name, func.body.len()));
+                    ring0.log.debug(&format!(
+                        "[phase133/debug]   Function {}: {} ({} instructions)",
+                        id.0,
+                        func.name,
+                        func.body.len()
+                    ));
                 }
             }
 
@@ -478,7 +518,8 @@ impl LoopTrueBreakOnceBuilderBox {
             };
             let mut meta = JoinFragmentMeta::carrier_only(exit_meta);
             // Phase 256 P1.7: Use canonical name from SSOT (legacy variant for normalized shadow)
-            meta.continuation_funcs.insert(cn::K_EXIT_LEGACY.to_string());
+            meta.continuation_funcs
+                .insert(cn::K_EXIT_LEGACY.to_string());
 
             return Ok(Some((module, meta)));
         }
@@ -553,7 +594,8 @@ impl LoopTrueBreakOnceBuilderBox {
         };
         let mut meta = JoinFragmentMeta::carrier_only(exit_meta);
         // Phase 256 P1.7: Use canonical name from SSOT (legacy variant for normalized shadow)
-        meta.continuation_funcs.insert(cn::K_EXIT_LEGACY.to_string());
+        meta.continuation_funcs
+            .insert(cn::K_EXIT_LEGACY.to_string());
 
         Ok(Some((module, meta)))
     }
@@ -619,9 +661,10 @@ mod tests {
         let env_layout = EnvLayout::from_contract(&step_tree.contract, &BTreeMap::new());
 
         let Some((module, _meta)) =
-            LoopTrueBreakOnceBuilderBox::lower(&step_tree, &env_layout).expect("lower failed") else {
-                panic!("expected loop_true_break_once pattern to be in-scope");
-            };
+            LoopTrueBreakOnceBuilderBox::lower(&step_tree, &env_layout).expect("lower failed")
+        else {
+            panic!("expected loop_true_break_once pattern to be in-scope");
+        };
 
         let loop_body_id = JoinFuncId::new(3);
         let k_exit_id = JoinFuncId::new(2);
@@ -671,7 +714,10 @@ mod tests {
 
         // Sanity: k_exit returns its x param in this phase.
         assert!(
-            k_exit.body.iter().any(|inst| matches!(inst, JoinInst::Ret { value: Some(_) })),
+            k_exit
+                .body
+                .iter()
+                .any(|inst| matches!(inst, JoinInst::Ret { value: Some(_) })),
             "k_exit must return Some(value)"
         );
 
@@ -722,9 +768,11 @@ mod tests {
         let loop_only_tree = StepTreeBuilderBox::build_from_ast(&loop_only_ast);
         let loop_only_layout = EnvLayout::from_contract(&loop_only_tree.contract, &BTreeMap::new());
         let Some((loop_only_module, _)) =
-            LoopTrueBreakOnceBuilderBox::lower(&loop_only_tree, &loop_only_layout).expect("lower failed") else {
-                panic!("expected loop-only pattern to be in-scope");
-            };
+            LoopTrueBreakOnceBuilderBox::lower(&loop_only_tree, &loop_only_layout)
+                .expect("lower failed")
+        else {
+            panic!("expected loop-only pattern to be in-scope");
+        };
         let loop_step_id = JoinFuncId::new(1);
         let loop_step = loop_only_module
             .functions

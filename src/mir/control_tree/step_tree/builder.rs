@@ -4,7 +4,9 @@ use crate::mir::control_tree::step_tree_contract_box::StepTreeContractBox;
 use super::fact_extractor::extract_facts_from_tree;
 use super::signature::collect_node_kinds;
 use super::summary::{ast_kind_name, summarize_ast};
-use super::types::{AstNodeHandle, StepNode, StepStmtKind, StepTree, StepTreeFeatures, StepTreeSignature};
+use super::types::{
+    AstNodeHandle, StepNode, StepStmtKind, StepTree, StepTreeFeatures, StepTreeSignature,
+};
 
 pub struct StepTreeBuilderBox;
 
@@ -49,8 +51,7 @@ impl StepTreeBuilderBox {
                     Self::build_block_node(then_body, if_depth + 1, loop_depth);
                 let (else_node, else_features) = match else_body {
                     Some(else_body) => {
-                        let (node, f) =
-                            Self::build_block_node(else_body, if_depth + 1, loop_depth);
+                        let (node, f) = Self::build_block_node(else_body, if_depth + 1, loop_depth);
                         (Some(Box::new(node)), f)
                     }
                     None => (None, StepTreeFeatures::default()),
@@ -75,7 +76,10 @@ impl StepTreeBuilderBox {
                 )
             }
             ASTNode::Loop {
-                condition, body, span, ..
+                condition,
+                body,
+                span,
+                ..
             } => {
                 let cond = summarize_ast(condition);
                 let cond_ast = AstNodeHandle(condition.clone());
@@ -133,7 +137,9 @@ impl StepTreeBuilderBox {
                     ..StepTreeFeatures::default()
                 },
             ),
-            ASTNode::Local { variables, span, .. } => (
+            ASTNode::Local {
+                variables, span, ..
+            } => (
                 StepNode::Stmt {
                     kind: StepStmtKind::LocalDecl {
                         vars: variables.clone(),

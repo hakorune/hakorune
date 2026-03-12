@@ -61,7 +61,10 @@ fn walk_for_facts(node: &StepNode, facts: &mut StepTreeFacts) {
             }
         }
         StepNode::Loop {
-            cond, cond_ast, body, ..
+            cond,
+            cond_ast,
+            body,
+            ..
         } => {
             facts.add_cond_sig(cond.to_compact_string());
             // Phase 124: Extract reads from condition AST

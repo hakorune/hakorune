@@ -136,10 +136,7 @@ mod tests {
         let spec = KnownIntrinsicRegistryBox::get_spec(KnownIntrinsic::Length0);
         assert_eq!(spec.method_name, "length");
         assert_eq!(spec.arity, 0);
-        assert_eq!(
-            spec.return_type_hint,
-            Some("integer")
-        );
+        assert_eq!(spec.return_type_hint, Some("integer"));
     }
 
     #[test]
@@ -154,6 +151,9 @@ mod tests {
     #[test]
     fn test_all_specs_non_empty() {
         let specs = KnownIntrinsicRegistryBox::all_specs();
-        assert!(!specs.is_empty(), "all_specs() should have at least one entry");
+        assert!(
+            !specs.is_empty(),
+            "all_specs() should have at least one entry"
+        );
     }
 }

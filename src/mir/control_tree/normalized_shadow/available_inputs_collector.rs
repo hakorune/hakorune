@@ -96,7 +96,10 @@ mod tests {
         let mut builder = MirBuilder::new();
 
         // Simulate function param: x -> ValueId(1)
-        builder.scope_ctx.function_param_names.insert("x".to_string());
+        builder
+            .scope_ctx
+            .function_param_names
+            .insert("x".to_string());
         builder.variable_ctx.insert("x".to_string(), ValueId(1));
 
         let result = AvailableInputsCollectorBox::collect(&builder, None, None);
@@ -121,7 +124,10 @@ mod tests {
         let mut builder = MirBuilder::new();
 
         // Function param: x -> ValueId(1)
-        builder.scope_ctx.function_param_names.insert("x".to_string());
+        builder
+            .scope_ctx
+            .function_param_names
+            .insert("x".to_string());
         builder.variable_ctx.insert("x".to_string(), ValueId(1));
 
         // Captured: x -> ValueId(42) (should be ignored)
@@ -139,9 +145,18 @@ mod tests {
         let mut builder = MirBuilder::new();
 
         // Add params in non-alphabetical order
-        builder.scope_ctx.function_param_names.insert("z".to_string());
-        builder.scope_ctx.function_param_names.insert("a".to_string());
-        builder.scope_ctx.function_param_names.insert("m".to_string());
+        builder
+            .scope_ctx
+            .function_param_names
+            .insert("z".to_string());
+        builder
+            .scope_ctx
+            .function_param_names
+            .insert("a".to_string());
+        builder
+            .scope_ctx
+            .function_param_names
+            .insert("m".to_string());
         builder.variable_ctx.insert("z".to_string(), ValueId(3));
         builder.variable_ctx.insert("a".to_string(), ValueId(1));
         builder.variable_ctx.insert("m".to_string(), ValueId(2));
@@ -150,7 +165,10 @@ mod tests {
         let keys: Vec<_> = result.keys().collect();
 
         // BTreeMap ensures alphabetical order
-        assert_eq!(keys, vec![&"a".to_string(), &"m".to_string(), &"z".to_string()]);
+        assert_eq!(
+            keys,
+            vec![&"a".to_string(), &"m".to_string(), &"z".to_string()]
+        );
     }
 
     // Phase 141 P1.5: New tests for prefix variables
@@ -174,7 +192,10 @@ mod tests {
         let mut builder = MirBuilder::new();
 
         // Function param: x -> ValueId(1)
-        builder.scope_ctx.function_param_names.insert("x".to_string());
+        builder
+            .scope_ctx
+            .function_param_names
+            .insert("x".to_string());
         builder.variable_ctx.insert("x".to_string(), ValueId(1));
 
         // Prefix: x -> ValueId(42) (should be ignored)
@@ -192,7 +213,10 @@ mod tests {
         let mut builder = MirBuilder::new();
 
         // Function param: x -> ValueId(1)
-        builder.scope_ctx.function_param_names.insert("x".to_string());
+        builder
+            .scope_ctx
+            .function_param_names
+            .insert("x".to_string());
         builder.variable_ctx.insert("x".to_string(), ValueId(1));
 
         // Prefix: x -> ValueId(2), y -> ValueId(3)
@@ -206,7 +230,8 @@ mod tests {
         captured.insert("y".to_string(), ValueId(5));
         captured.insert("z".to_string(), ValueId(6));
 
-        let result = AvailableInputsCollectorBox::collect(&builder, Some(&captured), Some(&prefix_vars));
+        let result =
+            AvailableInputsCollectorBox::collect(&builder, Some(&captured), Some(&prefix_vars));
         assert_eq!(result.len(), 3);
         // x: param wins (ValueId(1))
         assert_eq!(result.get("x"), Some(&ValueId(1)));

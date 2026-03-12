@@ -115,7 +115,12 @@ impl NormalizedExprLowererBox {
                 };
 
                 let dst = Self::alloc_value_id(next_value_id);
-                body.push(JoinInst::Compute(MirLikeInst::Compare { dst, op, lhs, rhs }));
+                body.push(JoinInst::Compute(MirLikeInst::Compare {
+                    dst,
+                    op,
+                    lhs,
+                    rhs,
+                }));
                 Ok(Some(dst))
             }
         }
@@ -139,7 +144,10 @@ impl NormalizedExprLowererBox {
                 ..
             } => Self::lower_unary(&UnaryOperator::Minus, operand, env, body, next_value_id),
             ASTNode::BinaryOp {
-                operator, left, right, ..
+                operator,
+                left,
+                right,
+                ..
             } => {
                 let Some(BinaryKind::Arith(_)) = binary_kind(operator) else {
                     return Ok(None);

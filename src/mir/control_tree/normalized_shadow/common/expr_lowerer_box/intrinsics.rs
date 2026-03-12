@@ -1,6 +1,6 @@
-use super::NormalizedExprLowererBox;
 use super::super::expr_lowering_contract::{ImpurePolicy, KnownIntrinsic};
 use super::super::known_intrinsics::KnownIntrinsicRegistryBox;
+use super::NormalizedExprLowererBox;
 use crate::ast::ASTNode;
 use crate::mir::join_ir::JoinInst;
 use crate::mir::types::MirType;

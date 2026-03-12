@@ -21,14 +21,14 @@
 //! - Ok(None): Out of scope (fallback to legacy)
 //! - Err(msg): In scope but failed (internal error, strict mode freeze)
 
-use super::env_layout::EnvLayout;
 use super::common::expr_lowerer_box::NormalizedExprLowererBox;
 use super::common::expr_lowering_contract::ExprLoweringScope;
 use super::common::loop_if_exit_contract::{LoopIfExitShape, LoopIfExitThen, OutOfScopeReason};
 use super::common::normalized_helpers::NormalizedHelperBox;
+use super::env_layout::EnvLayout;
 use crate::mir::control_tree::step_tree::{StepNode, StepStmtKind, StepTree};
 use crate::mir::join_ir::lowering::carrier_info::JoinFragmentMeta;
-use crate::mir::join_ir::{JoinFunction, JoinFuncId, JoinInst, JoinModule, MirLikeInst, UnaryOp};
+use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinInst, JoinModule, MirLikeInst, UnaryOp};
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
@@ -46,7 +46,9 @@ impl LoopTrueIfBreakContinueBuilderBox {
         // DEBUG: Log attempt
         if crate::config::env::joinir_dev_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[phase143/debug] Attempting loop_true_if_break/continue pattern (P0/P1)"));
+            ring0.log.debug(&format!(
+                "[phase143/debug] Attempting loop_true_if_break/continue pattern (P0/P1)"
+            ));
         }
 
         // Shape: loop(true) { if(cond) break/continue }
@@ -55,21 +57,28 @@ impl LoopTrueIfBreakContinueBuilderBox {
             Ok(Some((s, cond))) => {
                 if crate::config::env::joinir_dev_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[phase143/debug] Route shape matched: loop(true) if break/continue"));
+                    ring0.log.debug(&format!(
+                        "[phase143/debug] Route shape matched: loop(true) if break/continue"
+                    ));
                 }
                 (s, cond)
             }
             Ok(None) => {
                 if crate::config::env::joinir_dev_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[phase143/debug] Route shape not matched, out of scope"));
+                    ring0.log.debug(&format!(
+                        "[phase143/debug] Route shape not matched, out of scope"
+                    ));
                 }
                 return Ok(None); // Out of scope
             }
             Err(reason) => {
                 if crate::config::env::joinir_dev_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[phase143/debug] Route shape out-of-scope: {:?}", reason));
+                    ring0.log.debug(&format!(
+                        "[phase143/debug] Route shape out-of-scope: {:?}",
+                        reason
+                    ));
                 }
                 return Ok(None);
             }
@@ -79,7 +88,10 @@ impl LoopTrueIfBreakContinueBuilderBox {
         if let Err(reason) = shape.validate_for_p2() {
             if crate::config::env::joinir_dev_enabled() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[phase143/debug] P2 validation failed: {:?}", reason));
+                ring0.log.debug(&format!(
+                    "[phase143/debug] P2 validation failed: {:?}",
+                    reason
+                ));
             }
             return Ok(None);
         }
@@ -113,7 +125,9 @@ impl LoopTrueIfBreakContinueBuilderBox {
             Ok(Some(_vid)) => {
                 if crate::config::env::joinir_dev_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!("[phase143/debug] Condition is pure and lowerable"));
+                    ring0
+                        .log
+                        .debug(&format!("[phase143/debug] Condition is pure and lowerable"));
                 }
             }
             Ok(None) => {
@@ -133,7 +147,8 @@ impl LoopTrueIfBreakContinueBuilderBox {
         let env_fields = env_layout.env_fields();
         // Phase 143 fix: env params must be in Param region (100+) per JoinValueSpace contract.
         // All functions share the same params (env passing via continuation).
-        let (main_params, mut next_value_id) = NormalizedHelperBox::alloc_env_params_param_region(&env_fields);
+        let (main_params, mut next_value_id) =
+            NormalizedHelperBox::alloc_env_params_param_region(&env_fields);
 
         // Allocate 6 JoinFuncIds
         let main_id = JoinFuncId::new(0);
@@ -166,7 +181,8 @@ impl LoopTrueIfBreakContinueBuilderBox {
         let loop_step_func = {
             let mut f = JoinFunction::new(loop_step_id, "loop_step".to_string(), loop_step_params);
             // loop_step: Call(loop_cond_check, env)
-            let loop_cond_check_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_loop_step)?;
+            let loop_cond_check_args =
+                NormalizedHelperBox::collect_env_args(&env_fields, &env_loop_step)?;
             f.body.push(JoinInst::Call {
                 func: loop_cond_check_id,
                 args: loop_cond_check_args,
@@ -179,7 +195,8 @@ impl LoopTrueIfBreakContinueBuilderBox {
         // === loop_cond_check(env): Lower condition and emit Jump ===
         // Phase 143 fix: reuse Param region IDs
         let loop_cond_check_params = main_params.clone();
-        let env_loop_cond_check = NormalizedHelperBox::build_env_map(&env_fields, &loop_cond_check_params);
+        let env_loop_cond_check =
+            NormalizedHelperBox::build_env_map(&env_fields, &loop_cond_check_params);
         let loop_cond_check_func = {
             let mut f = JoinFunction::new(
                 loop_cond_check_id,
@@ -197,13 +214,18 @@ impl LoopTrueIfBreakContinueBuilderBox {
             ) {
                 Ok(Some(vid)) => vid,
                 _ => {
-                    return Err("phase143/branch_emission: condition lowering failed unexpectedly".to_string());
+                    return Err(
+                        "phase143/branch_emission: condition lowering failed unexpectedly"
+                            .to_string(),
+                    );
                 }
             };
 
             // P2: Emit conditional Jump/Call based on then/else actions (4-way match)
-            let k_exit_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_loop_cond_check)?;
-            let loop_step_args = NormalizedHelperBox::collect_env_args(&env_fields, &env_loop_cond_check)?;
+            let k_exit_args =
+                NormalizedHelperBox::collect_env_args(&env_fields, &env_loop_cond_check)?;
+            let loop_step_args =
+                NormalizedHelperBox::collect_env_args(&env_fields, &env_loop_cond_check)?;
 
             match (shape.then, shape.else_) {
                 // P0: Break-only (no else)
@@ -310,9 +332,7 @@ impl LoopTrueIfBreakContinueBuilderBox {
         // (e.g., else-branch support).
         // Phase 143 fix: reuse Param region IDs
         let k_then_params = main_params.clone();
-        let k_then_func = {
-            JoinFunction::new(k_then_id, "k_then".to_string(), k_then_params)
-        };
+        let k_then_func = { JoinFunction::new(k_then_id, "k_then".to_string(), k_then_params) };
 
         // === k_else(env): Not used in P0 (direct Call from loop_cond_check fallthrough) ===
         // Kept for structural clarity in case future extensions need it
@@ -343,7 +363,10 @@ impl LoopTrueIfBreakContinueBuilderBox {
 
             if crate::config::env::joinir_dev_enabled() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[phase143/debug] k_exit: {} exit values", exit_values.len()));
+                ring0.log.debug(&format!(
+                    "[phase143/debug] k_exit: {} exit values",
+                    exit_values.len()
+                ));
             }
 
             // For now, return with the first exit value if any exist, else None
@@ -375,7 +398,9 @@ impl LoopTrueIfBreakContinueBuilderBox {
 
         if crate::config::env::joinir_dev_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[phase143/debug] JoinModule complete: 6 functions with conditional Jump/Return"));
+            ring0.log.debug(&format!(
+                "[phase143/debug] JoinModule complete: 6 functions with conditional Jump/Return"
+            ));
         }
 
         // === Build ExitMeta for carrier info ===
@@ -388,12 +413,14 @@ impl LoopTrueIfBreakContinueBuilderBox {
         }
 
         let meta = JoinFragmentMeta::carrier_only(
-            crate::mir::join_ir::lowering::carrier_info::ExitMeta::multiple(exit_meta_values)
+            crate::mir::join_ir::lowering::carrier_info::ExitMeta::multiple(exit_meta_values),
         );
 
         if crate::config::env::joinir_dev_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[phase143/debug] Phase 143 P0: JoinModule and ExitMeta complete"));
+            ring0.log.debug(&format!(
+                "[phase143/debug] Phase 143 P0: JoinModule and ExitMeta complete"
+            ));
         }
 
         // ✅ Return complete JoinModule + ExitMeta (Phase 143 P0 full implementation!)
@@ -419,12 +446,10 @@ impl LoopTrueIfBreakContinueBuilderBox {
                 // Body must be single if statement (possibly wrapped in Block)
                 let if_node = match body.as_ref() {
                     StepNode::If { .. } => Some(body.as_ref()),
-                    StepNode::Block(stmts) if stmts.len() == 1 => {
-                        match &stmts[0] {
-                            StepNode::If { .. } => Some(&stmts[0]),
-                            _ => None,
-                        }
-                    }
+                    StepNode::Block(stmts) if stmts.len() == 1 => match &stmts[0] {
+                        StepNode::If { .. } => Some(&stmts[0]),
+                        _ => None,
+                    },
                     _ => None,
                 };
 
@@ -472,11 +497,23 @@ impl LoopTrueIfBreakContinueBuilderBox {
     /// Returns Err for unsupported branches
     fn extract_exit_action(branch: &StepNode) -> Result<LoopIfExitThen, OutOfScopeReason> {
         match branch {
-            StepNode::Stmt { kind: StepStmtKind::Break, .. } => Ok(LoopIfExitThen::Break),
-            StepNode::Stmt { kind: StepStmtKind::Continue, .. } => Ok(LoopIfExitThen::Continue),
+            StepNode::Stmt {
+                kind: StepStmtKind::Break,
+                ..
+            } => Ok(LoopIfExitThen::Break),
+            StepNode::Stmt {
+                kind: StepStmtKind::Continue,
+                ..
+            } => Ok(LoopIfExitThen::Continue),
             StepNode::Block(stmts) if stmts.len() == 1 => match &stmts[0] {
-                StepNode::Stmt { kind: StepStmtKind::Break, .. } => Ok(LoopIfExitThen::Break),
-                StepNode::Stmt { kind: StepStmtKind::Continue, .. } => Ok(LoopIfExitThen::Continue),
+                StepNode::Stmt {
+                    kind: StepStmtKind::Break,
+                    ..
+                } => Ok(LoopIfExitThen::Break),
+                StepNode::Stmt {
+                    kind: StepStmtKind::Continue,
+                    ..
+                } => Ok(LoopIfExitThen::Continue),
                 _ => Err(OutOfScopeReason::ThenNotExit(
                     "Not break/continue".to_string(),
                 )),
@@ -486,7 +523,6 @@ impl LoopTrueIfBreakContinueBuilderBox {
             )),
         }
     }
-
 }
 
 // Unit tests are in: normalized_shadow/tests/phase143_loop_if_exit_contract.rs

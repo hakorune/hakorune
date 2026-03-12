@@ -7,9 +7,9 @@
 //! - collect_env_args: Env arguments 収集
 //! - is_bool_true_literal: Loop condition 検証
 
-use crate::mir::ValueId;
-use crate::mir::join_ir::lowering::join_value_space::{PARAM_MIN, LOCAL_MIN};
 use crate::ast::ASTNode;
+use crate::mir::join_ir::lowering::join_value_space::{LOCAL_MIN, PARAM_MIN};
+use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
 #[cfg(test)]
@@ -27,10 +27,7 @@ impl NormalizedHelperBox {
     }
 
     /// Allocate env parameters (one ValueId per field)
-    pub fn alloc_env_params(
-        fields: &[String],
-        next_value_id: &mut u32,
-    ) -> Vec<ValueId> {
+    pub fn alloc_env_params(fields: &[String], next_value_id: &mut u32) -> Vec<ValueId> {
         fields
             .iter()
             .map(|_| Self::alloc_value_id(next_value_id))
@@ -38,10 +35,7 @@ impl NormalizedHelperBox {
     }
 
     /// Build env map from fields and parameters
-    pub fn build_env_map(
-        fields: &[String],
-        params: &[ValueId],
-    ) -> BTreeMap<String, ValueId> {
+    pub fn build_env_map(fields: &[String], params: &[ValueId]) -> BTreeMap<String, ValueId> {
         let mut env = BTreeMap::new();
         for (name, vid) in fields.iter().zip(params.iter()) {
             env.insert(name.clone(), *vid);

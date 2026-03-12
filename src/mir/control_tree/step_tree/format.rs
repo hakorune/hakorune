@@ -75,7 +75,12 @@ impl AstSummary {
             AstSummary::Literal(lit) => format!("lit:{}", lit_to_sig_string(lit)),
             AstSummary::Unary { op, expr } => format!("({op:?} {})", expr.to_compact_string()),
             AstSummary::Binary { op, lhs, rhs } => {
-                format!("({} {} {})", lhs.to_compact_string(), op, rhs.to_compact_string())
+                format!(
+                    "({} {} {})",
+                    lhs.to_compact_string(),
+                    op,
+                    rhs.to_compact_string()
+                )
             }
             AstSummary::Other(k) => format!("other:{k}"),
         }
@@ -95,5 +100,7 @@ fn lit_to_sig_string(lit: &LiteralValue) -> String {
 
 fn escape_sig_atom(s: &str) -> String {
     // Minimal stable escaping for signature strings.
-    s.replace('\\', "\\\\").replace('|', "\\|").replace(',', "\\,")
+    s.replace('\\', "\\\\")
+        .replace('|', "\\|")
+        .replace(',', "\\,")
 }

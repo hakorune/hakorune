@@ -17,7 +17,7 @@
 //! - **P1**: Implement String.length() hoist for BinaryOp (whitelist 1 intrinsic)
 //! - **P2**: Implement recursive compound expression ANF
 
-use super::contract::{AnfPlan, AnfParentKind};
+use super::contract::{AnfParentKind, AnfPlan};
 use crate::ast::ASTNode;
 use crate::mir::join_ir::{CompareOp, JoinInst, MirLikeInst};
 use crate::mir::types::MirType;
@@ -59,8 +59,11 @@ impl AnfExecuteBox {
         // DEBUG: Log attempt if HAKO_ANF_DEV=1
         if crate::config::env::anf_dev_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[phase145/debug] ANF execute called: requires_anf={}, targets={}",
-                plan.requires_anf, plan.hoist_targets.len()));
+            ring0.log.debug(&format!(
+                "[phase145/debug] ANF execute called: requires_anf={}, targets={}",
+                plan.requires_anf,
+                plan.hoist_targets.len()
+            ));
         }
 
         // P1: No hoist targets → fallback to legacy
@@ -77,7 +80,7 @@ impl AnfExecuteBox {
                 // Phase 146 P1: Route Compare to execute_compare_hoist
                 Self::execute_compare_hoist(plan, ast, env, body, next_value_id)
             }
-            _ => Ok(None),  // P2+: UnaryOp/MethodCall/Call
+            _ => Ok(None), // P2+: UnaryOp/MethodCall/Call
         }
     }
 
@@ -96,7 +99,13 @@ impl AnfExecuteBox {
         body: &mut Vec<JoinInst>,
         next_value_id: &mut u32,
     ) -> Result<Option<ValueId>, String> {
-        let ASTNode::BinaryOp { operator, left, right, .. } = ast else {
+        let ASTNode::BinaryOp {
+            operator,
+            left,
+            right,
+            ..
+        } = ast
+        else {
             return Err("ANF execute_binary_op_hoist: expected BinaryOp AST node".to_string());
         };
 
@@ -151,8 +160,13 @@ impl AnfExecuteBox {
 
         if crate::config::env::anf_dev_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[phase145/p2] Emitted BinOp: ValueId({}) = ValueId({}) {:?} ValueId({})",
-                dst.as_u32(), lhs_vid.as_u32(), joinir_op, rhs_vid.as_u32()));
+            ring0.log.debug(&format!(
+                "[phase145/p2] Emitted BinOp: ValueId({}) = ValueId({}) {:?} ValueId({})",
+                dst.as_u32(),
+                lhs_vid.as_u32(),
+                joinir_op,
+                rhs_vid.as_u32()
+            ));
         }
 
         Ok(Some(dst))
@@ -178,10 +192,10 @@ impl AnfExecuteBox {
     ) -> Result<ValueId, String> {
         match ast {
             // Base case: Variable (already in env)
-            ASTNode::Variable { name, .. } => {
-                env.get(name).copied()
-                    .ok_or_else(|| format!("normalize_and_lower: undefined variable '{}'", name))
-            }
+            ASTNode::Variable { name, .. } => env
+                .get(name)
+                .copied()
+                .ok_or_else(|| format!("normalize_and_lower: undefined variable '{}'", name)),
 
             // Base case: Literal (needs lowering)
             ASTNode::Literal { value, .. } => {
@@ -194,31 +208,55 @@ impl AnfExecuteBox {
             }
 
             // Recursive case: MethodCall (hoist to temporary)
-            ASTNode::MethodCall { .. } => {
-                Self::hoist_method_call(ast, env, body, next_value_id)
-            }
+            ASTNode::MethodCall { .. } => Self::hoist_method_call(ast, env, body, next_value_id),
 
             // Recursive case: BinaryOp (normalize operands recursively)
             // Phase 146 P1: Handle both arithmetic and comparison operators
-            ASTNode::BinaryOp { operator, left, right, .. } => {
+            ASTNode::BinaryOp {
+                operator,
+                left,
+                right,
+                ..
+            } => {
                 if Self::is_compare_operator(operator) {
                     // Phase 146 P1: Comparison operator → emit Compare instruction
-                    let result_vid = Self::execute_compare_recursive(left, right, operator, env, body, next_value_id)?;
-                    result_vid.ok_or_else(|| "normalize_and_lower: Compare returned None".to_string())
+                    let result_vid = Self::execute_compare_recursive(
+                        left,
+                        right,
+                        operator,
+                        env,
+                        body,
+                        next_value_id,
+                    )?;
+                    result_vid
+                        .ok_or_else(|| "normalize_and_lower: Compare returned None".to_string())
                 } else {
                     // Arithmetic operator → emit BinOp instruction
-                    let result_vid = Self::execute_binary_op_recursive(left, right, operator, env, body, next_value_id)?;
-                    result_vid.ok_or_else(|| "normalize_and_lower: BinaryOp returned None".to_string())
+                    let result_vid = Self::execute_binary_op_recursive(
+                        left,
+                        right,
+                        operator,
+                        env,
+                        body,
+                        next_value_id,
+                    )?;
+                    result_vid
+                        .ok_or_else(|| "normalize_and_lower: BinaryOp returned None".to_string())
                 }
             }
 
             // TODO P3+: UnaryOp, Call, etc.
-            _ => Err(format!("normalize_and_lower: unsupported AST node type: {:?}", ast))
+            _ => Err(format!(
+                "normalize_and_lower: unsupported AST node type: {:?}",
+                ast
+            )),
         }
     }
 
     /// Convert AST BinaryOperator to JoinIR BinOpKind
-    fn ast_binop_to_joinir(op: &crate::ast::BinaryOperator) -> Result<crate::mir::join_ir::BinOpKind, String> {
+    fn ast_binop_to_joinir(
+        op: &crate::ast::BinaryOperator,
+    ) -> Result<crate::mir::join_ir::BinOpKind, String> {
         use crate::ast::BinaryOperator as AstOp;
         use crate::mir::join_ir::BinOpKind;
 
@@ -228,12 +266,19 @@ impl AnfExecuteBox {
             AstOp::Multiply => BinOpKind::Mul,
             AstOp::Divide => BinOpKind::Div,
             AstOp::Modulo => BinOpKind::Mod,
-            _ => return Err(format!("ast_binop_to_joinir: unsupported operator: {:?}", op)),
+            _ => {
+                return Err(format!(
+                    "ast_binop_to_joinir: unsupported operator: {:?}",
+                    op
+                ))
+            }
         })
     }
 
     /// Convert AST LiteralValue to JoinIR ConstValue
-    fn literal_to_joinir_const(lit: &crate::ast::LiteralValue) -> Result<crate::mir::join_ir::ConstValue, String> {
+    fn literal_to_joinir_const(
+        lit: &crate::ast::LiteralValue,
+    ) -> Result<crate::mir::join_ir::ConstValue, String> {
         use crate::ast::LiteralValue as AstLit;
         use crate::mir::join_ir::ConstValue;
 
@@ -241,9 +286,11 @@ impl AnfExecuteBox {
             AstLit::Integer(i) => ConstValue::Integer(*i),
             AstLit::String(s) => ConstValue::String(s.clone()),
             AstLit::Bool(b) => ConstValue::Bool(*b),
-            AstLit::Void => ConstValue::Null,  // JoinIR uses Null instead of Void
+            AstLit::Void => ConstValue::Null, // JoinIR uses Null instead of Void
             AstLit::Null => ConstValue::Null,
-            AstLit::Float(_) => return Err("literal_to_joinir_const: Float not yet supported in P2".to_string()),
+            AstLit::Float(_) => {
+                return Err("literal_to_joinir_const: Float not yet supported in P2".to_string())
+            }
         })
     }
 
@@ -256,16 +303,22 @@ impl AnfExecuteBox {
         body: &mut Vec<JoinInst>,
         next_value_id: &mut u32,
     ) -> Result<ValueId, String> {
-        let ASTNode::MethodCall { object, method, arguments, .. } = ast else {
+        let ASTNode::MethodCall {
+            object,
+            method,
+            arguments,
+            ..
+        } = ast
+        else {
             return Err("hoist_method_call: expected MethodCall AST node".to_string());
         };
 
         // Get receiver ValueId
         let receiver = match object.as_ref() {
-            ASTNode::Variable { name, .. } => {
-                env.get(name).copied()
-                    .ok_or_else(|| format!("hoist_method_call: undefined variable '{}'", name))?
-            }
+            ASTNode::Variable { name, .. } => env
+                .get(name)
+                .copied()
+                .ok_or_else(|| format!("hoist_method_call: undefined variable '{}'", name))?,
             _ => return Err("hoist_method_call: receiver is not a variable".to_string()),
         };
 
@@ -283,7 +336,7 @@ impl AnfExecuteBox {
             receiver,
             method: method.clone(),
             args: vec![],
-            type_hint: Some(MirType::Integer),  // P1: String.length() returns Integer
+            type_hint: Some(MirType::Integer), // P1: String.length() returns Integer
         });
 
         Ok(dst)
@@ -303,13 +356,22 @@ impl AnfExecuteBox {
         body: &mut Vec<JoinInst>,
         next_value_id: &mut u32,
     ) -> Result<Option<ValueId>, String> {
-        let ASTNode::BinaryOp { operator, left, right, .. } = ast else {
+        let ASTNode::BinaryOp {
+            operator,
+            left,
+            right,
+            ..
+        } = ast
+        else {
             return Err("ANF execute_compare_hoist: expected BinaryOp AST node".to_string());
         };
 
         // Verify it's a comparison operator
         if !Self::is_compare_operator(operator) {
-            return Err(format!("ANF execute_compare_hoist: expected comparison operator, got {:?}", operator));
+            return Err(format!(
+                "ANF execute_compare_hoist: expected comparison operator, got {:?}",
+                operator
+            ));
         }
 
         // Use recursive normalization (same pattern as BinaryOp)
@@ -363,8 +425,13 @@ impl AnfExecuteBox {
 
         if crate::config::env::anf_dev_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[phase146/p1] Emitted Compare: ValueId({}) = ValueId({}) {:?} ValueId({})",
-                dst.as_u32(), lhs_vid.as_u32(), joinir_op, rhs_vid.as_u32()));
+            ring0.log.debug(&format!(
+                "[phase146/p1] Emitted Compare: ValueId({}) = ValueId({}) {:?} ValueId({})",
+                dst.as_u32(),
+                lhs_vid.as_u32(),
+                joinir_op,
+                rhs_vid.as_u32()
+            ));
         }
 
         Ok(Some(dst))
@@ -373,13 +440,14 @@ impl AnfExecuteBox {
     /// Phase 146 P1: Check if BinaryOperator is a comparison operator
     fn is_compare_operator(op: &crate::ast::BinaryOperator) -> bool {
         use crate::ast::BinaryOperator;
-        matches!(op,
-            BinaryOperator::Equal |
-            BinaryOperator::NotEqual |
-            BinaryOperator::Less |
-            BinaryOperator::Greater |
-            BinaryOperator::LessEqual |
-            BinaryOperator::GreaterEqual
+        matches!(
+            op,
+            BinaryOperator::Equal
+                | BinaryOperator::NotEqual
+                | BinaryOperator::Less
+                | BinaryOperator::Greater
+                | BinaryOperator::LessEqual
+                | BinaryOperator::GreaterEqual
         )
     }
 
@@ -393,7 +461,12 @@ impl AnfExecuteBox {
             BinaryOperator::LessEqual => CompareOp::Le,
             BinaryOperator::Greater => CompareOp::Gt,
             BinaryOperator::GreaterEqual => CompareOp::Ge,
-            _ => return Err(format!("ast_compare_to_joinir: not a comparison operator: {:?}", op)),
+            _ => {
+                return Err(format!(
+                    "ast_compare_to_joinir: not a comparison operator: {:?}",
+                    op
+                ))
+            }
         })
     }
 
@@ -407,11 +480,11 @@ impl AnfExecuteBox {
 
 #[cfg(test)]
 mod tests {
+    use super::super::contract::AnfPlan;
     use super::*;
     use crate::ast::{ASTNode, LiteralValue};
     use crate::mir::join_ir::JoinInst;
     use std::collections::BTreeMap;
-    use super::super::contract::AnfPlan;
 
     fn span() -> crate::ast::Span {
         crate::ast::Span::unknown()
@@ -429,7 +502,8 @@ mod tests {
         let mut body = vec![];
         let mut next_value_id = 1000u32;
 
-        let result = AnfExecuteBox::try_execute(&plan, &ast, &mut env, &mut body, &mut next_value_id);
+        let result =
+            AnfExecuteBox::try_execute(&plan, &ast, &mut env, &mut body, &mut next_value_id);
         assert!(result.is_ok());
         assert!(result.unwrap().is_none());
     }
@@ -447,10 +521,11 @@ mod tests {
             span: span(),
         };
 
-        let result = AnfExecuteBox::normalize_and_lower(&ast, &mut env, &mut body, &mut next_value_id);
+        let result =
+            AnfExecuteBox::normalize_and_lower(&ast, &mut env, &mut body, &mut next_value_id);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), ValueId(100));
-        assert!(body.is_empty());  // Variable lookup doesn't emit instructions
+        assert!(body.is_empty()); // Variable lookup doesn't emit instructions
     }
 
     #[test]
@@ -465,7 +540,8 @@ mod tests {
             span: span(),
         };
 
-        let result = AnfExecuteBox::normalize_and_lower(&ast, &mut env, &mut body, &mut next_value_id);
+        let result =
+            AnfExecuteBox::normalize_and_lower(&ast, &mut env, &mut body, &mut next_value_id);
         assert!(result.is_ok());
         let vid = result.unwrap();
         assert_eq!(vid, ValueId(1000));
@@ -514,7 +590,8 @@ mod tests {
             span: span(),
         };
 
-        let result = AnfExecuteBox::normalize_and_lower(&ast, &mut env, &mut body, &mut next_value_id);
+        let result =
+            AnfExecuteBox::normalize_and_lower(&ast, &mut env, &mut body, &mut next_value_id);
         assert!(result.is_ok());
 
         // Should emit:
@@ -562,7 +639,8 @@ mod tests {
             span: span(),
         };
 
-        let result = AnfExecuteBox::normalize_and_lower(&ast, &mut env, &mut body, &mut next_value_id);
+        let result =
+            AnfExecuteBox::normalize_and_lower(&ast, &mut env, &mut body, &mut next_value_id);
         assert!(result.is_ok());
 
         // Should emit:
@@ -575,14 +653,14 @@ mod tests {
         // Verify left-to-right order
         match &body[0] {
             JoinInst::MethodCall { receiver, .. } => {
-                assert_eq!(*receiver, ValueId(100));  // s1 first
+                assert_eq!(*receiver, ValueId(100)); // s1 first
             }
             _ => panic!("Expected first instruction to be MethodCall for s1"),
         }
 
         match &body[1] {
             JoinInst::MethodCall { receiver, .. } => {
-                assert_eq!(*receiver, ValueId(101));  // s2 second
+                assert_eq!(*receiver, ValueId(101)); // s2 second
             }
             _ => panic!("Expected second instruction to be MethodCall for s2"),
         }

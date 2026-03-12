@@ -1,5 +1,5 @@
 use super::*;
-use crate::ast::{Span, ASTNode, BinaryOperator, LiteralValue};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 
 fn str_lit(s: &str) -> ASTNode {
     ASTNode::Literal {
@@ -74,7 +74,10 @@ fn build_step_tree_if_only_nested_if_is_structural() {
     assert_eq!(tree.contract.exits.len(), 0);
     assert!(tree.contract.writes.contains("x"));
     assert!(tree.contract.required_caps.contains(&StepCapability::If));
-    assert!(tree.contract.required_caps.contains(&StepCapability::NestedIf));
+    assert!(tree
+        .contract
+        .required_caps
+        .contains(&StepCapability::NestedIf));
 
     let basis = tree.signature_basis_string();
     assert_eq!(
@@ -89,15 +92,25 @@ fn build_step_tree_if_only_nested_if_is_structural() {
         StepNode::Block(nodes) => {
             assert_eq!(nodes.len(), 3);
             match &nodes[1] {
-                StepNode::If { then_branch, cond_ast, .. } => {
+                StepNode::If {
+                    then_branch,
+                    cond_ast,
+                    ..
+                } => {
                     // cond_ast should be populated
                     assert!(matches!(&cond_ast.0.as_ref(), ASTNode::BinaryOp { .. }));
 
                     match &**then_branch {
                         StepNode::Block(inner_nodes) => match &inner_nodes[0] {
-                            StepNode::If { cond_ast: inner_cond_ast, .. } => {
+                            StepNode::If {
+                                cond_ast: inner_cond_ast,
+                                ..
+                            } => {
                                 // inner cond_ast should also be populated
-                                assert!(matches!(&inner_cond_ast.0.as_ref(), ASTNode::BinaryOp { .. }));
+                                assert!(matches!(
+                                    &inner_cond_ast.0.as_ref(),
+                                    ASTNode::BinaryOp { .. }
+                                ));
                             }
                             other => panic!("expected nested If, got {other:?}"),
                         },
@@ -163,7 +176,9 @@ fn step_tree_program_node_is_structural_block() {
                         kind: StepStmtKind::Assign { target, .. },
                         ..
                     } => assert_eq!(target.as_deref(), Some("x")),
-                    other => panic!("expected assign stmt inside nested Program block, got {other:?}"),
+                    other => {
+                        panic!("expected assign stmt inside nested Program block, got {other:?}")
+                    }
                 },
                 StepNode::Stmt {
                     kind: StepStmtKind::Other("Program"),
@@ -180,16 +195,14 @@ fn step_tree_program_node_is_structural_block() {
 fn step_tree_signature_is_stable_with_cond_ast() {
     // Phase 119: cond_ast should NOT affect signature stability.
     // Signature is based on cond_sig (AstSummary), not cond_ast.
-    let ast = vec![
-        ASTNode::Loop {
-            condition: Box::new(ASTNode::Literal {
-                value: LiteralValue::Bool(true),
-                span: Span::unknown(),
-            }),
-            body: vec![assign_x(1)],
+    let ast = vec![ASTNode::Loop {
+        condition: Box::new(ASTNode::Literal {
+            value: LiteralValue::Bool(true),
             span: Span::unknown(),
-        },
-    ];
+        }),
+        body: vec![assign_x(1)],
+        span: Span::unknown(),
+    }];
 
     let tree1 = StepTreeBuilderBox::build_from_block(&ast);
     let tree2 = StepTreeBuilderBox::build_from_block(&ast);
@@ -258,7 +271,9 @@ fn contract_extracts_loop_exits_and_writes_minimal() {
                 assign("x", bin(BinaryOperator::Add, var("x"), int_lit(1))),
                 ASTNode::If {
                     condition: Box::new(bin(BinaryOperator::Equal, var("x"), int_lit(2))),
-                    then_body: vec![ASTNode::Break { span: Span::unknown() }],
+                    then_body: vec![ASTNode::Break {
+                        span: Span::unknown(),
+                    }],
                     else_body: None,
                     span: Span::unknown(),
                 },

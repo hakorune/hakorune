@@ -71,8 +71,14 @@ mod tests {
 
     #[test]
     fn test_unsupported_capability_reasons() {
-        assert_eq!(UnsupportedCapability::Loop.reason(), "contains loop (if-only scope)");
-        assert_eq!(UnsupportedCapability::Break.reason(), "contains break (if-only scope)");
+        assert_eq!(
+            UnsupportedCapability::Loop.reason(),
+            "contains loop (if-only scope)"
+        );
+        assert_eq!(
+            UnsupportedCapability::Break.reason(),
+            "contains break (if-only scope)"
+        );
         assert_eq!(
             UnsupportedCapability::Continue.reason(),
             "contains continue (if-only scope)"

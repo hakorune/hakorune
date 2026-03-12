@@ -12,10 +12,10 @@
 //! - Uses DirectValue mode (no PHI generation)
 //! - Returns Ok(()) on success, Err(_) on failure
 
+use super::plan::{NormalizationPlan, PlanKind};
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
-use super::plan::{NormalizationPlan, PlanKind};
 use std::collections::BTreeMap;
 
 /// Box-First: Execute normalization plan
@@ -77,15 +77,18 @@ impl NormalizationExecuteBox {
         prefix_variables: Option<&BTreeMap<String, ValueId>>,
     ) -> Result<ValueId, String> {
         use crate::ast::Span;
-        use crate::mir::control_tree::normalized_shadow::env_layout::EnvLayout;
         use crate::mir::control_tree::normalized_shadow::available_inputs_collector::AvailableInputsCollectorBox;
+        use crate::mir::control_tree::normalized_shadow::env_layout::EnvLayout;
         use crate::mir::control_tree::normalized_shadow::StepTreeNormalizedShadowLowererBox;
         use crate::mir::control_tree::StepTreeBuilderBox;
 
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
 
         // Build StepTree from loop AST
-        let loop_ast = if let ASTNode::Loop { condition, body, .. } = &remaining[0] {
+        let loop_ast = if let ASTNode::Loop {
+            condition, body, ..
+        } = &remaining[0]
+        {
             ASTNode::Loop {
                 condition: condition.clone(),
                 body: body.clone(),
@@ -98,7 +101,8 @@ impl NormalizationExecuteBox {
         let tree = StepTreeBuilderBox::build_from_ast(&loop_ast);
 
         // Collect available inputs (Phase 141 P1.5: with prefix variables)
-        let available_inputs = AvailableInputsCollectorBox::collect(builder, None, prefix_variables);
+        let available_inputs =
+            AvailableInputsCollectorBox::collect(builder, None, prefix_variables);
         let env_layout = EnvLayout::from_contract(&tree.contract, &available_inputs);
         let env_fields = env_layout.env_fields();
 
@@ -216,10 +220,9 @@ impl NormalizationExecuteBox {
         let entry_id = join_module
             .entry
             .ok_or_else(|| "[normalization/execute] JoinModule missing entry".to_string())?;
-        let entry_func = join_module
-            .functions
-            .get(&entry_id)
-            .ok_or_else(|| "[normalization/execute] JoinModule entry function missing".to_string())?;
+        let entry_func = join_module.functions.get(&entry_id).ok_or_else(|| {
+            "[normalization/execute] JoinModule entry function missing".to_string()
+        })?;
         if entry_func.params.len() != env_fields.len() {
             return Err(format!(
                 "[normalization/execute] env arity mismatch: entry params={} env_fields={}",
@@ -239,11 +242,8 @@ impl NormalizationExecuteBox {
             host_inputs.push(host_vid);
         }
 
-        let mut boundary = JoinInlineBoundary::new_with_exit_bindings(
-            join_inputs,
-            host_inputs,
-            exit_bindings,
-        );
+        let mut boundary =
+            JoinInlineBoundary::new_with_exit_bindings(join_inputs, host_inputs, exit_bindings);
         boundary.exit_reconnect_mode = ExitReconnectMode::DirectValue; // No PHI
         boundary.continuation_func_ids = join_meta.continuation_funcs.clone();
 
@@ -274,16 +274,13 @@ impl NormalizationExecuteBox {
         }
         let empty_meta: JoinFuncMetaMap = BTreeMap::new();
         // Phase 256 P1.5: Pass boundary to bridge for ValueId remapping
-        let mir_module = bridge_joinir_to_mir_with_meta(&bridge_module, &empty_meta, Some(&boundary))
-            .map_err(|e| format!("[normalization/execute] MIR conversion failed: {:?}", e))?;
+        let mir_module =
+            bridge_joinir_to_mir_with_meta(&bridge_module, &empty_meta, Some(&boundary))
+                .map_err(|e| format!("[normalization/execute] MIR conversion failed: {:?}", e))?;
 
         // Merge with boundary
-        let _exit_phi_result = merge::merge_joinir_mir_blocks(
-            builder,
-            &mir_module,
-            Some(&boundary),
-            debug,
-        )?;
+        let _exit_phi_result =
+            merge::merge_joinir_mir_blocks(builder, &mir_module, Some(&boundary), debug)?;
 
         if debug {
             trace.routing(

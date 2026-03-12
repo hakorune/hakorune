@@ -12,9 +12,9 @@
 //! - Returns Ok(None): Not a normalized shape, use legacy fallback
 //! - Returns Err(_): Internal error (malformed AST)
 
+use super::plan::NormalizationPlan;
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::MirBuilder;
-use super::plan::NormalizationPlan;
 
 #[cfg(test)]
 use super::plan::PlanKind;
@@ -53,11 +53,16 @@ impl NormalizationPlanBox {
         // First statement must be a loop with condition `true`
         // Phase 131-136 ONLY support loop(true), not loop(i < n) etc.
         let (is_loop_true, loop_body) = match &remaining[0] {
-            ASTNode::Loop { condition, body, .. } => {
+            ASTNode::Loop {
+                condition, body, ..
+            } => {
                 // Only accept loop(true) - literal Bool true
                 let is_true = matches!(
                     condition.as_ref(),
-                    ASTNode::Literal { value: LiteralValue::Bool(true), .. }
+                    ASTNode::Literal {
+                        value: LiteralValue::Bool(true),
+                        ..
+                    }
                 );
                 (is_true, Some(body.as_slice()))
             }
@@ -78,7 +83,12 @@ impl NormalizationPlanBox {
         // These are handled by the Plan line (loop_true_early_exit), not StepTree
         if let Some(body) = loop_body {
             if !body.is_empty() {
-                if let ASTNode::If { then_body, else_body, .. } = &body[0] {
+                if let ASTNode::If {
+                    then_body,
+                    else_body,
+                    ..
+                } = &body[0]
+                {
                     // Check if it's a loop_true_early_exit-style if (no else, then contains return or break)
                     if else_body.is_none() {
                         let has_early_exit = then_body.iter().any(|stmt| {
@@ -151,9 +161,9 @@ fn loop_true_body_supported_for_normalized(body: &[ASTNode]) -> bool {
         return false;
     }
 
-    body[..body.len() - 1].iter().all(|stmt| {
-        matches!(stmt, ASTNode::Assignment { .. } | ASTNode::Local { .. })
-    })
+    body[..body.len() - 1]
+        .iter()
+        .all(|stmt| matches!(stmt, ASTNode::Assignment { .. } | ASTNode::Local { .. }))
 }
 
 fn is_break_or_continue_only(stmts: &[ASTNode]) -> bool {
@@ -166,7 +176,7 @@ fn is_break_or_continue_only(stmts: &[ASTNode]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{ASTNode, LiteralValue, Span, BinaryOperator};
+    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 
     fn make_span() -> Span {
         Span::unknown()
@@ -250,11 +260,7 @@ mod tests {
         use crate::mir::builder::MirBuilder;
 
         // Phase 142 P0: loop(true) returns loop_only regardless of subsequent statements
-        let remaining = vec![
-            make_loop(),
-            make_assignment("x", 2),
-            make_return("x"),
-        ];
+        let remaining = vec![make_loop(), make_assignment("x", 2), make_return("x")];
 
         let builder = MirBuilder::new();
         let plan = NormalizationPlanBox::plan_block_suffix(&builder, &remaining, "test", false)
@@ -307,10 +313,7 @@ mod tests {
     fn test_plan_block_suffix_no_match_not_loop() {
         use crate::mir::builder::MirBuilder;
 
-        let remaining = vec![
-            make_assignment("x", 1),
-            make_return("x"),
-        ];
+        let remaining = vec![make_assignment("x", 1), make_return("x")];
 
         let builder = MirBuilder::new();
         let plan = NormalizationPlanBox::plan_block_suffix(&builder, &remaining, "test", false)
@@ -384,6 +387,9 @@ mod tests {
             .expect("Should not error");
 
         // loop(i < n) is NOT supported by Normalized - should return None
-        assert!(plan.is_none(), "loop(i < n) should NOT match a Normalized shape");
+        assert!(
+            plan.is_none(),
+            "loop(i < n) should NOT match a Normalized shape"
+        );
     }
 }
