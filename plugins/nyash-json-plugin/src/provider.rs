@@ -5,10 +5,7 @@ use once_cell::sync::Lazy;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::ffi::CString;
-use std::sync::{
-    atomic::AtomicU32,
-    Arc, Mutex,
-};
+use std::sync::{atomic::AtomicU32, Arc, Mutex};
 
 // Shared global state
 pub static DOCS: Lazy<Mutex<HashMap<u32, DocInst>>> = Lazy::new(|| Mutex::new(HashMap::new()));

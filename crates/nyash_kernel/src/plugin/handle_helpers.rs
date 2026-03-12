@@ -1,3 +1,4 @@
+use super::value_codec::runtime_i64_from_box_ref;
 use nyash_rust::{
     box_trait::NyashBox,
     boxes::{array::ArrayBox, map_box::MapBox},
@@ -5,7 +6,6 @@ use nyash_rust::{
     runtime::host_handles as handles,
 };
 use std::{cell::RefCell, sync::Arc};
-use super::value_codec::runtime_i64_from_box_ref;
 
 struct HandleCacheEntry {
     handle: i64,

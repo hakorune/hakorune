@@ -9,11 +9,11 @@ pub mod intarray;
 pub mod invoke;
 pub mod invoke_core;
 pub mod map;
-pub mod runtime_data;
 mod module_string_dispatch;
-mod value_codec;
+pub mod runtime_data;
 pub mod semantics;
 pub mod string;
+mod value_codec;
 
 pub use array::*;
 pub use birth::*;
@@ -34,8 +34,14 @@ mod wiring_tests {
     fn b3_public_wiring_contract_compiles() {
         // B3-closeout lock: keep future/invoke public entry wiring stable.
         // These bindings intentionally fail to compile if crate-root re-export changes.
-        let _future_spawn_method_h: extern "C" fn(i64, i64, i64, i64, *const i64, *const i64) -> i64 =
-            crate::nyash_future_spawn_method_h;
+        let _future_spawn_method_h: extern "C" fn(
+            i64,
+            i64,
+            i64,
+            i64,
+            *const i64,
+            *const i64,
+        ) -> i64 = crate::nyash_future_spawn_method_h;
         let _future_spawn_instance3_i64: extern "C" fn(i64, i64, i64, i64) -> i64 =
             crate::nyash_future_spawn_instance3_i64;
         let _env_future_spawn_instance: extern "C" fn(i64, i64, i64, i64) -> i64 =
@@ -55,8 +61,20 @@ mod wiring_tests {
             crate::nyash_plugin_invoke_name_call_i64;
         let _invoke_by_name_i64: extern "C" fn(i64, *const i8, i64, i64, i64) -> i64 =
             crate::nyash_plugin_invoke_by_name_i64;
-        let _invoke3_tagged_i64: extern "C" fn(i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64) -> i64 =
-            crate::nyash_plugin_invoke3_tagged_i64;
+        let _invoke3_tagged_i64: extern "C" fn(
+            i64,
+            i64,
+            i64,
+            i64,
+            i64,
+            i64,
+            i64,
+            i64,
+            i64,
+            i64,
+            i64,
+            i64,
+        ) -> i64 = crate::nyash_plugin_invoke3_tagged_i64;
         let _invoke_tagged_v_i64: extern "C" fn(i64, i64, i64, i64, *const i64, *const i64) -> i64 =
             crate::nyash_plugin_invoke_tagged_v_i64;
 

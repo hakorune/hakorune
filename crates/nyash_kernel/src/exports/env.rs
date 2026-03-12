@@ -191,12 +191,12 @@ pub extern "C" fn nyash_env_box_new_i64x(
         use std::collections::HashMap as StdHashMap;
         use std::sync::Arc;
 
-        eprintln!("[DEBUG] Creating user box '{}' with fields: {:?}", ty, fields);
-        let instance = InstanceBox::from_declaration(
-            ty.to_string(),
-            fields.clone(),
-            StdHashMap::new(),
+        eprintln!(
+            "[DEBUG] Creating user box '{}' with fields: {:?}",
+            ty, fields
         );
+        let instance =
+            InstanceBox::from_declaration(ty.to_string(), fields.clone(), StdHashMap::new());
         let boxed: Box<dyn NyashBox> = Box::new(instance);
         let arc: Arc<dyn NyashBox> = Arc::from(boxed);
         let handle = handles::to_handle_arc(arc) as i64;

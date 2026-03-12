@@ -35,11 +35,8 @@ pub(crate) fn create_user_box_from_registry(
     use std::collections::HashMap as StdHashMap;
 
     if let Some(fields) = get_user_box_fields(box_name) {
-        let instance = InstanceBox::from_declaration(
-            box_name.to_string(),
-            fields,
-            StdHashMap::new(),
-        );
+        let instance =
+            InstanceBox::from_declaration(box_name.to_string(), fields, StdHashMap::new());
         Ok(Box::new(instance) as Box<dyn NyashBox>)
     } else {
         Err(format!(

@@ -66,7 +66,10 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
         return 0;
     };
 
-    let trace = std::env::var("HAKO_STAGE1_MODULE_DISPATCH_TRACE").ok().as_deref() == Some("1")
+    let trace = std::env::var("HAKO_STAGE1_MODULE_DISPATCH_TRACE")
+        .ok()
+        .as_deref()
+        == Some("1")
         || std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1");
 
     if let Some(result) =

@@ -75,8 +75,10 @@ pub extern "C" fn nyash_map_set_h(handle: i64, key: i64, val: i64) -> i64 {
     }
     let _ = map_set_any(handle, key, val);
     if map_debug_enabled() {
-        let size = with_map_box(handle, |map| integer_box_to_i64(map.size().as_ref()).unwrap_or(-1))
-            .unwrap_or(-1);
+        let size = with_map_box(handle, |map| {
+            integer_box_to_i64(map.size().as_ref()).unwrap_or(-1)
+        })
+        .unwrap_or(-1);
         eprintln!("[MAP] set_h done; size now {}", size);
     }
     0

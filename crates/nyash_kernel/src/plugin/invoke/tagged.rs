@@ -74,13 +74,9 @@ pub extern "C" fn nyash_plugin_invoke3_tagged_i64(
         enc(a4, tag4);
     }
 
-    let Some((tag, sz, payload)) = invoke_core::plugin_invoke_call(
-        invoke,
-        real_type_id,
-        method_id as u32,
-        instance_id,
-        &buf,
-    ) else {
+    let Some((tag, sz, payload)) =
+        invoke_core::plugin_invoke_call(invoke, real_type_id, method_id as u32, instance_id, &buf)
+    else {
         return 0;
     };
     invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), invoke).unwrap_or(0)
@@ -156,13 +152,9 @@ pub extern "C" fn nyash_plugin_invoke_tagged_v_i64(
         }
     }
 
-    let Some((tag, sz, payload)) = invoke_core::plugin_invoke_call(
-        invoke,
-        real_type_id,
-        method_id as u32,
-        instance_id,
-        &buf,
-    ) else {
+    let Some((tag, sz, payload)) =
+        invoke_core::plugin_invoke_call(invoke, real_type_id, method_id as u32, instance_id, &buf)
+    else {
         return 0;
     };
     invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), invoke).unwrap_or(0)

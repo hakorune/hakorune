@@ -5,8 +5,8 @@ mod encode;
 mod entry;
 mod exports;
 mod ffi;
-mod hako_forward_bridge;
 mod hako_forward;
+mod hako_forward_bridge;
 mod plugin;
 mod user_box_registry;
 

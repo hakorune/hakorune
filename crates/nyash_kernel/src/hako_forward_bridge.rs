@@ -3,14 +3,11 @@ pub type HakoFutureSpawnInstanceFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 pub type HakoStringDispatchFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 
 mod ffi {
-    use super::{
-        HakoFutureSpawnInstanceFn, HakoPluginInvokeByNameFn, HakoStringDispatchFn,
-    };
+    use super::{HakoFutureSpawnInstanceFn, HakoPluginInvokeByNameFn, HakoStringDispatchFn};
 
     unsafe extern "C" {
-        pub fn nyrt_hako_register_plugin_invoke_by_name(
-            f: Option<HakoPluginInvokeByNameFn>,
-        ) -> i64;
+        pub fn nyrt_hako_register_plugin_invoke_by_name(f: Option<HakoPluginInvokeByNameFn>)
+            -> i64;
         pub fn nyrt_hako_register_future_spawn_instance(
             f: Option<HakoFutureSpawnInstanceFn>,
         ) -> i64;
@@ -157,10 +154,7 @@ pub fn rust_fallback_allowed() -> bool {
 #[inline]
 fn trace_hook_miss(route: &str, policy: &str) {
     if nyash_rust::config::env::vm_route_trace() {
-        eprintln!(
-            "[hako-forward/hook-miss] route={} policy={}",
-            route, policy
-        );
+        eprintln!("[hako-forward/hook-miss] route={} policy={}", route, policy);
     }
 }
 

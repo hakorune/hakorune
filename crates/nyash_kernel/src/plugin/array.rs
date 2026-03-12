@@ -341,10 +341,12 @@ mod tests {
         assert_eq!(nyash_array_push_h(handle, 1), 1);
         let string_handle_a = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("ok".to_string()),
-        ) as std::sync::Arc<dyn NyashBox>) as i64;
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
         let string_handle_b = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("ng".to_string()),
-        ) as std::sync::Arc<dyn NyashBox>) as i64;
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
         assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle_a), 1);
         assert_eq!(nyash_array_get_hi_alias(handle, 0), string_handle_a);
         // Re-set same slot keeps alias contract and must expose the latest handle.

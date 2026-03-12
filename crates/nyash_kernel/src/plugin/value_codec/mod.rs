@@ -10,7 +10,8 @@ pub(crate) use decode::{
     int_arg_to_box, string_handle_or_immediate_box_from_obj, ArrayFastDecodedValue, CodecProfile,
 };
 pub(crate) use encode::{
-    bool_box_to_i64, box_to_handle, box_to_runtime_i64, integer_box_to_i64, runtime_i64_from_box_ref,
+    bool_box_to_i64, box_to_handle, box_to_runtime_i64, integer_box_to_i64,
+    runtime_i64_from_box_ref,
 };
 
 #[cfg(test)]

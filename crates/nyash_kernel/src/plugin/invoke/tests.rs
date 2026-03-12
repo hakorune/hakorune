@@ -14,7 +14,10 @@ fn invoke_f64_invalid_receiver_returns_zero() {
 fn invoke_by_name_invalid_inputs_return_zero() {
     assert_eq!(nyash_plugin_invoke_name_getattr_i64(0, 0, 0, 0), 0);
     assert_eq!(nyash_plugin_invoke_name_call_i64(0, 0, 0, 0), 0);
-    assert_eq!(nyash_plugin_invoke_by_name_i64(0, std::ptr::null(), 0, 0, 0), 0);
+    assert_eq!(
+        nyash_plugin_invoke_by_name_i64(0, std::ptr::null(), 0, 0, 0),
+        0
+    );
 }
 
 #[test]
@@ -31,7 +34,13 @@ fn invoke_tagged_invalid_receiver_returns_zero() {
 
 #[test]
 fn invoke_by_name_prefers_hako_forward_hook_when_registered() {
-    extern "C" fn by_name_hook(_recv: i64, _method: *const i8, _argc: i64, _a1: i64, _a2: i64) -> i64 {
+    extern "C" fn by_name_hook(
+        _recv: i64,
+        _method: *const i8,
+        _argc: i64,
+        _a1: i64,
+        _a2: i64,
+    ) -> i64 {
         4242
     }
 

@@ -240,146 +240,146 @@ extern "C" fn string_invoke_id(
     result_len: *mut usize,
 ) -> i32 {
     match method_id {
-            M_BIRTH => {
-                // Create new StringBox instance
-                let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
-                let init = read_arg_string(args, args_len, 0).unwrap_or_else(|| String::new());
-                eprintln!("[StringBox] M_BIRTH called: id={}, init={:?}", id, init);
-                if let Ok(mut m) = INST.lock() {
-                    m.insert(id, StrInstance { s: init.clone() });
-                    eprintln!("[StringBox] Inserted into INST map");
+        M_BIRTH => {
+            // Create new StringBox instance
+            let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
+            let init = read_arg_string(args, args_len, 0).unwrap_or_else(|| String::new());
+            eprintln!("[StringBox] M_BIRTH called: id={}, init={:?}", id, init);
+            if let Ok(mut m) = INST.lock() {
+                m.insert(id, StrInstance { s: init.clone() });
+                eprintln!("[StringBox] Inserted into INST map");
+                return write_tlv_handle(TYPE_ID_STRING, id, result, result_len);
+            } else {
+                return E_PLUGIN;
+            }
+        }
+        M_FINI => {
+            // Destroy StringBox instance
+            if let Ok(mut m) = INST.lock() {
+                m.remove(&instance_id);
+                return OK;
+            } else {
+                return E_PLUGIN;
+            }
+        }
+        M_LENGTH => {
+            eprintln!("[StringBox] M_LENGTH called: instance_id={}", instance_id);
+            if let Ok(m) = INST.lock() {
+                if let Some(inst) = m.get(&instance_id) {
+                    let len = inst.s.len();
+                    eprintln!(
+                        "[StringBox] Found instance, string={:?}, len={}",
+                        inst.s, len
+                    );
+                    return write_tlv_i64(len as i64, result, result_len);
+                } else {
+                    eprintln!(
+                        "[StringBox] Instance {} not found in INST map!",
+                        instance_id
+                    );
+                    return E_HANDLE;
+                }
+            } else {
+                return E_PLUGIN;
+            }
+        }
+        M_TO_UTF8 => {
+            if let Ok(m) = INST.lock() {
+                if let Some(inst) = m.get(&instance_id) {
+                    return write_tlv_string(&inst.s, result, result_len);
+                } else {
+                    return E_HANDLE;
+                }
+            } else {
+                return E_PLUGIN;
+            }
+        }
+        M_CONCAT => {
+            // support String/Bytes or StringBox handle
+            let (ok, rhs) = if let Some((t, inst)) = read_arg_handle(args, args_len, 0) {
+                if t != TYPE_ID_STRING {
+                    return E_TYPE;
+                }
+                if let Ok(m) = INST.lock() {
+                    if let Some(s2) = m.get(&inst) {
+                        (true, s2.s.clone())
+                    } else {
+                        (false, String::new())
+                    }
+                } else {
+                    return E_PLUGIN;
+                }
+            } else if let Some(s) = read_arg_string(args, args_len, 0) {
+                (true, s)
+            } else {
+                (false, String::new())
+            };
+            if !ok {
+                return E_ARGS;
+            }
+            if let Ok(m) = INST.lock() {
+                if let Some(inst) = m.get(&instance_id) {
+                    let mut new_s = inst.s.clone();
+                    new_s.push_str(&rhs);
+                    drop(m);
+                    let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
+                    if let Ok(mut mm) = INST.lock() {
+                        mm.insert(id, StrInstance { s: new_s });
+                    }
                     return write_tlv_handle(TYPE_ID_STRING, id, result, result_len);
                 } else {
-                    return E_PLUGIN;
+                    return E_HANDLE;
                 }
+            } else {
+                return E_PLUGIN;
             }
-            M_FINI => {
-                // Destroy StringBox instance
-                if let Ok(mut m) = INST.lock() {
-                    m.remove(&instance_id);
-                    return OK;
-                } else {
-                    return E_PLUGIN;
-                }
-            }
-            M_LENGTH => {
-                eprintln!("[StringBox] M_LENGTH called: instance_id={}", instance_id);
-                if let Ok(m) = INST.lock() {
-                    if let Some(inst) = m.get(&instance_id) {
-                        let len = inst.s.len();
-                        eprintln!(
-                            "[StringBox] Found instance, string={:?}, len={}",
-                            inst.s, len
-                        );
-                        return write_tlv_i64(len as i64, result, result_len);
-                    } else {
-                        eprintln!(
-                            "[StringBox] Instance {} not found in INST map!",
-                            instance_id
-                        );
-                        return E_HANDLE;
-                    }
-                } else {
-                    return E_PLUGIN;
-                }
-            }
-            M_TO_UTF8 => {
-                if let Ok(m) = INST.lock() {
-                    if let Some(inst) = m.get(&instance_id) {
-                        return write_tlv_string(&inst.s, result, result_len);
-                    } else {
-                        return E_HANDLE;
-                    }
-                } else {
-                    return E_PLUGIN;
-                }
-            }
-            M_CONCAT => {
-                // support String/Bytes or StringBox handle
-                let (ok, rhs) = if let Some((t, inst)) = read_arg_handle(args, args_len, 0) {
-                    if t != TYPE_ID_STRING {
-                        return E_TYPE;
-                    }
-                    if let Ok(m) = INST.lock() {
-                        if let Some(s2) = m.get(&inst) {
-                            (true, s2.s.clone())
-                        } else {
-                            (false, String::new())
-                        }
-                    } else {
-                        return E_PLUGIN;
-                    }
-                } else if let Some(s) = read_arg_string(args, args_len, 0) {
-                    (true, s)
-                } else {
-                    (false, String::new())
-                };
-                if !ok {
-                    return E_ARGS;
-                }
-                if let Ok(m) = INST.lock() {
-                    if let Some(inst) = m.get(&instance_id) {
-                        let mut new_s = inst.s.clone();
-                        new_s.push_str(&rhs);
-                        drop(m);
-                        let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
-                        if let Ok(mut mm) = INST.lock() {
-                            mm.insert(id, StrInstance { s: new_s });
-                        }
-                        return write_tlv_handle(TYPE_ID_STRING, id, result, result_len);
-                    } else {
-                        return E_HANDLE;
-                    }
-                } else {
-                    return E_PLUGIN;
-                }
-            }
-            M_IS_SPACE => {
-                // is_space(ch: String) -> bool
-                // Check if single character is whitespace: " ", "\t", "\n", "\r"
-                let ch = match read_arg_string(args, args_len, 0) {
-                    Some(s) => s,
-                    None => return E_ARGS,
-                };
-                let is_space = ch == " " || ch == "\t" || ch == "\n" || ch == "\r";
-                return write_tlv_bool(is_space, result, result_len);
-            }
-            M_STARTS_WITH => {
-                // starts_with(src: String, i: i64, pat: String) -> bool
-                // Check if 'src' starts with 'pat' at position 'i'
-                // Args: [0] = src (String), [1] = i (i64), [2] = pat (String)
-                let src = match read_arg_string(args, args_len, 0) {
-                    Some(s) => s,
-                    None => return E_ARGS,
-                };
-                let i = match read_arg_i64(args, args_len, 1) {
-                    Some(v) if v >= 0 => v as usize,
-                    _ => return E_ARGS,
-                };
-                let pat = match read_arg_string(args, args_len, 2) {
-                    Some(s) => s,
-                    None => return E_ARGS,
-                };
+        }
+        M_IS_SPACE => {
+            // is_space(ch: String) -> bool
+            // Check if single character is whitespace: " ", "\t", "\n", "\r"
+            let ch = match read_arg_string(args, args_len, 0) {
+                Some(s) => s,
+                None => return E_ARGS,
+            };
+            let is_space = ch == " " || ch == "\t" || ch == "\n" || ch == "\r";
+            return write_tlv_bool(is_space, result, result_len);
+        }
+        M_STARTS_WITH => {
+            // starts_with(src: String, i: i64, pat: String) -> bool
+            // Check if 'src' starts with 'pat' at position 'i'
+            // Args: [0] = src (String), [1] = i (i64), [2] = pat (String)
+            let src = match read_arg_string(args, args_len, 0) {
+                Some(s) => s,
+                None => return E_ARGS,
+            };
+            let i = match read_arg_i64(args, args_len, 1) {
+                Some(v) if v >= 0 => v as usize,
+                _ => return E_ARGS,
+            };
+            let pat = match read_arg_string(args, args_len, 2) {
+                Some(s) => s,
+                None => return E_ARGS,
+            };
 
-                let src_len = src.len();
-                let pat_len = pat.len();
+            let src_len = src.len();
+            let pat_len = pat.len();
 
-                // Check bounds: i + pat.length() > src.length() → false
-                if i + pat_len > src_len {
+            // Check bounds: i + pat.length() > src.length() → false
+            if i + pat_len > src_len {
+                return write_tlv_bool(false, result, result_len);
+            }
+
+            // Character-by-character comparison
+            let src_bytes = src.as_bytes();
+            let pat_bytes = pat.as_bytes();
+            for k in 0..pat_len {
+                if src_bytes[i + k] != pat_bytes[k] {
                     return write_tlv_bool(false, result, result_len);
                 }
-
-                // Character-by-character comparison
-                let src_bytes = src.as_bytes();
-                let pat_bytes = pat.as_bytes();
-                for k in 0..pat_len {
-                    if src_bytes[i + k] != pat_bytes[k] {
-                        return write_tlv_bool(false, result, result_len);
-                    }
-                }
-
-                return write_tlv_bool(true, result, result_len);
             }
+
+            return write_tlv_bool(true, result, result_len);
+        }
         _ => E_METHOD,
     }
 }

@@ -30,11 +30,17 @@ pub extern "C" fn nyrt_weak_new(strong_handle: i64) -> i64 {
         // Downgrade to Weak and allocate weak handle
         let weak = std::sync::Arc::downgrade(&arc);
         let weak_handle = weak_handles::to_handle_weak(weak);
-        eprintln!("[nyrt_weak_new] success: strong {} → weak {}", strong_handle, weak_handle);
+        eprintln!(
+            "[nyrt_weak_new] success: strong {} → weak {}",
+            strong_handle, weak_handle
+        );
         return weak_handle;
     }
 
-    eprintln!("[nyrt_weak_new] handle {} not found in registry, returning 0", strong_handle);
+    eprintln!(
+        "[nyrt_weak_new] handle {} not found in registry, returning 0",
+        strong_handle
+    );
     0 // Invalid handle
 }
 
@@ -53,12 +59,18 @@ pub extern "C" fn nyrt_weak_new(strong_handle: i64) -> i64 {
 pub extern "C" fn nyrt_weak_to_strong(weak_handle: i64) -> i64 {
     use nyash_rust::runtime::weak_handles;
 
-    eprintln!("[nyrt_weak_to_strong] called with weak_handle: {}", weak_handle);
+    eprintln!(
+        "[nyrt_weak_to_strong] called with weak_handle: {}",
+        weak_handle
+    );
 
     // Upgrade weak handle to strong handle (0 on failure)
     let result = weak_handles::upgrade_weak_handle(weak_handle);
 
-    eprintln!("[nyrt_weak_to_strong] result: {} (0=null/failed, >0=success)", result);
+    eprintln!(
+        "[nyrt_weak_to_strong] result: {} (0=null/failed, >0=success)",
+        result
+    );
     result
 }
 

@@ -118,7 +118,11 @@ pub(crate) fn maybe_borrow_string_handle_with_epoch(
     source_drop_epoch: u64,
 ) -> Box<dyn NyashBox> {
     if obj.as_any().downcast_ref::<StringBox>().is_some() {
-        return Box::new(BorrowedHandleBox::new(obj, source_handle, source_drop_epoch));
+        return Box::new(BorrowedHandleBox::new(
+            obj,
+            source_handle,
+            source_drop_epoch,
+        ));
     }
     obj.clone_box()
 }
@@ -134,12 +138,7 @@ pub(crate) fn try_retarget_borrowed_string_slot(
     let Some(obj) = handles::get(source_handle as u64) else {
         return false;
     };
-    try_retarget_borrowed_string_slot_with_source(
-        slot,
-        source_handle,
-        &obj,
-        handles::drop_epoch(),
-    )
+    try_retarget_borrowed_string_slot_with_source(slot, source_handle, &obj, handles::drop_epoch())
 }
 
 #[inline(always)]

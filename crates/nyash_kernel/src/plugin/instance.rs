@@ -89,7 +89,10 @@ mod tests {
         let value_h = host_handles::to_handle_arc(value_arc) as i64;
         let name = CString::new("x").unwrap();
 
-        assert_eq!(nyash_instance_set_field_h(inst_h, name.as_ptr(), value_h), 0);
+        assert_eq!(
+            nyash_instance_set_field_h(inst_h, name.as_ptr(), value_h),
+            0
+        );
         assert_eq!(nyash_instance_get_field_h(inst_h, name.as_ptr()), 0);
     }
 }

@@ -6,10 +6,7 @@ use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::os::raw::c_char;
-use std::sync::{
-    atomic::AtomicU32,
-    Mutex,
-};
+use std::sync::{atomic::AtomicU32, Mutex};
 
 // Error codes
 const NYB_SUCCESS: i32 = 0;
@@ -25,7 +22,7 @@ const METHOD_GET: u32 = 2; // args: i64 key -> TLV i64
 const METHOD_HAS: u32 = 3; // args: i64 key -> TLV bool
 const METHOD_SET: u32 = 4; // args: key(int|string), value(i64) -> TLV i64 (size)
 const METHOD_KEYS_S: u32 = 8; // args: () -> TLV string (newline-joined keys)
-// Extended string-key methods
+                              // Extended string-key methods
 const METHOD_GET_STR: u32 = 11; // getS(name: string) -> i64
 const METHOD_HAS_STR: u32 = 12; // hasS(name: string) -> bool
 const METHOD_VALUES_S: u32 = 13; // valuesStr() -> string (newline-joined)
