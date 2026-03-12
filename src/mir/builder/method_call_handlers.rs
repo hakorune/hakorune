@@ -139,7 +139,9 @@ impl MirBuilder {
         let dst = self.next_value_id();
 
         if crate::config::env::builder_static_call_trace() {
-            crate::runtime::get_global_ring0().log.info(&format!("[builder] static-call {}", func_name));
+            crate::runtime::get_global_ring0()
+                .log
+                .info(&format!("[builder] static-call {}", func_name));
         }
 
         // Emit unified global call to the static-lowered function (module-local)

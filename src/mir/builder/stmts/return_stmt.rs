@@ -48,10 +48,10 @@ use crate::mir::builder::control_flow::plan::composer::{
     compose_match_return_branchn, MatchReturnPlan,
 };
 use crate::mir::builder::control_flow::plan::facts::{
-    MatchReturnFacts, try_extract_match_return_facts,
+    try_extract_match_return_facts, MatchReturnFacts,
 };
-use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
+use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::plan::verifier::PlanVerifier;
 use crate::mir::{MirBuilder, MirInstruction, ValueId};
 
@@ -172,8 +172,7 @@ pub(in crate::mir::builder) fn build_return_statement(
                     Err(freeze) => return Err(freeze.to_string()),
                 }
             } else if let Ok(Some(facts)) = try_extract_match_return_facts(expr, false) {
-                if let Ok(Some(return_value)) =
-                    adopt_match_return_coreplan(builder, &facts, false)
+                if let Ok(Some(return_value)) = adopt_match_return_coreplan(builder, &facts, false)
                 {
                     return Ok(return_value);
                 }
@@ -189,7 +188,8 @@ pub(in crate::mir::builder) fn build_return_statement(
 
     if builder.return_defer_active {
         // Defer: copy into slot and jump to target
-        if let (Some(slot), Some(target)) = (builder.return_defer_slot, builder.return_defer_target) {
+        if let (Some(slot), Some(target)) = (builder.return_defer_slot, builder.return_defer_target)
+        {
             builder.return_deferred_emitted = true;
             builder.emit_instruction(MirInstruction::Copy {
                 dst: slot,

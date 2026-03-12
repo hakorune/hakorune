@@ -109,10 +109,12 @@ impl VariableContext {
     ///
     /// Phase 272 P0.2 Refactoring: Eliminate variable_map.get().ok_or() boilerplate
     pub fn require(&self, name: &str, context: &str) -> Result<ValueId, String> {
-        self.variable_map
-            .get(name)
-            .copied()
-            .ok_or_else(|| format!("[{}] Variable '{}' not found in variable_map", context, name))
+        self.variable_map.get(name).copied().ok_or_else(|| {
+            format!(
+                "[{}] Variable '{}' not found in variable_map",
+                context, name
+            )
+        })
     }
 
     /// Insert or update a variable's ValueId

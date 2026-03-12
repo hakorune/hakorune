@@ -125,15 +125,9 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
             crate::mir::BinaryOp::Mod => ("ModOperator.apply/2", "ModOperator.apply/"),
             crate::mir::BinaryOp::Shl => ("ShlOperator.apply/2", "ShlOperator.apply/"),
             crate::mir::BinaryOp::Shr => ("ShrOperator.apply/2", "ShrOperator.apply/"),
-            crate::mir::BinaryOp::BitAnd => {
-                ("BitAndOperator.apply/2", "BitAndOperator.apply/")
-            }
-            crate::mir::BinaryOp::BitOr => {
-                ("BitOrOperator.apply/2", "BitOrOperator.apply/")
-            }
-            crate::mir::BinaryOp::BitXor => {
-                ("BitXorOperator.apply/2", "BitXorOperator.apply/")
-            }
+            crate::mir::BinaryOp::BitAnd => ("BitAndOperator.apply/2", "BitAndOperator.apply/"),
+            crate::mir::BinaryOp::BitOr => ("BitOrOperator.apply/2", "BitOrOperator.apply/"),
+            crate::mir::BinaryOp::BitXor => ("BitXorOperator.apply/2", "BitXorOperator.apply/"),
             _ => ("", ""),
         };
         if !name.is_empty() {
@@ -153,9 +147,10 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                 builder.type_ctx.value_types.insert(dst, MirType::Integer);
             } else {
                 // guard中は従来のBinOp
-                if let (Some(func), Some(cur_bb)) =
-                    (builder.scope_ctx.current_function.as_mut(), builder.current_block)
-                {
+                if let (Some(func), Some(cur_bb)) = (
+                    builder.scope_ctx.current_function.as_mut(),
+                    builder.current_block,
+                ) {
                     crate::mir::ssot::binop_lower::emit_binop_to_dst(
                         func, cur_bb, dst, op, lhs, rhs,
                     );
@@ -166,12 +161,11 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
             }
         } else {
             // 既存の算術経路
-            if let (Some(func), Some(cur_bb)) =
-                (builder.scope_ctx.current_function.as_mut(), builder.current_block)
-            {
-                crate::mir::ssot::binop_lower::emit_binop_to_dst(
-                    func, cur_bb, dst, op, lhs, rhs,
-                );
+            if let (Some(func), Some(cur_bb)) = (
+                builder.scope_ctx.current_function.as_mut(),
+                builder.current_block,
+            ) {
+                crate::mir::ssot::binop_lower::emit_binop_to_dst(func, cur_bb, dst, op, lhs, rhs);
             } else {
                 builder.emit_instruction(MirInstruction::BinOp { dst, op, lhs, rhs })?;
             }
@@ -222,12 +216,11 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
         }
     } else {
         // 既存の算術経路
-        if let (Some(func), Some(cur_bb)) =
-            (builder.scope_ctx.current_function.as_mut(), builder.current_block)
-        {
-            crate::mir::ssot::binop_lower::emit_binop_to_dst(
-                func, cur_bb, dst, op, lhs, rhs,
-            );
+        if let (Some(func), Some(cur_bb)) = (
+            builder.scope_ctx.current_function.as_mut(),
+            builder.current_block,
+        ) {
+            crate::mir::ssot::binop_lower::emit_binop_to_dst(func, cur_bb, dst, op, lhs, rhs);
         } else {
             builder.emit_instruction(MirInstruction::BinOp { dst, op, lhs, rhs })?;
         }
@@ -290,7 +283,10 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                 let check_operand = |name: &str, v: ValueId| -> Result<(), String> {
                     if !def_blocks.contains_key(&v) {
                         let span = builder.metadata_ctx.current_span();
-                        let file = builder.metadata_ctx.current_source_file().unwrap_or_else(|| "unknown".to_string());
+                        let file = builder
+                            .metadata_ctx
+                            .current_source_file()
+                            .unwrap_or_else(|| "unknown".to_string());
 
                         Err(format!(
                             "[freeze:contract][ops/binop_add:operand_not_defined] fn={} bb={:?} operand={} v=%{} span={} span_start={} span_end={} file={}",

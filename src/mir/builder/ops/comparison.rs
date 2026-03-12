@@ -17,7 +17,6 @@
 /// **Related Phases**:
 /// - Phase 196: TypeFacts SSOT - comparison result is always Bool
 /// - Phase 29bq+: Cleanliness campaign - extraction from ops/mod.rs
-
 use super::super::{MirInstruction, MirType, ValueId};
 use crate::mir::CompareOp;
 
@@ -57,9 +56,7 @@ impl super::super::MirBuilder {
             .map(|f| f.signature.name.starts_with("CompareOperator.apply/"))
             .unwrap_or(false);
 
-        if !in_cmp_op
-            && (all_call || crate::config::env::builder_operator_box_compare_call())
-        {
+        if !in_cmp_op && (all_call || crate::config::env::builder_operator_box_compare_call()) {
             // op名の文字列化
             let opname = match op {
                 CompareOp::Eq => "Eq",

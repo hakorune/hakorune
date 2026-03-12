@@ -33,7 +33,10 @@ impl super::super::MirBuilder {
             // Reserved ID - try next one (loop continues)
             if crate::config::env::builder_201a_debug() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[201-A] next_value_id: Skipping reserved {:?}", candidate));
+                ring0.log.debug(&format!(
+                    "[201-A] next_value_id: Skipping reserved {:?}",
+                    candidate
+                ));
             }
         }
     }

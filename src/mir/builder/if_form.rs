@@ -100,7 +100,10 @@ impl MirBuilder {
                     if *def_block != pre_branch_bb {
                         let rhs_const = match &cond_ast_for_debug {
                             ASTNode::BinaryOp { right, .. } => match right.as_ref() {
-                                ASTNode::Literal { value: LiteralValue::String(s), .. } => Some(s.as_str()),
+                                ASTNode::Literal {
+                                    value: LiteralValue::String(s),
+                                    ..
+                                } => Some(s.as_str()),
                                 _ => None,
                             },
                             _ => None,
@@ -138,7 +141,10 @@ impl MirBuilder {
         let then_ast_for_analysis = then_branch.clone();
         // Materialize all variables at block entry via single-pred Phi (correctness-first)
         crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
-            self, pre_branch_bb, &pre_if_var_map, "if_form/then"
+            self,
+            pre_branch_bb,
+            &pre_if_var_map,
+            "if_form/then",
         )?;
         if trace_if {
             for (name, &pre_v) in pre_if_var_map.iter() {
@@ -173,7 +179,10 @@ impl MirBuilder {
             if let Some(else_ast) = else_branch {
                 // Materialize all variables at block entry via single-pred Phi (correctness-first)
                 crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
-                    self, pre_branch_bb, &pre_if_var_map, "if_form/else"
+                    self,
+                    pre_branch_bb,
+                    &pre_if_var_map,
+                    "if_form/else",
                 )?;
                 if trace_if {
                     for (name, &pre_v) in pre_if_var_map.iter() {
@@ -195,7 +204,10 @@ impl MirBuilder {
             } else {
                 // No else branch: materialize PHI nodes for the empty else block
                 crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
-                    self, pre_branch_bb, &pre_if_var_map, "if_form/empty_else"
+                    self,
+                    pre_branch_bb,
+                    &pre_if_var_map,
+                    "if_form/empty_else",
                 )?;
                 if trace_if {
                     for (name, &pre_v) in pre_if_var_map.iter() {

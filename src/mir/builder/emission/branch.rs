@@ -82,9 +82,7 @@ pub fn emit_conditional_edgecfg(
     else_reaches_merge: bool,
     merge_block: BasicBlockId,
 ) -> Result<(), String> {
-    use crate::mir::builder::control_flow::edgecfg::api::{
-        compose, EdgeStub, ExitKind, Frag,
-    };
+    use crate::mir::builder::control_flow::edgecfg::api::{compose, EdgeStub, ExitKind, Frag};
 
     // Then Frag 構築（from = then_exit_block: 実際の merge 飛び元）
     let then_frag = if then_reaches_merge {

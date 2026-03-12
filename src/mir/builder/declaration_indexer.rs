@@ -59,20 +59,23 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
         }
         ASTNode::BoxDeclaration {
             name,
-            fields,          // Phase 285LLVM-1.1: Extract fields
+            fields, // Phase 285LLVM-1.1: Extract fields
             methods,
             is_static,
             ..
         } => {
             if !*is_static {
                 // Phase 285LLVM-1.1: Register instance box with field information
-                builder.comp_ctx.register_user_box_with_fields(name.clone(), fields.clone());
+                builder
+                    .comp_ctx
+                    .register_user_box_with_fields(name.clone(), fields.clone());
             } else {
                 // Static box: no fields
                 builder.comp_ctx.register_user_box(name.clone());
                 for (mname, mast) in methods {
                     if let ASTNode::FunctionDeclaration { params, .. } = mast {
-                        builder.comp_ctx
+                        builder
+                            .comp_ctx
                             .static_method_index
                             .entry(mname.clone())
                             .or_insert_with(Vec::new)

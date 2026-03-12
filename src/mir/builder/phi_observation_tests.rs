@@ -77,7 +77,9 @@ fn test_phase72_observe_phi_dst_via_builder() {
 
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug("\n========== Phase 72: PHI dst Distribution Analysis ==========");
+        ring0
+            .log
+            .debug("\n========== Phase 72: PHI dst Distribution Analysis ==========");
         ring0.log.debug(&report.summary());
         ring0.log.debug("");
         ring0.log.debug("Detailed breakdown:");
@@ -85,25 +87,45 @@ fn test_phase72_observe_phi_dst_via_builder() {
             "  - Reserved region (0-99):   {} PHI dsts",
             report.in_reserved
         ));
-        ring0.log.debug(&format!("  - Param region (100-999):   {} PHI dsts", report.in_param));
-        ring0.log.debug(&format!("  - Local region (1000+):     {} PHI dsts", report.in_local));
+        ring0.log.debug(&format!(
+            "  - Param region (100-999):   {} PHI dsts",
+            report.in_param
+        ));
+        ring0.log.debug(&format!(
+            "  - Local region (1000+):     {} PHI dsts",
+            report.in_local
+        ));
         ring0.log.debug("");
 
         if report.is_all_reserved() {
-            ring0.log.debug("OK: CONCLUSION: All PHI dsts are in reserved region (0-99)");
-            ring0.log.debug("   -> Safe to strengthen verifier with reserved region check");
+            ring0
+                .log
+                .debug("OK: CONCLUSION: All PHI dsts are in reserved region (0-99)");
+            ring0
+                .log
+                .debug("   -> Safe to strengthen verifier with reserved region check");
         } else {
-            ring0.log.debug("WARN: CONCLUSION: Some PHI dsts are OUTSIDE reserved region");
-            ring0.log.debug("   -> PHI dst allocation does NOT respect reserved boundary");
-            ring0.log.debug("   -> Document this finding and skip verifier strengthening");
+            ring0
+                .log
+                .debug("WARN: CONCLUSION: Some PHI dsts are OUTSIDE reserved region");
+            ring0
+                .log
+                .debug("   -> PHI dst allocation does NOT respect reserved boundary");
+            ring0
+                .log
+                .debug("   -> Document this finding and skip verifier strengthening");
 
             if let (Some(min), Some(max)) = (report.min_val, report.max_val) {
                 ring0.log.debug("");
-                ring0.log.debug(&format!("Observed range: [{}, {}]", min, max));
+                ring0
+                    .log
+                    .debug(&format!("Observed range: [{}, {}]", min, max));
                 ring0.log.debug("Expected range: [0, 99]");
             }
         }
-        ring0.log.debug("==============================================================\n");
+        ring0
+            .log
+            .debug("==============================================================\n");
     }
 
     disable_observation();

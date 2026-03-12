@@ -11,6 +11,6 @@ pub mod branch;
 pub mod compare;
 pub mod constant;
 pub(crate) mod copy_emitter;
-pub(in crate::mir::builder) mod phi;  // Phase 272 P0.2 Refactoring
-pub(in crate::mir::builder) mod phi_lifecycle;  // PHI lifecycle SSOT
-pub(in crate::mir::builder) mod value_lifecycle;  // Value lifecycle contract (typed → defined)
+pub(in crate::mir::builder) mod phi; // Phase 272 P0.2 Refactoring
+pub(in crate::mir::builder) mod phi_lifecycle; // PHI lifecycle SSOT
+pub(in crate::mir::builder) mod value_lifecycle; // Value lifecycle contract (typed → defined)

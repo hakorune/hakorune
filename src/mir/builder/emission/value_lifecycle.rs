@@ -7,15 +7,15 @@
 //! - This is a **contract** check (no rewrite, no workaround).
 //! - Enabled only in strict/dev + planner_required to keep release default behavior unchanged.
 
-use crate::mir::builder::MirBuilder;
 use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
+use crate::mir::builder::MirBuilder;
 use crate::mir::verification::utils::compute_def_blocks;
 use crate::mir::{MirFunction, MirType, ValueId};
 use std::collections::HashSet;
 
 fn strict_or_dev_planner_required() -> bool {
-    let strict_or_dev =
-        crate::config::env::joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
+    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
+        || crate::config::env::joinir_dev_enabled();
     strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled()
 }
 
@@ -67,8 +67,7 @@ pub(in crate::mir::builder) fn verify_typed_values_are_defined(
     let param_set = &func.params;
 
     let is_defined = |v: &ValueId| -> bool {
-        *v != ValueId::INVALID
-            && (def_blocks.contains_key(v) || param_set.iter().any(|p| p == v))
+        *v != ValueId::INVALID && (def_blocks.contains_key(v) || param_set.iter().any(|p| p == v))
     };
 
     let mut missing: Vec<(ValueId, MirType)> = builder
@@ -90,15 +89,16 @@ pub(in crate::mir::builder) fn verify_typed_values_are_defined(
     // Policy: only fail-fast if the missing ValueId is actually referenced by the function
     // (or still present in builder-side pending structures). Otherwise, prune stale entries.
     let referenced = collect_referenced_values(func);
-    let pending_phi_dsts: HashSet<ValueId> = builder.pending_phis.iter().map(|(_bb, v, _)| *v).collect();
+    let pending_phi_dsts: HashSet<ValueId> =
+        builder.pending_phis.iter().map(|(_bb, v, _)| *v).collect();
 
     let is_fatal_missing = |v: &ValueId| -> bool {
         referenced.contains(v)
             || pending_phi_dsts.contains(v)
             || builder.pin_slot_names.contains_key(v)
-            // Metadata caller tables are process-global diagnostics and may still carry
-            // same-numbered ValueIds from previously lowered functions. They are not
-            // a semantic "use" signal for the current function boundary contract.
+        // Metadata caller tables are process-global diagnostics and may still carry
+        // same-numbered ValueIds from previously lowered functions. They are not
+        // a semantic "use" signal for the current function boundary contract.
     };
 
     let mut stale: Vec<ValueId> = Vec::new();

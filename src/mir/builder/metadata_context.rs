@@ -156,9 +156,7 @@ impl MetadataContext {
     /// ValueId 起源 caller を取得（診断用）
     #[inline]
     pub(crate) fn value_caller(&self, value_id: ValueId) -> Option<&str> {
-        self.value_origin_callers
-            .get(&value_id)
-            .map(|s| s.as_str())
+        self.value_origin_callers.get(&value_id).map(|s| s.as_str())
     }
 
     /// ValueId 起源 caller 全体（読み取り専用）

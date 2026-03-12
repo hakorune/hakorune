@@ -68,9 +68,10 @@ impl BlockScheduleBox {
         inst: MirInstruction,
         src_for_meta: ValueId,
     ) -> Result<(), String> {
-        if let (Some(ref mut function), Some(bb)) =
-            (&mut builder.scope_ctx.current_function, builder.current_block)
-        {
+        if let (Some(ref mut function), Some(bb)) = (
+            &mut builder.scope_ctx.current_function,
+            builder.current_block,
+        ) {
             if let Some(block) = function.get_block_mut(bb) {
                 let dst = inst.dst_value();
                 block.insert_spanned_after_phis(crate::mir::SpannedInstruction {
@@ -78,9 +79,7 @@ impl BlockScheduleBox {
                     span: builder.metadata_ctx.current_span(),
                 });
                 if let Some(dst) = dst {
-                    crate::mir::builder::metadata::propagate::propagate(
-                        builder, src_for_meta, dst,
-                    );
+                    crate::mir::builder::metadata::propagate::propagate(builder, src_for_meta, dst);
                 }
                 return Ok(());
             }
@@ -269,9 +268,8 @@ impl BlockScheduleBox {
         }
 
         // 2) If a Copy is immediately before a Call-like, prefer it to be derived from after-PHIs copy
-        let is_call_like = |mi: &MirInstruction| -> bool {
-            matches!(mi, MirInstruction::Call { .. })
-        };
+        let is_call_like =
+            |mi: &MirInstruction| -> bool { matches!(mi, MirInstruction::Call { .. }) };
         for w in bb.instructions.windows(2) {
             if let [MirInstruction::Copy { dst: _, src }, call] = w {
                 if is_call_like(call) {

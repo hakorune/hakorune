@@ -1,8 +1,8 @@
+use super::plugin_sigs;
 use super::{
     binding_context, compilation_context, core_context, metadata_context, scope_context,
     type_context, variable_context, MirBuilder,
 };
-use super::plugin_sigs;
 use crate::mir::BindingId;
 use std::collections::HashMap;
 
@@ -53,7 +53,7 @@ impl MirBuilder {
             recursion_depth: 0,
             root_is_app_mode: None,
             static_box_singletons: HashMap::new(), // Phase 21.7: methodization support
-            repl_mode: false, // Phase 288 P2: REPL mode (default: file mode)
+            repl_mode: false,                      // Phase 288 P2: REPL mode (default: file mode)
             frag_emit_session: super::FragEmitSession::new(), // Phase 29bq+: sealing 層中立化
         }
     }

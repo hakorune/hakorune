@@ -165,10 +165,8 @@ impl BoundaryInjector {
 
         // Phase 177-3 DEBUG: Check value_map in BoundaryInjector
         if debug {
-            crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(
-                "[DEBUG-177] === BoundaryInjector value_map ===",
-                true,
-            );
+            crate::mir::builder::control_flow::joinir::trace::trace()
+                .stderr_if("[DEBUG-177] === BoundaryInjector value_map ===", true);
             for binding in &boundary.condition_bindings {
                 let lookup = value_map.get(&binding.join_value);
                 crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(

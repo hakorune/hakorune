@@ -1,8 +1,8 @@
 use super::builder_calls::CallTarget;
-use crate::mir::slot_registry::resolve_slot_by_type_name;
 use super::vars;
 use super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction, MirModule, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
+use crate::mir::slot_registry::resolve_slot_by_type_name;
 
 impl MirBuilder {
     /// Build a complete MIR module from AST
@@ -20,14 +20,23 @@ impl MirBuilder {
         self.recursion_depth += 1;
         if self.recursion_depth > MAX_RECURSION_DEPTH {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.error("\n[FATAL] ============================================");
+            ring0
+                .log
+                .error("\n[FATAL] ============================================");
             ring0.log.error(&format!(
                 "[FATAL] Recursion depth exceeded {} in build_expression",
                 MAX_RECURSION_DEPTH
             ));
-            ring0.log.error(&format!("[FATAL] Current depth: {}", self.recursion_depth));
-            ring0.log.error(&format!("[FATAL] AST node type: {:?}", std::mem::discriminant(&ast)));
-            ring0.log.error("[FATAL] ============================================\n");
+            ring0
+                .log
+                .error(&format!("[FATAL] Current depth: {}", self.recursion_depth));
+            ring0.log.error(&format!(
+                "[FATAL] AST node type: {:?}",
+                std::mem::discriminant(&ast)
+            ));
+            ring0
+                .log
+                .error("[FATAL] ============================================\n");
             return Err(format!(
                 "Recursion depth exceeded: {} (possible infinite loop)",
                 self.recursion_depth
@@ -55,9 +64,7 @@ impl MirBuilder {
             LiteralValue::Integer(n) => {
                 crate::mir::builder::emission::constant::emit_integer(self, n)?
             }
-            LiteralValue::Float(f) => {
-                crate::mir::builder::emission::constant::emit_float(self, f)?
-            }
+            LiteralValue::Float(f) => crate::mir::builder::emission::constant::emit_float(self, f)?,
             LiteralValue::String(s) => {
                 crate::mir::builder::emission::constant::emit_string(self, s)?
             }
@@ -180,9 +187,8 @@ impl MirBuilder {
             // ⚠️ Termination guard: don't emit after return/throw
             if !self.is_current_block_terminated() {
                 if let Some(prev) = self.variable_ctx.variable_map.get(&var_name).copied() {
-                    let _ = self.emit_instruction(MirInstruction::ReleaseStrong {
-                        values: vec![prev],
-                    });
+                    let _ =
+                        self.emit_instruction(MirInstruction::ReleaseStrong { values: vec![prev] });
                 }
             }
 
@@ -208,8 +214,7 @@ impl MirBuilder {
         // Core-13 pure mode: emit ExternCall(env.box.new) with type name const only
         if crate::config::env::mir_core13_pure() {
             // Emit Const String for type name（ConstantEmissionBox）
-            let ty_id =
-                crate::mir::builder::emission::constant::emit_string(self, class.clone())?;
+            let ty_id = crate::mir::builder::emission::constant::emit_string(self, class.clone())?;
             // Evaluate arguments (pass through to env.box.new shim)
             let mut arg_vals: Vec<ValueId> = Vec::with_capacity(arguments.len());
             for a in arguments {
@@ -309,8 +314,8 @@ impl MirBuilder {
                 //   VM will treat plain NewBox as constructed; dev verify warns if needed.
                 // - For builtins/plugins, keep BoxCall("birth") fallback to preserve legacy init.
                 let is_user_box = self.comp_ctx.user_defined_boxes.contains_key(&class); // Phase 285LLVM-1.1: HashMap
-                // Dev safety: allow disabling birth() injection for builtins to avoid
-                // unified-call method dispatch issues while migrating. Off by default unless explicitly enabled.
+                                                                                         // Dev safety: allow disabling birth() injection for builtins to avoid
+                                                                                         // unified-call method dispatch issues while migrating. Off by default unless explicitly enabled.
                 let allow_builtin_birth = crate::config::env::builder_birth_inject_builtins();
                 if !is_user_box && allow_builtin_birth {
                     let birt_mid = resolve_slot_by_type_name(&class, "birth");

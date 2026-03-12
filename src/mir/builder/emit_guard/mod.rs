@@ -33,7 +33,9 @@ fn format_value_ids(values: &[ValueId]) -> String {
 fn callee_label(callee: &Callee) -> String {
     match callee {
         Callee::Global(name) => format!("Global({})", name),
-        Callee::Method { box_name, method, .. } => format!("Method({}.{})", box_name, method),
+        Callee::Method {
+            box_name, method, ..
+        } => format!("Method({}.{})", box_name, method),
         Callee::Constructor { box_type } => format!("Constructor({})", box_type),
         Callee::Closure { .. } => "Closure".to_string(),
         Callee::Value(v) => format!("Value(%{})", v.0),
@@ -86,14 +88,18 @@ fn check_call_arg_scope(
         // Debug-only observation: provenance of undefined ValueId
         if crate::config::env::joinir_dev::debug_enabled() {
             // Reverse lookup variable_map to find variable names pointing to this ValueId
-            let varmap_hits: Vec<&str> = builder.variable_ctx.variable_map
+            let varmap_hits: Vec<&str> = builder
+                .variable_ctx
+                .variable_map
                 .iter()
                 .filter(|(_, &vid)| vid == v)
                 .map(|(name, _)| name.as_str())
                 .collect();
 
             // Check if this is a pin slot (raw value, no prefix added)
-            let pin_slot_name = builder.pin_slot_names.get(&v)
+            let pin_slot_name = builder
+                .pin_slot_names
+                .get(&v)
                 .map(|name| name.as_str())
                 .unwrap_or("none");
 
@@ -118,7 +124,7 @@ fn check_call_arg_scope(
 
             let mut used_values: Vec<ValueId> = Vec::new();
             for block in func.blocks.values() {
-                used_values.extend(block.used_values());  // Includes both instructions AND terminator
+                used_values.extend(block.used_values()); // Includes both instructions AND terminator
             }
 
             // Defined set = def_blocks keys + params (explicitly add params for safety)
@@ -126,7 +132,8 @@ fn check_call_arg_scope(
             defined_set.extend(func.params.iter().copied());
 
             // Undefined = used but not defined
-            let undef_values: BTreeSet<ValueId> = used_values.into_iter()
+            let undef_values: BTreeSet<ValueId> = used_values
+                .into_iter()
                 .filter(|v| !defined_set.contains(v))
                 .collect();
 
@@ -135,14 +142,18 @@ fn check_call_arg_scope(
             let undef_str = format_value_ids(&undef_list);
 
             // Find first undefined use location (by block order, then instruction order)
-            let first_use_str = if let Some(&first_undef) = undef_values.iter().min_by_key(|v| v.0) {
+            let first_use_str = if let Some(&first_undef) = undef_values.iter().min_by_key(|v| v.0)
+            {
                 let mut found = None;
                 'outer: for (block_id, block) in &func.blocks {
                     // Check instructions first
                     for sp in block.iter_spanned() {
                         if sp.inst.used_values().contains(&first_undef) {
                             let inst_name = short_inst_name(&sp.inst);
-                            found = Some(format!("bb{:?} inst={} used=%{}", block_id, inst_name, first_undef.0));
+                            found = Some(format!(
+                                "bb{:?} inst={} used=%{}",
+                                block_id, inst_name, first_undef.0
+                            ));
                             break 'outer;
                         }
                     }
@@ -150,7 +161,10 @@ fn check_call_arg_scope(
                     if let Some(term) = &block.terminator {
                         if term.used_values().contains(&first_undef) {
                             let term_name = short_inst_name(term);
-                            found = Some(format!("bb{:?} term={} used=%{}", block_id, term_name, first_undef.0));
+                            found = Some(format!(
+                                "bb{:?} term={} used=%{}",
+                                block_id, term_name, first_undef.0
+                            ));
                             break 'outer;
                         }
                     }
@@ -161,36 +175,44 @@ fn check_call_arg_scope(
             };
 
             // Collect provenance for first_undef (only in fail-fast path)
-            let (varmap_hits_str, pin_str) = if let Some(&first_undef) = undef_values.iter().min_by_key(|v| v.0) {
-                // Reverse lookup variable_map to find variable names pointing to first_undef
-                let varmap_hits: Vec<&str> = builder.variable_ctx.variable_map
-                    .iter()
-                    .filter(|(_, &vid)| vid == first_undef)
-                    .map(|(name, _)| name.as_str())
-                    .collect();
+            let (varmap_hits_str, pin_str) =
+                if let Some(&first_undef) = undef_values.iter().min_by_key(|v| v.0) {
+                    // Reverse lookup variable_map to find variable names pointing to first_undef
+                    let varmap_hits: Vec<&str> = builder
+                        .variable_ctx
+                        .variable_map
+                        .iter()
+                        .filter(|(_, &vid)| vid == first_undef)
+                        .map(|(name, _)| name.as_str())
+                        .collect();
 
-                // Check if first_undef is a pin slot
-                let pin_slot_name = builder.pin_slot_names.get(&first_undef)
-                    .map(|name| name.as_str())
-                    .unwrap_or("none");
+                    // Check if first_undef is a pin slot
+                    let pin_slot_name = builder
+                        .pin_slot_names
+                        .get(&first_undef)
+                        .map(|name| name.as_str())
+                        .unwrap_or("none");
 
-                // Format as stable 1-line output
-                let varmap_str = if varmap_hits.is_empty() {
-                    "[]".to_string()
+                    // Format as stable 1-line output
+                    let varmap_str = if varmap_hits.is_empty() {
+                        "[]".to_string()
+                    } else {
+                        format!("[{}]", varmap_hits.join(","))
+                    };
+
+                    (varmap_str, pin_slot_name.to_string())
                 } else {
-                    format!("[{}]", varmap_hits.join(","))
+                    ("[]".to_string(), "none".to_string())
                 };
-
-                (varmap_str, pin_slot_name.to_string())
-            } else {
-                ("[]".to_string(), "none".to_string())
-            };
 
             (undef_str, first_use_str, varmap_hits_str, pin_str)
         };
 
         let span = builder.metadata_ctx.current_span();
-        let file = builder.metadata_ctx.current_source_file().unwrap_or_else(|| "unknown".to_string());
+        let file = builder
+            .metadata_ctx
+            .current_source_file()
+            .unwrap_or_else(|| "unknown".to_string());
 
         let mir_dump_path = if crate::config::env::joinir_dev::debug_enabled() {
             let fn_name_sanitized = sanitize_for_path(fn_name);
@@ -230,7 +252,10 @@ fn check_call_arg_scope(
         ))
     };
 
-    if let Callee::Method { receiver: Some(r), .. } = callee {
+    if let Callee::Method {
+        receiver: Some(r), ..
+    } = callee
+    {
         check_value("recv", *r)?;
     } else if let Callee::Value(v) = callee {
         check_value("callee", *v)?;

@@ -66,12 +66,7 @@ pub(in crate::mir::builder) fn build_print_statement(
                     value: val,
                     ty,
                 })?;
-                builder.emit_extern_call(
-                    "env.console",
-                    "log",
-                    vec![dst],
-                    None,
-                )?;
+                builder.emit_extern_call("env.console", "log", vec![dst], None)?;
                 return Ok(dst);
             } else {
                 super::super::utils::builder_debug_log("extract_string_literal FAIL [via wrapper]");
@@ -85,7 +80,8 @@ pub(in crate::mir::builder) fn build_print_statement(
             name, arguments, ..
         } if (name == "isType" || name == "asType") && arguments.len() == 2 => {
             super::super::utils::builder_debug_log("pattern: print(FunctionCall isType|asType)");
-            if let Some(type_name) = super::super::MirBuilder::extract_string_literal(&arguments[1]) {
+            if let Some(type_name) = super::super::MirBuilder::extract_string_literal(&arguments[1])
+            {
                 super::super::utils::builder_debug_log(&format!(
                     "extract_string_literal OK: {}",
                     type_name
@@ -108,12 +104,7 @@ pub(in crate::mir::builder) fn build_print_statement(
                     value: val,
                     ty,
                 })?;
-                builder.emit_extern_call(
-                    "env.console",
-                    "log",
-                    vec![dst],
-                    None,
-                )?;
+                builder.emit_extern_call("env.console", "log", vec![dst], None)?;
                 return Ok(dst);
             } else {
                 super::super::utils::builder_debug_log("extract_string_literal FAIL");
@@ -127,7 +118,8 @@ pub(in crate::mir::builder) fn build_print_statement(
             ..
         } if (method == "is" || method == "as") && arguments.len() == 1 => {
             super::super::utils::builder_debug_log("pattern: print(MethodCall is|as)");
-            if let Some(type_name) = super::super::MirBuilder::extract_string_literal(&arguments[0]) {
+            if let Some(type_name) = super::super::MirBuilder::extract_string_literal(&arguments[0])
+            {
                 super::super::utils::builder_debug_log(&format!(
                     "extract_string_literal OK: {}",
                     type_name
@@ -150,12 +142,7 @@ pub(in crate::mir::builder) fn build_print_statement(
                     value: obj_val,
                     ty,
                 })?;
-                builder.emit_extern_call(
-                    "env.console",
-                    "log",
-                    vec![dst],
-                    None,
-                )?;
+                builder.emit_extern_call("env.console", "log", vec![dst], None)?;
                 return Ok(dst);
             } else {
                 super::super::utils::builder_debug_log("extract_string_literal FAIL");
@@ -179,12 +166,7 @@ pub(in crate::mir::builder) fn build_print_statement(
         )?;
     } else {
         // Legacy path - use ExternCall
-        builder.emit_extern_call(
-            "env.console",
-            "log",
-            vec![value],
-            None,
-        )?;
+        builder.emit_extern_call("env.console", "log", vec![value], None)?;
     }
     Ok(value)
 }

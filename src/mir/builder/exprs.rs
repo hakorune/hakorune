@@ -14,7 +14,9 @@ impl super::MirBuilder {
         if crate::config::env::builder_loopform_debug() {
             if matches!(ast, ASTNode::Loop { .. }) {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[build_expression_impl] === ENTRY === processing Loop node"));
+                ring0.log.debug(&format!(
+                    "[build_expression_impl] === ENTRY === processing Loop node"
+                ));
             }
         }
         match ast {
@@ -24,7 +26,9 @@ impl super::MirBuilder {
                 self.cf_block(statements)
             }
             ASTNode::ScopeBox { body, .. } => self.cf_block(body),
-            ASTNode::Print { expression, .. } => super::stmts::print_stmt::build_print_statement(self, *expression),
+            ASTNode::Print { expression, .. } => {
+                super::stmts::print_stmt::build_print_statement(self, *expression)
+            }
             ASTNode::If {
                 condition,
                 then_body,
@@ -195,7 +199,11 @@ impl super::MirBuilder {
                 variables,
                 initial_values,
                 ..
-            } => super::stmts::variable_stmt::build_local_statement(self, variables.clone(), initial_values.clone()),
+            } => super::stmts::variable_stmt::build_local_statement(
+                self,
+                variables.clone(),
+                initial_values.clone(),
+            ),
 
             ASTNode::Outbox { variables, .. } => {
                 let func_name = self
@@ -273,7 +281,8 @@ impl super::MirBuilder {
                 } else {
                     // Instance box: register type and lower instance methods/ctors as functions
                     // Phase 285LLVM-1.1: Register with field information for LLVM harness
-                    self.comp_ctx.register_user_box_with_fields(name.clone(), fields.clone());
+                    self.comp_ctx
+                        .register_user_box_with_fields(name.clone(), fields.clone());
                     self.build_box_declaration(
                         name.clone(),
                         methods.clone(),

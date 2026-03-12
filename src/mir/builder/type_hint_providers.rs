@@ -51,32 +51,36 @@ pub(super) fn annotate_missing_result_types_from_calls_and_await(
                     };
                     builder.type_ctx.value_types.insert(*dst, inferred);
                 }
-                MirInstruction::Call { dst: Some(dst), callee, .. } => {
+                MirInstruction::Call {
+                    dst: Some(dst),
+                    callee,
+                    ..
+                } => {
                     if builder.type_ctx.value_types.contains_key(dst) {
                         continue;
                     }
                     let inferred = match callee {
                         Some(callee) => match callee {
-                        Callee::Global(name) => module
-                            .functions
-                            .get(name)
-                            .map(|f| f.signature.return_type.clone())
-                            .or_else(|| {
-                                crate::mir::builder::types::annotation::annotate_from_function(
-                                    builder, *dst, name,
-                                );
-                                builder.type_ctx.value_types.get(dst).cloned()
-                            })
-                            .unwrap_or(MirType::Unknown),
-                        Callee::Constructor { box_type } => {
-                            let ret = MirType::Box(box_type.clone());
-                            builder
-                                .type_ctx
-                                .value_origin_newbox
-                                .insert(*dst, box_type.clone());
-                            ret
-                        }
-                        _ => MirType::Unknown,
+                            Callee::Global(name) => module
+                                .functions
+                                .get(name)
+                                .map(|f| f.signature.return_type.clone())
+                                .or_else(|| {
+                                    crate::mir::builder::types::annotation::annotate_from_function(
+                                        builder, *dst, name,
+                                    );
+                                    builder.type_ctx.value_types.get(dst).cloned()
+                                })
+                                .unwrap_or(MirType::Unknown),
+                            Callee::Constructor { box_type } => {
+                                let ret = MirType::Box(box_type.clone());
+                                builder
+                                    .type_ctx
+                                    .value_origin_newbox
+                                    .insert(*dst, box_type.clone());
+                                ret
+                            }
+                            _ => MirType::Unknown,
                         },
                         None => MirType::Unknown,
                     };

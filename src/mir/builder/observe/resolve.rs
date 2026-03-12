@@ -14,10 +14,7 @@ fn kpi_enabled() -> bool {
 }
 
 fn sample_every() -> usize {
-    *SAMPLE_EVERY.get_or_init(|| {
-        crate::config::env::builder_debug_sample_every()
-            .unwrap_or(0)
-    })
+    *SAMPLE_EVERY.get_or_init(|| crate::config::env::builder_debug_sample_every().unwrap_or(0))
 }
 
 /// Dev‑only: emit a resolve.try event（candidates inspection）。

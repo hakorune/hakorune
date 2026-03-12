@@ -161,7 +161,10 @@ pub(super) fn build_unary_op(
                 super::super::builder_calls::CallTarget::Global(name.to_string()),
                 vec![operand_val],
             )?;
-            builder.type_ctx.value_types.insert(dst, return_type.clone());
+            builder
+                .type_ctx
+                .value_types
+                .insert(dst, return_type.clone());
             return Ok(dst);
         }
     }
@@ -177,7 +180,10 @@ pub(super) fn build_unary_op(
                     lhs: zero,
                     rhs: operand_val,
                 })?;
-                builder.type_ctx.value_types.insert(dst, return_type.clone());
+                builder
+                    .type_ctx
+                    .value_types
+                    .insert(dst, return_type.clone());
                 return Ok(dst);
             }
             "!" | "not" => {
@@ -190,7 +196,10 @@ pub(super) fn build_unary_op(
                     operand_val,
                     f,
                 )?;
-                builder.type_ctx.value_types.insert(dst, return_type.clone());
+                builder
+                    .type_ctx
+                    .value_types
+                    .insert(dst, return_type.clone());
                 return Ok(dst);
             }
             "~" => {
@@ -202,7 +211,10 @@ pub(super) fn build_unary_op(
                     lhs: operand_val,
                     rhs: all1,
                 })?;
-                builder.type_ctx.value_types.insert(dst, return_type.clone());
+                builder
+                    .type_ctx
+                    .value_types
+                    .insert(dst, return_type.clone());
                 return Ok(dst);
             }
             _ => {}

@@ -43,7 +43,9 @@ impl CopyEmitReason {
     #[inline]
     pub const fn as_str(self) -> &'static str {
         match self {
-            CopyEmitReason::JoinIrBridgeConditionalMethodCall => "joinir_bridge/conditional_method_call",
+            CopyEmitReason::JoinIrBridgeConditionalMethodCall => {
+                "joinir_bridge/conditional_method_call"
+            }
             CopyEmitReason::JoinIrBridgeIfMergeThen => "joinir_bridge/if_merge/then",
             CopyEmitReason::JoinIrBridgeIfMergeElse => "joinir_bridge/if_merge/else",
             CopyEmitReason::JoinIrBridgeNestedIfMergeThen => "joinir_bridge/nested_if_merge/then",

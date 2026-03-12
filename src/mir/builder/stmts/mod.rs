@@ -108,7 +108,6 @@ use super::ValueId;
 use crate::ast::ASTNode;
 
 impl super::MirBuilder {
-
     // ========== Block Execution ==========
 
     /// Build a block by sequentially processing statements
@@ -171,5 +170,4 @@ impl super::MirBuilder {
 
         Ok(())
     }
-
 }

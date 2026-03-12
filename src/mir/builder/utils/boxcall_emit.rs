@@ -113,9 +113,7 @@ impl super::super::MirBuilder {
             crate::mir::definitions::call_unified::TypeCertainty::Union,
             args.len(),
         );
-        if super::builder_debug_enabled()
-            || crate::config::env::builder_local_ssa_trace()
-        {
+        if super::builder_debug_enabled() || crate::config::env::builder_local_ssa_trace() {
             if matches!(
                 method.as_str(),
                 "parse" | "substring" | "has_errors" | "length"
@@ -156,7 +154,8 @@ impl super::super::MirBuilder {
         let box_name_for_call = box_type
             .clone()
             .unwrap_or_else(|| "RuntimeDataBox".to_string());
-        let box_kind = crate::mir::builder::calls::call_unified::classify_box_kind(&box_name_for_call);
+        let box_kind =
+            crate::mir::builder::calls::call_unified::classify_box_kind(&box_name_for_call);
         self.emit_instruction(super::super::MirInstruction::Call {
             dst,
             func: super::super::ValueId::INVALID,

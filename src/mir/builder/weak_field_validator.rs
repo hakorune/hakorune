@@ -23,10 +23,7 @@ impl WeakFieldValidatorBox {
     /// # Arguments
     /// - `type_ctx`: 型コンテキスト（value_types に WeakRef を記録）
     /// - `dst`: 読み込み結果の ValueId
-    pub(super) fn annotate_read_result(
-        type_ctx: &mut TypeContext,
-        dst: ValueId,
-    ) {
+    pub(super) fn annotate_read_result(type_ctx: &mut TypeContext, dst: ValueId) {
         // Phase 285A1: Mark the result as WeakRef type
         type_ctx.value_types.insert(dst, MirType::WeakRef);
     }
@@ -93,21 +90,15 @@ mod tests {
 
     #[test]
     fn test_validate_weakref_allowed() {
-        let result = WeakFieldValidatorBox::validate_assignment(
-            Some(&MirType::WeakRef),
-            "Node",
-            "next",
-        );
+        let result =
+            WeakFieldValidatorBox::validate_assignment(Some(&MirType::WeakRef), "Node", "next");
         assert!(result.is_ok(), "WeakRef should be allowed");
     }
 
     #[test]
     fn test_validate_void_allowed() {
-        let result = WeakFieldValidatorBox::validate_assignment(
-            Some(&MirType::Void),
-            "Node",
-            "next",
-        );
+        let result =
+            WeakFieldValidatorBox::validate_assignment(Some(&MirType::Void), "Node", "next");
         assert!(result.is_ok(), "Void should be allowed");
     }
 
@@ -124,22 +115,15 @@ mod tests {
 
     #[test]
     fn test_validate_untracked_forbidden() {
-        let result = WeakFieldValidatorBox::validate_assignment(
-            None,
-            "Node",
-            "next",
-        );
+        let result = WeakFieldValidatorBox::validate_assignment(None, "Node", "next");
         assert!(result.is_err(), "Untracked value should be forbidden");
         assert!(result.unwrap_err().contains("untracked value"));
     }
 
     #[test]
     fn test_validate_primitive_forbidden() {
-        let result = WeakFieldValidatorBox::validate_assignment(
-            Some(&MirType::Integer),
-            "Node",
-            "count",
-        );
+        let result =
+            WeakFieldValidatorBox::validate_assignment(Some(&MirType::Integer), "Node", "count");
         assert!(result.is_err(), "Primitive should be forbidden");
         assert!(result.unwrap_err().contains("Weak fields require WeakRef"));
     }

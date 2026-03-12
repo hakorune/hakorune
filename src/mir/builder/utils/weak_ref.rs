@@ -49,7 +49,10 @@ impl super::super::MirBuilder {
     }
 
     #[allow(dead_code)]
-    pub(in crate::mir::builder) fn emit_barrier_read(&mut self, ptr: super::super::ValueId) -> Result<(), String> {
+    pub(in crate::mir::builder) fn emit_barrier_read(
+        &mut self,
+        ptr: super::super::ValueId,
+    ) -> Result<(), String> {
         self.emit_instruction(super::super::MirInstruction::Barrier {
             op: BarrierOp::Read,
             ptr,
@@ -57,7 +60,10 @@ impl super::super::MirBuilder {
     }
 
     #[allow(dead_code)]
-    pub(in crate::mir::builder) fn emit_barrier_write(&mut self, ptr: super::super::ValueId) -> Result<(), String> {
+    pub(in crate::mir::builder) fn emit_barrier_write(
+        &mut self,
+        ptr: super::super::ValueId,
+    ) -> Result<(), String> {
         self.emit_instruction(super::super::MirInstruction::Barrier {
             op: BarrierOp::Write,
             ptr,

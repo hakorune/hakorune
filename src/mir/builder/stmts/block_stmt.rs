@@ -80,7 +80,11 @@ pub(in crate::mir::builder) fn build_block(
             // Clone to avoid borrow checker conflict (self is borrowed mutably in try_lower_loop_suffix)
             let prefix_var_map = builder.variable_ctx.variable_map.clone();
             match NormalizedShadowSuffixRouterBox::try_lower_loop_suffix(
-                builder, remaining, &func_name, debug, Some(&prefix_var_map)
+                builder,
+                remaining,
+                &func_name,
+                debug,
+                Some(&prefix_var_map),
             )? {
                 Some(consumed) => {
                     trace.emit_if(
@@ -109,7 +113,8 @@ pub(in crate::mir::builder) fn build_block(
                 idx + 1,
                 total,
                 builder.current_block,
-                builder.scope_ctx
+                builder
+                    .scope_ctx
                     .current_function
                     .as_ref()
                     .map(|f| f.signature.name.as_str())

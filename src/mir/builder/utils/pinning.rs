@@ -32,13 +32,8 @@ impl super::super::MirBuilder {
             self.core_ctx.next_value() // Module context: use core_ctx SSOT
         };
         self.emit_instruction(super::super::MirInstruction::Copy { dst, src: v })?;
-        if super::builder_debug_enabled()
-            || crate::config::env::builder_pin_trace()
-        {
-            super::builder_debug_log(&format!(
-                "pin slot={} src={} dst={}",
-                slot_name, v.0, dst.0
-            ));
+        if super::builder_debug_enabled() || crate::config::env::builder_pin_trace() {
+            super::builder_debug_log(&format!("pin slot={} src={} dst={}", slot_name, v.0, dst.0));
         }
         // Propagate lightweight metadata so downstream resolution/type inference remains stable
         crate::mir::builder::metadata::propagate::propagate(self, v, dst);

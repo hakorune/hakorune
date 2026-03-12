@@ -1,4 +1,4 @@
-use super::{BasicBlockId, MirInstruction, MirBuilder, ValueId};
+use super::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
 
 impl crate::mir::loop_api::LoopBuilderApi for MirBuilder {
     fn new_block(&mut self) -> BasicBlockId {

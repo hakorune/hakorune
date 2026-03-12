@@ -186,7 +186,8 @@ impl super::MirBuilder {
                         } else {
                             // Instance box: register type and lower instance methods/ctors as functions
                             // Phase 285LLVM-1.1: Register with field information for LLVM harness
-                            self.comp_ctx.register_user_box_with_fields(name.clone(), fields.clone());
+                            self.comp_ctx
+                                .register_user_box_with_fields(name.clone(), fields.clone());
                             self.build_box_declaration(
                                 name.clone(),
                                 methods.clone(),
@@ -299,9 +300,7 @@ impl super::MirBuilder {
         // before return type inference. This avoids "impossible" debug panics when the builder
         // emitted a value-producing instruction without annotating its dst type.
         type_hint_providers::annotate_missing_result_types_from_calls_and_await(
-            self,
-            &function,
-            &module,
+            self, &function, &module,
         );
 
         // Phase 131-9: Update function metadata with corrected types

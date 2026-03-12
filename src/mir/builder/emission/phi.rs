@@ -31,7 +31,10 @@ pub(in crate::mir::builder) fn materialize_vars_single_pred_at_entry(
     builder.variable_ctx.variable_map = pre_if_var_map.clone();
     for (name, &pre_v) in pre_if_var_map.iter() {
         let phi_val = builder.insert_phi_single(pre_branch_bb, pre_v)?;
-        builder.variable_ctx.variable_map.insert(name.clone(), phi_val);
+        builder
+            .variable_ctx
+            .variable_map
+            .insert(name.clone(), phi_val);
     }
     Ok(())
 }

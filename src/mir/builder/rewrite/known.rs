@@ -21,8 +21,14 @@ fn should_block_primitive_str_rewrite(
     use crate::mir::MirType;
     let is_primitive = match recv_type {
         MirType::Integer | MirType::Float | MirType::Bool | MirType::String => true,
-        MirType::Box(name) if name == "IntegerBox" || name == "FloatBox"
-            || name == "BoolBox" || name == "StringBox" => true,
+        MirType::Box(name)
+            if name == "IntegerBox"
+                || name == "FloatBox"
+                || name == "BoolBox"
+                || name == "StringBox" =>
+        {
+            true
+        }
         _ => false,
     };
 
@@ -111,7 +117,8 @@ pub(crate) fn try_known_rewrite(
         return None;
     }
     // Only user-defined boxes (plugin/core boxesは対象外)
-    if !builder.comp_ctx.user_defined_boxes.contains_key(cls) { // Phase 285LLVM-1.1: HashMap
+    if !builder.comp_ctx.user_defined_boxes.contains_key(cls) {
+        // Phase 285LLVM-1.1: HashMap
         return None;
     }
 
@@ -190,7 +197,8 @@ pub(crate) fn try_known_rewrite_to_dst(
     {
         return None;
     }
-    if !builder.comp_ctx.user_defined_boxes.contains_key(cls) { // Phase 285LLVM-1.1: HashMap
+    if !builder.comp_ctx.user_defined_boxes.contains_key(cls) {
+        // Phase 285LLVM-1.1: HashMap
         return None;
     }
 
@@ -272,7 +280,12 @@ pub(crate) fn try_unique_suffix_rewrite(
     let fname = cands.remove(0);
     // 🎯 Phase 21.7++ Phase 3: StaticMethodId SSOT 実装
     let id = crate::mir::naming::StaticMethodId::parse(&fname)?;
-    if !builder.comp_ctx.user_defined_boxes.contains_key(&id.box_name) { // Phase 285LLVM-1.1: HashMap
+    if !builder
+        .comp_ctx
+        .user_defined_boxes
+        .contains_key(&id.box_name)
+    {
+        // Phase 285LLVM-1.1: HashMap
         return None;
     }
 
@@ -334,7 +347,12 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
     let fname = cands.remove(0);
     // 🎯 Phase 21.7++ Phase 3: StaticMethodId SSOT 実装
     let id = crate::mir::naming::StaticMethodId::parse(&fname)?;
-    if !builder.comp_ctx.user_defined_boxes.contains_key(&id.box_name) { // Phase 285LLVM-1.1: HashMap
+    if !builder
+        .comp_ctx
+        .user_defined_boxes
+        .contains_key(&id.box_name)
+    {
+        // Phase 285LLVM-1.1: HashMap
         return None;
     }
 
@@ -343,11 +361,11 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
         return None;
     }
 
-    let _name_const =
-        match crate::mir::builder::name_const::make_name_const_result(builder, &fname) {
-            Ok(v) => v,
-            Err(e) => return Some(Err(e)),
-        };
+    let _name_const = match crate::mir::builder::name_const::make_name_const_result(builder, &fname)
+    {
+        Ok(v) => v,
+        Err(e) => return Some(Err(e)),
+    };
     let arity_us = arg_values.len();
     let mut call_args = rewrite_call_args_for_signature(builder, &fname, object_value, arg_values);
     if let Err(e) = crate::mir::builder::ssa::local::finalize_args(builder, &mut call_args) {

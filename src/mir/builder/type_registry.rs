@@ -256,9 +256,17 @@ impl TypeRegistry {
     /// 統計情報を表示
     #[allow(dead_code)]
     pub fn dump_stats(&self) {
-        get_global_ring0().log.debug("[type-registry] === Statistics ===");
-        get_global_ring0().log.debug(&format!("[type-registry] Origins: {} entries", self.origins.len()));
-        get_global_ring0().log.debug(&format!("[type-registry] Types: {} entries", self.types.len()));
+        get_global_ring0()
+            .log
+            .debug("[type-registry] === Statistics ===");
+        get_global_ring0().log.debug(&format!(
+            "[type-registry] Origins: {} entries",
+            self.origins.len()
+        ));
+        get_global_ring0().log.debug(&format!(
+            "[type-registry] Types: {} entries",
+            self.types.len()
+        ));
         get_global_ring0().log.debug(&format!(
             "[type-registry] Trace log: {} entries",
             self.trace_log.len()
@@ -274,7 +282,9 @@ impl TypeRegistry {
     pub fn clear_origins(&mut self) {
         self.origins.clear();
         if self.trace_enabled {
-            get_global_ring0().log.debug("[type-registry] cleared origins");
+            get_global_ring0()
+                .log
+                .debug("[type-registry] cleared origins");
         }
     }
 

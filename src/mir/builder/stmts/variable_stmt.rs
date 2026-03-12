@@ -179,7 +179,7 @@ pub(in crate::mir::builder) fn build_me_expression(
     builder: &mut MirBuilder,
 ) -> Result<ValueId, String> {
     // Phase 269 P1.2: SSOT - variable_map["me"] only (no string fallback)
-    const ME_VAR: &str = "me";  // Small constant SSOT
+    const ME_VAR: &str = "me"; // Small constant SSOT
 
     // Fast path: return if "me" is in variable_map
     if let Some(id) = builder.variable_ctx.variable_map.get(ME_VAR).cloned() {
@@ -189,12 +189,16 @@ pub(in crate::mir::builder) fn build_me_expression(
     // ✅ Fail-Fast: "me" must be in variable_map (no string fallback)
     // This is a contract violation - caller must initialize "me" before use
 
-    let function_context = builder.scope_ctx.current_function
+    let function_context = builder
+        .scope_ctx
+        .current_function
         .as_ref()
         .map(|f| f.signature.name.clone())
         .unwrap_or_else(|| "unknown".to_string());
 
-    let static_box_context = builder.comp_ctx.current_static_box
+    let static_box_context = builder
+        .comp_ctx
+        .current_static_box
         .as_ref()
         .map(|s| s.as_str())
         .unwrap_or("none");
@@ -219,7 +223,6 @@ pub(in crate::mir::builder) fn build_me_expression(
          (MethodCall common entry point handles static call normalization).\n\
          \n\
          Hint: Enable NYASH_TRACE_VARMAP=1 to trace variable_map changes.",
-        function_context,
-        static_box_context
+        function_context, static_box_context
     ))
 }

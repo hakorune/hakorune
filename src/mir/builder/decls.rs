@@ -46,7 +46,10 @@ impl super::MirBuilder {
                     trace.stderr_if(&format!("[DEBUG]   params.len() = {}", params.len()), true);
                     trace.stderr_if(&format!("[DEBUG]   body.len() = {}", body.len()), true);
                     trace.stderr_if(
-                        &format!("[DEBUG]   variable_map = {:?}", self.variable_ctx.variable_map),
+                        &format!(
+                            "[DEBUG]   variable_map = {:?}",
+                            self.variable_ctx.variable_map
+                        ),
                         true,
                     );
                     // Note: Metadata clearing is now handled by BoxCompilationContext (箱理論)
@@ -61,7 +64,10 @@ impl super::MirBuilder {
                         true,
                     );
                     trace.stderr_if(
-                        &format!("[DEBUG]   variable_map = {:?}", self.variable_ctx.variable_map),
+                        &format!(
+                            "[DEBUG]   variable_map = {:?}",
+                            self.variable_ctx.variable_map
+                        ),
                         true,
                     );
                 }
@@ -166,10 +172,7 @@ impl super::MirBuilder {
         weak_fields: Vec<String>,
     ) -> Result<(), String> {
         // Create a type registration constant (marker)
-        crate::mir::builder::emission::constant::emit_string(
-            self,
-            format!("__box_type_{}", name),
-        )?;
+        crate::mir::builder::emission::constant::emit_string(self, format!("__box_type_{}", name))?;
 
         // Emit field metadata markers
         for field in fields {

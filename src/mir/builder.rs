@@ -12,17 +12,15 @@ pub(crate) use builder_calls::CallTarget;
 use std::collections::HashMap;
 mod binding_context; // Phase 136 follow-up (Step 4/7): BindingContext extraction
 mod builder_build;
+mod builder_calls;
 mod builder_debug;
 mod builder_emit;
 mod builder_init;
 mod builder_metadata;
 mod builder_method_index;
-mod builder_value_kind;
 #[cfg(test)]
 mod builder_test_api;
-#[cfg(test)]
-mod phi_observation_tests;
-mod builder_calls;
+mod builder_value_kind;
 mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod calls; // Call system modules (refactored from builder_calls)
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
@@ -33,6 +31,8 @@ mod exprs; // expression lowering split
 mod exprs_call;
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
+#[cfg(test)]
+mod phi_observation_tests;
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
@@ -73,22 +73,22 @@ mod exprs_lambda; // lambda lowering
 mod exprs_peek; // peek expression
 mod exprs_qmark; // ?-propagate
 mod fields; // field access/assignment lowering split
-mod weak_field_validator; // Phase 285A1: Weak field contract validator
 mod if_form;
-// Phase 29bq+: sealing 層中立化
+mod weak_field_validator; // Phase 285A1: Weak field contract validator
+                          // Phase 29bq+: sealing 層中立化
 use control_flow::edgecfg::api::FragEmitSession;
+mod declaration_indexer; // Phase 29bq+: Declaration indexing (user boxes, static methods)
 pub mod joinir_id_remapper; // Phase 189: JoinIR ID remapping (ValueId/BlockId translation) - Public for tests
 mod joinir_inline_boundary_injector; // Phase 189: JoinInlineBoundary Copy instruction injector
-mod declaration_indexer; // Phase 29bq+: Declaration indexing (user boxes, static methods)
-mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)
 mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer
-mod phi_type_inference; // Phase 29bq+: PHI type inference (multi-phase fallback chain)
-mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures)
 pub(crate) mod loops;
+mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)
 mod ops;
 mod phi;
-mod phi_merge; // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split
-               // legacy large-match remains inline for now (planned extraction)
+mod phi_merge;
+mod phi_type_inference; // Phase 29bq+: PHI type inference (multi-phase fallback chain)
+mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures) // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split
+                         // legacy large-match remains inline for now (planned extraction)
 mod emission; // emission::*（Const/Compare/Branch の薄い発行箱）
 pub(crate) use emission::copy_emitter;
 mod emit_guard; // EmitGuardBox（emit直前の最終関所）
@@ -110,7 +110,7 @@ pub(crate) mod type_registry;
 mod types; // types::annotation / inference（型注釈/推論の箱: 推論は後段）
 mod utils;
 mod vars; // variables/scope helpers // small loop helpers (header/exit context) // TypeRegistryBox（型情報管理の一元化）
-// Phase 288 Box化: repl_session moved to src/runner/repl/repl_session.rs
+          // Phase 288 Box化: repl_session moved to src/runner/repl/repl_session.rs
 
 // Unified member property kinds for computed/once/birth_once
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

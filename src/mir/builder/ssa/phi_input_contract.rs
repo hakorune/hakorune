@@ -1,4 +1,6 @@
-use crate::mir::verification::utils::{compute_def_blocks, compute_dominators, compute_predecessors};
+use crate::mir::verification::utils::{
+    compute_def_blocks, compute_dominators, compute_predecessors,
+};
 use crate::mir::{BasicBlockId, MirFunction, ValueId};
 use std::collections::HashSet;
 

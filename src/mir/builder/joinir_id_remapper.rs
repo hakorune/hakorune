@@ -189,11 +189,9 @@ impl JoinIrIdRemapper {
                     certainty: *certainty,
                     box_kind: *box_kind,
                 },
-                crate::mir::Callee::Constructor { box_type } => {
-                    crate::mir::Callee::Constructor {
-                        box_type: box_type.clone(),
-                    }
-                }
+                crate::mir::Callee::Constructor { box_type } => crate::mir::Callee::Constructor {
+                    box_type: box_type.clone(),
+                },
                 crate::mir::Callee::Closure {
                     params,
                     captures,
@@ -391,7 +389,6 @@ impl JoinIrIdRemapper {
     pub fn remap_value(&self, v: ValueId) -> ValueId {
         self.value_map.get(&v).copied().unwrap_or(v)
     }
-
 }
 
 #[cfg(test)]
