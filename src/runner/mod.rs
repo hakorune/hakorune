@@ -6,6 +6,7 @@
  */
 
 use nyash_rust::cli::CliConfig;
+use crate::runner::stage1_bridge::program_json_entry;
 // prune heavy unused imports here; modules import what they need locally
 // pruned unused runtime imports in this module
 
@@ -119,7 +120,7 @@ impl NyashRunner {
             && (groups.emit.emit_cfg.is_some()
                 || groups.emit.emit_mir_json.is_some()
                 || groups.emit.emit_ast_json.is_some()
-                || Self::emit_program_json_v0_requested(&groups));
+                || program_json_entry::emit_program_json_v0_requested(&groups));
         if !skip_stage1_stub {
             if let Some(code) = self.maybe_run_stage1_cli_stub(&groups) {
                 std::process::exit(code);

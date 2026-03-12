@@ -25,6 +25,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - bridge-local Program(JSON v0) entry facade lives in `program_json_entry.rs`
 - `program_json_entry.rs` owns the explicit `emit-program-json-v0` branch selection and success/error process-exit formatting for the bridge entry
 - `program_json_entry.rs` also owns the bridge-entry request predicate used by `runner/mod.rs` for `skip_stage1_stub`
+- outer callers should use the `program_json_entry` module helpers directly; this contract is no longer rebound as `NyashRunner` methods
 - `emit_program_json_v0(...)` must use `stage1::program_json_v0::emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
 - Stage1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `stub_child.rs`
 - Stage1 stub plain delegate-status execution + child-spawn-failure mapping live in `stub_delegate.rs`

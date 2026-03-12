@@ -1,5 +1,6 @@
 use super::NyashRunner;
 use crate::cli::CliGroups;
+use crate::runner::stage1_bridge::program_json_entry;
 
 impl NyashRunner {
     pub(super) fn maybe_emit_and_exit(&self, groups: &CliGroups) -> bool {
@@ -16,8 +17,8 @@ impl NyashRunner {
         }
 
         // Emit Program(JSON v0) via Stage-1 bridge entry and exit (explicit SSOT flag).
-        if Self::emit_program_json_v0_requested(groups) {
-            Self::emit_program_json_v0_and_exit(groups);
+        if program_json_entry::emit_program_json_v0_requested(groups) {
+            program_json_entry::emit_program_json_v0_and_exit(groups);
         }
 
         // Emit AST JSON and exit (direct Rust parser route).
