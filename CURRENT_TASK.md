@@ -222,6 +222,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - phase closeout: `docs/development/current/main/phases/phase-29ch/README.md`
       - next separate retirement phase: `docs/development/current/main/phases/phase-29ci/README.md`
       - `phase-29ci` P0 caller inventory: `docs/development/current/main/phases/phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md`
+      - `phase-29ci` P1 future-retire bridge delete order: `docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md`
       - active evidence/probes: `docs/development/current/main/phases/phase-29ch/29ch-20-route-evidence-and-probes.md`
       - G1 compare policy: `docs/development/current/main/design/selfhost-g1-mir-compare-policy-ssot.md`
     - restart rule:

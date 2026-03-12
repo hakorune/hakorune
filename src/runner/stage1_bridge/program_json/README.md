@@ -24,3 +24,4 @@ Scope: future-retire bridge-only `emit-program-json-v0` helpers under `src/runne
 - keep this lane future-retire only
 - do not add parse/lower policy here
 - do not bypass `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
+- next Rust-only retire slices may stay inside this cluster; do not widen them into `src/runner/mod.rs` or `src/runner/emit.rs`

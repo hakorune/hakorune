@@ -21,3 +21,4 @@ Scope: future-retire bridge-only `emit-program-json-v0` entry helpers under `src
 - keep this lane future-retire only
 - outer callers should use the `program_json_entry` module helpers directly
 - do not reintroduce bridge-local source-path precedence or emit-path extraction into `runner/mod.rs` or `runner/emit.rs`
+- next Rust-only retire slices may stay inside this cluster; treat `runner/mod.rs` and `runner/emit.rs` as thin callers until the bridge bucket is ready to retire

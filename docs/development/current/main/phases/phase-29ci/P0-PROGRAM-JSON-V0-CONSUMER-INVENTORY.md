@@ -5,6 +5,7 @@ Date: 2026-03-13
 Scope: `phase-29ci` で扱う `Program(JSON v0)` bootstrap boundary の残存 consumer を exact owner 付きで固定する。
 Related:
   - docs/development/current/main/phases/phase-29ci/README.md
+  - docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md
   - CURRENT_TASK.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/design/selfhost-compiler-structure-ssot.md
@@ -59,7 +60,7 @@ Related:
 - `ProgramJsonEntryOutcome` is gone from the outer caller surface; exact success/error process-exit formatting now stays in `program_json_entry/exit.rs`
 - bridge-local source-path precedence (`stage1::input_path()` aliases first, CLI input fallback second) now stays in `program_json_entry/request.rs`, so `program_json/mod.rs` no longer depends on `CliGroups`
 - bridge-local read->emit->write orchestration now stays in `program_json/pipeline.rs`, so `program_json/mod.rs` no longer carries the chain itself
-- therefore, do not spend the next delete slice on root-runner reshaping yet; treat those two files as `must-stay thin callers` until the bridge bucket itself is ready to retire
+- therefore, do not spend the next delete slice on root-runner reshaping yet; treat those two files as `must-stay thin callers` until the bridge bucket itself is ready to retire, and use `P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md` as the exact delete-order SSOT for that bucket
 - `MirBuilderBox.emit_from_source_v0(...)` is still a live keep, not a diagnostics-only probe bucket; do not collapse it into shell/probe cleanup planning yet
 - outside the helper trio in the `shell helper keep` row, there is still a test-only shell/apps tail with roughly 44 direct caller sites; record that tail as caller-audit work rather than mixing it into the first Rust-only delete slices
 
