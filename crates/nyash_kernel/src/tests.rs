@@ -18,6 +18,10 @@ fn decode_string_like_handle(handle: i64) -> Option<String> {
     Some(object.to_string_box().value)
 }
 
+fn ensure_test_ring0() {
+    let _ = nyash_rust::runtime::ring0::ensure_global_ring0_initialized();
+}
+
 unsafe extern "C" fn fake_i32(
     _t: u32,
     _m: u32,
@@ -238,9 +242,7 @@ fn string_to_i8p_h_fallback_contract() {
     let missing = 9_876_543_210_i64;
     let c_missing = nyash_string_to_i8p_h(missing);
     assert!(!c_missing.is_null());
-    let s_missing = unsafe { CStr::from_ptr(c_missing) }
-        .to_str()
-        .expect("utf8");
+    let s_missing = unsafe { CStr::from_ptr(c_missing) }.to_str().expect("utf8");
     assert_eq!(s_missing, missing.to_string());
 }
 
@@ -348,61 +350,12 @@ fn invoke_by_name_accepts_stage1_using_resolver_module_receiver() {
 }
 
 #[test]
-fn invoke_by_name_accepts_stage1_build_box_module_receiver() {
-    let receiver: Arc<dyn NyashBox> =
-        Arc::new(StringBox::new("lang.compiler.build.build_box".to_string()));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source: Arc<dyn NyashBox> = Arc::new(StringBox::new(
-        "static box Main { main() { print(42) return 0 } }".to_string(),
-    ));
-    let source_handle = handles::to_handle_arc(source) as i64;
-    let method = CString::new("emit_program_json_v0").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 2, source_handle, 0);
-    assert!(result_handle > 0, "expected Program JSON StringBox handle");
-
-    let result_object = handles::get(result_handle as u64).expect("result handle");
-    let program_json = result_object
-        .as_any()
-        .downcast_ref::<StringBox>()
-        .expect("StringBox result")
-        .value
-        .clone();
-    assert!(program_json.contains("\"kind\":\"Program\""));
-    assert!(program_json.contains("\"version\":0"));
-}
-
-#[test]
-fn invoke_by_name_accepts_stage1_mir_builder_for_stage1_cli_env_program_json() {
+fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_stage1_cli_env() {
+    ensure_test_ring0();
     let receiver: Arc<dyn NyashBox> =
         Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
     let receiver_handle = handles::to_handle_arc(receiver) as i64;
     let source = include_str!("../../../lang/src/runner/stage1_cli_env.hako");
-    let program_json = nyash_rust::stage1::program_json_v0::source_to_program_json_v0(source)
-        .expect("stage1_cli_env Program(JSON v0)");
-    let program_handle = handles::to_handle_arc(Arc::new(StringBox::new(program_json))) as i64;
-    let method = CString::new("emit_from_program_json_v0").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, program_handle, 0);
-    assert!(result_handle > 0, "expected MIR JSON StringBox handle");
-
-    let mir_json = decode_string_like_handle(result_handle).expect("mir json string");
-    assert!(
-        mir_json.starts_with('{'),
-        "expected MIR JSON payload, got: {}",
-        mir_json
-    );
-    assert!(mir_json.contains("\"functions\""));
-}
-
-#[test]
-fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_stage1_cli_env() {
-    let receiver: Arc<dyn NyashBox> =
-        Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source = "static box Main { main() { return 0 } }";
     let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
     let method = CString::new("emit_from_source_v0").expect("CString");
 
@@ -417,10 +370,31 @@ fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_stage1_cli_env() {
         mir_json
     );
     assert!(mir_json.contains("\"functions\""));
+    let mir_value: serde_json::Value = serde_json::from_str(&mir_json).expect("valid mir json");
+    let user_box_decls = mir_value["user_box_decls"]
+        .as_array()
+        .expect("user_box_decls array");
+    let box_names = user_box_decls
+        .iter()
+        .filter_map(|decl| decl["name"].as_str())
+        .collect::<std::collections::BTreeSet<_>>();
+    assert!(
+        box_names.contains("Stage1InputContractBox"),
+        "source authority route should expose Stage1InputContractBox user_box_decl"
+    );
+    assert!(
+        box_names.contains("Stage1ProgramAuthorityBox"),
+        "source authority route should expose Stage1ProgramAuthorityBox user_box_decl"
+    );
+    assert!(
+        box_names.contains("Stage1ProgramJsonCompatBox"),
+        "source authority route should preserve explicit compat box decls for same-file closure"
+    );
 }
 
 #[test]
 fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_hello_simple_llvm() {
+    ensure_test_ring0();
     let receiver: Arc<dyn NyashBox> =
         Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
     let receiver_handle = handles::to_handle_arc(receiver) as i64;
@@ -443,13 +417,14 @@ fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_hello_simple_llvm(
 
 #[test]
 fn invoke_by_name_accepts_stage1_mir_builder_for_launcher_program_json() {
+    ensure_test_ring0();
     let receiver: Arc<dyn NyashBox> =
         Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
     let receiver_handle = handles::to_handle_arc(receiver) as i64;
     let source = include_str!("../../../lang/src/runner/launcher.hako");
-    let program_json =
-        nyash_rust::stage1::program_json_v0::source_to_program_json_v0_relaxed(source)
-            .expect("launcher Program(JSON v0)");
+    let program_json = nyash_rust::stage1::program_json_v0::
+        emit_program_json_v0_for_current_stage1_build_box_mode(source)
+        .expect("launcher build surrogate emission");
     let program_handle = handles::to_handle_arc(Arc::new(StringBox::new(program_json))) as i64;
     let method = CString::new("emit_from_program_json_v0").expect("CString");
 
@@ -471,6 +446,7 @@ fn invoke_by_name_accepts_stage1_mir_builder_for_launcher_program_json() {
 
 #[test]
 fn invoke_by_name_stage1_using_resolver_route_is_stubbed_empty_in_kernel_dispatch() {
+    ensure_test_ring0();
     let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new(
         "lang.compiler.entry.using_resolver_box".to_string(),
     ));
@@ -488,133 +464,6 @@ fn invoke_by_name_stage1_using_resolver_route_is_stubbed_empty_in_kernel_dispatc
         prefix, "",
         "kernel direct module dispatch intentionally stubs resolve_for_source"
     );
-}
-
-#[test]
-fn invoke_by_name_stage1_build_box_route_emits_stage1_cli_env_imports() {
-    let receiver: Arc<dyn NyashBox> =
-        Arc::new(StringBox::new("lang.compiler.build.build_box".to_string()));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source = include_str!("../../../lang/src/runner/stage1_cli_env.hako");
-    let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
-    let method = CString::new("emit_program_json_v0").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 2, source_handle, 0);
-    assert!(result_handle > 0, "expected Program JSON StringBox handle");
-
-    let program_json = decode_string_like_handle(result_handle).expect("program json");
-    assert!(program_json.contains("\"kind\":\"Program\""));
-    assert!(program_json.contains("\"box\":\"Main\""));
-    assert!(
-        !program_json.contains("\"box\":\"FuncScannerBox\""),
-        "stage1 surrogate build_box should still be Main-only in kernel dispatch"
-    );
-    assert!(
-        program_json.contains("\"imports\":"),
-        "stage1 surrogate build_box should now carry imports for stage1-cli env aliases"
-    );
-    assert!(
-        program_json.contains("\"BuildBox\":\"lang.compiler.build.build_box\""),
-        "stage1 surrogate build_box should include BuildBox import mapping"
-    );
-    assert!(
-        program_json.contains("\"FuncScannerBox\":\"lang.compiler.entry.func_scanner\""),
-        "stage1 surrogate build_box should include FuncScannerBox import mapping"
-    );
-}
-
-#[test]
-fn invoke_by_name_stage1_build_box_route_emits_launcher_multibox_defs() {
-    let receiver: Arc<dyn NyashBox> =
-        Arc::new(StringBox::new("lang.compiler.build.build_box".to_string()));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source = include_str!("../../../lang/src/runner/launcher.hako");
-    let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
-    let method = CString::new("emit_program_json_v0").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 2, source_handle, 0);
-    assert!(result_handle > 0, "expected Program JSON StringBox handle");
-
-    let program_json = decode_string_like_handle(result_handle).expect("program json");
-    assert!(program_json.contains("\"kind\":\"Program\""));
-    assert!(
-        program_json.contains("\"box\":\"HakoCli\""),
-        "launcher surrogate should materialize HakoCli defs in kernel dispatch"
-    );
-    assert!(
-        program_json.contains("\"name\":\"run\""),
-        "launcher surrogate should include HakoCli.run in defs"
-    );
-    assert!(
-        program_json.contains("\"MirBuilderBox\":\"lang.mir.builder.MirBuilderBox\""),
-        "launcher surrogate should preserve bare using imports"
-    );
-}
-
-#[test]
-fn invoke_by_name_stage1_build_box_route_is_strict_in_emit_program_mode() {
-    with_env_var("NYASH_STAGE1_MODE", "emit-program", || {
-        let receiver: Arc<dyn NyashBox> =
-            Arc::new(StringBox::new("lang.compiler.build.build_box".to_string()));
-        let receiver_handle = handles::to_handle_arc(receiver) as i64;
-        let source: Arc<dyn NyashBox> = Arc::new(StringBox::new(
-            r#"
-static box Main {
-  main() {
-    @x = 41
-    return x + 1
-  }
-}
-"#
-            .to_string(),
-        ));
-        let source_handle = handles::to_handle_arc(source) as i64;
-        let method = CString::new("emit_program_json_v0").expect("CString");
-
-        let result_handle =
-            nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 2, source_handle, 0);
-        assert!(result_handle > 0, "expected StringBox result with freeze tag");
-
-        let result_text = decode_string_like_handle(result_handle).expect("freeze string");
-        assert!(
-            result_text.contains("[freeze:contract][stage1_program_json_v0]"),
-            "unexpected result: {result_text}"
-        );
-        assert!(
-            result_text.contains("parse error (Rust parser, v0 subset):"),
-            "unexpected error detail: {result_text}"
-        );
-    });
-}
-
-#[test]
-fn invoke_by_name_build_box_unsupported_source_returns_freeze_tag() {
-    let receiver: Arc<dyn NyashBox> =
-        Arc::new(StringBox::new("lang.compiler.build.build_box".to_string()));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source: Arc<dyn NyashBox> = Arc::new(StringBox::new(
-        "static box NotMain { main() { return 0 } }".to_string(),
-    ));
-    let source_handle = handles::to_handle_arc(source) as i64;
-    let method = CString::new("emit_program_json_v0").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 2, source_handle, 0);
-    assert!(
-        result_handle > 0,
-        "expected StringBox result with freeze tag"
-    );
-
-    let result_object = handles::get(result_handle as u64).expect("result handle");
-    let result_text = result_object
-        .as_any()
-        .downcast_ref::<StringBox>()
-        .expect("StringBox result")
-        .value
-        .clone();
-    assert!(result_text.contains("[freeze:contract][stage1_program_json_v0]"));
 }
 
 #[test]
@@ -735,10 +584,7 @@ fn runtime_data_dispatch_array_set_index_contract() {
 
 #[test]
 fn runtime_data_dispatch_array_positive_immediate_index_contract() {
-    use nyash_rust::{
-        box_trait::IntegerBox,
-        boxes::array::ArrayBox,
-    };
+    use nyash_rust::{box_trait::IntegerBox, boxes::array::ArrayBox};
 
     let array: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
     let array_handle = handles::to_handle_arc(array) as i64;
@@ -755,7 +601,10 @@ fn runtime_data_dispatch_array_positive_immediate_index_contract() {
     let key_one_handle = handles::to_handle_arc(key_one) as i64;
     assert_eq!(nyash_runtime_data_get_hh(array_handle, key_one_handle), -20);
     assert_eq!(nyash_runtime_data_has_hh(array_handle, key_one_handle), 1);
-    assert_eq!(nyash_runtime_data_set_hhh(array_handle, key_one_handle, -30), 1);
+    assert_eq!(
+        nyash_runtime_data_set_hhh(array_handle, key_one_handle, -30),
+        1
+    );
     assert_eq!(nyash_runtime_data_get_hh(array_handle, 1), -30);
 }
 

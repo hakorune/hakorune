@@ -40,10 +40,10 @@ Related:
 - `stage1-cli` reduction means `bridge-first Stage2 build`, not raw `NYASH_BIN=$STAGE1_BIN`
 - proof sources:
   - raw direct contract returns `97`
-  - `stage1_contract_exec_mode` emits Program(JSON), and `stage1_cli_env.hako` now carries helper defs (`defs_len=22`) for entry-local `Main` helpers
+  - `stage1_contract_exec_mode` emits Program(JSON), and `stage1_cli_env.hako` now carries same-file helper defs (`defs_len=38`) for `Main` plus the `Stage1*` authority/validation/compat boxes
   - `stage1_contract_exec_mode ... emit-mir ...` now returns MIR(JSON)
   - `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1` shows the MirBuilder module-dispatch route is hit and returns `output_bytes=213003` / `output_handle=97`
-  - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
+  - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON) with matching `user_box_decls` for the same-file `Stage1*` boxes
   - direct kernel proof for `lang.compiler.entry.using_resolver_box.resolve_for_source` returns an intentionally empty string in the surrogate lane
   - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` passes with `verify_rc=0`
   - bridge/runtime extern-like names no longer depend on `HAKO_MIR_BUILDER_CALL_RESOLVE` for `Callee::Extern`

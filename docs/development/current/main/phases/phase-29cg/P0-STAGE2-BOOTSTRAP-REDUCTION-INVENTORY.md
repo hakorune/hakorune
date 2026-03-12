@@ -57,35 +57,13 @@ Related:
 - `build_stage1.sh` now has an explicit `stage1-cli bridge-first` path when `NYASH_BIN` itself is a `stage1-cli` artifact
 - exact probe result:
   - Stage1 bridge emits Program(JSON) successfully
-  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) now materializes helper defs (`defs_len=22`), but only for entry-local `Main` helpers
+  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) now materializes same-file helper defs (`defs_len=38`) across `Main` + `Stage1InputContractBox` + `Stage1ProgramAuthorityBox` + `Stage1ProgramResultValidationBox` + `Stage1SourceMirAuthorityBox` + `Stage1MirResultValidationBox` + `Stage1ProgramJsonCompatBox`
   - `stage1_contract_exec_mode ... emit-mir ...` now succeeds and returns MIR(JSON)
   - with `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1`, `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` is hit and returns `output_bytes=213003` / `output_handle=97`
-  - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON)
+  - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON) with `user_box_decls=[Main, Stage1InputContractBox, Stage1MirResultValidationBox, Stage1ProgramAuthorityBox, Stage1ProgramJsonCompatBox, Stage1ProgramResultValidationBox, Stage1SourceMirAuthorityBox]`
   - bridge/runtime extern-like names (`env.*`, `nyash.*`) are classified as `Callee::Extern` without depending on `HAKO_MIR_BUILDER_CALL_RESOLVE`
-  - clean `build_stage1.sh` bridge-first probe still exits non-zero, but now at link time
-- therefore the current blocker moved from helper-def materialization, stage1 child/plugin return-path bridge, and PHI/dominance to surrogate helper/source closure in the reduced Stage2 object
-- exact narrowed blocker:
-  - `module_string_dispatch.rs` currently treats the stage1 trio as surrogate routes:
-    - `lang.compiler.entry.using_resolver_box.resolve_for_source` returns an intentionally empty prefix in the kernel/stage1 surrogate lane
-    - `lang.compiler.build.build_box.emit_program_json_v0` delegates to Rust `source_to_program_json_v0(...)`
-  - the resulting bridge-first Program(JSON v0) has:
-    - `defs_len=22`
-    - `box=Main` only
-    - `imports` empty
-  - unresolved helper/source closure set:
-    - `FuncScannerBox.scan_all_boxes`
-    - `FuncScannerBox.find_matching_brace`
-    - `StageBJsonBuilderBox.build_defs_json`
-    - `Stage1UsingResolverBox.resolve_for_source`
-    - `BuildBox.emit_program_json_v0`
-    - `MirBuilderBox.emit_from_program_json_v0`
-    - `BoxTypeInspectorBox.kind`
-    - `BoxTypeInspectorBox.describe`
-    - `StringHelpers.int_to_str`
-  - meaning:
-    - the reduced object currently contains only entry-local helper defs
-    - imported helper boxes are not yet closed into the bridge-first Stage2 object
-    - this is a helper/source closure issue in the stage1 surrogate routes, not an extern classification issue
+  - clean `build_stage1.sh` bridge-first probe is now green, and the stale-artifact failure mode can be recognized by missing same-file `Stage1*` box defs rather than by route drift
+- therefore the helper/source closure bucket is closed for the reduced `stage1_cli_env.hako` proof source, and the handoff target is `phase-29ch` MIR-direct authority tightening rather than more surrogate closure work
 
 ## Reduction target
 

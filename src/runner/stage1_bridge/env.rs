@@ -1,169 +1,249 @@
 /*!
- * Stage-1 CLI bridge - environment variable configurator
+ * Stage-1 CLI bridge - child environment facade
  *
- * Sets default environment variables for Stage-1 CLI child process.
+ * Keeps one child-env entrypoint for the bridge while delegating each policy
+ * section to a focused helper module:
+ * - runtime defaults
+ * - Stage-1 alias propagation
+ * - parser / Stage-B toggles
  */
 
-use crate::config::env;
-use crate::config::env::stage1;
+mod parser_stageb;
+mod runtime_defaults;
+mod stage1_aliases;
+
+use super::modules::Stage1ModuleEnvLists;
 use std::process::Command;
 
-/// Configure environment variables for Stage-1 CLI child process
+pub(super) struct Stage1ChildEnvConfig<'a> {
+    pub(super) entry_fn: &'a str,
+    pub(super) backend_hint: Option<&'a str>,
+    pub(super) module_env_lists: Stage1ModuleEnvLists,
+}
+
+/// Configure environment variables for Stage-1 CLI child process.
 ///
-/// Sets defaults for:
-/// - Runtime behavior (NYASH_NYRT_SILENT_RESULT, NYASH_DISABLE_PLUGINS, etc.)
-/// - Parser toggles (NYASH_FEATURES=stage3, legacy NYASH_PARSER_STAGE3, NYASH_ENABLE_USING, etc.)
-/// - Stage-B configuration (HAKO_STAGEB_APPLY_USINGS, HAKO_STAGEB_MODULES_LIST, HAKO_STAGEB_MODULE_ROOTS_LIST, etc.)
-pub(super) fn configure_stage1_env(
-    cmd: &mut Command,
-    entry_fn: &str,
-    stage1_args: &[String],
-    modules_list: Option<String>,
-    module_roots_list: Option<String>,
-) {
-    // Child recursion guard
-    cmd.env("NYASH_STAGE1_CLI_CHILD", "1");
+/// Child env policy stays split by responsibility so callers keep a single
+/// bridge-local entrypoint without reintroducing mixed mode/backend parsing.
+pub(super) fn configure_stage1_env(cmd: &mut Command, config: Stage1ChildEnvConfig<'_>) {
+    stage1_aliases::apply(cmd, &config);
+    runtime_defaults::apply(cmd);
+    parser_stageb::apply(cmd, &config);
+}
 
-    // Unified Stage-1 env (NYASH_STAGE1_*) — derive from legacy if unset to keep compatibility.
-    if std::env::var("NYASH_STAGE1_MODE").is_err() {
-        if let Some(m) = stage1::mode() {
-            cmd.env("NYASH_STAGE1_MODE", m);
+#[cfg(test)]
+mod tests {
+    use super::{configure_stage1_env, Stage1ChildEnvConfig};
+    use crate::runner::stage1_bridge::modules::Stage1ModuleEnvLists;
+    use crate::runner::stage1_bridge::test_support;
+    use std::collections::BTreeMap;
+    use std::process::Command;
+
+    struct EnvGuard {
+        saved: Vec<(&'static str, Option<String>)>,
+    }
+
+    impl EnvGuard {
+        fn set(vars: &[(&'static str, &'static str)]) -> Self {
+            let mut saved = Vec::with_capacity(vars.len());
+            for (key, value) in vars {
+                saved.push((*key, std::env::var(key).ok()));
+                std::env::set_var(key, value);
+            }
+            Self { saved }
+        }
+
+        fn clear(keys: &[&'static str]) -> Self {
+            let mut saved = Vec::with_capacity(keys.len());
+            for key in keys {
+                saved.push((*key, std::env::var(key).ok()));
+                std::env::remove_var(key);
+            }
+            Self { saved }
         }
     }
 
-    // Runtime defaults
-    if std::env::var("NYASH_NYRT_SILENT_RESULT").is_err() {
-        cmd.env("NYASH_NYRT_SILENT_RESULT", "1");
-    }
-    if std::env::var("NYASH_DISABLE_PLUGINS").is_err() {
-        cmd.env("NYASH_DISABLE_PLUGINS", "0");
-    }
-    if std::env::var("NYASH_FILEBOX_MODE").is_err() {
-        cmd.env("NYASH_FILEBOX_MODE", "auto");
-    }
-    if std::env::var("NYASH_BOX_FACTORY_POLICY").is_err() {
-        cmd.env("NYASH_BOX_FACTORY_POLICY", "builtin_first");
-    }
-    // Stage‑1 stubは静的 box 呼び出しが多く、methodize 経路だと未定義 receiver に落ちやすい。
-    // 既定では methodization を切ってグローバル呼び出しのままにしておく（必要なら opt-in で上書き）。
-    if std::env::var("HAKO_MIR_BUILDER_METHODIZE").is_err() {
-        cmd.env("HAKO_MIR_BUILDER_METHODIZE", "0");
-    }
-    // Mainline lock: keep MirBuilder on internal-only route.
-    // Delegate route (env.mirbuilder.emit) is treated as compatibility-only.
-    cmd.env("HAKO_SELFHOST_NO_DELEGATE", "1");
-    cmd.env("HAKO_MIR_BUILDER_DELEGATE", "0");
-
-    // Stage-1 unified input/backend (fallback to legacy)
-    if std::env::var("NYASH_STAGE1_INPUT").is_err() {
-        if let Some(src) = stage1::input_path() {
-            cmd.env("NYASH_STAGE1_INPUT", src);
-        }
-    }
-    if std::env::var("NYASH_STAGE1_BACKEND").is_err() {
-        if let Some(be) = stage1::backend_hint().or_else(stage1::backend_alias_warned) {
-            cmd.env("NYASH_STAGE1_BACKEND", be);
-        }
-    }
-    if std::env::var("NYASH_STAGE1_PROGRAM_JSON").is_err() {
-        if let Some(pjson) = stage1::program_json_path() {
-            cmd.env("NYASH_STAGE1_PROGRAM_JSON", pjson);
-        }
-    }
-
-    // Stage-1 CLI 経路では既定で using 適用を無効化し、
-    // prefix は空（HAKO_STAGEB_APPLY_USINGS=0）とする。
-    // UsingResolver/UsingCollector の検証は専用テストで行い、
-    // CLI 本線はシンプルな Program(JSON) 生成に集中させる。
-    if std::env::var("HAKO_STAGEB_APPLY_USINGS").is_err() {
-        cmd.env("HAKO_STAGEB_APPLY_USINGS", "0");
-    }
-
-    // Parser toggles
-    if std::env::var("NYASH_ENABLE_USING").is_err() {
-        cmd.env(
-            "NYASH_ENABLE_USING",
-            if env::enable_using() { "1" } else { "0" },
-        );
-    }
-    if std::env::var("HAKO_ENABLE_USING").is_err() {
-        cmd.env(
-            "HAKO_ENABLE_USING",
-            if env::enable_using() { "1" } else { "0" },
-        );
-    }
-    // Stage-3 gate (default ON): prefer NYASH_FEATURES for propagation, but keep
-    // legacy envs if parent explicitly set them.
-    let stage3_enabled = env::parser_stage3_enabled();
-    let merge_feature = |current: &str, feature: &str| -> String {
-        let mut list: Vec<String> = current
-            .split(',')
-            .filter_map(|s| {
-                let trimmed = s.trim();
-                if trimmed.is_empty() {
-                    None
+    impl Drop for EnvGuard {
+        fn drop(&mut self) {
+            for (key, old_value) in self.saved.drain(..) {
+                if let Some(value) = old_value {
+                    std::env::set_var(key, value);
                 } else {
-                    Some(trimmed.to_string())
+                    std::env::remove_var(key);
                 }
-            })
-            .collect();
-        let normalized_feature = feature.replace(['-', '_'], "");
-        let contains = list.iter().any(|f| {
-            let n = f.to_ascii_lowercase().replace(['-', '_'], "");
-            n == normalized_feature
-        });
-        if !contains {
-            list.push(feature.to_string());
-        }
-        list.join(",")
-    };
-    match std::env::var("NYASH_FEATURES") {
-        Ok(current) => {
-            if stage3_enabled {
-                cmd.env("NYASH_FEATURES", merge_feature(&current, "stage3"));
-            } else {
-                cmd.env("NYASH_FEATURES", current);
             }
         }
-        Err(_) if stage3_enabled => {
-            cmd.env("NYASH_FEATURES", "stage3");
-        }
-        Err(_) => {}
-    }
-    if let Ok(val) = std::env::var("NYASH_PARSER_STAGE3") {
-        cmd.env("NYASH_PARSER_STAGE3", val);
-    }
-    if let Ok(val) = std::env::var("HAKO_PARSER_STAGE3") {
-        cmd.env("HAKO_PARSER_STAGE3", val);
     }
 
-    // Modules list
-    if std::env::var("HAKO_STAGEB_MODULES_LIST").is_err() {
-        if let Some(mods) = modules_list {
-            cmd.env("HAKO_STAGEB_MODULES_LIST", mods);
-        }
+    fn command_env_map(cmd: &Command) -> BTreeMap<String, String> {
+        cmd.get_envs()
+            .filter_map(|(key, value)| {
+                Some((
+                    key.to_string_lossy().into_owned(),
+                    value?.to_string_lossy().into_owned(),
+                ))
+            })
+            .collect()
     }
 
-    // Module roots list (Phase 29bq+: prefix→path mapping for longest-match resolution)
-    if std::env::var("HAKO_STAGEB_MODULE_ROOTS_LIST").is_err() {
-        if let Some(roots) = module_roots_list {
-            cmd.env("HAKO_STAGEB_MODULE_ROOTS_LIST", roots);
-        }
+    fn configure_fixture(config: Stage1ChildEnvConfig<'_>) -> BTreeMap<String, String> {
+        let mut cmd = Command::new("true");
+        configure_stage1_env(&mut cmd, config);
+        command_env_map(&cmd)
     }
 
-    // Entry function
-    if std::env::var("NYASH_ENTRY").is_err() {
-        cmd.env("NYASH_ENTRY", entry_fn);
+    #[test]
+    fn configure_stage1_env_promotes_legacy_stage1_aliases() {
+        let _lock = test_support::env_lock().lock().unwrap();
+        let _clear = EnvGuard::clear(&[
+            "HAKO_STAGE1_MODE",
+            "NYASH_STAGE1_MODE",
+            "HAKO_EMIT_PROGRAM_JSON",
+            "STAGE1_EMIT_PROGRAM_JSON",
+            "HAKO_STAGE1_INPUT",
+            "NYASH_STAGE1_INPUT",
+            "STAGE1_SOURCE",
+            "STAGE1_INPUT",
+            "HAKO_STAGE1_PROGRAM_JSON",
+            "NYASH_STAGE1_PROGRAM_JSON",
+            "STAGE1_PROGRAM_JSON",
+            "HAKO_STAGE1_BACKEND",
+            "NYASH_STAGE1_BACKEND",
+            "NYASH_ENTRY",
+        ]);
+        let _set = EnvGuard::set(&[
+            ("STAGE1_EMIT_PROGRAM_JSON", "1"),
+            ("STAGE1_SOURCE", "fixtures/demo.hako"),
+            ("STAGE1_PROGRAM_JSON", "target/demo.program.json"),
+            ("STAGE1_BACKEND", "llvm"),
+        ]);
+
+        let envs = configure_fixture(Stage1ChildEnvConfig {
+            entry_fn: "Stage1CliMain.main/0",
+            backend_hint: None,
+            module_env_lists: Stage1ModuleEnvLists::default(),
+        });
+
+        assert_eq!(envs.get("NYASH_STAGE1_CLI_CHILD"), Some(&"1".to_string()));
+        assert_eq!(
+            envs.get("NYASH_STAGE1_MODE"),
+            Some(&"emit-program".to_string())
+        );
+        assert_eq!(
+            envs.get("NYASH_STAGE1_INPUT"),
+            Some(&"fixtures/demo.hako".to_string())
+        );
+        assert_eq!(
+            envs.get("NYASH_STAGE1_PROGRAM_JSON"),
+            Some(&"target/demo.program.json".to_string())
+        );
+        assert_eq!(envs.get("NYASH_STAGE1_BACKEND"), Some(&"llvm".to_string()));
     }
 
-    // Backend hint
-    if std::env::var("STAGE1_BACKEND").is_err() {
-        let be_cli = stage1_args
-            .windows(2)
-            .find(|w| w[0] == "--backend")
-            .map(|w| w[1].clone());
-        if let Some(be) = stage1::backend_hint().or(be_cli) {
-            cmd.env("STAGE1_BACKEND", be);
-        }
+    #[test]
+    fn configure_stage1_env_sets_runtime_and_stageb_defaults() {
+        let _lock = test_support::env_lock().lock().unwrap();
+        let _clear = EnvGuard::clear(&[
+            "NYASH_NYRT_SILENT_RESULT",
+            "NYASH_DISABLE_PLUGINS",
+            "NYASH_FILEBOX_MODE",
+            "NYASH_BOX_FACTORY_POLICY",
+            "HAKO_MIR_BUILDER_METHODIZE",
+            "HAKO_STAGEB_APPLY_USINGS",
+            "NYASH_ENABLE_USING",
+            "HAKO_ENABLE_USING",
+            "NYASH_FEATURES",
+            "NYASH_PARSER_STAGE3",
+            "HAKO_PARSER_STAGE3",
+            "HAKO_STAGEB_MODULES_LIST",
+            "HAKO_STAGEB_MODULE_ROOTS_LIST",
+            "NYASH_ENTRY",
+            "STAGE1_BACKEND",
+            "HAKO_STAGE1_BACKEND",
+            "NYASH_STAGE1_BACKEND",
+        ]);
+
+        let envs = configure_fixture(Stage1ChildEnvConfig {
+            entry_fn: "Stage1CliMain.main/0",
+            backend_hint: Some("vm"),
+            module_env_lists: Stage1ModuleEnvLists {
+                modules_list: Some("core=lang/core".into()),
+                module_roots_list: Some("core=lang".into()),
+            },
+        });
+
+        assert_eq!(envs.get("NYASH_NYRT_SILENT_RESULT"), Some(&"1".to_string()));
+        assert_eq!(envs.get("NYASH_DISABLE_PLUGINS"), Some(&"0".to_string()));
+        assert_eq!(envs.get("NYASH_FILEBOX_MODE"), Some(&"auto".to_string()));
+        assert_eq!(
+            envs.get("NYASH_BOX_FACTORY_POLICY"),
+            Some(&"builtin_first".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKO_MIR_BUILDER_METHODIZE"),
+            Some(&"0".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKO_SELFHOST_NO_DELEGATE"),
+            Some(&"1".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKO_MIR_BUILDER_DELEGATE"),
+            Some(&"0".to_string())
+        );
+        assert_eq!(envs.get("HAKO_STAGEB_APPLY_USINGS"), Some(&"0".to_string()));
+        assert_eq!(envs.get("NYASH_ENABLE_USING"), Some(&"1".to_string()));
+        assert_eq!(envs.get("HAKO_ENABLE_USING"), Some(&"1".to_string()));
+        assert_eq!(envs.get("NYASH_FEATURES"), Some(&"stage3".to_string()));
+        assert_eq!(
+            envs.get("HAKO_STAGEB_MODULES_LIST"),
+            Some(&"core=lang/core".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKO_STAGEB_MODULE_ROOTS_LIST"),
+            Some(&"core=lang".to_string())
+        );
+        assert_eq!(
+            envs.get("NYASH_ENTRY"),
+            Some(&"Stage1CliMain.main/0".to_string())
+        );
+        assert_eq!(envs.get("STAGE1_BACKEND"), Some(&"vm".to_string()));
+    }
+
+    #[test]
+    fn configure_stage1_env_preserves_parent_overrides_and_merges_stage3() {
+        let _lock = test_support::env_lock().lock().unwrap();
+        let _clear = EnvGuard::clear(&[
+            "NYASH_NYRT_SILENT_RESULT",
+            "HAKO_STAGEB_APPLY_USINGS",
+            "NYASH_ENABLE_USING",
+            "HAKO_ENABLE_USING",
+            "NYASH_FEATURES",
+            "NYASH_ENTRY",
+        ]);
+        let _set = EnvGuard::set(&[
+            ("NYASH_NYRT_SILENT_RESULT", "0"),
+            ("HAKO_STAGEB_APPLY_USINGS", "1"),
+            ("NYASH_ENABLE_USING", "0"),
+            ("HAKO_ENABLE_USING", "0"),
+            ("NYASH_FEATURES", "macro"),
+            ("NYASH_ENTRY", "Custom.main/0"),
+        ]);
+
+        let envs = configure_fixture(Stage1ChildEnvConfig {
+            entry_fn: "Stage1CliMain.main/0",
+            backend_hint: None,
+            module_env_lists: Stage1ModuleEnvLists::default(),
+        });
+
+        assert!(!envs.contains_key("NYASH_NYRT_SILENT_RESULT"));
+        assert!(!envs.contains_key("HAKO_STAGEB_APPLY_USINGS"));
+        assert!(!envs.contains_key("NYASH_ENABLE_USING"));
+        assert!(!envs.contains_key("HAKO_ENABLE_USING"));
+        assert!(!envs.contains_key("NYASH_ENTRY"));
+        assert_eq!(
+            envs.get("NYASH_FEATURES"),
+            Some(&"macro,stage3".to_string())
+        );
     }
 }

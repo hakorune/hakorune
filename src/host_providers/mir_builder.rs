@@ -2,10 +2,12 @@ use crate::runner;
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 use std::fs;
+use std::sync::atomic::{AtomicU64, Ordering};
 // use std::io::Write; // kept for future pretty-print extensions
 
 const FAILFAST_TAG: &str = "[freeze:contract][hako_mirbuilder]";
 const TRACE_ENV: &str = "HAKO_STAGE1_MODULE_DISPATCH_TRACE";
+static MIR_JSON_TMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 fn trace_enabled() -> bool {
     std::env::var(TRACE_ENV).ok().as_deref() == Some("1")
@@ -15,6 +17,15 @@ fn trace_log(message: impl AsRef<str>) {
     if trace_enabled() {
         eprintln!("{}", message.as_ref());
     }
+}
+
+fn unique_mir_json_tmp_path() -> std::path::PathBuf {
+    let seq = MIR_JSON_TMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+    std::env::temp_dir().join(format!(
+        "hako_mirbuilder_out-{}-{}.json",
+        std::process::id(),
+        seq
+    ))
 }
 
 struct ScopedEnvVar {
@@ -63,7 +74,10 @@ pub fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
 /// return both the transient Program(JSON) and MIR(JSON) while keeping that
 /// boundary inside the provider.
 pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
-    let program_json = crate::stage1::program_json_v0::source_to_program_json_v0(source_text)
+    let program_json =
+        crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(
+            source_text,
+        )
         .map_err(|e| format!("{FAILFAST_TAG} {}", e))?;
     let mir_json = program_json_to_mir_json(&program_json)?;
     Ok((program_json, mir_json))
@@ -129,8 +143,7 @@ pub fn program_json_to_mir_json_with_imports(
     };
 
     // Emit MIR(JSON) to a temporary file (reuse existing emitter), then read back
-    let tmp_dir = std::env::temp_dir();
-    let tmp_path = tmp_dir.join("hako_mirbuilder_out.json");
+    let tmp_path = unique_mir_json_tmp_path();
     let emit_res = runner::mir_json_emit::emit_mir_json_for_harness_bin(&module, &tmp_path);
 
     if let Err(e) = emit_res {
@@ -160,8 +173,13 @@ pub fn program_json_to_mir_json_with_imports(
 mod tests {
     use super::*;
 
+    fn ensure_test_ring0() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    }
+
     #[test]
     fn test_imports_resolution() {
+        ensure_test_ring0();
         // Program JSON with MatI64.new(4, 4)
         let program_json = r#"{
             "version": 0,
@@ -220,6 +238,7 @@ mod tests {
 
     #[test]
     fn test_stageb_program_json_with_stagebdriver_main_call() {
+        ensure_test_ring0();
         let program_json = r#"{
             "body": [
                 {
@@ -243,6 +262,7 @@ mod tests {
 
     #[test]
     fn test_imported_alias_qualified_call_uses_json_imports() {
+        ensure_test_ring0();
         let program_json = r#"{
             "version": 0,
             "kind": "Program",
@@ -274,6 +294,7 @@ mod tests {
 
     #[test]
     fn test_source_to_mir_json_handles_stage1_cli_env_source() {
+        ensure_test_ring0();
         let source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
         let result = source_to_mir_json(source);
         assert!(result.is_ok(), "Failed with error: {:?}", result.err());
@@ -284,6 +305,7 @@ mod tests {
 
     #[test]
     fn test_source_to_program_and_mir_json_returns_program_and_mir() {
+        ensure_test_ring0();
         let source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
         let result = source_to_program_and_mir_json(source);
         assert!(result.is_ok(), "Failed with error: {:?}", result.err());
@@ -295,6 +317,7 @@ mod tests {
 
     #[test]
     fn test_source_to_program_and_mir_json_handles_hello_simple_llvm_source() {
+        ensure_test_ring0();
         let source = include_str!("../../apps/tests/hello_simple_llvm.hako");
         let result = source_to_program_and_mir_json(source);
         assert!(result.is_ok(), "Failed with error: {:?}", result.err());
@@ -307,6 +330,7 @@ mod tests {
 
     #[test]
     fn test_source_to_program_and_mir_json_rejects_dev_local_alias_sugar_on_authority_path() {
+        ensure_test_ring0();
         let source = r#"
 static box Main {
   main() {
@@ -318,5 +342,26 @@ static box Main {
         let result = source_to_program_and_mir_json(source);
         let error = result.expect_err("authority path should stay strict");
         assert!(error.contains(FAILFAST_TAG), "unexpected error: {error}");
+        assert!(
+            error.contains(
+                "source route rejects compat-only relaxed-compat source shape (dev-local-alias-sugar)"
+            ),
+            "unexpected error: {error}"
+        );
+    }
+
+    #[test]
+    fn test_source_to_program_and_mir_json_rejects_launcher_on_authority_path() {
+        ensure_test_ring0();
+        let source = include_str!("../../lang/src/runner/launcher.hako");
+        let result = source_to_program_and_mir_json(source);
+        let error = result.expect_err("launcher should remain compat-only on authority path");
+        assert!(error.contains(FAILFAST_TAG), "unexpected error: {error}");
+        assert!(
+            error.contains(
+                "source route rejects compat-only relaxed-compat source shape (dev-local-alias-sugar)"
+            ),
+            "unexpected error: {error}"
+        );
     }
 }

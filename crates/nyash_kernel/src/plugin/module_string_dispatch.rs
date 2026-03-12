@@ -2,7 +2,9 @@ use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles;
 use std::collections::{BTreeMap, BTreeSet};
 
-const BUILD_BOX_MODULE: &str = "lang.compiler.build.build_box";
+#[path = "module_string_dispatch/build_surrogate.rs"]
+mod build_surrogate;
+
 const USING_RESOLVER_BOX_MODULE: &str = "lang.compiler.entry.using_resolver_box";
 const USING_RESOLVER_MODULE: &str = "lang.compiler.entry.using_resolver";
 const MIR_BUILDER_MODULE: &str = "lang.mir.builder.MirBuilderBox";
@@ -46,45 +48,11 @@ fn mir_builder_no_delegate() -> bool {
     env_is_on("HAKO_SELFHOST_NO_DELEGATE")
 }
 
-#[inline(always)]
-fn clean_env_value(key: &str) -> String {
-    match std::env::var(key) {
-        Ok(value) => match value.as_str() {
-            "" | "null" | "Null" | "void" | "Void" => String::new(),
-            _ => value,
-        },
-        Err(_) => String::new(),
-    }
-}
-
-#[inline(always)]
-fn normalized_stage1_mode() -> String {
-    let explicit = clean_env_value("NYASH_STAGE1_MODE");
-    let explicit = if explicit.is_empty() {
-        clean_env_value("HAKO_STAGE1_MODE")
-    } else {
-        explicit
-    };
-
-    match explicit.as_str() {
-        "emit_program_json" | "emit-program-json" => "emit-program".to_string(),
-        "emit_mir_json" | "emit-mir-json" => "emit-mir".to_string(),
-        _ if !explicit.is_empty() => explicit,
-        _ if clean_env_value("STAGE1_EMIT_PROGRAM_JSON") == "1" => "emit-program".to_string(),
-        _ if clean_env_value("STAGE1_EMIT_MIR_JSON") == "1" => "emit-mir".to_string(),
-        _ => String::new(),
-    }
-}
-
-#[inline(always)]
-fn build_box_strict_authority_on() -> bool {
-    normalized_stage1_mode() == "emit-program"
-}
-
-struct DispatchRoute {
-    module: &'static str,
-    method: &'static str,
-    handler: fn(i64, i64, i64) -> Option<i64>,
+#[derive(Clone, Copy)]
+pub(super) struct DispatchRoute {
+    pub(super) module: &'static str,
+    pub(super) method: &'static str,
+    pub(super) handler: fn(i64, i64, i64) -> Option<i64>,
 }
 
 const DISPATCH_ROUTES: [DispatchRoute; 5] = [
@@ -98,11 +66,7 @@ const DISPATCH_ROUTES: [DispatchRoute; 5] = [
         method: "resolve_for_source",
         handler: handle_using_resolver_resolve_for_source,
     },
-    DispatchRoute {
-        module: BUILD_BOX_MODULE,
-        method: "emit_program_json_v0",
-        handler: handle_build_box_emit_program_json_v0,
-    },
+    build_surrogate::BUILD_SURROGATE_ROUTE,
     DispatchRoute {
         module: MIR_BUILDER_MODULE,
         method: "emit_from_program_json_v0",
@@ -141,37 +105,12 @@ pub(crate) fn try_dispatch(
     None
 }
 
-fn handle_using_resolver_resolve_for_source(_arg_count: i64, _arg1: i64, _arg2: i64) -> Option<i64> {
+fn handle_using_resolver_resolve_for_source(
+    _arg_count: i64,
+    _arg1: i64,
+    _arg2: i64,
+) -> Option<i64> {
     Some(encode_string_handle(""))
-}
-
-fn handle_build_box_emit_program_json_v0(arg_count: i64, arg1: i64, _arg2: i64) -> Option<i64> {
-    if arg_count < 1 {
-        return Some(0);
-    }
-    let source_text = match decode_string_handle(arg1) {
-        Some(text) => text,
-        None => return Some(0),
-    };
-    let strict_authority = build_box_strict_authority_on();
-    trace_log(format!(
-        "[stage1/module_dispatch] build_box strict_authority={}",
-        strict_authority
-    ));
-    let program_json = match if strict_authority {
-        nyash_rust::stage1::program_json_v0::source_to_program_json_v0(&source_text)
-    } else {
-        nyash_rust::stage1::program_json_v0::source_to_program_json_v0_relaxed(&source_text)
-    } {
-        Ok(json_text) => json_text,
-        Err(error_text) => {
-            return Some(encode_string_handle(&format!(
-                "[freeze:contract][stage1_program_json_v0] {}",
-                error_text
-            )));
-        }
-    };
-    Some(encode_string_handle(&program_json))
 }
 
 fn handle_mir_builder_emit_from_program_json_v0(
@@ -225,22 +164,23 @@ fn handle_mir_builder_emit_from_program_json_v0(
             reason
         )));
     }
-    let mir_json = match nyash_rust::host_providers::mir_builder::program_json_to_mir_json_with_imports(
-        &program_json,
-        BTreeMap::new(),
-    ) {
-        Ok(json_text) => json_text,
-        Err(error_text) => {
-            trace_log(format!(
-                "[stage1/module_dispatch] mir_builder error: {}",
-                error_text
-            ));
-            return Some(encode_string_handle(&format!(
-                "[freeze:contract][stage1_mir_builder] {}",
-                error_text
-            )));
-        }
-    };
+    let mir_json =
+        match nyash_rust::host_providers::mir_builder::program_json_to_mir_json_with_imports(
+            &program_json,
+            BTreeMap::new(),
+        ) {
+            Ok(json_text) => json_text,
+            Err(error_text) => {
+                trace_log(format!(
+                    "[stage1/module_dispatch] mir_builder error: {}",
+                    error_text
+                ));
+                return Some(encode_string_handle(&format!(
+                    "[freeze:contract][stage1_mir_builder] {}",
+                    error_text
+                )));
+            }
+        };
     let mir_json = match inject_stage1_user_box_decls_from_program_json(&program_json, &mir_json) {
         Ok(json_text) => json_text,
         Err(error_text) => {
@@ -351,7 +291,8 @@ fn inject_stage1_user_box_decls_from_program_json(
         "user_box_decls".to_string(),
         serde_json::Value::Array(stage1_user_box_decls_from_program_json(program_json)?),
     );
-    serde_json::to_string(&mir_value).map_err(|error| format!("mir json serialize error: {}", error))
+    serde_json::to_string(&mir_value)
+        .map_err(|error| format!("mir json serialize error: {}", error))
 }
 
 fn stage1_user_box_decls_from_program_json(
@@ -361,7 +302,10 @@ fn stage1_user_box_decls_from_program_json(
         .map_err(|error| format!("program json parse error: {}", error))?;
     let mut seen = BTreeSet::new();
     seen.insert("Main".to_string());
-    if let Some(defs) = program_value.get("defs").and_then(serde_json::Value::as_array) {
+    if let Some(defs) = program_value
+        .get("defs")
+        .and_then(serde_json::Value::as_array)
+    {
         for def in defs {
             if let Some(box_name) = def.get("box").and_then(serde_json::Value::as_str) {
                 if !box_name.is_empty() {
@@ -415,13 +359,6 @@ mod tests {
         let recv = module_handle(USING_RESOLVER_MODULE);
         let out = try_dispatch(recv, "resolve_for_source", 0, 0, 0).expect("dispatch result");
         assert_eq!(decode_result(out), "");
-    }
-
-    #[test]
-    fn build_box_missing_arg_returns_zero_handle() {
-        let recv = module_handle(BUILD_BOX_MODULE);
-        let out = try_dispatch(recv, "emit_program_json_v0", 0, 0, 0).expect("dispatch result");
-        assert_eq!(out, 0);
     }
 
     #[test]
@@ -484,5 +421,4 @@ mod tests {
         assert!(message.starts_with("[freeze:contract][stage1_mir_builder]"));
         assert!(message.contains("delegate disabled") || message.contains("internal off"));
     }
-
 }

@@ -27,11 +27,11 @@ Related:
 
 - [x] reduced bootstrap can be explained without JSON v0 route authority
 - [x] bridge is documented as `temporary bootstrap boundary` only
-- [ ] next separate JSON v0 retirement phase can be cut without mixing concerns
+- [x] next separate JSON v0 retirement phase can be cut without mixing concerns (`phase-29ci`)
 
 ## 4) Restart quick entry
 
 - final goal: `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`
-- current phase: `phase-29ch` is MIR-direct bootstrap unification only
+- current phase: `phase-29ch` is closeout-ready MIR-direct bootstrap unification only
 - non-goal in this phase: `Program(JSON v0)` deletion
 - first task: fix exact MIR-direct owner/route inventory for one reduced proof source

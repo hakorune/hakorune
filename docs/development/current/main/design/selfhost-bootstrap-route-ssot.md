@@ -16,6 +16,7 @@ Related:
 - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
 - docs/development/current/main/phases/phase-29cf/README.md
 - docs/development/current/main/phases/phase-29ch/README.md
+- docs/development/current/main/phases/phase-29ci/README.md
 - docs/development/current/main/phases/phase-29ch/29ch-20-route-evidence-and-probes.md
 - docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md
 - docs/development/current/main/design/pyvm-retreat-ssot.md
@@ -43,8 +44,10 @@ Restart / handoff では次の順で読む。
 4. `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
    - `.hako` / Rust ownership map and mainline structure
 5. `docs/development/current/main/phases/phase-29ch/README.md`
-   - active reduction slice
-6. `docs/development/current/main/phases/phase-29cg/README.md`
+   - current authority lock / closeout-ready MIR-direct bootstrap unification slice
+6. `docs/development/current/main/phases/phase-29ci/README.md`
+   - separate future-wave JSON v0 retirement pointer
+7. `docs/development/current/main/phases/phase-29cg/README.md`
    - solved reduced slice that must stay closed
 
 ## Policy (Steady State)
@@ -68,6 +71,7 @@ SSOT:
 - `phase-29cf` が `VM fallback compat lane` と `bootstrap boundary reduction` を accepted monitor-only で独立管理する
 - `phase-29cg` が `stage1-cli` 時の Stage2 default-bootstrap dependency reduction を docs-first で管理する
 - `phase-29ch` は `phase-29cg` の solved reduced case を入力に、MIR-direct bootstrap unification を別 phase で扱う
+- `phase-29ch` is now closeout-ready; separate JSON v0 retirement work is cut as `phase-29ci`
 - `phase-29cg` の current contract は `raw NYASH_BIN replacement` ではなく `stage1-bridge helper contract を Stage2 build に持ち込む reduction` である
 - `compat-fallback` は explicit compat keep であり、current caller authority は `phase29x_vm_route_non_strict_compat_boundary_vm.sh` / `phase29x_vm_route_observability_vm.sh` / `phase29x_vm_route_strict_dev_priority_vm.sh` に限定する
 - 上の3本はさらに `route observability keep` / `strict-dev priority keep` / `non-strict compat boundary keep` に分けて扱い、generic monitor-only probe と混同しない

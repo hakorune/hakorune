@@ -63,9 +63,7 @@ impl NyashRunner {
         // Phase 112: Ring0Context 初期化（グローバル、一度だけ）
         let _ = runtime::ring0::ensure_global_ring0_initialized();
 
-        Self {
-            config,
-        }
+        Self { config }
     }
 
     /// Run Nyash based on the configuration
@@ -85,7 +83,6 @@ impl NyashRunner {
     fn run_build_mvp(&self, cfg_path: &str) -> Result<(), String> {
         build::run_build_mvp_impl(self, cfg_path)
     }
-
 }
 
 #[cfg(not(feature = "jit-direct-only"))]
@@ -99,7 +96,7 @@ impl NyashRunner {
         }
         // Phase 288 P1: REPL mode
         if self.config.repl {
-            repl::run_repl(self.config.clone());  // never returns
+            repl::run_repl(self.config.clone()); // never returns
         }
         let groups = self.config.as_groups();
 
@@ -109,16 +106,20 @@ impl NyashRunner {
             let file = groups.input.file.as_deref().unwrap_or("<none>");
             let args = std::env::args().skip(1).collect::<Vec<_>>().join(" ");
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[cli] mode={} file={} args={}", backend, file, args));
+            ring0.log.debug(&format!(
+                "[cli] mode={} file={} args={}",
+                backend, file, args
+            ));
         }
 
-        let force_stage1_stub =
-            groups.emit.hako_emit_program_json || groups.emit.hako_emit_mir_json || groups.emit.hako_run;
+        let force_stage1_stub = groups.emit.hako_emit_program_json
+            || groups.emit.hako_emit_mir_json
+            || groups.emit.hako_run;
         let skip_stage1_stub = !force_stage1_stub
             && (groups.emit.emit_cfg.is_some()
                 || groups.emit.emit_mir_json.is_some()
                 || groups.emit.emit_ast_json.is_some()
-                || groups.emit.emit_program_json_v0.is_some());
+                || Self::emit_program_json_v0_requested(&groups));
         if !skip_stage1_stub {
             if let Some(code) = self.maybe_run_stage1_cli_stub(&groups) {
                 std::process::exit(code);

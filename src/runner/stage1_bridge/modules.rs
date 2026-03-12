@@ -14,6 +14,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::hash::{Hash, Hasher};
 use std::path::{Path, PathBuf};
+use std::process::Command;
 use std::sync::OnceLock;
 use std::time::SystemTime;
 
@@ -23,6 +24,22 @@ use serde::{Deserialize, Serialize};
 pub(super) struct Stage1ModuleEnvLists {
     pub(super) modules_list: Option<String>,
     pub(super) module_roots_list: Option<String>,
+}
+
+impl Stage1ModuleEnvLists {
+    pub(super) fn apply_to_command_if_missing(&self, cmd: &mut Command) {
+        if std::env::var("HAKO_STAGEB_MODULES_LIST").is_err() {
+            if let Some(modules) = self.modules_list.as_ref() {
+                cmd.env("HAKO_STAGEB_MODULES_LIST", modules);
+            }
+        }
+
+        if std::env::var("HAKO_STAGEB_MODULE_ROOTS_LIST").is_err() {
+            if let Some(roots) = self.module_roots_list.as_ref() {
+                cmd.env("HAKO_STAGEB_MODULE_ROOTS_LIST", roots);
+            }
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -399,15 +416,112 @@ pub(super) fn collect_module_env_lists() -> Stage1ModuleEnvLists {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::runner::stage1_bridge::test_support;
+    use std::collections::BTreeMap;
+
+    struct EnvGuard {
+        saved: Vec<(&'static str, Option<String>)>,
+    }
+
+    impl EnvGuard {
+        fn set(vars: &[(&'static str, &'static str)]) -> Self {
+            let mut saved = Vec::with_capacity(vars.len());
+            for (key, value) in vars {
+                saved.push((*key, std::env::var(key).ok()));
+                std::env::set_var(key, value);
+            }
+            Self { saved }
+        }
+
+        fn clear(keys: &[&'static str]) -> Self {
+            let mut saved = Vec::with_capacity(keys.len());
+            for key in keys {
+                saved.push((*key, std::env::var(key).ok()));
+                std::env::remove_var(key);
+            }
+            Self { saved }
+        }
+    }
+
+    impl Drop for EnvGuard {
+        fn drop(&mut self) {
+            for (key, old_value) in self.saved.drain(..) {
+                if let Some(value) = old_value {
+                    std::env::set_var(key, value);
+                } else {
+                    std::env::remove_var(key);
+                }
+            }
+        }
+    }
+
+    fn command_env_map(cmd: &Command) -> BTreeMap<String, String> {
+        cmd.get_envs()
+            .filter_map(|(key, value)| {
+                Some((
+                    key.to_string_lossy().into_owned(),
+                    value?.to_string_lossy().into_owned(),
+                ))
+            })
+            .collect()
+    }
 
     #[test]
     fn embedded_snapshot_is_parseable_and_non_empty() {
         let lists = load_embedded_snapshot_lists().expect("embedded snapshot must parse");
-        let mods = lists.modules_list.expect("embedded modules_list must exist");
+        let mods = lists
+            .modules_list
+            .expect("embedded modules_list must exist");
         let roots = lists
             .module_roots_list
             .expect("embedded module_roots_list must exist");
         assert!(!mods.trim().is_empty());
         assert!(!roots.trim().is_empty());
+    }
+
+    #[test]
+    fn apply_to_command_if_missing_sets_stageb_lists() {
+        let _lock = test_support::env_lock().lock().unwrap();
+        let _clear =
+            EnvGuard::clear(&["HAKO_STAGEB_MODULES_LIST", "HAKO_STAGEB_MODULE_ROOTS_LIST"]);
+        let lists = Stage1ModuleEnvLists {
+            modules_list: Some("core=lang/core".into()),
+            module_roots_list: Some("core=lang".into()),
+        };
+        let mut cmd = Command::new("true");
+
+        lists.apply_to_command_if_missing(&mut cmd);
+        let envs = command_env_map(&cmd);
+
+        assert_eq!(
+            envs.get("HAKO_STAGEB_MODULES_LIST"),
+            Some(&"core=lang/core".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKO_STAGEB_MODULE_ROOTS_LIST"),
+            Some(&"core=lang".to_string())
+        );
+    }
+
+    #[test]
+    fn apply_to_command_if_missing_preserves_parent_stageb_lists() {
+        let _lock = test_support::env_lock().lock().unwrap();
+        let _clear =
+            EnvGuard::clear(&["HAKO_STAGEB_MODULES_LIST", "HAKO_STAGEB_MODULE_ROOTS_LIST"]);
+        let _set = EnvGuard::set(&[
+            ("HAKO_STAGEB_MODULES_LIST", "parent-mods"),
+            ("HAKO_STAGEB_MODULE_ROOTS_LIST", "parent-roots"),
+        ]);
+        let lists = Stage1ModuleEnvLists {
+            modules_list: Some("core=lang/core".into()),
+            module_roots_list: Some("core=lang".into()),
+        };
+        let mut cmd = Command::new("true");
+
+        lists.apply_to_command_if_missing(&mut cmd);
+        let envs = command_env_map(&cmd);
+
+        assert!(!envs.contains_key("HAKO_STAGEB_MODULES_LIST"));
+        assert!(!envs.contains_key("HAKO_STAGEB_MODULE_ROOTS_LIST"));
     }
 }

@@ -117,6 +117,12 @@ pub(super) fn preexpand_dev_local_aliases(source: &str) -> String {
     out
 }
 
+pub(super) fn has_dev_local_alias_sugar(source: &str) -> bool {
+    source
+        .split_inclusive('\n')
+        .any(dev_local_alias_line_matches)
+}
+
 fn preexpand_dev_local_alias_line(line: &str) -> String {
     let (body, ending) = split_line_ending(line);
     let indent_len = body
@@ -126,8 +132,27 @@ fn preexpand_dev_local_alias_line(line: &str) -> String {
         .count();
     let indent = &body[..indent_len];
     let rest = &body[indent_len..];
-    let Some(stripped) = rest.strip_prefix('@') else {
+    if !dev_local_alias_rest_matches(rest) {
         return line.to_string();
+    }
+
+    let local_decl = &rest[1..];
+    format!("{indent}local {local_decl}{ending}")
+}
+
+fn dev_local_alias_line_matches(line: &str) -> bool {
+    let (body, _) = split_line_ending(line);
+    let indent_len = body
+        .as_bytes()
+        .iter()
+        .take_while(|byte| matches!(**byte, b' ' | b'\t'))
+        .count();
+    dev_local_alias_rest_matches(&body[indent_len..])
+}
+
+fn dev_local_alias_rest_matches(rest: &str) -> bool {
+    let Some(stripped) = rest.strip_prefix('@') else {
+        return false;
     };
 
     let ident_len = stripped
@@ -136,7 +161,7 @@ fn preexpand_dev_local_alias_line(line: &str) -> String {
         .take_while(|byte| byte.is_ascii_alphanumeric() || **byte == b'_')
         .count();
     if ident_len == 0 {
-        return line.to_string();
+        return false;
     }
 
     let mut cursor = ident_len;
@@ -155,19 +180,14 @@ fn preexpand_dev_local_alias_line(line: &str) -> String {
             .take_while(|byte| byte.is_ascii_alphanumeric() || **byte == b'_')
             .count();
         if type_len == 0 {
-            return line.to_string();
+            return false;
         }
         cursor += type_len;
         while cursor < bytes.len() && matches!(bytes[cursor], b' ' | b'\t') {
             cursor += 1;
         }
     }
-    if cursor >= bytes.len() || bytes[cursor] != b'=' {
-        return line.to_string();
-    }
-
-    let local_decl = &rest[1..];
-    format!("{indent}local {local_decl}{ending}")
+    cursor < bytes.len() && bytes[cursor] == b'='
 }
 
 fn split_line_ending(line: &str) -> (&str, &str) {
@@ -249,7 +269,7 @@ fn statement_is_static_main(statement: &ASTNode) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{collect_using_imports, preexpand_dev_local_aliases};
+    use super::{collect_using_imports, has_dev_local_alias_sugar, preexpand_dev_local_aliases};
     use std::collections::BTreeMap;
 
     #[test]
@@ -260,6 +280,14 @@ mod tests {
         assert!(expanded.contains("local name: String = \"x\"\n"));
         assert!(expanded.contains("@hint(inline)\n"));
         assert!(expanded.contains("call(@argc)\n"));
+    }
+
+    #[test]
+    fn has_dev_local_alias_sugar_detects_line_head_locals_only() {
+        assert!(has_dev_local_alias_sugar("  @argc = 0\n"));
+        assert!(has_dev_local_alias_sugar("@name: String = \"x\"\n"));
+        assert!(!has_dev_local_alias_sugar("@hint(inline)\n"));
+        assert!(!has_dev_local_alias_sugar("call(@argc)\n"));
     }
 
     #[test]

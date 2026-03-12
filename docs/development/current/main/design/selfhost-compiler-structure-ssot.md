@@ -6,6 +6,7 @@ Related:
   - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/phases/phase-29ch/README.md
+  - docs/development/current/main/phases/phase-29ci/README.md
   - docs/development/current/main/phases/phase-29cg/README.md
   - docs/development/current/main/phases/phase-29cc/README.md
   - lang/src/compiler/README.md
@@ -66,8 +67,10 @@ restart / handoff では次の順に読む。
 3. `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
    - current route authority / compatibility boundaries / acceptance
 4. `docs/development/current/main/phases/phase-29ch/README.md`
-   - active MIR-direct bootstrap unification slice
-5. `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+   - closeout-ready MIR-direct bootstrap unification slice
+5. `docs/development/current/main/phases/phase-29ci/README.md`
+   - separate queued `Program(JSON v0)` retirement follow-up
+6. `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
    - `.hako` / Rust ownership map（この文書）
 
 ## Ownership Map
@@ -186,9 +189,11 @@ Responsibility:
 - bootstrap-only `Program(JSON v0)` boundary
 - compiled stage1 artifact が still linked な provider / module dispatch support
 - current reduced authority の compat keep を narrow に維持する
+- `src/stage1/program_json_v0.rs` façade と `routing.rs` / `extract.rs` / `lowering.rs` の owner-local split を維持する
 
 Important entry doc:
 - `src/runner/json_v0_bridge/README.md`
+- `src/stage1/program_json_v0/README.md`
 
 Must not:
 - current authority をここへ戻さない
@@ -228,11 +233,11 @@ Current rule:
 
 Do not leave plugin ownership ambiguous.
 
-## Current Structure Truth (2026-03-11)
+## Current Structure Truth (2026-03-13)
 
 ### Authority
 
-- active phase: `phase-29ch`
+- current authority lock: `phase-29ch` (`closeout-ready`)
 - reduced proof source: `lang/src/runner/stage1_cli_env.hako`
 - current authority route:
   - `tools/selfhost/build_stage1.sh`
@@ -263,10 +268,39 @@ Do not leave plugin ownership ambiguous.
 
 ### Future retire targets
 
-- `Program(JSON v0)` as current authority
-- linked Rust stage1 bridge lane (`src/runner/stage1_bridge/mod.rs` / embedded `stage1_cli.hako`)
+- bootstrap-only `Program(JSON v0)` boundary (`src/stage1/program_json_v0.rs` cluster)
+- linked Rust stage1 bridge lane (`src/runner/stage1_bridge/program_json.rs` strict-parse shim + `src/runner/stage1_bridge/stub_child.rs` child-command helper + `src/runner/stage1_bridge/stub_delegate.rs` delegate-status helper + `src/runner/stage1_bridge/stub_emit.rs` emit-output helper + thin `src/runner/stage1_bridge/mod.rs` delegate / embedded `stage1_cli.hako`)
 - delegate route
 - raw/subcmd direct `stage1-cli emit ...` as authority candidate
+
+### Rust bootstrap boundary details
+
+- `src/stage1/program_json_v0.rs` façade:
+  - authority source path: `emit_program_json_v0_for_strict_authority_source(...)`
+  - build surrogate path: `emit_program_json_v0_for_current_stage1_build_box_mode(...)`
+  - build surrogate result: payload `String` only
+- owner-local only:
+  - strict/relaxed parse entries
+  - owner-local build-box helper
+  - `routing.rs` build-route/source-shape internals
+- current-mode build surrogate selection uses `crate::config::env::stage1::emit_program_json()` as env SSOT.
+- Stage1 bridge mode classification stays in `src/runner/stage1_bridge/args.rs::Stage1ArgsMode`; bridge callers do not re-infer it from a bool + env reread.
+- backend CLI hint extraction stays in `src/runner/stage1_bridge/args.rs::Stage1Args::backend_cli_hint()`; child-env helpers do not parse raw argv windows themselves.
+- bridge entry child/enable guard + trace logging now live in `src/runner/stage1_bridge/entry_guard.rs`; `mod.rs` no longer owns those checks inline.
+- `src/runner/stage1_bridge/args.rs::Stage1Args::stub_exec_plan()` now carries stub capture-vs-delegate selection; `route_exec/stub.rs` no longer re-infer emit-vs-run from `Stage1ArgsMode` or a `stub_emit` helper.
+- `src/runner/stage1_bridge/plan.rs::Stage1BridgePlan` now carries the exact execution plan; `route_exec/direct.rs` no longer branches on a second route enum copy.
+- `src/runner/stage1_bridge/env.rs` is a thin child-env facade; runtime defaults / Stage1 alias propagation / parser+using toggles live in `env/runtime_defaults.rs` / `env/stage1_aliases.rs` / `env/parser_stageb.rs`.
+- `src/runner/stage1_bridge/modules.rs` owns `HAKO_STAGEB_MODULES_LIST` / `HAKO_STAGEB_MODULE_ROOTS_LIST` payload generation and child-env apply; `parser_stageb.rs` no longer writes those keys inline.
+- `src/runner/stage1_bridge/route_exec.rs` is now a thin facade; route-to-executor dispatch stays there, binary-only direct route execution + direct-route exit-code mapping live in `route_exec/direct.rs`, and Stage1 stub route facade lives in `route_exec/stub.rs`.
+- `src/runner/stage1_bridge/direct_route/mod.rs` is a thin facade; MIR compile lives in `direct_route/compile.rs`, and emit output-path resolution / JSON write live in `direct_route/emit.rs`.
+- `src/runner/stage1_bridge/emit_paths.rs` owns bridge-local MIR / Program(JSON) output-path resolution; `stub_emit.rs` and `direct_route/emit.rs` no longer duplicate the MIR env alias policy.
+- `src/runner/stage1_bridge/stub_emit.rs` is a thin facade; stdout parse / validation live in `stub_emit/parse.rs`, and writeback policy lives in `stub_emit/writeback.rs`.
+- `src/runner/stage1_bridge/program_json.rs` is the only remaining crate-local non-routing strict-parse consumer under the future-retire bridge lane.
+- Stage1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `src/runner/stage1_bridge/stub_child.rs`; `route_exec/stub.rs` no longer owns the prepare error log + `97` mapping.
+- Stage1 stub plain delegate-status execution + child-spawn-failure mapping live in `src/runner/stage1_bridge/stub_delegate.rs`; `route_exec/stub.rs` now only selects `stub_exec_plan()` branch.
+- bridge-local `emit-program-json-v0` file I/O lives in `src/runner/stage1_bridge/program_json.rs`.
+- Stage1 stub `emit` stdout parse / validation live in `src/runner/stage1_bridge/stub_emit/parse.rs`, and output-path writeback lives in `src/runner/stage1_bridge/stub_emit/writeback.rs` behind the thin `stub_emit.rs` facade.
+- `src/runner/stage1_bridge/mod.rs` is a thin delegate and must not regain route/policy, child/enable entry guard checks, child command/env assembly, or emit-output parsing/writeback knowledge.
 
 ### Long-term convergence
 
@@ -280,7 +314,7 @@ Do not leave plugin ownership ambiguous.
 2. thin supplied `Program(JSON)` compat surface
 3. keep `Program(JSON v0)` as bootstrap-only boundary
 4. finish MIR-direct bootstrap unification
-5. only then cut a separate `Program(JSON v0)` retirement phase
+5. only then cut separate `phase-29ci` for `Program(JSON v0)` retirement
 
 ## Non-goals
 

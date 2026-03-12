@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-10
+Date: 2026-03-13
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -74,26 +74,29 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     4. `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
        - `.hako` / Rust ownership map and mainline structure
     5. `docs/development/current/main/phases/phase-29ch/README.md`
-       - active phase for MIR-direct bootstrap unification
-    6. `docs/development/current/main/phases/phase-29cg/README.md`
+       - closeout-ready MIR-direct bootstrap unification phase
+    6. `docs/development/current/main/phases/phase-29ci/README.md`
+       - separate queued follow-up for `Program(JSON v0)` retirement
+    7. `docs/development/current/main/phases/phase-29cg/README.md`
        - solved reduced bootstrap slice that must stay closed
-    7. `docs/development/current/main/phases/phase-29cc/README.md`
+    8. `docs/development/current/main/phases/phase-29cc/README.md`
        - de-rust orchestration/top-level scope aftercare (monitor-only)
   - restart quick entry (2026-03-10):
     - final goal: `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`
     - end state: compiler と plugin behavior は `.hako` mainline へ寄せ、Rust は host/runtime/backend の最小面に縮退する
     - bootstrap rule: `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
-    - current minimal task: `phase-29cg` reduced-case authority is now green; next separate phase is `phase-29ch` for MIR-direct bootstrap unification only
+    - current minimal task: `phase-29ch` MIR-direct bootstrap unification is now closeout-ready; do not reopen it for JSON v0 deletion
+    - next separate future-wave phase: `phase-29ci` for `Program(JSON v0)` retirement only
     - solved bucket keep-closed: `bridge return-path`, `extern classification`, `current LLVM PHI repair`
-    - next owner order: `src/stage1/program_json_v0.rs` -> `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` (only if needed)
+    - next queued owner seed: `src/stage1/program_json_v0.rs` -> `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` (only if needed)
     - proof-first next steps:
       - `bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
       - `NYASH_BIN=<stage1-cli bootstrap> bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli ...`
       - only after the proof pair stays green/non-regressed, move to the next reduction slice
     - cleanliness order lock:
       - `phase-29cg`: solved reduced bootstrap helper/source closure bucket; keep closed
-      - next separate phase: `phase-29ch` for MIR-direct bootstrap unification only
-      - later separate phase: retire/delete `Program(JSON v0)` bridge only after MIR-direct parity is the route authority
+      - `phase-29ch`: MIR-direct bootstrap unification only; closeout-ready and keep separated from deletion work
+      - next separate future-wave phase: `phase-29ci` to retire/delete `Program(JSON v0)` bridge only after MIR-direct parity is the route authority
   - final direction is `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`; `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
   - treat `compat-fallback` as explicit compat keep, not as current workstream
   - treat Stage2 default bootstrap dependency as `phase-29cg` dedicated reduction target
@@ -113,6 +116,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - details SSOT:
       - `docs/development/current/main/phases/phase-29cg/README.md`
   - `phase-29ch` summary lock:
+    - status: `closeout-ready`
+    - separate follow-up phase: `phase-29ci`
     - current authority: `stage1-env-program` + `stage1-env-mir-source`
     - reduced proof source: `lang/src/runner/stage1_cli_env.hako`
     - monitor-only explicit compat keep: `stage1-env-mir-program`
@@ -143,7 +148,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - raw MIR determinism on current authority stays raw-exact green
       - source-route promotion/file-context cluster stays green
       - transient-boundary probe stays quiet/raw-exact
-    - next owner order:
+    - final owner order inside `phase-29ch`:
       - keep `stage1-env-mir-source` green as current authority
       - keep supplied `Program(JSON)` compat monitor-only; do not reintroduce it into generic env route resolution
       - treat `emit_from_program_json_v0(...)` itself as green in minimal selfhost helper shape; `stage1_cli_env.hako` wrapper-level compat branch is now thin enough and should stay frozen unless a later slice proves otherwise
@@ -152,12 +157,54 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - only if proof still demands it: `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
       - owner-1 latest slice:
         - `src/stage1/program_json_v0.rs` no longer auto-wraps bare script bodies into synthetic `static box Main`; unsupported script-body input now fail-fast directly
-        - `src/host_providers/mir_builder.rs` now calls `source_to_program_json_v0_strict(...)` on `stage1-env-mir-source`, so current source authority no longer depends on `@local` dev-sugar preexpansion
-        - `src/stage1/program_json_v0.rs::source_to_program_json_v0(...)` is now strict-by-default; relaxed dev-sugar/launcher keep moved to explicit `source_to_program_json_v0_relaxed(...)`
+        - `src/host_providers/mir_builder.rs` now calls `emit_program_json_v0_for_strict_authority_source(...)` on `stage1-env-mir-source`, so current source authority no longer depends on `@local` dev-sugar preexpansion and does not restage the authority check itself
+        - `src/stage1/program_json_v0.rs::source_to_program_json_v0(...)` is now test-only owner-local, `source_to_program_json_v0_strict(...)` is owner-local, relaxed dev-sugar/launcher keep is also owner-local on `source_to_program_json_v0_relaxed(...)`, future-retire `src/runner/stage1_bridge/program_json.rs` uses `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`, and cross-crate callers no longer need a standalone relaxed entrypoint
+        - owner-1 layout is now split as `façade / routing / extract / lowering` with module-local AST entry only; see `src/stage1/program_json_v0/README.md`
+        - provider callers now reuse owner-1 fail-fast formatting (`strict_authority_rejection()`), while build-route trace stays owner-local to `program_json_v0`
+        - build-route selection, build-box route emission, and `ProgramJsonV0BuildRoute` are now routing-local to `src/stage1/program_json_v0/routing.rs`; the façade only freeze-wraps owner-local `emit_program_json_v0_for_stage1_build_box(...)`, while cross-crate callers stay on `emit_*`, no longer read route state through a public build-emission object, use `emit_program_json_v0_for_strict_authority_source(...)` instead of staging authority rejection themselves, and use `emit_program_json_v0_for_current_stage1_build_box_mode(...)` instead of reinterpreting stage1 mode env locally
+        - current-mode build surrogate selection now reuses `crate::config::env::stage1::emit_program_json()` as the env SSOT; legacy `STAGE1_EMIT_PROGRAM_JSON=1` still proves strict-authority mode through that shared helper
+        - build-emission reads are now owner-local only; public label/reason getters, borrowed payload access, route-summary reads, and the cross-crate `ProgramJsonV0BuildEmission` read model are gone
+        - after the shared env SSOT swap and build-emission narrowing, Stage1/Stage2 rebuild, `phase29cg_stage2_bootstrap_phi_verify.sh`, and G1 smoke/full all stay green
         - keep launcher/dev-sugar support frozen for now; do not widen the owner-1 slice into wrapper or raw-lane cleanup
+      - owner-1 public surface table:
+        - authority source path: `emit_program_json_v0_for_strict_authority_source(...)`
+        - build surrogate path: `emit_program_json_v0_for_current_stage1_build_box_mode(...)`
+        - build-surrogate result: payload `String` only
+        - owner-local compat keep: `source_to_program_json_v0_relaxed(...)`
+        - forbidden cross-crate calls: `source_to_program_json_v0(...)` in non-test builds, `source_to_program_json_v0_relaxed(...)`, `source_to_program_json_v0_strict(...)`, owner-local `emit_program_json_v0_for_stage1_build_box(...)`, routing-local build-route/build-box helpers, `ProgramJsonV0BuildRoute`, source-shape enum/info objects, owner-local build-emission read model, removed build-emission getters (`route_label()` / `route_relaxed_reason()` / `program_json()`), parse/lower internals
+      - owner-1 operation card:
+        - if caller is current authority (`stage1-env-mir-source`): use `emit_program_json_v0_for_strict_authority_source(...)`
+        - if caller wants explicit compat keep: keep it owner-local on `source_to_program_json_v0_relaxed(...)`; do not add a cross-crate entrypoint
+        - if caller needs build surrogate payload under current env contract: use `emit_program_json_v0_for_current_stage1_build_box_mode(...)`
+        - otherwise: do not add a new entrypoint; keep logic owner-local in `program_json_v0`
+      - future-retire bridge inventory:
+        - Stage1 bridge mode classification now stays in `src/runner/stage1_bridge/args.rs::Stage1ArgsMode`; `plan.rs` / `stub_emit.rs` no longer re-infer it from a bool + env reread
+        - backend CLI hint extraction now stays in `src/runner/stage1_bridge/args.rs::Stage1Args::backend_cli_hint()`; child-env helpers do not parse raw argv windows themselves
+        - bridge entry child/enable guard + trace logging now live in `src/runner/stage1_bridge/entry_guard.rs`; `mod.rs` no longer owns those checks inline
+        - `src/runner/stage1_bridge/args.rs::Stage1Args::stub_exec_plan()` now carries stub capture-vs-delegate selection; `route_exec/stub.rs` no longer re-infers emit-vs-run from `Stage1ArgsMode` or a `stub_emit` helper
+        - `src/runner/stage1_bridge/plan.rs::Stage1BridgePlan` now carries the exact execution plan; `route_exec/direct.rs` no longer branches on a second route enum copy
+        - `src/runner/stage1_bridge/env.rs` is a thin child-env facade; runtime defaults / Stage1 alias propagation / parser+using toggles live in `env/runtime_defaults.rs` / `env/stage1_aliases.rs` / `env/parser_stageb.rs`
+        - `src/runner/stage1_bridge/modules.rs` owns `HAKO_STAGEB_MODULES_LIST` / `HAKO_STAGEB_MODULE_ROOTS_LIST` payload generation and child-env apply; `parser_stageb.rs` no longer writes those keys inline
+        - `src/runner/stage1_bridge/route_exec.rs` is now a thin facade; route-to-executor dispatch stays there, binary-only direct route execution + direct-route exit-code mapping live in `route_exec/direct.rs`, and Stage1 stub route facade lives in `route_exec/stub.rs`
+        - `src/runner/stage1_bridge/direct_route/mod.rs` is now a thin facade; MIR compile lives in `direct_route/compile.rs`, and emit output-path resolution / JSON write live in `direct_route/emit.rs`
+        - `src/runner/stage1_bridge/emit_paths.rs` owns bridge-local MIR / Program(JSON) output-path resolution; `stub_emit.rs` and `direct_route/emit.rs` no longer duplicate the MIR env alias policy
+        - `src/runner/stage1_bridge/stub_emit.rs` is now a thin facade; stdout parse / validation live in `stub_emit/parse.rs`, and writeback policy lives in `stub_emit/writeback.rs`
+        - only remaining crate-local non-routing strict-parse consumer is `src/runner/stage1_bridge/program_json.rs`
+        - it must use `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
+        - Stage1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `src/runner/stage1_bridge/stub_child.rs`; `route_exec/stub.rs` no longer owns the prepare error log + `97` mapping
+        - Stage1 stub plain delegate-status execution + child-spawn-failure mapping live in `src/runner/stage1_bridge/stub_delegate.rs`; `route_exec/stub.rs` now only selects `stub_exec_plan()` branch
+        - `src/runner/stage1_bridge/program_json_entry.rs` now owns the bridge-local `NyashRunner::emit_program_json_v0(...)` delegate, the explicit `emit-program-json-v0` branch selection/success-error formatting used by `src/runner/emit.rs`, and the request predicate used by `src/runner/mod.rs` for `skip_stage1_stub`; `src/runner/stage1_bridge/program_json.rs` is a thin facade whose source-path precedence lives in `src/runner/stage1_bridge/program_json/source.rs`, source-text read policy lives in `src/runner/stage1_bridge/program_json/read_input.rs`, bridge-local payload emission lives in `src/runner/stage1_bridge/program_json/emit_payload.rs`, and bridge-local writeback policy lives in `src/runner/stage1_bridge/program_json/writeback.rs`
+        - outside `src/runner/stage1_bridge/**`, the remaining bridge entry callers are now only `src/runner/mod.rs` (`skip_stage1_stub` route selection) and `src/runner/emit.rs` (generic early-exit dispatch); treat both as thin must-stay callers, not the next restructure target
+        - `src/runner/stage1_bridge/stub_emit.rs` stays a thin facade; Stage1 stub `emit` stdout parsing / validation live in `stub_emit/parse.rs`, and output-path writeback lives in `stub_emit/writeback.rs`
+        - `src/runner/stage1_bridge/mod.rs` stays a thin delegate and must not regain child/enable entry guard checks, child command/env assembly, or JSON line parsing / writeback policy
+        - do not reintroduce direct `source_to_program_json_v0_strict(...)` calls outside `stage1/program_json_v0.rs`
+        - `MirBuilderBox.emit_from_source_v0(...)` is still a live keep; do not fold it into diagnostics/probe cleanup planning
+        - shell-helper delete order still has a wider test-only shell/apps caller tail beyond the shared helper trio; keep that caller audit separate from the first Rust-only delete slices
       - owner-2 minimal tightening:
-        - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` now routes `stage1-env-program` through the strict default surrogate when the current normalized mode is `emit-program`
-        - launcher/no-mode keep still uses the relaxed surrogate; do not broaden strict mode beyond explicit authority
+        - compiled-stage1 build surrogate keep is now intended to shrink behind `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`; shared `module_string_dispatch.rs` should remain a thin route table that only includes owner-local surrogate route registrations, while surrogate handler ownership, build-box invoke-by-name regression coverage, and current-mode build surrogate selection all stay behind `build_surrogate.rs` -> owner-1 `emit_program_json_v0_for_current_stage1_build_box_mode(...)`
+        - launcher/no-mode keep still uses the relaxed surrogate behind that owner-1 helper; do not broaden strict mode beyond explicit authority
+      - latest proof refresh:
+        - after the current-mode build surrogate shift, `build_stage1.sh` Stage1/Stage2 rebuild, `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`, and `tools/selfhost_identity_check.sh --mode {smoke,full} --skip-build` are green again
       - rejected owner-1 shape:
         - do not narrow strict default helper defs to `Main`-only yet; fresh Stage2 build loses same-file `Stage1InputContractBox.*` / `Stage1ProgramAuthorityBox.*` / `Stage1MirResultValidationBox.*` closure and fails link
       - raw direct `stage1-cli` lane absence (`<bin> <source>` / `emit ...` / helper execute => `rc=97`) is a separate future slice, not the current reduced authority owner
@@ -172,12 +219,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - details SSOT:
       - route/acceptance: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
       - compiler ownership map: `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
-      - active phase: `docs/development/current/main/phases/phase-29ch/README.md`
+      - phase closeout: `docs/development/current/main/phases/phase-29ch/README.md`
+      - next separate retirement phase: `docs/development/current/main/phases/phase-29ci/README.md`
+      - `phase-29ci` P0 caller inventory: `docs/development/current/main/phases/phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md`
       - active evidence/probes: `docs/development/current/main/phases/phase-29ch/29ch-20-route-evidence-and-probes.md`
       - G1 compare policy: `docs/development/current/main/design/selfhost-g1-mir-compare-policy-ssot.md`
     - restart rule:
       - do not widen scope into generic bridge cleanup or ad-hoc `Program(JSON v0)` deletion
-      - only after the reduced bucket stays green, move to the next MIR-direct reduction slice
+      - `Program(JSON v0)` retirement belongs to `phase-29ci`, not to reopened `phase-29ch`
 - docs-first / compiler lane SSOT:
   - `docs/development/current/main/design/compiler-task-map-ssot.md`
   - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`

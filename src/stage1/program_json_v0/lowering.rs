@@ -188,9 +188,7 @@ fn expression_to_json_v0(expression: &ASTNode) -> Result<serde_json::Value, Stri
             ..
         } => binary_expr_to_json_v0(operator, left, right),
         ASTNode::UnaryOp {
-            operator,
-            operand,
-            ..
+            operator, operand, ..
         } => unary_expr_to_json_v0(operator, operand),
         ASTNode::FunctionCall {
             name, arguments, ..
