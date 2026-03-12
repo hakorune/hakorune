@@ -89,15 +89,15 @@
 //!   jump_args_layout = CarriersOnly
 //! ```
 
-use crate::mir::join_ir::{JoinContId, JoinFuncId};
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::join_ir::{JoinContId, JoinFuncId};
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 #[cfg(debug_assertions)]
 use crate::runtime::get_global_ring0;
 use std::collections::BTreeMap;
 
-use super::super::{join_func_name, JoinIrVmBridgeError};
 use super::super::call_generator;
+use super::super::{join_func_name, JoinIrVmBridgeError};
 
 /// Handle JoinIR Jump instruction conversion
 ///
@@ -249,9 +249,16 @@ where
                 value: Some(call_result_id),
             };
 
-            finalize_fn(mir_func, current_block_id, current_instructions, return_terminator);
+            finalize_fn(
+                mir_func,
+                current_block_id,
+                current_instructions,
+                return_terminator,
+            );
             if let Some(block) = mir_func.blocks.get_mut(&current_block_id) {
-                if matches!(block.terminator, Some(MirInstruction::Return { .. })) && block.return_env().is_none() {
+                if matches!(block.terminator, Some(MirInstruction::Return { .. }))
+                    && block.return_env().is_none()
+                {
                     block.set_return_env(crate::mir::EdgeArgs {
                         layout: JumpArgsLayout::CarriersOnly,
                         values: args.to_vec(),
@@ -299,8 +306,8 @@ fn get_continuation_name(
 mod tests {
     use super::*;
     use crate::ast::Span;
-    use crate::mir::{ConstValue, EffectMask, FunctionSignature, MirType};
     use crate::mir::join_ir_vm_bridge::block_allocator::BlockAllocator;
+    use crate::mir::{ConstValue, EffectMask, FunctionSignature, MirType};
     use std::collections::BTreeMap;
 
     /// Helper: Create empty MirFunction for testing
@@ -373,10 +380,7 @@ mod tests {
         // Check Call instruction
         match &block.instructions[1] {
             MirInstruction::Call {
-                dst,
-                func,
-                args,
-                ..
+                dst, func, args, ..
             } => {
                 assert_eq!(*dst, Some(ValueId(99992)));
                 assert_eq!(*func, ValueId(91003));
@@ -459,10 +463,7 @@ mod tests {
         // Check Call instruction in exit block
         match &exit_block.instructions[1] {
             MirInstruction::Call {
-                dst,
-                func,
-                args,
-                ..
+                dst, func, args, ..
             } => {
                 assert_eq!(*dst, Some(ValueId(99992)));
                 assert_eq!(*func, ValueId(91007));
@@ -480,7 +481,9 @@ mod tests {
         }
 
         // Check return environment metadata in exit block
-        let env = exit_block.return_env().expect("Exit block should have return_env");
+        let env = exit_block
+            .return_env()
+            .expect("Exit block should have return_env");
         assert_eq!(env.values, vec![ValueId(1), ValueId(2)]);
         assert_eq!(env.layout, JumpArgsLayout::CarriersOnly);
 

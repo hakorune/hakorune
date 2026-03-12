@@ -28,14 +28,19 @@ where
     F: FnOnce(&mut MirFunction, BasicBlockId, Vec<MirInstruction>, MirInstruction),
 {
     let return_terminator = MirInstruction::Return { value: *value };
-    finalize_fn(mir_func, current_block_id, current_instructions, return_terminator);
+    finalize_fn(
+        mir_func,
+        current_block_id,
+        current_instructions,
+        return_terminator,
+    );
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{FunctionSignature, MirType, EffectMask};
+    use crate::mir::{EffectMask, FunctionSignature, MirType};
 
     #[test]
     fn test_handle_ret_with_value() {

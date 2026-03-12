@@ -9,7 +9,8 @@ fn module_has_joinir_value_ids(module: &JoinModule) -> bool {
     for func in module.functions.values() {
         // Check params
         for param in &func.params {
-            if param.0 >= 100 {  // PARAM_MIN
+            if param.0 >= 100 {
+                // PARAM_MIN
                 return true;
             }
         }
@@ -19,52 +20,86 @@ fn module_has_joinir_value_ids(module: &JoinModule) -> bool {
             match inst {
                 crate::mir::join_ir::JoinInst::Call { args, dst, .. } => {
                     if let Some(d) = dst {
-                        if d.0 >= 100 { return true; }
+                        if d.0 >= 100 {
+                            return true;
+                        }
                     }
                     for arg in args {
-                        if arg.0 >= 100 { return true; }
+                        if arg.0 >= 100 {
+                            return true;
+                        }
                     }
                 }
                 crate::mir::join_ir::JoinInst::Jump { args, cond, .. } => {
                     if let Some(c) = cond {
-                        if c.0 >= 100 { return true; }
+                        if c.0 >= 100 {
+                            return true;
+                        }
                     }
                     for arg in args {
-                        if arg.0 >= 100 { return true; }
+                        if arg.0 >= 100 {
+                            return true;
+                        }
                     }
                 }
                 crate::mir::join_ir::JoinInst::Ret { value } => {
                     if let Some(v) = value {
-                        if v.0 >= 100 { return true; }
+                        if v.0 >= 100 {
+                            return true;
+                        }
                     }
                 }
-                crate::mir::join_ir::JoinInst::Select { dst, cond, then_val, else_val, .. } => {
+                crate::mir::join_ir::JoinInst::Select {
+                    dst,
+                    cond,
+                    then_val,
+                    else_val,
+                    ..
+                } => {
                     if dst.0 >= 100 || cond.0 >= 100 || then_val.0 >= 100 || else_val.0 >= 100 {
                         return true;
                     }
                 }
                 crate::mir::join_ir::JoinInst::IfMerge { cond, merges, .. } => {
-                    if cond.0 >= 100 { return true; }
+                    if cond.0 >= 100 {
+                        return true;
+                    }
                     for merge in merges {
-                        if merge.dst.0 >= 100 || merge.then_val.0 >= 100 || merge.else_val.0 >= 100 {
+                        if merge.dst.0 >= 100 || merge.then_val.0 >= 100 || merge.else_val.0 >= 100
+                        {
                             return true;
                         }
                     }
                 }
-                crate::mir::join_ir::JoinInst::MethodCall { dst, receiver, args, .. } => {
+                crate::mir::join_ir::JoinInst::MethodCall {
+                    dst,
+                    receiver,
+                    args,
+                    ..
+                } => {
                     if dst.0 >= 100 || receiver.0 >= 100 {
                         return true;
                     }
                     for arg in args {
-                        if arg.0 >= 100 { return true; }
+                        if arg.0 >= 100 {
+                            return true;
+                        }
                     }
                 }
-                crate::mir::join_ir::JoinInst::ConditionalMethodCall { cond, dst, receiver, args, .. } => {
+                crate::mir::join_ir::JoinInst::ConditionalMethodCall {
+                    cond,
+                    dst,
+                    receiver,
+                    args,
+                    ..
+                } => {
                     if cond.0 >= 100 || dst.0 >= 100 || receiver.0 >= 100 {
                         return true;
                     }
                     for arg in args {
-                        if arg.0 >= 100 { return true; }
+                        if arg.0 >= 100 {
+                            return true;
+                        }
                     }
                 }
                 crate::mir::join_ir::JoinInst::FieldAccess { dst, object, .. } => {
@@ -73,17 +108,24 @@ fn module_has_joinir_value_ids(module: &JoinModule) -> bool {
                     }
                 }
                 crate::mir::join_ir::JoinInst::NewBox { dst, args, .. } => {
-                    if dst.0 >= 100 { return true; }
+                    if dst.0 >= 100 {
+                        return true;
+                    }
                     for arg in args {
-                        if arg.0 >= 100 { return true; }
+                        if arg.0 >= 100 {
+                            return true;
+                        }
                     }
                 }
                 crate::mir::join_ir::JoinInst::NestedIfMerge { conds, merges, .. } => {
                     for cond in conds {
-                        if cond.0 >= 100 { return true; }
+                        if cond.0 >= 100 {
+                            return true;
+                        }
                     }
                     for merge in merges {
-                        if merge.dst.0 >= 100 || merge.then_val.0 >= 100 || merge.else_val.0 >= 100 {
+                        if merge.dst.0 >= 100 || merge.then_val.0 >= 100 || merge.else_val.0 >= 100
+                        {
                             return true;
                         }
                     }
@@ -92,30 +134,53 @@ fn module_has_joinir_value_ids(module: &JoinModule) -> bool {
                     // Check actual ValueIds in MirLikeInst
                     match mi {
                         crate::mir::join_ir::MirLikeInst::Const { dst, .. } => {
-                            if dst.0 >= 100 { return true; }
+                            if dst.0 >= 100 {
+                                return true;
+                            }
                         }
                         crate::mir::join_ir::MirLikeInst::BinOp { dst, lhs, rhs, .. } => {
-                            if dst.0 >= 100 || lhs.0 >= 100 || rhs.0 >= 100 { return true; }
+                            if dst.0 >= 100 || lhs.0 >= 100 || rhs.0 >= 100 {
+                                return true;
+                            }
                         }
                         crate::mir::join_ir::MirLikeInst::Compare { dst, lhs, rhs, .. } => {
-                            if dst.0 >= 100 || lhs.0 >= 100 || rhs.0 >= 100 { return true; }
+                            if dst.0 >= 100 || lhs.0 >= 100 || rhs.0 >= 100 {
+                                return true;
+                            }
                         }
                         crate::mir::join_ir::MirLikeInst::BoxCall { dst, args, .. } => {
                             if let Some(d) = dst {
-                                if d.0 >= 100 { return true; }
+                                if d.0 >= 100 {
+                                    return true;
+                                }
                             }
                             for arg in args {
-                                if arg.0 >= 100 { return true; }
+                                if arg.0 >= 100 {
+                                    return true;
+                                }
                             }
                         }
                         crate::mir::join_ir::MirLikeInst::UnaryOp { dst, operand, .. } => {
-                            if dst.0 >= 100 || operand.0 >= 100 { return true; }
+                            if dst.0 >= 100 || operand.0 >= 100 {
+                                return true;
+                            }
                         }
                         crate::mir::join_ir::MirLikeInst::Print { value } => {
-                            if value.0 >= 100 { return true; }
+                            if value.0 >= 100 {
+                                return true;
+                            }
                         }
-                        crate::mir::join_ir::MirLikeInst::Select { dst, cond, then_val, else_val } => {
-                            if dst.0 >= 100 || cond.0 >= 100 || then_val.0 >= 100 || else_val.0 >= 100 {
+                        crate::mir::join_ir::MirLikeInst::Select {
+                            dst,
+                            cond,
+                            then_val,
+                            else_val,
+                        } => {
+                            if dst.0 >= 100
+                                || cond.0 >= 100
+                                || then_val.0 >= 100
+                                || else_val.0 >= 100
+                            {
                                 return true;
                             }
                         }
@@ -151,9 +216,7 @@ fn ensure_joinir_function_aliases(mir_module: &mut MirModule, join_module: &Join
 
             let actual_arity = format!("{}/{}", join_func.name, join_func.params.len());
             if !mir_module.functions.contains_key(&actual_arity) {
-                mir_module
-                    .functions
-                    .insert(actual_arity, function.clone());
+                mir_module.functions.insert(actual_arity, function.clone());
             }
 
             let generated_arity = format!("{}/{}", generated_name, join_func.params.len());

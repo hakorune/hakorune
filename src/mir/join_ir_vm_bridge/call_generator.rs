@@ -73,7 +73,9 @@ pub fn emit_call_pair(
     instructions.push(MirInstruction::Call {
         dst: Some(call_result_id),
         func: func_name_id,
-        callee: Some(crate::mir::definitions::Callee::Global(func_name.to_string())),
+        callee: Some(crate::mir::definitions::Callee::Global(
+            func_name.to_string(),
+        )),
         args: args.to_vec(),
         effects: EffectMask::PURE,
     });
@@ -148,7 +150,9 @@ mod tests {
             // Phase 188.3 P2: callee should be set to Global(func_name)
             assert_eq!(
                 *callee,
-                Some(crate::mir::definitions::Callee::Global("test_func".to_string()))
+                Some(crate::mir::definitions::Callee::Global(
+                    "test_func".to_string()
+                ))
             );
             assert_eq!(args, &[ValueId(1), ValueId(2)]);
             assert_eq!(*effects, EffectMask::PURE);

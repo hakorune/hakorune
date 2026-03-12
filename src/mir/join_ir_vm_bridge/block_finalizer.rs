@@ -137,17 +137,24 @@ mod tests {
             effects: EffectMask::PURE,
         };
         let mut mir_func = MirFunction::new(signature, BasicBlockId::new(0));
-        mir_func.blocks.insert(BasicBlockId::new(0), BasicBlock::new(BasicBlockId::new(0)));
+        mir_func
+            .blocks
+            .insert(BasicBlockId::new(0), BasicBlock::new(BasicBlockId::new(0)));
 
-        let instructions = vec![
-            MirInstruction::Const {
-                dst: ValueId(1),
-                value: crate::mir::ConstValue::Integer(42),
-            },
-        ];
-        let terminator = MirInstruction::Return { value: Some(ValueId(1)) };
+        let instructions = vec![MirInstruction::Const {
+            dst: ValueId(1),
+            value: crate::mir::ConstValue::Integer(42),
+        }];
+        let terminator = MirInstruction::Return {
+            value: Some(ValueId(1)),
+        };
 
-        finalize_block(&mut mir_func, BasicBlockId::new(0), instructions, terminator);
+        finalize_block(
+            &mut mir_func,
+            BasicBlockId::new(0),
+            instructions,
+            terminator,
+        );
 
         let block = mir_func.blocks.get(&BasicBlockId::new(0)).unwrap();
         assert_eq!(block.instructions.len(), 1);
@@ -180,22 +187,30 @@ mod tests {
         });
         mir_func.blocks.insert(BasicBlockId::new(0), block);
 
-        let instructions = vec![
-            MirInstruction::Const {
-                dst: ValueId(1),
-                value: crate::mir::ConstValue::Integer(42),
-            },
-        ];
-        let terminator = MirInstruction::Return { value: Some(ValueId(1)) };
+        let instructions = vec![MirInstruction::Const {
+            dst: ValueId(1),
+            value: crate::mir::ConstValue::Integer(42),
+        }];
+        let terminator = MirInstruction::Return {
+            value: Some(ValueId(1)),
+        };
 
-        finalize_block(&mut mir_func, BasicBlockId::new(0), instructions, terminator);
+        finalize_block(
+            &mut mir_func,
+            BasicBlockId::new(0),
+            instructions,
+            terminator,
+        );
 
         let block = mir_func.blocks.get(&BasicBlockId::new(0)).unwrap();
         assert_eq!(block.instructions.len(), 2); // PHI + Const
 
         // Verify PHI is first
         assert!(matches!(block.instructions[0], MirInstruction::Phi { .. }));
-        assert!(matches!(block.instructions[1], MirInstruction::Const { .. }));
+        assert!(matches!(
+            block.instructions[1],
+            MirInstruction::Const { .. }
+        ));
     }
 
     #[test]
@@ -215,12 +230,10 @@ mod tests {
         block.instruction_spans.push(Span::unknown());
         mir_func.blocks.insert(BasicBlockId::new(0), block);
 
-        let instructions = vec![
-            MirInstruction::Const {
-                dst: ValueId(6),
-                value: crate::mir::ConstValue::Integer(20),
-            },
-        ];
+        let instructions = vec![MirInstruction::Const {
+            dst: ValueId(6),
+            value: crate::mir::ConstValue::Integer(20),
+        }];
 
         finalize_remaining_instructions(&mut mir_func, BasicBlockId::new(0), instructions);
 
@@ -238,7 +251,9 @@ mod tests {
             effects: EffectMask::PURE,
         };
         let mut mir_func = MirFunction::new(signature, BasicBlockId::new(0));
-        mir_func.blocks.insert(BasicBlockId::new(0), BasicBlock::new(BasicBlockId::new(0)));
+        mir_func
+            .blocks
+            .insert(BasicBlockId::new(0), BasicBlock::new(BasicBlockId::new(0)));
 
         let instructions = vec![];
 

@@ -1,9 +1,9 @@
 use crate::mir::join_ir::{BinOpKind, CompareOp, ConstValue, JoinModule, MirLikeInst};
+use crate::mir::ssot::extern_call::extern_call as build_extern_call;
 use crate::mir::{
     BinaryOp, CompareOp as MirCompareOp, ConstValue as MirConstValue, Effect, EffectMask,
     MirInstruction, MirModule,
 };
-use crate::mir::ssot::extern_call::extern_call as build_extern_call;
 
 use super::JoinIrVmBridgeError;
 

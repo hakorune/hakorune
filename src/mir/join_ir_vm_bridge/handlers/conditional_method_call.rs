@@ -40,7 +40,9 @@ use crate::mir::join_ir_vm_bridge::terminator_builder::{
     create_branch_terminator, create_jump_terminator,
 };
 use crate::mir::join_ir_vm_bridge::JoinIrVmBridgeError;
-use crate::mir::{BasicBlock, BasicBlockId, EffectMask, MirFunction, MirInstruction, MirType, ValueId};
+use crate::mir::{
+    BasicBlock, BasicBlockId, EffectMask, MirFunction, MirInstruction, MirType, ValueId,
+};
 
 /// Handle JoinIR ConditionalMethodCall instruction
 ///
@@ -128,7 +130,12 @@ where
 
     // Finalize current block with Branch terminator
     let branch_terminator = create_branch_terminator(*cond, then_block, else_block);
-    finalize_fn(mir_func, current_block_id, current_instructions, branch_terminator);
+    finalize_fn(
+        mir_func,
+        current_block_id,
+        current_instructions,
+        branch_terminator,
+    );
 
     // Allocate new ValueIds for then/else results
     let then_value = mir_func.next_value_id();
@@ -291,7 +298,12 @@ mod tests {
         // Verify merge block has Phi
         let merge_block_obj = mir_func.blocks.get(&merge_block).unwrap();
         assert_eq!(merge_block_obj.instructions.len(), 1);
-        if let MirInstruction::Phi { dst: phi_dst, inputs, .. } = &merge_block_obj.instructions[0] {
+        if let MirInstruction::Phi {
+            dst: phi_dst,
+            inputs,
+            ..
+        } = &merge_block_obj.instructions[0]
+        {
             assert_eq!(*phi_dst, ValueId(200));
             assert_eq!(inputs.len(), 2);
             assert_eq!(inputs[0].0, BasicBlockId::new(1)); // then_block
@@ -385,7 +397,10 @@ mod tests {
 
         // Verify merge block Phi has type_hint
         let merge_block_obj = mir_func.blocks.get(&merge_block).unwrap();
-        if let MirInstruction::Phi { type_hint: hint, .. } = &merge_block_obj.instructions[0] {
+        if let MirInstruction::Phi {
+            type_hint: hint, ..
+        } = &merge_block_obj.instructions[0]
+        {
             assert_eq!(*hint, Some(MirType::Integer));
         } else {
             panic!("Expected Phi instruction");

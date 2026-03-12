@@ -144,10 +144,9 @@ fn test_read_quoted_joinir_to_mir_conversion() {
 
     // 関数名を確認
     let func_names: Vec<&str> = mir_module.functions.keys().map(|s| s.as_str()).collect();
-    get_global_ring0().log.debug(&format!(
-        "[Phase 45] MIR function names: {:?}",
-        func_names
-    ));
+    get_global_ring0()
+        .log
+        .debug(&format!("[Phase 45] MIR function names: {:?}", func_names));
 
     // join_func_0 (entry), join_func_1 (loop_step), join_func_2 (k_exit), join_func_3 (k_guard_fail)
     assert!(
@@ -167,9 +166,9 @@ fn test_read_quoted_joinir_to_mir_conversion() {
         "Should have k_guard_fail function join_func_3"
     );
 
-    get_global_ring0().log.debug(
-        "[Phase 45] test_read_quoted_joinir_to_mir_conversion PASSED",
-    );
+    get_global_ring0()
+        .log
+        .debug("[Phase 45] test_read_quoted_joinir_to_mir_conversion PASSED");
 }
 
 /// Phase 45: String 定数の MIR 変換テスト
@@ -248,10 +247,9 @@ fn test_read_quoted_route_b_e2e() {
     match &t1_result {
         Ok(JoinValue::Str(s)) => {
             assert_eq!(s, "abc", "T1: Expected 'abc', got '{}'", s);
-            get_global_ring0().log.debug(&format!(
-                "[Phase 45] T1 PASS: \"abc\" at pos 0 → '{}'",
-                s
-            ));
+            get_global_ring0()
+                .log
+                .debug(&format!("[Phase 45] T1 PASS: \"abc\" at pos 0 → '{}'", s));
         }
         Ok(v) => panic!("T1: Expected Str, got {:?}", v),
         Err(e) => get_global_ring0().log.debug(&format!(
@@ -269,10 +267,9 @@ fn test_read_quoted_route_b_e2e() {
     match &t2_result {
         Ok(JoinValue::Str(s)) => {
             assert_eq!(s, "", "T2: Expected '', got '{}'", s);
-            get_global_ring0().log.debug(&format!(
-                "[Phase 45] T2 PASS: \"\" at pos 0 → '{}'",
-                s
-            ));
+            get_global_ring0()
+                .log
+                .debug(&format!("[Phase 45] T2 PASS: \"\" at pos 0 → '{}'", s));
         }
         Ok(v) => panic!("T2: Expected Str, got {:?}", v),
         Err(e) => get_global_ring0().log.debug(&format!(
@@ -290,10 +287,9 @@ fn test_read_quoted_route_b_e2e() {
     match &t3_result {
         Ok(JoinValue::Str(s)) => {
             assert_eq!(s, "", "T3: Expected '', got '{}'", s);
-            get_global_ring0().log.debug(&format!(
-                "[Phase 45] T3 PASS: abc at pos 0 → '{}'",
-                s
-            ));
+            get_global_ring0()
+                .log
+                .debug(&format!("[Phase 45] T3 PASS: abc at pos 0 → '{}'", s));
         }
         Ok(v) => panic!("T3: Expected Str, got {:?}", v),
         Err(e) => get_global_ring0().log.debug(&format!(
@@ -311,10 +307,9 @@ fn test_read_quoted_route_b_e2e() {
     match &t4_result {
         Ok(JoinValue::Str(s)) => {
             assert_eq!(s, "def", "T4: Expected 'def', got '{}'", s);
-            get_global_ring0().log.debug(&format!(
-                "[Phase 45] T4 PASS: xx\"def\" at pos 2 → '{}'",
-                s
-            ));
+            get_global_ring0()
+                .log
+                .debug(&format!("[Phase 45] T4 PASS: xx\"def\" at pos 2 → '{}'", s));
         }
         Ok(v) => panic!("T4: Expected Str, got {:?}", v),
         Err(e) => get_global_ring0().log.debug(&format!(

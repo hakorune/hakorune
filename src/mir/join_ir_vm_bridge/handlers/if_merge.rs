@@ -190,7 +190,12 @@ where
         then_edge_args: None,
         else_edge_args: None,
     };
-    finalize_fn(mir_func, cond_block, current_instructions, branch_terminator);
+    finalize_fn(
+        mir_func,
+        cond_block,
+        current_instructions,
+        branch_terminator,
+    );
 
     // Then block: copy then_val for each merge
     let then_block_obj = BasicBlock::new(then_block);
@@ -385,11 +390,17 @@ mod tests {
         assert_eq!(then_block_obj.instructions.len(), 2);
         assert!(matches!(
             then_block_obj.instructions[0],
-            MirInstruction::Copy { dst: ValueId(100), src: ValueId(101) }
+            MirInstruction::Copy {
+                dst: ValueId(100),
+                src: ValueId(101)
+            }
         ));
         assert!(matches!(
             then_block_obj.instructions[1],
-            MirInstruction::Copy { dst: ValueId(200), src: ValueId(201) }
+            MirInstruction::Copy {
+                dst: ValueId(200),
+                src: ValueId(201)
+            }
         ));
 
         // Verify else block has 2 Copy instructions
@@ -397,11 +408,17 @@ mod tests {
         assert_eq!(else_block_obj.instructions.len(), 2);
         assert!(matches!(
             else_block_obj.instructions[0],
-            MirInstruction::Copy { dst: ValueId(100), src: ValueId(102) }
+            MirInstruction::Copy {
+                dst: ValueId(100),
+                src: ValueId(102)
+            }
         ));
         assert!(matches!(
             else_block_obj.instructions[1],
-            MirInstruction::Copy { dst: ValueId(200), src: ValueId(202) }
+            MirInstruction::Copy {
+                dst: ValueId(200),
+                src: ValueId(202)
+            }
         ));
     }
 

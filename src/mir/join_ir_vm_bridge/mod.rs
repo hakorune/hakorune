@@ -49,8 +49,8 @@ mod joinir_block_converter;
 mod joinir_function_converter;
 mod merge_variable_handler; // Phase 260 P0.2: Merge copy emission utility
 mod meta;
-mod terminator_builder; // Phase 260 P0.3: Terminator creation utility
 mod runner;
+mod terminator_builder; // Phase 260 P0.3: Terminator creation utility
 
 #[cfg(test)]
 mod tests;

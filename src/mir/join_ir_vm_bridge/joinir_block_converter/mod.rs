@@ -12,11 +12,15 @@ use std::collections::BTreeMap;
 use super::{convert_mir_like_inst, JoinIrVmBridgeError};
 
 mod handlers;
-mod utils;
 mod tests;
+mod utils;
 
-use handlers::{HandlerContext, handle_method_call, handle_conditional_method_call, handle_field_access, handle_new_box, handle_call, handle_jump, handle_select, handle_if_merge, handle_ret, handle_nested_if_merge};
-use utils::{finalize_remaining_instructions, annotate_value_types_for_inst, log_dbg};
+use handlers::{
+    handle_call, handle_conditional_method_call, handle_field_access, handle_if_merge, handle_jump,
+    handle_method_call, handle_nested_if_merge, handle_new_box, handle_ret, handle_select,
+    HandlerContext,
+};
+use utils::{annotate_value_types_for_inst, finalize_remaining_instructions, log_dbg};
 
 pub struct JoinIrBlockConverter {
     pub(crate) current_block_id: BasicBlockId,
@@ -114,9 +118,7 @@ impl JoinIrBlockConverter {
                     method,
                     args,
                 } => {
-                    handle_conditional_method_call(
-                        &mut ctx, cond, dst, receiver, method, args,
-                    )?;
+                    handle_conditional_method_call(&mut ctx, cond, dst, receiver, method, args)?;
                 }
                 JoinInst::FieldAccess { dst, object, field } => {
                     handle_field_access(&mut ctx, dst, object, field)?;
@@ -170,7 +172,11 @@ impl JoinIrBlockConverter {
         }
 
         // Finalize any remaining instructions
-        finalize_remaining_instructions(mir_func, self.current_block_id, &mut self.current_instructions);
+        finalize_remaining_instructions(
+            mir_func,
+            self.current_block_id,
+            &mut self.current_instructions,
+        );
 
         Ok(())
     }

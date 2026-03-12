@@ -119,11 +119,8 @@ mod tests {
 
     #[test]
     fn test_create_branch_terminator() {
-        let terminator = create_branch_terminator(
-            ValueId(100),
-            BasicBlockId::new(1),
-            BasicBlockId::new(2),
-        );
+        let terminator =
+            create_branch_terminator(ValueId(100), BasicBlockId::new(1), BasicBlockId::new(2));
 
         if let MirInstruction::Branch {
             condition,
@@ -145,7 +142,7 @@ mod tests {
 
     #[test]
     fn test_emit_branch_and_finalize() {
-        use crate::mir::{FunctionSignature, MirType, EffectMask};
+        use crate::mir::{EffectMask, FunctionSignature, MirType};
 
         let signature = FunctionSignature {
             name: "test".to_string(),

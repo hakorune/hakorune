@@ -234,10 +234,9 @@ where
 
     // Pre-create level 1+ blocks
     for level in 1..num_conds {
-        mir_func.blocks.insert(
-            level_blocks[level],
-            BasicBlock::new(level_blocks[level]),
-        );
+        mir_func
+            .blocks
+            .insert(level_blocks[level], BasicBlock::new(level_blocks[level]));
     }
 
     // Finalize level 0 (current block) with finalize_fn (FnOnce constraint)
@@ -255,7 +254,12 @@ where
         then_edge_args: None,
         else_edge_args: None,
     };
-    finalize_fn(mir_func, current_block_id, current_instructions, level_0_branch);
+    finalize_fn(
+        mir_func,
+        current_block_id,
+        current_instructions,
+        level_0_branch,
+    );
 
     // Now set terminators for level 1+ blocks
     for level in 1..num_conds {
@@ -530,11 +534,17 @@ mod tests {
         assert_eq!(then_block_obj.instructions.len(), 2);
         assert!(matches!(
             then_block_obj.instructions[0],
-            MirInstruction::Copy { dst: ValueId(10), src: ValueId(20) }
+            MirInstruction::Copy {
+                dst: ValueId(10),
+                src: ValueId(20)
+            }
         ));
         assert!(matches!(
             then_block_obj.instructions[1],
-            MirInstruction::Copy { dst: ValueId(11), src: ValueId(21) }
+            MirInstruction::Copy {
+                dst: ValueId(11),
+                src: ValueId(21)
+            }
         ));
 
         // Verify final_else block has 2 Copy instructions
@@ -542,11 +552,17 @@ mod tests {
         assert_eq!(else_block_obj.instructions.len(), 2);
         assert!(matches!(
             else_block_obj.instructions[0],
-            MirInstruction::Copy { dst: ValueId(10), src: ValueId(30) }
+            MirInstruction::Copy {
+                dst: ValueId(10),
+                src: ValueId(30)
+            }
         ));
         assert!(matches!(
             else_block_obj.instructions[1],
-            MirInstruction::Copy { dst: ValueId(11), src: ValueId(31) }
+            MirInstruction::Copy {
+                dst: ValueId(11),
+                src: ValueId(31)
+            }
         ));
     }
 

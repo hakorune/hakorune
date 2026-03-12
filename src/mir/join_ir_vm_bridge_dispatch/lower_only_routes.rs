@@ -36,9 +36,9 @@ pub(crate) fn try_run_stage1_usingresolver(module: &MirModule, quiet_pipe: bool)
         }
         None => {
             if should_log {
-                get_global_ring0().log.warn(
-                    "[joinir/vm_bridge] lower_stage1_usingresolver_to_joinir returned None",
-                );
+                get_global_ring0()
+                    .log
+                    .warn("[joinir/vm_bridge] lower_stage1_usingresolver_to_joinir returned None");
                 get_global_ring0()
                     .log
                     .info("[joinir/vm_bridge] Falling back to normal VM path");
@@ -124,9 +124,9 @@ pub(crate) fn try_run_stageb_funcscanner(module: &MirModule, quiet_pipe: bool) -
         }
         None => {
             if should_log {
-                get_global_ring0().log.warn(
-                    "[joinir/vm_bridge] lower_stageb_funcscanner_to_joinir returned None",
-                );
+                get_global_ring0()
+                    .log
+                    .warn("[joinir/vm_bridge] lower_stageb_funcscanner_to_joinir returned None");
                 get_global_ring0()
                     .log
                     .info("[joinir/vm_bridge] Falling back to normal VM path");

@@ -1,5 +1,5 @@
-use crate::ast::Span;
 use super::super::call_generator::{emit_call_pair, emit_call_pair_with_spans};
+use crate::ast::Span;
 use crate::mir::builder::copy_emitter::{self, CopyEmitReason};
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::join_ir::{JoinContId, JoinFuncId, MergePair};
@@ -209,7 +209,9 @@ pub(crate) fn handle_call(
 
     // Phase 256 P1.8: Use actual function name if available
     let func_name = if let Some(ref map) = ctx.func_name_map {
-        map.get(func).cloned().unwrap_or_else(|| join_func_name(*func))
+        map.get(func)
+            .cloned()
+            .unwrap_or_else(|| join_func_name(*func))
     } else {
         join_func_name(*func)
     };
@@ -267,7 +269,9 @@ pub(crate) fn handle_call(
                 terminator,
             );
             if let Some(block) = ctx.mir_func.blocks.get_mut(ctx.current_block_id) {
-                if matches!(block.terminator, Some(MirInstruction::Return { .. })) && block.return_env().is_none() {
+                if matches!(block.terminator, Some(MirInstruction::Return { .. }))
+                    && block.return_env().is_none()
+                {
                     block.set_return_env(crate::mir::EdgeArgs {
                         layout: JumpArgsLayout::CarriersOnly,
                         values: args.to_vec(),
@@ -299,9 +303,9 @@ pub(crate) fn handle_jump(
 
     // Phase 256 P1.9: Use distinct ValueIds for Jump tail call
     // FUNC_NAME_ID_BASE for call targets, 99992 for Jump result (distinct from 99991 in handle_call)
-    const JUMP_FUNC_NAME_ID_BASE: u32 = 91000;  // Different from handle_call's 90000
+    const JUMP_FUNC_NAME_ID_BASE: u32 = 91000; // Different from handle_call's 90000
     let func_name_id = ValueId(JUMP_FUNC_NAME_ID_BASE + cont.0);
-    let call_result_id = ValueId(99992);  // Distinct from handle_call's 99991
+    let call_result_id = ValueId(99992); // Distinct from handle_call's 99991
 
     match cond {
         Some(cond_var) => {
@@ -338,7 +342,9 @@ pub(crate) fn handle_jump(
                 &cont_name,
                 args,
             );
-            exit_block.set_terminator(MirInstruction::Return { value: Some(call_result_id) });
+            exit_block.set_terminator(MirInstruction::Return {
+                value: Some(call_result_id),
+            });
             exit_block.set_return_env(crate::mir::EdgeArgs {
                 layout: JumpArgsLayout::CarriersOnly,
                 values: args.to_vec(),
@@ -347,7 +353,9 @@ pub(crate) fn handle_jump(
 
             // Continue block
             let continue_block = crate::mir::BasicBlock::new(continue_block_id);
-            ctx.mir_func.blocks.insert(continue_block_id, continue_block);
+            ctx.mir_func
+                .blocks
+                .insert(continue_block_id, continue_block);
 
             *ctx.current_block_id = continue_block_id;
         }
@@ -362,7 +370,9 @@ pub(crate) fn handle_jump(
                 args,
             );
 
-            let return_terminator = MirInstruction::Return { value: Some(call_result_id) };
+            let return_terminator = MirInstruction::Return {
+                value: Some(call_result_id),
+            };
 
             finalize_block(
                 ctx.mir_func,
@@ -371,7 +381,9 @@ pub(crate) fn handle_jump(
                 return_terminator,
             );
             if let Some(block) = ctx.mir_func.blocks.get_mut(ctx.current_block_id) {
-                if matches!(block.terminator, Some(MirInstruction::Return { .. })) && block.return_env().is_none() {
+                if matches!(block.terminator, Some(MirInstruction::Return { .. }))
+                    && block.return_env().is_none()
+                {
                     block.set_return_env(crate::mir::EdgeArgs {
                         layout: JumpArgsLayout::CarriersOnly,
                         values: args.to_vec(),
@@ -489,7 +501,9 @@ pub(crate) fn handle_if_merge(
         });
 
     // merge block: PHI nodes (SSA restore)
-    ctx.mir_func.blocks.insert(merge_block, crate::mir::BasicBlock::new(merge_block));
+    ctx.mir_func
+        .blocks
+        .insert(merge_block, crate::mir::BasicBlock::new(merge_block));
     for merge in merges {
         crate::mir::ssot::cf_common::insert_phi_at_head_spanned(
             ctx.mir_func,
@@ -617,13 +631,18 @@ pub(crate) fn handle_nested_if_merge(
         });
 
     // merge block: PHI nodes (SSA restore)
-    ctx.mir_func.blocks.insert(merge_block, crate::mir::BasicBlock::new(merge_block));
+    ctx.mir_func
+        .blocks
+        .insert(merge_block, crate::mir::BasicBlock::new(merge_block));
     for merge in merges {
         crate::mir::ssot::cf_common::insert_phi_at_head_spanned(
             ctx.mir_func,
             merge_block,
             merge.dst,
-            vec![(then_block, merge.then_val), (final_else_block, merge.else_val)],
+            vec![
+                (then_block, merge.then_val),
+                (final_else_block, merge.else_val),
+            ],
             Span::unknown(),
         )
         .map_err(|e| JoinIrVmBridgeError::new(format!("insert_phi failed: {}", e)))?;

@@ -72,11 +72,12 @@ mod tests {
         if let MirInstruction::Call {
             dst: Some(inst_dst),
             func,
-            callee: Some(Callee::Method {
-                method,
-                receiver: Some(box_val),
-                ..
-            }),
+            callee:
+                Some(Callee::Method {
+                    method,
+                    receiver: Some(box_val),
+                    ..
+                }),
             args: inst_args,
             effects,
         } = &instructions[0]

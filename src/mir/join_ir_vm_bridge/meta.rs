@@ -25,7 +25,7 @@ pub fn convert_join_module_to_mir_with_meta(
     boundary: Option<&crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary>,
 ) -> Result<MirModule, JoinIrVmBridgeError> {
     // Phase 256 P1.5: boundary is now passed through, reserved for future ValueId remap logic
-    let _boundary = boundary;  // Suppress unused warning for now
+    let _boundary = boundary; // Suppress unused warning for now
     debug_log!("[Phase 40-1] convert_join_module_to_mir_with_meta");
 
     let mut mir_module = MirModule::new("joinir_bridge_with_meta".to_string());

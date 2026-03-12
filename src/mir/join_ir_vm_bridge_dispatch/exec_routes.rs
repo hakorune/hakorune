@@ -12,8 +12,7 @@ use std::process;
 /// Note: PHI canary として使用しているため、default_enabled=false。
 /// env フラグ（NYASH_JOINIR_EXPERIMENT=1 & NYASH_JOINIR_VM_BRIDGE=1）が必須。
 pub(crate) fn try_run_skip_ws(module: &MirModule, quiet_pipe: bool) -> bool {
-    let log_enabled =
-        !quiet_pipe && (env::joinir_vm_bridge_debug() || env::cli_verbose_enabled());
+    let log_enabled = !quiet_pipe && (env::joinir_vm_bridge_debug() || env::cli_verbose_enabled());
     if log_enabled {
         get_global_ring0()
             .log
@@ -33,8 +32,8 @@ pub(crate) fn try_run_skip_ws(module: &MirModule, quiet_pipe: bool) -> bool {
     };
 
     // 入力引数を取得（環境変数またはデフォルト）
-    let input = crate::config::env::joinir_dev::input_mode()
-        .unwrap_or_else(|| "   abc".to_string());
+    let input =
+        crate::config::env::joinir_dev::input_mode().unwrap_or_else(|| "   abc".to_string());
     if log_enabled {
         get_global_ring0()
             .log
@@ -100,8 +99,7 @@ pub(crate) fn try_run_skip_ws(module: &MirModule, quiet_pipe: bool) -> bool {
 ///
 /// A/B 実証済み、事実上本線。default_enabled=true で env フラグなしでも有効。
 pub(crate) fn try_run_trim(module: &MirModule, quiet_pipe: bool) -> bool {
-    let log_enabled =
-        !quiet_pipe && (env::joinir_vm_bridge_debug() || env::cli_verbose_enabled());
+    let log_enabled = !quiet_pipe && (env::joinir_vm_bridge_debug() || env::cli_verbose_enabled());
     if log_enabled {
         get_global_ring0()
             .log
@@ -110,9 +108,9 @@ pub(crate) fn try_run_trim(module: &MirModule, quiet_pipe: bool) -> bool {
 
     let Some(join_module) = lower_funcscanner_trim_to_joinir(module) else {
         if log_enabled {
-            get_global_ring0().log.warn(
-                "[joinir/vm_bridge] lower_funcscanner_trim_to_joinir returned None",
-            );
+            get_global_ring0()
+                .log
+                .warn("[joinir/vm_bridge] lower_funcscanner_trim_to_joinir returned None");
             get_global_ring0()
                 .log
                 .info("[joinir/vm_bridge] Falling back to normal VM path");
@@ -121,8 +119,8 @@ pub(crate) fn try_run_trim(module: &MirModule, quiet_pipe: bool) -> bool {
     };
 
     // 入力引数を取得（環境変数またはデフォルト）
-    let input = crate::config::env::joinir_dev::input_mode()
-        .unwrap_or_else(|| "   abc  ".to_string());
+    let input =
+        crate::config::env::joinir_dev::input_mode().unwrap_or_else(|| "   abc  ".to_string());
     if log_enabled {
         get_global_ring0()
             .log

@@ -71,13 +71,13 @@
 //!   jump_args_layout = CarriersOnly
 //! ```
 
-use crate::mir::join_ir::{JoinFuncId, JoinContId};
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::join_ir::{JoinContId, JoinFuncId};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
-use super::super::{join_func_name, JoinIrVmBridgeError};
 use super::super::call_generator;
+use super::super::{join_func_name, JoinIrVmBridgeError};
 
 /// Handle JoinIR Call instruction conversion
 ///
@@ -140,7 +140,9 @@ where
 
     // Phase 256 P1.8: Use actual function name if available
     let func_name = if let Some(ref map) = func_name_map {
-        map.get(func).cloned().unwrap_or_else(|| join_func_name(*func))
+        map.get(func)
+            .cloned()
+            .unwrap_or_else(|| join_func_name(*func))
     } else {
         join_func_name(*func)
     };
@@ -191,14 +193,11 @@ where
             let terminator = MirInstruction::Return {
                 value: Some(call_result_id),
             };
-            finalize_fn(
-                mir_func,
-                current_block_id,
-                current_instructions,
-                terminator,
-            );
+            finalize_fn(mir_func, current_block_id, current_instructions, terminator);
             if let Some(block) = mir_func.blocks.get_mut(&current_block_id) {
-                if matches!(block.terminator, Some(MirInstruction::Return { .. })) && block.return_env().is_none() {
+                if matches!(block.terminator, Some(MirInstruction::Return { .. }))
+                    && block.return_env().is_none()
+                {
                     block.set_return_env(crate::mir::EdgeArgs {
                         layout: JumpArgsLayout::CarriersOnly,
                         values: args.to_vec(),
@@ -213,7 +212,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{ConstValue, EffectMask, MirType, FunctionSignature};
+    use crate::mir::{ConstValue, EffectMask, FunctionSignature, MirType};
     use std::collections::BTreeMap;
 
     /// Helper: Create empty MirFunction for testing
@@ -350,10 +349,7 @@ mod tests {
         // Check Call instruction in block
         match &block.instructions[1] {
             MirInstruction::Call {
-                dst,
-                func,
-                args,
-                ..
+                dst, func, args, ..
             } => {
                 assert_eq!(*dst, Some(ValueId(99991)));
                 assert_eq!(*func, ValueId(90003));
