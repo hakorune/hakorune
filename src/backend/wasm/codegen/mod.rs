@@ -6,17 +6,11 @@
  */
 
 use super::{MemoryManager, RuntimeImports, WasmError};
-use crate::mir::{
-    BasicBlockId,
-    MirFunction,
-    MirType,
-    MirModule,
-    ValueId,
-};
+use crate::mir::{BasicBlockId, MirFunction, MirModule, MirType, ValueId};
 use std::collections::HashMap;
 
-mod instructions;
 mod builtins;
+mod instructions;
 #[cfg(test)]
 mod tests;
 
@@ -285,10 +279,7 @@ impl WasmCodegen {
 
     pub(crate) fn function_has_return_value(&self, name: &str) -> Result<bool, WasmError> {
         let ty = self.function_return_types.get(name).ok_or_else(|| {
-            WasmError::UnsupportedInstruction(format!(
-                "Unknown global callee: {}",
-                name
-            ))
+            WasmError::UnsupportedInstruction(format!("Unknown global callee: {}", name))
         })?;
         match ty {
             MirType::Integer | MirType::Bool => Ok(true),
@@ -301,7 +292,11 @@ impl WasmCodegen {
     }
 
     pub(crate) fn supported_global_calls_csv(&self) -> String {
-        let mut names: Vec<&str> = self.function_param_counts.keys().map(String::as_str).collect();
+        let mut names: Vec<&str> = self
+            .function_param_counts
+            .keys()
+            .map(String::as_str)
+            .collect();
         names.sort_unstable();
         names.join(", ")
     }

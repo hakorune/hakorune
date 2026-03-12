@@ -67,8 +67,7 @@ pub fn using_ssot_relative() -> bool {
 }
 
 pub fn using_ssot_relative_ambig_first_n() -> Option<usize> {
-    env_string("HAKO_USING_SSOT_RELATIVE_AMBIG_FIRST_N")
-        .and_then(|s| s.parse::<usize>().ok())
+    env_string("HAKO_USING_SSOT_RELATIVE_AMBIG_FIRST_N").and_then(|s| s.parse::<usize>().ok())
 }
 
 pub fn emit_mir_trace() -> bool {
@@ -197,16 +196,15 @@ mod tests {
 
     #[test]
     fn wasm_route_policy_rejects_invalid_value() {
-        let err = parse_wasm_route_policy_mode(Some("auto"))
-            .expect_err("invalid policy must fail-fast");
+        let err =
+            parse_wasm_route_policy_mode(Some("auto")).expect_err("invalid policy must fail-fast");
         assert!(err.starts_with("[freeze:contract][wasm/route-policy]"));
     }
 
     #[test]
     fn wasm_route_policy_accepts_rust_native() {
         assert_eq!(
-            parse_wasm_route_policy_mode(Some("rust_native"))
-                .expect("rust_native should parse"),
+            parse_wasm_route_policy_mode(Some("rust_native")).expect("rust_native should parse"),
             WasmRoutePolicyMode::RustNative
         );
     }

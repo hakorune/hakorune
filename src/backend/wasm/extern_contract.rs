@@ -42,8 +42,14 @@ mod tests {
     #[test]
     fn extern_contract_supported_name_maps_to_import() {
         assert_eq!(extern_import_name("env.console.log"), Some("console_log"));
-        assert_eq!(extern_import_name("env.console.debug"), Some("console_debug"));
-        assert_eq!(extern_import_name("env.canvas.fillRect"), Some("canvas_fillRect"));
+        assert_eq!(
+            extern_import_name("env.console.debug"),
+            Some("console_debug")
+        );
+        assert_eq!(
+            extern_import_name("env.canvas.fillRect"),
+            Some("canvas_fillRect")
+        );
         assert_eq!(extern_import_name("env.canvas.clear"), Some("canvas_clear"));
         assert_eq!(
             extern_import_name("env.canvas.strokeRect"),
@@ -55,7 +61,10 @@ mod tests {
         );
         assert_eq!(extern_import_name("env.canvas.arc"), Some("canvas_arc"));
         assert_eq!(extern_import_name("env.canvas.fill"), Some("canvas_fill"));
-        assert_eq!(extern_import_name("env.canvas.stroke"), Some("canvas_stroke"));
+        assert_eq!(
+            extern_import_name("env.canvas.stroke"),
+            Some("canvas_stroke")
+        );
         assert_eq!(
             extern_import_name("env.canvas.setFillStyle"),
             Some("canvas_setFillStyle")
@@ -133,7 +142,10 @@ mod tests {
 
     #[test]
     fn extern_contract_canvas_stroke_supported() {
-        assert_eq!(extern_import_name("env.canvas.stroke"), Some("canvas_stroke"));
+        assert_eq!(
+            extern_import_name("env.canvas.stroke"),
+            Some("canvas_stroke")
+        );
     }
 
     #[test]

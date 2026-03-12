@@ -154,11 +154,7 @@ impl NyashRunner {
                         Ok(emitted.bytes)
                     }
                     Ok(None) => {
-                        emit_wasm_route_trace_with_route(
-                            route_policy,
-                            "bridge-rust-backend",
-                            None,
-                        );
+                        emit_wasm_route_trace_with_route(route_policy, "bridge-rust-backend", None);
                         wasm_backend.compile_module(mir_module)
                     }
                     Err(err) => Err(err),
@@ -249,7 +245,10 @@ mod tests {
 
     #[test]
     fn wasm_route_policy_name_contract() {
-        assert_eq!(wasm_route_policy_name(WasmRoutePolicyMode::Default), "default");
+        assert_eq!(
+            wasm_route_policy_name(WasmRoutePolicyMode::Default),
+            "default"
+        );
         assert_eq!(
             wasm_route_policy_name(WasmRoutePolicyMode::RustNative),
             "rust_native"
@@ -258,8 +257,14 @@ mod tests {
 
     #[test]
     fn wasm_route_name_for_plan_contract() {
-        assert_eq!(wasm_route_name_for_plan("native-shape-table"), "hako_native");
-        assert_eq!(wasm_route_name_for_plan("bridge-rust-backend"), "rust_native");
+        assert_eq!(
+            wasm_route_name_for_plan("native-shape-table"),
+            "hako_native"
+        );
+        assert_eq!(
+            wasm_route_name_for_plan("bridge-rust-backend"),
+            "rust_native"
+        );
     }
 
     #[test]

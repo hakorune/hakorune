@@ -1,8 +1,8 @@
+use super::WasmCodegen;
 use super::WasmError;
 use crate::backend::wasm::extern_contract::{extern_import_name, supported_extern_calls_csv};
-use crate::mir::{BinaryOp, CompareOp, ConstValue, ValueId};
 use crate::mir::MirInstruction;
-use super::WasmCodegen;
+use crate::mir::{BinaryOp, CompareOp, ConstValue, ValueId};
 
 impl WasmCodegen {
     /// Generate WASM instructions for a single MIR instruction
@@ -102,8 +102,7 @@ impl WasmCodegen {
                 ])
             }
 
-            MirInstruction::FutureSet { .. }
-            | MirInstruction::Safepoint => {
+            MirInstruction::FutureSet { .. } | MirInstruction::Safepoint => {
                 // Lower to no code in WAT (canonical no-op).
                 Ok(Vec::new())
             }
@@ -188,13 +187,14 @@ impl WasmCodegen {
                 args,
                 ..
             } => {
-                let expected_params = self.get_function_param_count(func_name).ok_or_else(|| {
-                    WasmError::UnsupportedInstruction(format!(
-                        "Unsupported global call: {} (supported: {})",
-                        func_name,
-                        self.supported_global_calls_csv()
-                    ))
-                })?;
+                let expected_params =
+                    self.get_function_param_count(func_name).ok_or_else(|| {
+                        WasmError::UnsupportedInstruction(format!(
+                            "Unsupported global call: {} (supported: {})",
+                            func_name,
+                            self.supported_global_calls_csv()
+                        ))
+                    })?;
 
                 if args.len() > expected_params {
                     return Err(WasmError::UnsupportedInstruction(format!(

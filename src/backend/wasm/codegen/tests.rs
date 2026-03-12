@@ -27,12 +27,12 @@ mod tests {
         // We can't easily unit test generate_const in isolation without mocking the internal state.
         // For now, we expect it to fail or we need to set up the state manually if we expose it.
         // Since get_local_index checks current_locals, it will return Err.
-        
+
         let result = codegen.generate_instruction(&crate::mir::MirInstruction::Const {
             dst,
             value: ConstValue::Integer(42),
         });
-        
+
         assert!(result.is_err()); // Should fail without local mapping
     }
 

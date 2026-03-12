@@ -48,11 +48,7 @@ impl RuntimeImports {
         for (_, import_name) in EXTERN_CALL_MAP {
             if matches!(
                 import_name,
-                "console_log"
-                    | "console_warn"
-                    | "console_error"
-                    | "console_info"
-                    | "console_debug"
+                "console_log" | "console_warn" | "console_error" | "console_info" | "console_debug"
             ) {
                 self.push_env_i32_import(import_name, 2, None);
                 continue;
@@ -316,7 +312,12 @@ fn js_canvas_stroke_rect_binding() -> String {
 }
 
 fn js_canvas_begin_path_binding() -> String {
-    js_canvas_ctx_binding("canvas_beginPath", "canvasIdPtr, canvasIdLen", "", "ctx.beginPath()")
+    js_canvas_ctx_binding(
+        "canvas_beginPath",
+        "canvasIdPtr, canvasIdLen",
+        "",
+        "ctx.beginPath()",
+    )
 }
 
 fn js_canvas_arc_binding() -> String {
@@ -333,7 +334,12 @@ fn js_canvas_fill_binding() -> String {
 }
 
 fn js_canvas_stroke_binding() -> String {
-    js_canvas_ctx_binding("canvas_stroke", "canvasIdPtr, canvasIdLen", "", "ctx.stroke()")
+    js_canvas_ctx_binding(
+        "canvas_stroke",
+        "canvasIdPtr, canvasIdLen",
+        "",
+        "ctx.stroke()",
+    )
 }
 
 fn js_canvas_set_fill_style_binding() -> String {

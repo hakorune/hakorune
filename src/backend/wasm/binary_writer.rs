@@ -237,7 +237,9 @@ pub(crate) fn build_minimal_main_i32_const_module(value: i32) -> Result<Vec<u8>,
 ///   local i32 counter
 ///   block { loop { if counter >= iterations { break }; call import(counter); counter += 1; continue } }
 ///   return counter
-pub(crate) fn build_loop_extern_call_skeleton_module(iterations: i32) -> Result<Vec<u8>, WasmError> {
+pub(crate) fn build_loop_extern_call_skeleton_module(
+    iterations: i32,
+) -> Result<Vec<u8>, WasmError> {
     build_loop_extern_call_skeleton_module_with_import(iterations, LoopExternImport::ConsoleLog)
 }
 
@@ -343,7 +345,10 @@ mod tests {
     fn wasm_binary_writer_section_order_contract() {
         let wasm = build_minimal_main_i32_const_module(7).expect("writer must succeed");
         let ids = collect_section_ids(&wasm);
-        assert_eq!(ids, vec![SECTION_TYPE, SECTION_FUNCTION, SECTION_EXPORT, SECTION_CODE]);
+        assert_eq!(
+            ids,
+            vec![SECTION_TYPE, SECTION_FUNCTION, SECTION_EXPORT, SECTION_CODE]
+        );
     }
 
     #[test]
@@ -414,48 +419,60 @@ mod tests {
 
     #[test]
     fn wasm_binary_writer_loop_extern_warn_import_contract() {
-        let wasm = build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleWarn)
-            .expect("writer must succeed");
+        let wasm =
+            build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleWarn)
+                .expect("writer must succeed");
         let import_payload =
             find_section_payload(&wasm, SECTION_IMPORT).expect("import section missing");
         assert!(
-            import_payload.windows(b"console_warn".len()).any(|w| w == b"console_warn"),
+            import_payload
+                .windows(b"console_warn".len())
+                .any(|w| w == b"console_warn"),
             "warn import must be encoded in import section"
         );
     }
 
     #[test]
     fn wasm_binary_writer_loop_extern_info_import_contract() {
-        let wasm = build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleInfo)
-            .expect("writer must succeed");
+        let wasm =
+            build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleInfo)
+                .expect("writer must succeed");
         let import_payload =
             find_section_payload(&wasm, SECTION_IMPORT).expect("import section missing");
         assert!(
-            import_payload.windows(b"console_info".len()).any(|w| w == b"console_info"),
+            import_payload
+                .windows(b"console_info".len())
+                .any(|w| w == b"console_info"),
             "info import must be encoded in import section"
         );
     }
 
     #[test]
     fn wasm_binary_writer_loop_extern_error_import_contract() {
-        let wasm = build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleError)
-            .expect("writer must succeed");
+        let wasm =
+            build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleError)
+                .expect("writer must succeed");
         let import_payload =
             find_section_payload(&wasm, SECTION_IMPORT).expect("import section missing");
         assert!(
-            import_payload.windows(b"console_error".len()).any(|w| w == b"console_error"),
+            import_payload
+                .windows(b"console_error".len())
+                .any(|w| w == b"console_error"),
             "error import must be encoded in import section"
         );
     }
 
     #[test]
     fn wasm_binary_writer_loop_extern_debug_import_contract() {
-        let wasm = build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleDebug)
-            .expect("writer must succeed");
+        let wasm =
+            build_loop_extern_call_skeleton_module_with_import(4, LoopExternImport::ConsoleDebug)
+                .expect("writer must succeed");
         let import_payload =
             find_section_payload(&wasm, SECTION_IMPORT).expect("import section missing");
         assert!(
-            import_payload.windows(b"console_debug".len()).any(|w| w == b"console_debug"),
+            import_payload
+                .windows(b"console_debug".len())
+                .any(|w| w == b"console_debug"),
             "debug import must be encoded in import section"
         );
     }

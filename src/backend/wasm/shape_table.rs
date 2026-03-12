@@ -1,5 +1,5 @@
-use crate::mir::{ConstValue, MirInstruction, MirModule};
 use crate::mir::BinaryOp;
+use crate::mir::{ConstValue, MirInstruction, MirModule};
 
 const P10_LOOP_EXTERN_CANDIDATE_ID: &str = "wsm.p10.main_loop_extern_call.v0";
 const P10_MIN4_NATIVE_SHAPE_ID: &str = "wsm.p10.main_loop_extern_call.fixed3.v0";
@@ -54,7 +54,9 @@ pub(crate) fn match_native_shape(mir_module: &MirModule) -> Option<NativeMatch> 
 
 /// Analysis-only candidate detector for WSM-P10.
 /// This does not alter route planning and remains bridge-only.
-pub(crate) fn detect_p10_loop_extern_call_candidate(mir_module: &MirModule) -> Option<&'static str> {
+pub(crate) fn detect_p10_loop_extern_call_candidate(
+    mir_module: &MirModule,
+) -> Option<&'static str> {
     let main = mir_module.get_function("main")?;
     if main.blocks.len() < 2 {
         return None;
@@ -112,7 +114,10 @@ pub(crate) fn detect_p10_min4_native_promotable_shape(
                     value: ConstValue::Integer(3),
                     ..
                 } => has_const_3 = true,
-                MirInstruction::Call { callee: Some(callee), .. } => match callee {
+                MirInstruction::Call {
+                    callee: Some(callee),
+                    ..
+                } => match callee {
                     crate::mir::Callee::Extern(name) => {
                         if name == "env.console.log" {
                             extern_log_calls += 1;
@@ -228,7 +233,10 @@ fn detect_p10_fixed4_console_method_native_shape(
                     value: ConstValue::Integer(4),
                     ..
                 } => has_const_4 = true,
-                MirInstruction::Call { callee: Some(callee), .. } => match callee {
+                MirInstruction::Call {
+                    callee: Some(callee),
+                    ..
+                } => match callee {
                     crate::mir::Callee::Extern(name) => {
                         if name == extern_name {
                             method_calls += 1;
@@ -291,7 +299,10 @@ pub(crate) fn detect_p10_min5_expansion_inventory_shape(
                     value: ConstValue::Integer(3),
                     ..
                 } => has_const_3 = true,
-                MirInstruction::Call { callee: Some(callee), .. } => {
+                MirInstruction::Call {
+                    callee: Some(callee),
+                    ..
+                } => {
                     let found = match callee {
                         crate::mir::Callee::Extern(name) => match name.as_str() {
                             "env.console.warn" => Some(P10_MIN5_WARN_INVENTORY_ID),
@@ -819,13 +830,13 @@ mod tests {
         loop_block.add_instruction(MirInstruction::Call {
             dst: None,
             func: ValueId(99),
-                callee: Some(Callee::Method {
-                    box_name: "console".to_string(),
-                    method: "log".to_string(),
-                    receiver: Some(ValueId(98)),
-                    certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
-                    box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
-                }),
+            callee: Some(Callee::Method {
+                box_name: "console".to_string(),
+                method: "log".to_string(),
+                receiver: Some(ValueId(98)),
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
             args: vec![c3],
             effects: EffectMask::IO,
         });
@@ -963,7 +974,10 @@ mod tests {
         let module = make_p10_loop_console_method_module("warn");
         let found = detect_p10_min5_expansion_inventory_shape(&module)
             .expect("warn inventory shape should match");
-        assert_eq!(found, "wsm.p10.main_loop_extern_call.warn.fixed3.inventory.v0");
+        assert_eq!(
+            found,
+            "wsm.p10.main_loop_extern_call.warn.fixed3.inventory.v0"
+        );
     }
 
     #[test]
@@ -971,7 +985,10 @@ mod tests {
         let module = make_p10_loop_console_method_module("info");
         let found = detect_p10_min5_expansion_inventory_shape(&module)
             .expect("info inventory shape should match");
-        assert_eq!(found, "wsm.p10.main_loop_extern_call.info.fixed3.inventory.v0");
+        assert_eq!(
+            found,
+            "wsm.p10.main_loop_extern_call.info.fixed3.inventory.v0"
+        );
     }
 
     #[test]
@@ -979,7 +996,10 @@ mod tests {
         let module = make_p10_loop_console_method_module("error");
         let found = detect_p10_min5_expansion_inventory_shape(&module)
             .expect("error inventory shape should match");
-        assert_eq!(found, "wsm.p10.main_loop_extern_call.error.fixed3.inventory.v0");
+        assert_eq!(
+            found,
+            "wsm.p10.main_loop_extern_call.error.fixed3.inventory.v0"
+        );
     }
 
     #[test]
@@ -987,7 +1007,10 @@ mod tests {
         let module = make_p10_loop_console_method_module("debug");
         let found = detect_p10_min5_expansion_inventory_shape(&module)
             .expect("debug inventory shape should match");
-        assert_eq!(found, "wsm.p10.main_loop_extern_call.debug.fixed3.inventory.v0");
+        assert_eq!(
+            found,
+            "wsm.p10.main_loop_extern_call.debug.fixed3.inventory.v0"
+        );
     }
 
     #[test]
@@ -1002,7 +1025,9 @@ mod tests {
     #[test]
     fn wasm_shape_table_detects_p10_min6_warn_native_promotable_contract() {
         let mut module = make_p10_loop_console_method_module("warn");
-        let main = module.get_function_mut("main").expect("main function exists");
+        let main = module
+            .get_function_mut("main")
+            .expect("main function exists");
         for block in main.blocks.values_mut() {
             for inst in &mut block.instructions {
                 if let MirInstruction::Const { value, .. } = inst {
@@ -1029,7 +1054,9 @@ mod tests {
     #[test]
     fn wasm_shape_table_detects_p10_min7_info_native_promotable_contract() {
         let mut module = make_p10_loop_console_method_module("info");
-        let main = module.get_function_mut("main").expect("main function exists");
+        let main = module
+            .get_function_mut("main")
+            .expect("main function exists");
         for block in main.blocks.values_mut() {
             for inst in &mut block.instructions {
                 if let MirInstruction::Const { value, .. } = inst {
@@ -1056,7 +1083,9 @@ mod tests {
     #[test]
     fn wasm_shape_table_detects_p10_min8_error_native_promotable_contract() {
         let mut module = make_p10_loop_console_method_module("error");
-        let main = module.get_function_mut("main").expect("main function exists");
+        let main = module
+            .get_function_mut("main")
+            .expect("main function exists");
         for block in main.blocks.values_mut() {
             for inst in &mut block.instructions {
                 if let MirInstruction::Const { value, .. } = inst {
@@ -1083,7 +1112,9 @@ mod tests {
     #[test]
     fn wasm_shape_table_detects_p10_min9_debug_native_promotable_contract() {
         let mut module = make_p10_loop_console_method_module("debug");
-        let main = module.get_function_mut("main").expect("main function exists");
+        let main = module
+            .get_function_mut("main")
+            .expect("main function exists");
         for block in main.blocks.values_mut() {
             for inst in &mut block.instructions {
                 if let MirInstruction::Const { value, .. } = inst {

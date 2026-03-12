@@ -5,8 +5,8 @@
  * Targets browser execution and wasmtime runtime
  */
 
-mod codegen;
 mod binary_writer;
+mod codegen;
 mod extern_contract;
 mod memory;
 mod runtime;
@@ -18,8 +18,8 @@ pub use memory::{BoxLayout, MemoryManager};
 pub use runtime::RuntimeImports;
 // pub use executor::WasmExecutor; // TODO: Fix WASM executor build errors
 
-use crate::mir::MirModule;
 use self::binary_writer::LoopExternImport;
+use crate::mir::MirModule;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WasmHakoDefaultLanePlan {
@@ -48,28 +48,36 @@ pub fn compile_hako_native_shape_emit(
     mir_module: &MirModule,
 ) -> Result<Option<WasmNativeShapeEmit>, WasmError> {
     let Some(found) = shape_table::match_native_shape(mir_module) else {
-        if let Some(shape_id) = shape_table::detect_p10_min6_warn_native_promotable_shape(mir_module) {
+        if let Some(shape_id) =
+            shape_table::detect_p10_min6_warn_native_promotable_shape(mir_module)
+        {
             let bytes = binary_writer::build_loop_extern_call_skeleton_module_with_import(
                 4,
                 LoopExternImport::ConsoleWarn,
             )?;
             return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
         }
-        if let Some(shape_id) = shape_table::detect_p10_min7_info_native_promotable_shape(mir_module) {
+        if let Some(shape_id) =
+            shape_table::detect_p10_min7_info_native_promotable_shape(mir_module)
+        {
             let bytes = binary_writer::build_loop_extern_call_skeleton_module_with_import(
                 4,
                 LoopExternImport::ConsoleInfo,
             )?;
             return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
         }
-        if let Some(shape_id) = shape_table::detect_p10_min8_error_native_promotable_shape(mir_module) {
+        if let Some(shape_id) =
+            shape_table::detect_p10_min8_error_native_promotable_shape(mir_module)
+        {
             let bytes = binary_writer::build_loop_extern_call_skeleton_module_with_import(
                 4,
                 LoopExternImport::ConsoleError,
             )?;
             return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
         }
-        if let Some(shape_id) = shape_table::detect_p10_min9_debug_native_promotable_shape(mir_module) {
+        if let Some(shape_id) =
+            shape_table::detect_p10_min9_debug_native_promotable_shape(mir_module)
+        {
             let bytes = binary_writer::build_loop_extern_call_skeleton_module_with_import(
                 4,
                 LoopExternImport::ConsoleDebug,
@@ -89,7 +97,9 @@ pub fn compile_hako_native_shape_emit(
     }))
 }
 
-pub fn compile_hako_native_shape_bytes(mir_module: &MirModule) -> Result<Option<Vec<u8>>, WasmError> {
+pub fn compile_hako_native_shape_bytes(
+    mir_module: &MirModule,
+) -> Result<Option<Vec<u8>>, WasmError> {
     Ok(compile_hako_native_shape_emit(mir_module)?.map(|emitted| emitted.bytes))
 }
 
@@ -266,12 +276,17 @@ impl WasmBackend {
     pub fn convert_wat_to_wasm(&self, wat_source: &str) -> Result<Vec<u8>, WasmError> {
         // Debug: Print WAT source for analysis
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("🔍 WAT Source Debug (length: {}):", wat_source.len()));
+        ring0.log.debug(&format!(
+            "🔍 WAT Source Debug (length: {}):",
+            wat_source.len()
+        ));
         ring0.log.debug(&format!("WAT Content:\n{}", wat_source));
 
         // UTF-8 validation to prevent encoding errors
         if !wat_source.is_ascii() {
-            ring0.log.debug("❌ WAT source contains non-ASCII characters");
+            ring0
+                .log
+                .debug("❌ WAT source contains non-ASCII characters");
             return Err(WasmError::WasmValidationError(
                 "WAT source contains non-ASCII characters".to_string(),
             ));
