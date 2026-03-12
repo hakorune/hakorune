@@ -168,7 +168,8 @@ pub fn gc_mode() -> String {
 }
 
 /// Typed GC mode getter (SSOT parser lives in runtime::gc_mode).
-pub fn gc_mode_typed() -> Result<crate::runtime::gc_mode::GcMode, crate::runtime::gc_mode::GcModeParseError> {
+pub fn gc_mode_typed(
+) -> Result<crate::runtime::gc_mode::GcMode, crate::runtime::gc_mode::GcModeParseError> {
     crate::runtime::gc_mode::GcMode::from_env_result()
 }
 

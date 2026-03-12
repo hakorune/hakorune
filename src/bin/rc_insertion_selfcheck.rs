@@ -9,11 +9,11 @@
 use nyash_rust::ast::Span;
 use nyash_rust::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use nyash_rust::mir::passes::rc_insertion::insert_rc_instructions;
+use nyash_rust::mir::types::ConstValue;
 use nyash_rust::mir::{
     BasicBlock, BasicBlockId, Callee, EdgeArgs, EffectMask, FunctionSignature, MirFunction,
     MirInstruction, MirModule, MirType, ValueId,
 };
-use nyash_rust::mir::types::ConstValue;
 use std::collections::HashMap;
 
 const RC_PHI_EDGE_MISMATCH_TAG: &str = "[freeze:contract][rc_insertion/phi_edge_mismatch]";
@@ -237,7 +237,10 @@ fn assert_fail_fast_tag_from_insert(mut module: MirModule, expected_tag: &str, l
     }));
     match result {
         Ok(_) => {
-            eprintln!("[FAIL] {}: expected fail-fast panic, but insertion succeeded", label);
+            eprintln!(
+                "[FAIL] {}: expected fail-fast panic, but insertion succeeded",
+                label
+            );
             std::process::exit(1);
         }
         Err(payload) => {
@@ -281,10 +284,7 @@ fn main() {
             dst: null_v,
             value: ConstValue::Null,
         },
-        MirInstruction::Store {
-            value: null_v,
-            ptr,
-        },
+        MirInstruction::Store { value: null_v, ptr },
     ];
     block.instruction_spans = vec![Span::unknown()];
     let entry = block.id;
@@ -378,10 +378,7 @@ fn main() {
         module,
         "selfcheck_jump_return_single_pred",
         1,
-        &[
-            (BasicBlockId::new(0), 0),
-            (BasicBlockId::new(1), 1),
-        ],
+        &[(BasicBlockId::new(0), 0), (BasicBlockId::new(1), 1)],
         "jump_return_single_pred",
     );
 
@@ -437,7 +434,10 @@ fn main() {
     let v_shared = ValueId::new(23); // 同じValueIdを両predecessorで使用
 
     let mut block_a = BasicBlock::new(BasicBlockId::new(0));
-    block_a.instructions = vec![MirInstruction::Store { value: v_shared, ptr }];
+    block_a.instructions = vec![MirInstruction::Store {
+        value: v_shared,
+        ptr,
+    }];
     block_a.instruction_spans = vec![Span::unknown()];
     block_a.terminator = Some(MirInstruction::Jump {
         target: BasicBlockId::new(2),
@@ -446,7 +446,10 @@ fn main() {
     block_a.terminator_span = Some(Span::unknown());
 
     let mut block_b = BasicBlock::new(BasicBlockId::new(1));
-    block_b.instructions = vec![MirInstruction::Store { value: v_shared, ptr }];
+    block_b.instructions = vec![MirInstruction::Store {
+        value: v_shared,
+        ptr,
+    }];
     block_b.instruction_spans = vec![Span::unknown()];
     block_b.terminator = Some(MirInstruction::Jump {
         target: BasicBlockId::new(2),
@@ -536,8 +539,14 @@ fn main() {
 
     let mut block_a = BasicBlock::new(BasicBlockId::new(0));
     block_a.instructions = vec![
-        MirInstruction::Store { value: v1, ptr: ptr1 },
-        MirInstruction::Store { value: v2, ptr: ptr2 },
+        MirInstruction::Store {
+            value: v1,
+            ptr: ptr1,
+        },
+        MirInstruction::Store {
+            value: v2,
+            ptr: ptr2,
+        },
     ];
     block_a.instruction_spans = vec![Span::unknown(), Span::unknown()];
     block_a.terminator = Some(MirInstruction::Jump {
@@ -548,8 +557,14 @@ fn main() {
 
     let mut block_b = BasicBlock::new(BasicBlockId::new(1));
     block_b.instructions = vec![
-        MirInstruction::Store { value: v1, ptr: ptr1 }, // ptr1=v1 (一致)
-        MirInstruction::Store { value: v3, ptr: ptr2 }, // ptr2=v3 (不一致)
+        MirInstruction::Store {
+            value: v1,
+            ptr: ptr1,
+        }, // ptr1=v1 (一致)
+        MirInstruction::Store {
+            value: v3,
+            ptr: ptr2,
+        }, // ptr2=v3 (不一致)
     ];
     block_b.instruction_spans = vec![Span::unknown(), Span::unknown()];
     block_b.terminator = Some(MirInstruction::Jump {
@@ -1001,13 +1016,7 @@ fn main() {
     block.terminator_span = Some(Span::unknown());
     let entry = block.id;
     let module = build_module_with_block(block, "selfcheck_jump_skip", "selfcheck_mod4");
-    assert_release_inserted(
-        module,
-        "selfcheck_jump_skip",
-        entry,
-        0,
-        "jump_no_cleanup",
-    );
+    assert_release_inserted(module, "selfcheck_jump_skip", entry, 0, "jump_no_cleanup");
 
     // Case 5: Branch terminator should NOT inject block-end cleanup (unsafe cross-block)
     let ptr = ValueId::new(500);
@@ -1040,12 +1049,18 @@ fn main() {
     let ptr1 = ValueId::new(3111);
     let ptr2 = ValueId::new(3112);
     let v_high = ValueId::new(100); // 大きい index
-    let v_low = ValueId::new(50);   // 小さい index
+    let v_low = ValueId::new(50); // 小さい index
 
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.instructions = vec![
-        MirInstruction::Store { value: v_high, ptr: ptr1 }, // 先に v100 を store
-        MirInstruction::Store { value: v_low, ptr: ptr2 },  // 後に v50 を store
+        MirInstruction::Store {
+            value: v_high,
+            ptr: ptr1,
+        }, // 先に v100 を store
+        MirInstruction::Store {
+            value: v_low,
+            ptr: ptr2,
+        }, // 後に v50 を store
     ];
     block.instruction_spans = vec![Span::unknown(), Span::unknown()];
     block.terminator = Some(MirInstruction::Return { value: None });
@@ -1054,7 +1069,13 @@ fn main() {
     let module = build_module_with_block(block, "selfcheck_sorted_values", "selfcheck_mod3p11");
 
     // 関数全体の ReleaseStrong が昇順であることを検証
-    assert_release_inserted(module.clone(), "selfcheck_sorted_values", entry, 1, "sorted_values_count");
+    assert_release_inserted(
+        module.clone(),
+        "selfcheck_sorted_values",
+        entry,
+        1,
+        "sorted_values_count",
+    );
     assert_all_release_values_sorted(module, "selfcheck_sorted_values", "sorted_values_order");
 
     // Case 3.12: Null propagation across Jump-chain
@@ -1081,9 +1102,18 @@ fn main() {
     // Block A
     let mut block_a = BasicBlock::new(block_a_id);
     block_a.instructions = vec![
-        MirInstruction::Store { value: real_val, ptr: ptr1 },
-        MirInstruction::Const { dst: null_val, value: ConstValue::Null },
-        MirInstruction::Store { value: null_val, ptr: ptr1 }, // explicit drop → ReleaseStrong 1
+        MirInstruction::Store {
+            value: real_val,
+            ptr: ptr1,
+        },
+        MirInstruction::Const {
+            dst: null_val,
+            value: ConstValue::Null,
+        },
+        MirInstruction::Store {
+            value: null_val,
+            ptr: ptr1,
+        }, // explicit drop → ReleaseStrong 1
     ];
     block_a.instruction_spans = vec![Span::unknown(); 3];
     block_a.terminator = Some(MirInstruction::Jump {
@@ -1095,8 +1125,14 @@ fn main() {
     // Block B
     let mut block_b = BasicBlock::new(block_b_id);
     block_b.instructions = vec![
-        MirInstruction::Store { value: real_val, ptr: ptr2 },
-        MirInstruction::Store { value: null_val, ptr: ptr2 }, // null_val from A (propagated) → ReleaseStrong 1
+        MirInstruction::Store {
+            value: real_val,
+            ptr: ptr2,
+        },
+        MirInstruction::Store {
+            value: null_val,
+            ptr: ptr2,
+        }, // null_val from A (propagated) → ReleaseStrong 1
     ];
     block_b.instruction_spans = vec![Span::unknown(); 2];
     block_b.terminator = Some(MirInstruction::Return { value: None });
@@ -1126,11 +1162,7 @@ fn main() {
     println!("[PASS] rc_insertion_selfcheck");
 }
 
-fn assert_all_release_values_sorted(
-    mut module: MirModule,
-    func_name: &str,
-    label: &str,
-) {
+fn assert_all_release_values_sorted(mut module: MirModule, func_name: &str, label: &str) {
     let _stats = insert_rc_instructions(&mut module);
     let func = module.get_function(func_name).expect("function exists");
 

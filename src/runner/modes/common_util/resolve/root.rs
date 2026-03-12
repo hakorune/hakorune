@@ -51,4 +51,3 @@ fn walk_up_to_repo_root(start: &Path) -> Option<PathBuf> {
     }
     None
 }
-

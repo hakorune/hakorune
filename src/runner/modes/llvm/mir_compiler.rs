@@ -46,7 +46,8 @@ impl MirCompilerBox {
                 &mut mir_compiler,
                 ast,
                 filename,
-            ).map_err(|e| format!("MIR compilation error: {}", e))?;
+            )
+            .map_err(|e| format!("MIR compilation error: {}", e))?;
 
         crate::console_println!("📊 MIR Module compiled successfully!");
         crate::console_println!("📊 Functions: {}", compile_result.module.functions.len());

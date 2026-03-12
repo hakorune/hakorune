@@ -3,18 +3,18 @@ use nyash_rust::parser::NyashParser;
 use std::fs;
 
 // Modularized boxes for LLVM mode
-mod plugin_init;
-mod exit_reporter;
-mod method_id_injector;
-mod using_resolver;
-mod mir_compiler;
-mod pyvm_executor;
-mod joinir_experiment;
-mod object_emitter;
-mod harness_executor;
-mod fallback_executor;
 mod error;
+mod exit_reporter;
+mod fallback_executor;
+mod harness_executor;
+mod joinir_experiment;
+mod method_id_injector;
+mod mir_compiler;
+mod object_emitter;
+mod plugin_init;
+mod pyvm_executor;
 mod report;
+mod using_resolver;
 
 // Re-export error types for convenience
 use self::error::LlvmRunError;
@@ -39,19 +39,22 @@ impl NyashRunner {
         };
 
         // Step 3: Using resolution and prelude merge
-        let (clean_code, prelude_asts) = match using_resolver::UsingResolverBox::resolve(self, &code, filename) {
-            Ok(result) => result,
-            Err(e) => {
-                report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
-            }
-        };
+        let (clean_code, prelude_asts) =
+            match using_resolver::UsingResolverBox::resolve(self, &code, filename) {
+                Ok(result) => result,
+                Err(e) => {
+                    report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
+                }
+            };
 
         // Parse to AST (main)
         let main_ast = match NyashParser::parse_from_string(&clean_code) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(
-                    filename, &clean_code, &e,
+                    filename,
+                    &clean_code,
+                    &e,
                 );
                 // Enhanced context: list merged prelude files if any (from text-merge path)
                 let preludes =
@@ -129,7 +132,10 @@ impl NyashRunner {
                 match std::fs::metadata(&_out_path) {
                     Ok(meta) => {
                         if meta.len() == 0 {
-                            report::emit_error_and_exit(LlvmRunError::fatal(format!("harness object is empty: {}", _out_path)));
+                            report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                                "harness object is empty: {}",
+                                _out_path
+                            )));
                         }
                         if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
                             crate::console_println!(
@@ -140,7 +146,10 @@ impl NyashRunner {
                         }
                     }
                     Err(e) => {
-                        report::emit_error_and_exit(LlvmRunError::fatal(format!("harness output not found after emit: {} ({})", _out_path, e)));
+                        report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                            "harness output not found after emit: {} ({})",
+                            _out_path, e
+                        )));
                     }
                 }
                 return;
@@ -160,7 +169,10 @@ impl NyashRunner {
                         .unwrap_or_default()
                 );
                 if let Err(e) = llvm_compile_to_object(&module, &_out_path) {
-                    report::emit_error_and_exit(LlvmRunError::fatal(format!("LLVM object emit error: {}", e)));
+                    report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                        "LLVM object emit error: {}",
+                        e
+                    )));
                 }
                 match std::fs::metadata(&_out_path) {
                     Ok(meta) if meta.len() > 0 => {
@@ -171,14 +183,19 @@ impl NyashRunner {
                         );
                     }
                     _ => {
-                        report::emit_error_and_exit(LlvmRunError::fatal(format!("LLVM object not found or empty: {}", _out_path)));
+                        report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                            "LLVM object not found or empty: {}",
+                            _out_path
+                        )));
                     }
                 }
                 return;
             }
             #[cfg(all(not(feature = "llvm-harness"), not(feature = "llvm-inkwell-legacy")))]
             {
-                report::emit_error_and_exit(LlvmRunError::fatal("LLVM backend not available (object emit)"));
+                report::emit_error_and_exit(LlvmRunError::fatal(
+                    "LLVM backend not available (object emit)",
+                ));
             }
         }
 
@@ -214,7 +231,10 @@ impl NyashRunner {
                     }
                 }
                 Err(e) => {
-                    report::emit_error_and_exit(LlvmRunError::fatal(format!("LLVM execution error: {}", e)));
+                    report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                        "LLVM execution error: {}",
+                        e
+                    )));
                 }
             }
         }

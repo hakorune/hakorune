@@ -2,9 +2,9 @@
 //!
 //! Handles LLVM object file generation when requested (feature-gated).
 
-use nyash_rust::mir::MirModule;
 #[cfg(feature = "llvm-harness")]
 use crate::config::env;
+use nyash_rust::mir::MirModule;
 
 /// Object emitter Box
 ///
@@ -27,7 +27,7 @@ impl ObjectEmitterBox {
 
         if crate::config::env::llvm_use_harness() {
             crate::runner::modes::common_util::exec::llvmlite_emit_object(
-                module, &out_path, 20_000
+                module, &out_path, 20_000,
             )?;
 
             // Verify object file
@@ -47,7 +47,8 @@ impl ObjectEmitterBox {
                 if env::cli_verbose_enabled() {
                     crate::console_println!(
                         "[LLVM] object emitted: {} ({} bytes)",
-                        path, meta.len()
+                        path,
+                        meta.len()
                     );
                 }
                 Ok(())

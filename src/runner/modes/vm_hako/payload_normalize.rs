@@ -3,8 +3,8 @@ use std::collections::{HashMap, HashSet};
 
 use super::shape_contract::{
     collect_function_return_models, extract_string_handle_const, has_id_method_arg1_model,
-    normalize_instruction_aliases, parse_print_arg_from_instruction, update_handle_bindings_from_const_or_copy,
-    validate_two_arg_call_target, ReturnModel,
+    normalize_instruction_aliases, parse_print_arg_from_instruction,
+    update_handle_bindings_from_const_or_copy, validate_two_arg_call_target, ReturnModel,
 };
 use super::{DYNAMIC_METHOD_BRIDGE_FUNC_ID, DYNAMIC_METHOD_FUNC_ID};
 

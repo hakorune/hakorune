@@ -148,7 +148,11 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
     if groups.emit.emit_wat.is_some() {
         #[cfg(feature = "wasm-backend")]
         {
-            let output_path = groups.emit.emit_wat.as_ref().expect("emit_wat presence checked");
+            let output_path = groups
+                .emit
+                .emit_wat
+                .as_ref()
+                .expect("emit_wat presence checked");
             runner.execute_emit_wat_mode(filename, output_path);
             return;
         }

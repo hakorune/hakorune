@@ -155,7 +155,11 @@ fn plan_using_strip(
                     }
                     // Also try repo root when available (repo-root relative like "apps/...")
                     if p.is_relative() {
-                        if let Some(root) = crate::runner::modes::common_util::resolve::root::resolve_repo_root(Some(filename)) {
+                        if let Some(root) =
+                            crate::runner::modes::common_util::resolve::root::resolve_repo_root(
+                                Some(filename),
+                            )
+                        {
                             let cand = root.join(&p);
                             if cand.exists() {
                                 p = cand;

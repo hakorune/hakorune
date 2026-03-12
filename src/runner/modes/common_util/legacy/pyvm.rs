@@ -24,11 +24,10 @@ pub(crate) fn run_pyvm_harness_lib(
     let runner_buf = match resolve_runner_path() {
         Some(path) => path,
         None => {
-        return Err(format!(
-            "PyVM runner not found: {} (cwd) or $NYASH_ROOT/{}",
-            PYVM_RUNNER_PATH,
-            PYVM_RUNNER_PATH
-        ));
+            return Err(format!(
+                "PyVM runner not found: {} (cwd) or $NYASH_ROOT/{}",
+                PYVM_RUNNER_PATH, PYVM_RUNNER_PATH
+            ));
         }
     };
     let tmp_dir = std::path::Path::new("tmp");

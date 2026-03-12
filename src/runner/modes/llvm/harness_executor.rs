@@ -2,10 +2,10 @@
 //!
 //! Handles execution via LLVM harness when available (feature-gated).
 
-use nyash_rust::mir::MirModule;
+use super::error::LlvmRunError;
 use crate::config::env;
 use crate::runtime::get_global_ring0;
-use super::error::LlvmRunError;
+use nyash_rust::mir::MirModule;
 
 /// Harness executor Box
 ///
@@ -32,16 +32,19 @@ impl HarnessExecutorBox {
         }
         let harness_enabled = crate::config::env::llvm_use_harness();
         if env::cli_verbose_enabled() {
-            get_global_ring0()
-                .log
-                .debug(&format!("[llvm/harness] llvm_use_harness() = {}", harness_enabled));
+            get_global_ring0().log.debug(&format!(
+                "[llvm/harness] llvm_use_harness() = {}",
+                harness_enabled
+            ));
             get_global_ring0().log.debug(&format!(
                 "[llvm/harness] NYASH_LLVM_USE_HARNESS = {:?}",
                 env::env_string("NYASH_LLVM_USE_HARNESS")
             ));
         }
         if !harness_enabled {
-            return Err(LlvmRunError::fatal("LLVM harness not enabled (NYASH_LLVM_USE_HARNESS not set)"));
+            return Err(LlvmRunError::fatal(
+                "LLVM harness not enabled (NYASH_LLVM_USE_HARNESS not set)",
+            ));
         }
 
         // Prefer producing a native executable via ny-llvmc, then execute it
@@ -55,25 +58,16 @@ impl HarnessExecutorBox {
             libs.as_deref(),
         ).map_err(|e| LlvmRunError::fatal(format!("ny-llvmc emit-exe error: {} (Hint: build ny-llvmc: cargo build -p nyash-llvm-compiler --release)", e)))?;
 
-        match crate::runner::modes::common_util::exec::run_executable(
-            exe_out,
-            &[],
-            20_000,
-        ) {
+        match crate::runner::modes::common_util::exec::run_executable(exe_out, &[], 20_000) {
             Ok((code, _timed_out, stdout_text)) => {
                 // Forward program stdout so parity tests can compare outputs
                 if !stdout_text.is_empty() {
                     print!("{}", stdout_text);
                 }
-                crate::console_println!(
-                    "✅ LLVM (harness) execution completed (exit={})",
-                    code
-                );
+                crate::console_println!("✅ LLVM (harness) execution completed (exit={})", code);
                 Ok(code)
             }
-            Err(e) => {
-                Err(LlvmRunError::fatal(format!("run executable error: {}", e)))
-            }
+            Err(e) => Err(LlvmRunError::fatal(format!("run executable error: {}", e))),
         }
     }
 
@@ -87,6 +81,8 @@ impl HarnessExecutorBox {
                 .log
                 .warn("[llvm/harness] rebuild with: cargo build --release --features llvm");
         }
-        Err(LlvmRunError::fatal("LLVM harness feature not enabled (built without --features llvm)"))
+        Err(LlvmRunError::fatal(
+            "LLVM harness feature not enabled (built without --features llvm)",
+        ))
     }
 }

@@ -1,4 +1,5 @@
 use super::super::NyashRunner;
+use crate::runtime::get_global_ring0;
 use crate::{
     backend::MirInterpreter,
     box_factory::{BoxFactory, RuntimeError},
@@ -7,7 +8,6 @@ use crate::{
     mir::MirCompiler,
     parser::NyashParser,
 };
-use crate::runtime::get_global_ring0;
 use std::sync::{Arc, RwLock};
 use std::{fs, process};
 
@@ -16,9 +16,7 @@ impl NyashRunner {
     /// - Respects using preprocessing done earlier in the pipeline
     /// - Relies on global plugin host initialized by runner
     pub(crate) fn execute_vm_fallback_interpreter(&self, filename: &str) {
-        crate::runner::route_orchestrator::enforce_vm_compat_fallback_guard_or_exit(
-            "vm-fallback",
-        );
+        crate::runner::route_orchestrator::enforce_vm_compat_fallback_guard_or_exit("vm-fallback");
         // Note: hv1 direct route is now handled at main.rs entry point (before plugin initialization).
         // This function is only called after plugin initialization has already occurred.
 
@@ -329,9 +327,7 @@ impl NyashRunner {
         // Existing: NYASH_VM_DUMP_MIR dumps to stderr
         if crate::config::env::env_bool("NYASH_VM_DUMP_MIR") {
             let p = crate::mir::MirPrinter::new();
-            get_global_ring0()
-                .log
-                .debug(&p.print_module(&module_vm));
+            get_global_ring0().log.debug(&p.print_module(&module_vm));
         }
 
         // Execute via MIR interpreter

@@ -17,7 +17,10 @@ pub fn grammar_diff() -> bool {
 /// Allow optional semicolon separator (default ON).
 /// Disable with NYASH_PARSER_ALLOW_SEMICOLON=0|false|off.
 pub fn parser_allow_semicolon() -> bool {
-    match std::env::var("NYASH_PARSER_ALLOW_SEMICOLON").ok().as_deref() {
+    match std::env::var("NYASH_PARSER_ALLOW_SEMICOLON")
+        .ok()
+        .as_deref()
+    {
         Some("0") | Some("false") | Some("off") => false,
         Some(_) => true,
         None => true,

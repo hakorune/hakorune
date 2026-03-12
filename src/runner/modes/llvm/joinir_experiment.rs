@@ -54,7 +54,9 @@ impl JoinIrExperimentBox {
 
                             // Remove the original PHI-problematic Main.skip/1
                             if merged.functions.remove("Main.skip/1").is_some() {
-                                crate::runtime::get_global_ring0().log.debug("[joinir/llvm] Removed original Main.skip/1 (PHI-problematic)");
+                                crate::runtime::get_global_ring0().log.debug(
+                                    "[joinir/llvm] Removed original Main.skip/1 (PHI-problematic)",
+                                );
                             }
 
                             for (name, func) in mir_from_joinir.functions {

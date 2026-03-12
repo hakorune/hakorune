@@ -32,7 +32,9 @@ pub fn resolve_prelude_paths_profiled(
     let opbox_all = crate::config::env::env_bool("NYASH_OPERATOR_BOX_ALL")
         || crate::config::env::env_bool("NYASH_BUILDER_OPERATOR_BOX_ALL_CALL");
 
-    if let Some(root) = crate::runner::modes::common_util::resolve::root::resolve_repo_root(Some(filename)) {
+    if let Some(root) =
+        crate::runner::modes::common_util::resolve::root::resolve_repo_root(Some(filename))
+    {
         let must_have = [
             "apps/lib/std/operators/stringify.hako",
             "apps/lib/std/operators/compare.hako",
@@ -50,7 +52,9 @@ pub fn resolve_prelude_paths_profiled(
     }
     // Inject remaining arithmetic/bitwise/unary operator modules when ALL is requested
     if opbox_all {
-        if let Some(root) = crate::runner::modes::common_util::resolve::root::resolve_repo_root(Some(filename)) {
+        if let Some(root) =
+            crate::runner::modes::common_util::resolve::root::resolve_repo_root(Some(filename))
+        {
             let rels = vec![
                 "apps/lib/std/operators/sub.hako",
                 "apps/lib/std/operators/mul.hako",

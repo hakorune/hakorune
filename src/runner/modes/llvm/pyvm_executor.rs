@@ -2,8 +2,8 @@
 //!
 //! Handles execution via PyVM harness when requested for development/testing.
 
-use nyash_rust::mir::MirModule;
 use super::error::LlvmRunError;
+use nyash_rust::mir::MirModule;
 
 /// PyVM executor Box
 ///

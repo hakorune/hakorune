@@ -7,8 +7,8 @@ use std::process;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 mod compile_bridge;
-mod driver_spawn;
 mod driver_source;
+mod driver_spawn;
 mod payload_normalize;
 mod shape_contract;
 mod subset_check;

@@ -71,8 +71,7 @@ fn ffi_library_default_candidates() -> Vec<PathBuf> {
 pub fn mir_json_to_object(mir_json: &str, opts: Opts) -> Result<PathBuf, String> {
     // Optional provider selection (C-API) — guarded by env flags
     // NYASH_LLVM_USE_CAPI=1 and HAKO_V1_EXTERN_PROVIDER_C_ABI=1
-    if crate::config::env::llvm_use_capi() && crate::config::env::extern_provider_c_abi()
-    {
+    if crate::config::env::llvm_use_capi() && crate::config::env::extern_provider_c_abi() {
         // Basic shape check first
         if !mir_json.contains("\"functions\"") || !mir_json.contains("\"blocks\"") {
             let tag = "[llvmemit/input/invalid] missing functions/blocks keys";

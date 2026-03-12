@@ -3,8 +3,8 @@
 use super::{ASTNode, Span};
 use std::fmt;
 
-mod node_type;
 mod classify;
+mod node_type;
 
 impl ASTNode {
     /// AST nodeの詳細情報を取得 (デバッグ用)
@@ -329,10 +329,12 @@ impl ASTNode {
                         || then_body.iter().any(contains)
                         || else_body.as_ref().is_some_and(|b| b.iter().any(contains))
                 }
-                ASTNode::Loop { condition, body, .. }
-                | ASTNode::While { condition, body, .. } => {
-                    contains(condition) || body.iter().any(contains)
+                ASTNode::Loop {
+                    condition, body, ..
                 }
+                | ASTNode::While {
+                    condition, body, ..
+                } => contains(condition) || body.iter().any(contains),
                 ASTNode::ForRange {
                     start, end, body, ..
                 } => contains(start) || contains(end) || body.iter().any(contains),
@@ -354,13 +356,17 @@ impl ASTNode {
                         || contains(else_expr)
                 }
                 ASTNode::ArrayLiteral { elements, .. } => elements.iter().any(contains),
-                ASTNode::MapLiteral { entries, .. } => entries.iter().any(|(_, expr)| contains(expr)),
+                ASTNode::MapLiteral { entries, .. } => {
+                    entries.iter().any(|(_, expr)| contains(expr))
+                }
                 ASTNode::BlockExpr {
                     prelude_stmts,
                     tail_expr,
                     ..
                 } => prelude_stmts.iter().any(contains) || contains(tail_expr),
-                ASTNode::Arrow { sender, receiver, .. } => contains(sender) || contains(receiver),
+                ASTNode::Arrow {
+                    sender, receiver, ..
+                } => contains(sender) || contains(receiver),
                 ASTNode::TryCatch {
                     try_body,
                     catch_clauses,
@@ -369,7 +375,9 @@ impl ASTNode {
                 } => {
                     try_body.iter().any(contains)
                         || catch_clauses.iter().any(|c| c.body.iter().any(contains))
-                        || finally_body.as_ref().is_some_and(|b| b.iter().any(contains))
+                        || finally_body
+                            .as_ref()
+                            .is_some_and(|b| b.iter().any(contains))
                 }
 
                 ASTNode::UnaryOp { operand, .. } => contains(operand),
@@ -383,12 +391,15 @@ impl ASTNode {
                 ASTNode::New { arguments, .. }
                 | ASTNode::FromCall { arguments, .. }
                 | ASTNode::FunctionCall { arguments, .. } => arguments.iter().any(contains),
-                ASTNode::Call { callee, arguments, .. } => contains(callee) || arguments.iter().any(contains),
-                ASTNode::Local { initial_values, .. }
-                | ASTNode::Outbox { initial_values, .. } => initial_values
-                    .iter()
-                    .filter_map(|v| v.as_deref())
-                    .any(contains),
+                ASTNode::Call {
+                    callee, arguments, ..
+                } => contains(callee) || arguments.iter().any(contains),
+                ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
+                    initial_values
+                        .iter()
+                        .filter_map(|v| v.as_deref())
+                        .any(contains)
+                }
 
                 _ => false,
             }
@@ -424,10 +435,12 @@ impl ASTNode {
                         || then_body.iter().any(contains)
                         || else_body.as_ref().is_some_and(|b| b.iter().any(contains))
                 }
-                ASTNode::Loop { condition, body, .. }
-                | ASTNode::While { condition, body, .. } => {
-                    contains(condition) || body.iter().any(contains)
+                ASTNode::Loop {
+                    condition, body, ..
                 }
+                | ASTNode::While {
+                    condition, body, ..
+                } => contains(condition) || body.iter().any(contains),
                 ASTNode::ForRange {
                     start, end, body, ..
                 } => contains(start) || contains(end) || body.iter().any(contains),
@@ -449,13 +462,17 @@ impl ASTNode {
                         || contains(else_expr)
                 }
                 ASTNode::ArrayLiteral { elements, .. } => elements.iter().any(contains),
-                ASTNode::MapLiteral { entries, .. } => entries.iter().any(|(_, expr)| contains(expr)),
+                ASTNode::MapLiteral { entries, .. } => {
+                    entries.iter().any(|(_, expr)| contains(expr))
+                }
                 ASTNode::BlockExpr {
                     prelude_stmts,
                     tail_expr,
                     ..
                 } => prelude_stmts.iter().any(contains) || contains(tail_expr),
-                ASTNode::Arrow { sender, receiver, .. } => contains(sender) || contains(receiver),
+                ASTNode::Arrow {
+                    sender, receiver, ..
+                } => contains(sender) || contains(receiver),
                 ASTNode::TryCatch {
                     try_body,
                     catch_clauses,
@@ -464,7 +481,9 @@ impl ASTNode {
                 } => {
                     try_body.iter().any(contains)
                         || catch_clauses.iter().any(|c| c.body.iter().any(contains))
-                        || finally_body.as_ref().is_some_and(|b| b.iter().any(contains))
+                        || finally_body
+                            .as_ref()
+                            .is_some_and(|b| b.iter().any(contains))
                 }
 
                 ASTNode::UnaryOp { operand, .. } => contains(operand),
@@ -478,12 +497,15 @@ impl ASTNode {
                 ASTNode::New { arguments, .. }
                 | ASTNode::FromCall { arguments, .. }
                 | ASTNode::FunctionCall { arguments, .. } => arguments.iter().any(contains),
-                ASTNode::Call { callee, arguments, .. } => contains(callee) || arguments.iter().any(contains),
-                ASTNode::Local { initial_values, .. }
-                | ASTNode::Outbox { initial_values, .. } => initial_values
-                    .iter()
-                    .filter_map(|v| v.as_deref())
-                    .any(contains),
+                ASTNode::Call {
+                    callee, arguments, ..
+                } => contains(callee) || arguments.iter().any(contains),
+                ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
+                    initial_values
+                        .iter()
+                        .filter_map(|v| v.as_deref())
+                        .any(contains)
+                }
 
                 _ => false,
             }
@@ -523,8 +545,14 @@ impl ASTNode {
                         .as_ref()
                         .is_some_and(|b| b.iter().any(ASTNode::contains_non_local_exit))
             }
-            ASTNode::Loop { condition, body, .. } | ASTNode::While { condition, body, .. } => {
-                condition.contains_non_local_exit() || body.iter().any(ASTNode::contains_non_local_exit)
+            ASTNode::Loop {
+                condition, body, ..
+            }
+            | ASTNode::While {
+                condition, body, ..
+            } => {
+                condition.contains_non_local_exit()
+                    || body.iter().any(ASTNode::contains_non_local_exit)
             }
             ASTNode::ForRange {
                 start, end, body, ..
@@ -563,9 +591,9 @@ impl ASTNode {
                 prelude_stmts.iter().any(ASTNode::contains_non_local_exit)
                     || tail_expr.contains_non_local_exit()
             }
-            ASTNode::Arrow { sender, receiver, .. } => {
-                sender.contains_non_local_exit() || receiver.contains_non_local_exit()
-            }
+            ASTNode::Arrow {
+                sender, receiver, ..
+            } => sender.contains_non_local_exit() || receiver.contains_non_local_exit(),
             ASTNode::TryCatch {
                 try_body,
                 catch_clauses,
@@ -605,23 +633,18 @@ impl ASTNode {
             ASTNode::New { arguments, .. } | ASTNode::FromCall { arguments, .. } => {
                 arguments.iter().any(ASTNode::contains_non_local_exit)
             }
-            ASTNode::Local {
-                initial_values, ..
+            ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
+                initial_values
+                    .iter()
+                    .filter_map(|v| v.as_deref())
+                    .any(ASTNode::contains_non_local_exit)
             }
-            | ASTNode::Outbox {
-                initial_values, ..
-            } => initial_values
-                .iter()
-                .filter_map(|v| v.as_deref())
-                .any(ASTNode::contains_non_local_exit),
             ASTNode::ScopeBox { body, .. } => body.iter().any(ASTNode::contains_non_local_exit),
             ASTNode::FunctionCall { arguments, .. } => {
                 arguments.iter().any(ASTNode::contains_non_local_exit)
             }
             ASTNode::Call {
-                callee,
-                arguments,
-                ..
+                callee, arguments, ..
             } => {
                 callee.contains_non_local_exit()
                     || arguments.iter().any(ASTNode::contains_non_local_exit)
@@ -649,7 +672,9 @@ impl ASTNode {
                 | ASTNode::FunctionDeclaration { .. }
                 | ASTNode::BoxDeclaration { .. } => false,
 
-                ASTNode::Program { statements, .. } => statements.iter().any(|s| contains(s, loop_depth)),
+                ASTNode::Program { statements, .. } => {
+                    statements.iter().any(|s| contains(s, loop_depth))
+                }
                 ASTNode::Assignment { target, value, .. } => {
                     contains(target, loop_depth) || contains(value, loop_depth)
                 }
@@ -666,16 +691,25 @@ impl ASTNode {
                             .as_ref()
                             .is_some_and(|b| b.iter().any(|s| contains(s, loop_depth)))
                 }
-                ASTNode::Loop { condition, body, .. } | ASTNode::While { condition, body, .. } => {
+                ASTNode::Loop {
+                    condition, body, ..
+                }
+                | ASTNode::While {
+                    condition, body, ..
+                } => {
                     contains(condition, loop_depth)
-                        || body.iter().any(|s| contains(s, loop_depth.saturating_add(1)))
+                        || body
+                            .iter()
+                            .any(|s| contains(s, loop_depth.saturating_add(1)))
                 }
                 ASTNode::ForRange {
                     start, end, body, ..
                 } => {
                     contains(start, loop_depth)
                         || contains(end, loop_depth)
-                        || body.iter().any(|s| contains(s, loop_depth.saturating_add(1)))
+                        || body
+                            .iter()
+                            .any(|s| contains(s, loop_depth.saturating_add(1)))
                 }
                 ASTNode::UsingStatement { .. } | ASTNode::ImportStatement { .. } => false,
                 ASTNode::Nowait { expression, .. } => contains(expression, loop_depth),
@@ -696,9 +730,9 @@ impl ASTNode {
                 ASTNode::ArrayLiteral { elements, .. } => {
                     elements.iter().any(|e| contains(e, loop_depth))
                 }
-                ASTNode::MapLiteral { entries, .. } => entries
-                    .iter()
-                    .any(|(_, expr)| contains(expr, loop_depth)),
+                ASTNode::MapLiteral { entries, .. } => {
+                    entries.iter().any(|(_, expr)| contains(expr, loop_depth))
+                }
                 ASTNode::BlockExpr {
                     prelude_stmts,
                     tail_expr,
@@ -707,9 +741,9 @@ impl ASTNode {
                     prelude_stmts.iter().any(|s| contains(s, loop_depth))
                         || contains(tail_expr, loop_depth)
                 }
-                ASTNode::Arrow { sender, receiver, .. } => {
-                    contains(sender, loop_depth) || contains(receiver, loop_depth)
-                }
+                ASTNode::Arrow {
+                    sender, receiver, ..
+                } => contains(sender, loop_depth) || contains(receiver, loop_depth),
                 ASTNode::TryCatch {
                     try_body,
                     catch_clauses,
@@ -734,30 +768,39 @@ impl ASTNode {
                 | ASTNode::MeField { .. } => false,
 
                 ASTNode::UnaryOp { operand, .. } => contains(operand, loop_depth),
-                ASTNode::BinaryOp { left, right, .. } => contains(left, loop_depth) || contains(right, loop_depth),
+                ASTNode::BinaryOp { left, right, .. } => {
+                    contains(left, loop_depth) || contains(right, loop_depth)
+                }
                 ASTNode::GroupedAssignmentExpr { rhs, .. } => contains(rhs, loop_depth),
 
                 ASTNode::MethodCall {
                     object, arguments, ..
-                } => contains(object, loop_depth) || arguments.iter().any(|a| contains(a, loop_depth)),
+                } => {
+                    contains(object, loop_depth)
+                        || arguments.iter().any(|a| contains(a, loop_depth))
+                }
                 ASTNode::FieldAccess { object, .. } => contains(object, loop_depth),
-                ASTNode::Index { target, index, .. } => contains(target, loop_depth) || contains(index, loop_depth),
+                ASTNode::Index { target, index, .. } => {
+                    contains(target, loop_depth) || contains(index, loop_depth)
+                }
                 ASTNode::New { arguments, .. } => arguments.iter().any(|a| contains(a, loop_depth)),
-                ASTNode::FunctionCall { arguments, .. } => arguments.iter().any(|a| contains(a, loop_depth)),
+                ASTNode::FunctionCall { arguments, .. } => {
+                    arguments.iter().any(|a| contains(a, loop_depth))
+                }
                 ASTNode::Call {
                     callee, arguments, ..
-                } => contains(callee, loop_depth) || arguments.iter().any(|a| contains(a, loop_depth)),
+                } => {
+                    contains(callee, loop_depth)
+                        || arguments.iter().any(|a| contains(a, loop_depth))
+                }
                 ASTNode::FromCall { .. } => false,
                 ASTNode::ScopeBox { body, .. } => body.iter().any(|s| contains(s, loop_depth)),
-                ASTNode::Local {
-                    initial_values, ..
+                ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
+                    initial_values
+                        .iter()
+                        .filter_map(|v| v.as_deref())
+                        .any(|v| contains(v, loop_depth))
                 }
-                | ASTNode::Outbox {
-                    initial_values, ..
-                } => initial_values
-                    .iter()
-                    .filter_map(|v| v.as_deref())
-                    .any(|v| contains(v, loop_depth)),
             }
         }
 

@@ -47,14 +47,26 @@ impl NyashRunner {
         // 🔍 Debug: Check if aliases are loaded
         if crate::config::env::debug_using() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!("[DEBUG/using] populate_from_toml result: {:?}", toml_result));
-            ring0.log.debug(&format!("[DEBUG/using] Loaded {} aliases", aliases.len()));
+            ring0.log.debug(&format!(
+                "[DEBUG/using] populate_from_toml result: {:?}",
+                toml_result
+            ));
+            ring0
+                .log
+                .debug(&format!("[DEBUG/using] Loaded {} aliases", aliases.len()));
             for (k, v) in aliases.iter() {
-                ring0.log.debug(&format!("[DEBUG/using] alias: '{}' => '{}'", k, v));
+                ring0
+                    .log
+                    .debug(&format!("[DEBUG/using] alias: '{}' => '{}'", k, v));
             }
-            ring0.log.debug(&format!("[DEBUG/using] Loaded {} packages", packages.len()));
+            ring0
+                .log
+                .debug(&format!("[DEBUG/using] Loaded {} packages", packages.len()));
             for (k, v) in packages.iter() {
-                ring0.log.debug(&format!("[DEBUG/using] package: '{}' => path='{}'", k, v.path));
+                ring0.log.debug(&format!(
+                    "[DEBUG/using] package: '{}' => path='{}'",
+                    k, v.path
+                ));
             }
         }
 
@@ -62,7 +74,9 @@ impl NyashRunner {
         if let Err(e) = &toml_result {
             if crate::config::env::debug_using() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("[using/workspace] failed to load toml modules: {e}"));
+                ring0.log.debug(&format!(
+                    "[using/workspace] failed to load toml modules: {e}"
+                ));
             }
         }
 
@@ -462,14 +476,14 @@ fn try_resolve_using_target_ssot(
             }
         }
         if !found.is_empty() {
-                if found.len() > 1 && strict {
-                    if trace {
-                        let total = found.len();
-                        // Allow customizing the number of shown candidates via env (bounded 1..=10)
-                        let n_show: usize = crate::config::env::using_ssot_relative_ambig_first_n()
-                            .map(|n| n.clamp(1, 10))
-                            .unwrap_or(3);
-                        let shown: Vec<String> = found.iter().take(n_show).cloned().collect();
+            if found.len() > 1 && strict {
+                if trace {
+                    let total = found.len();
+                    // Allow customizing the number of shown candidates via env (bounded 1..=10)
+                    let n_show: usize = crate::config::env::using_ssot_relative_ambig_first_n()
+                        .map(|n| n.clamp(1, 10))
+                        .unwrap_or(3);
+                    let shown: Vec<String> = found.iter().take(n_show).cloned().collect();
                     // Standardized message: count + first N + explicit delegation policy
                     crate::runner::trace::log(format!(
                         "[using/ssot:relative ambiguous] name='{}' count={} first=[{}] -> delegate=legacy(strict)",

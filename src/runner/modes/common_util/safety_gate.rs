@@ -111,7 +111,11 @@ mod tests {
     #[test]
     fn detect_hako_like_boundary_source() {
         assert!(is_hako_like_for_vm_boundary("static box Main { }"));
-        assert!(is_hako_like_for_vm_boundary("using selfhost.vm.entry_s0 as X"));
-        assert!(!is_hako_like_for_vm_boundary("box Main { main(){ return 0 } }"));
+        assert!(is_hako_like_for_vm_boundary(
+            "using selfhost.vm.entry_s0 as X"
+        ));
+        assert!(!is_hako_like_for_vm_boundary(
+            "box Main { main(){ return 0 } }"
+        ));
     }
 }

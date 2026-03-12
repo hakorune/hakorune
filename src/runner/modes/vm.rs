@@ -325,7 +325,9 @@ impl NyashRunner {
         // Minimal user-defined Box support (inline factory)
         if emit_trace {
             let ring0 = crate::runtime::ring0::get_global_ring0();
-            ring0.log.info("[runner/vm:emit-trace] phase=user-factory.begin");
+            ring0
+                .log
+                .info("[runner/vm:emit-trace] phase=user-factory.begin");
         }
         let static_box_decls = {
             use crate::{

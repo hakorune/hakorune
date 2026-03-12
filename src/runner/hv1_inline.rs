@@ -11,7 +11,9 @@ pub fn run_json_v1_inline(json: &str) -> i32 {
     // Optional execution trace (stderr) for debugging
     if crate::config::env::env_bool("HAKO_TRACE_EXECUTION") {
         let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[trace] executor: hv1_inline (rust)"));
+        ring0
+            .log
+            .debug(&format!("[trace] executor: hv1_inline (rust)"));
     }
     // Parse JSON
     let v: Value = match serde_json::from_str(json) {

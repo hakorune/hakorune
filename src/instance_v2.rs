@@ -511,7 +511,9 @@ mod tests {
         for instance in instances {
             if crate::config::env::cli_verbose_enabled() {
                 let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!("Instance: {}", instance.class_name));
+                ring0
+                    .log
+                    .debug(&format!("Instance: {}", instance.class_name));
             }
             // すべて Box<dyn NyashBox> として統一処理可能
             let _box_ref: &dyn NyashBox = &instance;

@@ -48,8 +48,7 @@ impl<'a> UsingResolutionBox<'a> {
         let config = UsingConfig {
             prod: crate::config::env::using_is_prod(),
             strict: crate::config::env::env_bool("NYASH_USING_STRICT"),
-            verbose: crate::config::env::cli_verbose()
-                || crate::config::env::resolve_trace(),
+            verbose: crate::config::env::cli_verbose() || crate::config::env::resolve_trace(),
             allow_file_using: crate::config::env::allow_using_file(),
         };
 
@@ -162,7 +161,9 @@ impl<'a> UsingResolutionBox<'a> {
 
             // NYASH_ROOTも試す
             if p.is_relative() {
-                if let Some(root) = crate::runner::modes::common_util::resolve::root::resolve_repo_root(None) {
+                if let Some(root) =
+                    crate::runner::modes::common_util::resolve::root::resolve_repo_root(None)
+                {
                     let cand = root.join(&p);
                     if cand.exists() {
                         p = cand;

@@ -6,10 +6,7 @@ use nyash_rust::config::env as env_config;
 use nyash_rust::runner::NyashRunner;
 
 fn maybe_enable_stack_overflow_backtrace() {
-    if env_config::env_string("NYASH_DEBUG_STACK_OVERFLOW")
-        .as_deref()
-        != Some("1")
-    {
+    if env_config::env_string("NYASH_DEBUG_STACK_OVERFLOW").as_deref() != Some("1") {
         return;
     }
     #[cfg(not(windows))]
@@ -62,7 +59,9 @@ fn main() {
         if let Some(name) = exe.file_name().and_then(|s| s.to_str()) {
             if name.eq_ignore_ascii_case("nyash") {
                 let ring0 = nyash_rust::runtime::get_global_ring0();
-                ring0.log.warn("[deprecate] 'nyash' binary is deprecated. Please use 'hakorune'.");
+                ring0
+                    .log
+                    .warn("[deprecate] 'nyash' binary is deprecated. Please use 'hakorune'.");
             }
         }
     }
@@ -73,7 +72,9 @@ fn main() {
                 || env_config::env_string("NYASH_ALLOW_NYASH").as_deref() == Some("1");
             if name.eq_ignore_ascii_case("nyash") && !allow_legacy {
                 let ring0 = nyash_rust::runtime::get_global_ring0();
-                ring0.log.warn("[deprecate] 'nyash' binary is deprecated. Please use 'hakorune'.");
+                ring0
+                    .log
+                    .warn("[deprecate] 'nyash' binary is deprecated. Please use 'hakorune'.");
                 std::process::exit(2);
             }
         }

@@ -132,10 +132,7 @@ fn default_nyrt_dir() -> String {
         .unwrap_or_else(|| "target/release".to_string())
 }
 
-fn apply_nyrt_arg(
-    cmd: &mut std::process::Command,
-    nyrt_dir: Option<&str>,
-) -> Result<(), String> {
+fn apply_nyrt_arg(cmd: &mut std::process::Command, nyrt_dir: Option<&str>) -> Result<(), String> {
     let default_nyrt = default_nyrt_dir();
     let nyrt_dir_final = nyrt_dir.unwrap_or(&default_nyrt);
     if !skip_nyrt_precheck() {

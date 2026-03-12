@@ -99,7 +99,9 @@ fn call_hako_box(name: &str, ctx: &SsotCtx) -> Option<String> {
         } else {
             if crate::config::env::fail_fast() {
                 let ring0 = crate::runtime::ring0::get_global_ring0();
-                ring0.log.error("[failfast/ssot/nyash-bin] unable to resolve NYASH_BIN/current_exe");
+                ring0
+                    .log
+                    .error("[failfast/ssot/nyash-bin] unable to resolve NYASH_BIN/current_exe");
                 panic!("Fail-Fast: cannot resolve nyash binary for SSOT child");
             }
             "target/release/nyash".to_string()
@@ -129,7 +131,9 @@ fn call_hako_box(name: &str, ctx: &SsotCtx) -> Option<String> {
         Err(e) => {
             if crate::config::env::fail_fast() {
                 let ring0 = crate::runtime::ring0::get_global_ring0();
-                ring0.log.error(&format!("[failfast/ssot/hako-spawn] {}", e));
+                ring0
+                    .log
+                    .error(&format!("[failfast/ssot/hako-spawn] {}", e));
                 panic!("Fail-Fast: SSOT child spawn failed");
             }
             return None;
@@ -138,7 +142,9 @@ fn call_hako_box(name: &str, ctx: &SsotCtx) -> Option<String> {
     if !out.status.success() {
         if crate::config::env::fail_fast() {
             let ring0 = crate::runtime::ring0::get_global_ring0();
-            ring0.log.error(&format!("[failfast/ssot/hako-exit] status={}", out.status));
+            ring0
+                .log
+                .error(&format!("[failfast/ssot/hako-exit] status={}", out.status));
             panic!("Fail-Fast: SSOT child exited with error");
         }
         return None;

@@ -21,8 +21,8 @@
 
 pub mod context;
 pub mod path_util;
-pub mod root;
 pub mod prelude_manager;
+pub mod root;
 pub mod seam;
 pub mod selfhost_pipeline;
 pub mod strip;

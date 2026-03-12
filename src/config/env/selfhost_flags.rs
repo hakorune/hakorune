@@ -112,10 +112,7 @@ pub fn use_ny_compiler() -> bool {
 /// When true, delegate route must fail-fast instead of silently converting
 /// Program(JSON) via Rust provider.
 pub fn mirbuilder_delegate_forbidden() -> bool {
-    std::env::var("HAKO_SELFHOST_NO_DELEGATE")
-        .ok()
-        .as_deref()
-        == Some("1")
+    std::env::var("HAKO_SELFHOST_NO_DELEGATE").ok().as_deref() == Some("1")
 }
 
 /// Stable freeze tag for MirBuilder delegate forbidden contract.
@@ -126,7 +123,6 @@ pub const MIRBUILDER_DELEGATE_FORBIDDEN_TAG: &str =
 pub fn mirbuilder_delegate_forbidden_message(label: &str) -> String {
     format!(
         "{} {} blocked (HAKO_SELFHOST_NO_DELEGATE=1)",
-        MIRBUILDER_DELEGATE_FORBIDDEN_TAG,
-        label
+        MIRBUILDER_DELEGATE_FORBIDDEN_TAG, label
     )
 }

@@ -229,7 +229,9 @@ impl NyashConfigV2 {
                 candidates.len()
             ));
             for (name, _) in &candidates {
-                crate::runtime::get_global_ring0().log.debug(&format!("[provider/trace] candidate lib={}", name));
+                crate::runtime::get_global_ring0()
+                    .log
+                    .debug(&format!("[provider/trace] candidate lib={}", name));
             }
             crate::runtime::get_global_ring0().log.debug(&format!(
                 "[provider/trace] select lib={} rule=lex",
