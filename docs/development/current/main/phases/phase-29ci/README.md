@@ -15,6 +15,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md
   - docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md
   - docs/development/current/main/phases/phase-29ci/P5-STAGEB-MALFORMED-PROGRAM-JSON.md
+  - docs/development/current/main/phases/phase-29cj/README.md
   - src/stage1/program_json_v0/README.md
   - src/runner/stage1_bridge/README.md
 ---
@@ -121,3 +122,8 @@ Related:
 - remaining JSON v0 consumers are inventoried with exact owners
 - next delete/reduction slice can be chosen from this phase alone
 - shared helper / smoke-tail collapse is closeout-ready once the remaining direct-lower probe is documented as explicit keep rather than folded into helper retirement
+
+## Next Phase Pointer
+
+- next Rust-owned retirement wave:
+  - `docs/development/current/main/phases/phase-29cj/README.md`

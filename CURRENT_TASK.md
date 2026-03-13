@@ -77,6 +77,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - closeout-ready MIR-direct bootstrap unification phase
     6. `docs/development/current/main/phases/phase-29ci/README.md`
        - separate closeout-ready follow-up for `Program(JSON v0)` retirement
+    6.25. `docs/development/current/main/phases/phase-29cj/README.md`
+       - next Rust-owned retirement wave after `phase-29ci` closeout-ready helper collapse
     6.5. `docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md`
        - direct CLI vs Rust host-provider vs language-level mirbuilder source-surface route split
     7. `docs/development/current/main/phases/phase-29cg/README.md`
@@ -89,7 +91,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - bootstrap rule: `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
     - current minimal task: `phase-29ch` MIR-direct bootstrap unification is now closeout-ready; do not reopen it for JSON v0 deletion
     - next separate future-wave phase: `phase-29ci` for `Program(JSON v0)` retirement only
+    - next queued Rust-owned wave after that: `phase-29cj`
     - current shell/smoke truth: shared helper collapse is closeout-ready; remaining explicit registry keep is direct-lower probe `phase2160/registry_optin_method_arraymap_direct_canary_vm.sh`
+    - current next owner order after closeout-ready: `build surrogate keep` -> `future-retire bridge` (`phase-29cj`)
     - solved bucket keep-closed: `bridge return-path`, `extern classification`, `current LLVM PHI repair`
     - next queued owner seed: `src/stage1/program_json_v0.rs` -> `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` (only if needed)
     - proof-first next steps:
