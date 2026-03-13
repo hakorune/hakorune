@@ -82,8 +82,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - why it matters: shared selfhost/smoke lanes still keep the bootstrap boundary alive
   - next `.hako`-side attention order after current Rust-owned wave:
     1. `lang/src/mir/builder/MirBuilderBox.hako`
-    2. `lang/src/compiler/build/build_box.hako`
-    3. shell helper trio above
+    2. runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`
+    3. shared producer `lang/src/compiler/build/build_box.hako`
+    4. shell helper trio above
 
 - `phase-29cj` reviewer sync (2026-03-14):
   - external review agrees the bucket order stays `build surrogate keep` -> `future-retire bridge`
@@ -138,21 +139,36 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - shared shell keep: `tools/hakorune_emit_mir.sh`, `tools/selfhost/selfhost_build.sh`, `tools/smokes/v2/lib/test_runner.sh`
   - actual priority for pure `.hako-only hakorune build`:
     1. de-Rust current source-route handoff in `src/host_providers/mir_builder/user_box_decls.rs`
+       - next exact slice:
+         - remove live source-route handoff leaf `source_to_mir_json_with_user_box_decls(...)`
+         - touch only `src/host_providers/mir_builder/user_box_decls.rs` and, if needed, façade entry `src/host_providers/mir_builder.rs`
+         - do not touch `src/host_providers/mir_builder/lowering/program_json.rs`, `src/stage1/program_json_v0/authority.rs`, `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`, or `src/runtime/mirbuilder_emit.rs`
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering/program_json.rs`
        - first by shrinking or redirecting the exact remaining live callers above, not by broad cleanup elsewhere
        - runtime/plugin imports route is already off this owner; kernel/plugin Program(JSON) caller is now treated as near thin floor unless an exact disappearing route leaf appears
        - current main front is source authority, not further kernel thinning
+       - second exact slice after the source-route handoff leaf is gone:
+         - target `lower_program_json_to_module(...)`
+         - touch `src/host_providers/mir_builder/lowering/program_json.rs`, `src/host_providers/mir_builder/user_box_decls.rs`, and façade surface `src/host_providers/mir_builder.rs`
+         - keep kernel route and `src/stage1/program_json_v0/authority.rs` out of that patch
     3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0/authority.rs`
        - latest tightening: future-retire bridge shim is now split to `src/stage1/program_json_v0/bridge_shim.rs`
-       - implication: this owner is now closer to the real strict source-authority core; do not mix bridge-leaf cleanup back into it
+       - implication: this owner is now closer to the real strict source-authority core; keep it frozen for now and do not mix bridge-leaf cleanup, host-provider lowering work, or `.hako` caller thinning back into it
     4. retire AST JSON compat keep in `src/host_providers/mir_builder/lowering/ast_json.rs` only after the primary lowering owner is no longer needed
     5. retire compiled-stage1 `build_surrogate.rs`
     6. retire `src/runner/stage1_bridge/**`
   - exact near-term task ladder:
     1. `src/host_providers/mir_builder/authority.rs` is retired; treat `src/host_providers/mir_builder/user_box_decls.rs` as the remaining source-route handoff owner
-    2. treat `src/host_providers/mir_builder/lowering/program_json.rs` as the main de-Rust front until its live callers shrink further
-    3. keep `src/stage1/program_json_v0/authority.rs` focused on strict source authority only; future-retire bridge work now belongs to `src/stage1/program_json_v0/bridge_shim.rs`
-    4. do not reopen `build_surrogate.rs` or shared shell/smoke cleanup while the authority owners above are still live
+    2. next exact Rust slice: remove `source_to_mir_json_with_user_box_decls(...)` from `src/host_providers/mir_builder/user_box_decls.rs`
+    3. second exact Rust slice: target `src/host_providers/mir_builder/lowering/program_json.rs::lower_program_json_to_module(...)`
+    4. keep `src/stage1/program_json_v0/authority.rs` focused on strict source authority only; future-retire bridge work now belongs to `src/stage1/program_json_v0/bridge_shim.rs`
+    5. after the Rust-owned wave, begin `.hako` caller wave in this order:
+       - `lang/src/mir/builder/MirBuilderBox.hako`
+       - runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`
+       - shared producer `lang/src/compiler/build/build_box.hako`
+       - `tools/hakorune_emit_mir.sh` -> `tools/selfhost/selfhost_build.sh` -> `tools/smokes/v2/lib/test_runner.sh`
+       - smoke tail, then diagnostics/probe keep
+    6. do not reopen `build_surrogate.rs` or shared shell/smoke cleanup while the authority owners above are still live
   - rule:
     - bridge/helper cleanup is useful, but it is not the same thing as removing the current compiler authority from Rust
     - do not let `phase-29cj` local cleanup hide the fact that the main blocker is still current Rust authority/lowering
