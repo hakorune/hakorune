@@ -71,6 +71,8 @@ Related:
   - shared shell helper audit order is now explicit too: `tools/hakorune_emit_mir.sh` first, `tools/selfhost/selfhost_build.sh` second, and `tools/smokes/v2/lib/test_runner.sh` last because it bridges into the 43-file smoke tail
   - `tools/hakorune_emit_mir.sh` now keeps its provider-first Program→MIR delegate chain behind `emit_mir_json_from_program_json_delegate_chain()`, with `try_legacy_program_json_delegate()` isolating the old CLI fallback, so the next helper-local tail is the direct-emit fallback lane only
   - `tools/hakorune_emit_mir.sh` now also keeps the duplicated Stage-B fail/invalid -> direct MIR emit fallback behind `exit_after_direct_emit_fallback()`, so its script-local fallback funnel is split into exact helper lanes before the audit moves on to the broader shared helpers
+  - `tools/selfhost/selfhost_build.sh` now keeps its Stage-B Program(JSON) raw-production split behind `emit_stageb_program_json_raw()`, with the BuildBox keep and compiler Stage-B lane isolated as explicit build-contract helpers instead of repeated top-level branches
+  - `tools/selfhost/selfhost_build.sh` still has a real live `HAKO_USE_BUILDBOX=1` keep for emit-only builds: `apps/tests/hello_simple_llvm.hako` still freezes on the default compiler Stage-B lane while the BuildBox lane succeeds, so this bucket stays in audit/retreat mode rather than delete mode
   - `MirBuilderBox.emit_from_source_v0(...)` remains a live keep and must not be demoted into the diagnostics/probe bucket
   - shell/helper delete order still has a wider test-only shell/apps tail beyond the three shared helper scripts; keep that caller audit separate from the first Rust-only delete slices
 

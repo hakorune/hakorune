@@ -88,9 +88,11 @@ shared shell helper keep として残っている 3 file について、
 - `tools/hakorune_emit_mir.sh` now keeps the provider-first delegate funnel behind `emit_mir_json_from_program_json_delegate_chain()`, with the legacy CLI fallback isolated in `try_legacy_program_json_delegate()`, so the remaining helper-local tail is the direct-emit fallback lane rather than mixed delegate wiring
 - `tools/hakorune_emit_mir.sh` now also keeps the duplicated Stage-B fail/invalid -> direct MIR emit fallback behind `exit_after_direct_emit_fallback()`, so the script-local fallback funnel is split into exact helper lanes instead of repeated top-level branches
 - `tools/smokes/v2/lib/test_runner.sh` should be treated as the bridge between helper keep and smoke tail, not as “just another helper script”
+- `tools/selfhost/selfhost_build.sh` now keeps its Stage-B Program(JSON) raw-production split behind `emit_stageb_program_json_raw()`, with `emit_program_json_v0_via_buildbox()` and `emit_program_json_v0_via_stageb_compiler()` isolating the two live lanes; this keeps `HAKO_USE_BUILDBOX=1` as an explicit build-contract keep without leaving the top-level branch duplicated
+- `tools/selfhost/selfhost_build.sh` still has a real live BuildBox keep: on `apps/tests/hello_simple_llvm.hako`, the default `compiler.hako --stage-b --stage3` lane still freezes in JoinIR lowering while `HAKO_USE_BUILDBOX=1` emits Program(JSON v0) successfully, so helper-local structure work must not be mixed with route-repair/deletion claims yet
 
 ## Immediate Next
 
 1. isolate the exact JSON v0 contract still needed by `tools/hakorune_emit_mir.sh`
-2. record whether `tools/selfhost/selfhost_build.sh` still needs the `HAKO_USE_BUILDBOX=1` keep as a real live contract
+2. thin `tools/selfhost/selfhost_build.sh` one build-contract lane at a time; keep `HAKO_USE_BUILDBOX=1` explicit and do not mix this with `test_runner.sh`
 3. defer `tools/smokes/v2/lib/test_runner.sh` until the smoke tail audit is ready

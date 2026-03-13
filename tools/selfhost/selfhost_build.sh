@@ -69,6 +69,62 @@ apply_selfhost_env() {
   fi
 }
 
+write_buildbox_emit_program_runner_hako() {
+  local wrap_path="$1"
+  cat > "$wrap_path" <<'HAKO'
+using lang.compiler.build.build_box as BuildBox
+static box Main { method main(args) {
+  local src = env.get("HAKO_SRC");
+  local j = BuildBox.emit_program_json_v0(src, null);
+  print(j);
+  return 0;
+} }
+HAKO
+}
+
+emit_program_json_v0_via_buildbox() {
+  local raw_path="$1"
+  local wrap_path="/tmp/hako_buildbox_wrap_$$.hako"
+  write_buildbox_emit_program_runner_hako "$wrap_path"
+  (
+    export HAKO_SRC="$SRC_CONTENT"
+    cd "$ROOT" && "$BIN" --backend vm "$wrap_path"
+  ) > "$raw_path" 2>&1
+  local rc=$?
+  rm -f "$wrap_path" 2>/dev/null || true
+  return $rc
+}
+
+emit_program_json_v0_via_stageb_compiler() {
+  local raw_path="$1"
+  (
+    export HAKO_SRC="$SRC_CONTENT"
+    cd "$ROOT" && \
+      "$BIN" --backend vm \
+        "$ROOT/lang/src/compiler/entry/compiler.hako" -- \
+        --stage-b --stage3
+  ) > "$raw_path" 2>&1
+}
+
+emit_stageb_program_json_raw() {
+  local raw_path="$1"
+  stageb_cmd_desc=""
+  if [ "${HAKO_USE_BUILDBOX:-0}" = "1" ] && [ "$DO_RUN" = "0" ] && [ -z "$EXE_OUT" ]; then
+    stageb_cmd_desc="BuildBox.emit_program_json_v0 via compiler build_box"
+    if [ -z "${HAKO_STAGEB_MODULE_ROOTS_LIST:-}" ]; then
+      roots_list="$(collect_stageb_module_roots_list "$ROOT" || true)"
+      if [ -n "${roots_list:-}" ]; then
+        export HAKO_STAGEB_MODULE_ROOTS_LIST="$roots_list"
+      fi
+    fi
+    emit_program_json_v0_via_buildbox "$raw_path"
+    return $?
+  fi
+
+  stageb_cmd_desc="compiler.hako --stage-b --stage3"
+  emit_program_json_v0_via_stageb_compiler "$raw_path"
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --in) IN="$2"; shift 2;;
@@ -93,41 +149,8 @@ RAW="/tmp/hako_stageb_raw_$$.txt"
 stageb_rc=0
 SRC_CONTENT="$(cat "$IN")"
 stageb_cmd_desc=""
-if [ "${HAKO_USE_BUILDBOX:-0}" = "1" ] && [ "$DO_RUN" = "0" ] && [ -z "$EXE_OUT" ]; then
-  apply_selfhost_env
-  stageb_cmd_desc="BuildBox.emit_program_json_v0 via compiler build_box"
-  if [ -z "${HAKO_STAGEB_MODULE_ROOTS_LIST:-}" ]; then
-    roots_list="$(collect_stageb_module_roots_list "$ROOT" || true)"
-    if [ -n "${roots_list:-}" ]; then
-      export HAKO_STAGEB_MODULE_ROOTS_LIST="$roots_list"
-    fi
-  fi
-  WRAP="/tmp/hako_buildbox_wrap_$$.hako"
-  cat > "$WRAP" <<'HAKO'
-using lang.compiler.build.build_box as BuildBox
-static box Main { method main(args) {
-  local src = env.get("HAKO_SRC");
-  local j = BuildBox.emit_program_json_v0(src, null);
-  print(j);
-  return 0;
-} }
-HAKO
-  (
-    export HAKO_SRC="$SRC_CONTENT"
-    cd "$ROOT" && "$BIN" --backend vm "$WRAP"
-  ) > "$RAW" 2>&1 || stageb_rc=$?
-  rm -f "$WRAP" 2>/dev/null || true
-else
-  apply_selfhost_env
-  stageb_cmd_desc="compiler.hako --stage-b --stage3"
-  (
-    export HAKO_SRC="$SRC_CONTENT"
-    cd "$ROOT" && \
-      "$BIN" --backend vm \
-        "$ROOT/lang/src/compiler/entry/compiler.hako" -- \
-        --stage-b --stage3
-  ) > "$RAW" 2>&1 || stageb_rc=$?
-fi
+apply_selfhost_env
+emit_stageb_program_json_raw "$RAW" || stageb_rc=$?
 
 extract_ok=0
 if awk '(/"version":0/ && /"kind":"Program"/){print;found=1;exit} END{exit(found?0:1)}' "$RAW" > "$tmp_json"; then
