@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/README.md
   - docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md
   - docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md
+  - docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md
   - CURRENT_TASK.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/design/selfhost-compiler-structure-ssot.md
@@ -68,6 +69,7 @@ Related:
 - `.hako` owner thinning is also valid for `lang/src/runner/stage1_cli.hako`; its direct `BuildBox.emit_program_json_v0(...)` checked path now stays behind an owner-local helper instead of remaining duplicated between `emit_program_json(...)` and `_mode_emit_program(...)`
 - `.hako` owner thinning is also valid for `lang/src/runner/stage1_cli_env.hako`; its authority box now keeps direct `BuildBox.emit_program_json_v0(...)` behind a same-file helper shared by authority emit and defs-synthesis lowering
 - `.hako` owner thinning is also valid for `lang/src/mir/builder/MirBuilderBox.hako`; `emit_from_source_v0(...)` now keeps its direct `BuildBox.emit_program_json_v0(...)` source-entry shim behind an owner-local helper, while `emit_from_program_json_v0(...)` remains the separate owner policy surface
+- shared shell helper keep is not homogeneous; use `P3-SHARED-SHELL-HELPER-AUDIT.md` for the exact helper order (`tools/hakorune_emit_mir.sh` -> `tools/selfhost/selfhost_build.sh` -> `tools/smokes/v2/lib/test_runner.sh`) and keep the 43-file smoke tail separate from helper-local slices
 
 ## Immediate Next Slice
 

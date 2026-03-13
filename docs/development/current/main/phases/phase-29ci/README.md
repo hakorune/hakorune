@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md
   - docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md
   - docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md
+  - docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md
   - src/stage1/program_json_v0/README.md
   - src/runner/stage1_bridge/README.md
 ---
@@ -56,6 +57,8 @@ Related:
   - `docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md`
 - live/bootstrap + shell caller delete order:
   - `docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md`
+- shared shell helper audit:
+  - `docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md`
 - current preferred first bucket:
   - Rust-owned `build surrogate keep`
   - then `future-retire bridge`
@@ -65,6 +68,7 @@ Related:
   - bridge-local Program(JSON v0) read->emit->write orchestration is now owner-local to `src/runner/stage1_bridge/program_json/pipeline.rs`, while read policy / payload emission / writeback stay in `read_input.rs` / `emit_payload.rs` / `writeback.rs`, so `program_json/mod.rs` keeps shrinking toward a pure facade
   - future-retire bridge delete order is now explicit: next Rust-only slices stay inside `program_json_entry/` and `program_json/`, while `src/runner/mod.rs` and `src/runner/emit.rs` are `must-stay thin callers`
   - outer caller audit is also explicit now: after Rust-only buckets, next exact buckets are `.hako` owner 4 files, shared shell helper 3 files, then test-only smoke tail 43 files
+  - shared shell helper audit order is now explicit too: `tools/hakorune_emit_mir.sh` first, `tools/selfhost/selfhost_build.sh` second, and `tools/smokes/v2/lib/test_runner.sh` last because it bridges into the 43-file smoke tail
   - `MirBuilderBox.emit_from_source_v0(...)` remains a live keep and must not be demoted into the diagnostics/probe bucket
   - shell/helper delete order still has a wider test-only shell/apps tail beyond the three shared helper scripts; keep that caller audit separate from the first Rust-only delete slices
 
