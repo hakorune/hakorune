@@ -2,6 +2,7 @@
 // Extracted from compiler_stageb.hako to keep the entry file small.
 
 using hako.compiler.entry.bundle_resolver as BundleResolver
+using lang.compiler.entry.body_extraction_box as BodyExtractionBox
 using lang.compiler.entry.using_resolver as Stage1UsingResolverBox
 using lang.compiler.entry.comment_stripper_box as CommentStripperBox
 using lang.compiler.entry.stageb_trace_box as StageBTraceBox
@@ -358,7 +359,16 @@ static box StageBBodyExtractorBox {
           }
         }
       }
-      if body_src == null || ("" + body_src).length() == 0 { body_src = src }
+      if body_src == null || ("" + body_src).length() == 0 {
+        // Shared fallback: reuse the existing extraction SSOT before surrendering
+        // to full-source parse.
+        local helper_body = BodyExtractionBox.extract_main_body(src)
+        if helper_body != null && ("" + helper_body).length() > 0 {
+          body_src = helper_body
+        } else {
+          body_src = src
+        }
+      }
     }
 
 
