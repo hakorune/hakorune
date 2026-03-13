@@ -191,6 +191,30 @@ run_program_json_v0_via_core_direct() {
   return $rc
 }
 
+emit_exe_from_program_json_v0() {
+  local json_path="$1" exe_out_path="$2"
+  local nyll="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}"
+  if [ ! -x "$nyll" ] && [ ! -f "$nyll" ]; then
+    echo "[selfhost] ny-llvmc not found: $nyll (Set NYASH_NY_LLVM_COMPILER or build ny-llvmc)" >&2
+    return 2
+  fi
+
+  local nyrt_dir="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}"
+  export NYASH_LLVM_USE_HARNESS=1
+  export NYASH_NY_LLVM_COMPILER="$nyll"
+  export NYASH_EMIT_EXE_NYRT="$nyrt_dir"
+
+  local mir_tmp="${MIR_OUT:-/tmp/hako_stageb_mir_$$.json}"
+  echo "[selfhost] converting Program(JSON v0) → MIR(JSON) → EXE" >&2
+  "$BIN" --json-file "$json_path" --program-json-to-mir "$mir_tmp"
+  "$nyll" --in "$mir_tmp" --emit exe --nyrt "$nyrt_dir" --out "$exe_out_path"
+
+  if [ "$KEEP_TMP" != "1" ]; then
+    if [ -z "$JSON_OUT" ]; then rm -f "$json_path" 2>/dev/null || true; fi
+    if [ -z "$MIR_OUT" ]; then rm -f "$mir_tmp" 2>/dev/null || true; fi
+  fi
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --in) IN="$2"; shift 2;;
@@ -241,31 +265,8 @@ fi
 
 # Optional: build native EXE via ny-llvmc harness (fallback path; parses original source)
 if [ -n "$EXE_OUT" ]; then
-  # Requirements: ny-llvmc present and harness envs
-  NYLL="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}"
-  if [ ! -x "$NYLL" ] && [ ! -f "$NYLL" ]; then
-    echo "[selfhost] ny-llvmc not found: $NYLL (Set NYASH_NY_LLVM_COMPILER or build ny-llvmc)" >&2
-    exit 2
-  fi
-  NYRT_DIR="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}"
-  export NYASH_LLVM_USE_HARNESS=1
-  export NYASH_NY_LLVM_COMPILER="$NYLL"
-  export NYASH_EMIT_EXE_NYRT="$NYRT_DIR"
-
-  # Convert Program(JSON v0) → MIR(JSON) via runner
-  MIR_TMP="${MIR_OUT:-/tmp/hako_stageb_mir_$$.json}"
-  echo "[selfhost] converting Program(JSON v0) → MIR(JSON) → EXE" >&2
-  "$BIN" --json-file "$tmp_json" --program-json-to-mir "$MIR_TMP"
-
-  # Build EXE via ny-llvmc
-  "$NYLL" --in "$MIR_TMP" --emit exe --nyrt "$NYRT_DIR" --out "$EXE_OUT"
-
-  # Cleanup
-  if [ "$KEEP_TMP" != "1" ]; then
-    if [ -z "$JSON_OUT" ]; then rm -f "$tmp_json" 2>/dev/null || true; fi
-    if [ -z "$MIR_OUT" ]; then rm -f "$MIR_TMP" 2>/dev/null || true; fi
-  fi
-  exit 0
+  emit_exe_from_program_json_v0 "$tmp_json" "$EXE_OUT"
+  exit $?
 fi
 
 if [ "$DO_RUN" = "1" ]; then
