@@ -1,6 +1,6 @@
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 #[path = "module_string_dispatch/build_surrogate.rs"]
 mod build_surrogate;
@@ -174,10 +174,7 @@ fn handle_mir_builder_emit_from_program_json_v0(
         )));
     }
     let mir_json =
-        match nyash_rust::host_providers::mir_builder::program_json_to_mir_json_with_imports(
-            &program_json,
-            BTreeMap::new(),
-        ) {
+        match nyash_rust::host_providers::mir_builder::program_json_to_mir_json(&program_json) {
             Ok(json_text) => json_text,
             Err(error_text) => {
                 trace_log(format!(

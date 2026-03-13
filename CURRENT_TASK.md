@@ -105,8 +105,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
          - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
            - explicit `emit_from_program_json_v0(...)` kernel/plugin route
            - next safest slice on this owner:
-             - keep kernel-local `user_box_decls` splice in place
-             - only narrow the host-provider call from `program_json_to_mir_json_with_imports(..., BTreeMap::new())` to `program_json_to_mir_json(...)`
+             - landed: the host-provider call is now narrowed from `program_json_to_mir_json_with_imports(..., BTreeMap::new())` to `program_json_to_mir_json(...)`
+             - next remaining owner-local leaf is the kernel-local `user_box_decls` splice
          - `src/runtime/mirbuilder_emit.rs`
            - shared runtime/plugin `env.mirbuilder.emit` bridge owner
            - thin runtime callers now route through this owner:
