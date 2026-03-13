@@ -23,6 +23,9 @@ Thumbs.db
 
 # Build artifacts
 build/
+!lang/src/compiler/build/
+!lang/src/compiler/build/*.hako
+!lang/src/compiler/build/README.md
 dist/
 *.egg-info/
 

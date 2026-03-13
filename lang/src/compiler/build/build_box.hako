@@ -1,0 +1,188 @@
+// build_box.hako — BuildBox (Phase‑20.33 minimal)
+
+using lang.compiler.parser.box as ParserBox
+using lang.compiler.parser.using.using_collector_box as UsingCollectorBox
+using lang.compiler.entry.bundle_resolver as BundleResolver
+using lang.compiler.entry.body_extraction_box as BodyExtractionBox
+using lang.compiler.entry.func_scanner as FuncScannerBox
+using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
+
+static box BuildBox {
+  // Return: Program(JSON v0) string or tagged error
+  method emit_program_json_v0(src, opts) {
+    if src == null { return "[build/input/missing] src" }
+    // Minimal Stage‑B emit:
+    // - scan_src keeps the full source for defs/imports scans
+    // - parse_src narrows to Main.main body when available, and only then falls back
+    //   to full-source parse for non-box / non-main inputs
+    local scan_src = src
+    // Optional: env-driven alias/require bundling (lightweight)
+    // HAKO_BUNDLE_ALIAS_TABLE='Name:code|||Name2:code2', HAKO_REQUIRE_MODS='U1,U2'
+    // BuildBox では BundleResolver.resolve を使って前置連結のみを行う（Fail‑Fastタグは箱外へ伝播）
+    {
+      // Collect opts (structured) and env (fallback)
+      local bundles = null
+      local bundle_names = null
+      local bundle_srcs = null
+      local require_mods = null
+
+      // Structured opts (Map/Array based) — with validation (Fail‑Fast)
+      if opts != null {
+        // bundles: Array of raw sources
+        local b = opts.get("bundles")
+        if b != null {
+          // validate that each entry is non-empty string
+          local i = 0; loop(i < b.length()) {
+            local s = "" + b.get(i)
+            if s == "" { return "[build/opts/bad-bundle] index=" + i }
+            i = i + 1
+          }
+          bundles = b
+        }
+        // bundle_names + bundle_srcs (paired arrays)
+        local bn = opts.get("bundle_names")
+        local bs = opts.get("bundle_srcs")
+        if bn != null && bs != null {
+          if bn.length() != bs.length() { return "[build/opts/mismatch] bundle_names vs bundle_srcs" }
+          // validate non-empty strings and duplicates
+          local i0=0; loop(i0 < bn.length()) {
+            local n = "" + bn.get(i0)
+            local c = "" + bs.get(i0)
+            if n == "" || c == "" { return "[build/opts/bundle-pair/bad] index=" + i0 }
+            // dup check
+            local j=i0+1; loop(j < bn.length()) {
+              if ("" + bn.get(j)) == n { return "[build/opts/duplicate] " + n }
+              j = j + 1
+            }
+            i0 = i0 + 1
+          }
+          bundle_names = bn; bundle_srcs = bs
+        }
+        // alias_table: parse "Name:code|||Name2:code2" into names/srcs
+        local at = opts.get("alias_table")
+        if at != null && at != "" {
+          if bundle_names == null { bundle_names = new ArrayBox() }
+          if bundle_srcs == null { bundle_srcs = new ArrayBox() }
+          local i = 0
+          loop(i < at.length()) {
+            local j = at.indexOf("|||", i)
+            local seg = ""; if j >= 0 { seg = at.substring(i, j) } else { seg = at.substring(i, at.length()) }
+            if seg != "" {
+              local pos = -1; local k=0
+              loop(k < seg.length()) { if seg.substring(k,k+1) == ":" { pos = k break } k = k + 1 }
+              if pos >= 0 {
+                local name = seg.substring(0, pos)
+                local code = seg.substring(pos+1, seg.length())
+                if name != "" && code != "" { bundle_names.push(name); bundle_srcs.push(code) }
+              }
+            }
+            if j < 0 { break } else { i = j + 3 }
+          }
+        }
+        // require_mods: Array of names
+        local rm = opts.get("require_mods")
+        if rm != null {
+          // validate each non-empty
+          local k0=0; loop(k0 < rm.length()) {
+            if ("" + rm.get(k0)) == "" { return "[build/opts/bad-require] index=" + k0 }
+            k0 = k0 + 1
+          }
+          require_mods = rm
+        }
+      }
+
+      // Env fallback (HAKO_BUNDLE_ALIAS_TABLE / HAKO_REQUIRE_MODS)
+      local table = env.get("HAKO_BUNDLE_ALIAS_TABLE")
+      if table == null || table == "" { table = env.get("NYASH_BUNDLE_ALIAS_TABLE") }
+      if table != null && table != "" {
+        if bundle_names == null { bundle_names = new ArrayBox() }
+        if bundle_srcs == null { bundle_srcs = new ArrayBox() }
+        local i = 0
+        loop(i < table.length()) {
+          local j = table.indexOf("|||", i)
+          local seg = ""; if j >= 0 { seg = table.substring(i, j) } else { seg = table.substring(i, table.length()) }
+          if seg != "" {
+            local pos = -1; local k=0
+            loop(k < seg.length()) { if seg.substring(k,k+1) == ":" { pos = k break } k = k + 1 }
+            if pos >= 0 {
+              local name = seg.substring(0, pos)
+              local code = seg.substring(pos+1, seg.length())
+              if name != "" && code != "" { bundle_names.push(name); bundle_srcs.push(code) }
+            }
+          }
+          if j < 0 { break } else { i = j + 3 }
+        }
+      }
+      local requires = env.get("HAKO_REQUIRE_MODS")
+      if requires == null || requires == "" { requires = env.get("NYASH_REQUIRE_MODS") }
+      if requires != null && requires != "" {
+        if require_mods == null { require_mods = new ArrayBox() }
+        local i2=0; loop(i2 < requires.length()) {
+          local j2 = requires.indexOf(",", i2)
+          local seg2 = ""; if j2 >= 0 { seg2 = requires.substring(i2, j2) } else { seg2 = requires.substring(i2, requires.length()) }
+          if seg2 != "" { require_mods.push(seg2) }
+          if j2 < 0 { break } else { i2 = j2 + 1 }
+        }
+      }
+
+      // Normalize empties to null
+      if bundles != null && bundles.length() == 0 { bundles = null }
+      if bundle_names != null && bundle_names.length() == 0 { bundle_names = null }
+      if bundle_srcs != null && bundle_srcs.length() == 0 { bundle_srcs = null }
+      if require_mods != null && require_mods.length() == 0 { require_mods = null }
+
+      if bundles != null || bundle_names != null || bundle_srcs != null || require_mods != null {
+        local merged = BundleResolver.resolve(bundles, bundle_names, bundle_srcs, require_mods)
+        if merged == null { return "[build/resolve/failed]" }
+        scan_src = merged + scan_src
+      }
+    }
+    local parse_src = me._resolve_parse_src(scan_src)
+    local p = new ParserBox(); p.stage3_enable(1)
+    local ast_json = p.parse_program2(parse_src)
+    {
+      local func_scan_env = env.get("HAKO_STAGEB_FUNC_SCAN")
+      local func_scan_on = 1
+      if func_scan_env != null && ("" + func_scan_env) == "0" { func_scan_on = 0 }
+      if func_scan_on == 1 {
+        // defs は parser に渡した merged source と同じ境界で収集する。
+        // 元の src だけを見ると using/prefix helper boxes が defs に載らず、
+        // bridge-first Stage2 build で helper symbol closure が崩れる。
+        local methods = FuncScannerBox.scan_all_boxes(scan_src)
+        local defs_json = StageBJsonBuilderBox.build_defs_json(methods)
+        if defs_json != "" && defs_json.length() > 0 {
+          ast_json = StageBJsonBuilderBox.inject_json_fragment(ast_json, defs_json)
+        }
+      }
+    }
+    {
+      local usings_json = UsingCollectorBox.collect(scan_src)
+      if usings_json != null && usings_json != "[]" && usings_json != "" {
+        local imports_obj = StageBJsonBuilderBox.convert_usings_to_imports(usings_json)
+        if imports_obj != null && imports_obj != "{}" && imports_obj != "" {
+          local imports_frag = ",\"imports\":" + imports_obj
+          ast_json = StageBJsonBuilderBox.inject_json_fragment(ast_json, imports_frag)
+        }
+      }
+    }
+    return ast_json
+  }
+
+  method _resolve_parse_src(scan_src) {
+    local body_src = BodyExtractionBox.extract_main_body(scan_src)
+    if body_src != null && body_src != "" {
+      return body_src
+    }
+    return scan_src
+  }
+
+  method verify_program_json_v0(json) {
+    if json == null { return false }
+    // Minimal header check
+    return json.indexOf("\"version\":0") >= 0 && json.indexOf("\"kind\":\"Program\"") >= 0
+  }
+
+  method plan() {
+    return "Stage‑B emit(JSON v0) → (future) Bridge→MIR → ny-llvmc"
+  }
+}

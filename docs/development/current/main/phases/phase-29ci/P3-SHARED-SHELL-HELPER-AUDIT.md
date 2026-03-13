@@ -89,16 +89,16 @@ shared shell helper keep として残っている 3 file について、
 - `tools/hakorune_emit_mir.sh` now also keeps the duplicated Stage-B fail/invalid -> direct MIR emit fallback behind `exit_after_direct_emit_fallback()`, so the script-local fallback funnel is split into exact helper lanes instead of repeated top-level branches
 - `tools/smokes/v2/lib/test_runner.sh` should be treated as the bridge between helper keep and smoke tail, not as “just another helper script”
 - `tools/selfhost/selfhost_build.sh` now keeps its Stage-B Program(JSON) raw-production split behind `emit_stageb_program_json_raw()`, with `emit_program_json_v0_via_buildbox()` and `emit_program_json_v0_via_stageb_compiler()` isolating the two live lanes; this keeps `HAKO_USE_BUILDBOX=1` as an explicit build-contract keep without leaving the top-level branch duplicated
-- `tools/selfhost/selfhost_build.sh` no longer shows the old `hello_simple_llvm` freeze split, and the helper's default `compiler.hako --stage-b --stage3` lane is now healthy again (`Extern(log 42) + Return(Int 0)`), while the `HAKO_USE_BUILDBOX=1` emit-only lane still emits the old `static/ox/ain` full-source payload
+- `tools/selfhost/selfhost_build.sh` no longer shows the old `hello_simple_llvm` freeze split, and both the helper's default `compiler.hako --stage-b --stage3` lane and the explicit `HAKO_USE_BUILDBOX=1` emit-only keep are healthy again on that fixture (`Extern(log 42) + Return(Int 0)`)
 - `tools/selfhost/selfhost_build.sh` now pins that keep behind `buildbox_emit_only_keep_requested()`, so the exact live-contract predicate (`HAKO_USE_BUILDBOX=1` + emit-only + no EXE lane) is SSOT in code as well as docs
 - `tools/selfhost/selfhost_build.sh` now also keeps its post-emit raw/extract funnel behind `extract_program_json_v0_from_raw()`, `persist_stageb_raw_snapshot()`, and `exit_after_stageb_emit_failure()`, so build-helper cleanup can talk about exact lanes instead of one long post-emit block
 - `tools/selfhost/selfhost_build.sh` now keeps the source-direct `--mir` consumer behind `emit_mir_json_from_source()`, so downstream consumer audit can proceed one lane at a time without mixing `--exe` or `--run`
 - `tools/selfhost/selfhost_build.sh` now also keeps the Core-Direct `--run` consumer behind `run_program_json_v0_via_core_direct()`, so the remaining downstream helper-local work is the Program(JSON)->MIR->EXE lane rather than mixed run/EXE cleanup
 - `tools/selfhost/selfhost_build.sh` now also keeps the Program(JSON)->MIR->EXE consumer behind `emit_exe_from_program_json_v0()`, so the downstream consumer lanes are all owner-local helpers instead of inline top-level branches
 - `tools/selfhost/selfhost_build.sh --mir` is still green on `apps/tests/hello_simple_llvm.hako` because it uses the source-direct route
-- `tools/selfhost/selfhost_build.sh --run` is now green on the repaired default Stage-B payload
-- `tools/selfhost/selfhost_build.sh --exe` is now green on that same repaired default Stage-B payload
-- for this fixture, `HAKO_USE_BUILDBOX=1` is still an explicit keep contract in code, but it no longer distinguishes success from failure; delete/retire arguments need a different caller proof than `hello_simple_llvm`
+- `tools/selfhost/selfhost_build.sh --run` is green on the repaired payload
+- `tools/selfhost/selfhost_build.sh --exe` is green on that same repaired payload
+- for this fixture, `HAKO_USE_BUILDBOX=1` is still an explicit keep contract in code, but it no longer distinguishes success from failure; delete/retire arguments need caller-inventory proof rather than malformed-producer proof from `hello_simple_llvm`
 
 ## Immediate Next
 

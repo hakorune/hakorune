@@ -18,6 +18,17 @@ Related:
 
 # P5 Stage-B Malformed Program JSON
 
+## Status Summary
+
+`apps/tests/hello_simple_llvm.hako` については close した。
+
+- default Stage-B lane: healthy
+- BuildBox emit-only keep lane: healthy
+- downstream `--json-file` / `--run` / `--exe`: healthy
+
+この文書は「hello fixture では malformed producer debt が消えた」証拠を残す closeout note として保持する。
+ただし、これだけで `HAKO_USE_BUILDBOX=1` keep を global delete してよい、という意味ではない。
+
 ## Goal
 
 `apps/tests/hello_simple_llvm.hako` を使って、
@@ -52,12 +63,15 @@ Related:
   - `HAKO_USE_BUILDBOX=1 bash tools/selfhost/selfhost_build.sh --in apps/tests/hello_simple_llvm.hako --json /tmp/phase29ci_hello_program_buildbox.json`
 - observed result:
   - exit `0`
-  - emitted file is still the old full-source malformed Program(JSON v0) shape
+  - emitted file is now healthy Program(JSON v0)
 - payload head:
-  - `{"version":0,"kind":"Program","body":[{"type":"Expr","expr":{"type":"Var","name":"static"}},{"type":"Expr","expr":{"type":"Var","name":"ox"}},{"type":"Expr","expr":{"type":"Var","name":"ain"}} ... ]}`
+  - `{"version":0,"kind":"Program","body":[{"type":"Extern","iface":"env.console","method":"log","args":[{"type":"Int","value":42}]},{"type":"Return","expr":{"type":"Int","value":0}}]}`
+- downstream success:
+  - `target/release/hakorune --json-file /tmp/phase29ci_hello_program_buildbox.json`
+  - prints `42`
 - interpretation:
-  - `hello_simple_llvm` now proves a one-owner remainder: default Stage-B is healthy, while BuildBox keep still emits the old full-source malformed payload
-  - BuildBox remains on the full-source parse boundary and still needs a separate owner-local fix
+  - `hello_simple_llvm` no longer reproduces the old full-source malformed payload on the BuildBox keep lane either
+  - the owner-local fix was to split `scan_src` (defs/imports scan) from `parse_src` (Main.main body when available)
 
 ### 3. downstream consumer split
 
@@ -90,7 +104,8 @@ Related:
   - `NYASH_SELFHOST_KEEP_RAW=1 NYASH_SELFHOST_RAW_DIR=/tmp/phase29ci_selfhost_raw_buildbox HAKO_USE_BUILDBOX=1 bash tools/selfhost/selfhost_build.sh --in apps/tests/hello_simple_llvm.hako --json ...`
 - observed raw log:
   - command tag is `BuildBox.emit_program_json_v0 via compiler build_box`
-  - the old full-source malformed Program(JSON v0) is still printed in raw stdout before shell extraction
+  - healthy Program(JSON v0) is now printed in raw stdout before shell extraction
+  - current raw payload starts with `Extern(log 42)` and then `Return(Int 0)`
 
 ## Current Root-Cause Pin
 
@@ -103,10 +118,10 @@ The current failure is not:
 
 The current failure is pinned as:
 
-- malformed Program(JSON v0) production on the BuildBox keep lane only
-- current remaining owner:
+- no malformed Program(JSON v0) producer remains on `hello_simple_llvm`
+- both owner-local debts that this fixture exposed are closed:
+  - `lang/src/compiler/entry/stageb_body_extractor_box.hako` + parser whitespace path
   - `lang/src/compiler/build/build_box.hako`
-- default Stage-B owner-local debt for this fixture is closed
 
 ### Strongest local evidence
 
@@ -117,25 +132,26 @@ The current failure is pinned as:
 - closed default-lane root cause:
   - `StageBBodyExtractorBox.build_body_src()` now reuses `BodyExtractionBox.extract_main_body(src)` before falling back to full source
   - `ParserControlBox._skip_ws_with_fallback()` now validates `ctx.skip_ws()` output and falls back to explicit local scanning if the skipped region contains non-whitespace
-- remaining separate owner:
-  - `BuildBox.emit_program_json_v0(src, ...)` still calls `ParserBox.parse_program2(body_src)` with full-source text as `body_src`
+- closed BuildBox owner-local root cause:
+  - `BuildBox.emit_program_json_v0(src, ...)` now keeps `scan_src` for defs/imports scanning
+  - `BuildBox.emit_program_json_v0(src, ...)` now derives `parse_src` from `BodyExtractionBox.extract_main_body(scan_src)` and only falls back to full-source parse when no `Main.main` body exists
 
 ## Interpretation
 
-- default Stage-B lane and BuildBox keep lane are no longer a shared malformed-output bucket
-- default Stage-B now proves the extractor-side fallback debt and the body-only `skip_ws` debt were both owner-local bugs that can be closed without touching shell helpers
-- BuildBox still proves the full-source parse boundary is a separate owner-local bug
-- therefore the remaining helper-side delete-order blocker for this fixture is the BuildBox keep, not the default Stage-B lane
+- default Stage-B lane and BuildBox keep lane no longer reproduce malformed Program(JSON v0) on `hello_simple_llvm`
+- the fixture proved two separate owner-local bugs, and both were closed without reopening shell-helper routing
+- this removes `hello_simple_llvm` as evidence for a producer-side retreat in P3 helper audit
+- delete-order work can now return to caller inventory / helper thinning instead of malformed-producer pinning for this fixture
 
 ## Guardrails
 
-- do not cite `hello_simple_llvm` as evidence that `HAKO_USE_BUILDBOX=1` still rescues emit-only output
-- do not reopen default Stage-B malformed-output debt for this fixture unless a new regression reproduces it
+- do not cite this document as proof that all BuildBox inputs are globally healthy
+- do not reopen default Stage-B or BuildBox malformed-output debt for this fixture unless a new regression reproduces it
 - do not reopen shell-helper cleanup as if `extract_program_json_v0_from_raw()` were the cause
 - do not mix this producer bugfix with `test_runner.sh` / smoke-tail retirement
 
 ## Next Safe Slice
 
-1. keep the default Stage-B fix closed with `phase29ci_stageb_body_extract`
-2. separately keep `BuildBox.emit_program_json_v0(...)` pinned as “full-source parse” instead of body-source parse
-3. only after the BuildBox producer shape is fixed, re-evaluate whether `HAKO_USE_BUILDBOX=1` is a meaningful live keep on `hello_simple_llvm`
+1. keep both fixes closed with `phase29ci_stageb_body_extract`
+2. return to caller/delete-order work in `P3-SHARED-SHELL-HELPER-AUDIT.md`
+3. only reopen producer-side analysis if another fixture reproduces malformed Program(JSON v0)
