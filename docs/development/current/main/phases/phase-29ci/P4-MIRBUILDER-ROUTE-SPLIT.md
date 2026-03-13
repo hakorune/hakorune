@@ -58,7 +58,7 @@ Related:
 - chain:
   1. [src/host_providers/mir_builder/authority.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/authority.rs)::`source_to_program_and_mir_json(...)`
   2. `emit_program_json_v0_for_strict_authority_source(...)`
-  3. [src/host_providers/mir_builder/lowering.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/lowering.rs)::`program_json_to_mir_json(...)`
+  3. [src/host_providers/mir_builder/lowering/program_json.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/lowering/program_json.rs)::`lower_program_json_to_module(...)`
   4. `runner::json_v0_bridge::parse_json_v0_to_module_with_imports(...)`
 - current observed result on the same fixture:
   - lowers successfully
@@ -66,7 +66,7 @@ Related:
 - interpretation:
   - this is a bootstrap-only authority helper route
   - it exercises the JSON bridge, not the direct JoinIR CLI route
-  - the façade file is no longer the real blocker owner; the blocker is now split between `authority.rs` and `lowering.rs`
+  - the façade file is no longer the real blocker owner; the blocker is now split between `authority.rs` and `lowering/program_json.rs`, while `lowering/ast_json.rs` remains legacy compat keep
 
 ### 3. Language-level source surface
 
