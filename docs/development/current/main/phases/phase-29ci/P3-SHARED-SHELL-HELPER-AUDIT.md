@@ -93,10 +93,12 @@ shared shell helper keep として残っている 3 file について、
 - `tools/selfhost/selfhost_build.sh` now pins that keep behind `buildbox_emit_only_keep_requested()`, so the exact live-contract predicate (`HAKO_USE_BUILDBOX=1` + emit-only + no EXE lane) is SSOT in code as well as docs
 - `tools/selfhost/selfhost_build.sh` now also keeps its post-emit raw/extract funnel behind `extract_program_json_v0_from_raw()`, `persist_stageb_raw_snapshot()`, and `exit_after_stageb_emit_failure()`, so build-helper cleanup can talk about exact lanes instead of one long post-emit block
 - `tools/selfhost/selfhost_build.sh` now keeps the source-direct `--mir` consumer behind `emit_mir_json_from_source()`, so downstream consumer audit can proceed one lane at a time without mixing `--exe` or `--run`
+- `tools/selfhost/selfhost_build.sh` now also keeps the Core-Direct `--run` consumer behind `run_program_json_v0_via_core_direct()`, so the remaining downstream helper-local work is the Program(JSON)->MIR->EXE lane rather than mixed run/EXE cleanup
 - `tools/selfhost/selfhost_build.sh --mir` still remains upstream-blocked by the same default Stage-B freeze as plain emit-only on `apps/tests/hello_simple_llvm.hako`; isolating `emit_mir_json_from_source()` does not widen that route, it only makes the remaining blocker explicit
+- `tools/selfhost/selfhost_build.sh --run` also remains upstream-blocked by that same default Stage-B freeze on `apps/tests/hello_simple_llvm.hako`; isolating `run_program_json_v0_via_core_direct()` is consumer-lane cleanup only, not route repair
 
 ## Immediate Next
 
-1. isolate the exact JSON v0 contract still needed by `tools/hakorune_emit_mir.sh`
-2. thin `tools/selfhost/selfhost_build.sh` one build-contract lane at a time; keep `HAKO_USE_BUILDBOX=1` explicit and do not mix this with `test_runner.sh`
+1. keep `tools/hakorune_emit_mir.sh` monitor-only while `selfhost_build.sh` downstream audit is active
+2. thin `tools/selfhost/selfhost_build.sh` one build-contract lane at a time; keep `HAKO_USE_BUILDBOX=1` explicit and the next narrow downstream slice as `--exe`
 3. defer `tools/smokes/v2/lib/test_runner.sh` until the smoke tail audit is ready

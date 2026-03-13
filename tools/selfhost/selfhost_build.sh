@@ -180,6 +180,17 @@ emit_mir_json_from_source() {
   "$BIN" --backend mir --emit-mir-json "$mir_out_path" "$IN" >/dev/null
 }
 
+run_program_json_v0_via_core_direct() {
+  local json_path="$1"
+  set +e
+  NYASH_GATE_C_CORE=1 HAKO_GATE_C_CORE=1 HAKO_CORE_DIRECT=1 HAKO_CORE_DIRECT_INPROC=1 \
+    NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 NYASH_NYRT_SILENT_RESULT=1 \
+    "$BIN" --json-file "$json_path" >/dev/null 2>&1
+  local rc=$?
+  set -e
+  return $rc
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --in) IN="$2"; shift 2;;
@@ -258,13 +269,8 @@ if [ -n "$EXE_OUT" ]; then
 fi
 
 if [ "$DO_RUN" = "1" ]; then
-  # Run via Core‑Direct (in‑proc), quiet
-  set +e
-  NYASH_GATE_C_CORE=1 HAKO_GATE_C_CORE=1 HAKO_CORE_DIRECT=1 HAKO_CORE_DIRECT_INPROC=1 \
-    NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 NYASH_NYRT_SILENT_RESULT=1 \
-    "$BIN" --json-file "$tmp_json" >/dev/null 2>&1
-  rc=$?
-  set -e
+  rc=0
+  run_program_json_v0_via_core_direct "$tmp_json" || rc=$?
   if [ "$KEEP_TMP" != "1" ] && [ -z "$JSON_OUT" ]; then rm -f "$tmp_json" 2>/dev/null || true; fi
   exit $rc
 else
