@@ -162,15 +162,7 @@ impl MirInterpreter {
             }
             // LLVM harness providers (direct)
             "env.mirbuilder.emit" | "env.mirbuilder.emit/1" => {
-                if let Some(a0) = args.get(0) {
-                    let s = self.reg_load(*a0)?.to_string();
-                    match crate::host_providers::mir_builder::program_json_to_mir_json(&s) {
-                        Ok(out) => Ok(VMValue::String(out)),
-                        Err(e) => Err(self.err_with_context("env.mirbuilder.emit", &e.to_string())),
-                    }
-                } else {
-                    Err(self.err_invalid("env.mirbuilder.emit expects 1 arg"))
-                }
+                return self.execute_extern_function("env.mirbuilder.emit", args);
             }
             "env.codegen.emit_object" | "env.codegen.emit_object/1" => {
                 if let Some(a0) = args.get(0) {

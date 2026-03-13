@@ -105,7 +105,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
          - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
            - explicit `emit_from_program_json_v0(...)` kernel/plugin route
          - `src/backend/mir_interpreter/handlers/extern_provider.rs`
-           - runtime `env.mirbuilder.emit` bridge surface (direct and `extern_invoke` forms)
+           - runtime `env.mirbuilder.emit` bridge surface (direct and `extern_invoke` forms); `src/backend/mir_interpreter/handlers/calls/global.rs` is now only a thin delegate to this owner
        - implication: the real pure `.hako-only` blocker is narrower than “all of mir_builder”; it is this lowering owner plus the three live caller owners above
     3. `src/stage1/program_json_v0/authority.rs`
        - current source->Program(JSON v0) authority still lives here

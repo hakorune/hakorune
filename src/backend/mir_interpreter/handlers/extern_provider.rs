@@ -38,6 +38,34 @@ impl MirInterpreter {
         }
     }
 
+    fn mirbuilder_imports_from_env() -> std::collections::BTreeMap<String, String> {
+        if let Ok(imports_json) = std::env::var("HAKO_MIRBUILDER_IMPORTS") {
+            match serde_json::from_str::<std::collections::BTreeMap<String, String>>(&imports_json)
+            {
+                Ok(map) => map,
+                Err(e) => {
+                    crate::runtime::get_global_ring0().log.error(&format!(
+                        "[mirbuilder/imports] Failed to parse HAKO_MIRBUILDER_IMPORTS: {}",
+                        e
+                    ));
+                    std::collections::BTreeMap::new()
+                }
+            }
+        } else {
+            std::collections::BTreeMap::new()
+        }
+    }
+
+    fn emit_mirbuilder_program_json(&mut self, program_json: &str) -> Result<VMValue, VMError> {
+        match crate::host_providers::mir_builder::program_json_to_mir_json_with_imports(
+            program_json,
+            Self::mirbuilder_imports_from_env(),
+        ) {
+            Ok(out) => Ok(VMValue::String(Self::patch_mir_json_version(&out))),
+            Err(e) => Err(self.err_with_context("env.mirbuilder.emit", &e.to_string())),
+        }
+    }
+
     /// Central extern dispatcher used by both execute_extern_function (calls.rs)
     /// and handle_extern_call (externals.rs). Returns a VMValue; callers are
     /// responsible for writing it to registers when needed.
@@ -190,37 +218,7 @@ impl MirInterpreter {
                     Ok(v) => v.to_string(),
                     Err(e) => return Some(Err(e)),
                 };
-
-                // Phase 21.8: Read imports from environment variable if present
-                let imports = if let Ok(imports_json) = std::env::var("HAKO_MIRBUILDER_IMPORTS") {
-                    match serde_json::from_str::<std::collections::BTreeMap<String, String>>(
-                        &imports_json,
-                    ) {
-                        Ok(map) => map,
-                        Err(e) => {
-                            crate::runtime::get_global_ring0().log.error(&format!(
-                                "[mirbuilder/imports] Failed to parse HAKO_MIRBUILDER_IMPORTS: {}",
-                                e
-                            ));
-                            std::collections::BTreeMap::new()
-                        }
-                    }
-                } else {
-                    std::collections::BTreeMap::new()
-                };
-
-                let res =
-                    match crate::host_providers::mir_builder::program_json_to_mir_json_with_imports(
-                        &program_json,
-                        imports,
-                    ) {
-                        Ok(s) => Ok(VMValue::String(Self::patch_mir_json_version(&s))),
-                        Err(e) => Err(ErrorBuilder::with_context(
-                            "env.mirbuilder.emit",
-                            &e.to_string(),
-                        )),
-                    };
-                Some(res)
+                Some(self.emit_mirbuilder_program_json(&program_json))
             }
             "env.codegen.emit_object" => {
                 // Guarded stub path for verify/Hakorune-primary bring-up
@@ -557,28 +555,7 @@ impl MirInterpreter {
                             )));
                         }
                         if let Some(s) = first_arg_str {
-                            // Phase 21.8: Read imports from environment variable if present
-                            let imports = if let Ok(imports_json) =
-                                std::env::var("HAKO_MIRBUILDER_IMPORTS")
-                            {
-                                match serde_json::from_str::<
-                                    std::collections::BTreeMap<String, String>,
-                                >(&imports_json)
-                                {
-                                    Ok(map) => map,
-                                    Err(e) => {
-                                        crate::runtime::get_global_ring0().log.error(&format!("[mirbuilder/imports] Failed to parse HAKO_MIRBUILDER_IMPORTS: {}", e));
-                                        std::collections::BTreeMap::new()
-                                    }
-                                }
-                            } else {
-                                std::collections::BTreeMap::new()
-                            };
-
-                            match crate::host_providers::mir_builder::program_json_to_mir_json_with_imports(&s, imports) {
-                                Ok(out) => Ok(VMValue::String(Self::patch_mir_json_version(&out))),
-                                Err(e) => Err(self.err_with_context("env.mirbuilder.emit", &e.to_string())),
-                            }
+                            self.emit_mirbuilder_program_json(&s)
                         } else {
                             Err(self.err_invalid("extern_invoke env.mirbuilder.emit expects 1 arg"))
                         }
