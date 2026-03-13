@@ -1,5 +1,4 @@
 mod ast_json;
-mod program_json;
 
 use crate::mir::MirModule;
 use crate::runner;
@@ -28,7 +27,7 @@ pub(super) fn program_json_to_mir_json_with_imports(
     let parsed = parse_input_json(program_json)?;
 
     let module = if parsed.get("version").is_some() && parsed.get("kind").is_some() {
-        program_json::lower_program_json_to_module(program_json, imports)?
+        lower_program_json_to_module(program_json, imports)?
     } else {
         ast_json::lower_ast_json_to_module(&parsed)?
     };
@@ -68,6 +67,16 @@ fn emit_module_to_temp_mir_json(module: &MirModule) -> Result<std::path::PathBuf
     let tmp_path = unique_mir_json_tmp_path();
     match runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &tmp_path) {
         Ok(()) => Ok(tmp_path),
+        Err(error) => Err(super::failfast_error(error)),
+    }
+}
+
+fn lower_program_json_to_module(
+    program_json: &str,
+    imports: BTreeMap<String, String>,
+) -> Result<MirModule, String> {
+    match runner::json_v0_bridge::parse_json_v0_to_module_with_imports(program_json, imports) {
+        Ok(module) => Ok(module),
         Err(error) => Err(super::failfast_error(error)),
     }
 }

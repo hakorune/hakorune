@@ -61,7 +61,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current main stopper is still Rust authority, not `.hako` caller count
   - Rust authority bucket:
     - `src/host_providers/mir_builder/user_box_decls.rs`
-    - `src/host_providers/mir_builder/lowering/program_json.rs`
+    - `src/host_providers/mir_builder/lowering.rs`
     - `src/stage1/program_json_v0/authority.rs`
     - why it matters: current `stage1-env-mir-source` authority still materializes `Program(JSON v0)` before MIR(JSON)
     - note: `src/host_providers/mir_builder.rs` and `src/stage1/program_json_v0.rs` are now thin façades; `src/host_providers/mir_builder/lowering/ast_json.rs` is legacy AST JSON compat keep, not the primary pure-`.hako` blocker
@@ -100,8 +100,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - note: `src/host_providers/mir_builder.rs` is now the public source-route façade and again owns the tiny source-route handoff leaf; the dedicated `authority.rs` adapter is retired
        - latest tightening: test-only transient `(Program JSON, MIR JSON)` tuple helper still lives only in façade test surface `src/host_providers/mir_builder.rs`
        - latest tightening: `source_to_mir_json_with_user_box_decls(...)` is retired; live source-route callers now enter `src/host_providers/mir_builder.rs::source_to_mir_json(...)` and reuse `user_box_decls.rs` only for shared Program(JSON) shaping
-    2. `src/host_providers/mir_builder/lowering/program_json.rs`
-       - current Program(JSON v0) -> MIR(JSON) lowering still lives here
+    2. `src/host_providers/mir_builder/lowering.rs`
+       - exact `Program(JSON v0) -> MIR(JSON)` lowering leaf now lives here
        - this is a real blocker for pure `.hako` compiler authority
        - exact live caller map is now pinned:
          - `src/host_providers/mir_builder.rs`
@@ -141,13 +141,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     1. de-Rust current source-route handoff in `src/host_providers/mir_builder.rs`
        - landed: live source-route handoff leaf `source_to_mir_json_with_user_box_decls(...)` is retired
        - current façade now owns only a tiny source-route handoff before shared Program(JSON) shaping
-    2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering/program_json.rs`
+    2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering.rs`
        - first by shrinking or redirecting the exact remaining live callers above, not by broad cleanup elsewhere
        - runtime/plugin imports route is already off this owner; kernel/plugin Program(JSON) caller is now treated as near thin floor unless an exact disappearing route leaf appears
        - current main front is source authority, not further kernel thinning
        - second exact slice after the source-route handoff leaf is gone:
-         - target `lower_program_json_to_module(...)`
-         - touch `src/host_providers/mir_builder/lowering/program_json.rs`, `src/host_providers/mir_builder/user_box_decls.rs`, and façade surface `src/host_providers/mir_builder.rs`
+         - landed: `lower_program_json_to_module(...)` is absorbed into `src/host_providers/mir_builder/lowering.rs`
+         - next focus is the remaining live callers and shaping around that lowering owner, not the deleted leaf file
          - keep kernel route and `src/stage1/program_json_v0/authority.rs` out of that patch
     3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0/authority.rs`
        - latest tightening: future-retire bridge shim is now split to `src/stage1/program_json_v0/bridge_shim.rs`
@@ -158,7 +158,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - exact near-term task ladder:
     1. `src/host_providers/mir_builder/authority.rs` is retired; `src/host_providers/mir_builder.rs` now owns only the tiny façade handoff leaf for `source_to_mir_json(...)`
     2. `src/host_providers/mir_builder/user_box_decls.rs` is reduced to shared Program(JSON) shaping owner
-    3. next exact Rust slice: target `src/host_providers/mir_builder/lowering/program_json.rs::lower_program_json_to_module(...)`
+    3. next exact Rust slice: target the remaining live caller/shaping around `src/host_providers/mir_builder/lowering.rs`
     4. keep `src/stage1/program_json_v0/authority.rs` focused on strict source authority only; future-retire bridge work now belongs to `src/stage1/program_json_v0/bridge_shim.rs`
     5. after the Rust-owned wave, begin `.hako` caller wave in this order:
        - `lang/src/mir/builder/MirBuilderBox.hako`

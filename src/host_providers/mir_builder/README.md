@@ -9,15 +9,13 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
   - keeps shared fail-fast / trace / temp-path helpers
 - `mir_builder/lowering.rs`
   - thin lowering facade + shared parse/emit helpers
+  - now also owns the exact `Program(JSON v0) -> MIR(JSON)` lowering leaf directly
 - `mir_builder/user_box_decls.rs`
   - shared `user_box_decls` owner for source authority and explicit Program(JSON) kernel routes
   - no longer owns the live source-route handoff leaf; the façade does that and reuses this owner only for shared `user_box_decls` shaping
-- `mir_builder/lowering/program_json.rs`
-  - current `Program(JSON v0) -> MIR(JSON)` lowering owner
-  - this is the real pure-`.hako` blocker inside the lowering half
 - `mir_builder.rs::module_to_mir_json(...)`
   - shared MIR(JSON) emission seam
-  - runtime/plugin imports route reuses this seam without staying a live caller of `lowering/program_json.rs`
+  - runtime/plugin imports route reuses this seam without staying a live caller of `lowering.rs`
 - `mir_builder/lowering/ast_json.rs`
   - legacy AST JSON compat route owner
   - treat this as compat keep, not as the primary pure-`.hako` blocker
@@ -25,8 +23,8 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
 ## Guardrails
 
 - treat `user_box_decls.rs` as the current source-route handoff owner
-- treat `lowering/program_json.rs` as the current Rust-owned Program(JSON)->MIR lowering owner
-- treat runtime/plugin `env.mirbuilder.emit` as a separate keep that now bypasses `lowering/program_json.rs`
+- treat `lowering.rs` as the current Rust-owned Program(JSON)->MIR lowering owner
+- treat runtime/plugin `env.mirbuilder.emit` as a separate keep that now bypasses `lowering.rs`
 - keep `source_to_program_and_mir_json(...)` test-only in the façade; cross-crate source surfaces should stay on `source_to_mir_json(...)`
 - do not widen `.hako` workaround contracts here
 - keep fail-fast tags and temp-path policy owner-local to this cluster

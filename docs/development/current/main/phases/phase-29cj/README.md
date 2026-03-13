@@ -65,7 +65,8 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 3. do not take `program_json_entry/request.rs` next unless bridge-local-only leaves are truly exhausted
 4. keep the direct-lower probe as explicit evidence until one Rust-owned bucket actually disappears
 5. while this phase keeps the Rust-owned retirement order, do not confuse it with the primary pure-`.hako` blocker
-   - the real current blocker is now the exact `Program(JSON v0) -> MIR(JSON)` lowering owner in `src/host_providers/mir_builder/lowering/program_json.rs`
+   - the real current blocker is now the exact `Program(JSON v0) -> MIR(JSON)` lowering owner in `src/host_providers/mir_builder/lowering.rs`
+   - the real current blocker is now the exact `Program(JSON v0) -> MIR(JSON)` lowering leaf in `src/host_providers/mir_builder/lowering.rs`
    - pinned live callers:
      - `src/host_providers/mir_builder/user_box_decls.rs`
      - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
@@ -73,7 +74,8 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
    - therefore, a future authority-removal slice should narrow those callers before broad cleanup elsewhere
 6. exact next ladder after `authority.rs` retirement:
    - landed: `src/host_providers/mir_builder/user_box_decls.rs::source_to_mir_json_with_user_box_decls(...)` is retired
-   - next target `src/host_providers/mir_builder/lowering/program_json.rs::lower_program_json_to_module(...)`
+   - landed: `src/host_providers/mir_builder/lowering/program_json.rs::lower_program_json_to_module(...)` is absorbed into `src/host_providers/mir_builder/lowering.rs`
+   - next target is the remaining live caller/shaping around that lowering owner
    - keep `src/stage1/program_json_v0/authority.rs` frozen as the strict source-authority core while those host-provider slices are still live
 
 ## Retreat Finding
@@ -83,15 +85,16 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - the first productive slice already removed the shared route-table keep by moving surrogate route matching into `build_surrogate.rs`; current review treats that bucket as near thin floor rather than the next automatic shrink target
 - `future-retire bridge` is now smaller on both sides: `program_json/emit_payload.rs`, `program_json/pipeline.rs`, and `program_json_entry/exit.rs` are gone, so the remaining inner bridge leaves are concentrated in `program_json/mod.rs` and `program_json_entry/request.rs`
 - because `program_json_entry/request.rs` still touches env alias precedence and outer-caller-facing request extraction, it is not the default next slice; prefer bridge-local-only collapse before touching that contract leaf
-- current authority is now exact enough to avoid hand-wavy blocker accounting: `src/host_providers/mir_builder/user_box_decls.rs` owns the shared source-route handoff, `src/host_providers/mir_builder/lowering/program_json.rs` owns `Program(JSON v0) -> MIR(JSON)`, and `src/stage1/program_json_v0/authority.rs` remains the strict source-authority owner behind them
+- current authority is now exact enough to avoid hand-wavy blocker accounting: `src/host_providers/mir_builder/user_box_decls.rs` owns the shared source-route handoff, `src/host_providers/mir_builder/lowering.rs` owns `Program(JSON v0) -> MIR(JSON)`, and `src/stage1/program_json_v0/authority.rs` remains the strict source-authority owner behind them
 - worker order decision is now pinned: retire the dedicated `authority.rs` adapter and then move `src/host_providers/mir_builder/user_box_decls.rs` before reopening the kernel Program(JSON) route; treat the kernel route as near thin floor unless an exact disappearing leaf appears
 - the test-only transient `(Program JSON, MIR JSON)` tuple helper still lives only in the `src/host_providers/mir_builder.rs` façade test surface
 - the dedicated `src/host_providers/mir_builder/authority.rs` adapter is gone, and the extra `user_box_decls.rs::source_to_mir_json_with_user_box_decls(...)` leaf is gone too; live source-route callers now enter through `src/host_providers/mir_builder.rs::source_to_mir_json(...)` and use `user_box_decls.rs` only for shared Program(JSON) shaping
 - worker audit also raised the next non-Rust wave order after the current Rust-owned front: `lang/src/mir/builder/MirBuilderBox.hako` first, then runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`, with shared producer `lang/src/compiler/build/build_box.hako` immediately behind that same wave; touching `build_box.hako` before those owner-local callers would be the highest-blast-radius move
 - the kernel `emit_from_program_json_v0` / `emit_from_source_v0` pair now also shares same-file gate/decode/freeze helpers, so the remaining kernel work is explicitly thin-floor support code rather than a fresh authority-removal front
 - the nearby future-retire bridge shim is now split out to `src/stage1/program_json_v0/bridge_shim.rs`, so `src/stage1/program_json_v0/authority.rs` no longer mixes bridge-specific error wrapping with strict source authority
-- the next pure-`.hako-only` removal wave should not start by shaving `build_surrogate.rs` more; it should start when the live caller trio of `lowering/program_json.rs` can shrink
+- the next pure-`.hako-only` removal wave should not start by shaving `build_surrogate.rs` more; it should start when the live caller trio of `src/host_providers/mir_builder/lowering.rs` can shrink
+- the next pure-`.hako-only` removal wave should not start by shaving `build_surrogate.rs` more; it should start when the live caller trio of `src/host_providers/mir_builder/lowering.rs` can shrink
 - runtime/plugin `env.mirbuilder.emit` is now concentrated in `src/runtime/mirbuilder_emit.rs`; `extern_provider.rs` and `plugin_loader_v2/enabled/extern_functions.rs` are thin callers, and `calls/global.rs` no longer owns a separate direct lowering branch
-- runtime/plugin `env.mirbuilder.emit` also no longer counts as a live caller of `src/host_providers/mir_builder/lowering/program_json.rs`; that helper now lowers through `runner::json_v0_bridge::parse_json_v0_to_module_with_imports(...)` and reuses only shared MIR(JSON) emission
+- runtime/plugin `env.mirbuilder.emit` also no longer counts as a live caller of `src/host_providers/mir_builder/lowering.rs`; that helper now lowers through `runner::json_v0_bridge::parse_json_v0_to_module_with_imports(...)` and reuses only shared MIR(JSON) emission
 - worker audit agreed the safest next Rust-owned slice was the kernel/plugin Program(JSON) route in `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`; that narrowing is now landed, and the remaining kernel-side leaf is no longer the local `user_box_decls` splice because that responsibility now lives in shared owner `src/host_providers/mir_builder/user_box_decls.rs`
 - after this slice, the kernel/plugin Program(JSON) route is close to thin floor: route-local gate/decode/encode remain, but host-provider call selection and `user_box_decls` shaping no longer live there
