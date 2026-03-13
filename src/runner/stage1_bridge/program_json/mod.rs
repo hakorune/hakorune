@@ -1,11 +1,10 @@
 //! Stage1 bridge Program(JSON v0) emit facade.
 //!
 //! Keep the bridge root focused on routing while `program_json/` owns
-//! source-text read, bridge-local payload emission, and writeback policy
-//! for the future-retire lane. Source-path precedence stays in the
-//! bridge-entry owner (`program_json_entry/request.rs`).
+//! source-text read, bridge-local read->emit->write orchestration, and
+//! writeback policy for the future-retire lane. Source-path precedence
+//! stays in the bridge-entry owner (`program_json_entry/request.rs`).
 
-mod emit_payload;
 mod pipeline;
 mod read_input;
 mod writeback;

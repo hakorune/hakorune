@@ -39,7 +39,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - parser / using toggle propagation lives in `env/parser_stageb.rs`
 - Stage-B module payload generation + child-env apply live in `modules.rs`
 - bridge-local file read/write for this route lives in `program_json/mod.rs`
-- `program_json/mod.rs` is a thin facade; bridge-local read->emit->write orchestration lives in `program_json/pipeline.rs`, source-text read lives in `program_json/read_input.rs`, bridge-local payload emission lives in `program_json/emit_payload.rs`, and bridge-local writeback policy lives in `program_json/writeback.rs`
+- `program_json/mod.rs` is a thin facade; bridge-local read->emit->write orchestration and owner-1 payload emission live in `program_json/pipeline.rs`, source-text read lives in `program_json/read_input.rs`, and bridge-local writeback policy lives in `program_json/writeback.rs`
 - next Rust-only retire slices stay inside `program_json_entry/` and `program_json/`; treat `src/runner/mod.rs` and `src/runner/emit.rs` as `must-stay thin callers`
 - do not call `source_to_program_json_v0_strict(...)` from this directory
 - do not add new bridge-local Program(JSON v0) parsing policy here
