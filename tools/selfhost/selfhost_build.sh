@@ -174,6 +174,12 @@ exit_after_stageb_emit_failure() {
   exit 1
 }
 
+emit_mir_json_from_source() {
+  local mir_out_path="$1"
+  echo "[selfhost] emitting MIR JSON → $mir_out_path" >&2
+  "$BIN" --backend mir --emit-mir-json "$mir_out_path" "$IN" >/dev/null
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --in) IN="$2"; shift 2;;
@@ -219,8 +225,7 @@ fi
 
 # Optional: emit MIR(JSON) from source (runner compiles .hako directly; Stage‑B JSON is for reference)
 if [ -n "$MIR_OUT" ]; then
-  echo "[selfhost] emitting MIR JSON → $MIR_OUT" >&2
-  "$BIN" --backend mir --emit-mir-json "$MIR_OUT" "$IN" >/dev/null
+  emit_mir_json_from_source "$MIR_OUT"
 fi
 
 # Optional: build native EXE via ny-llvmc harness (fallback path; parses original source)
