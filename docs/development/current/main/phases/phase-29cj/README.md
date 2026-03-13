@@ -69,7 +69,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
    - pinned live callers:
      - `src/host_providers/mir_builder/authority.rs`
      - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
-     - `src/backend/mir_interpreter/handlers/extern_provider.rs`
+     - `src/runtime/mirbuilder_emit.rs`
    - therefore, a future authority-removal slice should narrow those callers before broad cleanup elsewhere
 
 ## Retreat Finding
@@ -82,3 +82,4 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - current authority is now exact enough to avoid hand-wavy blocker accounting: `src/host_providers/mir_builder/authority.rs` owns `source -> Program(JSON v0)`, `src/host_providers/mir_builder/lowering/program_json.rs` owns `Program(JSON v0) -> MIR(JSON)`, and `src/stage1/program_json_v0/authority.rs` remains the strict source-authority owner behind them
 - the next pure-`.hako-only` removal wave should not start by shaving `build_surrogate.rs` more; it should start when the live caller trio of `lowering/program_json.rs` can shrink
 - runtime/plugin `env.mirbuilder.emit` is now concentrated in `src/runtime/mirbuilder_emit.rs`; `extern_provider.rs` and `plugin_loader_v2/enabled/extern_functions.rs` are thin callers, and `calls/global.rs` no longer owns a separate direct lowering branch
+- worker audit agrees the safest next Rust-owned slice is the kernel/plugin Program(JSON) route in `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`: narrow the host-provider call from `program_json_to_mir_json_with_imports(..., BTreeMap::new())` to `program_json_to_mir_json(...)`, but keep the kernel-local `user_box_decls` splice in place for that slice

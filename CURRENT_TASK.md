@@ -104,6 +104,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
            - current `stage1-env-mir-source` source route
          - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
            - explicit `emit_from_program_json_v0(...)` kernel/plugin route
+           - next safest slice on this owner:
+             - keep kernel-local `user_box_decls` splice in place
+             - only narrow the host-provider call from `program_json_to_mir_json_with_imports(..., BTreeMap::new())` to `program_json_to_mir_json(...)`
          - `src/runtime/mirbuilder_emit.rs`
            - shared runtime/plugin `env.mirbuilder.emit` bridge owner
            - thin runtime callers now route through this owner:
@@ -131,6 +134,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     1. de-Rust current source authority in `src/host_providers/mir_builder/authority.rs`
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering/program_json.rs`
        - first by shrinking or redirecting the exact live caller trio above, not by broad cleanup elsewhere
+       - current safest next owner-local slice is the kernel/plugin Program(JSON) caller in `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
     3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0/authority.rs`
     4. retire AST JSON compat keep in `src/host_providers/mir_builder/lowering/ast_json.rs` only after the primary lowering owner is no longer needed
     5. retire compiled-stage1 `build_surrogate.rs`
