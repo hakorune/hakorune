@@ -573,6 +573,51 @@ JSON
     return $rc
 }
 
+mir_builder_output_missing() {
+    local mir_json="${1:-}"
+    [ "$mir_json" = "Builder failed" ] || [ -z "$mir_json" ]
+}
+
+emit_mir_json_via_min_runner() {
+    local prog_json_raw="$1"
+    local builder_code_min="$2"
+    local builder_stderr="$3"
+    local builder_stdout="$4"
+
+    HAKO_MIR_BUILDER_INTERNAL=1 \
+    HAKO_MIR_RUNNER_MIN_NO_METHODS=1 \
+    HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0 \
+    HAKO_ROUTE_HAKOVM=1 \
+    NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
+    NYASH_USING_AST=1 \
+    NYASH_RESOLVE_FIX_BRACES=1 \
+    NYASH_DISABLE_NY_COMPILER=1 \
+    NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
+    NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
+    HAKO_BUILDER_PROGRAM_JSON="$prog_json_raw" \
+    run_nyash_vm -c "$builder_code_min" 2>"$builder_stderr" \
+        | tee "$builder_stdout" \
+        | awk '/\[MIR_OUT_BEGIN\]/{flag=1;next}/\[MIR_OUT_END\]/{flag=0}flag'
+}
+
+emit_mir_json_via_builder_lanes() {
+    local prog_json_raw="$1"
+    local builder_code_min="$2"
+    local builder_stderr="$3"
+    local builder_stdout="$4"
+    local mir_json=""
+
+    if [ "${HAKO_PREFER_MIRBUILDER:-0}" != "1" ]; then
+        mir_json=$(emit_mir_json_via_min_runner "$prog_json_raw" "$builder_code_min" "$builder_stderr" "$builder_stdout")
+    fi
+
+    if mir_builder_output_missing "$mir_json"; then
+        mir_json=$(emit_mir_json_via_provider_extern_v1 "$prog_json_raw" "$builder_stderr" "$builder_stdout")
+    fi
+
+    printf '%s' "$mir_json"
+}
+
 # Program(JSON v0) -> Rust CLI builder fallback
 # - with allow_builder_only=1, HAKO_VERIFY_BUILDER_ONLY=1 keeps the old structure-only contract
 # - otherwise the helper executes the produced MIR and returns its rc
@@ -690,26 +735,10 @@ HCODE
     prog_json_raw="$(cat "$prog_json_path")"
 
     # Run builder with internal lowers enabled using v1 dispatcher
-    local mir_json=""
     local builder_stderr="/tmp/builder_stderr_$$.log"
     local builder_stdout="/tmp/builder_stdout_$$.log"
-    # Try minimal runner first (fast path), unless HAKO_PREFER_MIRBUILDER=1
-    if [ "${HAKO_PREFER_MIRBUILDER:-0}" = "1" ]; then
-        : # skip minimal runner
-    else
-        mir_json=$(HAKO_MIR_BUILDER_INTERNAL=1 \
-               HAKO_MIR_RUNNER_MIN_NO_METHODS=1 \
-               HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0 \
-               HAKO_ROUTE_HAKOVM=1 \
-               NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-               NYASH_USING_AST=1 \
-               NYASH_RESOLVE_FIX_BRACES=1 \
-               NYASH_DISABLE_NY_COMPILER=1 \
-               NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
-               NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
-               HAKO_BUILDER_PROGRAM_JSON="$prog_json_raw" \
-               run_nyash_vm -c "$builder_code_min" 2>"$builder_stderr" | tee "$builder_stdout" | awk '/\[MIR_OUT_BEGIN\]/{flag=1;next}/\[MIR_OUT_END\]/{flag=0}flag')
-    fi
+    local mir_json=""
+    mir_json=$(emit_mir_json_via_builder_lanes "$prog_json_raw" "$builder_code_min" "$builder_stderr" "$builder_stdout")
 
     if [ "${HAKO_MIR_BUILDER_DEBUG:-0}" = "1" ]; then
         echo "[builder debug] stdout (tail):" >&2
@@ -718,20 +747,13 @@ HCODE
         tail -n 60 "$builder_stderr" >&2 || true
     fi
 
-    # Fallback Option A: try full MirBuilderBox (emit) when minimal runner fails
-    if [ "$mir_json" = "Builder failed" ] || [ -z "$mir_json" ]; then
-        mir_json=$(emit_mir_json_via_provider_extern_v1 "$prog_json_raw" "$builder_stderr" "$builder_stdout")
-    fi
-
     # PRIMARY no-fallback: if requested, do not fall back to Rust CLI builder
-    if [ "${HAKO_PRIMARY_NO_FALLBACK:-0}" = "1" ]; then
-        if [ "$mir_json" = "Builder failed" ] || [ -z "$mir_json" ]; then
-            return 1
-        fi
+    if [ "${HAKO_PRIMARY_NO_FALLBACK:-0}" = "1" ] && mir_builder_output_missing "$mir_json"; then
+        return 1
     fi
 
     # Fallback Option B: use Rust CLI builder when Hako builder fails
-    if [ "$mir_json" = "Builder failed" ] || [ -z "$mir_json" ]; then
+    if mir_builder_output_missing "$mir_json"; then
         if [ "${HAKO_MIR_BUILDER_DEBUG:-0}" = "1" ] && [ -f "$builder_stderr" ]; then
             echo "[builder debug] Hako builder failed, falling back to Rust CLI" >&2
             cat "$builder_stderr" >&2
