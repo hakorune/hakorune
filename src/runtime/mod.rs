@@ -13,6 +13,7 @@ pub mod gc_mode;
 pub mod gc_trace;
 pub mod global_hooks;
 pub mod leak_tracker;
+pub mod mirbuilder_emit;
 pub mod nyash_runtime;
 pub mod observe; // Lightweight observability flags (OOB etc.)
 pub mod plugin_config;

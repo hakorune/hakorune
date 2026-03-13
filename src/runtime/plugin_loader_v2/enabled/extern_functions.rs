@@ -367,7 +367,9 @@ fn handle_mirbuilder(
                 .get(0)
                 .map(|b| b.to_string_box().value)
                 .unwrap_or_default();
-            match crate::host_providers::mir_builder::program_json_to_mir_json(&program_json) {
+            match crate::runtime::mirbuilder_emit::emit_program_json_to_mir_json_with_env_imports(
+                &program_json,
+            ) {
                 Ok(s) => Ok(Some(Box::new(StringBox::new(&s)) as Box<dyn NyashBox>)),
                 Err(_e) => Ok(None),
             }

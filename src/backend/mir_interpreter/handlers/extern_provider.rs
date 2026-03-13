@@ -38,28 +38,9 @@ impl MirInterpreter {
         }
     }
 
-    fn mirbuilder_imports_from_env() -> std::collections::BTreeMap<String, String> {
-        if let Ok(imports_json) = std::env::var("HAKO_MIRBUILDER_IMPORTS") {
-            match serde_json::from_str::<std::collections::BTreeMap<String, String>>(&imports_json)
-            {
-                Ok(map) => map,
-                Err(e) => {
-                    crate::runtime::get_global_ring0().log.error(&format!(
-                        "[mirbuilder/imports] Failed to parse HAKO_MIRBUILDER_IMPORTS: {}",
-                        e
-                    ));
-                    std::collections::BTreeMap::new()
-                }
-            }
-        } else {
-            std::collections::BTreeMap::new()
-        }
-    }
-
     fn emit_mirbuilder_program_json(&mut self, program_json: &str) -> Result<VMValue, VMError> {
-        match crate::host_providers::mir_builder::program_json_to_mir_json_with_imports(
+        match crate::runtime::mirbuilder_emit::emit_program_json_to_mir_json_with_env_imports(
             program_json,
-            Self::mirbuilder_imports_from_env(),
         ) {
             Ok(out) => Ok(VMValue::String(Self::patch_mir_json_version(&out))),
             Err(e) => Err(self.err_with_context("env.mirbuilder.emit", &e.to_string())),
