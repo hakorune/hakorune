@@ -560,6 +560,33 @@ HCODE
         | awk '/\[MIR_OUT_BEGIN\]/{flag=1;next}/\[MIR_OUT_END\]/{flag=0}flag'
 }
 
+# Program(JSON v0) -> Rust CLI builder fallback
+# - with allow_builder_only=1, HAKO_VERIFY_BUILDER_ONLY=1 keeps the old structure-only contract
+# - otherwise the helper executes the produced MIR and returns its rc
+run_program_json_v0_via_rust_cli_builder() {
+    local prog_json_path="$1"
+    local allow_builder_only="${2:-0}"
+    local tmp_mir="/tmp/ny_builder_conv_$$.json"
+
+    if ! "$NYASH_BIN" --program-json-to-mir "$tmp_mir" --json-file "$prog_json_path" >/dev/null 2>&1; then
+        return 1
+    fi
+
+    if [ "$allow_builder_only" = "1" ] && [ "${HAKO_VERIFY_BUILDER_ONLY:-0}" = "1" ]; then
+        if grep -q '"functions"' "$tmp_mir" && grep -q '"blocks"' "$tmp_mir"; then
+            rm -f "$tmp_mir"
+            return 0
+        fi
+        rm -f "$tmp_mir"
+        return 1
+    fi
+
+    "$NYASH_BIN" --mir-json-file "$tmp_mir" >/dev/null 2>&1
+    local rc=$?
+    rm -f "$tmp_mir"
+    return $rc
+}
+
 # New function: verify_program_via_builder_to_core
 # Purpose: Program(JSON v0) → MirBuilder(Hako) → MIR(JSON v0) → Core execution
 # This is dev-only for testing builder output quality
@@ -637,24 +664,8 @@ HCODE
             cp "$builder_stderr" /tmp/builder_last_error.log
         fi
         rm -f "$builder_stderr"
-        local tmp_mir="/tmp/ny_builder_conv_$$.json"
-        if "$NYASH_BIN" --program-json-to-mir "$tmp_mir" --json-file "$prog_json_path" >/dev/null 2>&1; then
-            if [ "${HAKO_VERIFY_BUILDER_ONLY:-0}" = "1" ]; then
-                # Builder-only: check structure only
-                if grep -q '"functions"' "$tmp_mir" && grep -q '"blocks"' "$tmp_mir"; then
-                    rm -f "$tmp_mir"; return 0
-                else
-                    rm -f "$tmp_mir"; return 1
-                fi
-            else
-                "$NYASH_BIN" --mir-json-file "$tmp_mir" >/dev/null 2>&1
-                local rc=$?
-                rm -f "$tmp_mir"
-                return $rc
-            fi
-        else
-            return 1
-        fi
+        run_program_json_v0_via_rust_cli_builder "$prog_json_path" 1
+        return $?
     fi
     rm -f "$builder_stderr" "$builder_stdout"
 
@@ -663,16 +674,8 @@ HCODE
         if [ "${HAKO_PRIMARY_NO_FALLBACK:-0}" = "1" ]; then
             return 1
         fi
-        # fallback: Rust CLI builder
-        local tmp_mir="/tmp/ny_builder_conv_$$.json"
-        if "$NYASH_BIN" --program-json-to-mir "$tmp_mir" --json-file "$prog_json_path" >/dev/null 2>&1; then
-            "$NYASH_BIN" --mir-json-file "$tmp_mir" >/dev/null 2>&1
-            local rc=$?
-            rm -f "$tmp_mir"
-            return $rc
-        else
-            return 1
-        fi
+        run_program_json_v0_via_rust_cli_builder "$prog_json_path" 0
+        return $?
     fi
 
     # Route: if builder output contains v1 hints, run hv1 dispatcher inline.
