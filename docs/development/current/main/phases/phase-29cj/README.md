@@ -64,6 +64,13 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
    - `program_json_entry/` is now `mod.rs` + `request.rs`
 3. do not take `program_json_entry/request.rs` next unless bridge-local-only leaves are truly exhausted
 4. keep the direct-lower probe as explicit evidence until one Rust-owned bucket actually disappears
+5. while this phase keeps the Rust-owned retirement order, do not confuse it with the primary pure-`.hako` blocker
+   - the real current blocker is now the exact `Program(JSON v0) -> MIR(JSON)` lowering owner in `src/host_providers/mir_builder/lowering/program_json.rs`
+   - pinned live callers:
+     - `src/host_providers/mir_builder/authority.rs`
+     - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+     - `src/backend/mir_interpreter/handlers/extern_provider.rs`
+   - therefore, a future authority-removal slice should narrow those callers before broad cleanup elsewhere
 
 ## Retreat Finding
 
@@ -72,3 +79,5 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - the first productive slice already removed the shared route-table keep by moving surrogate route matching into `build_surrogate.rs`; current review treats that bucket as near thin floor rather than the next automatic shrink target
 - `future-retire bridge` is now smaller on both sides: `program_json/emit_payload.rs`, `program_json/pipeline.rs`, and `program_json_entry/exit.rs` are gone, so the remaining inner bridge leaves are concentrated in `program_json/mod.rs` and `program_json_entry/request.rs`
 - because `program_json_entry/request.rs` still touches env alias precedence and outer-caller-facing request extraction, it is not the default next slice; prefer bridge-local-only collapse before touching that contract leaf
+- current authority is now exact enough to avoid hand-wavy blocker accounting: `src/host_providers/mir_builder/authority.rs` owns `source -> Program(JSON v0)`, `src/host_providers/mir_builder/lowering/program_json.rs` owns `Program(JSON v0) -> MIR(JSON)`, and `src/stage1/program_json_v0/authority.rs` remains the strict source-authority owner behind them
+- the next pure-`.hako-only` removal wave should not start by shaving `build_surrogate.rs` more; it should start when the live caller trio of `lowering/program_json.rs` can shrink
