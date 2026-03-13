@@ -277,6 +277,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - probe owner: `tools/dev/phase29ch_program_json_compat_route_probe.sh`
       - minimal selfhost helper proof: `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
       - `stage1_cli_env.hako` dispatcher now hands shared input/env contract to `Stage1InputContractBox`, emit-program authority to `Stage1ProgramAuthorityBox`, emit-program validation to `Stage1ProgramResultValidationBox`, source authority to `Stage1SourceMirAuthorityBox`, shared MIR validation to `Stage1MirResultValidationBox`, and compat keep to `Stage1ProgramJsonCompatBox`
+      - latest tightening: `Stage1SourceMirAuthorityBox` now owns the source-entry `BuildBox.emit_program_json_v0(...)` shim locally and delegates only the Program(JSON) -> MIR step to `MirBuilderBox.emit_from_program_json_v0(...)`
       - code-side quarantine owner: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (explicit compat call + mixed-input fail-fast gate)
       - explicit mode is exact-only: `emit-mir-program`
       - shell-side exact compat helper/entry/mode SSOT: `tools/selfhost/lib/stage1_contract.sh` (`stage1_contract_exec_program_json_compat()`)
@@ -348,7 +349,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - `src/runner/stage1_bridge/stub_emit.rs` stays a thin facade; Stage1 stub `emit` stdout parsing / validation live in `stub_emit/parse.rs`, and output-path writeback lives in `stub_emit/writeback.rs`
         - `src/runner/stage1_bridge/mod.rs` stays a thin delegate and must not regain child/enable entry guard checks, child command/env assembly, or JSON line parsing / writeback policy
         - do not reintroduce direct `source_to_program_json_v0_strict(...)` calls outside `stage1/program_json_v0.rs`
-        - `MirBuilderBox.emit_from_source_v0(...)` is still a live keep; do not fold it into diagnostics/probe cleanup planning
+        - `MirBuilderBox.emit_from_source_v0(...)` is no longer on the current stage1 authority path; treat it as a remaining `.hako` compat seam, not as the first authority replacement owner
         - route split remains important: direct CLI `target/release/hakorune --backend mir --emit-mir-json apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako` now lowers in both default release and strict/dev shadow mode; the Rust host-provider route and the language-level `lang.mir.builder.MirBuilderBox.emit_from_source_v0` surface (currently kernel-dispatch owned) also lower it. Treat this as shared fixture success across distinct owners, not as a single merged proof; `.hako` mirbuilder inventory also says the source-entry shim is already thin and the thicker `.hako` policy surface now lives in Program(JSON)->MIR body / raw-env lanes. Use `phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md` as the exact route-evidence SSOT
         - shell-helper delete order still has a wider test-only shell/apps caller tail beyond the shared helper trio; keep that caller audit separate from the first Rust-only delete slices
       - owner-2 minimal tightening:

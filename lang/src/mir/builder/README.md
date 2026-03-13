@@ -16,7 +16,7 @@ Interface (stable)
 - `emit_from_program_json_v0(program_json: String, opts: Map|Null) -> String|Null`
   - Returns canonical MIR(JSON v0) on success; returns null and prints a tagged diagnostic on failure.
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
-  - Source-entry shim only; direct `BuildBox.emit_program_json_v0(...)` check stays owner-local here and then delegates to `emit_from_program_json_v0(...)`.
+  - Source-entry shim only; current stage1 authority no longer depends on this route, and direct `BuildBox.emit_program_json_v0(...)` check remains owner-local before delegating to `emit_from_program_json_v0(...)`.
 
 Tags (Fail‑Fast, stable)
 - `[mirbuilder/input/null]` — input is null

@@ -796,7 +796,18 @@ static box Stage1SourceMirAuthorityBox {
       print(tag + " input missing source/program-json contract")
       return null
     }
-    return MirBuilderBox.emit_from_source_v0(source_text, null)
+    local program_json = me._emit_program_json_from_source_checked(tag, source_text)
+    if program_json == null { return null }
+    return MirBuilderBox.emit_from_program_json_v0(program_json, null)
+  }
+
+  method _emit_program_json_from_source_checked(tag, source_text) {
+    local program_json = BuildBox.emit_program_json_v0("" + source_text, null)
+    if program_json == null {
+      print(tag + " BuildBox.emit_program_json_v0 returned null")
+      return null
+    }
+    return program_json
   }
 }
 
