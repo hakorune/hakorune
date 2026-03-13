@@ -62,9 +62,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - Rust authority bucket:
     - `src/host_providers/mir_builder/authority.rs`
     - `src/host_providers/mir_builder/lowering/program_json.rs`
-    - `src/stage1/program_json_v0.rs`
+    - `src/stage1/program_json_v0/authority.rs`
     - why it matters: current `stage1-env-mir-source` authority still materializes `Program(JSON v0)` before MIR(JSON)
-    - note: `src/host_providers/mir_builder.rs` is now only a thin façade; `src/host_providers/mir_builder/lowering/ast_json.rs` is legacy AST JSON compat keep, not the primary pure-`.hako` blocker
+    - note: `src/host_providers/mir_builder.rs` and `src/stage1/program_json_v0.rs` are now thin façades; `src/host_providers/mir_builder/lowering/ast_json.rs` is legacy AST JSON compat keep, not the primary pure-`.hako` blocker
     - latest tightening: kernel source route no longer receives transient Program(JSON) tuples; `authority.rs` now owns source-route `user_box_decls` injection and cross-crate source callers stay on `source_to_mir_json(...)`
   - Rust bootstrap-boundary bucket:
     - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
@@ -99,7 +99,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     2. `src/host_providers/mir_builder/lowering/program_json.rs`
        - current Program(JSON v0) -> MIR(JSON) lowering still lives here
        - this is a real blocker for pure `.hako` compiler authority
-    3. `src/stage1/program_json_v0.rs`
+    3. `src/stage1/program_json_v0/authority.rs`
        - current source->Program(JSON v0) authority still lives here
        - current authority path and compiled-stage1 build surrogate both still depend on this owner
   - secondary Rust-owned retirement buckets:
@@ -117,7 +117,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - actual priority for pure `.hako-only hakorune build`:
     1. de-Rust current source authority in `src/host_providers/mir_builder/authority.rs`
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering/program_json.rs`
-    3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0.rs`
+    3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0/authority.rs`
     4. retire AST JSON compat keep in `src/host_providers/mir_builder/lowering/ast_json.rs` only after the primary lowering owner is no longer needed
     5. retire compiled-stage1 `build_surrogate.rs`
     6. retire `src/runner/stage1_bridge/**`
