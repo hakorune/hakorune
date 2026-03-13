@@ -77,6 +77,21 @@ fn release_skips_nested_loop(ctx: &LoopRouteContext, env: &RouterEnv) -> bool {
     !env.planner_required && detect_nested_loop(ctx.body)
 }
 
+fn release_allows_loop_cond_continue_only(
+    ctx: &LoopRouteContext,
+    outcome: &PlanBuildOutcome,
+    env: &RouterEnv,
+) -> bool {
+    if env.planner_required || !detect_nested_loop(ctx.body) {
+        return true;
+    }
+    outcome
+        .facts
+        .as_ref()
+        .and_then(|facts| facts.facts.loop_cond_continue_only())
+        .is_some()
+}
+
 fn release_allows_loop_cond_break_continue(
     _ctx: &LoopRouteContext,
     outcome: &PlanBuildOutcome,
@@ -646,7 +661,7 @@ pub(crate) fn route_loop_cond_continue_only(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
-    if release_skips_nested_loop(ctx, env) {
+    if !release_allows_loop_cond_continue_only(ctx, outcome, env) {
         return Ok(None);
     }
 

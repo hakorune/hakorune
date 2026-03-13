@@ -45,11 +45,11 @@ Related:
   2. `compile_with_source_hint(...)`
   3. `MirCompiler::compile_with_source(...)`
 - current observed result on `phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako`:
-  - still rejects with `[joinir/freeze]`
-  - reject reason includes `nested_loop_not_allowed`
+  - default release route now lowers successfully
+  - strict/dev shadow route now lowers successfully
 - interpretation:
-  - this is the current direct JoinIR route blocker
   - it does not pass through Program(JSON v0)
+  - route split remains important even after this direct CLI repair, because the other source surfaces still have different ownership and delete-order
 
 ### 2. Rust host-provider source route
 
@@ -81,16 +81,18 @@ Related:
 - interpretation:
   - current success here is a kernel-dispatch-owned source surface success
   - this must not be misread as proof that the pure `.hako` internal body in [lang/src/mir/builder/MirBuilderBox.hako](/home/tomoaki/git/hakorune-selfhost/lang/src/mir/builder/MirBuilderBox.hako) handled the fixture on its own
+  - current `.hako` inventory says the source-entry shim there is already thin (`_emit_program_json_from_source_checked(...)` -> `emit_from_program_json_v0(...)`); the thicker `.hako` policy surface is now the Program(JSON)->MIR body plus raw/env runner lanes, not the source-entry shim itself
 
 ## Guardrails
 
-- do not convert the direct CLI failure into a generic “all mirbuilder routes fail” claim
-- do not convert the Rust / kernel-dispatch success into a generic “JoinIR route is fixed” claim
+- do not convert the previous direct CLI failure into a generic “all mirbuilder routes fail” claim
+- do not convert this fixture-level direct CLI repair into a generic “all JoinIR route debt is fixed” claim
 - treat this as route/boundary debt first
-- only promote a BoxCount repair slice after the same reject point is pinned for the exact direct route that still fails
+- keep call-chain ownership exact even when the same fixture now lowers across multiple routes
 
 ## Current Decision
 
 - continue helper-local / boundary-local cleanup in `phase-29ci`
-- keep the direct CLI reject pinned as its own route
-- when direct CLI repair starts, scope it as a separate BoxCount slice instead of mixing it with shell/helper retirement
+- keep this fixture pinned as “direct CLI release + shadow + Rust host-provider + kernel-dispatch source surface all lower”, while still treating the routes as distinct owners
+- treat the direct CLI repair as a narrow route-entry BoxCount slice, not as a reason to merge shell/helper retirement with route work
+- keep `P4-MIRBUILDER-ROUTE-SPLIT.md` as the exact route-evidence SSOT so later `.hako` / shell retirement work does not blur pure `.hako` proof with kernel-dispatch-owned success

@@ -208,6 +208,10 @@ fn release_allows_nested_recipe_first(outcome: &PlanBuildOutcome) -> bool {
         return true;
     }
 
+    if facts.facts.loop_cond_continue_only().is_some() {
+        return true;
+    }
+
     if !(facts.exit_usage.has_break && facts.exit_usage.has_continue) || facts.exit_usage.has_return
     {
         return false;

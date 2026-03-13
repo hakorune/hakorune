@@ -150,6 +150,7 @@ struct CandidateSuppression {
     scan_methods_candidate: bool,
     if_phi_join_candidate: bool,
     loop_continue_only_candidate: bool,
+    loop_cond_continue_only_candidate: bool,
     loop_true_early_exit_candidate: bool,
     array_join_candidate: bool,
 }
@@ -160,6 +161,7 @@ fn should_skip_candidate(name: &str, suppression: &CandidateSuppression) -> bool
             suppression.scan_methods_candidate
                 || suppression.if_phi_join_candidate
                 || suppression.loop_continue_only_candidate
+                || suppression.loop_cond_continue_only_candidate
                 || suppression.array_join_candidate
         }
         entry_keys::LOOP_COND_CONTINUE_ONLY => suppression.loop_continue_only_candidate,
@@ -178,6 +180,7 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
             || pred_loop_scan_methods_v0(facts),
         if_phi_join_candidate: pred_if_phi_join(facts),
         loop_continue_only_candidate: pred_loop_continue_only(facts),
+        loop_cond_continue_only_candidate: pred_loop_cond_continue_only(facts),
         loop_true_early_exit_candidate: pred_loop_true_early_exit(facts),
         array_join_candidate: pred_loop_array_join(facts),
     };
@@ -211,7 +214,19 @@ pub(crate) fn try_route_recipe_first(
     let Some(facts) = outcome.facts.as_ref() else {
         return Ok(None);
     };
+    let suppression = CandidateSuppression {
+        scan_methods_candidate: pred_loop_scan_methods_block_v0(facts)
+            || pred_loop_scan_methods_v0(facts),
+        if_phi_join_candidate: pred_if_phi_join(facts),
+        loop_continue_only_candidate: pred_loop_continue_only(facts),
+        loop_cond_continue_only_candidate: pred_loop_cond_continue_only(facts),
+        loop_true_early_exit_candidate: pred_loop_true_early_exit(facts),
+        array_join_candidate: pred_loop_array_join(facts),
+    };
     for entry in ENTRIES {
+        if should_skip_candidate(entry.name, &suppression) {
+            continue;
+        }
         if !(entry.predicate)(facts) {
             continue;
         }
