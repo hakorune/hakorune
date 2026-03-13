@@ -17,7 +17,9 @@ Interface (stable)
   - Returns canonical MIR(JSON v0) on success; returns null and prints a tagged diagnostic on failure.
   - delegate branch now finalizes returned MIR locally by injecting `user_box_decls` before normalization; this is the first `.hako`-side ownership move inside the Program(JSON)->MIR path.
   - gate decisions (`internal_on`, `delegate_on`, `selfhost_no_delegate_on`) are centralized in `hako.mir.builder.internal.builder_config`, so this file is the owner of route sequencing, not raw env reads.
-  - the normal registry-first Program(JSON)->MIR authority block now lives in `hako.mir.builder.internal.registry_authority`; this file keeps route sequencing and compat tails around that owner.
+  - the normal registry-first Program(JSON)->MIR authority block now lives in `hako.mir.builder.internal.registry_authority`
+  - the non-registry/internal fallback chain now lives in `hako.mir.builder.internal.fallback_authority`
+  - this file keeps route sequencing, generic unsupported/no-match decision, and compat tails around those internal owners
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
   - Source-entry shim only; current stage1 authority no longer depends on this route, and direct `BuildBox.emit_program_json_v0(...)` check remains owner-local before delegating to `emit_from_program_json_v0(...)`.
 

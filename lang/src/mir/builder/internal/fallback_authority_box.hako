@@ -1,0 +1,352 @@
+// fallback_authority_box.hako — non-registry/internal fallback authority unit
+// Scope: handwritten/internal compat lowers that still belong to the `.hako`
+// Program(JSON v0) -> MIR(JSON v0) authority path after registry-first routing.
+// Non-goals: source-entry shim, registry-first mainline, generic unsupported
+// decision, delegate/provider compat tail.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
+using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
+using "hako.mir.builder.internal.lower_if_compare_fold_varint" as LowerIfCompareFoldVarIntBox
+using "hako.mir.builder.internal.lower_if_compare_varint" as LowerIfCompareVarIntBox
+using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVarBox
+using "lang.mir.builder.internal.lower_if_merge_local_return_var_box" as LowerIfMergeLocalReturnVarBox
+using "lang.mir.builder.internal.lower_loop_local_return_var_box" as LowerLoopLocalReturnVarBox
+using "hako.mir.builder.internal.lower_return_method_array_map" as LowerReturnMethodArrayMapBox
+using "hako.mir.builder.internal.lower_return_method_string_length" as LowerReturnMethodStringLengthBox
+using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
+using "hako.mir.builder.internal.lower_return_string" as LowerReturnStringBox
+using "hako.mir.builder.internal.lower_return_float" as LowerReturnFloatBox
+using "hako.mir.builder.internal.lower_return_bool" as LowerReturnBoolBox
+using "hako.mir.builder.internal.lower.logical" as LowerReturnLogicalBox
+using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
+using "hako.mir.builder.internal.lower_return_binop_varvar" as LowerReturnBinOpVarVarBox
+using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
+using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
+using "hako.mir.builder.internal.lower_return_loop_strlen_sum" as LowerReturnLoopStrlenSumBox
+using "hako.mir.builder.internal.lower_if_then_else_following_return" as LowerIfThenElseFollowingReturnBox
+using "hako.mir.builder.internal.lower_if_nested" as LowerIfNestedBox
+using "hako.mir.builder.internal.lower_loop_sum_bc" as LowerLoopSumBcBox
+using "hako.mir.builder.internal.lower_newbox_constructor" as LowerNewboxConstructorBox
+using "hako.mir.builder.internal.lower_method_array_size" as LowerMethodArraySizeBox
+using "hako.mir.builder.internal.lower_method_array_push" as LowerMethodArrayPushBox
+using "hako.mir.builder.internal.lower_method_array_get_set" as LowerMethodArrayGetSetBox
+using "hako.mir.builder.internal.lower_method_map_size" as LowerMethodMapSizeBox
+using "hako.mir.builder.internal.lower_method_map_get_set" as LowerMethodMapGetSetBox
+using "hako.mir.builder.internal.lower_load_store_local" as LowerLoadStoreLocalBox
+using "hako.mir.builder.internal.lower_typeop_check" as LowerTypeOpCheckBox
+using "hako.mir.builder.internal.lower_typeop_cast" as LowerTypeOpCastBox
+using "hako.mir.builder.internal.lower_loop_count_param" as LowerLoopCountParamBox
+using "hako.mir.builder.internal.lower_loop_simple" as LowerLoopSimpleBox
+
+static box BuilderFallbackAuthorityBox {
+  method try_lower(program_json) {
+    local s = "" + program_json
+    local boxed = me._try_boxed_lowerers(s)
+    if boxed != null { return boxed }
+    return me._try_inline_jsonfrag_cases(s)
+  }
+
+  method _try_boxed_lowerers(s) {
+    { local out_newc = LowerNewboxConstructorBox.try_lower(s); if out_newc != null { return out_newc } }
+    { local out_arr_size = LowerMethodArraySizeBox.try_lower(s); if out_arr_size != null { return out_arr_size } }
+    { local out_arr_push = LowerMethodArrayPushBox.try_lower(s); if out_arr_push != null { return out_arr_push } }
+    { local out_arr_gs = LowerMethodArrayGetSetBox.try_lower(s); if out_arr_gs != null { return out_arr_gs } }
+    { local out_map_size = LowerMethodMapSizeBox.try_lower(s); if out_map_size != null { return out_map_size } }
+    { local out_map_gs = LowerMethodMapGetSetBox.try_lower(s); if out_map_gs != null { return out_map_gs } }
+    {
+      if BuilderConfigBox.skip_loops_on() != 1 {
+        { local out_loop2 = LowerLoopSumBcBox.try_lower(s); if out_loop2 != null { return out_loop2 } }
+      }
+    }
+    { local out_if2b = LowerIfNestedBox.try_lower(s); if out_if2b != null { return out_if2b } }
+    { local out_if2 = LowerIfThenElseFollowingReturnBox.try_lower(s); if out_if2 != null { return out_if2 } }
+    { local out_if = LowerIfCompareBox.try_lower(s); if out_if != null { return out_if } }
+    { local out_ifb = LowerIfCompareFoldBinIntsBox.try_lower(s); if out_ifb != null { return out_ifb } }
+    { local out_ifbv = LowerIfCompareFoldVarIntBox.try_lower(s); if out_ifbv != null { return out_ifbv } }
+    { local out_ifvi = LowerIfCompareVarIntBox.try_lower(s); if out_ifvi != null { return out_ifvi } }
+    { local out_ifvv = LowerIfCompareVarVarBox.try_lower(s); if out_ifvv != null { return out_ifvv } }
+    { local out_ifm = LowerIfMergeLocalReturnVarBox.try_lower(s); if out_ifm != null { return out_ifm } }
+    {
+      if BuilderConfigBox.skip_loops_on() != 1 {
+        { local out_loop_min = LowerLoopLocalReturnVarBox.try_lower(s); if out_loop_min != null { return out_loop_min } }
+        { local out_loopp = LowerLoopCountParamBox.try_lower(s); if out_loopp != null { return out_loopp } }
+        { local out_loop = LowerLoopSimpleBox.try_lower(s); if out_loop != null { return out_loop } }
+      }
+    }
+    { local out_toc = LowerTypeOpCheckBox.try_lower(s); if out_toc != null { return out_toc } }
+    { local out_tca = LowerTypeOpCastBox.try_lower(s); if out_tca != null { return out_tca } }
+    { local out_ls = LowerLoadStoreLocalBox.try_lower(s); if out_ls != null { return out_ls } }
+    { local out_var = LowerReturnVarLocalBox.try_lower(s); if out_var != null { return out_var } }
+    { local out_str = LowerReturnStringBox.try_lower(s); if out_str != null { return out_str } }
+    { local out_f = LowerReturnFloatBox.try_lower(s); if out_f != null { return out_f } }
+    { local out_log = LowerReturnLogicalBox.try_lower(s); if out_log != null { return out_log } }
+    { local out_meth = LowerReturnMethodArrayMapBox.try_lower(s); if out_meth != null { return out_meth } }
+    { local out_meth_s = LowerReturnMethodStringLengthBox.try_lower(s); if out_meth_s != null { return out_meth_s } }
+    { local out_sum = LowerReturnLoopStrlenSumBox.try_lower(s); if out_sum != null { return out_sum } }
+    { local out_bool = LowerReturnBoolBox.try_lower(s); if out_bool != null { return out_bool } }
+    { local out_bvi = LowerReturnBinOpVarIntBox.try_lower(s); if out_bvi != null { return out_bvi } }
+    { local out_bvv = LowerReturnBinOpVarVarBox.try_lower(s); if out_bvv != null { return out_bvv } }
+    { local out_bin = LowerReturnBinOpBox.try_lower(s); if out_bin != null { return out_bin } }
+    {
+      local out_int = LowerReturnIntBox.try_lower(s)
+      if out_int != null { return out_int }
+    }
+    // Preserve the duplicated constructor probe before the inline JsonFrag tail.
+    {
+      local out_new = LowerNewboxConstructorBox.try_lower(s)
+      if out_new != null { return out_new }
+    }
+    return null
+  }
+
+  method _try_inline_jsonfrag_cases(s) {
+    // Case (If with Compare + Return(Int)/Return(Int) in branches)
+    {
+      local k_if = JsonFragBox.index_of_from(s, "\"type\":\"If\"", 0)
+      if k_if >= 0 {
+        local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_if)
+        if k_cmp >= 0 {
+          local k_op2 = JsonFragBox.index_of_from(s, "\"op\":", k_cmp)
+          if k_op2 >= 0 {
+            local op2 = JsonFragBox.read_string_after(s, k_op2 + 5)
+            if !(op2 == "<" || op2 == ">" || op2 == "<=" || op2 == ">=" || op2 == "==" || op2 == "!=") {
+              print("[mirbuilder/internal/unsupported] compare op: " + op2)
+              return null
+            }
+            local lhs_val2 = null
+            {
+              local klhs2 = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cmp)
+              if klhs2 >= 0 {
+                local ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", klhs2)
+                if ti >= 0 {
+                  local kv = JsonFragBox.index_of_from(s, "\"value\":", ti)
+                  if kv >= 0 {
+                    lhs_val2 = JsonFragBox.read_int_after(s, kv + 8)
+                  }
+                }
+              }
+            }
+            local rhs_val2 = null
+            {
+              local krhs2 = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp)
+              if krhs2 >= 0 {
+                local ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", krhs2)
+                if ti >= 0 {
+                  local kv = JsonFragBox.index_of_from(s, "\"value\":", ti)
+                  if kv >= 0 {
+                    rhs_val2 = JsonFragBox.read_int_after(s, kv + 8)
+                  }
+                }
+              }
+            }
+            local then_val = null
+            local tb = PatternUtilBox.then_array_bounds(s, k_if)
+            if tb != null {
+              local cp = tb.indexOf(":")
+              if cp >= 0 {
+                local lb_then = JsonFragBox._str_to_int(tb.substring(0, cp))
+                local rb_then = JsonFragBox._str_to_int(tb.substring(cp + 1, tb.length()))
+                local rt = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", lb_then)
+                if rt >= 0 && rt < rb_then {
+                  local ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rt)
+                  if ti >= 0 && ti < rb_then {
+                    local kv = JsonFragBox.index_of_from(s, "\"value\":", ti)
+                    if kv >= 0 && kv < rb_then { then_val = JsonFragBox.read_int_after(s, kv + 8) }
+                  }
+                }
+              }
+            }
+            local else_val = null
+            local eb = PatternUtilBox.else_array_bounds_after_then(s, k_if)
+            if eb != null {
+              local cp2 = eb.indexOf(":")
+              if cp2 >= 0 {
+                local lb_else = JsonFragBox._str_to_int(eb.substring(0, cp2))
+                local rb_else = JsonFragBox._str_to_int(eb.substring(cp2 + 1, eb.length()))
+                local rt2 = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", lb_else)
+                if rt2 >= 0 && rt2 < rb_else {
+                  local ti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rt2)
+                  if ti2 >= 0 && ti2 < rb_else {
+                    local kv2 = JsonFragBox.index_of_from(s, "\"value\":", ti2)
+                    if kv2 >= 0 && kv2 < rb_else { else_val = JsonFragBox.read_int_after(s, kv2 + 8) }
+                  }
+                }
+              }
+            }
+            if lhs_val2 != null && rhs_val2 != null && then_val != null && else_val != null {
+              return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+                "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs_val2 + "}}," +
+                "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_val2 + "}}," +
+                "{\"op\":\"compare\",\"operation\":\"" + op2 + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+                "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
+                "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + then_val + "}},{\"op\":\"ret\",\"value\":4}]}," +
+                "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + else_val + "}},{\"op\":\"ret\",\"value\":5}]}]}]}"
+            }
+          }
+        }
+      }
+    }
+
+    // Fallback cases below: Return(Binary) and Return(Int)
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
+    if k_ret >= 0 {
+      local k_bin = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_ret)
+      if k_bin >= 0 {
+        local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_bin)
+        if k_op >= 0 {
+          local op = JsonFragBox.read_string_after(s, k_op + 5)
+          if !(op == "+" || op == "-" || op == "*" || op == "/") {
+            print("[mirbuilder/internal/unsupported] binary op: " + op)
+            return null
+          }
+          local klhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_bin)
+          local lhs_val = null
+          if klhs >= 0 {
+            local ti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", klhs)
+            if ti >= 0 {
+              local kv = JsonFragBox.index_of_from(s, "\"value\":", ti)
+              if kv >= 0 { lhs_val = JsonFragBox.read_int_after(s, kv + 8) }
+            }
+          }
+          local krhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_bin)
+          local rhs_val = null
+          if krhs >= 0 {
+            local ti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", krhs)
+            if ti2 >= 0 {
+              local kv2 = JsonFragBox.index_of_from(s, "\"value\":", ti2)
+              if kv2 >= 0 { rhs_val = JsonFragBox.read_int_after(s, kv2 + 8) }
+            }
+          }
+          if lhs_val != null && rhs_val != null {
+            return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+              "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs_val + "}}," +
+              "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_val + "}}," +
+              "{\"op\":\"binop\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
+              "{\"op\":\"ret\",\"value\":3}]}]}]}"
+          }
+        }
+      }
+
+      local k_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_ret)
+      if k_expr >= 0 {
+        local kt = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_expr)
+        if kt >= 0 && kt < k_expr + 64 {
+          local kv = JsonFragBox.index_of_from(s, "\"value\":", kt)
+          if kv >= 0 {
+            local num = JsonFragBox.read_int_after(s, kv + 8)
+            if num != null {
+              if BuilderConfigBox.debug_enabled() == 1 {
+                print("[mirbuilder/fallback:Return(Int) val=" + num + "]")
+              }
+              return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + num + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+            }
+          }
+        } else {
+          if BuilderConfigBox.debug_enabled() == 1 {
+            print("[mirbuilder/fallback:Return(Int) skip - expr.type not Int]")
+          }
+        }
+      }
+    }
+
+    // Case (Expr(Call env.console.log Int) + Return(Int))
+    {
+      local k_expr_stmt = JsonFragBox.index_of_from(s, "\"type\":\"Expr\"", 0)
+      if k_expr_stmt >= 0 {
+        local k_call_stmt = JsonFragBox.index_of_from(s, "\"type\":\"Call\"", k_expr_stmt)
+        if k_call_stmt >= 0 {
+          local k_name_stmt = JsonFragBox.index_of_from(s, "\"name\":\"", k_call_stmt)
+          if k_name_stmt >= 0 {
+            local call_name_stmt = JsonFragBox.read_string_after(s, k_name_stmt + 8)
+            if call_name_stmt == "env.console.log" {
+              local call_int = null
+              local k_call_int_type = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_call_stmt)
+              if k_call_int_type >= 0 {
+                local k_call_int_val = JsonFragBox.index_of_from(s, "\"value\":", k_call_int_type)
+                if k_call_int_val >= 0 {
+                  call_int = JsonFragBox.read_int_after(s, k_call_int_val + 8)
+                }
+              }
+
+              local ret_int = null
+              local k_ret_stmt = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_call_stmt)
+              if k_ret_stmt >= 0 {
+                local k_ret_int_type = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_ret_stmt)
+                if k_ret_int_type >= 0 {
+                  local k_ret_int_val = JsonFragBox.index_of_from(s, "\"value\":", k_ret_int_type)
+                  if k_ret_int_val >= 0 {
+                    ret_int = JsonFragBox.read_int_after(s, k_ret_int_val + 8)
+                  }
+                }
+              }
+
+              if call_int != null && ret_int != null {
+                return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+                  "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + call_int + "}}," +
+                  "{\"op\":\"call\",\"callee\":{\"type\":\"Extern\",\"name\":\"env.console.log\"},\"args\":[1]}," +
+                  "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + ret_int + "}}," +
+                  "{\"op\":\"ret\",\"value\":2}]}]}]}"
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Case (Return(Call ...)) — minimal call lowering (0/1 arg: Int or Var)
+    {
+      local k_ret_call = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
+      if k_ret_call >= 0 {
+        local k_call_expr = JsonFragBox.index_of_from(s, "\"type\":\"Call\"", k_ret_call)
+        if k_call_expr >= 0 {
+          local k_name_call = JsonFragBox.index_of_from(s, "\"name\":\"", k_call_expr)
+          if k_name_call >= 0 {
+            local call_name = JsonFragBox.read_string_after(s, k_name_call + 8)
+            if call_name != null && call_name != "" {
+              local insts = "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"" + call_name + "\"}}"
+              local call_args = "[]"
+              local call_dst = 2
+
+              local k_args = JsonFragBox.index_of_from(s, "\"args\":[", k_call_expr)
+              if k_args >= 0 {
+                local k_int_arg = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args)
+                local k_var_arg = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_args)
+                if k_int_arg >= 0 && (k_var_arg < 0 || k_int_arg < k_var_arg) {
+                  local k_int_val = JsonFragBox.index_of_from(s, "\"value\":", k_int_arg)
+                  if k_int_val >= 0 {
+                    local int_arg = JsonFragBox.read_int_after(s, k_int_val + 8)
+                    if int_arg != null {
+                      insts = insts + ",{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + int_arg + "}}"
+                      call_args = "[2]"
+                      call_dst = 3
+                    }
+                  }
+                } else if k_var_arg >= 0 {
+                  local k_var_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_var_arg)
+                  if k_var_name >= 0 {
+                    local var_arg = JsonFragBox.read_string_after(s, k_var_name + 8)
+                    if var_arg != null && var_arg != "" {
+                      insts = insts + ",{\"op\":\"load\",\"dst\":2,\"name\":\"" + var_arg + "\"}"
+                      call_args = "[2]"
+                      call_dst = 3
+                    }
+                  }
+                }
+              }
+
+              return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+                insts + "," +
+                "{\"op\":\"call\",\"dst\":" + call_dst + ",\"func\":1,\"args\":" + call_args + "}," +
+                "{\"op\":\"ret\",\"value\":" + call_dst + "}]}]}]}"
+            }
+          }
+        }
+      }
+    }
+
+    return null
+  }
+}
