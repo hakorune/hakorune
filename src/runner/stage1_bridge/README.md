@@ -23,9 +23,8 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - binary-only direct-route MIR output-path policy and JSON write live in `direct_route/emit.rs`
 - bridge-local emit output-path resolution lives in `emit_paths.rs`
 - bridge-local Program(JSON v0) entry cluster lives in `program_json_entry/`
-- `program_json_entry/mod.rs` is now a thin facade for the bridge-local `emit-program-json-v0` route
+- `program_json_entry/mod.rs` is now a thin facade for the bridge-local `emit-program-json-v0` route and owns the exact success/error process-exit formatting
 - `program_json_entry/request.rs` owns the bridge-entry request predicate used by `runner/mod.rs` for `skip_stage1_stub`, source-path precedence (`stage1::input_path()` aliases first, CLI input fallback second), and exact out-path extraction from the explicit CLI flag
-- `program_json_entry/exit.rs` owns the exact success/error process-exit formatting for the bridge entry
 - outer callers should use the `program_json_entry` module helpers directly; this contract is no longer rebound as `NyashRunner` methods
 - `emit_program_json_v0(...)` must use `stage1::program_json_v0::emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
 - Stage1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `stub_child.rs`

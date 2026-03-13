@@ -29,7 +29,6 @@ Related:
 
 - `src/runner/stage1_bridge/program_json_entry/mod.rs`
 - `src/runner/stage1_bridge/program_json_entry/request.rs`
-- `src/runner/stage1_bridge/program_json_entry/exit.rs`
 - `src/runner/stage1_bridge/program_json/mod.rs`
 - `src/runner/stage1_bridge/program_json/pipeline.rs`
 - `src/runner/stage1_bridge/program_json/read_input.rs`

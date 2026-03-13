@@ -7,14 +7,12 @@ Scope: future-retire bridge-only `emit-program-json-v0` entry helpers under `src
 - `mod.rs`
   - thin entry facade for the bridge-local `emit-program-json-v0` route
   - delegates request classification/building to `request.rs`
-  - delegates success/error process-exit formatting to `exit.rs`
+  - owns exact success/error process-exit formatting
 - `request.rs`
   - bridge-entry request building for `emit-program-json-v0`
   - owns the explicit request predicate used by outer callers
   - owns source-path precedence (`stage1::input_path()` aliases first, CLI input fallback second)
   - owns out-path extraction from the explicit CLI flag
-- `exit.rs`
-  - exact bridge-entry success/error process-exit formatting for `emit-program-json-v0`
 
 ## Guardrails
 
