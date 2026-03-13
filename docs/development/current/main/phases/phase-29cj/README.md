@@ -83,6 +83,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - worker order decision is now pinned: move `src/host_providers/mir_builder/authority.rs` before reopening the kernel Program(JSON) route; treat the kernel route as near thin floor unless an exact disappearing leaf appears
 - the test-only transient `(Program JSON, MIR JSON)` tuple helper is no longer owned by `authority.rs`; it now lives in the `src/host_providers/mir_builder.rs` façade test surface
 - the adapter-only `source_to_program_json_for_current_authority(...)` leaf is also gone, so `authority.rs` now exposes only the live `source_to_mir_json(...)` source-route adapter
+- the live adapter also no longer materializes transient Program(JSON) locally; that handoff now lives in shared owner `src/host_providers/mir_builder/user_box_decls.rs`
 - the kernel `emit_from_program_json_v0` / `emit_from_source_v0` pair now also shares same-file gate/decode/freeze helpers, so the remaining kernel work is explicitly thin-floor support code rather than a fresh authority-removal front
 - the nearby future-retire bridge shim is now split out to `src/stage1/program_json_v0/bridge_shim.rs`, so `src/stage1/program_json_v0/authority.rs` no longer mixes bridge-specific error wrapping with strict source authority
 - the next pure-`.hako-only` removal wave should not start by shaving `build_surrogate.rs` more; it should start when the live caller trio of `lowering/program_json.rs` can shrink
