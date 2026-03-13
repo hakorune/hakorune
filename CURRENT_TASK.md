@@ -96,6 +96,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     1. `src/host_providers/mir_builder/authority.rs`
        - current source authority still lives here (`source -> Program(JSON v0)`)
        - this is the first real blocker for pure `.hako` compiler authority
+       - note: `user_box_decls` injection is no longer authority-only; it now lives in shared owner `src/host_providers/mir_builder/user_box_decls.rs`
     2. `src/host_providers/mir_builder/lowering/program_json.rs`
        - current Program(JSON v0) -> MIR(JSON) lowering still lives here
        - this is a real blocker for pure `.hako` compiler authority
@@ -106,7 +107,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
            - explicit `emit_from_program_json_v0(...)` kernel/plugin route
            - next safest slice on this owner:
              - landed: the host-provider call is now narrowed from `program_json_to_mir_json_with_imports(..., BTreeMap::new())` to `program_json_to_mir_json(...)`
-             - next remaining owner-local leaf is the kernel-local `user_box_decls` splice
+             - landed: the route-local `user_box_decls` splice is moved to shared owner `src/host_providers/mir_builder/user_box_decls.rs`
+             - next remaining leaf is only route-local gate/decode/encode, so this caller is close to thin floor
          - `src/runtime/mirbuilder_emit.rs`
            - shared runtime/plugin `env.mirbuilder.emit` bridge owner
            - thin runtime callers now route through this owner:

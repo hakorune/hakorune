@@ -10,9 +10,11 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
 - `mir_builder/authority.rs`
   - current Rust authority path
   - `source -> Program(JSON v0) -> MIR(JSON)` owner-local chain
-  - source-route `user_box_decls` injection also stays here now; kernel source callers no longer need the transient Program(JSON) tuple
+  - source-route authority still lives here, but `user_box_decls` injection is now shared through `mir_builder/user_box_decls.rs`
 - `mir_builder/lowering.rs`
   - thin lowering facade + shared parse/emit helpers
+- `mir_builder/user_box_decls.rs`
+  - shared `user_box_decls` injection owner for source authority and explicit Program(JSON) kernel routes
 - `mir_builder/lowering/program_json.rs`
   - current `Program(JSON v0) -> MIR(JSON)` lowering owner
   - this is the real pure-`.hako` blocker inside the lowering half

@@ -1,6 +1,5 @@
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles;
-use std::collections::BTreeSet;
 
 #[path = "module_string_dispatch/build_surrogate.rs"]
 mod build_surrogate;
@@ -173,25 +172,13 @@ fn handle_mir_builder_emit_from_program_json_v0(
             reason
         )));
     }
-    let mir_json =
-        match nyash_rust::host_providers::mir_builder::program_json_to_mir_json(&program_json) {
-            Ok(json_text) => json_text,
-            Err(error_text) => {
-                trace_log(format!(
-                    "[stage1/module_dispatch] mir_builder error: {}",
-                    error_text
-                ));
-                return Some(encode_string_handle(&format!(
-                    "[freeze:contract][stage1_mir_builder] {}",
-                    error_text
-                )));
-            }
-        };
-    let mir_json = match inject_stage1_user_box_decls_from_program_json(&program_json, &mir_json) {
+    let mir_json = match nyash_rust::host_providers::mir_builder::
+        program_json_to_mir_json_with_user_box_decls(&program_json)
+    {
         Ok(json_text) => json_text,
         Err(error_text) => {
             trace_log(format!(
-                "[stage1/module_dispatch] mir_builder user_box_decls error: {}",
+                "[stage1/module_dispatch] mir_builder error: {}",
                 error_text
             ));
             return Some(encode_string_handle(&format!(
@@ -200,10 +187,6 @@ fn handle_mir_builder_emit_from_program_json_v0(
             )));
         }
     };
-    trace_log(format!(
-        "[stage1/module_dispatch] mir_builder post_provider bytes={}",
-        mir_json.len()
-    ));
     trace_log(format!(
         "[stage1/module_dispatch] mir_builder output_bytes={}",
         mir_json.len()
@@ -267,48 +250,6 @@ fn handle_mir_builder_emit_from_source_v0(arg_count: i64, arg1: i64, arg2: i64) 
         }
     };
     Some(encode_string_handle(&mir_json))
-}
-
-fn inject_stage1_user_box_decls_from_program_json(
-    program_json: &str,
-    mir_json: &str,
-) -> Result<String, String> {
-    let mut mir_value: serde_json::Value = serde_json::from_str(mir_json)
-        .map_err(|error| format!("mir json parse error: {}", error))?;
-    let mir_object = mir_value
-        .as_object_mut()
-        .ok_or_else(|| "mir json root must be object".to_string())?;
-    mir_object.insert(
-        "user_box_decls".to_string(),
-        serde_json::Value::Array(stage1_user_box_decls_from_program_json(program_json)?),
-    );
-    serde_json::to_string(&mir_value)
-        .map_err(|error| format!("mir json serialize error: {}", error))
-}
-
-fn stage1_user_box_decls_from_program_json(
-    program_json: &str,
-) -> Result<Vec<serde_json::Value>, String> {
-    let program_value: serde_json::Value = serde_json::from_str(program_json)
-        .map_err(|error| format!("program json parse error: {}", error))?;
-    let mut seen = BTreeSet::new();
-    seen.insert("Main".to_string());
-    if let Some(defs) = program_value
-        .get("defs")
-        .and_then(serde_json::Value::as_array)
-    {
-        for def in defs {
-            if let Some(box_name) = def.get("box").and_then(serde_json::Value::as_str) {
-                if !box_name.is_empty() {
-                    seen.insert(box_name.to_string());
-                }
-            }
-        }
-    }
-    Ok(seen
-        .into_iter()
-        .map(|name| serde_json::json!({ "name": name, "fields": [] }))
-        .collect())
 }
 
 fn decode_string_handle(handle: i64) -> Option<String> {

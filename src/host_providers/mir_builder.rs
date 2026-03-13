@@ -1,5 +1,6 @@
 mod authority;
 mod lowering;
+mod user_box_decls;
 
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -68,6 +69,12 @@ impl Phase0MirJsonEnvGuard {
 /// Fail-Fast: prints stable tags on stderr and returns Err with the same tag text.
 pub fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
     lowering::program_json_to_mir_json(program_json)
+}
+
+pub fn program_json_to_mir_json_with_user_box_decls(
+    program_json: &str,
+) -> Result<String, String> {
+    user_box_decls::program_json_to_mir_json_with_user_box_decls(program_json)
 }
 
 /// Test-only helper that still exposes the transient Program(JSON v0) plus MIR(JSON)
