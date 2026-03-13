@@ -58,12 +58,12 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 
 ## Immediate Next
 
-1. inventory which leaf contract in `build_surrogate.rs` can retire without reopening shared route-table ownership
-2. if `build surrogate keep` cannot shrink safely, move to `future-retire bridge` leaf retirement
+1. continue from the now-retired shared route-table keep and inventory whether any additional `build_surrogate.rs` leaf can disappear
+2. if `build surrogate keep` is at a thin floor after that, move to `future-retire bridge` leaf retirement
 3. keep the direct-lower probe as explicit evidence until one Rust-owned bucket actually disappears
 
 ## Retreat Finding
 
 - `phase-29ci` already closed the helper-side collapse, so further progress now depends on Rust-owned buckets moving, not on more shell cleanup
 - `registry_optin_method_arraymap_direct_canary_vm.sh` is no longer “cleanup debt”; it is an explicit probe keep and should stay outside the shared-helper accounting
-- the next productive slice must remove or narrow a Rust-owned boundary leaf, otherwise the phase would just restate closeout docs
+- the first productive slice already removed the shared route-table keep by moving surrogate route matching into `build_surrogate.rs`; the next slice must either remove another Rust-owned leaf there or switch to `future-retire bridge`

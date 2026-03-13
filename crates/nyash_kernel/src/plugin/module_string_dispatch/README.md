@@ -8,13 +8,13 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
   - thin route table
   - shared string-handle encode/decode helpers
   - shared MirBuilder dispatch helpers
-  - imports owner-local surrogate route registrations; it does not own `BuildBox.emit_program_json_v0` module/method strings
+  - probes `build_surrogate.rs` as an owner-local route before the shared table; it does not own `BuildBox.emit_program_json_v0` module/method strings or route registration
 - `build_surrogate.rs`
   - compiled-stage1 `BuildBox.emit_program_json_v0` surrogate only
   - owner of the `build surrogate keep` bucket for `phase-29ci`
-  - owner of the surrogate route registration (`BUILD_SURROGATE_ROUTE`) and its regression coverage
+  - owner of the surrogate route match/dispatch contract and its regression coverage
   - owner of the launcher/stage1-cli-env Program(JSON) -> MIR handoff regression coverage too
-  - the surrogate handler stays owner-local; parent modules import only the route registration
+  - the surrogate handler and route match stay owner-local; parent modules only probe via `try_dispatch(...)`
 
 ## Retirement Note
 

@@ -55,7 +55,7 @@ pub(super) struct DispatchRoute {
     pub(super) handler: fn(i64, i64, i64) -> Option<i64>,
 }
 
-const DISPATCH_ROUTES: [DispatchRoute; 5] = [
+const DISPATCH_ROUTES: [DispatchRoute; 4] = [
     DispatchRoute {
         module: USING_RESOLVER_BOX_MODULE,
         method: "resolve_for_source",
@@ -66,7 +66,6 @@ const DISPATCH_ROUTES: [DispatchRoute; 5] = [
         method: "resolve_for_source",
         handler: handle_using_resolver_resolve_for_source,
     },
-    build_surrogate::BUILD_SURROGATE_ROUTE,
     DispatchRoute {
         module: MIR_BUILDER_MODULE,
         method: "emit_from_program_json_v0",
@@ -91,6 +90,16 @@ pub(crate) fn try_dispatch(
         "[stage1/module_dispatch] probe module={} method={} argc={}",
         module_name, method_name, arg_count
     ));
+
+    if let Some(result) =
+        build_surrogate::try_dispatch(&module_name, method_name, arg_count, arg1, arg2)
+    {
+        trace_log(format!(
+            "[stage1/module_dispatch] hit build_surrogate module={} method={}",
+            module_name, method_name
+        ));
+        return Some(result);
+    }
 
     for route in DISPATCH_ROUTES {
         if module_name == route.module && method_name == route.method {

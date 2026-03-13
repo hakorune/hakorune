@@ -1,12 +1,20 @@
 use super::{decode_string_handle, encode_string_handle, trace_log};
 
 const BUILD_BOX_MODULE: &str = "lang.compiler.build.build_box";
+const BUILD_BOX_METHOD: &str = "emit_program_json_v0";
 
-pub(super) const BUILD_SURROGATE_ROUTE: super::DispatchRoute = super::DispatchRoute {
-    module: BUILD_BOX_MODULE,
-    method: "emit_program_json_v0",
-    handler: handle_build_box_emit_program_json_v0,
-};
+pub(super) fn try_dispatch(
+    module_name: &str,
+    method_name: &str,
+    arg_count: i64,
+    arg1: i64,
+    arg2: i64,
+) -> Option<i64> {
+    if module_name != BUILD_BOX_MODULE || method_name != BUILD_BOX_METHOD {
+        return None;
+    }
+    Some(handle_build_box_emit_program_json_v0(arg_count, arg1, arg2).unwrap_or(0))
+}
 
 fn handle_build_box_emit_program_json_v0(
     arg_count: i64,
@@ -34,7 +42,7 @@ fn handle_build_box_emit_program_json_v0(
 
 #[cfg(test)]
 mod tests {
-    use super::BUILD_SURROGATE_ROUTE;
+    use super::{try_dispatch, BUILD_BOX_METHOD, BUILD_BOX_MODULE};
     use crate::plugin::module_string_dispatch::{decode_string_handle, encode_string_handle};
     use crate::test_support::{with_env_var, with_env_vars};
     use nyash_rust::box_trait::{NyashBox, StringBox};
@@ -44,7 +52,8 @@ mod tests {
 
     fn dispatch_build_box_emit_program_json(source: &str) -> String {
         let source_handle = encode_string_handle(source);
-        let out = (BUILD_SURROGATE_ROUTE.handler)(2, source_handle, 0).expect("dispatch");
+        let out =
+            try_dispatch(BUILD_BOX_MODULE, BUILD_BOX_METHOD, 2, source_handle, 0).expect("dispatch");
         decode_string_handle(out).expect("program json string handle")
     }
 
@@ -64,11 +73,11 @@ mod tests {
     fn invoke_by_name_build_box_emit_program_json(source: &str) -> String {
         ensure_test_ring0();
         let receiver: Arc<dyn NyashBox> =
-            Arc::new(StringBox::new(BUILD_SURROGATE_ROUTE.module.to_string()));
+            Arc::new(StringBox::new(BUILD_BOX_MODULE.to_string()));
         let receiver_handle = handles::to_handle_arc(receiver) as i64;
         let source_handle =
             handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
-        let method = CString::new(BUILD_SURROGATE_ROUTE.method).expect("CString");
+        let method = CString::new(BUILD_BOX_METHOD).expect("CString");
         let result_handle = crate::nyash_plugin_invoke_by_name_i64(
             receiver_handle,
             method.as_ptr(),
@@ -102,14 +111,14 @@ mod tests {
     }
 
     #[test]
-    fn build_surrogate_route_registration_is_stable() {
-        assert_eq!(BUILD_SURROGATE_ROUTE.module, "lang.compiler.build.build_box");
-        assert_eq!(BUILD_SURROGATE_ROUTE.method, "emit_program_json_v0");
+    fn build_surrogate_route_contract_is_stable() {
+        assert_eq!(BUILD_BOX_MODULE, "lang.compiler.build.build_box");
+        assert_eq!(BUILD_BOX_METHOD, "emit_program_json_v0");
     }
 
     #[test]
     fn build_box_missing_arg_returns_zero_handle() {
-        let out = (BUILD_SURROGATE_ROUTE.handler)(0, 0, 0).expect("dispatch");
+        let out = try_dispatch(BUILD_BOX_MODULE, BUILD_BOX_METHOD, 0, 0, 0).expect("dispatch");
         assert_eq!(out, 0);
     }
 
