@@ -632,6 +632,45 @@ dump_builder_debug_logs() {
     tail -n 60 "$builder_stderr" >&2 || true
 }
 
+builder_min_runner_code() {
+    cat <<'HCODE'
+using "hako.mir.builder.internal.runner_min" as BuilderRunnerMinBox
+static box Main { method main(args) {
+  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
+  if prog_json == null { print("Builder failed"); return 1 }
+  local mir_out = BuilderRunnerMinBox.run(prog_json)
+  if mir_out == null { print("Builder failed"); return 1 }
+  print("[MIR_OUT_BEGIN]")
+  print("" + mir_out)
+  print("[MIR_OUT_END]")
+  return 0
+} }
+HCODE
+}
+
+emit_mir_json_via_builder_from_program_json_file() {
+    local prog_json_path="$1"
+    local builder_stderr="$2"
+    local builder_stdout="$3"
+    local prog_json_raw
+    local builder_code_min
+    local mir_json=""
+
+    prog_json_raw="$(cat "$prog_json_path")"
+    builder_code_min="$(builder_min_runner_code)"
+    mir_json=$(emit_mir_json_via_builder_lanes "$prog_json_raw" "$builder_code_min" "$builder_stderr" "$builder_stdout")
+    dump_builder_debug_logs "$builder_stdout" "$builder_stderr"
+
+    if mir_builder_output_missing "$mir_json"; then
+        return 1
+    fi
+    if ! mir_json_looks_like_v0_module_text "$mir_json"; then
+        return 1
+    fi
+
+    printf '%s' "$mir_json"
+}
+
 run_rust_cli_builder_fallback_for_verify() {
     local prog_json_path="$1"
     local builder_stderr="$2"
@@ -639,7 +678,7 @@ run_rust_cli_builder_fallback_for_verify() {
     local allow_builder_only="${4:-0}"
 
     if [ "${HAKO_MIR_BUILDER_DEBUG:-0}" = "1" ] && [ -f "$builder_stderr" ]; then
-        echo "[builder debug] Hako builder failed, falling back to Rust CLI" >&2
+        echo "[builder debug] Hako builder output unusable, falling back to Rust CLI" >&2
         cat "$builder_stderr" >&2
         cp "$builder_stderr" /tmp/builder_last_error.log
     fi
@@ -741,56 +780,25 @@ HCODE
 # This is dev-only for testing builder output quality
 verify_program_via_builder_to_core() {
     local prog_json_path="$1"
-
-    # Step 1: Use minimal runner to convert Program → MIR（env経由でJSONを渡す）
     local mir_json_path="/tmp/builder_output_$$.json"
-
-    local builder_code_min=$(cat <<'HCODE'
-using "hako.mir.builder.internal.runner_min" as BuilderRunnerMinBox
-static box Main { method main(args) {
-  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
-  if prog_json == null { print("Builder failed"); return 1 }
-  local mir_out = BuilderRunnerMinBox.run(prog_json)
-  if mir_out == null { print("Builder failed"); return 1 }
-  print("[MIR_OUT_BEGIN]")
-  print("" + mir_out)
-  print("[MIR_OUT_END]")
-  return 0
-} }
-HCODE
-)
-
-    # Read program JSON to env (avoid embedding/escaping)
-    local prog_json_raw
-    prog_json_raw="$(cat "$prog_json_path")"
-
-    # Run builder with internal lowers enabled using v1 dispatcher
     local builder_stderr="/tmp/builder_stderr_$$.log"
     local builder_stdout="/tmp/builder_stdout_$$.log"
     local mir_json=""
-    mir_json=$(emit_mir_json_via_builder_lanes "$prog_json_raw" "$builder_code_min" "$builder_stderr" "$builder_stdout")
-    dump_builder_debug_logs "$builder_stdout" "$builder_stderr"
+    local emit_rc=0
+    mir_json=$(emit_mir_json_via_builder_from_program_json_file "$prog_json_path" "$builder_stderr" "$builder_stdout")
+    emit_rc=$?
 
     # PRIMARY no-fallback: if requested, do not fall back to Rust CLI builder
-    if [ "${HAKO_PRIMARY_NO_FALLBACK:-0}" = "1" ] && mir_builder_output_missing "$mir_json"; then
+    if [ "${HAKO_PRIMARY_NO_FALLBACK:-0}" = "1" ] && [ "$emit_rc" -ne 0 ]; then
         return 1
     fi
 
     # Fallback Option B: use Rust CLI builder when Hako builder fails
-    if mir_builder_output_missing "$mir_json"; then
+    if [ "$emit_rc" -ne 0 ]; then
         run_rust_cli_builder_fallback_for_verify "$prog_json_path" "$builder_stderr" "$builder_stdout" 1
         return $?
     fi
     rm -f "$builder_stderr" "$builder_stdout"
-
-    # Validate builder output looks like MIR JSON; otherwise fallback to Rust CLI (unless PRIMARY no-fallback)
-    if ! mir_json_looks_like_v0_module_text "$mir_json"; then
-        if [ "${HAKO_PRIMARY_NO_FALLBACK:-0}" = "1" ]; then
-            return 1
-        fi
-        run_rust_cli_builder_fallback_for_verify "$prog_json_path" "$builder_stderr" "$builder_stdout" 0
-        return $?
-    fi
     run_built_mir_json_via_verify_routes "$mir_json" "$mir_json_path"
     return $?
 }
