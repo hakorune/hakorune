@@ -12,13 +12,7 @@ cat >"$prog_json_path" <<'JSON'
 JSON
 
 set +e
-HAKO_PRIMARY_NO_FALLBACK=1 \
-HAKO_MIR_BUILDER_INTERNAL=1 \
-NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-NYASH_USING_AST=1 NYASH_RESOLVE_FIX_BRACES=1 \
-NYASH_DISABLE_NY_COMPILER=1 NYASH_FEATURES=stage3 \
-NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
-verify_program_via_builder_to_core "$prog_json_path"
+run_verify_program_via_hako_primary_no_fallback_to_core "$prog_json_path"
 rc=$?
 set -e
 rm -f "$prog_json_path"
@@ -29,4 +23,3 @@ fi
 
 echo "[PASS] phase2044/hako_primary_no_fallback_load_store_core_exec_canary_vm"
 exit 0
-
