@@ -205,6 +205,20 @@ try_direct_emit_mir_json() {
   return 0
 }
 
+exit_after_direct_emit_fallback() {
+  local mainline_only_fail="$1" success_label="$2" direct_emit_fail="$3" out_path="$4"
+  if [ "${HAKO_EMIT_MIR_MAINLINE_ONLY:-0}" = "1" ]; then
+    echo "$mainline_only_fail" >&2
+    exit 1
+  fi
+  if try_direct_emit_mir_json "$out_path"; then
+    echo "[OK] MIR JSON written ($success_label): $out_path"
+    exit 0
+  fi
+  echo "$direct_emit_fail" >&2
+  exit 1
+}
+
 # Explicit direct-emit mode (parity baseline)
 if [ "${HAKO_EMIT_MIR_FORCE_DIRECT:-0}" = "1" ]; then
   if try_direct_emit_mir_json "$OUT"; then
@@ -309,32 +323,20 @@ set -e
 
 # If Stage-B fails, skip to direct MIR emit paths (provider/legacy)
 if [ $rc -eq 1 ] || [ -z "$PROG_JSON_OUT" ]; then
-  if [ "${HAKO_EMIT_MIR_MAINLINE_ONLY:-0}" = "1" ]; then
-    echo "[FAIL] Stage-B failed under mainline-only mode (compat fallback disabled)" >&2
-    exit 1
-  fi
-  # Stage-B not available - fall back to legacy CLI path directly
-  # Skip the intermediate Program(JSON) step and emit MIR directly
-  if try_direct_emit_mir_json "$OUT"; then
-    echo "[OK] MIR JSON written (direct-emit): $OUT"
-    exit 0
-  fi
-  echo "[FAIL] Stage-B and direct MIR emit both failed" >&2
-  exit 1
+  exit_after_direct_emit_fallback \
+    "[FAIL] Stage-B failed under mainline-only mode (compat fallback disabled)" \
+    "direct-emit" \
+    "[FAIL] Stage-B and direct MIR emit both failed" \
+    "$OUT"
 fi
 
 # Invalid Program JSON - fall back to direct emit
 if [ $rc -eq 2 ]; then
-  if [ "${HAKO_EMIT_MIR_MAINLINE_ONLY:-0}" = "1" ]; then
-    echo "[FAIL] Stage-B output invalid under mainline-only mode (compat fallback disabled)" >&2
-    exit 1
-  fi
-  if try_direct_emit_mir_json "$OUT"; then
-    echo "[OK] MIR JSON written (direct-emit-fallback): $OUT"
-    exit 0
-  fi
-  echo "[FAIL] Stage‑B output invalid and direct emit failed" >&2
-  exit 1
+  exit_after_direct_emit_fallback \
+    "[FAIL] Stage-B output invalid under mainline-only mode (compat fallback disabled)" \
+    "direct-emit-fallback" \
+    "[FAIL] Stage‑B output invalid and direct emit failed" \
+    "$OUT"
 fi
 
 # 2) Convert Program(JSON v0) → MIR(JSON)
