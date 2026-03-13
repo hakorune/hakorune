@@ -618,6 +618,36 @@ emit_mir_json_via_builder_lanes() {
     printf '%s' "$mir_json"
 }
 
+dump_builder_debug_logs() {
+    local builder_stdout="$1"
+    local builder_stderr="$2"
+
+    if [ "${HAKO_MIR_BUILDER_DEBUG:-0}" != "1" ]; then
+        return 0
+    fi
+
+    echo "[builder debug] stdout (tail):" >&2
+    tail -n 60 "$builder_stdout" >&2 || true
+    echo "[builder debug] stderr (tail):" >&2
+    tail -n 60 "$builder_stderr" >&2 || true
+}
+
+run_rust_cli_builder_fallback_for_verify() {
+    local prog_json_path="$1"
+    local builder_stderr="$2"
+    local builder_stdout="$3"
+    local allow_builder_only="${4:-0}"
+
+    if [ "${HAKO_MIR_BUILDER_DEBUG:-0}" = "1" ] && [ -f "$builder_stderr" ]; then
+        echo "[builder debug] Hako builder failed, falling back to Rust CLI" >&2
+        cat "$builder_stderr" >&2
+        cp "$builder_stderr" /tmp/builder_last_error.log
+    fi
+
+    rm -f "$builder_stderr" "$builder_stdout"
+    run_program_json_v0_via_rust_cli_builder "$prog_json_path" "$allow_builder_only"
+}
+
 # Program(JSON v0) -> Rust CLI builder fallback
 # - with allow_builder_only=1, HAKO_VERIFY_BUILDER_ONLY=1 keeps the old structure-only contract
 # - otherwise the helper executes the produced MIR and returns its rc
@@ -739,13 +769,7 @@ HCODE
     local builder_stdout="/tmp/builder_stdout_$$.log"
     local mir_json=""
     mir_json=$(emit_mir_json_via_builder_lanes "$prog_json_raw" "$builder_code_min" "$builder_stderr" "$builder_stdout")
-
-    if [ "${HAKO_MIR_BUILDER_DEBUG:-0}" = "1" ]; then
-        echo "[builder debug] stdout (tail):" >&2
-        tail -n 60 "$builder_stdout" >&2 || true
-        echo "[builder debug] stderr (tail):" >&2
-        tail -n 60 "$builder_stderr" >&2 || true
-    fi
+    dump_builder_debug_logs "$builder_stdout" "$builder_stderr"
 
     # PRIMARY no-fallback: if requested, do not fall back to Rust CLI builder
     if [ "${HAKO_PRIMARY_NO_FALLBACK:-0}" = "1" ] && mir_builder_output_missing "$mir_json"; then
@@ -754,13 +778,7 @@ HCODE
 
     # Fallback Option B: use Rust CLI builder when Hako builder fails
     if mir_builder_output_missing "$mir_json"; then
-        if [ "${HAKO_MIR_BUILDER_DEBUG:-0}" = "1" ] && [ -f "$builder_stderr" ]; then
-            echo "[builder debug] Hako builder failed, falling back to Rust CLI" >&2
-            cat "$builder_stderr" >&2
-            cp "$builder_stderr" /tmp/builder_last_error.log
-        fi
-        rm -f "$builder_stderr"
-        run_program_json_v0_via_rust_cli_builder "$prog_json_path" 1
+        run_rust_cli_builder_fallback_for_verify "$prog_json_path" "$builder_stderr" "$builder_stdout" 1
         return $?
     fi
     rm -f "$builder_stderr" "$builder_stdout"
@@ -770,7 +788,7 @@ HCODE
         if [ "${HAKO_PRIMARY_NO_FALLBACK:-0}" = "1" ]; then
             return 1
         fi
-        run_program_json_v0_via_rust_cli_builder "$prog_json_path" 0
+        run_rust_cli_builder_fallback_for_verify "$prog_json_path" "$builder_stderr" "$builder_stdout" 0
         return $?
     fi
     run_built_mir_json_via_verify_routes "$mir_json" "$mir_json_path"
