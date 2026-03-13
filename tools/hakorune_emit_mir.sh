@@ -536,7 +536,6 @@ try_provider_emit() {
   local tmp_hako; tmp_hako=$(mktemp --suffix .hako)
   write_provider_emit_runner_hako "$tmp_hako"
   local tmp_stdout; tmp_stdout=$(mktemp)
-  trap 'rm -f "$tmp_hako" "$tmp_stdout" || true' RETURN
   set +e
   (cd "$ROOT" && \
     NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-0}" NYASH_FILEBOX_MODE="core-ro" \
@@ -548,12 +547,17 @@ try_provider_emit() {
   local rc=$?
   set -e
   if [ $rc -ne 0 ] || ! grep -q "\[provider/emit:ok\]" "$tmp_stdout"; then
+    rm -f "$tmp_hako" "$tmp_stdout" || true
     return 1
   fi
   local mir
   mir=$(awk '/\[MIR_OUT_BEGIN\]/{flag=1;next}/\[MIR_OUT_END\]/{flag=0}flag' "$tmp_stdout")
-  if [ -z "$mir" ]; then return 1; fi
+  if [ -z "$mir" ]; then
+    rm -f "$tmp_hako" "$tmp_stdout" || true
+    return 1
+  fi
   printf '%s' "$mir" > "$out_path"
+  rm -f "$tmp_hako" "$tmp_stdout" || true
   echo "[OK] MIR JSON written (delegate:provider): $out_path"
   return 0
 }
@@ -573,6 +577,39 @@ static box Main { method main(args) {
   return 0
 } }
 HCODE
+}
+
+try_legacy_program_json_delegate() {
+  local prog_json="$1" out_path="$2"
+  local tmp_prog
+  tmp_prog=$(mktemp)
+  printf '%s' "$prog_json" > "$tmp_prog"
+
+  if HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
+     HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
+     HAKO_MIR_BUILDER_FUNCS="${HAKO_MIR_BUILDER_FUNCS:-}" \
+     HAKO_MIR_BUILDER_CALL_RESOLVE="${HAKO_MIR_BUILDER_CALL_RESOLVE:-}" \
+     NYASH_JSON_SCHEMA_V1=${NYASH_JSON_SCHEMA_V1:-1} \
+     NYASH_MIR_UNIFIED_CALL=${NYASH_MIR_UNIFIED_CALL:-1} \
+     "$NYASH_BIN" --program-json-to-mir "$out_path" --json-file "$tmp_prog" >/dev/null 2>&1; then
+    rm -f "$tmp_prog" || true
+    echo "[OK] MIR JSON written (delegate-legacy): $out_path"
+    return 0
+  fi
+
+  rm -f "$tmp_prog" || true
+  return 1
+}
+
+emit_mir_json_from_program_json_delegate_chain() {
+  local prog_json="$1" out_path="$2"
+  if try_provider_emit "$prog_json" "$out_path"; then
+    return 0
+  fi
+  if try_legacy_program_json_delegate "$prog_json" "$out_path"; then
+    return 0
+  fi
+  return 1
 }
 
 # When forcing JSONFrag loop, default-enable normalize+purify (dev-only, no default changes)
@@ -629,23 +666,8 @@ MIRJSON
   exit 0
 fi
 
-tmp_prog="/tmp/hako_emit_prog_$$.json"
-trap 'rm -f "$tmp_prog" || true' EXIT
-printf '%s' "$PROG_JSON_OUT" > "$tmp_prog"
-# Provider-first delegate (v1固定): env.mirbuilder.emit を使用
-if try_provider_emit "$PROG_JSON_OUT" "$OUT"; then
-  exit 0
-fi
-
-# 最終フォールバック: 旧CLI変換（環境でv1を促す）
-if HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
-   HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
-   HAKO_MIR_BUILDER_FUNCS="${HAKO_MIR_BUILDER_FUNCS:-}" \
-   HAKO_MIR_BUILDER_CALL_RESOLVE="${HAKO_MIR_BUILDER_CALL_RESOLVE:-}" \
-   NYASH_JSON_SCHEMA_V1=${NYASH_JSON_SCHEMA_V1:-1} \
-   NYASH_MIR_UNIFIED_CALL=${NYASH_MIR_UNIFIED_CALL:-1} \
-   "$NYASH_BIN" --program-json-to-mir "$OUT" --json-file "$tmp_prog" >/dev/null 2>&1; then
-  echo "[OK] MIR JSON written (delegate-legacy): $OUT"
+# Provider-first delegate chain (provider -> legacy CLI)
+if emit_mir_json_from_program_json_delegate_chain "$PROG_JSON_OUT" "$OUT"; then
   exit 0
 fi
 echo "[FAIL] Program→MIR delegate failed (provider+legacy)" >&2

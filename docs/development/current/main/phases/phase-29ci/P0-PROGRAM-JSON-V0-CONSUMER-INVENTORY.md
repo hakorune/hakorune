@@ -73,6 +73,7 @@ Related:
 - `tools/hakorune_emit_mir.sh` now keeps its embedded selfhost/provider runner generation behind helper-local shell functions, so the next helper audit can stay inside that script without touching `selfhost_build.sh` or `test_runner.sh`
 - `tools/hakorune_emit_mir.sh` still remains a helper-local `Stage-B Program(JSON) production + imports normalize + Program→MIR fallback funnel`; retire/order work should thin the Stage-B Program(JSON) production block before attempting to remove direct-emit fallback or legacy delegate lanes
 - `tools/hakorune_emit_mir.sh` now keeps Stage-B Program(JSON) production + imports normalize behind `emit_stageb_program_json_v0()`, so the remaining helper-local work is the direct-emit fallback / delegate tail rather than raw production wiring
+- `tools/hakorune_emit_mir.sh` now keeps the provider-first Program→MIR delegate funnel behind `emit_mir_json_from_program_json_delegate_chain()`, with `try_legacy_program_json_delegate()` isolating the old CLI fallback, so the next safe helper-local slice is the direct-emit fallback lane alone
 
 ## Immediate Next Slice
 
