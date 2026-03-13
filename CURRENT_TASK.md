@@ -60,9 +60,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - pure `.hako-only hakorune build` gap snapshot (2026-03-14):
   - current main stopper is still Rust authority, not `.hako` caller count
   - Rust authority bucket:
-    - `src/host_providers/mir_builder.rs`
+    - `src/host_providers/mir_builder/authority.rs`
+    - `src/host_providers/mir_builder/lowering.rs`
     - `src/stage1/program_json_v0.rs`
     - why it matters: current `stage1-env-mir-source` authority still materializes `Program(JSON v0)` before MIR(JSON)
+    - note: `src/host_providers/mir_builder.rs` is now only a thin façade over those two owners
   - Rust bootstrap-boundary bucket:
     - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
     - `src/runner/stage1_bridge/program_json/mod.rs`
@@ -90,30 +92,34 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - if one collapse is chosen now, prefer collapsing `src/runner/stage1_bridge/program_json` inward before touching `build_surrogate.rs`; do not collapse `build_surrogate.rs` back into shared dispatch and do not collapse `program_json_entry/request.rs`
 - pure `.hako-only hakorune build` blocker map (2026-03-14):
   - primary Rust-owned blockers:
-    1. `src/host_providers/mir_builder.rs`
-       - current source/program->MIR authority still lives here
+    1. `src/host_providers/mir_builder/authority.rs`
+       - current source authority still lives here (`source -> Program(JSON v0)`)
+       - this is the first real blocker for pure `.hako` compiler authority
+    2. `src/host_providers/mir_builder/lowering.rs`
+       - current Program(JSON v0) -> MIR(JSON) lowering still lives here
        - this is a real blocker for pure `.hako` compiler authority
-    2. `src/stage1/program_json_v0.rs`
+    3. `src/stage1/program_json_v0.rs`
        - current source->Program(JSON v0) authority still lives here
        - current authority path and compiled-stage1 build surrogate both still depend on this owner
   - secondary Rust-owned retirement buckets:
-    3. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+    4. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
        - live compiled-stage1 keep, but now near `thin floor`
        - not the first blocker to remove for pure `.hako-only hakorune build`
-    4. `src/runner/stage1_bridge/**`
+    5. `src/runner/stage1_bridge/**`
        - future-retire bridge debt, not current authority
        - do not confuse this with the first compiler-authority blocker
   - non-Rust but still live outer keep:
     - `.hako` live/bootstrap callers: `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}` and `lang/src/mir/builder/MirBuilderBox.hako`
     - shared shell keep: `tools/hakorune_emit_mir.sh`, `tools/selfhost/selfhost_build.sh`, `tools/smokes/v2/lib/test_runner.sh`
   - actual priority for pure `.hako-only hakorune build`:
-    1. de-Rust current authority in `src/host_providers/mir_builder.rs`
-    2. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0.rs`
-    3. retire compiled-stage1 `build_surrogate.rs`
-    4. retire `src/runner/stage1_bridge/**`
+    1. de-Rust current source authority in `src/host_providers/mir_builder/authority.rs`
+    2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering.rs`
+    3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0.rs`
+    4. retire compiled-stage1 `build_surrogate.rs`
+    5. retire `src/runner/stage1_bridge/**`
   - rule:
     - bridge/helper cleanup is useful, but it is not the same thing as removing the current compiler authority from Rust
-    - do not let `phase-29cj` local cleanup hide the fact that the main blocker is still current Rust authority
+    - do not let `phase-29cj` local cleanup hide the fact that the main blocker is still current Rust authority/lowering
 
 - de-rust selfhost top-level closeout:
   - `phase-29cc` accepted monitor-only
