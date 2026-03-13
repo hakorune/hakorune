@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md
   - docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md
   - docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md
+  - docs/development/current/main/phases/phase-29ci/P5-STAGEB-MALFORMED-PROGRAM-JSON.md
   - src/stage1/program_json_v0/README.md
   - src/runner/stage1_bridge/README.md
 ---
@@ -60,6 +61,8 @@ Related:
   - `docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md`
 - shared shell helper audit:
   - `docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md`
+- Stage-B malformed Program(JSON) producer pin:
+  - `docs/development/current/main/phases/phase-29ci/P5-STAGEB-MALFORMED-PROGRAM-JSON.md`
 - current preferred first bucket:
   - Rust-owned `build surrogate keep`
   - then `future-retire bridge`
@@ -79,6 +82,7 @@ Related:
   - the source-direct `--mir` consumer is now isolated behind `emit_mir_json_from_source()`, so downstream audit can treat `--exe` and `--run` as separate remaining lanes
   - the Core-Direct `--run` consumer is now isolated behind `run_program_json_v0_via_core_direct()`, so the remaining downstream helper-local work in `selfhost_build.sh` is the Program(JSON)->MIR->EXE lane alone
   - the Program(JSON)->MIR->EXE consumer is now isolated behind `emit_exe_from_program_json_v0()`, so `selfhost_build.sh` downstream consumer lanes are all explicit owner-local helpers rather than inline top-level branches
+  - exact current root cause for `hello_simple_llvm` is now pinned separately in `P5-STAGEB-MALFORMED-PROGRAM-JSON.md`: raw snapshots show both default Stage-B and BuildBox keep emit the same malformed Program(JSON v0) upstream of shell extraction, and `HAKO_STAGEB_DEBUG=1` shows `StageBBodyExtractorBox.build_body_src()` falling back to full source
   - route split is now explicit for `phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako`: direct CLI `--backend mir --emit-mir-json` now lowers in both default release and strict/dev shadow mode, and the Rust host-provider route plus the language-level `lang.mir.builder.MirBuilderBox.emit_from_source_v0` surface (currently kernel-dispatch owned rather than pure `.hako`-internal proof) also lower the same fixture successfully; keep `P4-MIRBUILDER-ROUTE-SPLIT.md` as the exact call-chain SSOT so this shared success is not misread as a single owner
   - `MirBuilderBox.emit_from_source_v0(...)` remains a live keep and must not be demoted into the diagnostics/probe bucket
   - shell/helper delete order still has a wider test-only shell/apps tail beyond the three shared helper scripts; keep that caller audit separate from the first Rust-only delete slices

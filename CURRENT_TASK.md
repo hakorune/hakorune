@@ -228,6 +228,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - `phase-29ci` P1 future-retire bridge delete order: `docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md`
       - `phase-29ci` P2 live/bootstrap + shell caller delete order: `docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md`
       - `phase-29ci` P3 shared shell helper audit: `docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md`
+      - `phase-29ci` P5 Stage-B malformed Program(JSON) producer pin: `docs/development/current/main/phases/phase-29ci/P5-STAGEB-MALFORMED-PROGRAM-JSON.md`
       - active evidence/probes: `docs/development/current/main/phases/phase-29ch/29ch-20-route-evidence-and-probes.md`
       - G1 compare policy: `docs/development/current/main/design/selfhost-g1-mir-compare-policy-ssot.md`
     - restart rule:

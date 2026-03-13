@@ -86,6 +86,7 @@ Related:
 - `tools/selfhost/selfhost_build.sh --mir` is now green on `apps/tests/hello_simple_llvm.hako`, but only because that lane is source-direct and bypasses the malformed Program(JSON) payload
 - `tools/selfhost/selfhost_build.sh --run` now fails downstream on the malformed Program(JSON v0) payload with `JSON v0 bridge error: undefined variable: static`
 - `tools/selfhost/selfhost_build.sh --exe` now fails on that same malformed Program(JSON v0) payload with `Program(JSON v0) parse error: undefined variable: static`
+- exact producer-side root-cause evidence is now pinned in `P5-STAGEB-MALFORMED-PROGRAM-JSON.md`: raw snapshots show the malformed Program(JSON v0) is already printed by both `compiler.hako --stage-b --stage3` and `BuildBox.emit_program_json_v0(...)`, and `HAKO_STAGEB_DEBUG=1` shows `StageBBodyExtractorBox.build_body_src()` falling back to full source on `hello_simple_llvm`
 - route split is now explicit for `apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako`: direct CLI `--backend mir --emit-mir-json` now lowers in both default release and strict/dev shadow mode, while the Rust host-provider route and the language-level `lang.mir.builder.MirBuilderBox.emit_from_source_v0` surface (currently kernel-dispatch owned rather than pure `.hako`-internal proof) also lower the same fixture successfully; treat this as route/boundary evidence, not as proof that all owners are merged, and use `P4-MIRBUILDER-ROUTE-SPLIT.md` for the exact call-chain SSOT
 
 ## Immediate Next Slice
