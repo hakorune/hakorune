@@ -82,6 +82,8 @@ shared shell helper keep として残っている 3 file について、
   - `selfhost_build.sh` is a build contract helper
   - `test_runner.sh` is a shared smoke harness tied to the 43-file tail
 - therefore, the safest next helper audit is `tools/hakorune_emit_mir.sh`
+- `tools/hakorune_emit_mir.sh` can keep shrinking by localizing its embedded selfhost/provider runner generation; this is helper-local structure work and does not require touching the shared build/test contracts
+- `tools/hakorune_emit_mir.sh` still owns `Stage-B Program(JSON) production + imports normalize + Program→MIR fallback funnel`, so the next safe helper-local slice is the Stage-B Program(JSON) production block itself; do not mix that with direct-emit fallback or legacy delegate retirement in the same patch
 - `tools/smokes/v2/lib/test_runner.sh` should be treated as the bridge between helper keep and smoke tail, not as “just another helper script”
 
 ## Immediate Next

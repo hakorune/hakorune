@@ -391,38 +391,7 @@ MIRJSON
   local builder_box="${HAKO_MIR_BUILDER_BOX:-hako.mir.builder}"
 
   local tmp_hako; tmp_hako=$(mktemp --suffix .hako)
-  if [ "$builder_box" = "hako.mir.builder.min" ]; then
-    cat >"$tmp_hako" <<'HCODE'
-using "hako.mir.builder.internal.runner_min" as BuilderRunnerMinBox
-static box Main { method main(args) {
-  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
-  if prog_json == null { print("[builder/selfhost-first:fail:nojson]"); return 1 }
-  local mir_out = BuilderRunnerMinBox.run(prog_json)
-  if mir_out == null { print("[builder/selfhost-first:fail:emit]"); return 1 }
-  print("[builder/selfhost-first:ok]")
-  print("[MIR_OUT_BEGIN]")
-  print("" + mir_out)
-  print("[MIR_OUT_END]")
-  return 0
-} }
-HCODE
-  else
-    cat >"$tmp_hako" <<'HCODE'
-using "__BUILDER_BOX__" as MirBuilderBox
-static box Main { method main(args) {
-  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
-  if prog_json == null { print("[builder/selfhost-first:fail:nojson]"); return 1 }
-  local mir_out = MirBuilderBox.emit_from_program_json_v0(prog_json, null)
-  if mir_out == null { print("[builder/selfhost-first:fail:emit]"); return 1 }
-  print("[builder/selfhost-first:ok]")
-  print("[MIR_OUT_BEGIN]")
-  print("" + mir_out)
-  print("[MIR_OUT_END]")
-  return 0
-} }
-HCODE
-    sed -i "s|__BUILDER_BOX__|$builder_box|g" "$tmp_hako"
-  fi
+  write_selfhost_builder_runner_hako "$tmp_hako" "$builder_box"
   local tmp_stdout; tmp_stdout=$(mktemp)
   trap 'rm -f "$tmp_hako" "$tmp_stdout" || true' RETURN
 
@@ -509,23 +478,47 @@ HCODE
   return 0
 }
 
-# Provider-first delegate: call env.mirbuilder.emit(prog_json) and capture v1 JSON
-try_provider_emit() {
-  local prog_json="$1" out_path="$2"
-  local tmp_hako; tmp_hako=$(mktemp --suffix .hako)
-  cat >"$tmp_hako" <<'HCODE'
+write_selfhost_builder_runner_hako() {
+  local tmp_hako="$1" builder_box="$2"
+  if [ "$builder_box" = "hako.mir.builder.min" ]; then
+    cat >"$tmp_hako" <<'HCODE'
+using "hako.mir.builder.internal.runner_min" as BuilderRunnerMinBox
 static box Main { method main(args) {
-  local p = env.get("HAKO_BUILDER_PROGRAM_JSON")
-  if p == null { print("[provider/emit:nojson]"); return 1 }
-  local a = new ArrayBox(); a.push(p)
-  local out = hostbridge.extern_invoke("env.mirbuilder", "emit", a)
-  print("[provider/emit:ok]")
+  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
+  if prog_json == null { print("[builder/selfhost-first:fail:nojson]"); return 1 }
+  local mir_out = BuilderRunnerMinBox.run(prog_json)
+  if mir_out == null { print("[builder/selfhost-first:fail:emit]"); return 1 }
+  print("[builder/selfhost-first:ok]")
   print("[MIR_OUT_BEGIN]")
-  print("" + out)
+  print("" + mir_out)
   print("[MIR_OUT_END]")
   return 0
 } }
 HCODE
+  else
+    cat >"$tmp_hako" <<'HCODE'
+using "__BUILDER_BOX__" as MirBuilderBox
+static box Main { method main(args) {
+  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
+  if prog_json == null { print("[builder/selfhost-first:fail:nojson]"); return 1 }
+  local mir_out = MirBuilderBox.emit_from_program_json_v0(prog_json, null)
+  if mir_out == null { print("[builder/selfhost-first:fail:emit]"); return 1 }
+  print("[builder/selfhost-first:ok]")
+  print("[MIR_OUT_BEGIN]")
+  print("" + mir_out)
+  print("[MIR_OUT_END]")
+  return 0
+} }
+HCODE
+    sed -i "s|__BUILDER_BOX__|$builder_box|g" "$tmp_hako"
+  fi
+}
+
+# Provider-first delegate: call env.mirbuilder.emit(prog_json) and capture v1 JSON
+try_provider_emit() {
+  local prog_json="$1" out_path="$2"
+  local tmp_hako; tmp_hako=$(mktemp --suffix .hako)
+  write_provider_emit_runner_hako "$tmp_hako"
   local tmp_stdout; tmp_stdout=$(mktemp)
   trap 'rm -f "$tmp_hako" "$tmp_stdout" || true' RETURN
   set +e
@@ -547,6 +540,23 @@ HCODE
   printf '%s' "$mir" > "$out_path"
   echo "[OK] MIR JSON written (delegate:provider): $out_path"
   return 0
+}
+
+write_provider_emit_runner_hako() {
+  local tmp_hako="$1"
+  cat >"$tmp_hako" <<'HCODE'
+static box Main { method main(args) {
+  local p = env.get("HAKO_BUILDER_PROGRAM_JSON")
+  if p == null { print("[provider/emit:nojson]"); return 1 }
+  local a = new ArrayBox(); a.push(p)
+  local out = hostbridge.extern_invoke("env.mirbuilder", "emit", a)
+  print("[provider/emit:ok]")
+  print("[MIR_OUT_BEGIN]")
+  print("" + out)
+  print("[MIR_OUT_END]")
+  return 0
+} }
+HCODE
 }
 
 # When forcing JSONFrag loop, default-enable normalize+purify (dev-only, no default changes)
