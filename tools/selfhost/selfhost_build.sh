@@ -82,6 +82,20 @@ static box Main { method main(args) {
 HAKO
 }
 
+buildbox_emit_only_keep_requested() {
+  [ "${HAKO_USE_BUILDBOX:-0}" = "1" ] && [ "$DO_RUN" = "0" ] && [ -z "$EXE_OUT" ]
+}
+
+ensure_stageb_module_roots_list() {
+  if [ -n "${HAKO_STAGEB_MODULE_ROOTS_LIST:-}" ]; then
+    return 0
+  fi
+  roots_list="$(collect_stageb_module_roots_list "$ROOT" || true)"
+  if [ -n "${roots_list:-}" ]; then
+    export HAKO_STAGEB_MODULE_ROOTS_LIST="$roots_list"
+  fi
+}
+
 emit_program_json_v0_via_buildbox() {
   local raw_path="$1"
   local wrap_path="/tmp/hako_buildbox_wrap_$$.hako"
@@ -109,14 +123,9 @@ emit_program_json_v0_via_stageb_compiler() {
 emit_stageb_program_json_raw() {
   local raw_path="$1"
   stageb_cmd_desc=""
-  if [ "${HAKO_USE_BUILDBOX:-0}" = "1" ] && [ "$DO_RUN" = "0" ] && [ -z "$EXE_OUT" ]; then
+  if buildbox_emit_only_keep_requested; then
     stageb_cmd_desc="BuildBox.emit_program_json_v0 via compiler build_box"
-    if [ -z "${HAKO_STAGEB_MODULE_ROOTS_LIST:-}" ]; then
-      roots_list="$(collect_stageb_module_roots_list "$ROOT" || true)"
-      if [ -n "${roots_list:-}" ]; then
-        export HAKO_STAGEB_MODULE_ROOTS_LIST="$roots_list"
-      fi
-    fi
+    ensure_stageb_module_roots_list
     emit_program_json_v0_via_buildbox "$raw_path"
     return $?
   fi

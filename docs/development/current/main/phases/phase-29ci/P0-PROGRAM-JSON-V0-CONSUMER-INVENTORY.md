@@ -77,6 +77,7 @@ Related:
 - `tools/hakorune_emit_mir.sh` now keeps the Stage-B fail/invalid -> direct MIR emit fallback behind `exit_after_direct_emit_fallback()`, so the helper-local fallback funnel is split into exact lanes and further helper-local work no longer needs duplicated top-level fallback branches
 - `tools/selfhost/selfhost_build.sh` now keeps its Stage-B Program(JSON) raw-production split behind `emit_stageb_program_json_raw()`, with `emit_program_json_v0_via_buildbox()` and `emit_program_json_v0_via_stageb_compiler()` isolating the two live build-contract lanes while leaving `HAKO_USE_BUILDBOX=1` as an explicit keep
 - `tools/selfhost/selfhost_build.sh` still needs the explicit `HAKO_USE_BUILDBOX=1` build-contract keep today: on `apps/tests/hello_simple_llvm.hako`, the default `compiler.hako --stage-b --stage3` lane still hits a JoinIR freeze while the BuildBox emit-only lane succeeds, so retire/delete claims must wait for a separate route-repair slice
+- `tools/selfhost/selfhost_build.sh` now pins that live keep behind `buildbox_emit_only_keep_requested()`, so the exact `HAKO_USE_BUILDBOX=1` emit-only/no-EXE predicate is code-side SSOT instead of being re-read inline at the top level
 
 ## Immediate Next Slice
 
