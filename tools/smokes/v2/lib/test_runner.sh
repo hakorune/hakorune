@@ -676,6 +676,48 @@ HAKO
     return $rc
 }
 
+run_program_json_via_registry_builder_module_vm() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local registry_only="${3:-}"
+    local tmp_hako
+
+    tmp_hako=$(mktemp --suffix .hako)
+    cat >"${tmp_hako}" <<HAKO
+using "${builder_module}" as MirBuilderBox
+static box Main { method main(args) {
+  local j = env.get("PROG_JSON"); if j == null { print("[fail:nojson]"); return 1 }
+  local out = MirBuilderBox.emit_from_program_json_v0(j, null)
+  if out == null { print("[fail:builder]"); return 1 }
+  print("[MIR_BEGIN]"); print("" + out); print("[MIR_END]")
+  return 0
+} }
+HAKO
+
+    (
+        if [ -n "$registry_only" ]; then
+            export HAKO_MIR_BUILDER_REGISTRY_ONLY="$registry_only"
+        else
+            unset HAKO_MIR_BUILDER_REGISTRY_ONLY
+        fi
+
+        PROG_JSON="$prog_json" \
+        NYASH_FAIL_FAST="${NYASH_FAIL_FAST:-0}" \
+        NYASH_USE_NY_COMPILER="${NYASH_USE_NY_COMPILER:-0}" \
+        NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
+        NYASH_ENABLE_USING="${NYASH_ENABLE_USING:-1}" \
+        HAKO_ENABLE_USING="${HAKO_ENABLE_USING:-1}" \
+        HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}" \
+        HAKO_MIR_BUILDER_INTERNAL="${HAKO_MIR_BUILDER_INTERNAL:-1}" \
+        HAKO_MIR_BUILDER_REGISTRY="${HAKO_MIR_BUILDER_REGISTRY:-1}" \
+        HAKO_MIR_BUILDER_DEBUG="${HAKO_MIR_BUILDER_DEBUG:-1}" \
+        "$NYASH_BIN" --backend vm "${tmp_hako}"
+    )
+    local rc=$?
+    rm -f "${tmp_hako}" 2>/dev/null || true
+    return $rc
+}
+
 emit_mir_json_via_builder_from_program_json_file() {
     local prog_json_path="$1"
     local builder_stderr="$2"

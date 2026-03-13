@@ -14,29 +14,12 @@ if [[ ! -x "${BIN}" ]]; then echo "[SKIP] hakorune not built"; exit 0; fi
 source "$ROOT_DIR/tools/smokes/v2/lib/test_runner.sh"; require_env || exit 2
 enable_mirbuilder_dev_env
 
-TMP_HAKO=$(mktemp --suffix .hako)
-cat >"${TMP_HAKO}" <<'HAKO'
-using "hako.mir.builder.min" as MirBuilderBox
-static box Main { method main(args) {
-  local j = env.get("PROG_JSON"); if j == null { print("[fail:nojson]"); return 1 }
-  local out = MirBuilderBox.emit_from_program_json_v0(j, null)
-  if out == null { print("[fail:builder]"); return 1 }
-  print("[MIR_BEGIN]"); print("" + out); print("[MIR_END]")
-  return 0
-} }
-HAKO
-
 # Program(JSON v0): Local i=1; Local j=1; If (i == j) then Return(13) else Return(0)
 PROG='{"version":0,"kind":"Program","body":[{"type":"Local","name":"i","expr":{"type":"Int","value":1}},{"type":"Local","name":"j","expr":{"type":"Int","value":1}},{"type":"If","cond":{"type":"Compare","op":"==","lhs":{"type":"Var","name":"i"},"rhs":{"type":"Var","name":"j"}},"then":[{"type":"Return","expr":{"type":"Int","value":13}}],"else":[{"type":"Return","expr":{"type":"Int","value":0}}]}]}'
 
-tmp_stdout=$(mktemp); trap 'rm -f "$tmp_stdout" "$TMP_HAKO" || true' EXIT
+tmp_stdout=$(mktemp); trap 'rm -f "$tmp_stdout" || true' EXIT
 set +e
-NYASH_FAIL_FAST=0 NYASH_USE_NY_COMPILER=0 \
-PROG_JSON="$PROG" \
-HAKO_MIR_BUILDER_DELEGATE=0 HAKO_MIR_BUILDER_INTERNAL=1 HAKO_MIR_BUILDER_REGISTRY=1 HAKO_MIR_BUILDER_DEBUG=1 \
-NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-NYASH_FEATURES=stage3 \
-"${BIN}" --backend vm "${TMP_HAKO}" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+run_program_json_via_registry_builder_module_vm "hako.mir.builder.min" "$PROG" 2>/dev/null | tee "$tmp_stdout" >/dev/null
 rc=$?
 set -e
 

@@ -14,6 +14,7 @@ if [[ ! -x "${BIN}" ]]; then echo "[SKIP] hakorune not built"; exit 0; fi
 source "$ROOT_DIR/tools/smokes/v2/lib/test_runner.sh"; require_env || exit 2
 SMOKES_DEV_PREINCLUDE=1 enable_mirbuilder_dev_env
 
+# Keep this get canary explicit: preinclude-heavy env and token checks are part of the contract.
 TMP_HAKO=$(mktemp --suffix .hako)
 cat >"${TMP_HAKO}" <<'HAKO'
 using "hako.mir.builder" as MirBuilderBox

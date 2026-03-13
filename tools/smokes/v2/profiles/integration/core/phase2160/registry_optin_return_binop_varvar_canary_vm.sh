@@ -11,7 +11,7 @@ fi
 BIN="${ROOT_DIR}/target/release/hakorune"
 if [[ ! -x "${BIN}" ]]; then echo "[SKIP] hakorune not built"; exit 0; fi
 
-# Dev env: avoid ny-compiler inline + allow FileBox fallback + preinclude heavy using
+# Keep this varvar canary explicit: ad hoc preinclude-heavy env is part of the contract.
 export NYASH_USE_NY_COMPILER=0
 export NYASH_FAIL_FAST=0
 export NYASH_ENABLE_USING=1
