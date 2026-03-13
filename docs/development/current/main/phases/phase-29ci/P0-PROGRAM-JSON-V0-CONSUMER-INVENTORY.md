@@ -66,6 +66,7 @@ Related:
 - outside the helper trio in the `shell helper keep` row, there is a test-only smoke/apps tail with 43 direct caller files; record that tail as caller-audit work rather than mixing it into the first Rust-only delete slices, and use `P2-LIVE-CALLER-DELETE-ORDER.md` as the delete-order SSOT for that outer bucket
 - `.hako` owner thinning can proceed one file at a time; `lang/src/runner/launcher.hako` now groups its checked Program(JSON) / MIR direct call sites behind owner-local helpers instead of keeping three duplicated checked paths
 - `.hako` owner thinning is also valid for `lang/src/runner/stage1_cli.hako`; its direct `BuildBox.emit_program_json_v0(...)` checked path now stays behind an owner-local helper instead of remaining duplicated between `emit_program_json(...)` and `_mode_emit_program(...)`
+- `.hako` owner thinning is also valid for `lang/src/runner/stage1_cli_env.hako`; its authority box now keeps direct `BuildBox.emit_program_json_v0(...)` behind a same-file helper shared by authority emit and defs-synthesis lowering
 
 ## Immediate Next Slice
 

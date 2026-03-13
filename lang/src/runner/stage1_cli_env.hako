@@ -195,12 +195,8 @@ static box Stage1ProgramAuthorityBox {
     if prefix == null { prefix = "" }
     local merged = prefix + text
 
-    local raw_prog = BuildBox.emit_program_json_v0(merged, null)
-    if raw_prog == null {
-      print("[freeze:contract][stage1-cli/emit-program] BuildBox.emit_program_json_v0 returned null")
-      return null
-    }
-    local prog = "" + raw_prog
+    local prog = me._emit_program_json_inline(merged)
+    if prog == null { return null }
     if prog.indexOf("defs") >= 0 {
       if env.get("STAGE1_CLI_DEBUG") == "1" {
         print("[stage1-cli/debug] emit-program defs-json:already-present")
@@ -227,6 +223,15 @@ static box Stage1ProgramAuthorityBox {
       }
     }
     return prog
+  }
+
+  method _emit_program_json_inline(merged_source) {
+    local raw_prog = BuildBox.emit_program_json_v0(merged_source, null)
+    if raw_prog == null {
+      print("[freeze:contract][stage1-cli/emit-program] BuildBox.emit_program_json_v0 returned null")
+      return null
+    }
+    return "" + raw_prog
   }
 
   method _should_synthesize_entry_defs_inline(source_path) {
@@ -474,7 +479,7 @@ static box Stage1ProgramAuthorityBox {
     local trimmed = me._trim_inline(method_body)
     if trimmed == "" { return "[]" }
     local synth = "static box Main {\n  main() {\n" + method_body + "\n  }\n}\n"
-    local prog = BuildBox.emit_program_json_v0(synth, null)
+    local prog = me._emit_program_json_inline(synth)
     if prog == null || prog == "" { return null }
     return me._extract_program_body_inline(prog)
   }
