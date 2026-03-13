@@ -104,6 +104,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     2. `src/host_providers/mir_builder/lowering.rs`
        - exact `Program(JSON v0) -> MIR(JSON)` lowering leaf now lives here
        - this is a real blocker for pure `.hako` compiler authority
+       - latest tightening: imports-bearing lowering helper is now test-only; live lowering stays on the plain `program_json_to_mir_json(...)` path
        - exact live caller map is now pinned:
          - `src/host_providers/mir_builder.rs`
            - current `stage1-env-mir-source` façade handoff + shared shaping owner

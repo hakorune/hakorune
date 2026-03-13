@@ -11,11 +11,19 @@ use super::{trace_enabled, trace_log, unique_mir_json_tmp_path, Phase0MirJsonEnv
 /// Convert Program(JSON v0) to MIR(JSON v0) and return it as a String.
 /// Fail-Fast: prints stable tags on stderr and returns Err with the same tag text.
 pub(super) fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
-    program_json_to_mir_json_with_imports(program_json, BTreeMap::new())
+    program_json_to_mir_json_with_imports_impl(program_json, BTreeMap::new())
 }
 
 /// Convert Program(JSON v0) to MIR(JSON v0) with using imports support.
+#[cfg(test)]
 pub(super) fn program_json_to_mir_json_with_imports(
+    program_json: &str,
+    imports: BTreeMap<String, String>,
+) -> Result<String, String> {
+    program_json_to_mir_json_with_imports_impl(program_json, imports)
+}
+
+fn program_json_to_mir_json_with_imports_impl(
     program_json: &str,
     imports: BTreeMap<String, String>,
 ) -> Result<String, String> {
