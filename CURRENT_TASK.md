@@ -98,6 +98,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - this is the first real blocker for pure `.hako` compiler authority
        - note: `user_box_decls` injection is no longer authority-only; it now lives in shared owner `src/host_providers/mir_builder/user_box_decls.rs`
        - latest tightening: test-only transient `(Program JSON, MIR JSON)` tuple helper is no longer owned here; it now lives in façade test surface `src/host_providers/mir_builder.rs`
+       - latest tightening: adapter-only `source_to_program_json_for_current_authority(...)` is gone; live authority surface is now just `source_to_mir_json(...)`
     2. `src/host_providers/mir_builder/lowering/program_json.rs`
        - current Program(JSON v0) -> MIR(JSON) lowering still lives here
        - this is a real blocker for pure `.hako` compiler authority

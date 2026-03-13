@@ -11,7 +11,7 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
   - current Rust authority path
   - `source -> Program(JSON v0) -> MIR(JSON)` owner-local chain
   - source-route authority still lives here, but `user_box_decls` injection is now shared through `mir_builder/user_box_decls.rs`
-  - no longer owns the test-only transient `(Program JSON, MIR JSON)` tuple helper
+  - no longer owns the transient Program(JSON) helper; it exposes only the live `source_to_mir_json(...)` adapter
 - `mir_builder/lowering.rs`
   - thin lowering facade + shared parse/emit helpers
 - `mir_builder/user_box_decls.rs`
