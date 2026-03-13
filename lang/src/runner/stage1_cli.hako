@@ -82,30 +82,7 @@ static box Stage1Cli {
     local prefix = Stage1UsingResolverBox.resolve_for_source(src)
     if prefix == null { prefix = "" }
     local merged = prefix + src
-    local dbg = env.get("STAGE1_CLI_DEBUG")
-    if dbg == "1" {
-      print("[stage1-cli/debug] emit_program_json: calling BuildBox.emit_program_json_v0")
-    }
-
-    local prog = BuildBox.emit_program_json_v0(merged, null)
-    if dbg == "1" {
-      local status = "null"
-      if prog != null { status = "non-null" }
-      print("[stage1-cli/debug] emit_program_json: BuildBox.emit_program_json_v0 returned, prog=" + status)
-    }
-    if prog == null {
-      print(tag + ": BuildBox returned null")
-      return null
-    }
-    local ps = prog
-    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
-      print(tag + ": unexpected Program(JSON) output (missing version/kind)")
-      return null
-    }
-    if dbg == "1" {
-      print("[stage1-cli/debug] emit_program_json: validation passed")
-    }
-    return ps
+    return me._emit_program_json_from_source_text_checked(tag, merged, 1)
   }
 
   // Program(JSON v0) → MIR(JSON)
@@ -321,16 +298,12 @@ static box Stage1Cli {
     local prefix = Stage1UsingResolverBox.resolve_for_source(src_text)
     if prefix == null { prefix = "" }
     local merged = prefix + src_text
-    local prog = BuildBox.emit_program_json_v0(merged, null)
-    if prog == null {
-      print("[freeze:contract][stage1-cli/emit-program] BuildBox.emit_program_json_v0 returned null")
-      return 96
-    }
-    local ps = prog
-    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
-      print("[freeze:contract][stage1-cli/emit-program] BuildBox output missing Program(JSON v0) markers")
-      return 96
-    }
+    local ps = me._emit_program_json_from_source_text_checked(
+      "[freeze:contract][stage1-cli/emit-program]",
+      merged,
+      0
+    )
+    if ps == null { return 96 }
     print(ps)
     return 0
   }
@@ -474,6 +447,41 @@ static box Stage1Cli {
     if ps == null { return 96 }
     print(ps)
     return 0
+  }
+
+  method _emit_program_json_from_source_text_checked(tag, merged_source, with_debug){
+    local dbg = env.get("STAGE1_CLI_DEBUG")
+    if with_debug == 1 && dbg == "1" {
+      print("[stage1-cli/debug] emit_program_json: calling BuildBox.emit_program_json_v0")
+    }
+
+    local prog = BuildBox.emit_program_json_v0(merged_source, null)
+    if with_debug == 1 && dbg == "1" {
+      local status = "null"
+      if prog != null { status = "non-null" }
+      print("[stage1-cli/debug] emit_program_json: BuildBox.emit_program_json_v0 returned, prog=" + status)
+    }
+    if prog == null {
+      if with_debug == 1 {
+        print(tag + ": BuildBox returned null")
+      } else {
+        print(tag + " BuildBox.emit_program_json_v0 returned null")
+      }
+      return null
+    }
+    local ps = prog
+    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
+      if with_debug == 1 {
+        print(tag + ": unexpected Program(JSON) output (missing version/kind)")
+      } else {
+        print(tag + " BuildBox output missing Program(JSON v0) markers")
+      }
+      return null
+    }
+    if with_debug == 1 && dbg == "1" {
+      print("[stage1-cli/debug] emit_program_json: validation passed")
+    }
+    return ps
   }
 
   method _cmd_emit_mir_json(args){
