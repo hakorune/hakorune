@@ -97,6 +97,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - current source authority still lives here (`source -> Program(JSON v0)`)
        - this is the first real blocker for pure `.hako` compiler authority
        - note: `user_box_decls` injection is no longer authority-only; it now lives in shared owner `src/host_providers/mir_builder/user_box_decls.rs`
+       - latest tightening: test-only transient `(Program JSON, MIR JSON)` tuple helper is no longer owned here; it now lives in façade test surface `src/host_providers/mir_builder.rs`
     2. `src/host_providers/mir_builder/lowering/program_json.rs`
        - current Program(JSON v0) -> MIR(JSON) lowering still lives here
        - this is a real blocker for pure `.hako` compiler authority
@@ -137,7 +138,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     1. de-Rust current source authority in `src/host_providers/mir_builder/authority.rs`
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering/program_json.rs`
        - first by shrinking or redirecting the exact remaining live callers above, not by broad cleanup elsewhere
-       - runtime/plugin imports route is already off this owner; current safest next slice is to decide whether the kernel/plugin Program(JSON) caller is already thin-floor enough, or whether source authority should become the next main front
+       - runtime/plugin imports route is already off this owner; kernel/plugin Program(JSON) caller is now treated as near thin floor unless an exact disappearing route leaf appears
+       - current main front is source authority, not further kernel thinning
     3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0/authority.rs`
        - latest tightening: future-retire bridge shim is now split to `src/stage1/program_json_v0/bridge_shim.rs`
        - implication: this owner is now closer to the real strict source-authority core; do not mix bridge-leaf cleanup back into it

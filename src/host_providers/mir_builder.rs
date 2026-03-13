@@ -86,7 +86,9 @@ pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Resul
 /// while the current authority remains Rust-owned.
 #[cfg(test)]
 pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
-    authority::source_to_program_and_mir_json(source_text)
+    let program_json = authority::source_to_program_json_for_current_authority(source_text)?;
+    let mir_json = lowering::program_json_to_mir_json(&program_json)?;
+    Ok((program_json, mir_json))
 }
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
