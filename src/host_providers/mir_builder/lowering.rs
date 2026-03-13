@@ -7,9 +7,7 @@ use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 use std::fs;
 
-use super::{
-    trace_enabled, trace_log, unique_mir_json_tmp_path, Phase0MirJsonEnvGuard, FAILFAST_TAG,
-};
+use super::{trace_enabled, trace_log, unique_mir_json_tmp_path, Phase0MirJsonEnvGuard};
 
 /// Convert Program(JSON v0) to MIR(JSON v0) and return it as a String.
 /// Fail-Fast: prints stable tags on stderr and returns Err with the same tag text.
@@ -35,7 +33,11 @@ pub(super) fn program_json_to_mir_json_with_imports(
         ast_json::lower_ast_json_to_module(&parsed)?
     };
 
-    let tmp_path = emit_module_to_temp_mir_json(&module)?;
+    module_to_mir_json(&module)
+}
+
+pub(crate) fn module_to_mir_json(module: &MirModule) -> Result<String, String> {
+    let tmp_path = emit_module_to_temp_mir_json(module)?;
     match fs::read_to_string(&tmp_path) {
         Ok(raw) => {
             let _ = fs::remove_file(&tmp_path);
@@ -44,11 +46,7 @@ pub(super) fn program_json_to_mir_json_with_imports(
                 Err(_) => Ok(raw),
             }
         }
-        Err(e) => {
-            let tag = format!("{FAILFAST_TAG} {}", e);
-            crate::runtime::get_global_ring0().log.error(&tag);
-            Err(tag)
-        }
+        Err(error) => Err(super::failfast_error(error)),
     }
 }
 
@@ -62,9 +60,7 @@ fn parse_input_json(program_json: &str) -> Result<JsonValue, String> {
                 preview, prefix_bytes
             ));
         }
-        let tag = format!("{FAILFAST_TAG} invalid JSON: {}", error);
-        crate::runtime::get_global_ring0().log.error(&tag);
-        tag
+        super::failfast_error(format!("invalid JSON: {}", error))
     })
 }
 
@@ -72,10 +68,6 @@ fn emit_module_to_temp_mir_json(module: &MirModule) -> Result<std::path::PathBuf
     let tmp_path = unique_mir_json_tmp_path();
     match runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &tmp_path) {
         Ok(()) => Ok(tmp_path),
-        Err(error) => {
-            let tag = format!("{FAILFAST_TAG} {}", error);
-            crate::runtime::get_global_ring0().log.error(&tag);
-            Err(tag)
-        }
+        Err(error) => Err(super::failfast_error(error)),
     }
 }

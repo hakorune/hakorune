@@ -3,6 +3,7 @@ mod lowering;
 mod user_box_decls;
 
 use std::collections::BTreeMap;
+use std::fmt::Display;
 use std::sync::atomic::{AtomicU64, Ordering};
 // use std::io::Write; // kept for future pretty-print extensions
 
@@ -18,6 +19,12 @@ pub(crate) fn trace_log(message: impl AsRef<str>) {
     if trace_enabled() {
         eprintln!("{}", message.as_ref());
     }
+}
+
+pub(crate) fn failfast_error(message: impl Display) -> String {
+    let tag = format!("{FAILFAST_TAG} {}", message);
+    crate::runtime::get_global_ring0().log.error(&tag);
+    tag
 }
 
 pub(crate) fn unique_mir_json_tmp_path() -> std::path::PathBuf {
@@ -71,9 +78,7 @@ pub fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
     lowering::program_json_to_mir_json(program_json)
 }
 
-pub fn program_json_to_mir_json_with_user_box_decls(
-    program_json: &str,
-) -> Result<String, String> {
+pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Result<String, String> {
     user_box_decls::program_json_to_mir_json_with_user_box_decls(program_json)
 }
 
@@ -94,6 +99,10 @@ pub fn program_json_to_mir_json_with_imports(
     imports: BTreeMap<String, String>,
 ) -> Result<String, String> {
     lowering::program_json_to_mir_json_with_imports(program_json, imports)
+}
+
+pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
+    lowering::module_to_mir_json(module)
 }
 
 #[cfg(test)]

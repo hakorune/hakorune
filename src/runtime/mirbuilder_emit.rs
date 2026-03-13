@@ -2,7 +2,7 @@
 //!
 //! This module keeps the runtime/plugin-side `Program(JSON v0) -> MIR(JSON)` bridge
 //! on one owner so interpreter/provider paths and plugin-loader paths do not each
-//! reimplement env-import parsing or direct host-provider calls.
+//! reimplement env-import parsing or direct lowering/emit glue.
 
 use std::collections::BTreeMap;
 
@@ -26,8 +26,11 @@ pub fn imports_from_env() -> BTreeMap<String, String> {
 pub fn emit_program_json_to_mir_json_with_env_imports(
     program_json: &str,
 ) -> Result<String, String> {
-    crate::host_providers::mir_builder::program_json_to_mir_json_with_imports(
+    let _env_guard = crate::host_providers::mir_builder::Phase0MirJsonEnvGuard::new();
+    let module = crate::runner::json_v0_bridge::parse_json_v0_to_module_with_imports(
         program_json,
         imports_from_env(),
     )
+    .map_err(crate::host_providers::mir_builder::failfast_error)?;
+    crate::host_providers::mir_builder::module_to_mir_json(&module)
 }

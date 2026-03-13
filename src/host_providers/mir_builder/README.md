@@ -18,6 +18,9 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
 - `mir_builder/lowering/program_json.rs`
   - current `Program(JSON v0) -> MIR(JSON)` lowering owner
   - this is the real pure-`.hako` blocker inside the lowering half
+- `mir_builder.rs::module_to_mir_json(...)`
+  - shared MIR(JSON) emission seam
+  - runtime/plugin imports route reuses this seam without staying a live caller of `lowering/program_json.rs`
 - `mir_builder/lowering/ast_json.rs`
   - legacy AST JSON compat route owner
   - treat this as compat keep, not as the primary pure-`.hako` blocker
@@ -26,6 +29,7 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
 
 - treat `authority.rs` as the current primary de-Rust blocker
 - treat `lowering/program_json.rs` as the current Rust-owned Program(JSON)->MIR lowering owner
+- treat runtime/plugin `env.mirbuilder.emit` as a separate keep that now bypasses `lowering/program_json.rs`
 - keep `source_to_program_and_mir_json(...)` test-only; cross-crate source surfaces should stay on `source_to_mir_json(...)`
 - do not widen `.hako` workaround contracts here
 - keep fail-fast tags and temp-path policy owner-local to this cluster

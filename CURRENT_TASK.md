@@ -109,13 +109,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
              - landed: the host-provider call is now narrowed from `program_json_to_mir_json_with_imports(..., BTreeMap::new())` to `program_json_to_mir_json(...)`
              - landed: the route-local `user_box_decls` splice is moved to shared owner `src/host_providers/mir_builder/user_box_decls.rs`
              - next remaining leaf is only route-local gate/decode/encode, so this caller is close to thin floor
-         - `src/runtime/mirbuilder_emit.rs`
-           - shared runtime/plugin `env.mirbuilder.emit` bridge owner
-           - thin runtime callers now route through this owner:
-             - `src/backend/mir_interpreter/handlers/extern_provider.rs`
-             - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
-           - `src/backend/mir_interpreter/handlers/calls/global.rs` is now only a thin delegate into the extern-provider path
-        - implication: the real pure `.hako-only` blocker is narrower than “all of mir_builder”; it is this lowering owner plus the three live caller owners above
+       - runtime/plugin `env.mirbuilder.emit` is no longer a live caller of this lowering owner
+         - `src/runtime/mirbuilder_emit.rs` now lowers `Program(JSON v0)` via `runner::json_v0_bridge::parse_json_v0_to_module_with_imports(...)` and only reuses shared `module_to_mir_json(...)`
+         - thin runtime callers remain:
+           - `src/backend/mir_interpreter/handlers/extern_provider.rs`
+           - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+         - `src/backend/mir_interpreter/handlers/calls/global.rs` is still only a thin delegate into the extern-provider path
+       - implication: the real pure `.hako-only` blocker is now narrower than “all of mir_builder”; this lowering owner currently has only the source authority plus the explicit kernel/plugin Program(JSON) route as live callers
     3. `src/stage1/program_json_v0/authority.rs`
        - current source->Program(JSON v0) authority still lives here
        - current authority path and compiled-stage1 build surrogate both still depend on this owner
@@ -135,8 +135,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - actual priority for pure `.hako-only hakorune build`:
     1. de-Rust current source authority in `src/host_providers/mir_builder/authority.rs`
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering/program_json.rs`
-       - first by shrinking or redirecting the exact live caller trio above, not by broad cleanup elsewhere
-       - current safest next owner-local slice is the kernel/plugin Program(JSON) caller in `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+       - first by shrinking or redirecting the exact remaining live callers above, not by broad cleanup elsewhere
+       - runtime/plugin imports route is already off this owner; current safest next slice is to decide whether the kernel/plugin Program(JSON) caller is already thin-floor enough, or whether source authority should become the next main front
     3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0/authority.rs`
     4. retire AST JSON compat keep in `src/host_providers/mir_builder/lowering/ast_json.rs` only after the primary lowering owner is no longer needed
     5. retire compiled-stage1 `build_surrogate.rs`
