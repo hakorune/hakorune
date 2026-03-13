@@ -57,6 +57,31 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Immediate Next (this round)
 
+- pure `.hako-only hakorune build` gap snapshot (2026-03-14):
+  - current main stopper is still Rust authority, not `.hako` caller count
+  - Rust authority bucket:
+    - `src/host_providers/mir_builder.rs`
+    - `src/stage1/program_json_v0.rs`
+    - why it matters: current `stage1-env-mir-source` authority still materializes `Program(JSON v0)` before MIR(JSON)
+  - Rust bootstrap-boundary bucket:
+    - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+    - `src/runner/stage1_bridge/program_json/mod.rs`
+    - `src/runner/stage1_bridge/program_json_entry/{mod.rs,request.rs}`
+    - why it matters: compiled-stage1 surrogate and future-retire bridge are still live Rust-owned JSON v0 boundary contracts
+  - live `.hako` caller bucket:
+    - `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`
+    - `lang/src/mir/builder/MirBuilderBox.hako`
+    - why it matters: these still call `BuildBox.emit_program_json_v0(...)` or `MirBuilderBox.emit_from_program_json_v0(...)`
+  - shell/helper bucket:
+    - `tools/selfhost/selfhost_build.sh`
+    - `tools/hakorune_emit_mir.sh`
+    - `tools/smokes/v2/lib/test_runner.sh`
+    - why it matters: shared selfhost/smoke lanes still keep the bootstrap boundary alive
+  - next `.hako`-side attention order after current Rust-owned wave:
+    1. `lang/src/mir/builder/MirBuilderBox.hako`
+    2. `lang/src/compiler/build/build_box.hako`
+    3. shell helper trio above
+
 - `phase-29cj` reviewer sync (2026-03-14):
   - external review agrees the bucket order stays `build surrogate keep` -> `future-retire bridge`
   - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs` is now treated as near `thin floor`; do not keep shrinking it unless an exact disappearing leaf is obvious first
