@@ -146,10 +146,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     1. de-Rust current source-route handoff in `src/host_providers/mir_builder.rs`
        - landed: live source-route handoff leaf `source_to_mir_json_with_user_box_decls(...)` is retired
        - current façade now owns only a tiny source-route handoff before shared Program(JSON) shaping
+       - current worker judgment: treat this owner as near thin floor; do not keep shaving it unless an exact disappearing route leaf appears
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering.rs`
        - first by shrinking or redirecting the exact remaining live callers above, not by broad cleanup elsewhere
        - runtime/plugin imports route is already off this owner; kernel/plugin Program(JSON) caller is now treated as near thin floor unless an exact disappearing route leaf appears
-       - current main front is source authority, not further kernel thinning
+       - current main front is this lowering owner, not further kernel thinning
        - second exact slice after the source-route handoff leaf is gone:
          - landed: `lower_program_json_to_module(...)` is absorbed into `src/host_providers/mir_builder/lowering.rs`
          - next focus is the remaining live callers and shaping around that lowering owner, not the deleted leaf file
@@ -172,6 +173,22 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - `tools/hakorune_emit_mir.sh` -> `tools/selfhost/selfhost_build.sh` -> `tools/smokes/v2/lib/test_runner.sh`
        - smoke tail, then diagnostics/probe keep
     6. do not reopen `build_surrogate.rs` or shared shell/smoke cleanup while the authority owners above are still live
+  - authority-replacement ladder (freeze this before more local cleanup):
+    1. stop shaving near-thin-floor Rust owners
+       - `src/host_providers/mir_builder.rs`
+       - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+       - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+    2. finish the Rust-owned authority front at `src/host_providers/mir_builder/lowering.rs`
+       - goal: leave only the unavoidable live lowering seam, not helper/decode leaves
+    3. only then begin the first `.hako` authority replacement wave
+       - `lang/src/mir/builder/MirBuilderBox.hako`
+       - then runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`
+       - keep `lang/src/compiler/build/build_box.hako` behind those owner-local callers because it has the highest blast radius
+    4. keep `src/stage1/program_json_v0/authority.rs` frozen until the replacement wave is ready
+       - this file is now the strict source-authority core, not the next generic cleanup target
+  - milestone wording lock:
+    - do not measure progress only as “leaf retired”
+    - measure progress as “which owner now holds source -> MIR authority”
   - rule:
     - bridge/helper cleanup is useful, but it is not the same thing as removing the current compiler authority from Rust
     - do not let `phase-29cj` local cleanup hide the fact that the main blocker is still current Rust authority/lowering

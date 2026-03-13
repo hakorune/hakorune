@@ -77,6 +77,11 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
    - landed: `src/host_providers/mir_builder/lowering/program_json.rs::lower_program_json_to_module(...)` is absorbed into `src/host_providers/mir_builder/lowering.rs`
    - next target is the remaining live caller/shaping around that lowering owner
    - keep `src/stage1/program_json_v0/authority.rs` frozen as the strict source-authority core while those host-provider slices are still live
+7. authority-replacement rule:
+   - treat `src/host_providers/mir_builder.rs` as near thin floor once only `source_to_mir_json(...)`, `program_json_to_mir_json_with_user_box_decls(...)`, and `module_to_mir_json(...)` remain live
+   - do not reopen kernel/plugin route cleanup once `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` is down to thin gate/decode/encode support
+   - after the current Rust lowering owner is sufficiently thin, switch the phase language from “leaf retirement” to “authority replacement”
+   - first `.hako` replacement owner remains `lang/src/mir/builder/MirBuilderBox.hako`; runner owners follow, and `lang/src/compiler/build/build_box.hako` stays behind them because of blast radius
 
 ## Retreat Finding
 
@@ -94,6 +99,8 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - imports-bearing lowering is also test-only inside `src/host_providers/mir_builder/lowering.rs`; live Rust authority now stays on the plain `program_json_to_mir_json(...)` lowering path
 - live lowering now also uses imports-free `parse_json_v0_to_module(...)`; the imports-bearing parse route is test-only evidence only
 - the extra `lower_program_json_to_module(...)` leaf is now retired; the live plain lowering path inlines the exact bridge call directly
+- worker consensus now treats `src/host_providers/mir_builder.rs` as near thin floor, not the next place to keep shaving
+- worker consensus also treats `src/stage1/program_json_v0/authority.rs` as frozen strict source-authority core; the next real movement is authority replacement after `src/host_providers/mir_builder/lowering.rs`
 - worker audit also raised the next non-Rust wave order after the current Rust-owned front: `lang/src/mir/builder/MirBuilderBox.hako` first, then runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`, with shared producer `lang/src/compiler/build/build_box.hako` immediately behind that same wave; touching `build_box.hako` before those owner-local callers would be the highest-blast-radius move
 - the kernel `emit_from_program_json_v0` / `emit_from_source_v0` pair now also shares same-file gate/decode/freeze helpers, so the remaining kernel work is explicitly thin-floor support code rather than a fresh authority-removal front
 - the nearby future-retire bridge shim is now split out to `src/stage1/program_json_v0/bridge_shim.rs`, so `src/stage1/program_json_v0/authority.rs` no longer mixes bridge-specific error wrapping with strict source authority
