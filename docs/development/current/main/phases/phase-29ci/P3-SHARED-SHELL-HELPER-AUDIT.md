@@ -84,6 +84,7 @@ shared shell helper keep として残っている 3 file について、
 - therefore, the safest next helper audit is `tools/hakorune_emit_mir.sh`
 - `tools/hakorune_emit_mir.sh` can keep shrinking by localizing its embedded selfhost/provider runner generation; this is helper-local structure work and does not require touching the shared build/test contracts
 - `tools/hakorune_emit_mir.sh` still owns `Stage-B Program(JSON) production + imports normalize + Program→MIR fallback funnel`, so the next safe helper-local slice is the Stage-B Program(JSON) production block itself; do not mix that with direct-emit fallback or legacy delegate retirement in the same patch
+- `tools/hakorune_emit_mir.sh` now keeps Stage-B Program(JSON) production + imports normalize behind `emit_stageb_program_json_v0()`, so the remaining helper-local funnel is narrower and the next slice can focus on direct-emit fallback or delegate tail in isolation
 - `tools/smokes/v2/lib/test_runner.sh` should be treated as the bridge between helper keep and smoke tail, not as “just another helper script”
 
 ## Immediate Next

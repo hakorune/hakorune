@@ -274,20 +274,41 @@ sys.exit(1)
 '
 }
 
+emit_stageb_program_json_v0() {
+  local prog_json_out rc
+  set +e
+  prog_json_out=$((cd "$ROOT" && \
+                  NYASH_JSON_ONLY=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
+                  NYASH_VM_HAKO_PREFER_STRICT_DEV=0 NYASH_VM_USE_FALLBACK=0 \
+                  HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
+                  HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
+                  NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
+                  NYASH_ENABLE_USING=${NYASH_ENABLE_USING:-1} HAKO_ENABLE_USING=${HAKO_ENABLE_USING:-1} \
+                  "$NYASH_BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$CODE") 2>/dev/null | extract_program_json)
+  rc=$?
+  set -e
+
+  if [ $rc -ne 0 ] || [ -z "$prog_json_out" ]; then
+    return 1
+  fi
+  if ! printf '%s' "$prog_json_out" | grep -q '"kind"\s*:\s*"Program"'; then
+    return 2
+  fi
+
+  # Stage-B Program(JSON) may omit alias-less using entries in `imports`.
+  # Merge source-derived using aliases so Program→MIR delegate paths stay stable.
+  prog_json_out="$(merge_program_json_imports "$prog_json_out" "$MERGED_MIRBUILDER_IMPORTS_JSON")"
+  printf '%s' "$prog_json_out"
+  return 0
+}
+
 set +e
-PROG_JSON_OUT=$((cd "$ROOT" && \
-                NYASH_JSON_ONLY=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
-                NYASH_VM_HAKO_PREFER_STRICT_DEV=0 NYASH_VM_USE_FALLBACK=0 \
-                HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
-                HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
-                NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
-                NYASH_ENABLE_USING=${NYASH_ENABLE_USING:-1} HAKO_ENABLE_USING=${HAKO_ENABLE_USING:-1} \
-                "$NYASH_BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$CODE") 2>/dev/null | extract_program_json)
+PROG_JSON_OUT="$(emit_stageb_program_json_v0)"
 rc=$?
 set -e
 
 # If Stage-B fails, skip to direct MIR emit paths (provider/legacy)
-if [ $rc -ne 0 ] || [ -z "$PROG_JSON_OUT" ]; then
+if [ $rc -eq 1 ] || [ -z "$PROG_JSON_OUT" ]; then
   if [ "${HAKO_EMIT_MIR_MAINLINE_ONLY:-0}" = "1" ]; then
     echo "[FAIL] Stage-B failed under mainline-only mode (compat fallback disabled)" >&2
     exit 1
@@ -302,13 +323,12 @@ if [ $rc -ne 0 ] || [ -z "$PROG_JSON_OUT" ]; then
   exit 1
 fi
 
-# Quick validation for Program(JSON v0)
-if ! printf '%s' "$PROG_JSON_OUT" | grep -q '"kind"\s*:\s*"Program"'; then
+# Invalid Program JSON - fall back to direct emit
+if [ $rc -eq 2 ]; then
   if [ "${HAKO_EMIT_MIR_MAINLINE_ONLY:-0}" = "1" ]; then
     echo "[FAIL] Stage-B output invalid under mainline-only mode (compat fallback disabled)" >&2
     exit 1
   fi
-  # Invalid Program JSON - fall back to direct emit
   if try_direct_emit_mir_json "$OUT"; then
     echo "[OK] MIR JSON written (direct-emit-fallback): $OUT"
     exit 0
@@ -316,10 +336,6 @@ if ! printf '%s' "$PROG_JSON_OUT" | grep -q '"kind"\s*:\s*"Program"'; then
   echo "[FAIL] Stage‑B output invalid and direct emit failed" >&2
   exit 1
 fi
-
-# Stage-B Program(JSON) may omit alias-less using entries in `imports`.
-# Merge source-derived using aliases so Program→MIR delegate paths stay stable.
-PROG_JSON_OUT="$(merge_program_json_imports "$PROG_JSON_OUT" "$MERGED_MIRBUILDER_IMPORTS_JSON")"
 
 # 2) Convert Program(JSON v0) → MIR(JSON)
 #    Prefer selfhost builder first when explicitly requested; otherwise use delegate (Gate‑C) for stability.

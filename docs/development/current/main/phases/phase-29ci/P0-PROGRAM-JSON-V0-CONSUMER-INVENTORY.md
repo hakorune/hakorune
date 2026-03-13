@@ -72,6 +72,7 @@ Related:
 - shared shell helper keep is not homogeneous; use `P3-SHARED-SHELL-HELPER-AUDIT.md` for the exact helper order (`tools/hakorune_emit_mir.sh` -> `tools/selfhost/selfhost_build.sh` -> `tools/smokes/v2/lib/test_runner.sh`) and keep the 43-file smoke tail separate from helper-local slices
 - `tools/hakorune_emit_mir.sh` now keeps its embedded selfhost/provider runner generation behind helper-local shell functions, so the next helper audit can stay inside that script without touching `selfhost_build.sh` or `test_runner.sh`
 - `tools/hakorune_emit_mir.sh` still remains a helper-local `Stage-B Program(JSON) production + imports normalize + Program→MIR fallback funnel`; retire/order work should thin the Stage-B Program(JSON) production block before attempting to remove direct-emit fallback or legacy delegate lanes
+- `tools/hakorune_emit_mir.sh` now keeps Stage-B Program(JSON) production + imports normalize behind `emit_stageb_program_json_v0()`, so the remaining helper-local work is the direct-emit fallback / delegate tail rather than raw production wiring
 
 ## Immediate Next Slice
 
