@@ -70,9 +70,9 @@ pub fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
     lowering::program_json_to_mir_json(program_json)
 }
 
-/// Convert source text through the existing stage1 Program(JSON v0) surrogate and
-/// return both the transient Program(JSON) and MIR(JSON) while keeping that
-/// boundary inside the provider.
+/// Test-only helper that still exposes the transient Program(JSON v0) plus MIR(JSON)
+/// while the current authority remains Rust-owned.
+#[cfg(test)]
 pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
     authority::source_to_program_and_mir_json(source_text)
 }
@@ -248,6 +248,7 @@ mod tests {
 
         let mir_json = result.unwrap();
         assert!(mir_json.contains("functions"));
+        assert!(mir_json.contains("user_box_decls"));
     }
 
     #[test]

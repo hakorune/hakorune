@@ -56,13 +56,13 @@ Related:
 - entry:
   - [src/host_providers/mir_builder.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder.rs) (thin façade)
 - chain:
-  1. [src/host_providers/mir_builder/authority.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/authority.rs)::`source_to_program_and_mir_json(...)`
+  1. [src/host_providers/mir_builder/authority.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/authority.rs)::`source_to_mir_json(...)`
   2. `emit_program_json_v0_for_strict_authority_source(...)`
   3. [src/host_providers/mir_builder/lowering/program_json.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/lowering/program_json.rs)::`lower_program_json_to_module(...)`
   4. `runner::json_v0_bridge::parse_json_v0_to_module_with_imports(...)`
 - current observed result on the same fixture:
   - lowers successfully
-  - returns Program(JSON v0) plus MIR(JSON)
+  - returns MIR(JSON) only on the cross-crate source surface
 - interpretation:
   - this is a bootstrap-only authority helper route
   - it exercises the JSON bridge, not the direct JoinIR CLI route
@@ -76,12 +76,12 @@ Related:
   - [crates/nyash_kernel/src/plugin/module_string_dispatch.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/module_string_dispatch.rs)
 - chain:
   1. `handle_mir_builder_emit_from_source_v0(...)`
-  2. `source_to_program_and_mir_json(...)`
-  3. `inject_stage1_user_box_decls_from_program_json(...)`
+  2. `source_to_mir_json(...)`
 - current observed result on the same fixture:
   - lowers successfully
 - interpretation:
-  - current success here is a kernel-dispatch-owned source surface success
+  - current success here is still a kernel-dispatch-owned source surface success
+  - but the transient Program(JSON) tuple no longer leaks out of the host provider; source-route `user_box_decls` injection is now authority-owned
   - this must not be misread as proof that the pure `.hako` internal body in [lang/src/mir/builder/MirBuilderBox.hako](/home/tomoaki/git/hakorune-selfhost/lang/src/mir/builder/MirBuilderBox.hako) handled the fixture on its own
   - current `.hako` inventory says the source-entry shim there is already thin (`_emit_program_json_from_source_checked(...)` -> `emit_from_program_json_v0(...)`); the thicker `.hako` policy surface is now the Program(JSON)->MIR body plus raw/env runner lanes, not the source-entry shim itself
 

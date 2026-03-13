@@ -256,26 +256,11 @@ fn handle_mir_builder_emit_from_source_v0(arg_count: i64, arg1: i64, arg2: i64) 
         )));
     }
 
-    let (program_json, mir_json) =
-        match nyash_rust::host_providers::mir_builder::source_to_program_and_mir_json(&source_text)
-        {
-            Ok(pair) => pair,
-            Err(error_text) => {
-                trace_log(format!(
-                    "[stage1/module_dispatch] mir_builder source error: {}",
-                    error_text
-                ));
-                return Some(encode_string_handle(&format!(
-                    "[freeze:contract][stage1_mir_builder] {}",
-                    error_text
-                )));
-            }
-        };
-    let mir_json = match inject_stage1_user_box_decls_from_program_json(&program_json, &mir_json) {
+    let mir_json = match nyash_rust::host_providers::mir_builder::source_to_mir_json(&source_text) {
         Ok(json_text) => json_text,
         Err(error_text) => {
             trace_log(format!(
-                "[stage1/module_dispatch] mir_builder source user_box_decls error: {}",
+                "[stage1/module_dispatch] mir_builder source error: {}",
                 error_text
             ));
             return Some(encode_string_handle(&format!(

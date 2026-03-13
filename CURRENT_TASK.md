@@ -65,6 +65,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `src/stage1/program_json_v0.rs`
     - why it matters: current `stage1-env-mir-source` authority still materializes `Program(JSON v0)` before MIR(JSON)
     - note: `src/host_providers/mir_builder.rs` is now only a thin façade; `src/host_providers/mir_builder/lowering/ast_json.rs` is legacy AST JSON compat keep, not the primary pure-`.hako` blocker
+    - latest tightening: kernel source route no longer receives transient Program(JSON) tuples; `authority.rs` now owns source-route `user_box_decls` injection and cross-crate source callers stay on `source_to_mir_json(...)`
   - Rust bootstrap-boundary bucket:
     - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
     - `src/runner/stage1_bridge/program_json/mod.rs`

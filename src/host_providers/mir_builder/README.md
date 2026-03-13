@@ -10,6 +10,7 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
 - `mir_builder/authority.rs`
   - current Rust authority path
   - `source -> Program(JSON v0) -> MIR(JSON)` owner-local chain
+  - source-route `user_box_decls` injection also stays here now; kernel source callers no longer need the transient Program(JSON) tuple
 - `mir_builder/lowering.rs`
   - thin lowering facade + shared parse/emit helpers
 - `mir_builder/lowering/program_json.rs`
@@ -23,5 +24,6 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
 
 - treat `authority.rs` as the current primary de-Rust blocker
 - treat `lowering/program_json.rs` as the current Rust-owned Program(JSON)->MIR lowering owner
+- keep `source_to_program_and_mir_json(...)` test-only; cross-crate source surfaces should stay on `source_to_mir_json(...)`
 - do not widen `.hako` workaround contracts here
 - keep fail-fast tags and temp-path policy owner-local to this cluster
